@@ -1,5 +1,5 @@
 import { Web3Provider } from '@ethersproject/providers'
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId, ChainType, getChainType } from '@namgold/ks-sdk-core'
 import { useWeb3React as useWeb3ReactCore } from '@web3-react/core'
 import { Web3ReactContextInterface } from '@web3-react/core/dist/types'
 import { ethers } from 'ethers'
@@ -8,10 +8,9 @@ import { isMobile } from 'react-device-detect'
 import { useSelector } from 'react-redux'
 import { useLocalStorage } from 'react-use'
 
+import { injected } from 'connectors'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
-
-import { injected } from '../connectors'
-import { AppState } from '../state'
+import { AppState } from 'state'
 
 export const providers: {
   [chainId in ChainId]: ethers.providers.JsonRpcProvider
@@ -25,29 +24,25 @@ export const providers: {
   },
 )
 
-export function useActiveWeb3React(): Web3ReactContextInterface<Web3Provider> & { chainId?: ChainId } {
-  const context = useWeb3ReactCore()
-  // const contextNetwork = useWeb3ReactCore<Web3Provider>(NetworkContextName)
+export function useActiveWeb3React(): Web3ReactContextInterface<Web3Provider> & { chainId: ChainId } {
+  const chainIdState = useSelector<AppState, ChainId>(state => state.application.chainId)
+  const chainType = getChainType(chainIdState)
 
+  const context = useWeb3ReactCore()
   const { library, chainId, ...web3React } = context
-  const chainIdWhenNotConnected = useSelector<AppState, ChainId>(state => state.application.chainIdWhenNotConnected)
-  if (context.active && context.chainId) {
-    // const provider = providers[context.chainId as ChainId].cl
-    // provider.provider = { isMetaMask: true }
-    // provider.send = context.library.__proto__.send
-    // provider.jsonRpcFetchFunc = context.library.jsonRpcFetchFunc
-    // return {
-    //   library: provider,
-    //   chainId: context.chainId as ChainId,
-    //   ...web3React
-    // } as Web3ReactContextInterface
-    return context
+
+  if (chainType === ChainType.EVM) {
+    if (context.active && context.chainId) {
+      return context as Web3ReactContextInterface<Web3Provider> & { chainId: ChainId }
+    } else {
+      return {
+        library: providers[chainIdState],
+        chainId: chainIdState,
+        ...web3React,
+      } as Web3ReactContextInterface<Web3Provider> & { chainId: ChainId }
+    }
   } else {
-    return {
-      library: providers[chainIdWhenNotConnected],
-      chainId: chainIdWhenNotConnected,
-      ...web3React,
-    } as Web3ReactContextInterface
+    return { chainId: chainIdState } as Web3ReactContextInterface<Web3Provider> & { chainId: ChainId }
   }
 }
 

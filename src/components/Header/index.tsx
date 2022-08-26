@@ -1,5 +1,5 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import { ChainId } from '@namgold/ks-sdk-core'
 import { darken } from 'polished'
 import { useState } from 'react'
 import { Repeat } from 'react-feather'
@@ -13,18 +13,17 @@ import { ReactComponent as Dollar } from 'assets/svg/dollar.svg'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import Menu, { NewLabel } from 'components/Menu'
+import Row, { RowFixed } from 'components/Row'
 import Settings from 'components/Settings'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import Web3Network from 'components/Web3Network'
+import Web3Status from 'components/Web3Status'
 import { PROMM_ANALYTICS_URL } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useWindowSize } from 'hooks/useWindowSize'
 import { useIsDarkMode } from 'state/user/hooks'
 import { ExternalLink } from 'theme/components'
-
-import Row, { RowFixed } from '../Row'
-import Web3Status from '../Web3Status'
 
 const VisaSVG = styled(Visa)`
   path {

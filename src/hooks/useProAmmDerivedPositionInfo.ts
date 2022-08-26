@@ -1,4 +1,4 @@
-import { Pool, Position } from '@kyberswap/ks-sdk-elastic'
+import { Pool, Position } from '@namgold/ks-sdk-elastic'
 
 import { PositionDetails } from 'types/position'
 

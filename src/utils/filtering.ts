@@ -1,4 +1,4 @@
-import { Token } from '@kyberswap/ks-sdk-core'
+import { Token } from '@namgold/ks-sdk-core'
 import { TokenInfo } from '@uniswap/token-lists'
 
 import { isAddress } from 'utils'

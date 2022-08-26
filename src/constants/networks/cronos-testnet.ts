@@ -1,17 +1,16 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@namgold/ks-sdk-core'
 
 import CRONOS_DARK from 'assets/networks/cronos-network-dark.svg'
 import CRONOS from 'assets/networks/cronos-network.svg'
 import CronosLogo from 'assets/svg/cronos-token-logo.svg'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
-
-import { NetworkInfo } from '../type'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const cronosTestnetInfo: NetworkInfo = {
+const cronosTestnetInfo: EVMNetworkInfo = {
   chainId: ChainId.CRONOSTESTNET,
   route: 'cronos-testnet',
   name: 'Cronos Testnet',
@@ -33,8 +32,7 @@ const cronosTestnetInfo: NetworkInfo = {
   bridgeURL: 'https://cronos.crypto.org/docs/bridge/cdcapp.html',
   nativeToken: {
     symbol: 'CRO',
-    name: 'CRO (Wrapped)',
-    address: '0x1A46dCaC1d91F1731574BEfAEDaC4E0392726e35',
+    name: 'CRO',
     logo: CronosLogo,
     decimal: 18,
   },

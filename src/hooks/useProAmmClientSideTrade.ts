@@ -1,5 +1,5 @@
-import { Currency, CurrencyAmount, TradeType } from '@kyberswap/ks-sdk-core'
-import { Route, SwapQuoter, Trade } from '@kyberswap/ks-sdk-elastic'
+import { Currency, CurrencyAmount, TradeType } from '@namgold/ks-sdk-core'
+import { Route, SwapQuoter, Trade } from '@namgold/ks-sdk-elastic'
 import JSBI from 'jsbi'
 import { useMemo } from 'react'
 

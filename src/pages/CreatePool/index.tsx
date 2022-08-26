@@ -1,7 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
-import { ChainId, Currency, Fraction, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { ChainId, Currency, Fraction, TokenAmount, WETH } from '@namgold/ks-sdk-core'
 import { parseUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
@@ -9,54 +9,49 @@ import { AlertTriangle, Plus } from 'react-feather'
 import { Link, RouteComponentProps } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 
+import { ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
+import { BlueCard, LightCard } from 'components/Card'
+import { AutoColumn, ColumnCenter } from 'components/Column'
 import { ConfirmAddModalBottom } from 'components/ConfirmAddModalBottom'
+import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import Loader from 'components/Loader'
+import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
 import { PoolPriceBar, PoolPriceRangeBarToggle } from 'components/PoolPriceBar'
 import QuestionHelper from 'components/QuestionHelper'
+import Row, { AutoRow, RowBetween, RowFlat } from 'components/Row'
+import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
 import { TutorialType } from 'components/Tutorial'
-import { NETWORKS_INFO } from 'constants/networks'
-import { nativeOnChain } from 'constants/tokens'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import useTheme from 'hooks/useTheme'
-import useTokensMarketPrice from 'hooks/useTokensMarketPrice'
-import { useDerivedPairInfo } from 'state/pair/hooks'
-import { feeRangeCalc, useCurrencyConvertedToNative } from 'utils/dmm'
-import isZero from 'utils/isZero'
-
-import { ButtonError, ButtonLight, ButtonPrimary } from '../../components/Button'
-import { BlueCard, LightCard } from '../../components/Card'
-import { AutoColumn, ColumnCenter } from '../../components/Column'
-import CurrencyInputPanel from '../../components/CurrencyInputPanel'
-import { AddRemoveTabs, LiquidityAction } from '../../components/NavigationTabs'
-import Row, { AutoRow, RowBetween, RowFlat } from '../../components/Row'
-import TransactionConfirmationModal, { ConfirmationModalContent } from '../../components/TransactionConfirmationModal'
 import {
   CREATE_POOL_AMP_HINT,
   ONLY_DYNAMIC_FEE_CHAINS,
   ONLY_STATIC_FEE_CHAINS,
   STATIC_FEE_OPTIONS,
-} from '../../constants'
-import { PairState } from '../../data/Reserves'
-import { useActiveWeb3React } from '../../hooks'
-import { useCurrency } from '../../hooks/Tokens'
-import { ApprovalState, useApproveCallback } from '../../hooks/useApproveCallback'
-import useTransactionDeadline from '../../hooks/useTransactionDeadline'
-import { useTokensPrice, useWalletModalToggle } from '../../state/application/hooks'
-import { Field } from '../../state/mint/actions'
-import { useDerivedMintInfo, useMintActionHandlers, useMintState } from '../../state/mint/hooks'
-import { useTransactionAdder } from '../../state/transactions/hooks'
-import { useIsExpertMode, usePairAdderByTokens, useUserSlippageTolerance } from '../../state/user/hooks'
-import { StyledInternalLink, TYPE } from '../../theme'
-import {
-  calculateGasMargin,
-  calculateSlippageAmount,
-  formattedNum,
-  getDynamicFeeRouterContract,
-  getStaticFeeRouterContract,
-} from '../../utils'
-import { currencyId } from '../../utils/currencyId'
-import { maxAmountSpend } from '../../utils/maxAmountSpend'
-import { Dots, Wrapper } from '../Pool/styleds'
+} from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
+import { NativeCurrencies } from 'constants/tokens'
+import { PairState } from 'data/Reserves'
+import { useActiveWeb3React } from 'hooks'
+import { useCurrency } from 'hooks/Tokens'
+import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useTheme from 'hooks/useTheme'
+import useTokensMarketPrice from 'hooks/useTokensMarketPrice'
+import useTransactionDeadline from 'hooks/useTransactionDeadline'
+import { Dots, Wrapper } from 'pages/Pool/styleds'
+import { useTokensPrice, useWalletModalToggle } from 'state/application/hooks'
+import { Field } from 'state/mint/actions'
+import { useDerivedMintInfo, useMintActionHandlers, useMintState } from 'state/mint/hooks'
+import { useDerivedPairInfo } from 'state/pair/hooks'
+import { useTransactionAdder } from 'state/transactions/hooks'
+import { useIsExpertMode, usePairAdderByTokens, useUserSlippageTolerance } from 'state/user/hooks'
+import { StyledInternalLink, TYPE } from 'theme'
+import { calculateGasMargin, calculateSlippageAmount, formattedNum } from 'utils'
+import { currencyId } from 'utils/currencyId'
+import { feeRangeCalc, useCurrencyConvertedToNative } from 'utils/dmm'
+import { getDynamicFeeRouterContract, getStaticFeeRouterContract } from 'utils/getContract'
+import isZero from 'utils/isZero'
+import { maxAmountSpend } from 'utils/maxAmountSpend'
+
 import FeeTypeSelector from './FeeTypeSelector'
 import StaticFeeSelector from './StaticFeeSelector'
 import {
@@ -539,7 +534,7 @@ export default function CreatePool({
                         to={`/create/${
                           currencyAIsETHER
                             ? currencyId(WETH[chainId], chainId)
-                            : currencyId(nativeOnChain(chainId), chainId)
+                            : currencyId(NativeCurrencies[chainId], chainId)
                         }/${currencyIdB}`}
                       >
                         {currencyAIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
@@ -583,7 +578,7 @@ export default function CreatePool({
                         to={`/create/${currencyIdA}/${
                           currencyBIsETHER
                             ? currencyId(WETH[chainId], chainId)
-                            : currencyId(nativeOnChain(chainId), chainId)
+                            : currencyId(NativeCurrencies[chainId], chainId)
                         }`}
                       >
                         {currencyBIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}

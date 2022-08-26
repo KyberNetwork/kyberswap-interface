@@ -1,7 +1,7 @@
-import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount } from '@namgold/ks-sdk-core'
 import JSBI from 'jsbi'
 
-import { MIN_ETH } from '../constants'
+import { MIN_ETH } from 'constants/index'
 
 /**
  * Given some token amount, return the max that can be spent of it

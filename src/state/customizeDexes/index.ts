@@ -1,4 +1,4 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@namgold/ks-sdk-core'
 import { createSlice } from '@reduxjs/toolkit'
 
 interface Dex {

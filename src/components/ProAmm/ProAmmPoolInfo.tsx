@@ -1,5 +1,5 @@
-import { FeeAmount, Position } from '@kyberswap/ks-sdk-elastic'
 import { t } from '@lingui/macro'
+import { FeeAmount, Position } from '@namgold/ks-sdk-elastic'
 import { BigNumber } from 'ethers'
 import { rgba } from 'polished'
 import { Flex, Text } from 'rebass'

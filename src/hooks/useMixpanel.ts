@@ -1,4 +1,4 @@
-import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency } from '@namgold/ks-sdk-core'
 import { useWeb3React } from '@web3-react/core'
 import { formatUnits, isAddress } from 'ethers/lib/utils'
 import mixpanel from 'mixpanel-browser'
@@ -143,7 +143,7 @@ const redactAddress = (address: string) => {
 }
 
 export default function useMixpanel(trade?: Aggregator | undefined, currencies?: { [field in Field]?: Currency }) {
-  const { chainId, account } = useWeb3React()
+  const { chainId, account } = useWeb3React() //todo: use useActiveWeb3React
   const { saveGas } = useSwapState()
   const network = chainId && NETWORKS_INFO[chainId as ChainId].name
   const inputCurrency = currencies && currencies[Field.INPUT]

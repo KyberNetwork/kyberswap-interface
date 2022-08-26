@@ -1,31 +1,30 @@
-import { Pair } from '@kyberswap/ks-sdk-classic'
-import { ChainId, Currency, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { Pair } from '@namgold/ks-sdk-classic'
+import { Currency, TokenAmount } from '@namgold/ks-sdk-core'
 import JSBI from 'jsbi'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Plus } from 'react-feather'
 import { Text } from 'rebass'
 
-import { nativeOnChain } from 'constants/tokens'
+import { ButtonDropdownLight } from 'components/Button'
+import { LightCard } from 'components/Card'
+import { AutoColumn, ColumnCenter } from 'components/Column'
+import CurrencyLogo from 'components/CurrencyLogo'
+import { FindPoolTabs } from 'components/NavigationTabs'
+import { NarrowPositionCard } from 'components/PositionCard'
+import Row from 'components/Row'
+import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
+import { NativeCurrencies } from 'constants/tokens'
+import { PairState, usePair } from 'data/Reserves'
+import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import AppBody from 'pages/AppBody'
+import { Dots } from 'pages/Pool/styleds'
+import { usePairAdderByTokens } from 'state/user/hooks'
+import { useTokenBalances } from 'state/wallet/hooks'
+import { StyledInternalLink } from 'theme'
+import { currencyId } from 'utils/currencyId'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
-
-import { ButtonDropdownLight } from '../../components/Button'
-import { LightCard } from '../../components/Card'
-import { AutoColumn, ColumnCenter } from '../../components/Column'
-import CurrencyLogo from '../../components/CurrencyLogo'
-import { FindPoolTabs } from '../../components/NavigationTabs'
-import { NarrowPositionCard } from '../../components/PositionCard'
-import Row from '../../components/Row'
-import CurrencySearchModal from '../../components/SearchModal/CurrencySearchModal'
-import { PairState, usePair } from '../../data/Reserves'
-import { useActiveWeb3React } from '../../hooks'
-import { usePairAdderByTokens } from '../../state/user/hooks'
-import { useTokenBalances } from '../../state/wallet/hooks'
-import { StyledInternalLink } from '../../theme'
-import { currencyId } from '../../utils/currencyId'
-import AppBody from '../AppBody'
-import { Dots } from '../Pool/styleds'
 
 enum Fields {
   TOKEN0 = 0,
@@ -38,7 +37,7 @@ export default function PoolFinder() {
   const [showSearch, setShowSearch] = useState<boolean>(false)
   const [activeField, setActiveField] = useState<number>(Fields.TOKEN1)
 
-  const [currency0, setCurrency0] = useState<Currency | null>(nativeOnChain(chainId as ChainId))
+  const [currency0, setCurrency0] = useState<Currency | null>(NativeCurrencies[chainId])
   const [currency1, setCurrency1] = useState<Currency | null>(null)
 
   // pairs: {PairState, Pair, isStaticFeePair}[]

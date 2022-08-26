@@ -1,5 +1,5 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
+import { ChainId } from '@namgold/ks-sdk-core'
 import { rgba } from 'polished'
 import React from 'react'
 import { Info } from 'react-feather'

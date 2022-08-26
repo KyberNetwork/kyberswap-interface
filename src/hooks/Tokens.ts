@@ -1,12 +1,12 @@
 import { Interface } from '@ethersproject/abi'
 import { parseBytes32String } from '@ethersproject/strings'
-import { ChainId, Currency, NativeCurrency, Token } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, NativeCurrency, Token } from '@namgold/ks-sdk-core'
 import { arrayify } from 'ethers/lib/utils'
 import { useMemo } from 'react'
 
 import { ERC20_ABI, ERC20_BYTES32_ABI } from 'constants/abis/erc20'
 import { ZERO_ADDRESS } from 'constants/index'
-import { nativeOnChain } from 'constants/tokens'
+import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks/index'
 import { useBytes32TokenContract, useTokenContract } from 'hooks/useContract'
 import { ListType, TokenAddressMap, useAllLists, useCombinedActiveList, useInactiveListUrls } from 'state/lists/hooks'
@@ -103,7 +103,7 @@ export const useTokens = (addresses: string[]): { [address: string]: Token } => 
   const knownTokens = useMemo(() => {
     return addresses
       .filter(address => address === ZERO_ADDRESS || tokens[address])
-      .map(address => (address === ZERO_ADDRESS ? nativeOnChain(chainId as ChainId) : tokens[address]))
+      .map(address => (address === ZERO_ADDRESS ? NativeCurrencies[chainId] : tokens[address]))
     // eslint-disable-next-line
   }, [JSON.stringify(addresses), tokens, chainId])
 
@@ -171,8 +171,7 @@ export function useToken(tokenAddress?: string): Token | NativeCurrency | undefi
 
   const tokenContract = useTokenContract(address && tokenAddress !== ZERO_ADDRESS ? address : undefined, false)
   const tokenContractBytes32 = useBytes32TokenContract(address ? address : undefined, false)
-  const token =
-    tokenAddress === ZERO_ADDRESS ? nativeOnChain(chainId as ChainId) : address ? tokens[address] : undefined
+  const token = tokenAddress === ZERO_ADDRESS ? NativeCurrencies[chainId] : address ? tokens[address] : undefined
 
   const tokenName = useSingleCallResult(token ? undefined : tokenContract, 'name', undefined, NEVER_RELOAD)
   const tokenNameBytes32 = useSingleCallResult(
@@ -217,11 +216,11 @@ export function useToken(tokenAddress?: string): Token | NativeCurrency | undefi
 export function useCurrency(currencyId: string | undefined): Currency | null | undefined {
   const { chainId } = useActiveWeb3React()
   const isETH = useMemo(
-    () => chainId && currencyId?.toUpperCase() === nativeOnChain(chainId).symbol,
+    () => chainId && currencyId?.toUpperCase() === NativeCurrencies[chainId].symbol?.toUpperCase(),
     [chainId, currencyId],
   )
   const token = useToken(isETH ? undefined : currencyId)
-  return useMemo(() => (isETH ? nativeOnChain(chainId as ChainId) : token), [chainId, isETH, token])
+  return useMemo(() => (isETH ? NativeCurrencies[chainId] : token), [chainId, isETH, token])
 }
 
 export function searchInactiveTokenLists({

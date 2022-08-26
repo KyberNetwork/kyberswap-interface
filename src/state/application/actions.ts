@@ -1,4 +1,4 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@namgold/ks-sdk-core'
 import { createAction } from '@reduxjs/toolkit'
 import { TokenList } from '@uniswap/token-lists'
 
@@ -84,4 +84,4 @@ export const updateETHPrice = createAction<{
 
 export const updateKNCPrice = createAction<string | undefined>('application/updateKNCPrice')
 
-export const updateChainIdWhenNotConnected = createAction<ChainId>('application/updateChainIdWhenNotConnected')
+export const updateChainId = createAction<ChainId>('application/updateChainIdWhenNotConnected')

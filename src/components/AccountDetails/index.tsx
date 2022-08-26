@@ -1,5 +1,5 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import { ChainId } from '@namgold/ks-sdk-core'
 import { useWeb3React } from '@web3-react/core'
 import React, { useCallback } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -9,17 +9,17 @@ import { useLocalStorage } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
+import CoinbaseWalletIcon from 'assets/images/coinbaseWalletIcon.svg'
+import FortmaticIcon from 'assets/images/fortmaticIcon.png'
+import PortisIcon from 'assets/images/portisIcon.png'
+import WalletConnectIcon from 'assets/images/walletConnectIcon.svg'
+import { ReactComponent as Close } from 'assets/images/x.svg'
+import { ButtonOutlined, ButtonPrimary, ButtonSecondary } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import Divider from 'components/Divider'
 import Wallet from 'components/Icons/Wallet'
-import { PROMM_ANALYTICS_URL, SUPPORTED_WALLETS } from 'constants/index'
-import useTheme from 'hooks/useTheme'
-
-import CoinbaseWalletIcon from '../../assets/images/coinbaseWalletIcon.svg'
-import FortmaticIcon from '../../assets/images/fortmaticIcon.png'
-import PortisIcon from '../../assets/images/portisIcon.png'
-import WalletConnectIcon from '../../assets/images/walletConnectIcon.svg'
-import { ReactComponent as Close } from '../../assets/images/x.svg'
+import Identicon from 'components/Identicon'
+import { AutoRow } from 'components/Row'
 import {
   braveInjectedConnector,
   coin98InjectedConnector,
@@ -28,14 +28,14 @@ import {
   portis,
   walletconnect,
   walletlink,
-} from '../../connectors'
-import { AppDispatch } from '../../state'
-import { clearAllTransactions } from '../../state/transactions/actions'
-import { ExternalLink, LinkStyledButton, TYPE } from '../../theme'
-import { getEtherscanLink, shortenAddress } from '../../utils'
-import { ButtonOutlined, ButtonPrimary, ButtonSecondary } from '../Button'
-import Identicon from '../Identicon'
-import { AutoRow } from '../Row'
+} from 'connectors'
+import { PROMM_ANALYTICS_URL, SUPPORTED_WALLETS } from 'constants/index'
+import useTheme from 'hooks/useTheme'
+import { AppDispatch } from 'state'
+import { clearAllTransactions } from 'state/transactions/actions'
+import { ExternalLink, LinkStyledButton, TYPE } from 'theme'
+import { getEtherscanLink, shortenAddress } from 'utils'
+
 import Transaction from './Transaction'
 
 const HeaderRow = styled.div`
@@ -209,7 +209,7 @@ export default function AccountDetails({
   ENSName,
   openOptions,
 }: AccountDetailsProps) {
-  const { chainId, account, connector, deactivate } = useWeb3React()
+  const { chainId, account, connector, deactivate } = useWeb3React() //todo: use useActiveWeb3React
   const theme = useTheme()
   const dispatch = useDispatch<AppDispatch>()
 

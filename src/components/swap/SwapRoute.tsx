@@ -1,13 +1,12 @@
-import { Trade } from '@kyberswap/ks-sdk-classic'
-import { Currency, TradeType } from '@kyberswap/ks-sdk-core'
+import { Trade } from '@namgold/ks-sdk-classic'
+import { Currency, TradeType } from '@namgold/ks-sdk-core'
 import React, { Fragment, memo } from 'react'
 import { ChevronRight } from 'react-feather'
 import { Flex } from 'rebass'
 
+import CurrencyLogo from 'components/CurrencyLogo'
 import useTheme from 'hooks/useTheme'
-
-import { TYPE } from '../../theme'
-import CurrencyLogo from '../CurrencyLogo'
+import { TYPE } from 'theme'
 
 export default memo(function SwapRoute({ trade }: { trade: Trade<Currency, Currency, TradeType> }) {
   const theme = useTheme()

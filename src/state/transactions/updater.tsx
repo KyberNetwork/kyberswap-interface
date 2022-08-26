@@ -5,12 +5,12 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { AGGREGATOR_ROUTER_SWAPPED_EVENT_TOPIC } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE, NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES } from 'hooks/useMixpanel'
+import { NotificationType, useBlockNumber, useTransactionNotify } from 'state/application/hooks'
+import { AppDispatch, AppState } from 'state/index'
 import { getFullDisplayBalance } from 'utils/formatBalance'
 
-import { useActiveWeb3React } from '../../hooks'
-import { NotificationType, useBlockNumber, useTransactionNotify } from '../application/hooks'
-import { AppDispatch, AppState } from '../index'
 import { SerializableTransactionReceipt, checkedTransaction, finalizeTransaction } from './actions'
 
 export function shouldCheck(

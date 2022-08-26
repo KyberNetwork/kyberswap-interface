@@ -1,6 +1,6 @@
 import { gql, useQuery } from '@apollo/client'
-import { ChainId, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
-import { Pool, Position } from '@kyberswap/ks-sdk-elastic'
+import { ChainId, CurrencyAmount, Token } from '@namgold/ks-sdk-core'
+import { Pool, Position } from '@namgold/ks-sdk-elastic'
 import dayjs from 'dayjs'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -10,10 +10,10 @@ import { PROMM_POOLS_BULK, ProMMPoolFields } from 'apollo/queries/promm'
 import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
+import { AppState } from 'state/index'
 import { getBlocksFromTimestamps } from 'utils'
 import { get2DayChange } from 'utils/data'
 
-import { AppState } from '../index'
 import { setSharedPoolId } from './actions'
 
 export interface ProMMPoolData {

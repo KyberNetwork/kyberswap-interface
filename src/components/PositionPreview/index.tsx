@@ -1,6 +1,6 @@
-import { Currency } from '@kyberswap/ks-sdk-core'
-import { Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
+import { Currency } from '@namgold/ks-sdk-core'
+import { Position } from '@namgold/ks-sdk-elastic'
 import JSBI from 'jsbi'
 import { ReactNode, useCallback, useState } from 'react'
 import { Text } from 'rebass'

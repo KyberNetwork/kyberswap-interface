@@ -1,5 +1,5 @@
-import { ChainId, Fraction } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import { ChainId, Fraction } from '@namgold/ks-sdk-core'
 import JSBI from 'jsbi'
 import React, { useState } from 'react'
 import { AlertTriangle, Share2 } from 'react-feather'

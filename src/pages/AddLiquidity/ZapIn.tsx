@@ -1,7 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
-import { Currency, CurrencyAmount, Fraction, TokenAmount, WETH, computePriceImpact } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { Currency, CurrencyAmount, Fraction, TokenAmount, WETH, computePriceImpact } from '@namgold/ks-sdk-core'
 import { captureException } from '@sentry/react'
 import { parseUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
@@ -27,13 +27,15 @@ import ZapError from 'components/ZapError'
 import FormattedPriceImpact from 'components/swap/FormattedPriceImpact'
 import { AMP_HINT } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
-import { nativeOnChain } from 'constants/tokens'
+import { NativeCurrencies } from 'constants/tokens'
+import { PairState } from 'data/Reserves'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import useTheme from 'hooks/useTheme'
 import useTokensMarketPrice from 'hooks/useTokensMarketPrice'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
+import { Dots, Wrapper } from 'pages/Pool/styleds'
 import { useTokensPrice, useWalletModalToggle } from 'state/application/hooks'
 import { Field } from 'state/mint/actions'
 import { useDerivedZapInInfo, useMintState, useZapInActionHandlers } from 'state/mint/hooks'
@@ -41,15 +43,14 @@ import { tryParseAmount } from 'state/swap/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { useIsExpertMode, useUserSlippageTolerance } from 'state/user/hooks'
 import { StyledInternalLink, TYPE, UppercaseText } from 'theme'
-import { calculateGasMargin, formattedNum, getZapContract } from 'utils'
+import { calculateGasMargin, formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { feeRangeCalc, useCurrencyConvertedToNative } from 'utils/dmm'
+import { getZapContract } from 'utils/getContract'
 import isZero from 'utils/isZero'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { computePriceImpactWithoutFee, warningSeverity } from 'utils/prices'
 
-import { PairState } from '../../data/Reserves'
-import { Dots, Wrapper } from '../Pool/styleds'
 import {
   ActiveText,
   CurrentPriceWrapper,
@@ -489,12 +490,12 @@ const ZapIn = ({
                           ? `/add/${
                               selectedCurrencyIsETHER
                                 ? currencyId(WETH[chainId], chainId)
-                                : currencyId(nativeOnChain(chainId), chainId)
+                                : currencyId(NativeCurrencies[chainId], chainId)
                             }/${currencyId(currencies[dependentField] as Currency, chainId)}/${pairAddress}`
                           : `/add/${currencyId(currencies[dependentField] as Currency, chainId)}/${
                               selectedCurrencyIsETHER
                                 ? currencyId(WETH[chainId], chainId)
-                                : nativeOnChain(chainId).symbol
+                                : NativeCurrencies[chainId].symbol
                             }/${pairAddress}`
                       }
                     >

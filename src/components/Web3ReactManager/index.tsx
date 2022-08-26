@@ -1,14 +1,13 @@
 import { Trans } from '@lingui/macro'
 import { useWeb3React } from '@web3-react/core'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import styled from 'styled-components'
 
+import Loader from 'components/Loader'
 import LocalLoader from 'components/LocalLoader'
-
-import { network } from '../../connectors'
-import { NetworkContextName } from '../../constants'
-import { useEagerConnect, useInactiveListener } from '../../hooks'
-import Loader from '../Loader'
+import { network } from 'connectors'
+import { NetworkContextName } from 'constants/index'
+import { useEagerConnect, useInactiveListener } from 'hooks'
 
 const MessageWrapper = styled.div`
   display: flex;

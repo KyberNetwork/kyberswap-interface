@@ -1,6 +1,6 @@
-import { Currency } from '@kyberswap/ks-sdk-core'
-import { FeeAmount } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
+import { Currency } from '@namgold/ks-sdk-core'
+import { FeeAmount } from '@namgold/ks-sdk-elastic'
 import { rgba } from 'polished'
 import { ReactNode, useRef, useState } from 'react'
 import { Flex, Text } from 'rebass'

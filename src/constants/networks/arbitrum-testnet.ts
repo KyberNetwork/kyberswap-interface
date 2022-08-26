@@ -1,16 +1,15 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@namgold/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import ARBITRUM from 'assets/networks/arbitrum-network.svg'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
-
-import { NetworkInfo } from '../type'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const arbitrumTestnetInfo: NetworkInfo = {
+const arbitrumTestnetInfo: EVMNetworkInfo = {
   chainId: ChainId.ARBITRUM_TESTNET,
   route: 'arbitrum-testnet',
   name: 'Arbitrum Testnet',
@@ -23,11 +22,10 @@ const arbitrumTestnetInfo: NetworkInfo = {
   tokenListUrl: `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?chainId=${ChainId.ARBITRUM_TESTNET}`,
   bridgeURL: 'https://bridge.arbitrum.io',
   nativeToken: {
-    symbol: 'ETH',
-    name: 'ETH (Wrapped)',
-    address: '0xB47e6A5f8b33b3F17603C83a0535A9dcD7E32681',
-    logo: EthereumLogo,
     decimal: 18,
+    symbol: 'ETH',
+    name: 'ETH',
+    logo: EthereumLogo,
   },
   rpcUrl: 'https://rinkeby.arbitrum.io/rpc',
   routerUri: EMPTY,

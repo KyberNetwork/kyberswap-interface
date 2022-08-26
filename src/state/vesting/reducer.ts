@@ -1,5 +1,5 @@
 import { BigNumber } from '@ethersproject/bignumber'
-import { Token } from '@kyberswap/ks-sdk-core'
+import { Token } from '@namgold/ks-sdk-core'
 import { createReducer } from '@reduxjs/toolkit'
 import { Severity, captureException } from '@sentry/react'
 

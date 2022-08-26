@@ -1,4 +1,4 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@namgold/ks-sdk-core'
 import useSWR from 'swr'
 
 import { NETWORKS_INFO } from 'constants/networks'

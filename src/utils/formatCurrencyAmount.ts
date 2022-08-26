@@ -1,4 +1,4 @@
-import { Currency, CurrencyAmount, Fraction, Price } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, Fraction, Price } from '@namgold/ks-sdk-core'
 import JSBI from 'jsbi'
 
 export function formatCurrencyAmount(amount: CurrencyAmount<Currency> | undefined, sigFigs: number) {

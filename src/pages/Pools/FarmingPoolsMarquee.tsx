@@ -1,6 +1,6 @@
-import { ChainId, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import React, { useEffect } from 'react'
+import { ChainId, Token, WETH } from '@namgold/ks-sdk-core'
+import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled from 'styled-components'

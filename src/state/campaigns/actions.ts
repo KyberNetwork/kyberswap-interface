@@ -1,4 +1,4 @@
-import { ChainId, Fraction } from '@kyberswap/ks-sdk-core'
+import { ChainId, Fraction } from '@namgold/ks-sdk-core'
 import { createAction } from '@reduxjs/toolkit'
 
 import { SerializedToken } from 'state/user/actions'

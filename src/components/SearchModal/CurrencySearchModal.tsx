@@ -1,12 +1,12 @@
-import { Currency, Token } from '@kyberswap/ks-sdk-core'
+import { Currency, Token } from '@namgold/ks-sdk-core'
 import { TokenList } from '@uniswap/token-lists'
 import React, { useCallback, useEffect, useState } from 'react'
 
+import Modal from 'components/Modal'
 import useLast from 'hooks/useLast'
 import usePrevious from 'hooks/usePrevious'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
-import Modal from '../Modal'
 import { CurrencySearch } from './CurrencySearch'
 import { ImportList } from './ImportList'
 import { ImportToken } from './ImportToken'

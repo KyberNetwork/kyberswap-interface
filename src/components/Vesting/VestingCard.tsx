@@ -1,5 +1,5 @@
-import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { CurrencyAmount, Token } from '@namgold/ks-sdk-core'
 import dayjs from 'dayjs'
 import { BigNumber } from 'ethers'
 import React from 'react'

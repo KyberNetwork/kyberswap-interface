@@ -5,9 +5,9 @@ import { kyberswapDexes } from 'constants/dexes'
 import { ELASTIC_NOT_SUPPORTED } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useLiquiditySources from 'hooks/useAggregatorStats'
+import { AppDispatch } from 'state/index'
 
 import { updateAllDexes } from '.'
-import { AppDispatch } from '../index'
 
 export default function Updater(): null {
   const dispatch = useDispatch<AppDispatch>()

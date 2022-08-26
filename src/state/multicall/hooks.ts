@@ -5,10 +5,10 @@ import { useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { EMPTY_ARRAY } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
+import { useBlockNumber } from 'state/application/hooks'
+import { AppDispatch, AppState } from 'state/index'
 
-import { useActiveWeb3React } from '../../hooks'
-import { useBlockNumber } from '../application/hooks'
-import { AppDispatch, AppState } from '../index'
 import {
   Call,
   ListenerOptions,

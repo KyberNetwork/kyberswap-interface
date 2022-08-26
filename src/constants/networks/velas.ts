@@ -1,15 +1,14 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@namgold/ks-sdk-core'
 
 import VELAS from 'assets/networks/velas-network.png'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
-
-import { NetworkInfo } from '../type'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const velasInfo: NetworkInfo = {
+const velasInfo: EVMNetworkInfo = {
   chainId: ChainId.VELAS,
   route: 'velas',
   name: 'Velas',
@@ -27,8 +26,7 @@ const velasInfo: NetworkInfo = {
   bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'VLX',
-    name: 'VLX (Wrapped)',
-    address: '0xc579D1f3CF86749E05CD06f7ADe17856c2CE3126',
+    name: 'VLX',
     logo: VELAS,
     decimal: 18,
   },

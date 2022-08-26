@@ -3,14 +3,13 @@ import { useState } from 'react'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
+import { ReactComponent as Alert } from 'assets/images/alert.svg'
 import { ButtonEmpty } from 'components/Button'
+import { AutoColumn } from 'components/Column'
 import Modal, { ModalProps } from 'components/Modal'
 import { Z_INDEXS } from 'constants/styles'
 import useTheme from 'hooks/useTheme'
 import { errorFriendly } from 'utils/dmm'
-
-import { ReactComponent as Alert } from '../../assets/images/alert.svg'
-import { AutoColumn } from '../Column'
 
 export const PageWrapper = styled.div`
   display: flex;

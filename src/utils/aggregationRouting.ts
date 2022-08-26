@@ -1,5 +1,5 @@
-import { ZERO } from '@kyberswap/ks-sdk-classic'
-import { ChainId, Percent, Rounding, Token } from '@kyberswap/ks-sdk-core'
+import { ZERO } from '@namgold/ks-sdk-classic'
+import { ChainId, Percent, Rounding, Token } from '@namgold/ks-sdk-core'
 import { getAddress } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 

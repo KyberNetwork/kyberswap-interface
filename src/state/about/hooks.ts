@@ -1,8 +1,8 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@namgold/ks-sdk-core'
 import { useEffect, useState } from 'react'
 
 import { GLOBAL_DATA, GLOBAL_DATA_ELASTIC } from 'apollo/queries'
-import { MAINNET_NETWORKS, NETWORKS_INFO } from 'constants/networks'
+import { EVM_MAINNET_NETWORKS, NETWORKS_INFO } from 'constants/networks'
 import { ELASTIC_NOT_SUPPORTED } from 'constants/v2'
 import useAggregatorAPR from 'hooks/useAggregatorAPR'
 import useAggregatorVolume from 'hooks/useAggregatorVolume'
@@ -97,7 +97,7 @@ export function useGlobalData() {
     }
 
     async function getGlobalData() {
-      const result = await getResultByChainIds(MAINNET_NETWORKS)
+      const result = await getResultByChainIds(EVM_MAINNET_NETWORKS)
 
       setGlobalData({
         ...result.data,

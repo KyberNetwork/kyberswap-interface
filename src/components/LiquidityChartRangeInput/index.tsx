@@ -1,6 +1,6 @@
-import { Currency, Price, Token } from '@kyberswap/ks-sdk-core'
-import { FeeAmount } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
+import { Currency, Price, Token } from '@namgold/ks-sdk-core'
+import { FeeAmount } from '@namgold/ks-sdk-elastic'
 import { format } from 'd3'
 import { saturate } from 'polished'
 import React, { ReactNode, useCallback, useMemo } from 'react'

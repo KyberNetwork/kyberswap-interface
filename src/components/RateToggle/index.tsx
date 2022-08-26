@@ -1,6 +1,5 @@
-import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import React from 'react'
+import { Currency } from '@namgold/ks-sdk-core'
 
 import { ToggleElement, ToggleWrapper } from 'components/Toggle/MultiToggle'
 

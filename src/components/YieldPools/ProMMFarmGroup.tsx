@@ -1,6 +1,6 @@
-import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
-import { Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
+import { CurrencyAmount, Token } from '@namgold/ks-sdk-core'
+import { Pool, Position } from '@namgold/ks-sdk-elastic'
 import { BigNumber } from 'ethers'
 import { rgba } from 'polished'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'

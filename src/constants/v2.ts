@@ -1,5 +1,5 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
+import { ChainId } from '@namgold/ks-sdk-core'
 
 export const FARM_CONTRACTS: { readonly [chainId in ChainId]?: Array<string> } = {
   [ChainId.BSCTESTNET]: [],

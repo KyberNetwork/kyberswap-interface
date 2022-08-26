@@ -1,16 +1,15 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@namgold/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import OPTIMISM from 'assets/networks/optimism-network.svg'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
-
-import { NetworkInfo } from '../type'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const optimismInfo: NetworkInfo = {
+const optimismInfo: EVMNetworkInfo = {
   chainId: ChainId.OPTIMISM,
   route: 'optimism',
   name: 'Optimism',
@@ -24,8 +23,7 @@ const optimismInfo: NetworkInfo = {
   bridgeURL: 'https://app.optimism.io/bridge',
   nativeToken: {
     symbol: 'ETH',
-    name: 'ETH (Wrapped)',
-    address: '0x4200000000000000000000000000000000000006',
+    name: 'ETH',
     logo: EthereumLogo,
     decimal: 18,
   },

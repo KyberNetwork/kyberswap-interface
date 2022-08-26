@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { X } from 'react-feather'
 import { animated, useSpring } from 'react-spring'
 import { Flex } from 'rebass'
@@ -96,6 +96,16 @@ const SolidBackgroundLayer = styled.div`
   height: 100%;
 `
 
+const WrappedAnimatedFader = ({ removeAfterMs }: { removeAfterMs: number | null }) => {
+  const faderStyle = useSpring({
+    from: { width: '100%' },
+    to: { width: '0%' },
+    config: { duration: removeAfterMs ?? undefined },
+  })
+
+  return <AnimatedFader style={faderStyle} />
+}
+
 export default function PopupItem({
   removeAfterMs,
   content,
@@ -107,6 +117,7 @@ export default function PopupItem({
   popKey: string
   popupType: PopupType
 }) {
+  const [isRestartAnimation, setRestartAnimation] = useState(false)
   const removePopup = useRemovePopup()
   const removeThisPopup = useCallback(() => removePopup(popKey), [popKey, removePopup])
   useEffect(() => {
@@ -114,11 +125,13 @@ export default function PopupItem({
     const timeout = setTimeout(() => {
       removeThisPopup()
     }, removeAfterMs)
+    requestAnimationFrame(() => setRestartAnimation(false))
 
     return () => {
       clearTimeout(timeout)
+      setRestartAnimation(true)
     }
-  }, [removeAfterMs, removeThisPopup])
+  }, [removeAfterMs, removeThisPopup, content])
 
   const theme = useTheme()
 
@@ -146,13 +159,9 @@ export default function PopupItem({
       break
     }
   }
-  const faderStyle = useSpring({
-    from: { width: '100%' },
-    to: { width: '0%' },
-    config: { duration: removeAfterMs ?? undefined },
-  })
-
-  return (
+  return isRestartAnimation ? (
+    <div />
+  ) : (
     <PopupWrapper removeAfterMs={removeAfterMs}>
       <SolidBackgroundLayer />
       <Popup type={notiType}>
@@ -160,7 +169,7 @@ export default function PopupItem({
           {popupContent}
           <StyledClose color={theme.text2} onClick={removeThisPopup} />
         </Flex>
-        {removeAfterMs && <AnimatedFader style={faderStyle} />}
+        {removeAfterMs && <WrappedAnimatedFader removeAfterMs={removeAfterMs} />}
       </Popup>
     </PopupWrapper>
   )

@@ -3,7 +3,8 @@ import { darken } from 'polished'
 import React from 'react'
 import styled from 'styled-components'
 
-import Loader from '../Loader'
+import Loader from 'components/Loader'
+
 import { WarningBox } from './WarningBox'
 
 const PendingSection = styled.div`

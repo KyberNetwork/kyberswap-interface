@@ -3,9 +3,8 @@ import { Info } from 'react-feather'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 
+import Tooltip from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
-
-import Tooltip from '../Tooltip'
 
 const QuestionWrapper = styled.div<{ useCurrentColor?: boolean }>`
   display: flex;

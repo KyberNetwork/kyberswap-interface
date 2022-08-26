@@ -1,4 +1,4 @@
-import { DMMPool } from '@kyberswap/ks-sdk-classic'
+import { DMMPool } from '@namgold/ks-sdk-classic'
 import { Interface } from 'ethers/lib/utils'
 
 const DMM_POOL_INTERFACE = new Interface(DMMPool.abi)

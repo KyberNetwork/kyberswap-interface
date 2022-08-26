@@ -1,5 +1,5 @@
-import { ChainId, NativeCurrency, Token } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
+import { NativeCurrency, Token } from '@namgold/ks-sdk-core'
 import { debounce } from 'lodash'
 import { stringify } from 'qs'
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
@@ -9,7 +9,7 @@ import styled from 'styled-components'
 
 import Modal from 'components/Modal'
 import { ETHER_ADDRESS } from 'constants/index'
-import { nativeOnChain } from 'constants/tokens'
+import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -82,7 +82,7 @@ export default forwardRef<PairSuggestionHandle, Props>(function PairSuggestionIn
 
   const findToken = (search: string): NativeCurrency | Token | undefined => {
     if (search.toLowerCase() === ETHER_ADDRESS.toLowerCase()) {
-      return nativeOnChain(chainId as ChainId)
+      return NativeCurrencies[chainId]
     }
     return filterTokens(Object.values(activeTokens), search)[0]
   }

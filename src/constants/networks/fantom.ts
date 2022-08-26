@@ -1,15 +1,14 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@namgold/ks-sdk-core'
 
 import FTM from 'assets/networks/fantom-network.png'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
-
-import { NetworkInfo } from '../type'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const fantomInfo: NetworkInfo = {
+const fantomInfo: EVMNetworkInfo = {
   chainId: ChainId.FANTOM,
   route: 'fantom',
   name: 'Fantom',
@@ -23,8 +22,7 @@ const fantomInfo: NetworkInfo = {
   bridgeURL: 'https://multichain.xyz',
   nativeToken: {
     symbol: 'FTM',
-    name: 'FTM (Wrapped)',
-    address: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83',
+    name: 'FTM',
     logo: FTM,
     decimal: 18,
   },

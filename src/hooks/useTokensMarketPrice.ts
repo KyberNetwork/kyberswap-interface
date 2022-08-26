@@ -1,9 +1,10 @@
-import { ChainId, Token, WETH } from '@kyberswap/ks-sdk-core'
+import { ChainId, Token, WETH } from '@namgold/ks-sdk-core'
 import { useMemo } from 'react'
 import useSWR from 'swr'
 
-import { COINGECKO_API_URL, KNC, KNC_COINGECKO_ID, ZERO_ADDRESS } from 'constants/index'
+import { COINGECKO_API_URL, KNC_COINGECKO_ID, ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
+import { KNC } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 
 const fetcher = (url: string) => fetch(url).then(r => r.json())

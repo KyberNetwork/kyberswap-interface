@@ -1,7 +1,6 @@
-import { ZERO } from '@kyberswap/ks-sdk-classic'
-import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import React from 'react'
+import { ZERO } from '@namgold/ks-sdk-classic'
+import { Currency, CurrencyAmount } from '@namgold/ks-sdk-core'
 import { Text } from 'rebass'
 
 import { OutlineCard } from 'components/Card'

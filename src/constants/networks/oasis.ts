@@ -1,15 +1,14 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@namgold/ks-sdk-core'
 
 import OASIS from 'assets/networks/oasis-network.svg'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
-
-import { NetworkInfo } from '../type'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const oasisInfo: NetworkInfo = {
+const oasisInfo: EVMNetworkInfo = {
   chainId: ChainId.OASIS,
   route: 'oasis',
   name: 'Oasis',
@@ -27,8 +26,7 @@ const oasisInfo: NetworkInfo = {
   bridgeURL: 'https://oasisprotocol.org/b-ridges',
   nativeToken: {
     symbol: 'ROSE',
-    name: 'ROSE (Wrapped)',
-    address: '0x21C718C22D52d0F3a789b752D4c2fD5908a8A733',
+    name: 'ROSE',
     logo: OASIS,
     decimal: 18,
   },

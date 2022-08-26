@@ -1,24 +1,18 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { Contract } from '@ethersproject/contracts'
-import { Router, Trade } from '@kyberswap/ks-sdk-classic'
-import { Currency, Percent, TradeType } from '@kyberswap/ks-sdk-core'
-import { SwapRouter as ProAmmRouter, Trade as ProAmmTrade } from '@kyberswap/ks-sdk-elastic'
+import { Router, Trade } from '@namgold/ks-sdk-classic'
+import { Currency, Percent, TradeType } from '@namgold/ks-sdk-core'
+import { SwapRouter as ProAmmRouter, Trade as ProAmmTrade } from '@namgold/ks-sdk-elastic'
 import JSBI from 'jsbi'
 import { useMemo } from 'react'
 
+import { BIPS_BASE, INITIAL_ALLOWED_SLIPPAGE } from 'constants/index'
+import { useTransactionAdder } from 'state/transactions/hooks'
+import { basisPointsToPercent, calculateGasMargin, isAddress, shortenAddress } from 'utils'
 import { formatCurrencyAmount } from 'utils/formatBalance'
+import { getDynamicFeeRouterContract, getProAmmRouterContract } from 'utils/getContract'
+import isZero from 'utils/isZero'
 
-import { BIPS_BASE, INITIAL_ALLOWED_SLIPPAGE } from '../constants'
-import { useTransactionAdder } from '../state/transactions/hooks'
-import {
-  basisPointsToPercent,
-  calculateGasMargin,
-  getDynamicFeeRouterContract,
-  getProAmmRouterContract,
-  isAddress,
-  shortenAddress,
-} from '../utils'
-import isZero from '../utils/isZero'
 import { useTradeExactIn } from './Trades'
 import { useActiveWeb3React } from './index'
 import useENS from './useENS'

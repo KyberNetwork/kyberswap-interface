@@ -1,6 +1,6 @@
 import { Interface } from '@ethersproject/abi'
-import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
-import { FeeAmount, Pool, computePoolAddress } from '@kyberswap/ks-sdk-elastic'
+import { ChainId, Currency, Token } from '@namgold/ks-sdk-core'
+import { FeeAmount, Pool, computePoolAddress } from '@namgold/ks-sdk-elastic'
 import { useMemo } from 'react'
 
 import ProAmmPoolStateABI from 'constants/abis/v2/ProAmmPoolState.json'

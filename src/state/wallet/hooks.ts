@@ -1,16 +1,15 @@
-import { Currency, CurrencyAmount, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, Token, TokenAmount } from '@namgold/ks-sdk-core'
 import JSBI from 'jsbi'
 import { useMemo } from 'react'
 
+import ERC20_INTERFACE from 'constants/abis/erc20'
 import { EMPTY_ARRAY, EMPTY_OBJECT } from 'constants/index'
-import { nativeOnChain } from 'constants/tokens'
-
-import ERC20_INTERFACE from '../../constants/abis/erc20'
-import { useActiveWeb3React } from '../../hooks'
-import { useAllTokens } from '../../hooks/Tokens'
-import { useMulticallContract } from '../../hooks/useContract'
-import { isAddress } from '../../utils'
-import { useMultipleContractSingleData, useSingleContractMultipleData } from '../multicall/hooks'
+import { NativeCurrencies } from 'constants/tokens'
+import { useActiveWeb3React } from 'hooks'
+import { useAllTokens } from 'hooks/Tokens'
+import { useMulticallContract } from 'hooks/useContract'
+import { useMultipleContractSingleData, useSingleContractMultipleData } from 'state/multicall/hooks'
+import { isAddress } from 'utils'
 
 /**
  * Returns a map of the given addresses to their eventually consistent ETH balances.
@@ -28,7 +27,7 @@ export function useETHBalances(uncheckedAddresses?: (string | undefined)[]): {
             .map(isAddress)
             .filter((a): a is string => a !== false)
             .sort()
-        : [],
+        : EMPTY_ARRAY,
     [uncheckedAddresses],
   )
 
@@ -43,7 +42,7 @@ export function useETHBalances(uncheckedAddresses?: (string | undefined)[]): {
       addresses.reduce<{ [address: string]: CurrencyAmount<Currency> }>((memo, address, i) => {
         const value = results?.[i]?.result?.[0]
         if (value)
-          memo[address] = CurrencyAmount.fromRawAmount(nativeOnChain(chainId as number), JSBI.BigInt(value.toString()))
+          memo[address] = CurrencyAmount.fromRawAmount(NativeCurrencies[chainId], JSBI.BigInt(value.toString()))
         return memo
       }, {}),
     [addresses, results, chainId],

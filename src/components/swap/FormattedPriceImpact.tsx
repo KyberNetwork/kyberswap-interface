@@ -1,8 +1,9 @@
-import { Percent } from '@kyberswap/ks-sdk-core'
+import { Percent } from '@namgold/ks-sdk-core'
 import React from 'react'
 
-import { ONE_BIPS } from '../../constants'
-import { warningSeverity } from '../../utils/prices'
+import { ONE_BIPS } from 'constants/index'
+import { warningSeverity } from 'utils/prices'
+
 import { ErrorText } from './styleds'
 
 /**

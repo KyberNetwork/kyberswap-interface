@@ -3,7 +3,7 @@ import React, { CSSProperties, ReactNode, useCallback, useState } from 'react'
 import { Info } from 'react-feather'
 import styled from 'styled-components'
 
-import Tooltip from '../Tooltip'
+import Tooltip from 'components/Tooltip'
 
 const InfoWrapper = styled.div<{ isActive?: boolean }>`
   display: flex;

@@ -1,5 +1,5 @@
-import { ChainId, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { ChainId, Token, WETH } from '@namgold/ks-sdk-core'
 import { rgba } from 'polished'
 import { useState } from 'react'
 import { ChevronUp, Share2 } from 'react-feather'
@@ -15,7 +15,7 @@ import AgriCulture from 'components/Icons/AgriCulture'
 import InfoHelper from 'components/InfoHelper'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { ELASTIC_BASE_FEE_UNIT, PROMM_ANALYTICS_URL } from 'constants/index'
-import { nativeOnChain } from 'constants/tokens'
+import { NativeCurrencies } from 'constants/tokens'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
@@ -82,19 +82,19 @@ export default function ProAmmPoolCardItem({ pair, onShared, userPositions, idx 
 
   const token0Address =
     token0.address.toLowerCase() === WETH[chainId as ChainId].address.toLowerCase()
-      ? nativeOnChain(chainId as ChainId).symbol
+      ? NativeCurrencies[chainId].symbol
       : token0.address
   const token0Symbol =
     token0.address.toLowerCase() === WETH[chainId as ChainId].address.toLowerCase()
-      ? nativeOnChain(chainId as ChainId).symbol
+      ? NativeCurrencies[chainId].symbol
       : token0.symbol
   const token1Address =
     token1.address.toLowerCase() === WETH[chainId as ChainId].address.toLowerCase()
-      ? nativeOnChain(chainId as ChainId).symbol
+      ? NativeCurrencies[chainId].symbol
       : token1.address
   const token1Symbol =
     token1.address.toLowerCase() === WETH[chainId as ChainId].address.toLowerCase()
-      ? nativeOnChain(chainId as ChainId).symbol
+      ? NativeCurrencies[chainId].symbol
       : token1.symbol
   return (
     <>

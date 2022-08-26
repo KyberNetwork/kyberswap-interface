@@ -1,5 +1,5 @@
-import { ChainId, Fraction } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { Fraction, WETH } from '@namgold/ks-sdk-core'
 import { BigNumber } from 'ethers'
 import JSBI from 'jsbi'
 import { useEffect, useMemo, useState } from 'react'
@@ -11,7 +11,7 @@ import Logo from 'components/Logo'
 import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
 import { NETWORKS_INFO } from 'constants/networks'
-import { nativeOnChain } from 'constants/tokens'
+import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -63,7 +63,7 @@ function FaucetModal() {
   const allTokens = useAllTokens()
   const token = useMemo(() => {
     if (!chainId || !account) return
-    const nativeToken = nativeOnChain(chainId as ChainId)
+    const nativeToken = NativeCurrencies[chainId]
     if (rewardData) {
       if (rewardData.tokenAddress === '0') return nativeToken
       if (isAddress(rewardData.tokenAddress)) return filterTokens(Object.values(allTokens), rewardData.tokenAddress)[0]
@@ -76,7 +76,7 @@ function FaucetModal() {
     return getTokenLogoURL(token.address, chainId)
   }, [chainId, token])
   const tokenSymbol = useMemo(() => {
-    if (token?.isNative && chainId) return NETWORKS_INFO[chainId].nativeToken.name
+    if (token?.isNative && chainId) return WETH[chainId].name
     return token?.symbol
   }, [token, chainId])
   const claimRewardCallBack = async () => {

@@ -1,6 +1,6 @@
-import { ChainId, CurrencyAmount, Price, Token } from '@kyberswap/ks-sdk-core'
-import { Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
+import { ChainId, CurrencyAmount, Price, Token } from '@namgold/ks-sdk-core'
+import { Position } from '@namgold/ks-sdk-elastic'
 import { useWeb3React } from '@web3-react/core'
 import React, { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -125,7 +125,7 @@ export default function PositionListItem({
   positionDetails,
   refe,
 }: PositionListItemProps) {
-  const { chainId } = useWeb3React()
+  const { chainId } = useWeb3React() //todo: use useActiveWeb3React
   const {
     token0: token0Address,
     token1: token1Address,

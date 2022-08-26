@@ -1,5 +1,5 @@
-import { Currency, CurrencyAmount, TradeType } from '@kyberswap/ks-sdk-core'
-import { Trade } from '@kyberswap/ks-sdk-elastic'
+import { Currency, CurrencyAmount, TradeType } from '@namgold/ks-sdk-core'
+import { Trade } from '@namgold/ks-sdk-elastic'
 
 import { TradeState } from 'state/routing/types'
 

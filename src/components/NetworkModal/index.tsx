@@ -1,5 +1,6 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import { ChainId } from '@namgold/ks-sdk-core'
+import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core'
 import { stringify } from 'qs'
 import { X } from 'react-feather'
 import { useHistory } from 'react-router-dom'
@@ -8,14 +9,14 @@ import styled from 'styled-components'
 
 import { ButtonEmpty } from 'components/Button'
 import Modal from 'components/Modal'
+import { MAINNET_NETWORKS, NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import { useActiveNetwork } from 'hooks/useActiveNetwork'
+import { useChangeNetwork } from 'hooks/useChangeNetwork'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useNetworkModalToggle } from 'state/application/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
-
-import { MAINNET_NETWORKS, NETWORKS_INFO, SUPPORTED_NETWORKS } from '../../constants/networks'
+import { TYPE } from 'theme'
 
 export const Wrapper = styled.div`
   width: 100%;
@@ -79,12 +80,13 @@ export const SelectNetworkButton = styled(ButtonEmpty)`
     cursor: not-allowed;
   }
 `
-const SHOW_NETWORKS = process.env.NODE_ENV === 'production' ? MAINNET_NETWORKS : SUPPORTED_NETWORKS
 export default function NetworkModal(): JSX.Element | null {
   const { chainId } = useActiveWeb3React()
+  const { error } = useWeb3React()
+  const isWrongNetwork = error instanceof UnsupportedChainIdError
   const networkModalOpen = useModalOpen(ApplicationModal.NETWORK)
   const toggleNetworkModal = useNetworkModalToggle()
-  const { changeNetwork } = useActiveNetwork()
+  const changeNetwork = useChangeNetwork()
   const isDarkMode = useIsDarkMode()
   const history = useHistory()
   const qs = useParsedQueryString()
@@ -94,15 +96,20 @@ export default function NetworkModal(): JSX.Element | null {
       <Wrapper>
         <Flex alignItems="center" justifyContent="space-between">
           <Text fontWeight="500" fontSize={20}>
-            <Trans>Select a Network</Trans>
+            {isWrongNetwork ? <Trans>Wrong Network</Trans> : <Trans>Select a Network</Trans>}
           </Text>
 
           <Flex sx={{ cursor: 'pointer' }} role="button" onClick={toggleNetworkModal}>
             <X />
           </Flex>
         </Flex>
+        {isWrongNetwork && (
+          <TYPE.main fontSize={16} marginTop={14}>
+            <Trans>Please connect to the appropriate network.</Trans>
+          </TYPE.main>
+        )}
         <NetworkList>
-          {SHOW_NETWORKS.map((key: ChainId, i: number) => {
+          {MAINNET_NETWORKS.map((key: ChainId, i: number) => {
             if (chainId === key) {
               return (
                 <SelectNetworkButton key={i} padding="0">

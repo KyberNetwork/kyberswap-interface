@@ -1,5 +1,5 @@
-import { Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import { Token } from '@namgold/ks-sdk-core'
 import { stringify } from 'qs'
 import React, { useMemo } from 'react'
 import { useSelector } from 'react-redux'

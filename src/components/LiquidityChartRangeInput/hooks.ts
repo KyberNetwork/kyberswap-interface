@@ -1,5 +1,5 @@
-import { Currency } from '@kyberswap/ks-sdk-core'
-import { FeeAmount } from '@kyberswap/ks-sdk-elastic'
+import { Currency } from '@namgold/ks-sdk-core'
+import { FeeAmount } from '@namgold/ks-sdk-elastic'
 import JSBI from 'jsbi'
 import { useCallback, useMemo } from 'react'
 

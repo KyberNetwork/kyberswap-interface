@@ -1,5 +1,5 @@
-import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { Currency } from '@namgold/ks-sdk-core'
 import { MobileView, isMobile } from 'react-device-detect'
 import { Info, X } from 'react-feather'
 import { Flex, Text } from 'rebass'

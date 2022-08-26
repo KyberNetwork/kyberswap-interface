@@ -1,6 +1,6 @@
-import { Currency, CurrencyAmount, Token, TradeType } from '@kyberswap/ks-sdk-core'
-import { Trade } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
+import { Currency, CurrencyAmount, Token, TradeType } from '@namgold/ks-sdk-core'
+import { Trade } from '@namgold/ks-sdk-elastic'
 import JSBI from 'jsbi'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { ArrowDown } from 'react-feather'

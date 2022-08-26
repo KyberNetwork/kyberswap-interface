@@ -3,15 +3,14 @@ import React from 'react'
 import { ArrowUpCircle } from 'react-feather'
 import styled from 'styled-components'
 
+import Circle from 'assets/images/blue-loader.svg'
+import { AutoColumn, ColumnCenter } from 'components/Column'
+import { RowBetween } from 'components/Row'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-
-import Circle from '../../assets/images/blue-loader.svg'
-import { useActiveWeb3React } from '../../hooks'
-import { CloseIcon, CustomLightSpinner, TYPE } from '../../theme'
-import { ExternalLink } from '../../theme/components'
-import { getEtherscanLink } from '../../utils'
-import { AutoColumn, ColumnCenter } from '../Column'
-import { RowBetween } from '../Row'
+import { CloseIcon, CustomLightSpinner, TYPE } from 'theme'
+import { ExternalLink } from 'theme/components'
+import { getEtherscanLink } from 'utils'
 
 const ConfirmOrLoadingWrapper = styled.div`
   width: 100%;

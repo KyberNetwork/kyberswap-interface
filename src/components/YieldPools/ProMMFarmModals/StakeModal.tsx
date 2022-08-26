@@ -1,5 +1,5 @@
-import { Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
+import { Position } from '@namgold/ks-sdk-elastic'
 import { BigNumber } from 'ethers'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Info, X } from 'react-feather'

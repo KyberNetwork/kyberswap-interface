@@ -1,18 +1,15 @@
-import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { ChainId, Currency, Token } from '@namgold/ks-sdk-core'
 import { rgba } from 'polished'
-import React from 'react'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
+import { AutoColumn } from 'components/Column'
+import CurrencyLogo from 'components/CurrencyLogo'
 import InfoHelper from 'components/InfoHelper'
-import { NETWORKS_INFO } from 'constants/networks'
-import { nativeOnChain } from 'constants/tokens'
-
-import { SUGGESTED_BASES } from '../../constants'
-import { AutoColumn } from '../Column'
-import CurrencyLogo from '../CurrencyLogo'
-import { AutoRow } from '../Row'
+import { AutoRow } from 'components/Row'
+import { SUGGESTED_BASES } from 'constants/bases'
+import { NativeCurrencies } from 'constants/tokens'
 
 const BaseWrapper = styled.div`
   padding: 6px;
@@ -37,7 +34,7 @@ export default function CommonBases({
   onSelect,
   selectedCurrency,
 }: {
-  chainId?: ChainId
+  chainId: ChainId
   selectedCurrency?: Currency | null
   onSelect: (currency: Currency) => void
 }) {
@@ -53,14 +50,14 @@ export default function CommonBases({
         <BaseWrapper
           onClick={() => {
             if (!selectedCurrency || !selectedCurrency.isNative) {
-              onSelect(nativeOnChain(chainId as number))
+              onSelect(NativeCurrencies[chainId])
             }
           }}
           data-selected={selectedCurrency?.isNative}
         >
-          <CurrencyLogo currency={nativeOnChain(chainId as number)} style={{ marginRight: 8 }} />
+          <CurrencyLogo currency={NativeCurrencies[chainId]} style={{ marginRight: 8 }} />
           <Text fontWeight={500} fontSize={16}>
-            {NETWORKS_INFO[chainId || ChainId.MAINNET].nativeToken.symbol}
+            {NativeCurrencies[chainId || ChainId.MAINNET].symbol}
           </Text>
         </BaseWrapper>
         {(chainId ? SUGGESTED_BASES[chainId] : []).map((token: Token) => {

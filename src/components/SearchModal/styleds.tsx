@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 
-import { AutoColumn } from '../Column'
-import { RowFixed } from '../Row'
+import { AutoColumn } from 'components/Column'
+import { RowFixed } from 'components/Row'
 
 export const ModalInfo = styled.div`
   ${({ theme }) => theme.flexRowNoWrap}

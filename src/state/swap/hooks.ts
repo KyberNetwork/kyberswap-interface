@@ -1,14 +1,14 @@
 import { parseUnits } from '@ethersproject/units'
-import { Trade } from '@kyberswap/ks-sdk-classic'
-import { ChainId, Currency, CurrencyAmount, TradeType } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
+import { Trade } from '@namgold/ks-sdk-classic'
+import { ChainId, Currency, CurrencyAmount, TradeType } from '@namgold/ks-sdk-core'
 import JSBI from 'jsbi'
 import { ParsedQs } from 'qs'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { BAD_RECIPIENT_ADDRESSES, DEFAULT_OUTPUT_TOKEN_BY_CHAIN } from 'constants/index'
-import { nativeOnChain } from 'constants/tokens'
+import { BAD_RECIPIENT_ADDRESSES } from 'constants/index'
+import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { useTradeExactIn } from 'hooks/Trades'
@@ -54,7 +54,7 @@ export function useSwapActionHandlers(): {
       dispatch(
         selectCurrency({
           field,
-          currencyId: currency.isNative ? (nativeOnChain(chainId as number).symbol as string) : currency.address,
+          currencyId: currency.isNative ? (NativeCurrencies[chainId].symbol as string) : currency.address,
         }),
       )
     },
@@ -256,9 +256,9 @@ function parseCurrencyFromURLParameter(urlParam: any, chainId: ChainId): string 
   if (typeof urlParam === 'string') {
     const valid = isAddress(urlParam)
     if (valid) return valid
-    return nativeOnChain(chainId).symbol as string
+    return NativeCurrencies[chainId].symbol as string
   }
-  return nativeOnChain(chainId).symbol ?? ''
+  return NativeCurrencies[chainId].symbol ?? ''
 }
 
 function parseTokenAmountURLParameter(urlParam: any): string {

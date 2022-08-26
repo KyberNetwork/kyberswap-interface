@@ -1,16 +1,15 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@namgold/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import Mainnet from 'assets/networks/mainnet-network.svg'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
-
-import { NetworkInfo } from '../type'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const ethereumInfo: NetworkInfo = {
+const ethereumInfo: EVMNetworkInfo = {
   chainId: ChainId.MAINNET,
   route: 'ethereum',
   name: 'Ethereum',
@@ -24,8 +23,7 @@ const ethereumInfo: NetworkInfo = {
   bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'ETH',
-    name: 'ETH (Wrapped)',
-    address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+    name: 'Ether',
     logo: EthereumLogo,
     decimal: 18,
   },

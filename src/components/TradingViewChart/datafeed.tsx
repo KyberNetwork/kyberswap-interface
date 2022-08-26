@@ -1,9 +1,7 @@
-import { ChainId, Currency, Token, WETH } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, Token, WETH } from '@namgold/ks-sdk-core'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { DAI, USDC, USDT } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
-import { STABLE_COINS_ADDRESS } from 'constants/tokens'
+import { DAI, STABLE_COINS_ADDRESS, USDC, USDT } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { Field } from 'state/swap/actions'
 
@@ -182,8 +180,8 @@ export const checkPairHasDextoolsData = async (
   const checkedPairs: { [key: string]: { ver: number; pairAddress: string; time: number } } = cPstr
     ? JSON.parse(cPstr)
     : {}
-  const symbolA = currencyA.isNative ? NETWORKS_INFO[chainId || ChainId.MAINNET].nativeToken.name : currencyA.symbol
-  const symbolB = currencyB.isNative ? NETWORKS_INFO[chainId || ChainId.MAINNET].nativeToken.name : currencyB.symbol
+  const symbolA = currencyA.isNative ? WETH[chainId || ChainId.MAINNET].name : currencyA.symbol
+  const symbolB = currencyB.isNative ? WETH[chainId || ChainId.MAINNET].name : currencyB.symbol
   const key: string = [symbolA, symbolB, chainId].sort().join('')
   const checkedPair = checkedPairs[key]
   if (
@@ -293,12 +291,8 @@ export const useDatafeed = (currencies: Array<Currency | undefined>, pairAddress
         onResolveErrorCallback: ErrorCallback,
       ) => {
         try {
-          const label1 = currencies[0]?.isNative
-            ? NETWORKS_INFO[chainId || ChainId.MAINNET].nativeToken.name
-            : currencies[0]?.symbol
-          const label2 = currencies[1]?.isNative
-            ? NETWORKS_INFO[chainId || ChainId.MAINNET].nativeToken.name
-            : currencies[1]?.symbol
+          const label1 = currencies[0]?.isNative ? WETH[chainId || ChainId.MAINNET].name : currencies[0]?.symbol
+          const label2 = currencies[1]?.isNative ? WETH[chainId || ChainId.MAINNET].name : currencies[1]?.symbol
 
           const label = `${label1}/${label2}`
 

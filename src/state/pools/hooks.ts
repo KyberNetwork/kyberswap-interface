@@ -1,5 +1,5 @@
 import { ApolloClient, NormalizedCacheObject, useQuery } from '@apollo/client'
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@namgold/ks-sdk-core'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -15,9 +15,9 @@ import {
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useETHPrice } from 'state/application/hooks'
+import { AppState } from 'state/index'
 import { get24hValue, getBlocksFromTimestamps, getPercentChange, getTimestampsForChanges } from 'utils'
 
-import { AppState } from '../index'
 import { ONLY_DYNAMIC_FEE_CHAINS } from './../../constants/index'
 import { setError, setLoading, setSharedPoolId, updatePools } from './actions'
 
@@ -119,6 +119,7 @@ function parseData(data: any, oneDayData: any, ethPrice: any, oneDayBlock: any, 
   }
 
   if (chainId === ChainId.MAINNET) {
+    //todo namgold: fix remove these duplicated logics
     if (data?.token0?.id === '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2') {
       data.token0 = { ...data.token0, name: 'Ether (Wrapped)', symbol: 'ETH' }
     }

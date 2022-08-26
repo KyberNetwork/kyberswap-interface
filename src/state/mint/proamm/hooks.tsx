@@ -1,5 +1,6 @@
-import { ZERO } from '@kyberswap/ks-sdk-classic'
-import { Currency, CurrencyAmount, Price, Rounding, Token } from '@kyberswap/ks-sdk-core'
+import { Trans } from '@lingui/macro'
+import { ZERO } from '@namgold/ks-sdk-classic'
+import { Currency, CurrencyAmount, Price, Rounding, Token } from '@namgold/ks-sdk-core'
 import {
   FeeAmount,
   FullMath,
@@ -12,20 +13,19 @@ import {
   nearestUsableTick,
   priceToClosestTick,
   tickToPrice,
-} from '@kyberswap/ks-sdk-elastic'
-import { Trans } from '@lingui/macro'
+} from '@namgold/ks-sdk-elastic'
 import JSBI from 'jsbi'
-import React, { ReactNode, useCallback, useMemo } from 'react'
+import { ReactNode, useCallback, useMemo } from 'react'
 
+import { BIG_INT_ZERO } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { PoolState, usePool } from 'hooks/usePools'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
+import { AppState } from 'state/index'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { getTickToPrice } from 'utils/getTickToPrice'
 
-import { BIG_INT_ZERO } from '../../../constants'
-import { AppState } from '../../index'
 import {
   Bound,
   Field,

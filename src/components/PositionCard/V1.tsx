@@ -1,16 +1,16 @@
-import { Token, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import { Token, TokenAmount, WETH } from '@namgold/ks-sdk-core'
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom'
 import { Text } from 'rebass'
 
+import { ButtonSecondary } from 'components/Button'
+import { AutoColumn } from 'components/Column'
+import DoubleCurrencyLogo from 'components/DoubleLogo'
+import { RowBetween, RowFixed } from 'components/Row'
+import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 
-import { useActiveWeb3React } from '../../hooks'
-import { ButtonSecondary } from '../Button'
-import { AutoColumn } from '../Column'
-import DoubleCurrencyLogo from '../DoubleLogo'
-import { RowBetween, RowFixed } from '../Row'
 import { FixedHeightRow, HoverCard } from './index'
 
 interface PositionCardProps extends RouteComponentProps {

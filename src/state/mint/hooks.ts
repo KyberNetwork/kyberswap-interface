@@ -1,21 +1,21 @@
 import { BigNumber } from '@ethersproject/bignumber'
-import { Pair } from '@kyberswap/ks-sdk-classic'
-import { ChainId, Currency, CurrencyAmount, Percent, Price, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
+import { Pair } from '@namgold/ks-sdk-classic'
+import { ChainId, Currency, CurrencyAmount, Percent, Price, TokenAmount, WETH } from '@namgold/ks-sdk-core'
 import JSBI from 'jsbi'
 import { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 
-import { nativeOnChain } from 'constants/tokens'
+import { NativeCurrencies } from 'constants/tokens'
+import { PairState, usePairByAddress, useUnAmplifiedPair } from 'data/Reserves'
+import { useTotalSupply } from 'data/TotalSupply'
+import { useActiveWeb3React } from 'hooks'
 import { useZapInAmounts } from 'hooks/useZap'
 import { useAppDispatch } from 'state/hooks'
+import { AppState } from 'state/index'
+import { tryParseAmount } from 'state/swap/hooks'
+import { useCurrencyBalances } from 'state/wallet/hooks'
 
-import { PairState, usePairByAddress, useUnAmplifiedPair } from '../../data/Reserves'
-import { useTotalSupply } from '../../data/TotalSupply'
-import { useActiveWeb3React } from '../../hooks'
-import { AppState } from '../index'
-import { tryParseAmount } from '../swap/hooks'
-import { useCurrencyBalances } from '../wallet/hooks'
 import { Field, switchTokenField, typeInput } from './actions'
 
 const ZERO = JSBI.BigInt(0)
@@ -416,7 +416,7 @@ export function useDerivedZapInInfo(
       currencyBalances?.[independentField]?.lessThan(userInCurrencyAmount))
   ) {
     error = t`Insufficient ${
-      selectedCurrency.isNative ? nativeOnChain(chainId as ChainId).symbol : selectedCurrency.symbol
+      selectedCurrency.isNative ? NativeCurrencies[chainId].symbol : selectedCurrency.symbol
     } balance`
   }
 

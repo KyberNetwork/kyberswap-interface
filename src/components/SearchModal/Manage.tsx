@@ -1,5 +1,5 @@
-import { Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import { Token } from '@namgold/ks-sdk-core'
 import { TokenList } from '@uniswap/token-lists'
 import React, { useState } from 'react'
 import { ArrowLeft } from 'react-feather'

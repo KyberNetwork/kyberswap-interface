@@ -1,6 +1,5 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import React from 'react'
+import { ChainId } from '@namgold/ks-sdk-core'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -8,6 +7,7 @@ import { ButtonPrimary } from 'components/Button'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { RowBetween } from 'components/Row'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
+import { KNC } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useClaimReward from 'hooks/useClaimReward'
 import useTheme from 'hooks/useTheme'
@@ -15,8 +15,6 @@ import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { CloseIcon } from 'theme'
 import { shortenAddress } from 'utils'
-
-import { KNC } from '../../constants'
 
 const AddressWrapper = styled.div`
   background: ${({ theme }) => theme.buttonBlack};

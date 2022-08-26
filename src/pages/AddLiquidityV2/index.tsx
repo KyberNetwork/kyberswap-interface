@@ -1,8 +1,8 @@
 import { TransactionResponse } from '@ethersproject/providers'
-import { ONE } from '@kyberswap/ks-sdk-classic'
-import { Currency, CurrencyAmount, WETH } from '@kyberswap/ks-sdk-core'
-import { FeeAmount, NonfungiblePositionManager } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
+import { ONE } from '@namgold/ks-sdk-classic'
+import { Currency, CurrencyAmount, WETH } from '@namgold/ks-sdk-core'
+import { FeeAmount, NonfungiblePositionManager } from '@namgold/ks-sdk-elastic'
 import JSBI from 'jsbi'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
@@ -30,7 +30,7 @@ import TransactionConfirmationModal, { ConfirmationModalContent } from 'componen
 import { TutorialType } from 'components/Tutorial'
 import { ArrowWrapper as ArrowWrapperVertical, Dots } from 'components/swapv2/styleds'
 import { NETWORKS_INFO } from 'constants/networks'
-import { nativeOnChain } from 'constants/tokens'
+import { NativeCurrencies } from 'constants/tokens'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
@@ -49,14 +49,13 @@ import {
   useRangeHopCallbacks,
 } from 'state/mint/proamm/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
-import { useIsExpertMode } from 'state/user/hooks'
+import { useIsExpertMode, useUserSlippageTolerance } from 'state/user/hooks'
 import { StyledInternalLink, TYPE } from 'theme'
 import { basisPointsToPercent, calculateGasMargin, formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
-import { useUserSlippageTolerance } from '../../state/user/hooks'
 import {
   Container,
   DynamicSection,
@@ -346,7 +345,7 @@ export default function AddLiquidity({
         const isETHOrWETHNew = currencyNew.isNative || (chainId && currencyIdNew === WETH[chainId]?.address)
         const isETHOrWETHOther =
           !!currencyIdOther &&
-          ((chainId && currencyIdOther === nativeOnChain(chainId).symbol) ||
+          ((chainId && currencyIdOther === NativeCurrencies[chainId].symbol) ||
             (chainId && currencyIdOther === WETH[chainId]?.address))
 
         if (isETHOrWETHNew && isETHOrWETHOther) {
@@ -871,7 +870,7 @@ export default function AddLiquidity({
                         chainId &&
                           history.replace(
                             `/elastic/add/${
-                              baseCurrencyIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
+                              baseCurrencyIsETHER ? WETH[chainId].address : NativeCurrencies[chainId].symbol
                             }/${currencyIdB}/${feeAmount}`,
                           )
                       }}
@@ -903,7 +902,7 @@ export default function AddLiquidity({
                         chainId &&
                           history.replace(
                             `/elastic/add/${currencyIdA}/${
-                              quoteCurrencyIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
+                              quoteCurrencyIsETHER ? WETH[chainId].address : NativeCurrencies[chainId].symbol
                             }/${feeAmount}`,
                           )
                       }}

@@ -1,6 +1,6 @@
 import { getAddress } from '@ethersproject/address'
 import { BigNumber } from '@ethersproject/bignumber'
-import { Pair } from '@kyberswap/ks-sdk-classic'
+import { Pair } from '@namgold/ks-sdk-classic'
 import {
   ChainId,
   ChainId as ChainIdDMM,
@@ -10,13 +10,12 @@ import {
   Price,
   Token,
   TokenAmount,
-} from '@kyberswap/ks-sdk-core'
+} from '@namgold/ks-sdk-core'
 import JSBI from 'jsbi'
 import { useMemo } from 'react'
 
 import { BLOCKS_PER_YEAR, SECONDS_PER_YEAR, ZERO_ADDRESS } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
-import { nativeOnChain } from 'constants/tokens'
+import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import { useBlockNumber } from 'state/application/hooks'
@@ -79,7 +78,7 @@ export function parseSubgraphPoolData(
   const virtualReserve0 = tryParseAmount(poolData.vReserve0, currency0)
   const reserve1 = tryParseAmount(poolData.reserve1, currency1)
   const virtualReserve1 = tryParseAmount(poolData.vReserve1, currency1)
-  const totalSupply = tryParseAmount(poolData.totalSupply, nativeOnChain(chainId)) // Only care about decimals 18
+  const totalSupply = tryParseAmount(poolData.totalSupply, NativeCurrencies[chainId]) // Only care about decimals 18
 
   return {
     reserve0,
@@ -403,7 +402,7 @@ export function useCurrencyConvertedToNative(currency?: Currency): Currency | un
   const { chainId } = useActiveWeb3React()
   return useMemo(() => {
     if (!!currency && !!chainId) {
-      return currency.isNative ? nativeOnChain(chainId) : currency
+      return currency.isNative ? NativeCurrencies[chainId] : currency
     }
     return undefined
   }, [chainId, currency])
@@ -505,7 +504,7 @@ export function useRewardTokensFullInfo(): Token[] {
   const rewardTokens = useRewardTokens()
 
   const allTokens = useAllTokens()
-  const nativeName = NETWORKS_INFO[chainId || ChainId.MAINNET].nativeToken.symbol
+  const nativeName = NativeCurrencies[chainId || ChainId.MAINNET].symbol
 
   return useMemo(
     () =>

@@ -1,15 +1,14 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@namgold/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import Mainnet from 'assets/networks/mainnet-network.svg'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
-
-import { NetworkInfo } from '../type'
 
 const EMPTY = ''
 const NOT_SUPPORT = null
 
-const ropstenInfo: NetworkInfo = {
+const ropstenInfo: EVMNetworkInfo = {
   chainId: ChainId.ROPSTEN,
   route: 'ropsten',
   name: 'Ropsten',
@@ -22,9 +21,8 @@ const ropstenInfo: NetworkInfo = {
   tokenListUrl: `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?chainId=${ChainId.ROPSTEN}`,
   bridgeURL: EMPTY,
   nativeToken: {
-    symbol: 'ETH',
-    name: 'ETH (Wrapped)',
-    address: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
+    symbol: 'rETH',
+    name: 'RopstenETH',
     logo: EthereumLogo,
     decimal: 18,
   },

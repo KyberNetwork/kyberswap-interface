@@ -1,5 +1,5 @@
 import { Web3Provider } from '@ethersproject/providers'
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@namgold/ks-sdk-core'
 import { InjectedConnector } from '@web3-react/injected-connector'
 import { LedgerConnector } from '@web3-react/ledger-connector'
 import { PortisConnector } from '@web3-react/portis-connector'

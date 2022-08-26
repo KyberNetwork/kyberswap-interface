@@ -9,22 +9,21 @@ import { useLocation } from 'react-router-dom'
 import { useLocalStorage } from 'react-use'
 import styled from 'styled-components'
 
-import WrongNetworkModal from 'components/WrongNetworkModal'
+import { ReactComponent as Close } from 'assets/images/x.svg'
+import AccountDetails from 'components/AccountDetails'
+import Modal from 'components/Modal'
+import { braveInjectedConnector, coin98InjectedConnector, fortmatic, injected, portis } from 'connectors'
+import { OVERLAY_READY } from 'connectors/Fortmatic'
+import { SUPPORTED_WALLETS } from 'constants/index'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import usePrevious from 'hooks/usePrevious'
 import useTheme from 'hooks/useTheme'
+import { ApplicationModal } from 'state/application/actions'
+import { useModalOpen, useOpenNetworkModal, useWalletModalToggle } from 'state/application/hooks'
+import { useIsDarkMode } from 'state/user/hooks'
+import { ExternalLink } from 'theme'
 import checkForBraveBrowser from 'utils/checkForBraveBrowser'
 
-import { ReactComponent as Close } from '../../assets/images/x.svg'
-import { braveInjectedConnector, coin98InjectedConnector, fortmatic, injected, portis } from '../../connectors'
-import { OVERLAY_READY } from '../../connectors/Fortmatic'
-import { SUPPORTED_WALLETS } from '../../constants'
-import usePrevious from '../../hooks/usePrevious'
-import { ApplicationModal } from '../../state/application/actions'
-import { useModalOpen, useWalletModalToggle } from '../../state/application/hooks'
-import { useIsDarkMode } from '../../state/user/hooks'
-import { ExternalLink } from '../../theme'
-import AccountDetails from '../AccountDetails'
-import Modal from '../Modal'
 import InstallBraveNote from './InstallBraveNote'
 import Option from './Option'
 import PendingView from './PendingView'
@@ -156,13 +155,13 @@ export default function WalletModal({
 
   const walletModalOpen = useModalOpen(ApplicationModal.WALLET)
   const toggleWalletModal = useWalletModalToggle()
+  const openNetworkModal = useOpenNetworkModal()
 
   const previousAccount = usePrevious(account)
   const isDarkMode = useIsDarkMode()
 
   const [isAccepted, setIsAccepted] = useState(true)
 
-  const isWrongNetwork = error instanceof UnsupportedChainIdError
   const location = useLocation()
   const { mixpanelHandler } = useMixpanel()
 
@@ -178,6 +177,12 @@ export default function WalletModal({
       toggleWalletModal()
     }
   }, [account, previousAccount, toggleWalletModal, walletModalOpen, location.pathname, mixpanelHandler])
+
+  useEffect(() => {
+    if (error && error instanceof UnsupportedChainIdError) {
+      openNetworkModal()
+    }
+  }, [error, openNetworkModal])
 
   // always reset to account view
   useEffect(() => {
@@ -350,21 +355,13 @@ export default function WalletModal({
   function getModalContent() {
     if (error) {
       return (
-        <>
-          {isWrongNetwork ? (
-            <WrongNetworkModal />
-          ) : (
-            <UpperSection>
-              <CloseIcon onClick={toggleWalletModal}>
-                <CloseColor />
-              </CloseIcon>
-              <HeaderRow padding="1rem">{'Error connecting'}</HeaderRow>
-              <ContentWrapper padding="1rem 1.5rem 1.5rem">
-                {t`Error connecting. Try refreshing the page.`}
-              </ContentWrapper>
-            </UpperSection>
-          )}
-        </>
+        <UpperSection>
+          <CloseIcon onClick={toggleWalletModal}>
+            <CloseColor />
+          </CloseIcon>
+          <HeaderRow padding="1rem">{'Error connecting'}</HeaderRow>
+          <ContentWrapper padding="1rem 1.5rem 1.5rem">{t`Error connecting. Try refreshing the page.`}</ContentWrapper>
+        </UpperSection>
       )
     }
     if (account && walletView === WALLET_VIEWS.ACCOUNT) {

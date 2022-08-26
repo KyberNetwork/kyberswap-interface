@@ -1,5 +1,5 @@
-import { Currency } from '@kyberswap/ks-sdk-core'
-import { FeeAmount } from '@kyberswap/ks-sdk-elastic'
+import { Currency } from '@namgold/ks-sdk-core'
+import { FeeAmount } from '@namgold/ks-sdk-elastic'
 import { useEffect, useMemo, useState } from 'react'
 
 import { POOL_POSITION_COUNT } from 'apollo/queries/promm'
@@ -53,15 +53,15 @@ export const useFeeTierDistribution = (
           },
         )
 
-        const totalPostions = feeArray.reduce((total, cur) => total + cur.activePositions, 0)
+        const totalPositions = feeArray.reduce((total, cur) => total + cur.activePositions, 0)
 
-        if (!totalPostions) return
+        if (!totalPositions) return
         setFeeTierDistribution(
           Object.keys(FeeAmount).reduce((acc, cur) => {
             const temp = feeArray.find(item => item.feeTier === cur)
             return {
               ...acc,
-              [cur]: temp ? (temp.activePositions * 100) / totalPostions : 0,
+              [cur]: temp ? (temp.activePositions * 100) / totalPositions : 0,
             }
           }, initState),
         )

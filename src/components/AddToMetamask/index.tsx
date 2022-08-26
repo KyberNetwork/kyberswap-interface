@@ -1,4 +1,4 @@
-import { ChainId, Token } from '@kyberswap/ks-sdk-core'
+import { ChainId, Token } from '@namgold/ks-sdk-core'
 import React from 'react'
 import styled from 'styled-components'
 

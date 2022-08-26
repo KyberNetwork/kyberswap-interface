@@ -1,15 +1,15 @@
-import { Currency } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
+import { Currency } from '@namgold/ks-sdk-core'
 import React, { useCallback, useMemo } from 'react'
 
-import { useSwapState } from 'state/swap/hooks'
-import { useCurrencyConvertedToNative } from 'utils/dmm'
-
-import { Aggregator } from '../../utils/aggregator'
 import TransactionConfirmationModal, {
   ConfirmationModalContent,
   TransactionErrorContent,
-} from '../TransactionConfirmationModal'
+} from 'components/TransactionConfirmationModal'
+import { useSwapState } from 'state/swap/hooks'
+import { Aggregator } from 'utils/aggregator'
+import { useCurrencyConvertedToNative } from 'utils/dmm'
+
 import SwapModalFooter from './SwapModalFooter'
 import SwapModalHeader from './SwapModalHeader'
 

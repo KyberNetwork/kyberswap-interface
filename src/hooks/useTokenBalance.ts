@@ -1,4 +1,4 @@
-import { WETH } from '@kyberswap/ks-sdk-core'
+import { WETH } from '@namgold/ks-sdk-core'
 import { BigNumber, Contract } from 'ethers'
 import { useCallback, useEffect, useState } from 'react'
 

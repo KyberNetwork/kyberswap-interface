@@ -1,6 +1,6 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import React, { useRef } from 'react'
+import { ChainId } from '@namgold/ks-sdk-core'
+import { useRef } from 'react'
 import { isMobile } from 'react-device-detect'
 import {
   Award,

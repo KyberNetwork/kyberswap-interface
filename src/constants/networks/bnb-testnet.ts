@@ -1,16 +1,15 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@namgold/ks-sdk-core'
 
 import BnbLogo from 'assets/images/bnb-logo.png'
 import BSC from 'assets/networks/bsc-network.png'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
-
-import { NetworkInfo } from '../type'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const bnbTestnetInfo: NetworkInfo = {
+const bnbTestnetInfo: EVMNetworkInfo = {
   chainId: ChainId.BSCTESTNET,
   route: 'bnb-testnet',
   name: 'BNB Testnet',
@@ -24,8 +23,7 @@ const bnbTestnetInfo: NetworkInfo = {
   bridgeURL: 'https://www.binance.org/en/bridge',
   nativeToken: {
     symbol: 'BNB',
-    name: 'BNB (Wrapped)',
-    address: '0xae13d989dac2f0debff460ac112a837c89baa7cd',
+    name: 'BNB',
     logo: BnbLogo,
     decimal: 18,
   },

@@ -1,20 +1,19 @@
-import { ChainId, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { ChainId, CurrencyAmount } from '@namgold/ks-sdk-core'
 import { useMemo } from 'react'
 import styled from 'styled-components'
 
 import { ReactComponent as DropdownSvg } from 'assets/svg/down.svg'
 import Card from 'components/Card'
+import NetworkModal from 'components/NetworkModal'
 import Row from 'components/Row'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import { nativeOnChain } from 'constants/tokens'
+import { NETWORKS_INFO } from 'constants/networks'
+import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { ApplicationModal } from 'state/application/actions'
+import { useModalOpen, useNetworkModalToggle } from 'state/application/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
 import { useETHBalances } from 'state/wallet/hooks'
-
-import { NETWORKS_INFO } from '../../constants/networks'
-import { useModalOpen, useNetworkModalToggle } from '../../state/application/hooks'
-import NetworkModal from '../NetworkModal'
 
 const NetworkSwitchContainer = styled.div`
   display: flex;
@@ -75,11 +74,11 @@ function Web3Network(): JSX.Element | null {
     if (!chainId) return ''
     return userEthBalance
       ? `${
-          userEthBalance?.lessThan(CurrencyAmount.fromRawAmount(nativeOnChain(chainId), (1e18).toString())) &&
+          userEthBalance?.lessThan(CurrencyAmount.fromRawAmount(NativeCurrencies[chainId], (1e18).toString())) &&
           userEthBalance?.greaterThan(0)
             ? parseFloat(userEthBalance.toSignificant(4)).toFixed(4)
             : userEthBalance.toSignificant(4)
-        } ${NETWORKS_INFO[chainId || ChainId.MAINNET].nativeToken.symbol}`
+        } ${NativeCurrencies[chainId || ChainId.MAINNET].symbol}`
       : NETWORKS_INFO[chainId].name
   }, [userEthBalance, chainId])
 

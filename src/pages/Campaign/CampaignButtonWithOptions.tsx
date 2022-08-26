@@ -1,6 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
+import { ChainId } from '@namgold/ks-sdk-core'
 import axios from 'axios'
 import React, { useMemo, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
@@ -12,7 +12,7 @@ import { ButtonPrimary } from 'components/Button'
 import { BIG_INT_ZERO, DEFAULT_SIGNIFICANT } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import { useActiveNetwork } from 'hooks/useActiveNetwork'
+import { useChangeNetwork } from 'hooks/useChangeNetwork'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useSendTransactionCallback from 'hooks/useSendTransactionCallback'
@@ -36,7 +36,7 @@ export default function CampaignButtonWithOptions({
 }) {
   const theme = useTheme()
   const [isShowNetworks, setIsShowNetworks] = useState(false)
-  const { changeNetwork } = useActiveNetwork()
+  const changeNetwork = useChangeNetwork()
   const containerRef = useRef<HTMLButtonElement>(null)
   useOnClickOutside(containerRef, () => setIsShowNetworks(false))
   const { mixpanelHandler } = useMixpanel()

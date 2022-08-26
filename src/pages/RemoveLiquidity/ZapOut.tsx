@@ -2,6 +2,7 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { splitSignature } from '@ethersproject/bytes'
 import { Contract } from '@ethersproject/contracts'
 import { TransactionResponse } from '@ethersproject/providers'
+import { Trans, t } from '@lingui/macro'
 import {
   Currency,
   CurrencyAmount,
@@ -11,8 +12,7 @@ import {
   TokenAmount,
   WETH,
   computePriceImpact,
-} from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
+} from '@namgold/ks-sdk-core'
 import { captureException } from '@sentry/react'
 import JSBI from 'jsbi'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
@@ -36,7 +36,7 @@ import ZapError from 'components/ZapError'
 import FormattedPriceImpact from 'components/swap/FormattedPriceImpact'
 import { Dots } from 'components/swap/styleds'
 import { NETWORKS_INFO } from 'constants/networks'
-import { nativeOnChain } from 'constants/tokens'
+import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
@@ -44,20 +44,21 @@ import { usePairContract } from 'hooks/useContract'
 import useIsArgentWallet from 'hooks/useIsArgentWallet'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
+import { Wrapper } from 'pages/Pool/styleds'
 import { useTokensPrice, useWalletModalToggle } from 'state/application/hooks'
 import { Field } from 'state/burn/actions'
 import { useBurnState, useDerivedZapOutInfo, useZapOutActionHandlers } from 'state/burn/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { useIsExpertMode, useUserSlippageTolerance } from 'state/user/hooks'
 import { StyledInternalLink, TYPE, UppercaseText } from 'theme'
-import { calculateGasMargin, formattedNum, getZapContract } from 'utils'
+import { calculateGasMargin, formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { formatJSBIValue } from 'utils/formatBalance'
+import { getZapContract } from 'utils/getContract'
 import { computePriceImpactWithoutFee, warningSeverity } from 'utils/prices'
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
 
-import { Wrapper } from '../Pool/styleds'
 import {
   CurrentPriceWrapper,
   DetailBox,
@@ -709,12 +710,12 @@ export default function ZapOut({
                             ? `/remove/${
                                 selectedCurrencyIsETHER
                                   ? currencyId(WETH[chainId], chainId)
-                                  : currencyId(nativeOnChain(chainId), chainId)
+                                  : currencyId(NativeCurrencies[chainId], chainId)
                               }/${currencyId(currencies[dependentTokenField] as Currency, chainId)}/${pairAddress}`
                             : `/remove/${currencyId(currencies[dependentTokenField] as Currency, chainId)}/${
                                 selectedCurrencyIsETHER
                                   ? currencyId(WETH[chainId], chainId)
-                                  : currencyId(nativeOnChain(chainId), chainId)
+                                  : currencyId(NativeCurrencies[chainId], chainId)
                               }/${pairAddress}`
                         }
                       >

@@ -1,5 +1,5 @@
-import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
-import { FeeAmount, computePoolAddress } from '@kyberswap/ks-sdk-elastic'
+import { ChainId, Currency } from '@namgold/ks-sdk-core'
+import { FeeAmount, computePoolAddress } from '@namgold/ks-sdk-elastic'
 import { useMemo } from 'react'
 
 import { NETWORKS_INFO } from 'constants/networks'

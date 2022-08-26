@@ -1,5 +1,5 @@
-import { FeeAmount } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
+import { FeeAmount } from '@namgold/ks-sdk-elastic'
 import { ReactNode, useCallback, useEffect, useState } from 'react'
 import { Minus, Plus } from 'react-feather'
 import styled, { keyframes } from 'styled-components'
@@ -7,10 +7,9 @@ import styled, { keyframes } from 'styled-components'
 import { ButtonGray } from 'components/Button'
 import { OutlineCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
+import { Input as NumericalInput } from 'components/NumericalInput'
 import useTheme from 'hooks/useTheme'
 import { TYPE } from 'theme'
-
-import { Input as NumericalInput } from '../NumericalInput'
 
 const pulse = (color: string) => keyframes`
   0% {

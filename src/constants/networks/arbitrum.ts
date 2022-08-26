@@ -1,16 +1,15 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@namgold/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import ARBITRUM from 'assets/networks/arbitrum-network.svg'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
-
-import { NetworkInfo } from '../type'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const arbitrumInfo: NetworkInfo = {
+const arbitrumInfo: EVMNetworkInfo = {
   chainId: ChainId.ARBITRUM,
   route: 'arbitrum',
   name: 'Arbitrum',
@@ -26,8 +25,7 @@ const arbitrumInfo: NetworkInfo = {
   bridgeURL: 'https://bridge.arbitrum.io',
   nativeToken: {
     symbol: 'ETH',
-    name: 'ETH (Wrapped)',
-    address: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
+    name: 'ETH',
     logo: EthereumLogo,
     decimal: 18,
   },

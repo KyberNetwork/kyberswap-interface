@@ -1,14 +1,17 @@
-import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import React, { ChangeEvent, KeyboardEvent, RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { ChainId, Currency, NativeCurrency, Token } from '@namgold/ks-sdk-core'
+import { ChangeEvent, KeyboardEvent, RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Edit } from 'react-feather'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
+import Column from 'components/Column'
 import InfoHelper from 'components/InfoHelper'
-import { nativeOnChain } from 'constants/tokens'
+import Row, { RowBetween, RowFixed } from 'components/Row'
+import { NativeCurrencies } from 'constants/tokens'
+import { useActiveWeb3React } from 'hooks'
 import {
   useAllTokens,
   useIsTokenActive,
@@ -21,13 +24,10 @@ import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import useToggle from 'hooks/useToggle'
 import { useUserFavoriteTokens } from 'state/user/hooks'
+import { ButtonText, CloseIcon, IconWrapper, TYPE } from 'theme'
+import { isAddress } from 'utils'
 import { filterTokens } from 'utils/filtering'
 
-import { useActiveWeb3React } from '../../hooks'
-import { ButtonText, CloseIcon, IconWrapper, TYPE } from '../../theme'
-import { isAddress } from '../../utils'
-import Column from '../Column'
-import Row, { RowBetween, RowFixed } from '../Row'
 import CommonBases from './CommonBases'
 import CurrencyList from './CurrencyList'
 import ImportRow from './ImportRow'
@@ -113,7 +113,7 @@ export function CurrencySearch({
   const searchTokenIsAdded = useIsUserAddedToken(searchToken)
   const isSearchTokenActive = useIsTokenActive(searchToken?.wrapped)
 
-  const nativeToken = chainId && nativeOnChain(chainId)
+  const nativeToken: NativeCurrency | null = chainId ? NativeCurrencies[chainId] : null
 
   const showETH: boolean = useMemo(() => {
     const s = searchQuery.toLowerCase().trim()
@@ -171,7 +171,7 @@ export function CurrencySearch({
       if (e.key === 'Enter') {
         const s = searchQuery.toLowerCase().trim()
         if (s === 'eth') {
-          handleCurrencySelect(nativeOnChain(chainId as ChainId))
+          handleCurrencySelect(NativeCurrencies[chainId])
         } else if (filteredSortedTokens.length > 0) {
           if (
             filteredSortedTokens[0].symbol?.toLowerCase() === searchQuery.trim().toLowerCase() ||
@@ -197,7 +197,7 @@ export function CurrencySearch({
     // `concat` always returns a new array
     const currencies: Currency[] = filteredSortedTokens.concat(filteredInactiveTokens)
     if (showETH && chainId) {
-      currencies.unshift(nativeOnChain(chainId))
+      currencies.unshift(NativeCurrencies[chainId])
     }
 
     if (activeTab === Tab.All) {

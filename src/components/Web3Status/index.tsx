@@ -7,18 +7,16 @@ import { Activity } from 'react-feather'
 import { useMedia } from 'react-use'
 import styled from 'styled-components'
 
+import CoinbaseWalletIcon from 'assets/images/coinbaseWalletIcon.svg'
+import FortmaticIcon from 'assets/images/fortmaticIcon.png'
+import PortisIcon from 'assets/images/portisIcon.png'
+import WalletConnectIcon from 'assets/images/walletConnectIcon.svg'
+import { ButtonLight, ButtonSecondary } from 'components/Button'
+import Identicon from 'components/Identicon'
+import Loader from 'components/Loader'
+import { RowBetween } from 'components/Row'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import useENSName from 'hooks/useENSName'
-import { useHasSocks } from 'hooks/useSocksBalance'
-import { useWalletModalToggle } from 'state/application/hooks'
-import { isTransactionRecent, useAllTransactions } from 'state/transactions/hooks'
-import { TransactionDetails } from 'state/transactions/reducer'
-import { shortenAddress } from 'utils'
-
-import CoinbaseWalletIcon from '../../assets/images/coinbaseWalletIcon.svg'
-import FortmaticIcon from '../../assets/images/fortmaticIcon.png'
-import PortisIcon from '../../assets/images/portisIcon.png'
-import WalletConnectIcon from '../../assets/images/walletConnectIcon.svg'
+import WalletModal from 'components/WalletModal'
 import {
   braveInjectedConnector,
   coin98InjectedConnector,
@@ -27,13 +25,14 @@ import {
   portis,
   walletconnect,
   walletlink,
-} from '../../connectors'
-import { NetworkContextName } from '../../constants'
-import { ButtonLight, ButtonSecondary } from '../Button'
-import Identicon from '../Identicon'
-import Loader from '../Loader'
-import { RowBetween } from '../Row'
-import WalletModal from '../WalletModal'
+} from 'connectors'
+import { NetworkContextName } from 'constants/index'
+import useENSName from 'hooks/useENSName'
+import { useHasSocks } from 'hooks/useSocksBalance'
+import { useNetworkModalToggle, useWalletModalToggle } from 'state/application/hooks'
+import { isTransactionRecent, useAllTransactions } from 'state/transactions/hooks'
+import { TransactionDetails } from 'state/transactions/reducer'
+import { shortenAddress } from 'utils'
 
 const IconWrapper = styled.div<{ size?: number }>`
   ${({ theme }) => theme.flexColumnNoWrap};
@@ -181,6 +180,7 @@ function Web3StatusInner() {
   const hasPendingTransactions = !!pending.length
   const hasSocks = useHasSocks()
   const toggleWalletModal = useWalletModalToggle()
+  const toggleNetworkModal = useNetworkModalToggle()
 
   const above369 = useMedia('(min-width: 369px)')
 
@@ -209,7 +209,7 @@ function Web3StatusInner() {
     )
   } else if (error) {
     return (
-      <Web3StatusError onClick={toggleWalletModal}>
+      <Web3StatusError onClick={toggleNetworkModal}>
         <NetworkIcon />
         <Text>{error instanceof UnsupportedChainIdError ? t`Wrong Network` : t`Error`}</Text>
       </Web3StatusError>

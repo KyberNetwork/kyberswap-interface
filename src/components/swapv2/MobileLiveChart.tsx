@@ -1,4 +1,4 @@
-import { Currency } from '@kyberswap/ks-sdk-core'
+import { Currency } from '@namgold/ks-sdk-core'
 import React from 'react'
 import { MobileView } from 'react-device-detect'
 import { X } from 'react-feather'

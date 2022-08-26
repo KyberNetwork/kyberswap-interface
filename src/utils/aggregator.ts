@@ -7,7 +7,7 @@ import {
   Price,
   TokenAmount,
   TradeType,
-} from '@kyberswap/ks-sdk-core'
+} from '@namgold/ks-sdk-core'
 import { Severity, captureException } from '@sentry/react'
 import JSBI from 'jsbi'
 import invariant from 'tiny-invariant'

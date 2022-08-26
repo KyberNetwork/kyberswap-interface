@@ -1,19 +1,17 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import React from 'react'
+import { ChainId } from '@namgold/ks-sdk-core'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 
 import { ListItem, NetworkLabel, NetworkList, SelectNetworkButton, Wrapper } from 'components/NetworkModal'
-import { useActiveNetwork } from 'hooks/useActiveNetwork'
+import { MAINNET_NETWORKS, NETWORKS_INFO } from 'constants/networks'
+import { useChangeNetwork } from 'hooks/useChangeNetwork'
 import useTheme from 'hooks/useTheme'
-
-import { MAINNET_NETWORKS, NETWORKS_INFO } from '../../constants/networks'
-import { useWalletModalToggle } from '../../state/application/hooks'
+import { useWalletModalToggle } from 'state/application/hooks'
 
 export default function WrongNetworkModal(): JSX.Element | null {
   const toggleWalletModal = useWalletModalToggle()
-  const { changeNetwork } = useActiveNetwork()
+  const changeNetwork = useChangeNetwork()
   const theme = useTheme()
 
   return (

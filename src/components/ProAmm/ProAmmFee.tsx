@@ -1,8 +1,8 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
-import { NonfungiblePositionManager, Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
-import React, { useCallback } from 'react'
+import { NonfungiblePositionManager, Position } from '@namgold/ks-sdk-elastic'
+import { useCallback } from 'react'
 import { Info } from 'react-feather'
 import { Flex, Text } from 'rebass'
 

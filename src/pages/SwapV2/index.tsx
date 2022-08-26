@@ -1,5 +1,5 @@
-import { ChainId, Currency, CurrencyAmount, NativeCurrency, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { ChainId, Currency, CurrencyAmount, NativeCurrency, Token } from '@namgold/ks-sdk-core'
 import JSBI from 'jsbi'
 import { stringify } from 'qs'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -70,11 +70,11 @@ import {
 } from 'components/swapv2/styleds'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
-import { STABLE_COINS_ADDRESS, nativeOnChain } from 'constants/tokens'
+import { NativeCurrencies, STABLE_COINS_ADDRESS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens, useCurrency } from 'hooks/Tokens'
-import { useActiveNetwork } from 'hooks/useActiveNetwork'
 import { ApprovalState, useApproveCallbackFromTradeV2 } from 'hooks/useApproveCallback'
+import { useChangeNetwork } from 'hooks/useChangeNetwork'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import usePrevious from 'hooks/usePrevious'
@@ -461,12 +461,12 @@ export default function Swap({ history }: RouteComponentProps) {
     return { fromCurrency, toCurrency, network }
   }
 
-  const { changeNetwork } = useActiveNetwork()
+  const changeNetwork = useChangeNetwork()
   const refIsCheckNetworkAutoSelect = useRef<boolean>(false) // has done check network
   const refIsImportUserToken = useRef<boolean>(false)
 
   const findToken = (keyword: string) => {
-    const nativeToken = nativeOnChain(chainId as ChainId)
+    const nativeToken = NativeCurrencies[chainId]
     if (keyword === getSymbolSlug(nativeToken)) {
       return nativeToken
     }

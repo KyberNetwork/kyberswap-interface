@@ -1,7 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { MaxUint256 } from '@ethersproject/constants'
-import { ChainId, Fraction, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { ChainId, Fraction, Token, TokenAmount } from '@namgold/ks-sdk-core'
 import { ethers } from 'ethers'
 import JSBI from 'jsbi'
 import React, { useMemo, useState } from 'react'
@@ -21,6 +21,12 @@ import InfoHelper from 'components/InfoHelper'
 import Modal from 'components/Modal'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { Dots } from 'components/swap/styleds'
+import {
+  DMM_ANALYTICS_URL,
+  MAX_ALLOW_APY, // FARMING_POOLS_CHAIN_STAKING_LINK,
+  OUTSIDE_FAIRLAUNCH_ADDRESSES,
+  TOBE_EXTENDED_FARMING_POOLS,
+} from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useToken } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
@@ -41,12 +47,6 @@ import { getTradingFeeAPR, useFarmApr, useFarmRewards, useFarmRewardsUSD } from 
 import { formatTokenBalance, getFullDisplayBalance } from 'utils/formatBalance'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
 
-import {
-  DMM_ANALYTICS_URL,
-  MAX_ALLOW_APY, // FARMING_POOLS_CHAIN_STAKING_LINK,
-  OUTSIDE_FAIRLAUNCH_ADDRESSES,
-  TOBE_EXTENDED_FARMING_POOLS,
-} from '../../constants'
 import { ModalContentWrapper } from './ProMMFarmModals/styled'
 import { APY, ActionButton, DataText, GetLP, RewardBalanceWrapper, StyledItemCard, TableRow } from './styleds'
 

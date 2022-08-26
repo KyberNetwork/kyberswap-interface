@@ -1,12 +1,14 @@
-import { Currency, TradeType } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { Currency, TradeType } from '@namgold/ks-sdk-core'
 import React, { useMemo, useState } from 'react'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
+import { AutoColumn } from 'components/Column'
 import Divider from 'components/Divider'
 import InfoHelper from 'components/InfoHelper'
+import { RowBetween, RowFixed } from 'components/Row'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
 import useTheme from 'hooks/useTheme'
 import { Field } from 'state/swap/actions'
@@ -17,9 +19,6 @@ import { Aggregator } from 'utils/aggregator'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { getFormattedFeeAmountUsd } from 'utils/fee'
 import { computeSlippageAdjustedAmounts } from 'utils/prices'
-
-import { AutoColumn } from '../Column'
-import { RowBetween, RowFixed } from '../Row'
 
 const IconWrapper = styled.div<{ show: boolean }>`
   color: ${({ theme }) => theme.text};

@@ -1,6 +1,6 @@
-import { JSBI, Pair } from '@kyberswap/ks-sdk-classic'
-import { ChainId, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { JSBI, Pair } from '@namgold/ks-sdk-classic'
+import { ChainId, Token, TokenAmount } from '@namgold/ks-sdk-core'
 import { rgba } from 'polished'
 import { useMemo, useState } from 'react'
 import { Info } from 'react-feather'
@@ -30,14 +30,13 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { useWindowSize } from 'hooks/useWindowSize'
+import ProAmmPool from 'pages/ProAmmPool'
 import { useFarmsData, useTotalApr } from 'state/farms/hooks'
 import { Farm } from 'state/farms/types'
 import { UserLiquidityPosition, useUserLiquidityPositions } from 'state/pools/hooks'
 import { useLiquidityPositionTokenPairs, useToV2LiquidityTokens } from 'state/user/hooks'
 import { useTokenBalancesWithLoadingIndicator } from 'state/wallet/hooks'
-
-import { ExternalLink, StyledInternalLink, TYPE } from '../../theme'
-import ProAmmPool from '../ProAmmPool'
+import { ExternalLink, StyledInternalLink, TYPE } from 'theme'
 
 export const Tab = styled.div<{ active: boolean }>`
   padding: 4px 0;

@@ -1,6 +1,6 @@
 import { ApolloProvider } from '@apollo/client'
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import { ChainId } from '@namgold/ks-sdk-core'
 import * as Sentry from '@sentry/react'
 import { Popover, Sidetab } from '@typeform/embed-react'
 import { Suspense, lazy, useEffect } from 'react'

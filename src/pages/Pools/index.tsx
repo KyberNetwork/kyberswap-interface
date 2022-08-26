@@ -1,5 +1,5 @@
-import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { Currency } from '@namgold/ks-sdk-core'
 import { useCallback, useMemo, useState } from 'react'
 import { Link, RouteComponentProps } from 'react-router-dom'
 import { useMedia } from 'react-use'

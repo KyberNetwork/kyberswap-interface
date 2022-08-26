@@ -1,15 +1,16 @@
 import { TransactionResponse } from '@ethersproject/providers'
-import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
+import { CurrencyAmount } from '@namgold/ks-sdk-core'
 import { captureException } from '@sentry/react'
 import { BigNumber } from 'ethers'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import useSWR from 'swr'
 
-import { CLAIM_REWARDS_DATA_URL, KNC } from 'constants/index'
+import { CLAIM_REWARDS_DATA_URL } from 'constants/index'
+import { KNC } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
-import { getClaimRewardContract } from 'utils'
+import { getClaimRewardContract } from 'utils/getContract'
 
 export interface IReward {
   index: number

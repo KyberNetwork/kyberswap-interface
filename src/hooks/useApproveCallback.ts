@@ -1,20 +1,20 @@
 import { MaxUint256 } from '@ethersproject/constants'
 import { TransactionResponse } from '@ethersproject/providers'
-import { Trade } from '@kyberswap/ks-sdk-classic'
-import { ChainId, Currency, CurrencyAmount, Percent, TradeType } from '@kyberswap/ks-sdk-core'
-import { Trade as ProAmmTrade } from '@kyberswap/ks-sdk-elastic'
+import { Trade } from '@namgold/ks-sdk-classic'
+import { Currency, CurrencyAmount, Percent, TradeType } from '@namgold/ks-sdk-core'
+import { Trade as ProAmmTrade } from '@namgold/ks-sdk-elastic'
 import JSBI from 'jsbi'
 import { useCallback, useMemo } from 'react'
 
 import { NETWORKS_INFO } from 'constants/networks'
-import { nativeOnChain } from 'constants/tokens'
+import { NativeCurrencies } from 'constants/tokens'
 import { useTokenAllowance } from 'data/Allowances'
 import { Field } from 'state/swap/actions'
 import { useHasPendingApproval, useTransactionAdder } from 'state/transactions/hooks'
 import { calculateGasMargin } from 'utils'
+import { Aggregator } from 'utils/aggregator'
 import { computeSlippageAdjustedAmounts } from 'utils/prices'
 
-import { Aggregator } from '../utils/aggregator'
 import { useActiveWeb3React } from './index'
 import { useTokenContract } from './useContract'
 
@@ -111,7 +111,7 @@ export function useApproveCallback(
         addTransactionWithType(response, {
           type: 'Approve',
           summary: amountToApprove.currency.isNative
-            ? nativeOnChain(chainId as ChainId).symbol
+            ? NativeCurrencies[chainId].symbol
             : amountToApprove.currency.symbol,
           approval: { tokenAddress: token.address, spender: spender },
         })

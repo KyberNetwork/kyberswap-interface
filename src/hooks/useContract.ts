@@ -1,38 +1,38 @@
 import { Contract } from '@ethersproject/contracts'
-import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
+import { ChainId, WETH } from '@namgold/ks-sdk-core'
 import { useMemo } from 'react'
 
 import IUniswapV2PairABI from 'constants/abis/IUniswapV2PairABI.json'
+import {
+  ARGENT_WALLET_DETECTOR_ABI,
+  ARGENT_WALLET_DETECTOR_MAINNET_ADDRESS,
+} from 'constants/abis/argent-wallet-detector'
+import FACTORY_ABI from 'constants/abis/dmm-factory.json'
+import ENS_PUBLIC_RESOLVER_ABI from 'constants/abis/ens-public-resolver.json'
+import ENS_ABI from 'constants/abis/ens-registrar.json'
+import { ERC20_BYTES32_ABI } from 'constants/abis/erc20'
+import ERC20_ABI from 'constants/abis/erc20.json'
+import FAIRLAUNCH_V2_ABI from 'constants/abis/fairlaunch-v2.json'
+import FAIRLAUNCH_ABI from 'constants/abis/fairlaunch.json'
+import KS_STATIC_FEE_FACTORY_ABI from 'constants/abis/ks-factory.json'
+import REWARD_LOCKER_V2_ABI from 'constants/abis/reward-locker-v2.json'
+import REWARD_LOCKER_ABI from 'constants/abis/reward-locker.json'
+import UNISOCKS_ABI from 'constants/abis/unisocks.json'
+import NFTPositionManagerABI from 'constants/abis/v2/ProAmmNFTPositionManager.json'
+import ProAmmPoolAbi from 'constants/abis/v2/ProAmmPoolState.json'
+import QuoterABI from 'constants/abis/v2/ProAmmQuoter.json'
+import TickReaderABI from 'constants/abis/v2/ProAmmTickReader.json'
+import PROMM_FARM_ABI from 'constants/abis/v2/farm.json'
+import WETH_ABI from 'constants/abis/weth.json'
 import ZAP_STATIC_FEE_ABI from 'constants/abis/zap-static-fee.json'
 import ZAP_ABI from 'constants/abis/zap.json'
+import { MULTICALL_ABI, MULTICALL_NETWORKS } from 'constants/multicall'
 import { NETWORKS_INFO } from 'constants/networks'
 import { FARM_CONTRACTS as PROMM_FARM_CONTRACTS } from 'constants/v2'
 import { FairLaunchVersion, RewardLockerVersion } from 'state/farms/types'
 import { useRewardLockerAddressesWithVersion } from 'state/vesting/hooks'
+import { getContract, getContractForReading } from 'utils/getContract'
 
-import {
-  ARGENT_WALLET_DETECTOR_ABI,
-  ARGENT_WALLET_DETECTOR_MAINNET_ADDRESS,
-} from '../constants/abis/argent-wallet-detector'
-import FACTORY_ABI from '../constants/abis/dmm-factory.json'
-import ENS_PUBLIC_RESOLVER_ABI from '../constants/abis/ens-public-resolver.json'
-import ENS_ABI from '../constants/abis/ens-registrar.json'
-import { ERC20_BYTES32_ABI } from '../constants/abis/erc20'
-import ERC20_ABI from '../constants/abis/erc20.json'
-import FAIRLAUNCH_V2_ABI from '../constants/abis/fairlaunch-v2.json'
-import FAIRLAUNCH_ABI from '../constants/abis/fairlaunch.json'
-import KS_STATIC_FEE_FACTORY_ABI from '../constants/abis/ks-factory.json'
-import REWARD_LOCKER_V2_ABI from '../constants/abis/reward-locker-v2.json'
-import REWARD_LOCKER_ABI from '../constants/abis/reward-locker.json'
-import UNISOCKS_ABI from '../constants/abis/unisocks.json'
-import NFTPositionManagerABI from '../constants/abis/v2/ProAmmNFTPositionManager.json'
-import ProAmmPoolAbi from '../constants/abis/v2/ProAmmPoolState.json'
-import QuoterABI from '../constants/abis/v2/ProAmmQuoter.json'
-import TickReaderABI from '../constants/abis/v2/ProAmmTickReader.json'
-import PROMM_FARM_ABI from '../constants/abis/v2/farm.json'
-import WETH_ABI from '../constants/abis/weth.json'
-import { MULTICALL_ABI, MULTICALL_NETWORKS } from '../constants/multicall'
-import { getContract, getContractForReading } from '../utils'
 import { providers, useActiveWeb3React } from './index'
 
 // returns null on errors
@@ -49,11 +49,7 @@ export function useContract(address: string | undefined, ABI: any, withSignerIfP
   }, [address, ABI, library, withSignerIfPossible, account])
 }
 
-export function useContractForReading(
-  address: string | undefined,
-  ABI: any,
-  withSignerIfPossible = true,
-): Contract | null {
+function useContractForReading(address: string | undefined, ABI: any): Contract | null {
   const { chainId } = useActiveWeb3React()
   return useMemo(() => {
     if (!address || !chainId) return null
@@ -108,8 +104,8 @@ export function useTokenContract(tokenAddress?: string, withSignerIfPossible?: b
   return useContract(tokenAddress, ERC20_ABI, withSignerIfPossible)
 }
 
-export function useTokenContractForReading(tokenAddress?: string, withSignerIfPossible?: boolean): Contract | null {
-  return useContractForReading(tokenAddress, ERC20_ABI, withSignerIfPossible)
+export function useTokenContractForReading(tokenAddress?: string): Contract | null {
+  return useContractForReading(tokenAddress, ERC20_ABI)
 }
 
 export function useWETHContract(withSignerIfPossible?: boolean): Contract | null {
@@ -156,7 +152,7 @@ export function usePairContract(pairAddress?: string, withSignerIfPossible?: boo
 
 export function useMulticallContract(): Contract | null {
   const { chainId } = useActiveWeb3React()
-  return useContractForReading(chainId && MULTICALL_NETWORKS[chainId], MULTICALL_ABI, false)
+  return useContractForReading(chainId && MULTICALL_NETWORKS[chainId], MULTICALL_ABI)
 }
 
 export function useSocksController(): Contract | null {

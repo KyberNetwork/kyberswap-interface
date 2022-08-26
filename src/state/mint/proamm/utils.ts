@@ -1,4 +1,4 @@
-import { Price, Token } from '@kyberswap/ks-sdk-core'
+import { Price, Token } from '@namgold/ks-sdk-core'
 import {
   FeeAmount,
   TICK_SPACINGS,
@@ -6,7 +6,7 @@ import {
   encodeSqrtRatioX96,
   nearestUsableTick,
   priceToClosestTick,
-} from '@kyberswap/ks-sdk-elastic'
+} from '@namgold/ks-sdk-elastic'
 import JSBI from 'jsbi'
 
 export function tryParsePrice(baseToken?: Token, quoteToken?: Token, value?: string) {

@@ -1,15 +1,14 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@namgold/ks-sdk-core'
 
 import AVAX from 'assets/networks/avax-network.png'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
-
-import { NetworkInfo } from '../type'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const avaxTestnetInfo: NetworkInfo = {
+const avaxTestnetInfo: EVMNetworkInfo = {
   chainId: ChainId.AVAXTESTNET,
   route: 'avalanche-testnet',
   name: 'Avalanche Testnet',
@@ -23,8 +22,7 @@ const avaxTestnetInfo: NetworkInfo = {
   bridgeURL: 'https://bridge.avax.network',
   nativeToken: {
     symbol: 'AVAX',
-    name: 'AVAX (Wrapped)',
-    address: EMPTY,
+    name: 'AVAX',
     logo: AVAX,
     decimal: 18,
   },

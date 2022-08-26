@@ -1,5 +1,5 @@
-import { Currency, TradeType } from '@kyberswap/ks-sdk-core'
-import { Trade } from '@kyberswap/ks-sdk-elastic'
+import { Currency, TradeType } from '@namgold/ks-sdk-core'
+import { Trade } from '@namgold/ks-sdk-elastic'
 
 export enum TradeState {
   LOADING,

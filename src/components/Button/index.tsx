@@ -4,9 +4,8 @@ import { ChevronDown, ChevronUp } from 'react-feather'
 import { ButtonProps, Button as RebassButton } from 'rebass/styled-components'
 import styled from 'styled-components'
 
+import { RowBetween } from 'components/Row'
 import useTheme from 'hooks/useTheme'
-
-import { RowBetween } from '../Row'
 
 const Base = styled(RebassButton)<{
   padding?: string

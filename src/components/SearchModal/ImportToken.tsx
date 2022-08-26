@@ -1,5 +1,5 @@
-import { Currency, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { Currency, Token } from '@namgold/ks-sdk-core'
 import { rgba, transparentize } from 'polished'
 import { useCallback, useEffect } from 'react'
 import { AlertCircle, ArrowLeft, CornerDownLeft } from 'react-feather'
@@ -17,9 +17,9 @@ import useTheme from 'hooks/useTheme'
 import { LiteTokenList } from 'state/lists/wrappedTokenInfo'
 import { useAddUserToken } from 'state/user/hooks'
 import { CloseIcon, TYPE } from 'theme'
+import { ExternalLink } from 'theme/components'
 import { getEtherscanLink } from 'utils'
 
-import { ExternalLink } from '../../theme/components'
 import { PaddedColumn } from './styleds'
 
 const Wrapper = styled.div`

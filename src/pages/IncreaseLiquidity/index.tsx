@@ -1,7 +1,7 @@
 import { TransactionResponse } from '@ethersproject/providers'
-import { Currency, CurrencyAmount, Percent, WETH } from '@kyberswap/ks-sdk-core'
-import { FeeAmount, NonfungiblePositionManager } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
+import { Currency, CurrencyAmount, Percent, WETH } from '@namgold/ks-sdk-core'
+import { FeeAmount, NonfungiblePositionManager } from '@namgold/ks-sdk-elastic'
 import { BigNumber } from 'ethers'
 import JSBI from 'jsbi'
 import React, { useCallback, useEffect, useState } from 'react'
@@ -23,7 +23,7 @@ import TransactionConfirmationModal, { ConfirmationModalContent } from 'componen
 import { TutorialType } from 'components/Tutorial'
 import { Dots } from 'components/swap/styleds'
 import { NETWORKS_INFO } from 'constants/networks'
-import { nativeOnChain } from 'constants/tokens'
+import { NativeCurrencies } from 'constants/tokens'
 import { FARM_CONTRACTS, VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
@@ -40,12 +40,11 @@ import { Field } from 'state/mint/proamm/actions'
 import { useProAmmDerivedMintInfo, useProAmmMintActionHandlers, useProAmmMintState } from 'state/mint/proamm/hooks'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
-import { useIsExpertMode } from 'state/user/hooks'
+import { useIsExpertMode, useUserSlippageTolerance } from 'state/user/hooks'
 import { calculateGasMargin, formattedNum, isAddressString, shortenAddress } from 'utils'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
-import { useUserSlippageTolerance } from '../../state/user/hooks'
 import { Container, FirstColumn, GridColumn, SecondColumn } from './styled'
 
 export default function AddLiquidity({
@@ -486,7 +485,7 @@ export default function AddLiquidity({
                       chainId &&
                         history.replace(
                           `/elastic/increase/${
-                            baseCurrencyIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
+                            baseCurrencyIsETHER ? WETH[chainId].address : NativeCurrencies[chainId].symbol
                           }/${currencyIdB}/${feeAmount}/${tokenId}`,
                         )
                     }}
@@ -513,7 +512,7 @@ export default function AddLiquidity({
                       chainId &&
                         history.replace(
                           `/elastic/increase/${currencyIdA}/${
-                            quoteCurrencyIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
+                            quoteCurrencyIsETHER ? WETH[chainId].address : NativeCurrencies[chainId].symbol
                           }/${feeAmount}/${tokenId}`,
                         )
                     }}

@@ -1,16 +1,15 @@
 import { Trans, t } from '@lingui/macro'
-import React, { ChangeEvent, useCallback } from 'react'
+import { ChangeEvent, useCallback } from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
+import { AutoColumn } from 'components/Column'
 import { useActiveWeb3React } from 'hooks'
+import useENS from 'hooks/useENS'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink } from 'theme'
 import { getEtherscanLink, getEtherscanLinkText } from 'utils'
-
-import useENS from '../../hooks/useENS'
-import { AutoColumn } from '../Column'
 
 const InputPanel = styled.div`
   ${({ theme }) => theme.flexColumnNoWrap}

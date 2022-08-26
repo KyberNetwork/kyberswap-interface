@@ -1,4 +1,4 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId, ChainType, getChainType } from '@namgold/ks-sdk-core'
 
 import {
   arbitrum,
@@ -21,9 +21,9 @@ import {
   optimism,
   rinkeby,
   ropsten,
+  solana,
   velas,
 } from './networks/index'
-import { NetworkInfo } from './type'
 
 type NetToChain = { [p: string]: ChainId }
 
@@ -37,7 +37,7 @@ export const TRUESIGHT_NETWORK_TO_CHAINID: NetToChain = {
   cronos: ChainId.CRONOS,
 }
 
-export const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
+export const NETWORKS_INFO_CONFIG = {
   [ChainId.MAINNET]: ethereum,
   [ChainId.ROPSTEN]: ropsten,
   [ChainId.RINKEBY]: rinkeby,
@@ -59,6 +59,7 @@ export const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
   [ChainId.AURORA]: aurora,
   [ChainId.OASIS]: oasis,
   [ChainId.OPTIMISM]: optimism,
+  [ChainId.SOLANA]: solana,
 }
 
 //this Proxy helps fallback undefined ChainId by Ethereum info
@@ -85,4 +86,8 @@ export const MAINNET_NETWORKS = [
   ChainId.AURORA,
   ChainId.OASIS,
   ChainId.OPTIMISM,
+  ChainId.SOLANA,
 ]
+
+export const EVM_NETWORKS = SUPPORTED_NETWORKS.filter(chainId => getChainType(chainId) === ChainType.EVM)
+export const EVM_MAINNET_NETWORKS = MAINNET_NETWORKS.filter(chainId => getChainType(chainId) === ChainType.EVM)

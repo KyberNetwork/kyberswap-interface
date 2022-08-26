@@ -1,14 +1,13 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@namgold/ks-sdk-core'
 
 import Polygon from 'assets/networks/polygon-network.png'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
-
-import { NetworkInfo } from '../type'
 
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const maticInfo: NetworkInfo = {
+const maticInfo: EVMNetworkInfo = {
   chainId: ChainId.MATIC,
   route: 'polygon',
   name: 'Polygon',
@@ -22,8 +21,7 @@ const maticInfo: NetworkInfo = {
   bridgeURL: 'https://wallet.matic.network/bridge',
   nativeToken: {
     symbol: 'MATIC',
-    name: 'MATIC (Wrapped)',
-    address: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270',
+    name: 'Polygon',
     logo: Polygon,
     decimal: 18,
   },

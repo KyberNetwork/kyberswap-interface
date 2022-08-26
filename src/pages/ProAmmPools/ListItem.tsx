@@ -1,5 +1,5 @@
-import { ChainId, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { ChainId, Token, WETH } from '@namgold/ks-sdk-core'
 import { rgba } from 'polished'
 import { useState } from 'react'
 import { BarChart2, ChevronUp, Plus, Share2 } from 'react-feather'
@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
+import { ReactComponent as ViewPositionIcon } from 'assets/svg/view_positions.svg'
 import { ButtonEmpty } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import Divider from 'components/Divider'
@@ -14,7 +15,7 @@ import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { MoneyBag } from 'components/Icons'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { ELASTIC_BASE_FEE_UNIT, PROMM_ANALYTICS_URL } from 'constants/index'
-import { nativeOnChain } from 'constants/tokens'
+import { NativeCurrencies } from 'constants/tokens'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
@@ -26,8 +27,6 @@ import { ProMMPoolData } from 'state/prommPools/hooks'
 import { ExternalLink } from 'theme'
 import { isAddressString, shortenAddress } from 'utils'
 import { formatDollarAmount } from 'utils/numbers'
-
-import { ReactComponent as ViewPositionIcon } from '../../assets/svg/view_positions.svg'
 
 interface ListItemProps {
   pair: ProMMPoolData[]
@@ -116,21 +115,21 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions,
 
         const token0Address =
           pool.token0.address === WETH[chainId as ChainId].address.toLowerCase()
-            ? nativeOnChain(chainId as ChainId).symbol
+            ? NativeCurrencies[chainId].symbol
             : pool.token0.address
 
         const token0Symbol =
           pool.token0.address === WETH[chainId as ChainId].address.toLowerCase()
-            ? nativeOnChain(chainId as ChainId).symbol
+            ? NativeCurrencies[chainId].symbol
             : token0.symbol
 
         const token1Address =
           pool.token1.address === WETH[chainId as ChainId].address.toLowerCase()
-            ? nativeOnChain(chainId as ChainId).symbol
+            ? NativeCurrencies[chainId].symbol
             : pool.token1.address
         const token1Symbol =
           pool.token1.address === WETH[chainId as ChainId].address.toLowerCase()
-            ? nativeOnChain(chainId as ChainId).symbol
+            ? NativeCurrencies[chainId].symbol
             : token1.symbol
 
         const isFarmingPool = Object.values(farms)

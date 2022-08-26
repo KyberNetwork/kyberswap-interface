@@ -1,4 +1,4 @@
-import { Fraction } from '@kyberswap/ks-sdk-core'
+import { Fraction } from '@namgold/ks-sdk-core'
 import axios from 'axios'
 import JSBI from 'jsbi'
 import { useEffect } from 'react'

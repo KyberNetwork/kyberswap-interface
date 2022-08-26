@@ -1,4 +1,4 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@namgold/ks-sdk-core'
 import Axios from 'axios'
 
 const SUGGEST_PAIR_API = process.env.REACT_APP_TYPE_AND_SWAP_URL

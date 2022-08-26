@@ -1,15 +1,14 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@namgold/ks-sdk-core'
 
 import BTT from 'assets/networks/bttc.png'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
-
-import { NetworkInfo } from '../type'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const bttcInfo: NetworkInfo = {
+const bttcInfo: EVMNetworkInfo = {
   chainId: ChainId.BTTC,
   route: 'bittorrent',
   name: 'BitTorrent',
@@ -27,8 +26,7 @@ const bttcInfo: NetworkInfo = {
   bridgeURL: 'https://wallet.bt.io/bridge',
   nativeToken: {
     symbol: 'BTT',
-    name: 'BTT (Wrapped)',
-    address: '0x8D193c6efa90BCFf940A98785d1Ce9D093d3DC8A',
+    name: 'BTT',
     logo: BTT,
     decimal: 18,
   },

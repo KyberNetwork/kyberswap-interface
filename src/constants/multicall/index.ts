@@ -1,4 +1,4 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@namgold/ks-sdk-core'
 
 import MULTICALL_ABI from './abi.json'
 
@@ -26,6 +26,7 @@ const MULTICALL_NETWORKS: { [chainId in ChainId]: string } = {
   [ChainId.VELAS]: '0x1877Ec0770901cc6886FDA7E7525a78c2Ed4e975',
   [ChainId.OASIS]: '0xBF69a56D35B8d6f5A8e0e96B245a72F735751e54',
   [ChainId.OPTIMISM]: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',
+  [ChainId.SOLANA]: '123456', //todo namgold: check this
 }
 
 export { MULTICALL_ABI, MULTICALL_NETWORKS }

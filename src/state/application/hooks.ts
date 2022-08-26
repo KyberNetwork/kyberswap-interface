@@ -1,18 +1,19 @@
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
-import { ChainId, NativeCurrency, Token } from '@kyberswap/ks-sdk-core'
+import { ChainId, NativeCurrency, Token } from '@namgold/ks-sdk-core'
 import dayjs from 'dayjs'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useDeepCompareEffect } from 'react-use'
 
 import { ETH_PRICE, PROMM_ETH_PRICE, TOKEN_DERIVED_ETH } from 'apollo/queries'
+import { OUTSITE_FARM_REWARDS_QUERY, ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
+import { KNC } from 'constants/tokens'
 import { VERSION } from 'constants/v2'
+import { useActiveWeb3React } from 'hooks/index'
+import { AppDispatch, AppState } from 'state/index'
 import { getBlockFromTimestamp, getPercentChange } from 'utils'
 
-import { KNC, OUTSITE_FARM_REWARDS_QUERY, ZERO_ADDRESS } from '../../constants'
-import { useActiveWeb3React } from '../../hooks'
-import { AppDispatch, AppState } from '../index'
 import {
   ApplicationModal,
   PopupContent,
@@ -56,6 +57,10 @@ export function useCloseModals(): () => void {
 
 export function useNetworkModalToggle(): () => void {
   return useToggleModal(ApplicationModal.NETWORK)
+}
+
+export function useOpenNetworkModal(): () => void {
+  return useOpenModal(ApplicationModal.NETWORK)
 }
 
 export function useWalletModalToggle(): () => void {

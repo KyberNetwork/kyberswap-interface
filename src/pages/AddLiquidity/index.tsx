@@ -1,7 +1,7 @@
-import { Fraction, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { Fraction, WETH } from '@namgold/ks-sdk-core'
 import JSBI from 'jsbi'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 
 import LiquidityProviderMode from 'components/LiquidityProviderMode'

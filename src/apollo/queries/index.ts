@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 
-import { BUNDLE_ID } from '../../constants'
+import { BUNDLE_ID } from 'constants/index'
 
 export const SUBGRAPH_BLOCK_NUMBER = () => gql`
   query block_number {

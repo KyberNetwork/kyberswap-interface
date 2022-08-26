@@ -1,13 +1,13 @@
-import { Currency, WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
+import { Currency, WETH } from '@namgold/ks-sdk-core'
 import { useMemo } from 'react'
 
-import { nativeOnChain } from 'constants/tokens'
+import { NativeCurrencies } from 'constants/tokens'
+import { tryParseAmount } from 'state/swap/hooks'
+import { useTransactionAdder } from 'state/transactions/hooks'
+import { useCurrencyBalance } from 'state/wallet/hooks'
 import { calculateGasMargin } from 'utils'
 
-import { tryParseAmount } from '../state/swap/hooks'
-import { useTransactionAdder } from '../state/transactions/hooks'
-import { useCurrencyBalance } from '../state/wallet/hooks'
 import { useActiveWeb3React } from './index'
 import { useWETHContract } from './useContract'
 
@@ -41,7 +41,7 @@ export default function useWrapCallback(
 
     const sufficientBalance = inputAmount && balance && !balance.lessThan(inputAmount)
 
-    const nativeTokenSymbol = nativeOnChain(chainId).symbol
+    const nativeTokenSymbol = NativeCurrencies[chainId].symbol
 
     if (inputCurrency.isNative && WETH[chainId].equals(outputCurrency)) {
       return {
@@ -72,7 +72,7 @@ export default function useWrapCallback(
           ? t`Enter an amount`
           : sufficientBalance
           ? undefined
-          : t`Insufficient ${nativeOnChain(chainId).symbol} balance`,
+          : t`Insufficient ${NativeCurrencies[chainId].symbol} balance`,
       }
     } else if (WETH[chainId].equals(inputCurrency) && outputCurrency.isNative) {
       return {
@@ -100,7 +100,7 @@ export default function useWrapCallback(
           ? t`Enter an amount`
           : sufficientBalance
           ? undefined
-          : t`Insufficient W${nativeOnChain(chainId).symbol} balance`,
+          : t`Insufficient W${NativeCurrencies[chainId].symbol} balance`,
       }
     } else {
       return NOT_APPLICABLE

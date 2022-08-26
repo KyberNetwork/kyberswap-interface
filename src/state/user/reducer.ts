@@ -1,11 +1,11 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@namgold/ks-sdk-core'
 import { createReducer } from '@reduxjs/toolkit'
 import { isMobile } from 'react-device-detect'
 
 import { DEFAULT_DEADLINE_FROM_NOW, INITIAL_ALLOWED_SLIPPAGE } from 'constants/index'
 import { SupportedLocale } from 'constants/locales'
+import { updateVersion } from 'state/global/actions'
 
-import { updateVersion } from '../global/actions'
 import {
   SerializedPair,
   SerializedToken,
@@ -96,6 +96,7 @@ export const defaultShowLiveCharts: { [chainId in ChainId]: boolean } = {
   [ChainId.VELAS]: isMobile ? false : true,
   [ChainId.OASIS]: isMobile ? false : true,
   [ChainId.OPTIMISM]: isMobile ? false : true,
+  [ChainId.SOLANA]: isMobile ? false : true,
 
   [ChainId.ROPSTEN]: false,
   [ChainId.RINKEBY]: false,

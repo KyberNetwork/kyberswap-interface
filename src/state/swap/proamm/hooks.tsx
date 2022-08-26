@@ -1,20 +1,19 @@
-import { Currency, CurrencyAmount, TradeType } from '@kyberswap/ks-sdk-core'
-import { Trade } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
-import React, { ReactNode, useMemo } from 'react'
+import { Currency, CurrencyAmount, TradeType } from '@namgold/ks-sdk-core'
+import { Trade } from '@namgold/ks-sdk-elastic'
+import { ReactNode, useMemo } from 'react'
 
+import { BAD_RECIPIENT_ADDRESSES } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import useENS from 'hooks/useENS'
 import { useProAmmBestTrade } from 'hooks/useProAmmBestTrade'
 import { TradeState } from 'state/routing/types'
+import { Field } from 'state/swap/actions'
+import { tryParseAmount, useSwapState } from 'state/swap/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
-
-import { BAD_RECIPIENT_ADDRESSES } from '../../../constants'
-import { basisPointsToPercent, isAddress } from '../../../utils'
-import { Field } from '../actions'
-import { tryParseAmount, useSwapState } from '../hooks'
+import { basisPointsToPercent, isAddress } from 'utils'
 
 export function useProAmmDerivedSwapInfo(): {
   currencies: { [field in Field]?: Currency | null }

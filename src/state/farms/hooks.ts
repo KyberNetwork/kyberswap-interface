@@ -1,7 +1,7 @@
 import { Interface } from '@ethersproject/abi'
 import { BigNumber } from '@ethersproject/bignumber'
 import { Contract } from '@ethersproject/contracts'
-import { ChainId, CurrencyAmount, Fraction, Token } from '@kyberswap/ks-sdk-core'
+import { ChainId, CurrencyAmount, Fraction, Token } from '@namgold/ks-sdk-core'
 import { ethers } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
@@ -20,7 +20,7 @@ import {
   ZERO_ADDRESS,
 } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
-import { nativeOnChain } from 'constants/tokens'
+import { NativeCurrencies } from 'constants/tokens'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
@@ -167,7 +167,7 @@ export const useFarmsData = (isIncludeOutsideFarms = true) => {
       const farmsData = await getBulkPoolDataFromPoolList(poolAddresses, apolloClient, ethPrice.currentPrice, chainId)
 
       const rewardTokens = rewardTokenAddresses.map(address =>
-        address.toLowerCase() === ZERO_ADDRESS.toLowerCase() ? nativeOnChain(chainId as ChainId) : allTokens[address],
+        address.toLowerCase() === ZERO_ADDRESS.toLowerCase() ? NativeCurrencies[chainId] : allTokens[address],
       )
 
       const farms: Farm[] = poolInfos.map((poolInfo, index) => {

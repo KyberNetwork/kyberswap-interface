@@ -1,5 +1,5 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { ChainId } from '@namgold/ks-sdk-core'
 import { BigNumber } from 'ethers'
 import { stringify } from 'qs'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'

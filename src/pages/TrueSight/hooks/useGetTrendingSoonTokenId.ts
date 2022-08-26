@@ -1,4 +1,4 @@
-import { Token } from '@kyberswap/ks-sdk-core'
+import { Token } from '@namgold/ks-sdk-core'
 import { useEffect, useState } from 'react'
 
 import { TRENDING_SOON_MAX_ITEMS } from 'constants/index'

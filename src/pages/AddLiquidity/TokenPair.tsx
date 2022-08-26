@@ -1,7 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
-import { Currency, CurrencyAmount, Fraction, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { Currency, CurrencyAmount, Fraction, TokenAmount, WETH } from '@namgold/ks-sdk-core'
 import { captureException } from '@sentry/react'
 import { parseUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
@@ -10,48 +10,46 @@ import { AlertTriangle } from 'react-feather'
 import { useHistory } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 
+import { ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
+import { AutoColumn } from 'components/Column'
 import { ConfirmAddModalBottom } from 'components/ConfirmAddModalBottom'
+import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import CurrentPrice from 'components/CurrentPrice'
 import Loader from 'components/Loader'
 import { PoolPriceBar, PoolPriceRangeBar, ToggleComponent } from 'components/PoolPriceBar'
 import QuestionHelper from 'components/QuestionHelper'
-import { NETWORKS_INFO } from 'constants/networks'
-import { nativeOnChain } from 'constants/tokens'
-import useTheme from 'hooks/useTheme'
-import useTokensMarketPrice from 'hooks/useTokensMarketPrice'
-import { feeRangeCalc, useCurrencyConvertedToNative } from 'utils/dmm'
-import isZero from 'utils/isZero'
-
-import { ButtonError, ButtonLight, ButtonPrimary } from '../../components/Button'
-import { AutoColumn } from '../../components/Column'
-import CurrencyInputPanel from '../../components/CurrencyInputPanel'
-import Row, { AutoRow, RowBetween, RowFlat } from '../../components/Row'
+import Row, { AutoRow, RowBetween, RowFlat } from 'components/Row'
 import TransactionConfirmationModal, {
   ConfirmationModalContent,
   TransactionErrorContent,
-} from '../../components/TransactionConfirmationModal'
-import { AMP_HINT } from '../../constants'
-import { PairState } from '../../data/Reserves'
-import { useActiveWeb3React } from '../../hooks'
-import { useCurrency } from '../../hooks/Tokens'
-import { ApprovalState, useApproveCallback } from '../../hooks/useApproveCallback'
-import useTransactionDeadline from '../../hooks/useTransactionDeadline'
-import { useTokensPrice, useWalletModalToggle } from '../../state/application/hooks'
-import { Field } from '../../state/mint/actions'
-import { useDerivedMintInfo, useMintActionHandlers, useMintState } from '../../state/mint/hooks'
-import { useTransactionAdder } from '../../state/transactions/hooks'
-import { useIsExpertMode, usePairAdderByTokens, useUserSlippageTolerance } from '../../state/user/hooks'
-import { StyledInternalLink, TYPE, UppercaseText } from '../../theme'
+} from 'components/TransactionConfirmationModal'
+import { AMP_HINT } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
+import { NativeCurrencies } from 'constants/tokens'
+import { PairState } from 'data/Reserves'
+import { useActiveWeb3React } from 'hooks'
+import { useCurrency } from 'hooks/Tokens'
+import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
+import useTheme from 'hooks/useTheme'
+import useTokensMarketPrice from 'hooks/useTokensMarketPrice'
+import useTransactionDeadline from 'hooks/useTransactionDeadline'
+import { Dots, Wrapper } from 'pages/Pool/styleds'
+import { useTokensPrice, useWalletModalToggle } from 'state/application/hooks'
+import { Field } from 'state/mint/actions'
+import { useDerivedMintInfo, useMintActionHandlers, useMintState } from 'state/mint/hooks'
+import { useTransactionAdder } from 'state/transactions/hooks'
+import { useIsExpertMode, usePairAdderByTokens, useUserSlippageTolerance } from 'state/user/hooks'
+import { StyledInternalLink, TYPE, UppercaseText } from 'theme'
+import { calculateGasMargin, calculateSlippageAmount, formattedNum } from 'utils'
+import { feeRangeCalc, useCurrencyConvertedToNative } from 'utils/dmm'
 import {
-  calculateGasMargin,
-  calculateSlippageAmount,
-  formattedNum,
   getDynamicFeeRouterContract,
   getOldStaticFeeRouterContract,
   getStaticFeeRouterContract,
-} from '../../utils'
-import { maxAmountSpend } from '../../utils/maxAmountSpend'
-import { Dots, Wrapper } from '../Pool/styleds'
+} from 'utils/getContract'
+import isZero from 'utils/isZero'
+import { maxAmountSpend } from 'utils/maxAmountSpend'
+
 import {
   ActiveText,
   CurrentPriceWrapper,
@@ -481,7 +479,7 @@ const TokenPair = ({
                   chainId &&
                     history.replace(
                       `/add/${
-                        currencyAIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
+                        currencyAIsETHER ? WETH[chainId].address : NativeCurrencies[chainId].symbol
                       }/${currencyIdB}/${pairAddress}`,
                     )
                 }}
@@ -519,7 +517,7 @@ const TokenPair = ({
                   <StyledInternalLink
                     replace
                     to={`/add/${currencyIdA}/${
-                      currencyBIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
+                      currencyBIsETHER ? WETH[chainId].address : NativeCurrencies[chainId].symbol
                     }/${pairAddress}`}
                   >
                     {currencyBIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}

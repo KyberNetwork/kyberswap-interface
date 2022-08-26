@@ -1,5 +1,5 @@
-import { Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import { Token } from '@namgold/ks-sdk-core'
 import React, { CSSProperties } from 'react'
 import { CheckCircle } from 'react-feather'
 import styled from 'styled-components'

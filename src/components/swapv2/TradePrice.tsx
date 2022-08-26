@@ -1,4 +1,4 @@
-import { Currency, Price } from '@kyberswap/ks-sdk-core'
+import { Currency, Price } from '@namgold/ks-sdk-core'
 import React from 'react'
 import { Repeat } from 'react-feather'
 import { Text } from 'rebass'

@@ -1,5 +1,5 @@
-import { Pair, Trade } from '@kyberswap/ks-sdk-classic'
-import { Currency, CurrencyAmount, Token, TradeType } from '@kyberswap/ks-sdk-core'
+import { Pair, Trade } from '@namgold/ks-sdk-classic'
+import { Currency, CurrencyAmount, Token, TradeType } from '@namgold/ks-sdk-core'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 

@@ -1,6 +1,5 @@
-import { Currency, Price, Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import React from 'react'
+import { Currency, Price, Token } from '@namgold/ks-sdk-core'
 import { Flex } from 'rebass'
 
 import { AutoColumn } from 'components/Column'

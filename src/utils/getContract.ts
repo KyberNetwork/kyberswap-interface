@@ -1,0 +1,89 @@
+import { AddressZero } from '@ethersproject/constants'
+import { Contract } from '@ethersproject/contracts'
+import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
+import { ChainId } from '@namgold/ks-sdk-core'
+import { ethers } from 'ethers'
+
+import CLAIM_REWARD_ABI from 'constants/abis/claim-reward.json'
+import ROUTER_DYNAMIC_FEE_ABI from 'constants/abis/dmm-router-dynamic-fee.json'
+import ROUTER_STATIC_FEE_ABI from 'constants/abis/dmm-router-static-fee.json'
+import KS_ROUTER_STATIC_FEE_ABI from 'constants/abis/ks-router-static-fee.json'
+import ROUTER_PRO_AMM from 'constants/abis/v2/ProAmmRouter.json'
+import ZAP_STATIC_FEE_ABI from 'constants/abis/zap-static-fee.json'
+import ZAP_ABI from 'constants/abis/zap.json'
+import { NETWORKS_INFO } from 'constants/networks'
+import { isAddress } from 'utils'
+
+// account is not optional
+function getSigner(library: Web3Provider, account: string): JsonRpcSigner {
+  return library.getSigner(account).connectUnchecked()
+}
+
+// account is optional
+function getProviderOrSigner(library: Web3Provider, account?: string): Web3Provider | JsonRpcSigner {
+  return account ? getSigner(library, account) : library
+}
+
+// account is optional
+export function getContract(address: string, ABI: any, library: Web3Provider, account?: string): Contract {
+  if (!isAddress(address) || address === AddressZero) {
+    throw Error(`Invalid 'address' parameter '${address}'.`)
+  }
+
+  return new Contract(address, ABI, getProviderOrSigner(library, account) as any)
+}
+
+export function getContractForReading(address: string, ABI: any, library: ethers.providers.JsonRpcProvider): Contract {
+  if (!isAddress(address) || address === AddressZero) {
+    throw Error(`Invalid 'address' parameter '${address}'.`)
+  }
+
+  return new Contract(address, ABI, library)
+}
+
+// account is optional
+export function getOldStaticFeeRouterContract(chainId: ChainId, library: Web3Provider, account?: string): Contract {
+  return getContract(NETWORKS_INFO[chainId].classic.oldStatic?.router ?? '', ROUTER_STATIC_FEE_ABI, library, account)
+}
+// account is optional
+export function getStaticFeeRouterContract(chainId: ChainId, library: Web3Provider, account?: string): Contract {
+  return getContract(NETWORKS_INFO[chainId].classic.static.router, KS_ROUTER_STATIC_FEE_ABI, library, account)
+}
+// account is optional
+export function getDynamicFeeRouterContract(chainId: ChainId, library: Web3Provider, account?: string): Contract {
+  return getContract(NETWORKS_INFO[chainId].classic.dynamic?.router ?? '', ROUTER_DYNAMIC_FEE_ABI, library, account)
+}
+
+// account is optional
+export function getProAmmRouterContract(chainId: ChainId, library: Web3Provider, account?: string): Contract {
+  return getContract(NETWORKS_INFO[chainId].elastic.routers, ROUTER_PRO_AMM.abi, library, account)
+}
+
+// account is optional
+export function getZapContract(
+  chainId: ChainId,
+  library: Web3Provider,
+  account?: string,
+  isStaticFeeContract?: boolean,
+  isOldStaticFeeContract?: boolean,
+): Contract {
+  return getContract(
+    isStaticFeeContract
+      ? isOldStaticFeeContract
+        ? NETWORKS_INFO[chainId].classic.oldStatic?.zap || ''
+        : NETWORKS_INFO[chainId].classic.static.zap
+      : NETWORKS_INFO[chainId].classic.dynamic?.zap || '',
+    isStaticFeeContract && !isOldStaticFeeContract ? ZAP_STATIC_FEE_ABI : ZAP_ABI,
+    library,
+    account,
+  )
+}
+
+export function getClaimRewardContract(
+  chainId: ChainId,
+  library: Web3Provider,
+  account?: string,
+): Contract | undefined {
+  if (!NETWORKS_INFO[chainId].classic.claimReward) return
+  return getContract(NETWORKS_INFO[chainId].classic.claimReward, CLAIM_REWARD_ABI, library, account)
+}

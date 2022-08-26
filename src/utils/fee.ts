@@ -1,4 +1,4 @@
-import { Currency, CurrencyAmount, Fraction } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, Fraction } from '@namgold/ks-sdk-core'
 import { parseUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 

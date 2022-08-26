@@ -1,4 +1,4 @@
-import { Pool, Position, TickMath } from '@kyberswap/ks-sdk-elastic'
+import { Pool, Position, TickMath } from '@namgold/ks-sdk-elastic'
 import { useMemo } from 'react'
 
 import { NETWORKS_INFO } from 'constants/networks'

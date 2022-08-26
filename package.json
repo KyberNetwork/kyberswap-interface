@@ -97,7 +97,6 @@
     "workbox-routing": "^6.3.0"
   },
   "resolutions": {
-    "@kyberswap/ks-sdk-core": "^0.0.14",
     "trezor-connect": "8.1.15",
     "react-error-overlay": "6.0.9"
   },
@@ -127,10 +126,11 @@
   "license": "GPL-3.0-or-later",
   "dependencies": {
     "@apollo/client": "^3.3.11",
-    "@kyberswap/ks-sdk-classic": "^0.0.13",
-    "@kyberswap/ks-sdk-core": "^0.0.14",
-    "@kyberswap/ks-sdk-elastic": "^0.0.43",
     "@lingui/react": "^3.14.0",
+    "@namgold/dmm-solana-sdk": "^2.0.1",
+    "@namgold/ks-sdk-classic": "~0.0.1",
+    "@namgold/ks-sdk-core": "^0.1.20",
+    "@namgold/ks-sdk-elastic": "~0.0.1",
     "@sentry/react": "^6.16.1",
     "@typeform/embed-react": "^1.2.4",
     "aos": "^2.3.4",

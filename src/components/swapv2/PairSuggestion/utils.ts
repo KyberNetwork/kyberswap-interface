@@ -1,7 +1,7 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@namgold/ks-sdk-core'
 
 import { ETHER_ADDRESS } from 'constants/index'
-import { nativeOnChain } from 'constants/tokens'
+import { NativeCurrencies } from 'constants/tokens'
 import { AllTokenType } from 'hooks/Tokens'
 import { getTokenLogoURL } from 'utils'
 import { currencyId } from 'utils/currencyId'
@@ -46,5 +46,5 @@ export const findLogoAndSortPair = (
 
 export const getAddressParam = (address: string, chainId: ChainId | undefined) =>
   address.toLowerCase() === ETHER_ADDRESS.toLowerCase() && chainId
-    ? currencyId(nativeOnChain(chainId), chainId)
+    ? currencyId(NativeCurrencies[chainId], chainId)
     : address

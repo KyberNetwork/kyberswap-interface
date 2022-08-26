@@ -1,5 +1,5 @@
 import { BigNumber } from '@ethersproject/bignumber'
-import { Currency, CurrencyAmount, Fraction } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, Fraction } from '@namgold/ks-sdk-core'
 import JSBI from 'jsbi'
 import Numeral from 'numeral'
 

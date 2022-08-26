@@ -1,16 +1,15 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@namgold/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import AURORA from 'assets/networks/aurora-network.svg'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
-
-import { NetworkInfo } from '../type'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const auroraInfo: NetworkInfo = {
+const auroraInfo: EVMNetworkInfo = {
   chainId: ChainId.AURORA,
   route: 'aurora',
   name: 'Aurora',
@@ -24,8 +23,7 @@ const auroraInfo: NetworkInfo = {
   bridgeURL: 'https://rainbowbridge.app',
   nativeToken: {
     symbol: 'ETH',
-    name: 'ETH (Wrapped)',
-    address: '0xC9BdeEd33CD01541e1eeD10f90519d2C06Fe3feB',
+    name: 'ETH',
     logo: EthereumLogo,
     decimal: 18,
   },

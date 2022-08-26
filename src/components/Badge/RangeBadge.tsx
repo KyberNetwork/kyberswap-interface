@@ -4,9 +4,8 @@ import { AlertCircle, Info } from 'react-feather'
 import styled from 'styled-components'
 
 import Badge, { BadgeVariant } from 'components/Badge'
+import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
-
-import { MouseoverTooltip } from '../../components/Tooltip'
 
 const BadgeWrapper = styled.div`
   font-size: 12px;
