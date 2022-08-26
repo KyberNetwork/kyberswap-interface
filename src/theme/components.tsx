@@ -204,7 +204,7 @@ export function ExternalLink({
         event.preventDefault()
       }
     },
-    [target],
+    [target, onClick],
   )
   return <StyledLink target={target} rel={rel} href={href} onClick={handleClick} {...rest} />
 }
