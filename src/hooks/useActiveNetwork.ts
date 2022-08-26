@@ -17,7 +17,7 @@ const getAddNetworkParams = (chainId: ChainId) => ({
   chainId: '0x' + chainId.toString(16),
   chainName: NETWORKS_INFO[chainId].name,
   nativeCurrency: {
-    name: NETWORKS_INFO[chainId].nativeToken.symbol,
+    name: NETWORKS_INFO[chainId].nativeToken.name,
     symbol: NETWORKS_INFO[chainId].nativeToken.symbol,
     decimals: NETWORKS_INFO[chainId].nativeToken.decimal,
   },
