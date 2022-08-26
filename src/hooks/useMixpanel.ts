@@ -132,6 +132,7 @@ export enum MIXPANEL_TYPE {
   MANAGE_TOKEN_LISTS_TAB_CLICK,
   MANAGE_TOKEN_LISTS_ON_OFF_TOGGLE,
 
+  BANNER_CLICK,
   CLOSE_BANNER_CLICK,
 }
 
@@ -214,6 +215,9 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
             trade_qty: arbitrary.inputAmount,
             slippage_setting: arbitrary.slippageSetting,
             price_impact: arbitrary.priceImpact,
+            gas_price: formatUnits(gas_price, 18),
+            eth_price: ethPrice?.currentPrice,
+            actual_gas_native: actual_gas?.toNumber(),
           })
           break
         }
@@ -684,6 +688,10 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
         }
         case MIXPANEL_TYPE.MANAGE_TOKEN_LISTS_ON_OFF_TOGGLE: {
           mixpanel.track('Manage Token Lists - User clicked On/Off toggle from Token Lists', payload)
+          break
+        }
+        case MIXPANEL_TYPE.BANNER_CLICK: {
+          mixpanel.track('User click on "Banner" at swap page')
           break
         }
         case MIXPANEL_TYPE.CLOSE_BANNER_CLICK: {
