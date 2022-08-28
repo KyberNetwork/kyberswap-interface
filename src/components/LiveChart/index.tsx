@@ -170,7 +170,22 @@ function LiveChart({
 
   const { chartColor, different, differentPercent } = getDifferentValues(chartData, hoverValue)
 
-  const isShowProChart = showProChartStore && !isProchartError
+  const [isShowProChart, setIsShowProChart] = useState(showProChartStore && !isProchartError)
+
+  useEffect(() => {
+    setIsShowProChart(showProChartStore && !isProchartError)
+    let timeout: NodeJS.Timeout
+    if (showProChartStore && stateProChart.loading) {
+      timeout = setTimeout(() => {
+        toggleProLiveChart()
+      }, 5000)
+    }
+    return () => {
+      if (timeout) {
+        clearTimeout(timeout)
+      }
+    }
+  }, [showProChartStore, isProchartError, stateProChart.loading, toggleProLiveChart])
 
   const renderTimeframes = () => {
     return (
