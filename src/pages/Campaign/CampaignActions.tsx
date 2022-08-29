@@ -1,18 +1,32 @@
+/**
+ * These actions are: Enter Now -> Swap Now -> Claim
+ */
 import { useSelector } from 'react-redux'
 
 import { BIG_INT_ZERO } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import useTemporaryClaimedRefsManager from 'hooks/campaigns/useTemporaryClaimedRefsManager'
+import CampaignButtonEnterNow from 'pages/Campaign/CampaignButtonEnterNow'
 import CampaignButtonWithOptions from 'pages/Campaign/CampaignButtonWithOptions'
 import { AppState } from 'state'
 import { CampaignState } from 'state/campaigns/actions'
+import { useIsConnectedAccountEligibleForSelectedCampaign } from 'state/campaigns/hooks'
 
-export default function EnterNowOrClaimButton() {
+export default function CampaignActions() {
+  const { account } = useActiveWeb3React()
+
   const selectedCampaign = useSelector((state: AppState) => state.campaigns.selectedCampaign)
   const selectedCampaignLeaderboard = useSelector((state: AppState) => state.campaigns.selectedCampaignLeaderboard)
 
   const [temporaryClaimedRefs, addTemporaryClaimedRefs] = useTemporaryClaimedRefsManager()
 
-  if (!selectedCampaign) return null
+  const isAccountEligible = useIsConnectedAccountEligibleForSelectedCampaign()
+
+  if (!selectedCampaign || !account) return null
+
+  if (selectedCampaign.status !== 'Ended' && !isAccountEligible.data) {
+    return <CampaignButtonEnterNow />
+  }
 
   if (selectedCampaign.status === 'Upcoming') {
     return <CampaignButtonWithOptions campaign={selectedCampaign} type="enter_now" disabled />
