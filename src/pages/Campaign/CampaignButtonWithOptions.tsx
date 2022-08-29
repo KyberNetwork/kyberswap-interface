@@ -138,7 +138,7 @@ export default function CampaignButtonWithOptions({
   }
 
   return (
-    <StyledCampaignButtonWithOptions
+    <StyledPrimaryButton
       onClick={e => {
         e.stopPropagation()
         setIsShowNetworks(prev => !prev)
@@ -182,11 +182,11 @@ export default function CampaignButtonWithOptions({
           })}
         </OptionsContainer>
       )}
-    </StyledCampaignButtonWithOptions>
+    </StyledPrimaryButton>
   )
 }
 
-const StyledCampaignButtonWithOptions = styled(ButtonPrimary)`
+export const StyledPrimaryButton = styled(ButtonPrimary)`
   position: relative;
   font-size: 14px;
   padding: 12px 48px;

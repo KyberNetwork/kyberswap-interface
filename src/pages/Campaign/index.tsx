@@ -19,8 +19,8 @@ import { useActiveWeb3React } from 'hooks'
 import useInterval from 'hooks/useInterval'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import CampaignActions from 'pages/Campaign/CampaignActions'
 import CampaignListAndSearch from 'pages/Campaign/CampaignListAndSearch'
-import EnterNowOrClaimButton from 'pages/Campaign/EnterNowOrClaimButton'
 import LeaderboardLayout from 'pages/Campaign/LeaderboardLayout'
 import { Loading } from 'pages/ProAmmPool/ContentLoader'
 import { AppState } from 'state'
@@ -286,6 +286,7 @@ export default function Campaign() {
   const selectedCampaignLeaderboardLookupAddress = useSelector(
     (state: AppState) => state.campaigns.selectedCampaignLeaderboardLookupAddress,
   )
+
   useEffect(() => {
     if (campaignsRefreshIn === 0 && selectedCampaign) {
       mutate([
@@ -380,7 +381,7 @@ export default function Campaign() {
                 {selectedCampaign?.name}
               </Text>
               <ButtonContainer>
-                <EnterNowOrClaimButton />
+                <CampaignActions />
                 <ButtonLight
                   borderRadius="50%"
                   style={{ padding: '8px', flex: 0, minWidth: '44px', minHeight: '44px' }}

@@ -1,6 +1,10 @@
+import axios from 'axios'
 import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import useSWRImmutable from 'swr/immutable'
 
+import { SWR_KEYS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import {
   setSelectedCampaignLeaderboardLookupAddress,
   setSelectedCampaignLeaderboardPageNumber,
@@ -63,4 +67,44 @@ export function useSelectedCampaignLuckyWinnersLookupAddressManager() {
     () => [selectedCampaignLuckyWinnersLookupAddress, updateSelectedCampaignLuckyWinnersLookupAddressCallback] as const,
     [selectedCampaignLuckyWinnersLookupAddress, updateSelectedCampaignLuckyWinnersLookupAddressCallback],
   )
+}
+
+export function useIsConnectedAccountEligibleForSelectedCampaign(): {
+  data: boolean
+  loading: boolean
+  error: Error | undefined
+} {
+  const { account } = useActiveWeb3React()
+  const selectedCampaign = useSelector((state: AppState) => state.campaigns.selectedCampaign)
+
+  const {
+    data: eligibleUser,
+    isValidating,
+    error,
+  } = useSWRImmutable(
+    selectedCampaign && account ? SWR_KEYS.getEligibleUser(selectedCampaign.id, account) : null,
+    async () => {
+      if (!selectedCampaign || !account) return undefined
+
+      const resp = await axios({
+        method: 'GET',
+        url: SWR_KEYS.getEligibleUser(selectedCampaign.id, account),
+      })
+
+      if (resp.status === 200) {
+        // todo nhdz
+        console.log(`useIsConnectedWalletEligibleForSelectedCampaign`, resp.data)
+      }
+
+      return resp.data
+    },
+  )
+
+  return useMemo(() => {
+    return {
+      data: Boolean(selectedCampaign && account && eligibleUser),
+      loading: isValidating,
+      error,
+    }
+  }, [account, eligibleUser, error, isValidating, selectedCampaign])
 }
