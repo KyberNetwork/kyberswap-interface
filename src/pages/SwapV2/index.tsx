@@ -66,10 +66,9 @@ import {
   TabWrapper,
   Wrapper,
 } from 'components/swapv2/styleds'
-import { INITIAL_ALLOWED_SLIPPAGE } from 'constants/index'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
-import { nativeOnChain } from 'constants/tokens'
+import { STABLE_COINS_ADDRESS, nativeOnChain } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens, useCurrency } from 'hooks/Tokens'
 import { useActiveNetwork } from 'hooks/useActiveNetwork'
@@ -469,6 +468,7 @@ export default function Swap({ history }: RouteComponentProps) {
 
   function findTokenPairFromUrl() {
     let { fromCurrency, toCurrency, network } = getUrlMatchParams()
+    if (!fromCurrency || !network) return
 
     const compareNetwork = getNetworkSlug(chainId)
 
@@ -526,13 +526,15 @@ export default function Swap({ history }: RouteComponentProps) {
 
     const findChainId = SUPPORTED_NETWORKS.find(chainId => NETWORKS_INFO[chainId].route === network) || ChainId.MAINNET
     if (findChainId !== chainId) {
-      changeNetwork(findChainId)
-        .then(() => {
+      changeNetwork(
+        findChainId,
+        () => {
           refIsCheckNetworkAutoSelect.current = true
-        })
-        .catch(() => {
+        },
+        () => {
           navigate('/swap')
-        })
+        },
+      )
     } else {
       refIsCheckNetworkAutoSelect.current = true
     }
@@ -645,6 +647,29 @@ export default function Swap({ history }: RouteComponentProps) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isExpertMode])
+
+  const [rawSlippage, setRawSlippage] = useUserSlippageTolerance()
+  const swapState = useSwapState()
+  const { INPUT, OUTPUT } = swapState
+
+  const isStableCoinSwap =
+    INPUT?.currencyId &&
+    OUTPUT?.currencyId &&
+    chainId &&
+    STABLE_COINS_ADDRESS[chainId].includes(INPUT?.currencyId) &&
+    STABLE_COINS_ADDRESS[chainId].includes(OUTPUT?.currencyId)
+
+  const rawSlippageRef = useRef(rawSlippage)
+  rawSlippageRef.current = rawSlippage
+
+  useEffect(() => {
+    if (isStableCoinSwap && rawSlippageRef.current > 10) {
+      setRawSlippage(10)
+    }
+    if (!isStableCoinSwap && rawSlippageRef.current === 10) {
+      setRawSlippage(50)
+    }
+  }, [isStableCoinSwap, setRawSlippage])
 
   const shareUrl = useMemo(() => {
     return `${window.location.origin}/swap?networkId=${chainId}${
@@ -851,7 +876,7 @@ export default function Swap({ history }: RouteComponentProps) {
                         <AddressInputPanel id="recipient" value={recipient} onChange={handleRecipientChange} />
                       )}
 
-                      {!showWrap && allowedSlippage !== INITIAL_ALLOWED_SLIPPAGE && (
+                      {!showWrap && (
                         <Flex
                           alignItems="center"
                           fontSize={12}

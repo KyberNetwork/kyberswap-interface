@@ -19,7 +19,7 @@ export const PageWrapper = styled.div`
   padding: 24px 36px;
   gap: 24px;
   width: 100%;
-  max-width: 1472px;
+  max-width: 1464px;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
     height: unset;
@@ -83,7 +83,7 @@ export const Container = styled.div`
   align-items: flex-start;
   justify-content: center;
   width: 100%;
-  max-width: 1400px;
+  max-width: 1392px;
   gap: 48px;
   ${({ theme }) => theme.mediaWidth.upToMedium`
     gap: 24px;
