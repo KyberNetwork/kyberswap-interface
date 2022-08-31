@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { Severity, captureException } from '@sentry/react'
+import { captureException } from '@sentry/react'
 import React, { ErrorInfo, PropsWithChildren } from 'react'
 import { Text } from 'rebass'
 import styled from 'styled-components/macro'
@@ -57,8 +57,7 @@ export default class ErrorBoundary extends React.Component<PropsWithChildren<unk
       cause: error,
     })
     e.name = 'AppCrash'
-    captureException(e, { level: Severity.Fatal })
-    localStorage.clear()
+    captureException(e, { level: 'fatal' })
   }
 
   render() {
@@ -100,6 +99,7 @@ export default class ErrorBoundary extends React.Component<PropsWithChildren<unk
                 margin="auto"
                 width="fit-content"
                 onClick={() => {
+                  localStorage.clear()
                   window.location.reload()
                 }}
               >

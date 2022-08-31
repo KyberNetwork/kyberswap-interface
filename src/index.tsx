@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/react'
+import { BrowserTracing } from '@sentry/tracing'
 import { Web3ReactProvider, createWeb3ReactRoot } from '@web3-react/core'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
@@ -66,6 +67,8 @@ if (window.location.href.includes('kyberswap.com')) {
     dsn: SENTRY_DNS,
     environment: 'production',
     ignoreErrors: ['AbortError'],
+    integrations: [new BrowserTracing()],
+    tracesSampleRate: 0.1,
   })
 
   Sentry.configureScope(scope => {

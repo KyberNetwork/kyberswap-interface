@@ -15,6 +15,7 @@ import ListToggle from 'components/Toggle/ListToggle'
 import { HIDE_LIST, UNSUPPORTED_LIST_URLS } from 'constants/lists'
 import { useListColor } from 'hooks/useColor'
 import { useFetchListCallback } from 'hooks/useFetchListCallback'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import useToggle from 'hooks/useToggle'
@@ -136,6 +137,8 @@ const ListRow = memo(function ListRow({ listUrl }: { listUrl: string }) {
     dispatch(disableList(listUrl))
   }, [dispatch, listUrl])
 
+  const { mixpanelHandler } = useMixpanel()
+
   if (!list || HIDE_LIST.includes(listUrl)) return null
 
   return (
@@ -181,7 +184,13 @@ const ListRow = memo(function ListRow({ listUrl }: { listUrl: string }) {
         isActive={isActive}
         bgColor={listColor}
         toggle={() => {
-          isActive ? handleDisableList() : handleEnableList()
+          if (isActive) {
+            handleDisableList()
+            mixpanelHandler(MIXPANEL_TYPE.MANAGE_TOKEN_LISTS_ON_OFF_TOGGLE, { action: 'Off' })
+          } else {
+            handleEnableList()
+            mixpanelHandler(MIXPANEL_TYPE.MANAGE_TOKEN_LISTS_ON_OFF_TOGGLE, { action: 'On' })
+          }
         }}
       />
     </RowWrapper>
