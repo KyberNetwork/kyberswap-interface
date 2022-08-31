@@ -1,6 +1,5 @@
 import { Trans, t } from '@lingui/macro'
 import { CurrencyAmount, Token } from '@namgold/ks-sdk-core'
-import React from 'react'
 import { ChevronDown, DollarSign, Lock, Unlock } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'

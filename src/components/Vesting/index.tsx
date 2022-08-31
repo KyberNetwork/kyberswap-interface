@@ -1,7 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { Trans } from '@lingui/macro'
 import { CurrencyAmount, Token } from '@namgold/ks-sdk-core'
-import React from 'react'
 import { Text } from 'rebass'
 
 import LocalLoader from 'components/LocalLoader'

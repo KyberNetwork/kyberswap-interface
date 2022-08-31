@@ -24,7 +24,7 @@ import TransactionConfirmationModal, {
   TransactionErrorContent,
 } from 'components/TransactionConfirmationModal'
 import { AMP_HINT } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { PairState } from 'data/Reserves'
 import { useActiveWeb3React } from 'hooks'
@@ -148,7 +148,7 @@ const TokenPair = ({
     {},
   )
 
-  const routerAddress = chainId
+  const routerAddress = isEVM(chainId)
     ? isStaticFeePair
       ? isOldStaticFeeContract
         ? NETWORKS_INFO[chainId].classic.oldStatic?.router

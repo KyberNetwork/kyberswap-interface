@@ -5,7 +5,7 @@ import JSBI from 'jsbi'
 import ItemCardInfoRow, { ItemCardInfoRowPriceRange } from 'components/PoolList/ItemCard/ItemCardInfoRow'
 import DMM_POOL_INTERFACE from 'constants/abis/dmmPool'
 import { AMP_LIQUIDITY_HINT, ONLY_STATIC_FEE_CHAINS, SUBGRAPH_AMP_MULTIPLIER } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useMultipleContractSingleData } from 'state/multicall/hooks'
 import { SubgraphPoolData } from 'state/pools/hooks'
@@ -17,6 +17,7 @@ export default function TabDetailsItems({ poolData }: { poolData: SubgraphPoolDa
   const amp = new Fraction(poolData.amp).divide(JSBI.BigInt(SUBGRAPH_AMP_MULTIPLIER))
   const ampLiquidity = formattedNum(`${parseFloat(amp.toSignificant(5)) * parseFloat(poolData.reserveUSD)}`, true)
   const factories = useMultipleContractSingleData([poolData.id], DMM_POOL_INTERFACE, 'factory')
+  if (!isEVM(chainId)) return <></> //todo namgold: add logic Solana
   const isNewStaticFeePool = chainId && factories?.[0]?.result?.[0] === NETWORKS_INFO[chainId].classic.static.factory
 
   return (

@@ -2,6 +2,7 @@ import { ChainId } from '@namgold/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import ARBITRUM from 'assets/networks/arbitrum-network.svg'
+import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
 
@@ -21,7 +22,7 @@ const arbitrumInfo: EVMNetworkInfo = {
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/viet-nv/arbitrum-blocks'),
   etherscanUrl: 'https://arbiscan.io',
   etherscanName: 'Arbiscan',
-  tokenListUrl: `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?chainId=${ChainId.ARBITRUM}`,
+  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainId=${ChainId.ARBITRUM}`,
   bridgeURL: 'https://bridge.arbitrum.io',
   nativeToken: {
     symbol: 'ETH',
@@ -30,7 +31,7 @@ const arbitrumInfo: EVMNetworkInfo = {
     decimal: 18,
   },
   rpcUrl: 'https://arb-mainnet.g.alchemy.com/v2/PGAWvp9KLZbqjvap-iingGj-Id7HM_Yn',
-  routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/arbitrum/route/encode`,
+  routerUri: `${AGGREGATOR_API}/arbitrum/route/encode`,
   classic: {
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',

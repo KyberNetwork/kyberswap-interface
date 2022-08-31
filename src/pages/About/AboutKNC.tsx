@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/macro'
-import React from 'react'
 import { Archive, Repeat } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'

@@ -8,6 +8,7 @@ import { ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { RowBetween, RowFixed } from 'components/Row'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { Field } from 'state/swap/actions'
 import { useSwapState } from 'state/swap/hooks'
@@ -32,6 +33,7 @@ export default function SwapModalHeader({
   showAcceptChanges: boolean
   onAcceptChanges: () => void
 }) {
+  const { chainId } = useActiveWeb3React()
   const slippageAdjustedAmounts = useMemo(
     () => computeSlippageAdjustedAmounts(trade, allowedSlippage),
     [trade, allowedSlippage],
@@ -123,7 +125,7 @@ export default function SwapModalHeader({
         <AutoColumn justify="flex-start" gap="sm" style={{ padding: '12px 0 0 0px' }}>
           <TYPE.main>
             Output will be sent to{' '}
-            <b title={recipient}>{isAddress(recipient) ? shortenAddress(recipient) : recipient}</b>
+            <b title={recipient}>{isAddress(chainId, recipient) ? shortenAddress(recipient) : recipient}</b>
           </TYPE.main>
         </AutoColumn>
       ) : null}

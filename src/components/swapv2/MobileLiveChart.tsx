@@ -1,5 +1,4 @@
 import { Currency } from '@namgold/ks-sdk-core'
-import React from 'react'
 import { MobileView } from 'react-device-detect'
 import { X } from 'react-feather'
 import { Flex } from 'rebass'

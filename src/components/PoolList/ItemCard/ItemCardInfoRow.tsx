@@ -1,6 +1,5 @@
 import { Trans } from '@lingui/macro'
 import { Currency, Fraction } from '@namgold/ks-sdk-core'
-import React from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 

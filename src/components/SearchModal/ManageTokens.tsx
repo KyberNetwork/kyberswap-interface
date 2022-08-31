@@ -52,14 +52,17 @@ export default function ManageTokens({
 
   // manage focus on modal show
   const inputRef = useRef<HTMLInputElement>()
-  const handleInput = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    const input = event.target.value
-    const checksummedInput = isAddress(input)
-    setSearchQuery(checksummedInput || input)
-  }, [])
+  const handleInput = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      const input = event.target.value
+      const checksummedInput = isAddress(chainId, input)
+      setSearchQuery(checksummedInput || input)
+    },
+    [chainId],
+  )
 
   // if they input an address, use it
-  const isAddressSearch = isAddress(searchQuery)
+  const isAddressSearch = isAddress(chainId, searchQuery)
   const searchToken = useToken(searchQuery)
 
   // all tokens for local lisr

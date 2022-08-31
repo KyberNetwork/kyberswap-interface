@@ -2,6 +2,7 @@ import { ChainId } from '@namgold/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import Mainnet from 'assets/networks/mainnet-network.svg'
+import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
 
@@ -19,7 +20,7 @@ const ethereumInfo: EVMNetworkInfo = {
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-ethereum'),
   etherscanUrl: 'https://etherscan.io',
   etherscanName: 'Etherscan',
-  tokenListUrl: `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?chainId=${ChainId.MAINNET}`,
+  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainId=${ChainId.MAINNET}`,
   bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'ETH',
@@ -31,7 +32,7 @@ const ethereumInfo: EVMNetworkInfo = {
     process.env.NODE_ENV === 'development'
       ? 'https://cloudflare-eth.com'
       : 'https://proxy.kyberengineering.io/ethereum',
-  routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/ethereum/route/encode`,
+  routerUri: `${AGGREGATOR_API}/ethereum/route/encode`,
   classic: {
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',

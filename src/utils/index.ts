@@ -1,4 +1,3 @@
-import { getAddress } from '@ethersproject/address'
 import { BigNumber } from '@ethersproject/bignumber'
 import { ChainId, Currency, CurrencyAmount, Percent, Token, WETH } from '@namgold/ks-sdk-core'
 import dayjs from 'dayjs'
@@ -6,35 +5,24 @@ import JSBI from 'jsbi'
 import Numeral from 'numeral'
 
 import { GET_BLOCK, GET_BLOCKS } from 'apollo/queries'
-import { DEFAULT_GAS_LIMIT_MARGIN, ROPSTEN_TOKEN_LOGOS_MAPPING, ZERO_ADDRESS } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
+import { DEFAULT_GAS_LIMIT_MARGIN, ZERO_ADDRESS } from 'constants/index'
+import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { KNC, KNCL_ADDRESS, KNCL_ADDRESS_ROPSTEN } from 'constants/tokens'
 import store from 'state'
 import { TokenAddressMap } from 'state/lists/hooks'
 
-import { getAuroraTokenLogoURL } from './auroraTokenMapping'
-import { getAvaxMainnetTokenLogoURL } from './avaxMainnetTokenMapping'
-import { getAvaxTestnetTokenLogoURL } from './avaxTestnetTokenMapping'
-import { getBscMainnetTokenLogoURL } from './bscMainnetTokenMapping'
-import { getBscTestnetTokenLogoURL } from './bscTestnetTokenMapping'
-import { getCronosTokenLogoURL } from './cronosTokenMapping'
-import { getEthereumMainnetTokenLogoURL } from './ethereumMainnetTokenMapping'
-import { getFantomTokenLogoURL } from './fantomTokenMapping'
-import { getMaticTokenLogoURL } from './maticTokenMapping'
-import { getMumbaiTokenLogoURL } from './mumbaiTokenMapping'
-
 // returns the checksummed address if the address is valid, otherwise returns false
-export function isAddress(value: any): string | false {
+export function isAddress(chainId: ChainId, value: any): string | false {
   try {
-    return getAddress(value)
+    return new Token(chainId, value, 0).address
   } catch {
     return false
   }
 }
 
-export function isAddressString(value: any): string {
+export function isAddressString(chainId: ChainId, value: any): string {
   try {
-    return getAddress(value)
+    return new Token(chainId, value, 0).address
   } catch {
     return ''
   }
@@ -70,7 +58,7 @@ export function getEtherscanLinkText(chainId: ChainId): string {
 
 // shorten the checksummed version of the input address to have 0x + 4 characters at start and end
 export function shortenAddress(address: string, chars = 4): string {
-  const parsed = isAddress(address)
+  const parsed = isAddress(1, address) //todo namgold: add logic Solana
   if (!parsed) {
     throw Error(`Invalid 'address' parameter '${address}'.`)
   }
@@ -267,6 +255,7 @@ export async function splitQuery(query: any, localClient: any, vars: any, list: 
  * @param {Int} timestamp in seconds
  */
 export async function getBlockFromTimestamp(timestamp: number, chainId?: ChainId) {
+  if (!isEVM(chainId)) return
   const result = await NETWORKS_INFO[chainId || ChainId.MAINNET].blockClient.query({
     query: GET_BLOCK,
     variables: {
@@ -291,6 +280,7 @@ export async function getBlocksFromTimestamps(
   chainId?: ChainId,
   skipCount = 500,
 ): Promise<{ timestamp: string; number: number }[]> {
+  if (!isEVM(chainId)) return []
   if (timestamps?.length === 0) {
     return []
   }
@@ -331,20 +321,6 @@ export const get24hValue = (valueNow: string, value24HoursAgo: string | undefine
   return currentChange
 }
 
-export const getRopstenTokenLogoURL = (address: string) => {
-  if (address.toLowerCase() === KNCL_ADDRESS_ROPSTEN.toLowerCase()) {
-    return 'https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/develop/src/assets/images/KNCL.png'
-  }
-
-  if (ROPSTEN_TOKEN_LOGOS_MAPPING[address.toLowerCase()]) {
-    address = ROPSTEN_TOKEN_LOGOS_MAPPING[address.toLowerCase()]
-  }
-
-  return `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${isAddress(
-    address,
-  )}/logo.png`
-}
-
 export const getTokenLogoURL = (inputAddress: string, chainId?: ChainId): string => {
   let address = inputAddress
   if (address === ZERO_ADDRESS && chainId) {
@@ -355,7 +331,10 @@ export const getTokenLogoURL = (inputAddress: string, chainId?: ChainId): string
     return 'https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/develop/src/assets/images/KNC.svg'
   }
 
-  if (address.toLowerCase() === KNCL_ADDRESS.toLowerCase()) {
+  if (
+    address.toLowerCase() === KNCL_ADDRESS.toLowerCase() ||
+    address.toLowerCase() === KNCL_ADDRESS_ROPSTEN.toLowerCase()
+  ) {
     return 'https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/develop/src/assets/images/KNCL.png'
   }
 
@@ -364,61 +343,12 @@ export const getTokenLogoURL = (inputAddress: string, chainId?: ChainId): string
     return 'https://assets.coingecko.com/coins/images/7598/thumb/wrapped_bitcoin_wbtc.png?1548822744'
   }
 
-  let imageURL
-
-  imageURL = store
+  const imageURL = store
     .getState()
     .lists.byUrl[NETWORKS_INFO[chainId || ChainId.MAINNET].tokenListUrl].current?.tokens.find(
       item => item.address.toLowerCase() === address.toLowerCase(),
     )?.logoURI
-  if (imageURL) return imageURL
-
-  switch (chainId) {
-    //todo namgold: merge these adhoc func to tokenllist
-    case ChainId.MAINNET:
-      imageURL = getEthereumMainnetTokenLogoURL(address)
-      break
-    case ChainId.ROPSTEN:
-      imageURL = getRopstenTokenLogoURL(address)
-      break
-    case ChainId.MATIC:
-      imageURL = getMaticTokenLogoURL(address)
-      break
-    case ChainId.MUMBAI:
-      imageURL = getMumbaiTokenLogoURL(address)
-      break
-    case ChainId.BSCTESTNET:
-      imageURL = getBscTestnetTokenLogoURL(address)
-      break
-    case ChainId.BSCMAINNET:
-      imageURL = getBscMainnetTokenLogoURL(address)
-      break
-    case ChainId.AVAXTESTNET:
-      imageURL = getAvaxTestnetTokenLogoURL(address)
-      break
-    case ChainId.AVAXMAINNET:
-      imageURL = getAvaxMainnetTokenLogoURL(address)
-      break
-    case ChainId.FANTOM:
-      imageURL = getFantomTokenLogoURL(address)
-      break
-    case ChainId.CRONOS:
-      imageURL = getCronosTokenLogoURL(address)
-      break
-    case ChainId.AURORA:
-      imageURL = getAuroraTokenLogoURL(address)
-      break
-    case ChainId.ARBITRUM:
-      imageURL = `https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/arbitrum/assets/${address}/logo.png`
-      break
-    default:
-      imageURL = `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${isAddress(
-        address,
-      )}/logo.png`
-      break
-  }
-
-  return imageURL
+  return imageURL || ''
 }
 
 // push unique

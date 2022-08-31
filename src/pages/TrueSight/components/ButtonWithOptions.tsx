@@ -1,7 +1,7 @@
 import { getAddress } from '@ethersproject/address'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
-import React, { CSSProperties, useRef, useState } from 'react'
+import { CSSProperties, useRef, useState } from 'react'
 import { useHistory } from 'react-router'
 import { useLocation } from 'react-router-dom'
 import { Flex, Text } from 'rebass'

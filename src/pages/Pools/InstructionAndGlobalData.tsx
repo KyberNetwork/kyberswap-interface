@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { ChevronDown } from 'react-feather'
 import { Flex, Text } from 'rebass'

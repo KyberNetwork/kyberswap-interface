@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import React, { CSSProperties, Dispatch, SetStateAction, useRef, useState } from 'react'
+import { CSSProperties, Dispatch, SetStateAction, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { X } from 'react-feather'
 import { Flex, Image, Text } from 'rebass'

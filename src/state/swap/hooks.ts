@@ -159,7 +159,7 @@ export function useDerivedSwapInfo(): {
   v2Trade: Trade<Currency, Currency, TradeType> | undefined
   inputError?: string
 } {
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
 
   const {
     independentField,
@@ -217,7 +217,7 @@ export function useDerivedSwapInfo(): {
     inputError = inputError ?? t`Select a token`
   }
 
-  const formattedTo = isAddress(to)
+  const formattedTo = isAddress(chainId, to)
   if (!to || !formattedTo) {
     inputError = inputError ?? t`Enter a recipient`
   } else {
@@ -254,7 +254,7 @@ export function useDerivedSwapInfo(): {
 
 function parseCurrencyFromURLParameter(urlParam: any, chainId: ChainId): string {
   if (typeof urlParam === 'string') {
-    const valid = isAddress(urlParam)
+    const valid = isAddress(chainId, urlParam)
     if (valid) return valid
     return NativeCurrencies[chainId].symbol as string
   }
@@ -271,9 +271,9 @@ function parseIndependentFieldURLParameter(urlParam: any): Field {
 
 const ENS_NAME_REGEX = /^[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)?$/
 const ADDRESS_REGEX = /^0x[a-fA-F0-9]{40}$/
-function validatedRecipient(recipient: any): string | null {
+function validatedRecipient(recipient: any, chainId: ChainId): string | null {
   if (typeof recipient !== 'string') return null
-  const address = isAddress(recipient)
+  const address = isAddress(chainId, recipient)
   if (address) return address
   if (ENS_NAME_REGEX.test(recipient)) return recipient
   if (ADDRESS_REGEX.test(recipient)) return recipient
@@ -291,10 +291,10 @@ export function queryParametersToSwapState(parsedQs: ParsedQs, chainId: ChainId)
     }
   }
 
-  const recipient = validatedRecipient(parsedQs.recipient)
+  const recipient = validatedRecipient(parsedQs.recipient, chainId)
   const feePercent = parseInt(parsedQs?.['fee_bip']?.toString() || '0')
   const feeConfig: FeeConfig | undefined =
-    parsedQs.referral && isAddress(parsedQs.referral) && parsedQs['fee_bip'] && !isNaN(feePercent)
+    parsedQs.referral && isAddress(chainId, parsedQs.referral) && parsedQs['fee_bip'] && !isNaN(feePercent)
       ? {
           chargeFeeBy: 'currency_in',
           feeReceiver: parsedQs.referral.toString(),

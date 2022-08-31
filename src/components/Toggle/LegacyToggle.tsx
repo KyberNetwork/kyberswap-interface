@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/macro'
-import React from 'react'
 import styled from 'styled-components'
 
 const ToggleButton = styled.span<{ isActive?: boolean; size?: string }>`

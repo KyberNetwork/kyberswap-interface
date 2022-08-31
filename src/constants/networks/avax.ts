@@ -1,6 +1,7 @@
 import { ChainId } from '@namgold/ks-sdk-core'
 
 import AVAX from 'assets/networks/avax-network.png'
+import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
 
@@ -16,7 +17,7 @@ const avaxInfo: EVMNetworkInfo = {
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/ducquangkstn/avalache-blocks'),
   etherscanUrl: 'https://snowtrace.io',
   etherscanName: 'Snowtrace',
-  tokenListUrl: `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?chainId=${ChainId.AVAXMAINNET}`,
+  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainId=${ChainId.AVAXMAINNET}`,
   bridgeURL: 'https://bridge.avax.network',
   nativeToken: {
     symbol: 'AVAX',
@@ -25,7 +26,7 @@ const avaxInfo: EVMNetworkInfo = {
     decimal: 18,
   },
   rpcUrl: 'https://avalanche.dmm.exchange/v1/mainnet/geth?appId=prod-dmm',
-  routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/avalanche/route/encode`,
+  routerUri: `${AGGREGATOR_API}/avalanche/route/encode`,
   classic: {
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',

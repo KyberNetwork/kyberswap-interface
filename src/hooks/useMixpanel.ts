@@ -18,8 +18,9 @@ import {
   PROMM_GET_POOL_VALUES_AFTER_BURNS_SUCCESS,
   PROMM_GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
 } from 'apollo/queries/promm'
+import { MAINNET_ENV, MIXPANEL_PROJECT_TOKEN } from 'constants/env'
 import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { AppDispatch, AppState } from 'state'
 import { useETHPrice } from 'state/application/hooks'
 import { Field } from 'state/swap/actions'
@@ -158,7 +159,6 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
       : outputCurrency?.symbol
   const ethPrice = useETHPrice()
   const dispatch = useDispatch<AppDispatch>()
-  const apolloClient = NETWORKS_INFO[(chainId as ChainId) || (ChainId.MAINNET as ChainId)].classicClient
   const selectedCampaign = useSelector((state: AppState) => state.campaigns.selectedCampaign)
   const [allowedSlippage] = useUserSlippageTolerance()
 
@@ -675,10 +675,11 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
   )
   const subgraphMixpanelHandler = useCallback(
     async (transaction: TransactionDetails) => {
-      const apolloProMMClient = NETWORKS_INFO[(chainId as ChainId) || (ChainId.MAINNET as ChainId)].elasticClient
+      if (!isEVM(chainId)) return
+      const apolloClient = NETWORKS_INFO[chainId].classicClient
+      const apolloProMMClient = NETWORKS_INFO[chainId].elasticClient
 
       const hash = transaction.hash
-      if (!chainId) return
       switch (transaction.type) {
         case 'Add liquidity': {
           const res = await apolloClient.query({
@@ -860,7 +861,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           break
       }
     },
-    [chainId, dispatch, apolloClient, mixpanelHandler],
+    [chainId, dispatch, mixpanelHandler],
   )
   return { mixpanelHandler, subgraphMixpanelHandler }
 }
@@ -878,8 +879,8 @@ export const useGlobalMixpanelEvents = () => {
   useEffect(() => {
     if (account && isAddress(account)) {
       const redactedAccount = redactAddress(account)
-      mixpanel.init(process.env.REACT_APP_MIXPANEL_PROJECT_TOKEN || '', {
-        debug: process.env.REACT_APP_MAINNET_ENV === 'staging',
+      mixpanel.init(MIXPANEL_PROJECT_TOKEN, {
+        debug: MAINNET_ENV === 'staging',
       })
       mixpanel.identify(redactedAccount)
 

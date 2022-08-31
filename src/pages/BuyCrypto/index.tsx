@@ -28,6 +28,7 @@ import CopyHelper from 'components/Copy'
 import Cart from 'components/Icons/Cart'
 import Deposit from 'components/Icons/Deposit'
 import Modal from 'components/Modal'
+import { TRANSAK_API_KEY, TRANSAK_URL } from 'constants/env'
 import { SUPPORTED_WALLETS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -214,11 +215,9 @@ function BuyCrypto() {
   const redirectURL = window.location.hostname.includes('localhost')
     ? 'https://KyberSwap.com/swap'
     : window.location.origin + '/swap'
-  const transakUrl = `${process.env.REACT_APP_TRANSAK_URL}?apiKey=${
-    process.env.REACT_APP_TRANSAK_API_KEY
-  }&cryptoCurrencyList=${supportedCurrencies.join(',')}&networks=${supportedNetworks.join(',')}${
-    account ? `&walletAddress=${account}` : ''
-  }&redirectURL=${redirectURL}`
+  const transakUrl = `${TRANSAK_URL}?apiKey=${TRANSAK_API_KEY}&cryptoCurrencyList=${supportedCurrencies.join(
+    ',',
+  )}&networks=${supportedNetworks.join(',')}${account ? `&walletAddress=${account}` : ''}&redirectURL=${redirectURL}`
 
   const [isDarkMode] = useDarkModeManager()
   const { mixpanelHandler } = useMixpanel()

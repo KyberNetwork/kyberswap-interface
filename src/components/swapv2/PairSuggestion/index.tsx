@@ -84,7 +84,7 @@ export default forwardRef<PairSuggestionHandle, Props>(function PairSuggestionIn
     if (search.toLowerCase() === ETHER_ADDRESS.toLowerCase()) {
       return NativeCurrencies[chainId]
     }
-    return filterTokens(Object.values(activeTokens), search)[0]
+    return filterTokens(chainId, Object.values(activeTokens), search)[0]
   }
 
   const focusInput = useCallback(() => {

@@ -1,5 +1,4 @@
-import { ChainId } from '@namgold/ks-sdk-core'
-import { getAddress } from 'ethers/lib/utils'
+import { ChainId, Token } from '@namgold/ks-sdk-core'
 
 import { NETWORKS_INFO } from 'constants/networks'
 import { MAP_TOKEN_HAS_MULTI_BY_NETWORK, WHITE_LIST_TOKEN_INFO_PAIR } from 'constants/tokenLists/token-info'
@@ -43,9 +42,10 @@ export const checkPairInWhiteList = (chainId: ChainId | undefined, symbol1: stri
   return { isInWhiteList, data: data || {}, canonicalUrl }
 }
 
-export const getFormattedAddress = (address?: string, fallback?: string): string => {
+export const getFormattedAddress = (chainId: ChainId, address?: string, fallback?: string): string => {
   try {
-    return getAddress(address || '')
+    if (!address) return fallback || ''
+    return new Token(chainId, address, 0).address || ''
   } catch (e) {
     return fallback || address || ''
   }

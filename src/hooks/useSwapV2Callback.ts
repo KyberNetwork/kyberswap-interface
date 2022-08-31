@@ -61,7 +61,7 @@ export function useSwapV2Callback(
         recipient === account
           ? undefined
           : `to ${
-              recipientAddressOrName && isAddress(recipientAddressOrName)
+              recipientAddressOrName && isAddress(chainId, recipientAddressOrName)
                 ? shortenAddress(recipientAddressOrName)
                 : recipientAddressOrName
             }`
@@ -83,6 +83,7 @@ export function useSwapV2Callback(
       })
     },
     [
+      chainId,
       allowedSlippage,
       account,
       addTransactionWithType,

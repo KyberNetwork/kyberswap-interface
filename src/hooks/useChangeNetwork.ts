@@ -1,11 +1,11 @@
 import { t } from '@lingui/macro'
-import { ChainId, ChainType, getChainType } from '@namgold/ks-sdk-core'
+import { ChainId } from '@namgold/ks-sdk-core'
 import { UnsupportedChainIdError } from '@web3-react/core'
 import { stringify } from 'qs'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router'
 
-import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
+import { EVM_NETWORK, NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { updateChainId } from 'state/application/actions'
 import { NotificationType, useNotify } from 'state/application/hooks'
@@ -13,11 +13,11 @@ import { useAppDispatch } from 'state/hooks'
 
 import useParsedQueryString from './useParsedQueryString'
 
-const getEVMAddNetworkParams = (chainId: ChainId) => ({
+const getEVMAddNetworkParams = (chainId: EVM_NETWORK) => ({
   chainId: '0x' + chainId.toString(16),
   chainName: NETWORKS_INFO[chainId].name,
   nativeCurrency: {
-    name: NETWORKS_INFO[chainId].nativeToken.symbol,
+    name: NETWORKS_INFO[chainId].nativeToken.name,
     symbol: NETWORKS_INFO[chainId].nativeToken.symbol,
     decimals: NETWORKS_INFO[chainId].nativeToken.decimal,
   },
@@ -49,8 +49,7 @@ export function useChangeNetwork() {
 
   const changeNetwork = useCallback(
     async (desiredChainId: ChainId, successCallback?: () => void, failureCallback?: () => void) => {
-      const desiredChainType = getChainType(desiredChainId)
-      if (desiredChainType === ChainType.EVM) {
+      if (isEVM(desiredChainId)) {
         const switchNetworkParams = {
           chainId: '0x' + Number(desiredChainId).toString(16),
         }

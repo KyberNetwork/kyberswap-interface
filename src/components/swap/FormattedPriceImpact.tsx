@@ -1,5 +1,4 @@
 import { Percent } from '@namgold/ks-sdk-core'
-import React from 'react'
 
 import { ONE_BIPS } from 'constants/index'
 import { warningSeverity } from 'utils/prices'

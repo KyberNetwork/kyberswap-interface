@@ -2,13 +2,14 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { t } from '@lingui/macro'
 import { ChainId } from '@namgold/ks-sdk-core'
 import axios from 'axios'
-import React, { useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import { ReactComponent as ChevronDown } from 'assets/svg/down.svg'
 import { ButtonPrimary } from 'components/Button'
+import { REWARD_SERVICE_API } from 'constants/env'
 import { BIG_INT_ZERO, DEFAULT_SIGNIFICANT } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
@@ -76,7 +77,7 @@ export default function CampaignButtonWithOptions({
   const claimRewards = async (claimChainId: ChainId) => {
     if (!account || !library || !selectedCampaign || !selectedCampaignLeaderboard) return
 
-    const url = process.env.REACT_APP_REWARD_SERVICE_API + '/rewards/claim'
+    const url = REWARD_SERVICE_API + '/rewards/claim'
 
     const data = {
       wallet: account.toLowerCase(),

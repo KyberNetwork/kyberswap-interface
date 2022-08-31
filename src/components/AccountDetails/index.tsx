@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { ChainId } from '@namgold/ks-sdk-core'
 import { useWeb3React } from '@web3-react/core'
-import React, { useCallback } from 'react'
+import { useCallback } from 'react'
 import { isMobile } from 'react-device-detect'
 import { FileText } from 'react-feather'
 import { useDispatch } from 'react-redux'
@@ -10,25 +10,15 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import CoinbaseWalletIcon from 'assets/images/coinbaseWalletIcon.svg'
-import FortmaticIcon from 'assets/images/fortmaticIcon.png'
-import PortisIcon from 'assets/images/portisIcon.png'
 import WalletConnectIcon from 'assets/images/walletConnectIcon.svg'
 import { ReactComponent as Close } from 'assets/images/x.svg'
-import { ButtonOutlined, ButtonPrimary, ButtonSecondary } from 'components/Button'
+import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import Divider from 'components/Divider'
 import Wallet from 'components/Icons/Wallet'
 import Identicon from 'components/Identicon'
 import { AutoRow } from 'components/Row'
-import {
-  braveInjectedConnector,
-  coin98InjectedConnector,
-  fortmatic,
-  injected,
-  portis,
-  walletconnect,
-  walletlink,
-} from 'connectors'
+import { braveInjectedConnector, coin98InjectedConnector, injected, walletconnect, walletlink } from 'connectors'
 import { PROMM_ANALYTICS_URL, SUPPORTED_WALLETS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { AppDispatch } from 'state'
@@ -168,22 +158,6 @@ const TransactionListWrapper = styled.div`
   ${({ theme }) => theme.flexColumnNoWrap};
 `
 
-const WalletAction = styled(ButtonSecondary)`
-  width: fit-content;
-  font-weight: 400;
-  margin-left: 8px;
-  font-size: 0.825rem;
-  padding: 4px 6px;
-  :hover {
-    cursor: pointer;
-    text-decoration: underline;
-  }
-`
-
-const MainWalletAction = styled(WalletAction)`
-  color: ${({ theme }) => theme.primary};
-`
-
 function renderTransactions(transactions: string[]) {
   return (
     <TransactionListWrapper>
@@ -275,30 +249,6 @@ export default function AccountDetails({
           </IconWrapper>
         )
       }
-
-      case fortmatic: {
-        return (
-          <IconWrapper size={20}>
-            <img src={FortmaticIcon} alt={'fortmatic logo'} />
-          </IconWrapper>
-        )
-      }
-
-      case portis: {
-        return (
-          <IconWrapper size={20}>
-            <img src={PortisIcon} alt={'portis logo'} />
-            <MainWalletAction
-              onClick={() => {
-                portis.portis.showPortis()
-              }}
-            >
-              <Trans>Show Portis</Trans>
-            </MainWalletAction>
-          </IconWrapper>
-        )
-      }
-
       default: {
         return null
       }

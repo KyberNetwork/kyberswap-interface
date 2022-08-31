@@ -24,7 +24,7 @@ import TransactionConfirmationModal, {
   TransactionErrorContent,
 } from 'components/TransactionConfirmationModal'
 import { Dots } from 'components/swap/styleds'
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
@@ -92,7 +92,7 @@ export default function TokenPair({
   const { independentField, typedValue } = useBurnState()
   const { pair, userLiquidity, parsedAmounts, amountsMin, price, error, isStaticFeePair, isOldStaticFeeContract } =
     useDerivedBurnInfo(currencyA ?? undefined, currencyB ?? undefined, pairAddress)
-  const contractAddress = chainId
+  const contractAddress = isEVM(chainId)
     ? isStaticFeePair
       ? isOldStaticFeeContract
         ? NETWORKS_INFO[chainId].classic.oldStatic?.router

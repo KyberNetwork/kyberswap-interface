@@ -13,7 +13,8 @@ import {
   walletlink,
 } from 'connectors'
 
-import { NETWORKS_INFO, SUPPORTED_NETWORKS } from './networks'
+import { CAMPAIGN_BASE_URL as CAMPAIGN_BASE_DOMAIN } from './env'
+import { EVM_NETWORK, NETWORKS_INFO, SUPPORTED_NETWORKS } from './networks'
 
 export const EMPTY_OBJECT: any = {}
 export const EMPTY_ARRAY: any[] = []
@@ -45,7 +46,7 @@ export const PROMM_ANALYTICS_URL: { [chainId in ChainId]: string } = SUPPORTED_N
   }
 }, {}) as { [chainId in ChainId]: string }
 
-export const BLOCKS_PER_YEAR = (chainId: ChainId): number =>
+export const BLOCKS_PER_YEAR = (chainId: EVM_NETWORK): number =>
   Math.floor((60 / NETWORKS_INFO[chainId].averageBlockTimeInSeconds) * 60 * 24 * 365)
 
 export const SECONDS_PER_YEAR = 31556926
@@ -249,23 +250,6 @@ export const BETTER_TRADE_LINK_THRESHOLD = new Percent(JSBI.BigInt(75), JSBI.Big
 
 export const BUNDLE_ID = '1'
 
-export const ROPSTEN_TOKEN_LOGOS_MAPPING: {
-  [key: string]: string
-} = {
-  '0x8b4ddf9f13f382aff76d262f6c8c50e6d7961b94': '0xdefa4e8a7bcba345f687a2f1456f5edd9ce97202',
-  '0x7b2810576aa1cce68f2b118cef1f36467c648f92': '0xdd974d5c2e2928dea5f71b9825b8b646686bd200',
-  '0x068b43f7f2f2c6a662c36e201144ae45f7a1c040': '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-  '0x65bd1f48f1dd07bb285a3715c588f75684128ace': '0xdac17f958d2ee523a2206206994597c13d831ec7',
-  '0xad6d458402f60fd3bd25163575031acdce07538d': '0x6b175474e89094c44da98b954eedeac495271d0f',
-  '0x3dff0dce5fc4b367ec91d31de3837cf3840c8284': '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
-  '0xa748593dd74e5d0bb38a3f2f5090a0f31370c574': '0xeb4c2781e4eba804ce9a9803c67d0893436bb27d',
-  '0xb4f7332ed719eb4839f091eddb2a3ba309739521': '0x514910771af9ca656af840dff83e8264ecf986ca',
-  '0xdb0040451f373949a4be60dcd7b6b8d6e42658b6': '0x0d8775f648430679a709e98d2b0cb6250d2887ef',
-  '0x787e7339a52d7784a22146da7209c702e1e38511': '0xc00e94cb662c3520282e6f5717214004a7f26888',
-  '0x5f4f41e067e8ccf0d1f9ee007223af4d72990cdc': '0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9',
-  '0xc778417e063141139fce010982780140aa0cd5ab': '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-}
-
 export const DEFAULT_REWARDS: { [key: string]: string[] } = {
   [ChainId.MAINNET]: ['0x9F52c8ecbEe10e00D9faaAc5Ee9Ba0fF6550F511'],
 }
@@ -435,7 +419,7 @@ export const TOBE_EXTENDED_FARMING_POOLS: { [key: string]: number } = {
 export const ELASTIC_BASE_FEE_UNIT = 100_000
 export const KYBERSWAP_SOURCE = '{"source":"kyberswap"}'
 
-const CAMPAIGN_BASE_URL = `${process.env.REACT_APP_CAMPAIGN_BASE_URL}/api/v1/campaigns`
+const CAMPAIGN_BASE_URL = `${CAMPAIGN_BASE_DOMAIN}/api/v1/campaigns`
 export const SWR_KEYS = {
   getListCampaign: CAMPAIGN_BASE_URL,
   getLeaderboard: (id: number) => CAMPAIGN_BASE_URL + '/' + id + '/leaderboard',

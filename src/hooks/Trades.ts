@@ -3,6 +3,7 @@ import { Currency, CurrencyAmount, Token, TradeType } from '@namgold/ks-sdk-core
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 
+import { MAINNET_ENV } from 'constants/env'
 import { ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { PairState, usePairs } from 'data/Reserves'
@@ -59,7 +60,7 @@ export function useTradeExactIn(
     const fn = async function () {
       timeout = setTimeout(() => {
         if (currencyAmountIn && currencyOut && allowedPairs.length > 0) {
-          if (process.env.REACT_APP_MAINNET_ENV === 'staging') {
+          if (MAINNET_ENV === 'staging') {
             console.log('trade amount: ', currencyAmountIn.toSignificant(10))
           }
 
@@ -138,7 +139,7 @@ export function useTradeExactInV2(
 
         setLoading(true)
 
-        const to = (isAddress(recipient) ? (recipient as string) : account) ?? ZERO_ADDRESS
+        const to = (isAddress(chainId, recipient) ? (recipient as string) : account) ?? ZERO_ADDRESS
 
         const deadline = Math.round(Date.now() / 1000) + ttl
 
@@ -180,6 +181,7 @@ export function useTradeExactInV2(
       }
     },
     [
+      chainId,
       debounceCurrencyAmountIn,
       currencyOut,
       recipient,

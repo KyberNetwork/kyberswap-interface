@@ -53,7 +53,7 @@ export default class ErrorBoundary extends React.Component<PropsWithChildren<unk
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    const e = new Error(`Page Crash: ${error.toString()} ${errorInfo.toString()}`, {
+    const e = new Error(`[${error.name}] ${error.message}`, {
       cause: error,
     })
     e.name = 'AppCrash'

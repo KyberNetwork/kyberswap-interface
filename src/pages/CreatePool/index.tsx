@@ -4,7 +4,7 @@ import { Trans, t } from '@lingui/macro'
 import { ChainId, Currency, Fraction, TokenAmount, WETH } from '@namgold/ks-sdk-core'
 import { parseUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle, Plus } from 'react-feather'
 import { Link, RouteComponentProps } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
@@ -27,7 +27,7 @@ import {
   ONLY_STATIC_FEE_CHAINS,
   STATIC_FEE_OPTIONS,
 } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { PairState } from 'data/Reserves'
 import { useActiveWeb3React } from 'hooks'
@@ -171,7 +171,7 @@ export default function CreatePool({
   )
 
   const routerAddress = useMemo(() => {
-    if (!chainId) return
+    if (!isEVM(chainId)) return
     if (ONLY_STATIC_FEE_CHAINS.includes(chainId)) return NETWORKS_INFO[chainId].classic.static.router
     if (ONLY_DYNAMIC_FEE_CHAINS.includes(chainId)) return NETWORKS_INFO[chainId].classic.dynamic?.router
     if (feeType === FEE_TYPE.STATIC) {

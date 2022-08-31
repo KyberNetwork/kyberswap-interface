@@ -27,7 +27,7 @@ import WETH_ABI from 'constants/abis/weth.json'
 import ZAP_STATIC_FEE_ABI from 'constants/abis/zap-static-fee.json'
 import ZAP_ABI from 'constants/abis/zap.json'
 import { MULTICALL_ABI, MULTICALL_NETWORKS } from 'constants/multicall'
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { FARM_CONTRACTS as PROMM_FARM_CONTRACTS } from 'constants/v2'
 import { FairLaunchVersion, RewardLockerVersion } from 'state/farms/types'
 import { useRewardLockerAddressesWithVersion } from 'state/vesting/hooks'
@@ -52,7 +52,7 @@ export function useContract(address: string | undefined, ABI: any, withSignerIfP
 function useContractForReading(address: string | undefined, ABI: any): Contract | null {
   const { chainId } = useActiveWeb3React()
   return useMemo(() => {
-    if (!address || !chainId) return null
+    if (!address || !isEVM(chainId)) return null
     const provider = providers[chainId]
     try {
       return getContractForReading(address, ABI, provider)
@@ -167,28 +167,32 @@ export function useSocksController(): Contract | null {
 export function useOldStaticFeeFactoryContract(): Contract | null {
   const { chainId } = useActiveWeb3React()
 
-  return useContract(chainId && NETWORKS_INFO[chainId].classic.oldStatic?.factory, FACTORY_ABI)
+  return useContract(isEVM(chainId) ? NETWORKS_INFO[chainId].classic.oldStatic?.factory : undefined, FACTORY_ABI)
 }
 export function useStaticFeeFactoryContract(): Contract | null {
   const { chainId } = useActiveWeb3React()
 
-  return useContract(chainId && NETWORKS_INFO[chainId].classic.static.factory, KS_STATIC_FEE_FACTORY_ABI)
+  return useContract(
+    isEVM(chainId) ? NETWORKS_INFO[chainId].classic.static.factory : undefined,
+    KS_STATIC_FEE_FACTORY_ABI,
+  )
 }
 export function useDynamicFeeFactoryContract(): Contract | null {
   const { chainId } = useActiveWeb3React()
 
-  return useContract(chainId && NETWORKS_INFO[chainId].classic.dynamic?.factory, FACTORY_ABI)
+  return useContract(isEVM(chainId) ? NETWORKS_INFO[chainId].classic.dynamic?.factory : undefined, FACTORY_ABI)
 }
 
 export function useZapContract(isStaticFeeContract: boolean, isOldStaticFeeContract: boolean): Contract | null {
   const { chainId } = useActiveWeb3React()
   return useContract(
-    chainId &&
-      (isStaticFeeContract
+    isEVM(chainId)
+      ? isStaticFeeContract
         ? isOldStaticFeeContract
           ? NETWORKS_INFO[chainId].classic.oldStatic?.zap
           : NETWORKS_INFO[chainId].classic.static.zap
-        : NETWORKS_INFO[chainId].classic.dynamic?.zap),
+        : NETWORKS_INFO[chainId].classic.dynamic?.zap
+      : undefined,
     isStaticFeeContract && !isOldStaticFeeContract ? ZAP_STATIC_FEE_ABI : ZAP_ABI,
   )
 }
@@ -208,7 +212,7 @@ export function useFairLaunchV1Contracts(withSignerIfPossible?: boolean): {
   const { chainId } = useActiveWeb3React()
 
   return useMultipleContracts(
-    chainId && NETWORKS_INFO[chainId].classic.fairlaunch,
+    isEVM(chainId) ? NETWORKS_INFO[chainId].classic.fairlaunch : undefined,
     FAIRLAUNCH_ABI,
     withSignerIfPossible,
   )
@@ -220,7 +224,7 @@ export function useFairLaunchV2Contracts(withSignerIfPossible?: boolean): {
   const { chainId } = useActiveWeb3React()
 
   return useMultipleContracts(
-    chainId && NETWORKS_INFO[chainId].classic.fairlaunchV2,
+    isEVM(chainId) ? NETWORKS_INFO[chainId].classic.fairlaunchV2 : undefined,
     FAIRLAUNCH_V2_ABI,
     withSignerIfPossible,
   )
@@ -242,6 +246,7 @@ export function useFairLaunchContracts(withSignerIfPossible?: boolean): {
 export const useFairLaunchVersion = (address: string): FairLaunchVersion => {
   const { chainId } = useActiveWeb3React()
   let version = FairLaunchVersion.V1
+  if (!isEVM(chainId)) return version
 
   // Use .find to search with case insensitive
   const isV2 = NETWORKS_INFO[chainId || ChainId.MAINNET].classic.fairlaunchV2.find(a => {
@@ -313,7 +318,7 @@ export function useRewardLockerContract(address: string, withSignerIfPossible?: 
 export function useProAmmNFTPositionManagerContract(withSignerIfPossible?: boolean): Contract | null {
   const { chainId } = useActiveWeb3React()
   return useContract(
-    chainId && NETWORKS_INFO[chainId].elastic.nonfungiblePositionManager,
+    isEVM(chainId) ? NETWORKS_INFO[chainId].elastic.nonfungiblePositionManager : undefined,
     NFTPositionManagerABI.abi,
     withSignerIfPossible,
   )
@@ -325,10 +330,14 @@ export function useProAmmPoolContract(address?: string, withSignerIfPossible?: b
 
 export function useProAmmTickReader(withSignerIfPossible?: boolean): Contract | null {
   const { chainId } = useActiveWeb3React()
-  return useContract(chainId && NETWORKS_INFO[chainId].elastic.tickReader, TickReaderABI.abi, withSignerIfPossible)
+  return useContract(
+    isEVM(chainId) ? NETWORKS_INFO[chainId].elastic.tickReader : undefined,
+    TickReaderABI.abi,
+    withSignerIfPossible,
+  )
 }
 
 export function useProAmmQuoter() {
   const { chainId } = useActiveWeb3React()
-  return useContract(chainId && NETWORKS_INFO[chainId].elastic.quoter, QuoterABI.abi)
+  return useContract(isEVM(chainId) ? NETWORKS_INFO[chainId].elastic.quoter : undefined, QuoterABI.abi)
 }

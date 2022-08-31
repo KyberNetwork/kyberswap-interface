@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/macro'
-import React from 'react'
 import { AlertCircle, Info } from 'react-feather'
 import styled from 'styled-components'
 

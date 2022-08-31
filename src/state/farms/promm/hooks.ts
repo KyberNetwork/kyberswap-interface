@@ -13,7 +13,7 @@ import { PROMM_JOINED_POSITION } from 'apollo/queries/promm'
 import PROMM_POOL_ABI from 'constants/abis/v2/pool.json'
 import { ZERO_ADDRESS } from 'constants/index'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { FARM_CONTRACTS, VERSION } from 'constants/v2'
 import { providers, useActiveWeb3React } from 'hooks'
 import { useAllTokens, useTokens } from 'hooks/Tokens'
@@ -66,7 +66,7 @@ export const useGetProMMFarms = () => {
 
     const promises = farmsAddress.map(async address => {
       const contract = prommFarmContracts?.[address]
-      if (!contract || !chainId) return
+      if (!contract || !isEVM(chainId)) return
 
       const [poolLength, userDepositedNFT, rewardLocker] = await Promise.all([
         contract.poolLength(),
@@ -478,17 +478,20 @@ type Response = {
 
 export const useProMMFarmTVL = (fairlaunchAddress: string, pid: number) => {
   const { chainId } = useActiveWeb3React()
-  const dataClient = NETWORKS_INFO[chainId || ChainId.MAINNET].elasticClient
+  const dataClient = isEVM(chainId)
+    ? NETWORKS_INFO[chainId].elasticClient
+    : NETWORKS_INFO[ChainId.MAINNET].elasticClient
   const { block24 } = usePoolBlocks()
 
   const { data, loading } = useQuery<Response>(PROMM_JOINED_POSITION(fairlaunchAddress.toLowerCase(), pid, block24), {
     client: dataClient,
     fetchPolicy: 'cache-first',
+    skip: !isEVM(chainId),
   })
 
   const rewardAddress = useMemo(
-    () => data?.farmingPool?.rewardTokens.map(item => isAddressString(item.id)) || [],
-    [data],
+    () => data?.farmingPool?.rewardTokens.map(item => isAddressString(chainId, item.id)) || [],
+    [chainId, data],
   )
   const rwTokenMap = useTokens(rewardAddress)
 
@@ -557,7 +560,7 @@ export const useProMMFarmTVL = (fairlaunchAddress: string, pid: number) => {
         new Token(chainId as ChainId, token.id, Number(token.decimals)),
         data?.farmingPool.totalRewardAmounts[index],
       )
-      return acc + Number(t.toExact()) * priceMap[isAddressString(token.id)]
+      return acc + Number(t.toExact()) * priceMap[isAddressString(chainId, token.id)]
     }, 0)
 
     const farmDuration = (Number(data?.farmingPool?.endTime || 0) - Number(data?.farmingPool?.startTime || 0)) / 86400

@@ -26,7 +26,7 @@ import TransactionConfirmationModal, {
 import ZapError from 'components/ZapError'
 import FormattedPriceImpact from 'components/swap/FormattedPriceImpact'
 import { AMP_HINT } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { PairState } from 'data/Reserves'
 import { useActiveWeb3React } from 'hooks'
@@ -164,7 +164,7 @@ const ZapIn = ({
 
   const [approval, approveCallback] = useApproveCallback(
     amountToApprove,
-    !!chainId
+    isEVM(chainId)
       ? isStaticFeePair
         ? isOldStaticFeeContract
           ? NETWORKS_INFO[chainId].classic.oldStatic?.zap
@@ -187,7 +187,7 @@ const ZapIn = ({
 
   const addTransactionWithType = useTransactionAdder()
   async function onZapIn() {
-    if (!chainId || !library || !account) return
+    if (!isEVM(chainId) || !library || !account) return
     const zapContract = getZapContract(chainId, library, account, isStaticFeePair, isOldStaticFeeContract)
 
     if (!chainId || !account) {

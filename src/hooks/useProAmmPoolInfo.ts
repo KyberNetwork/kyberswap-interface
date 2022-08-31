@@ -2,7 +2,7 @@ import { ChainId, Currency } from '@namgold/ks-sdk-core'
 import { FeeAmount, computePoolAddress } from '@namgold/ks-sdk-elastic'
 import { useMemo } from 'react'
 
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 
 export function useProAmmPoolInfos(
@@ -11,7 +11,7 @@ export function useProAmmPoolInfos(
   feeAmount: (FeeAmount | undefined)[],
 ): string[] {
   const { chainId } = useActiveWeb3React()
-  const proAmmCoreFactoryAddress = chainId && NETWORKS_INFO[chainId].elastic.coreFactory
+  const proAmmCoreFactoryAddress = isEVM(chainId) && NETWORKS_INFO[chainId].elastic.coreFactory
   return useMemo(
     () =>
       feeAmount.map(fee => {

@@ -91,6 +91,6 @@ export default async function getTokenList(
 
 const formatTokensAddress = (tokenList: any) => {
   tokenList.tokens.forEach((token: any) => {
-    token.address = getFormattedAddress(token.address)
+    token.address = getFormattedAddress(token.chainId, token.address)
   })
 }

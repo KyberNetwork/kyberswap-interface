@@ -11,7 +11,7 @@ import KS_ROUTER_STATIC_FEE_ABI from 'constants/abis/ks-router-static-fee.json'
 import ROUTER_PRO_AMM from 'constants/abis/v2/ProAmmRouter.json'
 import ZAP_STATIC_FEE_ABI from 'constants/abis/zap-static-fee.json'
 import ZAP_ABI from 'constants/abis/zap.json'
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { isAddress } from 'utils'
 
 // account is not optional
@@ -26,7 +26,7 @@ function getProviderOrSigner(library: Web3Provider, account?: string): Web3Provi
 
 // account is optional
 export function getContract(address: string, ABI: any, library: Web3Provider, account?: string): Contract {
-  if (!isAddress(address) || address === AddressZero) {
+  if (!isAddress(ChainId.MAINNET, address) || address === AddressZero) {
     throw Error(`Invalid 'address' parameter '${address}'.`)
   }
 
@@ -34,7 +34,7 @@ export function getContract(address: string, ABI: any, library: Web3Provider, ac
 }
 
 export function getContractForReading(address: string, ABI: any, library: ethers.providers.JsonRpcProvider): Contract {
-  if (!isAddress(address) || address === AddressZero) {
+  if (!isAddress(ChainId.MAINNET, address) || address === AddressZero) {
     throw Error(`Invalid 'address' parameter '${address}'.`)
   }
 
@@ -43,20 +43,35 @@ export function getContractForReading(address: string, ABI: any, library: ethers
 
 // account is optional
 export function getOldStaticFeeRouterContract(chainId: ChainId, library: Web3Provider, account?: string): Contract {
-  return getContract(NETWORKS_INFO[chainId].classic.oldStatic?.router ?? '', ROUTER_STATIC_FEE_ABI, library, account)
+  return getContract(
+    isEVM(chainId) ? NETWORKS_INFO[chainId].classic.oldStatic?.router ?? '' : '',
+    ROUTER_STATIC_FEE_ABI,
+    library,
+    account,
+  )
 }
 // account is optional
 export function getStaticFeeRouterContract(chainId: ChainId, library: Web3Provider, account?: string): Contract {
-  return getContract(NETWORKS_INFO[chainId].classic.static.router, KS_ROUTER_STATIC_FEE_ABI, library, account)
+  return getContract(
+    isEVM(chainId) ? NETWORKS_INFO[chainId].classic.static.router : '',
+    KS_ROUTER_STATIC_FEE_ABI,
+    library,
+    account,
+  )
 }
 // account is optional
 export function getDynamicFeeRouterContract(chainId: ChainId, library: Web3Provider, account?: string): Contract {
-  return getContract(NETWORKS_INFO[chainId].classic.dynamic?.router ?? '', ROUTER_DYNAMIC_FEE_ABI, library, account)
+  return getContract(
+    isEVM(chainId) ? NETWORKS_INFO[chainId].classic.dynamic?.router ?? '' : '',
+    ROUTER_DYNAMIC_FEE_ABI,
+    library,
+    account,
+  )
 }
 
 // account is optional
 export function getProAmmRouterContract(chainId: ChainId, library: Web3Provider, account?: string): Contract {
-  return getContract(NETWORKS_INFO[chainId].elastic.routers, ROUTER_PRO_AMM.abi, library, account)
+  return getContract(isEVM(chainId) ? NETWORKS_INFO[chainId].elastic.routers : '', ROUTER_PRO_AMM.abi, library, account)
 }
 
 // account is optional
@@ -68,11 +83,13 @@ export function getZapContract(
   isOldStaticFeeContract?: boolean,
 ): Contract {
   return getContract(
-    isStaticFeeContract
-      ? isOldStaticFeeContract
-        ? NETWORKS_INFO[chainId].classic.oldStatic?.zap || ''
-        : NETWORKS_INFO[chainId].classic.static.zap
-      : NETWORKS_INFO[chainId].classic.dynamic?.zap || '',
+    isEVM(chainId)
+      ? isStaticFeeContract
+        ? isOldStaticFeeContract
+          ? NETWORKS_INFO[chainId].classic.oldStatic?.zap || ''
+          : NETWORKS_INFO[chainId].classic.static.zap
+        : NETWORKS_INFO[chainId].classic.dynamic?.zap || ''
+      : '',
     isStaticFeeContract && !isOldStaticFeeContract ? ZAP_STATIC_FEE_ABI : ZAP_ABI,
     library,
     account,
@@ -84,6 +101,7 @@ export function getClaimRewardContract(
   library: Web3Provider,
   account?: string,
 ): Contract | undefined {
+  if (!isEVM(chainId)) return
   if (!NETWORKS_INFO[chainId].classic.claimReward) return
   return getContract(NETWORKS_INFO[chainId].classic.claimReward, CLAIM_REWARD_ABI, library, account)
 }

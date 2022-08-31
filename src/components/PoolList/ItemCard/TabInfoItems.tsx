@@ -1,5 +1,4 @@
 import { t } from '@lingui/macro'
-import React from 'react'
 
 import ItemCardInfoRow from 'components/PoolList/ItemCard/ItemCardInfoRow'
 import { MAX_ALLOW_APY } from 'constants/index'

@@ -20,6 +20,7 @@ interface NetworkInfo {
   readonly coingeckoNetworkId: string //https://api.coingecko.com/api/v3/asset_platforms
   readonly coingeckoNativeTokenId: string //https://api.coingecko.com/api/v3/coins/list
   readonly deBankSlug: string
+  readonly tokenListUrl: string
   // token: {
   //   DAI: Token
   //   USDC: Token
@@ -31,7 +32,6 @@ export interface EVMNetworkInfo extends NetworkInfo {
   readonly classicClient: ApolloClient<NormalizedCacheObject>
   readonly elasticClient: ApolloClient<NormalizedCacheObject>
   readonly blockClient: ApolloClient<NormalizedCacheObject>
-  readonly tokenListUrl: string
   readonly rpcUrl: string
   readonly classic: {
     readonly static: {
@@ -65,5 +65,9 @@ export interface EVMNetworkInfo extends NetworkInfo {
 }
 
 export interface SolanaNetworkInfo extends NetworkInfo {
-  readonly classic: any
+  readonly classic: {
+    readonly pool: string
+    readonly factory: string
+    readonly router: string
+  }
 }

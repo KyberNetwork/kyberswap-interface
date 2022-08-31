@@ -309,7 +309,9 @@ export default function CurrencyList({
       const showImport =
         inactiveTokens.length &&
         token &&
-        inactiveTokens.map(inactiveToken => inactiveToken.address).includes(isAddress(token.address) || token.address)
+        inactiveTokens
+          .map(inactiveToken => inactiveToken.address)
+          .includes(isAddress(token.chainId, token.address) || token.address)
 
       if (index === breakIndex || !data) {
         return (

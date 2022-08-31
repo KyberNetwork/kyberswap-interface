@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import React, { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 
 import QuestionHelper from 'components/QuestionHelper'

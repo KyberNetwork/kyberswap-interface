@@ -74,10 +74,10 @@ export default function ProAmmPoolCardItem({ pair, onShared, userPositions, idx 
   const allTokens = useAllTokens()
   const { data: farms } = useProMMFarms()
   const token0 =
-    allTokens[isAddressString(pair[0].token0.address)] ||
+    allTokens[isAddressString(chainId, pair[0].token0.address)] ||
     new Token(chainId as ChainId, pair[0].token0.address, pair[0].token0.decimals, pair[0].token0.symbol)
   const token1 =
-    allTokens[isAddressString(pair[0].token1.address)] ||
+    allTokens[isAddressString(chainId, pair[0].token1.address)] ||
     new Token(chainId as ChainId, pair[0].token1.address, pair[0].token1.decimals, pair[0].token1.symbol)
 
   const token0Address =

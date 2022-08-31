@@ -1,5 +1,4 @@
 import { Trans, t } from '@lingui/macro'
-import React from 'react'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'

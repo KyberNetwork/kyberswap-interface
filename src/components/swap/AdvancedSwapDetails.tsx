@@ -1,7 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { Trade } from '@namgold/ks-sdk-classic'
 import { ChainId, Currency, TradeType } from '@namgold/ks-sdk-core'
-import React from 'react'
 import styled from 'styled-components'
 
 import { AutoColumn } from 'components/Column'

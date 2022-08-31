@@ -56,9 +56,12 @@ function listToTokenMap(list: TokenList): TokenAddressMap {
   if (result) return result
 
   const map = list.tokens.reduce<TokenAddressMapWriteable>((tokenMap, tokenInfo) => {
-    const formattedAddress = getFormattedAddress(tokenInfo.address)
+    const formattedAddress = getFormattedAddress(tokenInfo.chainId, tokenInfo.address)
 
-    if (tokenMap[tokenInfo.chainId][formattedAddress] !== undefined || !isAddress(tokenInfo.address)) {
+    if (
+      tokenMap[tokenInfo.chainId][formattedAddress] !== undefined ||
+      !isAddress(tokenInfo.chainId, tokenInfo.address)
+    ) {
       return tokenMap
     }
     const token = new WrappedTokenInfo(tokenInfo, list)

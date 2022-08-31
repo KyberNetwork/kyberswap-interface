@@ -30,7 +30,7 @@ export function useDerivedSwapInfoV2(): {
   loading: boolean
   isPairNotfound: boolean
 } {
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
 
   const {
     independentField,
@@ -127,7 +127,7 @@ export function useDerivedSwapInfoV2(): {
     inputError = inputError ?? t`Select a token`
   }
 
-  const formattedTo = isAddress(to)
+  const formattedTo = isAddress(chainId, to)
   if (!to || !formattedTo) {
     inputError = inputError ?? t`Enter a recipient`
   } else {

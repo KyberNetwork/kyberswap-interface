@@ -8,8 +8,6 @@ import { useMedia } from 'react-use'
 import styled from 'styled-components'
 
 import CoinbaseWalletIcon from 'assets/images/coinbaseWalletIcon.svg'
-import FortmaticIcon from 'assets/images/fortmaticIcon.png'
-import PortisIcon from 'assets/images/portisIcon.png'
 import WalletConnectIcon from 'assets/images/walletConnectIcon.svg'
 import { ButtonLight, ButtonSecondary } from 'components/Button'
 import Identicon from 'components/Identicon'
@@ -17,15 +15,7 @@ import Loader from 'components/Loader'
 import { RowBetween } from 'components/Row'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import WalletModal from 'components/WalletModal'
-import {
-  braveInjectedConnector,
-  coin98InjectedConnector,
-  fortmatic,
-  injected,
-  portis,
-  walletconnect,
-  walletlink,
-} from 'connectors'
+import { braveInjectedConnector, coin98InjectedConnector, injected, walletconnect, walletlink } from 'connectors'
 import { NetworkContextName } from 'constants/index'
 import useENSName from 'hooks/useENSName'
 import { useHasSocks } from 'hooks/useSocksBalance'
@@ -137,22 +127,6 @@ function StatusIcon({ connector }: { connector: AbstractConnector }) {
       return (
         <IconWrapper size={16}>
           <img src={CoinbaseWalletIcon} alt={'coinbase wallet'} />
-        </IconWrapper>
-      )
-    }
-
-    case fortmatic: {
-      return (
-        <IconWrapper size={16}>
-          <img src={FortmaticIcon} alt={'fortmatic wallet'} />
-        </IconWrapper>
-      )
-    }
-
-    case portis: {
-      return (
-        <IconWrapper size={16}>
-          <img src={PortisIcon} alt={'portis wallet'} />
         </IconWrapper>
       )
     }

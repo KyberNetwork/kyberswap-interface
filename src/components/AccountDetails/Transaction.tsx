@@ -1,4 +1,3 @@
-import React from 'react'
 import { CheckCircle, Triangle } from 'react-feather'
 import styled from 'styled-components'
 

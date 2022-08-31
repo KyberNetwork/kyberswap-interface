@@ -6,7 +6,7 @@ import { Trade as ProAmmTrade } from '@namgold/ks-sdk-elastic'
 import JSBI from 'jsbi'
 import { useCallback, useMemo } from 'react'
 
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { useTokenAllowance } from 'data/Allowances'
 import { Field } from 'state/swap/actions'
@@ -132,7 +132,8 @@ export function useApproveCallbackFromTrade(trade?: Trade<Currency, Currency, Tr
     () => (trade ? computeSlippageAdjustedAmounts(trade, allowedSlippage)[Field.INPUT] : undefined),
     [trade, allowedSlippage],
   )
-  return useApproveCallback(amountToApprove, !!chainId ? NETWORKS_INFO[chainId].classic.dynamic?.router : undefined)
+  const spender = isEVM(chainId) ? NETWORKS_INFO[chainId].classic.dynamic?.router : undefined
+  return useApproveCallback(amountToApprove, spender)
 }
 
 // wraps useApproveCallback in the context of a swap
@@ -154,5 +155,6 @@ export function useProAmmApproveCallback(
     () => (trade && trade.inputAmount.currency.isToken ? trade.maximumAmountIn(allowedSlippage) : undefined),
     [trade, allowedSlippage],
   )
-  return useApproveCallback(amountToApprove, !!chainId ? NETWORKS_INFO[chainId].elastic.routers : undefined)
+  const spender = isEVM(chainId) ? NETWORKS_INFO[chainId].elastic.routers : undefined
+  return useApproveCallback(amountToApprove, spender)
 }

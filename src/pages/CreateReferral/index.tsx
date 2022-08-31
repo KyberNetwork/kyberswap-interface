@@ -152,7 +152,7 @@ export default function CreateReferral() {
   const [isShowShareLinkModal, setIsShowShareLinkModal] = useState(false)
   const [address, setAddress] = useState('')
   const [touched, setTouched] = useState(false)
-  const isValidAddress = isAddress(address)
+  const isValidAddress = isAddress(chainId, address)
   const above1000 = useMedia('(min-width: 1000px)')
 
   useEffect(() => {

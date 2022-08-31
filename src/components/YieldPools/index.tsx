@@ -81,7 +81,7 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
 
       // Keep to be extended farm in active tab
       const now = +new Date() / 1000
-      const toBeExtendTime = TOBE_EXTENDED_FARMING_POOLS[isAddressString(farm.id)]
+      const toBeExtendTime = TOBE_EXTENDED_FARMING_POOLS[isAddressString(chainId, farm.id)]
       // only show if it will be ended less than 2 day
       const tobeExtended = toBeExtendTime && farm.endTime - now < 172800 && farm.endTime < toBeExtendTime
 

@@ -1,5 +1,4 @@
 import { ChainId } from '@namgold/ks-sdk-core'
-import React from 'react'
 
 import Loader from 'components/Loader'
 import { KNC_ADDRESS } from 'constants/tokens'

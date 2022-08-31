@@ -19,7 +19,7 @@ import {
   RESERVE_USD_DECIMALS,
   ZERO_ADDRESS,
 } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
@@ -42,13 +42,13 @@ import { setFarmsData, setLoading, setYieldPoolsError } from './actions'
 export const useRewardTokens = () => {
   const { chainId } = useActiveWeb3React()
   const rewardTokensMulticallResult = useMultipleContractSingleData(
-    NETWORKS_INFO[chainId || ChainId.MAINNET].classic.fairlaunch,
+    isEVM(chainId) ? NETWORKS_INFO[chainId || ChainId.MAINNET].classic.fairlaunch : [],
     new Interface(FAIRLAUNCH_ABI),
     'getRewardTokens',
   )
 
   const rewardTokensV2MulticallResult = useMultipleContractSingleData(
-    NETWORKS_INFO[chainId || ChainId.MAINNET].classic.fairlaunchV2,
+    isEVM(chainId) ? NETWORKS_INFO[chainId || ChainId.MAINNET].classic.fairlaunchV2 : [],
     new Interface(FAIRLAUNCH_V2_ABI),
     'getRewardTokens',
   )
@@ -94,7 +94,6 @@ export const useFarmsData = (isIncludeOutsideFarms = true) => {
   const allTokens = useAllTokens()
   const blockNumber = useBlockNumber()
 
-  const apolloClient = NETWORKS_INFO[chainId || ChainId.MAINNET].classicClient
   const farmsData = useSelector((state: AppState) => state.farms.data)
   const loading = useSelector((state: AppState) => state.farms.loading)
   const error = useSelector((state: AppState) => state.farms.error)
@@ -111,16 +110,19 @@ export const useFarmsData = (isIncludeOutsideFarms = true) => {
   }, [chainId])
 
   useEffect(() => {
+    if (!isEVM(chainId)) return
+    const apolloClient = NETWORKS_INFO[chainId || ChainId.MAINNET].classicClient
     let cancelled = false
     const currentTimestamp = Math.round(Date.now() / 1000)
 
     async function getListFarmsForContract(contract: Contract): Promise<Farm[]> {
+      if (!isEVM(chainId)) return []
       const rewardTokenAddresses: string[] = await contract?.getRewardTokens()
       const poolLength = await contract?.poolLength()
 
       const pids = [...Array(BigNumber.from(poolLength).toNumber()).keys()]
 
-      const isV2 = NETWORKS_INFO[chainId || ChainId.MAINNET].classic.fairlaunchV2.includes(contract.address)
+      const isV2 = NETWORKS_INFO[chainId].classic.fairlaunchV2.includes(contract.address)
       const poolInfos = await Promise.all(
         pids.map(async (pid: number) => {
           const poolInfo = await contract?.getPoolInfo(pid)
@@ -283,7 +285,6 @@ export const useFarmsData = (isIncludeOutsideFarms = true) => {
       cancelled = true
     }
   }, [
-    apolloClient,
     dispatch,
     ethPrice.currentPrice,
     chainId,
@@ -326,9 +327,10 @@ export const useYieldHistories = (isModalOpen: boolean) => {
   const { chainId, account } = useActiveWeb3React()
   const [histories, setHistories] = useState<FarmHistory[]>([])
   const [loading, setLoading] = useState(false)
-  const apolloClient = NETWORKS_INFO[chainId || ChainId.MAINNET].classicClient
 
   useEffect(() => {
+    if (!isEVM(chainId)) return
+    const apolloClient = NETWORKS_INFO[chainId || ChainId.MAINNET].classicClient
     async function fetchFarmHistories() {
       if (!account || !isModalOpen) {
         return
@@ -431,13 +433,14 @@ export const useYieldHistories = (isModalOpen: boolean) => {
     }
 
     fetchFarmHistories()
-  }, [chainId, account, isModalOpen, apolloClient])
+  }, [chainId, account, isModalOpen])
 
   return { loading, data: histories }
 }
 
 export const useTotalApr = (farm: Farm) => {
-  const poolAddressChecksum = isAddressString(farm.id)
+  const { chainId } = useActiveWeb3React()
+  const poolAddressChecksum = isAddressString(chainId, farm.id)
   const { decimals: lpTokenDecimals } = useTokenBalance(poolAddressChecksum)
   // Ratio in % of LP tokens that are staked in the MC, vs the total number in circulation
   const lpTokenRatio = new Fraction(

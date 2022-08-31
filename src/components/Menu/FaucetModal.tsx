@@ -10,6 +10,7 @@ import { ButtonPrimary } from 'components/Button'
 import Logo from 'components/Logo'
 import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
+import { REWARD_SERVICE_API } from 'constants/env'
 import { NETWORKS_INFO } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -66,7 +67,8 @@ function FaucetModal() {
     const nativeToken = NativeCurrencies[chainId]
     if (rewardData) {
       if (rewardData.tokenAddress === '0') return nativeToken
-      if (isAddress(rewardData.tokenAddress)) return filterTokens(Object.values(allTokens), rewardData.tokenAddress)[0]
+      if (isAddress(chainId, rewardData.tokenAddress))
+        return filterTokens(chainId, Object.values(allTokens), rewardData.tokenAddress)[0]
     }
     return nativeToken
   }, [rewardData, chainId, account, allTokens])
@@ -82,7 +84,7 @@ function FaucetModal() {
   const claimRewardCallBack = async () => {
     if (!rewardData) return
     try {
-      const rawResponse = await fetch(process.env.REACT_APP_REWARD_SERVICE_API + '/rewards/claim', {
+      const rawResponse = await fetch(REWARD_SERVICE_API + '/rewards/claim', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -113,9 +115,9 @@ function FaucetModal() {
     if (!chainId || !account) return
     const getRewardAmount = async () => {
       try {
-        const { data } = await fetch(
-          `${process.env.REACT_APP_REWARD_SERVICE_API}/faucets?wallet=${account}&chainId=${chainId}`,
-        ).then(res => res.json())
+        const { data } = await fetch(`${REWARD_SERVICE_API}/faucets?wallet=${account}&chainId=${chainId}`).then(res =>
+          res.json(),
+        )
         if (data[0])
           setRewardData({
             amount: BigNumber.from(data[0].amount),

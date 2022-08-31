@@ -107,7 +107,7 @@ export function CurrencySearch({
   const allTokens = useAllTokens()
 
   // if they input an address, use it
-  const isAddressSearch = isAddress(searchQuery)
+  const isAddressSearch = isAddress(chainId, searchQuery)
   const searchToken = useToken(searchQuery)
 
   const searchTokenIsAdded = useIsUserAddedToken(searchToken)
@@ -124,8 +124,8 @@ export function CurrencySearch({
 
   const filteredTokens: Token[] = useMemo(() => {
     if (isAddressSearch) return searchToken ? [searchToken.wrapped] : []
-    return filterTokens(Object.values(allTokens), searchQuery)
-  }, [isAddressSearch, searchToken, allTokens, searchQuery])
+    return filterTokens(chainId, Object.values(allTokens), searchQuery)
+  }, [chainId, isAddressSearch, searchToken, allTokens, searchQuery])
 
   const filteredSortedTokens: Token[] = useMemo(() => {
     if (searchToken) return [searchToken.wrapped]
@@ -159,12 +159,15 @@ export function CurrencySearch({
 
   // manage focus on modal show
   const inputRef = useRef<HTMLInputElement>()
-  const handleInput = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    const input = event.target.value
-    const checksummedInput = isAddress(input)
-    setSearchQuery(checksummedInput || input)
-    fixedList.current?.scrollTo(0)
-  }, [])
+  const handleInput = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      const input = event.target.value
+      const checksummedInput = isAddress(chainId, input)
+      setSearchQuery(checksummedInput || input)
+      fixedList.current?.scrollTo(0)
+    },
+    [chainId],
+  )
 
   const handleEnter = useCallback(
     (e: KeyboardEvent<HTMLInputElement>) => {

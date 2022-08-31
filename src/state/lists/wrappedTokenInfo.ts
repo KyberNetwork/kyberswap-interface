@@ -23,13 +23,13 @@ export class WrappedTokenInfo extends Token {
   constructor(tokenInfo: TokenInfo, list: LiteTokenList) {
     super(
       tokenInfo.chainId,
-      isAddress(tokenInfo.address) || tokenInfo.address,
+      isAddress(tokenInfo.chainId, tokenInfo.address) || tokenInfo.address,
       tokenInfo.decimals,
       tokenInfo.symbol,
       tokenInfo.name,
     )
     this.tokenInfo = tokenInfo
-    const { name, timestamp, version, keywords, tags, logoURI } = list
+    const { name, timestamp, version, keywords, tags, logoURI } = list // eliminate tokens field to prevent circular json
     this.list = { name, timestamp, version, keywords, tags, logoURI }
   }
 

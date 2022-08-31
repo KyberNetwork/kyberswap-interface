@@ -3,6 +3,7 @@ import { ChainId } from '@namgold/ks-sdk-core'
 import CRONOS_DARK from 'assets/networks/cronos-network-dark.svg'
 import CRONOS from 'assets/networks/cronos-network.svg'
 import CronosLogo from 'assets/svg/cronos-token-logo.svg'
+import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
 
@@ -25,7 +26,7 @@ const cronosInfo: EVMNetworkInfo = {
   blockClient: createClient('https://cronos-graph.kyberengineering.io/subgraphs/name/kybernetwork/cronos-blocks'),
   etherscanUrl: 'https://cronos.org/explorer',
   etherscanName: 'Cronos explorer',
-  tokenListUrl: `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?chainId=${ChainId.CRONOS}`,
+  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainId=${ChainId.CRONOS}`,
   bridgeURL: 'https://cronos.crypto.org/docs/bridge/cdcapp.html',
   nativeToken: {
     symbol: 'CRO',
@@ -34,7 +35,7 @@ const cronosInfo: EVMNetworkInfo = {
     decimal: 18,
   },
   rpcUrl: 'https://evm-cronos.crypto.org',
-  routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/cronos/route/encode`,
+  routerUri: `${AGGREGATOR_API}/cronos/route/encode`,
   classic: {
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',

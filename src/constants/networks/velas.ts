@@ -1,6 +1,7 @@
 import { ChainId } from '@namgold/ks-sdk-core'
 
 import VELAS from 'assets/networks/velas-network.png'
+import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
 
@@ -22,7 +23,7 @@ const velasInfo: EVMNetworkInfo = {
   blockClient: createClient('https://velas-graph.kyberengineering.io/subgraphs/name/kybernetwork/velas-blocks'),
   etherscanUrl: 'https://evmexplorer.velas.com',
   etherscanName: 'Velas EVM Explorer',
-  tokenListUrl: `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?chainId=${ChainId.VELAS}`,
+  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainId=${ChainId.VELAS}`,
   bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'VLX',
@@ -31,7 +32,7 @@ const velasInfo: EVMNetworkInfo = {
     decimal: 18,
   },
   rpcUrl: 'https://evmexplorer.velas.com/rpc',
-  routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/velas/route/encode`,
+  routerUri: `${AGGREGATOR_API}/velas/route/encode`,
   classic: {
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',

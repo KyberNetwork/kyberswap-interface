@@ -12,8 +12,7 @@ import styled from 'styled-components'
 import { ReactComponent as Close } from 'assets/images/x.svg'
 import AccountDetails from 'components/AccountDetails'
 import Modal from 'components/Modal'
-import { braveInjectedConnector, coin98InjectedConnector, fortmatic, injected, portis } from 'connectors'
-import { OVERLAY_READY } from 'connectors/Fortmatic'
+import { braveInjectedConnector, coin98InjectedConnector, injected } from 'connectors'
 import { SUPPORTED_WALLETS } from 'constants/index'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import usePrevious from 'hooks/usePrevious'
@@ -231,13 +230,6 @@ export default function WalletModal({
     }
   }
 
-  // close wallet modal if fortmatic modal is active
-  useEffect(() => {
-    fortmatic.on(OVERLAY_READY, () => {
-      toggleWalletModal()
-    })
-  }, [toggleWalletModal])
-
   const handleAccept = () => {
     setIsAccepted(!isAccepted)
   }
@@ -251,11 +243,6 @@ export default function WalletModal({
         const option = SUPPORTED_WALLETS[key]
         // check for mobile options
         if (isMobile) {
-          //disable portis on mobile for now
-          if (option.connector === portis) {
-            return null
-          }
-
           if (
             (!window.web3 && !window.ethereum && option.mobile) ||
             // add this condition below for Brave browser. In Brave, window.ethereum is not undefined

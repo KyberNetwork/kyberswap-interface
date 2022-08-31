@@ -95,7 +95,7 @@ const fetcherDextools = (url: string) => {
     .catch(error => console.log(error))
 }
 
-export const searchTokenPair = (address: string, chainId: ChainId | undefined) => {
+export const searchTokenPair = (address: string, chainId: ChainId | undefined): Promise<{ id: string }[]> => {
   if (TOKEN_PAIRS_ADDRESS_MAPPING[address.toLowerCase()]) {
     return new Promise((resolve, reject) => {
       resolve([{ id: TOKEN_PAIRS_ADDRESS_MAPPING[address.toLowerCase()] }])

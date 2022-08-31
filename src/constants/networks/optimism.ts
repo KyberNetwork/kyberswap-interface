@@ -2,6 +2,7 @@ import { ChainId } from '@namgold/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import OPTIMISM from 'assets/networks/optimism-network.svg'
+import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
 
@@ -19,7 +20,7 @@ const optimismInfo: EVMNetworkInfo = {
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/ianlapham/uni-testing-subgraph'),
   etherscanUrl: 'https://optimistic.etherscan.io',
   etherscanName: 'Optimistic Ethereum Explorer',
-  tokenListUrl: `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?chainId=${ChainId.OPTIMISM}`,
+  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainId=${ChainId.OPTIMISM}`,
   bridgeURL: 'https://app.optimism.io/bridge',
   nativeToken: {
     symbol: 'ETH',
@@ -28,7 +29,7 @@ const optimismInfo: EVMNetworkInfo = {
     decimal: 18,
   },
   rpcUrl: 'https://mainnet.optimism.io',
-  routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/optimism/route/encode`,
+  routerUri: `${AGGREGATOR_API}/optimism/route/encode`,
   classic: {
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',

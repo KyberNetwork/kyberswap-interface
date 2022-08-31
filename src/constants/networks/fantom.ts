@@ -1,6 +1,7 @@
 import { ChainId } from '@namgold/ks-sdk-core'
 
 import FTM from 'assets/networks/fantom-network.png'
+import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
 
@@ -18,7 +19,7 @@ const fantomInfo: EVMNetworkInfo = {
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/fantom-blocks'),
   etherscanUrl: 'https://ftmscan.com',
   etherscanName: 'Ftmscan',
-  tokenListUrl: `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?chainId=${ChainId.FANTOM}`,
+  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainId=${ChainId.FANTOM}`,
   bridgeURL: 'https://multichain.xyz',
   nativeToken: {
     symbol: 'FTM',
@@ -27,7 +28,7 @@ const fantomInfo: EVMNetworkInfo = {
     decimal: 18,
   },
   rpcUrl: 'https://rpc.ftm.tools',
-  routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/fantom/route/encode`,
+  routerUri: `${AGGREGATOR_API}/fantom/route/encode`,
   classic: {
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',

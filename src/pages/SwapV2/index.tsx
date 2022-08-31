@@ -470,7 +470,7 @@ export default function Swap({ history }: RouteComponentProps) {
     if (keyword === getSymbolSlug(nativeToken)) {
       return nativeToken
     }
-    return filterTokensWithExactKeyword(Object.values(defaultTokens), keyword)[0]
+    return filterTokensWithExactKeyword(chainId, Object.values(defaultTokens), keyword)[0]
   }
 
   const navigate = useCallback(
@@ -507,8 +507,8 @@ export default function Swap({ history }: RouteComponentProps) {
       return
     }
 
-    const isAddress1 = isAddressString(fromCurrency)
-    const isAddress2 = isAddressString(toCurrency)
+    const isAddress1 = isAddressString(chainId, fromCurrency)
+    const isAddress2 = isAddressString(chainId, toCurrency)
 
     // net/add-to-add
     if (isAddress1 && isAddress2) {

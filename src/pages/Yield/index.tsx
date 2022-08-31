@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { Token } from '@namgold/ks-sdk-core'
 import { stringify } from 'qs'
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { useMedia } from 'react-use'

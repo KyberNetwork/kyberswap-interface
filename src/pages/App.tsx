@@ -1,6 +1,4 @@
-import { ApolloProvider } from '@apollo/client'
 import { Trans } from '@lingui/macro'
-import { ChainId } from '@namgold/ks-sdk-core'
 import * as Sentry from '@sentry/react'
 import { Popover, Sidetab } from '@typeform/embed-react'
 import { Suspense, lazy, useEffect } from 'react'
@@ -119,8 +117,6 @@ export default function App() {
     }
   }, [chainId])
 
-  const classicClient = NETWORKS_INFO[chainId || ChainId.MAINNET].classicClient
-
   const theme = useTheme()
   const isDarkTheme = useIsDarkMode()
 
@@ -144,7 +140,7 @@ export default function App() {
           customIcon={isDarkTheme ? 'https://i.imgur.com/iTOOKnr.png' : 'https://i.imgur.com/aPCpnGg.png'}
         />
       )}
-      {(BLACKLIST_WALLETS.includes(isAddressString(account)) ||
+      {(BLACKLIST_WALLETS.includes(isAddressString(chainId, account)) ||
         BLACKLIST_WALLETS.includes(account?.toLowerCase() || '')) && (
         <Modal
           isOpen
@@ -183,7 +179,7 @@ export default function App() {
       )}
 
       {(!account || !BLACKLIST_WALLETS.includes(account)) && (
-        <ApolloProvider client={classicClient}>
+        <>
           <Route component={DarkModeQueryParamReader} />
           <AppWrapper>
             <TopBanner />
@@ -259,7 +255,7 @@ export default function App() {
               {showFooter && <Footer />}
             </Suspense>
           </AppWrapper>
-        </ApolloProvider>
+        </>
       )}
     </ErrorBoundary>
   )

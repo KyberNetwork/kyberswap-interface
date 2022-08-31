@@ -167,7 +167,7 @@ export function useToken(tokenAddress?: string): Token | NativeCurrency | undefi
   const { chainId } = useActiveWeb3React()
   const tokens = useAllTokens()
 
-  const address = isAddress(tokenAddress)
+  const address = isAddress(chainId, tokenAddress)
 
   const tokenContract = useTokenContract(address && tokenAddress !== ZERO_ADDRESS ? address : undefined, false)
   const tokenContractBytes32 = useBytes32TokenContract(address ? address : undefined, false)
@@ -234,19 +234,19 @@ export function searchInactiveTokenLists({
   search: string | undefined
   minResults: number
   activeTokens: AllTokenType
-  chainId: ChainId | undefined
+  chainId: ChainId
   inactiveUrls: string[]
   activeList: ListType
 }): WrappedTokenInfo[] {
   if (!search || search.trim().length === 0) return []
-  const tokenFilter = createTokenFilterFunction(search)
+  const tokenFilter = createTokenFilterFunction(chainId, search)
   const result: WrappedTokenInfo[] = []
   const addressSet: { [address: string]: true } = {}
   for (const url of inactiveUrls) {
     const list = activeList[url].current
     if (!list) continue
     for (const tokenInfo of list.tokens) {
-      if (isAddress(tokenInfo.address) && tokenInfo.chainId === chainId && tokenFilter(tokenInfo)) {
+      if (isAddress(chainId, tokenInfo.address) && tokenInfo.chainId === chainId && tokenFilter(tokenInfo)) {
         const wrapped: WrappedTokenInfo = new WrappedTokenInfo(tokenInfo, list)
         if (!activeTokens[wrapped.address] && !addressSet[wrapped.address]) {
           addressSet[wrapped.address] = true

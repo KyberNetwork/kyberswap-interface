@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 
+import { TRUESIGHT_API } from 'constants/env'
 import { TRENDING_SOON_SUPPORTED_NETWORKS } from 'constants/index'
 import { TrueSightFilter, TrueSightTimeframe } from 'pages/TrueSight/index'
 
@@ -55,9 +56,7 @@ export default function useGetTrendingSoonData(filter: TrueSightFilter, maxItems
     const fetchData = async () => {
       try {
         const timeframe = filter.timeframe === TrueSightTimeframe.ONE_DAY ? '24h' : '7d'
-        const url = `${
-          process.env.REACT_APP_TRUESIGHT_API
-        }/api/v1/trending-soon?timeframe=${timeframe}&page_number=0&page_size=${maxItems}&search_token_id=${
+        const url = `${TRUESIGHT_API}/api/v1/trending-soon?timeframe=${timeframe}&page_number=0&page_size=${maxItems}&search_token_id=${
           filter.selectedTokenData?.token_id ?? ''
         }&search_token_tag=${filter.selectedTag ?? ''}`
         setError(undefined)

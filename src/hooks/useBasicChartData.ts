@@ -3,6 +3,7 @@ import { getUnixTime, subHours } from 'date-fns'
 import { useMemo } from 'react'
 import useSWR from 'swr'
 
+import { AGGREGATOR_API, PRICE_CHART_API } from 'constants/env'
 import { COINGECKO_API_URL } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
@@ -63,13 +64,13 @@ export interface ChartDataInfo {
 }
 
 const liveDataApi: { [chainId in ChainId]?: string } = {
-  [ChainId.MAINNET]: `${process.env.REACT_APP_AGGREGATOR_API}/ethereum/tokens`,
-  [ChainId.BSCMAINNET]: `${process.env.REACT_APP_AGGREGATOR_API}/bsc/tokens`,
-  [ChainId.MATIC]: `${process.env.REACT_APP_AGGREGATOR_API}/polygon/tokens`,
-  [ChainId.AVAXMAINNET]: `${process.env.REACT_APP_AGGREGATOR_API}/avalanche/tokens`,
-  [ChainId.FANTOM]: `${process.env.REACT_APP_AGGREGATOR_API}/fantom/tokens`,
-  [ChainId.CRONOS]: `${process.env.REACT_APP_AGGREGATOR_API}/cronos/tokens`,
-  [ChainId.ARBITRUM]: `${process.env.REACT_APP_AGGREGATOR_API}/arbitrum/tokens`,
+  [ChainId.MAINNET]: `${AGGREGATOR_API}/ethereum/tokens`,
+  [ChainId.BSCMAINNET]: `${AGGREGATOR_API}/bsc/tokens`,
+  [ChainId.MATIC]: `${AGGREGATOR_API}/polygon/tokens`,
+  [ChainId.AVAXMAINNET]: `${AGGREGATOR_API}/avalanche/tokens`,
+  [ChainId.FANTOM]: `${AGGREGATOR_API}/fantom/tokens`,
+  [ChainId.CRONOS]: `${AGGREGATOR_API}/cronos/tokens`,
+  [ChainId.ARBITRUM]: `${AGGREGATOR_API}/arbitrum/tokens`,
 }
 
 const fetchKyberDataSWR = async (url: string) => {
@@ -141,11 +142,9 @@ export default function useBasicChartData(tokens: (Token | null | undefined)[], 
     isValidating: kyberLoading,
   } = useSWR(
     coingeckoError && tokenAddresses[0] && tokenAddresses[1]
-      ? `${
-          process.env.REACT_APP_PRICE_CHART_API
-        }/price-chart?chainId=${chainId}&timeWindow=${timeFrame.toLowerCase()}&tokenIn=${tokenAddresses[0]}&tokenOut=${
-          tokenAddresses[1]
-        }`
+      ? `${PRICE_CHART_API}/price-chart?chainId=${chainId}&timeWindow=${timeFrame.toLowerCase()}&tokenIn=${
+          tokenAddresses[0]
+        }&tokenOut=${tokenAddresses[1]}`
       : null,
     fetchKyberDataSWR,
     {

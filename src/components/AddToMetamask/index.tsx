@@ -1,5 +1,4 @@
 import { ChainId, Token } from '@namgold/ks-sdk-core'
-import React from 'react'
 import styled from 'styled-components'
 
 import MetaMaskLogo from 'assets/images/metamask.png'

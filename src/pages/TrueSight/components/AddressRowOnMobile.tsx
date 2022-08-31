@@ -9,7 +9,6 @@ import useCopyClipboard from 'hooks/useCopyClipboard'
 import { FieldName, FieldValue } from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
-import { isAddress } from 'utils'
 import getShortenAddress from 'utils/getShortenAddress'
 
 type Props = {
@@ -25,7 +24,8 @@ const AddressRowOnMobile: React.FC<Props> = ({ platforms }) => {
 
   const onCopy = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     event.stopPropagation()
-    setCopied(isAddress(defaultAddress) || defaultAddress)
+    // setCopied(isAddress(chainId, defaultAddress) || defaultAddress) // todo namgold: fix this
+    setCopied(defaultAddress)
   }
 
   return (

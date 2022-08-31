@@ -15,7 +15,7 @@ import {
 } from '@namgold/ks-sdk-core'
 import { captureException } from '@sentry/react'
 import JSBI from 'jsbi'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
 
 import { ButtonConfirmed, ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
@@ -35,7 +35,7 @@ import TransactionConfirmationModal, {
 import ZapError from 'components/ZapError'
 import FormattedPriceImpact from 'components/swap/FormattedPriceImpact'
 import { Dots } from 'components/swap/styleds'
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
@@ -162,7 +162,7 @@ export default function ZapOut({
   const [signatureData, setSignatureData] = useState<{ v: number; r: string; s: string; deadline: number } | null>(null)
   const [approval, approveCallback] = useApproveCallback(
     parsedAmounts[Field.LIQUIDITY],
-    !!chainId
+    isEVM(chainId)
       ? isStaticFeePair
         ? isOldStaticFeeContract
           ? NETWORKS_INFO[chainId].classic.oldStatic?.zap
@@ -213,11 +213,13 @@ export default function ZapOut({
     ]
     const message = {
       owner: account,
-      spender: isStaticFeePair
-        ? isOldStaticFeeContract
-          ? NETWORKS_INFO[chainId].classic.oldStatic?.zap
-          : NETWORKS_INFO[chainId].classic.static.zap
-        : NETWORKS_INFO[chainId].classic.dynamic?.zap,
+      spender: isEVM(chainId)
+        ? isStaticFeePair
+          ? isOldStaticFeeContract
+            ? NETWORKS_INFO[chainId].classic.oldStatic?.zap
+            : NETWORKS_INFO[chainId].classic.static.zap
+          : NETWORKS_INFO[chainId].classic.dynamic?.zap
+        : undefined,
       value: liquidityAmount.quotient.toString(),
       nonce: nonce.toHexString(),
       deadline: deadline.toNumber(),
@@ -272,7 +274,7 @@ export default function ZapOut({
   // tx sending
   const addTransactionWithType = useTransactionAdder()
   async function onRemove() {
-    if (!chainId || !library || !account || !deadline) throw new Error('missing dependencies')
+    if (!isEVM(chainId) || !library || !account || !deadline) throw new Error('missing dependencies')
     const { [Field.CURRENCY_A]: currencyAmountA, [Field.CURRENCY_B]: currencyAmountB } = parsedAmounts
     if (!currencyAmountA || !currencyAmountB) {
       throw new Error('missing currency amounts')

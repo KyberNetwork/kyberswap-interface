@@ -246,7 +246,7 @@ export function useSwapCallback(
               recipient === account
                 ? base
                 : `${base} to ${
-                    recipientAddressOrName && isAddress(recipientAddressOrName)
+                    recipientAddressOrName && isAddress(chainId, recipientAddressOrName)
                       ? shortenAddress(recipientAddressOrName)
                       : recipientAddressOrName
                   }`

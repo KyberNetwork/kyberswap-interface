@@ -11,6 +11,7 @@ import { BrowserRouter } from 'react-router-dom'
 import 'swiper/swiper-bundle.min.css'
 import 'swiper/swiper.min.css'
 
+import { GTM_ID, SENTRY_DNS, TAG } from 'constants/env'
 import CampaignsUpdater from 'state/campaigns/updater'
 
 import SEO from './components/SEO'
@@ -32,7 +33,7 @@ AOS.init()
 
 const Web3ProviderNetwork = createWeb3ReactRoot(NetworkContextName)
 
-window.tag = process.env.REACT_APP_TAG
+window.tag = TAG
 
 if ('ethereum' in window) {
   ;(window.ethereum as any).autoRefreshOnNetworkChange = false
@@ -52,9 +53,9 @@ function Updaters() {
   )
 }
 
-if (process.env.REACT_APP_GTM_ID) {
+if (GTM_ID) {
   const tagManagerArgs = {
-    gtmId: process.env.REACT_APP_GTM_ID,
+    gtmId: GTM_ID,
   }
 
   TagManager.initialize(tagManagerArgs)
@@ -62,14 +63,14 @@ if (process.env.REACT_APP_GTM_ID) {
 
 if (window.location.href.includes('kyberswap.com')) {
   Sentry.init({
-    dsn: process.env.REACT_APP_SENTRY_DNS,
+    dsn: SENTRY_DNS,
     environment: 'production',
     ignoreErrors: ['AbortError'],
   })
 
   Sentry.configureScope(scope => {
     scope.setTag('request_id', sentryRequestId)
-    scope.setTag('version', process.env.REACT_APP_TAG)
+    scope.setTag('version', TAG)
   })
 }
 
@@ -116,9 +117,4 @@ const container = document.getElementById('app') as HTMLElement
 const root = createRoot(container)
 root.render(<ReactApp />)
 
-// if (process.env.REACT_APP_SERVICE_WORKER === 'true') {
-//   serviceWorkerRegistration.register()
-// } else {
-//   serviceWorkerRegistration.unregister()
-// }
 serviceWorkerRegistration.unregister()

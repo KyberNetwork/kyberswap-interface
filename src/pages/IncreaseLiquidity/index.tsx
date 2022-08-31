@@ -22,7 +22,7 @@ import { RowBetween } from 'components/Row'
 import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
 import { TutorialType } from 'components/Tutorial'
 import { Dots } from 'components/swap/styleds'
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { FARM_CONTRACTS, VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
@@ -76,7 +76,7 @@ export default function AddLiquidity({
 
   const owner = useSingleCallResult(!!tokenId ? positionManager : null, 'ownerOf', [tokenId]).result?.[0]
   const ownsNFT = owner === account || existingPositionDetails?.operator === account
-  const ownByFarm = Object.values(FARM_CONTRACTS).flat().includes(isAddressString(owner))
+  const ownByFarm = Object.values(FARM_CONTRACTS).flat().includes(isAddressString(chainId, owner))
 
   const { position: existingPosition } = useProAmmDerivedPositionInfo(existingPositionDetails)
 
@@ -167,18 +167,18 @@ export default function AddLiquidity({
   // check whether the user has approved the router on the tokens
   const [approvalA, approveACallback] = useApproveCallback(
     parsedAmounts[Field.CURRENCY_A],
-    chainId ? NETWORKS_INFO[chainId].elastic.nonfungiblePositionManager : undefined,
+    isEVM(chainId) ? NETWORKS_INFO[chainId].elastic.nonfungiblePositionManager : undefined,
   )
   const [approvalB, approveBCallback] = useApproveCallback(
     parsedAmounts[Field.CURRENCY_B],
-    chainId ? NETWORKS_INFO[chainId].elastic.nonfungiblePositionManager : undefined,
+    isEVM(chainId) ? NETWORKS_INFO[chainId].elastic.nonfungiblePositionManager : undefined,
   )
 
   const allowedSlippage = useUserSlippageTolerance()
 
   //TODO: on add
   async function onAdd() {
-    if (!chainId || !library || !account || !tokenId) {
+    if (!isEVM(chainId) || !library || !account || !tokenId) {
       return
     }
 

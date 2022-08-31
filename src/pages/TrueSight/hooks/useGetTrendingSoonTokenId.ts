@@ -1,6 +1,7 @@
 import { Token } from '@namgold/ks-sdk-core'
 import { useEffect, useState } from 'react'
 
+import { TRUESIGHT_API } from 'constants/env'
 import { TRENDING_SOON_MAX_ITEMS } from 'constants/index'
 import { TrueSightTokenResponse } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
 
@@ -13,8 +14,8 @@ export default function useGetTrendingSoonTokenId(token?: Token): number | undef
         setTokenId(undefined)
         if (token) {
           const { address } = token
-          const url24h = `${process.env.REACT_APP_TRUESIGHT_API}/api/v1/trending-soon?timeframe=24h&page_number=0&page_size=${TRENDING_SOON_MAX_ITEMS}&search_token_address=${address}`
-          // const url7d = `${process.env.REACT_APP_TRUESIGHT_API}/api/v1/trending-soon?timeframe=7d&page_number=0&page_size=${TRENDING_SOON_MAX_ITEMS}&search_token_address=${address}`
+          const url24h = `${TRUESIGHT_API}/api/v1/trending-soon?timeframe=24h&page_number=0&page_size=${TRENDING_SOON_MAX_ITEMS}&search_token_address=${address}`
+          // const url7d = `${TRUESIGHT_API}/api/v1/trending-soon?timeframe=7d&page_number=0&page_size=${TRENDING_SOON_MAX_ITEMS}&search_token_address=${address}`
           const responses = await Promise.all([fetch(url24h)])
           for (let i = 0; i < responses.length; i++) {
             const response = responses[i]

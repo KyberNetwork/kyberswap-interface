@@ -1,6 +1,7 @@
 import { ChainId } from '@namgold/ks-sdk-core'
 
 import OASIS from 'assets/networks/oasis-network.svg'
+import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
 
@@ -22,7 +23,7 @@ const oasisInfo: EVMNetworkInfo = {
   blockClient: createClient('https://oasis-graph.kyberengineering.io/subgraphs/name/kybernetwork/oasis-blocks'),
   etherscanUrl: 'https://explorer.emerald.oasis.dev',
   etherscanName: 'Oasis Emerald Explorer',
-  tokenListUrl: `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?chainId=${ChainId.OASIS}`,
+  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainId=${ChainId.OASIS}`,
   bridgeURL: 'https://oasisprotocol.org/b-ridges',
   nativeToken: {
     symbol: 'ROSE',
@@ -31,7 +32,7 @@ const oasisInfo: EVMNetworkInfo = {
     decimal: 18,
   },
   rpcUrl: 'https://oasis.kyberengineering.io',
-  routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/oasis/route/encode`,
+  routerUri: `${AGGREGATOR_API}/oasis/route/encode`,
   classic: {
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',

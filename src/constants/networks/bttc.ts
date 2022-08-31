@@ -1,6 +1,7 @@
 import { ChainId } from '@namgold/ks-sdk-core'
 
 import BTT from 'assets/networks/bttc.png'
+import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
 
@@ -22,7 +23,7 @@ const bttcInfo: EVMNetworkInfo = {
   blockClient: createClient('https://bttc-graph.kyberengineering.io/subgraphs/name/kybernetwork/bttc-blocks'),
   etherscanUrl: 'https://bttcscan.com',
   etherscanName: 'Bttcscan',
-  tokenListUrl: `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?chainId=${ChainId.BTTC}`,
+  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainId=${ChainId.BTTC}`,
   bridgeURL: 'https://wallet.bt.io/bridge',
   nativeToken: {
     symbol: 'BTT',
@@ -31,7 +32,7 @@ const bttcInfo: EVMNetworkInfo = {
     decimal: 18,
   },
   rpcUrl: 'https://bttc.kyberengineering.io',
-  routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/bttc/route/encode`,
+  routerUri: `${AGGREGATOR_API}/bttc/route/encode`,
   classic: {
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',

@@ -4,7 +4,7 @@ import { FeeAmount, Pool, computePoolAddress } from '@namgold/ks-sdk-elastic'
 import { useMemo } from 'react'
 
 import ProAmmPoolStateABI from 'constants/abis/v2/ProAmmPoolState.json'
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useMultipleContractSingleData } from 'state/multicall/hooks'
 
@@ -34,6 +34,7 @@ export function usePools(
     })
   }, [chainId, poolKeys])
   const poolAddresses: (string | undefined)[] = useMemo(() => {
+    if (!isEVM(chainId)) return []
     const proAmmCoreFactoryAddress = chainId && NETWORKS_INFO[chainId].elastic.coreFactory
 
     return transformed.map(value => {

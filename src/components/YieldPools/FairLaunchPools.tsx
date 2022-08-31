@@ -1,11 +1,10 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { Trans } from '@lingui/macro'
 import { ChainId } from '@namgold/ks-sdk-core'
-import React from 'react'
 import { Text } from 'rebass'
 
 import { OUTSIDE_FAIRLAUNCH_ADDRESSES } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useFairLaunchVersion } from 'hooks/useContract'
 import useFairLaunch from 'hooks/useFairLaunch'
@@ -38,6 +37,7 @@ const FairLaunchPools = ({ fairLaunchAddress, farms }: FarmsListProps) => {
   const fairLaunchVersion = useFairLaunchVersion(fairLaunchAddress)
   const { harvestMultiplePools } = useFairLaunch(fairLaunchAddress)
   const { mixpanelHandler } = useMixpanel()
+  if (!isEVM(chainId)) return <></> //todo namgold: add logic Solana
 
   const handleHarvestAll = async () => {
     if (!chainId || !account) {

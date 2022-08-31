@@ -286,8 +286,8 @@ export function useLiquidityPositionTokenPairs(): [Token, Token][] {
       const result: [Token, Token][] = []
 
       userLiquidityPositions?.liquidityPositions.forEach(position => {
-        const token0Address = isAddress(position.pool.token0.id)
-        const token1Address = isAddress(position.pool.token1.id)
+        const token0Address = isAddress(chainId, position.pool.token0.id)
+        const token1Address = isAddress(chainId, position.pool.token1.id)
 
         if (token0Address && token1Address && allTokens[token0Address] && allTokens[token1Address]) {
           result.push([allTokens[token0Address], allTokens[token1Address]])
@@ -298,7 +298,7 @@ export function useLiquidityPositionTokenPairs(): [Token, Token][] {
     }
 
     return []
-  }, [allTokens, userLiquidityPositions])
+  }, [chainId, allTokens, userLiquidityPositions])
 
   // pairs saved by users
   const savedSerializedPairs = useSelector<AppState, AppState['user']['pairs']>(({ user: { pairs } }) => pairs)

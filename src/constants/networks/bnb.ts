@@ -2,6 +2,7 @@ import { ChainId } from '@namgold/ks-sdk-core'
 
 import BnbLogo from 'assets/images/bnb-logo.png'
 import BSC from 'assets/networks/bsc-network.png'
+import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
 
@@ -18,7 +19,7 @@ const bnbInfo: EVMNetworkInfo = {
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-bsc'),
   etherscanUrl: 'https://bscscan.com',
   etherscanName: 'BscScan',
-  tokenListUrl: `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?chainId=${ChainId.BSCMAINNET}`,
+  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainId=${ChainId.BSCMAINNET}`,
   bridgeURL: 'https://www.binance.org/en/bridge',
   nativeToken: {
     symbol: 'BNB',
@@ -27,7 +28,7 @@ const bnbInfo: EVMNetworkInfo = {
     decimal: 18,
   },
   rpcUrl: 'https://bsc.kyberengineering.io',
-  routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/bsc/route/encode`,
+  routerUri: `${AGGREGATOR_API}/bsc/route/encode`,
   classic: {
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',

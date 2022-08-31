@@ -1,5 +1,4 @@
 import { Currency } from '@namgold/ks-sdk-core'
-import React from 'react'
 import styled from 'styled-components'
 
 import CurrencyLogo from 'components/CurrencyLogo'

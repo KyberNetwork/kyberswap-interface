@@ -1,7 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { ChainId } from '@namgold/ks-sdk-core'
 import { rgba } from 'polished'
-import React, { useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { Info } from 'react-feather'
 import { useHistory, useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'

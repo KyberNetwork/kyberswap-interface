@@ -29,7 +29,7 @@ import Row, { RowBetween, RowFixed } from 'components/Row'
 import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
 import { TutorialType } from 'components/Tutorial'
 import { ArrowWrapper as ArrowWrapperVertical, Dots } from 'components/swapv2/styleds'
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
@@ -221,14 +221,14 @@ export default function AddLiquidity({
     !!currencies[Field.CURRENCY_A] && depositADisabled && noLiquidity
       ? CurrencyAmount.fromFractionalAmount(currencies[Field.CURRENCY_A] as Currency, ONE, ONE)
       : parsedAmounts[Field.CURRENCY_A],
-    chainId ? NETWORKS_INFO[chainId].elastic.nonfungiblePositionManager : undefined,
+    isEVM(chainId) ? NETWORKS_INFO[chainId].elastic.nonfungiblePositionManager : undefined,
   )
 
   const [approvalB, approveBCallback] = useApproveCallback(
     !!currencies[Field.CURRENCY_B] && depositBDisabled && noLiquidity
       ? CurrencyAmount.fromFractionalAmount(currencies[Field.CURRENCY_B] as Currency, ONE, ONE)
       : parsedAmounts[Field.CURRENCY_B],
-    chainId ? NETWORKS_INFO[chainId].elastic.nonfungiblePositionManager : undefined,
+    isEVM(chainId) ? NETWORKS_INFO[chainId].elastic.nonfungiblePositionManager : undefined,
   )
 
   const tokens = useMemo(
@@ -249,7 +249,7 @@ export default function AddLiquidity({
   const allowedSlippage = useUserSlippageTolerance()
 
   async function onAdd() {
-    if (!chainId || !library || !account) return
+    if (!isEVM(chainId) || !library || !account) return
 
     if (!positionManager || !baseCurrency || !quoteCurrency) {
       return

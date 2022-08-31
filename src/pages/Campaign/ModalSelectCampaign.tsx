@@ -1,4 +1,3 @@
-import React from 'react'
 import { X } from 'react-feather'
 import { useHistory } from 'react-router-dom'
 

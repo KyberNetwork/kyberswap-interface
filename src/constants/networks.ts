@@ -1,5 +1,7 @@
 import { ChainId, ChainType, getChainType } from '@namgold/ks-sdk-core'
 
+import { SolanaNetworkInfo } from 'constants/networks/type'
+
 import {
   arbitrum,
   arbitrumTestnet,
@@ -24,6 +26,7 @@ import {
   solana,
   velas,
 } from './networks/index'
+import { EVMNetworkInfo } from './networks/type'
 
 type NetToChain = { [p: string]: ChainId }
 
@@ -36,8 +39,10 @@ export const TRUESIGHT_NETWORK_TO_CHAINID: NetToChain = {
   fantom: ChainId.FANTOM,
   cronos: ChainId.CRONOS,
 }
-
-export const NETWORKS_INFO_CONFIG = {
+type NETWORKS_INFO_CONFIG_TYPE = { [chainId in EVM_NETWORK]: EVMNetworkInfo } & {
+  [chainId in ChainId.SOLANA]: SolanaNetworkInfo
+}
+export const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.MAINNET]: ethereum,
   [ChainId.ROPSTEN]: ropsten,
   [ChainId.RINKEBY]: rinkeby,
@@ -60,7 +65,7 @@ export const NETWORKS_INFO_CONFIG = {
   [ChainId.OASIS]: oasis,
   [ChainId.OPTIMISM]: optimism,
   [ChainId.SOLANA]: solana,
-}
+} as const
 
 //this Proxy helps fallback undefined ChainId by Ethereum info
 export const NETWORKS_INFO = new Proxy(NETWORKS_INFO_CONFIG, {
@@ -87,7 +92,43 @@ export const MAINNET_NETWORKS = [
   ChainId.OASIS,
   ChainId.OPTIMISM,
   ChainId.SOLANA,
+] as const
+export type MAINNET_NETWORK = typeof MAINNET_NETWORKS[number]
+
+export const EVM_NETWORKS = SUPPORTED_NETWORKS.filter(chainId => getChainType(chainId) === ChainType.EVM) as Exclude<
+  ChainId,
+  ChainId.SOLANA
+>[]
+export type EVM_NETWORK = typeof EVM_NETWORKS[number]
+
+export const EVM_MAINNET_NETWORKS = MAINNET_NETWORKS.filter(
+  chainId => getChainType(chainId) === ChainType.EVM,
+) as Exclude<typeof MAINNET_NETWORKS[number], ChainId.SOLANA>[]
+export type EVM_MAINNET_NETWORK = typeof EVM_MAINNET_NETWORKS[number]
+
+export const WALLET_CONNECT_SUPPORTED_CHAIN_IDS: ChainId[] = [
+  ChainId.MAINNET,
+  ChainId.ROPSTEN,
+  ChainId.MUMBAI,
+  ChainId.MATIC,
+  ChainId.BSCTESTNET,
+  ChainId.BSCMAINNET,
+  ChainId.AVAXTESTNET,
+  ChainId.AVAXMAINNET,
+  ChainId.FANTOM,
+  ChainId.CRONOSTESTNET,
+  ChainId.CRONOS,
+  ChainId.BTTC,
+  ChainId.ARBITRUM,
+  ChainId.ARBITRUM_TESTNET,
+  ChainId.AURORA,
+  ChainId.VELAS,
+  ChainId.OASIS,
+  ChainId.OPTIMISM,
 ]
 
-export const EVM_NETWORKS = SUPPORTED_NETWORKS.filter(chainId => getChainType(chainId) === ChainType.EVM)
-export const EVM_MAINNET_NETWORKS = MAINNET_NETWORKS.filter(chainId => getChainType(chainId) === ChainType.EVM)
+export function isEVM(chainId?: ChainId): chainId is EVM_NETWORK {
+  if (!chainId) return false
+  const chainType = getChainType(chainId)
+  return chainType === ChainType.EVM
+}

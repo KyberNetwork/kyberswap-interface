@@ -26,7 +26,7 @@ export function useProAmmDerivedSwapInfo(): {
   }
   allowedSlippage: number
 } {
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const {
     independentField,
     typedValue,
@@ -78,7 +78,7 @@ export function useProAmmDerivedSwapInfo(): {
   if (!parsedAmount) {
     inputError = inputError ?? <Trans>Enter an amount</Trans>
   }
-  const formattedTo = isAddress(to)
+  const formattedTo = isAddress(chainId, to)
   if (!to || !formattedTo) {
     inputError = inputError ?? <Trans>Enter a recipient</Trans>
   } else {

@@ -6,7 +6,7 @@ import { NEVER_RELOAD, useSingleCallResult } from 'state/multicall/hooks'
 import { useActiveWeb3React } from './index'
 import { useSocksController } from './useContract'
 
-export default function useSocksBalance(): JSBI | undefined {
+function useSocksBalance(): JSBI | undefined {
   const { account } = useActiveWeb3React()
   const socksContract = useSocksController()
 

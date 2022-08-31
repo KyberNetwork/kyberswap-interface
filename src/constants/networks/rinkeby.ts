@@ -2,6 +2,7 @@ import { ChainId } from '@namgold/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import Mainnet from 'assets/networks/mainnet-network.svg'
+import { KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
 
@@ -19,7 +20,7 @@ const rinkebyInfo: EVMNetworkInfo = {
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/billjhlee/rinkeby-blocks'),
   etherscanUrl: 'https://rinkeby.etherscan.io',
   etherscanName: 'Rinkeby Explorer',
-  tokenListUrl: `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?chainId=${ChainId.RINKEBY}`,
+  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainId=${ChainId.RINKEBY}`,
   bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'rETH',

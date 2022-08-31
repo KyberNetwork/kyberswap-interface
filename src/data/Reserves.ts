@@ -3,7 +3,7 @@ import { Currency, Token, TokenAmount } from '@namgold/ks-sdk-core'
 import { useMemo } from 'react'
 
 import DMM_POOL_INTERFACE from 'constants/abis/dmmPool'
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import {
   useDynamicFeeFactoryContract,
@@ -138,6 +138,8 @@ export function usePairsByAddress(
   )
 
   return useMemo(() => {
+    if (!isEVM(chainId)) return [] //todo namgold: add logic Solana
+
     return results.map((result, i) => {
       const { result: reserves, loading } = result
       const { result: amp, loading: loadingAmp } = ampResults[i]

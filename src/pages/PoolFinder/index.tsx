@@ -2,7 +2,7 @@ import { Trans, t } from '@lingui/macro'
 import { Pair } from '@namgold/ks-sdk-classic'
 import { Currency, TokenAmount } from '@namgold/ks-sdk-core'
 import JSBI from 'jsbi'
-import React, { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Plus } from 'react-feather'
 import { Text } from 'rebass'
 

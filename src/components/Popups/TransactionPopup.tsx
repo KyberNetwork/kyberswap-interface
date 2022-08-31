@@ -1,5 +1,4 @@
 import { t } from '@lingui/macro'
-import React from 'react'
 import { Box, Text } from 'rebass'
 import styled from 'styled-components'
 

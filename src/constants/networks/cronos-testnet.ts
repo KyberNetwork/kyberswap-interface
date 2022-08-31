@@ -3,6 +3,7 @@ import { ChainId } from '@namgold/ks-sdk-core'
 import CRONOS_DARK from 'assets/networks/cronos-network-dark.svg'
 import CRONOS from 'assets/networks/cronos-network.svg'
 import CronosLogo from 'assets/svg/cronos-token-logo.svg'
+import { KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
 
@@ -28,7 +29,7 @@ const cronosTestnetInfo: EVMNetworkInfo = {
   ),
   etherscanUrl: 'https://cronos.org/explorer/testnet3',
   etherscanName: 'Cronos explorer',
-  tokenListUrl: `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?chainId=${ChainId.CRONOSTESTNET}`,
+  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainId=${ChainId.CRONOSTESTNET}`,
   bridgeURL: 'https://cronos.crypto.org/docs/bridge/cdcapp.html',
   nativeToken: {
     symbol: 'CRO',

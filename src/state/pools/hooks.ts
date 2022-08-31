@@ -12,7 +12,7 @@ import {
   POOL_DATA,
   USER_POSITIONS,
 } from 'apollo/queries'
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useETHPrice } from 'state/application/hooks'
 import { AppState } from 'state/index'
@@ -85,11 +85,14 @@ export interface UserLiquidityPositionResult {
  * @param user string
  */
 export function useUserLiquidityPositions(user: string | null | undefined): UserLiquidityPositionResult {
+  const { chainId } = useActiveWeb3React()
   const { loading, error, data } = useQuery(USER_POSITIONS, {
+    client: isEVM(chainId) ? NETWORKS_INFO[chainId].classicClient : NETWORKS_INFO[ChainId.MAINNET].classicClient,
     variables: {
       user: user?.toLowerCase(),
     },
     fetchPolicy: 'no-cache',
+    skip: !isEVM(chainId),
   })
 
   return useMemo(() => ({ loading, error, data }), [data, error, loading])
@@ -337,9 +340,10 @@ export function useResetPools(chainId: ChainId | undefined) {
 export function usePoolCountInSubgraph(): number {
   const [poolCount, setPoolCount] = useState(0)
   const { chainId } = useActiveWeb3React()
-  const apolloClient = NETWORKS_INFO[chainId || ChainId.MAINNET].classicClient
 
   useEffect(() => {
+    if (!isEVM(chainId)) return
+    const apolloClient = NETWORKS_INFO[chainId || ChainId.MAINNET].classicClient
     const getPoolCount = async () => {
       const result = await apolloClient.query({
         query: POOL_COUNT,
@@ -353,7 +357,7 @@ export function usePoolCountInSubgraph(): number {
     }
 
     getPoolCount()
-  }, [apolloClient])
+  }, [chainId])
 
   return poolCount
 }
@@ -365,7 +369,6 @@ export function useAllPoolsData(): {
 } {
   const dispatch = useDispatch()
   const { chainId } = useActiveWeb3React()
-  const apolloClient = NETWORKS_INFO[chainId || ChainId.MAINNET].classicClient
 
   const poolsData = useSelector((state: AppState) => state.pools.pools)
   const loading = useSelector((state: AppState) => state.pools.loading)
@@ -375,6 +378,8 @@ export function useAllPoolsData(): {
 
   const poolCountSubgraph = usePoolCountInSubgraph()
   useEffect(() => {
+    if (!isEVM(chainId)) return
+    const apolloClient = NETWORKS_INFO[chainId || ChainId.MAINNET].classicClient
     let cancelled = false
 
     const getPoolsData = async () => {
@@ -401,7 +406,7 @@ export function useAllPoolsData(): {
     return () => {
       cancelled = true
     }
-  }, [apolloClient, chainId, dispatch, error, ethPrice, poolCountSubgraph, poolsData.length])
+  }, [chainId, dispatch, error, ethPrice, poolCountSubgraph, poolsData.length])
 
   return useMemo(() => ({ loading, error, data: poolsData }), [error, loading, poolsData])
 }
@@ -419,7 +424,6 @@ export function useSinglePoolData(
   data?: SubgraphPoolData
 } {
   const { chainId } = useActiveWeb3React()
-  const apolloClient = NETWORKS_INFO[chainId || ChainId.MAINNET].classicClient
 
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<Error | undefined>(undefined)
@@ -427,6 +431,8 @@ export function useSinglePoolData(
 
   const latestRenderTime = useRef(0)
   useEffect(() => {
+    if (!isEVM(chainId)) return
+    const apolloClient = NETWORKS_INFO[chainId || ChainId.MAINNET].classicClient
     async function checkForPools(currentRenderTime: number) {
       setLoading(true)
 
@@ -451,7 +457,7 @@ export function useSinglePoolData(
       // eslint-disable-next-line react-hooks/exhaustive-deps
       latestRenderTime.current++
     }
-  }, [ethPrice, error, poolAddress, apolloClient, chainId])
+  }, [ethPrice, error, poolAddress, chainId])
 
   return { loading, error, data: poolData }
 }

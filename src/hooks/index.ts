@@ -1,5 +1,5 @@
 import { Web3Provider } from '@ethersproject/providers'
-import { ChainId, ChainType, getChainType } from '@namgold/ks-sdk-core'
+import { ChainId } from '@namgold/ks-sdk-core'
 import { useWeb3React as useWeb3ReactCore } from '@web3-react/core'
 import { Web3ReactContextInterface } from '@web3-react/core/dist/types'
 import { ethers } from 'ethers'
@@ -9,29 +9,28 @@ import { useSelector } from 'react-redux'
 import { useLocalStorage } from 'react-use'
 
 import { injected } from 'connectors'
-import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
+import { EVM_NETWORK, EVM_NETWORKS, NETWORKS_INFO, isEVM } from 'constants/networks'
 import { AppState } from 'state'
 
 export const providers: {
-  [chainId in ChainId]: ethers.providers.JsonRpcProvider
-} = SUPPORTED_NETWORKS.reduce(
+  [chainId in EVM_NETWORK]: ethers.providers.JsonRpcProvider
+} = EVM_NETWORKS.reduce(
   (acc, val) => {
     acc[val] = new ethers.providers.JsonRpcProvider(NETWORKS_INFO[val].rpcUrl)
     return acc
   },
   {} as {
-    [chainId in ChainId]: ethers.providers.JsonRpcProvider
+    [chainId in EVM_NETWORK]: ethers.providers.JsonRpcProvider
   },
 )
 
 export function useActiveWeb3React(): Web3ReactContextInterface<Web3Provider> & { chainId: ChainId } {
   const chainIdState = useSelector<AppState, ChainId>(state => state.application.chainId)
-  const chainType = getChainType(chainIdState)
 
   const context = useWeb3ReactCore()
   const { library, chainId, ...web3React } = context
 
-  if (chainType === ChainType.EVM) {
+  if (isEVM(chainIdState)) {
     if (context.active && context.chainId) {
       return context as Web3ReactContextInterface<Web3Provider> & { chainId: ChainId }
     } else {

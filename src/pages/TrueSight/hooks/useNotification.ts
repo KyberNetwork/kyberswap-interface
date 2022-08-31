@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useLocalStorage } from 'react-use'
 
+import { NOTIFICATION_API } from 'constants/env'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { checkChrome } from 'utils/checkChrome'
 import { fetchToken } from 'utils/firebase'
@@ -28,7 +29,7 @@ const useNotification = () => {
 
     try {
       const payload = { users: [{ type: isChrome && 'FCM_TOKEN', receivingAddress: token }] }
-      const response = await fetch(`${process.env.REACT_APP_NOTIFICATION_API}/v1/topics/1/subscribe`, {
+      const response = await fetch(`${NOTIFICATION_API}/v1/topics/1/subscribe`, {
         method: 'POST',
         headers: { 'content-type': 'application/json', accept: 'application/json' },
         body: JSON.stringify(payload),
@@ -61,7 +62,7 @@ const useNotification = () => {
 
     try {
       const payload = { users: [{ type: isChrome && 'FCM_TOKEN', receivingAddress: token }] }
-      const response = await fetch(`${process.env.REACT_APP_NOTIFICATION_API}/v1/topics/1/unsubscribe`, {
+      const response = await fetch(`${NOTIFICATION_API}/v1/topics/1/unsubscribe`, {
         method: 'DELETE',
         headers: { 'content-type': 'application/json', accept: 'application/json' },
         body: JSON.stringify(payload),

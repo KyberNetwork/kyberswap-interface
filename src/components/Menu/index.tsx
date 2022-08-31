@@ -26,8 +26,9 @@ import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import Faucet from 'components/Icons/Faucet'
 import Loader from 'components/Loader'
 import MenuFlyout from 'components/MenuFlyout'
+import { MAINNET_ENV, TAG } from 'constants/env'
 import { DMM_ANALYTICS_URL } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useClaimReward from 'hooks/useClaimReward'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -262,7 +263,7 @@ export default function Menu() {
           <FileText size={14} />
           <Trans>Terms</Trans>
         </MenuItem>
-        {process.env.REACT_APP_MAINNET_ENV !== 'production' && (
+        {MAINNET_ENV !== 'production' && (
           <NavMenuItem to="/swap-legacy" onClick={toggle}>
             <Triangle size={14} />
             <Trans>Swap Legacy</Trans>
@@ -273,7 +274,9 @@ export default function Menu() {
           <Trans>Contact Us</Trans>
         </MenuItem>
         <ClaimRewardButton
-          disabled={!account || (!!chainId && NETWORKS_INFO[chainId].classic.claimReward === '') || pendingTx}
+          disabled={
+            !account || (isEVM(chainId) ? NETWORKS_INFO[chainId].classic.claimReward === '' : true) || pendingTx
+          }
           onClick={() => {
             mixpanelHandler(MIXPANEL_TYPE.CLAIM_REWARDS_INITIATED)
             toggleClaimPopup()
@@ -287,17 +290,9 @@ export default function Menu() {
             <Trans>Claim Rewards</Trans>
           )}
         </ClaimRewardButton>
-        {!!process.env.REACT_APP_TAG && (
-          <Text
-            fontSize="10px"
-            fontWeight={300}
-            color={theme.subText}
-            mt="16px"
-            textAlign={isMobile ? 'left' : 'center'}
-          >
-            kyberswap@{process.env.REACT_APP_TAG}
-          </Text>
-        )}
+        <Text fontSize="10px" fontWeight={300} color={theme.subText} mt="16px" textAlign={isMobile ? 'left' : 'center'}>
+          kyberswap@{TAG}
+        </Text>
       </MenuFlyout>
       <ClaimRewardModal />
       <FaucetModal />

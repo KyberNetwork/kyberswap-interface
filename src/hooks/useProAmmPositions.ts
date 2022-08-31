@@ -5,7 +5,7 @@ import { keccak256 } from '@ethersproject/solidity'
 import { ChainId } from '@namgold/ks-sdk-core'
 import { useMemo } from 'react'
 
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { Result, useSingleCallResult, useSingleContractMultipleData } from 'state/multicall/hooks'
 import { PositionDetails } from 'types/position'
@@ -36,7 +36,7 @@ export function useProAmmPositionsFromTokenIds(tokenIds: BigNumber[] | undefined
   const error = useMemo(() => results.some(({ error }) => error), [results])
 
   const positions = useMemo(() => {
-    if (!loading && !error && tokenIds) {
+    if (!loading && !error && tokenIds && isEVM(chainId)) {
       return results.map((call, i) => {
         const tokenId = tokenIds[i]
         const result = call.result as Result

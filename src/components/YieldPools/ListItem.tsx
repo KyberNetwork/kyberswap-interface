@@ -79,7 +79,7 @@ const ListItem = ({ farm }: ListItemProps) => {
   const currency0 = useToken(farm.token0?.id) as Token
   const currency1 = useToken(farm.token1?.id) as Token
 
-  const poolAddressChecksum = isAddressString(farm.id)
+  const poolAddressChecksum = isAddressString(chainId, farm.id)
   const { value: userTokenBalance, decimals: lpTokenDecimals } = useTokenBalance(poolAddressChecksum)
 
   const outsideFarm = OUTSIDE_FAIRLAUNCH_ADDRESSES[farm.fairLaunchAddress]
@@ -148,7 +148,7 @@ const ListItem = ({ farm }: ListItemProps) => {
   const pairSymbol = `${farm.token0.symbol}-${farm.token1.symbol} LP`
   const [depositValue, setDepositValue] = useState('')
   const [withdrawValue, setWithdrawValue] = useState('')
-  const pairAddressChecksum = isAddressString(farm.id)
+  const pairAddressChecksum = isAddressString(chainId, farm.id)
   const balance = useTokenBalance(pairAddressChecksum)
   const staked = useStakedBalance(farm.fairLaunchAddress, farm.pid)
   const rewardUSD = useFarmRewardsUSD(farmRewards)
@@ -157,7 +157,7 @@ const ListItem = ({ farm }: ListItemProps) => {
   const amountToApprove = useMemo(
     () =>
       TokenAmount.fromRawAmount(
-        new Token(chainId || 1, pairAddressChecksum, balance.decimals, pairSymbol, ''),
+        new Token(chainId, pairAddressChecksum, balance.decimals, pairSymbol, ''),
         MaxUint256.toString(),
       ),
     [balance.decimals, chainId, pairAddressChecksum, pairSymbol],
@@ -277,7 +277,7 @@ const ListItem = ({ farm }: ListItemProps) => {
   const theme = useTheme()
 
   const now = +new Date() / 1000
-  const toBeExtendTime = TOBE_EXTENDED_FARMING_POOLS[isAddressString(farm.id)]
+  const toBeExtendTime = TOBE_EXTENDED_FARMING_POOLS[isAddressString(chainId, farm.id)]
   // only show if it will be ended less than 2 day
   const tobeExtended = toBeExtendTime && farm.endTime - now < 172800 && farm.endTime < toBeExtendTime
 

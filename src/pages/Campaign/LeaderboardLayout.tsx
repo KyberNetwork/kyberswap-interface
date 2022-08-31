@@ -1,6 +1,5 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import React from 'react'
 import { Clock } from 'react-feather'
 import { useSelector } from 'react-redux'
 import { useMedia, useSize } from 'react-use'

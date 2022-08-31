@@ -24,11 +24,11 @@ export function useETHBalances(uncheckedAddresses?: (string | undefined)[]): {
     () =>
       uncheckedAddresses
         ? uncheckedAddresses
-            .map(isAddress)
+            .map(address => isAddress(chainId, address))
             .filter((a): a is string => a !== false)
             .sort()
         : EMPTY_ARRAY,
-    [uncheckedAddresses],
+    [chainId, uncheckedAddresses],
   )
 
   const results = useSingleContractMultipleData(
@@ -63,7 +63,9 @@ export function useTokenBalancesWithLoadingIndicator(
   tokens?: (Token | undefined)[],
 ): [{ [tokenAddress: string]: TokenAmount | undefined }, boolean] {
   const validatedTokens: Token[] = useMemo(
-    () => tokens?.filter((t?: Token): t is Token => isAddress(t?.address) !== false) ?? [],
+    () =>
+      tokens?.filter((token?: Token): token is Token => !!token && isAddress(token.chainId, token.address) !== false) ??
+      [],
     [tokens],
   )
 

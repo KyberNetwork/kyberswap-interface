@@ -2,6 +2,7 @@ import { ChainId } from '@namgold/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import AURORA from 'assets/networks/aurora-network.svg'
+import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
 
@@ -19,7 +20,7 @@ const auroraInfo: EVMNetworkInfo = {
   blockClient: createClient('https://aurora-graph.kyberengineering.io/subgraphs/name/kybernetwork/aurora-blocks'),
   etherscanUrl: 'https://aurorascan.dev',
   etherscanName: 'Aurora Explorer',
-  tokenListUrl: `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?chainId=${ChainId.AURORA}`,
+  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainId=${ChainId.AURORA}`,
   bridgeURL: 'https://rainbowbridge.app',
   nativeToken: {
     symbol: 'ETH',
@@ -28,7 +29,7 @@ const auroraInfo: EVMNetworkInfo = {
     decimal: 18,
   },
   rpcUrl: 'https://aurora.kyberengineering.io',
-  routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/aurora/route/encode`,
+  routerUri: `${AGGREGATOR_API}/aurora/route/encode`,
   classic: {
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',

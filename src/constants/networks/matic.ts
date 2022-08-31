@@ -1,6 +1,7 @@
 import { ChainId } from '@namgold/ks-sdk-core'
 
 import Polygon from 'assets/networks/polygon-network.png'
+import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
 
@@ -17,7 +18,7 @@ const maticInfo: EVMNetworkInfo = {
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-polygon'),
   etherscanUrl: 'https://polygonscan.com',
   etherscanName: 'Polygonscan',
-  tokenListUrl: `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?chainId=${ChainId.MATIC}`,
+  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainId=${ChainId.MATIC}`,
   bridgeURL: 'https://wallet.matic.network/bridge',
   nativeToken: {
     symbol: 'MATIC',
@@ -28,7 +29,7 @@ const maticInfo: EVMNetworkInfo = {
   rpcUrl: 'https://polygon.kyberengineering.io',
   // Sometime, our rpc is quite slow, keep this for testing purpose on local
   // rpcUrl: 'https://polygon-rpc.com',
-  routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/polygon/route/encode`,
+  routerUri: `${AGGREGATOR_API}/polygon/route/encode`,
   classic: {
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',
