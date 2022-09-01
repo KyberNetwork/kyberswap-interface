@@ -1,4 +1,4 @@
-// import { rgba } from 'polished'
+import { rgba } from 'polished'
 import { useEffect, useState } from 'react'
 import { X } from 'react-feather'
 import { useLocalStorage, useMedia } from 'react-use'
@@ -11,7 +11,7 @@ import { ExternalLink } from 'theme'
 const BannerWrapper = styled.div`
   width: 100%;
   padding: 10px 12px 10px 20px;
-  background: ${({ theme }) => theme.red};
+  background: ${({ theme }) => (window.location.href.includes('/farms') ? rgba(theme.warning, 0.7) : theme.red)};
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -41,7 +41,25 @@ const Content = styled.div`
   `}
 `
 
-const banner = {
+const farmBanner = {
+  localStorageKey: 'farm-issue',
+  start: 'Thu, 17 Mar 2022 00:00:00 GMT',
+  end: 'Thu, 20 Mar 2024 00:00:00 GMT',
+  text: (
+    <Text marginLeft="4px" marginRight="1rem" lineHeight="20px" color="#fff" fontSize="14px" flex={1}>
+      Important Announcement: If you’re currently participating in our Elastic Farms on Polygon & Avalanche, please read
+      this{' '}
+      <ExternalLink
+        href="https://blog.kyber.network/important-community-update-about-kyberswap-elastic-farms-4f69d7ada1e8"
+        style={{ color: '#fff', fontWeight: 500, textDecoration: 'underline' }}
+      >
+        announcement!
+      </ExternalLink>
+    </Text>
+  ),
+}
+
+const xssBanner = {
   // localStorageKey: 'farm-issue',
   // start: 'Thu, 17 Mar 2022 00:00:00 GMT',
   // end: 'Thu, 20 Mar 2024 00:00:00 GMT',
@@ -79,6 +97,7 @@ const banner = {
 function TopBanner() {
   const below768 = useMedia('(max-width: 768px)')
 
+  const banner = window.location.href.includes('farms') ? farmBanner : xssBanner
   const [showBanner, setShowBanner] = useLocalStorage(banner.localStorageKey, true)
 
   const [show, setShow] = useState(false)
