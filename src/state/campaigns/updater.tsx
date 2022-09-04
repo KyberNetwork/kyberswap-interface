@@ -213,6 +213,7 @@ export default function CampaignsUpdater(): null {
           numberOfParticipants: 0,
           rankings: [],
           rewards: [],
+          isEntered: false,
         }
 
       try {
@@ -257,6 +258,7 @@ export default function CampaignsUpdater(): null {
                 }),
               )
             : [],
+          isEntered: data.IsEntered,
         }
         return leaderboard
       } catch (err) {
@@ -266,6 +268,7 @@ export default function CampaignsUpdater(): null {
           numberOfParticipants: 0,
           rankings: [],
           rewards: [],
+          isEntered: false,
         }
         return res
       }

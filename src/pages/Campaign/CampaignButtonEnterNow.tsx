@@ -1,21 +1,30 @@
 import { Trans } from '@lingui/macro'
 import axios from 'axios'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 import { useSelector } from 'react-redux'
+import { mutate } from 'swr'
 
-import { CAMPAIGN_BASE_URL } from 'constants/index'
+import { CAMPAIGN_BASE_URL, SWR_KEYS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { StyledPrimaryButton } from 'pages/Campaign/CampaignButtonWithOptions'
 import { Dots } from 'pages/Pool/styleds'
 import { AppState } from 'state'
-import { useIsConnectedAccountEligibleForSelectedCampaign } from 'state/campaigns/hooks'
 
 export default function CampaignButtonEnterNow() {
   const { account } = useActiveWeb3React()
   const selectedCampaign = useSelector((state: AppState) => state.campaigns.selectedCampaign)
 
   const { executeRecaptcha } = useGoogleReCaptcha()
+
+  const [loading, setLoading] = useState(false)
+
+  const selectedCampaignLeaderboardPageNumber = useSelector(
+    (state: AppState) => state.campaigns.selectedCampaignLeaderboardPageNumber,
+  )
+  const selectedCampaignLeaderboardLookupAddress = useSelector(
+    (state: AppState) => state.campaigns.selectedCampaignLeaderboardLookupAddress,
+  )
 
   // Create an event handler so you can call the verification on button click event or form submit
   const handleReCaptchaVerify = useCallback(async () => {
@@ -26,26 +35,36 @@ export default function CampaignButtonEnterNow() {
     }
 
     try {
+      setLoading(true)
       const token = await executeRecaptcha('enterCampaign')
-      console.log(`token`, token)
       const response = await axios({
         method: 'POST',
-        url: `${CAMPAIGN_BASE_URL}/${selectedCampaign.id}/eligible-users`,
+        url: `${CAMPAIGN_BASE_URL}/${selectedCampaign.id}/participants`,
         data: {
           token,
           address: account,
         },
       })
       if (response.status === 200) {
-        console.log(`I'm here: Done`)
+        mutate([
+          SWR_KEYS.getLeaderboard(selectedCampaign.id),
+          selectedCampaignLeaderboardPageNumber,
+          selectedCampaignLeaderboardLookupAddress,
+          account,
+        ])
       }
     } catch (err) {
       console.error(err)
+    } finally {
+      setLoading(false)
     }
-  }, [account, executeRecaptcha, selectedCampaign])
-
-  const isAccountEligible = useIsConnectedAccountEligibleForSelectedCampaign()
-  const loading = isAccountEligible.loading
+  }, [
+    account,
+    executeRecaptcha,
+    selectedCampaign,
+    selectedCampaignLeaderboardLookupAddress,
+    selectedCampaignLeaderboardPageNumber,
+  ])
 
   return (
     <StyledPrimaryButton onClick={handleReCaptchaVerify} disabled={loading}>
