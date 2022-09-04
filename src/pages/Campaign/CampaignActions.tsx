@@ -10,7 +10,6 @@ import CampaignButtonEnterNow from 'pages/Campaign/CampaignButtonEnterNow'
 import CampaignButtonWithOptions from 'pages/Campaign/CampaignButtonWithOptions'
 import { AppState } from 'state'
 import { CampaignState } from 'state/campaigns/actions'
-import { useIsConnectedAccountEligibleForSelectedCampaign } from 'state/campaigns/hooks'
 
 export default function CampaignActions() {
   const { account } = useActiveWeb3React()
@@ -20,20 +19,18 @@ export default function CampaignActions() {
 
   const [temporaryClaimedRefs, addTemporaryClaimedRefs] = useTemporaryClaimedRefsManager()
 
-  const isAccountEligible = useIsConnectedAccountEligibleForSelectedCampaign()
+  if (!selectedCampaign || !account || !selectedCampaignLeaderboard) return null
 
-  if (!selectedCampaign || !account) return null
-
-  if (selectedCampaign.status !== 'Ended' && !isAccountEligible.data) {
+  if (selectedCampaign.status !== 'Ended' && !selectedCampaignLeaderboard.isEntered) {
     return <CampaignButtonEnterNow />
   }
 
   if (selectedCampaign.status === 'Upcoming') {
-    return <CampaignButtonWithOptions campaign={selectedCampaign} type="enter_now" disabled />
+    return <CampaignButtonWithOptions campaign={selectedCampaign} type="swap_now" disabled />
   }
 
   if (selectedCampaign.status === 'Ongoing') {
-    return <CampaignButtonWithOptions campaign={selectedCampaign} type="enter_now" />
+    return <CampaignButtonWithOptions campaign={selectedCampaign} type="swap_now" />
   }
 
   if (

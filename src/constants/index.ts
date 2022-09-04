@@ -1046,7 +1046,6 @@ export const SWR_KEYS = {
   getLuckyWinners: (id: number) => CAMPAIGN_BASE_URL + '/' + id + '/lucky-winners',
   getCampaignTransactions: (campaignId: number, limit: number, offset: number, account: string) =>
     `${CAMPAIGN_BASE_URL}/${campaignId}/proofs?limit=${limit}&offset=${offset}&userAddress=${account}`,
-  getEligibleUser: (id: number, account: string) => CAMPAIGN_BASE_URL + '/' + id + '/eligible-users/' + account,
 }
 
 // Epsilon 0 is absolute permittivity of free space whose value is 8.854×10^-12 and unit is C^2N^-1m–2.
