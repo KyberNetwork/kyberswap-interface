@@ -4,7 +4,7 @@ import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 
 import { UNSUPPORTED_LIST_URLS } from 'constants/lists'
-import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
+import { SUPPORTED_NETWORKS } from 'constants/networks'
 import UNSUPPORTED_TOKEN_LIST from 'constants/tokenLists/uniswap-v2-unsupported.tokenlist.json'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
@@ -186,30 +186,11 @@ export function useInactiveListUrls(): string[] {
   )
 }
 
-function useDMMTokenList(): TokenAddressMap {
-  const { chainId } = useActiveWeb3React()
-  const lists = useAllLists()
-
-  return useMemo(() => {
-    const list = lists[NETWORKS_INFO[chainId || ChainId.MAINNET].tokenListUrl].current
-    return list ? listToTokenMap(list) : {}
-  }, [chainId, lists])
-}
-
-function useDefaultTokenList(): TokenAddressMap {
-  const dmmTokens = useDMMTokenList()
-  return dmmTokens
-}
-
-// get all the tokens from active lists, combine with local default tokens
 export function useCombinedActiveList(): TokenAddressMap {
   const activeListUrls = useActiveListUrls()
   const activeTokens = useCombinedTokenMapFromUrls(activeListUrls)
-  const defaultTokens = useDefaultTokenList()
 
-  return useMemo(() => {
-    return combine2Maps(activeTokens, defaultTokens)
-  }, [activeTokens, defaultTokens])
+  return activeTokens
 }
 
 // list of tokens not supported on interface, used to show warnings and prevent swaps and adds

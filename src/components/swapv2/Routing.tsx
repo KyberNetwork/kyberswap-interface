@@ -7,11 +7,12 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import useThrottle from 'hooks/useThrottle'
+import { useAllDexes } from 'state/customizeDexes/hooks'
 import { Field } from 'state/swap/actions'
 import { useSwapState } from 'state/swap/hooks'
 import { getEtherscanLink } from 'utils'
 import { SwapRouteV2, getTradeComposition } from 'utils/aggregationRouting'
-import { Aggregator, getExchangeConfig } from 'utils/aggregator'
+import { Aggregator } from 'utils/aggregator'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 
 const Shadow = styled.div<{ backgroundColor?: string }>`
@@ -339,6 +340,8 @@ const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
   const contentRef: any = useRef(null)
   const shadowRef: any = useRef(null)
 
+  const allDexes = useAllDexes()
+
   const handleShadow = useThrottle(() => {
     const element: any = scrollRef.current
     if (element?.scrollLeft > 0) {
@@ -388,7 +391,11 @@ const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
                   </StyledToken>
                   {Array.isArray(subRoute)
                     ? subRoute.map(pool => {
-                        const dex = getExchangeConfig(pool.exchange, chainId)
+                        const dex =
+                          pool.exchange === '1inch'
+                            ? { name: '1inch', logoURL: 'https://s2.coinmarketcap.com/static/img/coins/64x64/8104.png' } // Hard code for 1inch
+                            : allDexes?.find(dex => dex.id === pool.exchange)
+
                         const link = (i => {
                           return pool.id.length === 42 ? (
                             <StyledExchange
@@ -403,7 +410,11 @@ const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
                           )
                         })(
                           <>
-                            {dex.icon ? <img src={dex.icon} alt="" className="img--sm" /> : <i className="img--sm" />}
+                            {dex?.logoURL ? (
+                              <img src={dex?.logoURL} alt="" className="img--sm" />
+                            ) : (
+                              <i className="img--sm" />
+                            )}
                             {`${dex?.name || '--'}: ${pool.swapPercentage}%`}
                           </>,
                         )
