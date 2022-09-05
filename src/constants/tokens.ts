@@ -490,7 +490,13 @@ export const KNC: { [chainId in ChainId]: Token } = {
   [ChainId.VELAS]: new Token(ChainId.VELAS, KNC_ADDRESS, 18, 'KNC', 'Kyber Network Crystal'),
   [ChainId.OASIS]: new Token(ChainId.OASIS, KNC_ADDRESS, 18, 'KNC', 'Kyber Network Crystal'),
   [ChainId.OPTIMISM]: new Token(ChainId.OPTIMISM, KNC_ADDRESS, 18, 'KNC', 'Kyber Network Crystal'),
-  [ChainId.SOLANA]: new Token(ChainId.SOLANA, WETH[ChainId.SOLANA].address, 18, 'KNC', 'Kyber Network Crystal'), // not exists, temporary use WSOL instead
+  [ChainId.SOLANA]: new Token(
+    ChainId.SOLANA,
+    'KNCVyKuChfKTLDJ3EQEatqF4kBEF2PNECoTRWsx5qXz',
+    18,
+    'KNC',
+    'Kyber Network Crystal',
+  ), // todo namgold: not exists yet
 }
 
 export const PINNED_PAIRS: { readonly [chainId in ChainId]?: [Token, Token][] } = {
