@@ -207,7 +207,7 @@ export default function CampaignsUpdater(): null {
         ]
       : null,
     async () => {
-      if (selectedCampaign === undefined || selectedCampaign.status === 'Upcoming')
+      if (selectedCampaign === undefined)
         return {
           userRank: 0,
           numberOfParticipants: 0,
