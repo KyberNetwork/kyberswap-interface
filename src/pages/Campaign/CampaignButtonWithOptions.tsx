@@ -21,6 +21,7 @@ import { Dots } from 'pages/Pool/styleds'
 import { OptionsContainer } from 'pages/TrueSight/styled'
 import { AppState } from 'state'
 import { CampaignData, CampaignLeaderboardReward } from 'state/campaigns/actions'
+import { useSwapNowHandler } from 'state/campaigns/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 
 export default function CampaignButtonWithOptions({
@@ -137,6 +138,8 @@ export default function CampaignButtonWithOptions({
     }
   }
 
+  const handleSwapNow = useSwapNowHandler()
+
   return (
     <StyledPrimaryButton
       onClick={e => {
@@ -158,13 +161,7 @@ export default function CampaignButtonWithOptions({
                 alignItems="center"
                 onClick={async () => {
                   if (type === 'swap_now') {
-                    mixpanelHandler(MIXPANEL_TYPE.CAMPAIGN_SWAP_NOW_CLICKED, { campaign_name: campaign?.name })
-                    let url = campaign?.enterNowUrl + '?networkId=' + chainId
-                    if (campaign?.eligibleTokens?.length) {
-                      const outputCurrency = campaign?.eligibleTokens[0].address
-                      url += '&outputCurrency=' + outputCurrency
-                    }
-                    window.open(url)
+                    handleSwapNow()
                   } else {
                     mixpanelHandler(MIXPANEL_TYPE.CAMPAIGN_CLAIM_REWARDS_CLICKED, { campaign_name: campaign?.name })
                     await changeNetwork(chainId, () => claimRewards(chainId))

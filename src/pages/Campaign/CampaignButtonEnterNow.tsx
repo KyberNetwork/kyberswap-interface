@@ -1,4 +1,4 @@
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import axios from 'axios'
 import { useCallback, useState } from 'react'
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
@@ -10,7 +10,7 @@ import { useActiveWeb3React } from 'hooks'
 import { StyledPrimaryButton } from 'pages/Campaign/CampaignButtonWithOptions'
 import { Dots } from 'pages/Pool/styleds'
 import { AppState } from 'state'
-import { NotificationType, useNotify } from 'state/application/hooks'
+import { useRegisterCampaignModalToggle } from 'state/application/hooks'
 
 export default function CampaignButtonEnterNow() {
   const { account } = useActiveWeb3React()
@@ -27,7 +27,7 @@ export default function CampaignButtonEnterNow() {
     (state: AppState) => state.campaigns.selectedCampaignLeaderboardLookupAddress,
   )
 
-  const notify = useNotify()
+  const toggleRegisterCampaignModal = useRegisterCampaignModalToggle()
 
   // Create an event handler so you can call the verification on button click event or form submit
   const handleReCaptchaVerify = useCallback(async () => {
@@ -49,35 +49,26 @@ export default function CampaignButtonEnterNow() {
         },
       })
       if (response.status === 200) {
-        mutate([
+        await mutate([
           SWR_KEYS.getLeaderboard(selectedCampaign.id),
           selectedCampaignLeaderboardPageNumber,
           selectedCampaignLeaderboardLookupAddress,
           account,
         ])
-        notify({
-          title: t`Register campaign`,
-          summary: t`Registered "${selectedCampaign.name}" successfully.`,
-          type: NotificationType.SUCCESS,
-        })
+        toggleRegisterCampaignModal()
       }
     } catch (err) {
       console.error(err)
-      notify({
-        title: t`Register campaign`,
-        summary: t`Register "${selectedCampaign.name}" failed.`,
-        type: NotificationType.ERROR,
-      })
     } finally {
       setLoading(false)
     }
   }, [
     account,
     executeRecaptcha,
-    notify,
     selectedCampaign,
     selectedCampaignLeaderboardLookupAddress,
     selectedCampaignLeaderboardPageNumber,
+    toggleRegisterCampaignModal,
   ])
 
   return (
