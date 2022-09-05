@@ -405,8 +405,8 @@ export default function Campaign() {
                   {selectedCampaign?.status === 'Upcoming'
                     ? t`Starting In`
                     : selectedCampaign?.status === 'Ongoing'
-                    ? t`Ending In`
-                    : t`Ended In`}
+                    ? t`Ended In`
+                    : t`Ended On`}
                 </Text>
                 <Clock size={20} color={theme.subText} />
                 {isSelectedCampaignMediaLoaded ? (

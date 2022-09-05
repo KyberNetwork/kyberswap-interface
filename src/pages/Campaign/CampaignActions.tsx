@@ -21,7 +21,7 @@ export default function CampaignActions() {
 
   if (!selectedCampaign || !account || !selectedCampaignLeaderboard) return null
 
-  if (selectedCampaign.status !== 'Ended' && !selectedCampaignLeaderboard.isEntered) {
+  if (selectedCampaign.status !== 'Ended' && !selectedCampaignLeaderboard.isParticipated) {
     return <CampaignButtonEnterNow />
   }
 
