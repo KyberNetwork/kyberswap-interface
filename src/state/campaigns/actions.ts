@@ -57,7 +57,7 @@ export interface CampaignLeaderboard {
   userRank: number
   rankings: CampaignLeaderboardRanking[]
   rewards: CampaignLeaderboardReward[]
-  isEntered: boolean
+  isParticipated: boolean
 }
 
 export interface CampaignLuckyWinner {
