@@ -297,7 +297,7 @@ export default function CampaignsUpdater(): null {
                 }),
               )
             : [],
-          isParticipated: data.IsParticipated,
+          isParticipated: data.isParticipated,
         }
         return leaderboard
       } catch (err) {
