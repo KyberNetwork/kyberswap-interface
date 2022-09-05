@@ -284,8 +284,8 @@ export default function CampaignsUpdater(): null {
                 }),
               )
             : [],
-          rewards: data.Rewards
-            ? data.Rewards.map(
+          rewards: data.rewards
+            ? data.rewards.map(
                 (item: any): CampaignLeaderboardReward => ({
                   rewardAmount: new Fraction(
                     item.RewardAmount,

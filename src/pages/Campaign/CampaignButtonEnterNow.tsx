@@ -50,6 +50,7 @@ export default function CampaignButtonEnterNow() {
       })
       if (response.status === 200) {
         mutate([
+          selectedCampaign,
           SWR_KEYS.getLeaderboard(selectedCampaign.id),
           selectedCampaignLeaderboardPageNumber,
           selectedCampaignLeaderboardLookupAddress,

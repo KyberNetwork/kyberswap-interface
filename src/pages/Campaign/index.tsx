@@ -291,6 +291,7 @@ export default function Campaign() {
   useEffect(() => {
     if (campaignsRefreshIn === 0 && selectedCampaign) {
       mutate([
+        selectedCampaign,
         SWR_KEYS.getLeaderboard(selectedCampaign.id),
         selectedCampaignLeaderboardPageNumber,
         selectedCampaignLeaderboardLookupAddress,
