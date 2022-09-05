@@ -22,6 +22,7 @@ import useTheme from 'hooks/useTheme'
 import CampaignActions from 'pages/Campaign/CampaignActions'
 import CampaignListAndSearch from 'pages/Campaign/CampaignListAndSearch'
 import LeaderboardLayout from 'pages/Campaign/LeaderboardLayout'
+import ModalRegisterCampaign from 'pages/Campaign/ModalRegisterCampaign'
 import { Loading } from 'pages/ProAmmPool/ContentLoader'
 import { AppState } from 'state'
 import { ApplicationModal } from 'state/application/actions'
@@ -350,6 +351,7 @@ export default function Campaign() {
                   />
                 </ButtonEmpty>
                 <ModalSelectCampaign />
+                <ModalRegisterCampaign />
               </Flex>
             </MediumOnly>
 
