@@ -66,7 +66,7 @@ export default function CampaignButtonEnterNow() {
       notify({
         title: t`Register campaign`,
         summary: t`Register "${selectedCampaign.name}" failed.`,
-        type: NotificationType.SUCCESS,
+        type: NotificationType.ERROR,
       })
     } finally {
       setLoading(false)
