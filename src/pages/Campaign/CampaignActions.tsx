@@ -21,12 +21,12 @@ export default function CampaignActions() {
 
   if (!selectedCampaign || !account || !selectedCampaignLeaderboard) return null
 
-  if (selectedCampaign.status !== 'Ended' && !selectedCampaignLeaderboard.isParticipated) {
+  if (selectedCampaign.status === 'Ongoing' && !selectedCampaignLeaderboard.isParticipated) {
     return <CampaignButtonEnterNow />
   }
 
   if (selectedCampaign.status === 'Upcoming') {
-    return <CampaignButtonWithOptions campaign={selectedCampaign} type="swap_now" disabled />
+    return null
   }
 
   if (selectedCampaign.status === 'Ongoing') {
