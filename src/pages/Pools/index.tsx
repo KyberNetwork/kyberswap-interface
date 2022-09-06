@@ -92,14 +92,22 @@ const Pools = ({
   const below1124 = useMedia('(max-width: 1124px)')
   const [isShowOnlyActiveFarmPools, setIsShowOnlyActiveFarmPools] = useState(false)
   const [shouldShowLowTVLPools, setShowLowTVLPools] = useState(false)
-  const qs = useParsedQueryString()
-  const searchValueInQs: string = (qs.search as string) ?? ''
+  const {
+    search: searchValueInQs = '',
+    tab = VERSION.ELASTIC,
+    highlightCreateButton,
+    highlightAddLiquidityButton,
+  } = useParsedQueryString<{
+    search: string
+    tab: string
+    highlightCreateButton: string
+    highlightAddLiquidityButton: string
+  }>()
   const debouncedSearchValue = useDebounce(searchValueInQs.trim().toLowerCase(), 200)
 
   const [onlyShowStable, setOnlyShowStable] = useState(false)
-  const tab = (qs.tab as string) || VERSION.ELASTIC
-  const shouldHighlightCreatePoolButton = qs.highlightCreateButton === 'true'
-  const shouldHighlightAddLiquidityButton = qs.highlightAddLiquidityButton === 'true'
+  const shouldHighlightCreatePoolButton = highlightCreateButton === 'true'
+  const shouldHighlightAddLiquidityButton = highlightAddLiquidityButton === 'true'
   const onSearch = (search: string) => {
     history.replace(location.pathname + '?search=' + search + '&tab=' + tab)
   }

@@ -36,7 +36,7 @@ const ButtonWithOptions = ({
   const containerRef = useRef<HTMLDivElement>(null)
   useOnClickOutside(containerRef, () => setIsShowNetworks(false))
 
-  const { tab } = useParsedQueryString()
+  const { tab } = useParsedQueryString<{ tab: string }>()
   const { mixpanelHandler } = useMixpanel()
 
   const triggerDiscoverSwapInitiated = (platform: string) => {

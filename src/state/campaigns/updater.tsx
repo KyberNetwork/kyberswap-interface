@@ -159,8 +159,7 @@ export default function CampaignsUpdater(): null {
   })
 
   const slug = pathname.replace(AppPaths.CAMPAIGN, '')
-  const qs = useParsedQueryString()
-  const selectedCampaignId = qs.selectedCampaignId || getCampaignIdFromSlug(slug)
+  const { selectedCampaignId = getCampaignIdFromSlug(slug) } = useParsedQueryString<{ selectedCampaignId: string }>()
 
   const history = useHistory()
   useEffect(() => {

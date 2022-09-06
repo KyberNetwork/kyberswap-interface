@@ -10,11 +10,11 @@ import styled from 'styled-components'
 import CoinbaseWalletIcon from 'assets/images/coinbaseWalletIcon.svg'
 import WalletConnectIcon from 'assets/images/walletConnectIcon.svg'
 import { ButtonLight, ButtonSecondary } from 'components/Button'
+import WalletModal from 'components/Header/web3/WalletModal'
 import Identicon from 'components/Identicon'
 import Loader from 'components/Loader'
 import { RowBetween } from 'components/Row'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import WalletModal from 'components/WalletModal'
 import { braveInjectedConnector, coin98InjectedConnector, injected, walletconnect, walletlink } from 'connectors'
 import { NetworkContextName } from 'constants/index'
 import useENSName from 'hooks/useENSName'
@@ -102,6 +102,18 @@ const SOCK = (
     🧦
   </span>
 )
+
+const AccountElement = styled.div<{ active: boolean }>`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background-color: ${({ theme, active }) => (!active ? theme.background : theme.buttonGray)};
+  border-radius: 999px;
+  white-space: nowrap;
+  width: 100%;
+  cursor: pointer;
+  pointer-events: auto;
+`
 
 function StatusIcon({ connector }: { connector: AbstractConnector }) {
   switch (connector) {
@@ -197,7 +209,7 @@ function Web3StatusInner() {
   }
 }
 
-export default function Web3Status() {
+export default function SelectWallet() {
   const { active, account } = useWeb3React()
   const contextNetwork = useWeb3React(NetworkContextName)
 
@@ -218,9 +230,9 @@ export default function Web3Status() {
   }
 
   return (
-    <>
+    <AccountElement active={!!account}>
       <Web3StatusInner />
       <WalletModal ENSName={ENSName ?? undefined} pendingTransactions={pending} confirmedTransactions={confirmed} />
-    </>
+    </AccountElement>
   )
 }

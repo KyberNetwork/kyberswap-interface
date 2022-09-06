@@ -14,8 +14,7 @@ import { PoolClassicIcon, PoolElasticIcon } from './Icons'
 import { MouseoverTooltip } from './Tooltip'
 
 function ClassicElasticTab() {
-  const qs = useParsedQueryString()
-  const tab = (qs.tab as string) || VERSION.ELASTIC
+  const { tab = VERSION.ELASTIC, ...qs } = useParsedQueryString<{ tab: string }>()
   const { mixpanelHandler } = useMixpanel()
 
   const { chainId } = useActiveWeb3React()

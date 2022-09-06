@@ -160,8 +160,7 @@ const Row = ({
   const theme = useTheme()
   const currentTimestamp = Math.floor(Date.now() / 1000)
   const above1000 = useMedia('(min-width: 1000px)')
-  const qs = useParsedQueryString()
-  const tab = qs.tab || 'active'
+  const { tab = 'active' } = useParsedQueryString<{ tab: string }>()
 
   const token0 = useToken(farm.token0)
   const token1 = useToken(farm.token1)
@@ -386,7 +385,7 @@ const Row = ({
               <Trans>AVG APR</Trans>
               <InfoHelper
                 text={
-                  qs.tab === 'active'
+                  tab === 'active'
                     ? t`Average estimated return based on yearly fees and bonus rewards of the pool`
                     : t`Average estimated return based on yearly fees of the pool plus bonus rewards from the farm`
                 }
@@ -766,8 +765,7 @@ function ProMMFarmGroup({
     [],
   )
 
-  const qs = useParsedQueryString()
-  const tab = qs.tab || 'active'
+  const { tab = 'active' } = useParsedQueryString<{ tab: string }>()
 
   if (!farms) return null
 

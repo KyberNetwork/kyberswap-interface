@@ -40,9 +40,8 @@ import { useProMMFarms } from 'state/farms/promm/hooks'
 
 const Farms = () => {
   const { loading } = useFarmsData()
-  const qs = useParsedQueryString()
-  const type = qs.type || 'active'
-  const farmType = qs.tab || VERSION.ELASTIC
+  const qs = useParsedQueryString<{ type: string; tab: string }>()
+  const { type = 'active', tab: farmType = VERSION.ELASTIC } = qs
   const history = useHistory()
 
   const vestingLoading = useSelector<AppState, boolean>(state => state.vesting.loading)

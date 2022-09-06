@@ -42,7 +42,9 @@ const MarqueeItem = ({ token0: address0, token1: address1 }: { token0: string; t
   const token0 = useToken(address0) as Token
   const token1 = useToken(address1) as Token
 
-  const qs = useParsedQueryString()
+  const { tab = VERSION.ELASTIC } = useParsedQueryString<{
+    tab: string
+  }>()
   if (!token0 || !token1) return null
 
   const token0Address =
@@ -54,8 +56,6 @@ const MarqueeItem = ({ token0: address0, token1: address1 }: { token0: string; t
     token1.address.toLowerCase() === WETH[chainId as ChainId].address.toLowerCase()
       ? WETH[chainId as ChainId].symbol?.slice(1)
       : token1.address
-
-  const tab = (qs.tab as string) || VERSION.ELASTIC
 
   return (
     <StyledLink to={`/pools/${token0Address}/${token1Address}?tab=${tab}`}>

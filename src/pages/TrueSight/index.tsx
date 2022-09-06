@@ -56,7 +56,7 @@ export interface TrueSightSortSettings {
 }
 
 export default function TrueSight({ history }: RouteComponentProps) {
-  const { tab } = useParsedQueryString()
+  const { tab } = useParsedQueryString<{ tab: string }>()
   const [activeTab, setActiveTab] = useState<TrueSightTabs>()
   const toggleUnsubscribeModal = useTrueSightUnsubscribeModalToggle()
 

@@ -168,7 +168,12 @@ export default function Swap({ history }: RouteComponentProps) {
   const isShowLiveChart = useShowLiveChart()
   const isShowTradeRoutes = useShowTradeRoutes()
   const isShowTokenInfoSetting = useShowTokenInfo()
-  const qs = useParsedQueryString()
+  const qs = useParsedQueryString<{
+    highlightBox: string
+    outputCurrency: string
+    inputCurrency: string
+    networkId: string
+  }>()
   const [{ show: isShowTutorial = false }] = useTutorialSwapGuide()
 
   const refSuggestPair = useRef<PairSuggestionHandle>(null)
@@ -456,11 +461,8 @@ export default function Swap({ history }: RouteComponentProps) {
 
   const navigate = useCallback(
     (url: string) => {
-      const newQs = { ...qs }
       // /swap/net/symA-to-symB?inputCurrency= addressC/symC &outputCurrency= addressD/symD
-      delete newQs.outputCurrency
-      delete newQs.inputCurrency
-      delete newQs.networkId
+      const { networkId, inputCurrency, outputCurrency, ...newQs } = qs
       history.push(`${url}?${stringify(newQs)}`) // keep query params
     },
     [history, qs],

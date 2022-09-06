@@ -127,8 +127,7 @@ const ToSText = styled.span`
 `
 
 const WALLET_VIEWS = {
-  OPTIONS: 'options',
-  OPTIONS_SECONDARY: 'options_secondary',
+  CHANGE_WALLET: 'CHANGE_WALLET',
   ACCOUNT: 'account',
   PENDING: 'pending',
 }
@@ -261,7 +260,7 @@ export default function WalletModal({
                 link={option.href}
                 header={option.name}
                 subheader={null}
-                icon={require(`../../assets/images/${isDarkMode ? '' : 'light-'}${option.iconName}`).default}
+                icon={require(`../../../../assets/images/${isDarkMode ? '' : 'light-'}${option.iconName}`).default}
               />
             )
           }
@@ -281,7 +280,7 @@ export default function WalletModal({
                   header={'Install Metamask'}
                   subheader={null}
                   link={'https://metamask.io/'}
-                  icon={require(`../../assets/images/${isDarkMode ? '' : 'light-'}${option.iconName}`).default}
+                  icon={require(`../../../../assets/images/${isDarkMode ? '' : 'light-'}${option.iconName}`).default}
                 />
               )
             } else {
@@ -307,7 +306,7 @@ export default function WalletModal({
                 color={'#E8831D'}
                 header={'Install Coin98'}
                 link={'https://coin98.com/'}
-                icon={require(`../../assets/images/${isDarkMode ? '' : 'light-'}${option.iconName}`).default}
+                icon={require(`../../../../assets/images/${isDarkMode ? '' : 'light-'}${option.iconName}`).default}
               />
             )
           }
@@ -331,7 +330,7 @@ export default function WalletModal({
               link={option.href}
               header={option.name}
               subheader={null} //use option.descriptio to bring back multi-line
-              icon={require(`../../assets/images/${isDarkMode ? '' : 'light-'}${option.iconName}`).default}
+              icon={require(`../../../../assets/images/${isDarkMode ? '' : 'light-'}${option.iconName}`).default}
             />
           )
         )
@@ -358,7 +357,7 @@ export default function WalletModal({
           pendingTransactions={pendingTransactions}
           confirmedTransactions={confirmedTransactions}
           ENSName={ENSName}
-          openOptions={() => setWalletView(WALLET_VIEWS.OPTIONS)}
+          openOptions={() => setWalletView(WALLET_VIEWS.CHANGE_WALLET)}
         />
       )
     }
@@ -374,7 +373,7 @@ export default function WalletModal({
         <CloseIcon onClick={toggleWalletModal}>
           <CloseColor />
         </CloseIcon>
-        {walletView !== WALLET_VIEWS.ACCOUNT ? (
+        {walletView === WALLET_VIEWS.CHANGE_WALLET || walletView === WALLET_VIEWS.PENDING ? (
           <HeaderRow>
             <HoverText
               onClick={() => {
@@ -383,13 +382,18 @@ export default function WalletModal({
               }}
             >
               <ChevronLeft color={theme.primary} />
-              <Trans>Back</Trans>
             </HoverText>
           </HeaderRow>
         ) : (
           <HeaderRow>
             <HoverText>
-              <Trans>Connect your Wallet</Trans>
+              {walletView === WALLET_VIEWS.ACCOUNT ? (
+                <Trans>Connect your Wallet</Trans>
+              ) : walletView === WALLET_VIEWS.CHANGE_WALLET ? (
+                <Trans>Change Wallet</Trans>
+              ) : (
+                <Trans>Connecting Wallet</Trans>
+              )}
             </HoverText>
           </HeaderRow>
         )}

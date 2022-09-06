@@ -37,7 +37,7 @@ export function useChangeNetwork() {
   const { chainId, library, error } = useActiveWeb3React()
   const history = useHistory()
   const location = useLocation()
-  const qs = useParsedQueryString()
+  const qs = useParsedQueryString<{ networkId: string }>()
   const dispatch = useAppDispatch()
   const notify = useNotify()
 

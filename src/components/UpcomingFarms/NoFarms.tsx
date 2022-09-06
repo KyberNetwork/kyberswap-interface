@@ -11,8 +11,7 @@ import { NoFarmsMessage, NoFarmsWrapper } from './styled'
 
 const NoFarms = () => {
   const history = useHistory()
-  const qs = useParsedQueryString()
-  const farmType = qs.tab || VERSION.ELASTIC
+  const { tab: farmType = VERSION.ELASTIC } = useParsedQueryString<{ tab: string }>()
   const theme = useTheme()
   return (
     <NoFarmsWrapper>

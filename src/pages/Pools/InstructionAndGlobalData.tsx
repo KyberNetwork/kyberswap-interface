@@ -106,8 +106,7 @@ export const GlobalData = () => {
 }
 
 export const Instruction = () => {
-  const qs = useParsedQueryString()
-  const tab = (qs.tab as string) || VERSION.ELASTIC
+  const { tab = VERSION.ELASTIC } = useParsedQueryString<{ tab: string }>()
 
   const theme = useTheme()
 

@@ -11,7 +11,7 @@ import { TabContainer, TabDivider, TabItem } from 'pages/TrueSight/styled'
 
 const TrueSightTab = ({ activeTab }: { activeTab: TrueSightTabs | undefined }) => {
   const history = useHistory()
-  const { tab } = useParsedQueryString()
+  const { tab } = useParsedQueryString<{ tab: string }>()
   const { mixpanelHandler } = useMixpanel()
 
   const upToSmall = useMedia('(max-width: 768px)')

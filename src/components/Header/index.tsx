@@ -11,13 +11,13 @@ import { ReactComponent as MasterCard } from 'assets/buy-crypto/master-card.svg'
 import { ReactComponent as Visa } from 'assets/buy-crypto/visa.svg'
 import { ReactComponent as Dollar } from 'assets/svg/dollar.svg'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
+import SelectNetwork from 'components/Header/web3/SelectNetwork'
+import SelectWallet from 'components/Header/web3/SelectWallet'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import Menu, { NewLabel } from 'components/Menu'
 import Row, { RowFixed } from 'components/Row'
 import Settings from 'components/Settings'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import Web3Network from 'components/Web3Network'
-import Web3Status from 'components/Web3Status'
 import { PROMM_ANALYTICS_URL } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -119,17 +119,6 @@ const IconImage = styled.img`
   @media only screen and (max-width: 400px) {
     width: 100px;
   }
-`
-
-const AccountElement = styled.div<{ active: boolean }>`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  background-color: ${({ theme, active }) => (!active ? theme.background : theme.buttonGray)};
-  border-radius: 999px;
-  white-space: nowrap;
-  width: 100%;
-  cursor: pointer;
 `
 
 const AnalyticsWrapper = styled.span`
@@ -332,7 +321,7 @@ const HoverDropdown = styled.div<{ active: boolean }>`
 `
 
 export default function Header() {
-  const { account, chainId } = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React()
 
   const isDark = useIsDarkMode()
   const { pathname } = useLocation()
@@ -486,11 +475,8 @@ export default function Header() {
       </HeaderRow>
       <HeaderControls>
         <HeaderElement>
-          <Web3Network />
-
-          <AccountElement active={!!account} style={{ pointerEvents: 'auto' }}>
-            <Web3Status />
-          </AccountElement>
+          <SelectNetwork />
+          <SelectWallet />
         </HeaderElement>
         <HeaderElementWrap>
           <Settings />

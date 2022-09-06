@@ -14,7 +14,7 @@ export default function useGetTokensForSearchBox(
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<Error>()
 
-  const { tab } = useParsedQueryString()
+  const { tab } = useParsedQueryString<{ tab: string }>()
 
   useEffect(() => {
     const fetchData = async () => {

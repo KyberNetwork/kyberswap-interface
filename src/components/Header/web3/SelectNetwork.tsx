@@ -4,7 +4,7 @@ import styled from 'styled-components'
 
 import { ReactComponent as DropdownSvg } from 'assets/svg/down.svg'
 import Card from 'components/Card'
-import NetworkModal from 'components/NetworkModal'
+import NetworkModal from 'components/Header/web3/NetworkModal'
 import Row from 'components/Row'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { NETWORKS_INFO } from 'constants/networks'
@@ -63,7 +63,7 @@ const DropdownIcon = styled(DropdownSvg)<{ open: boolean }>`
   transition: transform 300ms;
 `
 
-function Web3Network(): JSX.Element | null {
+function SelectNetwork(): JSX.Element | null {
   const { chainId, account } = useActiveWeb3React()
   const networkModalOpen = useModalOpen(ApplicationModal.NETWORK)
   const isDarkMode = useIsDarkMode()
@@ -94,7 +94,7 @@ function Web3Network(): JSX.Element | null {
                 ? NETWORKS_INFO[chainId].iconDark
                 : NETWORKS_INFO[chainId].icon
             }
-            alt="Switch Network"
+            alt={NETWORKS_INFO[chainId].name + ' logo'}
             style={{ width: 20, height: 20, marginRight: '12px' }}
           />
           <NetworkLabel>{labelContent}</NetworkLabel>
@@ -106,4 +106,4 @@ function Web3Network(): JSX.Element | null {
   )
 }
 
-export default Web3Network
+export default SelectNetwork

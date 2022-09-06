@@ -57,8 +57,8 @@ function ProMMFarms({ active }: { active: boolean }) {
   const ref = useRef<HTMLDivElement>()
   const [open, setOpen] = useState(false)
   useOnClickOutside(ref, open ? () => setOpen(prev => !prev) : undefined)
-  const qs = useParsedQueryString()
-  const search = ((qs.search as string) || '').toLowerCase()
+  const qs = useParsedQueryString<{ search: string; type: string; tab: string }>()
+  const { search = '', type, tab } = qs
   const history = useHistory()
   const location = useLocation()
 
@@ -166,7 +166,7 @@ function ProMMFarms({ active }: { active: boolean }) {
         </HeadingRight>
       </HeadingContainer>
 
-      {qs.type === 'ended' && qs.tab !== VERSION.CLASSIC && (
+      {type === 'ended' && tab !== VERSION.CLASSIC && (
         <Text fontStyle="italic" fontSize={12} marginBottom="1rem" color={theme.subText}>
           <Trans>
             Your rewards may be automatically harvested a few days after the farm ends. Please check the{' '}
@@ -175,7 +175,7 @@ function ProMMFarms({ active }: { active: boolean }) {
         </Text>
       )}
 
-      {(!qs.type || qs.type === 'active') && qs.tab !== VERSION.CLASSIC && (
+      {(!type || type === 'active') && tab !== VERSION.CLASSIC && (
         <>
           <Text fontSize={12} fontWeight="500" marginBottom="0.375rem">
             <Trans>Farms will run in multiple phases</Trans>

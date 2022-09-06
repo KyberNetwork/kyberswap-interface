@@ -70,9 +70,7 @@ const ListItem = ({ farm }: ListItemProps) => {
   const toggleWalletModal = useWalletModalToggle()
   const currentTimestamp = Math.floor(Date.now() / 1000)
 
-  const qs = useParsedQueryString()
-  const tab = qs.tab || 'active'
-
+  const { tab = 'active' } = useParsedQueryString<{ tab: string }>()
   const breakpoint = useMedia('(min-width: 992px)')
   const dispatch = useAppDispatch()
 

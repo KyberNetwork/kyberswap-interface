@@ -65,9 +65,8 @@ const FilterBar: React.FC<FilterBarProps> = ({ activeTab, filter, setFilter, not
   const below992 = useMedia('(max-width: 992px)')
   const toggleUnsubscribeModal = useTrueSightUnsubscribeModalToggle()
   const { isChrome, hasSubscribed, handleUnsubscribe, isLoading } = notificationState
-  const queryString = useParsedQueryString()
   const theme = useTheme()
-  const { tab } = useParsedQueryString()
+  const { tab } = useParsedQueryString<{ tab: string }>()
 
   const setActiveTimeframe = (timeframe: TrueSightTimeframe) => {
     setFilter(prev => ({ ...prev, timeframe }))
@@ -161,7 +160,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ activeTab, filter, setFilter, not
           columnGap: '16px',
         }}
       >
-        {queryString.tab === 'trending' && (
+        {tab === 'trending' && (
           <TrueSightToggle
             isActive={filter.isShowTrueSightOnly}
             toggle={() => setFilter(prev => ({ ...prev, isShowTrueSightOnly: !prev.isShowTrueSightOnly }))}
