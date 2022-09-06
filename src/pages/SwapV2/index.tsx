@@ -630,7 +630,12 @@ export default function Swap({ history }: RouteComponentProps) {
   }, [currencyIn, currencyOut, isSelectCurencyMannual, syncUrl])
 
   // swap?inputCurrency=xxx&outputCurrency=yyy. xxx yyy not exist in chain => remove params => select default pair
+
+  const valueCheckParamWrong = { isPairNotfound, currencyIn, currencyOut, qs }
+  const refCheckParamWrong = useRef(valueCheckParamWrong)
+  refCheckParamWrong.current = valueCheckParamWrong
   useEffect(() => {
+    const { isPairNotfound, currencyIn, currencyOut, qs } = refCheckParamWrong.current
     if (isPairNotfound && !currencyIn && !currencyOut) {
       const newQuery = { ...qs }
       delete newQuery.inputCurrency
