@@ -629,11 +629,9 @@ export default function Swap({ history }: RouteComponentProps) {
     if (isSelectCurencyMannual) syncUrl(currencyIn, currencyOut) // when we select token manual
   }, [currencyIn, currencyOut, isSelectCurencyMannual, syncUrl])
 
-  const prevChainId = usePrevious(chainId) || chainId
-  const justChangeNetwork = prevChainId !== chainId
   // swap?inputCurrency=xxx&outputCurrency=yyy. xxx yyy not exist in chain => remove params => select default pair
   useEffect(() => {
-    if (isPairNotfound && !currencyIn && !currencyOut && justChangeNetwork) {
+    if (isPairNotfound && !currencyIn && !currencyOut) {
       const newQuery = { ...qs }
       delete newQuery.inputCurrency
       delete newQuery.outputCurrency
@@ -641,7 +639,9 @@ export default function Swap({ history }: RouteComponentProps) {
         search: stringify(newQuery),
       })
     }
-  }, [isPairNotfound, history, qs, currencyIn, currencyOut, justChangeNetwork])
+    // run only when network changed
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chainId])
 
   useEffect(() => {
     if (isExpertMode) {
