@@ -632,8 +632,9 @@ export default function Swap({ history }: RouteComponentProps) {
   }, [currencyIn, currencyOut, isSelectCurencyMannual, syncUrl])
 
   // swap?inputCurrency=xxx&outputCurrency=yyy. xxx yyy not exist in chain => remove params => select default pair
-  useEffect(() => {
-    if (isPairNotfound) {
+
+  const checkParamsWrong = () => {
+    if (isPairNotfound && !currencyIn && !currencyOut) {
       const newQuery = { ...qs }
       delete newQuery.inputCurrency
       delete newQuery.outputCurrency
@@ -641,7 +642,13 @@ export default function Swap({ history }: RouteComponentProps) {
         search: stringify(newQuery),
       })
     }
-  }, [isPairNotfound, history, qs])
+  }
+
+  const refCheckParamWrong = useRef(checkParamsWrong)
+  refCheckParamWrong.current = checkParamsWrong
+  useEffect(() => {
+    refCheckParamWrong.current()
+  }, [chainId])
 
   useEffect(() => {
     if (isExpertMode) {
