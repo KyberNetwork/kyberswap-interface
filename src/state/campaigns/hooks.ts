@@ -1,6 +1,8 @@
 import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
+import { useActiveWeb3React } from 'hooks'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import {
   setSelectedCampaignLeaderboardLookupAddress,
   setSelectedCampaignLeaderboardPageNumber,
@@ -63,4 +65,26 @@ export function useSelectedCampaignLuckyWinnersLookupAddressManager() {
     () => [selectedCampaignLuckyWinnersLookupAddress, updateSelectedCampaignLuckyWinnersLookupAddressCallback] as const,
     [selectedCampaignLuckyWinnersLookupAddress, updateSelectedCampaignLuckyWinnersLookupAddressCallback],
   )
+}
+
+export function useSwapNowHandler() {
+  const { mixpanelHandler } = useMixpanel()
+  const selectedCampaign = useSelector((state: AppState) => state.campaigns.selectedCampaign)
+  const { chainId } = useActiveWeb3React()
+
+  return useCallback(() => {
+    mixpanelHandler(MIXPANEL_TYPE.CAMPAIGN_SWAP_NOW_CLICKED, { campaign_name: selectedCampaign?.name })
+    let url = selectedCampaign?.enterNowUrl + '?networkId=' + chainId
+    if (selectedCampaign?.eligibleTokens?.length) {
+      const outputCurrency = selectedCampaign?.eligibleTokens[0].address
+      url += '&outputCurrency=' + outputCurrency
+    }
+    window.open(url)
+  }, [
+    chainId,
+    mixpanelHandler,
+    selectedCampaign?.eligibleTokens,
+    selectedCampaign?.enterNowUrl,
+    selectedCampaign?.name,
+  ])
 }
