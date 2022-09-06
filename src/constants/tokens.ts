@@ -1,4 +1,4 @@
-import { ChainId, NativeCurrency, Token, WETH } from '@namgold/ks-sdk-core'
+import { ChainId, NativeCurrency, Token } from '@namgold/ks-sdk-core'
 
 import { MAINNET_ENV } from './env'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from './networks'
