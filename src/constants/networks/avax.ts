@@ -25,7 +25,7 @@ const avaxInfo: EVMNetworkInfo = {
     logo: AVAX,
     decimal: 18,
   },
-  rpcUrl: 'https://avalanche.dmm.exchange/v1/mainnet/geth?appId=prod-dmm',
+  rpcUrl: 'https://avalanche.kyberengineering.io',
   routerUri: `${AGGREGATOR_API}/avalanche/route/encode`,
   classic: {
     static: {

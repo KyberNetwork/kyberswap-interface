@@ -27,7 +27,7 @@ const fantomInfo: EVMNetworkInfo = {
     logo: FTM,
     decimal: 18,
   },
-  rpcUrl: 'https://rpc.ftm.tools',
+  rpcUrl: 'https://fantom.kyberengineering.io',
   routerUri: `${AGGREGATOR_API}/fantom/route/encode`,
   classic: {
     static: {
