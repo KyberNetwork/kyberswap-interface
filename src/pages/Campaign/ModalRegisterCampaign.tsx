@@ -93,8 +93,6 @@ const Content = styled(Text)`
 `
 
 const ResponsiveButtonPrimary = styled(ButtonPrimary)`
-  color: ${({ theme }) => theme.white};
-
   ${({ theme }) => theme.mediaWidth.upToSmall`
     margin-top: 6px;
     padding: 6px;
