@@ -646,8 +646,6 @@ export default function Swap({ history }: RouteComponentProps) {
   refCheckParamWrong.current = checkParamsWrong
   useEffect(() => {
     refCheckParamWrong.current()
-    // run only when network changed
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId])
 
   useEffect(() => {
