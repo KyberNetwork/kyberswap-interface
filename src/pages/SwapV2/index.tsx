@@ -629,8 +629,8 @@ export default function Swap({ history }: RouteComponentProps) {
     if (isSelectCurencyMannual) syncUrl(currencyIn, currencyOut) // when we select token manual
   }, [currencyIn, currencyOut, isSelectCurencyMannual, syncUrl])
 
-  const chainIdDebounce = usePrevious(chainId) || chainId
-  const justChangeNetwork = chainIdDebounce !== chainId
+  const prevChainId = usePrevious(chainId) || chainId
+  const justChangeNetwork = prevChainId !== chainId
   // swap?inputCurrency=xxx&outputCurrency=yyy. xxx yyy not exist in chain => remove params => select default pair
   useEffect(() => {
     if (isPairNotfound && !currencyIn && !currencyOut && justChangeNetwork) {
