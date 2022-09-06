@@ -631,11 +631,7 @@ export default function Swap({ history }: RouteComponentProps) {
 
   // swap?inputCurrency=xxx&outputCurrency=yyy. xxx yyy not exist in chain => remove params => select default pair
 
-  const valueCheckParamWrong = { isPairNotfound, currencyIn, currencyOut, qs }
-  const refCheckParamWrong = useRef(valueCheckParamWrong)
-  refCheckParamWrong.current = valueCheckParamWrong
-  useEffect(() => {
-    const { isPairNotfound, currencyIn, currencyOut, qs } = refCheckParamWrong.current
+  const checkParamsWrong = () => {
     if (isPairNotfound && !currencyIn && !currencyOut) {
       const newQuery = { ...qs }
       delete newQuery.inputCurrency
@@ -644,6 +640,12 @@ export default function Swap({ history }: RouteComponentProps) {
         search: stringify(newQuery),
       })
     }
+  }
+
+  const refCheckParamWrong = useRef(checkParamsWrong)
+  refCheckParamWrong.current = checkParamsWrong
+  useEffect(() => {
+    refCheckParamWrong.current()
     // run only when network changed
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId])
