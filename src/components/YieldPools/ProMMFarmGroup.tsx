@@ -44,7 +44,15 @@ import { getFormattedTimeFromSecond } from 'utils/formatTime'
 import { formatDollarAmount } from 'utils/numbers'
 
 import { ModalContentWrapper } from './ProMMFarmModals/styled'
-import { ActionButton, InfoRow, ProMMFarmTableRow, ProMMFarmTableRowMobile, RewardMobileArea } from './styleds'
+import {
+  ActionButton,
+  ClickableText,
+  InfoRow,
+  ProMMFarmTableHeader,
+  ProMMFarmTableRow,
+  ProMMFarmTableRowMobile,
+  RewardMobileArea,
+} from './styleds'
 
 const BtnPrimary = styled(ButtonPrimary)`
   font-size: 14px;
@@ -57,18 +65,15 @@ const BtnPrimary = styled(ButtonPrimary)`
 
 const FarmContent = styled.div`
   background: ${({ theme }) => theme.background};
+  border-radius: 20px;
   overflow: hidden;
-  :last-child {
-    border-bottom-right-radius: 20px;
-    border-bottom-left-radius: 20px;
-  }
 `
 
 const FarmRow = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: ${({ theme }) => rgba(theme.buttonBlack, 0.6)};
+  background-color: ${({ theme }) => rgba(theme.buttonBlack, 0.4)};
   padding: 1rem;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
@@ -590,105 +595,103 @@ const Row = ({
   }
 
   return (
-    <>
-      <ProMMFarmTableRow>
-        <div>
-          <Flex alignItems="center">
-            <DoubleCurrencyLogo currency0={token0} currency1={token1} />
-            <Link
-              to={`/pools?search=${farm.poolAddress}&tab=elastic`}
-              style={{
-                textDecoration: 'none',
-              }}
-            >
-              <Text fontSize={14} fontWeight={500}>
-                {token0?.symbol} - {token1?.symbol}
-              </Text>
-            </Link>
-          </Flex>
-
-          <Flex
-            marginTop="0.5rem"
-            alignItems="center"
-            sx={{ gap: '3px' }}
-            fontSize="12px"
-            color={theme.subText}
-            width="max-content"
+    <ProMMFarmTableRow>
+      <div>
+        <Flex alignItems="center">
+          <DoubleCurrencyLogo currency0={token0} currency1={token1} />
+          <Link
+            to={`/pools?search=${farm.poolAddress}&tab=elastic`}
+            style={{
+              textDecoration: 'none',
+            }}
           >
-            <Text>Fee = {(farm.feeTier * 100) / ELASTIC_BASE_FEE_UNIT}%</Text>
-            <Text color={theme.subText}>|</Text>
+            <Text fontSize={14} fontWeight={500}>
+              {token0?.symbol} - {token1?.symbol}
+            </Text>
+          </Link>
+        </Flex>
 
-            <Flex alignItems="center">
-              <Text>{shortenAddress(farm.poolAddress, 2)}</Text>
-              <CopyHelper toCopy={farm.poolAddress} />
-            </Flex>
+        <Flex
+          marginTop="0.5rem"
+          alignItems="center"
+          sx={{ gap: '3px' }}
+          fontSize="12px"
+          color={theme.subText}
+          width="max-content"
+        >
+          <Text>Fee = {(farm.feeTier * 100) / ELASTIC_BASE_FEE_UNIT}%</Text>
+          <Text color={theme.subText}>|</Text>
+
+          <Flex alignItems="center">
+            <Text>{shortenAddress(farm.poolAddress, 2)}</Text>
+            <CopyHelper toCopy={farm.poolAddress} />
           </Flex>
-        </div>
-        {/*
+        </Flex>
+      </div>
+      {/*
         {farm.feeTarget.gt(0) ? loading ? <Loader /> : <FeeTarget percent={targetPercent} /> : '--'}
         */}
-        <Text textAlign="right">{formatDollarAmount(tvl)}</Text>
-        <Text textAlign="end" color={theme.apr}>
-          {(farmAPR + poolAPY).toFixed(2)}%
-          <InfoHelper text={`${poolAPY.toFixed(2)}% Fee + ${farmAPR.toFixed(2)}% Rewards`} />
-        </Text>
-        {/*<Text textAlign="end">{getFormattedTimeFromSecond(farm.vestingDuration, true)}</Text>*/}
-        <Flex flexDirection="column" alignItems="flex-end" justifyContent="center" sx={{ gap: '8px' }}>
-          {farm.startTime > currentTimestamp ? (
-            <>
-              <Text color={theme.subText} fontSize="12px">
-                <Trans>New phase will start in</Trans>
-              </Text>
-              {getFormattedTimeFromSecond(farm.startTime - currentTimestamp)}
-            </>
-          ) : farm.endTime > currentTimestamp ? (
-            <>
-              <Text color={theme.subText} fontSize="12px">
-                <Trans>Current phase will end in</Trans>
-              </Text>
-              {getFormattedTimeFromSecond(farm.endTime - currentTimestamp)}
-            </>
-          ) : (
-            <Trans>ENDED</Trans>
-          )}
-        </Flex>
+      <Text textAlign="right">{formatDollarAmount(tvl)}</Text>
+      <Text textAlign="end" color={theme.apr}>
+        {(farmAPR + poolAPY).toFixed(2)}%
+        <InfoHelper text={`${poolAPY.toFixed(2)}% Fee + ${farmAPR.toFixed(2)}% Rewards`} />
+      </Text>
+      {/*<Text textAlign="end">{getFormattedTimeFromSecond(farm.vestingDuration, true)}</Text>*/}
+      <Flex flexDirection="column" alignItems="flex-end" justifyContent="center" sx={{ gap: '8px' }}>
+        {farm.startTime > currentTimestamp ? (
+          <>
+            <Text color={theme.subText} fontSize="12px">
+              <Trans>New phase will start in</Trans>
+            </Text>
+            {getFormattedTimeFromSecond(farm.startTime - currentTimestamp)}
+          </>
+        ) : farm.endTime > currentTimestamp ? (
+          <>
+            <Text color={theme.subText} fontSize="12px">
+              <Trans>Current phase will end in</Trans>
+            </Text>
+            {getFormattedTimeFromSecond(farm.endTime - currentTimestamp)}
+          </>
+        ) : (
+          <Trans>ENDED</Trans>
+        )}
+      </Flex>
 
-        <Flex justifyContent="flex-end" color={!!amountCanStaked ? theme.warning : theme.text}>
-          {!!position?.amountUsd ? formatDollarAmount(position.amountUsd) : '--'}
-          {!!amountCanStaked && (
-            <InfoHelper
-              color={theme.warning}
-              text={t`You still have ${formatDollarAmount(amountCanStaked)} liquidity to stake to earn more rewards`}
-            />
-          )}
-        </Flex>
+      <Flex justifyContent="flex-end" color={!!amountCanStaked ? theme.warning : theme.text}>
+        {!!position?.amountUsd ? formatDollarAmount(position.amountUsd) : '--'}
+        {!!amountCanStaked && (
+          <InfoHelper
+            color={theme.warning}
+            text={t`You still have ${formatDollarAmount(amountCanStaked)} liquidity to stake to earn more rewards`}
+          />
+        )}
+      </Flex>
 
-        <Flex flexDirection="column" alignItems="flex-end" sx={{ gap: '8px' }}>
-          {farm.rewardTokens.map((token, idx) => (
-            <Reward key={token} token={token} amount={position?.rewardAmounts[idx]} />
-          ))}
-        </Flex>
-        <Flex justifyContent="flex-end" sx={{ gap: '4px' }}>
-          {renderStakeButton()}
+      <Flex flexDirection="column" alignItems="flex-end" sx={{ gap: '8px' }}>
+        {farm.rewardTokens.map((token, idx) => (
+          <Reward key={token} token={token} amount={position?.rewardAmounts[idx]} />
+        ))}
+      </Flex>
+      <Flex justifyContent="flex-end" sx={{ gap: '4px' }}>
+        {renderStakeButton()}
 
-          <ActionButton
-            disabled={!canUnstake}
-            backgroundColor={theme.subText + '33'}
-            onClick={() => onOpenModal('unstake', farm.pid)}
-          >
-            <MouseoverTooltip text={t`Unstake`} placement="top" width="fit-content">
-              <Minus color={theme.subText} size={16} />
-            </MouseoverTooltip>
-          </ActionButton>
+        <ActionButton
+          disabled={!canUnstake}
+          backgroundColor={theme.subText + '33'}
+          onClick={() => onOpenModal('unstake', farm.pid)}
+        >
+          <MouseoverTooltip text={t`Unstake`} placement="top" width="fit-content">
+            <Minus color={theme.subText} size={16} />
+          </MouseoverTooltip>
+        </ActionButton>
 
-          <ActionButton backgroundColor={theme.buttonBlack + '66'} onClick={onHarvest} disabled={!canHarvest}>
-            <MouseoverTooltip text={t`Harvest`} placement="top" width="fit-content">
-              <Harvest color={theme.subText} />
-            </MouseoverTooltip>
-          </ActionButton>
-        </Flex>
-      </ProMMFarmTableRow>
-    </>
+        <ActionButton backgroundColor={theme.buttonBlack + '66'} onClick={onHarvest} disabled={!canHarvest}>
+          <MouseoverTooltip text={t`Harvest`} placement="top" width="fit-content">
+            <Harvest color={theme.subText} />
+          </MouseoverTooltip>
+        </ActionButton>
+      </Flex>
+    </ProMMFarmTableRow>
   )
 }
 
@@ -707,6 +710,7 @@ function ProMMFarmGroup({
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const above768 = useMedia('(min-width: 768px)')
+  const above1000 = useMedia('(min-width: 1000px)')
 
   const [userPoolFarmInfo, setUserPoolFarmInfo] = useState<{
     [pid: number]: {
@@ -963,6 +967,56 @@ function ProMMFarmGroup({
 
   return (
     <FarmContent>
+      {above1000 && (
+        <ProMMFarmTableHeader>
+          <Flex grid-area="token_pairs" alignItems="center" justifyContent="flex-start">
+            <ClickableText>
+              <Trans>Pool</Trans>
+            </ClickableText>
+          </Flex>
+
+          <Flex grid-area="liq" alignItems="center" justifyContent="flex-end">
+            <ClickableText>
+              <Trans>Staked TVL</Trans>
+            </ClickableText>
+          </Flex>
+
+          <Flex grid-area="apy" alignItems="center" justifyContent="flex-end">
+            <ClickableText>
+              <Trans>AVG APR</Trans>
+            </ClickableText>
+            <InfoHelper
+              text={t`Average estimated return based on yearly fees of the pool and if it's still active, plus bonus rewards of the pool`}
+            />
+          </Flex>
+
+          <Flex grid-area="end" alignItems="center" justifyContent="flex-end">
+            <ClickableText>
+              <Trans>Ending In</Trans>
+            </ClickableText>
+            <InfoHelper text={t`Once a farm has ended, you will continue to receive returns through LP Fees`} />
+          </Flex>
+
+          <Flex grid-area="staked_balance" alignItems="center" justifyContent="flex-end">
+            <ClickableText>
+              <Trans>My Deposit</Trans>
+            </ClickableText>
+          </Flex>
+
+          <Flex grid-area="reward" alignItems="center" justifyContent="flex-end">
+            <ClickableText>
+              <Trans>My Rewards</Trans>
+            </ClickableText>
+          </Flex>
+
+          <Flex grid-area="action" alignItems="center" justifyContent="flex-end">
+            <ClickableText>
+              <Trans>Actions</Trans>
+            </ClickableText>
+          </Flex>
+        </ProMMFarmTableHeader>
+      )}
+
       <FarmRow>
         {hasAffectedByFarmIssue && !above768 && (
           <BtnPrimary

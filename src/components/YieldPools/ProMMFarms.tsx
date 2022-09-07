@@ -3,11 +3,9 @@ import { stringify } from 'querystring'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Search } from 'react-feather'
 import { useHistory, useLocation } from 'react-router-dom'
-import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
 import FarmIssueAnnouncement from 'components/FarmIssueAnnouncement'
-import InfoHelper from 'components/InfoHelper'
 import LocalLoader from 'components/LocalLoader'
 import Toggle from 'components/Toggle'
 import { VERSION } from 'constants/v2'
@@ -24,10 +22,8 @@ import { DepositModal, StakeUnstakeModal } from './ProMMFarmModals'
 import HarvestModal from './ProMMFarmModals/HarvestModal'
 import WithdrawModal from './ProMMFarmModals/WithdrawModal'
 import {
-  ClickableText,
   HeadingContainer,
   HeadingRight,
-  ProMMFarmTableHeader,
   SearchContainer,
   SearchInput,
   StakedOnlyToggleText,
@@ -63,8 +59,6 @@ function ProMMFarms({ active }: { active: boolean }) {
   const search = ((qs.search as string) || '').toLowerCase()
   const history = useHistory()
   const location = useLocation()
-
-  const above1000 = useMedia('(min-width: 1000px)')
 
   const handleSearch = useCallback(
     (search: string) => {
@@ -218,60 +212,6 @@ function ProMMFarms({ active }: { active: boolean }) {
         </>
       )}
 
-      {above1000 && (
-        <ProMMFarmTableHeader>
-          <Flex grid-area="token_pairs" alignItems="center" justifyContent="flex-start">
-            <ClickableText>
-              <Trans>Pool</Trans>
-            </ClickableText>
-          </Flex>
-
-          <Flex grid-area="liq" alignItems="center" justifyContent="flex-end">
-            <ClickableText>
-              <Trans>Staked TVL</Trans>
-            </ClickableText>
-          </Flex>
-
-          <Flex grid-area="apy" alignItems="center" justifyContent="flex-end">
-            <ClickableText>
-              <Trans>AVG APR</Trans>
-            </ClickableText>
-            <InfoHelper
-              text={
-                active
-                  ? t`Average estimated return based on yearly fees of the pool and bonus rewards of the pool`
-                  : t`Average estimated return based on yearly fees of the pool`
-              }
-            />
-          </Flex>
-
-          <Flex grid-area="end" alignItems="center" justifyContent="flex-end">
-            <ClickableText>
-              <Trans>Ending In</Trans>
-            </ClickableText>
-            <InfoHelper text={t`Once a farm has ended, you will continue to receive returns through LP Fees`} />
-          </Flex>
-
-          <Flex grid-area="staked_balance" alignItems="center" justifyContent="flex-end">
-            <ClickableText>
-              <Trans>My Deposit</Trans>
-            </ClickableText>
-          </Flex>
-
-          <Flex grid-area="reward" alignItems="center" justifyContent="flex-end">
-            <ClickableText>
-              <Trans>My Rewards</Trans>
-            </ClickableText>
-          </Flex>
-
-          <Flex grid-area="action" alignItems="center" justifyContent="flex-end">
-            <ClickableText>
-              <Trans>Actions</Trans>
-            </ClickableText>
-          </Flex>
-        </ProMMFarmTableHeader>
-      )}
-
       {loading && noFarms ? (
         <Flex backgroundColor={theme.background}>
           <LocalLoader />
@@ -292,20 +232,27 @@ function ProMMFarms({ active }: { active: boolean }) {
           </Text>
         </Flex>
       ) : (
-        Object.keys(filteredFarms).map(fairLaunchAddress => {
-          return (
-            <ProMMFarmGroup
-              key={fairLaunchAddress}
-              address={fairLaunchAddress}
-              onOpenModal={(modalType: ModalType, pid?: number, forced?: boolean) => {
-                setSeletedModal(modalType)
-                setSeletedFarm(fairLaunchAddress)
-                setSeletedPoolId(pid ?? null)
-              }}
-              farms={filteredFarms[fairLaunchAddress]}
-            />
-          )
-        })
+        <Flex
+          sx={{
+            flexDirection: 'column',
+            rowGap: '48px',
+          }}
+        >
+          {Object.keys(filteredFarms).map(fairLaunchAddress => {
+            return (
+              <ProMMFarmGroup
+                key={fairLaunchAddress}
+                address={fairLaunchAddress}
+                onOpenModal={(modalType: ModalType, pid?: number, forced?: boolean) => {
+                  setSeletedModal(modalType)
+                  setSeletedFarm(fairLaunchAddress)
+                  setSeletedPoolId(pid ?? null)
+                }}
+                farms={filteredFarms[fairLaunchAddress]}
+              />
+            )
+          })}
+        </Flex>
       )}
     </>
   )
