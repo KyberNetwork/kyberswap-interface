@@ -217,7 +217,15 @@ export default function Swap({ history }: RouteComponentProps) {
   const [allowedSlippage] = useUserSlippageTolerance()
 
   // swap state
-  const { independentField, typedValue, recipient, feeConfig } = useSwapState()
+  const {
+    independentField,
+    typedValue,
+    recipient,
+    feeConfig,
+    [Field.INPUT]: INPUT,
+    [Field.OUTPUT]: OUTPUT,
+    trade: storeTrade,
+  } = useSwapState()
 
   const {
     v2Trade,
@@ -240,7 +248,7 @@ export default function Swap({ history }: RouteComponentProps) {
     inputError: wrapInputError,
   } = useWrapCallback(currencies[Field.INPUT], currencies[Field.OUTPUT], typedValue)
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
-  const trade = showWrap ? undefined : v2Trade
+  const trade = showWrap ? undefined : v2Trade || storeTrade
 
   const parsedAmounts = showWrap
     ? {
@@ -252,13 +260,24 @@ export default function Swap({ history }: RouteComponentProps) {
         [Field.OUTPUT]: independentField === Field.OUTPUT ? parsedAmount : trade?.outputAmount,
       }
 
-  const { onSwitchTokensV2, onCurrencySelection, onResetSelectCurrency, onUserInput, onChangeRecipient } =
-    useSwapActionHandlers()
+  const {
+    onSwitchTokensV2,
+    onCurrencySelection,
+    onResetSelectCurrency,
+    onUserInput,
+    onChangeRecipient,
+    onChangeTrade,
+  } = useSwapActionHandlers()
 
   // reset recipient
   useEffect(() => {
     onChangeRecipient(null)
   }, [onChangeRecipient, isExpertMode])
+
+  useEffect(() => {
+    // Save current trade to store
+    onChangeTrade(trade)
+  }, [trade, onChangeTrade])
 
   const handleRecipientChange = (value: string | null) => {
     if (recipient === null && value !== null) {
@@ -656,8 +675,6 @@ export default function Swap({ history }: RouteComponentProps) {
   }, [isExpertMode])
 
   const [rawSlippage, setRawSlippage] = useUserSlippageTolerance()
-  const swapState = useSwapState()
-  const { INPUT, OUTPUT } = swapState
 
   const isStableCoinSwap =
     INPUT?.currencyId &&

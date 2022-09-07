@@ -2,6 +2,7 @@ import { createReducer } from '@reduxjs/toolkit'
 import { parse } from 'qs'
 
 import { FeeConfig } from 'hooks/useSwapV2Callback'
+import { Aggregator } from 'utils/aggregator'
 
 import {
   Field,
@@ -11,6 +12,7 @@ import {
   selectCurrency,
   setFeeConfig,
   setRecipient,
+  setTrade,
   setTrendingSoonShowed,
   switchCurrencies,
   switchCurrenciesV2,
@@ -31,6 +33,7 @@ export interface SwapState {
   readonly saveGas: boolean
   readonly feeConfig: FeeConfig | undefined
   readonly trendingSoonShowed?: boolean
+  readonly trade?: Aggregator
 }
 
 const { search } = window.location
@@ -50,6 +53,7 @@ const initialState: SwapState = {
   feeConfig: undefined,
   // Flag to only show animation of trending soon banner 1 time
   trendingSoonShowed: false,
+  trade: undefined,
 }
 
 export default createReducer<SwapState>(initialState, builder =>
@@ -70,6 +74,7 @@ export default createReducer<SwapState>(initialState, builder =>
           saveGas: state.saveGas,
           feeConfig,
           trendingSoonShowed: state.trendingSoonShowed,
+          trade: state.trade,
         }
       },
     )
@@ -132,7 +137,10 @@ export default createReducer<SwapState>(initialState, builder =>
     .addCase(setFeeConfig, (state, { payload: { feeConfig } }) => {
       state.feeConfig = feeConfig
     })
-    .addCase(setTrendingSoonShowed, (state, {}) => {
+    .addCase(setTrendingSoonShowed, state => {
       state.trendingSoonShowed = true
+    })
+    .addCase(setTrade, (state, { payload: { trade } }) => {
+      state.trade = trade
     }),
 )

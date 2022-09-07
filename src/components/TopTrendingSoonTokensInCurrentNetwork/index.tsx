@@ -69,13 +69,18 @@ const TopTrendingSoonTokensInCurrentNetwork = () => {
 
   const { trendingSoonShowed } = useSwapState()
   const dispatch = useDispatch<AppDispatch>()
+
   useEffect(() => {
+    let sto: NodeJS.Timeout
     if (!trendingSoonShowed) {
-      setTimeout(() => {
+      sto = setTimeout(() => {
         dispatch(setTrendingSoonShowed())
       }, 1000)
     }
-  }, [])
+    return () => {
+      sto && clearTimeout(sto)
+    }
+  }, [dispatch, trendingSoonShowed])
 
   if (isLoadingTrendingSoonTokens) return above768 ? <Box height="61px" /> : <Box height="83px" />
 

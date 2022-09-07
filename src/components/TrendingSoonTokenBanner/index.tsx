@@ -1,7 +1,7 @@
 import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
-import React, { CSSProperties, useMemo } from 'react'
+import { CSSProperties, memo, useMemo } from 'react'
 import { Flex } from 'rebass'
 import styled, { keyframes } from 'styled-components'
 
@@ -98,4 +98,4 @@ const BannerText = styled.div`
   font-size: 12px;
 `
 
-export default TrendingSoonTokenBanner
+export default memo(TrendingSoonTokenBanner)
