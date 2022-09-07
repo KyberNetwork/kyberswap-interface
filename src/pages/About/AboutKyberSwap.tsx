@@ -720,9 +720,7 @@ function AboutKyberSwap() {
             <BtnPrimary
               as={Link}
               to={
-                activeTab === VERSION.ELASTIC
-                  ? '/pools?tab=elastic&highlightAddLiquidityButton=true'
-                  : '/pools?tab=classic&highlightCreateButton=true'
+                activeTab === VERSION.ELASTIC ? '/pools?tab=elastic' : '/pools?tab=classic&highlightCreateButton=true'
               }
               onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_START_EARNING_CLICKED)}
             >
