@@ -63,7 +63,7 @@
         left: 0;
         right: 0;
         bottom: 0;
-        font-family: 'Work Sans', 'Inter', sans-serif;
+        font-family: 'Work Sans', 'Inter var', sans-serif;
       }
       [data-theme='dark'] .preloadhtml {
         background-color: #0f0f0f;
@@ -104,6 +104,7 @@
         padding: 8px 12px;
         width: max-content;
         font-weight: 500;
+        font-size: 16px;
       }
       [data-theme='dark'] .preloadhtml-header-link-item {
         color: rgb(169, 169, 169);
@@ -123,6 +124,11 @@
       .preloadhtml-header-link-item-icon * {
         color: #a9a9a9;
         fill: currentColor;
+      }
+
+      .preloadhtml-logo {
+        width: 140px;
+        height: 51.38px;
       }
 
       [data-theme='dark'] .onlyVisibleInLightMode {
@@ -148,7 +154,7 @@
     </style>
     <div class="preloadhtml">
       <div class="preloadhtml-header">
-        <div>
+        <div class="preloadhtml-logo">
           <img class="onlyVisibleInDarkMode" style="margin-top: 1px" width="140px" src="/logo-dark.svg" alt="DmmLogo" />
           <img class="onlyVisibleInLightMode" style="margin-top: 1px" width="140px" src="/logo.svg" alt="DmmLogo" />
         </div>

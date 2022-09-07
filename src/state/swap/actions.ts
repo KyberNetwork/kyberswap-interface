@@ -24,3 +24,4 @@ export const replaceSwapState = createAction<{
 }>('swap/replaceSwapState')
 export const setRecipient = createAction<{ recipient: string | null }>('swap/setRecipient')
 export const setFeeConfig = createAction<{ feeConfig: FeeConfig | undefined }>('swap/setFeeConfig')
+export const setTrendingSoonShowed = createAction('swap/setTrendingSoonShowed')

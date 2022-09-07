@@ -95,13 +95,7 @@ const DiscoverIconWrapper = styled.div`
 `
 
 const BannerText = styled.div`
-  //display: flex;
-  //align-items: center;
   font-size: 12px;
-
-  //> * {
-  //  margin-right: 4px;
-  //}
 `
 
 export default TrendingSoonTokenBanner

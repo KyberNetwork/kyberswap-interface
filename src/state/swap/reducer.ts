@@ -11,6 +11,7 @@ import {
   selectCurrency,
   setFeeConfig,
   setRecipient,
+  setTrendingSoonShowed,
   switchCurrencies,
   switchCurrenciesV2,
   typeInput,
@@ -29,6 +30,7 @@ export interface SwapState {
   readonly recipient: string | null
   readonly saveGas: boolean
   readonly feeConfig: FeeConfig | undefined
+  readonly trendingSoonShowed?: boolean
 }
 
 const { search } = window.location
@@ -46,6 +48,8 @@ const initialState: SwapState = {
   recipient: null,
   saveGas: false,
   feeConfig: undefined,
+  // Flag to only show animation of trending soon banner 1 time
+  trendingSoonShowed: false,
 }
 
 export default createReducer<SwapState>(initialState, builder =>
@@ -65,6 +69,7 @@ export default createReducer<SwapState>(initialState, builder =>
           recipient,
           saveGas: state.saveGas,
           feeConfig,
+          trendingSoonShowed: state.trendingSoonShowed,
         }
       },
     )
@@ -126,5 +131,8 @@ export default createReducer<SwapState>(initialState, builder =>
     })
     .addCase(setFeeConfig, (state, { payload: { feeConfig } }) => {
       state.feeConfig = feeConfig
+    })
+    .addCase(setTrendingSoonShowed, (state, {}) => {
+      state.trendingSoonShowed = true
     }),
 )
