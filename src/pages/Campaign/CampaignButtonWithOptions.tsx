@@ -22,6 +22,7 @@ import { Dots } from 'pages/Pool/styleds'
 import { OptionsContainer } from 'pages/TrueSight/styled'
 import { AppState } from 'state'
 import { CampaignData, CampaignLeaderboardReward } from 'state/campaigns/actions'
+import { useSwapNowHandler } from 'state/campaigns/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 
 export default function CampaignButtonWithOptions({
@@ -32,7 +33,7 @@ export default function CampaignButtonWithOptions({
 }: {
   campaign: CampaignData | undefined
   disabled?: boolean
-  type: 'enter_now' | 'claim_rewards'
+  type: 'swap_now' | 'claim_rewards'
   addTemporaryClaimedRefs?: (claimedRefs: string[]) => void
 }) {
   const theme = useTheme()
@@ -43,7 +44,7 @@ export default function CampaignButtonWithOptions({
   const { mixpanelHandler } = useMixpanel()
 
   const chainIds: ChainId[] = campaign
-    ? campaign[type === 'enter_now' ? 'chainIds' : 'rewardChainIds'].split(',').map(Number)
+    ? campaign[type === 'swap_now' ? 'chainIds' : 'rewardChainIds'].split(',').map(Number)
     : []
 
   const { account, library } = useActiveWeb3React()
@@ -138,8 +139,10 @@ export default function CampaignButtonWithOptions({
     }
   }
 
+  const handleSwapNow = useSwapNowHandler()
+
   return (
-    <StyledCampaignButtonWithOptions
+    <StyledPrimaryButton
       onClick={e => {
         e.stopPropagation()
         setIsShowNetworks(prev => !prev)
@@ -147,7 +150,7 @@ export default function CampaignButtonWithOptions({
       disabled={disabled || isClaimingThisCampaignRewards}
       ref={containerRef}
     >
-      {type === 'enter_now' ? t`Enter now` : isClaimingThisCampaignRewards ? t`Claiming Rewards` : t`Claim Rewards`}
+      {type === 'swap_now' ? t`Swap now` : isClaimingThisCampaignRewards ? t`Claiming Rewards` : t`Claim Rewards`}
       {isClaimingThisCampaignRewards && <Dots />}
       <ChevronDown style={{ position: 'absolute', top: '50%', right: '12px', transform: 'translateY(-50%)' }} />
       {isShowNetworks && (
@@ -158,14 +161,8 @@ export default function CampaignButtonWithOptions({
                 key={chainId}
                 alignItems="center"
                 onClick={async () => {
-                  if (type === 'enter_now') {
-                    mixpanelHandler(MIXPANEL_TYPE.CAMPAIGN_ENTER_NOW_CLICKED, { campaign_name: campaign?.name })
-                    let url = campaign?.enterNowUrl + '?networkId=' + chainId
-                    if (campaign?.eligibleTokens?.length) {
-                      const outputCurrency = campaign?.eligibleTokens[0].address
-                      url += '&outputCurrency=' + outputCurrency
-                    }
-                    window.open(url)
+                  if (type === 'swap_now') {
+                    handleSwapNow(chainId)
                   } else {
                     mixpanelHandler(MIXPANEL_TYPE.CAMPAIGN_CLAIM_REWARDS_CLICKED, { campaign_name: campaign?.name })
                     await changeNetwork(chainId, () => claimRewards(chainId))
@@ -174,7 +171,7 @@ export default function CampaignButtonWithOptions({
               >
                 <img src={NETWORKS_INFO[chainId].icon} alt="Network" style={{ minWidth: '16px', width: '16px' }} />
                 <Text marginLeft="8px" color={theme.subText} fontSize="12px" fontWeight={500} minWidth="fit-content">
-                  {type === 'enter_now'
+                  {type === 'swap_now'
                     ? t`Swap on ${NETWORKS_INFO[chainId].name}`
                     : t`Claim on ${NETWORKS_INFO[chainId].name}`}
                 </Text>
@@ -183,11 +180,11 @@ export default function CampaignButtonWithOptions({
           })}
         </OptionsContainer>
       )}
-    </StyledCampaignButtonWithOptions>
+    </StyledPrimaryButton>
   )
 }
 
-const StyledCampaignButtonWithOptions = styled(ButtonPrimary)`
+export const StyledPrimaryButton = styled(ButtonPrimary)`
   position: relative;
   font-size: 14px;
   padding: 12px 48px;

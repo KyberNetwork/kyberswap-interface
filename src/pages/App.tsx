@@ -4,6 +4,7 @@ import { Popover, Sidetab } from '@typeform/embed-react'
 import { Suspense, lazy, useEffect } from 'react'
 import { isMobile } from 'react-device-detect'
 import { AlertTriangle } from 'react-feather'
+import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3'
 import { Route, Switch } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -179,7 +180,7 @@ export default function App() {
       )}
 
       {(!account || !BLACKLIST_WALLETS.includes(account)) && (
-        <>
+        <GoogleReCaptchaProvider reCaptchaKey="6LdOiKwhAAAAAGnf4xX5H0ZElZt9rQ2neIdL_d_o">
           <Route component={DarkModeQueryParamReader} />
           <AppWrapper>
             <TopBanner />
@@ -255,7 +256,7 @@ export default function App() {
               {showFooter && <Footer />}
             </Suspense>
           </AppWrapper>
-        </>
+        </GoogleReCaptchaProvider>
       )}
     </ErrorBoundary>
   )

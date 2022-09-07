@@ -206,12 +206,13 @@ export default function CampaignsUpdater(): null {
         ]
       : null,
     async () => {
-      if (selectedCampaign === undefined || selectedCampaign.status === 'Upcoming')
+      if (selectedCampaign === undefined)
         return {
           userRank: 0,
           numberOfParticipants: 0,
           rankings: [],
           rewards: [],
+          isParticipated: false,
         }
 
       try {
@@ -256,6 +257,7 @@ export default function CampaignsUpdater(): null {
                 }),
               )
             : [],
+          isParticipated: data.IsParticipated,
         }
         return leaderboard
       } catch (err) {
@@ -265,6 +267,7 @@ export default function CampaignsUpdater(): null {
           numberOfParticipants: 0,
           rankings: [],
           rewards: [],
+          isParticipated: false,
         }
         return res
       }
