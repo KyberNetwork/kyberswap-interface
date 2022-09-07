@@ -1,11 +1,14 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import React from 'react'
+import { useSelector } from 'react-redux'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import RegisterCampaignBg from 'assets/images/register-campaign-bg.png'
 import { ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
+import { AppState } from 'state'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useRegisterCampaignModalToggle } from 'state/application/hooks'
 import { useSwapNowHandler } from 'state/campaigns/hooks'
@@ -13,6 +16,7 @@ import { useSwapNowHandler } from 'state/campaigns/hooks'
 export default function ModalRegisterCampaign() {
   const isRegisterCampaignModalOpen = useModalOpen(ApplicationModal.REGISTER_CAMPAIGN)
   const toggleRegisterCampaignModal = useRegisterCampaignModalToggle()
+  const selectedCampaign = useSelector((state: AppState) => state.campaigns.selectedCampaign)
   const handleSwapNow = useSwapNowHandler()
 
   return (
@@ -37,7 +41,9 @@ export default function ModalRegisterCampaign() {
             maxWidth="69%"
             style={{ fontSize: '16px' }}
             onClick={() => {
-              handleSwapNow()
+              if (!selectedCampaign) return
+              const firstChainId = Number(selectedCampaign.chainIds.split(',')[0]) as ChainId
+              handleSwapNow(firstChainId)
               toggleRegisterCampaignModal()
             }}
           >
@@ -93,6 +99,8 @@ const Content = styled(Text)`
 `
 
 const ResponsiveButtonPrimary = styled(ButtonPrimary)`
+  color: ${({ theme }) => theme.white};
+
   ${({ theme }) => theme.mediaWidth.upToSmall`
     margin-top: 6px;
     padding: 6px;
