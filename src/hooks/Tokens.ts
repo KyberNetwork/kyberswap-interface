@@ -1,8 +1,10 @@
 import { Interface } from '@ethersproject/abi'
 import { parseBytes32String } from '@ethersproject/strings'
 import { ChainId, Currency, NativeCurrency, Token } from '@kyberswap/ks-sdk-core'
+import axios from 'axios'
 import { arrayify } from 'ethers/lib/utils'
 import { useMemo } from 'react'
+import useSWR from 'swr'
 
 import { ERC20_ABI, ERC20_BYTES32_ABI } from 'constants/abis/erc20'
 import { ZERO_ADDRESS } from 'constants/index'
@@ -269,4 +271,18 @@ export function useSearchInactiveTokenLists(search: string | undefined, minResul
   return useMemo(() => {
     return searchInactiveTokenLists({ activeTokens, chainId, inactiveUrls, activeList, minResults, search })
   }, [activeTokens, chainId, inactiveUrls, activeList, minResults, search])
+}
+
+export function useSearchInactiveTokenListsV2(search: string | undefined): WrappedTokenInfo[] {
+  // todo: tien phan change api url && scroll currency list => fetch api
+
+  const { chainId } = useActiveWeb3React()
+  const { data, error } = useSWR<WrappedTokenInfo[]>(
+    `${process.env.REACT_APP_TYPE_AND_SWAP_URL}/v1/suggested-pairs?query=${search}&chainId=${chainId}`,
+    async (url: string) => {
+      const response = await axios.get(url)
+      return response.data.data.recommendedPairs
+    },
+  )
+  return error ? [] : data || []
 }

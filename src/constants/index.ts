@@ -549,7 +549,6 @@ export const SUGGESTED_BASES: ChainTokenList = {
     DAI[ChainId.MATIC],
     USDC[ChainId.MATIC],
     USDT[ChainId.MATIC],
-
     new Token(ChainId.MATIC, '0xa3Fa99A148fA48D14Ed51d610c367C61876997F1', 18, 'MAI', 'MAI'),
   ],
   [ChainId.BSCMAINNET]: [
@@ -561,11 +560,8 @@ export const SUGGESTED_BASES: ChainTokenList = {
   ],
   [ChainId.AVAXMAINNET]: [
     ...WETH_ONLY[ChainId.AVAXMAINNET],
-    // DAI[ChainId.AVAXMAINNET],
     USDC[ChainId.AVAXMAINNET],
     USDT[ChainId.AVAXMAINNET],
-    // new Token(ChainId.AVAXMAINNET, '0x49D5c2BdFfac6CE2BFdB6640F4F80f226bc10bAB', 18, 'WETH.e', 'Wrapped Ether'),
-
     new Token(ChainId.AVAXMAINNET, '0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7', 6, 'USDt', 'TetherToken'),
     new Token(ChainId.AVAXMAINNET, '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E', 6, 'USDC', 'USD Coin'),
   ],
@@ -592,6 +588,7 @@ export const SUGGESTED_BASES: ChainTokenList = {
   [ChainId.OPTIMISM]: [
     ...WETH_ONLY[ChainId.OPTIMISM],
     USDC[ChainId.OPTIMISM],
+    new Token(ChainId.OPTIMISM, '0x4200000000000000000000000000000000000042', 18, 'OP', 'Optimism'),
     USDT[ChainId.OPTIMISM],
     DAI[ChainId.OPTIMISM],
   ],

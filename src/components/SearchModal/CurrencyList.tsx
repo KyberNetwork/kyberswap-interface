@@ -2,24 +2,21 @@ import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import React, { CSSProperties, MutableRefObject, useCallback, useMemo } from 'react'
-import { Star } from 'react-feather'
+import { Star, Trash } from 'react-feather'
 import { FixedSizeList } from 'react-window'
-import { Text } from 'rebass'
+import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import TokenListLogo from 'assets/svg/tokenlist.svg'
-import { ButtonEmpty } from 'components/Button'
 import { LightGreyCard } from 'components/Card'
 import QuestionHelper from 'components/QuestionHelper'
 import { useActiveWeb3React } from 'hooks'
-import { useIsUserAddedToken } from 'hooks/Tokens'
 import useTheme from 'hooks/useTheme'
-import { useCombinedActiveList } from 'state/lists/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
-import { useUserFavoriteTokens } from 'state/user/hooks'
+import { useRemoveUserAddedToken, useUserFavoriteTokens } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { TYPE } from 'theme'
-import { isAddress, isTokenOnList } from 'utils'
+import { isAddress } from 'utils'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 
 import Column from '../Column'
@@ -40,27 +37,10 @@ const StyledBalanceText = styled(Text)`
   text-overflow: ellipsis;
 `
 
-const FavoriteButton = styled(ButtonEmpty)`
-  width: 32px;
-  height: 100%;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-start;
-
-  padding: 0px;
-
-  background: transparent;
-  border-radius: 8px;
-
-  white-space: nowrap;
-  vertical-align: middle;
-  outline: none;
-
-  appearance: none;
-  user-select: none;
-
-  color: ${({ theme }) => theme.text};
+const FavoriteButton = styled(Star)`
+  width: 20px;
+  height: 20px;
+  color: ${({ theme }) => theme.subText};
 
   :hover {
     color: ${({ theme }) => theme.primary};
@@ -68,18 +48,24 @@ const FavoriteButton = styled(ButtonEmpty)`
 
   &[data-active='true'] {
     color: ${({ theme }) => theme.primary};
-    svg {
-      fill: currentColor;
-    }
+    fill: currentColor;
+  }
+`
+const DeleteButton = styled(Trash)`
+  width: 16px;
+  height: 20px;
+  fill: currentColor;
+  color: ${({ theme }) => theme.subText};
+  :hover {
+    color: ${({ theme }) => theme.text};
   }
 `
 
 const CurrencyRowWrapper = styled(RowBetween)`
   padding: 4px 20px;
   height: 56px;
-  display: grid;
-  grid-template-columns: 24px auto minmax(auto, 1fr) auto minmax(0, 72px);
-  grid-gap: 16px;
+  display: flex;
+  gap: 16px;
   cursor: pointer;
 
   &[data-selected='true'] {
@@ -128,6 +114,13 @@ const TokenListLogoWrapper = styled.img`
   height: 20px;
 `
 
+const DescText = styled.div`
+  margin-left: 0;
+  font-size: 12px;
+  font-weight: 300;
+  color: ${({ theme }) => theme.subText};
+`
+
 function TokenTags({ currency }: { currency: Currency }) {
   if (!(currency instanceof WrappedTokenInfo)) {
     return <span />
@@ -159,31 +152,37 @@ function TokenTags({ currency }: { currency: Currency }) {
 
 function CurrencyRow({
   currency,
+  isImportedTab,
   currencyBalance,
   onSelect,
   isSelected,
   otherSelected,
   style,
+  handleClickFavorite,
 }: {
+  isImportedTab: boolean
   currency: Currency
   currencyBalance: CurrencyAmount<Currency>
   onSelect: () => void
   isSelected: boolean
   otherSelected: boolean
   style: CSSProperties
+  handleClickFavorite: (e: React.MouseEvent, currency: Currency) => void
 }) {
   const { chainId, account } = useActiveWeb3React()
-  const selectedTokenList = useCombinedActiveList()
-  const isOnSelectedList = isTokenOnList(selectedTokenList, currency)
-  const customAdded = useIsUserAddedToken(currency)
-  // const balance = useCurrencyBalance(account ?? undefined, currency)
   const balance = currencyBalance
 
-  // const showCurrency = currency === ETHER && !!chainId && [137, 800001].includes(chainId) ? WETH[chainId] : currency
   const nativeCurrency = useCurrencyConvertedToNative(currency || undefined)
   // only show add or remove buttons if not on selected list
 
-  const { favoriteTokens, toggleFavoriteToken } = useUserFavoriteTokens(chainId)
+  const { favoriteTokens } = useUserFavoriteTokens(chainId)
+  const removeToken = useRemoveUserAddedToken()
+  const removeImportToken = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (chainId && currency) {
+      removeToken(chainId, currency?.wrapped?.address)
+    }
+  }
 
   const isFavorite = (() => {
     if (!chainId || !favoriteTokens) {
@@ -201,47 +200,22 @@ function CurrencyRow({
 
     return false
   })()
-
-  const handleClickFavorite = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation()
-
-    if (!chainId) {
-      return
-    }
-
-    if (currency.isNative) {
-      toggleFavoriteToken({
-        chainId,
-        isNative: true,
-      })
-      return
-    }
-
-    if (currency.isToken) {
-      toggleFavoriteToken({
-        chainId,
-        address: (currency as Token).address,
-      })
-    }
-  }
-
+  const balanceComponent = balance ? <Balance balance={balance} /> : account ? <Loader /> : null
   return (
     <CurrencyRowWrapper style={style} onClick={() => onSelect()} data-selected={isSelected || otherSelected}>
-      <FavoriteButton onClick={handleClickFavorite} data-active={isFavorite}>
-        <Star width={'18px'} height="18px" />
-      </FavoriteButton>
-      <CurrencyLogo currency={currency} size={'24px'} />
-      <Column>
-        <Text title={currency.name} fontWeight={500}>
-          {nativeCurrency?.symbol}
-        </Text>
-        <TYPE.darkGray ml="0px" fontSize={'12px'} fontWeight={300}>
-          {nativeCurrency?.name} {!isOnSelectedList && customAdded && t`• Added by user`}
-        </TYPE.darkGray>
-      </Column>
-      <TokenTags currency={currency} />
-      <RowFixed style={{ justifySelf: 'flex-end' }}>
-        {balance ? <Balance balance={balance} /> : account ? <Loader /> : null}
+      <Flex alignItems="center" style={{ gap: 8 }}>
+        <CurrencyLogo currency={currency} size={'24px'} />
+        <Column>
+          <Text title={currency.name} fontWeight={500}>
+            {nativeCurrency?.symbol}
+          </Text>
+          <DescText>{isImportedTab ? balanceComponent : nativeCurrency?.name}</DescText>
+        </Column>
+        <TokenTags currency={currency} />
+      </Flex>
+      <RowFixed style={{ justifySelf: 'flex-end', gap: 15 }}>
+        {isImportedTab ? <DeleteButton onClick={removeImportToken} /> : balanceComponent}
+        <FavoriteButton onClick={e => handleClickFavorite(e, currency)} data-active={isFavorite} />
       </RowFixed>
     </CurrencyRowWrapper>
   )
@@ -261,14 +235,17 @@ export default function CurrencyList({
   currencies,
   inactiveTokens,
   selectedCurrency,
+  isImportedTab,
   onCurrencySelect,
   otherCurrency,
   fixedListRef,
   showImportView,
   setImportToken,
   breakIndex,
+  handleClickFavorite,
 }: {
   height: number
+  isImportedTab: boolean
   currencies: Currency[]
   inactiveTokens: Token[]
   selectedCurrency?: Currency | null
@@ -278,6 +255,7 @@ export default function CurrencyList({
   showImportView: () => void
   setImportToken: (token: Token) => void
   breakIndex: number | undefined
+  handleClickFavorite: (e: React.MouseEvent, currency: Currency) => void
 }) {
   const { account } = useActiveWeb3React()
   const itemCurrencies: (Currency | undefined)[] = useMemo(() => {
@@ -346,6 +324,8 @@ export default function CurrencyList({
       if (currency) {
         return (
           <CurrencyRow
+            isImportedTab={isImportedTab}
+            handleClickFavorite={handleClickFavorite}
             style={style}
             currency={currency}
             currencyBalance={currencyBalance}
@@ -367,6 +347,8 @@ export default function CurrencyList({
       showImportView,
       breakIndex,
       theme.text,
+      handleClickFavorite,
+      isImportedTab,
     ],
   )
 

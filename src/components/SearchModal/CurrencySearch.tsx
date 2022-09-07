@@ -1,7 +1,8 @@
 import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { rgba } from 'polished'
 import { ChangeEvent, KeyboardEvent, RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Edit } from 'react-feather'
+import { Trash } from 'react-feather'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 import { Flex, Text } from 'rebass'
@@ -13,47 +14,41 @@ import {
   useAllTokens,
   useIsTokenActive,
   useIsUserAddedToken,
-  useSearchInactiveTokenLists,
+  useSearchInactiveTokenLists, // useSearchInactiveTokenListsV2,
   useToken,
 } from 'hooks/Tokens'
 import useDebounce from 'hooks/useDebounce'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import useToggle from 'hooks/useToggle'
-import { useUserFavoriteTokens } from 'state/user/hooks'
+import { useRemoveUserAddedToken, useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
 import { filterTokens } from 'utils/filtering'
 
 import { useActiveWeb3React } from '../../hooks'
-import { ButtonText, CloseIcon, IconWrapper, TYPE } from '../../theme'
+import { ButtonText, CloseIcon, TYPE } from '../../theme'
 import { isAddress } from '../../utils'
 import Column from '../Column'
-import Row, { RowBetween, RowFixed } from '../Row'
+import { RowBetween } from '../Row'
 import CommonBases from './CommonBases'
 import CurrencyList from './CurrencyList'
 import ImportRow from './ImportRow'
 import SortButton from './SortButton'
 import { useTokenComparator } from './sorting'
-import { PaddedColumn, SearchInput, Separator } from './styleds'
+import { PaddedColumn, SearchIcon, SearchInput, SearchWrapper, Separator } from './styleds'
 
 enum Tab {
   All,
-  Favorites,
+  Imported,
 }
 
 const ContentWrapper = styled(Column)`
   width: 100%;
   flex: 1 1;
   position: relative;
-`
-
-const Footer = styled.div`
-  width: 100%;
-  border-radius: 20px;
-  padding: 20px;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-  background-color: ${({ theme }) => theme.background};
+  padding-bottom: 10px;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    padding-bottom: 0px;
+  `};
 `
 
 const TabButton = styled(ButtonText)`
@@ -67,6 +62,17 @@ const TabButton = styled(ButtonText)`
     text-decoration: none;
   }
 `
+
+const ButtonClear = styled.div`
+  border-radius: 24px;
+  background-color: ${({ theme }) => rgba(theme.subText, 0.2)};
+  display: flex;
+  align-items: center;
+  padding: 5px 10px;
+  gap: 5px;
+  cursor: pointer;
+`
+const MAX_FAVORITE_PAIR = 12
 
 interface CurrencySearchProps {
   isOpen: boolean
@@ -88,7 +94,6 @@ export function CurrencySearch({
   showCommonBases,
   onDismiss,
   isOpen,
-  showManageView,
   showImportView,
   setImportToken,
   customChainId,
@@ -102,48 +107,50 @@ export function CurrencySearch({
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedQuery = useDebounce(searchQuery, 200)
 
-  const { favoriteTokens } = useUserFavoriteTokens(chainId)
+  const { favoriteTokens, toggleFavoriteToken } = useUserFavoriteTokens(chainId)
 
   const [invertSearchOrder, setInvertSearchOrder] = useState<boolean>(false)
   const allTokens = useAllTokens()
+  const tokenImports = useUserAddedTokens()
+  const tokenComparator = useTokenComparator(invertSearchOrder)
 
   // if they input an address, use it
-  const isAddressSearch = isAddress(searchQuery)
-  const searchToken = useToken(searchQuery)
+  const isAddressSearch = isAddress(debouncedQuery)
+  const searchToken = useToken(debouncedQuery)
 
   const searchTokenIsAdded = useIsUserAddedToken(searchToken)
   const isSearchTokenActive = useIsTokenActive(searchToken?.wrapped)
 
-  const nativeToken = chainId && nativeOnChain(chainId)
-
   const showETH: boolean = useMemo(() => {
-    const s = searchQuery.toLowerCase().trim()
+    const nativeToken = chainId && nativeOnChain(chainId)
+    const s = debouncedQuery.toLowerCase().trim()
     return !!nativeToken?.symbol?.toLowerCase().startsWith(s)
-  }, [searchQuery, nativeToken])
+  }, [debouncedQuery, chainId])
 
-  const tokenComparator = useTokenComparator(invertSearchOrder)
+  const tokenImportsFiltered = useMemo(() => {
+    return (debouncedQuery ? filterTokens(tokenImports, debouncedQuery) : tokenImports).sort(tokenComparator)
+  }, [debouncedQuery, tokenImports, tokenComparator])
 
   const filteredTokens: Token[] = useMemo(() => {
     if (isAddressSearch) return searchToken ? [searchToken.wrapped] : []
-    return filterTokens(Object.values(allTokens), searchQuery)
-  }, [isAddressSearch, searchToken, allTokens, searchQuery])
+    return filterTokens(Object.values(allTokens), debouncedQuery)
+  }, [isAddressSearch, searchToken, allTokens, debouncedQuery])
 
   const filteredSortedTokens: Token[] = useMemo(() => {
     if (searchToken) return [searchToken.wrapped]
     const sorted = filteredTokens.sort(tokenComparator)
-    const symbolMatch = searchQuery
+    const symbolMatch = debouncedQuery
       .toLowerCase()
       .split(/\s+/)
       .filter(s => s.length > 0)
     if (symbolMatch.length > 1) return sorted
 
     return [
-      ...(searchToken ? [searchToken] : []),
       // sort any exact symbol matches first
       ...sorted.filter(token => token.symbol?.toLowerCase() === symbolMatch[0]),
       ...sorted.filter(token => token.symbol?.toLowerCase() !== symbolMatch[0]),
     ]
-  }, [filteredTokens, searchQuery, searchToken, tokenComparator])
+  }, [filteredTokens, debouncedQuery, searchToken, tokenComparator])
 
   const handleCurrencySelect = useCallback(
     (currency: Currency) => {
@@ -162,8 +169,8 @@ export function CurrencySearch({
   const inputRef = useRef<HTMLInputElement>()
   const handleInput = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const input = event.target.value
-    const checksummedInput = isAddress(input)
-    setSearchQuery(checksummedInput || input)
+    const checksumInput = isAddress(input)
+    setSearchQuery(checksumInput || input)
     fixedList.current?.scrollTo(0)
   }, [])
 
@@ -186,6 +193,24 @@ export function CurrencySearch({
     [filteredSortedTokens, handleCurrencySelect, searchQuery, chainId],
   )
 
+  const handleClickFavorite = useCallback(
+    (e: React.MouseEvent, currency: Currency) => {
+      e.stopPropagation()
+      const address = currency?.wrapped.address
+
+      const currentList = favoriteTokens?.addresses || []
+      const isAddFavorite = !currentList.find(el => el === address) // else remove favorite
+      if (!chainId || (isAddFavorite && currentList.length === MAX_FAVORITE_PAIR)) return
+
+      toggleFavoriteToken({
+        chainId,
+        address,
+        isNative: currency.isNative,
+      })
+    },
+    [chainId, favoriteTokens, toggleFavoriteToken],
+  )
+
   // menu ui
   const [open, toggle] = useToggle(false)
   const node = useRef<HTMLDivElement>()
@@ -193,56 +218,57 @@ export function CurrencySearch({
 
   // if no results on main list, show option to expand into inactive
   const filteredInactiveTokens: Token[] = useSearchInactiveTokenLists(debouncedQuery)
+  // todo: tien phan use filteredInactiveTokens2 instead of useSearchInactiveTokenLists
+  // const filteredInactiveTokens2: Token[] = useSearchInactiveTokenListsV2(debouncedQuery)
+  // console.log(filteredInactiveTokens2)
 
-  const visibleCurrencies: Currency[] = useMemo(() => {
-    // `concat` always returns a new array
+  const combinedTokens = useMemo(() => {
     const currencies: Currency[] = filteredSortedTokens.concat(filteredInactiveTokens)
     if (showETH && chainId) {
       currencies.unshift(nativeOnChain(chainId))
     }
+    return currencies
+  }, [showETH, chainId, filteredSortedTokens, filteredInactiveTokens])
 
-    if (activeTab === Tab.All) {
-      return currencies
-    }
+  const commonTokens = useMemo(() => {
+    let native: Currency
+    return combinedTokens.filter(token => {
+      if (token.isNative) {
+        native = token
+        return favoriteTokens?.includeNativeToken
+      }
+      if (token.isToken) {
+        if (native && token.address === native.wrapped.address) return false // ex: if has eth not show weth
+        return favoriteTokens?.addresses?.includes(token.address)
+      }
+      return false
+    })
+  }, [combinedTokens, favoriteTokens?.addresses, favoriteTokens?.includeNativeToken])
 
-    if (activeTab === Tab.Favorites) {
-      // use `currencies` so that it filters from the visible token list
-      return currencies.filter(token => {
-        if (token.isNative) {
-          return favoriteTokens?.includeNativeToken
-        }
-        if (token.isToken) {
-          return favoriteTokens?.addresses?.includes(token.address)
-        }
-        return false
+  const visibleCurrencies: Currency[] = useMemo(() => {
+    return activeTab === Tab.Imported
+      ? tokenImportsFiltered
+      : combinedTokens.filter(el => !commonTokens.find(token => token.wrapped.address === el.wrapped.address))
+  }, [activeTab, combinedTokens, tokenImportsFiltered, commonTokens])
+
+  const removeToken = useRemoveUserAddedToken()
+  const removeAllImportToken = () => {
+    if (chainId && tokenImports) {
+      tokenImports.forEach(token => {
+        removeToken(chainId, token.address)
       })
     }
-
-    return []
-  }, [
-    activeTab,
-    chainId,
-    favoriteTokens?.addresses,
-    favoriteTokens?.includeNativeToken,
-    filteredInactiveTokens,
-    filteredSortedTokens,
-    showETH,
-  ])
-
-  const { mixpanelHandler } = useMixpanel()
-
-  const handleManageTokenListsClick = useCallback(() => {
-    mixpanelHandler(MIXPANEL_TYPE.MANAGE_TOKEN_LISTS_CLICK)
-    showManageView()
-  }, [mixpanelHandler, showManageView])
+  }
+  const isImportedTab = activeTab === Tab.Imported
 
   return (
     <ContentWrapper>
       <PaddedColumn gap="14px">
         <RowBetween>
-          <Text fontWeight={500} fontSize={16} display="flex">
+          <Text fontWeight={500} fontSize={20} display="flex">
             <Trans>Select a token</Trans>
             <InfoHelper
+              size={16}
               text={
                 <Trans>
                   Find a token by searching for its name or symbol or by pasting its address below
@@ -255,18 +281,34 @@ export function CurrencySearch({
           </Text>
           <CloseIcon onClick={onDismiss} />
         </RowBetween>
-        <SearchInput
-          type="text"
-          id="token-search-input"
-          placeholder={t`Search token name, symbol or address`}
-          value={searchQuery}
-          ref={inputRef as RefObject<HTMLInputElement>}
-          onChange={handleInput}
-          onKeyDown={handleEnter}
-          autoComplete="off"
-        />
+        <Text style={{ color: theme.subText, fontSize: 12 }}>
+          <Trans>
+            You can search and select <span style={{ color: theme.text }}>any token</span> on KyberSwap
+          </Trans>
+        </Text>
+
+        <SearchWrapper>
+          <SearchInput
+            type="text"
+            id="token-search-input"
+            placeholder={t`Search by token name, token symbol or address`}
+            value={searchQuery}
+            ref={inputRef as RefObject<HTMLInputElement>}
+            onChange={handleInput}
+            onKeyDown={handleEnter}
+            autoComplete="off"
+          />
+          <SearchIcon size={18} color={theme.border} />
+        </SearchWrapper>
+
         {showCommonBases && (
-          <CommonBases chainId={chainId} onSelect={handleCurrencySelect} selectedCurrency={selectedCurrency} />
+          <CommonBases
+            chainId={chainId}
+            tokens={commonTokens}
+            handleClickFavorite={handleClickFavorite}
+            onSelect={handleCurrencySelect}
+            selectedCurrency={selectedCurrency}
+          />
         )}
         <RowBetween>
           <Flex
@@ -280,9 +322,9 @@ export function CurrencySearch({
               </Text>
             </TabButton>
 
-            <TabButton data-active={activeTab === Tab.Favorites} onClick={() => setActiveTab(Tab.Favorites)}>
+            <TabButton data-active={isImportedTab} onClick={() => setActiveTab(Tab.Imported)}>
               <Text as="span" fontSize={14} fontWeight={500}>
-                <Trans>Favorites</Trans>
+                <Trans>Imported</Trans>
               </Text>
             </TabButton>
           </Flex>
@@ -292,11 +334,27 @@ export function CurrencySearch({
 
       <Separator />
 
+      {isImportedTab && visibleCurrencies.length > 0 && (
+        <Flex
+          justifyContent="space-between"
+          alignItems="center"
+          style={{ color: theme.subText, fontSize: 12, padding: '15px 20px 10px 20px' }}
+        >
+          <div>
+            <Trans>{visibleCurrencies.length} Custom Tokens</Trans>
+          </div>
+          <ButtonClear onClick={removeAllImportToken}>
+            <Trash size={13} />
+            <Trans>Clear All</Trans>
+          </ButtonClear>
+        </Flex>
+      )}
+
       {searchToken && !searchTokenIsAdded && !isSearchTokenActive ? (
         <Column style={{ padding: '20px 0', height: '100%' }}>
           <ImportRow token={searchToken.wrapped} showImportView={showImportView} setImportToken={setImportToken} />
         </Column>
-      ) : filteredSortedTokens?.length > 0 || filteredInactiveTokens?.length > 0 ? (
+      ) : visibleCurrencies?.length > 0 ? (
         <div style={{ flex: '1' }}>
           <AutoSizer disableWidth>
             {({ height }) => (
@@ -304,6 +362,7 @@ export function CurrencySearch({
                 height={height}
                 currencies={visibleCurrencies}
                 inactiveTokens={filteredInactiveTokens}
+                isImportedTab={isImportedTab}
                 breakIndex={
                   activeTab === Tab.All
                     ? filteredInactiveTokens.length && filteredSortedTokens
@@ -311,6 +370,7 @@ export function CurrencySearch({
                       : undefined
                     : undefined
                 }
+                handleClickFavorite={handleClickFavorite}
                 onCurrencySelect={handleCurrencySelect}
                 otherCurrency={otherSelectedCurrency}
                 selectedCurrency={selectedCurrency}
@@ -328,21 +388,6 @@ export function CurrencySearch({
           </TYPE.main>
         </Column>
       )}
-
-      <Footer>
-        <Row justify="center">
-          <ButtonText onClick={handleManageTokenListsClick} color={theme.blue1} className="list-token-manage-button">
-            <RowFixed>
-              <IconWrapper size="16px" marginRight="6px">
-                <Edit />
-              </IconWrapper>
-              <TYPE.main color={theme.blue1}>
-                <Trans>Manage Token Lists</Trans>
-              </TYPE.main>
-            </RowFixed>
-          </ButtonText>
-        </Row>
-      </Footer>
     </ContentWrapper>
   )
 }

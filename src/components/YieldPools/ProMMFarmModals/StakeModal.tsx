@@ -9,6 +9,7 @@ import styled from 'styled-components'
 
 import RangeBadge from 'components/Badge/RangeBadge'
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
+import Checkbox from 'components/CheckBox'
 import CurrencyLogo from 'components/CurrencyLogo'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import HoverDropdown from 'components/HoverDropdown'
@@ -25,7 +26,7 @@ import { StyledInternalLink } from 'theme'
 import { formatDollarAmount } from 'utils/numbers'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
-import { Checkbox, ModalContentWrapper, TableHeader, TableRow, Title } from './styled'
+import { ModalContentWrapper, TableHeader, TableRow, Title } from './styled'
 
 const StakeTableHeader = styled(TableHeader)<{ isUnstake: boolean }>`
   grid-template-columns: 18px 90px repeat(${({ isUnstake }) => (isUnstake ? 2 : 3)}, 1fr);
