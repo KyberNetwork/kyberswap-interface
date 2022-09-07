@@ -607,7 +607,7 @@ const Row = ({
         <Flex alignItems="center">
           <DoubleCurrencyLogo currency0={token0} currency1={token1} />
           <Link
-            to={`/pools?search=${farm.poolAddress}&tab=elastic`}
+            to={`/elastic/add/${farm.token0}/${farm.token1}/${farm.feeTier}`}
             style={{
               textDecoration: 'none',
             }}
