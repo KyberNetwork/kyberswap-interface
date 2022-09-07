@@ -161,7 +161,7 @@ export default function CampaignButtonWithOptions({
                 alignItems="center"
                 onClick={async () => {
                   if (type === 'swap_now') {
-                    handleSwapNow()
+                    handleSwapNow(chainId)
                   } else {
                     mixpanelHandler(MIXPANEL_TYPE.CAMPAIGN_CLAIM_REWARDS_CLICKED, { campaign_name: campaign?.name })
                     await changeNetwork(chainId, () => claimRewards(chainId))
