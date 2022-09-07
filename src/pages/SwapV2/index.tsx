@@ -952,14 +952,6 @@ export default function Swap({ history }: RouteComponentProps) {
                         <ButtonLight onClick={toggleWalletModal}>
                           <Trans>Connect Wallet</Trans>
                         </ButtonLight>
-                      ) : isLoading ? (
-                        <GreyCard style={{ textAlign: 'center', borderRadius: '999px', padding: '12px' }}>
-                          <Text color={theme.subText} fontSize="14px">
-                            <Dots>
-                              <Trans>Calculating best route</Trans>
-                            </Dots>
-                          </Text>
-                        </GreyCard>
                       ) : showWrap ? (
                         <ButtonPrimary disabled={Boolean(wrapInputError)} onClick={onWrap}>
                           {wrapInputError ??
@@ -1014,6 +1006,14 @@ export default function Swap({ history }: RouteComponentProps) {
                             </Text>
                           </ButtonError>
                         </RowBetween>
+                      ) : isLoading ? (
+                        <GreyCard style={{ textAlign: 'center', borderRadius: '999px', padding: '12px' }}>
+                          <Text color={theme.subText} fontSize="14px">
+                            <Dots>
+                              <Trans>Calculating best route</Trans>
+                            </Dots>
+                          </Text>
+                        </GreyCard>
                       ) : (
                         <ButtonError
                           onClick={() => {
