@@ -20,15 +20,15 @@ import { TYPE } from 'theme'
 
 export const Wrapper = styled.div`
   width: 100%;
-  padding: 20px;
+  padding: 32px 24px 24px;
 `
 
 export const NetworkList = styled.div`
   display: grid;
-  grid-gap: 1.25rem;
+  grid-gap: 1rem;
   grid-template-columns: 1fr 1fr 1fr;
   width: 100%;
-  margin-top: 20px;
+  margin-top: 30px;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     grid-template-columns: 1fr 1fr;

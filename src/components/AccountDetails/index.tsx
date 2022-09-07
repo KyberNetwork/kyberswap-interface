@@ -273,7 +273,7 @@ export default function AccountDetails({
     <>
       <UpperSection>
         <HeaderRow>
-          <Trans>Account</Trans>
+          <Trans>Your Account</Trans>
           <CloseIcon onClick={toggleWalletModal}>
             <CloseColor />
           </CloseIcon>

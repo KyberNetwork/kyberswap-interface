@@ -373,43 +373,43 @@ export default function WalletModal({
         <CloseIcon onClick={toggleWalletModal}>
           <CloseColor />
         </CloseIcon>
-        {walletView === WALLET_VIEWS.CHANGE_WALLET || walletView === WALLET_VIEWS.PENDING ? (
-          <HeaderRow>
+        <HeaderRow>
+          {(walletView === WALLET_VIEWS.CHANGE_WALLET || walletView === WALLET_VIEWS.PENDING) && (
             <HoverText
               onClick={() => {
                 setPendingError(false)
                 setWalletView(WALLET_VIEWS.ACCOUNT)
               }}
+              style={{ marginRight: '1rem' }}
             >
               <ChevronLeft color={theme.primary} />
             </HoverText>
-          </HeaderRow>
-        ) : (
-          <HeaderRow>
-            <HoverText>
-              {walletView === WALLET_VIEWS.ACCOUNT ? (
-                <Trans>Connect your Wallet</Trans>
-              ) : walletView === WALLET_VIEWS.CHANGE_WALLET ? (
-                <Trans>Change Wallet</Trans>
-              ) : (
-                <Trans>Connecting Wallet</Trans>
-              )}
-            </HoverText>
-          </HeaderRow>
+          )}
+          <HoverText>
+            {walletView === WALLET_VIEWS.ACCOUNT ? (
+              <Trans>Connect your Wallet</Trans>
+            ) : walletView === WALLET_VIEWS.CHANGE_WALLET ? (
+              <Trans>Change Wallet</Trans>
+            ) : (
+              <Trans>Connecting Wallet</Trans>
+            )}
+          </HoverText>
+        </HeaderRow>
+        {(walletView === WALLET_VIEWS.ACCOUNT || walletView === WALLET_VIEWS.CHANGE_WALLET) && (
+          <TermAndCondition>
+            <input type="checkbox" checked={isAccepted} onChange={handleAccept} style={{ marginRight: '12px' }} />
+            <ToSText>
+              <Trans>Accept</Trans>{' '}
+              <ExternalLink href="/15022022KyberSwapTermsofUse.pdf">
+                <Trans>Terms of Use</Trans>
+              </ExternalLink>{' '}
+              <Trans>and</Trans>{' '}
+              <ExternalLink href="http://files.dmm.exchange/privacy.pdf">
+                <Trans>Privacy Policy</Trans>
+              </ExternalLink>
+            </ToSText>
+          </TermAndCondition>
         )}
-        <TermAndCondition>
-          <input type="checkbox" checked={isAccepted} onChange={handleAccept} style={{ marginRight: '12px' }} />
-          <ToSText>
-            <Trans>Accept</Trans>{' '}
-            <ExternalLink href="/15022022KyberSwapTermsofUse.pdf">
-              <Trans>Terms of Use</Trans>
-            </ExternalLink>{' '}
-            <Trans>and</Trans>{' '}
-            <ExternalLink href="http://files.dmm.exchange/privacy.pdf">
-              <Trans>Privacy Policy</Trans>
-            </ExternalLink>
-          </ToSText>
-        </TermAndCondition>
         <ContentWrapper>
           {walletView === WALLET_VIEWS.PENDING ? (
             <PendingView
