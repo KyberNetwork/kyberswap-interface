@@ -79,6 +79,17 @@ const FarmRow = styled.div`
   `}
 `
 
+const ButtonGroupContainerOnMobile = styled.div`
+  display: flex;
+  margin-top: 1.25rem;
+  gap: 16px;
+
+  /* this is to make sure all buttons (including those with tooltips) take up even space */
+  > * {
+    flex: 1;
+  }
+`
+
 const BtnLight = styled(ButtonLight)`
   padding: 8px 12px;
   width: fit-content;
@@ -144,7 +155,9 @@ const Row = ({
   onOpenModal,
   onHarvest,
   onUpdateDepositedInfo,
+  isUserAffectedByFarmIssue,
 }: {
+  isUserAffectedByFarmIssue: boolean
   isApprovedForAll: boolean
   fairlaunchAddress: string
   farm: ProMMFarm
@@ -161,7 +174,7 @@ const Row = ({
   const currentTimestamp = Math.floor(Date.now() / 1000)
   const above1000 = useMedia('(min-width: 1000px)')
   const qs = useParsedQueryString()
-  const tab = qs.tab || 'active'
+  const tab = qs.type || 'active'
 
   const token0 = useToken(farm.token0)
   const token1 = useToken(farm.token1)
@@ -301,7 +314,45 @@ const Row = ({
 
   const amountCanStaked = (position?.amountUsd || 0) - (position?.stakedUsd || 0)
 
-  if (!above1000)
+  if (!above1000) {
+    const renderStakeButtonOnMobile = () => {
+      if (isUserAffectedByFarmIssue) {
+        return (
+          <MouseoverTooltip
+            text={t`This farm is currently under maintenance. You can deposit your liquidity into the new farms instead. Your withdrawals are not affected.`}
+            placement="top"
+            width="300px"
+          >
+            <ButtonPrimary
+              style={{
+                cursor: 'not-allowed',
+                backgroundColor: theme.buttonGray,
+                color: theme.border,
+                height: '36px',
+                width: '100%',
+              }}
+            >
+              <Text fontSize={14}>
+                <Trans>Stake</Trans>
+              </Text>
+            </ButtonPrimary>
+          </MouseoverTooltip>
+        )
+      }
+
+      return (
+        <ButtonPrimary
+          disabled={!isApprovedForAll || tab === 'ended' || !isFarmStarted}
+          style={{ height: '36px', flex: 1 }}
+          onClick={() => onOpenModal('stake', farm.pid)}
+        >
+          <Text fontSize={14}>
+            <Trans>Stake</Trans>
+          </Text>
+        </ButtonPrimary>
+      )
+    }
+
     return (
       <>
         <Modal onDismiss={() => setShowTargetVolInfo(false)} isOpen={showTargetVolInfo}>
@@ -386,7 +437,7 @@ const Row = ({
               <Trans>AVG APR</Trans>
               <InfoHelper
                 text={
-                  qs.tab === 'active'
+                  qs.type === 'active'
                     ? t`Average estimated return based on yearly fees and bonus rewards of the pool`
                     : t`Average estimated return based on yearly fees of the pool plus bonus rewards from the farm`
                 }
@@ -479,16 +530,8 @@ const Row = ({
             </ButtonLight>
           </RewardMobileArea>
 
-          <Flex sx={{ gap: '16px' }} marginTop="1.25rem">
-            <ButtonPrimary
-              disabled={!isApprovedForAll || tab === 'ended' || !isFarmStarted}
-              style={{ height: '36px', flex: 1 }}
-              onClick={() => onOpenModal('stake', farm.pid)}
-            >
-              <Text fontSize={14}>
-                <Trans>Stake</Trans>
-              </Text>
-            </ButtonPrimary>
+          <ButtonGroupContainerOnMobile>
+            {renderStakeButtonOnMobile()}
             <ButtonOutlined
               style={{ height: '36px', flex: 1 }}
               onClick={() => onOpenModal('unstake', farm.pid)}
@@ -498,10 +541,53 @@ const Row = ({
                 <Trans>Unstake</Trans>
               </Text>
             </ButtonOutlined>
-          </Flex>
+          </ButtonGroupContainerOnMobile>
         </ProMMFarmTableRowMobile>
       </>
     )
+  }
+
+  const renderStakeButton = () => {
+    if (isUserAffectedByFarmIssue) {
+      return (
+        <MouseoverTooltip
+          text={t`This farm is currently under maintenance. You can deposit your liquidity into the new farms instead. Your withdrawals are not affected.`}
+          placement="top"
+          width="300px"
+        >
+          <ActionButton
+            style={{
+              cursor: 'not-allowed',
+              backgroundColor: theme.buttonGray,
+              opacity: 0.4,
+            }}
+          >
+            <Plus color={theme.subText} size={16} style={{ minWidth: '16px' }} />
+          </ActionButton>
+        </MouseoverTooltip>
+      )
+    }
+
+    return !isApprovedForAll || tab === 'ended' || !isFarmStarted ? (
+      <MouseoverTooltip text={!isFarmStarted ? t`Farm has not started` : ''} placement="top" width="fit-content">
+        <ActionButton
+          style={{
+            cursor: 'not-allowed',
+            backgroundColor: theme.buttonGray,
+            opacity: 0.4,
+          }}
+        >
+          <Plus color={theme.subText} size={16} style={{ minWidth: '16px' }} />
+        </ActionButton>
+      </MouseoverTooltip>
+    ) : (
+      <ActionButton onClick={() => onOpenModal('stake', farm.pid)}>
+        <MouseoverTooltip text={t`Stake`} placement="top" width="fit-content">
+          <Plus color={theme.primary} size={16} />
+        </MouseoverTooltip>
+      </ActionButton>
+    )
+  }
 
   return (
     <>
@@ -583,25 +669,7 @@ const Row = ({
           ))}
         </Flex>
         <Flex justifyContent="flex-end" sx={{ gap: '4px' }}>
-          {!isApprovedForAll || tab === 'ended' || !isFarmStarted ? (
-            <MouseoverTooltip text={!isFarmStarted ? t`Farm has not started` : ''} placement="top" width="fit-content">
-              <ActionButton
-                style={{
-                  cursor: 'not-allowed',
-                  backgroundColor: theme.buttonGray,
-                  opacity: 0.4,
-                }}
-              >
-                <Plus color={theme.subText} size={16} style={{ minWidth: '16px' }} />
-              </ActionButton>
-            </MouseoverTooltip>
-          ) : (
-            <ActionButton onClick={() => onOpenModal('stake', farm.pid)}>
-              <MouseoverTooltip text={t`Stake`} placement="top" width="fit-content">
-                <Plus color={theme.primary} size={16} />
-              </MouseoverTooltip>
-            </ActionButton>
-          )}
+          {renderStakeButton()}
 
           <ActionButton
             disabled={!canUnstake}
@@ -676,10 +744,10 @@ function ProMMFarmGroup({
       const tks = farm.rewardTokens
 
       farm.userDepositedNFTs.forEach(pos => {
-        pos.rewardPendings.forEach((amout, index) => {
+        pos.rewardPendings.forEach((amount, index) => {
           const tkAddress = tks[index]
-          if (temp[tkAddress]) temp[tkAddress] = temp[tkAddress].add(amout)
-          else temp[tkAddress] = amout
+          if (temp[tkAddress]) temp[tkAddress] = temp[tkAddress].add(amount)
+          else temp[tkAddress] = amount
         })
       })
     })
@@ -736,14 +804,14 @@ function ProMMFarmGroup({
 
   const isApprovalTxPending = useIsTransactionPending(approvalTx)
 
-  const handleAprove = async () => {
+  const handleApprove = async () => {
     if (!isApprovedForAll) {
       const tx = await approve()
       setApprovalTx(tx)
     }
   }
 
-  const aggreateDepositedInfo = useCallback(
+  const aggregateDepositedInfo = useCallback(
     ({
       poolAddress,
       usdValue,
@@ -768,12 +836,130 @@ function ProMMFarmGroup({
   )
 
   const qs = useParsedQueryString()
-  const tab = qs.tab || 'active'
+  const tab = qs.type || 'active'
 
   if (!farms) return null
 
   const canHarvest = farms.some(farm => farm.userDepositedNFTs.some(pos => !!pos.rewardPendings.length))
   const canWithdraw = farms.some(farms => farms.userDepositedNFTs.length)
+
+  const renderDepositButton = () => {
+    if (!isApprovedForAll || tab === 'ended') {
+      return (
+        <BtnLight disabled>
+          <Deposit width={20} height={20} />
+          {above768 && (
+            <Text fontSize="14px" marginLeft="4px">
+              <Trans>Deposit</Trans>
+            </Text>
+          )}
+        </BtnLight>
+      )
+    }
+
+    return (
+      <MouseoverTooltip text={t`Deposit your liquidity (the NFT tokens that represent your liquidity position)`}>
+        <BtnLight onClick={() => onOpenModal('deposit')} disabled={tab === 'ended'}>
+          <Deposit width={20} height={20} />
+          {above768 && (
+            <Text fontSize="14px" marginLeft="4px">
+              <Trans>Deposit</Trans>
+            </Text>
+          )}
+        </BtnLight>
+      </MouseoverTooltip>
+    )
+  }
+
+  const renderWithdrawButton = () => {
+    if (!canWithdraw || !isApprovedForAll) {
+      return (
+        <ButtonOutlined padding={above768 ? '8px 12px' : '8px'} disabled>
+          <Withdraw width={20} height={20} />
+          {above768 && (
+            <Text fontSize="14px" marginLeft="4px">
+              <Trans>Withdraw</Trans>
+            </Text>
+          )}
+        </ButtonOutlined>
+      )
+    }
+
+    return (
+      <MouseoverTooltipDesktopOnly
+        text={t`Withdraw your liquidity (the NFT tokens that represent your liquidity position)`}
+      >
+        <ButtonOutlined padding={above768 ? '8px 12px' : '8px'} onClick={() => onOpenModal('withdraw')}>
+          <Withdraw width={20} height={20} />
+          {above768 && (
+            <Text fontSize="14px" marginLeft="4px">
+              <Trans>Withdraw</Trans>
+            </Text>
+          )}
+        </ButtonOutlined>
+      </MouseoverTooltipDesktopOnly>
+    )
+  }
+
+  const renderForceWithdrawButton = () => {
+    if (hasAffectedByFarmIssue && above768) {
+      return (
+        <BtnPrimary
+          style={{ color: theme.red, border: `1px solid ${theme.red}`, background: theme.red + '33' }}
+          width="fit-content"
+          padding={above768 ? '8px 12px' : '8px'}
+          onClick={() => onOpenModal('forcedWithdraw')}
+        >
+          <Withdraw width={20} height={20} />
+          <Text fontSize="14px" marginLeft="4px">
+            <Trans>Force Withdraw</Trans>
+          </Text>
+        </BtnPrimary>
+      )
+    }
+
+    return null
+  }
+
+  const renderTopButtons = () => {
+    if (!account) {
+      return (
+        <BtnLight onClick={toggleWalletModal}>
+          <Trans>Connect Wallet</Trans>
+        </BtnLight>
+      )
+    }
+
+    if (!isApprovedForAll && res?.loading) {
+      return <Dots />
+    }
+
+    return (
+      <Flex sx={{ gap: '12px' }} alignItems="center">
+        {isApprovedForAll ? null : (
+          <BtnLight onClick={handleApprove} disabled={isApprovalTxPending || tab === 'ended'}>
+            <Edit2 size={16} />
+            <Text fontSize="14px" marginLeft="4px">
+              {approvalTx && isApprovalTxPending ? (
+                <Dots>
+                  <Trans>Approving</Trans>
+                </Dots>
+              ) : (
+                <Trans>Approve</Trans>
+              )}
+            </Text>
+          </BtnLight>
+        )}
+        {(!!isApprovedForAll || above768) && (
+          <>
+            {renderDepositButton()}
+            {renderWithdrawButton()}
+          </>
+        )}
+        {renderForceWithdrawButton()}
+      </Flex>
+    )
+  }
 
   return (
     <FarmContent>
@@ -830,83 +1016,7 @@ function ProMMFarmGroup({
             />
           </Flex>
 
-          {!!account ? (
-            !isApprovedForAll ? (
-              res?.loading ? (
-                <Dots />
-              ) : (
-                <BtnLight onClick={handleAprove} disabled={isApprovalTxPending}>
-                  <Edit2 size={16} />
-                  <Text fontSize="14px" marginLeft="4px">
-                    {approvalTx && isApprovalTxPending ? (
-                      <Dots>
-                        <Trans>Approving</Trans>
-                      </Dots>
-                    ) : (
-                      <Trans>Approve</Trans>
-                    )}
-                  </Text>
-                </BtnLight>
-              )
-            ) : (
-              <Flex sx={{ gap: '12px' }} alignItems="center">
-                <MouseoverTooltipDesktopOnly
-                  text={t`Deposit your liquidity (the NFT tokens that represent your liquidity position)`}
-                >
-                  <BtnLight onClick={() => onOpenModal('deposit')} disabled={tab === 'ended'}>
-                    <Deposit width={20} height={20} />
-                    {above768 && (
-                      <Text fontSize="14px" marginLeft="4px">
-                        <Trans>Deposit</Trans>
-                      </Text>
-                    )}
-                  </BtnLight>
-                </MouseoverTooltipDesktopOnly>
-
-                {canWithdraw ? (
-                  <MouseoverTooltipDesktopOnly
-                    text={t`Withdraw your liquidity (the NFT tokens that represent your liquidity position)`}
-                  >
-                    <ButtonOutlined padding={above768 ? '8px 12px' : '8px'} onClick={() => onOpenModal('withdraw')}>
-                      <Withdraw width={20} height={20} />
-                      {above768 && (
-                        <Text fontSize="14px" marginLeft="4px">
-                          <Trans>Withdraw</Trans>
-                        </Text>
-                      )}
-                    </ButtonOutlined>
-                  </MouseoverTooltipDesktopOnly>
-                ) : (
-                  <BtnPrimary disabled width="fit-content" padding={above768 ? '8px 12px' : '8px'}>
-                    <Withdraw width={20} height={20} />
-                    {above768 && (
-                      <Text fontSize="14px" marginLeft="4px">
-                        <Trans>Withdraw</Trans>
-                      </Text>
-                    )}
-                  </BtnPrimary>
-                )}
-
-                {hasAffectedByFarmIssue && above768 && (
-                  <BtnPrimary
-                    style={{ color: theme.red, border: `1px solid ${theme.red}`, background: theme.red + '33' }}
-                    width="fit-content"
-                    padding={above768 ? '8px 12px' : '8px'}
-                    onClick={() => onOpenModal('forcedWithdraw')}
-                  >
-                    <Withdraw width={20} height={20} />
-                    <Text fontSize="14px" marginLeft="4px">
-                      <Trans>Force Withdraw</Trans>
-                    </Text>
-                  </BtnPrimary>
-                )}
-              </Flex>
-            )
-          ) : (
-            <BtnLight onClick={toggleWalletModal}>
-              <Trans>Connect Wallet</Trans>
-            </BtnLight>
-          )}
+          {renderTopButtons()}
         </Flex>
 
         {!above768 && <Divider style={{ width: '100%' }} />}
@@ -961,14 +1071,16 @@ function ProMMFarmGroup({
         </Flex>
       </FarmRow>
       <Divider />
+
       {farms.map((farm, index) => {
         return (
           <Row
+            isUserAffectedByFarmIssue={hasAffectedByFarmIssue}
             isApprovedForAll={isApprovedForAll}
             farm={farm}
             key={farm.poolAddress + '_' + index}
             onOpenModal={onOpenModal}
-            onUpdateDepositedInfo={aggreateDepositedInfo}
+            onUpdateDepositedInfo={aggregateDepositedInfo}
             fairlaunchAddress={address}
             onHarvest={() => {
               onOpenModal('harvest', farm.pid)
