@@ -115,6 +115,7 @@ export function CurrencySearch({
   const [invertSearchOrder, setInvertSearchOrder] = useState<boolean>(false)
   const allTokens = useAllTokens()
   const tokenImports = useUserAddedTokens()
+
   const tokenComparator = useTokenComparator(invertSearchOrder)
 
   // if they input an address, use it
@@ -209,7 +210,8 @@ export function CurrencySearch({
       const isAddFavorite = currency.isNative
         ? !favoriteTokens?.includeNativeToken
         : !currentList.find(el => el === address) // else remove favorite
-      const curTotal = currentList.length + (favoriteTokens?.includeNativeToken ? 1 : 0)
+      const curTotal =
+        currentList.filter(address => !!allTokens[address]).length + (favoriteTokens?.includeNativeToken ? 1 : 0)
       if (!chainId || (isAddFavorite && curTotal === MAX_FAVORITE_PAIR)) return
 
       if (currency.isNative) {
@@ -227,7 +229,7 @@ export function CurrencySearch({
         })
       }
     },
-    [chainId, favoriteTokens, toggleFavoriteToken],
+    [chainId, allTokens, favoriteTokens, toggleFavoriteToken],
   )
 
   // menu ui
