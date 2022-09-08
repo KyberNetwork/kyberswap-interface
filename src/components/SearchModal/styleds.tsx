@@ -70,6 +70,9 @@ export const SearchInput = styled.input`
   ::placeholder {
     color: ${({ theme }) => theme.border};
     font-size: 13.5px;
+    ${({ theme }) => theme.mediaWidth.upToSmall`
+      font-size: 12.5px;
+    `};
   }
   transition: border 100ms;
   :focus {

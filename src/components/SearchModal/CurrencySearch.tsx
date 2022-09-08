@@ -9,7 +9,6 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import InfoHelper from 'components/InfoHelper'
-import { SUGGESTED_BASES } from 'constants/index'
 import { nativeOnChain } from 'constants/tokens'
 import {
   useAllTokens,
@@ -86,8 +85,6 @@ interface CurrencySearchProps {
   setImportToken: (token: Token) => void
   customChainId?: ChainId
 }
-const isTokenInCommonBase = (token: Token, chainId: ChainId | undefined) =>
-  chainId ? SUGGESTED_BASES[chainId].find(e => e.address.toLowerCase() === token.address.toLowerCase()) : false
 
 export function CurrencySearch({
   selectedCurrency,
@@ -140,11 +137,7 @@ export function CurrencySearch({
 
   const filteredSortedTokens: Token[] = useMemo(() => {
     if (searchToken) return [searchToken.wrapped]
-    const sorted = filteredTokens.sort((a, b) => {
-      const isACommon = isTokenInCommonBase(a, chainId)
-      const isBCommon = isTokenInCommonBase(b, chainId)
-      return isACommon ? -1 : isBCommon ? 1 : tokenComparator(a, b)
-    })
+    const sorted = filteredTokens.sort(tokenComparator)
     const symbolMatch = debouncedQuery
       .toLowerCase()
       .split(/\s+/)
@@ -156,7 +149,7 @@ export function CurrencySearch({
       ...sorted.filter(token => token.symbol?.toLowerCase() === symbolMatch[0]),
       ...sorted.filter(token => token.symbol?.toLowerCase() !== symbolMatch[0]),
     ]
-  }, [filteredTokens, debouncedQuery, searchToken, tokenComparator, chainId])
+  }, [filteredTokens, debouncedQuery, searchToken, tokenComparator])
 
   const handleCurrencySelect = useCallback(
     (currency: Currency) => {
