@@ -1,7 +1,7 @@
 import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { ChangeEvent, KeyboardEvent, RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { ChangeEvent, KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Trash } from 'react-feather'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
@@ -168,13 +168,17 @@ export function CurrencySearch({
     [onDismiss, onCurrencySelect],
   )
 
+  // manage focus on modal show
+  const inputRef = useRef<HTMLInputElement>(null)
+
   // clear the input on open
   useEffect(() => {
-    if (isOpen) setSearchQuery('')
+    if (isOpen) {
+      setSearchQuery('')
+      inputRef.current?.focus()
+    }
   }, [isOpen])
 
-  // manage focus on modal show
-  const inputRef = useRef<HTMLInputElement>()
   const handleInput = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const input = event.target.value
     const checksumInput = isAddress(input)
@@ -320,7 +324,7 @@ export function CurrencySearch({
             id="token-search-input"
             placeholder={t`Search by token name, token symbol or address`}
             value={searchQuery}
-            ref={inputRef as RefObject<HTMLInputElement>}
+            ref={inputRef}
             onChange={handleInput}
             onKeyDown={handleEnter}
             autoComplete="off"
