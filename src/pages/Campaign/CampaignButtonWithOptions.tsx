@@ -24,15 +24,18 @@ import { CampaignData, CampaignLeaderboardReward } from 'state/campaigns/actions
 import { useSwapNowHandler } from 'state/campaigns/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 
+type Size = 'small' | 'large'
 export default function CampaignButtonWithOptions({
   campaign,
   disabled = false,
   type,
   addTemporaryClaimedRefs,
+  size,
 }: {
   campaign: CampaignData | undefined
   disabled?: boolean
   type: 'swap_now' | 'claim_rewards'
+  size: Size
   addTemporaryClaimedRefs?: (claimedRefs: string[]) => void
 }) {
   const theme = useTheme()
@@ -142,6 +145,7 @@ export default function CampaignButtonWithOptions({
 
   return (
     <StyledPrimaryButton
+      size={size}
       onClick={e => {
         e.stopPropagation()
         setIsShowNetworks(prev => !prev)
@@ -161,7 +165,7 @@ export default function CampaignButtonWithOptions({
                 alignItems="center"
                 onClick={async () => {
                   if (type === 'swap_now') {
-                    handleSwapNow(chainId)
+                    handleSwapNow()
                   } else {
                     mixpanelHandler(MIXPANEL_TYPE.CAMPAIGN_CLAIM_REWARDS_CLICKED, { campaign_name: campaign?.name })
                     await changeNetwork(chainId, () => claimRewards(chainId))
@@ -183,12 +187,12 @@ export default function CampaignButtonWithOptions({
   )
 }
 
-export const StyledPrimaryButton = styled(ButtonPrimary)`
+export const StyledPrimaryButton = styled(ButtonPrimary)<{ size: Size }>`
   position: relative;
   font-size: 14px;
   padding: 12px 48px;
   min-width: fit-content;
-  height: 44px;
+  height: ${({ size }) => (size === 'large' ? '44px' : '35px')};
   font-weight: 500;
   color: ${({ theme }) => theme.textReverse};
   border: none;

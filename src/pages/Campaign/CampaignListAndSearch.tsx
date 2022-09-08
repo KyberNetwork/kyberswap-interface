@@ -1,20 +1,15 @@
-import { ChainId, Fraction } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { parseUnits } from 'ethers/lib/utils'
-import JSBI from 'jsbi'
-import { rgba } from 'polished'
 import React, { useState } from 'react'
 import { useSelector } from 'react-redux'
-import { Flex, Text } from 'rebass'
-import styled, { css } from 'styled-components'
+import { Text } from 'rebass'
+import styled from 'styled-components'
 
 import Search from 'components/Search'
-import { DEFAULT_SIGNIFICANT, RESERVE_USD_DECIMALS } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
 import { AppState } from 'state'
-import { CampaignData, CampaignStatus } from 'state/campaigns/actions'
-import { useIsDarkMode } from 'state/user/hooks'
+import { CampaignData } from 'state/campaigns/actions'
+
+import CampaignItem from './CampaignItem'
 
 export default function CampaignListAndSearch({
   onSelectCampaign,
@@ -31,8 +26,6 @@ export default function CampaignListAndSearch({
     item.name.toLowerCase().includes(searchCampaign.trim().toLowerCase()),
   )
 
-  const isDarkMode = useIsDarkMode()
-
   return (
     <CampaignListAndSearchContainer>
       <Text fontSize="20px" lineHeight="24px" fontWeight={500}>
@@ -45,64 +38,14 @@ export default function CampaignListAndSearch({
         placeholder={t`Search for campaign`}
       />
       <CampaignList>
-        {filteredCampaigns.map((campaign, index) => {
-          const isSelected = selectedCampaign && selectedCampaign.id === campaign.id
-          // TODO: Handle varied reward distribution type
-          const isRewardInUSD = campaign.rewardDistribution[0]?.rewardInUSD
-
-          const totalRewardAmount: Fraction = campaign.rewardDistribution.reduce((acc, value) => {
-            return acc.add(
-              new Fraction(
-                parseUnits(value.amount || '0', RESERVE_USD_DECIMALS).toString(),
-                isRewardInUSD
-                  ? JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(RESERVE_USD_DECIMALS))
-                  : JSBI.exponentiate(
-                      JSBI.BigInt(10),
-                      JSBI.BigInt((value?.token?.decimals ?? 18) + RESERVE_USD_DECIMALS),
-                    ),
-              ),
-            )
-          }, new Fraction(0))
-
-          const rCampaignName = campaign.name
-          const rCampaignStatus =
-            campaign.status === 'Upcoming' ? t`Upcoming` : campaign.status === 'Ongoing' ? t`Ongoing` : t`Ended`
-          const rChainIdImages = campaign?.chainIds
-            ?.split?.(',')
-            .map(chainId => (
-              <img
-                key={chainId}
-                src={
-                  isDarkMode && !!NETWORKS_INFO[chainId as unknown as ChainId].iconDark
-                    ? NETWORKS_INFO[chainId as unknown as ChainId].iconDark
-                    : NETWORKS_INFO[chainId as unknown as ChainId].icon
-                }
-                alt={NETWORKS_INFO[chainId as unknown as ChainId].name + ' icon'}
-                style={{ width: '16px', minWidth: '16px', height: '16px', minHeight: '16px' }}
-              />
-            ))
-
-          const totalRewardAmountString = totalRewardAmount.toSignificant(DEFAULT_SIGNIFICANT, { groupSeparator: ',' })
-          const tokenSymbol = campaign.rewardDistribution[0]?.token?.symbol
-          const rCampaignReward = isRewardInUSD
-            ? t`$${totalRewardAmountString} in ${tokenSymbol}`
-            : `${totalRewardAmountString} ${tokenSymbol}`
-
-          return (
-            <CampaignItem key={index} onClick={() => onSelectCampaign(campaign)} selected={isSelected}>
-              <Flex justifyContent="space-between" alignItems="center" style={{ gap: '12px' }}>
-                <Text fontWeight={500} color={theme.text} style={{ wordBreak: 'break-word' }}>
-                  {rCampaignName}
-                </Text>
-                <CampaignStatusText status={campaign.status}>{rCampaignStatus}</CampaignStatusText>
-              </Flex>
-              <Flex justifyContent="space-between" alignItems="center" style={{ gap: '12px' }}>
-                <Flex style={{ gap: '8px' }}>{rChainIdImages}</Flex>
-                <Text fontSize="14px">{rCampaignReward}</Text>
-              </Flex>
-            </CampaignItem>
-          )
-        })}
+        {filteredCampaigns.map((campaign, index) => (
+          <CampaignItem
+            campaign={campaign}
+            onSelectCampaign={onSelectCampaign}
+            key={index}
+            isSelected={Boolean(selectedCampaign && selectedCampaign.id === campaign.id)}
+          />
+        ))}
       </CampaignList>
     </CampaignListAndSearchContainer>
   )
@@ -139,54 +82,4 @@ const CampaignList = styled.div`
   &::-webkit-scrollbar-thumb {
     background: ${({ theme }) => theme.disableText};
   }
-`
-
-const CampaignItem = styled.div<{ selected?: boolean }>`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 20px;
-  cursor: pointer;
-  border-bottom: 1px solid ${({ theme }) => theme.border};
-  position: relative;
-  background: ${({ theme, selected }) => (selected ? rgba(theme.bg8, 0.12) : 'transparent')};
-
-  ${({ theme, selected }) =>
-    selected &&
-    css`
-      &:hover {
-        background: darken(0.01, ${theme.background});
-      }
-    `}
-`
-
-const CampaignStatusText = styled.div<{ status: CampaignStatus }>`
-  font-size: 12px;
-  line-height: 10px;
-  padding: 5px 8px;
-  text-align: center;
-  height: fit-content;
-  border-radius: 24px;
-  white-space: nowrap;
-
-  ${({ theme, status }) =>
-    status === 'Upcoming' &&
-    css`
-      background: ${rgba(theme.warning, 0.2)};
-      color: ${theme.warning};
-    `}
-
-  ${({ theme, status }) =>
-    status === 'Ongoing' &&
-    css`
-      background: ${rgba(theme.primary, 0.2)};
-      color: ${theme.primary};
-    `}
-
-  ${({ theme, status }) =>
-    status === 'Ended' &&
-    css`
-      background: ${rgba(theme.red, 0.2)};
-      color: ${theme.red};
-    `}
 `

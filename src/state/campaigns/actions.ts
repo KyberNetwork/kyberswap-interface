@@ -3,7 +3,11 @@ import { createAction } from '@reduxjs/toolkit'
 
 import { SerializedToken } from 'state/user/actions'
 
-export type CampaignStatus = 'Upcoming' | 'Ongoing' | 'Ended'
+export enum CampaignStatus {
+  ONGOING = 'Ongoing',
+  UPCOMING = 'Upcoming',
+  ENDED = 'Ended',
+}
 
 export enum CampaignState {
   CampaignStateReady,

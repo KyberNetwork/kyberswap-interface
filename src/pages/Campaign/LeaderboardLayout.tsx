@@ -17,7 +17,7 @@ import Search, { Container as SearchContainer, Wrapper as SearchWrapper } from '
 import { BIG_INT_ZERO, CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE, DEFAULT_SIGNIFICANT } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { AppState } from 'state'
-import { CampaignState, RewardRandom } from 'state/campaigns/actions'
+import { CampaignState, CampaignStatus, RewardRandom } from 'state/campaigns/actions'
 import {
   useSelectedCampaignLeaderboardLookupAddressManager,
   useSelectedCampaignLeaderboardPageNumberManager,
@@ -155,7 +155,7 @@ export default function LeaderboardLayout({
     )
   })
 
-  if (selectedCampaign === undefined || selectedCampaign.status === 'Upcoming')
+  if (selectedCampaign === undefined || selectedCampaign.status === CampaignStatus.UPCOMING)
     return (
       <Flex justifyContent="center" alignItems="center" height="100%">
         <Trans>This campaign does not have a leaderboard yet.</Trans>

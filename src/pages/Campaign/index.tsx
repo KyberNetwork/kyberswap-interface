@@ -1,6 +1,8 @@
 import { Trans, t } from '@lingui/macro'
+import { useWeb3React } from '@web3-react/core'
 import dayjs from 'dayjs'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import { BarChart, ChevronDown, Clock, Share2, Star, Users } from 'react-feather'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
@@ -11,7 +13,9 @@ import { useSWRConfig } from 'swr'
 
 import { ButtonEmpty, ButtonLight } from 'components/Button'
 import Divider from 'components/Divider'
+import InfoHelper from 'components/InfoHelper'
 import LocalLoader from 'components/LocalLoader'
+import ProgressBar from 'components/ProgressBar'
 import ShareModal from 'components/ShareModal'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import YourCampaignTransactionsModal from 'components/YourCampaignTransactionsModal'
@@ -33,7 +37,13 @@ import {
   useToggleYourCampaignTransactionsModal,
   useWalletModalToggle,
 } from 'state/application/hooks'
-import { CampaignData, CampaignState, setCampaignData, setSelectedCampaign } from 'state/campaigns/actions'
+import {
+  CampaignData,
+  CampaignState,
+  CampaignStatus,
+  setCampaignData,
+  setSelectedCampaign,
+} from 'state/campaigns/actions'
 import { useAppDispatch } from 'state/hooks'
 import { HideMedium, MediumOnly } from 'theme'
 import { formatNumberWithPrecisionRange } from 'utils'
@@ -53,6 +63,42 @@ const LoaderParagraphs = () => (
     <Loading style={{ height: '100px', marginBottom: '20px' }} />
   </>
 )
+
+const RankDetailWrapper = styled.div`
+  color: ${({ theme }) => theme.subText};
+  font-size: 14px;
+  gap: 10px;
+  display: flex;
+  flex-direction: column;
+`
+function RankDetail({ campaign }: { campaign: CampaignData | undefined }) {
+  const theme = useTheme()
+  const { account } = useWeb3React()
+  const isOngoing = campaign?.status === CampaignStatus.ONGOING
+  if (!account || !isOngoing) return null
+  return (
+    <InfoHelper
+      placement={isMobile ? 'bottom' : 'left'}
+      width="300px"
+      text={
+        <RankDetailWrapper>
+          <Text color={theme.white} fontSize={16}>
+            <Trans>Requirement</Trans>
+          </Text>
+          <Text lineHeight={'20px'}>
+            <Trans>Fulfill those requirement to participate in the campaign</Trans>
+          </Text>
+          <Flex style={{ gap: 10 }} flexDirection="column">
+            <ProgressBar percent={12} title={t`Trading Volume`} value={`$8.52/$20`} color={theme.warning} />
+            <ProgressBar percent={12} title={t`Number of Trade`} value={`$8.52/$20`} color={theme.warning} />
+          </Flex>
+        </RankDetailWrapper>
+      }
+      size={18}
+      color={theme.warning}
+    />
+  )
+}
 
 export default function Campaign() {
   const { account } = useActiveWeb3React()
@@ -85,8 +131,10 @@ export default function Campaign() {
   const [campaignDetailMediaLoadedMap, setCampaignDetailMediaLoadedMap] = useState<{ [id: string]: boolean }>({})
   const isSelectedCampaignMediaLoaded = selectedCampaign && campaignDetailMediaLoadedMap[selectedCampaign.id]
 
+  const isOngoing = selectedCampaign?.status === CampaignStatus.ONGOING
+
   useEffect(() => {
-    if (selectedCampaign?.status === 'Ongoing' || selectedCampaign?.status === 'Ended') {
+    if (selectedCampaign?.status === CampaignStatus.ONGOING || selectedCampaign?.status === CampaignStatus.ENDED) {
       setActiveTab('leaderboard')
     }
   }, [selectedCampaign])
@@ -239,37 +287,45 @@ export default function Campaign() {
   const dispatch = useAppDispatch()
   useInterval(
     () => {
-      if (selectedCampaign && selectedCampaign.status === 'Upcoming' && selectedCampaign.startTime < now + 1000) {
+      if (
+        selectedCampaign &&
+        selectedCampaign.status === CampaignStatus.UPCOMING &&
+        selectedCampaign.startTime < now + 1000
+      ) {
         dispatch(
           setCampaignData({
             campaigns: campaigns.map(campaign => {
               if (campaign.id === selectedCampaign.id) {
                 return {
                   ...campaign,
-                  status: 'Ongoing',
+                  status: CampaignStatus.ONGOING,
                 }
               }
               return campaign
             }),
           }),
         )
-        dispatch(setSelectedCampaign({ campaign: { ...selectedCampaign, status: 'Ongoing' } }))
+        dispatch(setSelectedCampaign({ campaign: { ...selectedCampaign, status: CampaignStatus.ONGOING } }))
       }
-      if (selectedCampaign && selectedCampaign.status === 'Ongoing' && selectedCampaign.endTime < now + 1000) {
+      if (
+        selectedCampaign &&
+        selectedCampaign.status === CampaignStatus.ONGOING &&
+        selectedCampaign.endTime < now + 1000
+      ) {
         dispatch(
           setCampaignData({
             campaigns: campaigns.map(campaign => {
               if (campaign.id === selectedCampaign.id) {
                 return {
                   ...campaign,
-                  status: 'Ended',
+                  status: CampaignStatus.ENDED,
                 }
               }
               return campaign
             }),
           }),
         )
-        dispatch(setSelectedCampaign({ campaign: { ...selectedCampaign, status: 'Ended' } }))
+        dispatch(setSelectedCampaign({ campaign: { ...selectedCampaign, status: CampaignStatus.ENDED } }))
       }
       setCampaignsRefreshIn(prev => {
         if (prev === 0) {
@@ -406,9 +462,9 @@ export default function Campaign() {
             <CampaignDetailBoxGroup>
               <CampaignDetailBoxGroupItem>
                 <Text fontSize={14} fontWeight={500} color={theme.subText}>
-                  {selectedCampaign?.status === 'Upcoming'
+                  {selectedCampaign?.status === CampaignStatus.UPCOMING
                     ? t`Starting In`
-                    : selectedCampaign?.status === 'Ongoing'
+                    : isOngoing
                     ? t`Ended In`
                     : t`Ended On`}
                 </Text>
@@ -453,7 +509,7 @@ export default function Campaign() {
                 <Text fontSize={14} fontWeight={500} color={theme.subText}>
                   <Trans>Participants</Trans>
                 </Text>
-                <Users size={20} color={theme.subText} />
+                {!isMobile && <Users size={20} color={theme.subText} />}
                 {isSelectedCampaignMediaLoaded ? (
                   <Text fontSize={20} fontWeight={500} style={{ gridColumn: '1 / -1' }}>
                     {selectedCampaignLeaderboard?.numberOfEligibleParticipants
@@ -467,16 +523,20 @@ export default function Campaign() {
               <CampaignDetailBoxGroupItem>
                 <Text fontSize={14} fontWeight={500} color={theme.subText}>
                   <Trans>Your Rank</Trans>
+                  {isMobile && <RankDetail campaign={selectedCampaign} />}
                 </Text>
-                <Star size={20} color={theme.subText} />
+                {!isMobile && <Star size={20} color={theme.subText} />}
                 {isSelectedCampaignMediaLoaded ? (
                   account ? (
                     <Flex justifyContent="space-between" alignItems="center" style={{ gridColumn: '1 / -1' }}>
-                      <Text fontSize={20} fontWeight={500}>
-                        {selectedCampaignLeaderboard?.userRank
-                          ? formatNumberWithPrecisionRange(selectedCampaignLeaderboard?.userRank, 0, 2)
-                          : '--'}
-                      </Text>
+                      <Flex>
+                        <Text fontSize={20} fontWeight={500}>
+                          {selectedCampaignLeaderboard?.userRank
+                            ? formatNumberWithPrecisionRange(selectedCampaignLeaderboard?.userRank, 0, 2)
+                            : '--'}
+                        </Text>
+                        {!isMobile && <RankDetail campaign={selectedCampaign} />}
+                      </Flex>
                       <YourTransactionButton onClick={toggleYourCampaignTransactionModal}>
                         {above768 ? <Trans>Your Transactions</Trans> : <Trans>History</Trans>}
                       </YourTransactionButton>

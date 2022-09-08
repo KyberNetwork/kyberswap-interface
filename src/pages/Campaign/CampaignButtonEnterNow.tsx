@@ -12,13 +12,17 @@ import { Dots } from 'pages/Pool/styleds'
 import { AppState } from 'state'
 import { useRegisterCampaignModalToggle } from 'state/application/hooks'
 
-export default function CampaignButtonEnterNow() {
+export default function CampaignButtonEnterNow({ size }: { size: 'small' | 'large' }) {
   const { account } = useActiveWeb3React()
   const selectedCampaign = useSelector((state: AppState) => state.campaigns.selectedCampaign)
 
   const { executeRecaptcha } = useGoogleReCaptcha()
 
   const [loading, setLoading] = useState(false)
+
+  const { selectedCampaignLeaderboardPageNumber, selectedCampaignLeaderboardLookupAddress } = useSelector(
+    (state: AppState) => state.campaigns,
+  )
 
   const toggleRegisterCampaignModal = useRegisterCampaignModalToggle()
 
@@ -54,7 +58,7 @@ export default function CampaignButtonEnterNow() {
   }, [account, executeRecaptcha, selectedCampaign, toggleRegisterCampaignModal])
 
   return (
-    <StyledPrimaryButton onClick={handleReCaptchaVerify} disabled={loading}>
+    <StyledPrimaryButton onClick={handleReCaptchaVerify} disabled={loading} size={size}>
       <Trans>Enter Now</Trans>
       {loading && <Dots />}
     </StyledPrimaryButton>

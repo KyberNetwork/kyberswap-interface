@@ -20,6 +20,7 @@ import {
   CampaignLeaderboardReward,
   CampaignLuckyWinner,
   CampaignState,
+  CampaignStatus,
   RewardDistribution,
   setCampaignData,
   setLoadingCampaignData,
@@ -35,6 +36,11 @@ import { SerializedToken } from 'state/user/actions'
 import { getCampaignIdFromSlug, getSlugUrlCampaign } from 'utils/campaign'
 
 const MAXIMUM_ITEMS_PER_REQUEST = 10000
+
+const getCampaignStatus = ({ endTime, startTime }: any) => {
+  const now = Date.now()
+  return endTime <= now ? CampaignStatus.ENDED : startTime >= now ? CampaignStatus.UPCOMING : CampaignStatus.ONGOING
+}
 
 export default function CampaignsUpdater(): null {
   const dispatch = useDispatch()
@@ -58,13 +64,12 @@ export default function CampaignsUpdater(): null {
         userAddress: account,
       },
     })
-    const now = Date.now()
     const campaigns: [] = response.data.data
       .map((item: any) => ({ ...item, startTime: item.startTime * 1000, endTime: item.endTime * 1000 }))
       .sort((a: any, b: any) => {
-        const a_status = a.endTime <= now ? 'Ended' : a.startTime >= now ? 'Upcoming' : 'Ongoing'
-        const b_status = b.endTime <= now ? 'Ended' : b.startTime >= now ? 'Upcoming' : 'Ongoing'
-        const STATUS_PRIORITY = ['Ongoing', 'Upcoming', 'Ended']
+        const a_status = getCampaignStatus(a)
+        const b_status = getCampaignStatus(b)
+        const STATUS_PRIORITY = Object.values(CampaignStatus)
         const a_status_index = STATUS_PRIORITY.indexOf(a_status)
         const b_status_index = STATUS_PRIORITY.indexOf(b_status)
         if (a_status_index !== b_status_index) return a_status_index - b_status_index
@@ -159,7 +164,7 @@ export default function CampaignsUpdater(): null {
         endTime,
         desktopBanner: campaign.desktopBanner,
         mobileBanner: campaign.mobileBanner,
-        status: endTime <= now ? 'Ended' : startTime >= now ? 'Upcoming' : 'Ongoing',
+        status: getCampaignStatus(campaign),
         rules: campaign.rules,
         termsAndConditions: campaign.termsAndConditions,
         otherDetails: campaign.otherDetails,
