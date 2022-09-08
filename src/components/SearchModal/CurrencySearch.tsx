@@ -266,11 +266,24 @@ export function CurrencySearch({
   }, [activeTab, combinedTokens, tokenImportsFiltered])
 
   const removeToken = useRemoveUserAddedToken()
+
+  const removeImportedToken = useCallback(
+    (token: Token) => {
+      if (!chainId) return
+      removeToken(chainId, token.address)
+      if (favoriteTokens?.addresses.includes(token.address))
+        // remove in favorite too
+        toggleFavoriteToken({
+          chainId,
+          address: token.address,
+        })
+    },
+    [chainId, toggleFavoriteToken, removeToken, favoriteTokens?.addresses],
+  )
+
   const removeAllImportToken = () => {
-    if (chainId && tokenImports) {
-      tokenImports.forEach(token => {
-        removeToken(chainId, token.address)
-      })
+    if (tokenImports) {
+      tokenImports.forEach(removeImportedToken)
     }
   }
   const isImportedTab = activeTab === Tab.Imported
@@ -373,6 +386,7 @@ export function CurrencySearch({
           <AutoSizer disableWidth>
             {({ height }) => (
               <CurrencyList
+                removeImportedToken={removeImportedToken}
                 height={height}
                 currencies={visibleCurrencies}
                 inactiveTokens={filteredInactiveTokens}

@@ -2,12 +2,11 @@ import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { rgba } from 'polished'
 import { useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { Edit, Edit2, XCircle } from 'react-feather'
+import { Edit2, XCircle } from 'react-feather'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import useTheme from 'hooks/useTheme'
-import { theme } from 'theme'
 
 import { AutoColumn } from '../Column'
 import CurrencyLogo from '../CurrencyLogo'

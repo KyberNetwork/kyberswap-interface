@@ -13,7 +13,7 @@ import QuestionHelper from 'components/QuestionHelper'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
-import { useRemoveUserAddedToken, useUserFavoriteTokens } from 'state/user/hooks'
+import { useUserFavoriteTokens } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { TYPE } from 'theme'
 import { isAddress } from 'utils'
@@ -159,6 +159,7 @@ function CurrencyRow({
   otherSelected,
   style,
   handleClickFavorite,
+  removeImportedToken,
 }: {
   isImportedTab: boolean
   currency: Currency
@@ -168,6 +169,7 @@ function CurrencyRow({
   otherSelected: boolean
   style: CSSProperties
   handleClickFavorite: (e: React.MouseEvent, currency: Currency) => void
+  removeImportedToken: (token: Token) => void
 }) {
   const { chainId, account } = useActiveWeb3React()
   const balance = currencyBalance
@@ -176,12 +178,9 @@ function CurrencyRow({
   // only show add or remove buttons if not on selected list
 
   const { favoriteTokens } = useUserFavoriteTokens(chainId)
-  const removeToken = useRemoveUserAddedToken()
-  const removeImportToken = (e: React.MouseEvent) => {
+  const onClickRemove = (e: React.MouseEvent) => {
     e.stopPropagation()
-    if (chainId && currency) {
-      removeToken(chainId, currency?.wrapped?.address)
-    }
+    removeImportedToken(currency as Token)
   }
 
   const isFavorite = (() => {
@@ -214,7 +213,7 @@ function CurrencyRow({
         <TokenTags currency={currency} />
       </Flex>
       <RowFixed style={{ justifySelf: 'flex-end', gap: 15 }}>
-        {isImportedTab ? <DeleteButton onClick={removeImportToken} /> : balanceComponent}
+        {isImportedTab ? <DeleteButton onClick={onClickRemove} /> : balanceComponent}
         <FavoriteButton onClick={e => handleClickFavorite(e, currency)} data-active={isFavorite} />
       </RowFixed>
     </CurrencyRowWrapper>
@@ -243,6 +242,7 @@ export default function CurrencyList({
   setImportToken,
   breakIndex,
   handleClickFavorite,
+  removeImportedToken,
 }: {
   height: number
   isImportedTab: boolean
@@ -256,6 +256,7 @@ export default function CurrencyList({
   setImportToken: (token: Token) => void
   breakIndex: number | undefined
   handleClickFavorite: (e: React.MouseEvent, currency: Currency) => void
+  removeImportedToken: (token: Token) => void
 }) {
   const { account } = useActiveWeb3React()
   const itemCurrencies: (Currency | undefined)[] = useMemo(() => {
@@ -326,6 +327,7 @@ export default function CurrencyList({
           <CurrencyRow
             isImportedTab={isImportedTab}
             handleClickFavorite={handleClickFavorite}
+            removeImportedToken={removeImportedToken}
             style={style}
             currency={currency}
             currencyBalance={currencyBalance}
@@ -349,6 +351,7 @@ export default function CurrencyList({
       theme.text,
       handleClickFavorite,
       isImportedTab,
+      removeImportedToken,
     ],
   )
 
