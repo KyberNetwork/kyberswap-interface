@@ -33,7 +33,6 @@ import { RowBetween } from '../Row'
 import CommonBases from './CommonBases'
 import CurrencyList from './CurrencyList'
 import ImportRow from './ImportRow'
-import SortButton from './SortButton'
 import { useTokenComparator } from './sorting'
 import { PaddedColumn, SearchIcon, SearchInput, SearchWrapper, Separator } from './styleds'
 
@@ -112,11 +111,10 @@ export function CurrencySearch({
 
   const { favoriteTokens, toggleFavoriteToken } = useUserFavoriteTokens(chainId)
 
-  const [invertSearchOrder, setInvertSearchOrder] = useState<boolean>(false)
   const allTokens = useAllTokens()
   const tokenImports = useUserAddedTokens()
 
-  const tokenComparator = useTokenComparator(invertSearchOrder)
+  const tokenComparator = useTokenComparator(false)
 
   // if they input an address, use it
   const isAddressSearch = isAddress(debouncedQuery)
@@ -359,7 +357,6 @@ export function CurrencySearch({
               </Text>
             </TabButton>
           </Flex>
-          <SortButton ascending={invertSearchOrder} toggleSortOrder={() => setInvertSearchOrder(iso => !iso)} />
         </RowBetween>
       </PaddedColumn>
 
