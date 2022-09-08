@@ -237,16 +237,19 @@ export default function CampaignsUpdater(): null {
         ]
       : null,
     async () => {
-      if (selectedCampaign === undefined)
-        return {
+      if (selectedCampaign === undefined) {
+        const res: CampaignLeaderboard = {
           finalizedAt: 0,
           distributedRewardsAt: 0,
           userRank: 0,
-          numberOfParticipants: 0,
+          numberOfTotalParticipants: 0,
+          numberOfEligibleParticipants: 0,
           rankings: [],
           rewards: [],
           isParticipated: false,
         }
+        return res
+      }
 
       try {
         const response = await axios({
@@ -257,13 +260,15 @@ export default function CampaignsUpdater(): null {
             pageNumber: selectedCampaignLeaderboardPageNumber,
             userAddress: account?.toLowerCase() ?? '',
             lookupAddress: selectedCampaignLeaderboardLookupAddress.toLowerCase(),
+            eligibleOnly: true,
           },
         })
         const data = response.data.data
         const leaderboard: CampaignLeaderboard = {
           finalizedAt: data.finalizedAt,
           distributedRewardsAt: data.distributedRewardsAt,
-          numberOfParticipants: data.numberOfParticipants,
+          numberOfTotalParticipants: data.numberOfTotalParticipants,
+          numberOfEligibleParticipants: data.numberOfEligibleParticipants,
           userRank: data.userRank,
           rankings: data.rankings
             ? data.rankings.map(
@@ -306,7 +311,8 @@ export default function CampaignsUpdater(): null {
           finalizedAt: 0,
           distributedRewardsAt: 0,
           userRank: 0,
-          numberOfParticipants: 0,
+          numberOfTotalParticipants: 0,
+          numberOfEligibleParticipants: 0,
           rankings: [],
           rewards: [],
           isParticipated: false,
