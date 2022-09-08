@@ -231,7 +231,9 @@ export default createReducer(initialState, builder =>
       }
 
       if (isNative) {
-        favoriteTokens.includeNativeToken = !favoriteTokens.includeNativeToken
+        const previousValue = favoriteTokens.includeNativeToken
+        favoriteTokens.includeNativeToken = !previousValue
+        return
       }
 
       if (address) {

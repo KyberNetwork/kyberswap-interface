@@ -9,6 +9,7 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import InfoHelper from 'components/InfoHelper'
+import { SUGGESTED_BASES } from 'constants/index'
 import { nativeOnChain } from 'constants/tokens'
 import {
   useAllTokens,
@@ -86,6 +87,8 @@ interface CurrencySearchProps {
   setImportToken: (token: Token) => void
   customChainId?: ChainId
 }
+const isTokenInCommonBase = (token: Token, chainId: ChainId | undefined) =>
+  chainId ? SUGGESTED_BASES[chainId].find(e => e.address.toLowerCase() === token.address.toLowerCase()) : false
 
 export function CurrencySearch({
   selectedCurrency,
@@ -138,7 +141,11 @@ export function CurrencySearch({
 
   const filteredSortedTokens: Token[] = useMemo(() => {
     if (searchToken) return [searchToken.wrapped]
-    const sorted = filteredTokens.sort(tokenComparator)
+    const sorted = filteredTokens.sort((a, b) => {
+      const isACommon = isTokenInCommonBase(a, chainId)
+      const isBCommon = isTokenInCommonBase(b, chainId)
+      return isACommon ? -1 : isBCommon ? 1 : tokenComparator(a, b)
+    })
     const symbolMatch = debouncedQuery
       .toLowerCase()
       .split(/\s+/)
@@ -150,7 +157,7 @@ export function CurrencySearch({
       ...sorted.filter(token => token.symbol?.toLowerCase() === symbolMatch[0]),
       ...sorted.filter(token => token.symbol?.toLowerCase() !== symbolMatch[0]),
     ]
-  }, [filteredTokens, debouncedQuery, searchToken, tokenComparator])
+  }, [filteredTokens, debouncedQuery, searchToken, tokenComparator, chainId])
 
   const handleCurrencySelect = useCallback(
     (currency: Currency) => {
@@ -199,14 +206,26 @@ export function CurrencySearch({
       const address = currency?.wrapped.address
 
       const currentList = favoriteTokens?.addresses || []
-      const isAddFavorite = !currentList.find(el => el === address) // else remove favorite
-      if (!chainId || (isAddFavorite && currentList.length === MAX_FAVORITE_PAIR)) return
+      const isAddFavorite = currency.isNative
+        ? !favoriteTokens?.includeNativeToken
+        : !currentList.find(el => el === address) // else remove favorite
+      const curTotal = currentList.length + (favoriteTokens?.includeNativeToken ? 1 : 0)
+      if (!chainId || (isAddFavorite && curTotal === MAX_FAVORITE_PAIR)) return
 
-      toggleFavoriteToken({
-        chainId,
-        address,
-        isNative: currency.isNative,
-      })
+      if (currency.isNative) {
+        toggleFavoriteToken({
+          chainId,
+          isNative: true,
+        })
+        return
+      }
+
+      if (currency.isToken) {
+        toggleFavoriteToken({
+          chainId,
+          address,
+        })
+      }
     },
     [chainId, favoriteTokens, toggleFavoriteToken],
   )
@@ -224,21 +243,16 @@ export function CurrencySearch({
 
   const combinedTokens = useMemo(() => {
     const currencies: Currency[] = filteredSortedTokens.concat(filteredInactiveTokens)
-    if (showETH && chainId) {
-      currencies.unshift(nativeOnChain(chainId))
-    }
+    if (showETH && chainId) currencies.unshift(nativeOnChain(chainId))
     return currencies
   }, [showETH, chainId, filteredSortedTokens, filteredInactiveTokens])
 
   const commonTokens = useMemo(() => {
-    let native: Currency
     return combinedTokens.filter(token => {
       if (token.isNative) {
-        native = token
         return favoriteTokens?.includeNativeToken
       }
       if (token.isToken) {
-        if (native && token.address === native.wrapped.address) return false // ex: if has eth not show weth
         return favoriteTokens?.addresses?.includes(token.address)
       }
       return false
@@ -246,10 +260,8 @@ export function CurrencySearch({
   }, [combinedTokens, favoriteTokens?.addresses, favoriteTokens?.includeNativeToken])
 
   const visibleCurrencies: Currency[] = useMemo(() => {
-    return activeTab === Tab.Imported
-      ? tokenImportsFiltered
-      : combinedTokens.filter(el => !commonTokens.find(token => token.wrapped.address === el.wrapped.address))
-  }, [activeTab, combinedTokens, tokenImportsFiltered, commonTokens])
+    return activeTab === Tab.Imported ? tokenImportsFiltered : combinedTokens
+  }, [activeTab, combinedTokens, tokenImportsFiltered])
 
   const removeToken = useRemoveUserAddedToken()
   const removeAllImportToken = () => {
