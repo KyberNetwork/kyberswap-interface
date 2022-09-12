@@ -2,8 +2,9 @@ import { ChainId, Currency, CurrencyAmount, NativeCurrency, Token } from '@kyber
 import { Trans, t } from '@lingui/macro'
 import JSBI from 'jsbi'
 import { stringify } from 'qs'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
+import Skeleton from 'react-loading-skeleton'
 import { RouteComponentProps, useParams } from 'react-router-dom'
 import { Box, Flex, Text } from 'rebass'
 import styled, { DefaultTheme, keyframes } from 'styled-components'
@@ -19,7 +20,6 @@ import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import { Swap as SwapIcon } from 'components/Icons'
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import InfoHelper from 'components/InfoHelper'
-import LiveChart from 'components/LiveChart'
 import Loader from 'components/Loader'
 import ProgressSteps from 'components/ProgressSteps'
 import { AutoRow, RowBetween } from 'components/Row'
@@ -40,7 +40,6 @@ import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
 import MobileTokenInfo from 'components/swapv2/MobileTokenInfo'
 import PairSuggestion, { PairSuggestionHandle } from 'components/swapv2/PairSuggestion'
 import RefreshButton from 'components/swapv2/RefreshButton'
-import Routing from 'components/swapv2/Routing'
 import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
 import TokenInfo from 'components/swapv2/TokenInfo'
 import TokenInfoV2 from 'components/swapv2/TokenInfoV2'
@@ -103,6 +102,8 @@ import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { convertToSlug, getNetworkSlug, getSymbolSlug } from 'utils/string'
 import { checkPairInWhiteList, convertSymbol } from 'utils/tokenInfo'
 
+const LiveChart = lazy(() => import('components/LiveChart'))
+const Routing = lazy(() => import('components/swapv2/Routing'))
 const TutorialIcon = styled(TutorialSvg)`
   width: 22px;
   height: 22px;
@@ -1094,7 +1095,9 @@ export default function Swap({ history }: RouteComponentProps) {
             <InfoComponentsWrapper>
               {isShowLiveChart && (
                 <LiveChartWrapper>
-                  <LiveChart onRotateClick={handleRotateClick} currencies={currencies} />
+                  <Suspense fallback={<Skeleton height="100%" />}>
+                    <LiveChart onRotateClick={handleRotateClick} currencies={currencies} />
+                  </Suspense>
                 </LiveChartWrapper>
               )}
               {isShowTradeRoutes && (
@@ -1106,7 +1109,9 @@ export default function Swap({ history }: RouteComponentProps) {
                         <Trans>Your trade route</Trans>
                       </Text>
                     </Flex>
-                    <Routing trade={trade} currencies={currencies} formattedAmounts={formattedAmounts} />
+                    <Suspense fallback={<Skeleton height="100px" />}>
+                      <Routing trade={trade} currencies={currencies} formattedAmounts={formattedAmounts} />
+                    </Suspense>
                   </Flex>
                 </RoutesWrapper>
               )}
