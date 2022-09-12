@@ -562,6 +562,11 @@ const ListItem = ({ farm }: ListItemProps) => {
             <DataText grid-area="vesting_duration" align="right">
               {getFormattedTimeFromSecond(farm.vestingDuration, true)}
             </DataText>
+
+            <DataText grid-area="staked_balance" align="right">
+              {formattedNum(userStakedBalanceUSD.toString(), true)}
+            </DataText>
+
             <DataText
               grid-area="reward"
               align="right"
@@ -580,10 +585,6 @@ const ListItem = ({ farm }: ListItemProps) => {
                 )
               })}
             </DataText>
-            <DataText grid-area="staked_balance" align="right">
-              {formattedNum(userStakedBalanceUSD.toString(), true)}
-            </DataText>
-
             <Flex justifyContent="flex-end" sx={{ gap: '4px' }}>
               <ActionButton
                 disabled={tab === 'ended'}
