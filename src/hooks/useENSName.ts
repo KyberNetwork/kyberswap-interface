@@ -1,6 +1,7 @@
 import { namehash } from 'ethers/lib/utils'
 import { useMemo } from 'react'
 
+import { isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { isAddress } from 'utils'
@@ -17,6 +18,7 @@ export default function useENSName(address?: string): { ENSName: string | null; 
   const { chainId } = useActiveWeb3React()
   const debouncedAddress = useDebounce(address, 200)
   const ensNodeArgument = useMemo(() => {
+    if (!isEVM(chainId)) return [undefined]
     if (!debouncedAddress || !isAddress(chainId, debouncedAddress)) return [undefined]
     try {
       return debouncedAddress ? [namehash(`${debouncedAddress.toLowerCase().substr(2)}.addr.reverse`)] : [undefined]

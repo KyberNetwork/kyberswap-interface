@@ -19,6 +19,7 @@ import {
   toggleTokenInfo,
   toggleTopTrendingTokens,
   toggleTradeRoutes,
+  updateChainId,
   updateMatchesDarkMode,
   updateUserDarkMode,
   updateUserDeadline,
@@ -77,6 +78,7 @@ export interface UserState {
       }
     >
   >
+  readonly chainId: ChainId
 }
 
 function pairKey(token0Address: string, token1Address: string) {
@@ -125,6 +127,7 @@ export const initialState: UserState = {
   showTokenInfo: true,
   showTopTrendingSoonTokens: true,
   favoriteTokensByChainId: {},
+  chainId: ChainId.MAINNET,
 }
 
 export default createReducer(initialState, builder =>
@@ -244,5 +247,8 @@ export default createReducer(initialState, builder =>
         }
         favoriteTokens.addresses.splice(index, 1)
       }
+    })
+    .addCase(updateChainId, (state, { payload: chainId }) => {
+      state.chainId = chainId
     }),
 )

@@ -1,10 +1,15 @@
 import { Trans } from '@lingui/macro'
 import React, { useState } from 'react'
-import { ChevronUp } from 'react-feather'
+import { AlertTriangle, ChevronUp } from 'react-feather'
+import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as WarningIcon } from 'assets/images/warning.svg'
+import { SUPPORTED_WALLETS } from 'constants/wallets'
 import useTheme from 'hooks/useTheme'
+import { ExternalLink } from 'theme'
+import { detectInjectedType } from 'utils'
+import checkForBraveBrowser from 'utils/checkForBraveBrowser'
 
 const WarningBoxWrapper = styled.div`
   width: 100%;
@@ -59,62 +64,111 @@ const StepContainer = styled.div`
 `
 
 interface Props {
-  option?: string
+  walletOptionKey?: keyof typeof SUPPORTED_WALLETS
 }
 
-export const WarningBox: React.FC<Props> = ({ option }) => {
+export const WarningBox: React.FC<Props> = ({ walletOptionKey }) => {
   const theme = useTheme()
-  const isCoin98 = option === 'COIN98'
-
   const [show, setShow] = useState(false)
-  return (
-    <WarningBoxWrapper>
-      <InfoWrapper>
-        <StyledAlert />
-        {isCoin98 ? (
-          <Trans>
-            If Metamask wallet opens instead of C98, please close the Metamask popup then follow the steps below to
-            disable Metamask Wallet:
-          </Trans>
-        ) : (
-          <Trans>
-            If C98 wallet opens instead of Metamask, please close the C98 popup then follow the steps below to disable
-            C98 Wallet:
-          </Trans>
-        )}
 
-        <IconWrapper show={show} onClick={() => setShow(prev => !prev)}>
-          <ChevronUp size={16} color={theme.subText} />
-        </IconWrapper>
-      </InfoWrapper>
-      {show && (
-        <StepsWrapper>
-          <StepContainer>
-            <Step>1</Step>
-            <Trans>Open C98 Browser Extension</Trans>
-          </StepContainer>
-          <StepContainer>
-            <Step>2</Step>
-            <Trans>Click on the Settings icon</Trans>
-          </StepContainer>
-          <StepContainer>
-            <Step>3</Step>
-            <Trans>Select Override Wallets</Trans>
-          </StepContainer>
-          <StepContainer>
-            <Step>4</Step>
-            {isCoin98 ? <Trans>Enable Metamask in C98</Trans> : <Trans>Disable Metamask in C98</Trans>}
-          </StepContainer>
-          <StepContainer>
-            <Step>5</Step>
-            {isCoin98 ? (
-              <Trans>Refresh the page then try to connect to C98 again</Trans>
-            ) : (
-              <Trans>Refresh the page then try to connect to Metamask again</Trans>
-            )}
-          </StepContainer>
-        </StepsWrapper>
-      )}
-    </WarningBoxWrapper>
-  )
+  const isBraveBrowser = checkForBraveBrowser()
+  const injectedType = detectInjectedType()
+
+  if (!walletOptionKey) return <></>
+  if (!injectedType) return <></>
+
+  const walletName = SUPPORTED_WALLETS[walletOptionKey].name
+  const injectedName = SUPPORTED_WALLETS[injectedType].name
+
+  if (walletOptionKey === injectedType) return <></>
+
+  if (!isBraveBrowser && walletOptionKey === 'BRAVE') {
+    return (
+      <Flex
+        sx={{
+          background: theme.buttonBlack,
+          borderRadius: '16px',
+          padding: '8px 12px',
+          alignItems: 'center',
+          columnGap: '8px',
+          marginTop: '16px',
+          minHeight: '48px',
+        }}
+      >
+        <Flex
+          sx={{
+            flex: '0 0 24px',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <AlertTriangle color={theme.subText} width="16px" height="16px" />
+        </Flex>
+
+        <Text
+          as="span"
+          sx={{
+            color: theme.subText,
+            fontWeight: 400,
+            fontSize: '12px',
+            lineHeight: '16px',
+          }}
+        >
+          <Trans>Brave wallet can only be used in Brave Browser. Download it</Trans>{' '}
+          <ExternalLink href="https://brave.com/" style={{ color: theme.primary }}>
+            <Trans>here</Trans>
+          </ExternalLink>
+        </Text>
+      </Flex>
+    )
+  }
+
+  if (
+    (walletOptionKey === 'COIN98' && injectedType === 'METAMASK') ||
+    (walletOptionKey === 'METAMASK' && injectedType === 'COIN98') ||
+    (walletOptionKey === 'BRAVE' && injectedType === 'COIN98') ||
+    (walletOptionKey === 'COIN98' && injectedType === 'BRAVE')
+  ) {
+    const isSelectCoin98 = walletOptionKey === 'COIN98'
+    return (
+      <WarningBoxWrapper>
+        <InfoWrapper>
+          <StyledAlert />
+          <Trans>
+            If {injectedName} wallet opens instead of {walletName}, please close the {injectedName} popup then follow
+            the steps below to disable {injectedName} Wallet:
+          </Trans>
+          <IconWrapper show={show} onClick={() => setShow(prev => !prev)}>
+            <ChevronUp size={16} color={theme.subText} />
+          </IconWrapper>
+        </InfoWrapper>
+        {show && (
+          <StepsWrapper>
+            <StepContainer>
+              <Step>1</Step>
+              <Trans>Open C98 Browser Extension</Trans>
+            </StepContainer>
+            <StepContainer>
+              <Step>2</Step>
+              <Trans>Click on the Settings icon</Trans>
+            </StepContainer>
+            <StepContainer>
+              <Step>3</Step>
+              <Trans>Select Override Wallets</Trans>
+            </StepContainer>
+            <StepContainer>
+              <Step>4</Step>
+              {isSelectCoin98 ? <Trans>Enable Metamask in C98</Trans> : <Trans>Disable Metamask in C98</Trans>}
+            </StepContainer>
+            <StepContainer>
+              <Step>5</Step>
+              <Trans>Refresh the page then try to connect to {walletName} again</Trans>
+            </StepContainer>
+          </StepsWrapper>
+        )}
+      </WarningBoxWrapper>
+    )
+  }
+
+  return <></>
 }

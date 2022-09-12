@@ -1,4 +1,5 @@
 import { Trans } from '@lingui/macro'
+import { ChainType, getChainType } from '@namgold/ks-sdk-core'
 import { useWeb3React } from '@web3-react/core'
 import { useEffect, useState } from 'react'
 import styled from 'styled-components'
@@ -7,7 +8,7 @@ import Loader from 'components/Loader'
 import LocalLoader from 'components/LocalLoader'
 import { network } from 'connectors'
 import { NetworkContextName } from 'constants/index'
-import { useEagerConnect, useInactiveListener } from 'hooks'
+import { useActiveWeb3React, useEagerConnect, useInactiveListener } from 'hooks'
 
 const MessageWrapper = styled.div`
   display: flex;
@@ -21,6 +22,8 @@ const Message = styled.h2`
 `
 
 export default function Web3ReactManager({ children }: { children: JSX.Element }) {
+  const { chainId } = useActiveWeb3React()
+  const chainType = getChainType(chainId)
   const { active } = useWeb3React()
   const { active: networkActive, error: networkError, activate: activateNetwork } = useWeb3React(NetworkContextName)
 
@@ -29,10 +32,10 @@ export default function Web3ReactManager({ children }: { children: JSX.Element }
 
   // after eagerly trying injected, if the network connect ever isn't active or in an error state, activate itd
   useEffect(() => {
-    if (triedEager && !networkActive && !networkError && !active) {
+    if (chainType === ChainType.EVM && triedEager && !networkActive && !networkError && !active) {
       activateNetwork(network)
     }
-  }, [triedEager, networkActive, networkError, activateNetwork, active])
+  }, [triedEager, networkActive, networkError, activateNetwork, active, chainType])
 
   // when there's no account connected, react to logins (broadly speaking) on the injected provider, if it exists
   useInactiveListener(!triedEager)
@@ -50,12 +53,12 @@ export default function Web3ReactManager({ children }: { children: JSX.Element }
   }, [])
 
   // on page load, do nothing until we've tried to connect to the injected connector
-  if (!triedEager) {
+  if (chainType === ChainType.EVM && !triedEager) {
     return <LocalLoader />
   }
 
   // if the account context isn't active, and there's an error on the network context, it's an irrecoverable error
-  if (!active && networkError) {
+  if (chainType === ChainType.EVM && !active && networkError) {
     return (
       <MessageWrapper>
         <Message>
@@ -68,7 +71,7 @@ export default function Web3ReactManager({ children }: { children: JSX.Element }
   }
 
   // if neither context is active, spin
-  if (!active && !networkActive) {
+  if (chainType === ChainType.EVM && !active && !networkActive) {
     return showLoader ? (
       <MessageWrapper>
         <Loader />

@@ -489,7 +489,13 @@ export const KNC: { [chainId in ChainId]: Token } = {
   [ChainId.ARBITRUM]: new Token(ChainId.ARBITRUM, KNC_ADDRESS, 18, 'KNC', 'Kyber Network Crystal'),
   [ChainId.VELAS]: new Token(ChainId.VELAS, KNC_ADDRESS, 18, 'KNC', 'Kyber Network Crystal'),
   [ChainId.OASIS]: new Token(ChainId.OASIS, KNC_ADDRESS, 18, 'KNC', 'Kyber Network Crystal'),
-  [ChainId.OPTIMISM]: new Token(ChainId.OPTIMISM, KNC_ADDRESS, 18, 'KNC', 'Kyber Network Crystal'),
+  [ChainId.OPTIMISM]: new Token(
+    ChainId.OPTIMISM,
+    '0xa00e3a3511aac35ca78530c85007afcd31753819',
+    18,
+    'KNC',
+    'Kyber Network Crystal',
+  ),
   [ChainId.SOLANA]: new Token(
     ChainId.SOLANA,
     'KNCVyKuChfKTLDJ3EQEatqF4kBEF2PNECoTRWsx5qXz',

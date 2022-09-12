@@ -11,6 +11,18 @@ import { EVM_NETWORK, EVM_NETWORKS, NETWORKS_INFO, WALLET_CONNECT_SUPPORTED_CHAI
 
 import { NetworkConnector } from './NetworkConnector'
 
+const NETWORK_URLS: {
+  [chainId in EVM_NETWORK]: string
+} = EVM_NETWORKS.reduce(
+  (acc, val) => {
+    acc[val] = NETWORKS_INFO[val].rpcUrl
+    return acc
+  },
+  {} as {
+    [chainId in EVM_NETWORK]: string
+  },
+)
+
 const NETWORK_URL = NETWORKS_INFO[ChainId.MAINNET].rpcUrl
 
 export const NETWORK_CHAIN_ID = 1
@@ -32,18 +44,6 @@ export const injected = new InjectedConnector(injectedConnectorParam)
 export const coin98InjectedConnector = new InjectedConnector(injectedConnectorParam)
 
 export const braveInjectedConnector = new InjectedConnector(injectedConnectorParam)
-
-export const NETWORK_URLS: {
-  [chainId in EVM_NETWORK]: string
-} = EVM_NETWORKS.reduce(
-  (acc, val) => {
-    acc[val] = NETWORKS_INFO[val].rpcUrl
-    return acc
-  },
-  {} as {
-    [chainId in EVM_NETWORK]: string
-  },
-)
 
 export const walletconnect = new WalletConnectConnector({
   supportedChainIds: WALLET_CONNECT_SUPPORTED_CHAIN_IDS,

@@ -3,6 +3,7 @@ import { Contract } from '@ethersproject/contracts'
 import { Router, Trade } from '@namgold/ks-sdk-classic'
 import { Currency, Percent, TradeType } from '@namgold/ks-sdk-core'
 import { SwapRouter as ProAmmRouter, Trade as ProAmmTrade } from '@namgold/ks-sdk-elastic'
+import { useWeb3React } from '@web3-react/core'
 import JSBI from 'jsbi'
 import { useMemo } from 'react'
 
@@ -55,7 +56,8 @@ function useSwapCallArguments(
   allowedSlippage: number = INITIAL_ALLOWED_SLIPPAGE, // in bips
   recipientAddressOrName: string | null, // the ENS name or address of the recipient of the trade, or null if swap should be returned to sender
 ): SwapCall[] {
-  const { account, chainId, library } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
+  const { library } = useWeb3React()
 
   const { address: recipientAddress } = useENS(recipientAddressOrName)
   const recipient = recipientAddressOrName === null ? account : recipientAddress
@@ -134,7 +136,8 @@ export function useSwapCallback(
   allowedSlippage: number = INITIAL_ALLOWED_SLIPPAGE, // in bips
   recipientAddressOrName: string | null, // the ENS name or address of the recipient of the trade, or null if swap should be returned to sender
 ): { state: SwapCallbackState; callback: null | (() => Promise<string>); error: string | null } {
-  const { account, chainId, library } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
+  const { library } = useWeb3React()
 
   const swapCalls = useSwapCallArguments(trade, allowedSlippage, recipientAddressOrName)
 
@@ -173,23 +176,23 @@ export function useSwapCallback(
 
             return library
               .estimateGas(tx)
-              .then(gasEstimate => {
+              .then((gasEstimate: BigNumber) => {
                 return {
                   call,
                   gasEstimate,
                 }
               })
-              .catch(gasError => {
+              .catch((gasError: any) => {
                 // This callback only for swap legacy, dont need to track error on sentry
                 console.debug('Gas estimate failed, trying eth_call to extract error', call)
 
                 return library
                   .call(tx)
-                  .then(result => {
+                  .then((result: any) => {
                     console.debug('Unexpected successful call after failed estimate gas', call, gasError, result)
                     return { call, error: new Error('Unexpected issue with estimating the gas. Please try again.') }
                   })
-                  .catch(callError => {
+                  .catch((callError: any) => {
                     console.debug('Call threw error', call, callError)
                     let errorMessage: string
                     switch (callError.message) {
@@ -247,7 +250,7 @@ export function useSwapCallback(
                 ? base
                 : `${base} to ${
                     recipientAddressOrName && isAddress(chainId, recipientAddressOrName)
-                      ? shortenAddress(recipientAddressOrName)
+                      ? shortenAddress(chainId, recipientAddressOrName)
                       : recipientAddressOrName
                   }`
 

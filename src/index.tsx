@@ -12,6 +12,7 @@ import { BrowserRouter } from 'react-router-dom'
 import 'swiper/swiper-bundle.min.css'
 import 'swiper/swiper.min.css'
 
+import SolanaWalletContext from 'components/SolanaWalletContext'
 import { GTM_ID, SENTRY_DNS, TAG } from 'constants/env'
 import CampaignsUpdater from 'state/campaigns/updater'
 
@@ -98,19 +99,21 @@ const ReactApp = () => {
       />
       <FixedGlobalStyle />
       <Provider store={store}>
-        <BrowserRouter>
-          <LanguageProvider>
-            <Web3ReactProvider getLibrary={getLibrary}>
-              <Web3ProviderNetwork getLibrary={getLibrary}>
-                <Updaters />
-                <ThemeProvider>
-                  <ThemedGlobalStyle />
-                  <App />
-                </ThemeProvider>
-              </Web3ProviderNetwork>
-            </Web3ReactProvider>
-          </LanguageProvider>
-        </BrowserRouter>
+        <SolanaWalletContext>
+          <BrowserRouter>
+            <LanguageProvider>
+              <Web3ReactProvider getLibrary={getLibrary}>
+                <Web3ProviderNetwork getLibrary={getLibrary}>
+                  <Updaters />
+                  <ThemeProvider>
+                    <ThemedGlobalStyle />
+                    <App />
+                  </ThemeProvider>
+                </Web3ProviderNetwork>
+              </Web3ReactProvider>
+            </LanguageProvider>
+          </BrowserRouter>
+        </SolanaWalletContext>
       </Provider>
     </StrictMode>
   )

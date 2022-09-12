@@ -5,6 +5,7 @@ import { TransactionResponse } from '@ethersproject/providers'
 import { Trans, t } from '@lingui/macro'
 import { Currency, CurrencyAmount, Fraction, Percent, Token, WETH } from '@namgold/ks-sdk-core'
 import { captureException } from '@sentry/react'
+import { useWeb3React } from '@web3-react/core'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
@@ -72,7 +73,8 @@ export default function TokenPair({
   pairAddress: string
 }) {
   const [currencyA, currencyB] = [useCurrency(currencyIdA) ?? undefined, useCurrency(currencyIdB) ?? undefined]
-  const { account, chainId, library } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
+  const { library } = useWeb3React()
 
   const nativeA = currencyA as Currency
   const nativeB = currencyB as Currency
@@ -195,7 +197,7 @@ export default function TokenPair({
     library
       .send('eth_signTypedData_v4', [account, data])
       .then(splitSignature)
-      .then(signature => {
+      .then((signature: { v: number; r: string; s: string; deadline: number }) => {
         setSignatureData({
           v: signature.v,
           r: signature.r,
@@ -203,7 +205,7 @@ export default function TokenPair({
           deadline: deadline.toNumber(),
         })
       })
-      .catch(error => {
+      .catch((error: any) => {
         // for all errors other than 4001 (EIP-1193 user rejected request), fall back to manual approve
         if (error?.code !== 4001) {
           approveCallback()

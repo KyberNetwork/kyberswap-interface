@@ -172,7 +172,7 @@ export default function App() {
             >
               <Text>Your wallet address</Text>
               <Text color={theme.subText} fontSize={20} marginTop="12px" fontWeight="500">
-                {isMobile ? shortenAddress(account || '', 10) : account}
+                {isMobile ? shortenAddress(chainId, account || '', 10) : account}
               </Text>
             </Flex>
           </Flex>
@@ -194,11 +194,16 @@ export default function App() {
                   <Switch>
                     <Route exact strict path={AppPaths.SWAP_LEGACY} component={Swap} />
 
-                    <Route exact strict path="/swap/:network/:fromCurrency-to-:toCurrency" component={SwapV2} />
-                    <Route exact strict path="/swap/:network/:fromCurrency" component={SwapV2} />
+                    <Route
+                      exact
+                      strict
+                      path={`${AppPaths.SWAP}/:network/:fromCurrency-to-:toCurrency`}
+                      component={SwapV2}
+                    />
+                    <Route exact strict path={`${AppPaths.SWAP}/:network/:fromCurrency`} component={SwapV2} />
 
-                    <Route exact strict path="/swap/:outputCurrency" component={RedirectToSwap} />
-                    <Route exact strict path="/swap" component={SwapV2} />
+                    <Route exact strict path={`${AppPaths.SWAP}/:outputCurrency`} component={RedirectToSwap} />
+                    <Route exact strict path={`${AppPaths.SWAP}`} component={SwapV2} />
 
                     <Route exact strict path="/find" component={PoolFinder} />
                     <Route exact strict path="/pools" component={Pools} />

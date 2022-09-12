@@ -157,6 +157,7 @@ const Row = ({
     token1Amount: CurrencyAmount<Token>
   }) => void
 }) => {
+  const { chainId } = useActiveWeb3React()
   const theme = useTheme()
   const currentTimestamp = Math.floor(Date.now() / 1000)
   const above1000 = useMedia('(min-width: 1000px)')
@@ -358,7 +359,7 @@ const Row = ({
             <Text color={theme.subText}>|</Text>
 
             <Flex alignItems="center">
-              <Text>{shortenAddress(farm.poolAddress, 2)}</Text>
+              <Text>{shortenAddress(chainId, farm.poolAddress, 2)}</Text>
               <CopyHelper toCopy={farm.poolAddress} />
             </Flex>
           </Flex>
@@ -532,7 +533,7 @@ const Row = ({
             <Text color={theme.subText}>|</Text>
 
             <Flex alignItems="center">
-              <Text>{shortenAddress(farm.poolAddress, 2)}</Text>
+              <Text>{shortenAddress(chainId, farm.poolAddress, 2)}</Text>
               <CopyHelper toCopy={farm.poolAddress} />
             </Flex>
           </Flex>

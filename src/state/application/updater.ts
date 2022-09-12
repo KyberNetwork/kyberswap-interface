@@ -1,3 +1,4 @@
+import { useWeb3React } from '@web3-react/core'
 import { useCallback, useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 
@@ -8,7 +9,8 @@ import useIsWindowVisible from 'hooks/useIsWindowVisible'
 import { updateBlockNumber } from './actions'
 
 export default function Updater(): null {
-  const { library, chainId } = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React()
+  const { library } = useWeb3React()
   const dispatch = useDispatch()
 
   const windowVisible = useIsWindowVisible()
@@ -40,7 +42,7 @@ export default function Updater(): null {
     library
       .getBlockNumber()
       .then(blockNumberCallback)
-      .catch(error => console.error(`Failed to get block number for chainId: ${chainId}`, error))
+      .catch((error: any) => console.error(`Failed to get block number for chainId: ${chainId}`, error))
 
     library.on('block', blockNumberCallback)
     return () => {

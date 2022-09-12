@@ -153,7 +153,7 @@ export default function ProAmmPoolCardItem({ pair, onShared, userPositions, idx 
             <DataText justifyContent="center" marginBottom="1rem">
               <PoolAddressContainer>
                 <Text color={theme.text} fontSize="16px">
-                  {shortenAddress(pool.address, 3)}
+                  {shortenAddress(chainId, pool.address, 3)}
                 </Text>
                 <CopyHelper toCopy={pool.address} />
               </PoolAddressContainer>

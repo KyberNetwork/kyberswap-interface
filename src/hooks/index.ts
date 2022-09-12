@@ -1,15 +1,14 @@
-import { Web3Provider } from '@ethersproject/providers'
-import { ChainId } from '@namgold/ks-sdk-core'
+import { ChainId, ChainType, getChainType } from '@namgold/ks-sdk-core'
+import { useWallet } from '@solana/wallet-adapter-react'
 import { useWeb3React as useWeb3ReactCore } from '@web3-react/core'
-import { Web3ReactContextInterface } from '@web3-react/core/dist/types'
 import { ethers } from 'ethers'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useSelector } from 'react-redux'
 import { useLocalStorage } from 'react-use'
 
 import { injected } from 'connectors'
-import { EVM_NETWORK, EVM_NETWORKS, NETWORKS_INFO, isEVM } from 'constants/networks'
+import { EVM_NETWORK, EVM_NETWORKS, NETWORKS_INFO } from 'constants/networks'
 import { AppState } from 'state'
 
 export const providers: {
@@ -24,25 +23,18 @@ export const providers: {
   },
 )
 
-export function useActiveWeb3React(): Web3ReactContextInterface<Web3Provider> & { chainId: ChainId } {
-  const chainIdState = useSelector<AppState, ChainId>(state => state.application.chainId)
+export function useActiveWeb3React(): { chainId: ChainId; account?: string } {
+  const chainIdState = useSelector<AppState, ChainId>(state => state.user.chainId)
+  const chainType = getChainType(chainIdState)
+  const { account } = useWeb3ReactCore()
+  const { publicKey } = useWallet()
 
-  const context = useWeb3ReactCore()
-  const { library, chainId, ...web3React } = context
+  const address = useMemo(
+    () => (chainType === ChainType.EVM ? account ?? undefined : publicKey?.toBase58()),
+    [account, chainType, publicKey],
+  )
 
-  if (isEVM(chainIdState)) {
-    if (context.active && context.chainId) {
-      return context as Web3ReactContextInterface<Web3Provider> & { chainId: ChainId }
-    } else {
-      return {
-        library: providers[chainIdState],
-        chainId: chainIdState,
-        ...web3React,
-      } as Web3ReactContextInterface<Web3Provider> & { chainId: ChainId }
-    }
-  } else {
-    return { chainId: chainIdState } as Web3ReactContextInterface<Web3Provider> & { chainId: ChainId }
-  }
+  return { chainId: chainIdState, account: address }
 }
 
 async function isAuthorized(): Promise<boolean> {
@@ -65,6 +57,8 @@ async function isAuthorized(): Promise<boolean> {
 let globalTried = false
 
 export function useEagerConnect() {
+  const { chainId } = useActiveWeb3React()
+  const chainType = getChainType(chainId)
   const { activate, active } = useWeb3ReactCore() // specifically using useWeb3ReactCore because of what this hook does
   const [tried, setTried] = useState(false)
   const [isManuallyDisconnect] = useLocalStorage('user-manually-disconnect')
@@ -82,32 +76,35 @@ export function useEagerConnect() {
   }, [])
 
   useEffect(() => {
-    try {
-      isAuthorized()
-        .then(isAuthorized => {
-          if (isAuthorized && !isManuallyDisconnect) {
-            activate(injected, undefined, true).catch(() => {
-              setTried(true)
-            })
-          } else {
-            if (isMobile && window.ethereum) {
+    if (chainType === ChainType.SOLANA) setTried(true)
+    else {
+      try {
+        isAuthorized()
+          .then(isAuthorized => {
+            if (isAuthorized && !isManuallyDisconnect) {
               activate(injected, undefined, true).catch(() => {
                 setTried(true)
               })
             } else {
-              setTried(true)
+              if (isMobile && window.ethereum) {
+                activate(injected, undefined, true).catch(() => {
+                  setTried(true)
+                })
+              } else {
+                setTried(true)
+              }
             }
-          }
-        })
-        .catch(e => {
-          console.log('Eagerly connect: authorize error', e)
-          setTried(true)
-        })
-    } catch (e) {
-      console.log('Eagerly connect: authorize error', e)
-      setTried(true)
+          })
+          .catch(e => {
+            console.log('Eagerly connect: authorize error', e)
+            setTried(true)
+          })
+      } catch (e) {
+        console.log('Eagerly connect: authorize error', e)
+        setTried(true)
+      }
     }
-  }, [activate, isManuallyDisconnect]) // intentionally only running on mount (make sure it's only mounted once :))
+  }, [activate, chainType, isManuallyDisconnect]) // intentionally only running on mount (make sure it's only mounted once :))
 
   // if the connection worked, wait until we get confirmation of that to flip the flag
   useEffect(() => {

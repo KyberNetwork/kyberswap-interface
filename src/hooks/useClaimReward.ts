@@ -2,6 +2,7 @@ import { TransactionResponse } from '@ethersproject/providers'
 import { t } from '@lingui/macro'
 import { CurrencyAmount } from '@namgold/ks-sdk-core'
 import { captureException } from '@sentry/react'
+import { useWeb3React } from '@web3-react/core'
 import { BigNumber } from 'ethers'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import useSWR from 'swr'
@@ -31,7 +32,9 @@ export interface IUserReward {
 
 // eslint-disable react-hooks/exhaustive-deps
 export default function useClaimReward() {
-  const { chainId, account, library } = useActiveWeb3React()
+  const { chainId, account } = useActiveWeb3React()
+  const { library } = useWeb3React()
+
   const rewardContract = useMemo(() => {
     return !!chainId && !!account && !!library ? getClaimRewardContract(chainId, library, account) : undefined
   }, [chainId, library, account])

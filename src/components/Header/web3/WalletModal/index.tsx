@@ -1,19 +1,22 @@
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
+import { ChainType, getChainType } from '@namgold/ks-sdk-core'
+import { BaseMessageSignerWalletAdapter, WalletReadyState } from '@solana/wallet-adapter-base'
+import { useWallet } from '@solana/wallet-adapter-react'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core'
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { useEffect, useState } from 'react'
-import { isMobile } from 'react-device-detect'
 import { ChevronLeft } from 'react-feather'
 import { useLocation } from 'react-router-dom'
 import { useLocalStorage } from 'react-use'
 import styled from 'styled-components'
 
 import { ReactComponent as Close } from 'assets/images/x.svg'
-import AccountDetails from 'components/AccountDetails'
+import AccountDetails from 'components/Header/web3/AccountDetails'
+import Networks from 'components/Header/web3/NetworkModal/Networks'
 import Modal from 'components/Modal'
-import { braveInjectedConnector, coin98InjectedConnector, injected } from 'connectors'
-import { SUPPORTED_WALLETS } from 'constants/index'
+import { SUPPORTED_WALLETS } from 'constants/wallets'
+import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import usePrevious from 'hooks/usePrevious'
 import useTheme from 'hooks/useTheme'
@@ -21,9 +24,9 @@ import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useOpenNetworkModal, useWalletModalToggle } from 'state/application/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
+import { isEVMWallet, isSolanaWallet } from 'utils'
 import checkForBraveBrowser from 'utils/checkForBraveBrowser'
 
-import InstallBraveNote from './InstallBraveNote'
 import Option from './Option'
 import PendingView from './PendingView'
 
@@ -53,7 +56,7 @@ const Wrapper = styled.div`
 
 const HeaderRow = styled.div<{ padding?: string }>`
   ${({ theme }) => theme.flexRowNoWrap};
-  padding: ${({ padding }) => padding ?? '1.5rem 2rem 0 2rem'};
+  padding: ${({ padding }) => padding ?? '30px 24px 0 24px'};
   font-weight: 500;
   color: ${props => (props.color === 'blue' ? ({ theme }) => theme.primary : 'inherit')};
   ${({ theme }) => theme.mediaWidth.upToMedium`
@@ -62,7 +65,7 @@ const HeaderRow = styled.div<{ padding?: string }>`
 `
 
 const ContentWrapper = styled.div<{ padding?: string }>`
-  padding: ${({ padding }) => padding ?? '2rem'};
+  padding: ${({ padding }) => padding ?? '24px'};
   border-bottom-left-radius: 20px;
   border-bottom-right-radius: 20px;
 
@@ -71,7 +74,7 @@ const ContentWrapper = styled.div<{ padding?: string }>`
 
 const TermAndCondition = styled.div`
   ${({ theme }) => theme.flexRowNoWrap};
-  padding: 32px 2rem 0px 2rem;
+  padding: 28px 24px 0px 24px;
   font-weight: 500;
   color: ${props => (props.color === 'blue' ? ({ theme }) => theme.primary : 'inherit')};
   ${({ theme }) => theme.mediaWidth.upToMedium`
@@ -102,11 +105,12 @@ const UpperSection = styled.div`
 
 const OptionGrid = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  gap: 16px;
+  margin-top: 16px;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
     grid-gap: 10px;
   `};
 `
@@ -115,7 +119,7 @@ const HoverText = styled.div`
   display: flex;
   gap: 4px;
   align-items: center;
-  font-size: 18px;
+  font-size: 20px;
   :hover {
     cursor: pointer;
   }
@@ -141,13 +145,16 @@ export default function WalletModal({
   confirmedTransactions: string[] // hashes of confirmed
   ENSName?: string
 }) {
+  const { chainId, account } = useActiveWeb3React()
+  const chainType = getChainType(chainId)
   // important that these are destructed from the account-specific web3-react context
-  const { active, account, connector, activate, error } = useWeb3React()
+  const { active, connector, activate, error } = useWeb3React()
+  const { wallet, select, connected, connecting } = useWallet()
   const theme = useTheme()
 
   const [walletView, setWalletView] = useState(WALLET_VIEWS.ACCOUNT)
 
-  const [pendingWallet, setPendingWallet] = useState<AbstractConnector | undefined>()
+  const [pendingWalletKey, setPendingWalletKey] = useState<keyof typeof SUPPORTED_WALLETS | undefined>()
 
   const [pendingError, setPendingError] = useState<boolean>()
 
@@ -158,12 +165,11 @@ export default function WalletModal({
   const previousAccount = usePrevious(account)
   const isDarkMode = useIsDarkMode()
 
-  const [isAccepted, setIsAccepted] = useState(true)
+  const [isAcceptedTerm, setIsAcceptedTerm] = useState(true)
 
   const location = useLocation()
   const { mixpanelHandler } = useMixpanel()
 
-  // need to call this inside a Component as there's an async call in `checkForBraveBrowser`
   const isBraveBrowser = checkForBraveBrowser()
 
   // close on connection, when logged out before
@@ -193,6 +199,7 @@ export default function WalletModal({
   // close modal when a connection is successful
   const activePrevious = usePrevious(active)
   const connectorPrevious = usePrevious(connector)
+
   useEffect(() => {
     if (walletModalOpen && ((active && !activePrevious) || (connector && connector !== connectorPrevious && !error))) {
       setWalletView(WALLET_VIEWS.ACCOUNT)
@@ -200,12 +207,22 @@ export default function WalletModal({
   }, [setWalletView, active, error, connector, walletModalOpen, activePrevious, connectorPrevious])
   const [, setIsUserManuallyDisconnect] = useLocalStorage('user-manually-disconnect')
 
-  const tryActivation = async (connector: AbstractConnector | undefined) => {
-    setPendingWallet(connector) // set wallet for pending view
+  const tryActivation = async (walletKey: keyof typeof SUPPORTED_WALLETS) => {
+    const tryWallet = SUPPORTED_WALLETS[walletKey]
+    setPendingWalletKey(walletKey)
     setWalletView(WALLET_VIEWS.PENDING)
 
-    if (connector === braveInjectedConnector && !isBraveBrowser) {
-      // we just want the loading indicator, so return here
+    const chainType = getChainType(chainId)
+    if (chainType === ChainType.EVM && isEVMWallet(tryWallet))
+      if (tryWallet.connector === connector) setWalletView(WALLET_VIEWS.ACCOUNT)
+      else if (!tryWallet.href) tryActivationEVM(tryWallet.connector)
+    if (chainType === ChainType.SOLANA && isSolanaWallet(tryWallet) && tryWallet.adapter !== wallet?.adapter)
+      tryActivationSolana(tryWallet.adapter)
+  }
+
+  const tryActivationEVM = async (connector: AbstractConnector | undefined) => {
+    if (!isBraveBrowser && pendingWalletKey === 'BRAVE') {
+      // wont do connect and show the loading indicator with install note for brave
       return
     }
 
@@ -229,110 +246,112 @@ export default function WalletModal({
     }
   }
 
-  const handleAccept = () => {
-    setIsAccepted(!isAccepted)
+  useEffect(() => {
+    if (!connecting) {
+      if (connected) setPendingError(false)
+      else setPendingError(true)
+    }
+  }, [connecting, connected])
+
+  const tryActivationSolana = async (adapter: BaseMessageSignerWalletAdapter) => {
+    try {
+      select(adapter.name)
+      setIsUserManuallyDisconnect(false)
+    } catch (e) {
+      setPendingError(true)
+    }
   }
 
-  // get wallets user can switch too, depending on device/browser
   function getOptions() {
-    const isMetamask = window.ethereum && window.ethereum.isMetaMask
+    const sortWallets = (walletAKey: keyof typeof SUPPORTED_WALLETS, walletBKey: keyof typeof SUPPORTED_WALLETS) => {
+      const walletA = SUPPORTED_WALLETS[walletAKey]
+      const walletB = SUPPORTED_WALLETS[walletBKey]
+      const isWalletAEVM = isEVMWallet(walletA)
+      const isWalletASolana = isSolanaWallet(walletA)
+      const isWalletBEVM = isEVMWallet(walletB)
+      const isWalletBSolana = isSolanaWallet(walletB)
 
-    return Object.keys(SUPPORTED_WALLETS)
+      let aPoint = 0
+      let bPoint = 0
+      if (chainType === ChainType.EVM) {
+        if (isWalletAEVM) aPoint++
+        if (isWalletBEVM) bPoint++
+      } else if (chainType === ChainType.SOLANA) {
+        if (isWalletASolana) aPoint++
+        if (isWalletBSolana) bPoint++
+      }
+      return bPoint - aPoint
+    }
+
+    return (Object.keys(SUPPORTED_WALLETS) as (keyof typeof SUPPORTED_WALLETS)[])
+      .sort(sortWallets)
       .map(key => {
         const option = SUPPORTED_WALLETS[key]
-        // check for mobile options
-        if (isMobile) {
-          if (
-            (!window.web3 && !window.ethereum && option.mobile) ||
-            // add this condition below for Brave browser. In Brave, window.ethereum is not undefined
-            // the above condition fails and there are no wallet options to choose
-            (option.mobile && isBraveBrowser)
-          ) {
-            return (
-              <Option
-                onClick={() => {
-                  option.connector !== connector && !option.href && tryActivation(option.connector)
-                }}
-                id={`connect-${key}`}
-                key={key}
-                active={option.connector && option.connector === connector}
-                color={option.color}
-                link={option.href}
-                header={option.name}
-                subheader={null}
-                icon={require(`../../../../assets/images/${isDarkMode ? '' : 'light-'}${option.iconName}`).default}
-              />
-            )
-          }
+        const isWalletEVM = isEVMWallet(option)
+        const isWalletSolana = isSolanaWallet(option)
+        const clickable =
+          isAcceptedTerm &&
+          ((isWalletEVM && chainType === ChainType.EVM) || (isWalletSolana && chainType === ChainType.SOLANA))
+        const active =
+          (chainType === ChainType.EVM && isWalletEVM && !!connector && option.connector === connector) ||
+          (chainType === ChainType.SOLANA &&
+            isWalletSolana &&
+            !!wallet &&
+            connected &&
+            option.adapter === wallet.adapter)
+        const readyState = (() => {
+          const readyStateEVM = isWalletEVM
+            ? typeof option.readyState === 'function'
+              ? option.readyState()
+              : option.readyState
+            : null
+          const readyStateSolana = isWalletSolana ? option.readyStateSolana : null
+          return (
+            (chainType === ChainType.EVM && readyStateEVM) ||
+            (chainType === ChainType.SOLANA && readyStateSolana) ||
+            readyStateEVM ||
+            readyStateSolana
+          )
+        })()
+        if (readyState === WalletReadyState.Unsupported) return null
 
-          return null
-        }
-        // overwrite injected when needed
-        if (option.connector === injected) {
-          // don't show injected if there's no injected provider
-          if (!(window.web3 || window.ethereum?.isMetaMask)) {
-            if (option.name === 'MetaMask') {
-              return (
-                <Option
-                  id={`connect-${key}`}
-                  key={key}
-                  color={'#E8831D'}
-                  header={'Install Metamask'}
-                  subheader={null}
-                  link={'https://metamask.io/'}
-                  icon={require(`../../../../assets/images/${isDarkMode ? '' : 'light-'}${option.iconName}`).default}
-                />
-              )
-            } else {
-              return null //dont want to return install twice
-            }
-          }
-          // don't return metamask if injected provider isn't metamask
-          else if (option.name === 'MetaMask' && !isMetamask) {
-            return null
-          }
-          // likewise for generic
-          else if (option.name === 'Injected' && isMetamask) {
-            return null
-          }
-        }
-
-        if (option.connector === coin98InjectedConnector) {
-          if (!(window.web3 || window.ethereum?.isCoin98)) {
-            return (
-              <Option
-                id={`connect-${key}`}
-                key={key}
-                color={'#E8831D'}
-                header={'Install Coin98'}
-                link={'https://coin98.com/'}
-                icon={require(`../../../../assets/images/${isDarkMode ? '' : 'light-'}${option.iconName}`).default}
-              />
-            )
-          }
-        }
-
-        // return rest of options
-        return (
-          !isMobile &&
-          !option.mobileOnly && (
+        if (readyState === WalletReadyState.NotDetected && option.installLink) {
+          return (
             <Option
-              clickable={isAccepted}
+              clickable={clickable}
               id={`connect-${key}`}
-              onClick={() => {
-                option.connector === connector
-                  ? setWalletView(WALLET_VIEWS.ACCOUNT)
-                  : !option.href && tryActivation(option.connector)
-              }}
               key={key}
-              active={option.connector === connector}
-              color={option.color}
-              link={option.href}
               header={option.name}
-              subheader={null} //use option.descriptio to bring back multi-line
+              installLink={option.installLink}
               icon={require(`../../../../assets/images/${isDarkMode ? '' : 'light-'}${option.iconName}`).default}
             />
           )
+        }
+
+        if (readyState === WalletReadyState.Loadable && isEVMWallet(option) && option.href) {
+          return (
+            <Option
+              clickable={clickable}
+              id={`connect-${key}`}
+              key={key}
+              active={active}
+              header={option.name}
+              link={option.href}
+              icon={require(`../../../../assets/images/${isDarkMode ? '' : 'light-'}${option.iconName}`).default}
+            />
+          )
+        }
+
+        return (
+          <Option
+            clickable={clickable}
+            id={`connect-${key}`}
+            onClick={() => tryActivation(key)}
+            key={key}
+            active={active}
+            header={option.name}
+            icon={require(`../../../../assets/images/${isDarkMode ? '' : 'light-'}${option.iconName}`).default}
+          />
         )
       })
       .filter(Boolean)
@@ -345,8 +364,12 @@ export default function WalletModal({
           <CloseIcon onClick={toggleWalletModal}>
             <CloseColor />
           </CloseIcon>
-          <HeaderRow padding="1rem">{'Error connecting'}</HeaderRow>
-          <ContentWrapper padding="1rem 1.5rem 1.5rem">{t`Error connecting. Try refreshing the page.`}</ContentWrapper>
+          <HeaderRow padding="1rem">
+            <Trans>Error connecting</Trans>
+          </HeaderRow>
+          <ContentWrapper padding="1rem 1.5rem 1.5rem">
+            <Trans>Error connecting. Try refreshing the page.</Trans>
+          </ContentWrapper>
         </UpperSection>
       )
     }
@@ -361,12 +384,6 @@ export default function WalletModal({
         />
       )
     }
-
-    const shouldShowInstallBrave = !isBraveBrowser && pendingWallet === braveInjectedConnector
-    const walletOptionKey = Object.keys(SUPPORTED_WALLETS).find(key => {
-      const wallet = SUPPORTED_WALLETS[key]
-      return wallet.connector === connector
-    })
 
     return (
       <UpperSection>
@@ -397,7 +414,12 @@ export default function WalletModal({
         </HeaderRow>
         {(walletView === WALLET_VIEWS.ACCOUNT || walletView === WALLET_VIEWS.CHANGE_WALLET) && (
           <TermAndCondition>
-            <input type="checkbox" checked={isAccepted} onChange={handleAccept} style={{ marginRight: '12px' }} />
+            <input
+              type="checkbox"
+              checked={isAcceptedTerm}
+              onChange={() => setIsAcceptedTerm(!isAcceptedTerm)}
+              style={{ marginRight: '12px' }}
+            />
             <ToSText>
               <Trans>Accept</Trans>{' '}
               <ExternalLink href="/15022022KyberSwapTermsofUse.pdf">
@@ -413,21 +435,20 @@ export default function WalletModal({
         <ContentWrapper>
           {walletView === WALLET_VIEWS.PENDING ? (
             <PendingView
-              walletOptionKey={walletOptionKey}
+              walletOptionKey={pendingWalletKey}
               hasError={pendingError}
-              renderHelperText={() => {
-                if (shouldShowInstallBrave) {
-                  return <InstallBraveNote />
-                }
-                return null
-              }}
               onClickTryAgain={() => {
                 setPendingError(false)
-                connector && tryActivation(connector)
+                pendingWalletKey && tryActivation(pendingWalletKey)
               }}
             />
           ) : (
-            <OptionGrid>{getOptions()}</OptionGrid>
+            <>
+              <Trans>Select a Network</Trans>
+              <Networks width={5} mt={16} mb={24} />
+              <Trans>Select a Wallet</Trans>
+              <OptionGrid>{getOptions()}</OptionGrid>
+            </>
           )}
         </ContentWrapper>
       </UpperSection>
@@ -440,7 +461,8 @@ export default function WalletModal({
       onDismiss={toggleWalletModal}
       minHeight={false}
       maxHeight={90}
-      maxWidth={account && walletView === WALLET_VIEWS.ACCOUNT ? 544 : 512}
+      width={walletView === WALLET_VIEWS.ACCOUNT || walletView === WALLET_VIEWS.CHANGE_WALLET ? 'unset' : undefined}
+      maxWidth={account && walletView === WALLET_VIEWS.ACCOUNT ? 544 : 752}
     >
       <Wrapper>{getModalContent()}</Wrapper>
     </Modal>

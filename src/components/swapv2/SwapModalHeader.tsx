@@ -125,7 +125,7 @@ export default function SwapModalHeader({
         <AutoColumn justify="flex-start" gap="sm" style={{ padding: '12px 0 0 0px' }}>
           <TYPE.main>
             Output will be sent to{' '}
-            <b title={recipient}>{isAddress(chainId, recipient) ? shortenAddress(recipient) : recipient}</b>
+            <b title={recipient}>{isAddress(chainId, recipient) ? shortenAddress(chainId, recipient) : recipient}</b>
           </TYPE.main>
         </AutoColumn>
       ) : null}

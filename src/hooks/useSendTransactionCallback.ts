@@ -1,6 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
 import { captureException } from '@sentry/react'
+import { useWeb3React } from '@web3-react/core'
 import { ethers } from 'ethers'
 import { useCallback } from 'react'
 
@@ -8,7 +9,8 @@ import { useActiveWeb3React } from 'hooks/index'
 import { calculateGasMargin } from 'utils'
 
 export default function useSendTransactionCallback() {
-  const { account, library } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
+  const { library } = useWeb3React()
 
   return useCallback(
     async (
@@ -29,6 +31,7 @@ export default function useSendTransactionCallback() {
       let gasEstimate: ethers.BigNumber | undefined
       try {
         gasEstimate = await library.getSigner().estimateGas(estimateGasOption)
+        if (!gasEstimate) throw new Error('gasEstimate is nullish value')
       } catch (error) {
         const e = new Error('Swap failed', { cause: error })
         e.name = 'SwapError'

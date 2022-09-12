@@ -4,6 +4,7 @@ import { Trans, t } from '@lingui/macro'
 import { ZERO } from '@namgold/ks-sdk-classic'
 import { Currency, CurrencyAmount, Percent, WETH } from '@namgold/ks-sdk-core'
 import { FeeAmount, NonfungiblePositionManager } from '@namgold/ks-sdk-elastic'
+import { useWeb3React } from '@web3-react/core'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useHistory } from 'react-router'
@@ -108,7 +109,8 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const { position } = useProAmmPositionsFromTokenId(tokenId)
   const positionManager = useProAmmNFTPositionManagerContract()
   const theme = useTheme()
-  const { account, chainId, library } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
+  const { library } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
 
   const owner = useSingleCallResult(!!tokenId ? positionManager : null, 'ownerOf', [tokenId.toNumber()]).result?.[0]
@@ -243,7 +245,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
     library
       .getSigner()
       .estimateGas(txn)
-      .then(estimate => {
+      .then((estimate: BigNumber) => {
         const newTxn = {
           ...txn,
           gasLimit: calculateGasMargin(estimate),
@@ -273,7 +275,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
             setTxnHash(response.hash)
           })
       })
-      .catch(error => {
+      .catch((error: any) => {
         setAttemptingTxn(false)
         console.error(error)
         // const newTxn = {
@@ -401,7 +403,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
             color={theme.subText}
             style={{ borderRadius: '4px', marginBottom: '1.25rem' }}
           >
-            The owner of this liquidity position is {shortenAddress(owner)}
+            The owner of this liquidity position is {shortenAddress(chainId, owner)}
             <span style={{ display: 'inline-block' }}>
               <Copy toCopy={owner}></Copy>
             </span>

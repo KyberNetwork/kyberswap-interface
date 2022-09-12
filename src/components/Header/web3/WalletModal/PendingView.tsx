@@ -1,9 +1,10 @@
 import { Trans } from '@lingui/macro'
 import { darken } from 'polished'
-import React from 'react'
 import styled from 'styled-components'
 
 import Loader from 'components/Loader'
+import { SUPPORTED_WALLETS } from 'constants/wallets'
+import { detectInjectedType } from 'utils'
 
 import { WarningBox } from './WarningBox'
 
@@ -67,18 +68,14 @@ const LoadingWrapper = styled.div`
 export default function PendingView({
   walletOptionKey,
   hasError = false,
-  renderHelperText = () => null,
   onClickTryAgain,
 }: {
-  walletOptionKey?: string // key of SUPPORTED_WALLETS
+  walletOptionKey?: keyof typeof SUPPORTED_WALLETS
   hasError?: boolean
-  renderHelperText?: () => React.ReactNode
   onClickTryAgain: () => void
 }) {
-  const isMetamask = window?.ethereum?.isMetaMask
-  const isCoin98 = window?.ethereum?.isCoin98 || !!window.coin98
-
-  const isInjected = walletOptionKey === 'INJECTED' || walletOptionKey === 'COIN98'
+  const walletName = walletOptionKey ? SUPPORTED_WALLETS[walletOptionKey].name : ''
+  const injectedType = detectInjectedType()
 
   return (
     <PendingSection>
@@ -87,7 +84,7 @@ export default function PendingView({
           {hasError ? (
             <ErrorGroup>
               <div>
-                <Trans>Error connecting.</Trans>
+                <Trans>Error connecting to {walletName}.</Trans>
               </div>
               <ErrorButton onClick={onClickTryAgain}>
                 <Trans>Try Again</Trans>
@@ -96,13 +93,12 @@ export default function PendingView({
           ) : (
             <>
               <StyledLoader />
-              <Trans>Initializing...</Trans>
+              <Trans>Initializing with {walletName}...</Trans>
             </>
           )}
         </LoadingWrapper>
       </LoadingMessage>
-      {isMetamask && isCoin98 && isInjected && <WarningBox option={walletOptionKey} />}
-      {renderHelperText()}
+      {injectedType !== walletOptionKey && <WarningBox walletOptionKey={walletOptionKey} />}
     </PendingSection>
   )
 }

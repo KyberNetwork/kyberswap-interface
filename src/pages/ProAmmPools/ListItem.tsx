@@ -178,7 +178,7 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions,
               )}
 
               <PoolAddressContainer>
-                <Text color={theme.text}>{shortenAddress(pool.address, 3)}</Text>
+                <Text color={theme.text}>{shortenAddress(chainId, pool.address, 3)}</Text>
                 <CopyHelper toCopy={pool.address} />
               </PoolAddressContainer>
               <Text color={theme.text3} fontSize={12} marginTop={'8px'}>

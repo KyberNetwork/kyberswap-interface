@@ -99,7 +99,7 @@ const ListRow = memo(function ListRow({ listUrl }: { listUrl: string }) {
   let isKyberList = false
   try {
     isKyberList = new URL(listUrl).hostname.endsWith('kyberswap.com')
-    isKyberList ||= new URL(listUrl).hostname.endsWith('kyberengineering.io')
+    isKyberList = isKyberList || new URL(listUrl).hostname.endsWith('kyberengineering.io')
   } catch (e) {}
   const listsByUrl = useSelector<AppState, AppState['lists']['byUrl']>(state => state.lists.byUrl)
   const dispatch = useDispatch<AppDispatch>()

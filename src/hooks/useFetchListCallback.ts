@@ -1,6 +1,7 @@
 import { ChainId } from '@namgold/ks-sdk-core'
 import { nanoid } from '@reduxjs/toolkit'
 import { TokenList } from '@uniswap/token-lists'
+import { useWeb3React } from '@web3-react/core'
 import { useCallback } from 'react'
 import { useDispatch } from 'react-redux'
 
@@ -13,7 +14,8 @@ import resolveENSContentHash from 'utils/resolveENSContentHash'
 import { useActiveWeb3React } from './index'
 
 export function useFetchListCallback(): (listUrl: string, sendDispatch?: boolean) => Promise<TokenList> {
-  const { chainId, library } = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React()
+  const { library } = useWeb3React()
   const dispatch = useDispatch<AppDispatch>()
 
   const ensResolver = useCallback(

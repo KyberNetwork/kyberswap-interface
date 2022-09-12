@@ -1,3 +1,4 @@
+import { WalletAdapterNetwork } from '@solana/wallet-adapter-base'
 import invariant from 'tiny-invariant'
 
 // required
@@ -68,8 +69,12 @@ export const MIXPANEL_PROJECT_TOKEN: string = process.env.REACT_APP_MIXPANEL_PRO
 invariant(process.env.REACT_APP_CAMPAIGN_BASE_URL, 'env REACT_APP_CAMPAIGN_BASE_URL is missing')
 export const CAMPAIGN_BASE_URL: string = process.env.REACT_APP_CAMPAIGN_BASE_URL
 
+invariant(process.env.REACT_APP_SOLANA_NETWORK, 'env REACT_APP_SOLANA_NETWORK is missing')
+invariant(process.env.REACT_APP_SOLANA_NETWORK in WalletAdapterNetwork, 'env REACT_APP_SOLANA_NETWORK is incorrect')
+export const SOLANA_NETWORK: WalletAdapterNetwork =
+  (process.env.REACT_APP_SOLANA_NETWORK as WalletAdapterNetwork) || 'Mainnet'
+
 // Not required
 export const GTM_ID: string | undefined = process.env.REACT_APP_GTM_ID
 
-// invariant(process.env.REACT_APP_TAG, 'env REACT_APP_TAG is missing')
 export const TAG: string = process.env.REACT_APP_TAG || 'localhost'

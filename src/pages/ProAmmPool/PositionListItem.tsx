@@ -1,7 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { ChainId, CurrencyAmount, Price, Token } from '@namgold/ks-sdk-core'
 import { Position } from '@namgold/ks-sdk-elastic'
-import { useWeb3React } from '@web3-react/core'
 import React, { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
@@ -18,6 +17,7 @@ import { RowBetween } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { PROMM_ANALYTICS_URL } from 'constants/index'
 import { VERSION } from 'constants/v2'
+import { useActiveWeb3React } from 'hooks'
 import { useToken } from 'hooks/Tokens'
 import useIsTickAtLimit from 'hooks/useIsTickAtLimit'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -125,7 +125,7 @@ export default function PositionListItem({
   positionDetails,
   refe,
 }: PositionListItemProps) {
-  const { chainId } = useWeb3React() //todo: use useActiveWeb3React
+  const { chainId } = useActiveWeb3React()
   const {
     token0: token0Address,
     token1: token1Address,

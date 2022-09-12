@@ -1,5 +1,6 @@
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import { ChainId } from '@namgold/ks-sdk-core'
+import { Connection } from '@solana/web3.js'
 
 interface NetworkInfo {
   readonly chainId: ChainId
@@ -70,4 +71,5 @@ export interface SolanaNetworkInfo extends NetworkInfo {
     readonly factory: string
     readonly router: string
   }
+  connection: Connection
 }

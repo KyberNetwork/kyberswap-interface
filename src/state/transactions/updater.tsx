@@ -1,5 +1,6 @@
 import { TransactionReceipt } from '@ethersproject/abstract-provider'
 import { BigNumber } from '@ethersproject/bignumber'
+import { useWeb3React } from '@web3-react/core'
 import { ethers } from 'ethers'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -35,7 +36,8 @@ export function shouldCheck(
 }
 
 export default function Updater(): null {
-  const { chainId, library } = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React()
+  const { library } = useWeb3React()
 
   const lastBlockNumber = useBlockNumber()
   const dispatch = useDispatch<AppDispatch>()
@@ -109,7 +111,7 @@ export default function Updater(): null {
       .forEach(hash => {
         library
           .getTransactionReceipt(hash)
-          .then(receipt => {
+          .then((receipt: any) => {
             if (receipt) {
               const transaction = transactions[receipt.transactionHash]
               dispatch(
@@ -168,7 +170,7 @@ export default function Updater(): null {
               dispatch(checkedTransaction({ chainId, hash, blockNumber: lastBlockNumber }))
             }
           })
-          .catch(error => {
+          .catch((error: any) => {
             console.error(`failed to check transaction hash: ${hash}`, error)
           })
       })

@@ -78,6 +78,10 @@ msgstr "<0>Advanced Mode</0> turns off the 'Confirm' transaction prompt and allo
 msgid "<0>KyberSwap</0> gets you the best token rates"
 msgstr "<0>KyberSwap</0> gets you the best token rates"
 
+#: src/components/Tutorial/TutorialSwap/index.tsx
+msgid "<0>Step: {stepNumber}/</0><1>{TOTAL_STEP}</1>"
+msgstr "<0>Step: {stepNumber}/</0><1>{TOTAL_STEP}</1>"
+
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "<0>Swap</0> and <1>Earn</1> Tokens at the Best Rates"
 msgstr "<0>Swap</0> and <1>Earn</1> Tokens at the Best Rates"
@@ -150,7 +154,7 @@ msgstr "AVG APR"
 msgid "About"
 msgstr "About"
 
-#: src/components/WalletModal/index.tsx
+#: src/components/Header/web3/WalletModal/index.tsx
 #: src/components/swap/SwapModalHeader.tsx
 #: src/components/swapv2/SwapModalHeader.tsx
 msgid "Accept"
@@ -161,8 +165,8 @@ msgid "Accept update"
 msgstr "Accept update"
 
 #: src/components/AccountDetails/index.tsx
-msgid "Account"
-msgstr "Account"
+#~ msgid "Account"
+#~ msgstr "Account"
 
 #: src/components/PoolList/index.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
@@ -195,6 +199,10 @@ msgstr "Add liquidity"
 msgid "Add liquidity for a token pair and earn fees on the trades that are in your selected price range"
 msgstr "Add liquidity for a token pair and earn fees on the trades that are in your selected price range"
 
+#: src/components/Tutorial/TutorialSwap/index.tsx
+msgid "Add liquidity into our Pools to earn trading fees & participate in our Farms to earn additional rewards!"
+msgstr "Add liquidity into our Pools to earn trading fees & participate in our Farms to earn additional rewards!"
+
 #: 
 #~ msgid "Add liquidity to our Classic Pools & earn fees automatically. We amplify liquidity pools so you earn more fees even with less liquidity!"
 #~ msgstr "Add liquidity to our Classic Pools & earn fees automatically. We amplify liquidity pools so you earn more fees even with less liquidity!"
@@ -219,13 +227,25 @@ msgstr "Add liquidity to the corresponding <0>Classic pool</0> to receive Liquid
 msgid "Add liquidity to the corresponding <0>Elastic pool</0> to receive a NFT token that represents your liquidity position"
 msgstr "Add liquidity to the corresponding <0>Elastic pool</0> to receive a NFT token that represents your liquidity position"
 
+#: src/pages/AddLiquidity/index.tsx
+msgid "Add liquidity to the pool by supplying a single token (either token from the token pair). We will automatically create LP tokens for you and add them to the liquidity pool - all in a single transaction"
+msgstr "Add liquidity to the pool by supplying a single token (either token from the token pair). We will automatically create LP tokens for you and add them to the liquidity pool - all in a single transaction"
+
 #: src/components/TransactionConfirmationModal/index.tsx
-msgid "Add {0} to Metamask"
-msgstr "Add {0} to Metamask"
+#~ msgid "Add {0} to Metamask"
+#~ msgstr "Add {0} to Metamask"
+
+#: src/components/TransactionConfirmationModal/index.tsx
+msgid "Add {0} to {1}"
+msgstr "Add {0} to {1}"
 
 #: src/pages/CreateReferral/index.tsx
 msgid "Address is not valid"
 msgstr "Address is not valid"
+
+#: src/components/Tutorial/TutorialSwap/index.tsx
+msgid "Adjust the advanced settings for your trades like the max slippage."
+msgstr "Adjust the advanced settings for your trades like the max slippage."
 
 #: src/components/TransactionSettings/index.tsx
 #: src/components/swapv2/SwapSettingsPanel/AdvancedModeSetting.tsx
@@ -248,7 +268,6 @@ msgstr "After harvesting, your rewards will begin vesting linearly (only if the 
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
-#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
 msgid "After harvesting, your rewards will unlock linearly over the indicated time period"
 msgstr "After harvesting, your rewards will unlock linearly over the indicated time period"
@@ -273,8 +292,8 @@ msgid "All positions"
 msgstr "All positions"
 
 #: src/components/Header/URLWarning.tsx
-msgid "Always make sure the URL is<0>KyberSwap.com</0> - bookmark it to be safe."
-msgstr "Always make sure the URL is<0>KyberSwap.com</0> - bookmark it to be safe."
+#~ msgid "Always make sure the URL is<0>KyberSwap.com</0> - bookmark it to be safe."
+#~ msgstr "Always make sure the URL is<0>KyberSwap.com</0> - bookmark it to be safe."
 
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -303,7 +322,7 @@ msgstr "Analytics"
 msgid "Analytics ↗"
 msgstr "Analytics ↗"
 
-#: src/components/AccountDetails/index.tsx
+#: src/components/Header/web3/AccountDetails/index.tsx
 #: src/pages/Pool/index.tsx
 #: src/pages/ProAmmPool/index.tsx
 msgid "Analyze Wallet"
@@ -425,7 +444,7 @@ msgstr "Average estimated return based on yearly fees of the pool plus bonus rew
 msgid "BONUS REWARDS"
 msgstr "BONUS REWARDS"
 
-#: src/components/WalletModal/index.tsx
+#: src/components/Tutorial/TutorialSwap/CustomPopup.tsx
 msgid "Back"
 msgstr "Back"
 
@@ -433,6 +452,10 @@ msgstr "Back"
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Balance"
 msgstr "Balance"
+
+#: src/components/YieldPools/ProMMFarmModals/WithdrawModal.tsx
+msgid "Below is a list of your affected liquidity positions"
+msgstr "Below is a list of your affected liquidity positions"
 
 #: src/components/FeeSelector/index.tsx
 msgid "Best for exotic pairs"
@@ -454,6 +477,10 @@ msgstr "Best for very stable pairs"
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "Best price guaranteed"
 msgstr "Best price guaranteed"
+
+#: src/components/Header/web3/WalletModal/InstallBraveNote.tsx
+msgid "Brave wallet can only be used in Brave Browser. Download it"
+msgstr "Brave wallet can only be used in Brave Browser. Download it"
 
 #: src/components/Menu/index.tsx
 msgid "Bridge Assets"
@@ -495,6 +522,7 @@ msgid "Calculating best route"
 msgstr "Calculating best route"
 
 #: src/components/Header/index.tsx
+#: src/components/Menu/index.tsx
 #: src/pages/Campaign/CampaignListAndSearch.tsx
 #: src/pages/Campaign/index.tsx
 msgid "Campaigns"
@@ -512,7 +540,8 @@ msgstr "Chains"
 #~ msgid "Change"
 #~ msgstr "Change"
 
-#: src/components/AccountDetails/index.tsx
+#: src/components/Header/web3/AccountDetails/index.tsx
+#: src/components/Header/web3/WalletModal/index.tsx
 msgid "Change Wallet"
 msgstr "Change Wallet"
 
@@ -524,10 +553,22 @@ msgstr "Change Wallet"
 msgid "Chart is unavailable right now"
 msgstr "Chart is unavailable right now"
 
+#: src/components/Tutorial/TutorialSwap/index.tsx
+msgid "Check out our latest trading campaigns and participate in them to earn rewards!"
+msgstr "Check out our latest trading campaigns and participate in them to earn rewards!"
+
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Checking allowance..."
 msgstr "Checking allowance..."
+
+#: src/components/Tutorial/TutorialSwap/index.tsx
+msgid "Choose your preferred network. KyberSwap is a multi chain platform that supports over 12 networks!"
+msgstr "Choose your preferred network. KyberSwap is a multi chain platform that supports over 12 networks!"
+
+#: src/components/Tutorial/TutorialSwap/index.tsx
+msgid "Choose your preferred wallet, connect it, and get started with KyberSwap!"
+msgstr "Choose your preferred wallet, connect it, and get started with KyberSwap!"
 
 #: src/components/Menu/ClaimRewardModal.tsx
 #: src/components/Vesting/VestingCard.tsx
@@ -585,7 +626,7 @@ msgstr "Classic Pools"
 msgid "Clear all"
 msgstr "Clear all"
 
-#: src/components/WalletModal/WarningBox.tsx
+#: src/components/Header/web3/WalletModal/WarningBox.tsx
 msgid "Click on the Settings icon"
 msgstr "Click on the Settings icon"
 
@@ -652,8 +693,8 @@ msgstr "Confirm Swap"
 msgid "Confirm this transaction in your wallet"
 msgstr "Confirm this transaction in your wallet"
 
+#: src/components/Header/web3/SelectWallet.tsx
 #: src/components/Menu/FaucetModal.tsx
-#: src/components/Web3Status/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
@@ -673,6 +714,10 @@ msgstr "Confirm this transaction in your wallet"
 msgid "Connect Wallet"
 msgstr "Connect Wallet"
 
+#: src/components/Tutorial/TutorialSwap/constant.ts
+msgid "Connect a wallet"
+msgstr "Connect a wallet"
+
 #: src/pages/PoolFinder/index.tsx
 msgid "Connect to a wallet to find pools"
 msgstr "Connect to a wallet to find pools"
@@ -691,7 +736,7 @@ msgstr "Connect to a wallet to view your liquidity."
 msgid "Connect wallet"
 msgstr "Connect wallet"
 
-#: src/components/WalletModal/index.tsx
+#: src/components/Header/web3/WalletModal/index.tsx
 msgid "Connect your Wallet"
 msgstr "Connect your Wallet"
 
@@ -699,9 +744,13 @@ msgstr "Connect your Wallet"
 #~ msgid "Connected"
 #~ msgstr "Connected"
 
-#: src/components/AccountDetails/index.tsx
+#: src/components/Header/web3/AccountDetails/index.tsx
 msgid "Connected with {name}"
 msgstr "Connected with {name}"
+
+#: src/components/Header/web3/WalletModal/index.tsx
+msgid "Connecting Wallet"
+msgstr "Connecting Wallet"
 
 #: src/components/Menu/index.tsx
 #: src/pages/About/AboutKyberSwap.tsx
@@ -722,7 +771,7 @@ msgstr "Contract not found! Please reload and try again."
 msgid "Converts your liquidity position on Sushiswap into underlying tokens at the current rate. Tokens are deposited into the basic AMP=1 pool on the KyberSwap and you will be given DMM-LP tokens representing your new pool share. If rates are different between the two platforms, some tokens may be refunded to your address."
 msgstr "Converts your liquidity position on Sushiswap into underlying tokens at the current rate. Tokens are deposited into the basic AMP=1 pool on the KyberSwap and you will be given DMM-LP tokens representing your new pool share. If rates are different between the two platforms, some tokens may be refunded to your address."
 
-#: src/components/AccountDetails/Copy.tsx
+#: src/components/Header/web3/AccountDetails/Copy.tsx
 msgid "Copied"
 msgstr "Copied"
 
@@ -772,6 +821,10 @@ msgstr "Create a new pool"
 msgid "Create a new pool or select another pair of tokens to view the available pools."
 msgstr "Create a new pool or select another pair of tokens to view the available pools."
 
+#: src/components/ErrorBoundary/index.tsx
+msgid "Create an issue on GitHub"
+msgstr "Create an issue on GitHub"
+
 #: src/components/ConfirmAddModalBottom/index.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
@@ -784,6 +837,11 @@ msgstr "Create a new pool or select another pair of tokens to view the available
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Current Price"
 msgstr "Current Price"
+
+#: src/components/YieldPools/ProMMFarmGroup.tsx
+#: src/components/YieldPools/ProMMFarmGroup.tsx
+msgid "Current phase will end in"
+msgstr "Current phase will end in"
 
 #: src/components/PositionPreview/index.tsx
 msgid "Current {0} Price"
@@ -799,8 +857,13 @@ msgid "Currently, there is no campaign."
 msgstr "Currently, there is no campaign."
 
 #: src/components/SearchModal/ManageTokens.tsx
+#: src/components/swapv2/SwapSettingsPanel/SlippageSetting.tsx
 msgid "Custom"
 msgstr "Custom"
+
+#: src/components/Tutorial/TutorialSwap/constant.ts
+msgid "Customize your settings"
+msgstr "Customize your settings"
 
 #: 
 #~ msgid "DEPOSIT"
@@ -834,21 +897,33 @@ msgstr "Deposit your liquidity"
 #~ msgid "Deposit your liquidity & then stake it to earn even more attractive rewards"
 #~ msgstr "Deposit your liquidity & then stake it to earn even more attractive rewards"
 
+#: src/components/YieldPools/ProMMFarmGroup.tsx
+msgid "Deposit your liquidity (the NFT tokens that represent your liquidity position)"
+msgstr "Deposit your liquidity (the NFT tokens that represent your liquidity position)"
+
 #: src/components/YieldPools/ProMMFarmModals/DepositModal.tsx
-msgid "Deposit your liquidity first to enable farming. Only your in range liquidity positions will earn you farming rewards"
-msgstr "Deposit your liquidity first to enable farming. Only your in range liquidity positions will earn you farming rewards"
+#~ msgid "Deposit your liquidity first to enable farming. Only your in range liquidity positions will earn you farming rewards"
+#~ msgstr "Deposit your liquidity first to enable farming. Only your in range liquidity positions will earn you farming rewards"
 
 #: src/components/YieldPools/FarmGuide.tsx
 msgid "Deposit your liquidity from the Classic Pools here to earn even more attractive farming rewards."
 msgstr "Deposit your liquidity from the Classic Pools here to earn even more attractive farming rewards."
 
 #: src/components/YieldPools/FarmGuide.tsx
-msgid "Deposit your liquidity from the Elastic Pools here, and then stake it to earn even more attractive farming rewards."
-msgstr "Deposit your liquidity from the Elastic Pools here, and then stake it to earn even more attractive farming rewards."
+#~ msgid "Deposit your liquidity from the Elastic Pools here, and then stake it to earn even more attractive farming rewards."
+#~ msgstr "Deposit your liquidity from the Elastic Pools here, and then stake it to earn even more attractive farming rewards."
 
 #: src/components/YieldPools/FarmGuide.tsx
 msgid "Deposit your liquidity position (NFT token) and then stake it into the farm you identified earlier"
 msgstr "Deposit your liquidity position (NFT token) and then stake it into the farm you identified earlier"
+
+#: src/components/YieldPools/FarmGuide.tsx
+msgid "Deposit your liquidity position (NFT token) from the Elastic Pools here, and then stake it to earn even more attractive farming rewards."
+msgstr "Deposit your liquidity position (NFT token) from the Elastic Pools here, and then stake it to earn even more attractive farming rewards."
+
+#: src/components/YieldPools/ProMMFarmModals/DepositModal.tsx
+msgid "Deposit your liquidity positions (NFT tokens) first to enable farming. Only your in range liquidity positions (NFT tokens) will earn you farming rewards"
+msgstr "Deposit your liquidity positions (NFT tokens) first to enable farming. Only your in range liquidity positions (NFT tokens) will earn you farming rewards"
 
 #: 
 #~ msgid "Deposit your liquidity to earn even more attractive rewards"
@@ -870,7 +945,7 @@ msgstr "Deposited Liquidity"
 msgid "Details"
 msgstr "Details"
 
-#: src/components/WalletModal/WarningBox.tsx
+#: src/components/Header/web3/WalletModal/WarningBox.tsx
 msgid "Disable Metamask in C98"
 msgstr "Disable Metamask in C98"
 
@@ -878,7 +953,7 @@ msgstr "Disable Metamask in C98"
 msgid "Disclaimer: The information here should not be treated as any form of financial advice"
 msgstr "Disclaimer: The information here should not be treated as any form of financial advice"
 
-#: src/components/AccountDetails/index.tsx
+#: src/components/Header/web3/AccountDetails/index.tsx
 msgid "Disconnect"
 msgstr "Disconnect"
 
@@ -891,6 +966,14 @@ msgstr "Discover"
 #: src/components/TopTrendingSoonTokensInCurrentNetwork/index.tsx
 msgid "Discover more"
 msgstr "Discover more"
+
+#: src/components/Tutorial/TutorialSwap/index.tsx
+msgid "Discover tokens before they start trending in the future! We analyze thousands of potential tokens & filter out the best ones for you!"
+msgstr "Discover tokens before they start trending in the future! We analyze thousands of potential tokens & filter out the best ones for you!"
+
+#: src/components/Tutorial/TutorialSwap/constant.ts
+msgid "Discover trending soon tokens"
+msgstr "Discover trending soon tokens"
 
 #: src/pages/TrueSight/components/TrendingSoonLayout/index.tsx
 msgid "Discovered On"
@@ -910,6 +993,10 @@ msgstr "Dismiss"
 msgid "Display Settings"
 msgstr "Display Settings"
 
+#: src/components/Tutorial/TutorialSwap/index.tsx
+msgid "Do you wish to have a look?"
+msgstr "Do you wish to have a look?"
+
 #: src/components/Menu/index.tsx
 #: src/pages/About/AboutKNC.tsx
 #: src/pages/About/AboutKyberSwap.tsx
@@ -923,6 +1010,11 @@ msgstr "Docs"
 msgid "Don't see a pool you joined?"
 msgstr "Don't see a pool you joined?"
 
+#: src/components/Tutorial/TutorialSwap/CustomPopup.tsx
+msgid "Done"
+msgstr "Done"
+
+#: src/components/Tutorial/TutorialSwap/index.tsx
 #: src/pages/BuyCrypto/index.tsx
 msgid "Download Wallet"
 msgstr "Download Wallet"
@@ -985,6 +1077,10 @@ msgstr "Earn more due to compounding"
 msgid "Earn more with your crypto assets"
 msgstr "Earn more with your crypto assets"
 
+#: src/components/Tutorial/TutorialSwap/constant.ts
+msgid "Earn trading fees through our Pools / Farms"
+msgstr "Earn trading fees through our Pools / Farms"
+
 #: src/pages/AddLiquidityV2/index.tsx
 msgid "Efficiency Comparison"
 msgstr "Efficiency Comparison"
@@ -1005,7 +1101,7 @@ msgstr "Elastic Pools"
 msgid "Elastic is not supported on Aurora. Please switch to other chains"
 msgstr "Elastic is not supported on Aurora. Please switch to other chains"
 
-#: src/components/WalletModal/WarningBox.tsx
+#: src/components/Header/web3/WalletModal/WarningBox.tsx
 msgid "Enable Metamask in C98"
 msgstr "Enable Metamask in C98"
 
@@ -1023,13 +1119,18 @@ msgstr "Ended"
 msgid "Ended In"
 msgstr "Ended In"
 
-#: src/components/YieldPools/ListItem.tsx
+#: src/pages/Campaign/index.tsx
+msgid "Ended On"
+msgstr "Ended On"
+
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
-#: src/components/YieldPools/index.tsx
-#: src/pages/Campaign/index.tsx
 msgid "Ending In"
 msgstr "Ending In"
+
+#: src/pages/Campaign/CampaignButtonEnterNow.tsx
+msgid "Enter Now"
+msgstr "Enter Now"
 
 #: src/state/swap/hooks.ts
 #: src/state/swap/proamm/hooks.tsx
@@ -1068,23 +1169,27 @@ msgid "Enter an amount"
 msgstr "Enter an amount"
 
 #: src/pages/Campaign/CampaignButtonWithOptions.tsx
-msgid "Enter now"
-msgstr "Enter now"
+#~ msgid "Enter now"
+#~ msgstr "Enter now"
 
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Enter valid token address"
 msgstr "Enter valid token address"
 
+#: src/components/Header/web3/SelectWallet.tsx
 #: src/components/TransactionConfirmationModal/index.tsx
-#: src/components/Web3Status/index.tsx
 msgid "Error"
 msgstr "Error"
 
-#: src/components/WalletModal/PendingView.tsx
+#: src/components/Header/web3/WalletModal/index.tsx
+msgid "Error connecting"
+msgstr "Error connecting"
+
+#: src/components/Header/web3/WalletModal/PendingView.tsx
 msgid "Error connecting."
 msgstr "Error connecting."
 
-#: src/components/WalletModal/index.tsx
+#: src/components/Header/web3/WalletModal/index.tsx
 msgid "Error connecting. Try refreshing the page."
 msgstr "Error connecting. Try refreshing the page."
 
@@ -1124,6 +1229,11 @@ msgstr "FOR TRADERS"
 #~ msgid "FULL UNLOCK"
 #~ msgstr "FULL UNLOCK"
 
+#: src/hooks/useChangeNetwork.ts
+#: src/hooks/useChangeNetwork.ts
+msgid "Failed to switch network"
+msgstr "Failed to switch network"
+
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
 msgid "Farm"
@@ -1137,11 +1247,19 @@ msgstr "Farm APR"
 #~ msgid "Farm APY"
 #~ msgstr "Farm APY"
 
+#: src/components/YieldPools/ProMMFarmGroup.tsx
+msgid "Farm has not started"
+msgstr "Farm has not started"
+
 #: src/pages/Pools/FarmingPoolsMarquee.tsx
 #: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
 msgid "Farming Pools"
 msgstr "Farming Pools"
+
+#: src/components/YieldPools/ProMMFarms.tsx
+msgid "Farms will run in multiple phases"
+msgstr "Farms will run in multiple phases"
 
 #: src/components/Menu/FaucetModal.tsx
 #: src/components/Menu/index.tsx
@@ -1151,6 +1269,10 @@ msgstr "Faucet"
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "Favorites"
 msgstr "Favorites"
+
+#: src/components/swapv2/PairSuggestion/ListPair.tsx
+msgid "Favourites"
+msgstr "Favourites"
 
 #: src/components/PoolList/ItemCard/TabDetailsItems.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
@@ -1202,9 +1324,23 @@ msgstr "Find a token by searching for its name or symbol or by pasting its addre
 msgid "Find out more"
 msgstr "Find out more"
 
+#: src/components/Tutorial/TutorialSwap/index.tsx
+msgid "For a more detailed user guide, <0>click here.</0>"
+msgstr "For a more detailed user guide, <0>click here.</0>"
+
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "For everyone"
 msgstr "For everyone"
+
+#: src/components/YieldPools/ProMMFarmGroup.tsx
+#: src/components/YieldPools/ProMMFarmGroup.tsx
+#: src/components/YieldPools/ProMMFarmModals/WithdrawModal.tsx
+msgid "Force Withdraw"
+msgstr "Force Withdraw"
+
+#: src/components/YieldPools/ProMMFarmModals/WithdrawModal.tsx
+msgid "Forced Withdraw"
+msgstr "Forced Withdraw"
 
 #: src/components/Menu/index.tsx
 #: src/pages/About/AboutKNC.tsx
@@ -1378,11 +1514,11 @@ msgstr "Identify the Classic farm you would like to participate in"
 msgid "Identify the Elastic farm you would like to participate in"
 msgstr "Identify the Elastic farm you would like to participate in"
 
-#: src/components/WalletModal/WarningBox.tsx
+#: src/components/Header/web3/WalletModal/WarningBox.tsx
 msgid "If C98 wallet opens instead of Metamask, please close the C98 popup then follow the steps below to disable C98 Wallet:"
 msgstr "If C98 wallet opens instead of Metamask, please close the C98 popup then follow the steps below to disable C98 Wallet:"
 
-#: src/components/WalletModal/WarningBox.tsx
+#: src/components/Header/web3/WalletModal/WarningBox.tsx
 msgid "If Metamask wallet opens instead of C98, please close the Metamask popup then follow the steps below to disable Metamask Wallet:"
 msgstr "If Metamask wallet opens instead of C98, please close the Metamask popup then follow the steps below to disable Metamask Wallet:"
 
@@ -1436,6 +1572,11 @@ msgstr "Import at your own risk"
 msgid "Import it."
 msgstr "Import it."
 
+#: src/hooks/useChangeNetwork.ts
+#: src/hooks/useChangeNetwork.ts
+msgid "In order to use KyberSwap on {0}, you must change the network in your wallet."
+msgstr "In order to use KyberSwap on {0}, you must change the network in your wallet."
+
 #: src/components/Badge/RangeBadge.tsx
 #: src/state/farms/promm/hooks.ts
 msgid "In range"
@@ -1475,7 +1616,7 @@ msgstr "Info"
 msgid "Information"
 msgstr "Information"
 
-#: src/components/WalletModal/PendingView.tsx
+#: src/components/Header/web3/WalletModal/PendingView.tsx
 msgid "Initializing..."
 msgstr "Initializing..."
 
@@ -1489,8 +1630,6 @@ msgid "Input is estimated. You will sell at most"
 msgstr "Input is estimated. You will sell at most"
 
 #: src/pages/AddLiquidity/ZapIn.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -1509,10 +1648,7 @@ msgid "Insufficient balance"
 msgstr "Insufficient balance"
 
 #: src/pages/AddLiquidity/TokenPair.tsx
-#: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
-#: src/pages/AddLiquidity/ZapIn.tsx
-#: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 msgid "Insufficient liquidity available. Please reload page and try again!"
 msgstr "Insufficient liquidity available. Please reload page and try again!"
@@ -1636,9 +1772,23 @@ msgstr "KyberDAO is a community platform that allows KNC token holders to partic
 msgid "KyberSwap"
 msgstr "KyberSwap"
 
+#: src/components/Settings/index.tsx
+msgid "KyberSwap Guide"
+msgstr "KyberSwap Guide"
+
 #: src/pages/About/AboutKyberSwap.tsx
-msgid "KyberSwap is DeFi’s premier automated market maker, providing the best token prices for traders across multiple exchanges, and maximizing earnings for liquidity providers, in one decentralized platform."
-msgstr "KyberSwap is DeFi’s premier automated market maker, providing the best token prices for traders across multiple exchanges, and maximizing earnings for liquidity providers, in one decentralized platform."
+#~ msgid "KyberSwap is DeFi’s premier automated market maker, providing the best token prices for traders across multiple exchanges, and maximizing earnings for liquidity providers, in one decentralized platform."
+#~ msgstr "KyberSwap is DeFi’s premier automated market maker, providing the best token prices for traders across multiple exchanges, and maximizing earnings for liquidity providers, in one decentralized platform."
+
+#: src/components/Tutorial/TutorialSwap/index.tsx
+#: src/pages/About/KyberSwapGeneralIntro.tsx
+msgid "KyberSwap is a decentralized exchange (DEX) aggregator. We provide our traders with the <0>best token prices</0> by analyzing rates across thousands of exchanges instantly!"
+msgstr "KyberSwap is a decentralized exchange (DEX) aggregator. We provide our traders with the <0>best token prices</0> by analyzing rates across thousands of exchanges instantly!"
+
+#: src/components/Tutorial/TutorialSwap/index.tsx
+#: src/pages/About/KyberSwapGeneralIntro.tsx
+msgid "KyberSwap is also an automated market maker (AMM) with industry-leading liquidity protocols and <0>concentrated liquidity</0>. Liquidity providers can add liquidity to our pools & <1>earn fees</1>!"
+msgstr "KyberSwap is also an automated market maker (AMM) with industry-leading liquidity protocols and <0>concentrated liquidity</0>. Liquidity providers can add liquidity to our pools & <1>earn fees</1>!"
 
 #: src/components/Menu/AboutPageDropDown.tsx
 msgid "Kyberswap"
@@ -1696,6 +1846,10 @@ msgstr "Learn More ↗"
 msgid "Learn more"
 msgstr "Learn more"
 
+#: src/components/Tutorial/TutorialSwap/index.tsx
+msgid "Let’s get started"
+msgstr "Let’s get started"
+
 #: src/components/PoolList/ItemCard/index.tsx
 msgid "Liquidity"
 msgstr "Liquidity"
@@ -1705,6 +1859,7 @@ msgstr "Liquidity"
 msgid "Liquidity Provider Fee"
 msgstr "Liquidity Provider Fee"
 
+#: src/components/swapv2/LiquiditySourcesPanel/index.tsx
 #: src/components/swapv2/LiquiditySourcesPanel/index.tsx
 #: src/components/swapv2/SwapSettingsPanel/LiquiditySourcesSetting.tsx
 msgid "Liquidity Sources"
@@ -1748,6 +1903,11 @@ msgstr "Locked Rewards"
 msgid "Low"
 msgstr "Low"
 
+#: src/pages/Pools/index.tsx
+#: src/pages/Pools/index.tsx
+msgid "Low TVL Pools"
+msgstr "Low TVL Pools"
+
 #: src/components/swapv2/TradeTypeSelection.tsx
 msgid "Lowest Gas"
 msgstr "Lowest Gas"
@@ -1777,8 +1937,8 @@ msgid "MORE INFORMATION"
 msgstr "MORE INFORMATION"
 
 #: src/components/Header/URLWarning.tsx
-msgid "Make sure the URL is<0>KyberSwap.com</0>"
-msgstr "Make sure the URL is<0>KyberSwap.com</0>"
+#~ msgid "Make sure the URL is<0>KyberSwap.com</0>"
+#~ msgstr "Make sure the URL is<0>KyberSwap.com</0>"
 
 #: src/components/SearchModal/Manage.tsx
 msgid "Manage"
@@ -1844,6 +2004,10 @@ msgstr "Maximum Return"
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Maximum Sold"
 msgstr "Maximum Sold"
+
+#: src/components/Tutorial/TutorialSwap/index.tsx
+msgid "Maybe later"
+msgstr "Maybe later"
 
 #: src/components/Menu/index.tsx
 msgid "Menu"
@@ -1963,6 +2127,15 @@ msgstr "Network"
 msgid "New"
 msgstr "New"
 
+#: src/components/YieldPools/ProMMFarmGroup.tsx
+#: src/components/YieldPools/ProMMFarmGroup.tsx
+msgid "New phase will start in"
+msgstr "New phase will start in"
+
+#: src/components/Tutorial/TutorialSwap/CustomPopup.tsx
+msgid "Next"
+msgstr "Next"
+
 #: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
 msgid "No Farms found"
@@ -2049,9 +2222,12 @@ msgstr "On-chain & Open Source"
 
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
-#: src/components/YieldPools/index.tsx
 msgid "Once a farm has ended, you will continue to receive returns through LP Fees"
 msgstr "Once a farm has ended, you will continue to receive returns through LP Fees"
+
+#: src/components/YieldPools/ProMMFarms.tsx
+msgid "Once the current phase ends, you can harvest your rewards from the farm in the <0>Ended</0> tab. To continue earning rewards in the new phase, you must restake your NFT position into the active farm"
+msgstr "Once the current phase ends, you can harvest your rewards from the farm in the <0>Ended</0> tab. To continue earning rewards in the new phase, you must restake your NFT position into the active farm"
 
 #: src/components/PositionCard/index.tsx
 msgid "One token is close to 0% in the pool ratio. Pool might go inactive."
@@ -2065,7 +2241,11 @@ msgstr "Ongoing"
 msgid "Oops! An unknown error occurred. Please refresh the page, or visit from another browser or device."
 msgstr "Oops! An unknown error occurred. Please refresh the page, or visit from another browser or device."
 
-#: src/components/WalletModal/WarningBox.tsx
+#: src/components/ErrorBoundary/index.tsx
+msgid "Oops! Something went wrong"
+msgstr "Oops! Something went wrong"
+
+#: src/components/Header/web3/WalletModal/WarningBox.tsx
 msgid "Open C98 Browser Extension"
 msgstr "Open C98 Browser Extension"
 
@@ -2115,6 +2295,10 @@ msgstr "PREVENT SNIPING ATTACKS"
 msgid "Participants"
 msgstr "Participants"
 
+#: src/components/Tutorial/TutorialSwap/constant.ts
+msgid "Participate in our campaigns"
+msgstr "Participate in our campaigns"
+
 #: src/pages/About/AboutKNC.tsx
 msgid "Participation Rewards"
 msgstr "Participation Rewards"
@@ -2126,11 +2310,15 @@ msgstr "Participation Rewards"
 msgid "Per"
 msgstr "Per"
 
+#: src/components/Tutorial/TutorialSwap/index.tsx
+msgid "Personalize your trading interface in the display settings"
+msgstr "Personalize your trading interface in the display settings"
+
 #: src/components/UpcomingFarms/NoFarms.tsx
 msgid "Please check the <0>Active Farms</0> or come back later."
 msgstr "Please check the <0>Active Farms</0> or come back later."
 
-#: src/components/WrongNetworkModal/index.tsx
+#: src/components/Header/web3/NetworkModal/index.tsx
 msgid "Please connect to the appropriate network."
 msgstr "Please connect to the appropriate network."
 
@@ -2292,7 +2480,7 @@ msgstr "Price:"
 msgid "Prices and Pool share"
 msgstr "Prices and Pool share"
 
-#: src/components/WalletModal/index.tsx
+#: src/components/Header/web3/WalletModal/index.tsx
 msgid "Privacy Policy"
 msgstr "Privacy Policy"
 
@@ -2327,7 +2515,7 @@ msgstr "Read the rules for this campaign & start swapping!"
 #~ msgid "Receive Wrapped Token"
 #~ msgstr "Receive Wrapped Token"
 
-#: src/components/AccountDetails/index.tsx
+#: src/components/Header/web3/AccountDetails/index.tsx
 msgid "Recent Transactions"
 msgstr "Recent Transactions"
 
@@ -2352,11 +2540,11 @@ msgstr "Referral Commission"
 msgid "Referral Fee"
 msgstr "Referral Fee"
 
-#: src/components/WalletModal/WarningBox.tsx
+#: src/components/Header/web3/WalletModal/WarningBox.tsx
 msgid "Refresh the page then try to connect to C98 again"
 msgstr "Refresh the page then try to connect to C98 again"
 
-#: src/components/WalletModal/WarningBox.tsx
+#: src/components/Header/web3/WalletModal/WarningBox.tsx
 msgid "Refresh the page then try to connect to Metamask again"
 msgstr "Refresh the page then try to connect to Metamask again"
 
@@ -2510,11 +2698,11 @@ msgstr "Search token name, symbol or address"
 #~ msgid "Select Max"
 #~ msgstr "Select Max"
 
-#: src/components/WalletModal/WarningBox.tsx
+#: src/components/Header/web3/WalletModal/WarningBox.tsx
 msgid "Select Override Wallets"
 msgstr "Select Override Wallets"
 
-#: src/components/NetworkModal/index.tsx
+#: src/components/Header/web3/NetworkModal/index.tsx
 msgid "Select a Network"
 msgstr "Select a Network"
 
@@ -2534,6 +2722,18 @@ msgstr "Select a token to find your liquidity."
 #: src/pages/AddLiquidityV2/index.tsx
 msgid "Select fee tier"
 msgstr "Select fee tier"
+
+#: src/components/Tutorial/TutorialSwap/index.tsx
+msgid "Select from over thousands of tokens and start trading. KyberSwap finds you the best prices across multiple exchanges & combines them into one trade!"
+msgstr "Select from over thousands of tokens and start trading. KyberSwap finds you the best prices across multiple exchanges & combines them into one trade!"
+
+#: src/components/Tutorial/TutorialSwap/constant.ts
+msgid "Select tokens to swap & start trading"
+msgstr "Select tokens to swap & start trading"
+
+#: src/components/Tutorial/TutorialSwap/constant.ts
+msgid "Select your network"
+msgstr "Select your network"
 
 #: src/pages/AddLiquidityV2/index.tsx
 msgid "Set Starting Price"
@@ -2584,8 +2784,8 @@ msgid "Share your referral link and start earning commission instantly!"
 msgstr "Share your referral link and start earning commission instantly!"
 
 #: src/components/AccountDetails/index.tsx
-msgid "Show Portis"
-msgstr "Show Portis"
+#~ msgid "Show Portis"
+#~ msgstr "Show Portis"
 
 #: src/pages/ProAmmPool/index.tsx
 msgid "Show closed positions"
@@ -2620,8 +2820,8 @@ msgid "Some farms have a target trading volume (represented by the progress bar)
 msgstr "Some farms have a target trading volume (represented by the progress bar) that your liquidity positions need to fully unlock to start earning maximum farming rewards. This target volume ensures that your liquidity positions are supporting the pools trading volume.<0/><1/>Based on the progress of your target volume, you will still earn partial farming rewards. But once you fully unlock your target volume, your liquidity position(s) will start earning maximum rewards. Adjusting your liquidity position(s) staked in the farm will recalculate this volume target."
 
 #: src/components/YieldPools/ProMMFarms.tsx
-msgid "Some farms have a target trading volume (represented by the progress bar) to determine the amount of reward you will earn. The more trading volume your liquidity positions support, the more rewards per second you will make.<0/><1/>Once you have fully unlocked the target volume, you will start earning the maximum rewards per second. Adjusting the staked amount will recalculate the target volume.<2/>Learn more <3>here.</3>"
-msgstr "Some farms have a target trading volume (represented by the progress bar) to determine the amount of reward you will earn. The more trading volume your liquidity positions support, the more rewards per second you will make.<0/><1/>Once you have fully unlocked the target volume, you will start earning the maximum rewards per second. Adjusting the staked amount will recalculate the target volume.<2/>Learn more <3>here.</3>"
+#~ msgid "Some farms have a target trading volume (represented by the progress bar) to determine the amount of reward you will earn. The more trading volume your liquidity positions support, the more rewards per second you will make.<0/><1/>Once you have fully unlocked the target volume, you will start earning the maximum rewards per second. Adjusting the staked amount will recalculate the target volume.<2/>Learn more <3>here.</3>"
+#~ msgstr "Some farms have a target trading volume (represented by the progress bar) to determine the amount of reward you will earn. The more trading volume your liquidity positions support, the more rewards per second you will make.<0/><1/>Once you have fully unlocked the target volume, you will start earning the maximum rewards per second. Adjusting the staked amount will recalculate the target volume.<2/>Learn more <3>here.</3>"
 
 #: src/hooks/useClaimReward.ts
 msgid "Something is wrong. Please try again later!"
@@ -2665,12 +2865,16 @@ msgid "Stake your LP tokens in the farm you identified earlier"
 msgstr "Stake your LP tokens in the farm you identified earlier"
 
 #: src/components/YieldPools/ProMMFarmModals/StakeModal.tsx
+msgid "Stake your deposited liquidity positions (NFT tokens) into the farms to start earning rewards. Only your in-range positions will earn rewards"
+msgstr "Stake your deposited liquidity positions (NFT tokens) into the farms to start earning rewards. Only your in-range positions will earn rewards"
+
+#: src/components/YieldPools/ProMMFarmModals/StakeModal.tsx
 msgid "Stake your liquidity"
 msgstr "Stake your liquidity"
 
 #: src/components/YieldPools/ProMMFarmModals/StakeModal.tsx
-msgid "Stake your liquidity positions into the farms to start earning rewards. Only your in-range positions will earn rewards"
-msgstr "Stake your liquidity positions into the farms to start earning rewards. Only your in-range positions will earn rewards"
+#~ msgid "Stake your liquidity positions into the farms to start earning rewards. Only your in-range positions will earn rewards"
+#~ msgstr "Stake your liquidity positions into the farms to start earning rewards. Only your in-range positions will earn rewards"
 
 #: src/components/PoolList/ItemCard/index.tsx
 msgid "Staked"
@@ -2717,7 +2921,7 @@ msgid "Stands for amplification factor. Pools with a higher AMP provide higher c
 msgstr "Stands for amplification factor. Pools with a higher AMP provide higher capital efficiency within a particular price range. We recommend higher AMP for stable token pairs and lower AMP for volatile token pairs"
 
 #: src/pages/About/AboutKyberSwap.tsx
-#: src/pages/About/AboutKyberSwap.tsx
+#: src/pages/About/KyberSwapGeneralIntro.tsx
 msgid "Start Earning"
 msgstr "Start Earning"
 
@@ -2754,6 +2958,10 @@ msgstr "Subscribe"
 #: 
 #~ msgid "Subscribe to get notifications on the latest tokens that could be trending soon!"
 #~ msgstr "Subscribe to get notifications on the latest tokens that could be trending soon!"
+
+#: src/pages/Campaign/ModalRegisterCampaign.tsx
+msgid "Success!"
+msgstr "Success!"
 
 #: src/pages/CreateReferral/ShareLinkModal.tsx
 msgid "Successfully Created"
@@ -2810,10 +3018,15 @@ msgstr "Swap Legacy"
 #: src/pages/About/AboutKNC.tsx
 #: src/pages/About/AboutKyberSwap.tsx
 #: src/pages/About/AboutKyberSwap.tsx
-#: src/pages/About/AboutKyberSwap.tsx
+#: src/pages/About/KyberSwapGeneralIntro.tsx
 #: src/pages/BuyCrypto/index.tsx
+#: src/pages/Campaign/ModalRegisterCampaign.tsx
 msgid "Swap Now"
 msgstr "Swap Now"
+
+#: src/pages/Campaign/CampaignButtonWithOptions.tsx
+msgid "Swap now"
+msgstr "Swap now"
 
 #: src/pages/BuyCrypto/index.tsx
 msgid "Swap on KyberSwap"
@@ -2865,8 +3078,8 @@ msgstr "Tags"
 
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
-msgid "Target volume"
-msgstr "Target volume"
+#~ msgid "Target volume"
+#~ msgstr "Target volume"
 
 #: src/components/Menu/index.tsx
 msgid "Terms"
@@ -2876,7 +3089,7 @@ msgstr "Terms"
 msgid "Terms and Conditions"
 msgstr "Terms and Conditions"
 
-#: src/components/WalletModal/index.tsx
+#: src/components/Header/web3/WalletModal/index.tsx
 msgid "Terms of Use"
 msgstr "Terms of Use"
 
@@ -2943,6 +3156,10 @@ msgstr "There is no liquidity data."
 #: src/components/SearchModal/CommonBases.tsx
 msgid "These tokens are commonly paired with other tokens"
 msgstr "These tokens are commonly paired with other tokens"
+
+#: src/components/SearchModal/ImportToken.tsx
+msgid "These tokens don't appear on the active token list(s). Make sure these are the tokens that you want to trade."
+msgstr "These tokens don't appear on the active token list(s). Make sure these are the tokens that you want to trade."
 
 #: src/pages/Campaign/LeaderboardLayout.tsx
 msgid "This campaign does not have a leaderboard yet."
@@ -3057,6 +3274,10 @@ msgstr "Tokens from inactive lists. Import specific tokens below or click 'Manag
 msgid "Tokens we had discovered earlier to be Trending Soon"
 msgstr "Tokens we had discovered earlier to be Trending Soon"
 
+#: src/components/swapv2/PairSuggestion/ListPair.tsx
+msgid "Top traded pairs"
+msgstr "Top traded pairs"
+
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "Total AMP Liquidity"
 msgstr "Total AMP Liquidity"
@@ -3089,6 +3310,11 @@ msgstr "Total Trading Volume:"
 msgid "Total Value Locked"
 msgstr "Total Value Locked"
 
+#: src/pages/Pools/index.tsx
+#: src/pages/Pools/index.tsx
+msgid "Total Value Locked is less than $1"
+msgstr "Total Value Locked is less than $1"
+
 #: src/pages/Pools/InstructionAndGlobalData.tsx
 msgid "Total Value Locked:"
 msgstr "Total Value Locked:"
@@ -3096,6 +3322,10 @@ msgstr "Total Value Locked:"
 #: src/components/YieldPools/index.tsx
 msgid "Total estimated return based on yearly fees and bonus rewards of the pool"
 msgstr "Total estimated return based on yearly fees and bonus rewards of the pool"
+
+#: src/components/YieldPools/ProMMFarmGroup.tsx
+msgid "Total value of the liquidity positions you've deposited. NFT tokens represent your liquidity positions"
+msgstr "Total value of the liquidity positions you've deposited. NFT tokens represent your liquidity positions"
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
@@ -3155,9 +3385,14 @@ msgstr "Trending Soon"
 msgid "TrueSight"
 msgstr "TrueSight"
 
-#: src/components/WalletModal/PendingView.tsx
+#: src/components/Header/web3/WalletModal/PendingView.tsx
 msgid "Try Again"
 msgstr "Try Again"
+
+#: src/components/swapv2/PairSuggestion/ListPair.tsx
+#: src/components/swapv2/PairSuggestion/SearchInput.tsx
+msgid "Try typing \"10 ETH to KNC\""
+msgstr "Try typing \"10 ETH to KNC\""
 
 #: src/components/TransactionSettings/index.tsx
 #: src/components/swapv2/SwapSettingsPanel/index.tsx
@@ -3241,12 +3476,20 @@ msgid "Unstake Selected"
 msgstr "Unstake Selected"
 
 #: src/components/YieldPools/ProMMFarmModals/StakeModal.tsx
-msgid "Unstake your liquidity positions from the farm. You will no longer earn rewards on these positions once unstaked"
-msgstr "Unstake your liquidity positions from the farm. You will no longer earn rewards on these positions once unstaked"
+msgid "Unstake your liquidity"
+msgstr "Unstake your liquidity"
 
 #: src/components/YieldPools/ProMMFarmModals/StakeModal.tsx
-msgid "Unstaked your liquidity"
-msgstr "Unstaked your liquidity"
+msgid "Unstake your liquidity positions (NFT tokens) from the farm. You will no longer earn rewards on these positions once unstaked"
+msgstr "Unstake your liquidity positions (NFT tokens) from the farm. You will no longer earn rewards on these positions once unstaked"
+
+#: src/components/YieldPools/ProMMFarmModals/StakeModal.tsx
+#~ msgid "Unstake your liquidity positions from the farm. You will no longer earn rewards on these positions once unstaked"
+#~ msgstr "Unstake your liquidity positions from the farm. You will no longer earn rewards on these positions once unstaked"
+
+#: src/components/YieldPools/ProMMFarmModals/StakeModal.tsx
+#~ msgid "Unstaked your liquidity"
+#~ msgstr "Unstaked your liquidity"
 
 #: src/pages/TrueSight/components/FilterBar/index.tsx
 #: src/pages/TrueSight/components/UnsubscribeModal.tsx
@@ -3318,7 +3561,6 @@ msgstr "VOLUME (24H)"
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
-#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
 #: src/pages/Yield/index.tsx
 msgid "Vesting"
@@ -3333,6 +3575,7 @@ msgstr "Vesting Schedules"
 #~ msgid "Vesting started: {0}"
 #~ msgstr "Vesting started: {0}"
 
+#: src/components/Settings/index.tsx
 #: src/components/TrendingSoonTokenBanner/index.tsx
 msgid "View"
 msgstr "View"
@@ -3345,7 +3588,7 @@ msgstr "View Farms"
 msgid "View Positions"
 msgstr "View Positions"
 
-#: src/components/AccountDetails/index.tsx
+#: src/components/Header/web3/AccountDetails/index.tsx
 msgid "View Transactions"
 msgstr "View Transactions"
 
@@ -3362,9 +3605,18 @@ msgstr "View chart"
 msgid "View list"
 msgstr "View list"
 
+#: src/components/Tutorial/TutorialSwap/constant.ts
+msgid "View our KyberSwap Guide again"
+msgstr "View our KyberSwap Guide again"
+
 #: src/pages/ProAmmPools/ListItem.tsx
 msgid "View positions"
 msgstr "View positions"
+
+#: src/components/Popups/TransactionPopup.tsx
+#: src/components/TransactionConfirmationModal/index.tsx
+msgid "View transaction"
+msgstr "View transaction"
 
 #: src/components/ModalViews/index.tsx
 msgid "View transaction on Etherscan"
@@ -3395,6 +3647,10 @@ msgstr "Wallet"
 msgid "Wallet Address or ENS name"
 msgstr "Wallet Address or ENS name"
 
+#: src/pages/App.tsx
+msgid "Warning"
+msgstr "Warning"
+
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "We adjust trading fees dynamically based on market conditions to give you the best returns."
 msgstr "We adjust trading fees dynamically based on market conditions to give you the best returns."
@@ -3406,6 +3662,14 @@ msgstr "We automatically reinvest your trading fee earnings by adding it back in
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "We can amplify liquidity pools to provide much higher capital efficiency and better slippage for you. Deposit less tokens and still achieve better liquidity and volume."
 msgstr "We can amplify liquidity pools to provide much higher capital efficiency and better slippage for you. Deposit less tokens and still achieve better liquidity and volume."
+
+#: src/components/swapv2/PairSuggestion/ListPair.tsx
+msgid "We could not find anything. Try again."
+msgstr "We could not find anything. Try again."
+
+#: src/components/Tutorial/TutorialSwap/index.tsx
+msgid "We created this <0>quick tutorial</0> guide for you to highlight KyberSwap's main features."
+msgstr "We created this <0>quick tutorial</0> guide for you to highlight KyberSwap's main features."
 
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
 msgid "We discovered this on"
@@ -3423,6 +3687,11 @@ msgstr "We will automatically remove your liquidity and convert it into your des
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Website"
 msgstr "Website"
+
+#: src/components/Tutorial/TutorialSwap/TutorialMobile.tsx
+#: src/components/Tutorial/TutorialSwap/index.tsx
+msgid "Welcome to KyberSwap!"
+msgstr "Welcome to KyberSwap!"
 
 #: 
 #: 
@@ -3462,8 +3731,12 @@ msgstr "Withdraw Selected"
 msgid "Withdraw your liquidity"
 msgstr "Withdraw your liquidity"
 
-#: src/components/Web3Status/index.tsx
-#: src/components/WrongNetworkModal/index.tsx
+#: src/components/YieldPools/ProMMFarmGroup.tsx
+msgid "Withdraw your liquidity (the NFT tokens that represent your liquidity position)"
+msgstr "Withdraw your liquidity (the NFT tokens that represent your liquidity position)"
+
+#: src/components/Header/web3/NetworkModal/index.tsx
+#: src/components/Header/web3/SelectWallet.tsx
 msgid "Wrong Network"
 msgstr "Wrong Network"
 
@@ -3484,8 +3757,8 @@ msgid "You are creating a pool"
 msgstr "You are creating a pool"
 
 #: src/pages/AddLiquidity/index.tsx
-msgid "You can add liquidity to the pool by supplying a single token (either token from the token pair). We will automatically create LP tokens for you and add them to the liquidity pool - all in a single transaction"
-msgstr "You can add liquidity to the pool by supplying a single token (either token from the token pair). We will automatically create LP tokens for you and add them to the liquidity pool - all in a single transaction"
+#~ msgid "You can add liquidity to the pool by supplying a single token (either token from the token pair). We will automatically create LP tokens for you and add them to the liquidity pool - all in a single transaction"
+#~ msgstr "You can add liquidity to the pool by supplying a single token (either token from the token pair). We will automatically create LP tokens for you and add them to the liquidity pool - all in a single transaction"
 
 #: src/pages/CreateReferral/index.tsx
 msgid "You can also include tokens to swap in your referral link so that referees are automatically re-directed to selected chain and selected tokens are also populated for the swap. You will still earn commission on other token swaps if they use your referral link."
@@ -3503,6 +3776,10 @@ msgstr "You can choose to see the tokens with the highest growth potential over 
 msgid "You can create referral links here. If your referral link is used by anyone during a trade, you will receive a small commission from their transaction. The commission will be instantly sent to your wallet address. You can create multiple referral links with different configurations.<0/><1/>Read more <2>here</2>"
 msgstr "You can create referral links here. If your referral link is used by anyone during a trade, you will receive a small commission from their transaction. The commission will be instantly sent to your wallet address. You can create multiple referral links with different configurations.<0/><1/>Read more <2>here</2>"
 
+#: src/components/Tutorial/TutorialSwap/index.tsx
+msgid "You can customize advanced settings like slippage and other display settings here."
+msgstr "You can customize advanced settings like slippage and other display settings here."
+
 #: src/pages/CreateReferral/index.tsx
 msgid "You can include the chain in your referral link so referees are automatically re-directed to this network on KyberSwap. You will still earn commission on trades that are made on other chains and use your referral link"
 msgstr "You can include the chain in your referral link so referees are automatically re-directed to this network on KyberSwap. You will still earn commission on trades that are made on other chains and use your referral link"
@@ -3511,9 +3788,21 @@ msgstr "You can include the chain in your referral link so referees are automati
 #~ msgid "You can manually import your pool"
 #~ msgstr "You can manually import your pool"
 
+#: src/components/swapv2/PairSuggestion/PairSuggestionItem.tsx
+msgid "You can only favorite up to three token pairs"
+msgstr "You can only favorite up to three token pairs"
+
+#: src/components/swapv2/PairSuggestion/index.tsx
+msgid "You can only favorite up to three token pairs."
+msgstr "You can only favorite up to three token pairs."
+
 #: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "You can remove your liquidity here. When you remove liquidity (even partially), you will receive 100% of your fee earnings"
 msgstr "You can remove your liquidity here. When you remove liquidity (even partially), you will receive 100% of your fee earnings"
+
+#: src/components/Tutorial/TutorialSwap/index.tsx
+msgid "You can repeat these instructions anytime by clicking on the \"View\" button under Preferences."
+msgstr "You can repeat these instructions anytime by clicking on the \"View\" button under Preferences."
 
 #: src/pages/CreatePool/FeeTypeSelector.tsx
 #: src/pages/CreatePool/index.tsx
@@ -3537,9 +3826,16 @@ msgid "You don't have any fees to collect"
 msgstr "You don't have any fees to collect"
 
 #: src/components/YieldPools/ProMMFarmModals/DepositModal.tsx
-#: src/components/YieldPools/ProMMFarmModals/StakeModal.tsx
 msgid "You dont have any relevant liquidity positions yet.<0/> Add liquidity to the farming pools first. Check out our <1>Pools.</1>"
 msgstr "You dont have any relevant liquidity positions yet.<0/> Add liquidity to the farming pools first. Check out our <1>Pools.</1>"
+
+#: src/pages/Campaign/ModalRegisterCampaign.tsx
+msgid "You have successfully registered for this trading campaign. Start trading now and good luck!"
+msgstr "You have successfully registered for this trading campaign. Start trading now and good luck!"
+
+#: src/components/YieldPools/ProMMFarmModals/StakeModal.tsx
+msgid "You haven't deposited any liquidity positions (NFT tokens) for this farming pair yet.<0/><1/>Add liquidity to this pool first in our <2>Pools</2> page. If you've done that, deposit your liquidity position (NFT tokens) before you stake"
+msgstr "You haven't deposited any liquidity positions (NFT tokens) for this farming pair yet.<0/><1/>Add liquidity to this pool first in our <2>Pools</2> page. If you've done that, deposit your liquidity position (NFT tokens) before you stake"
 
 #: src/components/YourCampaignTransactionsModal/index.tsx
 msgid "You haven't made any eligible transactions yet."
@@ -3557,9 +3853,18 @@ msgstr "You need to withdraw your liquidity from the farms first"
 msgid "You save"
 msgstr "You save"
 
+#: src/components/YieldPools/ProMMFarmGroup.tsx
+#: src/components/YieldPools/ProMMFarmGroup.tsx
+msgid "You still have {0} liquidity to stake to earn more rewards"
+msgstr "You still have {0} liquidity to stake to earn more rewards"
+
 #: src/components/YieldPools/ProMMFarmModals/WithdrawModal.tsx
-msgid "You will need to unstake your liquidity first before withdrawing it back to your wallet"
-msgstr "You will need to unstake your liquidity first before withdrawing it back to your wallet"
+#~ msgid "You will need to unstake your liquidity first before withdrawing it back to your wallet"
+#~ msgstr "You will need to unstake your liquidity first before withdrawing it back to your wallet"
+
+#: src/components/YieldPools/ProMMFarmModals/WithdrawModal.tsx
+msgid "You will need to unstake your liquidity positions (NFT tokens) first before withdrawing it back to your wallet"
+msgstr "You will need to unstake your liquidity positions (NFT tokens) first before withdrawing it back to your wallet"
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
@@ -3569,6 +3874,10 @@ msgstr "You will receive"
 #: src/components/Menu/FaucetModal.tsx
 msgid "You will receive {0} {tokenSymbol} soon!"
 msgstr "You will receive {0} {tokenSymbol} soon!"
+
+#: src/components/Header/web3/AccountDetails/index.tsx
+msgid "Your Account"
+msgstr "Your Account"
 
 #: src/components/PositionCard/index.tsx
 msgid "Your Current Position"
@@ -3649,6 +3958,10 @@ msgstr "Your Transactions ({0})"
 msgid "Your available LP Token balance after staking (if applicable)"
 msgstr "Your available LP Token balance after staking (if applicable)"
 
+#: src/components/swapv2/PairSuggestion/ListPair.tsx
+msgid "Your favourite pairs will appear here"
+msgstr "Your favourite pairs will appear here"
+
 #: src/components/ProAmm/ProAmmFee.tsx
 #: src/components/ProAmm/ProAmmFee.tsx
 msgid "Your fees are being automatically compounded so you earn more"
@@ -3698,7 +4011,6 @@ msgstr "Your rewards may be automatically harvested a few days after the farm en
 msgid "Your trade is routed through one or more of these liquidity sources"
 msgstr "Your trade is routed through one or more of these liquidity sources"
 
-#: src/components/swapv2/MobileTradeRoutes.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Your trade route"
 msgstr "Your trade route"
@@ -3718,12 +4030,13 @@ msgstr "Your transaction may fail"
 msgid "Your transaction will revert if there is a large, unfavorable price movement before it is confirmed"
 msgstr "Your transaction will revert if there is a large, unfavorable price movement before it is confirmed"
 
-#: src/components/AccountDetails/index.tsx
+#: src/components/Header/web3/AccountDetails/index.tsx
 msgid "Your transactions will appear here..."
 msgstr "Your transactions will appear here..."
 
 #: src/components/Menu/ClaimRewardModal.tsx
 #: src/components/Menu/FaucetModal.tsx
+#: src/components/Tutorial/TutorialSwap/constant.ts
 msgid "Your wallet address"
 msgstr "Your wallet address"
 
@@ -3731,8 +4044,7 @@ msgstr "Your wallet address"
 msgid "Your wallet address *"
 msgstr "Your wallet address *"
 
-#: src/components/WalletModal/index.tsx
-#: src/pages/Campaign/CampaignButtonWithOptions.tsx
+#: src/components/Header/web3/WalletModal/index.tsx
 #: src/pages/Campaign/CampaignButtonWithOptions.tsx
 msgid "and"
 msgstr "and"
@@ -3741,6 +4053,7 @@ msgstr "and"
 msgid "could be trending very soon!"
 msgstr "could be trending very soon!"
 
+#: src/components/Header/web3/WalletModal/InstallBraveNote.tsx
 #: src/components/TrendingSoonTokenBanner/index.tsx
 #: src/pages/CreatePool/index.tsx
 msgid "here"
@@ -3785,6 +4098,10 @@ msgstr "via {0}"
 msgid "via {0} token list"
 msgstr "via {0} token list"
 
+#: src/components/TransactionConfirmationModal/index.tsx
+msgid "your wallet"
+msgstr "your wallet"
+
 #: src/components/PositionPreview/index.tsx
 #: src/components/ProAmm/ProAmmPooledTokens.tsx
 #: src/components/ProAmm/ProAmmPriceRange.tsx
@@ -3807,7 +4124,7 @@ msgstr "{0} FEES EARNED"
 msgid "{0} Fees Earned"
 msgstr "{0} Fees Earned"
 
-#: src/components/Web3Status/index.tsx
+#: src/components/Header/web3/SelectWallet.tsx
 msgid "{0} Pending"
 msgstr "{0} Pending"
 
@@ -3864,6 +4181,10 @@ msgstr "{0}% Unlocked"
 #: src/pages/BuyCrypto/index.tsx
 msgid "{0}Skip"
 msgstr "{0}Skip"
+
+#: src/components/Tutorial/TutorialSwap/TutorialMobile.tsx
+msgid "{TOTAL_STEP} easy ways to get started with KyberSwap"
+msgstr "{TOTAL_STEP} easy ways to get started with KyberSwap"
 
 #: src/components/Popups/ListUpdatePopup.tsx
 msgid "{numTokensChanged} tokens updated"

@@ -1,5 +1,6 @@
 import { Trans } from '@lingui/macro'
-import { ChainId } from '@namgold/ks-sdk-core'
+import { ChainId, ChainType, getChainType } from '@namgold/ks-sdk-core'
+import { useWallet } from '@solana/wallet-adapter-react'
 import { useWeb3React } from '@web3-react/core'
 import { useCallback } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -19,12 +20,14 @@ import Wallet from 'components/Icons/Wallet'
 import Identicon from 'components/Identicon'
 import { AutoRow } from 'components/Row'
 import { braveInjectedConnector, coin98InjectedConnector, injected, walletconnect, walletlink } from 'connectors'
-import { PROMM_ANALYTICS_URL, SUPPORTED_WALLETS } from 'constants/index'
+import { PROMM_ANALYTICS_URL } from 'constants/index'
+import { SUPPORTED_WALLETS } from 'constants/wallets'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { AppDispatch } from 'state'
 import { clearAllTransactions } from 'state/transactions/actions'
 import { ExternalLink, LinkStyledButton, TYPE } from 'theme'
-import { getEtherscanLink, shortenAddress } from 'utils'
+import { detectInjectedType, getEtherscanLink, shortenAddress } from 'utils'
 
 import Transaction from './Transaction'
 
@@ -183,37 +186,22 @@ export default function AccountDetails({
   ENSName,
   openOptions,
 }: AccountDetailsProps) {
-  const { chainId, account, connector, deactivate } = useWeb3React() //todo: use useActiveWeb3React
+  const { chainId, account } = useActiveWeb3React()
+  const { connector, deactivate } = useWeb3React()
+  const { wallet, disconnect } = useWallet()
   const theme = useTheme()
   const dispatch = useDispatch<AppDispatch>()
 
-  function formatConnectorName() {
-    const { ethereum } = window
-    const isInjected = !!(ethereum && ethereum.isMetaMask)
-    const isCoin98 = isInjected && ethereum.isCoin98
-    const isBraveWallet = isInjected && ethereum.isBraveWallet
+  function formatConnectorName(): JSX.Element {
+    const name = ((): string | null => {
+      if (chainId === ChainId.SOLANA) return wallet?.adapter.name || null
 
-    const walletConfig = (() => {
-      if (isInjected) {
-        if (isCoin98) {
-          return SUPPORTED_WALLETS['COIN98']
-        }
+      const injectedType = detectInjectedType()
+      if (injectedType) return SUPPORTED_WALLETS[injectedType].name
 
-        if (isBraveWallet) {
-          return SUPPORTED_WALLETS['BRAVE']
-        }
-
-        return SUPPORTED_WALLETS['METAMASK']
-      }
-
-      return Object.values(SUPPORTED_WALLETS).find(config => config.connector === connector)
+      return Object.values(SUPPORTED_WALLETS).find(config => (config as any)?.connector === connector)?.name || null
     })()
-
-    const name = walletConfig?.name || ''
-
-    if (!walletConfig) {
-      console.error('Cannot find the wallet connect')
-    }
+    if (!name) console.error('Cannot find the wallet connect')
 
     return (
       <WalletName>
@@ -262,10 +250,15 @@ export default function AccountDetails({
   const [, setIsUserManuallyDisconnect] = useLocalStorage('user-manually-disconnect')
 
   const handleDisconnect = () => {
-    deactivate()
+    const chainType = getChainType(chainId)
+    if (chainType === ChainType.EVM) {
+      deactivate()
 
-    // @ts-expect-error close can be returned by wallet
-    if (connector && connector.close) connector.close()
+      // @ts-expect-error close can be returned by wallet
+      if (connector && connector.close) connector.close()
+    } else if (chainType === ChainType.SOLANA) {
+      disconnect()
+    }
     setIsUserManuallyDisconnect(true)
   }
 
@@ -293,7 +286,7 @@ export default function AccountDetails({
                 ) : (
                   <div>
                     {getStatusIcon()}
-                    <p> {isMobile && account ? shortenAddress(account, 10) : account}</p>
+                    <p> {isMobile && account ? shortenAddress(chainId, account, 10) : account}</p>
                   </div>
                 )}
               </AccountControl>

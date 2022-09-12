@@ -8,8 +8,11 @@ import { GET_BLOCK, GET_BLOCKS } from 'apollo/queries'
 import { DEFAULT_GAS_LIMIT_MARGIN, ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { KNC, KNCL_ADDRESS, KNCL_ADDRESS_ROPSTEN } from 'constants/tokens'
+import { EVMWalletInfo, SolanaWalletInfo, WalletInfo } from 'constants/wallets'
 import store from 'state'
 import { TokenAddressMap } from 'state/lists/hooks'
+
+import checkForBraveBrowser from './checkForBraveBrowser'
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(chainId: ChainId, value: any): string | false {
@@ -57,8 +60,8 @@ export function getEtherscanLinkText(chainId: ChainId): string {
 }
 
 // shorten the checksummed version of the input address to have 0x + 4 characters at start and end
-export function shortenAddress(address: string, chars = 4): string {
-  const parsed = isAddress(1, address) //todo namgold: add logic Solana
+export function shortenAddress(chainId: ChainId, address: string, chars = 4): string {
+  const parsed = isAddress(chainId, address)
   if (!parsed) {
     throw Error(`Invalid 'address' parameter '${address}'.`)
   }
@@ -374,4 +377,26 @@ export const deleteUnique = <T>(array: T[] | undefined, element: T): T[] => {
     return [...set]
   }
   return array
+}
+
+export const isEVMWallet = (wallet: WalletInfo): wallet is EVMWalletInfo =>
+  !!(wallet as EVMWalletInfo).connector || !!(wallet as EVMWalletInfo).href
+export const isSolanaWallet = (wallet: WalletInfo): wallet is SolanaWalletInfo => !!(wallet as SolanaWalletInfo).adapter
+export enum Metamask_Type {
+  METAMASK,
+  COIN98,
+  BRAVE,
+}
+
+// Coin98 and Brave wallet is overriding Metamask. So at a time, there is only 1 exists
+export const detectInjectedType = (): 'COIN98' | 'BRAVE' | 'METAMASK' | null => {
+  const { ethereum } = window
+  const isMetamask = !!ethereum?.isMetaMask
+  const isCoin98 = isMetamask && ethereum.isCoin98
+  const isBraveBrowser = checkForBraveBrowser()
+
+  if (isCoin98) return 'COIN98'
+  if (isMetamask) return 'METAMASK'
+  if (isBraveBrowser) return 'BRAVE'
+  return null
 }

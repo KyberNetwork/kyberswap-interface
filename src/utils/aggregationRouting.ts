@@ -1,7 +1,8 @@
 import { ZERO } from '@namgold/ks-sdk-classic'
 import { ChainId, Percent, Rounding, Token } from '@namgold/ks-sdk-core'
-import { getAddress } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
+
+import { isAddressString } from 'utils'
 
 import { Aggregator } from './aggregator'
 
@@ -136,8 +137,8 @@ export function getTradeComposition(
     if (sorMultiSwap.length === 1) {
       const hop = sorMultiSwap[0]
       const path = [
-        allTokens?.[getAddress(hop.tokenIn)] || tokens[hop.tokenIn],
-        allTokens?.[getAddress(hop.tokenOut)] || tokens[hop.tokenOut],
+        allTokens?.[isAddressString(chainId, hop.tokenIn)] || tokens[hop.tokenIn],
+        allTokens?.[isAddressString(chainId, hop.tokenOut)] || tokens[hop.tokenOut],
       ]
       routes.push({
         slug: hop.tokenOut?.toLowerCase(),
@@ -165,13 +166,13 @@ export function getTradeComposition(
         if (index === 0) {
           const token = tokens[hop.tokenIn] || ({} as any)
           path.push(
-            allTokens?.[getAddress(token.address)] ||
+            allTokens?.[isAddressString(chainId, token.address)] ||
               new Token(chainId, token.address, token.decimals, token.symbol, token.name),
           )
         }
         const token = tokens[hop.tokenOut] || ({} as any)
         path.push(
-          allTokens?.[getAddress(token.address)] ||
+          allTokens?.[isAddressString(chainId, token.address)] ||
             new Token(chainId, token.address, token.decimals, token.symbol, token.name),
         )
       })

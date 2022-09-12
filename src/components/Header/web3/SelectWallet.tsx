@@ -16,7 +16,8 @@ import Loader from 'components/Loader'
 import { RowBetween } from 'components/Row'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { braveInjectedConnector, coin98InjectedConnector, injected, walletconnect, walletlink } from 'connectors'
-import { NetworkContextName } from 'constants/index'
+import { isEVM } from 'constants/networks'
+import { useActiveWeb3React } from 'hooks'
 import useENSName from 'hooks/useENSName'
 import { useHasSocks } from 'hooks/useSocksBalance'
 import { useNetworkModalToggle, useWalletModalToggle } from 'state/application/hooks'
@@ -150,9 +151,10 @@ function StatusIcon({ connector }: { connector: AbstractConnector }) {
 }
 
 function Web3StatusInner() {
-  const { account, connector, error } = useWeb3React()
+  const { chainId, account } = useActiveWeb3React()
+  const { connector, error } = useWeb3React()
 
-  const { ENSName } = useENSName(account ?? undefined)
+  const { ENSName } = useENSName(isEVM(chainId) ? account ?? undefined : undefined)
 
   const allTransactions = useAllTransactions()
 
@@ -187,7 +189,7 @@ function Web3StatusInner() {
         ) : (
           <>
             {hasSocks ? SOCK : null}
-            <Text>{ENSName || shortenAddress(account, above369 ? undefined : 2)}</Text>
+            <Text>{ENSName || shortenAddress(chainId, account, above369 ? undefined : 2)}</Text>
           </>
         )}
         {!hasPendingTransactions && connector && <StatusIcon connector={connector} />}
@@ -210,10 +212,8 @@ function Web3StatusInner() {
 }
 
 export default function SelectWallet() {
-  const { active, account } = useWeb3React()
-  const contextNetwork = useWeb3React(NetworkContextName)
-
-  const { ENSName } = useENSName(account ?? undefined)
+  const { chainId, account } = useActiveWeb3React()
+  const { ENSName } = useENSName(isEVM(chainId) ? account ?? undefined : undefined)
 
   const allTransactions = useAllTransactions()
 
@@ -224,10 +224,6 @@ export default function SelectWallet() {
 
   const pending = sortedRecentTransactions.filter(tx => !tx.receipt).map(tx => tx.hash)
   const confirmed = sortedRecentTransactions.filter(tx => tx.receipt).map(tx => tx.hash)
-
-  if (!contextNetwork.active && !active) {
-    return null
-  }
 
   return (
     <AccountElement active={!!account}>

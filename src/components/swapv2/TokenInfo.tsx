@@ -206,7 +206,7 @@ const TokenInfo = ({ currencies, onBack }: { currencies: { [field in Field]?: Cu
             {chainId && selectedToken ? (
               <>
                 <CurrencyLogo currency={selectedToken} size="16px" />
-                <InfoRowValue>{shortenAddress(selectedToken.address, 3)}</InfoRowValue>
+                <InfoRowValue>{shortenAddress(chainId, selectedToken.address, 3)}</InfoRowValue>
                 <Copy toCopy={selectedToken.address} />
                 <AddTokenToMetaMask token={selectedToken} chainId={chainId} />
               </>

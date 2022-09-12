@@ -1,15 +1,15 @@
 import { t } from '@lingui/macro'
 import { ChainId } from '@namgold/ks-sdk-core'
-import { UnsupportedChainIdError } from '@web3-react/core'
+import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core'
 import { stringify } from 'qs'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router'
 
 import { EVM_NETWORK, NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import { updateChainId } from 'state/application/actions'
 import { NotificationType, useNotify } from 'state/application/hooks'
 import { useAppDispatch } from 'state/hooks'
+import { updateChainId } from 'state/user/actions'
 
 import useParsedQueryString from './useParsedQueryString'
 
@@ -34,7 +34,9 @@ function parseNetworkId(maybeSupportedNetwork: string): ChainId | undefined {
 }
 
 export function useChangeNetwork() {
-  const { chainId, library, error } = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React()
+  const { library, error } = useWeb3React()
+
   const history = useHistory()
   const location = useLocation()
   const qs = useParsedQueryString<{ networkId: string }>()
@@ -69,6 +71,7 @@ export function useChangeNetwork() {
               method: 'wallet_switchEthereumChain',
               params: [switchNetworkParams],
             })
+            dispatch(updateChainId(desiredChainId))
             successCallback?.()
           } catch (switchError) {
             // This is a workaround solution for Coin98
@@ -86,6 +89,7 @@ export function useChangeNetwork() {
                     summary: t`In order to use KyberSwap on ${NETWORKS_INFO[desiredChainId].name}, you must change the network in your wallet.`,
                   })
                 }
+                dispatch(updateChainId(desiredChainId)) //todo namgold: is this correct??? => need test
                 successCallback?.()
               } catch (addError) {
                 console.error(addError)

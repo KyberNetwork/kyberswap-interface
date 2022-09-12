@@ -21,6 +21,7 @@ import {
 import { MAINNET_ENV, MIXPANEL_PROJECT_TOKEN } from 'constants/env'
 import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { useActiveWeb3React } from 'hooks'
 import { AppDispatch, AppState } from 'state'
 import { useETHPrice } from 'state/application/hooks'
 import { Field } from 'state/swap/actions'
@@ -897,7 +898,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
 }
 
 export const useGlobalMixpanelEvents = () => {
-  const { account, chainId } = useWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const { mixpanelHandler } = useMixpanel()
   const oldNetwork = usePrevious(chainId)
   const location = useLocation()
@@ -907,11 +908,14 @@ export const useGlobalMixpanelEvents = () => {
   }, [location])
 
   useEffect(() => {
+    mixpanel.init(MIXPANEL_PROJECT_TOKEN, {
+      debug: MAINNET_ENV === 'staging',
+    })
+  }, [])
+
+  useEffect(() => {
     if (account && isAddress(account)) {
       const redactedAccount = redactAddress(account)
-      mixpanel.init(MIXPANEL_PROJECT_TOKEN, {
-        debug: MAINNET_ENV === 'staging',
-      })
       mixpanel.identify(redactedAccount)
 
       const getQueryParam = (url: string, param: string) => {

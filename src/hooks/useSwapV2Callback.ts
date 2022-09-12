@@ -1,5 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
+import { useWeb3React } from '@web3-react/core'
 import { useCallback, useMemo } from 'react'
 
 import useSendTransactionCallback from 'hooks/useSendTransactionCallback'
@@ -32,7 +33,8 @@ export function useSwapV2Callback(
   trade: Aggregator | undefined, // trade to execute, required
   recipientAddressOrName: string | null, // the ENS name or address of the recipient of the trade, or null if swap should be returned to sender
 ): { state: SwapCallbackState; callback: null | (() => Promise<string>); error: string | null } {
-  const { account, chainId, library } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
+  const { library } = useWeb3React()
   const { typedValue, feeConfig, saveGas } = useSwapState()
 
   const [allowedSlippage] = useUserSlippageTolerance()
@@ -62,7 +64,7 @@ export function useSwapV2Callback(
           ? undefined
           : `to ${
               recipientAddressOrName && isAddress(chainId, recipientAddressOrName)
-                ? shortenAddress(recipientAddressOrName)
+                ? shortenAddress(chainId, recipientAddressOrName)
                 : recipientAddressOrName
             }`
 

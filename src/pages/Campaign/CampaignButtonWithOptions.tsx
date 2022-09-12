@@ -1,6 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { t } from '@lingui/macro'
 import { ChainId } from '@namgold/ks-sdk-core'
+import { useWeb3React } from '@web3-react/core'
 import axios from 'axios'
 import { useMemo, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
@@ -47,7 +48,8 @@ export default function CampaignButtonWithOptions({
     ? campaign[type === 'swap_now' ? 'chainIds' : 'rewardChainIds'].split(',').map(Number)
     : []
 
-  const { account, library } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
+  const { library } = useWeb3React()
 
   const selectedCampaign = useSelector((state: AppState) => state.campaigns.selectedCampaign)
   const selectedCampaignLeaderboard = useSelector((state: AppState) => state.campaigns.selectedCampaignLeaderboard)

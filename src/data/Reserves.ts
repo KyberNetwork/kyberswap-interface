@@ -24,7 +24,6 @@ export function usePairs(currencies: [Currency | undefined, Currency | undefined
     () => currencies.map(([currencyA, currencyB]) => [currencyA?.wrapped, currencyB?.wrapped]),
     [currencies],
   )
-
   const oldStaticContract = useOldStaticFeeFactoryContract()
   const staticContract = useStaticFeeFactoryContract()
   const dynamicContract = useDynamicFeeFactoryContract()

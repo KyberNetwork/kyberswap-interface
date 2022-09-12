@@ -26,6 +26,7 @@ interface Window {
   dataLayer?: any[]
   chrome?: any
   opr?: any
+  solana?: any
 }
 
 declare module 'content-hash' {

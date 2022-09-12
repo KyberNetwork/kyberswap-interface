@@ -1,4 +1,5 @@
 import { WETH } from '@namgold/ks-sdk-core'
+import { useWeb3React } from '@web3-react/core'
 import { BigNumber, Contract } from 'ethers'
 import { useCallback, useEffect, useState } from 'react'
 
@@ -16,7 +17,8 @@ export interface BalanceProps {
 
 function useTokenBalance(tokenAddress: string) {
   const [balance, setBalance] = useState<BalanceProps>({ value: BigNumber.from(0), decimals: 18 })
-  const { account, chainId, library } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
+  const { library } = useWeb3React()
   //const currentBlockNumber = useBlockNumber()
   // allows balance to update given transaction updates
   const currentTransactionStatus = useTransactionStatus()

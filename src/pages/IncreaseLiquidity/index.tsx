@@ -2,6 +2,7 @@ import { TransactionResponse } from '@ethersproject/providers'
 import { Trans, t } from '@lingui/macro'
 import { Currency, CurrencyAmount, Percent, WETH } from '@namgold/ks-sdk-core'
 import { FeeAmount, NonfungiblePositionManager } from '@namgold/ks-sdk-elastic'
+import { useWeb3React } from '@web3-react/core'
 import { BigNumber } from 'ethers'
 import JSBI from 'jsbi'
 import React, { useCallback, useEffect, useState } from 'react'
@@ -53,7 +54,8 @@ export default function AddLiquidity({
   },
   history,
 }: RouteComponentProps<{ currencyIdA?: string; currencyIdB?: string; feeAmount?: string; tokenId?: string }>) {
-  const { account, chainId, library } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
+  const { library } = useWeb3React()
   const theme = useTheme()
   const toggleWalletModal = useWalletModalToggle() // toggle wallet when disconnected
   const expertMode = useIsExpertMode()
@@ -211,7 +213,7 @@ export default function AddLiquidity({
       library
         .getSigner()
         .estimateGas(txn)
-        .then(estimate => {
+        .then((estimate: BigNumber) => {
           const newTxn = {
             ...txn,
             gasLimit: calculateGasMargin(estimate),
@@ -242,7 +244,7 @@ export default function AddLiquidity({
               setTxHash(response.hash)
             })
         })
-        .catch(error => {
+        .catch((error: any) => {
           console.error('Failed to send transaction', error)
           setAttemptingTxn(false)
           // we only care if the error is something _other_ than the user rejected the tx
@@ -436,7 +438,7 @@ export default function AddLiquidity({
             color={theme.subText}
             style={{ borderRadius: '4px', marginBottom: '1.25rem' }}
           >
-            The owner of this liquidity position is {shortenAddress(owner)}
+            The owner of this liquidity position is {shortenAddress(chainId, owner)}
             <span style={{ display: 'inline-block' }}>
               <Copy toCopy={owner}></Copy>
             </span>

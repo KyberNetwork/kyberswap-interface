@@ -1,9 +1,8 @@
+import { useWeb3React } from '@web3-react/core'
 import { useEffect, useState } from 'react'
 
-import { useActiveWeb3React } from '.'
-
 export function useTimestampFromBlock(block: number | undefined): number | undefined {
-  const { library } = useActiveWeb3React()
+  const { library } = useWeb3React()
   const [timestamp, setTimestamp] = useState<number>()
   useEffect(() => {
     async function fetchTimestamp() {

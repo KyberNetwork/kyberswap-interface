@@ -1,5 +1,6 @@
 import { Contract } from '@ethersproject/contracts'
 import { ChainId, WETH } from '@namgold/ks-sdk-core'
+import { useWeb3React } from '@web3-react/core'
 import { useMemo } from 'react'
 
 import IUniswapV2PairABI from 'constants/abis/IUniswapV2PairABI.json'
@@ -37,16 +38,18 @@ import { providers, useActiveWeb3React } from './index'
 
 // returns null on errors
 export function useContract(address: string | undefined, ABI: any, withSignerIfPossible = true): Contract | null {
-  const { library, account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
+  const { library } = useWeb3React()
+
   return useMemo(() => {
-    if (!address || !ABI || !library) return null
+    if (!isEVM(chainId) || !address || !ABI || !library) return null
     try {
       return getContract(address, ABI, library, withSignerIfPossible && account ? account : undefined)
     } catch (error) {
       console.error('Failed to get contract', error)
       return null
     }
-  }, [address, ABI, library, withSignerIfPossible, account])
+  }, [chainId, address, ABI, library, withSignerIfPossible, account])
 }
 
 function useContractForReading(address: string | undefined, ABI: any): Contract | null {
@@ -71,10 +74,12 @@ export function useMultipleContracts(
 ): {
   [key: string]: Contract
 } | null {
-  const { library, account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
+  const { library } = useWeb3React()
 
   return useMemo(() => {
-    if (!addresses || !Array.isArray(addresses) || addresses.length === 0 || !ABI || !library) return null
+    if (!isEVM(chainId) || !addresses || !Array.isArray(addresses) || addresses.length === 0 || !ABI || !library)
+      return null
 
     const result: {
       [key: string]: Contract
@@ -97,7 +102,7 @@ export function useMultipleContracts(
 
       return null
     }
-  }, [addresses, ABI, library, withSignerIfPossible, account])
+  }, [chainId, addresses, ABI, library, withSignerIfPossible, account])
 }
 
 export function useTokenContract(tokenAddress?: string, withSignerIfPossible?: boolean): Contract | null {

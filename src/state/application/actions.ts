@@ -1,4 +1,3 @@
-import { ChainId } from '@namgold/ks-sdk-core'
 import { createAction } from '@reduxjs/toolkit'
 import { TokenList } from '@uniswap/token-lists'
 
@@ -84,5 +83,3 @@ export const updateETHPrice = createAction<{
 }>('application/updateETHPrice')
 
 export const updateKNCPrice = createAction<string | undefined>('application/updateKNCPrice')
-
-export const updateChainId = createAction<ChainId>('application/updateChainIdWhenNotConnected')

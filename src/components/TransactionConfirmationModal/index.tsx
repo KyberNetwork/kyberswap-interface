@@ -12,7 +12,7 @@ import { ButtonLight, ButtonPrimary } from 'components/Button'
 import { AutoColumn, ColumnCenter } from 'components/Column'
 import Modal from 'components/Modal'
 import { RowBetween, RowFixed } from 'components/Row'
-import { SUPPORTED_WALLETS } from 'constants/index'
+import { SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useIsDarkMode } from 'state/user/hooks'
@@ -66,7 +66,8 @@ const getBrowserWalletConfig = () => {
       return { name, iconName }
     }
 
-    const config = SUPPORTED_WALLETS.INJECTED
+    //todo namgold: check this
+    const config = SUPPORTED_WALLETS.METAMASK
     return {
       name: t`your wallet`,
       iconName: config.iconName,

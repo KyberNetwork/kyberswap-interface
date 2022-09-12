@@ -2,6 +2,7 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
 import { Trans, t } from '@lingui/macro'
 import { NonfungiblePositionManager, Position } from '@namgold/ks-sdk-elastic'
+import { useWeb3React } from '@web3-react/core'
 import { useCallback } from 'react'
 import { Info } from 'react-feather'
 import { Flex, Text } from 'rebass'
@@ -39,7 +40,8 @@ export default function ProAmmFee({
   text?: string
   farmAvailable?: boolean
 }) {
-  const { chainId, account, library } = useActiveWeb3React()
+  const { chainId, account } = useActiveWeb3React()
+  const { library } = useWeb3React()
   const theme = useTheme()
   const [feeValue0, feeValue1] = useProAmmPositionFees(tokenId, position, false)
   const token0Shown = unwrappedToken(position.pool.token0)
@@ -88,7 +90,7 @@ export default function ProAmmFee({
     library
       .getSigner()
       .estimateGas(txn)
-      .then(estimate => {
+      .then((estimate: BigNumber) => {
         const newTxn = {
           ...txn,
           gasLimit: calculateGasMargin(estimate),
@@ -116,7 +118,7 @@ export default function ProAmmFee({
             })
           })
       })
-      .catch(error => {
+      .catch((error: any) => {
         console.error(error)
       })
   }, [

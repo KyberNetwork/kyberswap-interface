@@ -2,6 +2,7 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
 import { Trans, t } from '@lingui/macro'
 import { ChainId, Currency, Fraction, TokenAmount, WETH } from '@namgold/ks-sdk-core'
+import { useWeb3React } from '@web3-react/core'
 import { parseUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -78,7 +79,8 @@ export default function CreatePool({
   },
   history,
 }: RouteComponentProps<{ currencyIdA?: string; currencyIdB?: string }>) {
-  const { account, chainId, library } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
+  const { library } = useWeb3React()
   const theme = useTheme()
   const currencyA = useCurrency(currencyIdA)
   const currencyB = useCurrency(currencyIdB)

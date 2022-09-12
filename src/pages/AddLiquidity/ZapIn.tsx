@@ -3,6 +3,7 @@ import { TransactionResponse } from '@ethersproject/providers'
 import { Trans, t } from '@lingui/macro'
 import { Currency, CurrencyAmount, Fraction, TokenAmount, WETH, computePriceImpact } from '@namgold/ks-sdk-core'
 import { captureException } from '@sentry/react'
+import { useWeb3React } from '@web3-react/core'
 import { parseUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 import React, { useCallback, useMemo, useState } from 'react'
@@ -75,7 +76,8 @@ const ZapIn = ({
   currencyIdB: string
   pairAddress: string
 }) => {
-  const { account, library, chainId } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
+  const { library } = useWeb3React()
   const theme = useTheme()
   const currencyA = useCurrency(currencyIdA)
   const currencyB = useCurrency(currencyIdB)

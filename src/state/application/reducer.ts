@@ -1,4 +1,3 @@
-import { ChainId } from '@namgold/ks-sdk-core'
 import { createReducer, nanoid } from '@reduxjs/toolkit'
 
 import {
@@ -9,7 +8,6 @@ import {
   removePopup,
   setOpenModal,
   updateBlockNumber,
-  updateChainId,
   updateETHPrice,
   updateKNCPrice,
   updatePrommETHPrice,
@@ -36,7 +34,6 @@ export interface ApplicationState {
   readonly ethPrice: ETHPrice
   readonly prommEthPrice: ETHPrice
   readonly kncPrice?: string
-  readonly chainId: ChainId
 }
 
 const initialState: ApplicationState = {
@@ -46,7 +43,6 @@ const initialState: ApplicationState = {
   ethPrice: {},
   prommEthPrice: {},
   kncPrice: '',
-  chainId: ChainId.MAINNET,
 }
 
 export default createReducer(initialState, builder =>
@@ -93,8 +89,5 @@ export default createReducer(initialState, builder =>
     })
     .addCase(updateKNCPrice, (state, { payload: kncPrice }) => {
       state.kncPrice = kncPrice
-    })
-    .addCase(updateChainId, (state, { payload: chainId }) => {
-      state.chainId = chainId
     }),
 )

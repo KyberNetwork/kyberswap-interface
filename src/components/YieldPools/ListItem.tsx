@@ -641,7 +641,7 @@ const ListItem = ({ farm }: ListItemProps) => {
             </Flex>
 
             <Flex marginTop="8px" marginBottom="16px" fontSize={12} color={theme.subText}>
-              AMP = {amp} | {shortenAddress(farm.id)} <CopyHelper toCopy={farm.id} />
+              AMP = {amp} | {shortenAddress(chainId, farm.id)} <CopyHelper toCopy={farm.id} />
             </Flex>
 
             <Divider />

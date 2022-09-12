@@ -1,17 +1,7 @@
 import { t } from '@lingui/macro'
 import { ChainId, Percent } from '@namgold/ks-sdk-core'
-import { AbstractConnector } from '@web3-react/abstract-connector'
 import JSBI from 'jsbi'
 import { v4 as uuid } from 'uuid'
-
-import {
-  braveInjectedConnector,
-  coin98InjectedConnector,
-  injected,
-  ledger,
-  walletconnect,
-  walletlink,
-} from 'connectors'
 
 import { CAMPAIGN_BASE_URL as CAMPAIGN_BASE_DOMAIN } from './env'
 import { EVM_NETWORK, NETWORKS_INFO, SUPPORTED_NETWORKS } from './networks'
@@ -50,105 +40,6 @@ export const BLOCKS_PER_YEAR = (chainId: EVM_NETWORK): number =>
   Math.floor((60 / NETWORKS_INFO[chainId].averageBlockTimeInSeconds) * 60 * 24 * 365)
 
 export const SECONDS_PER_YEAR = 31556926
-
-export interface WalletInfo {
-  connector?: AbstractConnector
-  name: string
-  iconName: string
-  description: string
-  href: string | null
-  color: string
-  primary?: true
-  mobile?: true
-  mobileOnly?: true
-  installLink?: string
-}
-
-export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
-  INJECTED: {
-    connector: injected,
-    name: 'Injected',
-    iconName: 'arrow-right.svg',
-    description: 'Injected web3 provider.',
-    href: null,
-    color: '#010101',
-    primary: true,
-  },
-  METAMASK: {
-    connector: injected,
-    name: 'MetaMask',
-    iconName: 'metamask.svg',
-    description: 'Easy-to-use browser extension.',
-    href: null,
-    color: '#E8831D',
-    installLink: 'https://metamask.io/download/',
-  },
-  COIN98: {
-    connector: coin98InjectedConnector,
-    name: 'Coin98',
-    iconName: 'coin98.svg',
-    description: 'The Leading Multi-chain Wallet & DeFi Gateway',
-    href: null,
-    color: 'e6c959',
-    installLink: 'https://wallet.coin98.com/',
-  },
-  WALLET_CONNECT: {
-    connector: walletconnect,
-    name: 'WalletConnect',
-    iconName: 'wallet-connect.svg',
-    description: 'Connect to Trust Wallet, Rainbow Wallet and more...',
-    href: null,
-    color: '#4196FC',
-    mobile: true,
-    installLink: 'https://walletconnect.com/',
-  },
-  WALLET_LINK: {
-    connector: walletlink,
-    name: 'Coinbase Wallet',
-    iconName: 'wallet-link.svg',
-    description: 'Use Coinbase Wallet app on mobile device',
-    href: null,
-    color: '#315CF5',
-    installLink: 'https://www.coinbase.com/wallet',
-  },
-  COINBASE_LINK: {
-    name: 'Open in Coinbase Wallet',
-    iconName: 'wallet-link.svg',
-    description: 'Open in Coinbase Wallet app.',
-    // To get this link: go to Coinbase app -> Dapp Browser -> go to dmm.exchange -> click "..." button -> share -> copy link
-    href: 'https://go.cb-w.com/S7mannYpWjb',
-    color: '#315CF5',
-    mobile: true,
-    mobileOnly: true,
-  },
-  LEDGER: {
-    connector: ledger,
-    name: 'Ledger',
-    iconName: 'ledger.svg',
-    description: 'Ledger Device',
-    href: null,
-    color: '#315CF5',
-    installLink: 'https://www.ledger.com/ledger-live/download',
-  },
-  // TREZOR: {
-  //   connector: trezor,
-  //   name: 'Trezor',
-  //   iconName: 'trezor.svg',
-  //   description: 'Trezor Device',
-  //   href: null,
-  //   color: '#315CF5'
-  // }
-  BRAVE: {
-    connector: braveInjectedConnector,
-    name: 'Brave Wallet',
-    iconName: 'brave_wallet.svg',
-    description: 'Native wallet of Brave browser',
-    href: null,
-    color: '#cc1d83',
-    mobile: true,
-    installLink: 'https://brave.com/download',
-  },
-}
 
 export const BLACKLIST_WALLETS: string[] = [
   '0xd882cfc20f52f2599d84b8e8d58c7fb62cfe344b',

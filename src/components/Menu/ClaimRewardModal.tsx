@@ -69,7 +69,7 @@ function ClaimRewardModal() {
           <Text color={theme.subText} fontSize={12}>
             <Trans>Your wallet address</Trans>
           </Text>
-          <p>{account && shortenAddress(account, 9)}</p>
+          <p>{account && shortenAddress(chainId, account, 9)}</p>
         </AddressWrapper>
         <Text fontSize={16} lineHeight="24px" color={theme.text}>
           <Trans>If your wallet is eligible, you will be able to claim your reward below. You can claim:</Trans>

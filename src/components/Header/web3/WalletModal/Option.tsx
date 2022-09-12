@@ -1,6 +1,8 @@
+import { Trans } from '@lingui/macro'
 import React from 'react'
 import styled from 'styled-components'
 
+import { MouseoverTooltip } from 'components/Tooltip'
 import { ExternalLink } from 'theme'
 
 const IconWrapper = styled.div<{ size?: number | null }>`
@@ -12,8 +14,8 @@ const IconWrapper = styled.div<{ size?: number | null }>`
 
   & > img,
   span {
-    height: ${({ size }) => (size ? size + 'px' : '24px')};
-    width: ${({ size }) => (size ? size + 'px' : '24px')};
+    height: ${({ size }) => (size ? size + 'px' : '20px')};
+    width: ${({ size }) => (size ? size + 'px' : '20px')};
   }
   ${({ theme }) => theme.mediaWidth.upToMedium`
     align-items: flex-end;
@@ -23,46 +25,48 @@ const IconWrapper = styled.div<{ size?: number | null }>`
 const HeaderText = styled.div`
   ${({ theme }) => theme.flexRowNoWrap};
   color: ${({ theme }) => theme.subText};
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 500;
 `
 
-const OptionCardClickable = styled.button<{ clickable?: boolean }>`
+const OptionCardClickable = styled.button<{ clickable?: boolean; installLink?: string }>`
   width: 100%;
-  outline: none;
-  border: none;
+  border: 1px solid transparent;
   border-radius: 42px;
-  text-transform: uppercase;
   &:nth-child(2n) {
     margin-right: 0;
   }
   padding: 0;
   display: flex;
-  gap: 8px;
+  gap: 4px;
   flex-direction: row;
   align-items: center;
   margin-top: 2rem;
   margin-top: 0;
-  padding: 12px 16px;
+  padding: 10px 8px;
   cursor: ${({ clickable }) => (clickable ? 'pointer' : 'not-allowed')};
   transition: all 0.2s;
   background-color: ${({ theme }) => theme.buttonBlack};
 
   &[data-active='true'] {
-    background-color: ${({ theme }) => theme.bg7};
+    background-color: ${({ theme }) => theme.primary};
     ${HeaderText} {
       color: ${({ theme }) => theme.darkText} !important;
     }
   }
 
-  @media (hover: hover) {
-    &:hover {
-      background-color: ${({ theme }) => theme.bg7};
-      ${HeaderText} {
-        color: ${({ theme }) => theme.darkText} !important;
-      }
-    }
+  &:hover {
+    text-decoration: none;
+    ${({ installLink, disabled, theme }) => (installLink || disabled ? '' : `border: 1px solid ${theme.primary};`)}
   }
+
+  ${({ installLink, theme }) =>
+    installLink
+      ? `
+    filter: grayscale(100%);
+    color: ${theme.border}
+  `
+      : ''}
 
   opacity: ${({ disabled }) => (disabled ? '0.5' : '1')};
 
@@ -80,33 +84,28 @@ const OptionCardLeft = styled.div`
 
 const StyledLink = styled(ExternalLink)`
   width: 100%;
-`
-
-const SubHeader = styled.div`
-  color: ${({ theme }) => theme.text};
-  margin-top: 10px;
-  font-size: 12px;
+  &:hover {
+    text-decoration: none;
+  }
 `
 
 export default function Option({
-  link = null,
+  link,
+  installLink,
   clickable = true,
   size,
   onClick = undefined,
-  color,
   header,
-  subheader = null,
   icon,
   active = false,
   id,
 }: {
-  link?: string | null
+  link?: string
+  installLink?: string
   clickable?: boolean
   size?: number | null
   onClick?: undefined | (() => void)
-  color: string
   header: React.ReactNode
-  subheader?: React.ReactNode | null
   icon: string
   active?: boolean
   id: string
@@ -117,19 +116,42 @@ export default function Option({
       onClick={onClick}
       clickable={clickable && !active}
       data-active={active}
-      disabled={clickable === false}
+      disabled={!clickable}
+      installLink={installLink}
     >
       <IconWrapper size={size}>
         <img src={icon} alt={'Icon'} />
       </IconWrapper>
       <OptionCardLeft>
         <HeaderText>{header}</HeaderText>
-        {subheader && <SubHeader>{subheader}</SubHeader>}
       </OptionCardLeft>
     </OptionCardClickable>
   )
   if (link) {
     return <StyledLink href={link}>{content}</StyledLink>
+  }
+
+  if (!clickable) {
+    return (
+      <MouseoverTooltip text={<Trans>This wallet won’t work on this chain, please select another wallet</Trans>}>
+        {content}
+      </MouseoverTooltip>
+    )
+  }
+
+  if (installLink) {
+    return (
+      <MouseoverTooltip
+        text={
+          <Trans>
+            You will need to install {header} extension before you can connect with it on KyberSwap. Get it{' '}
+            <ExternalLink href={installLink}>here↗</ExternalLink>
+          </Trans>
+        }
+      >
+        {content}
+      </MouseoverTooltip>
+    )
   }
 
   return content
