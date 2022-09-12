@@ -213,7 +213,12 @@ function ProMMFarms({ active }: { active: boolean }) {
       )}
 
       {loading && noFarms ? (
-        <Flex backgroundColor={theme.background}>
+        <Flex
+          sx={{
+            borderRadius: '16px',
+          }}
+          backgroundColor={theme.background}
+        >
           <LocalLoader />
         </Flex>
       ) : noFarms ? (

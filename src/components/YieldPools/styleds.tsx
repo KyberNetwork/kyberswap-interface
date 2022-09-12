@@ -369,6 +369,9 @@ export const ProMMFarmTableHeader = styled(TableHeader)`
   grid-template-areas: 'token_pairs staked_tvl apr ending_in my_deposit reward action';
   grid-gap: 2rem;
 
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+
   ${({ theme }) => theme.mediaWidth.upToLarge`
     grid-template-columns: 170px 0.5fr 0.75fr 1fr 0.5fr 0.75fr 0.75fr;
     grid-gap: 1rem;
@@ -584,7 +587,7 @@ export const InfoRow = styled.div`
 
 export const RewardMobileArea = styled.div`
   background: ${({ theme }) => theme.buttonBlack};
-  border-radius: 8px;
+  border-radius: 16px;
   padding: 12px;
   margin-top: 12px;
 `

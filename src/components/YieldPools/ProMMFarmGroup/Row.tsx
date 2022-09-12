@@ -9,7 +9,7 @@ import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
-import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
+import { ButtonPrimary } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
@@ -34,7 +34,8 @@ import { formatDollarAmount } from 'utils/numbers'
 
 import { APRTooltipContent } from '../FarmingPoolAPRCell'
 import { ModalContentWrapper } from '../ProMMFarmModals/styled'
-import { ActionButton, InfoRow, ProMMFarmTableRow, ProMMFarmTableRowMobile, RewardMobileArea } from '../styleds'
+import { InfoRow, ProMMFarmTableRow, ProMMFarmTableRowMobile, RewardMobileArea } from '../styleds'
+import { ActionButton, ButtonColorScheme, MinimalActionButton } from './buttons'
 
 const ButtonGroupContainerOnMobile = styled.div`
   display: flex;
@@ -203,33 +204,36 @@ const Row = ({
             placement="top"
             width="300px"
           >
-            <ButtonPrimary
+            <ActionButton
               style={{
+                // simulate disabled state
+                // MouseoverTooltip will not work well with `disabled` attribute
                 cursor: 'not-allowed',
+                width: '100%',
                 backgroundColor: theme.buttonGray,
                 color: theme.border,
-                height: '36px',
-                width: '100%',
               }}
             >
+              <Plus width={20} height={20} />
               <Text fontSize={14}>
                 <Trans>Stake</Trans>
               </Text>
-            </ButtonPrimary>
+            </ActionButton>
           </MouseoverTooltip>
         )
       }
 
       return (
-        <ButtonPrimary
+        <ActionButton
           disabled={!isApprovedForAll || tab === 'ended' || !isFarmStarted}
-          style={{ height: '36px', flex: 1 }}
+          style={{ flex: 1 }}
           onClick={() => onOpenModal('stake', farm.pid)}
         >
+          <Plus width={20} height={20} />
           <Text fontSize={14}>
             <Trans>Stake</Trans>
           </Text>
-        </ButtonPrimary>
+        </ActionButton>
       )
     }
 
@@ -266,16 +270,6 @@ const Row = ({
             <Text fontSize={20} fontWeight="500">
               {token0?.symbol} - {token1?.symbol}
             </Text>
-
-            {/* farm.startTime > currentTimestamp && (
-              <MouseoverTooltip
-                text={'Starting In ' + getFormattedTimeFromSecond(farm.startTime - currentTimestamp)}
-                width="fit-content"
-                placement="top"
-              >
-                <Clock size={14} style={{ marginLeft: '6px' }} />
-              </MouseoverTooltip>
-             ) */}
           </Flex>
 
           <Flex
@@ -294,16 +288,6 @@ const Row = ({
               <CopyHelper toCopy={farm.poolAddress} />
             </Flex>
           </Flex>
-
-          {/*
-          <InfoRow>
-            <Text color={theme.subText} display="flex" sx={{ gap: '4px' }} onClick={() => setShowTargetVolInfo(true)}>
-              <Trans>Target volume</Trans>
-              <Info size={12} />
-            </Text>
-            {farm.feeTarget.gt(0) ? loading ? <Loader /> : <FeeTarget percent={targetPercent} /> : '--'}
-          </InfoRow>
-          */}
 
           <InfoRow>
             <Text color={theme.subText}>
@@ -402,25 +386,32 @@ const Row = ({
               })}
             </Flex>
 
-            <ButtonLight onClick={onHarvest} disabled={!canHarvest} style={{ height: '32px' }}>
-              <Harvest color={theme.primary} />{' '}
-              <Text marginLeft="8px" fontSize="14px">
+            <ActionButton
+              style={{ width: '100%' }}
+              colorScheme={ButtonColorScheme.Gray}
+              onClick={onHarvest}
+              disabled={!canHarvest}
+            >
+              <Harvest />
+              <Text as="span" fontSize="14px">
                 <Trans>Harvest</Trans>
               </Text>
-            </ButtonLight>
+            </ActionButton>
           </RewardMobileArea>
 
           <ButtonGroupContainerOnMobile>
-            {renderStakeButtonOnMobile()}
-            <ButtonOutlined
-              style={{ height: '36px', flex: 1 }}
+            <ActionButton
+              colorScheme={ButtonColorScheme.Red}
+              style={{ flex: 1 }}
               onClick={() => onOpenModal('unstake', farm.pid)}
               disabled={!canUnstake}
             >
+              <Minus width={20} height={20} />
               <Text fontSize={14}>
                 <Trans>Unstake</Trans>
               </Text>
-            </ButtonOutlined>
+            </ActionButton>
+            {renderStakeButtonOnMobile()}
           </ButtonGroupContainerOnMobile>
         </ProMMFarmTableRowMobile>
       </>
@@ -435,37 +426,93 @@ const Row = ({
           placement="top"
           width="300px"
         >
-          <ActionButton
+          <MinimalActionButton
             style={{
               cursor: 'not-allowed',
               backgroundColor: theme.buttonGray,
               opacity: 0.4,
             }}
           >
-            <Plus color={theme.subText} size={16} style={{ minWidth: '16px' }} />
-          </ActionButton>
+            <Plus size={16} />
+          </MinimalActionButton>
         </MouseoverTooltip>
       )
     }
 
-    return !isApprovedForAll || tab === 'ended' || !isFarmStarted ? (
-      <MouseoverTooltip text={!isFarmStarted ? t`Farm has not started` : ''} placement="top" width="fit-content">
-        <ActionButton
-          style={{
-            cursor: 'not-allowed',
-            backgroundColor: theme.buttonGray,
-            opacity: 0.4,
-          }}
-        >
-          <Plus color={theme.subText} size={16} style={{ minWidth: '16px' }} />
-        </ActionButton>
-      </MouseoverTooltip>
-    ) : (
-      <ActionButton onClick={() => onOpenModal('stake', farm.pid)}>
-        <MouseoverTooltip text={t`Stake`} placement="top" width="fit-content">
-          <Plus color={theme.primary} size={16} />
+    if (!isApprovedForAll || tab === 'ended') {
+      return (
+        <MinimalActionButton disabled>
+          <Plus size={16} />
+        </MinimalActionButton>
+      )
+    }
+
+    if (!isFarmStarted) {
+      return (
+        <MouseoverTooltip text={t`Farm has not started`} placement="top" width="fit-content">
+          <MinimalActionButton
+            style={{
+              cursor: 'not-allowed',
+              backgroundColor: theme.buttonGray,
+              color: theme.border,
+            }}
+          >
+            <Plus size={16} />
+          </MinimalActionButton>
         </MouseoverTooltip>
-      </ActionButton>
+      )
+    }
+
+    return (
+      <MouseoverTooltip
+        text={t`Stake your liquidity positions (i.e. your NFT tokens) into the farm to start earning rewards`}
+        placement="top"
+        width="300px"
+      >
+        <MinimalActionButton onClick={() => onOpenModal('stake', farm.pid)}>
+          <Plus size={16} />
+        </MinimalActionButton>
+      </MouseoverTooltip>
+    )
+  }
+
+  const renderUnstakeButton = () => {
+    if (!canUnstake) {
+      return (
+        <MinimalActionButton colorScheme={ButtonColorScheme.Red} disabled={!canUnstake}>
+          <Minus size={16} />
+        </MinimalActionButton>
+      )
+    }
+
+    return (
+      <MouseoverTooltip
+        text={t`Unstake your liquidity positions (i.e. your NFT tokens) from the farm`}
+        placement="top"
+        width="300px"
+      >
+        <MinimalActionButton colorScheme={ButtonColorScheme.Red} onClick={() => onOpenModal('unstake', farm.pid)}>
+          <Minus size={16} />
+        </MinimalActionButton>
+      </MouseoverTooltip>
+    )
+  }
+
+  const renderHarvestButton = () => {
+    if (!canHarvest) {
+      return (
+        <MinimalActionButton colorScheme={ButtonColorScheme.Gray} disabled>
+          <Harvest />
+        </MinimalActionButton>
+      )
+    }
+
+    return (
+      <MouseoverTooltip text={t`Harvest`} placement="top" width="fit-content">
+        <MinimalActionButton colorScheme={ButtonColorScheme.Gray} onClick={onHarvest}>
+          <Harvest />
+        </MinimalActionButton>
+      </MouseoverTooltip>
     )
   }
 
@@ -516,9 +563,7 @@ const Row = ({
           </Flex>
         </Flex>
       </div>
-      {/*
-        {farm.feeTarget.gt(0) ? loading ? <Loader /> : <FeeTarget percent={targetPercent} /> : '--'}
-        */}
+
       <Text textAlign="right">{formatDollarAmount(tvl)}</Text>
       <Flex
         alignItems="center"
@@ -537,7 +582,7 @@ const Row = ({
           <MoneyBag size={16} color={theme.apr} />
         </MouseoverTooltip>
       </Flex>
-      {/*<Text textAlign="end">{getFormattedTimeFromSecond(farm.vestingDuration, true)}</Text>*/}
+
       <Flex flexDirection="column" alignItems="flex-end" justifyContent="center" sx={{ gap: '8px' }}>
         {farm.startTime > currentTimestamp ? (
           <>
@@ -575,22 +620,8 @@ const Row = ({
       </Flex>
       <Flex justifyContent="flex-end" sx={{ gap: '4px' }}>
         {renderStakeButton()}
-
-        <ActionButton
-          disabled={!canUnstake}
-          backgroundColor={theme.subText + '33'}
-          onClick={() => onOpenModal('unstake', farm.pid)}
-        >
-          <MouseoverTooltip text={t`Unstake`} placement="top" width="fit-content">
-            <Minus color={theme.subText} size={16} />
-          </MouseoverTooltip>
-        </ActionButton>
-
-        <ActionButton backgroundColor={theme.buttonBlack + '66'} onClick={onHarvest} disabled={!canHarvest}>
-          <MouseoverTooltip text={t`Harvest`} placement="top" width="fit-content">
-            <Harvest color={theme.subText} />
-          </MouseoverTooltip>
-        </ActionButton>
+        {renderUnstakeButton()}
+        {renderHarvestButton()}
       </Flex>
     </ProMMFarmTableRow>
   )

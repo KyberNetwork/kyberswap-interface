@@ -3,22 +3,20 @@ import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import { rgba } from 'polished'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Edit2 } from 'react-feather'
+import { Info } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
-import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
+import { ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Divider from 'components/Divider'
 import HoverDropdown from 'components/HoverDropdown'
-import Deposit from 'components/Icons/Deposit'
-import Harvest from 'components/Icons/Harvest'
 import Withdraw from 'components/Icons/Withdraw'
 import InfoHelper from 'components/InfoHelper'
 import ShareModal from 'components/ShareModal'
-import { MouseoverTooltip, MouseoverTooltipDesktopOnly } from 'components/Tooltip'
+import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { VERSION } from 'constants/v2'
@@ -39,15 +37,14 @@ import { formatDollarAmount } from 'utils/numbers'
 
 import { ClickableText, ProMMFarmTableHeader } from '../styleds'
 import Row from './Row'
-
-const BtnPrimary = styled(ButtonPrimary)`
-  font-size: 14px;
-  :disabled {
-    background: ${({ theme }) => theme.buttonGray};
-    cursor: not-allowed;
-    opacity: 0.4;
-  }
-`
+import {
+  BtnPrimary,
+  ConnectWalletButton,
+  DepositButton,
+  ForceWithdrawButton,
+  HarvestAllButton,
+  WithdrawButton,
+} from './buttons'
 
 const FarmContent = styled.div`
   background: ${({ theme }) => theme.background};
@@ -56,11 +53,13 @@ const FarmContent = styled.div`
 `
 
 const FarmRow = styled.div`
+  height: 68px;
+
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   background-color: ${({ theme }) => rgba(theme.buttonBlack, 0.4)};
-  padding: 1rem;
+  padding: 0 1rem;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     width: 100%;
@@ -70,27 +69,16 @@ const FarmRow = styled.div`
   `}
 `
 
-const BtnLight = styled(ButtonLight)`
-  padding: 8px 12px;
-  width: fit-content;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 8px;
-  `};
-`
-
-function ProMMFarmGroup({
-  address,
-  onOpenModal,
-  farms,
-}: {
+type Props = {
   address: string
   onOpenModal: (
     modalType: 'forcedWithdraw' | 'harvest' | 'deposit' | 'withdraw' | 'stake' | 'unstake',
     pid?: number,
   ) => void
   farms: ProMMFarm[]
-}) {
+}
+
+const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, farms }) => {
   const theme = useTheme()
   const { account, chainId } = useActiveWeb3React()
   const above768 = useMedia('(min-width: 768px)')
@@ -256,207 +244,152 @@ function ProMMFarmGroup({
   const canHarvest = farms.some(farm => farm.userDepositedNFTs.some(pos => !!pos.rewardPendings.length))
   const canWithdraw = farms.some(farms => farms.userDepositedNFTs.length)
 
-  const renderDepositButton = () => {
-    if (!isApprovedForAll || tab === 'ended') {
-      return (
-        <BtnLight disabled>
-          <Deposit width={20} height={20} />
-          {above768 && (
-            <Text fontSize="14px" marginLeft="4px">
-              <Trans>Deposit</Trans>
-            </Text>
-          )}
-        </BtnLight>
-      )
+  const renderApproveButton = () => {
+    if (isApprovedForAll || tab === 'ended') {
+      return null
     }
 
-    return (
-      <MouseoverTooltip text={t`Deposit your liquidity (the NFT tokens that represent your liquidity position)`}>
-        <BtnLight onClick={() => onOpenModal('deposit')} disabled={tab === 'ended'}>
-          <Deposit width={20} height={20} />
-          {above768 && (
-            <Text fontSize="14px" marginLeft="4px">
-              <Trans>Deposit</Trans>
-            </Text>
-          )}
-        </BtnLight>
-      </MouseoverTooltip>
-    )
-  }
-
-  const renderWithdrawButton = () => {
-    if (!canWithdraw || !isApprovedForAll) {
+    if (approvalTx && isApprovalTxPending) {
       return (
-        <ButtonOutlined padding={above768 ? '8px 12px' : '8px'} disabled>
-          <Withdraw width={20} height={20} />
-          {above768 && (
-            <Text fontSize="14px" marginLeft="4px">
-              <Trans>Withdraw</Trans>
-            </Text>
-          )}
-        </ButtonOutlined>
+        <ButtonPrimary
+          style={{
+            whiteSpace: 'nowrap',
+            height: '38px',
+            padding: '0 12px',
+          }}
+          onClick={handleApprove}
+          disabled
+        >
+          <Info width="16px" />
+          <Text fontSize="14px" marginLeft="8px">
+            <Dots>
+              <Trans>Approving</Trans>
+            </Dots>
+          </Text>
+        </ButtonPrimary>
       )
     }
 
     return (
       <MouseoverTooltipDesktopOnly
-        text={t`Withdraw your liquidity (the NFT tokens that represent your liquidity position)`}
+        text={
+          <Text color={theme.subText} as="span">
+            <Trans>
+              Authorize the farming contract so it can access your liquidity positions (i.e. your NFT tokens). Then
+              deposit your liquidity positions using the{' '}
+              <Text as="span" color={theme.text}>
+                Deposit
+              </Text>{' '}
+              button
+            </Trans>
+          </Text>
+        }
+        width="400px"
+        placement="top"
       >
-        <ButtonOutlined padding={above768 ? '8px 12px' : '8px'} onClick={() => onOpenModal('withdraw')}>
-          <Withdraw width={20} height={20} />
-          {above768 && (
-            <Text fontSize="14px" marginLeft="4px">
-              <Trans>Withdraw</Trans>
-            </Text>
-          )}
-        </ButtonOutlined>
+        <ButtonPrimary
+          style={{
+            whiteSpace: 'nowrap',
+            height: '38px',
+            padding: '0 12px',
+          }}
+          onClick={handleApprove}
+        >
+          <Info width="16px" />
+          <Text fontSize="14px" marginLeft="8px">
+            {approvalTx && isApprovalTxPending ? (
+              <Dots>
+                <Trans>Approving</Trans>
+              </Dots>
+            ) : (
+              <Trans>Approve Farming Contract</Trans>
+            )}
+          </Text>
+        </ButtonPrimary>
       </MouseoverTooltipDesktopOnly>
     )
   }
 
-  const renderForceWithdrawButton = () => {
-    if (hasAffectedByFarmIssue && above768) {
-      return (
-        <BtnPrimary
-          style={{ color: theme.red, border: `1px solid ${theme.red}`, background: theme.red + '33' }}
-          width="fit-content"
-          padding={above768 ? '8px 12px' : '8px'}
-          onClick={() => onOpenModal('forcedWithdraw')}
-        >
-          <Withdraw width={20} height={20} />
-          <Text fontSize="14px" marginLeft="4px">
-            <Trans>Force Withdraw</Trans>
-          </Text>
-        </BtnPrimary>
-      )
-    }
-
-    return null
-  }
-
-  const renderTopButtons = () => {
-    if (!account) {
-      return (
-        <BtnLight onClick={toggleWalletModal}>
-          <Trans>Connect Wallet</Trans>
-        </BtnLight>
-      )
-    }
-
+  const renderTopButtonsOnDesktop = () => {
     if (!isApprovedForAll && res?.loading) {
       return <Dots />
     }
 
     return (
       <Flex sx={{ gap: '12px' }} alignItems="center">
-        {isApprovedForAll ? null : (
-          <BtnLight onClick={handleApprove} disabled={isApprovalTxPending || tab === 'ended'}>
-            <Edit2 size={16} />
-            <Text fontSize="14px" marginLeft="4px">
-              {approvalTx && isApprovalTxPending ? (
-                <Dots>
-                  <Trans>Approving</Trans>
-                </Dots>
-              ) : (
-                <Trans>Approve</Trans>
-              )}
-            </Text>
-          </BtnLight>
-        )}
-        {(!!isApprovedForAll || above768) && (
-          <>
-            {renderDepositButton()}
-            {renderWithdrawButton()}
-          </>
-        )}
-        {renderForceWithdrawButton()}
+        {!account ? <ConnectWalletButton onClick={toggleWalletModal} /> : renderApproveButton()}
+        <DepositButton
+          disabled={!account || !isApprovedForAll || tab === 'ended'}
+          onClick={() => onOpenModal('deposit')}
+        />
+        <WithdrawButton
+          disabled={!account || !canWithdraw || !isApprovedForAll}
+          onClick={() => onOpenModal('withdraw')}
+        />
+
+        {!!hasAffectedByFarmIssue && <ForceWithdrawButton onClick={() => onOpenModal('forcedWithdraw')} />}
       </Flex>
     )
   }
 
-  return (
-    <FarmContent>
-      {above1000 && (
-        <ProMMFarmTableHeader>
-          <Flex grid-area="token_pairs" alignItems="center" justifyContent="flex-start">
-            <ClickableText>
-              <Trans>Pool</Trans>
-            </ClickableText>
-          </Flex>
-
-          <Flex grid-area="liq" alignItems="center" justifyContent="flex-end">
-            <ClickableText>
-              <Trans>Staked TVL</Trans>
-            </ClickableText>
-          </Flex>
-
-          <Flex grid-area="apy" alignItems="center" justifyContent="flex-end">
-            <ClickableText>
-              <Trans>AVG APR</Trans>
-            </ClickableText>
-            <InfoHelper
-              text={t`Average estimated return based on yearly fees of the pool and if it's still active, plus bonus rewards of the pool`}
-            />
-          </Flex>
-
-          <Flex grid-area="end" alignItems="center" justifyContent="flex-end">
-            <ClickableText>
-              <Trans>Ending In</Trans>
-            </ClickableText>
-            <InfoHelper text={t`Once a farm has ended, you will continue to receive returns through LP Fees`} />
-          </Flex>
-
-          <Flex grid-area="staked_balance" alignItems="center" justifyContent="flex-end">
-            <ClickableText>
-              <Trans>My Deposit</Trans>
-            </ClickableText>
-          </Flex>
-
-          <Flex grid-area="reward" alignItems="center" justifyContent="flex-end">
-            <ClickableText>
-              <Trans>My Rewards</Trans>
-            </ClickableText>
-          </Flex>
-
-          <Flex grid-area="action" alignItems="center" justifyContent="flex-end">
-            <ClickableText>
-              <Trans>Actions</Trans>
-            </ClickableText>
-          </Flex>
-        </ProMMFarmTableHeader>
-      )}
-
-      <FarmRow>
-        {hasAffectedByFarmIssue && !above768 && (
-          <BtnPrimary
-            style={{ color: theme.red, border: `1px solid ${theme.red}`, background: theme.red + '33' }}
-            padding={'12px'}
-            onClick={() => onOpenModal('forcedWithdraw')}
-          >
-            <Withdraw width={20} height={20} />
-            <Text fontSize="14px" marginLeft="4px">
-              <Trans>Force Withdraw</Trans>
-            </Text>
-          </BtnPrimary>
-        )}
-
-        <Flex
-          sx={{ gap: '20px' }}
-          alignItems="center"
-          justifyContent={above768 ? 'flex-start' : 'space-between'}
-          width={above768 ? undefined : '100%'}
+  const renderFarmGroupHeaderOnDesktop = () => {
+    return (
+      <Flex
+        sx={{
+          alignItems: 'center',
+          padding: '0 1rem',
+          justifyContent: 'space-between',
+          height: '72px',
+        }}
+      >
+        <Text
+          sx={{
+            fontWeight: 500,
+            fontSize: '16px',
+            lineHeight: '20px',
+            color: theme.subText,
+          }}
         >
-          <Flex flexDirection="column">
+          <Trans>Farming Contract</Trans>
+        </Text>
+        <Flex
+          sx={{
+            alignItems: 'center',
+            gap: '16px',
+          }}
+        >
+          <Flex
+            alignItems="center"
+            sx={{
+              gap: '12px',
+            }}
+          >
             <Text fontSize="12px" color={theme.subText}>
               <Trans>Deposited Liquidity</Trans>
               <InfoHelper
-                text={t`Total value of the liquidity positions you've deposited. NFT tokens represent your liquidity positions`}
-              ></InfoHelper>
+                text={t`Total value of liquidity positions (i.e. NFT tokens) you've deposited into the farming contract`}
+                placement="top"
+              />
             </Text>
 
             <HoverDropdown
               style={{ padding: '8px 0' }}
-              content={formatDollarAmount(depositedUsd)}
+              content={
+                account ? (
+                  <Text
+                    as="span"
+                    sx={{
+                      fontSize: '16px',
+                      fontWeight: 500,
+                    }}
+                  >
+                    {formatDollarAmount(depositedUsd)}
+                  </Text>
+                ) : (
+                  '--'
+                )
+              }
+              hideIcon={!account}
               dropdownContent={
                 Object.values(userDepositedTokenAmounts).some(amount => amount.greaterThan(0)) ? (
                   <AutoColumn gap="sm">
@@ -478,26 +411,220 @@ function ProMMFarmGroup({
               }
             />
           </Flex>
+          {renderTopButtonsOnDesktop()}
+        </Flex>
+      </Flex>
+    )
+  }
 
-          {renderTopButtons()}
+  const renderFarmGroupHeaderOnMobile = () => {
+    const renderDepositedLiquidity = () => {
+      return (
+        <Flex
+          flexDirection="column"
+          justifyContent={'center'}
+          sx={{
+            gap: '4px',
+          }}
+        >
+          <Text fontSize="12px" color={theme.subText}>
+            <Trans>Deposited Liquidity</Trans>
+          </Text>
+
+          <HoverDropdown
+            style={{
+              padding: '0',
+            }}
+            content={
+              account ? (
+                <Text
+                  as="span"
+                  sx={{
+                    fontSize: '16px',
+                    fontWeight: 500,
+                  }}
+                >
+                  {formatDollarAmount(depositedUsd)}
+                </Text>
+              ) : (
+                '--'
+              )
+            }
+            hideIcon={!account}
+            dropdownContent={
+              Object.values(userDepositedTokenAmounts).some(amount => amount.greaterThan(0)) ? (
+                <AutoColumn gap="sm">
+                  {Object.values(userDepositedTokenAmounts).map(
+                    amount =>
+                      amount.greaterThan(0) && (
+                        <Flex alignItems="center" key={amount.currency.address}>
+                          <CurrencyLogo currency={amount.currency} size="16px" />
+                          <Text fontSize="12px" marginLeft="4px">
+                            {amount.toSignificant(8)}
+                          </Text>
+                        </Flex>
+                      ),
+                  )}
+                </AutoColumn>
+              ) : (
+                ''
+              )
+            }
+          />
+        </Flex>
+      )
+    }
+
+    const renderLeftGroup = () => {
+      if (!account) {
+        return <ConnectWalletButton onClick={toggleWalletModal} />
+      }
+
+      if (!isApprovedForAll) {
+        if (res?.loading) {
+          return <Dots />
+        }
+
+        return (
+          <ButtonPrimary
+            style={{
+              whiteSpace: 'nowrap',
+              height: '38px',
+              padding: '0 12px',
+            }}
+            onClick={handleApprove}
+            disabled={!!approvalTx && isApprovalTxPending}
+          >
+            <Info width="16px" />
+            <Text fontSize="14px" marginLeft="4px">
+              {approvalTx && isApprovalTxPending ? (
+                <Dots>
+                  <Trans>Approving</Trans>
+                </Dots>
+              ) : (
+                <Trans>Approve</Trans>
+              )}
+            </Text>
+          </ButtonPrimary>
+        )
+      }
+
+      return renderDepositedLiquidity()
+    }
+
+    return (
+      <Flex
+        sx={{
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          height: '72px',
+          gap: '8px',
+        }}
+      >
+        {renderLeftGroup()}
+        <Flex flex="0 0 max-content" sx={{ gap: '8px' }} alignItems="center">
+          <DepositButton
+            disabled={!account || !isApprovedForAll || tab === 'ended'}
+            onClick={() => onOpenModal('deposit')}
+          />
+          <WithdrawButton
+            disabled={!account || !canWithdraw || !isApprovedForAll}
+            onClick={() => onOpenModal('withdraw')}
+          />
+        </Flex>
+      </Flex>
+    )
+  }
+
+  const renderTableHeaderOnDesktop = () => {
+    return (
+      <ProMMFarmTableHeader>
+        <Flex grid-area="token_pairs" alignItems="center" justifyContent="flex-start">
+          <ClickableText>
+            <Trans>Pool</Trans>
+          </ClickableText>
         </Flex>
 
-        {!above768 && <Divider style={{ width: '100%' }} />}
+        <Flex grid-area="liq" alignItems="center" justifyContent="flex-end">
+          <ClickableText>
+            <Trans>Staked TVL</Trans>
+          </ClickableText>
+        </Flex>
 
+        <Flex grid-area="apy" alignItems="center" justifyContent="flex-end">
+          <ClickableText>
+            <Trans>AVG APR</Trans>
+          </ClickableText>
+          <InfoHelper
+            text={t`Average estimated return based on yearly fees of the pool and if it's still active, plus bonus rewards of the pool`}
+          />
+        </Flex>
+
+        <Flex grid-area="end" alignItems="center" justifyContent="flex-end">
+          <ClickableText>
+            <Trans>Ending In</Trans>
+          </ClickableText>
+          <InfoHelper text={t`Once a farm has ended, you will continue to receive returns through LP Fees`} />
+        </Flex>
+
+        <Flex grid-area="staked_balance" alignItems="center" justifyContent="flex-end">
+          <ClickableText>
+            <Trans>My Deposit</Trans>
+          </ClickableText>
+        </Flex>
+
+        <Flex grid-area="reward" alignItems="center" justifyContent="flex-end">
+          <ClickableText>
+            <Trans>My Rewards</Trans>
+          </ClickableText>
+        </Flex>
+
+        <Flex grid-area="action" alignItems="center" justifyContent="flex-end">
+          <ClickableText>
+            <Trans>Actions</Trans>
+          </ClickableText>
+        </Flex>
+      </ProMMFarmTableHeader>
+    )
+  }
+
+  const renderRewardRowOnDesktop = () => {
+    return (
+      <FarmRow>
         <Flex
           alignItems="center"
           sx={{ gap: '24px' }}
-          justifyContent={above768 ? 'flex-start' : 'space-between'}
+          justifyContent={above768 ? 'flex-end' : 'space-between'}
           width={above768 ? undefined : '100%'}
         >
-          <Flex flexDirection="column">
+          <Flex
+            alignItems="center"
+            sx={{
+              gap: '8px',
+            }}
+          >
             <Text fontSize="12px" color={theme.subText}>
-              <Trans>My Total Rewards</Trans>
+              <Trans>Total Rewards</Trans>
             </Text>
 
             <HoverDropdown
               style={{ padding: '8px 0' }}
-              content={formatDollarAmount(totalUserReward.totalUsdValue)}
+              content={
+                account ? (
+                  <Text
+                    as="span"
+                    sx={{
+                      fontSize: '16px',
+                      fontWeight: 500,
+                    }}
+                  >
+                    {formatDollarAmount(totalUserReward.totalUsdValue)}
+                  </Text>
+                ) : (
+                  '--'
+                )
+              }
+              hideIcon={!account}
               dropdownContent={
                 totalUserReward.amounts.length ? (
                   <AutoColumn gap="sm">
@@ -520,19 +647,112 @@ function ProMMFarmGroup({
             />
           </Flex>
 
+          <HarvestAllButton onClick={() => onOpenModal('harvest')} disabled={!account || !canHarvest} />
+        </Flex>
+
+        {hasAffectedByFarmIssue && !above768 && (
           <BtnPrimary
-            padding="10px 12px"
-            width="fit-content"
-            onClick={() => onOpenModal('harvest')}
-            disabled={!canHarvest}
+            style={{ color: theme.red, border: `1px solid ${theme.red}`, background: theme.red + '33' }}
+            padding={'12px'}
+            onClick={() => onOpenModal('forcedWithdraw')}
           >
-            <Harvest />
-            <Text marginLeft="4px">
-              <Trans>Harvest All</Trans>
+            <Withdraw width={20} height={20} />
+            <Text fontSize="14px" marginLeft="4px">
+              <Trans>Force Withdraw</Trans>
             </Text>
           </BtnPrimary>
-        </Flex>
+        )}
       </FarmRow>
+    )
+  }
+
+  const renderRewardRowOnMobile = () => {
+    return (
+      <Flex
+        sx={{
+          height: '68px',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        <Flex
+          flexDirection="column"
+          justifyContent={'center'}
+          sx={{
+            gap: '4px',
+          }}
+        >
+          <Text fontSize="12px" color={theme.subText}>
+            <Trans>Total Rewards</Trans>
+          </Text>
+
+          <HoverDropdown
+            style={{ padding: '0' }}
+            content={
+              account ? (
+                <Text
+                  as="span"
+                  sx={{
+                    fontSize: '16px',
+                    fontWeight: 500,
+                  }}
+                >
+                  {formatDollarAmount(totalUserReward.totalUsdValue)}
+                </Text>
+              ) : (
+                '--'
+              )
+            }
+            hideIcon={!account}
+            dropdownContent={
+              totalUserReward.amounts.length ? (
+                <AutoColumn gap="sm">
+                  {totalUserReward.amounts.map(
+                    amount =>
+                      amount.greaterThan(0) && (
+                        <Flex alignItems="center" key={amount.currency.address}>
+                          <CurrencyLogo currency={amount.currency} size="16px" />
+                          <Text fontSize="12px" marginLeft="4px">
+                            {amount.toSignificant(8)}
+                          </Text>
+                        </Flex>
+                      ),
+                  )}
+                </AutoColumn>
+              ) : (
+                ''
+              )
+            }
+          />
+        </Flex>
+
+        <HarvestAllButton onClick={() => onOpenModal('harvest')} disabled={!account || !canHarvest} />
+      </Flex>
+    )
+  }
+
+  return (
+    <FarmContent>
+      {above1000 ? (
+        <>
+          {renderFarmGroupHeaderOnDesktop()}
+          {renderTableHeaderOnDesktop()}
+          {renderRewardRowOnDesktop()}
+        </>
+      ) : (
+        <Flex flexDirection="column" padding="0 1rem" sx={{ backgroundColor: rgba(theme.buttonBlack, 0.4) }}>
+          {renderFarmGroupHeaderOnMobile()}
+          <Divider />
+          {renderRewardRowOnMobile()}
+          {!!hasAffectedByFarmIssue && (
+            <ForceWithdrawButton
+              style={{ width: '100%', marginBottom: '1rem' }}
+              onClick={() => onOpenModal('forcedWithdraw')}
+            />
+          )}
+        </Flex>
+      )}
+
       <Divider />
 
       {farms.map((farm, index) => {
