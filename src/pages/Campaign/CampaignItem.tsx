@@ -78,6 +78,12 @@ export default function CampaignItem({
   const isDarkMode = useIsDarkMode()
   const isRewardInUSD = campaign.rewardDistribution[0]?.rewardInUSD
   let totalRewardAmount: Fraction = new Fraction(0)
+  const {
+    tradingNumberRequired,
+    tradingVolumeRequired,
+    userInfo: { tradingNumber, tradingVolume } = { tradingNumber: 0, tradingVolume: 0 },
+  } = campaign
+
   try {
     totalRewardAmount = campaign.rewardDistribution.reduce((acc, value) => {
       return acc.add(
@@ -111,6 +117,8 @@ export default function CampaignItem({
     ? t`$${totalRewardAmountString} in ${tokenSymbol}`
     : `${totalRewardAmountString} ${tokenSymbol}`
 
+  const isShowProgressBar = isOngoing && account && (tradingNumber > 0 || tradingVolume > 0)
+
   return (
     <CampaignItemWrapper onClick={() => onSelectCampaign(campaign)} selected={isSelected}>
       <Container>
@@ -130,19 +138,19 @@ export default function CampaignItem({
         </Text>
       </Container>
 
-      {isOngoing && account && (
+      {isShowProgressBar && (
         <Flex style={{ gap: 10 }} flexDirection="column">
           <ProgressBar
             title={t`Your Trading Volume`}
-            percent={43}
-            value={`$8.52/$20`}
+            percent={(tradingVolume / tradingVolumeRequired) * 100}
+            value={`${tradingVolume}/${tradingVolumeRequired}`}
             valueTextColor={theme.primary}
             color={isSelected ? theme.warning : theme.primary}
           />
           <ProgressBar
             title={t`Your Number of Trade`}
-            percent={43}
-            value={`$8.52/$20`}
+            percent={(tradingNumber / tradingNumberRequired) * 100}
+            value={`${tradingNumber}/${tradingNumberRequired}`}
             valueTextColor={theme.primary}
             color={isSelected ? theme.warning : theme.primary}
           />

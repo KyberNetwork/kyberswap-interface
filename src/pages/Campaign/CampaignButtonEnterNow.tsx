@@ -20,10 +20,6 @@ export default function CampaignButtonEnterNow({ size }: { size: 'small' | 'larg
 
   const [loading, setLoading] = useState(false)
 
-  const { selectedCampaignLeaderboardPageNumber, selectedCampaignLeaderboardLookupAddress } = useSelector(
-    (state: AppState) => state.campaigns,
-  )
-
   const toggleRegisterCampaignModal = useRegisterCampaignModalToggle()
 
   // Create an event handler so you can call the verification on button click event or form submit

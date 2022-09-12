@@ -113,6 +113,7 @@ export interface CampaignData {
   tradingVolumeRequired: number
   numberOfEligibleParticipants: number
   userInfo?: CampaignUserInfo
+  tradingNumberRequired: number
 }
 
 export interface CampaignProofData {

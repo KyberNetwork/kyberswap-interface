@@ -75,7 +75,9 @@ function RankDetail({ campaign }: { campaign: CampaignData | undefined }) {
   const theme = useTheme()
   const { account } = useWeb3React()
   const isOngoing = campaign?.status === CampaignStatus.ONGOING
-  if (!account || !isOngoing) return null
+
+  if (!account || !isOngoing || !campaign) return null
+  const { tradingVolumeRequired, tradingNumberRequired, userInfo = { tradingNumber: 0, tradingVolume: 0 } } = campaign
   return (
     <InfoHelper
       placement={isMobile ? 'bottom' : 'left'}
@@ -89,8 +91,18 @@ function RankDetail({ campaign }: { campaign: CampaignData | undefined }) {
             <Trans>Fulfill those requirement to participate in the campaign</Trans>
           </Text>
           <Flex style={{ gap: 10 }} flexDirection="column">
-            <ProgressBar percent={12} title={t`Trading Volume`} value={`$8.52/$20`} color={theme.warning} />
-            <ProgressBar percent={12} title={t`Number of Trade`} value={`$8.52/$20`} color={theme.warning} />
+            <ProgressBar
+              percent={(userInfo.tradingVolume / tradingVolumeRequired) * 100}
+              title={t`Trading Volume`}
+              value={`${userInfo.tradingVolume}/${tradingVolumeRequired}`}
+              color={theme.warning}
+            />
+            <ProgressBar
+              percent={(userInfo.tradingNumber / tradingNumberRequired) * 100}
+              title={t`Number of Trade`}
+              value={`${userInfo.tradingNumber}/${tradingNumberRequired}`}
+              color={theme.warning}
+            />
           </Flex>
         </RankDetailWrapper>
       }

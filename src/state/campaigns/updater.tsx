@@ -156,26 +156,10 @@ export default function CampaignsUpdater(): null {
           },
         )
       }
-      const { startTime, endTime } = campaign
+
       return {
-        id: campaign.id,
-        name: campaign.name,
-        startTime,
-        endTime,
-        desktopBanner: campaign.desktopBanner,
-        mobileBanner: campaign.mobileBanner,
+        ...campaign,
         status: getCampaignStatus(campaign),
-        rules: campaign.rules,
-        termsAndConditions: campaign.termsAndConditions,
-        otherDetails: campaign.otherDetails,
-        rewardDetails: campaign.rewardDetails,
-        isRewardShown: campaign.isRewardShown,
-        enterNowUrl: campaign.enterNowUrl,
-        rewardDistribution,
-        campaignState: campaign.campaignState,
-        chainIds: campaign.chainIds,
-        rewardChainIds: campaign.rewardChainIds,
-        tradingVolumeRequired: campaign.tradingVolumeRequired,
         eligibleTokens: campaign.eligibleTokens.map(
           ({ chainId, name, symbol, address, logoURI, decimals }: any): SerializedToken => {
             return {
@@ -188,8 +172,6 @@ export default function CampaignsUpdater(): null {
             }
           },
         ),
-        numberOfEligibleParticipants: campaign.numberOfEligibleParticipants,
-        userInfo: campaign.userInfo,
       }
     })
     return formattedCampaigns
