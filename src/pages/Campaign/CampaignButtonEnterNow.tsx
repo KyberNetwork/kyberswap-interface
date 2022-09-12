@@ -20,13 +20,6 @@ export default function CampaignButtonEnterNow() {
 
   const [loading, setLoading] = useState(false)
 
-  const selectedCampaignLeaderboardPageNumber = useSelector(
-    (state: AppState) => state.campaigns.selectedCampaignLeaderboardPageNumber,
-  )
-  const selectedCampaignLeaderboardLookupAddress = useSelector(
-    (state: AppState) => state.campaigns.selectedCampaignLeaderboardLookupAddress,
-  )
-
   const toggleRegisterCampaignModal = useRegisterCampaignModalToggle()
 
   // Create an event handler so you can call the verification on button click event or form submit
@@ -40,6 +33,7 @@ export default function CampaignButtonEnterNow() {
     try {
       setLoading(true)
       const token = await executeRecaptcha('enterCampaign')
+      console.log(`token`, token)
       const response = await axios({
         method: 'POST',
         url: `${CAMPAIGN_BASE_URL}/${selectedCampaign.id}/participants`,
@@ -49,13 +43,7 @@ export default function CampaignButtonEnterNow() {
         },
       })
       if (response.status === 200) {
-        await mutate([
-          selectedCampaign,
-          SWR_KEYS.getLeaderboard(selectedCampaign.id),
-          selectedCampaignLeaderboardPageNumber,
-          selectedCampaignLeaderboardLookupAddress,
-          account,
-        ])
+        await mutate([SWR_KEYS.getListCampaign, account])
         toggleRegisterCampaignModal()
       }
     } catch (err) {
@@ -63,14 +51,7 @@ export default function CampaignButtonEnterNow() {
     } finally {
       setLoading(false)
     }
-  }, [
-    account,
-    executeRecaptcha,
-    selectedCampaign,
-    selectedCampaignLeaderboardLookupAddress,
-    selectedCampaignLeaderboardPageNumber,
-    toggleRegisterCampaignModal,
-  ])
+  }, [account, executeRecaptcha, selectedCampaign, toggleRegisterCampaignModal])
 
   return (
     <StyledPrimaryButton onClick={handleReCaptchaVerify} disabled={loading}>

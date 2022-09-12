@@ -48,13 +48,14 @@ export default function CampaignsUpdater(): null {
     data: campaignData,
     isValidating: isLoadingCampaignData,
     error: loadingCampaignDataError,
-  } = useSWR<CampaignData[]>(isCampaignPage ? SWR_KEYS.getListCampaign : null, async (url: string) => {
+  } = useSWR<CampaignData[]>(isCampaignPage ? [SWR_KEYS.getListCampaign, account] : null, async (url: string) => {
     const response = await axios({
       method: 'GET',
-      url,
+      url: SWR_KEYS.getListCampaign,
       params: {
         limit: MAXIMUM_ITEMS_PER_REQUEST,
         offset: 0,
+        userAddress: account,
       },
     })
     const now = Date.now()
@@ -182,6 +183,8 @@ export default function CampaignsUpdater(): null {
             }
           },
         ),
+        numberOfEligibleParticipants: campaign.numberOfEligibleParticipants,
+        userInfo: campaign.userInfo,
       }
     })
     return formattedCampaigns
@@ -246,7 +249,6 @@ export default function CampaignsUpdater(): null {
           numberOfEligibleParticipants: 0,
           rankings: [],
           rewards: [],
-          isParticipated: false,
         }
         return res
       }
@@ -302,7 +304,6 @@ export default function CampaignsUpdater(): null {
                 }),
               )
             : [],
-          isParticipated: data.isParticipated,
         }
         return leaderboard
       } catch (err) {
@@ -315,7 +316,6 @@ export default function CampaignsUpdater(): null {
           numberOfEligibleParticipants: 0,
           rankings: [],
           rewards: [],
-          isParticipated: false,
         }
         return res
       }

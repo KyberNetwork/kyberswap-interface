@@ -9,7 +9,7 @@ import useTemporaryClaimedRefsManager from 'hooks/campaigns/useTemporaryClaimedR
 import CampaignButtonEnterNow from 'pages/Campaign/CampaignButtonEnterNow'
 import CampaignButtonWithOptions from 'pages/Campaign/CampaignButtonWithOptions'
 import { AppState } from 'state'
-import { CampaignState } from 'state/campaigns/actions'
+import { CampaignState, CampaignUserInfoStatus } from 'state/campaigns/actions'
 
 export default function CampaignActions() {
   const { account } = useActiveWeb3React()
@@ -21,7 +21,10 @@ export default function CampaignActions() {
 
   if (!selectedCampaign || !account || !selectedCampaignLeaderboard) return null
 
-  if (selectedCampaign.status === 'Ongoing' && !selectedCampaignLeaderboard.isParticipated) {
+  if (
+    selectedCampaign.status === 'Ongoing' &&
+    selectedCampaign?.userInfo?.status === CampaignUserInfoStatus.Ineligible
+  ) {
     return <CampaignButtonEnterNow />
   }
 

@@ -11,6 +11,20 @@ export enum CampaignState {
   CampaignStateDistributedRewards,
 }
 
+export enum CampaignUserInfoStatus {
+  Eligible = 'ELIGIBLE',
+  Ineligible = 'INELIGIBLE',
+  Banned = 'BANNED',
+}
+
+export type CampaignUserInfo = {
+  address: string
+  tradingVolume: number
+  tradingNumber: number
+  rankNo: number
+  status: CampaignUserInfoStatus
+}
+
 export type RewardSingle = {
   type: 'Single'
   amount: string
@@ -65,7 +79,6 @@ export interface CampaignLeaderboard {
   distributedRewardsAt: number
   rankings: CampaignLeaderboardRanking[]
   rewards: CampaignLeaderboardReward[]
-  isParticipated: boolean
 }
 
 export interface CampaignLuckyWinner {
@@ -94,6 +107,8 @@ export interface CampaignData {
   chainIds: string
   rewardChainIds: string
   tradingVolumeRequired: number
+  numberOfEligibleParticipants: number
+  userInfo?: CampaignUserInfo
 }
 
 export interface CampaignProofData {
