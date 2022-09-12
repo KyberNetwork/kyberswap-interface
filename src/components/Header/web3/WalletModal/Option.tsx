@@ -29,7 +29,7 @@ const HeaderText = styled.div`
   font-weight: 500;
 `
 
-const OptionCardClickable = styled.button<{ clickable?: boolean; installLink?: string }>`
+const OptionCardClickable = styled.button<{ clickable?: boolean; installLink?: string; disabled: boolean }>`
   width: 100%;
   border: 1px solid transparent;
   border-radius: 42px;
@@ -64,7 +64,7 @@ const OptionCardClickable = styled.button<{ clickable?: boolean; installLink?: s
     installLink
       ? `
     filter: grayscale(100%);
-    color: ${theme.border}
+    color: ${theme.border};
   `
       : ''}
 
