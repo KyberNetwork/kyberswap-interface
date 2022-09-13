@@ -16,10 +16,10 @@ import masterCard from 'assets/buy-crypto/master-card.svg'
 import visa from 'assets/buy-crypto/visa.svg'
 import { ReactComponent as Brave } from 'assets/images/brave_wallet.svg'
 import c98 from 'assets/images/coin98.svg'
+import { ReactComponent as Coinbase } from 'assets/images/coinbase-wallet.svg'
 import { ReactComponent as Ledger } from 'assets/images/ledger.svg'
 import metamask from 'assets/images/metamask.svg'
 import walletConnect from 'assets/images/wallet-connect.svg'
-import { ReactComponent as Coinbase } from 'assets/images/wallet-link.svg'
 import ForTraderImage from 'assets/svg/for_trader.svg'
 import ForTraderImageLight from 'assets/svg/for_trader_light.svg'
 import SeamlessImg from 'assets/svg/seamless.svg'
@@ -37,12 +37,6 @@ import { KSStatistic } from 'pages/About/AboutKyberSwap'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useDarkModeManager } from 'state/user/hooks'
 import { ButtonText, ExternalLink } from 'theme'
-
-const CoinbaseSVG = styled(Coinbase)`
-  path {
-    fill: currentColor;
-  }
-`
 
 const LedgerSVG = styled(Ledger)`
   path {
@@ -388,7 +382,7 @@ function BuyCrypto() {
                   <Image src={metamask} width={upToSmall ? '36px' : '48px'} />
                   <Image src={c98} width={upToSmall ? '36px' : '48px'} />
                   <Image src={walletConnect} width={upToSmall ? '36px' : '48px'} />
-                  <CoinbaseSVG width={upToSmall ? '36px' : '48px'} />
+                  <Coinbase width={upToSmall ? '36px' : '48px'} />
                   <LedgerSVG width={upToSmall ? '36px' : '48px'} />
                   <Brave width={upToSmall ? '36px' : '48px'} height="48px" />
                 </Flex>

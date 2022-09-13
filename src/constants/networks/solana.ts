@@ -2,6 +2,7 @@ import { ChainId } from '@namgold/ks-sdk-core'
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base'
 import { Connection, clusterApiUrl } from '@solana/web3.js'
 
+import SolanaDark from 'assets/networks/solana-network-dark.svg'
 import Solana from 'assets/networks/solana-network.svg'
 import { SOLANA_NETWORK } from 'constants/env'
 import { SolanaNetworkInfo } from 'constants/networks/type'
@@ -27,6 +28,7 @@ const solanaInfo: { [key in SupportedSolanaNetwork]: SolanaNetworkInfo } = {
     route: 'solana',
     name: 'Solana',
     icon: Solana,
+    iconSelected: SolanaDark,
     etherscanUrl: 'https://solscan.io',
     etherscanName: 'Solana scan',
     bridgeURL: EMPTY,

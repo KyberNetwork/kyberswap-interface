@@ -17,6 +17,7 @@ const cronosTestnetInfo: EVMNetworkInfo = {
   name: 'Cronos Testnet',
   icon: CRONOS,
   iconDark: CRONOS_DARK,
+  iconDarkSelected: CRONOS,
   classicClient: createClient(
     'https://testnet-cronos-subgraph.knstats.com/subgraphs/name/dynamic-amm/dmm-exchange-cronos-testnet',
   ),

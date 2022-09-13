@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/macro'
 import { ChainId } from '@namgold/ks-sdk-core'
 import { stringify } from 'qs'
 import { useHistory } from 'react-router-dom'
@@ -9,6 +10,13 @@ import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/useChangeNetwork'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useIsDarkMode } from 'state/user/hooks'
+
+const NewLabel = styled.span`
+  font-size: 12px;
+  color: ${({ theme }) => theme.red};
+  margin-left: 2px;
+  margin-top: -10px;
+`
 
 const ListItem = styled.div<{ selected?: boolean }>`
   width: 100%;
@@ -96,12 +104,22 @@ const Networks = ({
               <ListItem selected>
                 <img
                   src={
-                    isDarkMode && !!NETWORKS_INFO[key].iconDark ? NETWORKS_INFO[key].iconDark : NETWORKS_INFO[key].icon
+                    isDarkMode
+                      ? NETWORKS_INFO[key].iconDarkSelected ||
+                        NETWORKS_INFO[key].iconSelected ||
+                        NETWORKS_INFO[key].iconDark ||
+                        NETWORKS_INFO[key].icon
+                      : NETWORKS_INFO[key].iconSelected || NETWORKS_INFO[key].icon
                   }
                   alt="Switch Network"
                   style={{ height: '20px', marginRight: '4px' }}
                 />
                 <NetworkLabel>{NETWORKS_INFO[key].name}</NetworkLabel>
+                {key === ChainId.SOLANA && (
+                  <NewLabel>
+                    <Trans>New</Trans>
+                  </NewLabel>
+                )}
               </ListItem>
             </SelectNetworkButton>
           )
@@ -130,6 +148,11 @@ const Networks = ({
                 style={{ height: '20px', marginRight: '4px' }}
               />
               <NetworkLabel>{NETWORKS_INFO[key].name}</NetworkLabel>
+              {key === ChainId.SOLANA && (
+                <NewLabel>
+                  <Trans>New</Trans>
+                </NewLabel>
+              )}
             </ListItem>
           </SelectNetworkButton>
         )

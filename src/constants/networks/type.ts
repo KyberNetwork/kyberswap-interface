@@ -8,6 +8,8 @@ interface NetworkInfo {
   readonly name: string
   readonly icon: string
   readonly iconDark?: string
+  readonly iconSelected?: string
+  readonly iconDarkSelected?: string
   readonly etherscanUrl: string
   readonly etherscanName: string
   readonly bridgeURL: string

@@ -102,7 +102,7 @@ export const SUPPORTED_WALLETS = {
     connector: walletlink,
     adapter: coinbaseAdapter,
     name: 'Coinbase',
-    iconName: 'wallet-link.svg',
+    iconName: 'coinbase-wallet.svg',
     installLink: 'https://www.coinbase.com/wallet',
     readyState: detectCoinbase(),
     readyStateSolana: coinbaseAdapter.readyState,
@@ -111,7 +111,7 @@ export const SUPPORTED_WALLETS = {
     // To get this link: go to Coinbase app -> Dapp Browser -> go to dmm.exchange -> click "..." button -> share -> copy link
     href: 'https://go.cb-w.com/S7mannYpWjb',
     name: 'Coinbase Wallet',
-    iconName: 'wallet-link.svg',
+    iconName: 'coinbase-wallet.svg',
     readyState: detectCoinBaseLink(),
   } as EVMWalletInfo,
   WALLET_CONNECT: {
