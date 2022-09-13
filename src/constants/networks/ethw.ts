@@ -1,7 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
-import EthereumLogo from 'assets/images/ethereum-logo.png'
-import Mainnet from 'assets/networks/mainnet-network.svg'
+import Mainnet from 'assets/networks/ethw.png'
 import { createClient } from 'utils/client'
 
 import { NetworkInfo } from '../type'
@@ -11,26 +10,27 @@ const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
 const ethereumInfo: NetworkInfo = {
-  chainId: ChainId.MAINNET,
-  route: 'ethereum',
-  name: 'Ethereum',
+  chainId: ChainId.ETHW,
+  route: 'ethw',
+  name: 'EthereumPoW',
   icon: Mainnet,
   classicClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-ethereum'),
   elasticClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-mainnet'),
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-ethereum'),
+  // TODO
   etherscanUrl: 'https://etherscan.io',
   etherscanName: 'Etherscan',
-  tokenListUrl: `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?chainId=${ChainId.MAINNET}`,
+  tokenListUrl: `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?chainId=${ChainId.ETHW}`,
   bridgeURL: EMPTY,
   nativeToken: {
-    symbol: 'ETH',
-    name: 'ETH (Wrapped)',
+    symbol: 'ETHW',
+    name: 'ETHW (Wrapped)',
     address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-    logo: EthereumLogo,
+    logo: Mainnet,
     decimal: 18,
   },
   rpcUrl: 'https://ethereum.kyberengineering.io',
-  routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/ethereum/route/encode`,
+  routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/ethw/route/encode`,
   classic: {
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',
@@ -44,12 +44,7 @@ const ethereumInfo: NetworkInfo = {
       factory: '0x833e4083B7ae46CeA85695c4f7ed25CDAd8886dE',
     },
     claimReward: EMPTY,
-    fairlaunch: [
-      '0xc0601973451d9369252Aee01397c0270CD2Ecd60',
-      '0x0FEEa33C4dE6f37A0Fc550028FddA2401B2Ee5Ce',
-      '0xc93239B33239A901143e15473e4A852a0D92c53b',
-      '0x31De05f28568e3d3D612BFA6A78B356676367470',
-    ],
+    fairlaunch: EMPTY_ARRAY,
     fairlaunchV2: EMPTY_ARRAY,
   },
   elastic: {
@@ -61,9 +56,10 @@ const ethereumInfo: NetworkInfo = {
     routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
   },
   averageBlockTimeInSeconds: 13.13,
-  coingeckoNetworkId: 'ethereum',
-  coingeckoNativeTokenId: 'ethereum',
-  deBankSlug: 'eth',
+  // TODO
+  coingeckoNetworkId: '',
+  coingeckoNativeTokenId: '',
+  deBankSlug: '',
 }
 
 export default ethereumInfo

@@ -57,6 +57,8 @@ export const DAI: { [chainId in ChainId]: Token } = {
     'DAI',
     'Dai Stablecoin',
   ),
+  [ChainId.ETHW]: new Token(ChainId.ETHW, '0x6B175474E89094C44Da98b954EedeAC495271d0F', 18, 'DAI', 'Dai Stablecoin'),
+
   [ChainId.ROPSTEN]: new Token(
     ChainId.ROPSTEN,
     '0xaD6D458402F60fD3Bd25163575031ACDce07538D',
@@ -167,6 +169,7 @@ export const DAI: { [chainId in ChainId]: Token } = {
 
 export const USDC: { [chainId in ChainId]: Token } = {
   [ChainId.MAINNET]: new Token(ChainId.MAINNET, '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', 6, 'USDC', 'USD Coin'),
+  [ChainId.ETHW]: new Token(ChainId.MAINNET, '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', 6, 'USDC', 'USD Coin'),
   [ChainId.ROPSTEN]: new Token(ChainId.ROPSTEN, '0x068B43f7F2f2c6a662C36E201144aE45f7a1C040', 6, 'USDC', 'USD Coin'),
   [ChainId.RINKEBY]: new Token(ChainId.RINKEBY, '0x4DBCdF9B62e891a7cec5A2568C3F4FAF9E8Abe2b', 6, 'USDC', 'USD Coin'),
   [ChainId.GÖRLI]: new Token(ChainId.GÖRLI, '0x068B43f7F2f2c6a662C36E201144aE45f7a1C040', 6, 'USDC', 'USD Coin'),
@@ -234,6 +237,7 @@ export const USDC: { [chainId in ChainId]: Token } = {
 
 export const USDT: { [chainId in ChainId]: Token } = {
   [ChainId.MAINNET]: new Token(ChainId.MAINNET, '0xdAC17F958D2ee523a2206206994597C13D831ec7', 6, 'USDT', 'Tether USD'),
+  [ChainId.ETHW]: new Token(ChainId.MAINNET, '0xdAC17F958D2ee523a2206206994597C13D831ec7', 6, 'USDT', 'Tether USD'),
   [ChainId.ROPSTEN]: new Token(ChainId.ROPSTEN, '0x65Bd1F48f1dd07bb285a3715c588F75684128acE', 6, 'USDT', 'Tether USD'),
   [ChainId.RINKEBY]: new Token(ChainId.RINKEBY, '0xD9BA894E0097f8cC2BBc9D24D308b98e36dc6D02', 18, 'USDT', 'Tether USD'),
   [ChainId.GÖRLI]: new Token(ChainId.GÖRLI, '0x65Bd1F48f1dd07bb285a3715c588F75684128acE', 6, 'USDT', 'Tether USD'),
@@ -349,12 +353,14 @@ const WETH_ONLY: ChainTokenList = {
   [ChainId.VELAS]: [WETH[ChainId.VELAS]],
   [ChainId.OASIS]: [WETH[ChainId.OASIS]],
   [ChainId.OPTIMISM]: [WETH[ChainId.OPTIMISM]],
+  [ChainId.ETHW]: [WETH[ChainId.ETHW]],
 }
 
 export const KNC_ADDRESS = '0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202'
 
 export const KNC: { [chainId in ChainId]: Token } = {
   [ChainId.MAINNET]: new Token(ChainId.MAINNET, KNC_ADDRESS, 18, 'KNC', 'Kyber Network Crystal'),
+  [ChainId.ETHW]: new Token(ChainId.ETHW, KNC_ADDRESS, 18, 'KNC', 'Kyber Network Crystal'),
   [ChainId.RINKEBY]: new Token(
     ChainId.RINKEBY,
     '0x8B4DDF9F13f382aff76D262F6C8C50E6d7961b94',
