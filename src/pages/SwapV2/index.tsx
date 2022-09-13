@@ -937,13 +937,18 @@ export default function Swap({ history }: RouteComponentProps) {
                             style={{ marginRight: '10px' }}
                           />
                           {trade?.priceImpact > 15 ? (
-                            <>
-                              <Trans>Price Impact is Very High</Trans>
-                              <InfoHelper text="Turn on Advanced Mode for high slippage trades" color={theme.text} />
-                            </>
+                            <Trans>Price Impact is Very High</Trans>
                           ) : (
                             <Trans>Price Impact is High</Trans>
                           )}
+                          <InfoHelper
+                            text={
+                              isExpertMode
+                                ? 'Advanced Mode is turned on for trades with high price impact'
+                                : 'Turn on Advanced Mode for high slippage trades'
+                            }
+                            color={theme.text}
+                          />
                         </PriceImpactHigh>
                       )
                     )}
