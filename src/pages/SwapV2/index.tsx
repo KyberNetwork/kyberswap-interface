@@ -925,7 +925,7 @@ export default function Swap({ history }: RouteComponentProps) {
                       <PriceImpactHigh>
                         <AlertTriangle color={theme.warning} size={16} style={{ marginRight: '10px' }} />
                         <Trans>Unable to calculate Price Impact</Trans>
-                        <InfoHelper text="Turn on Advanced Mode to trade" color={theme.text} />
+                        <InfoHelper text={t`Turn on Advanced Mode to trade`} color={theme.text} />
                       </PriceImpactHigh>
                     ) : (
                       !!trade?.priceImpact &&
@@ -944,8 +944,8 @@ export default function Swap({ history }: RouteComponentProps) {
                           <InfoHelper
                             text={
                               isExpertMode
-                                ? 'You have turned on Advanced Mode from settings. Trades with high price impact can be executed'
-                                : 'Turn on Advanced Mode from settings to execute trades with high price impact'
+                                ? t`You have turned on Advanced Mode from settings. Trades with high price impact can be executed`
+                                : t`Turn on Advanced Mode from settings to execute trades with high price impact`
                             }
                             color={theme.text}
                           />
@@ -961,7 +961,7 @@ export default function Swap({ history }: RouteComponentProps) {
                       ) : showWrap ? (
                         <ButtonPrimary disabled={Boolean(wrapInputError)} onClick={onWrap}>
                           {wrapInputError ??
-                            (wrapType === WrapType.WRAP ? 'Wrap' : wrapType === WrapType.UNWRAP ? 'Unwrap' : null)}
+                            (wrapType === WrapType.WRAP ? t`Wrap` : wrapType === WrapType.UNWRAP ? t`Unwrap` : null)}
                         </ButtonPrimary>
                       ) : noRoute && userHasSpecifiedInputOutput ? (
                         <GreyCard style={{ textAlign: 'center', borderRadius: '999px', padding: '12px' }}>
