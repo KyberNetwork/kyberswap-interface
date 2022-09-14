@@ -295,7 +295,7 @@ export default function Menu() {
         </Text>
       </MenuFlyout>
       <ClaimRewardModal />
-      <FaucetModal />
+      {chainId && [ChainId.BTTC, ChainId.RINKEBY].includes(chainId) && <FaucetModal />}
     </StyledMenu>
   )
 }

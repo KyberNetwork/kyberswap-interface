@@ -2,7 +2,7 @@ import { Trans, t } from '@lingui/macro'
 import { Fraction, WETH } from '@namgold/ks-sdk-core'
 import { BigNumber } from 'ethers'
 import JSBI from 'jsbi'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -81,7 +81,7 @@ function FaucetModal() {
     if (token?.isNative && chainId) return WETH[chainId].name
     return token?.symbol
   }, [token, chainId])
-  const claimRewardCallBack = async () => {
+  const claimRewardCallBack = useCallback(async () => {
     if (!rewardData) return
     try {
       const rawResponse = await fetch(REWARD_SERVICE_API + '/rewards/claim', {
@@ -110,7 +110,8 @@ function FaucetModal() {
     } catch (error) {
       console.log(error)
     }
-  }
+  }, [account, notify, rewardData, token?.decimals, tokenSymbol])
+
   useEffect(() => {
     if (!chainId || !account) return
     const getRewardAmount = async () => {
@@ -130,65 +131,78 @@ function FaucetModal() {
     }
     getRewardAmount()
   }, [chainId, account])
-  const modalContent = () => (
-    <Flex flexDirection={'column'} padding="26px 24px" style={{ gap: '25px' }}>
-      <RowBetween>
-        <Text fontSize={20} fontWeight={500} color={theme.text}>
-          <Trans>Faucet</Trans>
-        </Text>
-        <CloseIcon onClick={toggle} />
-      </RowBetween>
+  const modalContent = useMemo(() => {
+    return (
+      <Flex flexDirection={'column'} padding="26px 24px" style={{ gap: '25px' }}>
+        <RowBetween>
+          <Text fontSize={20} fontWeight={500} color={theme.text}>
+            <Trans>Faucet</Trans>
+          </Text>
+          <CloseIcon onClick={toggle} />
+        </RowBetween>
 
-      <AddressWrapper>
-        <Text color={theme.subText} fontSize={12}>
-          <Trans>Your wallet address</Trans>
+        <AddressWrapper>
+          <Text color={theme.subText} fontSize={12}>
+            <Trans>Your wallet address</Trans>
+          </Text>
+          <p>{account && shortenAddress(chainId, account, 9)}</p>
+        </AddressWrapper>
+        <Text fontSize={16} lineHeight="24px" color={theme.text}>
+          <Trans>
+            If your wallet is eligible, you will be able to request for some {tokenSymbol} tokens for free below. Each
+            wallet can only request for the tokens once. You can claim:
+          </Trans>
         </Text>
-        <p>{account && shortenAddress(chainId, account, 9)}</p>
-      </AddressWrapper>
-      <Text fontSize={16} lineHeight="24px" color={theme.text}>
-        <Trans>
-          If your wallet is eligible, you will be able to request for some {tokenSymbol} tokens for free below. Each
-          wallet can only request for the tokens once. You can claim:
-        </Trans>
-      </Text>
-      <Text fontSize={32} lineHeight="38px" fontWeight={500}>
-        {token && (
-          <>
-            {tokenLogo && (
-              <Logo
-                srcs={[tokenLogo]}
-                alt={`${tokenSymbol ?? 'token'} logo`}
-                style={{ width: '28px', paddingRight: '8px' }}
-              />
-            )}{' '}
-            {rewardData?.amount ? getFullDisplayBalance(rewardData?.amount, token?.decimals) : 0} {tokenSymbol}
-          </>
+        <Text fontSize={32} lineHeight="38px" fontWeight={500}>
+          {token && (
+            <>
+              {tokenLogo && (
+                <Logo
+                  srcs={[tokenLogo]}
+                  alt={`${tokenSymbol ?? 'token'} logo`}
+                  style={{ width: '28px', paddingRight: '8px' }}
+                />
+              )}{' '}
+              {rewardData?.amount ? getFullDisplayBalance(rewardData?.amount, token?.decimals) : 0} {tokenSymbol}
+            </>
+          )}
+        </Text>
+        {account ? (
+          <ButtonPrimary
+            disabled={!rewardData?.amount || rewardData?.amount.eq(0)}
+            onClick={() => {
+              claimRewardCallBack()
+              mixpanelHandler(MIXPANEL_TYPE.FAUCET_REQUEST_INITIATED)
+              toggle()
+            }}
+            style={{ borderRadius: '24px', height: '44px' }}
+          >
+            <Trans>Request</Trans>
+          </ButtonPrimary>
+        ) : (
+          <ButtonPrimary
+            onClick={() => {
+              toggleWalletModal()
+            }}
+            style={{ borderRadius: '24px', height: '44px' }}
+          >
+            <Trans>Connect Wallet</Trans>
+          </ButtonPrimary>
         )}
-      </Text>
-      {account ? (
-        <ButtonPrimary
-          disabled={!rewardData?.amount || rewardData?.amount.eq(0)}
-          onClick={() => {
-            claimRewardCallBack()
-            mixpanelHandler(MIXPANEL_TYPE.FAUCET_REQUEST_INITIATED)
-            toggle()
-          }}
-          style={{ borderRadius: '24px', height: '44px' }}
-        >
-          <Trans>Request</Trans>
-        </ButtonPrimary>
-      ) : (
-        <ButtonPrimary
-          onClick={() => {
-            toggleWalletModal()
-          }}
-          style={{ borderRadius: '24px', height: '44px' }}
-        >
-          <Trans>Connect Wallet</Trans>
-        </ButtonPrimary>
-      )}
-    </Flex>
-  )
+      </Flex>
+    )
+  }, [
+    account,
+    claimRewardCallBack,
+    mixpanelHandler,
+    rewardData?.amount,
+    theme,
+    toggle,
+    toggleWalletModal,
+    token,
+    tokenLogo,
+    tokenSymbol,
+  ])
 
   return (
     <Modal
@@ -198,7 +212,7 @@ function FaucetModal() {
       }}
       maxHeight={90}
     >
-      {modalContent()}
+      {modalContent}
     </Modal>
   )
 }
