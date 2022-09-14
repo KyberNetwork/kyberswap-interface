@@ -4,7 +4,6 @@ import styled from 'styled-components'
 
 import Loader from 'components/Loader'
 import { SUPPORTED_WALLETS } from 'constants/wallets'
-import { detectInjectedType } from 'utils'
 
 import { WarningBox } from './WarningBox'
 
@@ -66,16 +65,15 @@ const LoadingWrapper = styled.div`
 `
 
 export default function PendingView({
-  walletOptionKey,
+  walletKey,
   hasError = false,
   onClickTryAgain,
 }: {
-  walletOptionKey?: keyof typeof SUPPORTED_WALLETS
+  walletKey?: keyof typeof SUPPORTED_WALLETS
   hasError?: boolean
   onClickTryAgain: () => void
 }) {
-  const walletName = walletOptionKey ? SUPPORTED_WALLETS[walletOptionKey].name : ''
-  const injectedType = detectInjectedType()
+  const walletName = walletKey ? SUPPORTED_WALLETS[walletKey].name : ''
 
   return (
     <PendingSection>
@@ -98,7 +96,7 @@ export default function PendingView({
           )}
         </LoadingWrapper>
       </LoadingMessage>
-      {injectedType !== walletOptionKey && <WarningBox walletOptionKey={walletOptionKey} />}
+      <WarningBox walletKey={walletKey} />
     </PendingSection>
   )
 }

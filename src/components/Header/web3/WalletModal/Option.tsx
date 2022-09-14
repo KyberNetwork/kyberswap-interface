@@ -1,11 +1,21 @@
 import { Trans } from '@lingui/macro'
-import React from 'react'
+import { ChainType, getChainType } from '@namgold/ks-sdk-core'
+import { WalletReadyState } from '@solana/wallet-adapter-base'
+import { useWallet } from '@solana/wallet-adapter-react'
+import { useWeb3React } from '@web3-react/core'
 import styled from 'styled-components'
 
 import { MouseoverTooltip } from 'components/Tooltip'
+import { SUPPORTED_WALLETS } from 'constants/wallets'
+import { useActiveWeb3React } from 'hooks'
+import { useIsDarkMode } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
+import { isEVMWallet, isOverriddenWallet, isSolanaWallet } from 'utils'
+import checkForBraveBrowser from 'utils/checkForBraveBrowser'
 
-const IconWrapper = styled.div<{ size?: number | null }>`
+import { C98OverrideGuide } from './WarningBox'
+
+const IconWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -14,8 +24,8 @@ const IconWrapper = styled.div<{ size?: number | null }>`
 
   & > img,
   span {
-    height: ${({ size }) => (size ? size + 'px' : '20px')};
-    width: ${({ size }) => (size ? size + 'px' : '20px')};
+    height: 20px;
+    width: 20px;
   }
   ${({ theme }) => theme.mediaWidth.upToMedium`
     align-items: flex-end;
@@ -29,7 +39,13 @@ const HeaderText = styled.div`
   font-weight: 500;
 `
 
-const OptionCardClickable = styled.button<{ clickable?: boolean; installLink?: string; disabled: boolean }>`
+const OptionCardClickable = styled.button<{
+  connected: boolean
+  installLink?: string
+  isDisabled: boolean
+  isCorrectChain: boolean
+  overridden: boolean
+}>`
   width: 100%;
   border: 1px solid transparent;
   border-radius: 42px;
@@ -44,31 +60,39 @@ const OptionCardClickable = styled.button<{ clickable?: boolean; installLink?: s
   margin-top: 2rem;
   margin-top: 0;
   padding: 10px 8px;
-  cursor: ${({ clickable }) => (clickable ? 'pointer' : 'not-allowed')};
   transition: all 0.2s;
   background-color: ${({ theme }) => theme.buttonBlack};
 
-  &[data-active='true'] {
-    background-color: ${({ theme }) => theme.primary};
-    ${HeaderText} {
-      color: ${({ theme }) => theme.darkText} !important;
-    }
-  }
+  cursor: ${({ isDisabled, installLink, overridden }) =>
+    !isDisabled && !installLink && !overridden ? 'pointer' : 'not-allowed'};
+
+  ${({ isCorrectChain, connected, theme }) =>
+    isCorrectChain && connected
+      ? `
+      background-color: ${theme.primary};
+      & ${HeaderText} {
+        color: ${theme.darkText} !important;
+      }
+    `
+      : ''}
 
   &:hover {
     text-decoration: none;
-    ${({ installLink, disabled, theme }) => (installLink || disabled ? '' : `border: 1px solid ${theme.primary};`)}
+    ${({ installLink, isDisabled, overridden, theme }) =>
+      installLink || isDisabled || overridden ? '' : `border: 1px solid ${theme.primary};`}
   }
 
-  ${({ installLink, theme }) =>
-    installLink
+  ${({ isCorrectChain, installLink, overridden, theme }) =>
+    isCorrectChain && (installLink || overridden)
       ? `
-    filter: grayscale(100%);
-    color: ${theme.border};
-  `
+      filter: grayscale(100%);
+      & ${HeaderText} {
+        color: ${theme.border};
+      }
+    `
       : ''}
 
-  opacity: ${({ disabled }) => (disabled ? '0.5' : '1')};
+  opacity: ${({ isDisabled }) => (isDisabled ? '0.5' : '1')};
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     width: 100%;
@@ -89,49 +113,85 @@ const StyledLink = styled(ExternalLink)`
   }
 `
 
+// Cases:
+// !isAcceptedTerm                                        =>    opacity, no greyscale, no green, not clickable, no border, no tooltip
+// !isCorrectChain                                        =>    opacity, no greyscale, no green, not clickable, no border, tooltip "This wallet won’t work on this chain..."
+//  isCorrectChain,  connected, isCorrectChain            => no opacity, no greyscale,    green, not clickable, no border, no tooltip
+//  isCorrectChain, !connected,  installLink              => no opacity,    greyscale, no green, not clickable, no border, tooltip "You will need to install ..."
+//  isCorrectChain, !connected, !installLink,  overridden => no opacity,    greyscale, no green, not clickable, no border, tooltip guide
+//  isCorrectChain, !connected, !installLink, !overridden => no opacity, no greyscale, no green,     clickable,    border, no tooltip (normal)
+
 export default function Option({
-  link,
-  installLink,
-  clickable = true,
-  size,
-  onClick = undefined,
-  header,
-  icon,
-  active = false,
-  id,
+  walletKey,
+  onSelected,
+  isAcceptedTerm,
 }: {
-  link?: string
-  installLink?: string
-  clickable?: boolean
-  size?: number | null
-  onClick?: undefined | (() => void)
-  header: React.ReactNode
-  icon: string
-  active?: boolean
-  id: string
+  walletKey: keyof typeof SUPPORTED_WALLETS
+  onSelected?: () => any
+  isAcceptedTerm: boolean
 }) {
+  const isDarkMode = useIsDarkMode()
+  const { chainId } = useActiveWeb3React()
+  const chainType = getChainType(chainId)
+  const isBraveBrowser = checkForBraveBrowser()
+  const { connector } = useWeb3React()
+  const { wallet: solanaWallet, connected } = useWallet()
+
+  const wallet = SUPPORTED_WALLETS[walletKey]
+  const isWalletEVM = isEVMWallet(wallet)
+  const isWalletSolana = isSolanaWallet(wallet)
+  const isCorrectChain =
+    (isWalletEVM && chainType === ChainType.EVM) || (isWalletSolana && chainType === ChainType.SOLANA)
+  const isConnected =
+    (chainType === ChainType.EVM && isWalletEVM && !!connector && wallet.connector === connector) ||
+    (chainType === ChainType.SOLANA &&
+      isWalletSolana &&
+      !!solanaWallet &&
+      connected &&
+      wallet.adapter === solanaWallet.adapter)
+  const readyState = (() => {
+    const readyStateEVM = isWalletEVM
+      ? typeof wallet.readyState === 'function'
+        ? wallet.readyState()
+        : wallet.readyState
+      : null
+    const readyStateSolana = isWalletSolana ? wallet.readyStateSolana : null
+    return (
+      (chainType === ChainType.EVM && readyStateEVM) ||
+      (chainType === ChainType.SOLANA && readyStateSolana) ||
+      readyStateEVM ||
+      readyStateSolana
+    )
+  })()
+  if (readyState === WalletReadyState.Unsupported) return null
+  const overridden = isOverriddenWallet(walletKey)
+  const installLink = readyState === WalletReadyState.NotDetected && wallet.installLink ? wallet.installLink : undefined
+  const icon = require(`../../../../assets/images/${isDarkMode ? '' : 'light-'}${wallet.iconName}`).default
+
   const content = (
     <OptionCardClickable
-      id={id}
-      onClick={onClick}
-      clickable={clickable && !active}
-      data-active={active}
-      disabled={!clickable}
+      id={`connect-${walletKey}`}
+      onClick={WalletReadyState.Installed ? onSelected : undefined}
+      connected={isConnected}
+      isDisabled={!isAcceptedTerm || !isCorrectChain}
       installLink={installLink}
+      overridden={overridden}
+      isCorrectChain={isCorrectChain}
     >
-      <IconWrapper size={size}>
+      <IconWrapper>
         <img src={icon} alt={'Icon'} />
       </IconWrapper>
       <OptionCardLeft>
-        <HeaderText>{header}</HeaderText>
+        <HeaderText>{wallet.name}</HeaderText>
       </OptionCardLeft>
     </OptionCardClickable>
   )
-  if (link) {
-    return <StyledLink href={link}>{content}</StyledLink>
+
+  if (readyState === WalletReadyState.Loadable && isEVMWallet(wallet) && wallet.href) {
+    return <StyledLink href={wallet.href}>{content}</StyledLink>
   }
 
-  if (!clickable) {
+  if (!isCorrectChain) {
     return (
       <MouseoverTooltip text={<Trans>This wallet won’t work on this chain, please select another wallet</Trans>}>
         {content}
@@ -139,16 +199,39 @@ export default function Option({
     )
   }
 
-  if (installLink) {
+  if (walletKey === 'BRAVE' && !isBraveBrowser) {
     return (
       <MouseoverTooltip
         text={
           <Trans>
-            You will need to install {header} extension before you can connect with it on KyberSwap. Get it{' '}
-            <ExternalLink href={installLink}>here↗</ExternalLink>
+            Brave wallet can only be used in Brave Browser. Download it{' '}
+            <ExternalLink href={wallet.installLink || ''}>here↗</ExternalLink>
           </Trans>
         }
       >
+        {content}
+      </MouseoverTooltip>
+    )
+  }
+
+  if (readyState === WalletReadyState.NotDetected) {
+    return (
+      <MouseoverTooltip
+        text={
+          <Trans>
+            You will need to install {wallet.name} extension before you can connect with it on KyberSwap. Get it{' '}
+            <ExternalLink href={wallet.installLink || ''}>here↗</ExternalLink>
+          </Trans>
+        }
+      >
+        {content}
+      </MouseoverTooltip>
+    )
+  }
+
+  if (overridden) {
+    return (
+      <MouseoverTooltip width="500px" text={<C98OverrideGuide walletKey={walletKey} />}>
         {content}
       </MouseoverTooltip>
     )

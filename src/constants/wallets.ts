@@ -12,6 +12,7 @@ import { AbstractConnector } from '@web3-react/abstract-connector'
 import { isMobile } from 'react-device-detect'
 
 import { braveInjectedConnector, coin98InjectedConnector, injected, walletconnect, walletlink } from 'connectors'
+import checkForBraveBrowser from 'utils/checkForBraveBrowser'
 
 import { SelectedNetwork } from './networks/solana'
 
@@ -31,11 +32,9 @@ const detectMetamask = (): WalletReadyState => {
 }
 
 const detectBrave = (): WalletReadyState => {
-  // handled NotDetected case by show install note
-  return WalletReadyState.Installed
   //todo namgold: fail connect on mobile
-  // if (checkForBraveBrowser()) return WalletReadyState.Installed
-  // return WalletReadyState.NotDetected
+  if (checkForBraveBrowser()) return WalletReadyState.Installed
+  return WalletReadyState.NotDetected
 }
 
 const detectCoin98 = (): WalletReadyState => {

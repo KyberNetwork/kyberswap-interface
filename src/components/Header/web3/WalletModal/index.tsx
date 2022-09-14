@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { ChainType, getChainType } from '@namgold/ks-sdk-core'
-import { BaseMessageSignerWalletAdapter, WalletReadyState } from '@solana/wallet-adapter-base'
+import { BaseMessageSignerWalletAdapter } from '@solana/wallet-adapter-base'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core'
@@ -22,10 +22,8 @@ import usePrevious from 'hooks/usePrevious'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useOpenNetworkModal, useWalletModalToggle } from 'state/application/hooks'
-import { useIsDarkMode } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { isEVMWallet, isSolanaWallet } from 'utils'
-import checkForBraveBrowser from 'utils/checkForBraveBrowser'
 
 import Option from './Option'
 import PendingView from './PendingView'
@@ -130,7 +128,7 @@ const ToSText = styled.span`
   font-weight: 500;
 `
 
-const WALLET_VIEWS = {
+export const WALLET_VIEWS = {
   CHANGE_WALLET: 'CHANGE_WALLET',
   ACCOUNT: 'account',
   PENDING: 'pending',
@@ -149,7 +147,10 @@ export default function WalletModal({
   const chainType = getChainType(chainId)
   // important that these are destructed from the account-specific web3-react context
   const { active, connector, activate, error } = useWeb3React()
-  const { wallet, select, connected, connecting } = useWallet()
+  const { connected, connecting, wallet: solanaWallet, select } = useWallet()
+
+  const [, setIsUserManuallyDisconnect] = useLocalStorage('user-manually-disconnect')
+
   const theme = useTheme()
 
   const [walletView, setWalletView] = useState(WALLET_VIEWS.ACCOUNT)
@@ -163,14 +164,11 @@ export default function WalletModal({
   const openNetworkModal = useOpenNetworkModal()
 
   const previousAccount = usePrevious(account)
-  const isDarkMode = useIsDarkMode()
 
   const [isAcceptedTerm, setIsAcceptedTerm] = useState(true)
 
   const location = useLocation()
   const { mixpanelHandler } = useMixpanel()
-
-  const isBraveBrowser = checkForBraveBrowser()
 
   // close on connection, when logged out before
   useEffect(() => {
@@ -205,27 +203,27 @@ export default function WalletModal({
       setWalletView(WALLET_VIEWS.ACCOUNT)
     }
   }, [setWalletView, active, error, connector, walletModalOpen, activePrevious, connectorPrevious])
-  const [, setIsUserManuallyDisconnect] = useLocalStorage('user-manually-disconnect')
+
+  useEffect(() => {
+    if (!connecting) {
+      if (connected) setPendingError(false)
+      else setPendingError(true)
+    }
+  }, [connecting, connected])
 
   const tryActivation = async (walletKey: keyof typeof SUPPORTED_WALLETS) => {
-    const tryWallet = SUPPORTED_WALLETS[walletKey]
+    const wallet = SUPPORTED_WALLETS[walletKey]
     setPendingWalletKey(walletKey)
     setWalletView(WALLET_VIEWS.PENDING)
+    setPendingError(false)
 
     const chainType = getChainType(chainId)
-    if (chainType === ChainType.EVM && isEVMWallet(tryWallet))
-      if (tryWallet.connector === connector) setWalletView(WALLET_VIEWS.ACCOUNT)
-      else if (!tryWallet.href) tryActivationEVM(tryWallet.connector)
-    if (chainType === ChainType.SOLANA && isSolanaWallet(tryWallet) && tryWallet.adapter !== wallet?.adapter)
-      tryActivationSolana(tryWallet.adapter)
+    if (chainType === ChainType.EVM && isEVMWallet(wallet) && !wallet.href) tryActivationEVM(wallet.connector)
+    if (chainType === ChainType.SOLANA && isSolanaWallet(wallet) && wallet.adapter !== solanaWallet?.adapter)
+      tryActivationSolana(wallet.adapter)
   }
 
   const tryActivationEVM = async (connector: AbstractConnector | undefined) => {
-    if (!isBraveBrowser && pendingWalletKey === 'BRAVE') {
-      // wont do connect and show the loading indicator with install note for brave
-      return
-    }
-
     // if the connector is walletconnect and the user has already tried to connect, manually reset the connector
     if (connector instanceof WalletConnectConnector && connector.walletConnectProvider?.wc?.uri) {
       connector.walletConnectProvider = undefined
@@ -245,13 +243,6 @@ export default function WalletModal({
         })
     }
   }
-
-  useEffect(() => {
-    if (!connecting) {
-      if (connected) setPendingError(false)
-      else setPendingError(true)
-    }
-  }, [connecting, connected])
 
   const tryActivationSolana = async (adapter: BaseMessageSignerWalletAdapter) => {
     try {
@@ -285,75 +276,9 @@ export default function WalletModal({
 
     return (Object.keys(SUPPORTED_WALLETS) as (keyof typeof SUPPORTED_WALLETS)[])
       .sort(sortWallets)
-      .map(key => {
-        const option = SUPPORTED_WALLETS[key]
-        const isWalletEVM = isEVMWallet(option)
-        const isWalletSolana = isSolanaWallet(option)
-        const clickable =
-          isAcceptedTerm &&
-          ((isWalletEVM && chainType === ChainType.EVM) || (isWalletSolana && chainType === ChainType.SOLANA))
-        const active =
-          (chainType === ChainType.EVM && isWalletEVM && !!connector && option.connector === connector) ||
-          (chainType === ChainType.SOLANA &&
-            isWalletSolana &&
-            !!wallet &&
-            connected &&
-            option.adapter === wallet.adapter)
-        const readyState = (() => {
-          const readyStateEVM = isWalletEVM
-            ? typeof option.readyState === 'function'
-              ? option.readyState()
-              : option.readyState
-            : null
-          const readyStateSolana = isWalletSolana ? option.readyStateSolana : null
-          return (
-            (chainType === ChainType.EVM && readyStateEVM) ||
-            (chainType === ChainType.SOLANA && readyStateSolana) ||
-            readyStateEVM ||
-            readyStateSolana
-          )
-        })()
-        if (readyState === WalletReadyState.Unsupported) return null
-
-        if (readyState === WalletReadyState.NotDetected && option.installLink) {
-          return (
-            <Option
-              clickable={clickable}
-              id={`connect-${key}`}
-              key={key}
-              header={option.name}
-              installLink={option.installLink}
-              icon={require(`../../../../assets/images/${isDarkMode ? '' : 'light-'}${option.iconName}`).default}
-            />
-          )
-        }
-
-        if (readyState === WalletReadyState.Loadable && isEVMWallet(option) && option.href) {
-          return (
-            <Option
-              clickable={clickable}
-              id={`connect-${key}`}
-              key={key}
-              active={active}
-              header={option.name}
-              link={option.href}
-              icon={require(`../../../../assets/images/${isDarkMode ? '' : 'light-'}${option.iconName}`).default}
-            />
-          )
-        }
-
-        return (
-          <Option
-            clickable={clickable}
-            id={`connect-${key}`}
-            onClick={() => tryActivation(key)}
-            key={key}
-            active={active}
-            header={option.name}
-            icon={require(`../../../../assets/images/${isDarkMode ? '' : 'light-'}${option.iconName}`).default}
-          />
-        )
-      })
+      .map(key => (
+        <Option key={key} walletKey={key} onSelected={() => tryActivation(key)} isAcceptedTerm={isAcceptedTerm} />
+      ))
       .filter(Boolean)
   }
 
@@ -435,10 +360,9 @@ export default function WalletModal({
         <ContentWrapper>
           {walletView === WALLET_VIEWS.PENDING ? (
             <PendingView
-              walletOptionKey={pendingWalletKey}
+              walletKey={pendingWalletKey}
               hasError={pendingError}
               onClickTryAgain={() => {
-                setPendingError(false)
                 pendingWalletKey && tryActivation(pendingWalletKey)
               }}
             />
