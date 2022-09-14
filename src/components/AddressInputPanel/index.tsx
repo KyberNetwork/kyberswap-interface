@@ -128,7 +128,7 @@ export default function AddressInputPanel({
                 spellCheck="false"
                 placeholder={t`Wallet Address or ENS name`}
                 error={error}
-                pattern="^(0x[a-fA-F0-9]{40})$"
+                pattern="^(0x[a-fA-F0-9]{40})$" //todo namgold: add solana config
                 onChange={handleInput}
                 value={value || ''}
               />
