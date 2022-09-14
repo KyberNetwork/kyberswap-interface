@@ -2,7 +2,7 @@ import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import { rgba } from 'polished'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Info } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -15,10 +15,8 @@ import Divider from 'components/Divider'
 import HoverDropdown from 'components/HoverDropdown'
 import Withdraw from 'components/Icons/Withdraw'
 import InfoHelper from 'components/InfoHelper'
-import ShareModal from 'components/ShareModal'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { ZERO_ADDRESS } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useTokens } from 'hooks/Tokens'
@@ -26,8 +24,7 @@ import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { Dots } from 'pages/Pool/styleds'
-import { ApplicationModal } from 'state/application/actions'
-import { useModalOpen, useOpenModal, useWalletModalToggle } from 'state/application/hooks'
+import { useWalletModalToggle } from 'state/application/hooks'
 import { useRewardTokenPrices } from 'state/farms/hooks'
 import { useFailedNFTs, useFarmAction } from 'state/farms/promm/hooks'
 import { ProMMFarm } from 'state/farms/promm/types'
@@ -80,10 +77,9 @@ type Props = {
 
 const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, farms }) => {
   const theme = useTheme()
-  const { account, chainId } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
   const above768 = useMedia('(min-width: 768px)')
   const above1000 = useMedia('(min-width: 1000px)')
-  const networkRoute = chainId ? NETWORKS_INFO[chainId].route : undefined
 
   const [userPoolFarmInfo, setUserPoolFarmInfo] = useState<{
     [pid: number]: {
@@ -92,14 +88,6 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, farms }) => {
       token1Amount: CurrencyAmount<Token>
     }
   }>({})
-
-  const [sharedPoolAddress, setSharedPoolAddress] = useState('')
-  const openShareModal = useOpenModal(ApplicationModal.SHARE)
-  const isShareModalOpen = useModalOpen(ApplicationModal.SHARE)
-
-  const shareUrl = sharedPoolAddress
-    ? window.location.origin + '/farms?search=' + sharedPoolAddress + '&tab=elastic&networkId=' + networkRoute
-    : undefined
 
   const rewardAddresses = useMemo(() => {
     const rws = farms.reduce((acc, cur) => [...acc, ...cur.rewardTokens], [] as string[])
@@ -222,22 +210,6 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, farms }) => {
 
   const qs = useParsedQueryString()
   const tab = qs.type || 'active'
-
-  useEffect(() => {
-    if (sharedPoolAddress) {
-      openShareModal()
-    }
-  }, [openShareModal, sharedPoolAddress])
-
-  useEffect(() => {
-    setSharedPoolAddress(addr => {
-      if (!isShareModalOpen) {
-        return ''
-      }
-
-      return addr
-    })
-  }, [isShareModalOpen, setSharedPoolAddress])
 
   if (!farms) return null
 
@@ -768,12 +740,9 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, farms }) => {
             onHarvest={() => {
               onOpenModal('harvest', farm.pid)
             }}
-            setSharedPoolAddress={setSharedPoolAddress}
           />
         )
       })}
-
-      <ShareModal title={t`Share this farm with your friends!`} url={shareUrl} />
     </FarmContent>
   )
 }

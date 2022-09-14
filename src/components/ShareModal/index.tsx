@@ -1,5 +1,5 @@
 import { t } from '@lingui/macro'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { Share2, X } from 'react-feather'
 import { useLocation } from 'react-router-dom'
@@ -113,11 +113,7 @@ export default function ShareModal({
       ? t`Share this campaign with your friends!`
       : t`Share this pool with your friends!`)
 
-  const shareUrl = useMemo(() => {
-    if (url) return url
-    return window.location.href + `?networkId=${chainId}`
-  }, [chainId, url])
-
+  const shareUrl = url || window.location.href + `?networkId=${chainId}`
   const [showAlert, setShowAlert] = useState(false)
   const handleCopyClick = () => {
     setShowAlert(true)
@@ -187,7 +183,13 @@ export default function ShareModal({
           </ButtonWithHoverEffect>
         </Flex>
         <InputWrapper>
-          <input type="text" value={shareUrl} />
+          <input
+            type="text"
+            value={shareUrl}
+            onChange={() => {
+              /* empty */
+            }}
+          />
           <CopyToClipboard text={shareUrl} onCopy={handleCopyClick}>
             <ButtonPrimary fontSize={14} padding="8px 12px" width="auto">
               Copy Link

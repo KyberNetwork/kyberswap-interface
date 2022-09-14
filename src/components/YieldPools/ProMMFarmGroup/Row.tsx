@@ -34,6 +34,7 @@ import { formatDollarAmount } from 'utils/numbers'
 
 import { APRTooltipContent } from '../FarmingPoolAPRCell'
 import { ModalContentWrapper } from '../ProMMFarmModals/styled'
+import { useSharePoolContext } from '../SharePoolContext'
 import { InfoRow, ProMMFarmTableRow, ProMMFarmTableRowMobile, RewardMobileArea } from '../styleds'
 import { ActionButton, ButtonColorScheme, MinimalActionButton } from './buttons'
 
@@ -70,7 +71,6 @@ const Row = ({
   onOpenModal,
   onHarvest,
   onUpdateDepositedInfo,
-  setSharedPoolAddress,
   isUserAffectedByFarmIssue,
 }: {
   isUserAffectedByFarmIssue: boolean
@@ -85,7 +85,6 @@ const Row = ({
     token0Amount: CurrencyAmount<Token>
     token1Amount: CurrencyAmount<Token>
   }) => void
-  setSharedPoolAddress: (addr: string) => void
 }) => {
   const theme = useTheme()
   const currentTimestamp = Math.floor(Date.now() / 1000)
@@ -180,6 +179,8 @@ const Row = ({
   const canHarvest = farm.userDepositedNFTs.some(pos => !!pos.rewardPendings.length)
   const canUnstake = farm.userDepositedNFTs.some(pos => pos.stakedLiquidity.gt(0))
   const isFarmStarted = farm.startTime <= currentTimestamp
+
+  const setSharePoolAddress = useSharePoolContext()
 
   useEffect(() => {
     if (position)
@@ -534,7 +535,7 @@ const Row = ({
 
           <Flex
             onClick={() => {
-              setSharedPoolAddress(farm.poolAddress)
+              setSharePoolAddress(farm.poolAddress)
             }}
             sx={{
               marginLeft: '8px',
