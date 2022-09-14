@@ -189,7 +189,17 @@ function BuyCrypto() {
   const step2Ref = useRef<HTMLDivElement>(null)
   const step3Ref = useRef<HTMLDivElement>(null)
 
-  const supportedNetworks = ['ethereum', 'polygon', 'arbitrum', 'optimism', 'bsc', 'avaxcchain', 'fantom', 'velasevm']
+  const supportedNetworks = [
+    'ethereum',
+    'polygon',
+    'arbitrum',
+    'optimism',
+    'bsc',
+    'avaxcchain',
+    'fantom',
+    'velasevm',
+    'solana',
+  ]
   const supportedCurrencies = [
     'AVAX',
     'USDC',
@@ -204,6 +214,7 @@ function BuyCrypto() {
     'MATIC',
     'WETH',
     'VLX',
+    'SOL',
   ]
 
   const redirectURL = window.location.hostname.includes('localhost')
@@ -264,10 +275,7 @@ function BuyCrypto() {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Image
-                    width="24px"
-                    src={require(`../../assets/images/${isDarkMode ? '' : 'light-'}${item.iconName}`).default}
-                  />
+                  <Image width="24px" src={isDarkMode ? item.icon : item.iconLight} />
                   {item.name}
                 </DownloadWalletRow>
               ))}

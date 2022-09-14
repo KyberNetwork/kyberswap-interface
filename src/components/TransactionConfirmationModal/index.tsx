@@ -18,7 +18,7 @@ import useTheme from 'hooks/useTheme'
 import { useIsDarkMode } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { CloseIcon, CustomLightSpinner } from 'theme/components'
-import { getEtherscanLink, getTokenLogoURL } from 'utils'
+import { detectInjectedType, getEtherscanLink, getTokenLogoURL } from 'utils'
 import { errorFriendly } from 'utils/dmm'
 
 const Wrapper = styled.div`
@@ -44,38 +44,6 @@ const StyledLogo = styled.img`
   width: 16px;
   margin-left: 6px;
 `
-
-const getBrowserWalletConfig = () => {
-  const { ethereum } = window
-  const hasInjectedWallet = !!ethereum
-  const { isCoin98, isBraveWallet, isMetaMask } = ethereum || {}
-
-  if (hasInjectedWallet) {
-    if (isCoin98) {
-      const { name, iconName } = SUPPORTED_WALLETS.COIN98
-      return { name, iconName }
-    }
-
-    if (isBraveWallet) {
-      const { name, iconName } = SUPPORTED_WALLETS.BRAVE
-      return { name, iconName }
-    }
-
-    if (isMetaMask) {
-      const { name, iconName } = SUPPORTED_WALLETS.METAMASK
-      return { name, iconName }
-    }
-
-    //todo namgold: check this
-    const config = SUPPORTED_WALLETS.METAMASK
-    return {
-      name: t`your wallet`,
-      iconName: config.iconName,
-    }
-  }
-
-  return undefined
-}
 
 function ConfirmationPendingContent({
   onDismiss,
@@ -142,10 +110,10 @@ function AddTokenToInjectedWallet({ token, chainId }: { token: Token; chainId: C
     }
   }
 
-  const walletConfig = getBrowserWalletConfig()
-  if (!walletConfig) {
-    return null
-  }
+  const injectedWallet = detectInjectedType()
+  if (!injectedWallet) return null
+  const walletConfig = SUPPORTED_WALLETS[injectedWallet]
+  if (!walletConfig) return null
 
   return (
     <ButtonLight mt="12px" padding="6px 12px" width="fit-content" onClick={handleClick}>
@@ -153,9 +121,7 @@ function AddTokenToInjectedWallet({ token, chainId }: { token: Token; chainId: C
         <Trans>
           Add {token.symbol} to {walletConfig.name}
         </Trans>{' '}
-        <StyledLogo
-          src={require(`../../assets/images/${isDarkMode ? '' : 'light-'}${walletConfig.iconName}`).default}
-        />
+        <StyledLogo src={isDarkMode ? walletConfig.icon : walletConfig.iconLight} />
       </RowFixed>
     </ButtonLight>
   )

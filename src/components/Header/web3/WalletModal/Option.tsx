@@ -1,8 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { ChainType, getChainType } from '@namgold/ks-sdk-core'
 import { WalletReadyState } from '@solana/wallet-adapter-base'
-import { useWallet } from '@solana/wallet-adapter-react'
-import { useWeb3React } from '@web3-react/core'
 import styled from 'styled-components'
 
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -113,42 +111,26 @@ const StyledLink = styled(ExternalLink)`
   }
 `
 
-// Cases:
-// !isAcceptedTerm                                        =>    opacity, no greyscale, no green, not clickable, no border, no tooltip
-// !isCorrectChain                                        =>    opacity, no greyscale, no green, not clickable, no border, tooltip "This wallet won’t work on this chain..."
-//  isCorrectChain,  connected, isCorrectChain            => no opacity, no greyscale,    green, not clickable, no border, no tooltip
-//  isCorrectChain, !connected,  installLink              => no opacity,    greyscale, no green, not clickable, no border, tooltip "You will need to install ..."
-//  isCorrectChain, !connected, !installLink,  overridden => no opacity,    greyscale, no green, not clickable, no border, tooltip guide
-//  isCorrectChain, !connected, !installLink, !overridden => no opacity, no greyscale, no green,     clickable,    border, no tooltip (normal)
-
 export default function Option({
   walletKey,
   onSelected,
   isAcceptedTerm,
 }: {
   walletKey: keyof typeof SUPPORTED_WALLETS
-  onSelected?: () => any
+  onSelected?: (walletKey: keyof typeof SUPPORTED_WALLETS) => any
   isAcceptedTerm: boolean
 }) {
   const isDarkMode = useIsDarkMode()
-  const { chainId } = useActiveWeb3React()
+  const { chainId, walletKey: walletKeyConnected } = useActiveWeb3React()
   const chainType = getChainType(chainId)
   const isBraveBrowser = checkForBraveBrowser()
-  const { connector } = useWeb3React()
-  const { wallet: solanaWallet, connected } = useWallet()
 
   const wallet = SUPPORTED_WALLETS[walletKey]
   const isWalletEVM = isEVMWallet(wallet)
   const isWalletSolana = isSolanaWallet(wallet)
   const isCorrectChain =
     (isWalletEVM && chainType === ChainType.EVM) || (isWalletSolana && chainType === ChainType.SOLANA)
-  const isConnected =
-    (chainType === ChainType.EVM && isWalletEVM && !!connector && wallet.connector === connector) ||
-    (chainType === ChainType.SOLANA &&
-      isWalletSolana &&
-      !!solanaWallet &&
-      connected &&
-      wallet.adapter === solanaWallet.adapter)
+  const isConnected = !!walletKeyConnected && walletKey === walletKeyConnected
   const readyState = (() => {
     const readyStateEVM = isWalletEVM
       ? typeof wallet.readyState === 'function'
@@ -165,13 +147,23 @@ export default function Option({
   })()
   if (readyState === WalletReadyState.Unsupported) return null
   const overridden = isOverriddenWallet(walletKey)
-  const installLink = readyState === WalletReadyState.NotDetected && wallet.installLink ? wallet.installLink : undefined
-  const icon = require(`../../../../assets/images/${isDarkMode ? '' : 'light-'}${wallet.iconName}`).default
+  const installLink = readyState === WalletReadyState.NotDetected ? wallet.installLink : undefined
+  const icon = isDarkMode ? wallet.icon : wallet.iconLight
 
   const content = (
     <OptionCardClickable
       id={`connect-${walletKey}`}
-      onClick={WalletReadyState.Installed ? onSelected : undefined}
+      onClick={
+        onSelected &&
+        !isConnected &&
+        readyState === WalletReadyState.Installed &&
+        isAcceptedTerm &&
+        isCorrectChain &&
+        !overridden &&
+        !(walletKey === 'BRAVE' && !isBraveBrowser)
+          ? () => onSelected(walletKey)
+          : undefined
+      }
       connected={isConnected}
       isDisabled={!isAcceptedTerm || !isCorrectChain}
       installLink={installLink}

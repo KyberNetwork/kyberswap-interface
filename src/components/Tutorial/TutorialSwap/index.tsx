@@ -166,12 +166,7 @@ function Step1() {
               .filter(e => e.installLink)
               .map(item => (
                 <NetworkItemWrapper key={item.name} onClick={() => window.open(item.installLink)}>
-                  <img
-                    src={require(`../../../assets/images/${isDarkMode ? '' : 'light-'}${item.iconName}`).default}
-                    alt={item.name}
-                    width="20"
-                    height="20"
-                  />
+                  <img src={isDarkMode ? item.icon : item.iconLight} alt={item.name} width="20" height="20" />
                   <span>{item.name}</span>
                 </NetworkItemWrapper>
               ))}

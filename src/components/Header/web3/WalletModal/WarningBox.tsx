@@ -65,11 +65,13 @@ const StepContainer = styled.div`
   align-items: center;
 `
 
-interface Props {
+export const C98OverrideGuide = ({
+  walletKey,
+  isSureKeo = true,
+}: {
   walletKey?: keyof typeof SUPPORTED_WALLETS
-}
-
-export const C98OverrideGuide: React.FC<Props> = ({ walletKey }) => {
+  isSureKeo?: boolean
+}) => {
   const theme = useTheme()
   const [show, setShow] = useState(false)
   const injectedType = detectInjectedType()
@@ -85,10 +87,17 @@ export const C98OverrideGuide: React.FC<Props> = ({ walletKey }) => {
     <WarningBoxWrapper>
       <InfoWrapper>
         <StyledAlert />
-        <Trans>
-          If {injectedName} wallet opens instead of {walletName}, please close the {injectedName} popup then follow the
-          steps below to disable {injectedName} Wallet:
-        </Trans>
+        {isSureKeo ? (
+          <Trans>
+            {walletName} is not available. In order to use {walletName}, please follow the steps below to disable{' '}
+            {injectedName} Wallet:
+          </Trans>
+        ) : (
+          <Trans>
+            If {injectedName} wallet opens instead of {walletName}, please close the {injectedName} popup then follow
+            the steps below to disable {injectedName} Wallet:
+          </Trans>
+        )}
         <IconWrapper show={show} onClick={() => setShow(prev => !prev)}>
           <ChevronUp size={16} color={theme.subText} />
         </IconWrapper>
@@ -121,7 +130,7 @@ export const C98OverrideGuide: React.FC<Props> = ({ walletKey }) => {
   )
 }
 
-export const WarningBox: React.FC<Props> = ({ walletKey }) => {
+export const WarningBox = ({ walletKey }: { walletKey?: keyof typeof SUPPORTED_WALLETS }) => {
   const theme = useTheme()
 
   const isBraveBrowser = checkForBraveBrowser()
@@ -174,7 +183,7 @@ export const WarningBox: React.FC<Props> = ({ walletKey }) => {
   }
 
   if (isOverriddenWallet(walletKey)) {
-    return <C98OverrideGuide walletKey={walletKey} />
+    return <C98OverrideGuide walletKey={walletKey} isSureKeo={false} />
   }
 
   return <></>

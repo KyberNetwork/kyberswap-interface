@@ -22,6 +22,7 @@ import usePrevious from 'hooks/usePrevious'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useOpenNetworkModal, useWalletModalToggle } from 'state/application/hooks'
+import { updateChainId } from 'state/user/actions'
 import { ExternalLink } from 'theme'
 import { isEVMWallet, isSolanaWallet } from 'utils'
 
@@ -211,6 +212,12 @@ export default function WalletModal({
     }
   }, [connecting, connected])
 
+  useEffect(() => {
+    if (connector && account && active) {
+      updateChainId(chainId)
+    }
+  }, [connector, chainId, account, active])
+
   const tryActivation = async (walletKey: keyof typeof SUPPORTED_WALLETS) => {
     const wallet = SUPPORTED_WALLETS[walletKey]
     setPendingWalletKey(walletKey)
@@ -276,9 +283,7 @@ export default function WalletModal({
 
     return (Object.keys(SUPPORTED_WALLETS) as (keyof typeof SUPPORTED_WALLETS)[])
       .sort(sortWallets)
-      .map(key => (
-        <Option key={key} walletKey={key} onSelected={() => tryActivation(key)} isAcceptedTerm={isAcceptedTerm} />
-      ))
+      .map(key => <Option key={key} walletKey={key} onSelected={tryActivation} isAcceptedTerm={isAcceptedTerm} />)
       .filter(Boolean)
   }
 

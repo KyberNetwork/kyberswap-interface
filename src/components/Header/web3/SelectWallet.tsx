@@ -1,5 +1,4 @@
 import { Trans, t } from '@lingui/macro'
-import { AbstractConnector } from '@web3-react/abstract-connector'
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core'
 import { darken, lighten } from 'polished'
 import { useMemo } from 'react'
@@ -7,22 +6,20 @@ import { Activity } from 'react-feather'
 import { useMedia } from 'react-use'
 import styled from 'styled-components'
 
-import CoinbaseWalletIcon from 'assets/images/coinbaseWalletIcon.svg'
-import WalletConnectIcon from 'assets/images/walletConnectIcon.svg'
 import { ButtonLight, ButtonSecondary } from 'components/Button'
 import WalletModal from 'components/Header/web3/WalletModal'
-import Identicon from 'components/Identicon'
 import Loader from 'components/Loader'
 import { RowBetween } from 'components/Row'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import { braveInjectedConnector, coin98InjectedConnector, injected, walletconnect, walletlink } from 'connectors'
 import { isEVM } from 'constants/networks'
+import { SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React } from 'hooks'
 import useENSName from 'hooks/useENSName'
 import { useHasSocks } from 'hooks/useSocksBalance'
 import { useNetworkModalToggle, useWalletModalToggle } from 'state/application/hooks'
 import { isTransactionRecent, useAllTransactions } from 'state/transactions/hooks'
 import { TransactionDetails } from 'state/transactions/reducer'
+import { useIsDarkMode } from 'state/user/hooks'
 import { shortenAddress } from 'utils'
 
 const IconWrapper = styled.div<{ size?: number }>`
@@ -80,7 +77,7 @@ const Text = styled.p`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  margin: 0 0.5rem 0 0.25rem;
+  margin: 0 0.25rem 0 0.5rem;
   font-size: 1rem;
   width: fit-content;
   font-weight: 500;
@@ -116,43 +113,10 @@ const AccountElement = styled.div<{ active: boolean }>`
   pointer-events: auto;
 `
 
-function StatusIcon({ connector }: { connector: AbstractConnector }) {
-  switch (connector) {
-    case injected:
-    case coin98InjectedConnector:
-    case braveInjectedConnector: {
-      return (
-        <IconWrapper size={16}>
-          <Identicon />
-        </IconWrapper>
-      )
-    }
-
-    case walletconnect: {
-      return (
-        <IconWrapper size={16}>
-          <img src={WalletConnectIcon} alt={'wallet connect'} />
-        </IconWrapper>
-      )
-    }
-
-    case walletlink: {
-      return (
-        <IconWrapper size={16}>
-          <img src={CoinbaseWalletIcon} alt={'coinbase wallet'} />
-        </IconWrapper>
-      )
-    }
-
-    default: {
-      return null
-    }
-  }
-}
-
 function Web3StatusInner() {
-  const { chainId, account } = useActiveWeb3React()
-  const { connector, error } = useWeb3React()
+  const { chainId, account, walletKey } = useActiveWeb3React()
+  const { error } = useWeb3React()
+  const isDarkMode = useIsDarkMode()
 
   const { ENSName } = useENSName(isEVM(chainId) ? account ?? undefined : undefined)
 
@@ -171,7 +135,6 @@ function Web3StatusInner() {
   const toggleNetworkModal = useNetworkModalToggle()
 
   const above369 = useMedia('(min-width: 369px)')
-
   if (account) {
     return (
       <Web3StatusConnected
@@ -188,11 +151,18 @@ function Web3StatusInner() {
           </RowBetween>
         ) : (
           <>
+            {walletKey && (
+              <IconWrapper size={16}>
+                <img
+                  src={isDarkMode ? SUPPORTED_WALLETS[walletKey].icon : SUPPORTED_WALLETS[walletKey].iconLight}
+                  alt={SUPPORTED_WALLETS[walletKey].name + ' icon'}
+                />
+              </IconWrapper>
+            )}
             {hasSocks ? SOCK : null}
             <Text>{ENSName || shortenAddress(chainId, account, above369 ? undefined : 2)}</Text>
           </>
         )}
-        {!hasPendingTransactions && connector && <StatusIcon connector={connector} />}
       </Web3StatusConnected>
     )
   } else if (error) {

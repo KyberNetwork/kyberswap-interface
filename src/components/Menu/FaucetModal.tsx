@@ -192,6 +192,7 @@ function FaucetModal() {
       </Flex>
     )
   }, [
+    chainId,
     account,
     claimRewardCallBack,
     mixpanelHandler,

@@ -10,22 +10,19 @@ import { useLocalStorage } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
-import CoinbaseWalletIcon from 'assets/images/coinbaseWalletIcon.svg'
-import WalletConnectIcon from 'assets/images/walletConnectIcon.svg'
 import { ReactComponent as Close } from 'assets/images/x.svg'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import Divider from 'components/Divider'
 import Wallet from 'components/Icons/Wallet'
-import Identicon from 'components/Identicon'
 import { AutoRow } from 'components/Row'
-import { braveInjectedConnector, coin98InjectedConnector, injected, walletconnect, walletlink } from 'connectors'
 import { PROMM_ANALYTICS_URL } from 'constants/index'
 import { SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { AppDispatch } from 'state'
 import { clearAllTransactions } from 'state/transactions/actions'
+import { useIsDarkMode } from 'state/user/hooks'
 import { ExternalLink, LinkStyledButton, TYPE } from 'theme'
 import { detectInjectedType, getEtherscanLink, shortenAddress } from 'utils'
 
@@ -186,11 +183,12 @@ export default function AccountDetails({
   ENSName,
   openOptions,
 }: AccountDetailsProps) {
-  const { chainId, account } = useActiveWeb3React()
+  const { chainId, account, walletKey } = useActiveWeb3React()
   const { connector, deactivate } = useWeb3React()
   const { wallet, disconnect } = useWallet()
   const theme = useTheme()
   const dispatch = useDispatch<AppDispatch>()
+  const isDarkMode = useIsDarkMode()
 
   function formatConnectorName(): JSX.Element {
     const name = ((): string | null => {
@@ -208,39 +206,6 @@ export default function AccountDetails({
         <Trans>Connected with {name}</Trans>
       </WalletName>
     )
-  }
-
-  function getStatusIcon() {
-    switch (connector) {
-      case injected:
-      case coin98InjectedConnector:
-      case braveInjectedConnector: {
-        return (
-          <IconWrapper size={20}>
-            <Identicon />
-          </IconWrapper>
-        )
-      }
-
-      case walletconnect: {
-        return (
-          <IconWrapper size={20}>
-            <img src={WalletConnectIcon} alt={'wallet connect logo'} />
-          </IconWrapper>
-        )
-      }
-
-      case walletlink: {
-        return (
-          <IconWrapper size={20}>
-            <img src={CoinbaseWalletIcon} alt={'coinbase wallet logo'} />
-          </IconWrapper>
-        )
-      }
-      default: {
-        return null
-      }
-    }
   }
 
   const clearAllTransactionsCallback = useCallback(() => {
@@ -278,17 +243,18 @@ export default function AccountDetails({
           <YourAccount>
             <AccountGroupingRow id="web3-account-identifier-row">
               <AccountControl>
-                {ENSName ? (
-                  <div>
-                    {getStatusIcon()}
-                    <p> {ENSName}</p>
-                  </div>
-                ) : (
-                  <div>
-                    {getStatusIcon()}
-                    <p> {isMobile && account ? shortenAddress(chainId, account, 10) : account}</p>
-                  </div>
-                )}
+                <div>
+                  {walletKey && (
+                    <IconWrapper size={16}>
+                      <img
+                        src={isDarkMode ? SUPPORTED_WALLETS[walletKey].icon : SUPPORTED_WALLETS[walletKey].iconLight}
+                        alt={SUPPORTED_WALLETS[walletKey].name + ' icon'}
+                      />
+                    </IconWrapper>
+                  )}
+
+                  <p> {ENSName || (isMobile && account ? shortenAddress(chainId, account, 10) : account)}</p>
+                </div>
               </AccountControl>
             </AccountGroupingRow>
 
