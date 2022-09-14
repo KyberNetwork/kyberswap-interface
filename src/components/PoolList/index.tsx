@@ -377,7 +377,7 @@ const PoolList = ({
 
   const chainRoute = NETWORKS_INFO[chainId as ChainId].route
   const shareUrl = sharedPoolId
-    ? window.location.origin + '/pools?search=' + sharedPoolId + '&networkId=' + chainRoute
+    ? window.location.origin + '/pools?tab=classic&search=' + sharedPoolId + '&networkId=' + chainRoute
     : undefined
 
   useEffect(() => {
