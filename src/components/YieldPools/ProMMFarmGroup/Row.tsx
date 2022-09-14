@@ -608,6 +608,7 @@ const Row = ({
         {!!position?.amountUsd ? formatDollarAmount(position.amountUsd) : '--'}
         {!!amountCanStaked && (
           <InfoHelper
+            placement="top"
             color={theme.warning}
             text={t`You still have ${formatDollarAmount(amountCanStaked)} liquidity to stake to earn more rewards`}
           />
