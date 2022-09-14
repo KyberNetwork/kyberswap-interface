@@ -944,8 +944,8 @@ export default function Swap({ history }: RouteComponentProps) {
                           <InfoHelper
                             text={
                               isExpertMode
-                                ? 'Advanced Mode is turned on for trades with high price impact'
-                                : 'Turn on Advanced Mode for high slippage trades'
+                                ? 'You have turned on Advanced Mode from settings. Trades with high price impact can be executed'
+                                : 'Turn on Advanced Mode from settings to execute trades with high price impact'
                             }
                             color={theme.text}
                           />
