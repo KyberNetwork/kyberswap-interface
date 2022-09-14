@@ -118,7 +118,8 @@ function AdvanceModeModal({ show, setShow }: { show: boolean; setShow: (v: boole
           </ButtonWarning>
           <ButtonWarning
             disabled={confirmText.trim().toLowerCase() !== 'confirm'}
-            style={{ fontSize: '16px', flex: 1, padding: '10px', cursor: 'unset' }}
+            style={{ fontSize: '16px', flex: 1, padding: '10px' }}
+            onClick={handleConfirm}
           >
             <Trans>Confirm</Trans>
           </ButtonWarning>
