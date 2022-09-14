@@ -40,9 +40,13 @@ export const ShowGuideBtn = styled.button<{ show: boolean }>`
   transition: transform 0.2s;
 `
 
-export const GuideWrapper = styled.div<{ show?: boolean }>`
+export const GuideWrapper = styled.div<{ show?: boolean; numOfSteps: number }>`
   display: grid;
-  grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr auto 1fr;
+  ${({ numOfSteps }) =>
+    // this is to generate 1fr auto 1fr auto 1fr ....
+    css`
+      grid-template-columns: ${Array(numOfSteps).fill('1fr').join(' auto ')};
+    `}
   margin-top: ${({ show }) => (show ? '1rem' : 0)};
   height: ${({ show }) => (show ? 'auto' : 0)};
   max-height: ${({ show }) => (show ? '1000px' : 0)};
