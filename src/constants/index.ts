@@ -73,7 +73,7 @@ export const DAI: { [chainId in ChainId]: Token } = {
     'DAI',
     'Dai Stablecoin',
   ),
-  [ChainId.GÖRLI]: new Token(ChainId.GÖRLI, '0xaD6D458402F60fD3Bd25163575031ACDce07538D', 18, 'DAI', 'Dai Stablecoin'),
+  [ChainId.GÖRLI]: new Token(ChainId.GÖRLI, '0x1BBeeEdCF32dc2c1Ebc2F138e3FC7f3DeCD44D6A', 18, 'DAI', 'Dai Stablecoin'),
   [ChainId.KOVAN]: new Token(ChainId.KOVAN, '0xaD6D458402F60fD3Bd25163575031ACDce07538D', 18, 'DAI', 'Dai Stablecoin'),
   [ChainId.MATIC]: new Token(ChainId.MATIC, '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063', 18, 'DAI', 'Dai Stablecoin'),
   [ChainId.MUMBAI]: new Token(
@@ -172,7 +172,7 @@ export const USDC: { [chainId in ChainId]: Token } = {
   [ChainId.ETHW]: new Token(ChainId.MAINNET, '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', 6, 'USDC', 'USD Coin'),
   [ChainId.ROPSTEN]: new Token(ChainId.ROPSTEN, '0x068B43f7F2f2c6a662C36E201144aE45f7a1C040', 6, 'USDC', 'USD Coin'),
   [ChainId.RINKEBY]: new Token(ChainId.RINKEBY, '0x4DBCdF9B62e891a7cec5A2568C3F4FAF9E8Abe2b', 6, 'USDC', 'USD Coin'),
-  [ChainId.GÖRLI]: new Token(ChainId.GÖRLI, '0x068B43f7F2f2c6a662C36E201144aE45f7a1C040', 6, 'USDC', 'USD Coin'),
+  [ChainId.GÖRLI]: new Token(ChainId.GÖRLI, '0x8e9Bd30D15420bAe4B7EC0aC014B7ECeE864373C', 18, 'USDC', 'USD Coin'),
   [ChainId.KOVAN]: new Token(ChainId.KOVAN, '0x068B43f7F2f2c6a662C36E201144aE45f7a1C040', 6, 'USDC', 'USD Coin'),
   [ChainId.MATIC]: new Token(ChainId.MATIC, '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174', 6, 'USDC', 'USD Coin'),
   [ChainId.MUMBAI]: new Token(ChainId.MUMBAI, '0x2CeC76B26A8d96BF3072D34A01BB3a4edE7c06BE', 6, 'USDC', 'USD Coin'),
@@ -240,7 +240,7 @@ export const USDT: { [chainId in ChainId]: Token } = {
   [ChainId.ETHW]: new Token(ChainId.MAINNET, '0xdAC17F958D2ee523a2206206994597C13D831ec7', 6, 'USDT', 'Tether USD'),
   [ChainId.ROPSTEN]: new Token(ChainId.ROPSTEN, '0x65Bd1F48f1dd07bb285a3715c588F75684128acE', 6, 'USDT', 'Tether USD'),
   [ChainId.RINKEBY]: new Token(ChainId.RINKEBY, '0xD9BA894E0097f8cC2BBc9D24D308b98e36dc6D02', 18, 'USDT', 'Tether USD'),
-  [ChainId.GÖRLI]: new Token(ChainId.GÖRLI, '0x65Bd1F48f1dd07bb285a3715c588F75684128acE', 6, 'USDT', 'Tether USD'),
+  [ChainId.GÖRLI]: new Token(ChainId.GÖRLI, '0x2bf64acf7ead856209749d0d125e9ade2d908e7f', 18, 'USDT', 'Tether USD'),
   [ChainId.KOVAN]: new Token(ChainId.KOVAN, '0x65Bd1F48f1dd07bb285a3715c588F75684128acE', 6, 'USDT', 'Tether USD'),
   [ChainId.MATIC]: new Token(ChainId.MATIC, '0xc2132D05D31c914a87C6611C10748AEb04B58e8F', 6, 'USDT', 'Tether USD'),
   [ChainId.MUMBAI]: new Token(ChainId.MUMBAI, '0x064B91Bda6d178DfE03835de9450BFe78201c43F', 6, 'USDT', 'Tether USD'),
@@ -550,6 +550,8 @@ export const SUGGESTED_BASES: ChainTokenList = {
     USDC[ChainId.MAINNET],
     USDT[ChainId.MAINNET],
   ],
+
+  [ChainId.GÖRLI]: [...WETH_ONLY[ChainId.GÖRLI], DAI[ChainId.GÖRLI], USDC[ChainId.GÖRLI], USDT[ChainId.GÖRLI]],
   [ChainId.MATIC]: [
     ...WETH_ONLY[ChainId.MATIC],
     DAI[ChainId.MATIC],

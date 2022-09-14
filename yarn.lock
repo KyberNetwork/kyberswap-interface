@@ -2715,10 +2715,10 @@
     tiny-warning "^1.0.3"
     toformat "^2.0.0"
 
-"@kyberswap/ks-sdk-core@^0.0.12", "@kyberswap/ks-sdk-core@^0.0.15-beta":
-  version "0.0.15-beta"
-  resolved "https://registry.yarnpkg.com/@kyberswap/ks-sdk-core/-/ks-sdk-core-0.0.15-beta.tgz#7c3a2f9a574b3ac6c2d0ce76a5f4657a856faeb1"
-  integrity sha512-/0Qm1BZUPSMBhJYTYWtFzawibd/O+pen8aBH6EusQTMKWn64D85LXVH/BUyih1cOuiww+oN8mS61q2daexprow==
+"@kyberswap/ks-sdk-core@^0.0.12", "@kyberswap/ks-sdk-core@^0.0.15-beta-1":
+  version "0.0.15-beta-1"
+  resolved "https://registry.yarnpkg.com/@kyberswap/ks-sdk-core/-/ks-sdk-core-0.0.15-beta-1.tgz#6217b487a4464d2bbbb9387867292d8d8b8d53fb"
+  integrity sha512-mM7G/02o0kIr5H2kYW5WtwYsKPRd7pPcFhV9TdQuzFrX9faqEEzJa7Fi1kXowermmjKGS2oEtG4gYdGMYwiIZA==
   dependencies:
     "@ethersproject/address" "^5.0.2"
     big.js "^5.2.2"
