@@ -338,9 +338,9 @@ export const ListItemWrapper = styled.div`
 export const TableHeader = styled.div<{ fade?: boolean; oddRow?: boolean }>`
   display: grid;
   grid-gap: 1rem;
-  grid-template-columns: 1.5fr 1fr 0.75fr 1fr 1.5fr 1fr 1fr;
-  grid-template-areas: 'pools liq apy vesting_duration reward staked_balance expand action';
-  padding: 16px 20px;
+  grid-template-columns: 1.5fr 1fr 0.75fr 1fr 1.5fr 1fr 140px;
+  grid-template-areas: 'pools liq apy vesting_duration reward staked_balance action';
+  padding: 16px 24px;
   font-size: 12px;
   align-items: center;
   height: fit-content;
@@ -435,8 +435,8 @@ export const Tag = styled.div<{ tag?: string }>`
 export const TableRow = styled.div<{ fade?: boolean; isExpanded?: boolean }>`
   display: grid;
   grid-gap: 1rem;
-  grid-template-columns: 1.5fr 1fr 0.75fr 1fr 1.5fr 1fr 1fr;
-  grid-template-areas: 'pools liq end apy vesting_duration reward staked_balance expand';
+  grid-template-columns: 1.5fr 1fr 0.75fr 1fr 1.5fr 1fr 140px;
+  grid-template-areas: 'pools liq apy vesting_duration reward staked_balance action';
   padding: 15px 0 13px;
   font-size: 14px;
   align-items: center;

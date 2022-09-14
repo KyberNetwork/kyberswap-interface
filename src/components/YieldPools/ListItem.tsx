@@ -556,15 +556,6 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
               </div>
             </DataText>
             <DataText grid-area="liq">{formattedNum(liquidity.toString(), true)}</DataText>
-            {/* <DataText grid-area="end" align="left" flexDirection="column" alignItems="flex-start">
-              {farm.time}
-              {tobeExtended && (
-                <Text color={theme.subText} fontSize="12px" marginTop="6px">
-                  <Trans>To be extended</Trans>
-                </Text>
-              )}
-            </DataText>
-            */}
             <DataText
               grid-area="apy"
               align="right"
@@ -628,7 +619,8 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
                 )
               })}
             </DataText>
-            <Flex justifyContent="flex-end" sx={{ gap: '4px' }}>
+
+            <Flex grid-area="action" justifyContent="flex-end" sx={{ gap: '4px' }}>
               <ActionButton
                 disabled={tab === 'ended'}
                 onClick={() => {
