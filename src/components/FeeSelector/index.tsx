@@ -2,7 +2,7 @@ import { Currency } from '@kyberswap/ks-sdk-core'
 import { FeeAmount } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
-import { ReactNode, useEffect, useRef, useState } from 'react'
+import { ReactNode, useRef, useState } from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -11,8 +11,7 @@ import { MoneyBag } from 'components/Icons'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { useProAmmPoolInfos } from 'hooks/useProAmmPoolInfo'
 import useTheme from 'hooks/useTheme'
-import { useBlockNumber } from 'state/application/hooks'
-import { useGetProMMFarms, useProMMFarms } from 'state/farms/promm/hooks'
+import { useProMMFarmsFetchOnlyOne } from 'state/farms/promm/hooks'
 
 import { useFeeTierDistribution } from './hook'
 
@@ -148,9 +147,7 @@ function FeeSelector({
   const [show, setShow] = useState(false)
   const feeTierDistribution = useFeeTierDistribution(currencyA, currencyB)
 
-  const { data: farms } = useProMMFarms()
-  const getProMMFarms = useGetProMMFarms()
-  const blockNumber = useBlockNumber()
+  const farms = useProMMFarmsFetchOnlyOne()
 
   const showFeeDistribution = Object.values(feeTierDistribution).some(item => item !== 0)
 
@@ -168,10 +165,6 @@ function FeeSelector({
     const poolAddress = poolAddresses[i]
     return farmingPoolAddress.includes(poolAddress)
   })
-
-  useEffect(() => {
-    getProMMFarms()
-  }, [getProMMFarms, blockNumber])
 
   return (
     <FeeSelectorWrapper role="button" onClick={() => setShow(prev => !prev)} ref={ref}>
