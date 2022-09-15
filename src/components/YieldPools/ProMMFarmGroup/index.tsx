@@ -15,7 +15,7 @@ import Divider from 'components/Divider'
 import HoverDropdown from 'components/HoverDropdown'
 import Withdraw from 'components/Icons/Withdraw'
 import InfoHelper from 'components/InfoHelper'
-import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
+import { MouseoverTooltip, MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { ZERO_ADDRESS } from 'constants/index'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
@@ -465,10 +465,35 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, farms }) => {
               padding: '0 12px',
             }}
             onClick={handleApprove}
-            disabled={!!approvalTx && isApprovalTxPending}
           >
-            <Info width="16px" />
-            <Text fontSize="14px" marginLeft="4px">
+            <MouseoverTooltip
+              text={
+                <Text color={theme.subText} as="span">
+                  <Trans>
+                    Authorize the farming contract so it can access your liquidity positions (i.e. your NFT tokens).
+                    Then deposit your liquidity positions using the{' '}
+                    <Text as="span" color={theme.text}>
+                      Deposit
+                    </Text>{' '}
+                    button
+                  </Trans>
+                </Text>
+              }
+              placement="top"
+            >
+              <Flex width="24px" height="24px" justifyContent="center" alignItems="center">
+                <Info
+                  width="16px"
+                  height="16px"
+                  onClick={e => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                  }}
+                />
+              </Flex>
+            </MouseoverTooltip>
+
+            <Text fontSize="14px">
               {approvalTx && isApprovalTxPending ? (
                 <Dots>
                   <Trans>Approving</Trans>
