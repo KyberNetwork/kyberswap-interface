@@ -606,16 +606,44 @@ const Row = ({
         )}
       </Flex>
 
-      <Flex justifyContent="flex-end" color={!!amountCanStaked ? theme.warning : theme.text}>
-        {!!position?.amountUsd ? formatDollarAmount(position.amountUsd) : '--'}
-        {!!amountCanStaked && (
+      {amountCanStaked ? (
+        <Flex justifyContent="flex-end" color={theme.warning}>
+          {formatDollarAmount(position?.amountUsd || 0)}
           <InfoHelper
             placement="top"
             color={theme.warning}
-            text={t`You still have ${formatDollarAmount(amountCanStaked)} liquidity to stake to earn more rewards`}
+            width={'270px'}
+            text={
+              <Flex
+                sx={{
+                  flexDirection: 'column',
+                  gap: '6px',
+                  fontSize: '12px',
+                  lineHeight: '16px',
+                  fontWeight: 400,
+                }}
+              >
+                <Text as="span" color={theme.subText}>
+                  <Trans>
+                    You still have {formatDollarAmount(amountCanStaked)} in liquidity to stake to earn even more farming
+                    rewards
+                  </Trans>
+                </Text>
+                <Text as="span" color={theme.text}>
+                  Staked: {formatDollarAmount(position?.amountUsd || 0)}
+                </Text>
+                <Text as="span" color={theme.warning}>
+                  Not staked: {formatDollarAmount(amountCanStaked)}
+                </Text>
+              </Flex>
+            }
           />
-        )}
-      </Flex>
+        </Flex>
+      ) : (
+        <Flex justifyContent="flex-end" color={theme.text}>
+          {position?.amountUsd ? formatDollarAmount(position.amountUsd) : '--'}
+        </Flex>
+      )}
 
       <Flex flexDirection="column" alignItems="flex-end" sx={{ gap: '8px' }}>
         {farm.rewardTokens.map((token, idx) => (
