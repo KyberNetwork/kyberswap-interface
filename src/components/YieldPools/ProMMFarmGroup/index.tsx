@@ -518,17 +518,29 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, farms }) => {
           gap: '8px',
         }}
       >
-        {renderLeftGroup()}
-        <Flex flex="0 0 max-content" sx={{ gap: '8px' }} alignItems="center">
-          <DepositButton
-            disabled={!account || !isApprovedForAll || tab === 'ended'}
-            onClick={() => onOpenModal('deposit')}
-          />
-          <WithdrawButton
-            disabled={!account || !canWithdraw || !isApprovedForAll}
-            onClick={() => onOpenModal('withdraw')}
-          />
+        <Flex
+          sx={{
+            alignItems: 'center',
+            height: '100%',
+            flex: '1 1',
+          }}
+        >
+          {renderLeftGroup()}
         </Flex>
+        <DepositButton
+          disabled={!account || !isApprovedForAll || tab === 'ended'}
+          onClick={() => onOpenModal('deposit')}
+          style={{
+            flex: '0 0 44px',
+          }}
+        />
+        <WithdrawButton
+          disabled={!account || !canWithdraw || !isApprovedForAll}
+          onClick={() => onOpenModal('withdraw')}
+          style={{
+            flex: '0 0 44px',
+          }}
+        />
       </Flex>
     )
   }
