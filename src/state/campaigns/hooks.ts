@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import {
+  setClaimingCampaignRewardId,
   setSelectedCampaignLeaderboardLookupAddress,
   setSelectedCampaignLeaderboardPageNumber,
   setSelectedCampaignLuckyWinnersLookupAddress,
@@ -83,4 +84,18 @@ export function useSwapNowHandler() {
     },
     [mixpanelHandler, selectedCampaign],
   )
+}
+
+export function useSetClaimingCampaignRewardId(): [number | null, (id: number | null) => void] {
+  const { claimingCampaignRewardId } = useSelector((state: AppState) => state.campaigns)
+  const dispatch = useDispatch()
+
+  const setClamingRewardId = useCallback(
+    (id: number | null) => {
+      dispatch(setClaimingCampaignRewardId(id))
+    },
+    [dispatch],
+  )
+
+  return [claimingCampaignRewardId, setClamingRewardId]
 }
