@@ -1,5 +1,5 @@
-import { ChainId, Fraction } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { ChainId, Fraction } from '@namgold/ks-sdk-core'
 import { useWeb3React } from '@web3-react/core'
 import { parseUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
