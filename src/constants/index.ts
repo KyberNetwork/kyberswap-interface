@@ -1064,6 +1064,7 @@ export const MAX_SLIPPAGE_IN_BIPS = 2000
 
 export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
   [ChainId.MAINNET]: USDT[ChainId.MAINNET],
+  [ChainId.ETHW]: USDT[ChainId.ETHW],
   [ChainId.MATIC]: USDT[ChainId.MATIC],
   [ChainId.BSCMAINNET]: new Token(ChainId.BSCMAINNET, '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', 18, 'BUSD', 'BUSD'),
   [ChainId.AVAXMAINNET]: USDC[ChainId.AVAXMAINNET], // USDC.e

@@ -14,12 +14,16 @@ const ethereumInfo: NetworkInfo = {
   route: 'ethw',
   name: 'EthereumPoW',
   icon: Mainnet,
-  classicClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-ethereum'),
-  elasticClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-mainnet'),
-  blockClient: createClient('https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-ethereum'),
+  classicClient: createClient(
+    'https://ethereum-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-ethereum',
+  ),
+  elasticClient: createClient(
+    'https://ethereum-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-elastic-ethereum',
+  ),
+  blockClient: createClient('https://ethereum-graph.kyberengineering.io/subgraphs/name/kybernetwork/ethereum-blocks'),
   // TODO
-  etherscanUrl: 'https://etherscan.io',
-  etherscanName: 'Etherscan',
+  etherscanUrl: 'https://mainnet.ethwscan.com',
+  etherscanName: 'Ethwscan',
   tokenListUrl: `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?chainId=${ChainId.ETHW}`,
   bridgeURL: EMPTY,
   nativeToken: {
@@ -29,7 +33,7 @@ const ethereumInfo: NetworkInfo = {
     logo: Mainnet,
     decimal: 18,
   },
-  rpcUrl: 'https://ethereum.kyberengineering.io',
+  rpcUrl: 'https://mainnet.ethereumpow.org',
   routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/ethw/route/encode`,
   classic: {
     static: {
