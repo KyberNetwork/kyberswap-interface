@@ -15,7 +15,7 @@ import ProAmmPoolInfo from 'components/ProAmm/ProAmmPoolInfo'
 import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
 import ProAmmPriceRange from 'components/ProAmm/ProAmmPriceRange'
 import { RowBetween } from 'components/Row'
-import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { PROMM_ANALYTICS_URL } from 'constants/index'
 import { VERSION } from 'constants/v2'
 import { useToken } from 'hooks/Tokens'
@@ -296,13 +296,12 @@ export default function PositionListItem({
                   </Text>
                 </ButtonOutlined>
               ) : farmAvailable ? (
-                <MouseoverTooltipDesktopOnly
+                <MouseoverTooltip
                   text={t`You need to withdraw your deposited liquidity position from the Farm first`}
                   placement="top"
                 >
                   <ButtonOutlined
                     padding="0"
-                    disabled
                     style={{
                       width: '100%',
                       color: theme.disableText,
@@ -314,7 +313,7 @@ export default function PositionListItem({
                       <Trans>Remove Liquidity</Trans>
                     </Text>
                   </ButtonOutlined>
-                </MouseoverTooltipDesktopOnly>
+                </MouseoverTooltip>
               ) : (
                 <ButtonOutlined
                   padding="8px"
