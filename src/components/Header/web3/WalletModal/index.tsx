@@ -374,7 +374,7 @@ export default function WalletModal({
           ) : (
             <>
               <Trans>Select a Network</Trans>
-              <Networks width={5} mt={16} mb={24} />
+              <Networks width={5} mt={16} mb={24} isAcceptedTerm={isAcceptedTerm} />
               <Trans>Select a Wallet</Trans>
               <OptionGrid>{getOptions()}</OptionGrid>
             </>

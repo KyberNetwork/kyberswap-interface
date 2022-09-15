@@ -183,6 +183,8 @@ export default function Option({
     </OptionCardClickable>
   )
 
+  if (!isAcceptedTerm) return content
+
   if (readyState === WalletReadyState.Loadable && isEVMWallet(wallet) && wallet.href) {
     return <StyledLink href={wallet.href}>{content}</StyledLink>
   }

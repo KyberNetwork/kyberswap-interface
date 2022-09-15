@@ -38,7 +38,7 @@ const ListItem = styled.div<{ selected?: boolean }>`
       `}
 `
 
-const SelectNetworkButton = styled(ButtonEmpty)`
+const SelectNetworkButton = styled(ButtonEmpty)<{ disabled: boolean }>`
   background-color: transparent;
   color: ${({ theme }) => theme.primary};
   display: flex;
@@ -57,6 +57,9 @@ const SelectNetworkButton = styled(ButtonEmpty)`
   &:disabled {
     opacity: 50%;
     cursor: not-allowed;
+    &:hover {
+      border: 1px solid transparent;
+    }
   }
 `
 
@@ -83,11 +86,13 @@ const Networks = ({
   width = 3,
   mt = 30,
   mb = 0,
+  isAcceptedTerm = true,
 }: {
   onChangedNetwork?: () => any
   width: number
   mt?: number
   mb?: number
+  isAcceptedTerm?: boolean
 }) => {
   const { chainId } = useActiveWeb3React()
   const changeNetwork = useChangeNetwork()
@@ -98,55 +103,39 @@ const Networks = ({
   return (
     <NetworkList width={width} mt={mt} mb={mb}>
       {MAINNET_NETWORKS.map((key: ChainId, i: number) => {
-        if (chainId === key) {
-          return (
-            <SelectNetworkButton key={i} padding="0">
-              <ListItem selected>
-                <img
-                  src={
-                    isDarkMode
-                      ? NETWORKS_INFO[key].iconDarkSelected ||
-                        NETWORKS_INFO[key].iconSelected ||
-                        NETWORKS_INFO[key].iconDark ||
-                        NETWORKS_INFO[key].icon
-                      : NETWORKS_INFO[key].iconSelected || NETWORKS_INFO[key].icon
-                  }
-                  alt="Switch Network"
-                  style={{ height: '20px', marginRight: '4px' }}
-                />
-                <NetworkLabel>{NETWORKS_INFO[key].name}</NetworkLabel>
-                {key === ChainId.SOLANA && (
-                  <NewLabel>
-                    <Trans>New</Trans>
-                  </NewLabel>
-                )}
-              </ListItem>
-            </SelectNetworkButton>
-          )
-        }
+        const isSelected = chainId === key
+        const imgSrc = isSelected
+          ? isDarkMode
+            ? NETWORKS_INFO[key].iconDarkSelected ||
+              NETWORKS_INFO[key].iconSelected ||
+              NETWORKS_INFO[key].iconDark ||
+              NETWORKS_INFO[key].icon
+            : NETWORKS_INFO[key].iconSelected || NETWORKS_INFO[key].icon
+          : isDarkMode && !!NETWORKS_INFO[key].iconDark
+          ? NETWORKS_INFO[key].iconDark
+          : NETWORKS_INFO[key].icon
 
         return (
           <SelectNetworkButton
             key={i}
             padding="0"
-            onClick={() => {
-              changeNetwork(key, () => {
-                const { networkId, inputCurrency, outputCurrency, ...rest } = qs
-                history.replace({
-                  search: stringify(rest),
-                })
-                onChangedNetwork?.()
-              })
-            }}
+            onClick={
+              isSelected
+                ? undefined
+                : () => {
+                    changeNetwork(key, () => {
+                      const { networkId, inputCurrency, outputCurrency, ...rest } = qs
+                      history.replace({
+                        search: stringify(rest),
+                      })
+                      onChangedNetwork?.()
+                    })
+                  }
+            }
+            disabled={!isAcceptedTerm}
           >
-            <ListItem>
-              <img
-                src={
-                  isDarkMode && !!NETWORKS_INFO[key].iconDark ? NETWORKS_INFO[key].iconDark : NETWORKS_INFO[key].icon
-                }
-                alt="Switch Network"
-                style={{ height: '20px', marginRight: '4px' }}
-              />
+            <ListItem selected={isSelected}>
+              <img src={imgSrc} alt="Switch Network" style={{ height: '20px', marginRight: '4px' }} />
               <NetworkLabel>{NETWORKS_INFO[key].name}</NetworkLabel>
               {key === ChainId.SOLANA && (
                 <NewLabel>
