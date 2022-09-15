@@ -9,6 +9,9 @@ invariant(
 )
 export const MAINNET_ENV: 'staging' | 'production' = process.env.REACT_APP_MAINNET_ENV
 
+invariant(process.env.REACT_APP_GOOGLE_RECAPTCHA_KEY, 'env REACT_APP_GOOGLE_RECAPTCHA_KEY is missing')
+export const GOOGLE_RECAPTCHA_KEY: string = process.env.REACT_APP_GOOGLE_RECAPTCHA_KEY
+
 invariant(process.env.REACT_APP_AGGREGATOR_API, 'env REACT_APP_AGGREGATOR_API is missing')
 export const AGGREGATOR_API: string = process.env.REACT_APP_AGGREGATOR_API
 
