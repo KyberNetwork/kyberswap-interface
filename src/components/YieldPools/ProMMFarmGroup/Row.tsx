@@ -18,7 +18,7 @@ import { MoneyBag } from 'components/Icons'
 import Harvest from 'components/Icons/Harvest'
 import InfoHelper from 'components/InfoHelper'
 import Modal from 'components/Modal'
-import { MouseoverTooltip } from 'components/Tooltip'
+import { MouseoverTooltip, MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { VERSION } from 'constants/v2'
 import { useToken } from 'hooks/Tokens'
@@ -202,7 +202,7 @@ const Row = ({
     const renderStakeButtonOnMobile = () => {
       if (isUserAffectedByFarmIssue) {
         return (
-          <MouseoverTooltip
+          <MouseoverTooltipDesktopOnly
             text={t`This farm is currently under maintenance. You can deposit your liquidity into the new farms instead. Your withdrawals are not affected.`}
             placement="top"
             width="300px"
@@ -210,7 +210,7 @@ const Row = ({
             <ActionButton
               style={{
                 // simulate disabled state
-                // MouseoverTooltip will not work well with `disabled` attribute
+                // MouseoverTooltipDesktopOnly will not work well with `disabled` attribute
                 cursor: 'not-allowed',
                 width: '100%',
                 backgroundColor: theme.buttonGray,
@@ -222,7 +222,7 @@ const Row = ({
                 <Trans>Stake</Trans>
               </Text>
             </ActionButton>
-          </MouseoverTooltip>
+          </MouseoverTooltipDesktopOnly>
         )
       }
 
@@ -426,7 +426,7 @@ const Row = ({
   const renderStakeButton = () => {
     if (isUserAffectedByFarmIssue) {
       return (
-        <MouseoverTooltip
+        <MouseoverTooltipDesktopOnly
           text={t`This farm is currently under maintenance. You can deposit your liquidity into the new farms instead. Your withdrawals are not affected.`}
           placement="top"
           width="300px"
@@ -440,7 +440,7 @@ const Row = ({
           >
             <Plus size={16} />
           </MinimalActionButton>
-        </MouseoverTooltip>
+        </MouseoverTooltipDesktopOnly>
       )
     }
 
@@ -454,7 +454,7 @@ const Row = ({
 
     if (!isFarmStarted) {
       return (
-        <MouseoverTooltip text={t`Farm has not started`} placement="top" width="fit-content">
+        <MouseoverTooltipDesktopOnly text={t`Farm has not started`} placement="top" width="fit-content">
           <MinimalActionButton
             style={{
               cursor: 'not-allowed',
@@ -464,12 +464,12 @@ const Row = ({
           >
             <Plus size={16} />
           </MinimalActionButton>
-        </MouseoverTooltip>
+        </MouseoverTooltipDesktopOnly>
       )
     }
 
     return (
-      <MouseoverTooltip
+      <MouseoverTooltipDesktopOnly
         text={t`Stake your liquidity positions (i.e. your NFT tokens) into the farm to start earning rewards`}
         placement="top"
         width="300px"
@@ -477,7 +477,7 @@ const Row = ({
         <MinimalActionButton onClick={() => onOpenModal('stake', farm.pid)}>
           <Plus size={16} />
         </MinimalActionButton>
-      </MouseoverTooltip>
+      </MouseoverTooltipDesktopOnly>
     )
   }
 
@@ -491,7 +491,7 @@ const Row = ({
     }
 
     return (
-      <MouseoverTooltip
+      <MouseoverTooltipDesktopOnly
         text={t`Unstake your liquidity positions (i.e. your NFT tokens) from the farm`}
         placement="top"
         width="300px"
@@ -499,7 +499,7 @@ const Row = ({
         <MinimalActionButton colorScheme={ButtonColorScheme.Red} onClick={() => onOpenModal('unstake', farm.pid)}>
           <Minus size={16} />
         </MinimalActionButton>
-      </MouseoverTooltip>
+      </MouseoverTooltipDesktopOnly>
     )
   }
 
@@ -513,11 +513,11 @@ const Row = ({
     }
 
     return (
-      <MouseoverTooltip text={t`Harvest`} placement="top" width="fit-content">
+      <MouseoverTooltipDesktopOnly text={t`Harvest`} placement="top" width="fit-content">
         <MinimalActionButton colorScheme={ButtonColorScheme.Gray} onClick={onHarvest}>
           <Harvest />
         </MinimalActionButton>
-      </MouseoverTooltip>
+      </MouseoverTooltipDesktopOnly>
     )
   }
 

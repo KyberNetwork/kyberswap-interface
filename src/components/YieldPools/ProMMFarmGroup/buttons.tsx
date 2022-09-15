@@ -8,7 +8,7 @@ import { ButtonLight, ButtonPrimary } from 'components/Button'
 import Deposit from 'components/Icons/Deposit'
 import Harvest from 'components/Icons/Harvest'
 import Withdraw from 'components/Icons/Withdraw'
-import { MouseoverTooltip } from 'components/Tooltip'
+import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { MEDIA_WIDTHS } from 'theme'
 
 export enum ButtonColorScheme {
@@ -122,11 +122,11 @@ export const DepositButton: React.FC<React.ComponentPropsWithoutRef<'button'>> =
   }
 
   return (
-    <MouseoverTooltip
+    <MouseoverTooltipDesktopOnly
       text={t`Deposit your liquidity positions (i.e. your NFT tokens) into the farming contract. Then stake them into the farm`}
     >
       {renderButton()}
-    </MouseoverTooltip>
+    </MouseoverTooltipDesktopOnly>
   )
 }
 
@@ -178,9 +178,11 @@ export const WithdrawButton: React.FC<React.ComponentPropsWithoutRef<'button'>> 
   }
 
   return (
-    <MouseoverTooltip text={t`Withdraw your liquidity positions (i.e. your NFT tokens) from the farming contract`}>
+    <MouseoverTooltipDesktopOnly
+      text={t`Withdraw your liquidity positions (i.e. your NFT tokens) from the farming contract`}
+    >
       {renderButton()}
-    </MouseoverTooltip>
+    </MouseoverTooltipDesktopOnly>
   )
 }
 
