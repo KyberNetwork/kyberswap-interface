@@ -166,7 +166,7 @@ export default function WalletModal({
 
   const previousAccount = usePrevious(account)
 
-  const [isAcceptedTerm, setIsAcceptedTerm] = useState(true)
+  const [isAcceptedTerm, setIsAcceptedTerm] = useState(false)
 
   const location = useLocation()
   const { mixpanelHandler } = useMixpanel()
