@@ -176,6 +176,8 @@ const Row = ({
     return null
   }, [pool, token0, token1, prices, farm])
 
+  const canStake =
+    farm.userDepositedNFTs.filter(item => item.liquidity.sub(item.stakedLiquidity).gt(BigNumber.from(0))).length > 0
   const canHarvest = farm.userDepositedNFTs.some(pos => !!pos.rewardPendings.length)
   const canUnstake = farm.userDepositedNFTs.some(pos => pos.stakedLiquidity.gt(0))
   const isFarmStarted = farm.startTime <= currentTimestamp
@@ -226,7 +228,7 @@ const Row = ({
 
       return (
         <ActionButton
-          disabled={!isApprovedForAll || tab === 'ended' || !isFarmStarted}
+          disabled={!isApprovedForAll || tab === 'ended' || !isFarmStarted || !canStake}
           style={{ flex: 1 }}
           onClick={() => onOpenModal('stake', farm.pid)}
         >
@@ -440,7 +442,7 @@ const Row = ({
       )
     }
 
-    if (!isApprovedForAll || tab === 'ended') {
+    if (!isApprovedForAll || tab === 'ended' || !canStake) {
       return (
         <MinimalActionButton disabled>
           <Plus size={16} />
