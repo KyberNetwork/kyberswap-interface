@@ -87,7 +87,7 @@ export interface EVMWalletInfo extends WalletInfo {
 
 export interface SolanaWalletInfo extends WalletInfo {
   adapter: BaseMessageSignerWalletAdapter
-  readyStateSolana: WalletReadyState
+  readyStateSolana: WalletReadyState | (() => WalletReadyState)
 }
 
 export const SUPPORTED_WALLETS = {
@@ -97,7 +97,7 @@ export const SUPPORTED_WALLETS = {
     icon: METAMASK,
     iconLight: METAMASK_L,
     installLink: 'https://metamask.io/download',
-    readyState: detectMetamask(),
+    readyState: detectMetamask,
   } as EVMWalletInfo,
   BRAVE: {
     connector: braveInjectedConnector,
@@ -116,7 +116,7 @@ export const SUPPORTED_WALLETS = {
     icon: COIN98,
     iconLight: COIN98_L,
     installLink: 'https://wallet.coin98.com/',
-    readyState: detectCoin98(),
+    readyState: detectCoin98,
     readyStateSolana: coin98Adapter.readyState,
   } as EVMWalletInfo & SolanaWalletInfo,
   COINBASE: {
@@ -126,7 +126,7 @@ export const SUPPORTED_WALLETS = {
     icon: COINBASE,
     iconLight: COINBASE_L,
     installLink: 'https://www.coinbase.com/wallet',
-    readyState: detectCoinbase(),
+    readyState: detectCoinbase,
     readyStateSolana: coinbaseAdapter.readyState,
   } as EVMWalletInfo & SolanaWalletInfo,
   COINBASE_LINK: {
@@ -158,7 +158,7 @@ export const SUPPORTED_WALLETS = {
     icon: SOLFLARE,
     iconLight: SOLFLARE_L,
     installLink: solflareAdapter.url,
-    readyStateSolana: solflareAdapter.readyState,
+    readyStateSolana: () => solflareAdapter.readyState,
   } as SolanaWalletInfo,
   PHANTOM: {
     adapter: phantomAdapter,
@@ -166,7 +166,7 @@ export const SUPPORTED_WALLETS = {
     icon: PHANTOM,
     iconLight: PHANTOM_L,
     installLink: phantomAdapter.url,
-    readyStateSolana: phantomAdapter.readyState,
+    readyStateSolana: () => phantomAdapter.readyState,
   } as SolanaWalletInfo,
   SOLLET: {
     adapter: solletAdapter,
@@ -174,7 +174,7 @@ export const SUPPORTED_WALLETS = {
     icon: SOLLET,
     iconLight: SOLLET_L,
     installLink: solletAdapter.url,
-    readyStateSolana: solletAdapter.readyState,
+    readyStateSolana: () => solletAdapter.readyState,
   } as SolanaWalletInfo,
   SLOPE: {
     adapter: slopeAdapter,
@@ -182,7 +182,7 @@ export const SUPPORTED_WALLETS = {
     icon: SLOPE,
     iconLight: SLOPE_L,
     installLink: slopeAdapter.url,
-    readyStateSolana: slopeAdapter.readyState,
+    readyStateSolana: () => slopeAdapter.readyState,
   } as SolanaWalletInfo,
 } as const
 console.info({ SUPPORTED_WALLETS })

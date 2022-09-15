@@ -137,7 +137,11 @@ export default function Option({
         ? wallet.readyState()
         : wallet.readyState
       : null
-    const readyStateSolana = isWalletSolana ? wallet.readyStateSolana : null
+    const readyStateSolana = isWalletSolana
+      ? typeof wallet.readyStateSolana === 'function'
+        ? wallet.readyStateSolana()
+        : wallet.readyStateSolana
+      : null
     return (
       (chainType === ChainType.EVM && readyStateEVM) ||
       (chainType === ChainType.SOLANA && readyStateSolana) ||
