@@ -3,7 +3,7 @@ import { ChainId, Token, WETH } from '@namgold/ks-sdk-core'
 import { rgba } from 'polished'
 import { useState } from 'react'
 import { BarChart2, ChevronUp, Plus, Share2 } from 'react-feather'
-import { Link } from 'react-router-dom'
+import { Link, useHistory } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
@@ -23,7 +23,9 @@ import { useAllTokens } from 'hooks/Tokens'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { ButtonIcon } from 'pages/Pools/styleds'
+import { useToggleEthPowAckModal } from 'state/application/hooks'
 import { useProMMFarms } from 'state/farms/promm/hooks'
+import { useUrlOnEthPowAck } from 'state/pools/hooks'
 import { ProMMPoolData } from 'state/prommPools/hooks'
 import { ExternalLink } from 'theme'
 import { isAddressString, shortenAddress } from 'utils'
@@ -93,6 +95,9 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions,
   const { chainId } = useActiveWeb3React()
   const theme = useTheme()
   const [isOpen, setIsOpen] = useState(pair.length > 1 ? idx === 0 : false)
+  const history = useHistory()
+  const [, setUrlOnEthPoWAck] = useUrlOnEthPowAck()
+  const toggleEthPowAckModal = useToggleEthPowAckModal()
 
   const allTokens = useAllTokens()
 
@@ -219,8 +224,6 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions,
               <MouseoverTooltip text={<Trans> Add liquidity </Trans>} placement={'top'} width={'fit-content'}>
                 <ButtonEmpty
                   padding="0"
-                  as={Link}
-                  to={`/elastic/add/${token0Address}/${token1Address}/${pool.feeTier}`}
                   style={{
                     background: rgba(theme.primary, 0.2),
                     minWidth: '28px',
@@ -228,12 +231,22 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions,
                     width: '28px',
                     height: '28px',
                   }}
-                  onClick={() => {
+                  onClick={(e: React.MouseEvent) => {
+                    e.stopPropagation()
+
+                    const url = `/elastic/add/${token0Address}/${token1Address}/${pool.feeTier}`
                     mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_IN_LIST_INITIATED, {
                       token_1: token0Symbol,
                       token_2: token1Symbol,
                       fee_tier: pool.feeTier / ELASTIC_BASE_FEE_UNIT,
                     })
+
+                    if (chainId === ChainId.ETHW) {
+                      setUrlOnEthPoWAck(url)
+                      toggleEthPowAckModal()
+                    } else {
+                      history.push(url)
+                    }
                   }}
                 >
                   <Plus size={16} color={theme.primary} />
