@@ -14,6 +14,7 @@ import {
   cronos,
   cronosTestnet,
   ethereum,
+  ethw,
   fantom,
   görli,
   kovan,
@@ -44,6 +45,7 @@ type NETWORKS_INFO_CONFIG_TYPE = { [chainId in EVM_NETWORK]: EVMNetworkInfo } & 
 }
 export const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.MAINNET]: ethereum,
+  [ChainId.ETHW]: ethw,
   [ChainId.ROPSTEN]: ropsten,
   [ChainId.RINKEBY]: rinkeby,
   [ChainId.GÖRLI]: görli,
@@ -80,6 +82,7 @@ export const SUPPORTED_NETWORKS = Object.keys(NETWORKS_INFO).map(Number) as Chai
 
 export const MAINNET_NETWORKS = [
   ChainId.MAINNET,
+  ChainId.ETHW,
   ChainId.MATIC,
   ChainId.BSCMAINNET,
   ChainId.AVAXMAINNET,
@@ -108,6 +111,7 @@ export type EVM_MAINNET_NETWORK = typeof EVM_MAINNET_NETWORKS[number]
 
 export const WALLET_CONNECT_SUPPORTED_CHAIN_IDS: ChainId[] = [
   ChainId.MAINNET,
+  ChainId.ETHW,
   ChainId.ROPSTEN,
   ChainId.MUMBAI,
   ChainId.MATIC,

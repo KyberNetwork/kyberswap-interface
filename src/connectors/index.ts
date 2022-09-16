@@ -53,7 +53,7 @@ export const walletconnect = new WalletConnectConnector({
 })
 
 export const walletlink = new WalletLinkConnector({
-  // TODO: check this later=> walletlink connect maybe failed becauseof this
+  // TODO: check this later=> walletlink connect maybe failed because of this
   url: NETWORK_URL,
   appName: 'KyberSwap',
   appLogoUrl: 'https://kyberswap.com/favicon.ico',

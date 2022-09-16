@@ -2994,10 +2994,10 @@
     tiny-warning "^1.0.3"
     toformat "^2.0.0"
 
-"@namgold/ks-sdk-core@^0.1.20", "@namgold/ks-sdk-core@~0.1.20":
-  version "0.1.20"
-  resolved "https://registry.yarnpkg.com/@namgold/ks-sdk-core/-/ks-sdk-core-0.1.20.tgz#e889f61ed6c7de18bb5869267a8edd04ce9c3cad"
-  integrity sha512-SaJ43kYpA0J0Lf1n7oyO891OCyQq+j2aLeGD5ZiCcANyT8iDQ40fAxFnNI2DSM9CF/v0ZMCrg2thqWRknh91MQ==
+"@namgold/ks-sdk-core@^0.1.20", "@namgold/ks-sdk-core@~0.1.20", "@namgold/ks-sdk-core@^0.1.22":
+  version "0.1.22"
+  resolved "https://registry.yarnpkg.com/@namgold/ks-sdk-core/-/ks-sdk-core-0.1.22.tgz#7aaddfebf4aa4f6607d0a2faddef9d017cc0d89c"
+  integrity sha512-kIOE3vcGVK0XOESGPdj6S7Ry6U1S2N8c0dBM6H//CLUMHSBpTUNV2W18L9WAXWsK5YJzEGYQ48yZ2MngtpII3w==
   dependencies:
     "@ethersproject/address" "^5.0.2"
     "@solana/web3.js" "1.44.0"
@@ -19292,9 +19292,9 @@ swarm-js@^0.1.40:
     xhr-request "^1.0.1"
 
 swiper@^8.0.7:
-  version "8.3.2"
-  resolved "https://registry.yarnpkg.com/swiper/-/swiper-8.3.2.tgz#55a2637125b0514e58715aa51e040dc070203b47"
-  integrity sha512-8wsC7ORYvVSnLUoxs2+xmfLrDPNjBVQXMCFbOlqtHeON6wtu/blOyySDr8TCBCdse1bdcIbn7m8xJNxVFL8o4Q==
+  version "8.4.2"
+  resolved "https://registry.yarnpkg.com/swiper/-/swiper-8.4.2.tgz#a52e091a92a52b230bd076fb3ef19ae73baed2a2"
+  integrity sha512-nMD/RHVYxJxrLqjWQX2n0B94ANwpnuUv/3PUDT8Aaf+mSteFvZGFng4ypAYq70zW4svryyV+8TRlbRZ+6cgv9A==
   dependencies:
     dom7 "^4.0.4"
     ssr-window "^4.0.2"
