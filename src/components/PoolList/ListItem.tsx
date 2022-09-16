@@ -294,7 +294,7 @@ const ListItemGroup = ({
               const url = `/add/${currencyId(currency0, chainId)}/${currencyId(currency1, chainId)}/${poolData.id}`
               setUrlOnEthPoWAck(url)
 
-              if (chainId === ChainId.ETHW) {
+              if (chainId === ChainId.MATIC) {
                 toggleEthPowAckModal()
               } else {
                 history.push(url)

@@ -227,7 +227,7 @@ export default function ProAmmPoolCardItem({ pair, onShared, userPositions, idx 
                     ? `/myPools?tab=${VERSION.ELASTIC}&search=${pool.address}`
                     : `/elastic/add/${token0Address}/${token1Address}/${pool.feeTier}`
 
-                  if (chainId === ChainId.ETHW) {
+                  if (chainId === ChainId.MATIC) {
                     setUrlOnEthPoWAck(url)
                     toggleEthPowAckModal()
                   } else {

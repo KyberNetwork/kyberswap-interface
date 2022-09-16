@@ -242,7 +242,7 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions,
                       fee_tier: pool.feeTier / ELASTIC_BASE_FEE_UNIT,
                     })
 
-                    if (chainId === ChainId.ETHW) {
+                    if (chainId === ChainId.MATIC) {
                       setUrlOnEthPoWAck(url)
                       toggleEthPowAckModal()
                     } else {

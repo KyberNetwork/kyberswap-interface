@@ -160,7 +160,7 @@ const Pools = ({
               : ''
           }`
 
-    if (chainId === ChainId.ETHW) {
+    if (chainId === ChainId.MATIC) {
       setUrlOnEthPowAck(url)
       toggleEthPowAckModal()
     } else {

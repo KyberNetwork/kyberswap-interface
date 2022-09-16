@@ -209,7 +209,7 @@ const ItemCard = ({ poolData, style = {}, myLiquidity }: ListItemProps) => {
         <ButtonPrimary
           onClick={() => {
             const url = `/add/${currencyId(currency0, chainId)}/${currencyId(currency1, chainId)}/${poolData.id}`
-            if (chainId === ChainId.ETHW) {
+            if (chainId === ChainId.MATIC) {
               setUrlOnEthPoWAck(url)
               toggleEthPowAckModal()
             } else {
