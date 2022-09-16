@@ -120,6 +120,12 @@ export default function ProAmmPool() {
       }),
     [debouncedSearchText, farmPositions],
   )
+
+  const myPositions = useMemo(() => {
+    return [...filteredPositions, ...filteredFarmPositions].filter(
+      (pos, index, array) => array.findIndex(pos2 => pos2.tokenId.eq(pos.tokenId)) === index,
+    )
+  }, [filteredPositions, filteredFarmPositions])
   const [showStaked, setShowStaked] = useState(false)
 
   const upToSmall = useMedia('(max-width: 768px)')
@@ -216,7 +222,7 @@ export default function ProAmmPool() {
             <>
               {/* Use display attribute here instead of condition rendering to prevent re-render full list when toggle showStaked => increase performance */}
               <PositionCardGrid style={{ display: showStaked ? 'none' : 'grid' }}>
-                {[...filteredPositions, ...filteredFarmPositions].map(p => (
+                {myPositions.map(p => (
                   <PositionListItem refe={tokenAddressSymbolMap} positionDetails={p} key={p.tokenId.toString()} />
                 ))}
               </PositionCardGrid>
