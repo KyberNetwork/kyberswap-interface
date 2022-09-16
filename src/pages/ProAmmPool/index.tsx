@@ -126,9 +126,6 @@ export default function ProAmmPool() {
     [showClosed, openPositions, closedPositions, debouncedSearchText, filteredFarmPositions],
   )
 
-  // const myPositions = useMemo(() => {
-  //   return [...filteredPositions, ...filteredFarmPositions]
-  // }, [filteredPositions, filteredFarmPositions])
   const [showStaked, setShowStaked] = useState(false)
 
   const upToSmall = useMedia('(max-width: 768px)')

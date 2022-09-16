@@ -257,7 +257,6 @@ function Pool() {
         .filter(v2Pair => !userFarms.map(farm => farm.id.toLowerCase()).includes(v2Pair.address.toLowerCase())),
     [allV2PairsWithLiquidity, debouncedSearchText, userFarms],
   )
-  console.log('🚀 ~ file: index.tsx ~ line 260 ~ Pool ~ v2PairsWithoutStakedAmount', v2PairsWithoutStakedAmount)
 
   const transformedUserLiquidityPositions: {
     [key: string]: UserLiquidityPosition
