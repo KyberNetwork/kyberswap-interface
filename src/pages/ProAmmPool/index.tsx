@@ -65,7 +65,7 @@ export default function ProAmmPool() {
     () =>
       positions?.reduce<[PositionDetails[], PositionDetails[]]>(
         (acc, p) => {
-          acc[p.liquidity?.isZero() ? 1 : 0].push(p)
+          acc[p.liquidity?.eq(0) ? 1 : 0].push(p)
           return acc
         },
         [[], []],
@@ -91,21 +91,6 @@ export default function ProAmmPool() {
 
   const [showClosed, setShowClosed] = useState(false)
 
-  const filteredPositions = useMemo(
-    () =>
-      (!showClosed ? openPositions : [...openPositions, ...closedPositions]).filter(position => {
-        return (
-          debouncedSearchText.trim().length === 0 ||
-          (!!tokenAddressSymbolMap.current[position.token0.toLowerCase()] &&
-            tokenAddressSymbolMap.current[position.token0.toLowerCase()].includes(debouncedSearchText)) ||
-          (!!tokenAddressSymbolMap.current[position.token1.toLowerCase()] &&
-            tokenAddressSymbolMap.current[position.token1.toLowerCase()].includes(debouncedSearchText)) ||
-          position.poolId.toLowerCase() === debouncedSearchText
-        )
-      }),
-    [showClosed, openPositions, closedPositions, debouncedSearchText],
-  )
-
   const filteredFarmPositions = useMemo(
     () =>
       farmPositions.filter(pos => {
@@ -121,11 +106,29 @@ export default function ProAmmPool() {
     [debouncedSearchText, farmPositions],
   )
 
-  const myPositions = useMemo(() => {
-    return [...filteredPositions, ...filteredFarmPositions].filter(
-      (pos, index, array) => array.findIndex(pos2 => pos2.tokenId.eq(pos.tokenId)) === index,
-    )
-  }, [filteredPositions, filteredFarmPositions])
+  const filteredPositions = useMemo(
+    () =>
+      (!showClosed
+        ? [...openPositions, ...filteredFarmPositions]
+        : [...openPositions, ...filteredFarmPositions, ...closedPositions]
+      )
+        .filter(position => {
+          return (
+            debouncedSearchText.trim().length === 0 ||
+            (!!tokenAddressSymbolMap.current[position.token0.toLowerCase()] &&
+              tokenAddressSymbolMap.current[position.token0.toLowerCase()].includes(debouncedSearchText)) ||
+            (!!tokenAddressSymbolMap.current[position.token1.toLowerCase()] &&
+              tokenAddressSymbolMap.current[position.token1.toLowerCase()].includes(debouncedSearchText)) ||
+            position.poolId.toLowerCase() === debouncedSearchText
+          )
+        })
+        .filter((pos, index, array) => array.findIndex(pos2 => pos2.tokenId.eq(pos.tokenId)) === index),
+    [showClosed, openPositions, closedPositions, debouncedSearchText, filteredFarmPositions],
+  )
+
+  // const myPositions = useMemo(() => {
+  //   return [...filteredPositions, ...filteredFarmPositions]
+  // }, [filteredPositions, filteredFarmPositions])
   const [showStaked, setShowStaked] = useState(false)
 
   const upToSmall = useMedia('(max-width: 768px)')
@@ -222,7 +225,7 @@ export default function ProAmmPool() {
             <>
               {/* Use display attribute here instead of condition rendering to prevent re-render full list when toggle showStaked => increase performance */}
               <PositionCardGrid style={{ display: showStaked ? 'none' : 'grid' }}>
-                {myPositions.map(p => (
+                {filteredPositions.map(p => (
                   <PositionListItem refe={tokenAddressSymbolMap} positionDetails={p} key={p.tokenId.toString()} />
                 ))}
               </PositionCardGrid>
