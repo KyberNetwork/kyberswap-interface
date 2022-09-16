@@ -35,12 +35,11 @@ import FarmingPoolAPRCell from 'components/YieldPools/FarmingPoolAPRCell'
 import { MAX_ALLOW_APY } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { useEthPowAckModalContext } from 'pages/Pools/EthPowAckModalContext'
 import { IconWrapper } from 'pages/Pools/styleds'
 import { usePoolDetailModalToggle, useToggleEthPowAckModal } from 'state/application/hooks'
 import { useActiveAndUniqueFarmsData } from 'state/farms/hooks'
 import { setSelectedPool } from 'state/pools/actions'
-import { SubgraphPoolData, UserLiquidityPosition, useSharedPoolIdManager } from 'state/pools/hooks'
+import { SubgraphPoolData, UserLiquidityPosition, useSharedPoolIdManager, useUrlOnEthPowAck } from 'state/pools/hooks'
 import { formattedNum, shortenAddress } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { getMyLiquidity, getTradingFeeAPR, parseSubgraphPoolData } from 'utils/dmm'
@@ -134,7 +133,7 @@ const ListItemGroup = ({
   const amp = new Fraction(poolData.amp).divide(JSBI.BigInt(10000))
 
   const history = useHistory()
-  const [, setUrlOnEthPoWAck] = useEthPowAckModalContext()
+  const [, setUrlOnEthPoWAck] = useUrlOnEthPowAck()
   const toggleEthPowAckModal = useToggleEthPowAckModal()
 
   const { data: uniqueAndActiveFarms } = useActiveAndUniqueFarmsData()

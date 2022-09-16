@@ -29,9 +29,9 @@ import { GlobalData, Instruction } from 'pages/Pools/InstructionAndGlobalData'
 import ProAmmPoolList from 'pages/ProAmmPools'
 import { useToggleEthPowAckModal } from 'state/application/hooks'
 import { Field } from 'state/pair/actions'
+import { useUrlOnEthPowAck } from 'state/pools/hooks'
 import { currencyId } from 'utils/currencyId'
 
-import { EthPowAckModalContext } from './EthPowAckModalContext'
 import ModalEthPoWAck from './ModalEthPoWAck'
 import { CurrencyWrapper, PoolsPageWrapper, ToolbarWrapper } from './styleds'
 
@@ -93,7 +93,7 @@ const Pools = ({
   const tab = (qs.tab as string) || VERSION.ELASTIC
   const shouldHighlightCreatePoolButton = qs.highlightCreateButton === 'true'
 
-  const [urlOnEthPowAck, setUrlOnEthPowAck] = useState('')
+  const [, setUrlOnEthPowAck] = useUrlOnEthPowAck()
   const toggleEthPowAckModal = useToggleEthPowAckModal()
 
   const onSearch = (search: string) => {
@@ -169,7 +169,7 @@ const Pools = ({
   }
 
   return (
-    <EthPowAckModalContext.Provider value={[urlOnEthPowAck, setUrlOnEthPowAck]}>
+    <>
       <PoolsPageWrapper>
         <Flex justifyContent="space-between">
           <ClassicElasticTab />
@@ -434,8 +434,8 @@ const Pools = ({
       </PoolsPageWrapper>
       <SwitchLocaleLink />
 
-      <ModalEthPoWAck redirectUrl={urlOnEthPowAck} />
-    </EthPowAckModalContext.Provider>
+      <ModalEthPoWAck />
+    </>
   )
 }
 

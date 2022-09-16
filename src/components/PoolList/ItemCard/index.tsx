@@ -38,11 +38,10 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { DMM_ANALYTICS_URL, SUBGRAPH_AMP_MULTIPLIER } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { useEthPowAckModalContext } from 'pages/Pools/EthPowAckModalContext'
 import { IconWrapper } from 'pages/Pools/styleds'
 import { useToggleEthPowAckModal } from 'state/application/hooks'
 import { useUserStakedBalance } from 'state/farms/hooks'
-import { useSharedPoolIdManager } from 'state/pools/hooks'
+import { useSharedPoolIdManager, useUrlOnEthPowAck } from 'state/pools/hooks'
 import { ExternalLink } from 'theme'
 import { formattedNum, shortenAddress } from 'utils'
 import { currencyId } from 'utils/currencyId'
@@ -59,7 +58,7 @@ const ItemCard = ({ poolData, style = {}, myLiquidity }: ListItemProps) => {
   const { chainId } = useActiveWeb3React()
   const amp = new Fraction(poolData.amp).divide(JSBI.BigInt(SUBGRAPH_AMP_MULTIPLIER))
   const history = useHistory()
-  const [, setUrlOnEthPoWAck] = useEthPowAckModalContext()
+  const [, setUrlOnEthPoWAck] = useUrlOnEthPowAck()
   const toggleEthPowAckModal = useToggleEthPowAckModal()
 
   const isFarmingPool = useCheckIsFarmingPool(poolData.id)

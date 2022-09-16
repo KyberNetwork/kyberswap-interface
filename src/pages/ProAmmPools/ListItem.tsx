@@ -21,10 +21,10 @@ import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
-import { useEthPowAckModalContext } from 'pages/Pools/EthPowAckModalContext'
 import { ButtonIcon } from 'pages/Pools/styleds'
 import { useToggleEthPowAckModal } from 'state/application/hooks'
 import { useProMMFarms } from 'state/farms/promm/hooks'
+import { useUrlOnEthPowAck } from 'state/pools/hooks'
 import { ProMMPoolData } from 'state/prommPools/hooks'
 import { ExternalLink } from 'theme'
 import { isAddressString, shortenAddress } from 'utils'
@@ -97,7 +97,7 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions,
   const theme = useTheme()
   const [isOpen, setIsOpen] = useState(pair.length > 1 ? idx === 0 : false)
   const history = useHistory()
-  const [, setUrlOnEthPoWAck] = useEthPowAckModalContext()
+  const [, setUrlOnEthPoWAck] = useUrlOnEthPowAck()
   const toggleEthPowAckModal = useToggleEthPowAckModal()
 
   const allTokens = useAllTokens()

@@ -10,10 +10,7 @@ import Modal from 'components/Modal'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleEthPowAckModal } from 'state/application/hooks'
-
-type Props = {
-  redirectUrl: string
-}
+import { useUrlOnEthPowAck } from 'state/pools/hooks'
 
 const AckButton = styled(ButtonPrimary)`
   height: 36px;
@@ -35,11 +32,12 @@ const AckButton = styled(ButtonPrimary)`
   }
 `
 
-const ModalEthPoWAck: React.FC<Props> = ({ redirectUrl }) => {
+const ModalEthPoWAck = () => {
   const theme = useTheme()
   const isModalOpen = useModalOpen(ApplicationModal.ETH_POW_ACK)
   const toggleOpenThisModal = useToggleEthPowAckModal()
   const history = useHistory()
+  const [url] = useUrlOnEthPowAck()
 
   return (
     <Modal
@@ -86,7 +84,7 @@ const ModalEthPoWAck: React.FC<Props> = ({ redirectUrl }) => {
         <AckButton
           onClick={() => {
             toggleOpenThisModal()
-            history.push(redirectUrl)
+            history.push(url)
           }}
         >
           <Trans>Acknowledge</Trans>

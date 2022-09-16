@@ -20,10 +20,10 @@ import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import useTheme from 'hooks/useTheme'
-import { useEthPowAckModalContext } from 'pages/Pools/EthPowAckModalContext'
 import { IconWrapper } from 'pages/Pools/styleds'
 import { useToggleEthPowAckModal } from 'state/application/hooks'
 import { useProMMFarms } from 'state/farms/promm/hooks'
+import { useUrlOnEthPowAck } from 'state/pools/hooks'
 import { ProMMPoolData } from 'state/prommPools/hooks'
 import { ExternalLink } from 'theme'
 import { isAddressString, shortenAddress } from 'utils'
@@ -73,7 +73,7 @@ export default function ProAmmPoolCardItem({ pair, onShared, userPositions, idx 
   const theme = useTheme()
   const [isOpen, setIsOpen] = useState(true)
   const history = useHistory()
-  const [, setUrlOnEthPoWAck] = useEthPowAckModalContext()
+  const [, setUrlOnEthPoWAck] = useUrlOnEthPowAck()
   const toggleEthPowAckModal = useToggleEthPowAckModal()
 
   const allTokens = useAllTokens()
