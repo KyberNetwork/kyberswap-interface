@@ -59,7 +59,7 @@ const ItemCard = ({ poolData, style = {}, myLiquidity }: ListItemProps) => {
   const { chainId } = useActiveWeb3React()
   const amp = new Fraction(poolData.amp).divide(JSBI.BigInt(SUBGRAPH_AMP_MULTIPLIER))
   const history = useHistory()
-  const [_, setUrlOnEthPoWAck] = useEthPowAckModalContext()
+  const [, setUrlOnEthPoWAck] = useEthPowAckModalContext()
   const toggleEthPowAckModal = useToggleEthPowAckModal()
 
   const isFarmingPool = useCheckIsFarmingPool(poolData.id)

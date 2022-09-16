@@ -97,7 +97,7 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions,
   const theme = useTheme()
   const [isOpen, setIsOpen] = useState(pair.length > 1 ? idx === 0 : false)
   const history = useHistory()
-  const [_, setUrlOnEthPoWAck] = useEthPowAckModalContext()
+  const [, setUrlOnEthPoWAck] = useEthPowAckModalContext()
   const toggleEthPowAckModal = useToggleEthPowAckModal()
 
   const allTokens = useAllTokens()

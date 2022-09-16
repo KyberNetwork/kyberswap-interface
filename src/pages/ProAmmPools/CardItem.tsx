@@ -73,7 +73,7 @@ export default function ProAmmPoolCardItem({ pair, onShared, userPositions, idx 
   const theme = useTheme()
   const [isOpen, setIsOpen] = useState(true)
   const history = useHistory()
-  const [_, setUrlOnEthPoWAck] = useEthPowAckModalContext()
+  const [, setUrlOnEthPoWAck] = useEthPowAckModalContext()
   const toggleEthPowAckModal = useToggleEthPowAckModal()
 
   const allTokens = useAllTokens()

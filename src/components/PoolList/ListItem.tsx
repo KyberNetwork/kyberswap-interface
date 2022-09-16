@@ -134,7 +134,7 @@ const ListItemGroup = ({
   const amp = new Fraction(poolData.amp).divide(JSBI.BigInt(10000))
 
   const history = useHistory()
-  const [_, setUrlOnEthPoWAck] = useEthPowAckModalContext()
+  const [, setUrlOnEthPoWAck] = useEthPowAckModalContext()
   const toggleEthPowAckModal = useToggleEthPowAckModal()
 
   const { data: uniqueAndActiveFarms } = useActiveAndUniqueFarmsData()
