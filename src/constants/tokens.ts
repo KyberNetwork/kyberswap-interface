@@ -3,7 +3,7 @@ import { ChainId, NativeCurrency, Token } from '@namgold/ks-sdk-core'
 import { MAINNET_ENV } from './env'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from './networks'
 
-export const NativeCurrencies: { [chainid in ChainId]: NativeCurrency } = SUPPORTED_NETWORKS.reduce(
+export const NativeCurrencies: { [chainId in ChainId]: NativeCurrency } = SUPPORTED_NETWORKS.reduce(
   (acc, chainId) => ({
     ...acc,
     [chainId]: new NativeCurrency(

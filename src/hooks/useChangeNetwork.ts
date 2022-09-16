@@ -27,10 +27,12 @@ const getEVMAddNetworkParams = (chainId: EVM_NETWORK) => ({
 
 /**
  * Given a network string (e.g. from user agent), return the best match for corresponding SupportedNetwork
- * @param maybeSupportedNetwork the fuzzy network identifier
+ * @param maybeSupportedNetwork the fuzzy network identifier, can be networkId (1, 137, ...) or networkName (ethereum, polygon, ...)
  */
 function parseNetworkId(maybeSupportedNetwork: string): ChainId | undefined {
-  return SUPPORTED_NETWORKS.find(network => network.toString() === maybeSupportedNetwork)
+  return SUPPORTED_NETWORKS.find(chainId => {
+    return chainId.toString() === maybeSupportedNetwork || NETWORKS_INFO[chainId].route === maybeSupportedNetwork
+  })
 }
 
 export function useChangeNetwork() {
