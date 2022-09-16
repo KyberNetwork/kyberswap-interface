@@ -12,7 +12,7 @@ import {
 } from 'state/campaigns/actions'
 import { AppState } from 'state/index'
 
-export function useSelectedCampaignLeaderboardPageNumberManager() {
+export function useSelectedCampaignLeaderboardPageNumberManager(): [number, (page: number) => void] {
   const selectedCampaignLeaderboardPageNumber = useSelector(
     (state: AppState) => state.campaigns.selectedCampaignLeaderboardPageNumber,
   )
@@ -25,10 +25,7 @@ export function useSelectedCampaignLeaderboardPageNumberManager() {
     [dispatch],
   )
 
-  return useMemo(
-    () => [selectedCampaignLeaderboardPageNumber, updateSelectedCampaignLeaderboardPageNumberCallback] as const,
-    [selectedCampaignLeaderboardPageNumber, updateSelectedCampaignLeaderboardPageNumberCallback],
-  )
+  return [selectedCampaignLeaderboardPageNumber, updateSelectedCampaignLeaderboardPageNumberCallback]
 }
 
 export function useSelectedCampaignLuckyWinnerPageNumber(): [number, (page: number) => void] {
@@ -42,7 +39,7 @@ export function useSelectedCampaignLuckyWinnerPageNumber(): [number, (page: numb
     [dispatch],
   )
 
-  return useMemo(() => [page, setPage], [page, setPage])
+  return [page, setPage]
 }
 
 export function useSelectedCampaignLeaderboardLookupAddressManager() {
