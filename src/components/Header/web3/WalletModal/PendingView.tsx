@@ -3,7 +3,7 @@ import { darken } from 'polished'
 import styled from 'styled-components'
 
 import Loader from 'components/Loader'
-import { SUPPORTED_WALLETS } from 'constants/wallets'
+import { SUPPORTED_WALLET, SUPPORTED_WALLETS } from 'constants/wallets'
 
 import { WarningBox } from './WarningBox'
 
@@ -69,7 +69,7 @@ export default function PendingView({
   hasError = false,
   onClickTryAgain,
 }: {
-  walletKey?: keyof typeof SUPPORTED_WALLETS
+  walletKey?: SUPPORTED_WALLET
   hasError?: boolean
   onClickTryAgain: () => void
 }) {

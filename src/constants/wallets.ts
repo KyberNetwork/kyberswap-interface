@@ -185,4 +185,6 @@ export const SUPPORTED_WALLETS = {
     readyStateSolana: () => slopeAdapter.readyState,
   } as SolanaWalletInfo,
 } as const
+
+export type SUPPORTED_WALLET = keyof typeof SUPPORTED_WALLETS
 console.info({ SUPPORTED_WALLETS })

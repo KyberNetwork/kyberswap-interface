@@ -5,7 +5,7 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as WarningIcon } from 'assets/images/warning.svg'
-import { SUPPORTED_WALLETS } from 'constants/wallets'
+import { SUPPORTED_WALLET, SUPPORTED_WALLETS } from 'constants/wallets'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink } from 'theme'
 import { detectInjectedType } from 'utils'
@@ -69,7 +69,7 @@ export const C98OverrideGuide = ({
   walletKey,
   isSureKeo = true,
 }: {
-  walletKey?: keyof typeof SUPPORTED_WALLETS
+  walletKey?: SUPPORTED_WALLET
   isSureKeo?: boolean
 }) => {
   const theme = useTheme()
@@ -130,7 +130,7 @@ export const C98OverrideGuide = ({
   )
 }
 
-export const WarningBox = ({ walletKey }: { walletKey?: keyof typeof SUPPORTED_WALLETS }) => {
+export const WarningBox = ({ walletKey }: { walletKey?: SUPPORTED_WALLET }) => {
   const theme = useTheme()
 
   const isBraveBrowser = checkForBraveBrowser()

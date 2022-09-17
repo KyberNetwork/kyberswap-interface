@@ -4,7 +4,7 @@ import { WalletReadyState } from '@solana/wallet-adapter-base'
 import styled from 'styled-components'
 
 import { MouseoverTooltip } from 'components/Tooltip'
-import { SUPPORTED_WALLETS } from 'constants/wallets'
+import { SUPPORTED_WALLET, SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React } from 'hooks'
 import { useIsDarkMode } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
@@ -116,8 +116,8 @@ export default function Option({
   onSelected,
   isAcceptedTerm,
 }: {
-  walletKey: keyof typeof SUPPORTED_WALLETS
-  onSelected?: (walletKey: keyof typeof SUPPORTED_WALLETS) => any
+  walletKey: SUPPORTED_WALLET
+  onSelected?: (walletKey: SUPPORTED_WALLET) => any
   isAcceptedTerm: boolean
 }) {
   const isDarkMode = useIsDarkMode()

@@ -8,7 +8,7 @@ import { GET_BLOCK, GET_BLOCKS } from 'apollo/queries'
 import { DEFAULT_GAS_LIMIT_MARGIN, ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { KNC, KNCL_ADDRESS, KNCL_ADDRESS_ROPSTEN } from 'constants/tokens'
-import { EVMWalletInfo, SUPPORTED_WALLETS, SolanaWalletInfo, WalletInfo } from 'constants/wallets'
+import { EVMWalletInfo, SUPPORTED_WALLET, SolanaWalletInfo, WalletInfo } from 'constants/wallets'
 import store from 'state'
 import { TokenAddressMap } from 'state/lists/hooks'
 
@@ -401,7 +401,7 @@ export const detectInjectedType = (): 'COIN98' | 'BRAVE' | 'METAMASK' | null => 
   return null
 }
 
-export const isOverriddenWallet = (wallet: keyof typeof SUPPORTED_WALLETS) => {
+export const isOverriddenWallet = (wallet: SUPPORTED_WALLET) => {
   const injectedType = detectInjectedType()
   return (
     (wallet === 'COIN98' && injectedType === 'METAMASK') ||

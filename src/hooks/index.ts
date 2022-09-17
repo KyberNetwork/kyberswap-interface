@@ -9,7 +9,7 @@ import { useLocalStorage } from 'react-use'
 
 import { injected } from 'connectors'
 import { EVM_NETWORK, EVM_NETWORKS, NETWORKS_INFO } from 'constants/networks'
-import { SUPPORTED_WALLETS } from 'constants/wallets'
+import { SUPPORTED_WALLET, SUPPORTED_WALLETS } from 'constants/wallets'
 import { AppState } from 'state'
 import { isEVMWallet, isSolanaWallet } from 'utils'
 
@@ -28,7 +28,7 @@ export const providers: {
 export function useActiveWeb3React(): {
   chainId: ChainId
   account?: string
-  walletKey: keyof typeof SUPPORTED_WALLETS | undefined
+  walletKey: SUPPORTED_WALLET | undefined
 } {
   const chainIdState = useSelector<AppState, ChainId>(state => state.user.chainId)
   const chainType = getChainType(chainIdState)
@@ -40,7 +40,7 @@ export function useActiveWeb3React(): {
     [account, chainType, publicKey],
   )
 
-  const walletKey = (Object.keys(SUPPORTED_WALLETS) as (keyof typeof SUPPORTED_WALLETS)[]).find(walletKey => {
+  const walletKey = (Object.keys(SUPPORTED_WALLETS) as SUPPORTED_WALLET[]).find(walletKey => {
     const wallet = SUPPORTED_WALLETS[walletKey]
 
     return (

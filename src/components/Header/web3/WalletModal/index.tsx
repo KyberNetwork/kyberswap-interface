@@ -15,7 +15,7 @@ import { ReactComponent as Close } from 'assets/images/x.svg'
 import AccountDetails from 'components/Header/web3/AccountDetails'
 import Networks from 'components/Header/web3/NetworkModal/Networks'
 import Modal from 'components/Modal'
-import { SUPPORTED_WALLETS } from 'constants/wallets'
+import { SUPPORTED_WALLET, SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import usePrevious from 'hooks/usePrevious'
@@ -156,7 +156,7 @@ export default function WalletModal({
 
   const [walletView, setWalletView] = useState(WALLET_VIEWS.ACCOUNT)
 
-  const [pendingWalletKey, setPendingWalletKey] = useState<keyof typeof SUPPORTED_WALLETS | undefined>()
+  const [pendingWalletKey, setPendingWalletKey] = useState<SUPPORTED_WALLET | undefined>()
 
   const [pendingError, setPendingError] = useState<boolean>()
 
@@ -218,7 +218,7 @@ export default function WalletModal({
     }
   }, [connector, chainId, account, active])
 
-  const tryActivation = async (walletKey: keyof typeof SUPPORTED_WALLETS) => {
+  const tryActivation = async (walletKey: SUPPORTED_WALLET) => {
     const wallet = SUPPORTED_WALLETS[walletKey]
     setPendingWalletKey(walletKey)
     setWalletView(WALLET_VIEWS.PENDING)
@@ -261,7 +261,7 @@ export default function WalletModal({
   }
 
   function getOptions() {
-    const sortWallets = (walletAKey: keyof typeof SUPPORTED_WALLETS, walletBKey: keyof typeof SUPPORTED_WALLETS) => {
+    const sortWallets = (walletAKey: SUPPORTED_WALLET, walletBKey: SUPPORTED_WALLET) => {
       const walletA = SUPPORTED_WALLETS[walletAKey]
       const walletB = SUPPORTED_WALLETS[walletBKey]
       const isWalletAEVM = isEVMWallet(walletA)
@@ -281,7 +281,7 @@ export default function WalletModal({
       return bPoint - aPoint
     }
 
-    return (Object.keys(SUPPORTED_WALLETS) as (keyof typeof SUPPORTED_WALLETS)[])
+    return (Object.keys(SUPPORTED_WALLETS) as SUPPORTED_WALLET[])
       .sort(sortWallets)
       .map(key => <Option key={key} walletKey={key} onSelected={tryActivation} isAcceptedTerm={isAcceptedTerm} />)
       .filter(Boolean)
