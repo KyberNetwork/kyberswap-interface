@@ -49,8 +49,6 @@ export default function Transaction({ hash }: { hash: string }) {
     ? SUMMARY[type]?.[pending ? 'pending' : success ? 'success' : 'failure'](summary)
     : summary ?? 'Hash: ' + hash.slice(0, 8) + '...' + hash.slice(58, 65)
 
-  if (!chainId) return null
-
   return (
     <TransactionWrapper>
       <TransactionState href={getEtherscanLink(chainId, hash, 'transaction')} pending={pending} success={success}>

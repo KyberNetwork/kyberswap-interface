@@ -30,7 +30,7 @@ export function useActiveWeb3React(): {
   account?: string
   walletKey: SUPPORTED_WALLET | undefined
 } {
-  const chainIdState = useSelector<AppState, ChainId>(state => state.user.chainId)
+  const chainIdState = useSelector<AppState, ChainId>(state => state.user.chainId) || ChainId.MAINNET
   const chainType = getChainType(chainIdState)
   const { account, connector, active } = useWeb3React()
   const { wallet: walletSolana, connected, publicKey } = useWallet()

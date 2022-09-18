@@ -162,12 +162,7 @@ export default function Menu() {
   const above768 = useMedia('(min-width: 768px)')
   const under369 = useMedia('(max-width: 370px)')
 
-  const getBridgeLink = () => {
-    if (!chainId) return ''
-    return NETWORKS_INFO[chainId].bridgeURL
-  }
-
-  const bridgeLink = getBridgeLink()
+  const bridgeLink = NETWORKS_INFO[chainId].bridgeURL
   const toggleClaimPopup = useToggleModal(ApplicationModal.CLAIM_POPUP)
   const toggleFaucetPopup = useToggleModal(ApplicationModal.FAUCET_POPUP)
   const { pendingTx } = useClaimReward()

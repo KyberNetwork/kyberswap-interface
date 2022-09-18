@@ -71,7 +71,6 @@ function SelectNetwork(): JSX.Element | null {
   const accounts = useMemo(() => (account ? [account] : []), [account])
   const userEthBalance = useETHBalances(accounts)?.[account ?? '']
   const labelContent = useMemo(() => {
-    if (!chainId) return ''
     return userEthBalance
       ? `${
           userEthBalance?.lessThan(CurrencyAmount.fromRawAmount(NativeCurrencies[chainId], (1e18).toString())) &&
@@ -81,8 +80,6 @@ function SelectNetwork(): JSX.Element | null {
         } ${NativeCurrencies[chainId || ChainId.MAINNET].symbol}`
       : NETWORKS_INFO[chainId].name
   }, [userEthBalance, chainId])
-
-  if (!chainId) return null
 
   return (
     <NetworkCard onClick={() => toggleNetworkModal()} role="button" id={TutorialIds.SELECT_NETWORK}>

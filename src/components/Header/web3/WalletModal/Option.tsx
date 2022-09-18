@@ -191,7 +191,10 @@ export default function Option({
 
   if (!isCorrectChain) {
     return (
-      <MouseoverTooltip text={<Trans>This wallet won’t work on this chain, please select another wallet</Trans>}>
+      <MouseoverTooltip
+        placement="top"
+        text={<Trans>This wallet won’t work on this chain, please select another wallet</Trans>}
+      >
         {content}
       </MouseoverTooltip>
     )
@@ -200,6 +203,7 @@ export default function Option({
   if (walletKey === 'BRAVE' && !isBraveBrowser) {
     return (
       <MouseoverTooltip
+        placement="top"
         text={
           <Trans>
             Brave wallet can only be used in Brave Browser. Download it{' '}
@@ -215,6 +219,7 @@ export default function Option({
   if (readyState === WalletReadyState.NotDetected) {
     return (
       <MouseoverTooltip
+        placement="top"
         text={
           <Trans>
             You will need to install {wallet.name} extension before you can connect with it on KyberSwap. Get it{' '}
@@ -229,7 +234,7 @@ export default function Option({
 
   if (overridden) {
     return (
-      <MouseoverTooltip width="500px" text={<C98OverrideGuide walletKey={walletKey} />}>
+      <MouseoverTooltip width="500px" text={<C98OverrideGuide walletKey={walletKey} />} placement="top">
         {content}
       </MouseoverTooltip>
     )

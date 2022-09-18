@@ -179,9 +179,7 @@ function CurrencyRow({
   // const balance = useCurrencyBalance(account ?? undefined, currency)
   const balance = currencyBalance
 
-  // const showCurrency = currency === ETHER && !!chainId && [137, 800001].includes(chainId) ? WETH[chainId] : currency
   const nativeCurrency = useCurrencyConvertedToNative(currency || undefined)
-  // only show add or remove buttons if not on selected list
 
   const { favoriteTokens, toggleFavoriteToken } = useUserFavoriteTokens(chainId)
 
