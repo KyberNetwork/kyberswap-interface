@@ -43,7 +43,7 @@ const Farms = () => {
   const { loading } = useFarmsData()
   const qs = useParsedQueryString()
   const type = qs.type || 'active'
-  const farmType = qs.tab || VERSION.ELASTIC
+  const farmType = qs.tab && typeof qs.tab === 'string' && qs.tab in VERSION ? (qs.tab as VERSION) : VERSION.ELASTIC
   const history = useHistory()
 
   const vestingLoading = useSelector<AppState, boolean>(state => state.vesting.loading)
@@ -137,7 +137,7 @@ const Farms = () => {
           {!below768 && rewardPriceAndTutorial}
         </TopBar>
 
-        <FarmGuide farmType={farmType as VERSION} />
+        <FarmGuide farmType={farmType} />
 
         {farmType === VERSION.ELASTIC && <ElasticFarmSummary />}
 

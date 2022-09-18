@@ -16,7 +16,7 @@ import { MouseoverTooltip } from './Tooltip'
 
 function ClassicElasticTab() {
   const qs = useParsedQueryString()
-  const tab = (qs.tab as string) || VERSION.ELASTIC
+  const tab = qs.tab && typeof qs.tab === 'string' && qs.tab in VERSION ? (qs.tab as VERSION) : VERSION.ELASTIC
   const { mixpanelHandler } = useMixpanel()
 
   const { chainId } = useActiveWeb3React()
