@@ -13,19 +13,21 @@ import { ChartEntry, LiquidityChartRangeInputProps } from './types'
 export const xAccessor = (d: ChartEntry) => d.price0
 export const yAccessor = (d: ChartEntry) => d.activeLiquidity
 
-export function Chart({
-  id = 'liquidityChartRangeInput',
-  data: { series, current },
-  ticksAtLimit,
-  styles,
-  dimensions: { width, height },
-  margins,
-  interactive = true,
-  brushDomain,
-  brushLabels,
-  onBrushDomainChange,
-  zoomLevels,
-}: LiquidityChartRangeInputProps) {
+export function Chart(props: LiquidityChartRangeInputProps) {
+  const {
+    id = 'liquidityChartRangeInput',
+    data: { series, current },
+    ticksAtLimit,
+    styles,
+    dimensions: { width, height },
+    margins,
+    interactive = true,
+    brushDomain,
+    brushLabels,
+    onBrushDomainChange,
+    zoomLevels,
+  } = props
+
   const zoomRef = useRef<SVGRectElement | null>(null)
 
   const [zoom, setZoom] = useState<ZoomTransform | null>(null)
