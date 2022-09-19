@@ -15,7 +15,7 @@ export function useProAmmPoolInfos(
   return useMemo(
     () =>
       feeAmount.map(fee => {
-        return proAmmCoreFactoryAddress && currencyA && currencyB && fee
+        return proAmmCoreFactoryAddress && currencyA && currencyB && fee && !currencyA.equals(currencyB)
           ? computePoolAddress({
               factoryAddress: proAmmCoreFactoryAddress,
               tokenA: currencyA?.wrapped,
