@@ -160,7 +160,8 @@ export default function Option({
       onClick={
         onSelected &&
         !isConnected &&
-        readyState === WalletReadyState.Installed &&
+        (readyState === WalletReadyState.Installed ||
+          (readyState === WalletReadyState.Loadable && isSolanaWallet(wallet))) &&
         isAcceptedTerm &&
         isCorrectChain &&
         !overridden &&
