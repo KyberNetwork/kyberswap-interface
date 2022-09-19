@@ -38,11 +38,13 @@ import { AppState } from 'state'
 import { useBlockNumber } from 'state/application/hooks'
 import { useFarmsData } from 'state/farms/hooks'
 import { useProMMFarms } from 'state/farms/promm/hooks'
+import { isInEnum } from 'utils/string'
 
 const Farms = () => {
   const { loading } = useFarmsData()
   const qs = useParsedQueryString<{ type: string; tab: string }>()
-  const { type = 'active', tab: farmType = VERSION.ELASTIC } = qs
+  const { type = 'active', tab = VERSION.ELASTIC } = qs
+  const farmType = isInEnum(tab, VERSION) ? tab : VERSION.ELASTIC
   const history = useHistory()
 
   const vestingLoading = useSelector<AppState, boolean>(state => state.vesting.loading)
@@ -136,7 +138,7 @@ const Farms = () => {
           {!below768 && rewardPriceAndTutorial}
         </TopBar>
 
-        <FarmGuide farmType={farmType as VERSION} />
+        <FarmGuide farmType={farmType} />
 
         {farmType === VERSION.ELASTIC && <ElasticFarmSummary />}
 

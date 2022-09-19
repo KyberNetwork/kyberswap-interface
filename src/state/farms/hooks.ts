@@ -168,9 +168,11 @@ export const useFarmsData = (isIncludeOutsideFarms = true) => {
 
       const farmsData = await getBulkPoolDataFromPoolList(poolAddresses, apolloClient, ethPrice.currentPrice, chainId)
 
-      const rewardTokens = rewardTokenAddresses.map(address =>
-        address.toLowerCase() === ZERO_ADDRESS.toLowerCase() ? NativeCurrencies[chainId] : allTokens[address],
-      )
+      const rewardTokens = rewardTokenAddresses
+        .map(address =>
+          address.toLowerCase() === ZERO_ADDRESS.toLowerCase() ? NativeCurrencies[chainId] : allTokens[address],
+        )
+        .filter(Boolean)
 
       const farms: Farm[] = poolInfos.map((poolInfo, index) => {
         return {

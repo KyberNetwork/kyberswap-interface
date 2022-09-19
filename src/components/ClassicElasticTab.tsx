@@ -9,12 +9,14 @@ import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
+import { isInEnum } from 'utils/string'
 
 import { PoolClassicIcon, PoolElasticIcon } from './Icons'
 import { MouseoverTooltip } from './Tooltip'
 
 function ClassicElasticTab() {
-  const { tab = VERSION.ELASTIC, ...qs } = useParsedQueryString<{ tab: string }>()
+  const { tab: tabQS = VERSION.ELASTIC, ...qs } = useParsedQueryString<{ tab: string }>()
+  const tab = isInEnum(tabQS, VERSION) ? tabQS : VERSION.ELASTIC
   const { mixpanelHandler } = useMixpanel()
 
   const { chainId } = useActiveWeb3React()
