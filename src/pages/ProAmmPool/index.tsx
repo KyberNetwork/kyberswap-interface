@@ -209,7 +209,7 @@ export default function ProAmmPool() {
           {!account ? (
             <Card padding="40px">
               <TYPE.body color={theme.text3} textAlign="center">
-                <Trans>Connect to a wallet to view your liquidity.</Trans>++
+                <Trans>Connect to a wallet to view your liquidity.</Trans>
               </TYPE.body>
             </Card>
           ) : positionsLoading || loading ? (
