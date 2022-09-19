@@ -1,10 +1,11 @@
 import { Trans } from '@lingui/macro'
-import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core'
+import { UnsupportedChainIdError } from '@web3-react/core'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import Modal from 'components/Modal'
+import { useWeb3React } from 'hooks'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useNetworkModalToggle } from 'state/application/hooks'
 import { TYPE } from 'theme'

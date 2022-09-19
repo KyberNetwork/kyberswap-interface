@@ -3,21 +3,19 @@ import { Contract } from '@ethersproject/contracts'
 import { Router, Trade } from '@namgold/ks-sdk-classic'
 import { Currency, Percent, TradeType } from '@namgold/ks-sdk-core'
 import { SwapRouter as ProAmmRouter, Trade as ProAmmTrade } from '@namgold/ks-sdk-elastic'
-import { useWeb3React } from '@web3-react/core'
 import JSBI from 'jsbi'
 import { useMemo } from 'react'
 
 import { BIPS_BASE, INITIAL_ALLOWED_SLIPPAGE } from 'constants/index'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useTradeExactIn } from 'hooks/Trades'
+import useENS from 'hooks/useENS'
+import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { basisPointsToPercent, calculateGasMargin, isAddress, shortenAddress } from 'utils'
 import { formatCurrencyAmount } from 'utils/formatBalance'
 import { getDynamicFeeRouterContract, getProAmmRouterContract } from 'utils/getContract'
 import isZero from 'utils/isZero'
-
-import { useTradeExactIn } from './Trades'
-import { useActiveWeb3React } from './index'
-import useENS from './useENS'
-import useTransactionDeadline from './useTransactionDeadline'
 
 export type AnyTrade = Trade<Currency, Currency, TradeType> | ProAmmTrade<Currency, Currency, TradeType>
 

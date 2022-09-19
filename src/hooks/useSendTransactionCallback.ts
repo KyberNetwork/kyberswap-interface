@@ -1,11 +1,10 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
 import { captureException } from '@sentry/react'
-import { useWeb3React } from '@web3-react/core'
 import { ethers } from 'ethers'
 import { useCallback } from 'react'
 
-import { useActiveWeb3React } from 'hooks/index'
+import { useActiveWeb3React, useWeb3React } from 'hooks/index'
 import { calculateGasMargin } from 'utils'
 
 export default function useSendTransactionCallback() {

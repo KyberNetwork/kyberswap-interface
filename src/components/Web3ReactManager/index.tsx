@@ -1,6 +1,5 @@
 import { Trans } from '@lingui/macro'
 import { ChainType, getChainType } from '@namgold/ks-sdk-core'
-import { useWeb3React } from '@web3-react/core'
 import { useEffect, useState } from 'react'
 import styled from 'styled-components'
 
@@ -8,7 +7,7 @@ import Loader from 'components/Loader'
 import LocalLoader from 'components/LocalLoader'
 import { network } from 'connectors'
 import { NetworkContextName } from 'constants/index'
-import { useActiveWeb3React, useEagerConnect, useInactiveListener } from 'hooks'
+import { useActiveWeb3React, useEagerConnect, useInactiveListener, useWeb3React } from 'hooks'
 
 const MessageWrapper = styled.div`
   display: flex;

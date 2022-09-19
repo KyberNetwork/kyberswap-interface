@@ -1,5 +1,6 @@
-import { useWeb3React } from '@web3-react/core'
 import { useEffect, useState } from 'react'
+
+import { useWeb3React } from 'hooks'
 
 export function useTimestampFromBlock(block: number | undefined): number | undefined {
   const { library } = useWeb3React()

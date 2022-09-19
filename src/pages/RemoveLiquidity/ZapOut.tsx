@@ -14,7 +14,6 @@ import {
   computePriceImpact,
 } from '@namgold/ks-sdk-core'
 import { captureException } from '@sentry/react'
-import { useWeb3React } from '@web3-react/core'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
@@ -38,7 +37,7 @@ import FormattedPriceImpact from 'components/swap/FormattedPriceImpact'
 import { Dots } from 'components/swap/styleds'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
-import { useActiveWeb3React } from 'hooks'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { usePairContract } from 'hooks/useContract'
@@ -239,7 +238,7 @@ export default function ZapOut({
     library
       .send('eth_signTypedData_v4', [account, data])
       .then(splitSignature)
-      .then((signature: { v: number; r: string; s: string; deadline: number }) => {
+      .then(signature => {
         setSignatureData({
           v: signature.v,
           r: signature.r,

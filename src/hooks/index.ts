@@ -1,6 +1,8 @@
+import { Web3Provider } from '@ethersproject/providers'
 import { ChainId, ChainType, getChainType } from '@namgold/ks-sdk-core'
 import { useWallet } from '@solana/wallet-adapter-react'
-import { useWeb3React } from '@web3-react/core'
+import { useWeb3React as useWeb3ReactCore } from '@web3-react/core'
+import { Web3ReactContextInterface } from '@web3-react/core/dist/types'
 import { ethers } from 'ethers'
 import { useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -54,6 +56,21 @@ export function useActiveWeb3React(): {
   })
 
   return { chainId: chainIdState, account: address, walletKey }
+}
+
+export function useWeb3React(key?: string): Web3ReactContextInterface<Web3Provider> & { chainId?: ChainId } {
+  const { connector, library, chainId, account, active, error, activate, setError, deactivate } = useWeb3ReactCore(key)
+  return {
+    connector,
+    library: library || providers[ChainId.MAINNET],
+    chainId: chainId || ChainId.MAINNET,
+    account,
+    active,
+    error,
+    activate,
+    setError,
+    deactivate,
+  } as Web3ReactContextInterface
 }
 
 async function isAuthorized(): Promise<boolean> {

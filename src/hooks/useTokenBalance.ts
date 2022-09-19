@@ -1,14 +1,12 @@
 import { WETH } from '@namgold/ks-sdk-core'
-import { useWeb3React } from '@web3-react/core'
 import { BigNumber, Contract } from 'ethers'
 import { useCallback, useEffect, useState } from 'react'
 
 import ERC20_ABI from 'constants/abis/erc20.json'
-import { useActiveWeb3React } from 'hooks'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useContract } from 'hooks/useContract'
+import useTransactionStatus from 'hooks/useTransactionStatus'
 import { isAddress } from 'utils'
-
-import { useContract } from './useContract'
-import useTransactionStatus from './useTransactionStatus'
 
 export interface BalanceProps {
   value: BigNumber
