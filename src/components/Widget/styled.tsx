@@ -140,4 +140,34 @@ export const Button = styled.button`
   padding: 0.75rem;
   background: ${({ theme }) => theme.primary};
   cursor: pointer;
+
+  :disabled {
+    background: #292929;
+    color: ${({ theme }) => theme.subText};
+  }
+
+  :active {
+    transform: scale(0.99);
+  }
+`;
+
+export const Dots = styled.span`
+  &::after {
+    display: inline-block;
+    animation: ellipsis 1.25s infinite;
+    content: ".";
+    width: 1em;
+    text-align: left;
+  }
+  @keyframes ellipsis {
+    0% {
+      content: ".";
+    }
+    33% {
+      content: "..";
+    }
+    66% {
+      content: "...";
+    }
+  }
 `;

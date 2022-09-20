@@ -1,7 +1,10 @@
-import { useConnectWallet } from "@web3-onboard/react";
-import { useEffect } from "react";
+import { BigNumber } from "ethers";
+import { formatUnits } from "ethers/lib/utils";
 import styled from "styled-components";
+import { NATIVE_TOKEN, NATIVE_TOKEN_ADDRESS } from "../constants";
 import { defaultTokenList } from "../constants/tokens";
+import useTokenBalances from "../hooks/useTokenBalances";
+import { useActiveWeb3 } from "../hooks/useWeb3Provider";
 
 const Input = styled.input`
   font-size: 1rem;
@@ -18,12 +21,15 @@ const TokenListWrapper = styled.div`
   overflow-y: scroll;
 `;
 
-const TokenRow = styled.div`
+const TokenRow = styled.div<{ selected: boolean }>`
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 0.75rem;
   cursor: pointer;
+
+  background: ${({ theme, selected }) =>
+    selected ? theme.bg2 : "transparent"};
 
   :hover {
     background: ${({ theme }) => theme.bg2};
@@ -46,29 +52,66 @@ const TokenBalance = styled.div`
   font-size: 1rem;
 `;
 
-function SelectCurrency() {
-  const [{ wallet }, , , updateBalances] = useConnectWallet();
-
+function SelectCurrency({
+  selectedToken,
+  onChange,
+}: {
+  selectedToken: string;
+  onChange: (address: string) => void;
+}) {
   const tokenAddress = defaultTokenList.map((item) => item.address);
-  useEffect(() => {
-    updateBalances(tokenAddress).then(console.log);
-  }, [updateBalances]);
+  const { balances } = useTokenBalances(tokenAddress);
 
-  console.log(wallet);
+  const { chainId } = useActiveWeb3();
+
+  let tokenWithBalances = [
+    {
+      ...NATIVE_TOKEN[chainId],
+      balance: balances[NATIVE_TOKEN_ADDRESS],
+      formattedBalance: formatUnits(
+        balances[NATIVE_TOKEN_ADDRESS] || BigNumber.from(0),
+        18
+      ),
+    },
+
+    ...defaultTokenList
+      .map((item) => {
+        const balance = balances[item.address];
+        const formattedBalance = formatUnits(
+          balance || BigNumber.from(0),
+          item.decimals
+        );
+
+        return { ...item, balance, formattedBalance };
+      })
+      .sort(
+        (a, b) =>
+          parseFloat(b.formattedBalance) - parseFloat(a.formattedBalance)
+      ),
+  ];
 
   return (
     <>
       <Input placeholder="Search by token name or address" />
       <TokenListWrapper>
-        {defaultTokenList.map((token) => {
+        {tokenWithBalances.map((token) => {
           return (
-            <TokenRow>
+            <TokenRow
+              selected={token.address === selectedToken}
+              key={token.address}
+              onClick={() => {
+                onChange(token.address);
+              }}
+            >
               <TokenInfo>
                 <img
                   src={token.logoURI}
                   width="24"
                   height="24"
                   alt="logo"
+                  style={{
+                    borderRadius: "999px",
+                  }}
                   onError={({ currentTarget }) => {
                     currentTarget.onerror = null; // prevents looping
                     currentTarget.src = new URL(
@@ -83,7 +126,12 @@ function SelectCurrency() {
                 </div>
               </TokenInfo>
 
-              <TokenBalance>1.23123</TokenBalance>
+              <TokenBalance>
+                {token.balance &&
+                  parseFloat(
+                    parseFloat(token.formattedBalance).toPrecision(10)
+                  )}
+              </TokenBalance>
             </TokenRow>
           );
         })}

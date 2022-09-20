@@ -725,16 +725,6 @@ export const defaultTokenList = [
   },
   {
     chainId: 137,
-    address: "0x9a71012B13CA4d3D0Cdc72A177DF3ef03b0E76A3",
-    _scan:
-      "https://polygonscan.com/token/0x9a71012B13CA4d3D0Cdc72A177DF3ef03b0E76A3",
-    decimals: 18,
-    name: "Balancer",
-    symbol: "BAL",
-    logoURI: "https://ethereum-optimism.github.io/logos/BAL.png",
-  },
-  {
-    chainId: 137,
     address: "0xE0339c80fFDE91F3e20494Df88d4206D86024cdF",
     _scan:
       "https://polygonscan.com/token/0xE0339c80fFDE91F3e20494Df88d4206D86024cdF",
