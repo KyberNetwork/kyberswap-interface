@@ -212,9 +212,9 @@ export default function WalletModal({
   }, [setWalletView, active, error, connector, walletModalOpen, activePrevious, connectorPrevious])
 
   useEffect(() => {
-    // when waiting for connecting wallet done, check if wallet has been connected or not
-    // setPendingError base on connected result
-    // Known issue: C98 solana connected but not return connected = true
+    // When waiting for connecting wallet done, check if wallet has been connected or not
+    // Then setPendingError base on connected result
+    // TODO known issue: C98 solana connected but not return connected = true
     if (!connecting) {
       setPendingError(!connected)
     }
