@@ -5,6 +5,7 @@ import { parseUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 import { rgba } from 'polished'
 import { memo } from 'react'
+import { Check } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
@@ -83,7 +84,7 @@ const CampaignItem = ({ campaign, onSelectCampaign, isSelected }: CampaignItemPr
   const {
     tradingNumberRequired,
     tradingVolumeRequired,
-    userInfo: { tradingNumber, tradingVolume } = { tradingNumber: 0, tradingVolume: 0 },
+    userInfo: { tradingNumber, tradingVolume, status: UserStatus } = { tradingNumber: 0, tradingVolume: 0 },
   } = campaign
 
   try {
@@ -122,6 +123,12 @@ const CampaignItem = ({ campaign, onSelectCampaign, isSelected }: CampaignItemPr
   const isShowProgressBar = isOngoing && account && campaign?.userInfo?.status === CampaignUserInfoStatus.Eligible
   const percentVolume = !tradingVolumeRequired ? 0 : (tradingVolume / tradingVolumeRequired) * 100
   const percentTradingNumber = !tradingNumberRequired ? 0 : (tradingNumber / tradingNumberRequired) * 100
+  const isPassedVolume = percentVolume >= 100
+  const isPassedNumberOfTrade = percentTradingNumber >= 100
+  const isQualified =
+    (isPassedVolume && isPassedNumberOfTrade) ||
+    (isPassedVolume && !tradingNumberRequired) ||
+    (isPassedNumberOfTrade && !tradingVolumeRequired)
 
   return (
     <CampaignItemWrapper onClick={() => onSelectCampaign(campaign)} selected={isSelected}>
@@ -142,28 +149,42 @@ const CampaignItem = ({ campaign, onSelectCampaign, isSelected }: CampaignItemPr
         </Text>
       </Container>
 
-      {isShowProgressBar && (
+      {isQualified ? (
+        <CampaignStatusText
+          status={CampaignStatus.ONGOING}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 2,
+            alignSelf: 'flex-end',
+            padding: '2px 7px',
+          }}
+        >
+          <Check width={17} height={17} />
+          <Trans>Qualified</Trans>
+        </CampaignStatusText>
+      ) : isShowProgressBar ? (
         <Flex style={{ gap: 10 }} flexDirection="column">
           {tradingVolumeRequired > 0 && (
             <ProgressBar
               title={t`Your Trading Volume`}
               percent={percentVolume}
-              value={`${tradingVolume}/${tradingVolumeRequired}$`}
+              value={isPassedVolume ? <Check width={17} height={17} /> : `${percentVolume}%`}
               valueTextColor={theme.primary}
-              color={percentVolume >= 100 ? theme.primary : theme.warning}
+              color={isPassedVolume ? theme.primary : theme.warning}
             />
           )}
           {tradingNumberRequired > 1 && (
             <ProgressBar
               title={t`Your Number of Trades`}
               percent={percentTradingNumber}
-              value={`${tradingNumber}/${tradingNumberRequired}`}
+              value={isPassedNumberOfTrade ? <Check width={17} height={17} /> : `${percentTradingNumber}%`}
               valueTextColor={theme.primary}
-              color={percentTradingNumber >= 100 ? theme.primary : theme.warning}
+              color={isPassedNumberOfTrade ? theme.primary : theme.warning}
             />
           )}
         </Flex>
-      )}
+      ) : null}
 
       {!isShowProgressBar && (
         <div>

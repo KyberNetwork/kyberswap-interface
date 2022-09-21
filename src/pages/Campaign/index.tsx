@@ -116,7 +116,7 @@ function RankDetail({ campaign }: { campaign: CampaignData | undefined }) {
               <ProgressBar
                 percent={percentVolume}
                 title={t`Trading Volume`}
-                value={`${tradingVolume}/${tradingVolumeRequired}$`}
+                value={`${percentVolume}%`}
                 color={isPassedVolume ? theme.primary : theme.warning}
               />
             )}
@@ -124,7 +124,7 @@ function RankDetail({ campaign }: { campaign: CampaignData | undefined }) {
               <ProgressBar
                 percent={percentTradingNumber}
                 title={t`Number of Trades`}
-                value={`${tradingNumber}/${tradingNumberRequired}`}
+                value={`${percentTradingNumber}%`}
                 color={isPassedNumberOfTrade ? theme.primary : theme.warning}
               />
             )}
