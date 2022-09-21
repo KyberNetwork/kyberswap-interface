@@ -84,7 +84,7 @@ const CampaignItem = ({ campaign, onSelectCampaign, isSelected }: CampaignItemPr
   const {
     tradingNumberRequired,
     tradingVolumeRequired,
-    userInfo: { tradingNumber, tradingVolume, status: UserStatus } = { tradingNumber: 0, tradingVolume: 0 },
+    userInfo: { tradingNumber, tradingVolume } = { tradingNumber: 0, tradingVolume: 0 },
   } = campaign
 
   try {
