@@ -260,8 +260,7 @@ export default function WalletModal({
       // request change network if wallet's network not match with desire network by asking approve change network
       changeNetwork(chainId)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chainIdEVM])
+  }, [active, chainId, chainIdEVM, changeNetwork, dispatch, justConnectedWallet])
 
   useEffect(() => {
     const timeout = setTimeout(() => setJustConnectedWallet(false), 1000)

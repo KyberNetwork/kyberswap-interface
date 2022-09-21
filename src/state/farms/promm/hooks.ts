@@ -64,7 +64,6 @@ export const useGetProMMFarms = () => {
 
     const promises = farmsAddress.map(async address => {
       const contract = prommFarmContracts?.[address]
-      debugger
       if (!contract || !isEVM(chainId)) return
 
       const [poolLength, userDepositedNFT, rewardLocker] = await Promise.all([
