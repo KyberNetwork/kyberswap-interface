@@ -115,7 +115,7 @@ function Banner({
         // KyberSwap Trading Campaign Lido
         id: 'kyberSwap-trading-campaign-Lido',
         name: 'KyberSwap Trading Campaign Lido',
-        start: new Date('2022-09-15T11:03:00.000Z'),
+        start: new Date('2022-09-15T00:00:00.000Z'),
         end: new Date('2022-10-09T03:00:00.000Z'),
         img: isInModal
           ? TradingCampaignLidoMobile
@@ -130,7 +130,7 @@ function Banner({
         // KyberSwap Trading Campaign BNB
         id: 'kyberSwap-trading-campaign-BNB',
         name: 'KyberSwap Trading Campaign BNB',
-        start: new Date('2022-09-22T11:03:00.000Z'),
+        start: new Date('2022-09-22T00:00:00.000Z'),
         end: new Date('2022-10-12T03:00:00.000Z'),
         img: isInModal
           ? TradingCampaignBnbMobile
