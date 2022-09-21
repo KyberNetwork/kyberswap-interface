@@ -20,6 +20,8 @@ import {
   toggleTopTrendingTokens,
   toggleTradeRoutes,
   updateChainId,
+  updateIsAcceptedTerm,
+  updateIsUserManuallyDisconnect,
   updateMatchesDarkMode,
   updateUserDarkMode,
   updateUserDeadline,
@@ -79,6 +81,8 @@ export interface UserState {
     >
   >
   readonly chainId: ChainId
+  isUserManuallyDisconnect: boolean
+  isAcceptedTerm: boolean
 }
 
 function pairKey(token0Address: string, token1Address: string) {
@@ -129,6 +133,8 @@ export const initialState: UserState = {
   showTopTrendingSoonTokens: true,
   favoriteTokensByChainId: {},
   chainId: ChainId.MAINNET,
+  isUserManuallyDisconnect: false,
+  isAcceptedTerm: false,
 }
 
 export default createReducer(initialState, builder =>
@@ -251,5 +257,11 @@ export default createReducer(initialState, builder =>
     })
     .addCase(updateChainId, (state, { payload: chainId }) => {
       state.chainId = chainId
+    })
+    .addCase(updateIsUserManuallyDisconnect, (state, { payload: isUserManuallyDisconnect }) => {
+      state.isUserManuallyDisconnect = isUserManuallyDisconnect
+    })
+    .addCase(updateIsAcceptedTerm, (state, { payload: isAcceptedTerm }) => {
+      state.isAcceptedTerm = isAcceptedTerm
     }),
 )

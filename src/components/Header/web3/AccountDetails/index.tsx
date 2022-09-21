@@ -5,7 +5,6 @@ import { useCallback } from 'react'
 import { isMobile } from 'react-device-detect'
 import { FileText } from 'react-feather'
 import { useDispatch } from 'react-redux'
-import { useLocalStorage } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -21,7 +20,7 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { AppDispatch } from 'state'
 import { clearAllTransactions } from 'state/transactions/actions'
-import { useIsDarkMode } from 'state/user/hooks'
+import { useIsDarkMode, useIsUserManuallyDisconnect } from 'state/user/hooks'
 import { ExternalLink, LinkStyledButton, TYPE } from 'theme'
 import { detectInjectedType, getEtherscanLink, shortenAddress } from 'utils'
 
@@ -211,7 +210,7 @@ export default function AccountDetails({
     if (chainId) dispatch(clearAllTransactions({ chainId }))
   }, [dispatch, chainId])
 
-  const [, setIsUserManuallyDisconnect] = useLocalStorage('user-manually-disconnect')
+  const [, setIsUserManuallyDisconnect] = useIsUserManuallyDisconnect()
 
   const handleDisconnect = () => {
     const chainType = getChainType(chainId)

@@ -8,21 +8,24 @@ import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { useEffect, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
 import { useLocation } from 'react-router-dom'
-import { useLocalStorage } from 'react-use'
 import styled from 'styled-components'
 
 import { ReactComponent as Close } from 'assets/images/x.svg'
 import AccountDetails from 'components/Header/web3/AccountDetails'
 import Networks from 'components/Header/web3/NetworkModal/Networks'
 import Modal from 'components/Modal'
+import { isEVM } from 'constants/networks'
 import { SUPPORTED_WALLET, SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useChangeNetwork } from 'hooks/useChangeNetwork'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import usePrevious from 'hooks/usePrevious'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useOpenNetworkModal, useWalletModalToggle } from 'state/application/hooks'
+import { useAppDispatch } from 'state/hooks'
 import { updateChainId } from 'state/user/actions'
+import { useIsAcceptedTerm, useIsUserManuallyDisconnect } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { isEVMWallet, isSolanaWallet } from 'utils'
 
@@ -129,7 +132,7 @@ const ToSText = styled.span`
   font-weight: 500;
 `
 
-export const WALLET_VIEWS = {
+const WALLET_VIEWS = {
   CHANGE_WALLET: 'CHANGE_WALLET',
   ACCOUNT: 'account',
   PENDING: 'pending',
@@ -147,10 +150,13 @@ export default function WalletModal({
   const { chainId, account } = useActiveWeb3React()
   const chainType = getChainType(chainId)
   // important that these are destructed from the account-specific web3-react context
-  const { active, connector, activate, error } = useWeb3React()
+  const { active, connector, activate, error, chainId: chainIdEVM } = useWeb3React()
   const { connected, connecting, wallet: solanaWallet, select } = useWallet()
+  const [justConnectedWallet, setJustConnectedWallet] = useState(false)
+  const dispatch = useAppDispatch()
 
-  const [, setIsUserManuallyDisconnect] = useLocalStorage('user-manually-disconnect')
+  const changeNetwork = useChangeNetwork()
+  const [, setIsUserManuallyDisconnect] = useIsUserManuallyDisconnect()
 
   const theme = useTheme()
 
@@ -166,7 +172,7 @@ export default function WalletModal({
 
   const previousAccount = usePrevious(account)
 
-  const [isAcceptedTerm, setIsAcceptedTerm] = useState(false)
+  const [isAcceptedTerm, setIsAcceptedTerm] = useIsAcceptedTerm()
 
   const location = useLocation()
   const { mixpanelHandler } = useMixpanel()
@@ -212,12 +218,6 @@ export default function WalletModal({
     }
   }, [connecting, connected])
 
-  useEffect(() => {
-    if (connector && account && active) {
-      updateChainId(chainId)
-    }
-  }, [connector, chainId, account, active])
-
   const tryActivation = async (walletKey: SUPPORTED_WALLET) => {
     const wallet = SUPPORTED_WALLETS[walletKey]
     setPendingWalletKey(walletKey)
@@ -239,6 +239,7 @@ export default function WalletModal({
     if (connector) {
       await activate(connector, undefined, true)
         .then(() => {
+          setJustConnectedWallet(true)
           setIsUserManuallyDisconnect(false)
         })
         .catch(error => {
@@ -250,6 +251,22 @@ export default function WalletModal({
         })
     }
   }
+
+  useEffect(() => {
+    if (isEVM(chainId) && chainIdEVM && chainId !== chainIdEVM && active && justConnectedWallet) {
+      // when connected to wallet, wallet's network might not match with desire network
+      // we need to update network state by wallet's network (chainIdEVM)
+      dispatch(updateChainId(chainIdEVM))
+      // request change network if wallet's network not match with desire network by asking approve change network
+      changeNetwork(chainId)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chainIdEVM])
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setJustConnectedWallet(false), 1000)
+    return () => clearTimeout(timeout)
+  }, [justConnectedWallet])
 
   const tryActivationSolana = async (adapter: BaseMessageSignerWalletAdapter) => {
     try {
@@ -283,7 +300,7 @@ export default function WalletModal({
 
     return (Object.keys(SUPPORTED_WALLETS) as SUPPORTED_WALLET[])
       .sort(sortWallets)
-      .map(key => <Option key={key} walletKey={key} onSelected={tryActivation} isAcceptedTerm={isAcceptedTerm} />)
+      .map(key => <Option key={key} walletKey={key} onSelected={tryActivation} />)
       .filter(Boolean)
   }
 

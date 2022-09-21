@@ -6,7 +6,7 @@ import styled from 'styled-components'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { SUPPORTED_WALLET, SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React } from 'hooks'
-import { useIsDarkMode } from 'state/user/hooks'
+import { useIsAcceptedTerm, useIsDarkMode } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { isEVMWallet, isOverriddenWallet, isSolanaWallet } from 'utils'
 import checkForBraveBrowser from 'utils/checkForBraveBrowser'
@@ -114,16 +114,15 @@ const StyledLink = styled(ExternalLink)`
 export default function Option({
   walletKey,
   onSelected,
-  isAcceptedTerm,
 }: {
   walletKey: SUPPORTED_WALLET
   onSelected?: (walletKey: SUPPORTED_WALLET) => any
-  isAcceptedTerm: boolean
 }) {
   const isDarkMode = useIsDarkMode()
   const { chainId, walletKey: walletKeyConnected } = useActiveWeb3React()
   const chainType = getChainType(chainId)
   const isBraveBrowser = checkForBraveBrowser()
+  const [isAcceptedTerm] = useIsAcceptedTerm()
 
   const wallet = SUPPORTED_WALLETS[walletKey]
   const isWalletEVM = isEVMWallet(wallet)

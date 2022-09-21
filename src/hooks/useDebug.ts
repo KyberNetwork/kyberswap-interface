@@ -5,30 +5,42 @@ const instancesSet: { [title: string]: Set<Error> } = {}
 /**
  * Help detect reason of rerendering in React's components and hooks
  *
- * @params {object} props - dependency need to watch for change
+ * Usually use to detect why useEffect run. Place it along with useEffect, then pass all useEffect's dependencies into its props
+ *
+ * @params {object} props - dependencies need to watch for change
+ *
+ * @example
+ * useDebug({ deps1, deps2, deps3 })
+ * useEffect(() => {...}, [deps1, deps2, deps3])
  */
-export default function useDebug(
-  props: { [key: string]: any } & {
-    title: string
-  },
-) {
+export default function useDebug(props: { [key: string]: any }) {
   const prevProps = useRef(props)
-  const instanceRef = useRef(new Error('Trace'))
+  const instanceRef = useRef(new Error())
   const trace = instanceRef.current.stack || ''
   // const skipRealChanged = true // recommend: true
+  const logOnlyOneInstance: number | undefined = undefined // use when debugging hooks reused in so many places, like useActiveWeb3React has hundred of instances
+
+  const callerName = (() => {
+    // https://stackoverflow.com/a/29572569/8153505
+    const re = /(\w+)@|at (\w+) \(/g
+    const m = (re.exec(trace), re.exec(trace))
+    return m?.[1] || m?.[2] || ''
+  })()
 
   useEffect(() => {
     const instance = instanceRef.current
-    if (!instancesSet[props.title]) instancesSet[props.title] = new Set()
-    instancesSet[props.title].add(instance)
+    if (!instancesSet[callerName]) instancesSet[callerName] = new Set()
+    instancesSet[callerName].add(instance)
     return () => {
-      instancesSet[props.title].delete(instance)
+      instancesSet[callerName].delete(instance)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
-    const instances = [...instancesSet[props.title]]
+    const instances = [...instancesSet[callerName]]
+    const instanceIndex = instances.indexOf(instanceRef.current) + 1
+    if (logOnlyOneInstance && instanceIndex !== logOnlyOneInstance) return
     const propKeys = new Set<string>()
     Object.keys(prevProps.current).forEach(key => propKeys.add(key))
     Object.keys(props).forEach(key => propKeys.add(key))
@@ -47,9 +59,9 @@ export default function useDebug(
       // if (hasRealChanged && skipRealChanged) return
 
       console.groupCollapsed(
-        `%c[${new Date().toISOString().slice(11, 19)}] %cDebug found changed %c${props.title} (${
-          instances.indexOf(instanceRef.current) + 1
-        }/${instances.length}) ${hasRealChanged ? '' : '🆘 🆘 🆘'}`,
+        `%c[${new Date().toISOString().slice(11, 19)}] %cDebug found changed %c${callerName} (${instanceIndex}/${
+          instances.length
+        }) ${hasRealChanged ? '' : '🆘 🆘 🆘'}`,
         'color: #31CB9E',
         'color: unset',
         'color: #b5a400',

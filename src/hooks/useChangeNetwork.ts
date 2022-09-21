@@ -59,6 +59,7 @@ export function useChangeNetwork() {
         }
         const isNotConnected = !(library && library.provider)
         const isWrongNetwork = error instanceof UnsupportedChainIdError
+        // if (isNotConnected && !isWrongNetwork && chainIdEVM !== desiredChainId) {
         if (isNotConnected && !isWrongNetwork) {
           dispatch(updateChainId(desiredChainId))
           successCallback?.()
@@ -110,8 +111,8 @@ export function useChangeNetwork() {
           }
         }
       } else {
-        // todo namgold: handle switch chain solana
         dispatch(updateChainId(desiredChainId))
+        successCallback?.()
       }
     },
     [dispatch, history, library, locationWithoutNetworkId, error, notify, chainId],

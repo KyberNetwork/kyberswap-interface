@@ -30,6 +30,8 @@ import {
   toggleTokenInfo,
   toggleTopTrendingTokens,
   toggleTradeRoutes,
+  updateIsAcceptedTerm,
+  updateIsUserManuallyDisconnect,
   updateUserDarkMode,
   updateUserDeadline,
   updateUserExpertMode,
@@ -111,6 +113,36 @@ export function useUserLocaleManager(): [SupportedLocale | null, (newLocale: Sup
 
 export function useIsExpertMode(): boolean {
   return useSelector<AppState, AppState['user']['userExpertMode']>(state => state.user.userExpertMode)
+}
+
+export function useIsUserManuallyDisconnect(): [boolean, (isUserManuallyDisconnect: boolean) => void] {
+  const dispatch = useAppDispatch()
+  const isUserManuallyDisconnect = useSelector<AppState, AppState['user']['isUserManuallyDisconnect']>(
+    state => state.user.isUserManuallyDisconnect,
+  )
+
+  const setIsUserManuallyDisconnect = useCallback(
+    (isUserManuallyDisconnect: boolean) => {
+      dispatch(updateIsUserManuallyDisconnect(isUserManuallyDisconnect))
+    },
+    [dispatch],
+  )
+
+  return [isUserManuallyDisconnect, setIsUserManuallyDisconnect]
+}
+
+export function useIsAcceptedTerm(): [boolean, (isAcceptedTerm: boolean) => void] {
+  const dispatch = useAppDispatch()
+  const isAcceptedTerm = useSelector<AppState, AppState['user']['isAcceptedTerm']>(state => state.user.isAcceptedTerm)
+
+  const setIsAcceptedTerm = useCallback(
+    (isAcceptedTerm: boolean) => {
+      dispatch(updateIsAcceptedTerm(isAcceptedTerm))
+    },
+    [dispatch],
+  )
+
+  return [isAcceptedTerm, setIsAcceptedTerm]
 }
 
 export function useExpertModeManager(): [boolean, () => void] {
