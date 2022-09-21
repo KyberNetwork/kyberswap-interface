@@ -784,13 +784,15 @@ export default function Swap({ history }: RouteComponentProps) {
               </SwapFormActions>
             </RowBetween>
 
-            <RowBetween mb={'16px'}>
-              <PairSuggestion
-                ref={refSuggestPair}
-                onSelectSuggestedPair={onSelectSuggestedPair}
-                setShowModalImportToken={setShowingPairSuggestionImport}
-              />
-            </RowBetween>
+            {chainId !== ChainId.ETHW && (
+              <RowBetween mb={'16px'}>
+                <PairSuggestion
+                  ref={refSuggestPair}
+                  onSelectSuggestedPair={onSelectSuggestedPair}
+                  setShowModalImportToken={setShowingPairSuggestionImport}
+                />
+              </RowBetween>
+            )}
 
             <AppBodyWrapped data-highlight={shouldHighlightSwapBox} id={TutorialIds.SWAP_FORM}>
               {activeTab === TAB.SWAP && (
