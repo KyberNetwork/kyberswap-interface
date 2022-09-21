@@ -140,6 +140,7 @@ function PositionListItem({ stakedLayout, farmAvailable, positionDetails, refe }
     liquidity,
     tickLower,
     tickUpper,
+    stakedLiquidity,
   } = positionDetails
 
   const token0 = useToken(token0Address)
@@ -267,6 +268,7 @@ function PositionListItem({ stakedLayout, farmAvailable, positionDetails, refe }
                 tokenId={positionDetails.tokenId}
                 layout={1}
                 farmAvailable={farmAvailable}
+                disableCollectFee={!!stakedLiquidity}
               />
             )}
           </>
@@ -285,7 +287,7 @@ function PositionListItem({ stakedLayout, farmAvailable, positionDetails, refe }
             </ButtonPrimary>
           ) : (
             <ButtonGroup>
-              {removed ? (
+              {removed || !!stakedLiquidity ? (
                 <ButtonOutlined disabled padding="8px" style={{ flex: 1 }}>
                   <Text width="max-content" fontSize="14px">
                     <Trans>Remove Liquidity</Trans>
