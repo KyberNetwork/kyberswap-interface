@@ -26,7 +26,8 @@ import useTheme from 'hooks/useTheme'
 import CampaignActions from 'pages/Campaign/CampaignActions'
 import CampaignListAndSearch from 'pages/Campaign/CampaignListAndSearch'
 import LeaderboardLayout from 'pages/Campaign/LeaderboardLayout'
-import ModalRegisterCampaign from 'pages/Campaign/ModalRegisterCampaign'
+import ModalRegisterCampaignCaptcha from 'pages/Campaign/ModalRegisterCampaignCaptcha'
+import ModalRegisterCampaignSuccess from 'pages/Campaign/ModalRegisterCampaignSuccess'
 import { Loading } from 'pages/ProAmmPool/ContentLoader'
 import { AppState } from 'state'
 import { ApplicationModal } from 'state/application/actions'
@@ -71,6 +72,7 @@ const RankDetailWrapper = styled.div`
   display: flex;
   flex-direction: column;
 `
+
 function RankDetail({ campaign }: { campaign: CampaignData | undefined }) {
   const theme = useTheme()
   const { account } = useWeb3React()
@@ -106,7 +108,7 @@ function RankDetail({ campaign }: { campaign: CampaignData | undefined }) {
             <Trans>Requirements</Trans>
           </Text>
           <Text lineHeight={'20px'}>
-            <Trans>Fulfill these requirements to participate in the campaign</Trans>
+            <Trans>Fulfil these requirements to participate in the campaign</Trans>
           </Text>
           <Flex style={{ gap: 10 }} flexDirection="column">
             {tradingVolumeRequired > 0 && (
@@ -441,7 +443,8 @@ export default function Campaign() {
                   />
                 </ButtonEmpty>
                 <ModalSelectCampaign />
-                <ModalRegisterCampaign />
+                <ModalRegisterCampaignCaptcha />
+                <ModalRegisterCampaignSuccess />
               </Flex>
             </MediumOnly>
 

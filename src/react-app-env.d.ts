@@ -27,6 +27,7 @@ interface Window {
   chrome?: any
   opr?: any
   solana?: any
+  recaptchaOptions?: any
 }
 
 declare module 'content-hash' {

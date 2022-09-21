@@ -4,7 +4,6 @@ import { Popover, Sidetab } from '@typeform/embed-react'
 import { Suspense, lazy, useEffect } from 'react'
 import { isMobile } from 'react-device-detect'
 import { AlertTriangle } from 'react-feather'
-import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3'
 import { Route, Switch } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -17,7 +16,6 @@ import Loader from 'components/LocalLoader'
 import Modal from 'components/Modal'
 import Popups from 'components/Popups'
 import Web3ReactManager from 'components/Web3ReactManager'
-import { GOOGLE_RECAPTCHA_KEY } from 'constants/env'
 import { BLACKLIST_WALLETS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
@@ -181,7 +179,7 @@ export default function App() {
       )}
 
       {(!account || !BLACKLIST_WALLETS.includes(account)) && (
-        <GoogleReCaptchaProvider reCaptchaKey={GOOGLE_RECAPTCHA_KEY}>
+        <>
           <Route component={DarkModeQueryParamReader} />
           <AppWrapper>
             <TopBanner />
@@ -262,7 +260,7 @@ export default function App() {
               {showFooter && <Footer />}
             </Suspense>
           </AppWrapper>
-        </GoogleReCaptchaProvider>
+        </>
       )}
     </ErrorBoundary>
   )
