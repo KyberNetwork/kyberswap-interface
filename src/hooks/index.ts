@@ -14,7 +14,7 @@ import { EVM_NETWORK, EVM_NETWORKS, NETWORKS_INFO } from 'constants/networks'
 import { SUPPORTED_WALLET, SUPPORTED_WALLETS } from 'constants/wallets'
 import { AppState } from 'state'
 import { useIsUserManuallyDisconnect } from 'state/user/hooks'
-import { isEVMWallet, isSolanaWallet } from 'utils'
+import { detectInjectedType, isEVMWallet, isSolanaWallet } from 'utils'
 
 export const providers: {
   [chainId in EVM_NETWORK]: ethers.providers.JsonRpcProvider
@@ -43,27 +43,26 @@ export function useActiveWeb3React(): {
     [account, chainType, publicKey],
   )
 
-  const walletKey = useMemo(
-    () =>
-      (Object.keys(SUPPORTED_WALLETS) as SUPPORTED_WALLET[]).find(walletKey => {
-        const wallet = SUPPORTED_WALLETS[walletKey]
+  const walletKey = useMemo(() => {
+    const injectedType = detectInjectedType()
+    if (active && injectedType && chainType === ChainType.EVM) return injectedType
 
-        return (
-          (chainType === ChainType.EVM &&
-            active &&
-            isEVMWallet(wallet) &&
-            !!connector &&
-            wallet.connector === connector) ||
-          (chainType === ChainType.SOLANA &&
-            isSolanaWallet(wallet) &&
-            wallet &&
-            connected &&
-            wallet.adapter === walletSolana?.adapter)
-        )
-      }),
-    [active, chainType, connected, connector, walletSolana?.adapter],
-  )
-
+    return (Object.keys(SUPPORTED_WALLETS) as SUPPORTED_WALLET[]).find(walletKey => {
+      const wallet = SUPPORTED_WALLETS[walletKey]
+      return (
+        (chainType === ChainType.EVM &&
+          active &&
+          isEVMWallet(wallet) &&
+          !!connector &&
+          wallet.connector === connector) ||
+        (chainType === ChainType.SOLANA &&
+          isSolanaWallet(wallet) &&
+          wallet &&
+          connected &&
+          wallet.adapter === walletSolana?.adapter)
+      )
+    })
+  }, [active, chainType, connected, connector, walletSolana?.adapter])
   return { chainId: chainIdState, account: address, walletKey }
 }
 

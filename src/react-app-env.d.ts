@@ -19,6 +19,11 @@ interface Window {
     on?: (...args: any[]) => void
     removeListener?: (...args: any[]) => void
     request: (params: { method: string; params?: any }) => Promise<any>
+    selectedProvider?: {
+      isCoinbaseBrowser: boolean
+      isCoinbaseWallet: boolean
+    }
+    providers?: any[]
   }
   web3?: any
   tag?: string

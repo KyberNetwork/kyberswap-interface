@@ -18,7 +18,7 @@ import useTheme from 'hooks/useTheme'
 import { useIsDarkMode } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { CloseIcon, CustomLightSpinner } from 'theme/components'
-import { detectInjectedType, getEtherscanLink, getTokenLogoURL } from 'utils'
+import { getEtherscanLink, getTokenLogoURL } from 'utils'
 import { errorFriendly } from 'utils/dmm'
 
 const Wrapper = styled.div`
@@ -82,7 +82,7 @@ function ConfirmationPendingContent({
 
 function AddTokenToInjectedWallet({ token, chainId }: { token: Token; chainId: ChainId }) {
   const isDarkMode = useIsDarkMode()
-
+  const { walletKey } = useActiveWeb3React()
   const handleClick = async () => {
     const tokenAddress = token.address
     const tokenSymbol = token.symbol
@@ -110,10 +110,8 @@ function AddTokenToInjectedWallet({ token, chainId }: { token: Token; chainId: C
     }
   }
 
-  const injectedWallet = detectInjectedType()
-  if (!injectedWallet) return null
-  const walletConfig = SUPPORTED_WALLETS[injectedWallet]
-  if (!walletConfig) return null
+  if (!walletKey) return null
+  const walletConfig = SUPPORTED_WALLETS[walletKey]
 
   return (
     <ButtonLight mt="12px" padding="6px 12px" width="fit-content" onClick={handleClick}>

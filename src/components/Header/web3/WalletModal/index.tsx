@@ -242,6 +242,7 @@ export default function WalletModal({
       await activate(connector, undefined, true)
         .then(() => {
           setJustConnectedWallet(true)
+          setTimeout(() => setJustConnectedWallet(false), 1000)
           setIsUserManuallyDisconnect(false)
         })
         .catch(error => {
@@ -256,6 +257,7 @@ export default function WalletModal({
 
   useEffect(() => {
     if (isEVM(chainId) && chainIdEVM && chainId !== chainIdEVM && active && justConnectedWallet) {
+      setJustConnectedWallet(false)
       // when connected to wallet, wallet's network might not match with desire network
       // we need to update network state by wallet's network (chainIdEVM)
       dispatch(updateChainId(chainIdEVM))
@@ -263,11 +265,6 @@ export default function WalletModal({
       changeNetwork(chainId)
     }
   }, [active, chainId, chainIdEVM, changeNetwork, dispatch, justConnectedWallet])
-
-  useEffect(() => {
-    const timeout = setTimeout(() => setJustConnectedWallet(false), 1000)
-    return () => clearTimeout(timeout)
-  }, [justConnectedWallet])
 
   const tryActivationSolana = async (adapter: BaseMessageSignerWalletAdapter) => {
     try {

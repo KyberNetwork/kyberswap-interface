@@ -60,7 +60,7 @@ export default function CommonBases({
             {NativeCurrencies[chainId || ChainId.MAINNET].symbol}
           </Text>
         </BaseWrapper>
-        {(chainId ? SUGGESTED_BASES[chainId] : []).map((token: Token) => {
+        {(SUGGESTED_BASES[chainId] || []).map((token: Token) => {
           const selected = selectedCurrency instanceof Token && selectedCurrency.address === token.address
           let showWToken: Currency = token
           if (chainId) {

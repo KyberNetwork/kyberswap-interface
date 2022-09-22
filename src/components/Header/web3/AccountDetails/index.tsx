@@ -22,7 +22,7 @@ import { AppDispatch } from 'state'
 import { clearAllTransactions } from 'state/transactions/actions'
 import { useIsDarkMode, useIsUserManuallyDisconnect } from 'state/user/hooks'
 import { ExternalLink, LinkStyledButton, TYPE } from 'theme'
-import { detectInjectedType, getEtherscanLink, shortenAddress } from 'utils'
+import { getEtherscanLink, shortenAddress } from 'utils'
 
 import Transaction from './Transaction'
 
@@ -183,25 +183,20 @@ export default function AccountDetails({
 }: AccountDetailsProps) {
   const { chainId, account, walletKey } = useActiveWeb3React()
   const { connector, deactivate } = useWeb3React()
-  const { wallet, disconnect } = useWallet()
+  const { disconnect } = useWallet()
   const theme = useTheme()
   const dispatch = useDispatch<AppDispatch>()
   const isDarkMode = useIsDarkMode()
 
   function formatConnectorName(): JSX.Element {
-    const name = ((): string | null => {
-      if (chainId === ChainId.SOLANA) return wallet?.adapter.name || null
-
-      const injectedType = detectInjectedType()
-      if (injectedType) return SUPPORTED_WALLETS[injectedType].name
-
-      return Object.values(SUPPORTED_WALLETS).find(config => (config as any)?.connector === connector)?.name || null
-    })()
-    if (!name) console.error('Cannot find the wallet connect')
+    if (!walletKey) {
+      console.error('Cannot find the wallet connect')
+      return <></>
+    }
 
     return (
       <WalletName>
-        <Trans>Connected with {name}</Trans>
+        <Trans>Connected with {SUPPORTED_WALLETS[walletKey].name}</Trans>
       </WalletName>
     )
   }

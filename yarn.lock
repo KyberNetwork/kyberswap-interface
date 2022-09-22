@@ -3008,10 +3008,10 @@
     tiny-invariant "^1.1.0"
     toformat "^2.0.0"
 
-"@namgold/ks-sdk-elastic@~0.0.1":
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/@namgold/ks-sdk-elastic/-/ks-sdk-elastic-0.0.1.tgz#742089034ef7d5c87aacdf0fdcb555927ad21412"
-  integrity sha512-HG1ZHcP0sPts3e8toFoC9BNJH7UkVcknf/9HNRorIRYUWydYJkaIHn/mBn/VbUtwAUlTB//NPWI0K2edgL9etQ==
+"@namgold/ks-sdk-elastic@~0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@namgold/ks-sdk-elastic/-/ks-sdk-elastic-0.0.2.tgz#ccdd6ac3673d6c4f56eb88143cfb01f6eaf1455e"
+  integrity sha512-3131uD92bMu6ZkEoDCtWcBhjyncUZu4l9Z1iSchwora3Q126f6eoUX8wbzSKNZ4FTX145JMtvxCVQDGa2AgMCw==
   dependencies:
     "@ethersproject/abi" "^5.0.12"
     "@ethersproject/solidity" "^5.0.9"
