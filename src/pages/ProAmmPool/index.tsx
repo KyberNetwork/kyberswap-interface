@@ -56,7 +56,17 @@ export default function ProAmmPool() {
 
   const farmPositions = useMemo(() => {
     return Object.values(farms)
-      .map(item => item.map(it => it.userDepositedNFTs))
+      .map(item =>
+        item.map(it => {
+          if (it.userDepositedNFTs.length > 0) {
+            return it.userDepositedNFTs.map(i => {
+              return { ...i, endTime: it.endTime }
+            })
+          } else {
+            return []
+          }
+        }),
+      )
       .flat()
       .flat()
   }, [farms])

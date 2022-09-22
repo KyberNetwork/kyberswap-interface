@@ -14,4 +14,5 @@ export interface PositionDetails {
   token0: string
   token1: string
   fee: number
+  endTime?: number
 }
