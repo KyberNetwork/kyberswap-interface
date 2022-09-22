@@ -131,16 +131,8 @@ export default function Option({
     (isWalletEVM && chainType === ChainType.EVM) || (isWalletSolana && chainType === ChainType.SOLANA)
   const isConnected = !!walletKeyConnected && walletKey === walletKeyConnected
   const readyState = (() => {
-    const readyStateEVM = isWalletEVM
-      ? typeof wallet.readyState === 'function'
-        ? wallet.readyState()
-        : wallet.readyState
-      : null
-    const readyStateSolana = isWalletSolana
-      ? typeof wallet.readyStateSolana === 'function'
-        ? wallet.readyStateSolana()
-        : wallet.readyStateSolana
-      : null
+    const readyStateEVM = isWalletEVM ? wallet.readyState() : null
+    const readyStateSolana = isWalletSolana ? wallet.readyStateSolana() : null
     return (
       (chainType === ChainType.EVM && readyStateEVM) ||
       (chainType === ChainType.SOLANA && readyStateSolana) ||

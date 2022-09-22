@@ -82,12 +82,12 @@ export interface WalletInfo {
 export interface EVMWalletInfo extends WalletInfo {
   connector?: AbstractConnector
   href?: string
-  readyState: WalletReadyState | (() => WalletReadyState)
+  readyState: () => WalletReadyState
 }
 
 export interface SolanaWalletInfo extends WalletInfo {
   adapter: BaseMessageSignerWalletAdapter
-  readyStateSolana: WalletReadyState | (() => WalletReadyState)
+  readyStateSolana: () => WalletReadyState
 }
 
 export const SUPPORTED_WALLETS = {
@@ -107,7 +107,7 @@ export const SUPPORTED_WALLETS = {
     iconLight: BRAVE_L,
     installLink: 'https://brave.com/download',
     readyState: detectBrave,
-    readyStateSolana: braveAdapter.readyState,
+    readyStateSolana: () => braveAdapter.readyState,
   } as EVMWalletInfo & SolanaWalletInfo,
   COIN98: {
     connector: coin98InjectedConnector,
@@ -117,7 +117,7 @@ export const SUPPORTED_WALLETS = {
     iconLight: COIN98_L,
     installLink: 'https://wallet.coin98.com/',
     readyState: detectCoin98,
-    readyStateSolana: coin98Adapter.readyState,
+    readyStateSolana: () => coin98Adapter.readyState,
   } as EVMWalletInfo & SolanaWalletInfo,
   COINBASE: {
     connector: walletlink,
@@ -127,7 +127,7 @@ export const SUPPORTED_WALLETS = {
     iconLight: COINBASE_L,
     installLink: 'https://www.coinbase.com/wallet',
     readyState: detectCoinbase,
-    readyStateSolana: coinbaseAdapter.readyState,
+    readyStateSolana: () => coinbaseAdapter.readyState,
   } as EVMWalletInfo & SolanaWalletInfo,
   COINBASE_LINK: {
     // To get this link: go to Coinbase app -> Dapp Browser -> go to dmm.exchange -> click "..." button -> share -> copy link
@@ -135,7 +135,7 @@ export const SUPPORTED_WALLETS = {
     name: 'Coinbase Wallet',
     icon: COINBASE,
     iconLight: COINBASE_L,
-    readyState: detectCoinBaseLink(),
+    readyState: detectCoinBaseLink,
   } as EVMWalletInfo,
   WALLET_CONNECT: {
     connector: walletconnect,
@@ -143,7 +143,7 @@ export const SUPPORTED_WALLETS = {
     icon: WALLETCONNECT,
     iconLight: WALLETCONNECT_L,
     installLink: 'https://walletconnect.com/',
-    readyState: WalletReadyState.Installed,
+    readyState: () => WalletReadyState.Installed,
   } as EVMWalletInfo,
   // LEDGER: {
   //   adapter: ledgerAdapter,
