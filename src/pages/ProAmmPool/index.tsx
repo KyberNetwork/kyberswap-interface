@@ -223,7 +223,12 @@ export default function ProAmmPool() {
               {/* Use display attribute here instead of condition rendering to prevent re-render full list when toggle showStaked => increase performance */}
               <PositionCardGrid style={{ display: showStaked ? 'none' : 'grid' }}>
                 {filteredPositions.map(p => (
-                  <PositionListItem refe={tokenAddressSymbolMap} positionDetails={p} key={p.tokenId.toString()} />
+                  <PositionListItem
+                    refe={tokenAddressSymbolMap}
+                    positionDetails={p}
+                    key={p.tokenId.toString()}
+                    farmAvailable={!!p.stakedLiquidity}
+                  />
                 ))}
               </PositionCardGrid>
               <PositionCardGrid style={{ display: !showStaked ? 'none' : 'grid' }}>
