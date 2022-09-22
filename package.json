@@ -48,7 +48,7 @@
     "@namgold/dmm-solana-sdk": "^2.0.1",
     "@namgold/ks-sdk-classic": "~0.0.1",
     "@namgold/ks-sdk-core": "^0.1.22",
-    "@namgold/ks-sdk-elastic": "~0.0.1",
+    "@namgold/ks-sdk-elastic": "~0.0.2",
     "@sentry/react": "^7.11.1",
     "@sentry/tracing": "^7.11.1",
     "@solana/wallet-adapter-base": "^0.9.7",
