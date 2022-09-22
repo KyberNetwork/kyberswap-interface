@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { ChainType, getChainType } from '@namgold/ks-sdk-core'
+import { ChainId } from '@namgold/ks-sdk-core'
 import { BaseMessageSignerWalletAdapter } from '@solana/wallet-adapter-base'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { AbstractConnector } from '@web3-react/abstract-connector'
@@ -148,7 +148,6 @@ export default function WalletModal({
   ENSName?: string
 }) {
   const { chainId, account } = useActiveWeb3React()
-  const chainType = getChainType(chainId)
   // important that these are destructed from the account-specific web3-react context
   const { active, connector, activate, error, chainId: chainIdEVM } = useWeb3React()
   const { connected, connecting, wallet: solanaWallet, select } = useWallet()
@@ -212,13 +211,12 @@ export default function WalletModal({
   }, [setWalletView, active, error, connector, walletModalOpen, activePrevious, connectorPrevious])
 
   useEffect(() => {
-    // When waiting for connecting wallet done, check if wallet has been connected or not
-    // Then setPendingError base on connected result
-    // TODO known issue: C98 solana connected but not return connected = true
-    if (!connecting) {
-      setPendingError(!connected)
+    // If is there any issue when connecting wallet, solanaWallet will be cleared and set to null
+    // Use it to check is there any error after connecting
+    if (!connecting && !connected && !solanaWallet) {
+      setPendingError(true)
     }
-  }, [connecting, connected])
+  }, [connecting, connected, solanaWallet])
 
   const tryActivation = async (walletKey: SUPPORTED_WALLET) => {
     const wallet = SUPPORTED_WALLETS[walletKey]
@@ -226,9 +224,8 @@ export default function WalletModal({
     setWalletView(WALLET_VIEWS.PENDING)
     setPendingError(false)
 
-    const chainType = getChainType(chainId)
-    if (chainType === ChainType.EVM && isEVMWallet(wallet) && !wallet.href) tryActivationEVM(wallet.connector)
-    if (chainType === ChainType.SOLANA && isSolanaWallet(wallet) && wallet.adapter !== solanaWallet?.adapter)
+    if (isEVM(chainId) && isEVMWallet(wallet) && !wallet.href) tryActivationEVM(wallet.connector)
+    if (chainId === ChainId.SOLANA && isSolanaWallet(wallet) && wallet.adapter !== solanaWallet?.adapter)
       tryActivationSolana(wallet.adapter)
   }
 
@@ -286,10 +283,10 @@ export default function WalletModal({
 
       let aPoint = 0
       let bPoint = 0
-      if (chainType === ChainType.EVM) {
+      if (isEVM(chainId)) {
         if (isWalletAEVM) aPoint++
         if (isWalletBEVM) bPoint++
-      } else if (chainType === ChainType.SOLANA) {
+      } else if (chainId === ChainId.SOLANA) {
         if (isWalletASolana) aPoint++
         if (isWalletBSolana) bPoint++
       }

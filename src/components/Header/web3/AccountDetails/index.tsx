@@ -190,7 +190,7 @@ export default function AccountDetails({
 
   function formatConnectorName(): JSX.Element {
     if (!walletKey) {
-      console.error('Cannot find the wallet connect')
+      console.error('Cannot find the wallet connected')
       return <></>
     }
 
