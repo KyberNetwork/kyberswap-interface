@@ -173,4 +173,5 @@ export const SUGGESTED_BASES: ChainTokenList = {
     USDT[ChainId.OPTIMISM],
     DAI[ChainId.OPTIMISM],
   ],
+  [ChainId.ETHW]: [USDT[ChainId.ETHW], USDC[ChainId.ETHW]],
 }
