@@ -71,14 +71,14 @@ function SelectNetwork(): JSX.Element | null {
   const accounts = useMemo(() => (account ? [account] : []), [account])
   const userEthBalance = useNativeBalances(accounts)?.[account ?? '']
   const labelContent = useMemo(() => {
-    return userEthBalance
-      ? `${
-          userEthBalance?.lessThan(CurrencyAmount.fromRawAmount(NativeCurrencies[chainId], (1e18).toString())) &&
-          userEthBalance?.greaterThan(0)
-            ? parseFloat(userEthBalance.toSignificant(4)).toFixed(4)
-            : userEthBalance.toSignificant(4)
-        } ${NativeCurrencies[chainId || ChainId.MAINNET].symbol}`
-      : NETWORKS_INFO[chainId].name
+    if (!userEthBalance) return NETWORKS_INFO[chainId].name
+    const balanceFixedStr = userEthBalance.lessThan(1000 * 10 ** NativeCurrencies[chainId].decimals) // less than 1000
+      ? userEthBalance.lessThan(10 ** NativeCurrencies[chainId].decimals) // less than 1
+        ? parseFloat(userEthBalance.toSignificant(6)).toFixed(6)
+        : parseFloat(userEthBalance.toExact()).toFixed(4)
+      : parseFloat(userEthBalance.toExact()).toFixed(2)
+    const balanceFixed = Number(balanceFixedStr)
+    return `${balanceFixed} ${NativeCurrencies[chainId || ChainId.MAINNET].symbol}`
   }, [userEthBalance, chainId])
 
   return (
