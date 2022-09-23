@@ -2994,21 +2994,7 @@
     tiny-warning "^1.0.3"
     toformat "^2.0.0"
 
-"@namgold/ks-sdk-core@^0.1.20", "@namgold/ks-sdk-core@~0.1.20":
-  version "0.1.22"
-  resolved "https://registry.yarnpkg.com/@namgold/ks-sdk-core/-/ks-sdk-core-0.1.22.tgz#7aaddfebf4aa4f6607d0a2faddef9d017cc0d89c"
-  integrity sha512-kIOE3vcGVK0XOESGPdj6S7Ry6U1S2N8c0dBM6H//CLUMHSBpTUNV2W18L9WAXWsK5YJzEGYQ48yZ2MngtpII3w==
-  dependencies:
-    "@ethersproject/address" "^5.0.2"
-    "@solana/web3.js" "1.44.0"
-    "@types/bn.js" "^5.1.0"
-    big.js "^5.2.2"
-    decimal.js-light "^2.5.0"
-    jsbi "^3.1.4"
-    tiny-invariant "^1.1.0"
-    toformat "^2.0.0"
-
-"@namgold/ks-sdk-core@^0.1.23":
+"@namgold/ks-sdk-core@^0.1.20", "@namgold/ks-sdk-core@~0.1.20", "@namgold/ks-sdk-core@^0.1.23":
   version "0.1.23"
   resolved "https://registry.yarnpkg.com/@namgold/ks-sdk-core/-/ks-sdk-core-0.1.23.tgz#615711cd17f14d24b62eb7c3feec643d8156fb7f"
   integrity sha512-Faz5w84Uu9yDFwxbZGa3S0h6FThXI7H7R6uvJw6/BvOqzwKeJHBuJ8XLQ9sgRw2V7/Wg1V2H/gju2R+CDPPIkw==
