@@ -13,7 +13,7 @@ import { useActiveWeb3React } from 'hooks'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useNetworkModalToggle } from 'state/application/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
-import { useETHBalances } from 'state/wallet/hooks'
+import { useNativeBalances } from 'state/wallet/hooks'
 
 const NetworkSwitchContainer = styled.div`
   display: flex;
@@ -69,7 +69,7 @@ function SelectNetwork(): JSX.Element | null {
   const isDarkMode = useIsDarkMode()
   const toggleNetworkModal = useNetworkModalToggle()
   const accounts = useMemo(() => (account ? [account] : []), [account])
-  const userEthBalance = useETHBalances(accounts)?.[account ?? '']
+  const userEthBalance = useNativeBalances(accounts)?.[account ?? '']
   const labelContent = useMemo(() => {
     return userEthBalance
       ? `${

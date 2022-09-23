@@ -4,6 +4,7 @@ import { useMemo } from 'react'
 
 import ERC20_INTERFACE from 'constants/abis/erc20'
 import { EMPTY_ARRAY, EMPTY_OBJECT } from 'constants/index'
+import { isEVM } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
@@ -11,10 +12,22 @@ import { useMulticallContract } from 'hooks/useContract'
 import { useMultipleContractSingleData, useSingleContractMultipleData } from 'state/multicall/hooks'
 import { isAddress } from 'utils'
 
+import { useSOLBalance } from './solanaHooks'
+
+export function useNativeBalances(uncheckedAddresses?: (string | undefined)[]): {
+  [address: string]: CurrencyAmount<Currency> | undefined
+} {
+  const { chainId } = useActiveWeb3React()
+  const userEthBalance = useETHBalances(uncheckedAddresses)
+  const userSolBalance = useSOLBalance(uncheckedAddresses?.[0])
+  return isEVM(chainId) ? userEthBalance : { [uncheckedAddresses?.[0] || '']: userSolBalance }
+}
+
 /**
  * Returns a map of the given addresses to their eventually consistent ETH balances.
  */
-export function useETHBalances(uncheckedAddresses?: (string | undefined)[]): {
+
+function useETHBalances(uncheckedAddresses?: (string | undefined)[]): {
   [address: string]: CurrencyAmount<Currency> | undefined
 } {
   const multicallContract = useMulticallContract()
@@ -127,7 +140,7 @@ export function useCurrencyBalances(
   const tokenBalances = useTokenBalances(account, tokens)
   const containsETH: boolean = useMemo(() => currencies?.some(currency => currency?.isNative) ?? false, [currencies])
   const accounts = useMemo(() => (containsETH ? [account] : EMPTY_ARRAY), [containsETH, account])
-  const ethBalance = useETHBalances(accounts)
+  const ethBalance = useNativeBalances(accounts)
 
   return useMemo(
     () =>
