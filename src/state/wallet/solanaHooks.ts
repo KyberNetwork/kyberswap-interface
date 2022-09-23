@@ -11,16 +11,16 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 
-export const useSOLBalance = (uncheckedAddresses?: string | undefined): CurrencyAmount<Currency> | undefined => {
+export const useSOLBalance = (uncheckedAddress?: string): CurrencyAmount<Currency> | undefined => {
   const { chainId } = useActiveWeb3React()
   const [solBalance, setSolBalance] = useState<CurrencyAmount<Currency> | undefined>(undefined)
 
   useEffect(() => {
     const getBalance = async () => {
       if (chainId !== ChainId.SOLANA) return
-      if (!uncheckedAddresses) return
+      if (!uncheckedAddress) return
       try {
-        const publicKey = new PublicKey(uncheckedAddresses)
+        const publicKey = new PublicKey(uncheckedAddress)
         if (publicKey) {
           const balance = await NETWORKS_INFO[ChainId.SOLANA].connection.getBalance(publicKey)
           const balanceJSBI = JSBI.BigInt(balance)
@@ -36,7 +36,7 @@ export const useSOLBalance = (uncheckedAddresses?: string | undefined): Currency
 
     // do not add solBalance to deps list, it would trigger infinity loops calling rpc calls
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [uncheckedAddresses])
+  }, [uncheckedAddress])
 
   return solBalance
 }

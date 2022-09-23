@@ -13,7 +13,7 @@ import { useActiveWeb3React } from 'hooks'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useNetworkModalToggle } from 'state/application/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
-import { useNativeBalances } from 'state/wallet/hooks'
+import { useNativeBalance } from 'state/wallet/hooks'
 
 const NetworkSwitchContainer = styled.div`
   display: flex;
@@ -68,8 +68,7 @@ function SelectNetwork(): JSX.Element | null {
   const networkModalOpen = useModalOpen(ApplicationModal.NETWORK)
   const isDarkMode = useIsDarkMode()
   const toggleNetworkModal = useNetworkModalToggle()
-  const accounts = useMemo(() => (account ? [account] : []), [account])
-  const userEthBalance = useNativeBalances(accounts)?.[account ?? '']
+  const userEthBalance = useNativeBalance(account)
   const labelContent = useMemo(() => {
     if (!userEthBalance) return NETWORKS_INFO[chainId].name
     const balanceFixedStr = userEthBalance.lessThan(1000 * 10 ** NativeCurrencies[chainId].decimals) // less than 1000

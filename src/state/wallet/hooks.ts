@@ -9,57 +9,34 @@ import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import { useMulticallContract } from 'hooks/useContract'
-import { useMultipleContractSingleData, useSingleContractMultipleData } from 'state/multicall/hooks'
+import { useMultipleContractSingleData, useSingleCallResult } from 'state/multicall/hooks'
 import { isAddress } from 'utils'
 
 import { useSOLBalance } from './solanaHooks'
 
-export function useNativeBalances(uncheckedAddresses?: (string | undefined)[]): {
-  [address: string]: CurrencyAmount<Currency> | undefined
-} {
+export function useNativeBalance(uncheckedAddress?: string): CurrencyAmount<Currency> | undefined {
   const { chainId } = useActiveWeb3React()
-  const userEthBalance = useETHBalances(uncheckedAddresses)
-  const userSolBalance = useSOLBalance(uncheckedAddresses?.[0])
-  return isEVM(chainId) ? userEthBalance : { [uncheckedAddresses?.[0] || '']: userSolBalance }
+  const userEthBalance = useETHBalance(uncheckedAddress)
+  const userSolBalance = useSOLBalance(uncheckedAddress)
+  return isEVM(chainId) ? userEthBalance : userSolBalance
 }
 
-/**
- * Returns a map of the given addresses to their eventually consistent ETH balances.
- */
-
-function useETHBalances(uncheckedAddresses?: (string | undefined)[]): {
-  [address: string]: CurrencyAmount<Currency> | undefined
-} {
+function useETHBalance(uncheckedAddress?: string): CurrencyAmount<Currency> | undefined {
   const multicallContract = useMulticallContract()
   const { chainId } = useActiveWeb3React()
 
-  const addresses: string[] = useMemo(
-    () =>
-      uncheckedAddresses
-        ? uncheckedAddresses
-            .map(address => isAddress(chainId, address))
-            .filter((a): a is string => a !== false)
-            .sort()
-        : EMPTY_ARRAY,
-    [chainId, uncheckedAddresses],
+  const addressParam: string[] = useMemo(
+    () => (uncheckedAddress && isAddress(chainId, uncheckedAddress) ? [uncheckedAddress] || EMPTY_ARRAY : EMPTY_ARRAY),
+    [chainId, uncheckedAddress],
   )
 
-  const results = useSingleContractMultipleData(
-    multicallContract,
-    'getEthBalance',
-    useMemo(() => addresses.map(address => [address]), [addresses]),
-  )
+  const result = useSingleCallResult(multicallContract, 'getEthBalance', addressParam)
 
-  return useMemo(
-    () =>
-      addresses.reduce<{ [address: string]: CurrencyAmount<Currency> }>((memo, address, i) => {
-        const value = results?.[i]?.result?.[0]
-        if (value)
-          memo[address] = CurrencyAmount.fromRawAmount(NativeCurrencies[chainId], JSBI.BigInt(value.toString()))
-        return memo
-      }, {}),
-    [addresses, results, chainId],
-  )
+  return useMemo(() => {
+    const value = result?.result?.[0]
+    if (value) return CurrencyAmount.fromRawAmount(NativeCurrencies[chainId], JSBI.BigInt(value.toString()))
+    return undefined
+  }, [result, chainId])
 }
 
 const stringifyBalance = (balanceMap: { [key: string]: TokenAmount }) => {
@@ -138,15 +115,13 @@ export function useCurrencyBalances(
   }, [currencies])
 
   const tokenBalances = useTokenBalances(account, tokens)
-  const containsETH: boolean = useMemo(() => currencies?.some(currency => currency?.isNative) ?? false, [currencies])
-  const accounts = useMemo(() => (containsETH ? [account] : EMPTY_ARRAY), [containsETH, account])
-  const ethBalance = useNativeBalances(accounts)
+  const ethBalance = useNativeBalance(account)
 
   return useMemo(
     () =>
       currencies?.map(currency => {
         if (!account || !currency) return undefined
-        if (currency?.isNative) return ethBalance[account]
+        if (currency?.isNative) return ethBalance
         return tokenBalances[currency.address]
       }) ?? EMPTY_ARRAY,
     [account, currencies, ethBalance, tokenBalances],
