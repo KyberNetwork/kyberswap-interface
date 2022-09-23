@@ -322,8 +322,6 @@ export default function Campaign() {
     history.push(getSlugUrlCampaign(campaign))
   }
 
-  const now = Date.now()
-
   const {
     loadingCampaignData,
     loadingCampaignDataError,
@@ -331,15 +329,47 @@ export default function Campaign() {
   } = useSelector((state: AppState) => state.campaigns)
 
   const MINUTE_TO_REFRESH = 5
-  const [campaignsRefreshIn, setCampaignsRefreshIn] = useState(MINUTE_TO_REFRESH * 60)
   const { mutate } = useSWRConfig()
   const dispatch = useAppDispatch()
+  const [campaignsRefreshIn, setCampaignsRefreshIn] = useState(-1) // Seconds
   useInterval(
     () => {
+      const now = dayjs()
+      // Add 1 minute for leaderboard aggregation => 6, 11, 16, etc.
+      const hour = now.hour()
+      const minute = now.minute()
+      const second = now.second()
+
+      if (selectedCampaign && campaignsRefreshIn === 0) {
+        mutate([
+          selectedCampaign,
+          SWR_KEYS.getLeaderboard(selectedCampaign.id),
+          selectedCampaignLeaderboardPageNumber,
+          selectedCampaignLeaderboardLookupAddress,
+          account,
+        ])
+      }
+
+      let nextRefreshMinute: number
+      if (minute % MINUTE_TO_REFRESH === 1 && second === 0) {
+        nextRefreshMinute = minute
+      } else if (minute % MINUTE_TO_REFRESH === 0) {
+        nextRefreshMinute = minute + 1
+      } else {
+        nextRefreshMinute = minute + (MINUTE_TO_REFRESH - (minute % MINUTE_TO_REFRESH)) + 1
+      }
+
+      const d = dayjs()
+        .set('hour', nextRefreshMinute > 60 ? hour + 1 : hour)
+        .set('minute', nextRefreshMinute % 60)
+        .set('second', 0)
+        .diff(now, 'second')
+      setCampaignsRefreshIn(d)
+
       if (
         selectedCampaign &&
         selectedCampaign.status === CampaignStatus.UPCOMING &&
-        selectedCampaign.startTime < now + 1000
+        selectedCampaign.startTime < now.unix() * 1000 + 1000
       ) {
         dispatch(
           setCampaignData({
@@ -359,7 +389,7 @@ export default function Campaign() {
       if (
         selectedCampaign &&
         selectedCampaign.status === CampaignStatus.ONGOING &&
-        selectedCampaign.endTime < now + 1000
+        selectedCampaign.endTime < now.unix() * 1000 + 1000
       ) {
         dispatch(
           setCampaignData({
@@ -376,12 +406,6 @@ export default function Campaign() {
         )
         dispatch(setSelectedCampaign({ campaign: { ...selectedCampaign, status: CampaignStatus.ENDED } }))
       }
-      setCampaignsRefreshIn(prev => {
-        if (prev === 0) {
-          return MINUTE_TO_REFRESH * 60
-        }
-        return prev - 1
-      })
     },
     selectedCampaign && selectedCampaign.campaignState === CampaignState.CampaignStateReady ? 1000 : null,
     true,
@@ -390,25 +414,6 @@ export default function Campaign() {
   const { selectedCampaignLeaderboardPageNumber, selectedCampaignLeaderboardLookupAddress } = useSelector(
     (state: AppState) => state.campaigns,
   )
-
-  useEffect(() => {
-    if (campaignsRefreshIn === 0 && selectedCampaign) {
-      mutate([
-        selectedCampaign,
-        SWR_KEYS.getLeaderboard(selectedCampaign.id),
-        selectedCampaignLeaderboardPageNumber,
-        selectedCampaignLeaderboardLookupAddress,
-        account,
-      ])
-    }
-  }, [
-    mutate,
-    campaignsRefreshIn,
-    selectedCampaign,
-    selectedCampaignLeaderboardPageNumber,
-    selectedCampaignLeaderboardLookupAddress,
-    account,
-  ])
 
   if (campaigns.length === 0 && loadingCampaignData) {
     return <LocalLoader />
@@ -525,7 +530,7 @@ export default function Campaign() {
                           text={dayjs(selectedCampaign.startTime).format('YYYY-MM-DD HH:mm')}
                         >
                           {selectedCampaign
-                            ? getFormattedTimeFromSecond((selectedCampaign.startTime - now) / 1000)
+                            ? getFormattedTimeFromSecond((selectedCampaign.startTime - dayjs().unix() * 1000) / 1000)
                             : '--'}
                         </MouseoverTooltip>
                       </TextDashed>
@@ -537,7 +542,7 @@ export default function Campaign() {
                           text={dayjs(selectedCampaign.endTime).format('YYYY-MM-DD HH:mm')}
                         >
                           {selectedCampaign
-                            ? getFormattedTimeFromSecond((selectedCampaign.endTime - now) / 1000)
+                            ? getFormattedTimeFromSecond((selectedCampaign.endTime - dayjs().unix() * 1000) / 1000)
                             : '--'}
                         </MouseoverTooltip>
                       </TextDashed>
