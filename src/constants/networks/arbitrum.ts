@@ -30,7 +30,7 @@ const arbitrumInfo: EVMNetworkInfo = {
     logo: EthereumLogo,
     decimal: 18,
   },
-  rpcUrl: 'https://arb-mainnet.g.alchemy.com/v2/PGAWvp9KLZbqjvap-iingGj-Id7HM_Yn',
+  rpcUrl: 'https://arbitrum.kyberengineering.io',
   routerUri: `${AGGREGATOR_API}/arbitrum/route/encode`,
   classic: {
     static: {
