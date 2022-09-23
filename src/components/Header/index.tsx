@@ -385,7 +385,9 @@ export default function Header() {
           </HoverDropdown>
 
           <Flex id={TutorialIds.EARNING_LINKS} alignItems="center">
-            <HoverDropdown active={pathname.toLowerCase().includes('pools')}>
+            <HoverDropdown
+              active={pathname.toLowerCase().includes('pools') || pathname.toLowerCase().startsWith('/farms')}
+            >
               <Flex alignItems="center">
                 <Trans>Earn</Trans>
                 <DropdownIcon />
