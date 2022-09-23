@@ -49,7 +49,7 @@ const store = configureStore({
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({ thunk: false, immutableCheck: false, serializableCheck: false })
       // .concat(dataApi.middleware)
-      .concat(save({ states: PERSISTED_KEYS, debounce: 1000 })),
+      .concat(save({ states: PERSISTED_KEYS, debounce: 100 })),
   preloadedState: load({ states: PERSISTED_KEYS }),
 })
 
