@@ -84,10 +84,9 @@ export function useTokenBalancesWithLoadingIndicator(
     () =>
       account && tokens && tokens.length > 0
         ? tokens.reduce<{ [tokenAddress: string]: TokenAmount | undefined }>((memo, token, i) => {
-            const value = balances?.[i][0]
-            const amount = value ? JSBI.BigInt(value.toString()) : undefined
+            const amount = balances?.[i][0]
             if (amount) {
-              memo[token.address] = TokenAmount.fromRawAmount(token, amount)
+              memo[token.address] = amount
             }
             return memo
           }, {})
