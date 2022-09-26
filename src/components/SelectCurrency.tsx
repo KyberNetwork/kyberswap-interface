@@ -2,8 +2,8 @@ import { BigNumber } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
 import styled from "styled-components";
 import { NATIVE_TOKEN, NATIVE_TOKEN_ADDRESS } from "../constants";
-import { defaultTokenList } from "../constants/tokens";
 import useTokenBalances from "../hooks/useTokenBalances";
+import { useTokens } from "../hooks/useTokens";
 import { useActiveWeb3 } from "../hooks/useWeb3Provider";
 
 const Input = styled.input`
@@ -59,7 +59,8 @@ function SelectCurrency({
   selectedToken: string;
   onChange: (address: string) => void;
 }) {
-  const tokenAddress = defaultTokenList.map((item) => item.address);
+  const tokens = useTokens();
+  const tokenAddress = tokens.map((item) => item.address);
   const { balances } = useTokenBalances(tokenAddress);
 
   const { chainId } = useActiveWeb3();
@@ -74,7 +75,7 @@ function SelectCurrency({
       ),
     },
 
-    ...defaultTokenList
+    ...tokens
       .map((item) => {
         const balance = balances[item.address];
         const formattedBalance = formatUnits(

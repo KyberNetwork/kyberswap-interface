@@ -1,9 +1,9 @@
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 
 export const Wrapper = styled.div`
   border-radius: 1rem;
   padding: 1rem;
-  width: 400px;
+  width: 375px;
   background: ${({ theme }) => theme.bg1};
   color: ${({ theme }) => theme.text};
   font-family: "Work Sans", "Inter var", sans-serif;
@@ -71,7 +71,6 @@ export const SwitchBtn = styled(SettingBtn)`
   width: 40px;
   height: 40px;
   background: ${({ theme }) => theme.bg2};
-  margin-top: 1rem;
 
   :hover {
     opacity: 0.8;
@@ -93,7 +92,7 @@ export const InputRow = styled.div`
 `;
 
 export const Input = styled.input`
-  flex: 1;
+  width: 100%;
   font-size: 1.5rem;
   background: ${({ theme }) => theme.bg2};
   outline: none;
@@ -125,6 +124,7 @@ export const SelectTokenBtn = styled.button`
 
 export const MiddleRow = styled.div`
   display: flex;
+  margin-top: 1rem;
   align-items: center;
   justify-content: space-between;
 `;
@@ -170,4 +170,29 @@ export const Dots = styled.span`
       content: "...";
     }
   }
+`;
+
+const rotate = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+`;
+
+export const Spinner = styled.img`
+  animation: 2s ${rotate} linear infinite;
+  width: 16px;
+  height: 16px;
+`;
+
+export const CustomLightSpinner = styled(Spinner)<{ size: string }>`
+  height: ${({ size }) => size};
+  width: ${({ size }) => size};
+`;
+
+export const Rate = styled.div`
+  font-size: 14px;
+  color: ${({ theme }) => theme.subText};
 `;

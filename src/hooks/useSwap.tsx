@@ -2,23 +2,23 @@ import { parseUnits } from "@ethersproject/units";
 import { BigNumber } from "ethers";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { NATIVE_TOKEN_ADDRESS, ZERO_ADDRESS } from "../constants";
-import { defaultTokenList } from "../constants/tokens";
 import useTokenBalances from "./useTokenBalances";
+import { useTokens } from "./useTokens";
 import { useActiveWeb3 } from "./useWeb3Provider";
 
 const useSwap = () => {
   const { provider } = useActiveWeb3();
   const [tokenIn, setTokenIn] = useState(NATIVE_TOKEN_ADDRESS);
   const [tokenOut, setTokenOut] = useState("");
+  const tokens = useTokens();
 
-  const { balances } = useTokenBalances(
-    defaultTokenList.map((item) => item.address)
-  );
+  const { balances } = useTokenBalances(tokens.map((item) => item.address));
 
   const [inputAmout, setInputAmount] = useState("");
   const [loading, setLoading] = useState(false);
   const [trade, setTrade] = useState<any>(null);
   const [error, setError] = useState("");
+  const [slippage, setSlippage] = useState(50);
 
   const controllerRef = useRef<AbortController | null>();
 
@@ -29,11 +29,10 @@ const useSwap = () => {
     const date = new Date();
     date.setMinutes(date.getMinutes() + 20);
 
-    // TODO: change token list
     const tokenInDecimal =
       tokenIn === NATIVE_TOKEN_ADDRESS
         ? 18
-        : defaultTokenList.find((token) => token.address === tokenIn)?.decimals;
+        : tokens.find((token) => token.address === tokenIn)?.decimals;
 
     if (!tokenInDecimal || !tokenIn || !tokenOut || !inputAmout) {
       setError("Invalid input");
@@ -64,8 +63,7 @@ const useSwap = () => {
       tokenOut,
       saveGas: 0,
       gasInclude: 0,
-      // TODO
-      slippageTolerance: 1,
+      slippageTolerance: slippage,
       deadline: Math.floor(date.getTime() / 1000),
       to: account || ZERO_ADDRESS,
       clientData: JSON.stringify({ source: "Widget" }),
@@ -107,10 +105,16 @@ const useSwap = () => {
 
     controllerRef.current = null;
     setLoading(false);
-  }, [tokenIn, tokenOut, provider, inputAmout, balances]);
+  }, [tokenIn, tokenOut, provider, inputAmout, balances, slippage]);
 
   useEffect(() => {
     getRate();
+    const interval = setInterval(() => {
+      getRate();
+    }, 10_000);
+    return () => {
+      interval && clearInterval(interval);
+    };
   }, [getRate]);
 
   return {
@@ -123,6 +127,8 @@ const useSwap = () => {
     setInputAmount,
     loading,
     error,
+    slippage,
+    setSlippage,
   };
 };
 

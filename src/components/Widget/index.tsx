@@ -6,6 +6,8 @@ import { ReactComponent as WalletIcon } from "../../assets/wallet.svg";
 import { ReactComponent as DropdownIcon } from "../../assets/dropdown.svg";
 import { ReactComponent as SwitchIcon } from "../../assets/switch.svg";
 import { ReactComponent as BackIcon } from "../../assets/back.svg";
+import { ReactComponent as ErrorIcon } from "../../assets/x-circle.svg";
+import { ReactComponent as SubmittedIcon } from "../../assets/arrow-up-circle.svg";
 
 import {
   AccountBalance,
@@ -22,26 +24,22 @@ import {
   Wrapper,
   Button,
   Dots,
+  CustomLightSpinner,
+  Rate,
 } from "./styled";
 
 import { init, useConnectWallet } from "@web3-onboard/react";
 import injectedModule from "@web3-onboard/injected-wallets";
-import { BigNumber, ethers, providers } from "ethers";
-import {
-  NATIVE_TOKEN,
-  NATIVE_TOKEN_ADDRESS,
-  TokenInfo,
-  ZIndex,
-} from "../../constants";
+import { BigNumber, ethers } from "ethers";
+import { NATIVE_TOKEN, NATIVE_TOKEN_ADDRESS, ZIndex } from "../../constants";
 import SelectCurrency from "../SelectCurrency";
-import { EIP1193Provider } from "@web3-onboard/core";
 import { useActiveWeb3, Web3Provider } from "../../hooks/useWeb3Provider";
 import useSwap from "../../hooks/useSwap";
-import { defaultTokenList } from "../../constants/tokens";
 import useTokenBalances from "../../hooks/useTokenBalances";
-import { formatUnits, parseUnits } from "ethers/lib/utils";
+import { formatUnits } from "ethers/lib/utils";
 import useApproval, { APPROVAL_STATE } from "../../hooks/useApproval";
-import { useContract } from "../../hooks/useContract";
+import Settings from "../Settings";
+import { Token, TokenListProvider, useTokens } from "../../hooks/useTokens";
 
 const injected = injectedModule();
 // initialize Onboard
@@ -108,10 +106,25 @@ const ModalTitle = styled.div`
   }
 `;
 
-const SelectTokenText = styled.div`
+const SelectTokenText = styled.span`
   font-size: 16px;
   width: max-content;
 `;
+
+const FlexCenter = styled.div`
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+`;
+
+const ConfirmText = styled.div`
+  font-size: 14px;
+  color: ${({ theme }) => theme.subText};
+  margin-top: 1.5rem;
+`;
+
 enum ModalType {
   SETTING = "setting",
   CURRENCY_IN = "currency_in",
@@ -119,23 +132,15 @@ enum ModalType {
   REVIEW = "review",
 }
 
-interface Token {
-  chainId: number;
-  address: string;
-  symbol: string;
-  name: string;
-  decimals: number;
-  logoURI: string;
-}
-
 export interface WidgetProps {
-  provider?: EIP1193Provider | providers.JsonRpcProvider;
-  tokenList?: Token[];
+  provider?: any;
+  tokenList: Token[];
 }
 
 const Widget = () => {
   const [showModal, setShowModal] = useState<ModalType | null>(null);
   const { provider, chainId, account } = useActiveWeb3();
+  const tokens = useTokens();
   const {
     loading,
     error,
@@ -146,20 +151,20 @@ const Widget = () => {
     inputAmout,
     setInputAmount,
     trade,
+    slippage,
+    setSlippage,
   } = useSwap();
-  const { balances } = useTokenBalances(
-    defaultTokenList.map((item) => item.address)
-  );
+  const { balances } = useTokenBalances(tokens.map((item) => item.address));
 
   const tokenInInfo =
     tokenIn === NATIVE_TOKEN_ADDRESS
       ? NATIVE_TOKEN[chainId]
-      : defaultTokenList.find((item) => item.address === tokenIn);
+      : tokens.find((item) => item.address === tokenIn);
 
   const tokenOutInfo =
     tokenOut === NATIVE_TOKEN_ADDRESS
       ? NATIVE_TOKEN[chainId]
-      : defaultTokenList.find((item) => item.address === tokenOut);
+      : tokens.find((item) => item.address === tokenOut);
 
   const amountOut = trade?.outputAmount
     ? formatUnits(trade.outputAmount, tokenOutInfo?.decimals).toString()
@@ -168,17 +173,30 @@ const Widget = () => {
   const tokenInBalance = balances[tokenIn] || BigNumber.from(0);
   const tokenOutBalance = balances[tokenOut] || BigNumber.from(0);
 
+  const tokenInWithUnit = formatUnits(
+    tokenInBalance,
+    tokenInInfo?.decimals || 18
+  );
+  const tokenOutWithUnit = formatUnits(
+    tokenOutBalance,
+    tokenOutInfo?.decimals || 18
+  );
+
+  const rate =
+    trade &&
+    parseFloat(formatUnits(trade.outputAmount, tokenOutInfo?.decimals || 18)) /
+      parseFloat(formatUnits(trade.inputAmount, tokenInInfo?.decimals || 18));
   const formattedTokenInBalance = parseFloat(
-    parseFloat(
-      formatUnits(tokenInBalance, tokenInInfo?.decimals || 18)
-    ).toPrecision(10)
+    parseFloat(tokenInWithUnit).toPrecision(10)
   );
 
   const formattedTokenOutBalance = parseFloat(
-    parseFloat(
-      formatUnits(tokenOutBalance, tokenOutInfo?.decimals || 18)
-    ).toPrecision(10)
+    parseFloat(tokenOutWithUnit).toPrecision(10)
   );
+
+  const [attempTx, setAttempTx] = useState(false);
+  const [txHash, setTxHash] = useState("");
+  const [txError, setTxError] = useState<any>("");
 
   const modalTitle = (() => {
     switch (showModal) {
@@ -188,6 +206,8 @@ const Widget = () => {
         return "Select a token";
       case ModalType.CURRENCY_OUT:
         return "Select a token";
+      case ModalType.REVIEW:
+        return "Confirmation";
       default:
         return null;
     }
@@ -196,7 +216,7 @@ const Widget = () => {
   const modalContent = (() => {
     switch (showModal) {
       case ModalType.SETTING:
-        return <div onClick={() => setShowModal(null)}>xxx</div>;
+        return <Settings slippage={slippage} setSlippage={setSlippage} />;
       case ModalType.CURRENCY_IN:
         return (
           <SelectCurrency
@@ -218,6 +238,38 @@ const Widget = () => {
               setShowModal(null);
             }}
           />
+        );
+      case ModalType.REVIEW:
+        return (
+          <FlexCenter>
+            {attempTx ? (
+              <>
+                <CustomLightSpinner
+                  size="90px"
+                  src={
+                    new URL("../../assets/blue-loader.svg", import.meta.url)
+                      .href
+                  }
+                />
+
+                <ConfirmText>
+                  Please confirm transaction on your wallet
+                </ConfirmText>
+              </>
+            ) : txHash ? (
+              <>
+                <SubmittedIcon style={{ width: "60px", height: "60px" }} />
+                <ConfirmText>Transaction submitted</ConfirmText>
+              </>
+            ) : (
+              <>
+                <ErrorIcon
+                  style={{ width: "60px", height: "60px", color: "red" }}
+                />
+                <ConfirmText>Error</ConfirmText>
+              </>
+            )}
+          </FlexCenter>
         );
       default:
         return null;
@@ -254,8 +306,10 @@ const Widget = () => {
       <InputWrapper>
         <BalanceRow>
           <div>
-            <MaxHalfBtn>Max</MaxHalfBtn>
-            <MaxHalfBtn>Half</MaxHalfBtn>
+            <MaxHalfBtn onClick={() => setInputAmount(tokenInWithUnit)}>
+              Max
+            </MaxHalfBtn>
+            {/* <MaxHalfBtn>Half</MaxHalfBtn> */}
           </div>
           <AccountBalance>
             <WalletIcon />
@@ -287,22 +341,38 @@ const Widget = () => {
             spellCheck="false"
           />
           <SelectTokenBtn onClick={() => setShowModal(ModalType.CURRENCY_IN)}>
-            <img
-              width="20"
-              height="20"
-              src={tokenInInfo?.logoURI}
-              style={{ borderRadius: "50%" }}
-            />
-            <div style={{ marginLeft: "0.375rem" }}>{tokenInInfo?.symbol}</div>
+            {tokenInInfo ? (
+              <>
+                <img
+                  width="20"
+                  height="20"
+                  src={tokenInInfo?.logoURI}
+                  style={{ borderRadius: "50%" }}
+                />
+                <div style={{ marginLeft: "0.375rem" }}>
+                  {tokenInInfo?.symbol}
+                </div>
+              </>
+            ) : (
+              <SelectTokenText>Select a token</SelectTokenText>
+            )}
             <DropdownIcon />
           </SelectTokenBtn>
         </InputRow>
       </InputWrapper>
 
       <MiddleRow>
-        <div></div>
+        <Rate>
+          1 {tokenInInfo?.symbol} = {rate?.toPrecision(10) || "--"}{" "}
+          {tokenOutInfo?.symbol}
+        </Rate>
 
-        <SwitchBtn>
+        <SwitchBtn
+          onClick={() => {
+            setTokenIn(tokenOut);
+            setTokenOut(tokenIn);
+          }}
+        >
           <SwitchIcon />
         </SwitchBtn>
       </MiddleRow>
@@ -359,9 +429,21 @@ const Widget = () => {
               ),
             };
 
-            const gasEstimated = await provider
-              ?.getSigner()
-              .sendTransaction(estimateGasOption);
+            try {
+              setAttempTx(true);
+              setTxHash("");
+              setTxError(false);
+              setShowModal(ModalType.REVIEW);
+              const res = await provider
+                ?.getSigner()
+                .sendTransaction(estimateGasOption);
+
+              setTxHash(res?.hash || "");
+              setAttempTx(false);
+            } catch (e) {
+              setAttempTx(false);
+              setTxError(e);
+            }
           }
         }}
       >
@@ -384,27 +466,25 @@ const Widget = () => {
 };
 
 export default ({ provider, tokenList }: WidgetProps) => {
-  const [{ wallet }, connect, disconnect] = useConnectWallet();
+  const [{ wallet, connecting }, connect, disconnect] = useConnectWallet();
 
   // create an ethers provider
   let ethersProvider;
 
   if (wallet) {
-    console.log(wallet);
-
     ethersProvider = new ethers.providers.Web3Provider(wallet.provider, "any");
   }
 
   return (
     <StrictMode>
       <ThemeProvider theme={darkTheme}>
-        <Web3Provider provider={ethersProvider || null}>
-          <Widget />
+        <Web3Provider provider={provider || ethersProvider}>
+          <TokenListProvider tokenList={tokenList}>
+            <Widget />
+          </TokenListProvider>
         </Web3Provider>
       </ThemeProvider>
-      <Button onClick={() => (wallet ? disconnect(wallet) : connect())}>
-        {wallet ? "Disconnect Wallet" : "Connect Wallet"}
-      </Button>
+      <Button onClick={() => connect()}>connect wallet</Button>
     </StrictMode>
   );
 };

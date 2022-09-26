@@ -1,4 +1,4 @@
-export const defaultTokenList = [
+export const polygonTokens = [
   {
     chainId: 137,
     address: "0x1C954E8fe737F99f68Fa1CCda3e51ebDB291948C",
