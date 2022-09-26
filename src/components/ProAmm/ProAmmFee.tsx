@@ -32,12 +32,14 @@ export default function ProAmmFee({
   layout = 0,
   text = '',
   farmAvailable,
+  disableCollectFee,
 }: {
   tokenId: BigNumber
   position: Position
   layout?: number
   text?: string
   farmAvailable?: boolean
+  disableCollectFee?: boolean
 }) {
   const { chainId, account } = useActiveWeb3React()
   const { library } = useWeb3React()
@@ -136,7 +138,8 @@ export default function ProAmmFee({
     mixpanelHandler,
     allowedSlippage,
   ])
-  const disabledCollect = !(feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0)) || farmAvailable
+  const disabledCollect =
+    !(feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0)) || farmAvailable || disableCollectFee
 
   const render =
     layout === 0 ? (

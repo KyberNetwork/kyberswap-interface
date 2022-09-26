@@ -73,7 +73,7 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
   const toggleWalletModal = useWalletModalToggle()
   const currentTimestamp = Math.floor(Date.now() / 1000)
 
-  const { tab = 'active' } = useParsedQueryString<{ tab: string }>()
+  const { type = 'active' } = useParsedQueryString<{ type: string }>()
   const breakpoint = useMedia('(min-width: 992px)')
   const dispatch = useAppDispatch()
 
@@ -626,13 +626,13 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
 
             <Flex grid-area="action" justifyContent="flex-end" sx={{ gap: '4px' }}>
               <ActionButton
-                disabled={tab === 'ended'}
+                disabled={type === 'ended'}
                 onClick={() => {
                   setModalType('stake')
                 }}
               >
                 <MouseoverTooltip text={t`Stake`} placement="top" width="fit-content">
-                  <Plus color={tab !== 'ended' ? theme.primary : theme.subText} size={16} />
+                  <Plus color={type !== 'ended' ? theme.primary : theme.subText} size={16} />
                 </MouseoverTooltip>
               </ActionButton>
 
