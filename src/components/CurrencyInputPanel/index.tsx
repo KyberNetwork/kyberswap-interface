@@ -191,7 +191,7 @@ export default function CurrencyInputPanel({
   const [modalOpen, setModalOpen] = useState(false)
   const { chainId, account } = useActiveWeb3React()
 
-  const selectedCurrencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined)
+  const selectedCurrencyBalance = useCurrencyBalance(currency ?? undefined)
   const balanceRef = useRef(selectedCurrencyBalance?.toSignificant(10))
 
   useEffect(() => {

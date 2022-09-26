@@ -98,7 +98,7 @@ const PoolList = ({
 
   useResetPools(chainId)
 
-  const userLiquidityPositionsQueryResult = useUserLiquidityPositions(account)
+  const userLiquidityPositionsQueryResult = useUserLiquidityPositions()
   const loadingUserLiquidityPositions = !account ? false : userLiquidityPositionsQueryResult.loading
   const userLiquidityPositions = !account ? { liquidityPositions: [] } : userLiquidityPositionsQueryResult.data
   const transformedUserLiquidityPositions: {

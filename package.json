@@ -38,6 +38,7 @@
     "ChromeAndroid >= 52"
   ],
   "resolutions": {
+    "@namgold/ks-sdk-core": "^0.1.25",
     "@solana/web3.js": "1.47.3",
     "react-error-overlay": "6.0.9",
     "trezor-connect": "8.1.15"
@@ -47,7 +48,7 @@
     "@lingui/react": "^3.14.0",
     "@namgold/dmm-solana-sdk": "^2.0.1",
     "@namgold/ks-sdk-classic": "~0.0.1",
-    "@namgold/ks-sdk-core": "^0.1.23",
+    "@namgold/ks-sdk-core": "^0.1.25",
     "@namgold/ks-sdk-elastic": "~0.0.2",
     "@sentry/react": "^7.11.1",
     "@sentry/tracing": "^7.11.1",

@@ -150,7 +150,6 @@ export function useProAmmDerivedMintInfo(
   )
   // balances
   const balances = useCurrencyBalances(
-    account ?? undefined,
     useMemo(() => [currencies[Field.CURRENCY_A], currencies[Field.CURRENCY_B]], [currencies]),
   )
   const currencyBalances: { [field in Field]?: CurrencyAmount<Currency> } = {

@@ -5,6 +5,12 @@ const CompressionPlugin = require('compression-webpack-plugin')
 module.exports = function override(config, env) {
   config = rewireStyledComponents(config, env)
 
+  config.module.rules.push({
+    test: /\.mjs$/,
+    include: /node_modules/,
+    type: 'javascript/auto',
+  })
+
   config.optimization = {
     ...config.optimization,
     moduleIds: 'named',

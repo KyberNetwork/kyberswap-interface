@@ -54,8 +54,8 @@ export default function PoolFinder() {
   }, [pairs, addPair, currency0, currency1, chainId])
 
   const positions: { [tokenAddress: string]: TokenAmount | undefined } = useTokenBalances(
-    account ?? undefined,
-    pairs.map(([, pair]) => pair?.liquidityToken),
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    pairs.every(([, pair]) => pair) ? pairs.map(([, pair]) => pair!.liquidityToken) : undefined,
   )
 
   const handleCurrencySelect = useCallback(

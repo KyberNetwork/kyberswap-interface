@@ -84,12 +84,12 @@ export interface UserLiquidityPositionResult {
  *
  * @param user string
  */
-export function useUserLiquidityPositions(user: string | null | undefined): UserLiquidityPositionResult {
-  const { chainId } = useActiveWeb3React()
+export function useUserLiquidityPositions(): UserLiquidityPositionResult {
+  const { chainId, account } = useActiveWeb3React()
   const { loading, error, data } = useQuery(USER_POSITIONS, {
     client: isEVM(chainId) ? NETWORKS_INFO[chainId].classicClient : NETWORKS_INFO[ChainId.MAINNET].classicClient,
     variables: {
-      user: user?.toLowerCase(),
+      user: account?.toLowerCase(),
     },
     fetchPolicy: 'no-cache',
     skip: !isEVM(chainId),

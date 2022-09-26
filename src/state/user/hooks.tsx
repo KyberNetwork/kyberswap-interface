@@ -304,13 +304,13 @@ export function useToV2LiquidityTokens(
 }
 
 export function useLiquidityPositionTokenPairs(): [Token, Token][] {
-  const { chainId, account } = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React()
   const allTokens = useAllTokens()
 
   // pinned pairs
   const pinnedPairs = useMemo(() => (chainId ? PINNED_PAIRS[chainId] ?? [] : []), [chainId])
 
-  const { data: userLiquidityPositions } = useUserLiquidityPositions(account)
+  const { data: userLiquidityPositions } = useUserLiquidityPositions()
 
   // get pairs that has liquidity
   const generatedPairs: [Token, Token][] = useMemo(() => {

@@ -14,7 +14,7 @@ import { useAppDispatch } from 'state/hooks'
 import { AppState } from 'state/index'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
-import { useTokenBalances } from 'state/wallet/hooks'
+import { useTokenBalance } from 'state/wallet/hooks'
 import { calculateSlippageAmount } from 'utils'
 
 import { Field, switchTokenField, typeInput } from './actions'
@@ -71,8 +71,7 @@ export function useDerivedBurnInfo(
   const [allowedSlippage] = useUserSlippageTolerance()
 
   // balances
-  const relevantTokenBalances = useTokenBalances(account ?? undefined, [pair?.liquidityToken])
-  const userLiquidity: undefined | TokenAmount = relevantTokenBalances?.[pair?.liquidityToken?.address ?? '']
+  const userLiquidity = useTokenBalance(pair?.liquidityToken)
 
   const tokens = {
     [Field.CURRENCY_A]: tokenA,
@@ -270,8 +269,7 @@ export function useDerivedZapOutInfo(
   const [allowedSlippage] = useUserSlippageTolerance()
 
   // balances
-  const relevantTokenBalances = useTokenBalances(account ?? undefined, [pair?.liquidityToken])
-  const userLiquidity: undefined | TokenAmount = relevantTokenBalances?.[pair?.liquidityToken?.address ?? '']
+  const userLiquidity = useTokenBalance(pair?.liquidityToken)
 
   const tokens = {
     [Field.CURRENCY_A]: tokenA,

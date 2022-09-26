@@ -1,4 +1,4 @@
-import { ChainId, CurrencyAmount } from '@namgold/ks-sdk-core'
+import { ChainId } from '@namgold/ks-sdk-core'
 import { useMemo } from 'react'
 import styled from 'styled-components'
 
@@ -64,11 +64,11 @@ const DropdownIcon = styled(DropdownSvg)<{ open: boolean }>`
 `
 
 function SelectNetwork(): JSX.Element | null {
-  const { chainId, account } = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React()
   const networkModalOpen = useModalOpen(ApplicationModal.NETWORK)
   const isDarkMode = useIsDarkMode()
   const toggleNetworkModal = useNetworkModalToggle()
-  const userEthBalance = useNativeBalance(account)
+  const userEthBalance = useNativeBalance()
   const labelContent = useMemo(() => {
     if (!userEthBalance) return NETWORKS_INFO[chainId].name
     const balanceFixedStr = userEthBalance.lessThan(1000 * 10 ** NativeCurrencies[chainId].decimals) // less than 1000

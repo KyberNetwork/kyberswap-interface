@@ -176,7 +176,6 @@ function CurrencyRow({
   const selectedTokenList = useCombinedActiveList()
   const isOnSelectedList = isTokenOnList(selectedTokenList, currency)
   const customAdded = useIsUserAddedToken(currency)
-  // const balance = useCurrencyBalance(account ?? undefined, currency)
   const balance = currencyBalance
 
   const nativeCurrency = useCurrencyConvertedToNative(currency || undefined)
@@ -277,7 +276,6 @@ export default function CurrencyList({
   setImportToken: (token: Token) => void
   breakIndex: number | undefined
 }) {
-  const { account } = useActiveWeb3React()
   const itemCurrencies: (Currency | undefined)[] = useMemo(() => {
     let formatted: (Currency | undefined)[] = currencies
     if (breakIndex !== undefined) {
@@ -285,7 +283,7 @@ export default function CurrencyList({
     }
     return formatted
   }, [breakIndex, currencies])
-  const itemCurrencyBalances = useCurrencyBalances(account || undefined, itemCurrencies)
+  const itemCurrencyBalances = useCurrencyBalances(itemCurrencies)
   const itemData = useMemo(
     () => ({ currencies: itemCurrencies, currencyBalances: itemCurrencyBalances }),
     [itemCurrencies, itemCurrencyBalances],

@@ -184,7 +184,7 @@ function Pool() {
   const under768 = width && width <= 768
 
   const liquidityPositionTokenPairs = useLiquidityPositionTokenPairs()
-  const { loading: loadingUserLiquidityPositions, data: userLiquidityPositions } = useUserLiquidityPositions(account)
+  const { loading: loadingUserLiquidityPositions, data: userLiquidityPositions } = useUserLiquidityPositions()
 
   const { data: farms, loading: farmLoading } = useFarmsData()
 
@@ -211,7 +211,7 @@ function Pool() {
   )
 
   const tokens = useMemo(() => liquidityTokens.flat(), [liquidityTokens])
-  const [v2PairsBalances, fetchingV2PairBalances] = useTokenBalancesWithLoadingIndicator(account ?? undefined, tokens)
+  const [v2PairsBalances, fetchingV2PairBalances] = useTokenBalancesWithLoadingIndicator(tokens)
 
   const liquidityTokensWithBalances = useMemo(
     () =>

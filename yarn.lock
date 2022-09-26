@@ -2994,10 +2994,10 @@
     tiny-warning "^1.0.3"
     toformat "^2.0.0"
 
-"@namgold/ks-sdk-core@^0.1.20", "@namgold/ks-sdk-core@~0.1.20", "@namgold/ks-sdk-core@^0.1.23":
-  version "0.1.23"
-  resolved "https://registry.yarnpkg.com/@namgold/ks-sdk-core/-/ks-sdk-core-0.1.23.tgz#615711cd17f14d24b62eb7c3feec643d8156fb7f"
-  integrity sha512-Faz5w84Uu9yDFwxbZGa3S0h6FThXI7H7R6uvJw6/BvOqzwKeJHBuJ8XLQ9sgRw2V7/Wg1V2H/gju2R+CDPPIkw==
+"@namgold/ks-sdk-core@^0.1.20", "@namgold/ks-sdk-core@^0.1.25", "@namgold/ks-sdk-core@~0.1.20":
+  version "0.1.25"
+  resolved "https://registry.yarnpkg.com/@namgold/ks-sdk-core/-/ks-sdk-core-0.1.25.tgz#fa94ed2f58c5bf6805639093ac7faab690a4477a"
+  integrity sha512-dQJ/9opi+Hxa3oHAebvtfxBFz0hYLTa2b/tYjcooqvxTnrtdJrSwlHIfeylcypi+y+zZlGrOcoJ4eZZjsXMUZA==
   dependencies:
     "@ethersproject/address" "^5.0.2"
     "@solana/web3.js" "1.44.0"
