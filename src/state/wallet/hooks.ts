@@ -53,10 +53,9 @@ function useTokensBalance(tokens?: Token[]): [TokenAmount | undefined, boolean][
 }
 
 function useTokensBalanceEVM(tokens?: Token[]): [TokenAmount | undefined, boolean][] {
+  const { account } = useActiveWeb3React()
   const validatedTokenAddresses = useMemo(() => tokens?.map(token => token.address) ?? [], [tokens])
-  const balances = useMultipleContractSingleData(validatedTokenAddresses, ERC20_INTERFACE, 'balanceOf', [
-    validatedTokenAddresses,
-  ])
+  const balances = useMultipleContractSingleData(validatedTokenAddresses, ERC20_INTERFACE, 'balanceOf', [account])
   return useMemo(
     () =>
       balances.map((balanceCall, i) => {
