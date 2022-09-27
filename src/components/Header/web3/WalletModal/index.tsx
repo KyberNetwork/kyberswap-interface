@@ -110,7 +110,11 @@ const OptionGrid = styled.div`
   gap: 16px;
   margin-top: 16px;
 
-  ${({ theme }) => theme.mediaWidth.upToMedium`
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-gap: 10px;
+  `};
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     grid-template-columns: 1fr 1fr;
     grid-gap: 10px;
   `};

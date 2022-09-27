@@ -77,7 +77,12 @@ const NetworkList = styled.div<{ width: number; mt: number; mb: number }>`
   margin-bottom: ${({ mb }) => mb}px;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-gap: 10px;
+  `}
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     grid-template-columns: 1fr 1fr;
+    grid-gap: 10px;
   `}
 `
 
