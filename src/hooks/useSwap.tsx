@@ -6,8 +6,18 @@ import useTokenBalances from "./useTokenBalances";
 import { useTokens } from "./useTokens";
 import { useActiveWeb3 } from "./useWeb3Provider";
 
+const getPath = (chainId: number) => {
+  switch (chainId) {
+    case 1:
+      return "ethereum";
+    case 137:
+      return "polygon";
+    default:
+      return "ethereum";
+  }
+};
 const useSwap = () => {
-  const { provider } = useActiveWeb3();
+  const { provider, chainId } = useActiveWeb3();
   const [tokenIn, setTokenIn] = useState(NATIVE_TOKEN_ADDRESS);
   const [tokenOut, setTokenOut] = useState("");
   const tokens = useTokens();
@@ -84,9 +94,9 @@ const useSwap = () => {
     const controller = new AbortController();
     controllerRef.current = controller;
     const res = await fetch(
-      `https://aggregator-api.kyberswap.com/polygon/route/encode?${search.slice(
-        1
-      )}`,
+      `https://aggregator-api.kyberswap.com/${getPath(
+        chainId
+      )}/route/encode?${search.slice(1)}`,
       {
         headers: {
           "accept-version": "Latest",

@@ -28,9 +28,7 @@ import {
   Rate,
 } from "./styled";
 
-import { init, useConnectWallet } from "@web3-onboard/react";
-import injectedModule from "@web3-onboard/injected-wallets";
-import { BigNumber, ethers } from "ethers";
+import { BigNumber } from "ethers";
 import { NATIVE_TOKEN, NATIVE_TOKEN_ADDRESS, ZIndex } from "../../constants";
 import SelectCurrency from "../SelectCurrency";
 import { useActiveWeb3, Web3Provider } from "../../hooks/useWeb3Provider";
@@ -40,20 +38,6 @@ import { formatUnits } from "ethers/lib/utils";
 import useApproval, { APPROVAL_STATE } from "../../hooks/useApproval";
 import Settings from "../Settings";
 import { Token, TokenListProvider, useTokens } from "../../hooks/useTokens";
-
-const injected = injectedModule();
-// initialize Onboard
-init({
-  wallets: [injected],
-  chains: [
-    {
-      id: "0x89",
-      token: "MATIC",
-      label: "Polygon",
-      rpcUrl: "https://polygon.kyberengineering.io",
-    },
-  ],
-});
 
 export const DialogWrapper = styled.div`
   background-color: ${({ theme }) => theme.bg1};
@@ -134,7 +118,7 @@ enum ModalType {
 
 export interface WidgetProps {
   provider?: any;
-  tokenList: Token[];
+  tokenList?: Token[];
 }
 
 const Widget = () => {
@@ -154,6 +138,7 @@ const Widget = () => {
     slippage,
     setSlippage,
   } = useSwap();
+
   const { balances } = useTokenBalances(tokens.map((item) => item.address));
 
   const tokenInInfo =
@@ -466,25 +451,15 @@ const Widget = () => {
 };
 
 export default ({ provider, tokenList }: WidgetProps) => {
-  const [{ wallet, connecting }, connect, disconnect] = useConnectWallet();
-
-  // create an ethers provider
-  let ethersProvider;
-
-  if (wallet) {
-    ethersProvider = new ethers.providers.Web3Provider(wallet.provider, "any");
-  }
-
   return (
     <StrictMode>
       <ThemeProvider theme={darkTheme}>
-        <Web3Provider provider={provider || ethersProvider}>
+        <Web3Provider provider={provider}>
           <TokenListProvider tokenList={tokenList}>
             <Widget />
           </TokenListProvider>
         </Web3Provider>
       </ThemeProvider>
-      <Button onClick={() => connect()}>connect wallet</Button>
     </StrictMode>
   );
 };

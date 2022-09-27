@@ -1,3 +1,5 @@
+import { ethereumTokens, polygonTokens } from "./tokens";
+
 export enum ZIndex {
   UNDERLAYER = -1,
   OVERLAY = 100,
@@ -38,3 +40,15 @@ export const NATIVE_TOKEN: {
 };
 
 export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+
+export const DEFAULT_TOKENS: {
+  [chainId: number]: TokenInfo[];
+} = {
+  1: ethereumTokens,
+  137: polygonTokens,
+};
+
+export const MULTICALL_ADDRESS: { [chainId: number]: string } = {
+  1: "0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696",
+  137: "0xed386Fe855C1EFf2f843B910923Dd8846E45C5A4",
+};

@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import styled from "styled-components";
 
 const Label = styled.div`
   font-size: 0.875rem;
+  text-align: left;
 `;
 
 const Input = styled.input`

@@ -63,8 +63,6 @@ function useApproval(
     if (contract && token !== NATIVE_TOKEN_ADDRESS && account && spender) {
       setLoading(true);
       contract.allowance(account, spender).then((res: any) => {
-        console.log(res, amountToApprove);
-
         if (amountToApprove.lte(res)) {
           setApprovalState(APPROVAL_STATE.APPROVED);
         } else {

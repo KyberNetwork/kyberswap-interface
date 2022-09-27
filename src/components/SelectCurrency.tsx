@@ -121,8 +121,8 @@ function SelectCurrency({
                     ).href;
                   }}
                 />
-                <div>
-                  <div>{token.symbol}</div>
+                <div style={{ textAlign: "left" }}>
+                  <span>{token.symbol}</span>
                   <TokenName>{token.name}</TokenName>
                 </div>
               </TokenInfo>

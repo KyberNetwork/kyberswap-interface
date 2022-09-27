@@ -1,5 +1,6 @@
 import { Contract, ContractInterface } from "ethers";
 import { useMemo } from "react";
+import { MULTICALL_ADDRESS } from "../constants";
 import { multicallABI } from "../constants/multicall";
 import { isAddress } from "../utils";
 import { useActiveWeb3 } from "./useWeb3Provider";
@@ -26,8 +27,7 @@ export function useContract(
 }
 
 export const useMulticalContract = () => {
-  return useContract(
-    "0xed386Fe855C1EFf2f843B910923Dd8846E45C5A4",
-    multicallABI
-  );
+  const { chainId } = useActiveWeb3();
+
+  return useContract(MULTICALL_ADDRESS[chainId], multicallABI);
 };

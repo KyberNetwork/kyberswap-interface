@@ -1,4 +1,6 @@
 import { createContext, ReactNode, useContext } from "react";
+import { DEFAULT_TOKENS } from "../constants";
+import { useActiveWeb3 } from "./useWeb3Provider";
 
 export interface Token {
   chainId: number;
@@ -10,18 +12,24 @@ export interface Token {
 }
 
 const TokenContext = createContext<{
-  tokenList: Token[];
+  tokenList?: Token[];
 }>({ tokenList: [] });
 
 export const TokenListProvider = ({
   tokenList,
   children,
 }: {
-  tokenList: Token[];
+  tokenList?: Token[];
   children: ReactNode;
 }) => {
+  const { chainId } = useActiveWeb3();
+
   return (
-    <TokenContext.Provider value={{ tokenList }}>
+    <TokenContext.Provider
+      value={{
+        tokenList: tokenList?.length ? tokenList : DEFAULT_TOKENS[chainId],
+      }}
+    >
       {children}
     </TokenContext.Provider>
   );
