@@ -39,7 +39,7 @@ export const useSOLBalance = (uncheckedAddress?: string): CurrencyAmount<Currenc
 
     // do not add solBalance to deps list, it would trigger infinity loops calling rpc calls
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [uncheckedAddress])
+  }, [account, chainId, uncheckedAddress])
 
   return solBalance
 }
