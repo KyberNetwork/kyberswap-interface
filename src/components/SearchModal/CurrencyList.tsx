@@ -3,6 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import React, { CSSProperties, MutableRefObject, useCallback, useMemo } from 'react'
 import { Star, Trash } from 'react-feather'
+import InfiniteScroll from 'react-infinite-scroll-component'
 import { FixedSizeList } from 'react-window'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -13,10 +14,9 @@ import QuestionHelper from 'components/QuestionHelper'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
-import { useUserFavoriteTokens } from 'state/user/hooks'
+import { useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { TYPE } from 'theme'
-import { isAddress } from 'utils'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 
 import Column from '../Column'
@@ -243,6 +243,8 @@ export default function CurrencyList({
   breakIndex,
   handleClickFavorite,
   removeImportedToken,
+  loadMoreRows,
+  totalItems,
 }: {
   height: number
   isImportedTab: boolean
@@ -257,6 +259,8 @@ export default function CurrencyList({
   breakIndex: number | undefined
   handleClickFavorite: (e: React.MouseEvent, currency: Currency) => void
   removeImportedToken: (token: Token) => void
+  loadMoreRows: () => Promise<void>
+  totalItems: number
 }) {
   const { account } = useActiveWeb3React()
   const itemCurrencies: (Currency | undefined)[] = useMemo(() => {
@@ -283,12 +287,10 @@ export default function CurrencyList({
       const otherSelected = Boolean(otherCurrency && currency && otherCurrency.equals(currency))
       const handleSelect = () => currency && onCurrencySelect(currency)
 
-      const token = currency?.wrapped
-
+      const token = currency?.wrapped as any
+      const tokenImports = useUserAddedTokens()
       const showImport =
-        inactiveTokens.length &&
-        token &&
-        inactiveTokens.map(inactiveToken => inactiveToken.address).includes(isAddress(token.address) || token.address)
+        token && !token.isWhitelisted && !tokenImports.find(importedToken => importedToken.address === token.address)
 
       if (index === breakIndex || !data) {
         return (
@@ -341,7 +343,6 @@ export default function CurrencyList({
       return null
     },
     [
-      inactiveTokens,
       onCurrencySelect,
       otherCurrency,
       selectedCurrency,
@@ -355,19 +356,18 @@ export default function CurrencyList({
     ],
   )
 
-  const itemKey = useCallback((index: number, data: any) => currencyKey(data.currencies[index]), [])
-
   return (
-    <FixedSizeList
-      height={height}
-      ref={fixedListRef as any}
-      width="100%"
-      itemData={itemData}
-      itemCount={itemData.currencies.length}
-      itemSize={56}
-      itemKey={itemKey}
+    <InfiniteScroll
+      dataLength={inactiveTokens.length}
+      next={loadMoreRows}
+      hasMore={inactiveTokens.length < totalItems}
+      height={500}
+      loader={<h4>Loading...</h4>}
+      scrollableTarget="scrollableDiv"
     >
-      {Row}
-    </FixedSizeList>
+      {inactiveTokens.map((item, index) => (
+        <Row key={item?.address} index={index} data={itemData} style={{ height: 56 }} />
+      ))}
+    </InfiniteScroll>
   )
 }

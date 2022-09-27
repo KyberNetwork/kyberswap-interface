@@ -1,5 +1,6 @@
 import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import axios from 'axios'
 import { rgba } from 'polished'
 import { ChangeEvent, KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Trash } from 'react-feather'
@@ -10,13 +11,7 @@ import styled from 'styled-components'
 
 import InfoHelper from 'components/InfoHelper'
 import { nativeOnChain } from 'constants/tokens'
-import {
-  useAllTokens,
-  useIsTokenActive,
-  useIsUserAddedToken,
-  useSearchInactiveTokenLists, // useSearchInactiveTokenListsV2,
-  useToken,
-} from 'hooks/Tokens'
+import { useAllTokens, useIsTokenActive, useIsUserAddedToken, useToken } from 'hooks/Tokens'
 import useDebounce from 'hooks/useDebounce'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
@@ -232,17 +227,51 @@ export function CurrencySearch({
   const node = useRef<HTMLDivElement>()
   useOnClickOutside(node, open ? toggle : undefined)
 
-  // if no results on main list, show option to expand into inactive
-  const filteredInactiveTokens: Token[] = useSearchInactiveTokenLists(debouncedQuery)
-  // todo: tien phan use filteredInactiveTokens2 instead of useSearchInactiveTokenLists
-  // const filteredInactiveTokens2: Token[] = useSearchInactiveTokenListsV2(debouncedQuery)
-  // console.log(filteredInactiveTokens2)
+  const [pageCount, setPageCount] = useState(1)
+  const [fetchedTokens, setFetchedTokens] = useState<Token[]>([])
+  const [totalItems, setTotalItems] = useState(0)
+
+  const fetchTokens = useCallback(
+    async (search: string | undefined, page: number) => {
+      const url = `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?query=${search}&chainIds=${chainId}&page=${page}`
+      const response = await axios.get(url)
+      const { tokens, pagination } = response.data.data
+      return { tokens, pagination }
+    },
+    [chainId],
+  )
+
+  const handleNewPageLoad = async () => {
+    const { tokens } = await fetchTokens(debouncedQuery, pageCount)
+
+    setPageCount(pageCount => pageCount + 1)
+    const parsedTokens = tokens.map(
+      (token: any) => new Token(token.chainId, token.address, token.decimals, token.symbol, token.name),
+    )
+    setFetchedTokens(current => [...current, ...parsedTokens])
+    return
+  }
+
+  const loadMoreRows = handleNewPageLoad
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const { tokens, pagination } = await fetchTokens(debouncedQuery, 1)
+      const parsedTokens = tokens.map(
+        (token: any) => new Token(token.chainId, token.address, token.decimals, token.symbol, token.name),
+      )
+      setFetchedTokens(parsedTokens)
+      setTotalItems(pagination.totalItems)
+      setPageCount(2)
+    }
+    fetchData()
+  }, [debouncedQuery, fetchTokens])
 
   const combinedTokens = useMemo(() => {
-    const currencies: Currency[] = filteredSortedTokens.concat(filteredInactiveTokens)
+    const currencies: Currency[] = filteredSortedTokens.concat(fetchedTokens)
     if (showETH && chainId) currencies.unshift(nativeOnChain(chainId))
     return currencies
-  }, [showETH, chainId, filteredSortedTokens, filteredInactiveTokens])
+  }, [showETH, chainId, filteredSortedTokens, fetchedTokens])
 
   const commonTokens = useMemo(() => {
     return combinedTokens.filter(token => {
@@ -376,18 +405,18 @@ export function CurrencySearch({
           <ImportRow token={searchToken.wrapped} showImportView={showImportView} setImportToken={setImportToken} />
         </Column>
       ) : visibleCurrencies?.length > 0 ? (
-        <div style={{ flex: '1' }}>
+        <div id="scrollableDiv" style={{ flex: '1', overflow: 'auto' }}>
           <AutoSizer disableWidth>
             {({ height }) => (
               <CurrencyList
                 removeImportedToken={removeImportedToken}
                 height={height}
                 currencies={visibleCurrencies}
-                inactiveTokens={filteredInactiveTokens}
+                inactiveTokens={fetchedTokens}
                 isImportedTab={isImportedTab}
                 breakIndex={
                   activeTab === Tab.All
-                    ? filteredInactiveTokens.length && filteredSortedTokens
+                    ? fetchedTokens.length && filteredSortedTokens
                       ? filteredSortedTokens.length
                       : undefined
                     : undefined
@@ -399,6 +428,8 @@ export function CurrencySearch({
                 fixedListRef={fixedList}
                 showImportView={showImportView}
                 setImportToken={setImportToken}
+                loadMoreRows={loadMoreRows}
+                totalItems={totalItems}
               />
             )}
           </AutoSizer>
