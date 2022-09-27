@@ -137,7 +137,7 @@ export function usePairsByAddress(
   )
 
   return useMemo(() => {
-    if (!isEVM(chainId)) return [] //todo namgold: add logic Solana
+    if (!isEVM(chainId)) return []
 
     return results.map((result, i) => {
       const { result: reserves, loading } = result

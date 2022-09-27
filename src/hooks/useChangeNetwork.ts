@@ -92,7 +92,7 @@ export function useChangeNetwork() {
                     summary: t`In order to use KyberSwap on ${NETWORKS_INFO[desiredChainId].name}, you must change the network in your wallet.`,
                   })
                 }
-                dispatch(updateChainId(desiredChainId)) //todo namgold: is this correct??? => need test
+                dispatch(updateChainId(desiredChainId))
                 successCallback?.()
               } catch (addError) {
                 console.error(addError)
