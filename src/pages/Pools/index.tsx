@@ -17,7 +17,7 @@ import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import Toggle from 'components/Toggle'
 import { MouseoverTooltip } from 'components/Tooltip'
 import Tutorial, { TutorialType } from 'components/Tutorial'
-import { isSolana } from 'constants/networks'
+import { isEVM } from 'constants/networks'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
@@ -175,7 +175,7 @@ const Pools = ({
     }
   }
 
-  if (isSolana(chainId)) return <Redirect to="/" />
+  if (!isEVM(chainId)) return <Redirect to="/" />
   return (
     <>
       <PoolsPageWrapper>

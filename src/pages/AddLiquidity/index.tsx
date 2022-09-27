@@ -8,7 +8,7 @@ import LiquidityProviderMode from 'components/LiquidityProviderMode'
 import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
 import { MinimalPositionCard } from 'components/PositionCard'
 import { TutorialType } from 'components/Tutorial'
-import { isSolana } from 'constants/networks'
+import { isEVM } from 'constants/networks'
 import { PairState } from 'data/Reserves'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
@@ -55,7 +55,7 @@ export default function AddLiquidity({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  if (isSolana(chainId)) return <Redirect to="/" />
+  if (!isEVM(chainId)) return <Redirect to="/" />
   return (
     <>
       <PageWrapper>

@@ -82,6 +82,7 @@ export default function AddressInputPanel({
   // triggers whenever the typed value changes
   onChange: (value: string | null) => void
 }) {
+  //todo namgold solana: Recipient address input support solana
   const { chainId } = useActiveWeb3React()
   const { address, loading, name } = useENS(value)
 
@@ -128,7 +129,7 @@ export default function AddressInputPanel({
                 spellCheck="false"
                 placeholder={t`Wallet Address or ENS name`}
                 error={error}
-                pattern="^(0x[a-fA-F0-9]{40})$" //todo namgold: add solana config
+                pattern="^(0x[a-fA-F0-9]{40})$"
                 onChange={handleInput}
                 value={value || ''}
               />

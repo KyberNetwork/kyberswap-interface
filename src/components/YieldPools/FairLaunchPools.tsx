@@ -2,6 +2,7 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { Trans, t } from '@lingui/macro'
 import { ChainId } from '@namgold/ks-sdk-core'
 import { useEffect, useState } from 'react'
+import { Redirect } from 'react-router-dom'
 import { Text } from 'rebass'
 
 import ShareModal from 'components/ShareModal'
@@ -62,7 +63,7 @@ const FairLaunchPools = ({ fairLaunchAddress, farms }: FarmsListProps) => {
     })
   }, [isShareModalOpen, setSharedPoolAddress])
 
-  if (!isEVM(chainId)) return <></> //todo namgold: add logic Solana
+  if (!isEVM(chainId)) return <Redirect to="/" />
 
   const shareUrl = sharedPoolAddress
     ? window.location.origin + '/farms?search=' + sharedPoolAddress + '&tab=classic&networkId=' + networkRoute

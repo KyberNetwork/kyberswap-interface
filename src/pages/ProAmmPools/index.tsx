@@ -13,7 +13,7 @@ import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
 import { Input as PaginationInput } from 'components/Pagination/PaginationInputOnMobile'
 import ShareModal from 'components/ShareModal'
-import { NETWORKS_INFO, isSolana } from 'constants/networks'
+import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { STABLE_COINS_ADDRESS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { SelectPairInstructionWrapper } from 'pages/Pools/styleds'
@@ -337,7 +337,7 @@ export default function ProAmmPoolList({
     }
   }, [isShareModalOpen, setSharedPoolId])
 
-  if (isSolana(chainId)) return <Redirect to="/" />
+  if (!isEVM(chainId)) return <Redirect to="/" />
 
   const pageData = pairDatas.slice((page - 1) * ITEM_PER_PAGE, page * ITEM_PER_PAGE)
 

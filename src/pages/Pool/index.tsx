@@ -22,7 +22,7 @@ import Search from 'components/Search'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import Tutorial, { TutorialType } from 'components/Tutorial'
 import { DMM_ANALYTICS_URL, OUTSIDE_FAIRLAUNCH_ADDRESSES } from 'constants/index'
-import { isSolana } from 'constants/networks'
+import { isEVM } from 'constants/networks'
 import { VERSION } from 'constants/v2'
 import { usePairByAddress, usePairsByAddress } from 'data/Reserves'
 import { useActiveWeb3React } from 'hooks'
@@ -276,7 +276,7 @@ function Pool() {
 
   const upToSmall = useMedia('(max-width: 768px)')
 
-  if (isSolana(chainId)) return <Redirect to="/" />
+  if (!isEVM(chainId)) return <Redirect to="/" />
   return (
     <>
       <PageWrapper style={{ padding: 0, marginTop: '24px' }}>

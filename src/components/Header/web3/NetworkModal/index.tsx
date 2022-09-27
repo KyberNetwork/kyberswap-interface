@@ -18,7 +18,7 @@ export const Wrapper = styled.div`
 `
 
 export default function NetworkModal(): JSX.Element | null {
-  const { error } = useWeb3React() //todo namgold: handle solana case
+  const { error } = useWeb3React()
   const isWrongNetwork = error instanceof UnsupportedChainIdError
   const networkModalOpen = useModalOpen(ApplicationModal.NETWORK)
   const toggleNetworkModal = useNetworkModalToggle()

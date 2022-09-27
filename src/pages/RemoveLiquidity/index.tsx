@@ -8,7 +8,7 @@ import { Redirect } from 'react-router-dom'
 import LiquidityProviderMode from 'components/LiquidityProviderMode'
 import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
 import { MinimalPositionCard } from 'components/PositionCard'
-import { isSolana } from 'constants/networks'
+import { isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -49,7 +49,7 @@ export default function RemoveLiquidity({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  if (isSolana(chainId)) return <Redirect to="/" />
+  if (!isEVM(chainId)) return <Redirect to="/" />
   return (
     <>
       <PageWrapper>

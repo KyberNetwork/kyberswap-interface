@@ -25,7 +25,7 @@ import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
 import Slider from 'components/Slider'
 import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
 import { TutorialType } from 'components/Tutorial'
-import { isSolana } from 'constants/networks'
+import { isEVM } from 'constants/networks'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
@@ -360,7 +360,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
     [onUserInput],
   )
 
-  if (isSolana(chainId)) return <Redirect to="/" />
+  if (!isEVM(chainId)) return <Redirect to="/" />
   return (
     <>
       <TransactionConfirmationModal

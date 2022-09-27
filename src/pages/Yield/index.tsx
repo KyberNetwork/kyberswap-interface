@@ -29,7 +29,7 @@ import {
   TopBar,
   UpcomingPoolsWrapper,
 } from 'components/YieldPools/styleds'
-import { isSolana } from 'constants/networks'
+import { isEVM } from 'constants/networks'
 import { UPCOMING_POOLS } from 'constants/upcoming-pools'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
@@ -132,7 +132,7 @@ const Farms = () => {
     </Flex>
   )
 
-  if (isSolana(chainId)) return <Redirect to="/" />
+  if (!isEVM(chainId)) return <Redirect to="/" />
   return (
     <>
       <PageWrapper gap="24px">

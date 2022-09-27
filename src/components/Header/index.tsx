@@ -299,7 +299,8 @@ const HoverDropdown = styled.div<{ active: boolean; disabled: boolean }>`
   ${({ disabled, theme }) =>
     disabled
       ? `
-    color: grey;
+      color: ${theme.disableText};
+      cursor: not-allowed;
     `
       : `
     :hover {

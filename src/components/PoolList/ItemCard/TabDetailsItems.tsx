@@ -1,6 +1,7 @@
 import { t } from '@lingui/macro'
 import { Fraction } from '@namgold/ks-sdk-core'
 import JSBI from 'jsbi'
+import { Redirect } from 'react-router-dom'
 
 import ItemCardInfoRow, { ItemCardInfoRowPriceRange } from 'components/PoolList/ItemCard/ItemCardInfoRow'
 import DMM_POOL_INTERFACE from 'constants/abis/dmmPool'
@@ -17,7 +18,7 @@ export default function TabDetailsItems({ poolData }: { poolData: SubgraphPoolDa
   const amp = new Fraction(poolData.amp).divide(JSBI.BigInt(SUBGRAPH_AMP_MULTIPLIER))
   const ampLiquidity = formattedNum(`${parseFloat(amp.toSignificant(5)) * parseFloat(poolData.reserveUSD)}`, true)
   const factories = useMultipleContractSingleData([poolData.id], DMM_POOL_INTERFACE, 'factory')
-  if (!isEVM(chainId)) return <></> //todo namgold: add logic Solana
+  if (!isEVM(chainId)) return <Redirect to="/" />
   const isNewStaticFeePool = chainId && factories?.[0]?.result?.[0] === NETWORKS_INFO[chainId].classic.static.factory
 
   return (
