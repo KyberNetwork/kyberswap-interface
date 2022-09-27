@@ -383,11 +383,11 @@ export const useDatafeed = (currencies: Array<Currency | undefined>, pairAddress
                   c.low = c.close
                 }
               }
-              if (c.high > 1.1 * c.open) {
-                c.high = c.open > c.close ? c.open : c.close
+              if (c.high > 1.1 * Math.max(c.open, c.close)) {
+                c.high = Math.max(c.open, c.close)
               }
-              if (c.low < c.open / 1.1) {
-                c.low = c.open > c.close ? c.close : c.open
+              if (c.low < Math.min(c.open, c.close) / 1.1) {
+                c.low = Math.min(c.open, c.close)
               }
               return c
             })
