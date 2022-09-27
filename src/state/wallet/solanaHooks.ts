@@ -1,14 +1,13 @@
 import { ChainId, Currency, CurrencyAmount, Token, TokenAmount } from '@namgold/ks-sdk-core'
-import { AccountLayout, Mint, RawAccount, TOKEN_PROGRAM_ID, getMint } from '@solana/spl-token'
+import { AccountLayout, RawAccount, TOKEN_PROGRAM_ID } from '@solana/spl-token'
 import { useWallet } from '@solana/wallet-adapter-react'
-import { AccountInfo, Connection, PublicKey } from '@solana/web3.js'
+import { AccountInfo, PublicKey } from '@solana/web3.js'
 import JSBI from 'jsbi'
 import { useEffect, useMemo, useState } from 'react'
 
-// import { useTokenList } from './useTokenlist'
-import { NETWORKS_INFO } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
+import connection from 'state/connection/connection'
 import { isAddress } from 'utils'
 
 export const useSOLBalance = (uncheckedAddress?: string): CurrencyAmount<Currency> | undefined => {
@@ -25,7 +24,7 @@ export const useSOLBalance = (uncheckedAddress?: string): CurrencyAmount<Currenc
         if (publicKey) {
           console.count('solana getBalance')
           console.info('solana getBalance', publicKey.toBase58())
-          const balance = await NETWORKS_INFO[ChainId.SOLANA].connection.getBalance(publicKey)
+          const balance = await connection.getBalance(publicKey)
           const balanceJSBI = JSBI.BigInt(balance)
           if (solBalance === undefined || !JSBI.equal(balanceJSBI, solBalance.quotient))
             setSolBalance(CurrencyAmount.fromRawAmount(NativeCurrencies[chainId], balanceJSBI))
@@ -45,13 +44,8 @@ export const useSOLBalance = (uncheckedAddress?: string): CurrencyAmount<Currenc
 }
 type Overwrite<T, U> = Omit<T, keyof U> & U
 
-type ParsedMint = {
-  mint: Mint
-}
-type RawAccountParsed = Overwrite<RawAccount, ParsedMint>
-
 type ParsedData = {
-  data: RawAccountParsed
+  data: RawAccount
 }
 type AccountInfoParsed = Overwrite<AccountInfo<any>, ParsedData> & {
   pubkey: PublicKey
@@ -66,39 +60,31 @@ export const useAssociatedTokensAccounts = (): { [mintAddress: string]: AccountI
   useEffect(() => {
     if (chainId !== ChainId.SOLANA) return
     if (!publicKey) return
-    async function getTokenAccounts(publicKey: PublicKey, connection: Connection) {
+    async function getTokenAccounts(publicKey: PublicKey) {
       try {
         console.count('solana getTokenAccountsByOwner')
         console.info('solana getTokenAccountsByOwner', publicKey.toBase58())
-        console.log('connection.getBlockHeight', await connection.getBlockHeight())
+        // console.log('connection.getBlockHeight', await connection.getBlockHeight())
         const response = await connection.getTokenAccountsByOwner(publicKey, {
           programId: TOKEN_PROGRAM_ID,
         })
         const atas: { [mintAddress: string]: AccountInfoParsed } = {}
-        await Promise.all(
-          response.value.map(async ata => {
-            // use map only to use with Promise.all. It should be understand as .forEach
-            const parsedAccountData = AccountLayout.decode(ata.account.data)
-            console.count('solana getMint')
-            console.info('solana getMint', parsedAccountData.mint.toBase58())
-            const parsedMintAccountData = {
-              ...parsedAccountData,
-              mint: await getMint(connection, parsedAccountData.mint),
-            }
-            const parsedAta: AccountInfoParsed = {
-              ...ata.account,
-              pubkey: ata.pubkey,
-              data: parsedMintAccountData,
-            }
-            atas[parsedMintAccountData.mint.address.toBase58()] = parsedAta
-            return
-          }),
-        )
+
+        response.value.forEach(async ata => {
+          // use map only to use with Promise.all. It should be understand as .forEach
+          const parsedAccountData = AccountLayout.decode(ata.account.data)
+          const parsedAta: AccountInfoParsed = {
+            ...ata.account,
+            pubkey: ata.pubkey,
+            data: parsedAccountData,
+          }
+          atas[parsedAccountData.mint.toBase58()] = parsedAta
+        })
         setAtas(atas)
       } catch (e) {}
     }
 
-    getTokenAccounts(publicKey, NETWORKS_INFO[ChainId.SOLANA].connection)
+    getTokenAccounts(publicKey)
   }, [publicKey, chainId])
 
   return atas
@@ -109,66 +95,53 @@ export function useTokensBalanceSolana(tokens?: Token[]): [TokenAmount | undefin
   //   validatedTokenAddresses: string[],
   // ): { [mintAddress: string]: TokenAmount | false } => {
   const atas = useAssociatedTokensAccounts()
-  const [solBalances, setSolBalances] = useState<{ [mintAddress: string]: TokenAmount | false }>({})
+  const [tokensBalance, setTokensBalance] = useState<{ [mintAddress: string]: TokenAmount | undefined }>({})
+
+  const tokensMap: { [mintAddress: string]: Token } = useMemo(() => {
+    return (
+      tokens?.reduce((acc, token) => {
+        acc[token.address] = token
+        return acc
+      }, {} as { [address: string]: Token }) || {}
+    )
+  }, [tokens])
 
   useEffect(() => {
-    const newSolBalances: { [mintAddress: string]: TokenAmount | false } = {}
-    tokens?.forEach(token => {
-      newSolBalances[token.address] = false
-    })
-    setSolBalances(newSolBalances)
+    const newTokensBalance: { [mintAddress: string]: TokenAmount | undefined } =
+      tokens?.reduce((acc, token) => {
+        acc[token.address] = undefined
+        return acc
+      }, {} as { [mintAddress: string]: TokenAmount | undefined }) || {}
+    setTokensBalance(newTokensBalance)
   }, [tokens])
 
   useEffect(() => {
     async function getTokenAccounts() {
+      if (!tokens) return
       if (!atas) return
-      const newSolBalances: { [mintAddress: string]: TokenAmount } = {}
       // Init all tokens balance by 0
-      tokens?.forEach(token => (newSolBalances[token.address] = CurrencyAmount.fromRawAmount(token, 0)))
+      const newTokensBalance: { [mintAddress: string]: TokenAmount | undefined } = tokens.reduce((acc, token) => {
+        acc[token.address] = CurrencyAmount.fromRawAmount(token, 0)
+        return acc
+      }, {} as { [mintAddress: string]: TokenAmount | undefined })
 
-      Object.keys(atas).forEach(ataAddress => {
-        const accountInfo = atas[ataAddress].data
-        const token = new Token(ChainId.SOLANA, accountInfo.mint.address.toBase58(), accountInfo.mint.decimals)
-        newSolBalances[accountInfo.mint.address.toBase58()] = CurrencyAmount.fromRawAmount(
-          token,
-          JSBI.BigInt(accountInfo.amount.toString()),
+      tokens.forEach(token => {
+        newTokensBalance[token.address] = CurrencyAmount.fromRawAmount(
+          tokensMap[token.address],
+          JSBI.BigInt(atas[token.address]?.data.amount.toString() || 0),
         )
       })
 
-      setSolBalances(newSolBalances)
+      setTokensBalance(newTokensBalance)
     }
 
     if (atas) {
       getTokenAccounts()
     }
-  }, [atas, tokens])
+  }, [atas, tokens, tokensMap])
 
   return useMemo(
-    () => tokens?.map(token => [solBalances[token.address] || undefined, solBalances[token.address] === false]) ?? [],
-    [solBalances, tokens],
+    () => tokens?.map(token => [tokensBalance[token.address] || undefined, !tokensBalance[token.address]]) ?? [],
+    [tokensBalance, tokens],
   )
 }
-
-// export const useBalance = (currency: Currency | null): CurrencyAmount | false => {
-//   const SOLBalance = useSOLBalance()
-//   const tokensBalances = useTokensBalances()
-//   const [balance, setBalance] = useState<CurrencyAmount | false>(false)
-
-//   useEffect(() => {
-//     setBalance(false)
-//   }, [currency])
-
-//   useEffect(() => {
-//     if (currency) {
-//       if (currency instanceof Token) {
-//         setBalance(tokensBalances[currency.mint.toBase58()])
-//       } else {
-//         setBalance(SOLBalance)
-//       }
-//     } else {
-//       setBalance(false)
-//     }
-//   }, [currency, SOLBalance, tokensBalances])
-
-//   return balance
-// }
