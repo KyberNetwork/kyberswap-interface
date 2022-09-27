@@ -3,7 +3,7 @@ import { ChainId } from '@namgold/ks-sdk-core'
 import { rgba } from 'polished'
 import { useMemo, useRef, useState } from 'react'
 import { Info } from 'react-feather'
-import { useHistory, useLocation } from 'react-router-dom'
+import { Redirect, useHistory, useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -15,6 +15,7 @@ import Search from 'components/Search'
 import Toggle from 'components/Toggle'
 import Tutorial, { TutorialType } from 'components/Tutorial'
 import { PROMM_ANALYTICS_URL } from 'constants/index'
+import { isSolana } from 'constants/networks'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
@@ -139,6 +140,8 @@ export default function ProAmmPool() {
   const [showStaked, setShowStaked] = useState(false)
 
   const upToSmall = useMedia('(max-width: 768px)')
+
+  if (isSolana(chainId)) return <Redirect to="/" />
   return (
     <>
       <PageWrapper style={{ padding: 0, marginTop: '24px' }}>

@@ -3,7 +3,7 @@ import { Token } from '@namgold/ks-sdk-core'
 import { stringify } from 'qs'
 import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
-import { useHistory } from 'react-router-dom'
+import { Redirect, useHistory } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
@@ -29,8 +29,10 @@ import {
   TopBar,
   UpcomingPoolsWrapper,
 } from 'components/YieldPools/styleds'
+import { isSolana } from 'constants/networks'
 import { UPCOMING_POOLS } from 'constants/upcoming-pools'
 import { VERSION } from 'constants/v2'
+import { useActiveWeb3React } from 'hooks'
 import { useTokens } from 'hooks/Tokens'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
@@ -41,6 +43,7 @@ import { useProMMFarms } from 'state/farms/promm/hooks'
 import { isInEnum } from 'utils/string'
 
 const Farms = () => {
+  const { chainId } = useActiveWeb3React()
   const { loading } = useFarmsData()
   const qs = useParsedQueryString<{ type: string; tab: string }>()
   const { type = 'active', tab = VERSION.ELASTIC } = qs
@@ -129,6 +132,7 @@ const Farms = () => {
     </Flex>
   )
 
+  if (isSolana(chainId)) return <Redirect to="/" />
   return (
     <>
       <PageWrapper gap="24px">

@@ -111,7 +111,7 @@ export const useFarmsData = (isIncludeOutsideFarms = true) => {
 
   useEffect(() => {
     if (!isEVM(chainId)) return
-    const apolloClient = NETWORKS_INFO[chainId || ChainId.MAINNET].classicClient
+    const apolloClient = NETWORKS_INFO[chainId].classicClient
     let cancelled = false
     const currentTimestamp = Math.round(Date.now() / 1000)
 

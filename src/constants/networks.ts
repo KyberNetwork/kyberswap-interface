@@ -136,3 +136,8 @@ export function isEVM(chainId?: ChainId): chainId is EVM_NETWORK {
   const chainType = getChainType(chainId)
   return chainType === ChainType.EVM
 }
+export function isSolana(chainId?: ChainId): chainId is ChainId.SOLANA {
+  if (!chainId) return false
+  const chainType = getChainType(chainId)
+  return chainType === ChainType.SOLANA
+}

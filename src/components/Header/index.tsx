@@ -19,6 +19,7 @@ import Row, { RowFixed } from 'components/Row'
 import Settings from 'components/Settings'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { PROMM_ANALYTICS_URL } from 'constants/index'
+import { isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useWindowSize } from 'hooks/useWindowSize'
@@ -280,7 +281,7 @@ const DropdownIcon = styled(DropdownSVG)`
   transition: transform 300ms;
 `
 
-const HoverDropdown = styled.div<{ active: boolean }>`
+const HoverDropdown = styled.div<{ active: boolean; disabled: boolean }>`
   position: relative;
   display: inline-block;
   cursor: pointer;
@@ -295,22 +296,26 @@ const HoverDropdown = styled.div<{ active: boolean }>`
     padding: 8px 2px 8px 6px;
   `}
 
-  :hover {
-    color: ${({ theme }) => darken(0.1, theme.primary)};
-
-    ${Dropdown} {
-      display: flex;
-      flex-direction: column;
-
-      ${StyledNavLink} {
-        margin: 0;
+  ${({ disabled, theme }) =>
+    disabled
+      ? `
+    color: grey;
+    `
+      : `
+    :hover {
+      color: ${darken(0.1, theme.primary)};
+      ${Dropdown} {
+        display: flex;
+        flex-direction: column;
+        ${StyledNavLink} {
+          margin: 0;
+        }
+      }
+      ${DropdownIcon} {
+        transform: rotate(-180deg);
       }
     }
-
-    ${DropdownIcon} {
-      transform: rotate(-180deg);
-    }
-  }
+  `}
 `
 
 export default function Header() {
@@ -334,7 +339,7 @@ export default function Header() {
           </UniIcon>
         </Title>
         <HeaderLinks>
-          <HoverDropdown active={pathname.includes('/swap') || pathname === '/buy-crypto'}>
+          <HoverDropdown active={pathname.includes('/swap') || pathname === '/buy-crypto'} disabled={false}>
             <Flex alignItems="center">
               <Trans>Swap</Trans>
               <DropdownIcon />
@@ -375,6 +380,7 @@ export default function Header() {
           <Flex id={TutorialIds.EARNING_LINKS} alignItems="center">
             <HoverDropdown
               active={pathname.toLowerCase().includes('pools') || pathname.toLowerCase().startsWith('/farms')}
+              disabled={!isEVM(chainId)}
             >
               <Flex alignItems="center">
                 <Trans>Earn</Trans>
@@ -463,7 +469,7 @@ export default function Header() {
           </AnalyticsWrapper>
 
           <AboutWrapper>
-            <HoverDropdown active={pathname.toLowerCase().includes('about')}>
+            <HoverDropdown active={pathname.toLowerCase().includes('about')} disabled={false}>
               <Flex alignItems="center">
                 <Trans>About</Trans>
                 <DropdownIcon />

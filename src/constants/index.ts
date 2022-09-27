@@ -308,3 +308,23 @@ export const EPSILON = 0.000000000008854
 export const MAX_SLIPPAGE_IN_BIPS = 2000
 
 export const AGGREGATOR_WAITING_TIME = 1700 // 1700 means that we at least show '.' '..' '...' '.' '..' '...'
+
+export const APP_PATHS = {
+  SWAP_LEGACY: '/swap-legacy',
+  ABOUT: '/about',
+  SWAP: '/swap',
+  CAMPAIGN: '/campaigns',
+  POOLS: '/pools',
+  POOL: '/pool',
+  CLASSIC_CREATE_POOL: '/create',
+  CLASSIC_ADD_LIQ: '/add',
+  CLASSIC_REMOVE_POOL: '/remove',
+  ELASTIC_CREATE_POOL: '/elastic/add',
+  ELASTIC_INCREASE_LIQ: '/elastic/increase',
+  ELASTIC_REMOVE_POOL: '/elastic/remove',
+  FARMS: '/farms',
+  MY_POOLS: '/myPools',
+  REFERRAL: '/referral',
+  DISCOVER: '/discover',
+  BUY_CRYPTO: '/buy-crypto',
+}

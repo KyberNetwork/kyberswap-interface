@@ -79,10 +79,10 @@ export default function TokenPair({
   const nativeB = currencyB as Currency
   const [tokenA, tokenB] = useMemo(() => [currencyA?.wrapped, currencyB?.wrapped], [currencyA, currencyB])
 
-  const currencyAIsETHER = !!(chainId && currencyA && currencyA.isNative)
-  const currencyAIsWETH = !!(chainId && currencyA && currencyA.equals(WETH[chainId]))
-  const currencyBIsETHER = !!(chainId && currencyB && currencyB.isNative)
-  const currencyBIsWETH = !!(chainId && currencyB && currencyB.equals(WETH[chainId]))
+  const currencyAIsETHER = !!currencyA?.isNative
+  const currencyAIsWETH = !!currencyA?.equals(WETH[chainId])
+  const currencyBIsETHER = !!currencyB?.isNative
+  const currencyBIsWETH = !!currencyB?.equals(WETH[chainId])
 
   const theme = useTheme()
 

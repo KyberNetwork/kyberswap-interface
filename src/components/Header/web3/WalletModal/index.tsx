@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/macro'
-import { ChainId } from '@namgold/ks-sdk-core'
 import { BaseMessageSignerWalletAdapter } from '@solana/wallet-adapter-base'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { AbstractConnector } from '@web3-react/abstract-connector'
@@ -14,7 +13,7 @@ import { ReactComponent as Close } from 'assets/images/x.svg'
 import AccountDetails from 'components/Header/web3/AccountDetails'
 import Networks from 'components/Header/web3/NetworkModal/Networks'
 import Modal from 'components/Modal'
-import { isEVM } from 'constants/networks'
+import { isEVM, isSolana } from 'constants/networks'
 import { SUPPORTED_WALLET, SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/useChangeNetwork'
@@ -225,7 +224,7 @@ export default function WalletModal({
     setPendingError(false)
 
     if (isEVM(chainId) && isEVMWallet(wallet) && !wallet.href) tryActivationEVM(wallet.connector)
-    if (chainId === ChainId.SOLANA && isSolanaWallet(wallet) && wallet.adapter !== solanaWallet?.adapter)
+    if (isSolana(chainId) && isSolanaWallet(wallet) && wallet.adapter !== solanaWallet?.adapter)
       tryActivationSolana(wallet.adapter)
   }
 
@@ -286,7 +285,7 @@ export default function WalletModal({
       if (isEVM(chainId)) {
         if (isWalletAEVM) aPoint++
         if (isWalletBEVM) bPoint++
-      } else if (chainId === ChainId.SOLANA) {
+      } else if (isSolana(chainId)) {
         if (isWalletASolana) aPoint++
         if (isWalletBSolana) bPoint++
       }

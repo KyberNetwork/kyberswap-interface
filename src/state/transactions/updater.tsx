@@ -4,10 +4,9 @@ import { ethers } from 'ethers'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { AGGREGATOR_ROUTER_SWAPPED_EVENT_TOPIC } from 'constants/index'
+import { AGGREGATOR_ROUTER_SWAPPED_EVENT_TOPIC, APP_PATHS } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE, NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES } from 'hooks/useMixpanel'
-import { AppPaths } from 'pages/App'
 import { NotificationType, useBlockNumber, useTransactionNotify } from 'state/application/hooks'
 import { useSetClaimingCampaignRewardId } from 'state/campaigns/hooks'
 import { AppDispatch, AppState } from 'state/index'
@@ -173,7 +172,7 @@ export default function Updater(): null {
                   case 'Claim': {
                     // claim campaign reward successfully
                     // reset id claiming when finished
-                    if (window.location.pathname.startsWith(AppPaths.CAMPAIGN)) setClaimingCampaignRewardId(null)
+                    if (window.location.pathname.startsWith(APP_PATHS.CAMPAIGN)) setClaimingCampaignRewardId(null)
                     break
                   }
                   default:

@@ -1,5 +1,5 @@
 import { ApolloClient, NormalizedCacheObject, useQuery } from '@apollo/client'
-import { ChainId } from '@namgold/ks-sdk-core'
+import { ChainId, WETH } from '@namgold/ks-sdk-core'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -121,73 +121,11 @@ function parseData(data: any, oneDayData: any, ethPrice: any, oneDayBlock: any, 
     else data.oneDayVolumeUSD = 0
   }
 
-  if (chainId === ChainId.MAINNET) {
-    //todo namgold: fix remove these duplicated logics
-    if (data?.token0?.id === '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2') {
-      data.token0 = { ...data.token0, name: 'Ether (Wrapped)', symbol: 'ETH' }
-    }
-
-    if (data?.token1?.id === '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2') {
-      data.token1 = { ...data.token1, name: 'Ether (Wrapped)', symbol: 'ETH' }
-    }
+  if (chainId && WETH[chainId].address.toLowerCase() === data?.token0?.id) {
+    data.token0 = { ...data.token0, name: WETH[chainId].name, symbol: WETH[chainId].symbol }
   }
-
-  if (chainId === ChainId.MATIC) {
-    if (data?.token0?.id === '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270') {
-      data.token0 = { ...data.token0, name: 'Matic (Wrapped)', symbol: 'MATIC' }
-    }
-
-    if (data?.token1?.id === '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270') {
-      data.token1 = { ...data.token1, name: 'Matic (Wrapped)', symbol: 'MATIC' }
-    }
-
-    if (data?.token0?.id === '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619') {
-      data.token0 = { ...data.token0, name: 'Ether (Wrapped)', symbol: 'ETH' }
-    }
-
-    if (data?.token1?.id === '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619') {
-      data.token1 = { ...data.token1, name: 'Ether (Wrapped)', symbol: 'ETH' }
-    }
-  }
-
-  if (chainId === ChainId.BSCMAINNET) {
-    if (data?.token0?.id === '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c') {
-      data.token0 = { ...data.token0, name: 'BNB (Wrapped)', symbol: 'BNB' }
-    }
-
-    if (data?.token1?.id === '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c') {
-      data.token1 = { ...data.token1, name: 'BNB (Wrapped)', symbol: 'BNB' }
-    }
-  }
-
-  if (chainId === ChainId.AVAXMAINNET) {
-    if (data?.token0?.id === '0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7') {
-      data.token0 = { ...data.token0, name: 'AVAX (Wrapped)', symbol: 'AVAX' }
-    }
-
-    if (data?.token1?.id === '0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7') {
-      data.token1 = { ...data.token1, name: 'AVAX (Wrapped)', symbol: 'AVAX' }
-    }
-  }
-
-  if (chainId === ChainId.CRONOS) {
-    if (data?.token0?.id === '0x5c7f8a570d578ed84e63fdfa7b1ee72deae1ae23') {
-      data.token0 = { ...data.token0, name: 'CRO (Wrapped)', symbol: 'CRO' }
-    }
-
-    if (data?.token1?.id === '0x5c7f8a570d578ed84e63fdfa7b1ee72deae1ae23') {
-      data.token1 = { ...data.token1, name: 'CRO (Wrapped)', symbol: 'CRO' }
-    }
-  }
-
-  if (chainId === ChainId.AURORA) {
-    if (data?.token0?.id === '0xc9bdeed33cd01541e1eed10f90519d2c06fe3feb') {
-      data.token0 = { ...data.token0, name: 'ETH (Wrapped)', symbol: 'ETH' }
-    }
-
-    if (data?.token1?.id === '0xc9bdeed33cd01541e1eed10f90519d2c06fe3feb') {
-      data.token1 = { ...data.token1, name: 'ETH (Wrapped)', symbol: 'ETH' }
-    }
+  if (chainId && WETH[chainId].address.toLowerCase() === data?.token1?.id) {
+    data.token1 = { ...data.token1, name: WETH[chainId].name, symbol: WETH[chainId].symbol }
   }
 
   return data

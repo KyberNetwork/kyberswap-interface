@@ -6,7 +6,7 @@ import { parseUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle, Plus } from 'react-feather'
-import { Link, RouteComponentProps } from 'react-router-dom'
+import { Link, Redirect, RouteComponentProps } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 
 import { ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
@@ -27,7 +27,7 @@ import {
   ONLY_STATIC_FEE_CHAINS,
   STATIC_FEE_OPTIONS,
 } from 'constants/index'
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { NETWORKS_INFO, isEVM, isSolana } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { PairState } from 'data/Reserves'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -422,6 +422,7 @@ export default function CreatePool({
     }
   }, [chainId])
 
+  if (isSolana(chainId)) return <Redirect to="/" />
   return (
     <PageWrapper>
       <Container>

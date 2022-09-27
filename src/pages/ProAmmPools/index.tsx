@@ -2,6 +2,7 @@ import { Trans, t } from '@lingui/macro'
 import { Currency } from '@namgold/ks-sdk-core'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { ChevronDown, ChevronUp } from 'react-feather'
+import { Redirect } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -12,7 +13,7 @@ import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
 import { Input as PaginationInput } from 'components/Pagination/PaginationInputOnMobile'
 import ShareModal from 'components/ShareModal'
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO, isSolana } from 'constants/networks'
 import { STABLE_COINS_ADDRESS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { SelectPairInstructionWrapper } from 'pages/Pools/styleds'
@@ -335,6 +336,9 @@ export default function ProAmmPoolList({
       setSharedPoolId('')
     }
   }, [isShareModalOpen, setSharedPoolId])
+
+  if (isSolana(chainId)) return <Redirect to="/" />
+
   const pageData = pairDatas.slice((page - 1) * ITEM_PER_PAGE, page * ITEM_PER_PAGE)
 
   if (!anyLoading && !Object.keys(pairDatas).length)

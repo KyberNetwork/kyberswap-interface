@@ -2,7 +2,7 @@ import { Trans, t } from '@lingui/macro'
 import { ChainId, Currency } from '@namgold/ks-sdk-core'
 import { useCallback, useMemo, useState } from 'react'
 import { Plus } from 'react-feather'
-import { RouteComponentProps } from 'react-router-dom'
+import { Redirect, RouteComponentProps } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled, { DefaultTheme, keyframes } from 'styled-components'
@@ -17,6 +17,7 @@ import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import Toggle from 'components/Toggle'
 import { MouseoverTooltip } from 'components/Tooltip'
 import Tutorial, { TutorialType } from 'components/Tutorial'
+import { isSolana } from 'constants/networks'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
@@ -174,6 +175,7 @@ const Pools = ({
     }
   }
 
+  if (isSolana(chainId)) return <Redirect to="/" />
   return (
     <>
       <PoolsPageWrapper>

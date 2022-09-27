@@ -5,9 +5,9 @@ import { Currency, CurrencyAmount, WETH } from '@namgold/ks-sdk-core'
 import { FeeAmount, NonfungiblePositionManager } from '@namgold/ks-sdk-elastic'
 import { BigNumber } from 'ethers'
 import JSBI from 'jsbi'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
-import { RouteComponentProps } from 'react-router-dom'
+import { Redirect, RouteComponentProps } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -30,7 +30,7 @@ import Row, { RowBetween, RowFixed } from 'components/Row'
 import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
 import { TutorialType } from 'components/Tutorial'
 import { ArrowWrapper as ArrowWrapperVertical, Dots } from 'components/swapv2/styleds'
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { NETWORKS_INFO, isEVM, isSolana } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -707,6 +707,7 @@ export default function AddLiquidity({
     </>
   )
 
+  if (isSolana(chainId)) return <Redirect to="/" />
   return (
     <>
       <TransactionConfirmationModal

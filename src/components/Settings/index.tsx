@@ -14,10 +14,10 @@ import MenuFlyout from 'components/MenuFlyout'
 import { RowBetween, RowFixed } from 'components/Row'
 import ThemeToggle from 'components/Toggle/ThemeToggle'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
+import { APP_PATHS } from 'constants/index'
 import { LOCALE_LABEL, SupportedLocale } from 'constants/locales'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
-import { AppPaths } from 'pages/App'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleSettingsMenu } from 'state/application/hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
@@ -117,7 +117,7 @@ export default function SettingsTab() {
     toggle()
   }
   const location = useLocation()
-  const isShowTutorialBtn = location.pathname.startsWith(AppPaths.SWAP)
+  const isShowTutorialBtn = location.pathname.startsWith(APP_PATHS.SWAP)
   return (
     // https://github.com/DefinitelyTyped/DefinitelyTyped/issues/30451
     <StyledMenu ref={node as any}>

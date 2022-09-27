@@ -16,7 +16,7 @@ import Loader from 'components/LocalLoader'
 import Modal from 'components/Modal'
 import Popups from 'components/Popups'
 import Web3ReactManager from 'components/Web3ReactManager'
-import { BLACKLIST_WALLETS } from 'constants/index'
+import { APP_PATHS, BLACKLIST_WALLETS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useGlobalMixpanelEvents } from 'hooks/useMixpanel'
@@ -29,7 +29,6 @@ import { isAddressString, shortenAddress } from 'utils'
 import { RedirectDuplicateTokenIds } from './AddLiquidityV2/redirects'
 import Swap from './Swap'
 import { RedirectPathToSwapOnly, RedirectToSwap } from './Swap/redirects'
-import ProAmmSwap from './SwapProAmm'
 import SwapV2 from './SwapV2'
 
 // Route-based code splitting
@@ -37,7 +36,6 @@ const Pools = lazy(() => import(/* webpackChunkName: 'pools-page' */ './Pools'))
 const Pool = lazy(() => import(/* webpackChunkName: 'my-pool-page' */ './Pool'))
 
 const Yield = lazy(() => import(/* webpackChunkName: 'yield-page' */ './Yield'))
-const PoolFinder = lazy(() => import(/* webpackChunkName: 'pool-finder-page' */ './PoolFinder'))
 const CreatePool = lazy(() => import(/* webpackChunkName: 'create-pool-page' */ './CreatePool'))
 const ProAmmRemoveLiquidity = lazy(
   () => import(/* webpackChunkName: 'elastic-remove-liquidity-page' */ './RemoveLiquidityProAmm'),
@@ -95,8 +93,6 @@ const BodyWrapper = styled.div`
 
   ${isMobile && `overflow-x: hidden;`}
 `
-export const AppPaths = { SWAP_LEGACY: '/swap-legacy', ABOUT: '/about', SWAP: '/swap', CAMPAIGN: '/campaigns' }
-
 export default function App() {
   const { account, chainId } = useActiveWeb3React()
 
@@ -123,7 +119,7 @@ export default function App() {
   const { width } = useWindowSize()
   useGlobalMixpanelEvents()
   const { pathname } = window.location
-  const showFooter = !pathname.includes(AppPaths.ABOUT)
+  const showFooter = !pathname.includes(APP_PATHS.ABOUT)
 
   return (
     <ErrorBoundary>
@@ -191,67 +187,71 @@ export default function App() {
                 <Popups />
                 <Web3ReactManager>
                   <Switch>
-                    <Route exact strict path={AppPaths.SWAP_LEGACY} component={Swap} />
+                    <Route exact strict path={APP_PATHS.SWAP_LEGACY} component={Swap} />
 
                     <Route
                       exact
                       strict
-                      path={`${AppPaths.SWAP}/:network/:fromCurrency-to-:toCurrency`}
+                      path={`${APP_PATHS.SWAP}/:network/:fromCurrency-to-:toCurrency`}
                       component={SwapV2}
                     />
-                    <Route exact strict path={`${AppPaths.SWAP}/:network/:fromCurrency`} component={SwapV2} />
+                    <Route exact strict path={`${APP_PATHS.SWAP}/:network/:fromCurrency`} component={SwapV2} />
 
-                    <Route exact strict path={`${AppPaths.SWAP}/:outputCurrency`} component={RedirectToSwap} />
-                    <Route exact strict path={`${AppPaths.SWAP}`} component={SwapV2} />
+                    <Route exact strict path={`${APP_PATHS.SWAP}/:outputCurrency`} component={RedirectToSwap} />
+                    <Route exact strict path={`${APP_PATHS.SWAP}`} component={SwapV2} />
 
-                    <Route exact strict path="/find" component={PoolFinder} />
-                    <Route exact strict path="/pools" component={Pools} />
-                    <Route exact strict path="/pools/:currencyIdA" component={Pools} />
-                    <Route exact strict path="/pools/:currencyIdA/:currencyIdB" component={Pools} />
-                    <Route exact strict path="/farms" component={Yield} />
-                    <Route exact strict path="/myPools" component={Pool} />
+                    <Route exact strict path={`${APP_PATHS.POOLS}`} component={Pools} />
+                    <Route exact strict path={`${APP_PATHS.POOLS}/:currencyIdA`} component={Pools} />
+                    <Route exact strict path={`${APP_PATHS.POOLS}/:currencyIdA/:currencyIdB`} component={Pools} />
+                    <Route exact strict path={`${APP_PATHS.FARMS}`} component={Yield} />
+                    <Route exact strict path={`${APP_PATHS.MY_POOLS}`} component={Pool} />
 
-                    {/* Create new pool */}
-                    <Route exact path="/create" component={CreatePool} />
-                    <Route exact path="/create/:currencyIdA" component={RedirectOldCreatePoolPathStructure} />
+                    <Route exact path={`${APP_PATHS.CLASSIC_CREATE_POOL}`} component={CreatePool} />
                     <Route
                       exact
-                      path="/create/:currencyIdA/:currencyIdB"
+                      path={`${APP_PATHS.CLASSIC_CREATE_POOL}/:currencyIdA`}
+                      component={RedirectOldCreatePoolPathStructure}
+                    />
+                    <Route
+                      exact
+                      path={`${APP_PATHS.CLASSIC_CREATE_POOL}/:currencyIdA/:currencyIdB`}
                       component={RedirectCreatePoolDuplicateTokenIds}
                     />
-
-                    {/* Add liquidity */}
-                    <Route exact path="/add/:currencyIdA/:currencyIdB/:pairAddress" component={AddLiquidity} />
-
+                    <Route
+                      exact
+                      path={`${APP_PATHS.CLASSIC_ADD_LIQ}/:currencyIdA/:currencyIdB/:pairAddress`}
+                      component={AddLiquidity}
+                    />
                     <Route
                       exact
                       strict
-                      path="/remove/:currencyIdA/:currencyIdB/:pairAddress"
+                      path={`${APP_PATHS.CLASSIC_REMOVE_POOL}/:currencyIdA/:currencyIdB/:pairAddress`}
                       component={RemoveLiquidity}
                     />
-
-                    <Route exact strict path="/elastic/swap" component={ProAmmSwap} />
-                    <Route exact strict path="/elastic/remove/:tokenId" component={ProAmmRemoveLiquidity} />
                     <Route
                       exact
                       strict
-                      path="/elastic/add/:currencyIdA?/:currencyIdB?/:feeAmount?"
+                      path={`${APP_PATHS.ELASTIC_REMOVE_POOL}/:tokenId`}
+                      component={ProAmmRemoveLiquidity}
+                    />
+                    <Route
+                      exact
+                      strict
+                      path={`${APP_PATHS.ELASTIC_CREATE_POOL}/:currencyIdA?/:currencyIdB?/:feeAmount?`}
                       component={RedirectDuplicateTokenIds}
                     />
-
                     <Route
                       exact
                       strict
-                      path="/elastic/increase/:currencyIdA?/:currencyIdB?/:feeAmount?/:tokenId?"
+                      path={`${APP_PATHS.ELASTIC_INCREASE_LIQ}/:currencyIdA?/:currencyIdB?/:feeAmount?/:tokenId?`}
                       component={IncreaseLiquidity}
                     />
-
-                    <Route exact path="/about/kyberswap" component={AboutKyberSwap} />
-                    <Route exact path="/about/knc" component={AboutKNC} />
-                    <Route exact path="/referral" component={CreateReferral} />
-                    <Route exact path="/discover" component={TrueSight} />
-                    <Route exact path="/buy-crypto" component={BuyCrypto} />
-                    <Route exact path={`${AppPaths.CAMPAIGN}/:slug?`} component={Campaign} />
+                    <Route exact path={`${APP_PATHS.ABOUT}/kyberswap`} component={AboutKyberSwap} />
+                    <Route exact path={`${APP_PATHS.ABOUT}/knc`} component={AboutKNC} />
+                    <Route exact path={`${APP_PATHS.REFERRAL}`} component={CreateReferral} />
+                    <Route exact path={`${APP_PATHS.DISCOVER}`} component={TrueSight} />
+                    <Route exact path={`${APP_PATHS.BUY_CRYPTO}`} component={BuyCrypto} />
+                    <Route exact path={`${APP_PATHS.CAMPAIGN}/:slug?`} component={Campaign} />
 
                     <Route component={RedirectPathToSwapOnly} />
                   </Switch>
