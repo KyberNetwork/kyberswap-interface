@@ -5,7 +5,7 @@ import useSWR from 'swr'
 
 import { AGGREGATOR_API, PRICE_CHART_API } from 'constants/env'
 import { COINGECKO_API_URL } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 
 export enum LiveDataTimeframeEnum {
@@ -117,12 +117,12 @@ export default function useBasicChartData(tokens: (Token | null | undefined)[], 
     const [token0] = tokens[0].sortsBefore(tokens[1]) ? [tokens[0], tokens[1]] : [tokens[1], tokens[0]]
     return token0 !== tokens[0]
   }, [tokens])
-
   const tokenAddresses = useMemo(
     () =>
-      tokens
-        .filter(Boolean)
-        .map(token => (token?.isNative ? WETH[chainId || ChainId.MAINNET].address : token?.address)?.toLowerCase()),
+      tokens.filter(Boolean).map(token => {
+        const tokenAdd = token?.isNative ? WETH[chainId || ChainId.MAINNET].address : token?.address
+        return isEVM(chainId) ? tokenAdd?.toLowerCase() : tokenAdd
+      }),
     [tokens, chainId],
   )
 
