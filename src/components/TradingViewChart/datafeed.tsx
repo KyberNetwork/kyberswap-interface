@@ -47,6 +47,8 @@ const getNetworkString = (chainId: ChainId | undefined) => {
       return 'chain-optimism'
     case ChainId.ETHW:
       return 'chain-ethw'
+    case ChainId.SOLANA:
+      return 'chain-solana'
     default:
       return ''
   }
@@ -380,6 +382,12 @@ export const useDatafeed = (currencies: Array<Currency | undefined>, pairAddress
                 if (c.close < c.low) {
                   c.low = c.close
                 }
+              }
+              if (c.high > 1.1 * c.open) {
+                c.high = c.open > c.close ? c.open : c.close
+              }
+              if (c.low < c.open / 1.1) {
+                c.low = c.open > c.close ? c.close : c.open
               }
               return c
             })
