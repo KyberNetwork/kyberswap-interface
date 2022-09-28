@@ -1,4 +1,5 @@
 import { Trans } from '@lingui/macro'
+import { ChainId } from '@namgold/ks-sdk-core'
 import { useState } from 'react'
 import { Edit, FileText, Plus, Repeat } from 'react-feather'
 import { Link } from 'react-router-dom'
@@ -43,6 +44,8 @@ import {
   OptimismLogoFull,
   Polygon,
   PolygonLogoFull,
+  Solana,
+  SolanaLogoFull,
   Velas,
   VelasLogoFull,
 } from 'components/Icons'
@@ -50,6 +53,7 @@ import AntiSnippingAttack from 'components/Icons/AntiSnippingAttack'
 import Loader from 'components/Loader'
 import { MAINNET_NETWORKS } from 'constants/networks'
 import { VERSION } from 'constants/v2'
+import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { useGlobalData } from 'state/about/hooks'
@@ -171,6 +175,8 @@ export const KSStatistic = () => {
 }
 
 function AboutKyberSwap() {
+  const { chainId } = useActiveWeb3React()
+  const isSolana = chainId === ChainId.SOLANA
   const theme = useTheme()
   const [isDarkMode] = useDarkModeManager()
   const above992 = useMedia('(min-width: 992px)')
@@ -426,7 +432,14 @@ function AboutKyberSwap() {
   )
 
   const renderCreateNewPoolButton = () => {
-    return (
+    return isSolana ? (
+      <BtnPrimary disabled style={{ flex: '0 0 216px', padding: '12px' }}>
+        <Plus size={20} />
+        <Text marginLeft="8px" fontSize={['14px', '16px']}>
+          <Trans>Create New Pool</Trans>
+        </Text>
+      </BtnPrimary>
+    ) : (
       <BtnPrimary
         as={Link}
         to={'/pools?tab=elastic&highlightCreateButton=true'}
@@ -496,9 +509,10 @@ function AboutKyberSwap() {
             <Oasis />
             <Bttc />
             <OptimismLogo />
+            <Solana />
           </SupportedChain>
 
-          <KyberSwapGeneralIntro />
+          <KyberSwapGeneralIntro isSolana={isSolana} />
 
           <OverflowStatisticWrapper>
             <StatisticWrapper>
@@ -756,31 +770,62 @@ function AboutKyberSwap() {
             marginTop={['40px', '48px']}
             sx={{ gap: above768 ? '24px' : '16px' }}
           >
-            <BtnPrimary
-              as={Link}
-              to={
-                activeTab === VERSION.ELASTIC ? '/pools?tab=elastic' : '/pools?tab=classic&highlightCreateButton=true'
-              }
-              onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_START_EARNING_CLICKED)}
-            >
-              <MoneyBagOutline size={20} color={theme.textReverse} />
-              <Text fontSize="16px" marginLeft="8px">
-                <Trans>Start Earning</Trans>
-              </Text>
-            </BtnPrimary>
-            <ButtonLight
-              as={Link}
-              to={activeTab === VERSION.ELASTIC ? '/farms?tab=elastic' : '/farms?tab=classic'}
-              onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_VIEW_FARMS_CLICKED)}
-              style={{
-                flex: 1,
-              }}
-            >
-              <FarmIcon size={20} />
-              <Text fontSize="16px" marginLeft="8px">
-                <Trans>View Farms</Trans>
-              </Text>
-            </ButtonLight>
+            {!isSolana ? (
+              <>
+                <BtnPrimary
+                  as={Link}
+                  to={
+                    activeTab === VERSION.ELASTIC
+                      ? '/pools?tab=elastic'
+                      : '/pools?tab=classic&highlightCreateButton=true'
+                  }
+                  onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_START_EARNING_CLICKED)}
+                >
+                  <MoneyBagOutline size={20} color={theme.textReverse} />
+                  <Text fontSize="16px" marginLeft="8px">
+                    <Trans>Start Earning</Trans>
+                  </Text>
+                </BtnPrimary>
+                <ButtonLight
+                  as={Link}
+                  to={activeTab === VERSION.ELASTIC ? '/farms?tab=elastic' : '/farms?tab=classic'}
+                  onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_VIEW_FARMS_CLICKED)}
+                  style={{
+                    flex: 1,
+                  }}
+                >
+                  <FarmIcon size={20} />
+                  <Text fontSize="16px" marginLeft="8px">
+                    <Trans>View Farms</Trans>
+                  </Text>
+                </ButtonLight>
+              </>
+            ) : (
+              <>
+                <BtnPrimary
+                  disabled
+                  style={{
+                    flex: 1,
+                  }}
+                >
+                  <MoneyBagOutline size={20} />
+                  <Text fontSize="16px" marginLeft="8px">
+                    <Trans>Start Earning</Trans>
+                  </Text>
+                </BtnPrimary>
+                <BtnPrimary
+                  disabled
+                  style={{
+                    flex: 1,
+                  }}
+                >
+                  <FarmIcon size={20} />
+                  <Text fontSize="16px" marginLeft="8px">
+                    <Trans>View Farms</Trans>
+                  </Text>
+                </BtnPrimary>
+              </>
+            )}
           </Flex>
 
           <Flex
@@ -1007,6 +1052,7 @@ function AboutKyberSwap() {
                 width="100%"
               />
               <OptimismLogoFull />
+              <SolanaLogoFull />
             </Powered>
           </Text>
         </Wrapper>
