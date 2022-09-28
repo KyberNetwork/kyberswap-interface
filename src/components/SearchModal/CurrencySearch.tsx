@@ -68,6 +68,14 @@ const ButtonClear = styled.div`
 `
 const MAX_FAVORITE_PAIR = 12
 
+const cacheData: { [key: string]: Token } = {}
+const fetchTokenByAddress = async (address: string, chainId: ChainId) => {
+  if (cacheData[address]) return cacheData[address]
+  const url = `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?query=${address}&chainIds=${chainId}`
+  const response = await axios.get(url)
+  return response.data.data.tokens[0]
+}
+
 interface CurrencySearchProps {
   isOpen: boolean
   onDismiss: () => void
@@ -250,6 +258,40 @@ export function CurrencySearch({
     [chainId],
   )
 
+  useEffect(() => {
+    // todo improve performance, any type later
+    const promises: any = []
+    const result: any[] = []
+    if (favoriteTokens?.includeNativeToken && chainId) {
+      result.push(nativeOnChain(chainId))
+    }
+    favoriteTokens?.addresses.forEach(address => {
+      if (!allTokens[address] && chainId) {
+        promises.push(fetchTokenByAddress(address, chainId))
+      } else result.push(allTokens[address])
+    })
+    if (promises.length) {
+      Promise.allSettled(promises).then(data => {
+        data.forEach(el => {
+          if (el.status === 'fulfilled') {
+            const tokenResponse = el.value
+            if (!tokenResponse) return
+            const token = new Token(
+              tokenResponse.chainId,
+              tokenResponse.address,
+              tokenResponse.decimals,
+              tokenResponse.symbol,
+              tokenResponse.name,
+            ) as any
+            token.isWhitelisted = tokenResponse.isWhitelisted
+            result.push(token)
+          }
+        })
+        setCommonTokens(result)
+      })
+    }
+  }, [favoriteTokens, allTokens, chainId])
+
   const handleNewPageLoad = async () => {
     const { tokens } = await fetchTokens(debouncedQuery, pageCount)
 
@@ -285,21 +327,7 @@ export function CurrencySearch({
     return currencies
   }, [showETH, chainId, filteredSortedTokens, fetchedTokens])
 
-  const commonTokens = useMemo(() => {
-    const commonTokensList = combinedTokens.filter(token => {
-      if (token.isNative) {
-        return favoriteTokens?.includeNativeToken
-      }
-      if (token.isToken) {
-        return favoriteTokens?.addresses?.includes(token.address)
-      }
-      return false
-    })
-    const filteredTokens = commonTokensList.filter(
-      (token, i, arr) => arr.findIndex(t => t.wrapped.address === token.wrapped.address) === i,
-    )
-    return filteredTokens
-  }, [combinedTokens, favoriteTokens?.addresses, favoriteTokens?.includeNativeToken])
+  const [commonTokens, setCommonTokens] = useState<any>([])
 
   const visibleCurrencies: Currency[] = useMemo(() => {
     return activeTab === Tab.Imported ? tokenImportsFiltered : combinedTokens
