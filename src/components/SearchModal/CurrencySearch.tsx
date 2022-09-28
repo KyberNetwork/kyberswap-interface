@@ -1,7 +1,9 @@
 import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { TokenInfo } from '@uniswap/token-lists'
 import axios from 'axios'
 import { rgba } from 'polished'
+import { stringify } from 'querystring'
 import { ChangeEvent, KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Trash } from 'react-feather'
 import AutoSizer from 'react-virtualized-auto-sizer'
@@ -16,6 +18,7 @@ import useDebounce from 'hooks/useDebounce'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import useToggle from 'hooks/useToggle'
+import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useRemoveUserAddedToken, useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
 import { filterTokens } from 'utils/filtering'
 
@@ -68,14 +71,6 @@ const ButtonClear = styled.div`
 `
 const MAX_FAVORITE_PAIR = 12
 
-const cacheData: { [key: string]: Token } = {}
-const fetchTokenByAddress = async (address: string, chainId: ChainId) => {
-  if (cacheData[address]) return cacheData[address]
-  const url = `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?query=${address}&chainIds=${chainId}`
-  const response = await axios.get(url)
-  return response.data.data.tokens[0]
-}
-
 interface CurrencySearchProps {
   isOpen: boolean
   onDismiss: () => void
@@ -90,16 +85,31 @@ interface CurrencySearchProps {
 }
 
 export type TokenResponse = Token & { isWhitelisted: boolean }
-const formatToken = (tokenResponse: TokenResponse) => {
-  const token = new Token(
-    tokenResponse.chainId,
-    tokenResponse.address,
-    tokenResponse.decimals,
-    tokenResponse.symbol,
-    tokenResponse.name,
-  ) as TokenResponse
-  token.isWhitelisted = tokenResponse.isWhitelisted
+
+const cacheTokens: { [key: string]: Token } = {}
+
+const fetchTokenByAddress = async (address: string, chainId: ChainId) => {
+  const findToken = cacheTokens[address] || cacheTokens[address.toLowerCase()]
+  if (findToken) return findToken
+  const url = `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?query=${address}&chainIds=${chainId}`
+  const response = await axios.get(url)
+  const token = response.data.data.tokens[0]
+  if (token) cacheTokens[address] = token
   return token
+}
+
+const formatAndCacheToken = (tokenResponse: TokenResponse) => {
+  const formated = new WrappedTokenInfo(
+    tokenResponse as TokenInfo,
+    {
+      name: 'test',
+      logoURI: 'test',
+      timestamp: Date.now() + '',
+      version: 1,
+    } as any,
+  )
+  cacheTokens[tokenResponse.address] = formated
+  return formated
 }
 
 export function CurrencySearch({
@@ -124,8 +134,12 @@ export function CurrencySearch({
 
   const { favoriteTokens, toggleFavoriteToken } = useUserFavoriteTokens(chainId)
 
-  const allTokens = useAllTokens()
+  const defaultTokens = useAllTokens()
+
   const tokenImports = useUserAddedTokens()
+  const [pageCount, setPageCount] = useState(1)
+  const [fetchedTokens, setFetchedTokens] = useState<Token[]>(Object.values(defaultTokens))
+  const [totalItems, setTotalItems] = useState(0)
 
   const tokenComparator = useTokenComparator(false)
 
@@ -148,8 +162,8 @@ export function CurrencySearch({
 
   const filteredTokens: Token[] = useMemo(() => {
     if (isAddressSearch) return searchToken ? [searchToken.wrapped] : []
-    return filterTokens(Object.values(allTokens), debouncedQuery)
-  }, [isAddressSearch, searchToken, allTokens, debouncedQuery])
+    return filterTokens(fetchedTokens, debouncedQuery)
+  }, [isAddressSearch, searchToken, fetchedTokens, debouncedQuery])
 
   const filteredSortedTokens: Token[] = useMemo(() => {
     if (searchToken) return [searchToken.wrapped]
@@ -213,9 +227,10 @@ export function CurrencySearch({
   )
 
   const handleClickFavorite = useCallback(
-    (e: React.MouseEvent, currency: Currency) => {
+    (e: React.MouseEvent, currency: any) => {
       e.stopPropagation()
-      const address = currency?.wrapped?.address
+
+      const address = currency?.wrapped?.address || currency.address
       if (!address) return
 
       const currentList = favoriteTokens?.addresses || []
@@ -223,7 +238,7 @@ export function CurrencySearch({
         ? !favoriteTokens?.includeNativeToken
         : !currentList.find(el => el === address) // else remove favorite
       const curTotal =
-        currentList.filter(address => !!allTokens[address]).length + (favoriteTokens?.includeNativeToken ? 1 : 0)
+        currentList.filter(address => !!cacheTokens[address]).length + (favoriteTokens?.includeNativeToken ? 1 : 0)
       if (!chainId || (isAddFavorite && curTotal === MAX_FAVORITE_PAIR)) return
 
       if (currency.isNative) {
@@ -241,7 +256,7 @@ export function CurrencySearch({
         })
       }
     },
-    [chainId, allTokens, favoriteTokens, toggleFavoriteToken],
+    [chainId, favoriteTokens, toggleFavoriteToken],
   )
 
   // menu ui
@@ -249,23 +264,22 @@ export function CurrencySearch({
   const node = useRef<HTMLDivElement>()
   useOnClickOutside(node, open ? toggle : undefined)
 
-  const [pageCount, setPageCount] = useState(1)
-  const [fetchedTokens, setFetchedTokens] = useState<Token[]>([])
-  const [totalItems, setTotalItems] = useState(0)
-
   const fetchTokens = useCallback(
     async (
       search: string | undefined,
       page: number,
     ): Promise<{ tokens: TokenResponse[]; pagination: { totalItems: number } }> => {
-      let pageSize = 10
-      let url = `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?query=${search}&chainIds=${chainId}&page=${page}&pageSize=${pageSize}`
-      if (!search) {
-        pageSize = 100
-        url = `${
-          process.env.REACT_APP_KS_SETTING_API
-        }/v1/tokens?query=${search}&chainIds=${chainId}&page=${page}&pageSize=${pageSize}&isWhitelisted=${true}`
+      const params: { query: string; isWhitelisted?: boolean; pageSize: number; page: number; chainIds: string } = {
+        query: search ?? '',
+        chainIds: chainId?.toString() ?? '',
+        page,
+        pageSize: 10,
       }
+      if (!search) {
+        params.pageSize = 100
+        params.isWhitelisted = true
+      }
+      const url = `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?${stringify(params)}`
       const response = await axios.get(url)
       const { tokens, pagination } = response.data.data
       return { tokens, pagination }
@@ -275,6 +289,7 @@ export function CurrencySearch({
 
   const fetchFavoriteTokenFromAddress = useCallback(async () => {
     try {
+      if (!Object.keys(cacheTokens).length && !Object.keys(defaultTokens).length) return
       setLoadingCommon(true)
       const promises: Promise<any>[] = []
       const result: (Token | Currency)[] = []
@@ -282,9 +297,17 @@ export function CurrencySearch({
         result.push(nativeOnChain(chainId))
       }
       favoriteTokens?.addresses.forEach(address => {
-        if (!allTokens[address] && chainId) {
+        if (defaultTokens[address]) {
+          result.push(defaultTokens[address])
+          return
+        }
+        if (cacheTokens[address]) {
+          result.push(cacheTokens[address])
+          return
+        }
+        if (chainId) {
           promises.push(fetchTokenByAddress(address, chainId))
-        } else result.push(allTokens[address])
+        }
       })
       if (promises.length) {
         const data = await Promise.allSettled(promises)
@@ -292,7 +315,7 @@ export function CurrencySearch({
           if (el.status !== 'fulfilled') return
           const tokenResponse = el.value
           if (!tokenResponse) return
-          result.push(formatToken(tokenResponse))
+          result.push(formatAndCacheToken(tokenResponse))
         })
       }
       setCommonTokens(result)
@@ -300,27 +323,24 @@ export function CurrencySearch({
       console.log('err', error)
     }
     setLoadingCommon(false)
-  }, [allTokens, chainId, favoriteTokens])
+  }, [chainId, favoriteTokens, defaultTokens])
 
   useEffect(() => {
     fetchFavoriteTokenFromAddress()
   }, [fetchFavoriteTokenFromAddress])
 
-  const handleNewPageLoad = async () => {
+  const loadMoreRows = async () => {
     const { tokens } = await fetchTokens(debouncedQuery, pageCount)
-
     setPageCount(pageCount => pageCount + 1)
-    const parsedTokenList = tokens.map(token => formatToken(token))
+    const parsedTokenList = tokens.map(token => formatAndCacheToken(token))
     setFetchedTokens(current => [...current, ...parsedTokenList])
     return
   }
 
-  const loadMoreRows = handleNewPageLoad
-
   useEffect(() => {
     const fetchData = async () => {
       const { tokens, pagination } = await fetchTokens(debouncedQuery, 1)
-      const parsedTokenList = tokens.map(token => formatToken(token))
+      const parsedTokenList = tokens.map(token => formatAndCacheToken(token))
       setFetchedTokens(parsedTokenList)
       setTotalItems(pagination.totalItems)
       setPageCount(2)
@@ -328,11 +348,17 @@ export function CurrencySearch({
     fetchData()
   }, [debouncedQuery, fetchTokens])
 
+  useEffect(() => {
+    if (Object.keys(defaultTokens).length) fetchFavoriteTokenFromAddress()
+    // call once
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const combinedTokens = useMemo(() => {
-    const currencies: Currency[] = filteredSortedTokens.concat(fetchedTokens)
+    const currencies: Currency[] = filteredSortedTokens
     if (showETH && chainId) currencies.unshift(nativeOnChain(chainId))
     return currencies
-  }, [showETH, chainId, filteredSortedTokens, fetchedTokens])
+  }, [showETH, chainId, filteredSortedTokens])
 
   const [commonTokens, setCommonTokens] = useState<(Token | Currency)[]>([])
   const [loadingCommon, setLoadingCommon] = useState(true)
@@ -471,15 +497,7 @@ export function CurrencySearch({
                 removeImportedToken={removeImportedToken}
                 height={height}
                 currencies={visibleCurrencies}
-                inactiveTokens={fetchedTokens}
                 isImportedTab={isImportedTab}
-                breakIndex={
-                  activeTab === Tab.All
-                    ? fetchedTokens.length && filteredSortedTokens
-                      ? filteredSortedTokens.length
-                      : undefined
-                    : undefined
-                }
                 handleClickFavorite={handleClickFavorite}
                 onCurrencySelect={handleCurrencySelect}
                 otherCurrency={otherSelectedCurrency}

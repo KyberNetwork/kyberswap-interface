@@ -46,13 +46,13 @@ const TokenName = styled.div`
   }
 `
 
-const CloseBtn = styled(XCircle)<{ forceShow: boolean }>`
+const CloseBtn = styled(XCircle)<{ $forceShow: boolean }>`
   position: absolute;
   display: none;
   right: -5px;
   top: -5px;
   color: ${({ theme }) => theme.subText};
-  display: ${({ forceShow }) => (forceShow ? 'block' : 'none')};
+  display: ${({ $forceShow }) => ($forceShow ? 'block' : 'none')};
 `
 
 export default function CommonBases({
@@ -79,11 +79,15 @@ export default function CommonBases({
           const selected = selectedCurrency instanceof Token && selectedCurrency.address === token.address
           const showWToken: Currency = token
           return (
-            <BaseWrapper onClick={() => !selected && onSelect(showWToken)} data-selected={selected} key={token.address}>
+            <BaseWrapper
+              onClick={() => !selected && onSelect(showWToken)}
+              data-selected={selected}
+              key={token.address || token?.wrapped?.address}
+            >
               <CurrencyLogo currency={showWToken} size={isHeightSmall ? '15px' : '20px'} />
               <TokenName>{showWToken.symbol}</TokenName>
               <CloseBtn
-                forceShow={isEditMode}
+                $forceShow={isEditMode}
                 className="close-btn"
                 size={16}
                 onClick={e => handleClickFavorite(e, token)}

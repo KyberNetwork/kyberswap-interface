@@ -608,8 +608,8 @@ export default function Swap({ history }: RouteComponentProps) {
   }, [])
 
   const isLoadedTokenDefault = account
-    ? Object.keys(defaultTokens).length > 0
-    : initialTotalTokenDefault.current !== null && Object.keys(defaultTokens).length > initialTotalTokenDefault.current //
+    ? Object.keys(defaultTokens).length > tokenImports.length
+    : initialTotalTokenDefault.current !== null && Object.keys(defaultTokens).length > initialTotalTokenDefault.current
 
   useEffect(() => {
     /**

@@ -5,7 +5,6 @@ import { isMobile } from 'react-device-detect'
 
 import useLast from 'hooks/useLast'
 import usePrevious from 'hooks/usePrevious'
-import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 import Modal from '../Modal'
 import { CurrencySearch } from './CurrencySearch'
@@ -95,7 +94,6 @@ export default function CurrencySearchModal({
         <ImportToken
           tokens={[importToken]}
           onDismiss={onDismiss}
-          list={importToken instanceof WrappedTokenInfo ? importToken.list : undefined}
           onBack={() =>
             setModalView(prevView && prevView !== CurrencyModalView.importToken ? prevView : CurrencyModalView.search)
           }
