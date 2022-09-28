@@ -271,24 +271,30 @@ export function CurrencySearch({
       } else result.push(allTokens[address])
     })
     if (promises.length) {
-      Promise.allSettled(promises).then(data => {
-        data.forEach(el => {
-          if (el.status === 'fulfilled') {
-            const tokenResponse = el.value
-            if (!tokenResponse) return
-            const token = new Token(
-              tokenResponse.chainId,
-              tokenResponse.address,
-              tokenResponse.decimals,
-              tokenResponse.symbol,
-              tokenResponse.name,
-            ) as any
-            token.isWhitelisted = tokenResponse.isWhitelisted
-            result.push(token)
-          }
+      Promise.allSettled(promises)
+        .then(data => {
+          data.forEach(el => {
+            if (el.status === 'fulfilled') {
+              const tokenResponse = el.value
+              if (!tokenResponse) return
+              const token = new Token(
+                tokenResponse.chainId,
+                tokenResponse.address,
+                tokenResponse.decimals,
+                tokenResponse.symbol,
+                tokenResponse.name,
+              ) as any
+              token.isWhitelisted = tokenResponse.isWhitelisted
+              result.push(token)
+            }
+          })
+          setCommonTokens(result)
         })
-        setCommonTokens(result)
-      })
+        .catch(err => {
+          console.log('err', err)
+        })
+    } else {
+      setCommonTokens(result)
     }
   }, [favoriteTokens, allTokens, chainId])
 
@@ -296,11 +302,12 @@ export function CurrencySearch({
     const { tokens } = await fetchTokens(debouncedQuery, pageCount)
 
     setPageCount(pageCount => pageCount + 1)
-    const parsedTokens = tokens.map((token: any) => ({
-      ...new Token(token.chainId, token.address, token.decimals, token.symbol, token.name),
-      isWhitelisted: token.isWhitelisted,
-    }))
-    setFetchedTokens(current => [...current, ...parsedTokens])
+    const parsedTokenList = tokens.map((token: any) => {
+      const parsedToken = new Token(token.chainId, token.address, token.decimals, token.symbol, token.name) as any
+      parsedToken.isWhitelisted = token.isWhitelisted
+      return parsedToken
+    })
+    setFetchedTokens(current => [...current, ...parsedTokenList])
     return
   }
 
