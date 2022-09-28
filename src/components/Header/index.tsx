@@ -18,7 +18,7 @@ import Menu, { NewLabel } from 'components/Menu'
 import Row, { RowFixed } from 'components/Row'
 import Settings from 'components/Settings'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import { PROMM_ANALYTICS_URL } from 'constants/index'
+import { APP_PATHS, PROMM_ANALYTICS_URL } from 'constants/index'
 import { isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -402,10 +402,10 @@ export default function Header() {
                   to={'/myPools'}
                   isActive={(match, { pathname }) =>
                     Boolean(match) ||
-                    pathname.startsWith('/add') ||
-                    pathname.startsWith('/remove') ||
-                    pathname.startsWith('/create') ||
-                    (pathname.startsWith('/find') && pathname.endsWith('find'))
+                    pathname.startsWith(APP_PATHS.CLASSIC_ADD_LIQ) ||
+                    pathname.startsWith(APP_PATHS.CLASSIC_REMOVE_POOL) ||
+                    pathname.startsWith(APP_PATHS.CLASSIC_CREATE_POOL) ||
+                    (pathname.startsWith(APP_PATHS.FIND_POOL) && pathname.endsWith(APP_PATHS.FIND_POOL))
                   }
                 >
                   <Trans>My Pools</Trans>

@@ -21,7 +21,7 @@ import { AutoRow } from 'components/Row'
 import Search from 'components/Search'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import Tutorial, { TutorialType } from 'components/Tutorial'
-import { DMM_ANALYTICS_URL, OUTSIDE_FAIRLAUNCH_ADDRESSES } from 'constants/index'
+import { APP_PATHS, DMM_ANALYTICS_URL, OUTSIDE_FAIRLAUNCH_ADDRESSES } from 'constants/index'
 import { isEVM } from 'constants/networks'
 import { VERSION } from 'constants/v2'
 import { usePairByAddress, usePairsByAddress } from 'data/Reserves'
@@ -363,7 +363,7 @@ function Pool() {
 
                 <ButtonPrimary
                   as={StyledInternalLink}
-                  to="/find"
+                  to={APP_PATHS.FIND_POOL}
                   style={{
                     color: theme.textReverse,
                     padding: '10px 12px',
@@ -433,7 +433,7 @@ function Pool() {
                   </PositionCardGrid>
                   <Text fontSize={16} color={theme.subText} textAlign="center" marginTop="1rem">
                     {t`Don't see a pool you joined?`}{' '}
-                    <StyledInternalLink id="import-pool-link" to={'/find'}>
+                    <StyledInternalLink id="import-pool-link" to={APP_PATHS.FIND_POOL}>
                       <Trans>Import it.</Trans>
                     </StyledInternalLink>
                   </Text>
@@ -448,7 +448,7 @@ function Pool() {
                     </Trans>
                     <br />
                     {t`Don't see a pool you joined?`}{' '}
-                    <StyledInternalLink id="import-pool-link" to={'/find'}>
+                    <StyledInternalLink id="import-pool-link" to={APP_PATHS.FIND_POOL}>
                       <Trans>Import it.</Trans>
                     </StyledInternalLink>
                   </Text>
@@ -477,7 +477,7 @@ function Pool() {
                 </PositionCardGrid>
                 <Text fontSize={16} color={theme.subText} textAlign="center" marginTop="1rem">
                   {t`Don't see a pool you joined?`}{' '}
-                  <StyledInternalLink id="import-pool-link" to={'/find'}>
+                  <StyledInternalLink id="import-pool-link" to={APP_PATHS.FIND_POOL}>
                     <Trans>Import it.</Trans>
                   </StyledInternalLink>
                 </Text>

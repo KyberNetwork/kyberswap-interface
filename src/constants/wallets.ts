@@ -50,7 +50,7 @@ const detectMetamask = (): WalletReadyState => {
 }
 
 const detectBrave = (): WalletReadyState => {
-  //todo namgold: fail connect on mobile
+  //todo namgold: fail connect on mobile solana
   if (checkForBraveBrowser()) return WalletReadyState.Installed
   return WalletReadyState.NotDetected
 }

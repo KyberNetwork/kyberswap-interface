@@ -2,6 +2,7 @@ import { Trans, t } from '@lingui/macro'
 import { Pair } from '@namgold/ks-sdk-classic'
 import { ChainId, Fraction, Percent, TokenAmount } from '@namgold/ks-sdk-core'
 import JSBI from 'jsbi'
+import { useState } from 'react'
 import { AlertTriangle } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
@@ -16,7 +17,7 @@ import Divider from 'components/Divider'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import AgriCulture from 'components/Icons/AgriCulture'
 import InfoHelper from 'components/InfoHelper'
-import { RowFixed } from 'components/Row'
+import { RowBetween, RowFixed } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { DMM_ANALYTICS_URL, ONE_BIPS } from 'constants/index'
 import { useTotalSupply } from 'data/TotalSupply'
@@ -32,6 +33,10 @@ import { formattedNum, shortenAddress } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { getTradingFeeAPR, useCurrencyConvertedToNative } from 'utils/dmm'
 import { unwrappedToken } from 'utils/wrappedCurrency'
+
+export const FixedHeightRow = styled(RowBetween)`
+  height: 24px;
+`
 
 const VerticalDivider = styled.div`
   width: 1px;
@@ -112,6 +117,104 @@ interface PositionCardProps {
   farmStatus?: 'NO_FARM' | 'FARM_ACTIVE' | 'FARM_ENDED'
   tab?: 'ALL' | 'STAKED'
   farmAPR?: number
+}
+
+export function NarrowPositionCard({ pair, showUnwrapped = false, border }: PositionCardProps) {
+  const currency0 = showUnwrapped ? pair.token0 : unwrappedToken(pair.token0)
+  const currency1 = showUnwrapped ? pair.token1 : unwrappedToken(pair.token1)
+
+  const [showMore, setShowMore] = useState(false)
+
+  const userPoolBalance = useTokenBalance(pair.liquidityToken)
+  const totalPoolTokens = useTotalSupply(pair.liquidityToken)
+
+  const poolTokenPercentage =
+    !!userPoolBalance &&
+    !!totalPoolTokens &&
+    JSBI.greaterThanOrEqual(totalPoolTokens.quotient, userPoolBalance.quotient)
+      ? new Percent(userPoolBalance.quotient, totalPoolTokens.quotient)
+      : undefined
+
+  const [token0Deposited, token1Deposited] =
+    !!pair &&
+    !!totalPoolTokens &&
+    !!userPoolBalance &&
+    // this condition is a short-circuit in the case where useTokenBalance updates sooner than useTotalSupply
+    JSBI.greaterThanOrEqual(totalPoolTokens.quotient, userPoolBalance.quotient)
+      ? [
+          pair.getLiquidityValue(pair.token0, totalPoolTokens, userPoolBalance),
+          pair.getLiquidityValue(pair.token1, totalPoolTokens, userPoolBalance),
+        ]
+      : [undefined, undefined]
+
+  const native0 = useCurrencyConvertedToNative(currency0 || undefined)
+  const native1 = useCurrencyConvertedToNative(currency1 || undefined)
+  return (
+    <>
+      <StyledPositionCard border={border}>
+        <AutoColumn gap="12px">
+          <FixedHeightRow>
+            <RowFixed>
+              <Text fontWeight={500} fontSize={16}>
+                <Trans>Your position</Trans>
+              </Text>
+            </RowFixed>
+          </FixedHeightRow>
+          <FixedHeightRow onClick={() => setShowMore(!showMore)}>
+            <RowFixed>
+              <DoubleCurrencyLogo currency0={native0} currency1={native1} margin={true} size={20} />
+              <Text fontWeight={500} fontSize={20}>
+                {native0?.symbol}/{native1?.symbol}
+              </Text>
+            </RowFixed>
+            <RowFixed>
+              <Text fontWeight={500} fontSize={20}>
+                {userPoolBalance ? userPoolBalance.toSignificant(4) : '-'}{' '}
+              </Text>
+            </RowFixed>
+          </FixedHeightRow>
+          <AutoColumn gap="4px">
+            <FixedHeightRow>
+              <Text fontSize={16} fontWeight={500}>
+                <Trans>Your pool share:</Trans>
+              </Text>
+              <Text fontSize={16} fontWeight={500}>
+                {poolTokenPercentage ? poolTokenPercentage.toFixed(6) + '%' : '-'}
+              </Text>
+            </FixedHeightRow>
+            <FixedHeightRow>
+              <Text fontSize={16} fontWeight={500}>
+                {native0?.symbol}:
+              </Text>
+              {token0Deposited ? (
+                <RowFixed>
+                  <Text fontSize={16} fontWeight={500} marginLeft={'6px'}>
+                    {token0Deposited?.toSignificant(6)}
+                  </Text>
+                </RowFixed>
+              ) : (
+                '-'
+              )}
+            </FixedHeightRow>
+            <FixedHeightRow>
+              <Text fontSize={16} fontWeight={500}>
+                {native1?.symbol}:
+              </Text>
+              {token1Deposited ? (
+                <RowFixed>
+                  <Text fontSize={16} fontWeight={500} marginLeft={'6px'}>
+                    {token1Deposited?.toSignificant(6)}
+                  </Text>
+                </RowFixed>
+              ) : (
+                '-'
+              )}
+            </FixedHeightRow>
+          </AutoColumn>
+        </AutoColumn>
+      </StyledPositionCard>
+    </>
+  )
 }
 
 export function MinimalPositionCard({ pair, showUnwrapped = false }: PositionCardProps) {

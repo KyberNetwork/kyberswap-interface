@@ -314,6 +314,7 @@ export const APP_PATHS = {
   ABOUT: '/about',
   SWAP: '/swap',
   CAMPAIGN: '/campaigns',
+  FIND_POOL: '/find',
   POOLS: '/pools',
   POOL: '/pool',
   CLASSIC_CREATE_POOL: '/create',

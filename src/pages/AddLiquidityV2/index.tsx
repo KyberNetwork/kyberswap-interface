@@ -707,7 +707,7 @@ export default function AddLiquidity({
     </>
   )
 
-  if (isEVM(chainId)) return <Redirect to="/" />
+  if (!isEVM(chainId)) return <Redirect to="/" />
   return (
     <>
       <TransactionConfirmationModal
