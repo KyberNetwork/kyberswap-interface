@@ -1,6 +1,7 @@
 import { Currency, Token } from '@kyberswap/ks-sdk-core'
 import { TokenList } from '@uniswap/token-lists'
 import React, { useCallback, useEffect, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 
 import useLast from 'hooks/useLast'
 import usePrevious from 'hooks/usePrevious'
@@ -70,7 +71,14 @@ export default function CurrencySearchModal({
   const showManageView = useCallback(() => setModalView(CurrencyModalView.manage), [])
 
   return (
-    <Modal isOpen={isOpen} onDismiss={onDismiss} maxHeight={80} minHeight={minHeight}>
+    <Modal
+      isOpen={isOpen}
+      onDismiss={onDismiss}
+      margin="auto"
+      maxHeight={isMobile ? 100 : 80}
+      height={isMobile ? '95vh' : undefined}
+      minHeight={minHeight}
+    >
       {modalView === CurrencyModalView.search ? (
         <CurrencySearch
           isOpen={isOpen}

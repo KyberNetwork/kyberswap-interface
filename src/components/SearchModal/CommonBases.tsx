@@ -3,7 +3,6 @@ import { rgba } from 'polished'
 import { useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Edit2, XCircle } from 'react-feather'
-import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import useTheme from 'hooks/useTheme'
@@ -12,6 +11,7 @@ import { AutoColumn } from '../Column'
 import CurrencyLogo from '../CurrencyLogo'
 import { AutoRow } from '../Row'
 
+const HEIGHT_THRESHOLD = 400
 const BaseWrapper = styled.div`
   padding: 6px;
   border: 1px solid ${({ theme }) => theme.border};
@@ -20,7 +20,11 @@ const BaseWrapper = styled.div`
   align-items: center;
   position: relative;
   cursor: pointer;
-
+  gap: 8px;
+  @media only screen and (max-height: ${HEIGHT_THRESHOLD}px) {
+    padding: 4px 5px;
+    gap: 5px;
+  }
   &[data-selected='true'] {
     background-color: ${({ theme }) => rgba(theme.primary, 0.15)};
   }
@@ -31,6 +35,14 @@ const BaseWrapper = styled.div`
         display: block;
       }
     }
+  }
+`
+
+const TokenName = styled.div`
+  font-weight: 500;
+  font-size: 16px;
+  @media only screen and (max-height: ${HEIGHT_THRESHOLD}px) {
+    font-size: 14px;
   }
 `
 
@@ -58,6 +70,7 @@ export default function CommonBases({
 }) {
   const theme = useTheme()
   const [isEditMode, setEditMode] = useState(false)
+  const isHeightSmall = window.innerHeight < HEIGHT_THRESHOLD
   if (!tokens.length) return null
   return (
     <AutoColumn gap="md">
@@ -67,10 +80,8 @@ export default function CommonBases({
           const showWToken: Currency = token
           return (
             <BaseWrapper onClick={() => !selected && onSelect(showWToken)} data-selected={selected} key={token.address}>
-              <CurrencyLogo currency={showWToken} style={{ marginRight: 8 }} />
-              <Text fontWeight={500} fontSize={16}>
-                {showWToken.symbol}
-              </Text>
+              <CurrencyLogo currency={showWToken} size={isHeightSmall ? '15px' : '20px'} />
+              <TokenName>{showWToken.symbol}</TokenName>
               <CloseBtn
                 forceShow={isEditMode}
                 className="close-btn"
@@ -82,12 +93,12 @@ export default function CommonBases({
         })}
         {isMobile && (
           <BaseWrapper
-            style={{ padding: 10, width: 40 }}
+            style={{ width: isHeightSmall ? 28 : 35, padding: isHeightSmall ? 5 : 8 }}
             onClick={() => {
               setEditMode(prev => !prev)
             }}
           >
-            <Edit2 size={16} color={theme.subText} />
+            <Edit2 size={isHeightSmall ? 14 : 16} color={theme.subText} />
           </BaseWrapper>
         )}
       </AutoRow>
