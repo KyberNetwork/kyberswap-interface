@@ -18,6 +18,7 @@ import CurrencyLogo from '../CurrencyLogo'
 import Loader from '../Loader'
 import { RowBetween, RowFixed } from '../Row'
 import { MouseoverTooltip } from '../Tooltip'
+import { TokenResponse } from './CurrencySearch'
 import ImportRow from './ImportRow'
 
 const StyledBalanceText = styled(Text)`
@@ -260,8 +261,8 @@ export default function CurrencyList({
       const otherSelected = Boolean(otherCurrency && currency && otherCurrency.equals(currency))
       const handleSelect = () => currency && onCurrencySelect(currency)
 
-      const token = currency?.wrapped as any
-      const extendCurrency = currency as any
+      const token = currency?.wrapped
+      const extendCurrency = currency as TokenResponse
       const tokenImports = useUserAddedTokens()
       const showImport =
         token &&

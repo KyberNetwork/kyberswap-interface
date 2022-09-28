@@ -89,6 +89,19 @@ interface CurrencySearchProps {
   customChainId?: ChainId
 }
 
+export type TokenResponse = Token & { isWhitelisted: boolean }
+const formatToken = (tokenResponse: TokenResponse) => {
+  const token = new Token(
+    tokenResponse.chainId,
+    tokenResponse.address,
+    tokenResponse.decimals,
+    tokenResponse.symbol,
+    tokenResponse.name,
+  ) as TokenResponse
+  token.isWhitelisted = tokenResponse.isWhitelisted
+  return token
+}
+
 export function CurrencySearch({
   selectedCurrency,
   onCurrencySelect,
@@ -200,11 +213,10 @@ export function CurrencySearch({
   )
 
   const handleClickFavorite = useCallback(
-    (e: React.MouseEvent, currency: any) => {
-      // todo any
+    (e: React.MouseEvent, currency: Currency) => {
       e.stopPropagation()
-
-      const address = currency.address || currency?.wrapped?.address
+      const address = currency?.wrapped?.address
+      if (!address) return
 
       const currentList = favoriteTokens?.addresses || []
       const isAddFavorite = currency.isNative
@@ -242,10 +254,13 @@ export function CurrencySearch({
   const [totalItems, setTotalItems] = useState(0)
 
   const fetchTokens = useCallback(
-    async (search: string | undefined, page: number) => {
+    async (
+      search: string | undefined,
+      page: number,
+    ): Promise<{ tokens: TokenResponse[]; pagination: { totalItems: number } }> => {
       let pageSize = 10
       let url = `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?query=${search}&chainIds=${chainId}&page=${page}&pageSize=${pageSize}`
-      if (search === '') {
+      if (!search) {
         pageSize = 100
         url = `${
           process.env.REACT_APP_KS_SETTING_API
@@ -258,55 +273,44 @@ export function CurrencySearch({
     [chainId],
   )
 
-  useEffect(() => {
-    // todo improve performance, any type later
-    const promises: any = []
-    const result: any[] = []
-    if (favoriteTokens?.includeNativeToken && chainId) {
-      result.push(nativeOnChain(chainId))
-    }
-    favoriteTokens?.addresses.forEach(address => {
-      if (!allTokens[address] && chainId) {
-        promises.push(fetchTokenByAddress(address, chainId))
-      } else result.push(allTokens[address])
-    })
-    if (promises.length) {
-      Promise.allSettled(promises)
-        .then(data => {
-          data.forEach(el => {
-            if (el.status === 'fulfilled') {
-              const tokenResponse = el.value
-              if (!tokenResponse) return
-              const token = new Token(
-                tokenResponse.chainId,
-                tokenResponse.address,
-                tokenResponse.decimals,
-                tokenResponse.symbol,
-                tokenResponse.name,
-              ) as any
-              token.isWhitelisted = tokenResponse.isWhitelisted
-              result.push(token)
-            }
-          })
-          setCommonTokens(result)
+  const fetchFavoriteTokenFromAddress = useCallback(async () => {
+    try {
+      setLoadingCommon(true)
+      const promises: Promise<any>[] = []
+      const result: (Token | Currency)[] = []
+      if (favoriteTokens?.includeNativeToken && chainId) {
+        result.push(nativeOnChain(chainId))
+      }
+      favoriteTokens?.addresses.forEach(address => {
+        if (!allTokens[address] && chainId) {
+          promises.push(fetchTokenByAddress(address, chainId))
+        } else result.push(allTokens[address])
+      })
+      if (promises.length) {
+        const data = await Promise.allSettled(promises)
+        data.forEach(el => {
+          if (el.status !== 'fulfilled') return
+          const tokenResponse = el.value
+          if (!tokenResponse) return
+          result.push(formatToken(tokenResponse))
         })
-        .catch(err => {
-          console.log('err', err)
-        })
-    } else {
+      }
       setCommonTokens(result)
+    } catch (error) {
+      console.log('err', error)
     }
-  }, [favoriteTokens, allTokens, chainId])
+    setLoadingCommon(false)
+  }, [allTokens, chainId, favoriteTokens])
+
+  useEffect(() => {
+    fetchFavoriteTokenFromAddress()
+  }, [fetchFavoriteTokenFromAddress])
 
   const handleNewPageLoad = async () => {
     const { tokens } = await fetchTokens(debouncedQuery, pageCount)
 
     setPageCount(pageCount => pageCount + 1)
-    const parsedTokenList = tokens.map((token: any) => {
-      const parsedToken = new Token(token.chainId, token.address, token.decimals, token.symbol, token.name) as any
-      parsedToken.isWhitelisted = token.isWhitelisted
-      return parsedToken
-    })
+    const parsedTokenList = tokens.map(token => formatToken(token))
     setFetchedTokens(current => [...current, ...parsedTokenList])
     return
   }
@@ -316,11 +320,7 @@ export function CurrencySearch({
   useEffect(() => {
     const fetchData = async () => {
       const { tokens, pagination } = await fetchTokens(debouncedQuery, 1)
-      const parsedTokenList = tokens.map((token: any) => {
-        const parsedToken = new Token(token.chainId, token.address, token.decimals, token.symbol, token.name) as any
-        parsedToken.isWhitelisted = token.isWhitelisted
-        return parsedToken
-      })
+      const parsedTokenList = tokens.map(token => formatToken(token))
       setFetchedTokens(parsedTokenList)
       setTotalItems(pagination.totalItems)
       setPageCount(2)
@@ -334,7 +334,8 @@ export function CurrencySearch({
     return currencies
   }, [showETH, chainId, filteredSortedTokens, fetchedTokens])
 
-  const [commonTokens, setCommonTokens] = useState<any>([])
+  const [commonTokens, setCommonTokens] = useState<(Token | Currency)[]>([])
+  const [loadingCommon, setLoadingCommon] = useState(true)
 
   const visibleCurrencies: Currency[] = useMemo(() => {
     return activeTab === Tab.Imported ? tokenImportsFiltered : combinedTokens
@@ -411,6 +412,13 @@ export function CurrencySearch({
             onSelect={handleCurrencySelect}
             selectedCurrency={selectedCurrency}
           />
+        )}
+        {loadingCommon && (
+          <Flex justifyContent={'center'}>
+            <Text fontSize={12} color={theme.subText}>
+              Loading ...
+            </Text>
+          </Flex>
         )}
         <RowBetween>
           <Flex
