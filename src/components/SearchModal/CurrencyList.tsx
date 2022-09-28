@@ -316,7 +316,7 @@ export default function CurrencyList({
       dataLength={inactiveTokens.length}
       next={loadMoreRows}
       hasMore={inactiveTokens.length < totalItems}
-      height={500}
+      height={'auto'}
       loader={<h4>Loading...</h4>}
       scrollableTarget="scrollableDiv"
     >
