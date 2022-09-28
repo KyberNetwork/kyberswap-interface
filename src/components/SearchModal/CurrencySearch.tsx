@@ -265,11 +265,12 @@ export function CurrencySearch({
   useEffect(() => {
     const fetchData = async () => {
       const { tokens, pagination } = await fetchTokens(debouncedQuery, 1)
-      const parsedTokens = tokens.map((token: any) => ({
-        ...new Token(token.chainId, token.address, token.decimals, token.symbol, token.name),
-        isWhitelisted: token.isWhitelisted,
-      }))
-      setFetchedTokens(parsedTokens)
+      const parsedTokenList = tokens.map((token: any) => {
+        const parsedToken = new Token(token.chainId, token.address, token.decimals, token.symbol, token.name) as any
+        parsedToken.isWhitelisted = token.isWhitelisted
+        return parsedToken
+      })
+      setFetchedTokens(parsedTokenList)
       setTotalItems(pagination.totalItems)
       setPageCount(2)
     }
@@ -283,7 +284,7 @@ export function CurrencySearch({
   }, [showETH, chainId, filteredSortedTokens, fetchedTokens])
 
   const commonTokens = useMemo(() => {
-    return combinedTokens.filter(token => {
+    const commonTokensList = combinedTokens.filter(token => {
       if (token.isNative) {
         return favoriteTokens?.includeNativeToken
       }
@@ -292,6 +293,10 @@ export function CurrencySearch({
       }
       return false
     })
+    const filteredTokens = commonTokensList.filter(
+      (token, i, arr) => arr.findIndex(t => t.wrapped.address === token.wrapped.address) === i,
+    )
+    return filteredTokens
   }, [combinedTokens, favoriteTokens?.addresses, favoriteTokens?.includeNativeToken])
 
   const visibleCurrencies: Currency[] = useMemo(() => {
