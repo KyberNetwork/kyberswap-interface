@@ -13,6 +13,15 @@ interface TagInfo extends TagDetails {
 
 export type LiteTokenList = Omit<TokenList, 'tokens'>
 
+const LIST_DEFAULT = {
+  name: '',
+  timestamp: '',
+  version: { major: 0, minor: 0, patch: 0 },
+  keywords: [],
+  tags: [] as unknown as Tags,
+  logoURI: '',
+}
+
 export class WrappedTokenInfo extends Token {
   public readonly isNative: false = false
   public readonly isToken: true = true
@@ -21,7 +30,7 @@ export class WrappedTokenInfo extends Token {
 
   public readonly tokenInfo: TokenInfo
 
-  constructor(tokenInfo: TokenInfo & { isWhitelisted?: boolean }, list: LiteTokenList) {
+  constructor(tokenInfo: TokenInfo & { isWhitelisted?: boolean }, list: LiteTokenList = LIST_DEFAULT) {
     super(
       tokenInfo.chainId,
       isAddress(tokenInfo.address) || tokenInfo.address,

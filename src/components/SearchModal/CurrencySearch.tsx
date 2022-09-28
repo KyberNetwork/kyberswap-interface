@@ -99,15 +99,7 @@ const fetchTokenByAddress = async (address: string, chainId: ChainId) => {
 }
 
 const formatAndCacheToken = (tokenResponse: TokenResponse) => {
-  const formated = new WrappedTokenInfo(
-    tokenResponse as TokenInfo,
-    {
-      name: 'test',
-      logoURI: 'test',
-      timestamp: Date.now() + '',
-      version: 1,
-    } as any,
-  )
+  const formated = new WrappedTokenInfo(tokenResponse as TokenInfo)
   cacheTokens[tokenResponse.address] = formated
   return formated
 }
