@@ -61,14 +61,14 @@ export default function CurrencySearchModal({
 
   const showImportView = useCallback(() => setModalView(CurrencyModalView.importToken), [])
   const showManageView = useCallback(() => setModalView(CurrencyModalView.manage), [])
-
+  const isMobileHorizontal = Math.abs(window.orientation) === 90 && isMobile
   return (
     <Modal
       isOpen={isOpen}
       onDismiss={onDismiss}
       margin="auto"
-      maxHeight={isMobile ? 100 : 80}
-      height={isMobile ? '95vh' : undefined}
+      maxHeight={isMobileHorizontal ? 100 : 80}
+      height={isMobileHorizontal ? '95vh' : undefined}
       minHeight={minHeight}
     >
       {modalView === CurrencyModalView.search ? (

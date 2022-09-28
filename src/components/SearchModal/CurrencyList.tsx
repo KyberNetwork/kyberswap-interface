@@ -1,9 +1,8 @@
 import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { rgba } from 'polished'
-import React, { CSSProperties, MutableRefObject, useCallback, useMemo } from 'react'
+import React, { CSSProperties, useCallback, useMemo } from 'react'
 import { Star, Trash } from 'react-feather'
 import InfiniteScroll from 'react-infinite-scroll-component'
-import { FixedSizeList } from 'react-window'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -168,13 +167,11 @@ export default function CurrencyList({
   loadMoreRows,
   totalItems,
 }: {
-  height: number
   isImportedTab: boolean
   currencies: Currency[]
   selectedCurrency?: Currency | null
   onCurrencySelect: (currency: Currency) => void
   otherCurrency?: Currency | null
-  fixedListRef?: MutableRefObject<FixedSizeList | undefined>
   showImportView: () => void
   setImportToken: (token: Token) => void
   handleClickFavorite: (e: React.MouseEvent, currency: Currency) => void

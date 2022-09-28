@@ -6,8 +6,6 @@ import { rgba } from 'polished'
 import { stringify } from 'querystring'
 import { ChangeEvent, KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Trash } from 'react-feather'
-import AutoSizer from 'react-virtualized-auto-sizer'
-import { FixedSizeList } from 'react-window'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -120,7 +118,6 @@ export function CurrencySearch({
   const theme = useTheme()
   const [activeTab, setActiveTab] = useState<Tab>(Tab.All)
 
-  const fixedList = useRef<FixedSizeList>()
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedQuery = useDebounce(searchQuery, 200)
 
@@ -196,7 +193,6 @@ export function CurrencySearch({
     const input = event.target.value
     const checksumInput = isAddress(input)
     setSearchQuery(checksumInput || input)
-    fixedList.current?.scrollTo(0)
   }, [])
 
   const handleEnter = useCallback(
@@ -484,25 +480,19 @@ export function CurrencySearch({
         </Column>
       ) : visibleCurrencies?.length > 0 ? (
         <div id="scrollableDiv" style={{ flex: '1', overflow: 'auto' }}>
-          <AutoSizer disableWidth>
-            {({ height }) => (
-              <CurrencyList
-                removeImportedToken={removeImportedToken}
-                height={height}
-                currencies={visibleCurrencies}
-                isImportedTab={isImportedTab}
-                handleClickFavorite={handleClickFavorite}
-                onCurrencySelect={handleCurrencySelect}
-                otherCurrency={otherSelectedCurrency}
-                selectedCurrency={selectedCurrency}
-                fixedListRef={fixedList}
-                showImportView={showImportView}
-                setImportToken={setImportToken}
-                loadMoreRows={loadMoreRows}
-                totalItems={totalItems}
-              />
-            )}
-          </AutoSizer>
+          <CurrencyList
+            removeImportedToken={removeImportedToken}
+            currencies={visibleCurrencies}
+            isImportedTab={isImportedTab}
+            handleClickFavorite={handleClickFavorite}
+            onCurrencySelect={handleCurrencySelect}
+            otherCurrency={otherSelectedCurrency}
+            selectedCurrency={selectedCurrency}
+            showImportView={showImportView}
+            setImportToken={setImportToken}
+            loadMoreRows={loadMoreRows}
+            totalItems={totalItems}
+          />
         </div>
       ) : (
         <Column style={{ padding: '20px', height: '100%' }}>
