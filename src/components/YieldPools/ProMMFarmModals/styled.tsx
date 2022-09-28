@@ -38,7 +38,7 @@ export const TableHeader = styled.div`
 
 export const TableRow = styled(TableHeader)`
   background: ${({ theme }) => theme.background};
-  boder-radius: 0;
+  border-radius: 0;
   text-transform: none;
   margin-top: 0;
   font-weight: 400;
@@ -71,6 +71,10 @@ export const Checkbox = styled.input`
     position: absolute;
     top: 5.5px;
     left: 3px;
+  }
+
+  :disabled {
+    background-color: ${({ theme }) => theme.disableText};
   }
 `
 

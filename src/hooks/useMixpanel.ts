@@ -70,6 +70,7 @@ export enum MIXPANEL_TYPE {
   ABOUT_START_EARNING_CLICKED,
   ABOUT_VIEW_FARMS_CLICKED,
   ABOUT_CREATE_NEW_POOL_CLICKED,
+  ANALYTICS_MENU_CLICKED,
   CREATE_REFERRAL_CLICKED,
   DISCOVER_TRENDING_SOON_CLICKED,
   DISCOVER_TRENDING_CLICKED,
@@ -106,7 +107,7 @@ export enum MIXPANEL_TYPE {
   DISCOVER_CLICK_UNSUBSCRIBE_TRENDING_SOON,
   DISCOVER_SUBSCRIBE_TRENDING_SOON_SUCCESS,
   DISCOVER_UNSUBSCRIBE_TRENDING_SOON_SUCCESS,
-  CAMPAIGN_ENTER_NOW_CLICKED,
+  CAMPAIGN_SWAP_NOW_CLICKED,
   CAMPAIGN_SHARE_TRADING_CONTEST_CLICKED,
   CAMPAIGN_CLAIM_REWARDS_CLICKED,
   CAMPAIGN_WALLET_CONNECTED,
@@ -127,6 +128,15 @@ export enum MIXPANEL_TYPE {
   TAS_LIKE_PAIR,
   TAS_DISLIKE_PAIR,
   TAS_PRESS_CTRL_K,
+
+  MANAGE_TOKEN_LISTS_CLICK,
+  MANAGE_TOKEN_LISTS_TAB_CLICK,
+  MANAGE_TOKEN_LISTS_ON_OFF_TOGGLE,
+
+  BANNER_CLICK,
+  CLOSE_BANNER_CLICK,
+
+  FARM_UNDER_EARN_TAB_CLICK,
 }
 
 export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES = [
@@ -137,10 +147,6 @@ export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES = [
   'Create pool',
   'Elastic Create pool',
 ]
-
-const redactAddress = (address: string) => {
-  return address ? address.slice(0, 7) + '...' + address.slice(-5) : undefined
-}
 
 export default function useMixpanel(trade?: Aggregator | undefined, currencies?: { [field in Field]?: Currency }) {
   const { chainId, account } = useWeb3React()
@@ -174,7 +180,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           break
         }
         case MIXPANEL_TYPE.WALLET_CONNECTED:
-          mixpanel.register({ wallet_address: redactAddress(account), platform: isMobile ? 'Mobile' : 'Web', network })
+          mixpanel.register({ wallet_address: account, platform: isMobile ? 'Mobile' : 'Web', network })
           mixpanel.track('Wallet Connected')
           break
         case MIXPANEL_TYPE.SWAP_INITIATED: {
@@ -203,11 +209,14 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
                 parseFloat(formatUnits(gas_price, 18)) *
                 parseFloat(ethPrice.currentPrice)
               ).toFixed(4),
-            tx_hash: redactAddress(tx_hash),
+            tx_hash: tx_hash,
             max_return_or_low_gas: arbitrary.saveGas ? 'Lowest Gas' : 'Maximum Return',
             trade_qty: arbitrary.inputAmount,
             slippage_setting: arbitrary.slippageSetting,
             price_impact: arbitrary.priceImpact,
+            gas_price: formatUnits(gas_price, 18),
+            eth_price: ethPrice?.currentPrice,
+            actual_gas_native: actual_gas?.toNumber(),
           })
           break
         }
@@ -317,11 +326,11 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           break
         }
         case MIXPANEL_TYPE.ADD_LIQUIDITY_COMPLETED: {
-          mixpanel.track('Add Liquidity Completed', { ...payload, tx_hash: redactAddress(payload.tx_hash) })
+          mixpanel.track('Add Liquidity Completed', { ...payload, tx_hash: payload.tx_hash })
           break
         }
         case MIXPANEL_TYPE.REMOVE_LIQUIDITY_COMPLETED: {
-          mixpanel.track('Remove Liquidity Completed', { ...payload, tx_hash: redactAddress(payload.tx_hash) })
+          mixpanel.track('Remove Liquidity Completed', { ...payload, tx_hash: payload.tx_hash })
           break
         }
         case MIXPANEL_TYPE.REMOVE_LIQUIDITY_INITIATED: {
@@ -419,6 +428,10 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           mixpanel.track('About - Create New Pool Clicked')
           break
         }
+        case MIXPANEL_TYPE.ANALYTICS_MENU_CLICKED: {
+          mixpanel.track('Analytics Page Clicked')
+          break
+        }
         case MIXPANEL_TYPE.CREATE_REFERRAL_CLICKED: {
           const { referral_commission, input_token, output_token } = payload
           mixpanel.track('Create Referral Link Clicked', {
@@ -497,7 +510,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
         case MIXPANEL_TYPE.ELASTIC_CREATE_POOL_COMPLETED: {
           mixpanel.track('Elastic Pools - Create New Pool Completed', {
             ...payload,
-            tx_hash: redactAddress(payload.tx_hash),
+            tx_hash: payload.tx_hash,
           })
           break
         }
@@ -520,7 +533,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
         case MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_COMPLETED: {
           mixpanel.track('Elastic Pools - Add Liquidity Completed', {
             ...payload,
-            tx_hash: redactAddress(payload.tx_hash),
+            tx_hash: payload.tx_hash,
           })
           break
         }
@@ -531,7 +544,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
         case MIXPANEL_TYPE.ELASTIC_REMOVE_LIQUIDITY_COMPLETED: {
           mixpanel.track('Elastic Pools - My Pools - Remove Liquidity Completed', {
             ...payload,
-            tx_hash: redactAddress(payload.tx_hash),
+            tx_hash: payload.tx_hash,
           })
           break
         }
@@ -542,7 +555,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
         case MIXPANEL_TYPE.ELASTIC_INCREASE_LIQUIDITY_COMPLETED: {
           mixpanel.track('Elastic Pools - My Pools - Increase Liquidity Completed', {
             ...payload,
-            tx_hash: redactAddress(payload.tx_hash),
+            tx_hash: payload.tx_hash,
           })
           break
         }
@@ -594,8 +607,8 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           mixpanel.track('Faucet feature - Request faucet Completed')
           break
         }
-        case MIXPANEL_TYPE.CAMPAIGN_ENTER_NOW_CLICKED: {
-          mixpanel.track('Campaign - Enter Trading Contest "Enter Now"', payload)
+        case MIXPANEL_TYPE.CAMPAIGN_SWAP_NOW_CLICKED: {
+          mixpanel.track('Campaign - Enter Trading Contest "Swap Now"', payload)
           break
         }
         case MIXPANEL_TYPE.CAMPAIGN_SHARE_TRADING_CONTEST_CLICKED: {
@@ -666,6 +679,30 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           mixpanel.track('Type and Swap - User click Ctrl + K (or Cmd + K) or Clicked on the text box', {
             navigation: payload,
           })
+          break
+        }
+        case MIXPANEL_TYPE.MANAGE_TOKEN_LISTS_CLICK: {
+          mixpanel.track('Manage Token Lists - User click on "Manage Token Lists" button')
+          break
+        }
+        case MIXPANEL_TYPE.MANAGE_TOKEN_LISTS_TAB_CLICK: {
+          mixpanel.track('Manage Token Lists - User click on "List" or "Token" toggle', payload)
+          break
+        }
+        case MIXPANEL_TYPE.MANAGE_TOKEN_LISTS_ON_OFF_TOGGLE: {
+          mixpanel.track('Manage Token Lists - User clicked On/Off toggle from Token Lists', payload)
+          break
+        }
+        case MIXPANEL_TYPE.BANNER_CLICK: {
+          mixpanel.track('User click on "Banner" at swap page')
+          break
+        }
+        case MIXPANEL_TYPE.CLOSE_BANNER_CLICK: {
+          mixpanel.track('User click close "Banner" at swap page')
+          break
+        }
+        case MIXPANEL_TYPE.FARM_UNDER_EARN_TAB_CLICK: {
+          mixpanel.track('Farms Page Viewed - under Earn tab')
           break
         }
       }
@@ -823,7 +860,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
             if (!res.data?.transaction?.mints || res.data.transaction.mints.length === 0) break
           }
           const { amount0, amount1, amountUSD } = res.data.transaction.mints[0]
-          mixpanelHandler(MIXPANEL_TYPE.ELASTIC_CREATE_POOL_COMPLETED, {
+          mixpanelHandler(MIXPANEL_TYPE.CREATE_POOL_COMPLETED, {
             token_1: transaction.arbitrary.token_1,
             token_2: transaction.arbitrary.token_2,
             amp: transaction.arbitrary.amp,
@@ -877,11 +914,10 @@ export const useGlobalMixpanelEvents = () => {
 
   useEffect(() => {
     if (account && isAddress(account)) {
-      const redactedAccount = redactAddress(account)
       mixpanel.init(process.env.REACT_APP_MIXPANEL_PROJECT_TOKEN || '', {
         debug: process.env.REACT_APP_MAINNET_ENV === 'staging',
       })
-      mixpanel.identify(redactedAccount)
+      mixpanel.identify(account)
 
       const getQueryParam = (url: string, param: string) => {
         // eslint-disable-next-line

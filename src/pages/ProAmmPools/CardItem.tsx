@@ -3,7 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useState } from 'react'
 import { ChevronUp, Share2 } from 'react-feather'
-import { Link } from 'react-router-dom'
+import { Link, useHistory } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -11,9 +11,10 @@ import { ButtonEmpty, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import Divider from 'components/Divider'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
-import AgriCulture from 'components/Icons/AgriCulture'
+import { MoneyBagOutline } from 'components/Icons'
 import InfoHelper from 'components/InfoHelper'
 import { MouseoverTooltip } from 'components/Tooltip'
+import FarmingPoolAPRCell from 'components/YieldPools/FarmingPoolAPRCell'
 import { ELASTIC_BASE_FEE_UNIT, PROMM_ANALYTICS_URL } from 'constants/index'
 import { nativeOnChain } from 'constants/tokens'
 import { VERSION } from 'constants/v2'
@@ -21,7 +22,9 @@ import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import useTheme from 'hooks/useTheme'
 import { IconWrapper } from 'pages/Pools/styleds'
+import { useToggleEthPowAckModal } from 'state/application/hooks'
 import { useProMMFarms } from 'state/farms/promm/hooks'
+import { useUrlOnEthPowAck } from 'state/pools/hooks'
 import { ProMMPoolData } from 'state/prommPools/hooks'
 import { ExternalLink } from 'theme'
 import { isAddressString, shortenAddress } from 'utils'
@@ -70,9 +73,13 @@ export default function ProAmmPoolCardItem({ pair, onShared, userPositions, idx 
   const { chainId } = useActiveWeb3React()
   const theme = useTheme()
   const [isOpen, setIsOpen] = useState(true)
+  const history = useHistory()
+  const [, setUrlOnEthPoWAck] = useUrlOnEthPowAck()
+  const toggleEthPowAckModal = useToggleEthPowAckModal()
 
   const allTokens = useAllTokens()
   const { data: farms } = useProMMFarms()
+
   const token0 =
     allTokens[isAddressString(pair[0].token0.address)] ||
     new Token(chainId as ChainId, pair[0].token0.address, pair[0].token0.decimals, pair[0].token0.symbol)
@@ -80,27 +87,26 @@ export default function ProAmmPoolCardItem({ pair, onShared, userPositions, idx 
     allTokens[isAddressString(pair[0].token1.address)] ||
     new Token(chainId as ChainId, pair[0].token1.address, pair[0].token1.decimals, pair[0].token1.symbol)
 
-  const token0Address =
-    token0.address.toLowerCase() === WETH[chainId as ChainId].address.toLowerCase()
-      ? nativeOnChain(chainId as ChainId).symbol
-      : token0.address
-  const token0Symbol =
-    token0.address.toLowerCase() === WETH[chainId as ChainId].address.toLowerCase()
-      ? nativeOnChain(chainId as ChainId).symbol
-      : token0.symbol
-  const token1Address =
-    token1.address.toLowerCase() === WETH[chainId as ChainId].address.toLowerCase()
-      ? nativeOnChain(chainId as ChainId).symbol
-      : token1.address
-  const token1Symbol =
-    token1.address.toLowerCase() === WETH[chainId as ChainId].address.toLowerCase()
-      ? nativeOnChain(chainId as ChainId).symbol
-      : token1.symbol
+  const nativeToken = nativeOnChain(chainId as ChainId)
+
+  const isToken0WETH = token0.address.toLowerCase() === WETH[chainId as ChainId].address.toLowerCase()
+  const isToken1WETH = token1.address.toLowerCase() === WETH[chainId as ChainId].address.toLowerCase()
+
+  const token0Slug = isToken0WETH ? nativeToken.symbol : token0.address
+  const token0Symbol = isToken0WETH ? nativeToken.symbol : token0.symbol
+
+  const token1Slug = isToken1WETH ? nativeToken.symbol : token1.address
+  const token1Symbol = isToken1WETH ? nativeToken.symbol : token1.symbol
+
   return (
     <>
       <Flex justifyContent="space-between" marginBottom="20px" marginTop={idx === 0 ? 0 : '20px'}>
         <Flex alignItems="center">
-          <DoubleCurrencyLogo size={24} currency0={token0} currency1={token1} />
+          <DoubleCurrencyLogo
+            size={24}
+            currency0={isToken0WETH ? nativeToken : token0}
+            currency1={isToken1WETH ? nativeToken : token1}
+          />
           <Text fontSize={20} fontWeight="500">
             {token0Symbol} - {token1Symbol}
           </Text>
@@ -126,11 +132,19 @@ export default function ProAmmPoolCardItem({ pair, onShared, userPositions, idx 
         const hasLiquidity = pool.address in userPositions
         if (pair.length > 1 && index !== 0 && !isOpen) return null
 
-        const isFarmingPool = Object.values(farms)
-          .flat()
-          .filter(item => item.endTime > +new Date() / 1000)
-          .map(item => item.poolAddress.toLowerCase())
-          .includes(pool.address.toLowerCase())
+        let fairlaunchAddress = ''
+        let pid = -1
+        Object.keys(farms).forEach(addr => {
+          const farm = farms[addr]
+            .filter(item => item.endTime > Date.now() / 1000)
+            .find(item => item.poolAddress.toLowerCase() === pool.address.toLowerCase())
+
+          if (farm) {
+            fairlaunchAddress = addr
+            pid = farm.pid
+          }
+        })
+        const isFarmingPool = !!fairlaunchAddress && pid !== -1
 
         return (
           <Wrapper key={pool.address}>
@@ -145,7 +159,7 @@ export default function ProAmmPoolCardItem({ pair, onShared, userPositions, idx 
               >
                 <MouseoverTooltip text={t`Available for yield farming`}>
                   <IconWrapper style={{ width: '24px', height: '24px' }}>
-                    <AgriCulture width={16} height={16} color={theme.textReverse} />
+                    <MoneyBagOutline size={16} color={theme.textReverse} />
                   </IconWrapper>
                 </MouseoverTooltip>
               </div>
@@ -181,7 +195,22 @@ export default function ProAmmPoolCardItem({ pair, onShared, userPositions, idx 
                 <InfoHelper size={14} text={t`Average estimated return based on yearly fees of the pool`} />
               </Text>
               <DataText alignItems="flex-end" color={theme.apr}>
-                {pool.apr.toFixed(2)}%
+                {isFarmingPool ? (
+                  <FarmingPoolAPRCell
+                    tooltipPlacement="top"
+                    poolAPR={pool.apr}
+                    fairlaunchAddress={fairlaunchAddress}
+                    pid={pid}
+                  />
+                ) : (
+                  <Flex
+                    sx={{
+                      alignItems: 'center',
+                    }}
+                  >
+                    {pool.apr.toFixed(2)}%
+                  </Flex>
+                )}
               </DataText>
             </Flex>
 
@@ -216,13 +245,19 @@ export default function ProAmmPoolCardItem({ pair, onShared, userPositions, idx 
               )}
 
               <ButtonPrimary
-                as={Link}
                 padding="10px"
-                to={
-                  myLiquidity
+                onClick={() => {
+                  const url = myLiquidity
                     ? `/myPools?tab=${VERSION.ELASTIC}&search=${pool.address}`
-                    : `/elastic/add/${token0Address}/${token1Address}/${pool.feeTier}`
-                }
+                    : `/elastic/add/${token0Slug}/${token1Slug}/${pool.feeTier}`
+
+                  if (chainId === ChainId.ETHW) {
+                    setUrlOnEthPoWAck(url)
+                    toggleEthPowAckModal()
+                  } else {
+                    history.push(url)
+                  }
+                }}
               >
                 <Text width="max-content" fontSize="14px">
                   <Trans>Add Liquidity</Trans>

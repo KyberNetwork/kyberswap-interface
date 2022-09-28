@@ -1,7 +1,7 @@
 import { Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { stringify } from 'qs'
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -16,6 +16,7 @@ import UpcomingFarms from 'components/UpcomingFarms'
 import Vesting from 'components/Vesting'
 import ProMMVesting from 'components/Vesting/ProMMVesting'
 import YieldPools from 'components/YieldPools'
+import ElasticFarmSummary from 'components/YieldPools/ElasticFarmSummary'
 import FarmGuide from 'components/YieldPools/FarmGuide'
 import ProMMFarms from 'components/YieldPools/ProMMFarms'
 import {
@@ -37,12 +38,13 @@ import { AppState } from 'state'
 import { useBlockNumber } from 'state/application/hooks'
 import { useFarmsData } from 'state/farms/hooks'
 import { useProMMFarms } from 'state/farms/promm/hooks'
+import { isInEnum } from 'utils/string'
 
 const Farms = () => {
   const { loading } = useFarmsData()
   const qs = useParsedQueryString()
   const type = qs.type || 'active'
-  const farmType = qs.tab || VERSION.ELASTIC
+  const farmType = qs.tab && typeof qs.tab === 'string' && isInEnum(qs.tab, VERSION) ? qs.tab : VERSION.ELASTIC
   const history = useHistory()
 
   const vestingLoading = useSelector<AppState, boolean>(state => state.vesting.loading)
@@ -136,7 +138,9 @@ const Farms = () => {
           {!below768 && rewardPriceAndTutorial}
         </TopBar>
 
-        <FarmGuide farmType={farmType as VERSION} />
+        <FarmGuide farmType={farmType} />
+
+        {farmType === VERSION.ELASTIC && <ElasticFarmSummary />}
 
         {below768 && rewardPriceAndTutorial}
 

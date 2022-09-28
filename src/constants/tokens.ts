@@ -180,6 +180,26 @@ class OptimismNativeCurrency extends NativeCurrency {
   }
 }
 
+function isETHW(chainId: number): chainId is ChainId.ETHW {
+  return chainId === ChainId.ETHW
+}
+
+class ETHWNativeCurrency extends NativeCurrency {
+  equals(other: Currency): boolean {
+    return other.isNative && other.chainId === this.chainId
+  }
+
+  get wrapped(): Token {
+    if (!isETHW(this.chainId)) throw new Error('Not ETHW')
+    return WETH[this.chainId]
+  }
+
+  public constructor(chainId: number) {
+    if (!isETHW(chainId)) throw new Error('Not ETHW')
+    super(chainId, 18, 'ETHW', 'Ethereum PoW')
+  }
+}
+
 export class ExtendedEther extends Ether {
   public get wrapped(): Token {
     if (this.chainId in WETH) return WETH[this.chainId as ChainId]
@@ -215,11 +235,13 @@ export function nativeOnChain(chainId: number): NativeCurrency {
       ? new OasisNativeCurrency(chainId)
       : isOptimism(chainId)
       ? new OptimismNativeCurrency(chainId)
+      : isETHW(chainId)
+      ? new ETHWNativeCurrency(chainId)
       : ExtendedEther.onChain(chainId))
   )
 }
 
-export const STABLE_COINS_ADDRESS: { [chainId: number]: string[] } = {
+const STABLE_COINS = {
   [ChainId.MAINNET]: [
     '0x6B175474E89094C44Da98b954EedeAC495271d0F', // DAI
     '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // USDC
@@ -230,6 +252,7 @@ export const STABLE_COINS_ADDRESS: { [chainId: number]: string[] } = {
     '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063', //DAI
     '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174', //usdc
     '0xc2132D05D31c914a87C6611C10748AEb04B58e8F', //usdt
+    '0xa3Fa99A148fA48D14Ed51d610c367C61876997F1', //MAI
   ],
   [ChainId.BSCMAINNET]: [
     '0x1AF3F329e8BE154074D8769D1FFa4eE058B1DBc3', //dai
@@ -243,6 +266,8 @@ export const STABLE_COINS_ADDRESS: { [chainId: number]: string[] } = {
     '0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664', // usdc.e
     '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E', //usdc
     '0xd586E7F844cEa2F87f50152665BCbc2C279D8d70', //dai.e
+    '0x3B55E45fD6bd7d4724F5c47E0d1bCaEdd059263e', // MAI
+    '0x130966628846BFd36ff31a822705796e8cb8C18D', // MIM
   ],
   [ChainId.FANTOM]: [
     '0x8D11eC38a3EB5E956B052f67Da8Bdc9bef8Abf3E', //dai
@@ -291,3 +316,11 @@ export const STABLE_COINS_ADDRESS: { [chainId: number]: string[] } = {
     '0x7F5c764cBc14f9669B88837ca1490cCa17c31607', //usdc
   ],
 }
+
+const handler = {
+  get: function (target: any, name: string) {
+    return target.hasOwnProperty(name) ? target[name] : []
+  },
+}
+
+export const STABLE_COINS_ADDRESS: { [chainId in ChainId]: string[] } = new Proxy(STABLE_COINS, handler)

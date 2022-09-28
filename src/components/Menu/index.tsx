@@ -3,6 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import React, { useRef } from 'react'
 import { isMobile } from 'react-device-detect'
 import {
+  Award,
   BookOpen,
   Edit,
   FileText,
@@ -20,7 +21,6 @@ import styled, { css } from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
 import { SlideToUnlock } from 'components/Header'
-import { MoneyBagOutline } from 'components/Icons'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import Faucet from 'components/Icons/Faucet'
 import Loader from 'components/Loader'
@@ -124,14 +124,14 @@ const MenuFlyoutBrowserStyle = css`
 
   & ${MenuItem}:nth-child(1),
   & ${NavMenuItem}:nth-child(1) {
-    padding-top: 0.5rem;
+    padding-top: 0.75rem;
   }
 `
 
 const MenuFlyoutMobileStyle = css`
   & ${MenuItem}:nth-child(1),
   & ${NavMenuItem}:nth-child(1) {
-    padding-top: 0.5rem;
+    padding-top: 0.75rem;
   }
 `
 const ClaimRewardButton = styled(ButtonPrimary)`
@@ -158,6 +158,7 @@ export default function Menu() {
   const under1440 = useMedia('(max-width: 1440px)')
   const above1321 = useMedia('(min-width: 1321px)')
   const above768 = useMedia('(min-width: 768px)')
+  const under369 = useMedia('(max-width: 370px)')
 
   const getBridgeLink = () => {
     if (!chainId) return ''
@@ -221,10 +222,10 @@ export default function Menu() {
           </NavMenuItem>
         )}
 
-        {!above768 && (
-          <NavMenuItem to="/farms" onClick={toggle}>
-            <MoneyBagOutline size={16} />
-            <Trans>Farm</Trans>
+        {under369 && (
+          <NavMenuItem to="/campaigns" onClick={toggle}>
+            <Award size={14} />
+            <Trans>Campaigns</Trans>
           </NavMenuItem>
         )}
 
@@ -291,7 +292,7 @@ export default function Menu() {
         )}
       </MenuFlyout>
       <ClaimRewardModal />
-      <FaucetModal />
+      {chainId && [ChainId.BTTC, ChainId.RINKEBY].includes(chainId) && <FaucetModal />}
     </StyledMenu>
   )
 }

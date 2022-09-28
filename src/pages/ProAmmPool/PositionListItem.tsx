@@ -2,6 +2,7 @@ import { ChainId, CurrencyAmount, Price, Token } from '@kyberswap/ks-sdk-core'
 import { Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
 import { useWeb3React } from '@web3-react/core'
+import { stringify } from 'qs'
 import React, { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
@@ -93,6 +94,17 @@ const StakedRow = styled.div`
   font-size: 12px;
 `
 
+const ButtonGroup = styled.div`
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 20px;
+
+  > * {
+    /* to make sure all immediate buttons take equal width */
+    flex: 1;
+  }
+`
+
 interface PositionListItemProps {
   positionDetails: PositionDetails | UserPositionFarm
   farmAvailable?: boolean
@@ -119,12 +131,8 @@ export function getPriceOrderingFromPositionForUI(position?: Position): {
     base: token0,
   }
 }
-export default function PositionListItem({
-  stakedLayout,
-  farmAvailable,
-  positionDetails,
-  refe,
-}: PositionListItemProps) {
+
+function PositionListItem({ stakedLayout, farmAvailable, positionDetails, refe }: PositionListItemProps) {
   const { chainId } = useWeb3React()
   const {
     token0: token0Address,
@@ -133,6 +141,7 @@ export default function PositionListItem({
     liquidity,
     tickLower,
     tickUpper,
+    stakedLiquidity,
   } = positionDetails
 
   const token0 = useToken(token0Address)
@@ -187,6 +196,8 @@ export default function PositionListItem({
   const { mixpanelHandler } = useMixpanel()
 
   const [activeTab, setActiveTab] = useState(0)
+  const now = Date.now() / 1000
+
   return position && priceLower && priceUpper ? (
     <StyledPositionCard>
       <>
@@ -260,6 +271,7 @@ export default function PositionListItem({
                 tokenId={positionDetails.tokenId}
                 layout={1}
                 farmAvailable={farmAvailable}
+                disableCollectFee={!!stakedLiquidity}
               />
             )}
           </>
@@ -272,34 +284,41 @@ export default function PositionListItem({
               style={{ marginBottom: '20px', textDecoration: 'none', color: theme.textReverse, fontSize: '14px' }}
               padding="8px"
               as={StyledInternalLink}
-              to="/farms"
+              to={`/farms?${stringify({
+                tab: 'elastic',
+                type: positionDetails.endTime ? (positionDetails.endTime > now ? 'active' : 'ended') : 'active',
+                search: positionDetails.poolId,
+              })}`}
             >
               <Trans>Go to Farm</Trans>
             </ButtonPrimary>
           ) : (
-            <Flex marginBottom="20px" sx={{ gap: '1rem' }}>
-              {removed ? (
+            <ButtonGroup>
+              {removed || !!stakedLiquidity ? (
                 <ButtonOutlined disabled padding="8px" style={{ flex: 1 }}>
                   <Text width="max-content" fontSize="14px">
                     <Trans>Remove Liquidity</Trans>
                   </Text>
                 </ButtonOutlined>
               ) : farmAvailable ? (
-                <ButtonOutlined
-                  padding="0"
-                  style={{
-                    flex: 1,
-                    color: theme.disableText,
-                    border: `1px solid ${theme.disableText}`,
-                    cursor: 'not-allowed',
-                  }}
+                <MouseoverTooltip
+                  text={t`You need to withdraw your deposited liquidity position from the Farm first`}
+                  placement="top"
                 >
-                  <MouseoverTooltip text={farmAvailable ? t`You need to withdraw your liquidity first` : ''}>
+                  <ButtonOutlined
+                    padding="0"
+                    style={{
+                      width: '100%',
+                      color: theme.disableText,
+                      border: `1px solid ${theme.disableText}`,
+                      cursor: 'not-allowed',
+                    }}
+                  >
                     <Text width="max-content" fontSize="14px" padding="8px">
                       <Trans>Remove Liquidity</Trans>
                     </Text>
-                  </MouseoverTooltip>
-                </ButtonOutlined>
+                  </ButtonOutlined>
+                </MouseoverTooltip>
               ) : (
                 <ButtonOutlined
                   padding="8px"
@@ -352,7 +371,7 @@ export default function PositionListItem({
                   </Text>
                 </ButtonPrimary>
               )}
-            </Flex>
+            </ButtonGroup>
           )}
           <Divider sx={{ marginBottom: '20px' }} />
           <RowBetween>
@@ -380,3 +399,5 @@ export default function PositionListItem({
     <ContentLoader />
   )
 }
+
+export default React.memo(PositionListItem)

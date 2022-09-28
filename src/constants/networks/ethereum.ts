@@ -20,7 +20,7 @@ const ethereumInfo: NetworkInfo = {
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-ethereum'),
   etherscanUrl: 'https://etherscan.io',
   etherscanName: 'Etherscan',
-  tokenListUrl: `${process.env.REACT_APP_TOKEN_LIST_API}?chainId=${ChainId.MAINNET}`,
+  tokenListUrl: `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?chainId=${ChainId.MAINNET}`,
   bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'ETH',
@@ -29,10 +29,7 @@ const ethereumInfo: NetworkInfo = {
     logo: EthereumLogo,
     decimal: 18,
   },
-  rpcUrl:
-    process.env.NODE_ENV === 'development'
-      ? 'https://cloudflare-eth.com'
-      : 'https://proxy.kyberengineering.io/ethereum',
+  rpcUrl: 'https://ethereum.kyberengineering.io',
   routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/ethereum/route/encode`,
   classic: {
     static: {
@@ -46,8 +43,6 @@ const ethereumInfo: NetworkInfo = {
       router: '0x1c87257F5e8609940Bc751a07BB085Bb7f8cDBE6',
       factory: '0x833e4083B7ae46CeA85695c4f7ed25CDAd8886dE',
     },
-    routerV2: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
-    aggregationExecutor: '0x41684b361557E9282E0373CA51260D9331e518C9',
     claimReward: EMPTY,
     fairlaunch: [
       '0xc0601973451d9369252Aee01397c0270CD2Ecd60',

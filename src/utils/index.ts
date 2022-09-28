@@ -22,11 +22,9 @@ import {
 import { NETWORKS_INFO } from 'constants/networks'
 import store from 'state'
 
-import AGGREGATOR_EXECUTOR_ABI from '../constants/abis/aggregation-executor.json'
 import CLAIM_REWARD_ABI from '../constants/abis/claim-reward.json'
 import ROUTER_DYNAMIC_FEE_ABI from '../constants/abis/dmm-router-dynamic-fee.json'
 import ROUTER_STATIC_FEE_ABI from '../constants/abis/dmm-router-static-fee.json'
-import ROUTER_ABI_V2 from '../constants/abis/dmm-router-v2.json'
 import KS_ROUTER_STATIC_FEE_ABI from '../constants/abis/ks-router-static-fee.json'
 import ROUTER_PRO_AMM from '../constants/abis/v2/ProAmmRouter.json'
 import ZAP_ABI from '../constants/abis/zap.json'
@@ -170,10 +168,6 @@ export function getProAmmRouterContract(chainId: ChainId, library: Web3Provider,
   return getContract(NETWORKS_INFO[chainId].elastic.routers, ROUTER_PRO_AMM.abi, library, account)
 }
 
-export function getRouterV2Contract(chainId: ChainId, library: Web3Provider, account?: string): Contract {
-  return getContract(NETWORKS_INFO[chainId].classic.routerV2 || '', ROUTER_ABI_V2, library, account)
-}
-
 // account is optional
 export function getZapContract(
   chainId: ChainId,
@@ -201,14 +195,6 @@ export function getClaimRewardContract(
 ): Contract | undefined {
   if (!NETWORKS_INFO[chainId].classic.claimReward) return
   return getContract(NETWORKS_INFO[chainId].classic.claimReward, CLAIM_REWARD_ABI, library, account)
-}
-
-export function getAggregationExecutorAddress(chainId: ChainId): string {
-  return NETWORKS_INFO[chainId].classic.aggregationExecutor || ''
-}
-
-export function getAggregationExecutorContract(chainId: ChainId, library: Web3Provider, account?: string): Contract {
-  return getContract(getAggregationExecutorAddress(chainId), AGGREGATOR_EXECUTOR_ABI, library, account)
 }
 
 export function escapeRegExp(string: string): string {
@@ -456,17 +442,19 @@ export const getTokenLogoURL = (inputAddress: string, chainId?: ChainId): string
     address = WETH[chainId].address
   }
 
-  if (address.toLowerCase() === KNC[chainId as ChainId].address.toLowerCase()) {
-    return 'https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/develop/src/assets/images/KNC.svg'
-  }
+  if (chainId !== ChainId.ETHW) {
+    if (address.toLowerCase() === KNC[chainId as ChainId].address.toLowerCase()) {
+      return 'https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/develop/src/assets/images/KNC.svg'
+    }
 
-  if (address.toLowerCase() === KNCL_ADDRESS.toLowerCase()) {
-    return 'https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/develop/src/assets/images/KNCL.png'
-  }
+    if (address.toLowerCase() === KNCL_ADDRESS.toLowerCase()) {
+      return 'https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/develop/src/assets/images/KNCL.png'
+    }
 
-  // WBTC
-  if (address.toLowerCase() === '0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f') {
-    return 'https://assets.coingecko.com/coins/images/7598/thumb/wrapped_bitcoin_wbtc.png?1548822744'
+    // WBTC
+    if (address.toLowerCase() === '0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f') {
+      return 'https://assets.coingecko.com/coins/images/7598/thumb/wrapped_bitcoin_wbtc.png?1548822744'
+    }
   }
 
   let imageURL
@@ -476,6 +464,7 @@ export const getTokenLogoURL = (inputAddress: string, chainId?: ChainId): string
     .lists.byUrl[NETWORKS_INFO[chainId || ChainId.MAINNET].tokenListUrl].current?.tokens.find(
       item => item.address.toLowerCase() === address.toLowerCase(),
     )?.logoURI
+
   if (imageURL) return imageURL
 
   switch (chainId) {
@@ -516,6 +505,10 @@ export const getTokenLogoURL = (inputAddress: string, chainId?: ChainId): string
     case ChainId.ARBITRUM:
       imageURL = `https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/arbitrum/assets/${address}/logo.png`
       break
+    case ChainId.ETHW: {
+      imageURL = ''
+      break
+    }
     default:
       imageURL = `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${isAddress(
         address,

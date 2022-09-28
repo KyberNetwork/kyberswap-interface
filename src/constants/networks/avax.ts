@@ -17,7 +17,7 @@ const avaxInfo: NetworkInfo = {
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/ducquangkstn/avalache-blocks'),
   etherscanUrl: 'https://snowtrace.io',
   etherscanName: 'Snowtrace',
-  tokenListUrl: `${process.env.REACT_APP_TOKEN_LIST_API}?chainId=${ChainId.AVAXMAINNET}`,
+  tokenListUrl: `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?chainId=${ChainId.AVAXMAINNET}`,
   bridgeURL: 'https://bridge.avax.network',
   nativeToken: {
     symbol: 'AVAX',
@@ -26,7 +26,7 @@ const avaxInfo: NetworkInfo = {
     logo: AVAX,
     decimal: 18,
   },
-  rpcUrl: 'https://avalanche.dmm.exchange/v1/mainnet/geth?appId=prod-dmm',
+  rpcUrl: 'https://avalanche.kyberengineering.io',
   routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/avalanche/route/encode`,
   classic: {
     static: {
@@ -40,8 +40,6 @@ const avaxInfo: NetworkInfo = {
       router: '0x8Efa5A9AD6D594Cf76830267077B78cE0Bc5A5F8',
       factory: '0x10908C875D865C66f271F5d3949848971c9595C9',
     },
-    routerV2: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
-    aggregationExecutor: '0x41684b361557E9282E0373CA51260D9331e518C9',
     claimReward: '0x610A05127d51dd42031A39c25aF951a8e77cDDf7',
     fairlaunch: [
       '0xD169410524Ab1c3C51F56a856a2157B88d4D4FF5',

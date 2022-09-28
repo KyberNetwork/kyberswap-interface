@@ -16,6 +16,7 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
+import { ExternalLink } from 'theme'
 
 import CustomMask from './CustomMask'
 import CustomPopup from './CustomPopup'
@@ -124,8 +125,9 @@ function Welcome() {
       </Desc>
       <Desc>
         <Trans>
-          KyberSwap is also an automated market maker (AMM) with industry-leading liquidity protocols like Classic &
-          Elastic. Liquidity providers can add liquidity to our pools & <HighlightText>earn fees</HighlightText>!
+          KyberSwap is also an automated market maker (AMM) with industry-leading liquidity protocols and{' '}
+          <HighlightText>concentrated liquidity</HighlightText>. Liquidity providers can add liquidity to our pools &{' '}
+          <HighlightText>earn fees</HighlightText>!
         </Trans>
       </Desc>
       <Desc>
@@ -223,9 +225,9 @@ function Step3({ videoStyle = {} }: { videoStyle: CSSProperties }) {
           title="Tutorial kyberswap"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
-        ></iframe>
+        />
         {/** because we need tracking we user click video, iframe youtube not fire any event for us. */}
-        {!playedVideo && <TouchAbleVideo onClick={playVideo} />}
+        {!playedVideo && !isMobile && <TouchAbleVideo onClick={playVideo} />}
       </div>
     </Layout>
   )
@@ -401,7 +403,13 @@ const getListSteps = (isLogin: boolean) => {
         <Layout title={LIST_TITLE.VIEW_GUIDE}>
           <Desc>
             <Trans>
-              You can repeat these instructions anytime by clicking on the &quot;View&quot; button under Preferences
+              You can repeat these instructions anytime by clicking on the &quot;View&quot; button under Preferences.
+            </Trans>
+          </Desc>
+          <Desc>
+            <Trans>
+              For a more detailed user guide,{' '}
+              <ExternalLink href="https://docs.kyberswap.com/guides/getting-started">click here.</ExternalLink>
             </Trans>
           </Desc>
           <ImageMobile imageName="step8.1.png" />
@@ -509,7 +517,9 @@ export default memo(function TutorialSwap() {
       <Walktour
         tooltipSeparation={25}
         disableMaskInteraction
-        customTooltipRenderer={CustomPopup}
+        customTooltipRenderer={(props: WalktourLogic | undefined) => (
+          <CustomPopup {...(props || ({} as WalktourLogic))} />
+        )}
         steps={steps as Step[]}
         isOpen={show}
         initialStepIndex={step}

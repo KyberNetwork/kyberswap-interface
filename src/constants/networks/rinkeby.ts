@@ -20,7 +20,7 @@ const rinkebyInfo: NetworkInfo = {
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/billjhlee/rinkeby-blocks'),
   etherscanUrl: 'https://rinkeby.etherscan.io',
   etherscanName: 'Rinkeby Explorer',
-  tokenListUrl: `${process.env.REACT_APP_TOKEN_LIST_API}?chainId=${ChainId.RINKEBY}`,
+  tokenListUrl: `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?chainId=${ChainId.RINKEBY}`,
   bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'ETH',
@@ -43,8 +43,6 @@ const rinkebyInfo: NetworkInfo = {
       router: EMPTY,
       factory: EMPTY,
     },
-    routerV2: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
-    aggregationExecutor: '0x41684b361557E9282E0373CA51260D9331e518C9',
     claimReward: EMPTY,
     fairlaunch: EMPTY_ARRAY,
     fairlaunchV2: EMPTY_ARRAY,

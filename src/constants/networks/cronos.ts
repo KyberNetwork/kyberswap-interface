@@ -26,7 +26,7 @@ const cronosInfo: NetworkInfo = {
   blockClient: createClient('https://cronos-graph.kyberengineering.io/subgraphs/name/kybernetwork/cronos-blocks'),
   etherscanUrl: 'https://cronos.org/explorer',
   etherscanName: 'Cronos explorer',
-  tokenListUrl: `${process.env.REACT_APP_TOKEN_LIST_API}?chainId=${ChainId.CRONOS}`,
+  tokenListUrl: `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?chainId=${ChainId.CRONOS}`,
   bridgeURL: 'https://cronos.crypto.org/docs/bridge/cdcapp.html',
   nativeToken: {
     symbol: 'CRO',
@@ -49,8 +49,6 @@ const cronosInfo: NetworkInfo = {
       router: '0xEaE47c5D99f7B31165a7f0c5f7E0D6afA25CFd55',
       factory: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',
     },
-    routerV2: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
-    aggregationExecutor: '0x41684b361557E9282E0373CA51260D9331e518C9',
     claimReward: EMPTY,
     fairlaunch: EMPTY_ARRAY,
     fairlaunchV2: EMPTY_ARRAY,

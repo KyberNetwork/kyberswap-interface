@@ -20,7 +20,7 @@ const bnbTestnetInfo: NetworkInfo = {
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/ducquangkstn/ethereum-blocks-bsctestnet'),
   etherscanUrl: 'https://testnet.bscscan.com',
   etherscanName: 'BscScan',
-  tokenListUrl: `${process.env.REACT_APP_TOKEN_LIST_API}?chainId=${ChainId.BSCTESTNET}`,
+  tokenListUrl: `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?chainId=${ChainId.BSCTESTNET}`,
   bridgeURL: 'https://www.binance.org/en/bridge',
   nativeToken: {
     symbol: 'BNB',
@@ -43,8 +43,6 @@ const bnbTestnetInfo: NetworkInfo = {
       router: '0x19395624C030A11f58e820C3AeFb1f5960d9742a',
       factory: '0x7900309d0b1c8D3d665Ae40e712E8ba4FC4F5453',
     },
-    routerV2: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
-    aggregationExecutor: '0x41684b361557E9282E0373CA51260D9331e518C9',
     claimReward: EMPTY,
     fairlaunch: [
       '0xf0fb5bD9EB287A902Bd45b57AE4CF5F9DcEBe550',

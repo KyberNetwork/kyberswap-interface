@@ -19,7 +19,7 @@ const fantomInfo: NetworkInfo = {
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/fantom-blocks'),
   etherscanUrl: 'https://ftmscan.com',
   etherscanName: 'Ftmscan',
-  tokenListUrl: `${process.env.REACT_APP_TOKEN_LIST_API}?chainId=${ChainId.FANTOM}`,
+  tokenListUrl: `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?chainId=${ChainId.FANTOM}`,
   bridgeURL: 'https://multichain.xyz',
   nativeToken: {
     symbol: 'FTM',
@@ -28,7 +28,7 @@ const fantomInfo: NetworkInfo = {
     logo: FTM,
     decimal: 18,
   },
-  rpcUrl: 'https://rpc.ftm.tools',
+  rpcUrl: 'https://fantom.kyberengineering.io',
   routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/fantom/route/encode`,
   classic: {
     static: {
@@ -42,8 +42,6 @@ const fantomInfo: NetworkInfo = {
       router: '0x5d5A5a0a465129848c2549669e12cDC2f8DE039A',
       factory: '0x78df70615ffc8066cc0887917f2Cd72092C86409',
     },
-    routerV2: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
-    aggregationExecutor: '0x41684b361557E9282E0373CA51260D9331e518C9',
     claimReward: EMPTY,
     fairlaunch: EMPTY_ARRAY,
     fairlaunchV2: EMPTY_ARRAY,

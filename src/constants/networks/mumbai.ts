@@ -19,7 +19,7 @@ const mumbaiInfo: NetworkInfo = {
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/piavgh/mumbai-blocks'),
   etherscanUrl: 'https://mumbai.polygonscan.com/',
   etherscanName: 'Polygonscan',
-  tokenListUrl: `${process.env.REACT_APP_TOKEN_LIST_API}?chainId=${ChainId.MUMBAI}`,
+  tokenListUrl: `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?chainId=${ChainId.MUMBAI}`,
   bridgeURL: 'https://wallet.matic.network/bridge',
   nativeToken: {
     symbol: 'MATIC',
@@ -42,8 +42,6 @@ const mumbaiInfo: NetworkInfo = {
       router: '0xD536e64EAe5FBc62E277167e758AfEA570279956',
       factory: '0x7900309d0b1c8D3d665Ae40e712E8ba4FC4F5453',
     },
-    routerV2: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
-    aggregationExecutor: '0x41684b361557E9282E0373CA51260D9331e518C9',
     claimReward: EMPTY,
     fairlaunch: ['0x882233B197F9e50b1d41F510fD803a510470d7a6'],
     fairlaunchV2: EMPTY_ARRAY,

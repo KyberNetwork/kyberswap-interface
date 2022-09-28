@@ -57,6 +57,8 @@ export const DAI: { [chainId in ChainId]: Token } = {
     'DAI',
     'Dai Stablecoin',
   ),
+  [ChainId.ETHW]: new Token(ChainId.ETHW, '0x6B175474E89094C44Da98b954EedeAC495271d0F', 18, 'DAI', 'Dai Stablecoin'),
+
   [ChainId.ROPSTEN]: new Token(
     ChainId.ROPSTEN,
     '0xaD6D458402F60fD3Bd25163575031ACDce07538D',
@@ -71,7 +73,7 @@ export const DAI: { [chainId in ChainId]: Token } = {
     'DAI',
     'Dai Stablecoin',
   ),
-  [ChainId.GÖRLI]: new Token(ChainId.GÖRLI, '0xaD6D458402F60fD3Bd25163575031ACDce07538D', 18, 'DAI', 'Dai Stablecoin'),
+  [ChainId.GÖRLI]: new Token(ChainId.GÖRLI, '0x1BBeeEdCF32dc2c1Ebc2F138e3FC7f3DeCD44D6A', 18, 'DAI', 'Dai Stablecoin'),
   [ChainId.KOVAN]: new Token(ChainId.KOVAN, '0xaD6D458402F60fD3Bd25163575031ACDce07538D', 18, 'DAI', 'Dai Stablecoin'),
   [ChainId.MATIC]: new Token(ChainId.MATIC, '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063', 18, 'DAI', 'Dai Stablecoin'),
   [ChainId.MUMBAI]: new Token(
@@ -167,9 +169,10 @@ export const DAI: { [chainId in ChainId]: Token } = {
 
 export const USDC: { [chainId in ChainId]: Token } = {
   [ChainId.MAINNET]: new Token(ChainId.MAINNET, '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', 6, 'USDC', 'USD Coin'),
+  [ChainId.ETHW]: new Token(ChainId.MAINNET, '0x25de68ef588cb0c2c8f3537861e828ae699cd0db', 6, 'USDC', 'USD Coin'),
   [ChainId.ROPSTEN]: new Token(ChainId.ROPSTEN, '0x068B43f7F2f2c6a662C36E201144aE45f7a1C040', 6, 'USDC', 'USD Coin'),
   [ChainId.RINKEBY]: new Token(ChainId.RINKEBY, '0x4DBCdF9B62e891a7cec5A2568C3F4FAF9E8Abe2b', 6, 'USDC', 'USD Coin'),
-  [ChainId.GÖRLI]: new Token(ChainId.GÖRLI, '0x068B43f7F2f2c6a662C36E201144aE45f7a1C040', 6, 'USDC', 'USD Coin'),
+  [ChainId.GÖRLI]: new Token(ChainId.GÖRLI, '0x8e9Bd30D15420bAe4B7EC0aC014B7ECeE864373C', 18, 'USDC', 'USD Coin'),
   [ChainId.KOVAN]: new Token(ChainId.KOVAN, '0x068B43f7F2f2c6a662C36E201144aE45f7a1C040', 6, 'USDC', 'USD Coin'),
   [ChainId.MATIC]: new Token(ChainId.MATIC, '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174', 6, 'USDC', 'USD Coin'),
   [ChainId.MUMBAI]: new Token(ChainId.MUMBAI, '0x2CeC76B26A8d96BF3072D34A01BB3a4edE7c06BE', 6, 'USDC', 'USD Coin'),
@@ -234,9 +237,10 @@ export const USDC: { [chainId in ChainId]: Token } = {
 
 export const USDT: { [chainId in ChainId]: Token } = {
   [ChainId.MAINNET]: new Token(ChainId.MAINNET, '0xdAC17F958D2ee523a2206206994597C13D831ec7', 6, 'USDT', 'Tether USD'),
+  [ChainId.ETHW]: new Token(ChainId.MAINNET, '0x2ad7868ca212135c6119fd7ad1ce51cfc5702892', 6, 'USDT', 'Tether'),
   [ChainId.ROPSTEN]: new Token(ChainId.ROPSTEN, '0x65Bd1F48f1dd07bb285a3715c588F75684128acE', 6, 'USDT', 'Tether USD'),
   [ChainId.RINKEBY]: new Token(ChainId.RINKEBY, '0xD9BA894E0097f8cC2BBc9D24D308b98e36dc6D02', 18, 'USDT', 'Tether USD'),
-  [ChainId.GÖRLI]: new Token(ChainId.GÖRLI, '0x65Bd1F48f1dd07bb285a3715c588F75684128acE', 6, 'USDT', 'Tether USD'),
+  [ChainId.GÖRLI]: new Token(ChainId.GÖRLI, '0x2bf64acf7ead856209749d0d125e9ade2d908e7f', 18, 'USDT', 'Tether USD'),
   [ChainId.KOVAN]: new Token(ChainId.KOVAN, '0x65Bd1F48f1dd07bb285a3715c588F75684128acE', 6, 'USDT', 'Tether USD'),
   [ChainId.MATIC]: new Token(ChainId.MATIC, '0xc2132D05D31c914a87C6611C10748AEb04B58e8F', 6, 'USDT', 'Tether USD'),
   [ChainId.MUMBAI]: new Token(ChainId.MUMBAI, '0x064B91Bda6d178DfE03835de9450BFe78201c43F', 6, 'USDT', 'Tether USD'),
@@ -256,8 +260,8 @@ export const USDT: { [chainId in ChainId]: Token } = {
   ),
   [ChainId.AVAXTESTNET]: new Token(
     ChainId.AVAXTESTNET,
-    '0xBD1EEAf651aEB210106E1c1aFb3BC41C388ee577',
-    6,
+    '0x42296280d753ecdfafe9dbdfa912c9e6221a4e05',
+    18,
     'USDT',
     'Tether USD',
   ),
@@ -349,12 +353,14 @@ const WETH_ONLY: ChainTokenList = {
   [ChainId.VELAS]: [WETH[ChainId.VELAS]],
   [ChainId.OASIS]: [WETH[ChainId.OASIS]],
   [ChainId.OPTIMISM]: [WETH[ChainId.OPTIMISM]],
+  [ChainId.ETHW]: [WETH[ChainId.ETHW]],
 }
 
 export const KNC_ADDRESS = '0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202'
 
 export const KNC: { [chainId in ChainId]: Token } = {
   [ChainId.MAINNET]: new Token(ChainId.MAINNET, KNC_ADDRESS, 18, 'KNC', 'Kyber Network Crystal'),
+  [ChainId.ETHW]: new Token(ChainId.ETHW, KNC_ADDRESS, 18, 'KNC', 'Kyber Network Crystal'),
   [ChainId.RINKEBY]: new Token(
     ChainId.RINKEBY,
     '0x8B4DDF9F13f382aff76D262F6C8C50E6d7961b94',
@@ -544,6 +550,8 @@ export const SUGGESTED_BASES: ChainTokenList = {
     USDC[ChainId.MAINNET],
     USDT[ChainId.MAINNET],
   ],
+  [ChainId.ETHW]: [USDT[ChainId.ETHW], USDC[ChainId.ETHW]],
+  [ChainId.GÖRLI]: [...WETH_ONLY[ChainId.GÖRLI], DAI[ChainId.GÖRLI], USDC[ChainId.GÖRLI], USDT[ChainId.GÖRLI]],
   [ChainId.MATIC]: [
     ...WETH_ONLY[ChainId.MATIC],
     DAI[ChainId.MATIC],
@@ -783,6 +791,45 @@ export const BLACKLIST_WALLETS: string[] = [
   '0x72a5843cc08275c8171e582972aa4fda8c397b2a',
   '0x7f19720a857f834887fc9a7bc0a0fbe7fc7f8102',
   '0x9f4cda013e354b8fc285bf4b9a60460cee7f7ea9',
+  // OFAC sanction
+  '0x8589427373D6D84E98730D7795D8f6f8731FDA16',
+  '0x722122dF12D4e14e13Ac3b6895a86e84145b6967',
+  '0xDD4c48C0B24039969fC16D1cdF626eaB821d3384',
+  '0xd90e2f925DA726b50C4Ed8D0Fb90Ad053324F31b',
+  '0xd96f2B1c14Db8458374d9Aca76E26c3D18364307',
+  '0x4736dCf1b7A3d580672CcE6E7c65cd5cc9cFBa9D',
+  '0xD4B88Df4D29F5CedD6857912842cff3b20C8Cfa3',
+  '0x910Cbd523D972eb0a6f4cAe4618aD62622b39DbF',
+  '0xA160cdAB225685dA1d56aa342Ad8841c3b53f291',
+  '0xFD8610d20aA15b7B2E3Be39B396a1bC3516c7144',
+  '0xF60dD140cFf0706bAE9Cd734Ac3ae76AD9eBC32A',
+  '0x22aaA7720ddd5388A3c0A3333430953C68f1849b',
+  '0xBA214C1c1928a32Bffe790263E38B4Af9bFCD659',
+  '0xb1C8094B234DcE6e03f10a5b673c1d8C69739A00',
+  '0x527653eA119F3E6a1F5BD18fbF4714081D7B31ce',
+  '0x58E8dCC13BE9780fC42E8723D8EaD4CF46943dF2',
+  '0xD691F27f38B395864Ea86CfC7253969B409c362d',
+  '0xaEaaC358560e11f52454D997AAFF2c5731B6f8a6',
+  '0x1356c899D8C9467C7f71C195612F8A395aBf2f0a',
+  '0xA60C772958a3eD56c1F15dD055bA37AC8e523a0D',
+  '0x169AD27A470D064DEDE56a2D3ff727986b15D52B',
+  '0x0836222F2B2B24A3F36f98668Ed8F0B38D1a872f',
+  '0xF67721A2D8F736E75a49FdD7FAd2e31D8676542a',
+  '0x9AD122c22B14202B4490eDAf288FDb3C7cb3ff5E',
+  '0x905b63Fff465B9fFBF41DeA908CEb12478ec7601',
+  '0x07687e702b410Fa43f4cB4Af7FA097918ffD2730',
+  '0x94A1B5CdB22c43faab4AbEb5c74999895464Ddaf',
+  '0xb541fc07bC7619fD4062A54d96268525cBC6FfEF',
+  '0x12D66f87A04A9E220743712cE6d9bB1B5616B8Fc',
+  '0x47CE0C6eD5B0Ce3d3A51fdb1C52DC66a7c3c2936',
+  '0x23773E65ed146A459791799d01336DB287f25334',
+  '0xD21be7248e0197Ee08E0c20D4a96DEBdaC3D20Af',
+  '0x610B717796ad172B316836AC95a2ffad065CeaB4',
+  '0x178169B423a011fff22B9e3F3abeA13414dDD0F1',
+  '0xbB93e510BbCD0B7beb5A853875f9eC60275CF498',
+  '0x2717c5e28cf931547B621a5dddb772Ab6A35B701',
+  '0x03893a7c7463AE47D46bc7f091665f1893656003',
+  '0xCa0840578f57fE71599D29375e16783424023357',
 ]
 
 export const NetworkContextName = 'NETWORK'
@@ -1000,7 +1047,7 @@ export const TOBE_EXTENDED_FARMING_POOLS: { [key: string]: number } = {
 export const ELASTIC_BASE_FEE_UNIT = 100_000
 export const KYBERSWAP_SOURCE = '{"source":"kyberswap"}'
 
-const CAMPAIGN_BASE_URL = `${process.env.REACT_APP_CAMPAIGN_BASE_URL}/api/v1/campaigns`
+export const CAMPAIGN_BASE_URL = `${process.env.REACT_APP_CAMPAIGN_BASE_URL}/api/v1/campaigns`
 export const SWR_KEYS = {
   getListCampaign: CAMPAIGN_BASE_URL,
   getLeaderboard: (id: number) => CAMPAIGN_BASE_URL + '/' + id + '/leaderboard',
@@ -1017,6 +1064,7 @@ export const MAX_SLIPPAGE_IN_BIPS = 2000
 
 export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
   [ChainId.MAINNET]: USDT[ChainId.MAINNET],
+  [ChainId.ETHW]: USDT[ChainId.ETHW],
   [ChainId.MATIC]: USDT[ChainId.MATIC],
   [ChainId.BSCMAINNET]: new Token(ChainId.BSCMAINNET, '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', 18, 'BUSD', 'BUSD'),
   [ChainId.AVAXMAINNET]: USDC[ChainId.AVAXMAINNET], // USDC.e

@@ -20,7 +20,7 @@ const kovanInfo: NetworkInfo = {
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/edwardevans094/ropsten-blocks'), //todo: not exits yet
   etherscanUrl: 'https://kovan.etherscan.io',
   etherscanName: 'Kovan Explorer',
-  tokenListUrl: `${process.env.REACT_APP_TOKEN_LIST_API}?chainId=${ChainId.ROPSTEN}`,
+  tokenListUrl: `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?chainId=${ChainId.ROPSTEN}`,
   bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'ETH',
@@ -39,8 +39,6 @@ const kovanInfo: NetworkInfo = {
     },
     oldStatic: NOT_SUPPORT,
     dynamic: NOT_SUPPORT,
-    routerV2: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
-    aggregationExecutor: '0x41684b361557E9282E0373CA51260D9331e518C9',
     claimReward: EMPTY,
     fairlaunch: EMPTY_ARRAY,
     fairlaunchV2: EMPTY_ARRAY,

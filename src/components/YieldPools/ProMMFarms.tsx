@@ -3,18 +3,21 @@ import { stringify } from 'querystring'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Search } from 'react-feather'
 import { useHistory, useLocation } from 'react-router-dom'
-import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
-import InfoHelper from 'components/InfoHelper'
+import FarmIssueAnnouncement from 'components/FarmIssueAnnouncement'
 import LocalLoader from 'components/LocalLoader'
+import ShareModal from 'components/ShareModal'
 import Toggle from 'components/Toggle'
+import { NETWORKS_INFO } from 'constants/networks'
 import { VERSION } from 'constants/v2'
+import { useActiveWeb3React } from 'hooks'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
-import { useBlockNumber } from 'state/application/hooks'
-import { useGetProMMFarms, useProMMFarms } from 'state/farms/promm/hooks'
+import { ApplicationModal } from 'state/application/actions'
+import { useBlockNumber, useModalOpen, useOpenModal } from 'state/application/hooks'
+import { useFailedNFTs, useGetProMMFarms, useProMMFarms } from 'state/farms/promm/hooks'
 import { ProMMFarm } from 'state/farms/promm/types'
 import { StyledInternalLink } from 'theme'
 
@@ -22,21 +25,24 @@ import ProMMFarmGroup from './ProMMFarmGroup'
 import { DepositModal, StakeUnstakeModal } from './ProMMFarmModals'
 import HarvestModal from './ProMMFarmModals/HarvestModal'
 import WithdrawModal from './ProMMFarmModals/WithdrawModal'
+import { SharePoolContext } from './SharePoolContext'
 import {
-  ClickableText,
   HeadingContainer,
   HeadingRight,
-  ProMMFarmTableHeader,
   SearchContainer,
   SearchInput,
   StakedOnlyToggleText,
   StakedOnlyToggleWrapper,
 } from './styleds'
 
-type ModalType = 'deposit' | 'withdraw' | 'stake' | 'unstake' | 'harvest'
+type ModalType = 'deposit' | 'withdraw' | 'stake' | 'unstake' | 'harvest' | 'forcedWithdraw'
+
+// this address exists on both Polygon and Avalanche
+const affectedFairlaunchAddress = '0x5C503D4b7DE0633f031229bbAA6A5e4A31cc35d8'
 
 function ProMMFarms({ active }: { active: boolean }) {
   const theme = useTheme()
+  const { chainId } = useActiveWeb3React()
   const [stakedOnly, setStakedOnly] = useState({
     active: false,
     ended: false,
@@ -45,6 +51,7 @@ function ProMMFarms({ active }: { active: boolean }) {
   const { data: farms, loading } = useProMMFarms()
   const getProMMFarms = useGetProMMFarms()
 
+  const failedNFTs = useFailedNFTs()
   const blockNumber = useBlockNumber()
 
   useEffect(() => {
@@ -59,8 +66,6 @@ function ProMMFarms({ active }: { active: boolean }) {
   const history = useHistory()
   const location = useLocation()
 
-  const above1000 = useMedia('(min-width: 1000px)')
-
   const handleSearch = useCallback(
     (search: string) => {
       const target = {
@@ -74,10 +79,10 @@ function ProMMFarms({ active }: { active: boolean }) {
   )
 
   const filteredFarms = useMemo(() => {
-    const now = +new Date() / 1000
+    const now = Date.now() / 1000
     return Object.keys(farms).reduce((acc: { [key: string]: ProMMFarm[] }, address) => {
       const currentFarms = farms[address].filter(farm => {
-        const filterAcive = active ? farm.endTime >= now : farm.endTime < now
+        const filterActive = active ? farm.endTime >= now : farm.endTime < now
         const filterSearchText = search
           ? farm.token0.toLowerCase().includes(search) ||
             farm.token1.toLowerCase().includes(search) ||
@@ -93,13 +98,13 @@ function ProMMFarms({ active }: { active: boolean }) {
           filterStaked = farm.userDepositedNFTs.length > 0
         }
 
-        return filterAcive && filterSearchText && filterStaked
+        return filterActive && filterSearchText && filterStaked
       })
 
       if (currentFarms.length) acc[address] = currentFarms
       return acc
     }, {})
-  }, [farms, active, activeTab, search, stakedOnly])
+  }, [farms, active, search, stakedOnly, activeTab])
 
   const noFarms = !Object.keys(filteredFarms).length
 
@@ -107,14 +112,62 @@ function ProMMFarms({ active }: { active: boolean }) {
   const [selectedModal, setSeletedModal] = useState<ModalType | null>(null)
   const [selectedPoolId, setSeletedPoolId] = useState<number | null>(null)
 
+  const openShareModal = useOpenModal(ApplicationModal.SHARE)
+  const isShareModalOpen = useModalOpen(ApplicationModal.SHARE)
+  const [sharePoolAddress, setSharePoolAddress] = useState('')
+  const networkRoute = chainId ? NETWORKS_INFO[chainId].route : undefined
+  const shareUrl = sharePoolAddress
+    ? `${window.location.origin}/farms?search=${sharePoolAddress}&tab=elastic&type=${activeTab}&networkId=${networkRoute}`
+    : undefined
+
   const onDismiss = () => {
     setSeletedFarm(null)
     setSeletedModal(null)
     setSeletedPoolId(null)
   }
 
+  const renderAnnouncement = () => {
+    // show announcement only when user was affected in one of the visible farms on the UI
+    const now = Date.now() / 1000
+    if (activeTab === 'active') {
+      const shouldShow = farms?.[affectedFairlaunchAddress]
+        ?.filter(farm => now <= farm.endTime) // active
+        .flatMap(farm => farm.userDepositedNFTs.map(item => item.tokenId.toString()))
+        .some(nft => failedNFTs.includes(nft))
+
+      return shouldShow ? <FarmIssueAnnouncement isEnded={false} /> : null
+    }
+
+    if (activeTab === 'ended') {
+      const shouldShow = farms?.[affectedFairlaunchAddress]
+        ?.filter(farm => now > farm.endTime) // active
+        .flatMap(farm => farm.userDepositedNFTs.map(item => item.tokenId.toString()))
+        .some(nft => failedNFTs.includes(nft))
+
+      return shouldShow ? <FarmIssueAnnouncement isEnded /> : null
+    }
+
+    return null
+  }
+
+  useEffect(() => {
+    if (sharePoolAddress) {
+      openShareModal()
+    }
+  }, [openShareModal, sharePoolAddress])
+
+  useEffect(() => {
+    setSharePoolAddress(addr => {
+      if (!isShareModalOpen) {
+        return ''
+      }
+
+      return addr
+    })
+  }, [isShareModalOpen, setSharePoolAddress])
+
   return (
-    <>
+    <SharePoolContext.Provider value={setSharePoolAddress}>
       {selectedFarm && selectedModal === 'deposit' && (
         <DepositModal selectedFarmAddress={selectedFarm} onDismiss={onDismiss} />
       )}
@@ -132,9 +185,15 @@ function ProMMFarms({ active }: { active: boolean }) {
         <WithdrawModal selectedFarmAddress={selectedFarm} onDismiss={onDismiss} />
       )}
 
+      {selectedFarm && selectedModal === 'forcedWithdraw' && (
+        <WithdrawModal selectedFarmAddress={selectedFarm} onDismiss={onDismiss} forced />
+      )}
+
       {selectedFarm && selectedModal === 'harvest' && (
         <HarvestModal farmsAddress={selectedFarm} poolId={selectedPoolId} onDismiss={onDismiss} />
       )}
+
+      {renderAnnouncement()}
 
       <HeadingContainer>
         <StakedOnlyToggleWrapper>
@@ -183,92 +242,13 @@ function ProMMFarms({ active }: { active: boolean }) {
         </>
       )}
 
-      {above1000 && (
-        <ProMMFarmTableHeader>
-          <Flex grid-area="token_pairs" alignItems="center" justifyContent="flex-start">
-            <ClickableText>
-              <Trans>Pool</Trans>
-            </ClickableText>
-          </Flex>
-
-          {/*   <Flex grid-area="pool_fee" alignItems="center" justifyContent="flex-start">
-            <HoverDropdown
-              hideIcon
-              padding="8px 0"
-              content={
-                <ClickableText sx={{ gap: '4px' }}>
-                  <Trans>Target volume</Trans>
-                  <Info size={12} />
-                </ClickableText>
-              }
-              dropdownContent={
-                <Text color={theme.subText} fontSize="12px" maxWidth="400px" lineHeight={1.5}>
-                  <Trans>
-                    Some farms have a target trading volume (represented by the progress bar) to determine the amount of
-                    reward you will earn. The more trading volume your liquidity positions support, the more rewards per
-                    second you will make.
-                    <br />
-                    <br />
-                    Once you have fully unlocked the target volume, you will start earning the maximum rewards per
-                    second. Adjusting the staked amount will recalculate the target volume.
-                    <br />
-                    Learn more{' '}
-                    <ExternalLink href="https://docs.kyberswap.com/guides/farming-mechanisms">here.</ExternalLink>
-                  </Trans>
-                </Text>
-              }
-            />
-          </Flex>
-          */}
-
-          <Flex grid-area="liq" alignItems="center" justifyContent="flex-end">
-            <ClickableText>
-              <Trans>Staked TVL</Trans>
-            </ClickableText>
-          </Flex>
-
-          <Flex grid-area="apy" alignItems="center" justifyContent="flex-end">
-            <ClickableText>
-              <Trans>AVG APR</Trans>
-            </ClickableText>
-            <InfoHelper
-              text={
-                active
-                  ? t`Average estimated return based on yearly fees of the pool and bonus rewards of the pool`
-                  : t`Average estimated return based on yearly fees of the pool`
-              }
-            />
-          </Flex>
-
-          <Flex grid-area="end" alignItems="center" justifyContent="flex-end">
-            <ClickableText>
-              <Trans>Ending In</Trans>
-            </ClickableText>
-            <InfoHelper text={t`Once a farm has ended, you will continue to receive returns through LP Fees`} />
-          </Flex>
-
-          <Flex grid-area="staked_balance" alignItems="center" justifyContent="flex-end">
-            <ClickableText>
-              <Trans>My Deposit</Trans>
-            </ClickableText>
-          </Flex>
-
-          <Flex grid-area="reward" alignItems="center" justifyContent="flex-end">
-            <ClickableText>
-              <Trans>My Rewards</Trans>
-            </ClickableText>
-          </Flex>
-
-          <Flex grid-area="action" alignItems="center" justifyContent="flex-end">
-            <ClickableText>
-              <Trans>Actions</Trans>
-            </ClickableText>
-          </Flex>
-        </ProMMFarmTableHeader>
-      )}
-
       {loading && noFarms ? (
-        <Flex backgroundColor={theme.background}>
+        <Flex
+          sx={{
+            borderRadius: '16px',
+          }}
+          backgroundColor={theme.background}
+        >
           <LocalLoader />
         </Flex>
       ) : noFarms ? (
@@ -287,22 +267,30 @@ function ProMMFarms({ active }: { active: boolean }) {
           </Text>
         </Flex>
       ) : (
-        Object.keys(filteredFarms).map(fairLaunchAddress => {
-          return (
-            <ProMMFarmGroup
-              key={fairLaunchAddress}
-              address={fairLaunchAddress}
-              onOpenModal={(modalType: ModalType, pid?: number) => {
-                setSeletedModal(modalType)
-                setSeletedFarm(fairLaunchAddress)
-                setSeletedPoolId(pid ?? null)
-              }}
-              farms={filteredFarms[fairLaunchAddress]}
-            />
-          )
-        })
+        <Flex
+          sx={{
+            flexDirection: 'column',
+            rowGap: '48px',
+          }}
+        >
+          {Object.keys(filteredFarms).map(fairLaunchAddress => {
+            return (
+              <ProMMFarmGroup
+                key={fairLaunchAddress}
+                address={fairLaunchAddress}
+                onOpenModal={(modalType: ModalType, pid?: number, forced?: boolean) => {
+                  setSeletedModal(modalType)
+                  setSeletedFarm(fairLaunchAddress)
+                  setSeletedPoolId(pid ?? null)
+                }}
+                farms={filteredFarms[fairLaunchAddress]}
+              />
+            )
+          })}
+        </Flex>
       )}
-    </>
+      <ShareModal title={t`Share this farm with your friends!`} url={shareUrl} />
+    </SharePoolContext.Provider>
   )
 }
 

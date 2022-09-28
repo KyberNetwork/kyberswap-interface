@@ -106,6 +106,14 @@ export function useSelectCampaignModalToggle(): () => void {
   return useToggleModal(ApplicationModal.SELECT_CAMPAIGN)
 }
 
+export function useRegisterCampaignCaptchaModalToggle(): () => void {
+  return useToggleModal(ApplicationModal.REGISTER_CAMPAIGN_CAPTCHA)
+}
+
+export function useRegisterCampaignSuccessModalToggle(): () => void {
+  return useToggleModal(ApplicationModal.REGISTER_CAMPAIGN_SUCCESS)
+}
+
 export function useTrueSightNetworkModalToggle(): () => void {
   return useToggleModal(ApplicationModal.TRUESIGHT_NETWORK)
 }
@@ -116,6 +124,10 @@ export function useTrendingSoonTokenDetailModalToggle(): () => void {
 
 export function useTrueSightUnsubscribeModalToggle(): () => void {
   return useToggleModal(ApplicationModal.UNSUBSCRIBE_TRUESIGHT)
+}
+
+export function useToggleEthPowAckModal(): () => void {
+  return useToggleModal(ApplicationModal.ETH_POW_ACK)
 }
 
 // returns a function that allows adding a popup

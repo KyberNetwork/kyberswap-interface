@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { darken } from 'polished'
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Repeat } from 'react-feather'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { Flex } from 'rebass'
@@ -249,13 +249,6 @@ const StyledNavExternalLink = styled(ExternalLink).attrs({
   `}
 `
 
-const YieldMenuWrapper = styled.div`
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-      display: none;
-  `}
-  position: relative;
-`
-
 const shine = keyframes`
   0% {
     background-position: 0;
@@ -392,7 +385,9 @@ export default function Header() {
           </HoverDropdown>
 
           <Flex id={TutorialIds.EARNING_LINKS} alignItems="center">
-            <HoverDropdown active={pathname.toLowerCase().includes('pools')}>
+            <HoverDropdown
+              active={pathname.toLowerCase().includes('pools') || pathname.toLowerCase().startsWith('/farms')}
+            >
               <Flex alignItems="center">
                 <Trans>Earn</Trans>
                 <DropdownIcon />
@@ -420,14 +415,22 @@ export default function Header() {
                 >
                   <Trans>My Pools</Trans>
                 </StyledNavLink>
+
+                <StyledNavLink
+                  onClick={() => {
+                    mixpanelHandler(MIXPANEL_TYPE.FARM_UNDER_EARN_TAB_CLICK)
+                  }}
+                  id="farms-nav-link"
+                  to="/farms"
+                  isActive={match => Boolean(match)}
+                >
+                  <Trans>Farms</Trans>
+                  <NewLabel>
+                    <Trans>New</Trans>
+                  </NewLabel>
+                </StyledNavLink>
               </Dropdown>
             </HoverDropdown>
-
-            <YieldMenuWrapper>
-              <StyledNavLink id={`farms-nav-link`} to={'/farms'} isActive={match => Boolean(match)}>
-                <Trans>Farm</Trans>
-              </StyledNavLink>
-            </YieldMenuWrapper>
           </Flex>
 
           {!under369 && (
@@ -461,7 +464,12 @@ export default function Header() {
           </DiscoverWrapper>
 
           <AnalyticsWrapper>
-            <StyledNavExternalLink href={PROMM_ANALYTICS_URL[chainId as ChainId] + '/home'}>
+            <StyledNavExternalLink
+              onClick={() => {
+                mixpanelHandler(MIXPANEL_TYPE.ANALYTICS_MENU_CLICKED)
+              }}
+              href={PROMM_ANALYTICS_URL[chainId as ChainId] + '/home'}
+            >
               <Trans>Analytics</Trans>
             </StyledNavExternalLink>
           </AnalyticsWrapper>

@@ -1,11 +1,11 @@
 import { Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
 import { BigNumber } from 'ethers'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Info, X } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 import RangeBadge from 'components/Badge/RangeBadge'
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
@@ -27,12 +27,51 @@ import { unwrappedToken } from 'utils/wrappedCurrency'
 
 import { Checkbox, ModalContentWrapper, TableHeader, TableRow, Title } from './styled'
 
+const generateCommonCSS = (isUnstake: boolean) => {
+  return css`
+    ${isUnstake
+      ? 'grid-template-columns: 18px 120px repeat(2, 1fr);'
+      : 'grid-template-columns: 18px 120px repeat(3, 1fr);'}
+    ${({ theme }) => theme.mediaWidth.upToSmall`
+        grid-template-columns: 18px 120px 1fr;
+      `}
+  `
+}
+
+const ScrollContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+  overflow-y: scroll;
+  overflow-x: hidden;
+
+  /* width */
+  ::-webkit-scrollbar {
+    display: unset;
+    width: 8px;
+    border-radius: 999px;
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 999px;
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: ${({ theme }) => theme.disableText};
+    border-radius: 999px;
+  }
+`
+
 const StakeTableHeader = styled(TableHeader)<{ isUnstake: boolean }>`
-  grid-template-columns: 18px 90px repeat(${({ isUnstake }) => (isUnstake ? 2 : 3)}, 1fr);
+  ${({ isUnstake }) => generateCommonCSS(isUnstake)}
 `
 
 const StakeTableRow = styled(TableRow)<{ isUnstake: boolean }>`
-  grid-template-columns: 18px 90px repeat(${({ isUnstake }) => (isUnstake ? 2 : 3)}, 1fr);
+  ${({ isUnstake }) => generateCommonCSS(isUnstake)}
 `
 
 const PositionRow = ({
@@ -105,7 +144,6 @@ const PositionRow = ({
       />
       {above768 ? (
         <Flex alignItems="center">
-          {/* <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={16} /> */}
           <Text>{position.tokenId.toString()}</Text>
         </Flex>
       ) : (
@@ -258,7 +296,7 @@ function StakeModal({
         <Flex alignItems="center" justifyContent="space-between">
           <Title display="flex">
             <DoubleCurrencyLogo size={24} currency0={token0} currency1={token1} />
-            {type === 'stake' ? <Trans>Stake your liquidity</Trans> : <Trans>Unstaked your liquidity</Trans>}
+            {type === 'stake' ? <Trans>Stake your liquidity</Trans> : <Trans>Unstake your liquidity</Trans>}
           </Title>
 
           <Flex sx={{ gap: '12px' }}>
@@ -341,20 +379,23 @@ function StakeModal({
               )}
             </StakeTableHeader>
 
-            {eligibleNfts.map((pos: any) => (
-              <PositionRow
-                type={type}
-                selected={selectedNFTs.map(item => item.tokenId.toString()).includes(pos.tokenId.toString())}
-                key={pos.tokenId.toString()}
-                position={pos}
-                onChange={(selected: boolean) => {
-                  if (selected) setSeletedNFTs(prev => [...prev, pos])
-                  else {
-                    setSeletedNFTs(prev => prev.filter(item => item.tokenId.toString() !== pos.tokenId.toString()))
-                  }
-                }}
-              />
-            ))}
+            <ScrollContainer>
+              {eligibleNfts.map((pos: any) => (
+                <PositionRow
+                  type={type}
+                  selected={selectedNFTs.map(item => item.tokenId.toString()).includes(pos.tokenId.toString())}
+                  key={pos.tokenId.toString()}
+                  position={pos}
+                  onChange={(selected: boolean) => {
+                    if (selected) setSeletedNFTs(prev => [...prev, pos])
+                    else {
+                      setSeletedNFTs(prev => prev.filter(item => item.tokenId.toString() !== pos.tokenId.toString()))
+                    }
+                  }}
+                />
+              ))}
+            </ScrollContainer>
+
             <Flex justifyContent="space-between" marginTop="24px">
               <div></div>
               <ButtonPrimary

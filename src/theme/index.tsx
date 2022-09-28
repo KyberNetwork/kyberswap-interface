@@ -408,4 +408,8 @@ export const ThemedGlobalStyle = createGlobalStyle`
   .tf-v1-sidetab-button-text {
     font-family: 'Work Sans', 'Inter', sans-serif !important;
   }
+
+  .grecaptcha-badge {
+    visibility: hidden;
+  }
 `

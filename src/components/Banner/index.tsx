@@ -4,14 +4,21 @@ import { useLocalStorage } from 'react-use'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 import { Autoplay, Navigation, Pagination } from 'swiper'
-import { Swiper, SwiperSlide } from 'swiper/react'
+import { Swiper, SwiperSlide } from 'swiper/react/swiper-react'
 
-import KyberSwapTradingCampaignDesktop from 'assets/banners/kyberswap-trading-campaign-polygon-desktop.png'
-import KyberSwapTradingCampaignMobile from 'assets/banners/kyberswap-trading-campaign-polygon-mobile.png'
-import KyberSwapTradingCampaignTablet from 'assets/banners/kyberswap-trading-campaign-polygon-tablet.png'
-import PolygonDesktop from 'assets/banners/polygon-desktop.png'
-import PolygonMobile from 'assets/banners/polygon-mobile.png'
-import PolygonTablet from 'assets/banners/polygon-tablet.png'
+import TradingCampaignBnbDesktop from 'assets/banners/Trading-campaign-Bnb-desktop.png'
+import TradingCampaignBnbMobile from 'assets/banners/Trading-campaign-Bnb-mobile.png'
+import TradingCampaignBnbTablet from 'assets/banners/Trading-campaign-Bnb-tablet.png'
+import TradingCampaignLidoDesktop from 'assets/banners/Trading-campaign-Lido-desktop.png'
+import TradingCampaignLidoMobile from 'assets/banners/Trading-campaign-Lido-mobile.png'
+import TradingCampaignLidoTablet from 'assets/banners/Trading-campaign-Lido-tablet.png'
+import KyberSwapArbitrumLidoFarmDesktop from 'assets/banners/[Arbitrum]LidoFarm_on_site_desktop.png'
+import KyberSwapArbitrumLidoFarmMobile from 'assets/banners/[Arbitrum]LidoFarm_on_site_mobile.png'
+import KyberSwapArbitrumLidoFarmTablet from 'assets/banners/[Arbitrum]LidoFarm_on_site_tablet.png'
+import KyberSwapOptimismLidoFarmDesktop from 'assets/banners/[Optimism]LidoFarm_on_site_desktop.png'
+import KyberSwapOptimismLidoFarmMobile from 'assets/banners/[Optimism]LidoFarm_on_site_mobile.png'
+import KyberSwapOptimismLidoFarmTablet from 'assets/banners/[Optimism]LidoFarm_on_site_tablet.png'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { useWindowSize } from 'hooks/useWindowSize'
 import { ExternalLink } from 'theme'
@@ -100,45 +107,91 @@ function Banner({
   const size = useWindowSize()
   const w = size?.width || 0
   const theme = useTheme()
+  const { mixpanelHandler } = useMixpanel()
 
-  const ALL_BANNERS = [
-    {
-      // Polygon LM
-      id: 'polygon-lm',
-      start: new Date('2022-08-17T00:00:00.000Z'),
-      end: new Date('2022-09-17T00:00:00.000Z'),
-      img: isInModal ? PolygonMobile : w > 768 ? PolygonDesktop : w > 500 ? PolygonTablet : PolygonMobile,
-      link: 'https://kyberswap.com/farms?tab=elastic&networkId=137',
-    },
-    {
-      // KyberSwap Trading Campaign ATH
-      id: 'kyberSwap-trading-campaign-polygon',
-      start: new Date('2022-08-15T11:00:00.000Z'),
-      end: new Date('2022-08-30T23:59:59.000Z'),
-      img: isInModal
-        ? KyberSwapTradingCampaignMobile
-        : w > 768
-        ? KyberSwapTradingCampaignDesktop
-        : w > 500
-        ? KyberSwapTradingCampaignTablet
-        : KyberSwapTradingCampaignMobile,
-      link: 'https://kyberswap.com/campaigns/kyberswap-trading-campaigns-with-polygon-chain-5?networkId=137&utm_source=partner&utm_medium=banner&utm_campaign=polygontradingcontest&utm_content=onsite',
-    },
-  ]
+  const ALL_BANNERS = useMemo(
+    () => [
+      {
+        // KyberSwap Trading Campaign Lido
+        id: 'kyberSwap-trading-campaign-Lido',
+        name: 'KyberSwap Trading Campaign Lido',
+        start: new Date('2022-09-15T00:00:00.000Z'),
+        end: new Date('2022-10-09T03:00:00.000Z'),
+        img: isInModal
+          ? TradingCampaignLidoMobile
+          : w > 768
+          ? TradingCampaignLidoDesktop
+          : w > 500
+          ? TradingCampaignLidoTablet
+          : TradingCampaignLidoMobile,
+        link: 'https://kyberswap.com/campaigns/kyberswap-trading-campaigns-with-lido-finance-8?networkId=137&utm_source=kyberswap&utm_medium=banner&utm_campaign=lidotradingcontest&utm_content=lidotrading_onsite',
+      },
+      {
+        // KyberSwap Trading Campaign BNB
+        id: 'kyberSwap-trading-campaign-BNB',
+        name: 'KyberSwap Trading Campaign BNB',
+        start: new Date('2022-09-22T00:00:00.000Z'),
+        end: new Date('2022-10-12T03:00:00.000Z'),
+        img: isInModal
+          ? TradingCampaignBnbMobile
+          : w > 768
+          ? TradingCampaignBnbDesktop
+          : w > 500
+          ? TradingCampaignBnbTablet
+          : TradingCampaignBnbMobile,
+        link: 'https://kyberswap.com/campaigns/kyberswap-trading-campaigns-with-bnb-chain-9?networkId=56&utm_source=kyberswap&utm_medium=banner&utm_campaign=bnbtradingcontest&utm_content=on-site',
+      },
+      {
+        // KyberSwap Arbitrum Lido Farm
+        id: 'KyberSwap-Arbitrum-Lido-Farm',
+        name: 'KyberSwap Arbitrum Lido Farm',
+        start: new Date('2022-09-19T00:00:00.000Z'),
+        end: new Date('2022-09-19T23:59:59.000Z'),
+        img: isInModal
+          ? KyberSwapArbitrumLidoFarmMobile
+          : w > 768
+          ? KyberSwapArbitrumLidoFarmDesktop
+          : w > 500
+          ? KyberSwapArbitrumLidoFarmTablet
+          : KyberSwapArbitrumLidoFarmMobile,
+        link: 'https://kyberswap.com/farms?tab=elastic&networkId=42161&utm_source=kyberswap&utm_medium=banner&utm_campaign=lidofinancelm&utm_content=lidofarm_onsite',
+      },
+      {
+        // KyberSwap Optimism Lido Farm
+        id: 'KyberSwap-Optimism-Lido-Farm',
+        name: 'KyberSwap Optimism Lido Farm',
+        start: new Date('2022-09-19T00:00:00.000Z'),
+        end: new Date('2022-09-19T23:59:59.000Z'),
+        img: isInModal
+          ? KyberSwapOptimismLidoFarmMobile
+          : w > 768
+          ? KyberSwapOptimismLidoFarmDesktop
+          : w > 500
+          ? KyberSwapOptimismLidoFarmTablet
+          : KyberSwapOptimismLidoFarmMobile,
+        link: 'https://kyberswap.com/farms?tab=elastic&networkId=10&utm_source=kyberswap&utm_medium=banner&utm_campaign=lidofinancelm&utm_content=lidofarm_onsite',
+      },
+    ],
+    [isInModal, w],
+  )
 
   const [_showBanner, setShowBanner] = useLocalStorage('show-banner-' + ALL_BANNERS[0].id, true)
-  const banners = ALL_BANNERS.filter(b => {
-    const date = new Date()
-    return date >= b.start && date <= b.end
-  })
-  const showBanner = useMemo(() => _showBanner && banners.length, [_showBanner, banners.length])
+  const banners = useMemo(
+    () =>
+      ALL_BANNERS.filter(b => {
+        const date = new Date()
+        return date >= b.start && date <= b.end
+      }),
+    [ALL_BANNERS],
+  )
+  const showBanner = _showBanner && banners.length
 
   if (!showBanner) return null
 
   return (
     <BannerWrapper margin={margin || 'auto'} padding={padding} maxWidth={maxWidth || '1394px'} width="100%">
       <Swiper
-        autoplay={banners.length > 1 ? { delay: isInModal ? 2000 : 20000 } : false}
+        autoplay={banners.length > 1 ? { delay: 5000 } : false}
         slidesPerView={1}
         navigation={true}
         pagination={true}
@@ -148,10 +201,28 @@ function Banner({
         {banners.map((banner, index) => (
           <SwiperSlide key={index}>
             <Wrapper>
-              <ExternalLink href={banner.link}>
+              <ExternalLink
+                href={banner.link}
+                onClick={() => {
+                  mixpanelHandler(MIXPANEL_TYPE.BANNER_CLICK, {
+                    banner_name: banner.name,
+                    banner_url: banner.link,
+                  })
+                }}
+              >
                 <img src={banner.img} alt="banner" width="100%" />
               </ExternalLink>
-              <Close color={theme.white} role="button" onClick={() => setShowBanner(false)} />
+              <Close
+                color={theme.white}
+                role="button"
+                onClick={() => {
+                  mixpanelHandler(MIXPANEL_TYPE.CLOSE_BANNER_CLICK, {
+                    banner_name: banner.name,
+                    banner_url: banner.link,
+                  })
+                  setShowBanner(false)
+                }}
+              />
             </Wrapper>
           </SwiperSlide>
         ))}

@@ -18,7 +18,7 @@ const maticInfo: NetworkInfo = {
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-polygon'),
   etherscanUrl: 'https://polygonscan.com',
   etherscanName: 'Polygonscan',
-  tokenListUrl: `${process.env.REACT_APP_TOKEN_LIST_API}?chainId=${ChainId.MATIC}`,
+  tokenListUrl: `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?chainId=${ChainId.MATIC}`,
   bridgeURL: 'https://wallet.matic.network/bridge',
   nativeToken: {
     symbol: 'MATIC',
@@ -28,6 +28,8 @@ const maticInfo: NetworkInfo = {
     decimal: 18,
   },
   rpcUrl: 'https://polygon.kyberengineering.io',
+  // Sometime, our rpc is quite slow, keep this for testing purpose on local
+  // rpcUrl: 'https://polygon-rpc.com',
   routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/polygon/route/encode`,
   classic: {
     static: {
@@ -41,8 +43,6 @@ const maticInfo: NetworkInfo = {
       router: '0x546C79662E028B661dFB4767664d0273184E4dD1',
       factory: '0x5F1fe642060B5B9658C15721Ea22E982643c095c',
     },
-    routerV2: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
-    aggregationExecutor: '0x41684b361557E9282E0373CA51260D9331e518C9',
     claimReward: '0x89929Bc485cE72D2Af7b7283B40b921e9F4f80b3',
     fairlaunch: [
       '0xc39bD0fAE646Cb026C73943C5B50E703de2a6532',
