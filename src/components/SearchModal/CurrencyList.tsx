@@ -320,8 +320,8 @@ export default function CurrencyList({
       loader={<h4>Loading...</h4>}
       scrollableTarget="scrollableDiv"
     >
-      {inactiveTokens.map((item, index) => (
-        <Row key={item?.address} index={index} data={itemData} style={{ height: 56 }} />
+      {itemData.currencies.map((item, index) => (
+        <Row key={index} index={index} data={itemData} style={{ height: 56 }} />
       ))}
     </InfiniteScroll>
   )
