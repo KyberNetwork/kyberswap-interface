@@ -288,9 +288,12 @@ export default function CurrencyList({
       const handleSelect = () => currency && onCurrencySelect(currency)
 
       const token = currency?.wrapped as any
+      const extendCurrency = currency as any
       const tokenImports = useUserAddedTokens()
       const showImport =
-        token && !token.isWhitelisted && !tokenImports.find(importedToken => importedToken.address === token.address)
+        token &&
+        !extendCurrency?.isWhitelisted &&
+        !tokenImports.find(importedToken => importedToken.address === token.address)
 
       if (index === breakIndex || !data) {
         return (

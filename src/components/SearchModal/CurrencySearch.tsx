@@ -233,7 +233,14 @@ export function CurrencySearch({
 
   const fetchTokens = useCallback(
     async (search: string | undefined, page: number) => {
-      const url = `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?query=${search}&chainIds=${chainId}&page=${page}`
+      let pageSize = 10
+      let url = `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?query=${search}&chainIds=${chainId}&page=${page}&pageSize=${pageSize}`
+      if (search === '') {
+        pageSize = 100
+        url = `${
+          process.env.REACT_APP_KS_SETTING_API
+        }/v1/tokens?query=${search}&chainIds=${chainId}&page=${page}&pageSize=${pageSize}&isWhitelisted=${true}`
+      }
       const response = await axios.get(url)
       const { tokens, pagination } = response.data.data
       return { tokens, pagination }
@@ -245,9 +252,10 @@ export function CurrencySearch({
     const { tokens } = await fetchTokens(debouncedQuery, pageCount)
 
     setPageCount(pageCount => pageCount + 1)
-    const parsedTokens = tokens.map(
-      (token: any) => new Token(token.chainId, token.address, token.decimals, token.symbol, token.name),
-    )
+    const parsedTokens = tokens.map((token: any) => ({
+      ...new Token(token.chainId, token.address, token.decimals, token.symbol, token.name),
+      isWhitelisted: token.isWhitelisted,
+    }))
     setFetchedTokens(current => [...current, ...parsedTokens])
     return
   }
@@ -257,9 +265,10 @@ export function CurrencySearch({
   useEffect(() => {
     const fetchData = async () => {
       const { tokens, pagination } = await fetchTokens(debouncedQuery, 1)
-      const parsedTokens = tokens.map(
-        (token: any) => new Token(token.chainId, token.address, token.decimals, token.symbol, token.name),
-      )
+      const parsedTokens = tokens.map((token: any) => ({
+        ...new Token(token.chainId, token.address, token.decimals, token.symbol, token.name),
+        isWhitelisted: token.isWhitelisted,
+      }))
       setFetchedTokens(parsedTokens)
       setTotalItems(pagination.totalItems)
       setPageCount(2)
