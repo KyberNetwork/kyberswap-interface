@@ -1,5 +1,4 @@
 import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import React, { CSSProperties, MutableRefObject, useCallback, useMemo } from 'react'
 import { Star, Trash } from 'react-feather'
@@ -8,15 +7,10 @@ import { FixedSizeList } from 'react-window'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
-import TokenListLogo from 'assets/svg/tokenlist.svg'
-import { LightGreyCard } from 'components/Card'
-import QuestionHelper from 'components/QuestionHelper'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
-import { TYPE } from 'theme'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 
 import Column from '../Column'
@@ -25,10 +19,6 @@ import Loader from '../Loader'
 import { RowBetween, RowFixed } from '../Row'
 import { MouseoverTooltip } from '../Tooltip'
 import ImportRow from './ImportRow'
-
-function currencyKey(currency: Currency): string {
-  return currency?.isNative ? 'ETHER' : currency?.address || ''
-}
 
 const StyledBalanceText = styled(Text)`
   white-space: nowrap;
@@ -93,14 +83,6 @@ const Tag = styled.div`
   margin-right: 4px;
 `
 
-const FixedContentRow = styled.div`
-  padding: 4px 20px;
-  height: 56px;
-  display: grid;
-  grid-gap: 16px;
-  align-items: center;
-`
-
 function Balance({ balance }: { balance: CurrencyAmount<Currency> }) {
   return <StyledBalanceText title={balance.toExact()}>{balance.toSignificant(10)}</StyledBalanceText>
 }
@@ -108,10 +90,6 @@ function Balance({ balance }: { balance: CurrencyAmount<Currency> }) {
 const TagContainer = styled.div`
   display: flex;
   justify-content: flex-end;
-`
-
-const TokenListLogoWrapper = styled.img`
-  height: 20px;
 `
 
 const DescText = styled.div`
@@ -230,14 +208,12 @@ interface TokenRowProps {
 }
 
 export default function CurrencyList({
-  height,
   currencies,
   inactiveTokens,
   selectedCurrency,
   isImportedTab,
   onCurrencySelect,
   otherCurrency,
-  fixedListRef,
   showImportView,
   setImportToken,
   breakIndex,
@@ -276,9 +252,6 @@ export default function CurrencyList({
     [itemCurrencies, itemCurrencyBalances],
   )
 
-  const theme = useTheme()
-
-  // TODO(viet-nv): check typescript for this
   const Row: any = useCallback(
     function TokenRow({ data, index, style }: TokenRowProps) {
       const currency: Currency | undefined = data.currencies[index]
@@ -295,26 +268,6 @@ export default function CurrencyList({
         !extendCurrency?.isWhitelisted &&
         !tokenImports.find(importedToken => importedToken.address === token.address)
 
-      if (index === breakIndex || !data) {
-        return (
-          <FixedContentRow style={style}>
-            <LightGreyCard padding="8px 12px" borderRadius="8px">
-              <RowBetween>
-                <RowFixed>
-                  <TokenListLogoWrapper src={TokenListLogo} />
-                  <TYPE.main ml="6px" fontSize="12px" color={theme.text}>
-                    <Trans>Expanded results from inactive Token Lists</Trans>
-                  </TYPE.main>
-                </RowFixed>
-                <QuestionHelper
-                  text={t`Tokens from inactive lists. Import specific tokens below or click 'Manage' to activate more lists`}
-                />
-              </RowBetween>
-            </LightGreyCard>
-          </FixedContentRow>
-        )
-      }
-
       if (showImport && token) {
         return (
           <ImportRow
@@ -328,6 +281,7 @@ export default function CurrencyList({
       }
 
       if (currency) {
+        // whitelist
         return (
           <CurrencyRow
             isImportedTab={isImportedTab}
@@ -351,8 +305,6 @@ export default function CurrencyList({
       selectedCurrency,
       setImportToken,
       showImportView,
-      breakIndex,
-      theme.text,
       handleClickFavorite,
       isImportedTab,
       removeImportedToken,

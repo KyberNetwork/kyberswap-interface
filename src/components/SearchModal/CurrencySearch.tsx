@@ -192,9 +192,11 @@ export function CurrencySearch({
   )
 
   const handleClickFavorite = useCallback(
-    (e: React.MouseEvent, currency: Currency) => {
+    (e: React.MouseEvent, currency: any) => {
+      // todo any
       e.stopPropagation()
-      const address = currency?.wrapped.address
+
+      const address = currency.address || currency?.wrapped?.address
 
       const currentList = favoriteTokens?.addresses || []
       const isAddFavorite = currency.isNative
