@@ -13,7 +13,7 @@ import styled from 'styled-components'
 
 import InfoHelper from 'components/InfoHelper'
 import { nativeOnChain } from 'constants/tokens'
-import { useAllTokens, useIsTokenActive, useIsUserAddedToken, useToken } from 'hooks/Tokens'
+import { AllTokenType, useAllTokens, useIsTokenActive, useIsUserAddedToken, useToken } from 'hooks/Tokens'
 import useDebounce from 'hooks/useDebounce'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
@@ -86,7 +86,7 @@ interface CurrencySearchProps {
 
 export type TokenResponse = Token & { isWhitelisted: boolean }
 
-const cacheTokens: { [key: string]: Token } = {}
+const cacheTokens: AllTokenType = {}
 
 const fetchTokenByAddress = async (address: string, chainId: ChainId) => {
   const findToken = cacheTokens[address] || cacheTokens[address.toLowerCase()]
@@ -238,7 +238,8 @@ export function CurrencySearch({
         ? !favoriteTokens?.includeNativeToken
         : !currentList.find(el => el === address) // else remove favorite
       const curTotal =
-        currentList.filter(address => !!cacheTokens[address]).length + (favoriteTokens?.includeNativeToken ? 1 : 0)
+        currentList.filter(address => !!cacheTokens[address] || !!defaultTokens[address]).length +
+        (favoriteTokens?.includeNativeToken ? 1 : 0)
       if (!chainId || (isAddFavorite && curTotal === MAX_FAVORITE_PAIR)) return
 
       if (currency.isNative) {
@@ -256,7 +257,7 @@ export function CurrencySearch({
         })
       }
     },
-    [chainId, favoriteTokens, toggleFavoriteToken],
+    [chainId, favoriteTokens, toggleFavoriteToken, defaultTokens],
   )
 
   // menu ui

@@ -82,7 +82,7 @@ export default function CommonBases({
             <BaseWrapper
               onClick={() => !selected && onSelect(showWToken)}
               data-selected={selected}
-              key={token.address || token?.wrapped?.address}
+              key={(token.address || token?.wrapped?.address) + token.symbol}
             >
               <CurrencyLogo currency={showWToken} size={isHeightSmall ? '15px' : '20px'} />
               <TokenName>{showWToken.symbol}</TokenName>

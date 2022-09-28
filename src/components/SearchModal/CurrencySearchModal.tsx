@@ -1,5 +1,4 @@
 import { Currency, Token } from '@kyberswap/ks-sdk-core'
-import { TokenList } from '@uniswap/token-lists'
 import React, { useCallback, useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 
@@ -8,9 +7,7 @@ import usePrevious from 'hooks/usePrevious'
 
 import Modal from '../Modal'
 import { CurrencySearch } from './CurrencySearch'
-import { ImportList } from './ImportList'
 import { ImportToken } from './ImportToken'
-import Manage from './Manage'
 
 interface CurrencySearchModalProps {
   isOpen: boolean
@@ -59,10 +56,6 @@ export default function CurrencySearchModal({
   // used for import token flow
   const [importToken, setImportToken] = useState<Token | undefined>()
 
-  // used for import list
-  const [importList, setImportList] = useState<TokenList | undefined>()
-  const [listURL, setListUrl] = useState<string | undefined>()
-
   // change min height if not searching
   const minHeight = modalView === CurrencyModalView.importToken || modalView === CurrencyModalView.importList ? 40 : 80
 
@@ -99,19 +92,7 @@ export default function CurrencySearchModal({
           }
           handleCurrencySelect={handleCurrencySelect}
         />
-      ) : modalView === CurrencyModalView.importList && importList && listURL ? (
-        <ImportList list={importList} listURL={listURL} onDismiss={onDismiss} setModalView={setModalView} />
-      ) : modalView === CurrencyModalView.manage ? (
-        <Manage
-          onDismiss={onDismiss}
-          setModalView={setModalView}
-          setImportToken={setImportToken}
-          setImportList={setImportList}
-          setListUrl={setListUrl}
-        />
-      ) : (
-        ''
-      )}
+      ) : null}
     </Modal>
   )
 }
