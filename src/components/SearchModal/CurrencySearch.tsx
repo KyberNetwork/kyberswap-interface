@@ -139,6 +139,9 @@ export function CurrencySearch({
   const searchTokenIsAdded = useIsUserAddedToken(searchToken)
   const isSearchTokenActive = useIsTokenActive(searchToken?.wrapped)
 
+  const [commonTokens, setCommonTokens] = useState<(Token | Currency)[]>([])
+  const [loadingCommon, setLoadingCommon] = useState(true)
+
   const showETH: boolean = useMemo(() => {
     const nativeToken = chainId && nativeOnChain(chainId)
     const s = debouncedQuery.toLowerCase().trim()
@@ -153,6 +156,11 @@ export function CurrencySearch({
     if (isAddressSearch) return searchToken ? [searchToken.wrapped] : []
     return filterTokens(fetchedTokens, debouncedQuery)
   }, [isAddressSearch, searchToken, fetchedTokens, debouncedQuery])
+
+  const filteredCommonTokens: Token[] = useMemo(() => {
+    if (isAddressSearch) return searchToken ? [searchToken.wrapped] : []
+    return filterTokens(commonTokens as Token[], debouncedQuery)
+  }, [isAddressSearch, searchToken, commonTokens, debouncedQuery])
 
   const filteredSortedTokens: Token[] = useMemo(() => {
     if (searchToken) return [searchToken.wrapped]
@@ -323,7 +331,6 @@ export function CurrencySearch({
     setPageCount(pageCount => pageCount + 1)
     const parsedTokenList = tokens.map(token => formatAndCacheToken(token))
     setFetchedTokens(current => [...current, ...parsedTokenList])
-    return
   }
 
   useEffect(() => {
@@ -348,9 +355,6 @@ export function CurrencySearch({
     if (showETH && chainId) currencies.unshift(nativeOnChain(chainId))
     return currencies
   }, [showETH, chainId, filteredSortedTokens])
-
-  const [commonTokens, setCommonTokens] = useState<(Token | Currency)[]>([])
-  const [loadingCommon, setLoadingCommon] = useState(true)
 
   const visibleCurrencies: Currency[] = useMemo(() => {
     return activeTab === Tab.Imported ? tokenImportsFiltered : combinedTokens
@@ -422,7 +426,7 @@ export function CurrencySearch({
         {showCommonBases && (
           <CommonBases
             chainId={chainId}
-            tokens={commonTokens}
+            tokens={filteredCommonTokens}
             handleClickFavorite={handleClickFavorite}
             onSelect={handleCurrencySelect}
             selectedCurrency={selectedCurrency}
