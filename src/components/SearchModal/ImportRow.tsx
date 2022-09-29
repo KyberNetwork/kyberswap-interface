@@ -49,7 +49,7 @@ export default function ImportRow({
         <AutoRow>
           <TYPE.body fontWeight={500}>{token.symbol}</TYPE.body>
           <TYPE.darkGray ml="8px" fontWeight={300}>
-            <NameOverflow title={token.name}>{token.name} </NameOverflow>
+            <NameOverflow title={token.name}>{token.name}</NameOverflow>
           </TYPE.darkGray>
         </AutoRow>
       </AutoColumn>

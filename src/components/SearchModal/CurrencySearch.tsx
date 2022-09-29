@@ -330,6 +330,7 @@ export function CurrencySearch({
 
   useEffect(() => {
     const fetchData = async () => {
+      if (isAddressSearch) return
       const { tokens, pagination } = await fetchTokens(debouncedQuery, 1)
       const parsedTokenList = tokens.map(token => formatAndCacheToken(token))
       setFetchedTokens(parsedTokenList)
@@ -337,7 +338,7 @@ export function CurrencySearch({
       setPageCount(2)
     }
     fetchData()
-  }, [debouncedQuery, fetchTokens])
+  }, [debouncedQuery, isAddressSearch, fetchTokens])
 
   useEffect(() => {
     if (Object.keys(defaultTokens).length) fetchFavoriteTokenFromAddress()
