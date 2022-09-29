@@ -12,12 +12,10 @@ import Checkbox from 'components/CheckBox'
 import { AutoColumn } from 'components/Column'
 import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
-import ListLogo from 'components/ListLogo'
 import { RowBetween, RowFixed } from 'components/Row'
 import { SectionBreak } from 'components/swap/styleds'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { LiteTokenList } from 'state/lists/wrappedTokenInfo'
 import { useAddUserToken } from 'state/user/hooks'
 import { CloseIcon, TYPE } from 'theme'
 import { getEtherscanLink, shortenAddress } from 'utils'
@@ -52,19 +50,11 @@ interface ImportProps {
   enterToImport?: boolean
   tokens: Token[]
   onBack?: () => void
-  list?: LiteTokenList
   onDismiss?: () => void
   handleCurrencySelect?: (currency: Currency) => void
 }
 
-export function ImportToken({
-  enterToImport = false,
-  tokens,
-  onBack,
-  onDismiss,
-  handleCurrencySelect,
-  list,
-}: ImportProps) {
+export function ImportToken({ enterToImport = false, tokens, onBack, onDismiss, handleCurrencySelect }: ImportProps) {
   const theme = useTheme()
 
   const { chainId } = useActiveWeb3React()
@@ -123,14 +113,6 @@ export function ImportToken({
                         href={getEtherscanLink(chainId, token.address, 'address')}
                       />
                     </Flex>
-                  )}
-                  {!!list && (
-                    <RowFixed>
-                      {list.logoURI && <ListLogo logoURI={list.logoURI} size="16px" />}
-                      <TYPE.small ml="6px" fontSize={14} color={theme.subText}>
-                        <Trans>via {list.name} token list</Trans>
-                      </TYPE.small>
-                    </RowFixed>
                   )}
                 </AutoColumn>
               </Flex>
