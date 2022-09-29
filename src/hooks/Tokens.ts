@@ -1,10 +1,9 @@
-import { Interface } from '@ethersproject/abi'
 import { parseBytes32String } from '@ethersproject/strings'
 import { ChainId, Currency, NativeCurrency, Token } from '@namgold/ks-sdk-core'
 import { arrayify } from 'ethers/lib/utils'
 import { useMemo } from 'react'
 
-import { ERC20_ABI, ERC20_BYTES32_ABI } from 'constants/abis/erc20'
+import ERC20_INTERFACE, { ERC20_BYTES32_INTERFACE } from 'constants/abis/erc20'
 import { ZERO_ADDRESS } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks/index'
@@ -113,41 +112,61 @@ export const useTokens = (addresses: string[]): { [address: string]: Token } => 
     [JSON.stringify(addresses), tokens],
   )
 
-  const erc20Abi = useMemo(() => new Interface(ERC20_ABI), [])
-  const erc20Byte32Abi = useMemo(() => new Interface(ERC20_BYTES32_ABI), [])
-  const nameResult = useMultipleContractSingleData(unKnowAddresses, erc20Abi, 'name', undefined, NEVER_RELOAD)
+  const nameResult = useMultipleContractSingleData(unKnowAddresses, ERC20_INTERFACE, 'name', undefined, NEVER_RELOAD)
 
-  const name32Result = useMultipleContractSingleData(unKnowAddresses, erc20Byte32Abi, 'name', undefined, NEVER_RELOAD)
-
-  const symbolResult = useMultipleContractSingleData(unKnowAddresses, erc20Abi, 'symbol', undefined, NEVER_RELOAD)
-
-  const symbol32Result = useMultipleContractSingleData(
+  const name32Result = useMultipleContractSingleData(
     unKnowAddresses,
-    erc20Byte32Abi,
+    ERC20_BYTES32_INTERFACE,
+    'name',
+    undefined,
+    NEVER_RELOAD,
+  )
+
+  const symbolResult = useMultipleContractSingleData(
+    unKnowAddresses,
+    ERC20_INTERFACE,
     'symbol',
     undefined,
     NEVER_RELOAD,
   )
 
-  const decimalResult = useMultipleContractSingleData(unKnowAddresses, erc20Abi, 'decimals', undefined, NEVER_RELOAD)
+  const symbol32Result = useMultipleContractSingleData(
+    unKnowAddresses,
+    ERC20_BYTES32_INTERFACE,
+    'symbol',
+    undefined,
+    NEVER_RELOAD,
+  )
+
+  const decimalResult = useMultipleContractSingleData(
+    unKnowAddresses,
+    ERC20_INTERFACE,
+    'decimals',
+    undefined,
+    NEVER_RELOAD,
+  )
 
   return useMemo(() => {
     const unknownTokens = unKnowAddresses.map((address, index) => {
-      const name = nameResult?.[0].result?.[index]
-      const name32 = name32Result?.[0].result?.[index]
-      const symbol = symbolResult?.[0].result?.[index]
-      const symbol32 = symbol32Result?.[0].result?.[index]
-      const decimals = decimalResult?.[0].result?.[index]
+      try {
+        const name = nameResult?.[0].result?.[index]
+        const name32 = name32Result?.[0].result?.[index]
+        const symbol = symbolResult?.[0].result?.[index]
+        const symbol32 = symbol32Result?.[0].result?.[index]
+        const decimals = decimalResult?.[0].result?.[index]
 
-      if (!symbol || !decimals || !chainId) return null
+        if (!symbol || !decimals || !chainId) return null
 
-      return new Token(
-        chainId,
-        address,
-        decimals,
-        parseStringOrBytes32(symbol, symbol32, 'UNKNOWN'),
-        parseStringOrBytes32(name, name32, 'Unknown Token'),
-      )
+        return new Token(
+          chainId,
+          address,
+          decimals,
+          parseStringOrBytes32(symbol, symbol32, 'UNKNOWN'),
+          parseStringOrBytes32(name, name32, 'Unknown Token'),
+        )
+      } catch (e) {
+        return null
+      }
     })
 
     return [...unknownTokens, ...knownTokens].reduce((acc, cur) => {
