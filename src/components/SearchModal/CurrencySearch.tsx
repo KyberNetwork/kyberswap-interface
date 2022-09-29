@@ -11,7 +11,7 @@ import styled from 'styled-components'
 
 import InfoHelper from 'components/InfoHelper'
 import { nativeOnChain } from 'constants/tokens'
-import { AllTokenType, useAllTokens, useIsTokenActive, useIsUserAddedToken, useToken } from 'hooks/Tokens'
+import { AllTokenType, useAllTokens, useToken } from 'hooks/Tokens'
 import useDebounce from 'hooks/useDebounce'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
@@ -27,7 +27,6 @@ import Column from '../Column'
 import { RowBetween } from '../Row'
 import CommonBases from './CommonBases'
 import CurrencyList from './CurrencyList'
-import ImportRow from './ImportRow'
 import { useTokenComparator } from './sorting'
 import { PaddedColumn, SearchIcon, SearchInput, SearchWrapper, Separator } from './styleds'
 
@@ -136,9 +135,6 @@ export function CurrencySearch({
   const isAddressSearch = isAddress(debouncedQuery)
   const searchToken = useToken(debouncedQuery)
 
-  const searchTokenIsAdded = useIsUserAddedToken(searchToken)
-  const isSearchTokenActive = useIsTokenActive(searchToken?.wrapped)
-
   const [commonTokens, setCommonTokens] = useState<(Token | Currency)[]>([])
   const [loadingCommon, setLoadingCommon] = useState(true)
 
@@ -158,9 +154,8 @@ export function CurrencySearch({
   }, [isAddressSearch, searchToken, fetchedTokens, debouncedQuery])
 
   const filteredCommonTokens: Token[] = useMemo(() => {
-    if (isAddressSearch) return searchToken ? [searchToken.wrapped] : []
     return filterTokens(commonTokens as Token[], debouncedQuery)
-  }, [isAddressSearch, searchToken, commonTokens, debouncedQuery])
+  }, [commonTokens, debouncedQuery])
 
   const filteredSortedTokens: Token[] = useMemo(() => {
     if (searchToken) return [searchToken.wrapped]
@@ -427,7 +422,7 @@ export function CurrencySearch({
           <CommonBases
             chainId={chainId}
             tokens={filteredCommonTokens}
-            handleClickFavorite={handleClickFavorite}
+            handleToggleFavorite={handleClickFavorite}
             onSelect={handleCurrencySelect}
             selectedCurrency={selectedCurrency}
           />
@@ -478,11 +473,7 @@ export function CurrencySearch({
         </Flex>
       )}
 
-      {searchToken && !searchTokenIsAdded && !isSearchTokenActive ? (
-        <Column style={{ padding: '20px 0', height: '100%' }}>
-          <ImportRow token={searchToken.wrapped} showImportView={showImportView} setImportToken={setImportToken} />
-        </Column>
-      ) : visibleCurrencies?.length > 0 ? (
+      {visibleCurrencies?.length > 0 ? (
         <div id="scrollableDiv" style={{ flex: '1', overflow: 'auto' }}>
           <CurrencyList
             removeImportedToken={removeImportedToken}

@@ -61,17 +61,17 @@ export default function CommonBases({
   onSelect,
   selectedCurrency,
   tokens = [],
-  handleClickFavorite,
+  handleToggleFavorite,
 }: {
   chainId?: ChainId
   selectedCurrency?: Currency | null
   tokens: Currency[]
   onSelect: (currency: Currency) => void
-  handleClickFavorite: (e: React.MouseEvent, currency: Currency) => void
+  handleToggleFavorite: (e: React.MouseEvent, currency: Currency) => void
 }) {
   const theme = useTheme()
   const [isEditMode, setEditMode] = useState(false)
-  const isHeightSmall = window.innerHeight < HEIGHT_THRESHOLD
+  const isHeightSmall = window.outerHeight < HEIGHT_THRESHOLD
   if (!tokens.length) return null
   return (
     <AutoColumn gap="md">
@@ -92,7 +92,7 @@ export default function CommonBases({
                 $forceShow={isEditMode}
                 className="close-btn"
                 size={16}
-                onClick={e => handleClickFavorite(e, token)}
+                onClick={e => handleToggleFavorite(e, token)}
               />
             </BaseWrapper>
           )
