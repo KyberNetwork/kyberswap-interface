@@ -10,6 +10,7 @@ import useTheme from 'hooks/useTheme'
 import { AutoColumn } from '../Column'
 import CurrencyLogo from '../CurrencyLogo'
 import { AutoRow } from '../Row'
+import { getDisplayTokenInfo } from './CurrencyList'
 
 const HEIGHT_THRESHOLD = 400
 const BaseWrapper = styled.div`
@@ -77,7 +78,8 @@ export default function CommonBases({
       <AutoRow gap="4px">
         {(tokens as Token[]).map((token: Token) => {
           const selected = selectedCurrency instanceof Token && selectedCurrency.address === token.address
-          const showWToken: Currency = token
+          const showWToken = token
+          const { symbol } = getDisplayTokenInfo(showWToken)
           return (
             <BaseWrapper
               onClick={() => !selected && onSelect(showWToken)}
@@ -85,7 +87,7 @@ export default function CommonBases({
               key={(token.address || token?.wrapped?.address) + token.symbol}
             >
               <CurrencyLogo currency={showWToken} size={isHeightSmall ? '15px' : '20px'} />
-              <TokenName>{showWToken.symbol}</TokenName>
+              <TokenName>{symbol}</TokenName>
               <CloseBtn
                 $forceShow={isEditMode}
                 className="close-btn"

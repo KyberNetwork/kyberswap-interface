@@ -77,7 +77,11 @@ const DescText = styled.div`
   font-weight: 300;
   color: ${({ theme }) => theme.subText};
 `
-
+export const getDisplayTokenInfo = (currency: any) => {
+  return {
+    symbol: currency.isNative ? currency.symbol : currency.wrapped.symbol,
+  }
+}
 function CurrencyRow({
   currency,
   isImportedTab,
@@ -128,13 +132,14 @@ function CurrencyRow({
     return false
   })()
   const balanceComponent = balance ? <Balance balance={balance} /> : account ? <Loader /> : null
+  const { symbol } = getDisplayTokenInfo(currency)
   return (
     <CurrencyRowWrapper style={style} onClick={() => onSelect()} data-selected={isSelected || otherSelected}>
       <Flex alignItems="center" style={{ gap: 8 }}>
         <CurrencyLogo currency={currency} size={'24px'} />
         <Column>
           <Text title={currency.name} fontWeight={500}>
-            {nativeCurrency?.symbol}
+            {symbol}
           </Text>
           <DescText>{isImportedTab ? balanceComponent : nativeCurrency?.name}</DescText>
         </Column>
