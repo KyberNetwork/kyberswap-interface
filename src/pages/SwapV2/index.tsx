@@ -788,7 +788,7 @@ export default function Swap({ history }: RouteComponentProps) {
               </SwapFormActions>
             </RowBetween>
 
-            {chainId !== ChainId.ETHW && (
+            {chainId !== ChainId.ETHW && chainId !== ChainId.SOLANA && (
               <RowBetween mb={'16px'}>
                 <PairSuggestion
                   ref={refSuggestPair}
