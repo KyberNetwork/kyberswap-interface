@@ -2,8 +2,9 @@ import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core
 import { Trans, t } from '@lingui/macro'
 import JSBI from 'jsbi'
 import { stringify } from 'qs'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
+import Skeleton from 'react-loading-skeleton'
 import { RouteComponentProps, useParams } from 'react-router-dom'
 import { Box, Flex, Text } from 'rebass'
 import styled, { DefaultTheme, keyframes } from 'styled-components'
@@ -19,7 +20,6 @@ import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import { Swap as SwapIcon } from 'components/Icons'
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import InfoHelper from 'components/InfoHelper'
-import LiveChart from 'components/LiveChart'
 import Loader from 'components/Loader'
 import ProgressSteps from 'components/ProgressSteps'
 import { AutoRow, RowBetween } from 'components/Row'
@@ -40,7 +40,6 @@ import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
 import MobileTokenInfo from 'components/swapv2/MobileTokenInfo'
 import PairSuggestion, { PairSuggestionHandle } from 'components/swapv2/PairSuggestion'
 import RefreshButton from 'components/swapv2/RefreshButton'
-import Routing from 'components/swapv2/Routing'
 import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
 import TokenInfo from 'components/swapv2/TokenInfo'
 import TokenInfoV2 from 'components/swapv2/TokenInfoV2'
@@ -103,6 +102,8 @@ import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { convertToSlug, getNetworkSlug, getSymbolSlug } from 'utils/string'
 import { checkPairInWhiteList, convertSymbol } from 'utils/tokenInfo'
 
+const LiveChart = lazy(() => import('components/LiveChart'))
+const Routing = lazy(() => import('components/swapv2/Routing'))
 const TutorialIcon = styled(TutorialSvg)`
   width: 22px;
   height: 22px;
@@ -217,7 +218,14 @@ export default function Swap({ history }: RouteComponentProps) {
   const [allowedSlippage] = useUserSlippageTolerance()
 
   // swap state
-  const { independentField, typedValue, recipient, feeConfig } = useSwapState()
+  const {
+    independentField,
+    typedValue,
+    recipient,
+    feeConfig,
+    [Field.INPUT]: INPUT,
+    [Field.OUTPUT]: OUTPUT,
+  } = useSwapState()
 
   const {
     v2Trade,
@@ -252,13 +260,24 @@ export default function Swap({ history }: RouteComponentProps) {
         [Field.OUTPUT]: independentField === Field.OUTPUT ? parsedAmount : trade?.outputAmount,
       }
 
-  const { onSwitchTokensV2, onCurrencySelection, onResetSelectCurrency, onUserInput, onChangeRecipient } =
-    useSwapActionHandlers()
+  const {
+    onSwitchTokensV2,
+    onCurrencySelection,
+    onResetSelectCurrency,
+    onUserInput,
+    onChangeRecipient,
+    onChangeTrade,
+  } = useSwapActionHandlers()
 
   // reset recipient
   useEffect(() => {
     onChangeRecipient(null)
   }, [onChangeRecipient, isExpertMode])
+
+  useEffect(() => {
+    // Save current trade to store
+    onChangeTrade(trade)
+  }, [trade, onChangeTrade])
 
   const handleRecipientChange = (value: string | null) => {
     if (recipient === null && value !== null) {
@@ -609,7 +628,7 @@ export default function Swap({ history }: RouteComponentProps) {
 
   const isLoadedTokenDefault = account
     ? Object.keys(defaultTokens).length > tokenImports.length
-    : initialTotalTokenDefault.current !== null && Object.keys(defaultTokens).length > initialTotalTokenDefault.current
+    : initialTotalTokenDefault.current !== null && Object.keys(defaultTokens).length > initialTotalTokenDefault.current //
 
   useEffect(() => {
     /**
@@ -655,8 +674,6 @@ export default function Swap({ history }: RouteComponentProps) {
   }, [isExpertMode])
 
   const [rawSlippage, setRawSlippage] = useUserSlippageTolerance()
-  const swapState = useSwapState()
-  const { INPUT, OUTPUT } = swapState
 
   const isStableCoinSwap =
     INPUT?.currencyId &&
@@ -715,7 +732,7 @@ export default function Swap({ history }: RouteComponentProps) {
       />
       <PageWrapper>
         <Banner />
-        <TopTrendingSoonTokensInCurrentNetwork />
+        {chainId !== ChainId.ETHW && <TopTrendingSoonTokensInCurrentNetwork />}
         <Container>
           <SwapFormWrapper isShowTutorial={isShowTutorial}>
             <RowBetween mb={'16px'}>
@@ -736,10 +753,12 @@ export default function Swap({ history }: RouteComponentProps) {
                     </StyledActionButtonSwapForm>
                   }
                 />
-                <MobileTokenInfo
-                  currencies={currencies}
-                  onClick={() => setActiveTab(prev => (prev === TAB.INFO ? TAB.SWAP : TAB.INFO))}
-                />
+                {chainId !== ChainId.ETHW && (
+                  <MobileTokenInfo
+                    currencies={currencies}
+                    onClick={() => setActiveTab(prev => (prev === TAB.INFO ? TAB.SWAP : TAB.INFO))}
+                  />
+                )}
                 <ShareButtonWithModal
                   url={shareUrl}
                   onShared={() => {
@@ -765,13 +784,15 @@ export default function Swap({ history }: RouteComponentProps) {
               </SwapFormActions>
             </RowBetween>
 
-            <RowBetween mb={'16px'}>
-              <PairSuggestion
-                ref={refSuggestPair}
-                onSelectSuggestedPair={onSelectSuggestedPair}
-                setShowModalImportToken={setShowingPairSuggestionImport}
-              />
-            </RowBetween>
+            {chainId !== ChainId.ETHW && (
+              <RowBetween mb={'16px'}>
+                <PairSuggestion
+                  ref={refSuggestPair}
+                  onSelectSuggestedPair={onSelectSuggestedPair}
+                  setShowModalImportToken={setShowingPairSuggestionImport}
+                />
+              </RowBetween>
+            )}
 
             <AppBodyWrapped data-highlight={shouldHighlightSwapBox} id={TutorialIds.SWAP_FORM}>
               {activeTab === TAB.SWAP && (
@@ -900,13 +921,15 @@ export default function Swap({ history }: RouteComponentProps) {
 
                     <TradeTypeSelection />
 
-                    <TrendingSoonTokenBanner currencies={currencies} style={{ marginTop: '24px' }} />
+                    {chainId !== ChainId.ETHW && (
+                      <TrendingSoonTokenBanner currencies={currencies} style={{ marginTop: '24px' }} />
+                    )}
 
                     {trade?.priceImpact === -1 ? (
                       <PriceImpactHigh>
                         <AlertTriangle color={theme.warning} size={16} style={{ marginRight: '10px' }} />
                         <Trans>Unable to calculate Price Impact</Trans>
-                        <InfoHelper text="Turn on Advanced Mode to trade" color={theme.text} />
+                        <InfoHelper text={t`Turn on Advanced Mode to trade`} color={theme.text} />
                       </PriceImpactHigh>
                     ) : (
                       !!trade?.priceImpact &&
@@ -918,13 +941,18 @@ export default function Swap({ history }: RouteComponentProps) {
                             style={{ marginRight: '10px' }}
                           />
                           {trade?.priceImpact > 15 ? (
-                            <>
-                              <Trans>Price Impact is Very High</Trans>
-                              <InfoHelper text="Turn on Advanced Mode for high slippage trades" color={theme.text} />
-                            </>
+                            <Trans>Price Impact is Very High</Trans>
                           ) : (
                             <Trans>Price Impact is High</Trans>
                           )}
+                          <InfoHelper
+                            text={
+                              isExpertMode
+                                ? t`You have turned on Advanced Mode from settings. Trades with high price impact can be executed`
+                                : t`Turn on Advanced Mode from settings to execute trades with high price impact`
+                            }
+                            color={theme.text}
+                          />
                         </PriceImpactHigh>
                       )
                     )}
@@ -934,18 +962,10 @@ export default function Swap({ history }: RouteComponentProps) {
                         <ButtonLight onClick={toggleWalletModal}>
                           <Trans>Connect Wallet</Trans>
                         </ButtonLight>
-                      ) : isLoading ? (
-                        <GreyCard style={{ textAlign: 'center', borderRadius: '999px', padding: '12px' }}>
-                          <Text color={theme.subText} fontSize="14px">
-                            <Dots>
-                              <Trans>Calculating best route</Trans>
-                            </Dots>
-                          </Text>
-                        </GreyCard>
                       ) : showWrap ? (
                         <ButtonPrimary disabled={Boolean(wrapInputError)} onClick={onWrap}>
                           {wrapInputError ??
-                            (wrapType === WrapType.WRAP ? 'Wrap' : wrapType === WrapType.UNWRAP ? 'Unwrap' : null)}
+                            (wrapType === WrapType.WRAP ? t`Wrap` : wrapType === WrapType.UNWRAP ? t`Unwrap` : null)}
                         </ButtonPrimary>
                       ) : noRoute && userHasSpecifiedInputOutput ? (
                         <GreyCard style={{ textAlign: 'center', borderRadius: '999px', padding: '12px' }}>
@@ -996,6 +1016,14 @@ export default function Swap({ history }: RouteComponentProps) {
                             </Text>
                           </ButtonError>
                         </RowBetween>
+                      ) : isLoading ? (
+                        <GreyCard style={{ textAlign: 'center', borderRadius: '999px', padding: '12px' }}>
+                          <Text color={theme.subText} fontSize="14px">
+                            <Dots>
+                              <Trans>Calculating best route</Trans>
+                            </Dots>
+                          </Text>
+                        </GreyCard>
                       ) : (
                         <ButtonError
                           onClick={() => {
@@ -1076,7 +1104,11 @@ export default function Swap({ history }: RouteComponentProps) {
             <InfoComponentsWrapper>
               {isShowLiveChart && (
                 <LiveChartWrapper>
-                  <LiveChart onRotateClick={handleRotateClick} currencies={currencies} />
+                  <Suspense
+                    fallback={<Skeleton height="100%" baseColor={theme.background} highlightColor={theme.buttonGray} />}
+                  >
+                    <LiveChart onRotateClick={handleRotateClick} currencies={currencies} />
+                  </Suspense>
                 </LiveChartWrapper>
               )}
               {isShowTradeRoutes && (
@@ -1088,7 +1120,13 @@ export default function Swap({ history }: RouteComponentProps) {
                         <Trans>Your trade route</Trans>
                       </Text>
                     </Flex>
-                    <Routing trade={trade} currencies={currencies} formattedAmounts={formattedAmounts} />
+                    <Suspense
+                      fallback={
+                        <Skeleton height="100px" baseColor={theme.background} highlightColor={theme.buttonGray} />
+                      }
+                    >
+                      <Routing trade={trade} currencies={currencies} formattedAmounts={formattedAmounts} />
+                    </Suspense>
                   </Flex>
                 </RoutesWrapper>
               )}

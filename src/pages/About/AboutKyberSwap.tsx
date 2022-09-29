@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Edit, FileText, Plus, Repeat } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -30,6 +30,7 @@ import {
   CronosLogoFull,
   Drop,
   Enter,
+  EthW,
   Ethereum,
   Fantom,
   FantomLogoFull,
@@ -47,7 +48,6 @@ import {
 } from 'components/Icons'
 import AntiSnippingAttack from 'components/Icons/AntiSnippingAttack'
 import Loader from 'components/Loader'
-import { dexListConfig } from 'constants/dexes'
 import { MAINNET_NETWORKS } from 'constants/networks'
 import { VERSION } from 'constants/v2'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -136,7 +136,7 @@ export const KSStatistic = () => {
 
           <ForTraderInfoCell>
             <Text fontWeight="600" fontSize="24px">
-              {Object.keys(dexListConfig).length - 1}+{/* DMM and KyberSwap are one */}
+              70+
             </Text>
             <Text color={theme.subText} marginTop="4px" fontSize="14px">
               <Trans>DEXs</Trans>
@@ -149,7 +149,7 @@ export const KSStatistic = () => {
         <ForTraderInfoRow>
           <ForTraderInfoCell>
             <Text fontWeight="600" fontSize="24px">
-              {MAINNET_NETWORKS.length}
+              {MAINNET_NETWORKS.length - 1}+
             </Text>
             <Text color={theme.subText} marginTop="4px" fontSize="14px">
               <Trans>Chains</Trans>
@@ -425,6 +425,44 @@ function AboutKyberSwap() {
     </ForLiquidityProviderItem>
   )
 
+  const renderCreateNewPoolButton = () => {
+    return (
+      <BtnPrimary
+        as={Link}
+        to={'/pools?tab=elastic&highlightCreateButton=true'}
+        onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_CREATE_NEW_POOL_CLICKED)}
+        style={{ flex: '0 0 216px', padding: '12px' }}
+      >
+        <Plus size={20} />
+        <Text marginLeft="8px" fontSize={['14px', '16px']}>
+          <Trans>Create New Pool</Trans>
+        </Text>
+      </BtnPrimary>
+    )
+  }
+
+  const renderContactUsButton = () => {
+    return (
+      <ButtonLight style={{ flex: '0 0 216px' }} as={ExternalLink} href="https://forms.gle/gLiNsi7iUzHws2BY8">
+        <Edit color={theme.primary} size={20} />
+        <Text marginLeft="8px" fontSize={['14px', '16px']}>
+          <Trans>Contact Us</Trans>
+        </Text>
+      </ButtonLight>
+    )
+  }
+
+  const renderDocsButton = () => {
+    return (
+      <BtnOutlined style={{ flex: '0 0 216px' }} as={ExternalLink} href="https://docs.kyberswap.com/">
+        <FileText color={theme.subText} size={20} />
+        <Text marginLeft="8px" fontSize={['14px', '16px']}>
+          <Trans>Docs</Trans>
+        </Text>
+      </BtnOutlined>
+    )
+  }
+
   return (
     <div style={{ position: 'relative', background: isDarkMode ? theme.buttonBlack : theme.white, width: '100%' }}>
       <AboutPage>
@@ -446,6 +484,7 @@ function AboutKyberSwap() {
 
           <SupportedChain>
             <Ethereum />
+            <EthW />
             <Polygon />
             <Binance />
             <Avalanche />
@@ -720,9 +759,7 @@ function AboutKyberSwap() {
             <BtnPrimary
               as={Link}
               to={
-                activeTab === VERSION.ELASTIC
-                  ? '/pools?tab=elastic&highlightAddLiquidityButton=true'
-                  : '/pools?tab=classic&highlightCreateButton=true'
+                activeTab === VERSION.ELASTIC ? '/pools?tab=elastic' : '/pools?tab=classic&highlightCreateButton=true'
               }
               onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_START_EARNING_CLICKED)}
             >
@@ -799,39 +836,21 @@ function AboutKyberSwap() {
             </Flex>
           </Flex>
 
-          <Flex
-            sx={{ gap: '24px' }}
-            marginTop={['40px', '48px']}
-            flexDirection={above768 ? 'row' : 'column'}
-            maxWidth="756px"
-          >
-            <BtnPrimary
-              as={Link}
-              to={'/pools?tab=elastic&highlightCreateButton=true'}
-              onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_CREATE_NEW_POOL_CLICKED)}
-              style={{ flex: 1 }}
-            >
-              <Plus size={20} />
-              <Text marginLeft="8px" fontSize={['14px', '16px']}>
-                <Trans>Create New Pool</Trans>
-              </Text>
-            </BtnPrimary>
-            <Flex sx={{ flex: 2, gap: above768 ? '24px' : '16px' }}>
-              <ButtonLight style={{ flex: 1 }} as={ExternalLink} href="https://forms.gle/gLiNsi7iUzHws2BY8">
-                <Edit color={theme.primary} size={20} />
-                <Text marginLeft="8px" fontSize={['14px', '16px']}>
-                  <Trans>Contact Us</Trans>
-                </Text>
-              </ButtonLight>
-
-              <BtnOutlined style={{ flex: 1 }} as={ExternalLink} href="https://docs.kyberswap.com/">
-                <FileText color={theme.subText} size={20} />
-                <Text marginLeft="8px" fontSize={['14px', '16px']}>
-                  <Trans>Docs</Trans>
-                </Text>
-              </BtnOutlined>
+          {above768 ? (
+            <Flex sx={{ gap: '24px' }} marginTop={['40px', '48px']} maxWidth="696px">
+              {renderCreateNewPoolButton()}
+              {renderContactUsButton()}
+              {renderDocsButton()}
             </Flex>
-          </Flex>
+          ) : (
+            <Flex sx={{ gap: '24px', alignItems: 'center' }} marginTop={['40px', '48px']} flexDirection="column">
+              <Flex sx={{ justifyContent: 'center' }}>{renderCreateNewPoolButton()}</Flex>
+              <Flex sx={{ gap: '16px', width: '100%', justifyContent: 'center', flexWrap: 'wrap' }}>
+                {renderContactUsButton()}
+                {renderDocsButton()}
+              </Flex>
+            </Flex>
+          )}
 
           <Text as="h2" marginTop={['100px', '160px']} fontSize={['28px', '36px']} fontWeight="500" textAlign="center">
             <Trans>Committed to Security</Trans>

@@ -180,6 +180,26 @@ class OptimismNativeCurrency extends NativeCurrency {
   }
 }
 
+function isETHW(chainId: number): chainId is ChainId.ETHW {
+  return chainId === ChainId.ETHW
+}
+
+class ETHWNativeCurrency extends NativeCurrency {
+  equals(other: Currency): boolean {
+    return other.isNative && other.chainId === this.chainId
+  }
+
+  get wrapped(): Token {
+    if (!isETHW(this.chainId)) throw new Error('Not ETHW')
+    return WETH[this.chainId]
+  }
+
+  public constructor(chainId: number) {
+    if (!isETHW(chainId)) throw new Error('Not ETHW')
+    super(chainId, 18, 'ETHW', 'Ethereum PoW')
+  }
+}
+
 export class ExtendedEther extends Ether {
   public get wrapped(): Token {
     if (this.chainId in WETH) return WETH[this.chainId as ChainId]
@@ -215,6 +235,8 @@ export function nativeOnChain(chainId: number): NativeCurrency {
       ? new OasisNativeCurrency(chainId)
       : isOptimism(chainId)
       ? new OptimismNativeCurrency(chainId)
+      : isETHW(chainId)
+      ? new ETHWNativeCurrency(chainId)
       : ExtendedEther.onChain(chainId))
   )
 }
@@ -244,6 +266,8 @@ const STABLE_COINS = {
     '0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664', // usdc.e
     '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E', //usdc
     '0xd586E7F844cEa2F87f50152665BCbc2C279D8d70', //dai.e
+    '0x3B55E45fD6bd7d4724F5c47E0d1bCaEdd059263e', // MAI
+    '0x130966628846BFd36ff31a822705796e8cb8C18D', // MIM
   ],
   [ChainId.FANTOM]: [
     '0x8D11eC38a3EB5E956B052f67Da8Bdc9bef8Abf3E', //dai

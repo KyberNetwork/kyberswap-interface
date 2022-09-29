@@ -5,10 +5,13 @@ import {
   CampaignLeaderboard,
   CampaignLuckyWinner,
   setCampaignData,
+  setClaimingCampaignRewardId,
   setLoadingCampaignData,
   setLoadingCampaignDataError,
   setLoadingSelectedCampaignLeaderboard,
   setLoadingSelectedCampaignLuckyWinners,
+  setRecaptchaCampaignId,
+  setRecaptchaCampaignLoading,
   setSelectedCampaign,
   setSelectedCampaignLeaderboard,
   setSelectedCampaignLeaderboardLookupAddress,
@@ -34,6 +37,13 @@ export interface CampaignsState {
   readonly loadingCampaignLuckyWinners: boolean
   readonly selectedCampaignLuckyWinnersPageNumber: number
   readonly selectedCampaignLuckyWinnersLookupAddress: string
+
+  readonly claimingCampaignRewardId: number | null // id that is being claimed
+
+  readonly recaptchaCampaign: {
+    id: number | undefined
+    loading: boolean
+  }
 }
 
 const initialState: CampaignsState = {
@@ -52,6 +62,13 @@ const initialState: CampaignsState = {
   loadingCampaignLuckyWinners: false,
   selectedCampaignLuckyWinnersPageNumber: 0,
   selectedCampaignLuckyWinnersLookupAddress: '',
+
+  claimingCampaignRewardId: null,
+
+  recaptchaCampaign: {
+    id: undefined,
+    loading: false,
+  },
 }
 
 export default createReducer<CampaignsState>(initialState, builder =>
@@ -66,6 +83,12 @@ export default createReducer<CampaignsState>(initialState, builder =>
       return {
         ...state,
         loadingCampaignData: loading,
+      }
+    })
+    .addCase(setClaimingCampaignRewardId, (state, { payload: claimingCampaignRewardId }) => {
+      return {
+        ...state,
+        claimingCampaignRewardId,
       }
     })
     .addCase(setLoadingCampaignDataError, (state, { payload: error }) => {
@@ -123,6 +146,24 @@ export default createReducer<CampaignsState>(initialState, builder =>
       return {
         ...state,
         selectedCampaignLuckyWinnersLookupAddress: lookupAddress,
+      }
+    })
+    .addCase(setRecaptchaCampaignId, (state, { payload: id }) => {
+      return {
+        ...state,
+        recaptchaCampaign: {
+          ...state.recaptchaCampaign,
+          id,
+        },
+      }
+    })
+    .addCase(setRecaptchaCampaignLoading, (state, { payload: loading }) => {
+      return {
+        ...state,
+        recaptchaCampaign: {
+          ...state.recaptchaCampaign,
+          loading,
+        },
       }
     }),
 )

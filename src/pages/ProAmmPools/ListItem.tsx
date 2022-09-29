@@ -3,7 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useState } from 'react'
 import { BarChart2, ChevronUp, Plus, Share2 } from 'react-feather'
-import { Link } from 'react-router-dom'
+import { Link, useHistory } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
@@ -13,6 +13,7 @@ import Divider from 'components/Divider'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { MoneyBag } from 'components/Icons'
 import { MouseoverTooltip } from 'components/Tooltip'
+import FarmingPoolAPRCell from 'components/YieldPools/FarmingPoolAPRCell'
 import { ELASTIC_BASE_FEE_UNIT, PROMM_ANALYTICS_URL } from 'constants/index'
 import { nativeOnChain } from 'constants/tokens'
 import { VERSION } from 'constants/v2'
@@ -21,7 +22,9 @@ import { useAllTokens } from 'hooks/Tokens'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { ButtonIcon } from 'pages/Pools/styleds'
+import { useToggleEthPowAckModal } from 'state/application/hooks'
 import { useProMMFarms } from 'state/farms/promm/hooks'
+import { useUrlOnEthPowAck } from 'state/pools/hooks'
 import { ProMMPoolData } from 'state/prommPools/hooks'
 import { ExternalLink } from 'theme'
 import { isAddressString, shortenAddress } from 'utils'
@@ -93,6 +96,9 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions,
   const { chainId } = useActiveWeb3React()
   const theme = useTheme()
   const [isOpen, setIsOpen] = useState(pair.length > 1 ? idx === 0 : false)
+  const history = useHistory()
+  const [, setUrlOnEthPoWAck] = useUrlOnEthPowAck()
+  const toggleEthPowAckModal = useToggleEthPowAckModal()
 
   const allTokens = useAllTokens()
 
@@ -103,9 +109,21 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions,
     allTokens[isAddressString(pair[0].token1.address)] ||
     new Token(chainId as ChainId, pair[0].token1.address, pair[0].token1.decimals, pair[0].token1.symbol)
 
+  const isToken0WETH = pair[0].token0.address === WETH[chainId as ChainId].address.toLowerCase()
+  const isToken1WETH = pair[0].token1.address === WETH[chainId as ChainId].address.toLowerCase()
+
+  const nativeToken = nativeOnChain(chainId as ChainId)
+
+  const token0Slug = isToken0WETH ? nativeToken.symbol : pair[0].token0.address
+  const token0Symbol = isToken0WETH ? nativeToken.symbol : token0.symbol
+
+  const token1Slug = isToken1WETH ? nativeToken.symbol : pair[0].token1.address
+  const token1Symbol = isToken1WETH ? nativeToken.symbol : token1.symbol
+
   const { data: farms } = useProMMFarms()
 
   const { mixpanelHandler } = useMixpanel()
+
   return (
     <>
       {pair.map((pool, index) => {
@@ -114,30 +132,20 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions,
         const hoverable = pair.length > 1 && index === 0
         if (pair.length > 1 && index !== 0 && !isOpen) return null
 
-        const token0Address =
-          pool.token0.address === WETH[chainId as ChainId].address.toLowerCase()
-            ? nativeOnChain(chainId as ChainId).symbol
-            : pool.token0.address
+        let fairlaunchAddress = ''
+        let pid = -1
+        Object.keys(farms).forEach(addr => {
+          const farm = farms[addr]
+            .filter(item => item.endTime > Date.now() / 1000)
+            .find(item => item.poolAddress.toLowerCase() === pool.address.toLowerCase())
 
-        const token0Symbol =
-          pool.token0.address === WETH[chainId as ChainId].address.toLowerCase()
-            ? nativeOnChain(chainId as ChainId).symbol
-            : token0.symbol
+          if (farm) {
+            fairlaunchAddress = addr
+            pid = farm.pid
+          }
+        })
 
-        const token1Address =
-          pool.token1.address === WETH[chainId as ChainId].address.toLowerCase()
-            ? nativeOnChain(chainId as ChainId).symbol
-            : pool.token1.address
-        const token1Symbol =
-          pool.token1.address === WETH[chainId as ChainId].address.toLowerCase()
-            ? nativeOnChain(chainId as ChainId).symbol
-            : token1.symbol
-
-        const isFarmingPool = Object.values(farms)
-          .flat()
-          .filter(item => item.endTime > +new Date() / 1000)
-          .map(item => item.poolAddress.toLowerCase())
-          .includes(pool.address.toLowerCase())
+        const isFarmingPool = !!fairlaunchAddress && pid !== -1
 
         return (
           <TableRow
@@ -151,7 +159,10 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions,
           >
             {index === 0 ? (
               <DataText>
-                <DoubleCurrencyLogo currency0={token0} currency1={token1} />
+                <DoubleCurrencyLogo
+                  currency0={isToken0WETH ? nativeToken : token0}
+                  currency1={isToken1WETH ? nativeToken : token1}
+                />
                 <Text fontSize={16} marginTop="8px">
                   {token0Symbol} - {token1Symbol}
                 </Text>
@@ -159,7 +170,6 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions,
             ) : (
               <DataText />
             )}
-
             <DataText grid-area="pool" style={{ position: 'relative' }}>
               {isFarmingPool && (
                 <Flex
@@ -187,8 +197,19 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions,
               </Text>
             </DataText>
             <DataText alignItems="flex-start">{formatDollarAmount(pool.tvlUSD)}</DataText>
-            <DataText alignItems="flex-start" color={theme.apr}>
-              {pool.apr.toFixed(2)}%
+            <DataText alignItems="flex-end" color={theme.apr}>
+              {isFarmingPool ? (
+                <FarmingPoolAPRCell poolAPR={pool.apr} fairlaunchAddress={fairlaunchAddress} pid={pid} />
+              ) : (
+                <Flex
+                  sx={{
+                    alignItems: 'center',
+                    paddingRight: '20px', // to make all the APR numbers vertically align
+                  }}
+                >
+                  {pool.apr.toFixed(2)}%
+                </Flex>
+              )}
             </DataText>
             <DataText alignItems="flex-end">{formatDollarAmount(pool.volumeUSD)}</DataText>
             <DataText alignItems="flex-end">
@@ -199,8 +220,6 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions,
               <MouseoverTooltip text={<Trans> Add liquidity </Trans>} placement={'top'} width={'fit-content'}>
                 <ButtonEmpty
                   padding="0"
-                  as={Link}
-                  to={`/elastic/add/${token0Address}/${token1Address}/${pool.feeTier}`}
                   style={{
                     background: rgba(theme.primary, 0.2),
                     minWidth: '28px',
@@ -208,12 +227,22 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions,
                     width: '28px',
                     height: '28px',
                   }}
-                  onClick={() => {
+                  onClick={(e: React.MouseEvent) => {
+                    e.stopPropagation()
+
+                    const url = `/elastic/add/${token0Slug}/${token1Slug}/${pool.feeTier}`
                     mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_IN_LIST_INITIATED, {
                       token_1: token0Symbol,
                       token_2: token1Symbol,
                       fee_tier: pool.feeTier / ELASTIC_BASE_FEE_UNIT,
                     })
+
+                    if (chainId === ChainId.ETHW) {
+                      setUrlOnEthPoWAck(url)
+                      toggleEthPowAckModal()
+                    } else {
+                      history.push(url)
+                    }
                   }}
                 >
                   <Plus size={16} color={theme.primary} />
@@ -249,14 +278,16 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions,
                 </MouseoverTooltip>
               </ExternalLink>
 
-              {index === 0 && (
-                <ButtonIcon
-                  disabled={pair.length === 1}
-                  style={{ transition: 'transform 0.2s', transform: `rotate(${isOpen ? '0' : '180deg'})` }}
-                >
-                  <ChevronUp size="16px" color={theme.text} />
-                </ButtonIcon>
-              )}
+              <ButtonIcon
+                disabled={pair.length === 1}
+                style={{
+                  transition: 'transform 0.2s',
+                  transform: `rotate(${isOpen ? '0' : '180deg'})`,
+                  visibility: index === 0 ? 'visible' : 'hidden',
+                }}
+              >
+                <ChevronUp size="16px" color={theme.text} />
+              </ButtonIcon>
             </ButtonWrapper>
           </TableRow>
         )

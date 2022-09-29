@@ -7,6 +7,7 @@ import 'inter-ui'
 import { StrictMode, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import TagManager from 'react-gtm-module'
+import 'react-loading-skeleton/dist/skeleton.css'
 import { Provider } from 'react-redux'
 import { BrowserRouter } from 'react-router-dom'
 import 'swiper/swiper-bundle.min.css'
@@ -84,6 +85,11 @@ const hideLoader = () => {
     preloadhtml?.remove()
     preloadhtmlStyle?.remove()
   }, 100)
+}
+
+// Google ReCaptcha use it, don't remove.
+window.recaptchaOptions = {
+  useRecaptchaNet: true,
 }
 
 const ReactApp = () => {
