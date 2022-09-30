@@ -31,14 +31,14 @@ export default function ProAmmFee({
   position,
   layout = 0,
   text = '',
-  farmAvailable,
+  hasUserDepositedInFarm,
   disableCollectFee,
 }: {
   tokenId: BigNumber
   position: Position
   layout?: number
   text?: string
-  farmAvailable?: boolean
+  hasUserDepositedInFarm?: boolean
   disableCollectFee?: boolean
 }) {
   const { chainId, account, library } = useActiveWeb3React()
@@ -138,7 +138,7 @@ export default function ProAmmFee({
     allowedSlippage,
   ])
   const disabledCollect =
-    !(feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0)) || farmAvailable || disableCollectFee
+    !(feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0)) || hasUserDepositedInFarm || disableCollectFee
 
   const render =
     layout === 0 ? (
@@ -210,10 +210,10 @@ export default function ProAmmFee({
                 </Text>
               </RowFixed>
             </RowBetween>
-            {farmAvailable ? (
+            {hasUserDepositedInFarm ? (
               <MouseoverTooltip
                 placement="top"
-                text={farmAvailable ? t`You need to withdraw your liquidity from the farms first` : ''}
+                text={t`You need to withdraw your deposited liquidity position from the Farm first`}
               >
                 <ButtonLight
                   style={{

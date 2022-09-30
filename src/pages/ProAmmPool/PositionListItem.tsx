@@ -34,6 +34,25 @@ import { unwrappedToken } from 'utils/wrappedCurrency'
 
 import ContentLoader from './ContentLoader'
 
+const DisabledButtonOutlined = styled(ButtonOutlined)`
+  padding: 8px;
+  color: ${({ theme }) => theme.disableText};
+  border: 1px solid ${({ theme }) => theme.disableText};
+  cursor: not-allowed;
+
+  box-shadow: none;
+  &:hover {
+    box-shadow: none;
+  }
+
+  &:focus {
+    box-shadow: none;
+  }
+
+  &:active {
+    box-shadow: none;
+  }
+`
 const StyledPositionCard = styled(LightCard)`
   border: none;
   background: ${({ theme }) => theme.background};
@@ -101,13 +120,13 @@ const ButtonGroup = styled.div`
 
   > * {
     /* to make sure all immediate buttons take equal width */
-    flex: 1;
+    flex: 1 1 50%;
   }
 `
 
 interface PositionListItemProps {
   positionDetails: PositionDetails | UserPositionFarm
-  farmAvailable?: boolean
+  hasUserDepositedInFarm?: boolean
   stakedLayout?: boolean
   refe?: React.MutableRefObject<any>
 }
@@ -132,7 +151,7 @@ export function getPriceOrderingFromPositionForUI(position?: Position): {
   }
 }
 
-function PositionListItem({ stakedLayout, farmAvailable, positionDetails, refe }: PositionListItemProps) {
+function PositionListItem({ stakedLayout, hasUserDepositedInFarm, positionDetails, refe }: PositionListItemProps) {
   const { chainId } = useWeb3React()
   const {
     token0: token0Address,
@@ -168,7 +187,7 @@ function PositionListItem({ stakedLayout, farmAvailable, positionDetails, refe }
   }, [liquidity, pool, tickLower, tickUpper])
 
   const stakedPosition =
-    pool && farmAvailable
+    pool && hasUserDepositedInFarm
       ? new Position({
           pool,
           liquidity: (positionDetails as UserPositionFarm).stakedLiquidity.toString(),
@@ -198,13 +217,25 @@ function PositionListItem({ stakedLayout, farmAvailable, positionDetails, refe }
   const [activeTab, setActiveTab] = useState(0)
   const now = Date.now() / 1000
 
+  const reasonToDisableRemoveLiquidity = (() => {
+    if (removed) {
+      return t`You have zero liquidity to remove`
+    }
+
+    if (stakedLiquidity) {
+      return t`You need to withdraw your deposited liquidity position from the farms first`
+    }
+
+    return ''
+  })()
+
   return position && priceLower && priceUpper ? (
     <StyledPositionCard>
       <>
         <ProAmmPoolInfo
           position={position}
           tokenId={positionDetails.tokenId.toString()}
-          farmAvailable={farmAvailable}
+          farmAvailable={hasUserDepositedInFarm}
         />
         <TabContainer style={{ marginTop: '1rem' }}>
           <Tab isActive={activeTab === 0} padding="0" onClick={() => setActiveTab(0)}>
@@ -270,8 +301,7 @@ function PositionListItem({ stakedLayout, farmAvailable, positionDetails, refe }
                 position={position}
                 tokenId={positionDetails.tokenId}
                 layout={1}
-                farmAvailable={farmAvailable}
-                disableCollectFee={!!stakedLiquidity}
+                hasUserDepositedInFarm={hasUserDepositedInFarm}
               />
             )}
           </>
@@ -294,37 +324,23 @@ function PositionListItem({ stakedLayout, farmAvailable, positionDetails, refe }
             </ButtonPrimary>
           ) : (
             <ButtonGroup>
-              {removed || !!stakedLiquidity ? (
-                <ButtonOutlined disabled padding="8px" style={{ flex: 1 }}>
-                  <Text width="max-content" fontSize="14px">
-                    <Trans>Remove Liquidity</Trans>
-                  </Text>
-                </ButtonOutlined>
-              ) : farmAvailable ? (
-                <MouseoverTooltip
-                  text={t`You need to withdraw your deposited liquidity position from the Farm first`}
-                  placement="top"
-                >
-                  <ButtonOutlined
-                    padding="0"
+              {reasonToDisableRemoveLiquidity ? (
+                <MouseoverTooltip text={reasonToDisableRemoveLiquidity} placement="top">
+                  <DisabledButtonOutlined
                     style={{
                       width: '100%',
-                      color: theme.disableText,
-                      border: `1px solid ${theme.disableText}`,
-                      cursor: 'not-allowed',
                     }}
                   >
-                    <Text width="max-content" fontSize="14px" padding="8px">
+                    <Text width="max-content" fontSize="14px">
                       <Trans>Remove Liquidity</Trans>
                     </Text>
-                  </ButtonOutlined>
+                  </DisabledButtonOutlined>
                 </MouseoverTooltip>
               ) : (
                 <ButtonOutlined
                   padding="8px"
                   as={Link}
                   to={`/elastic/remove/${positionDetails.tokenId}`}
-                  style={{ flex: 1 }}
                   onClick={() => {
                     mixpanelHandler(MIXPANEL_TYPE.ELASTIC_REMOVE_LIQUIDITY_INITIATED, {
                       token_1: token0?.symbol || '',
@@ -340,7 +356,7 @@ function PositionListItem({ stakedLayout, farmAvailable, positionDetails, refe }
               )}
 
               {removed ? (
-                <ButtonPrimary disabled padding="8px" style={{ flex: 1 }}>
+                <ButtonPrimary disabled padding="8px">
                   <Text width="max-content" fontSize="14px">
                     <Trans>Increase Liquidity</Trans>
                   </Text>
@@ -351,7 +367,6 @@ function PositionListItem({ stakedLayout, farmAvailable, positionDetails, refe }
                   style={{
                     borderRadius: '18px',
                     fontSize: '14px',
-                    flex: 1,
                   }}
                   as={Link}
                   to={`/elastic/increase/${currencyId(currency0, chainId)}/${currencyId(
@@ -384,7 +399,7 @@ function PositionListItem({ stakedLayout, farmAvailable, positionDetails, refe }
               </ExternalLink>
             </ButtonEmpty>
 
-            {farmAvailable && (
+            {hasUserDepositedInFarm && (
               <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0">
                 <StyledInternalLink style={{ width: '100%', textAlign: 'center' }} to="/farms">
                   <Trans>Go to Farms ↗</Trans>

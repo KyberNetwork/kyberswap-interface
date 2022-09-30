@@ -237,7 +237,7 @@ export default function ProAmmPool() {
                     refe={tokenAddressSymbolMap}
                     positionDetails={p}
                     key={p.tokenId.toString()}
-                    farmAvailable={!!p.stakedLiquidity}
+                    hasUserDepositedInFarm={!!p.stakedLiquidity}
                   />
                 ))}
               </PositionCardGrid>
@@ -246,7 +246,7 @@ export default function ProAmmPool() {
                   return (
                     <PositionListItem
                       stakedLayout
-                      farmAvailable
+                      hasUserDepositedInFarm
                       refe={tokenAddressSymbolMap}
                       positionDetails={p}
                       key={p.tokenId.toString()}
