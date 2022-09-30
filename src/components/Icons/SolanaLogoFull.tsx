@@ -1,7 +1,4 @@
-import useTheme from 'hooks/useTheme'
-
 function SolanaLogoFull() {
-  const theme = useTheme()
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width="140" height="22" viewBox="0 0 140 22" fill="none">
       <g clipPath="url(#clip0_37_3024)">
