@@ -129,6 +129,7 @@ interface PositionListItemProps {
   hasUserDepositedInFarm?: boolean
   stakedLayout?: boolean
   refe?: React.MutableRefObject<any>
+  hasActiveFarm: boolean
 }
 
 export function getPriceOrderingFromPositionForUI(position?: Position): {
@@ -151,7 +152,13 @@ export function getPriceOrderingFromPositionForUI(position?: Position): {
   }
 }
 
-function PositionListItem({ stakedLayout, hasUserDepositedInFarm, positionDetails, refe }: PositionListItemProps) {
+function PositionListItem({
+  stakedLayout,
+  hasUserDepositedInFarm,
+  positionDetails,
+  refe,
+  hasActiveFarm,
+}: PositionListItemProps) {
   const { chainId } = useWeb3React()
   const {
     token0: token0Address,
@@ -232,11 +239,7 @@ function PositionListItem({ stakedLayout, hasUserDepositedInFarm, positionDetail
   return position && priceLower && priceUpper ? (
     <StyledPositionCard>
       <>
-        <ProAmmPoolInfo
-          position={position}
-          tokenId={positionDetails.tokenId.toString()}
-          farmAvailable={hasUserDepositedInFarm}
-        />
+        <ProAmmPoolInfo position={position} tokenId={positionDetails.tokenId.toString()} isFarmActive={hasActiveFarm} />
         <TabContainer style={{ marginTop: '1rem' }}>
           <Tab isActive={activeTab === 0} padding="0" onClick={() => setActiveTab(0)}>
             <TabText isActive={activeTab === 0} style={{ fontSize: '12px' }}>

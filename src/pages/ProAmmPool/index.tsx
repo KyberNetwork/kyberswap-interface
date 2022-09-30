@@ -139,6 +139,15 @@ export default function ProAmmPool() {
   const [showStaked, setShowStaked] = useState(false)
 
   const upToSmall = useMedia('(max-width: 768px)')
+
+  const activeFarmAddress = useMemo(() => {
+    const now = Date.now() / 1000
+    return Object.values(farms)
+      .flat()
+      .filter(farm => farm.endTime >= now)
+      .map(farm => farm.poolAddress.toLowerCase())
+  }, [farms])
+
   return (
     <>
       <PageWrapper style={{ padding: 0, marginTop: '24px' }}>
@@ -238,6 +247,7 @@ export default function ProAmmPool() {
                     positionDetails={p}
                     key={p.tokenId.toString()}
                     hasUserDepositedInFarm={!!p.stakedLiquidity}
+                    hasActiveFarm={activeFarmAddress.includes(p.poolId.toLowerCase())}
                   />
                 ))}
               </PositionCardGrid>
@@ -245,11 +255,12 @@ export default function ProAmmPool() {
                 {filteredFarmPositions.map(p => {
                   return (
                     <PositionListItem
+                      key={p.tokenId.toString()}
                       stakedLayout
                       hasUserDepositedInFarm
                       refe={tokenAddressSymbolMap}
                       positionDetails={p}
-                      key={p.tokenId.toString()}
+                      hasActiveFarm={activeFarmAddress.includes(p.poolId.toLowerCase())}
                     />
                   )
                 })}
