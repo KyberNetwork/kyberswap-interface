@@ -1,7 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { useWeb3React } from '@web3-react/core'
 import dayjs from 'dayjs'
-import { BigNumber } from 'ethers'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { BarChart, ChevronDown, Clock, Share2, Star, Users } from 'react-feather'
@@ -73,6 +72,7 @@ const RankDetailWrapper = styled.div`
   gap: 10px;
   display: flex;
   flex-direction: column;
+  padding: 5px 3px 10px 3px;
 `
 
 function RankDetail({ campaign }: { campaign: CampaignData | undefined }) {
@@ -89,15 +89,7 @@ function RankDetail({ campaign }: { campaign: CampaignData | undefined }) {
 
   const percentTradingNumber = !tradingNumberRequired ? 0 : Math.floor((tradingNumber / tradingNumberRequired) * 100)
 
-  let percentTradingVolume = 0
-  try {
-    if (tradingVolumeRequired) {
-      percentTradingVolume = BigNumber.from(tradingVolume)
-        .mul(BigNumber.from(100))
-        .div(BigNumber.from(tradingVolumeRequired))
-        .toNumber()
-    }
-  } catch (error) {}
+  const percentTradingVolume = tradingVolumeRequired ? Math.floor((tradingVolume / tradingVolumeRequired) * 100) : 0
 
   const isPassedVolume = percentTradingVolume >= 100
   const isPassedNumberOfTrade = percentTradingNumber >= 100
@@ -116,7 +108,7 @@ function RankDetail({ campaign }: { campaign: CampaignData | undefined }) {
       width="300px"
       text={
         <RankDetailWrapper>
-          <Text color={theme.white} fontSize={16}>
+          <Text color={theme.text} fontSize={16}>
             <Trans>Requirements</Trans>
           </Text>
           <Text lineHeight={'20px'}>
