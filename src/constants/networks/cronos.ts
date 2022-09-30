@@ -27,7 +27,7 @@ const cronosInfo: EVMNetworkInfo = {
   blockClient: createClient('https://cronos-graph.kyberengineering.io/subgraphs/name/kybernetwork/cronos-blocks'),
   etherscanUrl: 'https://cronos.org/explorer',
   etherscanName: 'Cronos explorer',
-  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainId=${ChainId.CRONOS}`,
+  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.CRONOS}&pageSize=${100}&isWhitelisted=${true}`,
   bridgeURL: 'https://cronos.crypto.org/docs/bridge/cdcapp.html',
   nativeToken: {
     symbol: 'CRO',

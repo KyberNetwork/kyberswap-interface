@@ -19,7 +19,7 @@ const fantomInfo: EVMNetworkInfo = {
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/fantom-blocks'),
   etherscanUrl: 'https://ftmscan.com',
   etherscanName: 'Ftmscan',
-  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainId=${ChainId.FANTOM}`,
+  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.FANTOM}&pageSize=${100}&isWhitelisted=${true}`,
   bridgeURL: 'https://multichain.xyz',
   nativeToken: {
     symbol: 'FTM',

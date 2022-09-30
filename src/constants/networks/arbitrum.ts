@@ -22,7 +22,7 @@ const arbitrumInfo: EVMNetworkInfo = {
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/viet-nv/arbitrum-blocks'),
   etherscanUrl: 'https://arbiscan.io',
   etherscanName: 'Arbiscan',
-  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainId=${ChainId.ARBITRUM}`,
+  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.ARBITRUM}&pageSize=${100}&isWhitelisted=${true}`,
   bridgeURL: 'https://bridge.arbitrum.io',
   nativeToken: {
     symbol: 'ETH',

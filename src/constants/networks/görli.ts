@@ -24,7 +24,7 @@ const görliInfo: EVMNetworkInfo = {
   blockClient: createClient('https://ethereum-graph.dev.kyberengineering.io/subgraphs/name/kybernetwork/goerli-blocks'),
   etherscanUrl: 'https://goerli.etherscan.io',
   etherscanName: 'Goerli Explorer',
-  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainId=${ChainId.GÖRLI}`,
+  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.ROPSTEN}&pageSize=${100}&isWhitelisted=${true}`,
   bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'gETH',

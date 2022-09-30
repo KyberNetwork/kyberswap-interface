@@ -20,7 +20,7 @@ const optimismInfo: EVMNetworkInfo = {
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/ianlapham/uni-testing-subgraph'),
   etherscanUrl: 'https://optimistic.etherscan.io',
   etherscanName: 'Optimistic Ethereum Explorer',
-  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainId=${ChainId.OPTIMISM}`,
+  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.OPTIMISM}&pageSize=${100}&isWhitelisted=${true}`,
   bridgeURL: 'https://app.optimism.io/bridge',
   nativeToken: {
     symbol: 'ETH',

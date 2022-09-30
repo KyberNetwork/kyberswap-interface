@@ -30,7 +30,7 @@ const cronosTestnetInfo: EVMNetworkInfo = {
   ),
   etherscanUrl: 'https://cronos.org/explorer/testnet3',
   etherscanName: 'Cronos explorer',
-  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainId=${ChainId.CRONOSTESTNET}`,
+  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.CRONOSTESTNET}&pageSize=${100}&isWhitelisted=${true}`,
   bridgeURL: 'https://cronos.crypto.org/docs/bridge/cdcapp.html',
   nativeToken: {
     symbol: 'CRO',

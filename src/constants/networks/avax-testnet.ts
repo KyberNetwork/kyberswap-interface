@@ -19,7 +19,7 @@ const avaxTestnetInfo: EVMNetworkInfo = {
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/ducquangkstn/ethereum-block-fuji'),
   etherscanUrl: 'https://testnet.snowtrace.io',
   etherscanName: 'Snowtrace',
-  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainId=${ChainId.AVAXTESTNET}`,
+  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.AVAXTESTNET}&pageSize=${100}&isWhitelisted=${true}`,
   bridgeURL: 'https://bridge.avax.network',
   nativeToken: {
     symbol: 'AVAX',

@@ -20,7 +20,7 @@ const ethereumInfo: EVMNetworkInfo = {
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-ethereum'),
   etherscanUrl: 'https://etherscan.io',
   etherscanName: 'Etherscan',
-  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainId=${ChainId.MAINNET}`,
+  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.MAINNET}&pageSize=${100}&isWhitelisted=${true}`,
   bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'ETH',

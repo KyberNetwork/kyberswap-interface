@@ -38,7 +38,7 @@ import {
   updateUserLocale,
   updateUserSlippageTolerance,
 } from 'state/user/actions'
-import { defaultShowLiveCharts } from 'state/user/reducer'
+import { defaultShowLiveCharts, getFavoriteTokenDefault } from 'state/user/reducer'
 import { isAddress } from 'utils'
 
 function serializeToken(token: Token | WrappedTokenInfo): SerializedToken {
@@ -419,19 +419,16 @@ export function useToggleTopTrendingTokens(): () => void {
   return useCallback(() => dispatch(toggleTopTrendingTokens()), [dispatch])
 }
 
-export const useUserFavoriteTokens = (chainId: ChainId | undefined) => {
+export const useUserFavoriteTokens = (chainId: ChainId) => {
   const dispatch = useDispatch<AppDispatch>()
-  const favoriteTokens = useSelector((state: AppState) => {
-    if (!chainId) {
-      return undefined
-    }
+  const { favoriteTokensByChainId } = useSelector((state: AppState) => state.user)
 
-    if (!state.user.favoriteTokensByChainId) {
-      return undefined
-    }
-
-    return state.user.favoriteTokensByChainId[chainId]
-  })
+  const favoriteTokens = useMemo(() => {
+    if (!chainId) return undefined
+    return favoriteTokensByChainId
+      ? favoriteTokensByChainId[chainId] || getFavoriteTokenDefault(chainId)
+      : getFavoriteTokenDefault(chainId)
+  }, [chainId, favoriteTokensByChainId])
 
   const toggleFavoriteToken = useCallback(
     (payload: ToggleFavoriteTokenPayload) => dispatch(toggleFavoriteTokenAction(payload)),

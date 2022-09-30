@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { ChainId, Currency, CurrencyAmount, NativeCurrency, Token } from '@namgold/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount, Token } from '@namgold/ks-sdk-core'
 import JSBI from 'jsbi'
 import { stringify } from 'qs'
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -230,7 +230,6 @@ export default function Swap({ history }: RouteComponentProps) {
     feeConfig,
     [Field.INPUT]: INPUT,
     [Field.OUTPUT]: OUTPUT,
-    trade: storeTrade,
   } = useSwapState()
 
   const {
@@ -254,7 +253,7 @@ export default function Swap({ history }: RouteComponentProps) {
     inputError: wrapInputError,
   } = useWrapCallback(currencies[Field.INPUT], currencies[Field.OUTPUT], typedValue)
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
-  const trade = showWrap ? undefined : v2Trade || storeTrade
+  const trade = showWrap ? undefined : v2Trade
 
   const parsedAmounts = showWrap
     ? {
@@ -546,7 +545,10 @@ export default function Swap({ history }: RouteComponentProps) {
     const { fromCurrency, network } = getUrlMatchParams()
     if (!fromCurrency || !network) return
 
-    const findChainId = SUPPORTED_NETWORKS.find(chainId => NETWORKS_INFO[chainId].route === network) || ChainId.MAINNET
+    const findChainId = SUPPORTED_NETWORKS.find(chainId => NETWORKS_INFO[chainId].route === network)
+    if (!findChainId) {
+      return navigate('/swap')
+    }
     if (findChainId !== chainId) {
       changeNetwork(
         findChainId,
@@ -574,11 +576,7 @@ export default function Swap({ history }: RouteComponentProps) {
   )
 
   const onSelectSuggestedPair = useCallback(
-    (
-      fromToken: NativeCurrency | Token | undefined | null,
-      toToken: NativeCurrency | Token | undefined | null,
-      amount: string,
-    ) => {
+    (fromToken: Currency | undefined, toToken: Currency | undefined, amount: string) => {
       if (fromToken) onCurrencySelection(Field.INPUT, fromToken)
       if (toToken) onCurrencySelection(Field.OUTPUT, toToken)
       if (amount) handleTypeInput(amount)

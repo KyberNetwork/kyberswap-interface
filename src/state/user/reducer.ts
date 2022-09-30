@@ -2,6 +2,7 @@ import { ChainId } from '@namgold/ks-sdk-core'
 import { createReducer } from '@reduxjs/toolkit'
 import { isMobile } from 'react-device-detect'
 
+import { SUGGESTED_BASES } from 'constants/bases'
 import { DEFAULT_DEADLINE_FROM_NOW, INITIAL_ALLOWED_SLIPPAGE } from 'constants/index'
 import { SupportedLocale } from 'constants/locales'
 import { updateVersion } from 'state/global/actions'
@@ -88,6 +89,11 @@ export interface UserState {
 function pairKey(token0Address: string, token1Address: string) {
   return `${token0Address};${token1Address}`
 }
+
+export const getFavoriteTokenDefault = (chainId: ChainId) => ({
+  addresses: SUGGESTED_BASES[chainId].map(e => e.address),
+  includeNativeToken: true,
+})
 
 export const defaultShowLiveCharts: { [chainId in ChainId]: boolean } = {
   [ChainId.MAINNET]: true,
@@ -232,10 +238,7 @@ export default createReducer(initialState, builder =>
 
       let favoriteTokens = state.favoriteTokensByChainId[chainId]
       if (!favoriteTokens) {
-        favoriteTokens = {
-          includeNativeToken: false,
-          addresses: [],
-        }
+        favoriteTokens = getFavoriteTokenDefault(chainId)
         state.favoriteTokensByChainId[chainId] = favoriteTokens
       }
 

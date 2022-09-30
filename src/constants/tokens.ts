@@ -47,6 +47,8 @@ export const STABLE_COINS_ADDRESS: { [chainId in ChainId]: string[] } = {
     '0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664', // usdc.e
     '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E', //usdc
     '0xd586E7F844cEa2F87f50152665BCbc2C279D8d70', //dai.e
+    '0x3B55E45fD6bd7d4724F5c47E0d1bCaEdd059263e', // MAI
+    '0x130966628846BFd36ff31a822705796e8cb8C18D', // MIM
   ],
   [ChainId.FANTOM]: [
     '0x8D11eC38a3EB5E956B052f67Da8Bdc9bef8Abf3E', //dai
@@ -366,13 +368,7 @@ export const USDT: { [chainId in ChainId]: Token } = {
   [ChainId.BTTC]: new Token(ChainId.BTTC, '0x9B5F27f6ea9bBD753ce3793a07CbA3C74644330d', 18, 'USDT_b', 'Tether USD_BSC'),
   [ChainId.AURORA]: new Token(ChainId.AURORA, '0x4988a896b1227218e4A686fdE5EabdcAbd91571f', 6, 'USDT', 'Tether USD'),
   [ChainId.VELAS]: new Token(ChainId.VELAS, '0x01445C31581c354b7338AC35693AB2001B50b9aE', 6, 'USDT', 'Multichain USDT'),
-  [ChainId.OASIS]: new Token(
-    ChainId.OASIS,
-    '0xdC19A122e268128B5eE20366299fc7b5b199C8e3',
-    6,
-    'USDT',
-    'Tether USD (Wormhole)',
-  ),
+  [ChainId.OASIS]: new Token(ChainId.OASIS, '0x6Cb9750a92643382e020eA9a170AbB83Df05F30B', 6, 'USDT', 'Tether USD'),
   [ChainId.OPTIMISM]: new Token(
     ChainId.OPTIMISM,
     '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58',
