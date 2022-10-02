@@ -8,8 +8,9 @@
       "purpose": "any maskable"
     }
   ],
+  "start_url": "/",
   "orientation": "portrait",
-  "display": "standalone",
+  "display": "fullscreen",
   "theme_color": "#31cb9e",
   "background_color": "#fff"
 }
