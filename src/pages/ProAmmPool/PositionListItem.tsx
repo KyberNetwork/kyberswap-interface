@@ -34,25 +34,6 @@ import { unwrappedToken } from 'utils/wrappedCurrency'
 
 import ContentLoader from './ContentLoader'
 
-const DisabledButtonOutlined = styled(ButtonOutlined)`
-  padding: 8px;
-  color: ${({ theme }) => theme.disableText};
-  border: 1px solid ${({ theme }) => theme.disableText};
-  cursor: not-allowed;
-
-  box-shadow: none;
-  &:hover {
-    box-shadow: none;
-  }
-
-  &:focus {
-    box-shadow: none;
-  }
-
-  &:active {
-    box-shadow: none;
-  }
-`
 const StyledPositionCard = styled(LightCard)`
   border: none;
   background: ${({ theme }) => theme.background};
@@ -329,15 +310,28 @@ function PositionListItem({
             <ButtonGroup>
               {reasonToDisableRemoveLiquidity ? (
                 <MouseoverTooltip text={reasonToDisableRemoveLiquidity} placement="top">
-                  <DisabledButtonOutlined
-                    style={{
+                  <Flex
+                    // this flex looks like redundant
+                    // but without this, the cursor will be default
+                    // as we put pointerEvents=none on the button
+                    sx={{
+                      cursor: 'not-allowed',
                       width: '100%',
                     }}
                   >
-                    <Text width="max-content" fontSize="14px">
-                      <Trans>Remove Liquidity</Trans>
-                    </Text>
-                  </DisabledButtonOutlined>
+                    <ButtonOutlined
+                      style={{
+                        padding: '8px',
+                        width: '100%',
+                        pointerEvents: 'none',
+                      }}
+                      disabled
+                    >
+                      <Text width="max-content" fontSize="14px">
+                        <Trans>Remove Liquidity</Trans>
+                      </Text>
+                    </ButtonOutlined>
+                  </Flex>
                 </MouseoverTooltip>
               ) : (
                 <ButtonOutlined

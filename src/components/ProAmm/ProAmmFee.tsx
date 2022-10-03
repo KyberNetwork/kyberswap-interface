@@ -212,20 +212,30 @@ export default function ProAmmFee({
                 placement="top"
                 text={t`You need to withdraw your deposited liquidity position from the Farm first`}
               >
-                <ButtonLight
-                  style={{
-                    padding: '10px',
-                    fontSize: '14px',
+                <Flex
+                  // this flex looks like redundant
+                  // but without this, the cursor will be default
+                  // as we put pointerEvents=none on the button
+                  sx={{
                     cursor: 'not-allowed',
-                    background: theme.buttonGray,
-                    color: theme.border,
+                    width: '100%',
                   }}
                 >
-                  <Flex alignItems="center" sx={{ gap: '8px' }}>
-                    <Info size={16} />
-                    <Trans>Collect Fees</Trans>
-                  </Flex>
-                </ButtonLight>
+                  <ButtonLight
+                    style={{
+                      padding: '10px',
+                      fontSize: '14px',
+                      width: '100%',
+                      pointerEvents: 'none',
+                    }}
+                    disabled
+                  >
+                    <Flex alignItems="center" sx={{ gap: '8px' }}>
+                      <Info size={16} />
+                      <Trans>Collect Fees</Trans>
+                    </Flex>
+                  </ButtonLight>
+                </Flex>
               </MouseoverTooltip>
             ) : (
               <ButtonLight disabled={hasNoFeeToCollect} onClick={collect} style={{ padding: '10px', fontSize: '14px' }}>
