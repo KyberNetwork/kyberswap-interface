@@ -14,6 +14,9 @@ const velasInfo: EVMNetworkInfo = {
   route: 'velas',
   name: 'Velas',
   icon: VELAS,
+  iconDark: NOT_SUPPORT,
+  iconSelected: NOT_SUPPORT,
+  iconDarkSelected: NOT_SUPPORT,
   classicClient: createClient(
     'https://velas-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-velas',
   ),
@@ -33,6 +36,7 @@ const velasInfo: EVMNetworkInfo = {
   },
   rpcUrl: 'https://evmexplorer.velas.com/rpc',
   routerUri: `${AGGREGATOR_API}/velas/route/encode`,
+  multicall: '0x1877Ec0770901cc6886FDA7E7525a78c2Ed4e975',
   classic: {
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',
@@ -61,6 +65,7 @@ const velasInfo: EVMNetworkInfo = {
   coingeckoNetworkId: 'velas',
   coingeckoNativeTokenId: 'velas',
   deBankSlug: EMPTY,
+  trueSightId: NOT_SUPPORT,
 }
 
 export default velasInfo

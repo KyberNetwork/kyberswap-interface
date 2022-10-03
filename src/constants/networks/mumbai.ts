@@ -14,6 +14,9 @@ const mumbaiInfo: EVMNetworkInfo = {
   route: 'mumbai',
   name: 'Mumbai',
   icon: Polygon,
+  iconDark: NOT_SUPPORT,
+  iconSelected: NOT_SUPPORT,
+  iconDarkSelected: NOT_SUPPORT,
   classicClient: createClient('https://api.thegraph.com/subgraphs/name/piavgh/dmm-exchange-mumbai'),
   elasticClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-matic'), //todo: not exits yet
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/piavgh/mumbai-blocks'),
@@ -29,6 +32,7 @@ const mumbaiInfo: EVMNetworkInfo = {
   },
   rpcUrl: 'https://rpc-mumbai.maticvigil.com',
   routerUri: EMPTY,
+  multicall: '0xc535D6463D5Bf9843aFa73bBF49bF4644a3988bA',
   classic: {
     static: {
       zap: EMPTY,
@@ -57,6 +61,7 @@ const mumbaiInfo: EVMNetworkInfo = {
   coingeckoNetworkId: EMPTY,
   coingeckoNativeTokenId: EMPTY,
   deBankSlug: EMPTY,
+  trueSightId: NOT_SUPPORT,
 }
 
 export default mumbaiInfo

@@ -15,6 +15,9 @@ const arbitrumTestnetInfo: EVMNetworkInfo = {
   route: 'arbitrum-testnet',
   name: 'Arbitrum Testnet',
   icon: ARBITRUM,
+  iconDark: NOT_SUPPORT,
+  iconSelected: NOT_SUPPORT,
+  iconDarkSelected: NOT_SUPPORT,
   classicClient: createClient('https://api.thegraph.com/subgraphs/name/viet-nv/kyberswap-arbitrum-rinkeby'),
   elasticClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-arbitrum-one'),
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/viet-nv/arbitrum-rinkeby-blocks'),
@@ -32,6 +35,7 @@ const arbitrumTestnetInfo: EVMNetworkInfo = {
   },
   rpcUrl: 'https://rinkeby.arbitrum.io/rpc',
   routerUri: EMPTY,
+  multicall: '0xefEb0223C51600d8059A4fD44094a1E2A2C54Bf7',
   classic: {
     static: {
       zap: '0xfa33723F6fA00a35F69F8aCd72A5BE9AF3c8Bd25',
@@ -56,6 +60,7 @@ const arbitrumTestnetInfo: EVMNetworkInfo = {
   coingeckoNetworkId: EMPTY,
   coingeckoNativeTokenId: 'ethereum',
   deBankSlug: EMPTY,
+  trueSightId: NOT_SUPPORT,
 }
 
 export default arbitrumTestnetInfo

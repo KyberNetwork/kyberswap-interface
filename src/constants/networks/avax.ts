@@ -12,6 +12,9 @@ const avaxInfo: EVMNetworkInfo = {
   route: 'avalanche',
   name: 'Avalanche',
   icon: AVAX,
+  iconDark: NOT_SUPPORT,
+  iconSelected: NOT_SUPPORT,
+  iconDarkSelected: NOT_SUPPORT,
   classicClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-avalanche'),
   elasticClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-avalanche'),
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/ducquangkstn/avalache-blocks'),
@@ -27,6 +30,7 @@ const avaxInfo: EVMNetworkInfo = {
   },
   rpcUrl: 'https://avalanche.kyberengineering.io',
   routerUri: `${AGGREGATOR_API}/avalanche/route/encode`,
+  multicall: '0xF2FD8219609E28C61A998cc534681f95D2740f61',
   classic: {
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',
@@ -65,6 +69,7 @@ const avaxInfo: EVMNetworkInfo = {
   coingeckoNetworkId: 'avalanche',
   coingeckoNativeTokenId: 'avalanche-2',
   deBankSlug: 'avax',
+  trueSightId: 'avax',
 }
 
 export default avaxInfo

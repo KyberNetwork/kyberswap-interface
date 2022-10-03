@@ -1,3 +1,4 @@
+import { ChainId } from '@namgold/ks-sdk-core'
 import { useMemo, useRef } from 'react'
 import useSWRImmutable from 'swr/immutable'
 
@@ -52,7 +53,7 @@ export default function useGetCoinGeckoChartData(
           const to = Math.floor(Date.now() / 1000)
           const from = to - (timeframe === TrueSightTimeframe.ONE_DAY ? 24 * 3600 : 24 * 3600 * 7)
           const chainId = TRUESIGHT_NETWORK_TO_CHAINID[tokenNetwork]
-          const coinGeckoNetworkId = NETWORKS_INFO[chainId].coingeckoNetworkId
+          const coinGeckoNetworkId = NETWORKS_INFO[chainId || ChainId.MAINNET].coingeckoNetworkId
           let url = `${COINGECKO_API_URL}/coins/${coinGeckoNetworkId}/contract/${tokenAddress.toLowerCase()}/market_chart/range?vs_currency=usd&from=${from}&to=${to}`
           if (tokenAddress === 'bnb') {
             url = `${COINGECKO_API_URL}/coins/binancecoin/market_chart/range?vs_currency=usd&from=${from}&to=${to}`

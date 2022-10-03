@@ -15,6 +15,9 @@ const ethereumInfo: EVMNetworkInfo = {
   route: 'ethereum',
   name: 'Ethereum',
   icon: Mainnet,
+  iconDark: NOT_SUPPORT,
+  iconSelected: NOT_SUPPORT,
+  iconDarkSelected: NOT_SUPPORT,
   classicClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-ethereum'),
   elasticClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-mainnet'),
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-ethereum'),
@@ -30,6 +33,7 @@ const ethereumInfo: EVMNetworkInfo = {
   },
   rpcUrl: 'https://ethereum.kyberengineering.io',
   routerUri: `${AGGREGATOR_API}/ethereum/route/encode`,
+  multicall: '0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696',
   classic: {
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',
@@ -63,6 +67,7 @@ const ethereumInfo: EVMNetworkInfo = {
   coingeckoNetworkId: 'ethereum',
   coingeckoNativeTokenId: 'ethereum',
   deBankSlug: 'eth',
+  trueSightId: 'eth',
 }
 
 export default ethereumInfo

@@ -26,7 +26,7 @@ import PROMM_FARM_ABI from 'constants/abis/v2/farm.json'
 import WETH_ABI from 'constants/abis/weth.json'
 import ZAP_STATIC_FEE_ABI from 'constants/abis/zap-static-fee.json'
 import ZAP_ABI from 'constants/abis/zap.json'
-import { MULTICALL_ABI, MULTICALL_NETWORKS } from 'constants/multicall'
+import { MULTICALL_ABI } from 'constants/multicall'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { FARM_CONTRACTS as PROMM_FARM_CONTRACTS } from 'constants/v2'
 import { useWeb3React } from 'hooks'
@@ -157,7 +157,7 @@ export function usePairContract(pairAddress?: string, withSignerIfPossible?: boo
 
 export function useMulticallContract(): Contract | null {
   const { chainId } = useActiveWeb3React()
-  return useContractForReading(chainId && MULTICALL_NETWORKS[chainId], MULTICALL_ABI)
+  return useContractForReading(isEVM(chainId) ? NETWORKS_INFO[chainId].multicall : undefined, MULTICALL_ABI)
 }
 
 export function useSocksController(): Contract | null {

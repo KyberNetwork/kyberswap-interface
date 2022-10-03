@@ -15,6 +15,9 @@ const rinkebyInfo: EVMNetworkInfo = {
   route: 'rinkeby',
   name: 'Rinkeby',
   icon: Mainnet,
+  iconDark: NOT_SUPPORT,
+  iconSelected: NOT_SUPPORT,
+  iconDarkSelected: NOT_SUPPORT,
   classicClient: createClient('https://api.thegraph.com/subgraphs/name/nguyenhuudungz/dmm-exchange-ropsten'), //todo: not exits yet
   elasticClient: createClient('https://api.thegraph.com/subgraphs/name/viet-nv/promm-rinkeby'),
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/billjhlee/rinkeby-blocks'),
@@ -30,6 +33,7 @@ const rinkebyInfo: EVMNetworkInfo = {
   },
   rpcUrl: 'https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
   routerUri: 'https://aggregator-api.dev.kyberengineering.io/rinkeby/route/encode',
+  multicall: '0x5ba1e12693dc8f9c48aad8770482f4739beed696',
   classic: {
     static: {
       zap: EMPTY,
@@ -58,6 +62,7 @@ const rinkebyInfo: EVMNetworkInfo = {
   coingeckoNetworkId: EMPTY,
   coingeckoNativeTokenId: EMPTY,
   deBankSlug: EMPTY,
+  trueSightId: NOT_SUPPORT,
 }
 
 export default rinkebyInfo

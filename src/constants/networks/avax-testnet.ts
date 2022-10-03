@@ -14,6 +14,9 @@ const avaxTestnetInfo: EVMNetworkInfo = {
   route: 'avalanche-testnet',
   name: 'Avalanche Testnet',
   icon: AVAX,
+  iconDark: NOT_SUPPORT,
+  iconSelected: NOT_SUPPORT,
+  iconDarkSelected: NOT_SUPPORT,
   classicClient: createClient('https://api.thegraph.com/subgraphs/name/ducquangkstn/dmm-exchange-fuij'),
   elasticClient: createClient('https://api.thegraph.com/subgraphs/name/viet-nv/elastic-fuji'),
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/ducquangkstn/ethereum-block-fuji'),
@@ -29,6 +32,7 @@ const avaxTestnetInfo: EVMNetworkInfo = {
   },
   rpcUrl: 'https://api.avax-test.network/ext/bc/C/rpc',
   routerUri: EMPTY,
+  multicall: '0x5D605e78bc699fB565E6E6a1fa2d940C40F8ce25',
   classic: {
     static: {
       zap: EMPTY,
@@ -57,6 +61,7 @@ const avaxTestnetInfo: EVMNetworkInfo = {
   coingeckoNetworkId: EMPTY,
   coingeckoNativeTokenId: EMPTY,
   deBankSlug: EMPTY,
+  trueSightId: NOT_SUPPORT,
 }
 
 export default avaxTestnetInfo

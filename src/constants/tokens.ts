@@ -504,7 +504,7 @@ export const KNC: { [chainId in ChainId]: Token } = {
   ),
   [ChainId.SOLANA]: new Token(
     ChainId.SOLANA,
-    'KNCVyKuChfKTLDJ3EQEatqF4kBEF2PNECoTRWsx5qXz',
+    'KNCkfGAnBUvoG5EJipAzSBjjaF8iNL4ivYsBS14DKdg',
     18,
     'KNC',
     'Kyber Network Crystal',

@@ -15,6 +15,9 @@ const kovanInfo: EVMNetworkInfo = {
   route: 'kovan',
   name: 'Kovan',
   icon: Mainnet,
+  iconDark: NOT_SUPPORT,
+  iconSelected: NOT_SUPPORT,
+  iconDarkSelected: NOT_SUPPORT,
   classicClient: createClient('https://api.thegraph.com/subgraphs/name/nguyenhuudungz/dmm-exchange-ropsten'), //todo: not exits yet
   elasticClient: createClient('https://api.thegraph.com/subgraphs/name/viet-nv/promm-rinkeby'), //todo: not exits yet
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/edwardevans094/ropsten-blocks'), //todo: not exits yet
@@ -30,6 +33,7 @@ const kovanInfo: EVMNetworkInfo = {
   },
   rpcUrl: 'https://kovan.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
   routerUri: EMPTY,
+  multicall: '0x5ba1e12693dc8f9c48aad8770482f4739beed696',
   classic: {
     static: {
       zap: EMPTY,
@@ -54,6 +58,7 @@ const kovanInfo: EVMNetworkInfo = {
   coingeckoNetworkId: EMPTY,
   coingeckoNativeTokenId: EMPTY,
   deBankSlug: EMPTY,
+  trueSightId: NOT_SUPPORT,
 }
 
 export default kovanInfo

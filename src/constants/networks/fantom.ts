@@ -14,6 +14,9 @@ const fantomInfo: EVMNetworkInfo = {
   route: 'fantom',
   name: 'Fantom',
   icon: FTM,
+  iconDark: NOT_SUPPORT,
+  iconSelected: NOT_SUPPORT,
+  iconDarkSelected: NOT_SUPPORT,
   classicClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-fantom'),
   elasticClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-fantom'),
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/fantom-blocks'),
@@ -29,6 +32,7 @@ const fantomInfo: EVMNetworkInfo = {
   },
   rpcUrl: 'https://fantom.kyberengineering.io',
   routerUri: `${AGGREGATOR_API}/fantom/route/encode`,
+  multicall: '0x878dFE971d44e9122048308301F540910Bbd934c',
   classic: {
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',
@@ -57,6 +61,7 @@ const fantomInfo: EVMNetworkInfo = {
   coingeckoNetworkId: 'fantom',
   coingeckoNativeTokenId: 'fantom',
   deBankSlug: 'ftm',
+  trueSightId: 'fantom',
 }
 
 export default fantomInfo

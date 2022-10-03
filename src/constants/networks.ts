@@ -29,17 +29,6 @@ import {
 } from './networks/index'
 import { EVMNetworkInfo } from './networks/type'
 
-type NetToChain = { [p: string]: ChainId }
-
-//todo move this to NETWORKS_INFO
-export const TRUESIGHT_NETWORK_TO_CHAINID: NetToChain = {
-  eth: ChainId.MAINNET,
-  bsc: ChainId.BSCMAINNET,
-  avax: ChainId.AVAXMAINNET,
-  polygon: ChainId.MATIC,
-  fantom: ChainId.FANTOM,
-  cronos: ChainId.CRONOS,
-}
 type NETWORKS_INFO_CONFIG_TYPE = { [chainId in EVM_NETWORK]: EVMNetworkInfo } & {
   [chainId in ChainId.SOLANA]: SolanaNetworkInfo
 }
@@ -141,3 +130,16 @@ export function isSolana(chainId?: ChainId): chainId is ChainId.SOLANA {
   const chainType = getChainType(chainId)
   return chainType === ChainType.SOLANA
 }
+
+type NetToChain = { [p: string]: ChainId | undefined }
+
+export const TRUESIGHT_NETWORK_TO_CHAINID: NetToChain = SUPPORTED_NETWORKS.reduce((acc, chainId) => {
+  const id = NETWORKS_INFO[chainId].trueSightId
+  if (id) {
+    return {
+      ...acc,
+      [id]: chainId,
+    }
+  }
+  return acc
+}, {} as NetToChain) as NetToChain

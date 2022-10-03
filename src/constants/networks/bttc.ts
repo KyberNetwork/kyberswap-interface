@@ -14,6 +14,9 @@ const bttcInfo: EVMNetworkInfo = {
   route: 'bittorrent',
   name: 'BitTorrent',
   icon: BTT,
+  iconDark: NOT_SUPPORT,
+  iconSelected: NOT_SUPPORT,
+  iconDarkSelected: NOT_SUPPORT,
   classicClient: createClient(
     'https://bttc-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-bttc',
   ),
@@ -33,6 +36,7 @@ const bttcInfo: EVMNetworkInfo = {
   },
   rpcUrl: 'https://bttc.kyberengineering.io',
   routerUri: `${AGGREGATOR_API}/bttc/route/encode`,
+  multicall: '0xBF69a56D35B8d6f5A8e0e96B245a72F735751e54',
   classic: {
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',
@@ -65,6 +69,7 @@ const bttcInfo: EVMNetworkInfo = {
   coingeckoNetworkId: 'tron',
   coingeckoNativeTokenId: 'bittorrent',
   deBankSlug: EMPTY,
+  trueSightId: NOT_SUPPORT,
 }
 
 export default bttcInfo

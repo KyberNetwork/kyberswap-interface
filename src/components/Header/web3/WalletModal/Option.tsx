@@ -185,7 +185,11 @@ export default function Option({
     return (
       <MouseoverTooltip
         placement="top"
-        text={<Trans>This wallet won’t work on this chain, please select another wallet</Trans>}
+        text={
+          <Trans>
+            Please select another wallet that is {chainType === ChainType.EVM ? 'EVM' : 'Solana'} compatible
+          </Trans>
+        }
       >
         {content}
       </MouseoverTooltip>

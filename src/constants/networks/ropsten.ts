@@ -14,6 +14,9 @@ const ropstenInfo: EVMNetworkInfo = {
   route: 'ropsten',
   name: 'Ropsten',
   icon: Mainnet,
+  iconDark: NOT_SUPPORT,
+  iconSelected: NOT_SUPPORT,
+  iconDarkSelected: NOT_SUPPORT,
   classicClient: createClient('https://api.thegraph.com/subgraphs/name/viet-nv/kyberswap-classic-ropsten'),
   elasticClient: createClient('https://api.thegraph.com/subgraphs/name/viet-nv/promm-ropsten'),
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/edwardevans094/ropsten-blocks'),
@@ -29,6 +32,7 @@ const ropstenInfo: EVMNetworkInfo = {
   },
   rpcUrl: 'https://ropsten.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
   routerUri: EMPTY,
+  multicall: '0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696',
   classic: {
     static: {
       zap: '0x548E585B17908D0387d16F9BFf46c4EDe7ca7746',
@@ -61,6 +65,7 @@ const ropstenInfo: EVMNetworkInfo = {
   coingeckoNetworkId: EMPTY,
   coingeckoNativeTokenId: EMPTY,
   deBankSlug: EMPTY,
+  trueSightId: NOT_SUPPORT,
 }
 
 export default ropstenInfo

@@ -14,6 +14,9 @@ const ethereumInfo: EVMNetworkInfo = {
   route: 'ethw',
   name: 'EthereumPoW',
   icon: Mainnet,
+  iconDark: NOT_SUPPORT,
+  iconSelected: NOT_SUPPORT,
+  iconDarkSelected: NOT_SUPPORT,
   classicClient: createClient(
     'https://ethereum-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-ethereum',
   ),
@@ -33,6 +36,7 @@ const ethereumInfo: EVMNetworkInfo = {
   },
   rpcUrl: 'https://ethereumpow.kyberengineering.io',
   routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/ethw/route/encode`,
+  multicall: '0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696',
   classic: {
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',
@@ -61,6 +65,7 @@ const ethereumInfo: EVMNetworkInfo = {
   coingeckoNetworkId: '',
   coingeckoNativeTokenId: '',
   deBankSlug: '',
+  trueSightId: NOT_SUPPORT,
 }
 
 export default ethereumInfo

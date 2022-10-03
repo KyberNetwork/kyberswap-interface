@@ -99,7 +99,7 @@ import { Aggregator } from 'utils/aggregator'
 import { currencyId } from 'utils/currencyId'
 import { filterTokensWithExactKeyword } from 'utils/filtering'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
-import { convertToSlug, getNetworkSlug, getSymbolSlug } from 'utils/string'
+import { convertToSlug, getSymbolSlug } from 'utils/string'
 import { checkPairInWhiteList, convertSymbol } from 'utils/tokenInfo'
 
 const LiveChart = lazy(() => import('components/LiveChart'))
@@ -491,7 +491,7 @@ export default function Swap({ history }: RouteComponentProps) {
     let { fromCurrency, toCurrency, network } = getUrlMatchParams()
     if (!fromCurrency || !network) return
 
-    const compareNetwork = getNetworkSlug(chainId)
+    const compareNetwork = NETWORKS_INFO[chainId].route
 
     if (compareNetwork && network !== compareNetwork) {
       // when select change network => force get new network
@@ -569,7 +569,7 @@ export default function Swap({ history }: RouteComponentProps) {
       const symbolIn = getSymbolSlug(currencyIn)
       const symbolOut = getSymbolSlug(currencyOut)
       if (symbolIn && symbolOut && chainId) {
-        navigate(`/swap/${getNetworkSlug(chainId)}/${symbolIn}-to-${symbolOut}`)
+        navigate(`/swap/${NETWORKS_INFO[chainId].route}/${symbolIn}-to-${symbolOut}`)
       }
     },
     [navigate, chainId],
@@ -589,8 +589,7 @@ export default function Swap({ history }: RouteComponentProps) {
 
   useEffect(() => {
     const { network } = getUrlMatchParams()
-    const compareNetwork = getNetworkSlug(chainId)
-    const isChangeNetwork = compareNetwork !== network
+    const isChangeNetwork = network !== NETWORKS_INFO[chainId].route
     if (isChangeNetwork) return
 
     // when import/remove token

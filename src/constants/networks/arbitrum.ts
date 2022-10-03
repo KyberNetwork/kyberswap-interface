@@ -15,6 +15,9 @@ const arbitrumInfo: EVMNetworkInfo = {
   route: 'arbitrum',
   name: 'Arbitrum',
   icon: ARBITRUM,
+  iconDark: NOT_SUPPORT,
+  iconSelected: NOT_SUPPORT,
+  iconDarkSelected: NOT_SUPPORT,
   classicClient: createClient(
     'https://arbitrum-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-arbitrum',
   ),
@@ -32,6 +35,7 @@ const arbitrumInfo: EVMNetworkInfo = {
   },
   rpcUrl: 'https://arbitrum.kyberengineering.io',
   routerUri: `${AGGREGATOR_API}/arbitrum/route/encode`,
+  multicall: '0x80C7DD17B01855a6D2347444a0FCC36136a314de', // must use this for arbitrum to get exactly block number instead of L1 block number
   classic: {
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',
@@ -60,6 +64,7 @@ const arbitrumInfo: EVMNetworkInfo = {
   coingeckoNetworkId: 'arbitrum-one',
   coingeckoNativeTokenId: 'ethereum',
   deBankSlug: 'arb',
+  trueSightId: NOT_SUPPORT,
 }
 
 export default arbitrumInfo

@@ -116,9 +116,7 @@ const Networks = ({
               NETWORKS_INFO[key].iconDark ||
               NETWORKS_INFO[key].icon
             : NETWORKS_INFO[key].iconSelected || NETWORKS_INFO[key].icon
-          : isDarkMode && !!NETWORKS_INFO[key].iconDark
-          ? NETWORKS_INFO[key].iconDark
-          : NETWORKS_INFO[key].icon
+          : (isDarkMode && NETWORKS_INFO[key].iconDark) || NETWORKS_INFO[key].icon
 
         return (
           <SelectNetworkButton

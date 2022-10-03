@@ -79,17 +79,12 @@ function SelectNetwork(): JSX.Element | null {
     const balanceFixed = Number(balanceFixedStr)
     return `${balanceFixed} ${NativeCurrencies[chainId || ChainId.MAINNET].symbol}`
   }, [userEthBalance, chainId])
-
   return (
     <NetworkCard onClick={() => toggleNetworkModal()} role="button" id={TutorialIds.SELECT_NETWORK}>
       <NetworkSwitchContainer>
         <Row>
           <img
-            src={
-              isDarkMode && NETWORKS_INFO[chainId].iconDark
-                ? NETWORKS_INFO[chainId].iconDark
-                : NETWORKS_INFO[chainId].icon
-            }
+            src={(isDarkMode && NETWORKS_INFO[chainId].iconDark) || NETWORKS_INFO[chainId].icon}
             alt={NETWORKS_INFO[chainId].name + ' logo'}
             style={{ width: 20, height: 20, marginRight: '12px' }}
           />

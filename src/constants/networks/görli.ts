@@ -15,6 +15,9 @@ const görliInfo: EVMNetworkInfo = {
   route: 'goerli',
   name: 'Görli',
   icon: Mainnet,
+  iconDark: NOT_SUPPORT,
+  iconSelected: NOT_SUPPORT,
+  iconDarkSelected: NOT_SUPPORT,
   classicClient: createClient(
     'https://ethereum-graph.dev.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-classic-goerli',
   ),
@@ -34,6 +37,7 @@ const görliInfo: EVMNetworkInfo = {
   },
   rpcUrl: 'https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
   routerUri: EMPTY,
+  multicall: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',
   classic: {
     static: {
       zap: EMPTY,
@@ -58,6 +62,7 @@ const görliInfo: EVMNetworkInfo = {
   coingeckoNetworkId: EMPTY,
   coingeckoNativeTokenId: EMPTY,
   deBankSlug: EMPTY,
+  trueSightId: NOT_SUPPORT,
 }
 
 export default görliInfo

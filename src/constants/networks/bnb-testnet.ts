@@ -15,6 +15,9 @@ const bnbTestnetInfo: EVMNetworkInfo = {
   route: 'bnb-testnet',
   name: 'BNB Testnet',
   icon: BSC,
+  iconDark: NOT_SUPPORT,
+  iconSelected: NOT_SUPPORT,
+  iconDarkSelected: NOT_SUPPORT,
   classicClient: createClient('https://api.thegraph.com/subgraphs/name/ducquangkstn/dynamic-amm-bsc-staging'),
   elasticClient: createClient('https://api.thegraph.com/subgraphs/name/viet-nv/promm-bsc-testnet'),
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/ducquangkstn/ethereum-blocks-bsctestnet'),
@@ -30,6 +33,7 @@ const bnbTestnetInfo: EVMNetworkInfo = {
   },
   rpcUrl: 'https://data-seed-prebsc-1-s1.binance.org:8545',
   routerUri: EMPTY,
+  multicall: '0x8F3273Fb89B075b1645095ABaC6ed17B2d4Bc576',
   classic: {
     static: {
       zap: EMPTY,
@@ -63,6 +67,7 @@ const bnbTestnetInfo: EVMNetworkInfo = {
   coingeckoNetworkId: EMPTY,
   coingeckoNativeTokenId: EMPTY,
   deBankSlug: EMPTY,
+  trueSightId: NOT_SUPPORT,
 }
 
 export default bnbTestnetInfo

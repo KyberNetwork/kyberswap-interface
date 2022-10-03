@@ -18,6 +18,7 @@ const cronosTestnetInfo: EVMNetworkInfo = {
   icon: CRONOS,
   iconDark: CRONOS_DARK,
   iconDarkSelected: CRONOS,
+  iconSelected: NOT_SUPPORT,
   classicClient: createClient(
     'https://testnet-cronos-subgraph.knstats.com/subgraphs/name/dynamic-amm/dmm-exchange-cronos-testnet',
   ),
@@ -40,6 +41,7 @@ const cronosTestnetInfo: EVMNetworkInfo = {
   },
   rpcUrl: 'https://cronos-testnet-3.crypto.org:8545',
   routerUri: EMPTY,
+  multicall: '0x5AC76EDddf2590Af31dEE348A0d9e45e12511EB0',
   classic: {
     static: {
       zap: EMPTY,
@@ -68,6 +70,7 @@ const cronosTestnetInfo: EVMNetworkInfo = {
   coingeckoNetworkId: EMPTY,
   coingeckoNativeTokenId: EMPTY,
   deBankSlug: EMPTY,
+  trueSightId: NOT_SUPPORT,
 }
 
 export default cronosTestnetInfo

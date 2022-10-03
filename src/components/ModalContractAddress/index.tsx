@@ -11,22 +11,25 @@ import useCopyClipboard from 'hooks/useCopyClipboard'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
+import { isAddress } from 'utils'
 import getShortenAddress from 'utils/getShortenAddress'
 
 function ContractAddressItem({ network, address, lastItem }: { network: string; address: string; lastItem: boolean }) {
   const [isCopied, setCopied] = useCopyClipboard()
+  const chainId = TRUESIGHT_NETWORK_TO_CHAINID[network]
 
   const onCopy = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     event.stopPropagation()
-    // setCopied(isAddress(network, address) || address) // todo namgold: fix this
+    setCopied((chainId && isAddress(chainId, address)) || address)
     setCopied(address)
   }
+  if (!chainId) return <></>
   return (
     <>
       <StyledContractAddressItem>
         <Flex alignItems="center" style={{ gap: '4px' }}>
           <img
-            src={NETWORKS_INFO[TRUESIGHT_NETWORK_TO_CHAINID[network]].icon}
+            src={NETWORKS_INFO[chainId].icon}
             alt="Network"
             style={{ minWidth: '16px', width: '16px', marginRight: '6px' }}
           />

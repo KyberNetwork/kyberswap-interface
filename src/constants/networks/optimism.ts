@@ -15,6 +15,9 @@ const optimismInfo: EVMNetworkInfo = {
   route: 'optimism',
   name: 'Optimism',
   icon: OPTIMISM,
+  iconDark: NOT_SUPPORT,
+  iconSelected: NOT_SUPPORT,
+  iconDarkSelected: NOT_SUPPORT,
   classicClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-optimism'),
   elasticClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-optimism'),
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/ianlapham/uni-testing-subgraph'),
@@ -30,6 +33,7 @@ const optimismInfo: EVMNetworkInfo = {
   },
   rpcUrl: 'https://mainnet.optimism.io',
   routerUri: `${AGGREGATOR_API}/optimism/route/encode`,
+  multicall: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',
   classic: {
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',
@@ -54,6 +58,7 @@ const optimismInfo: EVMNetworkInfo = {
   coingeckoNetworkId: 'optimistic-ethereum',
   coingeckoNativeTokenId: 'ethereum',
   deBankSlug: 'op',
+  trueSightId: NOT_SUPPORT,
 }
 
 export default optimismInfo

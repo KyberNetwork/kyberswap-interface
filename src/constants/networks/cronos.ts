@@ -18,6 +18,7 @@ const cronosInfo: EVMNetworkInfo = {
   icon: CRONOS,
   iconDark: CRONOS_DARK,
   iconDarkSelected: CRONOS,
+  iconSelected: NOT_SUPPORT,
   classicClient: createClient(
     'https://cronos-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-cronos',
   ),
@@ -37,6 +38,7 @@ const cronosInfo: EVMNetworkInfo = {
   },
   rpcUrl: 'https://evm-cronos.crypto.org',
   routerUri: `${AGGREGATOR_API}/cronos/route/encode`,
+  multicall: '0x63Abb9973506189dC3741f61d25d4ed508151E6d',
   classic: {
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',
@@ -65,6 +67,7 @@ const cronosInfo: EVMNetworkInfo = {
   coingeckoNetworkId: 'cronos',
   coingeckoNativeTokenId: 'crypto-com-chain',
   deBankSlug: 'cro',
+  trueSightId: 'cronos',
 }
 
 export default cronosInfo

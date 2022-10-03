@@ -9,9 +9,9 @@ interface NetworkInfo {
   readonly route: string
   readonly name: string
   readonly icon: string
-  readonly iconDark?: string
-  readonly iconSelected?: string
-  readonly iconDarkSelected?: string
+  readonly iconDark: string | null
+  readonly iconSelected: string | null
+  readonly iconDarkSelected: string | null
   readonly etherscanUrl: string
   readonly etherscanName: string
   readonly bridgeURL: string
@@ -26,6 +26,7 @@ interface NetworkInfo {
   readonly coingeckoNativeTokenId: string //https://api.coingecko.com/api/v3/coins/list
   readonly deBankSlug: string
   readonly tokenListUrl: string
+  readonly trueSightId: string | null
   // token: {
   //   DAI: Token
   //   USDC: Token
@@ -38,6 +39,7 @@ export interface EVMNetworkInfo extends NetworkInfo {
   readonly elasticClient: ApolloClient<NormalizedCacheObject>
   readonly blockClient: ApolloClient<NormalizedCacheObject>
   readonly rpcUrl: string
+  readonly multicall: string
   readonly classic: {
     readonly static: {
       readonly zap: string

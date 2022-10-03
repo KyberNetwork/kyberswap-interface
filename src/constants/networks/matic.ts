@@ -13,6 +13,9 @@ const maticInfo: EVMNetworkInfo = {
   route: 'polygon',
   name: 'Polygon',
   icon: Polygon,
+  iconDark: NOT_SUPPORT,
+  iconSelected: NOT_SUPPORT,
+  iconDarkSelected: NOT_SUPPORT,
   classicClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-polygon'),
   elasticClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-matic'),
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-polygon'),
@@ -30,6 +33,7 @@ const maticInfo: EVMNetworkInfo = {
   // Sometime, our rpc is quite slow, keep this for testing purpose on local
   // rpcUrl: 'https://polygon-rpc.com',
   routerUri: `${AGGREGATOR_API}/polygon/route/encode`,
+  multicall: '0xed386Fe855C1EFf2f843B910923Dd8846E45C5A4',
   classic: {
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',
@@ -65,6 +69,7 @@ const maticInfo: EVMNetworkInfo = {
   coingeckoNetworkId: 'polygon-pos',
   coingeckoNativeTokenId: 'matic-network',
   deBankSlug: 'matic',
+  trueSightId: 'polygon',
 }
 
 export default maticInfo

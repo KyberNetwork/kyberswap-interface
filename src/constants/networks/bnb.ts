@@ -14,6 +14,9 @@ const bnbInfo: EVMNetworkInfo = {
   route: 'bnb',
   name: 'BNB Chain',
   icon: BSC,
+  iconDark: NOT_SUPPORT,
+  iconSelected: NOT_SUPPORT,
+  iconDarkSelected: NOT_SUPPORT,
   classicClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-bsc'),
   elasticClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-bsc'),
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-bsc'),
@@ -29,6 +32,7 @@ const bnbInfo: EVMNetworkInfo = {
   },
   rpcUrl: 'https://bsc.kyberengineering.io',
   routerUri: `${AGGREGATOR_API}/bsc/route/encode`,
+  multicall: '0xed386Fe855C1EFf2f843B910923Dd8846E45C5A4',
   classic: {
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',
@@ -64,6 +68,7 @@ const bnbInfo: EVMNetworkInfo = {
   coingeckoNetworkId: 'binance-smart-chain',
   coingeckoNativeTokenId: 'binancecoin',
   deBankSlug: 'bsc',
+  trueSightId: 'bsc',
 }
 
 export default bnbInfo

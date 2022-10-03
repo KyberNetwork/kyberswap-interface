@@ -22,6 +22,7 @@ const endpoint = clusterApiUrl(SelectedNetwork)
 const connection = new Connection(endpoint, { commitment: 'confirmed' })
 
 const EMPTY = ''
+const NOT_SUPPORT = null
 const solanaInfo: { [key in SupportedSolanaNetwork]: SolanaNetworkInfo } = {
   [WalletAdapterNetwork.Testnet]: {
     chainId: ChainId.SOLANA,
@@ -29,6 +30,8 @@ const solanaInfo: { [key in SupportedSolanaNetwork]: SolanaNetworkInfo } = {
     name: 'Solana',
     icon: Solana,
     iconSelected: SolanaDark,
+    iconDark: NOT_SUPPORT,
+    iconDarkSelected: NOT_SUPPORT,
     etherscanUrl: 'https://solscan.io',
     etherscanName: 'Solana scan',
     bridgeURL: EMPTY,
@@ -50,6 +53,7 @@ const solanaInfo: { [key in SupportedSolanaNetwork]: SolanaNetworkInfo } = {
     tokenListUrl:
       'https://raw.githubusercontent.com/namgold/dmm-solana-interface-concept/master/src/constants/tokenlists/solana.testnet.tokenlist.json',
     connection,
+    trueSightId: NOT_SUPPORT,
   },
 }
 

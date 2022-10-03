@@ -14,6 +14,9 @@ const oasisInfo: EVMNetworkInfo = {
   route: 'oasis',
   name: 'Oasis',
   icon: OASIS,
+  iconDark: NOT_SUPPORT,
+  iconSelected: NOT_SUPPORT,
+  iconDarkSelected: NOT_SUPPORT,
   classicClient: createClient(
     'https://oasis-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-oasis',
   ),
@@ -33,6 +36,7 @@ const oasisInfo: EVMNetworkInfo = {
   },
   rpcUrl: 'https://oasis.kyberengineering.io',
   routerUri: `${AGGREGATOR_API}/oasis/route/encode`,
+  multicall: '0xBF69a56D35B8d6f5A8e0e96B245a72F735751e54',
   classic: {
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',
@@ -61,6 +65,7 @@ const oasisInfo: EVMNetworkInfo = {
   coingeckoNetworkId: 'oasis',
   coingeckoNativeTokenId: 'oasis-network',
   deBankSlug: EMPTY,
+  trueSightId: NOT_SUPPORT,
 }
 
 export default oasisInfo

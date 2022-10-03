@@ -15,6 +15,9 @@ const auroraInfo: EVMNetworkInfo = {
   route: 'aurora',
   name: 'Aurora',
   icon: AURORA,
+  iconDark: NOT_SUPPORT,
+  iconSelected: NOT_SUPPORT,
+  iconDarkSelected: NOT_SUPPORT,
   classicClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-aurora'),
   elasticClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-aurora'),
   blockClient: createClient('https://aurora-graph.kyberengineering.io/subgraphs/name/kybernetwork/aurora-blocks'),
@@ -30,6 +33,7 @@ const auroraInfo: EVMNetworkInfo = {
   },
   rpcUrl: 'https://aurora.kyberengineering.io',
   routerUri: `${AGGREGATOR_API}/aurora/route/encode`,
+  multicall: '0xBF69a56D35B8d6f5A8e0e96B245a72F735751e54',
   classic: {
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',
@@ -58,6 +62,7 @@ const auroraInfo: EVMNetworkInfo = {
   coingeckoNetworkId: 'aurora',
   coingeckoNativeTokenId: 'ethereum',
   deBankSlug: 'aurora',
+  trueSightId: NOT_SUPPORT,
 }
 
 export default auroraInfo
