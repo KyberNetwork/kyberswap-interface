@@ -2,7 +2,7 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
 import { NonfungiblePositionManager, Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
-import React, { useCallback } from 'react'
+import { useCallback } from 'react'
 import { Info } from 'react-feather'
 import { Flex, Text } from 'rebass'
 
@@ -32,14 +32,12 @@ export default function ProAmmFee({
   layout = 0,
   text = '',
   hasUserDepositedInFarm,
-  disableCollectFee,
 }: {
   tokenId: BigNumber
   position: Position
   layout?: number
   text?: string
   hasUserDepositedInFarm?: boolean
-  disableCollectFee?: boolean
 }) {
   const { chainId, account, library } = useActiveWeb3React()
   const theme = useTheme()
@@ -137,8 +135,7 @@ export default function ProAmmFee({
     mixpanelHandler,
     allowedSlippage,
   ])
-  const disabledCollect =
-    !(feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0)) || hasUserDepositedInFarm || disableCollectFee
+  const hasNoFeeToCollect = !(feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0))
 
   const render =
     layout === 0 ? (
@@ -231,16 +228,16 @@ export default function ProAmmFee({
                 </ButtonLight>
               </MouseoverTooltip>
             ) : (
-              <ButtonLight disabled={disabledCollect} onClick={collect} style={{ padding: '10px', fontSize: '14px' }}>
+              <ButtonLight disabled={hasNoFeeToCollect} onClick={collect} style={{ padding: '10px', fontSize: '14px' }}>
                 <Flex alignItems="center" sx={{ gap: '8px' }}>
                   <QuestionHelper
                     size={16}
                     text={
-                      disabledCollect
+                      hasNoFeeToCollect
                         ? t`You don't have any fees to collect`
                         : t`By collecting, you will receive 100% of your fee earnings`
                     }
-                    color={disabledCollect ? theme.disableText : theme.primary}
+                    color={hasNoFeeToCollect ? theme.disableText : theme.primary}
                   />
                   <Trans>Collect Fees</Trans>
                 </Flex>
