@@ -4,7 +4,7 @@ import { Connection, clusterApiUrl } from '@solana/web3.js'
 
 import SolanaDark from 'assets/networks/solana-network-dark.svg'
 import Solana from 'assets/networks/solana-network.svg'
-import { SOLANA_NETWORK } from 'constants/env'
+import { KS_SETTING_API, SOLANA_NETWORK } from 'constants/env'
 import { SolanaNetworkInfo } from 'constants/networks/type'
 
 const SupportedSolanaNetworks = [
@@ -50,8 +50,7 @@ const solanaInfo: { [key in SupportedSolanaNetwork]: SolanaNetworkInfo } = {
     coingeckoNetworkId: 'solana',
     coingeckoNativeTokenId: 'solana',
     deBankSlug: 'solana',
-    tokenListUrl:
-      'https://raw.githubusercontent.com/namgold/dmm-solana-interface-concept/master/src/constants/tokenlists/solana.testnet.tokenlist.json',
+    tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.SOLANA}&pageSize=${100}&isWhitelisted=${true}`,
     connection,
     trueSightId: NOT_SUPPORT,
   },
