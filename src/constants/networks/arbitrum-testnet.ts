@@ -22,7 +22,7 @@ const arbitrumTestnetInfo: NetworkInfo = {
   etherscanName: 'Arbiscan',
   tokenListUrl: `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?chainIds=${
     ChainId.ARBITRUM_TESTNET
-  }&pageSize=${100}&isWhitelisted=${true}`,
+  }&isWhitelisted=${true}`,
   bridgeURL: 'https://bridge.arbitrum.io',
   nativeToken: {
     symbol: 'ETH',

@@ -31,7 +31,7 @@ const cronosTestnetInfo: NetworkInfo = {
   etherscanName: 'Cronos explorer',
   tokenListUrl: `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?chainIds=${
     ChainId.CRONOSTESTNET
-  }&pageSize=${100}&isWhitelisted=${true}`,
+  }&isWhitelisted=${true}`,
   bridgeURL: 'https://cronos.crypto.org/docs/bridge/cdcapp.html',
   nativeToken: {
     symbol: 'CRO',

@@ -335,9 +335,15 @@ export function CurrencySearch({
     fetchFavoriteTokenFromAddress()
   }, [fetchFavoriteTokenFromAddress])
 
-  const loadMoreRows = async (page?: number) => {
+  const fetchListTokens = async (page?: number) => {
     const nextPage = (page ?? pageCount) + 1
-    const { tokens } = await fetchTokens(debouncedQuery, nextPage, chainId)
+    let tokens = []
+    if (debouncedQuery) {
+      const data = await fetchTokens(debouncedQuery, nextPage, chainId)
+      tokens = data.tokens
+    } else {
+      tokens = Object.values(defaultTokens) as WrappedTokenInfo[]
+    }
     const parsedTokenList = filterTruthy(tokens.map(formatAndCacheToken))
     setPageCount(nextPage)
     setFetchedTokens(current => (nextPage === 1 ? [] : current).concat(parsedTokenList))
@@ -347,8 +353,9 @@ export function CurrencySearch({
   const [hasMoreToken, setHasMoreToken] = useState(false)
   useEffect(() => {
     if (!isAddressSearch) {
-      loadMoreRows(0)
+      fetchListTokens(0)
     }
+    // need call api when only debouncedQuery change
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedQuery])
 
@@ -360,7 +367,7 @@ export function CurrencySearch({
 
   const combinedTokens = useMemo(() => {
     const currencies: Currency[] = filteredSortedTokens
-    if (showETH && chainId) currencies.unshift(nativeOnChain(chainId))
+    if (showETH && chainId && !currencies.find(e => e.isNative)) currencies.unshift(nativeOnChain(chainId))
     return currencies
   }, [showETH, chainId, filteredSortedTokens])
 
@@ -498,7 +505,7 @@ export function CurrencySearch({
             selectedCurrency={selectedCurrency}
             showImportView={showImportView}
             setImportToken={setImportToken}
-            loadMoreRows={loadMoreRows}
+            loadMoreRows={fetchListTokens}
             hasMore={hasMoreToken}
           />
         </div>

@@ -21,7 +21,7 @@ const avaxTestnetInfo: NetworkInfo = {
   etherscanName: 'Snowtrace',
   tokenListUrl: `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?chainIds=${
     ChainId.AVAXTESTNET
-  }&pageSize=${100}&isWhitelisted=${true}`,
+  }&isWhitelisted=${true}`,
   bridgeURL: 'https://bridge.avax.network',
   nativeToken: {
     symbol: 'AVAX',

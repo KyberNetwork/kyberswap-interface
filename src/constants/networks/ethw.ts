@@ -23,9 +23,7 @@ const ethereumInfo: NetworkInfo = {
   blockClient: createClient('https://ethereum-graph.kyberengineering.io/subgraphs/name/kybernetwork/ethereum-blocks'),
   etherscanUrl: 'https://www.oklink.com/en/ethw',
   etherscanName: 'Ethwscan',
-  tokenListUrl: `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?chainIds=${
-    ChainId.ETHW
-  }&pageSize=${100}&isWhitelisted=${true}`,
+  tokenListUrl: `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?chainIds=${ChainId.ETHW}&isWhitelisted=${true}`,
   bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'ETHW',

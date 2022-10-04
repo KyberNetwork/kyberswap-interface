@@ -22,7 +22,7 @@ const bnbTestnetInfo: NetworkInfo = {
   etherscanName: 'BscScan',
   tokenListUrl: `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?chainIds=${
     ChainId.BSCTESTNET
-  }&pageSize=${100}&isWhitelisted=${true}`,
+  }&isWhitelisted=${true}`,
   bridgeURL: 'https://www.binance.org/en/bridge',
   nativeToken: {
     symbol: 'BNB',
