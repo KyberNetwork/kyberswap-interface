@@ -865,7 +865,7 @@ export default function Swap({ history }: RouteComponentProps) {
                                   <Trans>
                                     The amount you save compared to{' '}
                                     <Text as="span" color={theme.warning}>
-                                      {tradeComparer.comparedDex.name}
+                                      {tradeComparer.comparedDex}
                                     </Text>
                                     .
                                   </Trans>{' '}
