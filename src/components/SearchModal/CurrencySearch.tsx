@@ -23,7 +23,7 @@ import useToggle from 'hooks/useToggle'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useRemoveUserAddedToken, useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
 import { ButtonText, CloseIcon, TYPE } from 'theme'
-import { isAddress } from 'utils'
+import { filterTruthy, isAddress } from 'utils'
 import { filterTokens } from 'utils/filtering'
 
 import CommonBases from './CommonBases'
@@ -97,9 +97,13 @@ const fetchTokenByAddress = async (address: string, chainId: ChainId): Promise<T
 }
 
 const formatAndCacheToken = (tokenResponse: TokenResponse) => {
-  const formatted = new WrappedTokenInfo(tokenResponse as TokenInfo)
-  cacheTokens[tokenResponse.address] = formatted
-  return formatted
+  try {
+    const formatted = new WrappedTokenInfo(tokenResponse as TokenInfo)
+    cacheTokens[tokenResponse.address] = formatted
+    return formatted
+  } catch (e) {
+    return null
+  }
 }
 
 export function CurrencySearch({
@@ -310,7 +314,8 @@ export function CurrencySearch({
           if (el.status !== 'fulfilled') return
           const tokenResponse = el.value
           if (!tokenResponse) return
-          result.push(formatAndCacheToken(tokenResponse))
+          const formattedToken = formatAndCacheToken(tokenResponse)
+          if (formattedToken) result.push(formattedToken)
         })
       }
       setCommonTokens(result)
@@ -327,7 +332,7 @@ export function CurrencySearch({
   const loadMoreRows = async () => {
     const { tokens } = await fetchTokens(debouncedQuery, pageCount)
     setPageCount(pageCount => pageCount + 1)
-    const parsedTokenList = tokens.map(token => formatAndCacheToken(token))
+    const parsedTokenList = filterTruthy(tokens.map(formatAndCacheToken))
     setFetchedTokens(current => [...current, ...parsedTokenList])
   }
 
@@ -335,7 +340,7 @@ export function CurrencySearch({
     const fetchData = async () => {
       if (isAddressSearch) return
       const { tokens, pagination } = await fetchTokens(debouncedQuery, 1)
-      const parsedTokenList = tokens.map(token => formatAndCacheToken(token))
+      const parsedTokenList = filterTruthy(tokens.map(formatAndCacheToken))
       setFetchedTokens(parsedTokenList)
       setTotalItems(pagination.totalItems)
       setPageCount(2)

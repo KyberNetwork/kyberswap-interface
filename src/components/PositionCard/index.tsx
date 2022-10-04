@@ -2,6 +2,7 @@ import { Trans, t } from '@lingui/macro'
 import { Pair } from '@namgold/ks-sdk-classic'
 import { ChainId, Fraction, Percent, TokenAmount } from '@namgold/ks-sdk-core'
 import JSBI from 'jsbi'
+import { rgba } from 'polished'
 import { useState } from 'react'
 import { AlertTriangle } from 'react-feather'
 import { Link } from 'react-router-dom'
@@ -15,7 +16,7 @@ import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Divider from 'components/Divider'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
-import AgriCulture from 'components/Icons/AgriCulture'
+import { MoneyBag } from 'components/Icons'
 import InfoHelper from 'components/InfoHelper'
 import { RowBetween, RowFixed } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -26,6 +27,7 @@ import useTheme from 'hooks/useTheme'
 import { TokenWrapper } from 'pages/AddLiquidity/styled'
 import { IconWrapper } from 'pages/Pools/styleds'
 import { useETHPrice, useTokensPrice } from 'state/application/hooks'
+import { Farm } from 'state/farms/types'
 import { UserLiquidityPosition, useSinglePoolData } from 'state/pools/hooks'
 import { useTokenBalance } from 'state/wallet/hooks'
 import { ExternalLink, UppercaseText } from 'theme'
@@ -114,8 +116,8 @@ interface PositionCardProps {
   border?: string
   stakedBalance?: TokenAmount // optional balance to indicate that liquidity is deposited in mining pool
   myLiquidity?: UserLiquidityPosition
-  farmStatus?: 'NO_FARM' | 'FARM_ACTIVE' | 'FARM_ENDED'
   tab?: 'ALL' | 'STAKED'
+  farm?: Farm
   farmAPR?: number
 }
 
@@ -368,12 +370,13 @@ export default function FullPositionCard({
   border,
   stakedBalance,
   myLiquidity,
-  farmStatus = 'NO_FARM',
   tab,
+  farm,
   farmAPR = 0,
 }: PositionCardProps) {
   const { chainId } = useActiveWeb3React()
 
+  const farmStatus = !farm ? 'NO_FARM' : farm.isEnded ? 'FARM_ENDED' : 'FARM_ACTIVE'
   const ethPrice = useETHPrice()
 
   const { data: poolData } = useSinglePoolData(pair.address.toLowerCase(), ethPrice.currentPrice)
@@ -459,6 +462,11 @@ export default function FullPositionCard({
 
   const theme = useTheme()
 
+  const goToFarmPath =
+    farmStatus !== 'NO_FARM'
+      ? `/farms?tab=classic&type=${farmStatus === 'FARM_ACTIVE' ? 'active' : 'ended'}&search=${pair.address}`
+      : ''
+
   return (
     <StyledPositionCard border={border}>
       <Flex justifyContent="space-between">
@@ -481,41 +489,50 @@ export default function FullPositionCard({
           </Flex>
         </div>
 
-        {(isWarning || farmStatus === 'FARM_ACTIVE') && (
-          <Flex>
-            {farmStatus === 'FARM_ACTIVE' && (
-              <MouseoverTooltip text="Available for yield farming">
-                <IconWrapper style={{ width: '24px', height: '24px' }}>
-                  <AgriCulture width={16} height={16} color={theme.textReverse} />
-                </IconWrapper>
-              </MouseoverTooltip>
-            )}
-            {isWarning && (
-              <MouseoverTooltip
-                text={
-                  warningToken ? (
-                    <WarningMessage>{t`Note: ${warningToken} is now <10% of the pool. Pool might become inactive if ${warningToken} reaches 0%`}</WarningMessage>
-                  ) : (
-                    <WarningMessage>
-                      <Trans>One token is close to 0% in the pool ratio. Pool might go inactive.</Trans>
-                    </WarningMessage>
-                  )
-                }
-              >
-                <IconWrapper
-                  style={{
-                    width: '24px',
-                    height: '24px',
-                    background: theme.warning,
-                    marginLeft: farmStatus === 'FARM_ACTIVE' ? '8px' : 0,
+        <Flex>
+          {farmStatus === 'FARM_ACTIVE' && (
+            <MouseoverTooltip placement="top" noArrow text={t`Available for yield farming. Click to go to farm`}>
+              <Link to={goToFarmPath}>
+                <Flex
+                  width={24}
+                  height={24}
+                  justifyContent="center"
+                  alignItems={'center'}
+                  sx={{
+                    borderRadius: '999px',
+                    background: rgba(theme.apr, 0.2),
                   }}
                 >
-                  <AlertTriangle color={theme.textReverse} size={16} />
-                </IconWrapper>
-              </MouseoverTooltip>
-            )}
-          </Flex>
-        )}
+                  <MoneyBag size={16} color={theme.apr} />
+                </Flex>
+              </Link>
+            </MouseoverTooltip>
+          )}
+          {isWarning && (
+            <MouseoverTooltip
+              text={
+                warningToken ? (
+                  <WarningMessage>{t`Note: ${warningToken} is now <10% of the pool. Pool might become inactive if ${warningToken} reaches 0%`}</WarningMessage>
+                ) : (
+                  <WarningMessage>
+                    <Trans>One token is close to 0% in the pool ratio. Pool might go inactive.</Trans>
+                  </WarningMessage>
+                )
+              }
+            >
+              <IconWrapper
+                style={{
+                  width: '24px',
+                  height: '24px',
+                  background: theme.warning,
+                  marginLeft: farmStatus === 'FARM_ACTIVE' ? '8px' : 0,
+                }}
+              >
+                <AlertTriangle color={theme.textReverse} size={16} />
+              </IconWrapper>
+            </MouseoverTooltip>
+          )}
+        </Flex>
       </Flex>
 
       <Flex marginTop="0.25rem" justifyContent="flex-end" alignItems="center"></Flex>
@@ -704,12 +721,7 @@ export default function FullPositionCard({
           </ButtonPrimary>
         </Flex>
       ) : (
-        <ButtonPrimary
-          padding="10px"
-          style={{ fontSize: '14px' }}
-          as={Link}
-          to={`/farms?tab=${farmStatus === 'FARM_ACTIVE' ? 'active' : 'ended'}`}
-        >
+        <ButtonPrimary padding="10px" style={{ fontSize: '14px' }} as={Link} to={goToFarmPath}>
           <Text width="max-content">
             <Trans>Go to farm</Trans>
           </Text>
@@ -727,13 +739,9 @@ export default function FullPositionCard({
             <Trans>Analytics ↗</Trans>
           </ExternalLink>
         </ButtonEmpty>
-        {tab === 'ALL' && farmStatus === 'FARM_ACTIVE' && (
-          <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0" as={Link} to="/farms?tab=active">
-            <Trans>Go to farm ↗</Trans>
-          </ButtonEmpty>
-        )}
-        {tab === 'ALL' && farmStatus === 'FARM_ENDED' && stakedBalance && (
-          <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0" as={Link} to="/farms?type=ended">
+
+        {!!farm && (
+          <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0" as={Link} to={goToFarmPath}>
             <Trans>Go to farm ↗</Trans>
           </ButtonEmpty>
         )}
