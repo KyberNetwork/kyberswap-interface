@@ -1,6 +1,7 @@
 import { ChainId } from '@namgold/ks-sdk-core'
 
 import Mainnet from 'assets/networks/ethw.png'
+import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
 import { createClient } from 'utils/client'
 
 import { EVMNetworkInfo } from './type'
@@ -26,7 +27,7 @@ const ethereumInfo: EVMNetworkInfo = {
   blockClient: createClient('https://ethereum-graph.kyberengineering.io/subgraphs/name/kybernetwork/ethereum-blocks'),
   etherscanUrl: 'https://www.oklink.com/en/ethw',
   etherscanName: 'Ethwscan',
-  tokenListUrl: `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?chainId=${ChainId.ETHW}`,
+  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainId=${ChainId.ETHW}`,
   bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'ETHW',
@@ -35,7 +36,7 @@ const ethereumInfo: EVMNetworkInfo = {
     decimal: 18,
   },
   rpcUrl: 'https://ethereumpow.kyberengineering.io',
-  routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/ethw/route/encode`,
+  routerUri: `${AGGREGATOR_API}/ethw/route/encode`,
   multicall: '0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696',
   classic: {
     static: {
