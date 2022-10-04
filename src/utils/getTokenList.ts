@@ -102,7 +102,8 @@ export async function getTokenListV2(
       const maximumPage = 15
       let page = 1
       while (true) {
-        const { data } = await axios.get(`${listUrl}&pageSize=${pageSize}&page=${page++}`)
+        const { data } = await axios.get(`${listUrl}&pageSize=${pageSize}&page=${page}`)
+        page++
         const tokensResponse = data.data.tokens ?? []
         tokens = tokens.concat(tokensResponse)
         if (tokensResponse.length < pageSize || page >= maximumPage) break // out of tokens, and prevent infinity loop
