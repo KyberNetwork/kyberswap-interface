@@ -56,7 +56,6 @@ export const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.OASIS]: oasis,
   [ChainId.OPTIMISM]: optimism,
   [ChainId.SOLANA]: solana,
-  [ChainId.SOLANA]: solana,
 } as const
 
 //this Proxy helps fallback undefined ChainId by Ethereum info

@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/macro'
-import { ChainId } from '@namgold/ks-sdk-core'
 import { useState } from 'react'
 import { Edit, FileText, Plus, Repeat } from 'react-feather'
 import { Link } from 'react-router-dom'
@@ -51,7 +50,7 @@ import {
 } from 'components/Icons'
 import AntiSnippingAttack from 'components/Icons/AntiSnippingAttack'
 import Loader from 'components/Loader'
-import { MAINNET_NETWORKS } from 'constants/networks'
+import { MAINNET_NETWORKS, isSolana } from 'constants/networks'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -176,7 +175,7 @@ export const KSStatistic = () => {
 
 function AboutKyberSwap() {
   const { chainId } = useActiveWeb3React()
-  const isSolana = chainId === ChainId.SOLANA
+  const isSolanaNetwork = isSolana(chainId)
   const theme = useTheme()
   const [isDarkMode] = useDarkModeManager()
   const above992 = useMedia('(min-width: 992px)')
@@ -432,7 +431,7 @@ function AboutKyberSwap() {
   )
 
   const renderCreateNewPoolButton = () => {
-    return isSolana ? (
+    return isSolanaNetwork ? (
       <BtnPrimary disabled style={{ flex: '0 0 216px', padding: '12px' }}>
         <Plus size={20} />
         <Text marginLeft="8px" fontSize={['14px', '16px']}>
@@ -512,7 +511,7 @@ function AboutKyberSwap() {
             <Solana />
           </SupportedChain>
 
-          <KyberSwapGeneralIntro isSolana={isSolana} />
+          <KyberSwapGeneralIntro isSolana={isSolanaNetwork} />
 
           <OverflowStatisticWrapper>
             <StatisticWrapper>
@@ -770,7 +769,7 @@ function AboutKyberSwap() {
             marginTop={['40px', '48px']}
             sx={{ gap: above768 ? '24px' : '16px' }}
           >
-            {!isSolana ? (
+            {!isSolanaNetwork ? (
               <>
                 <BtnPrimary
                   as={Link}
