@@ -141,6 +141,14 @@ export default function ProAmmPool() {
 
   const upToSmall = useMedia('(max-width: 768px)')
 
+  const activeFarmAddress = useMemo(() => {
+    const now = Date.now() / 1000
+    return Object.values(farms)
+      .flat()
+      .filter(farm => farm.endTime >= now)
+      .map(farm => farm.poolAddress.toLowerCase())
+  }, [farms])
+
   if (!isEVM(chainId)) return <Redirect to="/" />
   return (
     <>
@@ -240,7 +248,8 @@ export default function ProAmmPool() {
                     refe={tokenAddressSymbolMap}
                     positionDetails={p}
                     key={p.tokenId.toString()}
-                    farmAvailable={!!p.stakedLiquidity}
+                    hasUserDepositedInFarm={!!p.stakedLiquidity}
+                    hasActiveFarm={activeFarmAddress.includes(p.poolId.toLowerCase())}
                   />
                 ))}
               </PositionCardGrid>
@@ -248,11 +257,12 @@ export default function ProAmmPool() {
                 {filteredFarmPositions.map(p => {
                   return (
                     <PositionListItem
+                      key={p.tokenId.toString()}
                       stakedLayout
-                      farmAvailable
+                      hasUserDepositedInFarm
                       refe={tokenAddressSymbolMap}
                       positionDetails={p}
-                      key={p.tokenId.toString()}
+                      hasActiveFarm={activeFarmAddress.includes(p.poolId.toLowerCase())}
                     />
                   )
                 })}
