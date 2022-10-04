@@ -1,5 +1,5 @@
 import { ChainId, Fraction } from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import JSBI from 'jsbi'
 import { useState } from 'react'
 import { AlertTriangle, Share2 } from 'react-feather'
@@ -101,8 +101,10 @@ const ItemCard = ({ poolData, style = {}, myLiquidity }: ListItemProps) => {
             noArrow
             text={
               <Text>
-                {t`Available for yield farming. Click`}{' '}
-                <Link to={`/farms?tab=classic&type=active&search=${poolData.id}`}>here</Link> to go to the farm.
+                <Trans>
+                  Available for yield farming. Click{' '}
+                  <Link to={`/farms?tab=classic&type=active&search=${poolData.id}`}>here</Link> to go to the farm.
+                </Trans>
               </Text>
             }
           >

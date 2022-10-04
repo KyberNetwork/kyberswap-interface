@@ -161,8 +161,11 @@ export default function ProAmmPoolCardItem({ pair, onShared, userPositions, idx 
                   noArrow
                   text={
                     <Text>
-                      {t`Available for yield farming. Click`}{' '}
-                      <Link to={`/farms?tab=elastic&type=active&search=${pool.address}`}>here</Link> to go to the farm.
+                      <Trans>
+                        Available for yield farming. Click{' '}
+                        <Link to={`/farms?tab=elastic&type=active&search=${pool.address}`}>here</Link> to go to the
+                        farm.
+                      </Trans>
                     </Text>
                   }
                 >
