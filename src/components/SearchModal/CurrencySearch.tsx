@@ -120,7 +120,6 @@ const fetchTokens = async (
       pageSize: PAGE_SIZE,
     }
     if (!search) {
-      params.pageSize = 100
       params.isWhitelisted = true
     }
     const url = `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?${stringify(params)}`
