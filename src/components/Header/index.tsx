@@ -4,13 +4,14 @@ import { darken } from 'polished'
 import { useState } from 'react'
 import { Repeat } from 'react-feather'
 import { Link, NavLink, useLocation } from 'react-router-dom'
-import { Flex } from 'rebass'
+import { Flex, Text } from 'rebass'
 import styled, { keyframes } from 'styled-components'
 
 import { ReactComponent as MasterCard } from 'assets/buy-crypto/master-card.svg'
 import { ReactComponent as Visa } from 'assets/buy-crypto/visa.svg'
 import { ReactComponent as Dollar } from 'assets/svg/dollar.svg'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
+// import { ReactComponent as MultichainLogo } from 'assets/svg/logo_multichain.svg'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import Menu, { NewLabel } from 'components/Menu'
 import Settings from 'components/Settings'
@@ -20,6 +21,7 @@ import { PROMM_ANALYTICS_URL } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useWindowSize } from 'hooks/useWindowSize'
+import { AppPaths } from 'pages/App'
 import { useIsDarkMode } from 'state/user/hooks'
 import { ExternalLink } from 'theme/components'
 
@@ -363,7 +365,7 @@ export default function Header() {
                   <Repeat size={16} />
                   <Trans>Swap</Trans>
                 </Flex>
-              </StyledNavLink>{' '}
+              </StyledNavLink>
               <StyledNavLink
                 id={`buy-crypto-nav-link`}
                 to={'/buy-crypto'}
@@ -379,6 +381,20 @@ export default function Header() {
                     <VisaSVG width="20" height="20" />
                     <MasterCard width="20" height="20" />
                   </Flex>
+                </Flex>
+              </StyledNavLink>
+              <StyledNavLink
+                id={`swapv2-nav-link`}
+                to={AppPaths.BRIDGE}
+                isActive={match => Boolean(match)}
+                style={{ flexDirection: 'column' }}
+              >
+                <Flex alignItems="center" sx={{ gap: '10px' }} justifyContent="space-between">
+                  <Repeat size={16} />
+                  <Text>
+                    <Trans>Bridge</Trans>
+                  </Text>
+                  {/* <MultichainLogo height="40" /> */}
                 </Flex>
               </StyledNavLink>
             </Dropdown>
