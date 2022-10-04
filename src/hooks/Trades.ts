@@ -116,10 +116,6 @@ export function useTradeExactInV2(
 
   const debounceCurrencyAmountIn = useDebounce(currencyAmountIn, 300)
 
-  const routerApi = useMemo((): string => {
-    return (chainId && NETWORKS_INFO[chainId].routerUri) || ''
-  }, [chainId])
-
   const ttl = useSelector<AppState, number>(state => state.user.userDeadline)
 
   const { feeConfig } = useSwapState()
@@ -145,7 +141,7 @@ export function useTradeExactInV2(
 
         const [state, comparedResult] = await Promise.all([
           Aggregator.bestTradeExactIn(
-            routerApi,
+            NETWORKS_INFO[chainId].routerUri,
             debounceCurrencyAmountIn,
             currencyOut,
             saveGas,
@@ -158,7 +154,7 @@ export function useTradeExactInV2(
             minimumLoadingTime,
           ),
           Aggregator.compareDex(
-            routerApi,
+            NETWORKS_INFO[chainId].routerUri,
             debounceCurrencyAmountIn,
             currencyOut,
             allowedSlippage,
@@ -186,7 +182,6 @@ export function useTradeExactInV2(
       currencyOut,
       recipient,
       account,
-      routerApi,
       saveGas,
       dexes,
       allowedSlippage,

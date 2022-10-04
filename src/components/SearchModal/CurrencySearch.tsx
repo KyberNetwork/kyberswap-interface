@@ -12,6 +12,7 @@ import styled from 'styled-components'
 import Column from 'components/Column'
 import InfoHelper from 'components/InfoHelper'
 import { RowBetween } from 'components/Row'
+import { KS_SETTING_API } from 'constants/env'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { AllTokenType, useAllTokens, useToken } from 'hooks/Tokens'
@@ -85,11 +86,11 @@ export type TokenResponse = Token & { isWhitelisted: boolean }
 
 const cacheTokens: AllTokenType = {}
 
-const fetchTokenByAddress = async (address: string, chainId: ChainId) => {
-  const findToken = cacheTokens[address] || cacheTokens[address.toLowerCase()]
-  if (findToken) return findToken
-  const url = `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?query=${address}&chainIds=${chainId}`
-  const response = await axios.get(url)
+const fetchTokenByAddress = async (address: string, chainId: ChainId): Promise<Token | undefined> => {
+  const cachedToken = cacheTokens[address] || cacheTokens[address.toLowerCase()]
+  if (cachedToken) return cachedToken
+  const url = `${KS_SETTING_API}/v1/tokens?query=${address}&chainIds=${chainId}`
+  const response = await axios.get<{ data: { tokens: Token[] } }>(url)
   const token = response.data.data.tokens[0]
   if (token) cacheTokens[address] = token
   return token
@@ -264,17 +265,18 @@ export function CurrencySearch({
       search: string | undefined,
       page: number,
     ): Promise<{ tokens: TokenResponse[]; pagination: { totalItems: number } }> => {
-      const params: { query: string; isWhitelisted?: boolean; pageSize: number; page: number; chainIds: string } = {
-        query: search ?? '',
-        chainIds: chainId?.toString() ?? '',
+      const params: { query?: string; isWhitelisted?: boolean; pageSize: number; page: number; chainIds: string } = {
+        query: search,
+        chainIds: chainId.toString(),
         page,
         pageSize: 10,
       }
       if (!search) {
         params.pageSize = 100
         params.isWhitelisted = true
+        delete params.query
       }
-      const url = `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?${stringify(params)}`
+      const url = `${KS_SETTING_API}/v1/tokens?${stringify(params)}`
       const response = await axios.get(url)
       const { tokens, pagination } = response.data.data
       return { tokens, pagination }
@@ -300,9 +302,7 @@ export function CurrencySearch({
           result.push(cacheTokens[address])
           return
         }
-        if (chainId) {
-          promises.push(fetchTokenByAddress(address, chainId))
-        }
+        promises.push(fetchTokenByAddress(address, chainId))
       })
       if (promises.length) {
         const data = await Promise.allSettled(promises)

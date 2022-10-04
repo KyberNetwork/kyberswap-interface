@@ -16,6 +16,7 @@ import KyberDao from 'assets/svg/kyber-dao.svg'
 import RocketIcon from 'assets/svg/rocket.svg'
 import TrophyIcon from 'assets/svg/trophy.svg'
 import {
+  Binance,
   Bithumb,
   Etoro,
   FTX,
@@ -32,7 +33,7 @@ import {
   Wazirx,
 } from 'components/ExchangeIcons'
 import { FooterSocialLink } from 'components/Footer/Footer'
-import { Avalanche, BestPrice, Binance, Bttc, Ethereum, Polygon } from 'components/Icons'
+import { Avalanche, BestPrice, Bttc, Ethereum, Polygon } from 'components/Icons'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { useDarkModeManager } from 'state/user/hooks'
