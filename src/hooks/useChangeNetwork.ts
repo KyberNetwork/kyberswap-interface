@@ -51,6 +51,15 @@ export function useChangeNetwork() {
     return { ...location, search: stringify({ ...qsWithoutNetworkId }) }
   }, [location, qs])
 
+  const changeNetworkHandler = useCallback(
+    (desiredChainId: ChainId, successCallback?: () => void) => {
+      dispatch(updateChainId(desiredChainId))
+      successCallback?.()
+      if (location.pathname.startsWith('/swap')) history.replace('/swap/' + NETWORKS_INFO[desiredChainId].route)
+    },
+    [dispatch, location.pathname, history],
+  )
+
   const changeNetwork = useCallback(
     async (desiredChainId: ChainId, successCallback?: () => void, failureCallback?: () => void) => {
       if (isEVM(desiredChainId)) {
@@ -61,8 +70,7 @@ export function useChangeNetwork() {
         const isWrongNetwork = error instanceof UnsupportedChainIdError
         // if (isNotConnected && !isWrongNetwork && chainIdEVM !== desiredChainId) {
         if (isNotConnected && !isWrongNetwork) {
-          dispatch(updateChainId(desiredChainId))
-          successCallback?.()
+          changeNetworkHandler(desiredChainId, successCallback)
           return
         }
 
@@ -74,8 +82,7 @@ export function useChangeNetwork() {
               method: 'wallet_switchEthereumChain',
               params: [switchNetworkParams],
             })
-            dispatch(updateChainId(desiredChainId))
-            successCallback?.()
+            changeNetworkHandler(desiredChainId, successCallback)
           } catch (switchError) {
             // This is a workaround solution for Coin98
             const isSwitchError =
@@ -92,8 +99,7 @@ export function useChangeNetwork() {
                     summary: t`In order to use KyberSwap on ${NETWORKS_INFO[desiredChainId].name}, you must change the network in your wallet.`,
                   })
                 }
-                dispatch(updateChainId(desiredChainId))
-                successCallback?.()
+                changeNetworkHandler(desiredChainId, successCallback)
               } catch (addError) {
                 console.error(addError)
                 failureCallback?.()
@@ -111,11 +117,10 @@ export function useChangeNetwork() {
           }
         }
       } else {
-        dispatch(updateChainId(desiredChainId))
-        successCallback?.()
+        changeNetworkHandler(desiredChainId, successCallback)
       }
     },
-    [dispatch, history, library, locationWithoutNetworkId, error, notify, chainId],
+    [history, library, locationWithoutNetworkId, error, notify, chainId, changeNetworkHandler],
   )
 
   useEffect(() => {

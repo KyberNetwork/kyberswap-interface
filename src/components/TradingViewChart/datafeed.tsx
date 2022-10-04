@@ -90,6 +90,7 @@ const TOKEN_PAIRS_ADDRESS_MAPPING: {
   '0x853ea32391aaa14c112c645fd20ba389ab25c5e0': '0x5d79a43e6b9d8e3ecca26f91afe34634248773c8', // USX on AVAX
   '0x261c94f2d3cccae76f86f6c8f2c93785dd6ce022': 'nodata', // ATH on BSC
   '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58': '0xc858a329bf053be78d6239c4a4343b8fbd21472b', // USDT on Optimism
+  epjfwdd5aufqssqem2qn1xzybapc8g4weggkzwytdt1v: 'EGZ7tiLeH62TPV1gL8WwbXGzEPa9zmcpVnnkPKKnrE2U', // USDC on SOLANA
 }
 const LOCALSTORAGE_CHECKED_PAIRS = 'proChartCheckedPairs'
 
