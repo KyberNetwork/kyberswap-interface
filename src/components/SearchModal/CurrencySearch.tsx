@@ -334,20 +334,23 @@ export function CurrencySearch({
     fetchFavoriteTokenFromAddress()
   }, [fetchFavoriteTokenFromAddress])
 
-  const fetchListTokens = async (page?: number) => {
-    const nextPage = (page ?? pageCount) + 1
-    let tokens = []
-    if (debouncedQuery) {
-      const data = await fetchTokens(debouncedQuery, nextPage, chainId)
-      tokens = data.tokens
-    } else {
-      tokens = Object.values(defaultTokens) as WrappedTokenInfo[]
-    }
-    const parsedTokenList = filterTruthy(tokens.map(formatAndCacheToken))
-    setPageCount(nextPage)
-    setFetchedTokens(current => (nextPage === 1 ? [] : current).concat(parsedTokenList))
-    setHasMoreToken(parsedTokenList.length === PAGE_SIZE && !!debouncedQuery)
-  }
+  const fetchListTokens = useCallback(
+    async (page?: number) => {
+      const nextPage = (page ?? pageCount) + 1
+      let tokens = []
+      if (debouncedQuery) {
+        const data = await fetchTokens(debouncedQuery, nextPage, chainId)
+        tokens = data.tokens
+      } else {
+        tokens = Object.values(defaultTokens) as WrappedTokenInfo[]
+      }
+      const parsedTokenList = filterTruthy(tokens.map(formatAndCacheToken))
+      setPageCount(nextPage)
+      setFetchedTokens(current => (nextPage === 1 ? [] : current).concat(parsedTokenList))
+      setHasMoreToken(parsedTokenList.length === PAGE_SIZE && !!debouncedQuery)
+    },
+    [chainId, debouncedQuery, defaultTokens, pageCount],
+  )
 
   const [hasMoreToken, setHasMoreToken] = useState(false)
   useEffect(() => {
@@ -355,8 +358,7 @@ export function CurrencySearch({
       fetchListTokens(0)
     }
     // need call api when only debouncedQuery change
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedQuery])
+  }, [debouncedQuery, fetchListTokens, isAddressSearch])
 
   useEffect(() => {
     if (Object.keys(defaultTokens).length) fetchFavoriteTokenFromAddress()
