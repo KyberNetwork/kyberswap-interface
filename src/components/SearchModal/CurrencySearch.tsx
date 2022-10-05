@@ -10,6 +10,7 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import InfoHelper from 'components/InfoHelper'
+import { KS_SETTING_API } from 'constants/env'
 import { nativeOnChain } from 'constants/tokens'
 import { AllTokenType, useAllTokens, useToken } from 'hooks/Tokens'
 import useDebounce from 'hooks/useDebounce'
@@ -88,7 +89,7 @@ const cacheTokens: AllTokenType = {}
 const fetchTokenByAddress = async (address: string, chainId: ChainId) => {
   const findToken = cacheTokens[address] || cacheTokens[address.toLowerCase()]
   if (findToken) return findToken
-  const url = `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?query=${address}&chainIds=${chainId}`
+  const url = `${KS_SETTING_API}/v1/tokens?query=${address}&chainIds=${chainId}`
   const response = await axios.get(url)
   const token = response.data.data.tokens[0]
   if (token) cacheTokens[address] = token
@@ -122,7 +123,7 @@ const fetchTokens = async (
     if (!search) {
       params.isWhitelisted = true
     }
-    const url = `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?${stringify(params)}`
+    const url = `${KS_SETTING_API}/v1/tokens?${stringify(params)}`
 
     const response = await axios.get(url)
     const { tokens } = response.data.data
