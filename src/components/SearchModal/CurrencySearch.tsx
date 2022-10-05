@@ -355,13 +355,13 @@ export function CurrencySearch({
   )
 
   const [hasMoreToken, setHasMoreToken] = useState(false)
-  const lastQuery = usePrevious(debouncedQuery)
+  const prevQuery = usePrevious(debouncedQuery)
   useEffect(() => {
-    if (!isAddressSearch && lastQuery !== debouncedQuery) {
+    if (!isAddressSearch && prevQuery !== debouncedQuery) {
       fetchListTokens(0)
     }
     // need call api when only debouncedQuery change
-  }, [debouncedQuery, lastQuery, fetchListTokens, isAddressSearch])
+  }, [debouncedQuery, prevQuery, fetchListTokens, isAddressSearch])
 
   useEffect(() => {
     if (Object.keys(defaultTokens).length) fetchFavoriteTokenFromAddress()
