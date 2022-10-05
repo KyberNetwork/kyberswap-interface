@@ -493,7 +493,7 @@ export function CurrencySearch({
       )}
 
       {visibleCurrencies?.length > 0 ? (
-        <div ref={listTokenRef} id="scrollableDiv" style={{ height: '100%', overflowY: 'scroll' }}>
+        <div ref={listTokenRef} id="currency-list-wrapper" style={{ height: '100%', overflowY: 'scroll' }}>
           <CurrencyList
             removeImportedToken={removeImportedToken}
             currencies={visibleCurrencies}

@@ -257,7 +257,7 @@ function CurrencyList({
         </Flex>
       }
       endMessage={null}
-      scrollableTarget="scrollableDiv"
+      scrollableTarget="currency-list-wrapper"
     >
       {currencies.map((item, index) => (
         <Row
