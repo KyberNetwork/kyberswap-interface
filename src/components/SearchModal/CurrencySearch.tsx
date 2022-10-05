@@ -98,9 +98,9 @@ const fetchTokenByAddress = async (address: string, chainId: ChainId) => {
 
 const formatAndCacheToken = (tokenResponse: TokenResponse) => {
   try {
-    const formatted = new WrappedTokenInfo(tokenResponse as TokenInfo)
-    cacheTokens[tokenResponse.address] = formatted
-    return formatted
+    const tokenInfo = new WrappedTokenInfo(tokenResponse as TokenInfo)
+    cacheTokens[tokenResponse.address] = tokenInfo
+    return tokenInfo
   } catch (e) {
     return null
   }
