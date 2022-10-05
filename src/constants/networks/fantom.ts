@@ -1,6 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import FTM from 'assets/networks/fantom-network.png'
+import { KS_SETTING_API } from 'constants/env'
 import { createClient } from 'utils/client'
 
 import { NetworkInfo } from '../type'
@@ -19,7 +20,7 @@ const fantomInfo: NetworkInfo = {
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/fantom-blocks'),
   etherscanUrl: 'https://ftmscan.com',
   etherscanName: 'Ftmscan',
-  tokenListUrl: `${process.env.REACT_APP_KS_SETTING_API}/v1/tokens?chainId=${ChainId.FANTOM}`,
+  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.FANTOM}&isWhitelisted=${true}`,
   bridgeURL: 'https://multichain.xyz',
   nativeToken: {
     symbol: 'FTM',

@@ -1,7 +1,6 @@
 import { ChainId, Fraction } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useWeb3React } from '@web3-react/core'
-import { BigNumber } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 import { rgba } from 'polished'
@@ -101,10 +100,7 @@ const CampaignItem = ({ campaign, onSelectCampaign, isSelected }: CampaignItemPr
       )
     }, new Fraction(0))
     if (tradingVolumeRequired) {
-      percentTradingVolume = BigNumber.from(tradingVolume)
-        .mul(BigNumber.from(100))
-        .div(BigNumber.from(tradingVolumeRequired))
-        .toNumber()
+      percentTradingVolume = Math.floor((tradingVolume / tradingVolumeRequired) * 100)
     }
   } catch (error) {
     console.log(error)
@@ -159,27 +155,37 @@ const CampaignItem = ({ campaign, onSelectCampaign, isSelected }: CampaignItemPr
       </Container>
 
       {isQualified ? (
-        <CampaignStatusText
-          status={CampaignStatus.ONGOING}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 2,
-            alignSelf: 'flex-end',
-            padding: '2px 7px',
-          }}
-        >
-          <Check width={17} height={17} />
-          <Trans>Qualified</Trans>
-        </CampaignStatusText>
+        <Flex style={{ gap: 10 }} flexDirection="column">
+          <Flex justifyContent={'space-between'} alignItems="center">
+            <Text fontSize={12}>
+              <Trans>Condition(s) to qualify:</Trans>
+            </Text>
+            <CampaignStatusText
+              status={CampaignStatus.ONGOING}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 2,
+                alignSelf: 'flex-end',
+                padding: '2px 7px',
+              }}
+            >
+              <Check width={17} height={17} />
+              <Trans>Qualified</Trans>
+            </CampaignStatusText>
+          </Flex>
+        </Flex>
       ) : isShowProgressBar ? (
         <Flex style={{ gap: 10 }} flexDirection="column">
+          <Text fontSize={12}>
+            <Trans>Condition(s) to qualify:</Trans>
+          </Text>
           {tradingVolumeRequired > 0 && (
             <ProgressBar
               title={t`Your Trading Volume`}
               percent={percentTradingVolume}
               value={isPassedVolume ? <Check width={17} height={17} /> : `${percentTradingVolume}%`}
-              valueTextColor={theme.primary}
+              valueTextColor={isPassedVolume ? theme.primary : theme.subText}
               color={isPassedVolume ? theme.primary : theme.warning}
             />
           )}
@@ -188,7 +194,7 @@ const CampaignItem = ({ campaign, onSelectCampaign, isSelected }: CampaignItemPr
               title={t`Your Number of Trades`}
               percent={percentTradingNumber}
               value={isPassedNumberOfTrade ? <Check width={17} height={17} /> : `${percentTradingNumber}%`}
-              valueTextColor={theme.primary}
+              valueTextColor={isPassedNumberOfTrade ? theme.primary : theme.subText}
               color={isPassedNumberOfTrade ? theme.primary : theme.warning}
             />
           )}

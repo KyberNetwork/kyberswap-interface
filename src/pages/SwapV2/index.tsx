@@ -1,4 +1,4 @@
-import { ChainId, Currency, CurrencyAmount, NativeCurrency, Token } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import JSBI from 'jsbi'
 import { stringify } from 'qs'
@@ -81,6 +81,7 @@ import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { BodyWrapper } from 'pages/AppBody'
 import { ClickableText } from 'pages/Pool/styleds'
 import { useToggleTransactionSettingsMenu, useWalletModalToggle } from 'state/application/hooks'
+import { useAllDexes } from 'state/customizeDexes/hooks'
 import { Field } from 'state/swap/actions'
 import { useDefaultsFromURLSearch, useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
 import { useDerivedSwapInfoV2 } from 'state/swap/useAggregator'
@@ -170,6 +171,7 @@ export default function Swap({ history }: RouteComponentProps) {
   const isShowTradeRoutes = useShowTradeRoutes()
   const isShowTokenInfoSetting = useShowTokenInfo()
   const qs = useParsedQueryString()
+  const allDexes = useAllDexes()
   const [{ show: isShowTutorial = false }] = useTutorialSwapGuide()
 
   const refSuggestPair = useRef<PairSuggestionHandle>(null)
@@ -225,7 +227,6 @@ export default function Swap({ history }: RouteComponentProps) {
     feeConfig,
     [Field.INPUT]: INPUT,
     [Field.OUTPUT]: OUTPUT,
-    trade: storeTrade,
   } = useSwapState()
 
   const {
@@ -239,7 +240,10 @@ export default function Swap({ history }: RouteComponentProps) {
     loading: loadingAPI,
     isPairNotfound,
   } = useDerivedSwapInfoV2()
-
+  const comparedDex = useMemo(
+    () => allDexes?.find(dex => dex.id === tradeComparer?.comparedDex),
+    [allDexes, tradeComparer],
+  )
   const currencyIn = currencies[Field.INPUT]
   const currencyOut = currencies[Field.OUTPUT]
 
@@ -249,7 +253,7 @@ export default function Swap({ history }: RouteComponentProps) {
     inputError: wrapInputError,
   } = useWrapCallback(currencies[Field.INPUT], currencies[Field.OUTPUT], typedValue)
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
-  const trade = showWrap ? undefined : v2Trade || storeTrade
+  const trade = showWrap ? undefined : v2Trade
 
   const parsedAmounts = showWrap
     ? {
@@ -544,7 +548,10 @@ export default function Swap({ history }: RouteComponentProps) {
     const { fromCurrency, network } = getUrlMatchParams()
     if (!fromCurrency || !network) return
 
-    const findChainId = SUPPORTED_NETWORKS.find(chainId => NETWORKS_INFO[chainId].route === network) || ChainId.MAINNET
+    const findChainId = SUPPORTED_NETWORKS.find(chainId => NETWORKS_INFO[chainId].route === network)
+    if (!findChainId) {
+      return navigate('/swap')
+    }
     if (findChainId !== chainId) {
       changeNetwork(
         findChainId,
@@ -572,11 +579,7 @@ export default function Swap({ history }: RouteComponentProps) {
   )
 
   const onSelectSuggestedPair = useCallback(
-    (
-      fromToken: NativeCurrency | Token | undefined | null,
-      toToken: NativeCurrency | Token | undefined | null,
-      amount: string,
-    ) => {
+    (fromToken: Currency | undefined, toToken: Currency | undefined, amount: string) => {
       if (fromToken) onCurrencySelection(Field.INPUT, fromToken)
       if (toToken) onCurrencySelection(Field.OUTPUT, toToken)
       if (amount) handleTypeInput(amount)
@@ -851,7 +854,7 @@ export default function Swap({ history }: RouteComponentProps) {
                         </ArrowWrapper>
                       </AutoRow>
                       <Box sx={{ position: 'relative' }}>
-                        {tradeComparer?.tradeSaved?.usd && (
+                        {tradeComparer?.tradeSaved?.usd && comparedDex && (
                           <KyberTag>
                             <Trans>You save</Trans>{' '}
                             {formattedNum(tradeComparer.tradeSaved.usd, true) +
@@ -867,7 +870,7 @@ export default function Swap({ history }: RouteComponentProps) {
                                   <Trans>
                                     The amount you save compared to{' '}
                                     <Text as="span" color={theme.warning}>
-                                      {tradeComparer.comparedDex.name}
+                                      {comparedDex.name}
                                     </Text>
                                     .
                                   </Trans>{' '}
