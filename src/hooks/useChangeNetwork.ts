@@ -1,15 +1,21 @@
 import { t } from '@lingui/macro'
 import { ChainId } from '@namgold/ks-sdk-core'
+import { BaseMessageSignerWalletAdapter } from '@solana/wallet-adapter-base'
+import { useWallet } from '@solana/wallet-adapter-react'
+import { AbstractConnector } from '@web3-react/abstract-connector'
 import { UnsupportedChainIdError } from '@web3-react/core'
+import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { stringify } from 'qs'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router'
 
-import { EVM_NETWORK, NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM } from 'constants/networks'
+import { EVM_NETWORK, NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM, isSolana } from 'constants/networks'
+import { SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { NotificationType, useNotify } from 'state/application/hooks'
 import { useAppDispatch } from 'state/hooks'
 import { updateChainId } from 'state/user/actions'
+import { isEVMWallet, isSolanaWallet } from 'utils'
 
 import useParsedQueryString from './useParsedQueryString'
 
@@ -36,8 +42,9 @@ function parseNetworkId(maybeSupportedNetwork: string): ChainId | undefined {
 }
 
 export function useChangeNetwork() {
-  const { chainId } = useActiveWeb3React()
-  const { library, error } = useWeb3React()
+  const { chainId, walletKey } = useActiveWeb3React()
+  const { library, error, activate } = useWeb3React()
+  const { select } = useWallet()
 
   const history = useHistory()
   const location = useLocation()
@@ -60,8 +67,40 @@ export function useChangeNetwork() {
     [dispatch, location.pathname, history],
   )
 
+  const tryActivationEVM = async (connector: AbstractConnector | undefined) => {
+    // if the connector is walletconnect and the user has already tried to connect, manually reset the connector
+    if (connector instanceof WalletConnectConnector && connector.walletConnectProvider?.wc?.uri) {
+      connector.walletConnectProvider = undefined
+    }
+
+    if (connector) {
+      await activate(connector, undefined, true)
+        .then(() => {
+          console.log('test')
+        })
+        .catch(error => {
+          if (error instanceof UnsupportedChainIdError) {
+            activate(connector)
+          }
+        })
+    }
+  }
+
+  const tryActivationSolana = async (adapter: BaseMessageSignerWalletAdapter) => {
+    try {
+      select(adapter.name)
+    } catch (e) {}
+  }
+
   const changeNetwork = useCallback(
     async (desiredChainId: ChainId, successCallback?: () => void, failureCallback?: () => void) => {
+      const wallet = walletKey && SUPPORTED_WALLETS[walletKey]
+      if (wallet && isEVMWallet(wallet) && !isSolana(desiredChainId)) {
+        tryActivationEVM(wallet.connector)
+      }
+      if (wallet && isSolanaWallet(wallet) && !isEVM(desiredChainId)) {
+        tryActivationSolana(wallet.adapter)
+      }
       if (isEVM(desiredChainId)) {
         const switchNetworkParams = {
           chainId: '0x' + Number(desiredChainId).toString(16),
