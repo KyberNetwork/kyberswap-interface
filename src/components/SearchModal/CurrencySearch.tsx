@@ -15,6 +15,7 @@ import { nativeOnChain } from 'constants/tokens'
 import { AllTokenType, useAllTokens, useToken } from 'hooks/Tokens'
 import useDebounce from 'hooks/useDebounce'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
+import usePrevious from 'hooks/usePrevious'
 import useTheme from 'hooks/useTheme'
 import useToggle from 'hooks/useToggle'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
@@ -354,12 +355,13 @@ export function CurrencySearch({
   )
 
   const [hasMoreToken, setHasMoreToken] = useState(false)
+  const lastQuery = usePrevious(debouncedQuery)
   useEffect(() => {
-    if (!isAddressSearch) {
+    if (!isAddressSearch && lastQuery !== debouncedQuery) {
       fetchListTokens(0)
     }
     // need call api when only debouncedQuery change
-  }, [debouncedQuery, fetchListTokens, isAddressSearch])
+  }, [debouncedQuery, lastQuery, fetchListTokens, isAddressSearch])
 
   useEffect(() => {
     if (Object.keys(defaultTokens).length) fetchFavoriteTokenFromAddress()
