@@ -3,9 +3,18 @@ import { gql } from '@apollo/client'
 export const PROMM_JOINED_POSITION = (fairlaunchAddress: string, pid: number, block24: number) => {
   const query = `
 {
-  joinedPositions(first: 1000, where : {pid: ${pid}, fairLaunch: "${fairlaunchAddress}"}) {
+  joinedPositions(first: 1000, where : {pid: ${pid}, farmingPool: "${fairlaunchAddress}_${pid}"}) {
     id
-    pool {
+    position {
+      tickLower {
+        tickIdx
+      }
+      tickUpper {
+        tickIdx
+      }
+      liquidity
+
+          pool {
       liquidity
       reinvestL
       tick
@@ -26,14 +35,7 @@ export const PROMM_JOINED_POSITION = (fairlaunchAddress: string, pid: number, bl
         derivedETH
       }
     }
-    position {
-      tickLower {
-        tickIdx
-      }
-      tickUpper {
-        tickIdx
-      }
-      liquidity
+
     }
   }
   farmingPool(id: "${fairlaunchAddress}_${pid}") {

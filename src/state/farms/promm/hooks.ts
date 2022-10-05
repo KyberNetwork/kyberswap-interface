@@ -415,30 +415,31 @@ export const usePostionFilter = (positions: PositionDetails[], validPools: strin
 type Response = {
   joinedPositions: {
     id: number
-    pool: {
-      liquidity: string
-      reinvestL: string
-      tick: number
-
-      feeTier: number
-      sqrtPrice: string
-      token0: {
-        id: string
-        symbol: string
-        name: string
-        decimals: number
-        derivedETH: string
-      }
-      token1: {
-        id: string
-        symbol: string
-        name: string
-        decimals: number
-        derivedETH: string
-      }
-    }
 
     position: {
+      pool: {
+        liquidity: string
+        reinvestL: string
+        tick: number
+
+        feeTier: number
+        sqrtPrice: string
+        token0: {
+          id: string
+          symbol: string
+          name: string
+          decimals: number
+          derivedETH: string
+        }
+        token1: {
+          id: string
+          symbol: string
+          name: string
+          decimals: number
+          derivedETH: string
+        }
+      }
+
       tickLower: {
         tickIdx: number
       }
@@ -518,7 +519,8 @@ export const useProMMFarmTVL = (fairlaunchAddress: string, pid: number) => {
       return
     }
     let tvl = 0
-    data?.joinedPositions.forEach(({ position, pool }) => {
+    data?.joinedPositions.forEach(({ position }) => {
+      const { pool } = position
       const token0 = new Token(chainId as ChainId, pool.token0.id, Number(pool.token0.decimals), pool.token0.symbol)
       const token1 = new Token(chainId as ChainId, pool.token1.id, Number(pool.token1.decimals), pool.token1.symbol)
       const poolObj = new Pool(
