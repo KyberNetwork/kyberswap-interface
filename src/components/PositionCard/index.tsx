@@ -6,6 +6,7 @@ import { darken, rgba } from 'polished'
 import { useState } from 'react'
 import { AlertTriangle } from 'react-feather'
 import { Link } from 'react-router-dom'
+import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -27,7 +28,7 @@ import { getTradingFeeAPR, useCurrencyConvertedToNative } from 'utils/dmm'
 import { useTotalSupply } from '../../data/TotalSupply'
 import { useActiveWeb3React } from '../../hooks'
 import { useTokenBalance } from '../../state/wallet/hooks'
-import { ExternalLink, UppercaseText } from '../../theme'
+import { ExternalLink, MEDIA_WIDTHS, UppercaseText } from '../../theme'
 import { currencyId } from '../../utils/currencyId'
 import { unwrappedToken } from '../../utils/wrappedCurrency'
 import { ButtonEmpty, ButtonOutlined, ButtonPrimary } from '../Button'
@@ -110,6 +111,24 @@ const WarningMessage = styled(Text)`
   color: ${({ theme }) => theme.warning};
   text-align: center;
 `
+
+const MoneyBagIcon = () => {
+  const theme = useTheme()
+  return (
+    <Flex
+      width={24}
+      height={24}
+      justifyContent="center"
+      alignItems={'center'}
+      sx={{
+        borderRadius: '999px',
+        background: rgba(theme.apr, 0.2),
+      }}
+    >
+      <MoneyBag size={16} color={theme.apr} />
+    </Flex>
+  )
+}
 
 const formattedUSDPrice = (tokenAmount: TokenAmount, price: number) => {
   const usdValue = parseFloat(tokenAmount.toSignificant(6)) * price
@@ -386,6 +405,8 @@ export default function FullPositionCard({
 }: PositionCardProps) {
   const { account, chainId } = useActiveWeb3React()
 
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+
   const farmStatus = !farm ? 'NO_FARM' : farm.isEnded ? 'FARM_ENDED' : 'FARM_ACTIVE'
   const ethPrice = useETHPrice()
 
@@ -477,6 +498,38 @@ export default function FullPositionCard({
       ? `/farms?tab=classic&type=${farmStatus === 'FARM_ACTIVE' ? 'active' : 'ended'}&search=${pair.address}`
       : ''
 
+  const renderFarmIcon = () => {
+    if (farmStatus !== 'FARM_ACTIVE') {
+      return null
+    }
+
+    if (upToSmall) {
+      return (
+        <MouseoverTooltip
+          placement="top"
+          noArrow
+          text={
+            <Text>
+              <Trans>
+                Available for yield farming. Click <Link to={goToFarmPath}>here</Link> to go to the farm.
+              </Trans>
+            </Text>
+          }
+        >
+          <MoneyBagIcon />
+        </MouseoverTooltip>
+      )
+    }
+
+    return (
+      <MouseoverTooltip width="fit-content" placement="top" text={<Trans>Available for yield farming</Trans>}>
+        <Link to={goToFarmPath}>
+          <MoneyBagIcon />
+        </Link>
+      </MouseoverTooltip>
+    )
+  }
+
   return (
     <StyledPositionCard border={border}>
       <Flex justifyContent="space-between">
@@ -499,25 +552,12 @@ export default function FullPositionCard({
           </Flex>
         </div>
 
-        <Flex>
-          {farmStatus === 'FARM_ACTIVE' && (
-            <MouseoverTooltip placement="top" noArrow text={t`Available for yield farming. Click to go to farm`}>
-              <Link to={goToFarmPath}>
-                <Flex
-                  width={24}
-                  height={24}
-                  justifyContent="center"
-                  alignItems={'center'}
-                  sx={{
-                    borderRadius: '999px',
-                    background: rgba(theme.apr, 0.2),
-                  }}
-                >
-                  <MoneyBag size={16} color={theme.apr} />
-                </Flex>
-              </Link>
-            </MouseoverTooltip>
-          )}
+        <Flex
+          sx={{
+            gap: '4px',
+          }}
+        >
+          {renderFarmIcon()}
           {isWarning && (
             <MouseoverTooltip
               text={
