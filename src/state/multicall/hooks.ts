@@ -1,6 +1,7 @@
 import { FunctionFragment, Interface } from '@ethersproject/abi'
 import { BigNumber } from '@ethersproject/bignumber'
 import { Contract } from '@ethersproject/contracts'
+import { ChainId } from '@namgold/ks-sdk-core'
 import { useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -56,7 +57,9 @@ export const NEVER_RELOAD: ListenerOptions = {
 function useCallsData(calls: (Call | undefined)[], options?: ListenerOptions): CallResult[] {
   const { chainId } = useActiveWeb3React()
   const isEVMChainId = isEVM(chainId)
-  const callResults = useSelector<AppState, AppState['multicall']['callResults']>(state => state.multicall.callResults)
+  const callResults = useSelector<AppState, AppState['multicall']['callResults'][ChainId]>(
+    state => state.multicall.callResults?.[chainId || ChainId.MAINNET],
+  )
   const dispatch = useDispatch<AppDispatch>()
 
   const serializedCallKeys: string = useMemo(
@@ -103,7 +106,7 @@ function useCallsData(calls: (Call | undefined)[], options?: ListenerOptions): C
         ? calls.map<CallResult>(call => {
             if (!call) return INVALID_RESULT
 
-            const result = callResults[chainId]?.[toCallKey(call)]
+            const result = callResults?.[toCallKey(call)]
             let data
             if (result?.data && result?.data !== '0x') {
               data = result.data
@@ -112,7 +115,7 @@ function useCallsData(calls: (Call | undefined)[], options?: ListenerOptions): C
             return { valid: true, data, blockNumber: result?.blockNumber }
           })
         : EMPTY_ARRAY,
-    [callResults, calls, isEVMChainId, chainId],
+    [callResults, calls, isEVMChainId],
   )
 }
 
@@ -315,10 +318,10 @@ export function useSingleCallResult(
       : EMPTY_ARRAY
   }, [isEVMChainId, contract, fragment, inputs, gasRequired])
 
-  const result = useCallsData(calls, options)[0]
+  const { valid, data, blockNumber } = useCallsData(calls, options)[0] || {}
   const latestBlockNumber = useBlockNumber()
 
   return useMemo(() => {
-    return toCallState(result, contract?.interface, fragment, latestBlockNumber)
-  }, [result, contract, fragment, latestBlockNumber])
+    return toCallState({ valid, data, blockNumber }, contract?.interface, fragment, latestBlockNumber)
+  }, [valid, data, blockNumber, contract, fragment, latestBlockNumber])
 }

@@ -13,7 +13,11 @@ const instancesSet: { [title: string]: Set<Error> } = {}
  * useDebug({ deps1, deps2, deps3 })
  * useEffect(() => {...}, [deps1, deps2, deps3])
  */
-export default function useDebug(props: { [key: string]: any }) {
+export default function useDebug(
+  props: { [key: string]: any } & {
+    filter?: RegExp | string
+  },
+) {
   const prevProps = useRef(props)
   const instanceRef = useRef(new Error())
   const trace = instanceRef.current.stack || ''
@@ -26,8 +30,14 @@ export default function useDebug(props: { [key: string]: any }) {
     const m = (re.exec(trace), re.exec(trace))
     return m?.[1] || m?.[2] || ''
   })()
+  const isMatch = props.filter
+    ? typeof props.filter === 'string'
+      ? trace.includes(props.filter)
+      : props.filter.test(trace)
+    : true
 
   useEffect(() => {
+    if (!isMatch) return
     const instance = instanceRef.current
     if (!instancesSet[callerName]) instancesSet[callerName] = new Set()
     instancesSet[callerName].add(instance)
@@ -38,6 +48,7 @@ export default function useDebug(props: { [key: string]: any }) {
   }, [])
 
   useEffect(() => {
+    if (!isMatch) return
     const instances = [...instancesSet[callerName]]
     const instanceIndex = instances.indexOf(instanceRef.current) + 1
     if (logOnlyOneInstance && instanceIndex !== logOnlyOneInstance) return
@@ -78,7 +89,13 @@ export default function useDebug(props: { [key: string]: any }) {
             console.log('Is real changed:', isRealChanged, isRealChanged ? '' : '🆘 🆘 🆘')
             console.log(' - Old:', prevProps.current[key])
             console.log(' - New:', props[key])
-            if (typeof prevProps.current[key] === 'object' && typeof props[key] === 'object' && isRealChanged) {
+            if (
+              prevProps.current[key] &&
+              typeof prevProps.current[key] === 'object' &&
+              props[key] &&
+              typeof props[key] === 'object' &&
+              isRealChanged
+            ) {
               // find which key is really changed for object and array
               const propSubKeys = new Set<string>()
               Object.keys(prevProps.current[key]).forEach(subkey => propSubKeys.add(subkey))
