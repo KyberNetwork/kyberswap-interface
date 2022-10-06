@@ -23,7 +23,7 @@ const auroraInfo: EVMNetworkInfo = {
   blockClient: createClient('https://aurora-graph.kyberengineering.io/subgraphs/name/kybernetwork/aurora-blocks'),
   etherscanUrl: 'https://aurorascan.dev',
   etherscanName: 'Aurora Explorer',
-  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.AURORA}&pageSize=${100}&isWhitelisted=${true}`,
+  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.AURORA}&isWhitelisted=${true}`,
   bridgeURL: 'https://rainbowbridge.app',
   nativeToken: {
     symbol: 'ETH',
