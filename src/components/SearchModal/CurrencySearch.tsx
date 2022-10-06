@@ -228,12 +228,15 @@ export function CurrencySearch({
 
   const listTokenRef = useRef<HTMLInputElement>(null)
 
-  const handleInput = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    const input = event.target.value
-    const checksumInput = isAddress(chainId, input)
-    setSearchQuery(checksumInput || input)
-    if (listTokenRef?.current) listTokenRef.current.scrollTop = 0
-  }, [])
+  const handleInput = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      const input = event.target.value
+      const checksumInput = isAddress(chainId, input)
+      setSearchQuery(checksumInput || input)
+      if (listTokenRef?.current) listTokenRef.current.scrollTop = 0
+    },
+    [chainId],
+  )
 
   const handleEnter = useCallback(
     (e: KeyboardEvent<HTMLInputElement>) => {
