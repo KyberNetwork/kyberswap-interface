@@ -2,7 +2,7 @@ import { Pair } from '@kyberswap/ks-sdk-classic'
 import { ChainId, Fraction, Percent, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import JSBI from 'jsbi'
-import { darken, rgba } from 'polished'
+import { darken } from 'polished'
 import { useState } from 'react'
 import { AlertTriangle } from 'react-feather'
 import { Link } from 'react-router-dom'
@@ -12,7 +12,7 @@ import styled from 'styled-components'
 
 import CopyHelper from 'components/Copy'
 import Divider from 'components/Divider'
-import { MoneyBag } from 'components/Icons'
+import { FarmingIcon } from 'components/Icons'
 import InfoHelper from 'components/InfoHelper'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { DMM_ANALYTICS_URL, ONE_BIPS } from 'constants/index'
@@ -111,24 +111,6 @@ const WarningMessage = styled(Text)`
   color: ${({ theme }) => theme.warning};
   text-align: center;
 `
-
-const MoneyBagIcon = () => {
-  const theme = useTheme()
-  return (
-    <Flex
-      width={24}
-      height={24}
-      justifyContent="center"
-      alignItems={'center'}
-      sx={{
-        borderRadius: '999px',
-        background: rgba(theme.apr, 0.2),
-      }}
-    >
-      <MoneyBag size={16} color={theme.apr} />
-    </Flex>
-  )
-}
 
 const formattedUSDPrice = (tokenAmount: TokenAmount, price: number) => {
   const usdValue = parseFloat(tokenAmount.toSignificant(6)) * price
@@ -516,7 +498,7 @@ export default function FullPositionCard({
             </Text>
           }
         >
-          <MoneyBagIcon />
+          <FarmingIcon />
         </MouseoverTooltip>
       )
     }
@@ -524,7 +506,7 @@ export default function FullPositionCard({
     return (
       <MouseoverTooltip width="fit-content" placement="top" text={<Trans>Available for yield farming</Trans>}>
         <Link to={goToFarmPath}>
-          <MoneyBagIcon />
+          <FarmingIcon />
         </Link>
       </MouseoverTooltip>
     )

@@ -1,7 +1,6 @@
 import { FeeAmount, Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
-import { rgba } from 'polished'
 import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -10,7 +9,7 @@ import RangeBadge from 'components/Badge/RangeBadge'
 import { AutoColumn } from 'components/Column'
 import Copy from 'components/Copy'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
-import { MoneyBag } from 'components/Icons'
+import { FarmingIcon } from 'components/Icons'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
@@ -18,25 +17,6 @@ import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 import { unwrappedToken } from 'utils/wrappedCurrency'
-
-const MoneyBagIcon = () => {
-  const theme = useTheme()
-
-  return (
-    <Flex
-      width={24}
-      height={24}
-      justifyContent="center"
-      alignItems={'center'}
-      sx={{
-        background: rgba(theme.apr, 0.2),
-        borderRadius: '999px',
-      }}
-    >
-      <MoneyBag size={16} color={theme.apr} />
-    </Flex>
-  )
-}
 
 export default function ProAmmPoolInfo({
   isFarmActive,
@@ -76,7 +56,7 @@ export default function ProAmmPoolInfo({
             </Text>
           }
         >
-          <MoneyBagIcon />
+          <FarmingIcon />
         </MouseoverTooltip>
       )
     }
@@ -84,7 +64,7 @@ export default function ProAmmPoolInfo({
     return (
       <MouseoverTooltip width="fit-content" placement="top" text={t`Available for yield farming`}>
         <Link to={`/farms?tab=elastic&type=active&search=${poolAddress}`}>
-          <MoneyBagIcon />
+          <FarmingIcon />
         </Link>
       </MouseoverTooltip>
     )
