@@ -26,7 +26,7 @@ const bttcInfo: EVMNetworkInfo = {
   blockClient: createClient('https://bttc-graph.kyberengineering.io/subgraphs/name/kybernetwork/bttc-blocks'),
   etherscanUrl: 'https://bttcscan.com',
   etherscanName: 'Bttcscan',
-  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.BTTC}&pageSize=${100}&isWhitelisted=${true}`,
+  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.BTTC}&isWhitelisted=${true}`,
   bridgeURL: 'https://wallet.bt.io/bridge',
   nativeToken: {
     symbol: 'BTT',

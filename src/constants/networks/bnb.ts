@@ -22,7 +22,7 @@ const bnbInfo: EVMNetworkInfo = {
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-bsc'),
   etherscanUrl: 'https://bscscan.com',
   etherscanName: 'BscScan',
-  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.BSCMAINNET}&pageSize=${100}&isWhitelisted=${true}`,
+  tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.BSCMAINNET}&isWhitelisted=${true}`,
   bridgeURL: 'https://www.binance.org/en/bridge',
   nativeToken: {
     symbol: 'BNB',

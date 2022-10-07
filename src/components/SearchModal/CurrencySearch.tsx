@@ -18,6 +18,7 @@ import { useActiveWeb3React } from 'hooks'
 import { AllTokenType, useAllTokens, useToken } from 'hooks/Tokens'
 import useDebounce from 'hooks/useDebounce'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
+import usePrevious from 'hooks/usePrevious'
 import useTheme from 'hooks/useTheme'
 import useToggle from 'hooks/useToggle'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
@@ -86,11 +87,11 @@ export type TokenResponse = Token & { isWhitelisted: boolean }
 
 const cacheTokens: AllTokenType = {}
 
-const fetchTokenByAddress = async (address: string, chainId: ChainId): Promise<Token | undefined> => {
+const fetchTokenByAddress = async (address: string, chainId: ChainId) => {
   const cachedToken = cacheTokens[address] || cacheTokens[address.toLowerCase()]
   if (cachedToken) return cachedToken
   const url = `${KS_SETTING_API}/v1/tokens?query=${address}&chainIds=${chainId}`
-  const response = await axios.get<{ data: { tokens: Token[] } }>(url)
+  const response = await axios.get(url)
   const token = response.data.data.tokens[0]
   if (token) cacheTokens[address] = token
   return token
@@ -98,11 +99,38 @@ const fetchTokenByAddress = async (address: string, chainId: ChainId): Promise<T
 
 const formatAndCacheToken = (tokenResponse: TokenResponse) => {
   try {
-    const formatted = new WrappedTokenInfo(tokenResponse as TokenInfo)
-    cacheTokens[tokenResponse.address] = formatted
-    return formatted
+    const tokenInfo = new WrappedTokenInfo(tokenResponse as TokenInfo)
+    cacheTokens[tokenResponse.address] = tokenInfo
+    return tokenInfo
   } catch (e) {
     return null
+  }
+}
+
+const PAGE_SIZE = 20
+
+const fetchTokens = async (
+  search: string | undefined,
+  page: number,
+  chainId: ChainId | undefined,
+): Promise<{ tokens: TokenResponse[] }> => {
+  try {
+    const params: { query: string; isWhitelisted?: boolean; pageSize: number; page: number; chainIds: string } = {
+      query: search ?? '',
+      chainIds: chainId?.toString() ?? '',
+      page,
+      pageSize: PAGE_SIZE,
+    }
+    if (!search) {
+      params.isWhitelisted = true
+    }
+    const url = `${KS_SETTING_API}/v1/tokens?${stringify(params)}`
+
+    const response = await axios.get(url)
+    const { tokens } = response.data.data
+    return { tokens }
+  } catch (error) {
+    return { tokens: [] }
   }
 }
 
@@ -130,9 +158,8 @@ export function CurrencySearch({
   const defaultTokens = useAllTokens()
 
   const tokenImports = useUserAddedTokens()
-  const [pageCount, setPageCount] = useState(1)
+  const [pageCount, setPageCount] = useState(0)
   const [fetchedTokens, setFetchedTokens] = useState<Token[]>(Object.values(defaultTokens))
-  const [totalItems, setTotalItems] = useState(0)
 
   const tokenComparator = useTokenComparator(false)
 
@@ -155,28 +182,30 @@ export function CurrencySearch({
 
   const filteredTokens: Token[] = useMemo(() => {
     if (isAddressSearch) return searchToken ? [searchToken.wrapped] : []
-    return filterTokens(chainId, fetchedTokens, debouncedQuery)
-  }, [isAddressSearch, searchToken, chainId, fetchedTokens, debouncedQuery])
+    return fetchedTokens
+  }, [isAddressSearch, searchToken, fetchedTokens])
 
   const filteredCommonTokens: Token[] = useMemo(() => {
     return filterTokens(chainId, commonTokens as Token[], debouncedQuery)
   }, [chainId, commonTokens, debouncedQuery])
 
   const filteredSortedTokens: Token[] = useMemo(() => {
-    if (searchToken) return [searchToken.wrapped]
-    const sorted = filteredTokens.sort(tokenComparator)
-    const symbolMatch = debouncedQuery
-      .toLowerCase()
-      .split(/\s+/)
-      .filter(s => s.length > 0)
-    if (symbolMatch.length > 1) return sorted
-
-    return [
-      // sort any exact symbol matches first
-      ...sorted.filter(token => token.symbol?.toLowerCase() === symbolMatch[0]),
-      ...sorted.filter(token => token.symbol?.toLowerCase() !== symbolMatch[0]),
-    ]
-  }, [filteredTokens, debouncedQuery, searchToken, tokenComparator])
+    if (!debouncedQuery) {
+      // only sort whitelist token,  token search we don't sort
+      const sorted = filteredTokens.sort(tokenComparator)
+      const symbolMatch = debouncedQuery
+        .toLowerCase()
+        .split(/\s+/)
+        .filter(s => s.length > 0)
+      if (symbolMatch.length > 1) return sorted
+      return [
+        // sort any exact symbol matches first
+        ...sorted.filter(token => token.symbol?.toLowerCase() === symbolMatch[0]),
+        ...sorted.filter(token => token.symbol?.toLowerCase() !== symbolMatch[0]),
+      ]
+    }
+    return filteredTokens
+  }, [filteredTokens, debouncedQuery, tokenComparator])
 
   const handleCurrencySelect = useCallback(
     (currency: Currency) => {
@@ -197,11 +226,14 @@ export function CurrencySearch({
     }
   }, [isOpen])
 
+  const listTokenRef = useRef<HTMLInputElement>(null)
+
   const handleInput = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
       const input = event.target.value
       const checksumInput = isAddress(chainId, input)
       setSearchQuery(checksumInput || input)
+      if (listTokenRef?.current) listTokenRef.current.scrollTop = 0
     },
     [chainId],
   )
@@ -264,30 +296,6 @@ export function CurrencySearch({
   const node = useRef<HTMLDivElement>()
   useOnClickOutside(node, open ? toggle : undefined)
 
-  const fetchTokens = useCallback(
-    async (
-      search: string | undefined,
-      page: number,
-    ): Promise<{ tokens: TokenResponse[]; pagination: { totalItems: number } }> => {
-      const params: { query?: string; isWhitelisted?: boolean; pageSize: number; page: number; chainIds: string } = {
-        query: search,
-        chainIds: chainId.toString(),
-        page,
-        pageSize: 10,
-      }
-      if (!search) {
-        params.pageSize = 100
-        params.isWhitelisted = true
-        delete params.query
-      }
-      const url = `${KS_SETTING_API}/v1/tokens?${stringify(params)}`
-      const response = await axios.get(url)
-      const { tokens, pagination } = response.data.data
-      return { tokens, pagination }
-    },
-    [chainId],
-  )
-
   const fetchFavoriteTokenFromAddress = useCallback(async () => {
     try {
       if (!Object.keys(cacheTokens).length && !Object.keys(defaultTokens).length) return
@@ -329,24 +337,32 @@ export function CurrencySearch({
     fetchFavoriteTokenFromAddress()
   }, [fetchFavoriteTokenFromAddress])
 
-  const loadMoreRows = async () => {
-    const { tokens } = await fetchTokens(debouncedQuery, pageCount)
-    setPageCount(pageCount => pageCount + 1)
-    const parsedTokenList = filterTruthy(tokens.map(formatAndCacheToken))
-    setFetchedTokens(current => [...current, ...parsedTokenList])
-  }
-
-  useEffect(() => {
-    const fetchData = async () => {
-      if (isAddressSearch) return
-      const { tokens, pagination } = await fetchTokens(debouncedQuery, 1)
+  const fetchListTokens = useCallback(
+    async (page?: number) => {
+      const nextPage = (page ?? pageCount) + 1
+      let tokens = []
+      if (debouncedQuery) {
+        const data = await fetchTokens(debouncedQuery, nextPage, chainId)
+        tokens = data.tokens
+      } else {
+        tokens = Object.values(defaultTokens) as WrappedTokenInfo[]
+      }
       const parsedTokenList = filterTruthy(tokens.map(formatAndCacheToken))
-      setFetchedTokens(parsedTokenList)
-      setTotalItems(pagination.totalItems)
-      setPageCount(2)
+      setPageCount(nextPage)
+      setFetchedTokens(current => (nextPage === 1 ? [] : current).concat(parsedTokenList))
+      setHasMoreToken(parsedTokenList.length === PAGE_SIZE && !!debouncedQuery)
+    },
+    [chainId, debouncedQuery, defaultTokens, pageCount],
+  )
+
+  const [hasMoreToken, setHasMoreToken] = useState(false)
+  const prevQuery = usePrevious(debouncedQuery)
+  useEffect(() => {
+    if (!isAddressSearch && prevQuery !== debouncedQuery) {
+      fetchListTokens(0)
     }
-    fetchData()
-  }, [debouncedQuery, isAddressSearch, fetchTokens])
+    // need call api when only debouncedQuery change
+  }, [debouncedQuery, prevQuery, fetchListTokens, isAddressSearch])
 
   useEffect(() => {
     if (Object.keys(defaultTokens).length) fetchFavoriteTokenFromAddress()
@@ -356,7 +372,7 @@ export function CurrencySearch({
 
   const combinedTokens = useMemo(() => {
     const currencies: Currency[] = filteredSortedTokens
-    if (showETH) currencies.unshift(NativeCurrencies[chainId])
+    if (showETH && chainId && !currencies.find(e => e.isNative)) currencies.unshift(NativeCurrencies[chainId])
     return currencies
   }, [showETH, chainId, filteredSortedTokens])
 
@@ -483,7 +499,7 @@ export function CurrencySearch({
       )}
 
       {visibleCurrencies?.length > 0 ? (
-        <div id="scrollableDiv" style={{ flex: '1', overflow: 'auto' }}>
+        <div ref={listTokenRef} id="currency-list-wrapper" style={{ height: '100%', overflowY: 'scroll' }}>
           <CurrencyList
             removeImportedToken={removeImportedToken}
             currencies={visibleCurrencies}
@@ -494,8 +510,8 @@ export function CurrencySearch({
             selectedCurrency={selectedCurrency}
             showImportView={showImportView}
             setImportToken={setImportToken}
-            loadMoreRows={loadMoreRows}
-            totalItems={totalItems}
+            loadMoreRows={fetchListTokens}
+            hasMore={hasMoreToken}
           />
         </div>
       ) : (
