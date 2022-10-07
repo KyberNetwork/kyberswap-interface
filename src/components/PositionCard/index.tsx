@@ -3,15 +3,16 @@ import { ChainId, Fraction, Percent, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import JSBI from 'jsbi'
 import { darken } from 'polished'
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { AlertTriangle } from 'react-feather'
 import { Link } from 'react-router-dom'
+import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import CopyHelper from 'components/Copy'
 import Divider from 'components/Divider'
-import AgriCulture from 'components/Icons/AgriCulture'
+import { FarmingIcon } from 'components/Icons'
 import InfoHelper from 'components/InfoHelper'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { DMM_ANALYTICS_URL, ONE_BIPS } from 'constants/index'
@@ -19,6 +20,7 @@ import useTheme from 'hooks/useTheme'
 import { TokenWrapper } from 'pages/AddLiquidity/styled'
 import { IconWrapper } from 'pages/Pools/styleds'
 import { useETHPrice, useTokensPrice } from 'state/application/hooks'
+import { Farm } from 'state/farms/types'
 import { UserLiquidityPosition, useSinglePoolData } from 'state/pools/hooks'
 import { formattedNum, shortenAddress } from 'utils'
 import { getTradingFeeAPR, useCurrencyConvertedToNative } from 'utils/dmm'
@@ -26,7 +28,7 @@ import { getTradingFeeAPR, useCurrencyConvertedToNative } from 'utils/dmm'
 import { useTotalSupply } from '../../data/TotalSupply'
 import { useActiveWeb3React } from '../../hooks'
 import { useTokenBalance } from '../../state/wallet/hooks'
-import { ExternalLink, UppercaseText } from '../../theme'
+import { ExternalLink, MEDIA_WIDTHS, UppercaseText } from '../../theme'
 import { currencyId } from '../../utils/currencyId'
 import { unwrappedToken } from '../../utils/wrappedCurrency'
 import { ButtonEmpty, ButtonOutlined, ButtonPrimary } from '../Button'
@@ -122,8 +124,8 @@ interface PositionCardProps {
   border?: string
   stakedBalance?: TokenAmount // optional balance to indicate that liquidity is deposited in mining pool
   myLiquidity?: UserLiquidityPosition
-  farmStatus?: 'NO_FARM' | 'FARM_ACTIVE' | 'FARM_ENDED'
   tab?: 'ALL' | 'STAKED'
+  farm?: Farm
   farmAPR?: number
 }
 
@@ -379,12 +381,15 @@ export default function FullPositionCard({
   border,
   stakedBalance,
   myLiquidity,
-  farmStatus = 'NO_FARM',
   tab,
+  farm,
   farmAPR = 0,
 }: PositionCardProps) {
   const { account, chainId } = useActiveWeb3React()
 
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+
+  const farmStatus = !farm ? 'NO_FARM' : farm.isEnded ? 'FARM_ENDED' : 'FARM_ACTIVE'
   const ethPrice = useETHPrice()
 
   const { data: poolData } = useSinglePoolData(pair.address.toLowerCase(), ethPrice.currentPrice)
@@ -470,6 +475,43 @@ export default function FullPositionCard({
 
   const theme = useTheme()
 
+  const goToFarmPath =
+    farmStatus !== 'NO_FARM'
+      ? `/farms?tab=classic&type=${farmStatus === 'FARM_ACTIVE' ? 'active' : 'ended'}&search=${pair.address}`
+      : ''
+
+  const renderFarmIcon = () => {
+    if (farmStatus !== 'FARM_ACTIVE') {
+      return null
+    }
+
+    if (upToSmall) {
+      return (
+        <MouseoverTooltip
+          placement="top"
+          noArrow
+          text={
+            <Text>
+              <Trans>
+                Available for yield farming. Click <Link to={goToFarmPath}>here</Link> to go to the farm.
+              </Trans>
+            </Text>
+          }
+        >
+          <FarmingIcon />
+        </MouseoverTooltip>
+      )
+    }
+
+    return (
+      <MouseoverTooltip width="fit-content" placement="top" text={<Trans>Available for yield farming</Trans>}>
+        <Link to={goToFarmPath}>
+          <FarmingIcon />
+        </Link>
+      </MouseoverTooltip>
+    )
+  }
+
   return (
     <StyledPositionCard border={border}>
       <Flex justifyContent="space-between">
@@ -492,41 +534,37 @@ export default function FullPositionCard({
           </Flex>
         </div>
 
-        {(isWarning || farmStatus === 'FARM_ACTIVE') && (
-          <Flex>
-            {farmStatus === 'FARM_ACTIVE' && (
-              <MouseoverTooltip text="Available for yield farming">
-                <IconWrapper style={{ width: '24px', height: '24px' }}>
-                  <AgriCulture width={16} height={16} color={theme.textReverse} />
-                </IconWrapper>
-              </MouseoverTooltip>
-            )}
-            {isWarning && (
-              <MouseoverTooltip
-                text={
-                  warningToken ? (
-                    <WarningMessage>{t`Note: ${warningToken} is now <10% of the pool. Pool might become inactive if ${warningToken} reaches 0%`}</WarningMessage>
-                  ) : (
-                    <WarningMessage>
-                      <Trans>One token is close to 0% in the pool ratio. Pool might go inactive.</Trans>
-                    </WarningMessage>
-                  )
-                }
+        <Flex
+          sx={{
+            gap: '4px',
+          }}
+        >
+          {renderFarmIcon()}
+          {isWarning && (
+            <MouseoverTooltip
+              text={
+                warningToken ? (
+                  <WarningMessage>{t`Note: ${warningToken} is now <10% of the pool. Pool might become inactive if ${warningToken} reaches 0%`}</WarningMessage>
+                ) : (
+                  <WarningMessage>
+                    <Trans>One token is close to 0% in the pool ratio. Pool might go inactive.</Trans>
+                  </WarningMessage>
+                )
+              }
+            >
+              <IconWrapper
+                style={{
+                  width: '24px',
+                  height: '24px',
+                  background: theme.warning,
+                  marginLeft: farmStatus === 'FARM_ACTIVE' ? '8px' : 0,
+                }}
               >
-                <IconWrapper
-                  style={{
-                    width: '24px',
-                    height: '24px',
-                    background: theme.warning,
-                    marginLeft: farmStatus === 'FARM_ACTIVE' ? '8px' : 0,
-                  }}
-                >
-                  <AlertTriangle color={theme.textReverse} size={16} />
-                </IconWrapper>
-              </MouseoverTooltip>
-            )}
-          </Flex>
-        )}
+                <AlertTriangle color={theme.textReverse} size={16} />
+              </IconWrapper>
+            </MouseoverTooltip>
+          )}
+        </Flex>
       </Flex>
 
       <Flex marginTop="0.25rem" justifyContent="flex-end" alignItems="center"></Flex>
@@ -715,12 +753,7 @@ export default function FullPositionCard({
           </ButtonPrimary>
         </Flex>
       ) : (
-        <ButtonPrimary
-          padding="10px"
-          style={{ fontSize: '14px' }}
-          as={Link}
-          to={`/farms?tab=${farmStatus === 'FARM_ACTIVE' ? 'active' : 'ended'}`}
-        >
+        <ButtonPrimary padding="10px" style={{ fontSize: '14px' }} as={Link} to={goToFarmPath}>
           <Text width="max-content">
             <Trans>Go to farm</Trans>
           </Text>
@@ -738,13 +771,9 @@ export default function FullPositionCard({
             <Trans>Analytics ↗</Trans>
           </ExternalLink>
         </ButtonEmpty>
-        {tab === 'ALL' && farmStatus === 'FARM_ACTIVE' && (
-          <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0" as={Link} to="/farms?tab=active">
-            <Trans>Go to farm ↗</Trans>
-          </ButtonEmpty>
-        )}
-        {tab === 'ALL' && farmStatus === 'FARM_ENDED' && stakedBalance && (
-          <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0" as={Link} to="/farms?type=ended">
+
+        {!!farm && (
+          <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0" as={Link} to={goToFarmPath}>
             <Trans>Go to farm ↗</Trans>
           </ButtonEmpty>
         )}
