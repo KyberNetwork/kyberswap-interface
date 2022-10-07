@@ -281,7 +281,7 @@ const DropdownIcon = styled(DropdownSVG)`
   transition: transform 300ms;
 `
 
-const HoverDropdown = styled.div<{ active: boolean; disabled: boolean }>`
+const HoverDropdown = styled.div<{ active: boolean; disabled?: boolean }>`
   position: relative;
   display: inline-block;
   cursor: pointer;
@@ -378,55 +378,56 @@ export default function Header() {
             </Dropdown>
           </HoverDropdown>
 
-          <Flex id={TutorialIds.EARNING_LINKS} alignItems="center">
-            <HoverDropdown
-              active={pathname.toLowerCase().includes('pools') || pathname.toLowerCase().startsWith('/farms')}
-              disabled={!isEVM(chainId)}
-            >
-              <Flex alignItems="center">
-                <Trans>Earn</Trans>
-                <DropdownIcon />
-              </Flex>
-              <Dropdown>
-                <StyledNavLink
-                  id="pools-nav-link"
-                  to="/pools"
-                  isActive={(match, { pathname }) => Boolean(match) || pathname.startsWith('/pools')}
-                  style={{ width: '100%' }}
-                >
-                  <Trans>Pools</Trans>
-                </StyledNavLink>
+          {isEVM(chainId) && (
+            <Flex id={TutorialIds.EARNING_LINKS} alignItems="center">
+              <HoverDropdown
+                active={pathname.toLowerCase().includes('pools') || pathname.toLowerCase().startsWith('/farms')}
+              >
+                <Flex alignItems="center">
+                  <Trans>Earn</Trans>
+                  <DropdownIcon />
+                </Flex>
+                <Dropdown>
+                  <StyledNavLink
+                    id="pools-nav-link"
+                    to="/pools"
+                    isActive={(match, { pathname }) => Boolean(match) || pathname.startsWith('/pools')}
+                    style={{ width: '100%' }}
+                  >
+                    <Trans>Pools</Trans>
+                  </StyledNavLink>
 
-                <StyledNavLink
-                  id="my-pools-nav-link"
-                  to={'/myPools'}
-                  isActive={(match, { pathname }) =>
-                    Boolean(match) ||
-                    pathname.startsWith(APP_PATHS.CLASSIC_ADD_LIQ) ||
-                    pathname.startsWith(APP_PATHS.CLASSIC_REMOVE_POOL) ||
-                    pathname.startsWith(APP_PATHS.CLASSIC_CREATE_POOL) ||
-                    (pathname.startsWith(APP_PATHS.FIND_POOL) && pathname.endsWith(APP_PATHS.FIND_POOL))
-                  }
-                >
-                  <Trans>My Pools</Trans>
-                </StyledNavLink>
+                  <StyledNavLink
+                    id="my-pools-nav-link"
+                    to="/myPools"
+                    isActive={(match, { pathname }) =>
+                      Boolean(match) ||
+                      pathname.startsWith(APP_PATHS.CLASSIC_ADD_LIQ) ||
+                      pathname.startsWith(APP_PATHS.CLASSIC_REMOVE_POOL) ||
+                      pathname.startsWith(APP_PATHS.CLASSIC_CREATE_POOL) ||
+                      (pathname.startsWith(APP_PATHS.FIND_POOL) && pathname.endsWith(APP_PATHS.FIND_POOL))
+                    }
+                  >
+                    <Trans>My Pools</Trans>
+                  </StyledNavLink>
 
-                <StyledNavLink
-                  onClick={() => {
-                    mixpanelHandler(MIXPANEL_TYPE.FARM_UNDER_EARN_TAB_CLICK)
-                  }}
-                  id="farms-nav-link"
-                  to="/farms"
-                  isActive={match => Boolean(match)}
-                >
-                  <Trans>Farms</Trans>
-                  <NewLabel>
-                    <Trans>New</Trans>
-                  </NewLabel>
-                </StyledNavLink>
-              </Dropdown>
-            </HoverDropdown>
-          </Flex>
+                  <StyledNavLink
+                    onClick={() => {
+                      mixpanelHandler(MIXPANEL_TYPE.FARM_UNDER_EARN_TAB_CLICK)
+                    }}
+                    id="farms-nav-link"
+                    to="/farms"
+                    isActive={match => Boolean(match)}
+                  >
+                    <Trans>Farms</Trans>
+                    <NewLabel>
+                      <Trans>New</Trans>
+                    </NewLabel>
+                  </StyledNavLink>
+                </Dropdown>
+              </HoverDropdown>
+            </Flex>
+          )}
 
           {!under369 && (
             <CampaignWrapper id={TutorialIds.CAMPAIGN_LINK}>

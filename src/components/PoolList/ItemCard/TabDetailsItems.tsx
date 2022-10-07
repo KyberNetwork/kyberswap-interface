@@ -19,7 +19,7 @@ export default function TabDetailsItems({ poolData }: { poolData: SubgraphPoolDa
   const ampLiquidity = formattedNum(`${parseFloat(amp.toSignificant(5)) * parseFloat(poolData.reserveUSD)}`, true)
   const factories = useMultipleContractSingleData([poolData.id], DMM_POOL_INTERFACE, 'factory')
   if (!isEVM(chainId)) return <Redirect to="/" />
-  const isNewStaticFeePool = chainId && factories?.[0]?.result?.[0] === NETWORKS_INFO[chainId].classic.static.factory
+  const isNewStaticFeePool = factories?.[0]?.result?.[0] === NETWORKS_INFO[chainId].classic.static.factory
 
   return (
     <>
@@ -27,7 +27,7 @@ export default function TabDetailsItems({ poolData }: { poolData: SubgraphPoolDa
       <ItemCardInfoRowPriceRange poolData={poolData} />
       <ItemCardInfoRow
         infoHelperText={
-          chainId && ONLY_STATIC_FEE_CHAINS[chainId]
+          ONLY_STATIC_FEE_CHAINS[chainId]
             ? t`Liquidity providers will earn this trading fee for each trade that uses this pool`
             : undefined
         }

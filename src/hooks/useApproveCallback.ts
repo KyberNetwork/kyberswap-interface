@@ -143,7 +143,7 @@ export function useApproveCallbackFromTradeV2(trade?: Aggregator, allowedSlippag
     () => (trade ? computeSlippageAdjustedAmounts(trade, allowedSlippage)[Field.INPUT] : undefined),
     [trade, allowedSlippage],
   )
-  return useApproveCallback(amountToApprove, !!chainId && trade?.routerAddress ? trade.routerAddress : undefined)
+  return useApproveCallback(amountToApprove, isEVM(chainId) && trade?.routerAddress ? trade.routerAddress : undefined)
 }
 
 export function useProAmmApproveCallback(

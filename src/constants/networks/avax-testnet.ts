@@ -45,7 +45,7 @@ const avaxTestnetInfo: EVMNetworkInfo = {
       router: '0x19395624C030A11f58e820C3AeFb1f5960d9742a',
       factory: '0x7900309d0b1c8D3d665Ae40e712E8ba4FC4F5453',
     },
-    claimReward: EMPTY,
+    claimReward: NOT_SUPPORT,
     fairlaunch: [],
     fairlaunchV2: EMPTY_ARRAY,
   },

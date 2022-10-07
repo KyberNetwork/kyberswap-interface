@@ -50,7 +50,7 @@ const ethereumInfo: EVMNetworkInfo = {
       router: '0x1c87257F5e8609940Bc751a07BB085Bb7f8cDBE6',
       factory: '0x833e4083B7ae46CeA85695c4f7ed25CDAd8886dE',
     },
-    claimReward: EMPTY,
+    claimReward: NOT_SUPPORT,
     fairlaunch: EMPTY_ARRAY,
     fairlaunchV2: EMPTY_ARRAY,
   },

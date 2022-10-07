@@ -143,3 +143,5 @@ export const TRUESIGHT_NETWORK_TO_CHAINID: NetToChain = SUPPORTED_NETWORKS.reduc
   }
   return acc
 }, {} as NetToChain) as NetToChain
+
+export const FAUCET_NETWORKS = [ChainId.BTTC, ChainId.RINKEBY]

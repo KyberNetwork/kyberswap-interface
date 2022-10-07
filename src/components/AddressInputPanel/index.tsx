@@ -5,11 +5,12 @@ import styled from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { AutoColumn } from 'components/Column'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useENS from 'hooks/useENS'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink } from 'theme'
-import { getEtherscanLink, getEtherscanLinkText } from 'utils'
+import { getEtherscanLink } from 'utils'
 
 const InputPanel = styled.div`
   ${({ theme }) => theme.flexColumnNoWrap}
@@ -104,12 +105,12 @@ export default function AddressInputPanel({
         <Text fontSize="12px" fontWeight="500">
           <Trans>Recipient (Optional)</Trans>
 
-          {address && chainId && (
+          {address && (
             <ExternalLink
               href={getEtherscanLink(chainId, name ?? address, 'address')}
               style={{ fontSize: '12px', marginLeft: '4px' }}
             >
-              ({getEtherscanLinkText(chainId)})
+              ({NETWORKS_INFO[chainId].etherscanName})
             </ExternalLink>
           )}
         </Text>

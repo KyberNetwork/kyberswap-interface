@@ -56,7 +56,7 @@ export interface EVMNetworkInfo extends NetworkInfo {
       readonly router: string
       readonly factory: string
     } | null
-    readonly claimReward: string
+    readonly claimReward: string | null
     readonly fairlaunch: string[]
     readonly fairlaunchV2: string[]
   }

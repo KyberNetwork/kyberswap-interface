@@ -46,7 +46,7 @@ const auroraInfo: EVMNetworkInfo = {
       factory: '0x39a8809fBbF22cCaeAc450EaF559C076843eB910',
     },
     dynamic: NOT_SUPPORT,
-    claimReward: EMPTY,
+    claimReward: NOT_SUPPORT,
     fairlaunch: EMPTY_ARRAY,
     fairlaunchV2: EMPTY_ARRAY,
   },

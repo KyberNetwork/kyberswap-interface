@@ -203,7 +203,7 @@ const TokenInfo = ({ currencies, onBack }: { currencies: { [field in Field]?: Cu
           </InfoRowLabel>
 
           <AutoRow width="fit-content" gap="4px">
-            {chainId && selectedToken ? (
+            {selectedToken ? (
               <>
                 <CurrencyLogo currency={selectedToken} size="16px" />
                 <InfoRowValue>{shortenAddress(chainId, selectedToken.address, 3)}</InfoRowValue>

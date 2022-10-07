@@ -45,7 +45,7 @@ const bnbInfo: EVMNetworkInfo = {
       router: '0x78df70615ffc8066cc0887917f2Cd72092C86409',
       factory: '0x878dFE971d44e9122048308301F540910Bbd934c',
     },
-    claimReward: EMPTY,
+    claimReward: NOT_SUPPORT,
     fairlaunch: [
       '0x597e3FeDBC02579232799Ecd4B7edeC4827B0435',
       '0x3D88bDa6ed7dA31E15E86A41CA015Ea50771448E',

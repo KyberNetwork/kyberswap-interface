@@ -45,7 +45,7 @@ const fantomInfo: EVMNetworkInfo = {
       router: '0x5d5A5a0a465129848c2549669e12cDC2f8DE039A',
       factory: '0x78df70615ffc8066cc0887917f2Cd72092C86409',
     },
-    claimReward: EMPTY,
+    claimReward: NOT_SUPPORT,
     fairlaunch: EMPTY_ARRAY,
     fairlaunchV2: EMPTY_ARRAY,
   },

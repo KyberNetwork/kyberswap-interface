@@ -1,4 +1,4 @@
-import { t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { Box, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -170,16 +170,14 @@ export default function TransactionPopup({
           </Text>
         </AutoColumn>
       </RowNoFlex>
-      {chainId && (
-        <HideSmall style={{ margin: '8px 0 0 40px', display: 'block' }}>
-          <ExternalLink
-            href={getEtherscanLink(chainId, hash, 'transaction')}
-            style={{ color: success ? theme.primary : theme.red, fontSize: 14 }}
-          >
-            {t`View transaction`}
-          </ExternalLink>
-        </HideSmall>
-      )}
+      <HideSmall style={{ margin: '8px 0 0 40px', display: 'block' }}>
+        <ExternalLink
+          href={getEtherscanLink(chainId, hash, 'transaction')}
+          style={{ color: success ? theme.primary : theme.red, fontSize: 14 }}
+        >
+          <Trans>View transaction</Trans>
+        </ExternalLink>
+      </HideSmall>
     </Box>
   )
 }

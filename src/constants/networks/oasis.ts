@@ -49,7 +49,7 @@ const oasisInfo: EVMNetworkInfo = {
       factory: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',
     },
     dynamic: NOT_SUPPORT,
-    claimReward: EMPTY,
+    claimReward: NOT_SUPPORT,
     fairlaunch: EMPTY_ARRAY,
     fairlaunchV2: EMPTY_ARRAY,
   },

@@ -46,7 +46,7 @@ const rinkebyInfo: EVMNetworkInfo = {
       router: EMPTY,
       factory: EMPTY,
     },
-    claimReward: EMPTY,
+    claimReward: NOT_SUPPORT,
     fairlaunch: EMPTY_ARRAY,
     fairlaunchV2: EMPTY_ARRAY,
   },

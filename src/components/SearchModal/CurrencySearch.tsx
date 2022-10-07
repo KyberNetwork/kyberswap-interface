@@ -271,7 +271,7 @@ export function CurrencySearch({
       const curTotal =
         currentList.filter(address => !!cacheTokens[address] || !!defaultTokens[address]).length +
         (favoriteTokens?.includeNativeToken ? 1 : 0)
-      if (!chainId || (isAddFavorite && curTotal === MAX_FAVORITE_PAIR)) return
+      if (isAddFavorite && curTotal === MAX_FAVORITE_PAIR) return
 
       if (currency.isNative) {
         toggleFavoriteToken({
@@ -372,7 +372,7 @@ export function CurrencySearch({
 
   const combinedTokens = useMemo(() => {
     const currencies: Currency[] = filteredSortedTokens
-    if (showETH && chainId && !currencies.find(e => e.isNative)) currencies.unshift(NativeCurrencies[chainId])
+    if (showETH && !currencies.find(e => e.isNative)) currencies.unshift(NativeCurrencies[chainId])
     return currencies
   }, [showETH, chainId, filteredSortedTokens])
 
@@ -384,7 +384,6 @@ export function CurrencySearch({
 
   const removeImportedToken = useCallback(
     (token: Token) => {
-      if (!chainId) return
       removeToken(chainId, token.address)
       if (favoriteTokens?.addresses.includes(token.address))
         // remove in favorite too

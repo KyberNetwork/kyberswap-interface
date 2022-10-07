@@ -46,7 +46,7 @@ const ethereumInfo: EVMNetworkInfo = {
       router: '0x1c87257F5e8609940Bc751a07BB085Bb7f8cDBE6',
       factory: '0x833e4083B7ae46CeA85695c4f7ed25CDAd8886dE',
     },
-    claimReward: EMPTY,
+    claimReward: NOT_SUPPORT,
     fairlaunch: [
       '0xc0601973451d9369252Aee01397c0270CD2Ecd60',
       '0x0FEEa33C4dE6f37A0Fc550028FddA2401B2Ee5Ce',

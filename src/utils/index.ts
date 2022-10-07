@@ -55,10 +55,6 @@ export function getEtherscanLink(
   }
 }
 
-export function getEtherscanLinkText(chainId: ChainId): string {
-  return NETWORKS_INFO[chainId].etherscanName
-}
-
 // shorten the checksummed version of the input address to have 0x + 4 characters at start and end
 export function shortenAddress(chainId: ChainId, address: string, chars = 4): string {
   const parsed = isAddress(chainId, address)

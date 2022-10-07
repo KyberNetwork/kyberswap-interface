@@ -152,10 +152,9 @@ export function usePairsByAddress(
       if (!reserves) return [PairState.NOT_EXISTS, null]
       const { _reserve0, _reserve1, _vReserve0, _vReserve1, feeInPrecision } = reserves
       const [token0, token1] = tokenA.sortsBefore(tokenB) ? [tokenA, tokenB] : [tokenB, tokenA]
-      const isStaticFeePair =
-        chainId && factoryAddresses && factoryAddresses[0] === NETWORKS_INFO[chainId].classic.static.factory
+      const isStaticFeePair = factoryAddresses && factoryAddresses[0] === NETWORKS_INFO[chainId].classic.static.factory
       const isOldStaticFeeContract =
-        chainId && factoryAddresses && factoryAddresses[0] === NETWORKS_INFO[chainId].classic.oldStatic?.factory
+        factoryAddresses && factoryAddresses[0] === NETWORKS_INFO[chainId].classic.oldStatic?.factory
       return [
         PairState.EXISTS,
         new Pair(

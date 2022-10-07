@@ -1,4 +1,4 @@
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { ChainId, Currency, Token } from '@namgold/ks-sdk-core'
 import React, { useState } from 'react'
 import { ArrowUpCircle } from 'react-feather'
@@ -150,11 +150,7 @@ function TransactionSubmittedContent({
             <CloseIcon onClick={onDismiss} />
           </RowBetween>
         )}
-        {showTxBanner && (
-          <>
-            <Banner isInModal />
-          </>
-        )}
+        {showTxBanner && <Banner isInModal />}
 
         <ConfirmedIcon>
           <ArrowUpCircle strokeWidth={0.5} size={90} color={theme.primary} />
@@ -163,10 +159,10 @@ function TransactionSubmittedContent({
           <Text fontWeight={500} fontSize={20}>
             <Trans>Transaction Submitted</Trans>
           </Text>
-          {chainId && hash && (
+          {hash && (
             <ExternalLink href={getEtherscanLink(chainId, hash, 'transaction')}>
               <Text fontWeight={500} fontSize={14} color={theme.primary}>
-                {t`View transaction`}
+                <Trans>View transaction</Trans>
               </Text>
             </ExternalLink>
           )}

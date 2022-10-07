@@ -48,7 +48,7 @@ const arbitrumInfo: EVMNetworkInfo = {
       factory: '0x51E8D106C646cA58Caf32A47812e95887C071a62',
     },
     dynamic: NOT_SUPPORT,
-    claimReward: EMPTY,
+    claimReward: NOT_SUPPORT,
     fairlaunch: EMPTY_ARRAY,
     fairlaunchV2: EMPTY_ARRAY,
   },

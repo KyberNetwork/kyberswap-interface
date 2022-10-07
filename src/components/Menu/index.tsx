@@ -27,7 +27,7 @@ import Loader from 'components/Loader'
 import MenuFlyout from 'components/MenuFlyout'
 import { MAINNET_ENV, TAG } from 'constants/env'
 import { DMM_ANALYTICS_URL } from 'constants/index'
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { FAUCET_NETWORKS, NETWORKS_INFO, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useClaimReward from 'hooks/useClaimReward'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -181,7 +181,7 @@ export default function Menu() {
         translatedTitle={t`Menu`}
         hasArrow
       >
-        {chainId && [ChainId.BTTC, ChainId.RINKEBY].includes(chainId) && (
+        {FAUCET_NETWORKS.includes(chainId) && (
           <MenuButton
             onClick={() => {
               toggleFaucetPopup()
@@ -261,9 +261,7 @@ export default function Menu() {
           <Trans>Contact Us</Trans>
         </MenuItem>
         <ClaimRewardButton
-          disabled={
-            !account || (isEVM(chainId) ? NETWORKS_INFO[chainId].classic.claimReward === '' : true) || pendingTx
-          }
+          disabled={!account || !isEVM(chainId) || !NETWORKS_INFO[chainId].classic.claimReward || pendingTx}
           onClick={() => {
             mixpanelHandler(MIXPANEL_TYPE.CLAIM_REWARDS_INITIATED)
             toggleClaimPopup()
@@ -282,7 +280,7 @@ export default function Menu() {
         </Text>
       </MenuFlyout>
       <ClaimRewardModal />
-      {chainId && [ChainId.BTTC, ChainId.RINKEBY].includes(chainId) && <FaucetModal />}
+      {FAUCET_NETWORKS.includes(chainId) && <FaucetModal />}
     </StyledMenu>
   )
 }

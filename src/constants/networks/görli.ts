@@ -46,7 +46,7 @@ const görliInfo: EVMNetworkInfo = {
     },
     oldStatic: NOT_SUPPORT,
     dynamic: NOT_SUPPORT,
-    claimReward: EMPTY,
+    claimReward: NOT_SUPPORT,
     fairlaunch: EMPTY_ARRAY,
     fairlaunchV2: EMPTY_ARRAY,
   },

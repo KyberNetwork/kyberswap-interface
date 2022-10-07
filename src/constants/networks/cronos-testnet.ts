@@ -54,7 +54,7 @@ const cronosTestnetInfo: EVMNetworkInfo = {
       router: '0x548E585B17908D0387d16F9BFf46c4EDe7ca7746',
       factory: '0x9fE747AEA6173DD2c72e9D9BF4E2bCbbC0f8aD9e',
     },
-    claimReward: EMPTY,
+    claimReward: NOT_SUPPORT,
     fairlaunch: EMPTY_ARRAY,
     fairlaunchV2: EMPTY_ARRAY,
   },
