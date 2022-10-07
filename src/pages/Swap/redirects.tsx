@@ -1,29 +1,10 @@
 import { Redirect, RouteComponentProps } from 'react-router-dom'
 
+import { NETWORKS_INFO } from 'constants/networks'
+import { useActiveWeb3React } from 'hooks'
+
 // Redirects to swap but only replace the pathname
-export function RedirectPathToSwapOnly({ location }: RouteComponentProps) {
-  return <Redirect to={{ ...location, pathname: '/swap' }} />
-}
-
-// Redirects from the /swap/:outputCurrency path to the /swap?outputCurrency=:outputCurrency format
-export function RedirectToSwap(props: RouteComponentProps<{ outputCurrency: string }>) {
-  const {
-    location: { search },
-    match: {
-      params: { outputCurrency },
-    },
-  } = props
-
-  return (
-    <Redirect
-      to={{
-        ...props.location,
-        pathname: '/swap',
-        search:
-          search && search.length > 1
-            ? `${search}&outputCurrency=${outputCurrency}`
-            : `?outputCurrency=${outputCurrency}`,
-      }}
-    />
-  )
+export function RedirectPathToSwapNetwork({ location }: RouteComponentProps) {
+  const { chainId } = useActiveWeb3React()
+  return <Redirect to={{ ...location, pathname: '/swap/' + NETWORKS_INFO[chainId].route }} />
 }

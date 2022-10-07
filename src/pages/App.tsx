@@ -28,7 +28,7 @@ import { isAddressString, shortenAddress } from 'utils'
 
 import { RedirectDuplicateTokenIds } from './AddLiquidityV2/redirects'
 import Swap from './Swap'
-import { RedirectPathToSwapOnly, RedirectToSwap } from './Swap/redirects'
+import { RedirectPathToSwapNetwork } from './Swap/redirects'
 import SwapV2 from './SwapV2'
 
 // Route-based code splitting
@@ -197,10 +197,7 @@ export default function App() {
                       component={SwapV2}
                     />
                     <Route exact strict path={`${APP_PATHS.SWAP}/:network/:fromCurrency`} component={SwapV2} />
-
-                    <Route exact strict path={`${APP_PATHS.SWAP}/:outputCurrency`} component={RedirectToSwap} />
-                    <Route exact strict path={`${APP_PATHS.SWAP}`} component={SwapV2} />
-
+                    <Route exact strict path={`${APP_PATHS.SWAP}/:network`} component={SwapV2} />
                     <Route exact strict path={`${APP_PATHS.FIND_POOL}`} component={PoolFinder} />
                     <Route exact strict path={`${APP_PATHS.POOLS}`} component={Pools} />
                     <Route exact strict path={`${APP_PATHS.POOLS}/:currencyIdA`} component={Pools} />
@@ -255,7 +252,7 @@ export default function App() {
                     <Route exact path={`${APP_PATHS.BUY_CRYPTO}`} component={BuyCrypto} />
                     <Route exact path={`${APP_PATHS.CAMPAIGN}/:slug?`} component={Campaign} />
 
-                    <Route component={RedirectPathToSwapOnly} />
+                    <Route component={RedirectPathToSwapNetwork} />
                   </Switch>
                 </Web3ReactManager>
               </BodyWrapper>

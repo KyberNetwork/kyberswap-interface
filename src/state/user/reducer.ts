@@ -108,7 +108,7 @@ export const defaultShowLiveCharts: { [chainId in ChainId]: boolean } = {
   [ChainId.VELAS]: true,
   [ChainId.OASIS]: true,
   [ChainId.OPTIMISM]: true,
-  [ChainId.SOLANA]: false,
+  [ChainId.SOLANA]: true,
 
   [ChainId.ROPSTEN]: false,
   [ChainId.RINKEBY]: false,
