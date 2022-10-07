@@ -199,6 +199,7 @@ export const FarmUpdater = () => {
   useEffect(() => {
     if (error && chainId) {
       dispatch(setFarms({ chainId, farms: [] }))
+      dispatch(setLoading({ chainId, loading: false }))
     }
   }, [error, dispatch, chainId])
 
