@@ -50,14 +50,14 @@ const banner = {
   onlyChains: [ChainId.BSCMAINNET],
   text: (
     <Text marginLeft="4px" marginRight="1rem" lineHeight="20px" color="#fff" fontSize="14px" flex={1}>
-      BNB Chain is currently under maintenance. For more info refer to{' '}
+      BNB Chain is currently under maintenance and has been paused temporarily. For further info please refer to{' '}
       <ExternalLink
         href="https://twitter.com/BNBCHAIN/status/1578148078636650496"
         style={{ color: '#fff', fontWeight: 500, textDecoration: 'underline' }}
       >
         this
       </ExternalLink>{' '}
-      official thread
+      official announcement from the Binance Team.
     </Text>
   ),
 }
