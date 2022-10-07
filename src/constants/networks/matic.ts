@@ -15,7 +15,7 @@ const maticInfo: NetworkInfo = {
   name: 'Polygon',
   icon: Polygon,
   classicClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-polygon'),
-  elasticClient: createClient('https://api.thegraph.com/subgraphs/id/QmQS3MPf3T6Vh3HAjxtsQpJBsBNPon8TGKfgKCmupLMNrq'),
+  elasticClient: createClient('https://api.thegraph.com/subgraphs/name/viet-nv/kyberswap-elastic-matic'),
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-polygon'),
   etherscanUrl: 'https://polygonscan.com',
   etherscanName: 'Polygonscan',

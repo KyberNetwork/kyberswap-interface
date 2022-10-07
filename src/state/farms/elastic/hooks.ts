@@ -40,8 +40,10 @@ interface SubgraphFarm {
     endTime: string
     feeTarget: string
     vestingDuration: string
-    rewardTokens: Array<SubgraphToken>
-    totalRewardAmounts: Array<string>
+    rewardTokens: Array<{
+      token: SubgraphToken
+      amount: string
+    }>
     joinedPositions: Array<{
       id: string
       user: string
@@ -94,12 +96,14 @@ const ELASTIC_FARM_QUERY = gql`
         feeTarget
         vestingDuration
         rewardTokens {
-          id
-          symbol
-          name
-          decimals
+          token {
+            id
+            symbol
+            name
+            decimals
+          }
+          amount
         }
-        totalRewardAmounts
         joinedPositions {
           id
           user
@@ -272,17 +276,17 @@ export const FarmUpdater = () => {
               feesUSD: Number(pool.pool.feesUSD),
               pool: p,
               poolTvl: Number(pool.pool.totalValueLockedUSD),
-              rewardTokens: pool.rewardTokens.map(token => {
+              rewardTokens: pool.rewardTokens.map(({ token }) => {
                 return token.id === ZERO_ADDRESS
                   ? nativeOnChain(chainId)
                   : new Token(chainId, token.id, Number(token.decimals), token.symbol, token.name)
               }),
-              totalRewards: pool.rewardTokens.map((token, index) => {
+              totalRewards: pool.rewardTokens.map(({ token, amount }) => {
                 const t =
                   token.id === ZERO_ADDRESS
                     ? nativeOnChain(chainId)
                     : new Token(chainId, token.id, Number(token.decimals), token.symbol, token.name)
-                return CurrencyAmount.fromRawAmount(t, pool.totalRewardAmounts[index])
+                return CurrencyAmount.fromRawAmount(t, amount)
               }),
               tvlToken0,
               tvlToken1,
