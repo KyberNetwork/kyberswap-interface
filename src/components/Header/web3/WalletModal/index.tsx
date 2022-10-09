@@ -1,9 +1,6 @@
 import { Trans } from '@lingui/macro'
-import { BaseMessageSignerWalletAdapter } from '@solana/wallet-adapter-base'
 import { useWallet } from '@solana/wallet-adapter-react'
-import { AbstractConnector } from '@web3-react/abstract-connector'
 import { UnsupportedChainIdError } from '@web3-react/core'
-import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { useEffect, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
 import { useLocation } from 'react-router-dom'
@@ -13,9 +10,9 @@ import { ReactComponent as Close } from 'assets/images/x.svg'
 import AccountDetails from 'components/Header/web3/AccountDetails'
 import Networks from 'components/Header/web3/NetworkModal/Networks'
 import Modal from 'components/Modal'
-import { isEVM, isSolana } from 'constants/networks'
 import { SUPPORTED_WALLET, SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActivationWallet } from 'hooks/useActivationWallet'
 import { useChangeNetwork } from 'hooks/useChangeNetwork'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import usePrevious from 'hooks/usePrevious'
@@ -150,10 +147,12 @@ export default function WalletModal({
   confirmedTransactions: string[] // hashes of confirmed
   ENSName?: string
 }) {
-  const { chainId, account } = useActiveWeb3React()
+  const { chainId, account, isSolana, isEVM } = useActiveWeb3React()
   // important that these are destructed from the account-specific web3-react context
-  const { active, connector, activate, error, chainId: chainIdEVM } = useWeb3React()
-  const { connected, connecting, wallet: solanaWallet, select } = useWallet()
+  const { active, connector, error, chainId: chainIdEVM } = useWeb3React()
+  const { connected, connecting, wallet: solanaWallet } = useWallet()
+  const { tryActivationEVM, tryActivationSolana } = useActivationWallet()
+
   const [justConnectedWallet, setJustConnectedWallet] = useState(false)
   const dispatch = useAppDispatch()
 
@@ -227,36 +226,28 @@ export default function WalletModal({
     setWalletView(WALLET_VIEWS.PENDING)
     setPendingError(false)
 
-    if (isEVM(chainId) && isEVMWallet(wallet) && !wallet.href) tryActivationEVM(wallet.connector)
-    if (isSolana(chainId) && isSolanaWallet(wallet) && wallet.adapter !== solanaWallet?.adapter)
-      tryActivationSolana(wallet.adapter)
-  }
-
-  const tryActivationEVM = async (connector: AbstractConnector | undefined) => {
-    // if the connector is walletconnect and the user has already tried to connect, manually reset the connector
-    if (connector instanceof WalletConnectConnector && connector.walletConnectProvider?.wc?.uri) {
-      connector.walletConnectProvider = undefined
+    if (isEVM && isEVMWallet(wallet) && !wallet.href) {
+      try {
+        await tryActivationEVM(wallet.connector)
+        setJustConnectedWallet(true)
+        setTimeout(() => setJustConnectedWallet(false), 1000)
+        setIsUserManuallyDisconnect(false)
+      } catch {
+        setPendingError(true)
+      }
     }
-
-    if (connector) {
-      await activate(connector, undefined, true)
-        .then(() => {
-          setJustConnectedWallet(true)
-          setTimeout(() => setJustConnectedWallet(false), 1000)
-          setIsUserManuallyDisconnect(false)
-        })
-        .catch(error => {
-          if (error instanceof UnsupportedChainIdError) {
-            activate(connector)
-          } else {
-            setPendingError(true)
-          }
-        })
+    if (isSolana && isSolanaWallet(wallet) && wallet.adapter !== solanaWallet?.adapter) {
+      try {
+        await tryActivationSolana(wallet.adapter)
+        setIsUserManuallyDisconnect(false)
+      } catch {
+        setPendingError(true)
+      }
     }
   }
 
   useEffect(() => {
-    if (isEVM(chainId) && chainIdEVM && chainId !== chainIdEVM && active && justConnectedWallet) {
+    if (isEVM && chainIdEVM && chainId !== chainIdEVM && active && justConnectedWallet) {
       setJustConnectedWallet(false)
       // when connected to wallet, wallet's network might not match with desire network
       // we need to update network state by wallet's network (chainIdEVM)
@@ -264,16 +255,7 @@ export default function WalletModal({
       // request change network if wallet's network not match with desire network by asking approve change network
       changeNetwork(chainId)
     }
-  }, [active, chainId, chainIdEVM, changeNetwork, dispatch, justConnectedWallet])
-
-  const tryActivationSolana = async (adapter: BaseMessageSignerWalletAdapter) => {
-    try {
-      select(adapter.name)
-      setIsUserManuallyDisconnect(false)
-    } catch (e) {
-      setPendingError(true)
-    }
-  }
+  }, [active, chainId, chainIdEVM, changeNetwork, dispatch, justConnectedWallet, isEVM])
 
   function getOptions() {
     const sortWallets = (walletAKey: SUPPORTED_WALLET, walletBKey: SUPPORTED_WALLET) => {
@@ -286,16 +268,15 @@ export default function WalletModal({
 
       let aPoint = 0
       let bPoint = 0
-      if (isEVM(chainId)) {
+      if (isEVM) {
         if (isWalletAEVM) aPoint++
         if (isWalletBEVM) bPoint++
-      } else if (isSolana(chainId)) {
+      } else if (isSolana) {
         if (isWalletASolana) aPoint++
         if (isWalletBSolana) bPoint++
       }
       return bPoint - aPoint
     }
-
     return (Object.keys(SUPPORTED_WALLETS) as SUPPORTED_WALLET[])
       .sort(sortWallets)
       .map(key => <Option key={key} walletKey={key} onSelected={tryActivation} />)

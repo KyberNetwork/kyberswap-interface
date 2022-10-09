@@ -32,6 +32,8 @@ export function useActiveWeb3React(): {
   chainId: ChainId
   account?: string
   walletKey: SUPPORTED_WALLET | undefined
+  isSolana: boolean
+  isEVM: boolean
 } {
   const chainIdState = useSelector<AppState, ChainId>(state => state.user.chainId) || ChainId.MAINNET
   const chainType = getChainType(chainIdState)
@@ -63,7 +65,14 @@ export function useActiveWeb3React(): {
       )
     })
   }, [active, chainType, connected, connector, walletSolana?.adapter])
-  return { chainId: chainIdState, account: address, walletKey }
+
+  return {
+    chainId: chainIdState,
+    account: address,
+    walletKey,
+    isSolana: chainType === ChainType.SOLANA,
+    isEVM: chainType === ChainType.EVM,
+  }
 }
 
 export function useWeb3React(key?: string): Web3ReactContextInterface<Web3Provider> & { chainId?: ChainId } {
