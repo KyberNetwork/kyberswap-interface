@@ -524,7 +524,6 @@ export const FarmUpdater = () => {
     const poolIds = elasticFarm.farms?.map(item => item.pools.map(p => p.poolAddress.toLowerCase())).flat()
 
     if (block24 && poolIds?.length) {
-      console.log('xxxx')
       getPoolInfo({
         variables: {
           block: Number(block24),
@@ -532,7 +531,7 @@ export const FarmUpdater = () => {
         },
       })
     }
-  }, [elasticFarm.farms, block24, getPoolInfo, dispatch, chainId])
+  }, [elasticFarm.farms, block24, getPoolInfo])
 
   return null
 }
