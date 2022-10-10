@@ -7,7 +7,6 @@ import burn from './burn/reducer'
 import campaigns from './campaigns/reducer'
 import customizeDexes from './customizeDexes'
 import elasticFarm from './farms/elastic'
-import prommFarms from './farms/promm/reducer'
 import farms from './farms/reducer'
 import { updateVersion } from './global/actions'
 import lists from './lists/reducer'
@@ -41,7 +40,6 @@ const store = configureStore({
     pair,
     pools,
     farms,
-    prommFarms,
     vesting,
     // [dataApi.reducerPath]: dataApi.reducer
     campaigns,

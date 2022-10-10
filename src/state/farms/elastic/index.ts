@@ -1,60 +1,6 @@
-import { BigintIsh, Currency, CurrencyAmount, TokenAmount } from '@kyberswap/ks-sdk-core'
-import { Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import { createSlice } from '@reduxjs/toolkit'
-import { BigNumber } from 'ethers'
 
-export interface FarmingPool {
-  id: string
-  pid: string
-  startTime: number
-  endTime: number
-  feeTarget: string
-  vestingDuration: number
-  rewardTokens: Currency[]
-  totalRewards: Array<CurrencyAmount<Currency>>
-  token0: Currency
-  token1: Currency
-  pool: Pool
-  poolAddress: string
-  poolTvl: number
-  feesUSD: number
-  tvlToken0: TokenAmount
-  tvlToken1: TokenAmount
-}
-export interface ElasticFarm {
-  id: string // farm contract
-  rewardLocker: string
-  pools: Array<FarmingPool>
-}
-
-interface PositionConstructorArgs {
-  nftId: BigNumber
-  pool: Pool
-  tickLower: number
-  tickUpper: number
-  liquidity: BigintIsh
-}
-export class NFTPosition extends Position {
-  readonly nftId: BigNumber
-  constructor({ nftId, pool, liquidity, tickLower, tickUpper }: PositionConstructorArgs) {
-    super({ pool, liquidity, tickUpper, tickLower })
-    this.nftId = nftId
-  }
-}
-
-export interface UserInfo {
-  depositedPositions: NFTPosition[]
-  joinedPositions: {
-    [pid: string]: NFTPosition[]
-  }
-  rewardPendings: {
-    [pid: string]: Array<CurrencyAmount<Currency>>
-  }
-}
-
-export interface UserFarmInfo {
-  [farmContract: string]: UserInfo
-}
+import { ElasticFarm, UserFarmInfo } from './types'
 
 interface ElasticFarmState {
   [chainId: number]: {
@@ -65,6 +11,8 @@ interface ElasticFarmState {
     poolFeeLast24h: {
       [poolId: string]: number
     }
+
+    failedNFTs: string[]
   }
 }
 
@@ -73,6 +21,7 @@ const defaultChainData = {
   loading: false,
   farms: [],
   poolFeeLast24h: {},
+  failedNFTs: [],
 }
 const initialState: ElasticFarmState = {}
 
@@ -95,21 +44,23 @@ const slice = createSlice({
       state,
       { payload: { userInfo, chainId } }: { payload: { userInfo: UserFarmInfo; chainId: number } },
     ) {
-      if (!state[chainId]) {
-        state[chainId] = defaultChainData
-      }
       state[chainId].userFarmInfo = userInfo
     },
 
     setPoolFeeData(state, { payload: { chainId, data } }) {
-      if (!state[chainId]) {
-        state[chainId] = defaultChainData
-      }
       state[chainId].poolFeeLast24h = data
+    },
+
+    addFailedNFTs(state, { payload: { chainId, ids } }: { payload: { chainId: number; ids: string[] } }) {
+      state[chainId].failedNFTs = ids
+    },
+
+    resetErrorNFTs(state, { payload: chainId }: { payload: number }) {
+      state[chainId].failedNFTs = []
     },
   },
 })
 
-export const { setFarms, setLoading, setUserFarmInfo, setPoolFeeData } = slice.actions
+export const { setFarms, setLoading, setUserFarmInfo, setPoolFeeData, addFailedNFTs, resetErrorNFTs } = slice.actions
 
 export default slice.reducer

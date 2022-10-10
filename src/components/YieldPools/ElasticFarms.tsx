@@ -18,15 +18,14 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useOpenModal } from 'state/application/hooks'
-import { useElasticFarms } from 'state/farms/elastic/hooks'
-import { useFailedNFTs } from 'state/farms/promm/hooks'
+import { useElasticFarms, useFailedNFTs } from 'state/farms/elastic/hooks'
 import { StyledInternalLink } from 'theme'
 import { isAddressString } from 'utils'
 
-import ProMMFarmGroup from './ProMMFarmGroup'
-import { DepositModal, StakeUnstakeModal } from './ProMMFarmModals'
-import HarvestModal from './ProMMFarmModals/HarvestModal'
-import WithdrawModal from './ProMMFarmModals/WithdrawModal'
+import ElasticFarmGroup from './ElasticFarmGroup'
+import { DepositModal, StakeUnstakeModal } from './ElasticFarmModals'
+import HarvestModal from './ElasticFarmModals/HarvestModal'
+import WithdrawModal from './ElasticFarmModals/WithdrawModal'
 import { SharePoolContext } from './SharePoolContext'
 import {
   HeadingContainer,
@@ -303,7 +302,7 @@ function ElasticFarms({ active }: { active: boolean }) {
         >
           {filteredFarms.map(farm => {
             return (
-              <ProMMFarmGroup
+              <ElasticFarmGroup
                 key={farm.id}
                 address={farm.id}
                 onOpenModal={(modalType: ModalType, pid?: number | string, forced?: boolean) => {

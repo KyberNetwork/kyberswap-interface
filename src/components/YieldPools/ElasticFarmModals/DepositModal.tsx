@@ -1,9 +1,8 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
-import { Position, computePoolAddress } from '@kyberswap/ks-sdk-elastic'
+import { Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { X } from 'react-feather'
+import { Info, X } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
@@ -13,20 +12,19 @@ import Checkbox from 'components/CheckBox'
 import CurrencyLogo from 'components/CurrencyLogo'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import HoverDropdown from 'components/HoverDropdown'
+import LocalLoader from 'components/LocalLoader'
 import Modal from 'components/Modal'
-import { MouseoverTooltip } from 'components/Tooltip'
-import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useToken } from 'hooks/Tokens'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { usePool } from 'hooks/usePools'
+import { useProAmmPositions } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
-import { useElasticFarms } from 'state/farms/elastic/hooks'
-import { useFailedNFTs, useFarmAction, usePostionFilter } from 'state/farms/promm/hooks'
-import { UserPositionFarm } from 'state/farms/promm/types'
+import { useElasticFarms, useFarmAction, usePostionFilter } from 'state/farms/elastic/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
+import { StyledInternalLink } from 'theme'
 import { PositionDetails } from 'types/position'
 import { formatDollarAmount } from 'utils/numbers'
 import { unwrappedToken } from 'utils/wrappedCurrency'
@@ -46,12 +44,10 @@ const PositionRow = ({
   position,
   onChange,
   selected,
-  forced,
 }: {
   selected: boolean
-  position: UserPositionFarm
+  position: PositionDetails
   onChange: (value: boolean) => void
-  forced: boolean
 }) => {
   const { token0: token0Address, token1: token1Address, fee: feeAmount, liquidity, tickLower, tickUpper } = position
 
@@ -77,44 +73,22 @@ const PositionRow = ({
     positionSDK &&
     (positionSDK.pool.tickCurrent < position.tickLower || positionSDK.pool.tickCurrent >= position.tickUpper)
 
-  const theme = useTheme()
-
   const usd =
     (usdPrices?.[token0Address] || 0) * parseFloat(positionSDK?.amount0.toExact() || '0') +
     (usdPrices?.[token1Address] || 0) * parseFloat(positionSDK?.amount1.toExact() || '0')
 
   const above768 = useMedia('(min-width: 768px)')
 
-  const disableCheckbox = (
-    <Flex
-      width={'17.5px'}
-      height="17.5px"
-      backgroundColor={theme.disableText}
-      sx={{ borderRadius: '2px' }}
-      alignItems="center"
-      justifyContent="center"
-    >
-      <X size={14} color="#333" />
-    </Flex>
-  )
-
   return (
     <TableRow>
-      {forced ? (
-        <Checkbox type="checkbox" disabled checked />
-      ) : !position.stakedLiquidity.gt(BigNumber.from(0)) ? (
-        <Checkbox
-          type="checkbox"
-          onChange={e => {
-            onChange(e.currentTarget.checked)
-          }}
-          checked={selected}
-        />
-      ) : (
-        <MouseoverTooltip text="You will need to unstake this position first before you can withdraw it">
-          {disableCheckbox}
-        </MouseoverTooltip>
-      )}
+      <Checkbox
+        type="checkbox"
+        onChange={e => {
+          onChange(e.currentTarget.checked)
+        }}
+        checked={selected}
+      />
+
       {above768 ? (
         <>
           <Flex alignItems="center">
@@ -168,25 +142,21 @@ const PositionRow = ({
   )
 }
 
-function WithdrawModal({
+function ProMMDepositNFTModal({
   selectedFarmAddress,
   onDismiss,
-  forced = false,
 }: {
   onDismiss: () => void
   selectedFarmAddress: string
-  forced?: boolean
 }) {
-  const theme = useTheme()
-  const { chainId } = useActiveWeb3React()
-  const above768 = useMedia('(min-width: 768px)')
-
   const qs = useParsedQueryString()
   const tab = qs.type || 'active'
 
+  const { account } = useActiveWeb3React()
+  const theme = useTheme()
   const checkboxGroupRef = useRef<any>()
-  const { farms, userFarmInfo } = useElasticFarms()
-
+  const above768 = useMedia('(min-width: 768px)')
+  const { farms } = useElasticFarms()
   const selectedFarm = farms?.find(farm => farm.id.toLowerCase() === selectedFarmAddress.toLowerCase())
 
   const poolAddresses =
@@ -194,92 +164,47 @@ function WithdrawModal({
       .filter(pool => (tab === 'active' ? pool.endTime > +new Date() / 1000 : pool.endTime < +new Date() / 1000))
       .map(pool => pool.poolAddress.toLowerCase()) || []
 
-  const failedNFTs = useFailedNFTs()
+  const [selectedNFTs, setSeletedNFTs] = useState<string[]>([])
 
-  const { depositedPositions = [], joinedPositions = {} } = userFarmInfo?.[selectedFarm?.id || ''] || {}
+  const { deposit } = useFarmAction(selectedFarmAddress)
 
-  const userDepositedNFTs: PositionDetails[] = depositedPositions.map(pos => {
-    const stakedLiquidity = Object.values(joinedPositions)
-      .flat()
-      .filter(
-        p => pos.nftId.toString() === p.nftId.toString() && BigNumber.from(p.liquidity.toString()).gt('0'),
-      )?.[0]?.liquidity
-
-    return {
-      nonce: BigNumber.from(0),
-      poolId: computePoolAddress({
-        factoryAddress: NETWORKS_INFO[chainId as ChainId].elastic.coreFactory,
-        tokenA: pos.pool.token0,
-        tokenB: pos.pool.token1,
-        fee: pos.pool.fee,
-        initCodeHashManualOverride: NETWORKS_INFO[chainId as ChainId].elastic.initCodeHash,
-      }),
-      feeGrowthInsideLast: BigNumber.from(0),
-      operator: '',
-      rTokenOwed: BigNumber.from(0),
-      fee: pos.pool.fee,
-      tokenId: pos.nftId,
-      tickLower: pos.tickLower,
-      tickUpper: pos.tickUpper,
-      liquidity: BigNumber.from(pos.liquidity.toString()),
-      token0: pos.amount0.currency.address,
-      token1: pos.amount1.currency.address,
-      stakedLiquidity: stakedLiquidity ? BigNumber.from(stakedLiquidity.toString()) : BigNumber.from(0),
-    }
-  })
+  const { positions, loading: positionsLoading } = useProAmmPositions(account)
 
   const { filterOptions, activeFilter, setActiveFilter, eligiblePositions } = usePostionFilter(
-    userDepositedNFTs || [],
+    positions || [],
     poolAddresses,
   )
 
-  const withDrawableNFTs = useMemo(() => {
-    return (eligiblePositions as UserPositionFarm[]).filter(item => item.stakedLiquidity.eq(0))
-  }, [eligiblePositions])
-
-  const [selectedNFTs, setSeletedNFTs] = useState<string[]>([])
-
-  const { withdraw, emergencyWithdraw } = useFarmAction(selectedFarmAddress)
-
+  const [showMenu, setShowMenu] = useState(false)
+  const ref = useRef(null)
+  useOnClickOutside(ref, () => setShowMenu(false))
   useEffect(() => {
     if (!checkboxGroupRef.current) return
-    if (forced) {
-      checkboxGroupRef.current.checked = true
-      checkboxGroupRef.current.indeterminate = false
-      return
-    }
     if (selectedNFTs.length === 0) {
       checkboxGroupRef.current.checked = false
       checkboxGroupRef.current.indeterminate = false
-    } else if (selectedNFTs.length > 0 && withDrawableNFTs?.length && selectedNFTs.length < withDrawableNFTs?.length) {
+    } else if (
+      selectedNFTs.length > 0 &&
+      eligiblePositions?.length &&
+      selectedNFTs.length < eligiblePositions?.length
+    ) {
       checkboxGroupRef.current.checked = false
       checkboxGroupRef.current.indeterminate = true
     } else {
       checkboxGroupRef.current.checked = true
       checkboxGroupRef.current.indeterminate = false
     }
-  }, [selectedNFTs.length, withDrawableNFTs, forced])
+  }, [selectedNFTs.length, eligiblePositions])
 
-  const [showMenu, setShowMenu] = useState(false)
-
-  const ref = useRef(null)
-  useOnClickOutside(ref, () => setShowMenu(false))
   const { mixpanelHandler } = useMixpanel()
-
   if (!selectedFarmAddress) return null
 
-  const handleWithdraw = async () => {
-    if (forced) {
-      await emergencyWithdraw(failedNFTs.map(BigNumber.from))
-      onDismiss()
-      return
-    }
-
-    const txHash = await withdraw(selectedNFTs.map(item => BigNumber.from(item)))
+  const handleDeposit = async () => {
+    const txHash = await deposit(selectedNFTs.map(item => BigNumber.from(item)))
     if (txHash) {
       const finishedPoses = eligiblePositions.filter(pos => selectedNFTs.includes(pos.tokenId.toString()))
       finishedPoses.forEach(pos => {
-        mixpanelHandler(MIXPANEL_TYPE.ELASTIC_WITHDRAW_LIQUIDITY_COMPLETED, {
+        mixpanelHandler(MIXPANEL_TYPE.ELASTIC_DEPOSIT_LIQUIDITY_COMPLETED, {
           token_1: pos.token0,
           token_2: pos.token1,
         })
@@ -316,13 +241,15 @@ function WithdrawModal({
   )
 
   return (
-    <Modal isOpen={!!selectedFarm} onDismiss={onDismiss} width="80vw" maxHeight={80} maxWidth="808px">
+    <Modal isOpen={!!selectedFarm} onDismiss={onDismiss} maxHeight={80} width="80vw" maxWidth="808px">
       <ModalContentWrapper>
         <Flex alignItems="center" justifyContent="space-between">
-          <Title>{forced ? <Trans>Force Withdraw</Trans> : <Trans>Withdraw your liquidity</Trans>}</Title>
+          <Title>
+            <Trans>Deposit your liquidity</Trans>
+          </Title>
 
           <Flex sx={{ gap: '12px' }}>
-            {above768 && !forced && filterComponent}
+            {above768 && filterComponent}
             <ButtonEmpty onClick={onDismiss} width="36px" height="36px" padding="0">
               <X color={theme.text} />
             </ButtonEmpty>
@@ -330,85 +257,94 @@ function WithdrawModal({
         </Flex>
 
         <Text fontSize="12px" marginTop="20px" color={theme.subText}>
-          {forced ? (
-            <Trans>Below is a list of your affected liquidity positions</Trans>
-          ) : (
-            <Trans>
-              You will need to unstake your liquidity positions (NFT tokens) first before withdrawing it back to your
-              wallet
-            </Trans>
-          )}
+          <Trans>
+            Deposit your liquidity positions (NFT tokens) first to enable farming. Only your in range liquidity
+            positions (NFT tokens) will earn you farming rewards
+          </Trans>
         </Text>
 
-        {!above768 && !forced && filterComponent}
+        {!above768 && filterComponent}
 
-        <TableHeader>
-          <Checkbox
-            disabled={forced}
-            type="checkbox"
-            ref={checkboxGroupRef}
-            onChange={e => {
-              if (e.currentTarget.checked) {
-                setSeletedNFTs(withDrawableNFTs.map(pos => pos.tokenId.toString()) || [])
-              } else {
-                setSeletedNFTs([])
-              }
-            }}
-          />
-          <Text textAlign="left">{above768 ? 'ID' : 'ID | Token | Status'}</Text>
-          <Text textAlign={above768 ? 'left' : 'right'}>
-            <Trans>Your liquidity</Trans>
-          </Text>
-
-          {above768 && (
-            <>
-              <Text textAlign="right">Token 1</Text>
-              <Text textAlign="right">Token 2</Text>
-              <Text textAlign="right">Status</Text>
-            </>
-          )}
-        </TableHeader>
-
-        <div style={{ overflowY: 'auto' }}>
-          {(eligiblePositions as UserPositionFarm[])
-            .filter(pos => {
-              if (forced) {
-                return failedNFTs.includes(pos.tokenId.toString())
-              }
-
-              return true
-            })
-            .map(pos => (
-              <PositionRow
-                selected={selectedNFTs.includes(pos.tokenId.toString())}
-                key={pos.tokenId.toString()}
-                position={pos}
-                forced={forced}
-                onChange={(selected: boolean) => {
-                  if (selected) setSeletedNFTs(prev => [...prev, pos.tokenId.toString()])
-                  else {
-                    setSeletedNFTs(prev => prev.filter(item => item !== pos.tokenId.toString()))
+        {positionsLoading ? (
+          <LocalLoader />
+        ) : !eligiblePositions?.length ? (
+          <Flex
+            alignItems="center"
+            justifyContent="center"
+            padding="16px"
+            color={theme.subText}
+            marginTop="40px"
+            flexDirection="column"
+          >
+            <Info size="48px" />
+            <Text fontSize={14} textAlign="center" marginTop="16px" maxWidth="480px" lineHeight={1.5}>
+              <Trans>
+                You dont have any relevant liquidity positions yet.
+                <br /> Add liquidity to the farming pools first. Check out our{' '}
+                <StyledInternalLink to="/pools">Pools.</StyledInternalLink>
+              </Trans>
+            </Text>
+          </Flex>
+        ) : (
+          <>
+            <TableHeader>
+              <Checkbox
+                type="checkbox"
+                ref={checkboxGroupRef}
+                onChange={e => {
+                  if (e.currentTarget.checked) {
+                    setSeletedNFTs(eligiblePositions?.map(pos => pos.tokenId.toString()) || [])
+                  } else {
+                    setSeletedNFTs([])
                   }
                 }}
               />
-            ))}
-        </div>
-        <Flex justifyContent="space-between" marginTop="24px">
-          <div></div>
-          <ButtonPrimary
-            fontSize="14px"
-            padding="10px 24px"
-            width="fit-content"
-            onClick={handleWithdraw}
-            disabled={forced ? false : !selectedNFTs.length}
-            style={forced ? { background: theme.red, color: theme.textReverse } : undefined}
-          >
-            {forced ? <Trans>Force Withdraw</Trans> : <Trans>Withdraw Selected</Trans>}
-          </ButtonPrimary>
-        </Flex>
+
+              <Text textAlign="left">{above768 ? 'ID' : 'ID | Token | Status'}</Text>
+              <Text textAlign={above768 ? 'left' : 'right'}>
+                <Trans>Your liquidity</Trans>
+              </Text>
+              {above768 && (
+                <>
+                  <Text textAlign="right">Token 1</Text>
+                  <Text textAlign="right">Token 2</Text>
+                  <Text textAlign="right">Status</Text>
+                </>
+              )}
+            </TableHeader>
+
+            <div style={{ overflowY: 'scroll', minHeight: '100px' }}>
+              {eligiblePositions.map(pos => (
+                <PositionRow
+                  selected={selectedNFTs.includes(pos.tokenId.toString())}
+                  key={pos.tokenId.toString()}
+                  position={pos}
+                  onChange={(selected: boolean) => {
+                    if (selected) setSeletedNFTs(prev => [...prev, pos.tokenId.toString()])
+                    else {
+                      setSeletedNFTs(prev => prev.filter(item => item !== pos.tokenId.toString()))
+                    }
+                  }}
+                />
+              ))}
+            </div>
+            <Flex justifyContent="space-between" marginTop="24px">
+              <div></div>
+              <ButtonPrimary
+                fontSize="14px"
+                padding="10px 24px"
+                width="fit-content"
+                onClick={handleDeposit}
+                disabled={!selectedNFTs.length}
+              >
+                <Trans>Deposit Selected</Trans>
+              </ButtonPrimary>
+            </Flex>
+          </>
+        )}
       </ModalContentWrapper>
     </Modal>
   )
 }
 
-export default WithdrawModal
+export default ProMMDepositNFTModal

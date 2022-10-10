@@ -4,23 +4,29 @@ import { getCreate2Address } from '@ethersproject/address'
 import { keccak256 } from '@ethersproject/solidity'
 import { ChainId, Currency, CurrencyAmount, Token, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, Pool, Position } from '@kyberswap/ks-sdk-elastic'
+import { t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import NFTPositionManagerABI from 'constants/abis/v2/ProAmmNFTPositionManager.json'
 import ELASTIC_FARM_ABI from 'constants/abis/v2/farm.json'
 import { ZERO_ADDRESS } from 'constants/index'
+import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
 import { NETWORKS_INFO } from 'constants/networks'
 import { nativeOnChain } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import { useMulticallContract } from 'hooks/useContract'
+import { useTokens } from 'hooks/Tokens'
+import { useMulticallContract, useProAmmNFTPositionManagerContract, useProMMFarmContract } from 'hooks/useContract'
+import { usePools } from 'hooks/usePools'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { usePoolBlocks } from 'state/prommPools/hooks'
-import { isAddressString } from 'utils'
+import { useTransactionAdder } from 'state/transactions/hooks'
+import { PositionDetails } from 'types/position'
+import { calculateGasMargin, isAddressString } from 'utils'
 
-import { ElasticFarm, NFTPosition, UserFarmInfo, setFarms, setLoading, setPoolFeeData, setUserFarmInfo } from '.'
-import { addFailedNFTs } from '../promm/actions'
+import { addFailedNFTs, resetErrorNFTs, setFarms, setLoading, setPoolFeeData, setUserFarmInfo } from '.'
+import { ElasticFarm, NFTPosition, UserFarmInfo } from './types'
 
 interface SubgraphToken {
   id: string
@@ -475,7 +481,7 @@ export const FarmUpdater = ({ interval = true }: { interval?: boolean }) => {
 
       const res = await Promise.all(promises)
       const errorNFTs = res.map(r => r.errorNFTs).flat()
-      dispatch(addFailedNFTs(errorNFTs))
+      dispatch(addFailedNFTs({ chainId, ids: errorNFTs }))
 
       const userInfo = elasticFarm.farms?.reduce((userInfo, farm, index) => {
         return {
@@ -537,5 +543,224 @@ export const FarmUpdater = ({ interval = true }: { interval?: boolean }) => {
     }
   }, [elasticFarm.farms, block24, getPoolInfo])
 
+  useEffect(() => {
+    if (chainId) dispatch(resetErrorNFTs(chainId))
+  }, [account, dispatch, chainId])
+
   return null
+}
+
+export const useFarmAction = (address: string) => {
+  const addTransactionWithType = useTransactionAdder()
+  const contract = useProMMFarmContract(address)
+  const posManager = useProAmmNFTPositionManagerContract()
+
+  const approve = useCallback(async () => {
+    if (!posManager) {
+      throw new Error(CONTRACT_NOT_FOUND_MSG)
+    }
+    const estimateGas = await posManager.estimateGas.setApprovalForAll(address, true)
+    const tx = await posManager.setApprovalForAll(address, true, {
+      gasLimit: calculateGasMargin(estimateGas),
+    })
+    addTransactionWithType(tx, { type: 'Approve', summary: `Elastic Farm` })
+
+    return tx.hash
+  }, [addTransactionWithType, address, posManager])
+
+  // Deposit
+  const deposit = useCallback(
+    async (nftIds: BigNumber[]) => {
+      if (!contract) {
+        throw new Error(CONTRACT_NOT_FOUND_MSG)
+      }
+
+      const estimateGas = await contract.estimateGas.deposit(nftIds)
+      const tx = await contract.deposit(nftIds, {
+        gasLimit: calculateGasMargin(estimateGas),
+      })
+      addTransactionWithType(tx, { type: 'Deposit', summary: `liquidity` })
+
+      return tx.hash
+    },
+    [addTransactionWithType, contract],
+  )
+
+  const withdraw = useCallback(
+    async (nftIds: BigNumber[]) => {
+      if (!contract) {
+        throw new Error(CONTRACT_NOT_FOUND_MSG)
+      }
+
+      const estimateGas = await contract.estimateGas.withdraw(nftIds)
+      const tx = await contract.withdraw(nftIds, {
+        gasLimit: calculateGasMargin(estimateGas),
+      })
+      addTransactionWithType(tx, { type: 'Withdraw', summary: `liquidity` })
+
+      return tx.hash
+    },
+    [addTransactionWithType, contract],
+  )
+
+  const emergencyWithdraw = useCallback(
+    async (nftIds: BigNumber[]) => {
+      if (!contract) {
+        throw new Error(CONTRACT_NOT_FOUND_MSG)
+      }
+      const estimateGas = await contract.estimateGas.emergencyWithdraw(nftIds)
+      const tx = await contract.emergencyWithdraw(nftIds, {
+        gasLimit: calculateGasMargin(estimateGas),
+      })
+      addTransactionWithType(tx, { type: 'ForceWithdraw' })
+
+      return tx.hash
+    },
+    [addTransactionWithType, contract],
+  )
+
+  const stake = useCallback(
+    async (pid: BigNumber, nftIds: BigNumber[], liqs: BigNumber[]) => {
+      if (!contract) {
+        throw new Error(CONTRACT_NOT_FOUND_MSG)
+      }
+
+      const estimateGas = await contract.estimateGas.join(pid, nftIds, liqs)
+      const tx = await contract.join(pid, nftIds, liqs, {
+        gasLimit: calculateGasMargin(estimateGas),
+      })
+      addTransactionWithType(tx, { type: 'Stake', summary: `liquidity into farm` })
+
+      return tx.hash
+    },
+    [addTransactionWithType, contract],
+  )
+
+  const unstake = useCallback(
+    async (pid: BigNumber, nftIds: BigNumber[], liqs: BigNumber[]) => {
+      if (!contract) {
+        throw new Error(CONTRACT_NOT_FOUND_MSG)
+      }
+      try {
+        const estimateGas = await contract.estimateGas.exit(pid, nftIds, liqs)
+        const tx = await contract.exit(pid, nftIds, liqs, {
+          gasLimit: calculateGasMargin(estimateGas),
+        })
+        addTransactionWithType(tx, { type: 'Unstake', summary: `liquidity from farm` })
+
+        return tx.hash
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    [addTransactionWithType, contract],
+  )
+
+  const harvest = useCallback(
+    async (nftIds: BigNumber[], poolIds: BigNumber[]) => {
+      if (!contract) return
+
+      const encodeData = poolIds.map(id => defaultAbiCoder.encode(['tupple(uint256[] pIds)'], [{ pIds: [id] }]))
+
+      try {
+        const estimateGas = await contract.estimateGas.harvestMultiplePools(nftIds, encodeData)
+        const tx = await contract.harvestMultiplePools(nftIds, encodeData, {
+          gasLimit: calculateGasMargin(estimateGas),
+        })
+        addTransactionWithType(tx, { type: 'Harvest' })
+        return tx
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    [addTransactionWithType, contract],
+  )
+
+  return { deposit, withdraw, approve, stake, unstake, harvest, emergencyWithdraw }
+}
+
+export const usePostionFilter = (positions: PositionDetails[], validPools: string[]) => {
+  const filterOptions = [
+    {
+      code: 'in_rage',
+      value: t`In range`,
+    },
+    {
+      code: 'out_range',
+      value: t`Out of range`,
+    },
+    {
+      code: 'all',
+      value: t`All positions`,
+    },
+  ]
+
+  const [activeFilter, setActiveFilter] = useState('all')
+
+  const tokenList = useMemo(() => {
+    if (!positions) return []
+    return positions?.map(pos => [pos.token0, pos.token1]).flat()
+  }, [positions])
+
+  const tokens = useTokens(tokenList)
+
+  const poolKeys = useMemo(() => {
+    if (!tokens) return []
+    return positions?.map(
+      pos =>
+        [tokens[pos.token0], tokens[pos.token1], pos.fee] as [
+          Token | undefined,
+          Token | undefined,
+          FeeAmount | undefined,
+        ],
+    )
+  }, [tokens, positions])
+
+  const pools = usePools(poolKeys)
+
+  const eligiblePositions = useMemo(() => {
+    return positions
+      ?.filter(pos => validPools?.includes(pos.poolId.toLowerCase()))
+      .filter(pos => {
+        // remove closed position
+        if (pos.liquidity.eq(0)) return false
+
+        const pool = pools.find(
+          p =>
+            p[1]?.token0.address.toLowerCase() === pos.token0.toLowerCase() &&
+            p[1]?.token1.address.toLowerCase() === pos.token1.toLowerCase() &&
+            p[1]?.fee === pos.fee,
+        )
+
+        if (activeFilter === 'out_range') {
+          if (pool && pool[1]) {
+            return pool[1].tickCurrent < pos.tickLower || pool[1].tickCurrent > pos.tickUpper
+          }
+          return true
+        } else if (activeFilter === 'in_rage') {
+          if (pool && pool[1]) {
+            return pool[1].tickCurrent >= pos.tickLower && pool[1].tickCurrent <= pos.tickUpper
+          }
+          return true
+        }
+        return true
+      })
+  }, [positions, validPools, activeFilter, pools])
+
+  return {
+    activeFilter,
+    setActiveFilter,
+    eligiblePositions,
+    filterOptions,
+  }
+}
+
+export const useFailedNFTs = () => {
+  const { chainId } = useActiveWeb3React()
+
+  const elasticFarm = useAppSelector(state => state.elasticFarm)
+  return useMemo(() => {
+    if (chainId) return elasticFarm[chainId]?.failedNFTs || []
+    return []
+  }, [elasticFarm, chainId])
 }
