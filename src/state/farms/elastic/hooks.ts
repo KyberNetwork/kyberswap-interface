@@ -162,7 +162,7 @@ export const useElasticFarms = () => {
   return useAppSelector(state => state.elasticFarm)[chainId || 1] || defaultChainData
 }
 
-export const FarmUpdater = () => {
+export const FarmUpdater = ({ interval = true }: { interval?: boolean }) => {
   const dispatch = useAppDispatch()
   const { chainId, account } = useActiveWeb3React()
   const defaultChainData = useMemo(
@@ -192,13 +192,15 @@ export const FarmUpdater = () => {
   }, [elasticFarm, getElasticFarms, dispatch, chainId])
 
   useEffect(() => {
-    const i = setInterval(() => {
-      getElasticFarms()
-    }, 15_000)
+    const i = interval
+      ? setInterval(() => {
+          getElasticFarms()
+        }, 15_000)
+      : undefined
     return () => {
-      clearInterval(i)
+      i && clearInterval(i)
     }
-  }, [getElasticFarms])
+  }, [interval, getElasticFarms])
 
   useEffect(() => {
     if (error && chainId) {
@@ -490,13 +492,15 @@ export const FarmUpdater = () => {
   useEffect(() => {
     getUserFarmInfo()
 
-    const i = setInterval(() => {
-      getUserFarmInfo()
-    }, 10_000)
+    const i = interval
+      ? setInterval(() => {
+          getUserFarmInfo()
+        }, 10_000)
+      : undefined
     return () => {
-      clearInterval(i)
+      i && clearInterval(i)
     }
-  }, [getUserFarmInfo])
+  }, [getUserFarmInfo, interval])
 
   const { block24 } = usePoolBlocks()
   const [getPoolInfo, { data: poolFeeData }] = useLazyQuery(POOL_FEE_HISTORY, {

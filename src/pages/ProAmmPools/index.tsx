@@ -18,6 +18,7 @@ import { useActiveWeb3React } from 'hooks'
 import { SelectPairInstructionWrapper } from 'pages/Pools/styleds'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useOpenModal } from 'state/application/hooks'
+import { FarmUpdater } from 'state/farms/elastic/hooks'
 import { useProMMFarms } from 'state/farms/promm/hooks'
 import { Field } from 'state/mint/proamm/actions'
 import { ProMMPoolData, usePoolDatas, useTopPoolAddresses, useUserProMMPositions } from 'state/prommPools/hooks'
@@ -381,6 +382,7 @@ export default function ProAmmPoolList({
         />
       )}
       <ShareModal url={shareUrl} />
+      <FarmUpdater interval={false} />
     </PageWrapper>
   )
 }

@@ -683,7 +683,7 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
   }
 
   return (
-    <FarmContent>
+    <FarmContent data-testid="farm-block">
       {above1000 ? (
         <>
           {renderFarmGroupHeaderOnDesktop()}
