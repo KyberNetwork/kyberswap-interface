@@ -301,9 +301,10 @@ function ElasticFarms({ active }: { active: boolean }) {
             rowGap: '48px',
           }}
         >
-          {filteredFarms.map(farm => {
+          {filteredFarms.map((farm, index) => {
             return (
               <ProMMFarmGroup
+                data-testid={`farm-block-${index}`}
                 key={farm.id}
                 address={farm.id}
                 onOpenModal={(modalType: ModalType, pid?: number | string, forced?: boolean) => {

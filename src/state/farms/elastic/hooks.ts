@@ -225,8 +225,8 @@ export const FarmUpdater = () => {
                     chainId,
                     token0Address,
                     Number(pool.pool.token0.decimals),
-                    pool.pool.token0.symbol,
-                    pool.pool.token0.symbol,
+                    pool.pool.token0.symbol.toLowerCase() === 'mimatic' ? 'MAI' : pool.pool.token0.symbol,
+                    pool.pool.token0.name,
                   )
 
             const token1 =
@@ -236,8 +236,8 @@ export const FarmUpdater = () => {
                     chainId,
                     token1Address,
                     Number(pool.pool.token1.decimals),
-                    pool.pool.token1.symbol,
-                    pool.pool.token1.symbol,
+                    pool.pool.token1.symbol.toLowerCase() === 'mimatic' ? 'MAI' : pool.pool.token1.symbol,
+                    pool.pool.token1.name,
                   )
 
             const p = new Pool(
@@ -499,34 +499,37 @@ export const FarmUpdater = () => {
   }, [getUserFarmInfo])
 
   const { block24 } = usePoolBlocks()
-  const [getPoolInfo] = useLazyQuery(POOL_FEE_HISTORY, {
+  const [getPoolInfo, { data: poolFeeData }] = useLazyQuery(POOL_FEE_HISTORY, {
     client: NETWORKS_INFO[chainId || ChainId.MAINNET].elasticClient,
     fetchPolicy: 'network-only',
   })
 
   useEffect(() => {
+    if (poolFeeData?.pools?.length) {
+      const poolFeeMap = poolFeeData.pools.reduce(
+        (acc: { [id: string]: number }, cur: { id: string; feesUSD: string }) => {
+          return {
+            ...acc,
+            [cur.id]: Number(cur.feesUSD),
+          }
+        },
+        {} as { [id: string]: number },
+      )
+
+      dispatch(setPoolFeeData({ chainId, data: poolFeeMap }))
+    }
+  }, [poolFeeData, chainId, dispatch])
+
+  useEffect(() => {
     const poolIds = elasticFarm.farms?.map(item => item.pools.map(p => p.poolAddress.toLowerCase())).flat()
 
     if (block24 && poolIds?.length) {
+      console.log('xxxx')
       getPoolInfo({
         variables: {
           block: Number(block24),
           poolIds,
         },
-      }).then(res => {
-        if (res?.data?.pools) {
-          const poolFeeMap = res.data.pools.reduce(
-            (acc: { [id: string]: number }, cur: { id: string; feesUSD: string }) => {
-              return {
-                ...acc,
-                [cur.id]: Number(cur.feesUSD),
-              }
-            },
-            {} as { [id: string]: number },
-          )
-
-          dispatch(setPoolFeeData({ chainId, data: poolFeeMap }))
-        }
       })
     }
   }, [elasticFarm.farms, block24, getPoolInfo, dispatch, chainId])
