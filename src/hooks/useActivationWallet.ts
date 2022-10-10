@@ -5,10 +5,14 @@ import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core'
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { useCallback } from 'react'
 
+import { SUPPORTED_WALLET, SUPPORTED_WALLETS } from 'constants/wallets'
+import { useActiveWeb3React } from 'hooks'
+import { isEVMWallet, isSolanaWallet } from 'utils'
+
 export const useActivationWallet = () => {
   const { activate } = useWeb3React()
-  const { select } = useWallet()
-
+  const { select, wallet: solanaWallet } = useWallet()
+  const { isSolana, isEVM } = useActiveWeb3React()
   const tryActivationEVM = useCallback(
     async (connector: AbstractConnector | undefined) => {
       // if the connector is walletconnect and the user has already tried to connect, manually reset the connector
@@ -41,7 +45,25 @@ export const useActivationWallet = () => {
     [select],
   )
 
+  const tryActivation = useCallback(
+    async (walletKey: SUPPORTED_WALLET) => {
+      const wallet = SUPPORTED_WALLETS[walletKey]
+      try {
+        if (isEVM && isEVMWallet(wallet) && !wallet.href) {
+          await tryActivationEVM(wallet.connector)
+        }
+        if (isSolana && isSolanaWallet(wallet) && wallet.adapter !== solanaWallet?.adapter) {
+          await tryActivationSolana(wallet.adapter)
+        }
+      } catch (err) {
+        throw err
+      }
+    },
+    [isSolana, isEVM, solanaWallet?.adapter, tryActivationEVM, tryActivationSolana],
+  )
+
   return {
+    tryActivation,
     tryActivationEVM,
     tryActivationSolana,
   }

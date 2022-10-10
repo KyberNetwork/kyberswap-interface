@@ -151,7 +151,7 @@ export default function WalletModal({
   // important that these are destructed from the account-specific web3-react context
   const { active, connector, error, chainId: chainIdEVM } = useWeb3React()
   const { connected, connecting, wallet: solanaWallet } = useWallet()
-  const { tryActivationEVM, tryActivationSolana } = useActivationWallet()
+  const { tryActivation } = useActivationWallet()
 
   const [justConnectedWallet, setJustConnectedWallet] = useState(false)
   const dispatch = useAppDispatch()
@@ -220,29 +220,17 @@ export default function WalletModal({
     }
   }, [connecting, connected, solanaWallet])
 
-  const tryActivation = async (walletKey: SUPPORTED_WALLET) => {
-    const wallet = SUPPORTED_WALLETS[walletKey]
+  const handleWalletChange = async (walletKey: SUPPORTED_WALLET) => {
     setPendingWalletKey(walletKey)
     setWalletView(WALLET_VIEWS.PENDING)
     setPendingError(false)
-
-    if (isEVM && isEVMWallet(wallet) && !wallet.href) {
-      try {
-        await tryActivationEVM(wallet.connector)
-        setJustConnectedWallet(true)
-        setTimeout(() => setJustConnectedWallet(false), 1000)
-        setIsUserManuallyDisconnect(false)
-      } catch {
-        setPendingError(true)
-      }
-    }
-    if (isSolana && isSolanaWallet(wallet) && wallet.adapter !== solanaWallet?.adapter) {
-      try {
-        await tryActivationSolana(wallet.adapter)
-        setIsUserManuallyDisconnect(false)
-      } catch {
-        setPendingError(true)
-      }
+    try {
+      await tryActivation(walletKey)
+      setJustConnectedWallet(true)
+      setTimeout(() => setJustConnectedWallet(false), 1000)
+      setIsUserManuallyDisconnect(false)
+    } catch {
+      setPendingError(true)
     }
   }
 
@@ -279,7 +267,7 @@ export default function WalletModal({
     }
     return (Object.keys(SUPPORTED_WALLETS) as SUPPORTED_WALLET[])
       .sort(sortWallets)
-      .map(key => <Option key={key} walletKey={key} onSelected={tryActivation} />)
+      .map(key => <Option key={key} walletKey={key} onSelected={handleWalletChange} />)
       .filter(Boolean)
   }
 
