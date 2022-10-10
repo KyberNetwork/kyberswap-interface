@@ -76,9 +76,9 @@ const Row = ({
 
   const tokenAddress = [
     ...new Set([
-      pool.token0.wrapped.address,
-      pool.token1.wrapped.address,
-      ...pool.rewardTokens.map(rw => rw.wrapped.address),
+      pool.token0.wrapped.address.toLowerCase(),
+      pool.token1.wrapped.address.toLowerCase(),
+      ...pool.rewardTokens.map(rw => rw.wrapped.address.toLowerCase()),
     ]),
   ]
   const tokenPrices = useTokenPrices(tokenAddress)

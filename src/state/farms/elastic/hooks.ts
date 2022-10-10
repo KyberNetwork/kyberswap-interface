@@ -38,7 +38,6 @@ interface SubgraphToken {
 interface SubgraphFarm {
   id: string
   rewardLocker: string
-
   farmingPools: Array<{
     id: string
     pid: string
@@ -57,6 +56,7 @@ interface SubgraphFarm {
       liquidity: string
       position: {
         id: string
+        liquidity: string
         tickLower: {
           tickIdx: string
         }
@@ -117,6 +117,7 @@ const ELASTIC_FARM_QUERY = gql`
           liquidity
           position {
             id
+            liquidity
             tickLower {
               tickIdx
             }
@@ -261,14 +262,16 @@ export const FarmUpdater = ({ interval = true }: { interval?: boolean }) => {
             let tvlToken0 = TokenAmount.fromRawAmount(token0.wrapped, 0)
             let tvlToken1 = TokenAmount.fromRawAmount(token1.wrapped, 0)
             pool.joinedPositions.forEach(pos => {
-              const position = new Position({
-                pool: p,
-                liquidity: pos.liquidity,
-                tickLower: Number(pos.position.tickLower.tickIdx),
-                tickUpper: Number(pos.position.tickUpper.tickIdx),
-              })
-              tvlToken0 = tvlToken0.add(position.amount0)
-              tvlToken1 = tvlToken1.add(position.amount1)
+              if (pos.position.liquidity !== '0') {
+                const position = new Position({
+                  pool: p,
+                  liquidity: pos.liquidity,
+                  tickLower: Number(pos.position.tickLower.tickIdx),
+                  tickUpper: Number(pos.position.tickUpper.tickIdx),
+                })
+                tvlToken0 = tvlToken0.add(position.amount0)
+                tvlToken1 = tvlToken1.add(position.amount1)
+              }
             })
 
             return {
