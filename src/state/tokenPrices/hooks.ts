@@ -1,8 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useEffect, useMemo } from 'react'
 
-import { chainIdMapping } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO, chainIdMapping } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { isAddressString } from 'utils'

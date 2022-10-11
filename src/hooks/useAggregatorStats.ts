@@ -2,8 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import useSWR from 'swr'
 
 import { KS_SETTING_API } from 'constants/env'
-import { chainIdMapping } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO, chainIdMapping } from 'constants/networks'
 
 const useLiquiditySources = (chainId?: ChainId) => {
   const chainString = chainId ? chainIdMapping[chainId] || NETWORKS_INFO[chainId].route : ''

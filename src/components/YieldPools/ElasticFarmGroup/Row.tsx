@@ -344,18 +344,17 @@ const Row = ({
             </Text>
           </InfoRow>
 
-          {/* TODO(viet-nv) */}
           <RewardMobileArea>
-            {/* <Flex justifyContent="center" alignItems="center" marginBottom="8px" sx={{ gap: '4px' }}> */}
-            {/*   {farm.rewardTokens.map((token, idx) => { */}
-            {/*     return ( */}
-            {/*       <React.Fragment key={token}> */}
-            {/*         <Reward key={token} token={token} amount={position?.rewardAmounts[idx]} /> */}
-            {/*         {idx !== farm.rewardTokens.length - 1 && <Text color={theme.subText}>|</Text>} */}
-            {/*       </React.Fragment> */}
-            {/*     ) */}
-            {/*   })} */}
-            {/* </Flex> */}
+            <Flex justifyContent="center" alignItems="center" marginBottom="8px" sx={{ gap: '4px' }}>
+              {rewardPendings.map(amount => (
+                <Flex alignItems="center" sx={{ gap: '4px' }} key={amount.currency.symbol}>
+                  <HoverInlineText text={amount.toSignificant(6)} maxCharacters={10}></HoverInlineText>
+                  <MouseoverTooltip placement="top" text={amount.currency.symbol} width="fit-content">
+                    <CurrencyLogo currency={amount.currency} size="16px" />
+                  </MouseoverTooltip>
+                </Flex>
+              ))}
+            </Flex>
 
             <ActionButton
               style={{ width: '100%' }}

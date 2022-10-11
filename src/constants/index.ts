@@ -1076,8 +1076,3 @@ export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
 }
 
 export const AGGREGATOR_WAITING_TIME = 1700 // 1700 means that we at least show '.' '..' '...' '.' '..' '...'
-
-export const chainIdMapping: Partial<Record<ChainId, string>> = {
-  [ChainId.BSCMAINNET]: 'bsc',
-  [ChainId.BTTC]: 'bttc',
-}
