@@ -170,7 +170,7 @@ const updateLocalstorageCheckedPair = (key: string, res: { ver: number; pairAddr
 
 export const checkPairHasDextoolsData = async (
   currencies: { [field in Field]?: Currency },
-  chainId: ChainId | undefined,
+  chainId: ChainId,
 ): Promise<{ ver: number; pairAddress: string }> => {
   const [currencyA, currencyB] = Object.values(currencies)
   const res = { ver: 0, pairAddress: '' }
@@ -185,8 +185,8 @@ export const checkPairHasDextoolsData = async (
   const checkedPairs: { [key: string]: { ver: number; pairAddress: string; time: number } } = cPstr
     ? JSON.parse(cPstr)
     : {}
-  const symbolA = currencyA.isNative ? WETH[chainId || ChainId.MAINNET].name : currencyA.symbol
-  const symbolB = currencyB.isNative ? WETH[chainId || ChainId.MAINNET].name : currencyB.symbol
+  const symbolA = currencyA.isNative ? WETH[chainId].name : currencyA.symbol
+  const symbolB = currencyB.isNative ? WETH[chainId].name : currencyB.symbol
   const key: string = [symbolA, symbolB, chainId].sort().join('')
   const checkedPair = checkedPairs[key]
   if (
@@ -296,8 +296,8 @@ export const useDatafeed = (currencies: Array<Currency | undefined>, pairAddress
         onResolveErrorCallback: ErrorCallback,
       ) => {
         try {
-          const label1 = currencies[0]?.isNative ? WETH[chainId || ChainId.MAINNET].name : currencies[0]?.symbol
-          const label2 = currencies[1]?.isNative ? WETH[chainId || ChainId.MAINNET].name : currencies[1]?.symbol
+          const label1 = currencies[0]?.isNative ? WETH[chainId].name : currencies[0]?.symbol
+          const label2 = currencies[1]?.isNative ? WETH[chainId].name : currencies[1]?.symbol
 
           const label = `${label1}/${label2}`
 

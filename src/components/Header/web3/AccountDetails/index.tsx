@@ -256,7 +256,7 @@ export default function AccountDetails({
         </Flex>
 
         <Flex justifyContent="space-between" marginTop="24px" paddingX="20px">
-          <ExternalLink href={getEtherscanLink(chainId || ChainId.MAINNET, ENSName || account || '', 'address')}>
+          <ExternalLink href={getEtherscanLink(chainId, ENSName || account || '', 'address')}>
             <Flex alignItems="center">
               <FileText size={16} />
               <Text marginLeft="4px" fontSize="14px">
