@@ -1,6 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useEffect, useMemo } from 'react'
 
+import { chainIdMapping } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
@@ -28,10 +29,6 @@ export const useTokenPrices = (addresses: Array<string>) => {
 
   useEffect(() => {
     const fetchPrices = async () => {
-      const chainIdMapping: Partial<Record<ChainId, string>> = {
-        [ChainId.BSCMAINNET]: 'bsc',
-        [ChainId.BTTC]: 'bttc',
-      }
       const chainString = chainId ? chainIdMapping[chainId] || NETWORKS_INFO[chainId].route : ''
       const res = await fetch(
         `${process.env.REACT_APP_PRICE_API}/${chainString}/api/v1/prices/?ids=${unknownPriceList.join(',')}`,
