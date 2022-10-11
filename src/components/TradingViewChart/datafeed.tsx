@@ -200,7 +200,7 @@ export const checkPairHasDextoolsData = async (
   if (isNativeToken(chainId, currencyA) || isNativeToken(chainId, currencyB)) {
     const token = (isNativeToken(chainId, currencyA) ? currencyB : currencyA) as Token
     if (token?.address) {
-      const data1: { id: string }[] = await searchTokenPair(token.address, chainId)
+      const data1 = await searchTokenPair(token.address, chainId)
       if (data1.length > 0 && data1[0].id) {
         const ver = (await getHistoryCandleStatus(data1[0].id, chainId)) || 0
 

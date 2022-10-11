@@ -361,7 +361,7 @@ export const TokenInfoWrapper = styled(LiveChartWrapper)`
   `}
 `
 
-export const MobileModalWrapper = styled((props: ModalProps) => <Modal {...props} zindex={Z_INDEXS.MOBILE_MODAL} />)<{
+export const MobileModalWrapper = styled((props: ModalProps) => <Modal {...props} zindex={Z_INDEXS.MODAL} />)<{
   height?: string
 }>`
   &[data-reach-dialog-content] {

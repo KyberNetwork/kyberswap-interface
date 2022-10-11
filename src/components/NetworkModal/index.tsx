@@ -8,6 +8,7 @@ import styled from 'styled-components'
 
 import { ButtonEmpty } from 'components/Button'
 import Modal from 'components/Modal'
+import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
 import { useActiveNetwork } from 'hooks/useActiveNetwork'
 import useParsedQueryString from 'hooks/useParsedQueryString'
@@ -80,17 +81,52 @@ export const SelectNetworkButton = styled(ButtonEmpty)`
   }
 `
 const SHOW_NETWORKS = process.env.NODE_ENV === 'production' ? MAINNET_NETWORKS : SUPPORTED_NETWORKS
-export default function NetworkModal(): JSX.Element | null {
+export default function NetworkModal({
+  chainIds,
+  selectedId,
+  customOnSelectNetwork,
+  isOpen,
+  customToggleModal,
+}: {
+  chainIds?: ChainId[]
+  selectedId?: ChainId | undefined
+  isOpen?: boolean
+  customOnSelectNetwork?: (chainId: ChainId) => void
+  customToggleModal?: () => void
+}): JSX.Element | null {
   const { chainId } = useActiveWeb3React()
   const networkModalOpen = useModalOpen(ApplicationModal.NETWORK)
-  const toggleNetworkModal = useNetworkModalToggle()
+  const toggleNetworkModalGlobal = useNetworkModalToggle()
   const { changeNetwork } = useActiveNetwork()
   const isDarkMode = useIsDarkMode()
   const history = useHistory()
   const qs = useParsedQueryString()
 
+  const toggleNetworkModal = () => {
+    if (customToggleModal) customToggleModal()
+    else toggleNetworkModalGlobal()
+  }
+
+  const onSelect = (chainId: ChainId) => {
+    toggleNetworkModal()
+    if (customOnSelectNetwork) {
+      customOnSelectNetwork(chainId)
+    } else {
+      changeNetwork(chainId, () => {
+        const { networkId, inputCurrency, outputCurrency, ...rest } = qs
+        history.replace({
+          search: stringify(rest),
+        })
+      })
+    }
+  }
   return (
-    <Modal isOpen={networkModalOpen} onDismiss={toggleNetworkModal} maxWidth={624}>
+    <Modal
+      zindex={Z_INDEXS.MODAL}
+      isOpen={isOpen !== undefined ? isOpen : networkModalOpen}
+      onDismiss={toggleNetworkModal}
+      maxWidth={624}
+    >
       <Wrapper>
         <Flex alignItems="center" justifyContent="space-between">
           <Text fontWeight="500" fontSize={20}>
@@ -102,20 +138,14 @@ export default function NetworkModal(): JSX.Element | null {
           </Flex>
         </Flex>
         <NetworkList>
-          {SHOW_NETWORKS.map((key: ChainId, i: number) => {
-            if (chainId === key) {
+          {(chainIds || SHOW_NETWORKS).map((key: ChainId, i: number) => {
+            const { iconDark, icon, name } = NETWORKS_INFO[key as ChainId]
+            const iconSrc = isDarkMode && iconDark ? iconDark : icon
+            if (chainId === key || selectedId === key) {
               return (
                 <SelectNetworkButton key={i} padding="0">
                   <ListItem selected>
-                    <img
-                      src={
-                        isDarkMode && !!NETWORKS_INFO[key].iconDark
-                          ? NETWORKS_INFO[key].iconDark
-                          : NETWORKS_INFO[key].icon
-                      }
-                      alt="Switch Network"
-                      style={{ width: '24px', marginRight: '8px' }}
-                    />
+                    <img src={iconSrc} alt="Switch Network" style={{ width: '24px', marginRight: '8px' }} />
                     <NetworkLabel>{NETWORKS_INFO[key].name}</NetworkLabel>
                   </ListItem>
                 </SelectNetworkButton>
@@ -127,26 +157,12 @@ export default function NetworkModal(): JSX.Element | null {
                 key={i}
                 padding="0"
                 onClick={() => {
-                  toggleNetworkModal()
-                  changeNetwork(key, () => {
-                    const { networkId, inputCurrency, outputCurrency, ...rest } = qs
-                    history.replace({
-                      search: stringify(rest),
-                    })
-                  })
+                  onSelect(key)
                 }}
               >
                 <ListItem>
-                  <img
-                    src={
-                      isDarkMode && !!NETWORKS_INFO[key].iconDark
-                        ? NETWORKS_INFO[key].iconDark
-                        : NETWORKS_INFO[key].icon
-                    }
-                    alt="Switch Network"
-                    style={{ width: '24px', marginRight: '8px' }}
-                  />
-                  <NetworkLabel>{NETWORKS_INFO[key].name}</NetworkLabel>
+                  <img src={iconSrc} alt="Switch Network" style={{ width: '24px', marginRight: '8px' }} />
+                  <NetworkLabel>{name}</NetworkLabel>
                 </ListItem>
               </SelectNetworkButton>
             )

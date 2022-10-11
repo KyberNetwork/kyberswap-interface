@@ -1,5 +1,5 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
-import React, { useMemo } from 'react'
+import React, { memo, useMemo } from 'react'
 import styled from 'styled-components'
 
 import { NETWORKS_INFO } from 'constants/networks'
@@ -25,7 +25,7 @@ const StyledLogo = styled(Logo)<{ size: string }>`
   object-fit: contain;
 `
 
-export default function CurrencyLogo({
+function CurrencyLogo({
   currency,
   size = '24px',
   style,
@@ -35,20 +35,22 @@ export default function CurrencyLogo({
   style?: React.CSSProperties
 }) {
   const { chainId } = useActiveWeb3React()
-  const uriLocations = useHttpLocations(currency instanceof WrappedTokenInfo ? currency.logoURI : undefined)
+  const logoURI = (currency as any).logoURI
+  const hasLogo = currency instanceof WrappedTokenInfo || logoURI
+  const uriLocations = useHttpLocations(hasLogo ? logoURI : undefined)
 
   const srcs: string[] = useMemo(() => {
     if (currency?.isNative) return []
 
     if (currency?.isToken) {
-      if (currency instanceof WrappedTokenInfo) {
+      if (hasLogo) {
         return [...uriLocations, getTokenLogoURL(currency.address, chainId)]
       }
       return [getTokenLogoURL((currency as any)?.address, chainId)]
     }
 
     return []
-  }, [chainId, currency, uriLocations])
+  }, [chainId, currency, uriLocations, hasLogo])
 
   if (currency?.isNative && chainId) {
     return (
@@ -63,3 +65,4 @@ export default function CurrencyLogo({
 
   return <StyledLogo size={size} srcs={srcs} alt={`${currency?.symbol ?? 'token'} logo`} style={style} />
 }
+export default memo(CurrencyLogo)

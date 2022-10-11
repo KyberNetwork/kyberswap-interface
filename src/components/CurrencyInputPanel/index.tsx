@@ -10,7 +10,10 @@ import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import Wallet from 'components/Icons/Wallet'
 import { RowFixed } from 'components/Row'
 import useTheme from 'hooks/useTheme'
+import { useBridgeState } from 'state/bridge/hooks'
+import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
+import { shortString } from 'utils/string'
 
 import { ReactComponent as Lock } from '../../assets/svg/ic_lock.svg'
 import { ReactComponent as SwitchIcon } from '../../assets/svg/switch.svg'
@@ -20,7 +23,7 @@ import Card from '../Card'
 import CurrencyLogo from '../CurrencyLogo'
 import DoubleCurrencyLogo from '../DoubleLogo'
 import { Input as NumericalInput } from '../NumericalInput'
-import CurrencySearchModal from '../SearchModal/CurrencySearchModal'
+import CurrencySearchModal, { CurrencySearchModalBridge } from '../SearchModal/CurrencySearchModal'
 
 const InputRow = styled.div`
   ${({ theme }) => theme.flexRowNoWrap}
@@ -91,10 +94,11 @@ const FixedContainer = styled.div`
   z-index: 2;
 `
 
-const Container = styled.div<{ selected: boolean; hideInput: boolean }>`
+const Container = styled.div<{ selected: boolean; hideInput: boolean; error?: boolean }>`
   border-radius: 16px;
   background-color: ${({ theme, hideInput }) => (hideInput ? 'transparent' : theme.buttonBlack)};
   padding: ${({ hideInput }) => (hideInput ? 0 : '0.75rem')};
+  border: ${({ error, theme }) => (error ? `1px solid ${theme.red}` : 'none')};
 `
 
 const StyledTokenName = styled.span<{ active?: boolean; fontSize?: string }>`
@@ -327,10 +331,8 @@ export default function CurrencyInputPanel({
                         fontSize={fontSize}
                         style={{ paddingRight: disableCurrencySelect ? '8px' : 0 }}
                       >
-                        {(nativeCurrency && nativeCurrency.symbol
-                          ? maxCurrencySymbolLength && nativeCurrency.symbol.length > maxCurrencySymbolLength
-                            ? nativeCurrency.symbol.slice(0, maxCurrencySymbolLength) + '...'
-                            : nativeCurrency.symbol
+                        {(nativeCurrency?.symbol && maxCurrencySymbolLength
+                          ? shortString(nativeCurrency.symbol, maxCurrencySymbolLength)
                           : nativeCurrency?.symbol) || <Trans>Select a token</Trans>}
                       </StyledTokenName>
                     )}
@@ -352,6 +354,134 @@ export default function CurrencyInputPanel({
             showCommonBases={showCommonBases}
           />
         )}
+      </InputPanel>
+    </div>
+  )
+}
+
+interface CurrencyInputPanelBridgeProps {
+  value: string
+  error?: boolean
+  onUserInput?: (value: string) => void
+  onMax?: () => void
+  onHalf?: () => void
+  showMaxButton: boolean
+  onCurrencySelect: (currency: WrappedTokenInfo) => void
+  disabledInput?: boolean
+  id: string
+  estimatedUsd?: string
+  isOutput?: boolean
+}
+export function CurrencyInputPanelBridge({
+  error,
+  value,
+  onUserInput = (value: string) => {
+    //
+  },
+  onMax,
+  onHalf,
+  onCurrencySelect,
+  showMaxButton,
+  isOutput = false,
+  disabledInput = false,
+  id,
+  estimatedUsd,
+}: CurrencyInputPanelBridgeProps) {
+  const [modalOpen, setModalOpen] = useState(false)
+  const { chainId, account } = useActiveWeb3React()
+  const [{ currencyIn, currencyOut }] = useBridgeState()
+  const currency = isOutput ? currencyOut : currencyIn
+
+  const selectedCurrencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined)
+  const balanceRef = useRef(selectedCurrencyBalance?.toSignificant(10))
+
+  useEffect(() => {
+    balanceRef.current = undefined
+  }, [chainId])
+
+  // Keep previous value of balance if rpc node was down
+  useEffect(() => {
+    if (!!selectedCurrencyBalance) balanceRef.current = selectedCurrencyBalance.toSignificant(10)
+    if (!currency || !account) balanceRef.current = '0'
+  }, [selectedCurrencyBalance, currency, account])
+
+  const theme = useTheme()
+
+  const handleDismissSearch = useCallback(() => {
+    setModalOpen(false)
+  }, [setModalOpen])
+
+  return (
+    <div style={{ width: '100%' }}>
+      <InputPanel id={id}>
+        <Container hideInput={false} selected={false} error={error}>
+          <Flex justifyContent="space-between" fontSize="12px" marginBottom="12px" alignItems="center">
+            {showMaxButton && currency && account ? (
+              <Flex alignItems="center" sx={{ gap: '4px' }}>
+                <StyledBalanceMax onClick={onMax}>
+                  <Trans>Max</Trans>
+                </StyledBalanceMax>
+                <StyledBalanceMax onClick={onHalf}>
+                  <Trans>Half</Trans>
+                </StyledBalanceMax>
+              </Flex>
+            ) : (
+              <div />
+            )}
+            <Flex
+              onClick={() => onMax && onMax()}
+              style={{ cursor: onMax ? 'pointer' : undefined }}
+              alignItems="center"
+            >
+              <Wallet color={theme.subText} />
+              <Text fontWeight={500} color={theme.subText} marginLeft="4px">
+                {selectedCurrencyBalance?.toSignificant(10) || balanceRef.current || 0}
+              </Text>
+            </Flex>
+          </Flex>
+          <InputRow>
+            <NumericalInput
+              error={error}
+              className="token-amount-input"
+              value={value}
+              disabled={disabledInput}
+              onUserInput={onUserInput}
+            />
+            {estimatedUsd && (
+              <Text fontSize="0.875rem" marginRight="8px" fontWeight="500" color={theme.border}>
+                ~{estimatedUsd}
+              </Text>
+            )}
+
+            <CurrencySelect
+              selected={!!currency}
+              className="open-currency-select-button"
+              onClick={() => setModalOpen(true)}
+            >
+              <Aligner>
+                <RowFixed>
+                  {currency && (
+                    <CurrencyLogo currency={(currency as any) || undefined} size={'20px'} /> //todo
+                  )}
+                  <StyledTokenName
+                    className="token-symbol-container"
+                    active={Boolean(currency?.symbol)}
+                    style={{ paddingRight: 0 }}
+                  >
+                    {currency?.symbol || <Trans>Select a token</Trans>}
+                  </StyledTokenName>
+                </RowFixed>
+                <DropdownSVG />
+              </Aligner>
+            </CurrencySelect>
+          </InputRow>
+        </Container>
+        <CurrencySearchModalBridge
+          isOutput={isOutput}
+          isOpen={modalOpen}
+          onDismiss={handleDismissSearch}
+          onCurrencySelect={onCurrencySelect}
+        />
       </InputPanel>
     </div>
   )

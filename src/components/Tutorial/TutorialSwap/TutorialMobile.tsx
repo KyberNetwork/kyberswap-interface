@@ -15,7 +15,7 @@ const Wrapper = styled.div`
   left: 0;
   height: 100%;
   width: 100%;
-  z-index: ${Z_INDEXS.MOBILE_MODAL};
+  z-index: ${Z_INDEXS.MODAL};
   position: fixed;
   background: ${({ theme }) => theme.buttonGray};
 `

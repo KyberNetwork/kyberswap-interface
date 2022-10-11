@@ -4,10 +4,12 @@ import React, { useCallback, useState } from 'react'
 import { usePopper } from 'react-popper'
 import styled from 'styled-components'
 
+import { Z_INDEXS } from 'constants/styles'
+
 import useInterval from '../../hooks/useInterval'
 
 const PopoverContainer = styled.div<{ show: boolean }>`
-  z-index: 9999;
+  z-index: ${Z_INDEXS.POPOVER_CONTAINER};
 
   visibility: ${props => (props.show ? 'visible' : 'hidden')};
   opacity: ${props => (props.show ? 0.95 : 0)};

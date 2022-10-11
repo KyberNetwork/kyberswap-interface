@@ -22,6 +22,7 @@ import App from './pages/App'
 import * as serviceWorkerRegistration from './serviceWorkerRegistration'
 import store from './state'
 import ApplicationUpdater from './state/application/updater'
+import BridgeUpdater from './state/bridge/updater'
 import CustomizeDexesUpdater from './state/customizeDexes/updater'
 import ListsUpdater from './state/lists/updater'
 import MulticallUpdater from './state/multicall/updater'
@@ -44,6 +45,7 @@ function Updaters() {
   return (
     <>
       <ListsUpdater />
+      <BridgeUpdater />
       <UserUpdater />
       <ApplicationUpdater />
       <TransactionUpdater />

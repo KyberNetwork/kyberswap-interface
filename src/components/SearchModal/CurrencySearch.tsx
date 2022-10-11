@@ -18,6 +18,7 @@ import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import usePrevious from 'hooks/usePrevious'
 import useTheme from 'hooks/useTheme'
 import useToggle from 'hooks/useToggle'
+import { useBridgeState } from 'state/bridge/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useRemoveUserAddedToken, useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
 import { filterTokens } from 'utils/filtering'
@@ -28,7 +29,7 @@ import { filterTruthy, isAddress } from '../../utils'
 import Column from '../Column'
 import { RowBetween } from '../Row'
 import CommonBases from './CommonBases'
-import CurrencyList from './CurrencyList'
+import CurrencyList, { CurrencyListBridge } from './CurrencyList'
 import { useTokenComparator } from './sorting'
 import { PaddedColumn, SearchIcon, SearchInput, SearchWrapper, Separator } from './styleds'
 
@@ -132,6 +133,17 @@ const fetchTokens = async (
   } catch (error) {
     return { tokens: [] }
   }
+}
+
+const NoResult = () => {
+  const theme = useTheme()
+  return (
+    <Column style={{ padding: '20px', height: '100%' }}>
+      <TYPE.main color={theme.text3} textAlign="center" mb="20px">
+        <Trans>No results found.</Trans>
+      </TYPE.main>
+    </Column>
+  )
 }
 
 export function CurrencySearch({
@@ -514,11 +526,140 @@ export function CurrencySearch({
           />
         </div>
       ) : (
-        <Column style={{ padding: '20px', height: '100%' }}>
-          <TYPE.main color={theme.text3} textAlign="center" mb="20px">
-            <Trans>No results found.</Trans>
-          </TYPE.main>
-        </Column>
+        <NoResult />
+      )}
+    </ContentWrapper>
+  )
+}
+
+interface CurrencySearchBridgeProps {
+  isOpen: boolean
+  onDismiss: () => void
+  isOutput?: boolean
+  onCurrencySelect: (currency: WrappedTokenInfo) => void
+}
+
+export function CurrencySearchBridge({ isOutput, onCurrencySelect, onDismiss, isOpen }: CurrencySearchBridgeProps) {
+  const theme = useTheme()
+
+  const [searchQuery, setSearchQuery] = useState<string>('')
+  const debouncedQuery = useDebounce(searchQuery, 200)
+
+  const [{ listTokenIn, listTokenOut }] = useBridgeState()
+
+  const fetchedTokens = isOutput ? listTokenOut : listTokenIn
+  const tokenComparator = useTokenComparator(false, true)
+
+  const isAddressSearch = isAddress(debouncedQuery)
+
+  const filteredTokens: WrappedTokenInfo[] = useMemo(() => {
+    if (isAddressSearch) {
+      const find = fetchedTokens.find(e => e?.address?.toLowerCase() === debouncedQuery.toLowerCase())
+      return find ? [find] : []
+    }
+    return filterTokens(fetchedTokens, debouncedQuery)
+  }, [isAddressSearch, fetchedTokens, debouncedQuery])
+
+  const visibleCurrencies: WrappedTokenInfo[] = useMemo(() => {
+    const sorted = filteredTokens.sort(tokenComparator)
+    const symbolMatch = debouncedQuery
+      .toLowerCase()
+      .split(/\s+/)
+      .filter(s => s.length > 0)
+    if (symbolMatch.length > 1) return sorted
+
+    return [
+      // sort any exact symbol matches first
+      ...sorted.filter(token => token.symbol?.toLowerCase() === symbolMatch[0]),
+      ...sorted.filter(token => token.symbol?.toLowerCase() !== symbolMatch[0]),
+    ]
+  }, [filteredTokens, debouncedQuery, tokenComparator])
+
+  const handleCurrencySelect = useCallback(
+    (currency: WrappedTokenInfo) => {
+      onCurrencySelect(currency)
+      onDismiss()
+    },
+    [onDismiss, onCurrencySelect],
+  )
+
+  // manage focus on modal show
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  // clear the input on open
+  useEffect(() => {
+    if (isOpen) {
+      setSearchQuery('')
+      inputRef.current?.focus()
+    }
+  }, [isOpen])
+
+  const handleInput = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    const input = event.target.value
+    const checksumInput = isAddress(input)
+    setSearchQuery(checksumInput || input)
+  }, [])
+
+  const handleEnter = useCallback(
+    (e: KeyboardEvent<HTMLInputElement>) => {
+      if (
+        e.key === 'Enter' &&
+        visibleCurrencies.length > 0 &&
+        (visibleCurrencies[0].symbol?.toLowerCase() === searchQuery.trim().toLowerCase() ||
+          visibleCurrencies.length === 1)
+      ) {
+        handleCurrencySelect(visibleCurrencies[0])
+      }
+    },
+    [visibleCurrencies, handleCurrencySelect, searchQuery],
+  )
+
+  // menu ui
+  const [open, toggle] = useToggle(false)
+  const node = useRef<HTMLDivElement>()
+  useOnClickOutside(node, open ? toggle : undefined)
+
+  return (
+    <ContentWrapper>
+      <PaddedColumn gap="14px">
+        <RowBetween>
+          <Text fontWeight={500} fontSize={20} display="flex">
+            <Trans>Select a token</Trans>
+            <InfoHelper
+              size={16}
+              text={<Trans>Find a token by searching for its name or symbol or by pasting its address below</Trans>}
+            />
+          </Text>
+          <CloseIcon onClick={onDismiss} />
+        </RowBetween>
+
+        <SearchWrapper>
+          <SearchInput
+            type="text"
+            id="token-search-input"
+            placeholder={t`Search by token name, token symbol or address`}
+            value={searchQuery}
+            ref={inputRef}
+            onChange={handleInput}
+            onKeyDown={handleEnter}
+            autoComplete="off"
+          />
+          <SearchIcon size={18} color={theme.border} />
+        </SearchWrapper>
+      </PaddedColumn>
+
+      <Separator />
+
+      {visibleCurrencies?.length ? (
+        <div id="scrollableDiv" style={{ flex: '1', overflow: 'auto' }}>
+          <CurrencyListBridge
+            showBalance={!isOutput}
+            currencies={visibleCurrencies}
+            onCurrencySelect={handleCurrencySelect}
+          />
+        </div>
+      ) : (
+        <NoResult />
       )}
     </ContentWrapper>
   )

@@ -3,10 +3,14 @@ import { rgba } from 'polished'
 import React, { CSSProperties, memo, useCallback } from 'react'
 import { Star, Trash } from 'react-feather'
 import InfiniteScroll from 'react-infinite-scroll-component'
+import AutoSizer from 'react-virtualized-auto-sizer'
+import { FixedSizeList } from 'react-window'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { useActiveWeb3React } from 'hooks'
+import { useBridgeState } from 'state/bridge/hooks'
+import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
@@ -79,7 +83,7 @@ const DescText = styled.div`
 `
 export const getDisplayTokenInfo = (currency: any) => {
   return {
-    symbol: currency.isNative ? currency.symbol : currency.wrapped.symbol,
+    symbol: currency.isNative ? currency.symbol : currency?.wrapped?.symbol || currency.symbol,
   }
 }
 function CurrencyRow({
@@ -92,19 +96,24 @@ function CurrencyRow({
   style,
   handleClickFavorite,
   removeImportedToken,
+  showFavoriteIcon = true,
+  showBalance = true,
+  customName,
 }: {
-  isImportedTab: boolean
+  isImportedTab?: boolean
+  showBalance?: boolean
+  showFavoriteIcon?: boolean
   currency: Currency
   currencyBalance: CurrencyAmount<Currency>
   onSelect: () => void
   isSelected: boolean
   otherSelected: boolean
   style: CSSProperties
-  handleClickFavorite: (e: React.MouseEvent, currency: Currency) => void
-  removeImportedToken: (token: Token) => void
+  handleClickFavorite?: (e: React.MouseEvent, currency: Currency) => void
+  removeImportedToken?: (token: Token) => void
+  customName?: string
 }) {
   const { chainId, account } = useActiveWeb3React()
-  const balance = currencyBalance
 
   const nativeCurrency = useCurrencyConvertedToNative(currency || undefined)
   // only show add or remove buttons if not on selected list
@@ -112,7 +121,7 @@ function CurrencyRow({
   const { favoriteTokens } = useUserFavoriteTokens(chainId)
   const onClickRemove = (e: React.MouseEvent) => {
     e.stopPropagation()
-    removeImportedToken(currency as Token)
+    removeImportedToken?.(currency as Token)
   }
 
   const isFavorite = (() => {
@@ -132,7 +141,7 @@ function CurrencyRow({
 
     return false
   })()
-  const balanceComponent = balance ? <Balance balance={balance} /> : account ? <Loader /> : null
+  const balanceComponent = currencyBalance ? <Balance balance={currencyBalance} /> : account ? <Loader /> : null
   const { symbol } = getDisplayTokenInfo(currency)
   return (
     <CurrencyRowWrapper style={style} onClick={() => onSelect()} data-selected={isSelected || otherSelected}>
@@ -140,14 +149,17 @@ function CurrencyRow({
         <CurrencyLogo currency={currency} size={'24px'} />
         <Column>
           <Text title={currency.name} fontWeight={500}>
-            {symbol}
+            {customName || symbol}
           </Text>
           <DescText>{isImportedTab ? balanceComponent : nativeCurrency?.name}</DescText>
         </Column>
       </Flex>
+
       <RowFixed style={{ justifySelf: 'flex-end', gap: 15 }}>
-        {isImportedTab ? <DeleteButton onClick={onClickRemove} /> : balanceComponent}
-        <FavoriteButton onClick={e => handleClickFavorite(e, currency)} data-active={isFavorite} />
+        {isImportedTab ? <DeleteButton onClick={onClickRemove} /> : showBalance && balanceComponent}
+        {showFavoriteIcon && (
+          <FavoriteButton onClick={e => handleClickFavorite?.(e, currency)} data-active={isFavorite} />
+        )}
       </RowFixed>
     </CurrencyRowWrapper>
   )
@@ -271,5 +283,79 @@ function CurrencyList({
     </InfiniteScroll>
   )
 }
-
 export default memo(CurrencyList)
+interface TokenRowPropsBridge {
+  currency: WrappedTokenInfo | undefined
+  currencyBalance: CurrencyAmount<Currency>
+  index: number
+  style: CSSProperties
+}
+function CurrencyListV2({
+  currencies,
+  onCurrencySelect,
+  showBalance,
+}: {
+  currencies: WrappedTokenInfo[]
+  onCurrencySelect: (currency: WrappedTokenInfo) => void
+  showBalance: boolean
+}) {
+  const { account } = useActiveWeb3React()
+  const [{ tokenIn }] = useBridgeState()
+  const currencyBalances = useCurrencyBalances(account || undefined, showBalance ? currencies : [])
+
+  const Row: any = useCallback(
+    function TokenRow({ style, currency, currencyBalance }: TokenRowPropsBridge) {
+      const isSelected = tokenIn?.address === currency?.address
+      const handleSelect = () => currency && onCurrencySelect(currency)
+
+      if (!currency) return
+      const { symbol } = getDisplayTokenInfo(currency)
+      const { sortId, type } = currency?.multichainInfo || { sortId: undefined, type: '' }
+      return (
+        <CurrencyRow
+          showBalance={showBalance}
+          showFavoriteIcon={false}
+          style={style}
+          currency={currency}
+          currencyBalance={currencyBalance}
+          isSelected={isSelected}
+          onSelect={handleSelect}
+          otherSelected={false}
+          customName={
+            sortId !== undefined
+              ? `${symbol} ${['swapin', 'swapout'].includes(type ?? '') ? ' (Bridge)' : ` (Router ${sortId})`}`
+              : ''
+          }
+        />
+      )
+    },
+    [onCurrencySelect, tokenIn, showBalance],
+  )
+
+  return (
+    <div style={{ height: '100%' }}>
+      <AutoSizer>
+        {({ height, width }) => (
+          <FixedSizeList
+            height={height + 100}
+            width={width}
+            itemSize={56}
+            itemCount={currencies.length}
+            itemData={currencies}
+          >
+            {({ data, index, style }) => (
+              <Row
+                index={index}
+                currency={data[index]}
+                key={data[index]?.address || index}
+                currencyBalance={currencyBalances[index]}
+                style={style}
+              />
+            )}
+          </FixedSizeList>
+        )}
+      </AutoSizer>
+    </div>
+  )
+}
+export const CurrencyListBridge = memo(CurrencyListV2)
