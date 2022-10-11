@@ -16,6 +16,7 @@ interface Window {
     isMetaMask?: boolean
     isCoin98?: boolean
     isBraveWallet?: any
+    isCoinbaseWallet?: boolean
     on?: (...args: any[]) => void
     removeListener?: (...args: any[]) => void
     request: (params: { method: string; params?: any }) => Promise<any>
