@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/macro'
-import { ChainType, getChainType } from '@namgold/ks-sdk-core'
 import { useEffect, useState } from 'react'
 import styled from 'styled-components'
 
@@ -21,8 +20,7 @@ const Message = styled.h2`
 `
 
 export default function Web3ReactManager({ children }: { children: JSX.Element }) {
-  const { chainId } = useActiveWeb3React()
-  const chainType = getChainType(chainId)
+  const { isEVM } = useActiveWeb3React()
   const { active } = useWeb3React()
   const { active: networkActive, error: networkError, activate: activateNetwork } = useWeb3React(NetworkContextName)
 
@@ -31,10 +29,10 @@ export default function Web3ReactManager({ children }: { children: JSX.Element }
 
   // after eagerly trying injected, if the network connect ever isn't active or in an error state, activate itd
   useEffect(() => {
-    if (chainType === ChainType.EVM && triedEager && !networkActive && !networkError && !active) {
+    if (isEVM && triedEager && !networkActive && !networkError && !active) {
       activateNetwork(network)
     }
-  }, [triedEager, networkActive, networkError, activateNetwork, active, chainType])
+  }, [triedEager, networkActive, networkError, activateNetwork, active, isEVM])
 
   // when there's no account connected, react to logins (broadly speaking) on the injected provider, if it exists
   useInactiveListener(!triedEager)
@@ -52,12 +50,12 @@ export default function Web3ReactManager({ children }: { children: JSX.Element }
   }, [])
 
   // on page load, do nothing until we've tried to connect to the injected connector
-  if (chainType === ChainType.EVM && !triedEager) {
+  if (isEVM && !triedEager) {
     return <LocalLoader />
   }
 
   // if the account context isn't active, and there's an error on the network context, it's an irrecoverable error
-  if (chainType === ChainType.EVM && !active && networkError) {
+  if (isEVM && !active && networkError) {
     return (
       <MessageWrapper>
         <Message>
@@ -70,7 +68,7 @@ export default function Web3ReactManager({ children }: { children: JSX.Element }
   }
 
   // if neither context is active, spin
-  if (chainType === ChainType.EVM && !active && !networkActive) {
+  if (isEVM && !active && !networkActive) {
     return showLoader ? (
       <MessageWrapper>
         <Loader />

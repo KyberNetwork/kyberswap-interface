@@ -19,8 +19,9 @@ import {
 } from 'apollo/queries/promm'
 import { MAINNET_ENV, MIXPANEL_PROJECT_TOKEN } from 'constants/env'
 import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { NETWORKS_INFO } from 'constants/networks'
+import { EVMNetworkInfo } from 'constants/networks/type'
+import { useActiveWeb3React } from 'hooks'
 import { AppDispatch, AppState } from 'state'
 import { useETHPrice } from 'state/application/hooks'
 import { Field } from 'state/swap/actions'
@@ -150,19 +151,13 @@ export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES = [
 ]
 
 export default function useMixpanel(trade?: Aggregator | undefined, currencies?: { [field in Field]?: Currency }) {
-  const { chainId, account } = useWeb3React() //todo: use useActiveWeb3React
+  const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
   const { saveGas } = useSwapState()
-  const network = chainId && NETWORKS_INFO[chainId as ChainId].name
+  const network = networkInfo.name
   const inputCurrency = currencies && currencies[Field.INPUT]
   const outputCurrency = currencies && currencies[Field.OUTPUT]
-  const inputSymbol =
-    inputCurrency && inputCurrency.isNative
-      ? NETWORKS_INFO[(chainId as ChainId) || ChainId.MAINNET].nativeToken.name
-      : inputCurrency?.symbol
-  const outputSymbol =
-    outputCurrency && outputCurrency.isNative
-      ? NETWORKS_INFO[(chainId as ChainId) || ChainId.MAINNET].nativeToken.name
-      : outputCurrency?.symbol
+  const inputSymbol = inputCurrency && inputCurrency.isNative ? networkInfo.nativeToken.name : inputCurrency?.symbol
+  const outputSymbol = outputCurrency && outputCurrency.isNative ? networkInfo.nativeToken.name : outputCurrency?.symbol
   const ethPrice = useETHPrice()
   const dispatch = useDispatch<AppDispatch>()
   const selectedCampaign = useSelector((state: AppState) => state.campaigns.selectedCampaign)
@@ -712,9 +707,9 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
   )
   const subgraphMixpanelHandler = useCallback(
     async (transaction: TransactionDetails) => {
-      if (!isEVM(chainId)) return
-      const apolloClient = NETWORKS_INFO[chainId].classicClient
-      const apolloProMMClient = NETWORKS_INFO[chainId].elasticClient
+      if (!isEVM || !chainId) return
+      const apolloClient = (networkInfo as EVMNetworkInfo).classicClient
+      const apolloProMMClient = (networkInfo as EVMNetworkInfo).elasticClient
 
       const hash = transaction.hash
       switch (transaction.type) {
@@ -898,7 +893,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           break
       }
     },
-    [chainId, dispatch, mixpanelHandler],
+    [chainId, dispatch, mixpanelHandler, isEVM, networkInfo],
   )
   return { mixpanelHandler, subgraphMixpanelHandler }
 }

@@ -15,7 +15,6 @@ import Search from 'components/Search'
 import Toggle from 'components/Toggle'
 import Tutorial, { TutorialType } from 'components/Tutorial'
 import { PROMM_ANALYTICS_URL } from 'constants/index'
-import { isEVM } from 'constants/networks'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
@@ -48,7 +47,7 @@ interface AddressSymbolMapInterface {
 }
 
 export default function ProAmmPool() {
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, isEVM } = useActiveWeb3React()
   const tokenAddressSymbolMap = useRef<AddressSymbolMapInterface>({})
   const { positions, loading: positionsLoading } = useProAmmPositions(account)
 
@@ -149,7 +148,7 @@ export default function ProAmmPool() {
       .map(farm => farm.poolAddress.toLowerCase())
   }, [farms])
 
-  if (!isEVM(chainId)) return <Redirect to="/" />
+  if (!isEVM) return <Redirect to="/" />
   return (
     <>
       <PageWrapper style={{ padding: 0, marginTop: '24px' }}>

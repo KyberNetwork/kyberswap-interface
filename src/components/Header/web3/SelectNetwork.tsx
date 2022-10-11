@@ -7,7 +7,6 @@ import Card from 'components/Card'
 import NetworkModal from 'components/Header/web3/NetworkModal'
 import Row from 'components/Row'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import { NETWORKS_INFO } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { ApplicationModal } from 'state/application/actions'
@@ -64,13 +63,13 @@ const DropdownIcon = styled(DropdownSvg)<{ open: boolean }>`
 `
 
 function SelectNetwork(): JSX.Element | null {
-  const { chainId } = useActiveWeb3React()
+  const { chainId, networkInfo } = useActiveWeb3React()
   const networkModalOpen = useModalOpen(ApplicationModal.NETWORK)
   const isDarkMode = useIsDarkMode()
   const toggleNetworkModal = useNetworkModalToggle()
   const userEthBalance = useNativeBalance()
   const labelContent = useMemo(() => {
-    if (!userEthBalance) return NETWORKS_INFO[chainId].name
+    if (!userEthBalance) return networkInfo.name
     const balanceFixedStr = userEthBalance.lessThan(1000 * 10 ** NativeCurrencies[chainId].decimals) // less than 1000
       ? userEthBalance.lessThan(10 ** NativeCurrencies[chainId].decimals) // less than 1
         ? parseFloat(userEthBalance.toSignificant(6)).toFixed(6)
@@ -78,14 +77,14 @@ function SelectNetwork(): JSX.Element | null {
       : parseFloat(userEthBalance.toExact()).toFixed(2)
     const balanceFixed = Number(balanceFixedStr)
     return `${balanceFixed} ${NativeCurrencies[chainId || ChainId.MAINNET].symbol}`
-  }, [userEthBalance, chainId])
+  }, [userEthBalance, chainId, networkInfo])
   return (
     <NetworkCard onClick={() => toggleNetworkModal()} role="button" id={TutorialIds.SELECT_NETWORK}>
       <NetworkSwitchContainer>
         <Row>
           <img
-            src={(isDarkMode && NETWORKS_INFO[chainId].iconDark) || NETWORKS_INFO[chainId].icon}
-            alt={NETWORKS_INFO[chainId].name + ' logo'}
+            src={(isDarkMode && networkInfo.iconDark) || networkInfo.icon}
+            alt={networkInfo.name + ' logo'}
             style={{ width: 20, height: 20, marginRight: '12px' }}
           />
           <NetworkLabel>{labelContent}</NetworkLabel>

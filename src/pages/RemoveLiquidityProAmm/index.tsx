@@ -25,7 +25,6 @@ import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
 import Slider from 'components/Slider'
 import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
 import { TutorialType } from 'components/Tutorial'
-import { isEVM } from 'constants/networks'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
@@ -109,7 +108,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const { position } = useProAmmPositionsFromTokenId(tokenId)
   const positionManager = useProAmmNFTPositionManagerContract()
   const theme = useTheme()
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, isEVM } = useActiveWeb3React()
   const { library } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
 
@@ -360,7 +359,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
     [onUserInput],
   )
 
-  if (!isEVM(chainId)) return <Redirect to="/" />
+  if (!isEVM) return <Redirect to="/" />
   return (
     <>
       <TransactionConfirmationModal

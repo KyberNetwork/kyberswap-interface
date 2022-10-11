@@ -5,7 +5,6 @@ import styled from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { AutoColumn } from 'components/Column'
-import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useENS from 'hooks/useENS'
 import useTheme from 'hooks/useTheme'
@@ -84,7 +83,7 @@ export default function AddressInputPanel({
   onChange: (value: string | null) => void
 }) {
   //todo namgold solana: Recipient address input support solana
-  const { chainId } = useActiveWeb3React()
+  const { chainId, networkInfo } = useActiveWeb3React()
   const { address, loading, name } = useENS(value)
 
   const handleInput = useCallback(
@@ -110,7 +109,7 @@ export default function AddressInputPanel({
               href={getEtherscanLink(chainId, name ?? address, 'address')}
               style={{ fontSize: '12px', marginLeft: '4px' }}
             >
-              ({NETWORKS_INFO[chainId].etherscanName})
+              ({networkInfo.etherscanName})
             </ExternalLink>
           )}
         </Text>

@@ -9,7 +9,6 @@ import FarmIssueAnnouncement from 'components/FarmIssueAnnouncement'
 import LocalLoader from 'components/LocalLoader'
 import ShareModal from 'components/ShareModal'
 import Toggle from 'components/Toggle'
-import { NETWORKS_INFO } from 'constants/networks'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
@@ -42,7 +41,7 @@ const affectedFairlaunchAddress = '0x5C503D4b7DE0633f031229bbAA6A5e4A31cc35d8'
 
 function ProMMFarms({ active }: { active: boolean }) {
   const theme = useTheme()
-  const { chainId } = useActiveWeb3React()
+  const { networkInfo } = useActiveWeb3React()
   const [stakedOnly, setStakedOnly] = useState({
     active: false,
     ended: false,
@@ -115,7 +114,7 @@ function ProMMFarms({ active }: { active: boolean }) {
   const openShareModal = useOpenModal(ApplicationModal.SHARE)
   const isShareModalOpen = useModalOpen(ApplicationModal.SHARE)
   const [sharePoolAddress, setSharePoolAddress] = useState('')
-  const networkRoute = chainId ? NETWORKS_INFO[chainId].route : undefined
+  const networkRoute = networkInfo.route || undefined
   const shareUrl = sharePoolAddress
     ? `${window.location.origin}/farms?search=${sharePoolAddress}&tab=elastic&type=${activeTab}&networkId=${networkRoute}`
     : undefined

@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { ChainId, ChainType, getChainType } from '@namgold/ks-sdk-core'
+import { ChainId } from '@namgold/ks-sdk-core'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useCallback } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -181,7 +181,7 @@ export default function AccountDetails({
   ENSName,
   openOptions,
 }: AccountDetailsProps) {
-  const { chainId, account, walletKey } = useActiveWeb3React()
+  const { chainId, account, walletKey, isEVM, isSolana } = useActiveWeb3React()
   const { connector, deactivate } = useWeb3React()
   const { disconnect } = useWallet()
   const theme = useTheme()
@@ -208,13 +208,11 @@ export default function AccountDetails({
   const [, setIsUserManuallyDisconnect] = useIsUserManuallyDisconnect()
 
   const handleDisconnect = () => {
-    const chainType = getChainType(chainId)
-    if (chainType === ChainType.EVM) {
+    if (isEVM) {
       deactivate()
-
       // @ts-expect-error close can be returned by wallet
       if (connector && connector.close) connector.close()
-    } else if (chainType === ChainType.SOLANA) {
+    } else if (isSolana) {
       disconnect()
     }
     setIsUserManuallyDisconnect(true)

@@ -22,7 +22,7 @@ import { RowBetween } from 'components/Row'
 import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
 import { TutorialType } from 'components/Tutorial'
 import { Dots } from 'components/swap/styleds'
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { FARM_CONTRACTS, VERSION } from 'constants/v2'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -53,7 +53,7 @@ export default function AddLiquidity({
   },
   history,
 }: RouteComponentProps<{ currencyIdA?: string; currencyIdB?: string; feeAmount?: string; tokenId?: string }>) {
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
   const { library } = useWeb3React()
   const theme = useTheme()
   const toggleWalletModal = useWalletModalToggle() // toggle wallet when disconnected
@@ -168,18 +168,18 @@ export default function AddLiquidity({
   // check whether the user has approved the router on the tokens
   const [approvalA, approveACallback] = useApproveCallback(
     parsedAmounts[Field.CURRENCY_A],
-    isEVM(chainId) ? NETWORKS_INFO[chainId].elastic.nonfungiblePositionManager : undefined,
+    (networkInfo as EVMNetworkInfo).elastic.nonfungiblePositionManager,
   )
   const [approvalB, approveBCallback] = useApproveCallback(
     parsedAmounts[Field.CURRENCY_B],
-    isEVM(chainId) ? NETWORKS_INFO[chainId].elastic.nonfungiblePositionManager : undefined,
+    (networkInfo as EVMNetworkInfo).elastic.nonfungiblePositionManager,
   )
 
   const allowedSlippage = useUserSlippageTolerance()
 
   //TODO: on add
   async function onAdd() {
-    if (!isEVM(chainId) || !library || !account || !tokenId) {
+    if (!isEVM || !library || !account || !tokenId) {
       return
     }
 
@@ -203,7 +203,7 @@ export default function AddLiquidity({
 
       //0.00283161
       const txn: { to: string; data: string; value: string } = {
-        to: NETWORKS_INFO[chainId].elastic.nonfungiblePositionManager,
+        to: (networkInfo as EVMNetworkInfo).elastic.nonfungiblePositionManager,
         data: calldata,
         value,
       }
@@ -379,7 +379,7 @@ export default function AddLiquidity({
   //   position?.pool.token1,
   // )
 
-  if (!isEVM(chainId)) return <Redirect to="/" />
+  if (!isEVM) return <Redirect to="/" />
   return (
     <>
       <TransactionConfirmationModal

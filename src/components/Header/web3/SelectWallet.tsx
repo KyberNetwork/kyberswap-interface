@@ -11,7 +11,6 @@ import WalletModal from 'components/Header/web3/WalletModal'
 import Loader from 'components/Loader'
 import { RowBetween } from 'components/Row'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import { isEVM } from 'constants/networks'
 import { SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useENSName from 'hooks/useENSName'
@@ -114,11 +113,11 @@ const AccountElement = styled.div<{ active: boolean }>`
 `
 
 function Web3StatusInner() {
-  const { chainId, account, walletKey } = useActiveWeb3React()
+  const { chainId, account, walletKey, isEVM } = useActiveWeb3React()
   const { error } = useWeb3React()
   const isDarkMode = useIsDarkMode()
 
-  const { ENSName } = useENSName(isEVM(chainId) ? account ?? undefined : undefined)
+  const { ENSName } = useENSName(isEVM ? account ?? undefined : undefined)
 
   const allTransactions = useAllTransactions()
 
@@ -182,8 +181,8 @@ function Web3StatusInner() {
 }
 
 export default function SelectWallet() {
-  const { chainId, account } = useActiveWeb3React()
-  const { ENSName } = useENSName(isEVM(chainId) ? account ?? undefined : undefined)
+  const { account, isEVM } = useActiveWeb3React()
+  const { ENSName } = useENSName(isEVM ? account ?? undefined : undefined)
 
   const allTransactions = useAllTransactions()
 

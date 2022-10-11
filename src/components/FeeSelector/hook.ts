@@ -3,7 +3,7 @@ import { FeeAmount } from '@namgold/ks-sdk-elastic'
 import { useEffect, useMemo, useState } from 'react'
 
 import { POOL_POSITION_COUNT } from 'apollo/queries/promm'
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { useProAmmPoolInfos } from 'hooks/useProAmmPoolInfo'
 
@@ -11,7 +11,7 @@ export const useFeeTierDistribution = (
   currencyA: Currency | undefined,
   currencyB: Currency | undefined,
 ): { [key in FeeAmount]: number } => {
-  const { chainId } = useActiveWeb3React()
+  const { isEVM, networkInfo } = useActiveWeb3React()
 
   const feeAmounts = useMemo(() => {
     return [FeeAmount.HIGH, FeeAmount.LOW, FeeAmount.LOWEST, FeeAmount.STABLE, FeeAmount.MEDIUM]
@@ -37,8 +37,8 @@ export const useFeeTierDistribution = (
   }, [currencyA, currencyB, initState])
 
   useEffect(() => {
-    if (!isEVM(chainId)) return
-    NETWORKS_INFO[chainId].elasticClient
+    if (!isEVM) return
+    ;(networkInfo as EVMNetworkInfo).elasticClient
       .query({
         query: POOL_POSITION_COUNT(poolIds),
       })
@@ -66,7 +66,7 @@ export const useFeeTierDistribution = (
           }, initState),
         )
       })
-  }, [chainId, initState, poolIds])
+  }, [initState, poolIds, isEVM, networkInfo])
 
   return feeTierDistribution
 }

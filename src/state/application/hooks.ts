@@ -7,7 +7,7 @@ import { useDeepCompareEffect } from 'react-use'
 
 import { ETH_PRICE, PROMM_ETH_PRICE, TOKEN_DERIVED_ETH } from 'apollo/queries'
 import { OUTSITE_FARM_REWARDS_QUERY, ZERO_ADDRESS } from 'constants/index'
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { KNC } from 'constants/tokens'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks/index'
@@ -265,16 +265,16 @@ const getPrommEthPrice = async (chainId: ChainId, apolloClient: ApolloClient<Nor
 
 export function useETHPrice(version: string = VERSION.CLASSIC): AppState['application']['ethPrice'] {
   const dispatch = useDispatch()
-  const { chainId } = useActiveWeb3React()
+  const { isEVM, networkInfo, chainId } = useActiveWeb3React()
 
   const ethPrice = useSelector((state: AppState) =>
     version === VERSION.ELASTIC ? state.application.prommEthPrice : state.application.ethPrice,
   )
 
   useEffect(() => {
-    if (!isEVM(chainId)) return
-    const apolloProMMClient = NETWORKS_INFO[chainId || ChainId.MAINNET].elasticClient
-    const apolloClient = NETWORKS_INFO[chainId || ChainId.MAINNET].classicClient
+    if (!isEVM) return
+    const apolloProMMClient = (networkInfo as EVMNetworkInfo).elasticClient
+    const apolloClient = (networkInfo as EVMNetworkInfo).classicClient
 
     async function checkForEthPrice() {
       const [newPrice, oneDayBackPrice, pricePercentChange] = await (version === VERSION.ELASTIC && apolloProMMClient
@@ -300,7 +300,7 @@ export function useETHPrice(version: string = VERSION.CLASSIC): AppState['applic
       )
     }
     checkForEthPrice()
-  }, [dispatch, chainId, version])
+  }, [dispatch, chainId, version, isEVM, networkInfo])
 
   return ethPrice
 }
@@ -330,21 +330,21 @@ const getKNCPriceByETH = async (chainId: ChainId, apolloClient: ApolloClient<Nor
 export function useKNCPrice(): AppState['application']['kncPrice'] {
   const dispatch = useDispatch()
   const ethPrice = useETHPrice()
-  const { chainId } = useActiveWeb3React()
+  const { isEVM, networkInfo, chainId } = useActiveWeb3React()
   const blockNumber = useBlockNumber()
 
   const kncPrice = useSelector((state: AppState) => state.application.kncPrice)
 
   useEffect(() => {
-    if (!isEVM(chainId)) return
-    const apolloClient = NETWORKS_INFO[chainId || ChainId.MAINNET].classicClient
+    if (!isEVM) return
+    const apolloClient = (networkInfo as EVMNetworkInfo).classicClient
     async function checkForKNCPrice() {
       const kncPriceByETH = await getKNCPriceByETH(chainId as ChainId, apolloClient)
       const kncPrice = ethPrice.currentPrice && kncPriceByETH * parseFloat(ethPrice.currentPrice)
       dispatch(updateKNCPrice(kncPrice?.toString()))
     }
     checkForKNCPrice()
-  }, [kncPrice, dispatch, ethPrice.currentPrice, chainId, blockNumber])
+  }, [kncPrice, dispatch, ethPrice.currentPrice, isEVM, networkInfo, chainId, blockNumber])
 
   return kncPrice
 }
@@ -390,13 +390,13 @@ const cache: { [key: string]: number } = {}
 export function useTokensPrice(tokens: (Token | NativeCurrency | null | undefined)[], version?: string): number[] {
   const ethPrice = useETHPrice(version)
 
-  const { chainId } = useActiveWeb3React()
+  const { chainId, isEVM, networkInfo } = useActiveWeb3React()
   const [prices, setPrices] = useState<number[]>([])
 
   useDeepCompareEffect(() => {
-    if (!isEVM(chainId)) return
-    const apolloClient = NETWORKS_INFO[chainId || ChainId.MAINNET].classicClient
-    const client = version !== VERSION.ELASTIC ? apolloClient : NETWORKS_INFO[chainId || ChainId.MAINNET].elasticClient
+    if (!isEVM) return
+    const apolloClient = (networkInfo as EVMNetworkInfo).classicClient
+    const client = version !== VERSION.ELASTIC ? apolloClient : (networkInfo as EVMNetworkInfo).elasticClient
 
     async function checkForTokenPrice() {
       const tokensPrice = tokens.map(async token => {
@@ -429,7 +429,7 @@ export function useTokensPrice(tokens: (Token | NativeCurrency | null | undefine
     }
 
     checkForTokenPrice()
-  }, [ethPrice.currentPrice, chainId, tokens, version])
+  }, [ethPrice.currentPrice, chainId, isEVM, networkInfo, tokens, version])
 
   return prices
 }

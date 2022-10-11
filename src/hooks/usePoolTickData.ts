@@ -6,7 +6,8 @@ import ms from 'ms.macro'
 import { useMemo } from 'react'
 
 import { ALL_TICKS, Tick } from 'apollo/queries/promm'
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { NETWORKS_INFO } from 'constants/networks'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import computeSurroundingTicks from 'utils/computeSurroundingTicks'
 
@@ -27,13 +28,13 @@ const getActiveTick = (tickCurrent: number | undefined, feeAmount: FeeAmount | u
   tickCurrent && feeAmount ? Math.floor(tickCurrent / TICK_SPACINGS[feeAmount]) * TICK_SPACINGS[feeAmount] : undefined
 
 const useAllTicks = (poolAddress: string) => {
-  const { chainId } = useActiveWeb3React()
-  const client = isEVM(chainId) ? NETWORKS_INFO[chainId].elasticClient : NETWORKS_INFO[ChainId.MAINNET].elasticClient
+  const { isEVM, networkInfo } = useActiveWeb3React()
+  const client = isEVM ? (networkInfo as EVMNetworkInfo).elasticClient : NETWORKS_INFO[ChainId.MAINNET].elasticClient
 
   return useQuery(ALL_TICKS(poolAddress?.toLowerCase()), {
     client,
     pollInterval: ms`30s`,
-    skip: !isEVM(chainId),
+    skip: !isEVM,
   })
 }
 

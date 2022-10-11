@@ -12,7 +12,8 @@ import {
   POOL_DATA,
   USER_POSITIONS,
 } from 'apollo/queries'
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { NETWORKS_INFO } from 'constants/networks'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { useETHPrice } from 'state/application/hooks'
 import { AppState } from 'state/index'
@@ -85,14 +86,14 @@ export interface UserLiquidityPositionResult {
  * @param user string
  */
 export function useUserLiquidityPositions(): UserLiquidityPositionResult {
-  const { chainId, account } = useActiveWeb3React()
+  const { isEVM, account, networkInfo } = useActiveWeb3React()
   const { loading, error, data } = useQuery(USER_POSITIONS, {
-    client: isEVM(chainId) ? NETWORKS_INFO[chainId].classicClient : NETWORKS_INFO[ChainId.MAINNET].classicClient,
+    client: isEVM ? (networkInfo as EVMNetworkInfo).classicClient : NETWORKS_INFO[ChainId.MAINNET].classicClient,
     variables: {
       user: account?.toLowerCase(),
     },
     fetchPolicy: 'no-cache',
-    skip: !isEVM(chainId),
+    skip: !isEVM,
   })
 
   return useMemo(() => ({ loading, error, data }), [data, error, loading])
@@ -277,11 +278,11 @@ export function useResetPools(chainId: ChainId | undefined) {
 
 export function usePoolCountInSubgraph(): number {
   const [poolCount, setPoolCount] = useState(0)
-  const { chainId } = useActiveWeb3React()
+  const { isEVM, networkInfo } = useActiveWeb3React()
 
   useEffect(() => {
-    if (!isEVM(chainId)) return
-    const apolloClient = NETWORKS_INFO[chainId || ChainId.MAINNET].classicClient
+    if (!isEVM) return
+    const apolloClient = (networkInfo as EVMNetworkInfo).classicClient
     const getPoolCount = async () => {
       const result = await apolloClient.query({
         query: POOL_COUNT,
@@ -295,7 +296,7 @@ export function usePoolCountInSubgraph(): number {
     }
 
     getPoolCount()
-  }, [chainId])
+  }, [networkInfo, isEVM])
 
   return poolCount
 }
@@ -306,7 +307,7 @@ export function useAllPoolsData(): {
   data: AppState['pools']['pools']
 } {
   const dispatch = useDispatch()
-  const { chainId } = useActiveWeb3React()
+  const { chainId, isEVM, networkInfo } = useActiveWeb3React()
 
   const poolsData = useSelector((state: AppState) => state.pools.pools)
   const loading = useSelector((state: AppState) => state.pools.loading)
@@ -316,8 +317,8 @@ export function useAllPoolsData(): {
 
   const poolCountSubgraph = usePoolCountInSubgraph()
   useEffect(() => {
-    if (!isEVM(chainId)) return
-    const apolloClient = NETWORKS_INFO[chainId || ChainId.MAINNET].classicClient
+    if (!isEVM) return
+    const apolloClient = (networkInfo as EVMNetworkInfo).classicClient
     let cancelled = false
 
     const getPoolsData = async () => {
@@ -344,7 +345,7 @@ export function useAllPoolsData(): {
     return () => {
       cancelled = true
     }
-  }, [chainId, dispatch, error, ethPrice, poolCountSubgraph, poolsData.length])
+  }, [chainId, dispatch, error, ethPrice, poolCountSubgraph, poolsData.length, isEVM, networkInfo])
 
   return useMemo(() => ({ loading, error, data: poolsData }), [error, loading, poolsData])
 }
@@ -361,7 +362,7 @@ export function useSinglePoolData(
   error?: Error
   data?: SubgraphPoolData
 } {
-  const { chainId } = useActiveWeb3React()
+  const { chainId, isEVM, networkInfo } = useActiveWeb3React()
 
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<Error | undefined>(undefined)
@@ -369,8 +370,8 @@ export function useSinglePoolData(
 
   const latestRenderTime = useRef(0)
   useEffect(() => {
-    if (!isEVM(chainId)) return
-    const apolloClient = NETWORKS_INFO[chainId || ChainId.MAINNET].classicClient
+    if (!isEVM) return
+    const apolloClient = (networkInfo as EVMNetworkInfo).classicClient
     async function checkForPools(currentRenderTime: number) {
       setLoading(true)
 
@@ -395,7 +396,7 @@ export function useSinglePoolData(
       // eslint-disable-next-line react-hooks/exhaustive-deps
       latestRenderTime.current++
     }
-  }, [ethPrice, error, poolAddress, chainId])
+  }, [ethPrice, error, poolAddress, chainId, isEVM, networkInfo])
 
   return { loading, error, data: poolData }
 }

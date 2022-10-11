@@ -27,7 +27,7 @@ import {
   ONLY_STATIC_FEE_CHAINS,
   STATIC_FEE_OPTIONS,
 } from 'constants/index'
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { PairState } from 'data/Reserves'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -78,7 +78,7 @@ export default function CreatePool({
   },
   history,
 }: RouteComponentProps<{ currencyIdA?: string; currencyIdB?: string }>) {
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
   const { library } = useWeb3React()
   const theme = useTheme()
   const currencyA = useCurrency(currencyIdA)
@@ -172,15 +172,15 @@ export default function CreatePool({
   )
 
   const routerAddress = useMemo(() => {
-    if (!isEVM(chainId)) return
-    if (ONLY_STATIC_FEE_CHAINS.includes(chainId)) return NETWORKS_INFO[chainId].classic.static.router
-    if (ONLY_DYNAMIC_FEE_CHAINS.includes(chainId)) return NETWORKS_INFO[chainId].classic.dynamic?.router
+    if (!isEVM) return
+    if (ONLY_STATIC_FEE_CHAINS.includes(chainId)) return (networkInfo as EVMNetworkInfo).classic.static.router
+    if (ONLY_DYNAMIC_FEE_CHAINS.includes(chainId)) return (networkInfo as EVMNetworkInfo).classic.dynamic?.router
     if (feeType === FEE_TYPE.STATIC) {
-      return NETWORKS_INFO[chainId].classic.static.router
+      return (networkInfo as EVMNetworkInfo).classic.static.router
     } else {
-      return NETWORKS_INFO[chainId].classic.dynamic?.router
+      return (networkInfo as EVMNetworkInfo).classic.dynamic?.router
     }
-  }, [chainId, feeType])
+  }, [chainId, feeType, isEVM, networkInfo])
 
   // check whether the user has approved the router on the tokens
   const [approvalA, approveACallback] = useApproveCallback(parsedAmounts[Field.CURRENCY_A], routerAddress)
@@ -422,7 +422,7 @@ export default function CreatePool({
     }
   }, [chainId])
 
-  if (!isEVM(chainId)) return <Redirect to="/" />
+  if (!isEVM) return <Redirect to="/" />
   return (
     <PageWrapper>
       <Container>

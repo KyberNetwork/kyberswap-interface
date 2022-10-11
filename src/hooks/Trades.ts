@@ -5,7 +5,6 @@ import { useSelector } from 'react-redux'
 
 import { MAINNET_ENV } from 'constants/env'
 import { ZERO_ADDRESS } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
 import { PairState, usePairs } from 'data/Reserves'
 import { useActiveWeb3React } from 'hooks/index'
 import { useAllCurrencyCombinations } from 'hooks/useAllCurrencyCombinations'
@@ -98,7 +97,7 @@ export function useTradeExactInV2(
   onUpdateCallback: (resetRoute: boolean, minimumLoadingTime: number) => void
   loading: boolean
 } {
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, networkInfo } = useActiveWeb3React()
 
   const allDexes = useAllDexes()
   const [excludeDexes] = useExcludeDexes()
@@ -141,7 +140,7 @@ export function useTradeExactInV2(
 
         const [state, comparedResult] = await Promise.all([
           Aggregator.bestTradeExactIn(
-            NETWORKS_INFO[chainId].routerUri,
+            networkInfo.routerUri,
             debounceCurrencyAmountIn,
             currencyOut,
             saveGas,
@@ -154,7 +153,7 @@ export function useTradeExactInV2(
             minimumLoadingTime,
           ),
           Aggregator.compareDex(
-            NETWORKS_INFO[chainId].routerUri,
+            networkInfo.routerUri,
             debounceCurrencyAmountIn,
             currencyOut,
             allowedSlippage,
@@ -187,6 +186,7 @@ export function useTradeExactInV2(
       allowedSlippage,
       ttl,
       feeConfig,
+      networkInfo,
     ],
   )
 

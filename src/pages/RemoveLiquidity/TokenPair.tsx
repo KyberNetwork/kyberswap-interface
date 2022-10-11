@@ -24,7 +24,7 @@ import TransactionConfirmationModal, {
   TransactionErrorContent,
 } from 'components/TransactionConfirmationModal'
 import { Dots } from 'components/swap/styleds'
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
@@ -72,7 +72,7 @@ export default function TokenPair({
   pairAddress: string
 }) {
   const [currencyA, currencyB] = [useCurrency(currencyIdA) ?? undefined, useCurrency(currencyIdB) ?? undefined]
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
   const { library } = useWeb3React()
 
   const nativeA = currencyA as Currency
@@ -93,12 +93,12 @@ export default function TokenPair({
   const { independentField, typedValue } = useBurnState()
   const { pair, userLiquidity, parsedAmounts, amountsMin, price, error, isStaticFeePair, isOldStaticFeeContract } =
     useDerivedBurnInfo(currencyA ?? undefined, currencyB ?? undefined, pairAddress)
-  const contractAddress = isEVM(chainId)
+  const contractAddress = isEVM
     ? isStaticFeePair
       ? isOldStaticFeeContract
-        ? NETWORKS_INFO[chainId].classic.oldStatic?.router
-        : NETWORKS_INFO[chainId].classic.static.router
-      : NETWORKS_INFO[chainId].classic.dynamic?.router
+        ? (networkInfo as EVMNetworkInfo).classic.oldStatic?.router
+        : (networkInfo as EVMNetworkInfo).classic.static.router
+      : (networkInfo as EVMNetworkInfo).classic.dynamic?.router
     : undefined
   const amp = pair?.amp || JSBI.BigInt(0)
   const { onUserInput: _onUserInput } = useBurnActionHandlers()

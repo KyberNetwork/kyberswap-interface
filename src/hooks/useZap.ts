@@ -1,20 +1,20 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { useCallback, useEffect, useState } from 'react'
 
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { useZapContract } from 'hooks/useContract'
 
 const useZap = (isStaticFeeContract: boolean, isOldStaticFeeContract: boolean) => {
   const zapContract = useZapContract(isStaticFeeContract, isOldStaticFeeContract)
-  const { chainId } = useActiveWeb3React()
+  const { isEVM, networkInfo } = useActiveWeb3React()
   const calculateZapInAmounts = useCallback(
     async (tokenIn: string, tokenOut: string, pool: string, userIn: BigNumber) => {
       try {
         const result =
           isStaticFeeContract && !isOldStaticFeeContract
             ? await zapContract?.calculateZapInAmounts(
-                isEVM(chainId) ? NETWORKS_INFO[chainId].classic.static.factory : undefined,
+                isEVM ? (networkInfo as EVMNetworkInfo).classic.static.factory : undefined,
                 tokenIn,
                 tokenOut,
                 pool,
@@ -28,7 +28,7 @@ const useZap = (isStaticFeeContract: boolean, isOldStaticFeeContract: boolean) =
         throw err
       }
     },
-    [zapContract, chainId, isStaticFeeContract, isOldStaticFeeContract],
+    [zapContract, isEVM, networkInfo, isStaticFeeContract, isOldStaticFeeContract],
   )
 
   const calculateZapOutAmount = useCallback(
@@ -37,7 +37,7 @@ const useZap = (isStaticFeeContract: boolean, isOldStaticFeeContract: boolean) =
         const result =
           isStaticFeeContract && !isOldStaticFeeContract
             ? await zapContract?.calculateZapOutAmount(
-                isEVM(chainId) ? NETWORKS_INFO[chainId].classic.static.factory : undefined,
+                isEVM ? (networkInfo as EVMNetworkInfo).classic.static.factory : undefined,
                 tokenIn,
                 tokenOut,
                 pool,
@@ -51,7 +51,7 @@ const useZap = (isStaticFeeContract: boolean, isOldStaticFeeContract: boolean) =
         throw err
       }
     },
-    [zapContract, chainId, isStaticFeeContract, isOldStaticFeeContract],
+    [zapContract, isEVM, networkInfo, isStaticFeeContract, isOldStaticFeeContract],
   )
 
   return {

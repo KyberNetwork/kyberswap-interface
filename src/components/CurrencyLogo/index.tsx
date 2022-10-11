@@ -3,7 +3,6 @@ import React, { useMemo } from 'react'
 import styled from 'styled-components'
 
 import Logo from 'components/Logo'
-import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useHttpLocations from 'hooks/useHttpLocations'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
@@ -33,7 +32,7 @@ export default function CurrencyLogo({
   size?: string
   style?: React.CSSProperties
 }) {
-  const { chainId } = useActiveWeb3React()
+  const { chainId, networkInfo } = useActiveWeb3React()
   const uriLocations = useHttpLocations(currency instanceof WrappedTokenInfo ? currency.logoURI : undefined)
 
   const srcs: string[] = useMemo(() => {
@@ -52,7 +51,7 @@ export default function CurrencyLogo({
   if (currency?.isNative && chainId) {
     return (
       <StyledNativeCurrencyLogo
-        src={NETWORKS_INFO[chainId].nativeToken.logo}
+        src={networkInfo.nativeToken.logo}
         size={size}
         style={style}
         alt={`${currency.symbol}Logo`}

@@ -1,7 +1,7 @@
 import { Pool, Position, TickMath } from '@namgold/ks-sdk-elastic'
 import { useMemo } from 'react'
 
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { Result, useSingleContractMultipleData } from 'state/multicall/hooks'
 
@@ -44,13 +44,13 @@ export default function useProAmmPreviousTicks(
 export function useProAmmTotalFeeOwedByPosition(pool: Pool | null | undefined, tokenID: string | undefined): number[] {
   const tickReader = useProAmmTickReader()
   const poolAddress = useProAmmPoolInfo(pool?.token0, pool?.token1, pool?.fee)
-  const { chainId } = useActiveWeb3React()
+  const { isEVM, networkInfo } = useActiveWeb3React()
 
   const result = useSingleContractMultipleData(
     tickReader,
     'getTotalFeesOwedToPosition',
     [
-      [isEVM(chainId) ? NETWORKS_INFO[chainId].elastic.nonfungiblePositionManager : undefined, poolAddress, tokenID],
+      [isEVM ? (networkInfo as EVMNetworkInfo).elastic.nonfungiblePositionManager : undefined, poolAddress, tokenID],
     ].filter(item => !!item[0] && !!item[1] && !!item[2]),
   )?.[0]?.result
   return result ? [result[0], result[1]] : [0, 0]

@@ -211,7 +211,7 @@ export default function Swap({ history }: RouteComponentProps) {
       return !Boolean(token.address in defaultTokens)
     })
 
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, networkInfo } = useActiveWeb3React()
   const theme = useTheme()
 
   // toggle wallet when disconnected
@@ -496,7 +496,7 @@ export default function Swap({ history }: RouteComponentProps) {
     let { fromCurrency, toCurrency, network } = getUrlMatchParams()
     if (!fromCurrency || !network) return
 
-    const compareNetwork = NETWORKS_INFO[chainId].route
+    const compareNetwork = networkInfo.route
 
     if (compareNetwork && network !== compareNetwork) {
       // when select change network => force get new network
@@ -574,10 +574,10 @@ export default function Swap({ history }: RouteComponentProps) {
       const symbolIn = getSymbolSlug(currencyIn)
       const symbolOut = getSymbolSlug(currencyOut)
       if (symbolIn && symbolOut && chainId) {
-        navigate(`/swap/${NETWORKS_INFO[chainId].route}/${symbolIn}-to-${symbolOut}`)
+        navigate(`/swap/${networkInfo.route}/${symbolIn}-to-${symbolOut}`)
       }
     },
-    [navigate, chainId],
+    [navigate, networkInfo, chainId],
   )
 
   const onSelectSuggestedPair = useCallback(
@@ -594,7 +594,7 @@ export default function Swap({ history }: RouteComponentProps) {
 
   useEffect(() => {
     const { network } = getUrlMatchParams()
-    const isChangeNetwork = network !== NETWORKS_INFO[chainId].route
+    const isChangeNetwork = network !== networkInfo.route
     if (isChangeNetwork) return
 
     // when import/remove token

@@ -4,7 +4,6 @@ import { useMemo } from 'react'
 
 import ERC20_INTERFACE from 'constants/abis/erc20'
 import { EMPTY_ARRAY, EMPTY_OBJECT } from 'constants/index'
-import { isEVM } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
@@ -15,10 +14,10 @@ import { isAddress } from 'utils'
 import { useSOLBalance, useTokensBalanceSolana } from './solanaHooks'
 
 export function useNativeBalance(): CurrencyAmount<Currency> | undefined {
-  const { chainId } = useActiveWeb3React()
+  const { isEVM } = useActiveWeb3React()
   const userEthBalance = useETHBalance()
   const userSolBalance = useSOLBalance()
-  return isEVM(chainId) ? userEthBalance : userSolBalance
+  return isEVM ? userEthBalance : userSolBalance
 }
 
 function useETHBalance(): CurrencyAmount<Currency> | undefined {
@@ -46,10 +45,10 @@ const stringifyBalance = (balanceMap: { [key: string]: TokenAmount }) => {
 }
 
 function useTokensBalance(tokens?: Token[]): [TokenAmount | undefined, boolean][] {
-  const { chainId } = useActiveWeb3React()
+  const { isEVM } = useActiveWeb3React()
   const userEthBalance = useTokensBalanceEVM(tokens)
   const userSolBalance = useTokensBalanceSolana(tokens)
-  return isEVM(chainId) ? userEthBalance : userSolBalance
+  return isEVM ? userEthBalance : userSolBalance
 }
 
 function useTokensBalanceEVM(tokens?: Token[]): [TokenAmount | undefined, boolean][] {

@@ -5,7 +5,6 @@ import styled from 'styled-components'
 
 import { ButtonEmpty } from 'components/Button'
 import { RowFixed } from 'components/Row'
-import { isEVM } from 'constants/networks'
 import { SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React } from 'hooks'
 import useProvider from 'hooks/solana/useProvider'
@@ -17,7 +16,7 @@ const StyledLogo = styled.img`
 `
 
 export default function AddTokenToMetaMask({ token }: { token: Token }) {
-  const { chainId, walletKey, account } = useActiveWeb3React()
+  const { chainId, walletKey, account, isEVM } = useActiveWeb3React()
   const provider = useProvider()
 
   async function addToMetaMask() {
@@ -26,7 +25,7 @@ export default function AddTokenToMetaMask({ token }: { token: Token }) {
     const tokenDecimals = token.decimals
     const tokenImage = getTokenLogoURL(token.address, chainId)
 
-    if (isEVM(chainId)) {
+    if (isEVM) {
       try {
         await window.ethereum?.request({
           method: 'wallet_watchAsset',
@@ -55,7 +54,7 @@ export default function AddTokenToMetaMask({ token }: { token: Token }) {
     }
   }
   if (!walletKey) return <></>
-  if (isEVM(chainId) && walletKey === 'COINBASE') return <></> // Coinbase wallet no need to add since it automatically track token
+  if (isEVM && walletKey === 'COINBASE') return <></> // Coinbase wallet no need to add since it automatically track token
   return (
     <ButtonEmpty mt="12px" padding="0" width="fit-content" onClick={addToMetaMask}>
       <RowFixed>

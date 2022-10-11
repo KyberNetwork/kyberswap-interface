@@ -8,7 +8,8 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { PROMM_POOLS_BULK, ProMMPoolFields } from 'apollo/queries/promm'
 import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { NETWORKS_INFO } from 'constants/networks'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { AppState } from 'state/index'
 import { getBlocksFromTimestamps } from 'utils'
@@ -152,15 +153,15 @@ export interface UserPositionResult {
  * Get my liquidity for all pools
  */
 export function useUserProMMPositions(): UserPositionResult {
-  const { chainId, account } = useActiveWeb3React()
+  const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
 
   const { loading, error, data } = useQuery(PROMM_USER_POSITIONS, {
-    client: isEVM(chainId) ? NETWORKS_INFO[chainId].elasticClient : NETWORKS_INFO[ChainId.MAINNET].elasticClient,
+    client: isEVM ? (networkInfo as EVMNetworkInfo).elasticClient : NETWORKS_INFO[ChainId.MAINNET].elasticClient,
     variables: {
       owner: account?.toLowerCase(),
     },
     fetchPolicy: 'no-cache',
-    skip: !isEVM(chainId),
+    skip: !isEVM,
   })
 
   const ethPriceUSD = Number(data?.bundles?.[0]?.ethPriceUSD)
@@ -379,9 +380,9 @@ export function usePoolDatas(poolAddresses: string[]): {
       }
     | undefined
 } {
-  const { chainId } = useActiveWeb3React()
-  const dataClient = isEVM(chainId)
-    ? NETWORKS_INFO[chainId].elasticClient
+  const { chainId, isEVM, networkInfo } = useActiveWeb3React()
+  const dataClient = isEVM
+    ? (networkInfo as EVMNetworkInfo).elasticClient
     : NETWORKS_INFO[ChainId.MAINNET].elasticClient
 
   const { block24, block48 } = usePoolBlocks()
@@ -389,7 +390,7 @@ export function usePoolDatas(poolAddresses: string[]): {
   const { loading, error, data } = useQuery<PoolDataResponse>(PROMM_POOLS_BULK(undefined, poolAddresses), {
     client: dataClient,
     fetchPolicy: 'no-cache',
-    skip: !isEVM(chainId),
+    skip: !isEVM,
   })
 
   const {
@@ -399,7 +400,7 @@ export function usePoolDatas(poolAddresses: string[]): {
   } = useQuery<PoolDataResponse>(PROMM_POOLS_BULK(block24, poolAddresses), {
     client: dataClient,
     fetchPolicy: 'no-cache',
-    skip: !isEVM(chainId),
+    skip: !isEVM,
   })
   const {
     loading: loading48,
@@ -408,7 +409,7 @@ export function usePoolDatas(poolAddresses: string[]): {
   } = useQuery<PoolDataResponse>(PROMM_POOLS_BULK(block48, poolAddresses), {
     client: dataClient,
     fetchPolicy: 'no-cache',
-    skip: !isEVM(chainId),
+    skip: !isEVM,
   })
   // const { loading: loadingWeek, error: errorWeek, data: dataWeek } = useQuery<PoolDataResponse>(
   //   PROMM_POOLS_BULK(blockWeek, poolAddresses),
@@ -475,15 +476,15 @@ export function useTopPoolAddresses(): {
   error: boolean
   addresses: string[] | undefined
 } {
-  const { chainId } = useActiveWeb3React()
-  const dataClient = isEVM(chainId)
-    ? NETWORKS_INFO[chainId].elasticClient
+  const { isEVM, networkInfo } = useActiveWeb3React()
+  const dataClient = isEVM
+    ? (networkInfo as EVMNetworkInfo).elasticClient
     : NETWORKS_INFO[ChainId.MAINNET].elasticClient
 
   const { loading, error, data } = useQuery<TopPoolsResponse>(TOP_POOLS, {
     client: dataClient,
     fetchPolicy: 'no-cache',
-    skip: !isEVM(chainId),
+    skip: !isEVM,
   })
 
   const formattedData = useMemo(() => {

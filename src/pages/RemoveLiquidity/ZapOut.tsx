@@ -35,7 +35,7 @@ import TransactionConfirmationModal, {
 import ZapError from 'components/ZapError'
 import FormattedPriceImpact from 'components/swap/FormattedPriceImpact'
 import { Dots } from 'components/swap/styleds'
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
@@ -81,7 +81,7 @@ export default function ZapOut({
   pairAddress: string
 }) {
   const [currencyA, currencyB] = [useCurrency(currencyIdA) ?? undefined, useCurrency(currencyIdB) ?? undefined]
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
   const { library } = useWeb3React()
 
   const nativeA = useCurrencyConvertedToNative(currencyA as Currency)
@@ -163,12 +163,12 @@ export default function ZapOut({
   const [signatureData, setSignatureData] = useState<{ v: number; r: string; s: string; deadline: number } | null>(null)
   const [approval, approveCallback] = useApproveCallback(
     parsedAmounts[Field.LIQUIDITY],
-    isEVM(chainId)
+    isEVM
       ? isStaticFeePair
         ? isOldStaticFeeContract
-          ? NETWORKS_INFO[chainId].classic.oldStatic?.zap
-          : NETWORKS_INFO[chainId].classic.static.zap
-        : NETWORKS_INFO[chainId].classic.dynamic?.zap
+          ? (networkInfo as EVMNetworkInfo).classic.oldStatic?.zap
+          : (networkInfo as EVMNetworkInfo).classic.static.zap
+        : (networkInfo as EVMNetworkInfo).classic.dynamic?.zap
       : undefined,
   )
 
@@ -214,12 +214,12 @@ export default function ZapOut({
     ]
     const message = {
       owner: account,
-      spender: isEVM(chainId)
+      spender: isEVM
         ? isStaticFeePair
           ? isOldStaticFeeContract
-            ? NETWORKS_INFO[chainId].classic.oldStatic?.zap
-            : NETWORKS_INFO[chainId].classic.static.zap
-          : NETWORKS_INFO[chainId].classic.dynamic?.zap
+            ? (networkInfo as EVMNetworkInfo).classic.oldStatic?.zap
+            : (networkInfo as EVMNetworkInfo).classic.static.zap
+          : (networkInfo as EVMNetworkInfo).classic.dynamic?.zap
         : undefined,
       value: liquidityAmount.quotient.toString(),
       nonce: nonce.toHexString(),
@@ -275,7 +275,7 @@ export default function ZapOut({
   // tx sending
   const addTransactionWithType = useTransactionAdder()
   async function onRemove() {
-    if (!isEVM(chainId) || !library || !account || !deadline) throw new Error('missing dependencies')
+    if (!isEVM || !library || !account || !deadline) throw new Error('missing dependencies')
     const { [Field.CURRENCY_A]: currencyAmountA, [Field.CURRENCY_B]: currencyAmountB } = parsedAmounts
     if (!currencyAmountA || !currencyAmountB) {
       throw new Error('missing currency amounts')
@@ -364,7 +364,7 @@ export default function ZapOut({
 
     // All methods of new zap static fee contract include factory address as first arg
     if (isStaticFeePair && !isOldStaticFeeContract) {
-      args.unshift(NETWORKS_INFO[chainId].classic.static.factory)
+      args.unshift((networkInfo as EVMNetworkInfo).classic.static.factory)
     }
     const safeGasEstimates: (BigNumber | undefined)[] = await Promise.all(
       methodNames.map(methodName =>

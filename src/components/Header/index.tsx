@@ -19,7 +19,6 @@ import Row, { RowFixed } from 'components/Row'
 import Settings from 'components/Settings'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { APP_PATHS, PROMM_ANALYTICS_URL } from 'constants/index'
-import { isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useWindowSize } from 'hooks/useWindowSize'
@@ -320,7 +319,7 @@ const HoverDropdown = styled.div<{ active: boolean; disabled?: boolean }>`
 `
 
 export default function Header() {
-  const { chainId } = useActiveWeb3React()
+  const { chainId, isEVM } = useActiveWeb3React()
 
   const isDark = useIsDarkMode()
   const { pathname } = useLocation()
@@ -378,7 +377,7 @@ export default function Header() {
             </Dropdown>
           </HoverDropdown>
 
-          {isEVM(chainId) && (
+          {isEVM && (
             <Flex id={TutorialIds.EARNING_LINKS} alignItems="center">
               <HoverDropdown
                 active={pathname.toLowerCase().includes('pools') || pathname.toLowerCase().startsWith('/farms')}

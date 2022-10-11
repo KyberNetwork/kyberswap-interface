@@ -1,6 +1,5 @@
 import useSWR from 'swr'
 
-import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useETHPrice } from 'state/application/hooks'
 
@@ -59,9 +58,9 @@ const calculateGasPrices = (resp: Response, currentPrice?: string | number): Gas
 }
 
 const useGasPriceFromDeBank = (): GasPriceTrackerData | undefined => {
-  const { chainId } = useActiveWeb3React()
+  const { chainId, networkInfo } = useActiveWeb3React()
   const nativeTokenPriceData = useETHPrice()
-  const chainSlug = chainId ? NETWORKS_INFO[chainId].deBankSlug : ''
+  const chainSlug = networkInfo.deBankSlug || ''
   const { data, error } = useSWR<Response>(
     `https://openapi.debank.com/v1/wallet/gas_market?chain_id=${chainSlug}`,
     async (url: string) => {

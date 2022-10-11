@@ -13,7 +13,8 @@ import { PROMM_JOINED_POSITION } from 'apollo/queries/promm'
 import PROMM_POOL_ABI from 'constants/abis/v2/pool.json'
 import { ZERO_ADDRESS } from 'constants/index'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { EVM_NETWORK, NETWORKS_INFO } from 'constants/networks'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { FARM_CONTRACTS, VERSION } from 'constants/v2'
 import { providers, useActiveWeb3React } from 'hooks'
 import { useAllTokens, useTokens } from 'hooks/Tokens'
@@ -39,7 +40,7 @@ export const useProMMFarms = () => {
 
 export const useGetProMMFarms = () => {
   const dispatch = useAppDispatch()
-  const { chainId, account } = useActiveWeb3React()
+  const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
 
   const prommFarmContracts = useProMMFarmContracts()
   const tokens = useAllTokens()
@@ -64,7 +65,7 @@ export const useGetProMMFarms = () => {
 
     const promises = farmsAddress.map(async address => {
       const contract = prommFarmContracts?.[address]
-      if (!contract || !isEVM(chainId)) return
+      if (!contract || !isEVM) return
 
       const [poolLength, userDepositedNFT, rewardLocker] = await Promise.all([
         contract.poolLength(),
@@ -79,7 +80,7 @@ export const useGetProMMFarms = () => {
       const nftInfos = nftInfosFromContract.map((result: any, index) => ({
         tokenId: userDepositedNFT[index],
         poolId: getCreate2Address(
-          NETWORKS_INFO[chainId || ChainId.MAINNET].elastic.coreFactory,
+          (networkInfo as EVMNetworkInfo).elastic.coreFactory,
           keccak256(
             ['bytes'],
             [
@@ -89,7 +90,7 @@ export const useGetProMMFarms = () => {
               ),
             ],
           ),
-          NETWORKS_INFO[chainId || ChainId.MAINNET].elastic.initCodeHash,
+          (networkInfo as EVMNetworkInfo).elastic.initCodeHash,
         ),
         feeGrowthInsideLast: result.pos.feeGrowthInsideLast,
         nonce: result.pos.nonce,
@@ -140,7 +141,11 @@ export const useGetProMMFarms = () => {
               }
             })
 
-          const poolContract = getContractForReading(poolInfo.poolAddress, PROMM_POOL_ABI, providers[chainId])
+          const poolContract = getContractForReading(
+            poolInfo.poolAddress,
+            PROMM_POOL_ABI,
+            providers[chainId as EVM_NETWORK],
+          )
 
           const [token0, token1, feeTier, liquidityState, poolState] = await Promise.all([
             poolContract.token0(),
@@ -184,7 +189,7 @@ export const useGetProMMFarms = () => {
       ),
     )
     dispatch(setLoading(false))
-  }, [chainId, prevChainId, dispatch, prommFarmContracts, account, positionManager])
+  }, [chainId, prevChainId, dispatch, prommFarmContracts, account, positionManager, isEVM, networkInfo])
 
   return getProMMFarms
 }
@@ -475,16 +480,16 @@ type Response = {
 }
 
 export const useProMMFarmTVL = (fairlaunchAddress: string, pid: number) => {
-  const { chainId } = useActiveWeb3React()
-  const dataClient = isEVM(chainId)
-    ? NETWORKS_INFO[chainId].elasticClient
+  const { chainId, isEVM, networkInfo } = useActiveWeb3React()
+  const dataClient = isEVM
+    ? (networkInfo as EVMNetworkInfo).elasticClient
     : NETWORKS_INFO[ChainId.MAINNET].elasticClient
   const { block24 } = usePoolBlocks()
 
   const { data, loading } = useQuery<Response>(PROMM_JOINED_POSITION(fairlaunchAddress.toLowerCase(), pid, block24), {
     client: dataClient,
     fetchPolicy: 'cache-first',
-    skip: !isEVM(chainId),
+    skip: !isEVM,
   })
 
   const rewardAddress = useMemo(
