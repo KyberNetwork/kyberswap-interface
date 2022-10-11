@@ -3,12 +3,14 @@ import utc from 'dayjs/plugin/utc'
 import { rgba } from 'polished'
 import { useEffect, useRef, useState } from 'react'
 import { ChevronLeft, ChevronRight, Info } from 'react-feather'
+import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import LocalLoader from 'components/LocalLoader'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { MEDIA_WIDTHS } from 'theme'
 
 import { ITEMS_PER_PAGE } from '../consts'
 import { getAmountReceive, getTokenSymbol } from '../utils'
@@ -16,6 +18,7 @@ import ActionCell from './ActionCell'
 import RouteCell from './RouteCell'
 import StatusBadge from './StatusBadge'
 import TimeCell from './TimeCell'
+import TimeStatusCell from './TimeStatusCell'
 import TokenCell from './TokenCell'
 import useTransferHistory from './useTransferHistory'
 
@@ -23,11 +26,21 @@ dayjs.extend(utc)
 
 const commonCSS = css`
   width: 100%;
-  display: grid;
-  grid-template-columns: 140px 160px 100px 1fr 80px;
-  grid-template-areas: 'time status route bridged-amount action';
-  align-items: center;
   padding: 0 16px;
+
+  display: grid;
+  grid-template-columns: 120px 130px 80px 1fr 32px;
+  align-items: center;
+  column-gap: 64px;
+
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    column-gap: 16px;
+    grid-template-columns: 120px 120px 64px 1fr 28px;
+  `}
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    column-gap: 16px;
+    grid-template-columns: 90px 64px 1fr 28px;
+  `}
 `
 
 const TableHeader = styled.div`
@@ -37,12 +50,11 @@ const TableHeader = styled.div`
   border-radius: 20px 20px 0 0;
 `
 
-const TableColumnText = styled.div<{ gridArea?: string }>`
+const TableColumnText = styled.div`
   font-weight: 500;
   font-size: 12px;
   line-height: 16px;
   color: ${({ theme }) => theme.subText};
-  ${({ gridArea }) => gridArea && `grid-area: ${gridArea};`}
 `
 
 const TableRow = styled.div`
@@ -65,7 +77,7 @@ const PaginationButton = styled.button`
   cursor: pointer;
   border-radius: 999px;
   color: ${({ theme }) => theme.subText};
-  background: ${({ theme }) => theme.background};
+  background: ${({ theme }) => theme.buttonGray};
   transition: color 150ms;
 
   &:active {
@@ -88,11 +100,14 @@ type Props = {
   className?: string
 }
 const TransferHistory: React.FC<Props> = ({ className }) => {
+  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const [shouldShowLoading, setShouldShowLoading] = useState(true)
-  const { range, transfers, isValidating, error, canGoNext, canGoPrevious, onClickNext, onClickPrevious } =
+  const { isCompletelyEmpty, range, transfers, isValidating, canGoNext, canGoPrevious, onClickNext, onClickPrevious } =
     useTransferHistory(account || '')
+
+  const isThisPageEmpty = transfers.length === 0
 
   const timeOutRef = useRef<ReturnType<typeof setTimeout>>()
   useEffect(() => {
@@ -117,36 +132,16 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
     return <LocalLoader />
   }
 
-  const renderInvisibleRows = () => {
-    if (transfers.length === ITEMS_PER_PAGE) {
-      return null
-    }
-
-    return Array(ITEMS_PER_PAGE - transfers.length)
-      .fill(0)
-      .map((_, i) => {
-        return (
-          <TableRow
-            key={i}
-            style={{
-              visibility: 'hidden',
-            }}
-          />
-        )
-      })
-  }
-
-  if (transfers.length === 0) {
+  if (isCompletelyEmpty) {
     return (
       <Flex
         sx={{
           width: '100%',
-          height: '100%',
+          height: '180px', // to match the Loader's height
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
-          paddingTop: '56px',
           color: theme.subText,
           gap: '16px',
         }}
@@ -165,66 +160,100 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
     )
   }
 
+  const renderInvisibleRows = () => {
+    if (transfers.length === ITEMS_PER_PAGE) {
+      return null
+    }
+
+    return Array(ITEMS_PER_PAGE - transfers.length)
+      .fill(0)
+      .map((_, i) => {
+        return <TableRow key={i} />
+      })
+  }
+
+  const renderTable = () => {
+    if (upToExtraSmall) {
+      return (
+        <>
+          <TableHeader>
+            <TableColumnText>DATE | STATUS</TableColumnText>
+            <TableColumnText>ROUTE</TableColumnText>
+            <TableColumnText>AMOUNT</TableColumnText>
+            <TableColumnText />
+          </TableHeader>
+          {transfers.map((transfer, i) => (
+            <TableRow key={i}>
+              <TimeStatusCell
+                status={transfer.status}
+                dateString={transfer.inittime ? dayjs.utc(transfer.inittime).local().format('YYYY/MM/DD') : ''}
+              />
+              <RouteCell fromChainID={Number(transfer.fromChainID)} toChainID={Number(transfer.toChainID)} />
+              <TokenCell amount={getAmountReceive(transfer)} symbol={getTokenSymbol(transfer.pairid)} />
+              <ActionCell url={`https://anyswap.net/explorer/tx?params=${transfer.txid}`} />
+            </TableRow>
+          ))}
+          {renderInvisibleRows()}
+        </>
+      )
+    }
+
+    return (
+      <>
+        <TableHeader>
+          <TableColumnText>CREATED</TableColumnText>
+          <TableColumnText>STATUS</TableColumnText>
+          <TableColumnText>ROUTE</TableColumnText>
+          <TableColumnText>BRIDGED AMOUNT</TableColumnText>
+          <TableColumnText />
+        </TableHeader>
+        {transfers.map((transfer, i) => (
+          <TableRow key={i}>
+            <TimeCell
+              timeString={transfer.inittime ? dayjs.utc(transfer.inittime).local().format('YYYY/MM/DD HH:mm') : ''}
+            />
+            <StatusBadge status={transfer.status} />
+            <RouteCell fromChainID={Number(transfer.fromChainID)} toChainID={Number(transfer.toChainID)} />
+            <TokenCell amount={getAmountReceive(transfer)} symbol={getTokenSymbol(transfer.pairid)} />
+            <ActionCell url={`https://anyswap.net/explorer/tx?params=${transfer.txid}`} />
+          </TableRow>
+        ))}
+        {renderInvisibleRows()}
+      </>
+    )
+  }
+
   return (
     <div className={className}>
-      <TableHeader>
-        <TableColumnText gridArea="time">CREATED</TableColumnText>
-        <TableColumnText gridArea="status">STATUS</TableColumnText>
-        <TableColumnText gridArea="route">ROUTE</TableColumnText>
-        <TableColumnText gridArea="bridged-amount">BRIDGED AMOUNT</TableColumnText>
-        <TableColumnText gridArea="action">ACTION</TableColumnText>
-      </TableHeader>
-      {transfers.map((transfer, i) => (
-        <TableRow key={i}>
-          <TimeCell
-            timeString={transfer.inittime ? dayjs.utc(transfer.inittime).local().format('YYYY/MM/DD HH:mm') : ''}
-          />
-          <StatusBadge status={transfer.status} />
-          <RouteCell fromChainID={Number(transfer.fromChainID)} toChainID={Number(transfer.toChainID)} />
-          <TokenCell amount={getAmountReceive(transfer)} symbol={getTokenSymbol(transfer.pairid)} />
-          <ActionCell url={`https://anyswap.net/explorer/tx?params=${transfer.txid}`} />
-        </TableRow>
-      ))}
-      {renderInvisibleRows()}
-
+      {renderTable()}
       <Flex
         sx={{
           width: '100%',
           alignItems: 'center',
-          marginTop: '16px',
+          justifyContent: 'center',
+          padding: '16px 0',
+          gap: '12px',
         }}
       >
-        <Flex
-          sx={{
-            flex: '1 1 100%',
-          }}
-        />
+        <PaginationButton disabled={!canGoPrevious} onClick={onClickPrevious}>
+          <ChevronLeft width={18} />
+        </PaginationButton>
 
         <Flex
           sx={{
-            flex: '0 0 84px',
-            justifyContent: 'center',
-            gap: '12px',
-          }}
-        >
-          <PaginationButton disabled={!canGoPrevious} onClick={onClickPrevious}>
-            <ChevronLeft width={18} />
-          </PaginationButton>
-          <PaginationButton disabled={!canGoNext} onClick={onClickNext}>
-            <ChevronRight width={18} />
-          </PaginationButton>
-        </Flex>
-
-        <Flex
-          sx={{
-            flex: '1 1 100%',
-            justifyContent: 'flex-end',
+            width: '120px',
             fontSize: '12px',
             color: theme.subText,
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         >
-          {range[0]} - {range[1]}
+          {isThisPageEmpty ? '-' : `${range[0]} - ${range[1]}`}
         </Flex>
+
+        <PaginationButton disabled={!canGoNext} onClick={onClickNext}>
+          <ChevronRight width={18} />
+        </PaginationButton>
       </Flex>
     </div>
   )
@@ -233,4 +262,6 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
 export default styled(TransferHistory)`
   flex: 1;
   width: 100%;
+  background: ${({ theme }) => rgba(theme.background, 0.3)};
+  border-radius: 20px;
 `

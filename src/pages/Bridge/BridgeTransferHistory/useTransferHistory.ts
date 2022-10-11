@@ -50,7 +50,7 @@ const useTransferHistory = (addr: string) => {
     setCursor(cursor + ITEMS_PER_PAGE)
   }
 
-  const range = [offset + cursor, offset + cursor + ITEMS_PER_PAGE - 1]
+  const range = [cursor + offset + 1, cursor + offset + transfers.length]
 
   return {
     range,
@@ -61,6 +61,7 @@ const useTransferHistory = (addr: string) => {
     canGoPrevious,
     onClickNext,
     onClickPrevious,
+    isCompletelyEmpty: offset === 0 && allTransfers.length === 0,
   }
 }
 

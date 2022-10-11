@@ -22,7 +22,7 @@ const PendingTransfers = () => {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const [shouldShowLoading, setShouldShowLoading] = useState(true)
-  const { transfers, seeMore, canSeeMore, isValidating, error } = usePendingTransfers(account || '')
+  const { transfers, seeMore, canSeeMore, isValidating } = usePendingTransfers(account || '')
 
   const timeOutRef = useRef<ReturnType<typeof setTimeout>>()
   useEffect(() => {
@@ -52,12 +52,11 @@ const PendingTransfers = () => {
       <Flex
         sx={{
           width: '100%',
-          height: '100%',
+          height: '180px', // to match the Loader's height
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
-          paddingTop: '56px',
           color: theme.subText,
           gap: '16px',
         }}

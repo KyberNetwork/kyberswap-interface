@@ -10,7 +10,6 @@ const TokenCell: React.FC<Props> = ({ amount, symbol }) => {
     <Text
       as="span"
       sx={{
-        gridArea: 'bridged-amount',
         fontWeight: 500,
         fontSize: '12px',
         lineHeight: '16px',

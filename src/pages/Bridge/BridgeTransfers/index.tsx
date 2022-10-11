@@ -22,7 +22,9 @@ const BridgeHistory: React.FC<Props> = ({ className }) => {
 }
 
 export default styled(BridgeHistory)`
+  width: 100%;
   flex: 1;
+
   display: flex;
   flex-direction: column;
   gap: 16px;

@@ -1,8 +1,6 @@
 import { rgba } from 'polished'
 import { Flex } from 'rebass'
-import styled, { useTheme } from 'styled-components'
-
-import { useIsDarkMode } from 'state/user/hooks'
+import styled from 'styled-components'
 
 const ExternalLinkWrapper = styled.a`
   width: 28px;
@@ -28,14 +26,10 @@ type Props = {
 }
 
 const ActionCell: React.FC<Props> = ({ url }) => {
-  const isDark = useIsDarkMode()
-  const theme = useTheme()
-
   return (
     <Flex
       sx={{
         alignItems: 'center',
-        gridArea: 'action',
       }}
     >
       <ExternalLinkWrapper href={url} target="_blank" rel="noreferrer">

@@ -12,7 +12,6 @@ const TimeCell: React.FC<Props> = ({ timeString }) => {
     <Flex
       sx={{
         flexDirection: 'column',
-        gridArea: 'time',
         fontWeight: 500,
         fontSize: '12px',
         lineHeight: '16px',

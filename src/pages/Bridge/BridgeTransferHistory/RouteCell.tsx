@@ -39,7 +39,6 @@ const RouteCell: React.FC<Props> = ({ fromChainID, toChainID }) => {
     <Flex
       sx={{
         alignItems: 'center',
-        gridArea: 'route',
       }}
     >
       {renderChainIcon(fromChainID as ChainId)}
