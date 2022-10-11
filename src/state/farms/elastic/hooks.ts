@@ -25,7 +25,15 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { PositionDetails } from 'types/position'
 import { calculateGasMargin, isAddressString } from 'utils'
 
-import { addFailedNFTs, resetErrorNFTs, setFarms, setLoading, setPoolFeeData, setUserFarmInfo } from '.'
+import {
+  addFailedNFTs,
+  defaultChainData,
+  resetErrorNFTs,
+  setFarms,
+  setLoading,
+  setPoolFeeData,
+  setUserFarmInfo,
+} from '.'
 import { ElasticFarm, NFTPosition, UserFarmInfo } from './types'
 
 interface SubgraphToken {
@@ -158,15 +166,8 @@ const positionManagerInterface = new Interface(NFTPositionManagerABI.abi)
 
 export const useElasticFarms = () => {
   const { chainId } = useActiveWeb3React()
-  const defaultChainData = useMemo(
-    () => ({
-      loading: false,
-      farms: null,
-      poolFeeLast24h: {},
-    }),
-    [],
-  )
-  return useAppSelector(state => state.elasticFarm)[chainId || 1] || defaultChainData
+  const elasticFarm = useAppSelector(state => state.elasticFarm)
+  return useMemo(() => (chainId ? elasticFarm[chainId] || defaultChainData : defaultChainData), [chainId, elasticFarm])
 }
 
 export const FarmUpdater = ({ interval = true }: { interval?: boolean }) => {
@@ -682,23 +683,22 @@ export const useFarmAction = (address: string) => {
   return { deposit, withdraw, approve, stake, unstake, harvest, emergencyWithdraw }
 }
 
-export const usePostionFilter = (positions: PositionDetails[], validPools: string[]) => {
-  const filterOptions = [
-    {
-      code: 'in_rage',
-      value: t`In range`,
-    },
-    {
-      code: 'out_range',
-      value: t`Out of range`,
-    },
-    {
-      code: 'all',
-      value: t`All positions`,
-    },
-  ]
-
-  const [activeFilter, setActiveFilter] = useState('all')
+const filterOptions = [
+  {
+    code: 'in_rage',
+    value: t`In range`,
+  },
+  {
+    code: 'out_range',
+    value: t`Out of range`,
+  },
+  {
+    code: 'all',
+    value: t`All positions`,
+  },
+] as const
+export const usePositionFilter = (positions: PositionDetails[], validPools: string[]) => {
+  const [activeFilter, setActiveFilter] = useState<typeof filterOptions[number]['code']>('all')
 
   const tokenList = useMemo(() => {
     if (!positions) return []

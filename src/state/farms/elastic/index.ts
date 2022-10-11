@@ -16,13 +16,14 @@ interface ElasticFarmState {
   }
 }
 
-const defaultChainData = {
+export const defaultChainData = {
   loadingUserInfo: false,
   loading: false,
   farms: [],
   poolFeeLast24h: {},
   failedNFTs: [],
-}
+} as ElasticFarmState[number]
+
 const initialState: ElasticFarmState = {}
 
 const slice = createSlice({

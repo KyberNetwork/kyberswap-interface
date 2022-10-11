@@ -23,7 +23,7 @@ import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { usePool } from 'hooks/usePools'
 import useTheme from 'hooks/useTheme'
-import { useElasticFarms, useFailedNFTs, useFarmAction, usePostionFilter } from 'state/farms/elastic/hooks'
+import { useElasticFarms, useFailedNFTs, useFarmAction, usePositionFilter } from 'state/farms/elastic/hooks'
 import { UserPositionFarm } from 'state/farms/elastic/types'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { PositionDetails } from 'types/position'
@@ -227,7 +227,7 @@ function WithdrawModal({
     }
   })
 
-  const { filterOptions, activeFilter, setActiveFilter, eligiblePositions } = usePostionFilter(
+  const { filterOptions, activeFilter, setActiveFilter, eligiblePositions } = usePositionFilter(
     userDepositedNFTs || [],
     poolAddresses,
   )

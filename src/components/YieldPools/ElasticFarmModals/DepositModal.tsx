@@ -22,7 +22,7 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import { usePool } from 'hooks/usePools'
 import { useProAmmPositions } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
-import { useElasticFarms, useFarmAction, usePostionFilter } from 'state/farms/elastic/hooks'
+import { useElasticFarms, useFarmAction, usePositionFilter } from 'state/farms/elastic/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { StyledInternalLink } from 'theme'
 import { PositionDetails } from 'types/position'
@@ -170,7 +170,7 @@ function ProMMDepositNFTModal({
 
   const { positions, loading: positionsLoading } = useProAmmPositions(account)
 
-  const { filterOptions, activeFilter, setActiveFilter, eligiblePositions } = usePostionFilter(
+  const { filterOptions, activeFilter, setActiveFilter, eligiblePositions } = usePositionFilter(
     positions || [],
     poolAddresses,
   )
