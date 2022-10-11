@@ -41,7 +41,7 @@ const getCampaignStatus = ({ endTime, startTime }: CampaignData) => {
   return endTime <= now ? CampaignStatus.ENDED : startTime >= now ? CampaignStatus.UPCOMING : CampaignStatus.ONGOING
 }
 
-const formatLeaderboardData = (data: CampaignLeaderboard, campaignId: number) => {
+const formatLeaderboardData = (data: CampaignLeaderboard) => {
   const leaderboard: CampaignLeaderboard = {
     ...data,
     rankings: data.rankings
@@ -52,10 +52,7 @@ const formatLeaderboardData = (data: CampaignLeaderboard, campaignId: number) =>
             rankNo: item.rankNo,
             rewardAmount: new Fraction(
               item.rewardAmount || ZERO,
-              // TODO: Just hotfix, remove later.
-              campaignId === 8
-                ? JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(6))
-                : JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(item?.Token?.decimals ?? 18)),
+              JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(item?.token?.decimals ?? 18)),
             ),
             rewardAmountUsd: new Fraction(
               parseUnits(item?.rewardAmountUSD?.toString() || '0', RESERVE_USD_DECIMALS).toString(),
@@ -104,7 +101,7 @@ const fetchLeaderBoard = ({
       lookupAddress,
       eligibleOnly: true,
     },
-  }).then(({ data }) => formatLeaderboardData(data.data, campaignId))
+  }).then(({ data }) => formatLeaderboardData(data.data))
 }
 
 const LEADERBOARD_DEFAULT: CampaignLeaderboard = {
