@@ -38,7 +38,7 @@ export const useTokenPrices = (addresses: Array<string>) => {
       ).then(res => res.json())
 
       if (res?.data?.prices?.length) {
-        const formatedPrices = unknownPriceList.map(address => {
+        const formattedPrices = unknownPriceList.map(address => {
           const price = res.data.prices.find(
             (p: { address: string; marketPrice: number; price: number }) => p.address.toLowerCase() === address,
           )
