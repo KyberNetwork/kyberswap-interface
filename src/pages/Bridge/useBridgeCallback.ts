@@ -1,9 +1,11 @@
 import { useMemo } from 'react'
 
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useBridgeContract, useSwapBTCContract, useSwapETHContract } from 'hooks/useContract'
-import { useBridgeState } from 'state/bridge/hooks'
+import { useBridgeState, useOutputValue } from 'state/bridge/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
+import { useTransactionAdder } from 'state/transactions/hooks'
 import { useCurrencyBalance, useETHBalances } from 'state/wallet/hooks'
 import { isAddress } from 'utils'
 
@@ -20,85 +22,83 @@ export function useBridgeCallback(
   typedValue: string | undefined,
   isNative: boolean,
 ) {
-  const [{ tokenOut, tokenIn, chainIdOut, currencyIn }] = useBridgeState()
-  const version = tokenOut?.type
+  const [{ tokenOut, tokenIn, chainIdOut, currencyIn, currencyOut }] = useBridgeState()
+  const outputInfo = useOutputValue(typedValue ?? '0')
   const { account, chainId } = useActiveWeb3React()
-  const toAddress = account
   const bridgeContract = useBridgeContract(isAddress(routerToken), chainIdOut && isNaN(chainIdOut) ? 'V2' : '')
   const ethbalance = useETHBalances(account ? [account] : [])?.[account ?? '']
   const anybalance = useCurrencyBalance(account ?? undefined, currencyIn)
   const balance = isNative ? ethbalance : anybalance
 
   const inputAmount = useMemo(() => tryParseAmount(typedValue, currencyIn ?? undefined), [currencyIn, typedValue])
-
+  const addTransactionWithType = useTransactionAdder()
   return useMemo(() => {
-    if (!bridgeContract || !chainId || !tokenIn || !toAddress || !chainIdOut) return NOT_APPLICABLE
+    if (!bridgeContract || !chainId || !tokenIn || !account || !chainIdOut) return NOT_APPLICABLE
 
     const sufficientBalance = inputAmount && balance && !balance.lessThan(inputAmount)
     return {
       execute: async (useSwapMethods: string) => {
-        if (!sufficientBalance || !inputAmount) return Promise.reject()
-        const results: any = {}
+        console.log(useSwapMethods, tokenIn, tokenOut)
+        const results = { hash: '' }
         try {
+          if (!sufficientBalance || !inputAmount) return Promise.reject('sufficientBalance')
           let promise
-          const params = [inputToken, toAddress, tokenOut?.chainId, { value: `0x${inputAmount.quotient.toString(16)}` }]
-          const params2 = [inputToken, toAddress, `0x${inputAmount.quotient.toString(16)}`, tokenOut?.chainId]
+          const params = [inputToken, account, `0x${inputAmount.quotient.toString(16)}`, tokenOut?.chainId]
           if (useSwapMethods.includes('anySwapOutNative')) {
-            promise = bridgeContract.anySwapOutNative(...params)
+            promise = bridgeContract.anySwapOutNative(inputToken, account, tokenOut?.chainId, {
+              value: `0x${inputAmount.quotient.toString(16)}`,
+            })
           } else if (useSwapMethods.includes('anySwapOutUnderlying')) {
-            promise = bridgeContract.anySwapOutUnderlying(...params2)
+            promise = bridgeContract.anySwapOutUnderlying(...params)
           } else if (useSwapMethods.includes('anySwapOut')) {
-            promise = bridgeContract.anySwapOut(...params2)
+            promise = bridgeContract.anySwapOut(...params)
           }
           const txReceipt = promise ? await promise : Promise.reject('wrong method')
-          if (txReceipt?.hash && account) {
-            const data = {
-              hash: txReceipt.hash.indexOf('0x') === 0 ? txReceipt.hash?.toLowerCase() : txReceipt.hash,
-              chainId,
-              selectChain: chainIdOut,
-              account: account?.toLowerCase(),
-              value: inputAmount.quotient.toString(),
-              formatvalue: inputAmount?.toSignificant(6),
-              to: toAddress.indexOf('0x') === 0 ? toAddress?.toLowerCase() : toAddress,
-              symbol: tokenIn?.symbol,
-              routerToken: routerToken,
-              version: version,
-            }
-            console.log(data)
-            //   recordsTxns(data)
+          if (txReceipt?.hash) {
             results.hash = txReceipt?.hash
+            addTransactionWithType(txReceipt, {
+              type: 'Swap',
+              summary: `${inputAmount.toSignificant(6)} ${tokenIn.symbol} (${
+                NETWORKS_INFO[chainId].name
+              }) to ${tryParseAmount(outputInfo.outputAmount.toString(), currencyOut ?? undefined)?.toSignificant(6)} ${
+                tokenOut?.symbol
+              } (${NETWORKS_INFO[chainIdOut].name})`,
+            })
           }
+          return results
         } catch (error) {
           console.error('Could not swap', error)
+          return Promise.reject(error)
         }
-        return results
       },
       inputError: !sufficientBalance,
     }
   }, [
     bridgeContract,
-    account,
     balance,
     chainId,
     inputAmount,
     inputToken,
-    routerToken,
+    addTransactionWithType,
     tokenIn,
-    toAddress,
+    account,
     chainIdOut,
-    version,
     tokenOut,
+    currencyOut,
+    outputInfo.outputAmount,
   ])
 }
-
+// todo loading popup comfirm/loading
+// todo clear screen
 export function useCrossBridgeCallback(
   toAddress: string | undefined | null,
   inputToken: string | undefined,
   typedValue: string | undefined,
 ): { execute?: undefined | (() => Promise<void>); inputError?: boolean } {
-  const [{ tokenOut, chainIdOut, tokenIn, currencyIn }] = useBridgeState()
+  const [{ tokenOut, chainIdOut, tokenIn, currencyIn, currencyOut }] = useBridgeState()
+  const addTransactionWithType = useTransactionAdder()
+  const outputInfo = useOutputValue(typedValue ?? '0')
   const txnsType = tokenOut?.type
-  const pairid = tokenOut?.pairid
   const { chainId, account, library } = useActiveWeb3React()
   const tokenBalance = useCurrencyBalance(account ?? undefined, currencyIn)
   const ethBalance = useETHBalances(account ? [account] : [])?.[account ?? '']
@@ -114,16 +114,15 @@ export function useCrossBridgeCallback(
 
     return {
       execute: async () => {
-        if (!sufficientBalance || !inputAmount) return Promise.reject()
         try {
+          if (!sufficientBalance || !inputAmount) return Promise.reject('sufficientBalance')
           let txReceipt: any
           if (txnsType === 'swapin') {
             if (isAddress(inputToken) && tokenIn?.tokenType !== 'NATIVE') {
               if (contractETH) {
                 txReceipt = await contractETH.transfer(toAddress, `0x${inputAmount.quotient.toString(16)}`)
-              } else {
-                return
               }
+              return
             } else {
               const data: any = {
                 from: account,
@@ -134,53 +133,42 @@ export function useCrossBridgeCallback(
               txReceipt = hash && hash.toString().indexOf('0x') === 0 ? { hash } : ''
             }
           } else {
-            if (chainIdOut && isNaN(chainIdOut)) {
+            if (isNaN(chainIdOut)) {
               if (contractBTC) {
                 txReceipt = await contractBTC.Swapout(`0x${inputAmount.quotient.toString(16)}`, toAddress)
-              } else {
-                return
               }
+              return
             } else {
               if (contractETH) {
                 txReceipt = await contractETH.Swapout(`0x${inputAmount.quotient.toString(16)}`, toAddress)
-              } else {
-                return
               }
+              return
             }
           }
-          const txData: any = { hash: txReceipt?.hash }
-          if (txData.hash && account) {
-            let srcChainID = chainId
-            let destChainID = chainIdOut
-            if (txnsType === 'swapout') {
-              srcChainID = chainIdOut
-              destChainID = chainId
-            }
-
-            const rdata = {
-              hash: txData.hash,
-              chainId: srcChainID,
-              selectChain: destChainID,
-              account: account?.toLowerCase(),
-              value: inputAmount.quotient.toString(),
-              formatvalue: inputAmount?.toSignificant(6),
-              to: receiveAddress,
-              symbol: '',
-              version: txnsType,
-              pairid: pairid,
-            }
-            console.log(rdata)
-
-            // recordsTxns(rdata)
+          const txData = { hash: txReceipt?.hash }
+          if (txData.hash) {
+            addTransactionWithType(txReceipt, {
+              type: 'Swap',
+              summary: `${inputAmount.toSignificant(6)} ${tokenIn?.symbol} (${
+                NETWORKS_INFO[chainId].name
+              }) to ${tryParseAmount(outputInfo.outputAmount.toString(), currencyOut ?? undefined)?.toSignificant(6)} ${
+                tokenOut?.symbol
+              } (${NETWORKS_INFO[chainIdOut].name})`,
+            })
           }
         } catch (error) {
           console.log('Could not swapout', error)
+          return Promise.reject(error)
         }
       },
       inputError: !sufficientBalance,
     }
   }, [
     chainId,
+    addTransactionWithType,
+    tokenOut?.symbol,
+    outputInfo.outputAmount,
+    currencyOut,
     contractBTC,
     contractETH,
     tokenIn,
@@ -191,7 +179,6 @@ export function useCrossBridgeCallback(
     toAddress,
     inputToken,
     chainIdOut,
-    pairid,
     library,
     receiveAddress,
   ])

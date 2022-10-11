@@ -13,7 +13,9 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { OutputBridgeInfo, useBridgeState } from 'state/bridge/hooks'
-import { formattedNum, shortenAddress } from 'utils'
+import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
+import { tryParseAmount } from 'state/swap/hooks'
+import { shortenAddress } from 'utils'
 
 const Container = styled.div`
   padding: 25px 30px;
@@ -37,6 +39,8 @@ const Label = styled.div`
   color: ${({ theme }) => theme.subText};
   font-weight: 500;
 `
+const formatValue = (amount: string, token: WrappedTokenInfo | undefined) =>
+  !amount || !token ? '' : tryParseAmount(amount, token)?.toSignificant()
 
 export default memo(function Disclaimer({
   isOpen,
@@ -60,7 +64,7 @@ export default memo(function Disclaimer({
         <Value>
           <CurrencyLogo currency={currencyIn} style={styleLogo} />
           <Text>
-            {formattedNum(outputInfo.inputAmount, false, 5)} {tokenIn?.symbol}
+            {formatValue(outputInfo.inputAmount, currencyIn)} {tokenIn?.symbol}
           </Text>
         </Value>
       ),
@@ -89,7 +93,7 @@ export default memo(function Disclaimer({
         <Value>
           <CurrencyLogo currency={currencyOut} style={styleLogo} />
           <Text>
-            {formattedNum(outputInfo?.outputAmount?.toString() ?? '0', false, 5)} {tokenOut?.symbol}
+            {formatValue(outputInfo?.outputAmount?.toString(), currencyOut)} {tokenOut?.symbol}
           </Text>
         </Value>
       ),
@@ -104,6 +108,15 @@ export default memo(function Disclaimer({
       ),
     },
   ]
+  // todo use it
+  //   <TransactionConfirmationModal
+  //   hash={txHash ? txHash : ''}
+  //   isOpen={showConfirm}
+  //   onDismiss={handleConfirmDismiss}
+  //   attemptingTxn={attemptingTxn}
+  //   content={confirmationContent}
+  //   pendingText=""
+  // />
   return (
     <ModalCenter isOpen={isOpen} onDismiss={onDismiss} width={'480px'} maxWidth="calc(100vw - 20px)">
       <Container>
@@ -144,7 +157,7 @@ export default memo(function Disclaimer({
               <Label>
                 <Trans>Bridge Fee</Trans>
               </Label>
-              <Value>{outputInfo.fee || '--'}</Value>
+              <Value>~ {outputInfo.fee || '--'}</Value>
             </Row>
           </Flex>
 

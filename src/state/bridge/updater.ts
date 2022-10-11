@@ -1,5 +1,7 @@
 import { useCallback, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 
+import { AppPaths } from 'pages/App'
 import {
   BridgeLocalStorageKeys,
   fetchTokenVersion,
@@ -17,6 +19,7 @@ import { useBridgeState } from './hooks'
 export default function Updater(): null {
   const { chainId } = useActiveWeb3React()
   const [{ tokenIn, chainIdOut }, setBridgeState] = useBridgeState()
+  const { pathname } = useLocation()
   const formatAndSaveToken = useCallback(
     (tokens: any) => {
       const result: WrappedTokenInfo[] = []
@@ -41,13 +44,14 @@ export default function Updater(): null {
           }),
         )
       })
-      setBridgeState({ listTokenIn: result })
+      setBridgeState({ listTokenIn: result, tokenIn: result[0] })
     },
     [chainId, setBridgeState],
   )
 
+  // todo prevent call many time
   useEffect(() => {
-    const checkTokenVerison = async () => {
+    const fetchData = async () => {
       try {
         const oldVersion = getBridgeLocalstorage(BridgeLocalStorageKeys.TOKEN_VERSION)
         const version = await fetchTokenVersion()
@@ -56,7 +60,7 @@ export default function Updater(): null {
           setBridgeLocalstorage(BridgeLocalStorageKeys.TOKEN_VERSION, version)
         }
         getChainlist(isStaleData)
-          .then(chainIds => setBridgeState({ listTokenIn: chainIds }))
+          .then(listChainIn => setBridgeState({ listChainIn }))
           .catch(console.error)
         if (chainId) {
           getTokenlist(chainId, isStaleData)
@@ -67,8 +71,11 @@ export default function Updater(): null {
         console.error(error)
       }
     }
-    checkTokenVerison()
-  }, [chainId, setBridgeState, formatAndSaveToken])
+
+    if (pathname.startsWith(AppPaths.BRIDGE) && chainId) {
+      fetchData()
+    }
+  }, [chainId, setBridgeState, formatAndSaveToken, pathname])
 
   useEffect(() => {
     const destChainInfo = tokenIn?.destChains || {}

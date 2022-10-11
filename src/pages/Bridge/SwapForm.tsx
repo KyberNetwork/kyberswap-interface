@@ -19,7 +19,7 @@ import { AutoRow, RowBetween } from 'components/Row'
 import Tooltip from 'components/Tooltip'
 import { AdvancedSwapDetailsDropdownBridge } from 'components/swapv2/AdvancedSwapDetailsDropdown'
 import { ArrowWrapper, BottomGrouping, SwapFormWrapper, Wrapper } from 'components/swapv2/styleds'
-import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
+import { SUPPORTED_NETWORKS } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
@@ -36,9 +36,9 @@ import { formattedNum } from 'utils'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 
 import AmountWarning from './AmountWarning'
+import PoolInfo from './PoolInfo'
 import ReviewModal from './ReviewModal'
 import SelectNetwork from './SelectNetwork'
-import { MultiChainTokenInfo } from './type'
 import { useBridgeCallback, useCrossBridgeCallback } from './useBridgeCallback'
 
 const AppBodyWrapped = styled(BodyWrapper)`
@@ -47,40 +47,6 @@ const AppBodyWrapped = styled(BodyWrapper)`
   padding: 16px 16px 24px;
   margin-top: 0;
 `
-
-const PoolInfo = ({
-  chainId,
-  tokenIn,
-  poolValue,
-  poolShare,
-}: {
-  chainId: ChainId | undefined
-  tokenIn: MultiChainTokenInfo | undefined
-  poolValue: string | number
-  poolShare: string | number
-}) => {
-  const theme = useTheme()
-  if (!poolValue) return null
-  return (
-    <Flex
-      alignItems="center"
-      justifyContent={'space-between'}
-      fontSize={12}
-      fontWeight={500}
-      color={theme.subText}
-      width="100%"
-    >
-      <Text>
-        <Trans>{chainId ? `${NETWORKS_INFO[chainId].name} Pool: ${poolValue} ${tokenIn?.symbol ?? ''}` : ''}</Trans>
-      </Text>
-      <Text>
-        <Trans>
-          Your Pool Share: {poolShare} {tokenIn?.symbol ?? ''}
-        </Trans>
-      </Text>
-    </Flex>
-  )
-}
 
 const formatPoolValue = (amount: string, decimals: number) =>
   Number(amount) ? new Fraction(amount, JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals ?? 18))).toFixed(3) : 0
@@ -108,7 +74,7 @@ export default function SwapForm() {
     poolValueOut: 0,
     poolShareOut: 0,
   })
-
+  // todo  chưa tính được usd out in (aaev)
   const theme = useTheme()
 
   const destChainInfo = useMemo(() => tokenIn?.destChains || {}, [tokenIn])
@@ -120,8 +86,17 @@ export default function SwapForm() {
   const balances = useCurrencyBalances(account || undefined, pair)
   const usdPrices = useTokensPrice(pair)
 
-  const estimatedUsdIn = balances[0] && usdPrices[0] ? parseFloat(balances[0].toSignificant(6)) * usdPrices[0] : 0
-  const estimatedUsdOut = balances[1] && usdPrices[1] ? parseFloat(balances[1].toSignificant(6)) * usdPrices[1] : 0
+  const outputInfo = useOutputValue(inputAmount)
+
+  const estimatedUsdIn =
+    currencyIn && usdPrices[0] && Number(inputAmount)
+      ? parseFloat(tryParseAmount(inputAmount, currencyIn)?.toSignificant(6) || '0') * usdPrices[0]
+      : ''
+  const estimatedUsdOut =
+    currencyOut && usdPrices[1] && Number(outputInfo.outputAmount)
+      ? parseFloat(tryParseAmount(outputInfo.outputAmount.toString(), currencyOut)?.toSignificant(6) || '0') *
+        usdPrices[1]
+      : ''
 
   const maxAmountInput: CurrencyAmount<Currency> | undefined = maxAmountSpend(balances[0])
 
@@ -259,7 +234,8 @@ export default function SwapForm() {
   )
 
   const onClear = () => {
-    // reset input output
+    setInputAmount('0')
+    setShowConfirm(false)
   }
 
   const showPreview = () => {
@@ -283,8 +259,6 @@ export default function SwapForm() {
     })
   }, [useSwapMethods, onWrapCrossBridge, onWrapBridge])
 
-  const outputInfo = useOutputValue(inputAmount)
-
   const handleMaxInput = useCallback(() => {
     maxAmountInput && setInputAmount(maxAmountInput.toExact())
   }, [maxAmountInput])
@@ -296,11 +270,7 @@ export default function SwapForm() {
   const approveSpender = (() => {
     const isRouter = !['swapin', 'swapout'].includes(tokenOut?.type ?? '')
     if (tokenOut?.isApprove) {
-      if (isRouter) {
-        return tokenOut.spender
-      } else {
-        return tokenOut?.fromanytoken?.address
-      }
+      return isRouter ? tokenOut.spender : tokenOut?.fromanytoken?.address
     }
     return undefined
   })()
@@ -432,7 +402,7 @@ export default function SwapForm() {
                               text="You need to first allow KyberSwaps smart contracts to use your KNC. This has to be done only once for each token."
                             />
                             <Text marginLeft={'5px'}>
-                              <Trans>Approve ${tokenIn?.symbol}</Trans>
+                              <Trans>Approve {tokenIn?.symbol}</Trans>
                             </Text>
                           </Flex>
                         )}
@@ -455,7 +425,7 @@ export default function SwapForm() {
                 )
               )}
               {!showApproveFlow && account && (
-                <ButtonError onClick={handleSwap} disabled={!!inputError || approval !== ApprovalState.APPROVED}>
+                <ButtonError onClick={showPreview} disabled={!!inputError || approval !== ApprovalState.APPROVED}>
                   <Text fontWeight={500}>{t`Review Transfer`}</Text>
                 </ButtonError>
               )}
