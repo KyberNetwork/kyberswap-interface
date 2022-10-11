@@ -39,7 +39,6 @@ import {
 type ModalType = 'deposit' | 'withdraw' | 'stake' | 'unstake' | 'harvest' | 'forcedWithdraw'
 
 // this address exists on both Polygon and Avalanche
-// const affectedFairlaunchAddress = '0x5C503D4b7DE0633f031229bbAA6A5e4A31cc35d8'
 
 function ElasticFarms({ active }: { active: boolean }) {
   const theme = useTheme()
