@@ -69,7 +69,7 @@ const PendingTransfers = () => {
             lineHeight: '24px',
           }}
         >
-          You don&apos;t have any pending transfers
+          You don&apos;t have any active transfers
         </Text>
       </Flex>
     )

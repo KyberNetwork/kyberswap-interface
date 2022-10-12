@@ -148,9 +148,9 @@ export function AdvancedSwapDetails({ trade, feeConfig }: AdvancedSwapDetailsPro
 
 export function TradeSummaryBridge({ outputInfo }: { outputInfo: OutputBridgeInfo }) {
   const theme = useTheme()
-  const [{ tokenOut, tokenIn }] = useBridgeState()
+  const [{ tokenOut }] = useBridgeState()
 
-  const [show, setShow] = useState(!!tokenOut && !!tokenIn)
+  const [show, setShow] = useState(true)
   const fee = formattedNum(outputInfo?.fee?.toString(), false, 5)
   return (
     <>
@@ -193,7 +193,6 @@ export function TradeSummaryBridge({ outputInfo }: { outputInfo: OutputBridgeInf
               </TYPE.black>
 
               <InfoHelper
-                placement="top-start"
                 size={14}
                 text={
                   !tokenOut ? (
@@ -205,20 +204,20 @@ export function TradeSummaryBridge({ outputInfo }: { outputInfo: OutputBridgeInf
                       </Text>
                       {tokenOut?.MinimumSwapFee === tokenOut?.MaximumSwapFee ? (
                         outputInfo.fee && (
-                          <p>
+                          <Text marginTop={'5px'}>
                             <Trans>
                               Gas Fee: {`${fee} ${tokenOut.symbol} `}
                               for your cross-chain transaction on destination chain
                             </Trans>
-                          </p>
+                          </Text>
                         )
                       ) : (
-                        <p>
+                        <Text marginTop={'5px'}>
                           <Trans>
                             Min Bridge Fee is {formattedNum(tokenOut.MinimumSwapFee)} {tokenOut.symbol} <br />
                             Max Bridge Fee is {formattedNum(tokenOut.MaximumSwapFee)} {tokenOut.symbol}
                           </Trans>
-                        </p>
+                        </Text>
                       )}
                     </>
                   )

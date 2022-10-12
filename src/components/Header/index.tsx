@@ -11,6 +11,7 @@ import { ReactComponent as MasterCard } from 'assets/buy-crypto/master-card.svg'
 import { ReactComponent as Visa } from 'assets/buy-crypto/visa.svg'
 import MultichainLogoDark from 'assets/images/multichain_black.png'
 import MultichainLogoLight from 'assets/images/multichain_white.png'
+import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
 import { ReactComponent as Dollar } from 'assets/svg/dollar.svg'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
@@ -391,7 +392,7 @@ export default function Header() {
                 style={{ flexDirection: 'column', width: '100%' }}
               >
                 <Flex alignItems="center" sx={{ gap: '10px' }} justifyContent="space-between">
-                  <Repeat size={16} />
+                  <BridgeIcon height={15} />
                   <Flex alignItems={'center'} style={{ flex: 1 }} justifyContent={'space-between'}>
                     <Text>
                       <Trans>Bridge</Trans>

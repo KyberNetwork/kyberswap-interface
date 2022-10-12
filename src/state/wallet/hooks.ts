@@ -1,10 +1,10 @@
-import { ChainId, Currency, CurrencyAmount, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 import { useMemo } from 'react'
 
 import { EMPTY_ARRAY, EMPTY_OBJECT } from 'constants/index'
 import { nativeOnChain } from 'constants/tokens'
-import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
+import { isTokenNative } from 'utils/tokenInfo'
 
 import ERC20_INTERFACE from '../../constants/abis/erc20'
 import { useActiveWeb3React } from '../../hooks'
@@ -114,15 +114,6 @@ export function useTokenBalance(account?: string, token?: Token): TokenAmount | 
   const tokenBalances = useTokenBalances(account, [token])
   if (!token) return undefined
   return tokenBalances[token.address]
-}
-
-export const isTokenNative = (currency: Currency | WrappedTokenInfo | undefined, chainId: ChainId | undefined) => {
-  if (currency?.isNative) return true
-  return chainId
-    ? nativeOnChain(chainId).wrapped.address === currency?.address &&
-        currency instanceof WrappedTokenInfo &&
-        currency.multichainInfo?.tokenType === 'NATIVE'
-    : false
 }
 
 export function useCurrencyBalances(

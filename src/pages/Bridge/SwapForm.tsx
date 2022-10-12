@@ -19,9 +19,10 @@ import { AutoRow, RowBetween } from 'components/Row'
 import Tooltip from 'components/Tooltip'
 import { AdvancedSwapDetailsDropdownBridge } from 'components/swapv2/AdvancedSwapDetailsDropdown'
 import { ArrowWrapper, BottomGrouping, SwapFormWrapper, Wrapper } from 'components/swapv2/styleds'
-import { SUPPORTED_NETWORKS } from 'constants/networks'
+import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
+import { useActiveNetwork } from 'hooks/useActiveNetwork'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
@@ -32,6 +33,7 @@ import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
+import { ExternalLink } from 'theme'
 import { formattedNum } from 'utils'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 
@@ -46,7 +48,7 @@ import { useBridgeCallback, useBridgeRouterCallback } from './useBridgeCallback'
 const AppBodyWrapped = styled(BodyWrapper)`
   box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.04);
   z-index: ${Z_INDEXS.SWAP_FORM};
-  padding: 16px 16px 24px;
+  padding: 20px 16px;
   margin-top: 0;
 `
 
@@ -55,6 +57,7 @@ const formatPoolValue = (amount: string, decimals: number) =>
 
 export default function SwapForm() {
   const { account, chainId } = useActiveWeb3React()
+  const { changeNetwork } = useActiveNetwork()
   const [{ listChainIn }] = useBridgeState()
   const [{ tokenIn, tokenOut, chainIdOut, currencyIn, currencyOut, listTokenOut }] = useBridgeState()
   const { resetBridgeState, setBridgeState } = useBridgeStateHandler()
@@ -168,28 +171,22 @@ export default function SwapForm() {
   )
 
   const inputError = useMemo(() => {
-    if (!tokenIn || !chainIdOut || !tokenOut || inputAmount === '0') {
+    const inputNumber = Number(inputAmount)
+    if (!tokenIn || !chainIdOut || !tokenOut || inputNumber === 0) {
       return
     }
-    const inputNumber = Number(inputAmount)
+
     if (isNaN(inputNumber)) {
       return {
         state: 'error',
         tip: t`Input amount is not valid`,
       }
     }
-    const isWrapInputError =
-      wrapInputErrorBridge || wrapInputErrorCrossBridge ? t`Insufficient ${tokenIn?.symbol} balance` : ''
-    if (isWrapInputError) {
-      return {
-        state: 'error',
-        tip: isWrapInputError,
-      }
-    }
+
     if (inputNumber < Number(tokenOut.MinimumSwap)) {
       return {
         state: 'error',
-        tip: t`The crosschain amount must be greater than ${formattedNum(tokenOut.MinimumSwap, false, 5)} ${
+        tip: t`The amount to bridge must be more than ${formattedNum(tokenOut.MinimumSwap, false, 5)} ${
           tokenIn.symbol
         }`,
       }
@@ -197,7 +194,7 @@ export default function SwapForm() {
     if (inputNumber > Number(tokenOut.MaximumSwap)) {
       return {
         state: 'error',
-        tip: t`The crosschain amount must be less than ${formattedNum(tokenOut.MaximumSwap)} ${tokenIn.symbol}`,
+        tip: t`The amount to bridge must be less than ${formattedNum(tokenOut.MaximumSwap)} ${tokenIn.symbol}`,
       }
     }
     if (tokenOut.isLiquidity && tokenOut.underlying && inputNumber > Number(poolValue.poolValueOut)) {
@@ -212,6 +209,16 @@ export default function SwapForm() {
         tip: t`Note: Your transfer amount (${formattedNum(inputAmount, false, 5)} ${
           tokenIn.symbol
         }) is more than 70% of the available liquidity (${poolValue.poolValueOut} ${tokenOut.symbol})!`,
+      }
+    }
+    const isWrapInputError =
+      (wrapInputErrorBridge || wrapInputErrorCrossBridge) && inputNumber > 0
+        ? t`Insufficient ${tokenIn?.symbol} balance`
+        : ''
+    if (isWrapInputError) {
+      return {
+        state: 'error',
+        tip: isWrapInputError,
       }
     }
     return
@@ -234,7 +241,11 @@ export default function SwapForm() {
 
   const showPreview = () => {
     setSwapState(state => ({ ...state, showConfirm: true, swapErrorMessage: '' }))
-    mixpanelHandler(MIXPANEL_TYPE.BRIDGE_CLICK_REVIEW_TRANSFER)
+    if (chainId && chainIdOut)
+      mixpanelHandler(MIXPANEL_TYPE.BRIDGE_CLICK_REVIEW_TRANSFER, {
+        from_network: NETWORKS_INFO[chainId].name,
+        to_network: NETWORKS_INFO[chainIdOut].name,
+      })
   }
   const hidePreview = useCallback(() => {
     setSwapState(state => ({ ...state, showConfirm: false }))
@@ -321,8 +332,8 @@ export default function SwapForm() {
       >
         <AppBodyWrapped>
           <Wrapper>
-            <Flex flexDirection="column" sx={{ gap: '0.75rem' }}>
-              <SelectNetwork chainIds={listChainIn} onSelectNetwork={onSelectDestNetwork} selectedChainId={chainId} />
+            <Flex flexDirection="column" sx={{ gap: '1rem' }}>
+              <SelectNetwork chainIds={listChainIn} onSelectNetwork={changeNetwork} selectedChainId={chainId} />
               <Tooltip text={inputError?.tip} show={inputError?.state === 'error'} placement="top">
                 <CurrencyInputPanelBridge
                   error={inputError?.state === 'error'}
@@ -341,7 +352,7 @@ export default function SwapForm() {
                 poolValue={poolValue.poolValueIn}
                 poolShare={poolValue.poolShareIn}
               />
-              <Flex justifyContent={'space-between'}>
+              <Flex justifyContent={'space-between'} alignItems="flex-end">
                 <SelectNetwork
                   chainIds={listDestChainIds}
                   onSelectNetwork={onSelectDestNetwork}
@@ -432,11 +443,13 @@ export default function SwapForm() {
                   <Text color={theme.subText} fontSize={12}>
                     Powered by
                   </Text>
-                  <img
-                    src={isDark ? MultichainLogoLight : MultichainLogoDark}
-                    alt="kyberswap with multichain"
-                    height={13}
-                  />
+                  <ExternalLink href="https://multichain.org/">
+                    <img
+                      src={isDark ? MultichainLogoLight : MultichainLogoDark}
+                      alt="kyberswap with multichain"
+                      height={13}
+                    />
+                  </ExternalLink>
                 </Flex>
               </Flex>
             </BottomGrouping>

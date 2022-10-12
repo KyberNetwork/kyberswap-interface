@@ -713,7 +713,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
         }
         // todo params các cái này, còn mấy cái track nữa
         case MIXPANEL_TYPE.BRIDGE_CLICK_REVIEW_TRANSFER: {
-          mixpanel.track('Bridge - Review Transfer Click')
+          mixpanel.track('Bridge - Review Transfer Click', payload)
           break
         }
         case MIXPANEL_TYPE.BRIDGE_CLICK_TRANSFER: {
@@ -1050,6 +1050,9 @@ export const useGlobalMixpanelEvents = () => {
           break
         case 'buy-crypto':
           pageName = 'Buy Crypto'
+          break
+        case 'bridge':
+          pageName = 'Bridge'
           break
         default:
           break

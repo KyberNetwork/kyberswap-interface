@@ -2,8 +2,9 @@ import { ChainId, Currency, CurrencyAmount, Token, TokenAmount } from '@kyberswa
 import { useMemo } from 'react'
 
 import { useActiveWeb3React } from 'hooks'
+import { isTokenNative } from 'utils/tokenInfo'
 
-import { isTokenNative, useAllTokenBalances, useETHBalances } from '../../state/wallet/hooks'
+import { useAllTokenBalances, useETHBalances } from '../../state/wallet/hooks'
 
 // compare two token amounts with highest one coming first
 function balanceComparator(

@@ -14,6 +14,7 @@ import {
 import { MultiChainTokenInfo } from 'pages/Bridge/type'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { isAddress } from 'utils'
+import { isTokenNative } from 'utils/tokenInfo'
 
 import { useActiveWeb3React } from '../../hooks'
 import { useBridgeState } from './hooks'
@@ -24,6 +25,7 @@ export default function Updater(): null {
   const { pathname } = useLocation()
   const formatAndSaveToken = useCallback(
     (tokens: any, chainIdRequest: ChainId) => {
+      let native: WrappedTokenInfo | undefined
       if (chainId !== chainIdRequest || !chainIdRequest) return // prevent api 1 call first but finished later
       const result: WrappedTokenInfo[] = []
       Object.keys(tokens).forEach(key => {
@@ -31,7 +33,9 @@ export default function Updater(): null {
         const { address, logoUrl, destChains, name, decimals, symbol } = token
 
         if (!destChains) return
-        // todo
+        // todo test unlimit pool
+        // todo move this
+        // todo emt sao chưa format pool
         Object.keys(destChains).forEach(chain => {
           Object.keys(destChains[chain]).forEach(address => {
             const info = destChains[chain][address]
@@ -51,19 +55,21 @@ export default function Updater(): null {
 
         token.key = key
         token.chainId = chainIdRequest
-        result.push(
-          new WrappedTokenInfo({
-            chainId: chainIdRequest,
-            decimals,
-            symbol,
-            name,
-            address,
-            logoURI: logoUrl,
-            multichainInfo: token,
-          }),
-        )
+        const wrappedToken = new WrappedTokenInfo({
+          chainId: chainIdRequest,
+          decimals,
+          symbol,
+          name,
+          address,
+          logoURI: logoUrl,
+          multichainInfo: token,
+        })
+        result.push(wrappedToken)
+        if (isTokenNative(wrappedToken, chainIdRequest)) {
+          native = wrappedToken
+        }
       })
-      setBridgeState({ listTokenIn: result, tokenIn: result[0] })
+      setBridgeState({ listTokenIn: result, tokenIn: native || result[0] })
     },
     [setBridgeState, chainId],
   )

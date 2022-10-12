@@ -1,12 +1,13 @@
 import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
-import { AlertTriangle, X } from 'react-feather'
+import { AlertTriangle } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ButtonWarning } from 'components/Button'
 import { ModalCenter } from 'components/Modal'
 import useTheme from 'hooks/useTheme'
+import { ExternalLink } from 'theme'
 
 import { BridgeLocalStorageKeys, getBridgeLocalstorage, setBridgeLocalstorage } from './helpers'
 
@@ -15,6 +16,7 @@ const Container = styled.div`
 `
 const TextWrapper = styled.p`
   line-height: 20px;
+  font-size: 14px;
 `
 export default function Disclaimer() {
   const showed = getBridgeLocalstorage(BridgeLocalStorageKeys.SHOWED_DISCLAIMED)
@@ -26,13 +28,12 @@ export default function Disclaimer() {
     setShow(false)
   }
   return (
-    <ModalCenter isOpen={show} onDismiss={onDismiss}>
+    <ModalCenter isOpen={show}>
       <Container>
         <Flex justifyContent={'space-between'}>
           <Flex color={theme.warning} alignItems="center" style={{ gap: 8 }}>
             <AlertTriangle size={20} /> <Text fontSize={20}>{t`Disclaimer`}</Text>
           </Flex>
-          <X onClick={onDismiss} style={{ cursor: 'pointer' }} color={theme.subText} />
         </Flex>
         <TextWrapper>
           <Trans>
@@ -42,9 +43,9 @@ export default function Disclaimer() {
         </TextWrapper>
         <TextWrapper>
           <Trans>
-            Multichain is a well-known cross-chain router protocol that facilitates transfer of tokens between chains.
-            However, in the event of a security breach on our partners platform, KyberSwap won&apos;t assume any
-            liability for any losses incurred.
+            <ExternalLink href="https://multichain.org/">Multichain</ExternalLink> is a well-known cross-chain router
+            protocol that facilitates transfer of tokens between chains. However, in the event of a security breach on
+            our partners platform, KyberSwap won&apos;t assume any liability for any losses incurred.
           </Trans>
         </TextWrapper>
         <ButtonWarning style={{ marginTop: 20 }} onClick={onDismiss}>

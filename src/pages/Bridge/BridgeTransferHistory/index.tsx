@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import { rgba } from 'polished'
@@ -158,7 +159,7 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
             lineHeight: '24px',
           }}
         >
-          Your transfer history is empty
+          <Trans>You haven&apos;t made any transfers yet</Trans>
         </Text>
       </Flex>
     )
