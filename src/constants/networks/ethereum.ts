@@ -19,7 +19,7 @@ const ethereumInfo: EVMNetworkInfo = {
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
   classicClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-ethereum'),
-  elasticClient: createClient('https://api.thegraph.com/subgraphs/name/viet-nv/kyberswap-elastic-ethereum'),
+  elasticClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-mainnet'),
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-ethereum'),
   etherscanUrl: 'https://etherscan.io',
   etherscanName: 'Etherscan',

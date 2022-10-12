@@ -17,7 +17,7 @@ const maticInfo: EVMNetworkInfo = {
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
   classicClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-polygon'),
-  elasticClient: createClient('https://api.thegraph.com/subgraphs/name/viet-nv/kyberswap-elastic-matic'),
+  elasticClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-matic'),
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-polygon'),
   etherscanUrl: 'https://polygonscan.com',
   etherscanName: 'Polygonscan',
