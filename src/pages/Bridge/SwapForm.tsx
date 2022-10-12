@@ -28,7 +28,6 @@ import useTheme from 'hooks/useTheme'
 import { BodyWrapper } from 'pages/AppBody'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useBridgeState, useBridgeStateHandler, useOutputValue } from 'state/bridge/hooks'
-import { usePoolBridge } from 'state/bridge/pool'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
@@ -40,6 +39,7 @@ import AmountWarning from './AmountWarning'
 import ComfirmBridgeModal from './ComfirmBridgeModal'
 import PoolInfo from './PoolInfo'
 import SelectNetwork from './SelectNetwork'
+import { usePoolBridge } from './pool'
 import { BridgeSwapState } from './type'
 import { useBridgeCallback, useBridgeRouterCallback } from './useBridgeCallback'
 
@@ -117,7 +117,7 @@ export default function SwapForm() {
   }, [setBridgeState, tokenIn?.destChains])
 
   useEffect(() => {
-    setBridgeState({ tokenOut: listTokenOut[0] })
+    setBridgeState({ tokenOut: listTokenOut[0] || null })
   }, [setBridgeState, listTokenOut])
 
   useEffect(() => {

@@ -13,6 +13,7 @@ import {
 } from 'pages/Bridge/helpers'
 import { MultiChainTokenInfo } from 'pages/Bridge/type'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
+import { isAddress } from 'utils'
 
 import { useActiveWeb3React } from '../../hooks'
 import { useBridgeState } from './hooks'
@@ -27,8 +28,7 @@ export default function Updater(): null {
       const result: WrappedTokenInfo[] = []
       Object.keys(tokens).forEach(key => {
         const { address, logoUrl, destChains, name, decimals, symbol } = tokens[key] as MultiChainTokenInfo
-        if (!destChains || Object.keys(destChains).length === 0) {
-          delete tokens[key]
+        if (!destChains || Object.keys(destChains).length === 0 || !isAddress(address)) {
           return
         }
         tokens[key].key = key
@@ -98,6 +98,7 @@ export default function Updater(): null {
       const token = { ...map[hash] }
       token.key = hash
       const { decimals, name, address, symbol } = token as MultiChainTokenInfo
+      if (!isAddress(address)) return
       listTokenOut.push(
         new WrappedTokenInfo({
           chainId,
