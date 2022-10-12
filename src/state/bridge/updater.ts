@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useCallback, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 
@@ -21,20 +22,20 @@ export default function Updater(): null {
   const [{ tokenIn, chainIdOut }, setBridgeState] = useBridgeState()
   const { pathname } = useLocation()
   const formatAndSaveToken = useCallback(
-    (tokens: any) => {
+    (tokens: any, chainIdRequest: ChainId) => {
+      if (chainId !== chainIdRequest || !chainIdRequest) return // prevent api 1 call first but finished later
       const result: WrappedTokenInfo[] = []
       Object.keys(tokens).forEach(key => {
-        if (!chainId) return
         const { address, logoUrl, destChains, name, decimals, symbol } = tokens[key] as MultiChainTokenInfo
         if (!destChains || Object.keys(destChains).length === 0) {
           delete tokens[key]
           return
         }
         tokens[key].key = key
-        tokens[key].chainId = chainId
+        tokens[key].chainId = chainIdRequest
         result.push(
           new WrappedTokenInfo({
-            chainId,
+            chainId: chainIdRequest,
             decimals,
             symbol,
             name,
@@ -46,26 +47,34 @@ export default function Updater(): null {
       })
       setBridgeState({ listTokenIn: result, tokenIn: result[0] })
     },
-    [chainId, setBridgeState],
+    [setBridgeState, chainId],
   )
 
-  // todo prevent call many time
   useEffect(() => {
     const fetchData = async () => {
       try {
         const oldVersion = getBridgeLocalstorage(BridgeLocalStorageKeys.TOKEN_VERSION)
-        const version = await fetchTokenVersion()
-        const isStaleData = oldVersion !== version
+        let version
+        try {
+          version = await fetchTokenVersion()
+        } catch (error) {}
+
+        const isStaleData = oldVersion !== version || !version
         if (isStaleData) {
           setBridgeLocalstorage(BridgeLocalStorageKeys.TOKEN_VERSION, version)
         }
-        getChainlist(isStaleData)
-          .then(listChainIn => setBridgeState({ listChainIn }))
-          .catch(console.error)
-        if (chainId) {
-          getTokenlist(chainId, isStaleData)
-            .then(tokens => formatAndSaveToken(tokens))
-            .catch(console.error)
+
+        const data = await Promise.allSettled([
+          getChainlist(isStaleData),
+          chainId ? getTokenlist(chainId, isStaleData) : Promise.reject(),
+        ])
+        if (data[0].status === 'fulfilled') {
+          const listChainIn = data[0].value
+          setBridgeState({ listChainIn })
+        }
+        if (data[1].status === 'fulfilled' && chainId) {
+          const tokens = data[1].value
+          formatAndSaveToken(tokens, chainId)
         }
       } catch (error) {
         console.error(error)

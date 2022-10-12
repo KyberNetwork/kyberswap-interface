@@ -369,7 +369,6 @@ interface CurrencyInputPanelBridgeProps {
   onCurrencySelect: (currency: WrappedTokenInfo) => void
   disabledInput?: boolean
   id: string
-  estimatedUsd?: string
   isOutput?: boolean
 }
 export function CurrencyInputPanelBridge({
@@ -385,7 +384,6 @@ export function CurrencyInputPanelBridge({
   isOutput = false,
   disabledInput = false,
   id,
-  estimatedUsd,
 }: CurrencyInputPanelBridgeProps) {
   const [modalOpen, setModalOpen] = useState(false)
   const { chainId, account } = useActiveWeb3React()
@@ -447,11 +445,6 @@ export function CurrencyInputPanelBridge({
               disabled={disabledInput}
               onUserInput={onUserInput}
             />
-            {estimatedUsd && (
-              <Text fontSize="0.875rem" marginRight="8px" fontWeight="500" color={theme.border}>
-                ~{estimatedUsd}
-              </Text>
-            )}
 
             <CurrencySelect
               selected={!!currency}

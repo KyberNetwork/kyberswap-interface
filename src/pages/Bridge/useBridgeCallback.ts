@@ -16,7 +16,7 @@ const NOT_APPLICABLE = {
   inputError: false,
 }
 
-export function useBridgeCallback(
+export function useBridgeRouterCallback(
   routerToken: string | undefined,
   inputToken: string | undefined,
   typedValue: string | undefined,
@@ -39,9 +39,9 @@ export function useBridgeCallback(
     return {
       execute: async (useSwapMethods: string) => {
         console.log(useSwapMethods, tokenIn, tokenOut)
-        const results = { hash: '' }
+        let txHash = ''
         try {
-          if (!sufficientBalance || !inputAmount) return Promise.reject('sufficientBalance')
+          if (!sufficientBalance || !inputAmount) return Promise.reject('insufficient Balance')
           let promise
           const params = [inputToken, account, `0x${inputAmount.quotient.toString(16)}`, tokenOut?.chainId]
           if (useSwapMethods.includes('anySwapOutNative')) {
@@ -53,9 +53,16 @@ export function useBridgeCallback(
           } else if (useSwapMethods.includes('anySwapOut')) {
             promise = bridgeContract.anySwapOut(...params)
           }
-          const txReceipt = promise ? await promise : Promise.reject('wrong method')
-          if (txReceipt?.hash) {
-            results.hash = txReceipt?.hash
+
+          let txReceipt
+          if (promise) {
+            txReceipt = await promise
+          } else {
+            return Promise.reject('router wrong method')
+          }
+
+          txHash = txReceipt?.hash
+          if (txHash) {
             addTransactionWithType(txReceipt, {
               type: 'Swap',
               summary: `${inputAmount.toSignificant(6)} ${tokenIn.symbol} (${
@@ -65,10 +72,10 @@ export function useBridgeCallback(
               } (${NETWORKS_INFO[chainIdOut].name})`,
             })
           }
-          return results
+          return txHash ?? ''
         } catch (error) {
           console.error('Could not swap', error)
-          return Promise.reject(error)
+          return Promise.reject(error || 'router unknown error')
         }
       },
       inputError: !sufficientBalance,
@@ -88,13 +95,12 @@ export function useBridgeCallback(
     outputInfo.outputAmount,
   ])
 }
-// todo loading popup comfirm/loading
-// todo clear screen
-export function useCrossBridgeCallback(
+
+export function useBridgeCallback(
   toAddress: string | undefined | null,
   inputToken: string | undefined,
   typedValue: string | undefined,
-): { execute?: undefined | (() => Promise<void>); inputError?: boolean } {
+) {
   const [{ tokenOut, chainIdOut, tokenIn, currencyIn, currencyOut }] = useBridgeState()
   const addTransactionWithType = useTransactionAdder()
   const outputInfo = useOutputValue(typedValue ?? '0')
@@ -115,14 +121,15 @@ export function useCrossBridgeCallback(
     return {
       execute: async () => {
         try {
-          if (!sufficientBalance || !inputAmount) return Promise.reject('sufficientBalance')
+          if (!sufficientBalance || !inputAmount) return Promise.reject('insufficient balance')
           let txReceipt: any
           if (txnsType === 'swapin') {
             if (isAddress(inputToken) && tokenIn?.tokenType !== 'NATIVE') {
               if (contractETH) {
                 txReceipt = await contractETH.transfer(toAddress, `0x${inputAmount.quotient.toString(16)}`)
+              } else {
+                return Promise.reject('not found contractETH')
               }
-              return
             } else {
               const data: any = {
                 from: account,
@@ -136,17 +143,19 @@ export function useCrossBridgeCallback(
             if (isNaN(chainIdOut)) {
               if (contractBTC) {
                 txReceipt = await contractBTC.Swapout(`0x${inputAmount.quotient.toString(16)}`, toAddress)
+              } else {
+                return Promise.reject('not found contractBTC')
               }
-              return
             } else {
               if (contractETH) {
                 txReceipt = await contractETH.Swapout(`0x${inputAmount.quotient.toString(16)}`, toAddress)
+              } else {
+                Promise.reject('not found contractETH')
               }
-              return
             }
           }
-          const txData = { hash: txReceipt?.hash }
-          if (txData.hash) {
+          const txHash = txReceipt?.hash
+          if (txHash) {
             addTransactionWithType(txReceipt, {
               type: 'Swap',
               summary: `${inputAmount.toSignificant(6)} ${tokenIn?.symbol} (${
@@ -156,9 +165,10 @@ export function useCrossBridgeCallback(
               } (${NETWORKS_INFO[chainIdOut].name})`,
             })
           }
+          return txHash ?? ''
         } catch (error) {
           console.log('Could not swapout', error)
-          return Promise.reject(error)
+          return Promise.reject(error || 'bridge unknown error')
         }
       },
       inputError: !sufficientBalance,

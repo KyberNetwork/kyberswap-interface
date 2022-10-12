@@ -137,6 +137,12 @@ export enum MIXPANEL_TYPE {
   CLOSE_BANNER_CLICK,
 
   FARM_UNDER_EARN_TAB_CLICK,
+
+  // bridge
+  BRIDGE_CLICK_REVIEW_TRANSFER,
+  BRIDGE_CLICK_TRANSFER,
+  BRIDGE_CLICK_ACTIVE_TRANSFER_TAB,
+  BRIDGE_CLICK_HISTORY_TRANSFER_TAB,
 }
 
 export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES = [
@@ -703,6 +709,23 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
         }
         case MIXPANEL_TYPE.FARM_UNDER_EARN_TAB_CLICK: {
           mixpanel.track('Farms Page Viewed - under Earn tab')
+          break
+        }
+        // todo params các cái này, còn mấy cái track nữa
+        case MIXPANEL_TYPE.BRIDGE_CLICK_REVIEW_TRANSFER: {
+          mixpanel.track('Bridge - Review Transfer Click')
+          break
+        }
+        case MIXPANEL_TYPE.BRIDGE_CLICK_TRANSFER: {
+          mixpanel.track('Bridge - Transfer Click')
+          break
+        }
+        case MIXPANEL_TYPE.BRIDGE_CLICK_ACTIVE_TRANSFER_TAB: {
+          mixpanel.track('Bridge - Active Transfer Tab Click')
+          break
+        }
+        case MIXPANEL_TYPE.BRIDGE_CLICK_HISTORY_TRANSFER_TAB: {
+          mixpanel.track('Bridge - Transfer History Tab Click')
           break
         }
       }

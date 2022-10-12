@@ -10,7 +10,7 @@ import { BridgeStateParams, resetBridgeState, setBridgeState } from './actions'
 
 export function useBridgeState(): [
   {
-    tokenIn: MultiChainTokenInfo | undefined // todo rename
+    tokenIn: MultiChainTokenInfo | undefined
     tokenOut: MultiChainTokenInfo | undefined
     currencyIn: WrappedTokenInfo | undefined
     currencyOut: WrappedTokenInfo | undefined

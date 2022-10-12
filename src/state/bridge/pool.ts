@@ -10,13 +10,9 @@ import useInterval from 'hooks/useInterval'
 // import { useSingleContractMultipleData } from 'state/multicall/hooks'
 import { isAddress } from 'utils'
 
-// todo see crosschain btc
 // todo list token bridge còn hơi lag
-// todo fallback when not support use local storage
-// todo popup success
 // todo refactor
-// todo cache
-// todo add transaction success/ record transaction
+// todo cache - fallback when not support use local storage
 // todo use useSingleContractMultipleData
 const Web3 = require('web3')
 const TIMEOUT = 'timeout'

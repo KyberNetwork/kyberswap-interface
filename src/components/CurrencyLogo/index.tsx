@@ -30,27 +30,26 @@ function CurrencyLogo({
   size = '24px',
   style,
 }: {
-  currency?: Currency | null
+  currency?: Currency | WrappedTokenInfo | null
   size?: string
   style?: React.CSSProperties
 }) {
   const { chainId } = useActiveWeb3React()
-  const logoURI = (currency as any).logoURI
-  const hasLogo = currency instanceof WrappedTokenInfo || logoURI
-  const uriLocations = useHttpLocations(hasLogo ? logoURI : undefined)
+  const logoURI = currency instanceof WrappedTokenInfo ? currency?.logoURI : undefined
+  const uriLocations = useHttpLocations(logoURI)
 
   const srcs: string[] = useMemo(() => {
     if (currency?.isNative) return []
 
     if (currency?.isToken) {
-      if (hasLogo) {
+      if (logoURI) {
         return [...uriLocations, getTokenLogoURL(currency.address, chainId)]
       }
       return [getTokenLogoURL((currency as any)?.address, chainId)]
     }
 
     return []
-  }, [chainId, currency, uriLocations, hasLogo])
+  }, [chainId, currency, uriLocations, logoURI])
 
   if (currency?.isNative && chainId) {
     return (

@@ -183,6 +183,8 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
       })
   }
 
+  const getTxsUrl = (txid: string) => `https://anyswap.net/explorer/tx?params=${txid}`
+
   const renderTable = () => {
     if (upToExtraSmall) {
       return (
@@ -201,7 +203,7 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
               />
               <RouteCell fromChainID={Number(transfer.fromChainID)} toChainID={Number(transfer.toChainID)} />
               <TokenCell amount={getAmountReceive(transfer)} symbol={getTokenSymbol(transfer.pairid)} />
-              <ActionCell url={`https://anyswap.net/explorer/tx?params=${transfer.txid}`} />
+              <ActionCell url={getTxsUrl(transfer.txid)} />
             </TableRow>
           ))}
           {renderInvisibleRows()}
@@ -226,7 +228,7 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
             <StatusBadge status={transfer.status} />
             <RouteCell fromChainID={Number(transfer.fromChainID)} toChainID={Number(transfer.toChainID)} />
             <TokenCell amount={getAmountReceive(transfer)} symbol={getTokenSymbol(transfer.pairid)} />
-            <ActionCell url={`https://anyswap.net/explorer/tx?params=${transfer.txid}`} />
+            <ActionCell url={getTxsUrl(transfer.txid)} />
           </TableRow>
         ))}
         {renderInvisibleRows()}

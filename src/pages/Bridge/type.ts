@@ -1,6 +1,6 @@
 import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 
-export interface MultiChainTokenInfo {
+export type MultiChainTokenInfo = {
   address: string
   symbol: string
   name: string
@@ -32,8 +32,15 @@ export interface MultiChainTokenInfo {
   sortId: number
   key: string // manual add
 }
-interface DestChainInfo {
+type DestChainInfo = {
   [chain: string]: {
     [key: string]: MultiChainTokenInfo
   }
+}
+
+export type BridgeSwapState = {
+  showConfirm: boolean
+  attemptingTxn: boolean
+  swapErrorMessage: string | undefined
+  txHash: string | undefined
 }

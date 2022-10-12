@@ -23,9 +23,10 @@ import { SUPPORTED_NETWORKS } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { BodyWrapper } from 'pages/AppBody'
-import { useTokensPrice, useWalletModalToggle } from 'state/application/hooks'
+import { useWalletModalToggle } from 'state/application/hooks'
 import { useBridgeState, useBridgeStateHandler, useOutputValue } from 'state/bridge/hooks'
 import { usePoolBridge } from 'state/bridge/pool'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
@@ -36,10 +37,11 @@ import { formattedNum } from 'utils'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 
 import AmountWarning from './AmountWarning'
+import ComfirmBridgeModal from './ComfirmBridgeModal'
 import PoolInfo from './PoolInfo'
-import ReviewModal from './ReviewModal'
 import SelectNetwork from './SelectNetwork'
-import { useBridgeCallback, useCrossBridgeCallback } from './useBridgeCallback'
+import { BridgeSwapState } from './type'
+import { useBridgeCallback, useBridgeRouterCallback } from './useBridgeCallback'
 
 const AppBodyWrapped = styled(BodyWrapper)`
   box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.04);
@@ -60,7 +62,6 @@ export default function SwapForm() {
   const isDark = useIsDarkMode()
 
   const [inputAmount, setInputAmount] = useState('0')
-  const [showComfirm, setShowConfirm] = useState(false)
   const [approvalSubmitted, setApprovalSubmitted] = useState<boolean>(false)
 
   const [poolValue, setPoolValue] = useState<{
@@ -74,9 +75,16 @@ export default function SwapForm() {
     poolValueOut: 0,
     poolShareOut: 0,
   })
-  // todo  chưa tính được usd out in (aaev)
-  const theme = useTheme()
 
+  // modal and loading
+  const [swapState, setSwapState] = useState<BridgeSwapState>({
+    showConfirm: false,
+    attemptingTxn: false,
+    swapErrorMessage: '',
+    txHash: undefined,
+  })
+  const theme = useTheme()
+  const { mixpanelHandler } = useMixpanel()
   const destChainInfo = useMemo(() => tokenIn?.destChains || {}, [tokenIn])
   const listDestChainIds = useMemo(() => {
     return (Object.keys(destChainInfo).map(Number) as ChainId[]).filter(id => SUPPORTED_NETWORKS.includes(id))
@@ -84,19 +92,8 @@ export default function SwapForm() {
 
   const pair = useMemo(() => [currencyIn, currencyOut], [currencyIn, currencyOut])
   const balances = useCurrencyBalances(account || undefined, pair)
-  const usdPrices = useTokensPrice(pair)
 
   const outputInfo = useOutputValue(inputAmount)
-
-  const estimatedUsdIn =
-    currencyIn && usdPrices[0] && Number(inputAmount)
-      ? parseFloat(tryParseAmount(inputAmount, currencyIn)?.toSignificant(6) || '0') * usdPrices[0]
-      : ''
-  const estimatedUsdOut =
-    currencyOut && usdPrices[1] && Number(outputInfo.outputAmount)
-      ? parseFloat(tryParseAmount(outputInfo.outputAmount.toString(), currencyOut)?.toSignificant(6) || '0') *
-        usdPrices[1]
-      : ''
 
   const maxAmountInput: CurrencyAmount<Currency> | undefined = maxAmountSpend(balances[0])
 
@@ -157,14 +154,14 @@ export default function SwapForm() {
   const useSwapMethods = tokenOut?.routerABI
   const routerToken = tokenOut?.router && isAddress(tokenOut?.router) ? tokenOut?.router : undefined
 
-  const { execute: onWrapBridge, inputError: wrapInputErrorBridge } = useBridgeCallback(
+  const { execute: onWrapBridgeRouter, inputError: wrapInputErrorBridge } = useBridgeRouterCallback(
     routerToken,
     anyToken?.address,
     inputAmount,
     tokenIn?.tokenType === 'NATIVE' || !!useSwapMethods?.includes('anySwapOutNative'),
   )
 
-  const { execute: onWrapCrossBridge, inputError: wrapInputErrorCrossBridge } = useCrossBridgeCallback(
+  const { execute: onWrapBridge, inputError: wrapInputErrorCrossBridge } = useBridgeCallback(
     tokenOut?.type === 'swapin' ? tokenOut?.DepositAddress : account,
     anyToken?.address,
     inputAmount,
@@ -235,33 +232,31 @@ export default function SwapForm() {
     [tokenIn],
   )
 
-  const onClear = () => {
-    setInputAmount('0')
-    setShowConfirm(false)
-  }
-
   const showPreview = () => {
-    setShowConfirm(true)
+    setSwapState(state => ({ ...state, showConfirm: true, swapErrorMessage: '' }))
+    mixpanelHandler(MIXPANEL_TYPE.BRIDGE_CLICK_REVIEW_TRANSFER)
   }
-  // todo do when failed/ popup failed
-  // todo interval 5s txs
+  const hidePreview = useCallback(() => {
+    setSwapState(state => ({ ...state, showConfirm: false }))
+  }, [])
 
-  const handleSwap = useCallback(() => {
-    if (!useSwapMethods) return
-    if (
-      useSwapMethods.includes('transfer') ||
-      useSwapMethods.includes('sendTransaction') ||
-      useSwapMethods.includes('Swapout')
-    ) {
-      onWrapCrossBridge?.().then(() => {
-        onClear()
-      })
-      return
+  const handleSwap = useCallback(async () => {
+    try {
+      if (!useSwapMethods) return
+      setSwapState(state => ({ ...state, attemptingTxn: true }))
+      const isBridge =
+        useSwapMethods.includes('transfer') ||
+        useSwapMethods.includes('sendTransaction') ||
+        useSwapMethods.includes('Swapout')
+      mixpanelHandler(MIXPANEL_TYPE.BRIDGE_CLICK_TRANSFER)
+      const txHash = await (isBridge ? onWrapBridge() : onWrapBridgeRouter(useSwapMethods))
+      setInputAmount('0')
+      setSwapState(state => ({ ...state, attemptingTxn: false, txHash }))
+    } catch (error) {
+      console.error(error)
+      setSwapState(state => ({ ...state, attemptingTxn: false, swapErrorMessage: error?.message || error }))
     }
-    onWrapBridge?.(useSwapMethods).then(() => {
-      onClear()
-    })
-  }, [useSwapMethods, onWrapCrossBridge, onWrapBridge])
+  }, [useSwapMethods, onWrapBridge, onWrapBridgeRouter, mixpanelHandler])
 
   const handleMaxInput = useCallback(() => {
     maxAmountInput && setInputAmount(maxAmountInput.toExact())
@@ -338,7 +333,6 @@ export default function SwapForm() {
                   onHalf={handleHalfInput}
                   onCurrencySelect={onCurrencySelect}
                   id="swap-currency-input"
-                  estimatedUsd={formattedNum(estimatedUsdIn.toString(), true) || undefined}
                 />
               </Tooltip>
               <PoolInfo
@@ -366,7 +360,6 @@ export default function SwapForm() {
                   showMaxButton={false}
                   onCurrencySelect={onCurrencySelectDest}
                   id="swap-currency-output"
-                  estimatedUsd={formattedNum(estimatedUsdOut.toString(), true) || undefined}
                 />
               </Box>
               <PoolInfo
@@ -453,12 +446,7 @@ export default function SwapForm() {
         <AdvancedSwapDetailsDropdownBridge outputInfo={outputInfo} />
       </SwapFormWrapper>
 
-      <ReviewModal
-        isOpen={showComfirm}
-        onDismiss={() => setShowConfirm(false)}
-        onSwap={handleSwap}
-        outputInfo={outputInfo}
-      />
+      <ComfirmBridgeModal swapState={swapState} onDismiss={hidePreview} onSwap={handleSwap} outputInfo={outputInfo} />
     </>
   )
 }
