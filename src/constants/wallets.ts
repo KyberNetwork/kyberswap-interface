@@ -44,7 +44,7 @@ const slopeAdapter = new SlopeWalletAdapter({ network: SelectedNetwork })
 // const ledgerAdapter = new LedgerWalletAdapter()
 
 const detectMetamask = (): WalletReadyState => {
-  if (isMobile) return WalletReadyState.Installed
+  if (isMobile) return WalletReadyState.Unsupported
   if (window.ethereum?.isMetaMask) return WalletReadyState.Installed
   return WalletReadyState.NotDetected
 }
