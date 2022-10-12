@@ -393,13 +393,13 @@ export const detectInjectedType = (): 'COIN98' | 'BRAVE' | 'METAMASK' | 'COINBAS
   const { ethereum } = window
   const isMetamask = !!ethereum?.isMetaMask
   const isCoin98 = isMetamask && ethereum.isCoin98
-  const isBraveBrowser = checkForBraveBrowser()
+  const isBraveWallet = checkForBraveBrowser() && ethereum?.isBraveWallet
   const isCoinbase = window.ethereum?.selectedProvider?.isCoinbaseWallet || window.ethereum?.providers
 
   if (isCoinbase) return 'COINBASE'
   if (isCoin98) return 'COIN98'
+  if (isBraveWallet) return 'BRAVE'
   if (isMetamask) return 'METAMASK'
-  if (isBraveBrowser) return 'BRAVE'
   return null
 }
 
