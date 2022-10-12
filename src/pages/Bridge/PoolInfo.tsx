@@ -4,6 +4,7 @@ import { Flex, Text } from 'rebass'
 
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
+import { ExternalLink } from 'theme'
 
 import { MultiChainTokenInfo } from './type'
 
@@ -34,7 +35,10 @@ const PoolInfo = ({
       </Text>
       <Text>
         <Trans>
-          Your Pool Share: {poolShare} {tokenIn?.symbol ?? ''}
+          Your Pool Share:{' '}
+          <ExternalLink href="https://app.multichain.org/#/pool">
+            {poolShare} {tokenIn?.symbol ?? ''}
+          </ExternalLink>
         </Trans>
       </Text>
     </Flex>

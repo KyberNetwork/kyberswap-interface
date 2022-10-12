@@ -10,7 +10,7 @@ import useInterval from 'hooks/useInterval'
 // import { useSingleContractMultipleData } from 'state/multicall/hooks'
 import { isAddress } from 'utils'
 
-// todo see crosschain btc, format number all
+// todo see crosschain btc
 // todo list token bridge còn hơi lag
 // todo fallback when not support use local storage
 // todo popup success

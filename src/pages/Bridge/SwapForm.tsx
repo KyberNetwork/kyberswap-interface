@@ -206,7 +206,7 @@ export default function SwapForm() {
     if (tokenOut.isLiquidity && tokenOut.underlying && inputNumber > Number(poolValue.poolValueOut)) {
       return {
         state: 'error',
-        tip: t`The bridge amount must be smaller than the current available amount of pool.`,
+        tip: t`The bridge amount must be less than the current available amount of the pool.`,
       }
     }
     if (inputNumber > 0.7 * Number(tokenOut.MaximumSwap)) {
@@ -403,7 +403,7 @@ export default function SwapForm() {
                             <InfoHelper
                               color={disableBtnApproved ? theme.border : theme.darkText}
                               size={18}
-                              text="You need to first allow KyberSwaps smart contracts to use your KNC. This has to be done only once for each token."
+                              text="You would need to first allow Multichain smart contract to use your KNC. This has to be done only once for each token."
                             />
                             <Text marginLeft={'5px'}>
                               <Trans>Approve {tokenIn?.symbol}</Trans>
