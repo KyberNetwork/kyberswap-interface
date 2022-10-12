@@ -27,12 +27,30 @@ export default function Updater(): null {
       if (chainId !== chainIdRequest || !chainIdRequest) return // prevent api 1 call first but finished later
       const result: WrappedTokenInfo[] = []
       Object.keys(tokens).forEach(key => {
-        const { address, logoUrl, destChains, name, decimals, symbol } = tokens[key] as MultiChainTokenInfo
+        const token = { ...tokens[key] } as MultiChainTokenInfo
+        const { address, logoUrl, destChains, name, decimals, symbol } = token
+
+        if (!destChains) return
+        // todo
+        Object.keys(destChains).forEach(chain => {
+          Object.keys(destChains[chain]).forEach(address => {
+            const info = destChains[chain][address]
+            if (!isAddress(info.address)) {
+              delete destChains[chain][address]
+            }
+          })
+          if (!Object.keys(destChains[chain]).length) {
+            delete destChains[chain]
+          }
+        })
+        //
+
         if (!destChains || Object.keys(destChains).length === 0 || !isAddress(address)) {
           return
         }
-        tokens[key].key = key
-        tokens[key].chainId = chainIdRequest
+
+        token.key = key
+        token.chainId = chainIdRequest
         result.push(
           new WrappedTokenInfo({
             chainId: chainIdRequest,
@@ -41,7 +59,7 @@ export default function Updater(): null {
             name,
             address,
             logoURI: logoUrl,
-            multichainInfo: tokens[key],
+            multichainInfo: token,
           }),
         )
       })
