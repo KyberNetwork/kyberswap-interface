@@ -17,7 +17,7 @@ const maticInfo: EVMNetworkInfo = {
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
   classicClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-polygon'),
-  elasticClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-matic'),
+  elasticClient: createClient('https://api.thegraph.com/subgraphs/name/viet-nv/kyberswap-elastic-matic'),
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-polygon'),
   etherscanUrl: 'https://polygonscan.com',
   etherscanName: 'Polygonscan',
@@ -30,8 +30,6 @@ const maticInfo: EVMNetworkInfo = {
     decimal: 18,
   },
   rpcUrl: 'https://polygon.kyberengineering.io',
-  // Sometime, our rpc is quite slow, keep this for testing purpose on local
-  // rpcUrl: 'https://polygon-rpc.com',
   routerUri: `${AGGREGATOR_API}/polygon/route/encode`,
   multicall: '0xed386Fe855C1EFf2f843B910923Dd8846E45C5A4',
   classic: {

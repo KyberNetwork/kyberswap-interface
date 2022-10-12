@@ -25,7 +25,9 @@ export interface TickProcessed {
 }
 
 const getActiveTick = (tickCurrent: number | undefined, feeAmount: FeeAmount | undefined) =>
-  tickCurrent && feeAmount ? Math.floor(tickCurrent / TICK_SPACINGS[feeAmount]) * TICK_SPACINGS[feeAmount] : undefined
+  tickCurrent !== undefined && feeAmount
+    ? Math.floor(tickCurrent / TICK_SPACINGS[feeAmount]) * TICK_SPACINGS[feeAmount]
+    : undefined
 
 const useAllTicks = (poolAddress: string) => {
   const { isEVM, networkInfo } = useActiveWeb3React()

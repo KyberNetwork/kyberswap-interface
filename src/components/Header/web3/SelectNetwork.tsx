@@ -1,4 +1,3 @@
-import { ChainId } from '@namgold/ks-sdk-core'
 import { useMemo } from 'react'
 import styled from 'styled-components'
 
@@ -76,7 +75,7 @@ function SelectNetwork(): JSX.Element | null {
         : parseFloat(userEthBalance.toExact()).toFixed(4)
       : parseFloat(userEthBalance.toExact()).toFixed(2)
     const balanceFixed = Number(balanceFixedStr)
-    return `${balanceFixed} ${NativeCurrencies[chainId || ChainId.MAINNET].symbol}`
+    return `${balanceFixed} ${NativeCurrencies[chainId].symbol}`
   }, [userEthBalance, chainId, networkInfo])
   return (
     <NetworkCard onClick={() => toggleNetworkModal()} role="button" id={TutorialIds.SELECT_NETWORK}>

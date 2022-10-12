@@ -48,8 +48,8 @@ import { getTradingFeeAPR, useFarmApr, useFarmRewards, useFarmRewardsUSD } from 
 import { formatTokenBalance, getFullDisplayBalance } from 'utils/formatBalance'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
 
+import { ModalContentWrapper } from './ElasticFarmModals/styled'
 import { APRTooltipContent } from './FarmingPoolAPRCell'
-import { ModalContentWrapper } from './ProMMFarmModals/styled'
 import { ActionButton, DataText, GetLP, RewardBalanceWrapper, StyledItemCard, TableRow } from './styleds'
 
 const fixedFormatting = (value: BigNumber, decimals: number) => {

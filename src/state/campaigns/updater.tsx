@@ -52,7 +52,7 @@ const formatLeaderboardData = (data: CampaignLeaderboard) => {
             rankNo: item.rankNo,
             rewardAmount: new Fraction(
               item.rewardAmount || ZERO,
-              JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(item?.Token?.decimals ?? 18)),
+              JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(item?.token?.decimals ?? 18)),
             ),
             rewardAmountUsd: new Fraction(
               parseUnits(item?.rewardAmountUSD?.toString() || '0', RESERVE_USD_DECIMALS).toString(),

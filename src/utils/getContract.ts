@@ -102,7 +102,7 @@ export function getClaimRewardContract(
   account?: string,
 ): Contract | undefined {
   if (!isEVM(chainId)) return
-  const claimRewardAddress = NETWORKS_INFO[chainId].classic.claimReward
-  if (!claimRewardAddress) return
-  return getContract(claimRewardAddress, CLAIM_REWARD_ABI, library, account)
+  const claimReward = NETWORKS_INFO[chainId].classic.claimReward
+  if (!claimReward) return
+  return getContract(claimReward, CLAIM_REWARD_ABI, library, account)
 }

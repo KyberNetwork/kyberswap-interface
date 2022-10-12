@@ -1,5 +1,4 @@
 import { Trans, t } from '@lingui/macro'
-import { ChainId } from '@namgold/ks-sdk-core'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -44,7 +43,6 @@ function ClaimRewardModal() {
     error: claimRewardError,
     resetTxn,
   } = useClaimReward()
-  const KNCToken = KNC[(chainId as ChainId) || ChainId.MAINNET]
   const isCanClaim = isUserHasReward && rewardAmounts !== '0' && !pendingTx
 
   const modalContent = () =>
@@ -75,7 +73,7 @@ function ClaimRewardModal() {
           <Trans>If your wallet is eligible, you will be able to claim your reward below. You can claim:</Trans>
         </Text>
         <Text fontSize={32} lineHeight="38px" fontWeight={500}>
-          <CurrencyLogo currency={KNCToken} /> {rewardAmounts} KNC
+          <CurrencyLogo currency={KNC[chainId]} /> {rewardAmounts} KNC
         </Text>
         <ButtonPrimary disabled={!isCanClaim} onClick={claimRewardsCallback}>
           <Trans>Claim</Trans>

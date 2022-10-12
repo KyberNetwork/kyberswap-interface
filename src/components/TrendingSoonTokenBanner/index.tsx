@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { ChainId, Currency, Token, WETH } from '@namgold/ks-sdk-core'
+import { Currency, Token, WETH } from '@namgold/ks-sdk-core'
 import { rgba } from 'polished'
 import { CSSProperties, memo, useMemo } from 'react'
 import { Flex } from 'rebass'
@@ -36,8 +36,7 @@ const TrendingSoonTokenBanner = ({
 
   if (trendingSoonCurrency === undefined) return null
 
-  const currencySymbol =
-    trendingSoonCurrency instanceof Token ? trendingSoonCurrency.symbol : WETH[chainId || ChainId.MAINNET].name
+  const currencySymbol = trendingSoonCurrency instanceof Token ? trendingSoonCurrency.symbol : WETH[chainId].name
 
   return (
     <Container style={style}>

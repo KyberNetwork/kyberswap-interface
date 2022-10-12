@@ -11,7 +11,7 @@ import { useSelector } from 'react-redux'
 
 import { injected } from 'connectors'
 import { EVM_NETWORK, EVM_NETWORKS, NETWORKS_INFO } from 'constants/networks'
-import { EVMNetworkInfo, SolanaNetworkInfo } from 'constants/networks/type'
+import { NetworkInfo } from 'constants/networks/type'
 import { SUPPORTED_WALLET, SUPPORTED_WALLETS } from 'constants/wallets'
 import { AppState } from 'state'
 import { useIsUserManuallyDisconnect } from 'state/user/hooks'
@@ -35,7 +35,7 @@ export function useActiveWeb3React(): {
   walletKey: SUPPORTED_WALLET | undefined
   isEVM: boolean
   isSolana: boolean
-  networkInfo: EVMNetworkInfo | SolanaNetworkInfo
+  networkInfo: NetworkInfo
 } {
   const chainIdState = useSelector<AppState, ChainId>(state => state.user.chainId) || ChainId.MAINNET
   const isEVM = useMemo(() => getChainType(chainIdState) === ChainType.EVM, [chainIdState])

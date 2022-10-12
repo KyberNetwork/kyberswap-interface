@@ -1,5 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { ChainId } from '@namgold/ks-sdk-core'
+import { computePoolAddress } from '@namgold/ks-sdk-elastic'
+import { BigNumber } from 'ethers'
 import { rgba } from 'polished'
 import { useMemo, useRef, useState } from 'react'
 import { Info } from 'react-feather'
@@ -15,6 +17,7 @@ import Search from 'components/Search'
 import Toggle from 'components/Toggle'
 import Tutorial, { TutorialType } from 'components/Tutorial'
 import { PROMM_ANALYTICS_URL } from 'constants/index'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
@@ -22,7 +25,7 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useProAmmPositions } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
 import { FilterRow, InstructionText, PageWrapper, PositionCardGrid, Tab } from 'pages/Pool'
-import { useProMMFarms, useProMMFarmsFetchOnlyOne } from 'state/farms/promm/hooks'
+import { FarmUpdater, useElasticFarms } from 'state/farms/elastic/hooks'
 import { ExternalLink, StyledInternalLink, TYPE } from 'theme'
 import { PositionDetails } from 'types/position'
 
@@ -47,29 +50,65 @@ interface AddressSymbolMapInterface {
 }
 
 export default function ProAmmPool() {
-  const { account, chainId, isEVM } = useActiveWeb3React()
+  const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
   const tokenAddressSymbolMap = useRef<AddressSymbolMapInterface>({})
   const { positions, loading: positionsLoading } = useProAmmPositions(account)
 
-  const farms = useProMMFarmsFetchOnlyOne()
-  const { loading } = useProMMFarms()
+  const { farms, loading, userFarmInfo } = useElasticFarms()
+
+  const farmingPools = useMemo(() => farms?.map(farm => farm.pools).flat() || [], [farms])
 
   const farmPositions = useMemo(() => {
-    return Object.values(farms)
-      .map(item =>
-        item.map(it => {
-          if (it.userDepositedNFTs.length > 0) {
-            return it.userDepositedNFTs.map(i => {
-              return { ...i, endTime: it.endTime }
+    if (!isEVM) return []
+    return Object.values(userFarmInfo || {})
+      .map(info => {
+        return info.depositedPositions
+          .map(pos => {
+            const poolAddress = computePoolAddress({
+              factoryAddress: (networkInfo as EVMNetworkInfo).elastic.coreFactory,
+              tokenA: pos.pool.token0,
+              tokenB: pos.pool.token1,
+              fee: pos.pool.fee,
+              initCodeHashManualOverride: (networkInfo as EVMNetworkInfo).elastic.initCodeHash,
             })
-          } else {
-            return []
-          }
-        }),
-      )
+            const pool = farmingPools.filter(pool => pool.poolAddress === poolAddress.toLowerCase())
+
+            const joinedLiquidity =
+              // I'm sure we can always find pool
+              // eslint-disable-next-line
+              Object.values(info.joinedPositions)
+                .flat()
+                .filter(joinedPos => joinedPos.nftId.toString() === pos.nftId.toString())
+                .reduce(
+                  (acc, cur) =>
+                    acc.gt(BigNumber.from(cur.liquidity.toString())) ? acc : BigNumber.from(cur.liquidity.toString()),
+                  BigNumber.from(0),
+                ) || BigNumber.from(0)
+
+            return {
+              nonce: BigNumber.from('1'),
+              tokenId: pos.nftId,
+              operator: '0x0000000000000000000000000000000000000000',
+              poolId: poolAddress,
+              tickLower: pos.tickLower,
+              tickUpper: pos.tickUpper,
+              liquidity: BigNumber.from(pos.liquidity.toString()),
+              // not used
+              feeGrowthInsideLast: BigNumber.from(0),
+              stakedLiquidity: joinedLiquidity,
+              // not used
+              rTokenOwed: BigNumber.from(0),
+              token0: pos.pool.token0.address,
+              token1: pos.pool.token1.address,
+              fee: pos.pool.fee,
+              endTime: pool?.[0].endTime,
+              rewardPendings: [],
+            }
+          })
+          .flat()
+      })
       .flat()
-      .flat()
-  }, [farms])
+  }, [farmingPools, userFarmInfo, isEVM, networkInfo])
 
   const [openPositions, closedPositions] = useMemo(
     () =>
@@ -142,10 +181,13 @@ export default function ProAmmPool() {
 
   const activeFarmAddress = useMemo(() => {
     const now = Date.now() / 1000
-    return Object.values(farms)
-      .flat()
-      .filter(farm => farm.endTime >= now)
-      .map(farm => farm.poolAddress.toLowerCase())
+    return (
+      farms
+        ?.map(farm => farm.pools)
+        .flat()
+        ?.filter(farm => farm.endTime >= now)
+        .map(farm => farm.poolAddress.toLowerCase()) || []
+    )
   }, [farms])
 
   if (!isEVM) return <Redirect to="/" />
@@ -280,6 +322,7 @@ export default function ProAmmPool() {
           )}
         </AutoColumn>
       </PageWrapper>
+      <FarmUpdater />
     </>
   )
 }
