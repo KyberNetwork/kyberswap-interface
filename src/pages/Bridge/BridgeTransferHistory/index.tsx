@@ -61,6 +61,10 @@ const TableRow = styled.div`
   ${commonCSS}
   height: 60px;
   border-bottom: 1px solid ${({ theme }) => theme.border};
+
+  &:last-child {
+    border-bottom: none;
+  }
 `
 
 const PaginationButton = styled.button`
@@ -177,7 +181,14 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
     return Array(ITEMS_PER_PAGE - transfers.length)
       .fill(0)
       .map((_, i) => {
-        return <TableRow key={i} />
+        return (
+          <TableRow
+            key={i}
+            style={{
+              visibility: 'hidden',
+            }}
+          />
+        )
       })
   }
 
@@ -234,7 +245,7 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
 
   return (
     <div className={className}>
-      {renderTable()}
+      <Flex flexDirection="column">{renderTable()}</Flex>
       <Flex
         sx={{
           width: '100%',
@@ -242,6 +253,7 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
           justifyContent: 'center',
           padding: '16px 0',
           gap: '12px',
+          borderTop: `1px solid ${theme.border}`,
         }}
       >
         <PaginationButton disabled={!canGoPrevious} onClick={onClickPrevious}>
