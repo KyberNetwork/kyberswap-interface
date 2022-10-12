@@ -201,8 +201,9 @@ type PoolBridgeInfo = {
   balanceOf: string
   totalSupply: string
 }
+// call one pool
 export function usePoolBridge(chainId: ChainId | undefined, anytoken: any, underlying: any) {
-  const [poolData, setPoolData] = useState<PoolBridgeInfoMap>()
+  const [poolData, setPoolData] = useState<PoolBridgeInfo>()
   const { account } = useActiveWeb3React()
   const tokenList = useMemo(() => {
     return anytoken && underlying ? [{ anytoken, underlying }] : []
@@ -217,14 +218,18 @@ export function usePoolBridge(chainId: ChainId | undefined, anytoken: any, under
   const fetchPoolCallback = useCallback(() => {
     if (chainId) {
       getEvmPoolsData()
-        .then((res: any) => {
-          setPoolData(res)
+        .then((res: PoolBridgeInfoMap) => {
+          const newData = Object.values(res)[0]
+          // small object, no performance problem here
+          if (JSON.stringify(newData || {}) !== JSON.stringify(poolData || {})) {
+            setPoolData(newData)
+          }
         })
         .catch(e => {
           console.log(e)
         })
     }
-  }, [chainId, getEvmPoolsData])
+  }, [chainId, getEvmPoolsData, poolData])
 
   useEffect(() => {
     fetchPoolCallback()

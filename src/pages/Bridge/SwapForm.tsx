@@ -135,9 +135,9 @@ export default function SwapForm() {
     const address = anyToken?.address
     let poolValueIn: string | number = 0,
       poolShareIn: string | number = 0
-    if (address && poolData?.[address]?.balanceOf) {
-      poolValueIn = formatPoolValue(poolData[address]?.balanceOf, anyToken?.decimals)
-      poolShareIn = formatPoolValue(poolData[address]?.balance, anyToken?.decimals)
+    if (address && poolData?.balanceOf) {
+      poolValueIn = formatPoolValue(poolData?.balanceOf, anyToken?.decimals)
+      poolShareIn = formatPoolValue(poolData?.balance, anyToken?.decimals)
     }
     setPoolValue(poolValue => ({ ...poolValue, poolValueIn, poolShareIn }))
   }, [poolData, anyToken])
@@ -147,9 +147,9 @@ export default function SwapForm() {
     const address = anytoken?.address
     let poolValueOut: string | number = 0,
       poolShareOut: string | number = 0
-    if (address && poolDataOut?.[address]?.balanceOf) {
-      poolValueOut = formatPoolValue(poolDataOut[address]?.balanceOf, anytoken?.decimals)
-      poolShareOut = formatPoolValue(poolDataOut[address]?.balance, anytoken?.decimals)
+    if (address && poolDataOut?.balanceOf) {
+      poolValueOut = formatPoolValue(poolDataOut?.balanceOf, anytoken?.decimals)
+      poolShareOut = formatPoolValue(poolDataOut?.balance, anytoken?.decimals)
     }
     setPoolValue(poolValue => ({ ...poolValue, poolValueOut, poolShareOut }))
   }, [poolDataOut, tokenOut])
@@ -192,7 +192,7 @@ export default function SwapForm() {
     if (inputNumber < Number(tokenOut.MinimumSwap)) {
       return {
         state: 'error',
-        tip: t`The crosschain amount must be greater than ${formattedNum(tokenOut.MinimumSwap, false, 3)} ${
+        tip: t`The crosschain amount must be greater than ${formattedNum(tokenOut.MinimumSwap, false, 5)} ${
           tokenIn.symbol
         }`,
       }
@@ -206,13 +206,15 @@ export default function SwapForm() {
     if (tokenOut.isLiquidity && tokenOut.underlying && inputNumber > Number(poolValue.poolValueOut)) {
       return {
         state: 'error',
-        tip: t`Insufficient liquidity.`,
+        tip: t`The bridge amount must be smaller than the current available amount of pool.`,
       }
     }
     if (inputNumber > 0.7 * Number(tokenOut.MaximumSwap)) {
       return {
         state: 'warn',
-        tip: t`Note: Your transfer amount (${inputNumber} ${tokenIn.symbol}) is more than 70% of the available liquidity (${poolValue.poolValueOut} ${tokenOut.symbol})!`,
+        tip: t`Note: Your transfer amount (${formattedNum(inputAmount, false, 5)} ${
+          tokenIn.symbol
+        }) is more than 70% of the available liquidity (${poolValue.poolValueOut} ${tokenOut.symbol})!`,
       }
     }
     return
@@ -241,6 +243,8 @@ export default function SwapForm() {
   const showPreview = () => {
     setShowConfirm(true)
   }
+  // todo do when failed/ popup failed
+  // todo interval 5s txs
 
   const handleSwap = useCallback(() => {
     if (!useSwapMethods) return
