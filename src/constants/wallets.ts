@@ -44,7 +44,7 @@ const slopeAdapter = new SlopeWalletAdapter({ network: SelectedNetwork })
 // const ledgerAdapter = new LedgerWalletAdapter()
 
 const detectMetamask = (): WalletReadyState => {
-  if (isMobile) return WalletReadyState.Installed
+  if (isMobile) return WalletReadyState.Unsupported
   if (window.ethereum?.isMetaMask) return WalletReadyState.Installed
   return WalletReadyState.NotDetected
 }
@@ -117,7 +117,7 @@ export const SUPPORTED_WALLETS = {
     iconLight: COIN98_L,
     installLink: 'https://wallet.coin98.com/',
     readyState: detectCoin98,
-    readyStateSolana: () => coin98Adapter.readyState,
+    readyStateSolana: () => (isMobile ? coin98Adapter.readyState : WalletReadyState.Unsupported),
   } as EVMWalletInfo & SolanaWalletInfo,
   COINBASE: {
     connector: walletlink,
@@ -174,7 +174,7 @@ export const SUPPORTED_WALLETS = {
     icon: SOLLET,
     iconLight: SOLLET_L,
     installLink: solletAdapter.url,
-    readyStateSolana: () => solletAdapter.readyState,
+    readyStateSolana: () => (isMobile ? solletAdapter.readyState : WalletReadyState.Unsupported),
   } as SolanaWalletInfo,
   SLOPE: {
     adapter: slopeAdapter,
@@ -182,7 +182,7 @@ export const SUPPORTED_WALLETS = {
     icon: SLOPE,
     iconLight: SLOPE_L,
     installLink: slopeAdapter.url,
-    readyStateSolana: () => slopeAdapter.readyState,
+    readyStateSolana: () => (isMobile ? slopeAdapter.readyState : WalletReadyState.Unsupported),
   } as SolanaWalletInfo,
 } as const
 

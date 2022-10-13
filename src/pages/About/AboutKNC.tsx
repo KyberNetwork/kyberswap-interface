@@ -33,7 +33,16 @@ import {
   Wazirx,
 } from 'components/ExchangeIcons'
 import { FooterSocialLink } from 'components/Footer/Footer'
-import { Avalanche, BestPrice, Bttc, Ethereum, Polygon } from 'components/Icons'
+import {
+  Arbitrum,
+  Avalanche,
+  BestPrice,
+  Binance as BinanceIcon,
+  Bttc,
+  Ethereum,
+  OptimismLogo,
+  Polygon,
+} from 'components/Icons'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { useDarkModeManager } from 'state/user/hooks'
@@ -209,9 +218,11 @@ function AboutKNC() {
           <SupportedChain>
             <Ethereum />
             <Polygon />
-            <Binance />
+            <BinanceIcon />
             <Avalanche />
             <Bttc />
+            <Arbitrum />
+            <OptimismLogo />
           </SupportedChain>
 
           <Text
