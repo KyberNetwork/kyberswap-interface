@@ -1,10 +1,9 @@
 import { t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { AlertCircle } from 'react-feather'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
-import { CheckCircle, XCircle } from 'components/Icons'
+import { CheckCircle, TransferIcon, XCircle } from 'components/Icons'
 import { BridgeTransferStatus } from 'hooks/bridge/useGetBridgeTransfers'
 
 type GeneralStatus = 'success' | 'failure' | 'info'
@@ -45,8 +44,8 @@ const cssByGeneralStatus: Record<GeneralStatus, any> = {
     color: ${({ theme }) => theme.red};
   `,
   info: css`
-    background: ${({ theme }) => rgba(theme.subText, 0.2)};
-    color: ${({ theme }) => theme.subText};
+    background: ${({ theme }) => rgba(theme.warning, 0.2)};
+    color: ${({ theme }) => theme.warning};
   `,
 }
 
@@ -90,7 +89,7 @@ const StatusBadge: React.FC<Props> = ({ status, iconOnly }) => {
     }
 
     if (generalStatus === 'info') {
-      return <AlertCircle size={12} />
+      return <TransferIcon width="12px" height="12px" />
     }
 
     return null
