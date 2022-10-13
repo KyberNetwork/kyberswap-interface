@@ -259,7 +259,16 @@ export default function SwapForm() {
         useSwapMethods.includes('transfer') ||
         useSwapMethods.includes('sendTransaction') ||
         useSwapMethods.includes('Swapout')
-      mixpanelHandler(MIXPANEL_TYPE.BRIDGE_CLICK_TRANSFER)
+      if (chainId && chainIdOut) {
+        mixpanelHandler(MIXPANEL_TYPE.BRIDGE_CLICK_TRANSFER, {
+          from_token: tokenIn?.symbol,
+          to_token: tokenOut?.symbol,
+          bridge_fee: outputInfo.fee,
+          from_network: NETWORKS_INFO[chainId].name,
+          to_network: NETWORKS_INFO[chainIdOut].name,
+          trade_qty: inputAmount,
+        })
+      }
       const txHash = await (isBridge ? onWrapBridge() : onWrapBridgeRouter(useSwapMethods))
       setInputAmount('0')
       setSwapState(state => ({ ...state, attemptingTxn: false, txHash }))
@@ -267,7 +276,18 @@ export default function SwapForm() {
       console.error(error)
       setSwapState(state => ({ ...state, attemptingTxn: false, swapErrorMessage: error?.message || error }))
     }
-  }, [useSwapMethods, onWrapBridge, onWrapBridgeRouter, mixpanelHandler])
+  }, [
+    useSwapMethods,
+    onWrapBridge,
+    chainId,
+    chainIdOut,
+    inputAmount,
+    outputInfo.fee,
+    onWrapBridgeRouter,
+    mixpanelHandler,
+    tokenIn?.symbol,
+    tokenOut?.symbol,
+  ])
 
   const handleMaxInput = useCallback(() => {
     maxAmountInput && setInputAmount(maxAmountInput.toExact())

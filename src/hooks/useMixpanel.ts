@@ -141,6 +141,7 @@ export enum MIXPANEL_TYPE {
   // bridge
   BRIDGE_CLICK_REVIEW_TRANSFER,
   BRIDGE_CLICK_TRANSFER,
+  BRIDGE_TRANSACTION_SUBMIT,
   BRIDGE_CLICK_ACTIVE_TRANSFER_TAB,
   BRIDGE_CLICK_HISTORY_TRANSFER_TAB,
 }
@@ -711,21 +712,34 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           mixpanel.track('Farms Page Viewed - under Earn tab')
           break
         }
-        // todo params các cái này, còn mấy cái track nữa
-        case MIXPANEL_TYPE.BRIDGE_CLICK_REVIEW_TRANSFER: {
-          mixpanel.track('Bridge - Review Transfer Click', payload)
-          break
-        }
-        case MIXPANEL_TYPE.BRIDGE_CLICK_TRANSFER: {
-          mixpanel.track('Bridge - Transfer Click')
-          break
-        }
+
         case MIXPANEL_TYPE.BRIDGE_CLICK_ACTIVE_TRANSFER_TAB: {
           mixpanel.track('Bridge - Active Transfer Tab Click')
           break
         }
         case MIXPANEL_TYPE.BRIDGE_CLICK_HISTORY_TRANSFER_TAB: {
           mixpanel.track('Bridge - Transfer History Tab Click')
+          break
+        }
+        case MIXPANEL_TYPE.BRIDGE_CLICK_REVIEW_TRANSFER: {
+          mixpanel.track('Bridge - Review Transfer Click', payload)
+          break
+        }
+        case MIXPANEL_TYPE.BRIDGE_CLICK_TRANSFER: {
+          mixpanel.track('Bridge - Transfer Click', payload)
+          break
+        }
+        case MIXPANEL_TYPE.BRIDGE_TRANSACTION_SUBMIT: {
+          const { tx_hash, from_token, to_token, bridge_fee, from_network, to_network, trade_qty } = payload
+          mixpanel.track('Bridge -  Transaction Submitted', {
+            tx_hash,
+            from_token,
+            to_token,
+            bridge_fee,
+            from_network,
+            to_network,
+            trade_qty,
+          })
           break
         }
       }

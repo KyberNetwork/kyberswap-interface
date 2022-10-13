@@ -36,6 +36,7 @@ export default function Updater(): null {
         // todo test unlimit pool
         // todo move this
         // todo emt sao chưa format pool
+        // todo back sang trang khác quay lại đang delay 1 chút mới show token
         Object.keys(destChains).forEach(chain => {
           Object.keys(destChains[chain]).forEach(address => {
             const info = destChains[chain][address]

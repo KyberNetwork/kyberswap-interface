@@ -63,13 +63,22 @@ export function useBridgeRouterCallback(
 
           txHash = txReceipt?.hash
           if (txHash) {
+            const from_network = NETWORKS_INFO[chainId].name
+            const to_network = NETWORKS_INFO[chainIdOut].name
             addTransactionWithType(txReceipt, {
-              type: 'Swap',
-              summary: `${inputAmount.toSignificant(6)} ${tokenIn.symbol} (${
-                NETWORKS_INFO[chainId].name
-              }) to ${tryParseAmount(outputInfo.outputAmount.toString(), currencyOut ?? undefined)?.toSignificant(6)} ${
-                tokenOut?.symbol
-              } (${NETWORKS_INFO[chainIdOut].name})`,
+              type: 'Bridge',
+              summary: `${inputAmount.toSignificant(6)} ${tokenIn.symbol} (${from_network}) to ${tryParseAmount(
+                outputInfo.outputAmount.toString(),
+                currencyOut ?? undefined,
+              )?.toSignificant(6)} ${tokenOut?.symbol} (${to_network})`,
+              arbitrary: {
+                from_token: tokenIn?.symbol,
+                to_token: tokenOut?.symbol,
+                bridge_fee: outputInfo.fee,
+                from_network,
+                to_network,
+                trade_qty: typedValue,
+              },
             })
           }
           return txHash ?? ''
@@ -81,6 +90,8 @@ export function useBridgeRouterCallback(
       inputError: !sufficientBalance,
     }
   }, [
+    outputInfo.fee,
+    typedValue,
     bridgeContract,
     balance,
     chainId,
@@ -156,13 +167,22 @@ export function useBridgeCallback(
           }
           const txHash = txReceipt?.hash
           if (txHash) {
+            const from_network = NETWORKS_INFO[chainId].name
+            const to_network = NETWORKS_INFO[chainIdOut].name
             addTransactionWithType(txReceipt, {
-              type: 'Swap',
-              summary: `${inputAmount.toSignificant(6)} ${tokenIn?.symbol} (${
-                NETWORKS_INFO[chainId].name
-              }) to ${tryParseAmount(outputInfo.outputAmount.toString(), currencyOut ?? undefined)?.toSignificant(6)} ${
-                tokenOut?.symbol
-              } (${NETWORKS_INFO[chainIdOut].name})`,
+              type: 'Bridge',
+              summary: `${inputAmount.toSignificant(6)} ${tokenIn?.symbol} (${from_network}) to ${tryParseAmount(
+                outputInfo.outputAmount.toString(),
+                currencyOut ?? undefined,
+              )?.toSignificant(6)} ${tokenOut?.symbol} (${to_network})`,
+              arbitrary: {
+                from_token: tokenIn?.symbol,
+                to_token: tokenOut?.symbol,
+                bridge_fee: outputInfo.fee,
+                from_network,
+                to_network,
+                trade_qty: typedValue,
+              },
             })
           }
           return txHash ?? ''
@@ -174,6 +194,8 @@ export function useBridgeCallback(
       inputError: !sufficientBalance,
     }
   }, [
+    outputInfo.fee,
+    typedValue,
     chainId,
     addTransactionWithType,
     tokenOut?.symbol,

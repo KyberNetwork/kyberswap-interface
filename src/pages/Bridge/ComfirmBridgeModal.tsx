@@ -178,7 +178,7 @@ export default memo(function Disclaimer({
       content={confirmationContent}
       pendingText={
         chainId && chainIdOut
-          ? t`Swapping ${tokenIn?.symbol} (${NETWORKS_INFO[chainId].name}) to ${tokenOut?.symbol} (${NETWORKS_INFO[chainIdOut].name})`
+          ? t`Transferring ${tokenIn?.symbol} (${NETWORKS_INFO[chainId].name}) to ${tokenOut?.symbol} (${NETWORKS_INFO[chainIdOut].name})`
           : ''
       }
     />

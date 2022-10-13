@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/macro'
 import { useEffect, useRef, useState } from 'react'
 import { Info } from 'react-feather'
 import { Flex, Text } from 'rebass'
@@ -69,7 +70,7 @@ const PendingTransfers = () => {
             lineHeight: '24px',
           }}
         >
-          You don&apos;t have any active transfers
+          <Trans>You don&apos;t have any active transfers yet.</Trans>
         </Text>
       </Flex>
     )
