@@ -19,7 +19,7 @@ import {
   RESERVE_USD_DECIMALS,
   ZERO_ADDRESS,
 } from 'constants/index'
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
@@ -40,15 +40,15 @@ import { getTradingFeeAPR, parseSubgraphPoolData, useFarmApr } from 'utils/dmm'
 import { setFarmsData, setLoading, setYieldPoolsError } from './actions'
 
 export const useRewardTokens = () => {
-  const { chainId } = useActiveWeb3React()
+  const { chainId, isEVM, networkInfo } = useActiveWeb3React()
   const rewardTokensMulticallResult = useMultipleContractSingleData(
-    isEVM(chainId) ? NETWORKS_INFO[chainId || ChainId.MAINNET].classic.fairlaunch : [],
+    isEVM ? (networkInfo as EVMNetworkInfo).classic.fairlaunch : [],
     new Interface(FAIRLAUNCH_ABI),
     'getRewardTokens',
   )
 
   const rewardTokensV2MulticallResult = useMultipleContractSingleData(
-    isEVM(chainId) ? NETWORKS_INFO[chainId || ChainId.MAINNET].classic.fairlaunchV2 : [],
+    isEVM ? (networkInfo as EVMNetworkInfo).classic.fairlaunchV2 : [],
     new Interface(FAIRLAUNCH_V2_ABI),
     'getRewardTokens',
   )
@@ -88,7 +88,7 @@ export const useRewardTokenPrices = (tokens: (Token | undefined | null)[], versi
 
 export const useFarmsData = (isIncludeOutsideFarms = true) => {
   const dispatch = useAppDispatch()
-  const { chainId, account } = useActiveWeb3React()
+  const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
   const fairLaunchContracts = useFairLaunchContracts()
   const ethPrice = useETHPrice()
   const allTokens = useAllTokens()
@@ -110,19 +110,19 @@ export const useFarmsData = (isIncludeOutsideFarms = true) => {
   }, [chainId])
 
   useEffect(() => {
-    if (!isEVM(chainId)) return
-    const apolloClient = NETWORKS_INFO[chainId].classicClient
+    if (!isEVM) return
+    const apolloClient = (networkInfo as EVMNetworkInfo).classicClient
     let cancelled = false
     const currentTimestamp = Math.round(Date.now() / 1000)
 
     async function getListFarmsForContract(contract: Contract): Promise<Farm[]> {
-      if (!isEVM(chainId)) return []
+      if (!isEVM) return []
       const rewardTokenAddresses: string[] = await contract?.getRewardTokens()
       const poolLength = await contract?.poolLength()
 
       const pids = [...Array(BigNumber.from(poolLength).toNumber()).keys()]
 
-      const isV2 = NETWORKS_INFO[chainId].classic.fairlaunchV2.includes(contract.address)
+      const isV2 = (networkInfo as EVMNetworkInfo).classic.fairlaunchV2.includes(contract.address)
       const poolInfos = await Promise.all(
         pids.map(async (pid: number) => {
           const poolInfo = await contract?.getPoolInfo(pid)
@@ -295,6 +295,8 @@ export const useFarmsData = (isIncludeOutsideFarms = true) => {
     blockNumber,
     allTokens,
     isIncludeOutsideFarms,
+    isEVM,
+    networkInfo,
   ])
 
   return useMemo(() => ({ loading, error, data: farmsData }), [error, farmsData, loading])
@@ -326,13 +328,13 @@ export const useActiveAndUniqueFarmsData = (): { loading: boolean; error: string
 }
 
 export const useYieldHistories = (isModalOpen: boolean) => {
-  const { chainId, account } = useActiveWeb3React()
+  const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
   const [histories, setHistories] = useState<FarmHistory[]>([])
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (!isEVM(chainId)) return
-    const apolloClient = NETWORKS_INFO[chainId || ChainId.MAINNET].classicClient
+    if (!isEVM) return
+    const apolloClient = (networkInfo as EVMNetworkInfo).classicClient
     async function fetchFarmHistories() {
       if (!account || !isModalOpen) {
         return
@@ -435,7 +437,7 @@ export const useYieldHistories = (isModalOpen: boolean) => {
     }
 
     fetchFarmHistories()
-  }, [chainId, account, isModalOpen])
+  }, [chainId, account, isModalOpen, isEVM, networkInfo])
 
   return { loading, data: histories }
 }

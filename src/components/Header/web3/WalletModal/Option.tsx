@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/macro'
-import { ChainType, getChainType } from '@namgold/ks-sdk-core'
 import { WalletReadyState } from '@solana/wallet-adapter-base'
 import styled from 'styled-components'
 
@@ -119,26 +118,19 @@ export default function Option({
   onSelected?: (walletKey: SUPPORTED_WALLET) => any
 }) {
   const isDarkMode = useIsDarkMode()
-  const { chainId, walletKey: walletKeyConnected } = useActiveWeb3React()
-  const chainType = getChainType(chainId)
+  const { walletKey: walletKeyConnected, isEVM, isSolana } = useActiveWeb3React()
   const isBraveBrowser = checkForBraveBrowser()
   const [isAcceptedTerm] = useIsAcceptedTerm()
 
   const wallet = SUPPORTED_WALLETS[walletKey]
   const isWalletEVM = isEVMWallet(wallet)
   const isWalletSolana = isSolanaWallet(wallet)
-  const isCorrectChain =
-    (isWalletEVM && chainType === ChainType.EVM) || (isWalletSolana && chainType === ChainType.SOLANA)
+  const isCorrectChain = (isWalletEVM && isEVM) || (isWalletSolana && isSolana)
   const isConnected = !!walletKeyConnected && walletKey === walletKeyConnected
   const readyState = (() => {
     const readyStateEVM = isWalletEVM ? wallet.readyState() : null
     const readyStateSolana = isWalletSolana ? wallet.readyStateSolana() : null
-    return (
-      (chainType === ChainType.EVM && readyStateEVM) ||
-      (chainType === ChainType.SOLANA && readyStateSolana) ||
-      readyStateEVM ||
-      readyStateSolana
-    )
+    return (isEVM && readyStateEVM) || (isSolana && readyStateSolana) || readyStateEVM || readyStateSolana
   })()
   if (readyState === WalletReadyState.Unsupported) return null
   const overridden = isOverriddenWallet(walletKey)
@@ -185,11 +177,7 @@ export default function Option({
     return (
       <MouseoverTooltip
         placement="top"
-        text={
-          <Trans>
-            Please select another wallet that is {chainType === ChainType.EVM ? 'EVM' : 'Solana'} compatible
-          </Trans>
-        }
+        text={<Trans>Please select another wallet that is {isEVM ? 'EVM' : 'Solana'} compatible</Trans>}
       >
         {content}
       </MouseoverTooltip>

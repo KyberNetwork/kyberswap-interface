@@ -6,7 +6,7 @@ import { Trade as ProAmmTrade } from '@namgold/ks-sdk-elastic'
 import JSBI from 'jsbi'
 import { useCallback, useMemo } from 'react'
 
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { useTokenAllowance } from 'data/Allowances'
 import { Field } from 'state/swap/actions'
@@ -127,34 +127,34 @@ export function useApproveCallback(
 
 // wraps useApproveCallback in the context of a swap
 export function useApproveCallbackFromTrade(trade?: Trade<Currency, Currency, TradeType>, allowedSlippage = 0) {
-  const { chainId } = useActiveWeb3React()
+  const { isEVM, networkInfo } = useActiveWeb3React()
   const amountToApprove = useMemo(
     () => (trade ? computeSlippageAdjustedAmounts(trade, allowedSlippage)[Field.INPUT] : undefined),
     [trade, allowedSlippage],
   )
-  const spender = isEVM(chainId) ? NETWORKS_INFO[chainId].classic.dynamic?.router : undefined
+  const spender = isEVM ? (networkInfo as EVMNetworkInfo).classic.dynamic?.router : undefined
   return useApproveCallback(amountToApprove, spender)
 }
 
 // wraps useApproveCallback in the context of a swap
 export function useApproveCallbackFromTradeV2(trade?: Aggregator, allowedSlippage = 0) {
-  const { chainId } = useActiveWeb3React()
+  const { isEVM } = useActiveWeb3React()
   const amountToApprove = useMemo(
     () => (trade ? computeSlippageAdjustedAmounts(trade, allowedSlippage)[Field.INPUT] : undefined),
     [trade, allowedSlippage],
   )
-  return useApproveCallback(amountToApprove, isEVM(chainId) && trade?.routerAddress ? trade.routerAddress : undefined)
+  return useApproveCallback(amountToApprove, isEVM && trade?.routerAddress ? trade.routerAddress : undefined)
 }
 
 export function useProAmmApproveCallback(
   trade: ProAmmTrade<Currency, Currency, TradeType> | undefined,
   allowedSlippage: Percent,
 ) {
-  const { chainId } = useActiveWeb3React()
+  const { isEVM, networkInfo } = useActiveWeb3React()
   const amountToApprove = useMemo(
     () => (trade && trade.inputAmount.currency.isToken ? trade.maximumAmountIn(allowedSlippage) : undefined),
     [trade, allowedSlippage],
   )
-  const spender = isEVM(chainId) ? NETWORKS_INFO[chainId].elastic.routers : undefined
+  const spender = isEVM ? (networkInfo as EVMNetworkInfo).elastic.routers : undefined
   return useApproveCallback(amountToApprove, spender)
 }

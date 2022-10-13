@@ -9,7 +9,6 @@ import styled from 'styled-components'
 import { ButtonEmpty } from 'components/Button'
 import Cart from 'components/Icons/Cart'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
-import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
@@ -27,8 +26,8 @@ const TopTrendingSoonTokenItem = ({
 }) => {
   const theme = useTheme()
   const { mixpanelHandler } = useMixpanel()
-  const { chainId } = useActiveWeb3React()
-  const currentNetwork = NETWORKS_INFO[chainId].trueSightId || ''
+  const { networkInfo } = useActiveWeb3React()
+  const currentNetwork = networkInfo.trueSightId || ''
   const toggleTrendingSoonTokenDetailModal = useToggleModal(ApplicationModal.TRENDING_SOON_TOKEN_DETAIL)
 
   const onSelectToken = () => {

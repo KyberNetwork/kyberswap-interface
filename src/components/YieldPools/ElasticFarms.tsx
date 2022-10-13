@@ -10,7 +10,7 @@ import FarmIssueAnnouncement from 'components/FarmIssueAnnouncement'
 import LocalLoader from 'components/LocalLoader'
 import ShareModal from 'components/ShareModal'
 import Toggle from 'components/Toggle'
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
@@ -42,7 +42,7 @@ type ModalType = 'deposit' | 'withdraw' | 'stake' | 'unstake' | 'harvest' | 'for
 
 function ElasticFarms({ active }: { active: boolean }) {
   const theme = useTheme()
-  const { chainId } = useActiveWeb3React()
+  const { isEVM, networkInfo, chainId } = useActiveWeb3React()
   const [stakedOnly, setStakedOnly] = useState({
     active: false,
     ended: false,
@@ -87,15 +87,15 @@ function ElasticFarms({ active }: { active: boolean }) {
     const searchAddress = isAddressString(chainId, search)
     // filter by address
     if (searchAddress) {
-      if (isEVM(chainId))
+      if (isEVM)
         result = result?.map(farm => {
           farm.pools = farm.pools.filter(pool => {
             const poolAddress = computePoolAddress({
-              factoryAddress: NETWORKS_INFO[chainId].elastic.coreFactory,
+              factoryAddress: (networkInfo as EVMNetworkInfo).elastic.coreFactory,
               tokenA: pool.token0.wrapped,
               tokenB: pool.token1.wrapped,
               fee: pool.pool.fee,
-              initCodeHashManualOverride: NETWORKS_INFO[chainId].elastic.initCodeHash,
+              initCodeHashManualOverride: (networkInfo as EVMNetworkInfo).elastic.initCodeHash,
             })
             return [poolAddress, pool.pool.token1.address, pool.pool.token0.address].includes(searchAddress)
           })
@@ -116,18 +116,18 @@ function ElasticFarms({ active }: { active: boolean }) {
       })
     }
 
-    if (stakedOnly[activeTab] && isEVM(chainId)) {
+    if (stakedOnly[activeTab] && isEVM) {
       result = result?.map(item => {
         if (!userFarmInfo?.[item.id].depositedPositions.length) {
           return { ...item, pools: [] }
         }
         const stakedPools = userFarmInfo?.[item.id].depositedPositions.map(pos =>
           computePoolAddress({
-            factoryAddress: NETWORKS_INFO[chainId].elastic.coreFactory,
+            factoryAddress: (networkInfo as EVMNetworkInfo).elastic.coreFactory,
             tokenA: pos.pool.token0,
             tokenB: pos.pool.token1,
             fee: pos.pool.fee,
-            initCodeHashManualOverride: NETWORKS_INFO[chainId].elastic.initCodeHash,
+            initCodeHashManualOverride: (networkInfo as EVMNetworkInfo).elastic.initCodeHash,
           }).toLowerCase(),
         )
 
@@ -137,7 +137,7 @@ function ElasticFarms({ active }: { active: boolean }) {
     }
 
     return result?.filter(farm => !!farm.pools.length) || []
-  }, [farms, active, search, stakedOnly, activeTab, chainId, userFarmInfo])
+  }, [farms, active, search, stakedOnly, activeTab, chainId, userFarmInfo, isEVM, networkInfo])
 
   const noFarms = !filteredFarms.length
 
@@ -148,7 +148,7 @@ function ElasticFarms({ active }: { active: boolean }) {
   const openShareModal = useOpenModal(ApplicationModal.SHARE)
   const isShareModalOpen = useModalOpen(ApplicationModal.SHARE)
   const [sharePoolAddress, setSharePoolAddress] = useState('')
-  const networkRoute = chainId ? NETWORKS_INFO[chainId].route : undefined
+  const networkRoute = networkInfo.route || undefined
   const shareUrl = sharePoolAddress
     ? `${window.location.origin}/farms?search=${sharePoolAddress}&tab=elastic&type=${activeTab}&networkId=${networkRoute}`
     : undefined

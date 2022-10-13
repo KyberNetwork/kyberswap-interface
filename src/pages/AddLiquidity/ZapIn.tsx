@@ -5,7 +5,7 @@ import { Currency, CurrencyAmount, Fraction, TokenAmount, WETH, computePriceImpa
 import { captureException } from '@sentry/react'
 import { parseUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
-import React, { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
 import { Flex, Text } from 'rebass'
 
@@ -26,7 +26,7 @@ import TransactionConfirmationModal, {
 import ZapError from 'components/ZapError'
 import FormattedPriceImpact from 'components/swap/FormattedPriceImpact'
 import { AMP_HINT } from 'constants/index'
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { PairState } from 'data/Reserves'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -75,7 +75,7 @@ const ZapIn = ({
   currencyIdB: string
   pairAddress: string
 }) => {
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
   const { library } = useWeb3React()
   const theme = useTheme()
   const currencyA = useCurrency(currencyIdA)
@@ -165,12 +165,12 @@ const ZapIn = ({
 
   const [approval, approveCallback] = useApproveCallback(
     amountToApprove,
-    isEVM(chainId)
+    isEVM
       ? isStaticFeePair
         ? isOldStaticFeeContract
-          ? NETWORKS_INFO[chainId].classic.oldStatic?.zap
-          : NETWORKS_INFO[chainId].classic.static.zap
-        : NETWORKS_INFO[chainId].classic.dynamic?.zap
+          ? (networkInfo as EVMNetworkInfo).classic.oldStatic?.zap
+          : (networkInfo as EVMNetworkInfo).classic.static.zap
+        : (networkInfo as EVMNetworkInfo).classic.dynamic?.zap
       : undefined,
   )
 
@@ -188,7 +188,7 @@ const ZapIn = ({
 
   const addTransactionWithType = useTransactionAdder()
   async function onZapIn() {
-    if (!isEVM(chainId) || !library || !account) return
+    if (!isEVM || !library || !account) return
     const zapContract = getZapContract(chainId, library, account, isStaticFeePair, isOldStaticFeeContract)
 
     if (!chainId || !account) {
@@ -235,7 +235,7 @@ const ZapIn = ({
     }
     // All methods of new zap static fee contract include factory address as first arg
     if (isStaticFeePair && !isOldStaticFeeContract) {
-      args.unshift(NETWORKS_INFO[chainId].classic.static.factory)
+      args.unshift((networkInfo as EVMNetworkInfo).classic.static.factory)
     }
     setAttemptingTxn(true)
     await estimate(...args, value ? { value } : {})

@@ -2,7 +2,7 @@ import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import { ChainId } from '@namgold/ks-sdk-core'
 import { Connection } from '@solana/web3.js'
 
-interface NetworkInfo {
+export interface NetworkInfo {
   readonly chainId: ChainId
 
   // route can be used to detect which chain is favored in query param, check out useActiveNetwork.ts

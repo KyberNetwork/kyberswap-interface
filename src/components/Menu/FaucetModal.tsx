@@ -11,7 +11,6 @@ import Logo from 'components/Logo'
 import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
 import { REWARD_SERVICE_API } from 'constants/env'
-import { NETWORKS_INFO } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
@@ -53,7 +52,7 @@ const getFullDisplayBalance = (balance: BigNumber, decimals = 18, significant = 
 }
 
 function FaucetModal() {
-  const { chainId, account } = useActiveWeb3React()
+  const { chainId, account, networkInfo } = useActiveWeb3React()
   const open = useModalOpen(ApplicationModal.FAUCET_POPUP)
   const toggle = useToggleModal(ApplicationModal.FAUCET_POPUP)
   const theme = useTheme()
@@ -74,9 +73,9 @@ function FaucetModal() {
   }, [rewardData, chainId, account, allTokens])
   const tokenLogo = useMemo(() => {
     if (!chainId || !token) return
-    if (token.isNative) return NETWORKS_INFO[chainId].nativeToken.logo
+    if (token.isNative) return networkInfo.nativeToken.logo
     return getTokenLogoURL(token.address, chainId)
-  }, [chainId, token])
+  }, [chainId, token, networkInfo])
   const tokenSymbol = useMemo(() => {
     if (token?.isNative && chainId) return WETH[chainId].name
     return token?.symbol

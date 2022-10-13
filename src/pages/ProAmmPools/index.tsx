@@ -13,7 +13,6 @@ import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
 import { Input as PaginationInput } from 'components/Pagination/PaginationInputOnMobile'
 import ShareModal from 'components/ShareModal'
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { STABLE_COINS_ADDRESS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { SelectPairInstructionWrapper } from 'pages/Pools/styleds'
@@ -103,7 +102,7 @@ export default function ProAmmPoolList({
   const { loading, addresses } = useTopPoolAddresses()
   const { loading: poolDataLoading, data: poolDatas } = usePoolDatas(addresses || [])
 
-  const { chainId, account } = useActiveWeb3React()
+  const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
   const userLiquidityPositionsQueryResult = useUserProMMPositions()
   const loadingUserPositions = !account ? false : userLiquidityPositionsQueryResult.loading
   const userPositions = !account ? {} : userLiquidityPositionsQueryResult.userLiquidityUsdByPool
@@ -322,7 +321,7 @@ export default function ProAmmPoolList({
   const openShareModal = useOpenModal(ApplicationModal.SHARE)
   const isShareModalOpen = useModalOpen(ApplicationModal.SHARE)
 
-  const chainRoute = NETWORKS_INFO[chainId].route
+  const chainRoute = networkInfo.route
   const shareUrl = sharedPoolId
     ? window.location.origin + '/pools?search=' + sharedPoolId + '&tab=elastic&networkId=' + chainRoute
     : undefined
@@ -339,7 +338,7 @@ export default function ProAmmPoolList({
     }
   }, [isShareModalOpen, setSharedPoolId])
 
-  if (!isEVM(chainId)) return <Redirect to="/" />
+  if (!isEVM) return <Redirect to="/" />
 
   const pageData = pairDatas.slice((page - 1) * ITEM_PER_PAGE, page * ITEM_PER_PAGE)
 

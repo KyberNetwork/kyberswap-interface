@@ -30,7 +30,6 @@ import {
   UpcomingPoolsWrapper,
 } from 'components/YieldPools/styleds'
 import { ZERO_ADDRESS } from 'constants/index'
-import { isEVM } from 'constants/networks'
 import { UPCOMING_POOLS } from 'constants/upcoming-pools'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
@@ -43,7 +42,7 @@ import { useFarmsData } from 'state/farms/hooks'
 import { isInEnum } from 'utils/string'
 
 const Farm = () => {
-  const { chainId } = useActiveWeb3React()
+  const { isEVM } = useActiveWeb3React()
   const { loading } = useFarmsData()
   const qs = useParsedQueryString<{ type: string; tab: string }>()
   const { type = 'active', tab = VERSION.ELASTIC } = qs
@@ -125,7 +124,7 @@ const Farm = () => {
     </Flex>
   )
 
-  if (!isEVM(chainId)) return <Redirect to="/" />
+  if (!isEVM) return <Redirect to="/" />
   return (
     <>
       <FarmUpdater />

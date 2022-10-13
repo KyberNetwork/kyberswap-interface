@@ -8,7 +8,6 @@ import { Redirect } from 'react-router-dom'
 import LiquidityProviderMode from 'components/LiquidityProviderMode'
 import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
 import { MinimalPositionCard } from 'components/PositionCard'
-import { isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -25,7 +24,7 @@ export default function RemoveLiquidity({
   },
 }: RouteComponentProps<{ currencyIdA: string; currencyIdB: string; pairAddress: string }>) {
   const [currencyA, currencyB] = [useCurrency(currencyIdA) ?? undefined, useCurrency(currencyIdB) ?? undefined]
-  const { chainId } = useActiveWeb3React()
+  const { chainId, isEVM } = useActiveWeb3React()
 
   const nativeA = useCurrencyConvertedToNative(currencyA)
   const nativeB = useCurrencyConvertedToNative(currencyB)
@@ -49,7 +48,7 @@ export default function RemoveLiquidity({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  if (!isEVM(chainId)) return <Redirect to="/" />
+  if (!isEVM) return <Redirect to="/" />
   return (
     <>
       <PageWrapper>

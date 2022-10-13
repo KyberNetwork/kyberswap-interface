@@ -24,7 +24,7 @@ import TransactionConfirmationModal, {
   TransactionErrorContent,
 } from 'components/TransactionConfirmationModal'
 import { AMP_HINT } from 'constants/index'
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { PairState } from 'data/Reserves'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -72,7 +72,7 @@ const TokenPair = ({
   currencyIdB: string
   pairAddress: string
 }) => {
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
   const { library } = useWeb3React()
   const theme = useTheme()
   const currencyA = useCurrency(currencyIdA)
@@ -149,12 +149,12 @@ const TokenPair = ({
     {},
   )
 
-  const routerAddress = isEVM(chainId)
+  const routerAddress = isEVM
     ? isStaticFeePair
       ? isOldStaticFeeContract
-        ? NETWORKS_INFO[chainId].classic.oldStatic?.router
-        : NETWORKS_INFO[chainId].classic.static.router
-      : NETWORKS_INFO[chainId].classic.dynamic?.router
+        ? (networkInfo as EVMNetworkInfo).classic.oldStatic?.router
+        : (networkInfo as EVMNetworkInfo).classic.static.router
+      : (networkInfo as EVMNetworkInfo).classic.dynamic?.router
     : undefined
 
   // check whether the user has approved the router on the tokens

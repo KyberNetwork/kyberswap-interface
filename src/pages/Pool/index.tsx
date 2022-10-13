@@ -22,7 +22,6 @@ import Search from 'components/Search'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import Tutorial, { TutorialType } from 'components/Tutorial'
 import { APP_PATHS, DMM_ANALYTICS_URL, OUTSIDE_FAIRLAUNCH_ADDRESSES } from 'constants/index'
-import { isEVM } from 'constants/networks'
 import { VERSION } from 'constants/v2'
 import { usePairByAddress, usePairsByAddress } from 'data/Reserves'
 import { useActiveWeb3React } from 'hooks'
@@ -180,7 +179,7 @@ export default function PoolCombination() {
 
 function Pool() {
   const theme = useTheme()
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, isEVM } = useActiveWeb3React()
   const { width } = useWindowSize()
 
   const under768 = width && width <= 768
@@ -276,7 +275,7 @@ function Pool() {
 
   const upToSmall = useMedia('(max-width: 768px)')
 
-  if (!isEVM(chainId)) return <Redirect to="/" />
+  if (!isEVM) return <Redirect to="/" />
   return (
     <>
       <PageWrapper style={{ padding: 0, marginTop: '24px' }}>

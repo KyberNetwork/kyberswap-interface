@@ -11,6 +11,7 @@ import { useSelector } from 'react-redux'
 
 import { injected } from 'connectors'
 import { EVM_NETWORK, EVM_NETWORKS, NETWORKS_INFO } from 'constants/networks'
+import { NetworkInfo } from 'constants/networks/type'
 import { SUPPORTED_WALLET, SUPPORTED_WALLETS } from 'constants/wallets'
 import { AppState } from 'state'
 import { useIsUserManuallyDisconnect } from 'state/user/hooks'
@@ -32,38 +33,41 @@ export function useActiveWeb3React(): {
   chainId: ChainId
   account?: string
   walletKey: SUPPORTED_WALLET | undefined
+  isEVM: boolean
+  isSolana: boolean
+  networkInfo: NetworkInfo
 } {
   const chainIdState = useSelector<AppState, ChainId>(state => state.user.chainId) || ChainId.MAINNET
-  const chainType = getChainType(chainIdState)
+  const isEVM = useMemo(() => getChainType(chainIdState) === ChainType.EVM, [chainIdState])
+  const isSolana = useMemo(() => getChainType(chainIdState) === ChainType.SOLANA, [chainIdState])
+  const networkInfo = useMemo(() => NETWORKS_INFO[chainIdState], [chainIdState])
+
   const { account, connector, active } = useWeb3React()
   const { wallet: walletSolana, connected, publicKey } = useWallet()
 
-  const address = useMemo(
-    () => (chainType === ChainType.EVM ? account ?? undefined : publicKey?.toBase58()),
-    [account, chainType, publicKey],
-  )
+  const address = useMemo(() => (isEVM ? account ?? undefined : publicKey?.toBase58()), [account, isEVM, publicKey])
 
   const walletKey = useMemo(() => {
     const injectedType = detectInjectedType()
-    if (active && injectedType && chainType === ChainType.EVM) return injectedType
+    if (active && injectedType && isEVM) return injectedType
 
     return (Object.keys(SUPPORTED_WALLETS) as SUPPORTED_WALLET[]).find(walletKey => {
       const wallet = SUPPORTED_WALLETS[walletKey]
       return (
-        (chainType === ChainType.EVM &&
-          active &&
-          isEVMWallet(wallet) &&
-          !!connector &&
-          wallet.connector === connector) ||
-        (chainType === ChainType.SOLANA &&
-          isSolanaWallet(wallet) &&
-          wallet &&
-          connected &&
-          wallet.adapter === walletSolana?.adapter)
+        (isEVM && active && isEVMWallet(wallet) && !!connector && wallet.connector === connector) ||
+        (isSolana && isSolanaWallet(wallet) && wallet && connected && wallet.adapter === walletSolana?.adapter)
       )
     })
-  }, [active, chainType, connected, connector, walletSolana?.adapter])
-  return { chainId: chainIdState, account: address, walletKey }
+  }, [active, isEVM, isSolana, connected, connector, walletSolana?.adapter])
+
+  return {
+    chainId: chainIdState,
+    account: address,
+    walletKey,
+    isEVM,
+    isSolana,
+    networkInfo,
+  }
 }
 
 export function useWeb3React(key?: string): Web3ReactContextInterface<Web3Provider> & { chainId?: ChainId } {
@@ -107,8 +111,7 @@ async function isAuthorized(): Promise<boolean> {
 let globalTried = false
 
 export function useEagerConnect() {
-  const { chainId } = useActiveWeb3React()
-  const chainType = getChainType(chainId)
+  const { isSolana } = useActiveWeb3React()
   const { activate, active } = useWeb3React()
   const [tried, setTried] = useState(false)
   const [isManuallyDisconnect] = useIsUserManuallyDisconnect()
@@ -126,7 +129,7 @@ export function useEagerConnect() {
   }, [])
 
   useEffect(() => {
-    if (chainType === ChainType.SOLANA) setTried(true)
+    if (isSolana) setTried(true)
     else {
       try {
         isAuthorized()

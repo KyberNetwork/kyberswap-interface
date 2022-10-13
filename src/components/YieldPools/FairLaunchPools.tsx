@@ -7,7 +7,7 @@ import { Text } from 'rebass'
 
 import ShareModal from 'components/ShareModal'
 import { OUTSIDE_FAIRLAUNCH_ADDRESSES } from 'constants/index'
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { useFairLaunchVersion } from 'hooks/useContract'
 import useFairLaunch from 'hooks/useFairLaunch'
@@ -34,8 +34,8 @@ interface FarmsListProps {
 
 const FairLaunchPools = ({ fairLaunchAddress, farms }: FarmsListProps) => {
   const dispatch = useAppDispatch()
-  const { chainId, account } = useActiveWeb3React()
-  const networkRoute = chainId ? NETWORKS_INFO[chainId].route : undefined
+  const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
+  const networkRoute = networkInfo.route || undefined
   const theme = useTheme()
   const blockNumber = useBlockNumber()
   const totalRewards = useFarmRewards(farms)
@@ -63,7 +63,7 @@ const FairLaunchPools = ({ fairLaunchAddress, farms }: FarmsListProps) => {
     })
   }, [isShareModalOpen, setSharedPoolAddress])
 
-  if (!isEVM(chainId)) return <Redirect to="/" />
+  if (!isEVM) return <Redirect to="/" />
 
   const shareUrl = sharedPoolAddress
     ? window.location.origin + '/farms?search=' + sharedPoolAddress + '&tab=classic&networkId=' + networkRoute
@@ -133,13 +133,13 @@ const FairLaunchPools = ({ fairLaunchAddress, farms }: FarmsListProps) => {
           if (!isFarmStarted) {
             remainingBlocks = farm && blockNumber && farm.startBlock - blockNumber
             estimatedRemainingSeconds =
-              remainingBlocks && remainingBlocks * NETWORKS_INFO[chainId].averageBlockTimeInSeconds
+              remainingBlocks && remainingBlocks * (networkInfo as EVMNetworkInfo).averageBlockTimeInSeconds
             formattedEstimatedRemainingTime =
               estimatedRemainingSeconds && getFormattedTimeFromSecond(estimatedRemainingSeconds)
           } else {
             remainingBlocks = farm && blockNumber && farm.endBlock - blockNumber
             estimatedRemainingSeconds =
-              remainingBlocks && remainingBlocks * NETWORKS_INFO[chainId].averageBlockTimeInSeconds
+              remainingBlocks && remainingBlocks * (networkInfo as EVMNetworkInfo).averageBlockTimeInSeconds
             formattedEstimatedRemainingTime =
               estimatedRemainingSeconds && getFormattedTimeFromSecond(estimatedRemainingSeconds)
           }

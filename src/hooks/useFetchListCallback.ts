@@ -17,7 +17,6 @@ export function useFetchListCallback(): (listUrl: string, sendDispatch?: boolean
   const { chainId } = useActiveWeb3React()
   const { library } = useWeb3React()
   const dispatch = useDispatch<AppDispatch>()
-
   const ensResolver = useCallback(
     (ensName: string) => {
       if (!library || chainId !== ChainId.MAINNET) {

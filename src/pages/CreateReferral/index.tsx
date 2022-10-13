@@ -13,7 +13,6 @@ import NetworkModal from 'components/Header/web3/NetworkModal'
 import InfoHelper from 'components/InfoHelper'
 import Slider from 'components/Slider'
 import Toggle from 'components/Toggle'
-import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
@@ -141,7 +140,7 @@ const ErrorMessage = styled.div`
   margin-top: 8px;
 `
 export default function CreateReferral() {
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, networkInfo } = useActiveWeb3React()
   const theme = useTheme()
   const [isShowChain, setIsShowChain] = useState(true)
   const [isShowTokens, setIsShowTokens] = useState(false)
@@ -351,10 +350,10 @@ export default function CreateReferral() {
                       <Flex alignItems="center">
                         <img
                           alt=""
-                          src={NETWORKS_INFO[chainId].icon}
+                          src={networkInfo.icon}
                           style={{ height: '20px', width: '20px', marginRight: '8px' }}
                         />
-                        {NETWORKS_INFO[chainId].name}
+                        {networkInfo.name}
                       </Flex>
                       <ChevronDown size={20} style={{ top: '10px', right: '10px', position: 'absolute' }} />
                     </>

@@ -3,7 +3,7 @@ import { Currency, Token, TokenAmount } from '@namgold/ks-sdk-core'
 import { useMemo } from 'react'
 
 import DMM_POOL_INTERFACE from 'constants/abis/dmmPool'
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import {
   useDynamicFeeFactoryContract,
@@ -119,7 +119,7 @@ export function usePairs(currencies: [Currency | undefined, Currency | undefined
 export function usePairsByAddress(
   pairInfo: { address: string | undefined; currencies: [Currency | undefined, Currency | undefined] }[],
 ): [PairState, Pair | null, boolean?, boolean?][] {
-  const { chainId } = useActiveWeb3React()
+  const { isEVM, networkInfo } = useActiveWeb3React()
   const results = useMultipleContractSingleData(
     pairInfo.map(info => info.address),
     DMM_POOL_INTERFACE,
@@ -137,7 +137,7 @@ export function usePairsByAddress(
   )
 
   return useMemo(() => {
-    if (!isEVM(chainId)) return []
+    if (!isEVM) return []
 
     return results.map((result, i) => {
       const { result: reserves, loading } = result
@@ -152,9 +152,10 @@ export function usePairsByAddress(
       if (!reserves) return [PairState.NOT_EXISTS, null]
       const { _reserve0, _reserve1, _vReserve0, _vReserve1, feeInPrecision } = reserves
       const [token0, token1] = tokenA.sortsBefore(tokenB) ? [tokenA, tokenB] : [tokenB, tokenA]
-      const isStaticFeePair = factoryAddresses && factoryAddresses[0] === NETWORKS_INFO[chainId].classic.static.factory
+      const isStaticFeePair =
+        factoryAddresses && factoryAddresses[0] === (networkInfo as EVMNetworkInfo).classic.static.factory
       const isOldStaticFeeContract =
-        factoryAddresses && factoryAddresses[0] === NETWORKS_INFO[chainId].classic.oldStatic?.factory
+        factoryAddresses && factoryAddresses[0] === (networkInfo as EVMNetworkInfo).classic.oldStatic?.factory
       return [
         PairState.EXISTS,
         new Pair(
@@ -170,7 +171,7 @@ export function usePairsByAddress(
         isOldStaticFeeContract,
       ]
     })
-  }, [chainId, pairInfo, results, ampResults, factories])
+  }, [isEVM, networkInfo, pairInfo, results, ampResults, factories])
 }
 
 export function usePair(tokenA?: Currency, tokenB?: Currency): [PairState, Pair | null][] {

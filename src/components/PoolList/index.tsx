@@ -15,7 +15,6 @@ import ListItem from 'components/PoolList/ListItem'
 import ShareModal from 'components/ShareModal'
 import { ClickableText } from 'components/YieldPools/styleds'
 import { AMP_HINT, AMP_LIQUIDITY_HINT, MAX_ALLOW_APY } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
 import { STABLE_COINS_ADDRESS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { SelectPairInstructionWrapper } from 'pages/Pools/styleds'
@@ -94,7 +93,7 @@ const PoolList = ({
   const [sortedColumn, setSortedColumn] = useState(SORT_FIELD.LIQ)
   const { loading: loadingPoolsData, data: subgraphPoolsData } = useAllPoolsData()
 
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, networkInfo } = useActiveWeb3React()
 
   useResetPools(chainId)
 
@@ -375,7 +374,7 @@ const PoolList = ({
   const openShareModal = useOpenModal(ApplicationModal.SHARE)
   const isShareModalOpen = useModalOpen(ApplicationModal.SHARE)
 
-  const chainRoute = NETWORKS_INFO[chainId].route
+  const chainRoute = networkInfo.route
   const shareUrl = sharedPoolId
     ? window.location.origin + '/pools?tab=classic&search=' + sharedPoolId + '&networkId=' + chainRoute
     : undefined

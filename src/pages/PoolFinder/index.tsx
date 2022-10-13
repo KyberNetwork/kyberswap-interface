@@ -15,7 +15,6 @@ import { FindPoolTabs } from 'components/NavigationTabs'
 import { NarrowPositionCard } from 'components/PositionCard'
 import Row from 'components/Row'
 import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
-import { isEVM } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { PairState, usePair } from 'data/Reserves'
 import { useActiveWeb3React } from 'hooks'
@@ -34,7 +33,7 @@ enum Fields {
 }
 
 export default function PoolFinder() {
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, isEVM } = useActiveWeb3React()
 
   const [showSearch, setShowSearch] = useState<boolean>(false)
   const [activeField, setActiveField] = useState<number>(Fields.TOKEN1)
@@ -113,7 +112,7 @@ export default function PoolFinder() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  if (!isEVM(chainId)) return <Redirect to="/" />
+  if (!isEVM) return <Redirect to="/" />
   return (
     <AppBody>
       <FindPoolTabs />

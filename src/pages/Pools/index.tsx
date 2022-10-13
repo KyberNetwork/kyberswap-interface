@@ -17,7 +17,6 @@ import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import Toggle from 'components/Toggle'
 import { MouseoverTooltip } from 'components/Tooltip'
 import Tutorial, { TutorialType } from 'components/Tutorial'
-import { isEVM } from 'constants/networks'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
@@ -80,7 +79,7 @@ const Pools = ({
   history,
 }: RouteComponentProps<{ currencyIdA?: string; currencyIdB?: string }>) => {
   const theme = useTheme()
-  const { chainId } = useActiveWeb3React()
+  const { chainId, isEVM } = useActiveWeb3React()
   const above1000 = useMedia('(min-width: 1000px)')
   const above1260 = useMedia('(min-width: 1260px)')
   const below1124 = useMedia('(max-width: 1124px)')
@@ -175,7 +174,7 @@ const Pools = ({
     }
   }
 
-  if (!isEVM(chainId)) return <Redirect to="/" />
+  if (!isEVM) return <Redirect to="/" />
   return (
     <>
       <PoolsPageWrapper>

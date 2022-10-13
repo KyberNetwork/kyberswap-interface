@@ -27,7 +27,8 @@ import Loader from 'components/Loader'
 import MenuFlyout from 'components/MenuFlyout'
 import { MAINNET_ENV, TAG } from 'constants/env'
 import { DMM_ANALYTICS_URL } from 'constants/index'
-import { FAUCET_NETWORKS, NETWORKS_INFO, isEVM } from 'constants/networks'
+import { FAUCET_NETWORKS } from 'constants/networks'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import useClaimReward from 'hooks/useClaimReward'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -150,7 +151,7 @@ export const NewLabel = styled.span`
 `
 
 export default function Menu() {
-  const { chainId, account } = useActiveWeb3React()
+  const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
   const theme = useTheme()
   const node = useRef<HTMLDivElement>()
   const open = useModalOpen(ApplicationModal.MENU)
@@ -161,7 +162,7 @@ export default function Menu() {
   const above768 = useMedia('(min-width: 768px)')
   const under369 = useMedia('(max-width: 370px)')
 
-  const bridgeLink = NETWORKS_INFO[chainId].bridgeURL
+  const bridgeLink = networkInfo.bridgeURL
   const toggleClaimPopup = useToggleModal(ApplicationModal.CLAIM_POPUP)
   const toggleFaucetPopup = useToggleModal(ApplicationModal.FAUCET_POPUP)
   const { pendingTx } = useClaimReward()
@@ -261,7 +262,7 @@ export default function Menu() {
           <Trans>Contact Us</Trans>
         </MenuItem>
         <ClaimRewardButton
-          disabled={!account || !isEVM(chainId) || !NETWORKS_INFO[chainId].classic.claimReward || pendingTx}
+          disabled={!account || !isEVM || !(networkInfo as EVMNetworkInfo).classic.claimReward || pendingTx}
           onClick={() => {
             mixpanelHandler(MIXPANEL_TYPE.CLAIM_REWARDS_INITIATED)
             toggleClaimPopup()

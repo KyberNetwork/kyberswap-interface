@@ -17,7 +17,6 @@ import Modal from 'components/Modal'
 import Popups from 'components/Popups'
 import Web3ReactManager from 'components/Web3ReactManager'
 import { APP_PATHS, BLACKLIST_WALLETS } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useGlobalMixpanelEvents } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
@@ -96,7 +95,7 @@ const BodyWrapper = styled.div`
   ${isMobile && `overflow-x: hidden;`}
 `
 export default function App() {
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, networkInfo } = useActiveWeb3React()
 
   useEffect(() => {
     if (account) {
@@ -110,10 +109,10 @@ export default function App() {
     if (chainId) {
       Sentry.setContext('network', {
         chainId: chainId,
-        name: NETWORKS_INFO[chainId].name,
+        name: networkInfo.name,
       })
     }
-  }, [chainId])
+  }, [chainId, networkInfo.name])
 
   const theme = useTheme()
   const isDarkTheme = useIsDarkMode()

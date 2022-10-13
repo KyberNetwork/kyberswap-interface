@@ -15,7 +15,7 @@ import JSBI from 'jsbi'
 import { useMemo } from 'react'
 
 import { BLOCKS_PER_YEAR, SECONDS_PER_YEAR, ZERO_ADDRESS } from 'constants/index'
-import { EVM_NETWORK, isEVM } from 'constants/networks'
+import { EVM_NETWORK } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
@@ -322,7 +322,7 @@ export function useFarmRewardsPerTimeUnit(farm?: Farm): RewardPerTimeUnit[] {
  * @returns
  */
 export function useFarmApr(farm: Farm, poolLiquidityUsd: string): number {
-  const { chainId } = useActiveWeb3React()
+  const { chainId, isEVM } = useActiveWeb3React()
   const currentBlock = useBlockNumber()
   const rewardsPerTimeUnit = useFarmRewardsPerTimeUnit(farm)
   const tokenPrices = useRewardTokenPrices((rewardsPerTimeUnit || []).map(item => item.token))
@@ -383,7 +383,7 @@ export function useFarmApr(farm: Farm, poolLiquidityUsd: string): number {
         return total
       }
 
-      if (isEVM(chainId) && tokenPrices[index]) {
+      if (isEVM && tokenPrices[index]) {
         const rewardPerBlockAmount = TokenAmount.fromRawAmount(rewardPerBlock.token, rewardPerBlock.amount.toString())
         const yearlyETHRewardAllocation =
           parseFloat(rewardPerBlockAmount.toSignificant(6)) * BLOCKS_PER_YEAR(chainId as EVM_NETWORK)

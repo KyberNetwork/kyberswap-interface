@@ -17,7 +17,7 @@ import Search from 'components/Search'
 import Toggle from 'components/Toggle'
 import Tutorial, { TutorialType } from 'components/Tutorial'
 import { PROMM_ANALYTICS_URL } from 'constants/index'
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
@@ -50,7 +50,7 @@ interface AddressSymbolMapInterface {
 }
 
 export default function ProAmmPool() {
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
   const tokenAddressSymbolMap = useRef<AddressSymbolMapInterface>({})
   const { positions, loading: positionsLoading } = useProAmmPositions(account)
 
@@ -59,17 +59,17 @@ export default function ProAmmPool() {
   const farmingPools = useMemo(() => farms?.map(farm => farm.pools).flat() || [], [farms])
 
   const farmPositions = useMemo(() => {
-    if (!isEVM(chainId)) return []
+    if (!isEVM) return []
     return Object.values(userFarmInfo || {})
       .map(info => {
         return info.depositedPositions
           .map(pos => {
             const poolAddress = computePoolAddress({
-              factoryAddress: NETWORKS_INFO[chainId].elastic.coreFactory,
+              factoryAddress: (networkInfo as EVMNetworkInfo).elastic.coreFactory,
               tokenA: pos.pool.token0,
               tokenB: pos.pool.token1,
               fee: pos.pool.fee,
-              initCodeHashManualOverride: NETWORKS_INFO[chainId].elastic.initCodeHash,
+              initCodeHashManualOverride: (networkInfo as EVMNetworkInfo).elastic.initCodeHash,
             })
             const pool = farmingPools.filter(pool => pool.poolAddress === poolAddress.toLowerCase())
 
@@ -108,7 +108,7 @@ export default function ProAmmPool() {
           .flat()
       })
       .flat()
-  }, [chainId, farmingPools, userFarmInfo])
+  }, [farmingPools, userFarmInfo, isEVM, networkInfo])
 
   const [openPositions, closedPositions] = useMemo(
     () =>
@@ -190,7 +190,7 @@ export default function ProAmmPool() {
     )
   }, [farms])
 
-  if (!isEVM(chainId)) return <Redirect to="/" />
+  if (!isEVM) return <Redirect to="/" />
   return (
     <>
       <PageWrapper style={{ padding: 0, marginTop: '24px' }}>
