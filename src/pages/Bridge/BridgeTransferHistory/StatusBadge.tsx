@@ -63,11 +63,15 @@ const Wrapper = styled.div<{ status: GeneralStatus; iconOnly: boolean }>`
   font-size: 12px;
   line-height: 16px;
 
+  overflow: hidden;
+
   ${({ status }) => cssByGeneralStatus[status]}
   ${({ iconOnly }) =>
     iconOnly &&
     css`
-      padding: 4px;
+      padding: 0;
+      width: 20px;
+      height: 20px;
     `}
 `
 
@@ -98,7 +102,18 @@ const StatusBadge: React.FC<Props> = ({ status, iconOnly }) => {
   return (
     <Wrapper iconOnly={!!iconOnly} status={generalStatus}>
       {renderIcon()}
-      {!iconOnly && <Text>{label}</Text>}
+      {!iconOnly && (
+        <Text
+          as="span"
+          sx={{
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {label}
+        </Text>
+      )}
     </Wrapper>
   )
 }

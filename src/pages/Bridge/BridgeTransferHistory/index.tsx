@@ -30,13 +30,13 @@ const commonCSS = css`
   padding: 0 16px;
 
   display: grid;
-  grid-template-columns: 120px 130px 80px 1fr 32px;
+  grid-template-columns: 120px 130px 80px 150px 32px;
+  justify-content: space-between;
   align-items: center;
-  column-gap: 64px;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
-    column-gap: 16px;
-    grid-template-columns: 120px 120px 64px 1fr 28px;
+    column-gap: 4px;
+    grid-template-columns: 120px minmax(80px, 120px) 64px minmax(auto, 130px) 28px;
   `}
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     column-gap: 16px;
