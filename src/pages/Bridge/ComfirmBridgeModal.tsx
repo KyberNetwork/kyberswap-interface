@@ -156,17 +156,20 @@ export default memo(function Disclaimer({
                 <Label>
                   <Trans>Bridge Fee</Trans>
                 </Label>
-                <Value>~ {outputInfo.fee || '--'}</Value>
+                <Value>{outputInfo.fee ? `~${outputInfo.fee} ${tokenIn?.symbol}` : '--'}</Value>
               </Row>
             </Flex>
 
+            <Text fontSize={12} fontStyle="italic" color={theme.subText}>
+              <Trans>Note: It may take a few minutes for your transaction to show up under Active Transfers.</Trans>
+            </Text>
             <ButtonPrimary onClick={onSwap}>
               <Trans>Transfer</Trans>
             </ButtonPrimary>
           </Flex>
         </Container>
       ),
-    [onDismiss, swapState.swapErrorMessage, listData, onSwap, outputInfo, theme],
+    [onDismiss, swapState.swapErrorMessage, listData, onSwap, outputInfo, theme, tokenIn?.symbol],
   )
 
   return (

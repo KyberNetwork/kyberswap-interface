@@ -60,7 +60,7 @@ function Web3Network({
         <DropdownIcon open={isOpen} />
       </NetworkSwitchContainer>
       <NetworkModal
-        chainIds={chainIds}
+        activeChainIds={chainIds}
         isOpen={isOpen}
         selectedId={selectedChainId}
         customToggleModal={toggleNetworkModal}

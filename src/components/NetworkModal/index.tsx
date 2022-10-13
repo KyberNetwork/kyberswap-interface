@@ -59,12 +59,13 @@ export const ListItem = styled.div<{ selected?: boolean }>`
       `}
 `
 
-export const SelectNetworkButton = styled(ButtonEmpty)`
+export const SelectNetworkButton = styled(ButtonEmpty)<{ disabled?: boolean }>`
   background-color: transparent;
   color: ${({ theme }) => theme.primary};
   display: flex;
   justify-content: center;
   align-items: center;
+  filter: ${({ disabled }) => disabled && 'grayscale(1)'};
   &:focus {
     text-decoration: none;
   }
@@ -82,13 +83,13 @@ export const SelectNetworkButton = styled(ButtonEmpty)`
 `
 const SHOW_NETWORKS = process.env.NODE_ENV === 'production' ? MAINNET_NETWORKS : SUPPORTED_NETWORKS
 export default function NetworkModal({
-  chainIds,
+  activeChainIds,
   selectedId,
   customOnSelectNetwork,
   isOpen,
   customToggleModal,
 }: {
-  chainIds?: ChainId[]
+  activeChainIds?: ChainId[]
   selectedId?: ChainId | undefined
   isOpen?: boolean
   customOnSelectNetwork?: (chainId: ChainId) => void
@@ -120,6 +121,15 @@ export default function NetworkModal({
       })
     }
   }
+  const isItemActive = (key: ChainId) => (!selectedId && chainId === key) || (selectedId && selectedId === key)
+  const sortedNetwork = activeChainIds
+    ? SHOW_NETWORKS.sort((x, y) => {
+        if (isItemActive(x) && !isItemActive(y)) return -1
+        if (!isItemActive(x) && isItemActive(y)) return 1
+        return activeChainIds?.includes(x) ? -1 : 1
+      })
+    : SHOW_NETWORKS
+
   return (
     <Modal
       zindex={Z_INDEXS.MODAL}
@@ -138,10 +148,10 @@ export default function NetworkModal({
           </Flex>
         </Flex>
         <NetworkList>
-          {(chainIds || SHOW_NETWORKS).map((key: ChainId, i: number) => {
+          {sortedNetwork.map((key: ChainId, i: number) => {
             const { iconDark, icon, name } = NETWORKS_INFO[key as ChainId]
             const iconSrc = isDarkMode && iconDark ? iconDark : icon
-            if (chainId === key || selectedId === key) {
+            if (isItemActive(key)) {
               return (
                 <SelectNetworkButton key={i} padding="0">
                   <ListItem selected>
@@ -151,10 +161,11 @@ export default function NetworkModal({
                 </SelectNetworkButton>
               )
             }
-
+            const disabled = activeChainIds ? !(activeChainIds as any)?.includes(key) : false /** // todo */
             return (
               <SelectNetworkButton
-                key={i}
+                key={key}
+                disabled={disabled}
                 padding="0"
                 onClick={() => {
                   onSelect(key)
