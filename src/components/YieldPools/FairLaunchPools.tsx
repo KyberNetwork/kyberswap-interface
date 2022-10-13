@@ -62,7 +62,7 @@ const FairLaunchPools = ({ fairLaunchAddress, farms }: FarmsListProps) => {
       return addr
     })
   }, [isShareModalOpen, setSharedPoolAddress])
-  // todo check here if chainInfo fix issue
+
   if (!isEVM) return <Redirect to="/" />
 
   const shareUrl = sharedPoolAddress
