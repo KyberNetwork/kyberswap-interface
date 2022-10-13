@@ -166,7 +166,7 @@ export const SUPPORTED_WALLETS = {
     icon: PHANTOM,
     iconLight: PHANTOM_L,
     installLink: phantomAdapter.url,
-    readyStateSolana: () => phantomAdapter.readyState,
+    readyStateSolana: () => (isMobile ? WalletReadyState.Unsupported : phantomAdapter.readyState),
   } as SolanaWalletInfo,
   SOLLET: {
     adapter: solletAdapter,
