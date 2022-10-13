@@ -99,9 +99,7 @@ const CampaignItem = ({ campaign, onSelectCampaign, isSelected }: CampaignItemPr
         ),
       )
     }, new Fraction(0))
-    if (tradingVolumeRequired) {
-      percentTradingVolume = Math.floor((tradingVolume / tradingVolumeRequired) * 100)
-    }
+    if (tradingVolumeRequired) percentTradingVolume = Math.floor((tradingVolume / tradingVolumeRequired) * 100)
   } catch (error) {
     console.log(error)
   }

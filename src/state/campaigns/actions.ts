@@ -15,6 +15,11 @@ export enum CampaignState {
   CampaignStateDistributedRewards,
 }
 
+export enum CampaignRankingBy {
+  TradingVolume = 'ranking_by_trading_volume',
+  TradingNumber = 'ranking_by_trading_number',
+}
+
 export enum CampaignUserInfoStatus {
   Eligible = 'ELIGIBLE',
   Ineligible = 'INELIGIBLE',
@@ -60,7 +65,8 @@ export type RewardDistribution = RewardSingle | RewardRange | RewardRandom
 
 export interface CampaignLeaderboardRanking {
   userAddress: string
-  totalPoint: number
+  totalPoint: string
+  tradingNumber: number
   rankNo: number
   rewardAmount: Fraction
   rewardAmountUsd: Fraction
@@ -109,9 +115,11 @@ export interface CampaignData {
   eligibleTokens: SerializedToken[]
   chainIds: string
   rewardChainIds: string
+  tradingVolumeRequiredPerTrade: number
   tradingVolumeRequired: number
-  userInfo?: CampaignUserInfo
   tradingNumberRequired: number
+  rankingBy: string
+  userInfo?: CampaignUserInfo
   leaderboard: CampaignLeaderboard | undefined
 }
 

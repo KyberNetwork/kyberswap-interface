@@ -50,6 +50,7 @@ const formatLeaderboardData = (data: CampaignLeaderboard) => {
           (item: any): CampaignLeaderboardRanking => ({
             userAddress: item.userAddress,
             totalPoint: item.totalPoint,
+            tradingNumber: item.tradingNumber,
             rankNo: item.rankNo,
             rewardAmount: new Fraction(
               item.rewardAmount || ZERO,
@@ -100,7 +101,7 @@ const fetchLeaderBoard = ({
       pageNumber,
       userAddress,
       lookupAddress,
-      eligibleOnly: true,
+      eligibleOnly: false,
     },
   }).then(({ data }) => formatLeaderboardData(data.data))
 }

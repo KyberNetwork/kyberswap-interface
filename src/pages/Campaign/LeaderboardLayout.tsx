@@ -17,7 +17,7 @@ import Search, { Container as SearchContainer, Wrapper as SearchWrapper } from '
 import { BIG_INT_ZERO, CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE, DEFAULT_SIGNIFICANT } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { AppState } from 'state'
-import { CampaignState, CampaignStatus, RewardRandom } from 'state/campaigns/actions'
+import { CampaignRankingBy, CampaignState, CampaignStatus, RewardRandom } from 'state/campaigns/actions'
 import {
   useSelectedCampaignLeaderboardLookupAddressManager,
   useSelectedCampaignLeaderboardPageNumberManager,
@@ -93,7 +93,9 @@ export default function LeaderboardLayout({
   }, [selectedCampaign, setCurrentPageLuckyWinner, setCurrentPage])
 
   const leaderboardTableBody = (selectedCampaignLeaderboard?.rankings ?? []).map((data, index) => {
-    const isThisRankingEligible = Boolean(selectedCampaign && data.totalPoint >= selectedCampaign.tradingVolumeRequired)
+    const isThisRankingEligible = Boolean(
+      selectedCampaign && Number(data.totalPoint) >= selectedCampaign.tradingVolumeRequired,
+    )
     const rewardAmount = data.rewardInUSD ? data.rewardAmountUsd : data.rewardAmount
 
     const rRewardAmount = rewardAmount.equalTo(BIG_INT_ZERO)
@@ -134,7 +136,13 @@ export default function LeaderboardLayout({
           {getShortenAddress(data.userAddress, above1200)}
         </LeaderboardTableBodyItem>
         <LeaderboardTableBodyItem align="right" isThisRankingEligible={isThisRankingEligible}>
-          {formatNumberWithPrecisionRange(Number(data.totalPoint), 0, 2)}
+          {formatNumberWithPrecisionRange(
+            selectedCampaign && selectedCampaign.rankingBy === CampaignRankingBy.TradingVolume
+              ? Number(data.totalPoint)
+              : data.tradingNumber,
+            0,
+            2,
+          )}
         </LeaderboardTableBodyItem>
         {showRewardsColumn && (
           <LeaderboardTableBodyItem align="right" isThisRankingEligible={isThisRankingEligible}>
@@ -219,7 +227,11 @@ export default function LeaderboardLayout({
           </LeaderboardTableHeaderItem>
           {type === 'leaderboard' && (
             <LeaderboardTableHeaderItem align="right">
-              <Trans>Points</Trans>
+              {selectedCampaign.rankingBy === CampaignRankingBy.TradingVolume ? (
+                <Trans>Points (Volume)</Trans>
+              ) : (
+                <Trans>Points (Trades)</Trans>
+              )}
             </LeaderboardTableHeaderItem>
           )}
           {showRewardsColumn && (
