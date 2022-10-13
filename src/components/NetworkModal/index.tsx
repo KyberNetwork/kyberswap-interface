@@ -1,5 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { stringify } from 'qs'
 import { X } from 'react-feather'
 import { useHistory } from 'react-router-dom'
@@ -8,6 +8,7 @@ import styled from 'styled-components'
 
 import { ButtonEmpty } from 'components/Button'
 import Modal from 'components/Modal'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
 import { useActiveNetwork } from 'hooks/useActiveNetwork'
@@ -161,21 +162,20 @@ export default function NetworkModal({
                 </SelectNetworkButton>
               )
             }
-            const disabled = activeChainIds ? !(activeChainIds as any)?.includes(key) : false /** // todo */
+            const disabled = activeChainIds ? !activeChainIds?.includes(key) : false
             return (
-              <SelectNetworkButton
+              <MouseoverTooltip
+                style={{ zIndex: Z_INDEXS.MODAL + 1 }}
                 key={key}
-                disabled={disabled}
-                padding="0"
-                onClick={() => {
-                  onSelect(key)
-                }}
+                text={disabled ? t`The token cannot be bridged to this chain` : ''}
               >
-                <ListItem>
-                  <img src={iconSrc} alt="Switch Network" style={{ width: '24px', marginRight: '8px' }} />
-                  <NetworkLabel>{name}</NetworkLabel>
-                </ListItem>
-              </SelectNetworkButton>
+                <SelectNetworkButton key={key} disabled={disabled} padding="0" onClick={() => onSelect(key)}>
+                  <ListItem>
+                    <img src={iconSrc} alt="Switch Network" style={{ width: '24px', marginRight: '8px' }} />
+                    <NetworkLabel>{name}</NetworkLabel>
+                  </ListItem>
+                </SelectNetworkButton>
+              </MouseoverTooltip>
             )
           })}
         </NetworkList>

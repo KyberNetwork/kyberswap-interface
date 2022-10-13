@@ -24,6 +24,7 @@ import { useActiveWeb3React } from 'hooks'
 import { useActiveNetwork } from 'hooks/useActiveNetwork'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import usePrevious from 'hooks/usePrevious'
 import useTheme from 'hooks/useTheme'
 import { BodyWrapper } from 'pages/AppBody'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -33,7 +34,7 @@ import { tryParseAmount } from 'state/swap/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { ExternalLink } from 'theme'
-import { formattedNum } from 'utils'
+import { formatNumberWithPrecisionRange, formattedNum } from 'utils'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 
 import AmountWarning from './AmountWarning'
@@ -73,8 +74,17 @@ const Label = styled.div`
   font-size: 12px;
   margin-bottom: 0.75rem;
 `
-const formatPoolValue = (amount: string, decimals: number) =>
-  Number(amount) ? new Fraction(amount, JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals ?? 18))).toFixed(3) : 0
+const formatPoolValue = (amount: string, decimals: number) => {
+  try {
+    if (Number(amount))
+      return formatNumberWithPrecisionRange(
+        parseFloat(new Fraction(amount, JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals ?? 18))).toFixed(5)),
+        0,
+        2,
+      )
+  } catch (error) {}
+  return 0
+}
 
 export default function SwapForm() {
   const { account, chainId } = useActiveWeb3React()
@@ -148,9 +158,12 @@ export default function SwapForm() {
     setInputAmount('0')
   }, [tokenIn, chainId])
 
+  const prevChain = usePrevious(chainId)
   useEffect(() => {
-    resetBridgeState()
-  }, [chainId, resetBridgeState])
+    if (chainId !== prevChain && prevChain) {
+      resetBridgeState()
+    }
+  }, [chainId, prevChain, resetBridgeState])
 
   useEffect(() => {
     const address = anyToken?.address
@@ -198,10 +211,7 @@ export default function SwapForm() {
     }
 
     if (isNaN(inputNumber)) {
-      return {
-        state: 'error',
-        tip: t`Input amount is not valid`,
-      }
+      return { state: 'error', tip: t`Input amount is not valid` }
     }
 
     if (inputNumber < Number(tokenOut.MinimumSwap)) {
@@ -232,15 +242,9 @@ export default function SwapForm() {
         }) is more than 70% of the available liquidity (${poolValue.poolValueOut} ${tokenOut.symbol})!`,
       }
     }
-    const isWrapInputError =
-      (wrapInputErrorBridge || wrapInputErrorCrossBridge) && inputNumber > 0
-        ? t`Insufficient ${tokenIn?.symbol} balance`
-        : ''
+    const isWrapInputError = (wrapInputErrorBridge || wrapInputErrorCrossBridge) && inputNumber > 0
     if (isWrapInputError) {
-      return {
-        state: 'error',
-        tip: isWrapInputError,
-      }
+      return { state: 'error', tip: t`Insufficient ${tokenIn?.symbol} balance` }
     }
     return
   }, [

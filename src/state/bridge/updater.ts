@@ -19,6 +19,14 @@ import { isTokenNative } from 'utils/tokenInfo'
 import { useActiveWeb3React } from '../../hooks'
 import { useBridgeState } from './hooks'
 
+const TIMEOUT = 'TIMEOUT'
+function timeout() {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve(TIMEOUT)
+    }, 1000 * 10)
+  })
+}
 export default function Updater(): null {
   const { chainId } = useActiveWeb3React()
   const [{ tokenIn, chainIdOut }, setBridgeState] = useBridgeState()
@@ -32,26 +40,11 @@ export default function Updater(): null {
         const token = { ...tokens[key] } as MultiChainTokenInfo
         const { address, logoUrl, destChains, name, decimals, symbol } = token
 
-        if (!destChains) return
         // todo test unlimit pool
-        // todo move this
-        // todo emt sao chưa format pool
-        // todo back sang trang khác quay lại đang delay 1 chút mới show token
-        // todo tooltip disabled network select
-        Object.keys(destChains).forEach(chain => {
-          Object.keys(destChains[chain]).forEach(address => {
-            const info = destChains[chain][address]
-            if (!isAddress(info.address)) {
-              delete destChains[chain][address]
-            }
-          })
-          if (!Object.keys(destChains[chain]).length) {
-            delete destChains[chain]
-          }
-        })
-        //
+        // todo 1 token ko cho mở popup
+        // todo update ui form swap, ui router 1 2 3
 
-        if (!destChains || Object.keys(destChains).length === 0 || !isAddress(address)) {
+        if (Object.keys(destChains || {}).length === 0 || !isAddress(address)) {
           return
         }
 
@@ -82,11 +75,11 @@ export default function Updater(): null {
         const oldVersion = getBridgeLocalstorage(BridgeLocalStorageKeys.TOKEN_VERSION)
         let version
         try {
-          version = await fetchTokenVersion()
+          version = await Promise.race([timeout(), fetchTokenVersion()])
         } catch (error) {}
 
-        const isStaleData = oldVersion !== version || !version
-        if (isStaleData) {
+        const isStaleData = oldVersion !== version || !version || version === TIMEOUT
+        if (isStaleData && version !== TIMEOUT) {
           setBridgeLocalstorage(BridgeLocalStorageKeys.TOKEN_VERSION, version)
         }
 

@@ -300,15 +300,16 @@ function CurrencyListV2({
   showBalance: boolean
 }) {
   const { account } = useActiveWeb3React()
-  const [{ tokenIn }] = useBridgeState()
+  const [{ tokenIn, tokenOut }] = useBridgeState()
   const currencyBalances = useCurrencyBalances(account || undefined, showBalance ? currencies : [])
 
   const Row: any = useCallback(
     function TokenRow({ style, currency, currencyBalance }: TokenRowPropsBridge) {
-      const isSelected = tokenIn?.address === currency?.address
-      const handleSelect = () => currency && onCurrencySelect(currency)
-
       if (!currency) return
+      const isSelected =
+        tokenIn?.address?.toLowerCase() === currency?.address?.toLowerCase() ||
+        tokenOut?.sortId === currency?.multichainInfo?.sortId
+      const handleSelect = () => currency && onCurrencySelect(currency)
       const { symbol } = getDisplayTokenInfo(currency)
       const { sortId, type } = currency?.multichainInfo || { sortId: undefined, type: '' }
       return (
@@ -329,7 +330,7 @@ function CurrencyListV2({
         />
       )
     },
-    [onCurrencySelect, tokenIn, showBalance],
+    [onCurrencySelect, tokenIn, showBalance, tokenOut?.sortId],
   )
 
   return (

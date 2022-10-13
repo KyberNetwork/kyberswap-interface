@@ -2,6 +2,9 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import axios from 'axios'
 
 import { NETWORKS_INFO_CONFIG } from 'constants/networks'
+import { isAddress } from 'utils'
+
+import { MultiChainTokenInfo } from './type'
 
 export const BridgeLocalStorageKeys = {
   BRIDGE_INFO: 'bridgeInfo',
@@ -36,23 +39,55 @@ export const fetchTokenVersion = () => {
   return axios.get(`https://bridgeapi.multichain.org/token/version`).then(data => data.data)
 }
 
-export async function getTokenlist(chainId: ChainId, isStaleData: boolean) {
-  let tokens
+const getTokenListCache = () => {
   try {
     let local: any = localStorage.getItem(BridgeLocalStorageKeys.TOKEN_LIST) || '{}'
     local = JSON.parse(local)
+    return local
+  } catch (error) {
+    return {}
+  }
+}
+const filterTokenList = (tokens: { [key: string]: MultiChainTokenInfo }) => {
+  try {
+    // filter wrong address, to reduce trash token and local storage size
+    Object.keys(tokens).forEach(key => {
+      const token = { ...tokens[key] }
+      const { destChains } = token
+      Object.keys(destChains).forEach(chain => {
+        Object.keys(destChains[chain]).forEach(address => {
+          const info = destChains[chain][address]
+          if (!isAddress(info.address)) {
+            delete destChains[chain][address]
+          }
+        })
+        if (!Object.keys(destChains[chain]).length) {
+          delete destChains[chain]
+        }
+      })
+    })
+  } catch (error) {}
+  return tokens
+}
+export async function getTokenlist(chainId: ChainId, isStaleData: boolean) {
+  let tokens
+  try {
+    let local: any = getTokenListCache()
     if (local[chainId] && !isStaleData) {
       return local[chainId]
     }
     tokens = await fetchListTokenByChain(chainId)
-    localStorage.setItem(BridgeLocalStorageKeys.TOKEN_LIST, JSON.stringify({ ...local, [chainId]: tokens }))
+    tokens = filterTokenList(tokens)
+    local = getTokenListCache()
+    try {
+      localStorage.setItem(BridgeLocalStorageKeys.TOKEN_LIST, JSON.stringify({ ...local, [chainId]: tokens }))
+    } catch (error) {
+      console.log('overflow localstorage QuotaExceededError', error)
+      localStorage.removeItem(BridgeLocalStorageKeys.TOKEN_LIST)
+      localStorage.setItem(BridgeLocalStorageKeys.TOKEN_LIST, JSON.stringify({ [chainId]: tokens }))
+    }
     return tokens
   } catch (e) {
-    if (e.toString().includes(`QuotaExceededError: Failed to execute 'setItem' on 'Storage'`)) {
-      console.log('overflow localstorage')
-      localStorage.removeItem(BridgeLocalStorageKeys.TOKEN_LIST)
-      if (tokens) return tokens
-    }
     console.log(e.toString())
     return {}
   }
