@@ -103,7 +103,7 @@ const PendingTransferItem: React.FC<Props> = ({ className, transfer }) => {
   const theme = useTheme()
 
   const amountSend = Number(transfer.formatvalue).toFixed(2)
-  const amountReceive = getAmountReceive(transfer)
+  const amountReceive = getAmountReceive(transfer.formatvalue, transfer.formatswapvalue, transfer.swapvalue)
   const fromChainID = Number(transfer.fromChainID)
   const toChainID = Number(transfer.toChainID)
 

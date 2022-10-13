@@ -15,6 +15,7 @@ const getGeneralStatus = (status: BridgeTransferStatus): GeneralStatus => {
     [BridgeTransferStatus.TxNotStable]: 'failed',
     [BridgeTransferStatus.TxNotSwapped]: 'failed',
     [BridgeTransferStatus.ExceedLimit]: 'failed',
+    [BridgeTransferStatus.Unknown]: 'failed',
     [BridgeTransferStatus.Confirming]: 'processing',
     [BridgeTransferStatus.Swapping]: 'processing',
     [BridgeTransferStatus.BigAmount]: 'processing',

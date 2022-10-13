@@ -14,13 +14,12 @@ import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 
 import { ITEMS_PER_PAGE } from '../consts'
-import { getAmountReceive, getTokenSymbol } from '../utils'
 import ActionCell from './ActionCell'
 import RouteCell from './RouteCell'
 import StatusBadge from './StatusBadge'
 import TimeCell from './TimeCell'
 import TimeStatusCell from './TimeStatusCell'
-import TokenCell from './TokenCell'
+import TokenReceiveCell from './TokenReceiveCell'
 import useTransferHistory from './useTransferHistory'
 
 dayjs.extend(utc)
@@ -203,7 +202,7 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
                 dateString={transfer.inittime ? dayjs.utc(transfer.inittime).local().format('YYYY/MM/DD') : ''}
               />
               <RouteCell fromChainID={Number(transfer.fromChainID)} toChainID={Number(transfer.toChainID)} />
-              <TokenCell amount={getAmountReceive(transfer)} symbol={getTokenSymbol(transfer.pairid)} />
+              <TokenReceiveCell transfer={transfer} />
               <ActionCell url={getTxsUrl(transfer.txid)} />
             </TableRow>
           ))}
@@ -228,7 +227,7 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
             />
             <StatusBadge status={transfer.status} />
             <RouteCell fromChainID={Number(transfer.fromChainID)} toChainID={Number(transfer.toChainID)} />
-            <TokenCell amount={getAmountReceive(transfer)} symbol={getTokenSymbol(transfer.pairid)} />
+            <TokenReceiveCell transfer={transfer} />
             <ActionCell url={getTxsUrl(transfer.txid)} />
           </TableRow>
         ))}

@@ -16,6 +16,7 @@ export enum BridgeTransferStatus {
   Success = 10,
   BigAmount = 12,
   Failure = 14,
+  Unknown = 16,
 }
 
 export type BridgeTransfer = {
@@ -38,7 +39,7 @@ export type BridgeTransfer = {
   statusmsg: string
   timestamp: number
   memo: string
-  swapinfo: string
+  swapinfo: any
   confirmations: number
   srcChainID: string
   destChainID: string
