@@ -1,10 +1,10 @@
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { RouteComponentProps } from 'react-router-dom'
-import { Flex } from 'rebass'
+import { Text } from 'rebass'
 import styled from 'styled-components'
 
-import InfoHelper from 'components/InfoHelper'
 import { PageWrapper } from 'components/swapv2/styleds'
+import useTheme from 'hooks/useTheme'
 
 import BridgeHistory from './BridgeTransfers'
 import Disclaimer from './Disclaimer'
@@ -32,17 +32,20 @@ const Title = styled.h1`
   margin: 0;
 `
 export default function Bridge({ history }: RouteComponentProps) {
+  const theme = useTheme()
   return (
     <PageWrapper>
       <Disclaimer />
       <Content>
         <Container>
-          <Flex>
+          <div>
             <Title>
               <Trans>Bridge</Trans>
             </Title>
-            <InfoHelper size={15} text={t`Easily transfer tokens from one chain to another`} />
-          </Flex>
+            <Text fontSize={12} color={theme.subText} marginTop={'8px'}>
+              <Trans>Easily transfer tokens from one chain to another</Trans>
+            </Text>
+          </div>
           <SwapForm />
         </Container>
         <BridgeHistory />

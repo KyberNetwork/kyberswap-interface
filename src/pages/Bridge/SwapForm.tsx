@@ -3,14 +3,13 @@ import { Trans, t } from '@lingui/macro'
 import { isAddress } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Box, Flex, Text } from 'rebass'
+import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import MultichainLogoDark from 'assets/images/multichain_black.png'
 import MultichainLogoLight from 'assets/images/multichain_white.png'
 import { ReactComponent as ArrowUp } from 'assets/svg/arrow_up.svg'
 import { ButtonConfirmed, ButtonError, ButtonLight } from 'components/Button'
-import Column from 'components/Column/index'
 import { CurrencyInputPanelBridge } from 'components/CurrencyInputPanel'
 import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
@@ -18,7 +17,7 @@ import ProgressSteps from 'components/ProgressSteps'
 import { AutoRow, RowBetween } from 'components/Row'
 import Tooltip from 'components/Tooltip'
 import { AdvancedSwapDetailsDropdownBridge } from 'components/swapv2/AdvancedSwapDetailsDropdown'
-import { ArrowWrapper, BottomGrouping, SwapFormWrapper, Wrapper } from 'components/swapv2/styleds'
+import { SwapFormWrapper } from 'components/swapv2/styleds'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
@@ -51,7 +50,29 @@ const AppBodyWrapped = styled(BodyWrapper)`
   padding: 20px 16px;
   margin-top: 0;
 `
+const ArrowWrapper = styled.div`
+  padding: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: ${({ theme }) => theme.buttonBlack};
+  width: fit-content;
+  height: fit-content;
+  cursor: pointer;
+  border-radius: 999px;
+  position: absolute;
+  z-index: 1000;
+  margin: auto;
+  left: 0;
+  right: 0;
+  bottom: -32px;
+`
 
+const Label = styled.div`
+  color: ${({ theme }) => theme.subText};
+  font-size: 12px;
+  margin-bottom: 0.75rem;
+`
 const formatPoolValue = (amount: string, decimals: number) =>
   Number(amount) ? new Fraction(amount, JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals ?? 18))).toFixed(3) : 0
 
@@ -346,136 +367,155 @@ export default function SwapForm() {
 
   return (
     <>
-      <SwapFormWrapper
-        isShowTutorial={false}
-        style={{ justifyContent: 'flex-start', marginLeft: 'auto', marginRight: 'auto' }}
-      >
-        <AppBodyWrapped>
-          <Wrapper>
+      <Flex style={{ position: 'relative', flexDirection: 'column', gap: 22 }}>
+        <SwapFormWrapper>
+          <AppBodyWrapped>
             <Flex flexDirection="column" sx={{ gap: '1rem' }}>
-              <SelectNetwork chainIds={listChainIn} onSelectNetwork={changeNetwork} selectedChainId={chainId} />
-              <Tooltip text={inputError?.tip} show={inputError?.state === 'error'} placement="top">
-                <CurrencyInputPanelBridge
-                  error={inputError?.state === 'error'}
-                  value={inputAmount}
-                  showMaxButton
-                  onUserInput={handleTypeInput}
-                  onMax={handleMaxInput}
-                  onHalf={handleHalfInput}
-                  onCurrencySelect={onCurrencySelect}
-                  id="swap-currency-input"
-                />
-              </Tooltip>
+              <div>
+                <Label>
+                  <Trans>Source Chain</Trans>
+                </Label>
+                <SelectNetwork chainIds={listChainIn} onSelectNetwork={changeNetwork} selectedChainId={chainId} />
+              </div>
+
+              <Flex flexDirection={'column'}>
+                <Label>
+                  <Trans>You Transfer</Trans>
+                </Label>
+                <Tooltip text={inputError?.tip} show={inputError?.state === 'error'} placement="top">
+                  <CurrencyInputPanelBridge
+                    error={inputError?.state === 'error'}
+                    value={inputAmount}
+                    showMaxButton
+                    onUserInput={handleTypeInput}
+                    onMax={handleMaxInput}
+                    onHalf={handleHalfInput}
+                    onCurrencySelect={onCurrencySelect}
+                    id="swap-currency-input"
+                  />
+                </Tooltip>
+              </Flex>
               <PoolInfo
                 chainId={chainId}
                 tokenIn={tokenIn}
                 poolValue={poolValue.poolValueIn}
                 poolShare={poolValue.poolShareIn}
               />
-              <Flex justifyContent={'space-between'} alignItems="flex-end">
-                <SelectNetwork
-                  chainIds={listDestChainIds}
-                  onSelectNetwork={onSelectDestNetwork}
-                  selectedChainId={chainIdOut}
-                />
-                <ArrowWrapper>
-                  <ArrowUp width={24} fill={theme.subText} style={{ cursor: 'default' }} />
-                </ArrowWrapper>
-              </Flex>
-
-              <Box sx={{ position: 'relative' }}>
-                <CurrencyInputPanelBridge
-                  isOutput
-                  disabledInput
-                  value={outputInfo.outputAmount.toString()}
-                  showMaxButton={false}
-                  onCurrencySelect={onCurrencySelectDest}
-                  id="swap-currency-output"
-                />
-              </Box>
-              <PoolInfo
-                chainId={chainIdOut}
-                tokenIn={tokenIn}
-                poolValue={poolValue.poolValueOut}
-                poolShare={poolValue.poolShareOut}
-              />
-              {inputError?.state === 'warn' && <AmountWarning title={inputError?.tip} />}
             </Flex>
+          </AppBodyWrapped>
+        </SwapFormWrapper>
 
-            <BottomGrouping>
-              {!account ? (
-                <ButtonLight onClick={toggleWalletModal}>
-                  <Trans>Connect Wallet</Trans>
-                </ButtonLight>
-              ) : (
-                showApproveFlow && (
-                  <>
-                    <RowBetween>
-                      <ButtonConfirmed
-                        onClick={approveCallback}
-                        disabled={disableBtnApproved}
-                        width="48%"
-                        altDisabledStyle={approval === ApprovalState.PENDING} // show solid button while waiting
-                        confirmed={approval === ApprovalState.APPROVED}
-                      >
-                        {approval === ApprovalState.PENDING ? (
-                          <AutoRow gap="6px" justify="center">
-                            <Trans>Approving</Trans> <Loader stroke="white" />
-                          </AutoRow>
-                        ) : (
-                          <Flex alignContent={'center'}>
-                            <InfoHelper
-                              color={disableBtnApproved ? theme.border : theme.darkText}
-                              size={18}
-                              text="You would need to first allow Multichain smart contract to use your KNC. This has to be done only once for each token."
-                            />
-                            <Text marginLeft={'5px'}>
-                              <Trans>Approve {tokenIn?.symbol}</Trans>
-                            </Text>
-                          </Flex>
-                        )}
-                      </ButtonConfirmed>
-                      <ButtonError
-                        width="48%"
-                        id="swap-button"
-                        disabled={approval !== ApprovalState.APPROVED}
-                        onClick={showPreview}
-                      >
-                        <Text fontSize={16} fontWeight={500}>
-                          {t`Review transfer`}
-                        </Text>
-                      </ButtonError>
-                    </RowBetween>
-                    <Column style={{ marginTop: '1rem' }}>
-                      <ProgressSteps steps={[approval === ApprovalState.APPROVED]} />
-                    </Column>
-                  </>
-                )
-              )}
-              {!showApproveFlow && account && (
-                <ButtonError onClick={showPreview} disabled={!!inputError || approval !== ApprovalState.APPROVED}>
-                  <Text fontWeight={500}>{t`Review Transfer`}</Text>
-                </ButtonError>
-              )}
-              <br />
-              <Flex justifyContent={'flex-end'}>
-                <Flex alignItems={'center'} style={{ gap: 6 }}>
-                  <Text color={theme.subText} fontSize={12}>
-                    Powered by
-                  </Text>
-                  <ExternalLink href="https://multichain.org/">
-                    <img
-                      src={isDark ? MultichainLogoLight : MultichainLogoDark}
-                      alt="kyberswap with multichain"
-                      height={13}
-                    />
-                  </ExternalLink>
-                </Flex>
+        <ArrowWrapper>
+          <ArrowUp width={24} fill={theme.subText} style={{ cursor: 'default' }} />
+        </ArrowWrapper>
+      </Flex>
+
+      <SwapFormWrapper>
+        <AppBodyWrapped>
+          <Flex flexDirection="column" sx={{ gap: '1rem' }}>
+            <div>
+              <Label>
+                <Trans>Destination Chain</Trans>
+              </Label>
+              <SelectNetwork
+                chainIds={listDestChainIds}
+                onSelectNetwork={onSelectDestNetwork}
+                selectedChainId={chainIdOut}
+              />
+            </div>
+
+            <div>
+              <Label>
+                <Trans>You Receive</Trans>
+              </Label>
+              <CurrencyInputPanelBridge
+                isOutput
+                disabledInput
+                value={outputInfo.outputAmount.toString()}
+                showMaxButton={false}
+                onCurrencySelect={onCurrencySelectDest}
+                id="swap-currency-output"
+              />
+            </div>
+            <PoolInfo
+              chainId={chainIdOut}
+              tokenIn={tokenIn}
+              poolValue={poolValue.poolValueOut}
+              poolShare={poolValue.poolShareOut}
+            />
+            {inputError?.state === 'warn' && <AmountWarning title={inputError?.tip} />}
+
+            {!account ? (
+              <ButtonLight onClick={toggleWalletModal}>
+                <Trans>Connect Wallet</Trans>
+              </ButtonLight>
+            ) : (
+              showApproveFlow && (
+                <>
+                  <RowBetween>
+                    <ButtonConfirmed
+                      onClick={approveCallback}
+                      disabled={disableBtnApproved}
+                      width="48%"
+                      altDisabledStyle={approval === ApprovalState.PENDING} // show solid button while waiting
+                      confirmed={approval === ApprovalState.APPROVED}
+                    >
+                      {approval === ApprovalState.PENDING ? (
+                        <AutoRow gap="6px" justify="center">
+                          <Trans>Approving</Trans> <Loader stroke="white" />
+                        </AutoRow>
+                      ) : (
+                        <Flex alignContent={'center'}>
+                          <InfoHelper
+                            color={disableBtnApproved ? theme.border : theme.darkText}
+                            size={18}
+                            text="You would need to first allow Multichain smart contract to use your KNC. This has to be done only once for each token."
+                          />
+                          <Text marginLeft={'5px'}>
+                            <Trans>Approve {tokenIn?.symbol}</Trans>
+                          </Text>
+                        </Flex>
+                      )}
+                    </ButtonConfirmed>
+                    <ButtonError
+                      width="48%"
+                      id="swap-button"
+                      disabled={approval !== ApprovalState.APPROVED}
+                      onClick={showPreview}
+                    >
+                      <Text fontSize={16} fontWeight={500}>
+                        {t`Review transfer`}
+                      </Text>
+                    </ButtonError>
+                  </RowBetween>
+                  <ProgressSteps steps={[approval === ApprovalState.APPROVED]} />
+                </>
+              )
+            )}
+            {!showApproveFlow && account && (
+              <ButtonError onClick={showPreview} disabled={!!inputError || approval !== ApprovalState.APPROVED}>
+                <Text fontWeight={500}>{t`Review Transfer`}</Text>
+              </ButtonError>
+            )}
+            <Flex justifyContent={'flex-end'}>
+              <Flex alignItems={'center'} style={{ gap: 6 }}>
+                <Text color={theme.subText} fontSize={12}>
+                  Powered by
+                </Text>
+                <ExternalLink href="https://multichain.org/">
+                  <img
+                    src={isDark ? MultichainLogoLight : MultichainLogoDark}
+                    alt="kyberswap with multichain"
+                    height={13}
+                  />
+                </ExternalLink>
               </Flex>
-            </BottomGrouping>
-          </Wrapper>
+            </Flex>
+          </Flex>
         </AppBodyWrapped>
+      </SwapFormWrapper>
 
+      <SwapFormWrapper>
         <AdvancedSwapDetailsDropdownBridge outputInfo={outputInfo} />
       </SwapFormWrapper>
 

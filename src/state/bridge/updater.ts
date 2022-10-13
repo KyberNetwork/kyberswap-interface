@@ -37,6 +37,7 @@ export default function Updater(): null {
         // todo move this
         // todo emt sao chưa format pool
         // todo back sang trang khác quay lại đang delay 1 chút mới show token
+        // todo tooltip disabled network select
         Object.keys(destChains).forEach(chain => {
           Object.keys(destChains[chain]).forEach(address => {
             const info = destChains[chain][address]

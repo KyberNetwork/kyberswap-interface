@@ -33,7 +33,7 @@ export default function AdvancedSwapDetailsDropdown({ trade, ...rest }: Advanced
 
 export function AdvancedSwapDetailsDropdownBridge({ outputInfo }: { outputInfo: OutputBridgeInfo }) {
   return (
-    <AdvancedDetailsFooter show={true}>
+    <AdvancedDetailsFooter show={true} style={{ marginTop: 0 }}>
       <TradeSummaryBridge outputInfo={outputInfo} />
     </AdvancedDetailsFooter>
   )

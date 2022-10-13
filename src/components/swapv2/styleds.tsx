@@ -302,7 +302,7 @@ export const PriceImpactHigh = styled.div<{ veryHigh?: boolean }>`
   font-size: 12px;
 `
 
-export const SwapFormWrapper = styled.div<{ isShowTutorial: boolean }>`
+export const SwapFormWrapper = styled.div<{ isShowTutorial?: boolean }>`
   width: 425px;
   display: flex;
   flex-direction: column;
