@@ -4,7 +4,7 @@ import { Connection, clusterApiUrl } from '@solana/web3.js'
 
 import SolanaDark from 'assets/networks/solana-network-dark.svg'
 import Solana from 'assets/networks/solana-network.svg'
-import { KS_SETTING_API, SOLANA_NETWORK } from 'constants/env'
+import { SOLANA_NETWORK } from 'constants/env'
 import { SolanaNetworkInfo } from 'constants/networks/type'
 
 const SupportedSolanaNetworks = [

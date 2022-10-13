@@ -117,7 +117,7 @@ export const SUPPORTED_WALLETS = {
     iconLight: COIN98_L,
     installLink: 'https://wallet.coin98.com/',
     readyState: detectCoin98,
-    readyStateSolana: () => (isMobile ? coin98Adapter.readyState : WalletReadyState.Unsupported),
+    readyStateSolana: () => (isMobile ? WalletReadyState.Unsupported : coin98Adapter.readyState),
   } as EVMWalletInfo & SolanaWalletInfo,
   COINBASE: {
     connector: walletlink,
@@ -174,7 +174,7 @@ export const SUPPORTED_WALLETS = {
     icon: SOLLET,
     iconLight: SOLLET_L,
     installLink: solletAdapter.url,
-    readyStateSolana: () => (isMobile ? solletAdapter.readyState : WalletReadyState.Unsupported),
+    readyStateSolana: () => (isMobile ? WalletReadyState.Unsupported : solletAdapter.readyState),
   } as SolanaWalletInfo,
   SLOPE: {
     adapter: slopeAdapter,
@@ -182,7 +182,7 @@ export const SUPPORTED_WALLETS = {
     icon: SLOPE,
     iconLight: SLOPE_L,
     installLink: slopeAdapter.url,
-    readyStateSolana: () => (isMobile ? slopeAdapter.readyState : WalletReadyState.Unsupported),
+    readyStateSolana: () => (isMobile ? WalletReadyState.Unsupported : slopeAdapter.readyState),
   } as SolanaWalletInfo,
 } as const
 
