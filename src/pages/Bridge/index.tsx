@@ -12,11 +12,7 @@ import SwapForm from './SwapForm'
 
 const Container = styled.div`
   display: flex;
-  align-items: flex-start;
-  justify-content: center;
   flex-direction: column;
-  width: 100%;
-  max-width: 1392px;
   gap: 22px;
 `
 const Content = styled.div`
@@ -39,18 +35,18 @@ export default function Bridge({ history }: RouteComponentProps) {
   return (
     <PageWrapper>
       <Disclaimer />
-      <Container>
-        <Flex>
-          <Title>
-            <Trans>Bridge</Trans>
-          </Title>
-          <InfoHelper size={15} text={t`Easily transfer tokens from one chain to another`} />
-        </Flex>
-        <Content>
+      <Content>
+        <Container>
+          <Flex>
+            <Title>
+              <Trans>Bridge</Trans>
+            </Title>
+            <InfoHelper size={15} text={t`Easily transfer tokens from one chain to another`} />
+          </Flex>
           <SwapForm />
-          <BridgeHistory />
-        </Content>
-      </Container>
+        </Container>
+        <BridgeHistory />
+      </Content>
     </PageWrapper>
   )
 }
