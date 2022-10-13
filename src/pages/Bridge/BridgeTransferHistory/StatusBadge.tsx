@@ -6,32 +6,27 @@ import styled, { css } from 'styled-components'
 import { CheckCircle, TransferIcon, XCircle } from 'components/Icons'
 import { BridgeTransferStatus } from 'hooks/bridge/useGetBridgeTransfers'
 
-type GeneralStatus = 'success' | 'failure' | 'info'
+type GeneralStatus = 'success' | 'failed' | 'processing'
 
 const getGeneralStatus = (status: BridgeTransferStatus): GeneralStatus => {
   const mapping: Record<BridgeTransferStatus, GeneralStatus> = {
     [BridgeTransferStatus.Success]: 'success',
-    [BridgeTransferStatus.Failure]: 'failure',
-    [BridgeTransferStatus.TxNotStable]: 'failure',
-    [BridgeTransferStatus.TxNotSwapped]: 'failure',
-    [BridgeTransferStatus.ExceedLimit]: 'failure',
-    [BridgeTransferStatus.Confirming]: 'info',
-    [BridgeTransferStatus.Swapping]: 'info',
-    [BridgeTransferStatus.BigAmount]: 'info',
+    [BridgeTransferStatus.Failure]: 'failed',
+    [BridgeTransferStatus.TxNotStable]: 'failed',
+    [BridgeTransferStatus.TxNotSwapped]: 'failed',
+    [BridgeTransferStatus.ExceedLimit]: 'failed',
+    [BridgeTransferStatus.Confirming]: 'processing',
+    [BridgeTransferStatus.Swapping]: 'processing',
+    [BridgeTransferStatus.BigAmount]: 'processing',
   }
 
   return mapping[status]
 }
 
-const labelByStatus: Record<BridgeTransferStatus, string> = {
-  [BridgeTransferStatus.TxNotStable]: t`Tx Not Stable`,
-  [BridgeTransferStatus.TxNotSwapped]: t`Tx Not Swapped`,
-  [BridgeTransferStatus.ExceedLimit]: t`Exceed Limit`,
-  [BridgeTransferStatus.Confirming]: t`Confirming`,
-  [BridgeTransferStatus.Swapping]: t`Swapping`,
-  [BridgeTransferStatus.Success]: t`Success`,
-  [BridgeTransferStatus.BigAmount]: t`Big Amount`,
-  [BridgeTransferStatus.Failure]: t`Failure`,
+const labelByGeneralStatus: Record<GeneralStatus, string> = {
+  success: t`Success`,
+  failed: t`Failed`,
+  processing: t`Processing`,
 }
 
 const cssByGeneralStatus: Record<GeneralStatus, any> = {
@@ -39,11 +34,11 @@ const cssByGeneralStatus: Record<GeneralStatus, any> = {
     background: ${({ theme }) => rgba(theme.primary, 0.2)};
     color: ${({ theme }) => theme.primary};
   `,
-  failure: css`
+  failed: css`
     background: ${({ theme }) => rgba(theme.red, 0.2)};
     color: ${({ theme }) => theme.red};
   `,
-  info: css`
+  processing: css`
     background: ${({ theme }) => rgba(theme.warning, 0.2)};
     color: ${({ theme }) => theme.warning};
   `,
@@ -80,19 +75,19 @@ type Props = {
   iconOnly?: boolean
 }
 const StatusBadge: React.FC<Props> = ({ status, iconOnly }) => {
-  const label = labelByStatus[status]
   const generalStatus = getGeneralStatus(status)
+  const label = labelByGeneralStatus[generalStatus]
 
   const renderIcon = () => {
     if (generalStatus === 'success') {
       return <CheckCircle width="12px" height="12px" />
     }
 
-    if (generalStatus === 'failure') {
+    if (generalStatus === 'failed') {
       return <XCircle width="12px" height="12px" />
     }
 
-    if (generalStatus === 'info') {
+    if (generalStatus === 'processing') {
       return <TransferIcon width="12px" height="12px" />
     }
 
