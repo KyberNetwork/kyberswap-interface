@@ -218,7 +218,7 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
           <TableColumnText>CREATED</TableColumnText>
           <TableColumnText>STATUS</TableColumnText>
           <TableColumnText>ROUTE</TableColumnText>
-          <TableColumnText>BRIDGED AMOUNT</TableColumnText>
+          <TableColumnText>RECEIVED AMOUNT</TableColumnText>
           <TableColumnText />
         </TableHeader>
         {transfers.map((transfer, i) => (
