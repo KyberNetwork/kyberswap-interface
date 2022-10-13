@@ -50,7 +50,7 @@ const cssByGeneralStatus: Record<GeneralStatus, any> = {
 }
 
 const Wrapper = styled.div<{ status: GeneralStatus; iconOnly: boolean }>`
-  width: fit-content;
+  width: 100%;
   padding: 4px 8px;
 
   display: flex;
