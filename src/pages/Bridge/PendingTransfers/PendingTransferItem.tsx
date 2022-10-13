@@ -106,6 +106,7 @@ const PendingTransferItem: React.FC<Props> = ({ className, transfer }) => {
   const amountReceive = getAmountReceive(transfer.formatvalue, transfer.formatswapvalue, transfer.swapvalue)
   const fromChainID = Number(transfer.fromChainID)
   const toChainID = Number(transfer.toChainID)
+  const tokenSymbol = getTokenSymbol(transfer)
 
   const renderChainIcon = (chainId: ChainId) => {
     const chainInfo = NETWORKS_INFO_CONFIG[chainId]
@@ -166,7 +167,7 @@ const PendingTransferItem: React.FC<Props> = ({ className, transfer }) => {
                 marginLeft: '4px',
               }}
             >
-              - {amountSend} {getTokenSymbol(transfer.pairid)}
+              - {amountSend} {tokenSymbol}
             </Text>
           </TxDetailCell>
 
@@ -184,7 +185,7 @@ const PendingTransferItem: React.FC<Props> = ({ className, transfer }) => {
                 marginLeft: '4px',
               }}
             >
-              + {amountReceive} {getTokenSymbol(transfer.pairid)}
+              + {amountReceive} {tokenSymbol}
             </Text>
           </TxDetailCell>
         </TxDetailRow>

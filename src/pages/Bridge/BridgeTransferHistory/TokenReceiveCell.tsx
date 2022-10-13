@@ -11,7 +11,7 @@ type Props = {
 
 const TokenReceiveCell: React.FC<Props> = ({ transfer }) => {
   const amount = getAmountReceive(transfer.formatvalue, transfer.formatswapvalue, transfer.swapvalue)
-  const symbol = getTokenSymbol(transfer.pairid || transfer.swapinfo?.routerSwapInfo?.tokenID)
+  const symbol = getTokenSymbol(transfer)
 
   const { data, isValidating, error } = useGetSingleBridgeTransfer(transfer.txid, !!amount)
 

@@ -1,6 +1,9 @@
+import { BridgeTransfer } from 'hooks/bridge/useGetBridgeTransfers'
+
 // this is copied from https://anyswap.net/explorer/tx?params=SOME_TX_HASH_HERE
-export const getTokenSymbol = (pairId: string): string => {
-  return pairId.replace(/v\d+$/, '').replace(/any/g, '').toUpperCase()
+export const getTokenSymbol = (transfer: BridgeTransfer): string => {
+  const tokenStr = transfer.pairid || transfer.swapinfo?.routerSwapInfo?.tokenID
+  return tokenStr.replace(/v\d+$/, '').replace(/any/g, '').toUpperCase()
 }
 
 export const getAmountReceive = (formatValue: string, formatSwapValue: string, swapValue: string): string => {
