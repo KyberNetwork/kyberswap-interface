@@ -3,6 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import { isAddress } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Info } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -11,11 +12,10 @@ import MultichainLogoLight from 'assets/images/multichain_white.png'
 import { ReactComponent as ArrowUp } from 'assets/svg/arrow_up.svg'
 import { ButtonConfirmed, ButtonError, ButtonLight } from 'components/Button'
 import { CurrencyInputPanelBridge } from 'components/CurrencyInputPanel'
-import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import ProgressSteps from 'components/ProgressSteps'
 import { AutoRow, RowBetween } from 'components/Row'
-import Tooltip from 'components/Tooltip'
+import Tooltip, { MouseoverTooltip } from 'components/Tooltip'
 import { AdvancedSwapDetailsDropdownBridge } from 'components/swapv2/AdvancedSwapDetailsDropdown'
 import { SwapFormWrapper } from 'components/swapv2/styleds'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
@@ -438,11 +438,12 @@ export default function SwapForm() {
                         </AutoRow>
                       ) : (
                         <Flex alignContent={'center'}>
-                          <InfoHelper
-                            color={disableBtnApproved ? theme.border : theme.darkText}
-                            size={18}
-                            text="You would need to first allow Multichain smart contract to use your KNC. This has to be done only once for each token."
-                          />
+                          <MouseoverTooltip
+                            width="300px"
+                            text={t`You would need to first allow Multichain smart contract to use your KNC. This has to be done only once for each token.`}
+                          >
+                            <Info size={18} />
+                          </MouseoverTooltip>
                           <Text marginLeft={'5px'}>
                             <Trans>Approve {tokenIn?.symbol}</Trans>
                           </Text>

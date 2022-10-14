@@ -41,11 +41,8 @@ export default function Updater(): null {
         const { address, logoUrl, destChains, name, decimals, symbol } = token
 
         // todo test unlimit pool
-        // todo 1 token ko cho mở popup
-        // todo update ui form swap, ui router 1 2 3
+        // todo update ui ui router 1 2 3
         // todo check spec
-        // todo tooltip bự quá
-        // todo order network select
 
         if (Object.keys(destChains || {}).length === 0 || !isAddress(address)) {
           return
