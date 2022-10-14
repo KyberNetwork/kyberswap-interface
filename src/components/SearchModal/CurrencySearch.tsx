@@ -626,42 +626,50 @@ export function CurrencySearchBridge({ isOutput, onCurrencySelect, onDismiss, is
         <RowBetween>
           <Text fontWeight={500} fontSize={20} display="flex">
             <Trans>Select a token</Trans>
-            <InfoHelper
-              zIndexTooltip={Z_INDEXS.MODAL + 1}
-              size={16}
-              text={
-                <Trans>You can select and transfer any token supported by Multichain from one chain to another</Trans>
-              }
-            />
+            {!isOutput && (
+              <InfoHelper
+                zIndexTooltip={Z_INDEXS.MODAL + 1}
+                size={16}
+                text={
+                  <Trans>You can select and transfer any token supported by Multichain from one chain to another</Trans>
+                }
+              />
+            )}
           </Text>
           <CloseIcon onClick={onDismiss} />
         </RowBetween>
 
-        <SearchWrapper>
-          <SearchInput
-            type="text"
-            id="token-search-input"
-            placeholder={t`Search by token name, token symbol or address`}
-            value={searchQuery}
-            ref={inputRef}
-            onChange={handleInput}
-            onKeyDown={handleEnter}
-            autoComplete="off"
-          />
-          <SearchIcon size={18} color={theme.border} />
-        </SearchWrapper>
+        {!isOutput ? (
+          <SearchWrapper>
+            <SearchInput
+              type="text"
+              id="token-search-input"
+              placeholder={t`Search by token name, token symbol or address`}
+              value={searchQuery}
+              ref={inputRef}
+              onChange={handleInput}
+              onKeyDown={handleEnter}
+              autoComplete="off"
+            />
+            <SearchIcon size={18} color={theme.border} />
+          </SearchWrapper>
+        ) : (
+          <Text fontSize={12} color={theme.subText} lineHeight="20px">
+            <Trans>
+              You can select from one of the token pools below. Different pools may have different liquidity and fees
+            </Trans>
+          </Text>
+        )}
       </PaddedColumn>
 
       <Separator />
 
       {visibleCurrencies?.length ? (
-        <div id="scrollableDiv" style={{ flex: '1', overflow: 'auto' }}>
-          <CurrencyListBridge
-            showBalance={!isOutput}
-            currencies={visibleCurrencies}
-            onCurrencySelect={handleCurrencySelect}
-          />
-        </div>
+        <CurrencyListBridge
+          isOutput={isOutput}
+          currencies={visibleCurrencies}
+          onCurrencySelect={handleCurrencySelect}
+        />
       ) : (
         <NoResult />
       )}

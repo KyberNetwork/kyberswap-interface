@@ -123,13 +123,7 @@ export default function NetworkModal({
     }
   }
   const isItemActive = (key: ChainId) => (!selectedId && chainId === key) || (selectedId && selectedId === key)
-  const sortedNetwork = activeChainIds
-    ? SHOW_NETWORKS.sort((x, y) => {
-        if (isItemActive(x) && !isItemActive(y)) return -1
-        if (!isItemActive(x) && isItemActive(y)) return 1
-        return activeChainIds?.includes(x) ? -1 : 1
-      })
-    : SHOW_NETWORKS
+  const sortedNetwork = SHOW_NETWORKS
 
   return (
     <Modal

@@ -311,7 +311,7 @@ export default function SwapForm() {
   const approveSpender = (() => {
     const isRouter = !['swapin', 'swapout'].includes(tokenOut?.type ?? '')
     if (tokenOut?.isApprove) {
-      return isRouter ? tokenOut.spender : tokenOut?.fromanytoken?.address
+      return isRouter ? tokenOut.spender : anyToken?.address
     }
     return undefined
   })()
@@ -403,7 +403,6 @@ export default function SwapForm() {
                 onSelectNetwork={onSelectDestNetwork}
                 selectedChainId={chainIdOut}
                 isOutput
-                disabledInput
                 value={outputInfo.outputAmount.toString()}
                 onCurrencySelect={onCurrencySelectDest}
                 id="swap-currency-output"

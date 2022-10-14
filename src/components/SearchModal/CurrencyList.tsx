@@ -1,6 +1,6 @@
 import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { rgba } from 'polished'
-import React, { CSSProperties, memo, useCallback } from 'react'
+import React, { CSSProperties, ReactNode, memo, useCallback } from 'react'
 import { Star, Trash } from 'react-feather'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import AutoSizer from 'react-virtualized-auto-sizer'
@@ -9,6 +9,7 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { useActiveWeb3React } from 'hooks'
+import useTheme from 'hooks/useTheme'
 import { useBridgeState } from 'state/bridge/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
@@ -111,7 +112,7 @@ function CurrencyRow({
   style: CSSProperties
   handleClickFavorite?: (e: React.MouseEvent, currency: Currency) => void
   removeImportedToken?: (token: Token) => void
-  customName?: string
+  customName?: ReactNode
 }) {
   const { chainId, account } = useActiveWeb3React()
 
@@ -290,18 +291,19 @@ interface TokenRowPropsBridge {
   index: number
   style: CSSProperties
 }
-function CurrencyListV2({
+export const CurrencyListBridge = memo(function CurrencyListV2({
   currencies,
+  isOutput,
   onCurrencySelect,
-  showBalance,
 }: {
   currencies: WrappedTokenInfo[]
   onCurrencySelect: (currency: WrappedTokenInfo) => void
-  showBalance: boolean
+  isOutput: boolean | undefined
 }) {
   const { account } = useActiveWeb3React()
   const [{ tokenIn, tokenOut }] = useBridgeState()
-  const currencyBalances = useCurrencyBalances(account || undefined, showBalance ? currencies : [])
+  const currencyBalances = useCurrencyBalances(account || undefined, !isOutput ? currencies : [])
+  const theme = useTheme()
 
   const Row: any = useCallback(
     function TokenRow({ style, currency, currencyBalance }: TokenRowPropsBridge) {
@@ -314,7 +316,7 @@ function CurrencyListV2({
       const { sortId, type } = currency?.multichainInfo || { sortId: undefined, type: '' }
       return (
         <CurrencyRow
-          showBalance={showBalance}
+          showBalance={!isOutput}
           showFavoriteIcon={false}
           style={style}
           currency={currency}
@@ -323,40 +325,50 @@ function CurrencyListV2({
           onSelect={handleSelect}
           otherSelected={false}
           customName={
-            sortId !== undefined
-              ? `${symbol} ${['swapin', 'swapout'].includes(type ?? '') ? ' (Bridge)' : ` (Router ${sortId})`}`
-              : ''
+            sortId !== undefined ? (
+              <Flex>
+                {symbol}&nbsp;
+                <Text color={theme.subText} fontWeight="normal">
+                  {`${['swapin', 'swapout'].includes(type ?? '') ? '(Bridge)' : `(Router ${sortId})`}`}
+                </Text>
+              </Flex>
+            ) : null
           }
         />
       )
     },
-    [onCurrencySelect, tokenIn, showBalance, tokenOut?.sortId],
+    [onCurrencySelect, tokenIn, isOutput, tokenOut?.sortId, theme],
   )
 
   return (
-    <div style={{ height: '100%' }}>
-      <AutoSizer>
-        {({ height, width }) => (
-          <FixedSizeList
-            height={height + 100}
-            width={width}
-            itemSize={56}
-            itemCount={currencies.length}
-            itemData={currencies}
-          >
-            {({ data, index, style }) => (
-              <Row
-                index={index}
-                currency={data[index]}
-                key={data[index]?.address || index}
-                currencyBalance={currencyBalances[index]}
-                style={style}
-              />
-            )}
-          </FixedSizeList>
-        )}
-      </AutoSizer>
+    <div style={{ flex: '1', overflow: 'auto', height: '100%' }}>
+      {isOutput ? (
+        currencies.map((item, index) => (
+          <Row index={index} currency={item} key={index} currencyBalance={currencyBalances[index]} />
+        ))
+      ) : (
+        <AutoSizer>
+          {({ height, width }) => (
+            <FixedSizeList
+              height={height + 100}
+              width={width}
+              itemSize={56}
+              itemCount={currencies.length}
+              itemData={currencies}
+            >
+              {({ data, index, style }) => (
+                <Row
+                  index={index}
+                  currency={data[index]}
+                  key={data[index]?.address || index}
+                  currencyBalance={currencyBalances[index]}
+                  style={style}
+                />
+              )}
+            </FixedSizeList>
+          )}
+        </AutoSizer>
+      )}
     </div>
   )
-}
-export const CurrencyListBridge = memo(CurrencyListV2)
+})

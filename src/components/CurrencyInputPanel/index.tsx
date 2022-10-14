@@ -366,7 +366,6 @@ interface CurrencyInputPanelBridgeProps {
   onUserInput?: (value: string) => void
   onMax?: () => void
   onCurrencySelect: (currency: WrappedTokenInfo) => void
-  disabledInput?: boolean
   id: string
   isOutput?: boolean
   onSelectNetwork: (chain: ChainId) => void
@@ -385,14 +384,12 @@ export function CurrencyInputPanelBridge({
   selectedChainId,
   onCurrencySelect,
   isOutput = false,
-  disabledInput = false,
   id,
 }: CurrencyInputPanelBridgeProps) {
   const [modalOpen, setModalOpen] = useState(false)
   const { chainId, account } = useActiveWeb3React()
-  const [{ currencyIn, currencyOut }] = useBridgeState()
+  const [{ currencyIn, currencyOut, listTokenOut }] = useBridgeState()
   const currency = isOutput ? currencyOut : currencyIn
-
   const selectedCurrencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined)
   const balanceRef = useRef(selectedCurrencyBalance?.toSignificant(10))
 
@@ -412,6 +409,7 @@ export function CurrencyInputPanelBridge({
     setModalOpen(false)
   }, [setModalOpen])
 
+  const disabledSelect = listTokenOut.length === 1 && isOutput
   return (
     <div style={{ width: '100%' }}>
       <InputPanel id={id}>
@@ -434,14 +432,15 @@ export function CurrencyInputPanelBridge({
               error={error}
               className="token-amount-input"
               value={value}
-              disabled={disabledInput}
+              disabled={isOutput}
               onUserInput={onUserInput}
             />
 
             <CurrencySelect
               selected={!!currency}
               className="open-currency-select-button"
-              onClick={() => setModalOpen(true)}
+              onClick={() => !disabledSelect && setModalOpen(true)}
+              style={{ cursor: disabledSelect ? 'default' : 'pointer', paddingRight: disabledSelect ? '8px' : 0 }}
             >
               <Aligner>
                 <RowFixed>
@@ -456,7 +455,7 @@ export function CurrencyInputPanelBridge({
                     {currency?.symbol || <Trans>Select a token</Trans>}
                   </StyledTokenName>
                 </RowFixed>
-                <DropdownSVG />
+                {disabledSelect ? <div /> : <DropdownSVG />}
               </Aligner>
             </CurrencySelect>
           </InputRow>

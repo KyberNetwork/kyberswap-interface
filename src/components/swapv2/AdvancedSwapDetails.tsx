@@ -189,7 +189,7 @@ export function TradeSummaryBridge({ outputInfo }: { outputInfo: OutputBridgeInf
           <RowBetween>
             <RowFixed>
               <TYPE.black fontSize={12} fontWeight={400} color={theme.subText}>
-                <Trans>Bridge Fee</Trans>
+                <Trans>Transaction Fee</Trans>
               </TYPE.black>
 
               <InfoHelper
@@ -200,7 +200,7 @@ export function TradeSummaryBridge({ outputInfo }: { outputInfo: OutputBridgeInf
                   ) : (
                     <>
                       <Text color={theme.text}>
-                        <Trans>{tokenOut?.SwapFeeRatePerMillion}% Bridge Fee</Trans>
+                        <Trans>{tokenOut?.SwapFeeRatePerMillion}% Transaction Fee</Trans>
                       </Text>
                       {tokenOut?.MinimumSwapFee === tokenOut?.MaximumSwapFee ? (
                         outputInfo.fee && (
@@ -214,8 +214,8 @@ export function TradeSummaryBridge({ outputInfo }: { outputInfo: OutputBridgeInf
                       ) : (
                         <Text marginTop={'5px'}>
                           <Trans>
-                            Min Bridge Fee is {formattedNum(tokenOut.MinimumSwapFee)} {tokenOut.symbol} <br />
-                            Max Bridge Fee is {formattedNum(tokenOut.MaximumSwapFee)} {tokenOut.symbol}
+                            Min Transaction Fee is {formattedNum(tokenOut.MinimumSwapFee)} {tokenOut.symbol} <br />
+                            Max Transaction Fee is {formattedNum(tokenOut.MaximumSwapFee)} {tokenOut.symbol}
                           </Trans>
                         </Text>
                       )}

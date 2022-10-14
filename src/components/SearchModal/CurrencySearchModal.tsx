@@ -119,16 +119,15 @@ export function CurrencySearchModalBridge({
     [onDismiss, onCurrencySelect],
   )
 
-  const isMobileHorizontal = Math.abs(window.orientation) === 90 && isMobile
   return (
     <Modal
       zindex={Z_INDEXS.MODAL}
       isOpen={isOpen}
       onDismiss={onDismiss}
       margin="auto"
-      maxHeight={isMobileHorizontal ? 100 : 80}
-      height={isMobileHorizontal ? '95vh' : undefined}
-      minHeight={80}
+      maxHeight={80}
+      height={isOutput ? undefined : '95vh'}
+      minHeight={isOutput ? undefined : 80}
     >
       <CurrencySearchBridge
         isOutput={isOutput}

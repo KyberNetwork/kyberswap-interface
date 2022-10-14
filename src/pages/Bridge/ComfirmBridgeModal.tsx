@@ -154,7 +154,7 @@ export default memo(function Disclaimer({
               </Row>
               <Row>
                 <Label>
-                  <Trans>Bridge Fee</Trans>
+                  <Trans>Transaction Fee</Trans>
                 </Label>
                 <Value>{outputInfo.fee ? `~${outputInfo.fee} ${tokenIn?.symbol}` : '--'}</Value>
               </Row>
