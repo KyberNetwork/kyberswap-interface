@@ -1,7 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useState } from 'react'
-import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as DropdownSvg } from 'assets/svg/down.svg'
@@ -17,12 +16,10 @@ const NetworkSwitchContainer = styled.div`
   border-radius: 24px;
   height: fit-content;
   justify-content: space-between;
-  width: 100%;
+  align-items: center;
   color: ${({ theme }) => theme.text};
-  background-color: ${({ theme }) => theme.tabBackgound};
-  padding: 12px;
+  padding: 0px;
   &:hover {
-    text-decoration: none;
     cursor: pointer;
   }
 `
@@ -31,6 +28,7 @@ const NetworkLabel = styled.div`
   white-space: nowrap;
   font-weight: 500;
   margin-right: 8px;
+  font-size: 14px;
 `
 
 const DropdownIcon = styled(DropdownSvg)<{ open: boolean }>`
@@ -59,10 +57,8 @@ function Web3Network({
   return (
     <>
       <NetworkSwitchContainer onClick={() => chainIds.length && toggleNetworkModal()}>
-        <Flex>
-          <NetworkLogo chainId={selectedChainId} style={{ width: 20, height: 20, marginRight: '8px' }} />
-          <NetworkLabel>{name}</NetworkLabel>
-        </Flex>
+        <NetworkLogo chainId={selectedChainId} style={{ width: 20, height: 20, marginRight: '8px' }} />
+        <NetworkLabel>{name}</NetworkLabel>
         <DropdownIcon open={isOpen} />
       </NetworkSwitchContainer>
       <NetworkModal

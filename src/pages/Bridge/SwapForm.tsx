@@ -40,7 +40,6 @@ import { maxAmountSpend } from 'utils/maxAmountSpend'
 import AmountWarning from './AmountWarning'
 import ComfirmBridgeModal from './ComfirmBridgeModal'
 import PoolInfo from './PoolInfo'
-import SelectNetwork from './SelectNetwork'
 import { usePoolBridge } from './pool'
 import { BridgeSwapState } from './type'
 import { useBridgeCallback, useBridgeRouterCallback } from './useBridgeCallback'
@@ -52,21 +51,12 @@ const AppBodyWrapped = styled(BodyWrapper)`
   margin-top: 0;
 `
 const ArrowWrapper = styled.div`
-  padding: 8px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  padding: 8px 10px;
   background: ${({ theme }) => theme.buttonBlack};
-  width: fit-content;
   height: fit-content;
-  cursor: pointer;
+  width: fit-content;
   border-radius: 999px;
-  position: absolute;
-  z-index: 1000;
-  margin: auto;
-  left: 0;
-  right: 0;
-  bottom: -32px;
+  margin-bottom: 0.75rem;
 `
 
 const Label = styled.div`
@@ -318,10 +308,6 @@ export default function SwapForm() {
     maxAmountInput && setInputAmount(maxAmountInput.toExact())
   }, [maxAmountInput])
 
-  const handleHalfInput = useCallback(() => {
-    setInputAmount(balances[0]?.divide(2).toExact() || '')
-  }, [balances])
-
   const approveSpender = (() => {
     const isRouter = !['swapin', 'swapout'].includes(tokenOut?.type ?? '')
     if (tokenOut?.isApprove) {
@@ -357,9 +343,12 @@ export default function SwapForm() {
     },
     [setBridgeState],
   )
-  const onSelectDestNetwork = (chainId: ChainId) => {
-    setBridgeState({ chainIdOut: chainId })
-  }
+  const onSelectDestNetwork = useCallback(
+    (chainId: ChainId) => {
+      setBridgeState({ chainIdOut: chainId })
+    },
+    [setBridgeState],
+  )
 
   const showApproveFlow =
     !inputError &&
@@ -371,84 +360,64 @@ export default function SwapForm() {
 
   return (
     <>
-      <Flex style={{ position: 'relative', flexDirection: 'column', gap: 22 }}>
+      <Flex style={{ position: 'relative', flexDirection: 'column', gap: 22, alignItems: 'center' }}>
         <SwapFormWrapper>
-          <AppBodyWrapped>
-            <Flex flexDirection="column" sx={{ gap: '1rem' }}>
-              <div>
-                <Label>
-                  <Trans>Source Chain</Trans>
-                </Label>
-                <SelectNetwork chainIds={listChainIn} onSelectNetwork={changeNetwork} selectedChainId={chainId} />
-              </div>
-
-              <Flex flexDirection={'column'}>
-                <Label>
-                  <Trans>You Transfer</Trans>
-                </Label>
-                <Tooltip text={inputError?.tip} show={inputError?.state === 'error'} placement="top">
-                  <CurrencyInputPanelBridge
-                    error={inputError?.state === 'error'}
-                    value={inputAmount}
-                    showMaxButton
-                    onUserInput={handleTypeInput}
-                    onMax={handleMaxInput}
-                    onHalf={handleHalfInput}
-                    onCurrencySelect={onCurrencySelect}
-                    id="swap-currency-input"
-                  />
-                </Tooltip>
-              </Flex>
-              <PoolInfo
-                chainId={chainId}
-                tokenIn={tokenIn}
-                poolValue={poolValue.poolValueIn}
-                poolShare={poolValue.poolShareIn}
-              />
-            </Flex>
-          </AppBodyWrapped>
-        </SwapFormWrapper>
-
-        <ArrowWrapper>
-          <ArrowUp width={24} fill={theme.subText} style={{ cursor: 'default' }} />
-        </ArrowWrapper>
-      </Flex>
-
-      <SwapFormWrapper>
-        <AppBodyWrapped>
-          <Flex flexDirection="column" sx={{ gap: '1rem' }}>
-            <div>
+          <AppBodyWrapped style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <Flex flexDirection={'column'}>
               <Label>
-                <Trans>Destination Chain</Trans>
+                <Trans>You Transfer</Trans>
               </Label>
-              <SelectNetwork
+              <Tooltip text={inputError?.tip} show={inputError?.state === 'error'} placement="top">
+                <CurrencyInputPanelBridge
+                  chainIds={listChainIn}
+                  selectedChainId={chainId}
+                  onSelectNetwork={changeNetwork}
+                  error={inputError?.state === 'error'}
+                  value={inputAmount}
+                  onUserInput={handleTypeInput}
+                  onMax={handleMaxInput}
+                  onCurrencySelect={onCurrencySelect}
+                  id="swap-currency-input"
+                />
+              </Tooltip>
+            </Flex>
+
+            <PoolInfo
+              chainId={chainId}
+              tokenIn={tokenIn}
+              poolValue={poolValue.poolValueIn}
+              poolShare={poolValue.poolShareIn}
+            />
+
+            <div>
+              <Flex alignItems={'flex-end'} justifyContent="space-between">
+                <Label>
+                  <Trans>You Receive</Trans>
+                </Label>
+                <ArrowWrapper>
+                  <ArrowUp width={24} fill={theme.subText} style={{ cursor: 'default' }} />
+                </ArrowWrapper>
+              </Flex>
+              <CurrencyInputPanelBridge
                 chainIds={listDestChainIds}
                 onSelectNetwork={onSelectDestNetwork}
                 selectedChainId={chainIdOut}
-              />
-            </div>
-
-            <div>
-              <Label>
-                <Trans>You Receive</Trans>
-              </Label>
-              <CurrencyInputPanelBridge
                 isOutput
                 disabledInput
                 value={outputInfo.outputAmount.toString()}
-                showMaxButton={false}
                 onCurrencySelect={onCurrencySelectDest}
                 id="swap-currency-output"
               />
             </div>
+
             <PoolInfo
               chainId={chainIdOut}
               tokenIn={tokenIn}
               poolValue={poolValue.poolValueOut}
               poolShare={poolValue.poolShareOut}
             />
-            {inputError?.state === 'warn' && <AmountWarning title={inputError?.tip} />}
 
+            {inputError?.state === 'warn' && <AmountWarning title={inputError?.tip} />}
             {!account ? (
               <ButtonLight onClick={toggleWalletModal}>
                 <Trans>Connect Wallet</Trans>
@@ -515,13 +484,11 @@ export default function SwapForm() {
                 </ExternalLink>
               </Flex>
             </Flex>
-          </Flex>
-        </AppBodyWrapped>
-      </SwapFormWrapper>
+          </AppBodyWrapped>
+        </SwapFormWrapper>
 
-      <SwapFormWrapper>
         <AdvancedSwapDetailsDropdownBridge outputInfo={outputInfo} />
-      </SwapFormWrapper>
+      </Flex>
 
       <ComfirmBridgeModal swapState={swapState} onDismiss={hidePreview} onSwap={handleSwap} outputInfo={outputInfo} />
     </>

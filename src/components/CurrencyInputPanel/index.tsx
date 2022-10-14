@@ -1,5 +1,5 @@
 import { Pair } from '@kyberswap/ks-sdk-classic'
-import { Currency } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { darken, lighten, rgba } from 'polished'
 import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
@@ -10,6 +10,7 @@ import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import Wallet from 'components/Icons/Wallet'
 import { RowFixed } from 'components/Row'
 import useTheme from 'hooks/useTheme'
+import SelectNetwork from 'pages/Bridge/SelectNetwork'
 import { useBridgeState } from 'state/bridge/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
@@ -364,12 +365,13 @@ interface CurrencyInputPanelBridgeProps {
   error?: boolean
   onUserInput?: (value: string) => void
   onMax?: () => void
-  onHalf?: () => void
-  showMaxButton: boolean
   onCurrencySelect: (currency: WrappedTokenInfo) => void
   disabledInput?: boolean
   id: string
   isOutput?: boolean
+  onSelectNetwork: (chain: ChainId) => void
+  chainIds: ChainId[]
+  selectedChainId: ChainId | undefined
 }
 export function CurrencyInputPanelBridge({
   error,
@@ -377,10 +379,11 @@ export function CurrencyInputPanelBridge({
   onUserInput = (value: string) => {
     //
   },
+  onSelectNetwork,
+  chainIds,
   onMax,
-  onHalf,
+  selectedChainId,
   onCurrencySelect,
-  showMaxButton,
   isOutput = false,
   disabledInput = false,
   id,
@@ -414,18 +417,7 @@ export function CurrencyInputPanelBridge({
       <InputPanel id={id}>
         <Container hideInput={false} selected={false} error={error}>
           <Flex justifyContent="space-between" fontSize="12px" marginBottom="12px" alignItems="center">
-            {showMaxButton && currency && account ? (
-              <Flex alignItems="center" sx={{ gap: '4px' }}>
-                <StyledBalanceMax onClick={onMax}>
-                  <Trans>Max</Trans>
-                </StyledBalanceMax>
-                <StyledBalanceMax onClick={onHalf}>
-                  <Trans>Half</Trans>
-                </StyledBalanceMax>
-              </Flex>
-            ) : (
-              <div />
-            )}
+            <SelectNetwork chainIds={chainIds} onSelectNetwork={onSelectNetwork} selectedChainId={selectedChainId} />
             <Flex
               onClick={() => onMax && onMax()}
               style={{ cursor: onMax ? 'pointer' : undefined }}
