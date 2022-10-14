@@ -101,7 +101,7 @@ const fetchLeaderBoard = ({
       pageNumber,
       userAddress,
       lookupAddress,
-      eligibleOnly: false,
+      eligibleOnly: true,
     },
   }).then(({ data }) => formatLeaderboardData(data.data))
 }
