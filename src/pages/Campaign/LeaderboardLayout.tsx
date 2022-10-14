@@ -137,9 +137,9 @@ export default function LeaderboardLayout({
         </LeaderboardTableBodyItem>
         <LeaderboardTableBodyItem align="right" isThisRankingEligible={isThisRankingEligible}>
           {formatNumberWithPrecisionRange(
-            selectedCampaign && selectedCampaign.rankingBy === CampaignRankingBy.TradingVolume
-              ? Number(data.totalPoint)
-              : data.tradingNumber,
+            selectedCampaign && selectedCampaign.rankingBy === CampaignRankingBy.TradingNumber
+              ? data.tradingNumber
+              : Number(data.totalPoint),
             0,
             2,
           )}
@@ -227,10 +227,10 @@ export default function LeaderboardLayout({
           </LeaderboardTableHeaderItem>
           {type === 'leaderboard' && (
             <LeaderboardTableHeaderItem align="right">
-              {selectedCampaign.rankingBy === CampaignRankingBy.TradingVolume ? (
-                <Trans>Points (Volume)</Trans>
-              ) : (
+              {selectedCampaign.rankingBy === CampaignRankingBy.TradingNumber ? (
                 <Trans>Points (Trades)</Trans>
+              ) : (
+                <Trans>Points (Volume)</Trans>
               )}
             </LeaderboardTableHeaderItem>
           )}
