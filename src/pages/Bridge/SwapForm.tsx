@@ -29,6 +29,7 @@ import useTheme from 'hooks/useTheme'
 import { BodyWrapper } from 'pages/AppBody'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useBridgeState, useBridgeStateHandler, useOutputValue } from 'state/bridge/hooks'
+import { PoolValueOutMap } from 'state/bridge/reducer'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
@@ -76,24 +77,25 @@ const formatPoolValue = (amount: string, decimals: number) => {
   return 0
 }
 
+type PoolValueType = {
+  poolValueIn: string | number
+  poolShareIn: string | number
+  poolValueOut: string | number
+  poolShareOut: string | number
+}
+
 export default function SwapForm() {
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useActiveNetwork()
-  const [{ listChainIn }] = useBridgeState()
-  const [{ tokenIn, tokenOut, chainIdOut, currencyIn, currencyOut, listTokenOut }] = useBridgeState()
-  const { resetBridgeState, setBridgeState } = useBridgeStateHandler()
+  const [{ tokenIn, tokenOut, chainIdOut, currencyIn, currencyOut, listTokenOut, listChainIn }] = useBridgeState()
+  const { resetBridgeState, setBridgeState, setBridgePoolInfo } = useBridgeStateHandler()
   const toggleWalletModal = useWalletModalToggle()
   const isDark = useIsDarkMode()
 
   const [inputAmount, setInputAmount] = useState('0')
   const [approvalSubmitted, setApprovalSubmitted] = useState<boolean>(false)
-
-  const [poolValue, setPoolValue] = useState<{
-    poolValueIn: string | number
-    poolShareIn: string | number
-    poolValueOut: string | number
-    poolShareOut: string | number
-  }>({
+  // todo consider of poolshare call api to faster
+  const [poolValue, setPoolValue] = useState<PoolValueType>({
     poolValueIn: 0,
     poolShareIn: 0,
     poolValueOut: 0,
@@ -123,17 +125,50 @@ export default function SwapForm() {
 
   const anyToken = tokenOut?.fromanytoken
 
-  const poolData = usePoolBridge(
-    chainId,
-    tokenOut?.isFromLiquidity && tokenOut?.isLiquidity ? anyToken?.address : undefined,
-    tokenIn?.address,
-  )
+  const poolParam1 = useMemo(() => {
+    const anytoken = tokenOut?.isFromLiquidity && tokenOut?.isLiquidity ? anyToken?.address : undefined
+    const underlying = tokenIn?.address
+    return anytoken && underlying ? [{ anytoken, underlying }] : []
+  }, [anyToken?.address, tokenIn?.address, tokenOut?.isFromLiquidity, tokenOut?.isLiquidity])
 
-  const poolDataOut = usePoolBridge(
-    chainIdOut,
-    tokenOut?.isLiquidity ? tokenOut?.anytoken?.address : undefined,
-    tokenOut?.underlying?.address,
-  )
+  const poolData = usePoolBridge(chainId, poolParam1)
+
+  const poolParam2 = useMemo(() => {
+    return listTokenOut
+      .map(({ multichainInfo: token }) => ({
+        anytoken: token?.isLiquidity ? token?.anytoken?.address : undefined,
+        underlying: token?.underlying?.address,
+      }))
+      .filter(e => e.anytoken && e.underlying)
+  }, [listTokenOut])
+
+  const poolDataOut = usePoolBridge(chainIdOut, poolParam2)
+  // todo memo các thứ, check api có call hay k
+  useEffect(() => {
+    if (poolDataOut) {
+      const poolValueOutMap: PoolValueOutMap = {}
+      let poolValueOut: string | number = 0,
+        poolShareOut: string | number = 0
+      Object.keys(poolDataOut).forEach(anytokenAddress => {
+        const poolInfo = poolDataOut?.[anytokenAddress]
+        const token = listTokenOut.find(e => e.multichainInfo?.anytoken?.address === anytokenAddress)
+        if (poolInfo?.balanceOf && token?.multichainInfo?.anytoken?.decimals) {
+          if (anytokenAddress === tokenOut?.anytoken?.address) {
+            poolValueOut = formatPoolValue(poolInfo?.balanceOf, tokenOut?.anytoken?.decimals)
+            poolShareOut = formatPoolValue(poolInfo?.balance, tokenOut?.anytoken?.decimals)
+          }
+          poolValueOutMap[anytokenAddress] = {
+            poolValue: formatPoolValue(poolInfo?.balanceOf, token?.multichainInfo?.anytoken?.decimals),
+            poolShare: formatPoolValue(poolInfo?.balance, token?.multichainInfo?.anytoken?.decimals),
+          }
+        }
+      })
+      setPoolValue(poolValue => ({ ...poolValue, poolValueOut, poolShareOut }))
+      setBridgePoolInfo({ poolValueOut: poolValueOutMap })
+    } else {
+      setPoolValue(poolValue => ({ ...poolValue, poolValueOut: 0, poolShareOut: 0, poolValueOutMap: {} }))
+    }
+  }, [poolDataOut, listTokenOut, tokenOut, setBridgePoolInfo])
 
   useEffect(() => {
     const chainIds = Object.keys(tokenIn?.destChains ?? {})
@@ -159,24 +194,12 @@ export default function SwapForm() {
     const address = anyToken?.address
     let poolValueIn: string | number = 0,
       poolShareIn: string | number = 0
-    if (address && poolData?.balanceOf) {
-      poolValueIn = formatPoolValue(poolData?.balanceOf, anyToken?.decimals)
-      poolShareIn = formatPoolValue(poolData?.balance, anyToken?.decimals)
+    if (address && poolData?.[address]?.balanceOf) {
+      poolValueIn = formatPoolValue(poolData[address]?.balanceOf, anyToken?.decimals)
+      poolShareIn = formatPoolValue(poolData[address]?.balance, anyToken?.decimals)
     }
     setPoolValue(poolValue => ({ ...poolValue, poolValueIn, poolShareIn }))
   }, [poolData, anyToken])
-
-  useEffect(() => {
-    const anytoken = tokenOut?.anytoken
-    const address = anytoken?.address
-    let poolValueOut: string | number = 0,
-      poolShareOut: string | number = 0
-    if (address && poolDataOut?.balanceOf) {
-      poolValueOut = formatPoolValue(poolDataOut?.balanceOf, anytoken?.decimals)
-      poolShareOut = formatPoolValue(poolDataOut?.balance, anytoken?.decimals)
-    }
-    setPoolValue(poolValue => ({ ...poolValue, poolValueOut, poolShareOut }))
-  }, [poolDataOut, tokenOut])
 
   const useSwapMethods = tokenOut?.routerABI
   const routerToken = tokenOut?.router && isAddress(tokenOut?.router) ? tokenOut?.router : undefined
@@ -196,13 +219,9 @@ export default function SwapForm() {
 
   const inputError = useMemo(() => {
     const inputNumber = Number(inputAmount)
-    if (!tokenIn || !chainIdOut || !tokenOut || inputNumber === 0) {
-      return
-    }
+    if (!tokenIn || !chainIdOut || !tokenOut || inputNumber === 0) return
 
-    if (isNaN(inputNumber)) {
-      return { state: 'error', tip: t`Input amount is not valid` }
-    }
+    if (isNaN(inputNumber)) return { state: 'error', tip: t`Input amount is not valid` }
 
     if (inputNumber < Number(tokenOut.MinimumSwap)) {
       return {
@@ -233,9 +252,8 @@ export default function SwapForm() {
       }
     }
     const isWrapInputError = (wrapInputErrorBridge || wrapInputErrorCrossBridge) && inputNumber > 0
-    if (isWrapInputError) {
-      return { state: 'error', tip: t`Insufficient ${tokenIn?.symbol} balance` }
-    }
+    if (isWrapInputError) return { state: 'error', tip: t`Insufficient ${tokenIn?.symbol} balance` }
+
     return
   }, [
     tokenIn,

@@ -6,7 +6,14 @@ import { MultiChainTokenInfo } from 'pages/Bridge/type'
 import { AppDispatch, AppState } from 'state'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
-import { BridgeStateParams, resetBridgeState, setBridgeState } from './actions'
+import {
+  BridgeStateParams,
+  BridgeStatePoolParams,
+  resetBridgeState as resetBridgeStateAction,
+  setBridgePoolInfo as setBridgePoolInfoAction,
+  setBridgeState,
+} from './actions'
+import { PoolValueOutMap } from './reducer'
 
 export function useBridgeState(): [
   {
@@ -18,6 +25,7 @@ export function useBridgeState(): [
     listChainIn: ChainId[]
     listTokenIn: WrappedTokenInfo[]
     listTokenOut: WrappedTokenInfo[]
+    poolValueOut: PoolValueOutMap
   },
   (value: BridgeStateParams) => void,
 ] {
@@ -38,9 +46,15 @@ export function useBridgeState(): [
 
 export function useBridgeStateHandler() {
   const dispatch = useDispatch<AppDispatch>()
-  const resetState = useCallback(() => dispatch(resetBridgeState()), [dispatch])
+
+  const resetBridgeState = useCallback(() => dispatch(resetBridgeStateAction()), [dispatch])
+  const setBridgePoolInfo = useCallback(
+    (data: BridgeStatePoolParams) => dispatch(setBridgePoolInfoAction(data)),
+    [dispatch],
+  )
+
   const setBridgeState = useBridgeState()[1]
-  return { resetBridgeState: resetState, setBridgeState }
+  return { resetBridgeState, setBridgeState, setBridgePoolInfo }
 }
 
 export type OutputBridgeInfo = {

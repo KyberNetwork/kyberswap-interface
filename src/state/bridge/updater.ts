@@ -43,6 +43,7 @@ export default function Updater(): null {
         // todo test unlimit pool
         // todo update ui ui router 1 2 3
         // todo check spec
+        // todo memo request token ver
 
         if (Object.keys(destChains || {}).length === 0 || !isAddress(address)) {
           return

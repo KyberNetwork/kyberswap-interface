@@ -10,6 +10,7 @@ import styled from 'styled-components'
 
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { MultiChainTokenInfo } from 'pages/Bridge/type'
 import { useBridgeState } from 'state/bridge/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
@@ -100,7 +101,9 @@ function CurrencyRow({
   showFavoriteIcon = true,
   showBalance = true,
   customName,
-}: {
+  poolLiquidity,
+}: // todo tách component
+{
   isImportedTab?: boolean
   showBalance?: boolean
   showFavoriteIcon?: boolean
@@ -113,6 +116,7 @@ function CurrencyRow({
   handleClickFavorite?: (e: React.MouseEvent, currency: Currency) => void
   removeImportedToken?: (token: Token) => void
   customName?: ReactNode
+  poolLiquidity?: number | string | undefined
 }) {
   const { chainId, account } = useActiveWeb3React()
 
@@ -157,7 +161,13 @@ function CurrencyRow({
       </Flex>
 
       <RowFixed style={{ justifySelf: 'flex-end', gap: 15 }}>
-        {isImportedTab ? <DeleteButton onClick={onClickRemove} /> : showBalance && balanceComponent}
+        {isImportedTab ? (
+          <DeleteButton onClick={onClickRemove} />
+        ) : showBalance ? (
+          balanceComponent
+        ) : poolLiquidity ? (
+          poolLiquidity
+        ) : null}
         {showFavoriteIcon && (
           <FavoriteButton onClick={e => handleClickFavorite?.(e, currency)} data-active={isFavorite} />
         )}
@@ -301,7 +311,7 @@ export const CurrencyListBridge = memo(function CurrencyListV2({
   isOutput: boolean | undefined
 }) {
   const { account } = useActiveWeb3React()
-  const [{ tokenIn, tokenOut }] = useBridgeState()
+  const [{ tokenIn, tokenOut, poolValueOut }] = useBridgeState()
   const currencyBalances = useCurrencyBalances(account || undefined, !isOutput ? currencies : [])
   const theme = useTheme()
 
@@ -313,7 +323,9 @@ export const CurrencyListBridge = memo(function CurrencyListV2({
         tokenOut?.sortId === currency?.multichainInfo?.sortId
       const handleSelect = () => currency && onCurrencySelect(currency)
       const { symbol } = getDisplayTokenInfo(currency)
-      const { sortId, type } = currency?.multichainInfo || { sortId: undefined, type: '' }
+      const { sortId, type, anytoken } = (currency?.multichainInfo || {}) as Partial<MultiChainTokenInfo>
+      const poolLiquidity = isOutput && anytoken?.address ? poolValueOut?.[anytoken?.address].poolValue || 0 : 0
+
       return (
         <CurrencyRow
           showBalance={!isOutput}
@@ -324,6 +336,7 @@ export const CurrencyListBridge = memo(function CurrencyListV2({
           isSelected={isSelected}
           onSelect={handleSelect}
           otherSelected={false}
+          poolLiquidity={poolLiquidity}
           customName={
             sortId !== undefined ? (
               <Flex>
@@ -337,7 +350,7 @@ export const CurrencyListBridge = memo(function CurrencyListV2({
         />
       )
     },
-    [onCurrencySelect, tokenIn, isOutput, tokenOut?.sortId, theme],
+    [onCurrencySelect, tokenIn, isOutput, tokenOut?.sortId, theme, poolValueOut],
   )
 
   return (

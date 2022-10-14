@@ -1,5 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import ERC20_INTERFACE, { ERC20_ABI } from 'constants/abis/erc20'
 import { MULTICALL_ABI, MULTICALL_NETWORKS } from 'constants/multicall'
@@ -198,12 +198,9 @@ type PoolBridgeInfo = {
   totalSupply: string
 }
 // call one pool
-export function usePoolBridge(chainId: ChainId | undefined, anytoken: any, underlying: any) {
-  const [poolData, setPoolData] = useState<PoolBridgeInfo>()
+export function usePoolBridge(chainId: ChainId | undefined, tokenList: TokenList) {
+  const [poolData, setPoolData] = useState<PoolBridgeInfoMap>()
   const { account } = useActiveWeb3React()
-  const tokenList = useMemo(() => {
-    return anytoken && underlying ? [{ anytoken, underlying }] : []
-  }, [anytoken, underlying])
 
   const getEvmPoolsData = useEvmPools({
     account: account ?? '',
@@ -214,8 +211,7 @@ export function usePoolBridge(chainId: ChainId | undefined, anytoken: any, under
   const fetchPoolCallback = useCallback(() => {
     if (chainId) {
       getEvmPoolsData()
-        .then((res: PoolBridgeInfoMap) => {
-          const newData = Object.values(res)[0]
+        .then((newData: PoolBridgeInfoMap) => {
           // small object, no performance problem here
           if (JSON.stringify(newData || {}) !== JSON.stringify(poolData || {})) {
             setPoolData(newData)
@@ -229,7 +225,7 @@ export function usePoolBridge(chainId: ChainId | undefined, anytoken: any, under
 
   useEffect(() => {
     fetchPoolCallback()
-  }, [chainId, account, anytoken, fetchPoolCallback])
+  }, [chainId, account, tokenList, fetchPoolCallback])
   useInterval(fetchPoolCallback, 1000 * 10)
   return !chainId ? undefined : poolData
 }

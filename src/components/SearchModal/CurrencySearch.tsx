@@ -654,11 +654,21 @@ export function CurrencySearchBridge({ isOutput, onCurrencySelect, onDismiss, is
             <SearchIcon size={18} color={theme.border} />
           </SearchWrapper>
         ) : (
-          <Text fontSize={12} color={theme.subText} lineHeight="20px">
-            <Trans>
-              You can select from one of the token pools below. Different pools may have different liquidity and fees
-            </Trans>
-          </Text>
+          <>
+            <Text fontSize={12} color={theme.subText} lineHeight="20px">
+              <Trans>
+                You can select from one of the token pools below. Different pools may have different liquidity and fees
+              </Trans>
+            </Text>
+            <Flex justifyContent="space-between" color={theme.subText} fontWeight={500} fontSize={15}>
+              <Text>
+                <Trans>Pool</Trans>
+              </Text>
+              <Text>
+                <Trans>Liquidity</Trans>
+              </Text>
+            </Flex>
+          </>
         )}
       </PaddedColumn>
 
