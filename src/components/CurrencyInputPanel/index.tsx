@@ -9,6 +9,7 @@ import styled from 'styled-components'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import Wallet from 'components/Icons/Wallet'
 import { RowFixed } from 'components/Row'
+import { useTokenBalanceOfAnotherChain } from 'hooks/bridge'
 import useTheme from 'hooks/useTheme'
 import SelectNetwork from 'pages/Bridge/SelectNetwork'
 import { useBridgeState } from 'state/bridge/hooks'
@@ -388,10 +389,11 @@ export function CurrencyInputPanelBridge({
 }: CurrencyInputPanelBridgeProps) {
   const [modalOpen, setModalOpen] = useState(false)
   const { chainId, account } = useActiveWeb3React()
-  const [{ currencyIn, currencyOut, listTokenOut }] = useBridgeState()
+  const [{ currencyIn, currencyOut, listTokenOut, chainIdOut, loadingToken }] = useBridgeState()
   const currency = isOutput ? currencyOut : currencyIn
-  const selectedCurrencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined)
+  const selectedCurrencyBalance = useCurrencyBalance(account ?? undefined, isOutput ? undefined : currency ?? undefined)
   const balanceRef = useRef(selectedCurrencyBalance?.toSignificant(10))
+  const destBalance = useTokenBalanceOfAnotherChain(chainIdOut, isOutput ? currency : undefined)
 
   useEffect(() => {
     balanceRef.current = undefined
@@ -410,6 +412,7 @@ export function CurrencyInputPanelBridge({
   }, [setModalOpen])
 
   const disabledSelect = listTokenOut.length === 1 && isOutput
+  const formatDestBalance = parseFloat(destBalance) ? parseFloat(destBalance)?.toFixed(10) : 0
   return (
     <div style={{ width: '100%' }}>
       <InputPanel id={id}>
@@ -423,7 +426,7 @@ export function CurrencyInputPanelBridge({
             >
               <Wallet color={theme.subText} />
               <Text fontWeight={500} color={theme.subText} marginLeft="4px">
-                {selectedCurrencyBalance?.toSignificant(10) || balanceRef.current || 0}
+                {isOutput ? formatDestBalance : selectedCurrencyBalance?.toSignificant(10) || balanceRef.current || 0}
               </Text>
             </Flex>
           </Flex>
@@ -439,7 +442,7 @@ export function CurrencyInputPanelBridge({
             <CurrencySelect
               selected={!!currency}
               className="open-currency-select-button"
-              onClick={() => !disabledSelect && setModalOpen(true)}
+              onClick={() => !disabledSelect && !loadingToken && setModalOpen(true)}
               style={{ cursor: disabledSelect ? 'default' : 'pointer', paddingRight: disabledSelect ? '8px' : 0 }}
             >
               <Aligner>
@@ -452,7 +455,7 @@ export function CurrencyInputPanelBridge({
                     active={Boolean(currency?.symbol)}
                     style={{ paddingRight: 0 }}
                   >
-                    {currency?.symbol || <Trans>Select a token</Trans>}
+                    {currency?.symbol || (loadingToken ? <Trans>Loading token</Trans> : <Trans>Select a token</Trans>)}
                   </StyledTokenName>
                 </RowFixed>
                 {disabledSelect ? <div /> : <DropdownSVG />}

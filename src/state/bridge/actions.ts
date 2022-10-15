@@ -11,6 +11,7 @@ export type BridgeStateParams = {
   listChainIn?: ChainId[] | undefined
   listTokenIn?: WrappedTokenInfo[] | undefined
   listTokenOut?: WrappedTokenInfo[] | undefined
+  loadingToken?: boolean
 }
 
 export const setBridgeState = createAction<BridgeStateParams>('bridge/setBridgeState')

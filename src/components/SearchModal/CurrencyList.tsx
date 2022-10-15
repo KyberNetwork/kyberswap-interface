@@ -324,7 +324,7 @@ export const CurrencyListBridge = memo(function CurrencyListV2({
       const handleSelect = () => currency && onCurrencySelect(currency)
       const { symbol } = getDisplayTokenInfo(currency)
       const { sortId, type, anytoken } = (currency?.multichainInfo || {}) as Partial<MultiChainTokenInfo>
-      const poolLiquidity = isOutput && anytoken?.address ? poolValueOut?.[anytoken?.address].poolValue || 0 : 0
+      const poolLiquidity = isOutput && anytoken?.address ? poolValueOut?.[anytoken?.address] || 0 : 0
 
       return (
         <CurrencyRow

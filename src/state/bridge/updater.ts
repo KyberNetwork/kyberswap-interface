@@ -1,5 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 
 import { AppPaths } from 'pages/App'
@@ -24,26 +24,25 @@ function timeout() {
   return new Promise(resolve => {
     setTimeout(() => {
       resolve(TIMEOUT)
-    }, 1000 * 10)
+    }, 1000 * 5)
   })
 }
+
 export default function Updater(): null {
   const { chainId } = useActiveWeb3React()
   const [{ tokenIn, chainIdOut }, setBridgeState] = useBridgeState()
   const { pathname } = useLocation()
+  const curChainId = useRef(chainId)
+  curChainId.current = chainId
+
   const formatAndSaveToken = useCallback(
     (tokens: any, chainIdRequest: ChainId) => {
       let native: WrappedTokenInfo | undefined
-      if (chainId !== chainIdRequest || !chainIdRequest) return // prevent api 1 call first but finished later
+      if (curChainId.current !== chainIdRequest || !chainIdRequest) return // prevent api 1 call first but finished later
       const result: WrappedTokenInfo[] = []
       Object.keys(tokens).forEach(key => {
         const token = { ...tokens[key] } as MultiChainTokenInfo
         const { address, logoUrl, destChains, name, decimals, symbol } = token
-
-        // todo test unlimit pool
-        // todo update ui ui router 1 2 3
-        // todo check spec
-        // todo memo request token ver
 
         if (Object.keys(destChains || {}).length === 0 || !isAddress(address)) {
           return
@@ -65,14 +64,15 @@ export default function Updater(): null {
           native = wrappedToken
         }
       })
-      setBridgeState({ listTokenIn: result, tokenIn: native || result[0] })
+      setBridgeState({ listTokenIn: result, tokenIn: native || result[0], loadingToken: false })
     },
-    [setBridgeState, chainId],
+    [setBridgeState],
   )
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setBridgeState({ loadingToken: true })
         const oldVersion = getBridgeLocalstorage(BridgeLocalStorageKeys.TOKEN_VERSION)
         let version
         try {

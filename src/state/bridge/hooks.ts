@@ -26,6 +26,7 @@ export function useBridgeState(): [
     listTokenIn: WrappedTokenInfo[]
     listTokenOut: WrappedTokenInfo[]
     poolValueOut: PoolValueOutMap
+    loadingToken: boolean
   },
   (value: BridgeStateParams) => void,
 ] {

@@ -11,12 +11,10 @@ const PoolInfo = ({
   chainId,
   tokenIn,
   poolValue,
-  poolShare,
 }: {
   chainId: ChainId | undefined
   tokenIn: MultiChainTokenInfo | undefined
   poolValue: string | number
-  poolShare: string | number
 }) => {
   const theme = useTheme()
   if (!poolValue) return null
@@ -32,14 +30,6 @@ const PoolInfo = ({
       <Text>
         <Trans>{chainId ? `${NETWORKS_INFO[chainId].name} Pool: ${poolValue} ${tokenIn?.symbol ?? ''}` : ''}</Trans>
       </Text>
-      {/* <Text>
-        <Trans>
-          Your Pool Share:{' '}
-          <ExternalLink href="https://app.multichain.org/#/pool">
-            {poolShare} {tokenIn?.symbol ?? ''}
-          </ExternalLink>
-        </Trans>
-      </Text> */}
     </Flex>
   )
 }

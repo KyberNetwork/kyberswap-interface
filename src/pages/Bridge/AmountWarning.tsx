@@ -16,14 +16,16 @@ const AmountWarning = ({ title }: { title: string }) => {
       style={{ background: rgba(theme.warning, 0.25), borderRadius: 16, padding: '14px 20px' }}
       header={
         <Flex color={theme.warning} alignItems="center" style={{ gap: 8 }}>
-          <AlertTriangle size={15} />{' '}
+          <div>
+            <AlertTriangle size={15} />
+          </div>
           <Text fontWeight={500} fontSize={13}>
             {title}
           </Text>
         </Flex>
       }
     >
-      <Text as="p" fontSize={12} lineHeight={'16px'}>
+      <Text as="p" fontSize={12} lineHeight={'16px'} marginTop={'5px'}>
         <Trans>
           There is a chance that during your transfer another high volume transaction utilizes the available liquidity.
           As a result, for the unavailable liquidity, you may receive ‘anyToken’ from Multichain. You can exchange your

@@ -57,8 +57,10 @@ export function useContractForReading(
   address: string | undefined,
   ABI: any,
   withSignerIfPossible = true,
+  customChainId?: ChainId,
 ): Contract | null {
-  const { chainId } = useActiveWeb3React()
+  const { chainId: curChainId } = useActiveWeb3React()
+  const chainId = customChainId || curChainId
   return useMemo(() => {
     if (!address || !chainId) return null
     const provider = providers[chainId]
@@ -158,9 +160,10 @@ export function usePairContract(pairAddress?: string, withSignerIfPossible?: boo
   return useContract(pairAddress, IUniswapV2PairABI.abi, withSignerIfPossible)
 }
 
-export function useMulticallContract(): Contract | null {
-  const { chainId } = useActiveWeb3React()
-  return useContractForReading(chainId && MULTICALL_NETWORKS[chainId], MULTICALL_ABI, false)
+export function useMulticallContract(customChainId?: ChainId): Contract | null {
+  const { chainId: curChainId } = useActiveWeb3React()
+  const chainId = customChainId || curChainId
+  return useContractForReading(chainId && MULTICALL_NETWORKS[chainId], MULTICALL_ABI, false, customChainId)
 }
 
 export function useSocksController(): Contract | null {

@@ -1,4 +1,4 @@
-import { ChainId, Currency, CurrencyAmount, Fraction } from '@kyberswap/ks-sdk-core'
+import { ChainId, Fraction } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { isAddress } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
@@ -21,6 +21,7 @@ import { SwapFormWrapper } from 'components/swapv2/styleds'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
+import { useMultichainPool } from 'hooks/bridge'
 import { useActiveNetwork } from 'hooks/useActiveNetwork'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -33,15 +34,13 @@ import { PoolValueOutMap } from 'state/bridge/reducer'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
-import { useCurrencyBalances } from 'state/wallet/hooks'
+import { useCurrencyBalance } from 'state/wallet/hooks'
 import { ExternalLink } from 'theme'
 import { formatNumberWithPrecisionRange, formattedNum } from 'utils'
-import { maxAmountSpend } from 'utils/maxAmountSpend'
 
 import AmountWarning from './AmountWarning'
 import ComfirmBridgeModal from './ComfirmBridgeModal'
 import PoolInfo from './PoolInfo'
-import { usePoolBridge } from './pool'
 import { BridgeSwapState } from './type'
 import { useBridgeCallback, useBridgeRouterCallback } from './useBridgeCallback'
 
@@ -79,27 +78,24 @@ const formatPoolValue = (amount: string, decimals: number) => {
 
 type PoolValueType = {
   poolValueIn: string | number
-  poolShareIn: string | number
   poolValueOut: string | number
-  poolShareOut: string | number
 }
 
 export default function SwapForm() {
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useActiveNetwork()
-  const [{ tokenIn, tokenOut, chainIdOut, currencyIn, currencyOut, listTokenOut, listChainIn }] = useBridgeState()
+  const [{ tokenIn, tokenOut, chainIdOut, currencyIn, listTokenOut, listChainIn }] = useBridgeState()
   const { resetBridgeState, setBridgeState, setBridgePoolInfo } = useBridgeStateHandler()
   const toggleWalletModal = useWalletModalToggle()
   const isDark = useIsDarkMode()
+  const theme = useTheme()
+  const { mixpanelHandler } = useMixpanel()
 
   const [inputAmount, setInputAmount] = useState('0')
   const [approvalSubmitted, setApprovalSubmitted] = useState<boolean>(false)
-  // todo consider of poolshare call api to faster
   const [poolValue, setPoolValue] = useState<PoolValueType>({
     poolValueIn: 0,
-    poolShareIn: 0,
     poolValueOut: 0,
-    poolShareOut: 0,
   })
 
   // modal and loading
@@ -109,61 +105,55 @@ export default function SwapForm() {
     swapErrorMessage: '',
     txHash: undefined,
   })
-  const theme = useTheme()
-  const { mixpanelHandler } = useMixpanel()
-  const destChainInfo = useMemo(() => tokenIn?.destChains || {}, [tokenIn])
-  const listDestChainIds = useMemo(() => {
-    return (Object.keys(destChainInfo).map(Number) as ChainId[]).filter(id => SUPPORTED_NETWORKS.includes(id))
-  }, [destChainInfo])
 
-  const pair = useMemo(() => [currencyIn, currencyOut], [currencyIn, currencyOut])
-  const balances = useCurrencyBalances(account || undefined, pair)
+  const listDestChainIds = useMemo(() => {
+    const destChainInfo = tokenIn?.destChains || {}
+    return (Object.keys(destChainInfo).map(Number) as ChainId[]).filter(id => SUPPORTED_NETWORKS.includes(id))
+  }, [tokenIn])
 
   const outputInfo = useOutputValue(inputAmount)
 
-  const maxAmountInput: CurrencyAmount<Currency> | undefined = maxAmountSpend(balances[0])
+  const maxAmountInput = useCurrencyBalance(account || undefined, currencyIn)
 
   const anyToken = tokenOut?.fromanytoken
 
-  const poolParam1 = useMemo(() => {
+  const poolParamIn = useMemo(() => {
     const anytoken = tokenOut?.isFromLiquidity && tokenOut?.isLiquidity ? anyToken?.address : undefined
     const underlying = tokenIn?.address
     return anytoken && underlying ? [{ anytoken, underlying }] : []
   }, [anyToken?.address, tokenIn?.address, tokenOut?.isFromLiquidity, tokenOut?.isLiquidity])
 
-  const poolData = usePoolBridge(chainId, poolParam1)
+  const poolData = useMultichainPool(chainId, poolParamIn)
 
-  const poolParam2 = useMemo(() => {
+  const poolParamOut = useMemo(() => {
     return listTokenOut
       .map(({ multichainInfo: token }) => ({
         anytoken: token?.isLiquidity ? token?.anytoken?.address : undefined,
         underlying: token?.underlying?.address,
       }))
-      .filter(e => e.anytoken && e.underlying)
+      .filter(e => e.anytoken && e.underlying) as { anytoken: string; underlying: string }[]
   }, [listTokenOut])
-
-  const poolDataOut = usePoolBridge(chainIdOut, poolParam2)
+  // todo clean this file
+  const poolDataOut = useMultichainPool(chainIdOut, poolParamOut)
   // todo memo các thứ, check api có call hay k
   useEffect(() => {
     if (poolDataOut) {
       const poolValueOutMap: PoolValueOutMap = {}
-      let poolValueOut: string | number = 0,
-        poolShareOut: string | number = 0
+      let poolValueOut: string | number = 0
       Object.keys(poolDataOut).forEach(anytokenAddress => {
         const poolInfo = poolDataOut?.[anytokenAddress]
         const token = listTokenOut.find(e => e.multichainInfo?.anytoken?.address === anytokenAddress)
         if (poolInfo?.balanceOf && token?.multichainInfo?.anytoken?.decimals) {
           if (anytokenAddress === tokenOut?.anytoken?.address) {
             poolValueOut = formatPoolValue(poolInfo?.balanceOf, tokenOut?.anytoken?.decimals)
-            poolShareOut = formatPoolValue(poolInfo?.balance, tokenOut?.anytoken?.decimals)
           }
-          poolValueOutMap[anytokenAddress] = {
-            poolValue: formatPoolValue(poolInfo?.balanceOf, token?.multichainInfo?.anytoken?.decimals),
-            poolShare: formatPoolValue(poolInfo?.balance, token?.multichainInfo?.anytoken?.decimals),
-          }
+          poolValueOutMap[anytokenAddress] = formatPoolValue(
+            poolInfo?.balanceOf,
+            token?.multichainInfo?.anytoken?.decimals,
+          )
         }
       })
-      setPoolValue(poolValue => ({ ...poolValue, poolValueOut, poolShareOut }))
+      setPoolValue(poolValue => ({ ...poolValue, poolValueOut }))
       setBridgePoolInfo({ poolValueOut: poolValueOutMap })
     } else {
       setPoolValue(poolValue => ({ ...poolValue, poolValueOut: 0, poolShareOut: 0, poolValueOutMap: {} }))
@@ -400,12 +390,7 @@ export default function SwapForm() {
               </Tooltip>
             </Flex>
 
-            <PoolInfo
-              chainId={chainId}
-              tokenIn={tokenIn}
-              poolValue={poolValue.poolValueIn}
-              poolShare={poolValue.poolShareIn}
-            />
+            <PoolInfo chainId={chainId} tokenIn={tokenIn} poolValue={poolValue.poolValueIn} />
 
             <div>
               <Flex alignItems={'flex-end'} justifyContent="space-between">
@@ -427,12 +412,7 @@ export default function SwapForm() {
               />
             </div>
 
-            <PoolInfo
-              chainId={chainIdOut}
-              tokenIn={tokenIn}
-              poolValue={poolValue.poolValueOut}
-              poolShare={poolValue.poolShareOut}
-            />
+            <PoolInfo chainId={chainIdOut} tokenIn={tokenIn} poolValue={poolValue.poolValueOut} />
 
             {inputError?.state === 'warn' && <AmountWarning title={inputError?.tip} />}
             {!account ? (
