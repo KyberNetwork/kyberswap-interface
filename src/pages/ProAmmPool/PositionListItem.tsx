@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { ChainId, CurrencyAmount, Price, Token } from '@namgold/ks-sdk-core'
+import { CurrencyAmount, Price, Token } from '@namgold/ks-sdk-core'
 import { Position } from '@namgold/ks-sdk-elastic'
 import { stringify } from 'qs'
 import React, { useMemo, useState } from 'react'
@@ -390,7 +390,7 @@ function PositionListItem({
             <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0">
               <ExternalLink
                 style={{ width: '100%', textAlign: 'center' }}
-                href={`${PROMM_ANALYTICS_URL[chainId as ChainId]}/pool/${positionDetails.poolId.toLowerCase()}`}
+                href={`${PROMM_ANALYTICS_URL[chainId]}/pool/${positionDetails.poolId.toLowerCase()}`}
               >
                 <Trans>Pool Analytics ↗</Trans>
               </ExternalLink>
