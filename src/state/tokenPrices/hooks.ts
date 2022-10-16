@@ -1,4 +1,3 @@
-import { ChainId } from '@namgold/ks-sdk-core'
 import { useEffect, useMemo } from 'react'
 
 import { NETWORKS_INFO, chainIdMapping } from 'constants/networks'
@@ -41,7 +40,7 @@ export const useTokenPrices = (addresses: Array<string>) => {
 
           return {
             address,
-            chainId: chainId || ChainId.MAINNET,
+            chainId: chainId,
             price: price?.marketPrice || price?.price || 0,
           }
         })

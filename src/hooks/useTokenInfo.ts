@@ -1,4 +1,4 @@
-import { ChainId, Token, WETH } from '@namgold/ks-sdk-core'
+import { Token, WETH } from '@namgold/ks-sdk-core'
 import useSWR from 'swr'
 
 import { COINGECKO_API_URL } from 'constants/index'
@@ -29,11 +29,9 @@ export default function useTokenInfo(token: Token | undefined): { data: TokenInf
 
   if (tokenAddress === WETH[chainId].address.toLowerCase()) {
     // If the token is native token, we have to use different endpoint
-    url = `${COINGECKO_API_URL}/coins/${NETWORKS_INFO[chainId || ChainId.MAINNET].coingeckoNativeTokenId}`
+    url = `${COINGECKO_API_URL}/coins/${NETWORKS_INFO[chainId].coingeckoNativeTokenId}`
   } else if (tokenAddress) {
-    url = `${COINGECKO_API_URL}/coins/${
-      NETWORKS_INFO[chainId || ChainId.MAINNET].coingeckoNetworkId
-    }/contract/${tokenAddress}`
+    url = `${COINGECKO_API_URL}/coins/${NETWORKS_INFO[chainId].coingeckoNetworkId}/contract/${tokenAddress}`
   }
 
   const { data, error } = useSWR(url, fetcher, {

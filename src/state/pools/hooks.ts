@@ -135,8 +135,8 @@ function parseData(data: any, oneDayData: any, ethPrice: any, oneDayBlock: any, 
 export async function getBulkPoolDataFromPoolList(
   poolList: string[],
   apolloClient: ApolloClient<NormalizedCacheObject>,
+  chainId: ChainId,
   ethPrice?: string,
-  chainId?: ChainId,
 ): Promise<any> {
   try {
     const current = await apolloClient.query({
@@ -200,8 +200,8 @@ export async function getBulkPoolDataWithPagination(
   first: number,
   skip: number,
   apolloClient: ApolloClient<NormalizedCacheObject>,
-  ethPrice?: string,
-  chainId?: ChainId,
+  ethPrice: string,
+  chainId: ChainId,
 ): Promise<any> {
   try {
     const [t1] = getTimestampsForChanges()
@@ -377,7 +377,7 @@ export function useSinglePoolData(
 
       try {
         if (poolAddress && !error) {
-          const pools = await getBulkPoolDataFromPoolList([poolAddress], apolloClient, ethPrice, chainId)
+          const pools = await getBulkPoolDataFromPoolList([poolAddress], apolloClient, chainId, ethPrice)
 
           if (pools.length > 0) {
             currentRenderTime === latestRenderTime.current && setPoolData(pools[0])

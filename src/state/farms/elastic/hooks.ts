@@ -182,7 +182,7 @@ export const FarmUpdater = ({ interval = true }: { interval?: boolean }) => {
     }),
     [],
   )
-  const elasticFarm = useAppSelector(state => state.elasticFarm)[chainId || 1] || defaultChainData
+  const elasticFarm = useAppSelector(state => state.elasticFarm)[chainId] || defaultChainData
 
   const [getElasticFarms, { data, error }] = useLazyQuery(ELASTIC_FARM_QUERY, {
     client: isEVM(chainId) ? NETWORKS_INFO[chainId].elasticClient : undefined,

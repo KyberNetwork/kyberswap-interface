@@ -45,9 +45,7 @@ const generateCoingeckoUrl = (
   const timeFrom =
     timeFrame === 'live' ? timeTo - 1000 : getUnixTime(subHours(new Date(), getTimeFrameHours(timeFrame)))
 
-  return `${COINGECKO_API_URL}/coins/${
-    NETWORKS_INFO[chainId || ChainId.MAINNET].coingeckoNetworkId
-  }/contract/${address}/market_chart/range?vs_currency=usd&from=${timeFrom}&to=${timeTo}`
+  return `${COINGECKO_API_URL}/coins/${NETWORKS_INFO[chainId].coingeckoNetworkId}/contract/${address}/market_chart/range?vs_currency=usd&from=${timeFrom}&to=${timeTo}`
 }
 const getClosestPrice = (prices: any[], time: number) => {
   let closestIndex = 0
@@ -125,7 +123,7 @@ export default function useBasicChartData(tokens: (Token | null | undefined)[], 
   const tokenAddresses = useMemo(
     () =>
       tokens.filter(Boolean).map(token => {
-        const tokenAdd = token?.isNative ? WETH[chainId || ChainId.MAINNET].address : token?.address
+        const tokenAdd = token?.isNative ? WETH[chainId].address : token?.address
         return isEVM ? tokenAdd?.toLowerCase() : tokenAdd
       }),
     [tokens, chainId, isEVM],

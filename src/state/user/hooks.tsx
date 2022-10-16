@@ -347,11 +347,11 @@ export function useLiquidityPositionTokenPairs(): [Token, Token][] {
 export function useShowLiveChart(): boolean {
   const { chainId } = useActiveWeb3React()
   let showLiveChart = useSelector((state: AppState) => state.user.showLiveCharts)
-  if (typeof showLiveChart?.[chainId || 1] !== 'boolean') {
+  if (typeof showLiveChart?.[chainId] !== 'boolean') {
     showLiveChart = defaultShowLiveCharts
   }
 
-  const show = showLiveChart[chainId || 1]
+  const show = showLiveChart[chainId]
 
   return !!show
 }
@@ -378,7 +378,7 @@ export function useShowTopTrendingSoonTokens(): boolean {
 export function useToggleLiveChart(): () => void {
   const dispatch = useDispatch<AppDispatch>()
   const { chainId } = useActiveWeb3React()
-  return useCallback(() => dispatch(toggleLiveChart({ chainId: chainId || 1 })), [dispatch, chainId])
+  return useCallback(() => dispatch(toggleLiveChart({ chainId: chainId })), [dispatch, chainId])
 }
 export function useToggleProLiveChart(): () => void {
   const dispatch = useDispatch<AppDispatch>()

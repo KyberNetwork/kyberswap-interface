@@ -166,7 +166,7 @@ export const useFarmsData = (isIncludeOutsideFarms = true) => {
 
       const poolAddresses = poolInfos.map(poolInfo => poolInfo.stakeToken.toLowerCase())
 
-      const farmsData = await getBulkPoolDataFromPoolList(poolAddresses, apolloClient, ethPrice.currentPrice, chainId)
+      const farmsData = await getBulkPoolDataFromPoolList(poolAddresses, apolloClient, chainId, ethPrice.currentPrice)
 
       const rewardTokens = rewardTokenAddresses
         .map(address =>

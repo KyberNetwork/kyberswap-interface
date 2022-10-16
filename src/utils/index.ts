@@ -247,9 +247,9 @@ export async function splitQuery(query: any, localClient: any, vars: any, list: 
  * @dev Query speed is optimized by limiting to a 600-second period
  * @param {Int} timestamp in seconds
  */
-export async function getBlockFromTimestamp(timestamp: number, chainId?: ChainId) {
+export async function getBlockFromTimestamp(timestamp: number, chainId: ChainId) {
   if (!isEVM(chainId)) return
-  const result = await NETWORKS_INFO[chainId || ChainId.MAINNET].blockClient.query({
+  const result = await NETWORKS_INFO[chainId].blockClient.query({
     query: GET_BLOCK,
     variables: {
       timestampFrom: timestamp,
@@ -270,7 +270,7 @@ export async function getBlockFromTimestamp(timestamp: number, chainId?: ChainId
  */
 export async function getBlocksFromTimestamps(
   timestamps: number[],
-  chainId?: ChainId,
+  chainId: ChainId,
   skipCount = 500,
 ): Promise<{ timestamp: string; number: number }[]> {
   if (!isEVM(chainId)) return []
@@ -278,13 +278,7 @@ export async function getBlocksFromTimestamps(
     return []
   }
 
-  const fetchedData = await splitQuery(
-    GET_BLOCKS,
-    NETWORKS_INFO[chainId || ChainId.MAINNET].blockClient,
-    [],
-    timestamps,
-    skipCount,
-  )
+  const fetchedData = await splitQuery(GET_BLOCKS, NETWORKS_INFO[chainId].blockClient, [], timestamps, skipCount)
   const blocks: { timestamp: string; number: number }[] = []
   if (fetchedData) {
     for (const t in fetchedData) {

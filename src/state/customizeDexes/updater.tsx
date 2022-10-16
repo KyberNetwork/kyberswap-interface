@@ -19,8 +19,8 @@ export default function Updater(): null {
   const normalizeDexes = useMemo(() => {
     const temp =
       dexes?.map(item => ({ ...item, id: item.dexId })).filter(item => !item.dexId.includes('kyberswap')) || []
-    const isSupportkSElastic = !ELASTIC_NOT_SUPPORTED[chainId || 1]
-    return [...temp, ...kyberswapDexes.filter(item => (isSupportkSElastic ? true : item.id !== 'kyberswapv2'))]
+    const isSupportKSElastic = !ELASTIC_NOT_SUPPORTED[chainId]
+    return [...temp, ...kyberswapDexes.filter(item => (isSupportKSElastic ? true : item.id !== 'kyberswapv2'))]
   }, [dexes, chainId])
 
   useEffect(() => {
