@@ -1,5 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { WalletReadyState } from '@solana/wallet-adapter-base'
+import React, { useMemo } from 'react'
 import styled from 'styled-components'
 
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -110,13 +111,13 @@ const StyledLink = styled(ExternalLink)`
   }
 `
 
-export default function Option({
+const Option = ({
   walletKey,
   onSelected,
 }: {
   walletKey: SUPPORTED_WALLET
   onSelected?: (walletKey: SUPPORTED_WALLET) => any
-}) {
+}) => {
   const isDarkMode = useIsDarkMode()
   const { walletKey: walletKeyConnected, isEVM, isSolana } = useActiveWeb3React()
   const isBraveBrowser = checkForBraveBrowser()
@@ -127,11 +128,11 @@ export default function Option({
   const isWalletSolana = isSolanaWallet(wallet)
   const isCorrectChain = (isWalletEVM && isEVM) || (isWalletSolana && isSolana)
   const isConnected = !!walletKeyConnected && walletKey === walletKeyConnected
-  const readyState = (() => {
+  const readyState = useMemo(() => {
     const readyStateEVM = isWalletEVM ? wallet.readyState() : null
     const readyStateSolana = isWalletSolana ? wallet.readyStateSolana() : null
     return (isEVM && readyStateEVM) || (isSolana && readyStateSolana) || readyStateEVM || readyStateSolana
-  })()
+  }, [isEVM, isSolana, isWalletEVM, isWalletSolana, wallet])
   if (readyState === WalletReadyState.Unsupported) return null
   const overridden = isOverriddenWallet(walletKey)
   const installLink = readyState === WalletReadyState.NotDetected ? wallet.installLink : undefined
@@ -200,6 +201,14 @@ export default function Option({
     )
   }
 
+  if (overridden) {
+    return (
+      <MouseoverTooltip width="500px" text={<C98OverrideGuide walletKey={walletKey} />} placement="top">
+        {content}
+      </MouseoverTooltip>
+    )
+  }
+
   if (readyState === WalletReadyState.NotDetected) {
     return (
       <MouseoverTooltip
@@ -216,13 +225,7 @@ export default function Option({
     )
   }
 
-  if (overridden) {
-    return (
-      <MouseoverTooltip width="500px" text={<C98OverrideGuide walletKey={walletKey} />} placement="top">
-        {content}
-      </MouseoverTooltip>
-    )
-  }
-
   return content
 }
+
+export default React.memo(Option)

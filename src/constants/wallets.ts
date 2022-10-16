@@ -57,14 +57,17 @@ const detectBrave = (): WalletReadyState => {
 
 const detectCoin98 = (): WalletReadyState => {
   if (isMobile) return WalletReadyState.Unsupported
-  if (window.ethereum?.isCoin98 || window.coin98) return WalletReadyState.Installed
+  if (window.ethereum && window.coin98) return WalletReadyState.Installed
   return WalletReadyState.NotDetected
 }
 
 const detectCoinbase = (): WalletReadyState => {
   if (isMobile) return WalletReadyState.Unsupported
   // in NotDetected case, Coinbase show install link itself
-  return WalletReadyState.Installed
+  if (window.ethereum?.isCoinbaseWallet || window.ethereum?.providers?.some(p => p.isCoinbaseWallet))
+    return WalletReadyState.Installed
+  if (window.coinbaseWalletExtension) return WalletReadyState.Loadable
+  return WalletReadyState.Unsupported
 }
 
 const detectCoinBaseLink = (): WalletReadyState => {
@@ -90,7 +93,7 @@ export interface SolanaWalletInfo extends WalletInfo {
   readyStateSolana: () => WalletReadyState
 }
 
-export const SUPPORTED_WALLETS = {
+export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
   METAMASK: {
     connector: injected,
     name: 'MetaMask',

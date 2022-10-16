@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { UnsupportedChainIdError } from '@web3-react/core'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
 import { useLocation } from 'react-router-dom'
 import styled from 'styled-components'
@@ -220,19 +220,22 @@ export default function WalletModal({
     }
   }, [connecting, connected, solanaWallet])
 
-  const handleWalletChange = async (walletKey: SUPPORTED_WALLET) => {
-    setPendingWalletKey(walletKey)
-    setWalletView(WALLET_VIEWS.PENDING)
-    setPendingError(false)
-    try {
-      await tryActivation(walletKey)
-      setJustConnectedWallet(true)
-      setTimeout(() => setJustConnectedWallet(false), 1000)
-      setIsUserManuallyDisconnect(false)
-    } catch {
-      setPendingError(true)
-    }
-  }
+  const handleWalletChange = useCallback(
+    async (walletKey: SUPPORTED_WALLET) => {
+      setPendingWalletKey(walletKey)
+      setWalletView(WALLET_VIEWS.PENDING)
+      setPendingError(false)
+      try {
+        await tryActivation(walletKey)
+        setJustConnectedWallet(true)
+        setTimeout(() => setJustConnectedWallet(false), 1000)
+        setIsUserManuallyDisconnect(false)
+      } catch {
+        setPendingError(true)
+      }
+    },
+    [setIsUserManuallyDisconnect, tryActivation],
+  )
 
   useEffect(() => {
     if (isEVM && chainIdEVM && chainId !== chainIdEVM && active && justConnectedWallet) {

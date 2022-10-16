@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { ChainId } from '@namgold/ks-sdk-core'
 import { stringify } from 'qs'
+import React from 'react'
 import { useHistory } from 'react-router-dom'
 import styled from 'styled-components'
 
@@ -153,4 +154,4 @@ const Networks = ({
   )
 }
 
-export default Networks
+export default React.memo(Networks)

@@ -392,12 +392,12 @@ export enum Metamask_Type {
 export const detectInjectedType = (): 'COIN98' | 'BRAVE' | 'METAMASK' | 'COINBASE' | null => {
   const { ethereum } = window
   const isMetamask = !!ethereum?.isMetaMask
-  const isCoin98 = isMetamask && ethereum.isCoin98
+  const isCoin98 = !!ethereum?.isCoin98
   const isBraveWallet = checkForBraveBrowser() && ethereum?.isBraveWallet
-  const isCoinbase = !!ethereum?.isCoinbaseWallet
+  const isCoinbase = !!ethereum?.isCoinbaseWallet || !!ethereum?.providers?.some(p => p.isCoinbaseWallet)
 
-  if (isCoinbase) return 'COINBASE'
   if (isCoin98) return 'COIN98'
+  if (isCoinbase) return 'COINBASE'
   if (isBraveWallet) return 'BRAVE'
   if (isMetamask) return 'METAMASK'
   return null

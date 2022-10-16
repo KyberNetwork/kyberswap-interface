@@ -29,6 +29,7 @@ interface Window {
   web3?: any
   tag?: string
   coin98?: any
+  coinbaseWalletExtension?: any
   dataLayer?: any[]
   chrome?: any
   opr?: any
