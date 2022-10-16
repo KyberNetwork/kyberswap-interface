@@ -109,8 +109,9 @@ export function useChangeNetwork() {
                     type: NotificationType.ERROR,
                     summary: t`In order to use KyberSwap on ${NETWORKS_INFO[desiredChainId].name}, you must change the network in your wallet.`,
                   })
+                } else {
+                  changeNetworkHandler(desiredChainId, successCallback)
                 }
-                changeNetworkHandler(desiredChainId, successCallback)
               } catch (addError) {
                 console.error(addError)
                 failureCallback?.()
