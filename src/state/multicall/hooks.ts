@@ -56,7 +56,7 @@ export const NEVER_RELOAD: ListenerOptions = {
 function useCallsData(calls: (Call | undefined)[], options?: ListenerOptions): CallResult[] {
   const { chainId, isEVM } = useActiveWeb3React()
   const callResults = useSelector<AppState, AppState['multicall']['callResults'][ChainId]>(
-    state => state.multicall.callResults?.[chainId || ChainId.MAINNET],
+    state => state.multicall.callResults?.[chainId],
   )
   const dispatch = useDispatch<AppDispatch>()
 

@@ -496,7 +496,7 @@ export function useRewardTokensFullInfo(): Token[] {
   const rewardTokens = useRewardTokens()
 
   const allTokens = useAllTokens()
-  const nativeName = NativeCurrencies[chainId || ChainId.MAINNET].symbol
+  const nativeName = NativeCurrencies[chainId].symbol
 
   return useMemo(
     () =>

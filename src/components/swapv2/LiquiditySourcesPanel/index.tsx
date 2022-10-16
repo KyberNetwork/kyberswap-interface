@@ -137,7 +137,7 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack }) => {
   }, [excludeDexes, dexes])
 
   const ksDexes = useMemo(
-    () => kyberswapDexes.filter(item => (ELASTIC_NOT_SUPPORTED[chainId || 1] ? item.id !== 'kyberswapv2' : true)),
+    () => kyberswapDexes.filter(item => (ELASTIC_NOT_SUPPORTED[chainId] ? item.id !== 'kyberswapv2' : true)),
     [chainId],
   )
 
