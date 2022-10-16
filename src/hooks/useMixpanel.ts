@@ -17,7 +17,6 @@ import {
   PROMM_GET_POOL_VALUES_AFTER_BURNS_SUCCESS,
   PROMM_GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
 } from 'apollo/queries/promm'
-import { MAINNET_ENV, MIXPANEL_PROJECT_TOKEN } from 'constants/env'
 import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
@@ -907,12 +906,6 @@ export const useGlobalMixpanelEvents = () => {
     if (location.pathname.split('/')[1] !== 'elastic') return location.pathname.split('/')[1]
     return 'elastic/' + location.pathname.split('/')[2]
   }, [location])
-
-  useEffect(() => {
-    mixpanel.init(MIXPANEL_PROJECT_TOKEN, {
-      debug: MAINNET_ENV === 'staging',
-    })
-  }, [])
 
   useEffect(() => {
     if (account && isAddress(account)) {
