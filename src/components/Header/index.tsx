@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/macro'
-import { ChainId } from '@namgold/ks-sdk-core'
 import { darken } from 'polished'
 import { useState } from 'react'
 import { Repeat } from 'react-feather'
@@ -463,7 +462,7 @@ export default function Header() {
               onClick={() => {
                 mixpanelHandler(MIXPANEL_TYPE.ANALYTICS_MENU_CLICKED)
               }}
-              href={PROMM_ANALYTICS_URL[chainId as ChainId] + '/home'}
+              href={PROMM_ANALYTICS_URL[chainId] + '/home'}
             >
               <Trans>Analytics</Trans>
             </StyledNavExternalLink>

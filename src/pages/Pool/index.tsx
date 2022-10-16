@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { JSBI, Pair } from '@namgold/ks-sdk-classic'
-import { ChainId, Token, TokenAmount } from '@namgold/ks-sdk-core'
+import { Token, TokenAmount } from '@namgold/ks-sdk-core'
 import { rgba } from 'polished'
 import { useMemo, useState } from 'react'
 import { Info } from 'react-feather'
@@ -285,7 +285,7 @@ function Pool() {
               <InstructionText>
                 <Trans>Here you can view all your liquidity and staked balances in the Classic Pools</Trans>
                 {!upToSmall && (
-                  <ExternalLink href={`${DMM_ANALYTICS_URL[chainId as ChainId]}/account/${account}`}>
+                  <ExternalLink href={`${DMM_ANALYTICS_URL[chainId]}/account/${account}`}>
                     <Flex alignItems="center">
                       <Wallet size={16} />
                       <Text fontSize="14px" marginLeft="4px">
@@ -327,7 +327,7 @@ function Pool() {
 
                 {upToSmall && (
                   <Flex sx={{ gap: '12px' }}>
-                    <ExternalLink href={`${DMM_ANALYTICS_URL[chainId as ChainId]}/account/${account}`}>
+                    <ExternalLink href={`${DMM_ANALYTICS_URL[chainId]}/account/${account}`}>
                       <Flex
                         sx={{ borderRadius: '50%' }}
                         width="36px"

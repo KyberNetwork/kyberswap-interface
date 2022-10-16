@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/macro'
-import { ChainId } from '@namgold/ks-sdk-core'
 import { stringify } from 'qs'
 import { useHistory } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
@@ -20,7 +19,7 @@ function ClassicElasticTab() {
   const { mixpanelHandler } = useMixpanel()
 
   const { chainId } = useActiveWeb3React()
-  const notSupportedMsg = ELASTIC_NOT_SUPPORTED[chainId as ChainId]
+  const notSupportedMsg = ELASTIC_NOT_SUPPORTED[chainId]
 
   const theme = useTheme()
   const history = useHistory()

@@ -55,7 +55,7 @@ const SelectWrapper = styled.select`
   border-radius: 999px;
   border: none;
 `
-export interface StaticFeeSelectorProps {
+interface StaticFeeSelectorProps {
   active?: number
   onChange: (name: number) => void
   options: { name: number; title: string }[]

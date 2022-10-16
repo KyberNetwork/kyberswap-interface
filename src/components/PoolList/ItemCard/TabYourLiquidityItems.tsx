@@ -1,5 +1,5 @@
 import { t } from '@lingui/macro'
-import { ChainId, Percent } from '@namgold/ks-sdk-core'
+import { Percent } from '@namgold/ks-sdk-core'
 
 import ItemCardInfoRow from 'components/PoolList/ItemCard/ItemCardInfoRow'
 import { ONE_BIPS } from 'constants/index'
@@ -18,7 +18,7 @@ export default function TabYourLiquidityItems({
 }) {
   const { chainId } = useActiveWeb3React()
 
-  const { currency0, currency1, reserve0, reserve1, totalSupply } = parseSubgraphPoolData(poolData, chainId as ChainId)
+  const { currency0, currency1, reserve0, reserve1, totalSupply } = parseSubgraphPoolData(poolData, chainId)
 
   const liquidityTokenBalance =
     myLiquidity?.liquidityTokenBalance && chainId

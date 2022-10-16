@@ -1,5 +1,4 @@
 import { Trans, t } from '@lingui/macro'
-import { ChainId } from '@namgold/ks-sdk-core'
 import { useRef } from 'react'
 import { isMobile } from 'react-device-detect'
 import {
@@ -233,7 +232,7 @@ export default function Menu() {
           <Trans>Referral</Trans>
         </NavMenuItem>
         {!above1321 && (
-          <MenuItem id="link" href={DMM_ANALYTICS_URL[chainId as ChainId]}>
+          <MenuItem id="link" href={DMM_ANALYTICS_URL[chainId]}>
             <PieChart size={14} />
             <Trans>Analytics</Trans>
           </MenuItem>

@@ -20,11 +20,7 @@ const isTokenInWhiteList = (activeTokens: AllTokenType, address: string) =>
 export const isActivePair = (activeTokens: AllTokenType, pair: SuggestionPairData) =>
   isTokenInWhiteList(activeTokens, pair.tokenIn) && isTokenInWhiteList(activeTokens, pair.tokenOut)
 
-export const findLogoAndSortPair = (
-  activeTokens: AllTokenType,
-  list: SuggestionPairData[],
-  chainId: ChainId | undefined,
-) => {
+export const findLogoAndSortPair = (activeTokens: AllTokenType, list: SuggestionPairData[], chainId: ChainId) => {
   return list
     .map(token => {
       // find logo

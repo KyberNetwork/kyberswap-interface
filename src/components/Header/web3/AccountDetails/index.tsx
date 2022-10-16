@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/macro'
-import { ChainId } from '@namgold/ks-sdk-core'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useCallback } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -263,7 +262,7 @@ export default function AccountDetails({
             </Flex>
           </ExternalLink>
 
-          <ExternalLink href={`${PROMM_ANALYTICS_URL[chainId as ChainId]}/account/${account}`}>
+          <ExternalLink href={`${PROMM_ANALYTICS_URL[chainId]}/account/${account}`}>
             <Flex alignItems="center">
               <Wallet size={16} />
               <Text fontSize="14px" marginLeft="4px">

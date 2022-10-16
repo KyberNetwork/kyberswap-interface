@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { Trade } from '@namgold/ks-sdk-classic'
-import { ChainId, Currency, TradeType } from '@namgold/ks-sdk-core'
+import { Currency, TradeType } from '@namgold/ks-sdk-core'
 import styled from 'styled-components'
 
 import { AutoColumn } from 'components/Column'
@@ -127,7 +127,7 @@ export function AdvancedSwapDetails({ trade }: AdvancedSwapDetailsProps) {
           )}
           <AutoColumn style={{ padding: '0 24px' }}>
             <InfoLink
-              href={`${DMM_ANALYTICS_URL[chainId as ChainId]}/pool/${trade?.route.pairs[0].liquidityToken.address}`}
+              href={`${DMM_ANALYTICS_URL[chainId]}/pool/${trade?.route.pairs[0].liquidityToken.address}`}
               target="_blank"
             >
               <Trans>Token pool analytics →</Trans>

@@ -43,7 +43,7 @@ const ToggleWrapper = styled.button<{ background?: string }>`
   width: 100%;
 `
 
-export interface FeeTypeSelectorProps {
+interface FeeTypeSelectorProps {
   active?: string
   onChange: (type: string) => void
   bgColor?: 'background' | 'buttonBlack'

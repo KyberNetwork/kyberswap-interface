@@ -82,15 +82,15 @@ export default function ProAmmPoolCardItem({ pair, onShared, userPositions, idx 
 
   const token0 =
     allTokens[isAddressString(chainId, pair[0].token0.address)] ||
-    new Token(chainId as ChainId, pair[0].token0.address, pair[0].token0.decimals, pair[0].token0.symbol)
+    new Token(chainId, pair[0].token0.address, pair[0].token0.decimals, pair[0].token0.symbol)
   const token1 =
     allTokens[isAddressString(chainId, pair[0].token1.address)] ||
-    new Token(chainId as ChainId, pair[0].token1.address, pair[0].token1.decimals, pair[0].token1.symbol)
+    new Token(chainId, pair[0].token1.address, pair[0].token1.decimals, pair[0].token1.symbol)
 
   const nativeToken = NativeCurrencies[chainId]
 
-  const isToken0WETH = token0.address.toLowerCase() === WETH[chainId as ChainId].address.toLowerCase()
-  const isToken1WETH = token1.address.toLowerCase() === WETH[chainId as ChainId].address.toLowerCase()
+  const isToken0WETH = token0.address.toLowerCase() === WETH[chainId].address.toLowerCase()
+  const isToken1WETH = token1.address.toLowerCase() === WETH[chainId].address.toLowerCase()
 
   const token0Slug = isToken0WETH ? nativeToken.symbol : token0.address
   const token0Symbol = isToken0WETH ? nativeToken.symbol : token0.symbol

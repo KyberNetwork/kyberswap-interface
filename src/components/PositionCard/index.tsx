@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { Pair } from '@namgold/ks-sdk-classic'
-import { ChainId, Fraction, Percent, TokenAmount } from '@namgold/ks-sdk-core'
+import { Fraction, Percent, TokenAmount } from '@namgold/ks-sdk-core'
 import JSBI from 'jsbi'
 import { useState } from 'react'
 import { AlertTriangle } from 'react-feather'
@@ -755,7 +755,7 @@ export default function FullPositionCard({
         <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0">
           <ExternalLink
             style={{ width: '100%', textAlign: 'center' }}
-            href={`${DMM_ANALYTICS_URL[chainId as ChainId]}/pool/${poolData?.id ?? ''}`}
+            href={`${DMM_ANALYTICS_URL[chainId]}/pool/${poolData?.id ?? ''}`}
           >
             <Trans>Analytics ↗</Trans>
           </ExternalLink>

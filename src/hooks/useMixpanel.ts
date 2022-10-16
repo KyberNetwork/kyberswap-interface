@@ -957,10 +957,10 @@ export const useGlobalMixpanelEvents = () => {
   useEffect(() => {
     if (oldNetwork) {
       mixpanelHandler(MIXPANEL_TYPE.CHAIN_SWITCHED, {
-        new_network: chainId && NETWORKS_INFO[chainId as ChainId].name,
+        new_network: chainId && NETWORKS_INFO[chainId].name,
         old_network: oldNetwork && NETWORKS_INFO[oldNetwork as ChainId].name,
       })
-      mixpanel.register({ network: chainId && NETWORKS_INFO[chainId as ChainId].name })
+      mixpanel.register({ network: chainId && NETWORKS_INFO[chainId].name })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId])
