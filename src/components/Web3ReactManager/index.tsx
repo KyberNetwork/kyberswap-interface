@@ -7,6 +7,8 @@ import LocalLoader from 'components/LocalLoader'
 import { network } from 'connectors'
 import { NetworkContextName } from 'constants/index'
 import { useActiveWeb3React, useEagerConnect, useInactiveListener, useWeb3React } from 'hooks'
+import { useAppDispatch } from 'state/hooks'
+import { updateChainId } from 'state/user/actions'
 
 const MessageWrapper = styled.div`
   display: flex;
@@ -21,7 +23,7 @@ const Message = styled.h2`
 
 export default function Web3ReactManager({ children }: { children: JSX.Element }) {
   const { isEVM } = useActiveWeb3React()
-  const { active } = useWeb3React()
+  const { active, chainId } = useWeb3React()
   const { active: networkActive, error: networkError, activate: activateNetwork } = useWeb3React(NetworkContextName)
 
   // try to eagerly connect to an injected provider, if it exists and has granted access already
@@ -36,6 +38,13 @@ export default function Web3ReactManager({ children }: { children: JSX.Element }
 
   // when there's no account connected, react to logins (broadly speaking) on the injected provider, if it exists
   useInactiveListener(!triedEager)
+
+  const dispatch = useAppDispatch()
+  useEffect(() => {
+    if (isEVM && chainId) {
+      dispatch(updateChainId(chainId))
+    }
+  }, [chainId, dispatch, isEVM])
 
   // handle delayed loader state
   const [showLoader, setShowLoader] = useState(false)

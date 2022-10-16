@@ -536,4 +536,5 @@ export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
   [ChainId.AURORA]: USDC[ChainId.AURORA],
   [ChainId.OASIS]: USDC[ChainId.OASIS],
   [ChainId.BTTC]: USDT[ChainId.BTTC], // USDT_b
+  [ChainId.SOLANA]: USDT[ChainId.SOLANA], // USDT_b
 }

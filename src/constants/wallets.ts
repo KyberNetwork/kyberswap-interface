@@ -120,7 +120,7 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
     iconLight: COIN98_L,
     installLink: 'https://wallet.coin98.com/',
     readyState: detectCoin98,
-    readyStateSolana: () => (isMobile ? WalletReadyState.Unsupported : coin98Adapter.readyState),
+    readyStateSolana: () => coin98Adapter.readyState,
   } as EVMWalletInfo & SolanaWalletInfo,
   COINBASE: {
     connector: walletlink,

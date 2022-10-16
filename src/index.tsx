@@ -33,6 +33,10 @@ import UserUpdater from './state/user/updater'
 import ThemeProvider, { FixedGlobalStyle, ThemedGlobalStyle } from './theme'
 import getLibrary from './utils/getLibrary'
 
+mixpanel.init(MIXPANEL_PROJECT_TOKEN, {
+  debug: MAINNET_ENV === 'staging',
+})
+
 AOS.init()
 
 mixpanel.init(MIXPANEL_PROJECT_TOKEN, {

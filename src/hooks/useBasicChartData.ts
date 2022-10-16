@@ -122,7 +122,8 @@ export default function useBasicChartData(tokens: (Token | null | undefined)[], 
   const { chainId, isEVM } = useActiveWeb3React()
 
   const isReverse = useMemo(() => {
-    if (!tokens || !tokens[0] || !tokens[1] || tokens[0].equals(tokens[1])) return false
+    if (!tokens || !tokens[0] || !tokens[1] || tokens[0].equals(tokens[1]) || tokens[0].chainId !== tokens[1].chainId)
+      return false
     const [token0] = tokens[0].sortsBefore(tokens[1]) ? [tokens[0], tokens[1]] : [tokens[1], tokens[0]]
     return token0 !== tokens[0]
   }, [tokens])
