@@ -102,8 +102,7 @@ function CurrencyRow({
   showBalance = true,
   customName,
   poolLiquidity,
-}: // todo tách component
-{
+}: {
   isImportedTab?: boolean
   showBalance?: boolean
   showFavoriteIcon?: boolean

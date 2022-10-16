@@ -8,12 +8,9 @@ import { useMulticallContract } from 'hooks/useContract'
 import useInterval from 'hooks/useInterval'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
-// todo cache memo
-// todo check performance call
 export const useTokenBalanceOfAnotherChain = (chainId: ChainId | undefined, token: WrappedTokenInfo | undefined) => {
   const { account } = useActiveWeb3React()
   const [balance, setBalance] = useState('0')
-
   useEffect(() => {
     if (account && chainId && token)
       getTokenBalanceOfAnotherChain(account, token, chainId)
@@ -33,8 +30,6 @@ function getTokenBalanceOfAnotherChain(account: string, token: WrappedTokenInfo,
   return new Promise(async (resolve, reject) => {
     try {
       if (!account || !token || !chainId) return reject('wrong input')
-      console.log('callllll') // todo check check performance
-
       let balance: BigNumber | undefined
       try {
         const provider = providers[chainId]
@@ -53,8 +48,6 @@ function getTokenBalanceOfAnotherChain(account: string, token: WrappedTokenInfo,
   })
 }
 
-// todo list token bridge còn hơi lag
-// todo cache - fallback when not support use local storage
 type TokenList = { anytoken: string; underlying: string }[]
 
 type PoolBridgeInfoMap = {
@@ -72,7 +65,7 @@ type CallParam = {
   key: string
 }
 
-function getCallParams(list: TokenList, account: string | undefined) {
+function getCallParams(list: TokenList) {
   const calls: CallParam[] = []
   for (const item of list) {
     calls.push({
@@ -86,7 +79,7 @@ function getCallParams(list: TokenList, account: string | undefined) {
   return calls
 }
 
-const formatResult = (response: string[], calls: CallParam[]) => {
+const formatResult = (response: string[], calls: CallParam[]): PoolBridgeInfoMap => {
   const resultList: PoolBridgeInfoMap = {}
   if (!response) return resultList
   for (let i = 0, len = calls.length; i < len; i++) {
@@ -113,24 +106,22 @@ export function useMultichainPool(chainId: ChainId | undefined, tokenList: Token
   const [poolData, setPoolData] = useState<PoolBridgeInfoMap>()
   const { account } = useActiveWeb3React()
   const multicallContract = useMulticallContract(chainId)
-  // todo check performance
   const getEvmPoolsData = useCallback(async (): Promise<PoolBridgeInfoMap> => {
-    if (!chainId || !account) return Promise.reject('Wrong input')
+    if (!chainId) return Promise.reject('Wrong input')
     try {
-      const calls = getCallParams(tokenList, account)
-      const { returnData } = await multicallContract?.callStatic.tryBlockAndAggregate(
+      const calls = getCallParams(tokenList)
+      const { returnData } = (await multicallContract?.callStatic.tryBlockAndAggregate(
         false,
-        calls.map(({ callData, target }: CallParam) => ({ target, callData })),
-      )
-      const resultList: PoolBridgeInfoMap = formatResult(
+        calls.map(({ callData, target }) => ({ target, callData })),
+      )) || { returnData: [] }
+      return formatResult(
         returnData.map((item: [boolean, string]) => item[1]),
         calls,
       )
-      return resultList
     } catch (error) {
       return Promise.reject(error)
     }
-  }, [account, chainId, tokenList, multicallContract])
+  }, [chainId, tokenList, multicallContract])
 
   const fetchPoolCallback = useCallback(async () => {
     try {

@@ -16,7 +16,39 @@ const NOT_APPLICABLE = {
   inputError: false,
 }
 
-export function useBridgeRouterCallback(
+export default function useBridgeCallback(
+  inputAmount: string | undefined,
+  inputToken: string | undefined,
+  routerToken: string | undefined,
+  isNative: boolean,
+  toAddress: string | undefined | null,
+) {
+  const { execute: onRouterSwap, inputError: wrapInputErrorBridge } = useRouterSwap(
+    routerToken,
+    inputToken,
+    inputAmount,
+    isNative,
+  )
+  const { execute: onBridgeSwap, inputError: wrapInputErrorCrossBridge } = useBridgeSwap(
+    toAddress,
+    inputToken,
+    inputAmount,
+  )
+  return useMemo(() => {
+    return {
+      execute: async (useSwapMethods: string) => {
+        const isBridge =
+          useSwapMethods.includes('transfer') ||
+          useSwapMethods.includes('sendTransaction') ||
+          useSwapMethods.includes('Swapout')
+        return isBridge ? onBridgeSwap() : onRouterSwap(useSwapMethods)
+      },
+      inputError: wrapInputErrorBridge || wrapInputErrorCrossBridge,
+    }
+  }, [onBridgeSwap, onRouterSwap, wrapInputErrorBridge, wrapInputErrorCrossBridge])
+}
+
+function useRouterSwap(
   routerToken: string | undefined,
   inputToken: string | undefined,
   typedValue: string | undefined,
@@ -26,9 +58,10 @@ export function useBridgeRouterCallback(
   const outputInfo = useOutputValue(typedValue ?? '0')
   const { account, chainId } = useActiveWeb3React()
   const bridgeContract = useBridgeContract(isAddress(routerToken), chainIdOut && isNaN(chainIdOut) ? 'V2' : '')
-  const ethbalance = useETHBalances(account ? [account] : [])?.[account ?? '']
-  const anybalance = useCurrencyBalance(account ?? undefined, currencyIn)
-  const balance = isNative ? ethbalance : anybalance
+
+  const ethBalance = useETHBalances(account ? [account] : [])?.[account ?? '']
+  const anyBalance = useCurrencyBalance(account ?? undefined, currencyIn)
+  const balance = isNative ? ethBalance : anyBalance
 
   const inputAmount = useMemo(() => tryParseAmount(typedValue, currencyIn ?? undefined), [currencyIn, typedValue])
   const addTransactionWithType = useTransactionAdder()
@@ -107,7 +140,7 @@ export function useBridgeRouterCallback(
   ])
 }
 
-export function useBridgeCallback(
+function useBridgeSwap(
   toAddress: string | undefined | null,
   inputToken: string | undefined,
   typedValue: string | undefined,
@@ -115,17 +148,17 @@ export function useBridgeCallback(
   const [{ tokenOut, chainIdOut, tokenIn, currencyIn, currencyOut }] = useBridgeState()
   const addTransactionWithType = useTransactionAdder()
   const outputInfo = useOutputValue(typedValue ?? '0')
-  const txnsType = tokenOut?.type
   const { chainId, account, library } = useActiveWeb3React()
+
   const tokenBalance = useCurrencyBalance(account ?? undefined, currencyIn)
   const ethBalance = useETHBalances(account ? [account] : [])?.[account ?? '']
   const balance = tokenIn && tokenIn?.tokenType !== 'NATIVE' ? tokenBalance : ethBalance
-  const receiveAddress = account
+
   const inputAmount = useMemo(() => tryParseAmount(typedValue, currencyIn), [currencyIn, typedValue])
   const contractBTC = useSwapBTCContract(isAddress(inputToken) ? inputToken : undefined)
   const contractETH = useSwapETHContract(isAddress(inputToken) ? inputToken : undefined)
   return useMemo(() => {
-    if (!chainId || !toAddress || !chainIdOut || !library || !receiveAddress) return NOT_APPLICABLE
+    if (!chainId || !toAddress || !chainIdOut || !library || !account) return NOT_APPLICABLE
 
     const sufficientBalance = inputAmount && balance && !balance.lessThan(inputAmount)
 
@@ -133,8 +166,8 @@ export function useBridgeCallback(
       execute: async () => {
         try {
           if (!sufficientBalance || !inputAmount) return Promise.reject('insufficient balance')
-          let txReceipt: any
-          if (txnsType === 'swapin') {
+          let txReceipt
+          if (tokenOut?.type === 'swapin') {
             if (isAddress(inputToken) && tokenIn?.tokenType !== 'NATIVE') {
               if (contractETH) {
                 txReceipt = await contractETH.transfer(toAddress, `0x${inputAmount.quotient.toString(16)}`)
@@ -142,7 +175,7 @@ export function useBridgeCallback(
                 return Promise.reject('not found contractETH')
               }
             } else {
-              const data: any = {
+              const data = {
                 from: account,
                 to: toAddress,
                 value: `0x${inputAmount.quotient.toString(16)}`,
@@ -151,7 +184,7 @@ export function useBridgeCallback(
               txReceipt = hash && hash.toString().indexOf('0x') === 0 ? { hash } : ''
             }
           } else {
-            if (isNaN(chainIdOut)) {
+            if (chainIdOut && isNaN(chainIdOut)) {
               if (contractBTC) {
                 txReceipt = await contractBTC.Swapout(`0x${inputAmount.quotient.toString(16)}`, toAddress)
               } else {
@@ -202,16 +235,15 @@ export function useBridgeCallback(
     outputInfo.outputAmount,
     currencyOut,
     contractBTC,
+    tokenOut?.type,
     contractETH,
     tokenIn,
     inputAmount,
     balance,
-    txnsType,
     account,
     toAddress,
     inputToken,
     chainIdOut,
     library,
-    receiveAddress,
   ])
 }

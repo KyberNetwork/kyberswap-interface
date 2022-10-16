@@ -82,7 +82,7 @@ export async function getTokenlist(chainId: ChainId, isStaleData: boolean) {
     try {
       localStorage.setItem(BridgeLocalStorageKeys.TOKEN_LIST, JSON.stringify({ ...local, [chainId]: tokens }))
     } catch (error) {
-      console.log('overflow localstorage QuotaExceededError', error)
+      console.log('overflow localstorage QuotaExceededError')
       localStorage.removeItem(BridgeLocalStorageKeys.TOKEN_LIST)
       localStorage.setItem(BridgeLocalStorageKeys.TOKEN_LIST, JSON.stringify({ [chainId]: tokens }))
     }

@@ -87,12 +87,14 @@ const useGetBridgeTransfers = (params: Params, config?: SWRConfiguration) => {
           return data
         }
 
-        const err = `No transfers found with params address=${addr}, offset=${offset}, limit=${limit}, status=${statusStr}`
-        throw err
+        throw new Error(
+          `No transfers found with params address=${addr}, offset=${offset}, limit=${limit}, status=${statusStr}`,
+        )
       }
 
-      const err = `Fetching bridge transfers failed with params address=${addr}, offset=${offset}, limit=${limit}, status=${statusStr}`
-      throw err
+      throw new Error(
+        `Fetching bridge transfers failed with params address=${addr}, offset=${offset}, limit=${limit}, status=${statusStr}`,
+      )
     },
     {
       revalidateIfStale: false,
