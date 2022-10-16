@@ -41,7 +41,7 @@ const StyledToggle = styled.button<{ isActive?: boolean; activeElement?: boolean
   padding: 0;
 `
 
-export interface ToggleProps {
+interface ToggleProps {
   id?: string
   isActive: boolean
   toggle: () => void

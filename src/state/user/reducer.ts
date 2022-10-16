@@ -122,7 +122,7 @@ export const defaultShowLiveCharts: { [chainId in ChainId]: boolean } = {
   [ChainId.ETHW]: true,
 }
 
-export const initialState: UserState = {
+const initialState: UserState = {
   userDarkMode: null, // default to system preference
   matchesDarkMode: true,
   userExpertMode: false,

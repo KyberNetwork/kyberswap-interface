@@ -39,12 +39,6 @@ const ChevronDown2 = styled(ChevronDown)`
   color: ${({ theme }) => theme.text};
 `
 
-export const Separator = styled.div`
-  width: 100%;
-  height: 1px;
-  background-color: ${({ theme }) => theme.border};
-`
-
 const PoolPriceBarWrapper = styled.div<{ isAdd?: boolean }>`
   display: flex;
   justify-content: space-between;
@@ -68,7 +62,7 @@ const PoolPriceBarItem = styled.div<{ isAdd?: boolean }>`
   }
 `
 
-export const DefaultPriceRange = () => {
+const DefaultPriceRange = () => {
   return (
     <>
       <TYPE.black fontWeight={400}>Max: {DEFAULT_MAX_PRICE}</TYPE.black>
@@ -77,7 +71,7 @@ export const DefaultPriceRange = () => {
   )
 }
 
-export const InvalidAMPPriceRange = () => {
+const InvalidAMPPriceRange = () => {
   return (
     <>
       <TYPE.black>-</TYPE.black>

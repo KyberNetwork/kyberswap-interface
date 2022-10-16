@@ -9,7 +9,7 @@ const alwaysTrue = () => true
  * Create a filter function to apply to a token for whether it matches a particular search query
  * @param search the search query to apply to the token
  */
-export function createTokenFilterFunction<T extends Token | TokenInfo>(
+function createTokenFilterFunction<T extends Token | TokenInfo>(
   chainId: ChainId,
   search: string,
 ): (tokens: T) => boolean {

@@ -14,7 +14,7 @@ import { getFullDisplayBalance } from 'utils/formatBalance'
 
 import { SerializableTransactionReceipt, checkedTransaction, finalizeTransaction } from './actions'
 
-export function shouldCheck(
+function shouldCheck(
   lastBlockNumber: number,
   tx: { addedTime: number; receipt?: SerializableTransactionReceipt; lastCheckedBlockNumber?: number },
 ): boolean {

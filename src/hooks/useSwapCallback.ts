@@ -19,7 +19,7 @@ import isZero from 'utils/isZero'
 
 export type AnyTrade = Trade<Currency, Currency, TradeType> | ProAmmTrade<Currency, Currency, TradeType>
 
-export enum SwapCallbackState {
+enum SwapCallbackState {
   INVALID,
   LOADING,
   VALID,

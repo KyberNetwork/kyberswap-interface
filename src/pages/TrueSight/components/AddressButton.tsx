@@ -110,7 +110,7 @@ export default function AddressButton({ platforms }: { platforms: Map<string, st
   )
 }
 
-export const AddressCopyContainer = styled.div`
+const AddressCopyContainer = styled.div`
   cursor: pointer;
   display: flex;
   align-items: center;

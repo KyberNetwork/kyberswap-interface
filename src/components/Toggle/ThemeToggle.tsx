@@ -36,7 +36,7 @@ const StyledToggle = styled.button`
   }
 `
 
-export interface ThemeToggleProps {
+interface ThemeToggleProps {
   id?: string
   isDarkMode: boolean
   toggle: () => void

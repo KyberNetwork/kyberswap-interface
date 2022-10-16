@@ -99,7 +99,7 @@ export default function LeaderboardLayout({
     const rRewardAmount = rewardAmount.equalTo(BIG_INT_ZERO)
       ? '--'
       : data.rewardInUSD && selectedCampaign?.campaignState !== CampaignState.CampaignStateDistributedRewards
-      ? t`$${data.rewardAmountUsd.toSignificant(DEFAULT_SIGNIFICANT)}`
+      ? data.rewardAmountUsd.toSignificant(DEFAULT_SIGNIFICANT)
       : `${data.rewardAmount.toSignificant(DEFAULT_SIGNIFICANT)} ${data.token.symbol}`
 
     return (

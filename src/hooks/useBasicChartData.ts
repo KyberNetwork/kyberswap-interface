@@ -59,11 +59,6 @@ const getClosestPrice = (prices: any[], time: number) => {
   return prices[closestIndex][0] - time > 10000000 ? 0 : prices[closestIndex][1]
 }
 
-export interface ChartDataInfo {
-  readonly time: number
-  readonly value: number
-}
-
 const liveDataApi: { [chainId in ChainId]?: string } = {
   [ChainId.MAINNET]: `${AGGREGATOR_API}/ethereum/tokens`,
   [ChainId.BSCMAINNET]: `${AGGREGATOR_API}/bsc/tokens`,

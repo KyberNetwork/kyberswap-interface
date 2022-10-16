@@ -1,4 +1,3 @@
-import { Pair } from '@namgold/ks-sdk-classic'
 import { ChainId, Token } from '@namgold/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -18,7 +17,6 @@ import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useSingleContractMultipleData } from 'state/multicall/hooks'
 import { useUserLiquidityPositions } from 'state/pools/hooks'
 import {
-  SerializedPair,
   SerializedToken,
   ToggleFavoriteTokenPayload,
   addSerializedPair,
@@ -216,24 +214,6 @@ export function useUserAddedTokens(): Token[] {
     if (!chainId) return []
     return Object.values(serializedTokensMap[chainId as ChainId] ?? {}).map(deserializeToken)
   }, [serializedTokensMap, chainId])
-}
-
-function serializePair(pair: Pair): SerializedPair {
-  return {
-    token0: serializeToken(pair.token0),
-    token1: serializeToken(pair.token1),
-  }
-}
-
-export function usePairAdder(): (pair: Pair) => void {
-  const dispatch = useDispatch<AppDispatch>()
-
-  return useCallback(
-    (pair: Pair) => {
-      dispatch(addSerializedPair({ serializedPair: serializePair(pair) }))
-    },
-    [dispatch],
-  )
 }
 
 export function usePairAdderByTokens(): (token0: Token, token1: Token) => void {

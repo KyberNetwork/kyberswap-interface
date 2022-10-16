@@ -61,7 +61,7 @@ export const useRewardLockerAddressesWithVersion = (): { [rewardLockerAddress: s
   }, [rewardLockerAddressesV1MulticallResult, rewardLockerAddressesV2MulticallResult])
 }
 
-export const useRewardTokensByRewardLocker = () => {
+const useRewardTokensByRewardLocker = () => {
   const { isEVM, networkInfo } = useActiveWeb3React()
 
   /**

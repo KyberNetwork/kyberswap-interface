@@ -36,7 +36,7 @@ import { currencyId } from 'utils/currencyId'
 import { getTradingFeeAPR, useCurrencyConvertedToNative } from 'utils/dmm'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
-export const FixedHeightRow = styled(RowBetween)`
+const FixedHeightRow = styled(RowBetween)`
   height: 24px;
 `
 
