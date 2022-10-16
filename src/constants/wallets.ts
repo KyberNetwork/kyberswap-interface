@@ -50,7 +50,6 @@ const detectMetamask = (): WalletReadyState => {
 }
 
 const detectBrave = (): WalletReadyState => {
-  //todo namgold: fail connect on mobile solana
   if (checkForBraveBrowser()) return WalletReadyState.Installed
   return WalletReadyState.NotDetected
 }
@@ -107,7 +106,7 @@ export const SUPPORTED_WALLETS = {
     iconLight: BRAVE_L,
     installLink: 'https://brave.com/download',
     readyState: detectBrave,
-    readyStateSolana: () => braveAdapter.readyState,
+    readyStateSolana: () => (checkForBraveBrowser() ? WalletReadyState.Installed : braveAdapter.readyState), //todo namgold: fail connect on mobile solana
   } as EVMWalletInfo & SolanaWalletInfo,
   COIN98: {
     connector: coin98InjectedConnector,
