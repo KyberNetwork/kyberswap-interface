@@ -172,7 +172,7 @@ export function useEagerConnect() {
 
 /**
  * Use for network and injected - logs user in
- * and out after checking what network theyre on
+ * and out after checking what network they're on
  */
 export function useInactiveListener(suppress = false) {
   const { active, error, activate } = useWeb3React() // specifically using useWeb3React because of what this hook does
