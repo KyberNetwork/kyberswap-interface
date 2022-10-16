@@ -1,10 +1,11 @@
-import { StrictMode, useState } from "react";
+import { StrictMode, useEffect, useState } from "react";
 import styled, { ThemeProvider } from "styled-components";
-import { darkTheme } from "../../theme";
+import { defaultTheme, Theme } from "../../theme";
 import { ReactComponent as SettingIcon } from "../../assets/setting.svg";
 import { ReactComponent as WalletIcon } from "../../assets/wallet.svg";
 import { ReactComponent as DropdownIcon } from "../../assets/dropdown.svg";
 import { ReactComponent as SwitchIcon } from "../../assets/switch.svg";
+import { ReactComponent as SwapIcon } from "../../assets/swap.svg";
 import { ReactComponent as BackIcon } from "../../assets/back.svg";
 import { ReactComponent as ErrorIcon } from "../../assets/x-circle.svg";
 import { ReactComponent as SubmittedIcon } from "../../assets/arrow-up-circle.svg";
@@ -26,6 +27,7 @@ import {
   Dots,
   CustomLightSpinner,
   Rate,
+  MiddleLeft,
 } from "./styled";
 
 import { BigNumber } from "ethers";
@@ -38,9 +40,10 @@ import { formatUnits } from "ethers/lib/utils";
 import useApproval, { APPROVAL_STATE } from "../../hooks/useApproval";
 import Settings from "../Settings";
 import { Token, TokenListProvider, useTokens } from "../../hooks/useTokens";
+import RefreshBtn from "../RefreshBtn";
 
 export const DialogWrapper = styled.div`
-  background-color: ${({ theme }) => theme.bg1};
+  background-color: ${({ theme }) => theme.tab};
   position: absolute;
   left: 0;
   top: 0;
@@ -119,6 +122,7 @@ enum ModalType {
 export interface WidgetProps {
   provider?: any;
   tokenList?: Token[];
+  theme?: Theme;
 }
 
 const Widget = () => {
@@ -137,7 +141,31 @@ const Widget = () => {
     trade,
     slippage,
     setSlippage,
+    getRate,
   } = useSwap();
+
+  const [countdown, setCountdown] = useState(0);
+
+  useEffect(() => {
+    if (!loading && !!trade) setCountdown(10_000);
+    else setCountdown(0);
+  }, [loading, trade]);
+
+  useEffect(() => {
+    if (countdown > 0) {
+      const i = setInterval(() => {
+        setCountdown((prev) => prev - 10);
+        if (countdown - 10 === 10) {
+          getRate();
+        }
+      }, 10);
+      return () => {
+        clearInterval(i);
+      };
+    }
+  }, [countdown]);
+
+  const [inverseRate, setInverseRate] = useState(false);
 
   const { balances } = useTokenBalances(tokens.map((item) => item.address));
 
@@ -347,10 +375,32 @@ const Widget = () => {
       </InputWrapper>
 
       <MiddleRow>
-        <Rate>
-          1 {tokenInInfo?.symbol} = {rate?.toPrecision(10) || "--"}{" "}
-          {tokenOutInfo?.symbol}
-        </Rate>
+        <MiddleLeft>
+          <RefreshBtn
+            loading={loading}
+            onRefresh={() => {
+              getRate();
+            }}
+            countdown={countdown}
+          />
+          <Rate>
+            {!rate
+              ? ""
+              : !inverseRate
+              ? `1 ${tokenInInfo?.symbol} = ${rate.toPrecision(10)} ${
+                  tokenOutInfo?.symbol
+                }`
+              : `1 ${tokenOutInfo?.symbol} = ${(1 / rate).toPrecision(10)} ${
+                  tokenInInfo?.symbol
+                }`}
+          </Rate>
+
+          {rate && (
+            <SettingBtn onClick={() => setInverseRate((prev) => !prev)}>
+              <SwapIcon />
+            </SettingBtn>
+          )}
+        </MiddleLeft>
 
         <SwitchBtn
           onClick={() => {
@@ -450,10 +500,10 @@ const Widget = () => {
   );
 };
 
-export default ({ provider, tokenList }: WidgetProps) => {
+export default ({ provider, tokenList, theme }: WidgetProps) => {
   return (
     <StrictMode>
-      <ThemeProvider theme={darkTheme}>
+      <ThemeProvider theme={theme || defaultTheme}>
         <Web3Provider provider={provider}>
           <TokenListProvider tokenList={tokenList}>
             <Widget />

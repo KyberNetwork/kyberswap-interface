@@ -119,12 +119,6 @@ const useSwap = () => {
 
   useEffect(() => {
     getRate();
-    const interval = setInterval(() => {
-      getRate();
-    }, 10_000);
-    return () => {
-      interval && clearInterval(interval);
-    };
   }, [getRate]);
 
   return {
@@ -139,6 +133,7 @@ const useSwap = () => {
     error,
     slippage,
     setSlippage,
+    getRate,
   };
 };
 

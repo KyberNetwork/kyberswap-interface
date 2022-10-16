@@ -1,12 +1,13 @@
 import styled, { keyframes } from "styled-components";
 
 export const Wrapper = styled.div`
-  border-radius: 1rem;
+  border-radius: ${({ theme }) => theme.borderRadius};
   padding: 1rem;
   width: 375px;
-  background: ${({ theme }) => theme.bg1};
+  background: ${({ theme }) => theme.background};
   color: ${({ theme }) => theme.text};
-  font-family: "Work Sans", "Inter var", sans-serif;
+  font-family: ${({ theme }) =>
+    theme.theme || `"Work Sans", "Inter var", sans-serif`};
   position: relative;
   overflow: hidden;
 `;
@@ -20,17 +21,17 @@ export const Title = styled.div`
 `;
 
 export const InputWrapper = styled.div`
-  border-radius: 1rem;
+  border-radius: ${({ theme }) => theme.borderRadius};
   padding: 0.75rem;
-  background: ${({ theme }) => theme.bg2};
+  background: ${({ theme }) => theme.inputBackground};
   margin-top: 1rem;
 `;
 
 export const MaxHalfBtn = styled.button`
   outline: none;
   border: none;
-  background: ${({ theme }) => theme.subText + "33"};
-  border-radius: 999px;
+  background: ${({ theme }) => theme.interactive};
+  border-radius: ${({ theme }) => theme.buttonRadius};
   color: ${({ theme }) => theme.subText};
   font-size: 0.75rem;
   padding: 0.125rem 0.5rem;
@@ -52,7 +53,7 @@ export const BalanceRow = styled.div`
 export const SettingBtn = styled.button`
   outline: none;
   border: none;
-  border-radius: 50%;
+  border-radius: ${({ theme }) => theme.buttonRadius};
   width: 2.25rem;
   height: 2.25rem;
   background: transparent;
@@ -63,14 +64,19 @@ export const SettingBtn = styled.button`
   color: ${({ theme }) => theme.subText};
 
   :hover {
-    background: ${({ theme }) => theme.bg2};
+    background: ${({ theme }) => theme.inputBackground};
+  }
+
+  svg {
+    width: 1.25rem;
+    height: 1.25rem;
   }
 `;
 
 export const SwitchBtn = styled(SettingBtn)`
   width: 40px;
   height: 40px;
-  background: ${({ theme }) => theme.bg2};
+  background: ${({ theme }) => theme.inputBackground};
 
   :hover {
     opacity: 0.8;
@@ -94,7 +100,7 @@ export const InputRow = styled.div`
 export const Input = styled.input`
   width: 100%;
   font-size: 1.5rem;
-  background: ${({ theme }) => theme.bg2};
+  background: ${({ theme }) => theme.inputBackground};
   outline: none;
   border: none;
   color: ${({ theme }) => theme.text};
@@ -107,8 +113,8 @@ export const Input = styled.input`
 export const SelectTokenBtn = styled.button`
   outline: none;
   border: none;
-  background: ${({ theme }) => theme.bg1};
-  border-radius: 999px;
+  background: ${({ theme }) => theme.interactive};
+  border-radius: ${({ theme }) => theme.buttonRadius};
   padding: 0.375rem 0 0.375rem 0.5rem;
   font-size: 1.125rem;
   color: ${({ theme }) => theme.subText};
@@ -129,10 +135,15 @@ export const MiddleRow = styled.div`
   justify-content: space-between;
 `;
 
+export const MiddleLeft = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
 export const Button = styled.button`
   outline: none;
   border: none;
-  border-radius: 999px;
+  border-radius: ${({ theme }) => theme.buttonRadius};
   width: 100%;
   margin-top: 1.5rem;
   font-size: 0.875rem;
@@ -194,5 +205,6 @@ export const CustomLightSpinner = styled(Spinner)<{ size: string }>`
 
 export const Rate = styled.div`
   font-size: 14px;
+  font-weight: 500;
   color: ${({ theme }) => theme.subText};
 `;
