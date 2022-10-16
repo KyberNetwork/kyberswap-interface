@@ -83,14 +83,13 @@ const OptionCardClickable = styled.button<{
   ${({ isCorrectChain, installLink, overridden, theme }) =>
     isCorrectChain && (installLink || overridden)
       ? `
-      filter: grayscale(100%);
+      filter: grayscale(50%);
       & ${HeaderText} {
         color: ${theme.border};
       }
     `
       : ''}
-
-  opacity: ${({ isDisabled }) => (isDisabled ? '0.5' : '1')};
+  ${({ isDisabled }) => (isDisabled ? `opacity: 0.5; filter: grayscale(100%);` : `opacity: 1;`)}
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     width: 100%;
@@ -226,7 +225,7 @@ const Option = ({
         placement="top"
         text={
           <Trans>
-            You will need to install {wallet.name} extension/dapp before you can connect with it on KyberSwap. Get it{' '}
+            You will need to install {wallet.name} extension before you can connect with it on KyberSwap. Get it{' '}
             <ExternalLink href={wallet.installLink || ''}>here↗</ExternalLink>
           </Trans>
         }
@@ -236,7 +235,9 @@ const Option = ({
     )
   }
 
-  return (
+  return isConnected ? (
+    <>{content}</>
+  ) : (
     <MouseoverTooltip placement="top" text={<Trans>Switch to {wallet.name} wallet</Trans>}>
       {content}
     </MouseoverTooltip>
