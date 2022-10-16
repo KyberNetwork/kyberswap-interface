@@ -1,7 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { t } from '@lingui/macro'
 import { Pair } from '@namgold/ks-sdk-classic'
-import { ChainId, Currency, CurrencyAmount, Percent, Price, TokenAmount, WETH } from '@namgold/ks-sdk-core'
+import { Currency, CurrencyAmount, Percent, Price, TokenAmount, WETH } from '@namgold/ks-sdk-core'
 import JSBI from 'jsbi'
 import { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
@@ -73,7 +73,7 @@ export function useDerivedMintInfo(
 
   const noLiquidity: boolean =
     (pairState === PairState.NOT_EXISTS || Boolean(totalSupply && JSBI.equal(totalSupply.quotient, ZERO))) &&
-    (tokenA?.symbol !== WETH[chainId as ChainId].symbol || tokenB?.symbol !== WETH[chainId as ChainId].symbol)
+    (tokenA?.symbol !== WETH[chainId].symbol || tokenB?.symbol !== WETH[chainId].symbol)
 
   // balances
   const balances = useCurrencyBalances([currencies[Field.CURRENCY_A], currencies[Field.CURRENCY_B]])
@@ -287,7 +287,7 @@ export function useDerivedZapInInfo(
   const totalSupply = useTotalSupply(pair?.liquidityToken)
   const noLiquidity: boolean =
     (pairState === PairState.NOT_EXISTS || Boolean(totalSupply && JSBI.equal(totalSupply.quotient, ZERO))) &&
-    (tokenA?.symbol !== WETH[chainId as ChainId].symbol || tokenB?.symbol !== WETH[chainId as ChainId].symbol)
+    (tokenA?.symbol !== WETH[chainId].symbol || tokenB?.symbol !== WETH[chainId].symbol)
 
   // balances
   const balances = useCurrencyBalances(

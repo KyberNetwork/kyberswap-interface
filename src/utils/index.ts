@@ -314,14 +314,14 @@ export const get24hValue = (valueNow: string, value24HoursAgo: string | undefine
   return currentChange
 }
 
-export const getTokenLogoURL = (inputAddress: string, chainId?: ChainId): string => {
+export const getTokenLogoURL = (inputAddress: string, chainId: ChainId): string => {
   let address = inputAddress
-  if (address === ZERO_ADDRESS && chainId) {
+  if (address === ZERO_ADDRESS) {
     address = WETH[chainId].address
   }
 
   if (chainId !== ChainId.ETHW) {
-    if (address.toLowerCase() === KNC[chainId as ChainId].address.toLowerCase()) {
+    if (address.toLowerCase() === KNC[chainId].address.toLowerCase()) {
       return 'https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/develop/src/assets/images/KNC.svg'
     }
 
@@ -340,7 +340,7 @@ export const getTokenLogoURL = (inputAddress: string, chainId?: ChainId): string
 
   const imageURL = store
     .getState()
-    .lists.byUrl[NETWORKS_INFO[chainId || ChainId.MAINNET].tokenListUrl].current?.tokens.find(
+    .lists.byUrl[NETWORKS_INFO[chainId].tokenListUrl].current?.tokens.find(
       item => item.address.toLowerCase() === address.toLowerCase(),
     )?.logoURI
   return imageURL || ''

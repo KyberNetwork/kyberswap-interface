@@ -103,13 +103,13 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions,
 
   const token0 =
     allTokens[isAddressString(chainId, pair[0].token0.address)] ||
-    new Token(chainId as ChainId, pair[0].token0.address, pair[0].token0.decimals, pair[0].token0.symbol)
+    new Token(chainId, pair[0].token0.address, pair[0].token0.decimals, pair[0].token0.symbol)
   const token1 =
     allTokens[isAddressString(chainId, pair[0].token1.address)] ||
-    new Token(chainId as ChainId, pair[0].token1.address, pair[0].token1.decimals, pair[0].token1.symbol)
+    new Token(chainId, pair[0].token1.address, pair[0].token1.decimals, pair[0].token1.symbol)
 
-  const isToken0WETH = pair[0].token0.address === WETH[chainId as ChainId].address.toLowerCase()
-  const isToken1WETH = pair[0].token1.address === WETH[chainId as ChainId].address.toLowerCase()
+  const isToken0WETH = pair[0].token0.address === WETH[chainId].address.toLowerCase()
+  const isToken1WETH = pair[0].token1.address === WETH[chainId].address.toLowerCase()
 
   const nativeToken = NativeCurrencies[chainId]
 

@@ -1,9 +1,9 @@
-import { ChainId, Currency, WETH } from '@namgold/ks-sdk-core'
+import { Currency, WETH } from '@namgold/ks-sdk-core'
 
 import { NativeCurrencies } from 'constants/tokens'
 
 export function unwrappedToken(token: Currency): Currency {
-  if (token.equals(WETH[token.chainId as ChainId])) return NativeCurrencies[token.chainId]
+  if (token.equals(WETH[token.chainId])) return NativeCurrencies[token.chainId]
 
   return token
 }

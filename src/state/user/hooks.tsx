@@ -212,7 +212,7 @@ export function useUserAddedTokens(): Token[] {
 
   return useMemo(() => {
     if (!chainId) return []
-    return Object.values(serializedTokensMap[chainId as ChainId] ?? {}).map(deserializeToken)
+    return Object.values(serializedTokensMap[chainId] ?? {}).map(deserializeToken)
   }, [serializedTokensMap, chainId])
 }
 

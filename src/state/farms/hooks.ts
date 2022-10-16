@@ -1,7 +1,7 @@
 import { Interface } from '@ethersproject/abi'
 import { BigNumber } from '@ethersproject/bignumber'
 import { Contract } from '@ethersproject/contracts'
-import { ChainId, CurrencyAmount, Fraction, Token } from '@namgold/ks-sdk-core'
+import { CurrencyAmount, Fraction, Token } from '@namgold/ks-sdk-core'
 import { ethers } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
@@ -54,7 +54,7 @@ export const useRewardTokens = () => {
   )
 
   const defaultRewards = useMemo(() => {
-    return DEFAULT_REWARDS[chainId as ChainId] || []
+    return DEFAULT_REWARDS[chainId] || []
   }, [chainId])
 
   return useMemo(() => {
@@ -470,7 +470,7 @@ export const useTotalApr = (farm: Farm) => {
 export const useUserStakedBalance = (poolData: SubgraphPoolData) => {
   const { chainId } = useActiveWeb3React()
 
-  const { currency0, currency1 } = parseSubgraphPoolData(poolData, chainId as ChainId)
+  const { currency0, currency1 } = parseSubgraphPoolData(poolData, chainId)
 
   const farmData = useFarmsData(false)
 

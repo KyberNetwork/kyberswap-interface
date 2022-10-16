@@ -1,16 +1,7 @@
 import { getAddress } from '@ethersproject/address'
 import { BigNumber } from '@ethersproject/bignumber'
 import { Pair } from '@namgold/ks-sdk-classic'
-import {
-  ChainId,
-  ChainId as ChainIdDMM,
-  Currency,
-  CurrencyAmount,
-  Fraction,
-  Price,
-  Token,
-  TokenAmount,
-} from '@namgold/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount, Fraction, Price, Token, TokenAmount } from '@namgold/ks-sdk-core'
 import JSBI from 'jsbi'
 import { useMemo } from 'react'
 
@@ -512,7 +503,7 @@ export function useRewardTokensFullInfo(): Token[] {
       !!rewardTokens && allTokens
         ? rewardTokens.map(address =>
             address.toLowerCase() === ZERO_ADDRESS.toLowerCase()
-              ? new Token(chainId as ChainIdDMM, ZERO_ADDRESS.toLowerCase(), 18, nativeName, nativeName)
+              ? new Token(chainId, ZERO_ADDRESS.toLowerCase(), 18, nativeName, nativeName)
               : allTokens[address],
           )
         : [],

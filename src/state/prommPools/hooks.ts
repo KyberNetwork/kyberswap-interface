@@ -168,18 +168,8 @@ export function useUserProMMPositions(): UserPositionResult {
 
   const positions = useMemo(() => {
     return (data?.positions || []).map((p: UserPosition) => {
-      const token0 = new Token(
-        chainId as ChainId,
-        p.pool.token0.id,
-        Number(p.pool.token0.decimals),
-        p.pool.token0.symbol,
-      )
-      const token1 = new Token(
-        chainId as ChainId,
-        p.pool.token1.id,
-        Number(p.pool.token1.decimals),
-        p.pool.token1.symbol,
-      )
+      const token0 = new Token(chainId, p.pool.token0.id, Number(p.pool.token0.decimals), p.pool.token0.symbol)
+      const token1 = new Token(chainId, p.pool.token1.id, Number(p.pool.token1.decimals), p.pool.token1.symbol)
 
       const pool = new Pool(
         token0,
@@ -428,7 +418,7 @@ export function usePoolDatas(poolAddresses: string[]): {
     }
   }
 
-  const formatted = parsedPoolData(poolAddresses, data, data24, data48, chainId as ChainId)
+  const formatted = parsedPoolData(poolAddresses, data, data24, data48, chainId)
   return {
     loading: anyLoading,
     error: anyError,

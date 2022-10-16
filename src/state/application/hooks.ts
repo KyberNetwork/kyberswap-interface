@@ -282,7 +282,7 @@ export function useETHPrice(version: string = VERSION.CLASSIC): AppState['applic
         : getEthPrice(chainId, apolloClient))
 
       // if (!newPrice && apolloProMMClient) {
-      //   ;[newPrice, oneDayBackPrice, pricePercentChange] = await getPrommEthPrice(chainId as ChainId, apolloProMMClient)
+      //   ;[newPrice, oneDayBackPrice, pricePercentChange] = await getPrommEthPrice(chainId, apolloProMMClient)
       // }
 
       dispatch(
@@ -313,7 +313,7 @@ const getKNCPriceByETH = async (chainId: ChainId, apolloClient: ApolloClient<Nor
 
   try {
     const result = await apolloClient.query({
-      query: TOKEN_DERIVED_ETH(KNC[chainId as ChainId].address),
+      query: TOKEN_DERIVED_ETH(KNC[chainId].address),
       fetchPolicy: 'no-cache',
     })
 
@@ -339,7 +339,7 @@ export function useKNCPrice(): AppState['application']['kncPrice'] {
     if (!isEVM) return
     const apolloClient = (networkInfo as EVMNetworkInfo).classicClient
     async function checkForKNCPrice() {
-      const kncPriceByETH = await getKNCPriceByETH(chainId as ChainId, apolloClient)
+      const kncPriceByETH = await getKNCPriceByETH(chainId, apolloClient)
       const kncPrice = ethPrice.currentPrice && kncPriceByETH * parseFloat(ethPrice.currentPrice)
       dispatch(updateKNCPrice(kncPrice?.toString()))
     }
