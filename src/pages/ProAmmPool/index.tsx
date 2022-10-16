@@ -1,5 +1,4 @@
 import { Trans, t } from '@lingui/macro'
-import { ChainId } from '@namgold/ks-sdk-core'
 import { computePoolAddress } from '@namgold/ks-sdk-elastic'
 import { BigNumber } from 'ethers'
 import { rgba } from 'polished'
@@ -198,7 +197,7 @@ export default function ProAmmPool() {
           <InstructionText>
             <Trans>Here you can view all your liquidity and staked balances in the Elastic Pools</Trans>
             {!upToSmall && (
-              <ExternalLink href={`${PROMM_ANALYTICS_URL[chainId as ChainId]}/account/${account}`}>
+              <ExternalLink href={`${PROMM_ANALYTICS_URL[chainId]}/account/${account}`}>
                 <Flex alignItems="center">
                   <Wallet size={16} />
                   <Text fontSize="14px" marginLeft="4px">
@@ -234,7 +233,7 @@ export default function ProAmmPool() {
 
               {upToSmall && (
                 <Flex sx={{ gap: '8px' }}>
-                  <ExternalLink href={`${PROMM_ANALYTICS_URL[chainId as ChainId]}/account/${account}`}>
+                  <ExternalLink href={`${PROMM_ANALYTICS_URL[chainId]}/account/${account}`}>
                     <Flex
                       sx={{ borderRadius: '50%' }}
                       width="36px"

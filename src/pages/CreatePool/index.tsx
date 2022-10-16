@@ -1,7 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
 import { Trans, t } from '@lingui/macro'
-import { ChainId, Currency, Fraction, TokenAmount, WETH } from '@namgold/ks-sdk-core'
+import { Currency, Fraction, TokenAmount, WETH } from '@namgold/ks-sdk-core'
 import { parseUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -83,7 +83,7 @@ export default function CreatePool({
   const theme = useTheme()
   const currencyA = useCurrency(currencyIdA)
   const currencyB = useCurrency(currencyIdB)
-  const [selectedFee, setSelectedFee] = useState(STATIC_FEE_OPTIONS[chainId as ChainId]?.[0])
+  const [selectedFee, setSelectedFee] = useState(STATIC_FEE_OPTIONS[chainId]?.[0])
 
   const onlyStaticFee = !!chainId && ONLY_STATIC_FEE_CHAINS.includes(chainId)
   const onlyDynamicFee = !!chainId && ONLY_DYNAMIC_FEE_CHAINS.includes(chainId)

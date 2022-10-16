@@ -1,7 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { MaxUint256 } from '@ethersproject/constants'
 import { Trans, t } from '@lingui/macro'
-import { ChainId, Fraction, Token, TokenAmount } from '@namgold/ks-sdk-core'
+import { Fraction, Token, TokenAmount } from '@namgold/ks-sdk-core'
 import { ethers } from 'ethers'
 import JSBI from 'jsbi'
 import React, { useMemo, useState } from 'react'
@@ -476,9 +476,7 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
               </Flex>
               <Flex justifyContent="space-between" sx={{ gap: '8px' }} alignItems="center" marginTop="20px">
                 <ExternalLink
-                  href={
-                    outsideFarm ? outsideFarm.poolInfoLink : `${DMM_ANALYTICS_URL[chainId as ChainId]}/pool/${farm.id}`
-                  }
+                  href={outsideFarm ? outsideFarm.poolInfoLink : `${DMM_ANALYTICS_URL[chainId]}/pool/${farm.id}`}
                 >
                   <GetLP>
                     <Trans>Get pool {outsideFarm ? `(${outsideFarm.name})` : ''} info</Trans> ↗

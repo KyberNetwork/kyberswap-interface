@@ -27,7 +27,7 @@ export default function useTokenInfo(token: Token | undefined): { data: TokenInf
 
   let url = ''
 
-  if (tokenAddress === WETH[chainId as ChainId].address.toLowerCase()) {
+  if (tokenAddress === WETH[chainId].address.toLowerCase()) {
     // If the token is native token, we have to use different endpoint
     url = `${COINGECKO_API_URL}/coins/${NETWORKS_INFO[chainId || ChainId.MAINNET].coingeckoNativeTokenId}`
   } else if (tokenAddress) {

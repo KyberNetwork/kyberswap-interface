@@ -1,4 +1,4 @@
-import { ChainId, Currency, WETH } from '@namgold/ks-sdk-core'
+import { Currency, WETH } from '@namgold/ks-sdk-core'
 import React, { useEffect, useRef } from 'react'
 import ScrollContainer from 'react-indiana-drag-scroll'
 import styled from 'styled-components'
@@ -81,27 +81,27 @@ const RewardTokenPrices = ({ style = {}, rewardTokens }: { style?: React.CSSProp
   const { chainId } = useActiveWeb3React()
   // let rewardTokens = useRewardTokensFullInfo()
   const isContainETH = rewardTokens.findIndex(token => token.wrapped.address === ZERO_ADDRESS) >= 0
-  const isContainWETH = rewardTokens.findIndex(token => token.wrapped.address === WETH[chainId as ChainId].address) >= 0
+  const isContainWETH = rewardTokens.findIndex(token => token.wrapped.address === WETH[chainId].address) >= 0
   rewardTokens =
     isContainETH && isContainWETH
-      ? rewardTokens.filter(token => token.wrapped.address !== WETH[chainId as ChainId].address)
+      ? rewardTokens.filter(token => token.wrapped.address !== WETH[chainId].address)
       : rewardTokens
 
   // Sort the list of reward tokens in order: KNC -> Native token -> Other tokens
   rewardTokens.sort(function (tokenA, tokenB) {
-    if (tokenA.wrapped.address === KNC[chainId as ChainId].address) {
+    if (tokenA.wrapped.address === KNC[chainId].address) {
       return -1
     }
 
-    if (tokenB.wrapped.address === KNC[chainId as ChainId].address) {
+    if (tokenB.wrapped.address === KNC[chainId].address) {
       return 1
     }
 
-    if (tokenA.wrapped.address === ZERO_ADDRESS || tokenA.wrapped.address === WETH[chainId as ChainId].address) {
+    if (tokenA.wrapped.address === ZERO_ADDRESS || tokenA.wrapped.address === WETH[chainId].address) {
       return -1
     }
 
-    if (tokenB.wrapped.address === ZERO_ADDRESS || tokenB.wrapped.address === WETH[chainId as ChainId].address) {
+    if (tokenB.wrapped.address === ZERO_ADDRESS || tokenB.wrapped.address === WETH[chainId].address) {
       return 1
     }
 

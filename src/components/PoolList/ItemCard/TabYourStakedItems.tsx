@@ -1,5 +1,4 @@
 import { t } from '@lingui/macro'
-import { ChainId } from '@namgold/ks-sdk-core'
 
 import ItemCardInfoRow from 'components/PoolList/ItemCard/ItemCardInfoRow'
 import { RESERVE_USD_DECIMALS } from 'constants/index'
@@ -12,7 +11,7 @@ import { parseSubgraphPoolData } from 'utils/dmm'
 export default function TabYourStakedItems({ poolData }: { poolData: SubgraphPoolData }) {
   const { chainId } = useActiveWeb3React()
 
-  const { currency0, currency1 } = parseSubgraphPoolData(poolData, chainId as ChainId)
+  const { currency0, currency1 } = parseSubgraphPoolData(poolData, chainId)
 
   const { userStakedToken0Balance, userStakedToken1Balance, userStakedBalance, userStakedBalanceUSD } =
     useUserStakedBalance(poolData)
