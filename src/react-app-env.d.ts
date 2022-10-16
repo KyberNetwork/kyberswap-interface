@@ -23,6 +23,7 @@ interface Window {
     selectedProvider?: {
       isCoinbaseBrowser: boolean
       isCoinbaseWallet: boolean
+      isMetaMask: boolean
     }
     providers?: any[]
   }
