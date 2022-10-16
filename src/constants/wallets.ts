@@ -80,11 +80,11 @@ export interface WalletInfo {
   icon: string
   iconLight: string
   installLink?: string
+  href?: string
 }
 
 export interface EVMWalletInfo extends WalletInfo {
-  connector?: AbstractConnector
-  href?: string
+  connector: AbstractConnector
   readyState: () => WalletReadyState
 }
 

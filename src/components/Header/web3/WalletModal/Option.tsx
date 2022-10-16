@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { WalletReadyState } from '@solana/wallet-adapter-base'
-import React, { useMemo } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -113,27 +113,23 @@ const StyledLink = styled(ExternalLink)`
 
 const Option = ({
   walletKey,
+  readyState,
+  isSupportCurrentChain,
   onSelected,
 }: {
   walletKey: SUPPORTED_WALLET
+  isSupportCurrentChain: boolean
+  readyState?: WalletReadyState
   onSelected?: (walletKey: SUPPORTED_WALLET) => any
 }) => {
   const isDarkMode = useIsDarkMode()
-  const { walletKey: walletKeyConnected, isEVM, isSolana } = useActiveWeb3React()
+  const { walletKey: walletKeyConnected, isEVM } = useActiveWeb3React()
   const isBraveBrowser = checkForBraveBrowser()
   const [isAcceptedTerm] = useIsAcceptedTerm()
 
   const wallet = SUPPORTED_WALLETS[walletKey]
-  const isWalletEVM = isEVMWallet(wallet)
-  const isWalletSolana = isSolanaWallet(wallet)
-  const isCorrectChain = (isWalletEVM && isEVM) || (isWalletSolana && isSolana)
   const isConnected = !!walletKeyConnected && walletKey === walletKeyConnected
-  const readyState = useMemo(() => {
-    const readyStateEVM = isWalletEVM ? wallet.readyState() : null
-    const readyStateSolana = isWalletSolana ? wallet.readyStateSolana() : null
-    return (isEVM && readyStateEVM) || (isSolana && readyStateSolana) || readyStateEVM || readyStateSolana
-  }, [isEVM, isSolana, isWalletEVM, isWalletSolana, wallet])
-  if (readyState === WalletReadyState.Unsupported) return null
+
   const overridden = isOverriddenWallet(walletKey)
   const installLink = readyState === WalletReadyState.NotDetected ? wallet.installLink : undefined
   const icon = isDarkMode ? wallet.icon : wallet.iconLight
@@ -147,17 +143,17 @@ const Option = ({
         (readyState === WalletReadyState.Installed ||
           (readyState === WalletReadyState.Loadable && isSolanaWallet(wallet))) &&
         isAcceptedTerm &&
-        isCorrectChain &&
+        isSupportCurrentChain &&
         !overridden &&
         !(walletKey === 'BRAVE' && !isBraveBrowser)
           ? () => onSelected(walletKey)
           : undefined
       }
       connected={isConnected}
-      isDisabled={!isAcceptedTerm || !isCorrectChain}
+      isDisabled={!isAcceptedTerm || !isSupportCurrentChain || (walletKey === 'COIN98' && !window.ethereum?.isCoin98)}
       installLink={installLink}
       overridden={overridden}
-      isCorrectChain={isCorrectChain}
+      isCorrectChain={isSupportCurrentChain}
     >
       <IconWrapper>
         <img src={icon} alt={'Icon'} />
@@ -171,10 +167,14 @@ const Option = ({
   if (!isAcceptedTerm) return content
 
   if (readyState === WalletReadyState.Loadable && isEVMWallet(wallet) && wallet.href) {
-    return <StyledLink href={wallet.href}>{content}</StyledLink>
+    return (
+      <MouseoverTooltip placement="top" text={<Trans>Install ${wallet.name} extension</Trans>}>
+        <StyledLink href={wallet.href}>{content}</StyledLink>
+      </MouseoverTooltip>
+    )
   }
 
-  if (!isCorrectChain) {
+  if (!isSupportCurrentChain) {
     return (
       <MouseoverTooltip
         placement="top"
@@ -200,10 +200,21 @@ const Option = ({
       </MouseoverTooltip>
     )
   }
-
   if (overridden) {
     return (
-      <MouseoverTooltip width="500px" text={<C98OverrideGuide walletKey={walletKey} />} placement="top">
+      <MouseoverTooltip
+        width="500px"
+        text={
+          walletKey === 'COIN98' ? (
+            <Trans>
+              You need to enable <b>&quot;Override Wallet&quot;</b> in Coin98 settings.
+            </Trans>
+          ) : (
+            <C98OverrideGuide walletKey={walletKey} />
+          )
+        }
+        placement="top"
+      >
         {content}
       </MouseoverTooltip>
     )
@@ -225,7 +236,11 @@ const Option = ({
     )
   }
 
-  return content
+  return (
+    <MouseoverTooltip placement="top" text={<Trans>Switch to {wallet.name} wallet</Trans>}>
+      {content}
+    </MouseoverTooltip>
+  )
 }
 
 export default React.memo(Option)

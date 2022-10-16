@@ -1,16 +1,16 @@
 import { BaseMessageSignerWalletAdapter } from '@solana/wallet-adapter-base'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { AbstractConnector } from '@web3-react/abstract-connector'
-import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core'
+import { UnsupportedChainIdError } from '@web3-react/core'
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { useCallback } from 'react'
 
 import { SUPPORTED_WALLET, SUPPORTED_WALLETS } from 'constants/wallets'
-import { useActiveWeb3React } from 'hooks'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { isEVMWallet, isSolanaWallet } from 'utils'
 
 export const useActivationWallet = () => {
-  const { activate } = useWeb3React()
+  const { activate, deactivate } = useWeb3React()
   const { select, wallet: solanaWallet } = useWallet()
   const { isSolana, isEVM } = useActiveWeb3React()
   const tryActivationEVM = useCallback(
@@ -50,6 +50,22 @@ export const useActivationWallet = () => {
       const wallet = SUPPORTED_WALLETS[walletKey]
       try {
         if (isEVM && isEVMWallet(wallet) && !wallet.href) {
+          // Support change wallet between Coinbase and Metamask when user installed both of them
+          if (window.ethereum?.providers) {
+            const ethereum: any = window.ethereum
+            const provider = ethereum.providers.find((p: any) => {
+              if (walletKey === 'METAMASK') {
+                return p.isMetaMask
+              }
+              if (walletKey === 'COINBASE') {
+                return p.isCoinbaseWallet
+              }
+              return false
+            })
+            provider && (await ethereum.setSelectedProvider(provider))
+            await deactivate()
+          }
+
           await tryActivationEVM(wallet.connector)
         }
         if (isSolana && isSolanaWallet(wallet) && wallet.adapter !== solanaWallet?.adapter) {
@@ -59,7 +75,7 @@ export const useActivationWallet = () => {
         throw err
       }
     },
-    [isSolana, isEVM, solanaWallet?.adapter, tryActivationEVM, tryActivationSolana],
+    [isSolana, isEVM, solanaWallet?.adapter, tryActivationEVM, tryActivationSolana, deactivate],
   )
 
   return {

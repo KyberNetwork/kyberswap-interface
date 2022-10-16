@@ -1,4 +1,5 @@
 import { Trans } from '@lingui/macro'
+import { WalletReadyState } from '@solana/wallet-adapter-base'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { UnsupportedChainIdError } from '@web3-react/core'
 import { useCallback, useEffect, useState } from 'react'
@@ -23,7 +24,7 @@ import { useAppDispatch } from 'state/hooks'
 import { updateChainId } from 'state/user/actions'
 import { useIsAcceptedTerm, useIsUserManuallyDisconnect } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
-import { isEVMWallet, isSolanaWallet } from 'utils'
+import { isEVMWallet, isOverriddenWallet, isSolanaWallet } from 'utils'
 
 import Option from './Option'
 import PendingView from './PendingView'
@@ -249,29 +250,61 @@ export default function WalletModal({
   }, [active, chainId, chainIdEVM, changeNetwork, dispatch, justConnectedWallet, isEVM])
 
   function getOptions() {
-    const sortWallets = (walletAKey: SUPPORTED_WALLET, walletBKey: SUPPORTED_WALLET) => {
-      const walletA = SUPPORTED_WALLETS[walletAKey]
-      const walletB = SUPPORTED_WALLETS[walletBKey]
-      const isWalletAEVM = isEVMWallet(walletA)
-      const isWalletASolana = isSolanaWallet(walletA)
-      const isWalletBEVM = isEVMWallet(walletB)
-      const isWalletBSolana = isSolanaWallet(walletB)
-
-      let aPoint = 0
-      let bPoint = 0
-      if (isEVM) {
-        if (isWalletAEVM) aPoint++
-        if (isWalletBEVM) bPoint++
-      } else if (isSolana) {
-        if (isWalletASolana) aPoint++
-        if (isWalletBSolana) bPoint++
+    // Generate list of wallets and states of it depend on current network
+    const parsedWalletList = Object.keys(SUPPORTED_WALLETS).map((k: string) => {
+      const wallet = SUPPORTED_WALLETS[k]
+      const readyState = (() => {
+        const readyStateEVM = isEVMWallet(wallet) ? wallet.readyState() : undefined
+        const readyStateSolana = isSolanaWallet(wallet) ? wallet.readyStateSolana() : undefined
+        return (isEVM && readyStateEVM) || (isSolana && readyStateSolana) || readyStateEVM || readyStateSolana
+      })()
+      const isSupportCurrentChain = (isEVMWallet(wallet) && isEVM) || (isSolanaWallet(wallet) && isSolana) || false
+      const overridden = isOverriddenWallet(k)
+      return {
+        ...wallet,
+        key: k,
+        readyState,
+        isSupportCurrentChain,
+        isOverridden: overridden,
       }
-      return bPoint - aPoint
+    })
+
+    const sortWallets = (walletA: any, walletB: any) => {
+      if (walletA.isSupportCurrentChain === walletB.isSupportCurrentChain) {
+        if (walletA.isOverridden === walletB.isOverridden) {
+          if (walletA.readyState === walletB.readyState) {
+            return 0
+          } else {
+            // Wallet installed will have higher priority
+            if (walletA.readyState === WalletReadyState.Installed) return -1
+            return 1
+          }
+        }
+        // Wallet not be overridden will have higher priority
+        if (!walletA.isOverridden) return -1
+        return 1
+      } else {
+        // Current chain supported wallet higher priority
+        if (walletA.isSupportCurrentChain) return -1
+        return 1
+      }
     }
-    return (Object.keys(SUPPORTED_WALLETS) as SUPPORTED_WALLET[])
-      .sort(sortWallets)
-      .map(key => <Option key={key} walletKey={key} onSelected={handleWalletChange} />)
-      .filter(Boolean)
+
+    return (
+      parsedWalletList
+        .sort(sortWallets)
+        // Filter Unsupported state wallets
+        .filter(wallet => wallet.readyState !== WalletReadyState.Unsupported)
+        .map(wallet => (
+          <Option
+            key={wallet.key}
+            walletKey={wallet.key}
+            onSelected={handleWalletChange}
+            isSupportCurrentChain={wallet.isSupportCurrentChain}
+            readyState={wallet.readyState}
+          />
+        ))
+    )
   }
 
   function getModalContent() {

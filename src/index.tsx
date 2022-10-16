@@ -4,6 +4,7 @@ import { Web3ReactProvider, createWeb3ReactRoot } from '@web3-react/core'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
 import 'inter-ui'
+import mixpanel from 'mixpanel-browser'
 import { StrictMode, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import TagManager from 'react-gtm-module'
@@ -14,7 +15,7 @@ import 'swiper/swiper-bundle.min.css'
 import 'swiper/swiper.min.css'
 
 import SolanaWalletContext from 'components/SolanaWalletContext'
-import { GTM_ID, SENTRY_DNS, TAG } from 'constants/env'
+import { GTM_ID, MAINNET_ENV, MIXPANEL_PROJECT_TOKEN, SENTRY_DNS, TAG } from 'constants/env'
 import CampaignsUpdater from 'state/campaigns/updater'
 
 import SEO from './components/SEO'
@@ -33,6 +34,10 @@ import ThemeProvider, { FixedGlobalStyle, ThemedGlobalStyle } from './theme'
 import getLibrary from './utils/getLibrary'
 
 AOS.init()
+
+mixpanel.init(MIXPANEL_PROJECT_TOKEN, {
+  debug: MAINNET_ENV === 'staging',
+})
 
 const Web3ProviderNetwork = createWeb3ReactRoot(NetworkContextName)
 
