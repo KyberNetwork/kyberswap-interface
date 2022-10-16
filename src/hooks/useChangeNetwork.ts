@@ -103,17 +103,27 @@ export function useChangeNetwork() {
               try {
                 const addNetworkParams = getEVMAddNetworkParams(desiredChainId)
                 await activeProvider.request({ method: 'wallet_addEthereumChain', params: [addNetworkParams] })
-                if (chainId !== desiredChainId) {
+                try {
+                  await activeProvider.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [switchNetworkParams],
+                  })
+                  changeNetworkHandler(desiredChainId, successCallback)
+                } catch {
                   notify({
                     title: t`Failed to switch network`,
                     type: NotificationType.ERROR,
                     summary: t`In order to use KyberSwap on ${NETWORKS_INFO[desiredChainId].name}, you must change the network in your wallet.`,
                   })
-                } else {
-                  changeNetworkHandler(desiredChainId, successCallback)
+                  failureCallback?.()
                 }
               } catch (addError) {
                 console.error(addError)
+                notify({
+                  title: t`Failed to switch network`,
+                  type: NotificationType.ERROR,
+                  summary: t`In order to use KyberSwap on ${NETWORKS_INFO[desiredChainId].name}, you must accept the network in your wallet.`,
+                })
                 failureCallback?.()
               }
             } else {
@@ -138,7 +148,6 @@ export function useChangeNetwork() {
       locationWithoutNetworkId,
       error,
       notify,
-      chainId,
       changeNetworkHandler,
       tryActivationEVM,
       tryActivationSolana,
