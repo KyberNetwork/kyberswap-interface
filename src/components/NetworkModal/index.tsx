@@ -1,13 +1,15 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { stringify } from 'qs'
 import { X } from 'react-feather'
 import { useHistory } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
+import Solana from 'assets/networks/solana-network.svg'
 import { ButtonEmpty } from 'components/Button'
 import Modal from 'components/Modal'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
 import { useActiveNetwork } from 'hooks/useActiveNetwork'
 import useParsedQueryString from 'hooks/useParsedQueryString'
@@ -58,26 +60,30 @@ export const ListItem = styled.div<{ selected?: boolean }>`
       `}
 `
 
-export const SelectNetworkButton = styled(ButtonEmpty)`
+export const SelectNetworkButton = styled(ButtonEmpty)<{ disabled?: boolean }>`
   background-color: transparent;
   color: ${({ theme }) => theme.primary};
   display: flex;
   justify-content: center;
   align-items: center;
-  &:focus {
-    text-decoration: none;
-  }
-  &:hover {
-    text-decoration: none;
-    border: 1px solid ${({ theme }) => theme.primary};
-  }
-  &:active {
-    text-decoration: none;
-  }
-  &:disabled {
-    opacity: 50%;
-    cursor: not-allowed;
-  }
+  ${({ disabled, theme }) =>
+    !disabled &&
+    `
+    &:focus {
+      text-decoration: none;
+    }
+    &:hover {
+      text-decoration: none;
+      border: 1px solid ${theme.primary};
+    }
+    &:active {
+      text-decoration: none;
+    }
+    &:disabled {
+      opacity: 50%;
+      cursor: not-allowed;
+    }
+  `}
 `
 const SHOW_NETWORKS = process.env.NODE_ENV === 'production' ? MAINNET_NETWORKS : SUPPORTED_NETWORKS
 export default function NetworkModal(): JSX.Element | null {
@@ -151,6 +157,14 @@ export default function NetworkModal(): JSX.Element | null {
               </SelectNetworkButton>
             )
           })}
+          <MouseoverTooltip text={t`Coming Soon`} width="fit-content">
+            <SelectNetworkButton padding="0" disabled>
+              <ListItem>
+                <img src={Solana} alt="Switch Network" style={{ width: '24px', marginRight: '8px' }} />
+                <NetworkLabel>Solana</NetworkLabel>
+              </ListItem>
+            </SelectNetworkButton>
+          </MouseoverTooltip>
         </NetworkList>
       </Wrapper>
     </Modal>
