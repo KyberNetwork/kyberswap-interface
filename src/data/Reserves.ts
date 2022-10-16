@@ -186,7 +186,7 @@ export function usePairByAddress(
   return usePairsByAddress([{ address, currencies: [tokenA, tokenB] }])[0]
 }
 
-export function useUnAmplifiedPairs(currencies: [Currency | undefined, Currency | undefined][]): string[] {
+function useUnAmplifiedPairs(currencies: [Currency | undefined, Currency | undefined][]): string[] {
   const tokens = useMemo(
     () => currencies.map(([currencyA, currencyB]) => [currencyA?.wrapped, currencyB?.wrapped]),
     [currencies],
@@ -215,13 +215,6 @@ export function useUnAmplifiedPairs(currencies: [Currency | undefined, Currency 
       return result?.[0]
     })
   }, [dynamicRess, staticRess])
-}
-
-export function useUnAmplifiedPairsFull(
-  currencies: [Currency | undefined, Currency | undefined][],
-): [PairState, Pair | null, boolean?, boolean?][] {
-  const pairAddresses = useUnAmplifiedPairs(currencies)
-  return usePairsByAddress(pairAddresses.map((address, index) => ({ address, currencies: currencies[index] })))
 }
 
 export function useUnAmplifiedPair(tokenA?: Currency, tokenB?: Currency): string[] {

@@ -51,7 +51,7 @@ type AccountInfoParsed = Overwrite<AccountInfo<any>, ParsedData> & {
   pubkey: PublicKey
 }
 
-export const useAssociatedTokensAccounts = (): { [mintAddress: string]: AccountInfoParsed } | null => {
+const useAssociatedTokensAccounts = (): { [mintAddress: string]: AccountInfoParsed } | null => {
   const { chainId } = useActiveWeb3React()
 
   const { publicKey } = useWallet()

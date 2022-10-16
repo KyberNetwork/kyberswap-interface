@@ -60,27 +60,6 @@ export function useAllTokens(lowercaseAddress = false): AllTokenType {
   return useTokensFromMap(allTokens, true, lowercaseAddress)
 }
 
-export function useIsTokenActive(token: Token | undefined | null): boolean {
-  const activeTokens = useAllTokens()
-
-  if (!activeTokens || !token) {
-    return false
-  }
-
-  return !!activeTokens[token.address]
-}
-
-// Check if currency is included in custom list from user storage
-export function useIsUserAddedToken(currency: Currency | undefined | null): boolean {
-  const userAddedTokens = useUserAddedTokens()
-
-  if (!currency) {
-    return false
-  }
-
-  return !!userAddedTokens.find(token => currency.equals(token))
-}
-
 // parse a name or symbol from a token response
 const BYTES32_REGEX = /^0x[a-fA-F0-9]{64}$/
 

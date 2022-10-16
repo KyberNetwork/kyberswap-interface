@@ -119,7 +119,6 @@ export const BLOCKED_PRICE_IMPACT_NON_EXPERT: Percent = new Percent(JSBI.BigInt(
 
 // used to ensure the user doesn't send so much ETH so they end up with <.01
 export const MIN_ETH: JSBI = JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(16)) // .01 ETH
-export const BETTER_TRADE_LINK_THRESHOLD = new Percent(JSBI.BigInt(75), JSBI.BigInt(10000))
 
 export const BUNDLE_ID = '1'
 
@@ -268,7 +267,6 @@ export const ONLY_DYNAMIC_FEE_CHAINS: ChainId[] = []
 export const TRENDING_SOON_ITEM_PER_PAGE = 10
 export const TRENDING_SOON_MAX_ITEMS = 50
 export const TRENDING_ITEM_PER_PAGE = 25
-export const TRENDING_MAX_ITEM = 50
 export const CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE = 10
 export const CAMPAIGN_YOUR_TRANSACTIONS_ITEM_PER_PAGE = 10000
 

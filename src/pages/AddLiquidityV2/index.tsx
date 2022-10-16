@@ -71,9 +71,7 @@ import {
   StyledInput,
 } from './styled'
 
-// const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
-
-export const ArrowWrapper = styled(ArrowWrapperVertical)<{ rotated?: boolean }>`
+const ArrowWrapper = styled(ArrowWrapperVertical)<{ rotated?: boolean }>`
   transform: rotate(${({ rotated }) => (rotated ? '270deg' : '90deg')});
   width: 40px;
   height: 40px;

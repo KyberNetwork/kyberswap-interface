@@ -26,13 +26,13 @@ export interface TransactionDetails {
   needCheckSubgraph?: boolean
 }
 
-export interface TransactionState {
+interface TransactionState {
   [chainId: number]: {
     [txHash: string]: TransactionDetails
   }
 }
 
-export const initialState: TransactionState = {}
+const initialState: TransactionState = {}
 
 export default createReducer(initialState, builder =>
   builder

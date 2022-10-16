@@ -1,11 +1,5 @@
 /// <reference types="react-scripts" />
 
-declare module 'jazzicon' {
-  export default function (diameter: number, seed: number): HTMLElement
-}
-
-declare module 'fortmatic'
-
 interface Navigator {
   brave?: {
     isBrave: () => Promise<boolean | undefined>
@@ -27,7 +21,12 @@ interface Window {
     }
     providers?: any[]
   }
-  web3?: any
+  web3?: {
+    currentProvider?: {
+      isCoinbaseBrowser: boolean
+      isCoinbaseWallet: boolean
+    }
+  }
   tag?: string
   coin98?: any
   dataLayer?: any[]

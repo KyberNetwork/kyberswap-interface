@@ -1,5 +1,5 @@
 import { ZoomTransform, max, scaleLinear } from 'd3'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { Bound } from 'state/mint/proamm/actions'
 
@@ -10,8 +10,8 @@ import { Line } from './Line'
 import Zoom, { ZoomOverlay } from './Zoom'
 import { ChartEntry, LiquidityChartRangeInputProps } from './types'
 
-export const xAccessor = (d: ChartEntry) => d.price0
-export const yAccessor = (d: ChartEntry) => d.activeLiquidity
+const xAccessor = (d: ChartEntry) => d.price0
+const yAccessor = (d: ChartEntry) => d.activeLiquidity
 
 export function Chart({
   id = 'liquidityChartRangeInput',

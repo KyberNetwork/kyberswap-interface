@@ -153,14 +153,14 @@ const StyledLabel = styled.div`
   line-height: 20px;
 `
 
-export interface SlippageTabsProps {
+interface SlippageTabsProps {
   rawSlippage: number
   setRawSlippage: (rawSlippage: number) => void
   deadline: number
   setDeadline: (deadline: number) => void
 }
 
-export function SlippageTabs({ rawSlippage, setRawSlippage, deadline, setDeadline }: SlippageTabsProps) {
+function SlippageTabs({ rawSlippage, setRawSlippage, deadline, setDeadline }: SlippageTabsProps) {
   const theme = useTheme()
 
   const inputRef = useRef<HTMLInputElement>()

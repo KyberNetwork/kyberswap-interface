@@ -14,7 +14,7 @@ import { Field } from 'state/swap/actions'
 import { Aggregator } from './aggregator'
 import { basisPointsToPercent } from './index'
 
-export function computeFee(pairs?: Array<Pair>): Fraction {
+function computeFee(pairs?: Array<Pair>): Fraction {
   let realizedLPFee: Fraction = new Fraction(JSBI.BigInt(0))
 
   // for each hop in our trade, take away the x*y=k price impact from 0.3% fees

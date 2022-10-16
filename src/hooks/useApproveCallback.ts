@@ -1,8 +1,7 @@
 import { MaxUint256 } from '@ethersproject/constants'
 import { TransactionResponse } from '@ethersproject/providers'
 import { Trade } from '@namgold/ks-sdk-classic'
-import { Currency, CurrencyAmount, Percent, TradeType } from '@namgold/ks-sdk-core'
-import { Trade as ProAmmTrade } from '@namgold/ks-sdk-elastic'
+import { Currency, CurrencyAmount, TradeType } from '@namgold/ks-sdk-core'
 import JSBI from 'jsbi'
 import { useCallback, useMemo } from 'react'
 
@@ -144,17 +143,4 @@ export function useApproveCallbackFromTradeV2(trade?: Aggregator, allowedSlippag
     [trade, allowedSlippage],
   )
   return useApproveCallback(amountToApprove, isEVM && trade?.routerAddress ? trade.routerAddress : undefined)
-}
-
-export function useProAmmApproveCallback(
-  trade: ProAmmTrade<Currency, Currency, TradeType> | undefined,
-  allowedSlippage: Percent,
-) {
-  const { isEVM, networkInfo } = useActiveWeb3React()
-  const amountToApprove = useMemo(
-    () => (trade && trade.inputAmount.currency.isToken ? trade.maximumAmountIn(allowedSlippage) : undefined),
-    [trade, allowedSlippage],
-  )
-  const spender = isEVM ? (networkInfo as EVMNetworkInfo).elastic.routers : undefined
-  return useApproveCallback(amountToApprove, spender)
 }

@@ -10,7 +10,6 @@ import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { KNC, KNCL_ADDRESS, KNCL_ADDRESS_ROPSTEN } from 'constants/tokens'
 import { EVMWalletInfo, SUPPORTED_WALLET, SolanaWalletInfo, WalletInfo } from 'constants/wallets'
 import store from 'state'
-import { TokenAddressMap } from 'state/lists/hooks'
 
 import checkForBraveBrowser from './checkForBraveBrowser'
 
@@ -97,12 +96,7 @@ export function escapeRegExp(string: string): string {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // $& means the whole matched string
 }
 
-export function isTokenOnList(defaultTokens: TokenAddressMap, currency?: Currency): boolean {
-  if (currency?.isNative) return true
-  return Boolean(currency instanceof Token && defaultTokens[currency.chainId]?.[currency.address])
-}
-
-export const toK = (num: string) => {
+const toK = (num: string) => {
   return Numeral(num).format('0.[00]a')
 }
 
@@ -113,7 +107,7 @@ export const toKInChart = (num: string, unit?: string) => {
 }
 
 // using a currency library here in case we want to add more in future
-export const formatDollarFractionAmount = (num: number, digits: number) => {
+const formatDollarFractionAmount = (num: number, digits: number) => {
   const formatter = new Intl.NumberFormat(['en-US'], {
     style: 'currency',
     currency: 'USD',
@@ -123,7 +117,7 @@ export const formatDollarFractionAmount = (num: number, digits: number) => {
   return formatter.format(num)
 }
 
-export const formatDollarSignificantAmount = (num: number, minDigits: number, maxDigits?: number) => {
+const formatDollarSignificantAmount = (num: number, minDigits: number, maxDigits?: number) => {
   const formatter = new Intl.NumberFormat(['en-US'], {
     style: 'currency',
     currency: 'USD',
@@ -380,11 +374,6 @@ export const deleteUnique = <T>(array: T[] | undefined, element: T): T[] => {
 export const isEVMWallet = (wallet: WalletInfo): wallet is EVMWalletInfo =>
   !!(wallet as EVMWalletInfo).connector || !!(wallet as EVMWalletInfo).href
 export const isSolanaWallet = (wallet: WalletInfo): wallet is SolanaWalletInfo => !!(wallet as SolanaWalletInfo).adapter
-export enum Metamask_Type {
-  METAMASK,
-  COIN98,
-  BRAVE,
-}
 
 // https://docs.metamask.io/guide/ethereum-provider.html#basic-usage
 // https://docs.cloud.coinbase.com/wallet-sdk/docs/injected-provider#properties

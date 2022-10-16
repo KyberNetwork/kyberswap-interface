@@ -170,5 +170,3 @@ export const useZapOutAmount = (
 
   return result
 }
-
-export default useZap

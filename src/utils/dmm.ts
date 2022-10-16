@@ -278,7 +278,7 @@ export const getMyLiquidity = (liquidityPosition?: UserLiquidityPosition): strin
   return formattedNum(myLiquidity.toString(), true)
 }
 
-export function useFarmRewardsPerTimeUnit(farm?: Farm): RewardPerTimeUnit[] {
+function useFarmRewardsPerTimeUnit(farm?: Farm): RewardPerTimeUnit[] {
   if (!farm) {
     return []
   }

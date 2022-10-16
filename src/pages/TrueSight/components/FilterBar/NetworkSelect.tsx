@@ -108,7 +108,7 @@ const NetworkSelect = ({
             >
               <Image minHeight={16} minWidth={16} height={16} width={16} src={NETWORKS_INFO[network].icon} />
               <Text key={index} color={theme.subText} fontSize="12px">
-                <Trans>{NETWORKS_INFO[network].name}</Trans>
+                {NETWORKS_INFO[network].name}
               </Text>
             </Flex>
           ))}

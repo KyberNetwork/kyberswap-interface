@@ -21,37 +21,31 @@ const configurationData = {
   supported_resolutions: ['1', '3', '5', '15', '30', '1H', '2H', '4H', '1D', '1W', '1M'],
 }
 
-const getNetworkString = (chainId: ChainId | undefined) => {
-  switch (chainId) {
-    case ChainId.MAINNET:
-      return 'chain-ethereum'
-    case ChainId.BSCMAINNET:
-      return 'chain-bsc'
-    case ChainId.MATIC:
-      return 'chain-polygon'
-    case ChainId.CRONOS:
-      return 'chain-cronos'
-    case ChainId.AVAXMAINNET:
-      return 'chain-avalanche'
-    case ChainId.FANTOM:
-      return 'chain-fantom'
-    case ChainId.ARBITRUM:
-      return 'chain-arbitrum'
-    case ChainId.VELAS:
-      return 'chain-velas'
-    case ChainId.AURORA:
-      return 'chain-aurora'
-    case ChainId.OASIS:
-      return 'chain-oasis'
-    case ChainId.OPTIMISM:
-      return 'chain-optimism'
-    case ChainId.ETHW:
-      return 'chain-ethw'
-    case ChainId.SOLANA:
-      return 'chain-solana'
-    default:
-      return ''
-  }
+const NetworkString: { [chain in ChainId]: string } = {
+  [ChainId.MAINNET]: 'chain-ethereum',
+  [ChainId.BSCMAINNET]: 'chain-bsc',
+  [ChainId.MATIC]: 'chain-polygon',
+  [ChainId.CRONOS]: 'chain-cronos',
+  [ChainId.AVAXMAINNET]: 'chain-avalanche',
+  [ChainId.FANTOM]: 'chain-fantom',
+  [ChainId.ARBITRUM]: 'chain-arbitrum',
+  [ChainId.VELAS]: 'chain-velas',
+  [ChainId.AURORA]: 'chain-aurora',
+  [ChainId.OASIS]: 'chain-oasis',
+  [ChainId.OPTIMISM]: 'chain-optimism',
+  [ChainId.ETHW]: 'chain-ethw',
+  [ChainId.SOLANA]: 'chain-solana',
+
+  [ChainId.BTTC]: '',
+  [ChainId.ROPSTEN]: '',
+  [ChainId.RINKEBY]: '',
+  [ChainId.GÖRLI]: '',
+  [ChainId.KOVAN]: '',
+  [ChainId.BSCTESTNET]: '',
+  [ChainId.MUMBAI]: '',
+  [ChainId.AVAXTESTNET]: '',
+  [ChainId.CRONOSTESTNET]: '',
+  [ChainId.ARBITRUM_TESTNET]: '',
 }
 
 const DEXTOOLS_API = 'https://pancake-subgraph-proxy.kyberswap.com/dextools'
@@ -100,19 +94,19 @@ const fetcherDextools = (url: string) => {
     .catch(error => console.log(error))
 }
 
-export const searchTokenPair = (address: string, chainId: ChainId | undefined): Promise<{ id: string }[]> => {
+const searchTokenPair = (address: string, chainId: ChainId): Promise<{ id: string }[]> => {
   if (TOKEN_PAIRS_ADDRESS_MAPPING[address.toLowerCase()]) {
     return new Promise((resolve, reject) => {
       resolve([{ id: TOKEN_PAIRS_ADDRESS_MAPPING[address.toLowerCase()] }])
     })
   }
-  return fetcherDextools(`${getNetworkString(chainId)}/api/pair/search?s=${address}`)
+  return fetcherDextools(`${NetworkString[chainId]}/api/pair/search?s=${address}`)
 }
-export const getHistoryCandleStatus = (pairAddress: string, chainId: ChainId | undefined) => {
-  return fetcherDextools(`${getNetworkString(chainId)}/api/Uniswap/1/history-candle-status?pair=${pairAddress}`)
-}
-export const getCandlesApi = (
-  chainId: ChainId | undefined,
+const getHistoryCandleStatus = (pairAddress: string, chainId: ChainId) =>
+  fetcherDextools(`${NetworkString[chainId]}/api/Uniswap/1/history-candle-status?pair=${pairAddress}`)
+
+const getCandlesApi = (
+  chainId: ChainId,
   pairAddress: string,
   apiVersion: string,
   ts: number,
@@ -121,9 +115,9 @@ export const getCandlesApi = (
   sym = 'eth',
 ) => {
   return fetcherDextools(
-    `${getNetworkString(
-      chainId,
-    )}/api/Pancakeswap/history/candles?sym=${sym}&span=${span}&pair=${pairAddress}&ts=${ts}&v=${apiVersion}${
+    `${
+      NetworkString[chainId]
+    }/api/Pancakeswap/history/candles?sym=${sym}&span=${span}&pair=${pairAddress}&ts=${ts}&v=${apiVersion}${
       res && '&res=' + res
     }`,
   )

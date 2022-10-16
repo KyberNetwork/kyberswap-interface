@@ -113,7 +113,7 @@ interface PositionListItemProps {
   hasActiveFarm: boolean
 }
 
-export function getPriceOrderingFromPositionForUI(position?: Position): {
+function getPriceOrderingFromPositionForUI(position?: Position): {
   priceLower?: Price<Token, Token>
   priceUpper?: Price<Token, Token>
   quote?: Token

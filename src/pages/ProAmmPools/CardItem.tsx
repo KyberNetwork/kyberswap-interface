@@ -42,7 +42,7 @@ const getPrommAnalyticLink = (chainId: ChainId | undefined, poolAddress: string)
   return `${PROMM_ANALYTICS_URL[chainId]}/pool/${poolAddress.toLowerCase()}`
 }
 
-export const Wrapper = styled.div`
+const Wrapper = styled.div`
   position: relative;
   padding: 20px 16px;
   font-size: 12px;

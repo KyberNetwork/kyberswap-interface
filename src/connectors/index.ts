@@ -1,8 +1,6 @@
 import { Web3Provider } from '@ethersproject/providers'
 import { ChainId } from '@namgold/ks-sdk-core'
 import { InjectedConnector } from '@web3-react/injected-connector'
-import { LedgerConnector } from '@web3-react/ledger-connector'
-import { TrezorConnector } from '@web3-react/trezor-connector'
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { WalletLinkConnector } from '@web3-react/walletlink-connector'
 
@@ -57,18 +55,4 @@ export const walletlink = new WalletLinkConnector({
   url: NETWORK_URL,
   appName: 'KyberSwap',
   appLogoUrl: 'https://kyberswap.com/favicon.ico',
-})
-
-export const ledger = new LedgerConnector({
-  chainId: NETWORK_CHAIN_ID,
-  url: NETWORK_URL,
-  pollingInterval: 15000,
-})
-
-export const trezor = new TrezorConnector({
-  chainId: NETWORK_CHAIN_ID,
-  url: NETWORK_URL,
-  manifestEmail: 'andrew@kyber.network',
-  manifestAppUrl: 'https://kyberswap.com',
-  pollingInterval: 15000,
 })

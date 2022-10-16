@@ -12,7 +12,7 @@ import ListUpdatePopup from './ListUpdatePopup'
 import SimplePopup from './SimplePopup'
 import TransactionPopup from './TransactionPopup'
 
-export const StyledClose = styled(X)`
+const StyledClose = styled(X)`
   margin-left: 10px;
   :hover {
     cursor: pointer;

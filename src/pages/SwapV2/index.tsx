@@ -137,7 +137,7 @@ const highlight = (theme: DefaultTheme) => keyframes`
   }
 `
 
-export const AppBodyWrapped = styled(BodyWrapper)`
+const AppBodyWrapped = styled(BodyWrapper)`
   box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.04);
   z-index: ${Z_INDEXS.SWAP_FORM};
   padding: 16px 16px 24px;
