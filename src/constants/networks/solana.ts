@@ -48,7 +48,6 @@ const solanaInfo: { [key in SupportedSolanaNetwork]: SolanaNetworkInfo } = {
     },
     coingeckoNetworkId: 'solana',
     coingeckoNativeTokenId: 'solana',
-    deBankSlug: 'solana',
     tokenListUrl: `https://ks-setting.dev.kyberengineering.io/api/v1/tokens?chainIds=${
       ChainId.SOLANA
     }&isWhitelisted=${true}`, // change this back later

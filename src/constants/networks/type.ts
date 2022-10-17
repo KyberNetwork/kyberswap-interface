@@ -24,7 +24,6 @@ export interface NetworkInfo {
   readonly routerUri: string
   readonly coingeckoNetworkId: string //https://api.coingecko.com/api/v3/asset_platforms
   readonly coingeckoNativeTokenId: string //https://api.coingecko.com/api/v3/coins/list
-  readonly deBankSlug: string
   readonly tokenListUrl: string
   readonly trueSightId: string | null
   // token: {
@@ -69,6 +68,7 @@ export interface EVMNetworkInfo extends NetworkInfo {
     readonly routers: string
   }
   readonly averageBlockTimeInSeconds: number
+  readonly deBankSlug: string
 }
 
 export interface SolanaNetworkInfo extends NetworkInfo {
