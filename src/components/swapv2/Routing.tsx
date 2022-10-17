@@ -449,9 +449,9 @@ interface RoutingProps {
 
 const Routing = ({ trade, currencies, formattedAmounts, maxHeight }: RoutingProps) => {
   const { chainId } = useActiveWeb3React()
-  const shadowRef: any = useRef(null)
-  const wrapperRef: any = useRef(null)
-  const contentRef: any = useRef(null)
+  const shadowRef = useRef<HTMLDivElement>(null)
+  const wrapperRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
 
   const nativeInputCurrency = useCurrencyConvertedToNative(currencies[Field.INPUT] || undefined)
   const nativeOutputCurrency = useCurrencyConvertedToNative(currencies[Field.OUTPUT] || undefined)
@@ -485,13 +485,13 @@ const Routing = ({ trade, currencies, formattedAmounts, maxHeight }: RoutingProp
   const hasRoutes = trade && chainId && tradeComposition && tradeComposition.length > 0
 
   const handleScroll = useCallback(() => {
-    const element = wrapperRef?.current
-    if (element?.scrollTop > 0) {
+    const element = wrapperRef.current
+    if ((element?.scrollTop ?? 0) > 0) {
       shadowRef?.current?.classList.add('top')
     } else {
       shadowRef?.current?.classList.remove('top')
     }
-    if (contentRef.current?.scrollHeight - element?.scrollTop > element?.clientHeight) {
+    if ((contentRef.current?.scrollHeight ?? 0) - (element?.scrollTop ?? 0) > (element?.clientHeight ?? 0)) {
       shadowRef.current?.classList.add('bottom')
     } else {
       shadowRef.current?.classList.remove('bottom')
@@ -511,9 +511,9 @@ const Routing = ({ trade, currencies, formattedAmounts, maxHeight }: RoutingProp
   const { feeConfig, typedValue } = useSwapState()
 
   return (
-    <Shadow ref={shadowRef as any}>
-      <StyledContainer ref={wrapperRef as any} onScroll={handleScroll} style={{ maxHeight: maxHeight || '100%' }}>
-        <div ref={contentRef as any}>
+    <Shadow ref={shadowRef}>
+      <StyledContainer ref={wrapperRef} onScroll={handleScroll} style={{ maxHeight: maxHeight || '100%' }}>
+        <div ref={contentRef}>
           <StyledPair>
             <StyledWrapToken>
               {renderTokenInfo(!!feeConfig ? typedValue : trade?.inputAmount, Field.INPUT)}

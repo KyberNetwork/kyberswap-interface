@@ -1,5 +1,4 @@
 import { Trans, t } from '@lingui/macro'
-import { Trade } from '@namgold/ks-sdk-classic'
 import { Currency, TradeType } from '@namgold/ks-sdk-core'
 import React, { useMemo, useState } from 'react'
 import { Repeat } from 'react-feather'
@@ -45,11 +44,10 @@ export default function SwapModalFooter({
     () => computeSlippageAdjustedAmounts(trade, allowedSlippage),
     [allowedSlippage, trade],
   )
-  const { priceImpactWithoutFee, realizedLPFee, accruedFeePercent } = useMemo(() => {
-    return trade instanceof Trade
-      ? computeTradePriceBreakdown(trade)
-      : { priceImpactWithoutFee: trade.priceImpact, realizedLPFee: undefined, accruedFeePercent: undefined }
-  }, [trade])
+  const { priceImpactWithoutFee, realizedLPFee, accruedFeePercent } = useMemo(
+    () => computeTradePriceBreakdown(trade),
+    [trade],
+  )
   const severity = warningSeverity(priceImpactWithoutFee)
 
   const nativeInput = useCurrencyConvertedToNative(trade.inputAmount.currency as Currency)
@@ -112,23 +110,21 @@ export default function SwapModalFooter({
           </RowFixed>
           <FormattedPriceImpact priceImpact={priceImpactWithoutFee} />
         </RowBetween>
-        {trade instanceof Trade && (
-          <RowBetween>
-            <RowFixed>
-              <TYPE.black fontSize={14} fontWeight={400} color={theme.text2}>
-                <Trans>Liquidity Provider Fee</Trans>
-              </TYPE.black>
-              <QuestionHelper
-                text={t`A portion of each trade (${
-                  accruedFeePercent && accruedFeePercent.toSignificant(6)
-                }%) goes to liquidity providers as a protocol incentive`}
-              />
-            </RowFixed>
-            <TYPE.black fontSize={14}>
-              {realizedLPFee ? realizedLPFee?.toSignificant(6) + ' ' + nativeInput?.symbol : '-'}
+        <RowBetween>
+          <RowFixed>
+            <TYPE.black fontSize={14} fontWeight={400} color={theme.text2}>
+              <Trans>Liquidity Provider Fee</Trans>
             </TYPE.black>
-          </RowBetween>
-        )}
+            <QuestionHelper
+              text={t`A portion of each trade (${
+                accruedFeePercent && accruedFeePercent.toSignificant(6)
+              }%) goes to liquidity providers as a protocol incentive`}
+            />
+          </RowFixed>
+          <TYPE.black fontSize={14}>
+            {realizedLPFee ? realizedLPFee?.toSignificant(6) + ' ' + nativeInput?.symbol : '-'}
+          </TYPE.black>
+        </RowBetween>
       </AutoColumn>
 
       <AutoRow>
