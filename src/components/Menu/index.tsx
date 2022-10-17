@@ -144,8 +144,6 @@ const ClaimRewardButton = styled(ButtonPrimary)`
 export const NewLabel = styled.span`
   font-size: 10px;
   color: ${({ theme }) => theme.red};
-  height: calc(100% + 4px);
-  margin-left: 2px;
 `
 
 export default function Menu() {
@@ -172,7 +170,7 @@ export default function Menu() {
   const { mixpanelHandler } = useMixpanel()
   return (
     <StyledMenu ref={node as any}>
-      <StyledMenuButton active={open} onClick={toggle} aria-label='Menu'>
+      <StyledMenuButton active={open} onClick={toggle} aria-label="Menu">
         <StyledMenuIcon />
       </StyledMenuButton>
 
@@ -193,7 +191,7 @@ export default function Menu() {
             }}
           >
             <Faucet />
-            <Text width='max-content'>
+            <Text width="max-content">
               <Trans>Faucet</Trans>
             </Text>
           </MenuButton>
@@ -202,7 +200,7 @@ export default function Menu() {
         {bridgeLink && (
           <MenuItem href={bridgeLink}>
             <Share2 size={14} />
-            <Text width='max-content'>
+            <Text width="max-content">
               <Trans>Bridge Assets</Trans>
             </Text>
           </MenuItem>
@@ -212,7 +210,7 @@ export default function Menu() {
           <NavMenuItem to={'/discover?tab=trending_soon'} onClick={toggle}>
             <DiscoverIcon size={14} />
             <SlideToUnlock>
-              <Text width='max-content'>
+              <Text width="max-content">
                 <Trans>Discover</Trans>
               </Text>
             </SlideToUnlock>
@@ -223,7 +221,7 @@ export default function Menu() {
         )}
 
         {under369 && (
-          <NavMenuItem to='/campaigns' onClick={toggle}>
+          <NavMenuItem to="/campaigns" onClick={toggle}>
             <Award size={14} />
             <Trans>Campaigns</Trans>
           </NavMenuItem>
@@ -231,36 +229,36 @@ export default function Menu() {
 
         {under1440 && <AboutPageDropwdown />}
 
-        <NavMenuItem to='/referral' onClick={toggle}>
+        <NavMenuItem to="/referral" onClick={toggle}>
           <UserPlus size={14} />
           <Trans>Referral</Trans>
         </NavMenuItem>
         {!above1321 && (
-          <MenuItem id='link' href={DMM_ANALYTICS_URL[chainId as ChainId]}>
+          <MenuItem id="link" href={DMM_ANALYTICS_URL[chainId as ChainId]}>
             <PieChart size={14} />
             <Trans>Analytics</Trans>
           </MenuItem>
         )}
-        <MenuItem id='link' href='https://docs.kyberswap.com'>
+        <MenuItem id="link" href="https://docs.kyberswap.com">
           <BookOpen size={14} />
           <Trans>Docs</Trans>
         </MenuItem>
-        <MenuItem id='link' href='https://gov.kyber.org'>
+        <MenuItem id="link" href="https://gov.kyber.org">
           <MessageCircle size={14} />
           <Trans>Forum</Trans>
         </MenuItem>
 
-        <MenuItem id='link' href='/15022022KyberSwapTermsofUse.pdf'>
+        <MenuItem id="link" href="/15022022KyberSwapTermsofUse.pdf">
           <FileText size={14} />
           <Trans>Terms</Trans>
         </MenuItem>
         {process.env.REACT_APP_MAINNET_ENV !== 'production' && (
-          <NavMenuItem to='/swap-legacy' onClick={toggle}>
+          <NavMenuItem to="/swap-legacy" onClick={toggle}>
             <Triangle size={14} />
             <Trans>Swap Legacy</Trans>
           </NavMenuItem>
         )}
-        <MenuItem id='link' href='https://forms.gle/gLiNsi7iUzHws2BY8'>
+        <MenuItem id="link" href="https://forms.gle/gLiNsi7iUzHws2BY8">
           <Edit size={14} />
           <Trans>Contact Us</Trans>
         </MenuItem>
@@ -281,10 +279,10 @@ export default function Menu() {
         </ClaimRewardButton>
         {!!process.env.REACT_APP_TAG && (
           <Text
-            fontSize='10px'
+            fontSize="10px"
             fontWeight={300}
             color={theme.subText}
-            mt='16px'
+            mt="16px"
             textAlign={isMobile ? 'left' : 'center'}
           >
             kyberswap@{process.env.REACT_APP_TAG}
