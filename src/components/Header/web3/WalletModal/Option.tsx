@@ -83,13 +83,13 @@ const OptionCardClickable = styled.button<{
   ${({ isCorrectChain, installLink, overridden, theme }) =>
     isCorrectChain && (installLink || overridden)
       ? `
-      filter: grayscale(50%);
+      filter: grayscale(100%);
       & ${HeaderText} {
         color: ${theme.border};
       }
     `
       : ''}
-  ${({ isDisabled }) => (isDisabled ? `opacity: 0.5; filter: grayscale(100%);` : `opacity: 1;`)}
+  opacity: ${({ isDisabled }) => (isDisabled ? '0.5' : '1')};
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     width: 100%;
