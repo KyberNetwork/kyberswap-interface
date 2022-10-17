@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from 'react'
 
+import { PRICE_API } from 'constants/env'
 import { NETWORKS_INFO, chainIdMapping } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
@@ -28,9 +29,9 @@ export const useTokenPrices = (addresses: Array<string>) => {
   useEffect(() => {
     const fetchPrices = async () => {
       const chainString = chainId ? chainIdMapping[chainId] || NETWORKS_INFO[chainId].route : ''
-      const res = await fetch(
-        `${process.env.REACT_APP_PRICE_API}/${chainString}/api/v1/prices?ids=${unknownPriceList.join(',')}`,
-      ).then(res => res.json())
+      const res = await fetch(`${PRICE_API}/${chainString}/api/v1/prices?ids=${unknownPriceList.join(',')}`).then(res =>
+        res.json(),
+      )
 
       if (res?.data?.prices?.length) {
         const formattedPrices = unknownPriceList.map(address => {
