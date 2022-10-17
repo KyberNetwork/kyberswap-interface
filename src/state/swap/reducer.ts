@@ -20,7 +20,7 @@ import {
 } from './actions'
 
 export interface SwapState {
-  readonly independentField: Field
+  readonly independentField: Field // TODO: remove since unused anymore
   readonly typedValue: string
   readonly [Field.INPUT]: {
     readonly currencyId: string | undefined

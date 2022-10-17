@@ -7,7 +7,6 @@ import { BAD_RECIPIENT_ADDRESSES } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { useTradeExactInV2 } from 'hooks/Trades'
-import useDebug from 'hooks/useDebug'
 import useENS from 'hooks/useENS'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
@@ -100,12 +99,14 @@ export function useDerivedSwapInfoV2(): {
 
   const v2Trade = isExactIn ? bestTradeExactIn : undefined
 
+  const balanceInput = relevantTokenBalances[0]
+  const balanceOutput = relevantTokenBalances[1]
   const currencyBalances = useMemo(() => {
     return {
-      [Field.INPUT]: relevantTokenBalances[0],
-      [Field.OUTPUT]: relevantTokenBalances[1],
+      [Field.INPUT]: balanceInput,
+      [Field.OUTPUT]: balanceOutput,
     }
-  }, [relevantTokenBalances])
+  }, [balanceInput, balanceOutput])
 
   const currencies: { [field in Field]?: Currency } = useMemo(() => {
     return {
@@ -137,13 +138,13 @@ export function useDerivedSwapInfoV2(): {
     }
   }
 
-  const slippageAdjustedAmounts = v2Trade && allowedSlippage && computeSlippageAdjustedAmounts(v2Trade, allowedSlippage)
+  const slippageAdjustedAmounts = useMemo(
+    () => (v2Trade && allowedSlippage ? computeSlippageAdjustedAmounts(v2Trade, allowedSlippage) : null),
+    [allowedSlippage, v2Trade],
+  )
 
   // compare input balance to max input based on version
-  const [balanceIn, amountIn] = [
-    currencyBalances[Field.INPUT],
-    slippageAdjustedAmounts ? slippageAdjustedAmounts[Field.INPUT] : null,
-  ]
+  const [balanceIn, amountIn] = [currencyBalances[Field.INPUT], slippageAdjustedAmounts?.[Field.INPUT]]
 
   if (amountIn && ((balanceIn && balanceIn.lessThan(amountIn)) || !balanceIn)) {
     inputError = t`Insufficient ${amountIn.currency.symbol} balance`
@@ -153,29 +154,6 @@ export function useDerivedSwapInfoV2(): {
   const isPairNotfound = inputCurrency === undefined && outputCurrency === undefined
 
   //todo namgold: remove this debug
-  useDebug({
-    allowedSlippage,
-    bestTradeExactIn,
-    parsedAmount,
-    independentField,
-    typedValue,
-    recipient,
-    saveGas,
-    inputCurrency,
-    outputCurrency,
-    baseTradeComparer,
-    relevantTokenBalances,
-    currencies,
-    currencyBalances,
-    v2Trade: v2Trade ?? undefined,
-    tradeComparer,
-    currency,
-    inputError,
-    onUpdateCallback,
-    loading,
-    isPairNotfound,
-    slippageAdjustedAmounts,
-  })
 
   return useMemo(
     () => ({

@@ -8,7 +8,6 @@ import CLAIM_REWARD_ABI from 'constants/abis/claim-reward.json'
 import ROUTER_DYNAMIC_FEE_ABI from 'constants/abis/dmm-router-dynamic-fee.json'
 import ROUTER_STATIC_FEE_ABI from 'constants/abis/dmm-router-static-fee.json'
 import KS_ROUTER_STATIC_FEE_ABI from 'constants/abis/ks-router-static-fee.json'
-import ROUTER_PRO_AMM from 'constants/abis/v2/ProAmmRouter.json'
 import ZAP_STATIC_FEE_ABI from 'constants/abis/zap-static-fee.json'
 import ZAP_ABI from 'constants/abis/zap.json'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
@@ -67,11 +66,6 @@ export function getDynamicFeeRouterContract(chainId: ChainId, library: Web3Provi
     library,
     account,
   )
-}
-
-// account is optional
-export function getProAmmRouterContract(chainId: ChainId, library: Web3Provider, account?: string): Contract {
-  return getContract(isEVM(chainId) ? NETWORKS_INFO[chainId].elastic.routers : '', ROUTER_PRO_AMM.abi, library, account)
 }
 
 // account is optional

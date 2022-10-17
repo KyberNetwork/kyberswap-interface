@@ -2,7 +2,6 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { Contract } from '@ethersproject/contracts'
 import { Router, Trade } from '@namgold/ks-sdk-classic'
 import { Currency, Percent, TradeType } from '@namgold/ks-sdk-core'
-import { SwapRouter as ProAmmRouter, Trade as ProAmmTrade } from '@namgold/ks-sdk-elastic'
 import JSBI from 'jsbi'
 import { useMemo } from 'react'
 
@@ -12,12 +11,12 @@ import { useTradeExactIn } from 'hooks/Trades'
 import useENS from 'hooks/useENS'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useTransactionAdder } from 'state/transactions/hooks'
-import { basisPointsToPercent, calculateGasMargin, isAddress, shortenAddress } from 'utils'
+import { calculateGasMargin, isAddress, shortenAddress } from 'utils'
 import { formatCurrencyAmount } from 'utils/formatBalance'
-import { getDynamicFeeRouterContract, getProAmmRouterContract } from 'utils/getContract'
+import { getDynamicFeeRouterContract } from 'utils/getContract'
 import isZero from 'utils/isZero'
 
-export type AnyTrade = Trade<Currency, Currency, TradeType> | ProAmmTrade<Currency, Currency, TradeType>
+export type AnyTrade = Trade<Currency, Currency, TradeType>
 
 enum SwapCallbackState {
   INVALID,
@@ -60,71 +59,49 @@ function useSwapCallArguments(
   const { address: recipientAddress } = useENS(recipientAddressOrName)
   const recipient = recipientAddressOrName === null ? account : recipientAddress
   const deadline = useTransactionDeadline()
-  const tradeBestExacInAnyway = useTradeExactIn(
-    trade instanceof ProAmmTrade ? undefined : trade?.inputAmount,
-    trade instanceof ProAmmTrade ? undefined : trade?.outputAmount.currency || undefined,
-  )
+  const tradeBestExactInAnyway = useTradeExactIn(trade?.inputAmount, trade?.outputAmount.currency || undefined)
   return useMemo(() => {
     if (!trade || !recipient || !library || !account || !chainId || !deadline) return []
 
-    if (trade instanceof Trade) {
-      const routerContract: Contract | null = getDynamicFeeRouterContract(chainId, library, account)
-      if (!routerContract) {
-        return []
-      }
-      const swapMethods = [
+    const routerContract: Contract | null = getDynamicFeeRouterContract(chainId, library, account)
+    if (!routerContract) {
+      return []
+    }
+    const swapMethods = [
+      Router.swapCallParameters(trade, {
+        feeOnTransfer: false,
+        allowedSlippage: new Percent(JSBI.BigInt(allowedSlippage), BIPS_BASE),
+        recipient,
+        deadline: deadline.toNumber(),
+      }),
+    ]
+
+    if (trade.tradeType === TradeType.EXACT_INPUT) {
+      swapMethods.push(
         Router.swapCallParameters(trade, {
-          feeOnTransfer: false,
+          feeOnTransfer: true,
           allowedSlippage: new Percent(JSBI.BigInt(allowedSlippage), BIPS_BASE),
           recipient,
           deadline: deadline.toNumber(),
         }),
-      ]
-
-      if (trade.tradeType === TradeType.EXACT_INPUT) {
-        swapMethods.push(
-          Router.swapCallParameters(trade, {
-            feeOnTransfer: true,
-            allowedSlippage: new Percent(JSBI.BigInt(allowedSlippage), BIPS_BASE),
-            recipient,
-            deadline: deadline.toNumber(),
-          }),
-        )
-      } else if (!!tradeBestExacInAnyway) {
-        swapMethods.push(
-          Router.swapCallParameters(tradeBestExacInAnyway, {
-            feeOnTransfer: true,
-            allowedSlippage: new Percent(JSBI.BigInt(allowedSlippage), BIPS_BASE),
-            recipient,
-            deadline: deadline.toNumber(),
-          }),
-        )
-      }
-
-      return swapMethods.map(({ methodName, args, value }) => ({
-        address: routerContract.address,
-        calldata: routerContract.interface.encodeFunctionData(methodName, args),
-        value,
-      }))
-    } else {
-      const routerProAmmContract: Contract | null = getProAmmRouterContract(chainId, library, account)
-      if (!routerProAmmContract) return []
-      const options = {
-        recipient,
-        slippageTolerance: basisPointsToPercent(allowedSlippage),
-        deadline: deadline.toString(),
-      }
-
-      const { value, calldata } = ProAmmRouter.swapCallParameters([trade], options)
-      return [
-        {
-          address: routerProAmmContract.address,
-          calldata,
-          value,
-        },
-      ]
+      )
+    } else if (!!tradeBestExactInAnyway) {
+      swapMethods.push(
+        Router.swapCallParameters(tradeBestExactInAnyway, {
+          feeOnTransfer: true,
+          allowedSlippage: new Percent(JSBI.BigInt(allowedSlippage), BIPS_BASE),
+          recipient,
+          deadline: deadline.toNumber(),
+        }),
+      )
     }
-  }, [account, allowedSlippage, chainId, deadline, library, recipient, trade, tradeBestExacInAnyway])
+
+    return swapMethods.map(({ methodName, args, value }) => ({
+      address: routerContract.address,
+      calldata: routerContract.interface.encodeFunctionData(methodName, args),
+      value,
+    }))
+  }, [account, allowedSlippage, chainId, deadline, library, recipient, trade, tradeBestExactInAnyway])
 }
 
 // returns a function that will execute a swap, if the parameters are all valid

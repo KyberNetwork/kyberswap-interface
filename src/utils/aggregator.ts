@@ -147,10 +147,6 @@ export class Aggregator {
     signal: AbortSignal,
     minimumLoadingTime: number,
   ): Promise<Aggregator | null> {
-    const chainId: ChainId | undefined = currencyAmountIn.currency.chainId || currencyOut.chainId
-
-    invariant(chainId !== undefined, 'CHAIN_ID')
-
     const amountIn = currencyAmountIn
     const tokenOut = currencyOut.wrapped
 
@@ -159,8 +155,8 @@ export class Aggregator {
     if (tokenInAddress && tokenOutAddress) {
       const search = new URLSearchParams({
         // Trade config
-        tokenIn: tokenInAddress.toLowerCase(),
-        tokenOut: tokenOutAddress.toLowerCase(),
+        tokenIn: tokenInAddress,
+        tokenOut: tokenOutAddress,
         amountIn: currencyAmountIn.quotient?.toString(),
         saveGas: saveGas ? '1' : '0',
         gasInclude: saveGas ? '1' : '0',
@@ -274,8 +270,8 @@ export class Aggregator {
     if (tokenInAddress && tokenOutAddress && comparedDex) {
       const search = new URLSearchParams({
         // Trade config
-        tokenIn: tokenInAddress.toLowerCase(),
-        tokenOut: tokenOutAddress.toLowerCase(),
+        tokenIn: tokenInAddress,
+        tokenOut: tokenOutAddress,
         amountIn: currencyAmountIn.quotient?.toString(),
         saveGas: '0',
         gasInclude: '1',

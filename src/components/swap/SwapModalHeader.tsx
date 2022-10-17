@@ -1,5 +1,4 @@
 import { Trans, t } from '@lingui/macro'
-import { Trade } from '@namgold/ks-sdk-classic'
 import { Currency, TradeType } from '@namgold/ks-sdk-core'
 import React, { useMemo } from 'react'
 import { AlertTriangle, ArrowDown } from 'react-feather'
@@ -38,9 +37,7 @@ export default function SwapModalHeader({
     () => computeSlippageAdjustedAmounts(trade, allowedSlippage),
     [trade, allowedSlippage],
   )
-  const priceImpact = useMemo(() => {
-    return trade instanceof Trade ? computeTradePriceBreakdown(trade).priceImpactWithoutFee : trade.priceImpact
-  }, [trade])
+  const priceImpact = useMemo(() => computeTradePriceBreakdown(trade).priceImpactWithoutFee, [trade])
   const priceImpactSeverity = warningSeverity(priceImpact)
 
   const theme = useTheme()

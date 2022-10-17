@@ -2,7 +2,6 @@ import { ZERO } from '@namgold/ks-sdk-classic'
 import { ChainId, Percent, Rounding, Token } from '@namgold/ks-sdk-core'
 import JSBI from 'jsbi'
 
-import { isEVM } from 'constants/networks'
 import { isAddressString } from 'utils'
 
 import { Aggregator } from './aggregator'
@@ -113,7 +112,7 @@ export function getTradeComposition(
   chainId?: ChainId,
   allTokens?: { [address: string]: Token },
 ): SwapRouteV2[] | undefined {
-  if (!trade || !trade.swaps || !chainId || !isEVM(chainId)) {
+  if (!trade || !trade.swaps || !chainId) {
     //todo namgold: add solana logic
     return undefined
   }
