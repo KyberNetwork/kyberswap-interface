@@ -41,7 +41,7 @@ const solanaInfo: { [key in SupportedSolanaNetwork]: SolanaNetworkInfo } = {
       logo: Solana,
       name: 'SOL',
     },
-    routerUri: EMPTY,
+    routerUri: 'https://aggregator-api.stg.kyberengineering.io/solana/route',
     classic: {
       factory: 'CwzigBwGVn25LdyLsqzSX3iwhPwQXoxYcXxSM4sjWoBU',
       pool: 'EKdy97aMrjjxtq4CJh9vN24WuHVsuLz4qtDjyYqttviN',
