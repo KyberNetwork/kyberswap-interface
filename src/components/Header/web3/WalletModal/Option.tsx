@@ -236,13 +236,7 @@ const Option = ({
     )
   }
 
-  return isConnected ? (
-    <>{content}</>
-  ) : (
-    <MouseoverTooltip placement="top" text={<Trans>Connect to {wallet.name} wallet</Trans>}>
-      {content}
-    </MouseoverTooltip>
-  )
+  return <>{content}</>
 }
 
 export default React.memo(Option)
