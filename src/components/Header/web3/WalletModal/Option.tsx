@@ -238,7 +238,7 @@ const Option = ({
   return isConnected ? (
     <>{content}</>
   ) : (
-    <MouseoverTooltip placement="top" text={<Trans>Switch to {wallet.name} wallet</Trans>}>
+    <MouseoverTooltip placement="top" text={<Trans>Connect to {wallet.name} wallet</Trans>}>
       {content}
     </MouseoverTooltip>
   )
