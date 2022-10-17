@@ -144,6 +144,8 @@ const ClaimRewardButton = styled(ButtonPrimary)`
 export const NewLabel = styled.span`
   font-size: 10px;
   color: ${({ theme }) => theme.red};
+  height: calc(100% + 4px);
+  margin-left: 2px;
 `
 
 export default function Menu() {
