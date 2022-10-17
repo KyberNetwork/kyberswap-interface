@@ -199,6 +199,23 @@ const Option = ({
       </MouseoverTooltip>
     )
   }
+
+  if (readyState === WalletReadyState.NotDetected) {
+    return (
+      <MouseoverTooltip
+        placement="top"
+        text={
+          <Trans>
+            You will need to install {wallet.name} extension before you can connect with it on KyberSwap. Get it{' '}
+            <ExternalLink href={wallet.installLink || ''}>here↗</ExternalLink>
+          </Trans>
+        }
+      >
+        {content}
+      </MouseoverTooltip>
+    )
+  }
+
   if (overridden) {
     return (
       <MouseoverTooltip
@@ -213,22 +230,6 @@ const Option = ({
           )
         }
         placement="top"
-      >
-        {content}
-      </MouseoverTooltip>
-    )
-  }
-
-  if (readyState === WalletReadyState.NotDetected) {
-    return (
-      <MouseoverTooltip
-        placement="top"
-        text={
-          <Trans>
-            You will need to install {wallet.name} extension before you can connect with it on KyberSwap. Get it{' '}
-            <ExternalLink href={wallet.installLink || ''}>here↗</ExternalLink>
-          </Trans>
-        }
       >
         {content}
       </MouseoverTooltip>
