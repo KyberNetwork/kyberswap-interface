@@ -704,7 +704,7 @@ export default function Swap({ history }: RouteComponentProps) {
   }, [isStableCoinSwap, setRawSlippage])
 
   const shareUrl = useMemo(() => {
-    return `${window.location.origin}/swap?networkId=${chainId}${
+    return `${window.location.origin}/swap?networkId=${networkInfo.route}${
       currencyIn && currencyOut
         ? `&${stringify({
             inputCurrency: currencyId(currencyIn, chainId),
@@ -712,7 +712,7 @@ export default function Swap({ history }: RouteComponentProps) {
           })}`
         : ''
     }`
-  }, [currencyIn, currencyOut, chainId])
+  }, [networkInfo.route, currencyIn, currencyOut, chainId])
 
   const { isInWhiteList: isPairInWhiteList, canonicalUrl } = checkPairInWhiteList(
     chainId,
