@@ -85,6 +85,16 @@ export const SelectNetworkButton = styled(ButtonEmpty)<{ disabled?: boolean }>`
     }
   `}
 `
+
+const NewLabel = styled.div`
+  position: absolute;
+  top: 7px;
+  left: 93px;
+  font-size: 8px;
+  font-weight: 500;
+  color: #ff537b;
+`
+
 const SHOW_NETWORKS = process.env.NODE_ENV === 'production' ? MAINNET_NETWORKS : SUPPORTED_NETWORKS
 export default function NetworkModal(): JSX.Element | null {
   const { chainId } = useActiveWeb3React()
@@ -162,6 +172,9 @@ export default function NetworkModal(): JSX.Element | null {
               <ListItem>
                 <img src={Solana} alt="Switch Network" style={{ width: '24px', marginRight: '8px' }} />
                 <NetworkLabel>Solana</NetworkLabel>
+                <NewLabel>
+                  <Trans>Coming Soon</Trans>
+                </NewLabel>
               </ListItem>
             </SelectNetworkButton>
           </MouseoverTooltip>
