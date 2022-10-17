@@ -21,7 +21,6 @@ export const SelectedNetwork = SupportedSolanaNetworks.includes(SOLANA_NETWORK a
 const endpoint = clusterApiUrl(SelectedNetwork)
 const connection = new Connection(endpoint, { commitment: 'confirmed' })
 
-const EMPTY = ''
 const NOT_SUPPORT = null
 const solanaInfo: { [key in SupportedSolanaNetwork]: SolanaNetworkInfo } = {
   [WalletAdapterNetwork.Testnet]: {
@@ -34,7 +33,7 @@ const solanaInfo: { [key in SupportedSolanaNetwork]: SolanaNetworkInfo } = {
     iconDarkSelected: NOT_SUPPORT,
     etherscanUrl: 'https://solscan.io',
     etherscanName: 'Solana scan',
-    bridgeURL: EMPTY,
+    bridgeURL: 'https://www.portalbridge.com/#/transfer',
     nativeToken: {
       symbol: 'SOL',
       decimal: 9,
