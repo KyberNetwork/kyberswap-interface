@@ -12,7 +12,7 @@ import { updateAllDexes } from '.'
 export default function Updater(): null {
   const dispatch = useDispatch<AppDispatch>()
 
-  const { chainId } = useActiveWeb3React()
+  const { chainId, isEVM } = useActiveWeb3React()
   const { data: dexes } = useLiquiditySources(chainId)
 
   // filterout kyberswap dexes, will hardcode
@@ -20,8 +20,11 @@ export default function Updater(): null {
     const temp =
       dexes?.map(item => ({ ...item, id: item.dexId })).filter(item => !item.dexId.includes('kyberswap')) || []
     const isSupportKSElastic = !ELASTIC_NOT_SUPPORTED[chainId]
-    return [...temp, ...kyberswapDexes.filter(item => (isSupportKSElastic ? true : item.id !== 'kyberswapv2'))]
-  }, [dexes, chainId])
+    return [
+      ...temp,
+      ...(isEVM ? kyberswapDexes.filter(item => (isSupportKSElastic ? true : item.id !== 'kyberswapv2')) : []),
+    ]
+  }, [dexes, chainId, isEVM])
 
   useEffect(() => {
     if (chainId && normalizeDexes.length) {

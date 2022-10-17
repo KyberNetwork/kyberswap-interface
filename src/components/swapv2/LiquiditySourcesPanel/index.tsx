@@ -111,7 +111,7 @@ const LiquiditySourceHeader = styled.div`
 const LiquiditySourcesPanel: React.FC<Props> = ({ onBack }) => {
   const [searchText, setSearchText] = useState('')
   const debouncedSearchText = useDebounce(searchText.toLowerCase(), 200).trim()
-  const { chainId } = useActiveWeb3React()
+  const { chainId, isEVM } = useActiveWeb3React()
 
   const dexes = useAllDexes()
   const [excludeDexes, setExcludeDexes] = useExcludeDexes()
@@ -205,7 +205,7 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack }) => {
         </LiquiditySourceHeader>
 
         <SourceList>
-          {!!ksDexes.filter(item => item.name.toLowerCase().includes(debouncedSearchText)).length && (
+          {isEVM && !!ksDexes.filter(item => item.name.toLowerCase().includes(debouncedSearchText)).length && (
             <>
               <Source>
                 <Checkbox
