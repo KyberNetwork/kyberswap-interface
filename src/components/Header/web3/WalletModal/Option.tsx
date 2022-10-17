@@ -83,13 +83,13 @@ const OptionCardClickable = styled.button<{
   ${({ isCorrectChain, installLink, overridden, theme }) =>
     isCorrectChain && (installLink || overridden)
       ? `
-      filter: grayscale(100%);
+      filter: grayscale(50%);
       & ${HeaderText} {
         color: ${theme.border};
       }
     `
       : ''}
-  opacity: ${({ isDisabled }) => (isDisabled ? '0.5' : '1')};
+  ${({ isDisabled }) => (isDisabled ? `opacity: 0.5; filter: grayscale(100%);` : `opacity: 1;`)}
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     width: 100%;
@@ -149,9 +149,9 @@ const Option = ({
           : undefined
       }
       connected={isConnected}
-      isDisabled={!isAcceptedTerm || !isSupportCurrentChain || (walletKey === 'COIN98' && !window.ethereum?.isCoin98)}
+      isDisabled={!isAcceptedTerm || !isSupportCurrentChain}
       installLink={installLink}
-      overridden={overridden}
+      overridden={overridden || (walletKey === 'COIN98' && !window.ethereum?.isCoin98)}
       isCorrectChain={isSupportCurrentChain}
     >
       <IconWrapper>

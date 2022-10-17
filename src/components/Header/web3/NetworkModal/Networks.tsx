@@ -139,7 +139,7 @@ const Networks = ({
             disabled={!isAcceptedTerm}
           >
             <ListItem selected={isSelected}>
-              <img src={imgSrc} alt="Switch Network" style={{ height: '20px', marginRight: '4px' }} />
+              <img src={imgSrc} alt="Switch Network" style={{ height: '20px', width: '20px', marginRight: '4px' }} />
               <NetworkLabel>{NETWORKS_INFO[key].name}</NetworkLabel>
               {key === ChainId.SOLANA && (
                 <NewLabel>
