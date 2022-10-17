@@ -1,5 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { stringify } from 'qs'
 import { X } from 'react-feather'
 import { useHistory } from 'react-router-dom'
