@@ -150,7 +150,7 @@ const Option = ({
       }
       connected={isConnected}
       isDisabled={!isAcceptedTerm || !isSupportCurrentChain}
-      installLink={walletKey !== 'COINBASE' ? installLink : undefined}
+      installLink={walletKey === 'COINBASE' && isEVM ? undefined : installLink}
       overridden={overridden || (walletKey === 'COIN98' && !window.ethereum?.isCoin98)}
     >
       <IconWrapper>
@@ -199,7 +199,7 @@ const Option = ({
     )
   }
 
-  if (readyState === WalletReadyState.NotDetected && walletKey !== 'COINBASE') {
+  if (readyState === WalletReadyState.NotDetected && (walletKey !== 'COINBASE' || !isEVM)) {
     return (
       <MouseoverTooltip
         placement="top"
