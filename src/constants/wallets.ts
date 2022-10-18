@@ -76,6 +76,11 @@ const detectCoinBaseLink = (): WalletReadyState => {
   return WalletReadyState.Unsupported
 }
 
+const detectPhantomWallet = (): WalletReadyState => {
+  if (window.solana.isPhantom && window.solana.isBraveWallet) return WalletReadyState.NotDetected
+  return phantomAdapter.readyState
+}
+
 export interface WalletInfo {
   name: string
   icon: string
@@ -111,7 +116,8 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
     iconLight: BRAVE_L,
     installLink: 'https://brave.com/download',
     readyState: detectBrave,
-    readyStateSolana: () => braveAdapter.readyState,
+    // If Phantom extension installed block Brave wallet
+    readyStateSolana: () => (window.solana.isBraveWallet ? braveAdapter.readyState : WalletReadyState.NotDetected),
   } as EVMWalletInfo & SolanaWalletInfo,
   COIN98: {
     connector: coin98InjectedConnector,
@@ -170,7 +176,7 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
     icon: PHANTOM,
     iconLight: PHANTOM_L,
     installLink: phantomAdapter.url,
-    readyStateSolana: () => phantomAdapter.readyState,
+    readyStateSolana: detectPhantomWallet,
   } as SolanaWalletInfo,
   SOLLET: {
     adapter: solletAdapter,

@@ -121,7 +121,7 @@ const Option = ({
   onSelected?: (walletKey: SUPPORTED_WALLET) => any
 }) => {
   const isDarkMode = useIsDarkMode()
-  const { walletKey: walletKeyConnected, isEVM } = useActiveWeb3React()
+  const { walletKey: walletKeyConnected, isEVM, isSolana } = useActiveWeb3React()
   const isBraveBrowser = checkForBraveBrowser()
   const [isAcceptedTerm] = useIsAcceptedTerm()
 
@@ -201,13 +201,28 @@ const Option = ({
       )
     }
     // Brave wallet overrided by Metamask extension
-    if (isBraveBrowser && !window.ethereum?.isBraveWallet) {
+    if (isBraveBrowser && !window.ethereum?.isBraveWallet && isEVM) {
       return (
         <MouseoverTooltip
           placement="top"
           text={
             <Trans>
               Brave Wallet overridden by MetaMask Wallet. Disable MetaMask extension in order to use Brave Wallet.
+            </Trans>
+          }
+        >
+          {content}
+        </MouseoverTooltip>
+      )
+    }
+    // Brave wallet overrided by Metamask extension
+    if (isBraveBrowser && !window.solana?.isBraveWallet && isSolana) {
+      return (
+        <MouseoverTooltip
+          placement="top"
+          text={
+            <Trans>
+              Brave Wallet overridden by Phantom Wallet. Disable Phantom extension in order to use Brave Wallet.
             </Trans>
           }
         >

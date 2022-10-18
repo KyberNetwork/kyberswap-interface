@@ -276,7 +276,11 @@ export default function WalletModal({
             return 0
           } else {
             // Wallet installed will have higher priority
-            if (walletA.readyState === WalletReadyState.Installed) return -1
+            if (
+              walletA.readyState === WalletReadyState.Installed ||
+              (walletA.readyState === WalletReadyState.Loadable && walletB.readyState === WalletReadyState.NotDetected)
+            )
+              return -1
             return 1
           }
         }
