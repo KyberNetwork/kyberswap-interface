@@ -1,4 +1,8 @@
-import { BridgeTransfer } from 'hooks/bridge/useGetBridgeTransfers'
+import { t } from '@lingui/macro'
+
+import { BridgeTransfer, BridgeTransferStatus } from 'hooks/bridge/useGetBridgeTransfers'
+
+import { GeneralStatus } from './type'
 
 // this is copied from https://anyswap.net/explorer/tx?params=SOME_TX_HASH_HERE
 export const getTokenSymbol = (transfer: BridgeTransfer): string => {
@@ -35,4 +39,31 @@ export const getAmountReceive = (formatValue: string, formatSwapValue: string, s
   const lengthBeforeDot = indexOfDot
   const value = swapValue.slice(0, lengthBeforeDot) + '.' + swapValue.slice(lengthBeforeDot)
   return Number(value).toFixed(2)
+}
+
+export const getGeneralStatus = (status: BridgeTransferStatus): GeneralStatus => {
+  const mapping: Record<BridgeTransferStatus, GeneralStatus> = {
+    [BridgeTransferStatus.Success]: 'success',
+    [BridgeTransferStatus.Failure]: 'failed',
+    [BridgeTransferStatus.TxNotStable]: 'failed',
+    [BridgeTransferStatus.TxNotSwapped]: 'failed',
+    [BridgeTransferStatus.ExceedLimit]: 'failed',
+    [BridgeTransferStatus.Unknown]: 'failed',
+    [BridgeTransferStatus.Confirming]: 'processing',
+    [BridgeTransferStatus.Swapping]: 'processing',
+    [BridgeTransferStatus.BigAmount]: 'processing',
+  }
+
+  return mapping[status]
+}
+
+export const getLabelByStatus = (status: BridgeTransferStatus): string => {
+  const labelByGeneralStatus: Record<GeneralStatus, string> = {
+    success: t`Success`,
+    failed: t`Failed`,
+    processing: t`Processing`,
+  }
+
+  const generalStatus = getGeneralStatus(status)
+  return labelByGeneralStatus[generalStatus] || t`Unknown`
 }

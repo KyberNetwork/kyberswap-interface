@@ -44,3 +44,5 @@ export type BridgeSwapState = {
   swapErrorMessage: string | undefined
   txHash: string | undefined
 }
+
+export type GeneralStatus = 'success' | 'failed' | 'processing'

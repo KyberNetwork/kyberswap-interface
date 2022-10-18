@@ -1,4 +1,3 @@
-import { t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -6,29 +5,8 @@ import styled, { css } from 'styled-components'
 import { CheckCircle, TransferIcon, XCircle } from 'components/Icons'
 import { BridgeTransferStatus } from 'hooks/bridge/useGetBridgeTransfers'
 
-type GeneralStatus = 'success' | 'failed' | 'processing'
-
-const getGeneralStatus = (status: BridgeTransferStatus): GeneralStatus => {
-  const mapping: Record<BridgeTransferStatus, GeneralStatus> = {
-    [BridgeTransferStatus.Success]: 'success',
-    [BridgeTransferStatus.Failure]: 'failed',
-    [BridgeTransferStatus.TxNotStable]: 'failed',
-    [BridgeTransferStatus.TxNotSwapped]: 'failed',
-    [BridgeTransferStatus.ExceedLimit]: 'failed',
-    [BridgeTransferStatus.Unknown]: 'failed',
-    [BridgeTransferStatus.Confirming]: 'processing',
-    [BridgeTransferStatus.Swapping]: 'processing',
-    [BridgeTransferStatus.BigAmount]: 'processing',
-  }
-
-  return mapping[status]
-}
-
-const labelByGeneralStatus: Record<GeneralStatus, string> = {
-  success: t`Success`,
-  failed: t`Failed`,
-  processing: t`Processing`,
-}
+import { GeneralStatus } from '../type'
+import { getGeneralStatus, getLabelByStatus } from '../utils'
 
 const cssByGeneralStatus: Record<GeneralStatus, any> = {
   success: css`
@@ -77,7 +55,7 @@ type Props = {
 }
 const StatusBadge: React.FC<Props> = ({ status, iconOnly }) => {
   const generalStatus = getGeneralStatus(status)
-  const label = labelByGeneralStatus[generalStatus]
+  const label = getLabelByStatus(status)
 
   const renderIcon = () => {
     if (generalStatus === 'success') {

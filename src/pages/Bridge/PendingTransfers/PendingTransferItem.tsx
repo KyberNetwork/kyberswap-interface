@@ -6,11 +6,11 @@ import styled, { css } from 'styled-components'
 import CopyHelper from 'components/Copy'
 import QuestionHelper from 'components/QuestionHelper'
 import { NETWORKS_INFO_CONFIG } from 'constants/networks'
-import { BridgeTransfer, BridgeTransferStatus } from 'hooks/bridge/useGetBridgeTransfers'
+import { BridgeTransfer } from 'hooks/bridge/useGetBridgeTransfers'
 import useTheme from 'hooks/useTheme'
 import { useIsDarkMode } from 'state/user/hooks'
 
-import { getAmountReceive, getTokenSymbol } from '../utils'
+import { getAmountReceive, getLabelByStatus, getTokenSymbol } from '../utils'
 import DecorationLine from './DecorationLine'
 import ExternalLinkButton from './ExternalLinkButton'
 
@@ -151,8 +151,6 @@ const PendingTransferItem: React.FC<Props> = ({ className, transfer }) => {
     )
   }
 
-  console.log('status: ', BridgeTransferStatus[transfer.status])
-
   return (
     <div className={className}>
       <ChainLogoWrapper>{renderChainIcon(fromChainID as ChainId)}</ChainLogoWrapper>
@@ -173,7 +171,7 @@ const PendingTransferItem: React.FC<Props> = ({ className, transfer }) => {
 
           <TxDetailCell justifyContent="center">
             <Text as="span" color={theme.subText}>
-              {BridgeTransferStatus[transfer.status]}
+              {getLabelByStatus(transfer.status)}
             </Text>
           </TxDetailCell>
 
