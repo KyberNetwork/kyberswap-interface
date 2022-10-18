@@ -12,7 +12,7 @@ import { useSelector } from 'react-redux'
 import { injected, walletlink } from 'connectors'
 import { EVM_NETWORK, EVM_NETWORKS, NETWORKS_INFO } from 'constants/networks'
 import { NetworkInfo } from 'constants/networks/type'
-import { SUPPORTED_WALLET, SUPPORTED_WALLETS } from 'constants/wallets'
+import { SUPPORTED_WALLET, SUPPORTED_WALLETS, WALLETLINK_LOCALSTORAGE_NAME } from 'constants/wallets'
 import { AppState } from 'state'
 import { useIsUserManuallyDisconnect } from 'state/user/hooks'
 import { detectInjectedType, isEVMWallet, isSolanaWallet } from 'utils'
@@ -100,6 +100,10 @@ export function useWeb3React(key?: string): Web3ReactContextInterface<Web3Provid
 }
 
 async function isAuthorized(): Promise<boolean> {
+  // Check if previous connected to Coinbase Link
+  if (window.localStorage.getItem(WALLETLINK_LOCALSTORAGE_NAME)) {
+    return true
+  }
   if (!window.ethereum) {
     return false
   }
@@ -139,19 +143,21 @@ export function useEagerConnect() {
       try {
         isAuthorized()
           .then(isAuthorized => {
-            if (isAuthorized && !isManuallyDisconnect) {
+            // try to connect if previous connected to Coinbase Link
+            if (isAuthorized && window.localStorage.getItem(WALLETLINK_LOCALSTORAGE_NAME)) {
+              activate(walletlink).catch(() => {
+                setTried(true)
+              })
+            } else if (isAuthorized && !isManuallyDisconnect) {
               activate(injected, undefined, true).catch(() => {
                 setTried(true)
               })
-            } else {
-              if (isMobile && window.ethereum) {
-                activate(injected, undefined, true).catch(() => {
-                  setTried(true)
-                })
-              } else {
+            } else if (isMobile && window.ethereum) {
+              activate(injected, undefined, true).catch(() => {
                 setTried(true)
-              }
+              })
             }
+            setTried(true)
           })
           .catch(e => {
             console.log('Eagerly connect: authorize error', e)

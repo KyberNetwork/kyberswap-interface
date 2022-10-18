@@ -5,12 +5,13 @@ import { UnsupportedChainIdError } from '@web3-react/core'
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { useCallback } from 'react'
 
-import { SUPPORTED_WALLET, SUPPORTED_WALLETS } from 'constants/wallets'
+import { SUPPORTED_WALLET, SUPPORTED_WALLETS, WALLETLINK_LOCALSTORAGE_NAME } from 'constants/wallets'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { isEVMWallet, isSolanaWallet } from 'utils'
+import { walletlink } from 'connectors'
 
 export const useActivationWallet = () => {
-  const { activate, deactivate } = useWeb3React()
+  const { activate, deactivate, connector: activeConnector } = useWeb3React()
   const { select, wallet: solanaWallet } = useWallet()
   const { isSolana, isEVM } = useActiveWeb3React()
   const tryActivationEVM = useCallback(
@@ -21,6 +22,10 @@ export const useActivationWallet = () => {
       }
       if (connector) {
         try {
+          // disconnect Coinbase link before try to connect other wallet
+          if (activeConnector === walletlink) {
+            window.localStorage.removeItem(WALLETLINK_LOCALSTORAGE_NAME)
+          }
           await activate(connector, undefined, true)
         } catch (error) {
           if (error instanceof UnsupportedChainIdError) {
@@ -31,7 +36,7 @@ export const useActivationWallet = () => {
         }
       }
     },
-    [activate],
+    [activate, activeConnector],
   )
 
   const tryActivationSolana = useCallback(

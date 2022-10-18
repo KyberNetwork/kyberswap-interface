@@ -190,4 +190,5 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
 } as const
 
 export type SUPPORTED_WALLET = keyof typeof SUPPORTED_WALLETS
-console.info({ SUPPORTED_WALLETS })
+
+export const WALLETLINK_LOCALSTORAGE_NAME = '-walletlink:https://www.walletlink.org:Addresses'
