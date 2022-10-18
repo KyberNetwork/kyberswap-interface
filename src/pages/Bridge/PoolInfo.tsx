@@ -5,6 +5,7 @@ import { Flex, Text } from 'rebass'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
 
+import { formatPoolValue } from './helpers'
 import { MultiChainTokenInfo } from './type'
 
 const PoolInfo = ({
@@ -28,7 +29,9 @@ const PoolInfo = ({
       width="100%"
     >
       <Text>
-        <Trans>{chainId ? `${NETWORKS_INFO[chainId].name} Pool: ${poolValue} ${tokenIn?.symbol ?? ''}` : ''}</Trans>
+        <Trans>
+          {chainId ? `${NETWORKS_INFO[chainId].name} Pool: ${formatPoolValue(poolValue)} ${tokenIn?.symbol ?? ''}` : ''}
+        </Trans>
       </Text>
     </Flex>
   )

@@ -8,12 +8,28 @@ import { CollapseItem } from 'components/Collapse'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink } from 'theme'
 
-const AmountWarning = ({ title }: { title: string }) => {
+const style = {
+  gap: 8,
+  borderRadius: 16,
+  padding: '14px 20px',
+}
+const ErrorWarningPanel = ({ title, type }: { title: string; type: 'error' | 'warn' }) => {
   const theme = useTheme()
+  if (type === 'error')
+    return (
+      <Flex color={theme.red} alignItems="center" style={{ background: rgba(theme.red, 0.25), ...style }}>
+        <div>
+          <AlertTriangle size={15} />
+        </div>
+        <Text fontWeight={500} fontSize={13}>
+          {title}
+        </Text>
+      </Flex>
+    )
   return (
     <CollapseItem
       arrowComponent={<DropdownSVG />}
-      style={{ background: rgba(theme.warning, 0.25), borderRadius: 16, padding: '14px 20px' }}
+      style={{ background: rgba(theme.warning, 0.25), ...style }}
       header={
         <Flex color={theme.warning} alignItems="center" style={{ gap: 8 }}>
           <div>
@@ -41,4 +57,4 @@ const AmountWarning = ({ title }: { title: string }) => {
     </CollapseItem>
   )
 }
-export default AmountWarning
+export default ErrorWarningPanel

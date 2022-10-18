@@ -36,11 +36,12 @@ import { tryParseAmount } from 'state/swap/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { ExternalLink } from 'theme'
-import { formatNumberWithPrecisionRange, formattedNum } from 'utils'
+import { formattedNum } from 'utils'
 
-import AmountWarning from './AmountWarning'
 import ComfirmBridgeModal from './ComfirmBridgeModal'
+import ErrorWarningPanel from './ErrorWarning'
 import PoolInfo from './PoolInfo'
+import { formatPoolValue } from './helpers'
 import { BridgeSwapState } from './type'
 import useBridgeCallback from './useBridgeCallback'
 
@@ -64,14 +65,10 @@ const Label = styled.div`
   font-size: 12px;
   margin-bottom: 0.75rem;
 `
-const formatPoolValue = (amount: string, decimals: number) => {
+const calcPoolValue = (amount: string, decimals: number) => {
   try {
     if (Number(amount))
-      return formatNumberWithPrecisionRange(
-        parseFloat(new Fraction(amount, JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals ?? 18))).toFixed(5)),
-        0,
-        2,
-      )
+      return new Fraction(amount, JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals ?? 18))).toFixed(5)
   } catch (error) {}
   return '0'
 }
@@ -84,7 +81,8 @@ type PoolValueType = {
 export default function SwapForm() {
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useActiveNetwork()
-  const [{ tokenIn, tokenOut, chainIdOut, currencyIn, listTokenOut, listChainIn }] = useBridgeState()
+  const [{ tokenIn, tokenOut, chainIdOut, currencyIn, listTokenOut, listTokenIn, listChainIn, loadingToken }] =
+    useBridgeState()
   const { resetBridgeState, setBridgeState, setBridgePoolInfo } = useBridgeStateHandler()
   const toggleWalletModal = useWalletModalToggle()
   const isDark = useIsDarkMode()
@@ -137,7 +135,7 @@ export default function SwapForm() {
     const address = anyToken?.address
     let poolValueIn: string | undefined
     if (address && poolDataIn?.[address]?.balanceOf) {
-      poolValueIn = formatPoolValue(poolDataIn[address]?.balanceOf, anyToken?.decimals)
+      poolValueIn = calcPoolValue(poolDataIn[address]?.balanceOf, anyToken?.decimals)
     }
     setPoolValue(poolValue => ({ ...poolValue, poolValueIn }))
   }, [poolDataIn, anyToken])
@@ -151,11 +149,10 @@ export default function SwapForm() {
         const token = listTokenOut.find(e => e.multichainInfo?.anytoken?.address === anytokenAddress)
         if (!poolInfo?.balanceOf || !token?.multichainInfo?.anytoken?.decimals) return
         if (anytokenAddress === tokenOut?.anytoken?.address) {
-          poolValueOut = formatPoolValue(poolInfo?.balanceOf, tokenOut?.anytoken?.decimals)
+          poolValueOut = calcPoolValue(poolInfo?.balanceOf, tokenOut?.anytoken?.decimals)
         }
         poolValueOutMap[anytokenAddress] = formatPoolValue(
-          poolInfo?.balanceOf,
-          token?.multichainInfo?.anytoken?.decimals,
+          calcPoolValue(poolInfo?.balanceOf, token?.multichainInfo?.anytoken?.decimals),
         )
       })
     }
@@ -193,46 +190,54 @@ export default function SwapForm() {
     tokenOut?.type === 'swapin' ? tokenOut?.DepositAddress : account,
   )
 
-  const inputError = useMemo(() => {
+  const inputError: string | undefined | { state: 'warn' | 'error'; tip: string } = useMemo(() => {
+    if (!listTokenOut.length && !listTokenIn.length && !loadingToken) {
+      return { state: 'error', tip: t`Cannot get token info` }
+    }
+
     const inputNumber = Number(inputAmount)
+
     if (!tokenIn || !chainIdOut || !tokenOut || inputNumber === 0) return
 
-    if (isNaN(inputNumber)) return { state: 'error', tip: t`Input amount is not valid` }
+    if (isNaN(inputNumber)) return t`Input amount is not valid`
 
     if (inputNumber < Number(tokenOut.MinimumSwap)) {
-      return {
-        state: 'error',
-        tip: t`The amount to bridge must be more than ${formattedNum(tokenOut.MinimumSwap, false, 5)} ${
-          tokenIn.symbol
-        }`,
-      }
+      return t`The amount to bridge must be more than ${formattedNum(tokenOut.MinimumSwap, false, 5)} ${tokenIn.symbol}`
     }
     if (inputNumber > Number(tokenOut.MaximumSwap)) {
-      return {
-        state: 'error',
-        tip: t`The amount to bridge must be less than ${formattedNum(tokenOut.MaximumSwap)} ${tokenIn.symbol}`,
-      }
+      return t`The amount to bridge must be less than ${formattedNum(tokenOut.MaximumSwap)} ${tokenIn.symbol}`
     }
+
     if (tokenOut.isLiquidity && tokenOut.underlying && inputNumber > Number(poolValue.poolValueOut)) {
-      return {
-        state: 'error',
-        tip: t`The bridge amount must be less than the current available amount of the pool.`,
-      }
+      return t`The bridge amount must be less than the current available amount of the pool which is ${formatPoolValue(
+        poolValue.poolValueOut,
+      )} ${tokenOut.symbol}.`
     }
+
     const ratio = 0.7
     if (inputNumber > ratio * Number(tokenOut.MaximumSwap)) {
       return {
         state: 'warn',
         tip: t`Note: Your transfer amount (${formattedNum(inputAmount, false, 5)} ${tokenIn.symbol}) is more than ${
           100 * ratio
-        }% of the available liquidity (${poolValue.poolValueOut} ${tokenOut.symbol})!`,
+        }% of the available liquidity (${formatPoolValue(poolValue.poolValueOut)} ${tokenOut.symbol})!`,
       }
     }
-    const isWrapInputError = wrapInputError && inputNumber > 0
-    if (isWrapInputError) return { state: 'error', tip: t`Insufficient ${tokenIn?.symbol} balance` }
 
+    const isWrapInputError = wrapInputError && inputNumber > 0
+    if (isWrapInputError) return t`Insufficient ${tokenIn?.symbol} balance`
     return
-  }, [tokenIn, chainIdOut, wrapInputError, inputAmount, tokenOut, poolValue.poolValueOut])
+  }, [
+    tokenIn,
+    chainIdOut,
+    wrapInputError,
+    inputAmount,
+    tokenOut,
+    poolValue.poolValueOut,
+    loadingToken,
+    listTokenOut,
+    listTokenIn,
+  ])
 
   const handleTypeInput = useCallback(
     (value: string) => {
@@ -352,12 +357,16 @@ export default function SwapForm() {
               <Label>
                 <Trans>You Transfer</Trans>
               </Label>
-              <Tooltip text={inputError?.tip} show={inputError?.state === 'error'} placement="top">
+              <Tooltip
+                text={typeof inputError === 'string' ? inputError : ''}
+                show={typeof inputError === 'string'}
+                placement="top"
+              >
                 <CurrencyInputPanelBridge
                   chainIds={listChainIn}
                   selectedChainId={chainId}
                   onSelectNetwork={changeNetwork}
-                  error={inputError?.state === 'error'}
+                  error={typeof inputError === 'string'}
                   value={inputAmount}
                   onUserInput={handleTypeInput}
                   onMax={handleMaxInput}
@@ -391,7 +400,9 @@ export default function SwapForm() {
 
             <PoolInfo chainId={chainIdOut} tokenIn={tokenIn} poolValue={poolValue.poolValueOut} />
 
-            {inputError?.state === 'warn' && <AmountWarning title={inputError?.tip} />}
+            {typeof inputError !== 'string' && inputError?.state && (
+              <ErrorWarningPanel title={inputError?.tip} type={inputError?.state} />
+            )}
             {!account ? (
               <ButtonLight onClick={toggleWalletModal}>
                 <Trans>Connect Wallet</Trans>

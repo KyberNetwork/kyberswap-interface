@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import axios from 'axios'
 
 import { NETWORKS_INFO_CONFIG } from 'constants/networks'
-import { isAddress } from 'utils'
+import { formatNumberWithPrecisionRange, isAddress } from 'utils'
 
 import { MultiChainTokenInfo } from './type'
 
@@ -109,4 +109,11 @@ export async function getChainlist(isStaleData: boolean) {
     console.log(e)
     return []
   }
+}
+
+export const formatPoolValue = (amount: string | undefined) => {
+  try {
+    if (Number(amount) && amount) return formatNumberWithPrecisionRange(parseFloat(amount), 0, 2)
+  } catch (error) {}
+  return '0'
 }

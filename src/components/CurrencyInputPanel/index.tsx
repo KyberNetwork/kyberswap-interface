@@ -455,7 +455,7 @@ export function CurrencyInputPanelBridge({
                     active={Boolean(currency?.symbol)}
                     style={{ paddingRight: 0 }}
                   >
-                    {currency?.symbol || (loadingToken ? <Trans>Loading token</Trans> : <Trans>Select a token</Trans>)}
+                    {currency?.symbol || (loadingToken ? <Trans>Loading tokens</Trans> : <Trans>Select a token</Trans>)}
                   </StyledTokenName>
                 </RowFixed>
                 {disabledSelect ? <div /> : <DropdownSVG />}
