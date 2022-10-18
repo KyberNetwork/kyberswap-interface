@@ -29,17 +29,17 @@ const commonCSS = css`
   padding: 0 16px;
 
   display: grid;
-  grid-template-columns: 120px 130px 80px 150px 32px;
+  grid-template-columns: 110px 100px 80px 150px 48px;
   justify-content: space-between;
   align-items: center;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
     column-gap: 4px;
-    grid-template-columns: 120px minmax(80px, 120px) 64px minmax(auto, 130px) 28px;
+    grid-template-columns: 110px 100px 64px minmax(auto, 130px) 48px;
   `}
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     column-gap: 16px;
-    grid-template-columns: 90px 64px 1fr 28px;
+    grid-template-columns: 90px 64px minmax(auto, 130px) 28px;
   `}
 `
 
@@ -190,9 +190,15 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
       return (
         <>
           <TableHeader>
-            <TableColumnText>DATE | STATUS</TableColumnText>
-            <TableColumnText>ROUTE</TableColumnText>
-            <TableColumnText>AMOUNT</TableColumnText>
+            <TableColumnText>
+              <Trans>DATE | STATUS</Trans>
+            </TableColumnText>
+            <TableColumnText>
+              <Trans>ROUTE</Trans>
+            </TableColumnText>
+            <TableColumnText>
+              <Trans>AMOUNT</Trans>
+            </TableColumnText>
             <TableColumnText />
           </TableHeader>
           {transfers.map((transfer, i) => (
@@ -214,11 +220,21 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
     return (
       <>
         <TableHeader>
-          <TableColumnText>CREATED</TableColumnText>
-          <TableColumnText>STATUS</TableColumnText>
-          <TableColumnText>ROUTE</TableColumnText>
-          <TableColumnText>RECEIVED AMOUNT</TableColumnText>
-          <TableColumnText />
+          <TableColumnText>
+            <Trans>CREATED</Trans>
+          </TableColumnText>
+          <TableColumnText>
+            <Trans>STATUS</Trans>
+          </TableColumnText>
+          <TableColumnText>
+            <Trans>ROUTE</Trans>
+          </TableColumnText>
+          <TableColumnText>
+            <Trans>RECEIVED AMOUNT</Trans>
+          </TableColumnText>
+          <TableColumnText>
+            <Trans>ACTION</Trans>
+          </TableColumnText>
         </TableHeader>
         {transfers.map((transfer, i) => (
           <TableRow key={i}>
