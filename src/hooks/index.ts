@@ -38,11 +38,13 @@ export function useActiveWeb3React(): {
   networkInfo: NetworkInfo
 } {
   const chainIdState = useSelector<AppState, ChainId>(state => state.user.chainId) || ChainId.MAINNET
+  const { account, connector, active, chainId: chainIdEVM } = useWeb3React()
   const isEVM = useMemo(() => getChainType(chainIdState) === ChainType.EVM, [chainIdState])
   const isSolana = useMemo(() => getChainType(chainIdState) === ChainType.SOLANA, [chainIdState])
-  const networkInfo = useMemo(() => NETWORKS_INFO[chainIdState], [chainIdState])
 
-  const { account, connector, active } = useWeb3React()
+  const chainId = isEVM ? chainIdEVM || ChainId.MAINNET : ChainId.SOLANA
+  const networkInfo = useMemo(() => NETWORKS_INFO[chainId], [chainId])
+
   const { wallet: walletSolana, connected, publicKey } = useWallet()
 
   const address = useMemo(() => (isEVM ? account ?? undefined : publicKey?.toBase58()), [account, isEVM, publicKey])
@@ -61,7 +63,7 @@ export function useActiveWeb3React(): {
   }, [active, isEVM, isSolana, connected, connector, walletSolana?.adapter])
 
   return {
-    chainId: chainIdState,
+    chainId,
     account: address,
     walletKey,
     isEVM,
