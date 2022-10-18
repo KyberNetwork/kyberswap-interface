@@ -62,6 +62,7 @@ function Web3Network({
         <DropdownIcon open={isOpen} />
       </NetworkSwitchContainer>
       <NetworkModal
+        disabledMsg={t`The token cannot be bridged to this chain`}
         activeChainIds={chainIds}
         isOpen={isOpen}
         selectedId={selectedChainId}

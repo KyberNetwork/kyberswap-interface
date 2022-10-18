@@ -425,6 +425,8 @@ export default function SwapForm() {
                       ) : (
                         <Flex alignContent={'center'}>
                           <MouseoverTooltip
+                            pointerEvent
+                            placement="bottom"
                             width="300px"
                             text={t`You would need to first allow Multichain smart contract to use your ${tokenIn?.symbol}. This has to be done only once for each token.`}
                           >

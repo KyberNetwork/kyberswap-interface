@@ -39,13 +39,24 @@ export default function Tooltip({ text, width, size, ...rest }: TooltipProps) {
   )
 }
 
-export function MouseoverTooltip({ children, ...rest }: Omit<TooltipProps, 'show'>) {
+export function MouseoverTooltip({
+  children,
+  pointerEvent,
+  ...rest
+}: Omit<TooltipProps, 'show'> & { pointerEvent?: boolean }) {
+  // pointerEvent: when use MouseoverTooltip together with disabled button - onMouseEnter onMouseLeave not work correctly, use pointer event will fixed that issue
   const [show, setShow] = useState(false)
   const open = useCallback(() => !!rest.text && setShow(true), [setShow, rest.text])
   const close = useCallback(() => setShow(false), [setShow])
   return (
     <Tooltip {...rest} show={show}>
-      <Flex onMouseEnter={open} onMouseLeave={close} alignItems="center">
+      <Flex
+        onMouseEnter={pointerEvent ? undefined : open}
+        onMouseLeave={pointerEvent ? undefined : close}
+        onPointerEnter={!pointerEvent ? undefined : open}
+        onPointerLeave={!pointerEvent ? undefined : close}
+        alignItems="center"
+      >
         {children}
       </Flex>
     </Tooltip>

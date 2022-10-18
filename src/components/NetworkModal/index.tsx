@@ -1,17 +1,16 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { stringify } from 'qs'
 import { X } from 'react-feather'
 import { useHistory } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 import Solana from 'assets/networks/solana-network.svg'
 import { ButtonEmpty } from 'components/Button'
 import Modal from 'components/Modal'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { Z_INDEXS } from 'constants/styles'
-import { useActiveWeb3React } from 'hooks'
 import { useActiveNetwork } from 'hooks/useActiveNetwork'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { ApplicationModal } from 'state/application/actions'
@@ -69,22 +68,22 @@ export const SelectNetworkButton = styled(ButtonEmpty)<{ disabled?: boolean }>`
   align-items: center;
   ${({ disabled, theme }) =>
     !disabled &&
-    `
-    &:focus {
-      text-decoration: none;
-    }
-    &:hover {
-      text-decoration: none;
-      border: 1px solid ${theme.primary};
-    }
-    &:active {
-      text-decoration: none;
-    }
-    &:disabled {
-      opacity: 50%;
-      cursor: not-allowed;
-    }
-  `}
+    css`
+      &:focus {
+        text-decoration: none;
+      }
+      &:hover {
+        text-decoration: none;
+        border: 1px solid ${theme.primary};
+      }
+      &:active {
+        text-decoration: none;
+      }
+      &:disabled {
+        opacity: 50%;
+        cursor: not-allowed;
+      }
+    `}
 `
 
 const NewLabel = styled.div`
@@ -103,14 +102,15 @@ export default function NetworkModal({
   customOnSelectNetwork,
   isOpen,
   customToggleModal,
+  disabledMsg,
 }: {
   activeChainIds?: ChainId[]
   selectedId?: ChainId | undefined
   isOpen?: boolean
   customOnSelectNetwork?: (chainId: ChainId) => void
   customToggleModal?: () => void
+  disabledMsg?: string
 }): JSX.Element | null {
-  const { chainId } = useActiveWeb3React()
   const networkModalOpen = useModalOpen(ApplicationModal.NETWORK)
   const toggleNetworkModalGlobal = useNetworkModalToggle()
   const { changeNetwork } = useActiveNetwork()
@@ -136,8 +136,6 @@ export default function NetworkModal({
       })
     }
   }
-  const isItemActive = (key: ChainId) => (!selectedId && chainId === key) || (selectedId && selectedId === key)
-  const sortedNetwork = SHOW_NETWORKS
 
   return (
     <Modal
@@ -157,28 +155,25 @@ export default function NetworkModal({
           </Flex>
         </Flex>
         <NetworkList>
-          {sortedNetwork.map((key: ChainId, i: number) => {
+          {SHOW_NETWORKS.map((key: ChainId, i: number) => {
             const { iconDark, icon, name } = NETWORKS_INFO[key as ChainId]
             const iconSrc = isDarkMode && iconDark ? iconDark : icon
-            if (isItemActive(key)) {
-              return (
-                <SelectNetworkButton key={i} padding="0">
-                  <ListItem selected>
-                    <img src={iconSrc} alt="Switch Network" style={{ width: '24px', marginRight: '8px' }} />
-                    <NetworkLabel>{NETWORKS_INFO[key].name}</NetworkLabel>
-                  </ListItem>
-                </SelectNetworkButton>
-              )
-            }
+            const selected = selectedId === key
             const disabled = activeChainIds ? !activeChainIds?.includes(key) : false
             return (
               <MouseoverTooltip
+                pointerEvent
                 style={{ zIndex: Z_INDEXS.MODAL + 1 }}
                 key={key}
-                text={disabled ? t`The token cannot be bridged to this chain` : ''}
+                text={disabled ? disabledMsg : ''}
               >
-                <SelectNetworkButton key={key} disabled={disabled} padding="0" onClick={() => onSelect(key)}>
-                  <ListItem>
+                <SelectNetworkButton
+                  key={key}
+                  disabled={disabled}
+                  padding="0"
+                  onClick={() => !selected && onSelect(key)}
+                >
+                  <ListItem selected={selected}>
                     <img src={iconSrc} alt="Switch Network" style={{ width: '24px', marginRight: '8px' }} />
                     <NetworkLabel>{name}</NetworkLabel>
                   </ListItem>
