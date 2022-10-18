@@ -11,7 +11,7 @@ export const getAmountReceive = (formatValue: string, formatSwapValue: string, s
     return ''
   }
 
-  if (formatSwapValue) {
+  if (formatSwapValue && formatSwapValue !== '0') {
     return Number(formatSwapValue).toFixed(2)
   }
 
