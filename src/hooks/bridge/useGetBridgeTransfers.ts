@@ -1,5 +1,7 @@
 import useSWR, { SWRConfiguration } from 'swr'
 
+import useParsedQueryString from 'hooks/useParsedQueryString'
+
 /**
  * NOTE
  * This endpoint returns a maximum of 100 transfers for each request,
@@ -70,9 +72,11 @@ type Params = {
 const useGetBridgeTransfers = (params: Params, config?: SWRConfiguration) => {
   const { addr, offset, limit, status } = params
   const statusStr = status ? status.join(',') : ''
+  const { account } = useParsedQueryString()
 
+  // todo remove / for QC testing
   return useSWR<Response>(
-    `https://bridgeapi.anyswap.exchange/v2/all/history/${addr}/all/all/all?offset=${offset}&limit=${limit}${
+    `https://bridgeapi.anyswap.exchange/v2/all/history/${account || addr}/all/all/all?offset=${offset}&limit=${limit}${
       statusStr ? `&status=${statusStr}` : ''
     }`,
     async (url: string) => {
