@@ -183,20 +183,38 @@ const Option = ({
     )
   }
 
-  if (walletKey === 'BRAVE' && !isBraveBrowser) {
-    return (
-      <MouseoverTooltip
-        placement="top"
-        text={
-          <Trans>
-            Brave wallet can only be used in Brave Browser. Download it{' '}
-            <ExternalLink href={wallet.installLink || ''}>here↗</ExternalLink>
-          </Trans>
-        }
-      >
-        {content}
-      </MouseoverTooltip>
-    )
+  if (walletKey === 'BRAVE') {
+    // Brave wallet only can use in Brave browser
+    if (!isBraveBrowser) {
+      return (
+        <MouseoverTooltip
+          placement="top"
+          text={
+            <Trans>
+              Brave wallet can only be used in Brave Browser. Download it{' '}
+              <ExternalLink href={wallet.installLink || ''}>here↗</ExternalLink>
+            </Trans>
+          }
+        >
+          {content}
+        </MouseoverTooltip>
+      )
+    }
+    // Brave wallet overrided by Metamask extension
+    if (isBraveBrowser && !window.ethereum?.isBraveWallet) {
+      return (
+        <MouseoverTooltip
+          placement="top"
+          text={
+            <Trans>
+              Brave Wallet overridden by MetaMask Wallet. Disable MetaMask extension in order to use Brave Wallet.
+            </Trans>
+          }
+        >
+          {content}
+        </MouseoverTooltip>
+      )
+    }
   }
 
   if (readyState === WalletReadyState.NotDetected && (walletKey !== 'COINBASE' || !isEVM)) {
