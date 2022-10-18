@@ -173,7 +173,7 @@ const PendingTransferItem: React.FC<Props> = ({ className, transfer }) => {
 
           <TxDetailCell justifyContent="center">
             <Text as="span" color={theme.subText}>
-              {BridgeTransferStatus[transfer.status]}
+              {BridgeTransferStatus[transfer.status] || t`Swapping`}
             </Text>
           </TxDetailCell>
 

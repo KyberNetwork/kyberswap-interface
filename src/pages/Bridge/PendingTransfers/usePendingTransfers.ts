@@ -25,8 +25,11 @@ const usePendingTransfers = (addr: string) => {
     }
 
     const newTransfers = data.info
-      // needs filter here because MultiChain can return any status
-      .filter(transfer => statusToGet.includes(transfer.status))
+
+    // needs filter here because MultiChain can return any status
+    newTransfers.forEach(transfer => {
+      transfer.status = BridgeTransferStatus.Confirming
+    })
 
     setAllTransfers(newTransfers)
   }, [data])
