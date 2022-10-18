@@ -14,10 +14,10 @@ const PoolInfo = ({
 }: {
   chainId: ChainId | undefined
   tokenIn: MultiChainTokenInfo | undefined
-  poolValue: string | number
+  poolValue: string | undefined
 }) => {
   const theme = useTheme()
-  if (!poolValue) return null
+  if (poolValue === undefined) return null
   return (
     <Flex
       alignItems="center"

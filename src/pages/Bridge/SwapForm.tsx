@@ -73,12 +73,12 @@ const formatPoolValue = (amount: string, decimals: number) => {
         2,
       )
   } catch (error) {}
-  return 0
+  return '0'
 }
 
 type PoolValueType = {
-  poolValueIn: string | number
-  poolValueOut: string | number
+  poolValueIn: string | undefined
+  poolValueOut: string | undefined
 }
 
 export default function SwapForm() {
@@ -94,8 +94,8 @@ export default function SwapForm() {
   const [inputAmount, setInputAmount] = useState('0')
   const [approvalSubmitted, setApprovalSubmitted] = useState<boolean>(false)
   const [poolValue, setPoolValue] = useState<PoolValueType>({
-    poolValueIn: 0,
-    poolValueOut: 0,
+    poolValueIn: undefined,
+    poolValueOut: undefined,
   })
 
   // modal and loading
@@ -135,7 +135,7 @@ export default function SwapForm() {
 
   useEffect(() => {
     const address = anyToken?.address
-    let poolValueIn: string | number = 0
+    let poolValueIn: string | undefined
     if (address && poolDataIn?.[address]?.balanceOf) {
       poolValueIn = formatPoolValue(poolDataIn[address]?.balanceOf, anyToken?.decimals)
     }
@@ -144,7 +144,7 @@ export default function SwapForm() {
 
   useEffect(() => {
     const poolValueOutMap: PoolValueOutMap = {}
-    let poolValueOut: string | number = 0
+    let poolValueOut: string | undefined
     if (poolDataOut) {
       Object.keys(poolDataOut).forEach(anytokenAddress => {
         const poolInfo = poolDataOut?.[anytokenAddress]
