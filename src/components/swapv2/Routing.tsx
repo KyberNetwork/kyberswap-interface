@@ -459,7 +459,11 @@ const Routing = ({ trade, currencies, formattedAmounts, maxHeight }: RoutingProp
   const allTokens = useAllTokens()
 
   const tradeComposition = useMemo((): SwapRouteV2[] | undefined => {
-    return getTradeComposition(trade, chainId, allTokens)
+    try {
+      return getTradeComposition(trade, chainId, allTokens)
+    } catch (e) {
+      return undefined
+    }
   }, [trade, chainId, allTokens])
 
   const renderTokenInfo = (currencyAmount: CurrencyAmount<Currency> | string | undefined, field: Field) => {
