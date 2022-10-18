@@ -6,7 +6,7 @@ import { isAddressString } from 'utils'
 
 import { Aggregator } from './aggregator'
 
-interface SwapPool {
+export interface SwapPool {
   id: string
   exchange: string
   swapAmount?: JSBI
