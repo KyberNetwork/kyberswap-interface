@@ -40,9 +40,8 @@ const HeaderText = styled.div`
 const OptionCardClickable = styled.button<{
   connected: boolean
   installLink?: string
-  isDisabled: boolean
-  isCorrectChain: boolean
-  overridden: boolean
+  isDisabled?: boolean
+  overridden?: boolean
 }>`
   width: 100%;
   border: 1px solid transparent;
@@ -64,8 +63,8 @@ const OptionCardClickable = styled.button<{
   cursor: ${({ isDisabled, installLink, overridden }) =>
     !isDisabled && !installLink && !overridden ? 'pointer' : 'not-allowed'};
 
-  ${({ isCorrectChain, connected, theme }) =>
-    isCorrectChain && connected
+  ${({ isDisabled, connected, theme }) =>
+    !isDisabled && connected
       ? `
       background-color: ${theme.primary};
       & ${HeaderText} {
@@ -80,8 +79,8 @@ const OptionCardClickable = styled.button<{
       installLink || isDisabled || overridden ? '' : `border: 1px solid ${theme.primary};`}
   }
 
-  ${({ isCorrectChain, installLink, overridden, theme }) =>
-    isCorrectChain && (installLink || overridden)
+  ${({ isDisabled, installLink, overridden, theme }) =>
+    !isDisabled && (installLink || overridden)
       ? `
       filter: grayscale(50%);
       & ${HeaderText} {
@@ -140,6 +139,7 @@ const Option = ({
         onSelected &&
         !isConnected &&
         (readyState === WalletReadyState.Installed ||
+          (walletKey === 'COINBASE' && readyState === WalletReadyState.NotDetected) ||
           (readyState === WalletReadyState.Loadable && isSolanaWallet(wallet))) &&
         isAcceptedTerm &&
         isSupportCurrentChain &&
@@ -150,9 +150,8 @@ const Option = ({
       }
       connected={isConnected}
       isDisabled={!isAcceptedTerm || !isSupportCurrentChain}
-      installLink={installLink}
+      installLink={walletKey !== 'COINBASE' ? installLink : undefined}
       overridden={overridden || (walletKey === 'COIN98' && !window.ethereum?.isCoin98)}
-      isCorrectChain={isSupportCurrentChain}
     >
       <IconWrapper>
         <img src={icon} alt={'Icon'} />
@@ -200,13 +199,13 @@ const Option = ({
     )
   }
 
-  if (readyState === WalletReadyState.NotDetected) {
+  if (readyState === WalletReadyState.NotDetected && walletKey !== 'COINBASE') {
     return (
       <MouseoverTooltip
         placement="top"
         text={
           <Trans>
-            You will need to install {wallet.name} extension before you can connect with it on KyberSwap. Get it{' '}
+            You will need to install {wallet.name} extension/dapp before you can connect with it on KyberSwap. Get it{' '}
             <ExternalLink href={wallet.installLink || ''}>here↗</ExternalLink>
           </Trans>
         }
