@@ -91,7 +91,7 @@ const LOCALSTORAGE_CHECKED_PAIRS = 'proChartCheckedPairs'
 const fetcherDextools = (url: string) => {
   return fetch(`${DEXTOOLS_API}/${url}`)
     .then(res => res.json())
-    .catch(error => console.log(error))
+    .catch(error => console.warn(`fetch ${`${DEXTOOLS_API}/${url}`} failed:\n`, error))
 }
 
 const searchTokenPair = (address: string, chainId: ChainId): Promise<{ id: string }[]> => {
@@ -196,7 +196,7 @@ export const checkPairHasDextoolsData = async (
     const token = (isNativeToken(chainId, currencyA) ? currencyB : currencyA) as Token
     if (token?.address) {
       const data1: { id: string }[] = await searchTokenPair(token.address, chainId)
-      if (data1.length > 0 && data1[0].id) {
+      if (data1 && data1.length > 0 && data1[0].id) {
         const ver = (await getHistoryCandleStatus(data1[0].id, chainId)) || 0
 
         const ts = Math.floor(new Date().getTime() / monthTs) * monthTs
