@@ -1,6 +1,4 @@
 import { Trans } from '@lingui/macro'
-import dayjs from 'dayjs'
-import utc from 'dayjs/plugin/utc'
 import { rgba } from 'polished'
 import { useEffect, useRef, useState } from 'react'
 import { ChevronLeft, ChevronRight, Info } from 'react-feather'
@@ -22,24 +20,22 @@ import TimeStatusCell from './TimeStatusCell'
 import TokenReceiveCell from './TokenReceiveCell'
 import useTransferHistory from './useTransferHistory'
 
-dayjs.extend(utc)
-
 const commonCSS = css`
   width: 100%;
   padding: 0 16px;
 
   display: grid;
-  grid-template-columns: 110px 100px 80px 150px 48px;
+  grid-template-columns: 112px 100px 80px 150px 48px;
   justify-content: space-between;
   align-items: center;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
     column-gap: 4px;
-    grid-template-columns: 110px 100px 64px minmax(auto, 130px) 48px;
+    grid-template-columns: 112px 100px 64px minmax(auto, 130px) 48px;
   `}
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     column-gap: 16px;
-    grid-template-columns: 90px 64px minmax(auto, 130px) 28px;
+    grid-template-columns: 96px 64px minmax(auto, 130px) 28px;
   `}
 `
 
@@ -203,10 +199,7 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
           </TableHeader>
           {transfers.map((transfer, i) => (
             <TableRow key={i}>
-              <TimeStatusCell
-                status={transfer.status}
-                dateString={transfer.inittime ? dayjs.utc(transfer.inittime).local().format('YYYY/MM/DD') : ''}
-              />
+              <TimeStatusCell status={transfer.status} timestamp={transfer.inittime} />
               <RouteCell fromChainID={Number(transfer.fromChainID)} toChainID={Number(transfer.toChainID)} />
               <TokenReceiveCell transfer={transfer} />
               <ActionCell url={getTxsUrl(transfer.txid)} />
@@ -238,9 +231,7 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
         </TableHeader>
         {transfers.map((transfer, i) => (
           <TableRow key={i}>
-            <TimeCell
-              timeString={transfer.inittime ? dayjs.utc(transfer.inittime).local().format('YYYY/MM/DD HH:mm') : ''}
-            />
+            <TimeCell timestamp={transfer.inittime} />
             <StatusBadge status={transfer.status} />
             <RouteCell fromChainID={Number(transfer.fromChainID)} toChainID={Number(transfer.toChainID)} />
             <TokenReceiveCell transfer={transfer} />

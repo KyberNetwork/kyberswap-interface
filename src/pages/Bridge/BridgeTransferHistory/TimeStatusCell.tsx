@@ -1,4 +1,6 @@
 import { t } from '@lingui/macro'
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
 import { Flex, Text } from 'rebass'
 
 import { BridgeTransferStatus } from 'hooks/bridge/useGetBridgeTransfers'
@@ -6,11 +8,14 @@ import useTheme from 'hooks/useTheme'
 
 import StatusBadge from './StatusBadge'
 
+dayjs.extend(utc)
+
 type Props = {
-  dateString: string // should be in YYYY/MM/DD format
+  timestamp?: number | ''
   status: BridgeTransferStatus
 }
-const TimeStatusCell: React.FC<Props> = ({ dateString, status }) => {
+const TimeStatusCell: React.FC<Props> = ({ timestamp, status }) => {
+  const dateString = timestamp ? dayjs.utc(timestamp).local().format('DD MMM YYYY') : ''
   const theme = useTheme()
   return (
     <Flex
@@ -23,20 +28,14 @@ const TimeStatusCell: React.FC<Props> = ({ dateString, status }) => {
         justifyContent: 'space-between',
       }}
     >
-      {dateString ? (
-        <Text
-          as="span"
-          sx={{
-            display: 'inline-block',
-            marginRight: '6px',
-          }}
-        >
-          {dateString.slice(0, 10)}
-        </Text>
-      ) : (
-        <Text as="span">{t`Unknown`}</Text>
-      )}
-
+      <Text
+        as="span"
+        sx={{
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {dateString || t`Unknown`}
+      </Text>
       <StatusBadge status={status} iconOnly />
     </Flex>
   )
