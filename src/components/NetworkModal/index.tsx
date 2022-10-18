@@ -6,6 +6,7 @@ import { useHistory } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
+import Solana from 'assets/networks/solana-network.svg'
 import { ButtonEmpty } from 'components/Button'
 import Modal from 'components/Modal'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -66,22 +67,35 @@ export const SelectNetworkButton = styled(ButtonEmpty)<{ disabled?: boolean }>`
   display: flex;
   justify-content: center;
   align-items: center;
-  filter: ${({ disabled }) => disabled && 'grayscale(1)'};
-  &:focus {
-    text-decoration: none;
-  }
-  &:hover {
-    text-decoration: none;
-    border: 1px solid ${({ theme }) => theme.primary};
-  }
-  &:active {
-    text-decoration: none;
-  }
-  &:disabled {
-    opacity: 50%;
-    cursor: not-allowed;
-  }
+  ${({ disabled, theme }) =>
+    !disabled &&
+    `
+    &:focus {
+      text-decoration: none;
+    }
+    &:hover {
+      text-decoration: none;
+      border: 1px solid ${theme.primary};
+    }
+    &:active {
+      text-decoration: none;
+    }
+    &:disabled {
+      opacity: 50%;
+      cursor: not-allowed;
+    }
+  `}
 `
+
+const NewLabel = styled.div`
+  position: absolute;
+  top: 7px;
+  left: 93px;
+  font-size: 8px;
+  font-weight: 500;
+  color: #ff537b;
+`
+
 const SHOW_NETWORKS = process.env.NODE_ENV === 'production' ? MAINNET_NETWORKS : SUPPORTED_NETWORKS
 export default function NetworkModal({
   activeChainIds,
@@ -172,6 +186,15 @@ export default function NetworkModal({
               </MouseoverTooltip>
             )
           })}
+          <SelectNetworkButton padding="0" disabled>
+            <ListItem>
+              <img src={Solana} alt="Switch Network" style={{ width: '24px', marginRight: '8px' }} />
+              <NetworkLabel>Solana</NetworkLabel>
+              <NewLabel>
+                <Trans>Coming Soon</Trans>
+              </NewLabel>
+            </ListItem>
+          </SelectNetworkButton>
         </NetworkList>
       </Wrapper>
     </Modal>
