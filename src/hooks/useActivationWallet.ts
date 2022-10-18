@@ -17,7 +17,7 @@ export const useActivationWallet = () => {
   const tryActivationEVM = useCallback(
     async (connector: AbstractConnector | undefined) => {
       // if the connector is walletconnect and the user has already tried to connect, manually reset the connector
-      if (connector instanceof WalletConnectConnector && connector.walletConnectProvider?.wc?.uri) {
+      if (connector instanceof WalletConnectConnector) {
         connector.walletConnectProvider = undefined
       }
       if (connector) {
