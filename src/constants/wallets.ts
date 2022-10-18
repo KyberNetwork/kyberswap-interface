@@ -67,7 +67,7 @@ const detectCoinbase = (): WalletReadyState => {
   if (window.ethereum?.isCoinbaseWallet || window.ethereum?.providers?.some(p => p.isCoinbaseWallet))
     return WalletReadyState.Installed
   if (window.coinbaseWalletExtension) return WalletReadyState.Loadable
-  return WalletReadyState.Unsupported
+  return WalletReadyState.NotDetected
 }
 
 const detectCoinBaseLink = (): WalletReadyState => {
