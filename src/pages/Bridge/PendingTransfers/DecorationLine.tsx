@@ -45,7 +45,7 @@ export default styled(DecorationLine)`
   transform: translateY(-50%);
 
   width: 100%;
-  height: 2px;
+  height: 1px;
 
   display: flex;
   align-items: center;

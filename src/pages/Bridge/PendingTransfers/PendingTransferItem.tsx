@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { Box, Text } from 'rebass'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 
 import CopyHelper from 'components/Copy'
 import QuestionHelper from 'components/QuestionHelper'
@@ -10,11 +10,11 @@ import { BridgeTransfer } from 'hooks/bridge/useGetBridgeTransfers'
 import useTheme from 'hooks/useTheme'
 import { useIsDarkMode } from 'state/user/hooks'
 
-import { getAmountReceive, getLabelByStatus, getTokenSymbol } from '../utils'
+import { getAmountReceive, getTokenSymbol } from '../utils'
 import DecorationLine from './DecorationLine'
 import ExternalLinkButton from './ExternalLinkButton'
 
-const ChainLogoWrapper = styled.div<{ isActive?: boolean }>`
+const ChainLogoWrapper = styled.div`
   width: 64px;
   height: 64px;
 
@@ -23,13 +23,7 @@ const ChainLogoWrapper = styled.div<{ isActive?: boolean }>`
   align-items: center;
 
   border-radius: 16px;
-  border: 2px solid ${({ theme }) => theme.border};
-
-  ${({ theme, isActive }) =>
-    isActive &&
-    css`
-      border: 2px solid ${theme.primary};
-    `}
+  border: 1px solid ${({ theme }) => theme.border};
 `
 
 const TxDetail = styled.div`
@@ -45,14 +39,12 @@ const TxDetail = styled.div`
 
 const TxDetailRow = styled.div`
   width: 100%;
-  padding: 0 8px;
-
   display: flex;
   align-items: center;
+  justify-content: space-between;
 `
 
 const TxDetailCell = styled.div<{ justifyContent: 'flex-start' | 'center' | 'flex-end' }>`
-  flex: 1 1 100%;
   display: flex;
   align-items: center;
   justify-content: ${({ justifyContent }) => justifyContent || 'flex-start'};
@@ -158,31 +150,13 @@ const PendingTransferItem: React.FC<Props> = ({ className, transfer }) => {
       <TxDetail>
         <TxDetailRow>
           <TxDetailCell justifyContent="flex-start">
-            <Text
-              as="span"
-              color={theme.border}
-              sx={{
-                marginLeft: '4px',
-              }}
-            >
+            <Text as="span" color={theme.border}>
               - {amountSend} {tokenSymbol}
             </Text>
           </TxDetailCell>
 
-          <TxDetailCell justifyContent="center">
-            <Text as="span" color={theme.subText}>
-              {getLabelByStatus(transfer.status)}
-            </Text>
-          </TxDetailCell>
-
           <TxDetailCell justifyContent="flex-end">
-            <Text
-              as="span"
-              color={theme.primary}
-              sx={{
-                marginLeft: '4px',
-              }}
-            >
+            <Text as="span" color={theme.primary}>
               + {amountReceive} {tokenSymbol}
             </Text>
           </TxDetailCell>
@@ -205,4 +179,5 @@ export default styled(PendingTransferItem)`
   width: 100%;
   display: flex;
   align-items: center;
+  gap: 8px;
 `
