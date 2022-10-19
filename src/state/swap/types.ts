@@ -1,4 +1,4 @@
-import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, Price } from '@kyberswap/ks-sdk-core'
 
 export interface AggregationComparer {
   inputAmount: CurrencyAmount<Currency>
@@ -12,4 +12,12 @@ export interface AggregationComparer {
     percent?: number
     usd?: string
   }
+}
+
+// todo rename
+export interface BaseAggregation {
+  price: Price<Currency, Currency>
+  amountInUsd: number
+  amountOutUsd: number
+  routerAddress: string
 }

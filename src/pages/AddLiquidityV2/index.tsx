@@ -8,8 +8,8 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
 import { RouteComponentProps } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
+import { ArrowWrapper } from 'components/ArrowRotate'
 import { ButtonError, ButtonLight, ButtonPrimary, ButtonWarning } from 'components/Button'
 import { OutlineCard, WarningCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
@@ -28,7 +28,7 @@ import PresetsButtons from 'components/RangeSelector/PresetsButtons'
 import Row, { RowBetween, RowFixed } from 'components/Row'
 import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
 import { TutorialType } from 'components/Tutorial'
-import { ArrowWrapper as ArrowWrapperVertical, Dots } from 'components/swapv2/styleds'
+import { Dots } from 'components/swapv2/styleds'
 import { NETWORKS_INFO } from 'constants/networks'
 import { nativeOnChain } from 'constants/tokens'
 import { VERSION } from 'constants/v2'
@@ -73,11 +73,6 @@ import {
 
 // const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
-export const ArrowWrapper = styled(ArrowWrapperVertical)<{ rotated?: boolean }>`
-  transform: rotate(${({ rotated }) => (rotated ? '270deg' : '90deg')});
-  width: 40px;
-  height: 40px;
-`
 export default function AddLiquidity({
   match: {
     params: { currencyIdA, currencyIdB, feeAmount: feeAmountFromUrl },
@@ -787,6 +782,7 @@ export default function AddLiquidity({
                 />
 
                 <ArrowWrapper
+                  isVertical
                   rotated={rotate}
                   onClick={() => {
                     if (!!rightPrice) {

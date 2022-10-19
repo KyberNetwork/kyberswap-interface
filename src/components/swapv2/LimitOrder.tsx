@@ -1,13 +1,14 @@
-import { Currency } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useEffect, useState } from 'react'
-import { Info } from 'react-feather'
+import axios from 'axios'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { Info, Repeat } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
+import ArrowRotate from 'components/ArrowRotate'
 import { ButtonConfirmed, ButtonError, ButtonLight } from 'components/Button'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
-import { Swap as SwapIcon } from 'components/Icons'
 import Loader from 'components/Loader'
 import NumericalInput from 'components/NumericalInput'
 import ProgressSteps from 'components/ProgressSteps'
@@ -19,8 +20,14 @@ import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import useTheme from 'hooks/useTheme'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
+import { BaseAggregation } from 'state/swap/types'
+import { useDerivedSwapInfoV2 } from 'state/swap/useAggregator'
+import { useCurrencyBalances } from 'state/wallet/hooks'
+import { formattedNum } from 'utils'
+import { Aggregator } from 'utils/aggregator'
+import { maxAmountSpend } from 'utils/maxAmountSpend'
 
-import { ArrowWrapper } from './styleds'
+import TradePrice from './TradePrice'
 
 const EXPIRED_OPTIONS = [
   { label: '5 Minutes', value: 5 * 60 },
@@ -47,7 +54,41 @@ const Set2Market = styled(Label)`
   cursor: pointer;
   margin-bottom: 0;
 `
-export default function LimitOrderForm() {
+function useBaseTradeInfo(currencyIn: Currency | undefined, currencyOut: Currency | undefined) {
+  const { account, chainId } = useActiveWeb3React()
+  const [loading, setLoading] = useState(false)
+  const [data, setData] = useState<BaseAggregation>()
+
+  useEffect(() => {
+    // todo check call api
+    if (!currencyIn || !currencyOut || !chainId || !account) return
+    Aggregator.baseTradeExactIn(currencyIn, currencyOut, chainId, account)
+      .then(resp => {
+        setData(resp)
+      })
+      .finally(() => {
+        setLoading(false)
+      })
+  }, [currencyIn, currencyOut, chainId, account])
+
+  return { loading, tradeInfo: data }
+}
+
+const submitOrder = () => {
+  axios.post(`${process.env.REACT_APP_LIMIT_ORDER_API}/v1/orders`, {
+    // chainId: string, // required
+    // salt: string, // required+numeric+uint256 (client gen random)
+    // makerAsset: string, // required
+    // takerAsset: string, // required
+    // maker: string, // required
+    // receiver: string, // required
+    // makingAmount: string, // required+numeric+uint256
+    // takingAmount: string, // required+numeric+uint256
+    // signature: string, // required+hex string
+    // expiredAt: number, // required
+  })
+}
+export default memo(function LimitOrderForm() {
   const { account, chainId } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const theme = useTheme()
@@ -58,29 +99,54 @@ export default function LimitOrderForm() {
   const [outputAmount, setOuputAmount] = useState('')
   const [priceRate, setPriceRate] = useState('')
 
-  const handleMaxInput = () => {
-    //
+  const balances = useCurrencyBalances(
+    account ?? undefined,
+    useMemo(() => [currencyIn ?? undefined, currencyOut ?? undefined], [currencyIn, currencyOut]),
+  )
+
+  const maxAmountInput = maxAmountSpend(balances[0])
+  const handleMaxInput = useCallback(() => {
+    maxAmountInput && setInputAmount(maxAmountInput?.toExact())
+  }, [maxAmountInput])
+
+  const handleHalfInput = useCallback(() => {
+    setInputAmount(maxAmountInput?.divide(2).toExact() || '')
+  }, [maxAmountInput])
+
+  const { loading: loadingTrade, tradeInfo } = useBaseTradeInfo(currencyIn, currencyOut)
+
+  const setPriceRateMarket = async () => {
+    if (!loadingTrade && currencyIn) {
+      const isInvert = !tradeInfo?.price.baseCurrency.equals(currencyIn)
+      setPriceRate((isInvert ? tradeInfo?.price?.invert().toSignificant(6) : tradeInfo?.price?.toSignificant(6)) ?? '')
+    }
   }
-  const handleHalfInput = () => {
-    //
+  console.log(tradeInfo)
+  const switchCurrency = () => {
+    setCurrencyIn(currencyOut)
+    setCurrencyOut(currencyIn)
   }
+
   const handleInputSelect = (currency: Currency) => {
+    if (currencyOut && currency?.equals(currencyOut)) return switchCurrency()
     setCurrencyIn(currency)
   }
   const handleOutputSelect = (currency: Currency) => {
+    if (currencyIn && currency?.equals(currencyIn)) return switchCurrency()
     setCurrencyOut(currency)
   }
 
   const [rotate, setRotate] = useState(false)
   const handleRotateClick = () => {
     setRotate(prev => !prev)
+    switchCurrency()
   }
 
   const [approvalSubmitted, setApprovalSubmitted] = useState<boolean>(false)
 
   const formatInputBridgeValue = tryParseAmount(inputAmount, currencyIn)
-
-  const [approval, approveCallback] = useApproveCallback(formatInputBridgeValue, undefined)
+  //https://docs.ethers.io/v5/api/signer/#Signer
+  const [approval, approveCallback] = useApproveCallback(formatInputBridgeValue, tradeInfo?.routerAddress)
 
   useEffect(() => {
     if (approval === ApprovalState.PENDING) {
@@ -107,6 +173,38 @@ export default function LimitOrderForm() {
 
   return (
     <Flex flexDirection={'column'} style={{ gap: '1rem' }}>
+      <RowBetween style={{ gap: '12px' }}>
+        <CurrencyInputPanel
+          hideBalance
+          value={inputAmount}
+          onUserInput={setInputAmount}
+          hideInput={true}
+          showMaxButton={false}
+          onCurrencySelect={handleInputSelect}
+          currency={currencyIn}
+          showCommonBases
+          id="create-limit-order-input-tokena"
+          maxCurrencySymbolLength={6}
+          otherCurrency={currencyOut}
+        />
+        <ArrowRotate isVertical rotate={rotate} onClick={handleRotateClick} />
+
+        <CurrencyInputPanel
+          hideBalance
+          value={outputAmount}
+          hideInput={true}
+          id="create-limit-order-input-tokenb"
+          onUserInput={setOuputAmount}
+          onCurrencySelect={handleOutputSelect}
+          showMaxButton={false}
+          positionMax="top"
+          currency={currencyOut}
+          showCommonBases
+          maxCurrencySymbolLength={6}
+          otherCurrency={currencyIn}
+        />
+      </RowBetween>
+
       <div>
         <Label>
           <Trans>You Pay</Trans>
@@ -123,8 +221,8 @@ export default function LimitOrderForm() {
           otherCurrency={currencyOut}
           id="swap-currency-input"
           showCommonBases={true}
-          estimatedUsd={undefined}
-          // estimatedUsd={trade?.amountInUsd ? `${formattedNum(trade.amountInUsd.toString(), true)}` : undefined}
+          disableCurrencySelect
+          estimatedUsd={tradeInfo?.amountInUsd ? `${formattedNum(tradeInfo.amountInUsd.toString(), true)}` : undefined}
         />
       </div>
 
@@ -133,23 +231,34 @@ export default function LimitOrderForm() {
           <Flex justifyContent={'space-between'} alignItems="flex-end">
             <Label style={{ marginBottom: 0, display: 'flex' }}>
               <Trans>
-                xxx Price <Text color={theme.apr}>(+xxx %)</Text>
+                {currencyIn?.symbol} Price &nbsp; <Text color={theme.apr}>(+xxx %)</Text>
               </Trans>
             </Label>
-            <Set2Market>
+            <Set2Market onClick={setPriceRateMarket}>
               <Trans>Set to Market</Trans>
             </Set2Market>
           </Flex>
-          <NumericalInput
-            style={{ width: '100%', borderRadius: 12, padding: '10px 12px' }}
-            value={priceRate}
-            onUserInput={setPriceRate}
-          />
-          <Label>0.000242275 ETH = 1 KNC</Label>
+          <Flex alignItems={'center'} style={{ background: theme.buttonBlack, borderRadius: 12, paddingRight: 12 }}>
+            <NumericalInput
+              style={{ borderRadius: 12, padding: '10px 12px', fontSize: 14, height: 48 }}
+              value={priceRate}
+              onUserInput={setPriceRate}
+            />
+            {currencyIn && currencyOut && (
+              <Flex style={{ gap: 6 }}>
+                <Text fontSize={14} color={theme.subText}>
+                  {currencyIn?.symbol}/{currencyOut?.symbol}
+                </Text>
+                <div>
+                  <Repeat color={theme.subText} size={12} />
+                </div>
+              </Flex>
+            )}
+          </Flex>
+          <TradePrice price={tradeInfo?.price} />
         </Flex>
-        <ArrowWrapper rotated={rotate} onClick={handleRotateClick}>
-          <SwapIcon size={24} color={theme.subText} />
-        </ArrowWrapper>
+
+        <ArrowRotate rotate={rotate} onClick={handleRotateClick} />
       </Flex>
 
       {/* <RefreshButton isConfirming={showConfirm} trade={trade} onRefresh={onRefresh} />
@@ -162,14 +271,16 @@ export default function LimitOrderForm() {
         <CurrencyInputPanel
           value={outputAmount}
           showMaxButton={false}
+          disableCurrencySelect
           currency={currencyOut}
           onUserInput={setOuputAmount}
           onCurrencySelect={handleOutputSelect}
           otherCurrency={currencyOut}
           id="swap-currency-output"
           showCommonBases={true}
-          estimatedUsd={undefined}
-          // estimatedUsd={trade?.amountInUsd ? `${formattedNum(trade.amountInUsd.toString(), true)}` : undefined}
+          estimatedUsd={
+            tradeInfo?.amountOutUsd ? `${formattedNum(tradeInfo.amountOutUsd.toString(), true)}` : undefined
+          }
         />
       </div>
 
@@ -179,7 +290,9 @@ export default function LimitOrderForm() {
         activeRender={item => (
           <Flex justifyContent={'space-between'}>
             <Text>{t`Expires In`}</Text>
-            <Text>{item?.label}</Text>
+            <Text color={theme.text} fontSize={14}>
+              {item?.label}
+            </Text>
           </Flex>
         )}
       />
@@ -237,4 +350,4 @@ export default function LimitOrderForm() {
       )}
     </Flex>
   )
-}
+})

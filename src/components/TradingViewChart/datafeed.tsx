@@ -201,7 +201,7 @@ export const checkPairHasDextoolsData = async (
     const token = (isNativeToken(chainId, currencyA) ? currencyB : currencyA) as Token
     if (token?.address) {
       const data1: { id: string }[] = await searchTokenPair(token.address, chainId)
-      if (data1.length > 0 && data1[0].id) {
+      if (data1?.length > 0 && data1[0].id) {
         const ver = (await getHistoryCandleStatus(data1[0].id, chainId)) || 0
 
         const ts = Math.floor(new Date().getTime() / monthTs) * monthTs
@@ -220,7 +220,7 @@ export const checkPairHasDextoolsData = async (
       const token = (isUSDToken(chainId, currencyA) ? currencyB : currencyA) as Token
       if (token?.address) {
         const data1 = await searchTokenPair(token.address, chainId)
-        if (data1.length > 0 && data1[0].id) {
+        if (data1?.length > 0 && data1[0].id) {
           const ver = await getHistoryCandleStatus(data1[0].id, chainId)
           if (ver) {
             const ts = Math.floor(new Date().getTime() / monthTs) * monthTs

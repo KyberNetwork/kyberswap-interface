@@ -1,5 +1,5 @@
 import { Currency, Price } from '@kyberswap/ks-sdk-core'
-import React from 'react'
+import React, { useState } from 'react'
 import { Repeat } from 'react-feather'
 import { Text } from 'rebass'
 
@@ -10,12 +10,11 @@ import { StyledBalanceMaxMini } from './styleds'
 
 interface TradePriceProps {
   price?: Price<Currency, Currency>
-  showInverted: boolean
-  setShowInverted: (showInverted: boolean) => void
 }
 
-export default function TradePrice({ price, showInverted, setShowInverted }: TradePriceProps) {
+export default function TradePrice({ price }: TradePriceProps) {
   const theme = useTheme()
+  const [showInverted, setShowInverted] = useState<boolean>(false)
 
   const formattedPrice = showInverted ? price?.toSignificant(6) : price?.invert()?.toSignificant(6)
 

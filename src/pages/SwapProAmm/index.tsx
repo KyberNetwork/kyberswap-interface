@@ -8,6 +8,7 @@ import { RouteComponentProps } from 'react-router-dom'
 import { Text } from 'rebass'
 
 import AddressInputPanel from 'components/AddressInputPanel'
+import { ArrowWrapper } from 'components/ArrowRotate'
 import { ButtonConfirmed, ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
 import { GreyCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
@@ -18,14 +19,7 @@ import TokenWarningModal from 'components/TokenWarningModal'
 import TransactionSettings from 'components/TransactionSettings'
 import ConfirmSwapModal from 'components/swap/ConfirmSwapModal'
 import confirmPriceImpactWithoutFee from 'components/swap/confirmPriceImpactWithoutFee'
-import {
-  ArrowWrapper,
-  Container,
-  PageWrapper,
-  SwapCallbackError,
-  SwapFormActions,
-  Wrapper,
-} from 'components/swapv2/styleds'
+import { Container, PageWrapper, SwapCallbackError, SwapFormActions, Wrapper } from 'components/swapv2/styleds'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens, useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useProAmmApproveCallback } from 'hooks/useApproveCallback'

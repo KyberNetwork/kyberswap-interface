@@ -12,12 +12,12 @@ import styled, { DefaultTheme, keyframes } from 'styled-components'
 import { ReactComponent as TutorialSvg } from 'assets/svg/play_circle_outline.svg'
 import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import AddressInputPanel from 'components/AddressInputPanel'
+import ArrowRotate from 'components/ArrowRotate'
 import Banner from 'components/Banner'
 import { ButtonConfirmed, ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
 import { GreyCard } from 'components/Card/index'
 import Column from 'components/Column/index'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
-import { Swap as SwapIcon } from 'components/Icons'
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
@@ -47,7 +47,6 @@ import TokenInfoV2 from 'components/swapv2/TokenInfoV2'
 import TradePrice from 'components/swapv2/TradePrice'
 import TradeTypeSelection from 'components/swapv2/TradeTypeSelection'
 import {
-  ArrowWrapper,
   BottomGrouping,
   Container,
   Dots,
@@ -167,7 +166,6 @@ const RoutingIconWrapper = styled(RoutingIcon)`
 
 export default function Swap({ history }: RouteComponentProps) {
   const [rotate, setRotate] = useState(false)
-  const [showInverted, setShowInverted] = useState<boolean>(false)
   const isShowLiveChart = useShowLiveChart()
   const isShowTradeRoutes = useShowTradeRoutes()
   const isShowTokenInfoSetting = useShowTokenInfo()
@@ -849,18 +847,12 @@ export default function Swap({ history }: RouteComponentProps) {
                               {!showWrap && (
                                 <>
                                   <RefreshButton isConfirming={showConfirm} trade={trade} onRefresh={onRefresh} />
-                                  <TradePrice
-                                    price={trade?.executionPrice}
-                                    showInverted={showInverted}
-                                    setShowInverted={setShowInverted}
-                                  />
+                                  <TradePrice price={trade?.executionPrice} />
                                 </>
                               )}
                             </Flex>
 
-                            <ArrowWrapper rotated={rotate} onClick={handleRotateClick}>
-                              <SwapIcon size={24} color={theme.subText} />
-                            </ArrowWrapper>
+                            <ArrowRotate rotate={rotate} onClick={handleRotateClick} />
                           </AutoRow>
                           <Box sx={{ position: 'relative' }}>
                             {tradeComparer?.tradeSaved?.usd && comparedDex && (

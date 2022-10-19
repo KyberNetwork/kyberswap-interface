@@ -9,13 +9,16 @@ import {
   TradeType,
 } from '@kyberswap/ks-sdk-core'
 import { captureException } from '@sentry/react'
+import axios from 'axios'
 import JSBI from 'jsbi'
 import invariant from 'tiny-invariant'
 
 import { DEX_TO_COMPARE } from 'constants/dexes'
 import { ETHER_ADDRESS, KYBERSWAP_SOURCE, sentryRequestId } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
-import { AggregationComparer } from 'state/swap/types'
+import { tryParseAmount } from 'state/swap/hooks'
+import { AggregationComparer, BaseAggregation } from 'state/swap/types'
 
 import fetchWaiting from './fetchWaiting'
 
@@ -237,6 +240,59 @@ export class Aggregator {
     }
 
     return null
+  }
+
+  /**
+   * get usd price, rate between 2 token
+   * @param currencyIn
+   * @param currencyOut
+   * @param chainId
+   * @param account
+   * @returns
+   */
+  public static async baseTradeExactIn(
+    currencyIn: Currency,
+    currencyOut: Currency,
+    chainId: ChainId,
+    account: string,
+  ): Promise<BaseAggregation | undefined> {
+    invariant(chainId !== undefined, 'CHAIN_ID')
+
+    const amountIn = tryParseAmount('1', currencyIn)
+
+    const tokenInAddress = currencyIn.isNative ? ETHER_ADDRESS : currencyIn.wrapped.address
+    const tokenOutAddress = currencyOut.isNative ? ETHER_ADDRESS : currencyOut.wrapped.address
+    if (tokenInAddress && tokenOutAddress) {
+      const search = new URLSearchParams({
+        tokenIn: tokenInAddress.toLowerCase(),
+        tokenOut: tokenOutAddress.toLowerCase(),
+        amountIn: amountIn?.quotient?.toString() ?? '',
+        to: account,
+      })
+
+      const { data } = await axios.get(`${NETWORKS_INFO[chainId].routerUri}?${search}`, {
+        headers: {
+          'X-Request-Id': sentryRequestId,
+          'Accept-Version': 'Latest',
+        },
+      })
+
+      const toCurrencyAmount = function (value: string, currency: Currency): CurrencyAmount<Currency> {
+        return TokenAmount.fromRawAmount(currency, JSBI.BigInt(value))
+      }
+      const { outputAmount, amountInUsd, amountOutUsd, routerAddress } = data
+      const amountOut = toCurrencyAmount(outputAmount, currencyOut)
+
+      if (amountIn?.quotient && amountOut?.quotient) {
+        return {
+          price: new Price(currencyIn, currencyOut, amountIn?.quotient, amountOut?.quotient),
+          amountInUsd,
+          amountOutUsd,
+          routerAddress,
+        }
+      }
+    }
+    return
   }
 
   /**
