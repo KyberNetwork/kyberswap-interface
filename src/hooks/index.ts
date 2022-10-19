@@ -36,13 +36,22 @@ export function useActiveWeb3React(): {
   isEVM: boolean
   isSolana: boolean
   networkInfo: NetworkInfo
+  active: boolean
 } {
   const chainIdState = useSelector<AppState, ChainId>(state => state.user.chainId) || ChainId.MAINNET
   const { account, connector, active, chainId: chainIdEVM } = useWeb3React()
   const isEVM = useMemo(() => getChainType(chainIdState) === ChainType.EVM, [chainIdState])
   const isSolana = useMemo(() => getChainType(chainIdState) === ChainType.SOLANA, [chainIdState])
 
-  const chainId = isEVM ? chainIdEVM || ChainId.MAINNET : ChainId.SOLANA
+  const chainId = useMemo(() => {
+    // If Connected EVM wallet => take chainId from wallet
+    if (active && isEVM) {
+      return chainIdEVM || chainIdState
+    }
+    // Else take chainId in store
+    return chainIdState
+  }, [active, chainIdEVM, chainIdState, isEVM])
+
   const networkInfo = useMemo(() => NETWORKS_INFO[chainId], [chainId])
 
   const { wallet: walletSolana, connected, publicKey } = useWallet()
@@ -72,6 +81,7 @@ export function useActiveWeb3React(): {
     isEVM,
     isSolana,
     networkInfo,
+    active,
   }
 }
 
@@ -120,11 +130,9 @@ async function isAuthorized(): Promise<boolean> {
 let globalTried = false
 
 export function useEagerConnect() {
-  const { isSolana } = useActiveWeb3React()
   const { activate, active } = useWeb3React()
   const [tried, setTried] = useState(false)
   const [isManuallyDisconnect] = useIsUserManuallyDisconnect()
-
   useEffect(() => {
     globalTried = tried
   }, [tried])
@@ -138,35 +146,31 @@ export function useEagerConnect() {
   }, [])
 
   useEffect(() => {
-    if (isSolana) setTried(true)
-    else {
-      try {
-        isAuthorized()
-          .then(isAuthorized => {
-            // try to connect if previous connected to Coinbase Link
-            if (isAuthorized && window.localStorage.getItem(WALLETLINK_LOCALSTORAGE_NAME)) {
-              activate(walletlink).catch(() => {
-                setTried(true)
-              })
-            } else if (isAuthorized && !isManuallyDisconnect) {
-              activate(injected, undefined, true).catch(() => {
-                setTried(true)
-              })
-            } else if (isMobile && window.ethereum) {
-              activate(injected, undefined, true).catch(() => {
-                setTried(true)
-              })
-            }
-            setTried(true)
-          })
-          .catch(e => {
-            console.log('Eagerly connect: authorize error', e)
-            setTried(true)
-          })
-      } catch (e) {
-        console.log('Eagerly connect: authorize error', e)
-        setTried(true)
-      }
+    try {
+      isAuthorized()
+        .then(isAuthorized => {
+          // try to connect if previous connected to Coinbase Link
+          if (isAuthorized && window.localStorage.getItem(WALLETLINK_LOCALSTORAGE_NAME)) {
+            activate(walletlink).catch(() => {
+              setTried(true)
+            })
+          } else if (isAuthorized && !isManuallyDisconnect) {
+            activate(injected, undefined, true).catch(() => {
+              setTried(true)
+            })
+          } else if (isMobile && window.ethereum) {
+            activate(injected, undefined, true).catch(() => {
+              setTried(true)
+            })
+          }
+        })
+        .catch(e => {
+          console.log('Eagerly connect: authorize error', e)
+          setTried(true)
+        })
+    } catch (e) {
+      console.log('Eagerly connect: authorize error', e)
+      setTried(true)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []) // intentionally only running on mount (make sure it's only mounted once :))

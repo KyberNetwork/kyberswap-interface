@@ -14,14 +14,11 @@ import Modal from 'components/Modal'
 import { SUPPORTED_WALLET, SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useActivationWallet } from 'hooks/useActivationWallet'
-import { useChangeNetwork } from 'hooks/useChangeNetwork'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import usePrevious from 'hooks/usePrevious'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useOpenNetworkModal, useWalletModalToggle } from 'state/application/hooks'
-import { useAppDispatch } from 'state/hooks'
-import { updateChainId } from 'state/user/actions'
 import { useIsAcceptedTerm, useIsUserManuallyDisconnect } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { isEVMWallet, isOverriddenWallet, isSolanaWallet } from 'utils'
@@ -148,16 +145,12 @@ export default function WalletModal({
   confirmedTransactions: string[] // hashes of confirmed
   ENSName?: string
 }) {
-  const { chainId, account, isSolana, isEVM } = useActiveWeb3React()
+  const { account, isSolana, isEVM } = useActiveWeb3React()
   // important that these are destructed from the account-specific web3-react context
-  const { active, connector, error, chainId: chainIdEVM } = useWeb3React()
+  const { active, connector, error } = useWeb3React()
   const { connected, connecting, wallet: solanaWallet } = useWallet()
   const { tryActivation } = useActivationWallet()
 
-  const [justConnectedWallet, setJustConnectedWallet] = useState(false)
-  const dispatch = useAppDispatch()
-
-  const changeNetwork = useChangeNetwork()
   const [, setIsUserManuallyDisconnect] = useIsUserManuallyDisconnect()
 
   const theme = useTheme()
@@ -228,8 +221,6 @@ export default function WalletModal({
       setPendingError(false)
       try {
         await tryActivation(walletKey)
-        setJustConnectedWallet(true)
-        setTimeout(() => setJustConnectedWallet(false), 1000)
         setIsUserManuallyDisconnect(false)
       } catch {
         setPendingError(true)
@@ -237,17 +228,6 @@ export default function WalletModal({
     },
     [setIsUserManuallyDisconnect, tryActivation],
   )
-
-  useEffect(() => {
-    if (isEVM && chainIdEVM && chainId !== chainIdEVM && active && justConnectedWallet) {
-      setJustConnectedWallet(false)
-      // when connected to wallet, wallet's network might not match with desire network
-      // we need to update network state by wallet's network (chainIdEVM)
-      dispatch(updateChainId(chainIdEVM))
-      // request change network if wallet's network not match with desire network by asking approve change network
-      changeNetwork(chainId)
-    }
-  }, [active, chainId, chainIdEVM, changeNetwork, dispatch, justConnectedWallet, isEVM])
 
   function getOptions() {
     // Generate list of wallets and states of it depend on current network

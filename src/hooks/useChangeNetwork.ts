@@ -1,9 +1,7 @@
 import { t } from '@lingui/macro'
 import { ChainId } from '@namgold/ks-sdk-core'
 import { UnsupportedChainIdError } from '@web3-react/core'
-import { stringify } from 'qs'
-import { useCallback, useEffect, useMemo } from 'react'
-import { useHistory, useLocation } from 'react-router'
+import { useCallback, useEffect } from 'react'
 
 import { EVM_NETWORK, NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM, isSolana } from 'constants/networks'
 import { SUPPORTED_WALLETS } from 'constants/wallets'
@@ -40,28 +38,19 @@ function parseNetworkId(maybeSupportedNetwork: string): ChainId | undefined {
 
 export function useChangeNetwork() {
   const { chainId, walletKey } = useActiveWeb3React()
-  const { library, error } = useWeb3React()
+  const { active, library, error } = useWeb3React()
   const { tryActivationEVM, tryActivationSolana } = useActivationWallet()
 
-  const history = useHistory()
-  const location = useLocation()
   const qs = useParsedQueryString<{ networkId: string }>()
   const dispatch = useAppDispatch()
   const notify = useNotify()
-
-  const locationWithoutNetworkId = useMemo(() => {
-    // Delete networkId from qs object
-    const { networkId, ...qsWithoutNetworkId } = qs
-    return { ...location, search: stringify({ ...qsWithoutNetworkId }) }
-  }, [location, qs])
 
   const changeNetworkHandler = useCallback(
     (desiredChainId: ChainId, successCallback?: () => void) => {
       dispatch(updateChainId(desiredChainId))
       successCallback?.()
-      if (location.pathname.startsWith('/swap')) history.replace('/swap/' + NETWORKS_INFO[desiredChainId].route)
     },
-    [dispatch, location.pathname, history],
+    [dispatch],
   )
 
   const changeNetwork = useCallback(
@@ -77,15 +66,14 @@ export function useChangeNetwork() {
         const switchNetworkParams = {
           chainId: '0x' + Number(desiredChainId).toString(16),
         }
-        const isNotConnected = !(library && library.provider)
         const isWrongNetwork = error instanceof UnsupportedChainIdError
-        // if (isNotConnected && !isWrongNetwork && chainIdEVM !== desiredChainId) {
-        if (isNotConnected && !isWrongNetwork) {
+        // If not connected EVM wallet
+        if (!active && !isWrongNetwork) {
           changeNetworkHandler(desiredChainId, successCallback)
           return
         }
 
-        history.push(locationWithoutNetworkId)
+        //history.push(locationWithoutNetworkId)
         const activeProvider = library?.provider ?? window.ethereum
         if (activeProvider && activeProvider.request) {
           try {
@@ -109,16 +97,10 @@ export function useChangeNetwork() {
                     params: [switchNetworkParams],
                   })
                   changeNetworkHandler(desiredChainId, successCallback)
-                } catch {
-                  notify({
-                    title: t`Failed to switch network`,
-                    type: NotificationType.ERROR,
-                    summary: t`In order to use KyberSwap on ${NETWORKS_INFO[desiredChainId].name}, you must change the network in your wallet.`,
-                  })
-                  failureCallback?.()
+                } catch (error) {
+                  throw error
                 }
               } catch (addError) {
-                console.error(addError)
                 notify({
                   title: t`Failed to switch network`,
                   type: NotificationType.ERROR,
@@ -128,7 +110,6 @@ export function useChangeNetwork() {
               }
             } else {
               // handle other "switch" errors
-              console.error(switchError)
               failureCallback?.()
               notify({
                 title: t`Failed to switch network`,
@@ -142,17 +123,7 @@ export function useChangeNetwork() {
         changeNetworkHandler(desiredChainId, successCallback)
       }
     },
-    [
-      history,
-      library,
-      locationWithoutNetworkId,
-      error,
-      notify,
-      changeNetworkHandler,
-      tryActivationEVM,
-      tryActivationSolana,
-      walletKey,
-    ],
+    [library, error, notify, changeNetworkHandler, tryActivationEVM, tryActivationSolana, walletKey, active],
   )
 
   useEffect(() => {

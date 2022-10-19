@@ -102,6 +102,7 @@ import { filterTokensWithExactKeyword } from 'utils/filtering'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { convertToSlug, getSymbolSlug } from 'utils/string'
 import { checkPairInWhiteList, convertSymbol } from 'utils/tokenInfo'
+import { useSyncRouteParamsWithStore } from 'hooks/useSyncRouteParamsWithStore'
 
 const LiveChart = lazy(() => import('components/LiveChart'))
 const Routing = lazy(() => import('components/swapv2/Routing'))
@@ -178,6 +179,7 @@ export default function Swap({ history }: RouteComponentProps) {
   }>()
   const allDexes = useAllDexes()
   const [{ show: isShowTutorial = false }] = useTutorialSwapGuide()
+  useSyncRouteParamsWithStore()
 
   const refSuggestPair = useRef<PairSuggestionHandle>(null)
   const [showingPairSuggestionImport, setShowingPairSuggestionImport] = useState<boolean>(false) // show modal import when click pair suggestion

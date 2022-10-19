@@ -39,10 +39,6 @@ mixpanel.init(MIXPANEL_PROJECT_TOKEN, {
 
 AOS.init()
 
-mixpanel.init(MIXPANEL_PROJECT_TOKEN, {
-  debug: MAINNET_ENV === 'staging',
-})
-
 const Web3ProviderNetwork = createWeb3ReactRoot(NetworkContextName)
 
 window.tag = TAG

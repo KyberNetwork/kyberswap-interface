@@ -27,7 +27,7 @@ import { isAddressString, shortenAddress } from 'utils'
 
 import { RedirectDuplicateTokenIds } from './AddLiquidityV2/redirects'
 import Swap from './Swap'
-import { RedirectPathToSwapNetwork } from './Swap/redirects'
+import { RedirectPathToSwapNetwork } from './SwapV2/redirects'
 import SwapV2 from './SwapV2'
 
 // Route-based code splitting
