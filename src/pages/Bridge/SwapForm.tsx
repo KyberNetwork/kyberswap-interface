@@ -208,19 +208,19 @@ export default function SwapForm() {
       return t`The amount to bridge must be less than ${formattedNum(tokenOut.MaximumSwap)} ${tokenIn.symbol}`
     }
 
-    if (tokenOut.isLiquidity && tokenOut.underlying && inputNumber > Number(poolValue.poolValueOut)) {
-      return t`The bridge amount must be less than the current available amount of the pool which is ${formatPoolValue(
-        poolValue.poolValueOut,
-      )} ${tokenOut.symbol}.`
-    }
+    if (tokenOut.isLiquidity && tokenOut.underlying) {
+      const poolLiquidity = formatPoolValue(poolValue.poolValueOut)
+      if (inputNumber > Number(poolValue.poolValueOut))
+        return t`The bridge amount must be less than the current available amount of the pool which is ${poolLiquidity} ${tokenOut.symbol}.`
 
-    const ratio = 0.7
-    if (inputNumber > ratio * Number(tokenOut.MaximumSwap)) {
-      return {
-        state: 'warn',
-        tip: t`Note: Your transfer amount (${formattedNum(inputAmount, false, 5)} ${tokenIn.symbol}) is more than ${
-          100 * ratio
-        }% of the available liquidity (${formatPoolValue(poolValue.poolValueOut)} ${tokenOut.symbol})!`,
+      const ratio = 0.7
+      if (inputNumber > ratio * Number(poolValue.poolValueOut)) {
+        return {
+          state: 'warn',
+          tip: t`Note: Your transfer amount (${formattedNum(inputAmount, false, 5)} ${tokenIn.symbol}) is more than ${
+            100 * ratio
+          }% of the available liquidity (${poolLiquidity} ${tokenOut.symbol})!`,
+        }
       }
     }
 
