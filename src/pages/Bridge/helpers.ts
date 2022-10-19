@@ -71,14 +71,15 @@ const filterTokenList = (tokens: { [key: string]: MultiChainTokenInfo }) => {
 }
 export async function getTokenlist(chainId: ChainId, isStaleData: boolean) {
   let tokens
+  let local: any
   try {
-    let local: any = getTokenListCache()
+    local = getTokenListCache()
     if (local[chainId] && !isStaleData) {
       return local[chainId]
     }
     tokens = await fetchListTokenByChain(chainId)
     tokens = filterTokenList(tokens)
-    local = getTokenListCache()
+    local = getTokenListCache() // make sure get latest data
     try {
       localStorage.setItem(BridgeLocalStorageKeys.TOKEN_LIST, JSON.stringify({ ...local, [chainId]: tokens }))
     } catch (error) {
@@ -89,13 +90,14 @@ export async function getTokenlist(chainId: ChainId, isStaleData: boolean) {
     return tokens
   } catch (e) {
     console.log(e.toString())
-    return {}
+    return local?.[chainId] || {}
   }
 }
 
 export async function getChainlist(isStaleData: boolean) {
+  let chainIds: number[] = []
   try {
-    const chainIds = getBridgeLocalstorage(BridgeLocalStorageKeys.CHAINS_SUPPORTED)
+    chainIds = getBridgeLocalstorage(BridgeLocalStorageKeys.CHAINS_SUPPORTED)
     if (chainIds && !isStaleData) {
       return chainIds
     }
@@ -107,7 +109,7 @@ export async function getChainlist(isStaleData: boolean) {
     return filter
   } catch (e) {
     console.log(e)
-    return []
+    return chainIds || []
   }
 }
 

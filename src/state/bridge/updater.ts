@@ -24,7 +24,7 @@ function timeout() {
   return new Promise(resolve => {
     setTimeout(() => {
       resolve(TIMEOUT)
-    }, 1000 * 5)
+    }, 1000 * 3)
   })
 }
 
