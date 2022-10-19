@@ -12,6 +12,8 @@ const NOT_SUPPORT = null
 const auroraInfo: EVMNetworkInfo = {
   chainId: ChainId.AURORA,
   route: 'aurora',
+  ksSettingRoute: 'aurora',
+  priceRoute: 'aurora',
   name: 'Aurora',
   icon: AURORA,
   iconDark: NOT_SUPPORT,

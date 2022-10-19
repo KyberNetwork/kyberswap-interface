@@ -7,6 +7,8 @@ export interface NetworkInfo {
 
   // route can be used to detect which chain is favored in query param, check out useActiveNetwork.ts
   readonly route: string
+  readonly ksSettingRoute: string
+  readonly priceRoute: string
   readonly name: string
   readonly icon: string
   readonly iconDark: string | null
@@ -72,10 +74,10 @@ export interface EVMNetworkInfo extends NetworkInfo {
 }
 
 export interface SolanaNetworkInfo extends NetworkInfo {
-  readonly classic: {
-    readonly pool: string
-    readonly factory: string
-    readonly router: string
-  }
+  // readonly classic: {
+  //   readonly pool: string
+  //   readonly factory: string
+  //   readonly router: string
+  // }
   connection: Connection
 }

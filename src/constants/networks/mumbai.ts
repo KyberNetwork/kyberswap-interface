@@ -12,6 +12,8 @@ const NOT_SUPPORT = null
 const mumbaiInfo: EVMNetworkInfo = {
   chainId: ChainId.MUMBAI,
   route: 'mumbai',
+  ksSettingRoute: 'mumbai',
+  priceRoute: 'mumbai',
   name: 'Mumbai',
   icon: Polygon,
   iconDark: NOT_SUPPORT,

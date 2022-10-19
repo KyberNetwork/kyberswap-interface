@@ -11,6 +11,8 @@ const NOT_SUPPORT = null
 const fantomInfo: EVMNetworkInfo = {
   chainId: ChainId.FANTOM,
   route: 'fantom',
+  ksSettingRoute: 'fantom',
+  priceRoute: 'fantom',
   name: 'Fantom',
   icon: FTM,
   iconDark: NOT_SUPPORT,

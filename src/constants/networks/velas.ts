@@ -12,6 +12,8 @@ const NOT_SUPPORT = null
 const velasInfo: EVMNetworkInfo = {
   chainId: ChainId.VELAS,
   route: 'velas',
+  ksSettingRoute: 'velas',
+  priceRoute: 'velas',
   name: 'Velas',
   icon: VELAS,
   iconDark: NOT_SUPPORT,

@@ -13,6 +13,8 @@ const NOT_SUPPORT = null
 const optimismInfo: EVMNetworkInfo = {
   chainId: ChainId.OPTIMISM,
   route: 'optimism',
+  ksSettingRoute: 'optimism',
+  priceRoute: 'optimism',
   name: 'Optimism',
   icon: OPTIMISM,
   iconDark: NOT_SUPPORT,

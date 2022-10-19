@@ -12,6 +12,8 @@ const NOT_SUPPORT = null
 const avaxTestnetInfo: EVMNetworkInfo = {
   chainId: ChainId.AVAXTESTNET,
   route: 'avalanche-testnet',
+  ksSettingRoute: 'avalanche',
+  priceRoute: 'avalanche',
   name: 'Avalanche Testnet',
   icon: AVAX,
   iconDark: NOT_SUPPORT,

@@ -12,6 +12,8 @@ const NOT_SUPPORT = null
 const bttcInfo: EVMNetworkInfo = {
   chainId: ChainId.BTTC,
   route: 'bittorrent',
+  ksSettingRoute: 'bttc',
+  priceRoute: 'bttc',
   name: 'BitTorrent',
   icon: BTT,
   iconDark: NOT_SUPPORT,

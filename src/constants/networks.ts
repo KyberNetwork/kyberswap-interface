@@ -145,8 +145,3 @@ export const TRUESIGHT_NETWORK_TO_CHAINID: NetToChain = SUPPORTED_NETWORKS.reduc
 }, {} as NetToChain) as NetToChain
 
 export const FAUCET_NETWORKS = [ChainId.BTTC, ChainId.RINKEBY]
-
-export const chainIdMapping: Partial<Record<ChainId, string>> = {
-  [ChainId.BSCMAINNET]: 'bsc',
-  [ChainId.BTTC]: 'bttc',
-}

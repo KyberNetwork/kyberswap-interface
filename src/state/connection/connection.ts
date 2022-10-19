@@ -25,10 +25,7 @@ const connection: Connection = (() => {
         const origMethod = target[prop]
         if (origMethod instanceof Function) {
           return async function (...args: any[]) {
-            console.info('intercepting Solana rpc call', origMethod.name, args)
-
             const stringifiedArgs = JSON.stringify(args)
-            if (callingCache[origMethod.name]?.[stringifiedArgs]) console.log('hit cache')
             callingCache[origMethod.name] = callingCache[origMethod.name] || {}
             // callingCache[origMethod.name]![stringifiedArgs] = callingCache[origMethod.name]![stringifiedArgs] || {}
             callingCache[origMethod.name]![stringifiedArgs] =

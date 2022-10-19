@@ -7,6 +7,7 @@ import {
   Price,
   TokenAmount,
   TradeType,
+  WETH,
 } from '@namgold/ks-sdk-core'
 import { captureException } from '@sentry/react'
 import JSBI from 'jsbi'
@@ -18,6 +19,7 @@ import { FeeConfig } from 'hooks/useSwapV2Callback'
 import { AggregationComparer } from 'state/swap/types'
 
 import fetchWaiting from './fetchWaiting'
+import { isEVM } from 'constants/networks'
 
 /**
  */
@@ -150,8 +152,17 @@ export class Aggregator {
     const amountIn = currencyAmountIn
     const tokenOut = currencyOut.wrapped
 
-    const tokenInAddress = currencyAmountIn.currency.isNative ? ETHER_ADDRESS : amountIn.currency.wrapped.address
-    const tokenOutAddress = currencyOut.isNative ? ETHER_ADDRESS : tokenOut.address
+    const tokenInAddress = currencyAmountIn.currency.isNative
+      ? isEVM(currencyAmountIn.currency.chainId)
+        ? ETHER_ADDRESS
+        : WETH[currencyAmountIn.currency.chainId].address
+      : amountIn.currency.wrapped.address
+    const tokenOutAddress = currencyOut.isNative
+      ? isEVM(currencyOut.chainId)
+        ? ETHER_ADDRESS
+        : WETH[currencyOut.chainId].address
+      : tokenOut.address
+
     if (tokenInAddress && tokenOutAddress) {
       const search = new URLSearchParams({
         // Trade config
@@ -263,8 +274,17 @@ export class Aggregator {
     const amountIn = currencyAmountIn
     const tokenOut = currencyOut.wrapped
 
-    const tokenInAddress = currencyAmountIn.currency.isNative ? ETHER_ADDRESS : amountIn.currency.wrapped.address
-    const tokenOutAddress = currencyOut.isNative ? ETHER_ADDRESS : tokenOut.address
+    const tokenInAddress = currencyAmountIn.currency.isNative
+      ? isEVM(currencyAmountIn.currency.chainId)
+        ? ETHER_ADDRESS
+        : WETH[currencyAmountIn.currency.chainId].address
+      : amountIn.currency.wrapped.address
+    const tokenOutAddress = currencyOut.isNative
+      ? isEVM(currencyOut.chainId)
+        ? ETHER_ADDRESS
+        : WETH[currencyOut.chainId].address
+      : tokenOut.address
+
     const comparedDex = DEX_TO_COMPARE[chainId]
 
     if (tokenInAddress && tokenOutAddress && comparedDex) {

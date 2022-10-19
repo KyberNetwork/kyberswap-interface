@@ -12,6 +12,8 @@ const NOT_SUPPORT = null
 const ropstenInfo: EVMNetworkInfo = {
   chainId: ChainId.ROPSTEN,
   route: 'ropsten',
+  ksSettingRoute: 'ropsten',
+  priceRoute: 'ropsten',
   name: 'Ropsten',
   icon: Mainnet,
   iconDark: NOT_SUPPORT,

@@ -11,6 +11,8 @@ const NOT_SUPPORT = null
 const maticInfo: EVMNetworkInfo = {
   chainId: ChainId.MATIC,
   route: 'polygon',
+  ksSettingRoute: 'polygon',
+  priceRoute: 'polygon',
   name: 'Polygon',
   icon: Polygon,
   iconDark: NOT_SUPPORT,

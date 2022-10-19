@@ -13,6 +13,8 @@ const NOT_SUPPORT = null
 const rinkebyInfo: EVMNetworkInfo = {
   chainId: ChainId.RINKEBY,
   route: 'rinkeby',
+  ksSettingRoute: 'rinkeby',
+  priceRoute: 'rinkeby',
   name: 'Rinkeby',
   icon: Mainnet,
   iconDark: NOT_SUPPORT,
