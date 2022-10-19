@@ -4,6 +4,7 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
 const TabItem = styled.div<{ isActive?: boolean }>`
   text-align: center;
+  height: fit-content;
   padding: 4px 12px;
   font-family: 'Work Sans';
   font-style: normal;
@@ -64,9 +65,10 @@ const TabSelector: React.FC<Props> = ({ className, activeTab, setActiveTab }) =>
 
 export default styled(TabSelector)`
   width: 100%;
-  height: 30px; // to make it align with the swap container
+  height: 46px; // to make it align with the swap container
   display: flex;
   gap: 16px;
+  align-items: center;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     justify-content: center;

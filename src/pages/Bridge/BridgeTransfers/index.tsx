@@ -27,5 +27,5 @@ export default styled(BridgeHistory)`
 
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 22px;
 `
