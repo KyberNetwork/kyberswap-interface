@@ -48,10 +48,12 @@ function Select({
   options,
   activeRender,
   style = {},
+  onChange,
 }: {
   options: Option[]
   activeRender?: (selectedItem: Option | undefined) => ReactNode
   style: CSSProperties
+  onChange: (value: any) => void
 }) {
   const [selected, setSelected] = useState(options[0]?.value)
 
@@ -74,6 +76,7 @@ function Select({
                 e.preventDefault()
                 setSelected(item.value)
                 setShowMenu(prev => !prev)
+                onChange(item.value)
               }}
             >
               {item.label || item.value}

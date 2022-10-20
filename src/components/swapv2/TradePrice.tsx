@@ -1,5 +1,5 @@
 import { Currency, Price } from '@kyberswap/ks-sdk-core'
-import React, { useState } from 'react'
+import React, { CSSProperties, useState } from 'react'
 import { Repeat } from 'react-feather'
 import { Text } from 'rebass'
 
@@ -10,13 +10,16 @@ import { StyledBalanceMaxMini } from './styleds'
 
 interface TradePriceProps {
   price?: Price<Currency, Currency>
+  style?: CSSProperties
 }
 
-export default function TradePrice({ price }: TradePriceProps) {
+export default function TradePrice({ price, style = {} }: TradePriceProps) {
   const theme = useTheme()
   const [showInverted, setShowInverted] = useState<boolean>(false)
-
-  const formattedPrice = showInverted ? price?.toSignificant(6) : price?.invert()?.toSignificant(6)
+  let formattedPrice
+  try {
+    formattedPrice = showInverted ? price?.toSignificant(6) : price?.invert()?.toSignificant(6)
+  } catch (error) {}
 
   const show = Boolean(price?.baseCurrency && price?.quoteCurrency)
   const nativeQuote = useCurrencyConvertedToNative(price?.quoteCurrency)
@@ -30,7 +33,7 @@ export default function TradePrice({ price }: TradePriceProps) {
       fontWeight={500}
       fontSize={12}
       color={theme.subText}
-      style={{ alignItems: 'center', display: 'flex', cursor: 'pointer' }}
+      style={{ alignItems: 'center', display: 'flex', cursor: 'pointer', ...style }}
       onClick={() => setShowInverted(!showInverted)}
       height="22px"
     >
