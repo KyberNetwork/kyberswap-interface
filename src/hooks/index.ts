@@ -9,7 +9,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useSelector } from 'react-redux'
 
-import { injected, walletlink } from 'connectors'
+import { injected, walletconnect, walletlink } from 'connectors'
 import { EVM_NETWORK, EVM_NETWORKS, NETWORKS_INFO } from 'constants/networks'
 import { NetworkInfo } from 'constants/networks/type'
 import { SUPPORTED_WALLET, SUPPORTED_WALLETS, WALLETLINK_LOCALSTORAGE_NAME } from 'constants/wallets'
@@ -61,6 +61,9 @@ export function useActiveWeb3React(): {
   const walletKey = useMemo(() => {
     if (connector === walletlink) {
       return 'COINBASE_LINK'
+    }
+    if (connector === walletconnect) {
+      return 'WALLET_CONNECT'
     }
     const injectedType = detectInjectedType()
     if (active && injectedType && isEVM) return injectedType
