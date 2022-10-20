@@ -39,7 +39,7 @@ if (process.env.REACT_APP_TAG) {
     service: 'kyberswap-interface',
 
     version: process.env.REACT_APP_TAG,
-    sampleRate: 100,
+    sampleRate: 10,
     sessionReplaySampleRate: 100,
     trackInteractions: true,
     trackResources: true,
