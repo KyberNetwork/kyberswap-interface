@@ -1,3 +1,4 @@
+import { datadogRum } from '@datadog/browser-rum'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import React, { useRef } from 'react'
@@ -288,6 +289,17 @@ export default function Menu() {
             textAlign={isMobile ? 'left' : 'center'}
           >
             kyberswap@{process.env.REACT_APP_TAG}
+          </Text>
+        )}
+        {datadogRum.getInternalContext()?.session_id && (
+          <Text
+            fontSize="10px"
+            fontWeight={300}
+            color={theme.subText}
+            mt="16px"
+            textAlign={isMobile ? 'left' : 'center'}
+          >
+            session@{datadogRum.getInternalContext()?.session_id}
           </Text>
         )}
       </MenuFlyout>
