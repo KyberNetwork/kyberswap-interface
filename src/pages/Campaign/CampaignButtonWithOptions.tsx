@@ -16,7 +16,6 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/useChangeNetwork'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
-import useSendTransactionCallback from 'hooks/useSendTransactionCallback'
 import useTheme from 'hooks/useTheme'
 import { Dots } from 'pages/Pool/styleds'
 import { OptionsContainer } from 'pages/TrueSight/styled'
@@ -30,6 +29,7 @@ import {
 } from 'state/campaigns/actions'
 import { useSetClaimingCampaignRewardId, useSwapNowHandler } from 'state/campaigns/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
+import { sendEVMTransaction } from 'utils/sendTransaction'
 
 type Size = 'small' | 'large'
 export default function CampaignButtonWithOptions({
@@ -114,7 +114,6 @@ export default function CampaignButtonWithOptions({
   }
 
   const addTransactionWithType = useTransactionAdder()
-  const sendTransaction = useSendTransactionCallback()
 
   const claimRewards = async (claimChainId: ChainId) => {
     if (!account || !library || !campaign || !leaderboardInfo) return
@@ -139,39 +138,46 @@ export default function CampaignButtonWithOptions({
       const rewardContractAddress = response.data.data.ContractAddress
       const encodedData = response.data.data.EncodedData
       try {
-        await sendTransaction(rewardContractAddress, encodedData, BigNumber.from(0), async transactionResponse => {
-          const accumulatedUnclaimedRewards = leaderboardInfo?.rewards
-            .filter(reward => !reward.claimed)
-            .reduce((acc: { [p: string]: CampaignLeaderboardReward }, value) => {
-              const key = value.token.chainId + '_' + value.token.address
-              if (acc[key] === undefined) {
-                acc[key] = value
-              } else {
-                acc[key] = {
-                  ...value,
-                  rewardAmount: value.rewardAmount.add(acc[key].rewardAmount),
+        await sendEVMTransaction(
+          account,
+          library,
+          rewardContractAddress,
+          encodedData,
+          BigNumber.from(0),
+          async transactionResponse => {
+            const accumulatedUnclaimedRewards = leaderboardInfo?.rewards
+              .filter(reward => !reward.claimed)
+              .reduce((acc: { [p: string]: CampaignLeaderboardReward }, value) => {
+                const key = value.token.chainId + '_' + value.token.address
+                if (acc[key] === undefined) {
+                  acc[key] = value
+                } else {
+                  acc[key] = {
+                    ...value,
+                    rewardAmount: value.rewardAmount.add(acc[key].rewardAmount),
+                  }
                 }
-              }
-              return acc
-            }, {})
-          const rewardString = Object.values(accumulatedUnclaimedRewards ?? {})
-            .map(reward => reward.rewardAmount.toSignificant(DEFAULT_SIGNIFICANT) + ' ' + reward.token.symbol)
-            .join(' ' + t`and` + ' ')
-          addTransactionWithType(transactionResponse, {
-            type: 'Claim',
-            desiredChainId: claimChainId,
-            summary: `${rewardString} from campaign "${campaign?.name}"`,
-          })
-          const newRef2Hash = refs
-            .filter(ref => !!ref)
-            .reduce((acc, ref) => ({ ...acc, [ref]: transactionResponse.hash }), {})
-          setRef2Hash(prev => ({ ...prev, ...newRef2Hash }))
-          const transactionReceipt = await transactionResponse.wait()
-          if (transactionReceipt.status === 1) {
-            addTemporaryClaimedRefs && addTemporaryClaimedRefs(refs)
-            updateCampaignStore()
-          }
-        })
+                return acc
+              }, {})
+            const rewardString = Object.values(accumulatedUnclaimedRewards ?? {})
+              .map(reward => reward.rewardAmount.toSignificant(DEFAULT_SIGNIFICANT) + ' ' + reward.token.symbol)
+              .join(' ' + t`and` + ' ')
+            addTransactionWithType(transactionResponse, {
+              type: 'Claim',
+              desiredChainId: claimChainId,
+              summary: `${rewardString} from campaign "${campaign?.name}"`,
+            })
+            const newRef2Hash = refs
+              .filter(ref => !!ref)
+              .reduce((acc, ref) => ({ ...acc, [ref]: transactionResponse.hash }), {})
+            setRef2Hash(prev => ({ ...prev, ...newRef2Hash }))
+            const transactionReceipt = await transactionResponse.wait()
+            if (transactionReceipt.status === 1) {
+              addTemporaryClaimedRefs && addTemporaryClaimedRefs(refs)
+              updateCampaignStore()
+            }
+          },
+        )
       } catch (err) {
         console.error(err)
         setClaimingCampaignRewardId(null)

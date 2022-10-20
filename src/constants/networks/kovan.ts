@@ -13,8 +13,8 @@ const NOT_SUPPORT = null
 const kovanInfo: EVMNetworkInfo = {
   chainId: ChainId.KOVAN,
   route: 'kovan',
-  ksSettingRoute: 'kovan',
-  priceRoute: 'kovan',
+  ksSettingRoute: 'ethereum',
+  priceRoute: 'ethereum',
   name: 'Kovan',
   icon: Mainnet,
   iconDark: NOT_SUPPORT,

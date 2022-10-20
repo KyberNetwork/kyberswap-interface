@@ -8,7 +8,6 @@ import useTheme from 'hooks/useTheme'
 import { PopupContentListUpdate, PopupContentSimple, PopupContentTxn, PopupType } from 'state/application/actions'
 import { NotificationType, useRemovePopup } from 'state/application/hooks'
 
-import ListUpdatePopup from './ListUpdatePopup'
 import SimplePopup from './SimplePopup'
 import TransactionPopup from './TransactionPopup'
 
@@ -148,14 +147,6 @@ export default function PopupItem({
       const { hash, type, summary, notiType: _notiType = NotificationType.ERROR } = content as PopupContentTxn
       notiType = _notiType
       popupContent = <TransactionPopup hash={hash} notiType={notiType} type={type} summary={summary} />
-      break
-    }
-    case PopupType.LIST_UPDATE: {
-      const { listUrl, oldList, newList, auto } = content as PopupContentListUpdate
-      notiType = NotificationType.SUCCESS
-      popupContent = (
-        <ListUpdatePopup popKey={popKey} listUrl={listUrl} oldList={oldList} newList={newList} auto={auto} />
-      )
       break
     }
   }

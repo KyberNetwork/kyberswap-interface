@@ -14,7 +14,6 @@ import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useENSName from 'hooks/useENSName'
-import { useHasSocks } from 'hooks/useSocksBalance'
 import { useNetworkModalToggle, useWalletModalToggle } from 'state/application/hooks'
 import { isTransactionRecent, useAllTransactions } from 'state/transactions/hooks'
 import { TransactionDetails } from 'state/transactions/reducer'
@@ -94,12 +93,6 @@ function newTransactionsFirst(a: TransactionDetails, b: TransactionDetails) {
   return b.addedTime - a.addedTime
 }
 
-const SOCK = (
-  <span role="img" aria-label="has socks emoji" style={{ marginTop: -4, marginBottom: -4 }}>
-    🧦
-  </span>
-)
-
 const AccountElement = styled.div<{ active: boolean }>`
   display: flex;
   flex-direction: row;
@@ -129,7 +122,6 @@ function Web3StatusInner() {
   const pending = sortedRecentTransactions.filter(tx => !tx.receipt).map(tx => tx.hash)
 
   const hasPendingTransactions = !!pending.length
-  const hasSocks = useHasSocks()
   const toggleWalletModal = useWalletModalToggle()
   const toggleNetworkModal = useNetworkModalToggle()
 
@@ -158,7 +150,6 @@ function Web3StatusInner() {
                 />
               </IconWrapper>
             )}
-            {hasSocks ? SOCK : null}
             <Text>{ENSName || shortenAddress(chainId, account, above369 ? undefined : 2)}</Text>
           </>
         )}

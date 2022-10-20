@@ -23,7 +23,6 @@ export type PopupContentSimple = {
 
 export enum PopupType {
   TRANSACTION,
-  LIST_UPDATE,
   SIMPLE,
 }
 

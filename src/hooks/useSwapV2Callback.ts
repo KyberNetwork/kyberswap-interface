@@ -2,16 +2,15 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
 import { useCallback, useMemo } from 'react'
 
-import { useWeb3React } from 'hooks'
-import { useActiveWeb3React } from 'hooks/index'
+import { useActiveWeb3React, useWeb3React } from 'hooks/index'
 import useENS from 'hooks/useENS'
-import useSendTransactionCallback from 'hooks/useSendTransactionCallback'
 import { useSwapState } from 'state/swap/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { isAddress, shortenAddress } from 'utils'
 import { Aggregator } from 'utils/aggregator'
 import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
+import { sendEVMTransaction, sendSolanaTransaction } from 'utils/sendTransaction'
 
 enum SwapCallbackState {
   INVALID,
@@ -32,8 +31,9 @@ export function useSwapV2Callback(
   trade: Aggregator | undefined, // trade to execute, required
   recipientAddressOrName: string | null, // the ENS name or address of the recipient of the trade, or null if swap should be returned to sender
 ): { state: SwapCallbackState; callback: null | (() => Promise<string>); error: string | null } {
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, isEVM, isSolana } = useActiveWeb3React()
   const { library } = useWeb3React()
+
   const { typedValue, feeConfig, saveGas } = useSwapState()
 
   const [allowedSlippage] = useUserSlippageTolerance()
@@ -97,10 +97,8 @@ export function useSwapV2Callback(
     ],
   )
 
-  const sendTransaction = useSendTransactionCallback()
-
   return useMemo(() => {
-    if (!trade || !library || !account || !chainId) {
+    if (!trade || !account) {
       return { state: SwapCallbackState.INVALID, callback: null, error: 'Missing dependencies' }
     }
     if (!recipient) {
@@ -113,9 +111,23 @@ export function useSwapV2Callback(
 
     const onSwapWithBackendEncode = async (): Promise<string> => {
       const value = BigNumber.from(trade.inputAmount.currency.isNative ? trade.inputAmount.quotient.toString() : 0)
-      const hash = await sendTransaction(trade.routerAddress, trade.encodedSwapData, value, onHandleResponse)
-      if (hash === undefined) throw new Error('sendTransaction returned undefined.')
-      return hash
+      if (isEVM) {
+        const hash = await sendEVMTransaction(
+          account,
+          library,
+          trade.routerAddress,
+          trade.encodedSwapData,
+          value,
+          onHandleResponse,
+        )
+        if (hash === undefined) throw new Error('sendTransaction returned undefined.')
+        return hash
+      } else if (isSolana) {
+        const hash = await sendSolanaTransaction(account, trade.routerAddress, trade, value, onHandleResponse)
+        if (hash === undefined) throw new Error('sendTransaction returned undefined.')
+        return hash
+      }
+      throw new Error('either evm or solana')
     }
 
     return {
@@ -123,5 +135,5 @@ export function useSwapV2Callback(
       callback: onSwapWithBackendEncode,
       error: null,
     }
-  }, [trade, library, account, chainId, recipient, recipientAddressOrName, onHandleResponse, sendTransaction])
+  }, [trade, account, recipient, recipientAddressOrName, isEVM, isSolana, library, onHandleResponse])
 }
