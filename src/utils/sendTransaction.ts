@@ -3,7 +3,7 @@ import { TransactionResponse } from '@ethersproject/providers'
 import { captureException } from '@sentry/react'
 import { ethers } from 'ethers'
 
-import connection from 'state/connection/connection'
+// import connection from 'state/connection/connection'
 import { calculateGasMargin } from 'utils'
 
 import { Aggregator } from './aggregator'

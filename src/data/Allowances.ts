@@ -1,11 +1,12 @@
 import { Token, TokenAmount } from '@namgold/ks-sdk-core'
-import { useEffect, useMemo, useState } from 'react'
+import { getAccount } from '@solana/spl-token'
 import { PublicKey } from '@solana/web3.js'
+import { useEffect, useMemo, useState } from 'react'
+
+import { SolanaNetworkInfo } from 'constants/networks/type'
+import { useActiveWeb3React } from 'hooks'
 import { useTokenContractForReading } from 'hooks/useContract'
 import { useSingleCallResult } from 'state/multicall/hooks'
-import { useActiveWeb3React } from 'hooks'
-import { getAccount } from '@solana/spl-token'
-import { SolanaNetworkInfo } from 'constants/networks/type'
 import { useAssociatedTokensAccounts } from 'state/wallet/solanaHooks'
 
 export function useTokenAllowance(token?: Token, owner?: string, spender?: string): TokenAmount | undefined {
