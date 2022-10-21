@@ -7,33 +7,30 @@ import { useChangeNetwork } from './useChangeNetwork'
 export function useSyncRouteParamsWithStore() {
   const params = useParams<{ network?: string }>()
   const changeNetwork = useChangeNetwork()
-  const { networkInfo } = useActiveWeb3React()
+  const { networkInfo, walletEVM, walletSolana } = useActiveWeb3React()
   const isOnInit = useRef(true)
   const history = useHistory()
   const match = useRouteMatch()
   const triedEager = useEagerConnect()
 
   useEffect(() => {
-    /**
-     * Try to change to network on route param on init. Exp: /swap/ethereum => try to connect to ethereum on init
-     * @param params.network: network in router params need to exist
-     * @param isOnInit.current: make sure only run 1 time after init
-     * @param active: only run this if wallet connected
-     * @param triedEager: only run after tried to connect injected wallet
-     */
-    if (params?.network && isOnInit.current && triedEager) {
+    if (!params?.network) {
+      isOnInit.current = false
+      return
+    }
+    const paramChainId = Object.values(NETWORKS_INFO).find(n => n.route === params?.network)?.chainId
+    if (isOnInit.current) {
+      /**
+       * Try to change to network on route param on init. Exp: /swap/ethereum => try to connect to ethereum on init
+       * @param isOnInit.current: make sure only run 1 time after init
+       * @param triedEager: only run after tried to connect injected wallet
+       */
       ;(async () => {
-        const paramChainId = Object.values(NETWORKS_INFO).find(n => n.route === params?.network)?.chainId
         if (paramChainId && isEVM(paramChainId)) {
-          await changeNetwork(
-            paramChainId,
-            () => {
-              isOnInit.current = false
-            },
-            () => {
-              history.replace({ pathname: match.path.replace(':network', networkInfo.route) })
-            },
-          )
+          await changeNetwork(paramChainId, undefined, () => {
+            history.replace({ pathname: match.path.replace(':network', networkInfo.route) })
+          })
+          isOnInit.current = false
         } else if (paramChainId && isSolana(paramChainId)) {
           await changeNetwork(paramChainId, () => {
             isOnInit.current = false
@@ -41,7 +38,15 @@ export function useSyncRouteParamsWithStore() {
         }
       })()
     }
-  }, [changeNetwork, history, triedEager, params?.network, match.path, networkInfo.route])
+  }, [
+    changeNetwork,
+    history,
+    params?.network,
+    match.path,
+    networkInfo.route,
+    walletEVM.isConnected,
+    walletSolana.isConnected,
+  ])
 
   useEffect(() => {
     /**

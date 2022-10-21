@@ -37,8 +37,8 @@ function parseNetworkId(maybeSupportedNetwork: string): ChainId | undefined {
 }
 
 export function useChangeNetwork() {
-  const { chainId, walletKey } = useActiveWeb3React()
-  const { active, library, error } = useWeb3React()
+  const { chainId, walletKey, walletEVM } = useActiveWeb3React()
+  const { library, error } = useWeb3React()
   const { tryActivationEVM, tryActivationSolana } = useActivationWallet()
 
   const qs = useParsedQueryString<{ networkId: string }>()
@@ -55,6 +55,7 @@ export function useChangeNetwork() {
 
   const changeNetwork = useCallback(
     async (desiredChainId: ChainId, successCallback?: () => void, failureCallback?: () => void) => {
+      if (desiredChainId === chainId) return
       const wallet = walletKey && SUPPORTED_WALLETS[walletKey]
       if (wallet && isEVMWallet(wallet) && !isSolana(desiredChainId)) {
         tryActivationEVM(wallet.connector)
@@ -67,8 +68,11 @@ export function useChangeNetwork() {
           chainId: '0x' + Number(desiredChainId).toString(16),
         }
         const isWrongNetwork = error instanceof UnsupportedChainIdError
-        // If not connected EVM wallet
-        if (!active && !isWrongNetwork) {
+        // If not connected EVM wallet, or connected EVM wallet and want to switch back to EVM network
+        if (
+          (!walletEVM.isConnected && !isWrongNetwork) ||
+          (walletEVM.isConnected && walletEVM.chainId === desiredChainId)
+        ) {
           changeNetworkHandler(desiredChainId, successCallback)
           return
         }
@@ -81,7 +85,7 @@ export function useChangeNetwork() {
               method: 'wallet_switchEthereumChain',
               params: [switchNetworkParams],
             })
-            changeNetworkHandler(desiredChainId, successCallback)
+            successCallback?.()
           } catch (switchError) {
             // This is a workaround solution for Coin98
             const isSwitchError =
@@ -91,15 +95,6 @@ export function useChangeNetwork() {
               try {
                 const addNetworkParams = getEVMAddNetworkParams(desiredChainId)
                 await activeProvider.request({ method: 'wallet_addEthereumChain', params: [addNetworkParams] })
-                try {
-                  await activeProvider.request({
-                    method: 'wallet_switchEthereumChain',
-                    params: [switchNetworkParams],
-                  })
-                  changeNetworkHandler(desiredChainId, successCallback)
-                } catch (error) {
-                  throw error
-                }
               } catch (addError) {
                 notify({
                   title: t`Failed to switch network`,
@@ -123,7 +118,18 @@ export function useChangeNetwork() {
         changeNetworkHandler(desiredChainId, successCallback)
       }
     },
-    [library, error, notify, changeNetworkHandler, tryActivationEVM, tryActivationSolana, walletKey, active],
+    [
+      library,
+      error,
+      notify,
+      changeNetworkHandler,
+      tryActivationEVM,
+      tryActivationSolana,
+      walletKey,
+      walletEVM.isConnected,
+      walletEVM.chainId,
+      chainId,
+    ],
   )
 
   useEffect(() => {

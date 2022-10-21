@@ -1,6 +1,6 @@
 import { Web3Provider } from '@ethersproject/providers'
 import { ChainId, ChainType, getChainType } from '@namgold/ks-sdk-core'
-import { useWallet } from '@solana/wallet-adapter-react'
+import { useWallet, Wallet } from '@solana/wallet-adapter-react'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import { useWeb3React as useWeb3ReactCore } from '@web3-react/core'
 import { Web3ReactContextInterface } from '@web3-react/core/dist/types'
@@ -33,58 +33,74 @@ export function useActiveWeb3React(): {
   chainId: ChainId
   account?: string
   walletKey: SUPPORTED_WALLET | undefined
+  walletEVM: { isConnected: boolean; walletKey?: string | number; connector?: AbstractConnector; chainId?: ChainId }
+  walletSolana: { isConnected: boolean; walletKey?: string | number; wallet: Wallet | null }
   isEVM: boolean
   isSolana: boolean
   networkInfo: NetworkInfo
-  active: boolean
 } {
   const chainIdState = useSelector<AppState, ChainId>(state => state.user.chainId) || ChainId.MAINNET
-  const { account, connector, active, chainId: chainIdEVM } = useWeb3React()
+  /**Hook for EVM infos */
+  const { connector: connectedConnectorEVM, active: isConnectedEVM, account, chainId: chainIdEVM } = useWeb3React()
+  /**Hook for Solana infos */
+  const { wallet: connectedWalletSolana, connected: isConnectedSolana, publicKey } = useWallet()
+
   const isEVM = useMemo(() => getChainType(chainIdState) === ChainType.EVM, [chainIdState])
   const isSolana = useMemo(() => getChainType(chainIdState) === ChainType.SOLANA, [chainIdState])
 
-  const chainId = useMemo(() => {
-    // If Connected EVM wallet => take chainId from wallet
-    if (active && isEVM) {
-      return chainIdEVM || chainIdState
-    }
-    // Else take chainId in store
-    return chainIdState
-  }, [active, chainIdEVM, chainIdState, isEVM])
+  const addressEVM = account ?? undefined
+  const addressSolana = publicKey?.toBase58()
 
-  const networkInfo = useMemo(() => NETWORKS_INFO[chainId], [chainId])
-
-  const { wallet: walletSolana, connected, publicKey } = useWallet()
-
-  const address = useMemo(() => (isEVM ? account ?? undefined : publicKey?.toBase58()), [account, isEVM, publicKey])
-
-  const walletKey = useMemo(() => {
-    if (connector === walletlink) {
+  const walletKeyEVM = useMemo(() => {
+    if (!isConnectedEVM) return undefined
+    if (connectedConnectorEVM === walletlink || !!(connectedConnectorEVM as any)?.walletLink) {
       return 'COINBASE_LINK'
     }
-    if (connector === walletconnect) {
+    if (connectedConnectorEVM === walletconnect) {
       return 'WALLET_CONNECT'
     }
-    const injectedType = detectInjectedType()
-    if (active && injectedType && isEVM) return injectedType
+    return (
+      detectInjectedType() ??
+      (Object.keys(SUPPORTED_WALLETS) as SUPPORTED_WALLET[]).find(walletKey => {
+        const wallet = SUPPORTED_WALLETS[walletKey]
+        return isEVMWallet(wallet) && isConnectedEVM && wallet.connector === connectedConnectorEVM
+      })
+    )
+  }, [connectedConnectorEVM, isConnectedEVM])
 
-    return (Object.keys(SUPPORTED_WALLETS) as SUPPORTED_WALLET[]).find(walletKey => {
-      const wallet = SUPPORTED_WALLETS[walletKey]
-      return (
-        (isEVM && active && isEVMWallet(wallet) && !!connector && wallet.connector === connector) ||
-        (isSolana && isSolanaWallet(wallet) && wallet && connected && wallet.adapter === walletSolana?.adapter)
-      )
-    })
-  }, [active, isEVM, isSolana, connected, connector, walletSolana?.adapter])
+  const walletKeySolana = useMemo(
+    () =>
+      isConnectedSolana
+        ? (Object.keys(SUPPORTED_WALLETS) as SUPPORTED_WALLET[]).find(walletKey => {
+            const wallet = SUPPORTED_WALLETS[walletKey]
+            return isSolanaWallet(wallet) && wallet.adapter === connectedWalletSolana?.adapter
+          })
+        : undefined,
+    [isConnectedSolana, connectedWalletSolana?.adapter],
+  )
 
   return {
-    chainId,
-    account: address,
-    walletKey,
-    isEVM,
-    isSolana,
-    networkInfo,
-    active,
+    chainId: chainIdState,
+    account: isEVM ? addressEVM : addressSolana,
+    walletKey: isEVM ? walletKeyEVM : walletKeySolana,
+    walletEVM: useMemo(() => {
+      return {
+        isConnected: isConnectedEVM,
+        connector: connectedConnectorEVM,
+        walletKey: walletKeyEVM,
+        chainId: chainIdEVM,
+      }
+    }, [isConnectedEVM, connectedConnectorEVM, walletKeyEVM, chainIdEVM]),
+    walletSolana: useMemo(() => {
+      return {
+        isConnected: isConnectedSolana,
+        wallet: connectedWalletSolana,
+        walletKey: walletKeySolana,
+      }
+    }, [isConnectedSolana, connectedWalletSolana, walletKeySolana]),
+    isEVM: isEVM,
+    isSolana: isSolana,
+    networkInfo: NETWORKS_INFO[chainIdState],
   }
 }
 
