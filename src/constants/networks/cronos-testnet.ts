@@ -14,6 +14,8 @@ const NOT_SUPPORT = null
 const cronosTestnetInfo: EVMNetworkInfo = {
   chainId: ChainId.CRONOSTESTNET,
   route: 'cronos-testnet',
+  ksSettingRoute: 'cronos',
+  priceRoute: 'cronos',
   name: 'Cronos Testnet',
   icon: CRONOS,
   iconDark: CRONOS_DARK,

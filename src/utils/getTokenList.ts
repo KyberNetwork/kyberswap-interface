@@ -35,7 +35,7 @@ export async function getTokenListV2(listUrl: string): Promise<TokenList> {
   })
 }
 
-const formatTokensAddress = (tokenList: any) => {
+const formatTokensAddress = (tokenList: TokenList) => {
   tokenList.tokens.forEach((token: any) => {
     token.address = getFormattedAddress(token.chainId, token.address)
   })

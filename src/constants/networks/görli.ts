@@ -13,6 +13,8 @@ const NOT_SUPPORT = null
 const görliInfo: EVMNetworkInfo = {
   chainId: ChainId.GÖRLI,
   route: 'goerli',
+  ksSettingRoute: 'ethereum',
+  priceRoute: 'ethereum',
   name: 'Görli',
   icon: Mainnet,
   iconDark: NOT_SUPPORT,

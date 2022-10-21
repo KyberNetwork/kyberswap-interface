@@ -1,5 +1,5 @@
 import { AddressZero } from '@ethersproject/constants'
-import { Contract } from '@ethersproject/contracts'
+import { Contract, ContractInterface } from '@ethersproject/contracts'
 import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
 import { ChainId } from '@namgold/ks-sdk-core'
 import { ethers } from 'ethers'
@@ -24,7 +24,12 @@ function getProviderOrSigner(library: Web3Provider, account?: string): Web3Provi
 }
 
 // account is optional
-export function getContract(address: string, ABI: any, library: Web3Provider, account?: string): Contract {
+export function getContract(
+  address: string,
+  ABI: ContractInterface,
+  library: Web3Provider,
+  account?: string,
+): Contract {
   if (!isAddress(ChainId.MAINNET, address) || address === AddressZero) {
     throw Error(`Invalid 'address' parameter '${address}'.`)
   }
@@ -32,7 +37,11 @@ export function getContract(address: string, ABI: any, library: Web3Provider, ac
   return new Contract(address, ABI, getProviderOrSigner(library, account) as any)
 }
 
-export function getContractForReading(address: string, ABI: any, library: ethers.providers.JsonRpcProvider): Contract {
+export function getContractForReading(
+  address: string,
+  ABI: ContractInterface,
+  library: ethers.providers.JsonRpcProvider,
+): Contract {
   if (!isAddress(ChainId.MAINNET, address) || address === AddressZero) {
     throw Error(`Invalid 'address' parameter '${address}'.`)
   }

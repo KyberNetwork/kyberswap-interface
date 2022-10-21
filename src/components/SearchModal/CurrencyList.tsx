@@ -259,7 +259,7 @@ function CurrencyList({
     >
       {currencies.map((item, index) => (
         <Row
-          key={index}
+          key={item.isNative + item.wrapped.address}
           index={index}
           currency={item}
           currencyBalance={currencyBalances[index]}

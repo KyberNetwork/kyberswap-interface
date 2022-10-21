@@ -1,4 +1,4 @@
-import { ChainId, Currency, CurrencyAmount, Token, TokenAmount } from '@namgold/ks-sdk-core'
+import { Currency, CurrencyAmount, Token, TokenAmount } from '@namgold/ks-sdk-core'
 import { AccountLayout, RawAccount, TOKEN_PROGRAM_ID } from '@solana/spl-token'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { AccountInfo, PublicKey } from '@solana/web3.js'
@@ -11,19 +11,17 @@ import connection from 'state/connection/connection'
 import { isAddress } from 'utils'
 
 export const useSOLBalance = (uncheckedAddress?: string): CurrencyAmount<Currency> | undefined => {
-  const { chainId, account } = useActiveWeb3React()
+  const { chainId, account, isSolana } = useActiveWeb3React()
   const [solBalance, setSolBalance] = useState<CurrencyAmount<Currency> | undefined>(undefined)
 
   useEffect(() => {
     const getBalance = async () => {
-      if (chainId !== ChainId.SOLANA) return
+      if (!isSolana) return
       if (!account) return
       if (!isAddress(chainId, account)) return
       try {
         const publicKey = new PublicKey(account)
         if (publicKey) {
-          console.count('solana getBalance')
-          console.info('solana getBalance', publicKey.toBase58())
           const balance = await connection.getBalance(publicKey)
           const balanceJSBI = JSBI.BigInt(balance)
           if (solBalance === undefined || !JSBI.equal(balanceJSBI, solBalance.quotient))
@@ -51,20 +49,17 @@ type AccountInfoParsed = Overwrite<AccountInfo<any>, ParsedData> & {
   pubkey: PublicKey
 }
 
-const useAssociatedTokensAccounts = (): { [mintAddress: string]: AccountInfoParsed } | null => {
-  const { chainId } = useActiveWeb3React()
+export const useAssociatedTokensAccounts = (): { [mintAddress: string]: AccountInfoParsed } | null => {
+  const { isSolana } = useActiveWeb3React()
 
   const { publicKey } = useWallet()
   const [atas, setAtas] = useState<{ [mintAddress: string]: AccountInfoParsed } | null>(null)
 
   useEffect(() => {
-    if (chainId !== ChainId.SOLANA) return
+    if (!isSolana) return
     if (!publicKey) return
     async function getTokenAccounts(publicKey: PublicKey) {
       try {
-        console.count('solana getTokenAccountsByOwner')
-        console.info('solana getTokenAccountsByOwner', publicKey.toBase58())
-        // console.log('connection.getBlockHeight', await connection.getBlockHeight())
         const response = await connection.getTokenAccountsByOwner(publicKey, {
           programId: TOKEN_PROGRAM_ID,
         })
@@ -85,7 +80,7 @@ const useAssociatedTokensAccounts = (): { [mintAddress: string]: AccountInfoPars
     }
 
     getTokenAccounts(publicKey)
-  }, [publicKey, chainId])
+  }, [publicKey, isSolana])
 
   return atas
 }

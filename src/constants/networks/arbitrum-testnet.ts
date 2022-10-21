@@ -13,6 +13,8 @@ const NOT_SUPPORT = null
 const arbitrumTestnetInfo: EVMNetworkInfo = {
   chainId: ChainId.ARBITRUM_TESTNET,
   route: 'arbitrum-testnet',
+  ksSettingRoute: 'arbitrum',
+  priceRoute: 'arbitrum',
   name: 'Arbitrum Testnet',
   icon: ARBITRUM,
   iconDark: NOT_SUPPORT,

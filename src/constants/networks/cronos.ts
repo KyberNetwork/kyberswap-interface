@@ -13,6 +13,8 @@ const NOT_SUPPORT = null
 const cronosInfo: EVMNetworkInfo = {
   chainId: ChainId.CRONOS,
   route: 'cronos',
+  ksSettingRoute: 'cronos',
+  priceRoute: 'cronos',
   name: 'Cronos',
   icon: CRONOS,
   iconDark: CRONOS_DARK,

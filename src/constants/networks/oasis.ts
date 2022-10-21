@@ -12,6 +12,8 @@ const NOT_SUPPORT = null
 const oasisInfo: EVMNetworkInfo = {
   chainId: ChainId.OASIS,
   route: 'oasis',
+  ksSettingRoute: 'oasis',
+  priceRoute: 'oasis',
   name: 'Oasis',
   icon: OASIS,
   iconDark: NOT_SUPPORT,

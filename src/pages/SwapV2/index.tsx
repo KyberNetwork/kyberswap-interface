@@ -213,7 +213,7 @@ export default function Swap({ history }: RouteComponentProps) {
       return !Boolean(token.address in defaultTokens)
     })
 
-  const { account, chainId, networkInfo } = useActiveWeb3React()
+  const { account, chainId, networkInfo, isSolana } = useActiveWeb3React()
   const theme = useTheme()
 
   // toggle wallet when disconnected
@@ -795,7 +795,7 @@ export default function Swap({ history }: RouteComponentProps) {
               </SwapFormActions>
             </RowBetween>
 
-            {chainId !== ChainId.ETHW && chainId !== ChainId.SOLANA && (
+            {chainId !== ChainId.ETHW && !isSolana && (
               <RowBetween mb={'16px'}>
                 <PairSuggestion
                   ref={refSuggestPair}

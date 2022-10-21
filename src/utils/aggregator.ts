@@ -5,8 +5,10 @@ import {
   Fraction,
   Percent,
   Price,
+  Token,
   TokenAmount,
   TradeType,
+  WETH,
 } from '@namgold/ks-sdk-core'
 import { captureException } from '@sentry/react'
 import JSBI from 'jsbi'
@@ -14,10 +16,37 @@ import invariant from 'tiny-invariant'
 
 import { DEX_TO_COMPARE } from 'constants/dexes'
 import { ETHER_ADDRESS, KYBERSWAP_SOURCE, sentryRequestId } from 'constants/index'
+import { isEVM } from 'constants/networks'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
 import { AggregationComparer } from 'state/swap/types'
 
 import fetchWaiting from './fetchWaiting'
+
+type Swap = {
+  pool: string
+  tokenIn: string
+  tokenOut: string
+  swapAmount: string
+  amountOut: string
+  limitReturnAmount: string
+  maxPrice: string
+  exchange: string
+  poolLength: number
+  poolType: string
+  extra:
+    | {
+        poolLength: number
+        tokenInIndex: number
+        tokenOutIndex: number
+      }
+    | undefined
+  collectAmount: string | undefined
+  recipient: string | undefined
+}
+
+type Tokens = {
+  [address: string]: Token
+}
 
 /**
  */
@@ -36,10 +65,10 @@ export class Aggregator {
   public readonly outputAmount: CurrencyAmount<Currency>
   /**
    */
-  public readonly swaps: any[][]
+  public readonly swaps: Swap[][]
   /**
    */
-  public readonly tokens: any
+  public readonly tokens: Tokens
   /**
    * The price expressed in terms of output amount/input amount.
    */
@@ -54,7 +83,7 @@ export class Aggregator {
   public readonly encodedSwapData: string
   public readonly routerAddress: string
 
-  public constructor(
+  private constructor(
     inputAmount: CurrencyAmount<Currency>,
     outputAmount: CurrencyAmount<Currency>,
     amountInUsd: number,
@@ -80,8 +109,16 @@ export class Aggregator {
       this.inputAmount.quotient,
       this.outputAmount.quotient,
     )
-    this.swaps = swaps
-    this.tokens = tokens
+    try {
+      this.swaps = swaps
+    } catch (e) {
+      this.swaps = [[]]
+    }
+    try {
+      this.tokens = tokens
+    } catch (e) {
+      this.tokens = {}
+    }
     this.gasUsd = gasUsd
     this.priceImpact = priceImpact
     this.encodedSwapData = encodedSwapData
@@ -150,8 +187,17 @@ export class Aggregator {
     const amountIn = currencyAmountIn
     const tokenOut = currencyOut.wrapped
 
-    const tokenInAddress = currencyAmountIn.currency.isNative ? ETHER_ADDRESS : amountIn.currency.wrapped.address
-    const tokenOutAddress = currencyOut.isNative ? ETHER_ADDRESS : tokenOut.address
+    const tokenInAddress = currencyAmountIn.currency.isNative
+      ? isEVM(currencyAmountIn.currency.chainId)
+        ? ETHER_ADDRESS
+        : WETH[currencyAmountIn.currency.chainId].address
+      : amountIn.currency.wrapped.address
+    const tokenOutAddress = currencyOut.isNative
+      ? isEVM(currencyOut.chainId)
+        ? ETHER_ADDRESS
+        : WETH[currencyOut.chainId].address
+      : tokenOut.address
+
     if (tokenInAddress && tokenOutAddress) {
       const search = new URLSearchParams({
         // Trade config
@@ -188,8 +234,11 @@ export class Aggregator {
         )
         const result = await response.json()
         if (
-          !result?.inputAmount ||
-          !result?.outputAmount ||
+          !result ||
+          !result.inputAmount ||
+          !result.outputAmount ||
+          typeof result.swaps?.[0]?.[0].pool !== 'string' ||
+          !result.tokens ||
           result.inputAmount === '0' ||
           result.outputAmount === '0'
         ) {
@@ -197,10 +246,14 @@ export class Aggregator {
         }
 
         const toCurrencyAmount = function (value: string, currency: Currency): CurrencyAmount<Currency> {
-          return TokenAmount.fromRawAmount(currency, JSBI.BigInt(value))
+          try {
+            return TokenAmount.fromRawAmount(currency, JSBI.BigInt(value))
+          } catch (e) {
+            return TokenAmount.fromRawAmount(currency, 0)
+          }
         }
 
-        const outputAmount = toCurrencyAmount(result.outputAmount, currencyOut)
+        const outputAmount = toCurrencyAmount(result?.outputAmount, currencyOut)
 
         const priceImpact = !result.amountOutUsd
           ? -1
@@ -225,9 +278,9 @@ export class Aggregator {
       } catch (e) {
         // ignore aborted request error
         if (!e?.message?.includes('Fetch is aborted') && !e?.message?.includes('The user aborted a request')) {
-          const e = new Error('Aggregator API call failed')
-          e.name = 'AggregatorAPIError'
-          captureException(e, { level: 'error' })
+          const sentryError = new Error('Aggregator API call failed', { cause: e })
+          sentryError.name = 'AggregatorAPIError'
+          captureException(sentryError, { level: 'error' })
         }
       }
     }
@@ -263,8 +316,17 @@ export class Aggregator {
     const amountIn = currencyAmountIn
     const tokenOut = currencyOut.wrapped
 
-    const tokenInAddress = currencyAmountIn.currency.isNative ? ETHER_ADDRESS : amountIn.currency.wrapped.address
-    const tokenOutAddress = currencyOut.isNative ? ETHER_ADDRESS : tokenOut.address
+    const tokenInAddress = currencyAmountIn.currency.isNative
+      ? isEVM(currencyAmountIn.currency.chainId)
+        ? ETHER_ADDRESS
+        : WETH[currencyAmountIn.currency.chainId].address
+      : amountIn.currency.wrapped.address
+    const tokenOutAddress = currencyOut.isNative
+      ? isEVM(currencyOut.chainId)
+        ? ETHER_ADDRESS
+        : WETH[currencyOut.chainId].address
+      : tokenOut.address
+
     const comparedDex = DEX_TO_COMPARE[chainId]
 
     if (tokenInAddress && tokenOutAddress && comparedDex) {
@@ -330,9 +392,9 @@ export class Aggregator {
       } catch (e) {
         // ignore aborted request error
         if (!e?.message?.includes('Fetch is aborted') && !e?.message?.includes('The user aborted a request')) {
-          const e = new Error('Aggregator API (comparedDex) call failed')
-          e.name = 'AggregatorAPIError'
-          captureException(e, { level: 'error' })
+          const sentryError = new Error('Aggregator API (comparedDex) call failed', { cause: e })
+          sentryError.name = 'AggregatorAPIError'
+          captureException(sentryError, { level: 'error' })
         }
       }
     }

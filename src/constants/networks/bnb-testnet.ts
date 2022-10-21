@@ -13,6 +13,8 @@ const NOT_SUPPORT = null
 const bnbTestnetInfo: EVMNetworkInfo = {
   chainId: ChainId.BSCTESTNET,
   route: 'bnb-testnet',
+  ksSettingRoute: 'bsc',
+  priceRoute: 'bsc',
   name: 'BNB Testnet',
   icon: BSC,
   iconDark: NOT_SUPPORT,

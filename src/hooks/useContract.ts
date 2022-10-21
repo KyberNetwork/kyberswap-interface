@@ -1,4 +1,4 @@
-import { Contract } from '@ethersproject/contracts'
+import { Contract, ContractInterface } from '@ethersproject/contracts'
 import { ChainId, WETH } from '@namgold/ks-sdk-core'
 import { useMemo } from 'react'
 
@@ -17,7 +17,6 @@ import FAIRLAUNCH_ABI from 'constants/abis/fairlaunch.json'
 import KS_STATIC_FEE_FACTORY_ABI from 'constants/abis/ks-factory.json'
 import REWARD_LOCKER_V2_ABI from 'constants/abis/reward-locker-v2.json'
 import REWARD_LOCKER_ABI from 'constants/abis/reward-locker.json'
-import UNISOCKS_ABI from 'constants/abis/unisocks.json'
 import NFTPositionManagerABI from 'constants/abis/v2/ProAmmNFTPositionManager.json'
 import ProAmmPoolAbi from 'constants/abis/v2/ProAmmPoolState.json'
 import QuoterABI from 'constants/abis/v2/ProAmmQuoter.json'
@@ -27,7 +26,7 @@ import WETH_ABI from 'constants/abis/weth.json'
 import ZAP_STATIC_FEE_ABI from 'constants/abis/zap-static-fee.json'
 import ZAP_ABI from 'constants/abis/zap.json'
 import { MULTICALL_ABI } from 'constants/multicall'
-import { EVM_NETWORK } from 'constants/networks'
+import { EVM_NETWORK, isEVM } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { FARM_CONTRACTS as PROMM_FARM_CONTRACTS } from 'constants/v2'
 import { useWeb3React } from 'hooks'
@@ -38,7 +37,11 @@ import { getContract, getContractForReading } from 'utils/getContract'
 import { providers, useActiveWeb3React } from './index'
 
 // returns null on errors
-export function useContract(address: string | undefined, ABI: any, withSignerIfPossible = true): Contract | null {
+export function useContract(
+  address: string | undefined,
+  ABI: ContractInterface,
+  withSignerIfPossible = true,
+): Contract | null {
   const { account, isEVM } = useActiveWeb3React()
   const { library } = useWeb3React()
 
@@ -53,7 +56,7 @@ export function useContract(address: string | undefined, ABI: any, withSignerIfP
   }, [address, ABI, library, withSignerIfPossible, account, isEVM])
 }
 
-function useContractForReading(address: string | undefined, ABI: any): Contract | null {
+function useContractForReading(address: string | undefined, ABI: ContractInterface): Contract | null {
   const { chainId, isEVM } = useActiveWeb3React()
   return useMemo(() => {
     if (!address || !isEVM) return null
@@ -70,7 +73,7 @@ function useContractForReading(address: string | undefined, ABI: any): Contract 
 // returns null on errors
 export function useMultipleContracts(
   addresses: string[] | undefined,
-  ABI: any,
+  ABI: ContractInterface,
   withSignerIfPossible = true,
 ): {
   [key: string]: Contract
@@ -115,7 +118,7 @@ export function useTokenContractForReading(tokenAddress?: string): Contract | nu
 
 export function useWETHContract(withSignerIfPossible?: boolean): Contract | null {
   const { chainId } = useActiveWeb3React()
-  return useContract(chainId ? WETH[chainId].address : undefined, WETH_ABI, withSignerIfPossible)
+  return useContract(isEVM(chainId) ? WETH[chainId].address : undefined, WETH_ABI, withSignerIfPossible)
 }
 
 export function useArgentWalletDetectorContract(): Contract | null {
@@ -130,7 +133,7 @@ export function useArgentWalletDetectorContract(): Contract | null {
 export function useENSRegistrarContract(withSignerIfPossible?: boolean): Contract | null {
   const { chainId } = useActiveWeb3React()
   let address: string | undefined
-  if (chainId) {
+  if (isEVM(chainId)) {
     switch (chainId) {
       case ChainId.MAINNET:
       case ChainId.GÖRLI:
@@ -158,15 +161,6 @@ export function usePairContract(pairAddress?: string, withSignerIfPossible?: boo
 export function useMulticallContract(): Contract | null {
   const { isEVM, networkInfo } = useActiveWeb3React()
   return useContractForReading(isEVM ? (networkInfo as EVMNetworkInfo).multicall : undefined, MULTICALL_ABI)
-}
-
-export function useSocksController(): Contract | null {
-  const { chainId } = useActiveWeb3React()
-  return useContract(
-    chainId === ChainId.MAINNET ? '0x65770b5283117639760beA3F867b69b3697a91dd' : undefined,
-    UNISOCKS_ABI,
-    false,
-  )
 }
 
 export function useOldStaticFeeFactoryContract(): Contract | null {

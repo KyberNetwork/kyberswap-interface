@@ -13,6 +13,8 @@ const NOT_SUPPORT = null
 const ethereumInfo: EVMNetworkInfo = {
   chainId: ChainId.MAINNET,
   route: 'ethereum',
+  ksSettingRoute: 'ethereum',
+  priceRoute: 'ethereum',
   name: 'Ethereum',
   icon: Mainnet,
   iconDark: NOT_SUPPORT,

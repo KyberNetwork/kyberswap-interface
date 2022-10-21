@@ -8,9 +8,10 @@ const instancesSet: { [title: string]: Set<Error> } = {}
  * Usually use to detect why useEffect run. Place it along with useEffect, then pass all useEffect's dependencies into its props
  *
  * @params {object} props - dependencies need to watch for change
+ * @params {RegExp | string} filter - filter debug which match `filter`
  *
  * @example
- * useDebug({ deps1, deps2, deps3 })
+ * useDebug({ deps1, deps2, deps3, filter: 'at useExample' })
  * useEffect(() => {...}, [deps1, deps2, deps3])
  */
 export default function useDebug(
@@ -72,10 +73,9 @@ export default function useDebug(
         // if (hasRealChanged && skipRealChanged) return
 
         console.groupCollapsed(
-          `%c[${new Date().toISOString().slice(11, 19)}] %cDebug found changed %c${callerName} (${instanceIndex}/${
-            instances.length
-          }) ${hasRealChanged ? '' : '🆘 🆘 🆘'}`,
-          'color: #31CB9E',
+          `%cDebug found changed %c${callerName} (${instanceIndex}/${instances.length}) ${
+            hasRealChanged ? '' : '🆘 🆘 🆘'
+          }`,
           'color: unset',
           'color: #b5a400',
         )
@@ -123,7 +123,7 @@ export default function useDebug(
         console.groupEnd()
         groupLevel--
       } catch (e) {
-        for (; groupLevel-- > 0; ) console.groupEnd()
+        for (; groupLevel-- > 0; console.groupEnd());
       }
     }
     prevProps.current = props

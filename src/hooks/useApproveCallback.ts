@@ -29,12 +29,13 @@ export function useApproveCallback(
   amountToApprove?: CurrencyAmount<Currency>,
   spender?: string,
 ): [ApprovalState, () => Promise<void>] {
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, isSolana } = useActiveWeb3React()
   const token = amountToApprove?.currency.wrapped
   const currentAllowance = useTokenAllowance(token, account ?? undefined, spender)
   const pendingApproval = useHasPendingApproval(token?.address, spender)
   // check the current approval status
   const approvalState: ApprovalState = useMemo(() => {
+    if (isSolana) return ApprovalState.APPROVED // Solana do approve when actual swap
     if (!amountToApprove || !spender) return ApprovalState.UNKNOWN
     if (amountToApprove.currency.isNative) return ApprovalState.APPROVED
     // we might not have enough data to know whether or not we need to approve
@@ -54,7 +55,7 @@ export function useApproveCallback(
         ? ApprovalState.PENDING
         : ApprovalState.NOT_APPROVED
       : ApprovalState.APPROVED
-  }, [amountToApprove, currentAllowance, pendingApproval, spender])
+  }, [amountToApprove, currentAllowance, isSolana, pendingApproval, spender])
 
   const tokenContract = useTokenContract(token?.address)
   const addTransactionWithType = useTransactionAdder()
@@ -125,7 +126,10 @@ export function useApproveCallback(
 }
 
 // wraps useApproveCallback in the context of a swap
-export function useApproveCallbackFromTrade(trade?: Trade<Currency, Currency, TradeType>, allowedSlippage = 0) {
+export function useApproveCallbackFromTrade(
+  trade?: Trade<Currency, Currency, TradeType>,
+  allowedSlippage = 0,
+): [ApprovalState, () => Promise<void>] {
   const { isEVM, networkInfo } = useActiveWeb3React()
   const amountToApprove = useMemo(
     () => (trade ? computeSlippageAdjustedAmounts(trade, allowedSlippage)[Field.INPUT] : undefined),
@@ -136,11 +140,13 @@ export function useApproveCallbackFromTrade(trade?: Trade<Currency, Currency, Tr
 }
 
 // wraps useApproveCallback in the context of a swap
-export function useApproveCallbackFromTradeV2(trade?: Aggregator, allowedSlippage = 0) {
-  const { isEVM } = useActiveWeb3React()
+export function useApproveCallbackFromTradeV2(
+  trade?: Aggregator,
+  allowedSlippage = 0,
+): [ApprovalState, () => Promise<void>] {
   const amountToApprove = useMemo(
     () => (trade ? computeSlippageAdjustedAmounts(trade, allowedSlippage)[Field.INPUT] : undefined),
     [trade, allowedSlippage],
   )
-  return useApproveCallback(amountToApprove, isEVM && trade?.routerAddress ? trade.routerAddress : undefined)
+  return useApproveCallback(amountToApprove, trade?.routerAddress || undefined)
 }

@@ -77,8 +77,8 @@ export const CAMPAIGN_BASE_URL: string = process.env.REACT_APP_CAMPAIGN_BASE_URL
 
 invariant(process.env.REACT_APP_SOLANA_NETWORK, 'env REACT_APP_SOLANA_NETWORK is missing')
 invariant(process.env.REACT_APP_SOLANA_NETWORK in WalletAdapterNetwork, 'env REACT_APP_SOLANA_NETWORK is incorrect')
-export const SOLANA_NETWORK: WalletAdapterNetwork =
-  (process.env.REACT_APP_SOLANA_NETWORK as WalletAdapterNetwork) || 'Mainnet'
+export const SOLANA_NETWORK: keyof typeof WalletAdapterNetwork = process.env
+  .REACT_APP_SOLANA_NETWORK as keyof typeof WalletAdapterNetwork
 
 // Not required
 export const GTM_ID: string | undefined = process.env.REACT_APP_GTM_ID
