@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import styled, { css, keyframes } from "styled-components";
+import { Trade } from "../hooks/useSwap";
 import useTheme from "../hooks/useTheme";
 
 const spin = keyframes`
@@ -97,10 +99,33 @@ const CountDown = styled.div`
 interface Props {
   loading: boolean;
   onRefresh: () => void;
-  countdown: number;
+  // setCountdown: (x: number) => void;
+  trade: Trade | null;
 }
 
-function RefreshBtn({ onRefresh, loading, countdown }: Props) {
+function RefreshBtn({ trade, onRefresh, loading }: Props) {
+  const [countdown, setCountdown] = useState(0);
+
+  useEffect(() => {
+    if (!loading && !!trade) setCountdown(10_000);
+    else setCountdown(0);
+  }, [loading, trade]);
+
+  useEffect(() => {
+    if (countdown > 0) {
+      const i = setInterval(() => {
+        const newCountdown = countdown - 10;
+        setCountdown(newCountdown);
+        if (newCountdown === 10) {
+          onRefresh();
+        }
+      }, 10);
+      return () => {
+        clearInterval(i);
+      };
+    }
+  }, [countdown]);
+
   return (
     <SpinWrapper role="button" onClick={onRefresh}>
       <Spin spinning={loading} countdown={countdown} />

@@ -1,5 +1,6 @@
 import { BigNumber } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
+import { useState } from "react";
 import styled from "styled-components";
 import { NATIVE_TOKEN, NATIVE_TOKEN_ADDRESS } from "../constants";
 import useTokenBalances from "../hooks/useTokenBalances";
@@ -7,13 +8,16 @@ import { useTokens } from "../hooks/useTokens";
 import { useActiveWeb3 } from "../hooks/useWeb3Provider";
 
 const Input = styled.input`
-  font-size: 1rem;
+  font-size: 0.75rem;
   padding: 0.75rem;
-  border-radius: 999px;
-  background: ${({ theme }) => theme.bg2};
+  border-radius: ${({ theme }) => theme.borderRadius};
+  background: ${({ theme }) => theme.inputBackground};
   outline: none;
   border: none;
   color: ${({ theme }) => theme.text};
+      ).filter(token => token.address.toLowerCase() === search.trim().toLowerCase() || token.name.includes(search.toLowerCase())),  box-shadow: ${({
+        theme,
+      }) => theme.boxShadow};
 `;
 
 const TokenListWrapper = styled.div`
@@ -60,6 +64,7 @@ function SelectCurrency({
   onChange: (address: string) => void;
 }) {
   const tokens = useTokens();
+  const [search, setSearch] = useState("");
   const tokenAddress = tokens.map((item) => item.address);
   const { balances } = useTokenBalances(tokenAddress);
 
@@ -89,11 +94,19 @@ function SelectCurrency({
         (a, b) =>
           parseFloat(b.formattedBalance) - parseFloat(a.formattedBalance)
       ),
-  ];
-
+  ].filter(
+    (token) =>
+      token.address.toLowerCase() === search.trim().toLowerCase() ||
+      token.name.toLowerCase().includes(search.toLowerCase()) ||
+      token.symbol.toLowerCase().includes(search.toLowerCase())
+  );
   return (
     <>
-      <Input placeholder="Search by token name or address" />
+      <Input
+        placeholder="Search by token name, token symbol or address"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
       <TokenListWrapper>
         {tokenWithBalances.map((token) => {
           return (

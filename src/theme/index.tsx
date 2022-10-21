@@ -13,6 +13,7 @@ export const defaultTheme = {
   fontFamily: "Work Sans",
   borderRadius: "10px",
   buttonRadius: "10px",
+  boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.04)",
 };
 
 export type Theme = typeof defaultTheme;

@@ -16,17 +16,36 @@ const getPath = (chainId: number) => {
       return "ethereum";
   }
 };
-const useSwap = () => {
+
+export interface Trade {
+  amountInUsd: number;
+  amountOutUsd: number;
+  encodedSwapData: string;
+  gasUsd: number;
+  inputAmount: string;
+  outputAmount: string;
+  routerAddress: string;
+}
+
+const useSwap = ({
+  defaultTokenIn,
+  defaultTokenOut,
+}: {
+  defaultTokenIn?: string;
+  defaultTokenOut?: string;
+}) => {
   const { provider, chainId } = useActiveWeb3();
-  const [tokenIn, setTokenIn] = useState(NATIVE_TOKEN_ADDRESS);
-  const [tokenOut, setTokenOut] = useState("");
+  const [tokenIn, setTokenIn] = useState(
+    defaultTokenIn || NATIVE_TOKEN_ADDRESS
+  );
+  const [tokenOut, setTokenOut] = useState(defaultTokenOut || "");
   const tokens = useTokens();
 
   const { balances } = useTokenBalances(tokens.map((item) => item.address));
 
-  const [inputAmout, setInputAmount] = useState("");
+  const [inputAmout, setInputAmount] = useState("1");
   const [loading, setLoading] = useState(false);
-  const [trade, setTrade] = useState<any>(null);
+  const [trade, setTrade] = useState<Trade | null>(null);
   const [error, setError] = useState("");
   const [slippage, setSlippage] = useState(50);
 

@@ -69,7 +69,11 @@ const App = () => {
 
   return (
     <div className="App">
-      <Widget tokenList={[]} provider={ethersProvider} />
+      <Widget
+        tokenList={[]}
+        provider={ethersProvider}
+        defaultTokenOut="0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"
+      />
       <h1>Vite + React</h1>
       <div className="card">
         <button onClick={() => (wallet ? disconnect(wallet) : connect())}>

@@ -15,7 +15,7 @@ export const Wrapper = styled.div`
 export const Title = styled.div`
   display: flex;
   justify-content: space-between;
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   font-weight: 500;
   align-items: center;
 `;
@@ -25,6 +25,7 @@ export const InputWrapper = styled.div`
   padding: 0.75rem;
   background: ${({ theme }) => theme.inputBackground};
   margin-top: 1rem;
+  box-shadow: ${({ theme }) => theme.boxShadow};
 `;
 
 export const MaxHalfBtn = styled.button`
@@ -145,16 +146,18 @@ export const Button = styled.button`
   border: none;
   border-radius: ${({ theme }) => theme.buttonRadius};
   width: 100%;
-  margin-top: 1.5rem;
-  font-size: 0.875rem;
+  margin-top: 1rem;
+  font-size: 1rem;
   font-weight: 500;
   padding: 0.75rem;
-  background: ${({ theme }) => theme.primary};
+  background: ${({ theme }) => theme.accent};
+  color: ${({ theme }) => theme.tab};
   cursor: pointer;
+  box-shadow: ${({ theme }) => theme.boxShadow};
 
   :disabled {
-    background: #292929;
     color: ${({ theme }) => theme.subText};
+    background: ${({ theme }) => theme.interactive};
   }
 
   :active {
@@ -207,4 +210,38 @@ export const Rate = styled.div`
   font-size: 14px;
   font-weight: 500;
   color: ${({ theme }) => theme.subText};
+  margin-left: 4px;
+`;
+
+export const Detail = styled.div`
+  background: ${({ theme }) => theme.inputBackground};
+  border-radius: ${({ theme }) => theme.borderRadius};
+  border: 1px solid ${({ theme }) => theme.stroke};
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 12px;
+`;
+
+export const DetailRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+export const DetailLabel = styled.div`
+  color: ${({ theme }) => theme.subText};
+`;
+export const DetailRight = styled.div`
+  font-weight: 500;
+`;
+
+export const DetailTitle = styled.div`
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+`;
+export const Divider = styled.div`
+  width: 100%;
+  height: 1px;
+  border-bottom: 1px solid ${({ theme }) => theme.stroke};
 `;
