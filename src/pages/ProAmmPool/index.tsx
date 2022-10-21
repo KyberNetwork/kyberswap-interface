@@ -101,7 +101,7 @@ export default function ProAmmPool() {
               token0: pos.pool.token0.address,
               token1: pos.pool.token1.address,
               fee: pos.pool.fee,
-              endTime: pool?.[0].endTime,
+              endTime: pool?.[0]?.endTime,
               rewardPendings: [],
             }
           })

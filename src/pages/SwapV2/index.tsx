@@ -37,6 +37,7 @@ import AdvancedSwapDetailsDropdown from 'components/swapv2/AdvancedSwapDetailsDr
 import ConfirmSwapModal from 'components/swapv2/ConfirmSwapModal'
 import GasPriceTrackerPanel from 'components/swapv2/GasPriceTrackerPanel'
 import LimitOrderForm from 'components/swapv2/LimitOrder'
+import ListLimitOrder from 'components/swapv2/LimitOrder/ListOrder'
 import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
 import MobileTokenInfo from 'components/swapv2/MobileTokenInfo'
 import PairSuggestion, { PairSuggestionHandle } from 'components/swapv2/PairSuggestion'
@@ -723,6 +724,7 @@ export default function Swap({ history }: RouteComponentProps) {
   const isShowModalImportToken =
     isLoadedTokenDefault && importTokensNotInDefault.length > 0 && (!dismissTokenWarning || showingPairSuggestionImport)
 
+  const isLimitTab = activeTab === TAB.LIMIT
   return (
     <>
       {/**
@@ -1122,10 +1124,10 @@ export default function Swap({ history }: RouteComponentProps) {
                 }
               })()}
             </AppBodyWrapped>
-            {activeTab !== TAB.LIMIT && <AdvancedSwapDetailsDropdown trade={trade} feeConfig={feeConfig} />}
+            {!isLimitTab && <AdvancedSwapDetailsDropdown trade={trade} feeConfig={feeConfig} />}
           </SwapFormWrapper>
 
-          {(isShowLiveChart || isShowTradeRoutes || shouldRenderTokenInfo) && (
+          {(isShowLiveChart || isShowTradeRoutes || shouldRenderTokenInfo || isLimitTab) && (
             <InfoComponentsWrapper>
               {isShowLiveChart && (
                 <LiveChartWrapper>
@@ -1155,7 +1157,8 @@ export default function Swap({ history }: RouteComponentProps) {
                   </Flex>
                 </RoutesWrapper>
               )}
-              {shouldRenderTokenInfo ? <TokenInfoV2 currencyIn={currencyIn} currencyOut={currencyOut} /> : null}
+              {shouldRenderTokenInfo && <TokenInfoV2 currencyIn={currencyIn} currencyOut={currencyOut} />}
+              {isLimitTab && <ListLimitOrder />}
             </InfoComponentsWrapper>
           )}
         </Container>

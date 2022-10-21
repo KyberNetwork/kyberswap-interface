@@ -24,7 +24,7 @@ const SelectMenu = styled.div`
   border-radius: 16px;
   filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.36));
   z-index: 10;
-  background: ${({ theme }) => theme.background};
+  background: ${({ theme }) => theme.tabActive};
 `
 const DropdownIcon = styled.div<{ rotate?: boolean }>`
   transform: rotate(${({ rotate }) => (rotate ? '-180deg' : '0')});
@@ -43,7 +43,7 @@ const SelectOption = styled.div`
   font-size: 12px;
   color: ${({ theme }) => theme.subText};
 `
-type Option = { value: string | number; label: string }
+type Option = { value?: string | number; label: string }
 function Select({
   options,
   activeRender,
@@ -52,31 +52,41 @@ function Select({
 }: {
   options: Option[]
   activeRender?: (selectedItem: Option | undefined) => ReactNode
-  style: CSSProperties
+  style?: CSSProperties
   onChange: (value: any) => void
 }) {
   const [selected, setSelected] = useState(options[0]?.value)
 
   const [showMenu, setShowMenu] = useState(false)
   const ref = useRef(null)
-  useOnClickOutside(ref, () => setShowMenu(false))
+  useOnClickOutside(ref, () => {
+    setShowMenu(false)
+  })
   const selectedInfo = options.find(item => item.value === selected)
   return (
-    <SelectWrapper role="button" onClick={() => setShowMenu(prev => !prev)} style={style}>
+    <SelectWrapper
+      ref={ref}
+      role="button"
+      onClick={() => {
+        setShowMenu(!showMenu)
+      }}
+      style={style}
+    >
       <div style={{ flex: 1 }}>{activeRender ? activeRender(selectedInfo) : selectedInfo?.label}</div>
       <DropdownIcon rotate={showMenu} />
       {showMenu && (
-        <SelectMenu ref={ref}>
+        <SelectMenu>
           {options.map(item => (
             <SelectOption
               key={item.value}
               role="button"
               onClick={e => {
+                const value = item.value || item.label
                 e.stopPropagation()
                 e.preventDefault()
-                setSelected(item.value)
+                setSelected(value)
                 setShowMenu(prev => !prev)
-                onChange(item.value)
+                onChange(value)
               }}
             >
               {item.label || item.value}

@@ -5,7 +5,7 @@ import { RouteComponentProps } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
-import NotificationIcon from 'components/Icons/NotificationIcon'
+import SubscribeButton from 'components/SubscribeButton'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import TrendingHero from 'pages/TrueSight/TrendingHero'
@@ -15,13 +15,7 @@ import FilterBar from 'pages/TrueSight/components/FilterBar'
 import TrendingLayout from 'pages/TrueSight/components/TrendingLayout'
 import TrendingSoonLayout from 'pages/TrueSight/components/TrendingSoonLayout'
 import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
-import {
-  ButtonText,
-  StyledSpinner,
-  SubscribeButton,
-  TrueSightPageWrapper,
-  UnSubscribeButton,
-} from 'pages/TrueSight/styled'
+import { TrueSightPageWrapper } from 'pages/TrueSight/styled'
 import { useTrueSightUnsubscribeModalToggle } from 'state/application/hooks'
 
 import UnsubscribeModal from './components/UnsubscribeModal'
@@ -108,23 +102,12 @@ export default function TrueSight({ history }: RouteComponentProps) {
         <br />
         <Text fontWeight="500">Subscribe now to receive notifications!</Text>
       </Text>
-      {hasSubscribed ? (
-        <UnSubscribeButton disabled={!isChrome || isLoading} onClick={toggleUnsubscribeModal}>
-          {isLoading ? <StyledSpinner color={theme.primary} /> : <NotificationIcon color={theme.primary} />}
-
-          <ButtonText color="primary">
-            <Trans>Unsubscribe</Trans>
-          </ButtonText>
-        </UnSubscribeButton>
-      ) : (
-        <SubscribeButton isDisabled={!isChrome || isLoading} onClick={handleSubscribe}>
-          {isLoading ? <StyledSpinner color={theme.primary} /> : <NotificationIcon />}
-
-          <ButtonText>
-            <Trans>Subscribe</Trans>
-          </ButtonText>
-        </SubscribeButton>
-      )}
+      <SubscribeButton
+        isLoading={isLoading}
+        handleSubscribe={handleSubscribe}
+        handleUnSubscribe={toggleUnsubscribeModal}
+        hasSubscribed={hasSubscribed}
+      />
     </Flex>
   )
 

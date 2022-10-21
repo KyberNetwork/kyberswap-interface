@@ -4,21 +4,20 @@ import styled from 'styled-components'
 
 import useTheme from 'hooks/useTheme'
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ height: string }>`
   border-radius: 999px;
-  height: 6px;
+  height: ${({ height }) => height};
   background: rgba(182, 182, 182, 0.2);
   position: relative;
 `
 const Bar = styled.div<{ percent: number; color?: string }>`
   border-radius: 999px;
-  height: 6px;
+  height: 100%;
   background: ${({ theme, color }) => color || theme.primary};
   width: ${({ percent }) => percent}%;
   position: absolute;
   left: 0;
   top: 0;
-  z-index: 1;
 `
 
 export default function ProgressBar({
@@ -27,12 +26,14 @@ export default function ProgressBar({
   valueTextColor,
   title,
   value,
+  height = '6px',
 }: {
   title: string
-  value: ReactNode
+  value?: ReactNode
   percent: number
   color?: string
   valueTextColor?: string
+  height?: string
 }) {
   const theme = useTheme()
   return (
@@ -40,7 +41,7 @@ export default function ProgressBar({
       <Flex justifyContent={'space-between'} fontSize={12} color={theme.subText} lineHeight={'normal'}>
         {title} <Text color={valueTextColor || theme.subText}>{value}</Text>
       </Flex>
-      <Wrapper>
+      <Wrapper height={height}>
         <Bar percent={Math.min(100, percent)} color={color} />
       </Wrapper>
     </Flex>

@@ -24,6 +24,7 @@ import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, EIP712Domain } from 'constants/index'
 import { nativeOnChain } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
+import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -37,7 +38,7 @@ import { maxAmountSpend } from 'utils/maxAmountSpend'
 
 import TradePrice from '../TradePrice'
 import ConfirmOrderModal from './ConfirmOrderModal'
-import { submitOrder } from './helpers'
+import { getEncodeMakerAmount, getEncodePredicate, getEncodeTakerAmount, hashOrder, submitOrder } from './helpers'
 import { LimitOrderSwapState } from './type'
 
 const EXPIRED_OPTIONS = [
@@ -98,7 +99,6 @@ export default memo(function LimitOrderForm() {
   const [outputAmount, setOuputAmount] = useState('')
   const [expectRate, setExpectRate] = useState('')
   const [expire, setExpire] = useState(EXPIRED_OPTIONS[0].value)
-  console.log(expire)
 
   // modal and loading
   const [swapState, setSwapState] = useState<LimitOrderSwapState>({
@@ -153,10 +153,14 @@ export default memo(function LimitOrderForm() {
   }
 
   const [approvalSubmitted, setApprovalSubmitted] = useState<boolean>(false)
+  const qs = useParsedQueryString()
 
   const formatInputBridgeValue = tryParseAmount(inputAmount, currencyIn)
   //https://docs.ethers.io/v5/api/signer/#Signer
-  const [approval, approveCallback] = useApproveCallback(formatInputBridgeValue, tradeInfo?.routerAddress)
+  const [approval, approveCallback] = useApproveCallback(
+    formatInputBridgeValue,
+    tradeInfo?.routerAddress || '0xd1Bfd4C0087461e2575fbc1A793C54D60FAf4131', // todo remove knc for test
+  )
 
   useEffect(() => {
     if (approval === ApprovalState.PENDING) {
@@ -202,54 +206,59 @@ export default memo(function LimitOrderForm() {
   const deadline = useTransactionDeadline()
   const onSubmitOrder = async () => {
     try {
-      if (!library || !currencyIn || !currencyOut || !deadline) return
-      setSwapState(state => ({ ...state, attemptingTxn: true, pendingText: t`Sign limit order` }))
+      if (!library || !currencyIn || !currencyOut || !deadline || !chainId || !account) return
+      setSwapState(state => ({
+        ...state,
+        attemptingTxn: true,
+        pendingText: t`Sign limit order: ${inputAmount} ${currencyIn.symbol} to ${outputAmount} ${currencyOut.symbol}`,
+      }))
+      const makingAmount = tryParseAmount(inputAmount, currencyIn)?.quotient?.toString()
+      const takingAmount = tryParseAmount(outputAmount, currencyOut)?.quotient?.toString()
+      const expiredAt = Date.now() + expire
+      const encodes = await Promise.all([
+        getEncodeTakerAmount(takingAmount ?? '', makingAmount ?? ''),
+        getEncodeMakerAmount(takingAmount ?? '', makingAmount ?? ''),
+        getEncodePredicate(chainId + '' ?? '', account ?? '', expiredAt),
+      ])
+      console.log(encodes)
 
-      const domain = {
-        name: 'Kyberswap Limit Order',
-        version: '1',
-        chainId,
-        verifyingContract: '',
-      }
-      const Permit = [
-        { name: 'salt', type: 'uint256' },
-        { name: 'makerAsset', type: 'address' },
-        { name: 'takerAsset', type: 'address' },
-        { name: 'maker', type: 'address' },
-        { name: 'receiver', type: 'address' },
-        { name: 'makingAmount', type: 'uint256' },
-        { name: 'takingAmount', type: 'uint256' },
-      ]
-
-      const message = {
-        salt: tryParseAmount(Math.random().toString(), currencyIn)?.quotient?.toString(16),
+      const payload = {
+        chainId: chainId.toString(),
+        salt: tryParseAmount(Math.random().toString(), currencyIn)?.quotient?.toString(),
         makerAsset: currencyIn?.wrapped.address,
         takerAsset: currencyOut?.wrapped.address,
         maker: account,
-        receiver: account,
-        makingAmount: tryParseAmount(inputAmount, currencyIn)?.quotient?.toString(16),
-        takingAmount: tryParseAmount(outputAmount, currencyOut)?.quotient?.toString(16),
+        makingAmount,
+        takingAmount,
+        getTakerAmount: encodes[0].encodedData,
+        getMakerAmount: encodes[1].encodedData,
+        predicate: encodes[2].encodedData,
       }
 
-      const data = JSON.stringify({
-        types: { EIP712Domain, Permit },
-        domain,
-        primaryType: 'Permit',
-        message,
-      })
-      const signature = await library.send('eth_signTypedData_v4', [account, data]).then(splitSignature)
-      setSwapState(state => ({ ...state, pendingText: t`Placing order` }))
-      console.log({ signature })
+      console.log(payload)
 
+      const { hash } = await hashOrder(payload)
+
+      const data = JSON.stringify({
+        types: { EIP712Domain, Permit: [{ name: 'hash', type: 'uint256' }] },
+        domain: {
+          name: 'Kyberswap Limit Order',
+          version: '1',
+          chainId,
+          verifyingContract: '',
+        },
+        primaryType: 'Permit',
+        message: { hash },
+      })
+      const signature = await library.send('eth_signTypedData_v4', [account, data])
+      setSwapState(state => ({ ...state, pendingText: t`Placing order` }))
       const resp = await submitOrder({
-        ...message,
-        chainId: chainId?.toString(),
-        expiredAt: Date.now() + expire,
-        signature: signature.compact,
+        ...payload,
+        signature,
       })
       console.log(resp)
       onReset()
-      setSwapState(state => ({ ...state, attemptingTxn: false, txHash: '' }))
+      setSwapState(state => ({ ...state, attemptingTxn: false }))
     } catch (error) {
       console.error(error)
       setSwapState(state => ({ ...state, attemptingTxn: false, swapErrorMessage: error?.message || error }))
@@ -343,7 +352,7 @@ export default memo(function LimitOrderForm() {
                 </Flex>
               )}
             </Flex>
-            <TradePrice price={tradeInfo?.price} />
+            <TradePrice price={tradeInfo?.price} style={{ width: 'fit-content' }} />
           </Flex>
 
           <ArrowRotate rotate={rotate} onClick={handleRotateClick} />

@@ -4,8 +4,8 @@ import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 
-import NotificationIcon from 'components/Icons/NotificationIcon'
 import { Container as SearchContainer, Input as SearchInput } from 'components/Search'
+import SubscribeButton from 'components/SubscribeButton'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useDebounce from 'hooks/useDebounce'
 import useParsedQueryString from 'hooks/useParsedQueryString'
@@ -20,13 +20,10 @@ import useGetTokensForSearchBox from 'pages/TrueSight/hooks/useGetTokensForSearc
 import useNotification from 'pages/TrueSight/hooks/useNotification'
 import { TrueSightFilter, TrueSightTabs, TrueSightTimeframe } from 'pages/TrueSight/index'
 import {
-  ButtonText,
-  StyledSpinner,
   TextTooltip,
   TrueSightFilterBarLayout,
   TrueSightFilterBarLayoutMobile,
   TrueSightFilterBarSection,
-  UnSubscribeButton,
 } from 'pages/TrueSight/styled'
 import { useTrueSightUnsubscribeModalToggle } from 'state/application/hooks'
 
@@ -142,14 +139,11 @@ const FilterBar: React.FC<FilterBarProps> = ({ activeTab, filter, setFilter, not
 
         {!isActiveTabTrending && hasSubscribed && (
           <>
-            <UnSubscribeButton disabled={!isChrome || isLoading} onClick={toggleUnsubscribeModal}>
-              {isLoading ? <StyledSpinner color={theme.primary} /> : <NotificationIcon color={theme.primary} />}
-
-              <ButtonText color="primary">
-                <Trans>Unsubscribe</Trans>
-              </ButtonText>
-            </UnSubscribeButton>
-
+            <SubscribeButton
+              hasSubscribed={hasSubscribed}
+              isLoading={isLoading}
+              handleUnSubscribe={toggleUnsubscribeModal}
+            />
             <UnsubscribeModal handleUnsubscribe={handleClickUnsubscribe} />
           </>
         )}
