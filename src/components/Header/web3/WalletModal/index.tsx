@@ -374,6 +374,14 @@ export default function WalletModal({
               onClickTryAgain={() => {
                 pendingWalletKey && tryActivation(pendingWalletKey)
               }}
+              context={
+                pendingWalletKey === 'SOLFLARE' ? (
+                  <Trans>
+                    If this is first time you connect Kyberswap to Solflare, please refresh page after connect successed
+                    in wallet!
+                  </Trans>
+                ) : undefined
+              }
             />
           ) : (
             <>

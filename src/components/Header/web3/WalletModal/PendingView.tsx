@@ -6,6 +6,7 @@ import Loader from 'components/Loader'
 import { SUPPORTED_WALLET, SUPPORTED_WALLETS } from 'constants/wallets'
 
 import { WarningBox } from './WarningBox'
+import { ReactNode } from 'react'
 
 const PendingSection = styled.div`
   ${({ theme }) => theme.flexColumnNoWrap};
@@ -68,10 +69,12 @@ export default function PendingView({
   walletKey,
   hasError = false,
   onClickTryAgain,
+  context,
 }: {
   walletKey?: SUPPORTED_WALLET
   hasError?: boolean
   onClickTryAgain: () => void
+  context?: ReactNode
 }) {
   const walletName = walletKey ? SUPPORTED_WALLETS[walletKey].name : ''
 
@@ -97,6 +100,7 @@ export default function PendingView({
         </LoadingWrapper>
       </LoadingMessage>
       <WarningBox walletKey={walletKey} />
+      {context && <div style={{ padding: '16px' }}>{context}</div>}
     </PendingSection>
   )
 }
