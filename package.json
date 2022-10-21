@@ -44,6 +44,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.3.11",
+    "@datadog/browser-rum": "^4.21.2",
     "@lingui/loader": "^3.14.0",
     "@lingui/macro": "^3.14.0",
     "@lingui/react": "^3.14.0",
