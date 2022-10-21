@@ -1,12 +1,18 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
+import { sendAndConfirmTransaction } from '@namgold/dmm-solana-sdk'
+import { ChainId, WETH } from '@namgold/ks-sdk-core'
+import { AnchorProvider, Program } from '@project-serum/anchor'
 import { captureException } from '@sentry/react'
+import { Keypair, PublicKey, SystemProgram, Transaction } from '@solana/web3.js'
 import { ethers } from 'ethers'
 
+import { SolanaAggregatorPrograms } from 'constants/idl/solana_aggregator_programs'
 // import connection from 'state/connection/connection'
 import { calculateGasMargin } from 'utils'
 
 import { Aggregator } from './aggregator'
+import { createSolanaSwapTransaction } from './solanaInstructions'
 
 export async function sendEVMTransaction(
   account: string,
@@ -97,12 +103,27 @@ export async function sendEVMTransaction(
 }
 export async function sendSolanaTransaction(
   account: string,
+  program: Program<SolanaAggregatorPrograms>,
   programAccount: string,
+  provider: AnchorProvider,
   trade: Aggregator,
   value: BigNumber,
   handler?: (response: TransactionResponse) => void,
 ): Promise<string | undefined> {
   if (!account) return
-  return
-  // connection.commitment
+
+  let tx: Transaction | undefined
+  try {
+    tx = await createSolanaSwapTransaction(new PublicKey(account), program, programAccount, trade, value)
+  } catch (e) {
+    console.error(e)
+    throw new Error('Create transaction failed', { cause: e })
+  }
+  try {
+    const response = await sendAndConfirmTransaction(provider, tx)
+    return response
+  } catch (e) {
+    console.error(e)
+    throw new Error('Swap error', { cause: e })
+  }
 }

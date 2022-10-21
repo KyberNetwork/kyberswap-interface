@@ -52,6 +52,7 @@
     "@namgold/ks-sdk-core": "^0.1.25",
     "@namgold/ks-sdk-elastic": "~0.0.2",
     "@popperjs/core": "^2.4.4",
+    "@project-serum/anchor": "^0.25.0",
     "@reach/dialog": "^0.17.0",
     "@reach/portal": "^0.17.0",
     "@reduxjs/toolkit": "^1.7.1",

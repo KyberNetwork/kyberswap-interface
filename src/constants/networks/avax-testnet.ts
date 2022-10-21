@@ -60,8 +60,8 @@ const avaxTestnetInfo: EVMNetworkInfo = {
     routers: '0xd74134d330FB567abD08675b57dD588a7447b5Ac',
   },
   averageBlockTimeInSeconds: 1.85,
-  coingeckoNetworkId: EMPTY,
-  coingeckoNativeTokenId: EMPTY,
+  coingeckoNetworkId: 'avalanche',
+  coingeckoNativeTokenId: 'avalanche-2',
   deBankSlug: EMPTY,
   trueSightId: NOT_SUPPORT,
 }

@@ -22,7 +22,7 @@ import { AggregationComparer } from 'state/swap/types'
 
 import fetchWaiting from './fetchWaiting'
 
-type Swap = {
+export type Swap = {
   pool: string
   tokenIn: string
   tokenOut: string

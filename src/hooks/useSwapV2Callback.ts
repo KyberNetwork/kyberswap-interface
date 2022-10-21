@@ -12,6 +12,9 @@ import { Aggregator } from 'utils/aggregator'
 import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
 import { sendEVMTransaction, sendSolanaTransaction } from 'utils/sendTransaction'
 
+import useProvider from './solana/useProvider'
+import useSolanaAggregatorProgram from './solana/useSolanaAggregatorProgram'
+
 enum SwapCallbackState {
   INVALID,
   LOADING,
@@ -33,6 +36,8 @@ export function useSwapV2Callback(
 ): { state: SwapCallbackState; callback: null | (() => Promise<string>); error: string | null } {
   const { account, chainId, isEVM, isSolana } = useActiveWeb3React()
   const { library } = useWeb3React()
+  const solanaAggregatorProgram = useSolanaAggregatorProgram()
+  const provider = useProvider()
 
   const { typedValue, feeConfig, saveGas } = useSwapState()
 
@@ -109,31 +114,51 @@ export function useSwapV2Callback(
       }
     }
 
+    const value = BigNumber.from(trade.inputAmount.currency.isNative ? trade.inputAmount.quotient.toString() : 0)
     const onSwapWithBackendEncode = async (): Promise<string> => {
-      const value = BigNumber.from(trade.inputAmount.currency.isNative ? trade.inputAmount.quotient.toString() : 0)
-      if (isEVM) {
-        const hash = await sendEVMTransaction(
-          account,
-          library,
-          trade.routerAddress,
-          trade.encodedSwapData,
-          value,
-          onHandleResponse,
-        )
-        if (hash === undefined) throw new Error('sendTransaction returned undefined.')
-        return hash
-      } else if (isSolana) {
-        const hash = await sendSolanaTransaction(account, trade.routerAddress, trade, value, onHandleResponse)
-        if (hash === undefined) throw new Error('sendTransaction returned undefined.')
-        return hash
-      }
-      throw new Error('either evm or solana')
+      const hash = await sendEVMTransaction(
+        account,
+        library,
+        trade.routerAddress,
+        trade.encodedSwapData,
+        value,
+        onHandleResponse,
+      )
+      if (hash === undefined) throw new Error('sendTransaction returned undefined.')
+      return hash
+    }
+
+    const onSwapSolana = async (): Promise<string> => {
+      if (!provider) throw new Error('Please connect wallet first')
+      if (!solanaAggregatorProgram) throw new Error('Please connect wallet first')
+      const hash = await sendSolanaTransaction(
+        account,
+        solanaAggregatorProgram,
+        trade.routerAddress,
+        provider,
+        trade,
+        value,
+        onHandleResponse,
+      )
+      if (hash === undefined) throw new Error('sendTransaction returned undefined.')
+      return hash
     }
 
     return {
       state: SwapCallbackState.VALID,
-      callback: onSwapWithBackendEncode,
+      callback: isEVM ? onSwapWithBackendEncode : isSolana ? onSwapSolana : null,
       error: null,
     }
-  }, [trade, account, recipient, recipientAddressOrName, isEVM, isSolana, library, onHandleResponse])
+  }, [
+    trade,
+    account,
+    recipient,
+    isEVM,
+    isSolana,
+    recipientAddressOrName,
+    library,
+    onHandleResponse,
+    solanaAggregatorProgram,
+    provider,
+  ])
 }
