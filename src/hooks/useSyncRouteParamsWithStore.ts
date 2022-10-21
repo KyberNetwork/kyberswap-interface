@@ -1,7 +1,9 @@
-import { isEVM, isSolana, NETWORKS_INFO } from 'constants/networks'
-import { useActiveWeb3React, useEagerConnect } from 'hooks'
 import { useEffect, useRef } from 'react'
 import { useHistory, useParams, useRouteMatch } from 'react-router-dom'
+
+import { NETWORKS_INFO, isEVM, isSolana } from 'constants/networks'
+import { useActiveWeb3React, useEagerConnect } from 'hooks'
+
 import { useChangeNetwork } from './useChangeNetwork'
 
 export function useSyncRouteParamsWithStore() {

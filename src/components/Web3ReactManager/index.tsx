@@ -1,14 +1,14 @@
 import { Trans } from '@lingui/macro'
+import { ChainId } from '@namgold/ks-sdk-core'
 import { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import styled from 'styled-components'
 
 import LocalLoader from 'components/LocalLoader'
 import { network } from 'connectors'
 import { NetworkContextName } from 'constants/index'
 import { useActiveWeb3React, useEagerConnect, useInactiveListener, useWeb3React } from 'hooks'
-import { useDispatch, useSelector } from 'react-redux'
 import { AppState } from 'state'
-import { ChainId } from '@namgold/ks-sdk-core'
 import { updateChainId } from 'state/user/actions'
 
 const MessageWrapper = styled.div`

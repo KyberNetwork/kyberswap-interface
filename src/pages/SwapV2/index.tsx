@@ -76,6 +76,7 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import usePrevious from 'hooks/usePrevious'
 import { useSwapV2Callback } from 'hooks/useSwapV2Callback'
+import { useSyncRouteParamsWithStore } from 'hooks/useSyncRouteParamsWithStore'
 import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { BodyWrapper } from 'pages/AppBody'
@@ -102,7 +103,6 @@ import { filterTokensWithExactKeyword } from 'utils/filtering'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { convertToSlug, getSymbolSlug } from 'utils/string'
 import { checkPairInWhiteList, convertSymbol } from 'utils/tokenInfo'
-import { useSyncRouteParamsWithStore } from 'hooks/useSyncRouteParamsWithStore'
 
 const LiveChart = lazy(() => import('components/LiveChart'))
 const Routing = lazy(() => import('components/swapv2/Routing'))

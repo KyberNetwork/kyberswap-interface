@@ -27,8 +27,8 @@ import { isAddressString, shortenAddress } from 'utils'
 
 import { RedirectDuplicateTokenIds } from './AddLiquidityV2/redirects'
 import Swap from './Swap'
-import { RedirectPathToSwapNetwork } from './SwapV2/redirects'
 import SwapV2 from './SwapV2'
+import { RedirectPathToSwapNetwork } from './SwapV2/redirects'
 
 // Route-based code splitting
 const Pools = lazy(() => import(/* webpackChunkName: 'pools-page' */ './Pools'))

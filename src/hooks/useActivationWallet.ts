@@ -5,10 +5,10 @@ import { UnsupportedChainIdError } from '@web3-react/core'
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { useCallback } from 'react'
 
+import { walletlink } from 'connectors'
 import { SUPPORTED_WALLET, SUPPORTED_WALLETS, WALLETLINK_LOCALSTORAGE_NAME } from 'constants/wallets'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { isEVMWallet, isSolanaWallet } from 'utils'
-import { walletlink } from 'connectors'
 
 export const useActivationWallet = () => {
   const { activate, deactivate, connector: activeConnector } = useWeb3React()

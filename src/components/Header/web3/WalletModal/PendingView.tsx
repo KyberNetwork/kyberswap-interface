@@ -1,12 +1,12 @@
 import { Trans } from '@lingui/macro'
 import { darken } from 'polished'
+import { ReactNode } from 'react'
 import styled from 'styled-components'
 
 import Loader from 'components/Loader'
 import { SUPPORTED_WALLET, SUPPORTED_WALLETS } from 'constants/wallets'
 
 import { WarningBox } from './WarningBox'
-import { ReactNode } from 'react'
 
 const PendingSection = styled.div`
   ${({ theme }) => theme.flexColumnNoWrap};
