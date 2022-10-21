@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
 import { useLocation } from 'react-router-dom'
 import styled from 'styled-components'
-
+import { Text } from 'rebass'
 import { ReactComponent as Close } from 'assets/images/x.svg'
 import AccountDetails from 'components/Header/web3/AccountDetails'
 import Networks from 'components/Header/web3/NetworkModal/Networks'
@@ -376,10 +376,19 @@ export default function WalletModal({
               }}
               context={
                 pendingWalletKey === 'SOLFLARE' ? (
-                  <Trans>
-                    If this is first time you connect Kyberswap to Solflare, please refresh page after connect successed
-                    in wallet!
-                  </Trans>
+                  <div
+                    style={{
+                      backgroundColor: theme.background,
+                      borderRadius: '16px',
+                      color: theme.subText,
+                      padding: '12px',
+                      marginTop: '24px',
+                    }}
+                  >
+                    <Text lineHeight={'16px'} fontSize={12}>
+                      If you haven’t created a Solflare wallet yet, please follow the steps below
+                    </Text>
+                  </div>
                 ) : undefined
               }
             />

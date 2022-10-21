@@ -100,7 +100,7 @@ export default function PendingView({
         </LoadingWrapper>
       </LoadingMessage>
       <WarningBox walletKey={walletKey} />
-      {context && <div style={{ padding: '16px' }}>{context}</div>}
+      {context && <>{context}</>}
     </PendingSection>
   )
 }

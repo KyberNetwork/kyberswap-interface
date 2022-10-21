@@ -334,7 +334,7 @@ export const getTokenLogoURL = (inputAddress: string, chainId: ChainId): string 
 
   const imageURL = store
     .getState()
-    .lists.byUrl[NETWORKS_INFO[chainId].tokenListUrl].current?.tokens.find(
+    .lists.byUrl[NETWORKS_INFO[chainId].tokenListUrl]?.current?.tokens.find(
       item => item.address.toLowerCase() === address.toLowerCase(),
     )?.logoURI
   return imageURL || ''
