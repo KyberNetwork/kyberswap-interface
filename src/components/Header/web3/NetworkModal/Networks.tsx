@@ -45,6 +45,7 @@ const SelectNetworkButton = styled(ButtonEmpty)<{ disabled: boolean }>`
   display: flex;
   justify-content: center;
   align-items: center;
+  height: fit-content;
   &:focus {
     text-decoration: none;
   }
