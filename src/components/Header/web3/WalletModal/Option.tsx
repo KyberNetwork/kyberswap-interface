@@ -139,7 +139,7 @@ const Option = ({
         onSelected &&
         !isConnected &&
         (readyState === WalletReadyState.Installed ||
-          (walletKey === 'COINBASE' && readyState === WalletReadyState.NotDetected) ||
+          (walletKey === 'COINBASE' && isEVM && readyState === WalletReadyState.NotDetected) ||
           (readyState === WalletReadyState.Loadable && isSolanaWallet(wallet))) &&
         isAcceptedTerm &&
         isSupportCurrentChain &&
