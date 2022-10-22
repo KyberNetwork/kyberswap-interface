@@ -3,7 +3,7 @@ import { useMemo } from 'react'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useBridgeContract, useSwapBTCContract, useSwapETHContract } from 'hooks/useContract'
-import { useBridgeState, useOutputValue } from 'state/bridge/hooks'
+import { useBridgeOutputValue, useBridgeState } from 'state/bridge/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { useCurrencyBalance, useETHBalances } from 'state/wallet/hooks'
@@ -55,7 +55,7 @@ function useRouterSwap(
   isNative: boolean,
 ) {
   const [{ tokenOut, tokenIn, chainIdOut, currencyIn, currencyOut }] = useBridgeState()
-  const outputInfo = useOutputValue(typedValue ?? '0')
+  const outputInfo = useBridgeOutputValue(typedValue ?? '0')
   const { account, chainId } = useActiveWeb3React()
   const bridgeContract = useBridgeContract(isAddress(routerToken), chainIdOut && isNaN(chainIdOut) ? 'V2' : '')
 
@@ -147,7 +147,7 @@ function useBridgeSwap(
 ) {
   const [{ tokenOut, chainIdOut, tokenIn, currencyIn, currencyOut }] = useBridgeState()
   const addTransactionWithType = useTransactionAdder()
-  const outputInfo = useOutputValue(typedValue ?? '0')
+  const outputInfo = useBridgeOutputValue(typedValue ?? '0')
   const { chainId, account, library } = useActiveWeb3React()
 
   const tokenBalance = useCurrencyBalance(account ?? undefined, currencyIn)

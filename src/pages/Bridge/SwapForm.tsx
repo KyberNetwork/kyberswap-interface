@@ -22,6 +22,7 @@ import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
 import { useMultichainPool } from 'hooks/bridge'
+import useBridgeCallback from 'hooks/bridge/useBridgeCallback'
 import { useActiveNetwork } from 'hooks/useActiveNetwork'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -29,7 +30,7 @@ import usePrevious from 'hooks/usePrevious'
 import useTheme from 'hooks/useTheme'
 import { BodyWrapper } from 'pages/AppBody'
 import { useWalletModalToggle } from 'state/application/hooks'
-import { useBridgeState, useBridgeStateHandler, useOutputValue } from 'state/bridge/hooks'
+import { useBridgeOutputValue, useBridgeState, useBridgeStateHandler } from 'state/bridge/hooks'
 import { PoolValueOutMap } from 'state/bridge/reducer'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { tryParseAmount } from 'state/swap/hooks'
@@ -43,7 +44,6 @@ import ErrorWarningPanel from './ErrorWarning'
 import PoolInfo from './PoolInfo'
 import { formatPoolValue } from './helpers'
 import { BridgeSwapState } from './type'
-import useBridgeCallback from './useBridgeCallback'
 
 const AppBodyWrapped = styled(BodyWrapper)`
   box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.04);
@@ -89,7 +89,7 @@ export default function SwapForm() {
   const theme = useTheme()
   const { mixpanelHandler } = useMixpanel()
 
-  const [inputAmount, setInputAmount] = useState('0')
+  const [inputAmount, setInputAmount] = useState('')
   const [approvalSubmitted, setApprovalSubmitted] = useState<boolean>(false)
   const [poolValue, setPoolValue] = useState<PoolValueType>({
     poolValueIn: undefined,
@@ -109,7 +109,7 @@ export default function SwapForm() {
     return (Object.keys(destChainInfo).map(Number) as ChainId[]).filter(id => SUPPORTED_NETWORKS.includes(id))
   }, [tokenIn])
 
-  const outputInfo = useOutputValue(inputAmount)
+  const outputInfo = useBridgeOutputValue(inputAmount)
 
   const anyToken = tokenOut?.fromanytoken
 
@@ -169,7 +169,7 @@ export default function SwapForm() {
   }, [setBridgeState, listTokenOut])
 
   useEffect(() => {
-    setInputAmount('0')
+    setInputAmount('')
   }, [tokenIn, chainId])
 
   const prevChain = usePrevious(chainId)
@@ -275,7 +275,7 @@ export default function SwapForm() {
         })
       }
       const txHash = await onWrap(useSwapMethods)
-      setInputAmount('0')
+      setInputAmount('')
       setSwapState(state => ({ ...state, attemptingTxn: false, txHash }))
     } catch (error) {
       console.error(error)

@@ -1,10 +1,8 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { MultiChainTokenInfo } from 'pages/Bridge/type'
 import { AppDispatch, AppState } from 'state'
-import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 import {
   BridgeStateParams,
@@ -13,36 +11,13 @@ import {
   setBridgePoolInfo as setBridgePoolInfoAction,
   setBridgeState,
 } from './actions'
-import { PoolValueOutMap } from './reducer'
+import { BridgeState } from './reducer'
 
-export function useBridgeState(): [
-  {
-    tokenIn: MultiChainTokenInfo | undefined
-    tokenOut: MultiChainTokenInfo | undefined
-    currencyIn: WrappedTokenInfo | undefined
-    currencyOut: WrappedTokenInfo | undefined
-    chainIdOut: ChainId | undefined
-    listChainIn: ChainId[]
-    listTokenIn: WrappedTokenInfo[]
-    listTokenOut: WrappedTokenInfo[]
-    poolValueOut: PoolValueOutMap
-    loadingToken: boolean
-  },
-  (value: BridgeStateParams) => void,
-] {
+export function useBridgeState(): [BridgeState, (value: BridgeStateParams) => void] {
   const dispatch = useDispatch<AppDispatch>()
   const bridge = useSelector((state: AppState) => state.bridge)
   const setState = useCallback((data: BridgeStateParams) => dispatch(setBridgeState(data)), [dispatch])
-  return [
-    {
-      ...bridge,
-      tokenIn: bridge?.tokenIn?.multichainInfo,
-      tokenOut: bridge?.tokenOut?.multichainInfo,
-      currencyIn: bridge?.tokenIn,
-      currencyOut: bridge?.tokenOut,
-    },
-    setState,
-  ]
+  return [bridge, setState]
 }
 
 export function useBridgeStateHandler() {
@@ -98,7 +73,7 @@ function calcReceiveValueAndFee(inputBridgeValue: string, tokenOut: MultiChainTo
   }
 }
 
-export function useOutputValue(inputBridgeValue: string) {
+export function useBridgeOutputValue(inputBridgeValue: string) {
   const [{ tokenOut }] = useBridgeState()
   return useMemo(() => {
     return calcReceiveValueAndFee(inputBridgeValue, tokenOut)

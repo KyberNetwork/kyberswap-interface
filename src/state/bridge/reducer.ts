@@ -1,14 +1,18 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createReducer } from '@reduxjs/toolkit'
 
+import { MultiChainTokenInfo } from 'pages/Bridge/type'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 import { resetBridgeState, setBridgePoolInfo, setBridgeState } from './actions'
 
 export type PoolValueOutMap = { [address: string]: string | number }
 export interface BridgeState {
-  tokenIn: WrappedTokenInfo | undefined
-  tokenOut: WrappedTokenInfo | undefined
+  tokenIn: MultiChainTokenInfo | undefined
+  tokenOut: MultiChainTokenInfo | undefined
+  currencyIn: WrappedTokenInfo | undefined
+  currencyOut: WrappedTokenInfo | undefined
+
   chainIdOut: ChainId | undefined
   listChainIn: ChainId[]
   listTokenIn: WrappedTokenInfo[]
@@ -18,9 +22,12 @@ export interface BridgeState {
   poolValueOut: PoolValueOutMap
 }
 
-export const DEFAULT_STATE: BridgeState = {
+const DEFAULT_STATE: BridgeState = {
   tokenIn: undefined,
   tokenOut: undefined,
+  currencyIn: undefined,
+  currencyOut: undefined,
+
   chainIdOut: undefined,
   listTokenIn: [],
   listChainIn: [],
@@ -35,8 +42,15 @@ export default createReducer(DEFAULT_STATE, builder =>
     .addCase(
       setBridgeState,
       (state, { payload: { tokenIn, tokenOut, chainIdOut, listChainIn, listTokenIn, listTokenOut, loadingToken } }) => {
-        if (tokenIn !== undefined) state.tokenIn = tokenIn
-        if (tokenOut !== undefined) state.tokenOut = tokenOut
+        if (tokenIn !== undefined) {
+          state.tokenIn = tokenIn?.multichainInfo
+          state.currencyIn = tokenIn
+        }
+        if (tokenOut !== undefined) {
+          state.tokenOut = tokenOut?.multichainInfo
+          state.currencyOut = tokenOut
+        }
+
         if (chainIdOut !== undefined) state.chainIdOut = chainIdOut
         if (listChainIn !== undefined) state.listChainIn = listChainIn
         if (listTokenIn !== undefined) state.listTokenIn = listTokenIn
@@ -50,6 +64,8 @@ export default createReducer(DEFAULT_STATE, builder =>
     .addCase(resetBridgeState, state => {
       state.tokenIn = undefined
       state.tokenOut = undefined
+      state.currencyIn = undefined
+      state.currencyOut = undefined
       state.chainIdOut = undefined
       state.listTokenIn = []
       state.listTokenOut = []
