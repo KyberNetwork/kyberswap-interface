@@ -1,4 +1,4 @@
-import { StrictMode, useEffect, useState } from "react";
+import { StrictMode, useState } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { defaultTheme, Theme } from "../../theme";
 import { ReactComponent as SettingIcon } from "../../assets/setting.svg";
@@ -7,8 +7,6 @@ import { ReactComponent as DropdownIcon } from "../../assets/dropdown.svg";
 import { ReactComponent as SwitchIcon } from "../../assets/switch.svg";
 import { ReactComponent as SwapIcon } from "../../assets/swap.svg";
 import { ReactComponent as BackIcon } from "../../assets/back.svg";
-import { ReactComponent as ErrorIcon } from "../../assets/x-circle.svg";
-import { ReactComponent as SubmittedIcon } from "../../assets/arrow-up-circle.svg";
 
 import useTheme from "../../hooks/useTheme";
 
@@ -27,7 +25,6 @@ import {
   Wrapper,
   Button,
   Dots,
-  CustomLightSpinner,
   Rate,
   MiddleLeft,
   Detail,
@@ -36,6 +33,8 @@ import {
   DetailRow,
   DetailLabel,
   DetailRight,
+  ModalHeader,
+  ModalTitle,
 } from "./styled";
 
 import { BigNumber } from "ethers";
@@ -77,29 +76,6 @@ export const DialogWrapper = styled.div`
 
   &.close {
     transform: translateX(100%);
-  }
-`;
-
-const ModalHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-const ModalTitle = styled.div`
-  cursor: pointer;
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  font-size: 1.25rem;
-  font-weight: 500;
-  :hover {
-    opacity: 0.8;
-  }
-
-  > svg {
-    width: 1.25rem;
-    height: 1.25rem;
   }
 `;
 
@@ -145,7 +121,7 @@ const Widget = ({
   defaultTokenOut?: string;
 }) => {
   const [showModal, setShowModal] = useState<ModalType | null>(null);
-  const { provider, chainId, account } = useActiveWeb3();
+  const { chainId } = useActiveWeb3();
   const tokens = useTokens();
   const {
     loading,
@@ -167,7 +143,9 @@ const Widget = ({
 
   const [inverseRate, setInverseRate] = useState(false);
 
-  const { balances } = useTokenBalances(tokens.map((item) => item.address));
+  const { balances, refetch } = useTokenBalances(
+    tokens.map((item) => item.address)
+  );
 
   const tokenInInfo =
     tokenIn === NATIVE_TOKEN_ADDRESS
@@ -231,8 +209,6 @@ const Widget = ({
         return "Select a token";
       case ModalType.CURRENCY_OUT:
         return "Select a token";
-      case ModalType.REVIEW:
-        return "Confirm swap";
       default:
         return null;
     }
@@ -276,40 +252,13 @@ const Widget = ({
               rate={rate}
               priceImpact={priceImpact}
               slippage={slippage}
+              onClose={() => {
+                setShowModal(null);
+                refetch();
+              }}
             />
           );
         return null;
-      // return (
-      //   <FlexCenter>
-      //     {attempTx ? (
-      //       <>
-      //         <CustomLightSpinner
-      //           size="90px"
-      //           src={
-      //             new URL("../../assets/blue-loader.svg", import.meta.url)
-      //               .href
-      //           }
-      //         />
-
-      //         <ConfirmText>
-      //           Please confirm transaction on your wallet
-      //         </ConfirmText>
-      //       </>
-      //     ) : txHash ? (
-      //       <>
-      //         <SubmittedIcon style={{ width: "60px", height: "60px" }} />
-      //         <ConfirmText>Transaction submitted</ConfirmText>
-      //       </>
-      //     ) : (
-      //       <>
-      //         <ErrorIcon
-      //           style={{ width: "60px", height: "60px", color: "red" }}
-      //         />
-      //         <ConfirmText>Error</ConfirmText>
-      //       </>
-      //     )}
-      //   </FlexCenter>
-      // );
       default:
         return null;
     }
@@ -328,12 +277,14 @@ const Widget = ({
   return (
     <Wrapper>
       <DialogWrapper className={showModal ? "open" : "close"}>
-        <ModalHeader>
-          <ModalTitle onClick={() => setShowModal(null)} role="button">
-            <BackIcon />
-            {modalTitle}
-          </ModalTitle>
-        </ModalHeader>
+        {showModal !== ModalType.REVIEW && (
+          <ModalHeader>
+            <ModalTitle onClick={() => setShowModal(null)} role="button">
+              <BackIcon />
+              {modalTitle}
+            </ModalTitle>
+          </ModalHeader>
+        )}
         {modalContent}
       </DialogWrapper>
       <Title>

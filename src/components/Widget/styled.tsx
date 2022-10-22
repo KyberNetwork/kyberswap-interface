@@ -186,26 +186,6 @@ export const Dots = styled.span`
   }
 `;
 
-const rotate = keyframes`
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-`;
-
-export const Spinner = styled.img`
-  animation: 2s ${rotate} linear infinite;
-  width: 16px;
-  height: 16px;
-`;
-
-export const CustomLightSpinner = styled(Spinner)<{ size: string }>`
-  height: ${({ size }) => size};
-  width: ${({ size }) => size};
-`;
-
 export const Rate = styled.div`
   font-size: 14px;
   font-weight: 500;
@@ -244,4 +224,26 @@ export const Divider = styled.div`
   width: 100%;
   height: 1px;
   border-bottom: 1px solid ${({ theme }) => theme.stroke};
+`;
+export const ModalHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+export const ModalTitle = styled.div`
+  cursor: pointer;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  font-size: 1.25rem;
+  font-weight: 500;
+  :hover {
+    opacity: 0.8;
+  }
+
+  > svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
 `;

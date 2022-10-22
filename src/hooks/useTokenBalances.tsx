@@ -76,6 +76,7 @@ const useTokenBalances = (tokenAddresses: string[]) => {
   return {
     loading,
     balances,
+    refetch: fetchBalances,
   };
 };
 
