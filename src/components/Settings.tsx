@@ -2,6 +2,7 @@ import { useState } from "react";
 import styled from "styled-components";
 import useTheme from "../hooks/useTheme";
 import { ReactComponent as BackIcon } from "../assets/back1.svg";
+import { Dex } from "../hooks/useSwap";
 
 const Label = styled.div`
   font-size: 0.75rem;
@@ -138,11 +139,17 @@ function Settings({
   setSlippage,
   deadline,
   setDeadline,
+  allDexes,
+  excludedDexes,
+  onShowSource,
 }: {
   slippage: number;
   setSlippage: (value: number) => void;
   deadline: number;
   setDeadline: (value: number) => void;
+  allDexes: Dex[];
+  excludedDexes: Dex[];
+  onShowSource: () => void;
 }) {
   const [v, setV] = useState(() => {
     if ([5, 10, 50, 100].includes(slippage)) return "";
@@ -222,6 +229,7 @@ function Settings({
           <input
             placeholder="20"
             value={deadline ? deadline.toString() : ""}
+            style={{ fontSize: "12px" }}
             onChange={(e) => {
               const v = +e.target.value
                 .trim()
@@ -231,15 +239,33 @@ function Settings({
               setDeadline(v);
             }}
           />
-          <span>mins</span>
+          <span style={{ color: theme.subText }}>mins</span>
         </TTLInput>
       </Row>
 
       <Row>
         <Label>Liquidity Sources</Label>
-        <div>
-          20
-          <BackIcon style={{ transform: "rotate(-180deg)", width: "16px" }} />
+        <div
+          role="button"
+          onClick={onShowSource}
+          style={{
+            alignItems: "center",
+            display: "flex",
+            fontSize: 12,
+            fontWeight: 500,
+            gap: 4,
+            cursor: "pointer",
+          }}
+        >
+          {allDexes.length - excludedDexes.length || allDexes.length} out of{" "}
+          {allDexes.length} selected
+          <BackIcon
+            style={{
+              transform: "rotate(-180deg)",
+              width: "16px",
+              color: theme.subText,
+            }}
+          />
         </div>
       </Row>
     </>

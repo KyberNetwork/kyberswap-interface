@@ -27,6 +27,12 @@ export interface Trade {
   routerAddress: string;
 }
 
+export interface Dex {
+  name: string;
+  logoURL: string;
+  dexId: string;
+}
+
 const useSwap = ({
   defaultTokenIn,
   defaultTokenOut,
@@ -42,6 +48,58 @@ const useSwap = ({
   const tokens = useTokens();
 
   const { balances } = useTokenBalances(tokens.map((item) => item.address));
+  const [allDexes, setAllDexes] = useState<Dex[]>([]);
+  const [excludedDexes, setExcludedDexes] = useState<Dex[]>([]);
+
+  const excludedDexIds = excludedDexes.map((i) => i.dexId);
+  const dexes =
+    excludedDexes.length === 0
+      ? ""
+      : allDexes
+          .filter((item) => !excludedDexIds.includes(item.dexId))
+          .map((item) => item.dexId)
+          .join(",")
+          .replace("kyberswapv1", "kyberswap,kyberswap-static");
+
+  useEffect(() => {
+    const fetchAllDexes = async () => {
+      const res = await fetch(
+        `https://ks-setting.kyberswap.com/api/v1/dexes?chain=${getPath(
+          chainId
+        )}&isEnabled=true&pageSize=100`
+      ).then((res) => res.json());
+
+      let dexes: Dex[] = res?.data?.dexes || [];
+      const ksClassic = dexes.find((dex) => dex.dexId === "kyberswap");
+      const ksClassicStatic = dexes.find(
+        (dex) => dex.dexId === "kyberswap-static"
+      );
+      if (ksClassic || ksClassicStatic)
+        dexes = [
+          {
+            dexId: "kyberswapv2",
+            name: "KyberSwap Elastic",
+            logoURL: "https://kyberswap.com/favicon.ico",
+          },
+          {
+            dexId: "kyberswapv1",
+            name: "KyberSwap Classic",
+            logoURL: "https://kyberswap.com/favicon.ico",
+          },
+        ].concat(
+          dexes.filter(
+            (dex) =>
+              !["kyberswap", "kyberswap-static", "kyberswapv2"].includes(
+                dex.dexId
+              )
+          )
+        );
+
+      setAllDexes(dexes);
+    };
+
+    fetchAllDexes();
+  }, [chainId]);
 
   const [inputAmout, setInputAmount] = useState("1");
   const [loading, setLoading] = useState(false);
@@ -98,6 +156,7 @@ const useSwap = ({
       to: account || ZERO_ADDRESS,
       clientData: JSON.stringify({ source: "Widget" }),
       amountIn: amountIn.toString(),
+      dexes,
     };
 
     const search = Object.keys(params).reduce(
@@ -135,7 +194,16 @@ const useSwap = ({
 
     controllerRef.current = null;
     setLoading(false);
-  }, [tokenIn, tokenOut, provider, inputAmout, balances, slippage, deadline]);
+  }, [
+    tokenIn,
+    tokenOut,
+    provider,
+    inputAmout,
+    balances,
+    slippage,
+    deadline,
+    dexes,
+  ]);
 
   useEffect(() => {
     getRate();
@@ -156,6 +224,9 @@ const useSwap = ({
     getRate,
     deadline,
     setDeadline,
+    allDexes,
+    excludedDexes,
+    setExcludedDexes,
   };
 };
 

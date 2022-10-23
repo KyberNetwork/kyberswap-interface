@@ -7,7 +7,7 @@ import useTokenBalances from "../hooks/useTokenBalances";
 import { useTokens } from "../hooks/useTokens";
 import { useActiveWeb3 } from "../hooks/useWeb3Provider";
 
-const Input = styled.input`
+export const Input = styled.input`
   font-size: 0.75rem;
   padding: 0.75rem;
   border-radius: ${({ theme }) => theme.borderRadius};

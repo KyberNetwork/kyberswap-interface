@@ -49,6 +49,7 @@ import Settings from "../Settings";
 import { Token, TokenListProvider, useTokens } from "../../hooks/useTokens";
 import RefreshBtn from "../RefreshBtn";
 import Confirmation from "../Confirmation";
+import DexesSetting from "../DexesSetting";
 
 export const DialogWrapper = styled.div`
   background-color: ${({ theme }) => theme.tab};
@@ -84,25 +85,12 @@ const SelectTokenText = styled.span`
   width: max-content;
 `;
 
-const FlexCenter = styled.div`
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  justify-content: center;
-  height: 100%;
-`;
-
-const ConfirmText = styled.div`
-  font-size: 14px;
-  color: ${({ theme }) => theme.subText};
-  margin-top: 1.5rem;
-`;
-
 enum ModalType {
   SETTING = "setting",
   CURRENCY_IN = "currency_in",
   CURRENCY_OUT = "currency_out",
   REVIEW = "review",
+  DEXES_SETTING = "dexes_setting",
 }
 
 export interface WidgetProps {
@@ -138,6 +126,9 @@ const Widget = ({
     getRate,
     deadline,
     setDeadline,
+    allDexes,
+    excludedDexes,
+    setExcludedDexes,
   } = useSwap({
     defaultTokenIn,
     defaultTokenOut,
@@ -211,6 +202,8 @@ const Widget = ({
         return "Select a token";
       case ModalType.CURRENCY_OUT:
         return "Select a token";
+      case ModalType.DEXES_SETTING:
+        return "Liquidity Sources";
       default:
         return null;
     }
@@ -225,6 +218,9 @@ const Widget = ({
             setSlippage={setSlippage}
             deadline={deadline}
             setDeadline={setDeadline}
+            allDexes={allDexes}
+            excludedDexes={excludedDexes}
+            onShowSource={() => setShowModal(ModalType.DEXES_SETTING)}
           />
         );
       case ModalType.CURRENCY_IN:
@@ -268,6 +264,14 @@ const Widget = ({
             />
           );
         return null;
+      case ModalType.DEXES_SETTING:
+        return (
+          <DexesSetting
+            allDexes={allDexes}
+            excludedDexes={excludedDexes}
+            setExcludedDexes={setExcludedDexes}
+          />
+        );
       default:
         return null;
     }
@@ -288,7 +292,14 @@ const Widget = ({
       <DialogWrapper className={showModal ? "open" : "close"}>
         {showModal !== ModalType.REVIEW && (
           <ModalHeader>
-            <ModalTitle onClick={() => setShowModal(null)} role="button">
+            <ModalTitle
+              onClick={() =>
+                showModal === ModalType.DEXES_SETTING
+                  ? setShowModal(ModalType.SETTING)
+                  : setShowModal(null)
+              }
+              role="button"
+            >
               <BackIcon style={{ color: theme.subText }} />
               {modalTitle}
             </ModalTitle>
