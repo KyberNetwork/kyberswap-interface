@@ -130,6 +130,10 @@ export function useToggleEthPowAckModal(): () => void {
   return useToggleModal(ApplicationModal.ETH_POW_ACK)
 }
 
+export function useToggleSwitchEthereumModal(): () => void {
+  return useToggleModal(ApplicationModal.SWITCH_TO_ETHEREUM)
+}
+
 // returns a function that allows adding a popup
 function useAddPopup(): (
   content: PopupContent,

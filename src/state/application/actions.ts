@@ -62,6 +62,12 @@ export enum ApplicationModal {
   UNSUBSCRIBE_TRUESIGHT,
   YOUR_CAMPAIGN_TRANSACTIONS,
   ETH_POW_ACK,
+
+  // KyberDAO
+  SWITCH_TO_ETHEREUM,
+  DELEGATE_CONFIRM,
+  YOUR_TRANSACTIONS_STAKE_KNC,
+  MIGRATE_KNC,
 }
 
 export const updateBlockNumber = createAction<{ chainId: number; blockNumber: number }>('application/updateBlockNumber')

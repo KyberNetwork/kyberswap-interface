@@ -12,6 +12,8 @@ import { ReactComponent as Visa } from 'assets/buy-crypto/visa.svg'
 import { ReactComponent as Dollar } from 'assets/svg/dollar.svg'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
+import StakeIcon from 'components/Icons/Stake'
+import VoteIcon from 'components/Icons/Vote'
 import Menu, { NewLabel } from 'components/Menu'
 import Settings from 'components/Settings'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
@@ -186,7 +188,6 @@ const activeClassName = 'ACTIVE'
 const StyledNavLink = styled(NavLink).attrs({
   activeClassName,
 })`
-  ${({ theme }) => theme.flexRowNoWrap}
   align-items: left;
   border-radius: 3rem;
   padding: 8px 12px;
@@ -197,7 +198,9 @@ const StyledNavLink = styled(NavLink).attrs({
   font-size: 1rem;
   width: fit-content;
   font-weight: 500;
-
+  display: flex;
+  align-items: 'center';
+  gap: 5px;
   &.${activeClassName} {
     border-radius: 12px;
     font-weight: 600;
@@ -283,8 +286,8 @@ const Dropdown = styled.div`
   filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.36));
   box-shadow: 0 0 1px rgba(0, 0, 0, 0.01), 0 4px 8px rgba(0, 0, 0, 0.04), 0 16px 24px rgba(0, 0, 0, 0.04),
     0 24px 32px rgba(0, 0, 0, 0.01);
-  border-radius: 16px;
-  padding: 8px;
+  border-radius: 8px;
+  padding: 8px 4px;
   width: max-content;
   top: 32px;
 `
@@ -313,8 +316,10 @@ const HoverDropdown = styled.div<{ active: boolean }>`
     ${Dropdown} {
       display: flex;
       flex-direction: column;
-
       ${StyledNavLink} {
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
         margin: 0;
       }
     }
@@ -462,7 +467,25 @@ export default function Header() {
               <DiscoverIcon size={14} style={{ marginTop: '-20px', marginLeft: '4px' }} />
             </StyledNavLink>
           </DiscoverWrapper>
+          <AboutWrapper>
+            <HoverDropdown active={pathname.toLowerCase().includes('kyberdao')}>
+              <Flex alignItems="center">
+                <Trans>KyberDAO</Trans>
+                <DropdownIcon />
+              </Flex>
+              <Dropdown>
+                <StyledNavLink id={`kyberdao-stake-knc`} to={'/kyberdao/stake-knc'} isActive={match => Boolean(match)}>
+                  <StakeIcon />
+                  <Trans>Stake KNC</Trans>
+                </StyledNavLink>
 
+                <StyledNavLink id={`kyberdao-vote`} to={'/kyberdao/vote'} isActive={match => Boolean(match)}>
+                  <VoteIcon />
+                  <Trans>Vote</Trans>
+                </StyledNavLink>
+              </Dropdown>
+            </HoverDropdown>
+          </AboutWrapper>
           <AnalyticsWrapper>
             <StyledNavExternalLink
               onClick={() => {
