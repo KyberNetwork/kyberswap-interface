@@ -64,12 +64,13 @@ const useTokenBalances = (tokenAddresses: string[]) => {
 
   useEffect(() => {
     fetchBalances();
-    provider?.on("block", () => {
+
+    const i = setInterval(() => {
       fetchBalances();
-    });
+    }, 10_000);
 
     return () => {
-      provider?.off("block");
+      clearInterval(i);
     };
   }, [provider, fetchBalances]);
 

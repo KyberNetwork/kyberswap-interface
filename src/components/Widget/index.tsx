@@ -53,6 +53,7 @@ import DexesSetting from "../DexesSetting";
 
 export const DialogWrapper = styled.div`
   background-color: ${({ theme }) => theme.tab};
+  border-radius: ${({ theme }) => theme.borderRadius};
   position: absolute;
   left: 0;
   top: 0;
@@ -350,6 +351,23 @@ const Widget = ({
             maxLength={79}
             spellCheck="false"
           />
+
+          {!!trade?.amountInUsd && (
+            <span
+              style={{
+                fontSize: "12px",
+                marginRight: "4px",
+                color: theme.subText,
+              }}
+            >
+              ~
+              {trade.amountInUsd.toLocaleString("en-US", {
+                style: "currency",
+                currency: "USD",
+              })}
+            </span>
+          )}
+
           <SelectTokenBtn onClick={() => setShowModal(ModalType.CURRENCY_IN)}>
             {tokenInInfo ? (
               <>
@@ -420,7 +438,23 @@ const Widget = ({
         </BalanceRow>
 
         <InputRow>
-          <Input disabled value={amountOut} />
+          <Input disabled value={+Number(amountOut).toPrecision(8)} />
+
+          {!!trade?.amountOutUsd && (
+            <span
+              style={{
+                fontSize: "12px",
+                marginRight: "4px",
+                color: theme.subText,
+              }}
+            >
+              ~
+              {trade.amountOutUsd.toLocaleString("en-US", {
+                style: "currency",
+                currency: "USD",
+              })}
+            </span>
+          )}
           <SelectTokenBtn onClick={() => setShowModal(ModalType.CURRENCY_OUT)}>
             {tokenOutInfo ? (
               <>

@@ -2,10 +2,9 @@ import ReactDOM from "react-dom/client";
 import Widget from "./components/Widget";
 
 import { init, useWallets, useConnectWallet } from "@web3-onboard/react";
-import reactLogo from "./assets/back.svg";
 import injectedModule from "@web3-onboard/injected-wallets";
 import { ethers } from "ethers";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const injected = injectedModule();
 
@@ -32,11 +31,17 @@ const App = () => {
   const [{ wallet, connecting }, connect, disconnect] = useConnectWallet();
 
   // create an ethers provider
-  let ethersProvider;
+  let ethersProvider: any;
 
   if (wallet) {
     ethersProvider = new ethers.providers.Web3Provider(wallet.provider, "any");
   }
+
+  const [chainId, setChainId] = useState(1);
+
+  useEffect(() => {
+    ethersProvider?.getNetwork().then((res: any) => setChainId(res.chainId));
+  }, [ethersProvider]);
 
   const connectedWallets = useWallets();
 
@@ -72,7 +77,11 @@ const App = () => {
       <Widget
         tokenList={[]}
         provider={ethersProvider}
-        defaultTokenOut="0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"
+        defaultTokenOut={
+          chainId === 1
+            ? "0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202"
+            : "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"
+        }
       />
       <h1>Vite + React</h1>
       <div className="card">

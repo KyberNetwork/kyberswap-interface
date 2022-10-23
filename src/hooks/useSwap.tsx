@@ -47,6 +47,11 @@ const useSwap = ({
   const [tokenOut, setTokenOut] = useState(defaultTokenOut || "");
   const tokens = useTokens();
 
+  useEffect(() => {
+    setTokenIn(defaultTokenIn || NATIVE_TOKEN_ADDRESS);
+    setTokenOut(defaultTokenOut || "");
+  }, [chainId]);
+
   const { balances } = useTokenBalances(tokens.map((item) => item.address));
   const [allDexes, setAllDexes] = useState<Dex[]>([]);
   const [excludedDexes, setExcludedDexes] = useState<Dex[]>([]);

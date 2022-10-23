@@ -10,6 +10,7 @@ export const Wrapper = styled.div`
     theme.theme || `"Work Sans", "Inter var", sans-serif`};
   position: relative;
   overflow: hidden;
+  box-shadow: ${({ theme }) => theme.boxShadow};
 `;
 
 export const Title = styled.div`
@@ -219,6 +220,7 @@ export const DetailTitle = styled.div`
   font-size: 12px;
   font-weight: 500;
   text-transform: uppercase;
+  text-align: left;
 `;
 export const Divider = styled.div`
   width: 100%;

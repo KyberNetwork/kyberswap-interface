@@ -79,6 +79,7 @@ const TTLInput = styled.div`
     padding: 0;
     background: transparent;
     text-align: right;
+    color: ${({ theme }) => theme.text};
   }
 `;
 

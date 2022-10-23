@@ -52,6 +52,7 @@ const Flex = styled.div`
 const Note = styled.div`
   color: ${({ theme }) => theme.subText};
   font-size: 0.75rem;
+  text-align: left;
 `;
 
 const PriceImpactHigh = styled.div`
@@ -141,6 +142,24 @@ const ErrMsg = styled.div`
   padding-top: 12px;
 `;
 
+const getScanLink = (chainId: number) => {
+  switch (chainId) {
+    case 137:
+      return "https://polygonscan.com";
+    default:
+      return "https://etherscan.io";
+  }
+};
+
+function calculateGasMargin(value: BigNumber): BigNumber {
+  const defaultGasLimitMargin = BigNumber.from(20_000);
+  const gasMargin = value.mul(BigNumber.from(2000)).div(BigNumber.from(10000));
+
+  return gasMargin.gte(defaultGasLimitMargin)
+    ? value.add(gasMargin)
+    : value.add(defaultGasLimitMargin);
+}
+
 function Confirmation({
   trade,
   tokenInInfo,
@@ -172,7 +191,7 @@ function Confirmation({
       .toString();
   }
 
-  const { provider, account } = useActiveWeb3();
+  const { provider, account, chainId } = useActiveWeb3();
   const [attempTx, setAttempTx] = useState(false);
   const [txHash, setTxHash] = useState("");
   const [txStatus, setTxStatus] = useState<"success" | "failed" | "">("");
@@ -180,18 +199,18 @@ function Confirmation({
 
   useEffect(() => {
     if (txHash) {
-      provider?.on("block", () => {
-        provider.getTransactionReceipt(txHash).then((res) => {
+      const i = setInterval(() => {
+        provider?.getTransactionReceipt(txHash).then((res) => {
           if (!res) return;
 
           if (res.status) {
             setTxStatus("success");
           } else setTxStatus("failed");
         });
-      });
+      }, 10_000);
 
       return () => {
-        provider?.off("block");
+        clearInterval(i);
       };
     }
   }, [txHash, provider]);
@@ -210,9 +229,13 @@ function Confirmation({
       setAttempTx(true);
       setTxHash("");
       setTxError(false);
-      const res = await provider
-        ?.getSigner()
-        .sendTransaction(estimateGasOption);
+
+      const gasEstimated = await provider?.estimateGas(estimateGasOption);
+
+      const res = await provider?.getSigner().sendTransaction({
+        ...estimateGasOption,
+        gasLimit: calculateGasMargin(gasEstimated || BigNumber.from(0)),
+      });
 
       setTxHash(res?.hash || "");
       setAttempTx(false);
@@ -226,7 +249,13 @@ function Confirmation({
     return (
       <>
         <Central>
-          {txStatus === "success" ? <Success /> : <Spinner />}
+          {txStatus === "success" ? (
+            <Success />
+          ) : txStatus === "failed" ? (
+            <Error />
+          ) : (
+            <Spinner />
+          )}
           {txHash ? (
             txStatus === "success" ? (
               <WaitingText>Transaction successful</WaitingText>
@@ -255,7 +284,11 @@ function Confirmation({
 
         <Divider />
         {txHash && (
-          <ViewTx>
+          <ViewTx
+            href={`${getScanLink(chainId)}/tx/${txHash}`}
+            target="_blank"
+            rel="noopener norefferer"
+          >
             View transaction <External />
           </ViewTx>
         )}
