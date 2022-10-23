@@ -33,13 +33,26 @@ const STAKE_TAB: { [key: string]: string } = {
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  width: 100%;
+  width: 404px;
+  order: 4;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    order: 2;
+  `}
+  ${({ theme }) => theme.mediaWidth.upToXXSmall`
+    width: 100vw;
+    padding: 0 16px;
+  `}
 `
 const TabSelect = styled.div`
   display: flex;
   align-items: center;
   gap: 28px;
   margin-bottom: 18px;
+
+  ${({ theme }) => theme.mediaWidth.upToXXSmall`
+    gap: inherit;
+    justify-content: space-between;
+  `}
 `
 const FormWrapper = styled.div`
   background-color: ${({ theme }) => theme.background};
@@ -90,6 +103,18 @@ const TabOption = styled.div<{ $active?: boolean }>`
     color: ${({ theme }) => lighten(0.1, theme.primary)};
   }
   color: ${({ theme, $active }) => ($active ? theme.primary : theme.subText)};
+
+  &:last-child {
+    margin-left: auto;
+  }
+
+  ${({ theme }) => theme.mediaWidth.upToXXSmall`
+    font-size: 16px;
+    line-height: 20px;
+    &:last-child {
+      margin-left: 0;
+    }
+  `}
 `
 const StakeFormWrapper = styled.div`
   display: flex;
@@ -162,7 +187,7 @@ export default function StakeKNCComponent() {
             {tab}
           </TabOption>
         ))}
-        <TabOption style={{ flex: 1, justifyContent: 'flex-end' }} onClick={toggleYourTransactions}>
+        <TabOption onClick={toggleYourTransactions}>
           <HistoryIcon /> <Text fontSize={12}>History</Text>
         </TabOption>
       </TabSelect>
