@@ -6,7 +6,7 @@ import { ReactComponent as WalletIcon } from "../../assets/wallet.svg";
 import { ReactComponent as DropdownIcon } from "../../assets/dropdown.svg";
 import { ReactComponent as SwitchIcon } from "../../assets/switch.svg";
 import { ReactComponent as SwapIcon } from "../../assets/swap.svg";
-import { ReactComponent as BackIcon } from "../../assets/back.svg";
+import { ReactComponent as BackIcon } from "../../assets/back1.svg";
 
 import useTheme from "../../hooks/useTheme";
 
@@ -136,6 +136,8 @@ const Widget = ({
     slippage,
     setSlippage,
     getRate,
+    deadline,
+    setDeadline,
   } = useSwap({
     defaultTokenIn,
     defaultTokenOut,
@@ -217,7 +219,14 @@ const Widget = ({
   const modalContent = (() => {
     switch (showModal) {
       case ModalType.SETTING:
-        return <Settings slippage={slippage} setSlippage={setSlippage} />;
+        return (
+          <Settings
+            slippage={slippage}
+            setSlippage={setSlippage}
+            deadline={deadline}
+            setDeadline={setDeadline}
+          />
+        );
       case ModalType.CURRENCY_IN:
         return (
           <SelectCurrency
@@ -280,7 +289,7 @@ const Widget = ({
         {showModal !== ModalType.REVIEW && (
           <ModalHeader>
             <ModalTitle onClick={() => setShowModal(null)} role="button">
-              <BackIcon />
+              <BackIcon style={{ color: theme.subText }} />
               {modalTitle}
             </ModalTitle>
           </ModalHeader>

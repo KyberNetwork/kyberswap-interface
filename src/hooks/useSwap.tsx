@@ -48,6 +48,7 @@ const useSwap = ({
   const [trade, setTrade] = useState<Trade | null>(null);
   const [error, setError] = useState("");
   const [slippage, setSlippage] = useState(50);
+  const [deadline, setDeadline] = useState(20);
 
   const controllerRef = useRef<AbortController | null>();
 
@@ -56,7 +57,7 @@ const useSwap = ({
     const account = listAccounts?.[0];
 
     const date = new Date();
-    date.setMinutes(date.getMinutes() + 20);
+    date.setMinutes(date.getMinutes() + (deadline || 20));
 
     const tokenInDecimal =
       tokenIn === NATIVE_TOKEN_ADDRESS
@@ -134,7 +135,7 @@ const useSwap = ({
 
     controllerRef.current = null;
     setLoading(false);
-  }, [tokenIn, tokenOut, provider, inputAmout, balances, slippage]);
+  }, [tokenIn, tokenOut, provider, inputAmout, balances, slippage, deadline]);
 
   useEffect(() => {
     getRate();
@@ -153,6 +154,8 @@ const useSwap = ({
     slippage,
     setSlippage,
     getRate,
+    deadline,
+    setDeadline,
   };
 };
 
