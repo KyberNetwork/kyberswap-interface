@@ -8,6 +8,7 @@ import styled, { css } from 'styled-components'
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import { AutoColumn, ColumnCenter } from 'components/Column'
 import ExpandableBox from 'components/ExpandableBox'
+import HistoryIcon from 'components/Icons/History'
 import Wallet from 'components/Icons/Wallet'
 import WarningIcon from 'components/Icons/WarningIcon'
 import InfoHelper from 'components/InfoHelper'
@@ -81,6 +82,9 @@ const TabOption = styled.div<{ $active?: boolean }>`
   font-size: 20px;
   line-height: 24px;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
   cursor: pointer;
   &:hover {
     color: ${({ theme }) => lighten(0.1, theme.primary)};
@@ -141,6 +145,7 @@ export default function StakeKNCComponent() {
   const toggleWalletModal = useWalletModalToggle()
   const toggleSwitchEthereumModal = useToggleModal(ApplicationModal.SWITCH_TO_ETHEREUM)
   const toggleDelegateConfirm = useToggleModal(ApplicationModal.DELEGATE_CONFIRM)
+  const toggleYourTransactions = useToggleModal(ApplicationModal.YOUR_TRANSACTIONS_STAKE_KNC)
   const notify = useNotify()
   const handleStakedSuccess = () => {
     notify({
@@ -157,8 +162,8 @@ export default function StakeKNCComponent() {
             {tab}
           </TabOption>
         ))}
-        <TabOption style={{ flex: 1, justifyContent: 'flex-end' }}>
-          <Text fontSize={12}>History</Text>
+        <TabOption style={{ flex: 1, justifyContent: 'flex-end' }} onClick={toggleYourTransactions}>
+          <HistoryIcon /> <Text fontSize={12}>History</Text>
         </TabOption>
       </TabSelect>
       <YourStakedKNC>
@@ -250,7 +255,9 @@ export default function StakeKNCComponent() {
                 </Text>
               }
             />
-            <ButtonPrimary margin="8px 0px">Delegate</ButtonPrimary>
+            <ButtonPrimary margin="8px 0px" onClick={toggleDelegateConfirm}>
+              Delegate
+            </ButtonPrimary>
           </StakeForm>
         </StakeFormWrapper>
       )}
@@ -292,7 +299,6 @@ export default function StakeKNCComponent() {
           </AutoColumn>
         }
       />
-      <ButtonPrimary onClick={() => toggleDelegateConfirm()}>Test</ButtonPrimary>
       <SwitchToEthereumModal />
       <DelegateConfirmModal />
       <YourTransactionsModal />
