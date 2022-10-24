@@ -113,7 +113,7 @@ const PendingTransferItem: React.FC<Props> = ({ className, transfer }) => {
   }
 
   const renderSendTxInfo = () => {
-    const explorerUrl = NETWORKS_INFO_CONFIG[transfer.srcChainID as ChainId]?.etherscanUrl
+    const explorerUrl = NETWORKS_INFO_CONFIG[Number(transfer.srcChainId) as ChainId]?.etherscanUrl
 
     return (
       <TxHashInfo
@@ -125,7 +125,7 @@ const PendingTransferItem: React.FC<Props> = ({ className, transfer }) => {
   }
 
   const renderReceiveTxInfo = () => {
-    const explorerUrl = NETWORKS_INFO_CONFIG[transfer.dstChainID as ChainId]?.etherscanUrl
+    const explorerUrl = NETWORKS_INFO_CONFIG[Number(transfer.dstChainId) as ChainId]?.etherscanUrl
 
     return (
       <TxHashInfo
@@ -138,7 +138,7 @@ const PendingTransferItem: React.FC<Props> = ({ className, transfer }) => {
 
   return (
     <div className={className}>
-      <ChainLogoWrapper>{renderChainIcon(transfer.srcChainID as ChainId)}</ChainLogoWrapper>
+      <ChainLogoWrapper>{renderChainIcon(Number(transfer.srcChainId) as ChainId)}</ChainLogoWrapper>
 
       <TxDetail>
         <TxDetailRow>
@@ -163,7 +163,7 @@ const PendingTransferItem: React.FC<Props> = ({ className, transfer }) => {
         <DecorationLine />
       </TxDetail>
 
-      <ChainLogoWrapper>{renderChainIcon(transfer.dstChainID as ChainId)}</ChainLogoWrapper>
+      <ChainLogoWrapper>{renderChainIcon(Number(transfer.dstChainId) as ChainId)}</ChainLogoWrapper>
     </div>
   )
 }

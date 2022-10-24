@@ -35,8 +35,8 @@ function useSendTxToKsSettingsCallback() {
       // const url = `http://localhost:8014/api/v1/multichain-transfers`
       const data = {
         userAddress: account,
-        srcChainID: srcChainId,
-        dstChainID: dstChainId,
+        srcChainId: srcChainId,
+        dstChainId: dstChainId,
         srcTxHash,
         dstTxHash: '',
         srcTokenSymbol,

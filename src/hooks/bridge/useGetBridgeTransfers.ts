@@ -18,8 +18,8 @@ export enum MultichainTransferStatus {
 export type MultichainTransfer = {
   id: number
   userAddress: string
-  srcChainID: number
-  dstChainID: number
+  srcChainId: string
+  dstChainId: string
   srcTxHash: string
   dstTxHash: string
   srcTokenSymbol: string

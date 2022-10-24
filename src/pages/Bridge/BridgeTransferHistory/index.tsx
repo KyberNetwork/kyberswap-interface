@@ -200,7 +200,7 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
             <TableRow key={i}>
               {/* TODO: timestamp */}
               <TimeStatusCell status={transfer.status} timestamp={''} />
-              <RouteCell fromChainID={Number(transfer.srcChainID)} toChainID={Number(transfer.dstChainID)} />
+              <RouteCell fromChainID={Number(transfer.srcChainId)} toChainID={Number(transfer.dstChainId)} />
               <TokenReceiveCell transfer={transfer} />
               <ActionCell url={getTxsUrl(transfer.srcTxHash)} />
             </TableRow>
@@ -234,7 +234,7 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
             {/* TODO: timestamp */}
             <TimeStatusCell status={transfer.status} timestamp={''} />
             <StatusBadge status={transfer.status} />
-            <RouteCell fromChainID={Number(transfer.srcChainID)} toChainID={Number(transfer.dstChainID)} />
+            <RouteCell fromChainID={Number(transfer.srcChainId)} toChainID={Number(transfer.dstChainId)} />
             <TokenReceiveCell transfer={transfer} />
             <ActionCell url={getTxsUrl(transfer.srcTxHash)} />
           </TableRow>
