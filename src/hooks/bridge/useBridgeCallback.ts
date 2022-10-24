@@ -32,7 +32,7 @@ function useSendTxToKsSettingCallback() {
       srcAmount: string,
       dstAmount: string,
     ) => {
-      const url = `${KS_SETTING_API}/api/v1/multichain-transfers`
+      const url = `${KS_SETTING_API}/v1/multichain-transfers`
       // const url = `http://localhost:8014/api/v1/multichain-transfers`
       const data = {
         userAddress: account,
