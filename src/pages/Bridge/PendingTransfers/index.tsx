@@ -27,7 +27,7 @@ const PendingTransfers = () => {
 
   const timeOutRef = useRef<ReturnType<typeof setTimeout>>()
   useEffect(() => {
-    // This is to ensure loading is displayed at least 1.5s
+    // This is to ensure loading is displayed at least 0.5s
     const existingTimeout = timeOutRef.current
 
     if (isValidating) {
@@ -35,7 +35,7 @@ const PendingTransfers = () => {
     } else {
       timeOutRef.current = setTimeout(() => {
         setShouldShowLoading(false)
-      }, 1_500)
+      }, 500)
     }
     return () => {
       existingTimeout && clearTimeout(existingTimeout)

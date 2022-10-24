@@ -15,7 +15,6 @@ import { ITEMS_PER_PAGE } from '../consts'
 import ActionCell from './ActionCell'
 import RouteCell from './RouteCell'
 import StatusBadge from './StatusBadge'
-import TimeCell from './TimeCell'
 import TimeStatusCell from './TimeStatusCell'
 import TokenReceiveCell from './TokenReceiveCell'
 import useTransferHistory from './useTransferHistory'
@@ -111,7 +110,7 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
 
   const timeOutRef = useRef<ReturnType<typeof setTimeout>>()
   useEffect(() => {
-    // This is to ensure loading is displayed at least 1.5s
+    // This is to ensure loading is displayed at least 0.5s
     const existingTimeout = timeOutRef.current
 
     if (isValidating) {
@@ -119,7 +118,7 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
     } else {
       timeOutRef.current = setTimeout(() => {
         setShouldShowLoading(false)
-      }, 1_500)
+      }, 500)
     }
     return () => {
       existingTimeout && clearTimeout(existingTimeout)
@@ -199,10 +198,11 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
           </TableHeader>
           {transfers.map((transfer, i) => (
             <TableRow key={i}>
-              <TimeStatusCell status={transfer.status} timestamp={transfer.inittime} />
-              <RouteCell fromChainID={Number(transfer.fromChainID)} toChainID={Number(transfer.toChainID)} />
+              {/* TODO: timestamp */}
+              <TimeStatusCell status={transfer.status} timestamp={''} />
+              <RouteCell fromChainID={Number(transfer.srcChainID)} toChainID={Number(transfer.dstChainID)} />
               <TokenReceiveCell transfer={transfer} />
-              <ActionCell url={getTxsUrl(transfer.txid)} />
+              <ActionCell url={getTxsUrl(transfer.srcTxHash)} />
             </TableRow>
           ))}
           {renderInvisibleRows()}
@@ -231,11 +231,12 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
         </TableHeader>
         {transfers.map((transfer, i) => (
           <TableRow key={i}>
-            <TimeCell timestamp={transfer.inittime} />
+            {/* TODO: timestamp */}
+            <TimeStatusCell status={transfer.status} timestamp={''} />
             <StatusBadge status={transfer.status} />
-            <RouteCell fromChainID={Number(transfer.fromChainID)} toChainID={Number(transfer.toChainID)} />
+            <RouteCell fromChainID={Number(transfer.srcChainID)} toChainID={Number(transfer.dstChainID)} />
             <TokenReceiveCell transfer={transfer} />
-            <ActionCell url={getTxsUrl(transfer.txid)} />
+            <ActionCell url={getTxsUrl(transfer.srcTxHash)} />
           </TableRow>
         ))}
         {renderInvisibleRows()}

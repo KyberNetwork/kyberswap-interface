@@ -1,42 +1,29 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useState } from 'react'
 
-import useGetBridgeTransfers, { BridgeTransfer, BridgeTransferStatus } from 'hooks/bridge/useGetBridgeTransfers'
+import useGetBridgeTransfers from 'hooks/bridge/useGetBridgeTransfers'
 
-import { DEFAULT_LIMIT, DEFAULT_OFFSET, ITEMS_PER_PAGE } from '../consts'
-
-const statusToGet = [BridgeTransferStatus.Confirming, BridgeTransferStatus.Swapping, BridgeTransferStatus.BigAmount]
-const OFFSET = DEFAULT_OFFSET
-const LIMIT = DEFAULT_LIMIT
+import { ITEMS_PER_PAGE } from '../consts'
 
 const usePendingTransfers = (addr: string) => {
-  const [numberOfVisibleTransfers, setNumberOfVisibleTransfers] = useState(ITEMS_PER_PAGE)
-  const [allTransfers, setAllTransfers] = useState<BridgeTransfer[]>([])
-  const { data, isValidating, error } = useGetBridgeTransfers({ addr, offset: OFFSET, limit: LIMIT })
+  const [page, setPage] = useState(1)
+  const { data, isValidating, error } = useGetBridgeTransfers({
+    addr,
+    page: 1,
+    status: 0,
+    pageSize: ITEMS_PER_PAGE * page,
+  })
 
-  const canSeeMore = numberOfVisibleTransfers < allTransfers.length
+  const maxPage = data?.data?.pagination?.totalItems
+    ? Math.floor((data.data.pagination.totalItems - 1) / ITEMS_PER_PAGE) + 1
+    : 1
+  const canSeeMore = page < maxPage
 
   const seeMore = () => {
-    setNumberOfVisibleTransfers(n => n + ITEMS_PER_PAGE)
+    setPage(n => n + 1)
   }
 
-  useEffect(() => {
-    if (!data?.info?.length) {
-      return
-    }
-
-    const newTransfers = data.info
-      // needs filter here because MultiChain can return any status
-      .filter(transfer => statusToGet.includes(transfer.status))
-
-    setAllTransfers(newTransfers)
-  }, [data])
-
-  const transfers = useMemo(() => {
-    return allTransfers.slice(0, numberOfVisibleTransfers)
-  }, [allTransfers, numberOfVisibleTransfers])
-
   return {
-    transfers,
+    transfers: data ? data.data.transfers : [],
     isValidating,
     error,
     canSeeMore,

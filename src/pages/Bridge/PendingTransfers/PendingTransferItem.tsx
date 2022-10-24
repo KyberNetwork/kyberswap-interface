@@ -6,11 +6,10 @@ import styled from 'styled-components'
 import CopyHelper from 'components/Copy'
 import QuestionHelper from 'components/QuestionHelper'
 import { NETWORKS_INFO_CONFIG } from 'constants/networks'
-import { BridgeTransfer } from 'hooks/bridge/useGetBridgeTransfers'
+import { MultichainTransfer } from 'hooks/bridge/useGetBridgeTransfers'
 import useTheme from 'hooks/useTheme'
 import { useIsDarkMode } from 'state/user/hooks'
 
-import { getAmountReceive, getTokenSymbol } from '../utils'
 import DecorationLine from './DecorationLine'
 import ExternalLinkButton from './ExternalLinkButton'
 
@@ -87,18 +86,12 @@ const TxHashInfo: React.FC<{
 
 type Props = {
   className?: string
-  transfer: BridgeTransfer
+  transfer: MultichainTransfer
 }
 
 const PendingTransferItem: React.FC<Props> = ({ className, transfer }) => {
   const isDark = useIsDarkMode()
   const theme = useTheme()
-
-  const amountSend = Number(transfer.formatvalue).toFixed(2)
-  const amountReceive = getAmountReceive(transfer.formatvalue, transfer.formatswapvalue, transfer.swapvalue)
-  const fromChainID = Number(transfer.fromChainID)
-  const toChainID = Number(transfer.toChainID)
-  const tokenSymbol = getTokenSymbol(transfer)
 
   const renderChainIcon = (chainId: ChainId) => {
     const chainInfo = NETWORKS_INFO_CONFIG[chainId]
@@ -120,44 +113,44 @@ const PendingTransferItem: React.FC<Props> = ({ className, transfer }) => {
   }
 
   const renderSendTxInfo = () => {
-    const explorerUrl = NETWORKS_INFO_CONFIG[fromChainID as ChainId]?.etherscanUrl
+    const explorerUrl = NETWORKS_INFO_CONFIG[transfer.srcChainID as ChainId]?.etherscanUrl
 
     return (
       <TxHashInfo
         justifyContent="flex-start"
-        hash={transfer.txid}
-        url={explorerUrl ? `${explorerUrl}/tx/${transfer.txid}` : ''}
+        hash={transfer.srcTxHash}
+        url={explorerUrl ? `${explorerUrl}/tx/${transfer.srcTxHash}` : ''}
       />
     )
   }
 
   const renderReceiveTxInfo = () => {
-    const explorerUrl = NETWORKS_INFO_CONFIG[toChainID as ChainId]?.etherscanUrl
+    const explorerUrl = NETWORKS_INFO_CONFIG[transfer.dstChainID as ChainId]?.etherscanUrl
 
     return (
       <TxHashInfo
         justifyContent="flex-end"
-        hash={transfer.swaptx}
-        url={explorerUrl ? `${explorerUrl}/tx/${transfer.swaptx}` : ''}
+        hash={transfer.dstTxHash}
+        url={explorerUrl ? `${explorerUrl}/tx/${transfer.dstTxHash}` : ''}
       />
     )
   }
 
   return (
     <div className={className}>
-      <ChainLogoWrapper>{renderChainIcon(fromChainID as ChainId)}</ChainLogoWrapper>
+      <ChainLogoWrapper>{renderChainIcon(transfer.srcChainID as ChainId)}</ChainLogoWrapper>
 
       <TxDetail>
         <TxDetailRow>
           <TxDetailCell justifyContent="flex-start">
             <Text as="span" color={theme.border}>
-              - {amountSend} {tokenSymbol}
+              - {transfer.srcAmount} {transfer.srcTokenSymbol}
             </Text>
           </TxDetailCell>
 
           <TxDetailCell justifyContent="flex-end">
             <Text as="span" color={theme.primary}>
-              + {amountReceive} {tokenSymbol}
+              + {transfer.dstAmount} {transfer.dstTokenSymbol}
             </Text>
           </TxDetailCell>
         </TxDetailRow>
@@ -170,7 +163,7 @@ const PendingTransferItem: React.FC<Props> = ({ className, transfer }) => {
         <DecorationLine />
       </TxDetail>
 
-      <ChainLogoWrapper>{renderChainIcon(toChainID as ChainId)}</ChainLogoWrapper>
+      <ChainLogoWrapper>{renderChainIcon(transfer.dstChainID as ChainId)}</ChainLogoWrapper>
     </div>
   )
 }

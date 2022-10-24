@@ -32,6 +32,7 @@ export type MultiChainTokenInfo = {
   sortId: number
   key: string // manual add
 }
+
 type DestChainInfo = {
   [chain: string]: {
     [key: string]: MultiChainTokenInfo
@@ -44,5 +45,3 @@ export type BridgeSwapState = {
   swapErrorMessage: string | undefined
   txHash: string | undefined
 }
-
-export type GeneralStatus = 'success' | 'failed' | 'processing'

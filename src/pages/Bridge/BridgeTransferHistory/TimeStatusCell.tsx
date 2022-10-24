@@ -3,7 +3,7 @@ import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import { Flex, Text } from 'rebass'
 
-import { BridgeTransferStatus } from 'hooks/bridge/useGetBridgeTransfers'
+import { MultichainTransferStatus } from 'hooks/bridge/useGetBridgeTransfers'
 import useTheme from 'hooks/useTheme'
 
 import StatusBadge from './StatusBadge'
@@ -12,7 +12,7 @@ dayjs.extend(utc)
 
 type Props = {
   timestamp?: number | ''
-  status: BridgeTransferStatus
+  status: MultichainTransferStatus
 }
 const TimeStatusCell: React.FC<Props> = ({ timestamp, status }) => {
   const dateString = timestamp ? dayjs.utc(timestamp).local().format('DD MMM YYYY') : ''

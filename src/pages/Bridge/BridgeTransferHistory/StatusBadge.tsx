@@ -3,27 +3,26 @@ import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import { CheckCircle, TransferIcon, XCircle } from 'components/Icons'
-import { BridgeTransferStatus } from 'hooks/bridge/useGetBridgeTransfers'
+import { MultichainTransferStatus } from 'hooks/bridge/useGetBridgeTransfers'
 
-import { GeneralStatus } from '../type'
-import { getGeneralStatus, getLabelByStatus } from '../utils'
+import { getLabelByStatus } from '../utils'
 
-const cssByGeneralStatus: Record<GeneralStatus, any> = {
-  success: css`
+const cssByStatus: Record<MultichainTransferStatus, any> = {
+  [MultichainTransferStatus.Success]: css`
     background: ${({ theme }) => rgba(theme.primary, 0.2)};
     color: ${({ theme }) => theme.primary};
   `,
-  failed: css`
+  [MultichainTransferStatus.Failure]: css`
     background: ${({ theme }) => rgba(theme.red, 0.2)};
     color: ${({ theme }) => theme.red};
   `,
-  processing: css`
+  [MultichainTransferStatus.Processing]: css`
     background: ${({ theme }) => rgba(theme.warning, 0.2)};
     color: ${({ theme }) => theme.warning};
   `,
 }
 
-const Wrapper = styled.div<{ status: GeneralStatus; iconOnly: boolean }>`
+const Wrapper = styled.div<{ status: MultichainTransferStatus; iconOnly: boolean }>`
   width: 100%;
   padding: 4px 8px;
 
@@ -39,7 +38,7 @@ const Wrapper = styled.div<{ status: GeneralStatus; iconOnly: boolean }>`
 
   overflow: hidden;
 
-  ${({ status }) => cssByGeneralStatus[status]}
+  ${({ status }) => cssByStatus[status]}
   ${({ iconOnly }) =>
     iconOnly &&
     css`
@@ -50,23 +49,22 @@ const Wrapper = styled.div<{ status: GeneralStatus; iconOnly: boolean }>`
 `
 
 type Props = {
-  status: BridgeTransferStatus
+  status: MultichainTransferStatus
   iconOnly?: boolean
 }
 const StatusBadge: React.FC<Props> = ({ status, iconOnly }) => {
-  const generalStatus = getGeneralStatus(status)
   const label = getLabelByStatus(status)
 
   const renderIcon = () => {
-    if (generalStatus === 'success') {
+    if (status === MultichainTransferStatus.Success) {
       return <CheckCircle width="12px" height="12px" />
     }
 
-    if (generalStatus === 'failed') {
+    if (status === MultichainTransferStatus.Failure) {
       return <XCircle width="12px" height="12px" />
     }
 
-    if (generalStatus === 'processing') {
+    if (status === MultichainTransferStatus.Processing) {
       return <TransferIcon width="12px" height="12px" />
     }
 
@@ -74,7 +72,7 @@ const StatusBadge: React.FC<Props> = ({ status, iconOnly }) => {
   }
 
   return (
-    <Wrapper iconOnly={!!iconOnly} status={generalStatus}>
+    <Wrapper iconOnly={!!iconOnly} status={status}>
       {renderIcon()}
       {!iconOnly && (
         <Text
