@@ -54,9 +54,11 @@ const useGetBridgeTransfers = (params: Params, config?: SWRConfiguration) => {
   // todo remove / for QC testing
   return useSWR<Response>(
     `${KS_SETTING_API}/v1/multichain-transfers?userAddress=${account || addr}&page=${page}&pageSize=${pageSize}${
-      status ? `&status=${status}` : ''
+      status !== undefined ? `&status=${status}` : ''
     }`,
-    // `http://localhost:8014/api/v1/multichain-transfers?userAddress=${account || addr}&page=${page}&pageSize=${pageSize}${status ? `&status=${status}` : ''}`,
+    // `https://dede-118-70-48-11.ngrok.io/api/v1/multichain-transfers?userAddress=${
+    //   account || addr
+    // }&page=${page}&pageSize=${pageSize}${status !== undefined ? `&status=${status}` : ''}`,
     async (url: string) => {
       if (!account && !addr) {
         throw new Error('No address provided')
