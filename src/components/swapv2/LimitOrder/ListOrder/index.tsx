@@ -1,6 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import { Info, Trash } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -12,9 +13,13 @@ import Pagination from 'components/Pagination'
 import SearchInput from 'components/SearchInput'
 import Select from 'components/Select'
 import SubscribeButton from 'components/SubscribeButton'
+import { useActiveWeb3React } from 'hooks'
+import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 
+import { getListOrder } from '../helpers'
+import { LimitOrder, LimitOrderStatus } from '../type'
 import OrderItem, { ItemWrapper } from './OrderItem'
 
 const ListWrapper = styled.div`
@@ -28,6 +33,10 @@ const Header = styled(ItemWrapper)`
   font-size: 12px;
   font-weight: 500;
   padding: 16px 12px;
+  border-bottom: none;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    border-radius: 0px;
+  `};
 `
 
 const TabItem = styled.div<{ isActive?: boolean }>`
@@ -68,6 +77,10 @@ const ButtonCancelAll = styled(ButtonEmpty)`
   width: 160px;
   font-size: 14px;
   padding: 8px 10px;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+   width: 100%;
+   padding: 10px;
+  `};
 `
 const TabSelector: React.FC<Props> = ({ className, activeTab, setActiveTab }) => {
   return (
@@ -93,37 +106,157 @@ const TabSelector: React.FC<Props> = ({ className, activeTab, setActiveTab }) =>
     </Flex>
   )
 }
-const FilterOptions = [
+
+const ActiveOptions = [
   {
-    label: t`Orders History`,
+    label: t`All Active Orders`,
+    value: LimitOrderStatus.ACTIVE,
   },
   {
+    label: t`Open Orders`,
+    value: LimitOrderStatus.OPEN,
+  },
+  {
+    label: t`Partially Filled Orders`,
+    value: LimitOrderStatus.PARTIALLY_FILLED,
+  },
+]
+const ClosedOptions = [
+  {
     label: t`All Closed Orders`,
+    value: LimitOrderStatus.CLOSED,
   },
   {
     label: t`Filled Orders`,
+    value: LimitOrderStatus.FILLED,
   },
   {
     label: t`Cancelled Orders`,
+    value: LimitOrderStatus.CANCELLED,
   },
   {
     label: t`Expired Orders`,
+    value: LimitOrderStatus.EXPRIED,
   },
 ]
-export default function ListLimitOrder() {
-  const [activeTab, setActiveTab] = useState(Tab.ACTIVE)
+const PAGE_SIZE = 10
+const NoResultWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: ${({ theme }) => theme.subText};
+  margin-top: 40px;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+   margin-top: 16px;
+  `};
+`
+
+const TableHeader = () => {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  return (
+    <Header>
+      {!upToSmall ? (
+        <>
+          <Flex alignItems={'center'} style={{ gap: 10 }}>
+            <Checkbox type={'checkbox'} />{' '}
+            <Text>
+              <Trans>TRADE</Trans>
+            </Text>
+          </Flex>
+          <Text>
+            <Trans>RATE</Trans>
+          </Text>
+          <Text>
+            <Trans>CREATED | EXPIRY</Trans>
+          </Text>
+          <Text>
+            <Trans>STATUS | FILLED %</Trans>
+          </Text>
+          <Text textAlign={'center'}>
+            <Trans>ACTION</Trans>
+          </Text>
+        </>
+      ) : (
+        <Text>
+          <Trans>TRADE</Trans>
+        </Text>
+      )}
+    </Header>
+  )
+}
+
+const TableFooterWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    flex-direction:column-reverse;
+  `};
+`
+
+export default function ListLimitOrder() {
+  const { account, chainId } = useActiveWeb3React()
+  const [activeTab, setActiveTab] = useState(Tab.ACTIVE)
   const [curPage, setCurPage] = useState(0)
-  const [orderType, setOrderType] = useState('')
+  const [orderType, setOrderType] = useState<LimitOrderStatus>()
   const [keyword, setKeyword] = useState('')
   const theme = useTheme()
   const onPageChange = (page: number) => {
     setCurPage(page)
   }
-  const orders = new Array(10).fill(123)
+  const [orders, setOrders] = useState<LimitOrder[]>([])
+
+  const fetchListOrder = useCallback(
+    async (status: LimitOrderStatus, query: string) => {
+      try {
+        const { orders = [] } = await getListOrder({
+          chainId,
+          maker: account,
+          status,
+          query,
+          page: curPage + 1,
+          pageSize: PAGE_SIZE,
+        })
+        setOrders(
+          new Array(10).fill({
+            id: 123,
+            chainId,
+            makerAsset: 'string',
+            takerAsset: 'string',
+            makerAssetSymbol: 'knc',
+            takerAssetSymbol: 'usdt',
+            makerAssetLogoURL: 'https://s2.coinmarketcap.com/static/img/coins/200x200/9444.png',
+            takerAssetLogoURL: 'https://s2.coinmarketcap.com/static/img/coins/200x200/9444.png',
+            makingAmount: '1000000000000000000000000',
+            takingAmount: '1000000000000000000000000',
+            filledMakingAmount: '1000000000000000000000000',
+            filledTakingAmount: '1000000000000000000000000',
+            status: LimitOrderStatus.ACTIVE,
+            createdAt: Date.now(),
+            expiredAt: Date.now(),
+          }),
+        )
+        console.log(orders)
+      } catch (error) {}
+    },
+    [account, chainId, curPage],
+  )
+
+  const query = useDebounce(keyword, 500)
+  useEffect(() => {
+    if (orderType) fetchListOrder(orderType, query)
+  }, [orderType, query, fetchListOrder])
+
+  useEffect(() => {
+    setOrderType(activeTab === Tab.ACTIVE ? LimitOrderStatus.ACTIVE : LimitOrderStatus.CLOSED)
+    setKeyword('')
+  }, [activeTab])
+
+  // todo update flow chart create order
   return (
     <>
-      <Flex justifyContent={'space-between'}>
+      <Flex justifyContent={'space-between'} alignItems="center">
         <TabSelector setActiveTab={setActiveTab} activeTab={activeTab} />
         <SubscribeButton
           hasSubscribed={false}
@@ -137,7 +270,8 @@ export default function ListLimitOrder() {
       <Flex flexDirection={'column'} style={{ gap: '1rem' }}>
         <Flex style={{ marginTop: '24px', gap: 16 }}>
           <Select
-            options={FilterOptions}
+            key={activeTab}
+            options={activeTab === Tab.ACTIVE ? ActiveOptions : ClosedOptions}
             onChange={setOrderType}
             style={{
               background: theme.background,
@@ -156,42 +290,15 @@ export default function ListLimitOrder() {
           />
         </Flex>
         <div>
-          <Header>
-            {!upToSmall ? (
-              <>
-                <Flex alignItems={'center'} style={{ gap: 10 }}>
-                  <Checkbox type={'checkbox'} />{' '}
-                  <Text>
-                    <Trans>TRADE</Trans>
-                  </Text>
-                </Flex>
-                <Text>
-                  <Trans>RATE</Trans>
-                </Text>
-                <Text>
-                  <Trans>CREATED | EXPIRY</Trans>
-                </Text>
-                <Text>
-                  <Trans>STATUS | FILLED %</Trans>
-                </Text>
-                <Text textAlign={'center'}>
-                  <Trans>ACTION</Trans>
-                </Text>
-              </>
-            ) : (
-              <Text>
-                <Trans>TRADE</Trans>
-              </Text>
-            )}
-          </Header>
+          <TableHeader />
           <ListWrapper>
-            {orders.map((order, index) => (
-              <OrderItem key={index} />
+            {orders.map(order => (
+              <OrderItem key={order.id} order={order} />
             ))}
           </ListWrapper>
         </div>
         {orders.length ? (
-          <Flex justifyContent={'space-between'}>
+          <TableFooterWrapper>
             <ButtonCancelAll>
               <Trash size={15} />
               <Text marginLeft={'5px'}>Cancel Selected</Text>
@@ -201,17 +308,17 @@ export default function ListLimitOrder() {
               onPageChange={onPageChange}
               totalCount={1000}
               currentPage={curPage + 1}
-              pageSize={10}
+              pageSize={PAGE_SIZE}
               style={{ padding: '0' }}
             />
-          </Flex>
+          </TableFooterWrapper>
         ) : (
-          <Flex flexDirection={'column'} alignItems="center" marginTop={50} color={theme.subText}>
-            <Info size={48} />
+          <NoResultWrapper>
+            <Info size={isMobile ? 40 : 48} />
             <Text marginTop={'10px'}>
-              <Trans>You don&apos;t have any open orders yet</Trans>
+              <Trans>You don&apos;t have any {activeTab === Tab.ACTIVE ? 'active' : 'history'} orders yet</Trans>
             </Text>
-          </Flex>
+          </NoResultWrapper>
         )}
       </Flex>
     </>

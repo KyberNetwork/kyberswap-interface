@@ -20,7 +20,9 @@ const SelectWrapper = styled.div`
 const SelectMenu = styled.div`
   position: absolute;
   top: 40px;
-  right: 12px;
+  left: 0;
+  right: 0;
+  margin: auto;
   border-radius: 16px;
   filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.36));
   z-index: 10;
@@ -43,21 +45,33 @@ const SelectOption = styled.div<{ selected: boolean }>`
   cursor: pointer;
   font-size: 12px;
   color: ${({ theme }) => theme.subText};
+  white-space: nowrap;
   &:hover {
     background-color: ${({ theme }) => theme.background};
   }
   font-weight: ${({ selected }) => (selected ? '500' : 'unset')};
 `
+
+const SelectedWrap = styled.div`
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+`
 type Option = { value?: string | number; label: string }
 function Select({
   options,
   activeRender,
+  optionRender,
   style = {},
+  menuStyle = {},
   onChange,
 }: {
   options: Option[]
   activeRender?: (selectedItem: Option | undefined) => ReactNode
+  optionRender?: (option: Option | undefined) => ReactNode
   style?: CSSProperties
+  menuStyle?: CSSProperties
   onChange: (value: any) => void
 }) {
   const [selected, setSelected] = useState(options[0]?.value)
@@ -77,12 +91,13 @@ function Select({
       }}
       style={style}
     >
-      <div style={{ flex: 1 }}>{activeRender ? activeRender(selectedInfo) : selectedInfo?.label}</div>
+      <SelectedWrap>{activeRender ? activeRender(selectedInfo) : selectedInfo?.label}</SelectedWrap>
       <DropdownIcon rotate={showMenu} />
       {showMenu && (
-        <SelectMenu>
+        <SelectMenu style={menuStyle}>
           {options.map(item => {
             const value = item.value || item.label
+            if (optionRender) return optionRender(item)
             return (
               <SelectOption
                 key={value}

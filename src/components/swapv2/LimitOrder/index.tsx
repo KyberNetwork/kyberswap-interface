@@ -20,7 +20,6 @@ import { useActiveWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
-import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { BaseAggregation } from 'state/swap/types'
@@ -31,7 +30,7 @@ import { maxAmountSpend } from 'utils/maxAmountSpend'
 
 import TradePrice from '../TradePrice'
 import ConfirmOrderModal from './ConfirmOrderModal'
-import { getEncodeMakerAmount, getEncodePredicate, getEncodeTakerAmount, hashOrder, submitOrder } from './helpers'
+import { hashOrder, submitOrder } from './helpers'
 import { LimitOrderSwapState } from './type'
 
 const EXPIRED_OPTIONS = [
@@ -150,7 +149,7 @@ export default memo(function LimitOrderForm() {
   console.log(qs)
 
   const formatInputBridgeValue = tryParseAmount(inputAmount, currencyIn)
-  //https://docs.ethers.io/v5/api/signer/#Signer
+
   const [approval, approveCallback] = useApproveCallback(
     formatInputBridgeValue,
     tradeInfo?.routerAddress || '0xd1Bfd4C0087461e2575fbc1A793C54D60FAf4131', // todo remove knc for test
@@ -196,11 +195,10 @@ export default memo(function LimitOrderForm() {
   const onReset = () => {
     //
   }
-  const [signatureData, setSignatureData] = useState<{ v: number; r: string; s: string; deadline: number } | null>(null)
-  const deadline = useTransactionDeadline()
+
   const onSubmitOrder = async () => {
     try {
-      if (!library || !currencyIn || !currencyOut || !deadline || !chainId || !account) return
+      if (!library || !currencyIn || !currencyOut || !chainId || !account) return
       setSwapState(state => ({
         ...state,
         attemptingTxn: true,
@@ -209,12 +207,6 @@ export default memo(function LimitOrderForm() {
       const makingAmount = tryParseAmount(inputAmount, currencyIn)?.quotient?.toString()
       const takingAmount = tryParseAmount(outputAmount, currencyOut)?.quotient?.toString()
       const expiredAt = Date.now() + expire
-      const encodes = await Promise.all([
-        getEncodeTakerAmount(takingAmount ?? '', makingAmount ?? ''),
-        getEncodeMakerAmount(takingAmount ?? '', makingAmount ?? ''),
-        getEncodePredicate(chainId + '' ?? '', account ?? '', expiredAt),
-      ])
-      console.log(encodes)
 
       const payload = {
         chainId: chainId.toString(),
@@ -224,12 +216,8 @@ export default memo(function LimitOrderForm() {
         maker: account,
         makingAmount,
         takingAmount,
-        getTakerAmount: encodes[0].encodedData,
-        getMakerAmount: encodes[1].encodedData,
-        predicate: encodes[2].encodedData,
+        expiredAt,
       }
-
-      console.log(payload)
 
       const { hash } = await hashOrder(payload)
 
@@ -255,7 +243,7 @@ export default memo(function LimitOrderForm() {
       setSwapState(state => ({ ...state, attemptingTxn: false }))
     } catch (error) {
       console.error(error)
-      setSwapState(state => ({ ...state, attemptingTxn: false, swapErrorMessage: error?.message || error }))
+      setSwapState(state => ({ ...state, attemptingTxn: false, swapErrorMessage: error?.message || error })) // todo, and review bridge
     }
   }
 
@@ -375,6 +363,7 @@ export default memo(function LimitOrderForm() {
         <Select
           onChange={value => setExpire(value)}
           style={{ width: '100%', height: 48 }}
+          menuStyle={{ right: 12, left: 'unset' }}
           options={EXPIRED_OPTIONS}
           activeRender={item => (
             <Flex justifyContent={'space-between'}>
