@@ -1,4 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { captureException } from '@sentry/react'
 import axios from 'axios'
 import { useCallback, useMemo } from 'react'
 
@@ -19,7 +20,7 @@ const NOT_APPLICABLE = {
   inputError: false,
 }
 
-function useSendTxToKsSettingsCallback() {
+function useSendTxToKsSettingCallback() {
   const { account } = useActiveWeb3React()
   return useCallback(
     (
@@ -35,8 +36,8 @@ function useSendTxToKsSettingsCallback() {
       // const url = `http://localhost:8014/api/v1/multichain-transfers`
       const data = {
         userAddress: account,
-        srcChainId: srcChainId,
-        dstChainId: dstChainId,
+        srcChainId,
+        dstChainId,
         srcTxHash,
         dstTxHash: '',
         srcTokenSymbol,
@@ -45,7 +46,13 @@ function useSendTxToKsSettingsCallback() {
         dstAmount,
         status: 0,
       }
-      axios.post(url, data)
+      try {
+        axios.post(url, data)
+      } catch (err) {
+        const errStr = `SendTxToKsSetting fail with payload = ${JSON.stringify(data)}`
+        captureException(new Error(errStr), { level: 'fatal' })
+        alert(errStr)
+      }
     },
     [account],
   )
@@ -100,7 +107,7 @@ function useRouterSwap(
 
   const inputAmount = useMemo(() => tryParseAmount(typedValue, currencyIn ?? undefined), [currencyIn, typedValue])
   const addTransactionWithType = useTransactionAdder()
-  const sendTxToKsSettings = useSendTxToKsSettingsCallback()
+  const sendTxToKsSetting = useSendTxToKsSettingCallback()
 
   return useMemo(() => {
     if (!bridgeContract || !chainId || !tokenIn || !account || !chainIdOut) return NOT_APPLICABLE
@@ -152,8 +159,7 @@ function useRouterSwap(
                 trade_qty: typedValue,
               },
             })
-            // TODO: Check tx successful.
-            sendTxToKsSettings(
+            sendTxToKsSetting(
               chainId,
               chainIdOut,
               txHash,
@@ -184,7 +190,7 @@ function useRouterSwap(
     outputInfo.outputAmount,
     outputInfo.fee,
     currencyOut,
-    sendTxToKsSettings,
+    sendTxToKsSetting,
     addTransactionWithType,
     typedValue,
   ])
@@ -207,7 +213,7 @@ function useBridgeSwap(
   const inputAmount = useMemo(() => tryParseAmount(typedValue, currencyIn), [currencyIn, typedValue])
   const contractBTC = useSwapBTCContract(isAddress(inputToken) ? inputToken : undefined)
   const contractETH = useSwapETHContract(isAddress(inputToken) ? inputToken : undefined)
-  const sendTxToKsSettings = useSendTxToKsSettingsCallback()
+  const sendTxToKsSetting = useSendTxToKsSettingCallback()
 
   return useMemo(() => {
     if (!chainId || !toAddress || !chainIdOut || !library || !account) return NOT_APPLICABLE
@@ -271,8 +277,7 @@ function useBridgeSwap(
                 trade_qty: typedValue,
               },
             })
-            // TODO: Check tx successful.
-            sendTxToKsSettings(
+            sendTxToKsSetting(
               chainId,
               chainIdOut,
               txHash,
@@ -308,7 +313,7 @@ function useBridgeSwap(
     outputInfo.outputAmount,
     outputInfo.fee,
     currencyOut,
-    sendTxToKsSettings,
+    sendTxToKsSetting,
     addTransactionWithType,
     typedValue,
   ])
