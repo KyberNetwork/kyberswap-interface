@@ -56,7 +56,7 @@ const useGetBridgeTransfers = (params: Params, config?: SWRConfiguration) => {
     `${KS_SETTING_API}/v1/multichain-transfers?userAddress=${account || addr}&page=${page}&pageSize=${pageSize}${
       status !== undefined ? `&status=${status}` : ''
     }`,
-    // `https://dede-118-70-48-11.ngrok.io/api/v1/multichain-transfers?userAddress=${
+    // `http://localhost:8014/api/v1/multichain-transfers?userAddress=${
     //   account || addr
     // }&page=${page}&pageSize=${pageSize}${status !== undefined ? `&status=${status}` : ''}`,
     async (url: string) => {

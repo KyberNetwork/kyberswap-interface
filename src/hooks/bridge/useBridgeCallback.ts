@@ -2,6 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import axios from 'axios'
 import { useCallback, useMemo } from 'react'
 
+import { KS_SETTING_API } from 'constants/env'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useBridgeContract, useSwapBTCContract, useSwapETHContract } from 'hooks/useContract'
@@ -30,7 +31,8 @@ function useSendTxToKsSettingsCallback() {
       srcAmount: string,
       dstAmount: string,
     ) => {
-      const url = `https://dede-118-70-48-11.ngrok.io/api/v1/multichain-transfers`
+      const url = `${KS_SETTING_API}/api/v1/multichain-transfers`
+      // const url = `http://localhost:8014/api/v1/multichain-transfers`
       const data = {
         userAddress: account,
         srcChainID: srcChainId,
