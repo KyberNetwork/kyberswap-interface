@@ -185,7 +185,7 @@ const CampaignItem = ({ campaign, onSelectCampaign, isSelected }: CampaignItemPr
               title={t`Your Trading Volume`}
               percent={percentTradingVolume}
               value={isPassedVolume ? <Check width={17} height={17} /> : `${percentTradingVolume}%`}
-              valueTextColor={isPassedVolume ? theme.primary : theme.subText}
+              valueColor={isPassedVolume ? theme.primary : theme.subText}
               color={isPassedVolume ? theme.primary : theme.warning}
             />
           )}
@@ -194,7 +194,7 @@ const CampaignItem = ({ campaign, onSelectCampaign, isSelected }: CampaignItemPr
               title={t`Your Number of Trades`}
               percent={percentTradingNumber}
               value={isPassedNumberOfTrade ? <Check width={17} height={17} /> : `${percentTradingNumber}%`}
-              valueTextColor={isPassedNumberOfTrade ? theme.primary : theme.subText}
+              valueColor={isPassedNumberOfTrade ? theme.primary : theme.subText}
               color={isPassedNumberOfTrade ? theme.primary : theme.warning}
             />
           )}

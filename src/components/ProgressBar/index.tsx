@@ -23,23 +23,25 @@ const Bar = styled.div<{ percent: number; color?: string }>`
 export default function ProgressBar({
   percent,
   color,
-  valueTextColor,
+  valueColor,
   title,
   value,
   height = '6px',
+  labelColor,
 }: {
   title: string
   value?: ReactNode
   percent: number
-  color?: string
-  valueTextColor?: string
+  color?: string // bar color
+  valueColor?: string
+  labelColor?: string
   height?: string
 }) {
   const theme = useTheme()
   return (
     <Flex flexDirection={'column'} style={{ gap: 5 }}>
-      <Flex justifyContent={'space-between'} fontSize={12} color={theme.subText} lineHeight={'normal'}>
-        {title} <Text color={valueTextColor || theme.subText}>{value}</Text>
+      <Flex justifyContent={'space-between'} fontSize={12} color={labelColor || theme.subText} lineHeight={'normal'}>
+        {title} <Text color={valueColor || theme.subText}>{value}</Text>
       </Flex>
       <Wrapper height={height}>
         <Bar percent={Math.min(100, percent)} color={color} />

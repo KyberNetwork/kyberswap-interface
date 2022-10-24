@@ -77,7 +77,7 @@ const ButtonCancelAll = styled(ButtonEmpty)`
   width: 160px;
   font-size: 14px;
   padding: 8px 10px;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
+  ${({ theme }) => theme.mediaWidth.upToSmall`
    width: 100%;
    padding: 10px;
   `};
@@ -163,7 +163,7 @@ const TableHeader = () => {
               <Trans>TRADE</Trans>
             </Text>
           </Flex>
-          <Text>
+          <Text className="rate">
             <Trans>RATE</Trans>
           </Text>
           <Text>
@@ -190,7 +190,7 @@ const TableFooterWrapper = styled.div`
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
+  ${({ theme }) => theme.mediaWidth.upToSmall`
     flex-direction:column-reverse;
   `};
 `
@@ -224,15 +224,15 @@ export default function ListLimitOrder() {
             chainId,
             makerAsset: 'string',
             takerAsset: 'string',
-            makerAssetSymbol: 'knc',
-            takerAssetSymbol: 'usdt',
+            makerAssetSymbol: 'KNC',
+            takerAssetSymbol: 'USDT',
             makerAssetLogoURL: 'https://s2.coinmarketcap.com/static/img/coins/200x200/9444.png',
             takerAssetLogoURL: 'https://s2.coinmarketcap.com/static/img/coins/200x200/9444.png',
             makingAmount: '1000000000000000000000000',
             takingAmount: '1000000000000000000000000',
-            filledMakingAmount: '1000000000000000000000000',
+            filledMakingAmount: '1000000000000000000000',
             filledTakingAmount: '1000000000000000000000000',
-            status: LimitOrderStatus.ACTIVE,
+            status: Math.random() < 0.3 ? LimitOrderStatus.FILLED : LimitOrderStatus.PARTIALLY_FILLED,
             createdAt: Date.now(),
             expiredAt: Date.now(),
           }),

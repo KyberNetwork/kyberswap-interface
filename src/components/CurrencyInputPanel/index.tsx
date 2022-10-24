@@ -91,10 +91,11 @@ const FixedContainer = styled.div`
   z-index: 2;
 `
 
-const Container = styled.div<{ selected: boolean; hideInput: boolean }>`
+const Container = styled.div<{ selected: boolean; hideInput: boolean; error?: boolean }>`
   border-radius: 16px;
   background-color: ${({ theme, hideInput }) => (hideInput ? 'transparent' : theme.buttonBlack)};
   padding: ${({ hideInput }) => (hideInput ? 0 : '0.75rem')};
+  border: ${({ error, theme }) => (error ? `1px solid ${theme.red}` : 'none')};
 `
 
 const StyledTokenName = styled.span<{ active?: boolean; fontSize?: string }>`
@@ -132,7 +133,7 @@ const Card2 = styled(Card)<{ balancePosition: string }>`
 
 interface CurrencyInputPanelProps {
   value: string
-  onUserInput: (value: string) => void
+  onUserInput?: (value: string) => void
   onMax?: () => void
   onHalf?: () => void
   showMaxButton: boolean
@@ -158,11 +159,15 @@ interface CurrencyInputPanelProps {
   isSwitchMode?: boolean
   locked?: boolean
   maxCurrencySymbolLength?: number
+  error?: boolean
 }
 
 export default function CurrencyInputPanel({
   value,
-  onUserInput,
+  error,
+  onUserInput = (value: string) => {
+    //
+  },
   onMax,
   onHalf,
   showMaxButton,
@@ -242,7 +247,7 @@ export default function CurrencyInputPanel({
             </Flex>
           </FixedContainer>
         )}
-        <Container hideInput={hideInput} selected={disableCurrencySelect}>
+        <Container hideInput={hideInput} selected={disableCurrencySelect} error={error}>
           {!hideBalance && (
             <Flex justifyContent="space-between" fontSize="12px" marginBottom="12px" alignItems="center">
               {showMaxButton && positionMax === 'top' && currency && account ? (
@@ -273,6 +278,7 @@ export default function CurrencyInputPanel({
             {!hideInput && (
               <>
                 <NumericalInput
+                  error={error}
                   className="token-amount-input"
                   value={value}
                   disabled={disabledInput}

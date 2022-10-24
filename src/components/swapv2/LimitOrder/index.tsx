@@ -13,17 +13,17 @@ import NumericalInput from 'components/NumericalInput'
 import ProgressSteps from 'components/ProgressSteps'
 import { AutoRow, RowBetween } from 'components/Row'
 import Select from 'components/Select'
-import { MouseoverTooltip } from 'components/Tooltip'
+import Tooltip, { MouseoverTooltip } from 'components/Tooltip'
 import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, EIP712Domain } from 'constants/index'
 import { nativeOnChain } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
-import { useWalletModalToggle } from 'state/application/hooks'
+import { NotificationType, useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { BaseAggregation } from 'state/swap/types'
-import { useCurrencyBalances } from 'state/wallet/hooks'
+import { useCurrencyBalance, useCurrencyBalances } from 'state/wallet/hooks'
 import { formattedNum } from 'utils'
 import { Aggregator } from 'utils/aggregator'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
@@ -90,7 +90,33 @@ export default memo(function LimitOrderForm() {
   const [inputAmount, setInputAmount] = useState('')
   const [outputAmount, setOuputAmount] = useState('')
   const [expectRate, setExpectRate] = useState('')
+  const [invertRate, setInvertRate] = useState(false)
   const [expire, setExpire] = useState(EXPIRED_OPTIONS[0].value)
+
+  const notify = useNotify()
+
+  const onSetRate = (rate: string) => {
+    setExpectRate(rate)
+    setOuputAmount(String((Number(inputAmount) * Number(rate)) ** (invertRate ? -1 : 1)))
+  }
+
+  const onSetOutput = (output: string) => {
+    setExpectRate(String((Number(output) / Number(inputAmount)) ** (invertRate ? -1 : 1)))
+    setOuputAmount(output)
+  }
+  // todo check balance
+  const onSetInput = useCallback(
+    (input: string) => {
+      setOuputAmount(String(Number(input) * Number(expectRate) ** (invertRate ? -1 : 1)))
+      setInputAmount(input)
+    },
+    [expectRate, invertRate],
+  )
+
+  const onInvertRate = (invertRate: boolean) => {
+    setInvertRate(invertRate)
+    setExpectRate((Number(outputAmount) / Number(inputAmount)) ** (invertRate ? -1 : 1) + '')
+  }
 
   // modal and loading
   const [swapState, setSwapState] = useState<LimitOrderSwapState>({
@@ -108,22 +134,21 @@ export default memo(function LimitOrderForm() {
 
   const maxAmountInput = maxAmountSpend(balances[0])
   const handleMaxInput = useCallback(() => {
-    maxAmountInput && setInputAmount(maxAmountInput?.toExact())
-  }, [maxAmountInput])
+    maxAmountInput && onSetInput(maxAmountInput?.toExact())
+  }, [maxAmountInput, onSetInput])
 
   const handleHalfInput = useCallback(() => {
-    setInputAmount(maxAmountInput?.divide(2).toExact() || '')
-  }, [maxAmountInput])
+    onSetInput(maxAmountInput?.divide(2).toExact() || '')
+  }, [maxAmountInput, onSetInput])
 
   const { loading: loadingTrade, tradeInfo } = useBaseTradeInfo(currencyIn, currencyOut)
 
   const setPriceRateMarket = async () => {
-    if (!loadingTrade && currencyIn) {
+    if (!loadingTrade && currencyIn && tradeInfo) {
       const isInvert = !tradeInfo?.price.baseCurrency.equals(currencyIn)
-      setExpectRate((isInvert ? tradeInfo?.price?.invert().toSignificant(6) : tradeInfo?.price?.toSignificant(6)) ?? '')
+      onSetRate((isInvert ? tradeInfo?.price?.invert().toSignificant(6) : tradeInfo?.price?.toSignificant(6)) ?? '')
     }
   }
-  console.log(tradeInfo)
   const switchCurrency = () => {
     setCurrencyIn(currencyOut)
     setCurrencyOut(currencyIn)
@@ -165,15 +190,20 @@ export default memo(function LimitOrderForm() {
   }, [approval, approvalSubmitted])
 
   useEffect(() => {
+    // todo
     setCurrencyIn(chainId ? nativeOnChain(chainId) : undefined)
     setCurrencyOut(chainId ? DEFAULT_OUTPUT_TOKEN_BY_CHAIN[chainId] : undefined)
   }, [chainId])
 
-  useEffect(() => {
-    setInputAmount('1')
-  }, [currencyIn])
-
-  const inputError = undefined
+  const balance = useCurrencyBalance(account ?? undefined, currencyIn ?? undefined)
+  // todo zindex tooltip error
+  const inputError = useMemo(() => {
+    if (!inputAmount) return
+    if (balance && tryParseAmount(inputAmount, currencyIn)?.greaterThan(balance)) {
+      return t`Insufficient ${currencyIn?.symbol} balance`
+    }
+    return
+  }, [currencyIn, balance, inputAmount])
 
   const showApproveFlow =
     !inputError &&
@@ -182,6 +212,7 @@ export default memo(function LimitOrderForm() {
       (approvalSubmitted && approval === ApprovalState.APPROVED))
 
   const disableBtnApproved = approval !== ApprovalState.NOT_APPROVED || approvalSubmitted || !!inputError
+  const disableBtnReview = !outputAmount || !expectRate || !!inputError || approval !== ApprovalState.APPROVED
 
   const showPreview = () => {
     if (!currencyIn || !currencyOut || !outputAmount || !inputAmount || !expectRate) return
@@ -202,11 +233,8 @@ export default memo(function LimitOrderForm() {
       setSwapState(state => ({
         ...state,
         attemptingTxn: true,
-        pendingText: t`Sign limit order: ${inputAmount} ${currencyIn.symbol} to ${outputAmount} ${currencyOut.symbol}`,
+        pendingText: t`Getting hash data.`,
       }))
-      const makingAmount = tryParseAmount(inputAmount, currencyIn)?.quotient?.toString()
-      const takingAmount = tryParseAmount(outputAmount, currencyOut)?.quotient?.toString()
-      const expiredAt = Date.now() + expire
 
       const payload = {
         chainId: chainId.toString(),
@@ -214,15 +242,18 @@ export default memo(function LimitOrderForm() {
         makerAsset: currencyIn?.wrapped.address,
         takerAsset: currencyOut?.wrapped.address,
         maker: account,
-        makingAmount,
-        takingAmount,
-        expiredAt,
+        makingAmount: tryParseAmount(inputAmount, currencyIn)?.quotient?.toString(),
+        takingAmount: tryParseAmount(outputAmount, currencyOut)?.quotient?.toString(),
+        expiredAt: Date.now() + expire,
       }
 
       const { hash } = await hashOrder(payload)
-
+      setSwapState(state => ({
+        ...state,
+        pendingText: t`Sign limit order: ${inputAmount} ${currencyIn.symbol} to ${outputAmount} ${currencyOut.symbol}`,
+      }))
       const data = JSON.stringify({
-        types: { EIP712Domain, Permit: [{ name: 'hash', type: 'uint256' }] },
+        types: { EIP712Domain, Permit: [{ name: 'hash', type: 'string' }] },
         domain: {
           name: 'Kyberswap Limit Order',
           version: '1',
@@ -230,9 +261,19 @@ export default memo(function LimitOrderForm() {
           verifyingContract: '',
         },
         primaryType: 'Permit',
-        message: { hash },
+        message: { hash: hash },
       })
-      const signature = await library.send('eth_signTypedData_v4', [account, data])
+      // const signature = await library.getSigner().signMessage(hash)
+      const signature = await library.send('eth_sign', [account, hash])
+      // const signature = await library.send('eth_signTypedData_v4', [account, data])
+      // const signature = await library.send('eth_signTypedData_v3', [account, data])
+      // const signer = new ethers.Wallet(
+      //   '2fe9c6d33e34b94648dea1a7ef34cab0a01116314b160e706be00cc146b94e1f',
+      //   library.provider as any,
+      // )
+      // const signature = await new web3(NETWORKS_INFO[chainId].rpcUrl).eth.personal.sign(hash, account, '12345678')
+      // todo xóa bridge gì kia
+      // todo check kĩ UI vs xong flow error nữa
       setSwapState(state => ({ ...state, pendingText: t`Placing order` }))
       const resp = await submitOrder({
         ...payload,
@@ -240,13 +281,30 @@ export default memo(function LimitOrderForm() {
       })
       console.log(resp)
       onReset()
-      setSwapState(state => ({ ...state, attemptingTxn: false }))
+      setSwapState(state => ({ ...state, attemptingTxn: false, showConfirm: false }))
+      notify(
+        {
+          type: NotificationType.SUCCESS,
+          title: t`Order Placed`,
+          summary: t`You have successfully placed an order to pay 10 ${currencyIn.symbol} and receive 0.006486 ${
+            currencyOut.symbol
+          } when 1 ${currencyIn.symbol} is equal to ${Number(expectRate) ** (invertRate ? -1 : 1)} ${
+            currencyOut.symbol
+          }`,
+        },
+        10000,
+      )
     } catch (error) {
       console.error(error)
-      setSwapState(state => ({ ...state, attemptingTxn: false, swapErrorMessage: error?.message || error })) // todo, and review bridge
+      const msg = error.code === 4001 ? t`User denied message signature` : ''
+      setSwapState(state => ({
+        ...state,
+        attemptingTxn: false,
+        swapErrorMessage: msg || 'Error occur. Please try again.',
+      })) // todo, and review bridge
     }
   }
-
+  // todo type and swap
   return (
     <>
       <Flex flexDirection={'column'} style={{ gap: '1rem' }}>
@@ -254,7 +312,6 @@ export default memo(function LimitOrderForm() {
           <CurrencyInputPanel
             hideBalance
             value={inputAmount}
-            onUserInput={setInputAmount}
             hideInput={true}
             showMaxButton={false}
             onCurrencySelect={handleInputSelect}
@@ -271,7 +328,6 @@ export default memo(function LimitOrderForm() {
             value={outputAmount}
             hideInput={true}
             id="create-limit-order-input-tokenb"
-            onUserInput={setOuputAmount}
             onCurrencySelect={handleOutputSelect}
             showMaxButton={false}
             positionMax="top"
@@ -282,35 +338,38 @@ export default memo(function LimitOrderForm() {
           />
         </RowBetween>
 
-        <div>
+        <Flex flexDirection={'column'}>
           <Label>
             <Trans>You Pay</Trans>
           </Label>
-          <CurrencyInputPanel
-            value={inputAmount}
-            showMaxButton
-            positionMax="top"
-            currency={currencyIn}
-            onUserInput={setInputAmount}
-            onMax={handleMaxInput}
-            onHalf={handleHalfInput}
-            onCurrencySelect={handleInputSelect}
-            otherCurrency={currencyOut}
-            id="swap-currency-input"
-            showCommonBases={true}
-            disableCurrencySelect
-            estimatedUsd={
-              tradeInfo?.amountInUsd ? `${formattedNum(tradeInfo.amountInUsd.toString(), true)}` : undefined
-            }
-          />
-        </div>
+          <Tooltip text={inputError} show={!!inputError} placement="top">
+            <CurrencyInputPanel
+              error={!!inputError}
+              value={inputAmount}
+              showMaxButton
+              positionMax="top"
+              currency={currencyIn}
+              onUserInput={onSetInput}
+              onMax={handleMaxInput}
+              onHalf={handleHalfInput}
+              onCurrencySelect={handleInputSelect}
+              otherCurrency={currencyOut}
+              id="swap-currency-input"
+              showCommonBases={true}
+              disableCurrencySelect
+              estimatedUsd={
+                tradeInfo?.amountInUsd ? `${formattedNum(tradeInfo.amountInUsd.toString(), true)}` : undefined
+              }
+            />
+          </Tooltip>
+        </Flex>
 
         <Flex justifyContent={'space-between'} alignItems="center" style={{ gap: '1rem' }}>
           <Flex flexDirection={'column'} flex={1} style={{ gap: '0.75rem' }}>
             <Flex justifyContent={'space-between'} alignItems="flex-end">
               <Label style={{ marginBottom: 0, display: 'flex' }}>
                 <Trans>
-                  {currencyIn?.symbol} Price &nbsp; <Text color={theme.apr}>(+xxx %)</Text>
+                  {currencyIn?.symbol} Price &nbsp; <Text color={theme.apr}>(+đang tìm cách lấy %)</Text>
                 </Trans>
               </Label>
               <Set2Market onClick={setPriceRateMarket}>
@@ -321,12 +380,14 @@ export default memo(function LimitOrderForm() {
               <NumericalInput
                 style={{ borderRadius: 12, padding: '10px 12px', fontSize: 14, height: 48 }}
                 value={expectRate}
-                onUserInput={setExpectRate}
+                onUserInput={onSetRate}
               />
               {currencyIn && currencyOut && (
-                <Flex style={{ gap: 6 }}>
+                <Flex style={{ gap: 6, cursor: 'pointer' }} onClick={() => onInvertRate(!invertRate)}>
                   <Text fontSize={14} color={theme.subText}>
-                    {currencyIn?.symbol}/{currencyOut?.symbol}
+                    {invertRate
+                      ? `${currencyOut?.symbol}/${currencyIn?.symbol}`
+                      : `${currencyIn?.symbol}/${currencyOut?.symbol}`}
                   </Text>
                   <div>
                     <Repeat color={theme.subText} size={12} />
@@ -349,7 +410,7 @@ export default memo(function LimitOrderForm() {
             showMaxButton={false}
             disableCurrencySelect
             currency={currencyOut}
-            onUserInput={setOuputAmount}
+            onUserInput={onSetOutput}
             onCurrencySelect={handleOutputSelect}
             otherCurrency={currencyOut}
             id="swap-currency-output"
@@ -422,7 +483,7 @@ export default memo(function LimitOrderForm() {
           )
         )}
         {!showApproveFlow && account && (
-          <ButtonError onClick={showPreview} disabled={!!inputError || approval !== ApprovalState.APPROVED}>
+          <ButtonError onClick={showPreview} disabled={disableBtnReview}>
             <Text fontWeight={500}>{t`Review Order`}</Text>
           </ButtonError>
         )}

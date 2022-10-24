@@ -1,10 +1,13 @@
+import { Fraction } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
+import JSBI from 'jsbi'
 import { rgba } from 'polished'
-import { Edit3, Trash } from 'react-feather'
+import { useState } from 'react'
+import { Edit3, Repeat, Trash } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
+import styled, { CSSProperties } from 'styled-components'
 
 import Checkbox from 'components/CheckBox'
 import Logo from 'components/Logo'
@@ -12,8 +15,9 @@ import ProgressBar from 'components/ProgressBar'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
+import { formatNumberWithPrecisionRange } from 'utils'
 
-import { LimitOrder } from '../type'
+import { LimitOrder, LimitOrderStatus } from '../type'
 
 const IconWrap = styled.div<{ color: string }>`
   background-color: ${({ color }) => `${rgba(color, 0.2)}`};
@@ -31,8 +35,14 @@ export const ItemWrapper = styled.div`
   display: grid;
   gap: 10px;
   align-items: center;
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    grid-template-columns: 1.5fr 1.5fr 1.5fr 80px;
+    .rate {
+      display:none;
+    }
+  `}
 `
-
+// todo reponsive
 const ItemWrapperMobile = styled.div`
   display: flex;
   font-size: 12px;
@@ -89,42 +99,87 @@ const TokenLogo = styled(Logo)`
   height: 17px;
   border-radius: 100%;
 `
+const formatNumber = (uint256: string) => {
+  return formatNumberWithPrecisionRange(parseFloat(uint256ToFraction(uint256).toSignificant(10)), 2)
+}
 const AmountInfo = ({ order }: { order: LimitOrder }) => {
+  const { makerAssetSymbol, makerAssetLogoURL, takerAssetLogoURL, takerAssetSymbol, makingAmount, takingAmount } = order
   const theme = useTheme()
   return (
     <Colum>
       <Flex alignItems={'center'}>
-        <TokenLogo srcs={[order.makerAssetLogoURL]} />{' '}
-        <DeltaAmount color={theme.primary}>+ 0.25 {order.makerAssetSymbol}</DeltaAmount>
+        <TokenLogo srcs={[takerAssetLogoURL]} />{' '}
+        <DeltaAmount color={theme.primary}>
+          + {formatNumber(takingAmount)} {takerAssetSymbol}
+        </DeltaAmount>
       </Flex>
       <Flex alignItems={'center'}>
-        <TokenLogo srcs={[order.makerAssetLogoURL]} />{' '}
-        <DeltaAmount color={theme.border}>- 0.25 {order.takerAssetSymbol}</DeltaAmount>
+        <TokenLogo srcs={[makerAssetLogoURL]} />{' '}
+        <DeltaAmount color={theme.border}>
+          - {formatNumber(makingAmount)} {makerAssetSymbol}
+        </DeltaAmount>
       </Flex>
     </Colum>
   )
 }
 
-const caclPercent = (value: string, total: string) => {
-  return value
-  // return new Fraction(value * 10 ** 9, 10 ** 9)
-  //   .multiply(100)
-  //   .divide(new Fraction(total * 10 ** 9, 10 ** 9))
-  //   .toFixed(2)
+const uint256ToFraction = (value: string, decimals = 18) =>
+  new Fraction(value, JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals)))
+
+const calcPercent = (value: string, total: string, decimals = 18) => {
+  try {
+    return parseInt(
+      uint256ToFraction(value, decimals).divide(uint256ToFraction(total, decimals)).multiply(100).toFixed(0),
+    )
+  } catch (error) {
+    console.log(error)
+    return 0
+  }
+}
+
+const TradeRate = ({ order, style = {} }: { order: LimitOrder; style?: CSSProperties }) => {
+  const [invert, setInvert] = useState(false)
+  const theme = useTheme()
+  const { makerAssetSymbol, takerAssetSymbol, makingAmount, takingAmount } = order
+  let rateValue = new Fraction(0)
+  try {
+    rateValue = invert
+      ? uint256ToFraction(takingAmount).divide(uint256ToFraction(makingAmount))
+      : uint256ToFraction(makingAmount).divide(uint256ToFraction(takingAmount))
+  } catch (error) {
+    console.log(error)
+  }
+  return (
+    <div style={style}>
+      <Flex style={{ gap: 6, cursor: 'pointer', alignItems: 'center' }} onClick={() => setInvert(!invert)}>
+        <Text fontSize={14} color={theme.subText}>
+          {invert ? `${takerAssetSymbol}/${makerAssetSymbol}` : `${makerAssetSymbol}/${takerAssetSymbol}`}
+        </Text>
+        <Repeat color={theme.subText} size={12} />
+      </Flex>
+      <Text color={theme.text}>{formatNumberWithPrecisionRange(parseFloat(rateValue.toSignificant(10)), 2)}</Text>
+    </div>
+  )
 }
 export default function OrderItem({ order }: { order: LimitOrder }) {
-  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-  const {
-    createdAt = Date.now(),
-    expiredAt = Date.now(),
-    makingAmount,
-    takingAmount,
-    filledMakingAmount,
-    filledTakingAmount,
-  } = order
-
-  const filledPercent = caclPercent(filledTakingAmount, takingAmount)
-  console.log(142, filledPercent)
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
+  const { createdAt = Date.now(), expiredAt = Date.now(), takingAmount, filledTakingAmount, status } = order
+  const theme = useTheme()
+  const filledPercent = calcPercent(filledTakingAmount, takingAmount)
+  // todo format number all
+  const partiallyFilled = status === LimitOrderStatus.PARTIALLY_FILLED
+  const progressComponent =
+    status === LimitOrderStatus.FILLED || partiallyFilled ? (
+      <ProgressBar
+        color={partiallyFilled ? theme.warning : theme.primary}
+        labelColor={partiallyFilled ? theme.warning : theme.primary}
+        height="11px"
+        percent={filledPercent}
+        title={partiallyFilled ? t`Partially Filled: ${filledPercent}%` : t`Filled 100%`}
+      />
+    ) : (
+      <div />
+    )
 
   if (upToSmall)
     return (
@@ -134,8 +189,8 @@ export default function OrderItem({ order }: { order: LimitOrder }) {
           <Actions />
         </Flex>
         <Flex justifyContent={'space-between'}>
-          <ProgressBar height="11px" percent={66} title={`Partially Filled: 25%`} />
-          <Time time={createdAt} />
+          {progressComponent}
+          <TradeRate order={order} style={{ textAlign: 'right' }} />
         </Flex>
         <Flex justifyContent={'space-between'}>
           <Colum>
@@ -159,17 +214,14 @@ export default function OrderItem({ order }: { order: LimitOrder }) {
         <Checkbox type="checkbox" />
         <AmountInfo order={order} />
       </Flex>
-      <Colum>
-        <Time time={createdAt} />
-        <Time time={expiredAt} />
+      <Colum className="rate">
+        <TradeRate order={order} />
       </Colum>
       <Colum>
         <Time time={createdAt} />
         <Time time={expiredAt} />
       </Colum>
-      <Colum>
-        <ProgressBar height="11px" percent={66} title={`Partially Filled: 25%`} />
-      </Colum>
+      <Colum>{progressComponent}</Colum>
       <Actions />
     </ItemWrapper>
   )
