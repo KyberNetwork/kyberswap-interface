@@ -1,25 +1,19 @@
 import { Trans, t } from '@lingui/macro'
-import dayjs from 'dayjs'
-import { borderRadius, rgba } from 'polished'
+import { rgba } from 'polished'
 import { useState } from 'react'
-import { Delete, Edit, Edit2, Edit3, Trash } from 'react-feather'
+import { Info, Trash } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
-import { ButtonPrimary } from 'components/Button'
+import { ButtonEmpty } from 'components/Button'
 import Checkbox from 'components/CheckBox'
-import CurrencyLogo from 'components/CurrencyLogo'
-import NotificationIcon from 'components/Icons/NotificationIcon'
 import Pagination from 'components/Pagination'
-import ProgressBar from 'components/ProgressBar'
 import SearchInput from 'components/SearchInput'
 import Select from 'components/Select'
 import SubscribeButton from 'components/SubscribeButton'
-import { nativeOnChain } from 'constants/tokens'
-import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { MEDIA_WIDTHS, theme } from 'theme'
+import { MEDIA_WIDTHS } from 'theme'
 
 import OrderItem, { ItemWrapper } from './OrderItem'
 
@@ -68,7 +62,13 @@ type Props = {
   activeTab: Tab
   setActiveTab: (n: Tab) => void
 }
-
+const ButtonCancelAll = styled(ButtonEmpty)`
+  background-color: ${({ theme }) => rgba(theme.red, 0.2)};
+  color: ${({ theme }) => theme.red};
+  width: 160px;
+  font-size: 14px;
+  padding: 8px 10px;
+`
 const TabSelector: React.FC<Props> = ({ className, activeTab, setActiveTab }) => {
   return (
     <Flex className={className}>
@@ -120,7 +120,7 @@ export default function ListLimitOrder() {
   const onPageChange = (page: number) => {
     setCurPage(page)
   }
-
+  const orders = new Array(10).fill(123)
   return (
     <>
       <Flex justifyContent={'space-between'}>
@@ -133,65 +133,87 @@ export default function ListLimitOrder() {
           isLoading={false}
         />
       </Flex>
-      <Flex style={{ margin: '24px 0px 16px 0px', gap: 16 }}>
-        <Select
-          options={FilterOptions}
-          onChange={setOrderType}
-          style={{
-            background: theme.background,
-            borderRadius: 40,
-            minWidth: 160,
-          }}
-        />
 
-        <SearchInput
-          style={{ flex: 1 }}
-          placeholder={t`Search by token symbol or token address`}
-          maxLength={255}
-          value={keyword}
-          onChange={setKeyword}
-        />
-      </Flex>
-      <Header>
-        {!upToSmall ? (
-          <>
-            <Flex alignItems={'center'} style={{ gap: 10 }}>
-              <Checkbox type={'checkbox'} />{' '}
+      <Flex flexDirection={'column'} style={{ gap: '1rem' }}>
+        <Flex style={{ marginTop: '24px', gap: 16 }}>
+          <Select
+            options={FilterOptions}
+            onChange={setOrderType}
+            style={{
+              background: theme.background,
+              borderRadius: 40,
+              minWidth: 160,
+              fontSize: 14,
+            }}
+          />
+
+          <SearchInput
+            style={{ flex: 1 }}
+            placeholder={t`Search by token symbol or token address`}
+            maxLength={255}
+            value={keyword}
+            onChange={setKeyword}
+          />
+        </Flex>
+        <div>
+          <Header>
+            {!upToSmall ? (
+              <>
+                <Flex alignItems={'center'} style={{ gap: 10 }}>
+                  <Checkbox type={'checkbox'} />{' '}
+                  <Text>
+                    <Trans>TRADE</Trans>
+                  </Text>
+                </Flex>
+                <Text>
+                  <Trans>RATE</Trans>
+                </Text>
+                <Text>
+                  <Trans>CREATED | EXPIRY</Trans>
+                </Text>
+                <Text>
+                  <Trans>STATUS | FILLED %</Trans>
+                </Text>
+                <Text textAlign={'center'}>
+                  <Trans>ACTION</Trans>
+                </Text>
+              </>
+            ) : (
               <Text>
                 <Trans>TRADE</Trans>
               </Text>
-            </Flex>
-            <Text>
-              <Trans>RATE</Trans>
-            </Text>
-            <Text>
-              <Trans>CREATED | EXPIRY</Trans>
-            </Text>
-            <Text>
-              <Trans>STATUS | FILLED %</Trans>
-            </Text>
-            <Text textAlign={'center'}>
-              <Trans>ACTION</Trans>
-            </Text>
-          </>
+            )}
+          </Header>
+          <ListWrapper>
+            {orders.map((order, index) => (
+              <OrderItem key={index} />
+            ))}
+          </ListWrapper>
+        </div>
+        {orders.length ? (
+          <Flex justifyContent={'space-between'}>
+            <ButtonCancelAll>
+              <Trash size={15} />
+              <Text marginLeft={'5px'}>Cancel Selected</Text>
+            </ButtonCancelAll>
+            <Pagination
+              haveBg={false}
+              onPageChange={onPageChange}
+              totalCount={1000}
+              currentPage={curPage + 1}
+              pageSize={10}
+              style={{ padding: '0' }}
+            />
+          </Flex>
         ) : (
-          <Text>
-            <Trans>TRADE</Trans>
-          </Text>
+          <Flex flexDirection={'column'} alignItems="center" marginTop={50} color={theme.subText}>
+            <Info size={48} />
+            <Text marginTop={'10px'}>
+              <Trans>You don&apos;t have any open orders yet</Trans>
+            </Text>
+          </Flex>
         )}
-      </Header>
-      <ListWrapper>
-        {new Array(10).fill(123).map((order, index) => (
-          <OrderItem key={index} />
-        ))}
-      </ListWrapper>
-      <Pagination
-        onPageChange={onPageChange}
-        totalCount={1000}
-        currentPage={curPage + 1}
-        pageSize={10}
-        style={{ padding: '0' }}
-      />
+      </Flex>
     </>
   )
 }

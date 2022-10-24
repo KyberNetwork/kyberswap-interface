@@ -7,7 +7,6 @@ import { useHistory, useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
-import Search from 'components/Icons/Search'
 import InfoHelper from 'components/InfoHelper'
 import LocalLoader from 'components/LocalLoader'
 import SearchInput from 'components/SearchInput'

@@ -81,7 +81,7 @@ export default function TrueSight({ history }: RouteComponentProps) {
 
   const theme = useTheme()
   const notificationState = useNotification()
-  const { isLoading, isChrome, hasSubscribed, handleSubscribe, handleUnsubscribe } = notificationState
+  const { isLoading, hasSubscribed, handleSubscribe, handleUnsubscribe } = notificationState
 
   const upTo992 = useMedia('(max-width: 992px)')
 

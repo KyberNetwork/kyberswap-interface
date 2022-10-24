@@ -61,7 +61,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ activeTab, filter, setFilter, not
   const isActiveTabTrending = activeTab === TrueSightTabs.TRENDING
   const below992 = useMedia('(max-width: 992px)')
   const toggleUnsubscribeModal = useTrueSightUnsubscribeModalToggle()
-  const { isChrome, hasSubscribed, handleUnsubscribe, isLoading } = notificationState
+  const { hasSubscribed, handleUnsubscribe, isLoading } = notificationState
   const queryString = useParsedQueryString()
   const theme = useTheme()
   const { tab } = useParsedQueryString()

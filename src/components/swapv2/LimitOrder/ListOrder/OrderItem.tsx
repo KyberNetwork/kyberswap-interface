@@ -1,4 +1,4 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { rgba } from 'polished'
 import { Edit3, Trash } from 'react-feather'
@@ -9,6 +9,7 @@ import styled from 'styled-components'
 import Checkbox from 'components/CheckBox'
 import CurrencyLogo from 'components/CurrencyLogo'
 import ProgressBar from 'components/ProgressBar'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { nativeOnChain } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
@@ -70,11 +71,15 @@ const Actions = () => {
   return (
     <Flex alignItems={'center'}>
       <IconWrap color={theme.primary}>
-        <Edit3 color={theme.primary} size={15} />
+        <MouseoverTooltip text={t`Edit`} placement="top" width="60px">
+          <Edit3 color={theme.primary} size={15} />
+        </MouseoverTooltip>
       </IconWrap>
-      <IconWrap color={theme.red}>
-        <Trash color={theme.red} size={15} />
-      </IconWrap>
+      <MouseoverTooltip text={t`Cancel`} placement="top" width="80px">
+        <IconWrap color={theme.red}>
+          <Trash color={theme.red} size={15} />
+        </IconWrap>
+      </MouseoverTooltip>
     </Flex>
   )
 }
@@ -95,8 +100,6 @@ const AmountInfo = () => {
   )
 }
 export default function OrderItem() {
-  const { chainId } = useActiveWeb3React()
-  const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   if (upToSmall)
     return (

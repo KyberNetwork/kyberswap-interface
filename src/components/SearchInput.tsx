@@ -1,4 +1,3 @@
-import { t } from '@lingui/macro'
 import { Search } from 'react-feather'
 import styled, { CSSProperties } from 'styled-components'
 

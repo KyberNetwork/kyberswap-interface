@@ -25,6 +25,7 @@ const SelectMenu = styled.div`
   filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.36));
   z-index: 10;
   background: ${({ theme }) => theme.tabActive};
+  padding: 10px 0px;
 `
 const DropdownIcon = styled.div<{ rotate?: boolean }>`
   transform: rotate(${({ rotate }) => (rotate ? '-180deg' : '0')});
@@ -37,11 +38,15 @@ const DropdownIcon = styled.div<{ rotate?: boolean }>`
   transform: rotate(${({ rotate }) => (rotate ? '-180deg' : '0')});
 `
 
-const SelectOption = styled.div`
-  padding: 12px;
+const SelectOption = styled.div<{ selected: boolean }>`
+  padding: 12px 18px;
   cursor: pointer;
   font-size: 12px;
   color: ${({ theme }) => theme.subText};
+  &:hover {
+    background-color: ${({ theme }) => theme.background};
+  }
+  font-weight: ${({ selected }) => (selected ? '500' : 'unset')};
 `
 type Option = { value?: string | number; label: string }
 function Select({
@@ -76,22 +81,25 @@ function Select({
       <DropdownIcon rotate={showMenu} />
       {showMenu && (
         <SelectMenu>
-          {options.map(item => (
-            <SelectOption
-              key={item.value}
-              role="button"
-              onClick={e => {
-                const value = item.value || item.label
-                e.stopPropagation()
-                e.preventDefault()
-                setSelected(value)
-                setShowMenu(prev => !prev)
-                onChange(value)
-              }}
-            >
-              {item.label || item.value}
-            </SelectOption>
-          ))}
+          {options.map(item => {
+            const value = item.value || item.label
+            return (
+              <SelectOption
+                key={value}
+                role="button"
+                selected={value === selectedInfo?.value}
+                onClick={e => {
+                  e.stopPropagation()
+                  e.preventDefault()
+                  setSelected(value)
+                  setShowMenu(prev => !prev)
+                  onChange(value)
+                }}
+              >
+                {item.label || item.value}
+              </SelectOption>
+            )
+          })}
         </SelectMenu>
       )}
     </SelectWrapper>

@@ -1,7 +1,5 @@
-import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import axios from 'axios'
-import { splitSignature } from 'ethers/lib/utils'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { Info, Repeat } from 'react-feather'
 import { Flex, Text } from 'rebass'
@@ -16,10 +14,6 @@ import ProgressSteps from 'components/ProgressSteps'
 import { AutoRow, RowBetween } from 'components/Row'
 import Select from 'components/Select'
 import { MouseoverTooltip } from 'components/Tooltip'
-import TransactionConfirmationModal, {
-  ConfirmationModalContent,
-  TransactionErrorContent,
-} from 'components/TransactionConfirmationModal'
 import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, EIP712Domain } from 'constants/index'
 import { nativeOnChain } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -30,7 +24,6 @@ import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { BaseAggregation } from 'state/swap/types'
-import { useDerivedSwapInfoV2 } from 'state/swap/useAggregator'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { formattedNum } from 'utils'
 import { Aggregator } from 'utils/aggregator'
@@ -154,6 +147,7 @@ export default memo(function LimitOrderForm() {
 
   const [approvalSubmitted, setApprovalSubmitted] = useState<boolean>(false)
   const qs = useParsedQueryString()
+  console.log(qs)
 
   const formatInputBridgeValue = tryParseAmount(inputAmount, currencyIn)
   //https://docs.ethers.io/v5/api/signer/#Signer
@@ -161,7 +155,7 @@ export default memo(function LimitOrderForm() {
     formatInputBridgeValue,
     tradeInfo?.routerAddress || '0xd1Bfd4C0087461e2575fbc1A793C54D60FAf4131', // todo remove knc for test
   )
-
+  // todo đổi chain reset
   useEffect(() => {
     if (approval === ApprovalState.PENDING) {
       setApprovalSubmitted(true)
@@ -352,14 +346,11 @@ export default memo(function LimitOrderForm() {
                 </Flex>
               )}
             </Flex>
+            {/* <RefreshButton isConfirming={showConfirm} trade={trade} onRefresh={onRefresh} />
+             */}
             <TradePrice price={tradeInfo?.price} style={{ width: 'fit-content' }} />
           </Flex>
-
-          <ArrowRotate rotate={rotate} onClick={handleRotateClick} />
         </Flex>
-
-        {/* <RefreshButton isConfirming={showConfirm} trade={trade} onRefresh={onRefresh} />
-      <TradePrice price={trade?.executionPrice} showInverted={showInverted} setShowInverted={setShowInverted} /> */}
 
         <div>
           <Label>

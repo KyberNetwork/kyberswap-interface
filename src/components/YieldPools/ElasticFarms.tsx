@@ -2,7 +2,6 @@ import { computePoolAddress } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
 import { stringify } from 'querystring'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Search } from 'react-feather'
 import { useHistory, useLocation } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 

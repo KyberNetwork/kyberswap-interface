@@ -16,7 +16,7 @@ import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useNetworkModalToggle } from 'state/application/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
 
-import { MAINNET_NETWORKS, NETWORKS_INFO, SUPPORTED_NETWORKS } from '../../constants/networks'
+import { NETWORKS_INFO, SUPPORTED_NETWORKS } from '../../constants/networks'
 
 export const Wrapper = styled.div`
   width: 100%;
@@ -94,7 +94,7 @@ const NewLabel = styled.div`
   color: #ff537b;
 `
 
-const SHOW_NETWORKS = process.env.NODE_ENV === 'production' ? MAINNET_NETWORKS : SUPPORTED_NETWORKS
+const SHOW_NETWORKS = SUPPORTED_NETWORKS // process.env.NODE_ENV === 'production' ? MAINNET_NETWORKS : SUPPORTED_NETWORKS
 export default function NetworkModal(): JSX.Element | null {
   const { chainId } = useActiveWeb3React()
   const networkModalOpen = useModalOpen(ApplicationModal.NETWORK)
