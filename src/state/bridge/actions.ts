@@ -20,3 +20,4 @@ export type BridgeStatePoolParams = { poolValueOut: PoolValueOutMap }
 export const setBridgePoolInfo = createAction<BridgeStatePoolParams>('bridge/setBridgePoolInfo')
 
 export const resetBridgeState = createAction('bridge/resetBridgeState')
+export const setHistoryURL = createAction<string>('bridge/setHistoryURL')

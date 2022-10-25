@@ -2,12 +2,14 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { captureException } from '@sentry/react'
 import axios from 'axios'
 import { useCallback, useMemo } from 'react'
+import { mutate } from 'swr'
 
 import { KS_SETTING_API } from 'constants/env'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useBridgeContract, useSwapBTCContract, useSwapETHContract } from 'hooks/useContract'
 import { useBridgeOutputValue, useBridgeState } from 'state/bridge/hooks'
+import { useAppSelector } from 'state/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { useCurrencyBalance, useETHBalances } from 'state/wallet/hooks'
@@ -22,6 +24,12 @@ const NOT_APPLICABLE = {
 
 function useSendTxToKsSettingCallback() {
   const { account } = useActiveWeb3React()
+  const historyURL = useAppSelector(state => state.bridge.historyURL)
+
+  const onSuccess = useCallback(() => {
+    mutate(historyURL)
+  }, [historyURL])
+
   return useCallback(
     async (
       srcChainId: ChainId,
@@ -47,13 +55,14 @@ function useSendTxToKsSettingCallback() {
       }
       try {
         await axios.post(url, data)
+        onSuccess()
       } catch (err) {
         const errStr = `SendTxToKsSetting fail with payload = ${JSON.stringify(data)}`
         console.error(err)
         captureException(new Error(errStr), { level: 'fatal' })
       }
     },
-    [account],
+    [account, onSuccess],
   )
 }
 

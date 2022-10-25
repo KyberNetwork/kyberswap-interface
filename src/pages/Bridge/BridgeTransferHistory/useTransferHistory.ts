@@ -1,19 +1,22 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useDispatch } from 'react-redux'
 
 import { KS_SETTING_API } from 'constants/env'
 import useGetBridgeTransfers from 'hooks/bridge/useGetBridgeTransfers'
 import useParsedQueryString from 'hooks/useParsedQueryString'
+import { setHistoryURL } from 'state/bridge/actions'
 
 import { ITEMS_PER_PAGE } from '../consts'
 
 const useTransferHistory = (account: string) => {
+  const dispatch = useDispatch()
   const [page, setPage] = useState(1)
 
   const { account: accountInParams } = useParsedQueryString()
   const fetchAccount = accountInParams || account
   const swrKey = fetchAccount
     ? `${KS_SETTING_API}/v1/multichain-transfers?userAddress=${fetchAccount}&page=${page}&pageSize=${ITEMS_PER_PAGE}`
-    : null
+    : ''
   const { data, isValidating, error } = useGetBridgeTransfers(swrKey)
 
   const transfers = useMemo(() => {
@@ -42,6 +45,10 @@ const useTransferHistory = (account: string) => {
   }
 
   const range = useMemo(() => [ITEMS_PER_PAGE * (page - 1) + 1, Math.min(ITEMS_PER_PAGE * page)], [page])
+
+  useEffect(() => {
+    dispatch(setHistoryURL(swrKey))
+  }, [dispatch, swrKey])
 
   return {
     range,
