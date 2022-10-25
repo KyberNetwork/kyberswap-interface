@@ -4,7 +4,7 @@ import { createReducer } from '@reduxjs/toolkit'
 import { MultiChainTokenInfo } from 'pages/Bridge/type'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
-import { resetBridgeState, setBridgePoolInfo, setBridgeState } from './actions'
+import { resetBridgeState, setBridgePoolInfo, setBridgeState, setHistoryURL } from './actions'
 
 export type PoolValueOutMap = { [address: string]: string | number }
 export interface BridgeState {
@@ -20,6 +20,8 @@ export interface BridgeState {
   loadingToken: boolean
 
   poolValueOut: PoolValueOutMap
+
+  historyURL: string
 }
 
 const DEFAULT_STATE: BridgeState = {
@@ -35,6 +37,8 @@ const DEFAULT_STATE: BridgeState = {
   loadingToken: true,
 
   poolValueOut: {},
+
+  historyURL: '',
 }
 
 export default createReducer(DEFAULT_STATE, builder =>
@@ -69,5 +73,8 @@ export default createReducer(DEFAULT_STATE, builder =>
       state.chainIdOut = undefined
       state.listTokenIn = []
       state.listTokenOut = []
+    })
+    .addCase(setHistoryURL, (state, action) => {
+      state.historyURL = action.payload
     }),
 )

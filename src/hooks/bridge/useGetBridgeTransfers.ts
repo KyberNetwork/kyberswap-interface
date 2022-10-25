@@ -1,113 +1,57 @@
-import useSWR, { SWRConfiguration } from 'swr'
-
-import useParsedQueryString from 'hooks/useParsedQueryString'
+import useSWRImmutable from 'swr/immutable'
 
 /**
- * NOTE
+ * NOTE:
  * This endpoint returns a maximum of 100 transfers for each request,
- * which means, limit > 100 is useless
+ * which means, pageSize > 100 is useless
  */
 
-// https://github.com/anyswap/CrossChain-Router/wiki/How-to-integrate-AnySwap-Router#cross-chain-steps
-export enum BridgeTransferStatus {
-  TxNotStable = -1,
-  TxNotSwapped = 5,
-  ExceedLimit = 3,
-  Confirming = 8,
-  Swapping = 9,
-  Success = 10,
-  BigAmount = 12,
-  Failure = 14,
-  Unknown = 16,
+export enum MultichainTransferStatus {
+  Processing = 0,
+  Success = 1,
+  Failure = 2,
 }
 
-export type BridgeTransfer = {
-  pairid: string
-  txid: string
-  txto: string
-  // txheight:
-  txtime: string
-  from: string
-  to: string
-  // bind: string
-  value: string
-  swaptx: string
-  //   swapheight: number
-  swaptime: string
-  swapvalue: string
-  swaptype: number
-  swapnonce: number
-  status: BridgeTransferStatus
-  statusmsg: string
-  timestamp: number
-  memo: string
-  swapinfo: any
-  confirmations: number
-  srcChainID: string
-  destChainID: string
-  historyType: string
-  formatswapvalue: string
-  formatvalue: string
-  formatfee: string
-  time: string
-  fromChainID: string
-  toChainID: string
-  logIndex: string
-  label: string
-  inittime: number | ''
+export type MultichainTransfer = {
+  id: number
+  userAddress: string
+  srcChainId: string
+  dstChainId: string
+  srcTxHash: string
+  dstTxHash: string
+  srcTokenSymbol: string
+  dstTokenSymbol: string
+  srcAmount: string
+  dstAmount: string
+  status: number
+  createdAt: number
 }
 
 type Response = {
-  msg: string
-  info: BridgeTransfer[]
+  code: number
+  message: string
+  data: {
+    transfers: MultichainTransfer[]
+    pagination: {
+      totalItems: number
+    }
+  }
 }
 
-type Params = {
-  addr: string
-  offset: number
-  limit: number
-  status?: number[]
-}
-
-const useGetBridgeTransfers = (params: Params, config?: SWRConfiguration) => {
-  const { addr, offset, limit, status } = params
-  const statusStr = status ? status.join(',') : ''
-  const { account } = useParsedQueryString()
-
-  // todo remove / for QC testing
-  return useSWR<Response>(
-    `https://bridgeapi.anyswap.exchange/v2/all/history/${account || addr}/all/all/all?offset=${offset}&limit=${limit}${
-      statusStr ? `&status=${statusStr}` : ''
-    }`,
-    async (url: string) => {
-      if (!addr) {
-        throw new Error('No address provided')
+const useGetBridgeTransfers = (swrKey: string | null) => {
+  return useSWRImmutable<Response>(swrKey, async (url: string) => {
+    const response = await fetch(url)
+    if (response.ok) {
+      const data = await response.json()
+      if (data) {
+        return data
       }
 
-      const response = await fetch(url)
-      if (response.ok) {
-        const data = await response.json()
-        if (data && data.info && typeof data.info.length === 'number') {
-          return data
-        }
+      throw new Error(`No transfers found with url = ${swrKey}`)
+    }
 
-        throw new Error(
-          `No transfers found with params address=${addr}, offset=${offset}, limit=${limit}, status=${statusStr}`,
-        )
-      }
-
-      throw new Error(
-        `Fetching bridge transfers failed with params address=${addr}, offset=${offset}, limit=${limit}, status=${statusStr}`,
-      )
-    },
-    {
-      revalidateIfStale: false,
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      refreshInterval: 60_000,
-      ...config,
-    },
-  )
+    throw new Error(`Fetching bridge transfers failed with url = ${swrKey}`)
+  })
 }
 
 export default useGetBridgeTransfers

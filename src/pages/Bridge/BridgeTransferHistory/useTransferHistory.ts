@@ -1,56 +1,54 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useDispatch } from 'react-redux'
 
-import useGetBridgeTransfers, { BridgeTransfer } from 'hooks/bridge/useGetBridgeTransfers'
+import { KS_SETTING_API } from 'constants/env'
+import useGetBridgeTransfers from 'hooks/bridge/useGetBridgeTransfers'
+import useParsedQueryString from 'hooks/useParsedQueryString'
+import { setHistoryURL } from 'state/bridge/actions'
 
-import { DEFAULT_LIMIT, ITEMS_PER_PAGE } from '../consts'
+import { ITEMS_PER_PAGE } from '../consts'
 
-const EmptyArray: any[] = []
+const useTransferHistory = (account: string) => {
+  const dispatch = useDispatch()
+  const [page, setPage] = useState(1)
 
-const useTransferHistory = (addr: string) => {
-  const [offset, setOffset] = useState(0)
-  const [cursor, setCursor] = useState(0)
-  const { data, isValidating, error } = useGetBridgeTransfers({ addr, offset, limit: DEFAULT_LIMIT })
-  const allTransfers = data?.info || (EmptyArray as BridgeTransfer[])
+  const { account: accountInParams } = useParsedQueryString()
+  const fetchAccount = accountInParams || account
+  const swrKey = fetchAccount
+    ? `${KS_SETTING_API}/v1/multichain-transfers?userAddress=${fetchAccount}&page=${page}&pageSize=${ITEMS_PER_PAGE}`
+    : ''
+  const { data, isValidating, error } = useGetBridgeTransfers(swrKey)
 
   const transfers = useMemo(() => {
-    return allTransfers.slice(cursor, cursor + ITEMS_PER_PAGE)
-  }, [allTransfers, cursor])
+    if (data) return data.data.transfers
+    return []
+  }, [data])
 
-  const canGoPrevious = !(cursor === 0 && offset === 0)
-  const canGoNext = !(allTransfers.length < DEFAULT_LIMIT && cursor + ITEMS_PER_PAGE >= allTransfers.length)
+  const canGoPrevious = page !== 1
+  const maxPage = data?.data?.pagination?.totalItems
+    ? Math.floor((data.data.pagination.totalItems - 1) / ITEMS_PER_PAGE) + 1
+    : 1
+  const canGoNext = page < maxPage
 
   const onClickPrevious = () => {
     if (!canGoPrevious) {
       return
     }
-
-    if (cursor === 0) {
-      // already check for offset === 0 in canGoPrevious
-      // need to fetch the last 100 transfers
-      setOffset(offset - DEFAULT_LIMIT)
-      setCursor(DEFAULT_LIMIT - ITEMS_PER_PAGE)
-      return
-    }
-
-    setCursor(cursor - ITEMS_PER_PAGE)
+    setPage(page - 1)
   }
 
   const onClickNext = () => {
     if (!canGoNext) {
       return
     }
-
-    if (cursor === DEFAULT_LIMIT - ITEMS_PER_PAGE) {
-      // need to fetch the next 100 transfers
-      setOffset(offset + DEFAULT_LIMIT)
-      setCursor(0)
-      return
-    }
-
-    setCursor(cursor + ITEMS_PER_PAGE)
+    setPage(page + 1)
   }
 
-  const range = [cursor + offset + 1, cursor + offset + transfers.length]
+  const range = useMemo(() => [ITEMS_PER_PAGE * (page - 1) + 1, Math.min(ITEMS_PER_PAGE * page)], [page])
+
+  useEffect(() => {
+    dispatch(setHistoryURL(swrKey))
+  }, [dispatch, swrKey])
 
   return {
     range,
@@ -61,7 +59,7 @@ const useTransferHistory = (addr: string) => {
     canGoPrevious,
     onClickNext,
     onClickPrevious,
-    isCompletelyEmpty: offset === 0 && allTransfers.length === 0,
+    isCompletelyEmpty: page === 1 && transfers.length === 0,
   }
 }
 

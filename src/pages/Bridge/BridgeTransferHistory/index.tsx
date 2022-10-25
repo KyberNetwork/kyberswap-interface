@@ -15,7 +15,6 @@ import { ITEMS_PER_PAGE } from '../consts'
 import ActionCell from './ActionCell'
 import RouteCell from './RouteCell'
 import StatusBadge from './StatusBadge'
-import TimeCell from './TimeCell'
 import TimeStatusCell from './TimeStatusCell'
 import TokenReceiveCell from './TokenReceiveCell'
 import useTransferHistory from './useTransferHistory'
@@ -35,7 +34,7 @@ const commonCSS = css`
   `}
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     column-gap: 16px;
-    grid-template-columns: 96px 64px minmax(auto, 130px) 28px;
+    grid-template-columns: 156px 64px minmax(auto, 130px) 28px;
   `}
 `
 
@@ -111,7 +110,7 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
 
   const timeOutRef = useRef<ReturnType<typeof setTimeout>>()
   useEffect(() => {
-    // This is to ensure loading is displayed at least 1.5s
+    // This is to ensure loading is displayed at least 0.5s
     const existingTimeout = timeOutRef.current
 
     if (isValidating) {
@@ -119,7 +118,7 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
     } else {
       timeOutRef.current = setTimeout(() => {
         setShouldShowLoading(false)
-      }, 1_500)
+      }, 500)
     }
     return () => {
       existingTimeout && clearTimeout(existingTimeout)
@@ -179,7 +178,7 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
       })
   }
 
-  const getTxsUrl = (txid: string) => `https://anyswap.net/explorer/tx?params=${txid}`
+  const getTxsUrl = (txHash: string) => `https://anyswap.net/explorer/tx?params=${txHash}`
 
   const renderTable = () => {
     if (upToExtraSmall) {
@@ -199,10 +198,13 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
           </TableHeader>
           {transfers.map((transfer, i) => (
             <TableRow key={i}>
-              <TimeStatusCell status={transfer.status} timestamp={transfer.inittime} />
-              <RouteCell fromChainID={Number(transfer.fromChainID)} toChainID={Number(transfer.toChainID)} />
+              <Flex style={{ gap: '8px' }}>
+                <TimeStatusCell status={transfer.status} timestamp={transfer.createdAt * 1000} />
+                <StatusBadge status={transfer.status} iconOnly />
+              </Flex>
+              <RouteCell fromChainID={Number(transfer.srcChainId)} toChainID={Number(transfer.dstChainId)} />
               <TokenReceiveCell transfer={transfer} />
-              <ActionCell url={getTxsUrl(transfer.txid)} />
+              <ActionCell url={getTxsUrl(transfer.srcTxHash)} />
             </TableRow>
           ))}
           {renderInvisibleRows()}
@@ -231,11 +233,11 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
         </TableHeader>
         {transfers.map((transfer, i) => (
           <TableRow key={i}>
-            <TimeCell timestamp={transfer.inittime} />
+            <TimeStatusCell status={transfer.status} timestamp={transfer.createdAt * 1000} />
             <StatusBadge status={transfer.status} />
-            <RouteCell fromChainID={Number(transfer.fromChainID)} toChainID={Number(transfer.toChainID)} />
+            <RouteCell fromChainID={Number(transfer.srcChainId)} toChainID={Number(transfer.dstChainId)} />
             <TokenReceiveCell transfer={transfer} />
-            <ActionCell url={getTxsUrl(transfer.txid)} />
+            <ActionCell url={getTxsUrl(transfer.srcTxHash)} />
           </TableRow>
         ))}
         {renderInvisibleRows()}

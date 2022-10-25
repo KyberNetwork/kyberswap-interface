@@ -142,7 +142,6 @@ export enum MIXPANEL_TYPE {
   BRIDGE_CLICK_REVIEW_TRANSFER,
   BRIDGE_CLICK_TRANSFER,
   BRIDGE_TRANSACTION_SUBMIT,
-  BRIDGE_CLICK_ACTIVE_TRANSFER_TAB,
   BRIDGE_CLICK_HISTORY_TRANSFER_TAB,
 }
 
@@ -713,10 +712,6 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           break
         }
 
-        case MIXPANEL_TYPE.BRIDGE_CLICK_ACTIVE_TRANSFER_TAB: {
-          mixpanel.track('Bridge - Active Transfer Tab Click')
-          break
-        }
         case MIXPANEL_TYPE.BRIDGE_CLICK_HISTORY_TRANSFER_TAB: {
           mixpanel.track('Bridge - Transfer History Tab Click')
           break
