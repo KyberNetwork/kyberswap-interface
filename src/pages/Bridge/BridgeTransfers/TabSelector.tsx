@@ -31,8 +31,8 @@ const TabItem = styled.div<{ isActive?: boolean }>`
 
 type Props = {
   className?: string
-  activeTab: 1 | 2
-  setActiveTab: (n: 1 | 2) => void
+  activeTab: 1
+  setActiveTab: (n: 1) => void
 }
 
 const TabSelector: React.FC<Props> = ({ className, activeTab, setActiveTab }) => {
@@ -44,16 +44,6 @@ const TabSelector: React.FC<Props> = ({ className, activeTab, setActiveTab }) =>
         role="button"
         onClick={() => {
           setActiveTab(1)
-          mixpanelHandler(MIXPANEL_TYPE.BRIDGE_CLICK_ACTIVE_TRANSFER_TAB)
-        }}
-      >
-        Active Transfers
-      </TabItem>
-      <TabItem
-        isActive={activeTab === 2}
-        role="button"
-        onClick={() => {
-          setActiveTab(2)
           mixpanelHandler(MIXPANEL_TYPE.BRIDGE_CLICK_HISTORY_TRANSFER_TAB)
         }}
       >

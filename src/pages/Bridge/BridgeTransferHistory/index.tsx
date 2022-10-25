@@ -34,7 +34,7 @@ const commonCSS = css`
   `}
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     column-gap: 16px;
-    grid-template-columns: 96px 64px minmax(auto, 130px) 28px;
+    grid-template-columns: 156px 64px minmax(auto, 130px) 28px;
   `}
 `
 
@@ -178,7 +178,7 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
       })
   }
 
-  const getTxsUrl = (txid: string) => `https://anyswap.net/explorer/tx?params=${txid}`
+  const getTxsUrl = (txHash: string) => `https://anyswap.net/explorer/tx?params=${txHash}`
 
   const renderTable = () => {
     if (upToExtraSmall) {
@@ -198,8 +198,10 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
           </TableHeader>
           {transfers.map((transfer, i) => (
             <TableRow key={i}>
-              {/* TODO: timestamp */}
-              <TimeStatusCell status={transfer.status} timestamp={''} />
+              <Flex style={{ gap: '8px' }}>
+                <TimeStatusCell status={transfer.status} timestamp={transfer.createdAt * 1000} />
+                <StatusBadge status={transfer.status} iconOnly />
+              </Flex>
               <RouteCell fromChainID={Number(transfer.srcChainId)} toChainID={Number(transfer.dstChainId)} />
               <TokenReceiveCell transfer={transfer} />
               <ActionCell url={getTxsUrl(transfer.srcTxHash)} />
@@ -231,8 +233,7 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
         </TableHeader>
         {transfers.map((transfer, i) => (
           <TableRow key={i}>
-            {/* TODO: timestamp */}
-            <TimeStatusCell status={transfer.status} timestamp={''} />
+            <TimeStatusCell status={transfer.status} timestamp={transfer.createdAt * 1000} />
             <StatusBadge status={transfer.status} />
             <RouteCell fromChainID={Number(transfer.srcChainId)} toChainID={Number(transfer.dstChainId)} />
             <TokenReceiveCell transfer={transfer} />

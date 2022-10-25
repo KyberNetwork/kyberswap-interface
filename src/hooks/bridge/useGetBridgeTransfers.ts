@@ -27,6 +27,7 @@ export type MultichainTransfer = {
   srcAmount: string
   dstAmount: string
   status: number
+  createdAt: number
 }
 
 type Response = {
