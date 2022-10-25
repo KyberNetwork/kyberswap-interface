@@ -74,7 +74,7 @@ const calcPoolValue = (amount: string, decimals: number) => {
 }
 
 type PoolValueType = {
-  poolValueIn: string | undefined
+  poolValueIn: string | undefined // undefined: unlimit
   poolValueOut: string | undefined
 }
 

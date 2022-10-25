@@ -8,7 +8,7 @@ import ToggleCollapse, { ToggleItemType } from 'components/Collapse'
 import { Z_INDEXS } from 'constants/styles'
 import useTheme from 'hooks/useTheme'
 
-import { TOTAL_STEP } from './constant'
+import { TutorialNumbers } from './constant'
 
 const Wrapper = styled.div`
   top: 0;
@@ -40,7 +40,7 @@ export default function TutorialMobile({
             <X color={theme.subText} size={24} onClick={stopTutorial} />
           </Flex>
           <Text fontSize={12} color={theme.subText}>
-            <Trans>{TOTAL_STEP} easy ways to get started with KyberSwap</Trans>
+            <Trans>{TutorialNumbers.TOTAL_STEP} easy ways to get started with KyberSwap</Trans>
           </Text>
         </div>
         <div style={{ width: '100%' }}>
