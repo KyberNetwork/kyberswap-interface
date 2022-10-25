@@ -347,7 +347,10 @@ export default function SwapForm() {
       (approvalSubmitted && approval === ApprovalState.APPROVED))
 
   const disableBtnApproved = approval !== ApprovalState.NOT_APPROVED || approvalSubmitted || !!inputError
-
+  const disableBtnReviewTransfer =
+    !!inputError ||
+    [inputAmount, tokenIn, tokenOut, chainIdOut].some(e => !e) ||
+    (approval !== ApprovalState.APPROVED && tokenOut?.isApprove)
   return (
     <>
       <Flex style={{ position: 'relative', flexDirection: 'column', gap: 22, alignItems: 'center' }}>
@@ -438,12 +441,7 @@ export default function SwapForm() {
                         </Flex>
                       )}
                     </ButtonConfirmed>
-                    <ButtonError
-                      width="48%"
-                      id="swap-button"
-                      disabled={approval !== ApprovalState.APPROVED}
-                      onClick={showPreview}
-                    >
+                    <ButtonError width="48%" id="swap-button" disabled={disableBtnReviewTransfer} onClick={showPreview}>
                       <Text fontSize={16} fontWeight={500}>
                         {t`Review transfer`}
                       </Text>
@@ -454,7 +452,7 @@ export default function SwapForm() {
               )
             )}
             {!showApproveFlow && account && (
-              <ButtonError onClick={showPreview} disabled={!!inputError || approval !== ApprovalState.APPROVED}>
+              <ButtonError onClick={showPreview} disabled={disableBtnReviewTransfer}>
                 <Text fontWeight={500}>{t`Review Transfer`}</Text>
               </ButtonError>
             )}
