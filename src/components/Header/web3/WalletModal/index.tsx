@@ -2,16 +2,21 @@ import { Trans } from '@lingui/macro'
 import { WalletReadyState } from '@solana/wallet-adapter-base'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { UnsupportedChainIdError } from '@web3-react/core'
+import { transparentize } from 'polished'
 import { useCallback, useEffect, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
 import { useLocation } from 'react-router-dom'
-import { Text } from 'rebass'
+import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as Close } from 'assets/images/x.svg'
+import { AutoColumn } from 'components/Column'
+import ExpandableBox from 'components/ExpandableBox'
 import AccountDetails from 'components/Header/web3/AccountDetails'
 import Networks from 'components/Header/web3/NetworkModal/Networks'
+import WarningIcon from 'components/Icons/WarningIcon'
 import Modal from 'components/Modal'
+import { AutoRow, RowFixed } from 'components/Row'
 import { SUPPORTED_WALLET, SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useActivationWallet } from 'hooks/useActivationWallet'
@@ -386,9 +391,85 @@ export default function WalletModal({
                       marginTop: '24px',
                     }}
                   >
-                    <Text lineHeight={'16px'} fontSize={12}>
-                      If you haven’t created a Solflare wallet yet, please follow the steps below
-                    </Text>
+                    <ExpandableBox
+                      backgroundColor={theme.buttonBlack}
+                      headerContent={
+                        <AutoRow>
+                          <Flex style={{ padding: '0 8px' }}>
+                            <WarningIcon />
+                          </Flex>
+                          <Text style={{ flex: 1, padding: '0 2px' }}>
+                            <Trans>
+                              If you haven&lsquo;t created a Solflare wallet yet, please follow the steps below
+                            </Trans>
+                          </Text>
+                        </AutoRow>
+                      }
+                      expandContent={
+                        <AutoColumn gap="6px">
+                          <RowFixed>
+                            <Flex
+                              alignItems="center"
+                              justifyContent="center"
+                              style={{
+                                backgroundColor: transparentize(0.8, theme.primary),
+                                color: theme.primary,
+                                width: '24px',
+                                height: '24px',
+                                borderRadius: '50%',
+                                margin: '0 8px',
+                                fontSize: '12px',
+                              }}
+                            >
+                              1
+                            </Flex>
+                            <Text>
+                              <Trans>Create a Solflare wallet</Trans>
+                            </Text>
+                          </RowFixed>
+                          <RowFixed>
+                            <Flex
+                              alignItems="center"
+                              justifyContent="center"
+                              style={{
+                                backgroundColor: transparentize(0.8, theme.primary),
+                                color: theme.primary,
+                                width: '24px',
+                                height: '24px',
+                                borderRadius: '50%',
+                                margin: '0 8px',
+                                fontSize: '12px',
+                              }}
+                            >
+                              2
+                            </Flex>
+                            <Text>
+                              <Trans>Close the Solflare popup</Trans>
+                            </Text>
+                          </RowFixed>
+                          <RowFixed>
+                            <Flex
+                              alignItems="center"
+                              justifyContent="center"
+                              style={{
+                                backgroundColor: transparentize(0.8, theme.primary),
+                                color: theme.primary,
+                                width: '24px',
+                                height: '24px',
+                                borderRadius: '50%',
+                                margin: '0 8px',
+                                fontSize: '12px',
+                              }}
+                            >
+                              3
+                            </Flex>
+                            <Text>
+                              <Trans>Try to connect again</Trans>
+                            </Text>
+                          </RowFixed>
+                        </AutoColumn>
+                      }
+                    />
                   </div>
                 ) : undefined
               }
