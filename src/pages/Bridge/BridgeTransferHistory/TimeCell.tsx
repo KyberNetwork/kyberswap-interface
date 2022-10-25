@@ -11,7 +11,7 @@ type Props = {
   timestamp?: number | ''
 }
 
-const fullFormat = 'DD MMM YYYY HH:mm'
+export const fullFormat = 'DD MMM YYYY HH:mm'
 const dateFormat = 'DD MMM YYYY'
 
 const TimeCell: React.FC<Props> = ({ timestamp }) => {

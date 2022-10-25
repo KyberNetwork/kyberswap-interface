@@ -5,6 +5,7 @@ import { Flex, Text } from 'rebass'
 
 import { MultichainTransferStatus } from 'hooks/bridge/useGetBridgeTransfers'
 import useTheme from 'hooks/useTheme'
+import { fullFormat } from 'pages/Bridge/BridgeTransferHistory/TimeCell'
 
 dayjs.extend(utc)
 
@@ -13,7 +14,7 @@ type Props = {
   status: MultichainTransferStatus
 }
 const TimeStatusCell: React.FC<Props> = ({ timestamp, status }) => {
-  const dateString = timestamp ? dayjs.utc(timestamp).local().format('DD MMM YYYY HH:mm') : ''
+  const dateString = timestamp ? dayjs.utc(timestamp).local().format(fullFormat) : ''
   const theme = useTheme()
   return (
     <Flex
@@ -21,7 +22,7 @@ const TimeStatusCell: React.FC<Props> = ({ timestamp, status }) => {
         fontWeight: 500,
         fontSize: '12px',
         lineHeight: '16px',
-        color: theme.subText,
+        color: theme.subText
         alignItems: 'center',
         justifyContent: 'space-between',
       }}
