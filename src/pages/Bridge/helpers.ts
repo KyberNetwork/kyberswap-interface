@@ -1,4 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { t } from '@lingui/macro'
 import axios from 'axios'
 
 import { NETWORKS_INFO_CONFIG } from 'constants/networks'
@@ -115,6 +116,7 @@ export async function getChainlist(isStaleData: boolean) {
 
 export const formatPoolValue = (amount: string | undefined) => {
   try {
+    if (amount === undefined) return t`Unlimited`
     if (Number(amount) && amount) return formatNumberWithPrecisionRange(parseFloat(amount), 0, 2)
   } catch (error) {}
   return '0'

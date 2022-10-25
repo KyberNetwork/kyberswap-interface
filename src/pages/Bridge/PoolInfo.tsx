@@ -1,5 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { Flex, Text } from 'rebass'
 
 import { NETWORKS_INFO } from 'constants/networks'
@@ -18,7 +18,6 @@ const PoolInfo = ({
   poolValue: string | undefined
 }) => {
   const theme = useTheme()
-  if (poolValue === undefined) return null
   return (
     <Flex
       alignItems="center"
@@ -30,7 +29,9 @@ const PoolInfo = ({
     >
       <Text>
         <Trans>
-          {chainId ? `${NETWORKS_INFO[chainId].name} Pool: ${formatPoolValue(poolValue)} ${tokenIn?.symbol ?? ''}` : ''}
+          {chainId
+            ? `${NETWORKS_INFO[chainId].name} Pool: ${`${formatPoolValue(poolValue)} ${tokenIn?.symbol ?? ''}`}`
+            : ''}
         </Trans>
       </Text>
     </Flex>
