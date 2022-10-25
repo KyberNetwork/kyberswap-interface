@@ -9,6 +9,7 @@ import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled, { CSSProperties } from 'styled-components'
 
+import Badge, { BadgeVariant } from 'components/Badge'
 import Checkbox from 'components/CheckBox'
 import Logo from 'components/Logo'
 import ProgressBar from 'components/ProgressBar'
@@ -161,6 +162,7 @@ const TradeRate = ({ order, style = {} }: { order: LimitOrder; style?: CSSProper
     </div>
   )
 }
+
 export default function OrderItem({ order }: { order: LimitOrder }) {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const { createdAt = Date.now(), expiredAt = Date.now(), takingAmount, filledTakingAmount, status } = order
@@ -168,6 +170,12 @@ export default function OrderItem({ order }: { order: LimitOrder }) {
   const filledPercent = calcPercent(filledTakingAmount, takingAmount)
   // todo format number all
   const partiallyFilled = status === LimitOrderStatus.PARTIALLY_FILLED
+  const MapStatusColor: { [key: string]: BadgeVariant } = {
+    [LimitOrderStatus.OPEN]: BadgeVariant.PRIMARY,
+    [LimitOrderStatus.FILLED]: BadgeVariant.PRIMARY,
+    [LimitOrderStatus.CANCELLED]: BadgeVariant.NEGATIVE,
+    [LimitOrderStatus.EXPRIED]: BadgeVariant.NEGATIVE,
+  }
   const progressComponent =
     status === LimitOrderStatus.FILLED || partiallyFilled ? (
       <ProgressBar
@@ -178,7 +186,14 @@ export default function OrderItem({ order }: { order: LimitOrder }) {
         title={partiallyFilled ? t`Partially Filled: ${filledPercent}%` : t`Filled 100%`}
       />
     ) : (
-      <div />
+      <Badge
+        style={{
+          width: 100,
+        }}
+        variant={MapStatusColor[status]}
+      >
+        {status}
+      </Badge>
     )
 
   if (upToSmall)

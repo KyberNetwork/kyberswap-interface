@@ -216,7 +216,7 @@ export default memo(function LimitOrderForm() {
 
   const showPreview = () => {
     if (!currencyIn || !currencyOut || !outputAmount || !inputAmount || !expectRate) return
-    setSwapState(state => ({ ...state, showConfirm: true, swapErrorMessage: '' }))
+    setSwapState(state => ({ ...state, showConfirm: true, swapErrorMessage: '', txHash: '' }))
   }
 
   const hidePreview = useCallback(() => {
@@ -230,6 +230,7 @@ export default memo(function LimitOrderForm() {
   const onSubmitOrder = async () => {
     try {
       if (!library || !currencyIn || !currencyOut || !chainId || !account) return
+
       setSwapState(state => ({
         ...state,
         attemptingTxn: true,
@@ -286,11 +287,24 @@ export default memo(function LimitOrderForm() {
         {
           type: NotificationType.SUCCESS,
           title: t`Order Placed`,
-          summary: t`You have successfully placed an order to pay 10 ${currencyIn.symbol} and receive 0.006486 ${
-            currencyOut.symbol
-          } when 1 ${currencyIn.symbol} is equal to ${Number(expectRate) ** (invertRate ? -1 : 1)} ${
-            currencyOut.symbol
-          }`,
+          summary: (
+            <Text color={theme.text} lineHeight="18px">
+              <Trans>
+                You have successfully placed an order to pay &nbsp;
+                <Text as="span" fontWeight={500}>
+                  {inputAmount} {currencyIn.symbol}
+                </Text>{' '}
+                &nbsp; and receive&nbsp;
+                <Text as="span" fontWeight={500}>
+                  {outputAmount} {currencyOut.symbol}&nbsp;
+                </Text>
+                <Text as="span" color={theme.subText}>
+                  &nbsp; when 1 {currencyIn.symbol} is equal to {Number(expectRate) ** (invertRate ? -1 : 1)}
+                  {currencyOut.symbol}
+                </Text>
+              </Trans>
+            </Text>
+          ),
         },
         10000,
       )

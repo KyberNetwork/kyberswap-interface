@@ -218,25 +218,24 @@ export default function ListLimitOrder() {
           page: curPage + 1,
           pageSize: PAGE_SIZE,
         })
-        setOrders(
-          new Array(10).fill({
-            id: 123,
-            chainId,
-            makerAsset: 'string',
-            takerAsset: 'string',
-            makerAssetSymbol: 'KNC',
-            takerAssetSymbol: 'USDT',
-            makerAssetLogoURL: 'https://s2.coinmarketcap.com/static/img/coins/200x200/9444.png',
-            takerAssetLogoURL: 'https://s2.coinmarketcap.com/static/img/coins/200x200/9444.png',
-            makingAmount: '1000000000000000000000000',
-            takingAmount: '1000000000000000000000000',
-            filledMakingAmount: '1000000000000000000000',
-            filledTakingAmount: '1000000000000000000000000',
-            status: Math.random() < 0.3 ? LimitOrderStatus.FILLED : LimitOrderStatus.PARTIALLY_FILLED,
-            createdAt: Date.now(),
-            expiredAt: Date.now(),
-          }),
-        )
+        setOrders(orders)
+        // new Array(10).fill({
+        //   id: 123,
+        //   chainId,
+        //   makerAsset: 'string',
+        //   takerAsset: 'string',
+        //   makerAssetSymbol: 'KNC',
+        //   takerAssetSymbol: 'USDT',
+        //   makerAssetLogoURL: 'https://s2.coinmarketcap.com/static/img/coins/200x200/9444.png',
+        //   takerAssetLogoURL: 'https://s2.coinmarketcap.com/static/img/coins/200x200/9444.png',
+        //   makingAmount: '1000000000000000000000000',
+        //   takingAmount: '1000000000000000000000000',
+        //   filledMakingAmount: '1000000000000000000000',
+        //   filledTakingAmount: '1000000000000000000000000',
+        //   status: Math.random() < 0.3 ? LimitOrderStatus.FILLED : LimitOrderStatus.PARTIALLY_FILLED,
+        //   createdAt: Date.now(),
+        //   expiredAt: Date.now(),
+        // }),
         console.log(orders)
       } catch (error) {}
     },

@@ -1,6 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createAction } from '@reduxjs/toolkit'
 import { TokenList } from '@uniswap/token-lists'
+import { ReactNode } from 'react'
 
 import { NotificationType } from './hooks'
 
@@ -18,7 +19,7 @@ export type PopupContentListUpdate = {
 }
 export type PopupContentSimple = {
   title: string
-  summary?: string
+  summary?: ReactNode
   type: NotificationType
 }
 
