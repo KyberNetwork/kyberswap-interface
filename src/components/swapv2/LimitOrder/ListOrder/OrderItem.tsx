@@ -72,8 +72,8 @@ const Time = ({ time }: { time: number }) => {
   const theme = useTheme()
   return (
     <Flex fontWeight={'500'}>
-      <Text color={theme.subText}>{dayjs(time).format('DD/MM/YYYY')}</Text>
-      &nbsp; <Text color={theme.border}>{dayjs(time).format('hh:mm')}</Text>
+      <Text color={theme.subText}>{dayjs(time * 1000).format('DD/MM/YYYY')}</Text>
+      &nbsp; <Text color={theme.border}>{dayjs(time * 1000).format('hh:mm')}</Text>
     </Flex>
   )
 }

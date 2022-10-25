@@ -212,7 +212,10 @@ export default memo(function LimitOrderForm() {
       (approvalSubmitted && approval === ApprovalState.APPROVED))
 
   const disableBtnApproved = approval !== ApprovalState.NOT_APPROVED || approvalSubmitted || !!inputError
-  const disableBtnReview = !outputAmount || !expectRate || !!inputError || approval !== ApprovalState.APPROVED
+  const disableBtnReview =
+    [outputAmount, inputAmount, currencyIn, currencyOut, expectRate].some(e => !e) ||
+    !!inputError ||
+    approval !== ApprovalState.APPROVED
 
   const showPreview = () => {
     if (!currencyIn || !currencyOut || !outputAmount || !inputAmount || !expectRate) return
@@ -481,12 +484,7 @@ export default memo(function LimitOrderForm() {
                     </Flex>
                   )}
                 </ButtonConfirmed>
-                <ButtonError
-                  width="48%"
-                  id="swap-button"
-                  disabled={approval !== ApprovalState.APPROVED}
-                  onClick={showPreview}
-                >
+                <ButtonError width="48%" id="swap-button" disabled={disableBtnReview} onClick={showPreview}>
                   <Text fontSize={16} fontWeight={500}>
                     {t`Review Order`}
                   </Text>
