@@ -4,23 +4,33 @@ import dayjs from 'dayjs'
 import JSBI from 'jsbi'
 import { rgba } from 'polished'
 import { useState } from 'react'
-import { Edit3, Repeat, Trash } from 'react-feather'
+import { Copy, Edit3, ExternalLink, Repeat, Trash } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import styled, { CSSProperties } from 'styled-components'
+import styled, { CSSProperties, css } from 'styled-components'
 
 import Checkbox from 'components/CheckBox'
 import Logo from 'components/Logo'
 import ProgressBar from 'components/ProgressBar'
 import { MouseoverTooltip } from 'components/Tooltip'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { MEDIA_WIDTHS } from 'theme'
+import { MEDIA_WIDTHS, theme } from 'theme'
 import { formatNumberWithPrecisionRange } from 'utils'
+import { getEtherscanLinkText } from 'utils/index'
 
 import { LimitOrder, LimitOrderStatus } from '../type'
 
-const IconWrap = styled.div<{ color: string }>`
-  background-color: ${({ color }) => `${rgba(color, 0.2)}`};
+const IconWrap = styled.div<{ color: string; isDisabled?: boolean }>`
+  background-color: ${({ color, isDisabled, theme }) => `${rgba(isDisabled ? theme.subText : color, 0.2)}`};
+  ${({ isDisabled }) =>
+    isDisabled
+      ? css`
+          filter: grayscale(${isDisabled ? 1 : 0});
+          pointer-events: none;
+          cursor: not-allowed;
+        `
+      : ''};
   border-radius: 24px;
   padding: 7px 8px 5px 8px;
   height: fit-content;
@@ -77,20 +87,43 @@ const Time = ({ time }: { time: number }) => {
   )
 }
 
-const Actions = () => {
+const Actions = ({ order }: { order: LimitOrder }) => {
   const theme = useTheme()
+  const { status, chainId } = order
+  const isActiveStatus = [LimitOrderStatus.ACTIVE, LimitOrderStatus.OPEN, LimitOrderStatus.PARTIALLY_FILLED].includes(
+    status,
+  )
+  const isDisabled = [LimitOrderStatus.CANCELLED, LimitOrderStatus.EXPRIED].includes(status)
+  // todo copy hash ,...
   return (
     <Flex alignItems={'center'}>
-      <IconWrap color={theme.primary}>
-        <MouseoverTooltip text={t`Edit`} placement="top" width="60px">
-          <Edit3 color={theme.primary} size={15} />
-        </MouseoverTooltip>
-      </IconWrap>
-      <MouseoverTooltip text={t`Cancel`} placement="top" width="80px">
-        <IconWrap color={theme.red}>
-          <Trash color={theme.red} size={15} />
-        </IconWrap>
-      </MouseoverTooltip>
+      {isActiveStatus ? (
+        <>
+          <IconWrap color={theme.primary}>
+            <MouseoverTooltip text={t`Edit`} placement="top" width="60px">
+              <Edit3 color={theme.primary} size={15} />
+            </MouseoverTooltip>
+          </IconWrap>
+          <MouseoverTooltip text={t`Cancel`} placement="top" width="80px">
+            <IconWrap color={theme.red}>
+              <Trash color={theme.red} size={15} />
+            </IconWrap>
+          </MouseoverTooltip>
+        </>
+      ) : (
+        <>
+          <IconWrap color={theme.subText} isDisabled={isDisabled}>
+            <MouseoverTooltip text={t`Copy Txn Hash`} placement="top" width="135px">
+              <Copy color={isDisabled ? theme.border : theme.subText} size={15} />
+            </MouseoverTooltip>
+          </IconWrap>
+          <IconWrap color={theme.primary} isDisabled={isDisabled}>
+            <MouseoverTooltip text={chainId ? getEtherscanLinkText(chainId) : ''} placement="top" width="150px">
+              <ExternalLink color={isDisabled ? theme.border : theme.primary} size={15} />
+            </MouseoverTooltip>
+          </IconWrap>
+        </>
+      )}
     </Flex>
   )
 }
@@ -198,7 +231,7 @@ export default function OrderItem({ order }: { order: LimitOrder }) {
       <ItemWrapperMobile>
         <Flex justifyContent={'space-between'}>
           <AmountInfo order={order} />
-          <Actions />
+          <Actions order={order} />
         </Flex>
         <Flex justifyContent={'space-between'}>
           {progressComponent}
@@ -234,7 +267,7 @@ export default function OrderItem({ order }: { order: LimitOrder }) {
         <Time time={expiredAt} />
       </Colum>
       <Colum>{progressComponent}</Colum>
-      <Actions />
+      <Actions order={order} />
     </ItemWrapper>
   )
 }
