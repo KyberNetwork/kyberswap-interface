@@ -243,7 +243,7 @@ const useGetUserFarmingInfo = (interval?: boolean) => {
     }
   }, [getUserFarmInfo, interval])
 
-  const { block24 } = usePoolBlocks()
+  const { blockLast24h } = usePoolBlocks()
   const [getPoolInfo, { data: poolFeeData }] = useLazyQuery(POOL_FEE_HISTORY, {
     client: NETWORKS_INFO[chainId || ChainId.MAINNET].elasticClient,
     fetchPolicy: 'network-only',
@@ -268,15 +268,15 @@ const useGetUserFarmingInfo = (interval?: boolean) => {
   useEffect(() => {
     const poolIds = elasticFarm.farms?.map(item => item.pools.map(p => p.poolAddress.toLowerCase())).flat()
 
-    if (block24 && poolIds?.length) {
+    if (blockLast24h && poolIds?.length) {
       getPoolInfo({
         variables: {
-          block: Number(block24),
+          block: Number(blockLast24h),
           poolIds,
         },
       })
     }
-  }, [elasticFarm.farms, block24, getPoolInfo])
+  }, [elasticFarm.farms, blockLast24h, getPoolInfo])
 
   useEffect(() => {
     if (chainId) dispatch(resetErrorNFTs(chainId))

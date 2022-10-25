@@ -1,5 +1,4 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
-
+import { CHAINS_SUPPORT_NEW_POOL_FARM_API } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 
 import useGetUserFarmingInfo from './useGetUserElasticFarmInfo'
@@ -15,7 +14,11 @@ const FarmUpdater: React.FC<CommonProps> = props => {
 
   useGetUserFarmingInfo(props.interval)
 
-  if (chainId === ChainId.OPTIMISM) {
+  if (!chainId) {
+    return null
+  }
+
+  if (CHAINS_SUPPORT_NEW_POOL_FARM_API.includes(chainId)) {
     return <FarmUpdaterV2 {...props} />
   } else {
     return <FarmUpdaterV1 {...props} />
