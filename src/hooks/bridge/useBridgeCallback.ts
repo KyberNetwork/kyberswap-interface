@@ -57,9 +57,11 @@ function useSendTxToKsSettingCallback() {
         await axios.post(url, data)
         onSuccess()
       } catch (err) {
-        const errStr = `SendTxToKsSetting fail with payload = ${JSON.stringify(data)}`
         console.error(err)
-        captureException(new Error(errStr), { level: 'fatal' })
+        const errStr = `SendTxToKsSetting fail with payload = ${JSON.stringify(data)}`
+        const error = new Error(errStr)
+        error.name = 'PostBridge'
+        captureException(error, { level: 'fatal' })
       }
     },
     [account, onSuccess],
