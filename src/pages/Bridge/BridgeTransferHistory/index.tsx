@@ -199,7 +199,7 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
           {transfers.map((transfer, i) => (
             <TableRow key={i}>
               <Flex style={{ gap: '8px' }}>
-                <TimeStatusCell status={transfer.status} timestamp={transfer.createdAt * 1000} />
+                <TimeStatusCell timestamp={transfer.createdAt * 1000} />
                 <StatusBadge status={transfer.status} iconOnly />
               </Flex>
               <RouteCell fromChainID={Number(transfer.srcChainId)} toChainID={Number(transfer.dstChainId)} />
@@ -233,7 +233,7 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
         </TableHeader>
         {transfers.map((transfer, i) => (
           <TableRow key={i}>
-            <TimeStatusCell status={transfer.status} timestamp={transfer.createdAt * 1000} />
+            <TimeStatusCell timestamp={transfer.createdAt * 1000} />
             <StatusBadge status={transfer.status} />
             <RouteCell fromChainID={Number(transfer.srcChainId)} toChainID={Number(transfer.dstChainId)} />
             <TokenReceiveCell transfer={transfer} />
