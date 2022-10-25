@@ -9,7 +9,6 @@ import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled, { CSSProperties } from 'styled-components'
 
-import Badge, { BadgeVariant } from 'components/Badge'
 import Checkbox from 'components/CheckBox'
 import Logo from 'components/Logo'
 import ProgressBar from 'components/ProgressBar'
@@ -73,7 +72,7 @@ const Time = ({ time }: { time: number }) => {
   return (
     <Flex fontWeight={'500'}>
       <Text color={theme.subText}>{dayjs(time * 1000).format('DD/MM/YYYY')}</Text>
-      &nbsp; <Text color={theme.border}>{dayjs(time * 1000).format('hh:mm')}</Text>
+      &nbsp; <Text color={theme.border}>{dayjs(time * 1000).format('HH:mm')}</Text>
     </Flex>
   )
 }
@@ -162,39 +161,37 @@ const TradeRate = ({ order, style = {} }: { order: LimitOrder; style?: CSSProper
     </div>
   )
 }
-
+function formatStatus(status: string) {
+  status = status.replace('_', ' ')
+  return status.charAt(0).toUpperCase() + status.slice(1)
+}
 export default function OrderItem({ order }: { order: LimitOrder }) {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const { createdAt = Date.now(), expiredAt = Date.now(), takingAmount, filledTakingAmount, status } = order
-  const theme = useTheme()
   const filledPercent = calcPercent(filledTakingAmount, takingAmount)
+
+  const theme = useTheme()
   // todo format number all
   const partiallyFilled = status === LimitOrderStatus.PARTIALLY_FILLED
-  const MapStatusColor: { [key: string]: BadgeVariant } = {
-    [LimitOrderStatus.OPEN]: BadgeVariant.PRIMARY,
-    [LimitOrderStatus.FILLED]: BadgeVariant.PRIMARY,
-    [LimitOrderStatus.CANCELLED]: BadgeVariant.NEGATIVE,
-    [LimitOrderStatus.EXPRIED]: BadgeVariant.NEGATIVE,
+  const MapStatusColor: { [key: string]: string } = {
+    [LimitOrderStatus.FILLED]: theme.primary,
+    [LimitOrderStatus.CANCELLED]: theme.red,
+    [LimitOrderStatus.EXPRIED]: theme.warning,
+    [LimitOrderStatus.PARTIALLY_FILLED]: theme.warning,
   }
-  const progressComponent =
-    status === LimitOrderStatus.FILLED || partiallyFilled ? (
-      <ProgressBar
-        color={partiallyFilled ? theme.warning : theme.primary}
-        labelColor={partiallyFilled ? theme.warning : theme.primary}
-        height="11px"
-        percent={filledPercent}
-        title={partiallyFilled ? t`Partially Filled: ${filledPercent}%` : t`Filled 100%`}
-      />
-    ) : (
-      <Badge
-        style={{
-          width: 100,
-        }}
-        variant={MapStatusColor[status]}
-      >
-        {status}
-      </Badge>
-    )
+  const expandTitle = [LimitOrderStatus.EXPRIED, LimitOrderStatus.CANCELLED].includes(status)
+    ? ` | ${formatStatus(status)}`
+    : ''
+  const progressComponent = (
+    <ProgressBar
+      backgroundColor={theme.subText}
+      color={MapStatusColor[status]}
+      labelColor={MapStatusColor[status]}
+      height="11px"
+      percent={filledPercent}
+      title={(partiallyFilled ? t`Partially Filled: ${filledPercent}%` : t`Filled ${filledPercent}%`) + expandTitle}
+    />
+  )
 
   if (upToSmall)
     return (

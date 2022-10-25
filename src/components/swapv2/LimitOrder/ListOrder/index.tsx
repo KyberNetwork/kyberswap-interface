@@ -206,11 +206,12 @@ export default function ListLimitOrder() {
     setCurPage(page)
   }
   const [orders, setOrders] = useState<LimitOrder[]>([])
+  const [totalOrder, setTotalOrder] = useState<number>(0)
 
   const fetchListOrder = useCallback(
     async (status: LimitOrderStatus, query: string) => {
       try {
-        const { orders = [] } = await getListOrder({
+        const { orders = [], pagination = { totalItems: 0 } } = await getListOrder({
           chainId,
           maker: account,
           status,
@@ -219,24 +220,7 @@ export default function ListLimitOrder() {
           pageSize: PAGE_SIZE,
         })
         setOrders(orders)
-        // new Array(10).fill({
-        //   id: 123,
-        //   chainId,
-        //   makerAsset: 'string',
-        //   takerAsset: 'string',
-        //   makerAssetSymbol: 'KNC',
-        //   takerAssetSymbol: 'USDT',
-        //   makerAssetLogoURL: 'https://s2.coinmarketcap.com/static/img/coins/200x200/9444.png',
-        //   takerAssetLogoURL: 'https://s2.coinmarketcap.com/static/img/coins/200x200/9444.png',
-        //   makingAmount: '1000000000000000000000000',
-        //   takingAmount: '1000000000000000000000000',
-        //   filledMakingAmount: '1000000000000000000000',
-        //   filledTakingAmount: '1000000000000000000000000',
-        //   status: Math.random() < 0.3 ? LimitOrderStatus.FILLED : LimitOrderStatus.PARTIALLY_FILLED,
-        //   createdAt: Date.now(),
-        //   expiredAt: Date.now(),
-        // }),
-        console.log(orders)
+        setTotalOrder(pagination.totalItems ?? 0)
       } catch (error) {}
     },
     [account, chainId, curPage],
@@ -296,7 +280,15 @@ export default function ListLimitOrder() {
             ))}
           </ListWrapper>
         </div>
-        {orders.length ? (
+        {orders.length === 0 && (
+          <NoResultWrapper>
+            <Info size={isMobile ? 40 : 48} />
+            <Text marginTop={'10px'}>
+              <Trans>You don&apos;t have any {activeTab === Tab.ACTIVE ? 'active' : 'history'} orders yet</Trans>
+            </Text>
+          </NoResultWrapper>
+        )}
+        {orders.length === 0 && curPage === 1 ? null : (
           <TableFooterWrapper>
             <ButtonCancelAll>
               <Trash size={15} />
@@ -305,19 +297,12 @@ export default function ListLimitOrder() {
             <Pagination
               haveBg={false}
               onPageChange={onPageChange}
-              totalCount={1000}
+              totalCount={totalOrder}
               currentPage={curPage + 1}
               pageSize={PAGE_SIZE}
               style={{ padding: '0' }}
             />
           </TableFooterWrapper>
-        ) : (
-          <NoResultWrapper>
-            <Info size={isMobile ? 40 : 48} />
-            <Text marginTop={'10px'}>
-              <Trans>You don&apos;t have any {activeTab === Tab.ACTIVE ? 'active' : 'history'} orders yet</Trans>
-            </Text>
-          </NoResultWrapper>
         )}
       </Flex>
     </>

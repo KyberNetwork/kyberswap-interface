@@ -4,10 +4,10 @@ import styled from 'styled-components'
 
 import useTheme from 'hooks/useTheme'
 
-const Wrapper = styled.div<{ height: string }>`
+const Wrapper = styled.div<{ height: string; background?: string }>`
   border-radius: 999px;
   height: ${({ height }) => height};
-  background: rgba(182, 182, 182, 0.2);
+  background: ${({ background }) => background || 'rgba(182, 182, 182, 0.2)'};
   position: relative;
 `
 const Bar = styled.div<{ percent: number; color?: string }>`
@@ -28,11 +28,13 @@ export default function ProgressBar({
   value,
   height = '6px',
   labelColor,
+  backgroundColor,
 }: {
   title: string
   value?: ReactNode
   percent: number
   color?: string // bar color
+  backgroundColor?: string // deactive bar color
   valueColor?: string
   labelColor?: string
   height?: string
@@ -43,7 +45,7 @@ export default function ProgressBar({
       <Flex justifyContent={'space-between'} fontSize={12} color={labelColor || theme.subText} lineHeight={'normal'}>
         {title} <Text color={valueColor || theme.subText}>{value}</Text>
       </Flex>
-      <Wrapper height={height}>
+      <Wrapper height={height} background={backgroundColor}>
         <Bar percent={Math.min(100, percent)} color={color} />
       </Wrapper>
     </Flex>
