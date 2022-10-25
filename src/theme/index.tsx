@@ -135,7 +135,7 @@ export function colors(darkMode: boolean): Colors {
     blue1: '#31cb9e',
     lightBlue: '#78d5ff',
     darkBlue: '#1183b7',
-    blue: darkMode ? '#78d5ff' : '#31cb9e',
+    blue: '#08A1E7',
     shadow: darkMode ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.04)',
   }
 }
