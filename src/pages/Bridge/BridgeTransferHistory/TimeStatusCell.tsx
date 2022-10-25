@@ -13,7 +13,7 @@ type Props = {
   status: MultichainTransferStatus
 }
 const TimeStatusCell: React.FC<Props> = ({ timestamp, status }) => {
-  const dateString = timestamp ? dayjs.utc(timestamp).local().format('DD MMM YYYY HH:ss') : ''
+  const dateString = timestamp ? dayjs.utc(timestamp).local().format('DD MMM YYYY HH:mm') : ''
   const theme = useTheme()
   return (
     <Flex
