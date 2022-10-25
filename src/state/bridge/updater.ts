@@ -42,12 +42,10 @@ export default function Updater(): null {
       const result: WrappedTokenInfo[] = []
       Object.keys(tokens).forEach(key => {
         const token = { ...tokens[key] } as MultiChainTokenInfo
-        const { address, logoUrl, destChains, name, decimals, symbol } = token
-
-        if (Object.keys(destChains || {}).length === 0 || !isAddress(address)) {
+        const { address, logoUrl, name, decimals, symbol } = token
+        if (!isAddress(address)) {
           return
         }
-
         token.key = key
         token.chainId = chainIdRequest
         const wrappedToken = new WrappedTokenInfo({

@@ -54,18 +54,25 @@ const filterTokenList = (tokens: { [key: string]: MultiChainTokenInfo }) => {
     // filter wrong address, to reduce trash token and local storage size
     Object.keys(tokens).forEach(key => {
       const token = { ...tokens[key] }
-      const { destChains } = token
-      Object.keys(destChains).forEach(chain => {
+      const { destChains = {} } = token
+      let hasChainSupport = false
+      Object.keys(destChains).forEach((chain: string) => {
         Object.keys(destChains[chain]).forEach(address => {
           const info = destChains[chain][address]
           if (!isAddress(info.address)) {
             delete destChains[chain][address]
           }
         })
+        if (NETWORKS_INFO_CONFIG[chain as unknown as keyof typeof NETWORKS_INFO_CONFIG]) {
+          hasChainSupport = true
+        }
         if (!Object.keys(destChains[chain]).length) {
           delete destChains[chain]
         }
       })
+      if (!hasChainSupport || !Object.keys(destChains).length) {
+        delete tokens[key]
+      }
     })
   } catch (error) {}
   return tokens
