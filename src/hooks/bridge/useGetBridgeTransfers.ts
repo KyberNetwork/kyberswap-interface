@@ -1,12 +1,9 @@
-import useSWR, { SWRConfiguration } from 'swr'
-
-import { KS_SETTING_API } from 'constants/env'
-import useParsedQueryString from 'hooks/useParsedQueryString'
+import useSWRImmutable from 'swr/immutable'
 
 /**
- * NOTE
+ * NOTE:
  * This endpoint returns a maximum of 100 transfers for each request,
- * which means, limit > 100 is useless
+ * which means, pageSize > 100 is useless
  */
 
 export enum MultichainTransferStatus {
@@ -41,54 +38,20 @@ type Response = {
   }
 }
 
-type Params = {
-  addr: string
-  page: number
-  pageSize: number
-  status?: number
-}
-
-const useGetBridgeTransfers = (params: Params, config?: SWRConfiguration) => {
-  const { addr, page, pageSize, status } = params
-  const { account } = useParsedQueryString()
-
-  // todo remove / for QC testing
-  return useSWR<Response>(
-    `${KS_SETTING_API}/v1/multichain-transfers?userAddress=${account || addr}&page=${page}&pageSize=${pageSize}${
-      status !== undefined ? `&status=${status}` : ''
-    }`,
-    // `http://localhost:8014/api/v1/multichain-transfers?userAddress=${
-    //   account || addr
-    // }&page=${page}&pageSize=${pageSize}${status !== undefined ? `&status=${status}` : ''}`,
-    async (url: string) => {
-      if (!account && !addr) {
-        throw new Error('No address provided')
+const useGetBridgeTransfers = (swrKey: string | null) => {
+  return useSWRImmutable<Response>(swrKey, async (url: string) => {
+    const response = await fetch(url)
+    if (response.ok) {
+      const data = await response.json()
+      if (data) {
+        return data
       }
 
-      const response = await fetch(url)
-      if (response.ok) {
-        const data = await response.json()
-        if (data) {
-          return data
-        }
+      throw new Error(`No transfers found with url = ${swrKey}`)
+    }
 
-        throw new Error(
-          `No transfers found with params address=${addr}, page=${page}, pageSize=${pageSize}, status=${status}`,
-        )
-      }
-
-      throw new Error(
-        `Fetching bridge transfers failed with params address=${addr}, page=${page}, pageSize=${pageSize}, status=${status}`,
-      )
-    },
-    {
-      revalidateIfStale: false,
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      refreshInterval: 60_000,
-      ...config,
-    },
-  )
+    throw new Error(`Fetching bridge transfers failed with url = ${swrKey}`)
+  })
 }
 
 export default useGetBridgeTransfers

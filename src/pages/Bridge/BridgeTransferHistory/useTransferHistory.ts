@@ -1,12 +1,20 @@
 import { useMemo, useState } from 'react'
 
+import { KS_SETTING_API } from 'constants/env'
 import useGetBridgeTransfers from 'hooks/bridge/useGetBridgeTransfers'
+import useParsedQueryString from 'hooks/useParsedQueryString'
 
 import { ITEMS_PER_PAGE } from '../consts'
 
-const useTransferHistory = (addr: string) => {
+const useTransferHistory = (account: string) => {
   const [page, setPage] = useState(1)
-  const { data, isValidating, error } = useGetBridgeTransfers({ addr, page, pageSize: ITEMS_PER_PAGE })
+
+  const { account: accountInParams } = useParsedQueryString()
+  const fetchAccount = accountInParams || account
+  const swrKey = fetchAccount
+    ? `${KS_SETTING_API}/v1/multichain-transfers?userAddress=${fetchAccount}&page=${page}&pageSize=${ITEMS_PER_PAGE}`
+    : null
+  const { data, isValidating, error } = useGetBridgeTransfers(swrKey)
 
   const transfers = useMemo(() => {
     if (data) return data.data.transfers
@@ -33,7 +41,7 @@ const useTransferHistory = (addr: string) => {
     setPage(page + 1)
   }
 
-  const range = [ITEMS_PER_PAGE * (page - 1) + 1, Math.min(ITEMS_PER_PAGE * page)]
+  const range = useMemo(() => [ITEMS_PER_PAGE * (page - 1) + 1, Math.min(ITEMS_PER_PAGE * page)], [page])
 
   return {
     range,

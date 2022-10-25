@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/macro'
-import { RouteComponentProps } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -31,7 +30,7 @@ const Title = styled.h1`
   font-size: 20px;
   margin: 0;
 `
-export default function Bridge({ history }: RouteComponentProps) {
+export default function Bridge() {
   const theme = useTheme()
   return (
     <PageWrapper>
