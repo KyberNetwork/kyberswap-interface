@@ -247,7 +247,7 @@ export default function SwapForm() {
   )
 
   const showPreview = () => {
-    setSwapState(state => ({ ...state, showConfirm: true, swapErrorMessage: '' }))
+    setSwapState(state => ({ ...state, showConfirm: true, swapErrorMessage: '', txHash: '' }))
     if (chainId && chainIdOut) {
       mixpanelHandler(MIXPANEL_TYPE.BRIDGE_CLICK_REVIEW_TRANSFER, {
         from_network: NETWORKS_INFO[chainId].name,
