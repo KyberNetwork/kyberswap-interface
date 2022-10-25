@@ -245,7 +245,7 @@ export default memo(function LimitOrderForm() {
         maker: account,
         makingAmount: tryParseAmount(inputAmount, currencyIn)?.quotient?.toString(),
         takingAmount: tryParseAmount(outputAmount, currencyOut)?.quotient?.toString(),
-        expiredAt: Date.now() + expire,
+        expiredAt: ((Date.now() + expire) / 1000) | 0,
       }
 
       const { hash } = await hashOrder(payload)
