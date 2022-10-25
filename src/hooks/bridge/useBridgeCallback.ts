@@ -23,7 +23,7 @@ const NOT_APPLICABLE = {
 function useSendTxToKsSettingCallback() {
   const { account } = useActiveWeb3React()
   return useCallback(
-    (
+    async (
       srcChainId: ChainId,
       dstChainId: ChainId,
       srcTxHash: string,
@@ -46,11 +46,11 @@ function useSendTxToKsSettingCallback() {
         status: 0,
       }
       try {
-        axios.post(url, data)
+        await axios.post(url, data)
       } catch (err) {
         const errStr = `SendTxToKsSetting fail with payload = ${JSON.stringify(data)}`
+        console.error(err)
         captureException(new Error(errStr), { level: 'fatal' })
-        alert(errStr)
       }
     },
     [account],
