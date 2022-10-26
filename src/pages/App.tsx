@@ -137,7 +137,8 @@ export default function App() {
       {width && width >= 768 ? (
         <Sidetab
           id={feedbackId}
-          buttonText="Feedback"
+          // buttonText="Feedback"
+          buttonText="Feedback & Win!"
           buttonColor={theme.primary}
           customIcon={isDarkTheme ? 'https://i.imgur.com/iTOOKnr.png' : 'https://i.imgur.com/aPCpnGg.png'}
         />
