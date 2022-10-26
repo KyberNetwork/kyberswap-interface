@@ -279,12 +279,12 @@ export default function Menu() {
           <Trans>Docs</Trans>
         </ExternalNavMenuItem>
 
-        <ExternalNavMenuItem href="https://kyberswap.sleekplan.app/" onClick={toggle}>
+        <ExternalNavMenuItem href="https://request.kyberswap.com" onClick={toggle}>
           <StyledLightIcon />
           <Trans>Feature Request</Trans>
         </ExternalNavMenuItem>
 
-        <ExternalNavMenuItem href="https://kyberswap.sleekplan.app/roadmap" onClick={toggle}>
+        <ExternalNavMenuItem href="https://request.kyberswap.com/roadmap" onClick={toggle}>
           <StyledRoadMapIcon />
           <Trans>Roadmap</Trans>
         </ExternalNavMenuItem>
