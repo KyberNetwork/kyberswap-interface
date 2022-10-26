@@ -59,8 +59,4 @@ export default styled(TabSelector)`
   display: flex;
   gap: 16px;
   align-items: center;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    justify-content: center;
-  `}
 `
