@@ -20,6 +20,8 @@ import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
+import { ReactComponent as LightIcon } from 'assets/svg/light.svg'
+import { ReactComponent as RoadMapIcon } from 'assets/svg/roadmap.svg'
 import { ButtonPrimary } from 'components/Button'
 import { SlideToUnlock } from 'components/Header'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
@@ -64,6 +66,17 @@ const sharedStylesMenuItem = css`
 const StyledMenuIcon = styled(MenuIcon)`
   path {
     stroke: ${({ theme }) => theme.text};
+  }
+`
+
+const StyledRoadMapIcon = styled(RoadMapIcon)`
+  path {
+    stroke: ${({ theme }) => theme.subText};
+  }
+`
+const StyledLightIcon = styled(LightIcon)`
+  path {
+    stroke: ${({ theme }) => theme.subText};
   }
 `
 
@@ -245,6 +258,7 @@ export default function Menu() {
           <UserPlus size={14} />
           <Trans>Referral</Trans>
         </NavMenuItem>
+
         {!above1321 && (
           <NavDropDown
             icon={<PieChart size={14} />}
@@ -264,6 +278,17 @@ export default function Menu() {
           <BookOpen size={14} />
           <Trans>Docs</Trans>
         </ExternalNavMenuItem>
+
+        <ExternalNavMenuItem href="https://kyberswap.sleekplan.app/" onClick={toggle}>
+          <StyledLightIcon />
+          <Trans>Feature Request</Trans>
+        </ExternalNavMenuItem>
+
+        <ExternalNavMenuItem href="https://kyberswap.sleekplan.app/roadmap" onClick={toggle}>
+          <StyledRoadMapIcon />
+          <Trans>Roadmap</Trans>
+        </ExternalNavMenuItem>
+
         <ExternalNavMenuItem href="https://gov.kyber.org">
           <MessageCircle size={14} />
           <Trans>Forum</Trans>
@@ -279,6 +304,7 @@ export default function Menu() {
             <Trans>Swap Legacy</Trans>
           </NavMenuItem>
         )}
+
         <ExternalNavMenuItem href="https://forms.gle/gLiNsi7iUzHws2BY8">
           <Edit size={14} />
           <Trans>Contact Us</Trans>
