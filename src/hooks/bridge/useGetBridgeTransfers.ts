@@ -1,4 +1,4 @@
-import useSWRImmutable from 'swr/immutable'
+import useSWR from 'swr'
 
 /**
  * NOTE:
@@ -39,7 +39,7 @@ type Response = {
 }
 
 const useGetBridgeTransfers = (swrKey: string | null) => {
-  return useSWRImmutable<Response>(swrKey, async (url: string) => {
+  return useSWR<Response>(swrKey, async (url: string) => {
     const response = await fetch(url)
     if (response.ok) {
       const data = await response.json()
