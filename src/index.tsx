@@ -64,21 +64,20 @@ if (process.env.REACT_APP_GTM_ID) {
   TagManager.initialize(tagManagerArgs)
 }
 
-// TODO: Remove this before you merge.
-// if (window.location.href.includes('kyberswap.com')) {
-Sentry.init({
-  dsn: process.env.REACT_APP_SENTRY_DNS,
-  environment: 'production',
-  ignoreErrors: ['AbortError'],
-  integrations: [new BrowserTracing()],
-  tracesSampleRate: 0.1,
-})
+if (window.location.href.includes('kyberswap.com')) {
+  Sentry.init({
+    dsn: process.env.REACT_APP_SENTRY_DNS,
+    environment: 'production',
+    ignoreErrors: ['AbortError'],
+    integrations: [new BrowserTracing()],
+    tracesSampleRate: 0.1,
+  })
 
-Sentry.configureScope(scope => {
-  scope.setTag('request_id', sentryRequestId)
-  scope.setTag('version', process.env.REACT_APP_TAG)
-})
-// }
+  Sentry.configureScope(scope => {
+    scope.setTag('request_id', sentryRequestId)
+    scope.setTag('version', process.env.REACT_APP_TAG)
+  })
+}
 
 const preloadhtml = document.querySelector('.preloadhtml')
 const preloadhtmlStyle = document.querySelector('.preloadhtml-style')
