@@ -3,6 +3,7 @@ import styled from "styled-components";
 import useTheme from "../hooks/useTheme";
 import { ReactComponent as BackIcon } from "../assets/back1.svg";
 import { Dex } from "../hooks/useSwap";
+import { ReactComponent as AlertIcon } from "../assets/alert.svg";
 
 const Label = styled.div`
   font-size: 0.75rem;
@@ -34,6 +35,7 @@ const SlippageWrapper = styled.div`
 `;
 
 const SlippageItem = styled.div<{ isActive: boolean }>`
+  position: relative;
   border-radius: 999px;
   color: ${({ theme, isActive }) => (isActive ? theme.text : theme.subText)};
   font-size: 12px;
@@ -106,6 +108,7 @@ const validateSlippageInput = (
   }
 
   const rawSlippage = parseSlippageInput(str);
+
   if (Number.isNaN(rawSlippage)) {
     return {
       isValid: false,
@@ -127,6 +130,11 @@ const validateSlippageInput = (
     return {
       isValid: false,
       message: `Enter a smaller slippage percentage`,
+    };
+  } else if (rawSlippage > 500) {
+    return {
+      isValid: true,
+      message: `Your transaction may be frontrun`,
     };
   }
 
@@ -198,6 +206,18 @@ function Settings({
               background: isFocus ? theme.tab : undefined,
             }}
           >
+            {message && (
+              <AlertIcon
+                style={{
+                  position: "absolute",
+                  top: 2,
+                  left: 4,
+                  width: 20,
+                  height: 20,
+                  color: isValid ? theme.warning : theme.error,
+                }}
+              />
+            )}
             <Input
               isActive={![5, 10, 50, 100].includes(slippage)}
               placeholder="Custom"
@@ -217,6 +237,7 @@ function Settings({
             style={{
               fontSize: "12px",
               color: isValid ? theme.warning : theme.error,
+              textAlign: "left",
             }}
           >
             {message}
@@ -228,6 +249,7 @@ function Settings({
         <Label>Transaction Time Limit</Label>
         <TTLInput>
           <input
+            maxLength={5}
             placeholder="20"
             value={deadline ? deadline.toString() : ""}
             style={{ fontSize: "12px" }}

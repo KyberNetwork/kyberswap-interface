@@ -1,11 +1,28 @@
 import { BigNumber } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
 import { useState } from "react";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { NATIVE_TOKEN, NATIVE_TOKEN_ADDRESS } from "../constants";
 import useTokenBalances from "../hooks/useTokenBalances";
 import { useTokens } from "../hooks/useTokens";
 import { useActiveWeb3 } from "../hooks/useWeb3Provider";
+import { ReactComponent as Loading } from "../assets/loader.svg";
+
+const rotate = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+`;
+
+const Spinner = styled(Loading)`
+  animation: 2s ${rotate} linear infinite;
+  width: 24px;
+  height: 24px;
+  color: ${({ theme }) => theme.accent};
+`;
 
 export const Input = styled.input`
   font-size: 0.75rem;
@@ -66,7 +83,7 @@ function SelectCurrency({
   const tokens = useTokens();
   const [search, setSearch] = useState("");
   const tokenAddress = tokens.map((item) => item.address);
-  const { balances } = useTokenBalances(tokenAddress);
+  const { balances, loading } = useTokenBalances(tokenAddress);
 
   const { chainId } = useActiveWeb3();
 
@@ -140,12 +157,16 @@ function SelectCurrency({
                 </div>
               </TokenInfo>
 
-              <TokenBalance>
-                {token.balance &&
-                  parseFloat(
-                    parseFloat(token.formattedBalance).toPrecision(10)
-                  )}
-              </TokenBalance>
+              {loading ? (
+                <Spinner />
+              ) : (
+                <TokenBalance>
+                  {token.balance &&
+                    parseFloat(
+                      parseFloat(token.formattedBalance).toPrecision(10)
+                    )}
+                </TokenBalance>
+              )}
             </TokenRow>
           );
         })}

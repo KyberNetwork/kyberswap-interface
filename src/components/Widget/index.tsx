@@ -8,6 +8,7 @@ import { ReactComponent as SwitchIcon } from "../../assets/switch.svg";
 import { ReactComponent as SwapIcon } from "../../assets/swap.svg";
 import { ReactComponent as BackIcon } from "../../assets/back1.svg";
 import { ReactComponent as KyberSwapLogo } from "../../assets/kyberswap.svg";
+import { ReactComponent as AlertIcon } from "../../assets/alert.svg";
 
 import useTheme from "../../hooks/useTheme";
 
@@ -39,7 +40,12 @@ import {
 } from "./styled";
 
 import { BigNumber } from "ethers";
-import { NATIVE_TOKEN, NATIVE_TOKEN_ADDRESS, ZIndex } from "../../constants";
+import {
+  NATIVE_TOKEN,
+  NATIVE_TOKEN_ADDRESS,
+  SUPPORTED_NETWORKS,
+  ZIndex,
+} from "../../constants";
 import SelectCurrency from "../SelectCurrency";
 import { useActiveWeb3, Web3Provider } from "../../hooks/useWeb3Provider";
 import useSwap from "../../hooks/useSwap";
@@ -79,6 +85,18 @@ export const DialogWrapper = styled.div`
 
   &.close {
     transform: translateX(100%);
+  }
+`;
+
+const ContentWrapper = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow-y: scroll;
+
+  ::-webkit-scrollbar {
+    display: none;
   }
 `;
 
@@ -122,6 +140,8 @@ const Widget = ({
 }) => {
   const [showModal, setShowModal] = useState<ModalType | null>(null);
   const { chainId } = useActiveWeb3();
+  const isUnsupported = !SUPPORTED_NETWORKS.includes(chainId.toString());
+
   const tokens = useTokens();
   const {
     loading,
@@ -132,7 +152,7 @@ const Widget = ({
     setTokenOut,
     inputAmout,
     setInputAmount,
-    trade,
+    trade: routeTrade,
     slippage,
     setSlippage,
     getRate,
@@ -145,6 +165,8 @@ const Widget = ({
     defaultTokenIn,
     defaultTokenOut,
   });
+
+  const trade = isUnsupported ? null : routeTrade;
 
   const [inverseRate, setInverseRate] = useState(false);
 
@@ -166,6 +188,7 @@ const Widget = ({
     ? formatUnits(trade.outputAmount, tokenOutInfo?.decimals).toString()
     : "";
 
+  console.log(trade);
   let minAmountOut = "";
 
   if (amountOut) {
@@ -317,7 +340,11 @@ const Widget = ({
             </ModalTitle>
           </ModalHeader>
         )}
-        {modalContent}
+        <ContentWrapper>{modalContent}</ContentWrapper>
+        <PoweredBy style={{ marginTop: "0" }}>
+          Powered By
+          <KyberSwapLogo />
+        </PoweredBy>
       </DialogWrapper>
       <Title>
         Swap
@@ -379,7 +406,11 @@ const Widget = ({
             </span>
           )}
 
-          <SelectTokenBtn onClick={() => setShowModal(ModalType.CURRENCY_IN)}>
+          <SelectTokenBtn
+            onClick={() =>
+              !isUnsupported && setShowModal(ModalType.CURRENCY_IN)
+            }
+          >
             {tokenInInfo ? (
               <>
                 <img
@@ -466,7 +497,11 @@ const Widget = ({
               })}
             </span>
           )}
-          <SelectTokenBtn onClick={() => setShowModal(ModalType.CURRENCY_OUT)}>
+          <SelectTokenBtn
+            onClick={() =>
+              !isUnsupported && setShowModal(ModalType.CURRENCY_OUT)
+            }
+          >
             {tokenOutInfo ? (
               <>
                 <img
@@ -530,7 +565,8 @@ const Widget = ({
           !!error ||
           loading ||
           checkingAllowance ||
-          approvalState === APPROVAL_STATE.PENDING
+          approvalState === APPROVAL_STATE.PENDING ||
+          isUnsupported
         }
         onClick={async () => {
           if (approvalState === APPROVAL_STATE.NOT_APPROVED) {
@@ -540,7 +576,12 @@ const Widget = ({
           }
         }}
       >
-        {loading ? (
+        {isUnsupported ? (
+          <PoweredBy style={{ fontSize: "16px", marginTop: "0" }}>
+            <AlertIcon style={{ width: "24px", height: "24px" }} />
+            Unsupported network
+          </PoweredBy>
+        ) : loading ? (
           <Dots>Calculate best route</Dots>
         ) : error ? (
           error

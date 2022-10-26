@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   AGGREGATOR_PATH,
   NATIVE_TOKEN_ADDRESS,
+  SUPPORTED_NETWORKS,
   ZERO_ADDRESS,
 } from "../constants";
 import useTokenBalances from "./useTokenBalances";
@@ -40,10 +41,18 @@ const useSwap = ({
   const [tokenOut, setTokenOut] = useState(defaultTokenOut || "");
   const tokens = useTokens();
 
+  const isUnsupported = !SUPPORTED_NETWORKS.includes(chainId.toString());
   useEffect(() => {
-    setTokenIn(defaultTokenIn || NATIVE_TOKEN_ADDRESS);
-    setTokenOut(defaultTokenOut || "");
-  }, [chainId]);
+    if (isUnsupported) {
+      console.log("xxxx");
+      setTokenIn("");
+      setTokenOut("");
+      setTrade(null);
+    } else {
+      setTokenIn(defaultTokenIn || NATIVE_TOKEN_ADDRESS);
+      setTokenOut(defaultTokenOut || "");
+    }
+  }, [isUnsupported, chainId]);
 
   const { balances } = useTokenBalances(tokens.map((item) => item.address));
   const [allDexes, setAllDexes] = useState<Dex[]>([]);
@@ -61,10 +70,9 @@ const useSwap = ({
 
   useEffect(() => {
     const fetchAllDexes = async () => {
+      if (isUnsupported) return;
       const res = await fetch(
-        `https://ks-setting.kyberswap.com/api/v1/dexes?chain=${getPath(
-          chainId
-        )}&isEnabled=true&pageSize=100`
+        `https://ks-setting.kyberswap.com/api/v1/dexes?chain=${AGGREGATOR_PATH[chainId]}&isEnabled=true&pageSize=100`
       ).then((res) => res.json());
 
       let dexes: Dex[] = res?.data?.dexes || [];
@@ -97,7 +105,7 @@ const useSwap = ({
     };
 
     fetchAllDexes();
-  }, [chainId]);
+  }, [isUnsupported, chainId]);
 
   const [inputAmout, setInputAmount] = useState("1");
   const [loading, setLoading] = useState(false);
@@ -109,6 +117,8 @@ const useSwap = ({
   const controllerRef = useRef<AbortController | null>();
 
   const getRate = useCallback(async () => {
+    if (isUnsupported) return;
+
     const listAccounts = await provider?.listAccounts();
     const account = listAccounts?.[0];
 
@@ -141,7 +151,7 @@ const useSwap = ({
     }
 
     if (!provider) {
-      setError("Please connect wallet");
+      setError("Please connect your wallet");
     }
 
     const params: { [key: string]: string | number } = {
@@ -201,6 +211,8 @@ const useSwap = ({
     slippage,
     deadline,
     dexes,
+    isUnsupported,
+    chainId,
   ]);
 
   useEffect(() => {

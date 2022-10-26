@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { Dex } from "../hooks/useSwap";
 import { Input } from "./SelectCurrency";
@@ -153,27 +153,29 @@ function DexesSetting({
         </LiquiditySourceHeader>
 
         <SourceList>
-          {allDexes.map((item) => (
-            <Row key={item.dexId}>
-              <Checkbox
-                type="checkbox"
-                checked={!excludedDexIds.includes(item.dexId)}
-                onChange={(e) => {
-                  if (e.target.checked) {
-                    setExcludedDexes(
-                      excludedDexes.filter((i) => i.dexId !== item.dexId)
-                    );
-                  } else {
-                    setExcludedDexes([...excludedDexes, item]);
-                  }
-                }}
-              />
-              <ImageWrapper>
-                <img src={item.logoURL} alt="" />
-              </ImageWrapper>
-              <SourceName>{item.name}</SourceName>
-            </Row>
-          ))}
+          {allDexes
+            .filter((item) => item.name.toLowerCase().includes(search.trim()))
+            .map((item) => (
+              <Row key={item.dexId}>
+                <Checkbox
+                  type="checkbox"
+                  checked={!excludedDexIds.includes(item.dexId)}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setExcludedDexes(
+                        excludedDexes.filter((i) => i.dexId !== item.dexId)
+                      );
+                    } else {
+                      setExcludedDexes([...excludedDexes, item]);
+                    }
+                  }}
+                />
+                <ImageWrapper>
+                  <img src={item.logoURL} alt="" />
+                </ImageWrapper>
+                <SourceName>{item.name}</SourceName>
+              </Row>
+            ))}
         </SourceList>
       </div>
     </>

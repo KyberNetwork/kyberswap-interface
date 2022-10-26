@@ -195,3 +195,5 @@ export const SCAN_LINK: { [chainId: number]: string } = {
   42262: "https://www.oasisscan.com",
   10: "https://optimistic.etherscan.io",
 };
+
+export const SUPPORTED_NETWORKS = Object.keys(SCAN_LINK);
