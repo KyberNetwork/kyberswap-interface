@@ -7,6 +7,7 @@ import { ReactComponent as DropdownIcon } from "../../assets/dropdown.svg";
 import { ReactComponent as SwitchIcon } from "../../assets/switch.svg";
 import { ReactComponent as SwapIcon } from "../../assets/swap.svg";
 import { ReactComponent as BackIcon } from "../../assets/back1.svg";
+import { ReactComponent as KyberSwapLogo } from "../../assets/kyberswap.svg";
 
 import useTheme from "../../hooks/useTheme";
 
@@ -84,6 +85,16 @@ export const DialogWrapper = styled.div`
 const SelectTokenText = styled.span`
   font-size: 16px;
   width: max-content;
+`;
+
+const PoweredBy = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: ${({ theme }) => theme.subText};
+  font-size: 12px;
+  margin-top: 1rem;
 `;
 
 enum ModalType {
@@ -543,6 +554,11 @@ const Widget = ({
           "Swap"
         )}
       </Button>
+
+      <PoweredBy>
+        Powered By
+        <KyberSwapLogo />
+      </PoweredBy>
     </Wrapper>
   );
 };

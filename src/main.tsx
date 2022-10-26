@@ -24,6 +24,12 @@ init({
       label: "Polygon",
       rpcUrl: "https://polygon.kyberengineering.io",
     },
+    {
+      id: "0xc7",
+      token: "BTT",
+      label: "BTTC",
+      rpcUrl: "https://bttc.kyberengineering.io",
+    },
   ],
 });
 

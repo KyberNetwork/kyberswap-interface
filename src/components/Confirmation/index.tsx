@@ -16,7 +16,7 @@ import useTheme from "../../hooks/useTheme";
 import { useActiveWeb3 } from "../../hooks/useWeb3Provider";
 import { useEffect, useState } from "react";
 import { BigNumber } from "ethers";
-import { NATIVE_TOKEN_ADDRESS } from "../../constants";
+import { NATIVE_TOKEN_ADDRESS, SCAN_LINK } from "../../constants";
 import { ReactComponent as BackIcon } from "../../assets/back.svg";
 import { ReactComponent as Loading } from "../../assets/loader.svg";
 import { ReactComponent as External } from "../../assets/external.svg";
@@ -141,15 +141,6 @@ const ErrMsg = styled.div`
   overflow-y: scroll;
   padding-top: 12px;
 `;
-
-const getScanLink = (chainId: number) => {
-  switch (chainId) {
-    case 137:
-      return "https://polygonscan.com";
-    default:
-      return "https://etherscan.io";
-  }
-};
 
 function calculateGasMargin(value: BigNumber): BigNumber {
   const defaultGasLimitMargin = BigNumber.from(20_000);
@@ -285,7 +276,7 @@ function Confirmation({
         <Divider />
         {txHash && (
           <ViewTx
-            href={`${getScanLink(chainId)}/tx/${txHash}`}
+            href={`${SCAN_LINK[chainId]}/tx/${txHash}`}
             target="_blank"
             rel="noopener norefferer"
           >

@@ -159,6 +159,11 @@ export const Button = styled.button`
   :disabled {
     color: ${({ theme }) => theme.subText};
     background: ${({ theme }) => theme.interactive};
+    cursor: not-allowed;
+
+    :active {
+      transform: none;
+    }
   }
 
   :active {

@@ -1,21 +1,14 @@
 import { parseUnits } from "@ethersproject/units";
 import { BigNumber } from "ethers";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { NATIVE_TOKEN_ADDRESS, ZERO_ADDRESS } from "../constants";
+import {
+  AGGREGATOR_PATH,
+  NATIVE_TOKEN_ADDRESS,
+  ZERO_ADDRESS,
+} from "../constants";
 import useTokenBalances from "./useTokenBalances";
 import { useTokens } from "./useTokens";
 import { useActiveWeb3 } from "./useWeb3Provider";
-
-const getPath = (chainId: number) => {
-  switch (chainId) {
-    case 1:
-      return "ethereum";
-    case 137:
-      return "polygon";
-    default:
-      return "ethereum";
-  }
-};
 
 export interface Trade {
   amountInUsd: number;
@@ -178,9 +171,9 @@ const useSwap = ({
     const controller = new AbortController();
     controllerRef.current = controller;
     const res = await fetch(
-      `https://aggregator-api.kyberswap.com/${getPath(
-        chainId
-      )}/route/encode?${search.slice(1)}`,
+      `https://aggregator-api.kyberswap.com/${
+        AGGREGATOR_PATH[chainId]
+      }/route/encode?${search.slice(1)}`,
       {
         headers: {
           "accept-version": "Latest",
