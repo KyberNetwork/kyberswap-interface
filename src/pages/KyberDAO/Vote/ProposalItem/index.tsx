@@ -12,6 +12,7 @@ import useTheme from 'hooks/useTheme'
 import { ProposalStatus } from '../type'
 import Participants from './Participants'
 import VoteInformation from './VoteInformation'
+import VoteProgress from './VoteProgress'
 
 const ProposalItemWrapper = styled.div`
   padding: 20px 24px;
@@ -136,20 +137,28 @@ export default function ProposalItem({ title, status, id }: { title?: string; st
   }
   return (
     <ProposalItemWrapper>
-      <ProposalHeader onClick={() => setShow(s => !s)}>
-        <RowBetween>
+      <ProposalHeader>
+        <RowBetween onClick={() => setShow(s => !s)}>
           <Text>
             <Trans>{title}</Trans>
           </Text>
           <ExpandButton>
             <ChevronDown
-              size={20}
+              size={24}
               style={{ transition: 'all 0.2s ease', transform: show ? 'rotate(180deg)' : undefined }}
             />
           </ExpandButton>
         </RowBetween>
+        {status === ProposalStatus.Pending && (
+          <RowBetween gap="20px">
+            <VoteProgress />
+            <VoteProgress checked />
+          </RowBetween>
+        )}
         <RowBetween>
-          <Text>Ended 14 May 2022</Text>
+          <Text color={theme.subText} fontSize={12}>
+            Ended 14 May 2022
+          </Text>
           <RowFixed gap="8px">
             <StatusBadged status={statusType()}>{status}</StatusBadged>
             <StatusBadged>{id}</StatusBadged>

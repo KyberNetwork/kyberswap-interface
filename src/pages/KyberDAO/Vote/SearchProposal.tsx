@@ -2,7 +2,6 @@ import { t } from '@lingui/macro'
 import styled, { css } from 'styled-components'
 
 import Search from 'components/Icons/Search'
-import { SearchIcon } from 'components/SearchModal/styleds'
 
 const Wrapper = styled.div`
   font-size: 14px;

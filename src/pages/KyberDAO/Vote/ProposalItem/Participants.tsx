@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/macro'
-import { Component } from 'react'
 import { ArrowDown } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
