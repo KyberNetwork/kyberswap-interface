@@ -92,10 +92,15 @@ export function useChangeNetwork() {
               typeof switchError === 'object' && switchError && Object.keys(switchError)?.length === 0
             // This error code indicates that the chain has not been added to MetaMask.
             if (switchError?.code === 4902 || switchError?.code === -32603 || isSwitchError) {
-              try {
-                const addNetworkParams = getEVMAddNetworkParams(desiredChainId)
-                await activeProvider.request({ method: 'wallet_addEthereumChain', params: [addNetworkParams] })
-              } catch (addError) {
+              const addNetworkParams = getEVMAddNetworkParams(desiredChainId)
+              const value = await activeProvider.request({
+                method: 'wallet_addEthereumChain',
+                params: [addNetworkParams],
+              })
+              // wallet_addEthereumChain method return null mean it successful
+              if (value === null) {
+                successCallback?.()
+              } else {
                 notify({
                   title: t`Failed to switch network`,
                   type: NotificationType.ERROR,

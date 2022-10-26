@@ -138,7 +138,7 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
     iconLight: COINBASE_L,
     installLink: 'https://www.coinbase.com/wallet',
     readyState: detectCoinbase,
-    readyStateSolana: () => coinbaseAdapter.readyState,
+    readyStateSolana: () => (isMobile ? WalletReadyState.Unsupported : coinbaseAdapter.readyState),
   } as EVMWalletInfo & SolanaWalletInfo,
   COINBASE_LINK: {
     // To get this link: go to Coinbase app -> Dapp Browser -> go to dmm.exchange -> click "..." button -> share -> copy link
@@ -147,7 +147,9 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
     icon: COINBASE,
     iconLight: COINBASE_L,
     readyState: detectCoinBaseLink,
-  } as EVMWalletInfo,
+    // Coinbase Link can open Coinbase app on mobile even in solana
+    readyStateSolana: () => (isMobile ? WalletReadyState.Installed : undefined),
+  } as EVMWalletInfo & { readyStateSolana: () => void },
   WALLET_CONNECT: {
     connector: walletconnect,
     name: 'WalletConnect',

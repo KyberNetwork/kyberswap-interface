@@ -53,14 +53,18 @@ export function useActiveWeb3React(): {
 
   const walletKeyEVM = useMemo(() => {
     if (!isConnectedEVM) return undefined
-    if (connectedConnectorEVM === walletlink || !!(connectedConnectorEVM as any)?.walletLink) {
+    const detectedWallet = detectInjectedType()
+    if (
+      detectedWallet !== 'COINBASE' &&
+      (connectedConnectorEVM === walletlink || !!(connectedConnectorEVM as any)?.walletLink)
+    ) {
       return 'COINBASE_LINK'
     }
     if (connectedConnectorEVM === walletconnect) {
       return 'WALLET_CONNECT'
     }
     return (
-      detectInjectedType() ??
+      detectedWallet ??
       (Object.keys(SUPPORTED_WALLETS) as SUPPORTED_WALLET[]).find(walletKey => {
         const wallet = SUPPORTED_WALLETS[walletKey]
         return isEVMWallet(wallet) && isConnectedEVM && wallet.connector === connectedConnectorEVM
