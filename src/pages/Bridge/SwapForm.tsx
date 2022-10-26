@@ -354,7 +354,7 @@ export default function SwapForm() {
   return (
     <>
       <Flex style={{ position: 'relative', flexDirection: 'column', gap: 22, alignItems: 'center' }}>
-        <SwapFormWrapper>
+        <SwapFormWrapper style={{ position: 'unset' }}>
           <AppBodyWrapped style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <Flex flexDirection={'column'}>
               <Label>
