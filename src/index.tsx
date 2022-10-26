@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/react'
+import { captureException } from '@sentry/react'
 import { BrowserTracing } from '@sentry/tracing'
 import { Web3ReactProvider, createWeb3ReactRoot } from '@web3-react/core'
 import AOS from 'aos'
@@ -79,6 +80,13 @@ Sentry.configureScope(scope => {
   scope.setTag('version', process.env.REACT_APP_TAG)
 })
 // }
+
+setTimeout(() => {
+  const errStr = `SendTxToKsSetting fail with payload = test`
+  const error = new Error(errStr)
+  error.name = 'PostBridge'
+  captureException(error, { level: 'fatal' })
+}, 5000)
 
 const preloadhtml = document.querySelector('.preloadhtml')
 const preloadhtmlStyle = document.querySelector('.preloadhtml-style')
