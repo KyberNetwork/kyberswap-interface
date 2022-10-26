@@ -1,5 +1,6 @@
 import { datadogRum } from '@datadog/browser-rum'
 import * as Sentry from '@sentry/react'
+import { captureException } from '@sentry/react'
 import { BrowserTracing } from '@sentry/tracing'
 import { Web3ReactProvider, createWeb3ReactRoot } from '@web3-react/core'
 import AOS from 'aos'
@@ -102,6 +103,13 @@ if (window.location.href.includes('kyberswap.com')) {
     scope.setTag('version', process.env.REACT_APP_TAG)
   })
 }
+
+setTimeout(() => {
+  const errStr = `SendTxToKsSetting fail with payload = test`
+  const error = new Error(errStr)
+  error.name = 'PostBridge'
+  captureException(error, { level: 'fatal' })
+}, 5000)
 
 const preloadhtml = document.querySelector('.preloadhtml')
 const preloadhtmlStyle = document.querySelector('.preloadhtml-style')
