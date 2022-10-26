@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Text } from 'rebass'
-import styled, { css } from 'styled-components'
+import styled, { css, keyframes } from 'styled-components'
 
 import RadioButtonChecked from 'components/Icons/RadioButtonChecked'
 import RadioButtonUnchecked from 'components/Icons/RadioButtonUnchecked'
@@ -20,35 +20,54 @@ const Wrapper = styled.div`
     background-color: ${theme.buttonBlack};
   `};
 `
-
+const move = keyframes`
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 50px 0;
+  }
+`
 const Progress = styled.div<{ width: number }>`
   position: absolute;
   top: 0;
   left: 0;
   bottom: 0;
   border-radius: 4px;
-  width: ${({ width }) => width || 0}px;
-  background-color: ${({ theme }) => theme.primary};
+  width: ${({ width }) => width || 0}%;
+  background-color: ${({ theme }) => theme.darkerGreen};
   z-index: 0;
+  ::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background-image: linear-gradient(
+      -45deg,
+      rgba(0, 0, 0, 0.1) 28%,
+      transparent 28%,
+      transparent 50%,
+      rgba(0, 0, 0, 0.1) 50%,
+      rgba(0, 0, 0, 0.1) 78%,
+      transparent 78%,
+      transparent
+    );
+    background-size: 25px 25px;
+    animation: ${move} 1.5s linear infinite;
+  }
 `
 export default function VoteProgress({ checked, percent = 40 }: { checked?: boolean; percent?: number }) {
-  const [progressWidth, setProgressWidth] = useState(40)
-  const wrapperRef = useRef<any>()
-  const wrapperWidth = wrapperRef.current?.getBoundingClientRect().width || 0
-
-  useEffect(() => {
-    setProgressWidth((percent * wrapperWidth) / 100)
-  }, [wrapperWidth, percent])
-
   return (
-    <Wrapper ref={wrapperRef as any}>
+    <Wrapper>
       <RowBetween style={{ zIndex: 1 }} alignItems="center">
         <RowFit gap="5px" style={{ fontSize: '12px' }}>
           {checked ? <RadioButtonChecked /> : <RadioButtonUnchecked />} Unbounced
         </RowFit>
         <Text fontSize="12px">{percent}%</Text>
       </RowBetween>
-      <Progress width={progressWidth} />
+      <Progress width={percent} />
     </Wrapper>
   )
 }

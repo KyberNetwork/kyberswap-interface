@@ -124,7 +124,7 @@ export function colors(darkMode: boolean): Colors {
     warning: '#FF9901',
     apr: '#0faaa2',
     lightGreen: '#98E5CE',
-
+    darkerGreen: '#1D7A5F',
     red1: '#FF6871',
     red2: '#F82D3A',
     red3: '#D60000',
