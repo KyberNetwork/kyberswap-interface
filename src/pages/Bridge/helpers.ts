@@ -28,7 +28,7 @@ export const setBridgeLocalstorage = (key: string, value: any) => {
   localStorage.setItem(BridgeLocalStorageKeys.BRIDGE_INFO, JSON.stringify({ ...bridgeInfo, [key]: value }))
 }
 
-const MULTICHAIN_API = `https://bridgeapi.anyswap.exchange`
+const MULTICHAIN_API = `https://bridgeapi.multichain.org`
 const fetchListChainSupport = () => {
   return axios.get(`${MULTICHAIN_API}/data/bridgeChainInfo`).then(data => data.data)
 }
@@ -37,7 +37,7 @@ const fetchListTokenByChain = (chainId: ChainId) => {
 }
 
 export const fetchTokenVersion = () => {
-  return axios.get(`https://bridgeapi.multichain.org/token/version`).then(data => data.data)
+  return axios.get(`${MULTICHAIN_API}/token/version`).then(data => data.data)
 }
 
 const getTokenListCache = () => {

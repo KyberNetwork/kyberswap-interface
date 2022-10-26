@@ -192,7 +192,7 @@ export default function SwapForm() {
 
   const inputError: string | undefined | { state: 'warn' | 'error'; tip: string } = useMemo(() => {
     if (!listTokenOut.length && !listTokenIn.length && !loadingToken) {
-      return { state: 'error', tip: t`Cannot get token info` }
+      return { state: 'error', tip: t`Cannot get token info. Please try again later.` }
     }
 
     const inputNumber = Number(inputAmount)
