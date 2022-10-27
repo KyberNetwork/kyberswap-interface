@@ -6,6 +6,7 @@ import { Flex, Text } from 'rebass'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import Wallet from 'components/Icons/Wallet'
 import { RowFixed } from 'components/Row'
+import CurrencySearchModalBridge from 'components/SearchModal/bridge/CurrencySearchModalBridge'
 import { useActiveWeb3React } from 'hooks'
 import { useTokenBalanceOfAnotherChain } from 'hooks/bridge'
 import useTheme from 'hooks/useTheme'
@@ -16,7 +17,6 @@ import { useCurrencyBalance } from 'state/wallet/hooks'
 
 import CurrencyLogo from '../CurrencyLogo'
 import { Input as NumericalInput } from '../NumericalInput'
-import { CurrencySearchModalBridge } from '../SearchModal/CurrencySearchModal'
 import { Aligner, Container, CurrencySelect, InputPanel, InputRow, StyledTokenName } from './index'
 
 interface CurrencyInputPanelBridgeProps {

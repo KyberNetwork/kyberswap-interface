@@ -2,13 +2,11 @@ import { Currency, Token } from '@kyberswap/ks-sdk-core'
 import React, { useCallback, useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 
-import { Z_INDEXS } from 'constants/styles'
 import useLast from 'hooks/useLast'
 import usePrevious from 'hooks/usePrevious'
-import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 import Modal from '../Modal'
-import { CurrencySearch, CurrencySearchBridge } from './CurrencySearch'
+import { CurrencySearch } from './CurrencySearch'
 import { ImportToken } from './ImportToken'
 
 interface CurrencySearchModalProps {
@@ -95,46 +93,6 @@ export default function CurrencySearchModal({
           handleCurrencySelect={handleCurrencySelect}
         />
       ) : null}
-    </Modal>
-  )
-}
-
-interface CurrencySearchModalBridgeProps {
-  isOpen: boolean
-  isOutput: boolean
-  onDismiss: () => void
-  onCurrencySelect: (currency: WrappedTokenInfo) => void
-}
-export function CurrencySearchModalBridge({
-  isOpen,
-  isOutput,
-  onDismiss,
-  onCurrencySelect,
-}: CurrencySearchModalBridgeProps) {
-  const handleCurrencySelect = useCallback(
-    (currency: WrappedTokenInfo) => {
-      onCurrencySelect(currency)
-      onDismiss()
-    },
-    [onDismiss, onCurrencySelect],
-  )
-
-  return (
-    <Modal
-      zindex={Z_INDEXS.MODAL}
-      isOpen={isOpen}
-      onDismiss={onDismiss}
-      margin="auto"
-      maxHeight={80}
-      height={isOutput ? undefined : '95vh'}
-      minHeight={isOutput ? undefined : 80}
-    >
-      <CurrencySearchBridge
-        isOutput={isOutput}
-        isOpen={isOpen}
-        onDismiss={onDismiss}
-        onCurrencySelect={handleCurrencySelect}
-      />
     </Modal>
   )
 }
