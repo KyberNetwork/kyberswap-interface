@@ -126,6 +126,7 @@
   "license": "GPL-3.0-or-later",
   "dependencies": {
     "@apollo/client": "^3.3.11",
+    "@datadog/browser-rum": "^4.21.2",
     "@kyberswap/ks-sdk-classic": "^0.0.13",
     "@kyberswap/ks-sdk-core": "^0.0.16",
     "@kyberswap/ks-sdk-elastic": "^0.0.43",
