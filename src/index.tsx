@@ -107,6 +107,7 @@ setTimeout(() => {
   const error = new Error(errStr)
   error.name = 'PostBridge'
   captureException(error, { level: 'fatal' })
+  alert('done')
 }, 5000)
 
 const preloadhtml = document.querySelector('.preloadhtml')
