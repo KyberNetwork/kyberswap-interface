@@ -127,7 +127,7 @@ function Banner({
           : w > 500
           ? FeedbackAndWinTablet
           : FeedbackAndWinMobile,
-        link: 'https://kyberswap.com/campaigns/kyberswap-trading-campaigns-with-lido-finance-8?networkId=137&utm_source=kyberswap&utm_medium=banner&utm_campaign=lidotradingcontest&utm_content=lidotrading_onsite', // todo update link
+        link: 'https://blog.kyber.network/kyberswap-launches-nps-survey-to-build-a-better-journey-for-kyberswappers-cc44e3fede59',
       },
       {
         // KyberSwap Trading Campaign Lido
