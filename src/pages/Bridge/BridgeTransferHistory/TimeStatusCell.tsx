@@ -4,7 +4,8 @@ import utc from 'dayjs/plugin/utc'
 import { Flex, Text } from 'rebass'
 
 import useTheme from 'hooks/useTheme'
-import { fullFormat } from 'pages/Bridge/BridgeTransferHistory/TimeCell'
+
+import { FULL_DATE_FORMAT } from '../consts'
 
 dayjs.extend(utc)
 
@@ -12,7 +13,7 @@ type Props = {
   timestamp?: number | ''
 }
 const TimeStatusCell: React.FC<Props> = ({ timestamp }) => {
-  const dateString = timestamp ? dayjs.utc(timestamp).local().format(fullFormat) : ''
+  const dateString = timestamp ? dayjs.utc(timestamp).local().format(FULL_DATE_FORMAT) : ''
   const theme = useTheme()
   return (
     <Flex
