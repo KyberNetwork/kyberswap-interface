@@ -15,8 +15,8 @@ import { isAddress } from 'utils'
 import { filterTokens } from 'utils/filtering'
 
 import { CloseIcon } from '../../../theme'
-import { CurrencyListBridge } from '../CurrencyList'
 import { ContentWrapper, NoResult } from '../CurrencySearch'
+import CurrencyListBridge from '../bridge/CurrencyListBridge'
 import { useTokenComparator } from '../sorting'
 import { PaddedColumn, SearchIcon, SearchInput, SearchWrapper, Separator } from '../styleds'
 
