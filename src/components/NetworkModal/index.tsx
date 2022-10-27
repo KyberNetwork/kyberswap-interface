@@ -60,30 +60,30 @@ export const ListItem = styled.div<{ selected?: boolean }>`
       `}
 `
 
-export const SelectNetworkButton = styled(ButtonEmpty)<{ disabled?: boolean }>`
+export const SelectNetworkButton = styled(ButtonEmpty)<{ isDisabled?: boolean }>`
   background-color: transparent;
   color: ${({ theme }) => theme.primary};
   display: flex;
   justify-content: center;
   align-items: center;
-  ${({ disabled, theme }) =>
-    !disabled &&
-    css`
-      &:focus {
-        text-decoration: none;
-      }
-      &:hover {
-        text-decoration: none;
-        border: 1px solid ${theme.primary};
-      }
-      &:active {
-        text-decoration: none;
-      }
-      &:disabled {
-        opacity: 50%;
-        cursor: not-allowed;
-      }
-    `}
+  ${({ isDisabled, theme }) =>
+    isDisabled
+      ? css`
+          opacity: 50%;
+          pointer-events: none;
+        `
+      : css`
+          &:focus {
+            text-decoration: none;
+          }
+          &:hover {
+            text-decoration: none;
+            border: 1px solid ${theme.primary};
+          }
+          &:active {
+            text-decoration: none;
+          }
+        `}
 `
 
 const NewLabel = styled.div`
@@ -161,15 +161,10 @@ export default function NetworkModal({
             const selected = selectedId === key
             const disabled = activeChainIds ? !activeChainIds?.includes(key) : false
             return (
-              <MouseoverTooltip
-                pointerEvent
-                style={{ zIndex: Z_INDEXS.MODAL + 1 }}
-                key={key}
-                text={disabled ? disabledMsg : ''}
-              >
+              <MouseoverTooltip style={{ zIndex: Z_INDEXS.MODAL + 1 }} key={key} text={disabled ? disabledMsg : ''}>
                 <SelectNetworkButton
                   key={key}
-                  disabled={disabled}
+                  isDisabled={disabled}
                   padding="0"
                   onClick={() => !selected && onSelect(key)}
                 >
@@ -181,7 +176,7 @@ export default function NetworkModal({
               </MouseoverTooltip>
             )
           })}
-          <SelectNetworkButton padding="0" disabled>
+          <SelectNetworkButton padding="0" isDisabled>
             <ListItem>
               <img src={Solana} alt="Switch Network" style={{ width: '24px', marginRight: '8px' }} />
               <NetworkLabel>Solana</NetworkLabel>
