@@ -15,6 +15,7 @@ import { ITEMS_PER_PAGE } from '../consts'
 import ActionCell from './ActionCell'
 import RouteCell from './RouteCell'
 import StatusBadge from './StatusBadge'
+import TimeCell from './TimeCell'
 import TimeStatusCell from './TimeStatusCell'
 import TokenReceiveCell from './TokenReceiveCell'
 import useTransferHistory from './useTransferHistory'
@@ -232,7 +233,7 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
         </TableHeader>
         {transfers.map((transfer, i) => (
           <TableRow key={i}>
-            <TimeStatusCell timestamp={transfer.createdAt * 1000} />
+            <TimeCell timestamp={transfer.createdAt * 1000} />
             <StatusBadge status={transfer.status} />
             <RouteCell fromChainID={Number(transfer.srcChainId)} toChainID={Number(transfer.dstChainId)} />
             <TokenReceiveCell transfer={transfer} />

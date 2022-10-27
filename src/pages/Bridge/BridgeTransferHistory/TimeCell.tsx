@@ -4,14 +4,16 @@ import { Flex, Text } from 'rebass'
 
 import useTheme from 'hooks/useTheme'
 
-import { FULL_DATE_FORMAT, ONLY_DATE_FORMAT } from '../consts'
+import { ONLY_DATE_FORMAT, ONLY_TIME_FORMAT } from '../consts'
 
 type Props = {
   timestamp?: number | ''
 }
 
 const TimeCell: React.FC<Props> = ({ timestamp }) => {
-  const timeString = timestamp ? dayjs.utc(timestamp).local().format(FULL_DATE_FORMAT) : ''
+  const dateString = timestamp ? dayjs.utc(timestamp).local().format(ONLY_DATE_FORMAT) : ''
+  const timeString = timestamp ? dayjs.utc(timestamp).local().format(ONLY_TIME_FORMAT) : ''
+
   const theme = useTheme()
   return (
     <Flex
@@ -35,11 +37,11 @@ const TimeCell: React.FC<Props> = ({ timestamp }) => {
                 whiteSpace: 'nowrap',
               }}
             >
-              {timeString.slice(0, ONLY_DATE_FORMAT.length)}
+              {dateString}
             </Text>
           </Text>
 
-          <Text as="span">{timeString.slice(ONLY_DATE_FORMAT.length + 1)}</Text>
+          <Text as="span">{timeString}</Text>
         </>
       ) : (
         <Text as="span">
