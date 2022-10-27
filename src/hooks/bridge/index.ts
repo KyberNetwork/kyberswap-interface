@@ -40,8 +40,7 @@ function getTokenBalanceOfAnotherChain(account: string, token: WrappedTokenInfo,
           balance = await contract.balanceOf(account)
         }
       } catch (error) {}
-
-      resolve(balance ? ethers.utils.formatEther(balance.toString()) : '0')
+      resolve(balance ? ethers.utils.formatUnits(balance, token.decimals) : '0')
     } catch (error) {
       reject(error)
     }
