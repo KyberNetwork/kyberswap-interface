@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import styled from 'styled-components'
 
 import BridgeTransferHistory from '../BridgeTransferHistory'
@@ -9,11 +8,9 @@ type Props = {
 }
 
 const BridgeHistory: React.FC<Props> = ({ className }) => {
-  const [activeTab, setActiveTab] = useState<1>(1)
-
   return (
     <div className={className}>
-      <TabSelector activeTab={activeTab} setActiveTab={setActiveTab} />
+      <TabSelector />
       <BridgeTransferHistory />
     </div>
   )
