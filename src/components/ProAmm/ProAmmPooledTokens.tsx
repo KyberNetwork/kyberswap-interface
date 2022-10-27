@@ -1,7 +1,6 @@
 import { ZERO } from '@kyberswap/ks-sdk-classic'
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import React from 'react'
 import { Text } from 'rebass'
 
 import { OutlineCard } from 'components/Card'
@@ -22,6 +21,7 @@ export default function ProAmmPooledTokens({
   stakedUsd,
   title,
   pooled = false,
+  positionAPR,
 }: {
   liquidityValue0: CurrencyAmount<Currency> | undefined
   liquidityValue1: CurrencyAmount<Currency> | undefined
@@ -30,6 +30,7 @@ export default function ProAmmPooledTokens({
   stakedUsd?: number
   title?: string
   pooled?: boolean
+  positionAPR?: string
 }) {
   const theme = useTheme()
   const render =
@@ -122,6 +123,15 @@ export default function ProAmmPooledTokens({
               </Text>
               <Text fontSize={12} fontWeight="500">
                 {formatDollarAmount(stakedUsd || 0)}
+              </Text>
+            </RowBetween>
+
+            <RowBetween>
+              <Text fontSize={12} fontWeight="500" color={theme.subText}>
+                <Trans>Your Position APR</Trans>
+              </Text>
+              <Text fontSize={12} fontWeight="500" color={theme.apr}>
+                {positionAPR === '--' ? '--' : positionAPR + '%'}
               </Text>
             </RowBetween>
           </AutoColumn>

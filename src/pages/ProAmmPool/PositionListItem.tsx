@@ -18,14 +18,14 @@ import ProAmmPriceRange from 'components/ProAmm/ProAmmPriceRange'
 import { RowBetween } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { PROMM_ANALYTICS_URL } from 'constants/index'
-import { VERSION } from 'constants/v2'
 import { useToken } from 'hooks/Tokens'
 import useIsTickAtLimit from 'hooks/useIsTickAtLimit'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { usePool } from 'hooks/usePools'
+import { useProAmmPositionFees } from 'hooks/useProAmmPositionFees'
 import useTheme from 'hooks/useTheme'
-import { useTokensPrice } from 'state/application/hooks'
 import { UserPositionFarm } from 'state/farms/elastic/types'
+import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { ExternalLink, StyledInternalLink } from 'theme'
 import { PositionDetails } from 'types/position'
 import { currencyId } from 'utils/currencyId'
@@ -162,7 +162,7 @@ function PositionListItem({
   const currency0 = token0 ? unwrappedToken(token0) : undefined
   const currency1 = token1 ? unwrappedToken(token1) : undefined
 
-  const prices = useTokensPrice([token0, token1], VERSION.ELASTIC)
+  const prices = useTokenPrices([currency0?.wrapped.address || '', currency1?.wrapped.address || ''])
 
   // construct Position from details returned
   const [, pool] = usePool(currency0 ?? undefined, currency1 ?? undefined, feeAmount)
@@ -173,6 +173,8 @@ function PositionListItem({
     }
     return undefined
   }, [liquidity, pool, tickLower, tickUpper])
+
+  const { current, last24h } = useProAmmPositionFees(positionDetails.tokenId, position, false)
 
   const stakedPosition =
     pool && hasUserDepositedInFarm
@@ -185,12 +187,24 @@ function PositionListItem({
       : undefined
 
   const usd =
-    parseFloat(position?.amount0.toExact() || '0') * prices[0] +
-    parseFloat(position?.amount1.toExact() || '0') * prices[1]
+    parseFloat(position?.amount0.toExact() || '0') * prices[token0?.wrapped.address || ''] +
+    parseFloat(position?.amount1.toExact() || '0') * prices[token1?.wrapped.address || '']
 
   const stakedUsd =
-    parseFloat(stakedPosition?.amount0.toExact() || '0') * prices[0] +
-    parseFloat(stakedPosition?.amount1.toExact() || '0') * prices[1]
+    parseFloat(stakedPosition?.amount0.toExact() || '0') * prices[token0?.wrapped.address || ''] +
+    parseFloat(stakedPosition?.amount1.toExact() || '0') * prices[token1?.wrapped.address || '']
+
+  const currentFeeValue =
+    Number(current[0]?.toExact() || '0') * prices[token0?.wrapped.address || ''] +
+    Number(current[1]?.toExact() || '0') * prices[token1?.wrapped.address || '']
+  const last24hFeeValue =
+    Number(last24h[0]?.toExact() || '0') * prices[token0?.wrapped.address || ''] +
+    Number(last24h[1]?.toExact() || '0') * prices[token1?.wrapped.address || '']
+
+  const positionAPR =
+    currentFeeValue && last24hFeeValue && usd
+      ? (((currentFeeValue - last24hFeeValue) * 365 * 100) / usd).toFixed(2)
+      : '--'
 
   const tickAtLimit = useIsTickAtLimit(feeAmount, tickLower, tickUpper)
 
@@ -237,6 +251,7 @@ function PositionListItem({
           <>
             {!stakedLayout ? (
               <ProAmmPooledTokens
+                positionAPR={positionAPR}
                 valueUSD={usd}
                 stakedUsd={stakedUsd}
                 liquidityValue0={CurrencyAmount.fromRawAmount(
@@ -282,6 +297,8 @@ function PositionListItem({
             )}
             {!stakedLayout && (
               <ProAmmFee
+                feeValue0={current[0]}
+                feeValue1={current[1]}
                 position={position}
                 tokenId={positionDetails.tokenId}
                 layout={1}
