@@ -89,20 +89,18 @@ if (process.env.REACT_APP_GTM_ID) {
   TagManager.initialize(tagManagerArgs)
 }
 
-if (window.location.href.includes('kyberswap.com')) {
-  Sentry.init({
-    dsn: process.env.REACT_APP_SENTRY_DNS,
-    environment: 'production',
-    ignoreErrors: ['AbortError'],
-    integrations: [new BrowserTracing()],
-    tracesSampleRate: 0.1,
-  })
+Sentry.init({
+  dsn: process.env.REACT_APP_SENTRY_DNS,
+  environment: 'production',
+  ignoreErrors: ['AbortError'],
+  integrations: [new BrowserTracing()],
+  tracesSampleRate: 0.1,
+})
 
-  Sentry.configureScope(scope => {
-    scope.setTag('request_id', sentryRequestId)
-    scope.setTag('version', process.env.REACT_APP_TAG)
-  })
-}
+Sentry.configureScope(scope => {
+  scope.setTag('request_id', sentryRequestId)
+  scope.setTag('version', process.env.REACT_APP_TAG)
+})
 
 setTimeout(() => {
   const errStr = `SendTxToKsSetting fail with payload = test`
