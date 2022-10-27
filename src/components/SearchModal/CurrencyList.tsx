@@ -348,7 +348,7 @@ export const CurrencyListBridge = memo(function CurrencyListV2({
         />
       )
     },
-    [onCurrencySelect, tokenInfoIn, isOutput, tokenInfoOut?.sortId, theme, poolValueOut],
+    [onCurrencySelect, tokenInfoIn, isOutput, tokenInfoOut, theme, poolValueOut],
   )
 
   return (
