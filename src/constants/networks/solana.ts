@@ -31,6 +31,7 @@ const solanaInfo: { [key in WalletAdapterNetwork]: SolanaNetworkInfo } = {
       name: 'SOL',
     },
     routerUri: `${AGGREGATOR_API}/solana/route`,
+    aggregatorProgramAddress: '',
     // classic: {
     //   factory: 'CwzigBwGVn25LdyLsqzSX3iwhPwQXoxYcXxSM4sjWoBU',
     //   pool: 'EKdy97aMrjjxtq4CJh9vN24WuHVsuLz4qtDjyYqttviN',
@@ -62,6 +63,7 @@ const solanaInfo: { [key in WalletAdapterNetwork]: SolanaNetworkInfo } = {
       name: 'SOL',
     },
     routerUri: 'http://localhost:3004/solana/route',
+    aggregatorProgramAddress: '',
     // classic: {
     //   factory: 'CwzigBwGVn25LdyLsqzSX3iwhPwQXoxYcXxSM4sjWoBU',
     //   pool: 'EKdy97aMrjjxtq4CJh9vN24WuHVsuLz4qtDjyYqttviN',
@@ -93,6 +95,7 @@ const solanaInfo: { [key in WalletAdapterNetwork]: SolanaNetworkInfo } = {
       name: 'SOL',
     },
     routerUri: 'http://localhost:3004/solana/route',
+    aggregatorProgramAddress: 'CTKq8B9GPwPYyQ474jsYHkAchoLKj5LEbSwhqUr3G9cB',
     // classic: {
     //   factory: 'CwzigBwGVn25LdyLsqzSX3iwhPwQXoxYcXxSM4sjWoBU',
     //   pool: 'EKdy97aMrjjxtq4CJh9vN24WuHVsuLz4qtDjyYqttviN',

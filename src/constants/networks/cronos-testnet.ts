@@ -69,8 +69,8 @@ const cronosTestnetInfo: EVMNetworkInfo = {
     routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
   },
   averageBlockTimeInSeconds: 5.6,
-  coingeckoNetworkId: EMPTY,
-  coingeckoNativeTokenId: EMPTY,
+  coingeckoNetworkId: 'cronos',
+  coingeckoNativeTokenId: 'crypto-com-chain',
   deBankSlug: EMPTY,
   trueSightId: NOT_SUPPORT,
 }

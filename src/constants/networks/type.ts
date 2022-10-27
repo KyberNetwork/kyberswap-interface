@@ -24,8 +24,8 @@ export interface NetworkInfo {
     readonly decimal: number
   }
   readonly routerUri: string
-  readonly coingeckoNetworkId: string //https://api.coingecko.com/api/v3/asset_platforms
-  readonly coingeckoNativeTokenId: string //https://api.coingecko.com/api/v3/coins/list
+  readonly coingeckoNetworkId: string | null //https://api.coingecko.com/api/v3/asset_platforms
+  readonly coingeckoNativeTokenId: string | null //https://api.coingecko.com/api/v3/coins/list
   readonly tokenListUrl: string
   readonly trueSightId: string | null
   // token: {
@@ -80,4 +80,5 @@ export interface SolanaNetworkInfo extends NetworkInfo {
   //   readonly router: string
   // }
   connection: Connection
+  aggregatorProgramAddress: string
 }

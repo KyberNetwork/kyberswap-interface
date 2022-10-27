@@ -1,3 +1,4 @@
+import { datadogRum } from '@datadog/browser-rum'
 import { Trans } from '@lingui/macro'
 import * as Sentry from '@sentry/react'
 import { Popover, Sidetab } from '@typeform/embed-react'
@@ -99,9 +100,8 @@ export default function App() {
 
   useEffect(() => {
     if (account) {
-      Sentry.setUser({
-        id: account,
-      })
+      Sentry.setUser({ id: account })
+      datadogRum.setUser({ id: account })
     }
   }, [account])
 

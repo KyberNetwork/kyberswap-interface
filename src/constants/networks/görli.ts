@@ -61,8 +61,8 @@ const görliInfo: EVMNetworkInfo = {
     routers: '0x45a5B8Cf524EC574b40e80274F0F3856A679C5c4',
   },
   averageBlockTimeInSeconds: 13.13,
-  coingeckoNetworkId: EMPTY,
-  coingeckoNativeTokenId: EMPTY,
+  coingeckoNetworkId: 'ethereum',
+  coingeckoNativeTokenId: 'ethereum',
   deBankSlug: EMPTY,
   trueSightId: NOT_SUPPORT,
 }

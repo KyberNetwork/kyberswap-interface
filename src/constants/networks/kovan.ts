@@ -57,8 +57,8 @@ const kovanInfo: EVMNetworkInfo = {
     routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
   },
   averageBlockTimeInSeconds: 13.13,
-  coingeckoNetworkId: EMPTY,
-  coingeckoNativeTokenId: EMPTY,
+  coingeckoNetworkId: 'ethereum',
+  coingeckoNativeTokenId: 'ethereum',
   deBankSlug: EMPTY,
   trueSightId: NOT_SUPPORT,
 }

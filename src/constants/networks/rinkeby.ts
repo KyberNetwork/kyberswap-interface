@@ -61,8 +61,8 @@ const rinkebyInfo: EVMNetworkInfo = {
     routers: '0x335cB9b399e3c33c4a0d1bE7407675C888f66e86',
   },
   averageBlockTimeInSeconds: 13.13,
-  coingeckoNetworkId: EMPTY,
-  coingeckoNativeTokenId: EMPTY,
+  coingeckoNetworkId: 'ethereum',
+  coingeckoNativeTokenId: 'ethereum',
   deBankSlug: EMPTY,
   trueSightId: NOT_SUPPORT,
 }

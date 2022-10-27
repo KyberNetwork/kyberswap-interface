@@ -66,8 +66,8 @@ const bnbTestnetInfo: EVMNetworkInfo = {
     routers: '0x785b8893342dfEf9B5D565f67be971b859d34a15',
   },
   averageBlockTimeInSeconds: 3,
-  coingeckoNetworkId: EMPTY,
-  coingeckoNativeTokenId: EMPTY,
+  coingeckoNetworkId: 'binance-smart-chain',
+  coingeckoNativeTokenId: 'binancecoin',
   deBankSlug: EMPTY,
   trueSightId: NOT_SUPPORT,
 }

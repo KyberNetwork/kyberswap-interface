@@ -57,7 +57,7 @@ const arbitrumTestnetInfo: EVMNetworkInfo = {
     routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
   },
   averageBlockTimeInSeconds: 1, // TODO: check these info
-  coingeckoNetworkId: EMPTY,
+  coingeckoNetworkId: NOT_SUPPORT,
   coingeckoNativeTokenId: 'ethereum',
   deBankSlug: EMPTY,
   trueSightId: NOT_SUPPORT,

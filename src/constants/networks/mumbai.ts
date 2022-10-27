@@ -60,8 +60,8 @@ const mumbaiInfo: EVMNetworkInfo = {
     routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
   },
   averageBlockTimeInSeconds: 2.6,
-  coingeckoNetworkId: EMPTY,
-  coingeckoNativeTokenId: EMPTY,
+  coingeckoNetworkId: 'polygon-pos',
+  coingeckoNativeTokenId: 'matic-network',
   deBankSlug: EMPTY,
   trueSightId: NOT_SUPPORT,
 }

@@ -2,6 +2,7 @@ import { t } from '@lingui/macro'
 import { ChainId } from '@namgold/ks-sdk-core'
 
 export const FARM_CONTRACTS: { readonly [chainId in ChainId]?: Array<string> } = {
+  //todo move this into src/constants/network
   [ChainId.BSCTESTNET]: [],
   [ChainId.RINKEBY]: ['0x13c8F670d3bbd4456870a2C49Bb927F166A977Bd'],
   [ChainId.ROPSTEN]: [],

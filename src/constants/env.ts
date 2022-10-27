@@ -26,6 +26,9 @@ export const REWARD_SERVICE_API: string = process.env.REACT_APP_REWARD_SERVICE_A
 
 invariant(process.env.REACT_APP_KS_SETTING_API, 'env REACT_APP_KS_SETTING_API is missing')
 export const KS_SETTING_API: string = process.env.REACT_APP_KS_SETTING_API
+console.log('🚀 namgold ------------------------------------------🚀 namgold')
+console.log('🚀 namgold ~ KS_SETTING_API', KS_SETTING_API)
+console.log('🚀 namgold ------------------------------------------🚀 namgold')
 
 invariant(process.env.REACT_APP_PRICE_CHART_API, 'env REACT_APP_PRICE_CHART_API is missing')
 export const PRICE_CHART_API: string = process.env.REACT_APP_PRICE_CHART_API

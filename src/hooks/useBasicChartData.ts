@@ -44,8 +44,9 @@ const generateCoingeckoUrl = (
   const timeTo = getUnixTime(new Date())
   const timeFrom =
     timeFrame === 'live' ? timeTo - 1000 : getUnixTime(subHours(new Date(), getTimeFrameHours(timeFrame)))
-
-  return `${COINGECKO_API_URL}/coins/${NETWORKS_INFO[chainId].coingeckoNetworkId}/contract/${address}/market_chart/range?vs_currency=usd&from=${timeFrom}&to=${timeTo}`
+  const cgkId = NETWORKS_INFO[chainId].coingeckoNetworkId
+  if (!cgkId) return ''
+  return `${COINGECKO_API_URL}/coins/${cgkId}/contract/${address}/market_chart/range?vs_currency=usd&from=${timeFrom}&to=${timeTo}`
 }
 const getClosestPrice = (prices: any[], time: number) => {
   let closestIndex = 0

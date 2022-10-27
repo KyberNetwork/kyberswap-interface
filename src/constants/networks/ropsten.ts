@@ -64,8 +64,8 @@ const ropstenInfo: EVMNetworkInfo = {
     routers: '0x1A46dCaC1d91F1731574BEfAEDaC4E0392726e35',
   },
   averageBlockTimeInSeconds: 13.13,
-  coingeckoNetworkId: EMPTY,
-  coingeckoNativeTokenId: EMPTY,
+  coingeckoNetworkId: 'ethereum',
+  coingeckoNativeTokenId: 'ethereum',
   deBankSlug: EMPTY,
   trueSightId: NOT_SUPPORT,
 }
