@@ -161,7 +161,7 @@ export default memo(function Disclaimer({
             </Flex>
 
             <Text fontSize={12} fontStyle="italic" color={theme.subText}>
-              <Trans>Note: It may take a few minutes for your transaction to show up under Active Transfers.</Trans>
+              <Trans>Note: It may take upto 30 minutes for your transaction to show up under Transfer History.</Trans>
             </Text>
             <ButtonPrimary onClick={onSwap}>
               <Trans>Transfer</Trans>
