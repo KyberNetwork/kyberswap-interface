@@ -1,10 +1,9 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
 import { sendAndConfirmTransaction } from '@namgold/dmm-solana-sdk'
-import { ChainId, WETH } from '@namgold/ks-sdk-core'
 import { AnchorProvider, Program } from '@project-serum/anchor'
 import { captureException } from '@sentry/react'
-import { Keypair, PublicKey, SystemProgram, Transaction } from '@solana/web3.js'
+import { PublicKey, Transaction } from '@solana/web3.js'
 import { ethers } from 'ethers'
 
 import { SolanaAggregatorPrograms } from 'constants/idl/solana_aggregator_programs'
