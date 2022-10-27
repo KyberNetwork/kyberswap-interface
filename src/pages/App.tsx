@@ -137,6 +137,7 @@ export default function App() {
       {width && width >= 768 ? (
         <Sidetab
           id={feedbackId}
+          width={800} // todo revert when event end
           // buttonText="Feedback"
           buttonText="Feedback & Win!"
           buttonColor={theme.primary}
