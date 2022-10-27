@@ -158,8 +158,8 @@ const TokenInfo = ({ currencies, onBack }: { currencies: { [field in Field]?: Cu
     },
   ]
 
-  const isActive1 = activeTab === 0
-  const isActive2 = activeTab === 1
+  const isActiveTokenIn = activeTab === 0
+  const isActiveTokenOut = activeTab === 1
 
   return (
     <>
@@ -172,13 +172,13 @@ const TokenInfo = ({ currencies, onBack }: { currencies: { [field in Field]?: Cu
             </Flex>
           )}
           <TabContainer>
-            <Tab isActive={isActive1} padding="0" onClick={() => setActiveTab(0)}>
+            <Tab isActive={isActiveTokenIn} padding="0" onClick={() => setActiveTab(0)}>
               <CurrencyLogo currency={inputNativeCurrency} size="16px" />
-              <TabText isActive={isActive1}>{inputNativeCurrency?.symbol}</TabText>
+              <TabText isActive={isActiveTokenIn}>{inputNativeCurrency?.symbol}</TabText>
             </Tab>
-            <Tab isActive={isActive2} padding="0" onClick={() => setActiveTab(1)}>
+            <Tab isActive={isActiveTokenOut} padding="0" onClick={() => setActiveTab(1)}>
               <CurrencyLogo currency={outputNativeCurrency} size="16px" />
-              <TabText isActive={isActive2}>{outputNativeCurrency?.symbol}</TabText>
+              <TabText isActive={isActiveTokenOut}>{outputNativeCurrency?.symbol}</TabText>
             </Tab>
           </TabContainer>
         </Flex>

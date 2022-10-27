@@ -125,7 +125,6 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
     }
   }, [isValidating])
 
-  // todo: when transfers is [] and not, show different loading strategy
   // toast error
   if (shouldShowLoading) {
     return <LocalLoader />

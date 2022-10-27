@@ -296,7 +296,7 @@ const Dropdown = styled.div`
 const DropdownIcon = styled(DropdownSVG)`
   transition: transform 300ms;
 `
-const cssHover = css`
+const cssDropDown = css`
   color: ${({ theme }) => darken(0.1, theme.primary)};
 
   ${Dropdown} {
@@ -326,9 +326,9 @@ const HoverDropdown = styled.div<{ active: boolean; forceShowDropdown?: boolean 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     padding: 8px 2px 8px 6px;
   `}
-  ${({ forceShowDropdown }) => forceShowDropdown && cssHover}
+  ${({ forceShowDropdown }) => forceShowDropdown && cssDropDown}
   :hover {
-    ${cssHover}
+    ${cssDropDown}
   }
 `
 
@@ -354,7 +354,7 @@ export default function Header() {
         </Title>
         <HeaderLinks>
           <HoverDropdown
-            forceShowDropdown={isShowTutorial && step === TutorialNumbers.STEP_BRIDGE} // todo consider
+            forceShowDropdown={isShowTutorial && step === TutorialNumbers.STEP_BRIDGE}
             active={pathname.includes('/swap') || pathname === '/buy-crypto'}
           >
             <Flex alignItems="center">
@@ -393,7 +393,6 @@ export default function Header() {
                   </Flex>
                 </StyledNavLink>
                 <StyledNavLink
-                  id={`swapv2-nav-link`}
                   to={AppPaths.BRIDGE}
                   isActive={match => Boolean(match)}
                   style={{ flexDirection: 'column', width: '100%' }}

@@ -345,7 +345,7 @@ const getListSteps = (isLogin: boolean) => {
     },
     {
       selector: TutorialIds.BRIDGE_LINKS,
-      title: isMobile ? LIST_TITLE.BRIDGE : <Title stepNumber={5} />, // todo consider refactor this number if enough time
+      title: isMobile ? LIST_TITLE.BRIDGE : <Title stepNumber={5} />,
       stepNumber: 5,
       description: (
         <Layout title={LIST_TITLE.BRIDGE}>

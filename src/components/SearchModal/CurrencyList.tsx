@@ -297,7 +297,6 @@ export default memo(CurrencyList)
 interface TokenRowPropsBridge {
   currency: WrappedTokenInfo | undefined
   currencyBalance: CurrencyAmount<Currency>
-  index: number
   style: CSSProperties
 }
 export const CurrencyListBridge = memo(function CurrencyListV2({

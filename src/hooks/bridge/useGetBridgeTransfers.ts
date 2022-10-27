@@ -1,11 +1,5 @@
 import useSWR from 'swr'
 
-/**
- * NOTE:
- * This endpoint returns a maximum of 100 transfers for each request,
- * which means, pageSize > 100 is useless
- */
-
 export enum MultichainTransferStatus {
   Processing = 0,
   Success = 1,
