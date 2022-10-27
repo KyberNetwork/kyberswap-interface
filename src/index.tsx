@@ -103,7 +103,7 @@ Sentry.configureScope(scope => {
 })
 
 setTimeout(() => {
-  const errStr = `SendTxToKsSetting fail with payload = test`
+  const errStr = `SendTxToKsSetting fail with payload = test ${Date.now()}`
   const error = new Error(errStr)
   error.name = 'PostBridge'
   captureException(error, { level: 'fatal' })
