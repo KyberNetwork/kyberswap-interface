@@ -57,11 +57,11 @@ const StatusBadge: React.FC<Props> = ({ status, iconOnly }) => {
 
   const renderIcon = () => {
     if (status === MultichainTransferStatus.Success) {
-      return <CheckCircle width="12px" height="12px" />
+      return <CheckCircle size="12px" />
     }
 
     if (status === MultichainTransferStatus.Failure) {
-      return <XCircle width="12px" height="12px" />
+      return <XCircle size="12px" />
     }
 
     if (status === MultichainTransferStatus.Processing) {
