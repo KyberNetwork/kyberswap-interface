@@ -109,21 +109,24 @@ const BackIconWrapper = styled(ArrowLeft)`
     stroke: ${({ theme }) => theme.text} !important;
   }
 `
-
+enum TAB {
+  TOKEN_IN,
+  TOKEN_OUT,
+}
 const TokenInfo = ({ currencies, onBack }: { currencies: { [field in Field]?: Currency }; onBack?: () => void }) => {
   const { chainId } = useActiveWeb3React()
   const inputNativeCurrency = useCurrencyConvertedToNative(currencies[Field.INPUT])
   const outputNativeCurrency = useCurrencyConvertedToNative(currencies[Field.OUTPUT])
   const inputToken = inputNativeCurrency?.wrapped
   const outputToken = outputNativeCurrency?.wrapped
-  const [activeTab, setActiveTab] = useState(0)
-  const selectedToken = activeTab === 1 ? outputToken : inputToken
+  const [activeTab, setActiveTab] = useState(TAB.TOKEN_IN)
+  const selectedToken = activeTab === TAB.TOKEN_OUT ? outputToken : inputToken
   const { data: tokenInfo, loading } = useTokenInfo(selectedToken)
   const darkMode = useIsDarkMode()
 
   // Handle switch network case
   useEffect(() => {
-    inputToken?.address && setActiveTab(0)
+    inputToken?.address && setActiveTab(TAB.TOKEN_IN)
   }, [chainId, inputToken])
 
   const listData = [
@@ -158,8 +161,8 @@ const TokenInfo = ({ currencies, onBack }: { currencies: { [field in Field]?: Cu
     },
   ]
 
-  const isActiveTokenIn = activeTab === 0
-  const isActiveTokenOut = activeTab === 1
+  const isActiveTokenIn = activeTab === TAB.TOKEN_IN
+  const isActiveTokenOut = activeTab === TAB.TOKEN_OUT
 
   return (
     <>
@@ -172,11 +175,11 @@ const TokenInfo = ({ currencies, onBack }: { currencies: { [field in Field]?: Cu
             </Flex>
           )}
           <TabContainer>
-            <Tab isActive={isActiveTokenIn} padding="0" onClick={() => setActiveTab(0)}>
+            <Tab isActive={isActiveTokenIn} padding="0" onClick={() => setActiveTab(TAB.TOKEN_IN)}>
               <CurrencyLogo currency={inputNativeCurrency} size="16px" />
               <TabText isActive={isActiveTokenIn}>{inputNativeCurrency?.symbol}</TabText>
             </Tab>
-            <Tab isActive={isActiveTokenOut} padding="0" onClick={() => setActiveTab(1)}>
+            <Tab isActive={isActiveTokenOut} padding="0" onClick={() => setActiveTab(TAB.TOKEN_OUT)}>
               <CurrencyLogo currency={outputNativeCurrency} size="16px" />
               <TabText isActive={isActiveTokenOut}>{outputNativeCurrency?.symbol}</TabText>
             </Tab>

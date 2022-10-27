@@ -369,7 +369,7 @@ export default function Header() {
                 isActive={match => Boolean(match)}
                 style={{ flexDirection: 'column' }}
               >
-                <Flex alignItems="center" sx={{ gap: '10px' }}>
+                <Flex alignItems="center" sx={{ gap: '13px' }}>
                   <Repeat size={16} />
                   <Trans>Swap</Trans>
                 </Flex>
@@ -384,8 +384,10 @@ export default function Header() {
                   }}
                 >
                   <Flex alignItems="center" sx={{ gap: '8px' }}>
-                    <Dollar />
-                    <Trans>Buy Crypto</Trans>
+                    <Flex sx={{ gap: '10px' }}>
+                      <Dollar style={{ marginLeft: -1 }} />
+                      <Trans>Buy Crypto</Trans>
+                    </Flex>
                     <Flex sx={{ gap: '8px' }}>
                       <VisaSVG width="20" height="20" />
                       <MasterCard width="20" height="20" />
