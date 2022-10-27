@@ -81,7 +81,7 @@ type PoolValueType = {
 export default function SwapForm() {
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useActiveNetwork()
-  const [{ tokenIn, tokenOut, chainIdOut, currencyIn, listTokenOut, listTokenIn, listChainIn, loadingToken }] =
+  const [{ tokenInfoIn, tokenInfoOut, chainIdOut, currencyIn, listTokenOut, listTokenIn, listChainIn, loadingToken }] =
     useBridgeState()
   const { resetBridgeState, setBridgeState, setBridgePoolInfo } = useBridgeStateHandler()
   const toggleWalletModal = useWalletModalToggle()
@@ -105,19 +105,19 @@ export default function SwapForm() {
   })
 
   const listChainOut = useMemo(() => {
-    const destChainInfo = tokenIn?.destChains || {}
+    const destChainInfo = tokenInfoIn?.destChains || {}
     return (Object.keys(destChainInfo).map(Number) as ChainId[]).filter(id => SUPPORTED_NETWORKS.includes(id))
-  }, [tokenIn])
+  }, [tokenInfoIn])
 
   const outputInfo = useBridgeOutputValue(inputAmount)
 
-  const anyToken = tokenOut?.fromanytoken
+  const anyToken = tokenInfoOut?.fromanytoken
 
   const poolParamIn = useMemo(() => {
-    const anytoken = tokenOut?.isFromLiquidity && tokenOut?.isLiquidity ? anyToken?.address : undefined
-    const underlying = tokenIn?.address
+    const anytoken = tokenInfoOut?.isFromLiquidity && tokenInfoOut?.isLiquidity ? anyToken?.address : undefined
+    const underlying = tokenInfoIn?.address
     return anytoken && underlying ? [{ anytoken, underlying }] : []
-  }, [anyToken?.address, tokenIn?.address, tokenOut?.isFromLiquidity, tokenOut?.isLiquidity])
+  }, [anyToken?.address, tokenInfoIn?.address, tokenInfoOut?.isFromLiquidity, tokenInfoOut?.isLiquidity])
 
   const poolParamOut = useMemo(() => {
     return listTokenOut
@@ -148,8 +148,8 @@ export default function SwapForm() {
         const poolInfo = poolDataOut?.[anytokenAddress]
         const token = listTokenOut.find(e => e.multichainInfo?.anytoken?.address === anytokenAddress)
         if (!poolInfo?.balanceOf || !token?.multichainInfo?.anytoken?.decimals) return
-        if (anytokenAddress === tokenOut?.anytoken?.address) {
-          poolValueOut = calcPoolValue(poolInfo?.balanceOf, tokenOut?.anytoken?.decimals)
+        if (anytokenAddress === tokenInfoOut?.anytoken?.address) {
+          poolValueOut = calcPoolValue(poolInfo?.balanceOf, tokenInfoOut?.anytoken?.decimals)
         }
         poolValueOutMap[anytokenAddress] = formatPoolValue(
           calcPoolValue(poolInfo?.balanceOf, token?.multichainInfo?.anytoken?.decimals),
@@ -158,7 +158,7 @@ export default function SwapForm() {
     }
     setPoolValue(poolValue => ({ ...poolValue, poolValueOut }))
     setBridgePoolInfo({ poolValueOut: poolValueOutMap })
-  }, [poolDataOut, listTokenOut, tokenOut, setBridgePoolInfo])
+  }, [poolDataOut, listTokenOut, tokenInfoOut, setBridgePoolInfo])
 
   useEffect(() => {
     setBridgeState({ chainIdOut: listChainOut[0] })
@@ -170,7 +170,7 @@ export default function SwapForm() {
 
   useEffect(() => {
     setInputAmount('')
-  }, [tokenIn, chainId])
+  }, [tokenInfoIn, chainId])
 
   const prevChain = usePrevious(chainId)
   useEffect(() => {
@@ -179,15 +179,15 @@ export default function SwapForm() {
     }
   }, [chainId, prevChain, resetBridgeState])
 
-  const useSwapMethods = tokenOut?.routerABI
-  const routerToken = tokenOut?.router && isAddress(tokenOut?.router) ? tokenOut?.router : undefined
+  const useSwapMethods = tokenInfoOut?.routerABI
+  const routerToken = tokenInfoOut?.router && isAddress(tokenInfoOut?.router) ? tokenInfoOut?.router : undefined
 
   const { execute: onWrap, inputError: wrapInputError } = useBridgeCallback(
     inputAmount,
     anyToken?.address,
     routerToken,
-    tokenIn?.tokenType === 'NATIVE' || !!useSwapMethods?.includes('anySwapOutNative'),
-    tokenOut?.type === 'swapin' ? tokenOut?.DepositAddress : account,
+    tokenInfoIn?.tokenType === 'NATIVE' || !!useSwapMethods?.includes('anySwapOutNative'),
+    tokenInfoOut?.type === 'swapin' ? tokenInfoOut?.DepositAddress : account,
   )
 
   const inputError: string | undefined | { state: 'warn' | 'error'; tip: string } = useMemo(() => {
@@ -197,42 +197,44 @@ export default function SwapForm() {
 
     const inputNumber = Number(inputAmount)
 
-    if (!tokenIn || !chainIdOut || !tokenOut || inputNumber === 0) return
+    if (!tokenInfoIn || !chainIdOut || !tokenInfoOut || inputNumber === 0) return
 
     if (isNaN(inputNumber)) return t`Input amount is not valid`
 
-    if (inputNumber < Number(tokenOut.MinimumSwap)) {
-      return t`The amount to bridge must be more than ${formattedNum(tokenOut.MinimumSwap, false, 5)} ${tokenIn.symbol}`
+    if (inputNumber < Number(tokenInfoOut.MinimumSwap)) {
+      return t`The amount to bridge must be more than ${formattedNum(tokenInfoOut.MinimumSwap, false, 5)} ${
+        tokenInfoIn.symbol
+      }`
     }
-    if (inputNumber > Number(tokenOut.MaximumSwap)) {
-      return t`The amount to bridge must be less than ${formattedNum(tokenOut.MaximumSwap)} ${tokenIn.symbol}`
+    if (inputNumber > Number(tokenInfoOut.MaximumSwap)) {
+      return t`The amount to bridge must be less than ${formattedNum(tokenInfoOut.MaximumSwap)} ${tokenInfoIn.symbol}`
     }
 
-    if (tokenOut.isLiquidity && tokenOut.underlying) {
+    if (tokenInfoOut.isLiquidity && tokenInfoOut.underlying) {
       const poolLiquidity = formatPoolValue(poolValue.poolValueOut)
       if (inputNumber > Number(poolValue.poolValueOut))
-        return t`The bridge amount must be less than the current available amount of the pool which is ${poolLiquidity} ${tokenOut.symbol}.`
+        return t`The bridge amount must be less than the current available amount of the pool which is ${poolLiquidity} ${tokenInfoOut.symbol}.`
 
       const ratio = 0.7
       if (inputNumber > ratio * Number(poolValue.poolValueOut)) {
         return {
           state: 'warn',
-          tip: t`Note: Your transfer amount (${formattedNum(inputAmount, false, 5)} ${tokenIn.symbol}) is more than ${
-            100 * ratio
-          }% of the available liquidity (${poolLiquidity} ${tokenOut.symbol})!`,
+          tip: t`Note: Your transfer amount (${formattedNum(inputAmount, false, 5)} ${
+            tokenInfoIn.symbol
+          }) is more than ${100 * ratio}% of the available liquidity (${poolLiquidity} ${tokenInfoOut.symbol})!`,
         }
       }
     }
 
     const isWrapInputError = wrapInputError && inputNumber > 0
-    if (isWrapInputError) return t`Insufficient ${tokenIn?.symbol} balance`
+    if (isWrapInputError) return t`Insufficient ${tokenInfoIn?.symbol} balance`
     return
   }, [
-    tokenIn,
+    tokenInfoIn,
     chainIdOut,
     wrapInputError,
     inputAmount,
-    tokenOut,
+    tokenInfoOut,
     poolValue.poolValueOut,
     loadingToken,
     listTokenOut,
@@ -241,9 +243,9 @@ export default function SwapForm() {
 
   const handleTypeInput = useCallback(
     (value: string) => {
-      if (tokenIn) setInputAmount(value)
+      if (tokenInfoIn) setInputAmount(value)
     },
-    [tokenIn],
+    [tokenInfoIn],
   )
 
   const showPreview = () => {
@@ -266,8 +268,8 @@ export default function SwapForm() {
       setSwapState(state => ({ ...state, attemptingTxn: true }))
       if (chainId && chainIdOut) {
         mixpanelHandler(MIXPANEL_TYPE.BRIDGE_CLICK_TRANSFER, {
-          from_token: tokenIn?.symbol,
-          to_token: tokenOut?.symbol,
+          from_token: tokenInfoIn?.symbol,
+          to_token: tokenInfoOut?.symbol,
           bridge_fee: outputInfo.fee,
           from_network: NETWORKS_INFO[chainId].name,
           to_network: NETWORKS_INFO[chainIdOut].name,
@@ -289,8 +291,8 @@ export default function SwapForm() {
     inputAmount,
     outputInfo.fee,
     mixpanelHandler,
-    tokenIn?.symbol,
-    tokenOut?.symbol,
+    tokenInfoIn?.symbol,
+    tokenInfoOut?.symbol,
   ])
 
   const maxAmountInput = useCurrencyBalance(account || undefined, currencyIn)?.toExact()
@@ -299,16 +301,19 @@ export default function SwapForm() {
   }, [maxAmountInput])
 
   const approveSpender = (() => {
-    const isRouter = !['swapin', 'swapout'].includes(tokenOut?.type ?? '')
-    if (tokenOut?.isApprove) {
-      return isRouter ? tokenOut.spender : anyToken?.address
+    const isRouter = !['swapin', 'swapout'].includes(tokenInfoOut?.type ?? '')
+    if (tokenInfoOut?.isApprove) {
+      return isRouter ? tokenInfoOut.spender : anyToken?.address
     }
     return undefined
   })()
 
-  const formatInputBridgeValue = tryParseAmount(inputAmount, currencyIn && tokenOut?.isApprove ? currencyIn : undefined)
+  const formatInputBridgeValue = tryParseAmount(
+    inputAmount,
+    currencyIn && tokenInfoOut?.isApprove ? currencyIn : undefined,
+  )
   const [approval, approveCallback] = useApproveCallback(
-    formatInputBridgeValue && tokenOut?.isApprove ? formatInputBridgeValue : undefined,
+    formatInputBridgeValue && tokenInfoOut?.isApprove ? formatInputBridgeValue : undefined,
     approveSpender,
   )
 
@@ -349,8 +354,8 @@ export default function SwapForm() {
   const disableBtnApproved = approval !== ApprovalState.NOT_APPROVED || approvalSubmitted || !!inputError
   const disableBtnReviewTransfer =
     !!inputError ||
-    [inputAmount, tokenIn, tokenOut, chainIdOut].some(e => !e) ||
-    (approval !== ApprovalState.APPROVED && tokenOut?.isApprove)
+    [inputAmount, tokenInfoIn, tokenInfoOut, chainIdOut].some(e => !e) ||
+    (approval !== ApprovalState.APPROVED && tokenInfoOut?.isApprove)
   return (
     <>
       <Flex style={{ position: 'relative', flexDirection: 'column', gap: 22, alignItems: 'center' }}>
@@ -379,7 +384,7 @@ export default function SwapForm() {
               </Tooltip>
             </Flex>
 
-            <PoolInfo chainId={chainId} tokenIn={tokenIn} poolValue={poolValue.poolValueIn} />
+            <PoolInfo chainId={chainId} tokenIn={tokenInfoIn} poolValue={poolValue.poolValueIn} />
 
             <div>
               <Flex alignItems={'flex-end'} justifyContent="space-between">
@@ -401,7 +406,7 @@ export default function SwapForm() {
               />
             </div>
 
-            <PoolInfo chainId={chainIdOut} tokenIn={tokenIn} poolValue={poolValue.poolValueOut} />
+            <PoolInfo chainId={chainIdOut} tokenIn={tokenInfoIn} poolValue={poolValue.poolValueOut} />
 
             {typeof inputError !== 'string' && inputError?.state && (
               <ErrorWarningPanel title={inputError?.tip} type={inputError?.state} />
@@ -431,12 +436,12 @@ export default function SwapForm() {
                             pointerEvent
                             placement="bottom"
                             width="300px"
-                            text={t`You would need to first allow Multichain smart contract to use your ${tokenIn?.symbol}. This has to be done only once for each token.`}
+                            text={t`You would need to first allow Multichain smart contract to use your ${tokenInfoIn?.symbol}. This has to be done only once for each token.`}
                           >
                             <Info size={18} />
                           </MouseoverTooltip>
                           <Text marginLeft={'5px'}>
-                            <Trans>Approve {tokenIn?.symbol}</Trans>
+                            <Trans>Approve {tokenInfoIn?.symbol}</Trans>
                           </Text>
                         </Flex>
                       )}

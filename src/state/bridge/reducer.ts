@@ -8,8 +8,8 @@ import { resetBridgeState, setBridgePoolInfo, setBridgeState, setHistoryURL } fr
 
 export type PoolValueOutMap = { [address: string]: string | number }
 export interface BridgeState {
-  tokenIn: MultiChainTokenInfo | undefined
-  tokenOut: MultiChainTokenInfo | undefined
+  tokenInfoIn: MultiChainTokenInfo | undefined
+  tokenInfoOut: MultiChainTokenInfo | undefined
   currencyIn: WrappedTokenInfo | undefined
   currencyOut: WrappedTokenInfo | undefined
 
@@ -25,8 +25,8 @@ export interface BridgeState {
 }
 
 const DEFAULT_STATE: BridgeState = {
-  tokenIn: undefined,
-  tokenOut: undefined,
+  tokenInfoIn: undefined,
+  tokenInfoOut: undefined,
   currencyIn: undefined,
   currencyOut: undefined,
 
@@ -47,11 +47,11 @@ export default createReducer(DEFAULT_STATE, builder =>
       setBridgeState,
       (state, { payload: { tokenIn, tokenOut, chainIdOut, listChainIn, listTokenIn, listTokenOut, loadingToken } }) => {
         if (tokenIn !== undefined) {
-          state.tokenIn = tokenIn?.multichainInfo
+          state.tokenInfoIn = tokenIn?.multichainInfo
           state.currencyIn = tokenIn
         }
         if (tokenOut !== undefined) {
-          state.tokenOut = tokenOut?.multichainInfo
+          state.tokenInfoOut = tokenOut?.multichainInfo
           state.currencyOut = tokenOut
         }
 
@@ -66,8 +66,8 @@ export default createReducer(DEFAULT_STATE, builder =>
       state.poolValueOut = poolValueOut
     })
     .addCase(resetBridgeState, state => {
-      state.tokenIn = undefined
-      state.tokenOut = undefined
+      state.tokenInfoIn = undefined
+      state.tokenInfoOut = undefined
       state.currencyIn = undefined
       state.currencyOut = undefined
       state.chainIdOut = undefined

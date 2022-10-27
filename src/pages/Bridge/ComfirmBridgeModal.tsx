@@ -57,7 +57,7 @@ export default memo(function Disclaimer({
 }) {
   const theme = useTheme()
   const { account, chainId } = useActiveWeb3React()
-  const [{ tokenIn, tokenOut, chainIdOut, currencyIn, currencyOut }] = useBridgeState()
+  const [{ chainIdOut, currencyIn, currencyOut }] = useBridgeState()
 
   const listData = useMemo(() => {
     return [
@@ -67,7 +67,7 @@ export default memo(function Disclaimer({
           <Value>
             <CurrencyLogo currency={currencyIn} style={styleLogo} />
             <Text>
-              {formatValue(outputInfo.inputAmount, currencyIn)} {tokenIn?.symbol}
+              {formatValue(outputInfo.inputAmount, currencyIn)} {currencyIn?.symbol}
             </Text>
           </Value>
         ),
@@ -96,7 +96,7 @@ export default memo(function Disclaimer({
           <Value>
             <CurrencyLogo currency={currencyOut} style={styleLogo} />
             <Text>
-              {formatValue(outputInfo?.outputAmount?.toString(), currencyOut)} {tokenOut?.symbol}
+              {formatValue(outputInfo?.outputAmount?.toString(), currencyOut)} {currencyOut?.symbol}
             </Text>
           </Value>
         ),
@@ -111,7 +111,7 @@ export default memo(function Disclaimer({
         ),
       },
     ]
-  }, [tokenIn, tokenOut, account, chainIdOut, chainId, currencyIn, currencyOut, outputInfo, theme])
+  }, [account, chainIdOut, chainId, currencyIn, currencyOut, outputInfo, theme])
 
   const confirmationContent = useCallback(
     () =>
@@ -156,7 +156,7 @@ export default memo(function Disclaimer({
                 <Label>
                   <Trans>Transaction Fee</Trans>
                 </Label>
-                <Value>{outputInfo.fee ? `~${outputInfo.fee} ${tokenIn?.symbol}` : '--'}</Value>
+                <Value>{outputInfo.fee ? `~${outputInfo.fee} ${currencyIn?.symbol}` : '--'}</Value>
               </Row>
             </Flex>
 
@@ -169,7 +169,7 @@ export default memo(function Disclaimer({
           </Flex>
         </Container>
       ),
-    [onDismiss, swapState.swapErrorMessage, listData, onSwap, outputInfo, theme, tokenIn?.symbol],
+    [onDismiss, swapState.swapErrorMessage, listData, onSwap, outputInfo, theme, currencyIn?.symbol],
   )
 
   return (
@@ -181,7 +181,7 @@ export default memo(function Disclaimer({
       content={confirmationContent}
       pendingText={
         chainId && chainIdOut
-          ? t`Transferring ${tokenIn?.symbol} (${NETWORKS_INFO[chainId].name}) to ${tokenOut?.symbol} (${NETWORKS_INFO[chainIdOut].name})`
+          ? t`Transferring ${currencyIn?.symbol} (${NETWORKS_INFO[chainId].name}) to ${currencyOut?.symbol} (${NETWORKS_INFO[chainIdOut].name})`
           : ''
       }
     />

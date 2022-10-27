@@ -74,8 +74,8 @@ function calcReceiveValueAndFee(inputBridgeValue: string, tokenOut: MultiChainTo
 }
 
 export function useBridgeOutputValue(inputBridgeValue: string) {
-  const [{ tokenOut }] = useBridgeState()
+  const [{ tokenInfoOut }] = useBridgeState()
   return useMemo(() => {
-    return calcReceiveValueAndFee(inputBridgeValue, tokenOut)
-  }, [inputBridgeValue, tokenOut])
+    return calcReceiveValueAndFee(inputBridgeValue, tokenInfoOut)
+  }, [inputBridgeValue, tokenInfoOut])
 }

@@ -30,7 +30,7 @@ function timeout() {
 
 export default function Updater(): null {
   const { chainId } = useActiveWeb3React()
-  const [{ tokenIn, chainIdOut }, setBridgeState] = useBridgeState()
+  const [{ tokenInfoIn, chainIdOut }, setBridgeState] = useBridgeState()
   const { pathname } = useLocation()
   const curChainId = useRef(chainId)
   curChainId.current = chainId
@@ -105,8 +105,8 @@ export default function Updater(): null {
   }, [chainId, setBridgeState, formatAndSaveToken, pathname])
 
   useEffect(() => {
-    const destChainInfo = tokenIn?.destChains || {}
-    if (!chainIdOut || !tokenIn || !chainId) {
+    const destChainInfo = tokenInfoIn?.destChains || {}
+    if (!chainIdOut || !tokenInfoIn || !chainId) {
       setBridgeState({ listTokenOut: [] })
       return
     }
@@ -124,13 +124,13 @@ export default function Updater(): null {
           symbol,
           name,
           address,
-          logoURI: tokenIn.logoUrl,
+          logoURI: tokenInfoIn.logoUrl,
           multichainInfo: token,
         }),
       )
     })
     setBridgeState({ listTokenOut })
-  }, [chainIdOut, tokenIn, chainId, setBridgeState])
+  }, [chainIdOut, tokenInfoIn, chainId, setBridgeState])
 
   return null
 }

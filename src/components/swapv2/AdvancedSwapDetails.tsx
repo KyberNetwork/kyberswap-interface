@@ -151,7 +151,7 @@ export function AdvancedSwapDetails({ trade, feeConfig }: AdvancedSwapDetailsPro
 
 export function TradeSummaryBridge({ outputInfo }: { outputInfo: OutputBridgeInfo }) {
   const theme = useTheme()
-  const [{ tokenOut }] = useBridgeState()
+  const [{ tokenInfoOut }] = useBridgeState()
 
   const [show, setShow] = useState(true)
   const fee = formattedNum(outputInfo?.fee?.toString(), false, 5)
@@ -176,16 +176,16 @@ export function TradeSummaryBridge({ outputInfo }: { outputInfo: OutputBridgeInf
               <InfoHelper
                 size={14}
                 text={
-                  tokenOut &&
-                  t`Crosschain amount larger than ${formattedNum(tokenOut?.BigValueThreshold?.toString() ?? '0')} ${
-                    tokenOut?.symbol
+                  tokenInfoOut &&
+                  t`Crosschain amount larger than ${formattedNum(tokenInfoOut?.BigValueThreshold?.toString() ?? '0')} ${
+                    tokenInfoOut?.symbol
                   } could take up to 12 hours`
                 }
               />
             </RowFixed>
             <RowFixed>
               <TYPE.black color={theme.text} fontSize={12}>
-                {tokenOut ? outputInfo.time : '--'}
+                {tokenInfoOut ? outputInfo.time : '--'}
               </TYPE.black>
             </RowFixed>
           </RowBetween>
@@ -198,18 +198,18 @@ export function TradeSummaryBridge({ outputInfo }: { outputInfo: OutputBridgeInf
               <InfoHelper
                 size={14}
                 text={
-                  !tokenOut ? (
+                  !tokenInfoOut ? (
                     t`Estimated network fee for your transaction`
                   ) : (
                     <>
                       <Text color={theme.text}>
-                        <Trans>{tokenOut?.SwapFeeRatePerMillion}% Transaction Fee</Trans>
+                        <Trans>{tokenInfoOut?.SwapFeeRatePerMillion}% Transaction Fee</Trans>
                       </Text>
-                      {tokenOut?.MinimumSwapFee === tokenOut?.MaximumSwapFee ? (
+                      {tokenInfoOut?.MinimumSwapFee === tokenInfoOut?.MaximumSwapFee ? (
                         outputInfo.fee && (
                           <Text marginTop={'5px'}>
                             <Trans>
-                              Gas Fee: {`${fee} ${tokenOut.symbol} `}
+                              Gas Fee: {`${fee} ${tokenInfoOut.symbol} `}
                               for your cross-chain transaction on destination chain
                             </Trans>
                           </Text>
@@ -217,8 +217,9 @@ export function TradeSummaryBridge({ outputInfo }: { outputInfo: OutputBridgeInf
                       ) : (
                         <Text marginTop={'5px'}>
                           <Trans>
-                            Min Transaction Fee is {formattedNum(tokenOut.MinimumSwapFee)} {tokenOut.symbol} <br />
-                            Max Transaction Fee is {formattedNum(tokenOut.MaximumSwapFee)} {tokenOut.symbol}
+                            Min Transaction Fee is {formattedNum(tokenInfoOut.MinimumSwapFee)} {tokenInfoOut.symbol}{' '}
+                            <br />
+                            Max Transaction Fee is {formattedNum(tokenInfoOut.MaximumSwapFee)} {tokenInfoOut.symbol}
                           </Trans>
                         </Text>
                       )}
@@ -228,7 +229,7 @@ export function TradeSummaryBridge({ outputInfo }: { outputInfo: OutputBridgeInf
               />
             </RowFixed>
             <TYPE.black color={theme.text} fontSize={12}>
-              {tokenOut && outputInfo.fee ? `${fee} ${tokenOut?.symbol}` : '--'}
+              {tokenInfoOut && outputInfo.fee ? `${fee} ${tokenInfoOut?.symbol}` : '--'}
             </TYPE.black>
           </RowBetween>
 
@@ -240,10 +241,10 @@ export function TradeSummaryBridge({ outputInfo }: { outputInfo: OutputBridgeInf
             </RowFixed>
 
             <TYPE.black fontSize={12} color={theme.text} textAlign="right">
-              {tokenOut ? (
+              {tokenInfoOut ? (
                 <Flex flexDirection={'column'} style={{ gap: 10 }}>
-                  <div>{t`Min ${formattedNum(tokenOut?.MinimumSwap)} ${tokenOut?.symbol}`}</div>
-                  <div> {t`Max ${formattedNum(tokenOut?.MaximumSwap)} ${tokenOut?.symbol}`}</div>
+                  <div>{t`Min ${formattedNum(tokenInfoOut?.MinimumSwap)} ${tokenInfoOut?.symbol}`}</div>
+                  <div> {t`Max ${formattedNum(tokenInfoOut?.MaximumSwap)} ${tokenInfoOut?.symbol}`}</div>
                 </Flex>
               ) : (
                 '--'
