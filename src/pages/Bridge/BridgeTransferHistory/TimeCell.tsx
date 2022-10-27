@@ -1,4 +1,4 @@
-import { t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { Flex, Text } from 'rebass'
 
@@ -42,7 +42,9 @@ const TimeCell: React.FC<Props> = ({ timestamp }) => {
           <Text as="span">{timeString.slice(ONLY_DATE_FORMAT.length + 1)}</Text>
         </>
       ) : (
-        <Text as="span">{t`Unknown`}</Text>
+        <Text as="span">
+          <Trans>Unknown</Trans>
+        </Text>
       )}
     </Flex>
   )
