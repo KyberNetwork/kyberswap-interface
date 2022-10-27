@@ -247,7 +247,9 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
 
   return (
     <div className={className}>
-      <Flex flexDirection="column">{renderTable()}</Flex>
+      <Flex flexDirection="column" style={{ flex: 1 }}>
+        {renderTable()}
+      </Flex>
       <Flex
         sx={{
           width: '100%',
@@ -284,6 +286,8 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
 
 export default styled(TransferHistory)`
   flex: 1;
+  display: flex;
+  flex-direction: column;
   width: 100%;
   background: ${({ theme }) => rgba(theme.background, 0.3)};
   border-radius: 20px;
