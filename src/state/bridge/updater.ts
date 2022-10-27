@@ -119,7 +119,7 @@ export default function Updater(): null {
       if (!isAddress(address)) return
       listTokenOut.push(
         new WrappedTokenInfo({
-          chainId,
+          chainId: chainIdOut,
           decimals,
           symbol,
           name,
