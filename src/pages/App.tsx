@@ -130,7 +130,7 @@ export default function App() {
   const { pathname } = window.location
   const showFooter = !pathname.includes(AppPaths.ABOUT)
   // const feedbackId = isDarkTheme ? 'W5TeOyyH' : 'K0dtSO0v'
-  const feedbackId = isDarkTheme ? 'kyberQ3Dark' : 'kyberQ3Light' // support our event
+  const feedbackId = isDarkTheme ? 'cHvlUe5l' : 'K7NUkCCU' // support our event
 
   return (
     <ErrorBoundary>
