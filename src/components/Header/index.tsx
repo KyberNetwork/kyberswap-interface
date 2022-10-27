@@ -331,7 +331,11 @@ const HoverDropdown = styled.div<{ active: boolean; forceShowDropdown?: boolean 
     ${cssDropDown}
   }
 `
-
+const StyledBridgeIcon = styled(BridgeIcon)`
+  path {
+    fill: currentColor;
+  }
+`
 export default function Header() {
   const { account, chainId } = useActiveWeb3React()
 
@@ -400,7 +404,7 @@ export default function Header() {
                   style={{ flexDirection: 'column', width: '100%' }}
                 >
                   <Flex alignItems="center" sx={{ gap: '10px' }} justifyContent="space-between">
-                    <BridgeIcon height={15} />
+                    <StyledBridgeIcon height={15} />
                     <Flex alignItems={'center'} style={{ flex: 1 }} justifyContent={'space-between'}>
                       <Text>
                         <Trans>Bridge</Trans>
