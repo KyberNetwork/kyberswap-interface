@@ -479,7 +479,7 @@ export default function Header() {
                   target="_blank"
                   href={PROMM_ANALYTICS_URL[chainId as ChainId] + '/home'}
                 >
-                  <Trans>Protocol</Trans>
+                  <Trans>Liquidity</Trans>
                 </StyledNavExternalLink>
 
                 <StyledNavExternalLink target="_blank" href={AGGREGATOR_ANALYTICS_URL}>

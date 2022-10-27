@@ -265,7 +265,7 @@ export default function Menu() {
             link="#"
             title={'Analytics'}
             options={[
-              { link: DMM_ANALYTICS_URL[chainId as ChainId], label: 'Protocol', external: true },
+              { link: DMM_ANALYTICS_URL[chainId as ChainId], label: 'Liquidity', external: true },
               {
                 link: AGGREGATOR_ANALYTICS_URL,
                 label: 'Aggregator',
