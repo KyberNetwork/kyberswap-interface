@@ -18,6 +18,9 @@ import KyberSwapArbitrumLidoFarmTablet from 'assets/banners/[Arbitrum]LidoFarm_o
 import KyberSwapOptimismLidoFarmDesktop from 'assets/banners/[Optimism]LidoFarm_on_site_desktop.png'
 import KyberSwapOptimismLidoFarmMobile from 'assets/banners/[Optimism]LidoFarm_on_site_mobile.png'
 import KyberSwapOptimismLidoFarmTablet from 'assets/banners/[Optimism]LidoFarm_on_site_tablet.png'
+import FeedbackAndWinDesktop from 'assets/banners/feedback-and-win-desktop.png'
+import FeedbackAndWinMobile from 'assets/banners/feedback-and-win-mobile.png'
+import FeedbackAndWinTablet from 'assets/banners/feedback-and-win-tablet.png'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { useWindowSize } from 'hooks/useWindowSize'
@@ -111,6 +114,21 @@ function Banner({
 
   const ALL_BANNERS = useMemo(
     () => [
+      {
+        // KyberSwap Trading Campaign Lido
+        id: 'feedback-and-win',
+        name: 'Feedback and win.',
+        start: new Date('2022-10-27T00:00:00.000Z'),
+        end: new Date('2022-11-08T03:00:00.000Z'),
+        img: isInModal
+          ? FeedbackAndWinMobile
+          : w > 768
+          ? FeedbackAndWinDesktop
+          : w > 500
+          ? FeedbackAndWinTablet
+          : FeedbackAndWinMobile,
+        link: 'https://kyberswap.com/campaigns/kyberswap-trading-campaigns-with-lido-finance-8?networkId=137&utm_source=kyberswap&utm_medium=banner&utm_campaign=lidotradingcontest&utm_content=lidotrading_onsite', // todo update link
+      },
       {
         // KyberSwap Trading Campaign Lido
         id: 'kyberSwap-trading-campaign-Lido',
