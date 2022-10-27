@@ -1,13 +1,10 @@
 import { t } from '@lingui/macro'
 import dayjs from 'dayjs'
-import utc from 'dayjs/plugin/utc'
 import { Flex, Text } from 'rebass'
 
 import useTheme from 'hooks/useTheme'
 
 import { FULL_DATE_FORMAT } from '../consts'
-
-dayjs.extend(utc)
 
 type Props = {
   timestamp?: number | ''
