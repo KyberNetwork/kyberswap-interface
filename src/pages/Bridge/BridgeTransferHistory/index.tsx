@@ -105,7 +105,7 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const [shouldShowLoading, setShouldShowLoading] = useState(true)
-  const { isCompletelyEmpty, range, transfers, isValidating, canGoNext, canGoPrevious, onClickNext, onClickPrevious } =
+  const { isCompletelyEmpty, range, transfers, canGoNext, canGoPrevious, onClickNext, onClickPrevious } =
     useTransferHistory(account || '')
 
   const isThisPageEmpty = transfers.length === 0
@@ -114,18 +114,13 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
   useEffect(() => {
     // This is to ensure loading is displayed at least 0.5s
     const existingTimeout = timeOutRef.current
-
-    if (isValidating) {
-      setShouldShowLoading(true)
-    } else {
-      timeOutRef.current = setTimeout(() => {
-        setShouldShowLoading(false)
-      }, 500)
-    }
+    timeOutRef.current = setTimeout(() => {
+      setShouldShowLoading(false)
+    }, 500)
     return () => {
       existingTimeout && clearTimeout(existingTimeout)
     }
-  }, [isValidating])
+  }, [])
 
   // toast error
   if (shouldShowLoading) {
