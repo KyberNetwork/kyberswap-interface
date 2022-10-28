@@ -193,7 +193,7 @@ const useSwap = ({
     ).then((r) => r.json());
 
     setTrade(res);
-    if (res?.outputAmount) {
+    if (Number(res?.outputAmount)) {
       if (provider && !tokenInBalance.lt(amountIn)) setError("");
     } else {
       setTrade(null);

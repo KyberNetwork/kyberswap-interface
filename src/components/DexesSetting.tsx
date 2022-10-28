@@ -16,7 +16,7 @@ const SourceList = styled.div`
   /* width */
   ::-webkit-scrollbar {
     display: unset;
-    width: 8px;
+    width: 6px;
     border-radius: 999px;
   }
 
@@ -28,12 +28,12 @@ const SourceList = styled.div`
 
   /* Handle */
   ::-webkit-scrollbar-thumb {
-    background: ${({ theme }) => theme.disableText};
+    background: ${({ theme }) => theme.subText + "66"};
     border-radius: 999px;
   }
 `;
 
-const Checkbox = styled.input`
+export const Checkbox = styled.input`
   position: relative;
   transform: scale(1.35);
   accent-color: ${({ theme }) => theme.accent};
@@ -154,7 +154,9 @@ function DexesSetting({
 
         <SourceList>
           {allDexes
-            .filter((item) => item.name.toLowerCase().includes(search.trim()))
+            .filter((item) =>
+              item.name.toLowerCase().includes(search.trim().toLowerCase())
+            )
             .map((item) => (
               <Row key={item.dexId}>
                 <Checkbox

@@ -7,7 +7,7 @@ export const Wrapper = styled.div`
   background: ${({ theme }) => theme.background};
   color: ${({ theme }) => theme.text};
   font-family: ${({ theme }) =>
-    theme.theme || `"Work Sans", "Inter var", sans-serif`};
+    theme.fontFamily || `"Work Sans", "Inter var", sans-serif`};
   position: relative;
   overflow: hidden;
   box-shadow: ${({ theme }) => theme.boxShadow};

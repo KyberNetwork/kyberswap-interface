@@ -49,7 +49,6 @@ const SlippageItem = styled.div<{ isActive: boolean }>`
   background: ${({ theme, isActive }) =>
     isActive ? theme.tab : theme.inputBackground};
   cursor: pointer;
-
   :hover {
     background: ${({ theme }) => theme.tab};
     input {
@@ -204,6 +203,11 @@ function Settings({
             style={{
               flex: 3,
               background: isFocus ? theme.tab : undefined,
+              border: message
+                ? isValid
+                  ? `1px solid ${theme.warning}`
+                  : `1px solid ${theme.error}`
+                : undefined,
             }}
           >
             {message && (
@@ -233,15 +237,16 @@ function Settings({
           </SlippageItem>
         </SlippageWrapper>
         {message && (
-          <span
+          <div
             style={{
               fontSize: "12px",
               color: isValid ? theme.warning : theme.error,
               textAlign: "left",
+              marginTop: "4px",
             }}
           >
             {message}
-          </span>
+          </div>
         )}
       </div>
 

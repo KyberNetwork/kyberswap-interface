@@ -30,6 +30,7 @@ export interface TokenInfo {
   decimals: number;
   logoURI: string;
   chainId: number;
+  isImport?: boolean;
 }
 export const NATIVE_TOKEN: {
   [chainId: number]: TokenInfo;

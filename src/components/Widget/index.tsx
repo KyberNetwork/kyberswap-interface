@@ -44,6 +44,7 @@ import {
   NATIVE_TOKEN,
   NATIVE_TOKEN_ADDRESS,
   SUPPORTED_NETWORKS,
+  TokenInfo,
   ZIndex,
 } from "../../constants";
 import SelectCurrency from "../SelectCurrency";
@@ -57,6 +58,7 @@ import { Token, TokenListProvider, useTokens } from "../../hooks/useTokens";
 import RefreshBtn from "../RefreshBtn";
 import Confirmation from "../Confirmation";
 import DexesSetting from "../DexesSetting";
+import ImportModal from "../ImportModal";
 
 export const DialogWrapper = styled.div`
   background-color: ${({ theme }) => theme.tab};
@@ -121,6 +123,7 @@ enum ModalType {
   CURRENCY_OUT = "currency_out",
   REVIEW = "review",
   DEXES_SETTING = "dexes_setting",
+  IMPORT_TOKEN = "import_token",
 }
 
 export interface WidgetProps {
@@ -188,7 +191,6 @@ const Widget = ({
     ? formatUnits(trade.outputAmount, tokenOutInfo?.decimals).toString()
     : "";
 
-  console.log(trade);
   let minAmountOut = "";
 
   if (amountOut) {
@@ -239,10 +241,16 @@ const Widget = ({
         return "Select a token";
       case ModalType.DEXES_SETTING:
         return "Liquidity Sources";
+      case ModalType.IMPORT_TOKEN:
+        return "Import Token";
+
       default:
         return null;
     }
   })();
+
+  const [tokenToImport, setTokenToImport] = useState<TokenInfo | null>(null);
+  const [importType, setImportType] = useState<"in" | "out">("in");
 
   const modalContent = (() => {
     switch (showModal) {
@@ -267,6 +275,11 @@ const Widget = ({
               setTokenIn(address);
               setShowModal(null);
             }}
+            onImport={(token: TokenInfo) => {
+              setTokenToImport(token);
+              setShowModal(ModalType.IMPORT_TOKEN);
+              setImportType("in");
+            }}
           />
         );
       case ModalType.CURRENCY_OUT:
@@ -277,6 +290,11 @@ const Widget = ({
               if (address === tokenIn) setTokenIn(tokenOut);
               setTokenOut(address);
               setShowModal(null);
+            }}
+            onImport={(token: TokenInfo) => {
+              setTokenToImport(token);
+              setShowModal(ModalType.IMPORT_TOKEN);
+              setImportType("out");
             }}
           />
         );
@@ -307,6 +325,24 @@ const Widget = ({
             setExcludedDexes={setExcludedDexes}
           />
         );
+
+      case ModalType.IMPORT_TOKEN:
+        if (tokenToImport)
+          return (
+            <ImportModal
+              token={tokenToImport}
+              onImport={() => {
+                if (importType === "in") {
+                  setTokenIn(tokenToImport.address);
+                  setShowModal(null);
+                } else {
+                  setTokenOut(tokenToImport.address);
+                  setShowModal(null);
+                }
+              }}
+            />
+          );
+        return null;
       default:
         return null;
     }
@@ -418,6 +454,13 @@ const Widget = ({
                   height="20"
                   src={tokenInInfo?.logoURI}
                   style={{ borderRadius: "50%" }}
+                  onError={({ currentTarget }) => {
+                    currentTarget.onerror = null; // prevents looping
+                    currentTarget.src = new URL(
+                      "../../assets/question.svg",
+                      import.meta.url
+                    ).href;
+                  }}
                 />
                 <div style={{ marginLeft: "0.375rem" }}>
                   {tokenInInfo?.symbol}
@@ -509,6 +552,13 @@ const Widget = ({
                   height="20"
                   src={tokenOutInfo?.logoURI}
                   style={{ borderRadius: "50%" }}
+                  onError={({ currentTarget }) => {
+                    currentTarget.onerror = null; // prevents looping
+                    currentTarget.src = new URL(
+                      "../../assets/question.svg",
+                      import.meta.url
+                    ).href;
+                  }}
                 />
                 <div style={{ marginLeft: "0.375rem" }}>
                   {tokenOutInfo?.symbol}
