@@ -215,6 +215,8 @@ export const DetailRow = styled.div`
   justify-content: space-between;
 `;
 export const DetailLabel = styled.div`
+  display: flex;
+  align-items: center;
   color: ${({ theme }) => theme.subText};
 `;
 export const DetailRight = styled.div`

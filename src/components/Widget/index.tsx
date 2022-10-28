@@ -54,11 +54,12 @@ import useTokenBalances from "../../hooks/useTokenBalances";
 import { formatUnits } from "ethers/lib/utils";
 import useApproval, { APPROVAL_STATE } from "../../hooks/useApproval";
 import Settings from "../Settings";
-import { Token, TokenListProvider, useTokens } from "../../hooks/useTokens";
+import { TokenListProvider, useTokens } from "../../hooks/useTokens";
 import RefreshBtn from "../RefreshBtn";
 import Confirmation from "../Confirmation";
 import DexesSetting from "../DexesSetting";
 import ImportModal from "../ImportModal";
+import InfoHelper from "../InfoHelper";
 
 export const DialogWrapper = styled.div`
   background-color: ${({ theme }) => theme.tab};
@@ -128,7 +129,7 @@ enum ModalType {
 
 export interface WidgetProps {
   provider?: any;
-  tokenList?: Token[];
+  tokenList?: TokenInfo[];
   theme?: Theme;
   defaultTokenIn?: string;
   defaultTokenOut?: string;
@@ -164,6 +165,7 @@ const Widget = ({
     allDexes,
     excludedDexes,
     setExcludedDexes,
+    setTrade,
   } = useSwap({
     defaultTokenIn,
     defaultTokenOut,
@@ -505,6 +507,7 @@ const Widget = ({
 
         <SwitchBtn
           onClick={() => {
+            setTrade(null);
             setTokenIn(tokenOut);
             setTokenOut(tokenIn);
           }}
@@ -576,21 +579,32 @@ const Widget = ({
         <DetailTitle>More information</DetailTitle>
         <Divider />
         <DetailRow>
-          <DetailLabel>Minimum Received</DetailLabel>
+          <DetailLabel>
+            Minimum Received
+            <InfoHelper
+              text={`Minimum amount you will receive or your transaction will revert`}
+            />
+          </DetailLabel>
           <DetailRight>
             {minAmountOut ? `${minAmountOut} ${tokenOutInfo?.symbol}` : "--"}
           </DetailRight>
         </DetailRow>
 
         <DetailRow>
-          <DetailLabel>Gas Fee</DetailLabel>
+          <DetailLabel>
+            Gas Fee{" "}
+            <InfoHelper text="Estimated network fee for your transaction" />
+          </DetailLabel>
           <DetailRight>
             {trade?.gasUsd ? "$" + trade.gasUsd.toPrecision(4) : "--"}
           </DetailRight>
         </DetailRow>
 
         <DetailRow>
-          <DetailLabel>Price Impact</DetailLabel>
+          <DetailLabel>
+            Price Impact
+            <InfoHelper text="Estimated change in price due to the size of your transaction" />
+          </DetailLabel>
           <DetailRight
             style={{
               color:

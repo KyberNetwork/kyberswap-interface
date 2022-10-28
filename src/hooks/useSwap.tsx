@@ -237,6 +237,7 @@ const useSwap = ({
     allDexes,
     excludedDexes,
     setExcludedDexes,
+    setTrade,
   };
 };
 

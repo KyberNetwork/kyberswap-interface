@@ -1,6 +1,5 @@
 import styled, { keyframes } from "styled-components";
 import { Trade } from "../../hooks/useSwap";
-import { Token } from "../../hooks/useTokens";
 import { ReactComponent as Arrow } from "../../assets/back.svg";
 import { ReactComponent as Warning } from "../../assets/warning.svg";
 import {
@@ -16,13 +15,14 @@ import useTheme from "../../hooks/useTheme";
 import { useActiveWeb3 } from "../../hooks/useWeb3Provider";
 import { useEffect, useState } from "react";
 import { BigNumber } from "ethers";
-import { NATIVE_TOKEN_ADDRESS, SCAN_LINK } from "../../constants";
+import { NATIVE_TOKEN_ADDRESS, SCAN_LINK, TokenInfo } from "../../constants";
 import { ReactComponent as BackIcon } from "../../assets/back.svg";
 import { ReactComponent as Loading } from "../../assets/loader.svg";
 import { ReactComponent as External } from "../../assets/external.svg";
 import { ReactComponent as SuccessSVG } from "../../assets/success.svg";
 import { ReactComponent as ErrorIcon } from "../../assets/error.svg";
 import { ReactComponent as Info } from "../../assets/info.svg";
+import InfoHelper from "../InfoHelper";
 
 const Success = styled(SuccessSVG)`
   color: ${({ theme }) => theme.success};
@@ -163,9 +163,9 @@ function Confirmation({
   onClose,
 }: {
   trade: Trade;
-  tokenInInfo: Token;
+  tokenInInfo: TokenInfo;
   amountIn: string;
-  tokenOutInfo: Token;
+  tokenOutInfo: TokenInfo;
   amountOut: string;
   rate: number;
   slippage: number;
@@ -206,7 +206,13 @@ function Confirmation({
     }
   }, [txHash, provider]);
 
+  const [snapshotTrade, setSnapshotTrade] = useState<{
+    amountIn: string;
+    amountOut: string;
+  } | null>(null);
+
   const confirmSwap = async () => {
+    setSnapshotTrade({ amountIn, amountOut });
     const estimateGasOption = {
       from: account,
       to: trade?.routerAddress,
@@ -260,10 +266,10 @@ function Confirmation({
           )}
           <Amount>
             <img src={tokenInInfo.logoURI} width="16" height="16" />
-            {+Number(amountIn).toPrecision(6)}
+            {+Number(snapshotTrade?.amountIn).toPrecision(6)}
             <Arrow style={{ width: 16, transform: "rotate(180deg)" }} />
             <img src={tokenOutInfo.logoURI} width="16" height="16" />
-            {+Number(amountOut).toPrecision(6)}
+            {+Number(snapshotTrade?.amountOut).toPrecision(6)}
           </Amount>
           {!txHash && (
             <SubText>Confirm this transaction in your wallet</SubText>
@@ -337,7 +343,18 @@ function Confirmation({
       </ModalHeader>
 
       <Flex>
-        <img src={tokenInInfo.logoURI} width="28" height="28" />
+        <img
+          src={tokenInInfo.logoURI}
+          width="28"
+          height="28"
+          onError={({ currentTarget }) => {
+            currentTarget.onerror = null; // prevents looping
+            currentTarget.src = new URL(
+              "../../assets/question.svg",
+              import.meta.url
+            ).href;
+          }}
+        />
         {+Number(amountIn).toPrecision(10)}
         <div>{tokenInInfo.symbol}</div>
       </Flex>
@@ -345,7 +362,18 @@ function Confirmation({
       <ArrowDown />
 
       <Flex>
-        <img src={tokenOutInfo.logoURI} width="28" height="28" />
+        <img
+          src={tokenOutInfo.logoURI}
+          width="28"
+          height="28"
+          onError={({ currentTarget }) => {
+            currentTarget.onerror = null; // prevents looping
+            currentTarget.src = new URL(
+              "../../assets/question.svg",
+              import.meta.url
+            ).href;
+          }}
+        />
         {+Number(amountOut).toPrecision(10)}
         <div>{tokenOutInfo.symbol}</div>
       </Flex>
@@ -364,19 +392,30 @@ function Confirmation({
         </DetailRow>
 
         <DetailRow>
-          <DetailLabel>Minimum Received</DetailLabel>
+          <DetailLabel>
+            Minimum Received
+            <InfoHelper
+              text={`Minimum amount you will receive or your transaction will revert`}
+            />
+          </DetailLabel>
           <DetailRight>
             {minAmountOut} {tokenOutInfo.symbol}
           </DetailRight>
         </DetailRow>
 
         <DetailRow>
-          <DetailLabel>Gas Fee</DetailLabel>
+          <DetailLabel>
+            Gas Fee
+            <InfoHelper text="Estimated network fee for your transaction" />
+          </DetailLabel>
           <DetailRight>${trade.gasUsd.toPrecision(4)}</DetailRight>
         </DetailRow>
 
         <DetailRow>
-          <DetailLabel>Price Impact</DetailLabel>
+          <DetailLabel>
+            Price Impact
+            <InfoHelper text="Estimated change in price due to the size of your transaction" />
+          </DetailLabel>
           <DetailRight
             style={{
               color:

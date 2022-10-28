@@ -4,6 +4,7 @@ import useTheme from "../hooks/useTheme";
 import { ReactComponent as BackIcon } from "../assets/back1.svg";
 import { Dex } from "../hooks/useSwap";
 import { ReactComponent as AlertIcon } from "../assets/alert.svg";
+import InfoHelper from "./InfoHelper";
 
 const Label = styled.div`
   font-size: 0.75rem;
@@ -172,7 +173,13 @@ function Settings({
   return (
     <>
       <div>
-        <Label>Max Slippage</Label>
+        <Label>
+          Max Slippage
+          <InfoHelper
+            color={theme.text}
+            text={`Transaction will revert if there is an adverse rate change that is higher than this %`}
+          />
+        </Label>
         <SlippageWrapper>
           <SlippageItem
             isActive={slippage === 5}
@@ -251,7 +258,13 @@ function Settings({
       </div>
 
       <Row>
-        <Label>Transaction Time Limit</Label>
+        <Label>
+          Transaction Time Limit
+          <InfoHelper
+            color={theme.text}
+            text="Transaction will revert if it is pending for longer than the indicated time"
+          />
+        </Label>
         <TTLInput>
           <input
             maxLength={5}
@@ -272,7 +285,13 @@ function Settings({
       </Row>
 
       <Row>
-        <Label>Liquidity Sources</Label>
+        <Label>
+          Liquidity Sources
+          <InfoHelper
+            color={theme.text}
+            text={`Your trade is routed through one or more of these liquidity sources`}
+          />
+        </Label>
         <div
           role="button"
           onClick={onShowSource}
