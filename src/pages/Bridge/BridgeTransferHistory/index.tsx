@@ -101,6 +101,7 @@ type Props = {
 }
 const TransferHistory: React.FC<Props> = ({ className }) => {
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+  const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const [shouldShowLoading, setShouldShowLoading] = useState(true)
@@ -163,19 +164,21 @@ const TransferHistory: React.FC<Props> = ({ className }) => {
     if (transfers.length === ITEMS_PER_PAGE) {
       return null
     }
-
-    return Array(ITEMS_PER_PAGE - transfers.length)
-      .fill(0)
-      .map((_, i) => {
-        return (
-          <TableRow
-            key={i}
-            style={{
-              visibility: 'hidden',
-            }}
-          />
-        )
-      })
+    if (!upToMedium) {
+      return Array(ITEMS_PER_PAGE - transfers.length)
+        .fill(0)
+        .map((_, i) => {
+          return (
+            <TableRow
+              key={i}
+              style={{
+                visibility: 'hidden',
+              }}
+            />
+          )
+        })
+    }
+    return null
   }
 
   const getTxsUrl = (txHash: string) => `https://anyswap.net/explorer/tx?params=${txHash}`
