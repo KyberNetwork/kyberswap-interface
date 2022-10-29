@@ -244,8 +244,7 @@ export default function WalletModal({
         const readyStateSolana = isSolanaWallet(wallet) ? wallet.readyStateSolana() : undefined
         return (isEVM && readyStateEVM) || (isSolana && readyStateSolana) || readyStateEVM || readyStateSolana
       })()
-      const isSupportCurrentChain =
-        (isEVMWallet(wallet) && isEVM) || (isSolanaWallet(wallet) && isSolana) || k === 'COINBASE_LINK' || false
+      const isSupportCurrentChain = (isEVMWallet(wallet) && isEVM) || (isSolanaWallet(wallet) && isSolana) || false
       const overridden = isOverriddenWallet(k)
       return {
         ...wallet,

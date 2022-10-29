@@ -15,7 +15,6 @@ import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
-import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
@@ -101,7 +100,6 @@ export default function ShareModal({
   const isOpen = useModalOpen(ApplicationModal.SHARE)
   const toggle = useToggleModal(ApplicationModal.SHARE)
   const theme = useTheme()
-  const { chainId } = useActiveWeb3React()
   const { pathname } = useLocation()
 
   const modalTitle =
@@ -112,7 +110,7 @@ export default function ShareModal({
       ? t`Share this campaign with your friends!`
       : t`Share this pool with your friends!`)
 
-  const shareUrl = url || window.location.href + `?networkId=${chainId}`
+  const shareUrl = url || window.location.href
   const [showAlert, setShowAlert] = useState(false)
   const handleCopyClick = () => {
     setShowAlert(true)

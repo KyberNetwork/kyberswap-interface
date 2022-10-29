@@ -35,6 +35,7 @@ import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
+import { useSyncNetworkParamWithStore } from 'hooks/useSyncNetworkParamWithStore'
 import { AppState } from 'state'
 import { useBlockNumber } from 'state/application/hooks'
 import { FarmUpdater, useElasticFarms } from 'state/farms/elastic/hooks'
@@ -70,6 +71,7 @@ const Farm = () => {
     }
   }
   const { mixpanelHandler } = useMixpanel()
+  useSyncNetworkParamWithStore()
 
   // Total rewards for Classic pool
   const { data: farmsByFairLaunch } = useFarmsData()

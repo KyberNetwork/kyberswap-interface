@@ -43,12 +43,12 @@ export default function Web3ReactManager({ children }: { children: JSX.Element }
   const dispatch = useDispatch()
   /** On user change network from wallet, update chainId in store */
   useEffect(() => {
-    if (triedEager && chainId && chainIdState !== chainId) {
+    if (triedEager && chainId && chainIdState !== chainId && active) {
       dispatch(updateChainId(chainId))
     }
     // Only run on change network from wallet
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chainId, triedEager])
+  }, [chainId, triedEager, active])
 
   // on page load, do nothing until we've tried to connect to the injected connector
   if (isEVM && !triedEager) {

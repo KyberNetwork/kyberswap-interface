@@ -13,6 +13,7 @@ import NetworkModal from 'components/Header/web3/NetworkModal'
 import InfoHelper from 'components/InfoHelper'
 import Slider from 'components/Slider'
 import Toggle from 'components/Toggle'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
@@ -38,6 +39,10 @@ const BodyWrapper = styled.div`
   border-radius: 8px;
   padding: 20px;
   margin: auto;
+
+  ${Toggle} {
+    background: ${({ theme }) => theme.buttonBlack};
+  }
 `
 
 const AboutDropdown = styled.div`
@@ -166,7 +171,7 @@ export default function CreateReferral() {
     if ((address && isShowTokens && currencyA && currencyB) || (address && !isShowTokens)) {
       return (
         window.location.origin +
-        '/swap?' +
+        `/swap${isShowChain ? `/${NETWORKS_INFO[chainId].route}` : ''}?` +
         `referral=${address}&fee_bip=${commission}${
           isShowTokens
             ? `&inputCurrency=${currencyId(currencyA as Currency, chainId)}&outputCurrency=${currencyId(
@@ -174,7 +179,7 @@ export default function CreateReferral() {
                 chainId,
               )}`
             : ''
-        }${isShowChain ? `&networkId=${chainId}` : ''}`
+        }`
       )
     }
     return ''

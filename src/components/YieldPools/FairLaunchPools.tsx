@@ -64,9 +64,8 @@ const FairLaunchPools = ({ fairLaunchAddress, farms }: FarmsListProps) => {
   }, [isShareModalOpen, setSharedPoolAddress])
 
   if (!isEVM) return <Redirect to="/" />
-
   const shareUrl = sharedPoolAddress
-    ? window.location.origin + '/farms?search=' + sharedPoolAddress + '&tab=classic&networkId=' + networkRoute
+    ? window.location.origin + `/farms/${networkRoute}?search=` + sharedPoolAddress + '&tab=classic'
     : undefined
 
   const handleHarvestAll = async () => {

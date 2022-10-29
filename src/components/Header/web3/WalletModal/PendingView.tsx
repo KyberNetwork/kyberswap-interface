@@ -41,6 +41,9 @@ const ErrorGroup = styled.div`
   justify-content: space-between;
   display: flex;
   width: 100%;
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    font-size:14px;
+  `}
 `
 
 const ErrorButton = styled.div`
@@ -48,11 +51,10 @@ const ErrorButton = styled.div`
   font-size: 12px;
   color: ${({ theme }) => theme.primary};
   background-color: rgba(49, 203, 158, 0.2);
-  margin-left: 1rem;
   padding: 0.5rem;
   font-weight: 600;
   user-select: none;
-
+  min-width: 70px;
   &:hover {
     cursor: pointer;
     background-color: ${({ theme }) => darken(0.1, theme.bg7)};

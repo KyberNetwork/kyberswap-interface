@@ -1,9 +1,9 @@
 import { t } from '@lingui/macro'
 import { ChainId } from '@namgold/ks-sdk-core'
 import { UnsupportedChainIdError } from '@web3-react/core'
-import { useCallback, useEffect } from 'react'
+import { useCallback } from 'react'
 
-import { EVM_NETWORK, NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM, isSolana } from 'constants/networks'
+import { EVM_NETWORK, NETWORKS_INFO, isEVM, isSolana } from 'constants/networks'
 import { SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { NotificationType, useNotify } from 'state/application/hooks'
@@ -12,7 +12,6 @@ import { updateChainId } from 'state/user/actions'
 import { isEVMWallet, isSolanaWallet } from 'utils'
 
 import { useActivationWallet } from './useActivationWallet'
-import useParsedQueryString from './useParsedQueryString'
 
 const getEVMAddNetworkParams = (chainId: EVM_NETWORK) => ({
   chainId: '0x' + chainId.toString(16),
@@ -26,22 +25,11 @@ const getEVMAddNetworkParams = (chainId: EVM_NETWORK) => ({
   blockExplorerUrls: [NETWORKS_INFO[chainId].etherscanUrl],
 })
 
-/**
- * Given a network string (e.g. from user agent), return the best match for corresponding SupportedNetwork
- * @param maybeSupportedNetwork the fuzzy network identifier, can be networkId (1, 137, ...) or networkName (ethereum, polygon, ...)
- */
-function parseNetworkId(maybeSupportedNetwork: string): ChainId | undefined {
-  return SUPPORTED_NETWORKS.find(chainId => {
-    return chainId.toString() === maybeSupportedNetwork || NETWORKS_INFO[chainId].route === maybeSupportedNetwork
-  })
-}
-
 export function useChangeNetwork() {
   const { chainId, walletKey, walletEVM } = useActiveWeb3React()
   const { library, error } = useWeb3React()
   const { tryActivationEVM, tryActivationSolana } = useActivationWallet()
 
-  const qs = useParsedQueryString<{ networkId: string }>()
   const dispatch = useAppDispatch()
   const notify = useNotify()
 
@@ -56,6 +44,7 @@ export function useChangeNetwork() {
   const changeNetwork = useCallback(
     async (desiredChainId: ChainId, successCallback?: () => void, failureCallback?: () => void) => {
       if (desiredChainId === chainId) return
+
       const wallet = walletKey && SUPPORTED_WALLETS[walletKey]
       if (wallet && isEVMWallet(wallet) && !isSolana(desiredChainId)) {
         tryActivationEVM(wallet.connector)
@@ -136,13 +125,6 @@ export function useChangeNetwork() {
       chainId,
     ],
   )
-
-  useEffect(() => {
-    const urlNetworkId = typeof qs.networkId === 'string' ? parseNetworkId(qs.networkId) : undefined
-    if (urlNetworkId && urlNetworkId !== chainId) {
-      changeNetwork(urlNetworkId)
-    }
-  }, [chainId, changeNetwork, qs.networkId])
 
   return changeNetwork
 }

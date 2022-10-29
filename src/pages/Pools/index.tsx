@@ -23,6 +23,7 @@ import { useCurrency } from 'hooks/Tokens'
 import useDebounce from 'hooks/useDebounce'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
+import { useSyncNetworkParamWithStore } from 'hooks/useSyncNetworkParamWithStore'
 import useTheme from 'hooks/useTheme'
 import FarmingPoolsMarquee from 'pages/Pools/FarmingPoolsMarquee'
 import { GlobalData, Instruction } from 'pages/Pools/InstructionAndGlobalData'
@@ -105,6 +106,8 @@ const Pools = ({
   const onSearch = (search: string) => {
     history.replace(location.pathname + '?search=' + search + '&tab=' + tab)
   }
+
+  useSyncNetworkParamWithStore()
 
   const currencyA = useCurrency(currencyIdA)
   const currencyB = useCurrency(currencyIdB)

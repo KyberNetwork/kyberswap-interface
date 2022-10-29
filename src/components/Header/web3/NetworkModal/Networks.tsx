@@ -129,7 +129,7 @@ const Networks = ({
                 ? undefined
                 : () => {
                     changeNetwork(key, () => {
-                      const { networkId, inputCurrency, outputCurrency, ...rest } = qs
+                      const { inputCurrency, outputCurrency, ...rest } = qs
                       history.replace({
                         search: stringify(rest),
                       })

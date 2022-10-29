@@ -147,9 +147,7 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
     icon: COINBASE,
     iconLight: COINBASE_L,
     readyState: detectCoinBaseLink,
-    // Coinbase Link can open Coinbase app on mobile even in solana
-    readyStateSolana: () => (isMobile ? WalletReadyState.Installed : undefined),
-  } as EVMWalletInfo & { readyStateSolana: () => void },
+  } as EVMWalletInfo,
   WALLET_CONNECT: {
     connector: walletconnect,
     name: 'WalletConnect',
