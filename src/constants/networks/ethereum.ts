@@ -2,7 +2,7 @@ import { ChainId } from '@namgold/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import Mainnet from 'assets/networks/mainnet-network.svg'
-import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
+import { KS_SETTING_API, META_AGGREGATOR_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
 
@@ -34,7 +34,7 @@ const ethereumInfo: EVMNetworkInfo = {
     decimal: 18,
   },
   rpcUrl: 'https://ethereum.kyberengineering.io',
-  routerUri: `${AGGREGATOR_API}/ethereum/route/encode`,
+  routerUri: `${META_AGGREGATOR_API}/ethereum/route/encode`,
   multicall: '0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696',
   classic: {
     static: {

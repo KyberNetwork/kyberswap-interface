@@ -108,7 +108,8 @@ export function useApproveCallback(
         gasLimit: calculateGasMargin(estimatedGas),
       })
       .then((response: TransactionResponse) => {
-        addTransactionWithType(response, {
+        addTransactionWithType({
+          hash: response.hash,
           type: 'Approve',
           summary: amountToApprove.currency.isNative
             ? NativeCurrencies[chainId].symbol

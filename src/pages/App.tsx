@@ -27,11 +27,11 @@ import DarkModeQueryParamReader from 'theme/DarkModeQueryParamReader'
 import { isAddressString, shortenAddress } from 'utils'
 
 import { RedirectDuplicateTokenIds } from './AddLiquidityV2/redirects'
-import Swap from './Swap'
 import { RedirectPathToSwapNetwork } from './Swap/redirects'
 import SwapV2 from './SwapV2'
 
 // Route-based code splitting
+const Swap = lazy(() => import(/* webpackChunkName: 'swap-page' */ './Swap'))
 const Pools = lazy(() => import(/* webpackChunkName: 'pools-page' */ './Pools'))
 const Pool = lazy(() => import(/* webpackChunkName: 'my-pool-page' */ './Pool'))
 

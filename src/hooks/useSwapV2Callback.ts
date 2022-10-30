@@ -1,5 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
+import { useWallet } from '@solana/wallet-adapter-react'
 import { useCallback, useMemo } from 'react'
 
 import { useActiveWeb3React, useWeb3React } from 'hooks/index'
@@ -10,7 +11,7 @@ import { useUserSlippageTolerance } from 'state/user/hooks'
 import { isAddress, shortenAddress } from 'utils'
 import { Aggregator } from 'utils/aggregator'
 import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
-import { sendEVMTransaction, sendSolanaTransaction } from 'utils/sendTransaction'
+import { sendEVMTransaction, sendSolanaTransactionWithBEEncode } from 'utils/sendTransaction'
 
 import useProvider from './solana/useProvider'
 import useSolanaAggregatorProgram from './solana/useSolanaAggregatorProgram'
@@ -32,14 +33,14 @@ export interface FeeConfig {
 // and the user has approved the slippage adjusted input amount for the trade
 export function useSwapV2Callback(
   trade: Aggregator | undefined, // trade to execute, required
-  recipientAddressOrName: string | null, // the ENS name or address of the recipient of the trade, or null if swap should be returned to sender
 ): { state: SwapCallbackState; callback: null | (() => Promise<string>); error: string | null } {
   const { account, chainId, isEVM, isSolana } = useActiveWeb3React()
   const { library } = useWeb3React()
+  const { wallet: solanaWallet } = useWallet()
   const solanaAggregatorProgram = useSolanaAggregatorProgram()
   const provider = useProvider()
 
-  const { typedValue, feeConfig, saveGas } = useSwapState()
+  const { typedValue, feeConfig, saveGas, recipient: recipientAddressOrName } = useSwapState()
 
   const [allowedSlippage] = useUserSlippageTolerance()
 
@@ -50,7 +51,7 @@ export function useSwapV2Callback(
   const recipient = recipientAddressOrName === null || recipientAddressOrName === '' ? account : recipientAddress
 
   const onHandleResponse = useCallback(
-    (response: TransactionResponse) => {
+    (hash: string, firstTxHash?: string) => {
       if (!trade) {
         throw new Error('"trade" is undefined.')
       }
@@ -72,7 +73,8 @@ export function useSwapV2Callback(
                 : recipientAddressOrName
             }`
 
-      addTransactionWithType(response, {
+      addTransactionWithType({
+        hash,
         type: 'Swap',
         summary: `${base} ${withRecipient ?? ''}`,
         arbitrary: {
@@ -86,6 +88,7 @@ export function useSwapV2Callback(
           slippageSetting: allowedSlippage ? allowedSlippage / 100 : 0,
           priceImpact: trade && trade?.priceImpact > 0.01 ? trade?.priceImpact.toFixed(2) : '<0.01',
         },
+        firstTxHash,
       })
     },
     [
@@ -122,7 +125,7 @@ export function useSwapV2Callback(
         trade.routerAddress,
         trade.encodedSwapData,
         value,
-        onHandleResponse,
+        (tx: TransactionResponse) => onHandleResponse(tx.hash),
       )
       if (hash === undefined) throw new Error('sendTransaction returned undefined.')
       return hash
@@ -130,18 +133,17 @@ export function useSwapV2Callback(
 
     const onSwapSolana = async (): Promise<string> => {
       if (!provider) throw new Error('Please connect wallet first')
+      if (!solanaWallet?.adapter) throw new Error('Please connect wallet first')
       if (!solanaAggregatorProgram) throw new Error('Please connect wallet first')
-      const hash = await sendSolanaTransaction(
+      if (!trade.encodedSwapTx) throw new Error('Encode not found')
+      const hash = await sendSolanaTransactionWithBEEncode(
         account,
-        solanaAggregatorProgram,
-        trade.routerAddress,
-        provider,
         trade,
-        value,
+        solanaWallet.adapter as any,
         onHandleResponse,
       )
       if (hash === undefined) throw new Error('sendTransaction returned undefined.')
-      return hash
+      return hash[0]
     }
 
     return {
@@ -158,7 +160,8 @@ export function useSwapV2Callback(
     recipientAddressOrName,
     library,
     onHandleResponse,
-    solanaAggregatorProgram,
     provider,
+    solanaWallet,
+    solanaAggregatorProgram,
   ])
 }

@@ -2,7 +2,7 @@ import { ChainId } from '@namgold/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import ARBITRUM from 'assets/networks/arbitrum-network.svg'
-import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
+import { KS_SETTING_API, META_AGGREGATOR_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
 
@@ -36,7 +36,7 @@ const arbitrumInfo: EVMNetworkInfo = {
     decimal: 18,
   },
   rpcUrl: 'https://arbitrum.kyberengineering.io',
-  routerUri: `${AGGREGATOR_API}/arbitrum/route/encode`,
+  routerUri: `${META_AGGREGATOR_API}/arbitrum/route/encode`,
   multicall: '0x80C7DD17B01855a6D2347444a0FCC36136a314de', // must use this for arbitrum to get exactly block number instead of L1 block number
   classic: {
     static: {

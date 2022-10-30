@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 
 const instancesSet: { [title: string]: Set<Error> } = {}
+let globalGroupLevel = 0
 
 /**
  * Help detect reason of rerendering in React's components and hooks
@@ -22,7 +23,7 @@ export default function useDebug(
   const prevProps = useRef(props)
   const instanceRef = useRef(new Error())
   const trace = instanceRef.current.stack || ''
-  // const skipRealChanged = true // recommend: true
+  const skipRealChanged = false // recommend: true
   const logOnlyOneInstance: number | undefined = undefined // use when debugging hooks reused in so many places, like useActiveWeb3React has hundred of instances
 
   const callerName = (() => {
@@ -53,80 +54,92 @@ export default function useDebug(
     const instances = [...instancesSet[callerName]]
     const instanceIndex = instances.indexOf(instanceRef.current) + 1
     if (logOnlyOneInstance && instanceIndex !== logOnlyOneInstance) return
-    const propKeys = new Set<string>()
-    Object.keys(prevProps.current).forEach(key => propKeys.add(key))
-    Object.keys(props).forEach(key => propKeys.add(key))
-    let hasChanged = false
-    propKeys.forEach(key => {
-      if (props[key] !== prevProps.current[key]) hasChanged = true
-    })
-    if (hasChanged) {
-      let hasRealChanged = false
-      let groupLevel = 0
-      try {
-        propKeys.forEach(key => {
-          if (props[key] !== prevProps.current[key]) {
-            const isRealChanged = JSON.stringify(prevProps.current[key]) !== JSON.stringify(props[key])
-            if (isRealChanged) hasRealChanged = true
-          }
-        })
-        // if (hasRealChanged && skipRealChanged) return
+    globalGroupLevel = 0
+    try {
+      const changed = analyzeChanged(prevProps.current, props)
+      if (!changed) return
+      if (!changed.isObject) return
+      if (changed.isRealChanged && skipRealChanged) return
 
-        console.groupCollapsed(
-          `%cDebug found changed %c${callerName} (${instanceIndex}/${instances.length}) ${
-            hasRealChanged ? '' : '🆘 🆘 🆘'
-          }`,
-          'color: unset',
-          'color: #b5a400',
-        )
-        groupLevel++
-        propKeys.forEach(key => {
-          if (props[key] !== prevProps.current[key]) {
-            const isRealChanged = JSON.stringify(prevProps.current[key]) !== JSON.stringify(props[key])
-            // if (isRealChanged && skipRealChanged) return
-            console.group(`%c${key}`, 'color: #b5a400')
-            groupLevel++
-            console.log('Is real changed:', isRealChanged, isRealChanged ? '' : '🆘 🆘 🆘')
-            console.log(' - Old:', prevProps.current[key])
-            console.log(' - New:', props[key])
-            if (
-              prevProps.current[key] &&
-              typeof prevProps.current[key] === 'object' &&
-              props[key] &&
-              typeof props[key] === 'object' &&
-              isRealChanged
-            ) {
-              // find which key is really changed for object and array
-              const propSubKeys = new Set<string>()
-              Object.keys(prevProps.current[key]).forEach(subkey => propSubKeys.add(subkey))
-              Object.keys(props[key]).forEach(subkey => propSubKeys.add(subkey))
-              propSubKeys.forEach(subkey => {
-                if (props[key][subkey] !== prevProps.current[key][subkey]) {
-                  console.group('Subkey:', subkey)
-                  groupLevel++
-                  console.log(' - Old:', prevProps.current[key][subkey])
-                  console.log(' - New:', props[key][subkey])
-                  console.groupEnd()
-                  groupLevel--
-                }
-              })
-            }
-            console.groupEnd()
-            groupLevel--
-          }
-        })
-        console.groupCollapsed('Trace')
-        groupLevel++
-        console.log(trace)
-        console.groupEnd()
-        groupLevel--
-        console.groupEnd()
-        groupLevel--
-      } catch (e) {
-        for (; groupLevel-- > 0; console.groupEnd());
-      }
+      console.groupCollapsed(
+        `%cDebug found changed %c${callerName} (${instanceIndex}/${instances.length}) ${
+          changed.isRealChanged ? '' : '🆘 🆘 🆘'
+        }`,
+        'color: unset',
+        'color: #b5a400',
+      )
+      globalGroupLevel++
+      Object.keys(changed.subChanges).forEach(key => printChanged(changed.subChanges[key], key))
+      console.groupCollapsed('Trace')
+      globalGroupLevel++
+      console.log(trace)
+      console.groupEnd()
+      globalGroupLevel--
+      console.groupEnd()
+      globalGroupLevel--
+    } catch (e) {
+      for (; globalGroupLevel-- > 0; console.groupEnd());
     }
     prevProps.current = props
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, Object.values(props))
+}
+
+type Changed =
+  | {
+      isObject: false
+      oldValue: any
+      newValue: any
+    }
+  | {
+      isObject: true
+      isRealChanged: boolean
+      subChanges: { [key: string]: Changed }
+    }
+  | undefined // no changed
+
+const analyzeChanged = (oldValue: any, newValue: any): Changed => {
+  let result: Changed = undefined
+
+  if (oldValue !== newValue) {
+    if (oldValue && typeof oldValue === 'object' && newValue && typeof newValue === 'object') {
+      // find which key is really changed for object and array
+      const propSubKeys = new Set<string>()
+      Object.keys(oldValue).forEach(subkey => propSubKeys.add(subkey))
+      Object.keys(newValue).forEach(subkey => propSubKeys.add(subkey))
+      const subResults = [...propSubKeys].map(
+        subkey => [subkey, analyzeChanged(oldValue[subkey], newValue[subkey])] as const,
+      )
+      const isRealChanged = subResults.some(subResult => !subResult[1]?.isObject || subResult[1]?.isRealChanged)
+      result = {
+        isObject: true,
+        subChanges: Object.fromEntries(subResults),
+        isRealChanged,
+      }
+    } else {
+      result = {
+        isObject: false,
+        oldValue: oldValue,
+        newValue: newValue,
+      }
+    }
+  }
+  return result
+}
+
+const printChanged = (changed: Changed | undefined, name: string): void => {
+  if (!changed) return
+  console.group(`%c${name} %cchanged`, 'color: #b5a400', 'color: unset')
+  const isRealChanged = !changed.isObject || changed.isRealChanged
+  // if (isRealChanged && skipRealChanged) return
+  globalGroupLevel++
+  console.log('Is real changed:', isRealChanged, isRealChanged ? '' : '🆘 🆘 🆘')
+  if (!changed.isObject) {
+    console.log(' - Old:', changed.oldValue)
+    console.log(' - New:', changed.newValue)
+  } else {
+    Object.keys(changed.subChanges).forEach(key => printChanged(changed.subChanges[key], key))
+  }
+  console.groupEnd()
+  globalGroupLevel--
 }

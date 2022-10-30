@@ -43,7 +43,7 @@ import { Field } from 'state/mint/actions'
 import { useDerivedMintInfo, useMintActionHandlers, useMintState } from 'state/mint/hooks'
 import { useDerivedPairInfo } from 'state/pair/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
-import { useIsExpertMode, usePairAdderByTokens, useUserSlippageTolerance } from 'state/user/hooks'
+import { useExpertModeManager, usePairAdderByTokens, useUserSlippageTolerance } from 'state/user/hooks'
 import { StyledInternalLink, TYPE } from 'theme'
 import { calculateGasMargin, calculateSlippageAmount, formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
@@ -97,7 +97,7 @@ export default function CreatePool({
 
   const toggleWalletModal = useWalletModalToggle() // toggle wallet when disconnected
 
-  const expertMode = useIsExpertMode()
+  const [expertMode] = useExpertModeManager()
 
   // fee types
   const [feeType, setFeeType] = useState<string>(FEE_TYPE.STATIC)
@@ -260,7 +260,8 @@ export default function CreatePool({
             const cB = currencies[Field.CURRENCY_B]
             if (!!cA && !!cB) {
               setAttemptingTxn(false)
-              addTransactionWithType(response, {
+              addTransactionWithType({
+                hash: response.hash,
                 type: 'Create pool',
                 summary:
                   parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) +

@@ -364,7 +364,8 @@ export default function TokenPair({
           if (!!currencyA && !!currencyB) {
             setAttemptingTxn(false)
 
-            addTransactionWithType(response, {
+            addTransactionWithType({
+              hash: response.hash,
               type: 'Remove liquidity',
               summary:
                 parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) +

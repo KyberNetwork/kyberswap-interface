@@ -50,7 +50,7 @@ import {
   useRangeHopCallbacks,
 } from 'state/mint/proamm/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
-import { useIsExpertMode, useUserSlippageTolerance } from 'state/user/hooks'
+import { useExpertModeManager, useUserSlippageTolerance } from 'state/user/hooks'
 import { StyledInternalLink, TYPE } from 'theme'
 import { basisPointsToPercent, calculateGasMargin, formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
@@ -87,7 +87,7 @@ export default function AddLiquidity({
   const { library } = useWeb3React()
   const theme = useTheme()
   const toggleWalletModal = useWalletModalToggle() // toggle wallet when disconnected
-  const expertMode = useIsExpertMode()
+  const [expertMode] = useExpertModeManager()
   const addTransactionWithType = useTransactionAdder()
   const positionManager = useProAmmNFTPositionManagerContract()
   // check for existing position if tokenId in url
@@ -293,7 +293,8 @@ export default function AddLiquidity({
             .then((response: TransactionResponse) => {
               setAttemptingTxn(false)
               if (noLiquidity) {
-                addTransactionWithType(response, {
+                addTransactionWithType({
+                  hash: response.hash,
                   type: 'Elastic Create pool',
                   summary: `${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) ?? '0'} ${baseCurrency.symbol} and ${
                     parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) ?? '0'
@@ -304,7 +305,8 @@ export default function AddLiquidity({
                   },
                 })
               } else {
-                addTransactionWithType(response, {
+                addTransactionWithType({
+                  hash: response.hash,
                   type: 'Elastic Add liquidity',
                   summary: `${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) ?? '0'} ${baseCurrency.symbol} and ${
                     parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) ?? '0'

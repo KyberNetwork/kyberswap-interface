@@ -98,7 +98,8 @@ export default function ProAmmFee({
           .getSigner()
           .sendTransaction(newTxn)
           .then((response: TransactionResponse) => {
-            addTransactionWithType(response, {
+            addTransactionWithType({
+              hash: response.hash,
               type: 'Collect fee',
               summary:
                 feeValue0.toSignificant(6) +

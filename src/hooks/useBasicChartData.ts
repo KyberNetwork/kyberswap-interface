@@ -4,7 +4,7 @@ import { getUnixTime, subHours } from 'date-fns'
 import { useMemo } from 'react'
 import useSWR from 'swr'
 
-import { AGGREGATOR_API, PRICE_CHART_API } from 'constants/env'
+import { META_AGGREGATOR_API, PRICE_CHART_API } from 'constants/env'
 import { COINGECKO_API_URL } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
@@ -59,13 +59,13 @@ const getClosestPrice = (prices: any[], time: number) => {
 }
 
 const liveDataApi: { [chainId in ChainId]?: string } = {
-  [ChainId.MAINNET]: `${AGGREGATOR_API}/ethereum/tokens`,
-  [ChainId.BSCMAINNET]: `${AGGREGATOR_API}/bsc/tokens`,
-  [ChainId.MATIC]: `${AGGREGATOR_API}/polygon/tokens`,
-  [ChainId.AVAXMAINNET]: `${AGGREGATOR_API}/avalanche/tokens`,
-  [ChainId.FANTOM]: `${AGGREGATOR_API}/fantom/tokens`,
-  [ChainId.CRONOS]: `${AGGREGATOR_API}/cronos/tokens`,
-  [ChainId.ARBITRUM]: `${AGGREGATOR_API}/arbitrum/tokens`,
+  [ChainId.MAINNET]: `${META_AGGREGATOR_API}/ethereum/tokens`,
+  [ChainId.BSCMAINNET]: `${META_AGGREGATOR_API}/bsc/tokens`,
+  [ChainId.MATIC]: `${META_AGGREGATOR_API}/polygon/tokens`,
+  [ChainId.AVAXMAINNET]: `${META_AGGREGATOR_API}/avalanche/tokens`,
+  [ChainId.FANTOM]: `${META_AGGREGATOR_API}/fantom/tokens`,
+  [ChainId.CRONOS]: `${META_AGGREGATOR_API}/cronos/tokens`,
+  [ChainId.ARBITRUM]: `${META_AGGREGATOR_API}/arbitrum/tokens`,
 }
 
 const fetchKyberDataSWR = async (url: string) => {

@@ -1,6 +1,6 @@
 import { Pair, Trade } from '@namgold/ks-sdk-classic'
 import { Currency, CurrencyAmount, Token, TradeType } from '@namgold/ks-sdk-core'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 
 import { MAINNET_ENV } from 'constants/env'
@@ -13,8 +13,11 @@ import { AppState } from 'state'
 import { useAllDexes, useExcludeDexes } from 'state/customizeDexes/hooks'
 import { useSwapState } from 'state/swap/hooks'
 import { AggregationComparer } from 'state/swap/types'
+import { useUserSlippageTolerance } from 'state/user/hooks'
 import { isAddress } from 'utils'
 import { Aggregator } from 'utils/aggregator'
+
+import useDebug from './useDebug'
 
 function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): Pair[][] {
   const allPairCombinations = useAllCurrencyCombinations(currencyA, currencyB)
@@ -81,16 +84,13 @@ export function useTradeExactIn(
   return trade
 }
 
-let controller = new AbortController()
 /**
  * Returns the best trade for the exact amount of tokens in to the given token out
  */
 export function useTradeExactInV2(
   currencyAmountIn: CurrencyAmount<Currency> | undefined,
   currencyOut: Currency | undefined,
-  saveGas: boolean,
   recipient: string | null,
-  allowedSlippage: number,
 ): {
   trade: Aggregator | null
   comparer: AggregationComparer | null
@@ -98,6 +98,8 @@ export function useTradeExactInV2(
   loading: boolean
 } {
   const { account, chainId, networkInfo } = useActiveWeb3React()
+  const controller = useRef(new AbortController())
+  const [allowedSlippage] = useUserSlippageTolerance()
 
   const allDexes = useAllDexes()
   const [excludeDexes] = useExcludeDexes()
@@ -117,7 +119,7 @@ export function useTradeExactInV2(
 
   const ttl = useSelector<AppState, number>(state => state.user.userDeadline)
 
-  const { feeConfig } = useSwapState()
+  const { feeConfig, programState, saveGas } = useSwapState()
 
   const onUpdateCallback = useCallback(
     async (resetRoute: boolean, minimumLoadingTime: number) => {
@@ -127,10 +129,10 @@ export function useTradeExactInV2(
         (debounceCurrencyAmountIn.currency as Token)?.address !== (currencyOut as Token)?.address
       ) {
         if (resetRoute) setTrade(null)
-        controller.abort()
+        controller.current.abort()
 
-        controller = new AbortController()
-        const signal = controller.signal
+        controller.current = new AbortController()
+        const signal = controller.current.signal
 
         setLoading(true)
 
@@ -151,6 +153,7 @@ export function useTradeExactInV2(
             feeConfig,
             signal,
             minimumLoadingTime,
+            programState,
           ),
           Aggregator.compareDex(
             networkInfo.routerUri,
@@ -166,8 +169,20 @@ export function useTradeExactInV2(
         ])
 
         if (!signal.aborted) {
-          setTrade(state)
-          setComparer(comparedResult)
+          if (state) {
+            try {
+              if (JSON.stringify(trade) !== JSON.stringify(state)) setTrade(state)
+            } catch (e) {
+              setTrade(state)
+            }
+          }
+          if (comparedResult) {
+            try {
+              if (JSON.stringify(comparer) !== JSON.stringify(comparedResult)) setComparer(comparedResult)
+            } catch (e) {
+              setComparer(comparedResult)
+            }
+          }
         }
         setLoading(false)
       } else {
@@ -175,18 +190,22 @@ export function useTradeExactInV2(
         setComparer(null)
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
-      chainId,
       debounceCurrencyAmountIn,
       currencyOut,
+      chainId,
       recipient,
       account,
+      ttl,
+      networkInfo.routerUri,
       saveGas,
       dexes,
       allowedSlippage,
-      ttl,
       feeConfig,
-      networkInfo,
+      // programState, //don't add this, this value refresh every time
+      trade,
+      comparer,
     ],
   )
 

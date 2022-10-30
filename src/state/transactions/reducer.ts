@@ -1,35 +1,20 @@
 import { createReducer } from '@reduxjs/toolkit'
 
+import { findTx } from 'utils'
+
 import {
-  SerializableTransactionReceipt,
   addTransaction,
   checkedSubgraph,
   checkedTransaction,
   clearAllTransactions,
   finalizeTransaction,
 } from './actions'
+import { GroupedTxsByHash } from './type'
 
 const now = () => new Date().getTime()
 
-export interface TransactionDetails {
-  hash: string
-  approval?: { tokenAddress: string; spender: string }
-  type?: string
-  summary?: string
-  claim?: { recipient: string }
-  receipt?: SerializableTransactionReceipt
-  lastCheckedBlockNumber?: number
-  addedTime: number
-  confirmedTime?: number
-  from: string
-  arbitrary: any // To store anything arbitrary, so it has any type
-  needCheckSubgraph?: boolean
-}
-
 interface TransactionState {
-  [chainId: number]: {
-    [txHash: string]: TransactionDetails
-  }
+  [chainId: number]: GroupedTxsByHash | undefined
 }
 
 const initialState: TransactionState = {}
@@ -38,13 +23,15 @@ export default createReducer(initialState, builder =>
   builder
     .addCase(
       addTransaction,
-      (transactions, { payload: { chainId, from, hash, approval, type, summary, claim, arbitrary } }) => {
-        if (transactions[chainId]?.[hash]) {
+      (transactions, { payload: { chainId, from, hash, approval, type, summary, arbitrary, firstTxHash } }) => {
+        if (firstTxHash && transactions[chainId]?.[firstTxHash]) {
           throw Error('Attempted to add existing transaction.')
         }
-        const txs = transactions[chainId] ?? {}
-        txs[hash] = { hash, approval, type, summary, claim, arbitrary, from, addedTime: now() }
-        transactions[chainId] = txs
+        const chainTxs = transactions[chainId] ?? {}
+        const txs = (firstTxHash && chainTxs[firstTxHash]) || []
+        txs.push({ hash, approval, type, summary, arbitrary, from, addedTime: now() })
+        chainTxs[txs[0].hash] = txs
+        transactions[chainId] = chainTxs
       },
     )
     .addCase(clearAllTransactions, (transactions, { payload: { chainId } }) => {
@@ -52,30 +39,21 @@ export default createReducer(initialState, builder =>
       transactions[chainId] = {}
     })
     .addCase(checkedTransaction, (transactions, { payload: { chainId, hash, blockNumber } }) => {
-      const tx = transactions[chainId]?.[hash]
-      if (!tx) {
-        return
-      }
-      if (!tx.lastCheckedBlockNumber) {
-        tx.lastCheckedBlockNumber = blockNumber
-      } else {
-        tx.lastCheckedBlockNumber = Math.max(blockNumber, tx.lastCheckedBlockNumber)
-      }
+      const tx = findTx(transactions[chainId], hash)
+      if (!tx) return
+      if (!tx.lastCheckedBlockNumber) tx.lastCheckedBlockNumber = blockNumber
+      else tx.lastCheckedBlockNumber = Math.max(blockNumber, tx.lastCheckedBlockNumber)
     })
     .addCase(finalizeTransaction, (transactions, { payload: { hash, chainId, receipt, needCheckSubgraph } }) => {
-      const tx = transactions[chainId]?.[hash]
-      if (!tx) {
-        return
-      }
+      const tx = findTx(transactions[chainId], hash)
+      if (!tx) return
       tx.receipt = receipt
       tx.confirmedTime = now()
       tx.needCheckSubgraph = needCheckSubgraph
     })
     .addCase(checkedSubgraph, (transactions, { payload: { chainId, hash } }) => {
-      const tx = transactions[chainId]?.[hash]
-      if (!tx) {
-        return
-      }
+      const tx = findTx(transactions[chainId], hash)
+      if (!tx) return
       tx.needCheckSubgraph = false
     }),
 )

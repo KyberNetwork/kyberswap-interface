@@ -1,7 +1,7 @@
 import { ChainId } from '@namgold/ks-sdk-core'
 
 import Mainnet from 'assets/networks/ethw.png'
-import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
+import { KS_SETTING_API, META_AGGREGATOR_API } from 'constants/env'
 import { createClient } from 'utils/client'
 
 import { EVMNetworkInfo } from './type'
@@ -38,7 +38,7 @@ const ethereumInfo: EVMNetworkInfo = {
     decimal: 18,
   },
   rpcUrl: 'https://ethereumpow.kyberengineering.io',
-  routerUri: `${AGGREGATOR_API}/ethw/route/encode`,
+  routerUri: `${META_AGGREGATOR_API}/ethw/route/encode`,
   multicall: '0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696',
   classic: {
     static: {

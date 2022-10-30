@@ -38,7 +38,6 @@ export function useDerivedSwapInfoV2(): {
     [Field.INPUT]: { currencyId: inputCurrencyId },
     [Field.OUTPUT]: { currencyId: outputCurrencyId },
     recipient,
-    saveGas,
   } = useSwapState()
 
   const inputCurrency = useCurrency(inputCurrencyId)
@@ -64,7 +63,7 @@ export function useDerivedSwapInfoV2(): {
     comparer: baseTradeComparer,
     onUpdateCallback,
     loading,
-  } = useTradeExactInV2(isExactIn ? parsedAmount : undefined, outputCurrency ?? undefined, saveGas, to, allowedSlippage)
+  } = useTradeExactInV2(isExactIn ? parsedAmount : undefined, outputCurrency ?? undefined, to)
 
   const tradeComparer = useMemo((): AggregationComparer | undefined => {
     if (

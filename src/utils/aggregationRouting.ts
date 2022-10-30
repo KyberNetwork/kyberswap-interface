@@ -1,5 +1,5 @@
 import { ZERO } from '@namgold/ks-sdk-classic'
-import { ChainId, Percent, Rounding, Token } from '@namgold/ks-sdk-core'
+import { ChainId, Percent, Rounding, Token, WETH } from '@namgold/ks-sdk-core'
 import JSBI from 'jsbi'
 
 import { isAddressString } from 'utils'
@@ -131,6 +131,7 @@ export function getTradeComposition(
   }
 
   const tokens = trade.tokens || ({} as any)
+  const defaultToken = new Token(chainId, WETH[chainId].address, 0, '--', '--')
   const routes: SwapRoute[] = []
 
   // Convert all Swaps to ChartSwaps
@@ -138,8 +139,8 @@ export function getTradeComposition(
     if (sorMultiSwap.length === 1) {
       const hop = sorMultiSwap[0]
       const path = [
-        allTokens?.[isAddressString(chainId, hop.tokenIn)] || tokens[hop.tokenIn],
-        allTokens?.[isAddressString(chainId, hop.tokenOut)] || tokens[hop.tokenOut],
+        allTokens?.[isAddressString(chainId, hop.tokenIn)] || tokens[hop.tokenIn] || defaultToken,
+        allTokens?.[isAddressString(chainId, hop.tokenOut)] || tokens[hop.tokenOut] || defaultToken,
       ]
       routes.push({
         slug: hop.tokenOut?.toLowerCase(),
@@ -165,13 +166,13 @@ export function getTradeComposition(
           swapPercentage: index === 0 ? calcSwapPercentage(hop.tokenIn, hop.swapAmount) : 100,
         })
         if (index === 0) {
-          const token = tokens[hop.tokenIn] || ({} as any)
+          const token = tokens[hop.tokenIn] || defaultToken
           path.push(
             allTokens?.[isAddressString(chainId, token.address)] ||
               new Token(chainId, token.address, token.decimals, token.symbol, token.name),
           )
         }
-        const token = tokens[hop.tokenOut] || ({} as any)
+        const token = tokens[hop.tokenOut] || defaultToken
         path.push(
           allTokens?.[isAddressString(chainId, token.address)] ||
             new Token(chainId, token.address, token.decimals, token.symbol, token.name),

@@ -1,55 +1,34 @@
-import { TransactionResponse } from '@ethersproject/providers'
 import { ChainId } from '@namgold/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { useActiveWeb3React } from 'hooks'
 import { AppDispatch, AppState } from 'state/index'
+import { findTx } from 'utils'
 
 import { addTransaction } from './actions'
-import { TransactionDetails } from './reducer'
+import { GroupedTxsByHash, TransactionDetails } from './type'
+
+type TransactionHistory = {
+  hash: string
+  desiredChainId?: ChainId // ChainID after switching.
+  type?: string
+  summary?: string
+  approval?: { tokenAddress: string; spender: string }
+  arbitrary?: any
+  firstTxHash?: string
+}
 
 // helper that can take a ethers library transaction response and add it to the list of transactions
-export function useTransactionAdder(): (
-  response: TransactionResponse,
-  customData?: {
-    desiredChainId?: ChainId // ChainID after switching.
-    type?: string
-    summary?: string
-    approval?: { tokenAddress: string; spender: string }
-    claim?: { recipient: string }
-    arbitrary?: any
-  },
-) => void {
+export function useTransactionAdder(): (tx: TransactionHistory) => void {
   const { chainId, account } = useActiveWeb3React()
   const dispatch = useDispatch<AppDispatch>()
 
   return useCallback(
-    (
-      response: TransactionResponse,
-      {
-        desiredChainId,
-        type,
-        summary,
-        approval,
-        claim,
-        arbitrary,
-      }: {
-        desiredChainId?: ChainId
-        type?: string
-        summary?: string
-        claim?: { recipient: string }
-        approval?: { tokenAddress: string; spender: string }
-        arbitrary?: any
-      } = {},
-    ) => {
+    ({ hash, desiredChainId, type, summary, approval, arbitrary, firstTxHash }: TransactionHistory) => {
       if (!account) return
       if (!chainId) return
 
-      const { hash } = response
-      if (!hash) {
-        throw Error('No transaction hash found.')
-      }
       dispatch(
         addTransaction({
           hash,
@@ -58,8 +37,8 @@ export function useTransactionAdder(): (
           approval,
           type,
           summary,
-          claim,
           arbitrary,
+          firstTxHash,
         }),
       )
     },
@@ -68,20 +47,23 @@ export function useTransactionAdder(): (
 }
 
 // returns all the transactions for the current chain
-export function useAllTransactions(): { [txHash: string]: TransactionDetails } {
+export function useAllTransactions(): GroupedTxsByHash | undefined {
   const { chainId } = useActiveWeb3React()
 
   const state = useSelector<AppState, AppState['transactions']>(state => state.transactions)
 
-  return chainId ? state[chainId] ?? {} : {}
+  return state[chainId]
 }
 
 export function useIsTransactionPending(transactionHash?: string): boolean {
   const transactions = useAllTransactions()
 
-  if (!transactionHash || !transactions[transactionHash]) return false
+  if (!transactionHash) return false
 
-  return !transactions[transactionHash].receipt
+  const tx = findTx(transactions, transactionHash)
+  if (!tx) return false
+
+  return !tx.receipt
 }
 
 /**
@@ -92,6 +74,11 @@ export function isTransactionRecent(tx: TransactionDetails): boolean {
   return new Date().getTime() - tx.addedTime < 86_400_000
 }
 
+// we want the latest one to come first, so return negative if a is after b
+export function newTransactionsFirst(a: TransactionDetails, b: TransactionDetails) {
+  return b.addedTime - a.addedTime
+}
+
 // returns whether a token has a pending approval transaction
 export function useHasPendingApproval(tokenAddress: string | undefined, spender: string | undefined): boolean {
   const allTransactions = useAllTransactions()
@@ -99,17 +86,19 @@ export function useHasPendingApproval(tokenAddress: string | undefined, spender:
     () =>
       typeof tokenAddress === 'string' &&
       typeof spender === 'string' &&
-      Object.keys(allTransactions).some(hash => {
-        const tx = allTransactions[hash]
-        if (!tx) return false
-        if (tx.receipt) {
-          return false
-        } else {
-          const approval = tx.approval
-          if (!approval) return false
-          return approval.spender === spender && approval.tokenAddress === tokenAddress && isTransactionRecent(tx)
-        }
-      }),
+      !!allTransactions &&
+      Object.values(allTransactions)
+        .flat()
+        .some(tx => {
+          if (!tx) return false
+          if (tx.receipt) {
+            return false
+          } else {
+            const approval = tx.approval
+            if (!approval) return false
+            return approval.spender === spender && approval.tokenAddress === tokenAddress && isTransactionRecent(tx)
+          }
+        }),
     [allTransactions, spender, tokenAddress],
   )
 }

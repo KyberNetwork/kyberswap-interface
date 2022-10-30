@@ -3,7 +3,7 @@ import { ChainId } from '@namgold/ks-sdk-core'
 import CRONOS_DARK from 'assets/networks/cronos-network-dark.svg'
 import CRONOS from 'assets/networks/cronos-network.svg'
 import CronosLogo from 'assets/svg/cronos-token-logo.svg'
-import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
+import { KS_SETTING_API, META_AGGREGATOR_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
 
@@ -38,7 +38,7 @@ const cronosInfo: EVMNetworkInfo = {
     decimal: 18,
   },
   rpcUrl: 'https://evm-cronos.crypto.org',
-  routerUri: `${AGGREGATOR_API}/cronos/route/encode`,
+  routerUri: `${META_AGGREGATOR_API}/cronos/route/encode`,
   multicall: '0x63Abb9973506189dC3741f61d25d4ed508151E6d',
   classic: {
     static: {

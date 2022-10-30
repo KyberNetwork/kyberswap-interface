@@ -1,7 +1,7 @@
 import { ChainId } from '@namgold/ks-sdk-core'
 
 import Polygon from 'assets/networks/polygon-network.png'
-import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
+import { KS_SETTING_API, META_AGGREGATOR_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
 
@@ -32,7 +32,7 @@ const maticInfo: EVMNetworkInfo = {
     decimal: 18,
   },
   rpcUrl: 'https://polygon.kyberengineering.io',
-  routerUri: `${AGGREGATOR_API}/polygon/route/encode`,
+  routerUri: `${META_AGGREGATOR_API}/polygon/route/encode`,
   multicall: '0xed386Fe855C1EFf2f843B910923Dd8846E45C5A4',
   classic: {
     static: {

@@ -55,7 +55,7 @@ function listToTokenMap(list: TokenList): TokenAddressMap {
     const formattedAddress = getFormattedAddress(tokenInfo.chainId, tokenInfo.address)
 
     if (
-      tokenMap[tokenInfo.chainId][formattedAddress] !== undefined ||
+      tokenMap[tokenInfo.chainId]?.[formattedAddress] !== undefined ||
       !isAddress(tokenInfo.chainId, tokenInfo.address)
     ) {
       return tokenMap

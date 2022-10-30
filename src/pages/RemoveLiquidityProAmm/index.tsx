@@ -255,7 +255,8 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
           .then((response: TransactionResponse) => {
             setAttemptingTxn(false)
 
-            addTransactionWithType(response, {
+            addTransactionWithType({
+              hash: response.hash,
               type: 'Elastic Remove liquidity',
               summary:
                 liquidityValue0?.toSignificant(6) +
@@ -287,7 +288,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
         //   .then((response: TransactionResponse) => {
         //     setAttemptingTxn(false)
 
-        //     addTransactionWithType(response, {
+        //     addTransactionWithType({hash: response.hash,
         //       type: 'Remove liquidity',
         //       summary:
         //         liquidityValue0?.toSignificant(6) +

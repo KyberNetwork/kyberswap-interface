@@ -29,6 +29,7 @@ import {
 } from 'state/campaigns/actions'
 import { useSetClaimingCampaignRewardId, useSwapNowHandler } from 'state/campaigns/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
+import { findTx } from 'utils'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 
 type Size = 'small' | 'large'
@@ -87,7 +88,7 @@ export default function CampaignButtonWithOptions({
   const claimRewardHashes = refs.map(ref => ref2Hash[ref]).filter(hash => !!hash)
   const isClaimingThisCampaignRewards =
     claimRewardHashes.some(hash => {
-      return transactions[hash] !== undefined && transactions[hash]?.receipt === undefined
+      return transactions[hash] !== undefined && findTx(transactions, hash)?.receipt === undefined
     }) || campaign?.id === claimingCampaignRewardId
 
   const dispatch = useDispatch()
@@ -162,7 +163,8 @@ export default function CampaignButtonWithOptions({
             const rewardString = Object.values(accumulatedUnclaimedRewards ?? {})
               .map(reward => reward.rewardAmount.toSignificant(DEFAULT_SIGNIFICANT) + ' ' + reward.token.symbol)
               .join(' ' + t`and` + ' ')
-            addTransactionWithType(transactionResponse, {
+            addTransactionWithType({
+              hash: transactionResponse.hash,
               type: 'Claim',
               desiredChainId: claimChainId,
               summary: `${rewardString} from campaign "${campaign?.name}"`,

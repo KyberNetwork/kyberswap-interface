@@ -19,7 +19,7 @@ const useVesting = (rewardLockerAddress: string) => {
       const tx = await lockerContract.vestScheduleAtIndices(token, index, {
         gasLimit: calculateGasMargin(estimateGas),
       })
-      addTransactionWithType(tx, { type: 'Claim', summary: 'reward' })
+      addTransactionWithType({ hash: tx.hash, type: 'Claim', summary: 'reward' })
 
       return tx.hash
     },
@@ -36,7 +36,7 @@ const useVesting = (rewardLockerAddress: string) => {
       const tx = await lockerContract.vestScheduleForMultipleTokensAtIndices(tokens, indices, {
         gasLimit: calculateGasMargin(estimateGas),
       })
-      addTransactionWithType(tx, { type: 'Claim', summary: 'all rewards' })
+      addTransactionWithType({ hash: tx.hash, type: 'Claim', summary: 'all rewards' })
 
       return tx.hash
     },

@@ -4,11 +4,12 @@ import { useDispatch } from 'react-redux'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import useIsWindowVisible from 'hooks/useIsWindowVisible'
+import connection from 'state/connection/connection'
 
 import { updateBlockNumber } from './actions'
 
 export default function Updater(): null {
-  const { chainId } = useActiveWeb3React()
+  const { chainId, isEVM, isSolana } = useActiveWeb3React()
   const { library } = useWeb3React()
   const dispatch = useDispatch()
 
@@ -34,7 +35,7 @@ export default function Updater(): null {
 
   // attach/detach listeners
   useEffect(() => {
-    if (!library || !chainId || !windowVisible) return undefined
+    if (!library || !chainId || !windowVisible || !isEVM) return undefined
 
     setState({ chainId, blockNumber: null })
 
@@ -47,7 +48,24 @@ export default function Updater(): null {
     return () => {
       library.removeListener('block', blockNumberCallback)
     }
-  }, [dispatch, chainId, library, blockNumberCallback, windowVisible])
+  }, [dispatch, chainId, library, blockNumberCallback, windowVisible, isEVM])
+
+  // attach/detach listeners
+  useEffect(() => {
+    if (!windowVisible) return undefined
+    if (!isSolana) return undefined
+
+    setState({ chainId, blockNumber: null })
+
+    const intervalToken = setInterval(async () => {
+      const blockHeight = await connection.getBlockHeight()
+      blockNumberCallback(blockHeight)
+    }, 1000)
+
+    return () => {
+      clearInterval(intervalToken)
+    }
+  }, [blockNumberCallback, chainId, isSolana, windowVisible])
 
   const debouncedState = useDebounce(state, 100)
 

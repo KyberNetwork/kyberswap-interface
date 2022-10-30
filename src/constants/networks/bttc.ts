@@ -1,7 +1,7 @@
 import { ChainId } from '@namgold/ks-sdk-core'
 
 import BTT from 'assets/networks/bttc.png'
-import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
+import { KS_SETTING_API, META_AGGREGATOR_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
 
@@ -37,7 +37,7 @@ const bttcInfo: EVMNetworkInfo = {
     decimal: 18,
   },
   rpcUrl: 'https://bttc.kyberengineering.io',
-  routerUri: `${AGGREGATOR_API}/bttc/route/encode`,
+  routerUri: `${META_AGGREGATOR_API}/bttc/route/encode`,
   multicall: '0xBF69a56D35B8d6f5A8e0e96B245a72F735751e54',
   classic: {
     static: {

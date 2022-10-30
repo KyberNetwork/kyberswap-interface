@@ -26,7 +26,7 @@ import { useETHPrice } from 'state/application/hooks'
 import { Field } from 'state/swap/actions'
 import { useSwapState } from 'state/swap/hooks'
 import { checkedSubgraph } from 'state/transactions/actions'
-import { TransactionDetails } from 'state/transactions/reducer'
+import { TransactionDetails } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { Aggregator } from 'utils/aggregator'
 
@@ -181,7 +181,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           mixpanel.track('Swap Initiated', {
             input_token: inputSymbol,
             output_token: outputSymbol,
-            estimated_gas: trade?.gasUsd.toFixed(4),
+            estimated_gas: trade?.gasUsd?.toFixed(4),
             max_return_or_low_gas: saveGas ? 'Lowest Gas' : 'Maximum Return',
             trade_qty: trade?.inputAmount.toExact(),
             slippage_setting: allowedSlippage ? allowedSlippage / 100 : 0,

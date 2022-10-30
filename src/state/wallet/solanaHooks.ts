@@ -65,8 +65,7 @@ export const useAssociatedTokensAccounts = (): { [mintAddress: string]: AccountI
         })
         const atas: { [mintAddress: string]: AccountInfoParsed } = {}
 
-        response.value.forEach(async ata => {
-          // use map only to use with Promise.all. It should be understand as .forEach
+        response.value.forEach(ata => {
           const parsedAccountData = AccountLayout.decode(ata.account.data)
           const parsedAta: AccountInfoParsed = {
             ...ata.account,

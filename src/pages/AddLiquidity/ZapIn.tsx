@@ -41,7 +41,7 @@ import { Field } from 'state/mint/actions'
 import { useDerivedZapInInfo, useMintState, useZapInActionHandlers } from 'state/mint/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
-import { useIsExpertMode, useUserSlippageTolerance } from 'state/user/hooks'
+import { useExpertModeManager, useUserSlippageTolerance } from 'state/user/hooks'
 import { StyledInternalLink, TYPE, UppercaseText } from 'theme'
 import { calculateGasMargin, formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
@@ -84,7 +84,7 @@ const ZapIn = ({
   const toggleWalletModal = useWalletModalToggle() // toggle wallet when disconnected
   const [zapInError, setZapInError] = useState<string>('')
 
-  const expertMode = useIsExpertMode()
+  const [expertMode] = useExpertModeManager()
 
   // mint state
   const { independentField, typedValue, otherTypedValue } = useMintState()
@@ -248,7 +248,8 @@ const ZapIn = ({
           const cB = currencies[Field.CURRENCY_B]
           if (!!cA && !!cB) {
             setAttemptingTxn(false)
-            addTransactionWithType(tx, {
+            addTransactionWithType({
+              hash: tx.hash,
               type: 'Add liquidity',
               summary: userInCurrencyAmount?.toSignificant(6) + ' ' + independentToken?.symbol,
               arbitrary: {

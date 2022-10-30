@@ -93,7 +93,7 @@ const PoolList = ({
   const [sortedColumn, setSortedColumn] = useState(SORT_FIELD.LIQ)
   const { loading: loadingPoolsData, data: subgraphPoolsData } = useAllPoolsData()
 
-  const { account, chainId, networkInfo } = useActiveWeb3React()
+  const { account, chainId, networkInfo, isEVM } = useActiveWeb3React()
 
   useResetPools(chainId)
 
@@ -306,7 +306,7 @@ const PoolList = ({
     })
 
     if (onlyShowStable) {
-      const stableList = chainId ? STABLE_COINS_ADDRESS[chainId]?.map(item => item.toLowerCase()) || [] : []
+      const stableList = isEVM ? STABLE_COINS_ADDRESS[chainId]?.map(item => item.toLowerCase()) || [] : []
       res = res.filter(poolData => {
         return (
           stableList.includes(poolData.token0.id.toLowerCase()) && stableList.includes(poolData.token1.id.toLowerCase())
@@ -325,6 +325,7 @@ const PoolList = ({
     farms,
     searchValue,
     chainId,
+    isEVM,
   ])
 
   const [currentPage, setCurrentPage] = useState(1)

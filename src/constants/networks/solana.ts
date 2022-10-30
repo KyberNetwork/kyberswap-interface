@@ -30,7 +30,7 @@ const solanaInfo: { [key in WalletAdapterNetwork]: SolanaNetworkInfo } = {
       logo: Solana,
       name: 'SOL',
     },
-    routerUri: `${AGGREGATOR_API}/solana/route`,
+    routerUri: `${AGGREGATOR_API}/solana/route/encode`,
     aggregatorProgramAddress: '',
     // classic: {
     //   factory: 'CwzigBwGVn25LdyLsqzSX3iwhPwQXoxYcXxSM4sjWoBU',
@@ -62,7 +62,7 @@ const solanaInfo: { [key in WalletAdapterNetwork]: SolanaNetworkInfo } = {
       logo: Solana,
       name: 'SOL',
     },
-    routerUri: 'http://localhost:3004/solana/route',
+    routerUri: `${AGGREGATOR_API}/solana/route/encode`,
     aggregatorProgramAddress: '',
     // classic: {
     //   factory: 'CwzigBwGVn25LdyLsqzSX3iwhPwQXoxYcXxSM4sjWoBU',
@@ -94,7 +94,7 @@ const solanaInfo: { [key in WalletAdapterNetwork]: SolanaNetworkInfo } = {
       logo: Solana,
       name: 'SOL',
     },
-    routerUri: 'http://localhost:3004/solana/route',
+    routerUri: `${AGGREGATOR_API}/solana/route/encode`,
     aggregatorProgramAddress: 'CTKq8B9GPwPYyQ474jsYHkAchoLKj5LEbSwhqUr3G9cB',
     // classic: {
     //   factory: 'CwzigBwGVn25LdyLsqzSX3iwhPwQXoxYcXxSM4sjWoBU',
