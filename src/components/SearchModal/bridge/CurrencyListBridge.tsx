@@ -1,3 +1,4 @@
+import { t } from '@lingui/macro'
 import { Currency, CurrencyAmount } from '@namgold/ks-sdk-core'
 import { CSSProperties, memo, useCallback } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
@@ -40,7 +41,7 @@ const CurrencyListBridge = memo(function CurrencyListV2({
       const handleSelect = () => currency && onCurrencySelect(currency)
       const { symbol } = getDisplayTokenInfo(currency)
       const { sortId, type, anytoken } = (currency?.multichainInfo || {}) as Partial<MultiChainTokenInfo>
-      const poolLiquidity = isOutput && anytoken?.address ? poolValueOut?.[anytoken?.address] || 0 : 0
+      const poolLiquidity = isOutput && anytoken?.address ? poolValueOut?.[anytoken?.address] ?? t`Unlimited` : 0
 
       return (
         <CurrencyRow

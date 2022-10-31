@@ -21,6 +21,7 @@ import Modal from 'components/Modal'
 import { MouseoverTooltip, MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { TOBE_EXTENDED_FARMING_POOLS } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
@@ -313,6 +314,8 @@ const Row = ({
                   </Text>
                   {getFormattedTimeFromSecond(pool.endTime - currentTimestamp)}
                 </>
+              ) : TOBE_EXTENDED_FARMING_POOLS.includes(pool.poolAddress.toLowerCase()) ? (
+                <Trans>To be extended soon</Trans>
               ) : (
                 <Trans>ENDED</Trans>
               )}
@@ -572,6 +575,8 @@ const Row = ({
             </Text>
             {getFormattedTimeFromSecond(pool.endTime - currentTimestamp)}
           </>
+        ) : TOBE_EXTENDED_FARMING_POOLS.includes(pool.poolAddress.toLowerCase()) ? (
+          <Trans>To be extended soon</Trans>
         ) : (
           <Trans>ENDED</Trans>
         )}
