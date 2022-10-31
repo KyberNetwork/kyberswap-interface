@@ -34,6 +34,10 @@ interface Window {
   opr?: any
   solana?: any
   recaptchaOptions?: any
+
+  mozIndexedDB?: any
+  webkitIndexedDB?: any
+  msIndexedDB?: any
 }
 
 declare module 'content-hash' {

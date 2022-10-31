@@ -7,6 +7,10 @@ import {
   ARGENT_WALLET_DETECTOR_ABI,
   ARGENT_WALLET_DETECTOR_MAINNET_ADDRESS,
 } from 'constants/abis/argent-wallet-detector'
+import RouterSwapAction from 'constants/abis/bridge/RouterSwapAction.json'
+import RouterSwapActionV2 from 'constants/abis/bridge/RouterSwapActionV2.json'
+import swapBTCABI from 'constants/abis/bridge/swapBTCABI.json'
+import swapETHABI from 'constants/abis/bridge/swapETHABI.json'
 import FACTORY_ABI from 'constants/abis/dmm-factory.json'
 import ENS_PUBLIC_RESOLVER_ABI from 'constants/abis/ens-public-resolver.json'
 import ENS_ABI from 'constants/abis/ens-registrar.json'
@@ -56,10 +60,16 @@ export function useContract(
   }, [address, ABI, library, withSignerIfPossible, account, isEVM])
 }
 
-function useContractForReading(address: string | undefined, ABI: ContractInterface): Contract | null {
-  const { chainId, isEVM } = useActiveWeb3React()
+function useContractForReading(
+  address: string | undefined,
+  ABI: ContractInterface,
+  customChainId?: ChainId,
+): Contract | null {
+  const { chainId: curChainId } = useActiveWeb3React()
+  const chainId = customChainId || curChainId
+
   return useMemo(() => {
-    if (!address || !isEVM) return null
+    if (!address || !isEVM(chainId)) return null
     const provider = providers[chainId as EVM_NETWORK]
     try {
       return getContractForReading(address, ABI, provider)
@@ -67,7 +77,7 @@ function useContractForReading(address: string | undefined, ABI: ContractInterfa
       console.error('Failed to get contract', error)
       return null
     }
-  }, [address, ABI, chainId, isEVM])
+  }, [address, ABI, chainId])
 }
 
 // returns null on errors
@@ -158,9 +168,11 @@ export function usePairContract(pairAddress?: string, withSignerIfPossible?: boo
   return useContract(pairAddress, IUniswapV2PairABI.abi, withSignerIfPossible)
 }
 
-export function useMulticallContract(): Contract | null {
-  const { isEVM, networkInfo } = useActiveWeb3React()
-  return useContractForReading(isEVM ? (networkInfo as EVMNetworkInfo).multicall : undefined, MULTICALL_ABI)
+export function useMulticallContract(customChainId?: ChainId): Contract | null {
+  const { chainId: curChainId, networkInfo } = useActiveWeb3React()
+  const chainId = customChainId || curChainId
+
+  return useContractForReading(isEVM(chainId) ? (networkInfo as EVMNetworkInfo).multicall : undefined, MULTICALL_ABI)
 }
 
 export function useOldStaticFeeFactoryContract(): Contract | null {
@@ -339,4 +351,20 @@ export function useProAmmTickReader(withSignerIfPossible?: boolean): Contract | 
 export function useProAmmQuoter() {
   const { isEVM, networkInfo } = useActiveWeb3React()
   return useContract(isEVM ? (networkInfo as EVMNetworkInfo).elastic.quoter : undefined, QuoterABI.abi)
+}
+
+// bridge
+export function useSwapBTCContract(tokenAddress?: string, withSignerIfPossible?: boolean): Contract | null {
+  return useContract(tokenAddress, swapBTCABI, withSignerIfPossible)
+}
+
+export function useSwapETHContract(tokenAddress?: string, withSignerIfPossible?: boolean): Contract | null {
+  return useContract(tokenAddress, swapETHABI, withSignerIfPossible)
+}
+export function useBridgeContract(routerToken?: any, version?: any, withSignerIfPossible?: boolean): Contract | null {
+  return useContract(
+    routerToken ? routerToken : undefined,
+    version ? RouterSwapActionV2 : RouterSwapAction,
+    withSignerIfPossible,
+  )
 }

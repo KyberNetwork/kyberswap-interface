@@ -31,7 +31,7 @@ const solanaInfo: { [key in WalletAdapterNetwork]: SolanaNetworkInfo } = {
       name: 'SOL',
     },
     routerUri: `${AGGREGATOR_API}/solana/route/encode`,
-    aggregatorProgramAddress: '',
+    aggregatorProgramAddress: 'GmgkeeJtcjHgeiSDdT5gxznUDr5ygq9jo8tmA4ny7ziv',
     // classic: {
     //   factory: 'CwzigBwGVn25LdyLsqzSX3iwhPwQXoxYcXxSM4sjWoBU',
     //   pool: 'EKdy97aMrjjxtq4CJh9vN24WuHVsuLz4qtDjyYqttviN',

@@ -60,7 +60,7 @@ function listToTokenMap(list: TokenList): TokenAddressMap {
     ) {
       return tokenMap
     }
-    const token = new WrappedTokenInfo(tokenInfo, list)
+    const token = new WrappedTokenInfo(tokenInfo)
     tokenMap[tokenInfo.chainId][formattedAddress] = token
     return tokenMap
   }, EMPTY_LIST())

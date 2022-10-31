@@ -10,6 +10,7 @@ import { useAllTokens } from 'hooks/Tokens'
 import { useMulticallContract } from 'hooks/useContract'
 import { useMultipleContractSingleData, useSingleCallResult } from 'state/multicall/hooks'
 import { isAddress } from 'utils'
+import { isTokenNative } from 'utils/tokenInfo'
 
 import { useSOLBalance, useTokensBalanceSolana } from './solanaHooks'
 
@@ -20,7 +21,7 @@ export function useNativeBalance(): CurrencyAmount<Currency> | undefined {
   return isEVM ? userEthBalance : userSolBalance
 }
 
-function useETHBalance(): CurrencyAmount<Currency> | undefined {
+export function useETHBalance(): CurrencyAmount<Currency> | undefined {
   const multicallContract = useMulticallContract()
   const { chainId, account } = useActiveWeb3React()
 
@@ -53,7 +54,7 @@ function useTokensBalance(tokens?: Token[]): [TokenAmount | undefined, boolean][
 
 function useTokensBalanceEVM(tokens?: Token[]): [TokenAmount | undefined, boolean][] {
   const { account } = useActiveWeb3React()
-  const validatedTokenAddresses = useMemo(() => tokens?.map(token => token.address) ?? [], [tokens])
+  const validatedTokenAddresses = useMemo(() => tokens?.map(token => token?.address) ?? [], [tokens])
   const balances = useMultipleContractSingleData(validatedTokenAddresses, ERC20_INTERFACE, 'balanceOf', [account])
   return useMemo(
     () =>
@@ -116,12 +117,12 @@ export function useTokenBalance(token?: Token): TokenAmount | undefined {
 }
 
 export function useCurrencyBalances(currencies?: (Currency | undefined)[]): CurrencyAmount<Currency>[] {
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
 
-  const tokens = useMemo(() => {
-    const result = currencies?.filter((currency): currency is Token => currency?.isToken ?? false)
-    return result?.length ? result : EMPTY_ARRAY
-  }, [currencies])
+  const tokens: Token[] = useMemo(() => {
+    const result = currencies?.filter((currency): currency is Token => !!currency && !isTokenNative(currency, chainId))
+    return result?.length ? result : (EMPTY_ARRAY as Token[])
+  }, [currencies, chainId])
 
   const tokenBalances = useTokenBalances(tokens)
   const ethBalance = useNativeBalance()
@@ -130,10 +131,10 @@ export function useCurrencyBalances(currencies?: (Currency | undefined)[]): Curr
     () =>
       currencies?.map(currency => {
         if (!account || !currency) return undefined
-        if (currency?.isNative) return ethBalance
-        return tokenBalances[currency.address]
+        if (isTokenNative(currency, chainId)) return ethBalance
+        return tokenBalances[(currency as Token).address]
       }) ?? EMPTY_ARRAY,
-    [account, currencies, ethBalance, tokenBalances],
+    [account, currencies, ethBalance, tokenBalances, chainId],
   )
 }
 

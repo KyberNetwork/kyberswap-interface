@@ -90,7 +90,7 @@ function SelectNetwork(): JSX.Element | null {
         </Row>
         <DropdownIcon open={networkModalOpen} />
       </NetworkSwitchContainer>
-      <NetworkModal />
+      <NetworkModal selectedId={chainId} />
     </NetworkCard>
   )
 }
