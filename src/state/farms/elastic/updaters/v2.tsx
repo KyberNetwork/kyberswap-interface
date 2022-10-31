@@ -7,7 +7,7 @@ import { ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { nativeOnChain } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import { useAppDispatch, useAppSelector } from 'state/hooks'
+import { useAppDispatch } from 'state/hooks'
 import { ElasticPool, RawToken } from 'state/prommPools/useGetElasticPools/useGetElasticPoolsV2'
 import { isAddressString } from 'utils'
 
@@ -56,30 +56,21 @@ const useGetElasticFarms = () => {
   )
 }
 
-const defaultChainData = {
-  loading: false,
-  farms: null,
-  poolFeeLast24h: {},
-}
-
 const FarmUpdaterV2: React.FC<CommonProps> = ({ interval }) => {
   const dispatch = useAppDispatch()
   const { chainId } = useActiveWeb3React()
-  const elasticFarm = useAppSelector(state => state.elasticFarm)[chainId || 1] || defaultChainData
   const { data, error, isValidating } = useGetElasticFarms()
   const farms = data?.data?.farmPools
 
   useEffect(() => {
-    if (!elasticFarm.farms) {
-      if (isValidating) {
-        console.time('getFarmFromBackend')
-        dispatch(setLoading({ chainId, loading: true }))
-      } else {
-        console.timeEnd('getFarmFromBackend')
-        dispatch(setLoading({ chainId, loading: false }))
-      }
+    if (isValidating) {
+      console.time('getFarmFromBackend')
+      dispatch(setLoading({ chainId, loading: true }))
+    } else {
+      console.timeEnd('getFarmFromBackend')
+      dispatch(setLoading({ chainId, loading: false }))
     }
-  }, [chainId, dispatch, elasticFarm.farms, isValidating])
+  }, [chainId, dispatch, isValidating])
 
   useEffect(() => {
     if (error && chainId) {
