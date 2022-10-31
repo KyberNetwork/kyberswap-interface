@@ -1,9 +1,10 @@
-import { ChainId, CurrencyAmount, Price, Token } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount, Price, Token } from '@kyberswap/ks-sdk-core'
 import { Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
 import { useWeb3React } from '@web3-react/core'
+import { BigNumber } from 'ethers'
 import { stringify } from 'qs'
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -19,12 +20,15 @@ import { RowBetween } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { PROMM_ANALYTICS_URL } from 'constants/index'
 import { useToken } from 'hooks/Tokens'
+import { useProMMFarmContract } from 'hooks/useContract'
 import useIsTickAtLimit from 'hooks/useIsTickAtLimit'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { usePool } from 'hooks/usePools'
 import { useProAmmPositionFees } from 'hooks/useProAmmPositionFees'
 import useTheme from 'hooks/useTheme'
+import { useElasticFarms } from 'state/farms/elastic/hooks'
 import { UserPositionFarm } from 'state/farms/elastic/types'
+import { usePoolBlocks } from 'state/prommPools/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { ExternalLink, StyledInternalLink } from 'theme'
 import { PositionDetails } from 'types/position'
@@ -151,6 +155,64 @@ function PositionListItem({
     stakedLiquidity,
   } = positionDetails
 
+  const { farms } = useElasticFarms()
+
+  let farmAddress = ''
+  let pid = ''
+  let rewardTokens: Currency[] = []
+
+  farms?.forEach(farm => {
+    farm.pools.forEach(pool => {
+      if (pool.endTime > Date.now() / 1000 && pool.poolAddress.toLowerCase() === positionDetails.poolId.toLowerCase()) {
+        farmAddress = farm.id
+        pid = pool.pid
+        rewardTokens = pool.rewardTokens
+      }
+    })
+  })
+
+  const farmContract = useProMMFarmContract(farmAddress)
+
+  const { block24 } = usePoolBlocks()
+
+  const tokenId = positionDetails.tokenId.toString()
+
+  const [reward24h, setReward24h] = useState<BigNumber[] | null>(null)
+  useEffect(() => {
+    const getReward = async () => {
+      if (block24 && farmContract) {
+        const [currentReward, last24hReward] = await Promise.all([
+          farmContract
+            .getUserInfo(tokenId, pid)
+            .then((res: any) => {
+              return res.rewardPending
+            })
+            .catch(() => {
+              return []
+            }),
+          farmContract
+            .getUserInfo(tokenId, pid, {
+              blockTag: Number(block24),
+            })
+            .then((res: any) => {
+              return res.rewardPending
+            })
+            .catch(() => {
+              return []
+            }),
+        ])
+
+        const rewardPending = currentReward?.map((item: BigNumber, index: number) => {
+          return item.sub(BigNumber.from(last24hReward?.[index] || '0'))
+        })
+
+        setReward24h(rewardPending)
+      }
+    }
+
+    getReward()
+  }, [block24, farmContract, tokenId, pid])
+
   const token0 = useToken(token0Address)
   const token1 = useToken(token1Address)
   if (refe && token0 && !refe.current[token0Address.toLocaleLowerCase()] && token0.symbol) {
@@ -162,7 +224,11 @@ function PositionListItem({
   const currency0 = token0 ? unwrappedToken(token0) : undefined
   const currency1 = token1 ? unwrappedToken(token1) : undefined
 
-  const prices = useTokenPrices([currency0?.wrapped.address || '', currency1?.wrapped.address || ''])
+  const prices = useTokenPrices([
+    currency0?.wrapped.address || '',
+    currency1?.wrapped.address || '',
+    ...rewardTokens.map(item => item.wrapped.address),
+  ])
 
   // construct Position from details returned
   const [, pool] = usePool(currency0 ?? undefined, currency1 ?? undefined, feeAmount)
@@ -206,6 +272,17 @@ function PositionListItem({
       ? (((currentFeeValue - last24hFeeValue) * 365 * 100) / usd).toFixed(2)
       : '--'
 
+  const farmRewardValue = rewardTokens.reduce((usdValue, currency, index) => {
+    const temp = reward24h?.[index]
+    return (
+      usdValue +
+      +CurrencyAmount.fromRawAmount(currency, temp?.gt('0') ? temp?.toString() : '0').toExact() *
+        prices[currency.wrapped.address]
+    )
+  }, 0)
+
+  const farmAPR = (farmRewardValue * 365 * 100) / usd
+
   const tickAtLimit = useIsTickAtLimit(feeAmount, tickLower, tickUpper)
 
   // prices
@@ -238,7 +315,7 @@ function PositionListItem({
         <TabContainer style={{ marginTop: '1rem' }}>
           <Tab isActive={activeTab === 0} padding="0" onClick={() => setActiveTab(0)}>
             <TabText isActive={activeTab === 0} style={{ fontSize: '12px' }}>
-              <Trans>Your Liquidity</Trans>
+              <Trans>My Liquidity</Trans>
             </TabText>
           </Tab>
           <Tab isActive={activeTab === 1} padding="0" onClick={() => setActiveTab(1)}>
@@ -291,7 +368,7 @@ function PositionListItem({
                   <Text color={theme.subText}>
                     <Trans>My Farm APR</Trans>
                   </Text>
-                  <Text color={theme.apr}>--</Text>
+                  <Text color={theme.apr}>{farmAPR ? farmAPR.toFixed(2) + '%' : '--'}</Text>
                 </StakedRow>
               </StakedInfo>
             )}
