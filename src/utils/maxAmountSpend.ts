@@ -10,8 +10,11 @@ import { MIN_ETH } from 'constants/index'
 export function maxAmountSpend(currencyAmount?: CurrencyAmount<Currency>): CurrencyAmount<Currency> | undefined {
   if (!currencyAmount) return undefined
   if (currencyAmount.currency.isNative) {
-    if (JSBI.greaterThan(currencyAmount.quotient, MIN_ETH)) {
-      return CurrencyAmount.fromRawAmount(currencyAmount.currency, JSBI.subtract(currencyAmount.quotient, MIN_ETH))
+    if (JSBI.greaterThan(currencyAmount.quotient, MIN_ETH(currencyAmount.currency.chainId))) {
+      return CurrencyAmount.fromRawAmount(
+        currencyAmount.currency,
+        JSBI.subtract(currencyAmount.quotient, MIN_ETH(currencyAmount.currency.chainId)),
+      )
     } else {
       return CurrencyAmount.fromRawAmount(currencyAmount.currency, JSBI.BigInt(0))
     }
