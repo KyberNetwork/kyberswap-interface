@@ -2,13 +2,14 @@ import { Trans, t } from '@lingui/macro'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core'
 import { darken, lighten } from 'polished'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Activity } from 'react-feather'
 import { useMedia } from 'react-use'
 import styled from 'styled-components'
 
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import useENSName from 'hooks/useENSName'
+import usePendingTransactions from 'hooks/usePendingTransactions'
 import { useHasSocks } from 'hooks/useSocksBalance'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { isTransactionRecent, useAllTransactions } from 'state/transactions/hooks'
@@ -102,12 +103,10 @@ const NetworkIcon = styled(Activity)`
   width: 16px;
   height: 16px;
 `
-
 // we want the latest one to come first, so return negative if a is after b
 function newTransactionsFirst(a: TransactionDetails, b: TransactionDetails) {
   return b.addedTime - a.addedTime
 }
-
 const SOCK = (
   <span role="img" aria-label="has socks emoji" style={{ marginTop: -4, marginBottom: -4 }}>
     🧦
@@ -169,16 +168,15 @@ function Web3StatusInner() {
 
   const { ENSName } = useENSName(account ?? undefined)
 
-  const allTransactions = useAllTransactions()
+  const pendingTxs = usePendingTransactions()
 
-  const sortedRecentTransactions = useMemo(() => {
-    const txs = Object.values(allTransactions)
-    return txs.filter(isTransactionRecent).sort(newTransactionsFirst)
-  }, [allTransactions])
+  useEffect(() => {
+    window.onbeforeunload = function () {
+      return pendingTxs.length ? true : void 0
+    }
+  }, [pendingTxs])
 
-  const pending = sortedRecentTransactions.filter(tx => !tx.receipt).map(tx => tx.hash)
-
-  const hasPendingTransactions = !!pending.length
+  const hasPendingTransactions = !!pendingTxs.length
   const hasSocks = useHasSocks()
   const toggleWalletModal = useWalletModalToggle()
 
@@ -194,7 +192,7 @@ function Web3StatusInner() {
         {hasPendingTransactions ? (
           <RowBetween>
             <Text>
-              <Trans>{pending?.length} Pending</Trans>
+              <Trans>{pendingTxs?.length} Pending</Trans>
             </Text>{' '}
             <Loader stroke="white" />
           </RowBetween>
