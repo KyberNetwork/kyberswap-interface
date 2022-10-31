@@ -37,8 +37,11 @@ export default function NetworkModal({
   const { error } = useWeb3React()
   const isWrongNetwork = error instanceof UnsupportedChainIdError
   const networkModalOpen = useModalOpen(ApplicationModal.NETWORK)
-  const toggleNetworkModal = useNetworkModalToggle()
-
+  const toggleNetworkModalGlobal = useNetworkModalToggle()
+  const toggleNetworkModal = () => {
+    if (customToggleModal) customToggleModal()
+    else toggleNetworkModalGlobal()
+  }
   return (
     <Modal
       isOpen={isOpen !== undefined ? isOpen : networkModalOpen}
