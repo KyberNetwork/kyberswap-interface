@@ -86,7 +86,7 @@ export default function ProAmmPooledTokens({
           <AutoColumn gap="md">
             <RowBetween>
               <Text fontSize={12} fontWeight="500" color={theme.subText}>
-                <Trans>Your Liquidity Balance</Trans>
+                <Trans>My Liquidity Balance</Trans>
               </Text>
               <Text fontSize={12} fontWeight="500">
                 {formatDollarAmount(valueUSD || 0)}
@@ -94,7 +94,7 @@ export default function ProAmmPooledTokens({
             </RowBetween>
             <RowBetween>
               <Text fontSize={12} fontWeight={500} color={theme.subText}>
-                <Trans>Your Pooled {liquidityValue0?.currency?.symbol}</Trans>
+                <Trans>My Pooled {liquidityValue0?.currency?.symbol}</Trans>
               </Text>
               <RowFixed>
                 <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={liquidityValue0?.currency} />
@@ -106,7 +106,7 @@ export default function ProAmmPooledTokens({
             </RowBetween>
             <RowBetween>
               <Text fontSize={12} fontWeight={500} color={theme.subText}>
-                <Trans>Your Pooled {liquidityValue1?.currency?.symbol}</Trans>
+                <Trans>My Pooled {liquidityValue1?.currency?.symbol}</Trans>
               </Text>
               <RowFixed>
                 <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={liquidityValue1?.currency} />
@@ -119,7 +119,7 @@ export default function ProAmmPooledTokens({
 
             <RowBetween>
               <Text fontSize={12} fontWeight="500" color={theme.subText}>
-                <Trans>Your Staked Balance</Trans>
+                <Trans>My Staked Balance</Trans>
               </Text>
               <Text fontSize={12} fontWeight="500">
                 {formatDollarAmount(stakedUsd || 0)}
@@ -128,7 +128,7 @@ export default function ProAmmPooledTokens({
 
             <RowBetween>
               <Text fontSize={12} fontWeight="500" color={theme.subText}>
-                <Trans>Your Position APR</Trans>
+                <Trans>My Pool APR</Trans>
               </Text>
               <Text fontSize={12} fontWeight="500" color={theme.apr}>
                 {positionAPR === '--' ? '--' : positionAPR + '%'}

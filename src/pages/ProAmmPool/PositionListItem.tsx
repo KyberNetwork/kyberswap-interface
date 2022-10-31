@@ -202,7 +202,7 @@ function PositionListItem({
     Number(last24h[1]?.toExact() || '0') * prices[token1?.wrapped.address || '']
 
   const positionAPR =
-    currentFeeValue && last24hFeeValue && usd
+    currentFeeValue && last24hFeeValue && usd && currentFeeValue > last24hFeeValue
       ? (((currentFeeValue - last24hFeeValue) * 365 * 100) / usd).toFixed(2)
       : '--'
 
@@ -268,28 +268,28 @@ function PositionListItem({
               <StakedInfo>
                 <StakedRow>
                   <Text color={theme.subText}>
-                    <Trans>Your Staked Balance</Trans>
+                    <Trans>My Staked Balance</Trans>
                   </Text>
                   <Text>{formatDollarAmount(stakedUsd)}</Text>
                 </StakedRow>
 
                 <StakedRow>
                   <Text color={theme.subText}>
-                    <Trans>Your Staked {position.amount0.currency.symbol}</Trans>
+                    <Trans>My Staked {position.amount0.currency.symbol}</Trans>
                   </Text>
                   <Text>{stakedPosition?.amount0.toSignificant(6)}</Text>
                 </StakedRow>
 
                 <StakedRow>
                   <Text color={theme.subText}>
-                    <Trans>Your Staked {position.amount1.currency.symbol}</Trans>
+                    <Trans>My Staked {position.amount1.currency.symbol}</Trans>
                   </Text>
                   <Text>{stakedPosition?.amount1.toSignificant(6)}</Text>
                 </StakedRow>
 
                 <StakedRow>
                   <Text color={theme.subText}>
-                    <Trans>Farm APR</Trans>
+                    <Trans>My Farm APR</Trans>
                   </Text>
                   <Text color={theme.apr}>--</Text>
                 </StakedRow>
