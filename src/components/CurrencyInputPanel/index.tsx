@@ -258,11 +258,7 @@ export default function CurrencyInputPanel({
               ) : (
                 <div />
               )}
-              <Flex
-                onClick={() => onMax && onMax()}
-                style={{ cursor: onMax ? 'pointer' : undefined }}
-                alignItems="center"
-              >
+              <Flex onClick={onMax} style={{ cursor: onMax ? 'pointer' : undefined }} alignItems="center">
                 <Wallet color={theme.subText} />
                 <Text fontWeight={500} color={theme.subText} marginLeft="4px">
                   {customBalanceText || selectedCurrencyBalance?.toSignificant(10) || balanceRef.current || 0}
