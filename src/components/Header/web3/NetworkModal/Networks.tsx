@@ -117,10 +117,7 @@ const Networks = ({
   const isDarkMode = useIsDarkMode()
   const toggleNetworkModalGlobal = useNetworkModalToggle()
 
-  const toggleNetworkModal = () => {
-    if (customToggleModal) customToggleModal()
-    else toggleNetworkModalGlobal()
-  }
+  const toggleNetworkModal = customToggleModal || toggleNetworkModalGlobal
 
   const onSelect = (chainId: ChainId) => {
     toggleNetworkModal()
