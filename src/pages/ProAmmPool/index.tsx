@@ -227,7 +227,7 @@ export default function ProAmmPool() {
                   }}
                   role="button"
                 >
-                  <Trans>Staked Positions</Trans>
+                  <Trans>Farming Positions</Trans>
                 </Tab>
               </Flex>
 
