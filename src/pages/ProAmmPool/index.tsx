@@ -4,6 +4,7 @@ import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import { rgba } from 'polished'
 import { useMemo, useRef, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
 import { useHistory, useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -227,7 +228,7 @@ export default function ProAmmPool() {
                   }}
                   role="button"
                 >
-                  <Trans>Farming Positions</Trans>
+                  {isMobile ? <Trans>Farming Positions</Trans> : <Trans>My Farming Positions</Trans>}
                 </Tab>
               </Flex>
 
