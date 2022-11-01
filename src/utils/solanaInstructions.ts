@@ -50,14 +50,14 @@ export function createIdempotentAssociatedTokenAccountInstruction(
   })
 }
 
-export const createWrapSOLInstruction = async (
+const createWrapSOLInstruction = async (
   account: PublicKey,
   amountIn: CurrencyAmount<Currency>,
 ): Promise<TransactionInstruction[]> => {
   if (amountIn.currency.isNative) {
     const associatedTokenAccount = await getAssociatedTokenAddress(NATIVE_MINT, account)
     const WSOLBalance = await connection.getTokenAccountBalance(associatedTokenAccount)
-    const WSOLAmount = CurrencyAmount.fromRawAmount(WETH[ChainId.SOLANA], WSOLBalance.value.amount)
+    const WSOLAmount = CurrencyAmount.fromRawAmount(amountIn.currency, WSOLBalance.value.amount)
     if (WSOLAmount.lessThan(amountIn)) {
       const wrapSOLIx = createIdempotentAssociatedTokenAccountInstruction(
         account,
@@ -78,7 +78,29 @@ export const createWrapSOLInstruction = async (
   }
   return []
 }
-const createUnwrapSOLInstruction = async (
+export const createAtaInstruction = async (
+  account: PublicKey,
+  amountIn: CurrencyAmount<Currency>,
+): Promise<TransactionInstruction[] | null> => {
+  const mint = new PublicKey(amountIn.currency.wrapped.address)
+  const associatedTokenAccount = await getAssociatedTokenAddress(mint, account)
+  const WSOLBalance = await connection.getTokenAccountBalance(associatedTokenAccount)
+  const WSOLAmount = CurrencyAmount.fromRawAmount(amountIn.currency, WSOLBalance.value.amount)
+  if (WSOLAmount.lessThan(amountIn)) {
+    const wrapSOLIx = createIdempotentAssociatedTokenAccountInstruction(account, associatedTokenAccount, account, mint)
+
+    const transferIx = SystemProgram.transfer({
+      fromPubkey: account,
+      toPubkey: associatedTokenAccount,
+      lamports: BigInt(amountIn.quotient.toString()),
+    })
+    const syncNativeIx = createSyncNativeInstruction(associatedTokenAccount)
+
+    return [wrapSOLIx, transferIx, syncNativeIx]
+  }
+  return null
+}
+export const createUnwrapSOLInstruction = async (
   account: PublicKey,
   amountOut: CurrencyAmount<Currency>,
 ): Promise<TransactionInstruction | null> => {

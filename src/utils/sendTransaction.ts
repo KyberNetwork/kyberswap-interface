@@ -4,12 +4,7 @@ import { sendAndConfirmTransaction } from '@namgold/dmm-solana-sdk'
 import { AnchorProvider, Program } from '@project-serum/anchor'
 import { captureException } from '@sentry/react'
 import { SignerWalletAdapter } from '@solana/wallet-adapter-base'
-import {
-  BlockheightBasedTransactionConfirmationStrategy,
-  PublicKey,
-  Transaction,
-  sendAndConfirmRawTransaction,
-} from '@solana/web3.js'
+import { PublicKey, Transaction, sendAndConfirmRawTransaction } from '@solana/web3.js'
 import { ethers } from 'ethers'
 
 import { SolanaAggregatorPrograms } from 'constants/idl/solana_aggregator_programs'
@@ -18,7 +13,7 @@ import connection from 'state/connection/connection'
 import { calculateGasMargin } from 'utils'
 
 import { Aggregator } from './aggregator'
-import { createSolanaSwapTransaction, createWrapSOLInstruction } from './solanaInstructions'
+import { createAtaInstruction, createSolanaSwapTransaction, createUnwrapSOLInstruction } from './solanaInstructions'
 
 export async function sendEVMTransaction(
   account: string,
@@ -117,30 +112,62 @@ export async function sendSolanaTransactionWithBEEncode(
   if (!trade.encodedSwapTx) return
   const accountPK = new PublicKey(account)
   const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash()
+
   const txs: Transaction[] = []
-  if (trade.encodedCreateOrderTx) {
-    trade.encodedCreateOrderTx.recentBlockhash = blockhash
-    trade.encodedCreateOrderTx.lastValidBlockHeight = lastValidBlockHeight
-    trade.encodedCreateOrderTx.feePayer = accountPK
-    txs.push(trade.encodedCreateOrderTx)
-  }
-  if (trade.inputAmount.currency.isNative) {
-    const wrapTx = new Transaction({
+
+  const setupTx =
+    trade.encodedCreateOrderTx ||
+    new Transaction({
       blockhash,
       lastValidBlockHeight,
       feePayer: accountPK,
     })
-    const wrapixs = await createWrapSOLInstruction(accountPK, trade.inputAmount)
-    if (wrapixs.length) {
-      wrapTx.add(...wrapixs)
-      txs.push(wrapTx)
+  setupTx.recentBlockhash = blockhash
+  setupTx.lastValidBlockHeight = lastValidBlockHeight
+  setupTx.feePayer = accountPK
+
+  if (trade.inputAmount.currency.isNative) {
+    const wrapIxs = await createAtaInstruction(accountPK, trade.inputAmount)
+    if (wrapIxs?.length) {
+      setupTx.add(...wrapIxs)
     }
   }
-  trade.encodedSwapTx.recentBlockhash = blockhash
-  trade.encodedSwapTx.lastValidBlockHeight = lastValidBlockHeight
-  trade.encodedSwapTx.feePayer = accountPK
-  await trade.encodedSwapTx.partialSign(trade.programState)
-  txs.push(trade.encodedSwapTx)
+
+  // await Promise.all(
+  //   Object.entries(trade.tokens).map(async (tokenAddress, token) => {
+  //     if (tokenAddress === WETH[ChainId.SOLANA].address) return
+  //     const createAtaIxs = await createAtaInstruction(
+  //       accountPK,
+  //       CurrencyAmount.fromRawAmount(new Token(ChainId.SOLANA, tokenAddress, token.decimals), 0),
+  //     )
+  //     if (createAtaIxs?.length) {
+  //       setupTx.add(...createAtaIxs)
+  //     }
+  //   }),
+  // )
+
+  if (setupTx.instructions.length) {
+    txs.push(setupTx)
+  }
+
+  const swapTx = trade.encodedSwapTx
+  swapTx.recentBlockhash = blockhash
+  swapTx.lastValidBlockHeight = lastValidBlockHeight
+  swapTx.feePayer = accountPK
+  await swapTx.partialSign(trade.programState)
+  txs.push(swapTx)
+
+  const cleanUpTx = new Transaction({
+    blockhash,
+    lastValidBlockHeight,
+    feePayer: accountPK,
+  })
+
+  if (trade.outputAmount.currency.isNative) {
+    const closeWSOLIxs = await createUnwrapSOLInstruction(accountPK, trade.outputAmount)
+    if (closeWSOLIxs) cleanUpTx.add(closeWSOLIxs)
+    txs.push(cleanUpTx)
+  }
 
   try {
     const signedTxs: Transaction[] = await (solanaWallet as SignerWalletAdapter).signAllTransactions(txs)
