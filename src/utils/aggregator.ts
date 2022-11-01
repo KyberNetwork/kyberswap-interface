@@ -11,7 +11,7 @@ import {
 } from '@namgold/ks-sdk-core'
 import { OpenOrders } from '@project-serum/serum'
 import { captureException } from '@sentry/react'
-import { Keypair, Message, PublicKey, SystemProgram, Transaction } from '@solana/web3.js'
+import { Connection, Keypair, Message, PublicKey, SystemProgram, Transaction } from '@solana/web3.js'
 import { toByteArray } from 'base64-js'
 import JSBI from 'jsbi'
 import invariant from 'tiny-invariant'
@@ -50,7 +50,7 @@ export type Swap = {
 type Tokens = {
   [address: string]: Token | undefined
 }
-
+const serumConnection = new Connection('https://solana-api.projectserum.com/')
 /**
  */
 export class Aggregator {
@@ -286,7 +286,7 @@ export class Aggregator {
             const actualOpenOrdersByMarket: { [key: string]: PublicKey } = {}
             for (const [market] of Object.entries(result.serumOpenOrdersAccountByMarket)) {
               const openOrdersList = await OpenOrders.findForMarketAndOwner(
-                connection,
+                serumConnection,
                 new PublicKey(market),
                 toPK,
                 new PublicKey('9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin'),
