@@ -58,8 +58,9 @@ function useSendTxToKsSettingCallback() {
         onSuccess()
       } catch (err) {
         console.error(err)
-        const errStr = `SendTxToKsSetting fail with payload = ${JSON.stringify(data)}`
-        const error = new Error(errStr)
+        const error = new Error(`SendTxToKsSetting fail, srcTxHash = ${data.srcTxHash}`, {
+          cause: new Error(JSON.stringify(data, null, 2)),
+        })
         error.name = 'PostBridge'
         captureException(error, { level: 'fatal' })
       }
