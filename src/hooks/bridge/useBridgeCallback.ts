@@ -40,7 +40,7 @@ function useSendTxToKsSettingCallback() {
       srcAmount: string,
       dstAmount: string,
     ) => {
-      const url = `${KS_SETTING_API}/v1/multichain-transfers`
+      const url = `${KS_SETTING_API}/v1/multichain-transfers-abc`
       const data = {
         userAddress: account,
         srcChainId: srcChainId.toString(),
@@ -58,11 +58,9 @@ function useSendTxToKsSettingCallback() {
         onSuccess()
       } catch (err) {
         console.error(err)
-        const error = new Error(`SendTxToKsSetting fail, srcTxHash = ${data.srcTxHash}`, {
-          cause: new Error(JSON.stringify(data, null, 2)),
-        })
+        const error = new Error(`SendTxToKsSetting fail, srcTxHash = ${data.srcTxHash}`, { cause: err })
         error.name = 'PostBridge'
-        captureException(error, { level: 'fatal' })
+        captureException(error, { level: 'fatal', extra: { args: JSON.stringify(data, null, 2) } })
       }
     },
     [account, onSuccess],
