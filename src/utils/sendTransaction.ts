@@ -1,6 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
 import { sendAndConfirmTransaction } from '@namgold/dmm-solana-sdk'
+import { ChainId, CurrencyAmount, Token, WETH } from '@namgold/ks-sdk-core'
 import { AnchorProvider, Program } from '@project-serum/anchor'
 import { captureException } from '@sentry/react'
 import { SignerWalletAdapter } from '@solana/wallet-adapter-base'
@@ -13,7 +14,12 @@ import connection from 'state/connection/connection'
 import { calculateGasMargin } from 'utils'
 
 import { Aggregator } from './aggregator'
-import { createAtaInstruction, createSolanaSwapTransaction, createUnwrapSOLInstruction } from './solanaInstructions'
+import {
+  createAtaInstruction,
+  createSolanaSwapTransaction,
+  createUnwrapSOLInstruction,
+  createWrapSOLInstruction,
+} from './solanaInstructions'
 
 export async function sendEVMTransaction(
   account: string,
@@ -127,24 +133,21 @@ export async function sendSolanaTransactionWithBEEncode(
   setupTx.feePayer = accountPK
 
   if (trade.inputAmount.currency.isNative) {
-    const wrapIxs = await createAtaInstruction(accountPK, trade.inputAmount)
-    if (wrapIxs?.length) {
-      setupTx.add(...wrapIxs)
-    }
+    const wrapIxs = await createWrapSOLInstruction(accountPK, trade.inputAmount)
+    if (wrapIxs) setupTx.add(...wrapIxs)
   }
 
-  // await Promise.all(
-  //   Object.entries(trade.tokens).map(async (tokenAddress, token) => {
-  //     if (tokenAddress === WETH[ChainId.SOLANA].address) return
-  //     const createAtaIxs = await createAtaInstruction(
-  //       accountPK,
-  //       CurrencyAmount.fromRawAmount(new Token(ChainId.SOLANA, tokenAddress, token.decimals), 0),
-  //     )
-  //     if (createAtaIxs?.length) {
-  //       setupTx.add(...createAtaIxs)
-  //     }
-  //   }),
-  // )
+  await Promise.all(
+    Object.entries(trade.tokens).map(async ([tokenAddress, token]) => {
+      if (!token) return
+      if (tokenAddress === WETH[ChainId.SOLANA].address) return
+      const createAtaIxs = await createAtaInstruction(
+        accountPK,
+        new Token(ChainId.SOLANA, tokenAddress, token?.decimals || 0),
+      )
+      setupTx.add(createAtaIxs)
+    }),
+  )
 
   if (setupTx.instructions.length) {
     txs.push(setupTx)
