@@ -60,7 +60,11 @@ export const TokenListProvider = ({
 
   const removeToken = useCallback((token: TokenInfo) => {
     setImportedTokens(
-      importedTokens.filter((t) => t.address !== token.address)
+      importedTokens.filter(
+        (t) =>
+          t.address.toLowerCase() !== token.address.toLowerCase() &&
+          t.chainId === token.chainId
+      )
     );
   }, []);
 
@@ -80,9 +84,12 @@ export const TokenListProvider = ({
 
 export const useTokens = () => {
   const { tokenList, importedTokens } = useContext(TokenContext);
+  const { chainId } = useActiveWeb3();
 
   return [
-    ...importedTokens.map((item) => ({ ...item, isImport: true })),
+    ...importedTokens
+      .filter((item) => item.chainId === chainId)
+      .map((item) => ({ ...item, isImport: true })),
     ...(tokenList || []),
   ];
 };

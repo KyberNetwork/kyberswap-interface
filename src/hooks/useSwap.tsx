@@ -44,11 +44,11 @@ const useSwap = ({
   const isUnsupported = !SUPPORTED_NETWORKS.includes(chainId.toString());
   useEffect(() => {
     if (isUnsupported) {
-      console.log("xxxx");
       setTokenIn("");
       setTokenOut("");
       setTrade(null);
     } else {
+      setTrade(null);
       setTokenIn(defaultTokenIn || NATIVE_TOKEN_ADDRESS);
       setTokenOut(defaultTokenOut || "");
     }

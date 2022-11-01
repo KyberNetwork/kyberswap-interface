@@ -11,6 +11,7 @@ import { copyToClipboard } from "../utils";
 import { Checkbox } from "./DexesSetting";
 import { Button } from "./Widget/styled";
 import { useImportedTokens } from "../hooks/useTokens";
+import useTheme from "../hooks/useTheme";
 
 const Success = styled(SuccessSVG)`
   width: 14px;
@@ -49,10 +50,12 @@ const TokenInfo = styled.div`
 const TokenName = styled.div`
   color: ${({ theme }) => theme.subText};
   font-size: 14px;
+  text-align: left;
 `;
 
 const TokenSymbol = styled.div`
   font-weight: 500;
+  text-align: left;
   font-size: 20px;
 `;
 
@@ -84,6 +87,7 @@ const WarningContent = styled.div`
   font-size: 14px;
   margin-top: 16px;
   line-height: 20px;
+  text-align: left;
 `;
 
 const CheckboxRow = styled.div`
@@ -106,6 +110,7 @@ function ImportModal({
   const [checked, setChecked] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const { addToken } = useImportedTokens();
+  const theme = useTheme();
 
   useEffect(() => {
     if (isCopied) {
@@ -134,7 +139,12 @@ function ImportModal({
               <Success />
             ) : (
               <Copy
-                style={{ cursor: "pointer", width: "14px", height: "14px" }}
+                style={{
+                  cursor: "pointer",
+                  width: "14px",
+                  height: "14px",
+                  color: theme.text,
+                }}
                 role="button"
                 onClick={() => {
                   copyToClipboard(token.address);

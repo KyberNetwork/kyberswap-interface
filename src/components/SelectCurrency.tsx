@@ -38,6 +38,10 @@ const Spinner = styled(Loading)`
   width: 20px;
   height: 20px;
   color: ${({ theme }) => theme.accent};
+
+  path {
+    stroke-width: 8;
+  }
 `;
 
 export const Input = styled.input`
