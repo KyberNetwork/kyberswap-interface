@@ -109,6 +109,11 @@ const ButtonGroup = styled.div`
   }
 `
 
+enum TAB {
+  MY_LIQUIDITY = 'my-liquidity',
+  PRICE_RANGE = 'price-range',
+}
+
 interface PositionListItemProps {
   positionDetails: PositionDetails | UserPositionFarm
   hasUserDepositedInFarm?: boolean
@@ -293,7 +298,7 @@ function PositionListItem({
 
   const { mixpanelHandler } = useMixpanel()
 
-  const [activeTab, setActiveTab] = useState(0)
+  const [activeTab, setActiveTab] = useState(TAB.MY_LIQUIDITY)
   const now = Date.now() / 1000
 
   const reasonToDisableRemoveLiquidity = (() => {
@@ -313,22 +318,23 @@ function PositionListItem({
       <>
         <ProAmmPoolInfo position={position} tokenId={positionDetails.tokenId.toString()} isFarmActive={hasActiveFarm} />
         <TabContainer style={{ marginTop: '1rem' }}>
-          <Tab isActive={activeTab === 0} padding="0" onClick={() => setActiveTab(0)}>
-            <TabText isActive={activeTab === 0} style={{ fontSize: '12px' }}>
+          <Tab isActive={activeTab === TAB.MY_LIQUIDITY} padding="0" onClick={() => setActiveTab(TAB.MY_LIQUIDITY)}>
+            <TabText isActive={activeTab === TAB.MY_LIQUIDITY} style={{ fontSize: '12px' }}>
               <Trans>My Liquidity</Trans>
             </TabText>
           </Tab>
-          <Tab isActive={activeTab === 1} padding="0" onClick={() => setActiveTab(1)}>
-            <TabText isActive={activeTab === 1} style={{ fontSize: '12px' }}>
+          <Tab isActive={activeTab === TAB.PRICE_RANGE} padding="0" onClick={() => setActiveTab(TAB.PRICE_RANGE)}>
+            <TabText isActive={activeTab === TAB.PRICE_RANGE} style={{ fontSize: '12px' }}>
               <Trans>Price Range</Trans>
             </TabText>
           </Tab>
         </TabContainer>
-        {activeTab === 0 && (
+        {activeTab === TAB.MY_LIQUIDITY && (
           <>
             {!stakedLayout ? (
               <ProAmmPooledTokens
                 positionAPR={positionAPR}
+                farmAPR={farmAPR}
                 valueUSD={usd}
                 stakedUsd={stakedUsd}
                 liquidityValue0={CurrencyAmount.fromRawAmount(
@@ -384,7 +390,9 @@ function PositionListItem({
             )}
           </>
         )}
-        {activeTab === 1 && <ProAmmPriceRange position={position} ticksAtLimit={tickAtLimit} layout={1} />}
+        {activeTab === TAB.PRICE_RANGE && (
+          <ProAmmPriceRange position={position} ticksAtLimit={tickAtLimit} layout={1} />
+        )}
         <div style={{ marginTop: '20px' }} />
         <Flex flexDirection={'column'} marginTop="auto">
           {stakedLayout ? (

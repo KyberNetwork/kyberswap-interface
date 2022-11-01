@@ -22,6 +22,7 @@ export default function ProAmmPooledTokens({
   title,
   pooled = false,
   positionAPR,
+  farmAPR,
 }: {
   liquidityValue0: CurrencyAmount<Currency> | undefined
   liquidityValue1: CurrencyAmount<Currency> | undefined
@@ -31,6 +32,7 @@ export default function ProAmmPooledTokens({
   title?: string
   pooled?: boolean
   positionAPR?: string
+  farmAPR?: number
 }) {
   const theme = useTheme()
   const render =
@@ -134,6 +136,17 @@ export default function ProAmmPooledTokens({
                 {positionAPR === '--' ? '--' : positionAPR + '%'}
               </Text>
             </RowBetween>
+
+            {!!farmAPR && (
+              <RowBetween>
+                <Text fontSize={12} fontWeight="500" color={theme.subText}>
+                  <Trans>My Farm APR</Trans>
+                </Text>
+                <Text fontSize={12} fontWeight="500" color={theme.apr}>
+                  {farmAPR.toFixed(2)}%
+                </Text>
+              </RowBetween>
+            )}
           </AutoColumn>
         </OutlineCard>
       </>

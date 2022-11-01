@@ -3,7 +3,7 @@ import { FeeAmount } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
 import { format } from 'd3'
 import { saturate } from 'polished'
-import React, { ReactNode, useCallback, useMemo } from 'react'
+import React, { CSSProperties, ReactNode, useCallback, useMemo } from 'react'
 import { BarChart2, Inbox } from 'react-feather'
 import { batch } from 'react-redux'
 import { Text } from 'rebass'
@@ -85,6 +85,7 @@ export default function LiquidityChartRangeInput({
   onLeftRangeInput,
   onRightRangeInput,
   interactive,
+  style = {},
 }: {
   currencyA: Currency | undefined
   currencyB: Currency | undefined
@@ -96,6 +97,7 @@ export default function LiquidityChartRangeInput({
   onLeftRangeInput: (typedValue: string) => void
   onRightRangeInput: (typedValue: string) => void
   interactive: boolean
+  style?: CSSProperties
 }) {
   const theme = useTheme()
 
@@ -166,7 +168,7 @@ export default function LiquidityChartRangeInput({
   )
 
   return (
-    <AutoColumn gap="md" style={{ minHeight: '200px' }}>
+    <AutoColumn gap="md" style={{ minHeight: '200px', ...style }}>
       {isUninitialized ? (
         <InfoBox
           message={<Trans>Your position will appear here.</Trans>}

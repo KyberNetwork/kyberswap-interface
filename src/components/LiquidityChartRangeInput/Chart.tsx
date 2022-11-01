@@ -69,6 +69,7 @@ export function Chart({
       <Zoom
         svg={zoomRef.current}
         xScale={xScale}
+        style={{ top: !interactive ? '-56px' : undefined }}
         setZoom={setZoom}
         width={innerWidth}
         height={
