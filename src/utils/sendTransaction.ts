@@ -1,7 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
 import { sendAndConfirmTransaction } from '@namgold/dmm-solana-sdk'
-import { ChainId, CurrencyAmount, Token, WETH } from '@namgold/ks-sdk-core'
+import { ChainId, Token, WETH } from '@namgold/ks-sdk-core'
 import { AnchorProvider, Program } from '@project-serum/anchor'
 import { captureException } from '@sentry/react'
 import { SignerWalletAdapter } from '@solana/wallet-adapter-base'
@@ -186,29 +186,29 @@ export async function sendSolanaTransactionWithBEEncode(
     throw new Error('Swap error', { cause: e })
   }
 }
-export async function sendSolanaTransactionWithFEEncode(
-  account: string,
-  program: Program<SolanaAggregatorPrograms>,
-  programAccount: string,
-  provider: AnchorProvider,
-  trade: Aggregator,
-  value: BigNumber,
-  handler?: (response: TransactionResponse) => void,
-): Promise<string | undefined> {
-  if (!account) return
+// export async function sendSolanaTransactionWithFEEncode(
+//   account: string,
+//   program: Program<SolanaAggregatorPrograms>,
+//   programAccount: string,
+//   provider: AnchorProvider,
+//   trade: Aggregator,
+//   value: BigNumber,
+//   handler?: (response: TransactionResponse) => void,
+// ): Promise<string | undefined> {
+//   if (!account) return
 
-  let tx: Transaction | undefined
-  try {
-    tx = await createSolanaSwapTransaction(new PublicKey(account), program, programAccount, trade, value)
-  } catch (e) {
-    console.error(e)
-    throw new Error('Create transaction failed', { cause: e })
-  }
-  try {
-    const response = await sendAndConfirmTransaction(provider, tx)
-    return response
-  } catch (e) {
-    console.error(e)
-    throw new Error('Swap error', { cause: e })
-  }
-}
+//   let tx: Transaction | undefined
+//   try {
+//     tx = await createSolanaSwapTransaction(new PublicKey(account), program, programAccount, trade, value)
+//   } catch (e) {
+//     console.error(e)
+//     throw new Error('Create transaction failed', { cause: e })
+//   }
+//   try {
+//     const response = await sendAndConfirmTransaction(provider, tx)
+//     return response
+//   } catch (e) {
+//     console.error(e)
+//     throw new Error('Swap error', { cause: e })
+//   }
+// }

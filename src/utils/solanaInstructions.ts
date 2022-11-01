@@ -168,8 +168,8 @@ export const createSolanaSwapTransaction = async (
   const state = Keypair.generate()
   const instructions: TransactionInstruction[] = []
 
-  const wrapSOLInstruction = await createWrapSOLInstruction(account, trade.inputAmount)
-  instructions.push(...wrapSOLInstruction)
+  const wrapSOLInstructions = await createWrapSOLInstruction(account, trade.inputAmount)
+  wrapSOLInstructions && instructions.push(...wrapSOLInstructions)
 
   const recordAmountIx = createSolanaRecordAmountInstruction(state, account, program, trade)
   instructions.push(recordAmountIx)
