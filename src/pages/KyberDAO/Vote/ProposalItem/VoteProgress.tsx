@@ -1,4 +1,3 @@
-import { useEffect, useRef, useState } from 'react'
 import { Text } from 'rebass'
 import styled, { css, keyframes } from 'styled-components'
 
