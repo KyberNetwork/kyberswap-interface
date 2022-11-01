@@ -1,4 +1,5 @@
 import { ApolloProvider } from '@apollo/client'
+import { datadogRum } from '@datadog/browser-rum'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import * as Sentry from '@sentry/react'
@@ -29,6 +30,7 @@ import DarkModeQueryParamReader from 'theme/DarkModeQueryParamReader'
 import { isAddressString, shortenAddress } from 'utils'
 
 import { RedirectDuplicateTokenIds } from './AddLiquidityV2/redirects'
+import Bridge from './Bridge'
 import Swap from './Swap'
 import { RedirectPathToSwapOnly, RedirectToSwap } from './Swap/redirects'
 import ProAmmSwap from './SwapProAmm'
@@ -100,16 +102,21 @@ const BodyWrapper = styled.div`
 
   ${isMobile && `overflow-x: hidden;`}
 `
-export const AppPaths = { SWAP_LEGACY: '/swap-legacy', ABOUT: '/about', SWAP: '/swap', CAMPAIGN: '/campaigns' }
+export const AppPaths = {
+  SWAP_LEGACY: '/swap-legacy',
+  ABOUT: '/about',
+  SWAP: '/swap',
+  CAMPAIGN: '/campaigns',
+  BRIDGE: '/bridge',
+}
 
 export default function App() {
   const { account, chainId } = useActiveWeb3React()
 
   useEffect(() => {
     if (account) {
-      Sentry.setUser({
-        id: account,
-      })
+      Sentry.setUser({ id: account })
+      datadogRum.setUser({ id: account })
     }
   }, [account])
 
@@ -131,19 +138,23 @@ export default function App() {
   useGlobalMixpanelEvents()
   const { pathname } = window.location
   const showFooter = !pathname.includes(AppPaths.ABOUT)
+  // const feedbackId = isDarkTheme ? 'W5TeOyyH' : 'K0dtSO0v'
+  const feedbackId = isDarkTheme ? 'cHvlUe5l' : 'K7NUkCCU' // support our event
 
   return (
     <ErrorBoundary>
       {width && width >= 768 ? (
         <Sidetab
-          id={isDarkTheme ? 'W5TeOyyH' : 'K0dtSO0v'}
-          buttonText="Feedback"
+          id={feedbackId}
+          width={800} // todo revert when event end
+          // buttonText="Feedback"
+          buttonText="Feedback & Win!"
           buttonColor={theme.primary}
           customIcon={isDarkTheme ? 'https://i.imgur.com/iTOOKnr.png' : 'https://i.imgur.com/aPCpnGg.png'}
         />
       ) : (
         <Popover
-          id={isDarkTheme ? 'W5TeOyyH' : 'K0dtSO0v'}
+          id={feedbackId}
           customIcon={isDarkTheme ? 'https://i.imgur.com/iTOOKnr.png' : 'https://i.imgur.com/aPCpnGg.png'}
         />
       )}
@@ -256,6 +267,7 @@ export default function App() {
                     <Route exact path="/discover" component={TrueSight} />
                     <Route exact path="/buy-crypto" component={BuyCrypto} />
                     <Route exact path={`${AppPaths.CAMPAIGN}/:slug?`} component={Campaign} />
+                    <Route exact path={AppPaths.BRIDGE} component={Bridge} />
 
                     <Route component={RedirectPathToSwapOnly} />
                   </Switch>
