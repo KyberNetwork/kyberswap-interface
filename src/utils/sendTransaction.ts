@@ -4,7 +4,12 @@ import { sendAndConfirmTransaction } from '@namgold/dmm-solana-sdk'
 import { AnchorProvider, Program } from '@project-serum/anchor'
 import { captureException } from '@sentry/react'
 import { SignerWalletAdapter } from '@solana/wallet-adapter-base'
-import { PublicKey, Transaction } from '@solana/web3.js'
+import {
+  BlockheightBasedTransactionConfirmationStrategy,
+  PublicKey,
+  Transaction,
+  sendAndConfirmRawTransaction,
+} from '@solana/web3.js'
 import { ethers } from 'ethers'
 
 import { SolanaAggregatorPrograms } from 'constants/idl/solana_aggregator_programs'
@@ -13,7 +18,7 @@ import connection from 'state/connection/connection'
 import { calculateGasMargin } from 'utils'
 
 import { Aggregator } from './aggregator'
-import { createSolanaSwapTransaction } from './solanaInstructions'
+import { createSolanaSwapTransaction, createWrapSOLInstruction } from './solanaInstructions'
 
 export async function sendEVMTransaction(
   account: string,
@@ -110,18 +115,30 @@ export async function sendSolanaTransactionWithBEEncode(
   handler?: (hash: string, firstTxHash: string) => void,
 ): Promise<string[] | undefined> {
   if (!trade.encodedSwapTx) return
-
+  const accountPK = new PublicKey(account)
   const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash()
   const txs: Transaction[] = []
   if (trade.encodedCreateOrderTx) {
     trade.encodedCreateOrderTx.recentBlockhash = blockhash
     trade.encodedCreateOrderTx.lastValidBlockHeight = lastValidBlockHeight
-    trade.encodedCreateOrderTx.feePayer = new PublicKey(account)
+    trade.encodedCreateOrderTx.feePayer = accountPK
     txs.push(trade.encodedCreateOrderTx)
+  }
+  if (trade.inputAmount.currency.isNative) {
+    const wrapTx = new Transaction({
+      blockhash,
+      lastValidBlockHeight,
+      feePayer: accountPK,
+    })
+    const wrapixs = await createWrapSOLInstruction(accountPK, trade.inputAmount)
+    if (wrapixs.length) {
+      wrapTx.add(...wrapixs)
+      txs.push(wrapTx)
+    }
   }
   trade.encodedSwapTx.recentBlockhash = blockhash
   trade.encodedSwapTx.lastValidBlockHeight = lastValidBlockHeight
-  trade.encodedSwapTx.feePayer = new PublicKey(account)
+  trade.encodedSwapTx.feePayer = accountPK
   await trade.encodedSwapTx.partialSign(trade.programState)
   txs.push(trade.encodedSwapTx)
 
@@ -129,7 +146,7 @@ export async function sendSolanaTransactionWithBEEncode(
     const signedTxs: Transaction[] = await (solanaWallet as SignerWalletAdapter).signAllTransactions(txs)
     const txHashs: string[] = []
     for (let i = 0; i < signedTxs.length; i++) {
-      const hash = await connection.sendRawTransaction(signedTxs[i].serialize())
+      const hash = await sendAndConfirmRawTransaction(connection, signedTxs[i].serialize())
       handler?.(hash, hash)
       txHashs.push(hash)
     }
