@@ -1,5 +1,4 @@
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
-import { t } from '@lingui/macro'
 import { CSSProperties, memo, useCallback } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
@@ -7,6 +6,7 @@ import { Flex, Text } from 'rebass'
 
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { formatPoolValue } from 'pages/Bridge/helpers'
 import { MultiChainTokenInfo } from 'pages/Bridge/type'
 import { useBridgeState } from 'state/bridge/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
@@ -43,7 +43,7 @@ const CurrencyListBridge = memo(function CurrencyListV2({
       const handleSelect = () => currency && onCurrencySelect(currency)
       const { symbol } = getDisplayTokenInfo(currency)
       const { sortId, type, anytoken } = (currency?.multichainInfo || {}) as Partial<MultiChainTokenInfo>
-      const poolLiquidity = isOutput && anytoken?.address ? poolValueOut?.[anytoken?.address] ?? t`Unlimited` : 0
+      const poolLiquidity = isOutput && anytoken?.address ? formatPoolValue(poolValueOut?.[anytoken?.address]) : 0
 
       return (
         <CurrencyRow
