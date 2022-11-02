@@ -161,8 +161,8 @@ export default function SwapForm() {
   }, [poolDataOut, listTokenOut, tokenInfoOut, setBridgePoolInfo])
 
   useEffect(() => {
-    setBridgeState({ chainIdOut: listChainOut[0] })
-  }, [setBridgeState, listChainOut])
+    if (!listChainOut.find(el => el === chainIdOut)) setBridgeState({ chainIdOut: listChainOut[0] })
+  }, [setBridgeState, listChainOut, chainIdOut])
 
   useEffect(() => {
     setBridgeState({ tokenOut: listTokenOut[0] || null })
