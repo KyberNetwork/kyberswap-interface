@@ -339,7 +339,7 @@ const Row = ({
                   </Text>
                   {getFormattedTimeFromSecond(farmingPool.endTime - currentTimestamp)}
                 </>
-              ) : TOBE_EXTENDED_FARMING_POOLS.includes(pool.poolAddress.toLowerCase()) ? (
+              ) : TOBE_EXTENDED_FARMING_POOLS.includes(farmingPool.poolAddress.toLowerCase()) ? (
                 <Trans>To be extended soon</Trans>
               ) : (
                 <Trans>ENDED</Trans>
@@ -600,7 +600,7 @@ const Row = ({
             </Text>
             {getFormattedTimeFromSecond(farmingPool.endTime - currentTimestamp)}
           </>
-        ) : TOBE_EXTENDED_FARMING_POOLS.includes(pool.poolAddress.toLowerCase()) ? (
+        ) : TOBE_EXTENDED_FARMING_POOLS.includes(farmingPool.poolAddress.toLowerCase()) ? (
           <Trans>To be extended soon</Trans>
         ) : (
           <Trans>ENDED</Trans>
