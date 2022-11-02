@@ -202,7 +202,7 @@ export function useTradeExactInV2(
       allowedSlippage,
       feeConfig,
       // programState, //don't add this, this value refresh every time
-      trade,
+      // trade, //don't add this, this value refresh every time
       comparer,
     ],
   )
@@ -210,6 +210,24 @@ export function useTradeExactInV2(
   useEffect(() => {
     onUpdateCallback(false, 0)
   }, [onUpdateCallback])
+
+  // todo namgold: remove debug
+  // useDebug({
+  //   onUpdateCallback,
+  //   debounceCurrencyAmountIn,
+  //   currencyOut,
+  //   chainId,
+  //   recipient,
+  //   account,
+  //   ttl,
+  //   'networkInfo.routerUri': networkInfo.routerUri,
+  //   saveGas,
+  //   dexes,
+  //   allowedSlippage,
+  //   feeConfig,
+  //   trade,
+  //   comparer,
+  // })
 
   return {
     trade,

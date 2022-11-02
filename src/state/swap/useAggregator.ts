@@ -153,6 +153,28 @@ export function useDerivedSwapInfoV2(): {
   const isPairNotfound = inputCurrency === undefined && outputCurrency === undefined
 
   //todo namgold: remove this debug
+  // useDebug({
+  //   amountIn,
+  //   inputCurrency,
+  //   outputCurrency,
+  //   allowedSlippage,
+  //   relevantTokenBalances,
+  //   balanceInput,
+  //   balanceOutput,
+  //   currencies,
+  //   parsedAmount,
+  //   formattedTo,
+  //   slippageAdjustedAmounts,
+  //   currencyBalances,
+  //   v2Trade,
+  //   bestTradeExactIn,
+  //   baseTradeComparer,
+  //   onUpdateCallback,
+  //   tradeComparer,
+  //   inputError,
+  //   loading,
+  //   isPairNotfound,
+  // })
 
   return useMemo(
     () => ({

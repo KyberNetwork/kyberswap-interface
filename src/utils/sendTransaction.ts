@@ -195,6 +195,7 @@ export async function sendSolanaTransactionWithBEEncode(
     }
 
     try {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const swapHash = await sendAndConfirmRawTransaction(connection, signedSwapTx!.serialize())
       txHashs.push(swapHash)
       handler(swapHash, txHashs[0])

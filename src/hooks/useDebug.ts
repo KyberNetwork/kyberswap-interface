@@ -102,7 +102,7 @@ const analyzeChanged = (oldValue: any, newValue: any): Changed => {
   let result: Changed = undefined
 
   if (oldValue !== newValue) {
-    if (oldValue && typeof oldValue === 'object' && newValue && typeof newValue === 'object') {
+    if (isObjectOrArray(oldValue) && isObjectOrArray(newValue)) {
       // find which key is really changed for object and array
       const propSubKeys = new Set<string>()
       Object.keys(oldValue).forEach(subkey => propSubKeys.add(subkey))
@@ -117,10 +117,12 @@ const analyzeChanged = (oldValue: any, newValue: any): Changed => {
         isRealChanged,
       }
     } else {
+      const printableOldValue = oldValue
+      const printableNewValue = newValue
       result = {
         isObject: false,
-        oldValue: oldValue,
-        newValue: newValue,
+        oldValue: printableOldValue,
+        newValue: printableNewValue,
       }
     }
   }
@@ -129,11 +131,13 @@ const analyzeChanged = (oldValue: any, newValue: any): Changed => {
 
 const printChanged = (changed: Changed | undefined, name: string): void => {
   if (!changed) return
-  console.group(`%c${name} %cchanged`, 'color: #b5a400', 'color: unset')
   const isRealChanged = !changed.isObject || changed.isRealChanged
-  // if (isRealChanged && skipRealChanged) return
+  if (isRealChanged) {
+    console.groupCollapsed(`%c${name} %creal changed`, 'color: #b5a400', 'color: green')
+  } else {
+    console.group(`%c${name} %cduplicated changed`, 'color: #b5a400', 'color: red')
+  }
   globalGroupLevel++
-  console.log('Is real changed:', isRealChanged, isRealChanged ? '' : '🆘 🆘 🆘')
   if (!changed.isObject) {
     console.log(' - Old:', changed.oldValue)
     console.log(' - New:', changed.newValue)
@@ -142,4 +146,8 @@ const printChanged = (changed: Changed | undefined, name: string): void => {
   }
   console.groupEnd()
   globalGroupLevel--
+}
+
+const isObjectOrArray = (obj: any): boolean => {
+  return typeof obj === 'object' && obj !== null
 }
