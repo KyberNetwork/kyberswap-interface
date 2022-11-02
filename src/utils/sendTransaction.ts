@@ -1,25 +1,17 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
-import { sendAndConfirmTransaction } from '@namgold/dmm-solana-sdk'
 import { ChainId, Token, WETH } from '@namgold/ks-sdk-core'
-import { AnchorProvider, Program } from '@project-serum/anchor'
 import { captureException } from '@sentry/react'
 import { SignerWalletAdapter } from '@solana/wallet-adapter-base'
 import { PublicKey, Transaction, sendAndConfirmRawTransaction } from '@solana/web3.js'
 import { ethers } from 'ethers'
 
-import { SolanaAggregatorPrograms } from 'constants/idl/solana_aggregator_programs'
 import connection from 'state/connection/connection'
 // import connection from 'state/connection/connection'
 import { calculateGasMargin } from 'utils'
 
 import { Aggregator } from './aggregator'
-import {
-  createAtaInstruction,
-  createSolanaSwapTransaction,
-  createUnwrapSOLInstruction,
-  createWrapSOLInstruction,
-} from './solanaInstructions'
+import { createAtaInstruction, createUnwrapSOLInstruction, createWrapSOLInstruction } from './solanaInstructions'
 
 export async function sendEVMTransaction(
   account: string,
@@ -113,7 +105,8 @@ export async function sendSolanaTransactionWithBEEncode(
   account: string,
   trade: Aggregator,
   solanaWallet: SignerWalletAdapter,
-  handler?: (hash: string, firstTxHash: string) => void,
+  handler: (hash: string, firstTxHash: string) => void,
+  handleCustomTypeResponse: (type: string, hash: string, firstTxHash: string) => void,
 ): Promise<string[] | undefined> {
   if (!trade.encodedSwapTx) return
   const accountPK = new PublicKey(account)
@@ -121,20 +114,21 @@ export async function sendSolanaTransactionWithBEEncode(
 
   const txs: Transaction[] = []
 
-  const setupTx =
+  let setupTx: Transaction | null = null
+  const prepareSetupTx =
     trade.encodedCreateOrderTx ||
     new Transaction({
       blockhash,
       lastValidBlockHeight,
       feePayer: accountPK,
     })
-  setupTx.recentBlockhash = blockhash
-  setupTx.lastValidBlockHeight = lastValidBlockHeight
-  setupTx.feePayer = accountPK
+  prepareSetupTx.recentBlockhash = blockhash
+  prepareSetupTx.lastValidBlockHeight = lastValidBlockHeight
+  prepareSetupTx.feePayer = accountPK
 
   if (trade.inputAmount.currency.isNative) {
     const wrapIxs = await createWrapSOLInstruction(accountPK, trade.inputAmount)
-    if (wrapIxs) setupTx.add(...wrapIxs)
+    if (wrapIxs) prepareSetupTx.add(...wrapIxs)
   }
 
   await Promise.all(
@@ -145,11 +139,12 @@ export async function sendSolanaTransactionWithBEEncode(
         accountPK,
         new Token(ChainId.SOLANA, tokenAddress, token?.decimals || 0),
       )
-      setupTx.add(createAtaIxs)
+      prepareSetupTx.add(createAtaIxs)
     }),
   )
 
-  if (setupTx.instructions.length) {
+  if (prepareSetupTx.instructions.length) {
+    setupTx = prepareSetupTx
     txs.push(setupTx)
   }
 
@@ -160,26 +155,65 @@ export async function sendSolanaTransactionWithBEEncode(
   await swapTx.partialSign(trade.programState)
   txs.push(swapTx)
 
-  const cleanUpTx = new Transaction({
-    blockhash,
-    lastValidBlockHeight,
-    feePayer: accountPK,
-  })
+  let cleanUpTx: Transaction | null = null
 
   if (trade.outputAmount.currency.isNative) {
+    cleanUpTx = new Transaction({
+      blockhash,
+      lastValidBlockHeight,
+      feePayer: accountPK,
+    })
     const closeWSOLIxs = await createUnwrapSOLInstruction(accountPK, trade.outputAmount)
     if (closeWSOLIxs) cleanUpTx.add(closeWSOLIxs)
     txs.push(cleanUpTx)
   }
-
+  const populateTx = (txs: Transaction[]) => {
+    const result: {
+      signedSetupTx: Transaction | undefined
+      signedSwapTx: Transaction | undefined
+      signedCleanUpTx: Transaction | undefined
+    } = { signedSetupTx: undefined, signedSwapTx: undefined, signedCleanUpTx: undefined }
+    let count = 0
+    if (setupTx) result.signedSetupTx = txs[count++]
+    result.signedSwapTx = txs[count++]
+    result.signedCleanUpTx = txs[count++]
+    return result
+  }
   try {
     const signedTxs: Transaction[] = await (solanaWallet as SignerWalletAdapter).signAllTransactions(txs)
+    const { signedSetupTx, signedSwapTx, signedCleanUpTx } = populateTx(signedTxs)
     const txHashs: string[] = []
-    for (let i = 0; i < signedTxs.length; i++) {
-      const hash = await sendAndConfirmRawTransaction(connection, signedTxs[i].serialize())
-      handler?.(hash, hash)
-      txHashs.push(hash)
+    if (signedSetupTx) {
+      try {
+        const setupHash = await sendAndConfirmRawTransaction(connection, signedSetupTx.serialize())
+        txHashs.push(setupHash)
+        handleCustomTypeResponse('SetUp', setupHash, txHashs[0])
+      } catch (e) {
+        console.error(e)
+        throw new Error('Swap error', { cause: e })
+      }
     }
+
+    try {
+      const swapHash = await sendAndConfirmRawTransaction(connection, signedSwapTx!.serialize())
+      txHashs.push(swapHash)
+      handler(swapHash, txHashs[0])
+    } catch (e) {
+      console.error(e)
+      throw new Error('Swap error', { cause: e })
+    }
+
+    if (signedCleanUpTx) {
+      try {
+        const cleanUpHash = await sendAndConfirmRawTransaction(connection, signedCleanUpTx.serialize())
+        txHashs.push(cleanUpHash)
+        handleCustomTypeResponse('CleanUp', cleanUpHash, txHashs[0])
+      } catch (e) {
+        console.error(e)
+        throw new Error('Swap error', { cause: e })
+      }
+    }
+
     return txHashs
   } catch (e) {
     console.error(e)

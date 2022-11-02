@@ -22,7 +22,6 @@ import {
 import { SolanaAggregatorPrograms } from 'constants/idl/solana_aggregator_programs'
 import connection from 'state/connection/connection'
 
-// import connection from 'state/connection/connection'
 import { Aggregator, Swap } from './aggregator'
 
 export function createIdempotentAssociatedTokenAccountInstruction(
@@ -56,8 +55,11 @@ export const createWrapSOLInstruction = async (
 ): Promise<TransactionInstruction[] | null> => {
   if (amountIn.currency.isNative) {
     const associatedTokenAccount = await getAssociatedTokenAddress(NATIVE_MINT, account)
-    const WSOLBalance = await connection.getTokenAccountBalance(associatedTokenAccount)
-    const WSOLAmount = CurrencyAmount.fromRawAmount(amountIn.currency, WSOLBalance.value.amount)
+    let WSOLBalance: anchor.web3.RpcResponseAndContext<anchor.web3.TokenAmount> | undefined = undefined
+    try {
+      WSOLBalance = await connection.getTokenAccountBalance(associatedTokenAccount)
+    } catch {}
+    const WSOLAmount = CurrencyAmount.fromRawAmount(amountIn.currency, WSOLBalance ? WSOLBalance.value.amount : '0')
     if (WSOLAmount.lessThan(amountIn)) {
       const createWSOLIx = await createAtaInstruction(account, amountIn.currency)
 

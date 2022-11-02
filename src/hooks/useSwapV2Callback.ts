@@ -50,7 +50,7 @@ export function useSwapV2Callback(
 
   const recipient = recipientAddressOrName === null || recipientAddressOrName === '' ? account : recipientAddress
 
-  const onHandleResponse = useCallback(
+  const onHandleSwapResponse = useCallback(
     (hash: string, firstTxHash?: string) => {
       if (!trade) {
         throw new Error('"trade" is undefined.')
@@ -105,6 +105,17 @@ export function useSwapV2Callback(
     ],
   )
 
+  const onHandleCustomTypeResponse = useCallback(
+    (type: string, hash: string, firstTxHash?: string) => {
+      addTransactionWithType({
+        hash,
+        type,
+        firstTxHash,
+      })
+    },
+    [addTransactionWithType],
+  )
+
   return useMemo(() => {
     if (!trade || !account) {
       return { state: SwapCallbackState.INVALID, callback: null, error: 'Missing dependencies' }
@@ -125,7 +136,7 @@ export function useSwapV2Callback(
         trade.routerAddress,
         trade.encodedSwapData,
         value,
-        (tx: TransactionResponse) => onHandleResponse(tx.hash),
+        (tx: TransactionResponse) => onHandleSwapResponse(tx.hash),
       )
       if (hash === undefined) throw new Error('sendTransaction returned undefined.')
       return hash
@@ -140,7 +151,8 @@ export function useSwapV2Callback(
         account,
         trade,
         solanaWallet.adapter as any,
-        onHandleResponse,
+        onHandleSwapResponse,
+        onHandleCustomTypeResponse,
       )
       if (hash === undefined) throw new Error('sendTransaction returned undefined.')
       return hash[0]
@@ -159,9 +171,10 @@ export function useSwapV2Callback(
     isSolana,
     recipientAddressOrName,
     library,
-    onHandleResponse,
+    onHandleSwapResponse,
     provider,
     solanaWallet,
     solanaAggregatorProgram,
+    onHandleCustomTypeResponse,
   ])
 }

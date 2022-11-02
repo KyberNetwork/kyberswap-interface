@@ -134,6 +134,16 @@ export const SUMMARY: {
     pending: () => 'Force Withdrawing ',
     failure: () => 'Error Force withdrawing ',
   },
+  SetUp: {
+    success: () => 'Set up ',
+    pending: () => 'Setting up ',
+    failure: () => 'Error Set up  ',
+  },
+  CleanUp: {
+    success: () => 'Clean up ',
+    pending: () => 'Cleaning up ',
+    failure: () => 'Error Clean up  ',
+  },
 }
 
 export default function TransactionPopup({
