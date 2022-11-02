@@ -132,14 +132,9 @@ export const searchTokenPair = (address: string, chainId: ChainId | undefined) =
       resolve([{ id: TOKEN_PAIRS_ADDRESS_MAPPING[address.toLowerCase()] }])
     })
   }
-  return fetcherDextools(`shared/search/v2?query=${address}`).then(res =>
+  return fetcherDextools(`shared/search/v2?chains=${DextoolSearchV2ChainId[chainId]}&query=${address}`).then(res =>
     res.results
-      .filter(
-        (token: any) =>
-          token.id.token === address.toLowerCase() &&
-          token.id.chain === DextoolSearchV2ChainId[chainId] &&
-          !!token.volume,
-      )
+      .filter((token: any) => token.id.token === address.toLowerCase() && !!token.volume)
       .sort((tokenA: any, tokenB: any) => tokenB.volume - tokenA.volume),
   )
 }
