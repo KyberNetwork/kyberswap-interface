@@ -1,3 +1,4 @@
+import { lighten } from 'polished'
 import React, { useMemo } from 'react'
 import { Text, TextProps } from 'rebass'
 import styled, {
@@ -254,7 +255,11 @@ export const FixedGlobalStyle = createGlobalStyle`
   }
 
   a {
-    color: ${colors(false).blue1};
+    color: ${colors(false).primary};
+    text-decoration: none;
+    :hover{
+      color: ${lighten(0.2, colors(false).primary)};
+    }
   }
 
   * {

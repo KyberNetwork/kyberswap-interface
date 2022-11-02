@@ -1,5 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { lighten } from 'polished'
+import { Link } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
@@ -157,7 +158,10 @@ export default function StakeKNC() {
                 Stake + Vote
               </Text>
               <Text fontSize={12} lineHeight="16px" fontWeight={500} color={theme.subText}>
-                The more you stake and vote, the more KNC you will earn. Vote now
+                The more you stake and vote, the more KNC you will earn.{' '}
+                <Link to="/kyberdao/vote" style={{ textDecoration: 'none' }}>
+                  Vote now ↗
+                </Link>
               </Text>
             </CardInfo>
           </Card>
@@ -182,7 +186,10 @@ export default function StakeKNC() {
                 KyberDAO v1
               </Text>
               <Text fontSize={12} lineHeight="16px" fontWeight={500} color={theme.subText}>
-                You can access legacy KyberDAO v1 to read about previous KIPs here
+                You can access legacy KyberDAO v1 to read about previous KIPs{' '}
+                <a href="https://legacy.kyber.org/vote" target="_blank" rel="noreferrer">
+                  here ↗
+                </a>
               </Text>
             </CardInfo>
           </Card>

@@ -195,8 +195,7 @@ const activeClassName = 'ACTIVE'
 const StyledNavLink = styled(NavLink).attrs({
   activeClassName,
 })`
-  align-items: left;
-  border-radius: 3rem;
+  border-radius: 3px;
   padding: 8px 12px;
   outline: none;
   cursor: pointer;
@@ -207,9 +206,8 @@ const StyledNavLink = styled(NavLink).attrs({
   font-weight: 500;
   display: flex;
   align-items: 'center';
-  gap: 5px;
+  gap: 8px;
   &.${activeClassName} {
-    border-radius: 12px;
     font-weight: 600;
     color: ${({ theme }) => theme.primary};
   }
@@ -228,18 +226,17 @@ const StyledNavExternalLink = styled(ExternalLink).attrs({
 })`
   ${({ theme }) => theme.flexRowNoWrap}
   align-items: left;
-  border-radius: 3rem;
+  border-radius: 3px;
   outline: none;
   cursor: pointer;
   text-decoration: none;
   color: ${({ theme }) => theme.subText};
   font-size: 1rem;
-  width: fit-content;
+  width: 100%;
   padding: 8px 12px;
   font-weight: 500;
 
   &.${activeClassName} {
-    border-radius: 12px;
     font-weight: 600;
     color: ${({ theme }) => theme.subText};
   }
@@ -284,6 +281,7 @@ export const SlideToUnlock = styled.div<{ active?: boolean }>`
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   -webkit-text-size-adjust: none;
+  font-weight: 600;
 `
 
 const Dropdown = styled.div`
@@ -294,9 +292,9 @@ const Dropdown = styled.div`
   box-shadow: 0 0 1px rgba(0, 0, 0, 0.01), 0 4px 8px rgba(0, 0, 0, 0.04), 0 16px 24px rgba(0, 0, 0, 0.04),
     0 24px 32px rgba(0, 0, 0, 0.01);
   border-radius: 8px;
-  padding: 8px 4px;
+  padding: 8px;
   width: max-content;
-  top: 32px;
+  top: 40px;
 `
 const DropdownIcon = styled(DropdownSVG)`
   transition: transform 300ms;
@@ -308,11 +306,16 @@ const cssDropDown = css`
     display: flex;
     flex-direction: column;
 
-    ${StyledNavLink} {
+    ${StyledNavLink},${StyledNavExternalLink} {
       margin: 0;
       display: flex;
       align-items: center;
       margin: 0;
+      width: 100%;
+      padding: 8px;
+      :hover {
+        background-color: ${({ theme }) => theme.buttonGray};
+      }
     }
   }
 
@@ -374,16 +377,9 @@ export default function Header() {
             </Flex>
 
             <Dropdown>
-              <StyledNavLink
-                id={`swapv2-nav-link`}
-                to={'/swap'}
-                isActive={match => Boolean(match)}
-                style={{ flexDirection: 'column' }}
-              >
-                <Flex alignItems="center" sx={{ gap: '13px' }}>
-                  <Repeat size={16} />
-                  <Trans>Swap</Trans>
-                </Flex>
+              <StyledNavLink id={`swapv2-nav-link`} to={'/swap'} isActive={match => Boolean(match)}>
+                <Repeat size={16} />
+                <Trans>Swap</Trans>
               </StyledNavLink>
               <div id={TutorialIds.BRIDGE_LINKS}>
                 <StyledNavLink
@@ -394,35 +390,25 @@ export default function Header() {
                     mixpanelHandler(MIXPANEL_TYPE.SWAP_BUY_CRYPTO_CLICKED)
                   }}
                 >
-                  <Flex alignItems="center" sx={{ gap: '8px' }}>
-                    <Flex sx={{ gap: '10px' }}>
-                      <Dollar style={{ marginLeft: -1 }} />
-                      <Trans>Buy Crypto</Trans>
-                    </Flex>
-                    <Flex sx={{ gap: '8px' }}>
-                      <VisaSVG width="20" height="20" />
-                      <MasterCard width="20" height="20" />
-                    </Flex>
+                  <Dollar />
+                  <Text flex={1}>
+                    <Trans>Buy Crypto</Trans>
+                  </Text>
+                  <Flex sx={{ gap: '8px' }}>
+                    <VisaSVG width="20" height="20" />
+                    <MasterCard width="20" height="20" />
                   </Flex>
                 </StyledNavLink>
-                <StyledNavLink
-                  to={AppPaths.BRIDGE}
-                  isActive={match => Boolean(match)}
-                  style={{ flexDirection: 'column', width: '100%' }}
-                >
-                  <Flex alignItems="center" sx={{ gap: '10px' }} justifyContent="space-between">
-                    <StyledBridgeIcon height={15} />
-                    <Flex alignItems={'center'} style={{ flex: 1 }} justifyContent={'space-between'}>
-                      <Text>
-                        <Trans>Bridge</Trans>
-                      </Text>
-                      <img
-                        src={isDark ? MultichainLogoLight : MultichainLogoDark}
-                        alt="kyberswap with multichain"
-                        height={10}
-                      />
-                    </Flex>
-                  </Flex>
+                <StyledNavLink to={AppPaths.BRIDGE} isActive={match => Boolean(match)}>
+                  <StyledBridgeIcon height={15} />
+                  <Text flex={1}>
+                    <Trans>Bridge</Trans>
+                  </Text>
+                  <img
+                    src={isDark ? MultichainLogoLight : MultichainLogoDark}
+                    alt="kyberswap with multichain"
+                    height={10}
+                  />
                 </StyledNavLink>
               </div>
             </Dropdown>
@@ -486,11 +472,7 @@ export default function Header() {
           )}
 
           <DiscoverWrapper id={TutorialIds.DISCOVER_LINK}>
-            <StyledNavLink
-              to={'/discover?tab=trending_soon'}
-              isActive={match => Boolean(match)}
-              style={{ alignItems: 'center' }}
-            >
+            <StyledNavLink to={'/discover?tab=trending_soon'} isActive={match => Boolean(match)}>
               <SlideToUnlock
                 active={pathname.includes('discover') || isHoverSlide}
                 onMouseEnter={() => setIsHoverSlide(true)}
@@ -498,7 +480,7 @@ export default function Header() {
               >
                 <Trans>Discover</Trans>
               </SlideToUnlock>
-              <DiscoverIcon size={14} style={{ marginTop: '-20px', marginLeft: '4px' }} />
+              <DiscoverIcon size={14} style={{ marginTop: '-8px' }} />
             </StyledNavLink>
           </DiscoverWrapper>
           <AboutWrapper>
@@ -556,7 +538,7 @@ export default function Header() {
                 </StyledNavLink>
 
                 <StyledNavLink id={`about-knc`} to={'/about/knc'} isActive={match => Boolean(match)}>
-                  <Trans> KNC</Trans>
+                  <Trans>KNC</Trans>
                 </StyledNavLink>
               </Dropdown>
             </HoverDropdown>
