@@ -180,6 +180,11 @@ export async function sendSolanaTransactionWithBEEncode(
     return result
   }
   try {
+    console.group('Sending transactions:')
+    console.info('setup tx:', setupTx ? setupTx.serializeMessage().toString('base64') : null)
+    console.info('swap tx:', swapTx ? swapTx.serializeMessage().toString('base64') : null)
+    console.info('clean up tx:', cleanUpTx ? cleanUpTx.serializeMessage().toString('base64') : null)
+    console.groupEnd()
     const signedTxs: Transaction[] = await (solanaWallet as SignerWalletAdapter).signAllTransactions(txs)
     const { signedSetupTx, signedSwapTx, signedCleanUpTx } = populateTx(signedTxs)
     const txHashs: string[] = []
