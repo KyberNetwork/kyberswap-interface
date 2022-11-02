@@ -379,7 +379,11 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                   liquidityValue1={liquidityValue1}
                   title={t`Remove Amount`}
                 />
-                {positionSDK ? <ProAmmFee position={positionSDK} tokenId={tokenId} /> : <Loader />}
+                {positionSDK ? (
+                  <ProAmmFee feeValue0={feeValue0} feeValue1={feeValue1} position={positionSDK} tokenId={tokenId} />
+                ) : (
+                  <Loader />
+                )}
               </>
             )}
             bottomContent={modalFooter}
@@ -423,6 +427,8 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                     position={positionSDK}
                     tokenId={tokenId}
                     text={t`When you remove liquidity (even partially), you will receive 100% of your fee earnings`}
+                    feeValue0={feeValue0}
+                    feeValue1={feeValue1}
                   />
                 ) : (
                   <Loader />
