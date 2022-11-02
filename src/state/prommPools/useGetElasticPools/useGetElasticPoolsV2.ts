@@ -26,16 +26,16 @@ export type ElasticPool = {
   sqrtPrice: string
   tick: string
 
-  volumeUsd: number
-  feesUsd: number
+  volumeUsd: string
+  feesUsd: string
 
-  totalValueLockedUsd: number
-  feesUsdOneDayAgo: number
-  volumeUsdOneDayAgo: number
+  totalValueLockedUsd: string
+  feesUsdOneDayAgo: string
+  volumeUsdOneDayAgo: string
 
-  totalValueLockedUsdInRange: number
-  apr: number
-  farmApr: number
+  totalValueLockedUsdInRange: string
+  apr: string
+  farmApr: string
 }
 
 type Response = {
@@ -85,12 +85,12 @@ const useGetElasticPoolsV2 = (): CommonReturn => {
 
         feeTier: Number(pool.feeTier),
 
-        volumeUSDLast24h: pool.volumeUsd - pool.volumeUsdOneDayAgo,
+        volumeUSDLast24h: Number(pool.volumeUsd) - Number(pool.volumeUsdOneDayAgo),
 
-        tvlUSD: pool.totalValueLockedUsd,
-        tvlUSDLast24h: pool.totalValueLockedUsd,
-        apr: pool.apr,
-        farmAPR: pool.farmApr,
+        tvlUSD: Number(pool.totalValueLockedUsd),
+        tvlUSDLast24h: Number(pool.totalValueLockedUsd),
+        apr: Number(pool.apr),
+        farmAPR: Number(pool.farmApr),
 
         liquidity: pool.liquidity,
         sqrtPrice: pool.sqrtPrice,

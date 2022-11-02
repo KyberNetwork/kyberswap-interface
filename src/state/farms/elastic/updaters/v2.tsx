@@ -30,8 +30,8 @@ interface FarmingPool {
   totalRewardAmounts: string[]
   pool: ElasticPool
   rewardTokens: RawToken[]
-  stakedTvl: number
-  apr: number
+  stakedTvl: string
+  apr: string
 }
 
 interface Response {
@@ -171,9 +171,9 @@ const FarmUpdaterV2: React.FC<CommonProps> = ({ interval }) => {
               }),
               tvlToken0,
               tvlToken1,
-              apr: rawPool.apr,
-              poolAPR: rawPool.pool.apr,
-              stakedTvl: rawPool.stakedTvl,
+              apr: Number(rawPool.apr),
+              poolAPR: Number(rawPool.pool.apr),
+              stakedTvl: Number(rawPool.stakedTvl),
             }
           })
 
