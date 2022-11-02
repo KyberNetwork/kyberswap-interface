@@ -30,7 +30,7 @@ const CurrencyListBridge = memo(function CurrencyListV2({
   isOutput: boolean | undefined
 }) {
   const { account } = useActiveWeb3React()
-  const [{ tokenInfoIn, tokenInfoOut, poolValueOut }] = useBridgeState()
+  const [{ tokenInfoIn, tokenInfoOut, poolValueOutMap }] = useBridgeState()
   const currencyBalances = useCurrencyBalances(account || undefined, !isOutput ? currencies : [])
   const theme = useTheme()
 
@@ -43,7 +43,7 @@ const CurrencyListBridge = memo(function CurrencyListV2({
       const handleSelect = () => currency && onCurrencySelect(currency)
       const { symbol } = getDisplayTokenInfo(currency)
       const { sortId, type, anytoken } = (currency?.multichainInfo || {}) as Partial<MultiChainTokenInfo>
-      const poolLiquidity = isOutput && anytoken?.address ? formatPoolValue(poolValueOut?.[anytoken?.address]) : 0
+      const poolLiquidity = isOutput && anytoken?.address ? formatPoolValue(poolValueOutMap?.[anytoken?.address]) : 0
 
       return (
         <CurrencyRow
@@ -69,7 +69,7 @@ const CurrencyListBridge = memo(function CurrencyListV2({
         />
       )
     },
-    [onCurrencySelect, tokenInfoIn, isOutput, tokenInfoOut, theme, poolValueOut],
+    [onCurrencySelect, tokenInfoIn, isOutput, tokenInfoOut, theme, poolValueOutMap],
   )
 
   return (

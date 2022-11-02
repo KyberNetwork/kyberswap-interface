@@ -81,8 +81,19 @@ type PoolValueType = {
 export default function SwapForm() {
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useActiveNetwork()
-  const [{ tokenInfoIn, tokenInfoOut, chainIdOut, currencyIn, listTokenOut, listTokenIn, listChainIn, loadingToken }] =
-    useBridgeState()
+  const [
+    {
+      tokenInfoIn,
+      tokenInfoOut,
+      chainIdOut,
+      currencyIn,
+      listTokenOut,
+      listTokenIn,
+      listChainIn,
+      loadingToken,
+      poolValueOutMap,
+    },
+  ] = useBridgeState()
   const { resetBridgeState, setBridgeState, setBridgePoolInfo } = useBridgeStateHandler()
   const toggleWalletModal = useWalletModalToggle()
   const isDark = useIsDarkMode()
@@ -173,7 +184,7 @@ export default function SwapForm() {
     }
     setBridgeState({ tokenOut })
     setPoolValue(poolValue => ({ ...poolValue, poolValueOut }))
-    setBridgePoolInfo({ poolValueOut: poolValueOutMap })
+    setBridgePoolInfo({ poolValueOutMap })
   }, [poolDataOut, listTokenOut, setBridgePoolInfo, setBridgeState])
 
   useEffect(() => {
@@ -347,8 +358,10 @@ export default function SwapForm() {
   const onCurrencySelectDest = useCallback(
     (tokenOut: WrappedTokenInfo) => {
       setBridgeState({ tokenOut })
+      const anyToken = tokenOut?.multichainInfo?.anytoken?.address ?? ''
+      setPoolValue(state => ({ ...state, poolValueOut: poolValueOutMap[anyToken] }))
     },
-    [setBridgeState],
+    [setBridgeState, poolValueOutMap],
   )
   const onSelectDestNetwork = useCallback(
     (chainId: ChainId) => {
