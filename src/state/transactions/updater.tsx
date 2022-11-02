@@ -107,7 +107,14 @@ export default function Updater(): null {
 
   useEffect(() => {
     if (!chainId || !library || !lastBlockNumber) return
-    const uniqueTransactions = [...new Set(Object.keys(transactions))]
+    const uniqueTransactions = [
+      ...new Set(
+        Object.values(transactions)
+          .map(txs => txs?.map(tx => tx.hash))
+          .flat(2)
+          .filter(Boolean) as [string],
+      ),
+    ]
 
     uniqueTransactions
       .filter(hash => shouldCheck(lastBlockNumber, findTx(transactions, hash)))
