@@ -1,5 +1,5 @@
 import { ZoomTransform, max, scaleLinear } from 'd3'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { Bound } from 'state/mint/proamm/actions'
 
