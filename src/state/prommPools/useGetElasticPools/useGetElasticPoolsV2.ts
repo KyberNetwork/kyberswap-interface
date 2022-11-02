@@ -58,7 +58,7 @@ const useGetElasticPoolsV2 = (): CommonReturn => {
   const chainRoute = NETWORKS_INFO[chainId || ChainId.MAINNET].route
 
   const { isValidating, error, data } = useSWRImmutable<Response>(
-    `${process.env.REACT_APP_POOL_FARM_BASE_URL}/${chainRoute}/api/v1/elastic/pools?page=1&perPage=10000`,
+    `${process.env.REACT_APP_POOL_FARM_BASE_URL}/${chainRoute}/api/v1/elastic/pools?includeLowTvl=true&page=1&perPage=10000`,
     (url: string) => fetch(url).then(resp => resp.json()),
     {
       refreshInterval: 60_000,
