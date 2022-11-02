@@ -38,6 +38,7 @@ export default function ProAmmPriceRange({
 
   const priceLower = sorted ? position.token0PriceLower : position.token0PriceUpper.invert()
   const priceUpper = sorted ? position.token0PriceUpper : position.token0PriceLower.invert()
+
   const handleRateChange = useCallback(() => {
     setBaseCurrency(quoteCurrency)
   }, [quoteCurrency])
@@ -83,13 +84,13 @@ export default function ProAmmPriceRange({
           {/* <Divider /> */}
           <LiquidityChartRangeInput
             style={{ minHeight: '175px' }}
-            currencyA={currency0}
-            currencyB={currency1}
+            currencyA={baseCurrency}
+            currencyB={quoteCurrency}
             feeAmount={position.pool.fee}
             ticksAtLimit={ticksAtLimit}
             price={price ? parseFloat(price.toSignificant(8)) : undefined}
-            priceLower={priceLower}
-            priceUpper={priceUpper}
+            leftPrice={priceLower}
+            rightPrice={priceUpper}
             onLeftRangeInput={() => {
               //
             }}
