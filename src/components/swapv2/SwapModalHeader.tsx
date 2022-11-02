@@ -33,7 +33,7 @@ export default function SwapModalHeader({
   showAcceptChanges: boolean
   onAcceptChanges: () => void
 }) {
-  const { chainId } = useActiveWeb3React()
+  const { chainId, isSolana } = useActiveWeb3React()
   const slippageAdjustedAmounts = useMemo(
     () => computeSlippageAdjustedAmounts(trade, allowedSlippage),
     [trade, allowedSlippage],
@@ -109,6 +109,7 @@ export default function SwapModalHeader({
               {slippageAdjustedAmounts[Field.OUTPUT]?.toSignificant(6)} {nativeOutput?.symbol}
             </b>{' '}
             {t` or the transaction will revert.`}
+            {isSolana && <> {t` We may send multiple tx to complete the swap`}</>}
           </TYPE.italic>
         ) : (
           <TYPE.italic textAlign="left" style={{ width: '100%' }}>
