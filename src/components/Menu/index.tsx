@@ -28,6 +28,7 @@ import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import Faucet from 'components/Icons/Faucet'
 import Loader from 'components/Loader'
 import MenuFlyout from 'components/MenuFlyout'
+import { AutoRow } from 'components/Row'
 import { AGGREGATOR_ANALYTICS_URL, DMM_ANALYTICS_URL } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
@@ -152,7 +153,8 @@ const ClaimRewardButton = styled(ButtonPrimary)`
   margin-top: 20px;
   padding: 11px;
   font-size: 14px;
-  width: max-content;
+  width: 100%;
+  max-width: 180px;
 `
 
 export const NewLabel = styled.span`
@@ -224,7 +226,7 @@ export default function Menu() {
 
         {!above768 && (
           <NavMenuItem to={'/discover?tab=trending_soon'} onClick={toggle}>
-            <DiscoverIcon size={14} />
+            <DiscoverIcon size={16} />
             <SlideToUnlock>
               <Text width="max-content">
                 <Trans>Discover</Trans>
@@ -244,7 +246,7 @@ export default function Menu() {
         )}
         {under1440 && (
           <NavDropDown
-            icon={<Info size={14} />}
+            icon={<Info size={16} />}
             title={'About'}
             link={'/about'}
             options={[
@@ -255,13 +257,13 @@ export default function Menu() {
         )}
 
         <NavMenuItem to="/referral" onClick={toggle}>
-          <UserPlus size={14} />
+          <UserPlus size={16} />
           <Trans>Referral</Trans>
         </NavMenuItem>
 
         {!above1321 && (
           <NavDropDown
-            icon={<PieChart size={14} />}
+            icon={<PieChart size={16} />}
             link="#"
             title={'Analytics'}
             options={[
@@ -275,7 +277,7 @@ export default function Menu() {
           />
         )}
         <ExternalNavMenuItem href="https://docs.kyberswap.com">
-          <BookOpen size={14} />
+          <BookOpen size={16} />
           <Trans>Docs</Trans>
         </ExternalNavMenuItem>
 
@@ -290,12 +292,12 @@ export default function Menu() {
         </ExternalNavMenuItem>
 
         <ExternalNavMenuItem href="https://gov.kyber.org">
-          <MessageCircle size={14} />
+          <MessageCircle size={16} />
           <Trans>Forum</Trans>
         </ExternalNavMenuItem>
 
         <ExternalNavMenuItem href="/15022022KyberSwapTermsofUse.pdf">
-          <FileText size={14} />
+          <FileText size={16} />
           <Trans>Terms</Trans>
         </ExternalNavMenuItem>
         {process.env.REACT_APP_MAINNET_ENV !== 'production' && (
@@ -306,24 +308,27 @@ export default function Menu() {
         )}
 
         <ExternalNavMenuItem href="https://forms.gle/gLiNsi7iUzHws2BY8">
-          <Edit size={14} />
+          <Edit size={16} />
           <Trans>Contact Us</Trans>
         </ExternalNavMenuItem>
-        <ClaimRewardButton
-          disabled={!account || (!!chainId && NETWORKS_INFO[chainId].classic.claimReward === '') || pendingTx}
-          onClick={() => {
-            mixpanelHandler(MIXPANEL_TYPE.CLAIM_REWARDS_INITIATED)
-            toggleClaimPopup()
-          }}
-        >
-          {pendingTx ? (
-            <>
-              <Loader style={{ marginRight: '5px' }} stroke={theme.disableText} /> <Trans>Claiming...</Trans>
-            </>
-          ) : (
-            <Trans>Claim Rewards</Trans>
-          )}
-        </ClaimRewardButton>
+        <AutoRow justify="center">
+          <ClaimRewardButton
+            disabled={!account || (!!chainId && NETWORKS_INFO[chainId].classic.claimReward === '') || pendingTx}
+            onClick={() => {
+              mixpanelHandler(MIXPANEL_TYPE.CLAIM_REWARDS_INITIATED)
+              toggleClaimPopup()
+            }}
+          >
+            {pendingTx ? (
+              <>
+                <Loader style={{ marginRight: '5px' }} stroke={theme.disableText} /> <Trans>Claiming...</Trans>
+              </>
+            ) : (
+              <Trans>Claim Rewards</Trans>
+            )}
+          </ClaimRewardButton>
+        </AutoRow>
+
         {!!process.env.REACT_APP_TAG && (
           <Text
             fontSize="10px"

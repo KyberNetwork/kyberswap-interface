@@ -60,6 +60,7 @@ const InfoHelperWrapper = styled.span`
 export default function InfoHelper({
   text,
   size,
+  fontSize,
   isActive = false,
   color,
   placement,
@@ -69,6 +70,7 @@ export default function InfoHelper({
 }: {
   text: string | ReactNode
   size?: number
+  fontSize?: number
   isActive?: boolean
   color?: string
   placement?: Placement
@@ -88,7 +90,7 @@ export default function InfoHelper({
         show={show}
         placement={placement}
         width={width}
-        size={size}
+        size={fontSize || size}
         style={{ zIndex: zIndexTooltip }}
       >
         <InfoWrapper onClick={open} onMouseEnter={open} onMouseLeave={close} isActive={isActive}>

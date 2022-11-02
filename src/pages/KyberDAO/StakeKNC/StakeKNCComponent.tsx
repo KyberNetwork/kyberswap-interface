@@ -126,6 +126,7 @@ const StakeFormWrapper = styled.div`
 const YourStakedKNC = styled(FormWrapper)`
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: 16px;
 `
 const StakeForm = styled(FormWrapper)`
@@ -233,9 +234,11 @@ export default function StakeKNCComponent() {
               <ButtonLight onClick={toggleWalletModal}>
                 <InfoHelper
                   size={20}
+                  fontSize={12}
                   color={theme.primary}
                   text={t`Staking KNC is only available on Ethereum chain`}
                   style={{ marginRight: '5px' }}
+                  placement="top"
                 />
                 <Trans>Connect Wallet</Trans>
               </ButtonLight>
