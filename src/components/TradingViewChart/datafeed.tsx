@@ -48,6 +48,33 @@ const NetworkString: { [chain in ChainId]: string } = {
   [ChainId.ARBITRUM_TESTNET]: '',
 }
 
+const DextoolSearchV2ChainId: { [chain in ChainId]: string } = {
+  [ChainId.MAINNET]: 'ether',
+  [ChainId.BSCMAINNET]: 'bsc',
+  [ChainId.MATIC]: 'polygon',
+  [ChainId.CRONOS]: 'cronos',
+  [ChainId.AVAXMAINNET]: 'avalanche',
+  [ChainId.FANTOM]: 'fantom',
+  [ChainId.ARBITRUM]: 'arbitrum',
+  [ChainId.VELAS]: 'velas',
+  [ChainId.AURORA]: 'aurora',
+  [ChainId.OASIS]: 'oasis',
+  [ChainId.OPTIMISM]: 'optimism',
+  [ChainId.ETHW]: 'ethw',
+  [ChainId.SOLANA]: 'solana',
+
+  [ChainId.BTTC]: '',
+  [ChainId.ROPSTEN]: '',
+  [ChainId.RINKEBY]: '',
+  [ChainId.GÖRLI]: '',
+  [ChainId.KOVAN]: '',
+  [ChainId.BSCTESTNET]: '',
+  [ChainId.MUMBAI]: '',
+  [ChainId.AVAXTESTNET]: '',
+  [ChainId.CRONOSTESTNET]: '',
+  [ChainId.ARBITRUM_TESTNET]: '',
+}
+
 const DEXTOOLS_API = 'https://pancake-subgraph-proxy.kyberswap.com/dextools'
 const monthTs = 2592000000
 const weekTs = 604800000
@@ -100,7 +127,7 @@ const searchTokenPair = (address: string, chainId: ChainId): Promise<{ id: strin
       resolve([{ id: TOKEN_PAIRS_ADDRESS_MAPPING[address.toLowerCase()] }])
     })
   }
-  return fetcherDextools(`${NetworkString[chainId]}/api/pair/search?s=${address}`)
+  return fetcherDextools(`shared/search/v2?query=${address}`).then(res => res.results)
 }
 const getHistoryCandleStatus = (pairAddress: string, chainId: ChainId) =>
   fetcherDextools(`${NetworkString[chainId]}/api/Uniswap/1/history-candle-status?pair=${pairAddress}`)
@@ -195,15 +222,16 @@ export const checkPairHasDextoolsData = async (
   if (isNativeToken(chainId, currencyA) || isNativeToken(chainId, currencyB)) {
     const token = (isNativeToken(chainId, currencyA) ? currencyB : currencyA) as Token
     if (token?.address) {
-      const data1: { id: string }[] = await searchTokenPair(token.address, chainId)
-      if (data1 && data1.length > 0 && data1[0].id) {
-        const ver = (await getHistoryCandleStatus(data1[0].id, chainId)) || 0
+      const searchResults: { id: string }[] = await searchTokenPair(token.address, chainId)
+      console.log('🚀 ~ file: datafeed.tsx ~ line 226 ~ searchResults', searchResults)
+      if (searchResults && searchResults.length > 0 && searchResults[0].id) {
+        const ver = (await getHistoryCandleStatus(searchResults[0].id, chainId)) || 0
 
         const ts = Math.floor(new Date().getTime() / monthTs) * monthTs
-        const { data } = await getCandlesApi(chainId, data1[0].id, ver, ts, 'month')
+        const { data } = await getCandlesApi(chainId, searchResults[0].id, ver, ts, 'month')
         if (data?.candles?.length) {
           res.ver = ver
-          res.pairAddress = data1[0].id
+          res.pairAddress = searchResults[0].id
           updateLocalstorageCheckedPair(key, res)
           return Promise.resolve(res)
         }

@@ -66,7 +66,6 @@ export function useChangeNetwork() {
           return
         }
 
-        //history.push(locationWithoutNetworkId)
         const activeProvider = library?.provider ?? window.ethereum
         if (activeProvider && activeProvider.request) {
           try {
