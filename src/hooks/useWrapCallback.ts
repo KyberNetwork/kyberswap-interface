@@ -33,7 +33,6 @@ export default function useWrapCallback(
   outputCurrency: Currency | undefined | null,
   typedValue: string | undefined,
 ): { wrapType: WrapType; execute?: undefined | (() => Promise<void>); inputError?: string } {
-  // todo namgold: add solana
   const { chainId, isEVM, isSolana, account } = useActiveWeb3React()
   const provider = useProvider()
   const wethContract = useWETHContract()
