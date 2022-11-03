@@ -1,89 +1,78 @@
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base'
 import invariant from 'tiny-invariant'
 
-// required
-invariant(process.env.REACT_APP_MAINNET_ENV, 'env REACT_APP_MAINNET_ENV is missing')
-invariant(
-  process.env.REACT_APP_MAINNET_ENV === 'staging' || process.env.REACT_APP_MAINNET_ENV === 'production',
-  'env REACT_APP_MAINNET_ENV is incorrect',
-)
-export const MAINNET_ENV: 'staging' | 'production' = process.env.REACT_APP_MAINNET_ENV
+const required = (envKey: string): string => {
+  const key = 'REACT_APP_' + envKey
+  const envValue = process.env[key]
+  invariant(envValue, `env ${key} is missing`)
+  return envValue
+}
 
-invariant(process.env.REACT_APP_GOOGLE_RECAPTCHA_KEY, 'env REACT_APP_GOOGLE_RECAPTCHA_KEY is missing')
-export const GOOGLE_RECAPTCHA_KEY: string = process.env.REACT_APP_GOOGLE_RECAPTCHA_KEY
+const validate = <T extends string>(envKey: string, validateValues: T[]): T => {
+  const key = 'REACT_APP_' + envKey
+  const envValue = required(envKey)
+  invariant(validateValues.includes(envValue as any), `env ${key} is incorrect`)
+  return envValue as T
+}
 
-invariant(process.env.REACT_APP_PRICE_API, 'env REACT_APP_PRICE_API is missing')
-export const PRICE_API: string = process.env.REACT_APP_PRICE_API
+const ENV = {
+  MAINNET_ENV: validate('MAINNET_ENV', ['staging', 'production']),
+  GOOGLE_RECAPTCHA_KEY: required('GOOGLE_RECAPTCHA_KEY'),
+  PRICE_API: required('PRICE_API'),
+  META_AGGREGATOR_API: required('META_AGGREGATOR_API'),
+  AGGREGATOR_API: required('AGGREGATOR_API'),
+  SENTRY_DNS: required('SENTRY_DNS'),
+  REWARD_SERVICE_API: required('REWARD_SERVICE_API'),
+  KS_SETTING_API: required('KS_SETTING_API'),
+  PRICE_CHART_API: required('PRICE_CHART_API'),
+  AGGREGATOR_STATS_API: required('AGGREGATOR_STATS_API'),
+  FIREBASE_API_KEY: required('FIREBASE_API_KEY'),
+  FIREBASE_AUTH_DOMAIN: required('FIREBASE_AUTH_DOMAIN'),
+  FIREBASE_PROJECT_ID: required('FIREBASE_PROJECT_ID'),
+  FIREBASE_STORAGE_BUCKET: required('FIREBASE_STORAGE_BUCKET'),
+  FIREBASE_MESSAGING_SENDER_ID: required('FIREBASE_MESSAGING_SENDER_ID'),
+  FIREBASE_APP_ID: required('FIREBASE_APP_ID'),
+  FIREBASE_VAPID_KEY: required('FIREBASE_VAPID_KEY'),
+  NOTIFICATION_API: required('NOTIFICATION_API'),
+  TRUESIGHT_API: required('TRUESIGHT_API'),
+  TRANSAK_URL: required('TRANSAK_URL'),
+  TRANSAK_API_KEY: required('TRANSAK_API_KEY'),
+  TYPE_AND_SWAP_URL: required('TYPE_AND_SWAP_URL'),
+  MIXPANEL_PROJECT_TOKEN: required('MIXPANEL_PROJECT_TOKEN'),
+  CAMPAIGN_BASE_URL: required('CAMPAIGN_BASE_URL'),
+  SOLANA_NETWORK: validate('SOLANA_NETWORK', Object.keys(WalletAdapterNetwork) as (keyof typeof WalletAdapterNetwork)[]), //prettier-ignore
+  GTM_ID: process.env.REACT_APP_GTM_ID,
+  TAG: process.env.REACT_APP_TAG || 'localhost',
+} as const
 
-invariant(process.env.REACT_APP_AGGREGATOR_API, 'env REACT_APP_AGGREGATOR_API is missing')
-export const AGGREGATOR_API: string = process.env.REACT_APP_AGGREGATOR_API
+export const {
+  MAINNET_ENV, // for logging, tracking
+  GOOGLE_RECAPTCHA_KEY,
+  PRICE_API,
+  META_AGGREGATOR_API,
+  AGGREGATOR_API,
+  SENTRY_DNS,
+  REWARD_SERVICE_API,
+  KS_SETTING_API,
+  PRICE_CHART_API,
+  AGGREGATOR_STATS_API,
+  FIREBASE_API_KEY,
+  FIREBASE_AUTH_DOMAIN,
+  FIREBASE_PROJECT_ID,
+  FIREBASE_STORAGE_BUCKET,
+  FIREBASE_MESSAGING_SENDER_ID,
+  FIREBASE_APP_ID,
+  FIREBASE_VAPID_KEY,
+  NOTIFICATION_API,
+  TRUESIGHT_API,
+  TRANSAK_URL,
+  TRANSAK_API_KEY,
+  TYPE_AND_SWAP_URL,
+  MIXPANEL_PROJECT_TOKEN,
+  CAMPAIGN_BASE_URL,
+  SOLANA_NETWORK,
+  GTM_ID,
+  TAG,
+} = ENV
 
-invariant(process.env.REACT_APP_SENTRY_DNS, 'env REACT_APP_SENTRY_DNS is missing')
-export const SENTRY_DNS: string = process.env.REACT_APP_SENTRY_DNS
-
-invariant(process.env.REACT_APP_REWARD_SERVICE_API, 'env REACT_APP_REWARD_SERVICE_API is missing')
-export const REWARD_SERVICE_API: string = process.env.REACT_APP_REWARD_SERVICE_API
-
-invariant(process.env.REACT_APP_KS_SETTING_API, 'env REACT_APP_KS_SETTING_API is missing')
-export const KS_SETTING_API: string = process.env.REACT_APP_KS_SETTING_API
-console.log('🚀 namgold ------------------------------------------🚀 namgold')
-console.log('🚀 namgold ~ KS_SETTING_API', KS_SETTING_API)
-console.log('🚀 namgold ------------------------------------------🚀 namgold')
-
-invariant(process.env.REACT_APP_PRICE_CHART_API, 'env REACT_APP_PRICE_CHART_API is missing')
-export const PRICE_CHART_API: string = process.env.REACT_APP_PRICE_CHART_API
-
-invariant(process.env.REACT_APP_AGGREGATOR_STATS_API, 'env REACT_APP_AGGREGATOR_STATS_API is missing')
-export const AGGREGATOR_STATS_API: string = process.env.REACT_APP_AGGREGATOR_STATS_API
-
-invariant(process.env.REACT_APP_FIREBASE_API_KEY, 'env REACT_APP_FIREBASE_API_KEY is missing')
-export const FIREBASE_API_KEY: string = process.env.REACT_APP_FIREBASE_API_KEY
-
-invariant(process.env.REACT_APP_FIREBASE_AUTH_DOMAIN, 'env REACT_APP_FIREBASE_AUTH_DOMAIN is missing')
-export const FIREBASE_AUTH_DOMAIN: string = process.env.REACT_APP_FIREBASE_AUTH_DOMAIN
-
-invariant(process.env.REACT_APP_FIREBASE_PROJECT_ID, 'env REACT_APP_FIREBASE_PROJECT_ID is missing')
-export const FIREBASE_PROJECT_ID: string = process.env.REACT_APP_FIREBASE_PROJECT_ID
-
-invariant(process.env.REACT_APP_FIREBASE_STORAGE_BUCKET, 'env REACT_APP_FIREBASE_STORAGE_BUCKET is missing')
-export const FIREBASE_STORAGE_BUCKET: string = process.env.REACT_APP_FIREBASE_STORAGE_BUCKET
-
-invariant(process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID, 'env REACT_APP_FIREBASE_MESSAGING_SENDER_ID is missing')
-export const FIREBASE_MESSAGING_SENDER_ID: string = process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID
-
-invariant(process.env.REACT_APP_FIREBASE_APP_ID, 'env REACT_APP_FIREBASE_APP_ID is missing')
-export const FIREBASE_APP_ID: string = process.env.REACT_APP_FIREBASE_APP_ID
-
-invariant(process.env.REACT_APP_FIREBASE_VAPID_KEY, 'env REACT_APP_FIREBASE_VAPID_KEY is missing')
-export const FIREBASE_VAPID_KEY: string = process.env.REACT_APP_FIREBASE_VAPID_KEY
-
-invariant(process.env.REACT_APP_NOTIFICATION_API, 'env REACT_APP_NOTIFICATION_API is missing')
-export const NOTIFICATION_API: string = process.env.REACT_APP_NOTIFICATION_API
-
-invariant(process.env.REACT_APP_TRUESIGHT_API, 'env REACT_APP_TRUESIGHT_API is missing')
-export const TRUESIGHT_API: string = process.env.REACT_APP_TRUESIGHT_API
-
-invariant(process.env.REACT_APP_TRANSAK_URL, 'env REACT_APP_TRANSAK_URL is missing')
-export const TRANSAK_URL: string = process.env.REACT_APP_TRANSAK_URL
-
-invariant(process.env.REACT_APP_TRANSAK_API_KEY, 'env REACT_APP_TRANSAK_API_KEY is missing')
-export const TRANSAK_API_KEY: string = process.env.REACT_APP_TRANSAK_API_KEY
-
-invariant(process.env.REACT_APP_TYPE_AND_SWAP_URL, 'env REACT_APP_TYPE_AND_SWAP_URL is missing')
-export const TYPE_AND_SWAP_URL: string = process.env.REACT_APP_TYPE_AND_SWAP_URL
-
-invariant(process.env.REACT_APP_MIXPANEL_PROJECT_TOKEN, 'env REACT_APP_MIXPANEL_PROJECT_TOKEN is missing')
-export const MIXPANEL_PROJECT_TOKEN: string = process.env.REACT_APP_MIXPANEL_PROJECT_TOKEN
-
-invariant(process.env.REACT_APP_CAMPAIGN_BASE_URL, 'env REACT_APP_CAMPAIGN_BASE_URL is missing')
-export const CAMPAIGN_BASE_URL: string = process.env.REACT_APP_CAMPAIGN_BASE_URL
-
-invariant(process.env.REACT_APP_SOLANA_NETWORK, 'env REACT_APP_SOLANA_NETWORK is missing')
-invariant(process.env.REACT_APP_SOLANA_NETWORK in WalletAdapterNetwork, 'env REACT_APP_SOLANA_NETWORK is incorrect')
-export const SOLANA_NETWORK: keyof typeof WalletAdapterNetwork = process.env
-  .REACT_APP_SOLANA_NETWORK as keyof typeof WalletAdapterNetwork
-
-// Not required
-export const GTM_ID: string | undefined = process.env.REACT_APP_GTM_ID
-
-export const TAG: string = process.env.REACT_APP_TAG || 'localhost'
+MAINNET_ENV !== 'production' && console.info({ ENV })

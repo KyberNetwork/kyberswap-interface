@@ -2,6 +2,7 @@ import { parseUnits } from '@ethersproject/units'
 import { t } from '@lingui/macro'
 import { Trade } from '@namgold/ks-sdk-classic'
 import { ChainId, Currency, CurrencyAmount, TradeType } from '@namgold/ks-sdk-core'
+import { Keypair } from '@solana/web3.js'
 import JSBI from 'jsbi'
 import { ParsedQs } from 'qs'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -23,6 +24,7 @@ import {
   resetSelectCurrency,
   selectCurrency,
   setRecipient,
+  setSwapState,
   setTrade,
   switchCurrencies,
   switchCurrenciesV2,
@@ -48,6 +50,13 @@ export function useSwapActionHandlers(): {
   onChooseToSaveGas: (saveGas: boolean) => void
   onResetSelectCurrency: (field: Field) => void
   onChangeTrade: (trade: Aggregator | undefined) => void
+  onSetSwapState: (params: {
+    showConfirm: boolean
+    tradeToConfirm: Aggregator | undefined
+    attemptingTxn: boolean
+    swapErrorMessage: string | undefined
+    txHash: string | undefined
+  }) => void
 } {
   const { chainId } = useActiveWeb3React()
   const dispatch = useDispatch<AppDispatch>()
@@ -76,6 +85,19 @@ export function useSwapActionHandlers(): {
           field,
         }),
       )
+    },
+    [dispatch],
+  )
+
+  const onSetSwapState = useCallback(
+    (params: {
+      showConfirm: boolean
+      tradeToConfirm: Aggregator | undefined
+      attemptingTxn: boolean
+      swapErrorMessage: string | undefined
+      txHash: string | undefined
+    }) => {
+      dispatch(setSwapState(params))
     },
     [dispatch],
   )
@@ -125,6 +147,7 @@ export function useSwapActionHandlers(): {
     onChooseToSaveGas,
     onResetSelectCurrency, // deselect token in select input: (use cases: remove "imported token")
     onChangeTrade,
+    onSetSwapState,
   }
 }
 
@@ -143,6 +166,7 @@ export function tryParseAmount<T extends Currency>(
       return CurrencyAmount.fromRawAmount(currency, JSBI.BigInt(typedValueParsed))
     }
   } catch (error) {
+    if (error.message.includes('fractional component exceeds decimals')) return undefined
     // should fail if the user specifies too many decimal places of precision (or maybe exceed max uint?)
     console.debug(`Failed to parse input amount: "${value}"`, error)
   }
@@ -323,6 +347,13 @@ function queryParametersToSwapState(parsedQs: ParsedQs, chainId: ChainId): Omit<
     independentField: parseIndependentFieldURLParameter(parsedQs.exactField),
     recipient,
     feeConfig,
+
+    showConfirm: false,
+    tradeToConfirm: undefined,
+    attemptingTxn: false,
+    swapErrorMessage: undefined,
+    txHash: undefined,
+    programState: new Keypair(),
   }
 }
 
@@ -389,6 +420,7 @@ export const useDefaultsFromURLSearch = ():
         outputCurrencyId,
         recipient: parsed.recipient,
         feeConfig: parsed.feeConfig,
+        programState: new Keypair(),
       }),
     )
 

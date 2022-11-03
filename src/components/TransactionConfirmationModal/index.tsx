@@ -82,7 +82,7 @@ function ConfirmationPendingContent({
 
 function AddTokenToInjectedWallet({ token, chainId }: { token: Token; chainId: ChainId }) {
   const isDarkMode = useIsDarkMode()
-  const { walletKey } = useActiveWeb3React()
+  const { walletKey, isEVM } = useActiveWeb3React()
   const handleClick = async () => {
     const tokenAddress = token.address
     const tokenSymbol = token.symbol
@@ -111,6 +111,7 @@ function AddTokenToInjectedWallet({ token, chainId }: { token: Token; chainId: C
   }
 
   if (!walletKey) return null
+  if (!isEVM) return null
   const walletConfig = SUPPORTED_WALLETS[walletKey]
 
   return (
@@ -210,6 +211,9 @@ export function ConfirmationModalContent({
 
 const ErrorDetail = styled(Section)`
   padding: 12px;
+  word-break: break-word;
+  max-height: 200px;
+  overflow-y: scroll;
   border-radius: 4px;
   margin-top: 12px;
   color: ${({ theme }) => theme.text};

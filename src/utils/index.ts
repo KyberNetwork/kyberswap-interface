@@ -10,6 +10,7 @@ import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { KNC, KNCL_ADDRESS, KNCL_ADDRESS_ROPSTEN } from 'constants/tokens'
 import { EVMWalletInfo, SUPPORTED_WALLET, SolanaWalletInfo, WalletInfo } from 'constants/wallets'
 import store from 'state'
+import { GroupedTxsByHash, TransactionDetails } from 'state/transactions/type'
 
 import checkForBraveBrowser from './checkForBraveBrowser'
 
@@ -408,4 +409,13 @@ export const isOverriddenWallet = (wallet: SUPPORTED_WALLET) => {
 
 export const filterTruthy = <T>(array: (T | undefined | null | false)[]): T[] => {
   return array.filter(Boolean) as T[]
+}
+
+export const findTx = (txs: GroupedTxsByHash | undefined, hash: string): TransactionDetails | undefined => {
+  return txs
+    ? txs?.[hash]?.[0] ||
+        Object.values(txs)
+          .flat()
+          .find(tx => tx?.hash === hash)
+    : undefined
 }

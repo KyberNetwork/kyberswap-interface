@@ -40,7 +40,7 @@ import { Field } from 'state/mint/proamm/actions'
 import { useProAmmDerivedMintInfo, useProAmmMintActionHandlers, useProAmmMintState } from 'state/mint/proamm/hooks'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
-import { useIsExpertMode, useUserSlippageTolerance } from 'state/user/hooks'
+import { useExpertModeManager, useUserSlippageTolerance } from 'state/user/hooks'
 import { calculateGasMargin, formattedNum, isAddressString, shortenAddress } from 'utils'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { unwrappedToken } from 'utils/wrappedCurrency'
@@ -57,7 +57,7 @@ export default function AddLiquidity({
   const { library } = useWeb3React()
   const theme = useTheme()
   const toggleWalletModal = useWalletModalToggle() // toggle wallet when disconnected
-  const expertMode = useIsExpertMode()
+  const [expertMode] = useExpertModeManager()
   const addTransactionWithType = useTransactionAdder()
 
   const prevChainId = usePrevious(chainId)
@@ -223,7 +223,8 @@ export default function AddLiquidity({
             .sendTransaction(newTxn)
             .then((response: TransactionResponse) => {
               setAttemptingTxn(false)
-              addTransactionWithType(response, {
+              addTransactionWithType({
+                hash: response.hash,
                 type: 'Increase liquidity',
                 summary:
                   (parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) || 0) +
@@ -261,7 +262,7 @@ export default function AddLiquidity({
           //   .then((response: TransactionResponse) => {
           //     console.log(response)
           //     setAttemptingTxn(false)
-          //     addTransactionWithType(response, {
+          //     addTransactionWithType({hash: response.hash,
           //       type: 'Add liquidity',
           //       summary:
           //         (parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) || 0) +

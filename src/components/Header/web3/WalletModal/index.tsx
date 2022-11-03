@@ -142,16 +142,8 @@ const WALLET_VIEWS = {
   PENDING: 'pending',
 }
 
-export default function WalletModal({
-  pendingTransactions,
-  confirmedTransactions,
-  ENSName,
-}: {
-  pendingTransactions: string[] // hashes of pending
-  confirmedTransactions: string[] // hashes of confirmed
-  ENSName?: string
-}) {
-  const { account, isSolana, isEVM } = useActiveWeb3React()
+export default function WalletModal() {
+  const { account, isSolana, isEVM, chainId } = useActiveWeb3React()
   // important that these are destructed from the account-specific web3-react context
   const { active, connector, error } = useWeb3React()
   const { connected, connecting, wallet: solanaWallet } = useWallet()
@@ -316,9 +308,6 @@ export default function WalletModal({
       return (
         <AccountDetails
           toggleWalletModal={toggleWalletModal}
-          pendingTransactions={pendingTransactions}
-          confirmedTransactions={confirmedTransactions}
-          ENSName={ENSName}
           openOptions={() => setWalletView(WALLET_VIEWS.CHANGE_WALLET)}
         />
       )
@@ -476,7 +465,7 @@ export default function WalletModal({
           ) : (
             <>
               <Trans>Select a Network</Trans>
-              <Networks width={5} mt={16} mb={24} isAcceptedTerm={isAcceptedTerm} />
+              <Networks width={5} mt={16} mb={24} isAcceptedTerm={isAcceptedTerm} selectedId={chainId} />
               <Trans>Select a Wallet</Trans>
               <OptionGrid>{getOptions()}</OptionGrid>
             </>

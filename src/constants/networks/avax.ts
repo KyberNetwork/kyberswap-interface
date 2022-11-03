@@ -1,7 +1,7 @@
 import { ChainId } from '@namgold/ks-sdk-core'
 
 import AVAX from 'assets/networks/avax-network.png'
-import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
+import { KS_SETTING_API, META_AGGREGATOR_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
 
@@ -31,7 +31,7 @@ const avaxInfo: EVMNetworkInfo = {
     decimal: 18,
   },
   rpcUrl: 'https://avalanche.kyberengineering.io',
-  routerUri: `${AGGREGATOR_API}/avalanche/route/encode`,
+  routerUri: `${META_AGGREGATOR_API}/avalanche/route/encode`,
   multicall: '0xF2FD8219609E28C61A998cc534681f95D2740f61',
   classic: {
     static: {

@@ -1,10 +1,12 @@
 import { Trans } from '@lingui/macro'
+import { ChainId } from '@namgold/ks-sdk-core'
 import { UnsupportedChainIdError } from '@web3-react/core'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import Modal from 'components/Modal'
+import { Z_INDEXS } from 'constants/styles'
 import { useWeb3React } from 'hooks'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useNetworkModalToggle } from 'state/application/hooks'
@@ -17,14 +19,33 @@ const Wrapper = styled.div`
   padding: 32px 24px 24px;
 `
 
-export default function NetworkModal(): JSX.Element | null {
+export default function NetworkModal({
+  activeChainIds,
+  selectedId,
+  customOnSelectNetwork,
+  isOpen,
+  customToggleModal,
+  disabledMsg,
+}: {
+  activeChainIds?: ChainId[]
+  selectedId?: ChainId | undefined
+  isOpen?: boolean
+  customOnSelectNetwork?: (chainId: ChainId) => void
+  customToggleModal?: () => void
+  disabledMsg?: string
+}): JSX.Element | null {
   const { error } = useWeb3React()
   const isWrongNetwork = error instanceof UnsupportedChainIdError
   const networkModalOpen = useModalOpen(ApplicationModal.NETWORK)
-  const toggleNetworkModal = useNetworkModalToggle()
-
+  const toggleNetworkModalGlobal = useNetworkModalToggle()
+  const toggleNetworkModal = customToggleModal || toggleNetworkModalGlobal
   return (
-    <Modal isOpen={networkModalOpen} onDismiss={toggleNetworkModal} maxWidth={624}>
+    <Modal
+      isOpen={isOpen !== undefined ? isOpen : networkModalOpen}
+      onDismiss={toggleNetworkModal}
+      maxWidth={624}
+      zindex={Z_INDEXS.MODAL}
+    >
       <Wrapper>
         <Flex alignItems="center" justifyContent="space-between">
           <Text fontWeight="500" fontSize={20}>
@@ -40,7 +61,15 @@ export default function NetworkModal(): JSX.Element | null {
             <Trans>Please connect to the appropriate network.</Trans>
           </TYPE.main>
         )}
-        <Networks onChangedNetwork={toggleNetworkModal} width={3} />
+        <Networks
+          onChangedNetwork={toggleNetworkModal}
+          width={3}
+          selectedId={selectedId}
+          activeChainIds={activeChainIds}
+          customOnSelectNetwork={customOnSelectNetwork}
+          customToggleModal={customToggleModal}
+          disabledMsg={disabledMsg}
+        />
       </Wrapper>
     </Modal>
   )

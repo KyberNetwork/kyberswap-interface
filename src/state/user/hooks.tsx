@@ -46,24 +46,20 @@ function serializeToken(token: Token | WrappedTokenInfo): SerializedToken {
     decimals: token.decimals,
     symbol: token.symbol,
     name: token.name,
-    list: token instanceof WrappedTokenInfo ? token.list : undefined,
     logoURI: token instanceof WrappedTokenInfo ? token.tokenInfo.logoURI : undefined,
   }
 }
 
 function deserializeToken(serializedToken: SerializedToken): Token {
   return serializedToken?.logoURI && serializedToken?.list
-    ? new WrappedTokenInfo(
-        {
-          chainId: serializedToken.chainId,
-          address: serializedToken.address,
-          name: serializedToken.name ?? '',
-          symbol: serializedToken.symbol ?? '',
-          decimals: serializedToken.decimals,
-          logoURI: serializedToken.logoURI,
-        },
-        serializedToken.list,
-      )
+    ? new WrappedTokenInfo({
+        chainId: serializedToken.chainId,
+        address: serializedToken.address,
+        name: serializedToken.name ?? '',
+        symbol: serializedToken.symbol ?? '',
+        decimals: serializedToken.decimals,
+        logoURI: serializedToken.logoURI,
+      })
     : new Token(
         serializedToken.chainId,
         serializedToken.address,
@@ -109,10 +105,6 @@ export function useUserLocaleManager(): [SupportedLocale | null, (newLocale: Sup
   return [locale, setLocale]
 }
 
-export function useIsExpertMode(): boolean {
-  return useSelector<AppState, AppState['user']['userExpertMode']>(state => state.user.userExpertMode)
-}
-
 export function useIsUserManuallyDisconnect(): [boolean, (isUserManuallyDisconnect: boolean) => void] {
   const dispatch = useAppDispatch()
   const isUserManuallyDisconnect = useSelector<AppState, AppState['user']['isUserManuallyDisconnect']>(
@@ -145,7 +137,7 @@ export function useIsAcceptedTerm(): [boolean, (isAcceptedTerm: boolean) => void
 
 export function useExpertModeManager(): [boolean, () => void] {
   const dispatch = useDispatch<AppDispatch>()
-  const expertMode = useIsExpertMode()
+  const expertMode = useSelector<AppState, AppState['user']['userExpertMode']>(state => state.user.userExpertMode)
 
   const toggleSetExpertMode = useCallback(() => {
     dispatch(updateUserExpertMode({ userExpertMode: !expertMode }))

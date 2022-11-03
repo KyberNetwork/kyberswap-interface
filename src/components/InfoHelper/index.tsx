@@ -4,6 +4,7 @@ import { Info } from 'react-feather'
 import styled from 'styled-components'
 
 import Tooltip from 'components/Tooltip'
+import { Z_INDEXS } from 'constants/styles'
 
 const InfoWrapper = styled.div<{ isActive?: boolean }>`
   display: flex;
@@ -39,6 +40,7 @@ export default function InfoHelper({
   placement,
   width,
   style,
+  zIndexTooltip = Z_INDEXS.POPOVER_CONTAINER,
 }: {
   text: string | ReactNode
   size?: number
@@ -47,6 +49,7 @@ export default function InfoHelper({
   placement?: Placement
   width?: string
   style?: CSSProperties
+  zIndexTooltip?: number
 }) {
   const [show, setShow] = useState<boolean>(false)
 
@@ -55,7 +58,14 @@ export default function InfoHelper({
 
   return (
     <InfoHelperWrapper style={style}>
-      <Tooltip text={text} show={show} placement={placement} width={width} size={size}>
+      <Tooltip
+        text={text}
+        show={show}
+        placement={placement}
+        width={width}
+        size={size}
+        style={{ zIndex: zIndexTooltip }}
+      >
         <InfoWrapper onClick={open} onMouseEnter={open} onMouseLeave={close} isActive={isActive}>
           <Info size={size || 12} color={color} />
         </InfoWrapper>

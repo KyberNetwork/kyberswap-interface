@@ -1,7 +1,7 @@
 import { ChainId } from '@namgold/ks-sdk-core'
 
 import FTM from 'assets/networks/fantom-network.png'
-import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
+import { KS_SETTING_API, META_AGGREGATOR_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
 
@@ -32,7 +32,7 @@ const fantomInfo: EVMNetworkInfo = {
     decimal: 18,
   },
   rpcUrl: 'https://fantom.kyberengineering.io',
-  routerUri: `${AGGREGATOR_API}/fantom/route/encode`,
+  routerUri: `${META_AGGREGATOR_API}/fantom/route/encode`,
   multicall: '0x878dFE971d44e9122048308301F540910Bbd934c',
   classic: {
     static: {

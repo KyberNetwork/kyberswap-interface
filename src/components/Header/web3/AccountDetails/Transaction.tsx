@@ -7,7 +7,7 @@ import { RowFixed } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTransactions } from 'state/transactions/hooks'
 import { ExternalLink } from 'theme'
-import { getEtherscanLink } from 'utils'
+import { findTx, getEtherscanLink } from 'utils'
 
 const TransactionWrapper = styled.div``
 
@@ -40,7 +40,7 @@ export default function Transaction({ hash }: { hash: string }) {
   const { chainId } = useActiveWeb3React()
   const allTransactions = useAllTransactions()
 
-  const tx = allTransactions?.[hash]
+  const tx = findTx(allTransactions, hash)
   const pending = !tx?.receipt
   const success = !pending && tx && (tx.receipt?.status === 1 || typeof tx.receipt?.status === 'undefined')
   const type = tx?.type

@@ -3,42 +3,92 @@ import { ChainId, Currency, CurrencyAmount, WETH } from '@namgold/ks-sdk-core'
 import { Program } from '@project-serum/anchor'
 import * as anchor from '@project-serum/anchor'
 import {
+  ASSOCIATED_TOKEN_PROGRAM_ID,
   NATIVE_MINT,
-  createAssociatedTokenAccountInstruction,
+  TOKEN_PROGRAM_ID,
   createCloseAccountInstruction,
   createSyncNativeInstruction,
   getAssociatedTokenAddress,
 } from '@solana/spl-token'
-import { Keypair, PublicKey, SystemProgram, Transaction, TransactionInstruction } from '@solana/web3.js'
+import {
+  Keypair,
+  PublicKey,
+  SYSVAR_RENT_PUBKEY,
+  SystemProgram,
+  Transaction,
+  TransactionInstruction,
+} from '@solana/web3.js'
 
 import { SolanaAggregatorPrograms } from 'constants/idl/solana_aggregator_programs'
 import connection from 'state/connection/connection'
 
-// import connection from 'state/connection/connection'
 import { Aggregator, Swap } from './aggregator'
 
-const createWrapSOLInstruction = async (
+export function createIdempotentAssociatedTokenAccountInstruction(
+  payer: PublicKey,
+  associatedToken: PublicKey,
+  owner: PublicKey,
+  mint: PublicKey,
+  programId = TOKEN_PROGRAM_ID,
+  associatedTokenProgramId = ASSOCIATED_TOKEN_PROGRAM_ID,
+): TransactionInstruction {
+  const keys = [
+    { pubkey: payer, isSigner: true, isWritable: true },
+    { pubkey: associatedToken, isSigner: false, isWritable: true },
+    { pubkey: owner, isSigner: false, isWritable: false },
+    { pubkey: mint, isSigner: false, isWritable: false },
+    { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+    { pubkey: programId, isSigner: false, isWritable: false },
+    { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false },
+  ]
+
+  return new TransactionInstruction({
+    keys,
+    programId: associatedTokenProgramId,
+    data: Buffer.from([1]),
+  })
+}
+
+export const createWrapSOLInstruction = async (
   account: PublicKey,
   amountIn: CurrencyAmount<Currency>,
-): Promise<TransactionInstruction[]> => {
+): Promise<TransactionInstruction[] | null> => {
   if (amountIn.currency.isNative) {
     const associatedTokenAccount = await getAssociatedTokenAddress(NATIVE_MINT, account)
+    let WSOLBalance: anchor.web3.RpcResponseAndContext<anchor.web3.TokenAmount> | undefined = undefined
+    try {
+      WSOLBalance = await connection.getTokenAccountBalance(associatedTokenAccount)
+    } catch {}
+    const WSOLAmount = CurrencyAmount.fromRawAmount(amountIn.currency, WSOLBalance ? WSOLBalance.value.amount : '0')
+    if (WSOLAmount.lessThan(amountIn)) {
+      const createWSOLIx = await createAtaInstruction(account, amountIn.currency)
 
-    const unwrapSOLIx = createAssociatedTokenAccountInstruction(account, associatedTokenAccount, account, NATIVE_MINT)
+      const transferIx = SystemProgram.transfer({
+        fromPubkey: account,
+        toPubkey: associatedTokenAccount,
+        lamports: BigInt(amountIn.quotient.toString()),
+      })
 
-    const transferIx = SystemProgram.transfer({
-      fromPubkey: account,
-      toPubkey: associatedTokenAccount,
-      lamports: BigInt(amountIn.quotient.toString()),
-    })
-    const syncNativeIx = createSyncNativeInstruction(associatedTokenAccount)
+      const syncNativeIx = createSyncNativeInstruction(associatedTokenAccount)
 
-    return [unwrapSOLIx, transferIx, syncNativeIx]
-  } else {
-    return []
+      return [createWSOLIx, transferIx, syncNativeIx]
+    }
   }
+  return null
 }
-const createUnwrapSOLInstruction = async (
+export const createAtaInstruction = async (
+  account: PublicKey,
+  currencyIn: Currency,
+): Promise<TransactionInstruction> => {
+  const mint = new PublicKey(currencyIn.wrapped.address)
+  const associatedTokenAccount = await getAssociatedTokenAddress(mint, account)
+
+  const createAtaIx = createIdempotentAssociatedTokenAccountInstruction(account, associatedTokenAccount, account, mint)
+
+  return createAtaIx
+}
+
+export const createUnwrapSOLInstruction = async (
   account: PublicKey,
   amountOut: CurrencyAmount<Currency>,
 ): Promise<TransactionInstruction | null> => {
@@ -120,8 +170,8 @@ export const createSolanaSwapTransaction = async (
   const state = Keypair.generate()
   const instructions: TransactionInstruction[] = []
 
-  const wrapSOLInstruction = await createWrapSOLInstruction(account, trade.inputAmount)
-  instructions.push(...wrapSOLInstruction)
+  const wrapSOLInstructions = await createWrapSOLInstruction(account, trade.inputAmount)
+  wrapSOLInstructions && instructions.push(...wrapSOLInstructions)
 
   const recordAmountIx = createSolanaRecordAmountInstruction(state, account, program, trade)
   instructions.push(recordAmountIx)

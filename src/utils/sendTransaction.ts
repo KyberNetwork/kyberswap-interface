@@ -1,17 +1,17 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
-import { sendAndConfirmTransaction } from '@namgold/dmm-solana-sdk'
-import { AnchorProvider, Program } from '@project-serum/anchor'
+import { ChainId, Token, WETH } from '@namgold/ks-sdk-core'
 import { captureException } from '@sentry/react'
-import { PublicKey, Transaction } from '@solana/web3.js'
+import { SignerWalletAdapter } from '@solana/wallet-adapter-base'
+import { PublicKey, Transaction, sendAndConfirmRawTransaction } from '@solana/web3.js'
 import { ethers } from 'ethers'
 
-import { SolanaAggregatorPrograms } from 'constants/idl/solana_aggregator_programs'
+import connection from 'state/connection/connection'
 // import connection from 'state/connection/connection'
 import { calculateGasMargin } from 'utils'
 
 import { Aggregator } from './aggregator'
-import { createSolanaSwapTransaction } from './solanaInstructions'
+import { createAtaInstruction, createUnwrapSOLInstruction, createWrapSOLInstruction } from './solanaInstructions'
 
 export async function sendEVMTransaction(
   account: string,
@@ -68,7 +68,7 @@ export async function sendEVMTransaction(
 
   try {
     const response = await library.getSigner().sendTransaction(sendTransactionOption)
-    handler && handler(response)
+    handler?.(response)
     return response.hash
   } catch (error) {
     // if the user rejected the tx, pass this along
@@ -100,29 +100,155 @@ export async function sendEVMTransaction(
     }
   }
 }
-export async function sendSolanaTransaction(
-  account: string,
-  program: Program<SolanaAggregatorPrograms>,
-  programAccount: string,
-  provider: AnchorProvider,
-  trade: Aggregator,
-  value: BigNumber,
-  handler?: (response: TransactionResponse) => void,
-): Promise<string | undefined> {
-  if (!account) return
 
-  let tx: Transaction | undefined
-  try {
-    tx = await createSolanaSwapTransaction(new PublicKey(account), program, programAccount, trade, value)
-  } catch (e) {
-    console.error(e)
-    throw new Error('Create transaction failed', { cause: e })
+export async function sendSolanaTransactionWithBEEncode(
+  account: string,
+  trade: Aggregator,
+  solanaWallet: SignerWalletAdapter,
+  handler: (hash: string, firstTxHash: string) => void,
+  handleCustomTypeResponse: (type: string, hash: string, firstTxHash: string) => void,
+): Promise<string[] | undefined> {
+  if (!trade.encodedSwapTx) return
+  const accountPK = new PublicKey(account)
+  const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash()
+
+  const txs: Transaction[] = []
+
+  let setupTx: Transaction | null = null
+  const prepareSetupTx =
+    trade.encodedCreateOrderTx ||
+    new Transaction({
+      blockhash,
+      lastValidBlockHeight,
+      feePayer: accountPK,
+    })
+  prepareSetupTx.recentBlockhash = blockhash
+  prepareSetupTx.lastValidBlockHeight = lastValidBlockHeight
+  prepareSetupTx.feePayer = accountPK
+
+  if (trade.inputAmount.currency.isNative) {
+    const wrapIxs = await createWrapSOLInstruction(accountPK, trade.inputAmount)
+    if (wrapIxs) prepareSetupTx.add(...wrapIxs)
+  }
+
+  await Promise.all(
+    Object.entries(trade.tokens).map(async ([tokenAddress, token]) => {
+      if (!token) return
+      if (tokenAddress === WETH[ChainId.SOLANA].address) return
+      const createAtaIxs = await createAtaInstruction(
+        accountPK,
+        new Token(ChainId.SOLANA, tokenAddress, token?.decimals || 0),
+      )
+      prepareSetupTx.add(createAtaIxs)
+    }),
+  )
+
+  if (prepareSetupTx.instructions.length) {
+    setupTx = prepareSetupTx
+    txs.push(setupTx)
+  }
+
+  const swapTx = trade.encodedSwapTx
+  swapTx.recentBlockhash = blockhash
+  swapTx.lastValidBlockHeight = lastValidBlockHeight
+  swapTx.feePayer = accountPK
+  await swapTx.partialSign(trade.programState)
+  txs.push(swapTx)
+
+  let cleanUpTx: Transaction | null = null
+
+  if (trade.outputAmount.currency.isNative) {
+    cleanUpTx = new Transaction({
+      blockhash,
+      lastValidBlockHeight,
+      feePayer: accountPK,
+    })
+    const closeWSOLIxs = await createUnwrapSOLInstruction(accountPK, trade.outputAmount)
+    if (closeWSOLIxs) cleanUpTx.add(closeWSOLIxs)
+    txs.push(cleanUpTx)
+  }
+  const populateTx = (txs: Transaction[]) => {
+    const result: {
+      signedSetupTx: Transaction | undefined
+      signedSwapTx: Transaction | undefined
+      signedCleanUpTx: Transaction | undefined
+    } = { signedSetupTx: undefined, signedSwapTx: undefined, signedCleanUpTx: undefined }
+    let count = 0
+    if (setupTx) result.signedSetupTx = txs[count++]
+    result.signedSwapTx = txs[count++]
+    result.signedCleanUpTx = txs[count++]
+    return result
   }
   try {
-    const response = await sendAndConfirmTransaction(provider, tx)
-    return response
+    console.group('Sending transactions:')
+    console.info('setup tx:', setupTx ? setupTx.serializeMessage().toString('base64') : null)
+    console.info('swap tx:', swapTx ? swapTx.serializeMessage().toString('base64') : null)
+    console.info('clean up tx:', cleanUpTx ? cleanUpTx.serializeMessage().toString('base64') : null)
+    console.groupEnd()
+    const signedTxs: Transaction[] = await (solanaWallet as SignerWalletAdapter).signAllTransactions(txs)
+    const { signedSetupTx, signedSwapTx, signedCleanUpTx } = populateTx(signedTxs)
+    const txHashs: string[] = []
+    if (signedSetupTx) {
+      try {
+        const setupHash = await sendAndConfirmRawTransaction(connection, signedSetupTx.serialize())
+        txHashs.push(setupHash)
+        handleCustomTypeResponse('SetUp', setupHash, txHashs[0])
+      } catch (e) {
+        console.error(e)
+        throw new Error('Swap error', { cause: e })
+      }
+    }
+
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const swapHash = await sendAndConfirmRawTransaction(connection, signedSwapTx!.serialize())
+      txHashs.push(swapHash)
+      handler(swapHash, txHashs[0])
+    } catch (e) {
+      console.error(e)
+      throw new Error('Swap error', { cause: e })
+    }
+
+    if (signedCleanUpTx) {
+      try {
+        const cleanUpHash = await sendAndConfirmRawTransaction(connection, signedCleanUpTx.serialize())
+        txHashs.push(cleanUpHash)
+        handleCustomTypeResponse('CleanUp', cleanUpHash, txHashs[0])
+      } catch (e) {
+        console.error(e)
+        throw new Error('Swap error', { cause: e })
+      }
+    }
+
+    return txHashs
   } catch (e) {
     console.error(e)
     throw new Error('Swap error', { cause: e })
   }
 }
+// export async function sendSolanaTransactionWithFEEncode(
+//   account: string,
+//   program: Program<SolanaAggregatorPrograms>,
+//   programAccount: string,
+//   provider: AnchorProvider,
+//   trade: Aggregator,
+//   value: BigNumber,
+//   handler?: (response: TransactionResponse) => void,
+// ): Promise<string | undefined> {
+//   if (!account) return
+
+//   let tx: Transaction | undefined
+//   try {
+//     tx = await createSolanaSwapTransaction(new PublicKey(account), program, programAccount, trade, value)
+//   } catch (e) {
+//     console.error(e)
+//     throw new Error('Create transaction failed', { cause: e })
+//   }
+//   try {
+//     const response = await sendAndConfirmTransaction(provider, tx)
+//     return response
+//   } catch (e) {
+//     console.error(e)
+//     throw new Error('Swap error', { cause: e })
+//   }
+// }

@@ -26,7 +26,7 @@ import { useETHPrice } from 'state/application/hooks'
 import { Field } from 'state/swap/actions'
 import { useSwapState } from 'state/swap/hooks'
 import { checkedSubgraph } from 'state/transactions/actions'
-import { TransactionDetails } from 'state/transactions/reducer'
+import { TransactionDetails } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { Aggregator } from 'utils/aggregator'
 
@@ -138,6 +138,12 @@ export enum MIXPANEL_TYPE {
   CLOSE_BANNER_CLICK,
 
   FARM_UNDER_EARN_TAB_CLICK,
+
+  // bridge
+  BRIDGE_CLICK_REVIEW_TRANSFER,
+  BRIDGE_CLICK_TRANSFER,
+  BRIDGE_TRANSACTION_SUBMIT,
+  BRIDGE_CLICK_HISTORY_TRANSFER_TAB,
 }
 
 export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES = [
@@ -181,7 +187,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           mixpanel.track('Swap Initiated', {
             input_token: inputSymbol,
             output_token: outputSymbol,
-            estimated_gas: trade?.gasUsd.toFixed(4),
+            estimated_gas: trade?.gasUsd?.toFixed(4),
             max_return_or_low_gas: saveGas ? 'Lowest Gas' : 'Maximum Return',
             trade_qty: trade?.inputAmount.toExact(),
             slippage_setting: allowedSlippage ? allowedSlippage / 100 : 0,
@@ -699,6 +705,32 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           mixpanel.track('Farms Page Viewed - under Earn tab')
           break
         }
+
+        case MIXPANEL_TYPE.BRIDGE_CLICK_HISTORY_TRANSFER_TAB: {
+          mixpanel.track('Bridge - Transfer History Tab Click')
+          break
+        }
+        case MIXPANEL_TYPE.BRIDGE_CLICK_REVIEW_TRANSFER: {
+          mixpanel.track('Bridge - Review Transfer Click', payload)
+          break
+        }
+        case MIXPANEL_TYPE.BRIDGE_CLICK_TRANSFER: {
+          mixpanel.track('Bridge - Transfer Click', payload)
+          break
+        }
+        case MIXPANEL_TYPE.BRIDGE_TRANSACTION_SUBMIT: {
+          const { tx_hash, from_token, to_token, bridge_fee, from_network, to_network, trade_qty } = payload
+          mixpanel.track('Bridge -  Transaction Submitted', {
+            tx_hash,
+            from_token,
+            to_token,
+            bridge_fee,
+            from_network,
+            to_network,
+            trade_qty,
+          })
+          break
+        }
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1019,6 +1051,9 @@ export const useGlobalMixpanelEvents = () => {
           break
         case 'buy-crypto':
           pageName = 'Buy Crypto'
+          break
+        case 'bridge':
+          pageName = 'Bridge'
           break
         default:
           break

@@ -65,7 +65,8 @@ const useGasPriceFromDeBank = (): GasPriceTrackerData | undefined => {
   const { data, error } = useSWR<Response>(
     `https://openapi.debank.com/v1/wallet/gas_market?chain_id=${chainSlug}`,
     async (url: string) => {
-      if (!chainId || !chainSlug) {
+      if (!isEVM) throw new Error()
+      if (!chainSlug) {
         const err = `chain (${chainId}) is not supported`
         console.error(err)
         throw err

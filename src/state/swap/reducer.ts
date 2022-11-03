@@ -1,4 +1,5 @@
 import { createReducer } from '@reduxjs/toolkit'
+import { Keypair } from '@solana/web3.js'
 import { parse } from 'qs'
 
 import { FeeConfig } from 'hooks/useSwapV2Callback'
@@ -12,6 +13,7 @@ import {
   selectCurrency,
   setFeeConfig,
   setRecipient,
+  setSwapState,
   setTrade,
   setTrendingSoonShowed,
   switchCurrencies,
@@ -34,6 +36,13 @@ export interface SwapState {
   readonly feeConfig: FeeConfig | undefined
   readonly trendingSoonShowed?: boolean
   readonly trade?: Aggregator
+
+  readonly showConfirm: boolean
+  readonly tradeToConfirm: Aggregator | undefined
+  readonly attemptingTxn: boolean
+  readonly swapErrorMessage: string | undefined
+  readonly txHash: string | undefined
+  readonly programState: Keypair
 }
 
 const { search } = window.location
@@ -54,14 +63,25 @@ const initialState: SwapState = {
   // Flag to only show animation of trending soon banner 1 time
   trendingSoonShowed: false,
   trade: undefined,
+
+  showConfirm: false,
+  tradeToConfirm: undefined,
+  attemptingTxn: false,
+  swapErrorMessage: undefined,
+  txHash: undefined,
+  programState: new Keypair(),
 }
 
 export default createReducer<SwapState>(initialState, builder =>
   builder
     .addCase(
       replaceSwapState,
-      (state, { payload: { typedValue, recipient, field, inputCurrencyId, outputCurrencyId, feeConfig } }) => {
+      (
+        state,
+        { payload: { typedValue, recipient, field, inputCurrencyId, outputCurrencyId, feeConfig, programState } },
+      ) => {
         return {
+          ...state,
           [Field.INPUT]: {
             currencyId: inputCurrencyId,
           },
@@ -75,6 +95,21 @@ export default createReducer<SwapState>(initialState, builder =>
           feeConfig,
           trendingSoonShowed: state.trendingSoonShowed,
           trade: state.trade,
+          programState,
+        }
+      },
+    )
+    .addCase(
+      setSwapState,
+      (state, { payload: { showConfirm, tradeToConfirm, attemptingTxn, swapErrorMessage, txHash } }) => {
+        return {
+          ...state,
+          showConfirm,
+          tradeToConfirm,
+          attemptingTxn,
+          swapErrorMessage,
+          txHash,
+          programState: new Keypair(),
         }
       },
     )

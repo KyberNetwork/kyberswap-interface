@@ -340,6 +340,7 @@ export default function TokenPair({
           .then(calculateGasMargin)
           .catch(error => {
             console.error(`estimateGas failed`, methodName, args, error)
+            setRemoveLiquidityError(error.toString())
             return undefined
           }),
       ),
@@ -364,7 +365,8 @@ export default function TokenPair({
           if (!!currencyA && !!currencyB) {
             setAttemptingTxn(false)
 
-            addTransactionWithType(response, {
+            addTransactionWithType({
+              hash: response.hash,
               type: 'Remove liquidity',
               summary:
                 parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) +
@@ -546,7 +548,7 @@ export default function TokenPair({
         </ModalDetailWrapper>
 
         <ButtonPrimary disabled={!(approval === ApprovalState.APPROVED || signatureData !== null)} onClick={onRemove}>
-          <Text fontWeight={500} fontSize={20}>
+          <Text fontWeight={500} fontSize={16}>
             <Trans>Confirm</Trans>
           </Text>
         </ButtonPrimary>
@@ -750,8 +752,7 @@ export default function TokenPair({
                           userLiquidity.equalTo('0')
                         }
                         margin="0 1rem 0 0"
-                        fontWeight={500}
-                        fontSize={16}
+                        style={{ fontSize: '16px', fontWeight: 500 }}
                       >
                         {approval === ApprovalState.PENDING ? (
                           <Dots>

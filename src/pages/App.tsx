@@ -30,11 +30,12 @@ import { RedirectDuplicateTokenIds } from './AddLiquidityV2/redirects'
 import { RedirectPathToFarmNetwork } from './Farm/redirect'
 import { RedirectPathToMyPoolsNetwork } from './Pool/redirect'
 import { RedirectPathToPoolsNetwork } from './Pools/redirect'
-import Swap from './Swap'
-import SwapV2 from './SwapV2'
 import { RedirectPathToSwapNetwork } from './SwapV2/redirects'
 
 // Route-based code splitting
+const Swap = lazy(() => import(/* webpackChunkName: 'swap-page' */ './Swap'))
+const SwapV2 = lazy(() => import(/* webpackChunkName: 'swapv2-page' */ './SwapV2'))
+const Bridge = lazy(() => import(/* webpackChunkName: 'bridge-page' */ './Bridge'))
 const Pools = lazy(() => import(/* webpackChunkName: 'pools-page' */ './Pools'))
 const Pool = lazy(() => import(/* webpackChunkName: 'my-pool-page' */ './Pool'))
 
@@ -124,19 +125,23 @@ export default function App() {
   useGlobalMixpanelEvents()
   const { pathname } = window.location
   const showFooter = !pathname.includes(APP_PATHS.ABOUT)
+  // const feedbackId = isDarkTheme ? 'W5TeOyyH' : 'K0dtSO0v'
+  const feedbackId = isDarkTheme ? 'cHvlUe5l' : 'K7NUkCCU' // support our event
 
   return (
     <ErrorBoundary>
       {width && width >= 768 ? (
         <Sidetab
-          id={isDarkTheme ? 'W5TeOyyH' : 'K0dtSO0v'}
-          buttonText="Feedback"
+          id={feedbackId}
+          width={800} // todo revert when event end
+          // buttonText="Feedback"
+          buttonText="Feedback & Win!"
           buttonColor={theme.primary}
           customIcon={isDarkTheme ? 'https://i.imgur.com/iTOOKnr.png' : 'https://i.imgur.com/aPCpnGg.png'}
         />
       ) : (
         <Popover
-          id={isDarkTheme ? 'W5TeOyyH' : 'K0dtSO0v'}
+          id={feedbackId}
           customIcon={isDarkTheme ? 'https://i.imgur.com/iTOOKnr.png' : 'https://i.imgur.com/aPCpnGg.png'}
         />
       )}
@@ -262,6 +267,7 @@ export default function App() {
                     <Route exact path={`${APP_PATHS.DISCOVER}`} component={TrueSight} />
                     <Route exact path={`${APP_PATHS.BUY_CRYPTO}`} component={BuyCrypto} />
                     <Route exact path={`${APP_PATHS.CAMPAIGN}/:slug?`} component={Campaign} />
+                    <Route exact path={`${APP_PATHS.BRIDGE}`} component={Bridge} />
 
                     <Route component={RedirectPathToSwapNetwork} />
                   </Switch>

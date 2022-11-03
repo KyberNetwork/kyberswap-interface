@@ -58,7 +58,8 @@ export default function useWrapCallback(
                     value: `0x${inputAmount.quotient.toString(16)}`,
                     gasLimit: calculateGasMargin(estimateGas),
                   })
-                  addTransactionWithType(txReceipt, {
+                  addTransactionWithType({
+                    hash: txReceipt.hash,
                     type: 'Wrap',
                     summary: `${inputAmount.toSignificant(6)} ${nativeTokenSymbol} to ${inputAmount.toSignificant(
                       6,
@@ -86,7 +87,8 @@ export default function useWrapCallback(
                   const txReceipt = await wethContract.withdraw(`0x${inputAmount.quotient.toString(16)}`, {
                     gasLimit: calculateGasMargin(estimateGas),
                   })
-                  addTransactionWithType(txReceipt, {
+                  addTransactionWithType({
+                    hash: txReceipt.hash,
                     type: 'Unwrap',
                     summary: `${inputAmount.toSignificant(6)} W${nativeTokenSymbol} to ${inputAmount.toSignificant(
                       6,

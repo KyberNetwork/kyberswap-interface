@@ -281,10 +281,6 @@ export function useETHPrice(version: string = VERSION.CLASSIC): AppState['applic
         ? getPrommEthPrice(chainId, apolloProMMClient)
         : getEthPrice(chainId, apolloClient))
 
-      // if (!newPrice && apolloProMMClient) {
-      //   ;[newPrice, oneDayBackPrice, pricePercentChange] = await getPrommEthPrice(chainId, apolloProMMClient)
-      // }
-
       dispatch(
         version === VERSION.ELASTIC
           ? updatePrommETHPrice({

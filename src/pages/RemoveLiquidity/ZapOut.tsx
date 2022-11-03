@@ -49,7 +49,7 @@ import { useTokensPrice, useWalletModalToggle } from 'state/application/hooks'
 import { Field } from 'state/burn/actions'
 import { useBurnState, useDerivedZapOutInfo, useZapOutActionHandlers } from 'state/burn/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
-import { useIsExpertMode, useUserSlippageTolerance } from 'state/user/hooks'
+import { useExpertModeManager, useUserSlippageTolerance } from 'state/user/hooks'
 import { StyledInternalLink, TYPE, UppercaseText } from 'theme'
 import { calculateGasMargin, formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
@@ -90,7 +90,7 @@ export default function ZapOut({
 
   const theme = useTheme()
 
-  const expertMode = useIsExpertMode()
+  const [expertMode] = useExpertModeManager()
 
   // toggle wallet when disconnected
   const toggleWalletModal = useWalletModalToggle()
@@ -409,7 +409,8 @@ export default function ZapOut({
           if (!!currencyA && !!currencyB) {
             setAttemptingTxn(false)
 
-            addTransactionWithType(response, {
+            addTransactionWithType({
+              hash: response.hash,
               type: 'Remove liquidity',
               summary: parsedAmounts[independentTokenField]?.toSignificant(6) + ' ' + independentToken?.symbol,
               arbitrary: {
@@ -598,7 +599,7 @@ export default function ZapOut({
         </ModalDetailWrapper>
 
         <ButtonPrimary disabled={!(approval === ApprovalState.APPROVED || signatureData !== null)} onClick={onRemove}>
-          <Text fontWeight={500} fontSize={20}>
+          <Text fontWeight={500} fontSize={16}>
             <Trans>Confirm</Trans>
           </Text>
         </ButtonPrimary>
@@ -814,9 +815,8 @@ export default function ZapOut({
                         (priceImpactSeverity > 3 && !expertMode)
                       }
                       margin="0 1rem 0 0"
-                      fontWeight={500}
-                      fontSize={16}
                       padding="16px"
+                      style={{ fontSize: '16px', fontWeight: 500 }}
                     >
                       {approval === ApprovalState.PENDING ? (
                         <Dots>

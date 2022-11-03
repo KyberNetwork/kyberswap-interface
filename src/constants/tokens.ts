@@ -1,6 +1,5 @@
 import { ChainId, NativeCurrency, Token } from '@namgold/ks-sdk-core'
 
-import { MAINNET_ENV } from './env'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from './networks'
 
 export const NativeCurrencies: { [chainId in ChainId]: NativeCurrency } = SUPPORTED_NETWORKS.reduce(
@@ -428,9 +427,7 @@ export const KNC: { [chainId in ChainId]: Token } = {
   ),
   [ChainId.MATIC]: new Token(
     ChainId.MATIC,
-    MAINNET_ENV === 'staging'
-      ? '0x51E8D106C646cA58Caf32A47812e95887C071a62'
-      : '0x1C954E8fe737F99f68Fa1CCda3e51ebDB291948C',
+    '0x1C954E8fe737F99f68Fa1CCda3e51ebDB291948C',
     18,
     'KNC',
     'Kyber Network Crystal',

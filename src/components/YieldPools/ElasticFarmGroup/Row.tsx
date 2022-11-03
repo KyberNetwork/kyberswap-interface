@@ -21,6 +21,7 @@ import Modal from 'components/Modal'
 import { MouseoverTooltip, MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { TOBE_EXTENDED_FARMING_POOLS } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
@@ -313,6 +314,8 @@ const Row = ({
                   </Text>
                   {getFormattedTimeFromSecond(pool.endTime - currentTimestamp)}
                 </>
+              ) : TOBE_EXTENDED_FARMING_POOLS.includes(pool.poolAddress.toLowerCase()) ? (
+                <Trans>To be extended soon</Trans>
               ) : (
                 <Trans>ENDED</Trans>
               )}
@@ -345,8 +348,8 @@ const Row = ({
 
           <RewardMobileArea>
             <Flex justifyContent="center" alignItems="center" marginBottom="8px" sx={{ gap: '4px' }}>
-              {rewardPendings.map(amount => (
-                <Flex alignItems="center" sx={{ gap: '4px' }} key={amount.currency.symbol}>
+              {rewardPendings.map((amount, i) => (
+                <Flex alignItems="center" sx={{ gap: '4px' }} key={amount.currency.symbol || i}>
                   <HoverInlineText text={amount.toSignificant(6)} maxCharacters={10}></HoverInlineText>
                   <MouseoverTooltip placement="top" text={amount.currency.symbol} width="fit-content">
                     <CurrencyLogo currency={amount.currency} size="16px" />
@@ -572,6 +575,8 @@ const Row = ({
             </Text>
             {getFormattedTimeFromSecond(pool.endTime - currentTimestamp)}
           </>
+        ) : TOBE_EXTENDED_FARMING_POOLS.includes(pool.poolAddress.toLowerCase()) ? (
+          <Trans>To be extended soon</Trans>
         ) : (
           <Trans>ENDED</Trans>
         )}
@@ -617,8 +622,8 @@ const Row = ({
       )}
 
       <Flex flexDirection="column" alignItems="flex-end" sx={{ gap: '8px' }}>
-        {rewardPendings.map(amount => (
-          <Flex alignItems="center" sx={{ gap: '4px' }} key={amount.currency.symbol}>
+        {rewardPendings.map((amount, i) => (
+          <Flex alignItems="center" sx={{ gap: '4px' }} key={amount.currency.symbol || i}>
             <HoverInlineText text={amount.toSignificant(6)} maxCharacters={10}></HoverInlineText>
             <MouseoverTooltip placement="top" text={amount.currency.symbol} width="fit-content">
               <CurrencyLogo currency={amount.currency} size="16px" />

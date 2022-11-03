@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { useWallet } from '@solana/wallet-adapter-react'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { FileText } from 'react-feather'
 import { useDispatch } from 'react-redux'
@@ -16,9 +16,12 @@ import { AutoRow } from 'components/Row'
 import { PROMM_ANALYTICS_URL } from 'constants/index'
 import { SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
+import useENSName from 'hooks/useENSName'
 import useTheme from 'hooks/useTheme'
 import { AppDispatch } from 'state'
 import { clearAllTransactions } from 'state/transactions/actions'
+import { isTransactionRecent, newTransactionsFirst, useAllTransactions } from 'state/transactions/hooks'
+import { TransactionDetails } from 'state/transactions/type'
 import { useIsDarkMode, useIsUserManuallyDisconnect } from 'state/user/hooks'
 import { ExternalLink, LinkStyledButton, TYPE } from 'theme'
 import { getEtherscanLink, shortenAddress } from 'utils'
@@ -167,25 +170,29 @@ function renderTransactions(transactions: string[]) {
 
 interface AccountDetailsProps {
   toggleWalletModal: () => void
-  pendingTransactions: string[]
-  confirmedTransactions: string[]
-  ENSName?: string
   openOptions: () => void
 }
 
-export default function AccountDetails({
-  toggleWalletModal,
-  pendingTransactions,
-  confirmedTransactions,
-  ENSName,
-  openOptions,
-}: AccountDetailsProps) {
+export default function AccountDetails({ toggleWalletModal, openOptions }: AccountDetailsProps) {
   const { chainId, account, walletKey, isEVM, isSolana } = useActiveWeb3React()
   const { connector, deactivate } = useWeb3React()
   const { disconnect } = useWallet()
   const theme = useTheme()
   const dispatch = useDispatch<AppDispatch>()
   const isDarkMode = useIsDarkMode()
+  const { ENSName } = useENSName(isEVM ? account ?? undefined : undefined)
+
+  const allTransactions = useAllTransactions()
+
+  const sortedRecentTransactions = useMemo(() => {
+    const txs: TransactionDetails[] = allTransactions
+      ? (Object.values(allTransactions)?.flat().filter(Boolean) as TransactionDetails[])
+      : []
+    return txs.filter(isTransactionRecent).sort(newTransactionsFirst)
+  }, [allTransactions])
+
+  const pendingTransactions = sortedRecentTransactions.filter(tx => !tx.receipt).map(tx => tx.hash)
+  const confirmedTransactions = sortedRecentTransactions.filter(tx => tx.receipt).map(tx => tx.hash)
 
   function formatConnectorName(): JSX.Element {
     if (!walletKey) {

@@ -1,5 +1,4 @@
 import {
-  ChainId,
   Currency,
   CurrencyAmount,
   Fraction,
@@ -10,7 +9,10 @@ import {
   TradeType,
   WETH,
 } from '@namgold/ks-sdk-core'
+import { OpenOrders } from '@project-serum/serum'
 import { captureException } from '@sentry/react'
+import { Connection, Keypair, Message, PublicKey, SystemProgram, Transaction } from '@solana/web3.js'
+import { toByteArray } from 'base64-js'
 import JSBI from 'jsbi'
 import invariant from 'tiny-invariant'
 
@@ -18,6 +20,7 @@ import { DEX_TO_COMPARE } from 'constants/dexes'
 import { ETHER_ADDRESS, KYBERSWAP_SOURCE, sentryRequestId } from 'constants/index'
 import { isEVM } from 'constants/networks'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
+import connection from 'state/connection/connection'
 import { AggregationComparer } from 'state/swap/types'
 
 import fetchWaiting from './fetchWaiting'
@@ -45,9 +48,9 @@ export type Swap = {
 }
 
 type Tokens = {
-  [address: string]: Token
+  [address: string]: Token | undefined
 }
-
+const serumConnection = new Connection('https://solana-api.projectserum.com/')
 /**
  */
 export class Aggregator {
@@ -77,11 +80,14 @@ export class Aggregator {
   public readonly amountInUsd: number
   public readonly amountOutUsd: number
   public readonly receivedUsd: number
-  public readonly gasUsd: number
+  public readonly gasUsd: number | undefined
   // -1 mean can not get price of token => can not calculate price impact
   public readonly priceImpact: number
   public readonly encodedSwapData: string
   public readonly routerAddress: string
+  public readonly encodedSwapTx: Transaction | undefined
+  public readonly encodedCreateOrderTx: Transaction | undefined
+  public readonly programState: Keypair
 
   private constructor(
     inputAmount: CurrencyAmount<Currency>,
@@ -96,6 +102,9 @@ export class Aggregator {
     priceImpact: number,
     encodedSwapData: string,
     routerAddress: string,
+    encodedSwapTx: Transaction | undefined,
+    encodedCreateOrderTx: Transaction | undefined,
+    programState: Keypair,
   ) {
     this.tradeType = tradeType
     this.inputAmount = inputAmount
@@ -123,6 +132,9 @@ export class Aggregator {
     this.priceImpact = priceImpact
     this.encodedSwapData = encodedSwapData
     this.routerAddress = routerAddress
+    this.encodedSwapTx = encodedSwapTx
+    this.encodedCreateOrderTx = encodedCreateOrderTx
+    this.programState = programState
   }
 
   /**
@@ -183,6 +195,7 @@ export class Aggregator {
     feeConfig: FeeConfig | undefined,
     signal: AbortSignal,
     minimumLoadingTime: number,
+    programState: Keypair,
   ): Promise<Aggregator | null> {
     const amountIn = currencyAmountIn
     const tokenOut = currencyOut.wrapped
@@ -217,6 +230,8 @@ export class Aggregator {
         isInBps: feeConfig?.isInBps !== undefined ? (feeConfig.isInBps ? '1' : '0') : '',
         feeAmount: feeConfig?.feeAmount ?? '',
 
+        programState: programState.publicKey.toBase58() ?? '',
+
         // Client data
         clientData: KYBERSWAP_SOURCE,
       })
@@ -232,6 +247,7 @@ export class Aggregator {
           },
           minimumLoadingTime,
         )
+        if (Math.round(response.status / 100) !== 2) throw new Error('Aggregator status fail: ' + response.status)
         const result = await response.json()
         if (
           !result ||
@@ -259,7 +275,69 @@ export class Aggregator {
           ? -1
           : ((-result.amountOutUsd + result.amountInUsd) * 100) / result.amountInUsd
 
-        const { encodedSwapData, routerAddress } = result
+        let swapTx: Transaction | undefined, createOpenOrdersTx: Transaction | undefined
+        if (result.encodedMessage) {
+          const message = Message.from(toByteArray(result.encodedMessage))
+
+          if (result.serumOpenOrdersAccountByMarket) {
+            // do Solana magic things
+            const toPK = new PublicKey(to)
+            const newOpenOrders: Keypair[] = [] // OpenOrders accounts to be created
+            const actualOpenOrdersByMarket: { [key: string]: PublicKey } = {}
+            for (const [market] of Object.entries(result.serumOpenOrdersAccountByMarket)) {
+              const openOrdersList = await OpenOrders.findForMarketAndOwner(
+                serumConnection,
+                new PublicKey(market),
+                toPK,
+                new PublicKey('9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin'),
+              )
+              let openOrders: PublicKey
+              if (openOrdersList.length > 0) {
+                // if there is an OpenOrders, use it
+                openOrders = openOrdersList[0].address
+              } else {
+                // otherwise, create a new OpenOrders account
+                const keypair = new Keypair()
+                openOrders = keypair.publicKey
+                newOpenOrders.push(keypair)
+              }
+              actualOpenOrdersByMarket[market] = openOrders
+            }
+
+            const openOrdersSpace = OpenOrders.getLayout(
+              new PublicKey('9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin'),
+            ).span
+            const openOrdersRent = await connection.getMinimumBalanceForRentExemption(openOrdersSpace)
+            const createOpenOrdersIxs = []
+            for (const openOrders of newOpenOrders) {
+              createOpenOrdersIxs.push(
+                SystemProgram.createAccount({
+                  fromPubkey: toPK,
+                  newAccountPubkey: openOrders.publicKey,
+                  lamports: openOrdersRent,
+                  space: openOrdersSpace,
+                  programId: new PublicKey('9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin'),
+                }),
+              )
+            }
+            if (createOpenOrdersIxs.length) {
+              createOpenOrdersTx = new Transaction({ feePayer: toPK }).add(...createOpenOrdersIxs)
+
+              // replace dummy OpenOrders account with actual ones
+              for (let i = 0; i < message.accountKeys.length; i += 1) {
+                const pubkey = message.accountKeys[i]
+                for (const [market, dummyOpenOrders] of Object.entries(result.serumOpenOrdersAccountByMarket)) {
+                  if (pubkey.toBase58() === dummyOpenOrders) {
+                    message.accountKeys[i] = actualOpenOrdersByMarket[market]
+                    break
+                  }
+                }
+              }
+            }
+          }
+
+          swapTx = Transaction.populate(message)
+        }
 
         return new Aggregator(
           currencyAmountIn,
@@ -272,12 +350,16 @@ export class Aggregator {
           TradeType.EXACT_INPUT,
           result.gasUsd,
           priceImpact,
-          encodedSwapData,
-          routerAddress,
+          result.encodedSwapData,
+          result.routerAddress,
+          swapTx,
+          createOpenOrdersTx,
+          programState,
         )
       } catch (e) {
         // ignore aborted request error
         if (!e?.message?.includes('Fetch is aborted') && !e?.message?.includes('The user aborted a request')) {
+          console.error('Aggregator error:', e?.stack || e)
           const sentryError = new Error('Aggregator API call failed', { cause: e })
           sentryError.name = 'AggregatorAPIError'
           captureException(sentryError, { level: 'error' })
@@ -310,9 +392,6 @@ export class Aggregator {
     signal: AbortSignal,
     minimumLoadingTime: number,
   ): Promise<AggregationComparer | null> {
-    const chainId: ChainId | undefined = currencyAmountIn.currency.chainId || currencyOut.chainId
-    invariant(chainId !== undefined, 'CHAIN_ID')
-
     const amountIn = currencyAmountIn
     const tokenOut = currencyOut.wrapped
 
@@ -327,7 +406,7 @@ export class Aggregator {
         : WETH[currencyOut.chainId].address
       : tokenOut.address
 
-    const comparedDex = DEX_TO_COMPARE[chainId]
+    const comparedDex = DEX_TO_COMPARE[currencyAmountIn.currency.chainId]
 
     if (tokenInAddress && tokenOutAddress && comparedDex) {
       const search = new URLSearchParams({
@@ -392,6 +471,7 @@ export class Aggregator {
       } catch (e) {
         // ignore aborted request error
         if (!e?.message?.includes('Fetch is aborted') && !e?.message?.includes('The user aborted a request')) {
+          console.error('Aggregator comparedDex error:', e?.stack || e)
           const sentryError = new Error('Aggregator API (comparedDex) call failed', { cause: e })
           sentryError.name = 'AggregatorAPIError'
           captureException(sentryError, { level: 'error' })

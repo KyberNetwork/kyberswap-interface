@@ -229,10 +229,7 @@ export function useSwapCallback(
                       : recipientAddressOrName
                   }`
 
-            addTransactionWithType(response, {
-              type: 'Swap',
-              summary: withRecipient,
-            })
+            addTransactionWithType({ hash: response.hash, type: 'Swap', summary: withRecipient })
 
             return response.hash
           })

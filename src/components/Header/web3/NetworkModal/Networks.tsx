@@ -6,10 +6,12 @@ import { useHistory } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { ButtonEmpty } from 'components/Button'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { MAINNET_NETWORKS, NETWORKS_INFO } from 'constants/networks'
-import { useActiveWeb3React } from 'hooks'
+import { Z_INDEXS } from 'constants/styles'
 import { useChangeNetwork } from 'hooks/useChangeNetwork'
 import useParsedQueryString from 'hooks/useParsedQueryString'
+import { useNetworkModalToggle } from 'state/application/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
 
 const NewLabel = styled.span`
@@ -94,61 +96,73 @@ const Networks = ({
   mt = 30,
   mb = 0,
   isAcceptedTerm = true,
+  activeChainIds,
+  selectedId,
+  customOnSelectNetwork,
+  customToggleModal,
+  disabledMsg,
 }: {
   onChangedNetwork?: () => any
   width: number
   mt?: number
   mb?: number
   isAcceptedTerm?: boolean
+  activeChainIds?: ChainId[]
+  selectedId?: ChainId | undefined
+  customOnSelectNetwork?: (chainId: ChainId) => void
+  customToggleModal?: () => void
+  disabledMsg?: string
 }) => {
-  const { chainId } = useActiveWeb3React()
   const changeNetwork = useChangeNetwork()
   const qs = useParsedQueryString()
   const history = useHistory()
   const isDarkMode = useIsDarkMode()
+  const toggleNetworkModalGlobal = useNetworkModalToggle()
+
+  const toggleNetworkModal = customToggleModal || toggleNetworkModalGlobal
+
+  const onSelect = (chainId: ChainId) => {
+    toggleNetworkModal()
+    if (customOnSelectNetwork) {
+      customOnSelectNetwork(chainId)
+    } else {
+      changeNetwork(chainId, () => {
+        const { networkId, inputCurrency, outputCurrency, ...rest } = qs
+        history.replace({
+          search: stringify(rest),
+        })
+        onChangedNetwork?.()
+      })
+    }
+  }
 
   return (
     <NetworkList width={width} mt={mt} mb={mb}>
       {MAINNET_NETWORKS.map((key: ChainId, i: number) => {
-        const isSelected = chainId === key
-        const imgSrc = isSelected
+        const { iconDark, icon, iconDarkSelected, iconSelected, name } = NETWORKS_INFO[key]
+        const disabled = !isAcceptedTerm || (activeChainIds ? !activeChainIds?.includes(key) : false)
+        const selected = selectedId === key
+
+        const imgSrc = selected
           ? isDarkMode
-            ? NETWORKS_INFO[key].iconDarkSelected ||
-              NETWORKS_INFO[key].iconSelected ||
-              NETWORKS_INFO[key].iconDark ||
-              NETWORKS_INFO[key].icon
-            : NETWORKS_INFO[key].iconSelected || NETWORKS_INFO[key].icon
-          : (isDarkMode && NETWORKS_INFO[key].iconDark) || NETWORKS_INFO[key].icon
+            ? iconDarkSelected || iconSelected || iconDark || icon
+            : iconSelected || icon
+          : (isDarkMode && iconDark) || icon
 
         return (
-          <SelectNetworkButton
-            key={i}
-            padding="0"
-            onClick={
-              isSelected
-                ? undefined
-                : () => {
-                    changeNetwork(key, () => {
-                      const { inputCurrency, outputCurrency, ...rest } = qs
-                      history.replace({
-                        search: stringify(rest),
-                      })
-                      onChangedNetwork?.()
-                    })
-                  }
-            }
-            disabled={!isAcceptedTerm}
-          >
-            <ListItem selected={isSelected}>
-              <img src={imgSrc} alt="Switch Network" style={{ height: '20px', width: '20px', marginRight: '4px' }} />
-              <NetworkLabel>{NETWORKS_INFO[key].name}</NetworkLabel>
-              {key === ChainId.SOLANA && (
-                <NewLabel>
-                  <Trans>New</Trans>
-                </NewLabel>
-              )}
-            </ListItem>
-          </SelectNetworkButton>
+          <MouseoverTooltip style={{ zIndex: Z_INDEXS.MODAL + 1 }} key={key} text={disabled ? disabledMsg : ''}>
+            <SelectNetworkButton key={i} padding="0" onClick={() => !selected && onSelect(key)} disabled={disabled}>
+              <ListItem selected={selected}>
+                <img src={imgSrc} alt="Switch Network" style={{ height: '20px', marginRight: '4px' }} />
+                <NetworkLabel>{name}</NetworkLabel>
+                {key === ChainId.SOLANA && (
+                  <NewLabel>
+                    <Trans>New</Trans>
+                  </NewLabel>
+                )}
+              </ListItem>
+            </SelectNetworkButton>
+          </MouseoverTooltip>
         )
       })}
     </NetworkList>

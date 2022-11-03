@@ -2,7 +2,7 @@ import { ChainId } from '@namgold/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import AURORA from 'assets/networks/aurora-network.svg'
-import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
+import { KS_SETTING_API, META_AGGREGATOR_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
 
@@ -33,7 +33,7 @@ const auroraInfo: EVMNetworkInfo = {
     decimal: 18,
   },
   rpcUrl: 'https://aurora.kyberengineering.io',
-  routerUri: `${AGGREGATOR_API}/aurora/route/encode`,
+  routerUri: `${META_AGGREGATOR_API}/aurora/route/encode`,
   multicall: '0xBF69a56D35B8d6f5A8e0e96B245a72F735751e54',
   classic: {
     static: {

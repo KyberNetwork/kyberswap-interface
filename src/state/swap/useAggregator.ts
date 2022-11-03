@@ -38,7 +38,6 @@ export function useDerivedSwapInfoV2(): {
     [Field.INPUT]: { currencyId: inputCurrencyId },
     [Field.OUTPUT]: { currencyId: outputCurrencyId },
     recipient,
-    saveGas,
   } = useSwapState()
 
   const inputCurrency = useCurrency(inputCurrencyId)
@@ -64,7 +63,7 @@ export function useDerivedSwapInfoV2(): {
     comparer: baseTradeComparer,
     onUpdateCallback,
     loading,
-  } = useTradeExactInV2(isExactIn ? parsedAmount : undefined, outputCurrency ?? undefined, saveGas, to, allowedSlippage)
+  } = useTradeExactInV2(isExactIn ? parsedAmount : undefined, outputCurrency ?? undefined, to)
 
   const tradeComparer = useMemo((): AggregationComparer | undefined => {
     if (
@@ -154,6 +153,28 @@ export function useDerivedSwapInfoV2(): {
   const isPairNotfound = inputCurrency === undefined && outputCurrency === undefined
 
   //todo namgold: remove this debug
+  // useDebug({
+  //   amountIn,
+  //   inputCurrency,
+  //   outputCurrency,
+  //   allowedSlippage,
+  //   relevantTokenBalances,
+  //   balanceInput,
+  //   balanceOutput,
+  //   currencies,
+  //   parsedAmount,
+  //   formattedTo,
+  //   slippageAdjustedAmounts,
+  //   currencyBalances,
+  //   v2Trade,
+  //   bestTradeExactIn,
+  //   baseTradeComparer,
+  //   onUpdateCallback,
+  //   tradeComparer,
+  //   inputError,
+  //   loading,
+  //   isPairNotfound,
+  // })
 
   return useMemo(
     () => ({

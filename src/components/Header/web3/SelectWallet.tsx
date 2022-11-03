@@ -15,8 +15,8 @@ import { SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useENSName from 'hooks/useENSName'
 import { useNetworkModalToggle, useWalletModalToggle } from 'state/application/hooks'
-import { isTransactionRecent, useAllTransactions } from 'state/transactions/hooks'
-import { TransactionDetails } from 'state/transactions/reducer'
+import { isTransactionRecent, newTransactionsFirst, useAllTransactions } from 'state/transactions/hooks'
+import { TransactionDetails } from 'state/transactions/type'
 import { useIsDarkMode } from 'state/user/hooks'
 import { shortenAddress } from 'utils'
 
@@ -88,11 +88,6 @@ const NetworkIcon = styled(Activity)`
   height: 16px;
 `
 
-// we want the latest one to come first, so return negative if a is after b
-function newTransactionsFirst(a: TransactionDetails, b: TransactionDetails) {
-  return b.addedTime - a.addedTime
-}
-
 const AccountElement = styled.div<{ active: boolean }>`
   display: flex;
   flex-direction: row;
@@ -115,13 +110,15 @@ function Web3StatusInner() {
   const allTransactions = useAllTransactions()
 
   const sortedRecentTransactions = useMemo(() => {
-    const txs = Object.values(allTransactions)
+    const txs: TransactionDetails[] = allTransactions
+      ? (Object.values(allTransactions)?.flat().filter(Boolean) as TransactionDetails[])
+      : []
     return txs.filter(isTransactionRecent).sort(newTransactionsFirst)
   }, [allTransactions])
 
-  const pending = sortedRecentTransactions.filter(tx => !tx.receipt).map(tx => tx.hash)
+  const pendingLength = sortedRecentTransactions.filter(tx => !tx.receipt).length
 
-  const hasPendingTransactions = !!pending.length
+  const hasPendingTransactions = !!pendingLength
   const toggleWalletModal = useWalletModalToggle()
   const toggleNetworkModal = useNetworkModalToggle()
 
@@ -136,7 +133,7 @@ function Web3StatusInner() {
         {hasPendingTransactions ? (
           <RowBetween>
             <Text>
-              <Trans>{pending?.length} Pending</Trans>
+              <Trans>{pendingLength} Pending</Trans>
             </Text>{' '}
             <Loader stroke="white" />
           </RowBetween>
@@ -172,23 +169,12 @@ function Web3StatusInner() {
 }
 
 export default function SelectWallet() {
-  const { account, isEVM } = useActiveWeb3React()
-  const { ENSName } = useENSName(isEVM ? account ?? undefined : undefined)
-
-  const allTransactions = useAllTransactions()
-
-  const sortedRecentTransactions = useMemo(() => {
-    const txs = Object.values(allTransactions)
-    return txs.filter(isTransactionRecent).sort(newTransactionsFirst)
-  }, [allTransactions])
-
-  const pending = sortedRecentTransactions.filter(tx => !tx.receipt).map(tx => tx.hash)
-  const confirmed = sortedRecentTransactions.filter(tx => tx.receipt).map(tx => tx.hash)
+  const { account } = useActiveWeb3React()
 
   return (
     <AccountElement active={!!account}>
       <Web3StatusInner />
-      <WalletModal ENSName={ENSName ?? undefined} pendingTransactions={pending} confirmedTransactions={confirmed} />
+      <WalletModal />
     </AccountElement>
   )
 }

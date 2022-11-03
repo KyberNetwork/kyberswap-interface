@@ -1,7 +1,8 @@
-import { ChainId, Token } from '@namgold/ks-sdk-core'
+import { ChainId, Currency, NativeCurrency, Token, WETH } from '@namgold/ks-sdk-core'
 
 import { NETWORKS_INFO } from 'constants/networks'
 import { MAP_TOKEN_HAS_MULTI_BY_NETWORK, WHITE_LIST_TOKEN_INFO_PAIR } from 'constants/tokenLists/token-info'
+import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 /**
  * hard code: ex: usdt => usdt_e, ... if network has multi symbol same name base on network
@@ -49,4 +50,17 @@ export const getFormattedAddress = (chainId: ChainId, address?: string, fallback
   } catch (e) {
     return fallback || address || ''
   }
+}
+
+export const isTokenNative = (
+  currency: Currency | WrappedTokenInfo | undefined,
+  chainId: ChainId | undefined,
+): currency is NativeCurrency => {
+  if (currency?.isNative) return true
+  // case multichain token
+  return chainId
+    ? WETH[chainId]?.address === currency?.address &&
+        currency instanceof WrappedTokenInfo &&
+        currency.multichainInfo?.tokenType === 'NATIVE'
+    : false
 }

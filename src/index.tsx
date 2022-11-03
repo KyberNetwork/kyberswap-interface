@@ -4,6 +4,8 @@ import { BrowserTracing } from '@sentry/tracing'
 import { Web3ReactProvider, createWeb3ReactRoot } from '@web3-react/core'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
 import 'inter-ui'
 import mixpanel from 'mixpanel-browser'
 import { StrictMode, useEffect } from 'react'
@@ -34,6 +36,8 @@ import UserUpdater from './state/user/updater'
 import ThemeProvider, { FixedGlobalStyle, ThemedGlobalStyle } from './theme'
 import getLibrary from './utils/getLibrary'
 
+dayjs.extend(utc)
+
 mixpanel.init(MIXPANEL_PROJECT_TOKEN, {
   debug: MAINNET_ENV === 'staging',
 })
@@ -44,7 +48,7 @@ if (process.env.REACT_APP_TAG) {
     site: 'datadoghq.eu',
     service: 'kyberswap-interface',
 
-    version: process.env.REACT_APP_TAG,
+    version: TAG,
     sampleRate: 10,
     sessionReplaySampleRate: 100,
     trackInteractions: true,
@@ -54,13 +58,32 @@ if (process.env.REACT_APP_TAG) {
   })
 
   datadogRum.startSessionReplayRecording()
+
+  Sentry.init({
+    dsn: SENTRY_DNS,
+    environment: 'production',
+    ignoreErrors: ['AbortError'],
+    integrations: [new BrowserTracing()],
+    tracesSampleRate: 0.1,
+  })
+
+  Sentry.configureScope(scope => {
+    scope.setTag('request_id', sentryRequestId)
+    scope.setTag('version', TAG)
+  })
+
+  if (GTM_ID) {
+    const tagManagerArgs = {
+      gtmId: GTM_ID,
+    }
+
+    TagManager.initialize(tagManagerArgs)
+  }
 }
 
 AOS.init()
 
 const Web3ProviderNetwork = createWeb3ReactRoot(NetworkContextName)
-
-window.tag = TAG
 
 if ('ethereum' in window) {
   ;(window.ethereum as any).autoRefreshOnNetworkChange = false
@@ -78,29 +101,6 @@ function Updaters() {
       <CustomizeDexesUpdater />
     </>
   )
-}
-
-if (GTM_ID) {
-  const tagManagerArgs = {
-    gtmId: GTM_ID,
-  }
-
-  TagManager.initialize(tagManagerArgs)
-}
-
-if (window.location.href.includes('kyberswap.com')) {
-  Sentry.init({
-    dsn: SENTRY_DNS,
-    environment: 'production',
-    ignoreErrors: ['AbortError'],
-    integrations: [new BrowserTracing()],
-    tracesSampleRate: 0.1,
-  })
-
-  Sentry.configureScope(scope => {
-    scope.setTag('request_id', sentryRequestId)
-    scope.setTag('version', TAG)
-  })
 }
 
 const preloadhtml = document.querySelector('.preloadhtml')

@@ -1,3 +1,4 @@
+import { Placement } from '@popperjs/core'
 import { useCallback, useState } from 'react'
 import { Info } from 'react-feather'
 import { Flex } from 'rebass'
@@ -28,11 +29,13 @@ export default function QuestionHelper({
   color,
   size = 12,
   useCurrentColor,
+  placement,
 }: {
   text: string
   color?: string
   size?: number
   useCurrentColor?: boolean
+  placement?: Placement
 }) {
   const [show, setShow] = useState<boolean>(false)
 
@@ -42,7 +45,7 @@ export default function QuestionHelper({
 
   return (
     <Flex as="span" marginLeft="0.25rem" alignItems="center">
-      <Tooltip text={text} show={show}>
+      <Tooltip placement={placement} text={text} show={show}>
         <QuestionWrapper onClick={open} onMouseEnter={open} onMouseLeave={close} useCurrentColor={useCurrentColor}>
           <Info size={size} color={useCurrentColor ? undefined : color || theme.subText} />
         </QuestionWrapper>

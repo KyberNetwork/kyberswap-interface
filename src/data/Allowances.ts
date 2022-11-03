@@ -3,9 +3,9 @@ import { getAccount } from '@solana/spl-token'
 import { PublicKey } from '@solana/web3.js'
 import { useEffect, useMemo, useState } from 'react'
 
-import { SolanaNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { useTokenContractForReading } from 'hooks/useContract'
+import connection from 'state/connection/connection'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { useAssociatedTokensAccounts } from 'state/wallet/solanaHooks'
 
@@ -23,7 +23,7 @@ export function useTokenAllowance(token?: Token, owner?: string, spender?: strin
     const calc = async () => {
       if (isSolana && token?.mint && spender && account && ata) {
         try {
-          const traderAccount = await getAccount((networkInfo as SolanaNetworkInfo).connection, ata.pubkey)
+          const traderAccount = await getAccount(connection, ata.pubkey)
           if (traderAccount.delegate?.equals(new PublicKey(spender))) {
             setAllowanceSolana(traderAccount.delegatedAmount)
           } else {

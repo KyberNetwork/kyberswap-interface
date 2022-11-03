@@ -92,9 +92,11 @@ export default function useClaimReward() {
   const allTransactions = useAllTransactions()
   const tx = useMemo(
     () =>
-      Object.keys(allTransactions)
-        .map(key => allTransactions[key])
-        .filter(item => item.type === 'Claim reward' && !item.receipt)[0],
+      allTransactions
+        ? Object.values(allTransactions)
+            .flat()
+            .find(item => item && item.type === 'Claim reward' && !item.receipt)
+        : undefined,
     [allTransactions],
   )
   const resetTxn = useCallback(() => {
@@ -158,7 +160,8 @@ export default function useClaimReward() {
         .then((tx: TransactionResponse) => {
           setAttemptingTxn(false)
           setTxHash(tx.hash)
-          addTransactionWithType(tx, {
+          addTransactionWithType({
+            hash: tx.hash,
             type: 'Claim reward',
             summary: rewardAmounts + ' KNC',
           })

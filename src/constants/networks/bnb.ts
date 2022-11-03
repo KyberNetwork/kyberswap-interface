@@ -2,7 +2,7 @@ import { ChainId } from '@namgold/ks-sdk-core'
 
 import BnbLogo from 'assets/images/bnb-logo.png'
 import BSC from 'assets/networks/bsc-network.png'
-import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
+import { KS_SETTING_API, META_AGGREGATOR_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
 
@@ -32,7 +32,7 @@ const bnbInfo: EVMNetworkInfo = {
     decimal: 18,
   },
   rpcUrl: 'https://bsc.kyberengineering.io',
-  routerUri: `${AGGREGATOR_API}/bsc/route/encode`,
+  routerUri: `${META_AGGREGATOR_API}/bsc/route/encode`,
   multicall: '0xed386Fe855C1EFf2f843B910923Dd8846E45C5A4',
   classic: {
     static: {

@@ -97,7 +97,6 @@ import {
 } from 'state/user/hooks'
 import { TYPE } from 'theme'
 import { formattedNum, isAddressString } from 'utils'
-import { Aggregator } from 'utils/aggregator'
 import { currencyId } from 'utils/currencyId'
 import { filterTokensWithExactKeyword } from 'utils/filtering'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
@@ -166,6 +165,7 @@ const RoutingIconWrapper = styled(RoutingIcon)`
 `
 
 export default function Swap({ history }: RouteComponentProps) {
+  const { account, chainId, networkInfo, isSolana, isEVM } = useActiveWeb3React()
   const [rotate, setRotate] = useState(false)
   const [showInverted, setShowInverted] = useState<boolean>(false)
   const isShowLiveChart = useShowLiveChart()
@@ -185,7 +185,7 @@ export default function Swap({ history }: RouteComponentProps) {
 
   const shouldHighlightSwapBox = qs.highlightBox === 'true'
 
-  const [isSelectCurencyMannual, setIsSelectCurencyMannual] = useState(false) // true when: select token input, output mannualy or click rotate token.
+  const [isSelectCurrencyManually, setIsSelectCurrencyManually] = useState(false) // true when: select token input, output manualy or click rotate token.
   // else select via url
 
   const [activeTab, setActiveTab] = useState<TAB>(TAB.SWAP)
@@ -212,7 +212,6 @@ export default function Swap({ history }: RouteComponentProps) {
       return !Boolean(token.address in defaultTokens)
     })
 
-  const { account, chainId, networkInfo, isSolana } = useActiveWeb3React()
   const theme = useTheme()
 
   // toggle wallet when disconnected
@@ -233,7 +232,22 @@ export default function Swap({ history }: RouteComponentProps) {
     feeConfig,
     [Field.INPUT]: INPUT,
     [Field.OUTPUT]: OUTPUT,
+    showConfirm,
+    tradeToConfirm,
+    swapErrorMessage,
+    attemptingTxn,
+    txHash,
   } = useSwapState()
+
+  const {
+    onSwitchTokensV2,
+    onCurrencySelection,
+    onResetSelectCurrency,
+    onUserInput,
+    onChangeRecipient,
+    onChangeTrade,
+    onSetSwapState,
+  } = useSwapActionHandlers()
 
   const {
     v2Trade,
@@ -246,6 +260,7 @@ export default function Swap({ history }: RouteComponentProps) {
     loading: loadingAPI,
     isPairNotfound,
   } = useDerivedSwapInfoV2()
+
   const comparedDex = useMemo(
     () => allDexes?.find(dex => dex.id === tradeComparer?.comparedDex),
     [allDexes, tradeComparer],
@@ -258,6 +273,7 @@ export default function Swap({ history }: RouteComponentProps) {
     execute: onWrap,
     inputError: wrapInputError,
   } = useWrapCallback(currencies[Field.INPUT], currencies[Field.OUTPUT], typedValue)
+
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
   const trade = showWrap ? undefined : v2Trade
   const isPriceImpactInvalid = !!trade?.priceImpact && trade?.priceImpact === -1
@@ -273,15 +289,6 @@ export default function Swap({ history }: RouteComponentProps) {
         [Field.INPUT]: independentField === Field.INPUT ? parsedAmount : trade?.inputAmount,
         [Field.OUTPUT]: independentField === Field.OUTPUT ? parsedAmount : trade?.outputAmount,
       }
-
-  const {
-    onSwitchTokensV2,
-    onCurrencySelection,
-    onResetSelectCurrency,
-    onUserInput,
-    onChangeRecipient,
-    onChangeTrade,
-  } = useSwapActionHandlers()
 
   // reset recipient
   useEffect(() => {
@@ -329,21 +336,6 @@ export default function Swap({ history }: RouteComponentProps) {
     }
   }, [handleDismissTokenWarning, showingPairSuggestionImport])
 
-  // modal and loading
-  const [{ showConfirm, tradeToConfirm, swapErrorMessage, attemptingTxn, txHash }, setSwapState] = useState<{
-    showConfirm: boolean
-    tradeToConfirm: Aggregator | undefined
-    attemptingTxn: boolean
-    swapErrorMessage: string | undefined
-    txHash: string | undefined
-  }>({
-    showConfirm: false,
-    tradeToConfirm: undefined,
-    attemptingTxn: false,
-    swapErrorMessage: undefined,
-    txHash: undefined,
-  })
-
   const formattedAmounts = {
     [independentField]: typedValue,
     [dependentField]: showWrap
@@ -366,7 +358,7 @@ export default function Swap({ history }: RouteComponentProps) {
     setApprovalSubmitted(false) // reset 2 step UI for approvals
     setRotate(prev => !prev)
     onSwitchTokensV2()
-    setIsSelectCurencyMannual(true)
+    setIsSelectCurrencyManually(true)
   }, [onSwitchTokensV2])
 
   // mark when a user has submitted an approval, reset onTokenSelection for input field
@@ -379,22 +371,25 @@ export default function Swap({ history }: RouteComponentProps) {
     }
   }, [approval, approvalSubmitted])
 
-  const maxAmountInput: CurrencyAmount<Currency> | undefined = maxAmountSpend(currencyBalances[Field.INPUT])
+  const maxAmountInput: CurrencyAmount<Currency> | undefined = useMemo(
+    () => maxAmountSpend(currencyBalances[Field.INPUT]),
+    [currencyBalances],
+  )
 
   // the callback to execute the swap
-  const { callback: swapCallback, error: swapCallbackError } = useSwapV2Callback(trade, recipient)
+  const { callback: swapCallback, error: swapCallbackError } = useSwapV2Callback(trade)
 
   const handleSwap = useCallback(() => {
     if (!swapCallback) {
       return
     }
-    setSwapState({ attemptingTxn: true, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: undefined })
+    onSetSwapState({ attemptingTxn: true, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: undefined })
     swapCallback()
       .then(hash => {
-        setSwapState({ attemptingTxn: false, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: hash })
+        onSetSwapState({ attemptingTxn: false, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: hash })
       })
       .catch(error => {
-        setSwapState({
+        onSetSwapState({
           attemptingTxn: false,
           tradeToConfirm,
           showConfirm,
@@ -402,7 +397,7 @@ export default function Swap({ history }: RouteComponentProps) {
           txHash: undefined,
         })
       })
-  }, [tradeToConfirm, showConfirm, swapCallback])
+  }, [swapCallback, onSetSwapState, tradeToConfirm, showConfirm])
 
   // show approve flow when: no error on inputs, not approved or pending, or approved in current session
   // never show if price impact is above threshold in non expert mode
@@ -413,20 +408,20 @@ export default function Swap({ history }: RouteComponentProps) {
       (approvalSubmitted && approval === ApprovalState.APPROVED))
 
   const handleConfirmDismiss = useCallback(() => {
-    setSwapState({ showConfirm: false, tradeToConfirm, attemptingTxn, swapErrorMessage, txHash })
+    onSetSwapState({ showConfirm: false, tradeToConfirm, attemptingTxn, swapErrorMessage, txHash })
     // if there was a tx hash, we want to clear the input
     if (txHash) {
       onUserInput(Field.INPUT, '')
     }
-  }, [attemptingTxn, onUserInput, swapErrorMessage, tradeToConfirm, txHash])
+  }, [attemptingTxn, onSetSwapState, onUserInput, swapErrorMessage, tradeToConfirm, txHash])
 
   const handleAcceptChanges = useCallback(() => {
-    setSwapState({ tradeToConfirm: trade, swapErrorMessage, txHash, attemptingTxn, showConfirm })
-  }, [attemptingTxn, showConfirm, swapErrorMessage, trade, txHash])
+    onSetSwapState({ tradeToConfirm: trade, swapErrorMessage, txHash, attemptingTxn, showConfirm })
+  }, [attemptingTxn, onSetSwapState, showConfirm, swapErrorMessage, trade, txHash])
 
   const handleInputSelect = useCallback(
     (inputCurrency: Currency) => {
-      setIsSelectCurencyMannual(true)
+      setIsSelectCurrencyManually(true)
       setApprovalSubmitted(false) // reset 2 step UI for approvals
       onCurrencySelection(Field.INPUT, inputCurrency)
     },
@@ -443,7 +438,7 @@ export default function Swap({ history }: RouteComponentProps) {
 
   const handleOutputSelect = useCallback(
     (outputCurrency: Currency) => {
-      setIsSelectCurencyMannual(true)
+      setIsSelectCurrencyManually(true)
       onCurrencySelection(Field.OUTPUT, outputCurrency)
     },
     [onCurrencySelection],
@@ -654,8 +649,8 @@ export default function Swap({ history }: RouteComponentProps) {
   }, [defaultTokens, refIsCheckNetworkAutoSelect.current])
 
   useEffect(() => {
-    if (isSelectCurencyMannual) syncUrl(currencyIn, currencyOut) // when we select token manual
-  }, [currencyIn, currencyOut, isSelectCurencyMannual, syncUrl])
+    if (isSelectCurrencyManually) syncUrl(currencyIn, currencyOut) // when we select token manual
+  }, [currencyIn, currencyOut, isSelectCurrencyManually, syncUrl])
 
   // swap?inputCurrency=xxx&outputCurrency=yyy. xxx yyy not exist in chain => remove params => select default pair
 
@@ -749,7 +744,9 @@ export default function Swap({ history }: RouteComponentProps) {
               <TabContainer>
                 <TabWrapper>
                   <Tab onClick={() => setActiveTab(TAB.SWAP)} isActive={activeTab === TAB.SWAP}>
-                    <Text fontSize={20} fontWeight={500}>{t`Swap`}</Text>
+                    <Text fontSize={20} fontWeight={500}>
+                      <Trans>Swap</Trans>
+                    </Text>
                   </Tab>
                 </TabWrapper>
               </TabContainer>
@@ -781,7 +778,7 @@ export default function Swap({ history }: RouteComponentProps) {
                   aria-label="Swap Settings"
                 >
                   <MouseoverTooltip
-                    text={!isExpertMode ? t`Settings` : t`Advanced mode is on!`}
+                    text={!isExpertMode ? <Trans>Settings</Trans> : <Trans>Advanced mode is on!</Trans>}
                     placement="top"
                     width="fit-content"
                   >
@@ -909,7 +906,7 @@ export default function Swap({ history }: RouteComponentProps) {
                         />
                       </Box>
 
-                      {isExpertMode && !showWrap && (
+                      {isExpertMode && isEVM && !showWrap && (
                         <AddressInputPanel id="recipient" value={recipient} onChange={handleRecipientChange} />
                       )}
 
@@ -974,7 +971,11 @@ export default function Swap({ history }: RouteComponentProps) {
                       ) : showWrap ? (
                         <ButtonPrimary disabled={Boolean(wrapInputError)} onClick={onWrap}>
                           {wrapInputError ??
-                            (wrapType === WrapType.WRAP ? t`Wrap` : wrapType === WrapType.UNWRAP ? t`Unwrap` : null)}
+                            (wrapType === WrapType.WRAP ? (
+                              <Trans>Wrap</Trans>
+                            ) : wrapType === WrapType.UNWRAP ? (
+                              <Trans>Unwrap</Trans>
+                            ) : null)}
                         </ButtonPrimary>
                       ) : noRoute && userHasSpecifiedInputOutput ? (
                         <GreyCard style={{ textAlign: 'center', borderRadius: '999px', padding: '12px' }}>
@@ -983,56 +984,61 @@ export default function Swap({ history }: RouteComponentProps) {
                           </TYPE.main>
                         </GreyCard>
                       ) : showApproveFlow ? (
-                        <RowBetween>
-                          <ButtonConfirmed
-                            onClick={approveCallback}
-                            disabled={approval !== ApprovalState.NOT_APPROVED || approvalSubmitted}
-                            width="48%"
-                            altDisabledStyle={approval === ApprovalState.PENDING} // show solid button while waiting
-                            confirmed={approval === ApprovalState.APPROVED}
-                          >
-                            {approval === ApprovalState.PENDING ? (
-                              <AutoRow gap="6px" justify="center">
-                                <Trans>Approving</Trans> <Loader stroke="white" />
-                              </AutoRow>
-                            ) : approvalSubmitted && approval === ApprovalState.APPROVED ? (
-                              t`Approved`
-                            ) : (
-                              t`Approve ${currencyIn?.symbol}`
-                            )}
-                          </ButtonConfirmed>
-                          <ButtonError
-                            onClick={() => {
-                              mixpanelSwapInit()
-                              if (isExpertMode) {
-                                handleSwap()
-                              } else {
-                                setSwapState({
-                                  tradeToConfirm: trade,
-                                  attemptingTxn: false,
-                                  swapErrorMessage: undefined,
-                                  showConfirm: true,
-                                  txHash: undefined,
-                                })
+                        <>
+                          <RowBetween>
+                            <ButtonConfirmed
+                              onClick={approveCallback}
+                              disabled={approval !== ApprovalState.NOT_APPROVED || approvalSubmitted}
+                              width="48%"
+                              altDisabledStyle={approval === ApprovalState.PENDING} // show solid button while waiting
+                              confirmed={approval === ApprovalState.APPROVED}
+                            >
+                              {approval === ApprovalState.PENDING ? (
+                                <AutoRow gap="6px" justify="center">
+                                  <Trans>Approving</Trans> <Loader stroke="white" />
+                                </AutoRow>
+                              ) : approvalSubmitted && approval === ApprovalState.APPROVED ? (
+                                <Trans>Approved</Trans>
+                              ) : (
+                                <Trans>Approve ${currencyIn?.symbol}</Trans>
+                              )}
+                            </ButtonConfirmed>
+                            <ButtonError
+                              onClick={() => {
+                                mixpanelSwapInit()
+                                if (isExpertMode) {
+                                  handleSwap()
+                                } else {
+                                  onSetSwapState({
+                                    tradeToConfirm: trade,
+                                    attemptingTxn: false,
+                                    swapErrorMessage: undefined,
+                                    showConfirm: true,
+                                    txHash: undefined,
+                                  })
+                                }
+                              }}
+                              width="48%"
+                              id="swap-button"
+                              disabled={!isValidInput || approval !== ApprovalState.APPROVED}
+                              backgroundColor={
+                                isPriceImpactHigh || isPriceImpactInvalid
+                                  ? isPriceImpactVeryHigh
+                                    ? theme.red
+                                    : theme.warning
+                                  : undefined
                               }
-                            }}
-                            width="48%"
-                            id="swap-button"
-                            disabled={!isValidInput || approval !== ApprovalState.APPROVED}
-                            backgroundColor={
-                              isPriceImpactHigh || isPriceImpactInvalid
-                                ? isPriceImpactVeryHigh
-                                  ? theme.red
-                                  : theme.warning
-                                : undefined
-                            }
-                            color={isPriceImpactHigh || isPriceImpactInvalid ? theme.white : undefined}
-                          >
-                            <Text fontSize={16} fontWeight={500}>
-                              {isPriceImpactHigh ? t`Swap Anyway` : t`Swap`}
-                            </Text>
-                          </ButtonError>
-                        </RowBetween>
+                              color={isPriceImpactHigh || isPriceImpactInvalid ? theme.white : undefined}
+                            >
+                              <Text fontSize={16} fontWeight={500}>
+                                {isPriceImpactHigh ? <Trans>Swap Anyway</Trans> : <Trans>Swap</Trans>}
+                              </Text>
+                            </ButtonError>
+                          </RowBetween>
+                          <Column style={{ marginTop: '1rem' }}>
+                            <ProgressSteps steps={[approval === ApprovalState.APPROVED]} />
+                          </Column>
+                        </>
                       ) : isLoading ? (
                         <GreyCard style={{ textAlign: 'center', borderRadius: '999px', padding: '12px' }}>
                           <Text color={theme.subText} fontSize="14px">
@@ -1048,7 +1054,7 @@ export default function Swap({ history }: RouteComponentProps) {
                             if (isExpertMode) {
                               handleSwap()
                             } else {
-                              setSwapState({
+                              onSetSwapState({
                                 tradeToConfirm: trade,
                                 attemptingTxn: false,
                                 swapErrorMessage: undefined,
@@ -1078,21 +1084,19 @@ export default function Swap({ history }: RouteComponentProps) {
                           }}
                         >
                           <Text fontWeight={500}>
-                            {swapInputError
-                              ? swapInputError
-                              : approval !== ApprovalState.APPROVED
-                              ? t`Checking allowance...`
-                              : isPriceImpactHigh || isPriceImpactInvalid
-                              ? t`Swap Anyway`
-                              : t`Swap`}
+                            {swapInputError ? (
+                              swapInputError
+                            ) : approval !== ApprovalState.APPROVED ? (
+                              <Trans>Checking allowance...</Trans>
+                            ) : isPriceImpactHigh || isPriceImpactInvalid ? (
+                              <Trans>Swap Anyway</Trans>
+                            ) : (
+                              <Trans>Swap</Trans>
+                            )}
                           </Text>
                         </ButtonError>
                       )}
-                      {showApproveFlow && (
-                        <Column style={{ marginTop: '1rem' }}>
-                          <ProgressSteps steps={[approval === ApprovalState.APPROVED]} />
-                        </Column>
-                      )}
+
                       {isExpertMode && swapErrorMessage ? <SwapCallbackError error={swapErrorMessage} /> : null}
                     </BottomGrouping>
                   </Wrapper>
@@ -1121,7 +1125,14 @@ export default function Swap({ history }: RouteComponentProps) {
               {isShowLiveChart && (
                 <LiveChartWrapper>
                   <Suspense
-                    fallback={<Skeleton height="100%" baseColor={theme.background} highlightColor={theme.buttonGray} />}
+                    fallback={
+                      <Skeleton
+                        height="100%"
+                        baseColor={theme.background}
+                        highlightColor={theme.buttonGray}
+                        borderRadius="1rem"
+                      />
+                    }
                   >
                     <LiveChart onRotateClick={handleRotateClick} currencies={currencies} />
                   </Suspense>
@@ -1138,7 +1149,12 @@ export default function Swap({ history }: RouteComponentProps) {
                     </Flex>
                     <Suspense
                       fallback={
-                        <Skeleton height="100px" baseColor={theme.background} highlightColor={theme.buttonGray} />
+                        <Skeleton
+                          height="100px"
+                          baseColor={theme.background}
+                          highlightColor={theme.buttonGray}
+                          borderRadius="1rem"
+                        />
                       }
                     >
                       <Routing trade={trade} currencies={currencies} formattedAmounts={formattedAmounts} />

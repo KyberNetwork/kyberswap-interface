@@ -58,7 +58,11 @@ const useFairLaunch = (address: string) => {
       const tx = await fairLaunchContract.deposit(pid, amount, shouldHaverst, {
         gasLimit: calculateGasMargin(estimateGas),
       })
-      addTransactionWithType(tx, { type: 'Stake', summary: `${getFullDisplayBalance(amount)} ${name} Tokens` })
+      addTransactionWithType({
+        hash: tx.hash,
+        type: 'Stake',
+        summary: `${getFullDisplayBalance(amount)} ${name} Tokens`,
+      })
 
       return tx.hash
     },
@@ -76,7 +80,11 @@ const useFairLaunch = (address: string) => {
       const tx = await fairLaunchContract.withdraw(pid, amount, {
         gasLimit: calculateGasMargin(estimateGas),
       })
-      addTransactionWithType(tx, { type: 'Unstake', summary: `${getFullDisplayBalance(amount)} ${name} Tokens` })
+      addTransactionWithType({
+        hash: tx.hash,
+        type: 'Unstake',
+        summary: `${getFullDisplayBalance(amount)} ${name} Tokens`,
+      })
 
       return tx.hash
     },
@@ -93,7 +101,7 @@ const useFairLaunch = (address: string) => {
       const tx = await fairLaunchContract.harvest(pid, {
         gasLimit: calculateGasMargin(estimateGas),
       })
-      addTransactionWithType(tx, { type: 'Harvest' })
+      addTransactionWithType({ hash: tx.hash, type: 'Harvest' })
 
       return tx.hash
     },
@@ -110,7 +118,7 @@ const useFairLaunch = (address: string) => {
       const tx = await fairLaunchContract.harvestMultiplePools(pids, {
         gasLimit: calculateGasMargin(estimateGas),
       })
-      addTransactionWithType(tx, { type: 'Harvest' })
+      addTransactionWithType({ hash: tx.hash, type: 'Harvest' })
 
       return tx.hash
     },

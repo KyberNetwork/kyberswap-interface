@@ -1,7 +1,7 @@
 import { ChainId } from '@namgold/ks-sdk-core'
 
 import VELAS from 'assets/networks/velas-network.png'
-import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
+import { KS_SETTING_API, META_AGGREGATOR_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
 
@@ -37,7 +37,7 @@ const velasInfo: EVMNetworkInfo = {
     decimal: 18,
   },
   rpcUrl: 'https://evmexplorer.velas.com/rpc',
-  routerUri: `${AGGREGATOR_API}/velas/route/encode`,
+  routerUri: `${META_AGGREGATOR_API}/velas/route/encode`,
   multicall: '0x1877Ec0770901cc6886FDA7E7525a78c2Ed4e975',
   classic: {
     static: {
