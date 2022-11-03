@@ -139,7 +139,7 @@ export async function sendSolanaTransactionWithBEEncode(
         accountPK,
         new Token(ChainId.SOLANA, tokenAddress, token?.decimals || 0),
       )
-      prepareSetupTx.add(createAtaIxs)
+      if (createAtaIxs) prepareSetupTx.add(createAtaIxs)
     }),
   )
 
