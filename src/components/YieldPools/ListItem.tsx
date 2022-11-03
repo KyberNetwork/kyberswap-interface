@@ -24,7 +24,7 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { Dots } from 'components/swap/styleds'
 import {
   DMM_ANALYTICS_URL,
-  MAX_ALLOW_APY, // FARMING_POOLS_CHAIN_STAKING_LINK,
+  MAX_ALLOW_APY,
   OUTSIDE_FAIRLAUNCH_ADDRESSES,
   TOBE_EXTENDED_FARMING_POOLS,
 } from 'constants/index'
