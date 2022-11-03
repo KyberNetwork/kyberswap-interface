@@ -344,11 +344,10 @@ export default function Swap({ history }: RouteComponentProps) {
       : parsedAmounts[dependentField]?.toSignificant(6) ?? '',
   }
 
-  const a = formattedAmounts[Field.INPUT]
-  const inputValue = useMemo(() => {
-    if (isSolana && wrapType === WrapType.UNWRAP) return currencyBalances[Field.INPUT]?.toExact() ?? ''
-    return a
-  }, [a, currencyBalances, isSolana, wrapType])
+  const inputValue =
+    isSolana && wrapType === WrapType.UNWRAP
+      ? currencyBalances[Field.INPUT]?.toExact() ?? ''
+      : formattedAmounts[Field.INPUT]
 
   const userHasSpecifiedInputOutput = Boolean(
     currencyIn && currencyOut && parsedAmounts[independentField]?.greaterThan(JSBI.BigInt(0)),
