@@ -75,8 +75,7 @@ export default function ExpandableBox({
       </Header>
       <Divider style={{ margin: '0px 16px', opacity: expanded ? '1' : '0' }} />
       <Content ref={contentRef as any} $expanded={expanded} $height={contentHeight} style={{ padding: padding }}>
-        {expandContent ||
-          'content dawd awda dawd a wd <br/> asdad waa wda dwa<br/> asda wdawdawd <br/> wadf awdaw d content dawd awda dawd a wd <br/> asdad waa wda dwa<br/> asda wdawdawd <br/> wadf awdaw dcontent dawd awda dawd a wd <br/> asdad waa wda dwa<br/> asda wdawdawd <br/> wadf awdaw dcontent dawd awda dawd a wd <br/> asdad waa wda dwa<br/> asda wdawdawd <br/> wadf awdaw dcontent dawd awda dawd a wd <br/> asdad waa wda dwa<br/> asda wdawdawd <br/> wadf awdaw d'}
+        {expandContent || 'Template content'}
       </Content>
     </Wrapper>
   )
