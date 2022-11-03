@@ -4,7 +4,7 @@ import JSBI from 'jsbi'
 import { v4 as uuid } from 'uuid'
 
 import { CAMPAIGN_BASE_URL as CAMPAIGN_BASE_DOMAIN } from './env'
-import { EVM_NETWORK, NETWORKS_INFO, SUPPORTED_NETWORKS } from './networks'
+import { EVM_NETWORK, NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM } from './networks'
 
 export const EMPTY_OBJECT: any = {}
 export const EMPTY_ARRAY: any[] = []
@@ -18,22 +18,32 @@ export const BAD_RECIPIENT_ADDRESSES: string[] = [
 
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
-export const DMM_ANALYTICS = 'https://analytics.kyberswap.com/classic'
+const DMM_ANALYTICS = 'https://analytics.kyberswap.com/classic'
 
 export const DMM_ANALYTICS_URL: { [chainId in ChainId]: string } = SUPPORTED_NETWORKS.reduce((acc, cur) => {
+  if (isEVM(cur))
+    return {
+      ...acc,
+      [cur]: `${DMM_ANALYTICS}/${NETWORKS_INFO[cur].route}`,
+    }
   return {
     ...acc,
-    [cur]: `${DMM_ANALYTICS}/${NETWORKS_INFO[cur].route}`,
+    [cur]: `${DMM_ANALYTICS}`,
   }
 }, {}) as { [chainId in ChainId]: string }
 
-export const PROMM_ANALYTICS = 'https://analytics.kyberswap.com/elastic'
+const PROMM_ANALYTICS = 'https://analytics.kyberswap.com/elastic'
 export const AGGREGATOR_ANALYTICS_URL = 'https://secure.holistics.io/dashboards/v3/55952?_pl=672a0e4ff266f14541b8f54b'
 
 export const PROMM_ANALYTICS_URL: { [chainId in ChainId]: string } = SUPPORTED_NETWORKS.reduce((acc, cur) => {
+  if (isEVM(cur))
+    return {
+      ...acc,
+      [cur]: `${PROMM_ANALYTICS}/${NETWORKS_INFO[cur].route}`,
+    }
   return {
     ...acc,
-    [cur]: `${PROMM_ANALYTICS}/${NETWORKS_INFO[cur].route}`,
+    [cur]: `${PROMM_ANALYTICS}`,
   }
 }, {}) as { [chainId in ChainId]: string }
 
@@ -194,11 +204,6 @@ export const OUTSITE_FARM_REWARDS_QUERY: {
   }
   }`,
   },
-}
-
-export const FARMING_POOLS_CHAIN_STAKING_LINK: { [key: string]: string } = {
-  '0x9a56f30ff04884cb06da80cb3aef09c6132f5e77':
-    'https://sipher.xyz/stake/deposit/kyber-slp-sipher-eth?utm_source=kyberswap',
 }
 
 export const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3'
