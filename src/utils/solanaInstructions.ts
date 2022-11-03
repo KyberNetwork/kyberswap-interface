@@ -123,7 +123,7 @@ export const createAtaInstruction = async (
 ): Promise<TransactionInstruction | null> => {
   const mint = new PublicKey(currencyIn.wrapped.address)
   try {
-    const ata = getAssociatedTokenAccount(connection, mint, account, true)
+    const ata = await getAssociatedTokenAccount(connection, mint, account, true)
     if (!ata) throw Error()
   } catch (e) {
     const associatedTokenAccount = await getAssociatedTokenAddress(mint, account)
