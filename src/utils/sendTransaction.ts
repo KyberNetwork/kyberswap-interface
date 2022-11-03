@@ -179,76 +179,54 @@ export async function sendSolanaTransactionWithBEEncode(
     result.signedCleanUpTx = txs[count++]
     return result
   }
-  try {
-    console.group('Sending transactions:')
-    console.info('setup tx:', setupTx ? setupTx.serializeMessage().toString('base64') : null)
-    console.info('swap tx:', swapTx ? swapTx.serializeMessage().toString('base64') : null)
-    console.info('clean up tx:', cleanUpTx ? cleanUpTx.serializeMessage().toString('base64') : null)
-    console.groupEnd()
-    const signedTxs: Transaction[] = await (solanaWallet as SignerWalletAdapter).signAllTransactions(txs)
-    const { signedSetupTx, signedSwapTx, signedCleanUpTx } = populateTx(signedTxs)
-    const txHashs: string[] = []
-    if (signedSetupTx) {
-      try {
-        const setupHash = await sendAndConfirmRawTransaction(connection, signedSetupTx.serialize())
-        txHashs.push(setupHash)
-        handleCustomTypeResponse('SetUp', setupHash, txHashs[0])
-      } catch (e) {
-        console.error(e)
-        throw new Error('Swap error', { cause: e })
-      }
-    }
 
+  console.group('Sending transactions:')
+  console.info('setup tx:', setupTx ? setupTx.serializeMessage().toString('base64') : null)
+  console.info('swap tx:', swapTx ? swapTx.serializeMessage().toString('base64') : null)
+  console.info('clean up tx:', cleanUpTx ? cleanUpTx.serializeMessage().toString('base64') : null)
+  console.groupEnd()
+  let signedTxs: Transaction[]
+  try {
+    signedTxs = await (solanaWallet as SignerWalletAdapter).signAllTransactions(txs)
+  } catch (e) {
+    throw new Error('Transaction rejected.')
+  }
+  const { signedSetupTx, signedSwapTx, signedCleanUpTx } = populateTx(signedTxs)
+  const txHashs: string[] = []
+  if (signedSetupTx) {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const swapHash = await sendAndConfirmRawTransaction(connection, signedSwapTx!.serialize())
-      txHashs.push(swapHash)
-      handler(swapHash, txHashs[0])
+      const setupHash = await sendAndConfirmRawTransaction(connection, signedSetupTx.serialize())
+      txHashs.push(setupHash)
+      handleCustomTypeResponse('SetUp', setupHash, txHashs[0])
     } catch (e) {
       console.error(e)
-      throw new Error('Swap error', { cause: e })
+      throw new Error('Set up error', { cause: e })
     }
-
-    if (signedCleanUpTx) {
-      try {
-        const cleanUpHash = await sendAndConfirmRawTransaction(connection, signedCleanUpTx.serialize())
-        txHashs.push(cleanUpHash)
-        handleCustomTypeResponse('CleanUp', cleanUpHash, txHashs[0])
-      } catch (e) {
-        console.error(e)
-        throw new Error('Swap error', { cause: e })
-      }
-    }
-
-    return txHashs
-  } catch (e) {
-    console.error(e)
-    throw new Error('Swap error', { cause: e })
   }
-}
-// export async function sendSolanaTransactionWithFEEncode(
-//   account: string,
-//   program: Program<SolanaAggregatorPrograms>,
-//   programAccount: string,
-//   provider: AnchorProvider,
-//   trade: Aggregator,
-//   value: BigNumber,
-//   handler?: (response: TransactionResponse) => void,
-// ): Promise<string | undefined> {
-//   if (!account) return
 
-//   let tx: Transaction | undefined
-//   try {
-//     tx = await createSolanaSwapTransaction(new PublicKey(account), program, programAccount, trade, value)
-//   } catch (e) {
-//     console.error(e)
-//     throw new Error('Create transaction failed', { cause: e })
-//   }
-//   try {
-//     const response = await sendAndConfirmTransaction(provider, tx)
-//     return response
-//   } catch (e) {
-//     console.error(e)
-//     throw new Error('Swap error', { cause: e })
-//   }
-// }
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const swapHash = await sendAndConfirmRawTransaction(connection, signedSwapTx!.serialize())
+    txHashs.push(swapHash)
+    handler(swapHash, txHashs[0])
+  } catch (error) {
+    console.error({ error })
+    if (error?.message?.endsWith('0x1771')) {
+      throw new Error('An error occurred. Try refreshing the price rate or increase max slippage', { cause: error })
+    }
+    throw new Error('Swap error' + (error.message ? ': ' + error.message : ''), { cause: error })
+  }
+
+  if (signedCleanUpTx) {
+    try {
+      const cleanUpHash = await sendAndConfirmRawTransaction(connection, signedCleanUpTx.serialize())
+      txHashs.push(cleanUpHash)
+      handleCustomTypeResponse('CleanUp', cleanUpHash, txHashs[0])
+    } catch (e) {
+      console.error(e)
+      throw new Error('Clean up error', { cause: e })
+    }
+  }
+
+  return txHashs
+}
