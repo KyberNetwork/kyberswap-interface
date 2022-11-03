@@ -10,6 +10,7 @@ import { NativeCurrencies } from 'constants/tokens'
 import { useTokenAllowance } from 'data/Allowances'
 import { Field } from 'state/swap/actions'
 import { useHasPendingApproval, useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { calculateGasMargin } from 'utils'
 import { Aggregator } from 'utils/aggregator'
 import { computeSlippageAdjustedAmounts } from 'utils/prices'
@@ -110,7 +111,7 @@ export function useApproveCallback(
       .then((response: TransactionResponse) => {
         addTransactionWithType({
           hash: response.hash,
-          type: 'Approve',
+          type: TRANSACTION_TYPE.APPROVE,
           summary: amountToApprove?.currency?.isNative
             ? NativeCurrencies[chainId].symbol
             : amountToApprove?.currency?.symbol,

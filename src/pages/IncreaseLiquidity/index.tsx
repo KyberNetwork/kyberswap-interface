@@ -40,6 +40,7 @@ import { Field } from 'state/mint/proamm/actions'
 import { useProAmmDerivedMintInfo, useProAmmMintActionHandlers, useProAmmMintState } from 'state/mint/proamm/hooks'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useExpertModeManager, useUserSlippageTolerance } from 'state/user/hooks'
 import { calculateGasMargin, formattedNum, isAddressString, shortenAddress } from 'utils'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
@@ -225,7 +226,7 @@ export default function AddLiquidity({
               setAttemptingTxn(false)
               addTransactionWithType({
                 hash: response.hash,
-                type: 'Increase liquidity',
+                type: TRANSACTION_TYPE.INCREASE_LIQUIDITY,
                 summary:
                   (parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) || 0) +
                   ' ' +
@@ -263,7 +264,7 @@ export default function AddLiquidity({
           //     console.log(response)
           //     setAttemptingTxn(false)
           //     addTransactionWithType({hash: response.hash,
-          //       type: 'Add liquidity',
+          //       type: TRANSACTION_TYPE.ADD_LIQUIDITY,
           //       summary:
           //         (parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) || 0) +
           //         ' ' +

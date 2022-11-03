@@ -15,7 +15,7 @@ import { findTx } from 'utils'
 import { getFullDisplayBalance } from 'utils/formatBalance'
 
 import { checkedTransaction, finalizeTransaction } from './actions'
-import { SerializableTransactionReceipt } from './type'
+import { SerializableTransactionReceipt, TRANSACTION_TYPE } from './type'
 
 function shouldCheck(
   lastBlockNumber: number,
@@ -52,7 +52,7 @@ export default function Updater(): null {
   // show popup on confirm
 
   const parseTransactionType = useCallback(
-    (hash: string): string | undefined => {
+    (hash: string): TRANSACTION_TYPE | undefined => {
       return findTx(transactions, hash)?.type
     },
     [transactions],

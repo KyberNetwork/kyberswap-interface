@@ -11,6 +11,7 @@ import { useTradeExactIn } from 'hooks/Trades'
 import useENS from 'hooks/useENS'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { calculateGasMargin, isAddress, shortenAddress } from 'utils'
 import { formatCurrencyAmount } from 'utils/formatBalance'
 import { getDynamicFeeRouterContract } from 'utils/getContract'
@@ -229,7 +230,7 @@ export function useSwapCallback(
                       : recipientAddressOrName
                   }`
 
-            addTransactionWithType({ hash: response.hash, type: 'Swap', summary: withRecipient })
+            addTransactionWithType({ hash: response.hash, type: TRANSACTION_TYPE.SWAP, summary: withRecipient })
 
             return response.hash
           })

@@ -29,6 +29,7 @@ import {
 } from 'state/campaigns/actions'
 import { useSetClaimingCampaignRewardId, useSwapNowHandler } from 'state/campaigns/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { findTx } from 'utils'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 
@@ -166,7 +167,7 @@ export default function CampaignButtonWithOptions({
               .join(' ' + t`and` + ' ')
             addTransactionWithType({
               hash: transactionResponse.hash,
-              type: 'Claim',
+              type: TRANSACTION_TYPE.CLAIM,
               desiredChainId: claimChainId,
               summary: `${rewardString} from campaign "${campaign?.name}"`,
             })

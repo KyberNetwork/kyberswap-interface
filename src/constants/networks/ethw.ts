@@ -36,6 +36,7 @@ const ethereumInfo: EVMNetworkInfo = {
     name: 'Ether POW',
     logo: Mainnet,
     decimal: 18,
+    minForGas: 10 ** 16,
   },
   rpcUrl: 'https://ethereumpow.kyberengineering.io',
   routerUri: `${META_AGGREGATOR_API}/ethw/route/encode`,

@@ -12,6 +12,7 @@ import { useBridgeOutputValue, useBridgeState } from 'state/bridge/hooks'
 import { useAppSelector } from 'state/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useCurrencyBalance, useETHBalance } from 'state/wallet/hooks'
 import { isAddress } from 'utils'
 
@@ -161,7 +162,7 @@ function useRouterSwap(
             const to_token = currencyOut?.symbol ?? ''
             addTransactionWithType({
               hash: txReceipt,
-              type: 'Bridge',
+              type: TRANSACTION_TYPE.BRIDGE,
               summary: `${inputAmountStr} ${from_token} (${from_network}) to ${outputAmountStr} ${to_token} (${to_network})`,
               arbitrary: {
                 from_token,
@@ -277,7 +278,7 @@ function useBridgeSwap(
             const to_token = currencyOut?.symbol ?? ''
             addTransactionWithType({
               hash: txReceipt,
-              type: 'Bridge',
+              type: TRANSACTION_TYPE.BRIDGE,
               summary: `${inputAmountStr} ${from_token} (${from_network}) to ${outputAmountStr} ${to_token} (${to_network})`,
               arbitrary: {
                 from_token,

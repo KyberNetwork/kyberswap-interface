@@ -41,6 +41,7 @@ import { Field } from 'state/mint/actions'
 import { useDerivedZapInInfo, useMintState, useZapInActionHandlers } from 'state/mint/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useExpertModeManager, useUserSlippageTolerance } from 'state/user/hooks'
 import { StyledInternalLink, TYPE, UppercaseText } from 'theme'
 import { calculateGasMargin, formattedNum } from 'utils'
@@ -250,7 +251,7 @@ const ZapIn = ({
             setAttemptingTxn(false)
             addTransactionWithType({
               hash: tx.hash,
-              type: 'Add liquidity',
+              type: TRANSACTION_TYPE.ADD_LIQUIDITY,
               summary: userInCurrencyAmount?.toSignificant(6) + ' ' + independentToken?.symbol,
               arbitrary: {
                 poolAddress: pairAddress,

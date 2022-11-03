@@ -39,6 +39,7 @@ import { Field } from 'state/burn/proamm/actions'
 import { useBurnProAmmActionHandlers, useBurnProAmmState, useDerivedProAmmBurnInfo } from 'state/burn/proamm/hooks'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { basisPointsToPercent, calculateGasMargin, formattedNum, shortenAddress } from 'utils'
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
@@ -257,7 +258,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
 
             addTransactionWithType({
               hash: response.hash,
-              type: 'Elastic Remove liquidity',
+              type: TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY,
               summary:
                 liquidityValue0?.toSignificant(6) +
                 ' ' +
@@ -289,7 +290,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
         //     setAttemptingTxn(false)
 
         //     addTransactionWithType({hash: response.hash,
-        //       type: 'Remove liquidity',
+        //       type: TRANSACTION_TYPE.REMOVE_LIQUIDITY,
         //       summary:
         //         liquidityValue0?.toSignificant(6) +
         //         ' ' +

@@ -20,13 +20,14 @@ import useENSName from 'hooks/useENSName'
 import useTheme from 'hooks/useTheme'
 import { AppDispatch } from 'state'
 import { clearAllTransactions } from 'state/transactions/actions'
-import { isTransactionRecent, newTransactionsFirst, useAllTransactions } from 'state/transactions/hooks'
+import { isTransactionGroupRecent, newTransactionsGroupFirst, useAllTransactions } from 'state/transactions/hooks'
 import { TransactionDetails } from 'state/transactions/type'
 import { useIsDarkMode, useIsUserManuallyDisconnect } from 'state/user/hooks'
 import { ExternalLink, LinkStyledButton, TYPE } from 'theme'
 import { getEtherscanLink, shortenAddress } from 'utils'
 
 import Transaction from './Transaction'
+import TransactionGroup from './TransactionGroup'
 
 const HeaderRow = styled.div`
   display: flex;
@@ -158,11 +159,12 @@ const TransactionListWrapper = styled.div`
   ${({ theme }) => theme.flexColumnNoWrap};
 `
 
-function renderTransactions(transactions: string[]) {
+function renderTransactions(transactions: TransactionDetails[][]) {
   return (
     <TransactionListWrapper>
-      {transactions.map((hash, i) => {
-        return <Transaction key={i} hash={hash} />
+      {transactions.map((groupTransactions, i) => {
+        if (groupTransactions.length === 1) return <Transaction key={i} transaction={groupTransactions[0]} />
+        return <TransactionGroup key={i} transactions={groupTransactions} />
       })}
     </TransactionListWrapper>
   )
@@ -184,15 +186,19 @@ export default function AccountDetails({ toggleWalletModal, openOptions }: Accou
 
   const allTransactions = useAllTransactions()
 
-  const sortedRecentTransactions = useMemo(() => {
-    const txs: TransactionDetails[] = allTransactions
-      ? (Object.values(allTransactions)?.flat().filter(Boolean) as TransactionDetails[])
+  const sortedRecentTransactions: TransactionDetails[][] = useMemo(() => {
+    const txs: TransactionDetails[][] = allTransactions
+      ? (Object.values(allTransactions)?.filter(Boolean) as TransactionDetails[][])
       : []
-    return txs.filter(isTransactionRecent).sort(newTransactionsFirst)
+    return txs.filter(isTransactionGroupRecent).sort(newTransactionsGroupFirst)
   }, [allTransactions])
 
-  const pendingTransactions = sortedRecentTransactions.filter(tx => !tx.receipt).map(tx => tx.hash)
-  const confirmedTransactions = sortedRecentTransactions.filter(tx => tx.receipt).map(tx => tx.hash)
+  const pendingTransactions: TransactionDetails[][] = sortedRecentTransactions.filter(txs =>
+    txs.some(txs => !txs.receipt),
+  )
+  const confirmedTransactions: TransactionDetails[][] = sortedRecentTransactions.filter(txs =>
+    txs.every(txs => txs.receipt),
+  )
 
   function formatConnectorName(): JSX.Element {
     if (!walletKey) {

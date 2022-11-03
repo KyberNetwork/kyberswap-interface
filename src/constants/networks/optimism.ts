@@ -32,6 +32,7 @@ const optimismInfo: EVMNetworkInfo = {
     name: 'ETH',
     logo: EthereumLogo,
     decimal: 18,
+    minForGas: 10 ** 16,
   },
   rpcUrl: 'https://opt-mainnet.g.alchemy.com/v2/N7gZFcuMkhLTTpdsRLEcDXYIJssj6GsI',
   routerUri: `${META_AGGREGATOR_API}/optimism/route/encode`,

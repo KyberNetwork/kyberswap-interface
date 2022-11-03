@@ -31,6 +31,7 @@ const avaxTestnetInfo: EVMNetworkInfo = {
     name: 'AVAX',
     logo: AVAX,
     decimal: 18,
+    minForGas: 10 ** 16,
   },
   rpcUrl: 'https://api.avax-test.network/ext/bc/C/rpc',
   routerUri: EMPTY,

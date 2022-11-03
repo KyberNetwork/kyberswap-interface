@@ -32,6 +32,7 @@ const bnbTestnetInfo: EVMNetworkInfo = {
     name: 'BNB',
     logo: BnbLogo,
     decimal: 18,
+    minForGas: 10 ** 16,
   },
   rpcUrl: 'https://data-seed-prebsc-1-s1.binance.org:8545',
   routerUri: EMPTY,

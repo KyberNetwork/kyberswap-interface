@@ -30,6 +30,7 @@ const fantomInfo: EVMNetworkInfo = {
     name: 'FTM',
     logo: FTM,
     decimal: 18,
+    minForGas: 10 ** 16,
   },
   rpcUrl: 'https://fantom.kyberengineering.io',
   routerUri: `${META_AGGREGATOR_API}/fantom/route/encode`,

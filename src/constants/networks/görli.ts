@@ -36,6 +36,7 @@ const görliInfo: EVMNetworkInfo = {
     name: 'GörliETH',
     logo: EthereumLogo,
     decimal: 18,
+    minForGas: 10 ** 16,
   },
   rpcUrl: 'https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
   routerUri: EMPTY,

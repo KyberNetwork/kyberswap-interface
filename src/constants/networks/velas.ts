@@ -35,6 +35,7 @@ const velasInfo: EVMNetworkInfo = {
     name: 'VLX',
     logo: VELAS,
     decimal: 18,
+    minForGas: 10 ** 16,
   },
   rpcUrl: 'https://evmexplorer.velas.com/rpc',
   routerUri: `${META_AGGREGATOR_API}/velas/route/encode`,

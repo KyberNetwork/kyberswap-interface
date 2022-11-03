@@ -36,6 +36,7 @@ const cronosInfo: EVMNetworkInfo = {
     name: 'CRO',
     logo: CronosLogo,
     decimal: 18,
+    minForGas: 10 ** 16,
   },
   rpcUrl: 'https://evm-cronos.crypto.org',
   routerUri: `${META_AGGREGATOR_API}/cronos/route/encode`,

@@ -34,6 +34,7 @@ const arbitrumInfo: EVMNetworkInfo = {
     name: 'ETH',
     logo: EthereumLogo,
     decimal: 18,
+    minForGas: 10 ** 16,
   },
   rpcUrl: 'https://arbitrum.kyberengineering.io',
   routerUri: `${META_AGGREGATOR_API}/arbitrum/route/encode`,

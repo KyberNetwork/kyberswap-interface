@@ -7,6 +7,7 @@ import { NativeCurrencies } from 'constants/tokens'
 import connection from 'state/connection/connection'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { calculateGasMargin } from 'utils'
 import { checkAndCreateUnwrapSOLInstruction, createWrapSOLInstructions } from 'utils/solanaInstructions'
@@ -81,7 +82,7 @@ export default function useWrapCallback(
                   if (hash) {
                     addTransactionWithType({
                       hash,
-                      type: 'Wrap',
+                      type: TRANSACTION_TYPE.WRAP,
                       summary: `${inputAmount.toSignificant(6)} ${nativeTokenSymbol} to ${inputAmount.toSignificant(
                         6,
                       )} W${nativeTokenSymbol}`,
@@ -133,7 +134,7 @@ export default function useWrapCallback(
                   if (hash) {
                     addTransactionWithType({
                       hash,
-                      type: 'Unwrap',
+                      type: TRANSACTION_TYPE.UNWRAP,
                       summary: `${inputAmount.toSignificant(6)} W${nativeTokenSymbol} to ${inputAmount.toSignificant(
                         6,
                       )} ${nativeTokenSymbol}`,

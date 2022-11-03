@@ -43,6 +43,7 @@ import { Field } from 'state/mint/actions'
 import { useDerivedMintInfo, useMintActionHandlers, useMintState } from 'state/mint/hooks'
 import { useDerivedPairInfo } from 'state/pair/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useExpertModeManager, usePairAdderByTokens, useUserSlippageTolerance } from 'state/user/hooks'
 import { StyledInternalLink, TYPE } from 'theme'
 import { calculateGasMargin, calculateSlippageAmount, formattedNum } from 'utils'
@@ -262,7 +263,7 @@ export default function CreatePool({
               setAttemptingTxn(false)
               addTransactionWithType({
                 hash: response.hash,
-                type: 'Create pool',
+                type: TRANSACTION_TYPE.CREATE_POOL,
                 summary:
                   parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) +
                   ' ' +

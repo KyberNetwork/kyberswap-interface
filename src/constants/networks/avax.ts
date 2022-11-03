@@ -29,6 +29,7 @@ const avaxInfo: EVMNetworkInfo = {
     name: 'AVAX',
     logo: AVAX,
     decimal: 18,
+    minForGas: 10 ** 16,
   },
   rpcUrl: 'https://avalanche.kyberengineering.io',
   routerUri: `${META_AGGREGATOR_API}/avalanche/route/encode`,

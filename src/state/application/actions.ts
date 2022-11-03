@@ -1,12 +1,14 @@
 import { createAction } from '@reduxjs/toolkit'
 import { TokenList } from '@uniswap/token-lists'
 
+import { TRANSACTION_TYPE } from 'state/transactions/type'
+
 import { NotificationType } from './hooks'
 
 export type PopupContentTxn = {
   hash: string
   notiType: NotificationType
-  type?: string
+  type?: TRANSACTION_TYPE
   summary?: string
 }
 export type PopupContentListUpdate = {

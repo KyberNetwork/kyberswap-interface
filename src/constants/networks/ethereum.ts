@@ -32,6 +32,7 @@ const ethereumInfo: EVMNetworkInfo = {
     name: 'Ether',
     logo: EthereumLogo,
     decimal: 18,
+    minForGas: 10 ** 16,
   },
   rpcUrl: 'https://ethereum.kyberengineering.io',
   routerUri: `${META_AGGREGATOR_API}/ethereum/route/encode`,

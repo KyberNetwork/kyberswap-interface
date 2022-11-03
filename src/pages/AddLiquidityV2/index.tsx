@@ -50,6 +50,7 @@ import {
   useRangeHopCallbacks,
 } from 'state/mint/proamm/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useExpertModeManager, useUserSlippageTolerance } from 'state/user/hooks'
 import { StyledInternalLink, TYPE } from 'theme'
 import { basisPointsToPercent, calculateGasMargin, formattedNum } from 'utils'
@@ -295,7 +296,7 @@ export default function AddLiquidity({
               if (noLiquidity) {
                 addTransactionWithType({
                   hash: response.hash,
-                  type: 'Elastic Create pool',
+                  type: TRANSACTION_TYPE.ELASTIC_CREATE_POOL,
                   summary: `${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) ?? '0'} ${baseCurrency.symbol} and ${
                     parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) ?? '0'
                   } ${quoteCurrency.symbol} `,
@@ -307,7 +308,7 @@ export default function AddLiquidity({
               } else {
                 addTransactionWithType({
                   hash: response.hash,
-                  type: 'Elastic Add liquidity',
+                  type: TRANSACTION_TYPE.ELASTIC_ADD_LIQUIDITY,
                   summary: `${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) ?? '0'} ${baseCurrency.symbol} and ${
                     parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) ?? '0'
                   } ${quoteCurrency.symbol} `,

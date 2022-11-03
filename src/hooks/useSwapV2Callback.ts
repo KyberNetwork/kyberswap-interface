@@ -7,6 +7,7 @@ import { useActiveWeb3React, useWeb3React } from 'hooks/index'
 import useENS from 'hooks/useENS'
 import { useSwapState } from 'state/swap/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { isAddress, shortenAddress } from 'utils'
 import { Aggregator } from 'utils/aggregator'
@@ -75,7 +76,7 @@ export function useSwapV2Callback(
 
       addTransactionWithType({
         hash,
-        type: 'Swap',
+        type: TRANSACTION_TYPE.SWAP,
         summary: `${base} ${withRecipient ?? ''}`,
         arbitrary: {
           inputSymbol,
@@ -106,7 +107,7 @@ export function useSwapV2Callback(
   )
 
   const onHandleCustomTypeResponse = useCallback(
-    (type: string, hash: string, firstTxHash?: string) => {
+    (type: TRANSACTION_TYPE, hash: string, firstTxHash?: string) => {
       addTransactionWithType({
         hash,
         type,

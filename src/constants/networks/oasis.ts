@@ -35,6 +35,7 @@ const oasisInfo: EVMNetworkInfo = {
     name: 'ROSE',
     logo: OASIS,
     decimal: 18,
+    minForGas: 10 ** 16,
   },
   rpcUrl: 'https://oasis.kyberengineering.io',
   routerUri: `${META_AGGREGATOR_API}/oasis/route/encode`,

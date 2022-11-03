@@ -1,14 +1,14 @@
 import { ChainId } from '@namgold/ks-sdk-core'
 import { createAction } from '@reduxjs/toolkit'
 
-import { SerializableTransactionReceipt } from './type'
+import { SerializableTransactionReceipt, TRANSACTION_TYPE } from './type'
 
 export const addTransaction = createAction<{
   chainId: ChainId
   hash: string
   from: string
   approval?: { tokenAddress: string; spender: string }
-  type?: string
+  type?: TRANSACTION_TYPE
   summary?: string
   arbitrary?: any
   firstTxHash?: string

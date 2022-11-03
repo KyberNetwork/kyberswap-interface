@@ -7,6 +7,7 @@ import { PublicKey, Transaction, sendAndConfirmRawTransaction } from '@solana/we
 import { ethers } from 'ethers'
 
 import connection from 'state/connection/connection'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
 // import connection from 'state/connection/connection'
 import { calculateGasMargin } from 'utils'
 
@@ -110,7 +111,7 @@ export async function sendSolanaTransactionWithBEEncode(
   trade: Aggregator,
   solanaWallet: SignerWalletAdapter,
   handler: (hash: string, firstTxHash: string) => void,
-  handleCustomTypeResponse: (type: string, hash: string, firstTxHash: string) => void,
+  handleCustomTypeResponse: (type: TRANSACTION_TYPE, hash: string, firstTxHash: string) => void,
 ): Promise<string[] | undefined> {
   if (!trade.encodedSwapTx) return
   const accountPK = new PublicKey(account)
@@ -201,7 +202,7 @@ export async function sendSolanaTransactionWithBEEncode(
     try {
       const setupHash = await sendAndConfirmRawTransaction(connection, signedSetupTx.serialize())
       txHashs.push(setupHash)
-      handleCustomTypeResponse('SetUp', setupHash, txHashs[0])
+      handleCustomTypeResponse(TRANSACTION_TYPE.SETUP, setupHash, txHashs[0])
     } catch (e) {
       console.error(e)
       throw new Error('Set up error', { cause: e })
@@ -225,7 +226,7 @@ export async function sendSolanaTransactionWithBEEncode(
     try {
       const cleanUpHash = await sendAndConfirmRawTransaction(connection, signedCleanUpTx.serialize())
       txHashs.push(cleanUpHash)
-      handleCustomTypeResponse('CleanUp', cleanUpHash, txHashs[0])
+      handleCustomTypeResponse(TRANSACTION_TYPE.CLEANUP, cleanUpHash, txHashs[0])
     } catch (e) {
       console.error(e)
       throw new Error('Clean up error', { cause: e })

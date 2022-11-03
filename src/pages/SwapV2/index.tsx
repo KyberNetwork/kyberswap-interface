@@ -264,14 +264,19 @@ export default function Swap({ history }: RouteComponentProps) {
     () => allDexes?.find(dex => dex.id === tradeComparer?.comparedDex),
     [allDexes, tradeComparer],
   )
-  const currencyIn = currencies[Field.INPUT]
-  const currencyOut = currencies[Field.OUTPUT]
+  const currencyIn: Currency | undefined = currencies[Field.INPUT]
+  const currencyOut: Currency | undefined = currencies[Field.OUTPUT]
+  const balanceIn: CurrencyAmount<Currency> | undefined = currencyBalances[Field.INPUT]
+  const balanceOut: CurrencyAmount<Currency> | undefined = currencyBalances[Field.OUTPUT]
 
-  const {
-    wrapType,
-    execute: onWrap,
-    inputError: wrapInputError,
-  } = useWrapCallback(currencies[Field.INPUT], currencies[Field.OUTPUT], typedValue)
+  const { wrapType, execute: onWrap, inputError: wrapInputError } = useWrapCallback(currencyIn, currencyOut, typedValue)
+
+  useEffect(() => {
+    // reset value for unwrapping WSOL
+    // because on Solana, unwrap WSOL is closing WSOL account,
+    // which mean it will unwrap all WSOL at once and we can't unwrap partial amount of WSOL
+    if (isSolana && wrapType === WrapType.UNWRAP) onUserInput(Field.INPUT, balanceIn?.toExact() ?? '')
+  }, [balanceIn, isSolana, onUserInput, wrapType])
 
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
   const trade = showWrap ? undefined : v2Trade
@@ -311,11 +316,9 @@ export default function Swap({ history }: RouteComponentProps) {
 
   const handleTypeInput = useCallback(
     (value: string) => {
-      if (isSolana && wrapType === WrapType.UNWRAP) value = currencyBalances[Field.INPUT]?.toExact() ?? ''
-
       onUserInput(Field.INPUT, value)
     },
-    [currencyBalances, isSolana, onUserInput, wrapType],
+    [onUserInput],
   )
   const handleTypeOutput = useCallback((): void => {
     // ...
@@ -343,11 +346,6 @@ export default function Swap({ history }: RouteComponentProps) {
       ? parsedAmounts[independentField]?.toExact() ?? ''
       : parsedAmounts[dependentField]?.toSignificant(6) ?? '',
   }
-
-  const inputValue =
-    isSolana && wrapType === WrapType.UNWRAP // on Solana, unwrap WSOL is closing WSOL account, which mean it unwrapping all WSOL at once and we cant unwrap partial WSOL
-      ? currencyBalances[Field.INPUT]?.toExact() ?? ''
-      : formattedAmounts[Field.INPUT]
 
   const userHasSpecifiedInputOutput = Boolean(
     currencyIn && currencyOut && parsedAmounts[independentField]?.greaterThan(JSBI.BigInt(0)),
@@ -377,10 +375,7 @@ export default function Swap({ history }: RouteComponentProps) {
     }
   }, [approval, approvalSubmitted])
 
-  const maxAmountInput: CurrencyAmount<Currency> | undefined = useMemo(
-    () => maxAmountSpend(currencyBalances[Field.INPUT]),
-    [currencyBalances],
-  )
+  const maxAmountInput: CurrencyAmount<Currency> | undefined = useMemo(() => maxAmountSpend(balanceIn), [balanceIn])
 
   // the callback to execute the swap
   const { callback: swapCallback, error: swapCallbackError } = useSwapV2Callback(trade)
@@ -439,8 +434,8 @@ export default function Swap({ history }: RouteComponentProps) {
   }, [maxAmountInput, onUserInput])
 
   const handleHalfInput = useCallback(() => {
-    onUserInput(Field.INPUT, currencyBalances[Field.INPUT]?.divide(2).toExact() || '')
-  }, [currencyBalances, onUserInput])
+    onUserInput(Field.INPUT, balanceIn?.divide(2).toExact() || '')
+  }, [balanceIn, onUserInput])
 
   const handleOutputSelect = useCallback(
     (outputCurrency: Currency) => {
@@ -450,9 +445,7 @@ export default function Swap({ history }: RouteComponentProps) {
     [onCurrencySelection],
   )
 
-  const isLoading =
-    loadingAPI ||
-    ((!currencyBalances[Field.INPUT] || !currencyBalances[Field.OUTPUT]) && userHasSpecifiedInputOutput && !v2Trade)
+  const isLoading = loadingAPI || ((!balanceIn || !balanceOut) && userHasSpecifiedInputOutput && !v2Trade)
 
   const { mixpanelHandler } = useMixpanel(trade, currencies)
   const mixpanelSwapInit = () => {
@@ -828,7 +821,7 @@ export default function Swap({ history }: RouteComponentProps) {
 
                     <Flex flexDirection="column" sx={{ gap: '0.75rem' }}>
                       <CurrencyInputPanel
-                        value={inputValue}
+                        value={formattedAmounts[Field.INPUT]}
                         positionMax="top"
                         showMaxButton
                         currency={currencyIn}

@@ -1,7 +1,7 @@
 import { Currency, CurrencyAmount } from '@namgold/ks-sdk-core'
 import JSBI from 'jsbi'
 
-import { MIN_ETH } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
 
 /**
  * Given some token amount, return the max that can be spent of it
@@ -10,11 +10,9 @@ import { MIN_ETH } from 'constants/index'
 export function maxAmountSpend(currencyAmount?: CurrencyAmount<Currency>): CurrencyAmount<Currency> | undefined {
   if (!currencyAmount) return undefined
   if (currencyAmount.currency.isNative) {
-    if (JSBI.greaterThan(currencyAmount.quotient, MIN_ETH(currencyAmount.currency.chainId))) {
-      return CurrencyAmount.fromRawAmount(
-        currencyAmount.currency,
-        JSBI.subtract(currencyAmount.quotient, MIN_ETH(currencyAmount.currency.chainId)),
-      )
+    const minETHforGas = JSBI.BigInt(NETWORKS_INFO[currencyAmount.currency.chainId].nativeToken.minForGas)
+    if (JSBI.greaterThan(currencyAmount.quotient, minETHforGas)) {
+      return CurrencyAmount.fromRawAmount(currencyAmount.currency, JSBI.subtract(currencyAmount.quotient, minETHforGas))
     } else {
       return CurrencyAmount.fromRawAmount(currencyAmount.currency, JSBI.BigInt(0))
     }
