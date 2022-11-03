@@ -30,7 +30,7 @@ const maticInfo: EVMNetworkInfo = {
     name: 'Polygon',
     logo: Polygon,
     decimal: 18,
-    minForGas: 10 ** 16,
+    minForGas: 10 ** 17,
   },
   rpcUrl: 'https://polygon.kyberengineering.io',
   routerUri: `${META_AGGREGATOR_API}/polygon/route/encode`,
