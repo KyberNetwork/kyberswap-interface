@@ -345,7 +345,7 @@ export default function Swap({ history }: RouteComponentProps) {
   }
 
   const inputValue =
-    isSolana && wrapType === WrapType.UNWRAP
+    isSolana && wrapType === WrapType.UNWRAP // on Solana, unwrap WSOL is closing WSOL account, which mean it unwrapping all WSOL at once and we cant unwrap partial WSOL
       ? currencyBalances[Field.INPUT]?.toExact() ?? ''
       : formattedAmounts[Field.INPUT]
 
