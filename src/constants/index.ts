@@ -17,6 +17,7 @@ export const BAD_RECIPIENT_ADDRESSES: string[] = [
 ]
 
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
+export const ZERO_ADDRESS_SOLANA = 'zeroooooooooooooooooooooooooooooooooooooooo'
 
 const DMM_ANALYTICS = 'https://analytics.kyberswap.com/classic'
 
