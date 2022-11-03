@@ -311,9 +311,11 @@ export default function Swap({ history }: RouteComponentProps) {
 
   const handleTypeInput = useCallback(
     (value: string) => {
+      if (isSolana && wrapType === WrapType.UNWRAP) value = currencyBalances[Field.INPUT]?.toExact() ?? ''
+
       onUserInput(Field.INPUT, value)
     },
-    [onUserInput],
+    [currencyBalances, isSolana, onUserInput, wrapType],
   )
   const handleTypeOutput = useCallback((): void => {
     // ...
@@ -341,6 +343,12 @@ export default function Swap({ history }: RouteComponentProps) {
       ? parsedAmounts[independentField]?.toExact() ?? ''
       : parsedAmounts[dependentField]?.toSignificant(6) ?? '',
   }
+
+  const a = formattedAmounts[Field.INPUT]
+  const inputValue = useMemo(() => {
+    if (isSolana && wrapType === WrapType.UNWRAP) return currencyBalances[Field.INPUT]?.toExact() ?? ''
+    return a
+  }, [a, currencyBalances, isSolana, wrapType])
 
   const userHasSpecifiedInputOutput = Boolean(
     currencyIn && currencyOut && parsedAmounts[independentField]?.greaterThan(JSBI.BigInt(0)),
@@ -821,7 +829,7 @@ export default function Swap({ history }: RouteComponentProps) {
 
                     <Flex flexDirection="column" sx={{ gap: '0.75rem' }}>
                       <CurrencyInputPanel
-                        value={formattedAmounts[Field.INPUT]}
+                        value={inputValue}
                         positionMax="top"
                         showMaxButton
                         currency={currencyIn}
