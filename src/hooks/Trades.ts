@@ -169,19 +169,15 @@ export function useTradeExactInV2(
         ])
 
         if (!signal.aborted) {
-          if (state) {
-            try {
-              if (JSON.stringify(trade) !== JSON.stringify(state)) setTrade(state)
-            } catch (e) {
-              setTrade(state)
-            }
+          try {
+            if (JSON.stringify(trade) !== JSON.stringify(state)) setTrade(state)
+          } catch (e) {
+            setTrade(state)
           }
-          if (comparedResult) {
-            try {
-              if (JSON.stringify(comparer) !== JSON.stringify(comparedResult)) setComparer(comparedResult)
-            } catch (e) {
-              setComparer(comparedResult)
-            }
+          try {
+            if (JSON.stringify(comparer) !== JSON.stringify(comparedResult)) setComparer(comparedResult)
+          } catch (e) {
+            setComparer(comparedResult)
           }
         }
         setLoading(false)
