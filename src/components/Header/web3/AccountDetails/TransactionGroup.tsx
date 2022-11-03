@@ -16,12 +16,15 @@ export const TransactionState = styled.div<{ success?: boolean; isInGroup?: bool
 `
 
 export default function TransactionGroup({ transactions }: { transactions: TransactionDetails[] }) {
-  const swapTx = transactions.find(transaction => transaction.type === TRANSACTION_TYPE.SWAP)
+  const mainTx: TransactionDetails =
+    transactions.find(
+      transaction => transaction.type !== TRANSACTION_TYPE.SETUP && transaction.type !== TRANSACTION_TYPE.CLEANUP,
+    ) || transactions[0]
 
-  const pending = !swapTx?.receipt
-  const success = !pending && swapTx && (swapTx.receipt?.status === 1 || typeof swapTx.receipt?.status === 'undefined')
-  const type = swapTx?.type
-  const summary = swapTx?.summary
+  const pending = !mainTx.receipt
+  const success = !pending && mainTx && (mainTx.receipt?.status === 1 || typeof mainTx.receipt?.status === 'undefined')
+  const type = mainTx.type
+  const summary = mainTx.summary
   const parsedSummary = type
     ? SUMMARY[type]?.[pending ? 'pending' : success ? 'success' : 'failure'](summary)
     : summary ?? 'Swap'

@@ -51,13 +51,11 @@ export function useTokenComparator(inverted: boolean, containsETH = false): (tok
   const balances = useAllTokenBalances()
   const { chainId } = useActiveWeb3React()
   const ethBalance = useETHBalance()
-  // eslint-disable-next-line
-  const memoEthBalance = useMemo(() => ethBalance, [ethBalance?.toExact()]) // do not put ethBalance dependency here
   return useMemo(() => {
-    const comparator = getTokenComparator(balances ?? {}, memoEthBalance, chainId)
+    const comparator = getTokenComparator(balances ?? {}, ethBalance, chainId)
     if (inverted) {
       return (tokenA: Token, tokenB: Token) => comparator(tokenA, tokenB) * -1
     }
     return comparator
-  }, [balances, inverted, memoEthBalance, chainId])
+  }, [balances, inverted, ethBalance, chainId])
 }

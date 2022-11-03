@@ -31,12 +31,12 @@ export function useETHBalance(): CurrencyAmount<Currency> | undefined {
   )
 
   const result = useSingleCallResult(multicallContract, 'getEthBalance', addressParam)
+  const value: string | undefined = result?.result?.[0]?.toString?.()
 
   return useMemo(() => {
-    const value = result?.result?.[0]
-    if (value) return CurrencyAmount.fromRawAmount(NativeCurrencies[chainId], JSBI.BigInt(value.toString()))
+    if (value) return CurrencyAmount.fromRawAmount(NativeCurrencies[chainId], JSBI.BigInt(value))
     return undefined
-  }, [result, chainId])
+  }, [value, chainId])
 }
 
 const stringifyBalance = (balanceMap: { [key: string]: TokenAmount }) => {

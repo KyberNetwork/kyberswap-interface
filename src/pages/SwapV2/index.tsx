@@ -98,7 +98,7 @@ import { TYPE } from 'theme'
 import { formattedNum, isAddressString } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { filterTokensWithExactKeyword } from 'utils/filtering'
-import { maxAmountSpend } from 'utils/maxAmountSpend'
+import { halfAmountSpend, maxAmountSpend } from 'utils/maxAmountSpend'
 import { convertToSlug, getSymbolSlug } from 'utils/string'
 import { checkPairInWhiteList, convertSymbol } from 'utils/tokenInfo'
 
@@ -271,12 +271,13 @@ export default function Swap({ history }: RouteComponentProps) {
 
   const { wrapType, execute: onWrap, inputError: wrapInputError } = useWrapCallback(currencyIn, currencyOut, typedValue)
 
+  const isSolanaUnwrap = isSolana && wrapType === WrapType.UNWRAP
   useEffect(() => {
     // reset value for unwrapping WSOL
     // because on Solana, unwrap WSOL is closing WSOL account,
     // which mean it will unwrap all WSOL at once and we can't unwrap partial amount of WSOL
-    if (isSolana && wrapType === WrapType.UNWRAP) onUserInput(Field.INPUT, balanceIn?.toExact() ?? '')
-  }, [balanceIn, isSolana, onUserInput, wrapType])
+    if (isSolanaUnwrap) onUserInput(Field.INPUT, balanceIn?.toExact() ?? '')
+  }, [balanceIn, isSolanaUnwrap, onUserInput, parsedAmount])
 
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
   const trade = showWrap ? undefined : v2Trade
@@ -375,7 +376,8 @@ export default function Swap({ history }: RouteComponentProps) {
     }
   }, [approval, approvalSubmitted])
 
-  const maxAmountInput: CurrencyAmount<Currency> | undefined = useMemo(() => maxAmountSpend(balanceIn), [balanceIn])
+  const maxAmountInput: string | undefined = useMemo(() => maxAmountSpend(balanceIn)?.toExact(), [balanceIn])
+  const halfAmountInput: string | undefined = useMemo(() => halfAmountSpend(balanceIn)?.toExact(), [balanceIn])
 
   // the callback to execute the swap
   const { callback: swapCallback, error: swapCallbackError } = useSwapV2Callback(trade)
@@ -430,12 +432,12 @@ export default function Swap({ history }: RouteComponentProps) {
   )
 
   const handleMaxInput = useCallback(() => {
-    maxAmountInput && onUserInput(Field.INPUT, maxAmountInput.toExact())
+    onUserInput(Field.INPUT, maxAmountInput || '')
   }, [maxAmountInput, onUserInput])
 
   const handleHalfInput = useCallback(() => {
-    onUserInput(Field.INPUT, balanceIn?.divide(2).toExact() || '')
-  }, [balanceIn, onUserInput])
+    !isSolanaUnwrap && onUserInput(Field.INPUT, halfAmountInput || '')
+  }, [isSolanaUnwrap, halfAmountInput, onUserInput])
 
   const handleOutputSelect = useCallback(
     (outputCurrency: Currency) => {

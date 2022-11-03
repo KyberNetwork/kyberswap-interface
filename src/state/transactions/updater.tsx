@@ -1,6 +1,9 @@
 import { Log } from '@ethersproject/abstract-provider'
 import { BigNumber } from '@ethersproject/bignumber'
+import { Fraction } from '@namgold/ks-sdk-core'
+import { ParsedTransactionMeta, ParsedTransactionWithMeta } from '@solana/web3.js'
 import { ethers } from 'ethers'
+import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -15,7 +18,7 @@ import { findTx } from 'utils'
 import { getFullDisplayBalance } from 'utils/formatBalance'
 
 import { checkedTransaction, finalizeTransaction } from './actions'
-import { SerializableTransactionReceipt, TRANSACTION_TYPE } from './type'
+import { SerializableTransactionReceipt, TRANSACTION_TYPE, TransactionDetails } from './type'
 
 function shouldCheck(
   lastBlockNumber: number,
@@ -39,6 +42,96 @@ function shouldCheck(
   }
 }
 
+const parseEVMTransactionSummary = ({
+  tx,
+  logs,
+}: {
+  tx: TransactionDetails | undefined
+  logs?: Log[]
+}): string | undefined => {
+  let log = undefined
+  if (!logs) return tx?.summary
+
+  for (let i = 0; i < logs.length; i++) {
+    if (logs[i].topics.includes(AGGREGATOR_ROUTER_SWAPPED_EVENT_TOPIC)) {
+      log = logs[i]
+      break
+    }
+  }
+
+  // No event log includes Swapped event topic
+  if (!log) return tx?.summary
+
+  // Parse summary message for Swapped event
+  if (!tx || !tx?.arbitrary) return tx?.summary
+
+  const inputSymbol = tx?.arbitrary?.inputSymbol
+  const outputSymbol = tx?.arbitrary?.outputSymbol
+  const inputDecimals = tx?.arbitrary?.inputDecimals
+  const outputDecimals = tx?.arbitrary?.outputDecimals
+  const withRecipient = tx?.arbitrary?.withRecipient
+
+  if (!inputSymbol || !outputSymbol || !inputDecimals || !outputDecimals) {
+    return tx?.summary
+  }
+
+  const decodedValues = ethers.utils.defaultAbiCoder.decode(
+    ['address', 'address', 'address', 'address', 'uint256', 'uint256'],
+    log.data,
+  )
+
+  const inputAmount = getFullDisplayBalance(BigNumber.from(decodedValues[4].toString()), inputDecimals, 3)
+  const outputAmount = getFullDisplayBalance(BigNumber.from(decodedValues[5].toString()), outputDecimals, 3)
+
+  const base = `${inputAmount} ${inputSymbol} for ${outputAmount} ${outputSymbol}`
+
+  return `${base} ${withRecipient ?? ''}`
+}
+
+const parseSolanaTransactionSummary = ({
+  tx,
+  meta,
+}: {
+  tx: TransactionDetails | null
+  meta?: ParsedTransactionMeta | null
+}): string | undefined => {
+  console.log({ meta })
+  // Parse summary message for Swapped event
+  if (!tx || !tx?.arbitrary) return tx?.summary
+
+  const inputSymbol = tx?.arbitrary?.inputSymbol
+  const outputSymbol = tx?.arbitrary?.outputSymbol
+  const inputDecimals = tx?.arbitrary?.inputDecimals
+  const outputDecimals = tx?.arbitrary?.outputDecimals
+
+  if (!inputSymbol || !outputSymbol || !inputDecimals || !outputDecimals) return tx?.summary
+
+  let inputAmount: string | undefined, outputAmount: string | undefined
+  const preBalanceMap: { [mint: string]: Fraction } = {}
+  meta?.preTokenBalances?.forEach(tokenBalance => {
+    if (tokenBalance.mint && tokenBalance.owner === tx.from)
+      preBalanceMap[tokenBalance.mint] = new Fraction(JSBI.BigInt(tokenBalance.uiTokenAmount.amount)).divide(
+        JSBI.BigInt(10 ** tokenBalance.uiTokenAmount.decimals),
+      )
+  })
+  meta?.postTokenBalances?.forEach(tokenBalance => {
+    if (tokenBalance.mint && tokenBalance.owner === tx.from) {
+      const preBalance = preBalanceMap[tokenBalance.mint]
+      const postBalance = new Fraction(JSBI.BigInt(tokenBalance.uiTokenAmount.amount)).divide(
+        JSBI.BigInt(10 ** tokenBalance.uiTokenAmount.decimals),
+      )
+      if (preBalance.lessThan(postBalance)) {
+        outputAmount = postBalance.subtract(preBalance).toSignificant(9)
+      } else if (preBalance.greaterThan(postBalance)) {
+        inputAmount = preBalance.subtract(postBalance).toSignificant(9)
+      }
+    }
+  })
+  if (!inputAmount || !outputAmount) return tx?.summary
+
+  return `${inputAmount} ${inputSymbol} for ${outputAmount} ${outputSymbol}`
+}
+
 export default function Updater(): null {
   const { chainId, isEVM, isSolana } = useActiveWeb3React()
   const { library } = useWeb3React()
@@ -58,49 +151,6 @@ export default function Updater(): null {
     [transactions],
   )
 
-  const parseTransactionSummary = useCallback(
-    ({ hash, logs }: { hash: string; logs?: Log[] }): string | undefined => {
-      let log = undefined
-      const tx = findTx(transactions, hash)
-      if (!logs) return tx?.summary
-
-      for (let i = 0; i < logs.length; i++) {
-        if (logs[i].topics.includes(AGGREGATOR_ROUTER_SWAPPED_EVENT_TOPIC)) {
-          log = logs[i]
-          break
-        }
-      }
-
-      // No event log includes Swapped event topic
-      if (!log) return tx?.summary
-
-      // Parse summary message for Swapped event
-      if (!tx || !tx?.arbitrary) return tx?.summary
-
-      const inputSymbol = tx?.arbitrary?.inputSymbol
-      const outputSymbol = tx?.arbitrary?.outputSymbol
-      const inputDecimals = tx?.arbitrary?.inputDecimals
-      const outputDecimals = tx?.arbitrary?.outputDecimals
-      const withRecipient = tx?.arbitrary?.withRecipient
-
-      if (!inputSymbol || !outputSymbol || !inputDecimals || !outputDecimals) {
-        return tx?.summary
-      }
-
-      const decodedValues = ethers.utils.defaultAbiCoder.decode(
-        ['address', 'address', 'address', 'address', 'uint256', 'uint256'],
-        log.data,
-      )
-
-      const inputAmount = getFullDisplayBalance(BigNumber.from(decodedValues[4].toString()), inputDecimals, 3)
-      const outputAmount = getFullDisplayBalance(BigNumber.from(decodedValues[5].toString()), outputDecimals, 3)
-
-      const base = `${inputAmount} ${inputSymbol} for ${outputAmount} ${outputSymbol}`
-
-      return `${base} ${withRecipient ?? ''}`
-    },
-    [transactions],
-  )
   const { mixpanelHandler, subgraphMixpanelHandler } = useMixpanel()
   const transactionNotify = useTransactionNotify()
   const setClaimingCampaignRewardId = useSetClaimingCampaignRewardId()[1]
@@ -142,7 +192,7 @@ export default function Updater(): null {
                   hash,
                   notiType: receipt.status === 1 ? NotificationType.SUCCESS : NotificationType.ERROR,
                   type: parseTransactionType(hash),
-                  summary: parseTransactionSummary({ hash, logs: receipt.logs }),
+                  summary: parseEVMTransactionSummary({ tx: transaction, logs: receipt.logs }),
                 })
                 if (receipt.status === 1 && transaction) {
                   switch (transaction.type) {
@@ -201,8 +251,8 @@ export default function Updater(): null {
         }
         if (isSolana) {
           connection
-            .getTransaction(hash)
-            .then(tx => {
+            .getParsedTransaction(hash)
+            .then((tx: ParsedTransactionWithMeta | null) => {
               if (tx) {
                 const transaction = findTx(transactions, hash)
                 if (!transaction) return
@@ -222,7 +272,7 @@ export default function Updater(): null {
                   hash,
                   notiType: tx.meta?.err ? NotificationType.ERROR : NotificationType.SUCCESS,
                   type: parseTransactionType(hash),
-                  summary: parseTransactionSummary({ hash }),
+                  summary: parseSolanaTransactionSummary({ tx: transaction, meta: tx.meta }),
                 })
                 if (!tx.meta?.err && transaction) {
                   switch (transaction.type) {
@@ -260,7 +310,7 @@ export default function Updater(): null {
       })
 
     // eslint-disable-next-line
-  }, [chainId, library, transactions, lastBlockNumber, dispatch, parseTransactionSummary, parseTransactionType])
+  }, [chainId, library, transactions, lastBlockNumber, dispatch, parseEVMTransactionSummary, parseTransactionType])
 
   return null
 }
