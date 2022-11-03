@@ -1,4 +1,4 @@
-import { Currency, CurrencyAmount } from '@namgold/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount, WETH } from '@namgold/ks-sdk-core'
 import * as anchor from '@project-serum/anchor'
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -80,7 +80,25 @@ export async function getAssociatedTokenAccount(
   return account
 }
 
-export const createWrapSOLInstruction = async (
+export const createWrapSOLInstructions = async (
+  account: PublicKey,
+  amountIn: CurrencyAmount<Currency>,
+): Promise<TransactionInstruction[]> => {
+  const associatedTokenAccount = await getAssociatedTokenAddress(NATIVE_MINT, account)
+  const createWSOLIx = await createAtaInstruction(account, amountIn.currency)
+
+  const transferIx = SystemProgram.transfer({
+    fromPubkey: account,
+    toPubkey: associatedTokenAccount,
+    lamports: BigInt(amountIn.quotient.toString()),
+  })
+
+  const syncNativeIx = createSyncNativeInstruction(associatedTokenAccount)
+  if (createWSOLIx) return [createWSOLIx, transferIx, syncNativeIx]
+  return [transferIx, syncNativeIx]
+}
+
+export const checkAndCreateWrapSOLInstructions = async (
   account: PublicKey,
   amountIn: CurrencyAmount<Currency>,
 ): Promise<TransactionInstruction[] | null> => {
@@ -92,21 +110,13 @@ export const createWrapSOLInstruction = async (
     } catch {}
     const WSOLAmount = CurrencyAmount.fromRawAmount(amountIn.currency, WSOLBalance ? WSOLBalance.value.amount : '0')
     if (WSOLAmount.lessThan(amountIn)) {
-      const createWSOLIx = await createAtaInstruction(account, amountIn.currency)
-
-      const transferIx = SystemProgram.transfer({
-        fromPubkey: account,
-        toPubkey: associatedTokenAccount,
-        lamports: BigInt(amountIn.quotient.toString()),
-      })
-
-      const syncNativeIx = createSyncNativeInstruction(associatedTokenAccount)
-      if (createWSOLIx) return [createWSOLIx, transferIx, syncNativeIx]
-      return [transferIx, syncNativeIx]
+      const ixs = await createWrapSOLInstructions(account, amountIn)
+      return ixs
     }
   }
   return null
 }
+
 export const createAtaInstruction = async (
   account: PublicKey,
   currencyIn: Currency,
@@ -130,14 +140,20 @@ export const createAtaInstruction = async (
   return null
 }
 
-export const createUnwrapSOLInstruction = async (
+export const createUnwrapSOLInstruction = async (account: PublicKey): Promise<TransactionInstruction> => {
+  const associatedTokenAccount = await getAssociatedTokenAddress(NATIVE_MINT, account)
+  const unwrapSOLIx = createCloseAccountInstruction(associatedTokenAccount, account, account)
+  return unwrapSOLIx
+}
+
+export const checkAndCreateUnwrapSOLInstruction = async (
   account: PublicKey,
-  amountOut: CurrencyAmount<Currency>,
 ): Promise<TransactionInstruction | null> => {
-  if (amountOut.currency.isNative) {
-    const associatedTokenAccount = await getAssociatedTokenAddress(NATIVE_MINT, account)
-    const unwrapSOLIx = createCloseAccountInstruction(associatedTokenAccount, account, account)
-    return unwrapSOLIx
-  }
+  try {
+    const ata = await getAssociatedTokenAccount(connection, new PublicKey(WETH[ChainId.SOLANA].address), account, true)
+    if (ata) {
+      return await createUnwrapSOLInstruction(account)
+    }
+  } catch {}
   return null
 }

@@ -11,7 +11,11 @@ import connection from 'state/connection/connection'
 import { calculateGasMargin } from 'utils'
 
 import { Aggregator } from './aggregator'
-import { createAtaInstruction, createUnwrapSOLInstruction, createWrapSOLInstruction } from './solanaInstructions'
+import {
+  checkAndCreateWrapSOLInstructions,
+  createAtaInstruction,
+  createUnwrapSOLInstruction,
+} from './solanaInstructions'
 
 export async function sendEVMTransaction(
   account: string,
@@ -127,7 +131,7 @@ export async function sendSolanaTransactionWithBEEncode(
   prepareSetupTx.feePayer = accountPK
 
   if (trade.inputAmount.currency.isNative) {
-    const wrapIxs = await createWrapSOLInstruction(accountPK, trade.inputAmount)
+    const wrapIxs = await checkAndCreateWrapSOLInstructions(accountPK, trade.inputAmount)
     if (wrapIxs) prepareSetupTx.add(...wrapIxs)
   }
 
@@ -163,7 +167,7 @@ export async function sendSolanaTransactionWithBEEncode(
       lastValidBlockHeight,
       feePayer: accountPK,
     })
-    const closeWSOLIxs = await createUnwrapSOLInstruction(accountPK, trade.outputAmount)
+    const closeWSOLIxs = await createUnwrapSOLInstruction(accountPK)
     if (closeWSOLIxs) cleanUpTx.add(closeWSOLIxs)
     txs.push(cleanUpTx)
   }

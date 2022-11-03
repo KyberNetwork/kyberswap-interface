@@ -1,14 +1,18 @@
 import { t } from '@lingui/macro'
 import { Currency, WETH } from '@namgold/ks-sdk-core'
+import { PublicKey, Transaction } from '@solana/web3.js'
 import { useMemo } from 'react'
 
 import { NativeCurrencies } from 'constants/tokens'
+import connection from 'state/connection/connection'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { calculateGasMargin } from 'utils'
+import { checkAndCreateUnwrapSOLInstruction, createWrapSOLInstructions } from 'utils/solanaInstructions'
 
 import { useActiveWeb3React } from './index'
+import useProvider from './solana/useProvider'
 import { useWETHContract } from './useContract'
 
 export enum WrapType {
@@ -30,7 +34,8 @@ export default function useWrapCallback(
   typedValue: string | undefined,
 ): { wrapType: WrapType; execute?: undefined | (() => Promise<void>); inputError?: string } {
   // todo namgold: add solana
-  const { chainId } = useActiveWeb3React()
+  const { chainId, isEVM, isSolana, account } = useActiveWeb3React()
+  const provider = useProvider()
   const wethContract = useWETHContract()
   const balance = useCurrencyBalance(inputCurrency ?? undefined)
   // we can always parse the amount typed as the input currency, since wrapping is 1:1
@@ -38,7 +43,7 @@ export default function useWrapCallback(
   const addTransactionWithType = useTransactionAdder()
 
   return useMemo(() => {
-    if (!wethContract || !chainId || !inputCurrency || !outputCurrency) return NOT_APPLICABLE
+    if ((!wethContract && isEVM) || !chainId || !inputCurrency || !outputCurrency) return NOT_APPLICABLE
 
     const sufficientBalance = inputAmount && balance && !balance.lessThan(inputAmount)
 
@@ -51,20 +56,39 @@ export default function useWrapCallback(
           sufficientBalance && inputAmount
             ? async () => {
                 try {
-                  const estimateGas = await wethContract.estimateGas.deposit({
-                    value: `0x${inputAmount.quotient.toString(16)}`,
-                  })
-                  const txReceipt = await wethContract.deposit({
-                    value: `0x${inputAmount.quotient.toString(16)}`,
-                    gasLimit: calculateGasMargin(estimateGas),
-                  })
-                  addTransactionWithType({
-                    hash: txReceipt.hash,
-                    type: 'Wrap',
-                    summary: `${inputAmount.toSignificant(6)} ${nativeTokenSymbol} to ${inputAmount.toSignificant(
-                      6,
-                    )} W${nativeTokenSymbol}`,
-                  })
+                  let hash: string | undefined
+                  if (isEVM && wethContract) {
+                    const estimateGas = await wethContract.estimateGas.deposit({
+                      value: `0x${inputAmount.quotient.toString(16)}`,
+                    })
+                    const txReceipt = await wethContract.deposit({
+                      value: `0x${inputAmount.quotient.toString(16)}`,
+                      gasLimit: calculateGasMargin(estimateGas),
+                    })
+                    hash = txReceipt?.hash
+                  } else if (isSolana && account && provider) {
+                    const accountPK = new PublicKey(account)
+                    const wrapIxs = await createWrapSOLInstructions(accountPK, inputAmount)
+                    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash()
+
+                    const tx = new Transaction({
+                      blockhash,
+                      lastValidBlockHeight,
+                      feePayer: accountPK,
+                    })
+                    tx.add(...wrapIxs)
+                    hash = await provider.sendAndConfirm(tx)
+                  }
+                  if (hash) {
+                    addTransactionWithType({
+                      hash,
+                      type: 'Wrap',
+                      summary: `${inputAmount.toSignificant(6)} ${nativeTokenSymbol} to ${inputAmount.toSignificant(
+                        6,
+                      )} W${nativeTokenSymbol}`,
+                    })
+                  }
+                  throw new Error()
                 } catch (error) {
                   console.error('Could not deposit', error)
                 }
@@ -83,17 +107,40 @@ export default function useWrapCallback(
           sufficientBalance && inputAmount
             ? async () => {
                 try {
-                  const estimateGas = await wethContract.estimateGas.withdraw(`0x${inputAmount.quotient.toString(16)}`)
-                  const txReceipt = await wethContract.withdraw(`0x${inputAmount.quotient.toString(16)}`, {
-                    gasLimit: calculateGasMargin(estimateGas),
-                  })
-                  addTransactionWithType({
-                    hash: txReceipt.hash,
-                    type: 'Unwrap',
-                    summary: `${inputAmount.toSignificant(6)} W${nativeTokenSymbol} to ${inputAmount.toSignificant(
-                      6,
-                    )} ${nativeTokenSymbol}`,
-                  })
+                  let hash: string | undefined
+                  if (isEVM && wethContract) {
+                    const estimateGas = await wethContract.estimateGas.withdraw(
+                      `0x${inputAmount.quotient.toString(16)}`,
+                    )
+                    const txReceipt = await wethContract.withdraw(`0x${inputAmount.quotient.toString(16)}`, {
+                      gasLimit: calculateGasMargin(estimateGas),
+                    })
+                    hash = txReceipt.hash
+                  } else if (isSolana && account && provider) {
+                    const accountPK = new PublicKey(account)
+                    const ix = await checkAndCreateUnwrapSOLInstruction(accountPK)
+                    if (ix) {
+                      const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash()
+
+                      const tx = new Transaction({
+                        blockhash,
+                        lastValidBlockHeight,
+                        feePayer: accountPK,
+                      })
+                      tx.add(ix)
+                      hash = await provider.sendAndConfirm(tx)
+                    }
+                  }
+                  if (hash) {
+                    addTransactionWithType({
+                      hash,
+                      type: 'Unwrap',
+                      summary: `${inputAmount.toSignificant(6)} W${nativeTokenSymbol} to ${inputAmount.toSignificant(
+                        6,
+                      )} ${nativeTokenSymbol}`,
+                    })
+                  }
+                  throw new Error()
                 } catch (error) {
                   console.error('Could not withdraw', error)
                 }
@@ -108,5 +155,18 @@ export default function useWrapCallback(
     } else {
       return NOT_APPLICABLE
     }
-  }, [wethContract, chainId, inputCurrency, outputCurrency, inputAmount, balance, addTransactionWithType, typedValue])
+  }, [
+    wethContract,
+    isEVM,
+    chainId,
+    inputCurrency,
+    outputCurrency,
+    inputAmount,
+    balance,
+    typedValue,
+    isSolana,
+    account,
+    provider,
+    addTransactionWithType,
+  ])
 }
