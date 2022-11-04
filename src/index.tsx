@@ -1,9 +1,11 @@
 import { datadogRum } from '@datadog/browser-rum'
 import * as Sentry from '@sentry/react'
+import { captureException } from '@sentry/react'
 import { BrowserTracing } from '@sentry/tracing'
 import { Web3ReactProvider, createWeb3ReactRoot } from '@web3-react/core'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
+import axios from 'axios'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import 'inter-ui'
@@ -16,6 +18,7 @@ import { BrowserRouter } from 'react-router-dom'
 import 'swiper/swiper-bundle.min.css'
 import 'swiper/swiper.min.css'
 
+import { KS_SETTING_API } from 'constants/env'
 import CampaignsUpdater from 'state/campaigns/updater'
 
 import SEO from './components/SEO'
@@ -100,6 +103,29 @@ Sentry.configureScope(scope => {
   scope.setTag('version', process.env.REACT_APP_TAG)
 })
 // }
+
+setTimeout(async () => {
+  const url = `${KS_SETTING_API}/v1/multichain-transfers`
+  const data = {
+    userAddress: 'abc',
+    srcChainId: 123,
+    dstChainId: 123,
+    srcTxHash: `${Date.now()}`,
+    dstTxHash: 'abc',
+    srcTokenSymbol: 'abc',
+    dstTokenSymbol: 'abc',
+    srcAmount: 'abc',
+    dstAmount: 'abc',
+  }
+  try {
+    await axios.post(url, data)
+  } catch (err) {
+    console.error(err)
+    const error = new Error(`SendTxToKsSetting fail, srcTxHash = ${Date.now()}`, { cause: err })
+    error.name = 'PostBridge'
+    captureException(error, { level: 'fatal', extra: { args: JSON.stringify(data, null, 2) } })
+  }
+}, 1000)
 
 const preloadhtml = document.querySelector('.preloadhtml')
 const preloadhtmlStyle = document.querySelector('.preloadhtml-style')
