@@ -177,6 +177,15 @@ const FarmUpdaterV2: React.FC<CommonProps> = ({ interval }) => {
             }
           })
 
+          // sort by pid
+          // keep the same logic from v1
+          pools.sort((pool1, pool2) => {
+            if (pool1.pid === pool2.pid) {
+              return 0
+            }
+            return pool1.pid < pool2.pid ? 1 : -1
+          })
+
           return {
             id,
             rewardLocker,
