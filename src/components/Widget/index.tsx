@@ -127,20 +127,32 @@ enum ModalType {
   IMPORT_TOKEN = "import_token",
 }
 
+interface FeeSetting {
+  chargeFeeBy: "currency_in" | "currency_out";
+  feeReceiver: string;
+  // BPS: 10_000
+  // 10 means 0.1%
+  feeAmount: number;
+  isInBps: boolean;
+}
+
 export interface WidgetProps {
   provider?: any;
   tokenList?: TokenInfo[];
   theme?: Theme;
   defaultTokenIn?: string;
   defaultTokenOut?: string;
+  feeSetting?: FeeSetting;
 }
 
 const Widget = ({
   defaultTokenIn,
   defaultTokenOut,
+  feeSetting,
 }: {
   defaultTokenIn?: string;
   defaultTokenOut?: string;
+  feeSetting?: FeeSetting;
 }) => {
   const [showModal, setShowModal] = useState<ModalType | null>(null);
   const { chainId } = useActiveWeb3();
@@ -169,6 +181,7 @@ const Widget = ({
   } = useSwap({
     defaultTokenIn,
     defaultTokenOut,
+    feeSetting,
   });
 
   const trade = isUnsupported ? null : routeTrade;
@@ -217,7 +230,7 @@ const Widget = ({
     trade?.inputAmount &&
     trade?.outputAmount &&
     parseFloat(formatUnits(trade.outputAmount, tokenOutInfo?.decimals || 18)) /
-      parseFloat(formatUnits(trade.inputAmount, tokenInInfo?.decimals || 18));
+      parseFloat(inputAmout);
 
   const formattedTokenInBalance = parseFloat(
     parseFloat(tokenInWithUnit).toPrecision(10)
@@ -674,6 +687,7 @@ export default ({
   theme,
   defaultTokenIn,
   defaultTokenOut,
+  feeSetting,
 }: WidgetProps) => {
   return (
     <StrictMode>
@@ -683,6 +697,7 @@ export default ({
             <Widget
               defaultTokenIn={defaultTokenIn}
               defaultTokenOut={defaultTokenOut}
+              feeSetting={feeSetting}
             />
           </TokenListProvider>
         </Web3Provider>

@@ -46,27 +46,27 @@ export const TokenListProvider = ({
     return [];
   });
 
-  useEffect(() => {
-    if (localStorage)
-      localStorage.setItem("importedTokens", JSON.stringify(importedTokens));
-  }, [importedTokens]);
-
-  const addToken = useCallback((token: TokenInfo) => {
-    setImportedTokens([
+  const addToken = (token: TokenInfo) => {
+    const newTokens = [
       ...importedTokens.filter((t) => t.address !== token.address),
       token,
-    ]);
-  }, []);
+    ];
+    setImportedTokens(newTokens);
+    if (localStorage)
+      localStorage.setItem("importedTokens", JSON.stringify(newTokens));
+  };
 
-  const removeToken = useCallback((token: TokenInfo) => {
-    setImportedTokens(
-      importedTokens.filter(
-        (t) =>
-          t.address.toLowerCase() !== token.address.toLowerCase() &&
-          t.chainId === token.chainId
-      )
+  const removeToken = (token: TokenInfo) => {
+    const newTokens = importedTokens.filter(
+      (t) =>
+        t.address.toLowerCase() !== token.address.toLowerCase() &&
+        t.chainId === token.chainId
     );
-  }, []);
+
+    setImportedTokens(newTokens);
+    if (localStorage)
+      localStorage.setItem("importedTokens", JSON.stringify(newTokens));
+  };
 
   return (
     <TokenContext.Provider

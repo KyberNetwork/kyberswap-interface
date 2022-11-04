@@ -1,7 +1,7 @@
 {
   "name": "kyberswap-widgets",
   "private": false,
-  "version": "0.0.0-demo13",
+  "version": "0.0.0-demo16",
   "type": "module",
   "scripts": {
     "dev": "vite",

@@ -110,6 +110,9 @@ const TokenName = styled.div`
 
 const TokenBalance = styled.div`
   font-size: 1rem;
+  overflow: hidden;
+  max-width: 6rem;
+  text-overflow: ellipsis;
 `;
 
 const Tabs = styled.div`
@@ -125,6 +128,16 @@ const Tab = styled.div<{ active: boolean }>`
   hover: ${({ theme }) => theme.accent};
   font-size: 14px;
   font-weight: 500;
+`;
+
+const NotFound = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: ${({ theme }) => theme.subText};
 `;
 
 const ImportToken = ({
@@ -235,6 +248,12 @@ function SelectCurrency({
             onImport={onImport}
           ></ImportToken>
         )}
+
+        {!tokenWithBalances.filter((item) =>
+          tab === "imported" ? item.isImport : true
+        ).length &&
+          !isAddress(search.trim()) && <NotFound>No results found</NotFound>}
+
         {tokenWithBalances
           .filter((item) => (tab === "imported" ? item.isImport : true))
           .map((token) => {
@@ -281,9 +300,11 @@ function SelectCurrency({
                 ) : (
                   <TokenBalance>
                     {token.balance &&
-                      parseFloat(
-                        parseFloat(token.formattedBalance).toPrecision(10)
-                      )}
+                    parseFloat(token.formattedBalance) < 0.000001
+                      ? token.formattedBalance
+                      : parseFloat(
+                          parseFloat(token.formattedBalance).toPrecision(10)
+                        )}
                   </TokenBalance>
                 )}
               </TokenRow>

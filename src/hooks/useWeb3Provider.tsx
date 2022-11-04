@@ -20,14 +20,14 @@ export const Web3Provider = ({
   provider: providers.Web3Provider | null;
   children: ReactNode;
 }) => {
-  const [chainId, setChainId] = useState<number>(-1);
+  const [chainId, setChainId] = useState<number>(1);
   const [account, setAccount] = useState("");
 
   useEffect(() => {
     if (provider) {
       provider?.getNetwork().then((res) => setChainId(res.chainId));
       provider?.listAccounts().then((res) => setAccount(res[0]));
-    } else setChainId(-1);
+    } else setChainId(1);
   }, [provider]);
 
   return (

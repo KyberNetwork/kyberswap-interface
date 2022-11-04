@@ -30,9 +30,16 @@ export interface Dex {
 const useSwap = ({
   defaultTokenIn,
   defaultTokenOut,
+  feeSetting,
 }: {
   defaultTokenIn?: string;
   defaultTokenOut?: string;
+  feeSetting?: {
+    chargeFeeBy: "currency_in" | "currency_out";
+    feeAmount: number;
+    feeReceiver: string;
+    isInBps: boolean;
+  };
 }) => {
   const { provider, chainId } = useActiveWeb3();
   const [tokenIn, setTokenIn] = useState(
@@ -116,6 +123,8 @@ const useSwap = ({
 
   const controllerRef = useRef<AbortController | null>();
 
+  const { chargeFeeBy, feeAmount, isInBps, feeReceiver } = feeSetting || {};
+
   const getRate = useCallback(async () => {
     if (isUnsupported) return;
 
@@ -154,7 +163,7 @@ const useSwap = ({
       setError("Please connect your wallet");
     }
 
-    const params: { [key: string]: string | number } = {
+    const params: { [key: string]: string | number | boolean | undefined } = {
       tokenIn,
       tokenOut,
       saveGas: 0,
@@ -165,6 +174,10 @@ const useSwap = ({
       clientData: JSON.stringify({ source: "Widget" }),
       amountIn: amountIn.toString(),
       dexes,
+      chargeFeeBy,
+      feeAmount,
+      isInBps,
+      feeReceiver,
     };
 
     const search = Object.keys(params).reduce(
@@ -207,12 +220,16 @@ const useSwap = ({
     tokenOut,
     provider,
     inputAmout,
-    balances,
+    JSON.stringify(balances),
     slippage,
     deadline,
     dexes,
     isUnsupported,
     chainId,
+    chargeFeeBy,
+    feeAmount,
+    isInBps,
+    feeReceiver,
   ]);
 
   useEffect(() => {
