@@ -44,7 +44,7 @@ interface Response {
 
 const useGetElasticFarms = () => {
   const { chainId } = useActiveWeb3React()
-  const chainRoute = chainId ? NETWORKS_INFO[chainId].route : ''
+  const chainRoute = chainId ? NETWORKS_INFO[chainId].internalRoute : ''
 
   // TODO: `chainRoute` may not be correct, update this when BE is available in other chains
   return useSWR<Response>(

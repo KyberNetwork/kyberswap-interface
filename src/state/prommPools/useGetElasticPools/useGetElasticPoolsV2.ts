@@ -1,7 +1,6 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import useSWRImmutable from 'swr/immutable'
 
-import { NETWORKS_INFO } from 'constants/networks'
+import { CHAINS_SUPPORT_NEW_POOL_FARM_API, NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { ElasticPoolDetail } from 'types/pool'
 
@@ -51,17 +50,19 @@ type PoolAccumulator = { [address: string]: ElasticPoolDetail }
 const useGetElasticPoolsV2 = (): CommonReturn => {
   const { chainId } = useActiveWeb3React()
 
-  if (chainId !== ChainId.OPTIMISM) {
-    console.error('Only Optimism is supported')
-  }
-
-  const chainRoute = NETWORKS_INFO[chainId || ChainId.MAINNET].route
+  const shouldSkip = !chainId || !CHAINS_SUPPORT_NEW_POOL_FARM_API.includes(chainId)
+  const chainRoute = chainId ? NETWORKS_INFO[chainId].internalRoute : ''
 
   const { isValidating, error, data } = useSWRImmutable<Response>(
     `${process.env.REACT_APP_POOL_FARM_BASE_URL}/${chainRoute}/api/v1/elastic/pools?includeLowTvl=true&page=1&perPage=10000`,
-    (url: string) => fetch(url).then(resp => resp.json()),
+    (url: string) => {
+      if (shouldSkip) {
+        return Promise.resolve({})
+      }
+      return fetch(url).then(resp => resp.json())
+    },
     {
-      refreshInterval: 60_000,
+      refreshInterval: shouldSkip ? 0 : 60_000,
     },
   )
 
