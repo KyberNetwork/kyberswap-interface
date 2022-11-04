@@ -1,7 +1,6 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { lighten } from 'polished'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
@@ -15,11 +14,13 @@ import InfoHelper from 'components/InfoHelper'
 import { AutoRow, RowBetween } from 'components/Row'
 import { KNC_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
+import { useStakingInfo } from 'hooks/kyberdao'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
-import { NotificationType, useNotify, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
-import { getTokenLogoURL } from 'utils'
+import { NotificationType, useKNCPrice, useNotify, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
+import { getFullDisplayBalance } from 'utils/formatBalance'
 
+import KNCLogo from '../kncLogo'
 import DelegateConfirmModal from './DelegateConfirmModal'
 import GasPriceExpandableBox from './GasPriceExpandableBox'
 import SwitchToEthereumModal from './SwitchToEthereumModal'
@@ -157,7 +158,7 @@ const AddressInput = styled.input`
 export const KNCLogoWrapper = styled.div`
   border-radius: 20px;
   background: ${({ theme }) => theme.background};
-  padding: 8px;
+  padding: 8px 12px 8px 8px;
   display: flex;
   color: ${({ theme }) => theme.subText};
   gap: 4px;
@@ -167,7 +168,9 @@ export const KNCLogoWrapper = styled.div`
 export default function StakeKNCComponent() {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
+  const { stakedBalance, KNCBalance } = useStakingInfo()
   const [activeTab, setActiveTab] = useState(STAKE_TAB.Stake)
+  const [inputValue, setInputValue] = useState('1')
   const toggleWalletModal = useWalletModalToggle()
   const toggleSwitchEthereumModal = useToggleModal(ApplicationModal.SWITCH_TO_ETHEREUM)
   const toggleDelegateConfirm = useToggleModal(ApplicationModal.DELEGATE_CONFIRM)
@@ -180,6 +183,11 @@ export default function StakeKNCComponent() {
       summary: t`You have successfully staked 300 KNC to KyberDAO. You now have a voting power of 0.0001%`,
     })
   }
+  const kncPrice = useKNCPrice()
+  const kncValueInUsd = useMemo(() => {
+    if (!kncPrice || !inputValue) return 0
+    return (parseFloat(kncPrice) * parseFloat(inputValue)).toFixed(2)
+  }, [kncPrice, inputValue])
   return (
     <Wrapper>
       <TabSelect>
@@ -196,8 +204,15 @@ export default function StakeKNCComponent() {
         <Text fontSize={12} lineHeight="16px" color={theme.subText}>
           <Trans>Your Staked KNC</Trans>
         </Text>
-        <Text fontSize={16} lineHeight="20px" color={theme.text}>
-          99.9999 KNC
+        <Text
+          fontSize={16}
+          lineHeight="20px"
+          color={theme.text}
+          display="flex"
+          alignItems="center"
+          style={{ gap: '8px' }}
+        >
+          <KNCLogo size={20} /> {getFullDisplayBalance(stakedBalance, 18)} KNC
         </Text>
       </YourStakedKNC>
       {(activeTab === STAKE_TAB.Stake || activeTab === STAKE_TAB.Unstake) && (
@@ -206,23 +221,29 @@ export default function StakeKNCComponent() {
             <InnerCard>
               <RowBetween width={'100%'}>
                 <AutoRow gap="2px">
-                  <SmallButton>Max</SmallButton>
-                  <SmallButton>Half</SmallButton>
+                  <SmallButton
+                    onClick={() => setInputValue(getFullDisplayBalance(KNCBalance.value, KNCBalance.decimals))}
+                  >
+                    Max
+                  </SmallButton>
+                  <SmallButton
+                    onClick={() => setInputValue(getFullDisplayBalance(KNCBalance.value.div(2), KNCBalance.decimals))}
+                  >
+                    Half
+                  </SmallButton>
                 </AutoRow>
                 <AutoRow gap="3px" justify="flex-end" color={theme.subText}>
-                  <Wallet /> <Text fontSize={12}>0</Text>
+                  <Wallet />{' '}
+                  <Text fontSize={12}>
+                    {KNCBalance ? getFullDisplayBalance(KNCBalance.value, KNCBalance.decimals) : 0}
+                  </Text>
                 </AutoRow>
               </RowBetween>
               <RowBetween>
-                <CurrencyInput value={1} />
-                <span style={{ color: theme.border, fontSize: '14px', marginRight: '6px' }}>~$1,344</span>
+                <CurrencyInput type="number" value={inputValue} onChange={e => setInputValue(e.target.value)} />
+                <span style={{ color: theme.border, fontSize: '14px', marginRight: '6px' }}>~${kncValueInUsd}</span>
                 <KNCLogoWrapper>
-                  <img
-                    src={`${getTokenLogoURL(KNC_ADDRESS, ChainId.MAINNET)}`}
-                    alt="knc-logo"
-                    width="24px"
-                    height="24px"
-                  />
+                  <KNCLogo />
                   KNC
                 </KNCLogoWrapper>
               </RowBetween>

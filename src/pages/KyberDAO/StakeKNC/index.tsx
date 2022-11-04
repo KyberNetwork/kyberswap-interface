@@ -6,6 +6,7 @@ import styled, { css } from 'styled-components'
 
 import bgimg from 'assets/images/about_background.png'
 import governancePNG from 'assets/images/kyberdao/governance.png'
+import kncUtilityPNG from 'assets/images/kyberdao/knc_utility.png'
 import kyberCrystal from 'assets/images/kyberdao/kyber_crystal.png'
 import kyberdaoPNG from 'assets/images/kyberdao/kyberdao.png'
 import migratePNG from 'assets/images/kyberdao/migrate.png'
@@ -144,10 +145,10 @@ export default function StakeKNC() {
             <Image src={governancePNG} alt="DAO Governance" />
             <CardInfo>
               <Text fontSize={20} lineHeight="24px" fontWeight={500} color={theme.text}>
-                DAO Governance
+                <Trans>DAO Governance</Trans>
               </Text>
               <Text fontSize={12} lineHeight="16px" fontWeight={500} color={theme.subText}>
-                KNC holders can stake their tokens to vote on proposals and receive rewards in KNC
+                <Trans>KNC holders can stake their tokens to vote on proposals and receive rewards in KNC</Trans>
               </Text>
             </CardInfo>
           </Card>
@@ -155,13 +156,15 @@ export default function StakeKNC() {
             <Image src={stakevotePNG} alt="Stake + Vote" />
             <CardInfo>
               <Text fontSize={20} lineHeight="24px" fontWeight={500} color={theme.text}>
-                Stake + Vote
+                <Trans>Stake + Vote</Trans>
               </Text>
               <Text fontSize={12} lineHeight="16px" fontWeight={500} color={theme.subText}>
-                The more you stake and vote, the more KNC you will earn.{' '}
-                <Link to="/kyberdao/vote" style={{ textDecoration: 'none' }}>
-                  Vote now ↗
-                </Link>
+                <Trans>
+                  The more you stake and vote, the more KNC you will earn.{' '}
+                  <Link to="/kyberdao/vote" style={{ textDecoration: 'none' }}>
+                    Vote now ↗
+                  </Link>
+                </Trans>
               </Text>
             </CardInfo>
           </Card>
@@ -169,12 +172,12 @@ export default function StakeKNC() {
             <Image src={migratePNG} alt="Migrate" />
             <CardInfo>
               <Text fontSize={20} lineHeight="24px" fontWeight={500} color={theme.text}>
-                Migrate
+                <Trans>Migrate</Trans>
               </Text>
               <TextButton></TextButton>
               <TextButton onClick={toggleMigrationModal}>
                 <Text fontSize={12} lineHeight="16px" fontWeight={500} textAlign="left">
-                  Migrate your KNCL tokens to KNC
+                  <Trans>Migrate your KNCL tokens to KNC</Trans>
                 </Text>
               </TextButton>
             </CardInfo>
@@ -186,15 +189,28 @@ export default function StakeKNC() {
                 KyberDAO v1
               </Text>
               <Text fontSize={12} lineHeight="16px" fontWeight={500} color={theme.subText}>
-                You can access legacy KyberDAO v1 to read about previous KIPs{' '}
-                <a href="https://legacy.kyber.org/vote" target="_blank" rel="noreferrer">
-                  here ↗
-                </a>
+                <Trans>
+                  You can access legacy KyberDAO v1 to read about previous KIPs{' '}
+                  <a href="https://legacy.kyber.org/vote" target="_blank" rel="noreferrer">
+                    here ↗
+                  </a>
+                </Trans>
+              </Text>
+            </CardInfo>
+          </Card>
+          <Card>
+            <Image src={kncUtilityPNG} alt="KNC Utility" />
+            <CardInfo>
+              <Text fontSize={20} lineHeight="24px" fontWeight={500} color={theme.text}>
+                <Trans>KNC Utility</Trans>
+              </Text>
+              <Text fontSize={12} lineHeight="16px" fontWeight={500} color={theme.subText}>
+                <Trans>Coming soon</Trans>
               </Text>
             </CardInfo>
           </Card>
           <Text fontSize={12} lineHeight="14px" fontWeight={400} color={theme.subText} fontStyle="italic">
-            Note: Staking KNC is only available on Ethereum chain
+            <Trans>Note: Staking KNC is only available on Ethereum chain</Trans>
           </Text>
         </CardGroup>
 

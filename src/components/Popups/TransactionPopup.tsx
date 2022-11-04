@@ -129,7 +129,6 @@ export const SUMMARY: {
     pending: summary => 'Withdrawing ' + summary,
     failure: summary => 'Error withdrawing ' + summary,
   },
-
   ForceWithdraw: {
     success: () => 'Force Withdrawn ',
     pending: () => 'Force Withdrawing ',
