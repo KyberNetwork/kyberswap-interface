@@ -294,6 +294,13 @@ export default function Menu() {
           <Trans>Forum</Trans>
         </ExternalNavMenuItem>
 
+        {under1440 && (
+          <ExternalNavMenuItem href="https://blog.kyberswap.com">
+            <MessageCircle size={14} />
+            <Trans>Blog</Trans>
+          </ExternalNavMenuItem>
+        )}
+
         <ExternalNavMenuItem href="/15022022KyberSwapTermsofUse.pdf">
           <FileText size={14} />
           <Trans>Terms</Trans>
