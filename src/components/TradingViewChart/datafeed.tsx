@@ -129,7 +129,7 @@ export const searchTokenPair = (address: string, chainId: ChainId | undefined) =
   if (!chainId) return
   if (TOKEN_PAIRS_ADDRESS_MAPPING[address.toLowerCase()]) {
     return new Promise((resolve, reject) => {
-      resolve([{ id: TOKEN_PAIRS_ADDRESS_MAPPING[address.toLowerCase()] }])
+      resolve([{ id: { pair: TOKEN_PAIRS_ADDRESS_MAPPING[address.toLowerCase()] } }])
     })
   }
   return fetcherDextools(`shared/search/v2?chains=${DextoolSearchV2ChainId[chainId]}&query=${address}`).then(res =>
