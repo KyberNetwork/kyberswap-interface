@@ -387,12 +387,6 @@ export function CurrencySearch({
     // need call api when only debouncedQuery change
   }, [debouncedQuery, prevQuery, fetchListTokens, isAddressSearch])
 
-  useEffect(() => {
-    if (Object.keys(defaultTokens).length) fetchFavoriteTokenFromAddress()
-    // call once
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
   const combinedTokens = useMemo(() => {
     const currencies: Currency[] = filteredSortedTokens
     if (showETH && chainId && !currencies.find(e => e.isNative)) currencies.unshift(nativeOnChain(chainId))
