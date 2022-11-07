@@ -15,6 +15,7 @@ import Card from 'components/Card'
 import { AutoColumn } from 'components/Column'
 import Wallet from 'components/Icons/Wallet'
 import Search from 'components/Search'
+import SubscribeNotificationButton from 'components/SubscribeButton'
 import Toggle from 'components/Toggle'
 import Tutorial, { TutorialType } from 'components/Tutorial'
 import { PROMM_ANALYTICS_URL } from 'constants/index'
@@ -22,6 +23,7 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
+import { NOTIFICATION_TOPICS } from 'hooks/useNotification'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useProAmmPositions } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
@@ -32,6 +34,16 @@ import { PositionDetails } from 'types/position'
 
 import ContentLoader from './ContentLoader'
 import PositionListItem from './PositionListItem'
+
+const Hightlight = styled.span`
+  color: ${({ theme }) => theme.text};
+`
+const StyledText = styled.div`
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 22px;
+  color: ${({ theme }) => theme.subText};
+`
 
 const TabRow = styled.div`
   display: flex;
@@ -49,6 +61,51 @@ const TabRow = styled.div`
 interface AddressSymbolMapInterface {
   [key: string]: string
 }
+
+const renderNotificationButton = (iconOnly: boolean) => (
+  <SubscribeNotificationButton
+    iconOnly={iconOnly}
+    // topicId={NOTIFICATION_TOPICS.POSITION_POOL}
+    topicId={NOTIFICATION_TOPICS.TRENDING_SOON}
+    unsubscribeModalContent={
+      <StyledText>
+        Unsubscribe to stop receiving notifications on <Hightlight>all</Hightlight> your liquidity positions
+      </StyledText>
+    }
+    unsubscribeTooltip={
+      <StyledText>
+        Unsubscribe to stop receiving notifications on <Hightlight>all</Hightlight> your liquidity positions
+      </StyledText>
+    }
+    subscribeModalContent={
+      <>
+        <StyledText>
+          <Trans>
+            You can subscribe to email notifications for your liquidity positions. Whenever your position goes{' '}
+            <Hightlight>out-of-range</Hightlight>, comes back <Hightlight>in-range</Hightlight>, or is{' '}
+            <Hightlight>closed</Hightlight> you will receive a notification.
+          </Trans>
+        </StyledText>
+        <br />
+        <StyledText>
+          <Trans>
+            You can enable or disable notifications for individual positions by clicking on the toggle on top of the
+            liquidity positions card
+          </Trans>
+        </StyledText>
+      </>
+    }
+    subscribeTooltip={
+      <div>
+        <Trans>
+          Subscribe to receive notifications on <Hightlight>all</Hightlight> your liquidity positions. When your
+          liquidity position goes <Hightlight>out-of-range</Hightlight>, back <Hightlight>in-range</Hightlight> or is{' '}
+          <Hightlight>closed</Hightlight> you will receive a notification
+        </Trans>
+      </div>
+    }
+  />
+)
 
 export default function ProAmmPool() {
   const { account, chainId } = useActiveWeb3React()
@@ -247,10 +304,10 @@ export default function ProAmmPool() {
                     </Flex>
                   </ExternalLink>
                   <Tutorial type={TutorialType.ELASTIC_MY_POOLS} />
+                  {renderNotificationButton(true)}
                 </Flex>
               )}
             </Flex>
-
             <FilterRow>
               <Flex alignItems="center" style={{ gap: '8px' }}>
                 <Text fontSize="14px" color={theme.subText}>
@@ -264,7 +321,12 @@ export default function ProAmmPool() {
                 onSearch={onSearch}
                 placeholder={t`Search by token or pool address`}
               />
-              {!upToSmall && <Tutorial type={TutorialType.ELASTIC_MY_POOLS} />}
+              {!upToSmall && (
+                <>
+                  <Tutorial type={TutorialType.ELASTIC_MY_POOLS} />
+                  {renderNotificationButton(false)}
+                </>
+              )}
             </FilterRow>
           </TabRow>
 

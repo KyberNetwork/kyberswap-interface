@@ -8,6 +8,7 @@ import {
   addPopup,
   removePopup,
   setOpenModal,
+  setSubscribedNotificationState,
   updateBlockNumber,
   updateChainIdWhenNotConnected,
   updateETHPrice,
@@ -37,6 +38,10 @@ export interface ApplicationState {
   readonly prommEthPrice: ETHPrice
   readonly kncPrice?: string
   readonly chainIdWhenNotConnected: ChainId
+  readonly notification: {
+    hasSubscribedEmail: boolean
+    isLoading: boolean
+  }
 }
 
 const initialState: ApplicationState = {
@@ -47,6 +52,10 @@ const initialState: ApplicationState = {
   prommEthPrice: {},
   kncPrice: '',
   chainIdWhenNotConnected: ChainId.MAINNET,
+  notification: {
+    hasSubscribedEmail: false,
+    isLoading: false,
+  },
 }
 
 export default createReducer(initialState, builder =>
@@ -96,5 +105,11 @@ export default createReducer(initialState, builder =>
     })
     .addCase(updateChainIdWhenNotConnected, (state, { payload: chainId }) => {
       state.chainIdWhenNotConnected = chainId
+    })
+    .addCase(setSubscribedNotificationState, (state, { payload: { hasSubscribedEmail, isLoading } }) => {
+      const notification = { ...(state.notification ?? {}) }
+      if (hasSubscribedEmail !== undefined) notification.hasSubscribedEmail = hasSubscribedEmail
+      if (isLoading !== undefined) notification.isLoading = isLoading
+      state.notification = notification
     }),
 )
