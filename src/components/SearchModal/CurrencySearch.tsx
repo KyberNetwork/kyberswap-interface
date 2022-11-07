@@ -8,6 +8,7 @@ import { ChangeEvent, KeyboardEvent, ReactNode, useCallback, useEffect, useMemo,
 import { Trash } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
+import { v4 as uuid } from 'uuid'
 
 import InfoHelper from 'components/InfoHelper'
 import { KS_SETTING_API } from 'constants/env'
@@ -347,12 +348,17 @@ export function CurrencySearch({
     fetchFavoriteTokenFromAddress()
   }, [fetchFavoriteTokenFromAddress])
 
-  const fetchingToken = useRef(false)
+  const fetchingToken = useRef<string | null>(null)
+
+  useEffect(() => {
+    fetchingToken.current = null
+  }, [chainId, debouncedQuery, defaultTokens])
 
   const fetchListTokens = useCallback(
     async (page?: number) => {
       if (fetchingToken.current) return
-      fetchingToken.current = true
+      const fetchId = uuid()
+      fetchingToken.current = fetchId
       const nextPage = (page ?? pageCount) + 1
       let tokens = []
       if (debouncedQuery) {
@@ -361,12 +367,13 @@ export function CurrencySearch({
       } else {
         tokens = Object.values(defaultTokens) as WrappedTokenInfo[]
       }
-
-      const parsedTokenList = filterTruthy(tokens.map(formatAndCacheToken))
-      setPageCount(nextPage)
-      setFetchedTokens(current => (nextPage === 1 ? [] : current).concat(parsedTokenList))
-      setHasMoreToken(parsedTokenList.length === PAGE_SIZE && !!debouncedQuery)
-      fetchingToken.current = false
+      if (fetchingToken.current === fetchId) {
+        const parsedTokenList = filterTruthy(tokens.map(formatAndCacheToken))
+        setPageCount(nextPage)
+        setFetchedTokens(current => (nextPage === 1 ? [] : current).concat(parsedTokenList))
+        setHasMoreToken(parsedTokenList.length === PAGE_SIZE && !!debouncedQuery)
+        fetchingToken.current = null
+      }
     },
     [chainId, debouncedQuery, defaultTokens, pageCount],
   )
