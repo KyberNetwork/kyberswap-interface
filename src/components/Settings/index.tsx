@@ -1,9 +1,10 @@
 import { Trans, t } from '@lingui/macro'
 import { useLingui } from '@lingui/react'
-import React, { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Settings } from 'react-feather'
 import { useLocation } from 'react-router-dom'
+import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import ArrowRight from 'components/Icons/ArrowRight'
@@ -130,12 +131,14 @@ export default function SettingsTab() {
         browserCustomStyle={MenuFlyoutBrowserStyle}
         isOpen={open}
         toggle={toggle}
-        translatedTitle={isSelectingLanguage ? undefined : t`Preferences`}
         hasArrow
         mobileCustomStyle={{ paddingBottom: '40px' }}
       >
         {!isSelectingLanguage ? (
           <>
+            <Text fontWeight={500} fontSize={16} color={theme.text}>
+              {t`Preferences`}
+            </Text>
             {isShowTutorialBtn && (
               <RowBetween style={{ marginTop: '15px' }} id={TutorialIds.BUTTON_VIEW_GUIDE_SWAP}>
                 <RowFixed>

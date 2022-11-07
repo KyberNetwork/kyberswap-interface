@@ -204,9 +204,12 @@ export default function Menu() {
         mobileCustomStyle={MenuFlyoutMobileStyle}
         isOpen={open}
         toggle={toggle}
-        translatedTitle={t`Menu`}
         hasArrow
       >
+        <Text fontWeight={500} fontSize={16} color={theme.text}>
+          {t`Menu`}
+        </Text>
+
         {chainId && [ChainId.BTTC, ChainId.RINKEBY].includes(chainId) && (
           <MenuButton
             onClick={() => {
