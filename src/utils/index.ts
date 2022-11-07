@@ -375,17 +375,22 @@ export const isSolanaWallet = (wallet: WalletInfo): wallet is SolanaWalletInfo =
 // Coin98 and Brave wallet is overriding Metamask. So at a time, there is only 1 exists
 export const detectInjectedType = (): 'COIN98' | 'BRAVE' | 'METAMASK' | 'COINBASE' | null => {
   const { ethereum } = window
-  const isMetamask = !!ethereum?.isMetaMask
-  const isCoin98 = isMetamask && ethereum.isCoin98
-  const isBraveWallet = checkForBraveBrowser() && ethereum?.isBraveWallet
-  const isCoinbase = !!ethereum?.isCoinbaseWallet
+  // When Coinbase wallet connected will inject selectedProvider property and some others props
+  if (ethereum?.selectedProvider) {
+    if (ethereum?.selectedProvider?.isMetaMask) return 'METAMASK'
+    if (ethereum?.selectedProvider?.isCoinbaseWallet) return 'COINBASE'
+  }
 
-  if (ethereum?.selectedProvider?.isMetaMask) return 'METAMASK'
-  if (ethereum?.selectedProvider?.isCoinbaseWallet) return 'COINBASE'
-  if (isCoinbase) return 'COINBASE'
-  if (isCoin98) return 'COIN98'
-  if (isBraveWallet) return 'BRAVE'
-  if (isMetamask) return 'METAMASK'
+  if (ethereum?.isCoinbaseWallet) return 'COINBASE'
+
+  if (checkForBraveBrowser() && ethereum?.isBraveWallet) return 'BRAVE'
+
+  if (ethereum?.isMetaMask) {
+    if (ethereum?.isCoin98) {
+      return 'COIN98'
+    }
+    return 'METAMASK'
+  }
   return null
 }
 
@@ -395,7 +400,10 @@ export const isOverriddenWallet = (wallet: SUPPORTED_WALLET) => {
     (wallet === 'COIN98' && injectedType === 'METAMASK') ||
     (wallet === 'METAMASK' && injectedType === 'COIN98') ||
     (wallet === 'BRAVE' && injectedType === 'COIN98') ||
-    (wallet === 'COIN98' && injectedType === 'BRAVE')
+    (wallet === 'COIN98' && injectedType === 'BRAVE') ||
+    (wallet === 'COINBASE' && injectedType === 'COIN98') ||
+    // Coin98 turned off override MetaMask in setting
+    (wallet === 'COIN98' && window.coin98 && !window.ethereum?.isCoin98)
   )
 }
 

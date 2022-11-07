@@ -150,7 +150,7 @@ function ElasticFarms({ active }: { active: boolean }) {
   const [sharePoolAddress, setSharePoolAddress] = useState('')
   const networkRoute = networkInfo.route || undefined
   const shareUrl = sharePoolAddress
-    ? `${window.location.origin}/farms?search=${sharePoolAddress}&tab=elastic&type=${activeTab}&networkId=${networkRoute}`
+    ? `${window.location.origin}/farms/${networkRoute}?search=${sharePoolAddress}&tab=elastic&type=${activeTab}`
     : undefined
 
   const onDismiss = () => {

@@ -27,12 +27,15 @@ import DarkModeQueryParamReader from 'theme/DarkModeQueryParamReader'
 import { isAddressString, shortenAddress } from 'utils'
 
 import { RedirectDuplicateTokenIds } from './AddLiquidityV2/redirects'
-import Bridge from './Bridge'
-import { RedirectPathToSwapNetwork } from './Swap/redirects'
-import SwapV2 from './SwapV2'
+import { RedirectPathToFarmNetwork } from './Farm/redirect'
+import { RedirectPathToMyPoolsNetwork } from './Pool/redirect'
+import { RedirectPathToPoolsNetwork } from './Pools/redirect'
+import { RedirectPathToSwapNetwork } from './SwapV2/redirects'
 
 // Route-based code splitting
 const Swap = lazy(() => import(/* webpackChunkName: 'swap-page' */ './Swap'))
+const SwapV2 = lazy(() => import(/* webpackChunkName: 'swapv2-page' */ './SwapV2'))
+const Bridge = lazy(() => import(/* webpackChunkName: 'bridge-page' */ './Bridge'))
 const Pools = lazy(() => import(/* webpackChunkName: 'pools-page' */ './Pools'))
 const Pool = lazy(() => import(/* webpackChunkName: 'my-pool-page' */ './Pool'))
 
@@ -204,11 +207,19 @@ export default function App() {
                     <Route exact strict path={`${APP_PATHS.SWAP}/:network/:fromCurrency`} component={SwapV2} />
                     <Route exact strict path={`${APP_PATHS.SWAP}/:network`} component={SwapV2} />
                     <Route exact strict path={`${APP_PATHS.FIND_POOL}`} component={PoolFinder} />
-                    <Route exact strict path={`${APP_PATHS.POOLS}`} component={Pools} />
-                    <Route exact strict path={`${APP_PATHS.POOLS}/:currencyIdA`} component={Pools} />
-                    <Route exact strict path={`${APP_PATHS.POOLS}/:currencyIdA/:currencyIdB`} component={Pools} />
-                    <Route exact strict path={`${APP_PATHS.FARMS}`} component={Farm} />
-                    <Route exact strict path={`${APP_PATHS.MY_POOLS}`} component={Pool} />
+                    <Route exact strict path={`${APP_PATHS.POOLS}/:network`} component={Pools} />
+                    <Route exact strict path={`${APP_PATHS.POOLS}/:network/:currencyIdA`} component={Pools} />
+                    <Route exact strict path={`${APP_PATHS.POOLS}`} component={RedirectPathToPoolsNetwork} />
+                    <Route
+                      exact
+                      strict
+                      path={`${APP_PATHS.POOLS}/:network/:currencyIdA/:currencyIdB`}
+                      component={Pools}
+                    />
+                    <Route exact strict path={`${APP_PATHS.FARMS}/:network`} component={Farm} />
+                    <Route exact strict path={`${APP_PATHS.FARMS}`} component={RedirectPathToFarmNetwork} />
+                    <Route exact strict path={`${APP_PATHS.MY_POOLS}/:network`} component={Pool} />
+                    <Route exact strict path={`${APP_PATHS.MY_POOLS}`} component={RedirectPathToMyPoolsNetwork} />
 
                     <Route exact path={`${APP_PATHS.CLASSIC_CREATE_POOL}`} component={CreatePool} />
                     <Route

@@ -45,26 +45,30 @@ const slopeAdapter = new SlopeWalletAdapter({ network: SelectedNetwork })
 
 const detectMetamask = (): WalletReadyState => {
   if (isMobile) return WalletReadyState.Unsupported
-  if (window.ethereum?.isMetaMask) return WalletReadyState.Installed
+  // In Brave browser, by default ethereum.isMetaMask and ethereum.isBraveWallet is true even Metamask not installed
+  if (window.ethereum?.isMetaMask && !window.ethereum?.isBraveWallet) return WalletReadyState.Installed
   return WalletReadyState.NotDetected
 }
 
 const detectBrave = (): WalletReadyState => {
   //todo namgold: fail connect on mobile solana
-  if (checkForBraveBrowser()) return WalletReadyState.Installed
+  if (checkForBraveBrowser() && window.ethereum?.isBraveWallet) return WalletReadyState.Installed
   return WalletReadyState.NotDetected
 }
 
 const detectCoin98 = (): WalletReadyState => {
   if (isMobile) return WalletReadyState.Unsupported
-  if (window.ethereum?.isCoin98 || window.coin98) return WalletReadyState.Installed
+  if (window.ethereum && window.coin98) return WalletReadyState.Installed
   return WalletReadyState.NotDetected
 }
 
 const detectCoinbase = (): WalletReadyState => {
   if (isMobile) return WalletReadyState.Unsupported
   // in NotDetected case, Coinbase show install link itself
-  return WalletReadyState.Installed
+  if (window.ethereum?.isCoinbaseWallet || window.ethereum?.providers?.some(p => p.isCoinbaseWallet))
+    return WalletReadyState.Installed
+  if (window.coinbaseWalletExtension) return WalletReadyState.Loadable
+  return WalletReadyState.NotDetected
 }
 
 const detectCoinBaseLink = (): WalletReadyState => {
@@ -72,16 +76,22 @@ const detectCoinBaseLink = (): WalletReadyState => {
   return WalletReadyState.Unsupported
 }
 
+const detectPhantomWallet = (): WalletReadyState => {
+  // On Brave browser disable phantom
+  if (window.solana?.isPhantom && window.solana?.isBraveWallet) return WalletReadyState.NotDetected
+  return phantomAdapter.readyState
+}
+
 export interface WalletInfo {
   name: string
   icon: string
   iconLight: string
   installLink?: string
+  href?: string
 }
 
 export interface EVMWalletInfo extends WalletInfo {
-  connector?: AbstractConnector
-  href?: string
+  connector: AbstractConnector
   readyState: () => WalletReadyState
 }
 
@@ -90,7 +100,7 @@ export interface SolanaWalletInfo extends WalletInfo {
   readyStateSolana: () => WalletReadyState
 }
 
-export const SUPPORTED_WALLETS = {
+export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
   METAMASK: {
     connector: injected,
     name: 'MetaMask',
@@ -107,7 +117,8 @@ export const SUPPORTED_WALLETS = {
     iconLight: BRAVE_L,
     installLink: 'https://brave.com/download',
     readyState: detectBrave,
-    readyStateSolana: () => braveAdapter.readyState,
+    // If Phantom extension installed block Brave wallet
+    readyStateSolana: () => (window.solana?.isBraveWallet ? braveAdapter.readyState : WalletReadyState.NotDetected),
   } as EVMWalletInfo & SolanaWalletInfo,
   COIN98: {
     connector: coin98InjectedConnector,
@@ -127,7 +138,7 @@ export const SUPPORTED_WALLETS = {
     iconLight: COINBASE_L,
     installLink: 'https://www.coinbase.com/wallet',
     readyState: detectCoinbase,
-    readyStateSolana: () => coinbaseAdapter.readyState,
+    readyStateSolana: () => (isMobile ? WalletReadyState.Unsupported : coinbaseAdapter.readyState),
   } as EVMWalletInfo & SolanaWalletInfo,
   COINBASE_LINK: {
     // To get this link: go to Coinbase app -> Dapp Browser -> go to dmm.exchange -> click "..." button -> share -> copy link
@@ -166,7 +177,7 @@ export const SUPPORTED_WALLETS = {
     icon: PHANTOM,
     iconLight: PHANTOM_L,
     installLink: phantomAdapter.url,
-    readyStateSolana: () => phantomAdapter.readyState,
+    readyStateSolana: detectPhantomWallet,
   } as SolanaWalletInfo,
   SOLLET: {
     adapter: solletAdapter,
@@ -187,4 +198,5 @@ export const SUPPORTED_WALLETS = {
 } as const
 
 export type SUPPORTED_WALLET = keyof typeof SUPPORTED_WALLETS
-console.info({ SUPPORTED_WALLETS })
+
+export const WALLETLINK_LOCALSTORAGE_NAME = '-walletlink:https://www.walletlink.org:Addresses'

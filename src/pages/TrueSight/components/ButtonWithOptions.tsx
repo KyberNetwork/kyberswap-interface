@@ -90,9 +90,9 @@ const ButtonWithOptions = ({
                     onClick={() => {
                       toggleTrendingSoonTokenDetailModal()
                       history.push(
-                        `/swap?inputCurrency=ETH&outputCurrency=${getAddress(
+                        `/swap/${NETWORKS_INFO[mappedChainId].route}?inputCurrency=ETH&outputCurrency=${getAddress(
                           platforms.get(platform) ?? '',
-                        )}&networkId=${mappedChainId}`,
+                        )}`,
                       )
                       mixpanelHandler(MIXPANEL_TYPE.DISCOVER_SWAP_BUY_NOW_POPUP_CLICKED, {
                         trending_token: tokenData.symbol,
@@ -120,9 +120,9 @@ const ButtonWithOptions = ({
                   key={platform}
                   alignItems="center"
                   as={ExternalLink}
-                  href={`/swap?inputCurrency=ETH&outputCurrency=${getAddress(
+                  href={`/swap/${NETWORKS_INFO[mappedChainId].route}?inputCurrency=ETH&outputCurrency=${getAddress(
                     platforms.get(platform) ?? '',
-                  )}&networkId=${mappedChainId}`}
+                  )}`}
                   onClick={() => {
                     triggerDiscoverSwapInitiated(platform)
                   }}

@@ -1,29 +1,33 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
+import { WalletReadyState } from '@solana/wallet-adapter-base'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { UnsupportedChainIdError } from '@web3-react/core'
-import { useEffect, useState } from 'react'
+import { transparentize } from 'polished'
+import { useCallback, useEffect, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
 import { useLocation } from 'react-router-dom'
+import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as Close } from 'assets/images/x.svg'
+import { AutoColumn } from 'components/Column'
+import ExpandableBox from 'components/ExpandableBox'
 import AccountDetails from 'components/Header/web3/AccountDetails'
 import Networks from 'components/Header/web3/NetworkModal/Networks'
+import WarningIcon from 'components/Icons/WarningIcon'
 import Modal from 'components/Modal'
+import { AutoRow, RowFixed } from 'components/Row'
 import { SUPPORTED_WALLET, SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useActivationWallet } from 'hooks/useActivationWallet'
-import { useChangeNetwork } from 'hooks/useChangeNetwork'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import usePrevious from 'hooks/usePrevious'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useOpenNetworkModal, useWalletModalToggle } from 'state/application/hooks'
-import { useAppDispatch } from 'state/hooks'
-import { updateChainId } from 'state/user/actions'
 import { useIsAcceptedTerm, useIsUserManuallyDisconnect } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
-import { isEVMWallet, isSolanaWallet } from 'utils'
+import { isEVMWallet, isOverriddenWallet, isSolanaWallet } from 'utils'
 
 import Option from './Option'
 import PendingView from './PendingView'
@@ -139,16 +143,12 @@ const WALLET_VIEWS = {
 }
 
 export default function WalletModal() {
-  const { chainId, account, isSolana, isEVM } = useActiveWeb3React()
+  const { account, isSolana, isEVM, chainId, walletKey } = useActiveWeb3React()
   // important that these are destructed from the account-specific web3-react context
-  const { active, connector, error, chainId: chainIdEVM } = useWeb3React()
+  const { active, connector, error } = useWeb3React()
   const { connected, connecting, wallet: solanaWallet } = useWallet()
   const { tryActivation } = useActivationWallet()
 
-  const [justConnectedWallet, setJustConnectedWallet] = useState(false)
-  const dispatch = useAppDispatch()
-
-  const changeNetwork = useChangeNetwork()
   const [, setIsUserManuallyDisconnect] = useIsUserManuallyDisconnect()
 
   const theme = useTheme()
@@ -212,55 +212,80 @@ export default function WalletModal() {
     }
   }, [connecting, connected, solanaWallet])
 
-  const handleWalletChange = async (walletKey: SUPPORTED_WALLET) => {
-    setPendingWalletKey(walletKey)
-    setWalletView(WALLET_VIEWS.PENDING)
-    setPendingError(false)
-    try {
-      await tryActivation(walletKey)
-      setJustConnectedWallet(true)
-      setTimeout(() => setJustConnectedWallet(false), 1000)
-      setIsUserManuallyDisconnect(false)
-    } catch {
-      setPendingError(true)
-    }
-  }
-
-  useEffect(() => {
-    if (isEVM && chainIdEVM && chainId !== chainIdEVM && active && justConnectedWallet) {
-      setJustConnectedWallet(false)
-      // when connected to wallet, wallet's network might not match with desire network
-      // we need to update network state by wallet's network (chainIdEVM)
-      dispatch(updateChainId(chainIdEVM))
-      // request change network if wallet's network not match with desire network by asking approve change network
-      changeNetwork(chainId)
-    }
-  }, [active, chainId, chainIdEVM, changeNetwork, dispatch, justConnectedWallet, isEVM])
+  const handleWalletChange = useCallback(
+    async (walletKey: SUPPORTED_WALLET) => {
+      setPendingWalletKey(walletKey)
+      setWalletView(WALLET_VIEWS.PENDING)
+      setPendingError(false)
+      try {
+        await tryActivation(walletKey)
+        setIsUserManuallyDisconnect(false)
+      } catch {
+        setPendingError(true)
+      }
+    },
+    [setIsUserManuallyDisconnect, tryActivation],
+  )
 
   function getOptions() {
-    const sortWallets = (walletAKey: SUPPORTED_WALLET, walletBKey: SUPPORTED_WALLET) => {
-      const walletA = SUPPORTED_WALLETS[walletAKey]
-      const walletB = SUPPORTED_WALLETS[walletBKey]
-      const isWalletAEVM = isEVMWallet(walletA)
-      const isWalletASolana = isSolanaWallet(walletA)
-      const isWalletBEVM = isEVMWallet(walletB)
-      const isWalletBSolana = isSolanaWallet(walletB)
-
-      let aPoint = 0
-      let bPoint = 0
-      if (isEVM) {
-        if (isWalletAEVM) aPoint++
-        if (isWalletBEVM) bPoint++
-      } else if (isSolana) {
-        if (isWalletASolana) aPoint++
-        if (isWalletBSolana) bPoint++
+    // Generate list of wallets and states of it depend on current network
+    const parsedWalletList = Object.keys(SUPPORTED_WALLETS).map((k: string) => {
+      const wallet = SUPPORTED_WALLETS[k]
+      const readyState = (() => {
+        const readyStateEVM = isEVMWallet(wallet) ? wallet.readyState() : undefined
+        const readyStateSolana = isSolanaWallet(wallet) ? wallet.readyStateSolana() : undefined
+        return (isEVM && readyStateEVM) || (isSolana && readyStateSolana) || readyStateEVM || readyStateSolana
+      })()
+      const isSupportCurrentChain = (isEVMWallet(wallet) && isEVM) || (isSolanaWallet(wallet) && isSolana) || false
+      const overridden = isOverriddenWallet(k)
+      return {
+        ...wallet,
+        key: k,
+        readyState,
+        isSupportCurrentChain,
+        isOverridden: overridden,
       }
-      return bPoint - aPoint
+    })
+
+    const sortWallets = (walletA: any, walletB: any) => {
+      if (walletA.isSupportCurrentChain === walletB.isSupportCurrentChain) {
+        if (!!walletA.isOverridden === !!walletB.isOverridden) {
+          if (walletA.readyState === walletB.readyState) {
+            return 0
+          } else {
+            // Wallet installed will have higher priority
+            if (
+              walletA.readyState === WalletReadyState.Installed ||
+              (walletA.readyState === WalletReadyState.Loadable && walletB.readyState === WalletReadyState.NotDetected)
+            )
+              return -1
+            return 1
+          }
+        }
+        // Wallet not be overridden will have higher priority
+        if (!walletA.isOverridden) return -1
+        return 1
+      } else {
+        // Current chain supported wallet higher priority
+        if (walletA.isSupportCurrentChain) return -1
+        return 1
+      }
     }
-    return (Object.keys(SUPPORTED_WALLETS) as SUPPORTED_WALLET[])
-      .sort(sortWallets)
-      .map(key => <Option key={key} walletKey={key} onSelected={handleWalletChange} />)
-      .filter(Boolean)
+    return (
+      parsedWalletList
+        .sort(sortWallets)
+        // Filter Unsupported state wallets
+        .filter(wallet => wallet.readyState !== WalletReadyState.Unsupported)
+        .map(wallet => (
+          <Option
+            key={wallet.key}
+            walletKey={wallet.key}
+            onSelected={handleWalletChange}
+            isSupportCurrentChain={wallet.isSupportCurrentChain}
+            readyState={wallet.readyState}
+          />
+        ))
+    )
   }
 
   function getModalContent() {
@@ -343,11 +368,112 @@ export default function WalletModal() {
               onClickTryAgain={() => {
                 pendingWalletKey && tryActivation(pendingWalletKey)
               }}
+              context={
+                pendingWalletKey === 'SOLFLARE' ? (
+                  <div
+                    style={{
+                      backgroundColor: theme.background,
+                      borderRadius: '16px',
+                      color: theme.subText,
+                      padding: '12px',
+                      marginTop: '24px',
+                    }}
+                  >
+                    <ExpandableBox
+                      backgroundColor={theme.buttonBlack}
+                      headerContent={
+                        <AutoRow>
+                          <Flex style={{ padding: '0 8px' }}>
+                            <WarningIcon />
+                          </Flex>
+                          <Text style={{ flex: 1, padding: '0 2px' }}>
+                            <Trans>
+                              If you haven&lsquo;t created a Solflare wallet yet, please follow the steps below
+                            </Trans>
+                          </Text>
+                        </AutoRow>
+                      }
+                      expandContent={
+                        <AutoColumn gap="6px">
+                          <RowFixed>
+                            <Flex
+                              alignItems="center"
+                              justifyContent="center"
+                              style={{
+                                backgroundColor: transparentize(0.8, theme.primary),
+                                color: theme.primary,
+                                width: '24px',
+                                height: '24px',
+                                borderRadius: '50%',
+                                margin: '0 8px',
+                                fontSize: '12px',
+                              }}
+                            >
+                              1
+                            </Flex>
+                            <Text>
+                              <Trans>Create a Solflare wallet</Trans>
+                            </Text>
+                          </RowFixed>
+                          <RowFixed>
+                            <Flex
+                              alignItems="center"
+                              justifyContent="center"
+                              style={{
+                                backgroundColor: transparentize(0.8, theme.primary),
+                                color: theme.primary,
+                                width: '24px',
+                                height: '24px',
+                                borderRadius: '50%',
+                                margin: '0 8px',
+                                fontSize: '12px',
+                              }}
+                            >
+                              2
+                            </Flex>
+                            <Text>
+                              <Trans>Close the Solflare popup</Trans>
+                            </Text>
+                          </RowFixed>
+                          <RowFixed>
+                            <Flex
+                              alignItems="center"
+                              justifyContent="center"
+                              style={{
+                                backgroundColor: transparentize(0.8, theme.primary),
+                                color: theme.primary,
+                                width: '24px',
+                                height: '24px',
+                                borderRadius: '50%',
+                                margin: '0 8px',
+                                fontSize: '12px',
+                              }}
+                            >
+                              3
+                            </Flex>
+                            <Text>
+                              <Trans>Try to connect again</Trans>
+                            </Text>
+                          </RowFixed>
+                        </AutoColumn>
+                      }
+                    />
+                  </div>
+                ) : undefined
+              }
             />
           ) : (
             <>
               <Trans>Select a Network</Trans>
-              <Networks width={5} mt={16} mb={24} isAcceptedTerm={isAcceptedTerm} />
+              <Networks
+                width={5}
+                mt={16}
+                mb={24}
+                isAcceptedTerm={isAcceptedTerm}
+                selectedId={chainId}
+                disabledAll={walletKey === 'WALLET_CONNECT'}
+                disabledAllMsg={t`You are currently connected through WalletConnect. If you want to change the connected network, please disconnect your wallet before changing the network.`}
+              />
               <Trans>Select a Wallet</Trans>
               <OptionGrid>{getOptions()}</OptionGrid>
             </>

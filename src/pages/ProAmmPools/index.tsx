@@ -364,7 +364,7 @@ export default function ProAmmPoolList({
 
   const chainRoute = networkInfo.route
   const shareUrl = sharedPoolId
-    ? window.location.origin + '/pools?search=' + sharedPoolId + '&tab=elastic&networkId=' + chainRoute
+    ? window.location.origin + `/pools/${chainRoute}?search=` + sharedPoolId + '&tab=elastic'
     : undefined
 
   useEffect(() => {

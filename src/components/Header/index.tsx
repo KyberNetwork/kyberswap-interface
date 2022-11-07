@@ -1,4 +1,4 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { darken } from 'polished'
 import { useState } from 'react'
 import { Repeat } from 'react-feather'
@@ -19,6 +19,7 @@ import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import Menu, { NewLabel } from 'components/Menu'
 import Row, { RowFixed } from 'components/Row'
 import Settings from 'components/Settings'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { TutorialIds, TutorialNumbers } from 'components/Tutorial/TutorialSwap/constant'
 import { AGGREGATOR_ANALYTICS_URL, APP_PATHS, PROMM_ANALYTICS_URL } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -325,7 +326,7 @@ const StyledBridgeIcon = styled(BridgeIcon)`
   }
 `
 export default function Header() {
-  const { chainId, isEVM, isSolana } = useActiveWeb3React()
+  const { chainId, isEVM, isSolana, walletKey } = useActiveWeb3React()
 
   const isDark = useIsDarkMode()
   const { pathname } = useLocation()
@@ -531,7 +532,12 @@ export default function Header() {
       </HeaderRow>
       <HeaderControls>
         <HeaderElement>
-          <SelectNetwork />
+          <MouseoverTooltip
+            text={t`You are currently connected through WalletConnect. If you want to change the connected network, please disconnect your wallet before changing the network.`}
+            disableTooltip={walletKey !== 'WALLET_CONNECT'}
+          >
+            <SelectNetwork disabled={walletKey === 'WALLET_CONNECT'} />
+          </MouseoverTooltip>
           <SelectWallet />
         </HeaderElement>
         <HeaderElementWrap>

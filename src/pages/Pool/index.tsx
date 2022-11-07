@@ -29,6 +29,7 @@ import { useToken } from 'hooks/Tokens'
 import useDebounce from 'hooks/useDebounce'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
+import { useSyncNetworkParamWithStore } from 'hooks/useSyncNetworkParamWithStore'
 import useTheme from 'hooks/useTheme'
 import { useWindowSize } from 'hooks/useWindowSize'
 import ProAmmPool from 'pages/ProAmmPool'
@@ -191,6 +192,8 @@ function Pool() {
 
   const [searchText, setSearchText] = useState('')
   const debouncedSearchText = useDebounce(searchText.trim().toLowerCase(), 300)
+
+  useSyncNetworkParamWithStore()
 
   const userFarms = useMemo(
     () =>

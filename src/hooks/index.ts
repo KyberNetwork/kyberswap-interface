@@ -1,6 +1,6 @@
 import { Web3Provider } from '@ethersproject/providers'
 import { ChainId, ChainType, getChainType } from '@namgold/ks-sdk-core'
-import { useWallet } from '@solana/wallet-adapter-react'
+import { Wallet, useWallet } from '@solana/wallet-adapter-react'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import { useWeb3React as useWeb3ReactCore } from '@web3-react/core'
 import { Web3ReactContextInterface } from '@web3-react/core/dist/types'
@@ -9,10 +9,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useSelector } from 'react-redux'
 
-import { injected } from 'connectors'
+import { injected, walletconnect, walletlink } from 'connectors'
 import { EVM_NETWORK, EVM_NETWORKS, NETWORKS_INFO } from 'constants/networks'
 import { NetworkInfo } from 'constants/networks/type'
-import { SUPPORTED_WALLET, SUPPORTED_WALLETS } from 'constants/wallets'
+import { SUPPORTED_WALLET, SUPPORTED_WALLETS, WALLETLINK_LOCALSTORAGE_NAME } from 'constants/wallets'
 import { AppState } from 'state'
 import { useIsUserManuallyDisconnect } from 'state/user/hooks'
 import { detectInjectedType, isEVMWallet, isSolanaWallet } from 'utils'
@@ -33,40 +33,78 @@ export function useActiveWeb3React(): {
   chainId: ChainId
   account?: string
   walletKey: SUPPORTED_WALLET | undefined
+  walletEVM: { isConnected: boolean; walletKey?: string | number; connector?: AbstractConnector; chainId?: ChainId }
+  walletSolana: { isConnected: boolean; walletKey?: string | number; wallet: Wallet | null }
   isEVM: boolean
   isSolana: boolean
   networkInfo: NetworkInfo
 } {
   const chainIdState = useSelector<AppState, ChainId>(state => state.user.chainId) || ChainId.MAINNET
+  /**Hook for EVM infos */
+  const { connector: connectedConnectorEVM, active: isConnectedEVM, account, chainId: chainIdEVM } = useWeb3React()
+  /**Hook for Solana infos */
+  const { wallet: connectedWalletSolana, connected: isConnectedSolana, publicKey } = useWallet()
+
   const isEVM = useMemo(() => getChainType(chainIdState) === ChainType.EVM, [chainIdState])
   const isSolana = useMemo(() => getChainType(chainIdState) === ChainType.SOLANA, [chainIdState])
-  const networkInfo = useMemo(() => NETWORKS_INFO[chainIdState], [chainIdState])
 
-  const { account, connector, active } = useWeb3React()
-  const { wallet: walletSolana, connected, publicKey } = useWallet()
+  const addressEVM = account ?? undefined
+  const addressSolana = publicKey?.toBase58()
 
-  const address = useMemo(() => (isEVM ? account ?? undefined : publicKey?.toBase58()), [account, isEVM, publicKey])
+  const walletKeyEVM = useMemo(() => {
+    if (!isConnectedEVM) return undefined
+    const detectedWallet = detectInjectedType()
+    if (
+      detectedWallet !== 'COINBASE' &&
+      (connectedConnectorEVM === walletlink || !!(connectedConnectorEVM as any)?.walletLink)
+    ) {
+      return 'COINBASE_LINK'
+    }
+    if (connectedConnectorEVM === walletconnect) {
+      return 'WALLET_CONNECT'
+    }
+    return (
+      detectedWallet ??
+      (Object.keys(SUPPORTED_WALLETS) as SUPPORTED_WALLET[]).find(walletKey => {
+        const wallet = SUPPORTED_WALLETS[walletKey]
+        return isEVMWallet(wallet) && isConnectedEVM && wallet.connector === connectedConnectorEVM
+      })
+    )
+  }, [connectedConnectorEVM, isConnectedEVM])
 
-  const walletKey = useMemo(() => {
-    const injectedType = detectInjectedType()
-    if (active && injectedType && isEVM) return injectedType
-
-    return (Object.keys(SUPPORTED_WALLETS) as SUPPORTED_WALLET[]).find(walletKey => {
-      const wallet = SUPPORTED_WALLETS[walletKey]
-      return (
-        (isEVM && active && isEVMWallet(wallet) && !!connector && wallet.connector === connector) ||
-        (isSolana && isSolanaWallet(wallet) && wallet && connected && wallet.adapter === walletSolana?.adapter)
-      )
-    })
-  }, [active, isEVM, isSolana, connected, connector, walletSolana?.adapter])
+  const walletKeySolana = useMemo(
+    () =>
+      isConnectedSolana
+        ? (Object.keys(SUPPORTED_WALLETS) as SUPPORTED_WALLET[]).find(walletKey => {
+            const wallet = SUPPORTED_WALLETS[walletKey]
+            return isSolanaWallet(wallet) && wallet.adapter === connectedWalletSolana?.adapter
+          })
+        : undefined,
+    [isConnectedSolana, connectedWalletSolana?.adapter],
+  )
 
   return {
     chainId: chainIdState,
-    account: address,
-    walletKey,
-    isEVM,
-    isSolana,
-    networkInfo,
+    account: isEVM ? addressEVM : addressSolana,
+    walletKey: isEVM ? walletKeyEVM : walletKeySolana,
+    walletEVM: useMemo(() => {
+      return {
+        isConnected: isConnectedEVM,
+        connector: connectedConnectorEVM,
+        walletKey: walletKeyEVM,
+        chainId: chainIdEVM,
+      }
+    }, [isConnectedEVM, connectedConnectorEVM, walletKeyEVM, chainIdEVM]),
+    walletSolana: useMemo(() => {
+      return {
+        isConnected: isConnectedSolana,
+        wallet: connectedWalletSolana,
+        walletKey: walletKeySolana,
+      }
+    }, [isConnectedSolana, connectedWalletSolana, walletKeySolana]),
+    isEVM: isEVM,
+    isSolana: isSolana,
+    networkInfo: NETWORKS_INFO[chainIdState],
   }
 }
 
@@ -95,6 +133,10 @@ export function useWeb3React(key?: string): Web3ReactContextInterface<Web3Provid
 }
 
 async function isAuthorized(): Promise<boolean> {
+  // Check if previous connected to Coinbase Link
+  if (window.localStorage.getItem(WALLETLINK_LOCALSTORAGE_NAME)) {
+    return true
+  }
   if (!window.ethereum) {
     return false
   }
@@ -111,11 +153,9 @@ async function isAuthorized(): Promise<boolean> {
 let globalTried = false
 
 export function useEagerConnect() {
-  const { isSolana } = useActiveWeb3React()
   const { activate, active } = useWeb3React()
   const [tried, setTried] = useState(false)
   const [isManuallyDisconnect] = useIsUserManuallyDisconnect()
-
   useEffect(() => {
     globalTried = tried
   }, [tried])
@@ -129,33 +169,31 @@ export function useEagerConnect() {
   }, [])
 
   useEffect(() => {
-    if (isSolana) setTried(true)
-    else {
-      try {
-        isAuthorized()
-          .then(isAuthorized => {
-            if (isAuthorized && !isManuallyDisconnect) {
-              activate(injected, undefined, true).catch(() => {
-                setTried(true)
-              })
-            } else {
-              if (isMobile && window.ethereum) {
-                activate(injected, undefined, true).catch(() => {
-                  setTried(true)
-                })
-              } else {
-                setTried(true)
-              }
-            }
-          })
-          .catch(e => {
-            console.log('Eagerly connect: authorize error', e)
-            setTried(true)
-          })
-      } catch (e) {
-        console.log('Eagerly connect: authorize error', e)
-        setTried(true)
-      }
+    try {
+      isAuthorized()
+        .then(isAuthorized => {
+          // try to connect if previous connected to Coinbase Link
+          if (isAuthorized && window.localStorage.getItem(WALLETLINK_LOCALSTORAGE_NAME)) {
+            activate(walletlink).catch(() => {
+              setTried(true)
+            })
+          } else if (isAuthorized && !isManuallyDisconnect) {
+            activate(injected, undefined, true).catch(() => {
+              setTried(true)
+            })
+          } else if (isMobile && window.ethereum) {
+            activate(injected, undefined, true).catch(() => {
+              setTried(true)
+            })
+          }
+        })
+        .catch(e => {
+          console.log('Eagerly connect: authorize error', e)
+          setTried(true)
+        })
+    } catch (e) {
+      console.log('Eagerly connect: authorize error', e)
+      setTried(true)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []) // intentionally only running on mount (make sure it's only mounted once :))

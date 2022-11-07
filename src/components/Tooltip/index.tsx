@@ -22,6 +22,7 @@ interface TooltipProps extends Omit<PopoverProps, 'content'> {
   text: string | ReactNode
   width?: string
   size?: number
+  disableTooltip?: boolean
   onMouseEnter?: React.MouseEventHandler<HTMLDivElement>
   onMouseLeave?: React.MouseEventHandler<HTMLDivElement>
 }
@@ -41,7 +42,7 @@ export default function Tooltip({ text, width, size, onMouseEnter, onMouseLeave,
   )
 }
 
-export function MouseoverTooltip({ children, ...rest }: Omit<TooltipProps, 'show'>) {
+export function MouseoverTooltip({ children, disableTooltip, ...rest }: Omit<TooltipProps, 'show'>) {
   const [show, setShow] = useState(false)
   const [closeTimeout, setCloseTimeout] = useState<NodeJS.Timeout | null>(null)
   const ref = useRef(null)
@@ -55,7 +56,7 @@ export function MouseoverTooltip({ children, ...rest }: Omit<TooltipProps, 'show
     }
   }, [rest.text, closeTimeout])
   const close = useCallback(() => setCloseTimeout(setTimeout(() => setShow(false), 50)), [])
-
+  if (disableTooltip) return <>{children}</>
   // todo: Flex's onMouseLeave is not working properly. Fix this.
   return (
     <Tooltip {...rest} show={show} onMouseEnter={open} onMouseLeave={close}>

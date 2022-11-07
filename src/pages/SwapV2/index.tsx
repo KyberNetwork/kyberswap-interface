@@ -76,6 +76,7 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import usePrevious from 'hooks/usePrevious'
 import { useSwapV2Callback } from 'hooks/useSwapV2Callback'
+import { useSyncNetworkParamWithStore } from 'hooks/useSyncNetworkParamWithStore'
 import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { BodyWrapper } from 'pages/AppBody'
@@ -174,10 +175,10 @@ export default function Swap({ history }: RouteComponentProps) {
     highlightBox: string
     outputCurrency: string
     inputCurrency: string
-    networkId: string
   }>()
   const allDexes = useAllDexes()
   const [{ show: isShowTutorial = false }] = useTutorialSwapGuide()
+  useSyncNetworkParamWithStore()
 
   const refSuggestPair = useRef<PairSuggestionHandle>(null)
   const [showingPairSuggestionImport, setShowingPairSuggestionImport] = useState<boolean>(false) // show modal import when click pair suggestion
@@ -494,7 +495,7 @@ export default function Swap({ history }: RouteComponentProps) {
   const navigate = useCallback(
     (url: string) => {
       // /swap/net/symA-to-symB?inputCurrency= addressC/symC &outputCurrency= addressD/symD
-      const { networkId, inputCurrency, outputCurrency, ...newQs } = qs
+      const { inputCurrency, outputCurrency, ...newQs } = qs
       history.push(`${url}?${stringify(newQs)}`) // keep query params
     },
     [history, qs],
@@ -709,9 +710,9 @@ export default function Swap({ history }: RouteComponentProps) {
   }, [isStableCoinSwap, setRawSlippage])
 
   const shareUrl = useMemo(() => {
-    return `${window.location.origin}/swap?networkId=${networkInfo.route}${
+    return `${window.location.origin}/swap/${networkInfo.route}${
       currencyIn && currencyOut
-        ? `&${stringify({
+        ? `?${stringify({
             inputCurrency: currencyId(currencyIn, chainId),
             outputCurrency: currencyId(currencyOut, chainId),
           })}`

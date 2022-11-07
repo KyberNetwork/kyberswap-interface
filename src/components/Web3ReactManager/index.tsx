@@ -1,13 +1,14 @@
 import { Trans } from '@lingui/macro'
-import { useEffect, useState } from 'react'
+import { ChainId } from '@namgold/ks-sdk-core'
+import { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import styled from 'styled-components'
 
-import Loader from 'components/Loader'
 import LocalLoader from 'components/LocalLoader'
 import { network } from 'connectors'
 import { NetworkContextName } from 'constants/index'
 import { useActiveWeb3React, useEagerConnect, useInactiveListener, useWeb3React } from 'hooks'
-import { useAppDispatch } from 'state/hooks'
+import { AppState } from 'state'
 import { updateChainId } from 'state/user/actions'
 
 const MessageWrapper = styled.div`
@@ -22,6 +23,7 @@ const Message = styled.h2`
 `
 
 export default function Web3ReactManager({ children }: { children: JSX.Element }) {
+  const chainIdState = useSelector<AppState, ChainId>(state => state.user.chainId) || ChainId.MAINNET
   const { isEVM } = useActiveWeb3React()
   const { active, chainId } = useWeb3React()
   const { active: networkActive, error: networkError, activate: activateNetwork } = useWeb3React(NetworkContextName)
@@ -38,25 +40,15 @@ export default function Web3ReactManager({ children }: { children: JSX.Element }
 
   // when there's no account connected, react to logins (broadly speaking) on the injected provider, if it exists
   useInactiveListener(!triedEager)
-
-  const dispatch = useAppDispatch()
+  const dispatch = useDispatch()
+  /** On user change network from wallet, update chainId in store */
   useEffect(() => {
-    if (isEVM && chainId) {
+    if (triedEager && chainId && chainIdState !== chainId && active) {
       dispatch(updateChainId(chainId))
     }
-  }, [chainId, dispatch, isEVM])
-
-  // handle delayed loader state
-  const [showLoader, setShowLoader] = useState(false)
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setShowLoader(true)
-    }, 600)
-
-    return () => {
-      clearTimeout(timeout)
-    }
-  }, [])
+    // Only run on change network from wallet
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chainId, triedEager, active])
 
   // on page load, do nothing until we've tried to connect to the injected connector
   if (isEVM && !triedEager) {
@@ -74,15 +66,6 @@ export default function Web3ReactManager({ children }: { children: JSX.Element }
         </Message>
       </MessageWrapper>
     )
-  }
-
-  // if neither context is active, spin
-  if (isEVM && !active && !networkActive) {
-    return showLoader ? (
-      <MessageWrapper>
-        <Loader />
-      </MessageWrapper>
-    ) : null
   }
 
   return children

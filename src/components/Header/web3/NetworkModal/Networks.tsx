@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { ChainId } from '@namgold/ks-sdk-core'
 import { stringify } from 'qs'
+import React from 'react'
 import { useHistory } from 'react-router-dom'
 import styled from 'styled-components'
 
@@ -10,7 +11,6 @@ import { MAINNET_NETWORKS, NETWORKS_INFO } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { useChangeNetwork } from 'hooks/useChangeNetwork'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import { useNetworkModalToggle } from 'state/application/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
 
 const NewLabel = styled.span`
@@ -46,6 +46,7 @@ const SelectNetworkButton = styled(ButtonEmpty)<{ disabled: boolean }>`
   display: flex;
   justify-content: center;
   align-items: center;
+  height: fit-content;
   &:focus {
     text-decoration: none;
   }
@@ -99,6 +100,8 @@ const Networks = ({
   customOnSelectNetwork,
   customToggleModal,
   disabledMsg,
+  disabledAll,
+  disabledAllMsg,
 }: {
   onChangedNetwork?: () => any
   width: number
@@ -110,17 +113,16 @@ const Networks = ({
   customOnSelectNetwork?: (chainId: ChainId) => void
   customToggleModal?: () => void
   disabledMsg?: string
+  disabledAll?: boolean
+  disabledAllMsg?: string
 }) => {
   const changeNetwork = useChangeNetwork()
   const qs = useParsedQueryString()
   const history = useHistory()
   const isDarkMode = useIsDarkMode()
-  const toggleNetworkModalGlobal = useNetworkModalToggle()
-
-  const toggleNetworkModal = customToggleModal || toggleNetworkModalGlobal
 
   const onSelect = (chainId: ChainId) => {
-    toggleNetworkModal()
+    customToggleModal?.()
     if (customOnSelectNetwork) {
       customOnSelectNetwork(chainId)
     } else {
@@ -148,8 +150,17 @@ const Networks = ({
           : (isDarkMode && iconDark) || icon
 
         return (
-          <MouseoverTooltip style={{ zIndex: Z_INDEXS.MODAL + 1 }} key={key} text={disabled ? disabledMsg : ''}>
-            <SelectNetworkButton key={i} padding="0" onClick={() => !selected && onSelect(key)} disabled={disabled}>
+          <MouseoverTooltip
+            style={{ zIndex: Z_INDEXS.MODAL + 1 }}
+            key={key}
+            text={disabled ? disabledMsg : disabledAll ? disabledAllMsg : ''}
+          >
+            <SelectNetworkButton
+              key={i}
+              padding="0"
+              onClick={() => !selected && onSelect(key)}
+              disabled={disabledAll || disabled}
+            >
               <ListItem selected={selected}>
                 <img src={imgSrc} alt="Switch Network" style={{ height: '20px', marginRight: '4px' }} />
                 <NetworkLabel>{name}</NetworkLabel>
@@ -167,4 +178,4 @@ const Networks = ({
   )
 }
 
-export default Networks
+export default React.memo(Networks)

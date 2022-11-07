@@ -1,4 +1,5 @@
 import { Trans } from '@lingui/macro'
+import { ChainId } from '@namgold/ks-sdk-core'
 import { useState } from 'react'
 import { Edit, FileText, Plus, Repeat } from 'react-feather'
 import { Link } from 'react-router-dom'
@@ -50,7 +51,7 @@ import {
 } from 'components/Icons'
 import AntiSnippingAttack from 'components/Icons/AntiSnippingAttack'
 import Loader from 'components/Loader'
-import { MAINNET_NETWORKS } from 'constants/networks'
+import { MAINNET_NETWORKS, NETWORKS_INFO } from 'constants/networks'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -588,9 +589,9 @@ function AboutKyberSwap() {
                       </Text>
                       <Text color={theme.subText} marginTop="8px">
                         <Link
-                          to={`/${dataToShow.maxAPRAvailable.is_farm ? 'farms' : 'pools'}?tab=classic&networkId=${
-                            dataToShow.maxAPRAvailable.chain_id
-                          }&search=${dataToShow.maxAPRAvailable.id}`}
+                          to={`/${dataToShow.maxAPRAvailable.is_farm ? 'farms' : 'pools'}/${
+                            NETWORKS_INFO[dataToShow.maxAPRAvailable.chain_id as ChainId].route
+                          }?tab=classic&search=${dataToShow.maxAPRAvailable.id}`}
                           style={{ textDecorationLine: 'none' }}
                         >
                           <Trans>Max APR Available</Trans>↗

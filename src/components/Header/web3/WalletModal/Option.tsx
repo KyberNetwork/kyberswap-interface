@@ -1,5 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { WalletReadyState } from '@solana/wallet-adapter-base'
+import React from 'react'
 import styled from 'styled-components'
 
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -39,9 +40,8 @@ const HeaderText = styled.div`
 const OptionCardClickable = styled.button<{
   connected: boolean
   installLink?: string
-  isDisabled: boolean
-  isCorrectChain: boolean
-  overridden: boolean
+  isDisabled?: boolean
+  overridden?: boolean
 }>`
   width: 100%;
   border: 1px solid transparent;
@@ -63,8 +63,8 @@ const OptionCardClickable = styled.button<{
   cursor: ${({ isDisabled, installLink, overridden }) =>
     !isDisabled && !installLink && !overridden ? 'pointer' : 'not-allowed'};
 
-  ${({ isCorrectChain, connected, theme }) =>
-    isCorrectChain && connected
+  ${({ isDisabled, connected, theme }) =>
+    !isDisabled && connected
       ? `
       background-color: ${theme.primary};
       & ${HeaderText} {
@@ -79,17 +79,16 @@ const OptionCardClickable = styled.button<{
       installLink || isDisabled || overridden ? '' : `border: 1px solid ${theme.primary};`}
   }
 
-  ${({ isCorrectChain, installLink, overridden, theme }) =>
-    isCorrectChain && (installLink || overridden)
+  ${({ isDisabled, installLink, overridden, theme }) =>
+    !isDisabled && (installLink || overridden)
       ? `
-      filter: grayscale(100%);
+      filter: grayscale(50%);
       & ${HeaderText} {
         color: ${theme.border};
       }
     `
       : ''}
-
-  opacity: ${({ isDisabled }) => (isDisabled ? '0.5' : '1')};
+  ${({ isDisabled }) => (isDisabled ? `opacity: 0.5; filter: grayscale(100%);` : `opacity: 1;`)}
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     width: 100%;
@@ -110,29 +109,25 @@ const StyledLink = styled(ExternalLink)`
   }
 `
 
-export default function Option({
+const Option = ({
   walletKey,
+  readyState,
+  isSupportCurrentChain,
   onSelected,
 }: {
   walletKey: SUPPORTED_WALLET
+  isSupportCurrentChain: boolean
+  readyState?: WalletReadyState
   onSelected?: (walletKey: SUPPORTED_WALLET) => any
-}) {
+}) => {
   const isDarkMode = useIsDarkMode()
   const { walletKey: walletKeyConnected, isEVM, isSolana } = useActiveWeb3React()
   const isBraveBrowser = checkForBraveBrowser()
   const [isAcceptedTerm] = useIsAcceptedTerm()
 
   const wallet = SUPPORTED_WALLETS[walletKey]
-  const isWalletEVM = isEVMWallet(wallet)
-  const isWalletSolana = isSolanaWallet(wallet)
-  const isCorrectChain = (isWalletEVM && isEVM) || (isWalletSolana && isSolana)
   const isConnected = !!walletKeyConnected && walletKey === walletKeyConnected
-  const readyState = (() => {
-    const readyStateEVM = isWalletEVM ? wallet.readyState() : null
-    const readyStateSolana = isWalletSolana ? wallet.readyStateSolana() : null
-    return (isEVM && readyStateEVM) || (isSolana && readyStateSolana) || readyStateEVM || readyStateSolana
-  })()
-  if (readyState === WalletReadyState.Unsupported) return null
+
   const overridden = isOverriddenWallet(walletKey)
   const installLink = readyState === WalletReadyState.NotDetected ? wallet.installLink : undefined
   const icon = isDarkMode ? wallet.icon : wallet.iconLight
@@ -144,19 +139,19 @@ export default function Option({
         onSelected &&
         !isConnected &&
         (readyState === WalletReadyState.Installed ||
+          (walletKey === 'COINBASE' && isEVM && readyState === WalletReadyState.NotDetected) ||
           (readyState === WalletReadyState.Loadable && isSolanaWallet(wallet))) &&
         isAcceptedTerm &&
-        isCorrectChain &&
+        isSupportCurrentChain &&
         !overridden &&
         !(walletKey === 'BRAVE' && !isBraveBrowser)
           ? () => onSelected(walletKey)
           : undefined
       }
       connected={isConnected}
-      isDisabled={!isAcceptedTerm || !isCorrectChain}
-      installLink={installLink}
-      overridden={overridden}
-      isCorrectChain={isCorrectChain}
+      isDisabled={!isAcceptedTerm || !isSupportCurrentChain}
+      installLink={walletKey === 'COINBASE' && isEVM ? undefined : installLink}
+      overridden={overridden || (walletKey === 'COIN98' && !window.ethereum?.isCoin98)}
     >
       <IconWrapper>
         <img src={icon} alt={'Icon'} />
@@ -170,10 +165,14 @@ export default function Option({
   if (!isAcceptedTerm) return content
 
   if (readyState === WalletReadyState.Loadable && isEVMWallet(wallet) && wallet.href) {
-    return <StyledLink href={wallet.href}>{content}</StyledLink>
+    return (
+      <MouseoverTooltip placement="top" text={<Trans>Install ${wallet.name} extension</Trans>}>
+        <StyledLink href={wallet.href}>{content}</StyledLink>
+      </MouseoverTooltip>
+    )
   }
 
-  if (!isCorrectChain) {
+  if (!isSupportCurrentChain) {
     return (
       <MouseoverTooltip
         placement="top"
@@ -184,23 +183,56 @@ export default function Option({
     )
   }
 
-  if (walletKey === 'BRAVE' && !isBraveBrowser) {
-    return (
-      <MouseoverTooltip
-        placement="top"
-        text={
-          <Trans>
-            Brave wallet can only be used in Brave Browser. Download it{' '}
-            <ExternalLink href={wallet.installLink || ''}>here↗</ExternalLink>
-          </Trans>
-        }
-      >
-        {content}
-      </MouseoverTooltip>
-    )
+  if (walletKey === 'BRAVE') {
+    // Brave wallet only can use in Brave browser
+    if (!isBraveBrowser) {
+      return (
+        <MouseoverTooltip
+          placement="top"
+          text={
+            <Trans>
+              Brave wallet can only be used in Brave Browser. Download it{' '}
+              <ExternalLink href={wallet.installLink || ''}>here↗</ExternalLink>
+            </Trans>
+          }
+        >
+          {content}
+        </MouseoverTooltip>
+      )
+    }
+    // Brave wallet overrided by Metamask extension
+    if (isBraveBrowser && !window.ethereum?.isBraveWallet && isEVM) {
+      return (
+        <MouseoverTooltip
+          placement="top"
+          text={
+            <Trans>
+              Brave Wallet overridden by MetaMask Wallet. Disable MetaMask extension in order to use Brave Wallet.
+            </Trans>
+          }
+        >
+          {content}
+        </MouseoverTooltip>
+      )
+    }
+    // Brave wallet overrided by Metamask extension
+    if (isBraveBrowser && !window.solana?.isBraveWallet && isSolana) {
+      return (
+        <MouseoverTooltip
+          placement="top"
+          text={
+            <Trans>
+              Brave Wallet overridden by Phantom Wallet. Disable Phantom extension in order to use Brave Wallet.
+            </Trans>
+          }
+        >
+          {content}
+        </MouseoverTooltip>
+      )
+    }
   }
 
-  if (readyState === WalletReadyState.NotDetected) {
+  if (readyState === WalletReadyState.NotDetected && (walletKey !== 'COINBASE' || !isEVM)) {
     return (
       <MouseoverTooltip
         placement="top"
@@ -218,11 +250,25 @@ export default function Option({
 
   if (overridden) {
     return (
-      <MouseoverTooltip width="500px" text={<C98OverrideGuide walletKey={walletKey} />} placement="top">
+      <MouseoverTooltip
+        width="500px"
+        text={
+          walletKey === 'COIN98' ? (
+            <Trans>
+              You need to enable <b>&quot;Override Wallet&quot;</b> in Coin98 settings.
+            </Trans>
+          ) : (
+            <C98OverrideGuide walletKey={walletKey} />
+          )
+        }
+        placement="top"
+      >
         {content}
       </MouseoverTooltip>
     )
   }
 
-  return content
+  return <>{content}</>
 }
+
+export default React.memo(Option)
