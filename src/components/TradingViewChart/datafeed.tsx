@@ -121,13 +121,17 @@ const fetcherDextools = (url: string) => {
     .catch(error => console.warn(`fetch ${`${DEXTOOLS_API}/${url}`} failed:\n`, error))
 }
 
-const searchTokenPair = (address: string, chainId: ChainId): Promise<{ id: string }[]> => {
+const searchTokenPair = (address: string, chainId: ChainId) => {
   if (TOKEN_PAIRS_ADDRESS_MAPPING[address.toLowerCase()]) {
     return new Promise((resolve, reject) => {
-      resolve([{ id: TOKEN_PAIRS_ADDRESS_MAPPING[address.toLowerCase()] }])
+      resolve([{ id: { pair: TOKEN_PAIRS_ADDRESS_MAPPING[address.toLowerCase()] } }])
     })
   }
-  return fetcherDextools(`shared/search/v2?query=${address}`).then(res => res.results)
+  return fetcherDextools(`shared/search/v2?chains=${DextoolSearchV2ChainId[chainId]}&query=${address}`).then(res =>
+    res.results
+      .filter((token: any) => token.id.token === address.toLowerCase() && !!token.volume)
+      .sort((tokenA: any, tokenB: any) => tokenB.volume - tokenA.volume),
+  )
 }
 const getHistoryCandleStatus = (pairAddress: string, chainId: ChainId) =>
   fetcherDextools(`${NetworkString[chainId]}/api/Uniswap/1/history-candle-status?pair=${pairAddress}`)
@@ -222,16 +226,16 @@ export const checkPairHasDextoolsData = async (
   if (isNativeToken(chainId, currencyA) || isNativeToken(chainId, currencyB)) {
     const token = (isNativeToken(chainId, currencyA) ? currencyB : currencyA) as Token
     if (token?.address) {
-      const searchResults: { id: string }[] = await searchTokenPair(token.address, chainId)
-      console.log('🚀 ~ file: datafeed.tsx ~ line 226 ~ searchResults', searchResults)
-      if (searchResults && searchResults.length > 0 && searchResults[0].id) {
-        const ver = (await getHistoryCandleStatus(searchResults[0].id, chainId)) || 0
+      const searchResults: { id: { pair: string } }[] = (await searchTokenPair(token.address, chainId)) as any
+      const pairAddress = searchResults[0]?.id?.pair
+      if (searchResults && searchResults.length > 0 && pairAddress) {
+        const ver = (await getHistoryCandleStatus(pairAddress, chainId)) || 0
 
         const ts = Math.floor(new Date().getTime() / monthTs) * monthTs
-        const { data } = await getCandlesApi(chainId, searchResults[0].id, ver, ts, 'month')
+        const { data } = await getCandlesApi(chainId, pairAddress, ver, ts, 'month')
         if (data?.candles?.length) {
           res.ver = ver
-          res.pairAddress = searchResults[0].id
+          res.pairAddress = pairAddress
           updateLocalstorageCheckedPair(key, res)
           return Promise.resolve(res)
         }
@@ -242,15 +246,16 @@ export const checkPairHasDextoolsData = async (
     if (isUSDToken(chainId, currencyA) || isUSDToken(chainId, currencyB)) {
       const token = (isUSDToken(chainId, currencyA) ? currencyB : currencyA) as Token
       if (token?.address) {
-        const data1 = await searchTokenPair(token.address, chainId)
-        if (data1.length > 0 && data1[0].id) {
-          const ver = await getHistoryCandleStatus(data1[0].id, chainId)
+        const searchResults = await searchTokenPair(token.address, chainId)
+        const pairAddress = searchResults[0]?.id?.pair
+        if (searchResults.length > 0 && pairAddress) {
+          const ver = await getHistoryCandleStatus(pairAddress, chainId)
           if (ver) {
             const ts = Math.floor(new Date().getTime() / monthTs) * monthTs
-            const { data } = await getCandlesApi(chainId, data1[0].id, ver, ts, 'month', '15m', 'usd')
+            const { data } = await getCandlesApi(chainId, pairAddress, ver, ts, 'month', '15m', 'usd')
             if (data?.candles?.length) {
               res.ver = ver
-              res.pairAddress = data1[0].id
+              res.pairAddress = pairAddress
               updateLocalstorageCheckedPair(key, res)
               return Promise.resolve(res)
             }

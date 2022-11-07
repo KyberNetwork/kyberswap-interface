@@ -23,10 +23,12 @@ const CurrencyListBridge = memo(function CurrencyListV2({
   currencies,
   isOutput,
   onCurrencySelect,
+  listTokenRef,
 }: {
   currencies: WrappedTokenInfo[]
   onCurrencySelect: (currency: WrappedTokenInfo) => void
   isOutput: boolean | undefined
+  listTokenRef: React.Ref<HTMLDivElement>
 }) {
   const [{ tokenInfoIn, tokenInfoOut, poolValueOutMap }] = useBridgeState()
   const currencyBalances = useCurrencyBalances(!isOutput ? currencies : [])
@@ -85,6 +87,7 @@ const CurrencyListBridge = memo(function CurrencyListV2({
               itemSize={56}
               itemCount={currencies.length}
               itemData={currencies}
+              outerRef={listTokenRef}
             >
               {({ data, index, style }) => (
                 <Row
