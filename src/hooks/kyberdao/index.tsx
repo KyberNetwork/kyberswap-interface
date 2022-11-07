@@ -3,7 +3,7 @@ import { useCallback } from 'react'
 
 import MigrateABI from 'constants/abis/kyberdao/migrate.json'
 import StakingABI from 'constants/abis/kyberdao/staking.json'
-import { KNC_ADDRESS } from 'constants/index'
+import { KNCL_ADDRESS, KNC_ADDRESS } from 'constants/index'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
 import { useActiveWeb3React } from 'hooks'
 import { useContract } from 'hooks/useContract'
@@ -36,12 +36,16 @@ export function useKyberDaoStakeActions() {
       if (!stakingContract) {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }
-      const estimateGas = await stakingContract.estimateGas.deposit(amount)
-      const tx = await stakingContract.deposit(amount, {
-        gasLimit: calculateGasMargin(estimateGas),
-      })
-      addTransactionWithType(tx, { type: 'Stake', summary: `KyberDAO` })
-      return tx.hash
+      try {
+        const estimateGas = await stakingContract.estimateGas.deposit(amount)
+        const tx = await stakingContract.deposit(amount, {
+          gasLimit: calculateGasMargin(estimateGas),
+        })
+        addTransactionWithType(tx, { type: 'Stake', summary: `KyberDAO` })
+        return tx.hash
+      } catch (error) {
+        console.log('Stake error:', error.message)
+      }
     },
     [addTransactionWithType, stakingContract],
   )
@@ -64,12 +68,16 @@ export function useKyberDaoStakeActions() {
       if (!migrateContract) {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }
-      const estimateGas = await migrateContract.estimateGas.mintWithOldKnc(amount)
-      const tx = await migrateContract.mintWithOldKnc(amount, {
-        gasLimit: calculateGasMargin(estimateGas),
-      })
-      addTransactionWithType(tx, { type: 'Unstake', summary: `KyberDAO` })
-      return tx.hash
+      try {
+        const estimateGas = await migrateContract.estimateGas.mintWithOldKnc(amount)
+        const tx = await migrateContract.mintWithOldKnc(amount, {
+          gasLimit: calculateGasMargin(estimateGas),
+        })
+        addTransactionWithType(tx, { type: 'Unstake', summary: `KyberDAO` })
+        return tx.hash
+      } catch (error) {
+        console.log('Migrate error: ', error.message)
+      }
     },
     [addTransactionWithType, migrateContract],
   )

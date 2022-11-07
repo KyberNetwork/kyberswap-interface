@@ -1,5 +1,6 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import React from 'react'
+import React, { useCallback } from 'react'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -9,6 +10,8 @@ import { AutoColumn } from 'components/Column'
 import WarningIcon from 'components/Icons/WarningIcon'
 import Modal from 'components/Modal'
 import { AutoRow, RowBetween } from 'components/Row'
+import { useActiveWeb3React } from 'hooks'
+import { useActiveNetwork } from 'hooks/useActiveNetwork'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
@@ -16,13 +19,41 @@ import { useModalOpen, useToggleModal } from 'state/application/hooks'
 const Wrapper = styled.div`
   padding: 24px;
 `
+
+export const useSwitchToEthereum = () => {
+  const { chainId } = useActiveWeb3React()
+  const toggleSwitchEthereumModal = useToggleModal(ApplicationModal.SWITCH_TO_ETHEREUM)
+
+  return {
+    switchToEthereum: useCallback(
+      () =>
+        new Promise(async (resolve: any, reject: any) => {
+          if (chainId === ChainId.MAINNET) {
+            resolve()
+          } else {
+            reject()
+            toggleSwitchEthereumModal()
+          }
+        }),
+      [chainId, toggleSwitchEthereumModal],
+    ),
+  }
+}
+
 export default function SwitchToEthereumModal() {
+  const { chainId } = useActiveWeb3React()
+
   const theme = useTheme()
   const modalOpen = useModalOpen(ApplicationModal.SWITCH_TO_ETHEREUM)
   const toggleModal = useToggleModal(ApplicationModal.SWITCH_TO_ETHEREUM)
-  const handleChangeToEthereum = () => {
-    console.log('change')
-  }
+  const { changeNetwork } = useActiveNetwork()
+
+  const handleChangeToEthereum = useCallback(async () => {
+    if (chainId !== ChainId.MAINNET) {
+      await changeNetwork(ChainId.MAINNET)
+      toggleModal()
+    }
+  }, [changeNetwork, toggleModal, chainId])
   return (
     <Modal isOpen={modalOpen} onDismiss={toggleModal} minHeight={false} maxHeight={90} maxWidth={500}>
       <Wrapper>

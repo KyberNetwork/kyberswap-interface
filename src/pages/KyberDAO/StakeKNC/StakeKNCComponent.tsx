@@ -1,4 +1,6 @@
 import { Trans, t } from '@lingui/macro'
+import { BigNumber } from 'ethers'
+import { parseUnits } from 'ethers/lib/utils'
 import { lighten } from 'polished'
 import { useMemo, useState } from 'react'
 import { Text } from 'rebass'
@@ -14,7 +16,7 @@ import InfoHelper from 'components/InfoHelper'
 import { AutoRow, RowBetween } from 'components/Row'
 import { KNC_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { useStakingInfo } from 'hooks/kyberdao'
+import { useKyberDaoStakeActions, useStakingInfo } from 'hooks/kyberdao'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { NotificationType, useKNCPrice, useNotify, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
@@ -23,7 +25,7 @@ import { getFullDisplayBalance } from 'utils/formatBalance'
 import KNCLogo from '../kncLogo'
 import DelegateConfirmModal from './DelegateConfirmModal'
 import GasPriceExpandableBox from './GasPriceExpandableBox'
-import SwitchToEthereumModal from './SwitchToEthereumModal'
+import SwitchToEthereumModal, { useSwitchToEthereum } from './SwitchToEthereumModal'
 import YourTransactionsModal from './YourTransactionsModal'
 
 const STAKE_TAB: { [key: string]: string } = {
@@ -169,13 +171,27 @@ export default function StakeKNCComponent() {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const { stakedBalance, KNCBalance } = useStakingInfo()
+  const { stake, unstake } = useKyberDaoStakeActions()
   const [activeTab, setActiveTab] = useState(STAKE_TAB.Stake)
   const [inputValue, setInputValue] = useState('1')
   const toggleWalletModal = useWalletModalToggle()
-  const toggleSwitchEthereumModal = useToggleModal(ApplicationModal.SWITCH_TO_ETHEREUM)
   const toggleDelegateConfirm = useToggleModal(ApplicationModal.DELEGATE_CONFIRM)
   const toggleYourTransactions = useToggleModal(ApplicationModal.YOUR_TRANSACTIONS_STAKE_KNC)
   const notify = useNotify()
+
+  const { switchToEthereum } = useSwitchToEthereum()
+
+  const handleStake = () => {
+    switchToEthereum().then(() => {
+      stake(parseUnits(inputValue, 18))
+    })
+  }
+
+  const handleUnstake = () => {
+    switchToEthereum().then(() => {
+      unstake(parseUnits(inputValue, 18))
+    })
+  }
   const handleStakedSuccess = () => {
     notify({
       title: t`Staked Successfully`,
@@ -250,7 +266,18 @@ export default function StakeKNCComponent() {
             </InnerCard>
             <GasPriceExpandableBox />
             {account ? (
-              <ButtonPrimary margin="8px 0px">{activeTab === STAKE_TAB.Stake ? 'Stake' : 'Unstake'}</ButtonPrimary>
+              <ButtonPrimary
+                margin="8px 0px"
+                onClick={() => {
+                  if (activeTab === STAKE_TAB.Stake) {
+                    handleStake()
+                  } else {
+                    handleUnstake()
+                  }
+                }}
+              >
+                {activeTab === STAKE_TAB.Stake ? 'Stake' : 'Unstake'}
+              </ButtonPrimary>
             ) : (
               <ButtonLight onClick={toggleWalletModal}>
                 <InfoHelper

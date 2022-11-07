@@ -1,4 +1,5 @@
 import { Trans } from '@lingui/macro'
+import { useCallback } from 'react'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -7,9 +8,12 @@ import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
+import { useKyberDaoStakeActions } from 'hooks/kyberdao'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
+
+import { useSwitchToEthereum } from './SwitchToEthereumModal'
 
 const Wrapper = styled.div`
   padding: 24px;
@@ -29,9 +33,14 @@ export default function DelegateConfirmModal() {
   const theme = useTheme()
   const modalOpen = useModalOpen(ApplicationModal.DELEGATE_CONFIRM)
   const toggleModal = useToggleModal(ApplicationModal.DELEGATE_CONFIRM)
-  const handleDelegateConfirm = () => {
-    console.log('change')
-  }
+  const { switchToEthereum } = useSwitchToEthereum()
+  // const {delegate } = useKyberDaoStakeActions()
+
+  const handleDelegateConfirm = useCallback(() => {
+    switchToEthereum().then(() => {
+      console.log(1)
+    })
+  }, [switchToEthereum])
   return (
     <Modal isOpen={modalOpen} onDismiss={toggleModal} minHeight={false} maxHeight={90} maxWidth={500}>
       <Wrapper>
