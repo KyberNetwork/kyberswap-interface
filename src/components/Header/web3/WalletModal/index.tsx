@@ -1,4 +1,4 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { WalletReadyState } from '@solana/wallet-adapter-base'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { UnsupportedChainIdError } from '@web3-react/core'
@@ -143,7 +143,7 @@ const WALLET_VIEWS = {
 }
 
 export default function WalletModal() {
-  const { account, isSolana, isEVM, chainId } = useActiveWeb3React()
+  const { account, isSolana, isEVM, chainId, walletKey } = useActiveWeb3React()
   // important that these are destructed from the account-specific web3-react context
   const { active, connector, error } = useWeb3React()
   const { connected, connecting, wallet: solanaWallet } = useWallet()
@@ -465,7 +465,15 @@ export default function WalletModal() {
           ) : (
             <>
               <Trans>Select a Network</Trans>
-              <Networks width={5} mt={16} mb={24} isAcceptedTerm={isAcceptedTerm} selectedId={chainId} />
+              <Networks
+                width={5}
+                mt={16}
+                mb={24}
+                isAcceptedTerm={isAcceptedTerm}
+                selectedId={chainId}
+                disabledAll={walletKey === 'WALLET_CONNECT'}
+                disabledAllMsg={t`You are currently connected through WalletConnect. If you want to change the connected network, please disconnect your wallet before changing the network.`}
+              />
               <Trans>Select a Wallet</Trans>
               <OptionGrid>{getOptions()}</OptionGrid>
             </>

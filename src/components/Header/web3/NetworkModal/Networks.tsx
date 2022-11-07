@@ -100,6 +100,8 @@ const Networks = ({
   customOnSelectNetwork,
   customToggleModal,
   disabledMsg,
+  disabledAll,
+  disabledAllMsg,
 }: {
   onChangedNetwork?: () => any
   width: number
@@ -111,6 +113,8 @@ const Networks = ({
   customOnSelectNetwork?: (chainId: ChainId) => void
   customToggleModal?: () => void
   disabledMsg?: string
+  disabledAll?: boolean
+  disabledAllMsg?: string
 }) => {
   const changeNetwork = useChangeNetwork()
   const qs = useParsedQueryString()
@@ -146,8 +150,17 @@ const Networks = ({
           : (isDarkMode && iconDark) || icon
 
         return (
-          <MouseoverTooltip style={{ zIndex: Z_INDEXS.MODAL + 1 }} key={key} text={disabled ? disabledMsg : ''}>
-            <SelectNetworkButton key={i} padding="0" onClick={() => !selected && onSelect(key)} disabled={disabled}>
+          <MouseoverTooltip
+            style={{ zIndex: Z_INDEXS.MODAL + 1 }}
+            key={key}
+            text={disabled ? disabledMsg : disabledAll ? disabledAllMsg : ''}
+          >
+            <SelectNetworkButton
+              key={i}
+              padding="0"
+              onClick={() => !selected && onSelect(key)}
+              disabled={disabledAll || disabled}
+            >
               <ListItem selected={selected}>
                 <img src={imgSrc} alt="Switch Network" style={{ height: '20px', marginRight: '4px' }} />
                 <NetworkLabel>{name}</NetworkLabel>
