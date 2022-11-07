@@ -14,6 +14,7 @@ import MultichainLogoLight from 'assets/images/multichain_white.png'
 import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
 import { ReactComponent as Dollar } from 'assets/svg/dollar.svg'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
+import ChangeLog from 'components/ChangeLog'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import Menu, { NewLabel } from 'components/Menu'
 import Settings from 'components/Settings'
@@ -98,6 +99,7 @@ const HeaderElement = styled.div`
 const HeaderElementWrap = styled.div`
   display: flex;
   align-items: center;
+  margin-left: 8px;
 `
 
 const HeaderRow = styled(RowFixed)`
@@ -566,6 +568,7 @@ export default function Header() {
           </AccountElement>
         </HeaderElement>
         <HeaderElementWrap>
+          <ChangeLog />
           <Settings />
           <Menu />
         </HeaderElementWrap>
