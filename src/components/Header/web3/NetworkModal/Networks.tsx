@@ -11,7 +11,6 @@ import { MAINNET_NETWORKS, NETWORKS_INFO } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { useChangeNetwork } from 'hooks/useChangeNetwork'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import { useNetworkModalToggle } from 'state/application/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
 
 const NewLabel = styled.span`
@@ -117,12 +116,9 @@ const Networks = ({
   const qs = useParsedQueryString()
   const history = useHistory()
   const isDarkMode = useIsDarkMode()
-  const toggleNetworkModalGlobal = useNetworkModalToggle()
-
-  const toggleNetworkModal = customToggleModal || toggleNetworkModalGlobal
 
   const onSelect = (chainId: ChainId) => {
-    toggleNetworkModal()
+    customToggleModal?.()
     if (customOnSelectNetwork) {
       customOnSelectNetwork(chainId)
     } else {
