@@ -14,6 +14,7 @@ export interface StepCustom extends Step {
   callbackEndStep?: () => void
 }
 
+// todo namgold: fix this hardcode
 export const TutorialNumbers = {
   TOTAL_STEP: 9,
   STEP_BRIDGE: 6,

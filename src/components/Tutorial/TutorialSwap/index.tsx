@@ -17,6 +17,7 @@ import useTheme from 'hooks/useTheme'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
+import { filterTruthy } from 'utils'
 
 import CustomMask from './CustomMask'
 import CustomPopup from './CustomPopup'
@@ -234,9 +235,10 @@ const CustomCss = createGlobalStyle`
     outline: none;
   };
 `
-const getListSteps = (isLogin: boolean) => {
+const getListSteps = (isLogin: boolean, isSolana: boolean) => {
+  let stepNumber = 0
   const isHighlightBtnConnectWallet = !isLogin || isMobile
-  return [
+  return filterTruthy([
     {
       title: (
         <Heading style={{ fontSize: 20 }}>
@@ -253,7 +255,7 @@ const getListSteps = (isLogin: boolean) => {
           </ButtonPrimary>
         </Flex>
       ),
-      stepNumber: 0,
+      stepNumber: stepNumber++,
       description: <Welcome />,
       pcOnly: true,
       center: true,
@@ -268,16 +270,16 @@ const getListSteps = (isLogin: boolean) => {
           LIST_TITLE.YOUR_WALLET
         )
       ) : (
-        <Title stepNumber={1} />
+        <Title stepNumber={stepNumber} />
       ),
-      stepNumber: 1,
+      stepNumber: stepNumber++,
       description: <Step1 />,
       orientationPreferences: [CardinalOrientation.SOUTHEAST, CardinalOrientation.NORTHWEST],
     },
     {
       selector: TutorialIds.SELECT_NETWORK,
-      title: isMobile ? LIST_TITLE.SELECT_NETWORK : <Title stepNumber={2} />,
-      stepNumber: 2,
+      title: isMobile ? LIST_TITLE.SELECT_NETWORK : <Title stepNumber={stepNumber} />,
+      stepNumber: stepNumber++,
       description: (
         <Layout title={LIST_TITLE.SELECT_NETWORK}>
           <Desc>
@@ -292,8 +294,8 @@ const getListSteps = (isLogin: boolean) => {
     },
     {
       selector: TutorialIds.SWAP_FORM,
-      title: isMobile ? LIST_TITLE.START_TRADING : <Title stepNumber={3} />,
-      stepNumber: 3,
+      title: isMobile ? LIST_TITLE.START_TRADING : <Title stepNumber={stepNumber} />,
+      stepNumber: stepNumber++,
       description: <Step3 videoStyle={{ minHeight: Math.min(window.innerHeight / 2, 500) }} />,
       popupStyle: { width: Math.min(0.8 * window.innerWidth, 700) },
       requiredClickSelector: '#' + TutorialIds.BUTTON_SETTING_SWAP_FORM,
@@ -301,8 +303,8 @@ const getListSteps = (isLogin: boolean) => {
     },
     {
       selector: TutorialIds.BUTTON_SETTING_SWAP_FORM,
-      title: isMobile ? LIST_TITLE.SETTING : <Title stepNumber={4} />,
-      stepNumber: 4,
+      title: isMobile ? LIST_TITLE.SETTING : <Title stepNumber={stepNumber} />,
+      stepNumber: stepNumber,
       maskPadding: 10,
       description: (
         <Layout title={LIST_TITLE.SETTING}>
@@ -319,8 +321,8 @@ const getListSteps = (isLogin: boolean) => {
     },
     {
       selector: TutorialIds.SWAP_FORM,
-      title: isMobile ? LIST_TITLE.SETTING : <Title stepNumber={4} />,
-      stepNumber: 4,
+      title: isMobile ? LIST_TITLE.SETTING : <Title stepNumber={stepNumber} />,
+      stepNumber: stepNumber++,
       requiredClickSelector: '#' + TutorialIds.BUTTON_SETTING_SWAP_FORM,
       selectorHint: '#' + TutorialIds.TRADING_SETTING_CONTENT,
       description: (
@@ -340,8 +342,8 @@ const getListSteps = (isLogin: boolean) => {
     },
     {
       selector: TutorialIds.BRIDGE_LINKS,
-      title: isMobile ? LIST_TITLE.BRIDGE : <Title stepNumber={5} />,
-      stepNumber: 5,
+      title: isMobile ? LIST_TITLE.BRIDGE : <Title stepNumber={stepNumber} />,
+      stepNumber: stepNumber++,
       description: (
         <Layout title={LIST_TITLE.BRIDGE}>
           <Desc>
@@ -354,26 +356,29 @@ const getListSteps = (isLogin: boolean) => {
       ),
       orientationPreferences: [CardinalOrientation.SOUTH],
     },
-    {
-      selector: TutorialIds.EARNING_LINKS,
-      title: isMobile ? LIST_TITLE.EARN : <Title stepNumber={6} />,
-      stepNumber: 6,
-      description: (
-        <Layout title={LIST_TITLE.EARN}>
-          <Desc>
-            <Trans>
-              Add liquidity into our Pools to earn trading fees & participate in our Farms to earn additional rewards!
-            </Trans>
-          </Desc>
-          <ImageMobile imageName="step5.png" />
-        </Layout>
-      ),
-      orientationPreferences: [CardinalOrientation.SOUTH],
-    },
+    isSolana
+      ? undefined
+      : {
+          selector: TutorialIds.EARNING_LINKS,
+          title: isMobile ? LIST_TITLE.EARN : <Title stepNumber={stepNumber} />,
+          stepNumber: stepNumber++,
+          description: (
+            <Layout title={LIST_TITLE.EARN}>
+              <Desc>
+                <Trans>
+                  Add liquidity into our Pools to earn trading fees & participate in our Farms to earn additional
+                  rewards!
+                </Trans>
+              </Desc>
+              <ImageMobile imageName="step5.png" />
+            </Layout>
+          ),
+          orientationPreferences: [CardinalOrientation.SOUTH],
+        },
     {
       selector: TutorialIds.CAMPAIGN_LINK,
-      title: isMobile ? LIST_TITLE.CAMPAIGN : <Title stepNumber={7} />,
-      stepNumber: 7,
+      title: isMobile ? LIST_TITLE.CAMPAIGN : <Title stepNumber={stepNumber} />,
+      stepNumber: stepNumber++,
       description: (
         <Layout title={LIST_TITLE.CAMPAIGN}>
           <Desc>
@@ -387,8 +392,8 @@ const getListSteps = (isLogin: boolean) => {
     },
     {
       selector: TutorialIds.DISCOVER_LINK,
-      title: isMobile ? LIST_TITLE.DISCOVER : <Title stepNumber={8} />,
-      stepNumber: 8,
+      title: isMobile ? LIST_TITLE.DISCOVER : <Title stepNumber={stepNumber} />,
+      stepNumber: stepNumber++,
       description: (
         <Layout title={LIST_TITLE.DISCOVER}>
           <Desc>
@@ -405,8 +410,8 @@ const getListSteps = (isLogin: boolean) => {
     },
     {
       selector: TutorialIds.BUTTON_VIEW_GUIDE_SWAP,
-      title: isMobile ? LIST_TITLE.VIEW_GUIDE : <Title stepNumber={9} />,
-      stepNumber: 9,
+      title: isMobile ? LIST_TITLE.VIEW_GUIDE : <Title stepNumber={stepNumber} />,
+      stepNumber: stepNumber++,
       maskPadding: 10,
       requiredClickSelector: '#' + TutorialIds.BUTTON_SETTING,
       stopPropagationMouseDown: true,
@@ -428,7 +433,7 @@ const getListSteps = (isLogin: boolean) => {
         </Layout>
       ),
     },
-  ]
+  ])
 }
 
 const TutorialKeys = {
@@ -438,7 +443,7 @@ const TutorialKeys = {
 export default memo(function TutorialSwap() {
   const [{ show = false, step = 0 }, setShowTutorial] = useTutorialSwapGuide()
   const stopTutorial = () => setShowTutorial({ show: false })
-  const { account } = useActiveWeb3React()
+  const { account, isSolana } = useActiveWeb3React()
   const { mixpanelHandler } = useMixpanel()
 
   useEffect(() => {
@@ -450,7 +455,7 @@ export default memo(function TutorialSwap() {
   }, [setShowTutorial])
 
   const steps = useMemo(() => {
-    const list = getListSteps(!!account)
+    const list = getListSteps(!!account, isSolana)
     if (isMobile) {
       return list
         .filter(e => !e.pcOnly)
@@ -464,7 +469,7 @@ export default memo(function TutorialSwap() {
       description: e.description as unknown as string, // because this lib type check description is string but actually it accept any
       selector: '#' + e.selector,
     }))
-  }, [account])
+  }, [account, isSolana])
 
   const stepInfo = (steps[step] || {}) as StepCustom
 
@@ -508,6 +513,7 @@ export default memo(function TutorialSwap() {
 
   const onNext = (logic: WalktourLogic) => {
     const { stepIndex, close } = logic
+    // todo namgold: fix this hardcode
     if (stepIndex - 1 === TutorialNumbers.TOTAL_STEP) {
       onFinished()
       close()
