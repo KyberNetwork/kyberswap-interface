@@ -367,6 +367,7 @@ export function CurrencySearch({
         tokens = Object.values(defaultTokens) as WrappedTokenInfo[]
       }
       if (fetchingToken.current === fetchId) {
+        // sometimes, API slow, api fetch later has response sooner.
         const parsedTokenList = filterTruthy(tokens.map(formatAndCacheToken))
         setPageCount(nextPage)
         setFetchedTokens(current => (nextPage === 1 ? [] : current).concat(parsedTokenList))
