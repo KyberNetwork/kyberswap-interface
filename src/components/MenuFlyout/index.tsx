@@ -1,12 +1,10 @@
 import React from 'react'
 import { isMobile } from 'react-device-detect'
-import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import { AutoColumn } from 'components/Column'
 import Modal from 'components/Modal'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
-import useTheme from 'hooks/useTheme'
 
 import { ReactComponent as Close } from '../../assets/images/x.svg'
 
@@ -90,7 +88,6 @@ const MenuFlyout = (props: {
   toggle: () => void
   children: React.ReactNode
   node: any
-  translatedTitle?: string
   hasArrow?: boolean
 }) => {
   useOnClickOutside(props.node, props.isOpen && !isMobile ? props.toggle : undefined)
@@ -99,17 +96,13 @@ const MenuFlyout = (props: {
     return (
       <Modal isOpen={true} onDismiss={props.toggle} maxWidth={900}>
         <MobileStyle customStyle={props.mobileCustomStyle}>
-          <MenuTitleWrapper toggle={props.toggle} translatedTitle={props.translatedTitle} fontSize={16}>
-            {props.children}
-          </MenuTitleWrapper>
+          <MenuTitleWrapper toggle={props.toggle}>{props.children}</MenuTitleWrapper>
         </MobileStyle>
       </Modal>
     )
   return (
     <BrowserStyle hasArrow={!!props.hasArrow} customStyle={props.browserCustomStyle}>
-      <MenuTitleWrapper toggle={props.toggle} translatedTitle={props.translatedTitle} fontSize={16}>
-        {props.children}
-      </MenuTitleWrapper>
+      <MenuTitleWrapper toggle={props.toggle}>{props.children}</MenuTitleWrapper>
     </BrowserStyle>
   )
 }
@@ -132,16 +125,7 @@ const CloseColor = styled(Close)`
   }
 `
 
-const MenuTitleWrapper = (props: {
-  toggle: () => void
-  translatedTitle?: string
-  children: React.ReactNode
-  fontSize?: string | number
-}) => {
-  const theme = useTheme()
-
-  if (!props.translatedTitle) return <>{props.children}</>
-
+const MenuTitleWrapper = (props: { toggle: () => void; children: React.ReactNode }) => {
   return (
     <AutoColumn gap={isMobile ? '14px' : '10px'}>
       {isMobile && (
@@ -149,9 +133,6 @@ const MenuTitleWrapper = (props: {
           <CloseColor />
         </CloseIcon>
       )}
-      <Text fontWeight={500} fontSize={props.fontSize || 16} color={theme.text}>
-        {props.translatedTitle}
-      </Text>
       <AutoColumn>{props.children}</AutoColumn>
     </AutoColumn>
   )

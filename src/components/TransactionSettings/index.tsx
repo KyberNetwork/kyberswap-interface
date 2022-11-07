@@ -3,6 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import { darken } from 'polished'
 import React, { useCallback, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
+import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
@@ -391,11 +392,13 @@ export default function TransactionSettings({
           browserCustomStyle={MenuFlyoutBrowserStyle}
           isOpen={open}
           toggle={toggle}
-          translatedTitle={t`Advanced Settings`}
           mobileCustomStyle={{ paddingBottom: '40px' }}
           hasArrow
         >
           <>
+            <Text fontWeight={500} fontSize={16} color={theme.text}>
+              {t`Advanced Settings`}
+            </Text>
             <SlippageTabs
               rawSlippage={userSlippageTolerance}
               setRawSlippage={setUserSlippageTolerance}
