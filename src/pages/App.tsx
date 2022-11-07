@@ -1,7 +1,7 @@
 import { ApolloProvider } from '@apollo/client'
 import { datadogRum } from '@datadog/browser-rum'
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import * as Sentry from '@sentry/react'
 import { Popover, Sidetab } from '@typeform/embed-react'
 import { Suspense, lazy, useEffect } from 'react'
@@ -143,7 +143,7 @@ export default function App() {
       {width && width >= 768 ? (
         <Sidetab
           id={feedbackId}
-          buttonText="Feedback"
+          buttonText={t`Feedback`}
           buttonColor={theme.primary}
           customIcon={isDarkTheme ? 'https://i.imgur.com/iTOOKnr.png' : 'https://i.imgur.com/aPCpnGg.png'}
         />
