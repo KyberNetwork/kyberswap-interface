@@ -31,6 +31,8 @@ interface Window {
   mozIndexedDB?: any
   webkitIndexedDB?: any
   msIndexedDB?: any
+
+  $sleek?: any
 }
 
 declare module 'content-hash' {
