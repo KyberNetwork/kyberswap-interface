@@ -1,5 +1,4 @@
 import { createAction } from '@reduxjs/toolkit'
-import { Keypair } from '@solana/web3.js'
 
 import { FeeConfig } from 'hooks/useSwapV2Callback'
 import { Aggregator } from 'utils/aggregator'
@@ -23,7 +22,6 @@ export const replaceSwapState = createAction<{
   outputCurrencyId?: string
   recipient: string | null
   feeConfig: FeeConfig | undefined
-  programState: Keypair
 }>('swap/replaceSwapState')
 export const setSwapState = createAction<{
   showConfirm: boolean

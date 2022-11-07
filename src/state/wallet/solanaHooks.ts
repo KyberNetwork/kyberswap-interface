@@ -8,11 +8,13 @@ import { useEffect, useMemo, useState } from 'react'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import connection from 'state/connection/connection'
+import { useAllTransactions } from 'state/transactions/hooks'
 import { isAddress } from 'utils'
 
 export const useSOLBalance = (uncheckedAddress?: string): CurrencyAmount<Currency> | undefined => {
   const { chainId, account, isSolana } = useActiveWeb3React()
   const [solBalance, setSolBalance] = useState<CurrencyAmount<Currency> | undefined>(undefined)
+  const allTransactions = useAllTransactions()
 
   useEffect(() => {
     const getBalance = async () => {
@@ -31,12 +33,12 @@ export const useSOLBalance = (uncheckedAddress?: string): CurrencyAmount<Currenc
         }
       } catch (e) {}
     }
-    setSolBalance(undefined)
     getBalance()
 
     // do not add solBalance to deps list, it would trigger infinity loops calling rpc calls
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
+    allTransactions,
     account,
     chainId,
     isSolana,
@@ -59,6 +61,7 @@ export const useAssociatedTokensAccounts = (): { [mintAddress: string]: AccountI
   const { isSolana } = useActiveWeb3React()
 
   const { publicKey } = useWallet()
+  const allTransactions = useAllTransactions()
   const [atas, setAtas] = useState<{ [mintAddress: string]: AccountInfoParsed } | null>(null)
 
   useEffect(() => {
@@ -85,7 +88,7 @@ export const useAssociatedTokensAccounts = (): { [mintAddress: string]: AccountI
     }
 
     getTokenAccounts(publicKey)
-  }, [publicKey, isSolana])
+  }, [allTransactions, publicKey, isSolana])
 
   return atas
 }
@@ -96,7 +99,7 @@ export function useTokensBalanceSolana(tokens?: Token[]): [TokenAmount | undefin
   // ): { [mintAddress: string]: TokenAmount | false } => {
   const atas = useAssociatedTokensAccounts()
   const [tokensBalance, setTokensBalance] = useState<{ [mintAddress: string]: TokenAmount | undefined }>({})
-
+  const allTransactions = useAllTransactions()
   const tokensMap: { [mintAddress: string]: Token } = useMemo(() => {
     return (
       tokens?.reduce((acc, token) => {
@@ -113,7 +116,7 @@ export function useTokensBalanceSolana(tokens?: Token[]): [TokenAmount | undefin
         return acc
       }, {} as { [mintAddress: string]: TokenAmount | undefined }) || {}
     setTokensBalance(newTokensBalance)
-  }, [tokens])
+  }, [allTransactions, tokens])
 
   useEffect(() => {
     async function getTokenAccounts() {
@@ -138,7 +141,7 @@ export function useTokensBalanceSolana(tokens?: Token[]): [TokenAmount | undefin
     if (atas) {
       getTokenAccounts()
     }
-  }, [atas, tokens, tokensMap])
+  }, [allTransactions, atas, tokens, tokensMap])
 
   return useMemo(
     () => tokens?.map(token => [tokensBalance[token.address] || undefined, !tokensBalance[token.address]]) ?? [],

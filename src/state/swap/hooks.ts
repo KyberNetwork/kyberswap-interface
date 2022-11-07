@@ -2,7 +2,6 @@ import { parseUnits } from '@ethersproject/units'
 import { t } from '@lingui/macro'
 import { Trade } from '@namgold/ks-sdk-classic'
 import { ChainId, Currency, CurrencyAmount, TradeType } from '@namgold/ks-sdk-core'
-import { Keypair } from '@solana/web3.js'
 import JSBI from 'jsbi'
 import { ParsedQs } from 'qs'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -353,7 +352,6 @@ function queryParametersToSwapState(parsedQs: ParsedQs, chainId: ChainId): Omit<
     attemptingTxn: false,
     swapErrorMessage: undefined,
     txHash: undefined,
-    programState: new Keypair(),
   }
 }
 
@@ -420,7 +418,6 @@ export const useDefaultsFromURLSearch = ():
         outputCurrencyId,
         recipient: parsed.recipient,
         feeConfig: parsed.feeConfig,
-        programState: new Keypair(),
       }),
     )
 

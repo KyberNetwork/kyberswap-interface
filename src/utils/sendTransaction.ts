@@ -1,9 +1,8 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
-import { ChainId, Token, WETH } from '@namgold/ks-sdk-core'
 import { captureException } from '@sentry/react'
 import { SignerWalletAdapter } from '@solana/wallet-adapter-base'
-import { PublicKey, Transaction, sendAndConfirmRawTransaction } from '@solana/web3.js'
+import { Transaction, sendAndConfirmRawTransaction } from '@solana/web3.js'
 import { ethers } from 'ethers'
 
 import connection from 'state/connection/connection'
@@ -12,11 +11,6 @@ import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { calculateGasMargin } from 'utils'
 
 import { Aggregator } from './aggregator'
-import {
-  checkAndCreateWrapSOLInstructions,
-  createAtaInstruction,
-  createUnwrapSOLInstruction,
-} from './solanaInstructions'
 
 export async function sendEVMTransaction(
   account: string,
@@ -106,6 +100,13 @@ export async function sendEVMTransaction(
   }
 }
 
+const getInspectTxSolanaUrl = (tx: Transaction | undefined | null) => {
+  if (!tx) return ''
+  const base64Str = Buffer.concat([Buffer.from([0]), tx.serializeMessage()]).toString('base64')
+  return base64Str
+  // return 'https://explorer.solana.com/tx/inspector?signatures=%255B%255D&message=' + escape(escape(base64Str))
+}
+
 export async function sendSolanaTransactionWithBEEncode(
   account: string,
   trade: Aggregator,
@@ -113,65 +114,20 @@ export async function sendSolanaTransactionWithBEEncode(
   handler: (hash: string, firstTxHash: string) => void,
   handleCustomTypeResponse: (type: TRANSACTION_TYPE, hash: string, firstTxHash: string) => void,
 ): Promise<string[] | undefined> {
-  if (!trade.encodedSwapTx) return
-  const accountPK = new PublicKey(account)
-  const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash()
+  if (!trade.swapTx) return
 
   const txs: Transaction[] = []
 
-  let setupTx: Transaction | null = null
-  const prepareSetupTx =
-    trade.encodedCreateOrderTx ||
-    new Transaction({
-      blockhash,
-      lastValidBlockHeight,
-      feePayer: accountPK,
-    })
-  prepareSetupTx.recentBlockhash = blockhash
-  prepareSetupTx.lastValidBlockHeight = lastValidBlockHeight
-  prepareSetupTx.feePayer = accountPK
-
-  if (trade.inputAmount.currency.isNative) {
-    const wrapIxs = await checkAndCreateWrapSOLInstructions(accountPK, trade.inputAmount)
-    if (wrapIxs) prepareSetupTx.add(...wrapIxs)
+  if (trade.setupTx) {
+    txs.push(trade.setupTx)
   }
 
-  await Promise.all(
-    Object.entries(trade.tokens).map(async ([tokenAddress, token]) => {
-      if (!token) return
-      if (tokenAddress === WETH[ChainId.SOLANA].address) return
-      const createAtaIxs = await createAtaInstruction(
-        accountPK,
-        new Token(ChainId.SOLANA, tokenAddress, token?.decimals || 0),
-      )
-      if (createAtaIxs) prepareSetupTx.add(createAtaIxs)
-    }),
-  )
+  txs.push(trade.swapTx)
 
-  if (prepareSetupTx.instructions.length) {
-    setupTx = prepareSetupTx
-    txs.push(setupTx)
+  if (trade.cleanUpTx) {
+    txs.push(trade.cleanUpTx)
   }
 
-  const swapTx = trade.encodedSwapTx
-  swapTx.recentBlockhash = blockhash
-  swapTx.lastValidBlockHeight = lastValidBlockHeight
-  swapTx.feePayer = accountPK
-  await swapTx.partialSign(trade.programState)
-  txs.push(swapTx)
-
-  let cleanUpTx: Transaction | null = null
-
-  if (trade.outputAmount.currency.isNative) {
-    cleanUpTx = new Transaction({
-      blockhash,
-      lastValidBlockHeight,
-      feePayer: accountPK,
-    })
-    const closeWSOLIxs = await createUnwrapSOLInstruction(accountPK)
-    if (closeWSOLIxs) cleanUpTx.add(closeWSOLIxs)
-    txs.push(cleanUpTx)
-  }
   const populateTx = (txs: Transaction[]) => {
     const result: {
       signedSetupTx: Transaction | undefined
@@ -179,59 +135,68 @@ export async function sendSolanaTransactionWithBEEncode(
       signedCleanUpTx: Transaction | undefined
     } = { signedSetupTx: undefined, signedSwapTx: undefined, signedCleanUpTx: undefined }
     let count = 0
-    if (setupTx) result.signedSetupTx = txs[count++]
+    if (trade.setupTx) result.signedSetupTx = txs[count++]
     result.signedSwapTx = txs[count++]
     result.signedCleanUpTx = txs[count++]
     return result
   }
 
   console.group('Sending transactions:')
-  console.info('setup tx:', setupTx ? setupTx.serializeMessage().toString('base64') : null)
-  console.info('swap tx:', swapTx ? swapTx.serializeMessage().toString('base64') : null)
-  console.info('clean up tx:', cleanUpTx ? cleanUpTx.serializeMessage().toString('base64') : null)
+  trade.setupTx && console.info('setup tx:', getInspectTxSolanaUrl(trade.setupTx))
+  console.info('swap tx:', getInspectTxSolanaUrl(trade.swapTx))
+  trade.cleanUpTx && console.info('clean up tx:', getInspectTxSolanaUrl(trade.cleanUpTx))
+  console.info('inspector: https://explorer.solana.com/tx/inspector')
   console.groupEnd()
-  let signedTxs: Transaction[]
+
   try {
-    signedTxs = await (solanaWallet as SignerWalletAdapter).signAllTransactions(txs)
+    let signedTxs: Transaction[]
+    try {
+      debugger
+      signedTxs = await (solanaWallet as SignerWalletAdapter).signAllTransactions(txs)
+      debugger
+    } catch (e) {
+      console.log({ e })
+      throw e
+    }
+    const { signedSetupTx, signedSwapTx, signedCleanUpTx } = populateTx(signedTxs)
+    const txHashs: string[] = []
+    if (signedSetupTx) {
+      try {
+        debugger
+        const setupHash = await sendAndConfirmRawTransaction(connection, signedSetupTx.serialize())
+        txHashs.push(setupHash)
+        handleCustomTypeResponse(TRANSACTION_TYPE.SETUP, setupHash, txHashs[0])
+      } catch (error) {
+        console.error({ error })
+        throw new Error('Set up error' + (error.message ? ': ' + error.message : ''))
+      }
+    }
+
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const swapHash = await sendAndConfirmRawTransaction(connection, signedSwapTx!.serialize())
+      txHashs.push(swapHash)
+      handler(swapHash, txHashs[0])
+    } catch (error) {
+      console.error({ error })
+      if (error?.message?.endsWith('0x1771')) {
+        throw new Error('An error occurred. Try refreshing the price rate or increase max slippage')
+      }
+      throw error
+    }
+
+    if (signedCleanUpTx) {
+      try {
+        const cleanUpHash = await sendAndConfirmRawTransaction(connection, signedCleanUpTx.serialize())
+        txHashs.push(cleanUpHash)
+        handleCustomTypeResponse(TRANSACTION_TYPE.CLEANUP, cleanUpHash, txHashs[0])
+      } catch (error) {
+        console.error({ error })
+        throw new Error('Clean up error' + (error.message ? ': ' + error.message : ''))
+      }
+    }
+    return txHashs
   } catch (e) {
-    throw new Error('Transaction rejected.')
+    throw e
   }
-  const { signedSetupTx, signedSwapTx, signedCleanUpTx } = populateTx(signedTxs)
-  const txHashs: string[] = []
-  if (signedSetupTx) {
-    try {
-      const setupHash = await sendAndConfirmRawTransaction(connection, signedSetupTx.serialize())
-      txHashs.push(setupHash)
-      handleCustomTypeResponse(TRANSACTION_TYPE.SETUP, setupHash, txHashs[0])
-    } catch (e) {
-      console.error(e)
-      throw new Error('Set up error', { cause: e })
-    }
-  }
-
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const swapHash = await sendAndConfirmRawTransaction(connection, signedSwapTx!.serialize())
-    txHashs.push(swapHash)
-    handler(swapHash, txHashs[0])
-  } catch (error) {
-    console.error({ error })
-    if (error?.message?.endsWith('0x1771')) {
-      throw new Error('An error occurred. Try refreshing the price rate or increase max slippage', { cause: error })
-    }
-    throw new Error('Swap error' + (error.message ? ': ' + error.message : ''), { cause: error })
-  }
-
-  if (signedCleanUpTx) {
-    try {
-      const cleanUpHash = await sendAndConfirmRawTransaction(connection, signedCleanUpTx.serialize())
-      txHashs.push(cleanUpHash)
-      handleCustomTypeResponse(TRANSACTION_TYPE.CLEANUP, cleanUpHash, txHashs[0])
-    } catch (e) {
-      console.error(e)
-      throw new Error('Clean up error', { cause: e })
-    }
-  }
-
-  return txHashs
 }

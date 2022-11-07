@@ -10,11 +10,12 @@ const useZap = (isStaticFeeContract: boolean, isOldStaticFeeContract: boolean) =
   const { isEVM, networkInfo } = useActiveWeb3React()
   const calculateZapInAmounts = useCallback(
     async (tokenIn: string, tokenOut: string, pool: string, userIn: BigNumber) => {
+      if (!isEVM) return
       try {
         const result =
           isStaticFeeContract && !isOldStaticFeeContract
             ? await zapContract?.calculateZapInAmounts(
-                isEVM ? (networkInfo as EVMNetworkInfo).classic.static.factory : undefined,
+                (networkInfo as EVMNetworkInfo).classic.static.factory,
                 tokenIn,
                 tokenOut,
                 pool,
@@ -33,11 +34,12 @@ const useZap = (isStaticFeeContract: boolean, isOldStaticFeeContract: boolean) =
 
   const calculateZapOutAmount = useCallback(
     async (tokenIn: string, tokenOut: string, pool: string, lpQty: BigNumber) => {
+      if (!isEVM) return
       try {
         const result =
           isStaticFeeContract && !isOldStaticFeeContract
             ? await zapContract?.calculateZapOutAmount(
-                isEVM ? (networkInfo as EVMNetworkInfo).classic.static.factory : undefined,
+                (networkInfo as EVMNetworkInfo).classic.static.factory,
                 tokenIn,
                 tokenOut,
                 pool,

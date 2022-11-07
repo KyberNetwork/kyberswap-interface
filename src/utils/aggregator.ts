@@ -1,4 +1,5 @@
 import {
+  ChainId,
   Currency,
   CurrencyAmount,
   Fraction,
@@ -17,13 +18,18 @@ import JSBI from 'jsbi'
 import invariant from 'tiny-invariant'
 
 import { DEX_TO_COMPARE } from 'constants/dexes'
-import { ETHER_ADDRESS, KYBERSWAP_SOURCE, sentryRequestId } from 'constants/index'
+import { ETHER_ADDRESS, KYBERSWAP_SOURCE, ZERO_ADDRESS_SOLANA, sentryRequestId } from 'constants/index'
 import { isEVM } from 'constants/networks'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
 import connection from 'state/connection/connection'
 import { AggregationComparer } from 'state/swap/types'
 
 import fetchWaiting from './fetchWaiting'
+import {
+  checkAndCreateAtaInstruction,
+  checkAndCreateWrapSOLInstructions,
+  createUnwrapSOLInstruction,
+} from './solanaInstructions'
 
 export type Swap = {
   pool: string
@@ -85,9 +91,9 @@ export class Aggregator {
   public readonly priceImpact: number
   public readonly encodedSwapData: string
   public readonly routerAddress: string
-  public readonly encodedSwapTx: Transaction | undefined
-  public readonly encodedCreateOrderTx: Transaction | undefined
-  public readonly programState: Keypair
+  public readonly swapTx: Transaction | undefined
+  public readonly setupTx: Transaction | undefined
+  public readonly cleanUpTx: Transaction | undefined
 
   private constructor(
     inputAmount: CurrencyAmount<Currency>,
@@ -102,9 +108,9 @@ export class Aggregator {
     priceImpact: number,
     encodedSwapData: string,
     routerAddress: string,
-    encodedSwapTx: Transaction | undefined,
-    encodedCreateOrderTx: Transaction | undefined,
-    programState: Keypair,
+    swapTx: Transaction | undefined,
+    setupTx: Transaction | undefined,
+    cleanUpTx: Transaction | undefined,
   ) {
     this.tradeType = tradeType
     this.inputAmount = inputAmount
@@ -132,9 +138,9 @@ export class Aggregator {
     this.priceImpact = priceImpact
     this.encodedSwapData = encodedSwapData
     this.routerAddress = routerAddress
-    this.encodedSwapTx = encodedSwapTx
-    this.encodedCreateOrderTx = encodedCreateOrderTx
-    this.programState = programState
+    this.swapTx = swapTx
+    this.setupTx = setupTx
+    this.cleanUpTx = cleanUpTx
   }
 
   /**
@@ -195,8 +201,8 @@ export class Aggregator {
     feeConfig: FeeConfig | undefined,
     signal: AbortSignal,
     minimumLoadingTime: number,
-    programState: Keypair,
   ): Promise<Aggregator | null> {
+    const programState = new Keypair()
     const amountIn = currencyAmountIn
     const tokenOut = currencyOut.wrapped
 
@@ -275,14 +281,22 @@ export class Aggregator {
           ? -1
           : ((-result.amountOutUsd + result.amountInUsd) * 100) / result.amountInUsd
 
-        let swapTx: Transaction | undefined, createOpenOrdersTx: Transaction | undefined
-        if (result.encodedMessage) {
-          const message = Message.from(toByteArray(result.encodedMessage))
+        let swapTx: Transaction | undefined, setupTx: Transaction | undefined, cleanUpTx: Transaction | undefined
 
+        if (result.encodedMessage && to !== ZERO_ADDRESS_SOLANA) {
+          const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash()
+          //#region create set up tx and swap tx
+          const toPK = new PublicKey(to)
+          const message = Message.from(toByteArray(result.encodedMessage))
+          setupTx = new Transaction({
+            blockhash,
+            lastValidBlockHeight,
+            feePayer: toPK,
+          })
+
+          const newOpenOrders: Keypair[] = [] // OpenOrders accounts to be created
           if (result.serumOpenOrdersAccountByMarket) {
             // do Solana magic things
-            const toPK = new PublicKey(to)
-            const newOpenOrders: Keypair[] = [] // OpenOrders accounts to be created
             const actualOpenOrdersByMarket: { [key: string]: PublicKey } = {}
             for (const [market] of Object.entries(result.serumOpenOrdersAccountByMarket)) {
               const openOrdersList = await OpenOrders.findForMarketAndOwner(
@@ -320,8 +334,9 @@ export class Aggregator {
                 }),
               )
             }
+
             if (createOpenOrdersIxs.length) {
-              createOpenOrdersTx = new Transaction({ feePayer: toPK }).add(...createOpenOrdersIxs)
+              setupTx.add(...createOpenOrdersIxs)
 
               // replace dummy OpenOrders account with actual ones
               for (let i = 0; i < message.accountKeys.length; i += 1) {
@@ -337,6 +352,45 @@ export class Aggregator {
           }
 
           swapTx = Transaction.populate(message)
+          swapTx.recentBlockhash = blockhash
+          swapTx.lastValidBlockHeight = lastValidBlockHeight
+          swapTx.feePayer = toPK
+          await swapTx.partialSign(programState)
+
+          let initializedWrapSOL = false
+          if (currencyAmountIn.currency.isNative) {
+            const wrapIxs = await checkAndCreateWrapSOLInstructions(toPK, currencyAmountIn)
+            if (wrapIxs) {
+              setupTx.add(...wrapIxs)
+              initializedWrapSOL = true
+            }
+          }
+
+          await Promise.all(
+            Object.entries(result.tokens || {}).map(async ([tokenAddress, token]: [any, any]) => {
+              if (!token) return
+              if (tokenAddress === WETH[ChainId.SOLANA].address && initializedWrapSOL) return // for case WSOL as part of route
+              const createAtaIxs = await checkAndCreateAtaInstruction(
+                toPK,
+                new Token(ChainId.SOLANA, tokenAddress, token?.decimals || 0),
+              )
+              if (createAtaIxs) (setupTx as Transaction).add(createAtaIxs)
+            }),
+          )
+          newOpenOrders.length && setupTx.partialSign(...newOpenOrders)
+          //#endregion create set up tx and swap tx
+
+          //#region create clean up tx
+          if (outputAmount.currency.isNative) {
+            cleanUpTx = new Transaction({
+              blockhash,
+              lastValidBlockHeight,
+              feePayer: toPK,
+            })
+            const closeWSOLIxs = await createUnwrapSOLInstruction(toPK)
+            if (closeWSOLIxs) cleanUpTx.add(closeWSOLIxs)
+          }
+          //#endregion create clean up tx
         }
 
         return new Aggregator(
@@ -353,8 +407,8 @@ export class Aggregator {
           result.encodedSwapData,
           result.routerAddress,
           swapTx,
-          createOpenOrdersTx,
-          programState,
+          setupTx?.instructions.length ? setupTx : undefined,
+          cleanUpTx,
         )
       } catch (e) {
         // ignore aborted request error

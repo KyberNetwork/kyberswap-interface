@@ -1,5 +1,4 @@
 import { createReducer } from '@reduxjs/toolkit'
-import { Keypair } from '@solana/web3.js'
 import { parse } from 'qs'
 
 import { FeeConfig } from 'hooks/useSwapV2Callback'
@@ -42,7 +41,6 @@ export interface SwapState {
   readonly attemptingTxn: boolean
   readonly swapErrorMessage: string | undefined
   readonly txHash: string | undefined
-  readonly programState: Keypair
 }
 
 const { search } = window.location
@@ -69,17 +67,13 @@ const initialState: SwapState = {
   attemptingTxn: false,
   swapErrorMessage: undefined,
   txHash: undefined,
-  programState: new Keypair(),
 }
 
 export default createReducer<SwapState>(initialState, builder =>
   builder
     .addCase(
       replaceSwapState,
-      (
-        state,
-        { payload: { typedValue, recipient, field, inputCurrencyId, outputCurrencyId, feeConfig, programState } },
-      ) => {
+      (state, { payload: { typedValue, recipient, field, inputCurrencyId, outputCurrencyId, feeConfig } }) => {
         return {
           ...state,
           [Field.INPUT]: {
@@ -95,7 +89,6 @@ export default createReducer<SwapState>(initialState, builder =>
           feeConfig,
           trendingSoonShowed: state.trendingSoonShowed,
           trade: state.trade,
-          programState,
         }
       },
     )
@@ -109,7 +102,6 @@ export default createReducer<SwapState>(initialState, builder =>
           attemptingTxn,
           swapErrorMessage,
           txHash,
-          programState: new Keypair(),
         }
       },
     )

@@ -280,6 +280,7 @@ export default function Updater(): null {
                       if (transaction.arbitrary) {
                         mixpanelHandler(MIXPANEL_TYPE.SWAP_COMPLETED, {
                           arbitrary: transaction.arbitrary,
+                          gas_price: tx.meta?.fee,
                           tx_hash: hash,
                         })
                       }

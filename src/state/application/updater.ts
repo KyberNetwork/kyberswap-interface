@@ -50,7 +50,6 @@ export default function Updater(): null {
     }
   }, [dispatch, chainId, library, blockNumberCallback, windowVisible, isEVM])
 
-  // attach/detach listeners
   useEffect(() => {
     if (!windowVisible) return undefined
     if (!isSolana) return undefined
@@ -58,9 +57,11 @@ export default function Updater(): null {
     setState({ chainId, blockNumber: null })
 
     const intervalToken = setInterval(async () => {
-      const blockHeight = await connection.getBlockHeight()
-      blockNumberCallback(blockHeight)
-    }, 5000)
+      try {
+        const blockHeight = await connection.getBlockHeight()
+        blockNumberCallback(blockHeight)
+      } catch {}
+    }, 10000)
 
     return () => {
       clearInterval(intervalToken)
