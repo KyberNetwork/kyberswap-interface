@@ -28,10 +28,11 @@ const arbitrumTestnetInfo: EVMNetworkInfo = {
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.ARBITRUM_TESTNET}&isWhitelisted=${true}`,
   bridgeURL: 'https://bridge.arbitrum.io',
   nativeToken: {
-    decimal: 18,
     symbol: 'ETH',
     name: 'ETH',
     logo: EthereumLogo,
+    decimal: 18,
+    minForGas: 10 ** 16,
   },
   rpcUrl: 'https://rinkeby.arbitrum.io/rpc',
   routerUri: EMPTY,

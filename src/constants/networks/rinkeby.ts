@@ -32,6 +32,7 @@ const rinkebyInfo: EVMNetworkInfo = {
     name: 'RinkebyETH',
     logo: EthereumLogo,
     decimal: 18,
+    minForGas: 10 ** 16,
   },
   rpcUrl: 'https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
   routerUri: 'https://aggregator-api.dev.kyberengineering.io/rinkeby/route/encode',

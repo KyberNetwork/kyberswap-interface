@@ -113,7 +113,6 @@ export function getTradeComposition(
   allTokens?: { [address: string]: Token },
 ): SwapRouteV2[] | undefined {
   if (!trade || !trade.swaps || !chainId) {
-    //todo namgold: add solana logic
     return undefined
   }
   const inputTokenAmount = trade.inputAmount?.wrapped
@@ -146,21 +145,21 @@ export function getTradeComposition(
         slug: hop.tokenOut?.toLowerCase(),
         pools: [
           {
-            id: hop.pool?.toLowerCase(),
+            id: hop.pool,
             exchange: hop.exchange,
             swapAmount: JSBI.BigInt(hop.swapAmount),
             swapPercentage: calcSwapPercentage(hop.tokenIn, hop.swapAmount),
           },
         ],
         path,
-        id: hop.pool?.toLowerCase(),
+        id: hop.pool,
       })
     } else if (sorMultiSwap.length > 1) {
       const path: PathItem[] = []
       const pools: SwapPool[] = []
       sorMultiSwap.forEach((hop: any, index: number) => {
         pools.push({
-          id: hop.pool?.toLowerCase(),
+          id: hop.pool,
           exchange: hop.exchange,
           swapAmount: JSBI.BigInt(hop.swapAmount),
           swapPercentage: index === 0 ? calcSwapPercentage(hop.tokenIn, hop.swapAmount) : 100,

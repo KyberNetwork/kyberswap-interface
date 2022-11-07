@@ -1,3 +1,4 @@
+import { t } from '@lingui/macro'
 import { CheckCircle, Triangle } from 'react-feather'
 import styled from 'styled-components'
 
@@ -5,9 +6,9 @@ import Loader from 'components/Loader'
 import { SUMMARY } from 'components/Popups/TransactionPopup'
 import { RowFixed } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
-import { useAllTransactions } from 'state/transactions/hooks'
+import { TransactionDetails } from 'state/transactions/type'
 import { ExternalLink } from 'theme'
-import { findTx, getEtherscanLink } from 'utils'
+import { getEtherscanLink } from 'utils'
 
 const TransactionWrapper = styled.div``
 
@@ -20,7 +21,8 @@ const TransactionStatusText = styled.div`
   }
 `
 
-const TransactionState = styled(ExternalLink)<{ pending: boolean; success?: boolean }>`
+export const TransactionState = styled(ExternalLink)<{ success?: boolean; isInGroup?: boolean }>`
+  ${({ isInGroup }) => (isInGroup ? 'margin-left: 1rem;' : '')}
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -36,24 +38,29 @@ const IconWrapper = styled.div<{ pending: boolean; success?: boolean }>`
   color: ${({ pending, success, theme }) => (pending ? theme.primary : success ? theme.green1 : theme.red1)};
 `
 
-export default function Transaction({ hash }: { hash: string }) {
+export default function Transaction({ transaction, step }: { transaction: TransactionDetails; step?: number }) {
   const { chainId } = useActiveWeb3React()
-  const allTransactions = useAllTransactions()
 
-  const tx = findTx(allTransactions, hash)
-  const pending = !tx?.receipt
-  const success = !pending && tx && (tx.receipt?.status === 1 || typeof tx.receipt?.status === 'undefined')
-  const type = tx?.type
-  const summary = tx?.summary
+  const pending = !transaction?.receipt
+  const success =
+    !pending && transaction && (transaction.receipt?.status === 1 || typeof transaction.receipt?.status === 'undefined')
+  const type = transaction?.type
+  const summary = transaction?.summary
   const parsedSummary = type
     ? SUMMARY[type]?.[pending ? 'pending' : success ? 'success' : 'failure'](summary)
-    : summary ?? 'Hash: ' + hash.slice(0, 8) + '...' + hash.slice(58, 65)
+    : summary ?? 'Hash: ' + transaction.hash.slice(0, 8) + '...' + transaction.hash.slice(58, 65)
 
   return (
     <TransactionWrapper>
-      <TransactionState href={getEtherscanLink(chainId, hash, 'transaction')} pending={pending} success={success}>
+      <TransactionState
+        href={getEtherscanLink(chainId, transaction.hash, 'transaction')}
+        success={success}
+        isInGroup={!!step}
+      >
         <RowFixed>
-          <TransactionStatusText>{parsedSummary} ↗</TransactionStatusText>
+          <TransactionStatusText>
+            {step ? t`Step ${step}: ` : ''} {parsedSummary} ↗
+          </TransactionStatusText>
         </RowFixed>
         <IconWrapper pending={pending} success={success}>
           {pending ? <Loader /> : success ? <CheckCircle size="16" /> : <Triangle size="16" />}

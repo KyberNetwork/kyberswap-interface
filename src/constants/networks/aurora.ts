@@ -31,6 +31,7 @@ const auroraInfo: EVMNetworkInfo = {
     name: 'ETH',
     logo: EthereumLogo,
     decimal: 18,
+    minForGas: 10 ** 16,
   },
   rpcUrl: 'https://aurora.kyberengineering.io',
   routerUri: `${META_AGGREGATOR_API}/aurora/route/encode`,

@@ -10,6 +10,7 @@ import { CLAIM_REWARDS_DATA_URL } from 'constants/index'
 import { KNC } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { getClaimRewardContract } from 'utils/getContract'
 
 export interface IReward {
@@ -162,7 +163,7 @@ export default function useClaimReward() {
           setTxHash(tx.hash)
           addTransactionWithType({
             hash: tx.hash,
-            type: 'Claim reward',
+            type: TRANSACTION_TYPE.CLAIM_REWARD,
             summary: rewardAmounts + ' KNC',
           })
         })

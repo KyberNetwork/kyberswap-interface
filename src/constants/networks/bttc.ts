@@ -35,6 +35,7 @@ const bttcInfo: EVMNetworkInfo = {
     name: 'BTT',
     logo: BTT,
     decimal: 18,
+    minForGas: 10 ** 16,
   },
   rpcUrl: 'https://bttc.kyberengineering.io',
   routerUri: `${META_AGGREGATOR_API}/bttc/route/encode`,

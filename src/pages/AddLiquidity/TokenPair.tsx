@@ -38,6 +38,7 @@ import { useTokensPrice, useWalletModalToggle } from 'state/application/hooks'
 import { Field } from 'state/mint/actions'
 import { useDerivedMintInfo, useMintActionHandlers, useMintState } from 'state/mint/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useExpertModeManager, usePairAdderByTokens, useUserSlippageTolerance } from 'state/user/hooks'
 import { StyledInternalLink, TYPE, UppercaseText } from 'theme'
 import { calculateGasMargin, calculateSlippageAmount, formattedNum } from 'utils'
@@ -276,7 +277,7 @@ const TokenPair = ({
             setAttemptingTxn(false)
             addTransactionWithType({
               hash: response.hash,
-              type: 'Add liquidity',
+              type: TRANSACTION_TYPE.ADD_LIQUIDITY,
               summary:
                 parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) +
                 ' ' +

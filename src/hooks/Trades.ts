@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 
 import { MAINNET_ENV } from 'constants/env'
-import { ZERO_ADDRESS } from 'constants/index'
+import { ZERO_ADDRESS, ZERO_ADDRESS_SOLANA } from 'constants/index'
 import { PairState, usePairs } from 'data/Reserves'
 import { useActiveWeb3React } from 'hooks/index'
 import { useAllCurrencyCombinations } from 'hooks/useAllCurrencyCombinations'
@@ -95,7 +95,7 @@ export function useTradeExactInV2(
   onUpdateCallback: (resetRoute: boolean, minimumLoadingTime: number) => void
   loading: boolean
 } {
-  const { account, chainId, networkInfo } = useActiveWeb3React()
+  const { account, chainId, networkInfo, isEVM } = useActiveWeb3React()
   const controller = useRef(new AbortController())
   const [allowedSlippage] = useUserSlippageTolerance()
 
@@ -134,7 +134,9 @@ export function useTradeExactInV2(
 
         setLoading(true)
 
-        const to = (isAddress(chainId, recipient) ? (recipient as string) : account) ?? ZERO_ADDRESS
+        const to =
+          (isAddress(chainId, recipient) ? (recipient as string) : account) ??
+          (isEVM ? ZERO_ADDRESS : ZERO_ADDRESS_SOLANA)
 
         const deadline = Math.round(Date.now() / 1000) + ttl
 
@@ -167,19 +169,15 @@ export function useTradeExactInV2(
         ])
 
         if (!signal.aborted) {
-          if (state) {
-            try {
-              if (JSON.stringify(trade) !== JSON.stringify(state)) setTrade(state)
-            } catch (e) {
-              setTrade(state)
-            }
+          try {
+            if (JSON.stringify(trade) !== JSON.stringify(state)) setTrade(state)
+          } catch (e) {
+            setTrade(state)
           }
-          if (comparedResult) {
-            try {
-              if (JSON.stringify(comparer) !== JSON.stringify(comparedResult)) setComparer(comparedResult)
-            } catch (e) {
-              setComparer(comparedResult)
-            }
+          try {
+            if (JSON.stringify(comparer) !== JSON.stringify(comparedResult)) setComparer(comparedResult)
+          } catch (e) {
+            setComparer(comparedResult)
           }
         }
         setLoading(false)

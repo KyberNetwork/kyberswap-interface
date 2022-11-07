@@ -99,7 +99,7 @@ import { TYPE } from 'theme'
 import { formattedNum, isAddressString } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { filterTokensWithExactKeyword } from 'utils/filtering'
-import { maxAmountSpend } from 'utils/maxAmountSpend'
+import { halfAmountSpend, maxAmountSpend } from 'utils/maxAmountSpend'
 import { convertToSlug, getSymbolSlug } from 'utils/string'
 import { checkPairInWhiteList, convertSymbol } from 'utils/tokenInfo'
 
@@ -265,14 +265,20 @@ export default function Swap({ history }: RouteComponentProps) {
     () => allDexes?.find(dex => dex.id === tradeComparer?.comparedDex),
     [allDexes, tradeComparer],
   )
-  const currencyIn = currencies[Field.INPUT]
-  const currencyOut = currencies[Field.OUTPUT]
+  const currencyIn: Currency | undefined = currencies[Field.INPUT]
+  const currencyOut: Currency | undefined = currencies[Field.OUTPUT]
+  const balanceIn: CurrencyAmount<Currency> | undefined = currencyBalances[Field.INPUT]
+  const balanceOut: CurrencyAmount<Currency> | undefined = currencyBalances[Field.OUTPUT]
 
-  const {
-    wrapType,
-    execute: onWrap,
-    inputError: wrapInputError,
-  } = useWrapCallback(currencies[Field.INPUT], currencies[Field.OUTPUT], typedValue)
+  const { wrapType, execute: onWrap, inputError: wrapInputError } = useWrapCallback(currencyIn, currencyOut, typedValue)
+
+  const isSolanaUnwrap = isSolana && wrapType === WrapType.UNWRAP
+  useEffect(() => {
+    // reset value for unwrapping WSOL
+    // because on Solana, unwrap WSOL is closing WSOL account,
+    // which mean it will unwrap all WSOL at once and we can't unwrap partial amount of WSOL
+    if (isSolanaUnwrap) onUserInput(Field.INPUT, balanceIn?.toExact() ?? '')
+  }, [balanceIn, isSolanaUnwrap, onUserInput, parsedAmount])
 
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
   const trade = showWrap ? undefined : v2Trade
@@ -371,10 +377,8 @@ export default function Swap({ history }: RouteComponentProps) {
     }
   }, [approval, approvalSubmitted])
 
-  const maxAmountInput: CurrencyAmount<Currency> | undefined = useMemo(
-    () => maxAmountSpend(currencyBalances[Field.INPUT]),
-    [currencyBalances],
-  )
+  const maxAmountInput: string | undefined = useMemo(() => maxAmountSpend(balanceIn)?.toExact(), [balanceIn])
+  const halfAmountInput: string | undefined = useMemo(() => halfAmountSpend(balanceIn)?.toExact(), [balanceIn])
 
   // the callback to execute the swap
   const { callback: swapCallback, error: swapCallbackError } = useSwapV2Callback(trade)
@@ -429,12 +433,12 @@ export default function Swap({ history }: RouteComponentProps) {
   )
 
   const handleMaxInput = useCallback(() => {
-    maxAmountInput && onUserInput(Field.INPUT, maxAmountInput.toExact())
+    onUserInput(Field.INPUT, maxAmountInput || '')
   }, [maxAmountInput, onUserInput])
 
   const handleHalfInput = useCallback(() => {
-    onUserInput(Field.INPUT, currencyBalances[Field.INPUT]?.divide(2).toExact() || '')
-  }, [currencyBalances, onUserInput])
+    !isSolanaUnwrap && onUserInput(Field.INPUT, halfAmountInput || '')
+  }, [isSolanaUnwrap, halfAmountInput, onUserInput])
 
   const handleOutputSelect = useCallback(
     (outputCurrency: Currency) => {
@@ -444,9 +448,7 @@ export default function Swap({ history }: RouteComponentProps) {
     [onCurrencySelection],
   )
 
-  const isLoading =
-    loadingAPI ||
-    ((!currencyBalances[Field.INPUT] || !currencyBalances[Field.OUTPUT]) && userHasSpecifiedInputOutput && !v2Trade)
+  const isLoading = loadingAPI || ((!balanceIn || !balanceOut) && userHasSpecifiedInputOutput && !v2Trade)
 
   const { mixpanelHandler } = useMixpanel(trade, currencies)
   const mixpanelSwapInit = () => {

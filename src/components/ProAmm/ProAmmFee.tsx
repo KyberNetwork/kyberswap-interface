@@ -22,6 +22,7 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { basisPointsToPercent, calculateGasMargin } from 'utils'
 import { unwrappedToken } from 'utils/wrappedCurrency'
@@ -103,7 +104,7 @@ export default function ProAmmFee({
           .then((response: TransactionResponse) => {
             addTransactionWithType({
               hash: response.hash,
-              type: 'Collect fee',
+              type: TRANSACTION_TYPE.COLLECT_FEE,
               summary:
                 feeValue0.toSignificant(6) +
                 ' ' +

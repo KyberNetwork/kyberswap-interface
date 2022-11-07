@@ -7,6 +7,7 @@ import { useActiveWeb3React, useWeb3React } from 'hooks/index'
 import useENS from 'hooks/useENS'
 import { useSwapState } from 'state/swap/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { isAddress, shortenAddress } from 'utils'
 import { Aggregator } from 'utils/aggregator'
@@ -14,7 +15,6 @@ import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
 import { sendEVMTransaction, sendSolanaTransactionWithBEEncode } from 'utils/sendTransaction'
 
 import useProvider from './solana/useProvider'
-import useSolanaAggregatorProgram from './solana/useSolanaAggregatorProgram'
 
 enum SwapCallbackState {
   INVALID,
@@ -37,7 +37,6 @@ export function useSwapV2Callback(
   const { account, chainId, isEVM, isSolana } = useActiveWeb3React()
   const { library } = useWeb3React()
   const { wallet: solanaWallet } = useWallet()
-  const solanaAggregatorProgram = useSolanaAggregatorProgram()
   const provider = useProvider()
 
   const { typedValue, feeConfig, saveGas, recipient: recipientAddressOrName } = useSwapState()
@@ -75,7 +74,7 @@ export function useSwapV2Callback(
 
       addTransactionWithType({
         hash,
-        type: 'Swap',
+        type: TRANSACTION_TYPE.SWAP,
         summary: `${base} ${withRecipient ?? ''}`,
         arbitrary: {
           inputSymbol,
@@ -106,7 +105,7 @@ export function useSwapV2Callback(
   )
 
   const onHandleCustomTypeResponse = useCallback(
-    (type: string, hash: string, firstTxHash?: string) => {
+    (type: TRANSACTION_TYPE, hash: string, firstTxHash?: string) => {
       addTransactionWithType({
         hash,
         type,
@@ -145,7 +144,6 @@ export function useSwapV2Callback(
     const onSwapSolana = async (): Promise<string> => {
       if (!provider) throw new Error('Please connect wallet first')
       if (!solanaWallet?.adapter) throw new Error('Please connect wallet first')
-      if (!solanaAggregatorProgram) throw new Error('Please connect wallet first')
       if (!trade.encodedSwapTx) throw new Error('Encode not found')
       const hash = await sendSolanaTransactionWithBEEncode(
         account,
@@ -174,7 +172,6 @@ export function useSwapV2Callback(
     onHandleSwapResponse,
     provider,
     solanaWallet,
-    solanaAggregatorProgram,
     onHandleCustomTypeResponse,
   ])
 }

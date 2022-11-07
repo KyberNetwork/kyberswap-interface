@@ -30,6 +30,7 @@ const bnbInfo: EVMNetworkInfo = {
     name: 'BNB',
     logo: BnbLogo,
     decimal: 18,
+    minForGas: 10 ** 16,
   },
   rpcUrl: 'https://bsc.kyberengineering.io',
   routerUri: `${META_AGGREGATOR_API}/bsc/route/encode`,

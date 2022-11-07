@@ -7,12 +7,12 @@ import { AppDispatch, AppState } from 'state/index'
 import { findTx } from 'utils'
 
 import { addTransaction } from './actions'
-import { GroupedTxsByHash, TransactionDetails } from './type'
+import { GroupedTxsByHash, TRANSACTION_TYPE, TransactionDetails } from './type'
 
 type TransactionHistory = {
   hash: string
   desiredChainId?: ChainId // ChainID after switching.
-  type?: string
+  type?: TRANSACTION_TYPE
   summary?: string
   approval?: { tokenAddress: string; spender: string }
   arbitrary?: any
@@ -64,6 +64,19 @@ export function useIsTransactionPending(transactionHash?: string): boolean {
   if (!tx) return false
 
   return !tx.receipt
+}
+
+/**
+ * Returns whether a transaction happened in the last day (86400 seconds * 1000 milliseconds / second)
+ * @param tx to check for recency
+ */
+export function isTransactionGroupRecent(txs: TransactionDetails[]): boolean {
+  return new Date().getTime() - txs[0].addedTime < 86_400_000
+}
+
+// we want the latest one to come first, so return negative if a is after b
+export function newTransactionsGroupFirst(a: TransactionDetails[], b: TransactionDetails[]) {
+  return b[0].addedTime - a[0].addedTime
 }
 
 /**

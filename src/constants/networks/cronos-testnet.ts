@@ -40,6 +40,7 @@ const cronosTestnetInfo: EVMNetworkInfo = {
     name: 'CRO',
     logo: CronosLogo,
     decimal: 18,
+    minForGas: 10 ** 16,
   },
   rpcUrl: 'https://cronos-testnet-3.crypto.org:8545',
   routerUri: EMPTY,

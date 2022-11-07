@@ -38,6 +38,7 @@ import { useTokensPrice, useWalletModalToggle } from 'state/application/hooks'
 import { Field } from 'state/burn/actions'
 import { useBurnActionHandlers, useBurnState, useDerivedBurnInfo } from 'state/burn/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { StyledInternalLink, TYPE, UppercaseText } from 'theme'
 import { calculateGasMargin, calculateSlippageAmount, formattedNum } from 'utils'
@@ -367,7 +368,7 @@ export default function TokenPair({
 
             addTransactionWithType({
               hash: response.hash,
-              type: 'Remove liquidity',
+              type: TRANSACTION_TYPE.REMOVE_LIQUIDITY,
               summary:
                 parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) +
                 ' ' +

@@ -11,7 +11,7 @@ import { Dex } from 'state/customizeDexes'
 import { useAllDexes } from 'state/customizeDexes/hooks'
 import { Field } from 'state/swap/actions'
 import { useSwapState } from 'state/swap/hooks'
-import { getEtherscanLink } from 'utils'
+import { getEtherscanLink, isAddress } from 'utils'
 import { SwapPool, SwapRouteV2, getTradeComposition } from 'utils/aggregationRouting'
 import { Aggregator } from 'utils/aggregator'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
@@ -414,7 +414,7 @@ const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
                     ? subRoute.map(pool => {
                         const dex = getDexInfoByPool(pool, allDexes)
                         const link = (i => {
-                          return pool.id.length === 42 ? (
+                          return isAddress(chainId, pool.id) ? (
                             <StyledExchange
                               key={`${i}-${pool.id}`}
                               href={getEtherscanLink(chainId, pool.id, 'address')}

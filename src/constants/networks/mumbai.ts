@@ -31,6 +31,7 @@ const mumbaiInfo: EVMNetworkInfo = {
     name: 'Polygon',
     logo: Polygon,
     decimal: 18,
+    minForGas: 10 ** 16,
   },
   rpcUrl: 'https://rpc-mumbai.maticvigil.com',
   routerUri: EMPTY,
