@@ -3,7 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import JSBI from 'jsbi'
 import { stringify } from 'qs'
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { AlertTriangle } from 'react-feather'
+import { AlertTriangle, DownloadCloud } from 'react-feather'
 import Skeleton from 'react-loading-skeleton'
 import { RouteComponentProps, useParams } from 'react-router-dom'
 import { Box, Flex, Text } from 'rebass'
@@ -790,6 +790,8 @@ export default function Swap({ history }: RouteComponentProps) {
                     </span>
                   </MouseoverTooltip>
                 </StyledActionButtonSwapForm>
+
+                <DownloadCloud onClick={showSwapCompleteSurvey} />
                 {/* <TransactionSettings isShowDisplaySettings /> */}
               </SwapFormActions>
             </RowBetween>
