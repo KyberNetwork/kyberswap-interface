@@ -27,6 +27,7 @@ import { FarmingPool, UserInfo } from 'state/farms/elastic/types'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useIsTransactionPending } from 'state/transactions/hooks'
+import { ExternalLink } from 'theme'
 import { formatDollarAmount } from 'utils/numbers'
 
 import { ClickableText, ProMMFarmTableHeader } from '../styleds'
@@ -496,13 +497,13 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
           </ClickableText>
         </Flex>
 
-        <Flex grid-area="liq" alignItems="center" justifyContent="flex-end">
+        <Flex grid-area="liq" alignItems="center" justifyContent="flex-start">
           <ClickableText>
             <Trans>Staked TVL</Trans>
           </ClickableText>
         </Flex>
 
-        <Flex grid-area="apy" alignItems="center" justifyContent="flex-end">
+        <Flex grid-area="apy" alignItems="center" justifyContent="flex-start">
           <ClickableText>
             <Trans>AVG APR</Trans>
           </ClickableText>
@@ -511,17 +512,39 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
           />
         </Flex>
 
-        <Flex grid-area="end" alignItems="center" justifyContent="flex-end">
+        <Flex grid-area="end" alignItems="center" justifyContent="flex-start">
           <ClickableText>
             <Trans>Ending In</Trans>
           </ClickableText>
           <InfoHelper text={t`Once a farm has ended, you will continue to receive returns through LP Fees`} />
         </Flex>
 
-        <Flex grid-area="staked_balance" alignItems="center" justifyContent="flex-end">
-          <ClickableText>
-            <Trans>My Deposit</Trans>
-          </ClickableText>
+        <Flex grid-area="staked_balance" alignItems="center" justifyContent="flex-start">
+          <HoverDropdown
+            padding="8px 0"
+            hideIcon
+            content={
+              <ClickableText>
+                <Flex flex={1}>My Deposit | Target Volume</Flex> <Info size={12} style={{ marginLeft: '4px' }} />
+              </ClickableText>
+            }
+            dropdownContent={
+              <Text color={theme.subText} fontSize="12px" maxWidth="400px" lineHeight={1.5}>
+                <Trans>
+                  Some farms have a target trading volume (represented by the progress bar) to determine the amount of
+                  reward you will earn. The more trading volume your liquidity positions support, the more rewards per
+                  second you will make.
+                  <br />
+                  <br />
+                  Once you have fully unlocked the target volume, you will start earning the maximum rewards per second.
+                  Adjusting the staked amount will recalculate the target volume.
+                  <br />
+                  Learn more{' '}
+                  <ExternalLink href="https://docs.kyberswap.com/guides/farming-mechanisms">here.</ExternalLink>
+                </Trans>
+              </Text>
+            }
+          />
         </Flex>
 
         <Flex grid-area="reward" alignItems="center" justifyContent="flex-end">

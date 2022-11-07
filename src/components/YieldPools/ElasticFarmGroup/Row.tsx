@@ -1,9 +1,9 @@
-import { ChainId, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { ChainId, CurrencyAmount, Fraction } from '@kyberswap/ks-sdk-core'
 import { computePoolAddress } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
-import { useState } from 'react'
-import { Minus, Plus, Share2 } from 'react-feather'
+import { useEffect, useState } from 'react'
+import { Info, Minus, Plus, Share2 } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -23,6 +23,7 @@ import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { TOBE_EXTENDED_FARMING_POOLS } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
+import { useProMMFarmContract } from 'hooks/useContract'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { useElasticFarms } from 'state/farms/elastic/hooks'
@@ -49,6 +50,45 @@ const ButtonGroupContainerOnMobile = styled.div`
     flex: 1;
   }
 `
+
+const FeeTargetWrapper = styled.div<{ fullUnlock: boolean }>`
+  border-radius: 999px;
+  display: flex;
+  font-size: 12px;
+  background: ${({ theme, fullUnlock }) => (fullUnlock ? theme.primary : theme.subText)};
+  position: relative;
+  color: ${({ theme }) => theme.textReverse};
+  height: 4px;
+  align-items: center;
+  min-width: 140px;
+  max-width: 200px;
+  position: relative;
+  margin-top: 4px;
+  overflow: hidden;
+`
+
+const FeeArchive = styled.div<{ width: number }>`
+  width: ${({ width }) => `${width}%`};
+  height: 100%;
+  background: ${({ theme, width }) => (width === 100 ? theme.primary : theme.warning)};
+  border-radius: 999px;
+`
+
+const FeeTarget = ({ percent }: { percent: string }) => {
+  const p = Number(percent)
+  const theme = useTheme()
+  return (
+    <>
+      <Flex justifyContent="space-between" fontSize="12px" color={theme.subText} marginTop="4px" maxWidth="200px">
+        <Trans>Target Volume</Trans>
+        {p >= 100 ? <Text color={theme.primary}>✓</Text> : <div>{p.toFixed(2)}%</div>}
+      </Flex>
+      <FeeTargetWrapper fullUnlock={p >= 100}>
+        <FeeArchive width={p}></FeeArchive>
+      </FeeTargetWrapper>
+    </>
+  )
+}
 
 const Row = ({
   isApprovedForAll,
@@ -116,9 +156,42 @@ const Row = ({
         }).toLowerCase()
       )
     }) || []
+
   const rewardPendings =
     userFarmInfo?.[fairlaunchAddress]?.rewardPendings[pool.pid] ||
     pool.rewardTokens.map(token => CurrencyAmount.fromRawAmount(token, 0))
+
+  const contract = useProMMFarmContract(fairlaunchAddress)
+  const [targetPercent, setTargetPercent] = useState('')
+
+  useEffect(() => {
+    const getFeeTargetInfo = async () => {
+      if (!contract || pool.feeTarget === '0') return
+      const userJoinedPos = userFarmInfo?.[fairlaunchAddress].joinedPositions[pool.pid] || []
+
+      const res = await Promise.all(
+        userJoinedPos.map(async pos => {
+          const res = await contract.getRewardCalculationData(pos.nftId, pool.pid)
+          return new Fraction(res.vestingVolume.toString(), BigNumber.from(1e12).toString())
+        }),
+      )
+
+      const totalLiquidity =
+        userJoinedPos.reduce((acc, cur) => acc.add(cur.liquidity.toString()), BigNumber.from(0)) || BigNumber.from(0)
+
+      const targetLiqid = userJoinedPos.reduce(
+        (acc, cur, index) => acc.add(res[index].multiply(cur.liquidity.toString())),
+        new Fraction(0, 1),
+      )
+
+      if (totalLiquidity.gt(0)) {
+        const t = targetLiqid.multiply(100).divide(totalLiquidity.toString())
+        setTargetPercent(t.toFixed(2))
+      }
+    }
+
+    getFeeTargetInfo()
+  }, [contract, pool.feeTarget, fairlaunchAddress, pool.pid, userFarmInfo])
 
   const canStake = depositedPositions.some(pos => {
     const stakedPos = joinedPositions.find(j => j.nftId.toString() === pos.nftId.toString())
@@ -323,14 +396,26 @@ const Row = ({
             </Flex>
           </InfoRow>
 
+          {targetPercent && (
+            <InfoRow>
+              <Text color={theme.subText} alignItems="center" display="flex" onClick={() => setShowTargetVolInfo(true)}>
+                <Trans>Target Volume</Trans>
+                <Info size={12} style={{ marginLeft: '4px' }} />
+              </Text>
+
+              <Flex justifyContent="flex-end" flexDirection="column">
+                {targetPercent && <FeeTarget percent={targetPercent} />}
+              </Flex>
+            </InfoRow>
+          )}
           <InfoRow>
             <Text color={theme.subText}>
               <Trans>My Deposit</Trans>
             </Text>
 
-            <Flex justifyContent="flex-end" color={!!amountCanStaked ? theme.warning : theme.text}>
+            <Flex justifyContent="flex-end" color={amountCanStaked ? theme.warning : theme.text}>
               {!!depositedUsd ? formatDollarAmount(depositedUsd) : '--'}
-              {!!depositedUsd && (
+              {!!amountCanStaked && (
                 <InfoHelper
                   color={theme.warning}
                   text={t`You still have ${formatDollarAmount(
@@ -361,7 +446,7 @@ const Row = ({
 
             <ActionButton
               style={{ width: '100%' }}
-              colorScheme={ButtonColorScheme.Gray}
+              colorScheme={canHarvest ? ButtonColorScheme.Green : ButtonColorScheme.Gray}
               onClick={onHarvest}
               disabled={!canHarvest}
             >
@@ -542,10 +627,10 @@ const Row = ({
         </Flex>
       </div>
 
-      <Text textAlign="right">{formatDollarAmount(tvl)}</Text>
+      <Text textAlign="left">{formatDollarAmount(tvl)}</Text>
       <Flex
         alignItems="center"
-        justifyContent="flex-end"
+        justifyContent="flex-start"
         color={theme.apr}
         sx={{
           gap: '4px',
@@ -561,7 +646,7 @@ const Row = ({
         </MouseoverTooltip>
       </Flex>
 
-      <Flex flexDirection="column" alignItems="flex-end" justifyContent="center" sx={{ gap: '8px' }}>
+      <Flex flexDirection="column" alignItems="flex-start" justifyContent="center" sx={{ gap: '8px' }}>
         {pool.startTime > currentTimestamp ? (
           <>
             <Text color={theme.subText} fontSize="12px">
@@ -583,44 +668,48 @@ const Row = ({
         )}
       </Flex>
 
-      {amountCanStaked ? (
-        <Flex justifyContent="flex-end" color={theme.warning}>
-          {formatDollarAmount(depositedUsd)}
-          <InfoHelper
-            placement="top"
-            color={theme.warning}
-            width={'270px'}
-            text={
-              <Flex
-                sx={{
-                  flexDirection: 'column',
-                  gap: '6px',
-                  fontSize: '12px',
-                  lineHeight: '16px',
-                  fontWeight: 400,
-                }}
-              >
-                <Text as="span" color={theme.subText}>
-                  <Trans>
-                    You still have {formatDollarAmount(amountCanStaked)} in liquidity to stake to earn even more farming
-                    rewards
-                  </Trans>
-                </Text>
-                <Text as="span" color={theme.text}>
-                  Staked: {formatDollarAmount(stakedUsd)}
-                </Text>
-                <Text as="span" color={theme.warning}>
-                  Not staked: {formatDollarAmount(amountCanStaked)}
-                </Text>
-              </Flex>
-            }
-          />
-        </Flex>
-      ) : (
-        <Flex justifyContent="flex-end" color={theme.text}>
-          {depositedUsd ? formatDollarAmount(depositedUsd) : '--'}
-        </Flex>
-      )}
+      <div>
+        {amountCanStaked ? (
+          <Flex justifyContent="flex-start" color={theme.warning}>
+            {formatDollarAmount(depositedUsd)}
+            <InfoHelper
+              placement="top"
+              color={theme.warning}
+              width={'270px'}
+              text={
+                <Flex
+                  sx={{
+                    flexDirection: 'column',
+                    gap: '6px',
+                    fontSize: '12px',
+                    lineHeight: '16px',
+                    fontWeight: 400,
+                  }}
+                >
+                  <Text as="span" color={theme.subText}>
+                    <Trans>
+                      You still have {formatDollarAmount(amountCanStaked)} in liquidity to stake to earn even more
+                      farming rewards
+                    </Trans>
+                  </Text>
+                  <Text as="span" color={theme.text}>
+                    Staked: {formatDollarAmount(stakedUsd)}
+                  </Text>
+                  <Text as="span" color={theme.warning}>
+                    Not staked: {formatDollarAmount(amountCanStaked)}
+                  </Text>
+                </Flex>
+              }
+            />
+          </Flex>
+        ) : (
+          <Flex justifyContent="flex-start" color={theme.text}>
+            {depositedUsd ? formatDollarAmount(depositedUsd) : '--'}
+          </Flex>
+        )}
+
+        {targetPercent && <FeeTarget percent={targetPercent} />}
+      </div>
 
       <Flex flexDirection="column" alignItems="flex-end" sx={{ gap: '8px' }}>
         {rewardPendings.map((amount, i) => (
