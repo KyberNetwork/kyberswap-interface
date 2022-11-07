@@ -23,7 +23,7 @@ import {
 
 import connection from 'state/connection/connection'
 
-export function createIdempotentAssociatedTokenAccountInstruction(
+function createIdempotentAssociatedTokenAccountInstruction(
   payer: PublicKey,
   associatedToken: PublicKey,
   owner: PublicKey,
@@ -48,7 +48,7 @@ export function createIdempotentAssociatedTokenAccountInstruction(
   })
 }
 
-export async function getAssociatedTokenAccount(
+async function getAssociatedTokenAccount(
   connection: Connection,
   mint: PublicKey,
   owner: PublicKey,
@@ -85,7 +85,7 @@ export const createWrapSOLInstructions = async (
   amountIn: CurrencyAmount<Currency>,
 ): Promise<TransactionInstruction[]> => {
   const associatedTokenAccount = await getAssociatedTokenAddress(NATIVE_MINT, account)
-  const createWSOLIx = await createAtaInstruction(account, amountIn.currency)
+  const createWSOLIx = await checkAndCreateAtaInstruction(account, amountIn.currency)
 
   const transferIx = SystemProgram.transfer({
     fromPubkey: account,
@@ -117,7 +117,7 @@ export const checkAndCreateWrapSOLInstructions = async (
   return null
 }
 
-export const createAtaInstruction = async (
+export const checkAndCreateAtaInstruction = async (
   account: PublicKey,
   currencyIn: Currency,
 ): Promise<TransactionInstruction | null> => {

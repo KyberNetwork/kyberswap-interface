@@ -198,23 +198,20 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
         }
         case MIXPANEL_TYPE.SWAP_COMPLETED: {
           const { arbitrary, actual_gas, gas_price, tx_hash } = payload
+          const formattedGas = gas_price ? formatUnits(gas_price, networkInfo.nativeToken.decimal) : '0'
           mixpanel.track('Swap Completed', {
             input_token: arbitrary.inputSymbol,
             output_token: arbitrary.outputSymbol,
             actual_gas:
               ethPrice &&
               ethPrice.currentPrice &&
-              (
-                actual_gas.toNumber() *
-                parseFloat(formatUnits(gas_price, 18)) *
-                parseFloat(ethPrice.currentPrice)
-              ).toFixed(4),
+              (actual_gas.toNumber() * parseFloat(formattedGas) * parseFloat(ethPrice.currentPrice)).toFixed(4),
             tx_hash: tx_hash,
             max_return_or_low_gas: arbitrary.saveGas ? 'Lowest Gas' : 'Maximum Return',
             trade_qty: arbitrary.inputAmount,
             slippage_setting: arbitrary.slippageSetting,
             price_impact: arbitrary.priceImpact,
-            gas_price: formatUnits(gas_price, 18),
+            gas_price: formattedGas,
             eth_price: ethPrice?.currentPrice,
             actual_gas_native: actual_gas?.toNumber(),
           })

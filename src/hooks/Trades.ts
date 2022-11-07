@@ -13,6 +13,7 @@ import { AppState } from 'state'
 import { useAllDexes, useExcludeDexes } from 'state/customizeDexes/hooks'
 import { useSwapState } from 'state/swap/hooks'
 import { AggregationComparer } from 'state/swap/types'
+import { useAllTransactions } from 'state/transactions/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { isAddress } from 'utils'
 import { Aggregator } from 'utils/aggregator'
@@ -98,6 +99,7 @@ export function useTradeExactInV2(
   const { account, chainId, networkInfo, isEVM } = useActiveWeb3React()
   const controller = useRef(new AbortController())
   const [allowedSlippage] = useUserSlippageTolerance()
+  const allTransactions = useAllTransactions()
 
   const allDexes = useAllDexes()
   const [excludeDexes] = useExcludeDexes()
@@ -117,7 +119,7 @@ export function useTradeExactInV2(
 
   const ttl = useSelector<AppState, number>(state => state.user.userDeadline)
 
-  const { feeConfig, programState, saveGas } = useSwapState()
+  const { feeConfig, saveGas } = useSwapState()
 
   const onUpdateCallback = useCallback(
     async (resetRoute: boolean, minimumLoadingTime: number) => {
@@ -153,7 +155,6 @@ export function useTradeExactInV2(
             feeConfig,
             signal,
             minimumLoadingTime,
-            programState,
           ),
           Aggregator.compareDex(
             networkInfo.routerUri,
@@ -188,6 +189,7 @@ export function useTradeExactInV2(
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
+      allTransactions,
       debounceCurrencyAmountIn,
       currencyOut,
       chainId,
@@ -199,7 +201,6 @@ export function useTradeExactInV2(
       dexes,
       allowedSlippage,
       feeConfig,
-      // programState, //don't add this, this value refresh every time
       // trade, //don't add this, this value refresh every time
       comparer,
     ],

@@ -144,7 +144,7 @@ export function useSwapV2Callback(
     const onSwapSolana = async (): Promise<string> => {
       if (!provider) throw new Error('Please connect wallet first')
       if (!solanaWallet?.adapter) throw new Error('Please connect wallet first')
-      if (!trade.encodedSwapTx) throw new Error('Encode not found')
+      if (!trade.swapTx) throw new Error('Encode not found')
       const hash = await sendSolanaTransactionWithBEEncode(
         account,
         trade,
