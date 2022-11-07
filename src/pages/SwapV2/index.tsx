@@ -100,6 +100,7 @@ import { Aggregator } from 'utils/aggregator'
 import { currencyId } from 'utils/currencyId'
 import { filterTokensWithExactKeyword } from 'utils/filtering'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
+import { showSwapCompleteSurvey } from 'utils/sleekplan'
 import { convertToSlug, getNetworkSlug, getSymbolSlug } from 'utils/string'
 import { checkPairInWhiteList, convertSymbol } from 'utils/tokenInfo'
 
@@ -396,6 +397,7 @@ export default function Swap({ history }: RouteComponentProps) {
           txHash: undefined,
         })
       })
+      .then(showSwapCompleteSurvey)
   }, [tradeToConfirm, showConfirm, swapCallback])
 
   // show approve flow when: no error on inputs, not approved or pending, or approved in current session
