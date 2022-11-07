@@ -1,5 +1,6 @@
 import { getAddress } from '@ethersproject/address'
 import { BigNumber } from '@ethersproject/bignumber'
+import { t } from '@lingui/macro'
 import { Pair } from '@namgold/ks-sdk-classic'
 import { ChainId, Currency, CurrencyAmount, Fraction, Price, Token, TokenAmount } from '@namgold/ks-sdk-core'
 import JSBI from 'jsbi'
@@ -530,8 +531,8 @@ export function errorFriendly(text: string): string {
     error.includes('code=call_exception') ||
     error.includes('none of the calls threw an error')
   ) {
-    return 'An error occurred. Try refreshing the price rate or increase max slippage'
+    return t`An error occurred. Try refreshing the price rate or increase max slippage`
   } else if (error.includes('header not found') || error.includes('swap failed') || error.includes('json-rpc error')) {
-    return 'An error occurred. Refresh the page and try again. If the issue still persists, it might be an issue with your RPC node settings in Metamask.'
+    return t`An error occurred. Refresh the page and try again. If the issue still persists, it might be an issue with your RPC node settings in Metamask.`
   } else return text
 }

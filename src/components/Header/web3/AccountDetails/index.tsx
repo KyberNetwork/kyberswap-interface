@@ -20,7 +20,11 @@ import useENSName from 'hooks/useENSName'
 import useTheme from 'hooks/useTheme'
 import { AppDispatch } from 'state'
 import { clearAllTransactions } from 'state/transactions/actions'
-import { isTransactionGroupRecent, newTransactionsGroupFirst, useAllTransactions } from 'state/transactions/hooks'
+import {
+  isTransactionGroupRecent as isTxGroupRecent,
+  newTransactionsGroupFirst as newTxGroupFirst,
+  useAllTransactions,
+} from 'state/transactions/hooks'
 import { TransactionDetails } from 'state/transactions/type'
 import { useIsDarkMode, useIsUserManuallyDisconnect } from 'state/user/hooks'
 import { ExternalLink, LinkStyledButton, TYPE } from 'theme'
@@ -159,7 +163,7 @@ const TransactionListWrapper = styled.div`
   ${({ theme }) => theme.flexColumnNoWrap};
 `
 
-function renderTransactions(transactions: TransactionDetails[][]) {
+function renderTxGroups(transactions: TransactionDetails[][]) {
   return (
     <TransactionListWrapper>
       {transactions.map((groupTransactions, i) => {
@@ -186,19 +190,15 @@ export default function AccountDetails({ toggleWalletModal, openOptions }: Accou
 
   const allTransactions = useAllTransactions()
 
-  const sortedRecentTransactions: TransactionDetails[][] = useMemo(() => {
-    const txs: TransactionDetails[][] = allTransactions
-      ? (Object.values(allTransactions)?.filter(Boolean) as TransactionDetails[][])
+  const sortedRecentTxGroups: TransactionDetails[][] = useMemo(() => {
+    const txGroups: TransactionDetails[][] = allTransactions
+      ? (Object.values(allTransactions).filter(Boolean) as TransactionDetails[][])
       : []
-    return txs.filter(isTransactionGroupRecent).sort(newTransactionsGroupFirst)
+    return txGroups.filter(isTxGroupRecent).sort(newTxGroupFirst)
   }, [allTransactions])
 
-  const pendingTransactions: TransactionDetails[][] = sortedRecentTransactions.filter(txs =>
-    txs.some(txs => !txs.receipt),
-  )
-  const confirmedTransactions: TransactionDetails[][] = sortedRecentTransactions.filter(txs =>
-    txs.every(txs => txs.receipt),
-  )
+  const pendingTxGroups: TransactionDetails[][] = sortedRecentTxGroups.filter(txs => txs.some(txs => !txs.receipt))
+  const confirmedTxGroups: TransactionDetails[][] = sortedRecentTxGroups.filter(txs => txs.every(txs => txs.receipt))
 
   function formatConnectorName(): JSX.Element {
     if (!walletKey) {
@@ -302,7 +302,7 @@ export default function AccountDetails({ toggleWalletModal, openOptions }: Accou
       <Flex marginTop="24px" paddingX="20px" width="100%">
         <Divider style={{ width: '100%' }} />
       </Flex>
-      {!!pendingTransactions.length || !!confirmedTransactions.length ? (
+      {!!pendingTxGroups.length || !!confirmedTxGroups.length ? (
         <LowerSection>
           <AutoRow mb={'1rem'} style={{ justifyContent: 'space-between' }}>
             <TYPE.body>
@@ -310,8 +310,8 @@ export default function AccountDetails({ toggleWalletModal, openOptions }: Accou
             </TYPE.body>
             <LinkStyledButton onClick={clearAllTransactionsCallback}>(clear all)</LinkStyledButton>
           </AutoRow>
-          {renderTransactions(pendingTransactions.slice(0, 5))}
-          {renderTransactions(confirmedTransactions.slice(0, 5))}
+          {renderTxGroups(pendingTxGroups.slice(0, 5))}
+          {renderTxGroups(confirmedTxGroups.slice(0, 5))}
         </LowerSection>
       ) : (
         <LowerSection>

@@ -1,5 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
+import { t } from '@lingui/macro'
 import { captureException } from '@sentry/react'
 import { SignerWalletAdapter } from '@solana/wallet-adapter-base'
 import { Transaction, sendAndConfirmRawTransaction } from '@solana/web3.js'
@@ -108,7 +109,6 @@ const getInspectTxSolanaUrl = (tx: Transaction | undefined | null) => {
 }
 
 export async function sendSolanaTransactionWithBEEncode(
-  account: string,
   trade: Aggregator,
   solanaWallet: SignerWalletAdapter,
   handler: (hash: string, firstTxHash: string) => void,
@@ -128,7 +128,13 @@ export async function sendSolanaTransactionWithBEEncode(
     txs.push(trade.cleanUpTx)
   }
 
-  const populateTx = (txs: Transaction[]) => {
+  const populateTx = (
+    txs: Transaction[],
+  ): {
+    signedSetupTx: Transaction | undefined
+    signedSwapTx: Transaction
+    signedCleanUpTx: Transaction | undefined
+  } => {
     const result: {
       signedSetupTx: Transaction | undefined
       signedSwapTx: Transaction | undefined
@@ -138,7 +144,11 @@ export async function sendSolanaTransactionWithBEEncode(
     if (trade.setupTx) result.signedSetupTx = txs[count++]
     result.signedSwapTx = txs[count++]
     result.signedCleanUpTx = txs[count++]
-    return result
+    return result as {
+      signedSetupTx: Transaction | undefined
+      signedSwapTx: Transaction
+      signedCleanUpTx: Transaction | undefined
+    }
   }
 
   console.group('Sending transactions:')
@@ -151,9 +161,7 @@ export async function sendSolanaTransactionWithBEEncode(
   try {
     let signedTxs: Transaction[]
     try {
-      debugger
       signedTxs = await (solanaWallet as SignerWalletAdapter).signAllTransactions(txs)
-      debugger
     } catch (e) {
       console.log({ e })
       throw e
@@ -162,7 +170,6 @@ export async function sendSolanaTransactionWithBEEncode(
     const txHashs: string[] = []
     if (signedSetupTx) {
       try {
-        debugger
         const setupHash = await sendAndConfirmRawTransaction(connection, signedSetupTx.serialize())
         txHashs.push(setupHash)
         handleCustomTypeResponse(TRANSACTION_TYPE.SETUP, setupHash, txHashs[0])
@@ -180,7 +187,7 @@ export async function sendSolanaTransactionWithBEEncode(
     } catch (error) {
       console.error({ error })
       if (error?.message?.endsWith('0x1771')) {
-        throw new Error('An error occurred. Try refreshing the price rate or increase max slippage')
+        throw new Error(t`An error occurred. Try refreshing the price rate or increase max slippage`)
       }
       throw error
     }
