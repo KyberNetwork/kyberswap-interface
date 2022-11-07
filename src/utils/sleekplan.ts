@@ -40,9 +40,9 @@ const showSurvey = (survey: Survey) => {
   }
 
   const lastTimeSaved = getSavedTimeInLocal(survey.id)
-  if (Date.now() - lastTimeSaved < ONE_MONTH) {
-    return
-  }
+  // if (Date.now() - lastTimeSaved < ONE_MONTH) {
+  //   return
+  // }
 
   sleek.setUser({
     anonymous: true,
