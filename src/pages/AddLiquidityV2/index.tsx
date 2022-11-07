@@ -54,6 +54,7 @@ import { StyledInternalLink, TYPE } from 'theme'
 import { basisPointsToPercent, calculateGasMargin, formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
+import { showAddLiquiditySurvey } from 'utils/sleekplan'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
 import { useUserSlippageTolerance } from '../../state/user/hooks'
@@ -329,6 +330,7 @@ export default function AddLiquidity({
             console.error(error)
           }
         })
+        .then(showAddLiquiditySurvey)
     } else {
       return
     }
