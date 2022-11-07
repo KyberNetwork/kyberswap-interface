@@ -8,7 +8,6 @@ import { ChangeEvent, KeyboardEvent, ReactNode, useCallback, useEffect, useMemo,
 import { Trash } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
-import { v4 as uuid } from 'uuid'
 
 import InfoHelper from 'components/InfoHelper'
 import { KS_SETTING_API } from 'constants/env'
@@ -348,7 +347,7 @@ export function CurrencySearch({
     fetchFavoriteTokenFromAddress()
   }, [fetchFavoriteTokenFromAddress])
 
-  const fetchingToken = useRef<string | null>(null)
+  const fetchingToken = useRef<number | null>(null)
 
   useEffect(() => {
     fetchingToken.current = null
@@ -357,7 +356,7 @@ export function CurrencySearch({
   const fetchListTokens = useCallback(
     async (page?: number) => {
       if (fetchingToken.current) return
-      const fetchId = uuid()
+      const fetchId = Date.now()
       fetchingToken.current = fetchId
       const nextPage = (page ?? pageCount) + 1
       let tokens = []
