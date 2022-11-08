@@ -1,3 +1,4 @@
+import { TransactionResponse } from '@ethersproject/abstract-provider'
 import { ChainId } from '@namgold/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -22,7 +23,7 @@ type TransactionHistory = {
 
 // helper that can take a ethers library transaction response and add it to the list of transactions
 export function useTransactionAdder(): (tx: TransactionHistory) => void {
-  const { chainId, account } = useActiveWeb3React()
+  const { chainId, account, isEVM } = useActiveWeb3React()
   const { library } = useWeb3React()
   const dispatch = useDispatch<AppDispatch>()
   const blockNumber = useBlockNumber()
@@ -32,7 +33,10 @@ export function useTransactionAdder(): (tx: TransactionHistory) => void {
       if (!account) return
       if (!chainId) return
 
-      const tx = await library?.getTransaction(hash)
+      let tx: TransactionResponse | undefined
+      if (isEVM) {
+        tx = await library?.getTransaction(hash)
+      }
 
       dispatch(
         addTransaction({
