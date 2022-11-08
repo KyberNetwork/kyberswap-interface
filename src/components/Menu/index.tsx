@@ -1,7 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useRef } from 'react'
-import { isMobile } from 'react-device-detect'
 import { Menu as MenuIcon } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -80,10 +79,9 @@ const MenuFlyoutBrowserStyle = css`
 `
 
 const ClaimRewardButton = styled(ButtonPrimary)`
-  margin-top: 20px;
-  padding: 11px;
+  padding: 12px;
   font-size: 14px;
-  width: max-content;
+  width: 100%;
 `
 
 export const NewLabel = styled.span`
@@ -101,7 +99,7 @@ const Menu: React.FC = () => {
   const toggle = useToggleModal(ApplicationModal.MENU)
 
   const toggleClaimPopup = useToggleModal(ApplicationModal.CLAIM_POPUP)
-  const { pendingTx } = useClaimReward()
+  const { pendingTx: isClaiming } = useClaimReward()
   const { mixpanelHandler } = useMixpanel()
   return (
     <StyledMenu ref={node as any}>
@@ -124,32 +122,33 @@ const Menu: React.FC = () => {
 
           <Divider />
 
-          <ClaimRewardButton
-            disabled={!account || (!!chainId && NETWORKS_INFO[chainId].classic.claimReward === '') || pendingTx}
-            onClick={() => {
-              mixpanelHandler(MIXPANEL_TYPE.CLAIM_REWARDS_INITIATED)
-              toggleClaimPopup()
+          <Flex
+            sx={{
+              flexDirection: 'column',
+              gap: '16px',
             }}
           >
-            {pendingTx ? (
-              <>
-                <Loader style={{ marginRight: '5px' }} stroke={theme.disableText} /> <Trans>Claiming...</Trans>
-              </>
-            ) : (
-              <Trans>Claim Rewards</Trans>
-            )}
-          </ClaimRewardButton>
-          {!!process.env.REACT_APP_TAG && (
-            <Text
-              fontSize="10px"
-              fontWeight={300}
-              color={theme.subText}
-              mt="16px"
-              textAlign={isMobile ? 'left' : 'center'}
+            <ClaimRewardButton
+              disabled={!account || (!!chainId && NETWORKS_INFO[chainId].classic.claimReward === '') || isClaiming}
+              onClick={() => {
+                mixpanelHandler(MIXPANEL_TYPE.CLAIM_REWARDS_INITIATED)
+                toggleClaimPopup()
+              }}
             >
-              kyberswap@{process.env.REACT_APP_TAG}
-            </Text>
-          )}
+              {isClaiming ? (
+                <>
+                  <Loader style={{ marginRight: '5px' }} stroke={theme.disableText} /> <Trans>Claiming...</Trans>
+                </>
+              ) : (
+                <Trans>Claim Rewards</Trans>
+              )}
+            </ClaimRewardButton>
+            {!!process.env.REACT_APP_TAG && (
+              <Text fontSize="12px" lineHeight="12px" fontWeight={400} color={theme.subText} textAlign="center">
+                kyberswap@{process.env.REACT_APP_TAG}
+              </Text>
+            )}
+          </Flex>
         </Flex>
       </MenuFlyout>
       <ClaimRewardModal />
