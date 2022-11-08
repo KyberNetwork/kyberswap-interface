@@ -513,9 +513,9 @@ export default memo(function TutorialSwap() {
   }
 
   const onNext = (logic: WalktourLogic) => {
-    const { stepIndex, close } = logic
-    // todo namgold: fix this hardcode
-    if (stepIndex - 1 === TutorialNumbers.TOTAL_STEP) {
+    const { stepIndex, close, allSteps } = logic
+    const { lastStep } = allSteps[stepIndex] as StepCustom
+    if (lastStep) {
       onFinished()
       close()
       return
