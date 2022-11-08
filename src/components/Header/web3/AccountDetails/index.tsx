@@ -275,14 +275,16 @@ export default function AccountDetails({ toggleWalletModal, openOptions }: Accou
             </Flex>
           </ExternalLink>
 
-          <ExternalLink href={`${PROMM_ANALYTICS_URL[chainId]}/account/${account}`}>
-            <Flex alignItems="center">
-              <Wallet size={16} />
-              <Text fontSize="14px" marginLeft="4px">
-                <Trans>Analyze Wallet</Trans> ↗
-              </Text>
-            </Flex>
-          </ExternalLink>
+          {isEVM && (
+            <ExternalLink href={`${PROMM_ANALYTICS_URL[chainId]}/account/${account}`}>
+              <Flex alignItems="center">
+                <Wallet size={16} />
+                <Text fontSize="14px" marginLeft="4px">
+                  <Trans>Analyze Wallet</Trans> ↗
+                </Text>
+              </Flex>
+            </ExternalLink>
+          )}
         </Flex>
 
         <Flex justifyContent="space-between" marginTop="24px" paddingX="20px" sx={{ gap: '1rem' }}>
