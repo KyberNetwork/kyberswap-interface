@@ -24,6 +24,7 @@ import { RowBetween, RowFixed } from '../Row'
 
 const StyledArrowRight = styled(ArrowRight)<{ rotated?: boolean }>`
   transition: all 100ms ease;
+  color: ${({ theme }) => theme.text};
   ${({ rotated }) =>
     rotated &&
     css`
@@ -96,7 +97,7 @@ const Preferences: React.FC = () => {
             onClick={openTutorialSwapGuide}
           >
             <Trans>View</Trans>
-            <Bulb />
+            <Bulb color={theme.text} />
           </Flex>
         </RowBetween>
       )}
@@ -104,7 +105,7 @@ const Preferences: React.FC = () => {
       <RowBetween height="20px">
         <RowFixed>
           <StyledLabel>
-            <Trans>Dark Mode</Trans>
+            <Trans>Theme</Trans>
           </StyledLabel>
         </RowFixed>
         <ThemeToggle id="toggle-dark-mode-button" isDarkMode={darkMode} toggle={toggleSetDarkMode} />
