@@ -58,15 +58,13 @@ type AccountInfoParsed = Overwrite<AccountInfo<any>, ParsedData> & {
 }
 
 export const useAssociatedTokensAccounts = (): { [mintAddress: string]: AccountInfoParsed } | null => {
-  const { isSolana } = useActiveWeb3React()
-
-  const { publicKey } = useWallet()
+  const { isSolana, account } = useActiveWeb3React()
   const allTransactions = useAllTransactions()
   const [atas, setAtas] = useState<{ [mintAddress: string]: AccountInfoParsed } | null>(null)
 
   useEffect(() => {
     if (!isSolana) return
-    if (!publicKey) return
+    if (!account) return
     async function getTokenAccounts(publicKey: PublicKey) {
       try {
         const response = await connection.getTokenAccountsByOwner(publicKey, {
@@ -87,8 +85,8 @@ export const useAssociatedTokensAccounts = (): { [mintAddress: string]: AccountI
       } catch (e) {}
     }
 
-    getTokenAccounts(publicKey)
-  }, [allTransactions, publicKey, isSolana])
+    getTokenAccounts(new PublicKey(account))
+  }, [allTransactions, account, isSolana])
 
   return atas
 }

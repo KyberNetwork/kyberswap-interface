@@ -34,9 +34,8 @@ export interface FeeConfig {
 export function useSwapV2Callback(
   trade: Aggregator | undefined, // trade to execute, required
 ): { state: SwapCallbackState; callback: null | (() => Promise<string>); error: string | null } {
-  const { account, chainId, isEVM, isSolana } = useActiveWeb3React()
+  const { account, chainId, isEVM, isSolana, walletSolana } = useActiveWeb3React()
   const { library } = useWeb3React()
-  const { wallet: solanaWallet } = useWallet()
   const provider = useProvider()
 
   const { typedValue, feeConfig, saveGas, recipient: recipientAddressOrName } = useSwapState()
@@ -143,11 +142,11 @@ export function useSwapV2Callback(
 
     const onSwapSolana = async (): Promise<string> => {
       if (!provider) throw new Error('Please connect wallet first')
-      if (!solanaWallet?.adapter) throw new Error('Please connect wallet first')
+      if (!walletSolana.wallet?.adapter) throw new Error('Please connect wallet first')
       if (!trade.swapTx) throw new Error('Encode not found')
       const hash = await sendSolanaTransactionWithBEEncode(
         trade,
-        solanaWallet.adapter as any,
+        walletSolana.wallet.adapter as any,
         onHandleSwapResponse,
         onHandleCustomTypeResponse,
       )
@@ -170,7 +169,7 @@ export function useSwapV2Callback(
     library,
     onHandleSwapResponse,
     provider,
-    solanaWallet,
+    walletSolana,
     onHandleCustomTypeResponse,
   ])
 }
