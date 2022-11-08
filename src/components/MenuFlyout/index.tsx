@@ -11,7 +11,7 @@ import { ReactComponent as Close } from '../../assets/images/x.svg'
 const Arrow = css`
   & > div {
     position: relative;
-    :after {
+    &:after {
       bottom: 100%;
       right: 0;
       top: -40px;
@@ -30,7 +30,7 @@ const Arrow = css`
     & > div:after {
       top: calc(100% + 20px);
       border-top-color: ${({ theme }) => theme.tableHeader};
-      border-bottom-color: transparent
+      border-bottom-color: transparent;
       border-width: 10px;
       margin-left: -10px;
     }
