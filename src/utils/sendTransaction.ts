@@ -3,7 +3,7 @@ import { TransactionResponse } from '@ethersproject/providers'
 import { t } from '@lingui/macro'
 import { captureException } from '@sentry/react'
 import { SignerWalletAdapter } from '@solana/wallet-adapter-base'
-import { Transaction, sendAndConfirmRawTransaction } from '@solana/web3.js'
+import { Transaction, VersionedTransaction, sendAndConfirmRawTransaction } from '@solana/web3.js'
 import { ethers } from 'ethers'
 
 import connection from 'state/connection/connection'
@@ -101,9 +101,12 @@ export async function sendEVMTransaction(
   }
 }
 
-const getInspectTxSolanaUrl = (tx: Transaction | undefined | null) => {
+const getInspectTxSolanaUrl = (tx: Transaction | VersionedTransaction | undefined | null) => {
   if (!tx) return ''
-  const base64Str = Buffer.concat([Buffer.from([0]), tx.serializeMessage()]).toString('base64')
+  const base64Str = Buffer.concat([
+    Buffer.from([0]),
+    'serializeMessage' in tx ? tx.serializeMessage() : tx.serialize(),
+  ]).toString('base64')
   return base64Str
   // return 'https://explorer.solana.com/tx/inspector?signatures=%255B%255D&message=' + escape(escape(base64Str))
 }
@@ -116,7 +119,7 @@ export async function sendSolanaTransactionWithBEEncode(
 ): Promise<string[] | undefined> {
   if (!trade.swapTx) return
 
-  const txs: Transaction[] = []
+  const txs: (Transaction | VersionedTransaction)[] = []
 
   if (trade.setupTx) {
     txs.push(trade.setupTx)
@@ -129,24 +132,24 @@ export async function sendSolanaTransactionWithBEEncode(
   }
 
   const populateTx = (
-    txs: Transaction[],
+    txs: (Transaction | VersionedTransaction)[],
   ): {
     signedSetupTx: Transaction | undefined
-    signedSwapTx: Transaction
+    signedSwapTx: VersionedTransaction
     signedCleanUpTx: Transaction | undefined
   } => {
     const result: {
       signedSetupTx: Transaction | undefined
-      signedSwapTx: Transaction | undefined
+      signedSwapTx: VersionedTransaction | undefined
       signedCleanUpTx: Transaction | undefined
     } = { signedSetupTx: undefined, signedSwapTx: undefined, signedCleanUpTx: undefined }
     let count = 0
-    if (trade.setupTx) result.signedSetupTx = txs[count++]
-    result.signedSwapTx = txs[count++]
-    result.signedCleanUpTx = txs[count++]
+    if (trade.setupTx) result.signedSetupTx = txs[count++] as Transaction
+    result.signedSwapTx = txs[count++] as VersionedTransaction
+    result.signedCleanUpTx = txs[count++] as Transaction
     return result as {
       signedSetupTx: Transaction | undefined
-      signedSwapTx: Transaction
+      signedSwapTx: VersionedTransaction
       signedCleanUpTx: Transaction | undefined
     }
   }
@@ -159,7 +162,7 @@ export async function sendSolanaTransactionWithBEEncode(
   console.groupEnd()
 
   try {
-    let signedTxs: Transaction[]
+    let signedTxs: (Transaction | VersionedTransaction)[]
     try {
       signedTxs = await (solanaWallet as SignerWalletAdapter).signAllTransactions(txs)
     } catch (e) {
@@ -181,7 +184,7 @@ export async function sendSolanaTransactionWithBEEncode(
 
     try {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const swapHash = await sendAndConfirmRawTransaction(connection, signedSwapTx!.serialize())
+      const swapHash = await sendAndConfirmRawTransaction(connection, Buffer.from(signedSwapTx.serialize()))
       txHashs.push(swapHash)
       handler(swapHash, txHashs[0])
     } catch (error) {

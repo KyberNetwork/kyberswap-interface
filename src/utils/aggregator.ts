@@ -10,9 +10,17 @@ import {
   TradeType,
   WETH,
 } from '@namgold/ks-sdk-core'
-import { OpenOrders } from '@project-serum/serum'
+import { DexInstructions, OpenOrders } from '@project-serum/serum'
 import { captureException } from '@sentry/react'
-import { Connection, Keypair, Message, PublicKey, SystemProgram, Transaction } from '@solana/web3.js'
+import {
+  Connection,
+  Keypair,
+  Message,
+  PublicKey,
+  SystemProgram,
+  Transaction,
+  VersionedTransaction,
+} from '@solana/web3.js'
 import { toByteArray } from 'base64-js'
 import JSBI from 'jsbi'
 import invariant from 'tiny-invariant'
@@ -30,6 +38,7 @@ import {
   checkAndCreateWrapSOLInstructions,
   createUnwrapSOLInstruction,
 } from './solanaInstructions'
+import { convertToVersionedTx } from './versionedTx'
 
 export type Swap = {
   pool: string
@@ -91,7 +100,7 @@ export class Aggregator {
   public readonly priceImpact: number
   public readonly encodedSwapData: string
   public readonly routerAddress: string
-  public readonly swapTx: Transaction | undefined
+  public readonly swapTx: VersionedTransaction | undefined
   public readonly setupTx: Transaction | undefined
   public readonly cleanUpTx: Transaction | undefined
 
@@ -108,7 +117,7 @@ export class Aggregator {
     priceImpact: number,
     encodedSwapData: string,
     routerAddress: string,
-    swapTx: Transaction | undefined,
+    swapTx: VersionedTransaction | undefined,
     setupTx: Transaction | undefined,
     cleanUpTx: Transaction | undefined,
   ) {
@@ -281,7 +290,9 @@ export class Aggregator {
           ? -1
           : ((-result.amountOutUsd + result.amountInUsd) * 100) / result.amountInUsd
 
-        let swapTx: Transaction | undefined, setupTx: Transaction | undefined, cleanUpTx: Transaction | undefined
+        let swapTx: VersionedTransaction | undefined,
+          setupTx: Transaction | undefined,
+          cleanUpTx: Transaction | undefined
 
         if (result.encodedMessage && to !== ZERO_ADDRESS_SOLANA) {
           const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash()
@@ -336,7 +347,16 @@ export class Aggregator {
             }
 
             if (createOpenOrdersIxs.length) {
-              setupTx.add(...createOpenOrdersIxs)
+              setupTx.add(
+                ...createOpenOrdersIxs,
+                DexInstructions.initOpenOrders({
+                  market: new PublicKey(0),
+                  openOrders: new PublicKey(0),
+                  owner: toPK,
+                  programId: new PublicKey(0),
+                  marketAuthority: null,
+                }),
+              )
 
               // replace dummy OpenOrders account with actual ones
               for (let i = 0; i < message.accountKeys.length; i += 1) {
@@ -351,11 +371,9 @@ export class Aggregator {
             }
           }
 
-          swapTx = Transaction.populate(message)
-          swapTx.recentBlockhash = blockhash
-          swapTx.lastValidBlockHeight = lastValidBlockHeight
-          swapTx.feePayer = toPK
-          await swapTx.partialSign(programState)
+          swapTx = await convertToVersionedTx('confirmed', blockhash, message, toPK)
+
+          await swapTx.sign([programState])
 
           let initializedWrapSOL = false
           if (currencyAmountIn.currency.isNative) {
