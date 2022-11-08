@@ -2,7 +2,8 @@ import { ChainId } from '@namgold/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { useActiveWeb3React } from 'hooks'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useBlockNumber } from 'state/application/hooks'
 import { AppDispatch, AppState } from 'state/index'
 import { findTx } from 'utils'
 
@@ -22,17 +23,25 @@ type TransactionHistory = {
 // helper that can take a ethers library transaction response and add it to the list of transactions
 export function useTransactionAdder(): (tx: TransactionHistory) => void {
   const { chainId, account } = useActiveWeb3React()
+  const { library } = useWeb3React()
   const dispatch = useDispatch<AppDispatch>()
+  const blockNumber = useBlockNumber()
 
   return useCallback(
-    ({ hash, desiredChainId, type, summary, approval, arbitrary, firstTxHash }: TransactionHistory) => {
+    async ({ hash, desiredChainId, type, summary, approval, arbitrary, firstTxHash }: TransactionHistory) => {
       if (!account) return
       if (!chainId) return
+
+      const tx = await library?.getTransaction(hash)
 
       dispatch(
         addTransaction({
           hash,
           from: account,
+          to: tx?.to,
+          nonce: tx?.nonce,
+          data: tx?.data,
+          sentAtBlock: blockNumber,
           chainId: desiredChainId ?? chainId,
           approval,
           type,
@@ -42,7 +51,7 @@ export function useTransactionAdder(): (tx: TransactionHistory) => void {
         }),
       )
     },
-    [account, chainId, dispatch],
+    [account, chainId, dispatch, blockNumber, library],
   )
 }
 

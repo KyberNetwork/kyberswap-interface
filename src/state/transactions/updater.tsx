@@ -3,6 +3,7 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { Fraction } from '@namgold/ks-sdk-core'
 import { ParsedTransactionMeta, ParsedTransactionWithMeta } from '@solana/web3.js'
 import { ethers } from 'ethers'
+import { findReplacementTx } from 'find-replacement-tx'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -17,7 +18,7 @@ import { AppDispatch, AppState } from 'state/index'
 import { findTx } from 'utils'
 import { getFullDisplayBalance } from 'utils/formatBalance'
 
-import { checkedTransaction, finalizeTransaction } from './actions'
+import { checkedTransaction, finalizeTransaction, removeTx, replaceTx } from './actions'
 import { SerializableTransactionReceipt, TRANSACTION_TYPE, TransactionDetails } from './type'
 
 function shouldCheck(
@@ -170,6 +171,42 @@ export default function Updater(): null {
       .filter(hash => shouldCheck(lastBlockNumber, findTx(transactions, hash)))
       .forEach(hash => {
         if (isEVM) {
+          // Check if tx was replaced
+          library
+            .getTransaction(hash)
+            .then(res => {
+              const transaction = findTx(transactions, hash)
+              if (!transaction) return
+              const { sentAtBlock, from, to, nonce, data } = transaction
+              // this mean tx was drop
+              if (res === null) {
+                if (sentAtBlock && from && to && nonce && data)
+                  findReplacementTx(library, sentAtBlock, {
+                    from,
+                    to,
+                    nonce,
+                    data,
+                  })
+                    .then(newTx => {
+                      if (newTx) {
+                        dispatch(
+                          replaceTx({
+                            chainId,
+                            oldHash: hash,
+                            newHash: newTx.hash,
+                          }),
+                        )
+                      }
+                    })
+                    .catch(() => {
+                      dispatch(removeTx({ chainId, hash }))
+                    })
+                else {
+                  dispatch(removeTx({ chainId, hash }))
+                }
+              }
+            })
+            .catch(console.warn)
           library
             .getTransactionReceipt(hash)
             .then(receipt => {
@@ -179,7 +216,7 @@ export default function Updater(): null {
                 dispatch(
                   finalizeTransaction({
                     chainId,
-                    hash,
+                    hash: receipt.transactionHash,
                     receipt: {
                       blockHash: receipt.blockHash,
                       status: receipt.status,
@@ -189,7 +226,7 @@ export default function Updater(): null {
                 )
 
                 transactionNotify({
-                  hash,
+                  hash: receipt.transactionHash,
                   notiType: receipt.status === 1 ? NotificationType.SUCCESS : NotificationType.ERROR,
                   type: parseTransactionType(hash),
                   summary: parseEVMTransactionSummary({ tx: transaction, logs: receipt.logs }),
@@ -202,7 +239,7 @@ export default function Updater(): null {
                           arbitrary: transaction.arbitrary,
                           actual_gas: receipt.gasUsed || BigNumber.from(0),
                           gas_price: receipt.effectiveGasPrice || BigNumber.from(0),
-                          tx_hash: hash,
+                          tx_hash: receipt.transactionHash,
                         })
                       }
                       break
@@ -211,7 +248,7 @@ export default function Updater(): null {
                       if (transaction.arbitrary) {
                         mixpanelHandler(MIXPANEL_TYPE.BRIDGE_TRANSACTION_SUBMIT, {
                           ...transaction.arbitrary,
-                          tx_hash: hash,
+                          tx_hash: receipt.transactionHash,
                         })
                       }
                       break
@@ -226,7 +263,7 @@ export default function Updater(): null {
                       if (transaction.arbitrary) {
                         mixpanelHandler(MIXPANEL_TYPE.ELASTIC_INCREASE_LIQUIDITY_COMPLETED, {
                           ...transaction.arbitrary,
-                          tx_hash: hash,
+                          tx_hash: receipt.transactionHash,
                         })
                       }
                       break

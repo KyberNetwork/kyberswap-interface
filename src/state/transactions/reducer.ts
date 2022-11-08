@@ -8,6 +8,8 @@ import {
   checkedTransaction,
   clearAllTransactions,
   finalizeTransaction,
+  removeTx,
+  replaceTx,
 } from './actions'
 import { GroupedTxsByHash } from './type'
 
@@ -23,13 +25,28 @@ export default createReducer(initialState, builder =>
   builder
     .addCase(
       addTransaction,
-      (transactions, { payload: { chainId, from, hash, approval, type, summary, arbitrary, firstTxHash } }) => {
-        // if (firstTxHash && transactions[chainId]?.[firstTxHash]) {
-        //   throw Error('Attempted to add existing transaction.')
-        // }
+      (
+        transactions,
+        {
+          payload: {
+            sentAtBlock,
+            to,
+            nonce,
+            data,
+            chainId,
+            from,
+            hash,
+            approval,
+            type,
+            summary,
+            arbitrary,
+            firstTxHash,
+          },
+        },
+      ) => {
         const chainTxs = transactions[chainId] ?? {}
         const txs = (firstTxHash && chainTxs[firstTxHash]) || []
-        txs.push({ hash, approval, type, summary, arbitrary, from, addedTime: now() })
+        txs.push({ sentAtBlock, to, nonce, data, hash, approval, type, summary, arbitrary, from, addedTime: now() })
         chainTxs[txs[0].hash] = txs
         transactions[chainId] = chainTxs
       },
@@ -55,5 +72,35 @@ export default createReducer(initialState, builder =>
       const tx = findTx(transactions[chainId], hash)
       if (!tx) return
       tx.needCheckSubgraph = false
+    })
+    .addCase(replaceTx, (transactions, { payload: { chainId, oldHash, newHash } }) => {
+      const chainTxs = transactions[chainId] ?? {}
+      const txGroup = chainTxs[oldHash] || Object.values(chainTxs).find(txs => txs?.some(tx => tx?.hash === oldHash))
+      if (!txGroup) return
+      const txIndex = txGroup.findIndex(tx => tx?.hash === oldHash)
+      if (txIndex < 0) return
+      txGroup[txIndex].hash = newHash
+      if (chainTxs[oldHash]) {
+        chainTxs[newHash] = txGroup
+        delete chainTxs[oldHash]
+      }
+      transactions[chainId] = chainTxs
+    })
+    .addCase(removeTx, (transactions, { payload: { chainId, hash } }) => {
+      const chainTxs = transactions[chainId] ?? {}
+      if (chainTxs[hash]) {
+        delete chainTxs[hash]
+      } else {
+        const txGroup = Object.values(chainTxs).find(txs => txs?.some(tx => tx?.hash === hash))
+        if (!txGroup) return
+        if (txGroup.length === 1) {
+          delete transactions[chainId]?.[hash]
+        } else {
+          const txIndex = txGroup.findIndex(tx => tx?.hash === hash)
+          if (txIndex < 0) return
+          txGroup.splice(txIndex, 1)
+        }
+      }
+      transactions[chainId] = chainTxs
     }),
 )

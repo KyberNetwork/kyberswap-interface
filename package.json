@@ -78,6 +78,7 @@
     "d3": "^7.3.0",
     "dayjs": "^1.10.7",
     "ethers": "^5.4.6",
+    "find-replacement-tx": "^1.2.3",
     "firebase": "^9.8.2",
     "graphql": "^15.5.0",
     "inter-ui": "^3.13.1",

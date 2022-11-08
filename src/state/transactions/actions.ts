@@ -7,6 +7,10 @@ export const addTransaction = createAction<{
   chainId: ChainId
   hash: string
   from: string
+  to?: string
+  nonce?: number
+  data?: string
+  sentAtBlock?: number
   approval?: { tokenAddress: string; spender: string }
   type?: TRANSACTION_TYPE
   summary?: string
@@ -26,3 +30,9 @@ export const checkedTransaction = createAction<{
   blockNumber: number
 }>('transactions/checkedTransaction')
 export const checkedSubgraph = createAction<{ chainId: ChainId; hash: string }>('transactions/checkedSubgraph')
+export const replaceTx = createAction<{
+  chainId: ChainId
+  oldHash: string
+  newHash: string
+}>('transactions/replaceTx')
+export const removeTx = createAction<{ chainId: ChainId; hash: string }>('transactions/removeTx')

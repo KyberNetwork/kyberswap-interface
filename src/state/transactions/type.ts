@@ -13,6 +13,10 @@ export interface TransactionDetails {
   addedTime: number
   confirmedTime?: number
   from: string
+  to?: string
+  data?: string
+  nonce?: number
+  sentAtBlock?: number
   arbitrary: any // To store anything arbitrary, so it has any type
   needCheckSubgraph?: boolean
 }
