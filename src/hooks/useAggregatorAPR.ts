@@ -6,6 +6,7 @@ interface APRResponse {
     id: string
     chain_id: number
     is_farm: boolean
+    type: string
   }
   total_earnings: number
 }

@@ -28,6 +28,7 @@ interface GlobalData {
       id: string
       chain_id: number
       is_farm: boolean
+      type: string
     }
     totalEarnings?: number
   }

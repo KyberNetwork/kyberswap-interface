@@ -578,7 +578,7 @@ function AboutKyberSwap() {
                         <Link
                           to={`/${dataToShow.maxAPRAvailable.is_farm ? 'farms' : 'pools'}?tab=classic&networkId=${
                             dataToShow.maxAPRAvailable.chain_id
-                          }&search=${dataToShow.maxAPRAvailable.id}`}
+                          }&search=${dataToShow.maxAPRAvailable.id}&tab=${dataToShow.maxAPRAvailable.type}`}
                           style={{ textDecorationLine: 'none' }}
                         >
                           <Trans>Max APR Available</Trans>↗
