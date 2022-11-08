@@ -78,6 +78,10 @@ const MenuFlyoutBrowserStyle = css`
   right: -11px;
 `
 
+const MenuFlyoutMobileStyle = css`
+  overflow: auto;
+`
+
 const ClaimRewardButton = styled(ButtonPrimary)`
   padding: 12px;
   font-size: 14px;
@@ -107,7 +111,14 @@ const Menu: React.FC = () => {
         <StyledMenuIcon />
       </StyledMenuButton>
 
-      <MenuFlyout node={node} browserCustomStyle={MenuFlyoutBrowserStyle} isOpen={open} toggle={toggle} hasArrow>
+      <MenuFlyout
+        node={node}
+        mobileCustomStyle={MenuFlyoutMobileStyle}
+        browserCustomStyle={MenuFlyoutBrowserStyle}
+        isOpen={open}
+        toggle={toggle}
+        hasArrow
+      >
         <Flex
           sx={{
             flexDirection: 'column',
