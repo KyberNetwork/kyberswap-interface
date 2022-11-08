@@ -12,6 +12,7 @@ export interface StepCustom extends Step {
   selectorHint?: string // this is element to check we clicked requiredClickSelector or not.
   stepNumber?: number // for tracking, display
   callbackEndStep?: () => void
+  lastStep?: boolean
 }
 
 // todo namgold: fix this hardcode

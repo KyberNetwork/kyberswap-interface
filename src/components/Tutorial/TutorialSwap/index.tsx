@@ -415,6 +415,7 @@ const getListSteps = (isLogin: boolean, isSolana: boolean) => {
       maskPadding: 10,
       requiredClickSelector: '#' + TutorialIds.BUTTON_SETTING,
       stopPropagationMouseDown: true,
+      lastStep: true,
       description: (
         <Layout title={LIST_TITLE.VIEW_GUIDE}>
           <Desc>
@@ -528,7 +529,7 @@ export default memo(function TutorialSwap() {
   }
 
   if (!show) return null
-  if (isMobile) return <TutorialMobile isOpen={show} stopTutorial={stopTutorial} steps={steps as ToggleItemType[]} />
+  if (isMobile) return <TutorialMobile stopTutorial={stopTutorial} steps={steps as ToggleItemType[]} />
   return (
     <>
       <Walktour
