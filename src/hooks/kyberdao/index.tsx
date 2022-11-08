@@ -22,8 +22,9 @@ export function useStakingInfo() {
   const stakingContract = useContract(KYBERDAO_ADDRESSES.STAKING, StakingABI)
 
   const stakedBalance = useSingleCallResult(stakingContract, 'getLatestStakeBalance', [account ?? undefined])
+  const delegatedAccount = useSingleCallResult(stakingContract, 'getLatestRepresentative', [account ?? undefined])
   const KNCBalance = useTokenBalance(KNC_ADDRESS)
-  return { stakedBalance: stakedBalance.result?.[0], KNCBalance }
+  return { stakedBalance: stakedBalance.result?.[0], KNCBalance, delegatedAccount: delegatedAccount.result?.[0] }
 }
 
 export function useKyberDaoStakeActions() {
@@ -73,7 +74,7 @@ export function useKyberDaoStakeActions() {
         const tx = await migrateContract.mintWithOldKnc(amount, {
           gasLimit: calculateGasMargin(estimateGas),
         })
-        addTransactionWithType(tx, { type: 'Unstake', summary: `KyberDAO` })
+        addTransactionWithType(tx, { type: 'Migrate', summary: `KyberDAO` })
         return tx.hash
       } catch (error) {
         console.log('Migrate error: ', error.message)
@@ -90,10 +91,25 @@ export function useKyberDaoStakeActions() {
       const tx = await stakingContract.delegate(address, {
         gasLimit: calculateGasMargin(estimateGas),
       })
-      addTransactionWithType(tx, { type: 'Unstake', summary: `KyberDAO` })
+      addTransactionWithType(tx, { type: 'Delegate', summary: `KyberDAO` })
       return tx.hash
     },
     [addTransactionWithType, stakingContract],
   )
-  return { stake, unstake, migrate }
+  const undelegate = useCallback(
+    // address here alway should be user's address
+    async (address: string) => {
+      if (!stakingContract) {
+        throw new Error(CONTRACT_NOT_FOUND_MSG)
+      }
+      const estimateGas = await stakingContract.estimateGas.delegate(address)
+      const tx = await stakingContract.delegate(address, {
+        gasLimit: calculateGasMargin(estimateGas),
+      })
+      addTransactionWithType(tx, { type: 'Undelegate', summary: `KyberDAO` })
+      return tx.hash
+    },
+    [addTransactionWithType, stakingContract],
+  )
+  return { stake, unstake, migrate, delegate, undelegate }
 }

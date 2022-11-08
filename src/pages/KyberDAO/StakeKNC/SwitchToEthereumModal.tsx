@@ -59,7 +59,7 @@ export default function SwitchToEthereumModal() {
       <Wrapper>
         <AutoColumn gap="20px">
           <RowBetween>
-            <AutoRow gap="4px" color={theme.primary}>
+            <AutoRow gap="2px" color={theme.primary}>
               <WarningIcon size="28px" />
               <Text fontSize={20}>
                 <Trans>Switch Network</Trans>
