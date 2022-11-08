@@ -288,7 +288,7 @@ export default function Updater(): null {
         }
         if (isSolana) {
           connection
-            .getParsedTransaction(hash)
+            .getParsedTransaction(hash, { maxSupportedTransactionVersion: 0 })
             .then((tx: ParsedTransactionWithMeta | null) => {
               if (tx) {
                 const transaction = findTx(transactions, hash)
