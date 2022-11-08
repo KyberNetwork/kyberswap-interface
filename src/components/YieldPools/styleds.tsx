@@ -393,6 +393,7 @@ export const ProMMFarmTableRow = styled(ProMMFarmTableHeader)`
 
 export const ClickableText = styled(Text)`
   display: flex;
+  gap: 4px;
   align-items: center;
   color: ${({ theme }) => theme.subText};
   user-select: none;

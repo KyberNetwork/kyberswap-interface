@@ -28,7 +28,6 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { useElasticFarms } from 'state/farms/elastic/hooks'
 import { FarmingPool } from 'state/farms/elastic/types'
-import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { ExternalLink } from 'theme'
 import { shortenAddress } from 'utils'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
@@ -90,6 +89,14 @@ const FeeTarget = ({ percent }: { percent: string }) => {
   )
 }
 
+interface Pool extends FarmingPool {
+  tvl: number
+  poolAPR: number
+  farmAPR: number
+  depositedUsd: number
+  stakedUsd: number
+}
+
 const Row = ({
   isApprovedForAll,
   fairlaunchAddress,
@@ -101,7 +108,7 @@ const Row = ({
   isUserAffectedByFarmIssue: boolean
   isApprovedForAll: boolean
   fairlaunchAddress: string
-  pool: FarmingPool
+  pool: Pool
   onOpenModal: (modalType: 'deposit' | 'withdraw' | 'stake' | 'unstake', pid?: number | string) => void
   onHarvest: () => void
 }) => {
@@ -113,34 +120,7 @@ const Row = ({
 
   const { chainId } = useActiveWeb3React()
 
-  const { userFarmInfo, poolFeeLast24h } = useElasticFarms()
-
-  const tokenAddress = [
-    ...new Set([
-      pool.token0.wrapped.address.toLowerCase(),
-      pool.token1.wrapped.address.toLowerCase(),
-      ...pool.rewardTokens.map(rw => rw.wrapped.address.toLowerCase()),
-    ]),
-  ]
-  const tokenPrices = useTokenPrices(tokenAddress)
-  const tvl =
-    tokenPrices[pool.token0.wrapped.address] * Number(pool.tvlToken0.toExact()) +
-    tokenPrices[pool.token1.wrapped.address] * Number(pool.tvlToken1.toExact())
-
-  const totalRewardValue = pool.totalRewards.reduce(
-    (total, rw) => total + Number(rw.toExact()) * tokenPrices[rw.currency.wrapped.address],
-    0,
-  )
-
-  const farmDuration = (pool.endTime - pool.startTime) / 86400
-  const farmAPR = (365 * 100 * (totalRewardValue || 0)) / farmDuration / pool.poolTvl
-
-  let poolAPY = 0
-  if (pool.feesUSD && poolFeeLast24h[pool.poolAddress]) {
-    const pool24hFee = pool.feesUSD - poolFeeLast24h[pool.poolAddress]
-
-    poolAPY = (pool24hFee * 100 * 365) / pool.poolTvl
-  }
+  const { userFarmInfo } = useElasticFarms()
 
   const joinedPositions = userFarmInfo?.[fairlaunchAddress]?.joinedPositions[pool.pid] || []
   const depositedPositions =
@@ -209,23 +189,7 @@ const Row = ({
 
   const [showTargetVolInfo, setShowTargetVolInfo] = useState(false)
 
-  const depositedUsd = depositedPositions.reduce(
-    (usd, pos) =>
-      usd +
-      Number(pos.amount1.toExact()) * (tokenPrices[pos.pool.token1.address.toLowerCase()] || 0) +
-      Number(pos.amount0.toExact()) * (tokenPrices[pos.pool.token0.address.toLowerCase()] || 0),
-    0,
-  )
-
-  const stakedUsd = joinedPositions.reduce(
-    (usd, pos) =>
-      usd +
-      Number(pos.amount1.toExact()) * (tokenPrices[pos.pool.token1.address.toLowerCase()] || 0) +
-      Number(pos.amount0.toExact()) * (tokenPrices[pos.pool.token0.address.toLowerCase()] || 0),
-    0,
-  )
-
-  const amountCanStaked = depositedUsd - stakedUsd
+  const amountCanStaked = pool.depositedUsd - pool.stakedUsd
 
   if (!above1000) {
     const renderStakeButtonOnMobile = () => {
@@ -331,7 +295,7 @@ const Row = ({
             <Text color={theme.subText}>
               <Trans>Staked TVL</Trans>
             </Text>
-            <Text>{formatDollarAmount(tvl)}</Text>
+            <Text>{formatDollarAmount(pool.tvl)}</Text>
           </InfoRow>
 
           <InfoRow>
@@ -346,11 +310,11 @@ const Row = ({
               />
             </Text>
             <Flex alignItems={'center'} sx={{ gap: '4px' }} color={theme.apr}>
-              <Text as="span">{(farmAPR + poolAPY).toFixed(2)}%</Text>
+              <Text as="span">{(pool.farmAPR + pool.poolAPR).toFixed(2)}%</Text>
               <MouseoverTooltip
                 width="fit-content"
                 placement="top"
-                text={<APRTooltipContent farmAPR={farmAPR} poolAPR={poolAPY} />}
+                text={<APRTooltipContent farmAPR={pool.farmAPR} poolAPR={pool.poolAPR} />}
               >
                 <MoneyBag size={16} color={theme.apr} />
               </MouseoverTooltip>
@@ -414,7 +378,7 @@ const Row = ({
             </Text>
 
             <Flex justifyContent="flex-end" color={amountCanStaked ? theme.warning : theme.text}>
-              {!!depositedUsd ? formatDollarAmount(depositedUsd) : '--'}
+              {!!pool.depositedUsd ? formatDollarAmount(pool.depositedUsd) : '--'}
               {!!amountCanStaked && (
                 <InfoHelper
                   color={theme.warning}
@@ -627,7 +591,7 @@ const Row = ({
         </Flex>
       </div>
 
-      <Text textAlign="left">{formatDollarAmount(tvl)}</Text>
+      <Text textAlign="left">{formatDollarAmount(pool.tvl)}</Text>
       <Flex
         alignItems="center"
         justifyContent="flex-start"
@@ -636,11 +600,11 @@ const Row = ({
           gap: '4px',
         }}
       >
-        {(farmAPR + poolAPY).toFixed(2)}%
+        {(pool.farmAPR + pool.poolAPR).toFixed(2)}%
         <MouseoverTooltip
           width="fit-content"
           placement="right"
-          text={<APRTooltipContent farmAPR={farmAPR} poolAPR={poolAPY} />}
+          text={<APRTooltipContent farmAPR={pool.farmAPR} poolAPR={pool.poolAPR} />}
         >
           <MoneyBag size={16} color={theme.apr} />
         </MouseoverTooltip>
@@ -671,7 +635,7 @@ const Row = ({
       <div>
         {amountCanStaked ? (
           <Flex justifyContent="flex-start" color={theme.warning}>
-            {formatDollarAmount(depositedUsd)}
+            {formatDollarAmount(pool.depositedUsd)}
             <InfoHelper
               placement="top"
               color={theme.warning}
@@ -693,7 +657,7 @@ const Row = ({
                     </Trans>
                   </Text>
                   <Text as="span" color={theme.text}>
-                    Staked: {formatDollarAmount(stakedUsd)}
+                    Staked: {formatDollarAmount(pool.stakedUsd)}
                   </Text>
                   <Text as="span" color={theme.warning}>
                     Not staked: {formatDollarAmount(amountCanStaked)}
@@ -704,7 +668,7 @@ const Row = ({
           </Flex>
         ) : (
           <Flex justifyContent="flex-start" color={theme.text}>
-            {depositedUsd ? formatDollarAmount(depositedUsd) : '--'}
+            {pool.depositedUsd ? formatDollarAmount(pool.depositedUsd) : '--'}
           </Flex>
         )}
 
