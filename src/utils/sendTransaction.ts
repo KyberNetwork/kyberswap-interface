@@ -105,7 +105,7 @@ const getInspectTxSolanaUrl = (tx: Transaction | VersionedTransaction | undefine
   if (!tx) return ''
   const base64Str = Buffer.concat([
     Buffer.from([0]),
-    'serializeMessage' in tx ? tx.serializeMessage() : tx.serialize(),
+    'serializeMessage' in tx ? tx.serializeMessage() : Buffer.from(tx.serialize()),
   ]).toString('base64')
   return base64Str
   // return 'https://explorer.solana.com/tx/inspector?signatures=%255B%255D&message=' + escape(escape(base64Str))
