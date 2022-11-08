@@ -1,9 +1,23 @@
 import { useRef, useState } from 'react'
+import { X } from 'react-feather'
+import { useMedia } from 'react-use'
 import { Box } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import { ReactComponent as NotificationIcon2 } from 'assets/svg/slim_notification_icon.svg'
+import Modal from 'components/Modal'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
+import { MEDIA_WIDTHS } from 'theme'
+
+const CloseButton = styled.div`
+  position: absolute;
+  right: 20px;
+  top: 17px;
+  &:hover {
+    cursor: pointer;
+    opacity: 0.6;
+  }
+`
 
 const StyledMenuIcon = styled(NotificationIcon2)`
   height: 22px;
@@ -45,6 +59,7 @@ const StyledButton = styled.button<{ active?: boolean }>`
         `
       : ''}
 `
+
 const StyledIframe = styled.iframe`
   position: absolute;
   top: calc(100% + 16px);
@@ -52,11 +67,25 @@ const StyledIframe = styled.iframe`
   border: 1px solid ${({ theme }) => theme.border};
   border-radius: 16px;
   overflow: hidden;
+
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    top: unset;
+    bottom: 100%;
+  `}
+`
+
+const StyledMobileIframe = styled.iframe`
+  width: 100%;
+  overflow: hidden;
+  border: none;
+  outline: none;
 `
 
 const ChangeLog = () => {
   const [isOpen, setOpen] = useState(false)
   const ref = useRef<HTMLButtonElement>(null)
+
+  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
 
   useOnClickOutside(ref, () => {
     setOpen(false)
@@ -73,15 +102,39 @@ const ChangeLog = () => {
         <StyledMenuIcon data-badge-changelog />
       </StyledButton>
 
-      <StyledIframe
-        title="changelog"
-        style={{
-          display: isOpen ? 'block' : 'none',
-        }}
-        width="400"
-        height="600"
-        src="https://embed-316782075.sleekplan.app/#/changelog"
-      />
+      {upToExtraSmall ? (
+        <Modal isOpen={isOpen} onDismiss={() => setOpen(false)}>
+          <Box
+            sx={{
+              position: 'relative',
+              width: '100%',
+            }}
+          >
+            <StyledMobileIframe
+              title="changelog"
+              style={{
+                display: isOpen ? 'block' : 'none',
+              }}
+              width="400"
+              height="800"
+              src="https://embed-316782075.sleekplan.app/#/changelog"
+            />
+            <CloseButton onClick={() => setOpen(false)}>
+              <X color="white" />
+            </CloseButton>
+          </Box>
+        </Modal>
+      ) : (
+        <StyledIframe
+          title="changelog"
+          style={{
+            display: isOpen ? 'block' : 'none',
+          }}
+          width="400"
+          height="600"
+          src="https://embed-316782075.sleekplan.app/#/changelog"
+        />
+      )}
     </Box>
   )
 }
