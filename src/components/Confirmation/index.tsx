@@ -379,8 +379,8 @@ function Confirmation({
       </Flex>
 
       <Note>
-        Output is estimated. You will receive at least {minAmountOut} KNC or the
-        transaction will revert.
+        Output is estimated. You will receive at least {minAmountOut}{" "}
+        {tokenOutInfo.symbol} or the transaction will revert.
       </Note>
 
       <Detail>

@@ -181,7 +181,10 @@ const useSwap = ({
     };
 
     const search = Object.keys(params).reduce(
-      (searchString, key) => `${searchString}&${key}=${params[key]}`,
+      (searchString, key) =>
+        params[key] !== undefined
+          ? `${searchString}&${key}=${params[key]}`
+          : searchString,
       ""
     );
 
