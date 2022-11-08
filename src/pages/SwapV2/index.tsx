@@ -834,11 +834,10 @@ export default function Swap({ history }: RouteComponentProps) {
                       <CurrencyInputPanel
                         value={formattedAmounts[Field.INPUT]}
                         positionMax="top"
-                        showMaxButton
                         currency={currencyIn}
                         onUserInput={handleTypeInput}
                         onMax={handleMaxInput}
-                        onHalf={handleHalfInput}
+                        onHalf={isSolanaUnwrap ? null : handleHalfInput}
                         onCurrencySelect={handleInputSelect}
                         otherCurrency={currencyOut}
                         id="swap-currency-input"
@@ -904,7 +903,8 @@ export default function Swap({ history }: RouteComponentProps) {
                           disabledInput
                           value={formattedAmounts[Field.OUTPUT]}
                           onUserInput={handleTypeOutput}
-                          showMaxButton={false}
+                          onMax={null}
+                          onHalf={null}
                           currency={currencyOut}
                           onCurrencySelect={handleOutputSelect}
                           otherCurrency={currencyIn}
