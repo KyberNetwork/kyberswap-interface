@@ -1,10 +1,9 @@
 import { useRef, useState } from 'react'
-import { X } from 'react-feather'
+import { Bell, X } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Box } from 'rebass'
 import styled, { css } from 'styled-components'
 
-import { ReactComponent as NotificationIcon2 } from 'assets/svg/slim_notification_icon.svg'
 import Modal from 'components/Modal'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { MEDIA_WIDTHS } from 'theme'
@@ -19,7 +18,7 @@ const CloseButton = styled.div`
   }
 `
 
-const StyledMenuIcon = styled(NotificationIcon2)`
+const StyledMenuIcon = styled(Bell)`
   height: 22px;
   width: 22px;
 
