@@ -59,7 +59,7 @@ export function getEtherscanLink(
 export function shortenAddress(chainId: ChainId, address: string, chars = 4): string {
   const parsed = isAddress(chainId, address)
   if (!parsed) {
-    throw Error(`Invalid 'address' parameter '${address}'.`)
+    throw Error(`Invalid 'address' parameter '${address}' on chain ${chainId}.`)
   }
   return `${parsed.substring(0, chars + 2)}...${parsed.substring(42 - chars)}`
 }
