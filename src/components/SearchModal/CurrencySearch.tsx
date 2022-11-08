@@ -4,7 +4,7 @@ import { TokenInfo } from '@uniswap/token-lists'
 import axios from 'axios'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
-import { ChangeEvent, KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { ChangeEvent, KeyboardEvent, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Trash } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -134,12 +134,12 @@ const fetchTokens = async (
   }
 }
 
-export const NoResult = () => {
+export const NoResult = ({ msg }: { msg?: ReactNode }) => {
   const theme = useTheme()
   return (
     <Column style={{ padding: '20px', height: '100%' }}>
       <TYPE.main color={theme.text3} textAlign="center" mb="20px">
-        <Trans>No results found.</Trans>
+        {msg || <Trans>No results found.</Trans>}
       </TYPE.main>
     </Column>
   )
@@ -237,7 +237,7 @@ export function CurrencySearch({
     }
   }, [isOpen])
 
-  const listTokenRef = useRef<HTMLInputElement>(null)
+  const listTokenRef = useRef<HTMLDivElement>(null)
 
   const handleInput = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const input = event.target.value
@@ -347,8 +347,17 @@ export function CurrencySearch({
     fetchFavoriteTokenFromAddress()
   }, [fetchFavoriteTokenFromAddress])
 
+  const fetchingToken = useRef<number | null>(null)
+
+  useEffect(() => {
+    fetchingToken.current = null
+  }, [chainId, debouncedQuery, defaultTokens])
+
   const fetchListTokens = useCallback(
     async (page?: number) => {
+      if (fetchingToken.current) return
+      const fetchId = Date.now()
+      fetchingToken.current = fetchId
       const nextPage = (page ?? pageCount) + 1
       let tokens = []
       if (debouncedQuery) {
@@ -357,10 +366,14 @@ export function CurrencySearch({
       } else {
         tokens = Object.values(defaultTokens) as WrappedTokenInfo[]
       }
-      const parsedTokenList = filterTruthy(tokens.map(formatAndCacheToken))
-      setPageCount(nextPage)
-      setFetchedTokens(current => (nextPage === 1 ? [] : current).concat(parsedTokenList))
-      setHasMoreToken(parsedTokenList.length === PAGE_SIZE && !!debouncedQuery)
+      if (fetchingToken.current === fetchId) {
+        // sometimes, API slow, api fetch later has response sooner.
+        const parsedTokenList = filterTruthy(tokens.map(formatAndCacheToken))
+        setPageCount(nextPage)
+        setFetchedTokens(current => (nextPage === 1 ? [] : current).concat(parsedTokenList))
+        setHasMoreToken(parsedTokenList.length === PAGE_SIZE && !!debouncedQuery)
+        fetchingToken.current = null
+      }
     },
     [chainId, debouncedQuery, defaultTokens, pageCount],
   )
@@ -373,12 +386,6 @@ export function CurrencySearch({
     }
     // need call api when only debouncedQuery change
   }, [debouncedQuery, prevQuery, fetchListTokens, isAddressSearch])
-
-  useEffect(() => {
-    if (Object.keys(defaultTokens).length) fetchFavoriteTokenFromAddress()
-    // call once
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   const combinedTokens = useMemo(() => {
     const currencies: Currency[] = filteredSortedTokens
@@ -509,21 +516,20 @@ export function CurrencySearch({
       )}
 
       {visibleCurrencies?.length > 0 ? (
-        <div ref={listTokenRef} id="currency-list-wrapper" style={{ height: '100%', overflowY: 'scroll' }}>
-          <CurrencyList
-            removeImportedToken={removeImportedToken}
-            currencies={visibleCurrencies}
-            isImportedTab={isImportedTab}
-            handleClickFavorite={handleClickFavorite}
-            onCurrencySelect={handleCurrencySelect}
-            otherCurrency={otherSelectedCurrency}
-            selectedCurrency={selectedCurrency}
-            showImportView={showImportView}
-            setImportToken={setImportToken}
-            loadMoreRows={fetchListTokens}
-            hasMore={hasMoreToken}
-          />
-        </div>
+        <CurrencyList
+          listTokenRef={listTokenRef}
+          removeImportedToken={removeImportedToken}
+          currencies={visibleCurrencies}
+          isImportedTab={isImportedTab}
+          handleClickFavorite={handleClickFavorite}
+          onCurrencySelect={handleCurrencySelect}
+          otherCurrency={otherSelectedCurrency}
+          selectedCurrency={selectedCurrency}
+          showImportView={showImportView}
+          setImportToken={setImportToken}
+          loadMoreRows={fetchListTokens}
+          hasMore={hasMoreToken}
+        />
       ) : (
         <NoResult />
       )}

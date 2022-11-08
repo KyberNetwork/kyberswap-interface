@@ -1,5 +1,4 @@
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
-import { t } from '@lingui/macro'
 import { CSSProperties, memo, useCallback } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
@@ -7,6 +6,7 @@ import { Flex, Text } from 'rebass'
 
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { formatPoolValue } from 'pages/Bridge/helpers'
 import { MultiChainTokenInfo } from 'pages/Bridge/type'
 import { useBridgeState } from 'state/bridge/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
@@ -24,13 +24,15 @@ const CurrencyListBridge = memo(function CurrencyListV2({
   currencies,
   isOutput,
   onCurrencySelect,
+  listTokenRef,
 }: {
   currencies: WrappedTokenInfo[]
   onCurrencySelect: (currency: WrappedTokenInfo) => void
   isOutput: boolean | undefined
+  listTokenRef: React.Ref<HTMLDivElement>
 }) {
   const { account } = useActiveWeb3React()
-  const [{ tokenInfoIn, tokenInfoOut, poolValueOut }] = useBridgeState()
+  const [{ tokenInfoIn, tokenInfoOut, poolValueOutMap }] = useBridgeState()
   const currencyBalances = useCurrencyBalances(account || undefined, !isOutput ? currencies : [])
   const theme = useTheme()
 
@@ -43,7 +45,7 @@ const CurrencyListBridge = memo(function CurrencyListV2({
       const handleSelect = () => currency && onCurrencySelect(currency)
       const { symbol } = getDisplayTokenInfo(currency)
       const { sortId, type, anytoken } = (currency?.multichainInfo || {}) as Partial<MultiChainTokenInfo>
-      const poolLiquidity = isOutput && anytoken?.address ? poolValueOut?.[anytoken?.address] ?? t`Unlimited` : 0
+      const poolLiquidity = isOutput && anytoken?.address ? formatPoolValue(poolValueOutMap?.[anytoken?.address]) : 0
 
       return (
         <CurrencyRow
@@ -69,11 +71,11 @@ const CurrencyListBridge = memo(function CurrencyListV2({
         />
       )
     },
-    [onCurrencySelect, tokenInfoIn, isOutput, tokenInfoOut, theme, poolValueOut],
+    [onCurrencySelect, tokenInfoIn, isOutput, tokenInfoOut, theme, poolValueOutMap],
   )
 
   return (
-    <div style={{ flex: '1', overflow: 'auto', height: '100%' }}>
+    <div style={{ flex: '1', overflow: 'hidden', height: '100%' }}>
       {isOutput ? (
         currencies.map((item, index) => (
           <Row index={index} currency={item} key={index} currencyBalance={currencyBalances[index]} />
@@ -87,6 +89,7 @@ const CurrencyListBridge = memo(function CurrencyListV2({
               itemSize={56}
               itemCount={currencies.length}
               itemData={currencies}
+              outerRef={listTokenRef}
             >
               {({ data, index, style }) => (
                 <Row

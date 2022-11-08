@@ -70,7 +70,7 @@ export function useGlobalData() {
       const allChainPromises = chainIds.map(chain =>
         NETWORKS_INFO[chain].classicClient.query({
           query: GLOBAL_DATA(),
-          fetchPolicy: 'no-cache',
+          fetchPolicy: 'cache-first',
         }),
       )
 
@@ -98,7 +98,7 @@ export function useGlobalData() {
     }
 
     async function getGlobalData() {
-      const result = await getResultByChainIds(MAINNET_NETWORKS)
+      const result = await getResultByChainIds(MAINNET_NETWORKS.filter(chain => chain !== ChainId.ETHW))
 
       setGlobalData({
         ...result.data,

@@ -21,3 +21,5 @@ export enum VERSION {
   ELASTIC = 'elastic',
   CLASSIC = 'classic',
 }
+
+export const TOBE_EXTENDED_FARMING_POOLS: string[] = []

@@ -41,7 +41,7 @@ function useSendTxToKsSettingCallback() {
       dstAmount: string,
     ) => {
       const url = `${KS_SETTING_API}/v1/multichain-transfers`
-      const data = {
+      const body = {
         userAddress: account,
         srcChainId: srcChainId.toString(),
         dstChainId: dstChainId.toString(),
@@ -54,14 +54,21 @@ function useSendTxToKsSettingCallback() {
         status: 0,
       }
       try {
-        await axios.post(url, data)
+        await axios.post(url, body)
         onSuccess()
       } catch (err) {
-        console.error(err)
-        const errStr = `SendTxToKsSetting fail with payload = ${JSON.stringify(data)}`
-        const error = new Error(errStr)
+        const extraData = {
+          body,
+          status: undefined,
+          response: undefined,
+        }
+        if (err?.response?.data) {
+          extraData.status = err.response.status
+          extraData.response = err.response.data
+        }
+        const error = new Error(`SendTxToKsSetting fail, srcTxHash = ${extraData.body.srcTxHash}`, { cause: err })
         error.name = 'PostBridge'
-        captureException(error, { level: 'fatal' })
+        captureException(error, { level: 'fatal', extra: { args: JSON.stringify(extraData, null, 2) } })
       }
     },
     [account, onSuccess],
@@ -142,6 +149,7 @@ function useRouterSwap(
 
           let txReceipt
           if (promise) {
+            window.onbeforeunload = () => ''
             txReceipt = await promise
           } else {
             return Promise.reject('router wrong method')
@@ -176,6 +184,8 @@ function useRouterSwap(
         } catch (error) {
           console.error('Could not swap', error)
           return Promise.reject(error || 'router unknown error')
+        } finally {
+          window.onbeforeunload = null
         }
       },
       inputError: !sufficientBalance,
