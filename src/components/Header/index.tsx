@@ -17,7 +17,6 @@ import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import ChangeLog from 'components/ChangeLog'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import Menu, { NewLabel } from 'components/Menu'
-import Settings from 'components/Settings'
 import { TutorialIds, TutorialNumbers } from 'components/Tutorial/TutorialSwap/constant'
 import Web3Network from 'components/Web3Network'
 import { AGGREGATOR_ANALYTICS_URL, PROMM_ANALYTICS_URL } from 'constants/index'
@@ -569,7 +568,6 @@ export default function Header() {
         </HeaderElement>
         <HeaderElementWrap>
           <ChangeLog />
-          <Settings />
           <Menu />
         </HeaderElementWrap>
       </HeaderControls>

@@ -29,6 +29,7 @@ import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import Faucet from 'components/Icons/Faucet'
 import Loader from 'components/Loader'
 import MenuFlyout from 'components/MenuFlyout'
+import Preferences from 'components/Preferences'
 import { AGGREGATOR_ANALYTICS_URL, DMM_ANALYTICS_URL } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
@@ -141,7 +142,7 @@ const MenuButton = styled.div`
 `
 
 const MenuFlyoutBrowserStyle = css`
-  min-width: unset;
+  min-width: 17rem;
   right: -8px;
 
   & ${ExternalNavMenuItem}:nth-child(1),
@@ -327,6 +328,9 @@ export default function Menu() {
           <Edit size={14} />
           <Trans>Contact Us</Trans>
         </ExternalNavMenuItem>
+
+        <Preferences />
+
         <ClaimRewardButton
           disabled={!account || (!!chainId && NETWORKS_INFO[chainId].classic.claimReward === '') || pendingTx}
           onClick={() => {
