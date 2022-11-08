@@ -156,7 +156,7 @@ export function CurrencySearch({
   setImportToken,
   customChainId,
 }: CurrencySearchProps) {
-  const { chainId: web3ChainId, isSolana } = useActiveWeb3React()
+  const { chainId: web3ChainId } = useActiveWeb3React()
   const chainId = customChainId || web3ChainId
   const theme = useTheme()
   const [activeTab, setActiveTab] = useState<Tab>(Tab.All)
@@ -476,27 +476,25 @@ export function CurrencySearch({
             </Text>
           </Flex>
         )}
-        {!isSolana && (
-          <RowBetween>
-            <Flex
-              sx={{
-                columnGap: '24px',
-              }}
-            >
-              <TabButton data-active={activeTab === Tab.All} onClick={() => setActiveTab(Tab.All)}>
-                <Text as="span" fontSize={14} fontWeight={500}>
-                  <Trans>All</Trans>
-                </Text>
-              </TabButton>
+        <RowBetween>
+          <Flex
+            sx={{
+              columnGap: '24px',
+            }}
+          >
+            <TabButton data-active={activeTab === Tab.All} onClick={() => setActiveTab(Tab.All)}>
+              <Text as="span" fontSize={14} fontWeight={500}>
+                <Trans>All</Trans>
+              </Text>
+            </TabButton>
 
-              <TabButton data-active={isImportedTab} onClick={() => setActiveTab(Tab.Imported)}>
-                <Text as="span" fontSize={14} fontWeight={500}>
-                  <Trans>Imported</Trans>
-                </Text>
-              </TabButton>
-            </Flex>
-          </RowBetween>
-        )}
+            <TabButton data-active={isImportedTab} onClick={() => setActiveTab(Tab.Imported)}>
+              <Text as="span" fontSize={14} fontWeight={500}>
+                <Trans>Imported</Trans>
+              </Text>
+            </TabButton>
+          </Flex>
+        </RowBetween>
       </PaddedColumn>
 
       <Separator />
