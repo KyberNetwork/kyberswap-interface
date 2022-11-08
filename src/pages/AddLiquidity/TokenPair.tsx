@@ -470,7 +470,6 @@ const TokenPair = ({
                 onHalf={() => {
                   onFieldAInput(currencyBalances[Field.CURRENCY_A]?.divide(2).toExact() ?? '')
                 }}
-                showMaxButton={true}
                 currency={currencies[Field.CURRENCY_A]}
                 id="add-liquidity-input-tokena"
                 showCommonBases
@@ -503,7 +502,6 @@ const TokenPair = ({
                 onHalf={() => {
                   onFieldBInput(currencyBalances[Field.CURRENCY_B]?.divide(2)?.toExact() ?? '')
                 }}
-                showMaxButton={true}
                 currency={currencies[Field.CURRENCY_B]}
                 disableCurrencySelect={true}
                 id="add-liquidity-input-tokenb"

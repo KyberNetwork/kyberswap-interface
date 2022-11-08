@@ -419,7 +419,6 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
                         onHalf={() => {
                           setDepositValue(fixedFormatting(balance.value.div(2), balance.decimals))
                         }}
-                        showMaxButton={true}
                         currency={new Token(chainId, farm.id, balance.decimals, `${pairSymbol}`, `${pairSymbol}`)}
                         id="stake-lp-input"
                         disableCurrencySelect
@@ -450,7 +449,6 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
                         onHalf={() => {
                           setWithdrawValue(fixedFormatting(staked.value.div(2), staked.decimals))
                         }}
-                        showMaxButton={true}
                         currency={new Token(chainId, farm.id, balance.decimals, `${pairSymbol}`, `${pairSymbol}`)}
                         id="unstake-lp-input"
                         disableCurrencySelect

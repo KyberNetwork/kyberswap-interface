@@ -134,9 +134,8 @@ const Card2 = styled(Card)<{ balancePosition: string }>`
 interface CurrencyInputPanelProps {
   value: string
   onUserInput: (value: string) => void
-  onMax?: () => void
-  onHalf?: () => void
-  showMaxButton: boolean
+  onMax: (() => void) | null
+  onHalf: (() => void) | null
   positionMax?: 'inline' | 'top'
   label?: string
   onCurrencySelect?: (currency: Currency) => void
@@ -166,7 +165,6 @@ export default function CurrencyInputPanel({
   onUserInput,
   onMax,
   onHalf,
-  showMaxButton,
   positionMax = 'inline',
   label = '',
   onCurrencySelect,
@@ -246,19 +244,23 @@ export default function CurrencyInputPanel({
         <Container hideInput={hideInput} selected={disableCurrencySelect}>
           {!hideBalance && (
             <Flex justifyContent="space-between" fontSize="12px" marginBottom="12px" alignItems="center">
-              {showMaxButton && positionMax === 'top' && currency && account ? (
+              {(onMax || onHalf) && positionMax === 'top' && currency && account ? (
                 <Flex alignItems="center" sx={{ gap: '4px' }}>
-                  <StyledBalanceMax onClick={onMax}>
-                    <Trans>Max</Trans>
-                  </StyledBalanceMax>
-                  <StyledBalanceMax onClick={onHalf}>
-                    <Trans>Half</Trans>
-                  </StyledBalanceMax>
+                  {onMax && (
+                    <StyledBalanceMax onClick={onMax}>
+                      <Trans>Max</Trans>
+                    </StyledBalanceMax>
+                  )}
+                  {onHalf && (
+                    <StyledBalanceMax onClick={onHalf}>
+                      <Trans>Half</Trans>
+                    </StyledBalanceMax>
+                  )}
                 </Flex>
               ) : (
                 <div />
               )}
-              <Flex onClick={onMax} style={{ cursor: onMax ? 'pointer' : undefined }} alignItems="center">
+              <Flex onClick={onMax ?? undefined} style={{ cursor: onMax ? 'pointer' : undefined }} alignItems="center">
                 <Wallet color={theme.subText} />
                 <Text fontWeight={500} color={theme.subText} marginLeft="4px">
                   {customBalanceText || selectedCurrencyBalance?.toSignificant(10) || balanceRef.current || 0}
@@ -284,9 +286,9 @@ export default function CurrencyInputPanel({
                 ) : (
                   account &&
                   currency &&
-                  showMaxButton &&
+                  onMax &&
                   positionMax === 'inline' && (
-                    <StyledBalanceMax onClick={onMax}>
+                    <StyledBalanceMax onClick={onMax ?? undefined}>
                       <Trans>MAX</Trans>
                     </StyledBalanceMax>
                   )

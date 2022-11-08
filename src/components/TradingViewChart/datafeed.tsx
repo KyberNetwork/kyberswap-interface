@@ -121,7 +121,7 @@ const fetcherDextools = (url: string) => {
     .catch(error => console.warn(`fetch ${`${DEXTOOLS_API}/${url}`} failed:\n`, error))
 }
 
-const searchTokenPair = (address: string, chainId: ChainId) => {
+const searchTokenPair = (address: string, chainId: ChainId): any => {
   if (TOKEN_PAIRS_ADDRESS_MAPPING[address.toLowerCase()]) {
     return new Promise((resolve, reject) => {
       resolve([{ id: { pair: TOKEN_PAIRS_ADDRESS_MAPPING[address.toLowerCase()] } }])
@@ -226,7 +226,7 @@ export const checkPairHasDextoolsData = async (
   if (isNativeToken(chainId, currencyA) || isNativeToken(chainId, currencyB)) {
     const token = (isNativeToken(chainId, currencyA) ? currencyB : currencyA) as Token
     if (token?.address) {
-      const searchResults: { id: { pair: string } }[] = (await searchTokenPair(token.address, chainId)) as any
+      const searchResults: { id: { pair: string } }[] = await searchTokenPair(token.address, chainId)
       const pairAddress = searchResults[0]?.id?.pair
       if (searchResults && searchResults.length > 0 && pairAddress) {
         const ver = (await getHistoryCandleStatus(pairAddress, chainId)) || 0

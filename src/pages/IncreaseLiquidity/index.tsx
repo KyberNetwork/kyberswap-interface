@@ -476,7 +476,6 @@ export default function AddLiquidity({
                     onHalf={() => {
                       onFieldAInput(currencyBalances[Field.CURRENCY_A]?.divide(2)?.toExact() ?? '')
                     }}
-                    showMaxButton
                     currency={currencies[Field.CURRENCY_A] ?? null}
                     id="add-liquidity-input-tokena"
                     showCommonBases
@@ -503,7 +502,6 @@ export default function AddLiquidity({
                     onHalf={() => {
                       onFieldBInput(currencyBalances[Field.CURRENCY_B]?.divide(2).toExact() ?? '')
                     }}
-                    showMaxButton
                     currency={currencies[Field.CURRENCY_B] ?? null}
                     id="add-liquidity-input-tokenb"
                     showCommonBases

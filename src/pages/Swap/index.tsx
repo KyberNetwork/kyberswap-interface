@@ -290,10 +290,10 @@ export default function Swap({ history }: RouteComponentProps) {
             <CurrencyInputPanel
               label={independentField === Field.OUTPUT && !showWrap && trade ? t`From (estimated)` : t`From`}
               value={formattedAmounts[Field.INPUT]}
-              showMaxButton={!atMaxAmountInput}
               currency={currencies[Field.INPUT]}
               onUserInput={handleTypeInput}
-              onMax={handleMaxInput}
+              onMax={atMaxAmountInput ? null : handleMaxInput}
+              onHalf={null}
               onCurrencySelect={handleInputSelect}
               otherCurrency={currencies[Field.OUTPUT]}
               id="swap-currency-input"
@@ -324,7 +324,8 @@ export default function Swap({ history }: RouteComponentProps) {
               value={formattedAmounts[Field.OUTPUT]}
               onUserInput={handleTypeOutput}
               label={independentField === Field.INPUT && !showWrap && trade ? 'To (estimated)' : 'To'}
-              showMaxButton={false}
+              onMax={null}
+              onHalf={null}
               currency={currencies[Field.OUTPUT]}
               onCurrencySelect={handleOutputSelect}
               otherCurrency={currencies[Field.INPUT]}

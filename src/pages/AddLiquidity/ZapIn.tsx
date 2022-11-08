@@ -464,7 +464,6 @@ const ZapIn = ({
                   onFieldInput(currencyBalances[independentField]?.divide(2)?.toExact() ?? '')
                 }}
                 onSwitchCurrency={handleSwitchCurrency}
-                showMaxButton={true}
                 currency={currencies[independentField]}
                 id="zap-in-input"
                 disableCurrencySelect={false}

@@ -474,7 +474,8 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                     <CurrencyInputPanel
                       value={formattedAmounts[Field.CURRENCY_A]}
                       onUserInput={onCurrencyAInput}
-                      showMaxButton={false}
+                      onMax={null}
+                      onHalf={null}
                       currency={liquidityValue0?.currency}
                       onCurrencySelect={() => null}
                       id="remove-liquidity-tokena"
@@ -489,7 +490,8 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                     <CurrencyInputPanel
                       value={formattedAmounts[Field.CURRENCY_B]}
                       onUserInput={onCurrencyBInput}
-                      showMaxButton={false}
+                      onMax={null}
+                      onHalf={null}
                       currency={liquidityValue1?.currency}
                       onCurrencySelect={() => null}
                       id="remove-liquidity-tokenb"

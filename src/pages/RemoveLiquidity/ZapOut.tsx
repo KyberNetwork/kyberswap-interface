@@ -670,7 +670,8 @@ export default function ZapOut({
                   hideLogo
                   value={formattedAmounts[Field.LIQUIDITY]}
                   onUserInput={onLiquidityInput}
-                  showMaxButton={false}
+                  onMax={null}
+                  onHalf={null}
                   disableCurrencySelect
                   currency={
                     new Token(
@@ -693,7 +694,8 @@ export default function ZapOut({
                   value={formattedAmounts[independentTokenField]}
                   onUserInput={onCurrencyInput}
                   onSwitchCurrency={handleSwitchCurrency}
-                  showMaxButton={false}
+                  onMax={null}
+                  onHalf={null}
                   currency={currencies[independentTokenField]}
                   id="zap-out-input"
                   label={t`Output`}

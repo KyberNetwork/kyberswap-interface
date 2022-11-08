@@ -517,7 +517,6 @@ export default function CreatePool({
                       onFieldAInput(currencyBalances[Field.CURRENCY_A]?.divide(2).toExact() ?? '')
                     }}
                     onCurrencySelect={handleCurrencyASelect}
-                    showMaxButton={true}
                     currency={currencies[Field.CURRENCY_A]}
                     id="create-pool-input-tokena"
                     disableCurrencySelect={false}
@@ -561,10 +560,9 @@ export default function CreatePool({
                     onHalf={() => {
                       onFieldBInput(currencyBalances[Field.CURRENCY_B]?.divide(2).toExact() ?? '')
                     }}
-                    showMaxButton={true}
                     currency={currencies[Field.CURRENCY_B]}
-                    disableCurrencySelect={false}
                     id="create-pool-input-tokenb"
+                    disableCurrencySelect={false}
                     showCommonBases
                   />
                   <Flex justifyContent="space-between" alignItems="center" marginTop="0.5rem">

@@ -41,7 +41,7 @@ dayjs.extend(utc)
 mixpanel.init(MIXPANEL_PROJECT_TOKEN, {
   debug: MAINNET_ENV === 'staging',
 })
-if (process.env.REACT_APP_TAG) {
+if (TAG) {
   datadogRum.init({
     applicationId: '5bd0c243-6141-4bab-be21-5dac9b9efa9f',
     clientToken: 'pub9163f29b2cdb31314b89ae232af37d5a',
@@ -49,7 +49,7 @@ if (process.env.REACT_APP_TAG) {
     service: 'kyberswap-interface',
 
     version: TAG,
-    sampleRate: 10,
+    sampleRate: TAG.startsWith('v') ? 10 : 100,
     sessionReplaySampleRate: 100,
     trackInteractions: true,
     trackResources: true,

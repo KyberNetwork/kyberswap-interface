@@ -780,7 +780,8 @@ export default function AddLiquidity({
                   value={formattedAmounts[Field.CURRENCY_A]}
                   onUserInput={onFieldAInput}
                   hideInput={true}
-                  showMaxButton={false}
+                  onMax={null}
+                  onHalf={null}
                   onCurrencySelect={handleCurrencyASelect}
                   currency={currencies[Field.CURRENCY_A] ?? null}
                   id="add-liquidity-input-tokena"
@@ -820,7 +821,8 @@ export default function AddLiquidity({
                   hideInput={true}
                   onUserInput={onFieldBInput}
                   onCurrencySelect={handleCurrencyBSelect}
-                  showMaxButton={false}
+                  onMax={null}
+                  onHalf={null}
                   positionMax="top"
                   currency={currencies[Field.CURRENCY_B] ?? null}
                   id="add-liquidity-input-tokenb"
@@ -861,7 +863,6 @@ export default function AddLiquidity({
                       onHalf={() => {
                         onFieldAInput(currencyBalances[Field.CURRENCY_A]?.divide(2).toExact() ?? '')
                       }}
-                      showMaxButton
                       currency={currencies[Field.CURRENCY_A] ?? null}
                       id="add-liquidity-input-tokena"
                       showCommonBases
@@ -893,7 +894,6 @@ export default function AddLiquidity({
                       onHalf={() => {
                         onFieldBInput(currencyBalances[Field.CURRENCY_B]?.divide(2).toExact() ?? '')
                       }}
-                      showMaxButton
                       currency={currencies[Field.CURRENCY_B] ?? null}
                       id="add-liquidity-input-tokenb"
                       showCommonBases
