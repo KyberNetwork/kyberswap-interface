@@ -1,28 +1,32 @@
 import { Trans } from '@lingui/macro'
-import React, { ReactNode, useState } from 'react'
+import { ReactNode, useState } from 'react'
 import { ChevronDown } from 'react-feather'
-import styled from 'styled-components'
+import { Flex } from 'rebass'
+import styled, { css } from 'styled-components'
 
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
 
-import { ExternalNavMenuItem, NavMenuItem } from '.'
+import { ExternalNavMenuItem, NavMenuItem } from './MenuItems'
 
-const LinkContainer = styled.div`
-  padding-left: 20px;
+const StyledChevronDown = styled(ChevronDown)<{ rotated?: boolean }>`
+  margin-left: -2px;
+  transition: all 100ms ease;
+  ${({ rotated }) =>
+    rotated &&
+    css`
+      transform: rotate(-180deg);
+    `}
 `
 
-export default function NavDropDown({
-  title,
-  link,
-  icon,
-  options,
-}: {
+type Props = {
   title: string
   icon: ReactNode
   link: string
   options: { link: string; label: string; external?: boolean }[]
-}) {
+}
+
+const NavDropDown: React.FC<Props> = ({ title, link, icon, options }) => {
   const [isShowOptions, setIsShowOptions] = useState(false)
   const toggle = useToggleModal(ApplicationModal.MENU)
 
@@ -32,14 +36,26 @@ export default function NavDropDown({
   }
 
   return (
-    <div>
+    <Flex
+      sx={{
+        flexDirection: 'column',
+        gap: '16px',
+      }}
+    >
       <NavMenuItem to={link} onClick={handleClick}>
         {icon}
         <Trans>{title}</Trans>
-        <ChevronDown size={16} style={{ marginLeft: '6px' }} />
+        <StyledChevronDown size={16} rotated={isShowOptions} />
       </NavMenuItem>
+
       {isShowOptions && (
-        <LinkContainer>
+        <Flex
+          sx={{
+            flexDirection: 'column',
+            paddingLeft: '22px',
+            gap: '16px',
+          }}
+        >
           {options.map(item =>
             item.external ? (
               <ExternalNavMenuItem key={item.link} href={item.link} onClick={toggle}>
@@ -51,8 +67,10 @@ export default function NavDropDown({
               </NavMenuItem>
             ),
           )}
-        </LinkContainer>
+        </Flex>
       )}
-    </div>
+    </Flex>
   )
 }
+
+export default NavDropDown
