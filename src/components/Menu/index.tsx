@@ -8,7 +8,6 @@ import styled, { css } from 'styled-components'
 import { ButtonPrimary } from 'components/Button'
 import Loader from 'components/Loader'
 import MenuFlyout from 'components/MenuFlyout'
-import Preferences from 'components/Preferences'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useClaimReward from 'hooks/useClaimReward'
@@ -20,6 +19,7 @@ import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import ClaimRewardModal from './ClaimRewardModal'
 import FaucetModal from './FaucetModal'
 import MenuItems from './MenuItems'
+import Preferences from './Preferences'
 
 const Divider = styled.div`
   width: 100%;

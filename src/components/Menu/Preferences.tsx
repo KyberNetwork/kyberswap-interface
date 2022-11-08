@@ -7,7 +7,7 @@ import styled, { css } from 'styled-components'
 
 import { ReactComponent as Bulb } from 'assets/svg/bulb.svg'
 import ArrowRight from 'components/Icons/ArrowRight'
-import LanguageSelector from 'components/Preferences/LanguageSelector'
+import LanguageSelector from 'components/Menu/LanguageSelector'
 import ThemeToggle from 'components/Toggle/ThemeToggle'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { LOCALE_LABEL, SupportedLocale } from 'constants/locales'
