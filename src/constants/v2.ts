@@ -22,4 +22,4 @@ export enum VERSION {
   CLASSIC = 'classic',
 }
 
-export const TOBE_EXTENDED_FARMING_POOLS = []
+export const TOBE_EXTENDED_FARMING_POOLS: string[] = []
