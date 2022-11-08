@@ -1,6 +1,5 @@
 import { Currency, CurrencyAmount, Token, TokenAmount } from '@namgold/ks-sdk-core'
 import { AccountLayout, RawAccount, TOKEN_PROGRAM_ID } from '@solana/spl-token'
-import { useWallet } from '@solana/wallet-adapter-react'
 import { AccountInfo, PublicKey } from '@solana/web3.js'
 import JSBI from 'jsbi'
 import { useEffect, useMemo, useState } from 'react'

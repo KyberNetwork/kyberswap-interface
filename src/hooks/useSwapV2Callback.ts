@@ -1,6 +1,5 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
-import { useWallet } from '@solana/wallet-adapter-react'
 import { useCallback, useMemo } from 'react'
 
 import { useActiveWeb3React, useWeb3React } from 'hooks/index'

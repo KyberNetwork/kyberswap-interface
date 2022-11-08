@@ -55,7 +55,7 @@ export function useTransactionAdder(): (tx: TransactionHistory) => void {
         }),
       )
     },
-    [account, chainId, dispatch, blockNumber, library],
+    [account, chainId, dispatch, blockNumber, library, isEVM],
   )
 }
 
