@@ -14,8 +14,7 @@ import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { OutputBridgeInfo, useBridgeState } from 'state/bridge/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
-import { tryParseAmount } from 'state/swap/hooks'
-import { shortenAddress } from 'utils'
+import { formatNumberWithPrecisionRange, shortenAddress } from 'utils'
 
 import { BridgeSwapState } from './type'
 
@@ -42,7 +41,8 @@ const Label = styled.div`
   font-weight: 500;
 `
 const formatValue = (amount: string, token: WrappedTokenInfo | undefined) =>
-  !amount || !token ? '' : tryParseAmount(amount, token)?.toSignificant()
+  !amount || !token ? '' : formatNumberWithPrecisionRange(parseFloat(amount.toString()), 0, 10)
+
 const styleLogo = { width: 20, height: 20 }
 export default memo(function Disclaimer({
   onSwap,
