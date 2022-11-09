@@ -61,7 +61,7 @@ export type Swap = {
   collectAmount: string | undefined
   recipient: string | undefined
 }
-
+const SERUM_POOL = new PublicKey('9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin')
 type Tokens = {
   [address: string]: Token | undefined
 }
@@ -305,17 +305,13 @@ export class Aggregator {
             feePayer: toPK,
           })
 
-          const newOpenOrders: Keypair[] = [] // OpenOrders accounts to be created
+          const newOpenOrders: [PublicKey, Keypair][] = [] // OpenOrders accounts to be created
           if (result.serumOpenOrdersAccountByMarket) {
             // do Solana magic things
             const actualOpenOrdersByMarket: { [key: string]: PublicKey } = {}
             for (const [market] of Object.entries(result.serumOpenOrdersAccountByMarket)) {
-              const openOrdersList = await OpenOrders.findForMarketAndOwner(
-                serumConnection,
-                new PublicKey(market),
-                toPK,
-                new PublicKey('9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin'),
-              )
+              const marketPK = new PublicKey(market)
+              const openOrdersList = await OpenOrders.findForMarketAndOwner(serumConnection, marketPK, toPK, SERUM_POOL)
               let openOrders: PublicKey
               if (openOrdersList.length > 0) {
                 // if there is an OpenOrders, use it
@@ -324,39 +320,35 @@ export class Aggregator {
                 // otherwise, create a new OpenOrders account
                 const keypair = new Keypair()
                 openOrders = keypair.publicKey
-                newOpenOrders.push(keypair)
+                newOpenOrders.push([marketPK, keypair])
               }
               actualOpenOrdersByMarket[market] = openOrders
             }
 
-            const openOrdersSpace = OpenOrders.getLayout(
-              new PublicKey('9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin'),
-            ).span
+            const openOrdersSpace = OpenOrders.getLayout(SERUM_POOL).span
             const openOrdersRent = await connection.getMinimumBalanceForRentExemption(openOrdersSpace)
             const createOpenOrdersIxs = []
-            for (const openOrders of newOpenOrders) {
+            for (const [market, openOrders] of newOpenOrders) {
               createOpenOrdersIxs.push(
                 SystemProgram.createAccount({
                   fromPubkey: toPK,
                   newAccountPubkey: openOrders.publicKey,
                   lamports: openOrdersRent,
                   space: openOrdersSpace,
-                  programId: new PublicKey('9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin'),
+                  programId: SERUM_POOL,
+                }),
+                DexInstructions.initOpenOrders({
+                  market,
+                  openOrders: openOrders.publicKey,
+                  owner: toPK,
+                  programId: SERUM_POOL,
+                  marketAuthority: null,
                 }),
               )
             }
 
             if (createOpenOrdersIxs.length) {
-              setupTx.add(
-                ...createOpenOrdersIxs,
-                DexInstructions.initOpenOrders({
-                  market: new PublicKey(0),
-                  openOrders: new PublicKey(0),
-                  owner: toPK,
-                  programId: new PublicKey(0),
-                  marketAuthority: null,
-                }),
-              )
+              setupTx.add(...createOpenOrdersIxs)
 
               // replace dummy OpenOrders account with actual ones
               for (let i = 0; i < message.accountKeys.length; i += 1) {
@@ -395,7 +387,7 @@ export class Aggregator {
               if (createAtaIxs) (setupTx as Transaction).add(createAtaIxs)
             }),
           )
-          newOpenOrders.length && setupTx.partialSign(...newOpenOrders)
+          newOpenOrders.length && setupTx.partialSign(...newOpenOrders.map(i => i[1]))
           //#endregion create set up tx and swap tx
 
           //#region create clean up tx
