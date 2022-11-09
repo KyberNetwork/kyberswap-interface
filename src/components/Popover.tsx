@@ -12,7 +12,7 @@ const PopoverContainer = styled.div<{ show: boolean }>`
   opacity: ${(props) => (props.show ? 0.95 : 0)};
   transition: visibility 150ms linear, opacity 150ms linear;
 
-  background: ${({ theme }) => theme.tab};
+  background: ${({ theme }) => theme.dialog};
   border: 1px solid transparent;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.32);
   color: ${({ theme }) => theme.subText};
@@ -39,7 +39,7 @@ const Arrow = styled.div`
     content: "";
     border: 1px solid transparent;
     transform: rotate(45deg);
-    background: ${({ theme }) => theme.tab};
+    background: ${({ theme }) => theme.dialog};
   }
 
   &.arrow-top {

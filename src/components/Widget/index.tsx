@@ -62,7 +62,7 @@ import ImportModal from "../ImportModal";
 import InfoHelper from "../InfoHelper";
 
 export const DialogWrapper = styled.div`
-  background-color: ${({ theme }) => theme.tab};
+  background-color: ${({ theme }) => theme.dialog};
   border-radius: ${({ theme }) => theme.borderRadius};
   position: absolute;
   left: 0;

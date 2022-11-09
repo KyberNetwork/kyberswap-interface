@@ -4,7 +4,7 @@ export const Wrapper = styled.div`
   border-radius: ${({ theme }) => theme.borderRadius};
   padding: 1rem;
   width: 375px;
-  background: ${({ theme }) => theme.background};
+  background: ${({ theme }) => theme.primary};
   color: ${({ theme }) => theme.text};
   font-family: ${({ theme }) =>
     theme.fontFamily || `"Work Sans", "Inter var", sans-serif`};
@@ -24,7 +24,7 @@ export const Title = styled.div`
 export const InputWrapper = styled.div`
   border-radius: ${({ theme }) => theme.borderRadius};
   padding: 0.75rem;
-  background: ${({ theme }) => theme.inputBackground};
+  background: ${({ theme }) => theme.secondary};
   margin-top: 1rem;
   box-shadow: ${({ theme }) => theme.boxShadow};
 `;
@@ -66,7 +66,7 @@ export const SettingBtn = styled.button`
   color: ${({ theme }) => theme.subText};
 
   :hover {
-    background: ${({ theme }) => theme.inputBackground};
+    background: ${({ theme }) => theme.secondary};
   }
 
   svg {
@@ -78,7 +78,7 @@ export const SettingBtn = styled.button`
 export const SwitchBtn = styled(SettingBtn)`
   width: 40px;
   height: 40px;
-  background: ${({ theme }) => theme.inputBackground};
+  background: ${({ theme }) => theme.secondary};
 
   :hover {
     opacity: 0.8;
@@ -102,7 +102,7 @@ export const InputRow = styled.div`
 export const Input = styled.input`
   width: 100%;
   font-size: 1.5rem;
-  background: ${({ theme }) => theme.inputBackground};
+  background: ${({ theme }) => theme.secondary};
   outline: none;
   border: none;
   color: ${({ theme }) => theme.text};
@@ -152,7 +152,7 @@ export const Button = styled.button`
   font-weight: 500;
   padding: 0.75rem;
   background: ${({ theme }) => theme.accent};
-  color: ${({ theme }) => theme.tab};
+  color: ${({ theme }) => theme.dialog};
   cursor: pointer;
   box-shadow: ${({ theme }) => theme.boxShadow};
 
@@ -200,7 +200,7 @@ export const Rate = styled.div`
 `;
 
 export const Detail = styled.div`
-  background: ${({ theme }) => theme.inputBackground};
+  background: ${({ theme }) => theme.secondary};
   border-radius: ${({ theme }) => theme.borderRadius};
   border: 1px solid ${({ theme }) => theme.stroke};
   padding: 12px 16px;

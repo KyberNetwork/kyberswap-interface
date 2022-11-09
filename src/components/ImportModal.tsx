@@ -42,7 +42,7 @@ const TokenInfo = styled.div`
   padding: 1.25rem;
   gap: 12px;
   border-radius: ${({ theme }) => theme.borderRadius};
-  background: ${({ theme }) => theme.inputBackground};
+  background: ${({ theme }) => theme.secondary};
   display: flex;
   align-items: flex-start;
 `;

@@ -13,7 +13,7 @@ const Label = styled.div`
 
 const Input = styled.input<{ isActive: boolean }>`
   background: ${({ theme, isActive }) =>
-    isActive ? theme.tab : theme.inputBackground};
+    isActive ? theme.dialog : theme.secondary};
   border: none;
   outline: none;
   color: ${({ theme }) => theme.text};
@@ -23,14 +23,14 @@ const Input = styled.input<{ isActive: boolean }>`
   padding: 0;
 
   :focus {
-    background: ${({ theme }) => theme.tab};
+    background: ${({ theme }) => theme.dialog};
   }
 `;
 
 const SlippageWrapper = styled.div`
   border-radius: 999px;
   margin-top: 8px;
-  background: ${({ theme }) => theme.inputBackground};
+  background: ${({ theme }) => theme.secondary};
   padding: 2px;
   display: flex;
 `;
@@ -48,12 +48,12 @@ const SlippageItem = styled.div<{ isActive: boolean }>`
   gap: 4px;
   justify-content: center;
   background: ${({ theme, isActive }) =>
-    isActive ? theme.tab : theme.inputBackground};
+    isActive ? theme.dialog : theme.secondary};
   cursor: pointer;
   :hover {
-    background: ${({ theme }) => theme.tab};
+    background: ${({ theme }) => theme.dialog};
     input {
-      background: ${({ theme }) => theme.tab};
+      background: ${({ theme }) => theme.dialog};
     }
   }
 `;
@@ -69,7 +69,7 @@ const TTLInput = styled.div`
   padding: 6px 8px;
   gap: 4px;
   border-radius: 999px;
-  background: ${({ theme }) => theme.inputBackground};
+  background: ${({ theme }) => theme.secondary};
   color: ${({ theme }) => theme.text};
   font-size: 12px;
   font-weight: 500;
@@ -209,7 +209,7 @@ function Settings({
             isActive={![5, 10, 50, 100].includes(slippage)}
             style={{
               flex: 3,
-              background: isFocus ? theme.tab : undefined,
+              background: isFocus ? theme.dialog : undefined,
               border: message
                 ? isValid
                   ? `1px solid ${theme.warning}`

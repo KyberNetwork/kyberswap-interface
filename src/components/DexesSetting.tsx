@@ -63,7 +63,7 @@ export const Checkbox = styled.input`
 const LiquiditySourceHeader = styled.div`
   border-top-right-radius: 8px;
   border-top-left-radius: 8px;
-  background: ${({ theme }) => theme.inputBackground};
+  background: ${({ theme }) => theme.secondary};
   text-transform: uppercase;
   font-size: 12px;
   font-weight: 500;

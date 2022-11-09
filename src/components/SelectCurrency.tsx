@@ -48,7 +48,7 @@ export const Input = styled.input`
   font-size: 0.75rem;
   padding: 0.75rem;
   border-radius: ${({ theme }) => theme.borderRadius};
-  background: ${({ theme }) => theme.inputBackground};
+  background: ${({ theme }) => theme.secondary};
   outline: none;
   border: none;
   color: ${({ theme }) => theme.text};
@@ -89,10 +89,10 @@ const TokenRow = styled.div<{ selected: boolean }>`
   cursor: pointer;
 
   background: ${({ theme, selected }) =>
-    selected ? theme.inputBackground : "transparent"};
+    selected ? theme.secondary : "transparent"};
 
   :hover {
-    background: ${({ theme }) => theme.inputBackground};
+    background: ${({ theme }) => theme.secondary};
   }
 `;
 

@@ -1,9 +1,9 @@
 export const defaultTheme = {
   text: "#212121",
   subText: "#979797",
-  background: "#F1FFEE",
-  tab: "#EAFCE6",
-  inputBackground: "#FFE3CA",
+  primary: "#F1FFEE",
+  dialog: "#EAFCE6",
+  secondary: "#FFE3CA",
   interactive: "#FFFFFF",
   stroke: "#FF9F4A",
   accent: "#FF9F4A",
