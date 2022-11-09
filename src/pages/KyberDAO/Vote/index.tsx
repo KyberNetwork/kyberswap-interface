@@ -10,7 +10,11 @@ import { AutoColumn } from 'components/Column'
 import InfoHelper from 'components/InfoHelper'
 import { AutoRow, RowBetween } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
+import { useStakingInfo, useVotingInfo } from 'hooks/kyberdao'
 import useTheme from 'hooks/useTheme'
+import { useKNCPrice } from 'state/application/hooks'
+import { formattedNumLong } from 'utils'
+import { getFullDisplayBalance } from 'utils/formatBalance'
 
 import ProposalListComponent from './ProposalListComponent'
 
@@ -37,8 +41,6 @@ const Container = styled.div`
 const Card = styled.div`
   padding: 20px 24px;
   border-radius: 20px;
-  box-shadow: inset 0px 2px 2px rgba(255, 255, 255, 0.15), inset -1px -1px 1px rgba(0, 0, 0, 0.05);
-  backdrop-filter: blur(2px);
   ${({ theme }) => css`
     background-color: ${transparentize(0.3, theme.buttonGray)};
     flex: 1;
@@ -48,6 +50,9 @@ const Card = styled.div`
 export default function Vote() {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
+  const { daoInfo } = useVotingInfo()
+  const { stakedBalance } = useStakingInfo()
+  const kncPrice = useKNCPrice()
   return (
     <Wrapper>
       <Container>
@@ -63,10 +68,12 @@ export default function Vote() {
                 <Trans>Total Staked KNC</Trans>
               </Text>
               <Text fontSize={20} marginBottom="8px">
-                42,177,667 KNC
+                {daoInfo ? formattedNumLong(Math.floor(daoInfo.total_staked)) + ' KNC' : '--'}
               </Text>
               <Text fontSize={12} color={theme.subText}>
-                800,000,000 USD
+                {daoInfo && kncPrice
+                  ? '~ ' + formattedNumLong(parseFloat(kncPrice) * Math.floor(daoInfo.total_staked)) + ' USD'
+                  : ''}
               </Text>
             </AutoColumn>
           </Card>
@@ -95,10 +102,14 @@ export default function Vote() {
                 </Trans>
               </Text>
               <Text fontSize={20} marginBottom="8px">
-                --
+                {stakedBalance && daoInfo?.total_staked
+                  ? parseFloat(
+                      ((parseFloat(getFullDisplayBalance(stakedBalance)) / daoInfo.total_staked) * 100).toFixed(6),
+                    ) + ' %'
+                  : '--'}
               </Text>
               <Text fontSize={12} color={theme.subText}>
-                --
+                {stakedBalance ? getFullDisplayBalance(stakedBalance) + ' KNC Staked' : '--'}
               </Text>
             </AutoColumn>
           </Card>
@@ -121,12 +132,13 @@ export default function Vote() {
         </RowBetween>
         <AutoRow fontSize={12}>
           <Text>
-            <Trans>In Progress: Epoch 24</Trans>
+            <Trans>In Progress: Epoch {daoInfo ? daoInfo.current_epoch : '--'}</Trans>
           </Text>
           <Box
             backgroundColor={transparentize(0.8, theme.primary)}
             color={theme.primary}
             padding="2px 8px"
+            margin="0px 4px"
             style={{ borderRadius: '8px' }}
           >
             <Clock size="12px" /> 4days 2h left

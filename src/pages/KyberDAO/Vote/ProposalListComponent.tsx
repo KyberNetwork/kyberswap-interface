@@ -23,7 +23,7 @@ const Tab = styled.div<{ $active?: boolean }>`
   font-size: 20px;
   font-weight: 500;
   ${({ theme, $active }) => css`
-    color: ${$active ? theme.primary : theme.subText};
+    color: ${theme.primary};
     :hover {
       color: ${lighten(0.1, theme.primary)};
     }
@@ -78,9 +78,6 @@ export default function ProposalListComponent() {
         <Flex style={{ gap: '30px' }}>
           <Tab>
             <Trans>KIPs</Trans>
-          </Tab>
-          <Tab>
-            <Trans>Polls</Trans>
           </Tab>
         </Flex>
         <Flex style={{ gap: '30px' }}>

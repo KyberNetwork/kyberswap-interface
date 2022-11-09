@@ -1,8 +1,10 @@
 import { t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
+import useSWR from 'swr'
 
 import MigrateABI from 'constants/abis/kyberdao/migrate.json'
+import RewardDistributorABI from 'constants/abis/kyberdao/reward_distributor.json'
 import StakingABI from 'constants/abis/kyberdao/staking.json'
 import { KNC_ADDRESS } from 'constants/index'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
@@ -13,10 +15,14 @@ import { useSingleCallResult } from 'state/multicall/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { calculateGasMargin } from 'utils'
 
+//TODO Diep: Move this to ethereum.js
 export const KYBERDAO_ADDRESSES = {
   STAKING: '0xeadb96F1623176144EBa2B24e35325220972b3bD',
   DAO: '0x7Ec8FcC26bE7e9E85B57E73083E5Fe0550d8A7fE',
   REWARDS_DISTRIBUTOR: '0x5ec0dcf4f6f55f28550c70b854082993fdc0d3b2',
+}
+export const APIS = {
+  DAO: 'https://kyberswap-dao-stats.kyberengineering.io',
 }
 export function useStakingInfo() {
   const { account } = useActiveWeb3React()
@@ -127,4 +133,29 @@ export function useKyberDaoStakeActions() {
     [addTransactionWithType, stakingContract],
   )
   return { stake, unstake, migrate, delegate, undelegate }
+}
+
+const fetcher = (url: string) => {
+  return fetch(url)
+    .then(res => res.json())
+    .then(res => res.data)
+}
+export function useVotingInfo() {
+  const rewardDistributorContract = useContract(KYBERDAO_ADDRESSES.REWARDS_DISTRIBUTOR, RewardDistributorABI)
+  const { data: daoInfo } = useSWR(APIS.DAO + '/dao-info', fetcher)
+  const merkleData = useSingleCallResult(rewardDistributorContract, 'getMerkleData')
+  const merkleDataFileUrl = useMemo(() => {
+    if (!merkleData) return
+    const merkleDataRes = merkleData.result?.[0]
+    const cycle = parseInt(merkleDataRes?.[0]?.toString())
+    const merkleDataFileUrl = merkleDataRes?.[2]
+    if (!cycle || !merkleDataFileUrl) {
+      return
+    }
+    return merkleDataFileUrl
+  }, [merkleData])
+  const { data: userRewards } = useSWR(merkleDataFileUrl, (url: string) => {
+    return fetch(url).then(res => res.json())
+  })
+  return { daoInfo, userRewards }
 }
