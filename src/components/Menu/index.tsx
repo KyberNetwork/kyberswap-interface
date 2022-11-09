@@ -20,6 +20,7 @@ import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
+import { ReactComponent as BlogIcon } from 'assets/svg/blog.svg'
 import { ReactComponent as LightIcon } from 'assets/svg/light.svg'
 import { ReactComponent as RoadMapIcon } from 'assets/svg/roadmap.svg'
 import { ButtonPrimary } from 'components/Button'
@@ -75,6 +76,13 @@ const StyledRoadMapIcon = styled(RoadMapIcon)`
     stroke: ${({ theme }) => theme.subText};
   }
 `
+
+const StyledBlogIcon = styled(BlogIcon)`
+  path {
+    fill: ${({ theme }) => theme.subText};
+  }
+`
+
 const StyledLightIcon = styled(LightIcon)`
   path {
     stroke: ${({ theme }) => theme.subText};
@@ -296,6 +304,13 @@ export default function Menu() {
           <MessageCircle size={16} />
           <Trans>Forum</Trans>
         </ExternalNavMenuItem>
+
+        {under1440 && (
+          <ExternalNavMenuItem href="https://blog.kyberswap.com">
+            <StyledBlogIcon />
+            <Trans>Blog</Trans>
+          </ExternalNavMenuItem>
+        )}
 
         <ExternalNavMenuItem href="/15022022KyberSwapTermsofUse.pdf">
           <FileText size={16} />

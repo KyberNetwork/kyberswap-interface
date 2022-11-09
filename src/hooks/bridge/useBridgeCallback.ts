@@ -13,7 +13,7 @@ import { useAppSelector } from 'state/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { useCurrencyBalance, useETHBalances } from 'state/wallet/hooks'
-import { isAddress } from 'utils'
+import { formatNumberWithPrecisionRange, isAddress } from 'utils'
 
 const NOT_APPLICABLE = {
   execute: async () => {
@@ -41,7 +41,7 @@ function useSendTxToKsSettingCallback() {
       dstAmount: string,
     ) => {
       const url = `${KS_SETTING_API}/v1/multichain-transfers`
-      const data = {
+      const body = {
         userAddress: account,
         srcChainId: srcChainId.toString(),
         dstChainId: dstChainId.toString(),
@@ -54,14 +54,21 @@ function useSendTxToKsSettingCallback() {
         status: 0,
       }
       try {
-        await axios.post(url, data)
+        await axios.post(url, body)
         onSuccess()
       } catch (err) {
-        console.error(err)
-        const errStr = `SendTxToKsSetting fail with payload = ${JSON.stringify(data)}`
-        const error = new Error(errStr)
+        const extraData = {
+          body,
+          status: undefined,
+          response: undefined,
+        }
+        if (err?.response?.data) {
+          extraData.status = err.response.status
+          extraData.response = err.response.data
+        }
+        const error = new Error(`SendTxToKsSetting fail, srcTxHash = ${extraData.body.srcTxHash}`, { cause: err })
         error.name = 'PostBridge'
-        captureException(error, { level: 'fatal' })
+        captureException(error, { level: 'fatal', extra: { args: JSON.stringify(extraData, null, 2) } })
       }
     },
     [account, onSuccess],
@@ -142,6 +149,7 @@ function useRouterSwap(
 
           let txReceipt
           if (promise) {
+            window.onbeforeunload = () => ''
             txReceipt = await promise
           } else {
             return Promise.reject('router wrong method')
@@ -152,10 +160,7 @@ function useRouterSwap(
             const from_network = NETWORKS_INFO[chainId].name
             const to_network = NETWORKS_INFO[chainIdOut].name
             const inputAmountStr = inputAmount.toSignificant(6)
-            const outputAmountStr = tryParseAmount(
-              outputInfo.outputAmount.toString(),
-              currencyOut ?? undefined,
-            )?.toSignificant(6)
+            const outputAmountStr = formatNumberWithPrecisionRange(parseFloat(outputInfo.outputAmount.toString()), 0, 6)
             const from_token = currencyIn?.symbol ?? ''
             const to_token = currencyOut?.symbol ?? ''
             addTransactionWithType(txReceipt, {
@@ -170,12 +175,22 @@ function useRouterSwap(
                 trade_qty: typedValue,
               },
             })
-            sendTxToKsSetting(chainId, chainIdOut, txHash, from_token, to_token, inputAmountStr, outputAmountStr ?? '')
+            sendTxToKsSetting(
+              chainId,
+              chainIdOut,
+              txHash,
+              from_token,
+              to_token,
+              inputAmountStr,
+              outputInfo?.outputAmount?.toString() ?? '',
+            )
           }
           return txHash ?? ''
         } catch (error) {
           console.error('Could not swap', error)
           return Promise.reject(error || 'router unknown error')
+        } finally {
+          window.onbeforeunload = null
         }
       },
       inputError: !sufficientBalance,
@@ -264,10 +279,7 @@ function useBridgeSwap(
             const from_network = NETWORKS_INFO[chainId].name
             const to_network = NETWORKS_INFO[chainIdOut].name
             const inputAmountStr = inputAmount.toSignificant(6)
-            const outputAmountStr = tryParseAmount(
-              outputInfo.outputAmount.toString(),
-              currencyOut ?? undefined,
-            )?.toSignificant(6)
+            const outputAmountStr = formatNumberWithPrecisionRange(parseFloat(outputInfo.outputAmount.toString()), 0, 6)
             const from_token = currencyIn?.symbol ?? ''
             const to_token = currencyOut?.symbol ?? ''
             addTransactionWithType(txReceipt, {
@@ -282,7 +294,15 @@ function useBridgeSwap(
                 trade_qty: typedValue,
               },
             })
-            sendTxToKsSetting(chainId, chainIdOut, txHash, from_token, to_token, inputAmountStr, outputAmountStr ?? '')
+            sendTxToKsSetting(
+              chainId,
+              chainIdOut,
+              txHash,
+              from_token,
+              to_token,
+              inputAmountStr,
+              outputInfo?.outputAmount?.toString() ?? '',
+            )
           }
           return txHash ?? ''
         } catch (error) {
