@@ -11,7 +11,7 @@ import { findTx } from 'utils'
 import { addTransaction } from './actions'
 import { GroupedTxsByHash, TRANSACTION_TYPE, TransactionDetails } from './type'
 
-type TransactionHistory = {
+export type TransactionHistory = {
   hash: string
   desiredChainId?: ChainId // ChainID after switching.
   type?: TRANSACTION_TYPE

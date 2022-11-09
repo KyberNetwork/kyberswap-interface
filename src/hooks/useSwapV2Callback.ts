@@ -1,5 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
+import { SignerWalletAdapter } from '@solana/wallet-adapter-base'
 import { useCallback, useMemo } from 'react'
 
 import { useActiveWeb3React, useWeb3React } from 'hooks/index'
@@ -11,7 +12,7 @@ import { useUserSlippageTolerance } from 'state/user/hooks'
 import { isAddress, shortenAddress } from 'utils'
 import { Aggregator } from 'utils/aggregator'
 import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
-import { sendEVMTransaction, sendSolanaTransactionWithBEEncode } from 'utils/sendTransaction'
+import { sendEVMTransaction, sendSolanaTransactions } from 'utils/sendTransaction'
 
 import useProvider from './solana/useProvider'
 
@@ -102,17 +103,6 @@ export function useSwapV2Callback(
     ],
   )
 
-  const onHandleCustomTypeResponse = useCallback(
-    (type: TRANSACTION_TYPE, hash: string, firstTxHash?: string) => {
-      addTransactionWithType({
-        hash,
-        type,
-        firstTxHash,
-      })
-    },
-    [addTransactionWithType],
-  )
-
   return useMemo(() => {
     if (!trade || !account) {
       return { state: SwapCallbackState.INVALID, callback: null, error: 'Missing dependencies' }
@@ -143,11 +133,11 @@ export function useSwapV2Callback(
       if (!provider) throw new Error('Please connect wallet first')
       if (!walletSolana.wallet?.adapter) throw new Error('Please connect wallet first')
       if (!trade.swapTx) throw new Error('Encode not found')
-      const hash = await sendSolanaTransactionWithBEEncode(
+      const hash = await sendSolanaTransactions(
         trade,
-        walletSolana.wallet.adapter as any,
+        walletSolana.wallet.adapter as any as SignerWalletAdapter,
         onHandleSwapResponse,
-        onHandleCustomTypeResponse,
+        addTransactionWithType,
       )
       if (hash === undefined) throw new Error('sendTransaction returned undefined.')
       return hash[0]
@@ -169,6 +159,6 @@ export function useSwapV2Callback(
     onHandleSwapResponse,
     provider,
     walletSolana,
-    onHandleCustomTypeResponse,
+    addTransactionWithType,
   ])
 }
