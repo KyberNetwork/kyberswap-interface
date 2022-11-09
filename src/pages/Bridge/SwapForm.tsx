@@ -249,7 +249,7 @@ export default function SwapForm() {
       }
     }
     if (!tryParseAmount(inputAmount, currencyIn)) {
-      return t`Invalid amount.`
+      return t`Your amount is invalid.`
     }
 
     const isWrapInputError = wrapInputError && inputNumber > 0
