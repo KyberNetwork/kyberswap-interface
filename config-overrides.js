@@ -21,6 +21,11 @@ module.exports = function override(config, env) {
           name: 'ethers',
           chunks: 'all',
         },
+        vendor: {
+          test: /[\\/]node_modules[\\/](@solana)[\\/]/,
+          name: 'solana',
+          chunks: 'all',
+        },
         // commons: {
         //   test: /[\\/]node_modules[\\/]/,
         //   // cacheGroupKey here is `commons` as the key of the cacheGroup
