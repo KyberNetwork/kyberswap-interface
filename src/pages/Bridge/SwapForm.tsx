@@ -399,6 +399,7 @@ export default function SwapForm() {
                 show={typeof inputError === 'string'}
                 placement="top"
                 width="fit-content"
+                style={{ maxWidth: '230px' }}
               >
                 <CurrencyInputPanelBridge
                   chainIds={listChainIn}
