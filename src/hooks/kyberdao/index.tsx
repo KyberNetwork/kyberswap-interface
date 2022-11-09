@@ -1,9 +1,10 @@
+import { t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import { useCallback } from 'react'
 
 import MigrateABI from 'constants/abis/kyberdao/migrate.json'
 import StakingABI from 'constants/abis/kyberdao/staking.json'
-import { KNCL_ADDRESS, KNC_ADDRESS } from 'constants/index'
+import { KNC_ADDRESS } from 'constants/index'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
 import { useActiveWeb3React } from 'hooks'
 import { useContract } from 'hooks/useContract'
@@ -12,7 +13,7 @@ import { useSingleCallResult } from 'state/multicall/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { calculateGasMargin } from 'utils'
 
-const KYBERDAO_ADDRESSES = {
+export const KYBERDAO_ADDRESSES = {
   STAKING: '0xeadb96F1623176144EBa2B24e35325220972b3bD',
   DAO: '0x7Ec8FcC26bE7e9E85B57E73083E5Fe0550d8A7fE',
   REWARDS_DISTRIBUTOR: '0x5ec0dcf4f6f55f28550c70b854082993fdc0d3b2',
@@ -42,7 +43,11 @@ export function useKyberDaoStakeActions() {
         const tx = await stakingContract.deposit(amount, {
           gasLimit: calculateGasMargin(estimateGas),
         })
-        addTransactionWithType(tx, { type: 'Stake', summary: `KyberDAO` })
+        addTransactionWithType(tx, {
+          type: 'KyberDAO Stake',
+          summary: t`You have successfully staked to KyberDAO`,
+          arbitrary: { amount: amount.div(BigNumber.from(10).pow(18)).toString() },
+        })
         return tx.hash
       } catch (error) {
         console.log('Stake error:', error.message)
@@ -59,7 +64,11 @@ export function useKyberDaoStakeActions() {
       const tx = await stakingContract.withdraw(amount, {
         gasLimit: calculateGasMargin(estimateGas),
       })
-      addTransactionWithType(tx, { type: 'Unstake', summary: `KyberDAO` })
+      addTransactionWithType(tx, {
+        type: 'KyberDAO Unstake',
+        summary: t`You have successfully unstaked from KyberDAO`,
+        arbitrary: { amount: amount.div(BigNumber.from(10).pow(18)).toString() },
+      })
       return tx.hash
     },
     [addTransactionWithType, stakingContract],
@@ -74,7 +83,7 @@ export function useKyberDaoStakeActions() {
         const tx = await migrateContract.mintWithOldKnc(amount, {
           gasLimit: calculateGasMargin(estimateGas),
         })
-        addTransactionWithType(tx, { type: 'Migrate', summary: `KyberDAO` })
+        addTransactionWithType(tx, { type: 'KyberDAO Migrate', summary: `KyberDAO` })
         return tx.hash
       } catch (error) {
         console.log('Migrate error: ', error.message)
@@ -91,7 +100,10 @@ export function useKyberDaoStakeActions() {
       const tx = await stakingContract.delegate(address, {
         gasLimit: calculateGasMargin(estimateGas),
       })
-      addTransactionWithType(tx, { type: 'Delegate', summary: `KyberDAO` })
+      addTransactionWithType(tx, {
+        type: 'KyberDAO Delegate',
+        summary: t`You have successfully delegated voting power to ${address.slice(0, 6)}...${address.slice(-4)}`,
+      })
       return tx.hash
     },
     [addTransactionWithType, stakingContract],
@@ -106,7 +118,10 @@ export function useKyberDaoStakeActions() {
       const tx = await stakingContract.delegate(address, {
         gasLimit: calculateGasMargin(estimateGas),
       })
-      addTransactionWithType(tx, { type: 'Undelegate', summary: `KyberDAO` })
+      addTransactionWithType(tx, {
+        type: 'KyberDAO Undelegate',
+        summary: t`You have successfully undelegated your voting power`,
+      })
       return tx.hash
     },
     [addTransactionWithType, stakingContract],

@@ -1,11 +1,10 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import Wallet from 'components/Icons/Wallet'
 import { AutoRow, RowBetween } from 'components/Row'
-import { KNC_ADDRESS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import useTokenBalance from 'hooks/useTokenBalance'
 import { useKNCPrice } from 'state/application/hooks'
@@ -70,7 +69,12 @@ export default function CurrencyInputForStake({
         </AutoRow>
       </RowBetween>
       <RowBetween>
-        <CurrencyInput value={1} />
+        <CurrencyInput
+          type="number"
+          value={value}
+          disabled={disabled}
+          onChange={(e: any) => setValue(e.target.value)}
+        />
         <span style={{ color: theme.border, fontSize: '14px', marginRight: '6px' }}>~${kncValueInUsd}</span>
         <KNCLogoWrapper>
           <img src={`${getTokenLogoURL(tokenAddress, ChainId.MAINNET)}`} alt="knc-logo" width="24px" height="24px" />

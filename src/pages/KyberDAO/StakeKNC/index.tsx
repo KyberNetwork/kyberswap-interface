@@ -15,7 +15,6 @@ import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
 
-import MigrateModal from './MigrateModal'
 import StakeKNCComponent from './StakeKNCComponent'
 
 const Wrapper = styled.div`
@@ -112,6 +111,7 @@ const TextButton = styled.button`
 export default function StakeKNC() {
   const theme = useTheme()
   const toggleMigrationModal = useToggleModal(ApplicationModal.MIGRATE_KNC)
+
   return (
     <Wrapper>
       <Container>
@@ -213,10 +213,8 @@ export default function StakeKNC() {
             <Trans>Note: Staking KNC is only available on Ethereum chain</Trans>
           </Text>
         </CardGroup>
-
         <StakeKNCComponent />
       </Container>
-      <MigrateModal />
     </Wrapper>
   )
 }

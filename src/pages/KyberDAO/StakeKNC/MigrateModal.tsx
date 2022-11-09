@@ -1,7 +1,6 @@
 import { Trans, t } from '@lingui/macro'
-import { formatUnits, parseUnits } from 'ethers/lib/utils'
+import { parseUnits } from 'ethers/lib/utils'
 import { useEffect, useState } from 'react'
-import { IOSView } from 'react-device-detect'
 import { ArrowDown, X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -12,6 +11,7 @@ import Modal from 'components/Modal'
 import { AutoRow, RowBetween } from 'components/Row'
 import { KNCL_ADDRESS, KNC_ADDRESS } from 'constants/index'
 import { useKyberDaoStakeActions } from 'hooks/kyberdao'
+import { ApprovalState } from 'hooks/useApproveCallback'
 import useTheme from 'hooks/useTheme'
 import useTokenBalance from 'hooks/useTokenBalance'
 import { ApplicationModal } from 'state/application/actions'
@@ -19,12 +19,25 @@ import { useModalOpen, useToggleModal } from 'state/application/hooks'
 
 import CurrencyInputForStake from './CurrencyInputForStake'
 import GasPriceExpandableBox from './GasPriceExpandableBox'
+import { useSwitchToEthereum } from './SwitchToEthereumModal'
 
 const Wrapper = styled.div`
   padding: 24px;
 `
 
-export default function MigrateModal() {
+export default function MigrateModal({
+  approval,
+  setPendingText,
+  setShowConfirm,
+  setAttemptingTxn,
+  setTxHash,
+}: {
+  approval: ApprovalState
+  setPendingText: React.Dispatch<React.SetStateAction<string>>
+  setShowConfirm: React.Dispatch<React.SetStateAction<boolean>>
+  setAttemptingTxn: React.Dispatch<React.SetStateAction<boolean>>
+  setTxHash: React.Dispatch<React.SetStateAction<string | undefined>>
+}) {
   const theme = useTheme()
   const modalOpen = useModalOpen(ApplicationModal.MIGRATE_KNC)
   const toggleModal = useToggleModal(ApplicationModal.MIGRATE_KNC)
@@ -35,17 +48,36 @@ export default function MigrateModal() {
   useEffect(() => {
     setError('')
   }, [value])
+  const { switchToEthereum } = useSwitchToEthereum()
+  const toggleApproveModal = useToggleModal(ApplicationModal.APPROVE_KNCL)
+
   const handleMigrate = () => {
     setError('')
-    if (!oldKNCBalance.value.gte(parseUnits(value, 18))) {
-      setError(t`Insufficient KNCL balance!`)
-      return
-    }
-    try {
-      migrate(parseUnits(value, 18))
-    } catch (error) {
-      setError(error)
-    }
+    switchToEthereum().then(() => {
+      if (!oldKNCBalance.value.gte(parseUnits(value, 18))) {
+        setError(t`Insufficient KNCL balance!`)
+        return
+      }
+      try {
+        if (approval === ApprovalState.APPROVED) {
+          setPendingText(t`Migrating ${value} KNCL to KNC`)
+          setShowConfirm(true)
+          setAttemptingTxn(true)
+          migrate(parseUnits(value, 18))
+            .then(tx => {
+              setAttemptingTxn(false)
+              setTxHash(tx)
+            })
+            .catch(() => {
+              setAttemptingTxn(false)
+            })
+        } else {
+          toggleApproveModal()
+        }
+      } catch (error) {
+        setError(error)
+      }
+    })
   }
   return (
     <Modal isOpen={modalOpen} onDismiss={toggleModal} minHeight={false} maxHeight={664} maxWidth={420}>

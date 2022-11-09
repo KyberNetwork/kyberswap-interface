@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { isAddress } from 'ethers/lib/utils'
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -9,6 +9,7 @@ import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
@@ -47,8 +48,9 @@ export default function DelegateConfirmModal({
   onAddressChange: (address: string) => void
   delegateCallback: () => void
 }) {
+  const { account } = useActiveWeb3React()
   const theme = useTheme()
-  const isDelegated = !!delegatedAccount
+  const isDelegated = !!delegatedAccount && delegatedAccount !== account
   const modalOpen = useModalOpen(ApplicationModal.DELEGATE_CONFIRM)
   const toggleModal = useToggleModal(ApplicationModal.DELEGATE_CONFIRM)
   const [error, setError] = useState('')

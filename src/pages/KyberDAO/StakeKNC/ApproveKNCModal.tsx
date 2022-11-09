@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/macro'
-import { useCallback } from 'react'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
@@ -29,7 +28,7 @@ const AddressWrapper = styled.div`
   `}
 `
 
-export default function ApproveModal({
+export default function ApproveKNCModal({
   approvalState,
   approveCallback,
 }: {

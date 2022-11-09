@@ -134,6 +134,31 @@ export const SUMMARY: {
     pending: () => 'Force Withdrawing ',
     failure: () => 'Error Force withdrawing ',
   },
+  'KyberDAO Stake': {
+    success: summary => `${summary}`,
+    pending: summary => `${summary}`,
+    failure: summary => `${summary}`,
+  },
+  'KyberDAO Unstake': {
+    success: summary => `${summary}`,
+    pending: summary => `${summary}`,
+    failure: summary => `${summary}`,
+  },
+  'KyberDAO Delegate': {
+    success: summary => `${summary}`,
+    pending: summary => `${summary}`,
+    failure: summary => `${summary}`,
+  },
+  'KyberDAO Undelegate': {
+    success: summary => `${summary}`,
+    pending: summary => `${summary}`,
+    failure: summary => `${summary}`,
+  },
+  'KyberDAO Migrate': {
+    success: summary => `${summary}`,
+    pending: summary => `${summary}`,
+    failure: summary => `${summary}`,
+  },
 }
 
 export default function TransactionPopup({
