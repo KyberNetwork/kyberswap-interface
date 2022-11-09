@@ -13,7 +13,6 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { OutputBridgeInfo, useBridgeState } from 'state/bridge/hooks'
-import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { formatNumberWithPrecisionRange, shortenAddress } from 'utils'
 
 import { BridgeSwapState } from './type'
@@ -40,8 +39,8 @@ const Label = styled.div`
   color: ${({ theme }) => theme.subText};
   font-weight: 500;
 `
-const formatValue = (amount: string, token: WrappedTokenInfo | undefined) =>
-  !amount || !token ? '' : formatNumberWithPrecisionRange(parseFloat(amount.toString()), 0, 10)
+const formatValue = (amount: string) =>
+  !amount ? '' : formatNumberWithPrecisionRange(parseFloat(amount.toString()), 0, 10)
 
 const styleLogo = { width: 20, height: 20 }
 export default memo(function Disclaimer({
@@ -67,7 +66,7 @@ export default memo(function Disclaimer({
           <Value>
             <CurrencyLogo currency={currencyIn} style={styleLogo} />
             <Text>
-              {formatValue(outputInfo.inputAmount, currencyIn)} {currencyIn?.symbol}
+              {formatValue(outputInfo.inputAmount)} {currencyIn?.symbol}
             </Text>
           </Value>
         ),
@@ -96,7 +95,7 @@ export default memo(function Disclaimer({
           <Value>
             <CurrencyLogo currency={currencyOut} style={styleLogo} />
             <Text>
-              {formatValue(outputInfo?.outputAmount?.toString(), currencyOut)} {currencyOut?.symbol}
+              {formatValue(outputInfo?.outputAmount?.toString())} {currencyOut?.symbol}
             </Text>
           </Value>
         ),
