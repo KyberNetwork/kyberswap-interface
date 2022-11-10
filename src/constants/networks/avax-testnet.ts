@@ -35,7 +35,7 @@ const avaxTestnetInfo: EVMNetworkInfo = {
     minForGas: 10 ** 16,
   },
   rpcUrl: 'https://api.avax-test.network/ext/bc/C/rpc',
-  routerUri: EMPTY,
+  routerUri: `https://aggregator-api.stg.kyberengineering.io/fuji/route/encode`,
   multicall: '0x5D605e78bc699fB565E6E6a1fa2d940C40F8ce25',
   classic: {
     static: {

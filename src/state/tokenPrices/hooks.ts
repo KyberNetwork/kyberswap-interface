@@ -28,9 +28,12 @@ export const useTokenPrices = (addresses: Array<string>) => {
 
   useEffect(() => {
     const fetchPrices = async () => {
-      const res = await fetch(
-        `${PRICE_API}/${NETWORKS_INFO[chainId].priceRoute}/api/v1/prices?ids=${unknownPriceList.join(',')}`,
-      ).then(res => res.json())
+      const res = await fetch(`${PRICE_API}/${NETWORKS_INFO[chainId].priceRoute}/api/v1/prices`, {
+        method: 'POST',
+        body: JSON.stringify({
+          ids: unknownPriceList.join(','),
+        }),
+      }).then(res => res.json())
 
       if (res?.data?.prices?.length) {
         const formattedPrices = unknownPriceList.map(address => {

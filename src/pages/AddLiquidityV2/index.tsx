@@ -741,7 +741,7 @@ export default function AddLiquidity({
                     )}
                     title={'New Liquidity Amount'}
                   />
-                  <ProAmmPriceRange position={position} ticksAtLimit={ticksAtLimit} />
+                  <ProAmmPriceRange position={position} ticksAtLimit={ticksAtLimit} hideChart />
                 </div>
               )
             }

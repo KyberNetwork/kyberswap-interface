@@ -408,7 +408,7 @@ export default function AddLiquidity({
                     liquidityValue1={parsedAmounts[Field.CURRENCY_B]}
                     title={t`Increase Amount`}
                   />
-                  <ProAmmPriceRange position={existingPosition} ticksAtLimit={ticksAtLimit} />
+                  <ProAmmPriceRange position={existingPosition} ticksAtLimit={ticksAtLimit} hideChart />
                 </div>
               )
             }
