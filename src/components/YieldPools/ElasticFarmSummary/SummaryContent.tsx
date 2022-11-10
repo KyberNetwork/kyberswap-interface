@@ -121,11 +121,15 @@ const SummaryContent: React.FC<Props> = ({ isOpen }) => {
 
             <TextContainer style={{ marginTop: '8px' }}>
               <li>
-                The <HighlightedText>total time</HighlightedText> your liquidity position is active (aka in range) in
-                the pool.
+                <Trans>
+                  The <HighlightedText>total time</HighlightedText> your liquidity position is active (aka in range) in
+                  the pool.
+                </Trans>
               </li>
               <li>
-                The <HighlightedText>trade volume</HighlightedText> supported by your liquidity position.
+                <Trans>
+                  The <HighlightedText>trade volume</HighlightedText> supported by your liquidity position.
+                </Trans>
               </li>
             </TextContainer>
           </li>
@@ -155,12 +159,16 @@ const SummaryContent: React.FC<Props> = ({ isOpen }) => {
 
             <TextContainer style={{ marginTop: '8px' }}>
               <li>
-                <HighlightedText>Option 1:</HighlightedText> Wait for the current market price of the pool to come back
-                in your price range (i.e. for your liquidity position to become active again)
+                <Trans>
+                  <HighlightedText>Option 1:</HighlightedText> Wait for the current market price of the pool to come
+                  back in your price range (i.e. for your liquidity position to become active again)
+                </Trans>
               </li>
               <li>
-                <HighlightedText>Option 2:</HighlightedText> Remove your liquidity position from the pool, create a new
-                liquidity position with an active price range, and stake in the farm again
+                <Trans>
+                  <HighlightedText>Option 2:</HighlightedText> Remove your liquidity position from the pool, create a
+                  new liquidity position with an active price range, and stake in the farm again
+                </Trans>
               </li>
             </TextContainer>
           </li>
