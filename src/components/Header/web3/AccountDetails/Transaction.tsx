@@ -1,4 +1,4 @@
-import { t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { CheckCircle, Triangle } from 'react-feather'
 import styled from 'styled-components'
 
@@ -59,7 +59,7 @@ export default function Transaction({ transaction, step }: { transaction: Transa
       >
         <RowFixed>
           <TransactionStatusText>
-            {step ? t`Step ${step}: ` : ''} {parsedSummary} ↗
+            {step ? <Trans>Step {step}: </Trans> : ''} {parsedSummary} ↗
           </TransactionStatusText>
         </RowFixed>
         <IconWrapper pending={pending} success={success}>

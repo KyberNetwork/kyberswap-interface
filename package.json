@@ -43,9 +43,9 @@
   "dependencies": {
     "@apollo/client": "^3.7.1",
     "@datadog/browser-rum": "^4.23.3",
-    "@lingui/loader": "^3.15.0",
-    "@lingui/macro": "^3.15.0",
-    "@lingui/react": "^3.15.0",
+    "@lingui/loader": "^3.14.0",
+    "@lingui/macro": "^3.14.0",
+    "@lingui/react": "^3.14.0",
     "@namgold/dmm-solana-sdk": "^2.0.2",
     "@namgold/ks-sdk-classic": "~0.0.2",
     "@namgold/ks-sdk-core": "^0.1.27",
