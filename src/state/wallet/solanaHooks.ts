@@ -18,8 +18,10 @@ export const useSOLBalance = (uncheckedAddress?: string): CurrencyAmount<Currenc
   useEffect(() => {
     const getBalance = async () => {
       if (!isSolana) return
-      if (!account) return
-      if (!isAddress(chainId, account)) return
+      if (!account || !isAddress(chainId, account)) {
+        setSolBalance(undefined)
+        return
+      }
       try {
         const publicKey = new PublicKey(account)
         if (publicKey) {
