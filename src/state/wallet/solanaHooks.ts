@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import connection from 'state/connection/connection'
+import { serumConnection } from 'state/connection/connection'
 import { useAllTransactions } from 'state/transactions/hooks'
 import { isAddress } from 'utils'
 
@@ -23,7 +23,7 @@ export const useSOLBalance = (uncheckedAddress?: string): CurrencyAmount<Currenc
       try {
         const publicKey = new PublicKey(account)
         if (publicKey) {
-          const balance = await connection.getBalance(publicKey)
+          const balance = await serumConnection.getBalance(publicKey)
           const balanceJSBI = JSBI.BigInt(balance)
           if (solBalance === undefined || !JSBI.equal(balanceJSBI, solBalance.quotient))
             setSolBalance(CurrencyAmount.fromRawAmount(NativeCurrencies[chainId], balanceJSBI))
@@ -66,7 +66,7 @@ export const useAssociatedTokensAccounts = (): { [mintAddress: string]: AccountI
     if (!account) return
     async function getTokenAccounts(publicKey: PublicKey) {
       try {
-        const response = await connection.getTokenAccountsByOwner(publicKey, {
+        const response = await serumConnection.getTokenAccountsByOwner(publicKey, {
           programId: TOKEN_PROGRAM_ID,
         })
         const atas: { [mintAddress: string]: AccountInfoParsed } = {}

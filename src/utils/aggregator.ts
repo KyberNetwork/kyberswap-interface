@@ -27,9 +27,9 @@ import invariant from 'tiny-invariant'
 
 import { DEX_TO_COMPARE } from 'constants/dexes'
 import { ETHER_ADDRESS, KYBERSWAP_SOURCE, ZERO_ADDRESS_SOLANA, sentryRequestId } from 'constants/index'
-import { isEVM } from 'constants/networks'
+import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
-import connection from 'state/connection/connection'
+import connection, { serumConnection } from 'state/connection/connection'
 import { AggregationComparer } from 'state/swap/types'
 
 import fetchWaiting from './fetchWaiting'
@@ -61,11 +61,10 @@ export type Swap = {
   collectAmount: string | undefined
   recipient: string | undefined
 }
-const SERUM_POOL = new PublicKey('9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin')
 type Tokens = {
   [address: string]: Token | undefined
 }
-const serumConnection = new Connection('https://solana-api.projectserum.com/')
+
 /**
  */
 export class Aggregator {
@@ -311,7 +310,12 @@ export class Aggregator {
             const actualOpenOrdersByMarket: { [key: string]: PublicKey } = {}
             for (const [market] of Object.entries(result.serumOpenOrdersAccountByMarket)) {
               const marketPK = new PublicKey(market)
-              const openOrdersList = await OpenOrders.findForMarketAndOwner(serumConnection, marketPK, toPK, SERUM_POOL)
+              const openOrdersList = await OpenOrders.findForMarketAndOwner(
+                serumConnection,
+                marketPK,
+                toPK,
+                NETWORKS_INFO[ChainId.SOLANA].serumPool,
+              )
               let openOrders: PublicKey
               if (openOrdersList.length > 0) {
                 // if there is an OpenOrders, use it
@@ -325,7 +329,7 @@ export class Aggregator {
               actualOpenOrdersByMarket[market] = openOrders
             }
 
-            const openOrdersSpace = OpenOrders.getLayout(SERUM_POOL).span
+            const openOrdersSpace = OpenOrders.getLayout(NETWORKS_INFO[ChainId.SOLANA].serumPool).span
             const openOrdersRent = await connection.getMinimumBalanceForRentExemption(openOrdersSpace)
             const createOpenOrdersIxs = []
             for (const [market, openOrders] of newOpenOrders) {
@@ -335,13 +339,13 @@ export class Aggregator {
                   newAccountPubkey: openOrders.publicKey,
                   lamports: openOrdersRent,
                   space: openOrdersSpace,
-                  programId: SERUM_POOL,
+                  programId: NETWORKS_INFO[ChainId.SOLANA].serumPool,
                 }),
                 DexInstructions.initOpenOrders({
                   market,
                   openOrders: openOrders.publicKey,
                   owner: toPK,
-                  programId: SERUM_POOL,
+                  programId: NETWORKS_INFO[ChainId.SOLANA].serumPool,
                   marketAuthority: null,
                 }),
               )

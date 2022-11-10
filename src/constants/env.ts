@@ -40,7 +40,6 @@ const ENV = {
   TYPE_AND_SWAP_URL: required('TYPE_AND_SWAP_URL'),
   MIXPANEL_PROJECT_TOKEN: required('MIXPANEL_PROJECT_TOKEN'),
   CAMPAIGN_BASE_URL: required('CAMPAIGN_BASE_URL'),
-  SOLANA_NETWORK: validate('SOLANA_NETWORK', Object.keys(WalletAdapterNetwork) as (keyof typeof WalletAdapterNetwork)[]), //prettier-ignore
   GTM_ID: process.env.REACT_APP_GTM_ID,
   TAG: process.env.REACT_APP_TAG || 'localhost',
 } as const
@@ -70,7 +69,6 @@ export const {
   TYPE_AND_SWAP_URL,
   MIXPANEL_PROJECT_TOKEN,
   CAMPAIGN_BASE_URL,
-  SOLANA_NETWORK,
   GTM_ID,
   TAG,
 } = ENV

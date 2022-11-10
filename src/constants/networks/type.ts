@@ -1,6 +1,6 @@
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import { ChainId } from '@namgold/ks-sdk-core'
-import { Connection } from '@solana/web3.js'
+import { Connection, PublicKey } from '@solana/web3.js'
 
 export interface NetworkInfo {
   readonly chainId: ChainId
@@ -83,4 +83,5 @@ export interface SolanaNetworkInfo extends NetworkInfo {
   // }
   connection: Connection
   aggregatorProgramAddress: string
+  serumPool: PublicKey
 }
