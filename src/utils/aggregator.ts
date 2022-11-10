@@ -349,15 +349,15 @@ export class Aggregator {
 
             if (createOpenOrdersIxs.length) {
               setupTx.add(...createOpenOrdersIxs)
+            }
 
-              // replace dummy OpenOrders account with actual ones
-              for (let i = 0; i < message.accountKeys.length; i += 1) {
-                const pubkey = message.accountKeys[i]
-                for (const [market, dummyOpenOrders] of Object.entries(result.serumOpenOrdersAccountByMarket)) {
-                  if (pubkey.toBase58() === dummyOpenOrders) {
-                    message.accountKeys[i] = actualOpenOrdersByMarket[market]
-                    break
-                  }
+            // replace dummy OpenOrders account with actual ones
+            for (let i = 0; i < message.accountKeys.length; i += 1) {
+              const pubkey = message.accountKeys[i]
+              for (const [market, dummyOpenOrders] of Object.entries(result.serumOpenOrdersAccountByMarket)) {
+                if (pubkey.toBase58() === dummyOpenOrders) {
+                  message.accountKeys[i] = actualOpenOrdersByMarket[market]
+                  break
                 }
               }
             }
