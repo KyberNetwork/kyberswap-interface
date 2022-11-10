@@ -149,6 +149,11 @@ const Row = ({
       if (!contract || farmingPool.feeTarget === '0') return
       const userJoinedPos = userFarmInfo?.[fairlaunchAddress].joinedPositions[farmingPool.pid] || []
 
+      if (!userJoinedPos.length) {
+        setTargetPercent('')
+        return
+      }
+
       const res = await Promise.all(
         userJoinedPos.map(async pos => {
           const res = await contract.getRewardCalculationData(pos.nftId, farmingPool.pid)
