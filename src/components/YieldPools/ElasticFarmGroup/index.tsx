@@ -152,9 +152,10 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
 
   const sortedPools = pools
     .map(pool => {
-      const tvl =
-        tokenPrices[pool.token0.wrapped.address] * Number(pool.tvlToken0.toExact()) +
-        tokenPrices[pool.token1.wrapped.address] * Number(pool.tvlToken1.toExact())
+      const tvl = pool.stakedTvl
+        ? pool.stakedTvl
+        : tokenPrices[pool.token0.wrapped.address] * Number(pool.tvlToken0.toExact()) +
+          tokenPrices[pool.token1.wrapped.address] * Number(pool.tvlToken1.toExact())
 
       const totalRewardValue = pool.totalRewards.reduce(
         (total, rw) => total + Number(rw.toExact()) * tokenPrices[rw.currency.wrapped.address],
@@ -162,10 +163,10 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
       )
 
       const farmDuration = (pool.endTime - pool.startTime) / 86400
-      const farmAPR = (365 * 100 * (totalRewardValue || 0)) / farmDuration / pool.poolTvl
+      const farmAPR = pool.apr ? pool.apr : (365 * 100 * (totalRewardValue || 0)) / farmDuration / pool.poolTvl
 
-      let poolAPR = 0
-      if (pool.feesUSD && poolFeeLast24h[pool.poolAddress]) {
+      let poolAPR = pool.poolAPR || 0
+      if (!poolAPR && pool.feesUSD && poolFeeLast24h[pool.poolAddress]) {
         const pool24hFee = pool.feesUSD - poolFeeLast24h[pool.poolAddress]
         poolAPR = (pool24hFee * 100 * 365) / pool.poolTvl
       }
