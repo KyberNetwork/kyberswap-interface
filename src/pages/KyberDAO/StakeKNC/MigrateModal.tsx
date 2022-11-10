@@ -16,6 +16,7 @@ import useTheme from 'hooks/useTheme'
 import useTokenBalance from 'hooks/useTokenBalance'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
+import { ExternalLink } from 'theme'
 
 import CurrencyInputForStake from './CurrencyInputForStake'
 import GasPriceExpandableBox from './GasPriceExpandableBox'
@@ -94,8 +95,12 @@ export default function MigrateModal({
           <Text fontSize={12} lineHeight="16px" color={theme.subText}>
             <Trans>
               Click Migrate to start the migration process from KNC Legacy to the new KNC. You will receive the new KNC
-              tokens in your wallet once the transaction has been confirmed. Conversion rate is 1:1. Read about the KNC
-              migration <Text style={{ display: 'inline', color: theme.primary }}>here ↗</Text>
+              tokens in your wallet once the transaction has been confirmed. Conversion rate is 1:1. Read about the KNC{' '}
+              migration{' '}
+              <ExternalLink href="https://blog.kyber.network/knc-token-migration-guide-fda08bfe62c2">
+                {' '}
+                here ↗
+              </ExternalLink>
             </Trans>
           </Text>
           <CurrencyInputForStake value={value} setValue={setValue} tokenAddress={KNCL_ADDRESS} tokenName="KNCL" />

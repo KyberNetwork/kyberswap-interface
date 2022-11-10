@@ -157,5 +157,19 @@ export function useVotingInfo() {
   const { data: userRewards } = useSWR(merkleDataFileUrl, (url: string) => {
     return fetch(url).then(res => res.json())
   })
-  return { daoInfo, userRewards }
+
+  const calculateVotingPower = useCallback(
+    (kncAmount: string) => {
+      if (!daoInfo?.total_staked) return '0'
+      const totalStakedKNC = daoInfo.total_staked
+      const votingPower = (parseFloat(kncAmount) / totalStakedKNC) * 100
+      if (votingPower < 0.000001) {
+        return `~ 0.000001`
+      } else {
+        return parseFloat(votingPower.toFixed(7)).toString()
+      }
+    },
+    [daoInfo],
+  )
+  return { daoInfo, userRewards, calculateVotingPower }
 }

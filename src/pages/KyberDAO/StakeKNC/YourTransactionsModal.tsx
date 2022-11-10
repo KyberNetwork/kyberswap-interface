@@ -226,7 +226,10 @@ export default function YourTransactionsModal() {
                 </Text>
                 <Text>
                   <Trans>
-                    Go to <Link to="/kyberdao/stake-knc">Stake</Link>
+                    Go to{' '}
+                    <Link to="/kyberdao/stake-knc" onClick={() => toggleModal()}>
+                      Stake
+                    </Link>
                   </Trans>
                 </Text>
               </Flex>

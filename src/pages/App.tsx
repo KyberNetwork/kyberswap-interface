@@ -67,6 +67,7 @@ const RemoveLiquidity = lazy(() => import(/* webpackChunkName: 'remove-liquidity
 
 const KyberDAOStakeKNC = lazy(() => import(/* webpackChunkName: 'stake-knc' */ './KyberDAO/StakeKNC'))
 const KyberDAOVote = lazy(() => import(/* webpackChunkName: 'vote' */ './KyberDAO/Vote'))
+const KyberDAOFeatureRequest = lazy(() => import(/* webpackChunkName: 'vote' */ './KyberDAO/FeatureRequest'))
 const AboutKyberSwap = lazy(() => import(/* webpackChunkName: 'about-page' */ './About/AboutKyberSwap'))
 const AboutKNC = lazy(() => import(/* webpackChunkName: 'about-knc' */ './About/AboutKNC'))
 
@@ -258,6 +259,7 @@ export default function App() {
 
                     <Route exact path="/kyberdao/stake-knc" component={KyberDAOStakeKNC} />
                     <Route exact path="/kyberdao/vote" component={KyberDAOVote} />
+                    <Route exact path="/kyberdao/feature-request" component={KyberDAOFeatureRequest} />
                     <Route exact path="/about/kyberswap" component={AboutKyberSwap} />
                     <Route exact path="/about/knc" component={AboutKNC} />
                     <Route exact path="/referral" component={CreateReferral} />

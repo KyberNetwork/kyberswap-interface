@@ -3,6 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import { parseUnits } from 'ethers/lib/utils'
 import { lighten } from 'polished'
 import { useCallback, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
@@ -19,7 +20,7 @@ import TransactionConfirmationModal from 'components/TransactionConfirmationModa
 import { KNCL_ADDRESS, KNC_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
-import { KYBERDAO_ADDRESSES, useKyberDaoStakeActions, useStakingInfo } from 'hooks/kyberdao'
+import { KYBERDAO_ADDRESSES, useKyberDaoStakeActions, useStakingInfo, useVotingInfo } from 'hooks/kyberdao'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
@@ -46,7 +47,7 @@ const Wrapper = styled.div`
   flex-direction: column;
   width: 404px;
   order: 4;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
+  ${({ theme }) => theme.mediaWidth.upToLarge`
     order: 2;
   `}
   ${({ theme }) => theme.mediaWidth.upToXXSmall`
@@ -178,10 +179,27 @@ export const KNCLogoWrapper = styled.div`
   font-size: 20px;
 `
 
+const GetKNCButton = styled(Link)`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: ${({ theme }) => theme.subText};
+`
+const HistoryButton = styled(RowFit)`
+  justify-content: flex-end;
+  gap: 4px;
+  cursor: pointer;
+  :hover {
+    color: ${({ theme }) => lighten(0.2, theme.primary)};
+  }
+`
+
 export default function StakeKNCComponent() {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const { stakedBalance, KNCBalance, delegatedAccount } = useStakingInfo()
+  const { calculateVotingPower } = useVotingInfo()
   const isDelegated = !!delegatedAccount && delegatedAccount !== account
   const { stake, unstake, delegate, undelegate } = useKyberDaoStakeActions()
   const [activeTab, setActiveTab] = useState(STAKE_TAB.Stake)
@@ -316,15 +334,15 @@ export default function StakeKNCComponent() {
       <StakeFormWrapper>
         <StakeForm>
           <RowBetween color={theme.subText}>
-            <RowFit gap="4px" color={theme.subText}>
+            <GetKNCButton to="/swap/ethereum/eth-to-knc">
               <Cart />
               <Text fontSize={14}>
                 <Trans>Get KNC</Trans>
               </Text>
-            </RowFit>
-            <RowFit justifyContent="flex-end" onClick={toggleYourTransactions} gap="4px" style={{ cursor: 'pointer' }}>
+            </GetKNCButton>
+            <HistoryButton onClick={toggleYourTransactions}>
               <HistoryIcon size={18} /> <Text fontSize={14}>History</Text>
-            </RowFit>
+            </HistoryButton>
           </RowBetween>
           {(activeTab === STAKE_TAB.Stake || activeTab === STAKE_TAB.Unstake) && (
             <>
@@ -455,7 +473,10 @@ export default function StakeKNCComponent() {
                 <Trans>Stake Amount</Trans>
               </Text>
               <Text>
-                0 KNC &rarr; <span style={{ color: theme.text }}>100 KNC</span>
+                {getFullDisplayBalance(stakedBalance, 18)} KNC &rarr;{' '}
+                <span style={{ color: theme.text }}>
+                  {parseFloat(getFullDisplayBalance(stakedBalance, 18)) + parseFloat(inputValue || '0')} KNC
+                </span>
               </Text>
             </RowBetween>
             <RowBetween>
@@ -463,7 +484,8 @@ export default function StakeKNCComponent() {
                 <Trans>Voting power</Trans>
               </Text>
               <Text>
-                0% &rarr; <span style={{ color: theme.text }}>0.000001%</span>
+                {calculateVotingPower(getFullDisplayBalance(stakedBalance, 18))}% &rarr;{' '}
+                <span style={{ color: theme.text }}>{calculateVotingPower(inputValue)}%</span>
               </Text>
             </RowBetween>
             <RowBetween>

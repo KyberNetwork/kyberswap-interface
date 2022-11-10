@@ -15,6 +15,7 @@ import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
 import { ReactComponent as Dollar } from 'assets/svg/dollar.svg'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
+import LightBulb from 'components/Icons/LightBulb'
 import StakeIcon from 'components/Icons/Stake'
 import VoteIcon from 'components/Icons/Vote'
 import Menu, { NewLabel } from 'components/Menu'
@@ -500,10 +501,17 @@ export default function Header() {
                   <StakeIcon />
                   <Trans>Stake KNC</Trans>
                 </StyledNavLink>
-
                 <StyledNavLink id={`kyberdao-vote`} to={'/kyberdao/vote'} isActive={match => Boolean(match)}>
                   <VoteIcon />
                   <Trans>Vote</Trans>
+                </StyledNavLink>
+                <StyledNavLink
+                  id={`kyberdao-feature-request`}
+                  to={'/kyberdao/feature-request'}
+                  isActive={match => Boolean(match)}
+                >
+                  <LightBulb />
+                  <Trans>Feature Request</Trans>
                 </StyledNavLink>
               </Dropdown>
             </HoverDropdown>

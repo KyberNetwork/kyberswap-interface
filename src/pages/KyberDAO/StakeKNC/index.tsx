@@ -1,5 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { lighten } from 'polished'
+import { isMobile } from 'react-device-detect'
 import { Link } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -11,10 +12,13 @@ import kyberCrystal from 'assets/images/kyberdao/kyber_crystal.png'
 import kyberdaoPNG from 'assets/images/kyberdao/kyberdao.png'
 import migratePNG from 'assets/images/kyberdao/migrate.png'
 import stakevotePNG from 'assets/images/kyberdao/stake_vote.png'
+import Divider from 'components/Divider'
+import { RowBetween, RowFit } from 'components/Row'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
-import { useToggleModal } from 'state/application/hooks'
+import { useKNCPrice, useToggleModal } from 'state/application/hooks'
 
+import KNCLogo from '../kncLogo'
 import StakeKNCComponent from './StakeKNCComponent'
 
 const Wrapper = styled.div`
@@ -28,7 +32,7 @@ const Wrapper = styled.div`
 `
 const Container = styled.div`
   margin: auto;
-  width: 992px;
+  width: 1224px;
   min-height: 1100px;
   display: flex;
   flex-wrap: wrap;
@@ -38,7 +42,7 @@ const Container = styled.div`
   gap: 40px;
   padding-top: 60px;
   padding-bottom: 160px;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
+  ${({ theme }) => theme.mediaWidth.upToLarge`
     flex-direction: column;
     width: 100%;
     align-items: center;
@@ -49,7 +53,7 @@ const Container = styled.div`
 const Information = styled.div`
   display: flex;
   flex-direction: column;
-  width: 548px;
+  width: 772px;
   order: 1;
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
@@ -61,7 +65,7 @@ const CardGroup = styled.div`
   display: flex;
   flex-direction: column;
   gap: 24px;
-  width: 548px;
+  width: 772px;
   order: 3;
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
@@ -86,7 +90,7 @@ const KyberImageWrapper = styled.div`
   display: flex;
   justify-content: center;
   order: 2;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
+  ${({ theme }) => theme.mediaWidth.upToLarge`
     display: none;
   `}
 `
@@ -111,34 +115,31 @@ const TextButton = styled.button`
 export default function StakeKNC() {
   const theme = useTheme()
   const toggleMigrationModal = useToggleModal(ApplicationModal.MIGRATE_KNC)
-
+  const kncPrice = useKNCPrice()
   return (
     <Wrapper>
       <Container>
         <Information>
-          <Text fontSize={36} lineHeight="42px" fontWeight={500} marginBottom="36px">
-            <Trans>
-              Stake{' '}
-              <Text as="span" color={theme.primary}>
-                KNC
-              </Text>
-            </Trans>
-          </Text>
+          <RowBetween>
+            <Text fontSize={24} lineHeight="28px" fontWeight={500}>
+              <Trans>Stake KNC</Trans>
+            </Text>
+            <RowFit gap="4px">
+              <KNCLogo size={16} />
+              <Text fontSize={12}>KNC: ${kncPrice ? parseFloat(kncPrice).toFixed(2) : '--'}</Text>
+            </RowFit>
+          </RowBetween>
+          <Divider margin={isMobile ? '20px 0' : '28px 0'} />
           <Text fontSize={16} lineHeight="24px" fontWeight={400} color={theme.subText} marginBottom="24px">
             <Trans>
               Kyber Network and its products like KyberSwap are governed by the community through KyberDAO, a
-              Decentralized Autonomous Organization.
-            </Trans>
-          </Text>
-          <Text fontSize={16} lineHeight="24px" fontWeight={400} color={theme.subText}>
-            <Trans>
-              KNC holders stake KNC tokens to vote on governance proposals that shape Kyber&lsquo;s future and earn KNC
-              rewards from trading fees.
+              Decentralized Autonomous Organization. KNC holders stake KNC tokens to vote on governance proposals that
+              shape Kyber&lsquo;s future and earn KNC rewards from trading fees.
             </Trans>
           </Text>
         </Information>
         <KyberImageWrapper>
-          <img src={kyberCrystal} alt="KyberDAO" />
+          <img src={kyberCrystal} alt="KyberDAO" width="186px" />
         </KyberImageWrapper>
         <CardGroup>
           <Card>
