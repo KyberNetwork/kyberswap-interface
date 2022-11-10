@@ -1,4 +1,3 @@
-import { WalletAdapterNetwork } from '@solana/wallet-adapter-base'
 import invariant from 'tiny-invariant'
 
 const required = (envKey: string): string => {

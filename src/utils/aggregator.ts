@@ -12,15 +12,7 @@ import {
 } from '@namgold/ks-sdk-core'
 import { DexInstructions, OpenOrders } from '@project-serum/serum'
 import { captureException } from '@sentry/react'
-import {
-  Connection,
-  Keypair,
-  Message,
-  PublicKey,
-  SystemProgram,
-  Transaction,
-  VersionedTransaction,
-} from '@solana/web3.js'
+import { Keypair, Message, PublicKey, SystemProgram, Transaction, VersionedTransaction } from '@solana/web3.js'
 import { toByteArray } from 'base64-js'
 import JSBI from 'jsbi'
 import invariant from 'tiny-invariant'
