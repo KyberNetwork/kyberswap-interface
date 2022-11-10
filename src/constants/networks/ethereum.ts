@@ -15,6 +15,7 @@ const ethereumInfo: EVMNetworkInfo = {
   route: 'ethereum',
   ksSettingRoute: 'ethereum',
   priceRoute: 'ethereum',
+  poolFarmRoute: 'ethereum',
   name: 'Ethereum',
   icon: Mainnet,
   iconDark: NOT_SUPPORT,

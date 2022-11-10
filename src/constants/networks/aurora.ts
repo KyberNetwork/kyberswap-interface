@@ -14,6 +14,7 @@ const auroraInfo: EVMNetworkInfo = {
   route: 'aurora',
   ksSettingRoute: 'aurora',
   priceRoute: 'aurora',
+  poolFarmRoute: 'aurora',
   name: 'Aurora',
   icon: AURORA,
   iconDark: NOT_SUPPORT,

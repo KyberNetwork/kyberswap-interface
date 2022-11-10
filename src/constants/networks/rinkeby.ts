@@ -15,6 +15,7 @@ const rinkebyInfo: EVMNetworkInfo = {
   route: 'rinkeby',
   ksSettingRoute: 'ethereum',
   priceRoute: 'ethereum',
+  poolFarmRoute: EMPTY,
   name: 'Rinkeby',
   icon: Mainnet,
   iconDark: NOT_SUPPORT,

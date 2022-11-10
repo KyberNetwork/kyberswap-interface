@@ -13,6 +13,7 @@ const bnbInfo: EVMNetworkInfo = {
   route: 'bnb',
   ksSettingRoute: 'bsc',
   priceRoute: 'bsc',
+  poolFarmRoute: 'bsc',
   name: 'BNB Chain',
   icon: BSC,
   iconDark: NOT_SUPPORT,

@@ -16,6 +16,7 @@ const cronosTestnetInfo: EVMNetworkInfo = {
   route: 'cronos-testnet',
   ksSettingRoute: 'cronos',
   priceRoute: 'cronos',
+  poolFarmRoute: EMPTY,
   name: 'Cronos Testnet',
   icon: CRONOS,
   iconDark: CRONOS_DARK,

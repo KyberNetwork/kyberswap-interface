@@ -1,6 +1,7 @@
 import useSWR from 'swr'
 
 import { AGGREGATOR_STATS_API } from 'constants/env'
+import { VERSION } from 'constants/v2'
 
 interface APRResponse {
   max_apr: {
@@ -8,6 +9,7 @@ interface APRResponse {
     id: string
     chain_id: number
     is_farm: boolean
+    type?: VERSION.CLASSIC | VERSION.ELASTIC
   }
   total_earnings: number
 }

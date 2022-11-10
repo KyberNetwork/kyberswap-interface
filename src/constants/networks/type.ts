@@ -37,6 +37,7 @@ export interface NetworkInfo {
 }
 
 export interface EVMNetworkInfo extends NetworkInfo {
+  readonly poolFarmRoute: string // use this to get data from our internal BE
   readonly classicClient: ApolloClient<NormalizedCacheObject>
   readonly elasticClient: ApolloClient<NormalizedCacheObject>
   readonly blockClient: ApolloClient<NormalizedCacheObject>

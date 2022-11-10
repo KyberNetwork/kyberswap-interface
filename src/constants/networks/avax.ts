@@ -12,6 +12,7 @@ const avaxInfo: EVMNetworkInfo = {
   route: 'avalanche',
   ksSettingRoute: 'avalanche',
   priceRoute: 'avalanche',
+  poolFarmRoute: 'avalanche',
   name: 'Avalanche',
   icon: AVAX,
   iconDark: NOT_SUPPORT,

@@ -15,6 +15,7 @@ const cronosInfo: EVMNetworkInfo = {
   route: 'cronos',
   ksSettingRoute: 'cronos',
   priceRoute: 'cronos',
+  poolFarmRoute: 'cronos',
   name: 'Cronos',
   icon: CRONOS,
   iconDark: CRONOS_DARK,

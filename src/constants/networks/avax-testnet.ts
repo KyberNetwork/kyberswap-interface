@@ -14,6 +14,7 @@ const avaxTestnetInfo: EVMNetworkInfo = {
   route: 'avalanche-testnet',
   ksSettingRoute: 'avalanche',
   priceRoute: 'avalanche',
+  poolFarmRoute: EMPTY,
   name: 'Avalanche Testnet',
   icon: AVAX,
   iconDark: NOT_SUPPORT,

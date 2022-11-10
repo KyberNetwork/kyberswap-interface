@@ -15,6 +15,7 @@ const optimismInfo: EVMNetworkInfo = {
   route: 'optimism',
   ksSettingRoute: 'optimism',
   priceRoute: 'optimism',
+  poolFarmRoute: 'optimism',
   name: 'Optimism',
   icon: OPTIMISM,
   iconDark: NOT_SUPPORT,

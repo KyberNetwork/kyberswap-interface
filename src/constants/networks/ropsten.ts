@@ -14,6 +14,7 @@ const ropstenInfo: EVMNetworkInfo = {
   route: 'ropsten',
   ksSettingRoute: 'ropsten',
   priceRoute: 'ropsten',
+  poolFarmRoute: EMPTY,
   name: 'Ropsten',
   icon: Mainnet,
   iconDark: NOT_SUPPORT,

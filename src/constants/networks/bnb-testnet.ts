@@ -15,6 +15,7 @@ const bnbTestnetInfo: EVMNetworkInfo = {
   route: 'bnb-testnet',
   ksSettingRoute: 'bsc',
   priceRoute: 'bsc',
+  poolFarmRoute: EMPTY,
   name: 'BNB Testnet',
   icon: BSC,
   iconDark: NOT_SUPPORT,

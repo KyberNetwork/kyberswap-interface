@@ -14,6 +14,7 @@ const mumbaiInfo: EVMNetworkInfo = {
   route: 'mumbai',
   ksSettingRoute: 'mumbai',
   priceRoute: 'mumbai',
+  poolFarmRoute: EMPTY,
   name: 'Mumbai',
   icon: Polygon,
   iconDark: NOT_SUPPORT,

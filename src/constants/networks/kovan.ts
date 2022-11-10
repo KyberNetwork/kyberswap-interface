@@ -15,6 +15,7 @@ const kovanInfo: EVMNetworkInfo = {
   route: 'kovan',
   ksSettingRoute: 'ethereum',
   priceRoute: 'ethereum',
+  poolFarmRoute: EMPTY,
   name: 'Kovan',
   icon: Mainnet,
   iconDark: NOT_SUPPORT,

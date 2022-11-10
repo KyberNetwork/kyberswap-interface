@@ -13,6 +13,7 @@ const maticInfo: EVMNetworkInfo = {
   route: 'polygon',
   ksSettingRoute: 'polygon',
   priceRoute: 'polygon',
+  poolFarmRoute: 'polygon',
   name: 'Polygon',
   icon: Polygon,
   iconDark: NOT_SUPPORT,

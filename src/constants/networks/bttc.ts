@@ -14,6 +14,7 @@ const bttcInfo: EVMNetworkInfo = {
   route: 'bittorrent',
   ksSettingRoute: 'bttc',
   priceRoute: 'bttc',
+  poolFarmRoute: 'bttc',
   name: 'BitTorrent',
   icon: BTT,
   iconDark: NOT_SUPPORT,

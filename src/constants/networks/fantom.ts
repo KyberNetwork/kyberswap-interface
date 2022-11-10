@@ -13,6 +13,7 @@ const fantomInfo: EVMNetworkInfo = {
   route: 'fantom',
   ksSettingRoute: 'fantom',
   priceRoute: 'fantom',
+  poolFarmRoute: 'fantom',
   name: 'Fantom',
   icon: FTM,
   iconDark: NOT_SUPPORT,

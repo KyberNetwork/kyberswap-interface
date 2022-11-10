@@ -15,6 +15,7 @@ const görliInfo: EVMNetworkInfo = {
   route: 'goerli',
   ksSettingRoute: 'ethereum',
   priceRoute: 'ethereum',
+  poolFarmRoute: EMPTY,
   name: 'Görli',
   icon: Mainnet,
   iconDark: NOT_SUPPORT,

@@ -14,6 +14,7 @@ const oasisInfo: EVMNetworkInfo = {
   route: 'oasis',
   ksSettingRoute: 'oasis',
   priceRoute: 'oasis',
+  poolFarmRoute: 'oasis',
   name: 'Oasis',
   icon: OASIS,
   iconDark: NOT_SUPPORT,

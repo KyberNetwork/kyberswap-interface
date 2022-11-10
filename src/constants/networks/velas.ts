@@ -14,6 +14,7 @@ const velasInfo: EVMNetworkInfo = {
   route: 'velas',
   ksSettingRoute: 'velas',
   priceRoute: 'velas',
+  poolFarmRoute: 'velas',
   name: 'Velas',
   icon: VELAS,
   iconDark: NOT_SUPPORT,

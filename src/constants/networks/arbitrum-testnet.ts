@@ -15,6 +15,7 @@ const arbitrumTestnetInfo: EVMNetworkInfo = {
   route: 'arbitrum-testnet',
   ksSettingRoute: 'arbitrum',
   priceRoute: 'arbitrum',
+  poolFarmRoute: EMPTY,
   name: 'Arbitrum Testnet',
   icon: ARBITRUM,
   iconDark: NOT_SUPPORT,
