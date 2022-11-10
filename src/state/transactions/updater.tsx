@@ -328,7 +328,7 @@ export default function Updater(): null {
                   }
                 }
               } else {
-                dispatch(removeTx({ chainId, hash }))
+                dispatch(checkedTransaction({ chainId, hash, blockNumber: lastBlockNumber }))
               }
             })
             .catch((error: any) => {
