@@ -126,11 +126,11 @@ const Row = ({
       return (
         farmingPool.poolAddress.toLowerCase() ===
         computePoolAddress({
-          factoryAddress: NETWORKS_INFO[chainId].elastic.coreFactory,
+          factoryAddress: NETWORKS_INFO[isEVM(chainId) ? chainId : ChainId.MAINNET].elastic.coreFactory,
           tokenA: pos.pool.token0,
           tokenB: pos.pool.token1,
           fee: pos.pool.fee,
-          initCodeHashManualOverride: NETWORKS_INFO[chainId].elastic.initCodeHash,
+          initCodeHashManualOverride: NETWORKS_INFO[isEVM(chainId) ? chainId : ChainId.MAINNET].elastic.initCodeHash,
         }).toLowerCase()
       )
     }) || []
