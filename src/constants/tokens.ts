@@ -1,4 +1,4 @@
-import { ChainId, NativeCurrency, Token } from '@namgold/ks-sdk-core'
+import { ChainId, NativeCurrency, Token } from '@kyberswap/ks-sdk-core'
 
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from './networks'
 

@@ -1,5 +1,5 @@
+import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { Currency } from '@namgold/ks-sdk-core'
 import React, { useState } from 'react'
 import { ChevronDown, X } from 'react-feather'
 import { Text } from 'rebass'

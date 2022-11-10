@@ -1,5 +1,5 @@
+import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { ChainId, Currency, Token } from '@namgold/ks-sdk-core'
 import React, { useState } from 'react'
 import { ArrowUpCircle } from 'react-feather'
 import { Text } from 'rebass'

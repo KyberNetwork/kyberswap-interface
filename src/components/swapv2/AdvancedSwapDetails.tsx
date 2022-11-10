@@ -1,5 +1,5 @@
+import { Currency, TradeType } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { Currency, TradeType } from '@namgold/ks-sdk-core'
 import React, { useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'

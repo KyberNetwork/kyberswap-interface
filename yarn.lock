@@ -3060,6 +3060,69 @@
     bs58 "^5.0.0"
     uuid "^8.3.2"
 
+"@kyberswap/ks-sdk-classic@^1.0.0-rc.1":
+  version "1.0.0-rc.1"
+  resolved "https://registry.yarnpkg.com/@kyberswap/ks-sdk-classic/-/ks-sdk-classic-1.0.0-rc.1.tgz#0dd4e64902fc10a430eb45b7f7aeb1866171bb9a"
+  integrity sha512-Ygzil4FyqJO6GfseP0H1dse/KDR3aFO8hxGauYibkAeHzPa7wFJwVQn4zA3Ax7m/UzAoJU25MkuDsgE5wFaQqA==
+  dependencies:
+    "@ethersproject/address" "^5.0.2"
+    "@ethersproject/contracts" "^5.0.2"
+    "@ethersproject/networks" "^5.0.2"
+    "@ethersproject/providers" "^5.0.5"
+    "@ethersproject/solidity" "^5.0.2"
+    "@kyberswap/ks-sdk-core" "^1.0.0-rc.1"
+    big.js "^5.2.2"
+    decimal.js-light "^2.5.0"
+    jsbi "^3.1.4"
+    tiny-invariant "^1.1.0"
+    tiny-warning "^1.0.3"
+    toformat "^2.0.0"
+
+"@kyberswap/ks-sdk-core@^1.0.0-rc.1":
+  version "1.0.0-rc.1"
+  resolved "https://registry.yarnpkg.com/@kyberswap/ks-sdk-core/-/ks-sdk-core-1.0.0-rc.1.tgz#261629643ddc88a7fae567c4c4d0c385788a4c4d"
+  integrity sha512-BeItlnktI0OhaDOrNw6exupd8fFre+uTVTy9IeqXmhfw6r9E18oC6aOMcWaKMF109R0ayDPG40woLfqCFlX+pw==
+  dependencies:
+    "@ethersproject/address" "^5.0.2"
+    "@solana/web3.js" "^1.66.2"
+    "@types/bn.js" "^5.1.0"
+    big.js "^5.2.2"
+    decimal.js-light "^2.5.0"
+    jsbi "^3.1.4"
+    tiny-invariant "^1.1.0"
+    toformat "^2.0.0"
+
+"@kyberswap/ks-sdk-elastic@^1.0.0-rc.1":
+  version "1.0.0-rc.1"
+  resolved "https://registry.yarnpkg.com/@kyberswap/ks-sdk-elastic/-/ks-sdk-elastic-1.0.0-rc.1.tgz#346049da8511f83ab7ad48498aeda852f3c56096"
+  integrity sha512-pDSt92o6ZbwYPwVcDkYchT5EmW47ceeuw3KqldmFxMRcQ+7H71ZVKrfDByo63lGKS4uKhq1bQlJ0bO0qEBPxng==
+  dependencies:
+    "@ethersproject/abi" "^5.0.12"
+    "@ethersproject/solidity" "^5.0.9"
+    "@kyberswap/ks-sdk-core" "^1.0.0-rc.1"
+    "@uniswap/v3-periphery" "^1.3.0"
+    tiny-invariant "^1.1.0"
+    tiny-warning "^1.0.3"
+
+"@kyberswap/ks-sdk-solana@^1.0.0-rc.1":
+  version "1.0.0-rc.1"
+  resolved "https://registry.yarnpkg.com/@kyberswap/ks-sdk-solana/-/ks-sdk-solana-1.0.0-rc.1.tgz#4e5c7067d7b0ca975a56dae2eb0464b082a6f4bb"
+  integrity sha512-fKHUPAFtCIoEux4wLXdTlZ2qwXjiJuz+8PYxeAe80eop38lDsD3cAExXTFyBB+NU6Zkce3X3oHXnEhJ9dkq9lA==
+  dependencies:
+    "@kyberswap/ks-sdk-core" "^1.0.0-rc.1"
+    "@project-serum/anchor" "^0.25.0"
+    "@solana/spl-token" "~0.3.6"
+    "@solana/web3.js" "^1.66.2"
+    "@types/big.js" "^6.1.3"
+    "@types/bn.js" "^5.1.0"
+    "@types/node-fetch" "^2.6.2"
+    big.js "^6.2.0"
+    decimal.js-light "^2.5.1"
+    dotenv "^16.0.1"
+    jsbi "^3.1.4"
+    tiny-invariant "^1.2.0"
+    toformat "^2.0.0"
+
 "@ledgerhq/devices@6.27.1", "@ledgerhq/devices@^6.27.1":
   version "6.27.1"
   resolved "https://registry.yarnpkg.com/@ledgerhq/devices/-/devices-6.27.1.tgz#3b13ab1d1ba8201e9e74a08f390560483978c962"
@@ -3222,69 +3285,6 @@
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/@multiformats/base-x/-/base-x-4.0.1.tgz#95ff0fa58711789d53aefb2590a8b7a4e715d121"
   integrity sha512-eMk0b9ReBbV23xXU693TAIrLyeO5iTgBZGSJfpqriG8UkYvr/hC9u9pyMlAakDNHWmbhMZCDs6KQO0jzKD8OTw==
-
-"@namgold/dmm-solana-sdk@^2.0.2":
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/@namgold/dmm-solana-sdk/-/dmm-solana-sdk-2.0.2.tgz#1a15ba648eb3b33b591a143f33d8f8b17cdd574a"
-  integrity sha512-Vyt3eOK/O8TDn6cvKkMPTh2xsu1f6+XJHtlLgggCwn/4/DEdCl4uHrykACVT2TWDFMN/Bjn6usV26aNyQTAl/w==
-  dependencies:
-    "@namgold/ks-sdk-core" "^0.1.27"
-    "@project-serum/anchor" "^0.25.0"
-    "@solana/spl-token" "~0.3.6"
-    "@solana/web3.js" "^1.66.2"
-    "@types/big.js" "^6.1.3"
-    "@types/bn.js" "^5.1.0"
-    "@types/node-fetch" "^2.6.2"
-    big.js "^6.2.0"
-    decimal.js-light "^2.5.1"
-    dotenv "^16.0.1"
-    jsbi "^3.1.4"
-    tiny-invariant "^1.2.0"
-    toformat "^2.0.0"
-
-"@namgold/ks-sdk-classic@~0.0.2":
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/@namgold/ks-sdk-classic/-/ks-sdk-classic-0.0.2.tgz#9321140fdaaaa5dbe40cdd8583211064132bccf4"
-  integrity sha512-EW91K5i6zt0Ls3fLS//hmJX6QnOngt2ZodAY6jK1P0KzduB4ZA4UxVXlIPZFsrNg2vkEW2XhvIk0y/t8KEpljg==
-  dependencies:
-    "@ethersproject/address" "^5.0.2"
-    "@ethersproject/contracts" "^5.0.2"
-    "@ethersproject/networks" "^5.0.2"
-    "@ethersproject/providers" "^5.0.5"
-    "@ethersproject/solidity" "^5.0.2"
-    "@namgold/ks-sdk-core" "~0.1.27"
-    big.js "^5.2.2"
-    decimal.js-light "^2.5.0"
-    jsbi "^3.1.4"
-    tiny-invariant "^1.1.0"
-    tiny-warning "^1.0.3"
-    toformat "^2.0.0"
-
-"@namgold/ks-sdk-core@^0.1.27", "@namgold/ks-sdk-core@~0.1.27":
-  version "0.1.27"
-  resolved "https://registry.yarnpkg.com/@namgold/ks-sdk-core/-/ks-sdk-core-0.1.27.tgz#c250e18c9ae7b50582356d9d5d9e159949b204f3"
-  integrity sha512-Lj27ErrPwSpexbBZrZRKegQV0WXl6gnrWvEEG9D0A+VJVtLuutpk3SRLoqu7UMV/MsiYu7pHRVtECQHTyDCCDw==
-  dependencies:
-    "@ethersproject/address" "^5.0.2"
-    "@solana/web3.js" "^1.66.2"
-    "@types/bn.js" "^5.1.0"
-    big.js "^5.2.2"
-    decimal.js-light "^2.5.0"
-    jsbi "^3.1.4"
-    tiny-invariant "^1.1.0"
-    toformat "^2.0.0"
-
-"@namgold/ks-sdk-elastic@~0.0.3":
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/@namgold/ks-sdk-elastic/-/ks-sdk-elastic-0.0.3.tgz#55cbbdde39dc36b774f5abcfaa1b34f0981c4d96"
-  integrity sha512-fo9eT1gDFcfuK+bXiGAsBcA9Y7CQilvQZZnBs9i1/6IiQzRHRYMWnif/0nIik3E5JsamRBJzUcjRb4Fiu/RfzA==
-  dependencies:
-    "@ethersproject/abi" "^5.0.12"
-    "@ethersproject/solidity" "^5.0.9"
-    "@namgold/ks-sdk-core" "~0.1.27"
-    "@uniswap/v3-periphery" "^1.3.0"
-    tiny-invariant "^1.1.0"
-    tiny-warning "^1.0.3"
 
 "@ngraveio/bc-ur@^1.0.0", "@ngraveio/bc-ur@^1.1.5":
   version "1.1.6"

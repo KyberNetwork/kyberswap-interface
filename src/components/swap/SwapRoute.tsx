@@ -1,5 +1,5 @@
-import { Trade } from '@namgold/ks-sdk-classic'
-import { Currency, TradeType } from '@namgold/ks-sdk-core'
+import { Trade } from '@kyberswap/ks-sdk-classic'
+import { Currency, TradeType } from '@kyberswap/ks-sdk-core'
 import React, { Fragment, memo } from 'react'
 import { ChevronRight } from 'react-feather'
 import { Flex } from 'rebass'

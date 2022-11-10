@@ -1,5 +1,5 @@
+import { Currency, NativeCurrency, Token } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { Currency, NativeCurrency, Token } from '@namgold/ks-sdk-core'
 import { debounce } from 'lodash'
 import { stringify } from 'qs'
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'

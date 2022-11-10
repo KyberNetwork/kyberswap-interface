@@ -1,5 +1,5 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { ChainId } from '@namgold/ks-sdk-core'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Flex, Text } from 'rebass'
 

@@ -1,5 +1,5 @@
 import { ApolloClient, NormalizedCacheObject, useQuery } from '@apollo/client'
-import { ChainId, WETH } from '@namgold/ks-sdk-core'
+import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 

@@ -1,4 +1,4 @@
-import { Percent } from '@namgold/ks-sdk-core'
+import { Percent } from '@kyberswap/ks-sdk-core'
 
 import { ONE_BIPS } from 'constants/index'
 import { warningSeverity } from 'utils/prices'

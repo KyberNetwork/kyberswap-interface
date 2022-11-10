@@ -1,5 +1,5 @@
-import { Currency } from '@namgold/ks-sdk-core'
-import { FeeAmount, computePoolAddress } from '@namgold/ks-sdk-elastic'
+import { Currency } from '@kyberswap/ks-sdk-core'
+import { FeeAmount, computePoolAddress } from '@kyberswap/ks-sdk-elastic'
 import { useMemo } from 'react'
 
 import { EVMNetworkInfo } from 'constants/networks/type'

@@ -1,5 +1,5 @@
+import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { ChainId, Currency, CurrencyAmount, Token } from '@namgold/ks-sdk-core'
 import JSBI from 'jsbi'
 import { stringify } from 'qs'
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'

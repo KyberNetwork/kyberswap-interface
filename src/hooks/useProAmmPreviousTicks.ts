@@ -1,4 +1,4 @@
-import { Pool, Position, TickMath } from '@namgold/ks-sdk-elastic'
+import { Pool, Position, TickMath } from '@kyberswap/ks-sdk-elastic'
 import { BigNumber } from 'ethers'
 import { useEffect, useMemo, useState } from 'react'
 

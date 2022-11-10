@@ -1,5 +1,5 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { ChainId } from '@namgold/ks-sdk-core'
 import { UnsupportedChainIdError } from '@web3-react/core'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'

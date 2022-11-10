@@ -1,5 +1,5 @@
-import { Pair, Trade } from '@namgold/ks-sdk-classic'
-import { ChainId, Currency, CurrencyAmount, Fraction, Percent, TokenAmount, TradeType } from '@namgold/ks-sdk-core'
+import { Pair, Trade } from '@kyberswap/ks-sdk-classic'
+import { ChainId, Currency, CurrencyAmount, Fraction, Percent, TokenAmount, TradeType } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 
 import {

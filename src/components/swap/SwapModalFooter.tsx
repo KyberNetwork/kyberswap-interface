@@ -1,5 +1,5 @@
+import { Currency, TradeType } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { Currency, TradeType } from '@namgold/ks-sdk-core'
 import React, { useMemo, useState } from 'react'
 import { Repeat } from 'react-feather'
 import { Text } from 'rebass'

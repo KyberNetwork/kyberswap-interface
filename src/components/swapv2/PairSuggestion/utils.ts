@@ -1,4 +1,4 @@
-import { ChainId } from '@namgold/ks-sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import { ETHER_ADDRESS } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'

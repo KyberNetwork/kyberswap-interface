@@ -1,6 +1,6 @@
 import { Log } from '@ethersproject/abstract-provider'
 import { BigNumber } from '@ethersproject/bignumber'
-import { Fraction } from '@namgold/ks-sdk-core'
+import { Fraction } from '@kyberswap/ks-sdk-core'
 import { ParsedTransactionMeta, ParsedTransactionWithMeta } from '@solana/web3.js'
 import { ethers } from 'ethers'
 import { findReplacementTx } from 'find-replacement-tx'

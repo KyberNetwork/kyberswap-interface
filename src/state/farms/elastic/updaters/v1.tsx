@@ -1,6 +1,6 @@
 import { gql, useLazyQuery } from '@apollo/client'
-import { ChainId, CurrencyAmount, Token, TokenAmount, WETH } from '@namgold/ks-sdk-core'
-import { FeeAmount, Pool, Position } from '@namgold/ks-sdk-elastic'
+import { ChainId, CurrencyAmount, Token, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
+import { FeeAmount, Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import { useEffect } from 'react'
 
 import { ZERO_ADDRESS } from 'constants/index'

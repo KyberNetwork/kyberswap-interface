@@ -1,4 +1,4 @@
-import { ChainId } from '@namgold/ks-sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import Axios from 'axios'
 
 import { TYPE_AND_SWAP_URL } from 'constants/env'

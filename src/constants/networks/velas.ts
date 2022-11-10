@@ -1,4 +1,4 @@
-import { ChainId } from '@namgold/ks-sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import VELAS from 'assets/networks/velas-network.png'
 import { KS_SETTING_API, META_AGGREGATOR_API } from 'constants/env'

@@ -1,4 +1,4 @@
-import { ChainId } from '@namgold/ks-sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import OPTIMISM from 'assets/networks/optimism-network.svg'

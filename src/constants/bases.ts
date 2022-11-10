@@ -1,4 +1,4 @@
-import { ChainId, Token, WETH } from '@namgold/ks-sdk-core'
+import { ChainId, Token, WETH } from '@kyberswap/ks-sdk-core'
 
 import { AMPL, COMP, DAI, MKR, USDC, USDT, WBTC_ARBITRUM } from './tokens'
 

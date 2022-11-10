@@ -1,4 +1,4 @@
-import { ChainId } from '@namgold/ks-sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Tags, TokenList } from '@uniswap/token-lists'
 import { useMemo } from 'react'
 import { useSelector } from 'react-redux'

@@ -1,4 +1,4 @@
-import { ChainId } from '@namgold/ks-sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 
 // https://docs.google.com/spreadsheets/d/13TQu-5SqnCLK04diXCSm7kUrXh0PLfhcccG6kP_5VFY/edit#gid=514791511
 export const TOKEN_INFO_DESCRIPTION: { [key: string]: string } = {

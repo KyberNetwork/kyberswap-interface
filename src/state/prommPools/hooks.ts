@@ -1,6 +1,6 @@
 import { gql, useQuery } from '@apollo/client'
-import { ChainId, CurrencyAmount, Token } from '@namgold/ks-sdk-core'
-import { Pool, Position } from '@namgold/ks-sdk-elastic'
+import { ChainId, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import dayjs from 'dayjs'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'

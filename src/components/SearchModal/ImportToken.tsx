@@ -1,5 +1,5 @@
+import { Currency, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { Currency, Token } from '@namgold/ks-sdk-core'
 import { transparentize } from 'polished'
 import { useCallback, useEffect } from 'react'
 import { AlertTriangle, ArrowLeft } from 'react-feather'

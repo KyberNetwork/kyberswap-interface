@@ -2,7 +2,6 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { splitSignature } from '@ethersproject/bytes'
 import { Contract } from '@ethersproject/contracts'
 import { TransactionResponse } from '@ethersproject/providers'
-import { Trans, t } from '@lingui/macro'
 import {
   Currency,
   CurrencyAmount,
@@ -12,7 +11,8 @@ import {
   TokenAmount,
   WETH,
   computePriceImpact,
-} from '@namgold/ks-sdk-core'
+} from '@kyberswap/ks-sdk-core'
+import { Trans, t } from '@lingui/macro'
 import { captureException } from '@sentry/react'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'

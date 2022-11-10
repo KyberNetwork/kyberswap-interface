@@ -1,4 +1,4 @@
-import { ChainId, Token, WETH } from '@namgold/ks-sdk-core'
+import { ChainId, Token, WETH } from '@kyberswap/ks-sdk-core'
 import axios from 'axios'
 import { getUnixTime, subHours } from 'date-fns'
 import { useMemo } from 'react'

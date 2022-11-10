@@ -1,8 +1,8 @@
 import { getAddress } from '@ethersproject/address'
 import { BigNumber } from '@ethersproject/bignumber'
+import { Pair } from '@kyberswap/ks-sdk-classic'
+import { ChainId, Currency, CurrencyAmount, Fraction, Price, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { Pair } from '@namgold/ks-sdk-classic'
-import { ChainId, Currency, CurrencyAmount, Fraction, Price, Token, TokenAmount } from '@namgold/ks-sdk-core'
 import JSBI from 'jsbi'
 import { useMemo } from 'react'
 

@@ -1,5 +1,5 @@
-import { ZERO } from '@namgold/ks-sdk-classic'
-import { ChainId, Percent, Rounding, Token, WETH } from '@namgold/ks-sdk-core'
+import { ZERO } from '@kyberswap/ks-sdk-classic'
+import { ChainId, Percent, Rounding, Token, WETH } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 
 import { isAddressString } from 'utils'

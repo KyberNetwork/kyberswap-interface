@@ -1,5 +1,5 @@
+import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { Currency } from '@namgold/ks-sdk-core'
 import { useRef } from 'react'
 import { isMobile } from 'react-device-detect'
 import { BarChart2, DollarSign, Repeat } from 'react-feather'

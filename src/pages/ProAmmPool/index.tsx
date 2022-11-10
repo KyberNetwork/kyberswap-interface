@@ -1,5 +1,5 @@
+import { computePoolAddress } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
-import { computePoolAddress } from '@namgold/ks-sdk-elastic'
 import { BigNumber } from 'ethers'
 import { rgba } from 'polished'
 import { useMemo, useRef, useState } from 'react'

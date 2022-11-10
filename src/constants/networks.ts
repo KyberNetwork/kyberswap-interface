@@ -1,4 +1,4 @@
-import { ChainId, ChainType, getChainType } from '@namgold/ks-sdk-core'
+import { ChainId, ChainType, getChainType } from '@kyberswap/ks-sdk-core'
 
 import { SolanaNetworkInfo } from 'constants/networks/type'
 

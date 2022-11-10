@@ -1,5 +1,5 @@
 import { BigNumber } from '@ethersproject/bignumber'
-import { Token } from '@namgold/ks-sdk-core'
+import { Token } from '@kyberswap/ks-sdk-core'
 
 export enum FairLaunchVersion {
   V1,

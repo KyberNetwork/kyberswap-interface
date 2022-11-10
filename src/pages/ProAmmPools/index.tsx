@@ -1,5 +1,5 @@
+import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { Currency } from '@namgold/ks-sdk-core'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { ChevronDown, ChevronUp } from 'react-feather'
 import { Redirect } from 'react-router-dom'

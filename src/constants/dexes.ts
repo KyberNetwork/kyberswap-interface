@@ -1,4 +1,4 @@
-import { ChainId } from '@namgold/ks-sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 
 export const DEX_TO_COMPARE: { [chainId in ChainId]: string | undefined } = {
   [ChainId.MAINNET]: 'uniswapv3',

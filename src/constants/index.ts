@@ -1,5 +1,5 @@
+import { ChainId, Percent } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { ChainId, Percent } from '@namgold/ks-sdk-core'
 import JSBI from 'jsbi'
 import { v4 as uuid } from 'uuid'
 

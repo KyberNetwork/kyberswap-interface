@@ -1,5 +1,5 @@
+import { Currency } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { Currency } from '@namgold/ks-sdk-core'
 import React, { useCallback, useMemo } from 'react'
 
 import TransactionConfirmationModal, {

@@ -1,5 +1,5 @@
+import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { Currency, CurrencyAmount } from '@namgold/ks-sdk-core'
 import { BigNumber } from 'ethers'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'

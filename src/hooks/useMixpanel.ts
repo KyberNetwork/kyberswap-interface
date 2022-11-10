@@ -1,4 +1,4 @@
-import { ChainId, Currency } from '@namgold/ks-sdk-core'
+import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { formatUnits, isAddress } from 'ethers/lib/utils'
 import mixpanel from 'mixpanel-browser'
 import { useCallback, useEffect, useMemo } from 'react'

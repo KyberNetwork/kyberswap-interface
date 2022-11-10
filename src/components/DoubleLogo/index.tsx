@@ -1,4 +1,4 @@
-import { Currency } from '@namgold/ks-sdk-core'
+import { Currency } from '@kyberswap/ks-sdk-core'
 import styled from 'styled-components'
 
 import CurrencyLogo from 'components/CurrencyLogo'

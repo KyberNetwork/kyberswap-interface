@@ -1,5 +1,5 @@
-import { createUserAssociatedTokenAccount } from '@namgold/dmm-solana-sdk'
-import { Token } from '@namgold/ks-sdk-core'
+import { Token } from '@kyberswap/ks-sdk-core'
+import { createUserAssociatedTokenAccount } from '@kyberswap/ks-sdk-solana'
 import { PublicKey } from '@solana/web3.js'
 import styled from 'styled-components'
 

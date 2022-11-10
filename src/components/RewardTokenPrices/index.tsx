@@ -1,4 +1,4 @@
-import { Currency, WETH } from '@namgold/ks-sdk-core'
+import { Currency, WETH } from '@kyberswap/ks-sdk-core'
 import React, { useEffect, useRef } from 'react'
 import ScrollContainer from 'react-indiana-drag-scroll'
 import styled from 'styled-components'

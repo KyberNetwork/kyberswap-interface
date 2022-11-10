@@ -1,6 +1,6 @@
 import { useQuery } from '@apollo/client'
-import { ChainId, Currency } from '@namgold/ks-sdk-core'
-import { FeeAmount, TICK_SPACINGS, tickToPrice } from '@namgold/ks-sdk-elastic'
+import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import { FeeAmount, TICK_SPACINGS, tickToPrice } from '@kyberswap/ks-sdk-elastic'
 import JSBI from 'jsbi'
 import ms from 'ms.macro'
 import { useMemo } from 'react'

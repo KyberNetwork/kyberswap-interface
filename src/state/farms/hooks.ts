@@ -1,7 +1,7 @@
 import { Interface } from '@ethersproject/abi'
 import { BigNumber } from '@ethersproject/bignumber'
 import { Contract } from '@ethersproject/contracts'
-import { CurrencyAmount, Fraction, Token } from '@namgold/ks-sdk-core'
+import { CurrencyAmount, Fraction, Token } from '@kyberswap/ks-sdk-core'
 import { ethers } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'

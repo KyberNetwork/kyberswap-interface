@@ -1,5 +1,5 @@
+import { FeeAmount, Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
-import { FeeAmount, Position } from '@namgold/ks-sdk-elastic'
 import { BigNumber } from 'ethers'
 import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'

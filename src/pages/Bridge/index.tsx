@@ -1,5 +1,5 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { ChainId } from '@namgold/ks-sdk-core'
 import { useCallback, useEffect, useRef } from 'react'
 import { Redirect } from 'react-router-dom'
 import { Text } from 'rebass'

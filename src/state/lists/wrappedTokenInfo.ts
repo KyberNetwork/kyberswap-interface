@@ -1,4 +1,4 @@
-import { Token } from '@namgold/ks-sdk-core'
+import { Token } from '@kyberswap/ks-sdk-core'
 import { TokenInfo, TokenList } from '@uniswap/token-lists'
 
 import { MultiChainTokenInfo } from 'pages/Bridge/type'

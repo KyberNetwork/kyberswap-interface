@@ -1,4 +1,4 @@
-import { Token, TokenAmount } from '@namgold/ks-sdk-core'
+import { Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { getAccount } from '@solana/spl-token'
 import { PublicKey } from '@solana/web3.js'
 import { useEffect, useMemo, useState } from 'react'

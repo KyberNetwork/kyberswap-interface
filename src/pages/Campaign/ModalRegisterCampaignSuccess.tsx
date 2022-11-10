@@ -1,5 +1,5 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { ChainId } from '@namgold/ks-sdk-core'
 import { useSelector } from 'react-redux'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'

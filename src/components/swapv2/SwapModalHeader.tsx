@@ -1,5 +1,5 @@
+import { TradeType } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { TradeType } from '@namgold/ks-sdk-core'
 import React, { useMemo } from 'react'
 import { AlertTriangle, ArrowDown } from 'react-feather'
 import { Text } from 'rebass'

@@ -1,5 +1,5 @@
+import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { ChainId, Currency, Token } from '@namgold/ks-sdk-core'
 import { TokenInfo } from '@uniswap/token-lists'
 import axios from 'axios'
 import { rgba } from 'polished'

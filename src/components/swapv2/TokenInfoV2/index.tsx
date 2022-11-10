@@ -1,4 +1,4 @@
-import { ChainId, Currency } from '@namgold/ks-sdk-core'
+import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 
 import { TokenInfoWrapper } from 'components/swapv2/styleds'
 import { TOKEN_INFO_DESCRIPTION } from 'constants/tokenLists/token-info'

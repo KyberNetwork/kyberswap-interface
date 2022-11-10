@@ -1,4 +1,4 @@
-import { Token, WETH } from '@namgold/ks-sdk-core'
+import { Token, WETH } from '@kyberswap/ks-sdk-core'
 import useSWR from 'swr'
 
 import { COINGECKO_API_URL } from 'constants/index'

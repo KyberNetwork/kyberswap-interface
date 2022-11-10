@@ -1,5 +1,5 @@
+import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { Currency, CurrencyAmount } from '@namgold/ks-sdk-core'
 import JSBI from 'jsbi'
 import { useMemo } from 'react'
 

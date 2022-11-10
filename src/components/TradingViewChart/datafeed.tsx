@@ -1,4 +1,4 @@
-import { ChainId, Currency, Token, WETH } from '@namgold/ks-sdk-core'
+import { ChainId, Currency, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { DAI, STABLE_COINS_ADDRESS, USDC, USDT } from 'constants/tokens'

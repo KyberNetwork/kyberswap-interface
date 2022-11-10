@@ -1,5 +1,5 @@
-import { Currency } from '@namgold/ks-sdk-core'
-import { FeeAmount } from '@namgold/ks-sdk-elastic'
+import { Currency } from '@kyberswap/ks-sdk-core'
+import { FeeAmount } from '@kyberswap/ks-sdk-elastic'
 import { useEffect, useMemo, useState } from 'react'
 
 import { POOL_POSITION_COUNT } from 'apollo/queries/promm'

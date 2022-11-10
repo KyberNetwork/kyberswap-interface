@@ -1,6 +1,6 @@
+import { Trade } from '@kyberswap/ks-sdk-classic'
+import { Currency, TradeType } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { Trade } from '@namgold/ks-sdk-classic'
-import { Currency, TradeType } from '@namgold/ks-sdk-core'
 import styled from 'styled-components'
 
 import { AutoColumn } from 'components/Column'

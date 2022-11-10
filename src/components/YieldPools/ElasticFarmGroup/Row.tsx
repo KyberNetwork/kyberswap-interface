@@ -1,6 +1,6 @@
+import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { computePoolAddress } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
-import { CurrencyAmount } from '@namgold/ks-sdk-core'
-import { computePoolAddress } from '@namgold/ks-sdk-elastic'
 import { BigNumber } from 'ethers'
 import { useState } from 'react'
 import { Minus, Plus, Share2 } from 'react-feather'

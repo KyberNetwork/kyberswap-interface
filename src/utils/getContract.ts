@@ -1,7 +1,7 @@
 import { AddressZero } from '@ethersproject/constants'
 import { Contract, ContractInterface } from '@ethersproject/contracts'
 import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
-import { ChainId } from '@namgold/ks-sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { ethers } from 'ethers'
 
 import CLAIM_REWARD_ABI from 'constants/abis/claim-reward.json'

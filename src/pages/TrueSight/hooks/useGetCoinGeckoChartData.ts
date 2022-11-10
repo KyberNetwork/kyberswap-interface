@@ -1,4 +1,4 @@
-import { ChainId } from '@namgold/ks-sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useMemo, useRef } from 'react'
 import useSWRImmutable from 'swr/immutable'
 

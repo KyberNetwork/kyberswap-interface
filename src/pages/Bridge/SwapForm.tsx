@@ -1,5 +1,5 @@
+import { ChainId, Fraction } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { ChainId, Fraction } from '@namgold/ks-sdk-core'
 import { isAddress } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'

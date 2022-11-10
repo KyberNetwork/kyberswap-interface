@@ -1,5 +1,5 @@
+import { Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
-import { Position } from '@namgold/ks-sdk-elastic'
 import { useCallback, useState } from 'react'
 import { Flex, Text } from 'rebass'
 

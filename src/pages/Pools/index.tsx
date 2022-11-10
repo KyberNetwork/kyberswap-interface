@@ -1,5 +1,5 @@
+import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { ChainId, Currency } from '@namgold/ks-sdk-core'
 import { useCallback, useMemo, useState } from 'react'
 import { Plus } from 'react-feather'
 import { Redirect, RouteComponentProps } from 'react-router-dom'

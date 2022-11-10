@@ -1,5 +1,5 @@
 import { Contract, ContractInterface } from '@ethersproject/contracts'
-import { ChainId, WETH } from '@namgold/ks-sdk-core'
+import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
 
 import IUniswapV2PairABI from 'constants/abis/IUniswapV2PairABI.json'

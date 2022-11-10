@@ -1,7 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { Contract } from '@ethersproject/contracts'
-import { Router, Trade } from '@namgold/ks-sdk-classic'
-import { Currency, Percent, TradeType } from '@namgold/ks-sdk-core'
+import { Router, Trade } from '@kyberswap/ks-sdk-classic'
+import { Currency, Percent, TradeType } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 import { useMemo } from 'react'
 

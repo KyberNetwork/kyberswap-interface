@@ -1,5 +1,5 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { ChainId } from '@namgold/ks-sdk-core'
 import { useEffect, useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import { useMedia } from 'react-use'

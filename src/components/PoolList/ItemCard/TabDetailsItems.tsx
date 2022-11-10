@@ -1,5 +1,5 @@
+import { Fraction } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { Fraction } from '@namgold/ks-sdk-core'
 import JSBI from 'jsbi'
 import { Redirect } from 'react-router-dom'
 

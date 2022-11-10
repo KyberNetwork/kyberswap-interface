@@ -1,5 +1,5 @@
+import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { CurrencyAmount, Token } from '@namgold/ks-sdk-core'
 import { BigNumber } from 'ethers'
 import { Text } from 'rebass'
 

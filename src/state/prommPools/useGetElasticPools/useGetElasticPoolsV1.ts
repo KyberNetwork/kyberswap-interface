@@ -1,5 +1,5 @@
 import { useQuery } from '@apollo/client'
-import { ChainId } from '@namgold/ks-sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
 

@@ -1,4 +1,4 @@
-import { Currency, Token } from '@namgold/ks-sdk-core'
+import { Currency, Token } from '@kyberswap/ks-sdk-core'
 
 /**
  * ex:  nguyen hoai danh => nguyen-hoai-danh

@@ -1,4 +1,4 @@
-import { Currency, WETH } from '@namgold/ks-sdk-core'
+import { Currency, WETH } from '@kyberswap/ks-sdk-core'
 
 import { NativeCurrencies } from 'constants/tokens'
 

@@ -1,5 +1,5 @@
+import { Currency, WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { Currency, WETH } from '@namgold/ks-sdk-core'
 import { PublicKey, Transaction } from '@solana/web3.js'
 import { useMemo } from 'react'
 

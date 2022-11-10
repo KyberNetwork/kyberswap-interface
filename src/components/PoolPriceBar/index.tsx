@@ -1,6 +1,6 @@
+import { Pair } from '@kyberswap/ks-sdk-classic'
+import { Currency, Fraction, Percent, Price } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { Pair } from '@namgold/ks-sdk-classic'
-import { Currency, Fraction, Percent, Price } from '@namgold/ks-sdk-core'
 import JSBI from 'jsbi'
 import { ReactNode, useState } from 'react'
 import { ChevronDown, ChevronUp } from 'react-feather'

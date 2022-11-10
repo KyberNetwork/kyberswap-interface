@@ -1,4 +1,4 @@
-import { ChainId } from '@namgold/ks-sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { BigNumber, ethers } from 'ethers'
 import { useCallback, useEffect, useState } from 'react'
 

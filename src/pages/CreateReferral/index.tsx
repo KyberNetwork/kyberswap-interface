@@ -1,5 +1,5 @@
+import { Currency, Fraction } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { Currency, Fraction } from '@namgold/ks-sdk-core'
 import JSBI from 'jsbi'
 import { useEffect, useMemo, useState } from 'react'
 import { ArrowRight, ChevronDown } from 'react-feather'

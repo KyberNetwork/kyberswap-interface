@@ -1,5 +1,5 @@
+import { Token, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { Token, WETH } from '@namgold/ks-sdk-core'
 import { Link } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled from 'styled-components'

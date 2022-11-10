@@ -1,4 +1,4 @@
-import { Currency, CurrencyAmount } from '@namgold/ks-sdk-core'
+import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 
 export interface AggregationComparer {
   inputAmount: CurrencyAmount<Currency>

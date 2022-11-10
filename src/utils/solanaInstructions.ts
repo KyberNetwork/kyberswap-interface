@@ -1,4 +1,4 @@
-import { ChainId, Currency, CurrencyAmount, WETH } from '@namgold/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount, WETH } from '@kyberswap/ks-sdk-core'
 import * as anchor from '@project-serum/anchor'
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,

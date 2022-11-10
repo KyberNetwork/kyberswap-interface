@@ -1,5 +1,5 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { ChainId } from '@namgold/ks-sdk-core'
 import { ChevronRight } from 'react-feather'
 import { Box, Flex } from 'rebass'
 import { useTheme } from 'styled-components'

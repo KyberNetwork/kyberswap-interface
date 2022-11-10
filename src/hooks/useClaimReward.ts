@@ -1,6 +1,6 @@
 import { TransactionResponse } from '@ethersproject/providers'
+import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { CurrencyAmount } from '@namgold/ks-sdk-core'
 import { captureException } from '@sentry/react'
 import { BigNumber } from 'ethers'
 import { useCallback, useEffect, useMemo, useState } from 'react'

@@ -1,6 +1,5 @@
-import { Trans } from '@lingui/macro'
-import { ZERO } from '@namgold/ks-sdk-classic'
-import { Currency, CurrencyAmount, Price, Rounding, Token } from '@namgold/ks-sdk-core'
+import { ZERO } from '@kyberswap/ks-sdk-classic'
+import { Currency, CurrencyAmount, Price, Rounding, Token } from '@kyberswap/ks-sdk-core'
 import {
   FeeAmount,
   FullMath,
@@ -13,7 +12,8 @@ import {
   nearestUsableTick,
   priceToClosestTick,
   tickToPrice,
-} from '@namgold/ks-sdk-elastic'
+} from '@kyberswap/ks-sdk-elastic'
+import { Trans } from '@lingui/macro'
 import JSBI from 'jsbi'
 import { ReactNode, useCallback, useMemo } from 'react'
 

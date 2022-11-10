@@ -1,6 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { ChainId } from '@namgold/ks-sdk-core'
 import { useEffect, useState } from 'react'
 import { Redirect } from 'react-router-dom'
 import { Text } from 'rebass'

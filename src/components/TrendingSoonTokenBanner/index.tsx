@@ -1,5 +1,5 @@
+import { Currency, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { Currency, Token, WETH } from '@namgold/ks-sdk-core'
 import { rgba } from 'polished'
 import { CSSProperties, memo, useMemo } from 'react'
 import { Flex } from 'rebass'

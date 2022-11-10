@@ -1,6 +1,6 @@
+import { Pair } from '@kyberswap/ks-sdk-classic'
+import { Fraction, Percent, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { Pair } from '@namgold/ks-sdk-classic'
-import { Fraction, Percent, TokenAmount } from '@namgold/ks-sdk-core'
 import JSBI from 'jsbi'
 import { useState } from 'react'
 import { AlertTriangle } from 'react-feather'

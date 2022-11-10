@@ -1,5 +1,5 @@
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
-import { ChainId, NativeCurrency, Token } from '@namgold/ks-sdk-core'
+import { ChainId, NativeCurrency, Token } from '@kyberswap/ks-sdk-core'
 import dayjs from 'dayjs'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'

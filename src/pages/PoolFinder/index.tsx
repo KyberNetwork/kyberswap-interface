@@ -1,6 +1,6 @@
+import { Pair } from '@kyberswap/ks-sdk-classic'
+import { Currency, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { Pair } from '@namgold/ks-sdk-classic'
-import { Currency, TokenAmount } from '@namgold/ks-sdk-core'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useState } from 'react'
 import { Plus } from 'react-feather'

@@ -1,6 +1,6 @@
 import { Interface } from '@ethersproject/abi'
 import { BigNumber } from '@ethersproject/bignumber'
-import { Currency, Token } from '@namgold/ks-sdk-core'
+import { Currency, Token } from '@kyberswap/ks-sdk-core'
 import { Contract } from 'ethers'
 import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'

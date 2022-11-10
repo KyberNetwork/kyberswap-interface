@@ -1,4 +1,4 @@
-import { ChainId } from '@namgold/ks-sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base'
 import { Connection, PublicKey, clusterApiUrl } from '@solana/web3.js'
 

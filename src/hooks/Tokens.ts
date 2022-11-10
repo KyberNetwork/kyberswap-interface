@@ -1,5 +1,5 @@
 import { parseBytes32String } from '@ethersproject/strings'
-import { Currency, NativeCurrency, Token } from '@namgold/ks-sdk-core'
+import { Currency, NativeCurrency, Token } from '@kyberswap/ks-sdk-core'
 import { arrayify } from 'ethers/lib/utils'
 import { useMemo } from 'react'
 

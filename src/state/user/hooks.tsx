@@ -1,4 +1,4 @@
-import { ChainId, Token } from '@namgold/ks-sdk-core'
+import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 

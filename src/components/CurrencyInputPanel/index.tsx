@@ -1,6 +1,6 @@
+import { Pair } from '@kyberswap/ks-sdk-classic'
+import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { Pair } from '@namgold/ks-sdk-classic'
-import { Currency } from '@namgold/ks-sdk-core'
 import { darken, lighten, rgba } from 'polished'
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { Flex, Text } from 'rebass'

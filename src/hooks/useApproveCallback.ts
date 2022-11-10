@@ -1,7 +1,7 @@
 import { MaxUint256 } from '@ethersproject/constants'
 import { TransactionResponse } from '@ethersproject/providers'
-import { Trade } from '@namgold/ks-sdk-classic'
-import { Currency, CurrencyAmount, TradeType } from '@namgold/ks-sdk-core'
+import { Trade } from '@kyberswap/ks-sdk-classic'
+import { Currency, CurrencyAmount, TradeType } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 import { useCallback, useMemo } from 'react'
 

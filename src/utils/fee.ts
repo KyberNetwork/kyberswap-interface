@@ -1,4 +1,4 @@
-import { Fraction } from '@namgold/ks-sdk-core'
+import { Fraction } from '@kyberswap/ks-sdk-core'
 import { parseUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 

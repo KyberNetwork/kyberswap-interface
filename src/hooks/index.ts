@@ -1,5 +1,5 @@
 import { Web3Provider } from '@ethersproject/providers'
-import { ChainId, ChainType, getChainType } from '@namgold/ks-sdk-core'
+import { ChainId, ChainType, getChainType } from '@kyberswap/ks-sdk-core'
 import { Wallet, useWallet } from '@solana/wallet-adapter-react'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import { useWeb3React as useWeb3ReactCore } from '@web3-react/core'

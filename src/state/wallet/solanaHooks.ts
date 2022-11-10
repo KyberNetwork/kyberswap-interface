@@ -1,4 +1,4 @@
-import { Currency, CurrencyAmount, Token, TokenAmount } from '@namgold/ks-sdk-core'
+import { Currency, CurrencyAmount, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { AccountLayout, RawAccount, TOKEN_PROGRAM_ID } from '@solana/spl-token'
 import { AccountInfo, PublicKey } from '@solana/web3.js'
 import JSBI from 'jsbi'

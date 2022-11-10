@@ -1,4 +1,4 @@
-import { Currency, CurrencyAmount, Token } from '@namgold/ks-sdk-core'
+import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { rgba } from 'polished'
 import React, { CSSProperties, ReactNode, memo, useCallback } from 'react'
 import { Star, Trash } from 'react-feather'

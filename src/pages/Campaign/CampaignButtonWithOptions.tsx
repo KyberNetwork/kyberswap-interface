@@ -1,6 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { ChainId } from '@namgold/ks-sdk-core'
 import axios from 'axios'
 import { useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'

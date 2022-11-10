@@ -9,7 +9,7 @@ import {
   TokenAmount,
   TradeType,
   WETH,
-} from '@namgold/ks-sdk-core'
+} from '@kyberswap/ks-sdk-core'
 import { DexInstructions, OpenOrders } from '@project-serum/serum'
 import { captureException } from '@sentry/react'
 import { Keypair, Message, PublicKey, SystemProgram, Transaction, VersionedTransaction } from '@solana/web3.js'

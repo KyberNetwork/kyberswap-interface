@@ -1,5 +1,5 @@
-import { Pair } from '@namgold/ks-sdk-classic'
-import { Currency } from '@namgold/ks-sdk-core'
+import { Pair } from '@kyberswap/ks-sdk-classic'
+import { Currency } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 

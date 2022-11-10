@@ -1,5 +1,5 @@
+import { ChainId, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { ChainId, Token, WETH } from '@namgold/ks-sdk-core'
 import { rgba } from 'polished'
 import { useState } from 'react'
 import { BarChart2, ChevronUp, Plus, Share2 } from 'react-feather'

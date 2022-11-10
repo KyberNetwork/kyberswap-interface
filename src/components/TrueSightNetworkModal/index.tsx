@@ -1,5 +1,5 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { ChainId } from '@namgold/ks-sdk-core'
 import { Dispatch, SetStateAction } from 'react'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'

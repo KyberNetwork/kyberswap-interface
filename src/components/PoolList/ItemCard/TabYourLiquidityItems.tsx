@@ -1,5 +1,5 @@
+import { Percent } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { Percent } from '@namgold/ks-sdk-core'
 
 import ItemCardInfoRow from 'components/PoolList/ItemCard/ItemCardInfoRow'
 import { ONE_BIPS } from 'constants/index'

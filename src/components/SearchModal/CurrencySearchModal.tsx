@@ -1,4 +1,4 @@
-import { Currency, Token } from '@namgold/ks-sdk-core'
+import { Currency, Token } from '@kyberswap/ks-sdk-core'
 import { useCallback, useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 

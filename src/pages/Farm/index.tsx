@@ -1,5 +1,5 @@
+import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { Currency } from '@namgold/ks-sdk-core'
 import { stringify } from 'qs'
 import { useMemo } from 'react'
 import { useSelector } from 'react-redux'

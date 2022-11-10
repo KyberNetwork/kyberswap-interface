@@ -1,5 +1,5 @@
+import { Currency, Fraction } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { Currency, Fraction } from '@namgold/ks-sdk-core'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 

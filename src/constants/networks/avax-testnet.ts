@@ -1,4 +1,4 @@
-import { ChainId } from '@namgold/ks-sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import AVAX from 'assets/networks/avax-network.png'
 import { KS_SETTING_API } from 'constants/env'

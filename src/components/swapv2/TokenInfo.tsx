@@ -1,5 +1,5 @@
+import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { Currency } from '@namgold/ks-sdk-core'
 import { useEffect, useState } from 'react'
 import { ArrowLeft } from 'react-feather'
 import { Flex } from 'rebass'

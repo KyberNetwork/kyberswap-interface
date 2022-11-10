@@ -1,4 +1,4 @@
-import { FeeAmount, TICK_SPACINGS, TickMath, nearestUsableTick } from '@namgold/ks-sdk-elastic'
+import { FeeAmount, TICK_SPACINGS, TickMath, nearestUsableTick } from '@kyberswap/ks-sdk-elastic'
 import { useMemo } from 'react'
 
 import { Bound } from 'state/mint/proamm/actions'

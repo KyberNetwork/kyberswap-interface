@@ -1,7 +1,7 @@
 import { defaultAbiCoder } from '@ethersproject/abi'
+import { Token } from '@kyberswap/ks-sdk-core'
+import { FeeAmount } from '@kyberswap/ks-sdk-elastic'
 import { t } from '@lingui/macro'
-import { Token } from '@namgold/ks-sdk-core'
-import { FeeAmount } from '@namgold/ks-sdk-elastic'
 import { BigNumber } from 'ethers'
 import { useCallback, useMemo, useState } from 'react'
 

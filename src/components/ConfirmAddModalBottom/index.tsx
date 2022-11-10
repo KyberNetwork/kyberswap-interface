@@ -1,6 +1,6 @@
+import { Pair } from '@kyberswap/ks-sdk-classic'
+import { Currency, CurrencyAmount, Fraction, Percent, Price } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { Pair } from '@namgold/ks-sdk-classic'
-import { Currency, CurrencyAmount, Fraction, Percent, Price } from '@namgold/ks-sdk-core'
 import JSBI from 'jsbi'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'

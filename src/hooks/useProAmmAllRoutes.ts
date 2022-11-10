@@ -1,5 +1,5 @@
-import { Currency } from '@namgold/ks-sdk-core'
-import { Pool, Route } from '@namgold/ks-sdk-elastic'
+import { Currency } from '@kyberswap/ks-sdk-core'
+import { Pool, Route } from '@kyberswap/ks-sdk-elastic'
 import { useMemo } from 'react'
 
 import { useActiveWeb3React } from 'hooks'

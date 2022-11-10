@@ -1,4 +1,4 @@
-import { Token } from '@namgold/ks-sdk-core'
+import { Token } from '@kyberswap/ks-sdk-core'
 import { BigNumber } from 'ethers'
 
 import { ZERO_ADDRESS } from 'constants/index'

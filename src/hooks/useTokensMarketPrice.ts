@@ -1,4 +1,4 @@
-import { Token, WETH } from '@namgold/ks-sdk-core'
+import { Token, WETH } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
 import useSWR from 'swr'
 
