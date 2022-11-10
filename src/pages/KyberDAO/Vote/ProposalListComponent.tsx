@@ -60,6 +60,7 @@ const HistoryButton = styled(RowFit)`
 export default function ProposalListComponent() {
   const { proposals } = useVotingInfo()
   const [status, setStatus] = useState<string | undefined>()
+  const [search, setSearch] = useState<string | undefined>()
   const filteredProposals = useMemo(
     () =>
       proposals
@@ -67,10 +68,13 @@ export default function ProposalListComponent() {
           if (!!status) {
             return p.status === status
           }
+          if (!!search) {
+            return p.title.toLowerCase().search(search.toLowerCase()) >= 0
+          }
           return true
         })
         .sort((a, b) => b.proposal_id - a.proposal_id),
-    [proposals, status],
+    [proposals, status, search],
   )
   const toggleYourTransactions = useToggleModal(ApplicationModal.YOUR_TRANSACTIONS_STAKE_KNC)
 
@@ -93,7 +97,7 @@ export default function ProposalListComponent() {
       </RowBetween>
       <RowBetween>
         <SelectProposalStatus status={status} setStatus={setStatus} />
-        <SearchProposal />
+        <SearchProposal search={search} setSearch={setSearch} />
       </RowBetween>
       {filteredProposals ? (
         filteredProposals.map(p => {

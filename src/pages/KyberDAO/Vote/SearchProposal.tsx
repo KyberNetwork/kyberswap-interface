@@ -29,10 +29,10 @@ const SearchInput = styled.input`
       }
     `}
 `
-export default function SearchProposal() {
+export default function SearchProposal({ search, setSearch }: { search?: string; setSearch?: (s: string) => void }) {
   return (
     <Wrapper>
-      <SearchInput placeholder={t`Search proposals`} />
+      <SearchInput placeholder={t`Search proposals`} value={search} onChange={e => setSearch?.(e.target.value)} />
       <Search />
     </Wrapper>
   )
