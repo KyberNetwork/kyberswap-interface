@@ -1,4 +1,5 @@
 import { Trans } from '@lingui/macro'
+import dayjs from 'dayjs'
 import { lighten, transparentize } from 'polished'
 import React, { useRef, useState } from 'react'
 import { ChevronDown } from 'react-feather'
@@ -7,9 +8,10 @@ import styled, { css } from 'styled-components'
 
 import LaunchIcon from 'components/Icons/LaunchIcon'
 import { RowBetween, RowFixed } from 'components/Row'
+import { ProposalDetail, ProposalStatus } from 'hooks/kyberdao/types'
 import useTheme from 'hooks/useTheme'
+import { ExternalLink } from 'theme'
 
-import { ProposalStatus } from '../type'
 import Participants from './Participants'
 import VoteInformation from './VoteInformation'
 import VoteProgress from './VoteProgress'
@@ -94,7 +96,6 @@ const Content = styled.div<{ show?: boolean; height?: number }>`
     show
       ? css`
           opacity: 1;
-          max-height: 1000px;
         `
       : css`
           opacity: 0;
@@ -116,20 +117,20 @@ const TextButton = styled.div`
   `}
 `
 
-export default function ProposalItem({ title, status, id }: { title?: string; status?: ProposalStatus; id?: string }) {
+export default function ProposalItem({ proposal }: { proposal: ProposalDetail }) {
   const theme = useTheme()
   const [show, setShow] = useState(false)
   const contentRef = useRef<any>()
   const contentHeight = contentRef.current?.getBoundingClientRect().height
   const statusType = () => {
-    switch (status) {
+    switch (proposal.status) {
       case ProposalStatus.Pending:
         return 'pending'
-      case ProposalStatus.Cancelled:
+      case ProposalStatus.Canceled:
       case ProposalStatus.Failed:
         return 'error'
       case ProposalStatus.Executed:
-      case ProposalStatus.Approved:
+      case ProposalStatus.Succeeded:
         return 'success'
       default:
         return 'pending'
@@ -140,7 +141,7 @@ export default function ProposalItem({ title, status, id }: { title?: string; st
       <ProposalHeader>
         <RowBetween onClick={() => setShow(s => !s)}>
           <Text>
-            <Trans>{title}</Trans>
+            <Trans>{proposal.title}</Trans>
           </Text>
           <ExpandButton>
             <ChevronDown
@@ -149,7 +150,7 @@ export default function ProposalItem({ title, status, id }: { title?: string; st
             />
           </ExpandButton>
         </RowBetween>
-        {status === ProposalStatus.Pending && (
+        {proposal.status === ProposalStatus.Pending && (
           <RowBetween gap="20px">
             <VoteProgress />
             <VoteProgress checked />
@@ -157,11 +158,11 @@ export default function ProposalItem({ title, status, id }: { title?: string; st
         )}
         <RowBetween>
           <Text color={theme.subText} fontSize={12}>
-            Ended 14 May 2022
+            Ended {dayjs(proposal.end_timestamp * 1000).format('DD MMM YYYY')}
           </Text>
           <RowFixed gap="8px">
-            <StatusBadged status={statusType()}>{status}</StatusBadged>
-            <StatusBadged>{id}</StatusBadged>
+            <StatusBadged status={statusType()}>{proposal.status}</StatusBadged>
+            <StatusBadged>ID #{proposal.proposal_id}</StatusBadged>
           </RowFixed>
         </RowBetween>
       </ProposalHeader>
@@ -172,29 +173,21 @@ export default function ProposalItem({ title, status, id }: { title?: string; st
               <Trans>Forum</Trans>
               <LaunchIcon size={16} />
             </TextButton>
-            <TextButton>
+            <ExternalLink href={proposal.link}>
               <Trans>Github</Trans>
               <LaunchIcon size={16} />
-            </TextButton>
+            </ExternalLink>
           </RowFixed>
-          <Text fontSize={16} color={theme.subText} marginBottom="20px">
-            - We strongly believe that we can effectively utilize the remaining KNC in the ecosystem growth fund to
-            drive adoption for KyberSwap.com and the KNC token itself. Burning KNC would only result in a short-term
-            supply shock but does not support long-term value accrual.
-            <br />
-            <br /> - On the other hand, effective utilization of KNC in upcoming initiatives could potentially result in
-            more users, volume, and fees for LPs and KyberDAO voters. This would also increase the number of KNC holders
-            who help expand the Kyber ecosystem, with the ability to stake KNC and vote.
-            <br />
-            <br /> - KNC plays a valuable and central role in the Kyber ecosystem. KNC holders not only own a useful
-            asset, but also a stake in DeFi’s liquidity infrastructure. We want to work closely with the community to
-            ensure that KNC is utilized in the most efficient and impactful way possible and enhance its long-term
-            value.
-          </Text>
-          <Participants />
+          <Text
+            fontSize={16}
+            color={theme.subText}
+            marginBottom="20px"
+            dangerouslySetInnerHTML={{ __html: proposal.desc.replaceAll('\\n', '').replaceAll('\\r', '') }}
+          ></Text>
+          <Participants proposalId={show ? proposal.proposal_id : undefined} />
         </div>
         <div style={{ width: '368px' }}>
-          <VoteInformation />
+          <VoteInformation proposal={proposal} />
         </div>
       </Content>
     </ProposalItemWrapper>

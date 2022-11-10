@@ -1,4 +1,6 @@
 import { Trans, t } from '@lingui/macro'
+import dayjs from 'dayjs'
+import RelativeTime from 'dayjs/plugin/relativeTime'
 import { transparentize } from 'polished'
 import { Clock } from 'react-feather'
 import { Box, Text } from 'rebass'
@@ -18,6 +20,8 @@ import { getFullDisplayBalance } from 'utils/formatBalance'
 
 import ProposalListComponent from './ProposalListComponent'
 
+dayjs.extend(RelativeTime)
+
 const Wrapper = styled.div`
   width: 100%;
   background-image: url(${bgimg}), url(${bgimg});
@@ -29,7 +33,7 @@ const Wrapper = styled.div`
 `
 
 const Container = styled.div`
-  width: 992px;
+  width: 1224px;
   margin: auto;
   min-height: 1200px;
   padding: 48px 0;
@@ -139,9 +143,15 @@ export default function Vote() {
             color={theme.primary}
             padding="2px 8px"
             margin="0px 4px"
-            style={{ borderRadius: '8px' }}
+            style={{ borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '3px' }}
           >
-            <Clock size="12px" /> 4days 2h left
+            <Clock size="12px" />{' '}
+            {daoInfo
+              ? dayjs(
+                  (daoInfo.first_epoch_start_timestamp + daoInfo.current_epoch * daoInfo.epoch_period_in_seconds) *
+                    1000,
+                ).fromNow(true) + ' left'
+              : '--:--:--'}
           </Box>
           <Text>
             <Trans>Vote on current epoch proposals to get your full reward.</Trans>

@@ -1,11 +1,17 @@
 import { Trans } from '@lingui/macro'
-import { ArrowDown } from 'react-feather'
+import { BigNumber } from 'ethers'
+import { lighten } from 'polished'
+import { useMemo, useState } from 'react'
+import { ArrowDown, ArrowUp } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import Divider from 'components/Divider'
+import Loader from 'components/Loader'
 import { RowBetween } from 'components/Row'
+import { useProposalInfoById } from 'hooks/kyberdao'
 import useTheme from 'hooks/useTheme'
+import { getFullDisplayBalance } from 'utils/formatBalance'
 
 const Wrapper = styled.div`
   border-radius: 20px;
@@ -19,9 +25,47 @@ const Wrapper = styled.div`
 const InfoRow = styled(RowBetween)`
   font-size: 12px;
   padding: 6px 0;
+  & > * {
+    flex: 1;
+  }
+  & > *:nth-child(2) {
+    text-align: center;
+  }
+  & > *:last-child {
+    text-align: right;
+  }
 `
-export default function Participants() {
+const TextButton = styled.button`
+  border: none;
+  outline: none;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  ${({ theme }) => css`
+    color: ${theme.primary};
+    :hover {
+      color: ${lighten(0.2, theme.primary)};
+    }
+  `}
+`
+
+export default function Participants({ proposalId }: { proposalId?: number }) {
+  const { proposalInfo } = useProposalInfoById(proposalId)
+  const [showMore, setShowMore] = useState(false)
   const theme = useTheme()
+  const participants = useMemo(() => {
+    if (!proposalInfo) return
+    return proposalInfo.vote_stats.votes
+      .sort((a, b) => (BigNumber.from(a.power).sub(BigNumber.from(b.power)).gt(0) ? -1 : 1))
+      .map(v => {
+        return {
+          ...v,
+          staker: v.staker.slice(0, 9) + '...' + v.staker.slice(-4),
+          power: Math.floor(parseFloat(getFullDisplayBalance(BigNumber.from(v.power), 18))).toLocaleString(),
+        }
+      })
+      .slice(0, showMore ? proposalInfo.vote_stats.votes.length : 5)
+  }, [proposalInfo, showMore])
   return (
     <Wrapper>
       <Text>
@@ -29,40 +73,41 @@ export default function Participants() {
       </Text>
       <Divider margin="10px 0" />
       <RowBetween fontSize={12} color={theme.subText}>
-        <Text>Wallet</Text>
-        <Text>Vote</Text>
-        <Text>Amount</Text>
+        <Text>
+          <Trans>Wallet</Trans>
+        </Text>
+        <Text>
+          <Trans>Vote</Trans>
+        </Text>
+        <Text>
+          <Trans>Amount</Trans>
+        </Text>
       </RowBetween>
       <Divider margin="10px 0" />
-      <InfoRow>
-        <Text color={theme.subText}>Voting System</Text>
-        <Text color={theme.text}>Binary Proposal</Text>
-      </InfoRow>
-      <InfoRow>
-        <Text color={theme.subText}>Start Date</Text>
-        <Text color={theme.text}>12 May 2022</Text>
-      </InfoRow>
-      <InfoRow>
-        <Text color={theme.subText}>End Date</Text>
-        <Text color={theme.text}>12 August 2022</Text>
-      </InfoRow>
-      <InfoRow>
-        <Text color={theme.subText}>Total Addresses</Text>
-        <Text color={theme.text}>29</Text>
-      </InfoRow>
-      <InfoRow>
-        <Text color={theme.subText}>KNC Amount</Text>
-        <Text color={theme.text}>50,309,000</Text>
-      </InfoRow>
-      <InfoRow>
-        <Text color={theme.subText}>Your KIP Voting Power</Text>
-        <Text color={theme.text}>2.4%</Text>
-      </InfoRow>
+      {participants ? (
+        participants.map(vote => {
+          return (
+            <InfoRow key={vote.staker}>
+              <Text>{vote.staker}</Text>
+              <Text>{proposalInfo?.options[vote.option]}</Text>
+              <Text color={theme.subText}>{vote.power}</Text>
+            </InfoRow>
+          )
+        })
+      ) : (
+        <Loader />
+      )}
       <Divider margin="10px 0" />
       <Flex justifyContent="center">
-        <Flex alignItems="center" style={{ color: theme.primary, fontSize: '12px', gap: '6px', cursor: 'pointer' }}>
-          Load more <ArrowDown size={14} />
-        </Flex>
+        {showMore ? (
+          <TextButton onClick={() => setShowMore(false)}>
+            <Trans>Show less</Trans> <ArrowUp size={14} />
+          </TextButton>
+        ) : (
+          <TextButton onClick={() => setShowMore(true)}>
+            <Trans>Load more</Trans> <ArrowDown size={14} />
+          </TextButton>
+        )}
       </Flex>
     </Wrapper>
   )

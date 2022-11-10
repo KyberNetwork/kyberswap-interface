@@ -55,33 +55,37 @@ const DropdownItem = styled.div<{ active?: boolean }>`
   padding: 8px;
   ${({ theme, active }) => active && `color: ${theme.primary}`}
 `
-export default function SelectProposalStatus() {
+
+const statusList = ['All', 'Pending', 'Approved', 'Executed', 'Failed', 'Canceled']
+export default function SelectProposalStatus({
+  status,
+  setStatus,
+}: {
+  status?: string
+  setStatus?: (s: string) => void
+}) {
   const [show, setShow] = useState(false)
   const ref = useRef()
   useOnClickOutside(ref, () => setShow(false))
   return (
     <Select ref={ref as any} onClick={() => setShow(s => !s)}>
-      <Text>All</Text>
+      <Text>{status || 'All'}</Text>
       <ChevronDown size={16} />
       <DropdownList show={show}>
-        <DropdownItem active>
-          <Trans>All</Trans>
-        </DropdownItem>
-        <DropdownItem>
-          <Trans>Pending</Trans>
-        </DropdownItem>
-        <DropdownItem>
-          <Trans>Approved</Trans>
-        </DropdownItem>
-        <DropdownItem>
-          <Trans>Executed</Trans>
-        </DropdownItem>
-        <DropdownItem>
-          <Trans>Failed</Trans>
-        </DropdownItem>
-        <DropdownItem>
-          <Trans>Cancelled</Trans>
-        </DropdownItem>
+        {statusList.map(s => {
+          if (s === 'All') {
+            return (
+              <DropdownItem key={s} active={!status} onClick={() => setStatus?.('')}>
+                <Trans>{s}</Trans>
+              </DropdownItem>
+            )
+          }
+          return (
+            <DropdownItem key={s} active={s === status} onClick={() => setStatus?.(s)}>
+              <Trans>{s}</Trans>
+            </DropdownItem>
+          )
+        })}
       </DropdownList>
     </Select>
   )

@@ -1,16 +1,21 @@
 import { Trans } from '@lingui/macro'
 import { lighten } from 'polished'
-import { Flex } from 'rebass'
+import { useMemo, useState } from 'react'
+import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import ForumIcon from 'components/Icons/ForumIcon'
 import History from 'components/Icons/History'
-import { RowBetween } from 'components/Row'
+import Loader from 'components/Loader'
+import { RowBetween, RowFit } from 'components/Row'
+import { useVotingInfo } from 'hooks/kyberdao'
+import { ApplicationModal } from 'state/application/actions'
+import { useToggleModal } from 'state/application/hooks'
 
+import YourTransactionsModal from '../StakeKNC/YourTransactionsModal'
 import ProposalItem from './ProposalItem'
 import SearchProposal from './SearchProposal'
 import SelectProposalStatus from './SelectProposalStatus'
-import { Proposal, ProposalStatus } from './type'
 
 const Wrapper = styled.div`
   display: flex;
@@ -42,36 +47,33 @@ const TextButton = styled.div`
     }
   `}
 `
-
-const proposalData: Proposal[] = [
-  {
-    title: 'KIP-18: Advance KNC Allocation for Small-Scale Liquidity Mining Activities',
-    status: ProposalStatus.Pending,
-    id: 'ID #10',
-  },
-  {
-    title: 'KIP-17: Allocate additional 5M KNC from the ecosystem fund & transfer ~1.78M KNC for Avalanche LM',
-    status: ProposalStatus.Cancelled,
-    id: 'ID #7',
-  },
-  {
-    title: 'KIP-16: Allocate additional 5M KNC from the ecosystem fund & transfer ~1.78M KNC for Avalanche LM',
-    status: ProposalStatus.Failed,
-    id: 'ID #6',
-  },
-  {
-    title: 'KIP-15: KyberDMM Expansion and Liquidity Mining on Avalanche',
-    status: ProposalStatus.Executed,
-    id: 'ID #5',
-  },
-  {
-    title: 'KIP-14: KyberDMM Expansion and Liquidity Mining on BSC',
-    status: ProposalStatus.Approved,
-    id: 'ID #4',
-  },
-]
+const HistoryButton = styled(RowFit)`
+  justify-content: flex-end;
+  gap: 4px;
+  cursor: pointer;
+  color: ${({ theme }) => theme.subText};
+  :hover {
+    color: ${({ theme }) => lighten(0.2, theme.primary)};
+  }
+`
 
 export default function ProposalListComponent() {
+  const { proposals } = useVotingInfo()
+  const [status, setStatus] = useState<string | undefined>()
+  const filteredProposals = useMemo(
+    () =>
+      proposals
+        ?.filter(p => {
+          if (!!status) {
+            return p.status === status
+          }
+          return true
+        })
+        .sort((a, b) => b.proposal_id - a.proposal_id),
+    [proposals, status],
+  )
+  const toggleYourTransactions = useToggleModal(ApplicationModal.YOUR_TRANSACTIONS_STAKE_KNC)
+
   return (
     <Wrapper>
       <RowBetween marginBottom={'20px'}>
@@ -81,21 +83,26 @@ export default function ProposalListComponent() {
           </Tab>
         </Flex>
         <Flex style={{ gap: '30px' }}>
-          <TextButton>
-            <History /> <Trans>History</Trans>
-          </TextButton>
+          <HistoryButton onClick={toggleYourTransactions}>
+            <History /> <Text fontSize={14}>History</Text>
+          </HistoryButton>
           <TextButton>
             <ForumIcon /> <Trans>Forum</Trans>
           </TextButton>
         </Flex>
       </RowBetween>
       <RowBetween>
-        <SelectProposalStatus />
+        <SelectProposalStatus status={status} setStatus={setStatus} />
         <SearchProposal />
       </RowBetween>
-      {proposalData.map(p => {
-        return <ProposalItem key={p.id} {...p} />
-      })}
+      {filteredProposals ? (
+        filteredProposals.map(p => {
+          return <ProposalItem key={p.proposal_id.toString()} proposal={p} />
+        })
+      ) : (
+        <Loader />
+      )}
+      <YourTransactionsModal />
     </Wrapper>
   )
 }

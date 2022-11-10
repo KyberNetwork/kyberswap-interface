@@ -137,7 +137,7 @@
     "@typeform/embed-react": "^1.2.4",
     "aos": "^2.3.4",
     "d3": "^7.3.0",
-    "dayjs": "^1.10.7",
+    "dayjs": "^1.11.6",
     "env-cmd": "^10.1.0",
     "eslint-plugin-unused-imports": "^2.0.0",
     "find-replacement-tx": "^1.2.3",

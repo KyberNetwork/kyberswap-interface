@@ -15,6 +15,8 @@ import { useSingleCallResult } from 'state/multicall/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { calculateGasMargin } from 'utils'
 
+import { ProposalDetail } from './types'
+
 //TODO Diep: Move this to ethereum.js
 export const KYBERDAO_ADDRESSES = {
   STAKING: '0xeadb96F1623176144EBa2B24e35325220972b3bD',
@@ -157,6 +159,7 @@ export function useVotingInfo() {
   const { data: userRewards } = useSWR(merkleDataFileUrl, (url: string) => {
     return fetch(url).then(res => res.json())
   })
+  const { data: proposals } = useSWR<ProposalDetail[]>(APIS.DAO + '/proposals', fetcher)
 
   const calculateVotingPower = useCallback(
     (kncAmount: string) => {
@@ -171,5 +174,10 @@ export function useVotingInfo() {
     },
     [daoInfo],
   )
-  return { daoInfo, userRewards, calculateVotingPower }
+  return { daoInfo, userRewards, calculateVotingPower, proposals }
+}
+
+export function useProposalInfoById(id?: number): { proposalInfo?: ProposalDetail } {
+  const { data } = useSWR(id !== undefined ? APIS.DAO + '/proposals/' + id : undefined, fetcher)
+  return { proposalInfo: data }
 }

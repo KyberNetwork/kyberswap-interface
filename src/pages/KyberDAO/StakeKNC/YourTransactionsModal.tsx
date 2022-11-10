@@ -106,7 +106,7 @@ export default function YourTransactionsModal() {
   const filteredTransactions: TransactionDetails[] = useMemo(
     () =>
       Object.keys(allTransactions)
-        .filter((key: string) => allTransactions[key].type?.startsWith('Stake'))
+        .filter((key: string) => allTransactions[key].type?.startsWith('KyberDAO'))
         .map((key: string) => {
           const tx = allTransactions[key]
           return { ...tx, hashText: tx.hash.slice(0, 6) + '...' + tx.hash.slice(-4), type: tx.type?.slice(9) }

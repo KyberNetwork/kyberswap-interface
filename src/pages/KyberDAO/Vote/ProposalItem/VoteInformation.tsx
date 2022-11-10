@@ -1,11 +1,15 @@
 import { Trans } from '@lingui/macro'
+import dayjs from 'dayjs'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import Divider from 'components/Divider'
 import InfoHelper from 'components/InfoHelper'
 import { RowBetween } from 'components/Row'
+import { useStakingInfo } from 'hooks/kyberdao'
+import { ProposalDetail } from 'hooks/kyberdao/types'
 import useTheme from 'hooks/useTheme'
+import { getFullDisplayBalance } from 'utils/formatBalance'
 
 const Wrapper = styled.div`
   border-radius: 20px;
@@ -20,8 +24,9 @@ const InfoRow = styled(RowBetween)`
   font-size: 12px;
   padding: 6px 0;
 `
-export default function VoteInformation() {
+export default function VoteInformation({ proposal }: { proposal: ProposalDetail }) {
   const theme = useTheme()
+  const { stakedBalance } = useStakingInfo()
   return (
     <Wrapper>
       <Text>
@@ -29,35 +34,53 @@ export default function VoteInformation() {
       </Text>
       <Divider margin="10px 0" />
       <InfoRow>
-        <Text color={theme.subText}>Voting System</Text>
-        <Text color={theme.text}>Binary Proposal</Text>
-      </InfoRow>
-      <InfoRow>
-        <Text color={theme.subText}>Start Date</Text>
-        <Text color={theme.text}>12 May 2022</Text>
-      </InfoRow>
-      <InfoRow>
-        <Text color={theme.subText}>End Date</Text>
-        <Text color={theme.text}>12 August 2022</Text>
-      </InfoRow>
-      <InfoRow>
-        <Text color={theme.subText}>Total Addresses</Text>
-        <Text color={theme.text}>29</Text>
-      </InfoRow>
-      <InfoRow>
-        <Text color={theme.subText}>KNC Amount</Text>
-        <Text color={theme.text}>50,309,000</Text>
+        <Text color={theme.subText}>
+          <Trans>Voting System</Trans>
+        </Text>
+        <Text color={theme.text}>{proposal.proposal_type}</Text>
       </InfoRow>
       <InfoRow>
         <Text color={theme.subText}>
-          Your KIP Voting Power{' '}
+          <Trans>Start Date</Trans>
+        </Text>
+        <Text color={theme.text}>{dayjs(proposal.start_timestamp * 1000).format('DD MMMM YYYY')}</Text>
+      </InfoRow>
+      <InfoRow>
+        <Text color={theme.subText}>
+          <Trans>End Date</Trans>
+        </Text>
+        <Text color={theme.text}>{dayjs(proposal.end_timestamp * 1000).format('DD MMMM YYYY')}</Text>
+      </InfoRow>
+      <InfoRow>
+        <Text color={theme.subText}>
+          <Trans>Total Addresses</Trans>
+        </Text>
+        <Text color={theme.text}>{proposal.vote_stats.total_address_count}</Text>
+      </InfoRow>
+      <InfoRow>
+        <Text color={theme.subText}>
+          <Trans>KNC Amount</Trans>
+        </Text>
+        <Text color={theme.text}>{Math.floor(proposal.vote_stats.total_vote_count).toLocaleString()}</Text>
+      </InfoRow>
+      <InfoRow>
+        <Text color={theme.subText}>
+          <Trans>Your KIP Voting Power</Trans>{' '}
           <InfoHelper
             placement="top"
             text="Your KIP Voting Power is calculated by
 [Your Staked KNC] / [Total Voted KNC] * 100%"
           />
         </Text>
-        <Text color={theme.text}>2.4%</Text>
+        <Text color={theme.text}>
+          {stakedBalance
+            ? (
+                (parseFloat(getFullDisplayBalance(stakedBalance, 18)) / proposal.vote_stats.total_vote_count) *
+                100
+              ).toFixed(6)
+            : 0}
+          %
+        </Text>
       </InfoRow>
     </Wrapper>
   )
