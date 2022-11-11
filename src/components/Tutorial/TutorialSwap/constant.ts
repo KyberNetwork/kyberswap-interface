@@ -1,7 +1,7 @@
 import { t } from '@lingui/macro'
 import { Step } from 'walktour'
 
-export interface StepCustom extends Step {
+export interface StepTutorial extends Step {
   stopPropagationMouseDown?: boolean // stop Propagation onMouseDown event, ex: prevent Menufly setting auto close
   center?: boolean // popup at center
   hasPointer?: boolean
@@ -13,12 +13,6 @@ export interface StepCustom extends Step {
   stepNumber?: number // for tracking, display
   callbackEndStep?: () => void
   lastStep?: boolean
-}
-
-// todo namgold: fix this hardcode
-export const TutorialNumbers = {
-  TOTAL_STEP: 9,
-  STEP_BRIDGE: 6,
 }
 
 // please do not remove TutorialIds.xxxxxx in some where to make sure tutorial work well
@@ -42,6 +36,7 @@ export const TutorialIds = {
 }
 
 export const LIST_TITLE = {
+  WELCOME: t`Welcome to KyberSwap!`,
   YOUR_WALLET: t`Your wallet address`,
   CONNECT_WALLET: t`Connect a wallet`,
   SELECT_NETWORK: t`Select your network`,

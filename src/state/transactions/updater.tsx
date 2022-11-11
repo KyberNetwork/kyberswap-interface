@@ -161,7 +161,9 @@ export default function Updater(): null {
     const uniqueTransactions = [
       ...new Set(
         Object.values(transactions)
-          .map(txs => txs?.map(tx => tx.hash))
+          .map((txs: TransactionDetails[] | TransactionDetails | undefined) =>
+            Array.isArray(txs) ? txs.map(tx => tx.hash) : txs?.hash,
+          )
           .flat(2)
           .filter(Boolean) as [string],
       ),

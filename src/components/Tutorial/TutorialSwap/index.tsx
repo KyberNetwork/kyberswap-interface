@@ -13,7 +13,6 @@ import { TutorialType, getTutorialVideoId } from 'components/Tutorial'
 import { SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import useTheme from 'hooks/useTheme'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
@@ -22,11 +21,11 @@ import { filterTruthy } from 'utils'
 import CustomMask from './CustomMask'
 import CustomPopup from './CustomPopup'
 import TutorialMobile from './TutorialMobile'
-import { LIST_TITLE, StepCustom, TutorialIds, TutorialNumbers } from './constant'
+import { LIST_TITLE, StepTutorial, TutorialIds } from './constant'
 
 const isMobile = window.innerWidth < 1200 // best resolution for this tutorial
 
-const Heading = styled.h5`
+export const Heading = styled.h5`
   color: ${({ theme }) => theme.text};
   user-select: none;
   margin: 5px 0px 10px 0px;
@@ -40,17 +39,6 @@ const LayoutWrapper = styled.div`
   text-align: left;
   font-size: 14px;
 `
-const Title = ({ stepNumber }: { stepNumber: number }) => {
-  const theme = useTheme()
-  return (
-    <Heading style={{ display: 'flex', alignItems: 'flex-end' }}>
-      <Trans>
-        <span>Step: {stepNumber}/</span>
-        <span style={{ color: theme.subText, fontSize: '0.85em' }}>{TutorialNumbers.TOTAL_STEP}</span>
-      </Trans>
-    </Heading>
-  )
-}
 
 const Layout = ({ children, title }: { title?: string; children: React.ReactNode }) => {
   return (
@@ -144,7 +132,7 @@ function Welcome() {
   )
 }
 
-function Step1() {
+function ConnectWallet() {
   const [isExpanded, setIsExpanded] = useState(false)
   const toggleExpand = () => setIsExpanded(!isExpanded)
   const isDarkMode = useIsDarkMode()
@@ -187,7 +175,7 @@ const TouchAbleVideo = styled.div`
   height: 100%;
 `
 
-function Step3({ videoStyle = {} }: { videoStyle: CSSProperties }) {
+function VideoSwap({ videoStyle = {} }: { videoStyle: CSSProperties }) {
   const { mixpanelHandler } = useMixpanel()
   const [playedVideo, setPlayedVideo] = useState(false)
   const ref = useRef<HTMLIFrameElement | null>(null)
@@ -240,9 +228,9 @@ const getListSteps = (isLogin: boolean, isSolana: boolean) => {
   const isHighlightBtnConnectWallet = !isLogin || isMobile
   return filterTruthy([
     {
-      title: (
+      customTitleRenderer: () => (
         <Heading style={{ fontSize: 20 }}>
-          <Trans>Welcome to KyberSwap!</Trans>
+          <Trans>{LIST_TITLE.WELCOME}</Trans>
         </Heading>
       ),
       customFooterRenderer: (logic: WalktourLogic) => (
@@ -263,22 +251,14 @@ const getListSteps = (isLogin: boolean, isSolana: boolean) => {
     },
     {
       selector: isHighlightBtnConnectWallet ? TutorialIds.BUTTON_CONNECT_WALLET : TutorialIds.BUTTON_ADDRESS_WALLET,
-      title: isMobile ? (
-        isHighlightBtnConnectWallet ? (
-          LIST_TITLE.CONNECT_WALLET
-        ) : (
-          LIST_TITLE.YOUR_WALLET
-        )
-      ) : (
-        <Title stepNumber={stepNumber} />
-      ),
+      title: isHighlightBtnConnectWallet ? LIST_TITLE.CONNECT_WALLET : LIST_TITLE.YOUR_WALLET,
       stepNumber: stepNumber++,
-      description: <Step1 />,
+      description: <ConnectWallet />,
       orientationPreferences: [CardinalOrientation.SOUTHEAST, CardinalOrientation.NORTHWEST],
     },
     {
       selector: TutorialIds.SELECT_NETWORK,
-      title: isMobile ? LIST_TITLE.SELECT_NETWORK : <Title stepNumber={stepNumber} />,
+      title: LIST_TITLE.SELECT_NETWORK,
       stepNumber: stepNumber++,
       description: (
         <Layout title={LIST_TITLE.SELECT_NETWORK}>
@@ -294,16 +274,16 @@ const getListSteps = (isLogin: boolean, isSolana: boolean) => {
     },
     {
       selector: TutorialIds.SWAP_FORM,
-      title: isMobile ? LIST_TITLE.START_TRADING : <Title stepNumber={stepNumber} />,
+      title: LIST_TITLE.START_TRADING,
       stepNumber: stepNumber++,
-      description: <Step3 videoStyle={{ minHeight: Math.min(window.innerHeight / 2, 500) }} />,
+      description: <VideoSwap videoStyle={{ minHeight: Math.min(window.innerHeight / 2, 500) }} />,
       popupStyle: { width: Math.min(0.8 * window.innerWidth, 700) },
       requiredClickSelector: '#' + TutorialIds.BUTTON_SETTING_SWAP_FORM,
       selectorHint: '#' + TutorialIds.SWAP_FORM_CONTENT,
     },
     {
       selector: TutorialIds.BUTTON_SETTING_SWAP_FORM,
-      title: isMobile ? LIST_TITLE.SETTING : <Title stepNumber={stepNumber} />,
+      title: LIST_TITLE.SETTING,
       stepNumber: stepNumber,
       maskPadding: 10,
       description: (
@@ -321,7 +301,7 @@ const getListSteps = (isLogin: boolean, isSolana: boolean) => {
     },
     {
       selector: TutorialIds.SWAP_FORM,
-      title: isMobile ? LIST_TITLE.SETTING : <Title stepNumber={stepNumber} />,
+      title: LIST_TITLE.SETTING,
       stepNumber: stepNumber++,
       requiredClickSelector: '#' + TutorialIds.BUTTON_SETTING_SWAP_FORM,
       selectorHint: '#' + TutorialIds.TRADING_SETTING_CONTENT,
@@ -342,7 +322,7 @@ const getListSteps = (isLogin: boolean, isSolana: boolean) => {
     },
     {
       selector: TutorialIds.BRIDGE_LINKS,
-      title: isMobile ? LIST_TITLE.BRIDGE : <Title stepNumber={stepNumber} />,
+      title: LIST_TITLE.BRIDGE,
       stepNumber: stepNumber++,
       description: (
         <Layout title={LIST_TITLE.BRIDGE}>
@@ -357,10 +337,10 @@ const getListSteps = (isLogin: boolean, isSolana: boolean) => {
       orientationPreferences: [CardinalOrientation.SOUTH],
     },
     isSolana
-      ? undefined
+      ? null
       : {
           selector: TutorialIds.EARNING_LINKS,
-          title: isMobile ? LIST_TITLE.EARN : <Title stepNumber={stepNumber} />,
+          title: LIST_TITLE.EARN,
           stepNumber: stepNumber++,
           description: (
             <Layout title={LIST_TITLE.EARN}>
@@ -377,7 +357,7 @@ const getListSteps = (isLogin: boolean, isSolana: boolean) => {
         },
     {
       selector: TutorialIds.CAMPAIGN_LINK,
-      title: isMobile ? LIST_TITLE.CAMPAIGN : <Title stepNumber={stepNumber} />,
+      title: LIST_TITLE.CAMPAIGN,
       stepNumber: stepNumber++,
       description: (
         <Layout title={LIST_TITLE.CAMPAIGN}>
@@ -392,7 +372,7 @@ const getListSteps = (isLogin: boolean, isSolana: boolean) => {
     },
     {
       selector: TutorialIds.DISCOVER_LINK,
-      title: isMobile ? LIST_TITLE.DISCOVER : <Title stepNumber={stepNumber} />,
+      title: LIST_TITLE.DISCOVER,
       stepNumber: stepNumber++,
       description: (
         <Layout title={LIST_TITLE.DISCOVER}>
@@ -410,7 +390,7 @@ const getListSteps = (isLogin: boolean, isSolana: boolean) => {
     },
     {
       selector: TutorialIds.BUTTON_VIEW_GUIDE_SWAP,
-      title: isMobile ? LIST_TITLE.VIEW_GUIDE : <Title stepNumber={stepNumber} />,
+      title: LIST_TITLE.VIEW_GUIDE,
       stepNumber: stepNumber++,
       maskPadding: 10,
       requiredClickSelector: '#' + TutorialIds.BUTTON_SETTING,
@@ -472,7 +452,7 @@ export default memo(function TutorialSwap() {
     }))
   }, [account, isSolana])
 
-  const stepInfo = (steps[step] || {}) as StepCustom
+  const stepInfo = (steps[step] || {}) as StepTutorial
 
   const onDismiss = (logic: WalktourLogic) => {
     const { stepNumber } = stepInfo
@@ -486,7 +466,7 @@ export default memo(function TutorialSwap() {
     stopTutorial()
   }
 
-  const checkRequiredClick = (nextStep: StepCustom) => {
+  const checkRequiredClick = (nextStep: StepTutorial) => {
     const { requiredClickSelector, selectorHint } = nextStep
     const needClick = requiredClickSelector && !document.querySelector(selectorHint || nextStep?.selector)
     // target next step has not render yet, => click other button to render it
@@ -505,7 +485,7 @@ export default memo(function TutorialSwap() {
     callbackEndStep && callbackEndStep()
     setTimeout(
       () => {
-        setShowTutorial({ step: nextIndex })
+        setShowTutorial({ step: nextIndex, stepInfo: allSteps[nextIndex] })
         isNext ? next() : prev()
       },
       needClickAnyElement ? 400 : 0,
@@ -514,7 +494,7 @@ export default memo(function TutorialSwap() {
 
   const onNext = (logic: WalktourLogic) => {
     const { stepIndex, close, allSteps } = logic
-    const { lastStep } = allSteps[stepIndex] as StepCustom
+    const { lastStep } = allSteps[stepIndex] as StepTutorial
     if (lastStep) {
       onFinished()
       close()

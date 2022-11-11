@@ -20,7 +20,7 @@ import Menu, { NewLabel } from 'components/Menu'
 import Row, { RowFixed } from 'components/Row'
 import Settings from 'components/Settings'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { TutorialIds, TutorialNumbers } from 'components/Tutorial/TutorialSwap/constant'
+import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { AGGREGATOR_ANALYTICS_URL, APP_PATHS, PROMM_ANALYTICS_URL } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -339,7 +339,7 @@ export default function Header() {
   const [isHoverSlide, setIsHoverSlide] = useState(false)
 
   const { width } = useWindowSize()
-  const [{ show: isShowTutorial = false, step }] = useTutorialSwapGuide()
+  const [{ show: isShowTutorial = false, stepInfo }] = useTutorialSwapGuide()
   const under369 = width && width < 369
   const { mixpanelHandler } = useMixpanel()
   return (
@@ -352,7 +352,7 @@ export default function Header() {
         </Title>
         <HeaderLinks>
           <HoverDropdown
-            forceShowDropdown={isShowTutorial && step === TutorialNumbers.STEP_BRIDGE}
+            forceShowDropdown={isShowTutorial && stepInfo?.selector === `#${TutorialIds.BRIDGE_LINKS}`}
             active={pathname.includes('/swap') || pathname === '/buy-crypto'}
           >
             <Flex alignItems="center">
