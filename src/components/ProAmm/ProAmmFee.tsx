@@ -24,7 +24,7 @@ import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
-import { basisPointsToPercent, calculateGasMargin } from 'utils'
+import { basisPointsToPercent, calculateGasMargin, formatNumberWithPrecisionRange } from 'utils'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
 export default function ProAmmFee({
@@ -35,7 +35,9 @@ export default function ProAmmFee({
   hasUserDepositedInFarm,
   feeValue0,
   feeValue1,
+  totalFeeRewardUSD,
 }: {
+  totalFeeRewardUSD: number
   tokenId: BigNumber
   position: Position
   layout?: number
@@ -143,8 +145,8 @@ export default function ProAmmFee({
   ])
   const hasNoFeeToCollect = !(feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0))
 
-  const render =
-    layout === 0 ? (
+  if (layout === 0) {
+    return (
       <OutlineCard marginTop="1rem" padding="1rem">
         <AutoColumn gap="md">
           <Text fontSize="16px" fontWeight="500">
@@ -159,6 +161,17 @@ export default function ProAmmFee({
           <Divider />
           <RowBetween>
             <Text fontSize={12} fontWeight={500} color={theme.subText}>
+              <Trans>Total fee rewards</Trans>
+            </Text>
+            <RowFixed>
+              <Text fontSize={14} fontWeight={500} marginLeft={'6px'}>
+                $ {formatNumberWithPrecisionRange(totalFeeRewardUSD, 0, 8)}
+              </Text>
+            </RowFixed>
+          </RowBetween>
+
+          <RowBetween>
+            <Text fontSize={12} fontWeight={500} color={theme.subText}>
               <Trans>{token0Shown.symbol} FEES EARNED</Trans>
             </Text>
             <RowFixed>
@@ -168,6 +181,7 @@ export default function ProAmmFee({
               </Text>
             </RowFixed>
           </RowBetween>
+
           <RowBetween>
             <Text fontSize={12} fontWeight={500} color={theme.subText}>
               <Trans>{token1Shown.symbol} FEES EARNED</Trans>
@@ -181,87 +195,100 @@ export default function ProAmmFee({
           </RowBetween>
         </AutoColumn>
       </OutlineCard>
-    ) : (
-      <>
-        <OutlineCard marginTop="1rem" padding="1rem">
-          <AutoColumn gap="md">
-            <RowBetween>
-              <Flex>
-                <Text fontSize={12} fontWeight={500} color={theme.subText}>
-                  <Trans>{token0Shown.symbol} Fees Earned</Trans>
-                </Text>
-                <QuestionHelper text={t`Your fees are being automatically compounded so you earn more`} />
-              </Flex>
-              <RowFixed>
-                <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={token0Shown} />
-                <Text fontSize={12} fontWeight={500} marginLeft={'6px'}>
-                  {feeValue0 && <FormattedCurrencyAmount currencyAmount={feeValue0} />}
-                </Text>
-              </RowFixed>
-            </RowBetween>
-            <RowBetween>
-              <Flex>
-                <Text fontSize={12} fontWeight={500} color={theme.subText}>
-                  <Trans>{token1Shown.symbol} Fees Earned</Trans>
-                </Text>
-                <QuestionHelper text={t`Your fees are being automatically compounded so you earn more`} />
-              </Flex>
-              <RowFixed>
-                <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={token1Shown} />
-                <Text fontSize={12} fontWeight={500} marginLeft={'6px'}>
-                  {feeValue1 && <FormattedCurrencyAmount currencyAmount={feeValue1} />}
-                </Text>
-              </RowFixed>
-            </RowBetween>
-            {hasUserDepositedInFarm ? (
-              <MouseoverTooltip
-                placement="top"
-                text={t`You need to withdraw your deposited liquidity position from the Farm first`}
+    )
+  }
+
+  return (
+    <OutlineCard marginTop="1rem" padding="1rem">
+      <AutoColumn gap="md">
+        <RowBetween>
+          <Flex>
+            <Text fontSize={12} fontWeight={500} color={theme.subText}>
+              <Trans>My rewards</Trans>
+            </Text>
+          </Flex>
+          <RowFixed>
+            <Text fontSize={12} fontWeight={500}>
+              $ {formatNumberWithPrecisionRange(totalFeeRewardUSD, 0, 8)}
+            </Text>
+          </RowFixed>
+        </RowBetween>
+
+        <RowBetween>
+          <Flex>
+            <Text fontSize={12} fontWeight={500} color={theme.subText}>
+              <Trans>{token0Shown.symbol} Fees Earned</Trans>
+            </Text>
+            <QuestionHelper text={t`Your fees are being automatically compounded so you earn more`} />
+          </Flex>
+          <RowFixed>
+            <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={token0Shown} />
+            <Text fontSize={12} fontWeight={500} marginLeft={'6px'}>
+              {feeValue0 && <FormattedCurrencyAmount currencyAmount={feeValue0} />}
+            </Text>
+          </RowFixed>
+        </RowBetween>
+        <RowBetween>
+          <Flex>
+            <Text fontSize={12} fontWeight={500} color={theme.subText}>
+              <Trans>{token1Shown.symbol} Fees Earned</Trans>
+            </Text>
+            <QuestionHelper text={t`Your fees are being automatically compounded so you earn more`} />
+          </Flex>
+          <RowFixed>
+            <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={token1Shown} />
+            <Text fontSize={12} fontWeight={500} marginLeft={'6px'}>
+              {feeValue1 && <FormattedCurrencyAmount currencyAmount={feeValue1} />}
+            </Text>
+          </RowFixed>
+        </RowBetween>
+        {hasUserDepositedInFarm ? (
+          <MouseoverTooltip
+            placement="top"
+            text={t`You need to withdraw your deposited liquidity position from the Farm first`}
+          >
+            <Flex
+              // this flex looks like redundant
+              // but without this, the cursor will be default
+              // as we put pointerEvents=none on the button
+              sx={{
+                cursor: 'not-allowed',
+                width: '100%',
+              }}
+            >
+              <ButtonLight
+                style={{
+                  padding: '10px',
+                  fontSize: '14px',
+                  width: '100%',
+                  pointerEvents: 'none',
+                }}
+                disabled
               >
-                <Flex
-                  // this flex looks like redundant
-                  // but without this, the cursor will be default
-                  // as we put pointerEvents=none on the button
-                  sx={{
-                    cursor: 'not-allowed',
-                    width: '100%',
-                  }}
-                >
-                  <ButtonLight
-                    style={{
-                      padding: '10px',
-                      fontSize: '14px',
-                      width: '100%',
-                      pointerEvents: 'none',
-                    }}
-                    disabled
-                  >
-                    <Flex alignItems="center" sx={{ gap: '8px' }}>
-                      <Info size={16} />
-                      <Trans>Collect Fees</Trans>
-                    </Flex>
-                  </ButtonLight>
-                </Flex>
-              </MouseoverTooltip>
-            ) : (
-              <ButtonLight disabled={hasNoFeeToCollect} onClick={collect} style={{ padding: '10px', fontSize: '14px' }}>
                 <Flex alignItems="center" sx={{ gap: '8px' }}>
-                  <QuestionHelper
-                    size={16}
-                    text={
-                      hasNoFeeToCollect
-                        ? t`You don't have any fees to collect`
-                        : t`By collecting, you will receive 100% of your fee earnings`
-                    }
-                    color={hasNoFeeToCollect ? theme.disableText : theme.primary}
-                  />
+                  <Info size={16} />
                   <Trans>Collect Fees</Trans>
                 </Flex>
               </ButtonLight>
-            )}
-          </AutoColumn>
-        </OutlineCard>
-      </>
-    )
-  return render
+            </Flex>
+          </MouseoverTooltip>
+        ) : (
+          <ButtonLight disabled={hasNoFeeToCollect} onClick={collect} style={{ padding: '10px', fontSize: '14px' }}>
+            <Flex alignItems="center" sx={{ gap: '8px' }}>
+              <QuestionHelper
+                size={16}
+                text={
+                  hasNoFeeToCollect
+                    ? t`You don't have any fees to collect`
+                    : t`By collecting, you will receive 100% of your fee earnings`
+                }
+                color={hasNoFeeToCollect ? theme.disableText : theme.primary}
+              />
+              <Trans>Collect Fees</Trans>
+            </Flex>
+          </ButtonLight>
+        )}
+      </AutoColumn>
+    </OutlineCard>
+  )
 }
