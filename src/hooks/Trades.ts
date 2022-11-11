@@ -210,24 +210,6 @@ export function useTradeExactInV2(
     onUpdateCallback(false, 0)
   }, [onUpdateCallback])
 
-  // todo namgold: remove debug
-  // useDebug({
-  //   onUpdateCallback,
-  //   debounceCurrencyAmountIn,
-  //   currencyOut,
-  //   chainId,
-  //   recipient,
-  //   account,
-  //   ttl,
-  //   'networkInfo.routerUri': networkInfo.routerUri,
-  //   saveGas,
-  //   dexes,
-  //   allowedSlippage,
-  //   feeConfig,
-  //   trade,
-  //   comparer,
-  // })
-
   return {
     trade,
     comparer,

@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import React, { useRef, useState } from 'react'
@@ -180,7 +181,7 @@ function BuyCrypto() {
   const upToMedium = useMedia('(max-width: 992px)')
   const upToSmall = useMedia('(max-width: 768px)')
 
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
 
   const toggleWalletModal = useWalletModalToggle()
 
@@ -189,17 +190,32 @@ function BuyCrypto() {
   const step2Ref = useRef<HTMLDivElement>(null)
   const step3Ref = useRef<HTMLDivElement>(null)
 
-  const supportedNetworks = [
-    'ethereum',
-    'polygon',
-    'arbitrum',
-    'optimism',
-    'bsc',
-    'avaxcchain',
-    'fantom',
-    'velasevm',
-    'solana',
-  ]
+  const supportedNetworks: { [chain in ChainId]: string | null } = {
+    [ChainId.MAINNET]: 'ethereum',
+    [ChainId.MATIC]: 'polygon',
+    [ChainId.ARBITRUM]: 'arbitrum',
+    [ChainId.OPTIMISM]: 'optimism',
+    [ChainId.BSCMAINNET]: 'bsc',
+    [ChainId.AVAXMAINNET]: 'avaxcchain',
+    [ChainId.FANTOM]: 'fantom',
+    [ChainId.VELAS]: 'velasevm',
+    [ChainId.SOLANA]: 'solana',
+
+    [ChainId.CRONOS]: null,
+    [ChainId.ROPSTEN]: null,
+    [ChainId.RINKEBY]: null,
+    [ChainId.GÖRLI]: null,
+    [ChainId.KOVAN]: null,
+    [ChainId.MUMBAI]: null,
+    [ChainId.BSCTESTNET]: null,
+    [ChainId.AVAXTESTNET]: null,
+    [ChainId.CRONOSTESTNET]: null,
+    [ChainId.ARBITRUM_TESTNET]: null,
+    [ChainId.BTTC]: null,
+    [ChainId.AURORA]: null,
+    [ChainId.OASIS]: null,
+    [ChainId.ETHW]: null,
+  }
   const supportedCurrencies = [
     'AVAX',
     'USDC',
@@ -218,11 +234,13 @@ function BuyCrypto() {
   ]
 
   const redirectURL = window.location.hostname.includes('localhost')
-    ? 'https://KyberSwap.com/swap'
+    ? 'https://kyberswap.com/swap'
     : window.location.origin + '/swap'
   const transakUrl = `${TRANSAK_URL}?apiKey=${TRANSAK_API_KEY}&cryptoCurrencyList=${supportedCurrencies.join(
     ',',
-  )}&networks=${supportedNetworks.join(',')}${account ? `&walletAddress=${account}` : ''}&redirectURL=${redirectURL}`
+  )}&networks=${Object.values(supportedNetworks).filter(Boolean).join(',')}${
+    account ? `&walletAddress=${account}` : ''
+  }&defaultNetwork=${supportedNetworks[chainId] || supportedNetworks[ChainId.MAINNET]}&redirectURL=${redirectURL}`
 
   const [isDarkMode] = useDarkModeManager()
   const { mixpanelHandler } = useMixpanel()
