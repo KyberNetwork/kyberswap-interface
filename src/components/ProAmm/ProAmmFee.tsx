@@ -23,20 +23,8 @@ import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
-import { basisPointsToPercent, calculateGasMargin } from 'utils'
+import { basisPointsToPercent, calculateGasMargin, formatNumberWithPrecisionRange } from 'utils'
 import { unwrappedToken } from 'utils/wrappedCurrency'
-
-/**
-  800                   -> '800'
-  0.123123123           -> '0.12312312'
-  0.123                 -> '0.123'
-  0.12342224234234324   -> '0.12342224'
-
-  This function is to remove trailing 0's after using toFixed
- */
-const formatUSDValue = (val: number) => {
-  return val.toFixed(8).replace(/\.?0+$/g, '')
-}
 
 export default function ProAmmFee({
   tokenId,
@@ -174,7 +162,7 @@ export default function ProAmmFee({
             </Text>
             <RowFixed>
               <Text fontSize={14} fontWeight={500} marginLeft={'6px'}>
-                $ {formatUSDValue(totalFeeRewardUSD)}
+                $ {formatNumberWithPrecisionRange(totalFeeRewardUSD, 0, 8)}
               </Text>
             </RowFixed>
           </RowBetween>
@@ -218,7 +206,7 @@ export default function ProAmmFee({
           </Flex>
           <RowFixed>
             <Text fontSize={12} fontWeight={500}>
-              $ {formatUSDValue(totalFeeRewardUSD)}
+              $ {formatNumberWithPrecisionRange(totalFeeRewardUSD, 0, 8)}
             </Text>
           </RowFixed>
         </RowBetween>
