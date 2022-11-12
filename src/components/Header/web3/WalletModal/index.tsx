@@ -17,6 +17,7 @@ import Networks from 'components/Header/web3/NetworkModal/Networks'
 import WarningIcon from 'components/Icons/WarningIcon'
 import Modal from 'components/Modal'
 import { AutoRow, RowFixed } from 'components/Row'
+import { APP_PATHS } from 'constants/index'
 import { SUPPORTED_WALLET, SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useActivationWallet } from 'hooks/useActivationWallet'
@@ -173,7 +174,7 @@ export default function WalletModal() {
   // close on connection, when logged out before
   useEffect(() => {
     if (account && !previousAccount && walletModalOpen) {
-      if (location.pathname.startsWith('/campaigns')) {
+      if (location.pathname.startsWith(APP_PATHS.CAMPAIGN)) {
         mixpanelHandler(MIXPANEL_TYPE.CAMPAIGN_WALLET_CONNECTED)
       }
       toggleWalletModal()
