@@ -10,8 +10,7 @@ import useTheme from 'hooks/useTheme'
 import { ExternalLink } from 'theme'
 import { detectInjectedType } from 'utils'
 import checkForBraveBrowser from 'utils/checkForBraveBrowser'
-
-import { isOverriddenWallet } from '../../../../utils/index'
+import { isOverriddenWallet } from 'utils/index'
 
 const WarningBoxWrapper = styled.div`
   width: 100%;

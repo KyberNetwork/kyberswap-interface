@@ -927,7 +927,7 @@ function AboutKyberSwap() {
                       src={
                         !isDarkMode
                           ? 'https://chainsecurity.com/wp-content/themes/chainsecurity-wp/resources/images/temp/logo.svg'
-                          : require('../../assets/svg/chainsecurity.svg').default
+                          : require('assets/svg/chainsecurity.svg').default
                       }
                       alt="security"
                       width={above992 ? '197px' : '140px'}
@@ -964,7 +964,7 @@ function AboutKyberSwap() {
                   <Trans>Bug Bounty</Trans>
                 </Text>
                 <img
-                  src={require('../../assets/svg/about_icon_bug_bounty.svg').default}
+                  src={require('assets/svg/about_icon_bug_bounty.svg').default}
                   alt="bugbounty"
                   width={above992 ? '186px' : '140px'}
                 />
@@ -1015,8 +1015,8 @@ function AboutKyberSwap() {
               <img
                 src={
                   isDarkMode
-                    ? require('../../assets/svg/about_icon_kyber.svg').default
-                    : require('../../assets/svg/about_icon_kyber_light.svg').default
+                    ? require('assets/svg/about_icon_kyber.svg').default
+                    : require('assets/svg/about_icon_kyber_light.svg').default
                 }
                 alt="kyber_icon"
                 width="100%"
@@ -1024,23 +1024,19 @@ function AboutKyberSwap() {
               <img
                 src={
                   isDarkMode
-                    ? require('../../assets/svg/about_icon_ethereum.png').default
-                    : require('../../assets/svg/about_icon_ethereum_light.png').default
+                    ? require('assets/svg/about_icon_ethereum.png').default
+                    : require('assets/svg/about_icon_ethereum_light.png').default
                 }
                 alt="ethereum_icon"
                 width="100%"
               />
-              <img src={require('../../assets/svg/about_icon_bsc.svg').default} alt="bsc_icon" width="100%" />
+              <img src={require('assets/svg/about_icon_bsc.svg').default} alt="bsc_icon" width="100%" />
               <PolygonLogoFull />
-              <img
-                src={require('../../assets/svg/about_icon_avalanche.svg').default}
-                alt="avalanche_icon"
-                width="100%"
-              />
+              <img src={require('assets/svg/about_icon_avalanche.svg').default} alt="avalanche_icon" width="100%" />
               <FantomLogoFull color={isDarkMode ? '#fff' : '#1969FF'} width="100%" height="unset" />
               <CronosLogoFull color={isDarkMode ? undefined : '#142564'} />
               <img
-                src={require(`../../assets/images/Arbitrum_HorizontalLogo${isDarkMode ? '-dark' : ''}.svg`).default}
+                src={require(`assets/images/Arbitrum_HorizontalLogo${isDarkMode ? '-dark' : ''}.svg`).default}
                 alt=""
                 width="100%"
               />
@@ -1048,7 +1044,7 @@ function AboutKyberSwap() {
               <AuroraFull />
               <OasisLogoFull />
               <img
-                src={require(`../../assets/images/btt-logo${isDarkMode ? '-dark' : ''}.svg`).default}
+                src={require(`assets/images/btt-logo${isDarkMode ? '-dark' : ''}.svg`).default}
                 alt="btt"
                 width="100%"
               />

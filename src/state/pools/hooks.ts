@@ -12,6 +12,7 @@ import {
   POOL_DATA,
   USER_POSITIONS,
 } from 'apollo/queries'
+import { ONLY_DYNAMIC_FEE_CHAINS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
@@ -19,7 +20,6 @@ import { useETHPrice } from 'state/application/hooks'
 import { AppState } from 'state/index'
 import { get24hValue, getBlocksFromTimestamps, getPercentChange, getTimestampsForChanges } from 'utils'
 
-import { ONLY_DYNAMIC_FEE_CHAINS } from './../../constants/index'
 import { setError, setLoading, setSharedPoolId, setUrlOnEthPowAck, updatePools } from './actions'
 
 export interface SubgraphPoolData {

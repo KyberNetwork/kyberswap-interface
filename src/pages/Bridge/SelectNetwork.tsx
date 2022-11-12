@@ -6,9 +6,8 @@ import styled from 'styled-components'
 import { ReactComponent as DropdownSvg } from 'assets/svg/down.svg'
 import NetworkModal from 'components/Header/web3/NetworkModal'
 import { NetworkLogo } from 'components/Logo'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-
-import { NETWORKS_INFO } from '../../constants/networks'
 
 const NetworkSwitchContainer = styled.div`
   display: flex;

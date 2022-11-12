@@ -17,9 +17,9 @@ import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useAddUserToken } from 'state/user/hooks'
 import { CloseIcon, TYPE } from 'theme'
+import { ExternalLinkIcon } from 'theme/components'
 import { getEtherscanLink, shortenAddress } from 'utils'
 
-import { ExternalLinkIcon } from '../../theme/components'
 import { PaddedColumn } from './styleds'
 
 const Wrapper = styled.div`
