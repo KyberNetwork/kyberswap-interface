@@ -84,12 +84,12 @@ export function useIsTransactionPending(transactionHash?: string): boolean {
  * @param tx to check for recency
  */
 export function isTransactionGroupRecent(txs: TransactionDetails[]): boolean {
-  return new Date().getTime() - txs[0].addedTime < 86_400_000
+  return new Date().getTime() - (txs[0]?.addedTime ?? 0) < 86_400_000
 }
 
 // we want the latest one to come first, so return negative if a is after b
 export function newTransactionsGroupFirst(a: TransactionDetails[], b: TransactionDetails[]) {
-  return b[0].addedTime - a[0].addedTime
+  return (b[0]?.addedTime ?? 0) - (a[0]?.addedTime ?? 0)
 }
 
 /**
