@@ -1,5 +1,5 @@
 import { CSSProperties, ReactNode, useRef, useState } from 'react'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { AutoColumn } from 'components/Column'
@@ -21,8 +21,16 @@ const Content = styled.div<{ $expanded: boolean; $height: number }>`
   padding: 10px 0;
   ${({ $expanded, $height }) =>
     $expanded
-      ? `margin-top:0; opacity:1; max-height:500px;`
-      : `margin-top:-${$height || 20}px; opacity:0; max-height:0;`}
+      ? css`
+          margin-top: 0;
+          opacity: 1;
+          max-height: 500px;
+        `
+      : css`
+          margin-top: -${$height || 20}px;
+          opacity: 0;
+          max-height: 0;
+        `}
   z-index: 0;
 `
 export default function ExpandableBox({
