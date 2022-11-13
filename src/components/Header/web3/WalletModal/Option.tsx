@@ -164,14 +164,6 @@ const Option = ({
 
   if (!isAcceptedTerm) return content
 
-  if (readyState === WalletReadyState.Loadable && isEVMWallet(wallet) && wallet.href) {
-    return (
-      <MouseoverTooltip placement="top" text={<Trans>Install ${wallet.name} extension</Trans>}>
-        <StyledLink href={wallet.href}>{content}</StyledLink>
-      </MouseoverTooltip>
-    )
-  }
-
   if (!isSupportCurrentChain) {
     return (
       <MouseoverTooltip
@@ -179,6 +171,14 @@ const Option = ({
         text={<Trans>Please select another wallet that is {isEVM ? 'EVM' : 'Solana'} compatible</Trans>}
       >
         {content}
+      </MouseoverTooltip>
+    )
+  }
+
+  if (readyState === WalletReadyState.Loadable && isEVMWallet(wallet) && wallet.href) {
+    return (
+      <MouseoverTooltip placement="top" text={<Trans>Install {wallet.name} extension</Trans>}>
+        <StyledLink href={wallet.href}>{content}</StyledLink>
       </MouseoverTooltip>
     )
   }
