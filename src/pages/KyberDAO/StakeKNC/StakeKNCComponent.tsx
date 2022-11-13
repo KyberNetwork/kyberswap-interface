@@ -3,6 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import { parseUnits } from 'ethers/lib/utils'
 import { lighten } from 'polished'
 import { useCallback, useMemo, useState } from 'react'
+import { Repeat } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -10,7 +11,6 @@ import styled, { css } from 'styled-components'
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import { AutoColumn, ColumnCenter } from 'components/Column'
 import ExpandableBox from 'components/ExpandableBox'
-import Cart from 'components/Icons/Cart'
 import HistoryIcon from 'components/Icons/History'
 import Wallet from 'components/Icons/Wallet'
 import WarningIcon from 'components/Icons/WarningIcon'
@@ -335,7 +335,7 @@ export default function StakeKNCComponent() {
         <StakeForm>
           <RowBetween color={theme.subText}>
             <GetKNCButton to="/swap/ethereum/eth-to-knc">
-              <Cart />
+              <Repeat size={16} />
               <Text fontSize={14}>
                 <Trans>Get KNC</Trans>
               </Text>

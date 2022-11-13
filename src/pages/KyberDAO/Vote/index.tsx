@@ -14,6 +14,7 @@ import InfoHelper from 'components/InfoHelper'
 import { AutoRow, RowBetween, RowFit } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import { useStakingInfo, useVotingInfo } from 'hooks/kyberdao'
+import useTotalVotingReward from 'hooks/kyberdao/useTotalVotingRewards'
 import useTheme from 'hooks/useTheme'
 import { useKNCPrice } from 'state/application/hooks'
 import { formattedNumLong } from 'utils'
@@ -74,6 +75,7 @@ export default function Vote() {
   const { daoInfo } = useVotingInfo()
   const { stakedBalance } = useStakingInfo()
   const kncPrice = useKNCPrice()
+  const { knc, usd } = useTotalVotingReward()
   return (
     <Wrapper>
       <Container>
@@ -93,7 +95,7 @@ export default function Vote() {
               </Text>
               <Text fontSize={12} color={theme.subText}>
                 {daoInfo && kncPrice
-                  ? '~ ' + formattedNumLong(parseFloat(kncPrice) * Math.floor(daoInfo.total_staked)) + ' USD'
+                  ? '~' + formattedNumLong(parseFloat(kncPrice) * Math.floor(daoInfo.total_staked)) + ' USD'
                   : ''}
               </Text>
             </AutoColumn>
@@ -104,10 +106,10 @@ export default function Vote() {
                 <Trans>Total Voting Rewards</Trans>
               </Text>
               <Text fontSize={20} marginBottom="8px">
-                30,164 KNC
+                {knc?.toLocaleString() ?? '--'} KNC
               </Text>
               <Text fontSize={12} color={theme.subText}>
-                ~ 128,508 USD
+                ~{usd?.toLocaleString() ?? '--'} USD
               </Text>
             </AutoColumn>
           </Card>
