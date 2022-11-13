@@ -215,10 +215,12 @@ export function useEagerConnect() {
  * and out after checking what network they're on
  */
 export function useInactiveListener(suppress = false) {
+  const { isEVM } = useActiveWeb3React()
   const { active, error, activate } = useWeb3React() // specifically using useWeb3React because of what this hook does
 
   useEffect(() => {
     const { ethereum } = window
+    if (!isEVM) return
     if (ethereum && ethereum.on && !active && !error && !suppress) {
       const handleChainChanged = () => {
         // eat errors
@@ -247,5 +249,5 @@ export function useInactiveListener(suppress = false) {
       }
     }
     return undefined
-  }, [active, error, suppress, activate])
+  }, [active, error, suppress, activate, isEVM])
 }
