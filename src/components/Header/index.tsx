@@ -212,7 +212,7 @@ const StyledNavLink = styled(NavLink).attrs({
   width: fit-content;
   font-weight: 500;
   display: flex;
-  align-items: 'center';
+  align-items: center;
   gap: 8px;
   &.${activeClassName} {
     font-weight: 600;
@@ -232,7 +232,9 @@ const StyledNavExternalLink = styled(ExternalLink).attrs({
   activeClassName,
 })`
   ${({ theme }) => theme.flexRowNoWrap}
-  align-items: left;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   border-radius: 3px;
   outline: none;
   cursor: pointer;
@@ -505,14 +507,14 @@ export default function Header() {
                   <VoteIcon />
                   <Trans>Vote</Trans>
                 </StyledNavLink>
-                <StyledNavLink
+                <StyledNavExternalLink
                   id={`kyberdao-feature-request`}
-                  to={'/kyberdao/feature-request'}
-                  isActive={match => Boolean(match)}
+                  href={'https://request.kyberswap.com/'}
+                  target="_blank"
                 >
                   <LightBulb />
                   <Trans>Feature Request</Trans>
-                </StyledNavLink>
+                </StyledNavExternalLink>
               </Dropdown>
             </HoverDropdown>
           </AboutWrapper>

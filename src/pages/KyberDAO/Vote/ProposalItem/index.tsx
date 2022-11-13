@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { lighten, transparentize } from 'polished'
-import React, { useRef, useState } from 'react'
+import React, { useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { ChevronDown } from 'react-feather'
 import { Text } from 'rebass'
@@ -32,7 +32,9 @@ const ProposalHeader = styled.div`
   flex-direction: column;
   gap: 20px;
   z-index: 1;
-  cursor: pointer;
+  & > *:first-child {
+    cursor: pointer;
+  }
   ${({ theme }) => css`
     background-color: ${theme.background};
   `}
@@ -42,8 +44,6 @@ const ExpandButton = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 28px;
-  width: 28px;
   cursor: pointer;
   border-radius: 50%;
   ${({ theme }) => css`
@@ -105,23 +105,16 @@ const Content = styled.div<{ show?: boolean }>`
           max-height: 0;
         `}
 `
-const TextButton = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 14px;
-  cursor: pointer;
-  ${({ theme }) => css`
-    color: ${theme.primary};
-    :hover {
-      color: ${lighten(0.1, theme.primary)} !important;
-    }
-  `}
-`
 
-export default function ProposalItem({ proposal }: { proposal: ProposalDetail }) {
+export default function ProposalItem({
+  proposal,
+  showByDefault,
+}: {
+  proposal: ProposalDetail
+  showByDefault?: boolean
+}) {
   const theme = useTheme()
-  const [show, setShow] = useState(false)
+  const [show, setShow] = useState(!!showByDefault)
   const contentRef = useRef<any>()
   const statusType = () => {
     switch (proposal.status) {
@@ -137,6 +130,26 @@ export default function ProposalItem({ proposal }: { proposal: ProposalDetail })
         return 'pending'
     }
   }
+
+  const renderVotes = useMemo(() => {
+    return (
+      <RowBetween gap="20px" flexDirection={isMobile ? 'column' : 'row'}>
+        {proposal.options.map((option: string, index: number) => {
+          return (
+            <VoteProgress
+              key={option}
+              percent={
+                proposal.vote_stats.options[index]
+                  ? (proposal.vote_stats.options[index]?.vote_count / proposal.vote_stats.total_vote_count) * 100
+                  : 0
+              }
+              title={option}
+            />
+          )
+        })}
+      </RowBetween>
+    )
+  }, [proposal])
   return (
     <ProposalItemWrapper>
       <ProposalHeader>
@@ -151,12 +164,7 @@ export default function ProposalItem({ proposal }: { proposal: ProposalDetail })
             />
           </ExpandButton>
         </RowBetween>
-        {proposal.status === ProposalStatus.Pending && (
-          <RowBetween gap="20px">
-            <VoteProgress />
-            <VoteProgress checked />
-          </RowBetween>
-        )}
+        {show && renderVotes}
         <RowBetween>
           <Text color={theme.subText} fontSize={12}>
             Ended {dayjs(proposal.end_timestamp * 1000).format('DD MMM YYYY')}

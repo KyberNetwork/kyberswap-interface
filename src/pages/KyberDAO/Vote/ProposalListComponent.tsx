@@ -10,6 +10,7 @@ import History from 'components/Icons/History'
 import Loader from 'components/Loader'
 import { RowBetween, RowFit } from 'components/Row'
 import { useVotingInfo } from 'hooks/kyberdao'
+import { ProposalDetail } from 'hooks/kyberdao/types'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
@@ -101,8 +102,8 @@ export default function ProposalListComponent() {
         <SearchProposal search={search} setSearch={setSearch} />
       </RowBetween>
       {filteredProposals ? (
-        filteredProposals.map(p => {
-          return <ProposalItem key={p.proposal_id.toString()} proposal={p} />
+        filteredProposals.map((p: ProposalDetail, index: number) => {
+          return <ProposalItem key={p.proposal_id.toString()} proposal={p} showByDefault={index === 0} />
         })
       ) : (
         <Loader />

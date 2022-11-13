@@ -1,3 +1,4 @@
+import React from 'react'
 import { Text } from 'rebass'
 import styled, { css, keyframes } from 'styled-components'
 
@@ -27,7 +28,17 @@ const move = keyframes`
     background-position: 50px 0;
   }
 `
-const Progress = styled.div<{ width: number }>`
+const FinishedProgress = styled.div<{ width: number }>`
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  border-radius: 4px;
+  width: ${({ width }) => width || 0}%;
+  background-color: ${({ theme }) => theme.border};
+  z-index: 0;
+`
+const ChoosingProgress = styled.div<{ width: number }>`
   position: absolute;
   top: 0;
   left: 0;
@@ -57,16 +68,32 @@ const Progress = styled.div<{ width: number }>`
     animation: ${move} 1.5s linear infinite;
   }
 `
-export default function VoteProgress({ checked, percent = 40 }: { checked?: boolean; percent?: number }) {
+function VoteProgress({
+  checked,
+  percent = 40,
+  title,
+  type = 'Finished',
+}: {
+  checked?: boolean
+  percent?: number
+  title?: string
+  type?: 'Finished' | 'InProgress' | 'Choosing'
+}) {
+  const parsedPercent = parseFloat(percent.toFixed(2) || '0')
   return (
     <Wrapper>
       <RowBetween style={{ zIndex: 1 }} alignItems="center">
         <RowFit gap="5px" style={{ fontSize: '12px' }}>
-          {checked ? <RadioButtonChecked /> : <RadioButtonUnchecked />} Unbounced
+          {checked ? <RadioButtonChecked /> : <RadioButtonUnchecked />} {title}
         </RowFit>
-        <Text fontSize="12px">{percent}%</Text>
+        <Text fontSize="12px">{parsedPercent}%</Text>
       </RowBetween>
-      <Progress width={percent} />
+
+      {type === 'InProgress' && <FinishedProgress width={percent} />}
+      {type === 'Choosing' && <ChoosingProgress width={percent} />}
+      {type === 'Finished' && <FinishedProgress width={percent} />}
     </Wrapper>
   )
 }
+
+export default React.memo(VoteProgress)
