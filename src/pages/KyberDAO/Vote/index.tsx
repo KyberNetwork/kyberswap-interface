@@ -2,6 +2,7 @@ import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import RelativeTime from 'dayjs/plugin/relativeTime'
 import { transparentize } from 'polished'
+import { isMobile } from 'react-device-detect'
 import { Clock } from 'react-feather'
 import { Box, Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -10,7 +11,7 @@ import bgimg from 'assets/images/about_background.png'
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import InfoHelper from 'components/InfoHelper'
-import { AutoRow, RowBetween } from 'components/Row'
+import { AutoRow, RowBetween, RowFit } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import { useStakingInfo, useVotingInfo } from 'hooks/kyberdao'
 import useTheme from 'hooks/useTheme'
@@ -24,12 +25,12 @@ dayjs.extend(RelativeTime)
 
 const Wrapper = styled.div`
   width: 100%;
-  background-image: url(${bgimg}), url(${bgimg});
-  background-size: cover, cover;
-  background-repeat: no-repeat, no-repeat;
+  background-image: url(${bgimg});
+  background-size: 100% auto;
+  background-repeat: repeat-y;
   z-index: 1;
-  background-color: transparent, transparent;
-  background-position: top, bottom;
+  background-color: transparent;
+  background-position: top;
 `
 
 const Container = styled.div`
@@ -40,6 +41,12 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
+
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    width:100%;
+    padding: 48px 16px;
+
+  `}
 `
 
 const Card = styled.div`
@@ -48,6 +55,16 @@ const Card = styled.div`
   ${({ theme }) => css`
     background-color: ${transparentize(0.3, theme.buttonGray)};
     flex: 1;
+  `}
+`
+
+const CardGroup = styled(RowBetween)`
+  width: 100%;
+  gap: 24px;
+  margin-bottom: 12px;
+  align-items: stretch;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    flex-direction: column;
   `}
 `
 
@@ -65,7 +82,7 @@ export default function Vote() {
             <span style={{ color: theme.primary }}>Vote</span> - Earn Rewards
           </Trans>
         </Text>
-        <RowBetween width={'100%'} gap="24px" marginBottom="12px">
+        <CardGroup>
           <Card>
             <AutoColumn>
               <Text color={theme.subText} marginBottom="20px">
@@ -133,31 +150,38 @@ export default function Vote() {
               )}
             </AutoColumn>
           </Card>
-        </RowBetween>
-        <AutoRow fontSize={12}>
-          <Text>
-            <Trans>In Progress: Epoch {daoInfo ? daoInfo.current_epoch : '--'}</Trans>
-          </Text>
-          <Box
-            backgroundColor={transparentize(0.8, theme.primary)}
-            color={theme.primary}
-            padding="2px 8px"
-            margin="0px 4px"
-            style={{ borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '3px' }}
-          >
-            <Clock size="12px" />{' '}
-            {daoInfo
-              ? dayjs(
-                  (daoInfo.first_epoch_start_timestamp + daoInfo.current_epoch * daoInfo.epoch_period_in_seconds) *
-                    1000,
-                ).fromNow(true) + ' left'
-              : '--:--:--'}
-          </Box>
+        </CardGroup>
+        <AutoRow
+          fontSize={12}
+          flexDirection={isMobile ? 'column' : 'row'}
+          alignItems={isMobile ? 'start !important' : 'center'}
+          gap={isMobile ? '4px' : '0px'}
+        >
+          <RowFit>
+            <Text>
+              <Trans>In Progress: Epoch {daoInfo ? daoInfo.current_epoch : '--'}</Trans>
+            </Text>
+            <Box
+              backgroundColor={transparentize(0.8, theme.primary)}
+              color={theme.primary}
+              padding="2px 8px"
+              margin="0px 4px"
+              style={{ borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '3px' }}
+            >
+              <Clock size="12px" />{' '}
+              {daoInfo
+                ? dayjs(
+                    (daoInfo.first_epoch_start_timestamp + daoInfo.current_epoch * daoInfo.epoch_period_in_seconds) *
+                      1000,
+                  ).fromNow(true) + ' left'
+                : '--:--:--'}
+            </Box>
+          </RowFit>
           <Text>
             <Trans>Vote on current epoch proposals to get your full reward.</Trans>
           </Text>
         </AutoRow>
-        <Text color={theme.subText} fontStyle="italic" fontSize={12}>
+        <Text color={theme.subText} fontStyle="italic" fontSize={12} hidden={isMobile}>
           <Trans>Note: Voting on KyberDAO is only available on Ethereum chain</Trans>
         </Text>
         <ProposalListComponent />

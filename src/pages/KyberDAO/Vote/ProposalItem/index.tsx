@@ -2,6 +2,7 @@ import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { lighten, transparentize } from 'polished'
 import React, { useRef, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import { ChevronDown } from 'react-feather'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -17,7 +18,7 @@ import VoteInformation from './VoteInformation'
 import VoteProgress from './VoteProgress'
 
 const ProposalItemWrapper = styled.div`
-  padding: 20px 24px;
+  padding: ${isMobile ? '20px' : '20px 24px'};
   border-radius: 20px;
   box-shadow: 0px 2px 34px rgba(0, 0, 0, 0.0467931);
   overflow: hidden;
@@ -85,10 +86,10 @@ const StatusBadged = styled.div<{ status?: string }>`
   }}
 `
 
-const Content = styled.div<{ show?: boolean; height?: number }>`
+const Content = styled.div<{ show?: boolean }>`
   gap: 24px;
   padding: 24px 0;
-  transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease;
   z-index: 0;
   display: flex;
   gap: 20px;
@@ -96,11 +97,12 @@ const Content = styled.div<{ show?: boolean; height?: number }>`
     show
       ? css`
           opacity: 1;
+          max-height: 'max-content';
         `
       : css`
           opacity: 0;
-          max-height: 0;
           padding: 0;
+          max-height: 0;
         `}
 `
 const TextButton = styled.div`
@@ -121,7 +123,6 @@ export default function ProposalItem({ proposal }: { proposal: ProposalDetail })
   const theme = useTheme()
   const [show, setShow] = useState(false)
   const contentRef = useRef<any>()
-  const contentHeight = contentRef.current?.getBoundingClientRect().height
   const statusType = () => {
     switch (proposal.status) {
       case ProposalStatus.Pending:
@@ -166,29 +167,28 @@ export default function ProposalItem({ proposal }: { proposal: ProposalDetail })
           </RowFixed>
         </RowBetween>
       </ProposalHeader>
-      <Content ref={contentRef as any} show={show} height={contentHeight}>
+      <Content ref={contentRef as any} show={show}>
         <div style={{ flex: 1 }}>
           <RowFixed marginBottom="12px">
-            <TextButton style={{ marginRight: '36px' }}>
-              <Trans>Forum</Trans>
-              <LaunchIcon size={16} />
-            </TextButton>
             <ExternalLink href={proposal.link}>
               <Trans>Github</Trans>
               <LaunchIcon size={16} />
             </ExternalLink>
           </RowFixed>
           <Text
-            fontSize={16}
+            fontSize={isMobile ? 14 : 16}
             color={theme.subText}
             marginBottom="20px"
             dangerouslySetInnerHTML={{ __html: proposal.desc.replaceAll('\\n', '').replaceAll('\\r', '') }}
           ></Text>
+          {isMobile && <VoteInformation proposal={proposal} />}
           <Participants proposalId={show ? proposal.proposal_id : undefined} />
         </div>
-        <div style={{ width: '368px' }}>
-          <VoteInformation proposal={proposal} />
-        </div>
+        {!isMobile && (
+          <div style={{ width: '368px' }}>
+            <VoteInformation proposal={proposal} />
+          </div>
+        )}
       </Content>
     </ProposalItemWrapper>
   )

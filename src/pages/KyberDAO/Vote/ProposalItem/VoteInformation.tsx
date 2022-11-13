@@ -14,6 +14,7 @@ import { getFullDisplayBalance } from 'utils/formatBalance'
 const Wrapper = styled.div`
   border-radius: 20px;
   padding: 12px 16px;
+  margin-bottom: 20px;
   ${({ theme }) => css`
     border: 1px solid ${theme.border};
     background-color: ${theme.buttonBlack};

@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { lighten } from 'polished'
 import { useMemo, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
@@ -9,6 +10,7 @@ import History from 'components/Icons/History'
 import Loader from 'components/Loader'
 import { RowBetween, RowFit } from 'components/Row'
 import { useVotingInfo } from 'hooks/kyberdao'
+import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
 
@@ -22,19 +24,10 @@ const Wrapper = styled.div`
   flex-direction: column;
   align-items: stretch;
   gap: 12px;
+  margin-top: 10px;
 `
 
-const Tab = styled.div<{ $active?: boolean }>`
-  font-size: 20px;
-  font-weight: 500;
-  ${({ theme, $active }) => css`
-    color: ${theme.primary};
-    :hover {
-      color: ${lighten(0.1, theme.primary)};
-    }
-  `}
-`
-const TextButton = styled.div`
+const TextButton = styled.a`
   display: flex;
   align-items: center;
   gap: 4px;
@@ -43,7 +36,7 @@ const TextButton = styled.div`
   ${({ theme }) => css`
     color: ${theme.subText};
     :hover {
-      color: ${lighten(0.1, theme.subText)} !important;
+      color: ${lighten(0.2, theme.primary)} !important;
     }
   `}
 `
@@ -58,6 +51,7 @@ const HistoryButton = styled(RowFit)`
 `
 
 export default function ProposalListComponent() {
+  const theme = useTheme()
   const { proposals } = useVotingInfo()
   const [status, setStatus] = useState<string | undefined>()
   const [search, setSearch] = useState<string | undefined>()
@@ -80,18 +74,25 @@ export default function ProposalListComponent() {
 
   return (
     <Wrapper>
-      <RowBetween marginBottom={'20px'}>
-        <Flex style={{ gap: '30px' }}>
-          <Tab>
+      <RowBetween marginBottom={'10px'}>
+        <Flex>
+          <Text color={theme.primary} fontSize={20}>
             <Trans>KIPs</Trans>
-          </Tab>
+          </Text>
         </Flex>
         <Flex style={{ gap: '30px' }}>
           <HistoryButton onClick={toggleYourTransactions}>
-            <History /> <Text fontSize={14}>History</Text>
+            <History />
+            <Text fontSize={14} hidden={isMobile}>
+              {' '}
+              <Trans>History</Trans>
+            </Text>
           </HistoryButton>
-          <TextButton>
-            <ForumIcon /> <Trans>Forum</Trans>
+          <TextButton href="https://gov.kyber.org/" target="_blank" rel="noreferrer">
+            <ForumIcon />{' '}
+            <Text hidden={isMobile}>
+              <Trans>Forum</Trans>
+            </Text>
           </TextButton>
         </Flex>
       </RowBetween>

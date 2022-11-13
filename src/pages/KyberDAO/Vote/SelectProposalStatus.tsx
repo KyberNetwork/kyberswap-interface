@@ -1,4 +1,5 @@
 import { Trans } from '@lingui/macro'
+import { lighten } from 'polished'
 import React, { useRef, useState } from 'react'
 import { ChevronDown } from 'react-feather'
 import { Text } from 'rebass'
@@ -22,6 +23,9 @@ const Select = styled.div`
   ${({ theme }) => css`
     background-color: ${theme.background};
     color: ${theme.border};
+    :hover {
+      background-color: ${lighten(0.1, theme.background)};
+    }
   `}
 `
 const DropdownList = styled.div<{ show: boolean }>`
@@ -53,7 +57,13 @@ const DropdownList = styled.div<{ show: boolean }>`
 `
 const DropdownItem = styled.div<{ active?: boolean }>`
   padding: 8px;
-  ${({ theme, active }) => active && `color: ${theme.primary}`}
+  border-radius: 4px;
+  ${({ theme, active }) => css`
+    :hover {
+      background-color: ${theme.buttonGray};
+    }
+    ${active && `color: ${theme.primary}`}
+  `}
 `
 
 const statusList = ['All', 'Pending', 'Approved', 'Executed', 'Failed', 'Canceled']

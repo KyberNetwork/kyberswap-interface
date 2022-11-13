@@ -2,6 +2,7 @@ import { t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import { useCallback, useMemo } from 'react'
 import useSWR from 'swr'
+import useSWRImmutable from 'swr/immutable'
 
 import MigrateABI from 'constants/abis/kyberdao/migrate.json'
 import RewardDistributorABI from 'constants/abis/kyberdao/reward_distributor.json'
@@ -156,16 +157,17 @@ export function useVotingInfo() {
     }
     return merkleDataFileUrl
   }, [merkleData])
-  const { data: userRewards } = useSWR(merkleDataFileUrl, (url: string) => {
+  const { data: userRewards } = useSWRImmutable(merkleDataFileUrl, (url: string) => {
     return fetch(url).then(res => res.json())
   })
-  const { data: proposals } = useSWR<ProposalDetail[]>(APIS.DAO + '/proposals', fetcher)
+  const { data: proposals } = useSWRImmutable<ProposalDetail[]>(APIS.DAO + '/proposals', fetcher)
 
   const calculateVotingPower = useCallback(
     (kncAmount: string) => {
       if (!daoInfo?.total_staked) return '0'
       const totalStakedKNC = daoInfo.total_staked
       const votingPower = (parseFloat(kncAmount) / totalStakedKNC) * 100
+      if (votingPower === 0) return '0'
       if (votingPower < 0.000001) {
         return `~ 0.000001`
       } else {
@@ -178,6 +180,6 @@ export function useVotingInfo() {
 }
 
 export function useProposalInfoById(id?: number): { proposalInfo?: ProposalDetail } {
-  const { data } = useSWR(id !== undefined ? APIS.DAO + '/proposals/' + id : undefined, fetcher)
+  const { data } = useSWRImmutable(id !== undefined ? APIS.DAO + '/proposals/' + id : undefined, fetcher, {})
   return { proposalInfo: data }
 }

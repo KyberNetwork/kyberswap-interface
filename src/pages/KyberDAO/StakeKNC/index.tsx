@@ -24,7 +24,7 @@ import StakeKNCComponent from './StakeKNCComponent'
 const Wrapper = styled.div`
   width: 100%;
   background-image: url(${bgimg}), url(${bgimg});
-  background-size: cover, cover;
+  background-size: 100% auto;
   background-repeat: no-repeat, no-repeat;
   z-index: 1;
   background-color: transparent, transparent;
