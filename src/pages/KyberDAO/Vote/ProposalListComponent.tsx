@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { lighten } from 'polished'
-import { useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -51,7 +51,7 @@ const HistoryButton = styled(RowFit)`
   }
 `
 
-export default function ProposalListComponent() {
+function ProposalListComponent() {
   const theme = useTheme()
   const { proposals } = useVotingInfo()
   const [status, setStatus] = useState<string | undefined>()
@@ -119,3 +119,5 @@ export default function ProposalListComponent() {
     </Wrapper>
   )
 }
+
+export default React.memo(ProposalListComponent)

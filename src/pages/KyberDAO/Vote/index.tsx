@@ -10,8 +10,10 @@ import styled, { css } from 'styled-components'
 import bgimg from 'assets/images/about_background.png'
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
+import VoteIcon from 'components/Icons/Vote'
 import InfoHelper from 'components/InfoHelper'
 import { AutoRow, RowBetween, RowFit } from 'components/Row'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
 import { useStakingInfo, useVotingInfo } from 'hooks/kyberdao'
 import useTotalVotingReward from 'hooks/kyberdao/useTotalVotingRewards'
@@ -74,9 +76,10 @@ export default function Vote() {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const { daoInfo } = useVotingInfo()
-  const { stakedBalance } = useStakingInfo()
+  const { stakedBalance, isDelegated, delegatedAccount } = useStakingInfo()
   const kncPrice = useKNCPrice()
   const { knc, usd } = useTotalVotingReward()
+
   return (
     <Wrapper>
       <Container>
@@ -131,13 +134,27 @@ export default function Vote() {
                   />
                 </Trans>
               </Text>
-              <Text fontSize={20} marginBottom="8px">
-                {stakedBalance && daoInfo?.total_staked
-                  ? parseFloat(
-                      ((parseFloat(getFullDisplayBalance(stakedBalance)) / daoInfo.total_staked) * 100).toFixed(6),
-                    ) + ' %'
-                  : '--'}
-              </Text>
+
+              <RowBetween marginBottom="8px">
+                <Text fontSize={20}>
+                  {stakedBalance && daoInfo?.total_staked
+                    ? parseFloat(
+                        ((parseFloat(getFullDisplayBalance(stakedBalance)) / daoInfo.total_staked) * 100).toFixed(6),
+                      ) + ' %'
+                    : '--'}
+                </Text>
+                {isDelegated && delegatedAccount && (
+                  <MouseoverTooltip
+                    text={t`You have already delegated your voting power to this address`}
+                    placement="top"
+                  >
+                    <RowFit gap="4px" color={theme.subText}>
+                      <VoteIcon size={14} />
+                      <Text fontSize={12}>{delegatedAccount.slice(0, 5) + '...' + delegatedAccount.slice(-4)}</Text>
+                    </RowFit>
+                  </MouseoverTooltip>
+                )}
+              </RowBetween>
               <Text fontSize={12} color={theme.subText}>
                 {stakedBalance ? getFullDisplayBalance(stakedBalance) + ' KNC Staked' : '--'}
               </Text>

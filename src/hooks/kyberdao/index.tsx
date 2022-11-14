@@ -34,7 +34,15 @@ export function useStakingInfo() {
   const stakedBalance = useSingleCallResult(stakingContract, 'getLatestStakeBalance', [account ?? undefined])
   const delegatedAccount = useSingleCallResult(stakingContract, 'getLatestRepresentative', [account ?? undefined])
   const KNCBalance = useTokenBalance(KNC_ADDRESS)
-  return { stakedBalance: stakedBalance.result?.[0], KNCBalance, delegatedAccount: delegatedAccount.result?.[0] }
+  const isDelegated = useMemo(() => {
+    return delegatedAccount.result?.[0] && delegatedAccount.result?.[0] !== account
+  }, [delegatedAccount, account])
+  return {
+    stakedBalance: stakedBalance.result?.[0],
+    KNCBalance,
+    delegatedAccount: delegatedAccount.result?.[0],
+    isDelegated,
+  }
 }
 
 export function useKyberDaoStakeActions() {
