@@ -170,7 +170,7 @@ export default function CreateReferral() {
     if ((address && isShowTokens && currencyA && currencyB) || (address && !isShowTokens)) {
       return (
         window.location.origin +
-        `/swap${isShowChain ? `/${NETWORKS_INFO[chainId].route}` : ''}?` +
+        `/swap${isShowChain ? `/${networkInfo.route}` : ''}?` +
         `referral=${address}&fee_bip=${commission}${
           isShowTokens
             ? `&inputCurrency=${currencyId(currencyA as Currency, chainId)}&outputCurrency=${currencyId(
