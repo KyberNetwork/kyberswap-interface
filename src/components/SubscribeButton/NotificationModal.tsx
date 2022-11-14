@@ -92,10 +92,10 @@ export default function NotificationModal({
   const toggleModal = useNotificationModalToggle()
   const isOpen = useModalOpen(ApplicationModal.NOTIFICATION_SUBSCRIPTION)
   const theme = useTheme()
-  const { isLoading, hasSubscribedEmail, handleSubscribe, handleUnsubscribe } = useNotification(topicId)
+  const { isLoading, isSubscribed, handleSubscribe, handleUnsubscribe } = useNotification(topicId)
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
-  const [view, setView] = useState(hasSubscribedEmail ? VIEW.UNSUBSCRIBE : VIEW.SUBSCRIBE)
+  const [view, setView] = useState(isSubscribed ? VIEW.UNSUBSCRIBE : VIEW.SUBSCRIBE)
 
   const prevOpen = usePrevious(isOpen)
   useEffect(() => {
@@ -105,9 +105,9 @@ export default function NotificationModal({
     }
     if (prevOpen !== isOpen) {
       // make sure call when isOpen change
-      setTimeout(() => setView(hasSubscribedEmail ? VIEW.UNSUBSCRIBE : VIEW.SUBSCRIBE), isOpen ? 0 : 200)
+      setTimeout(() => setView(isSubscribed ? VIEW.UNSUBSCRIBE : VIEW.SUBSCRIBE), isOpen ? 0 : 200)
     }
-  }, [isOpen, prevOpen, hasSubscribedEmail])
+  }, [isOpen, prevOpen, isSubscribed])
 
   const onSubscribe = async () => {
     try {

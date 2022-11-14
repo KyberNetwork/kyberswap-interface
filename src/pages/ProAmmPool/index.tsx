@@ -65,8 +65,7 @@ interface AddressSymbolMapInterface {
 const renderNotificationButton = (iconOnly: boolean) => (
   <SubscribeNotificationButton
     iconOnly={iconOnly}
-    // topicId={NOTIFICATION_TOPICS.POSITION_POOL}
-    topicId={NOTIFICATION_TOPICS.TRENDING_SOON}
+    topicId={NOTIFICATION_TOPICS.POSITION_POOL}
     unsubscribeModalContent={
       <StyledText>
         Unsubscribe to stop receiving notifications on <Hightlight>all</Hightlight> your liquidity positions

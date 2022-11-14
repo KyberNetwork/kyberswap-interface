@@ -1,4 +1,4 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { ReactNode } from 'react'
 import { BellOff } from 'react-feather'
@@ -8,10 +8,11 @@ import styled, { DefaultTheme, css } from 'styled-components'
 import { Spinner } from 'components/Header/Polling'
 import NotificationIcon from 'components/Icons/NotificationIcon'
 import NotificationModal from 'components/SubscribeButton/NotificationModal'
+import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useNotification, { NOTIFICATION_TOPICS } from 'hooks/useNotification'
 import useTheme from 'hooks/useTheme'
-import { useNotificationModalToggle } from 'state/application/hooks'
+import { useNotificationModalToggle, useWalletModalToggle } from 'state/application/hooks'
 import { checkChrome } from 'utils/checkChrome'
 
 import { ButtonOutlined, ButtonPrimary } from '../Button'
@@ -24,13 +25,16 @@ const cssSubscribeBtnSmall = (isDisabled: boolean, theme: DefaultTheme) => css`
   background: ${isDisabled ? theme.buttonGray : rgba(theme.primary, 0.2)};
   color: ${isDisabled ? theme.border : theme.primary};
 `
-const SubscribeBtn = styled(ButtonPrimary)<{ isDisabled: boolean; iconOnly?: boolean }>`
+const SubscribeBtn = styled(ButtonPrimary)<{ isDisabled: boolean; iconOnly?: boolean; bgColor?: string }>`
   overflow: hidden;
   width: fit-content;
   height: 36px;
   padding: 8px 12px;
-  background: ${({ theme, isDisabled }) => (isDisabled ? theme.buttonGray : theme.primary)};
+  background: ${({ theme, isDisabled, bgColor }) => bgColor || (isDisabled ? theme.buttonGray : theme.primary)};
   color: ${({ theme, isDisabled }) => (isDisabled ? theme.border : theme.textReverse)};
+  &:hover {
+    background: ${({ theme, isDisabled, bgColor }) => bgColor || (isDisabled ? theme.buttonGray : theme.primary)};
+  }
   ${({ iconOnly, isDisabled, theme }) => iconOnly && cssSubscribeBtnSmall(isDisabled, theme)};
   ${({ theme, isDisabled }) => theme.mediaWidth.upToExtraSmall`
    ${cssSubscribeBtnSmall(isDisabled, theme)}
@@ -86,8 +90,10 @@ export default function SubscribeNotificationButton({
   const theme = useTheme()
   const isChrome = checkChrome()
   const toggleSubscribeModal = useNotificationModalToggle()
-  const { isLoading, hasSubscribedEmail } = useNotification(topicId)
+  const { isLoading, isSubscribed, isVerified } = useNotification(topicId)
   const { mixpanelHandler } = useMixpanel()
+  const { account } = useActiveWeb3React()
+  const toggleWalletModal = useWalletModalToggle()
 
   const trackingSubScribe = () => {
     switch (topicId) {
@@ -106,25 +112,42 @@ export default function SubscribeNotificationButton({
   }
 
   const onClickBtn = () => {
-    hasSubscribedEmail ? trackingUnSubScribe() : trackingSubScribe()
+    if (!account) {
+      toggleWalletModal()
+      return
+    }
+    isSubscribed ? trackingUnSubScribe() : trackingSubScribe()
     toggleSubscribeModal()
   }
 
+  const needVerify = isSubscribed && !isVerified
   return (
     <>
-      {hasSubscribedEmail ? (
+      {isSubscribed && isVerified ? (
         <MouseoverTooltipDesktopOnly text={unsubscribeTooltip} width="400px">
           <UnSubscribeButton disabled={!isChrome || isLoading} onClick={onClickBtn} iconOnly={iconOnly}>
             {isLoading ? <StyledSpinner color={theme.primary} /> : <BellOff color={theme.subText} size={18} />}
 
-            <ButtonText color="primary" iconOnly={iconOnly}>
+            <ButtonText color={'primary'} iconOnly={iconOnly}>
               <Trans>Unsubscribe</Trans>
             </ButtonText>
           </UnSubscribeButton>
         </MouseoverTooltipDesktopOnly>
       ) : (
-        <MouseoverTooltipDesktopOnly text={subscribeTooltip} width="400px">
-          <SubscribeBtn isDisabled={!isChrome || isLoading} onClick={onClickBtn} iconOnly={iconOnly}>
+        <MouseoverTooltipDesktopOnly
+          text={
+            !needVerify
+              ? subscribeTooltip
+              : t`You will need to verify your email account first to start receiving notifications`
+          }
+          width="400px"
+        >
+          <SubscribeBtn
+            bgColor={needVerify ? theme.warning : undefined}
+            isDisabled={!isChrome || isLoading}
+            onClick={needVerify ? undefined : onClickBtn}
+            iconOnly={iconOnly}
+          >
             {isLoading ? <StyledSpinner color={theme.primary} /> : <NotificationIcon />}
 
             <ButtonText iconOnly={iconOnly}>

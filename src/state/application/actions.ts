@@ -89,6 +89,10 @@ export const updateKNCPrice = createAction<string | undefined>('application/upda
 
 export const updateChainIdWhenNotConnected = createAction<ChainId>('application/updateChainIdWhenNotConnected')
 
-export const setSubscribedNotificationState = createAction<{ hasSubscribedEmail?: boolean; isLoading?: boolean }>(
-  'application/setSubscribedNotificationState',
-)
+export const setSubscribedNotificationTopic = createAction<{
+  isSubscribed: boolean
+  isVerified: boolean
+  topicId: number
+}>('application/setSubscribedNotificationTopic')
+
+export const setLoadingNotification = createAction<boolean>('application/setLoadingNotification')

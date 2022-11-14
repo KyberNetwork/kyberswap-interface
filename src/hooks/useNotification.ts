@@ -1,16 +1,27 @@
 import axios from 'axios'
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import useSWR, { mutate } from 'swr'
 
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { AppState } from 'state'
-import { setSubscribedNotificationState } from 'state/application/actions'
+import { setLoadingNotification, setSubscribedNotificationTopic } from 'state/application/actions'
 
-const getSubscribedTopics = async (account: string): Promise<{ topics: Topic[] }> => {
-  const { data } = await axios.get(`${process.env.REACT_APP_NOTIFICATION_API}/v1/topics?walletAddress=${account}`) // todo change and check api call
+const getSubscribedTopicUrl = (account: string | null | undefined) =>
+  account ? `${process.env.REACT_APP_NOTIFICATION_API}/v1/topics?walletAddress=${account}` : ''
+
+const getSubscribeStatus = async (
+  walletAddress: string,
+  topicID: number,
+  email: string,
+): Promise<{ topics: Topic[] }> => {
+  const { data } = await axios.get(`${process.env.REACT_APP_NOTIFICATION_API}/v1/topics/verify/status`, {
+    params: { walletAddress, topicID, email },
+  })
   return data.data
 }
+
 type Topic = {
   id: number
   code: string
@@ -18,12 +29,12 @@ type Topic = {
 }
 
 export const NOTIFICATION_TOPICS = {
-  TRENDING_SOON: 1,
-  POSITION_POOL: 2,
+  TRENDING_SOON: 1, // todo
+  POSITION_POOL: 1,
 }
-// todo check sync 2 topic khác nhau
 const useNotification = (topicId: number) => {
-  const { hasSubscribedEmail, isLoading } = useSelector((state: AppState) => state.application.notification)
+  const { isLoading, mapTopic = {} } = useSelector((state: AppState) => state.application.notification)
+  const { isSubscribed, isVerified } = mapTopic[topicId] ?? {}
 
   const { mixpanelHandler } = useMixpanel()
   const { account } = useActiveWeb3React()
@@ -51,33 +62,41 @@ const useNotification = (topicId: number) => {
     [mixpanelHandler],
   )
 
-  const setHasSubscribed = useCallback(
-    (hasSubscribedEmail: boolean, loading?: boolean) => {
-      dispatch(setSubscribedNotificationState({ hasSubscribedEmail }))
+  const setTopicState = useCallback(
+    (isSubscribed: boolean, isVerified = false) => {
+      dispatch(setSubscribedNotificationTopic({ topicId, isSubscribed, isVerified }))
     },
-    [dispatch],
+    [dispatch, topicId],
   )
+
   const setLoading = useCallback(
     (isLoading: boolean) => {
-      dispatch(setSubscribedNotificationState({ isLoading }))
+      dispatch(setLoadingNotification(isLoading))
     },
     [dispatch],
   )
 
-  const checkingTopic = useRef(false)
+  const { data: { topics = [] } = {} } = useSWR(
+    getSubscribedTopicUrl(account),
+    (url: string) => {
+      try {
+        if (url) return axios.get(url).then(({ data }) => data.data)
+      } catch (error) {}
+      return
+    },
+    {
+      shouldRetryOnError: false,
+      revalidateOnFocus: false,
+      revalidateIfStale: false,
+    },
+  )
+
   useEffect(() => {
-    if (!account || checkingTopic.current) return
-    checkingTopic.current = true
-    getSubscribedTopics(account)
-      .then(({ topics = [] }) => {
-        // todo check api call
-        setHasSubscribed(!!topics.find(el => el.id === topicId))
-      })
-      .catch(console.error)
-      .finally(() => {
-        checkingTopic.current = false
-      })
-  }, [account, topicId, setHasSubscribed])
+    const topicInfo = topics?.find((el: any) => el.id === topicId)
+    const hasSubscribed = !!topicInfo
+    const hasVerified = false
+    setTopicState(hasSubscribed, hasVerified)
+  }, [topics, setTopicState, topicId])
 
   const handleSubscribe = useCallback(
     async (email: string) => {
@@ -89,7 +108,8 @@ const useNotification = (topicId: number) => {
           topicIDs: [topicId],
         })
         trackingSubScribe(topicId)
-        setHasSubscribed(true)
+        setTopicState(true)
+        mutate(getSubscribedTopicUrl(account))
       } catch (e) {
         return Promise.reject(e)
       } finally {
@@ -97,29 +117,28 @@ const useNotification = (topicId: number) => {
       }
       return
     },
-    [setHasSubscribed, setLoading, trackingSubScribe, topicId, account],
+    [setTopicState, setLoading, trackingSubScribe, topicId, account],
   )
 
   const handleUnsubscribe = useCallback(async () => {
     try {
       setLoading(true)
       await axios.post(`${process.env.REACT_APP_NOTIFICATION_API}/v1/topics/unsubscribe?userType=EMAIL`, {
-        data: {
-          walletAddress: account,
-          topicIDs: [topicId],
-        },
+        walletAddress: account,
+        topicIDs: [topicId],
       })
       trackingUnSubScribe(topicId)
-      setHasSubscribed(false)
+      setTopicState(false)
+      mutate(getSubscribedTopicUrl(account))
     } catch (e) {
       return Promise.reject(e)
     } finally {
       setLoading(false)
     }
     return
-  }, [setHasSubscribed, setLoading, trackingUnSubScribe, topicId, account])
+  }, [setTopicState, setLoading, trackingUnSubScribe, topicId, account])
 
-  return { isLoading, hasSubscribedEmail, handleSubscribe, handleUnsubscribe }
+  return { isLoading, isSubscribed, isVerified, handleSubscribe, handleUnsubscribe }
 }
 
 export default useNotification
