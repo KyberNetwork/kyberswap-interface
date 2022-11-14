@@ -46,7 +46,9 @@ function Verify() {
     ref.current = setTimeout(() => {
       if (!qs?.confirmation) return
       axios
-        .get(`${process.env.REACT_APP_NOTIFICATION_API}/v1/topics/verify?confirmation=${qs.confirmation}`)
+        .get(`${process.env.REACT_APP_NOTIFICATION_API}/v1/topics/verify`, {
+          params: { confirmation: qs.confirmation },
+        })
         .then(() => {
           setStatus(STATUS.SUCCESS)
         })
