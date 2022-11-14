@@ -103,7 +103,14 @@ export default function ProposalListComponent() {
       </RowBetween>
       {filteredProposals ? (
         filteredProposals.map((p: ProposalDetail, index: number) => {
-          return <ProposalItem key={p.proposal_id.toString()} proposal={p} showByDefault={index === 0} />
+          return (
+            <ProposalItem
+              key={p.proposal_id.toString()}
+              proposal={p}
+              showByDefault={index === 0}
+              onBadgeClick={setStatus}
+            />
+          )
         })
       ) : (
         <Loader />

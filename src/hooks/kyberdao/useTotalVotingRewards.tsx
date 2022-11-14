@@ -171,7 +171,7 @@ export default function useTotalVotingReward() {
   return {
     usd: Math.floor(totalVotingReward),
     knc: useMemo(
-      () => Math.floor(kncPrice ? totalVotingReward / parseFloat(kncPrice) : 0),
+      () => (kncPrice ? Math.floor(totalVotingReward / parseFloat(kncPrice)) : 0),
       [totalVotingReward, kncPrice],
     ),
   }

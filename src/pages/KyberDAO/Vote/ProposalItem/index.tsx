@@ -63,21 +63,32 @@ const StatusBadged = styled.div<{ status?: string }>`
   ${Badged}
   font-size: 12px;
   padding: 2px 14px;
+  cursor: pointer;
+
   ${({ status, theme }) => {
     if (status === 'pending')
       return css`
         color: ${theme.blue};
         background-color: ${transparentize(0.8, theme.blue)};
+        :hover {
+          background-color: ${transparentize(0.7, theme.blue)};
+        }
       `
     if (status === 'error')
       return css`
         color: ${theme.red};
         background-color: ${transparentize(0.8, theme.red)};
+        :hover {
+          background-color: ${transparentize(0.7, theme.red)};
+        }
       `
     if (status === 'success')
       return css`
         color: ${theme.primary};
         background-color: ${transparentize(0.8, theme.primary)};
+        :hover {
+          background-color: ${transparentize(0.7, theme.primary)};
+        }
       `
     return css`
       color: ${theme.subText};
@@ -109,9 +120,11 @@ const Content = styled.div<{ show?: boolean }>`
 export default function ProposalItem({
   proposal,
   showByDefault,
+  onBadgeClick,
 }: {
   proposal: ProposalDetail
   showByDefault?: boolean
+  onBadgeClick?: (name: string) => void
 }) {
   const theme = useTheme()
   const [show, setShow] = useState(!!showByDefault)
@@ -170,7 +183,9 @@ export default function ProposalItem({
             Ended {dayjs(proposal.end_timestamp * 1000).format('DD MMM YYYY')}
           </Text>
           <RowFixed gap="8px">
-            <StatusBadged status={statusType()}>{proposal.status}</StatusBadged>
+            <StatusBadged status={statusType()} onClick={() => onBadgeClick?.(proposal.status)}>
+              {proposal.status}
+            </StatusBadged>
             <StatusBadged>ID #{proposal.proposal_id}</StatusBadged>
           </RowFixed>
         </RowBetween>

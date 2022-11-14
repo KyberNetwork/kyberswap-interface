@@ -20,6 +20,7 @@ import { useKNCPrice } from 'state/application/hooks'
 import { formattedNumLong } from 'utils'
 import { getFullDisplayBalance } from 'utils/formatBalance'
 
+import KNCLogo from '../kncLogo'
 import ProposalListComponent from './ProposalListComponent'
 
 dayjs.extend(RelativeTime)
@@ -79,11 +80,17 @@ export default function Vote() {
   return (
     <Wrapper>
       <Container>
-        <Text fontSize={36} lineHeight="42px" marginBottom={36}>
-          <Trans>
-            <span style={{ color: theme.primary }}>Vote</span> - Earn Rewards
-          </Trans>
-        </Text>
+        <RowBetween>
+          <Text fontSize={24} lineHeight="28px" fontWeight={500} marginBottom={36}>
+            <Trans>
+              <span style={{ color: theme.primary }}>Vote</span> - Earn Rewards
+            </Trans>
+          </Text>
+          <RowFit gap="4px">
+            <KNCLogo size={16} />
+            <Text fontSize={12}>KNC: ${kncPrice ? parseFloat(kncPrice).toFixed(2) : '--'}</Text>
+          </RowFit>
+        </RowBetween>
         <CardGroup>
           <Card>
             <AutoColumn>

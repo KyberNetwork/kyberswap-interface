@@ -6,6 +6,8 @@ import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
+import useTheme from 'hooks/useTheme'
+import { theme } from 'theme'
 
 const Select = styled.div`
   cursor: pointer;
@@ -74,12 +76,13 @@ export default function SelectProposalStatus({
   status?: string
   setStatus?: (s: string) => void
 }) {
+  const theme = useTheme()
   const [show, setShow] = useState(false)
   const ref = useRef()
   useOnClickOutside(ref, () => setShow(false))
   return (
     <Select ref={ref as any} onClick={() => setShow(s => !s)}>
-      <Text>{status || 'All'}</Text>
+      <Text color={!!status && status !== 'All' ? theme.text : undefined}>{status || 'All'}</Text>
       <ChevronDown size={16} />
       <DropdownList show={show}>
         {statusList.map(s => {
