@@ -12,7 +12,6 @@ import Divider from 'components/Divider'
 import InfoHelper from 'components/InfoHelper'
 import Slider from 'components/Slider'
 import Toggle from 'components/Toggle'
-import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
@@ -182,7 +181,7 @@ export default function CreateReferral() {
       )
     }
     return ''
-  }, [address, commission, currencyA, currencyB, chainId, isShowTokens, isShowChain])
+  }, [address, commission, currencyA, currencyB, chainId, isShowTokens, isShowChain, networkInfo.route])
 
   const swapCurrencies = () => {
     const tempA = currencyA
