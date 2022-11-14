@@ -199,7 +199,7 @@ export default function NotificationModal({
             <ActionWrapper>
               <ButtonPrimary borderRadius="46px" height="44px" onClick={toggleModal}>
                 <ButtonTextt>
-                  <Trans>Acknowledge</Trans>
+                  <Trans>Okay</Trans>
                 </ButtonTextt>
               </ButtonPrimary>
             </ActionWrapper>

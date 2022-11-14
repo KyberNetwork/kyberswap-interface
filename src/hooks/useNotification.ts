@@ -10,7 +10,7 @@ import { checkChrome } from 'utils/checkChrome'
 import { fetchToken } from 'utils/firebase'
 
 const getSubscribedTopics = async (account: string): Promise<{ topics: Topic[] }> => {
-  const { data } = await axios.get(`${process.env.REACT_APP_NOTIFICATION_API}/v1/topics`) // todo change and check api call
+  const { data } = await axios.get(`${process.env.REACT_APP_NOTIFICATION_API}/v1/topics?walletAddress=${account}`) // todo change and check api call
   return data.data
 }
 type Topic = {
@@ -81,12 +81,13 @@ const useNotification = (topicId: number) => {
     async (email: string) => {
       try {
         setLoading(true)
-        const payload = { users: [{ type: isChrome && 'FCM_TOKEN', receivingAddress: await fetchToken() }] }
-        await axios.post(`${process.env.REACT_APP_NOTIFICATION_API}/v1/topics/${topicId}/subscribe`, payload)
-        // await axios.post(`${process.env.REACT_APP_NOTIFICATION_API}/v1/email/subscribe?userType=EMAIL`, {
-        //   email,
-        //   topicIDs: [topicId],
-        // })
+        //  const payload = { users: [{ type: isChrome && 'FCM_TOKEN', receivingAddress: await fetchToken() }] }
+        // await axios.post(`${process.env.REACT_APP_NOTIFICATION_API}/v1/topics/${topicId}/subscribe`, payload)
+        await axios.post(`${process.env.REACT_APP_NOTIFICATION_API}/v1/topics/subscribe?userType=EMAIL`, {
+          email,
+          walletAddress: account,
+          topicIDs: [topicId],
+        })
         trackingSubScribe(topicId)
         setHasSubscribed(true)
       } catch (e) {
@@ -96,15 +97,21 @@ const useNotification = (topicId: number) => {
       }
       return
     },
-    [setHasSubscribed, setLoading, trackingSubScribe, topicId],
+    [setHasSubscribed, setLoading, trackingSubScribe, topicId, account],
   )
 
   const handleUnsubscribe = useCallback(async () => {
     try {
       setLoading(true)
-      const payload = { users: [{ type: isChrome && 'FCM_TOKEN', receivingAddress: await fetchToken() }] }
-      await axios.delete(`${process.env.REACT_APP_NOTIFICATION_API}/v1/topics/${topicId}/unsubscribe`, {
-        data: payload,
+      // const payload = { users: [{ type: isChrome && 'FCM_TOKEN', receivingAddress: await fetchToken() }] }
+      // await axios.delete(`${process.env.REACT_APP_NOTIFICATION_API}/v1/topics/${topicId}/unsubscribe`, {
+      //   data: payload,
+      // })
+      await axios.post(`${process.env.REACT_APP_NOTIFICATION_API}/v1/topics/unsubscribe?userType=EMAIL`, {
+        data: {
+          walletAddress: account,
+          topicIDs: [topicId],
+        },
       })
       trackingUnSubScribe(topicId)
       setHasSubscribed(false)
