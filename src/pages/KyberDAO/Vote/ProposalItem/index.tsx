@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { lighten, transparentize } from 'polished'
+import { transparentize } from 'polished'
 import React, { useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { ChevronDown } from 'react-feather'

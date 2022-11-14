@@ -7,7 +7,6 @@ import styled, { css } from 'styled-components'
 
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
-import { theme } from 'theme'
 
 const Select = styled.div`
   cursor: pointer;
