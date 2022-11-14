@@ -142,7 +142,14 @@ export function useApproveCallbackFromTradeV2(trade?: Aggregator, allowedSlippag
     () => (trade ? computeSlippageAdjustedAmounts(trade, allowedSlippage)[Field.INPUT] : undefined),
     [trade, allowedSlippage],
   )
-  return useApproveCallback(amountToApprove, !!chainId && trade?.routerAddress ? trade.routerAddress : undefined)
+
+  let sender: string | undefined = undefined
+  if (!!chainId) {
+    if (trade?.tokenTransferProxyAddress) sender = trade.tokenTransferProxyAddress
+    else if (trade?.routerAddress) sender = trade.routerAddress
+  }
+
+  return useApproveCallback(amountToApprove, sender)
 }
 
 export function useProAmmApproveCallback(

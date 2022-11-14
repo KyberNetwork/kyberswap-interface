@@ -842,7 +842,7 @@ export const INITIAL_ALLOWED_SLIPPAGE = 50
 // 20 minutes, denominated in seconds
 export const DEFAULT_DEADLINE_FROM_NOW = 60 * 20
 // denominated in seconds
-export const TIME_TO_REFRESH_SWAP_RATE = 10
+export const TIME_TO_REFRESH_SWAP_RATE = 1000000 // TODO: Discard this before merging.
 
 export const BIG_INT_ZERO = JSBI.BigInt(0)
 

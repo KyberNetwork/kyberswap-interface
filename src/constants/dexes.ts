@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 
 export const DEX_TO_COMPARE: { [chainId in ChainId]?: string } = {
   [ChainId.BSCMAINNET]: 'pancake',
-  [ChainId.MATIC]: 'quickswap',
+  [ChainId.MATIC]: '',
   [ChainId.AVAXMAINNET]: 'traderjoe',
   [ChainId.MAINNET]: 'uniswapv3',
   [ChainId.FANTOM]: 'spookyswap',

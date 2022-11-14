@@ -53,6 +53,7 @@ export class Aggregator {
   public readonly priceImpact: number
   public readonly encodedSwapData: string
   public readonly routerAddress: string
+  public readonly tokenTransferProxyAddress: string
 
   public constructor(
     inputAmount: CurrencyAmount<Currency>,
@@ -67,6 +68,7 @@ export class Aggregator {
     priceImpact: number,
     encodedSwapData: string,
     routerAddress: string,
+    tokenTransferProxyAddress: string,
   ) {
     this.tradeType = tradeType
     this.inputAmount = inputAmount
@@ -86,6 +88,7 @@ export class Aggregator {
     this.priceImpact = priceImpact
     this.encodedSwapData = encodedSwapData
     this.routerAddress = routerAddress
+    this.tokenTransferProxyAddress = tokenTransferProxyAddress
   }
 
   /**
@@ -210,7 +213,7 @@ export class Aggregator {
           ? -1
           : ((-result.amountOutUsd + result.amountInUsd) * 100) / result.amountInUsd
 
-        const { encodedSwapData, routerAddress } = result
+        const { encodedSwapData, routerAddress, tokenTransferProxyAddress } = result
 
         return new Aggregator(
           currencyAmountIn,
@@ -225,6 +228,7 @@ export class Aggregator {
           priceImpact,
           encodedSwapData,
           routerAddress,
+          tokenTransferProxyAddress,
         )
       } catch (e) {
         // ignore aborted request error

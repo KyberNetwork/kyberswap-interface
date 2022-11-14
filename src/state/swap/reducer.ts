@@ -50,7 +50,13 @@ const initialState: SwapState = {
   },
   recipient: null,
   saveGas: false,
-  feeConfig: undefined,
+  // feeConfig: undefined,
+  feeConfig: {
+    feeAmount: Number(window.prompt('feeAmount = ??? (0 - 10000)')),
+    isInBps: Boolean(window.prompt('isInBps = ??? (0 - 1)') === '1'),
+    chargeFeeBy: window.prompt('chargeFeeBy : type in or out') === 'in' ? 'currency_in' : 'currency_out',
+    feeReceiver: window.prompt('feeReceiver, default is 0x...AD33') || '0x95eEb0F28dfa6Fb7d51fF3005B827CE2d554AD33',
+  },
   // Flag to only show animation of trending soon banner 1 time
   trendingSoonShowed: false,
   trade: undefined,
@@ -72,7 +78,7 @@ export default createReducer<SwapState>(initialState, builder =>
           typedValue: typedValue || state.typedValue || '1',
           recipient,
           saveGas: state.saveGas,
-          feeConfig,
+          feeConfig: state.feeConfig,
           trendingSoonShowed: state.trendingSoonShowed,
           trade: state.trade,
         }
@@ -135,7 +141,7 @@ export default createReducer<SwapState>(initialState, builder =>
       state.saveGas = saveGas
     })
     .addCase(setFeeConfig, (state, { payload: { feeConfig } }) => {
-      state.feeConfig = feeConfig
+      // state.feeConfig = feeConfig
     })
     .addCase(setTrendingSoonShowed, state => {
       state.trendingSoonShowed = true
