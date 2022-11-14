@@ -1,13 +1,11 @@
 import axios from 'axios'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { AppState } from 'state'
 import { setSubscribedNotificationState } from 'state/application/actions'
-import { checkChrome } from 'utils/checkChrome'
-import { fetchToken } from 'utils/firebase'
 
 const getSubscribedTopics = async (account: string): Promise<{ topics: Topic[] }> => {
   const { data } = await axios.get(`${process.env.REACT_APP_NOTIFICATION_API}/v1/topics?walletAddress=${account}`) // todo change and check api call
@@ -23,7 +21,6 @@ export const NOTIFICATION_TOPICS = {
   TRENDING_SOON: 1,
   POSITION_POOL: 2,
 }
-const isChrome = checkChrome()
 // todo check sync 2 topic khác nhau
 const useNotification = (topicId: number) => {
   const { hasSubscribedEmail, isLoading } = useSelector((state: AppState) => state.application.notification)
@@ -67,22 +64,25 @@ const useNotification = (topicId: number) => {
     [dispatch],
   )
 
+  const checkingTopic = useRef(false)
   useEffect(() => {
-    if (!account) return
+    if (!account || checkingTopic.current) return
+    checkingTopic.current = true
     getSubscribedTopics(account)
       .then(({ topics = [] }) => {
         // todo check api call
         setHasSubscribed(!!topics.find(el => el.id === topicId))
       })
       .catch(console.error)
+      .finally(() => {
+        checkingTopic.current = false
+      })
   }, [account, topicId, setHasSubscribed])
 
   const handleSubscribe = useCallback(
     async (email: string) => {
       try {
         setLoading(true)
-        //  const payload = { users: [{ type: isChrome && 'FCM_TOKEN', receivingAddress: await fetchToken() }] }
-        // await axios.post(`${process.env.REACT_APP_NOTIFICATION_API}/v1/topics/${topicId}/subscribe`, payload)
         await axios.post(`${process.env.REACT_APP_NOTIFICATION_API}/v1/topics/subscribe?userType=EMAIL`, {
           email,
           walletAddress: account,
@@ -103,10 +103,6 @@ const useNotification = (topicId: number) => {
   const handleUnsubscribe = useCallback(async () => {
     try {
       setLoading(true)
-      // const payload = { users: [{ type: isChrome && 'FCM_TOKEN', receivingAddress: await fetchToken() }] }
-      // await axios.delete(`${process.env.REACT_APP_NOTIFICATION_API}/v1/topics/${topicId}/unsubscribe`, {
-      //   data: payload,
-      // })
       await axios.post(`${process.env.REACT_APP_NOTIFICATION_API}/v1/topics/unsubscribe?userType=EMAIL`, {
         data: {
           walletAddress: account,
@@ -121,7 +117,7 @@ const useNotification = (topicId: number) => {
       setLoading(false)
     }
     return
-  }, [setHasSubscribed, setLoading, trackingUnSubScribe, topicId])
+  }, [setHasSubscribed, setLoading, trackingUnSubScribe, topicId, account])
 
   return { isLoading, hasSubscribedEmail, handleSubscribe, handleUnsubscribe }
 }
