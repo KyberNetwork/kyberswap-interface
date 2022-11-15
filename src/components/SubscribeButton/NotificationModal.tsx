@@ -92,15 +92,8 @@ export default function NotificationModal({
   const toggleModal = useNotificationModalToggle()
   const isOpen = useModalOpen(ApplicationModal.NOTIFICATION_SUBSCRIPTION)
   const theme = useTheme()
-  const {
-    isLoading,
-    isSubscribed,
-    isVerified,
-    email: emailSubscribed,
-    handleSubscribe,
-    handleUnsubscribe,
-  } = notificationState
-  const [email, setEmail] = useState(emailSubscribed ?? '')
+  const { isLoading, isSubscribed, isVerified, verifiedEmail, handleSubscribe, handleUnsubscribe } = notificationState
+  const [email, setEmail] = useState(verifiedEmail ?? '')
   const [error, setError] = useState('')
   const [view, setView] = useState(isSubscribed && isVerified ? VIEW.UNSUBSCRIBE : VIEW.SUBSCRIBE)
 

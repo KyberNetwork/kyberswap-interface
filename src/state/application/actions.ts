@@ -93,7 +93,7 @@ export const setSubscribedNotificationTopic = createAction<{
   isSubscribed: boolean
   isVerified: boolean
   topicId: number
-  email?: string
+  verifiedEmail?: string
 }>('application/setSubscribedNotificationTopic')
 
 export const setLoadingNotification = createAction<boolean>('application/setLoadingNotification')

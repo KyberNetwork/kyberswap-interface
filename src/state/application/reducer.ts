@@ -44,7 +44,7 @@ export interface ApplicationState {
     isLoading: boolean
     needShowModalSubscribe: boolean
     mapTopic: {
-      [topicId: number]: { isSubscribed: boolean; isVerified: boolean; email?: string }
+      [topicId: number]: { isSubscribed: boolean; isVerified: boolean; verifiedEmail?: string }
     }
   }
 }
@@ -116,11 +116,14 @@ export default createReducer(initialState, builder =>
       const notification = state.notification ?? initialStateNotification
       state.notification = { ...notification, needShowModalSubscribe }
     })
-    .addCase(setSubscribedNotificationTopic, (state, { payload: { isSubscribed, isVerified, topicId, email } }) => {
-      const notification = state.notification ?? initialStateNotification
-      state.notification = {
-        ...notification,
-        mapTopic: { ...notification.mapTopic, [topicId]: { isSubscribed, isVerified, email } },
-      }
-    }),
+    .addCase(
+      setSubscribedNotificationTopic,
+      (state, { payload: { isSubscribed, isVerified, topicId, verifiedEmail } }) => {
+        const notification = state.notification ?? initialStateNotification
+        state.notification = {
+          ...notification,
+          mapTopic: { ...notification.mapTopic, [topicId]: { isSubscribed, isVerified, verifiedEmail } },
+        }
+      },
+    ),
 )

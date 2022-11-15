@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import useSWR, { mutate } from 'swr'
 
@@ -44,7 +44,7 @@ const useNotification = (topicId: number) => {
     mapTopic = {},
     needShowModalSubscribe,
   } = useSelector((state: AppState) => state.application.notification)
-  const { isSubscribed, isVerified, email } = mapTopic[topicId] ?? {}
+  const { isSubscribed, isVerified, verifiedEmail } = mapTopic[topicId] ?? {}
 
   const { mixpanelHandler } = useMixpanel()
   const { account } = useActiveWeb3React()
@@ -73,8 +73,8 @@ const useNotification = (topicId: number) => {
   )
 
   const setTopicState = useCallback(
-    (isSubscribed: boolean, isVerified = false, email?: string) => {
-      dispatch(setSubscribedNotificationTopic({ topicId, isSubscribed, isVerified, email }))
+    (isSubscribed: boolean, isVerified = false, verifiedEmail?: string) => {
+      dispatch(setSubscribedNotificationTopic({ topicId, isSubscribed, isVerified, verifiedEmail }))
     },
     [dispatch, topicId],
   )
@@ -109,39 +109,36 @@ const useNotification = (topicId: number) => {
       revalidateIfStale: false,
     },
   )
+
   const toggleSubscribeModal = useNotificationModalToggle()
+  const refToggleSubscribeModal = useRef(toggleSubscribeModal)
+  refToggleSubscribeModal.current = toggleSubscribeModal
+
   useEffect(() => {
     const topicInfo = topics?.find((el: Topic) => el.id === topicId)
+    // topics: null | array when called api, undefined when not call api yet
+
     const hasSubscribed = !!topicInfo
     const email = topicInfo?.email
-    const func = (hasSubscribed: boolean, isVerified = false, email?: string) => {
+    const setState = (hasSubscribed: boolean, isVerified = false, email?: string) => {
       setTopicState(hasSubscribed, isVerified, email)
       if (!hasSubscribed && needShowModalSubscribe && account && topics !== undefined) {
-        // topics: null | array when called api, undefined when not call api yet
-        toggleSubscribeModal()
+        refToggleSubscribeModal.current?.()
         setNeedShowModalSubscribeState(false)
       }
     }
     if (email && account) {
-      getSubscribeStatus(account, topicId, email) // todo check api call
+      getSubscribeStatus(account, topicId, email)
         .then(data => {
-          func(hasSubscribed, data === 'VERIFIED', email)
+          setState(hasSubscribed, data === 'VERIFIED', email)
         })
         .catch(() => {
-          func(hasSubscribed)
+          setState(hasSubscribed)
         })
     } else {
-      func(hasSubscribed)
+      setState(hasSubscribed)
     }
-  }, [
-    topics,
-    setTopicState,
-    topicId,
-    account,
-    toggleSubscribeModal,
-    setNeedShowModalSubscribeState,
-    needShowModalSubscribe,
-  ])
+  }, [topics, setTopicState, topicId, account, setNeedShowModalSubscribeState, needShowModalSubscribe])
 
   const handleSubscribe = useCallback(
     async (email: string) => {
@@ -184,11 +181,10 @@ const useNotification = (topicId: number) => {
   }, [setTopicState, setLoading, trackingUnSubScribe, topicId, account])
 
   return {
-    // todo refactor for telegram
     isLoading,
     isSubscribed,
     isVerified,
-    email,
+    verifiedEmail,
     handleSubscribe,
     handleUnsubscribe,
     setNeedShowModalSubscribeState,
