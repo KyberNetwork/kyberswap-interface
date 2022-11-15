@@ -23,6 +23,7 @@ import { StyledInternalLink } from 'theme'
 import { formattedNumLong } from 'utils'
 import { getFullDisplayBalance } from 'utils/formatBalance'
 
+import SwitchToEthereumModal from '../StakeKNC/SwitchToEthereumModal'
 import KNCLogo from '../kncLogo'
 import ProposalListComponent from './ProposalListComponent'
 
@@ -236,6 +237,7 @@ export default function Vote() {
           <Trans>Note: Voting on KyberDAO is only available on Ethereum chain</Trans>
         </Text>
         <ProposalListComponent />
+        <SwitchToEthereumModal />
       </Container>
     </Wrapper>
   )
