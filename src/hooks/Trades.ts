@@ -182,6 +182,10 @@ export function useTradeExactInV2(
           }
         }
         setLoading(false)
+        // if (!signal.aborted && state) {
+        //   const swap = await state.solana?.swap
+        //   if (swap) setTrade(state)
+        // }
       } else {
         setTrade(null)
         setComparer(null)

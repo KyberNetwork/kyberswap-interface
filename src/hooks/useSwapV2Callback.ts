@@ -102,7 +102,7 @@ export function useSwapV2Callback(
       typedValue,
     ],
   )
-
+  const solanaSwap = trade?.solana?.swap
   return useMemo(() => {
     if (!trade || !account) {
       return { state: SwapCallbackState.INVALID, callback: null, error: 'Missing dependencies' }
@@ -128,11 +128,11 @@ export function useSwapV2Callback(
       if (hash === undefined) throw new Error('sendTransaction returned undefined.')
       return hash
     }
-
     const onSwapSolana = async (): Promise<string> => {
       if (!provider) throw new Error('Please connect wallet first')
       if (!walletSolana.wallet?.adapter) throw new Error('Please connect wallet first')
-      if (!trade.swapTx) throw new Error('Encode not found')
+      if (!solanaSwap) throw new Error('Encode not found')
+      if (solanaSwap === 'loading') throw new Error('Loading encode')
       const hash = await sendSolanaTransactions(
         trade,
         walletSolana.wallet.adapter as any as SignerWalletAdapter,
@@ -145,11 +145,12 @@ export function useSwapV2Callback(
 
     return {
       state: SwapCallbackState.VALID,
-      callback: isEVM ? onSwapWithBackendEncode : isSolana ? onSwapSolana : null,
+      callback: isEVM ? onSwapWithBackendEncode : isSolana ? (solanaSwap ? onSwapSolana : null) : null,
       error: null,
     }
   }, [
     trade,
+    solanaSwap,
     account,
     recipient,
     isEVM,

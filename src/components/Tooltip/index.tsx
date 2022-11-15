@@ -57,7 +57,6 @@ export function MouseoverTooltip({ children, disableTooltip, ...rest }: Omit<Too
   }, [rest.text, closeTimeout])
   const close = useCallback(() => setCloseTimeout(setTimeout(() => setShow(false), 50)), [])
   if (disableTooltip) return <>{children}</>
-  // todo: Flex's onMouseLeave is not working properly. Fix this.
   return (
     <Tooltip {...rest} show={show} onMouseEnter={open} onMouseLeave={close}>
       <Flex ref={ref} onMouseOver={open} onMouseLeave={close} alignItems="center">

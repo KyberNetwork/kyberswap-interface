@@ -1,7 +1,7 @@
 import { Currency, TradeType } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import React, { useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { AlertTriangle, Repeat } from 'react-feather'
 import { Text } from 'rebass'
 
@@ -37,7 +37,7 @@ export default function SwapModalFooter({
   disabledConfirm: boolean
   feeConfig: FeeConfig | undefined
 }) {
-  const { chainId } = useActiveWeb3React()
+  const { chainId, isSolana } = useActiveWeb3React()
   const [showInverted, setShowInverted] = useState<boolean>(false)
   const theme = useTheme()
   const slippageAdjustedAmounts = useMemo(
@@ -185,7 +185,11 @@ export default function SwapModalFooter({
           id="confirm-swap-or-send"
         >
           <Text fontSize={16} fontWeight={500}>
-            {t`Confirm Swap`}
+            {isSolana && typeof trade.solana?.swap !== 'object' ? (
+              <Trans>Checking accounts...</Trans>
+            ) : (
+              <Trans>Confirm Swap</Trans>
+            )}
           </Text>
         </ButtonError>
 

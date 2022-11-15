@@ -684,6 +684,7 @@ export default function Swap({ history }: RouteComponentProps) {
   useEffect(() => {
     if (isExpertMode) {
       mixpanelHandler(MIXPANEL_TYPE.ADVANCED_MODE_ON)
+      trade?.encodeSolana()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isExpertMode])
@@ -1078,7 +1079,8 @@ export default function Swap({ history }: RouteComponentProps) {
                             !isValidInput ||
                             !!swapCallbackError ||
                             approval !== ApprovalState.APPROVED ||
-                            (!isExpertMode && (isPriceImpactVeryHigh || isPriceImpactInvalid))
+                            (!isExpertMode && (isPriceImpactVeryHigh || isPriceImpactInvalid)) ||
+                            (isExpertMode && typeof trade?.solana?.swap !== 'object')
                           }
                           style={{
                             border: 'none',
@@ -1096,7 +1098,8 @@ export default function Swap({ history }: RouteComponentProps) {
                           <Text fontWeight={500}>
                             {swapInputError ? (
                               swapInputError
-                            ) : approval !== ApprovalState.APPROVED ? (
+                            ) : approval !== ApprovalState.APPROVED ||
+                              (isExpertMode && typeof trade?.solana?.swap !== 'object') ? (
                               <Trans>Checking allowance...</Trans>
                             ) : isPriceImpactHigh || isPriceImpactInvalid ? (
                               <Trans>Swap Anyway</Trans>

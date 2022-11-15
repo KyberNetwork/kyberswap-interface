@@ -1,11 +1,12 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 
 import TransactionConfirmationModal, {
   ConfirmationModalContent,
   TransactionErrorContent,
 } from 'components/TransactionConfirmationModal'
+import { useActiveWeb3React } from 'hooks'
 import { useSwapState } from 'state/swap/hooks'
 import { Aggregator } from 'utils/aggregator'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
@@ -57,6 +58,7 @@ export default function ConfirmSwapModal({
   onDismiss: () => void
   showTxBanner?: boolean
 }) {
+  const { isSolana } = useActiveWeb3React()
   const { feeConfig, typedValue } = useSwapState()
 
   const showAcceptChanges = useMemo(
@@ -81,13 +83,13 @@ export default function ConfirmSwapModal({
       <SwapModalFooter
         onConfirm={onConfirm}
         trade={trade}
-        disabledConfirm={showAcceptChanges}
+        disabledConfirm={showAcceptChanges || (isSolana && typeof trade.solana?.swap !== 'object')}
         swapErrorMessage={swapErrorMessage}
         allowedSlippage={allowedSlippage}
         feeConfig={feeConfig}
       />
     ) : null
-  }, [allowedSlippage, onConfirm, showAcceptChanges, swapErrorMessage, trade, feeConfig])
+  }, [allowedSlippage, onConfirm, showAcceptChanges, swapErrorMessage, trade, feeConfig, isSolana])
 
   const nativeInput = useCurrencyConvertedToNative(trade?.inputAmount?.currency)
   const nativeOutput = useCurrencyConvertedToNative(trade?.outputAmount?.currency)
@@ -110,6 +112,10 @@ export default function ConfirmSwapModal({
       ),
     [onDismiss, modalBottom, modalHeader, swapErrorMessage],
   )
+
+  useEffect(() => {
+    trade?.encodeSolana()
+  }, [trade])
 
   return (
     <TransactionConfirmationModal

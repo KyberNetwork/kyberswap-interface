@@ -115,18 +115,21 @@ export async function sendSolanaTransactions(
   handler: (hash: string, firstTxHash: string) => void,
   addTransactionWithType: (tx: TransactionHistory) => void,
 ): Promise<string[] | undefined> {
-  if (!trade.swapTx) return
+  const swap = trade.solana?.swap
+  if (!swap) return
+  if (swap === 'loading') return
+  if (!swap.swapTx) return
 
   const txs: (Transaction | VersionedTransaction)[] = []
 
-  if (trade.setupTx) {
-    txs.push(trade.setupTx)
+  if (swap.setupTx) {
+    txs.push(swap.setupTx)
   }
 
-  txs.push(trade.swapTx)
+  txs.push(swap.swapTx)
 
-  if (trade.cleanUpTx) {
-    txs.push(trade.cleanUpTx)
+  if (swap.cleanUpTx) {
+    txs.push(swap.cleanUpTx)
   }
 
   const populateTx = (
@@ -142,7 +145,7 @@ export async function sendSolanaTransactions(
       signedCleanUpTx: Transaction | undefined
     } = { signedSetupTx: undefined, signedSwapTx: undefined, signedCleanUpTx: undefined }
     let count = 0
-    if (trade.setupTx) result.signedSetupTx = txs[count++] as Transaction
+    if (swap.setupTx) result.signedSetupTx = txs[count++] as Transaction
     result.signedSwapTx = txs[count++] as VersionedTransaction
     result.signedCleanUpTx = txs[count++] as Transaction
     return result as {
@@ -153,9 +156,9 @@ export async function sendSolanaTransactions(
   }
 
   console.group('Sending transactions:')
-  trade.setupTx && console.info('setup tx:', getInspectTxSolanaUrl(trade.setupTx))
-  console.info('swap tx:', getInspectTxSolanaUrl(trade.swapTx))
-  trade.cleanUpTx && console.info('clean up tx:', getInspectTxSolanaUrl(trade.cleanUpTx))
+  swap.setupTx && console.info('setup tx:', getInspectTxSolanaUrl(swap.setupTx))
+  console.info('swap tx:', getInspectTxSolanaUrl(swap.swapTx))
+  swap.cleanUpTx && console.info('clean up tx:', getInspectTxSolanaUrl(swap.cleanUpTx))
   console.info('inspector: https://explorer.solana.com/tx/inspector')
   console.groupEnd()
 
