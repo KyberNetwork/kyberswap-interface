@@ -17,7 +17,7 @@ const ModalSelectCampaign = () => {
 
   const history = useHistory()
   const onSelectCampaign = (campaign: CampaignData) => {
-    history.push(getSlugUrlCampaign(campaign))
+    history.push(getSlugUrlCampaign(campaign.id, campaign.name))
     setTimeout(() => {
       // UX Improvement
       toggleSelectCampaignModal()

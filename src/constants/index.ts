@@ -297,6 +297,10 @@ export const KYBERSWAP_SOURCE = '{"source":"kyberswap"}'
 
 export const CAMPAIGN_BASE_URL = `${CAMPAIGN_BASE_DOMAIN}/api/v1/campaigns`
 export const SWR_KEYS = {
+  getGrantProgramLeaderBoard: (id: number | string) =>
+    `${process.env.REACT_APP_CAMPAIGN_BASE_URL}/api/v1/competitions/${id}/leaderboard`,
+  getListGrantPrograms: `${process.env.REACT_APP_CAMPAIGN_BASE_URL}/api/v1/competitions`,
+  getGrantProgram: `${process.env.REACT_APP_CAMPAIGN_BASE_URL}/api/v1/competitions`,
   getListCampaign: CAMPAIGN_BASE_URL,
   getLeaderboard: (id: number) => CAMPAIGN_BASE_URL + '/' + id + '/leaderboard',
   getLuckyWinners: (id: number) => CAMPAIGN_BASE_URL + '/' + id + '/lucky-winners',
@@ -334,4 +338,5 @@ export const APP_PATHS = {
   BRIDGE: '/bridge',
   VERIFY: '/verify',
   VERIFY_EXTERNAL: '/verify-external',
+  GRANT_PROGRAMS: '/grant-programs',
 }

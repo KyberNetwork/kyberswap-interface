@@ -288,13 +288,13 @@ export default function CampaignsUpdater(): null {
     dispatch(setCampaignData({ campaigns: campaignData ?? [] }))
     if (campaignData && campaignData.length) {
       if (selectedCampaignId === undefined) {
-        history.push(getSlugUrlCampaign(campaignData[0]))
+        history.push(getSlugUrlCampaign(campaignData[0].id, campaignData[0].name))
       } else {
         const selectedCampaign = campaignData.find(campaign => campaign.id.toString() === selectedCampaignId)
         if (selectedCampaign) {
           dispatch(setSelectedCampaign({ campaign: selectedCampaign }))
         } else {
-          history.push(getSlugUrlCampaign(campaignData[0]))
+          history.push(getSlugUrlCampaign(campaignData[0].id, campaignData[0].name))
         }
       }
     }

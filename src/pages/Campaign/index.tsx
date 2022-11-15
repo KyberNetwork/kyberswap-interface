@@ -47,14 +47,14 @@ import {
 } from 'state/campaigns/actions'
 import { useAppDispatch } from 'state/hooks'
 import { HideMedium, MediumOnly } from 'theme'
+// This is needed to make sure the UI looks just like in Editor
+import 'theme/CKEditor/CKEditor5.css'
+import 'theme/CKEditor/CKEditor5_custom.css'
 import { formatNumberWithPrecisionRange } from 'utils'
 import { getSlugUrlCampaign } from 'utils/campaign'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
 import oembed2iframe from 'utils/oembed2iframe'
 
-// This is needed to make sure the UI looks just like in Editor
-import './CKEditor5.css'
-import './CKEditor5_custom.css'
 import ModalSelectCampaign from './ModalSelectCampaign'
 
 const LoaderParagraphs = () => (
@@ -310,7 +310,7 @@ export default function Campaign() {
 
   const history = useHistory()
   const onSelectCampaign = (campaign: CampaignData) => {
-    history.push(getSlugUrlCampaign(campaign))
+    history.push(getSlugUrlCampaign(campaign.id, campaign.name))
   }
 
   const now = Date.now()
