@@ -123,19 +123,15 @@ const Content = styled.div<{ show?: boolean }>`
         `}
 `
 
-const VoteButton = ({ status }: { status: string }) => {
+const VoteButton = ({ status, onVoteClick }: { status: string; onVoteClick: () => void }) => {
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
-  const toggleVoteModal = useToggleModal(ApplicationModal.KYBER_DAO_VOTE)
-  const { switchToEthereum } = useSwitchToEthereum()
-  const handleVote = useCallback(() => {
-    switchToEthereum().then(() => toggleVoteModal())
-  }, [switchToEthereum, toggleVoteModal])
+
   return (
     <>
       {status === ProposalStatus.Active ? (
         account ? (
-          <ButtonPrimary width={'200px'} fontWeight={500} fontSize="14px" onClick={handleVote}>
+          <ButtonPrimary width={'200px'} fontWeight={500} fontSize="14px" onClick={onVoteClick}>
             <Trans>Vote Now</Trans>
           </ButtonPrimary>
         ) : (
@@ -177,6 +173,13 @@ export default function ProposalItem({
         return 'pending'
     }
   }
+  const toggleVoteModal = useToggleModal(ApplicationModal.KYBER_DAO_VOTE)
+  const { switchToEthereum } = useSwitchToEthereum()
+  const handleVote = useCallback(() => {
+    switchToEthereum().then(() => {
+      selectedVote && toggleVoteModal()
+    })
+  }, [switchToEthereum, toggleVoteModal])
 
   const renderVotes = useMemo(() => {
     return (
@@ -226,7 +229,7 @@ export default function ProposalItem({
         {show && renderVotes}
         <RowBetween>
           {proposal.status === ProposalStatus.Active ? (
-            <VoteButton status={proposal.status} />
+            <VoteButton status={proposal.status} onVoteClick={handleVote} />
           ) : (
             <Text color={theme.subText} fontSize={12}>
               Ended {dayjs(proposal.end_timestamp * 1000).format('DD MMM YYYY')}
