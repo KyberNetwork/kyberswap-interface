@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { ReactNode } from 'react'
+import { ReactNode, useCallback, useEffect, useRef } from 'react'
 import { BellOff } from 'react-feather'
 import { Text } from 'rebass'
 import styled, { DefaultTheme, css } from 'styled-components'
@@ -95,30 +95,39 @@ export default function SubscribeNotificationButton({
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
 
-  const trackingSubScribe = () => {
+  const trackingSubScribe = useCallback(() => {
     switch (topicId) {
       case NOTIFICATION_TOPICS.TRENDING_SOON:
         mixpanelHandler(MIXPANEL_TYPE.DISCOVER_CLICK_SUBSCRIBE_TRENDING_SOON)
         break
     }
-  }
+  }, [mixpanelHandler, topicId])
 
-  const trackingUnSubScribe = () => {
+  const trackingUnSubScribe = useCallback(() => {
     switch (topicId) {
       case NOTIFICATION_TOPICS.TRENDING_SOON:
         mixpanelHandler(MIXPANEL_TYPE.DISCOVER_CLICK_UNSUBSCRIBE_TRENDING_SOON)
         break
     }
-  }
+  }, [mixpanelHandler, topicId])
 
-  const onClickBtn = () => {
+  const requestSubscribe = useRef(false)
+  const onClickBtn = useCallback(() => {
     if (!account) {
+      requestSubscribe.current = true
       toggleWalletModal()
       return
     }
     isSubscribed ? trackingUnSubScribe() : trackingSubScribe()
     toggleSubscribeModal()
-  }
+  }, [trackingUnSubScribe, trackingSubScribe, account, isSubscribed, toggleSubscribeModal, toggleWalletModal])
+
+  useEffect(() => {
+    if (account && requestSubscribe.current) {
+      onClickBtn()
+      requestSubscribe.current = false
+    }
+  }, [account, onClickBtn])
 
   const needVerify = isSubscribed && !isVerified
   return (
