@@ -30,14 +30,13 @@ const AppHaveUpdate = () => {
       registrationWaiting.postMessage({ type: 'SKIP_WAITING' })
 
       registrationWaiting.addEventListener('statechange', (e: any) => {
-        console.log(e)
         if (e.target.state === 'activated') {
           window.location.reload()
         }
       })
     }
   }
-  if (!serviceWorkerRegistration) return null
+  if (!serviceWorkerRegistration?.waiting) return null
 
   return (
     <Wrapper>

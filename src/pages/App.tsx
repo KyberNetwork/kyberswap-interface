@@ -141,7 +141,6 @@ export default function App() {
 
   return (
     <ErrorBoundary>
-      <div>Test new app coming</div>
       <AppHaveUpdate />
       {width && width >= 768 ? (
         <Sidetab
