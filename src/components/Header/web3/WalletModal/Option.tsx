@@ -177,9 +177,9 @@ const Option = ({
 
   if (readyState === WalletReadyState.Loadable && isEVMWallet(wallet) && wallet.href) {
     return (
-      <MouseoverTooltip placement="top" text={<Trans>Install {wallet.name} extension</Trans>}>
+      <>
         <StyledLink href={wallet.href}>{content}</StyledLink>
-      </MouseoverTooltip>
+      </>
     )
   }
 

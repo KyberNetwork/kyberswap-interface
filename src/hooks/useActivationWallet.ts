@@ -11,9 +11,9 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { isEVMWallet, isSolanaWallet } from 'utils'
 
 export const useActivationWallet = () => {
-  const { activate, deactivate, connector: activeConnector } = useWeb3React()
+  const { activate, deactivate, connector: activeConnector, library } = useWeb3React()
   const { select, wallet: solanaWallet } = useWallet()
-  const { isSolana, isEVM } = useActiveWeb3React()
+  const { isSolana, isEVM, chainId } = useActiveWeb3React()
   const tryActivationEVM = useCallback(
     async (connector: AbstractConnector | undefined) => {
       // if the connector is walletconnect and the user has already tried to connect, manually reset the connector
@@ -27,6 +27,15 @@ export const useActivationWallet = () => {
             window.localStorage.removeItem(WALLETLINK_LOCALSTORAGE_NAME)
           }
           await activate(connector, undefined, true)
+          const activeProvider = library?.provider ?? window.ethereum
+          activeProvider?.request?.({
+            method: 'wallet_switchEthereumChain',
+            params: [
+              {
+                chainId: '0x' + Number(chainId).toString(16),
+              },
+            ],
+          })
         } catch (error) {
           if (error instanceof UnsupportedChainIdError) {
             await activate(connector)
@@ -36,7 +45,7 @@ export const useActivationWallet = () => {
         }
       }
     },
-    [activate, activeConnector],
+    [activate, activeConnector, chainId, library],
   )
 
   const tryActivationSolana = useCallback(
