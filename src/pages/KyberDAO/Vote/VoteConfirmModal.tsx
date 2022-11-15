@@ -4,7 +4,6 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
-import WarningIcon from 'components/Icons/WarningIcon'
 import Modal from 'components/Modal'
 import { AutoRow, RowBetween } from 'components/Row'
 import useTheme from 'hooks/useTheme'

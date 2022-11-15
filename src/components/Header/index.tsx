@@ -163,6 +163,11 @@ const BlogWrapper = styled.span`
   }
 `
 
+const KyberDAOWrapper = styled.span`
+  @media (max-width: 1200px) {
+    display: none;
+  }
+`
 const AboutWrapper = styled.span`
   @media (max-width: 1400px) {
     display: none;
@@ -492,7 +497,7 @@ export default function Header() {
               <DiscoverIcon size={14} style={{ marginTop: '-8px' }} />
             </StyledNavLink>
           </DiscoverWrapper>
-          <AboutWrapper>
+          <KyberDAOWrapper>
             <HoverDropdown active={pathname.toLowerCase().includes('kyberdao')}>
               <Flex alignItems="center">
                 <Trans>KyberDAO</Trans>
@@ -517,7 +522,7 @@ export default function Header() {
                 </StyledNavExternalLink>
               </Dropdown>
             </HoverDropdown>
-          </AboutWrapper>
+          </KyberDAOWrapper>
           <AnalyticsWrapper>
             <HoverDropdown active={false}>
               <Flex alignItems="center">

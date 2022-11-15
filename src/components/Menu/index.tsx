@@ -184,7 +184,7 @@ export default function Menu() {
   const above1321 = useMedia('(min-width: 1321px)')
   const above768 = useMedia('(min-width: 768px)')
   const under369 = useMedia('(max-width: 370px)')
-
+  const under1200 = useMedia('(max-width: 1200px)')
   const getBridgeLink = () => {
     if (!chainId) return ''
     return NETWORKS_INFO[chainId].bridgeURL
@@ -269,7 +269,23 @@ export default function Menu() {
           <UserPlus size={16} />
           <Trans>Referral</Trans>
         </NavMenuItem>
-
+        {under1200 && (
+          <>
+            <NavDropDown
+              icon={<Info size={16} />}
+              title={'KyberDAO'}
+              link={'/kyberdao/stake-knc'}
+              options={[
+                { link: '/kyberdao/stake-knc', label: 'Stake KNC' },
+                { link: '/kyberdao/vote', label: 'Vote' },
+              ]}
+            />
+            <ExternalNavMenuItem href="https://request.kyberswap.com" onClick={toggle}>
+              <StyledLightIcon />
+              <Trans>Feature Request</Trans>
+            </ExternalNavMenuItem>
+          </>
+        )}
         {!above1321 && (
           <NavDropDown
             icon={<PieChart size={16} />}
@@ -288,11 +304,6 @@ export default function Menu() {
         <ExternalNavMenuItem href="https://docs.kyberswap.com">
           <BookOpen size={16} />
           <Trans>Docs</Trans>
-        </ExternalNavMenuItem>
-
-        <ExternalNavMenuItem href="https://request.kyberswap.com" onClick={toggle}>
-          <StyledLightIcon />
-          <Trans>Feature Request</Trans>
         </ExternalNavMenuItem>
 
         <ExternalNavMenuItem href="https://request.kyberswap.com/roadmap" onClick={toggle}>
