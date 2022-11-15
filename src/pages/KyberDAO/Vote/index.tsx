@@ -166,9 +166,23 @@ export default function Vote() {
                 <Trans>Your Voting Reward</Trans>
               </Text>
               {account ? (
-                <ButtonPrimary>
-                  <Trans>Claim</Trans>
-                </ButtonPrimary>
+                <RowBetween>
+                  <AutoColumn>
+                    <Text fontSize={20} marginBottom="8px">
+                      0 KNC
+                    </Text>
+                    <Text fontSize={12} color={theme.subText}>
+                      0 USD
+                    </Text>
+                  </AutoColumn>
+                  <ButtonPrimary
+                    width="75px"
+                    disabled
+                    style={{ filter: 'drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.16))' }}
+                  >
+                    <Trans>Claim</Trans>
+                  </ButtonPrimary>
+                </RowBetween>
               ) : (
                 <ButtonLight>
                   <Trans>Connect Your Wallet</Trans>
