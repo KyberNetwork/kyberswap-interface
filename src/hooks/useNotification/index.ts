@@ -15,7 +15,7 @@ const getSubscribeStatus = async (
   walletAddress: string,
   topicID: number,
   email: string,
-): Promise<{ topics: Topic[] }> => {
+): Promise<'VERIFIED' | 'UNVERIFIED'> => {
   const { data } = await axios.get(`${process.env.REACT_APP_NOTIFICATION_API}/v1/topics/verify/status`, {
     params: { walletAddress, topicID, email },
   })
@@ -92,11 +92,21 @@ const useNotification = (topicId: number) => {
   )
 
   useEffect(() => {
-    const topicInfo = topics?.find((el: any) => el.id === topicId)
+    const topicInfo = topics?.find((el: Topic) => el.id === topicId)
     const hasSubscribed = !!topicInfo
-    const hasVerified = false
-    setTopicState(hasSubscribed, hasVerified)
-  }, [topics, setTopicState, topicId])
+    const email = topicInfo?.email
+    if (email && account) {
+      getSubscribeStatus(account, topicId, email)
+        .then(data => {
+          setTopicState(hasSubscribed, data === 'VERIFIED')
+        })
+        .catch(() => {
+          setTopicState(hasSubscribed)
+        })
+    } else {
+      setTopicState(hasSubscribed)
+    }
+  }, [topics, setTopicState, topicId, account])
 
   const handleSubscribe = useCallback(
     async (email: string) => {
