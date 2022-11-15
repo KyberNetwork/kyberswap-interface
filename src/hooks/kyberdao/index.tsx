@@ -37,6 +37,7 @@ export function useStakingInfo() {
   const isDelegated = useMemo(() => {
     return delegatedAccount.result?.[0] && delegatedAccount.result?.[0] !== account
   }, [delegatedAccount, account])
+
   return {
     stakedBalance: stakedBalance.result?.[0],
     KNCBalance,

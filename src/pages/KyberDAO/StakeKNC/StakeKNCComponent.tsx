@@ -488,12 +488,6 @@ export default function StakeKNCComponent() {
                 <span style={{ color: theme.text }}>{calculateVotingPower(inputValue)}%</span>
               </Text>
             </RowBetween>
-            <RowBetween>
-              <Text>
-                <Trans>Gas Fee</Trans>
-              </Text>
-              <Text color={theme.text}>$25.80</Text>
-            </RowBetween>
           </AutoColumn>
         }
       />

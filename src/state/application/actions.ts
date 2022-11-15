@@ -70,6 +70,7 @@ export enum ApplicationModal {
   MIGRATE_KNC,
   APPROVE_KNC,
   APPROVE_KNCL,
+  KYBER_DAO_VOTE,
 }
 
 export const updateBlockNumber = createAction<{ chainId: number; blockNumber: number }>('application/updateBlockNumber')

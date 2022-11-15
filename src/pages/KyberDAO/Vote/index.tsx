@@ -19,6 +19,7 @@ import { useStakingInfo, useVotingInfo } from 'hooks/kyberdao'
 import useTotalVotingReward from 'hooks/kyberdao/useTotalVotingRewards'
 import useTheme from 'hooks/useTheme'
 import { useKNCPrice } from 'state/application/hooks'
+import { StyledInternalLink } from 'theme'
 import { formattedNumLong } from 'utils'
 import { getFullDisplayBalance } from 'utils/formatBalance'
 
@@ -90,8 +91,8 @@ export default function Vote() {
             </Trans>
           </Text>
           <RowFit gap="4px">
-            <KNCLogo size={16} />
-            <Text fontSize={12}>KNC: ${kncPrice ? parseFloat(kncPrice).toFixed(2) : '--'}</Text>
+            <KNCLogo size={20} />
+            <Text fontSize={16}>KNC: ${kncPrice ? parseFloat(kncPrice).toFixed(2) : '--'}</Text>
           </RowFit>
         </RowBetween>
         <CardGroup>
@@ -136,13 +137,18 @@ export default function Vote() {
               </Text>
 
               <RowBetween marginBottom="8px">
-                <Text fontSize={20}>
-                  {stakedBalance && daoInfo?.total_staked
-                    ? parseFloat(
-                        ((parseFloat(getFullDisplayBalance(stakedBalance)) / daoInfo.total_staked) * 100).toFixed(6),
-                      ) + ' %'
-                    : '--'}
-                </Text>
+                <RowFit>
+                  <Text fontSize={20}>
+                    {stakedBalance && daoInfo?.total_staked
+                      ? parseFloat(
+                          ((parseFloat(getFullDisplayBalance(stakedBalance)) / daoInfo.total_staked) * 100).toFixed(6),
+                        ) + ' %'
+                      : '--'}
+                  </Text>
+                  {!stakedBalance && (
+                    <InfoHelper text={t`You have to stake KNC to be able to vote and earn voting reward`} />
+                  )}
+                </RowFit>
                 {isDelegated && delegatedAccount && (
                   <MouseoverTooltip
                     text={t`You have already delegated your voting power to this address`}
@@ -155,9 +161,14 @@ export default function Vote() {
                   </MouseoverTooltip>
                 )}
               </RowBetween>
-              <Text fontSize={12} color={theme.subText}>
-                {stakedBalance ? getFullDisplayBalance(stakedBalance) + ' KNC Staked' : '--'}
-              </Text>
+              <RowBetween>
+                <Text fontSize={12} color={theme.subText}>
+                  {stakedBalance ? getFullDisplayBalance(stakedBalance) + ' KNC Staked' : '--'}
+                </Text>
+                <StyledInternalLink to="/kyberdao/stake-knc" style={{ fontSize: '12px' }}>
+                  <Trans>Stake KNC ↗</Trans>
+                </StyledInternalLink>
+              </RowBetween>
             </AutoColumn>
           </Card>
           <Card>

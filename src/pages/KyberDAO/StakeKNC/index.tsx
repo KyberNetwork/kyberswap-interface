@@ -125,8 +125,8 @@ export default function StakeKNC() {
               <Trans>Stake KNC</Trans>
             </Text>
             <RowFit gap="4px">
-              <KNCLogo size={16} />
-              <Text fontSize={12}>KNC: ${kncPrice ? parseFloat(kncPrice).toFixed(2) : '--'}</Text>
+              <KNCLogo size={20} />
+              <Text fontSize={16}>KNC: ${kncPrice ? parseFloat(kncPrice).toFixed(2) : '--'}</Text>
             </RowFit>
           </RowBetween>
           <Divider margin={isMobile ? '20px 0' : '28px 0'} />

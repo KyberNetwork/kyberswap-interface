@@ -38,6 +38,16 @@ const FinishedProgress = styled.div<{ width: number }>`
   background-color: ${({ theme }) => theme.border};
   z-index: 0;
 `
+const ActiveProgress = styled.div<{ width: number }>`
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  border-radius: 4px;
+  width: ${({ width }) => width || 0}%;
+  background-color: ${({ theme }) => theme.primary};
+  z-index: 0;
+`
 const ChoosingProgress = styled.div<{ width: number }>`
   position: absolute;
   top: 0;
@@ -68,32 +78,37 @@ const ChoosingProgress = styled.div<{ width: number }>`
     animation: ${move} 1.5s linear infinite;
   }
 `
-function VoteProgress({
+export default function VoteProgress({
+  option,
   checked,
   percent = 40,
   title,
   type = 'Finished',
+  setVote,
 }: {
+  option?: string
   checked?: boolean
   percent?: number
   title?: string
-  type?: 'Finished' | 'InProgress' | 'Choosing'
+  type?: 'Finished' | 'Active' | 'Choosing'
+  setVote?: (options: string) => void
 }) {
+  console.log('🚀 ~ file: VoteProgress.tsx ~ line 96 ~ checked', checked)
   const parsedPercent = parseFloat(percent.toFixed(2) || '0')
   return (
     <Wrapper>
-      <RowBetween style={{ zIndex: 1 }} alignItems="center">
-        <RowFit gap="5px" style={{ fontSize: '12px' }}>
-          {checked ? <RadioButtonChecked /> : <RadioButtonUnchecked />} {title}
-        </RowFit>
-        <Text fontSize="12px">{parsedPercent}%</Text>
-      </RowBetween>
+      <div onClick={() => option && setVote?.(option)} style={{ zIndex: 4, width: '100%' }}>
+        <RowBetween style={{ zIndex: 1 }} alignItems="center">
+          <RowFit gap="5px" style={{ fontSize: '12px', cursor: type !== 'Finished' ? 'pointer' : 'default' }}>
+            {checked ? <RadioButtonChecked /> : <RadioButtonUnchecked />} {title}
+          </RowFit>
+          <Text fontSize="12px">{parsedPercent}%</Text>
+        </RowBetween>
+      </div>
 
-      {type === 'InProgress' && <FinishedProgress width={percent} />}
+      {type === 'Active' && <ActiveProgress width={percent} />}
       {type === 'Choosing' && <ChoosingProgress width={percent} />}
       {type === 'Finished' && <FinishedProgress width={percent} />}
     </Wrapper>
   )
 }
-
-export default React.memo(VoteProgress)

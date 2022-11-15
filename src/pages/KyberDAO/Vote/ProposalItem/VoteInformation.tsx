@@ -70,7 +70,7 @@ export default function VoteInformation({ proposal }: { proposal: ProposalDetail
           <InfoHelper
             placement="top"
             text="Your KIP Voting Power is calculated by
-[Your Staked KNC] / [Total Voted KNC] * 100%"
+            [Your Staked KNC] / [Total Voted KNC in this KIP] * 100%"
           />
         </Text>
         <Text color={theme.text}>

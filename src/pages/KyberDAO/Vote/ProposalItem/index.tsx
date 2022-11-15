@@ -1,18 +1,24 @@
 import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { transparentize } from 'polished'
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { ChevronDown } from 'react-feather'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
+import { ButtonLight, ButtonPrimary } from 'components/Button'
 import LaunchIcon from 'components/Icons/LaunchIcon'
 import { RowBetween, RowFixed } from 'components/Row'
+import { useActiveWeb3React } from 'hooks'
 import { ProposalDetail, ProposalStatus } from 'hooks/kyberdao/types'
 import useTheme from 'hooks/useTheme'
+import { useSwitchToEthereum } from 'pages/KyberDAO/StakeKNC/SwitchToEthereumModal'
+import { ApplicationModal } from 'state/application/actions'
+import { useToggleModal, useWalletModalToggle } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
 
+import VoteConfirmModal from '../VoteConfirmModal'
 import Participants from './Participants'
 import VoteInformation from './VoteInformation'
 import VoteProgress from './VoteProgress'
@@ -117,6 +123,33 @@ const Content = styled.div<{ show?: boolean }>`
         `}
 `
 
+const VoteButton = ({ status }: { status: string }) => {
+  const { account } = useActiveWeb3React()
+  const toggleWalletModal = useWalletModalToggle()
+  const toggleVoteModal = useToggleModal(ApplicationModal.KYBER_DAO_VOTE)
+  const { switchToEthereum } = useSwitchToEthereum()
+  const handleVote = useCallback(() => {
+    switchToEthereum().then(() => toggleVoteModal())
+  }, [switchToEthereum, toggleVoteModal])
+  return (
+    <>
+      {status === ProposalStatus.Active ? (
+        account ? (
+          <ButtonPrimary width={'200px'} fontWeight={500} fontSize="14px" onClick={handleVote}>
+            <Trans>Vote Now</Trans>
+          </ButtonPrimary>
+        ) : (
+          <ButtonLight width={'200px'} onClick={toggleWalletModal}>
+            <Trans>Connect Wallet</Trans>
+          </ButtonLight>
+        )
+      ) : (
+        <></>
+      )}
+    </>
+  )
+}
+
 export default function ProposalItem({
   proposal,
   showByDefault,
@@ -128,6 +161,7 @@ export default function ProposalItem({
 }) {
   const theme = useTheme()
   const [show, setShow] = useState(!!showByDefault)
+  const [selectedVote, setSelectedVote] = useState<string | undefined>()
   const contentRef = useRef<any>()
   const statusType = () => {
     switch (proposal.status) {
@@ -151,18 +185,30 @@ export default function ProposalItem({
           return (
             <VoteProgress
               key={option}
+              option={option}
               percent={
                 proposal.vote_stats.options[index]
                   ? (proposal.vote_stats.options[index]?.vote_count / proposal.vote_stats.total_vote_count) * 100
                   : 0
               }
               title={option}
+              checked={option === selectedVote}
+              setVote={(o: string) => {
+                o && setSelectedVote(o)
+              }}
+              type={
+                proposal.status === ProposalStatus.Active
+                  ? option === selectedVote
+                    ? 'Choosing'
+                    : 'Active'
+                  : 'Finished'
+              }
             />
           )
         })}
       </RowBetween>
     )
-  }, [proposal])
+  }, [proposal, selectedVote])
   return (
     <ProposalItemWrapper>
       <ProposalHeader>
@@ -179,9 +225,13 @@ export default function ProposalItem({
         </RowBetween>
         {show && renderVotes}
         <RowBetween>
-          <Text color={theme.subText} fontSize={12}>
-            Ended {dayjs(proposal.end_timestamp * 1000).format('DD MMM YYYY')}
-          </Text>
+          {proposal.status === ProposalStatus.Active ? (
+            <VoteButton status={proposal.status} />
+          ) : (
+            <Text color={theme.subText} fontSize={12}>
+              Ended {dayjs(proposal.end_timestamp * 1000).format('DD MMM YYYY')}
+            </Text>
+          )}
           <RowFixed gap="8px">
             <StatusBadged status={statusType()} onClick={() => onBadgeClick?.(proposal.status)}>
               {proposal.status}
@@ -200,6 +250,7 @@ export default function ProposalItem({
           </RowFixed>
           <Text
             fontSize={isMobile ? 14 : 16}
+            lineHeight={isMobile ? '18px' : '22px'}
             color={theme.subText}
             marginBottom="20px"
             dangerouslySetInnerHTML={{ __html: proposal.desc.replaceAll('\\n', '').replaceAll('\\r', '') }}
@@ -213,6 +264,7 @@ export default function ProposalItem({
           </div>
         )}
       </Content>
+      {proposal.status === ProposalStatus.Active && <VoteConfirmModal option={selectedVote} />}
     </ProposalItemWrapper>
   )
 }
