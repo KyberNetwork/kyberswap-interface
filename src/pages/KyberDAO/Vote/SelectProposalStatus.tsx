@@ -16,8 +16,9 @@ const Select = styled.div`
   justify-content: space-between;
   font-size: 14px;
   position: relative;
-  padding: 10px 12px;
+  padding: 8px 12px;
   width: 140px;
+  height: 36px;
   z-index: 2;
   font-weight: 500;
 

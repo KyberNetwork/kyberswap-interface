@@ -8,7 +8,7 @@ import styled, { css } from 'styled-components'
 
 import Divider from 'components/Divider'
 import Loader from 'components/Loader'
-import { RowBetween } from 'components/Row'
+import { RowBetween, RowFit } from 'components/Row'
 import { useProposalInfoById } from 'hooks/kyberdao'
 import useTheme from 'hooks/useTheme'
 import { getFullDisplayBalance } from 'utils/formatBalance'
@@ -48,6 +48,17 @@ const TextButton = styled.button`
     }
   `}
 `
+const TableHeaderWrapper = styled(RowBetween)`
+  & > * {
+    flex: 1;
+  }
+  & > *:nth-child(2) {
+    text-align: center;
+  }
+  & > *:last-child {
+    text-align: right;
+  }
+`
 
 export default function Participants({ proposalId }: { proposalId?: number }) {
   const { proposalInfo } = useProposalInfoById(proposalId)
@@ -72,7 +83,7 @@ export default function Participants({ proposalId }: { proposalId?: number }) {
         <Trans>Participants</Trans>
       </Text>
       <Divider margin="10px 0" />
-      <RowBetween fontSize={12} color={theme.subText}>
+      <TableHeaderWrapper fontSize={12} color={theme.subText}>
         <Text>
           <Trans>Wallet</Trans>
         </Text>
@@ -82,7 +93,7 @@ export default function Participants({ proposalId }: { proposalId?: number }) {
         <Text>
           <Trans>Amount</Trans>
         </Text>
-      </RowBetween>
+      </TableHeaderWrapper>
       <Divider margin="10px 0" />
       {participants ? (
         participants.map(vote => {
@@ -101,11 +112,15 @@ export default function Participants({ proposalId }: { proposalId?: number }) {
       <Flex justifyContent="center">
         {showMore ? (
           <TextButton onClick={() => setShowMore(false)}>
-            <Trans>Show less</Trans> <ArrowUp size={14} />
+            <RowFit>
+              <Trans>Show less</Trans> <ArrowUp size={14} />
+            </RowFit>
           </TextButton>
         ) : (
           <TextButton onClick={() => setShowMore(true)}>
-            <Trans>Load more</Trans> <ArrowDown size={14} />
+            <RowFit>
+              <Trans>Load more</Trans> <ArrowDown size={14} />
+            </RowFit>
           </TextButton>
         )}
       </Flex>

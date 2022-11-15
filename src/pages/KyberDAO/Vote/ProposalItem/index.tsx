@@ -9,7 +9,7 @@ import styled, { css } from 'styled-components'
 
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import LaunchIcon from 'components/Icons/LaunchIcon'
-import { RowBetween, RowFixed } from 'components/Row'
+import { RowBetween, RowFit, RowFixed } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import { ProposalDetail, ProposalStatus } from 'hooks/kyberdao/types'
 import useTheme from 'hooks/useTheme'
@@ -24,7 +24,7 @@ import VoteInformation from './VoteInformation'
 import VoteProgress from './VoteProgress'
 
 const ProposalItemWrapper = styled.div`
-  padding: ${isMobile ? '20px' : '20px 24px'};
+  padding: ${isMobile ? '16px' : '20px 24px'};
   border-radius: 20px;
   box-shadow: 0px 2px 34px rgba(0, 0, 0, 0.0467931);
   overflow: hidden;
@@ -36,7 +36,7 @@ const ProposalItemWrapper = styled.div`
 const ProposalHeader = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: ${isMobile ? '16px' : '20px'};
   z-index: 1;
   & > *:first-child {
     cursor: pointer;
@@ -131,11 +131,11 @@ const VoteButton = ({ status, onVoteClick }: { status: string; onVoteClick: () =
     <>
       {status === ProposalStatus.Active ? (
         account ? (
-          <ButtonPrimary width={'200px'} fontWeight={500} fontSize="14px" onClick={onVoteClick}>
+          <ButtonPrimary width={isMobile ? '100%' : '200px'} fontWeight={500} fontSize="14px" onClick={onVoteClick}>
             <Trans>Vote Now</Trans>
           </ButtonPrimary>
         ) : (
-          <ButtonLight width={'200px'} onClick={toggleWalletModal}>
+          <ButtonLight width={isMobile ? '100%' : '200px'} onClick={toggleWalletModal}>
             <Trans>Connect Wallet</Trans>
           </ButtonLight>
         )
@@ -177,13 +177,14 @@ export default function ProposalItem({
   const { switchToEthereum } = useSwitchToEthereum()
   const handleVote = useCallback(() => {
     switchToEthereum().then(() => {
+      console.log('🚀 ~ file: index.tsx ~ line 181 ~ switchToEthereum ~ selectedVote', selectedVote)
       selectedVote && toggleVoteModal()
     })
-  }, [switchToEthereum, toggleVoteModal])
+  }, [switchToEthereum, toggleVoteModal, selectedVote])
 
   const renderVotes = useMemo(() => {
     return (
-      <RowBetween gap="20px" flexDirection={isMobile ? 'column' : 'row'}>
+      <RowBetween gap={isMobile ? '16px' : '20px'} flexDirection={isMobile ? 'column' : 'row'}>
         {proposal.options.map((option: string, index: number) => {
           return (
             <VoteProgress
@@ -212,6 +213,7 @@ export default function ProposalItem({
       </RowBetween>
     )
   }, [proposal, selectedVote])
+  const isActive = proposal.status === ProposalStatus.Active
   return (
     <ProposalItemWrapper>
       <ProposalHeader>
@@ -226,31 +228,41 @@ export default function ProposalItem({
             />
           </ExpandButton>
         </RowBetween>
-        {show && renderVotes}
+        {(show || isActive) && isMobile && (
+          <RowFit gap="8px">
+            <StatusBadged status={statusType()} onClick={() => onBadgeClick?.(proposal.status)}>
+              {proposal.status}
+            </StatusBadged>
+            <StatusBadged>ID #{proposal.proposal_id}</StatusBadged>
+          </RowFit>
+        )}
+        {(show || isActive) && renderVotes}
         <RowBetween>
-          {proposal.status === ProposalStatus.Active ? (
+          {isActive ? (
             <VoteButton status={proposal.status} onVoteClick={handleVote} />
           ) : (
             <Text color={theme.subText} fontSize={12}>
               Ended {dayjs(proposal.end_timestamp * 1000).format('DD MMM YYYY')}
             </Text>
           )}
-          <RowFixed gap="8px">
-            <StatusBadged status={statusType()} onClick={() => onBadgeClick?.(proposal.status)}>
-              {proposal.status}
-            </StatusBadged>
-            <StatusBadged>ID #{proposal.proposal_id}</StatusBadged>
-          </RowFixed>
+          {!((show || isActive) && isMobile) && (
+            <RowFixed gap="8px">
+              <StatusBadged status={statusType()} onClick={() => onBadgeClick?.(proposal.status)}>
+                {proposal.status}
+              </StatusBadged>
+              <StatusBadged>ID #{proposal.proposal_id}</StatusBadged>
+            </RowFixed>
+          )}
         </RowBetween>
       </ProposalHeader>
       <Content ref={contentRef as any} show={show}>
         <div style={{ flex: 1 }}>
-          <RowFixed marginBottom="12px">
-            <ExternalLink href={proposal.link}>
+          <ExternalLink href={proposal.link} style={{ marginBottom: '12px' }}>
+            <RowFit gap="2px">
               <Trans>Github</Trans>
               <LaunchIcon size={16} />
-            </ExternalLink>
-          </RowFixed>
+            </RowFit>
+          </ExternalLink>
           <Text
             fontSize={isMobile ? 14 : 16}
             lineHeight={isMobile ? '18px' : '22px'}

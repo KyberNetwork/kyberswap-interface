@@ -1,4 +1,5 @@
 import { t } from '@lingui/macro'
+import { isMobile } from 'react-device-detect'
 import styled, { css } from 'styled-components'
 
 import Search from 'components/Icons/Search'
@@ -7,7 +8,7 @@ const Wrapper = styled.div`
   font-size: 14px;
   font-weight: 500;
   border-radius: 20px;
-  padding: 8px 12px;
+  padding: 6px 12px;
   position: relative;
   display: flex;
   ${({ theme }) =>
@@ -21,6 +22,7 @@ const SearchInput = styled.input`
   outline: none;
   background-color: transparent;
   line-height: 18px;
+  width: ${isMobile ? '120px' : 'auto'};
   ${({ theme }) =>
     css`
       color: ${theme.subText};

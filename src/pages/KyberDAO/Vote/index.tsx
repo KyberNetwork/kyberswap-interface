@@ -85,8 +85,8 @@ export default function Vote() {
   return (
     <Wrapper>
       <Container>
-        <RowBetween>
-          <Text fontSize={24} lineHeight="28px" fontWeight={500} marginBottom={36}>
+        <RowBetween marginBottom={isMobile ? 0 : 36}>
+          <Text fontSize={isMobile ? 22 : 24} lineHeight="28px" fontWeight={500} flex={1}>
             <Trans>
               <span style={{ color: theme.primary }}>Vote</span> - Earn Rewards
             </Trans>
