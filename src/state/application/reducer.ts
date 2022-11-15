@@ -8,6 +8,7 @@ import {
   addPopup,
   removePopup,
   setLoadingNotification,
+  setNeedShowModalSubscribe,
   setOpenModal,
   setSubscribedNotificationTopic,
   updateBlockNumber,
@@ -41,12 +42,13 @@ export interface ApplicationState {
   readonly chainIdWhenNotConnected: ChainId
   readonly notification: {
     isLoading: boolean
+    needShowModalSubscribe: boolean
     mapTopic: {
-      [topicId: number]: { isSubscribed: boolean; isVerified: boolean }
+      [topicId: number]: { isSubscribed: boolean; isVerified: boolean; email?: string }
     }
   }
 }
-const initialStateNotification = { isLoading: false, mapTopic: {} }
+const initialStateNotification = { isLoading: false, needShowModalSubscribe: false, mapTopic: {} }
 const initialState: ApplicationState = {
   blockNumber: {},
   popupList: [],
@@ -110,11 +112,15 @@ export default createReducer(initialState, builder =>
       const notification = state.notification ?? initialStateNotification
       state.notification = { ...notification, isLoading }
     })
-    .addCase(setSubscribedNotificationTopic, (state, { payload: { isSubscribed, isVerified, topicId } }) => {
+    .addCase(setNeedShowModalSubscribe, (state, { payload: needShowModalSubscribe }) => {
+      const notification = state.notification ?? initialStateNotification
+      state.notification = { ...notification, needShowModalSubscribe }
+    })
+    .addCase(setSubscribedNotificationTopic, (state, { payload: { isSubscribed, isVerified, topicId, email } }) => {
       const notification = state.notification ?? initialStateNotification
       state.notification = {
         ...notification,
-        mapTopic: { ...notification.mapTopic, [topicId]: { isSubscribed, isVerified } },
+        mapTopic: { ...notification.mapTopic, [topicId]: { isSubscribed, isVerified, email } },
       }
     }),
 )

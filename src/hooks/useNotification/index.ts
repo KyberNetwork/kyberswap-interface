@@ -6,7 +6,12 @@ import useSWR, { mutate } from 'swr'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { AppState } from 'state'
-import { setLoadingNotification, setSubscribedNotificationTopic } from 'state/application/actions'
+import {
+  setLoadingNotification,
+  setNeedShowModalSubscribe,
+  setSubscribedNotificationTopic,
+} from 'state/application/actions'
+import { useNotificationModalToggle } from 'state/application/hooks'
 
 const getSubscribedTopicUrl = (account: string | null | undefined) =>
   account ? `${process.env.REACT_APP_NOTIFICATION_API}/v1/topics?walletAddress=${account}` : ''
@@ -29,12 +34,17 @@ type Topic = {
 }
 
 export const NOTIFICATION_TOPICS = {
-  TRENDING_SOON: 1, // todo
-  POSITION_POOL: 1,
+  TRENDING_SOON: 2,
+  POSITION_POOL: 1, // todo
 }
+
 const useNotification = (topicId: number) => {
-  const { isLoading, mapTopic = {} } = useSelector((state: AppState) => state.application.notification)
-  const { isSubscribed, isVerified } = mapTopic[topicId] ?? {}
+  const {
+    isLoading,
+    mapTopic = {},
+    needShowModalSubscribe,
+  } = useSelector((state: AppState) => state.application.notification)
+  const { isSubscribed, isVerified, email } = mapTopic[topicId] ?? {}
 
   const { mixpanelHandler } = useMixpanel()
   const { account } = useActiveWeb3React()
@@ -63,10 +73,17 @@ const useNotification = (topicId: number) => {
   )
 
   const setTopicState = useCallback(
-    (isSubscribed: boolean, isVerified = false) => {
-      dispatch(setSubscribedNotificationTopic({ topicId, isSubscribed, isVerified }))
+    (isSubscribed: boolean, isVerified = false, email?: string) => {
+      dispatch(setSubscribedNotificationTopic({ topicId, isSubscribed, isVerified, email }))
     },
     [dispatch, topicId],
+  )
+
+  const setNeedShowModalSubscribeState = useCallback(
+    (value: boolean) => {
+      dispatch(setNeedShowModalSubscribe(value))
+    },
+    [dispatch],
   )
 
   const setLoading = useCallback(
@@ -76,11 +93,13 @@ const useNotification = (topicId: number) => {
     [dispatch],
   )
 
-  const { data: { topics = [] } = {} } = useSWR(
+  const { data: { topics } = {} } = useSWR(
     getSubscribedTopicUrl(account),
     (url: string) => {
       try {
-        if (url) return axios.get(url).then(({ data }) => data.data)
+        if (url) {
+          return axios.get(url).then(({ data }) => data.data)
+        }
       } catch (error) {}
       return
     },
@@ -90,23 +109,39 @@ const useNotification = (topicId: number) => {
       revalidateIfStale: false,
     },
   )
-
+  const toggleSubscribeModal = useNotificationModalToggle()
   useEffect(() => {
     const topicInfo = topics?.find((el: Topic) => el.id === topicId)
     const hasSubscribed = !!topicInfo
     const email = topicInfo?.email
+    const func = (hasSubscribed: boolean, isVerified = false, email?: string) => {
+      setTopicState(hasSubscribed, isVerified, email)
+      if (!hasSubscribed && needShowModalSubscribe && account && topics !== undefined) {
+        // topics: null | array when called api, undefined when not call api yet
+        toggleSubscribeModal()
+        setNeedShowModalSubscribeState(false)
+      }
+    }
     if (email && account) {
-      getSubscribeStatus(account, topicId, email)
+      getSubscribeStatus(account, topicId, email) // todo check api call
         .then(data => {
-          setTopicState(hasSubscribed, data === 'VERIFIED')
+          func(hasSubscribed, data === 'VERIFIED', email)
         })
         .catch(() => {
-          setTopicState(hasSubscribed)
+          func(hasSubscribed)
         })
     } else {
-      setTopicState(hasSubscribed)
+      func(hasSubscribed)
     }
-  }, [topics, setTopicState, topicId, account])
+  }, [
+    topics,
+    setTopicState,
+    topicId,
+    account,
+    toggleSubscribeModal,
+    setNeedShowModalSubscribeState,
+    needShowModalSubscribe,
+  ])
 
   const handleSubscribe = useCallback(
     async (email: string) => {
@@ -148,7 +183,16 @@ const useNotification = (topicId: number) => {
     return
   }, [setTopicState, setLoading, trackingUnSubScribe, topicId, account])
 
-  return { isLoading, isSubscribed, isVerified, handleSubscribe, handleUnsubscribe }
+  return {
+    // todo refactor for telegram
+    isLoading,
+    isSubscribed,
+    isVerified,
+    email,
+    handleSubscribe,
+    handleUnsubscribe,
+    setNeedShowModalSubscribeState,
+  }
 }
 
 export default useNotification

@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { ReactNode, useCallback, useEffect, useRef } from 'react'
+import { ReactNode, useCallback } from 'react'
 import { BellOff } from 'react-feather'
 import { Text } from 'rebass'
 import styled, { DefaultTheme, css } from 'styled-components'
@@ -12,7 +12,8 @@ import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useNotification, { NOTIFICATION_TOPICS } from 'hooks/useNotification'
 import useTheme from 'hooks/useTheme'
-import { useNotificationModalToggle, useWalletModalToggle } from 'state/application/hooks'
+import { ApplicationModal } from 'state/application/actions'
+import { useModalOpen, useNotificationModalToggle, useWalletModalToggle } from 'state/application/hooks'
 import { checkChrome } from 'utils/checkChrome'
 
 import { ButtonOutlined, ButtonPrimary } from '../Button'
@@ -90,7 +91,8 @@ export default function SubscribeNotificationButton({
   const theme = useTheme()
   const isChrome = checkChrome()
   const toggleSubscribeModal = useNotificationModalToggle()
-  const { isLoading, isSubscribed, isVerified } = useNotification(topicId)
+  const notificationState = useNotification(topicId)
+  const { isLoading, isSubscribed, isVerified, setNeedShowModalSubscribeState } = notificationState
   const { mixpanelHandler } = useMixpanel()
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
@@ -110,26 +112,28 @@ export default function SubscribeNotificationButton({
         break
     }
   }, [mixpanelHandler, topicId])
-
-  const requestSubscribe = useRef(false)
+  const needVerify = isSubscribed && !isVerified
   const onClickBtn = useCallback(() => {
     if (!account) {
-      requestSubscribe.current = true
       toggleWalletModal()
+      setNeedShowModalSubscribeState(true)
       return
     }
-    isSubscribed ? trackingUnSubScribe() : trackingSubScribe()
+    setTimeout(() => {
+      isSubscribed ? trackingUnSubScribe() : trackingSubScribe()
+    }, 100)
     toggleSubscribeModal()
-  }, [trackingUnSubScribe, trackingSubScribe, account, isSubscribed, toggleSubscribeModal, toggleWalletModal])
+  }, [
+    trackingUnSubScribe,
+    trackingSubScribe,
+    account,
+    isSubscribed,
+    toggleSubscribeModal,
+    toggleWalletModal,
+    setNeedShowModalSubscribeState,
+  ])
 
-  useEffect(() => {
-    if (account && requestSubscribe.current) {
-      onClickBtn()
-      requestSubscribe.current = false
-    }
-  }, [account, onClickBtn])
-
-  const needVerify = isSubscribed && !isVerified
+  const isOpen = useModalOpen(ApplicationModal.NOTIFICATION_SUBSCRIPTION)
   return (
     <>
       {isSubscribed && isVerified ? (
@@ -154,7 +158,7 @@ export default function SubscribeNotificationButton({
           <SubscribeBtn
             bgColor={needVerify ? theme.warning : undefined}
             isDisabled={!isChrome || isLoading}
-            onClick={needVerify ? undefined : onClickBtn}
+            onClick={onClickBtn}
             iconOnly={iconOnly}
           >
             {isLoading ? <StyledSpinner color={theme.primary} /> : <NotificationIcon />}
@@ -165,11 +169,13 @@ export default function SubscribeNotificationButton({
           </SubscribeBtn>
         </MouseoverTooltipDesktopOnly>
       )}
-      <NotificationModal
-        topicId={topicId}
-        subscribeContent={subscribeModalContent}
-        unsubscribeContent={unsubscribeModalContent}
-      />
+      {isOpen && (
+        <NotificationModal
+          notificationState={notificationState}
+          subscribeContent={subscribeModalContent}
+          unsubscribeContent={unsubscribeModalContent}
+        />
+      )}
     </>
   )
 }

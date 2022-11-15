@@ -85,9 +85,9 @@ function Verify() {
               <hr style={{ width: '100%', borderTop: `1px solid ${theme.border}`, borderBottom: 'none' }} />
               <Text as="p" color={theme.subText} lineHeight="20px" fontSize="14px">
                 <Trans>
-                  Your email have been verified by KyberSwap.com. If it has been more than a few days and you still
-                  haven’t receive any notification yet, please contact us through our channels. You will be redirect to
-                  our Swap page shortly.
+                  <Text fontWeight={'500'}>Your email have been verified by KyberSwap.com.</Text> If it has been more
+                  than a few days and you still haven’t receive any notification yet, please contact us through our
+                  channels. You will be redirect to our Swap page shortly.
                 </Trans>
               </Text>
               <Text as="p" color={theme.subText} fontSize="14px">

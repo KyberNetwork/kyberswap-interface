@@ -83,19 +83,26 @@ enum VIEW {
 export default function NotificationModal({
   subscribeContent,
   unsubscribeContent,
-  topicId,
+  notificationState,
 }: {
   subscribeContent: ReactNode
   unsubscribeContent: ReactNode
-  topicId: number
+  notificationState: ReturnType<typeof useNotification>
 }) {
   const toggleModal = useNotificationModalToggle()
   const isOpen = useModalOpen(ApplicationModal.NOTIFICATION_SUBSCRIPTION)
   const theme = useTheme()
-  const { isLoading, isSubscribed, handleSubscribe, handleUnsubscribe } = useNotification(topicId)
-  const [email, setEmail] = useState('')
+  const {
+    isLoading,
+    isSubscribed,
+    isVerified,
+    email: emailSubscribed,
+    handleSubscribe,
+    handleUnsubscribe,
+  } = notificationState
+  const [email, setEmail] = useState(emailSubscribed ?? '')
   const [error, setError] = useState('')
-  const [view, setView] = useState(isSubscribed ? VIEW.UNSUBSCRIBE : VIEW.SUBSCRIBE)
+  const [view, setView] = useState(isSubscribed && isVerified ? VIEW.UNSUBSCRIBE : VIEW.SUBSCRIBE)
 
   const prevOpen = usePrevious(isOpen)
   useEffect(() => {
@@ -105,9 +112,9 @@ export default function NotificationModal({
     }
     if (prevOpen !== isOpen) {
       // make sure call when isOpen change
-      setTimeout(() => setView(isSubscribed ? VIEW.UNSUBSCRIBE : VIEW.SUBSCRIBE), isOpen ? 0 : 200)
+      setTimeout(() => setView(isSubscribed && isVerified ? VIEW.UNSUBSCRIBE : VIEW.SUBSCRIBE), isOpen ? 0 : 200)
     }
-  }, [isOpen, prevOpen, isSubscribed])
+  }, [isOpen, prevOpen, isSubscribed, isVerified])
 
   const onSubscribe = async () => {
     try {
@@ -118,12 +125,11 @@ export default function NotificationModal({
       console.log(error)
     }
   }
-  // todo chưa login ẩn nút đi
   const onUnsubscribe = async () => {
     try {
       if (isLoading) return
-      toggleModal()
       await handleUnsubscribe()
+      toggleModal()
     } catch (error) {
       console.log(error)
     }
