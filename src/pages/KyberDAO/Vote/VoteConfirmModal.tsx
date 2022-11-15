@@ -10,8 +10,6 @@ import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 
-import GasPriceExpandableBox from '../StakeKNC/GasPriceExpandableBox'
-
 const Wrapper = styled.div`
   padding: 20px;
   display: flex;
@@ -44,7 +42,6 @@ export default function VoteConfirmModal({ option }: { option?: string }) {
         <TextWrapper fontSize={16} lineHeight="24px" color={theme.subText}>
           You are voting for <b>{option}</b> on <b>KIP:20 KNC Ecosystem Fund Allocation</b> with your voing power
         </TextWrapper>
-        <GasPriceExpandableBox />
         <ButtonPrimary>Vote</ButtonPrimary>
       </Wrapper>
     </Modal>

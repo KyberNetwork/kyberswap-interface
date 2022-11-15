@@ -32,7 +32,6 @@ import KNCLogo from '../kncLogo'
 import ApproveKNCLModal from './ApproveKNCLModal'
 import ApproveKNCModal from './ApproveKNCModal'
 import DelegateConfirmModal from './DelegateConfirmModal'
-import GasPriceExpandableBox from './GasPriceExpandableBox'
 import MigrateModal from './MigrateModal'
 import SwitchToEthereumModal, { useSwitchToEthereum } from './SwitchToEthereumModal'
 import YourTransactionsModal from './YourTransactionsModal'
@@ -376,7 +375,6 @@ export default function StakeKNCComponent() {
                   </KNCLogoWrapper>
                 </RowBetween>
               </InnerCard>
-              <GasPriceExpandableBox />
               {account ? (
                 <ButtonPrimary
                   margin="8px 0px"

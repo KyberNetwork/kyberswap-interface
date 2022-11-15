@@ -19,7 +19,6 @@ import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
 
 import CurrencyInputForStake from './CurrencyInputForStake'
-import GasPriceExpandableBox from './GasPriceExpandableBox'
 import { useSwitchToEthereum } from './SwitchToEthereumModal'
 
 const Wrapper = styled.div`
@@ -127,7 +126,6 @@ export default function MigrateModal({
             tokenName="KNC"
             disabled
           />
-          <GasPriceExpandableBox />
           {error && (
             <Text color={theme.red} fontSize={14}>
               {error}
