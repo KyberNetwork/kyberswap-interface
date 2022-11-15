@@ -6,6 +6,7 @@ import { AlertTriangle, Repeat } from 'react-feather'
 import { Text } from 'rebass'
 
 import { ButtonError } from 'components/Button'
+import { GreyCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
 import InfoHelper from 'components/InfoHelper'
 import { AutoRow, RowBetween, RowFixed } from 'components/Row'
@@ -171,27 +172,32 @@ export default function SwapModalFooter({
         </AutoRow>
       )}
       <AutoRow>
-        <ButtonError
-          onClick={onConfirm}
-          disabled={disabledConfirm}
-          style={{
-            marginTop: '24px',
-            ...((highPriceImpact || veryHighPriceImpact) && {
-              border: 'none',
-              background: veryHighPriceImpact ? theme.red : theme.warning,
-              color: theme.text,
-            }),
-          }}
-          id="confirm-swap-or-send"
-        >
-          <Text fontSize={16} fontWeight={500}>
-            {isSolana && typeof trade.solana?.swap !== 'object' ? (
-              <Trans>Checking accounts...</Trans>
-            ) : (
+        {isSolana && typeof trade.solana?.swap !== 'object' ? (
+          <GreyCard
+            style={{ textAlign: 'center', borderRadius: '999px', padding: '12px', marginTop: '24px' }}
+            id="confirm-swap-or-send"
+          >
+            <Trans>Checking accounts...</Trans>
+          </GreyCard>
+        ) : (
+          <ButtonError
+            onClick={onConfirm}
+            disabled={disabledConfirm}
+            style={{
+              marginTop: '24px',
+              ...((highPriceImpact || veryHighPriceImpact) && {
+                border: 'none',
+                background: veryHighPriceImpact ? theme.red : theme.warning,
+                color: theme.text,
+              }),
+            }}
+            id="confirm-swap-or-send"
+          >
+            <Text fontSize={16} fontWeight={500}>
               <Trans>Confirm Swap</Trans>
-            )}
-          </Text>
-        </ButtonError>
+            </Text>
+          </ButtonError>
+        )}
 
         {swapErrorMessage ? <SwapCallbackError error={swapErrorMessage} /> : null}
       </AutoRow>

@@ -1,6 +1,6 @@
 import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { ArrowUpCircle } from 'react-feather'
 import { Text } from 'rebass'
 import styled from 'styled-components'
@@ -14,6 +14,7 @@ import Modal from 'components/Modal'
 import { RowBetween, RowFixed } from 'components/Row'
 import { SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React } from 'hooks'
+import useInterval from 'hooks/useInterval'
 import useTheme from 'hooks/useTheme'
 import { useIsDarkMode } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
@@ -45,6 +46,13 @@ const StyledLogo = styled.img`
   margin-left: 6px;
 `
 
+const CountdountNumber = styled.div`
+  position: absolute;
+  font-size: 30px;
+  margin-top: 25px;
+  // font-weight: 600;
+`
+
 function ConfirmationPendingContent({
   onDismiss,
   pendingText,
@@ -52,6 +60,16 @@ function ConfirmationPendingContent({
   onDismiss: () => void
   pendingText: string | React.ReactNode
 }) {
+  const [startedTime, setStartedTime] = useState(Date.now())
+  const [, rerender] = useState({})
+  useEffect(() => {
+    setStartedTime(Date.now())
+  }, [])
+
+  useInterval(() => rerender({}), 1000)
+  const theme = useTheme()
+
+  const currentTime = Math.round((Date.now() - startedTime) / 1000)
   return (
     <Wrapper>
       <Section>
@@ -60,6 +78,11 @@ function ConfirmationPendingContent({
           <CloseIcon onClick={onDismiss} />
         </RowBetween>
         <ConfirmedIcon>
+          <CountdountNumber
+            style={{ color: currentTime <= 5 ? theme.green : currentTime <= 10 ? theme.yellow1 : theme.red2 }}
+          >
+            {currentTime}
+          </CountdountNumber>
           <CustomLightSpinner src={Circle} alt="loader" size={'90px'} />
         </ConfirmedIcon>
         <AutoColumn gap="12px" justify={'center'}>

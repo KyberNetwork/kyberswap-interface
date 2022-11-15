@@ -464,40 +464,44 @@ export class Aggregator {
       let swapTx: VersionedTransaction | null = null
       let setupTx: Transaction | null = null
       let cleanUpTx: Transaction | null = null
-      const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash()
+      const getLatestBlockhash = connection.getLatestBlockhash()
+      // const { blockhash, lastValidBlockHeight } = connection.getLatestBlockhash()
       //#region create set up tx and swap tx
       const toPK = new PublicKey(this.solana.to)
       const message = Message.from(toByteArray(this.solana.encodedMessage))
       setupTx = new Transaction({
-        blockhash,
-        lastValidBlockHeight,
         feePayer: toPK,
       })
 
       const newOpenOrders: [PublicKey, Keypair][] = [] // OpenOrders accounts to be created
-      if (this.solana.serumOpenOrdersAccountByMarket) {
+      if (
+        this.solana.serumOpenOrdersAccountByMarket &&
+        Object.keys(this.solana.serumOpenOrdersAccountByMarket).length
+      ) {
         // do Solana magic things
         const actualOpenOrdersByMarket: { [key: string]: PublicKey } = {}
-        for (const [market] of Object.entries(this.solana.serumOpenOrdersAccountByMarket)) {
-          const marketPK = new PublicKey(market)
-          const openOrdersList = await OpenOrders.findForMarketAndOwner(
-            serumConnection,
-            marketPK,
-            toPK,
-            NETWORKS_INFO[ChainId.SOLANA].serumPool,
-          )
-          let openOrders: PublicKey
-          if (openOrdersList.length > 0) {
-            // if there is an OpenOrders, use it
-            openOrders = openOrdersList[0].address
-          } else {
-            // otherwise, create a new OpenOrders account
-            const keypair = new Keypair()
-            openOrders = keypair.publicKey
-            newOpenOrders.push([marketPK, keypair])
-          }
-          actualOpenOrdersByMarket[market] = openOrders
-        }
+        Promise.all(
+          Object.entries(this.solana.serumOpenOrdersAccountByMarket).map(async ([market]) => {
+            const marketPK = new PublicKey(market)
+            const openOrdersList = await OpenOrders.findForMarketAndOwner(
+              serumConnection,
+              marketPK,
+              toPK,
+              NETWORKS_INFO[ChainId.SOLANA].serumPool,
+            )
+            let openOrders: PublicKey
+            if (openOrdersList.length > 0) {
+              // if there is an OpenOrders, use it
+              openOrders = openOrdersList[0].address
+            } else {
+              // otherwise, create a new OpenOrders account
+              const keypair = new Keypair()
+              openOrders = keypair.publicKey
+              newOpenOrders.push([marketPK, keypair])
+            }
+            actualOpenOrdersByMarket[market] = openOrders
+          }),
+        )
 
         const openOrdersSpace = OpenOrders.getLayout(NETWORKS_INFO[ChainId.SOLANA].serumPool).span
         const openOrdersRent = await connection.getMinimumBalanceForRentExemption(openOrdersSpace)
@@ -536,6 +540,7 @@ export class Aggregator {
           }
         }
       }
+      const { blockhash, lastValidBlockHeight } = await getLatestBlockhash
 
       swapTx = await convertToVersionedTx('confirmed', blockhash, message, toPK)
 
@@ -561,6 +566,8 @@ export class Aggregator {
           if (createAtaIxs) (setupTx as Transaction).add(createAtaIxs)
         }),
       )
+      setupTx.recentBlockhash = blockhash
+      setupTx.lastValidBlockHeight = lastValidBlockHeight
       newOpenOrders.length && setupTx.partialSign(...newOpenOrders.map(i => i[1]))
       //#endregion create set up tx and swap tx
 
