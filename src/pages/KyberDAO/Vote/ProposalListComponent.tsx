@@ -19,7 +19,6 @@ import YourTransactionsModal from '../StakeKNC/YourTransactionsModal'
 import ProposalItem from './ProposalItem'
 import SearchProposal from './SearchProposal'
 import SelectProposalStatus from './SelectProposalStatus'
-import VoteConfirmModal from './VoteConfirmModal'
 
 const Wrapper = styled.div`
   display: flex;
