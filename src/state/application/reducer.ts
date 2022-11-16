@@ -16,6 +16,7 @@ import {
   updateETHPrice,
   updateKNCPrice,
   updatePrommETHPrice,
+  updateServiceWorker,
 } from './actions'
 
 type PopupList = Array<{
@@ -40,6 +41,7 @@ export interface ApplicationState {
   readonly prommEthPrice: ETHPrice
   readonly kncPrice?: string
   readonly chainIdWhenNotConnected: ChainId
+  readonly serviceWorkerRegistration: ServiceWorkerRegistration | null
   readonly notification: {
     isLoading: boolean
     needShowModalSubscribe: boolean
@@ -57,6 +59,7 @@ const initialState: ApplicationState = {
   prommEthPrice: {},
   kncPrice: '',
   chainIdWhenNotConnected: ChainId.MAINNET,
+  serviceWorkerRegistration: null,
   notification: initialStateNotification,
 }
 
@@ -107,6 +110,9 @@ export default createReducer(initialState, builder =>
     })
     .addCase(updateChainIdWhenNotConnected, (state, { payload: chainId }) => {
       state.chainIdWhenNotConnected = chainId
+    })
+    .addCase(updateServiceWorker, (state, { payload }) => {
+      state.serviceWorkerRegistration = payload
     })
     .addCase(setLoadingNotification, (state, { payload: isLoading }) => {
       const notification = state.notification ?? initialStateNotification
