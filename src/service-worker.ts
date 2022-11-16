@@ -28,19 +28,8 @@ const ksSettingRoute = new Route(
   }),
 )
 
-const imageRoute = new Route(
-  ({ request }) => {
-    return request.destination === 'image'
-  },
-  new CacheFirst({
-    cacheName: 'images',
-    plugins: [new ExpirationPlugin({ maxAgeSeconds: 15 * 24 * 60 * 60 })],
-  }),
-)
-
 registerRoute(chartingLibraryRoute)
 registerRoute(ksSettingRoute)
-registerRoute(imageRoute)
 precacheAndRoute(self.__WB_MANIFEST)
 
 self.addEventListener('message', event => {
