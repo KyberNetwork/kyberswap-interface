@@ -11,8 +11,8 @@ import { EVMNetworkInfo } from 'constants/networks/type'
 import { KNC } from 'constants/tokens'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks/index'
-import { AppDispatch, AppState } from 'state/index'
 import { useAppSelector } from 'state/hooks'
+import { AppDispatch, AppState } from 'state/index'
 import { getBlockFromTimestamp, getPercentChange } from 'utils'
 
 import {
