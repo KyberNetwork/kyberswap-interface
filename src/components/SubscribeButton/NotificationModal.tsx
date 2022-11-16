@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import React, { ReactNode, useEffect, useState } from 'react'
+import React, { ReactNode, useCallback, useEffect, useState } from 'react'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -97,6 +97,12 @@ export default function NotificationModal({
   const [error, setError] = useState('')
   const [view, setView] = useState(isSubscribed && isVerified ? VIEW.UNSUBSCRIBE : VIEW.SUBSCRIBE)
 
+  const setViewByStatus = useCallback(
+    (isSubscribed: boolean, isVerified: boolean) =>
+      setView(isSubscribed && isVerified ? VIEW.UNSUBSCRIBE : VIEW.SUBSCRIBE),
+    [],
+  )
+
   const prevOpen = usePrevious(isOpen)
   useEffect(() => {
     if (!isOpen) {
@@ -105,9 +111,13 @@ export default function NotificationModal({
     }
     if (prevOpen !== isOpen) {
       // make sure call when isOpen change
-      setTimeout(() => setView(isSubscribed && isVerified ? VIEW.UNSUBSCRIBE : VIEW.SUBSCRIBE), isOpen ? 0 : 200)
+      setTimeout(() => setViewByStatus(isSubscribed, isVerified), isOpen ? 0 : 200)
     }
-  }, [isOpen, prevOpen, isSubscribed, isVerified])
+  }, [isOpen, prevOpen, isSubscribed, isVerified, setViewByStatus])
+
+  useEffect(() => {
+    if (isVerified && isSubscribed) setViewByStatus(isSubscribed, isVerified)
+  }, [isVerified, isSubscribed, setViewByStatus])
 
   const onSubscribe = async () => {
     try {

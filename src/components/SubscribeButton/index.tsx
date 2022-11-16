@@ -92,7 +92,7 @@ export default function SubscribeNotificationButton({
   const isChrome = checkChrome()
   const toggleSubscribeModal = useNotificationModalToggle()
   const notificationState = useNotification(topicId)
-  const { isLoading, isSubscribed, isVerified, setNeedShowModalSubscribeState } = notificationState
+  const { isLoading, isSubscribed, isVerified, setNeedShowModalSubscribeState, checkVerifyStatus } = notificationState
   const { mixpanelHandler } = useMixpanel()
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
@@ -119,10 +119,13 @@ export default function SubscribeNotificationButton({
       setNeedShowModalSubscribeState(true)
       return
     }
+    if (needVerify) {
+      checkVerifyStatus()
+    }
     setTimeout(() => {
       isSubscribed ? trackingUnSubScribe() : trackingSubScribe()
+      toggleSubscribeModal()
     }, 100)
-    toggleSubscribeModal()
   }, [
     trackingUnSubScribe,
     trackingSubScribe,
@@ -131,6 +134,8 @@ export default function SubscribeNotificationButton({
     toggleSubscribeModal,
     toggleWalletModal,
     setNeedShowModalSubscribeState,
+    needVerify,
+    checkVerifyStatus,
   ])
 
   const isOpen = useModalOpen(ApplicationModal.NOTIFICATION_SUBSCRIPTION)

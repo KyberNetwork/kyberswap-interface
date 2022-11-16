@@ -83,6 +83,10 @@ const useNotification = (topicId: number) => {
     [dispatch],
   )
 
+  const checkVerifyStatus = useCallback(() => {
+    return mutate(getSubscribedTopicUrl(account))
+  }, [account])
+
   const { data: { topics } = {} } = useSWR(
     getSubscribedTopicUrl(account),
     (url: string) => {
@@ -163,6 +167,7 @@ const useNotification = (topicId: number) => {
     handleSubscribe,
     handleUnsubscribe,
     setNeedShowModalSubscribeState,
+    checkVerifyStatus,
   }
 }
 
