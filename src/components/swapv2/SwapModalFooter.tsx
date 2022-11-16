@@ -10,6 +10,7 @@ import { GreyCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
 import InfoHelper from 'components/InfoHelper'
 import { AutoRow, RowBetween, RowFixed } from 'components/Row'
+import { Dots } from 'components/swapv2/styleds'
 import { useActiveWeb3React } from 'hooks'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
 import useTheme from 'hooks/useTheme'
@@ -177,7 +178,9 @@ export default function SwapModalFooter({
             style={{ textAlign: 'center', borderRadius: '999px', padding: '12px', marginTop: '24px' }}
             id="confirm-swap-or-send"
           >
-            <Trans>Checking accounts...</Trans>
+            <Dots>
+              <Trans>Checking accounts</Trans>
+            </Dots>
           </GreyCard>
         ) : (
           <ButtonError
