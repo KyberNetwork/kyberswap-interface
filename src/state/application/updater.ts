@@ -61,7 +61,7 @@ export default function Updater(): null {
         const blockHeight = await connection.getBlockHeight()
         blockNumberCallback(blockHeight)
       } catch {}
-    }, 10000)
+    }, 2000)
 
     return () => {
       clearInterval(intervalToken)

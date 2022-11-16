@@ -89,6 +89,23 @@ const parseEVMTransactionSummary = ({
   return `${base} ${withRecipient ?? ''}`
 }
 
+const whichMoreIncreased = (
+  [aPre, aPost]: [Fraction | undefined, Fraction | undefined] = [undefined, undefined],
+  [bPre, bPost]: [Fraction, Fraction],
+): [Fraction, Fraction] => {
+  if (!aPre || !aPost) return [bPre, bPost]
+  if (aPre.equalTo(0)) return [aPre, aPost]
+  if (bPre.equalTo(0)) return [bPre, bPost]
+  // for case both equalTo 0, hard to tell which increased much more than other, in term of different token base
+  // e.g: 0 -> 0.01 ETH compare with 0 -> 0.2 KNC
+
+  const aPercent = aPost.subtract(aPre).divide(aPre)
+  const bPercent = bPost.subtract(bPre).divide(bPre)
+
+  if (aPercent > bPercent) return [aPre, aPost]
+  return [bPre, bPost]
+}
+
 const parseSolanaTransactionSummary = ({
   tx,
   meta,
@@ -107,7 +124,8 @@ const parseSolanaTransactionSummary = ({
 
   if (!inputSymbol || !outputSymbol || !inputDecimals || !outputDecimals) return tx?.summary
 
-  let inputAmount: string | undefined, outputAmount: string | undefined
+  let inputAmount: [Fraction, Fraction] | undefined // [pre, post] balance
+  let outputAmount: [Fraction, Fraction] | undefined // [pre, post] balance
   const preBalanceMap: { [mint: string]: Fraction } = {}
   meta?.preTokenBalances?.forEach(tokenBalance => {
     if (tokenBalance.mint && tokenBalance.owner === tx.from)
@@ -122,15 +140,18 @@ const parseSolanaTransactionSummary = ({
         JSBI.BigInt(10 ** tokenBalance.uiTokenAmount.decimals),
       )
       if (preBalance.lessThan(postBalance)) {
-        outputAmount = postBalance.subtract(preBalance).toSignificant(9)
+        outputAmount = whichMoreIncreased(outputAmount, [preBalance, postBalance])
       } else if (preBalance.greaterThan(postBalance)) {
-        inputAmount = preBalance.subtract(postBalance).toSignificant(9)
+        inputAmount = whichMoreIncreased(inputAmount, [preBalance, postBalance])
       }
     }
   })
   if (!inputAmount || !outputAmount) return tx?.summary
 
-  return `${inputAmount} ${inputSymbol} for ${outputAmount} ${outputSymbol}`
+  const inputAmountStr = inputAmount[0].subtract(inputAmount[1]).toSignificant(9)
+  const outputAmountStr = outputAmount[1].subtract(outputAmount[0]).toSignificant(9)
+
+  return `${inputAmountStr} ${inputSymbol} for ${outputAmountStr} ${outputSymbol}`
 }
 
 export default function Updater(): null {

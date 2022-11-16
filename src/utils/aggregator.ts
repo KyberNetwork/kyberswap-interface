@@ -461,132 +461,135 @@ export class Aggregator {
       if (!this.solana.encodedMessage) return undefined
       if (this.solana.to === ZERO_ADDRESS_SOLANA) return undefined
 
-      let swapTx: VersionedTransaction | null = null
-      let setupTx: Transaction | null = null
-      let cleanUpTx: Transaction | null = null
-      const getLatestBlockhash = connection.getLatestBlockhash()
-      // const { blockhash, lastValidBlockHeight } = connection.getLatestBlockhash()
-      //#region create set up tx and swap tx
-      const toPK = new PublicKey(this.solana.to)
-      const message = Message.from(toByteArray(this.solana.encodedMessage))
-      setupTx = new Transaction({
-        feePayer: toPK,
-      })
+      try {
+        let swapTx: VersionedTransaction | null = null
+        let setupTx: Transaction | null = null
+        let cleanUpTx: Transaction | null = null
+        const getLatestBlockhash = connection.getLatestBlockhash()
+        //#region create set up tx and swap tx
+        const toPK = new PublicKey(this.solana.to)
+        const message = Message.from(toByteArray(this.solana.encodedMessage))
+        setupTx = new Transaction({
+          feePayer: toPK,
+        })
 
-      const newOpenOrders: [PublicKey, Keypair][] = [] // OpenOrders accounts to be created
-      if (
-        this.solana.serumOpenOrdersAccountByMarket &&
-        Object.keys(this.solana.serumOpenOrdersAccountByMarket).length
-      ) {
-        // do Solana magic things
-        const actualOpenOrdersByMarket: { [key: string]: PublicKey } = {}
-        Promise.all(
-          Object.entries(this.solana.serumOpenOrdersAccountByMarket).map(async ([market]) => {
-            const marketPK = new PublicKey(market)
-            const openOrdersList = await OpenOrders.findForMarketAndOwner(
-              serumConnection,
-              marketPK,
-              toPK,
-              NETWORKS_INFO[ChainId.SOLANA].serumPool,
-            )
-            let openOrders: PublicKey
-            if (openOrdersList.length > 0) {
-              // if there is an OpenOrders, use it
-              openOrders = openOrdersList[0].address
-            } else {
-              // otherwise, create a new OpenOrders account
-              const keypair = new Keypair()
-              openOrders = keypair.publicKey
-              newOpenOrders.push([marketPK, keypair])
-            }
-            actualOpenOrdersByMarket[market] = openOrders
-          }),
-        )
-
-        const openOrdersSpace = OpenOrders.getLayout(NETWORKS_INFO[ChainId.SOLANA].serumPool).span
-        const openOrdersRent = await connection.getMinimumBalanceForRentExemption(openOrdersSpace)
-        const createOpenOrdersIxs = []
-        for (const [market, openOrders] of newOpenOrders) {
-          createOpenOrdersIxs.push(
-            SystemProgram.createAccount({
-              fromPubkey: toPK,
-              newAccountPubkey: openOrders.publicKey,
-              lamports: openOrdersRent,
-              space: openOrdersSpace,
-              programId: NETWORKS_INFO[ChainId.SOLANA].serumPool,
-            }),
-            DexInstructions.initOpenOrders({
-              market,
-              openOrders: openOrders.publicKey,
-              owner: toPK,
-              programId: NETWORKS_INFO[ChainId.SOLANA].serumPool,
-              marketAuthority: null,
+        const newOpenOrders: [PublicKey, Keypair][] = [] // OpenOrders accounts to be created
+        if (
+          this.solana.serumOpenOrdersAccountByMarket &&
+          Object.keys(this.solana.serumOpenOrdersAccountByMarket).length
+        ) {
+          // do Solana magic things
+          const actualOpenOrdersByMarket: { [key: string]: PublicKey } = {}
+          Promise.all(
+            Object.entries(this.solana.serumOpenOrdersAccountByMarket).map(async ([market]) => {
+              const marketPK = new PublicKey(market)
+              const openOrdersList = await OpenOrders.findForMarketAndOwner(
+                serumConnection,
+                marketPK,
+                toPK,
+                NETWORKS_INFO[ChainId.SOLANA].serumPool,
+              )
+              let openOrders: PublicKey
+              if (openOrdersList.length > 0) {
+                // if there is an OpenOrders, use it
+                openOrders = openOrdersList[0].address
+              } else {
+                // otherwise, create a new OpenOrders account
+                const keypair = new Keypair()
+                openOrders = keypair.publicKey
+                newOpenOrders.push([marketPK, keypair])
+              }
+              actualOpenOrdersByMarket[market] = openOrders
             }),
           )
-        }
 
-        if (createOpenOrdersIxs.length) {
-          setupTx.add(...createOpenOrdersIxs)
-        }
+          const openOrdersSpace = OpenOrders.getLayout(NETWORKS_INFO[ChainId.SOLANA].serumPool).span
+          const openOrdersRent = await connection.getMinimumBalanceForRentExemption(openOrdersSpace)
+          const createOpenOrdersIxs = []
+          for (const [market, openOrders] of newOpenOrders) {
+            createOpenOrdersIxs.push(
+              SystemProgram.createAccount({
+                fromPubkey: toPK,
+                newAccountPubkey: openOrders.publicKey,
+                lamports: openOrdersRent,
+                space: openOrdersSpace,
+                programId: NETWORKS_INFO[ChainId.SOLANA].serumPool,
+              }),
+              DexInstructions.initOpenOrders({
+                market,
+                openOrders: openOrders.publicKey,
+                owner: toPK,
+                programId: NETWORKS_INFO[ChainId.SOLANA].serumPool,
+                marketAuthority: null,
+              }),
+            )
+          }
 
-        // replace dummy OpenOrders account with actual ones
-        for (let i = 0; i < message.accountKeys.length; i += 1) {
-          const pubkey = message.accountKeys[i]
-          for (const [market, dummyOpenOrders] of Object.entries(this.solana.serumOpenOrdersAccountByMarket)) {
-            if (pubkey.toBase58() === dummyOpenOrders) {
-              message.accountKeys[i] = actualOpenOrdersByMarket[market]
-              break
+          if (createOpenOrdersIxs.length) {
+            setupTx.add(...createOpenOrdersIxs)
+          }
+
+          // replace dummy OpenOrders account with actual ones
+          for (let i = 0; i < message.accountKeys.length; i += 1) {
+            const pubkey = message.accountKeys[i]
+            for (const [market, dummyOpenOrders] of Object.entries(this.solana.serumOpenOrdersAccountByMarket)) {
+              if (pubkey.toBase58() === dummyOpenOrders) {
+                message.accountKeys[i] = actualOpenOrdersByMarket[market]
+                break
+              }
             }
           }
         }
-      }
-      const { blockhash, lastValidBlockHeight } = await getLatestBlockhash
+        const { blockhash, lastValidBlockHeight } = await getLatestBlockhash
 
-      swapTx = await convertToVersionedTx('confirmed', blockhash, message, toPK)
+        swapTx = await convertToVersionedTx('confirmed', blockhash, message, toPK)
 
-      await swapTx.sign([this.solana.programState])
+        await swapTx.sign([this.solana.programState])
 
-      let initializedWrapSOL = false
-      if (this.inputAmount.currency.isNative) {
-        const wrapIxs = await checkAndCreateWrapSOLInstructions(toPK, this.inputAmount)
-        if (wrapIxs) {
-          setupTx.add(...wrapIxs)
-          initializedWrapSOL = true
+        let initializedWrapSOL = false
+        if (this.inputAmount.currency.isNative) {
+          const wrapIxs = await checkAndCreateWrapSOLInstructions(toPK, this.inputAmount)
+          if (wrapIxs) {
+            setupTx.add(...wrapIxs)
+            initializedWrapSOL = true
+          }
         }
-      }
 
-      await Promise.all(
-        Object.entries(this.tokens || {}).map(async ([tokenAddress, token]: [any, any]) => {
-          if (!token) return
-          if (tokenAddress === WETH[ChainId.SOLANA].address && initializedWrapSOL) return // for case WSOL as part of route
-          const createAtaIxs = await checkAndCreateAtaInstruction(
-            toPK,
-            new Token(ChainId.SOLANA, tokenAddress, token?.decimals || 0),
-          )
-          if (createAtaIxs) (setupTx as Transaction).add(createAtaIxs)
-        }),
-      )
-      setupTx.recentBlockhash = blockhash
-      setupTx.lastValidBlockHeight = lastValidBlockHeight
-      newOpenOrders.length && setupTx.partialSign(...newOpenOrders.map(i => i[1]))
-      //#endregion create set up tx and swap tx
+        await Promise.all(
+          Object.entries(this.tokens || {}).map(async ([tokenAddress, token]: [any, any]) => {
+            if (!token) return
+            if (tokenAddress === WETH[ChainId.SOLANA].address && initializedWrapSOL) return // for case WSOL as part of route
+            const createAtaIxs = await checkAndCreateAtaInstruction(
+              toPK,
+              new Token(ChainId.SOLANA, tokenAddress, token?.decimals || 0),
+            )
+            if (createAtaIxs) (setupTx as Transaction).add(createAtaIxs)
+          }),
+        )
+        setupTx.recentBlockhash = blockhash
+        setupTx.lastValidBlockHeight = lastValidBlockHeight
+        newOpenOrders.length && setupTx.partialSign(...newOpenOrders.map(i => i[1]))
+        //#endregion create set up tx and swap tx
 
-      //#region create clean up tx
-      if (this.outputAmount.currency.isNative) {
-        cleanUpTx = new Transaction({
-          blockhash,
-          lastValidBlockHeight,
-          feePayer: toPK,
-        })
-        const closeWSOLIxs = await createUnwrapSOLInstruction(toPK)
-        if (closeWSOLIxs) cleanUpTx.add(closeWSOLIxs)
-      }
-      //#endregion create clean up tx
+        //#region create clean up tx
+        if (this.outputAmount.currency.isNative) {
+          cleanUpTx = new Transaction({
+            blockhash,
+            lastValidBlockHeight,
+            feePayer: toPK,
+          })
+          const closeWSOLIxs = await createUnwrapSOLInstruction(toPK)
+          if (closeWSOLIxs) cleanUpTx.add(closeWSOLIxs)
+        }
+        //#endregion create clean up tx
 
-      return {
-        setupTx: setupTx?.instructions.length ? setupTx : null,
-        swapTx,
-        cleanUpTx,
+        return {
+          setupTx: setupTx?.instructions.length ? setupTx : null,
+          swapTx,
+          cleanUpTx,
+        }
+      } catch (error) {
+        return
       }
     }
 
