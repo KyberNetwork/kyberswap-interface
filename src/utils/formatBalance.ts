@@ -1,5 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { Currency, CurrencyAmount, Fraction } from '@kyberswap/ks-sdk-core'
+import { formatUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 import Numeral from 'numeral'
 
@@ -86,4 +87,7 @@ export const formatCurrencyAmount = (amount: CurrencyAmount<Currency>): string =
   }
 
   return amount.toFixed(3)
+}
+export const formatUnitsToFixed = (amount: BigNumber, decimals?: number, decimalPlaces?: number) => {
+  return (+(+formatUnits(amount, decimals)).toFixed(decimalPlaces || 3)).toString()
 }

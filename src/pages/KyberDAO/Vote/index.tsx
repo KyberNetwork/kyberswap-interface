@@ -2,29 +2,34 @@ import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import RelativeTime from 'dayjs/plugin/relativeTime'
 import { transparentize } from 'polished'
+import { useCallback, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Clock } from 'react-feather'
 import { Box, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import bgimg from 'assets/images/about_background.png'
+import luxuryGreenBackground from 'assets/images/kyberdao/luxury-green-background-small.jpg'
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import VoteIcon from 'components/Icons/Vote'
 import InfoHelper from 'components/InfoHelper'
 import { AutoRow, RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
+import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
 import { useActiveWeb3React } from 'hooks'
-import { useStakingInfo, useVotingInfo } from 'hooks/kyberdao'
+import { useClaimRewardActions, useStakingInfo, useVotingInfo } from 'hooks/kyberdao'
 import useTotalVotingReward from 'hooks/kyberdao/useTotalVotingRewards'
 import useTheme from 'hooks/useTheme'
-import { useKNCPrice } from 'state/application/hooks'
+import { ApplicationModal } from 'state/application/actions'
+import { useKNCPrice, useToggleModal } from 'state/application/hooks'
 import { StyledInternalLink } from 'theme'
 import { formattedNumLong } from 'utils'
-import { getFullDisplayBalance } from 'utils/formatBalance'
+import { formatUnitsToFixed } from 'utils/formatBalance'
 
 import SwitchToEthereumModal from '../StakeKNC/SwitchToEthereumModal'
 import KNCLogo from '../kncLogo'
+import ClaimConfirmModal from './ClaimConfirmModal'
 import ProposalListComponent from './ProposalListComponent'
 
 dayjs.extend(RelativeTime)
@@ -55,13 +60,20 @@ const Container = styled.div`
   `}
 `
 
-const Card = styled.div`
+const Card = styled.div<{ hasGreenBackground?: boolean }>`
   padding: 20px 24px;
   border-radius: 20px;
+
   ${({ theme }) => css`
     background-color: ${transparentize(0.3, theme.buttonGray)};
     flex: 1;
   `}
+  ${({ hasGreenBackground }) =>
+    hasGreenBackground &&
+    css`
+      background-image: url('${luxuryGreenBackground}');
+      background-size: cover;
+    `}
 `
 
 const CardGroup = styled(RowBetween)`
@@ -77,10 +89,40 @@ const CardGroup = styled(RowBetween)`
 export default function Vote() {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
-  const { daoInfo } = useVotingInfo()
+  const { daoInfo, remainingCumulativeAmount, userRewards } = useVotingInfo()
   const { stakedBalance, isDelegated, delegatedAccount } = useStakingInfo()
   const kncPrice = useKNCPrice()
   const { knc, usd } = useTotalVotingReward()
+  const { claim } = useClaimRewardActions()
+  const isHasReward = !!remainingCumulativeAmount && !remainingCumulativeAmount.eq(0)
+  const toggleClaimConfirmModal = useToggleModal(ApplicationModal.KYBER_DAO_CLAIM)
+  const [showConfirm, setShowConfirm] = useState(false)
+  const [attemptingTxn, setAttemptingTxn] = useState<boolean>(false)
+  const [pendingText, setPendingText] = useState<string>('')
+
+  const [txHash, setTxHash] = useState<string | undefined>(undefined)
+
+  const handleClaim = useCallback(() => {
+    toggleClaimConfirmModal()
+  }, [toggleClaimConfirmModal])
+
+  const handleConfirmClaim = useCallback(async () => {
+    if (!userRewards || !userRewards.userReward || !account) return
+    const { cycle, userReward } = userRewards
+    const { index, tokens, cumulativeAmounts, proof } = userReward
+    setPendingText(t`Claming ${formatUnitsToFixed(remainingCumulativeAmount)} KNC`)
+    setShowConfirm(true)
+    setAttemptingTxn(true)
+    claim(cycle, index, account, tokens, cumulativeAmounts, proof)
+      .then(tx => {
+        setAttemptingTxn(false)
+        setTxHash(tx)
+      })
+      .catch(() => {
+        setAttemptingTxn(false)
+        setTxHash(undefined)
+      })
+  }, [userRewards, account, claim, remainingCumulativeAmount])
 
   return (
     <Wrapper>
@@ -142,7 +184,7 @@ export default function Vote() {
                   <Text fontSize={20}>
                     {stakedBalance && daoInfo?.total_staked
                       ? parseFloat(
-                          ((parseFloat(getFullDisplayBalance(stakedBalance)) / daoInfo.total_staked) * 100).toFixed(6),
+                          ((parseFloat(formatUnitsToFixed(stakedBalance)) / daoInfo.total_staked) * 100).toFixed(6),
                         ) + ' %'
                       : '--'}
                   </Text>
@@ -164,7 +206,7 @@ export default function Vote() {
               </RowBetween>
               <RowBetween>
                 <Text fontSize={12} color={theme.subText}>
-                  {stakedBalance ? getFullDisplayBalance(stakedBalance) + ' KNC Staked' : '--'}
+                  {stakedBalance ? formatUnitsToFixed(stakedBalance) + ' KNC Staked' : '--'}
                 </Text>
                 <StyledInternalLink to="/kyberdao/stake-knc" style={{ fontSize: '12px' }}>
                   <Trans>Stake KNC ↗</Trans>
@@ -172,7 +214,7 @@ export default function Vote() {
               </RowBetween>
             </AutoColumn>
           </Card>
-          <Card>
+          <Card hasGreenBackground={isHasReward}>
             <AutoColumn justify="space-between">
               <Text color={theme.subText} marginBottom={20}>
                 <Trans>Your Voting Reward</Trans>
@@ -181,16 +223,20 @@ export default function Vote() {
                 <RowBetween>
                   <AutoColumn>
                     <Text fontSize={20} marginBottom="8px">
-                      0 KNC
+                      {formatUnitsToFixed(remainingCumulativeAmount)} KNC
                     </Text>
                     <Text fontSize={12} color={theme.subText}>
-                      0 USD
+                      {(
+                        parseFloat(formatUnitsToFixed(remainingCumulativeAmount)) * parseFloat(kncPrice || '0')
+                      ).toFixed(2)}{' '}
+                      USD
                     </Text>
                   </AutoColumn>
                   <ButtonPrimary
                     width="75px"
-                    disabled
+                    disabled={!isHasReward}
                     style={{ filter: 'drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.16))' }}
+                    onClick={handleClaim}
                   >
                     <Trans>Claim</Trans>
                   </ButtonPrimary>
@@ -238,6 +284,17 @@ export default function Vote() {
         </Text>
         <ProposalListComponent />
         <SwitchToEthereumModal />
+        <ClaimConfirmModal amount={formatUnitsToFixed(remainingCumulativeAmount)} onConfirmClaim={handleConfirmClaim} />
+        <TransactionConfirmationModal
+          isOpen={showConfirm}
+          onDismiss={() => setShowConfirm(false)}
+          attemptingTxn={attemptingTxn}
+          hash={txHash}
+          pendingText={pendingText}
+          content={() => {
+            return <></>
+          }}
+        />
       </Container>
     </Wrapper>
   )

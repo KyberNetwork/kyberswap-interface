@@ -145,7 +145,57 @@ export function useKyberDaoStakeActions() {
     },
     [addTransactionWithType, stakingContract],
   )
+
   return { stake, unstake, migrate, delegate, undelegate }
+}
+
+export function useClaimRewardActions() {
+  const rewardDistributorContract = useContract(KYBERDAO_ADDRESSES.REWARDS_DISTRIBUTOR, RewardDistributorABI)
+  const addTransactionWithType = useTransactionAdder()
+
+  const claim = useCallback(
+    async (
+      cycle: number,
+      index: number,
+      address: string,
+      tokens: string[],
+      cumulativeAmounts: string[],
+      merkleProof: string[],
+    ) => {
+      if (!rewardDistributorContract) {
+        throw new Error(CONTRACT_NOT_FOUND_MSG)
+      }
+      const isValidClaim = await rewardDistributorContract.isValidClaim(
+        cycle,
+        index,
+        address,
+        tokens,
+        cumulativeAmounts,
+        merkleProof,
+      )
+      if (!isValidClaim) {
+        throw new Error('Invalid claim')
+      }
+      const estimateGas = await rewardDistributorContract.estimateGas.claim(
+        cycle,
+        index,
+        address,
+        tokens,
+        cumulativeAmounts,
+        merkleProof,
+      )
+      const tx = await rewardDistributorContract.claim(cycle, index, address, tokens, cumulativeAmounts, merkleProof, {
+        gasLimit: calculateGasMargin(estimateGas),
+      })
+      addTransactionWithType(tx, {
+        type: 'KyberDAO Claim',
+        summary: t`Claimed reward successful`,
+      })
+      return tx.hash
+    },
+    [rewardDistributorContract, addTransactionWithType],
+  )
+  return { claim }
 }
 
 const fetcher = (url: string) => {
@@ -154,9 +204,12 @@ const fetcher = (url: string) => {
     .then(res => res.data)
 }
 export function useVotingInfo() {
+  const { account } = useActiveWeb3React()
   const rewardDistributorContract = useContract(KYBERDAO_ADDRESSES.REWARDS_DISTRIBUTOR, RewardDistributorABI)
   const { data: daoInfo } = useSWR(APIS.DAO + '/dao-info', fetcher)
+
   const merkleData = useSingleCallResult(rewardDistributorContract, 'getMerkleData')
+
   const merkleDataFileUrl = useMemo(() => {
     if (!merkleData) return
     const merkleDataRes = merkleData.result?.[0]
@@ -167,9 +220,41 @@ export function useVotingInfo() {
     }
     return merkleDataFileUrl
   }, [merkleData])
+
   const { data: userRewards } = useSWRImmutable(merkleDataFileUrl, (url: string) => {
-    return fetch(url).then(res => res.json())
+    return fetch(url)
+      .then(res => res.json())
+      .then(res => {
+        res.userReward = account ? res.userRewards[account] : undefined
+        delete res.userRewards
+        return res
+      })
   })
+
+  const claimedRewardAmounts = useSingleCallResult(rewardDistributorContract, 'getClaimedAmounts', [
+    account,
+    userRewards?.userReward?.tokens,
+  ])
+
+  const remainingCumulativeAmount: BigNumber = useMemo(() => {
+    if (!userRewards?.userReward?.tokens || !claimedRewardAmounts?.result) return BigNumber.from(0)
+    return (
+      userRewards?.userReward?.tokens?.map((_: string, index: number) => {
+        const cummulativeAmount =
+          userRewards.userReward &&
+          userRewards.userReward.cumulativeAmounts &&
+          userRewards.userReward.cumulativeAmounts[index]
+
+        if (!cummulativeAmount) {
+          return BigNumber.from(0)
+        }
+        const claimedAmount = claimedRewardAmounts?.result?.[0]?.[index] || 0
+
+        return BigNumber.from(cummulativeAmount).sub(BigNumber.from(claimedAmount))
+      })[0] || BigNumber.from(0)
+    )
+  }, [claimedRewardAmounts, userRewards?.userReward])
+
   const { data: proposals } = useSWRImmutable<ProposalDetail[]>(APIS.DAO + '/proposals', fetcher)
 
   const calculateVotingPower = useCallback(
@@ -186,7 +271,14 @@ export function useVotingInfo() {
     },
     [daoInfo],
   )
-  return { daoInfo, userRewards, calculateVotingPower, proposals }
+  return {
+    daoInfo,
+    userRewards,
+    calculateVotingPower,
+    proposals,
+    userReward: userRewards?.userReward,
+    remainingCumulativeAmount,
+  }
 }
 
 export function useProposalInfoById(id?: number): { proposalInfo?: ProposalDetail } {
