@@ -1,5 +1,6 @@
 import { t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
+import { formatUnits } from 'ethers/lib/utils'
 import { useCallback, useMemo } from 'react'
 import useSWR from 'swr'
 import useSWRImmutable from 'swr/immutable'
@@ -39,8 +40,8 @@ export function useStakingInfo() {
   }, [delegatedAccount, account])
 
   return {
-    stakedBalance: stakedBalance.result?.[0],
-    KNCBalance,
+    stakedBalance: stakedBalance.result?.[0] || 0,
+    KNCBalance: KNCBalance.value || 0,
     delegatedAccount: delegatedAccount.result?.[0],
     isDelegated,
   }
@@ -64,7 +65,7 @@ export function useKyberDaoStakeActions() {
         addTransactionWithType(tx, {
           type: 'KyberDAO Stake',
           summary: t`You have successfully staked to KyberDAO`,
-          arbitrary: { amount: amount.div(BigNumber.from(10).pow(18)).toString() },
+          arbitrary: { amount: formatUnits(amount) },
         })
         return tx.hash
       } catch (error) {
@@ -78,14 +79,14 @@ export function useKyberDaoStakeActions() {
       if (!stakingContract) {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }
-      const estimateGas = await stakingContract.estimateGas.delegate(amount)
+      const estimateGas = await stakingContract.estimateGas.withdraw(amount)
       const tx = await stakingContract.withdraw(amount, {
         gasLimit: calculateGasMargin(estimateGas),
       })
       addTransactionWithType(tx, {
         type: 'KyberDAO Unstake',
         summary: t`You have successfully unstaked from KyberDAO`,
-        arbitrary: { amount: amount.div(BigNumber.from(10).pow(18)).toString() },
+        arbitrary: { amount: formatUnits(amount) },
       })
       return tx.hash
     },

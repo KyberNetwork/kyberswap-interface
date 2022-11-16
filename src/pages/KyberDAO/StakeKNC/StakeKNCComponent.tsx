@@ -1,8 +1,8 @@
-import { MaxUint256, TokenAmount } from '@kyberswap/ks-sdk-core'
+import { ChainId, MaxUint256, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { parseUnits } from 'ethers/lib/utils'
+import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { lighten } from 'polished'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Repeat } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { Text } from 'rebass'
@@ -26,7 +26,7 @@ import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useKNCPrice, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
-import { getFullDisplayBalance } from 'utils/formatBalance'
+import { isAddress } from 'utils'
 
 import KNCLogo from '../kncLogo'
 import ApproveKNCLModal from './ApproveKNCLModal'
@@ -196,7 +196,7 @@ const HistoryButton = styled(RowFit)`
 
 export default function StakeKNCComponent() {
   const theme = useTheme()
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const { stakedBalance, KNCBalance, delegatedAccount } = useStakingInfo()
   const { calculateVotingPower } = useVotingInfo()
   const isDelegated = !!delegatedAccount && delegatedAccount !== account
@@ -209,6 +209,26 @@ export default function StakeKNCComponent() {
 
   const [txHash, setTxHash] = useState<string | undefined>(undefined)
   const [inputValue, setInputValue] = useState('1')
+
+  const [errorMessage, setErrorMessage] = useState<string | undefined>()
+  useEffect(() => {
+    if (chainId !== ChainId.MAINNET) {
+      setErrorMessage(undefined)
+      return
+    }
+    if (!inputValue || isNaN(parseFloat(inputValue)) || parseFloat(inputValue) <= 0) {
+      setErrorMessage(t`Invalid amount`)
+    } else if (
+      (parseFloat(inputValue) > parseFloat(formatUnits(KNCBalance)) && activeTab === STAKE_TAB.Stake) ||
+      (parseFloat(inputValue) > parseFloat(formatUnits(stakedBalance)) && activeTab === STAKE_TAB.Unstake)
+    ) {
+      setErrorMessage(t`Insufficient amount`)
+    } else if (activeTab === STAKE_TAB.Delegate && delegateAddress !== '' && !isAddress(delegateAddress)) {
+      setErrorMessage(t`Invalid Ethereum address`)
+    } else {
+      setErrorMessage(undefined)
+    }
+  }, [chainId, inputValue, KNCBalance, stakedBalance, activeTab, delegateAddress])
 
   const toggleWalletModal = useWalletModalToggle()
   const toggleDelegateConfirm = useToggleModal(ApplicationModal.DELEGATE_CONFIRM)
@@ -237,6 +257,7 @@ export default function StakeKNCComponent() {
           })
           .catch(() => {
             setAttemptingTxn(false)
+            setTxHash(undefined)
           })
       } else {
         toggleApproveModal()
@@ -305,6 +326,19 @@ export default function StakeKNCComponent() {
     return (parseFloat(kncPrice) * parseFloat(inputValue)).toFixed(2)
   }, [kncPrice, inputValue])
 
+  const handleMaxClick = useCallback(
+    (half?: boolean) => {
+      const balance = activeTab === STAKE_TAB.Stake ? KNCBalance : stakedBalance
+      setInputValue(formatUnits(balance.div(!!half ? 2 : 1)))
+    },
+    [activeTab, KNCBalance, stakedBalance],
+  )
+
+  // Reset input value on tab changes
+  useEffect(() => {
+    setInputValue('1')
+  }, [activeTab])
+
   return (
     <Wrapper>
       <TabSelect>
@@ -326,7 +360,7 @@ export default function StakeKNCComponent() {
           alignItems="center"
           style={{ gap: '8px' }}
         >
-          <KNCLogo size={20} /> {getFullDisplayBalance(stakedBalance, 18)} KNC
+          <KNCLogo size={20} /> {formatUnits(stakedBalance)} KNC
         </Text>
       </YourStakedKNC>
 
@@ -348,22 +382,11 @@ export default function StakeKNCComponent() {
               <InnerCard>
                 <RowBetween width={'100%'}>
                   <AutoRow gap="2px">
-                    <SmallButton
-                      onClick={() => setInputValue(getFullDisplayBalance(KNCBalance.value, KNCBalance.decimals))}
-                    >
-                      Max
-                    </SmallButton>
-                    <SmallButton
-                      onClick={() => setInputValue(getFullDisplayBalance(KNCBalance.value.div(2), KNCBalance.decimals))}
-                    >
-                      Half
-                    </SmallButton>
+                    <SmallButton onClick={() => handleMaxClick()}>Max</SmallButton>
+                    <SmallButton onClick={() => handleMaxClick(true)}>Half</SmallButton>
                   </AutoRow>
                   <AutoRow gap="3px" justify="flex-end" color={theme.subText}>
-                    <Wallet />{' '}
-                    <Text fontSize={12}>
-                      {KNCBalance ? getFullDisplayBalance(KNCBalance.value, KNCBalance.decimals) : 0}
-                    </Text>
+                    <Wallet /> <Text fontSize={12}>{KNCBalance ? formatUnits(KNCBalance) : 0}</Text>
                   </AutoRow>
                 </RowBetween>
                 <RowBetween>
@@ -385,8 +408,9 @@ export default function StakeKNCComponent() {
                       handleUnstake()
                     }
                   }}
+                  disabled={!!errorMessage}
                 >
-                  {activeTab === STAKE_TAB.Stake ? 'Stake' : 'Unstake'}
+                  {errorMessage || (activeTab === STAKE_TAB.Stake ? t`Stake` : t`Unstake`)}
                 </ButtonPrimary>
               ) : (
                 <ButtonLight onClick={toggleWalletModal}>
@@ -446,8 +470,8 @@ export default function StakeKNCComponent() {
                   </Text>
                 }
               />
-              <ButtonPrimary margin="8px 0px" onClick={handleDelegate}>
-                {!!delegatedAccount ? <Trans>Undelegate</Trans> : <Trans>Delegate</Trans>}
+              <ButtonPrimary margin="8px 0px" onClick={handleDelegate} disabled={!!errorMessage}>
+                {errorMessage || (isDelegated ? <Trans>Undelegate</Trans> : <Trans>Delegate</Trans>)}
               </ButtonPrimary>
             </>
           )}
@@ -471,9 +495,9 @@ export default function StakeKNCComponent() {
                 <Trans>Stake Amount</Trans>
               </Text>
               <Text>
-                {getFullDisplayBalance(stakedBalance, 18)} KNC &rarr;{' '}
+                {formatUnits(stakedBalance)} KNC &rarr;{' '}
                 <span style={{ color: theme.text }}>
-                  {parseFloat(getFullDisplayBalance(stakedBalance, 18)) + parseFloat(inputValue || '0')} KNC
+                  {parseFloat(formatUnits(stakedBalance)) + parseFloat(inputValue || '0')} KNC
                 </span>
               </Text>
             </RowBetween>
@@ -482,8 +506,13 @@ export default function StakeKNCComponent() {
                 <Trans>Voting power</Trans>
               </Text>
               <Text>
-                {calculateVotingPower(getFullDisplayBalance(stakedBalance, 18))}% &rarr;{' '}
-                <span style={{ color: theme.text }}>{calculateVotingPower(inputValue)}%</span>
+                {calculateVotingPower(formatUnits(stakedBalance))}% &rarr;{' '}
+                <span style={{ color: theme.text }}>
+                  {calculateVotingPower(
+                    (parseFloat(formatUnits(stakedBalance)) + parseFloat(inputValue || '0')).toString(),
+                  )}
+                  %
+                </span>
               </Text>
             </RowBetween>
           </AutoColumn>
