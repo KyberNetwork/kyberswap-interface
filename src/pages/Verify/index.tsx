@@ -51,6 +51,9 @@ function Verify() {
         })
         .then(() => {
           setStatus(STATUS.SUCCESS)
+          if (qs.email) {
+            //   axios.post(`${KS_SETTING_API}/v1/sendgrid/add-contact`, { email: qs.email }).catch(console.error)
+          }
         })
         .catch(e => {
           console.error(e)
@@ -58,7 +61,7 @@ function Verify() {
         })
     }, 500)
     return () => ref.current && clearTimeout(ref.current)
-  }, [qs?.confirmation])
+  }, [qs?.confirmation, qs?.email])
 
   const icon = (() => {
     switch (status) {

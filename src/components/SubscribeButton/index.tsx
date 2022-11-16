@@ -1,5 +1,4 @@
 import { Trans, t } from '@lingui/macro'
-import { rgba } from 'polished'
 import { ReactNode, useCallback } from 'react'
 import { BellOff } from 'react-feather'
 import { Text } from 'rebass'
@@ -19,26 +18,34 @@ import { checkChrome } from 'utils/checkChrome'
 import { ButtonOutlined, ButtonPrimary } from '../Button'
 import { MouseoverTooltipDesktopOnly } from '../Tooltip'
 
-const cssSubscribeBtnSmall = (isDisabled: boolean, theme: DefaultTheme) => css`
+const cssSubscribeBtnSmall = (isDisabled: boolean, theme: DefaultTheme, bgColor: string, needVerify: boolean) => css`
   width: 36px;
   min-width: 36px;
   padding: 6px;
-  background: ${isDisabled ? theme.buttonGray : rgba(theme.primary, 0.2)};
-  color: ${isDisabled ? theme.border : theme.primary};
+  background: ${bgColor};
+  &:hover {
+    background: ${bgColor};
+  }
 `
-const SubscribeBtn = styled(ButtonPrimary)<{ isDisabled: boolean; iconOnly?: boolean; bgColor?: string }>`
+const SubscribeBtn = styled(ButtonPrimary)<{
+  isDisabled: boolean
+  iconOnly?: boolean
+  bgColor: string
+  needVerify: boolean
+}>`
   overflow: hidden;
   width: fit-content;
   height: 36px;
   padding: 8px 12px;
-  background: ${({ theme, isDisabled, bgColor }) => bgColor || (isDisabled ? theme.buttonGray : theme.primary)};
+  background: ${({ bgColor }) => bgColor};
   color: ${({ theme, isDisabled }) => (isDisabled ? theme.border : theme.textReverse)};
   &:hover {
-    background: ${({ theme, isDisabled, bgColor }) => bgColor || (isDisabled ? theme.buttonGray : theme.primary)};
+    background: ${({ bgColor }) => bgColor};
   }
-  ${({ iconOnly, isDisabled, theme }) => iconOnly && cssSubscribeBtnSmall(isDisabled, theme)};
-  ${({ theme, isDisabled }) => theme.mediaWidth.upToExtraSmall`
-   ${cssSubscribeBtnSmall(isDisabled, theme)}
+  ${({ iconOnly, isDisabled, theme, bgColor, needVerify }) =>
+    iconOnly && cssSubscribeBtnSmall(isDisabled, theme, bgColor, needVerify)};
+  ${({ theme, isDisabled, bgColor, needVerify }) => theme.mediaWidth.upToExtraSmall`
+   ${cssSubscribeBtnSmall(isDisabled, theme, bgColor, needVerify)}
   `}
 `
 
@@ -93,6 +100,7 @@ export default function SubscribeNotificationButton({
   const toggleSubscribeModal = useNotificationModalToggle()
   const notificationState = useNotification(topicId)
   const { isLoading, isSubscribed, isVerified, setNeedShowModalSubscribeState, checkVerifyStatus } = notificationState
+
   const { mixpanelHandler } = useMixpanel()
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
@@ -161,8 +169,9 @@ export default function SubscribeNotificationButton({
           width="400px"
         >
           <SubscribeBtn
-            bgColor={needVerify ? theme.warning : undefined}
-            isDisabled={!isChrome || isLoading}
+            needVerify={needVerify}
+            bgColor={needVerify ? theme.warning : isLoading ? theme.buttonGray : theme.primary}
+            isDisabled={isLoading}
             onClick={onClickBtn}
             iconOnly={iconOnly}
           >
