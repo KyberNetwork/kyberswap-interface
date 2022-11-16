@@ -16,21 +16,11 @@ import { useNotificationModalToggle } from 'state/application/hooks'
 const getSubscribedTopicUrl = (account: string | null | undefined) =>
   account ? `${process.env.REACT_APP_NOTIFICATION_API}/v1/topics?walletAddress=${account}` : ''
 
-const getSubscribeStatus = async (
-  walletAddress: string,
-  topicID: number,
-  email: string,
-): Promise<'VERIFIED' | 'UNVERIFIED'> => {
-  const { data } = await axios.get(`${process.env.REACT_APP_NOTIFICATION_API}/v1/topics/verify/status`, {
-    params: { walletAddress, topicID, email },
-  })
-  return data.data
-}
-
 type Topic = {
   id: number
   code: string
   description: string
+  status: 'ACTIVE' | 'UNVERIFIED'
 }
 
 export const NOTIFICATION_TOPICS = {
@@ -117,26 +107,11 @@ const useNotification = (topicId: number) => {
   useEffect(() => {
     const topicInfo = topics?.find((el: Topic) => el.id === topicId)
     // topics: null | array when called api, undefined when not call api yet
-
     const hasSubscribed = !!topicInfo
-    const email = topicInfo?.email
-    const setState = (hasSubscribed: boolean, isVerified = false, email?: string) => {
-      setTopicState(hasSubscribed, isVerified, email)
-      if (!hasSubscribed && needShowModalSubscribe && account && topics !== undefined) {
-        refToggleSubscribeModal.current?.()
-        setNeedShowModalSubscribeState(false)
-      }
-    }
-    if (email && account) {
-      getSubscribeStatus(account, topicId, email)
-        .then(data => {
-          setState(hasSubscribed, data === 'VERIFIED', email)
-        })
-        .catch(() => {
-          setState(hasSubscribed)
-        })
-    } else {
-      setState(hasSubscribed)
+    setTopicState(hasSubscribed, topicInfo?.status === 'ACTIVE', topicInfo?.email)
+    if (!hasSubscribed && needShowModalSubscribe && account && topics !== undefined) {
+      refToggleSubscribeModal.current?.()
+      setNeedShowModalSubscribeState(false)
     }
   }, [topics, setTopicState, topicId, account, setNeedShowModalSubscribeState, needShowModalSubscribe])
 

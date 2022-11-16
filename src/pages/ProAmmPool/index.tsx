@@ -62,49 +62,52 @@ interface AddressSymbolMapInterface {
   [key: string]: string
 }
 
-const renderNotificationButton = (iconOnly: boolean) => (
-  <SubscribeNotificationButton
-    iconOnly={iconOnly}
-    topicId={NOTIFICATION_TOPICS.POSITION_POOL}
-    unsubscribeModalContent={
-      <StyledText>
-        Unsubscribe to stop receiving notifications on <Hightlight>all</Hightlight> your liquidity positions
-      </StyledText>
-    }
-    unsubscribeTooltip={
-      <StyledText>
-        Unsubscribe to stop receiving notifications on <Hightlight>all</Hightlight> your liquidity positions
-      </StyledText>
-    }
-    subscribeModalContent={
-      <>
+const renderNotificationButton = (iconOnly: boolean) => {
+  return null // temp off feature, will release soon
+  return (
+    <SubscribeNotificationButton
+      iconOnly={iconOnly}
+      topicId={NOTIFICATION_TOPICS.POSITION_POOL}
+      unsubscribeModalContent={
         <StyledText>
-          <Trans>
-            You can subscribe to email notifications for your liquidity positions. Whenever your position goes{' '}
-            <Hightlight>out-of-range</Hightlight>, comes back <Hightlight>in-range</Hightlight>, or is{' '}
-            <Hightlight>closed</Hightlight> you will receive a notification.
-          </Trans>
+          Unsubscribe to stop receiving notifications on <Hightlight>all</Hightlight> your liquidity positions
         </StyledText>
-        <br />
+      }
+      unsubscribeTooltip={
         <StyledText>
-          <Trans>
-            You can enable or disable notifications for individual positions by clicking on the toggle on top of the
-            liquidity positions card
-          </Trans>
+          Unsubscribe to stop receiving notifications on <Hightlight>all</Hightlight> your liquidity positions
         </StyledText>
-      </>
-    }
-    subscribeTooltip={
-      <div>
-        <Trans>
-          Subscribe to receive notifications on <Hightlight>all</Hightlight> your liquidity positions. When your
-          liquidity position goes <Hightlight>out-of-range</Hightlight>, back <Hightlight>in-range</Hightlight> or is{' '}
-          <Hightlight>closed</Hightlight> you will receive a notification
-        </Trans>
-      </div>
-    }
-  />
-)
+      }
+      subscribeModalContent={
+        <>
+          <StyledText>
+            <Trans>
+              You can subscribe to email notifications for your liquidity positions. Whenever your position goes{' '}
+              <Hightlight>out-of-range</Hightlight>, comes back <Hightlight>in-range</Hightlight>, or is{' '}
+              <Hightlight>closed</Hightlight> you will receive a notification.
+            </Trans>
+          </StyledText>
+          <br />
+          <StyledText>
+            <Trans>
+              You can enable or disable notifications for individual positions by clicking on the toggle on top of the
+              liquidity positions card
+            </Trans>
+          </StyledText>
+        </>
+      }
+      subscribeTooltip={
+        <div>
+          <Trans>
+            Subscribe to receive notifications on <Hightlight>all</Hightlight> your liquidity positions. When your
+            liquidity position goes <Hightlight>out-of-range</Hightlight>, back <Hightlight>in-range</Hightlight> or is{' '}
+            <Hightlight>closed</Hightlight> you will receive a notification
+          </Trans>
+        </div>
+      }
+    />
+  )
+}
 
 export default function ProAmmPool() {
   const { account, chainId } = useActiveWeb3React()
