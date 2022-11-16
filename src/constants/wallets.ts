@@ -11,24 +11,15 @@ import {
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import { isMobile } from 'react-device-detect'
 
-import BRAVE_L from 'assets/images/brave_wallet-light.svg'
-import BRAVE from 'assets/images/brave_wallet.svg'
-import COIN98_L from 'assets/images/coin98-light.svg'
-import COIN98 from 'assets/images/coin98.svg'
-import COINBASE_L from 'assets/images/coinbase-wallet-light.svg'
-import COINBASE from 'assets/images/coinbase-wallet.svg'
-import METAMASK_L from 'assets/images/metamask-light.svg'
-import METAMASK from 'assets/images/metamask.svg'
-import PHANTOM_L from 'assets/images/phantom-light.svg'
-import PHANTOM from 'assets/images/phantom.svg'
-import SLOPE_L from 'assets/images/slope-light.svg'
-import SLOPE from 'assets/images/slope.svg'
-import SOLFLARE_L from 'assets/images/solflare-light.svg'
-import SOLFLARE from 'assets/images/solflare.svg'
-import SOLLET_L from 'assets/images/sollet-light.png'
-import SOLLET from 'assets/images/sollet.png'
-import WALLETCONNECT_L from 'assets/images/wallet-connect-light.svg'
-import WALLETCONNECT from 'assets/images/wallet-connect.svg'
+import BRAVE from 'assets/wallets-connect/brave.svg'
+import COIN98 from 'assets/wallets-connect/coin98.svg'
+import COINBASE from 'assets/wallets-connect/coinbase.svg'
+import METAMASK from 'assets/wallets-connect/metamask.svg'
+import PHANTOM from 'assets/wallets-connect/phantom.svg'
+import SLOPE from 'assets/wallets-connect/slope.svg'
+import SOLFLARE from 'assets/wallets-connect/solflare.svg'
+import SOLLET from 'assets/wallets-connect/sollet.png'
+import WALLETCONNECT from 'assets/wallets-connect/wallet-connect.svg'
 import { braveInjectedConnector, coin98InjectedConnector, injected, walletconnect, walletlink } from 'connectors'
 import checkForBraveBrowser from 'utils/checkForBraveBrowser'
 
@@ -105,7 +96,7 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
     connector: injected,
     name: 'MetaMask',
     icon: METAMASK,
-    iconLight: METAMASK_L,
+    iconLight: METAMASK,
     installLink: 'https://metamask.io/download',
     readyState: detectMetamask,
   } as EVMWalletInfo,
@@ -114,7 +105,7 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
     adapter: braveAdapter,
     name: 'Brave Wallet',
     icon: BRAVE,
-    iconLight: BRAVE_L,
+    iconLight: BRAVE,
     installLink: 'https://brave.com/download',
     readyState: detectBrave,
     // If Phantom extension installed block Brave wallet
@@ -125,7 +116,7 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
     adapter: coin98Adapter,
     name: 'Coin98',
     icon: COIN98,
-    iconLight: COIN98_L,
+    iconLight: COIN98,
     installLink: 'https://wallet.coin98.com/',
     readyState: detectCoin98,
     readyStateSolana: () => coin98Adapter.readyState,
@@ -135,7 +126,7 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
     adapter: coinbaseAdapter,
     name: 'Coinbase',
     icon: COINBASE,
-    iconLight: COINBASE_L,
+    iconLight: COINBASE,
     installLink: 'https://www.coinbase.com/wallet',
     readyState: detectCoinbase,
     readyStateSolana: () => (isMobile ? WalletReadyState.Unsupported : coinbaseAdapter.readyState),
@@ -145,14 +136,14 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
     href: 'https://go.cb-w.com/S7mannYpWjb',
     name: 'Coinbase Wallet',
     icon: COINBASE,
-    iconLight: COINBASE_L,
+    iconLight: COINBASE,
     readyState: detectCoinBaseLink,
   } as EVMWalletInfo,
   WALLET_CONNECT: {
     connector: walletconnect,
     name: 'WalletConnect',
     icon: WALLETCONNECT,
-    iconLight: WALLETCONNECT_L,
+    iconLight: WALLETCONNECT,
     installLink: 'https://walletconnect.com/',
     readyState: () => WalletReadyState.Installed,
   } as EVMWalletInfo,
@@ -167,7 +158,7 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
     adapter: solflareAdapter,
     name: 'Solflare',
     icon: SOLFLARE,
-    iconLight: SOLFLARE_L,
+    iconLight: SOLFLARE,
     installLink: solflareAdapter.url,
     readyStateSolana: () => solflareAdapter.readyState,
   } as SolanaWalletInfo,
@@ -175,7 +166,7 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
     adapter: phantomAdapter,
     name: 'Phantom',
     icon: PHANTOM,
-    iconLight: PHANTOM_L,
+    iconLight: PHANTOM,
     installLink: phantomAdapter.url,
     readyStateSolana: detectPhantomWallet,
   } as SolanaWalletInfo,
@@ -183,7 +174,7 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
     adapter: solletAdapter,
     name: 'Sollet',
     icon: SOLLET,
-    iconLight: SOLLET_L,
+    iconLight: SOLLET,
     installLink: solletAdapter.url,
     readyStateSolana: () => (isMobile ? WalletReadyState.Unsupported : solletAdapter.readyState),
   } as SolanaWalletInfo,
@@ -191,7 +182,7 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
     adapter: slopeAdapter,
     name: 'Slope Wallet',
     icon: SLOPE,
-    iconLight: SLOPE_L,
+    iconLight: SLOPE,
     installLink: slopeAdapter.url,
     readyStateSolana: () => (isMobile ? WalletReadyState.Unsupported : slopeAdapter.readyState),
   } as SolanaWalletInfo,
