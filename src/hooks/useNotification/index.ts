@@ -25,7 +25,7 @@ type Topic = {
 
 export const NOTIFICATION_TOPICS = {
   TRENDING_SOON: 2,
-  POSITION_POOL: 1, // todo
+  POSITION_POOL: 1, 
 }
 
 const useNotification = (topicId: number) => {

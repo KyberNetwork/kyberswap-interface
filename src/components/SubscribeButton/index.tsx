@@ -2,7 +2,7 @@ import { Trans, t } from '@lingui/macro'
 import { ReactNode, useCallback } from 'react'
 import { BellOff } from 'react-feather'
 import { Text } from 'rebass'
-import styled, { DefaultTheme, css } from 'styled-components'
+import styled, { css } from 'styled-components'
 
 import { Spinner } from 'components/Header/Polling'
 import NotificationIcon from 'components/Icons/NotificationIcon'
@@ -13,12 +13,11 @@ import useNotification, { NOTIFICATION_TOPICS } from 'hooks/useNotification'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useNotificationModalToggle, useWalletModalToggle } from 'state/application/hooks'
-import { checkChrome } from 'utils/checkChrome'
 
 import { ButtonOutlined, ButtonPrimary } from '../Button'
 import { MouseoverTooltipDesktopOnly } from '../Tooltip'
 
-const cssSubscribeBtnSmall = (isDisabled: boolean, theme: DefaultTheme, bgColor: string, needVerify: boolean) => css`
+const cssSubscribeBtnSmall = (bgColor: string) => css`
   width: 36px;
   min-width: 36px;
   padding: 6px;
@@ -42,10 +41,9 @@ const SubscribeBtn = styled(ButtonPrimary)<{
   &:hover {
     background: ${({ bgColor }) => bgColor};
   }
-  ${({ iconOnly, isDisabled, theme, bgColor, needVerify }) =>
-    iconOnly && cssSubscribeBtnSmall(isDisabled, theme, bgColor, needVerify)};
-  ${({ theme, isDisabled, bgColor, needVerify }) => theme.mediaWidth.upToExtraSmall`
-   ${cssSubscribeBtnSmall(isDisabled, theme, bgColor, needVerify)}
+  ${({ iconOnly, bgColor }) => iconOnly && cssSubscribeBtnSmall(bgColor)};
+  ${({ theme, bgColor }) => theme.mediaWidth.upToExtraSmall`
+   ${cssSubscribeBtnSmall(bgColor)}
   `}
 `
 
@@ -96,7 +94,6 @@ export default function SubscribeNotificationButton({
   iconOnly?: boolean
 }) {
   const theme = useTheme()
-  const isChrome = checkChrome()
   const toggleSubscribeModal = useNotificationModalToggle()
   const notificationState = useNotification(topicId)
   const { isLoading, isSubscribed, isVerified, setNeedShowModalSubscribeState, checkVerifyStatus } = notificationState
@@ -147,11 +144,12 @@ export default function SubscribeNotificationButton({
   ])
 
   const isOpen = useModalOpen(ApplicationModal.NOTIFICATION_SUBSCRIPTION)
+  const isDisabled = isLoading
   return (
     <>
       {isSubscribed && isVerified ? (
         <MouseoverTooltipDesktopOnly text={unsubscribeTooltip} width="400px">
-          <UnSubscribeButton disabled={!isChrome || isLoading} onClick={onClickBtn} iconOnly={iconOnly}>
+          <UnSubscribeButton disabled={isDisabled} onClick={onClickBtn} iconOnly={iconOnly}>
             {isLoading ? <StyledSpinner color={theme.primary} /> : <BellOff color={theme.subText} size={18} />}
 
             <ButtonText color={'primary'} iconOnly={iconOnly}>
@@ -170,8 +168,8 @@ export default function SubscribeNotificationButton({
         >
           <SubscribeBtn
             needVerify={needVerify}
-            bgColor={needVerify ? theme.warning : isLoading ? theme.buttonGray : theme.primary}
-            isDisabled={isLoading}
+            bgColor={needVerify ? theme.warning : isDisabled ? theme.buttonGray : theme.primary}
+            isDisabled={isDisabled}
             onClick={onClickBtn}
             iconOnly={iconOnly}
           >
