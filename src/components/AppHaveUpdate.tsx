@@ -34,6 +34,8 @@ const AppHaveUpdate = () => {
           window.location.reload()
         }
       })
+    } else {
+      window.location.reload()
     }
   }
   if (!serviceWorkerRegistration?.waiting) return null
