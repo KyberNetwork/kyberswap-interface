@@ -1098,9 +1098,10 @@ export default function Swap({ history }: RouteComponentProps) {
                           <Text fontWeight={500}>
                             {swapInputError ? (
                               swapInputError
-                            ) : approval !== ApprovalState.APPROVED ||
-                              (isExpertMode && typeof trade?.solana?.swap !== 'object') ? (
+                            ) : approval !== ApprovalState.APPROVED ? (
                               <Trans>Checking allowance...</Trans>
+                            ) : isExpertMode && typeof trade?.solana?.swap !== 'object' ? (
+                              <Trans>Checking accounts...</Trans>
                             ) : isPriceImpactHigh || isPriceImpactInvalid ? (
                               <Trans>Swap Anyway</Trans>
                             ) : (
