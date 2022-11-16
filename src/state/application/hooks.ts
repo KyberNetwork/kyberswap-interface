@@ -12,6 +12,7 @@ import { KNC } from 'constants/tokens'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks/index'
 import { AppDispatch, AppState } from 'state/index'
+import { useAppSelector } from 'state/hooks'
 import { getBlockFromTimestamp, getPercentChange } from 'utils'
 
 import {
@@ -428,4 +429,8 @@ export function useTokensPrice(tokens: (Token | NativeCurrency | null | undefine
   }, [ethPrice.currentPrice, chainId, isEVM, networkInfo, tokens, version])
 
   return prices
+}
+
+export const useServiceWorkerRegistration = () => {
+  return useAppSelector(state => state.application.serviceWorkerRegistration)
 }

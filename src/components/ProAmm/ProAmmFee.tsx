@@ -165,7 +165,7 @@ export default function ProAmmFee({
             </Text>
             <RowFixed>
               <Text fontSize={14} fontWeight={500} marginLeft={'6px'}>
-                $ {formatNumberWithPrecisionRange(totalFeeRewardUSD, 0, 8)}
+                ${formatNumberWithPrecisionRange(totalFeeRewardUSD, 0, 8)}
               </Text>
             </RowFixed>
           </RowBetween>
@@ -209,7 +209,7 @@ export default function ProAmmFee({
           </Flex>
           <RowFixed>
             <Text fontSize={12} fontWeight={500}>
-              $ {formatNumberWithPrecisionRange(totalFeeRewardUSD, 0, 8)}
+              ${formatNumberWithPrecisionRange(totalFeeRewardUSD, 0, 8)}
             </Text>
           </RowFixed>
         </RowBetween>

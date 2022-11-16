@@ -9,6 +9,7 @@ import { Route, Switch } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
+import AppHaveUpdate from 'components/AppHaveUpdate'
 import ErrorBoundary from 'components/ErrorBoundary'
 import Footer from 'components/Footer/Footer'
 import Header from 'components/Header'
@@ -129,6 +130,7 @@ export default function App() {
 
   return (
     <ErrorBoundary>
+      <AppHaveUpdate />
       {width && width >= 768 ? (
         <Sidetab
           id={feedbackId}

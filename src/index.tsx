@@ -19,6 +19,7 @@ import 'swiper/swiper.min.css'
 
 import SolanaWalletContext from 'components/SolanaWalletContext'
 import { GTM_ID, MAINNET_ENV, MIXPANEL_PROJECT_TOKEN, SENTRY_DNS, TAG } from 'constants/env'
+import { updateServiceWorker } from 'state/application/actions'
 import CampaignsUpdater from 'state/campaigns/updater'
 
 import SEO from './components/SEO'
@@ -153,4 +154,11 @@ const container = document.getElementById('app') as HTMLElement
 const root = createRoot(container)
 root.render(<ReactApp />)
 
-serviceWorkerRegistration.unregister()
+serviceWorkerRegistration.register({
+  onSuccess: () => {
+    //
+  },
+  onUpdate: serviceWorkerRegistration => {
+    store.dispatch(updateServiceWorker(serviceWorkerRegistration))
+  },
+})

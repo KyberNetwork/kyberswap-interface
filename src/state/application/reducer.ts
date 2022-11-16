@@ -11,6 +11,7 @@ import {
   updateETHPrice,
   updateKNCPrice,
   updatePrommETHPrice,
+  updateServiceWorker,
 } from './actions'
 
 type PopupList = Array<{
@@ -34,6 +35,7 @@ export interface ApplicationState {
   readonly ethPrice: ETHPrice
   readonly prommEthPrice: ETHPrice
   readonly kncPrice?: string
+  readonly serviceWorkerRegistration: ServiceWorkerRegistration | null
 }
 
 const initialState: ApplicationState = {
@@ -43,6 +45,7 @@ const initialState: ApplicationState = {
   ethPrice: {},
   prommEthPrice: {},
   kncPrice: '',
+  serviceWorkerRegistration: null,
 }
 
 export default createReducer(initialState, builder =>
@@ -89,5 +92,8 @@ export default createReducer(initialState, builder =>
     })
     .addCase(updateKNCPrice, (state, { payload: kncPrice }) => {
       state.kncPrice = kncPrice
+    })
+    .addCase(updateServiceWorker, (state, { payload }) => {
+      state.serviceWorkerRegistration = payload
     }),
 )
