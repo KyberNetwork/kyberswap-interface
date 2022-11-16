@@ -25,7 +25,7 @@ export async function getTokenListV2(listUrl: string): Promise<TokenList> {
     const parsedData: TokenList = {
       tokens,
       name: 'KyberSwap Token List',
-      logoURI: 'https://kyberswap.com/favicon.png',
+      logoURI: 'https://kyberswap.com/favicon.png?version=v1',
       keywords: ['kyberswap', 'dmmexchange'],
       version: { major: 0, minor: 0, patch: 0 },
       timestamp: Date.now() + '',
