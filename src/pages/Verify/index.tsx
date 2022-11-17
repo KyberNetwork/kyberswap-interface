@@ -47,6 +47,7 @@ function Verify() {
   const refTimeoutVerify = useRef<NodeJS.Timeout>()
   const refTimeoutRedirect = useRef<NodeJS.Timeout>()
   const history = useHistory()
+  const timeRedirect = 5
   useEffect(() => {
     refTimeoutVerify.current = setTimeout(() => {
       if (!qs?.confirmation) return
@@ -58,7 +59,7 @@ function Verify() {
           setStatus(STATUS.SUCCESS)
           refTimeoutRedirect.current = setTimeout(() => {
             history.push(AppPaths.SWAP)
-          }, 5000)
+          }, timeRedirect * 1000)
           if (qs.email) {
             // temp off, will release soon
             //   axios.post(`${KS_SETTING_API}/v1/sendgrid/add-contact`, { email: qs.email }).catch(console.error)
@@ -102,7 +103,7 @@ function Verify() {
                 <Trans>
                   <Text fontWeight={'500'}>Your email have been verified by KyberSwap.com.</Text> If it has been more
                   than a few days and you still haven’t receive any notification yet, please contact us through our
-                  channels. You will be redirected to our Swap page shortly.
+                  channels. You will be redirected to our Swap page after {timeRedirect}s.
                 </Trans>
               </Text>
               <Text as="p" color={theme.subText} fontSize="14px">
