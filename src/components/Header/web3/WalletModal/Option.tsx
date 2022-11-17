@@ -176,11 +176,7 @@ const Option = ({
   }
 
   if (readyState === WalletReadyState.Loadable && isEVMWallet(wallet) && wallet.href) {
-    return (
-      <>
-        <StyledLink href={wallet.href}>{content}</StyledLink>
-      </>
-    )
+    return <StyledLink href={wallet.href}>{content}</StyledLink>
   }
 
   if (walletKey === 'BRAVE') {
@@ -268,7 +264,7 @@ const Option = ({
     )
   }
 
-  return <>{content}</>
+  return content
 }
 
 export default React.memo(Option)

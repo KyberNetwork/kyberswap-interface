@@ -102,7 +102,7 @@ export default function PendingView({
         </LoadingWrapper>
       </LoadingMessage>
       <WarningBox walletKey={walletKey} />
-      {context && <>{context}</>}
+      {context}
     </PendingSection>
   )
 }

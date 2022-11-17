@@ -137,10 +137,22 @@ const ToSText = styled.span`
   font-weight: 500;
 `
 
-const WALLET_VIEWS = {
-  CHANGE_WALLET: 'CHANGE_WALLET',
-  ACCOUNT: 'account',
-  PENDING: 'pending',
+const Step = styled(Flex)`
+  align-items: center;
+  justify-content: center;
+  backgroundcolor: transparentize(0.8, theme.primary);
+  color: theme.primary;
+  width: '24px';
+  height: '24px';
+  borderradius: '50%';
+  margin: '0 8px';
+  fontsize: '12px';
+`
+
+enum WALLET_VIEWS {
+  CHANGE_WALLET = 'CHANGE_WALLET',
+  ACCOUNT = 'account',
+  PENDING = 'pending',
 }
 
 export default function WalletModal() {
@@ -397,61 +409,19 @@ export default function WalletModal() {
                       expandContent={
                         <AutoColumn gap="6px">
                           <RowFixed>
-                            <Flex
-                              alignItems="center"
-                              justifyContent="center"
-                              style={{
-                                backgroundColor: transparentize(0.8, theme.primary),
-                                color: theme.primary,
-                                width: '24px',
-                                height: '24px',
-                                borderRadius: '50%',
-                                margin: '0 8px',
-                                fontSize: '12px',
-                              }}
-                            >
-                              1
-                            </Flex>
+                            <Step>1</Step>
                             <Text>
                               <Trans>Create a Solflare wallet</Trans>
                             </Text>
                           </RowFixed>
                           <RowFixed>
-                            <Flex
-                              alignItems="center"
-                              justifyContent="center"
-                              style={{
-                                backgroundColor: transparentize(0.8, theme.primary),
-                                color: theme.primary,
-                                width: '24px',
-                                height: '24px',
-                                borderRadius: '50%',
-                                margin: '0 8px',
-                                fontSize: '12px',
-                              }}
-                            >
-                              2
-                            </Flex>
+                            <Step>2</Step>
                             <Text>
                               <Trans>Close the Solflare popup</Trans>
                             </Text>
                           </RowFixed>
                           <RowFixed>
-                            <Flex
-                              alignItems="center"
-                              justifyContent="center"
-                              style={{
-                                backgroundColor: transparentize(0.8, theme.primary),
-                                color: theme.primary,
-                                width: '24px',
-                                height: '24px',
-                                borderRadius: '50%',
-                                margin: '0 8px',
-                                fontSize: '12px',
-                              }}
-                            >
-                              3
-                            </Flex>
+                            <Step>3</Step>
                             <Text>
                               <Trans>Try to connect again</Trans>
                             </Text>
