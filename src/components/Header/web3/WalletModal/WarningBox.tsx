@@ -75,8 +75,8 @@ export const C98OverrideGuide = ({
   const [show, setShow] = useState(false)
   const injectedType = detectInjectedType()
 
-  if (!walletKey) return <></>
-  if (!injectedType) return <></>
+  if (!walletKey) return null
+  if (!injectedType) return null
 
   const walletName = SUPPORTED_WALLETS[walletKey].name
   const injectedName = SUPPORTED_WALLETS[injectedType].name
@@ -135,10 +135,10 @@ export const WarningBox = ({ walletKey }: { walletKey?: SUPPORTED_WALLET }) => {
   const isBraveBrowser = checkForBraveBrowser()
   const injectedType = detectInjectedType()
 
-  if (!walletKey) return <></>
-  if (!injectedType) return <></>
+  if (!walletKey) return null
+  if (!injectedType) return null
 
-  if (walletKey === injectedType) return <></>
+  if (walletKey === injectedType) return null
 
   if (!isBraveBrowser && walletKey === 'BRAVE') {
     return (
@@ -185,5 +185,5 @@ export const WarningBox = ({ walletKey }: { walletKey?: SUPPORTED_WALLET }) => {
     return <C98OverrideGuide walletKey={walletKey} isSureKeo={false} />
   }
 
-  return <></>
+  return null
 }

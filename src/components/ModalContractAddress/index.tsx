@@ -23,7 +23,7 @@ function ContractAddressItem({ network, address, lastItem }: { network: string; 
     setCopied((chainId && isAddress(chainId, address)) || address)
     setCopied(address)
   }
-  if (!chainId) return <></>
+  if (!chainId) return null
   return (
     <>
       <StyledContractAddressItem>

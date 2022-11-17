@@ -200,10 +200,10 @@ export default function AccountDetails({ toggleWalletModal, openOptions }: Accou
   const pendingTxGroups: TransactionDetails[][] = sortedRecentTxGroups.filter(txs => txs.some(txs => !txs.receipt))
   const confirmedTxGroups: TransactionDetails[][] = sortedRecentTxGroups.filter(txs => txs.every(txs => txs.receipt))
 
-  function formatConnectorName(): JSX.Element {
+  function formatConnectorName(): JSX.Element | null {
     if (!walletKey) {
       console.error('Cannot find the wallet connected')
-      return <></>
+      return null
     }
 
     return (
