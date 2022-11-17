@@ -42,7 +42,7 @@ export default function SwapModalFooter({
   feeConfig: FeeConfig | undefined
   startedTime: number
 }) {
-  const { chainId, isSolana } = useActiveWeb3React()
+  const { chainId, isSolana, isEVM } = useActiveWeb3React()
   const [showInverted, setShowInverted] = useState<boolean>(false)
   const theme = useTheme()
   const slippageAdjustedAmounts = useMemo(
@@ -103,18 +103,20 @@ export default function SwapModalFooter({
             </TYPE.black>
           </RowFixed>
         </RowBetween>
-        <RowBetween>
-          <RowFixed>
-            <TYPE.black fontSize={14} fontWeight={400} color={theme.subText}>
-              <Trans>Gas Fee</Trans>
-            </TYPE.black>
-            <InfoHelper size={14} text={t`Estimated network fee for your transaction`} />
-          </RowFixed>
+        {isEVM && (
+          <RowBetween>
+            <RowFixed>
+              <TYPE.black fontSize={14} fontWeight={400} color={theme.subText}>
+                <Trans>Gas Fee</Trans>
+              </TYPE.black>
+              <InfoHelper size={14} text={t`Estimated network fee for your transaction`} />
+            </RowFixed>
 
-          <TYPE.black color={theme.text} fontSize={14}>
-            {trade.gasUsd ? formattedNum(trade.gasUsd?.toString(), true) : '--'}
-          </TYPE.black>
-        </RowBetween>
+            <TYPE.black color={theme.text} fontSize={14}>
+              {trade.gasUsd ? formattedNum(trade.gasUsd?.toString(), true) : '--'}
+            </TYPE.black>
+          </RowBetween>
+        )}
 
         <RowBetween>
           <RowFixed>
