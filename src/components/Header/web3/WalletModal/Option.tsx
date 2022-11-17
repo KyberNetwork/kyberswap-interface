@@ -33,7 +33,7 @@ const IconWrapper = styled.div`
 const HeaderText = styled.div`
   ${({ theme }) => theme.flexRowNoWrap};
   color: ${({ theme }) => theme.subText};
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
 `
 
