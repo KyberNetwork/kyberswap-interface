@@ -64,7 +64,7 @@ export default function LeaderboardLayout({
   let totalItems = 0
   if (type === 'leaderboard') {
     if (selectedCampaignLeaderboard) {
-      totalItems = leaderboardSearchValue ? 1 : selectedCampaignLeaderboard.numberOfEligibleParticipants
+      totalItems = leaderboardSearchValue ? 1 : selectedCampaignLeaderboard.totalParticipants
     }
   }
   if (type === 'lucky_winner') {
@@ -75,9 +75,7 @@ export default function LeaderboardLayout({
         0,
       )
 
-      totalItems = searchValue
-        ? 1
-        : Math.min(totalRandomRewardItems, selectedCampaignLeaderboard.numberOfEligibleParticipants)
+      totalItems = searchValue ? 1 : Math.min(totalRandomRewardItems, selectedCampaignLeaderboard.totalParticipants)
     }
   }
 

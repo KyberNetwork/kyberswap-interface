@@ -550,8 +550,8 @@ export default function Campaign() {
                 {!isMobile && <Users size={20} color={theme.subText} />}
                 {isSelectedCampaignMediaLoaded ? (
                   <Text fontSize={20} fontWeight={500} style={{ gridColumn: '1 / -1' }}>
-                    {selectedCampaignLeaderboard?.numberOfEligibleParticipants
-                      ? formatNumberWithPrecisionRange(selectedCampaignLeaderboard.numberOfEligibleParticipants, 0, 0)
+                    {selectedCampaignLeaderboard?.totalParticipants
+                      ? formatNumberWithPrecisionRange(selectedCampaignLeaderboard.totalParticipants, 0, 0)
                       : '--'}
                   </Text>
                 ) : (
