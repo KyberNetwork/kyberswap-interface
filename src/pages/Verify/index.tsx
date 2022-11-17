@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/macro'
 import axios from 'axios'
 import React, { useEffect, useRef, useState } from 'react'
+import { useHistory } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -9,6 +10,7 @@ import Loader from 'components/Loader'
 import { NOTIFICATION_API } from 'constants/env'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
+import { AppPaths } from 'pages/App'
 
 const PageWrapper = styled.div`
   padding: 32px 50px;
@@ -42,9 +44,11 @@ function Verify() {
   const [status, setStatus] = useState(STATUS.VERIFYING)
   const qs = useParsedQueryString()
   const theme = useTheme()
-  const ref = useRef<NodeJS.Timeout>()
+  const refTimeoutVerify = useRef<NodeJS.Timeout>()
+  const refTimeoutRedirect = useRef<NodeJS.Timeout>()
+  const history = useHistory()
   useEffect(() => {
-    ref.current = setTimeout(() => {
+    refTimeoutVerify.current = setTimeout(() => {
       if (!qs?.confirmation) return
       axios
         .get(`${NOTIFICATION_API}/v1/topics/verify`, {
@@ -52,7 +56,11 @@ function Verify() {
         })
         .then(() => {
           setStatus(STATUS.SUCCESS)
+          refTimeoutRedirect.current = setTimeout(() => {
+            history.push(AppPaths.SWAP)
+          }, 5000)
           if (qs.email) {
+            // temp off, will release soon
             //   axios.post(`${KS_SETTING_API}/v1/sendgrid/add-contact`, { email: qs.email }).catch(console.error)
           }
         })
@@ -61,8 +69,11 @@ function Verify() {
           setStatus(STATUS.ERROR)
         })
     }, 500)
-    return () => ref.current && clearTimeout(ref.current)
-  }, [qs?.confirmation, qs?.email])
+    return () => {
+      refTimeoutVerify.current && clearTimeout(refTimeoutVerify.current)
+      refTimeoutRedirect.current && clearTimeout(refTimeoutRedirect.current)
+    }
+  }, [qs?.confirmation, qs?.email, history])
 
   const icon = (() => {
     switch (status) {
