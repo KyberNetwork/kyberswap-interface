@@ -16,13 +16,13 @@ import Modal from 'components/Modal'
 import Pagination from 'components/Pagination'
 import Row, { RowBetween } from 'components/Row'
 import { KNC_ADDRESS } from 'constants/index'
+import { useStakingInfo } from 'hooks/kyberdao'
+import { StakerAction } from 'hooks/kyberdao/types'
 import useCopyClipboard from 'hooks/useCopyClipboard'
 import useTheme from 'hooks/useTheme'
 import { useWindowSize } from 'hooks/useWindowSize'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
-import { useAllTransactions } from 'state/transactions/hooks'
-import { TransactionDetails } from 'state/transactions/reducer'
 import { ExternalLink } from 'theme'
 import { getEtherscanLink, getTokenLogoURL } from 'utils'
 
@@ -30,7 +30,7 @@ const Wrapper = styled.div`
   width: 100%;
   padding: 20px;
 `
-const gridTemplate = `4fr 3.4fr 3.6fr 4fr`
+const gridTemplate = `4fr 3.6fr 3.6fr 1.8fr`
 const gridTemplateMobile = '1fr 1fr'
 const TableWrapper = styled.div`
   display: flex;
@@ -101,17 +101,14 @@ export default function YourTransactionsModal() {
   const modalOpen = useModalOpen(ApplicationModal.YOUR_TRANSACTIONS_STAKE_KNC)
   const toggleModal = useToggleModal(ApplicationModal.YOUR_TRANSACTIONS_STAKE_KNC)
   const windowSize = useWindowSize()
-  const allTransactions = useAllTransactions()
   const [page, setPage] = useState(1)
-  const filteredTransactions: TransactionDetails[] = useMemo(
+  const { stakerActions } = useStakingInfo()
+  const formattedActions: (StakerAction & { hashText: string })[] = useMemo(
     () =>
-      Object.keys(allTransactions)
-        .filter((key: string) => allTransactions[key].type?.startsWith('KyberDAO'))
-        .map((key: string) => {
-          const tx = allTransactions[key]
-          return { ...tx, hashText: tx.hash.slice(0, 6) + '...' + tx.hash.slice(-4), type: tx.type?.slice(9) }
-        }),
-    [allTransactions],
+      stakerActions?.map((action: StakerAction) => {
+        return { ...action, hashText: action.tx_hash.slice(0, 6) + '...' + action.tx_hash.slice(-4) }
+      }) || [],
+    [stakerActions],
   )
   const isMobile = windowSize.width && windowSize.width < 768
 
@@ -143,12 +140,12 @@ export default function YourTransactionsModal() {
                 <Trans>Amount</Trans>
               </TableHeaderItem>
             </TableHeader>
-            {filteredTransactions.length > 0 ? (
+            {formattedActions.length > 0 ? (
               !isMobile ? (
                 <>
-                  {filteredTransactions.map((tx: any) => {
+                  {formattedActions.map((action: StakerAction & { hashText: string }) => {
                     return (
-                      <TableRow key={tx.hash}>
+                      <TableRow key={action.tx_hash}>
                         <TableCell>
                           <img
                             src={`/static/media/mainnet-network.421331b9.svg`}
@@ -156,26 +153,32 @@ export default function YourTransactionsModal() {
                             width="16px"
                             height="16px"
                           />
-                          <Text>{tx.hashText}</Text>
-                          <ButtonIcon onClick={() => setCopied(tx.hash)}>
+                          <Text>{action.hashText}</Text>
+                          <ButtonIcon onClick={() => setCopied(action.tx_hash)}>
                             <CopyIcon />
                           </ButtonIcon>
-                          <ExternalLink href={getEtherscanLink(1, tx.hash, 'transaction')}>
+                          <ExternalLink href={getEtherscanLink(1, action.tx_hash, 'transaction')}>
                             <LaunchIcon />
                           </ExternalLink>
                         </TableCell>
                         <TableCell>
-                          <Text>{tx.type}</Text>
+                          <Text>{action.type}</Text>
                         </TableCell>
                         <TableCell>
                           <AutoColumn>
-                            <Text color={theme.text}>{dayjs(tx.confirmedTime).format('MM/DD/YYYY')}</Text>
-                            <Text color={theme.subText}>{dayjs(tx.confirmedTime).format('hh:mm:ss')}</Text>
+                            <Text color={theme.text}>{dayjs(action.timestamp).format('MM/DD/YYYY')}</Text>
+                            <Text color={theme.subText}>{dayjs(action.timestamp).format('hh:mm:ss')}</Text>
                           </AutoColumn>
                         </TableCell>
                         <TableCell>
                           <AutoColumn justify="flex-end" style={{ width: '100%' }}>
-                            <Text color={theme.text}>{tx.arbitrary?.amount ? `${tx.arbitrary.amount} KNC` : ''}</Text>
+                            <Text color={theme.text}>
+                              {action.meta.amount
+                                ? `${action.meta.amount} KNC`
+                                : action.meta.d_addr
+                                ? action.meta.d_addr.slice(0, 6) + '...' + action.meta.d_addr.slice(-4)
+                                : ''}
+                            </Text>
                           </AutoColumn>
                         </TableCell>
                       </TableRow>
@@ -184,7 +187,7 @@ export default function YourTransactionsModal() {
                 </>
               ) : (
                 <>
-                  {filteredTransactions.map((tx: any) => {
+                  {formattedActions.map((tx: any) => {
                     return (
                       <TableRow key={tx.hash}>
                         <TableCell>
@@ -238,7 +241,7 @@ export default function YourTransactionsModal() {
               currentPage={page}
               onPageChange={e => setPage(e)}
               pageSize={isMobile ? 5 : 10}
-              totalCount={filteredTransactions.length}
+              totalCount={formattedActions.length}
               haveBg={false}
             />
           </TableWrapper>

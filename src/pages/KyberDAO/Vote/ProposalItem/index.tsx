@@ -177,7 +177,6 @@ export default function ProposalItem({
   const { switchToEthereum } = useSwitchToEthereum()
   const handleVote = useCallback(() => {
     switchToEthereum().then(() => {
-      console.log('🚀 ~ file: index.tsx ~ line 181 ~ switchToEthereum ~ selectedVote', selectedVote)
       selectedVote && toggleVoteModal()
     })
   }, [switchToEthereum, toggleVoteModal, selectedVote])

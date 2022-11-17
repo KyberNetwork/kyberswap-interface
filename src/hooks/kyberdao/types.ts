@@ -49,3 +49,18 @@ export interface ProposalDetail {
   title: string
   vote_stats: VoteStat
 }
+
+export interface StakerInfo {
+  delegate: string
+  delegated_stake_amount: number
+  pending_stake_amount: number
+  stake_amount: number
+}
+
+export interface StakerAction {
+  timestamp: number
+  epoch: number
+  meta: { amount?: number; d_addr?: string }
+  tx_hash: string
+  type: string
+}

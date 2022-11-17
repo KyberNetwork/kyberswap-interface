@@ -17,7 +17,7 @@ import { useSingleCallResult } from 'state/multicall/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { calculateGasMargin } from 'utils'
 
-import { ProposalDetail } from './types'
+import { ProposalDetail, StakerAction, StakerInfo } from './types'
 
 //TODO Diep: Move this to ethereum.js
 export const KYBERDAO_ADDRESSES = {
@@ -25,26 +25,13 @@ export const KYBERDAO_ADDRESSES = {
   DAO: '0x7Ec8FcC26bE7e9E85B57E73083E5Fe0550d8A7fE',
   REWARDS_DISTRIBUTOR: '0x5ec0dcf4f6f55f28550c70b854082993fdc0d3b2',
 }
+export const KYBERDAO_TESTNET_ADDRESSES = {
+  STAKING: '0x9bc1214E28005e9c3f5E99Ff01C23D42796702CF',
+  DAO: '0x583c0A1a49CdC99f4709337fa5500844316366dc',
+  REWARDS_DISTRIBUTOR: '0x62D82BC6aa44a4340F29E629b43859b7e0C1E915',
+}
 export const APIS = {
   DAO: 'https://kyberswap-dao-stats.kyberengineering.io',
-}
-export function useStakingInfo() {
-  const { account } = useActiveWeb3React()
-  const stakingContract = useContract(KYBERDAO_ADDRESSES.STAKING, StakingABI)
-
-  const stakedBalance = useSingleCallResult(stakingContract, 'getLatestStakeBalance', [account ?? undefined])
-  const delegatedAccount = useSingleCallResult(stakingContract, 'getLatestRepresentative', [account ?? undefined])
-  const KNCBalance = useTokenBalance(KNC_ADDRESS)
-  const isDelegated = useMemo(() => {
-    return delegatedAccount.result?.[0] && delegatedAccount.result?.[0] !== account
-  }, [delegatedAccount, account])
-
-  return {
-    stakedBalance: stakedBalance.result?.[0] || 0,
-    KNCBalance: KNCBalance.value || 0,
-    delegatedAccount: delegatedAccount.result?.[0],
-    isDelegated,
-  }
 }
 
 export function useKyberDaoStakeActions() {
@@ -203,9 +190,36 @@ const fetcher = (url: string) => {
     .then(res => res.json())
     .then(res => res.data)
 }
+
+export function useStakingInfo() {
+  const { account } = useActiveWeb3React()
+  const stakingContract = useContract(KYBERDAO_ADDRESSES.STAKING, StakingABI)
+
+  const stakedBalance = useSingleCallResult(stakingContract, 'getLatestStakeBalance', [account ?? undefined])
+  const delegatedAccount = useSingleCallResult(stakingContract, 'getLatestRepresentative', [account ?? undefined])
+  const KNCBalance = useTokenBalance(KNC_ADDRESS)
+  const isDelegated = useMemo(() => {
+    return delegatedAccount.result?.[0] && delegatedAccount.result?.[0] !== account
+  }, [delegatedAccount, account])
+
+  const { data: stakerActions } = useSWR<StakerAction[]>(
+    account && APIS.DAO + '/stakers/' + account + '/actions',
+    fetcher,
+  )
+
+  return {
+    stakedBalance: stakedBalance.result?.[0] || 0,
+    KNCBalance: KNCBalance.value || 0,
+    delegatedAccount: delegatedAccount.result?.[0],
+    isDelegated,
+    stakerActions,
+  }
+}
+
 export function useVotingInfo() {
   const { account } = useActiveWeb3React()
   const rewardDistributorContract = useContract(KYBERDAO_ADDRESSES.REWARDS_DISTRIBUTOR, RewardDistributorABI)
+  // Get Dao Info
   const { data: daoInfo } = useSWR(APIS.DAO + '/dao-info', fetcher)
 
   const merkleData = useSingleCallResult(rewardDistributorContract, 'getMerkleData')
@@ -257,6 +271,11 @@ export function useVotingInfo() {
 
   const { data: proposals } = useSWRImmutable<ProposalDetail[]>(APIS.DAO + '/proposals', fetcher)
 
+  const { data: stakerInfo } = useSWR<StakerInfo>(
+    daoInfo?.current_epoch && account && APIS.DAO + '/stakers/' + account + '?epoch=' + daoInfo?.current_epoch,
+    fetcher,
+  )
+
   const calculateVotingPower = useCallback(
     (kncAmount: string) => {
       if (!daoInfo?.total_staked) return '0'
@@ -278,6 +297,7 @@ export function useVotingInfo() {
     proposals,
     userReward: userRewards?.userReward,
     remainingCumulativeAmount,
+    stakerInfo,
   }
 }
 

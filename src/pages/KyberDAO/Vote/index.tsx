@@ -86,11 +86,36 @@ const CardGroup = styled(RowBetween)`
   `}
 `
 
+function readableTime(seconds: number) {
+  if (seconds < 60) return seconds + 's'
+
+  const levels = [
+    [Math.floor(seconds / 31536000), 'years'],
+    [Math.floor((seconds % 31536000) / 86400), ' days'],
+    [Math.floor(((seconds % 31536000) % 86400) / 3600), 'h'],
+    [Math.floor((((seconds % 31536000) % 86400) % 3600) / 60), 'm'],
+  ]
+
+  let returntext = ''
+  for (let i = 0, max = levels.length; i < max; i++) {
+    if (levels[i][0] === 0) continue
+    returntext +=
+      ' ' +
+      levels[i][0] +
+      '' +
+      (levels[i][0] === 1 && levels[i][1] > 1
+        ? levels[i][1].toString().substring(0, levels[i][1].toString().length - 1)
+        : levels[i][1])
+  }
+
+  return returntext.trim()
+}
+
 export default function Vote() {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
-  const { daoInfo, remainingCumulativeAmount, userRewards } = useVotingInfo()
-  const { stakedBalance, isDelegated, delegatedAccount } = useStakingInfo()
+  const { daoInfo, remainingCumulativeAmount, userRewards, stakerInfo } = useVotingInfo()
+  const { isDelegated, delegatedAccount } = useStakingInfo()
   const kncPrice = useKNCPrice()
   const { knc, usd } = useTotalVotingReward()
   const { claim } = useClaimRewardActions()
@@ -102,6 +127,9 @@ export default function Vote() {
 
   const [txHash, setTxHash] = useState<string | undefined>(undefined)
 
+  const totalStakedAmount = stakerInfo ? stakerInfo?.stake_amount + stakerInfo?.pending_stake_amount : 0
+  const hasStakeAmount = stakerInfo && stakerInfo.stake_amount > 0
+  const hasPendingStakeAmount = stakerInfo && stakerInfo.pending_stake_amount > 0
   const handleClaim = useCallback(() => {
     toggleClaimConfirmModal()
   }, [toggleClaimConfirmModal])
@@ -144,12 +172,12 @@ export default function Vote() {
               <Text color={theme.subText} marginBottom="20px">
                 <Trans>Total Staked KNC</Trans>
               </Text>
-              <Text fontSize={20} marginBottom="8px">
-                {daoInfo ? formattedNumLong(Math.floor(daoInfo.total_staked)) + ' KNC' : '--'}
+              <Text fontSize={20} marginBottom="8px" fontWeight={500}>
+                {daoInfo ? formattedNumLong(Math.round(daoInfo.total_staked)) + ' KNC' : '--'}
               </Text>
               <Text fontSize={12} color={theme.subText}>
                 {daoInfo && kncPrice
-                  ? '~' + formattedNumLong(parseFloat(kncPrice) * Math.floor(daoInfo.total_staked)) + ' USD'
+                  ? '~' + formattedNumLong(parseFloat(kncPrice) * Math.round(daoInfo.total_staked)) + ' USD'
                   : ''}
               </Text>
             </AutoColumn>
@@ -159,7 +187,7 @@ export default function Vote() {
               <Text color={theme.subText} marginBottom="20px">
                 <Trans>Total Voting Rewards</Trans>
               </Text>
-              <Text fontSize={20} marginBottom="8px">
+              <Text fontSize={20} marginBottom="8px" fontWeight={500}>
                 {knc?.toLocaleString() ?? '--'} KNC
               </Text>
               <Text fontSize={12} color={theme.subText}>
@@ -181,14 +209,62 @@ export default function Vote() {
 
               <RowBetween marginBottom="8px">
                 <RowFit>
-                  <Text fontSize={20}>
-                    {stakedBalance && daoInfo?.total_staked
-                      ? parseFloat(
-                          ((parseFloat(formatUnitsToFixed(stakedBalance)) / daoInfo.total_staked) * 100).toFixed(6),
-                        ) + ' %'
+                  <Text
+                    fontSize={20}
+                    color={hasPendingStakeAmount ? (hasStakeAmount ? theme.warning : theme.border) : theme.text}
+                    fontWeight={500}
+                  >
+                    {stakerInfo && daoInfo?.total_staked
+                      ? parseFloat(((totalStakedAmount / daoInfo.total_staked) * 100).toFixed(6)) + ' %'
                       : '--'}
+                    {hasPendingStakeAmount && hasStakeAmount && (
+                      <InfoHelper
+                        fontSize={12}
+                        placement="top"
+                        color={theme.warning}
+                        size={14}
+                        text={
+                          <AutoColumn gap="8px">
+                            <Text color={theme.subText} lineHeight="14px">
+                              <Trans>A portion of your voting power can only be used from the next Epoch onward</Trans>
+                            </Text>
+                            <Text color={theme.warning}>
+                              <Trans>
+                                Voting Power this Epoch:{' '}
+                                {(stakerInfo?.stake_amount && daoInfo?.total_staked
+                                  ? parseFloat(
+                                      (((stakerInfo?.stake_amount || 0) / (daoInfo?.total_staked || 1)) * 100).toFixed(
+                                        6,
+                                      ),
+                                    )
+                                  : '--') + ' %'}
+                              </Trans>
+                            </Text>
+                            <Text color={theme.text}>
+                              <Trans>
+                                Voting Power next Epoch:{' '}
+                                {(totalStakedAmount && daoInfo?.total_staked
+                                  ? parseFloat(
+                                      (((totalStakedAmount || 0) / (daoInfo?.total_staked || 1)) * 100).toFixed(6),
+                                    )
+                                  : '--') + ' %'}
+                              </Trans>
+                            </Text>
+                          </AutoColumn>
+                        }
+                      />
+                    )}
+                    {hasPendingStakeAmount && !hasStakeAmount && (
+                      <InfoHelper
+                        fontSize={12}
+                        size={14}
+                        color={theme.subText}
+                        placement="top"
+                        text={t`You can only vote from the next Epoch onward`}
+                      />
+                    )}
                   </Text>
-                  {!stakedBalance && (
+                  {!totalStakedAmount && (
                     <InfoHelper text={t`You have to stake KNC to be able to vote and earn voting reward`} />
                   )}
                 </RowFit>
@@ -206,7 +282,7 @@ export default function Vote() {
               </RowBetween>
               <RowBetween>
                 <Text fontSize={12} color={theme.subText}>
-                  {stakedBalance ? formatUnitsToFixed(stakedBalance) + ' KNC Staked' : '--'}
+                  {stakerInfo ? totalStakedAmount + ' KNC Staked' : '--'}
                 </Text>
                 <StyledInternalLink to="/kyberdao/stake-knc" style={{ fontSize: '12px' }}>
                   <Trans>Stake KNC ↗</Trans>
@@ -222,7 +298,7 @@ export default function Vote() {
               {account ? (
                 <RowBetween>
                   <AutoColumn>
-                    <Text fontSize={20} marginBottom="8px">
+                    <Text fontSize={20} marginBottom="8px" fontWeight={500}>
                       {formatUnitsToFixed(remainingCumulativeAmount)} KNC
                     </Text>
                     <Text fontSize={12} color={theme.subText}>
@@ -268,10 +344,11 @@ export default function Vote() {
             >
               <Clock size="12px" />{' '}
               {daoInfo
-                ? dayjs(
-                    (daoInfo.first_epoch_start_timestamp + daoInfo.current_epoch * daoInfo.epoch_period_in_seconds) *
-                      1000,
-                  ).fromNow(true) + ' left'
+                ? readableTime(
+                    daoInfo.first_epoch_start_timestamp +
+                      daoInfo.current_epoch * daoInfo.epoch_period_in_seconds -
+                      Date.now() / 1000,
+                  ) + ' left'
                 : '--:--:--'}
             </Box>
           </RowFit>
