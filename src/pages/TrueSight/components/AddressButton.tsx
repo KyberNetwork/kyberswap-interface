@@ -30,7 +30,6 @@ function AddressButtonItself({
 
   const onCopy = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     event.stopPropagation()
-    // setCopied(isAddress(chainId, address) || address) // todo namgold: fix this
     setCopied(address)
   }
 

@@ -40,7 +40,7 @@ export default function SwapModalFooter({
   swapErrorMessage: string | undefined
   disabledConfirm: boolean
   feeConfig: FeeConfig | undefined
-  startedTime: number
+  startedTime: number | undefined
 }) {
   const { chainId, isSolana, isEVM } = useActiveWeb3React()
   const [showInverted, setShowInverted] = useState<boolean>(false)

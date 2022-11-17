@@ -6,19 +6,19 @@ import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as Alert } from 'assets/images/alert.svg'
-import Circle from 'assets/images/blue-loader.svg'
 import Banner from 'components/Banner'
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import { AutoColumn, ColumnCenter } from 'components/Column'
+import Loader from 'components/Loader'
 import Modal from 'components/Modal'
 import { RowBetween, RowFixed } from 'components/Row'
+import HurryUpBanner from 'components/swapv2/HurryUpBanner'
 import { SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React } from 'hooks'
-import useInterval from 'hooks/useInterval'
 import useTheme from 'hooks/useTheme'
 import { useIsDarkMode } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
-import { CloseIcon, CustomLightSpinner } from 'theme/components'
+import { CloseIcon } from 'theme/components'
 import { getEtherscanLink, getTokenLogoURL } from 'utils'
 import { errorFriendly } from 'utils/dmm'
 
@@ -46,13 +46,6 @@ const StyledLogo = styled.img`
   margin-left: 6px;
 `
 
-const CountdountNumber = styled.div`
-  position: absolute;
-  font-size: 30px;
-  margin-top: 25px;
-  // font-weight: 600;
-`
-
 function ConfirmationPendingContent({
   onDismiss,
   pendingText,
@@ -60,13 +53,10 @@ function ConfirmationPendingContent({
 }: {
   onDismiss: () => void
   pendingText: string | React.ReactNode
-  startedTime: number
+  startedTime: number | undefined
 }) {
-  const [, rerender] = useState({})
-  useInterval(() => rerender({}), 1000)
   const theme = useTheme()
 
-  const currentTime = Math.round((Date.now() - startedTime) / 1000) + 1
   return (
     <Wrapper>
       <Section>
@@ -75,12 +65,7 @@ function ConfirmationPendingContent({
           <CloseIcon onClick={onDismiss} />
         </RowBetween>
         <ConfirmedIcon>
-          <CountdountNumber
-            style={{ color: currentTime <= 5 ? theme.green : currentTime <= 10 ? theme.yellow1 : theme.red2 }}
-          >
-            {currentTime}
-          </CountdountNumber>
-          <CustomLightSpinner src={Circle} alt="loader" size={'90px'} />
+          <Loader size="90px" stroke={theme.primary} strokeWidth="1" />
         </ConfirmedIcon>
         <AutoColumn gap="12px" justify={'center'}>
           <Text fontWeight={500} fontSize={20}>
@@ -95,6 +80,7 @@ function ConfirmationPendingContent({
             <Trans>Confirm this transaction in your wallet</Trans>
           </Text>
         </AutoColumn>
+        <HurryUpBanner startedTime={startedTime} />
       </Section>
     </Wrapper>
   )
@@ -318,7 +304,7 @@ export default function TransactionConfirmationModal({
   content,
   tokenAddToMetaMask,
   showTxBanner,
-  startedTime = Date.now(),
+  startedTime,
 }: ConfirmationModalProps) {
   const { chainId } = useActiveWeb3React()
 

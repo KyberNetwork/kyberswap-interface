@@ -11,7 +11,6 @@ import useCopyClipboard from 'hooks/useCopyClipboard'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
-import { isAddress } from 'utils'
 import getShortenAddress from 'utils/getShortenAddress'
 
 function ContractAddressItem({ network, address, lastItem }: { network: string; address: string; lastItem: boolean }) {
@@ -20,7 +19,6 @@ function ContractAddressItem({ network, address, lastItem }: { network: string; 
 
   const onCopy = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     event.stopPropagation()
-    setCopied((chainId && isAddress(chainId, address)) || address)
     setCopied(address)
   }
   if (!chainId) return null

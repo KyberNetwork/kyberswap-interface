@@ -60,11 +60,12 @@ export default function ConfirmSwapModal({
 }) {
   const { isSolana } = useActiveWeb3React()
   const { feeConfig, typedValue } = useSwapState()
-  const [startedTime, setStartedTime] = useState(Date.now())
+  const [startedTime, setStartedTime] = useState<number | undefined>(undefined)
 
   useEffect(() => {
-    setStartedTime(Date.now())
-  }, [trade, isOpen])
+    if (isSolana && typeof trade?.solana?.swap === 'object') setStartedTime(Date.now())
+    else setStartedTime(undefined)
+  }, [trade?.solana?.swap, isOpen, isSolana])
 
   const showAcceptChanges = useMemo(
     () => Boolean(trade && originalTrade && tradeMeaningfullyDiffers(trade, originalTrade)),

@@ -42,7 +42,7 @@ const detectMetamask = (): WalletReadyState => {
 }
 
 const detectBrave = (): WalletReadyState => {
-  //todo namgold: fail connect on mobile solana
+  //todo known issue: fail connect on mobile solana
   if (checkForBraveBrowser() && window.ethereum?.isBraveWallet) return WalletReadyState.Installed
   return WalletReadyState.NotDetected
 }

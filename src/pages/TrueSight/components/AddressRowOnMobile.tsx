@@ -25,7 +25,6 @@ const AddressRowOnMobile: React.FC<Props> = ({ platforms }) => {
 
   const onCopy = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     event.stopPropagation()
-    // setCopied(isAddress(chainId, defaultAddress) || defaultAddress) // todo namgold: fix this
     setCopied(defaultAddress)
   }
 
