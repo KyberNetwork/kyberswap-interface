@@ -102,7 +102,7 @@ function Verify() {
                 <Trans>
                   <Text fontWeight={'500'}>Your email have been verified by KyberSwap.com.</Text> If it has been more
                   than a few days and you still haven’t receive any notification yet, please contact us through our
-                  channels. You will be redirect to our Swap page shortly.
+                  channels. You will be redirected to our Swap page shortly.
                 </Trans>
               </Text>
               <Text as="p" color={theme.subText} fontSize="14px">

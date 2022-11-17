@@ -99,7 +99,7 @@ const renderNotificationButton = (iconOnly: boolean) => {
       subscribeTooltip={
         <div>
           <Trans>
-            Subscribe to receive notifications on <Hightlight>all</Hightlight> your liquidity positions. When your
+            Subscribe to receive email notifications on <Hightlight>all</Hightlight> your liquidity positions. When your
             liquidity position goes <Hightlight>out-of-range</Hightlight>, back <Hightlight>in-range</Hightlight> or is{' '}
             <Hightlight>closed</Hightlight> you will receive a notification
           </Trans>

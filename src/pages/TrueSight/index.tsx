@@ -89,7 +89,7 @@ export default function TrueSight({ history }: RouteComponentProps) {
       <Text textAlign={upTo992 ? 'start' : 'end'} fontSize="10px">
         <Trans>Tired of missing out on tokens that could be Trending Soon?</Trans>
         <br />
-        <Text fontWeight="500">Subscribe now to receive notifications!</Text>
+        <Text fontWeight="500">Subscribe now to receive email notifications!</Text>
       </Text>
       <SubscribeNotificationButton
         topicId={NOTIFICATION_TOPICS.TRENDING_SOON}
