@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import useSWR, { mutate } from 'swr'
 
+import { NOTIFICATION_API } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { AppState } from 'state'
@@ -14,7 +15,7 @@ import {
 import { useNotificationModalToggle } from 'state/application/hooks'
 
 const getSubscribedTopicUrl = (account: string | null | undefined) =>
-  account ? `${process.env.REACT_APP_NOTIFICATION_API}/v1/topics?walletAddress=${account}` : ''
+  account ? `${NOTIFICATION_API}/v1/topics?walletAddress=${account}` : ''
 
 type Topic = {
   id: number
@@ -123,7 +124,7 @@ const useNotification = (topicId: number) => {
     async (email: string) => {
       try {
         setLoading(true)
-        await axios.post(`${process.env.REACT_APP_NOTIFICATION_API}/v1/topics/subscribe?userType=EMAIL`, {
+        await axios.post(`${NOTIFICATION_API}/v1/topics/subscribe?userType=EMAIL`, {
           email,
           walletAddress: account,
           topicIDs: [topicId],
@@ -144,7 +145,7 @@ const useNotification = (topicId: number) => {
   const handleUnsubscribe = useCallback(async () => {
     try {
       setLoading(true)
-      await axios.post(`${process.env.REACT_APP_NOTIFICATION_API}/v1/topics/unsubscribe?userType=EMAIL`, {
+      await axios.post(`${NOTIFICATION_API}/v1/topics/unsubscribe?userType=EMAIL`, {
         walletAddress: account,
         topicIDs: [topicId],
       })

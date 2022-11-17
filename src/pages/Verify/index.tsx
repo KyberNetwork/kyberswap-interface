@@ -6,6 +6,7 @@ import styled from 'styled-components'
 
 import { CheckCircle, XCircle } from 'components/Icons'
 import Loader from 'components/Loader'
+import { NOTIFICATION_API } from 'constants/env'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 
@@ -46,7 +47,7 @@ function Verify() {
     ref.current = setTimeout(() => {
       if (!qs?.confirmation) return
       axios
-        .get(`${process.env.REACT_APP_NOTIFICATION_API}/v1/topics/verify`, {
+        .get(`${NOTIFICATION_API}/v1/topics/verify`, {
           params: { confirmation: qs.confirmation },
         })
         .then(() => {
