@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import { serumConnection } from 'state/connection/connection'
+import connection from 'state/connection/connection'
 import { useAllTransactions } from 'state/transactions/hooks'
 import { isAddress } from 'utils'
 
@@ -16,6 +16,7 @@ export const useSOLBalance = (uncheckedAddress?: string): CurrencyAmount<Currenc
   const allTransactions = useAllTransactions()
 
   useEffect(() => {
+    let canceled = false
     const getBalance = async () => {
       if (!isSolana) return
       if (!account || !isAddress(chainId, account)) {
@@ -25,17 +26,23 @@ export const useSOLBalance = (uncheckedAddress?: string): CurrencyAmount<Currenc
       try {
         const publicKey = new PublicKey(account)
         if (publicKey) {
-          const balance = await serumConnection.getBalance(publicKey)
+          const balance = await connection.getBalance(publicKey)
+          if (canceled) return
           const balanceJSBI = JSBI.BigInt(balance)
           if (solBalance === undefined || !JSBI.equal(balanceJSBI, solBalance.quotient))
             setSolBalance(CurrencyAmount.fromRawAmount(NativeCurrencies[chainId], balanceJSBI))
         } else {
           if (solBalance !== undefined) setSolBalance(undefined)
         }
-      } catch (e) {}
+      } catch (error) {
+        console.error('get Sol balance failed:', { error })
+        if (!canceled) getBalance()
+      }
     }
     getBalance()
-
+    return () => {
+      canceled = true
+    }
     // do not add solBalance to deps list, it would trigger infinity loops calling rpc calls
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -66,11 +73,13 @@ export const useAssociatedTokensAccounts = (): { [mintAddress: string]: AccountI
   useEffect(() => {
     if (!isSolana) return
     if (!account) return
+    let canceled = false
     async function getTokenAccounts(publicKey: PublicKey) {
       try {
-        const response = await serumConnection.getTokenAccountsByOwner(publicKey, {
+        const response = await connection.getTokenAccountsByOwner(publicKey, {
           programId: TOKEN_PROGRAM_ID,
         })
+        if (canceled) return
         const atas: { [mintAddress: string]: AccountInfoParsed } = {}
 
         response.value.forEach(ata => {
@@ -85,10 +94,14 @@ export const useAssociatedTokensAccounts = (): { [mintAddress: string]: AccountI
         setAtas(atas)
       } catch (error) {
         console.error('get ata failed', { error })
+        if (!canceled) getTokenAccounts(publicKey)
       }
     }
 
     getTokenAccounts(new PublicKey(account))
+    return () => {
+      canceled = true
+    }
   }, [allTransactions, account, isSolana])
 
   return atas
