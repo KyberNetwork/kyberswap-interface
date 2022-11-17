@@ -100,7 +100,6 @@ const fetchLeaderBoard = ({
       pageNumber,
       userAddress,
       lookupAddress,
-      eligibleOnly: true,
     },
   }).then(({ data }) => formatLeaderboardData(data.data))
 }
@@ -109,7 +108,7 @@ const LEADERBOARD_DEFAULT: CampaignLeaderboard = {
   finalizedAt: 0,
   distributedRewardsAt: 0,
   userRank: 0,
-  numberOfEligibleParticipants: 0,
+  totalParticipants: 0,
   rankings: [],
   rewards: [],
 }

@@ -76,7 +76,7 @@ export interface CampaignLeaderboardReward {
 }
 
 export interface CampaignLeaderboard {
-  numberOfEligibleParticipants: number
+  totalParticipants: number
   userRank: number
   finalizedAt: number
   distributedRewardsAt: number
