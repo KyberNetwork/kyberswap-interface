@@ -138,15 +138,13 @@ const ToSText = styled.span`
 `
 
 const Step = styled(Flex)`
-  align-items: center;
-  justify-content: center;
-  backgroundcolor: transparentize(0.8, theme.primary);
-  color: theme.primary;
-  width: '24px';
-  height: '24px';
-  borderradius: '50%';
-  margin: '0 8px';
-  fontsize: '12px';
+  background-color: ${({ theme }) => transparentize(0.8, theme.primary)};
+  color: ${({ theme }) => theme.primary};
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  margin: 0 8px !important;
+  font-size: 12px;
 `
 
 enum WALLET_VIEWS {
@@ -409,19 +407,25 @@ export default function WalletModal() {
                       expandContent={
                         <AutoColumn gap="6px">
                           <RowFixed>
-                            <Step>1</Step>
+                            <Step alignItems="center" justifyContent="center">
+                              1
+                            </Step>
                             <Text>
                               <Trans>Create a Solflare wallet</Trans>
                             </Text>
                           </RowFixed>
                           <RowFixed>
-                            <Step>2</Step>
+                            <Step alignItems="center" justifyContent="center">
+                              2
+                            </Step>
                             <Text>
                               <Trans>Close the Solflare popup</Trans>
                             </Text>
                           </RowFixed>
                           <RowFixed>
-                            <Step>3</Step>
+                            <Step alignItems="center" justifyContent="center">
+                              3
+                            </Step>
                             <Text>
                               <Trans>Try to connect again</Trans>
                             </Text>
