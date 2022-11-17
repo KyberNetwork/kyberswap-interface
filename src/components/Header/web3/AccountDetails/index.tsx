@@ -8,7 +8,6 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as Close } from 'assets/images/x.svg'
-import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import Divider from 'components/Divider'
 import Wallet from 'components/Icons/Wallet'
