@@ -14,6 +14,7 @@ import { Aggregator } from 'utils/aggregator'
 import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
 import { sendEVMTransaction, sendSolanaTransactions } from 'utils/sendTransaction'
 
+import { ZERO_ADDRESS_SOLANA } from './../constants/index'
 import useProvider from './solana/useProvider'
 
 enum SwapCallbackState {
@@ -56,6 +57,12 @@ export function useSwapV2Callback(
 
       const inputSymbol = trade.inputAmount.currency.symbol
       const outputSymbol = trade.outputAmount.currency.symbol
+      const inputAddress = trade.inputAmount.currency.isNative
+        ? ZERO_ADDRESS_SOLANA
+        : trade.inputAmount.currency.address
+      const outputAddress = trade.outputAmount.currency.isNative
+        ? ZERO_ADDRESS_SOLANA
+        : trade.outputAmount.currency.address
       const inputAmount = formatCurrencyAmount(trade.inputAmount, 6)
       const outputAmount = formatCurrencyAmount(trade.outputAmount, 6)
 
@@ -78,6 +85,8 @@ export function useSwapV2Callback(
         arbitrary: {
           inputSymbol,
           outputSymbol,
+          inputAddress,
+          outputAddress,
           inputDecimals: trade.inputAmount.currency.decimals,
           outputDecimals: trade.outputAmount.currency.decimals,
           withRecipient,

@@ -1,14 +1,13 @@
 import { Log } from '@ethersproject/abstract-provider'
 import { BigNumber } from '@ethersproject/bignumber'
-import { Fraction } from '@kyberswap/ks-sdk-core'
+import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 import { ParsedTransactionMeta, ParsedTransactionWithMeta } from '@solana/web3.js'
 import { ethers } from 'ethers'
 import { findReplacementTx } from 'find-replacement-tx'
-import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { AGGREGATOR_ROUTER_SWAPPED_EVENT_TOPIC, APP_PATHS } from 'constants/index'
+import { AGGREGATOR_ROUTER_SWAPPED_EVENT_TOPIC, APP_PATHS, ZERO_ADDRESS_SOLANA } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE, NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES } from 'hooks/useMixpanel'
 import { NotificationType, useBlockNumber, useTransactionNotify } from 'state/application/hooks'
@@ -81,29 +80,12 @@ const parseEVMTransactionSummary = ({
     log.data,
   )
 
-  const inputAmount = getFullDisplayBalance(BigNumber.from(decodedValues[4].toString()), inputDecimals, 3)
-  const outputAmount = getFullDisplayBalance(BigNumber.from(decodedValues[5].toString()), outputDecimals, 3)
+  const inputAmount = getFullDisplayBalance(BigNumber.from(decodedValues[4].toString()), inputDecimals)
+  const outputAmount = getFullDisplayBalance(BigNumber.from(decodedValues[5].toString()), outputDecimals)
 
   const base = `${inputAmount} ${inputSymbol} for ${outputAmount} ${outputSymbol}`
 
   return `${base} ${withRecipient ?? ''}`
-}
-
-const whichMoreIncreased = (
-  [aPre, aPost]: [Fraction | undefined, Fraction | undefined] = [undefined, undefined],
-  [bPre, bPost]: [Fraction, Fraction],
-): [Fraction, Fraction] => {
-  if (!aPre || !aPost) return [bPre, bPost]
-  if (aPre.equalTo(0)) return [aPre, aPost]
-  if (bPre.equalTo(0)) return [bPre, bPost]
-  // for case both equalTo 0, hard to tell which increased much more than other, in term of different token base
-  // e.g: 0 -> 0.01 ETH compare with 0 -> 0.2 KNC
-
-  const aPercent = aPost.subtract(aPre).divide(aPre)
-  const bPercent = bPost.subtract(bPre).divide(bPre)
-
-  if (aPercent > bPercent) return [aPre, aPost]
-  return [bPre, bPost]
 }
 
 const parseSolanaTransactionSummary = ({
@@ -119,39 +101,42 @@ const parseSolanaTransactionSummary = ({
 
   const inputSymbol = tx?.arbitrary?.inputSymbol
   const outputSymbol = tx?.arbitrary?.outputSymbol
-  const inputDecimals = tx?.arbitrary?.inputDecimals
-  const outputDecimals = tx?.arbitrary?.outputDecimals
+  // const inputDecimals = tx?.arbitrary?.inputDecimals
+  // const outputDecimals = tx?.arbitrary?.outputDecimals
+  const inputAddress =
+    tx?.arbitrary?.inputAddress === ZERO_ADDRESS_SOLANA ? WETH[ChainId.SOLANA].address : tx?.arbitrary?.inputAddress
+  const outputAddress =
+    tx?.arbitrary?.outputAddress === ZERO_ADDRESS_SOLANA ? WETH[ChainId.SOLANA].address : tx?.arbitrary?.outputAddress
 
-  if (!inputSymbol || !outputSymbol || !inputDecimals || !outputDecimals) return tx?.summary
+  if (
+    !inputSymbol ||
+    !outputSymbol ||
+    // !inputDecimals ||
+    // !outputDecimals ||
+    !inputAddress ||
+    !outputAddress ||
+    !meta?.preTokenBalances ||
+    !meta?.postTokenBalances
+  )
+    return tx?.summary
 
-  let inputAmount: [Fraction, Fraction] | undefined // [pre, post] balance
-  let outputAmount: [Fraction, Fraction] | undefined // [pre, post] balance
-  const preBalanceMap: { [mint: string]: Fraction } = {}
-  meta?.preTokenBalances?.forEach(tokenBalance => {
-    if (tokenBalance.mint && tokenBalance.owner === tx.from)
-      preBalanceMap[tokenBalance.mint] = new Fraction(JSBI.BigInt(tokenBalance.uiTokenAmount.amount)).divide(
-        JSBI.BigInt(10 ** tokenBalance.uiTokenAmount.decimals),
-      )
-  })
-  meta?.postTokenBalances?.forEach(tokenBalance => {
-    if (tokenBalance.mint && tokenBalance.owner === tx.from) {
-      const preBalance = preBalanceMap[tokenBalance.mint]
-      const postBalance = new Fraction(JSBI.BigInt(tokenBalance.uiTokenAmount.amount)).divide(
-        JSBI.BigInt(10 ** tokenBalance.uiTokenAmount.decimals),
-      )
-      if (preBalance.lessThan(postBalance)) {
-        outputAmount = whichMoreIncreased(outputAmount, [preBalance, postBalance])
-      } else if (preBalance.greaterThan(postBalance)) {
-        inputAmount = whichMoreIncreased(inputAmount, [preBalance, postBalance])
-      }
-    }
-  })
-  if (!inputAmount || !outputAmount) return tx?.summary
+  const inputBalancePre = meta?.preTokenBalances.find(tokenBalance => tokenBalance.mint === inputAddress)
+  const inputBalancePost = meta?.postTokenBalances.find(tokenBalance => tokenBalance.mint === inputAddress)
+  const outputBalancePre = meta?.preTokenBalances.find(tokenBalance => tokenBalance.mint === outputAddress)
+  const outputBalancePost = meta?.postTokenBalances.find(tokenBalance => tokenBalance.mint === outputAddress)
+  if (!inputBalancePre || !outputBalancePre || !inputBalancePost || !outputBalancePost) return tx?.summary
 
-  const inputAmountStr = inputAmount[0].subtract(inputAmount[1]).toSignificant(9)
-  const outputAmountStr = outputAmount[1].subtract(outputAmount[0]).toSignificant(9)
+  const inputPreAmount = BigNumber.from(inputBalancePre.uiTokenAmount.amount)
+  const inputPostAmount = BigNumber.from(inputBalancePost.uiTokenAmount.amount)
+  const outputPreAmount = BigNumber.from(outputBalancePre.uiTokenAmount.amount)
+  const outputPostAmount = BigNumber.from(outputBalancePost.uiTokenAmount.amount)
 
-  return `${inputAmountStr} ${inputSymbol} for ${outputAmountStr} ${outputSymbol}`
+  const inputAmount = getFullDisplayBalance(inputPreAmount.sub(inputPostAmount), inputBalancePre.uiTokenAmount.decimals)
+  const outputAmount = getFullDisplayBalance(
+    BigNumber.from(outputPostAmount.sub(outputPreAmount).toString()),
+    outputBalancePre.uiTokenAmount.decimals,
+  )
+  return `${inputAmount} ${inputSymbol} for ${outputAmount} ${outputSymbol}`
 }
 
 export default function Updater(): null {
