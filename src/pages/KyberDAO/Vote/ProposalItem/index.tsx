@@ -11,6 +11,7 @@ import { ButtonLight, ButtonPrimary } from 'components/Button'
 import LaunchIcon from 'components/Icons/LaunchIcon'
 import { RowBetween, RowFit, RowFixed } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
+import { useVotingInfo } from 'hooks/kyberdao'
 import { ProposalDetail, ProposalStatus } from 'hooks/kyberdao/types'
 import useTheme from 'hooks/useTheme'
 import { useSwitchToEthereum } from 'pages/KyberDAO/StakeKNC/SwitchToEthereumModal'
@@ -150,14 +151,18 @@ export default function ProposalItem({
   proposal,
   showByDefault,
   onBadgeClick,
+  voteCallback,
 }: {
   proposal: ProposalDetail
   showByDefault?: boolean
   onBadgeClick?: (name: string) => void
+  voteCallback?: (proposal_id: number, option: number) => void
 }) {
   const theme = useTheme()
+  const { votesInfo } = useVotingInfo()
+
   const [show, setShow] = useState(!!showByDefault)
-  const [selectedVote, setSelectedVote] = useState<string | undefined>()
+  const [selectedOption, setSelectedOption] = useState<number | undefined>()
   const contentRef = useRef<any>()
   const statusType = () => {
     switch (proposal.status) {
@@ -177,42 +182,44 @@ export default function ProposalItem({
   const { switchToEthereum } = useSwitchToEthereum()
   const handleVote = useCallback(() => {
     switchToEthereum().then(() => {
-      selectedVote && toggleVoteModal()
+      selectedOption !== undefined && toggleVoteModal()
     })
-  }, [switchToEthereum, toggleVoteModal, selectedVote])
+  }, [switchToEthereum, toggleVoteModal, selectedOption])
 
+  const handleVoteConfirm = useCallback(() => {
+    selectedOption !== undefined && voteCallback?.(proposal.proposal_id, selectedOption)
+  }, [selectedOption, proposal.proposal_id, voteCallback])
+
+  const votedOfCurrentProposal = useMemo(
+    () => votesInfo?.find(v => v.proposal_id === proposal.proposal_id),
+    [votesInfo, proposal.proposal_id],
+  )
   const renderVotes = useMemo(() => {
     return (
       <RowBetween gap={isMobile ? '16px' : '20px'} flexDirection={isMobile ? 'column' : 'row'}>
         {proposal.options.map((option: string, index: number) => {
+          const voted = votedOfCurrentProposal?.option === index
           return (
             <VoteProgress
               key={option}
-              option={option}
               percent={
                 proposal.vote_stats.options[index]
                   ? (proposal.vote_stats.options[index]?.vote_count / proposal.vote_stats.total_vote_count) * 100
                   : 0
               }
               title={option}
-              checked={option === selectedVote}
-              setVote={(o: string) => {
-                o && setSelectedVote(o)
-              }}
-              type={
-                proposal.status === ProposalStatus.Active
-                  ? option === selectedVote
-                    ? 'Choosing'
-                    : 'Active'
-                  : 'Finished'
-              }
+              checked={index === selectedOption}
+              onVoteClick={() => setSelectedOption(index)}
+              type={index === selectedOption ? 'Choosing' : voted ? 'Active' : 'Finished'}
             />
           )
         })}
       </RowBetween>
     )
-  }, [proposal, selectedVote])
+  }, [proposal, selectedOption, votedOfCurrentProposal?.option])
+
   const isActive = proposal.status === ProposalStatus.Active
+
   return (
     <ProposalItemWrapper>
       <ProposalHeader>
@@ -278,7 +285,12 @@ export default function ProposalItem({
           </div>
         )}
       </Content>
-      {proposal.status === ProposalStatus.Active && <VoteConfirmModal option={selectedVote} />}
+      {proposal.status === ProposalStatus.Active && (
+        <VoteConfirmModal
+          option={selectedOption !== undefined ? proposal.options[selectedOption] : ''}
+          onVoteConfirm={handleVoteConfirm}
+        />
+      )}
     </ProposalItemWrapper>
   )
 }

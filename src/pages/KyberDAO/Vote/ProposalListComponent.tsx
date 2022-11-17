@@ -51,7 +51,7 @@ const HistoryButton = styled(RowFit)`
   }
 `
 
-function ProposalListComponent() {
+function ProposalListComponent({ voteCallback }: { voteCallback?: (proposal_id: number, option: number) => void }) {
   const theme = useTheme()
   const { proposals } = useVotingInfo()
   const [status, setStatus] = useState<string | undefined>()
@@ -146,6 +146,7 @@ function ProposalListComponent() {
               proposal={p}
               showByDefault={index === 0}
               onBadgeClick={setStatus}
+              voteCallback={voteCallback}
             />
           )
         })

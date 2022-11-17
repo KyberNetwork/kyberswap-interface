@@ -5,6 +5,7 @@ import { useCallback, useMemo } from 'react'
 import useSWR from 'swr'
 import useSWRImmutable from 'swr/immutable'
 
+import DaoABI from 'constants/abis/kyberdao/dao.json'
 import MigrateABI from 'constants/abis/kyberdao/migrate.json'
 import RewardDistributorABI from 'constants/abis/kyberdao/reward_distributor.json'
 import StakingABI from 'constants/abis/kyberdao/staking.json'
@@ -17,7 +18,7 @@ import { useSingleCallResult } from 'state/multicall/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { calculateGasMargin } from 'utils'
 
-import { ProposalDetail, StakerAction, StakerInfo } from './types'
+import { ProposalDetail, StakerAction, StakerInfo, VoteInfo } from './types'
 
 //TODO Diep: Move this to ethereum.js
 export const KYBERDAO_ADDRESSES = {
@@ -185,6 +186,31 @@ export function useClaimRewardActions() {
   return { claim }
 }
 
+export const useVotingActions = () => {
+  const daoContract = useContract(KYBERDAO_ADDRESSES.DAO, DaoABI)
+  const addTransactionWithType = useTransactionAdder()
+
+  const vote = useCallback(
+    async (campId: number, option: number) => {
+      if (!daoContract) {
+        throw new Error(CONTRACT_NOT_FOUND_MSG)
+      }
+
+      const estimateGas = await daoContract.estimateGas.submitVote(campId, option)
+      const tx = await daoContract.submitVote(campId, option, {
+        gasLimit: calculateGasMargin(estimateGas),
+      })
+      addTransactionWithType(tx, {
+        type: 'KyberDAO Vote',
+        summary: t`Voted successful`,
+      })
+      return tx.hash
+    },
+    [daoContract, addTransactionWithType],
+  )
+  return { vote }
+}
+
 const fetcher = (url: string) => {
   return fetch(url)
     .then(res => res.json())
@@ -219,7 +245,6 @@ export function useStakingInfo() {
 export function useVotingInfo() {
   const { account } = useActiveWeb3React()
   const rewardDistributorContract = useContract(KYBERDAO_ADDRESSES.REWARDS_DISTRIBUTOR, RewardDistributorABI)
-  // Get Dao Info
   const { data: daoInfo } = useSWR(APIS.DAO + '/dao-info', fetcher)
 
   const merkleData = useSingleCallResult(rewardDistributorContract, 'getMerkleData')
@@ -293,6 +318,9 @@ export function useVotingInfo() {
     },
     [daoInfo],
   )
+
+  const { data: votesInfo } = useSWR<VoteInfo[]>(account ? APIS.DAO + '/stakers/' + account + '/votes' : null, fetcher)
+
   return {
     daoInfo,
     userRewards,
@@ -301,6 +329,7 @@ export function useVotingInfo() {
     userReward: userRewards?.userReward,
     remainingCumulativeAmount,
     stakerInfo,
+    votesInfo,
   }
 }
 

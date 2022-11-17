@@ -64,3 +64,9 @@ export interface StakerAction {
   tx_hash: string
   type: string
 }
+
+export interface VoteInfo {
+  proposal_id: number
+  option?: number
+  options?: number[]
+}

@@ -18,7 +18,7 @@ import { AutoRow, RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
 import { useActiveWeb3React } from 'hooks'
-import { useClaimRewardActions, useStakingInfo, useVotingInfo } from 'hooks/kyberdao'
+import { useClaimRewardActions, useStakingInfo, useVotingActions, useVotingInfo } from 'hooks/kyberdao'
 import useTotalVotingReward from 'hooks/kyberdao/useTotalVotingRewards'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
@@ -119,6 +119,7 @@ export default function Vote() {
   const kncPrice = useKNCPrice()
   const { knc, usd } = useTotalVotingReward()
   const { claim } = useClaimRewardActions()
+  const { vote } = useVotingActions()
   const isHasReward = !!remainingCumulativeAmount && !remainingCumulativeAmount.eq(0)
 
   const toggleClaimConfirmModal = useToggleModal(ApplicationModal.KYBER_DAO_CLAIM)
@@ -150,10 +151,31 @@ export default function Vote() {
         setTxHash(tx)
       })
       .catch(() => {
+        setShowConfirm(false)
         setAttemptingTxn(false)
         setTxHash(undefined)
       })
   }, [userRewards, account, claim, remainingCumulativeAmount])
+
+  const handleVote = useCallback(
+    async (proposal_id: number, option: number) => {
+      setPendingText(t`Vote submitting`)
+      setShowConfirm(true)
+      setAttemptingTxn(true)
+      vote(proposal_id, option)
+        .then(tx => {
+          setAttemptingTxn(false)
+          setTxHash(tx)
+        })
+        .catch(error => {
+          console.log(error)
+          setShowConfirm(false)
+          setAttemptingTxn(false)
+          setTxHash(undefined)
+        })
+    },
+    [vote],
+  )
 
   return (
     <Wrapper>
@@ -360,7 +382,7 @@ export default function Vote() {
         <Text color={theme.subText} fontStyle="italic" fontSize={12} hidden={isMobile}>
           <Trans>Note: Voting on KyberDAO is only available on Ethereum chain</Trans>
         </Text>
-        <ProposalListComponent />
+        <ProposalListComponent voteCallback={handleVote} />
         <SwitchToEthereumModal />
         <ClaimConfirmModal amount={formatUnitsToFixed(remainingCumulativeAmount)} onConfirmClaim={handleConfirmClaim} />
         <TransactionConfirmationModal

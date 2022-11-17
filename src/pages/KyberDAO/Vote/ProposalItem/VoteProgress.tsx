@@ -79,25 +79,23 @@ const ChoosingProgress = styled.div<{ width: number }>`
   }
 `
 export default function VoteProgress({
-  option,
   checked,
   percent = 40,
   title,
   type = 'Finished',
-  setVote,
+  onVoteClick,
 }: {
-  option?: string
   checked?: boolean
   percent?: number
   title?: string
   type?: 'Finished' | 'Active' | 'Choosing'
-  setVote?: (options: string) => void
+  onVoteClick?: () => void
 }) {
   console.log('🚀 ~ file: VoteProgress.tsx ~ line 96 ~ checked', checked)
   const parsedPercent = parseFloat(percent.toFixed(2) || '0')
   return (
     <Wrapper>
-      <div onClick={() => option && setVote?.(option)} style={{ zIndex: 4, width: '100%' }}>
+      <div onClick={onVoteClick} style={{ zIndex: 4, width: '100%' }}>
         <RowBetween style={{ zIndex: 1 }} alignItems="center">
           <RowFit gap="5px" style={{ fontSize: '12px', cursor: type !== 'Finished' ? 'pointer' : 'default' }}>
             {checked ? <RadioButtonChecked /> : <RadioButtonUnchecked />} {title}

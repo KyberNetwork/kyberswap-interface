@@ -22,7 +22,7 @@ const TextWrapper = styled(Text)`
     color: ${({ theme }) => theme.text};
   }
 `
-export default function VoteConfirmModal({ option }: { option?: string }) {
+export default function VoteConfirmModal({ option, onVoteConfirm }: { option: string; onVoteConfirm: () => void }) {
   const theme = useTheme()
   const modalOpen = useModalOpen(ApplicationModal.KYBER_DAO_VOTE)
   const toggleModal = useToggleModal(ApplicationModal.KYBER_DAO_VOTE)
@@ -42,7 +42,7 @@ export default function VoteConfirmModal({ option }: { option?: string }) {
         <TextWrapper fontSize={16} lineHeight="24px" color={theme.subText}>
           You are voting for <b>{option}</b> on <b>KIP:20 KNC Ecosystem Fund Allocation</b> with your voing power
         </TextWrapper>
-        <ButtonPrimary>Vote</ButtonPrimary>
+        <ButtonPrimary onClick={onVoteConfirm}>Vote</ButtonPrimary>
       </Wrapper>
     </Modal>
   )
