@@ -253,7 +253,10 @@ export function CurrencySearch({
     (e: KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter') {
         const s = searchQuery.toLowerCase().trim()
-        if (s === 'eth') {
+        if (
+          s === NativeCurrencies[chainId].symbol?.toLowerCase() ||
+          s === NativeCurrencies[chainId].name?.toLowerCase()
+        ) {
           handleCurrencySelect(NativeCurrencies[chainId])
         } else if (filteredSortedTokens.length > 0) {
           if (
