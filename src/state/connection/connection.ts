@@ -43,5 +43,3 @@ const connection: Connection = (() => {
   return proxy
 })()
 export default connection
-
-export const serumConnection = new Connection('https://solana-api.projectserum.com/')

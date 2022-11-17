@@ -1,6 +1,6 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import React, { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import TransactionConfirmationModal, {
   ConfirmationModalContent,
@@ -60,6 +60,11 @@ export default function ConfirmSwapModal({
 }) {
   const { isSolana } = useActiveWeb3React()
   const { feeConfig, typedValue } = useSwapState()
+  const [startedTime, setStartedTime] = useState(Date.now())
+
+  useEffect(() => {
+    setStartedTime(Date.now())
+  }, [trade, isOpen])
 
   const showAcceptChanges = useMemo(
     () => Boolean(trade && originalTrade && tradeMeaningfullyDiffers(trade, originalTrade)),
@@ -87,9 +92,10 @@ export default function ConfirmSwapModal({
         swapErrorMessage={swapErrorMessage}
         allowedSlippage={allowedSlippage}
         feeConfig={feeConfig}
+        startedTime={startedTime}
       />
     ) : null
-  }, [allowedSlippage, onConfirm, showAcceptChanges, swapErrorMessage, trade, feeConfig, isSolana])
+  }, [allowedSlippage, onConfirm, showAcceptChanges, swapErrorMessage, trade, feeConfig, isSolana, startedTime])
 
   const nativeInput = useCurrencyConvertedToNative(trade?.inputAmount?.currency)
   const nativeOutput = useCurrencyConvertedToNative(trade?.outputAmount?.currency)
@@ -127,6 +133,7 @@ export default function ConfirmSwapModal({
       pendingText={pendingText}
       tokenAddToMetaMask={tokenAddToMetaMask}
       showTxBanner={showTxBanner}
+      startedTime={startedTime}
     />
   )
 }

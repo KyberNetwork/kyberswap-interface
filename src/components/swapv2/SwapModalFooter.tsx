@@ -22,6 +22,7 @@ import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { getFormattedFeeAmountUsd } from 'utils/fee'
 import { computeSlippageAdjustedAmounts, formatExecutionPrice } from 'utils/prices'
 
+import HurryUpBanner from './HurryUpBanner'
 import { StyledBalanceMaxMini, SwapCallbackError } from './styleds'
 
 export default function SwapModalFooter({
@@ -31,6 +32,7 @@ export default function SwapModalFooter({
   swapErrorMessage,
   disabledConfirm,
   feeConfig,
+  startedTime,
 }: {
   trade: Aggregator
   allowedSlippage: number
@@ -38,6 +40,7 @@ export default function SwapModalFooter({
   swapErrorMessage: string | undefined
   disabledConfirm: boolean
   feeConfig: FeeConfig | undefined
+  startedTime: number
 }) {
   const { chainId, isSolana } = useActiveWeb3React()
   const [showInverted, setShowInverted] = useState<boolean>(false)
@@ -172,6 +175,7 @@ export default function SwapModalFooter({
           {veryHighPriceImpact ? <Trans>Price impact is Very High!</Trans> : <Trans>Price impact is High!</Trans>}
         </AutoRow>
       )}
+      <HurryUpBanner startedTime={startedTime} />
       <AutoRow>
         {isSolana && typeof trade.solana?.swap !== 'object' ? (
           <GreyCard

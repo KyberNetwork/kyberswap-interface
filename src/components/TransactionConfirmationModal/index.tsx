@@ -1,6 +1,6 @@
 import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { ArrowUpCircle } from 'react-feather'
 import { Text } from 'rebass'
 import styled from 'styled-components'
@@ -56,20 +56,17 @@ const CountdountNumber = styled.div`
 function ConfirmationPendingContent({
   onDismiss,
   pendingText,
+  startedTime,
 }: {
   onDismiss: () => void
   pendingText: string | React.ReactNode
+  startedTime: number
 }) {
-  const [startedTime, setStartedTime] = useState(Date.now())
   const [, rerender] = useState({})
-  useEffect(() => {
-    setStartedTime(Date.now())
-  }, [])
-
   useInterval(() => rerender({}), 1000)
   const theme = useTheme()
 
-  const currentTime = Math.round((Date.now() - startedTime) / 1000)
+  const currentTime = Math.round((Date.now() - startedTime) / 1000) + 1
   return (
     <Wrapper>
       <Section>
@@ -309,6 +306,7 @@ interface ConfirmationModalProps {
   pendingText: string | React.ReactNode
   tokenAddToMetaMask?: Currency
   showTxBanner?: boolean
+  startedTime?: number
 }
 
 export default function TransactionConfirmationModal({
@@ -320,6 +318,7 @@ export default function TransactionConfirmationModal({
   content,
   tokenAddToMetaMask,
   showTxBanner,
+  startedTime = Date.now(),
 }: ConfirmationModalProps) {
   const { chainId } = useActiveWeb3React()
 
@@ -328,7 +327,7 @@ export default function TransactionConfirmationModal({
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss} maxHeight={90}>
       {attemptingTxn ? (
-        <ConfirmationPendingContent onDismiss={onDismiss} pendingText={pendingText} />
+        <ConfirmationPendingContent onDismiss={onDismiss} pendingText={pendingText} startedTime={startedTime} />
       ) : hash ? (
         <TransactionSubmittedContent
           showTxBanner={showTxBanner}
