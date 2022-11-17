@@ -18,7 +18,6 @@ const ENV = {
   MAINNET_ENV: validate('MAINNET_ENV', ['staging', 'production']),
   GOOGLE_RECAPTCHA_KEY: required('GOOGLE_RECAPTCHA_KEY'),
   PRICE_API: required('PRICE_API'),
-  META_AGGREGATOR_API: required('META_AGGREGATOR_API'),
   AGGREGATOR_API: required('AGGREGATOR_API'),
   SENTRY_DNS: required('SENTRY_DNS'),
   REWARD_SERVICE_API: required('REWARD_SERVICE_API'),
@@ -47,7 +46,6 @@ export const {
   MAINNET_ENV, // for logging, tracking
   GOOGLE_RECAPTCHA_KEY,
   PRICE_API,
-  META_AGGREGATOR_API,
   AGGREGATOR_API,
   SENTRY_DNS,
   REWARD_SERVICE_API,

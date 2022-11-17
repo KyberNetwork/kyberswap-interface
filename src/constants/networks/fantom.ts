@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import FTM from 'assets/networks/fantom-network.png'
-import { KS_SETTING_API, META_AGGREGATOR_API } from 'constants/env'
+import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
 
@@ -34,7 +34,7 @@ const fantomInfo: EVMNetworkInfo = {
     minForGas: 10 ** 16,
   },
   rpcUrl: 'https://fantom.kyberengineering.io',
-  routerUri: `${META_AGGREGATOR_API}/fantom/route/encode`,
+  routerUri: `${AGGREGATOR_API}/fantom/route/encode`,
   multicall: '0x878dFE971d44e9122048308301F540910Bbd934c',
   classic: {
     static: {

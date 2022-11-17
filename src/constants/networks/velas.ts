@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import VELAS from 'assets/networks/velas-network.png'
-import { KS_SETTING_API, META_AGGREGATOR_API } from 'constants/env'
+import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
 
@@ -39,7 +39,7 @@ const velasInfo: EVMNetworkInfo = {
     minForGas: 10 ** 16,
   },
   rpcUrl: 'https://evmexplorer.velas.com/rpc',
-  routerUri: `${META_AGGREGATOR_API}/velas/route/encode`,
+  routerUri: `${AGGREGATOR_API}/velas/route/encode`,
   multicall: '0x1877Ec0770901cc6886FDA7E7525a78c2Ed4e975',
   classic: {
     static: {

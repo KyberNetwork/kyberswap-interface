@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import OPTIMISM from 'assets/networks/optimism-network.svg'
-import { KS_SETTING_API, META_AGGREGATOR_API } from 'constants/env'
+import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
 
@@ -36,7 +36,7 @@ const optimismInfo: EVMNetworkInfo = {
     minForGas: 10 ** 16,
   },
   rpcUrl: 'https://opt-mainnet.g.alchemy.com/v2/N7gZFcuMkhLTTpdsRLEcDXYIJssj6GsI',
-  routerUri: `${META_AGGREGATOR_API}/optimism/route/encode`,
+  routerUri: `${AGGREGATOR_API}/optimism/route/encode`,
   multicall: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',
   classic: {
     static: {

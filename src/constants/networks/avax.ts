@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import AVAX from 'assets/networks/avax-network.png'
-import { KS_SETTING_API, META_AGGREGATOR_API } from 'constants/env'
+import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
 
@@ -33,7 +33,7 @@ const avaxInfo: EVMNetworkInfo = {
     minForGas: 10 ** 16,
   },
   rpcUrl: 'https://avalanche.kyberengineering.io',
-  routerUri: `${META_AGGREGATOR_API}/avalanche/route/encode`,
+  routerUri: `${AGGREGATOR_API}/avalanche/route/encode`,
   multicall: '0xF2FD8219609E28C61A998cc534681f95D2740f61',
   classic: {
     static: {
