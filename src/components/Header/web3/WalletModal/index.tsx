@@ -107,19 +107,24 @@ const UpperSection = styled.div`
 `
 
 const OptionGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-  gap: 16px;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
   margin-top: 16px;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-gap: 10px;
-  `};
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    grid-template-columns: 1fr 1fr;
-    grid-gap: 10px;
-  `};
+  & > * {
+    width: calc(20% - 1rem);
+  }
+  ${({ theme }) => theme.mediaWidth.upToXXL`
+    & > * {
+      width: calc(25% - 1rem);
+    }
+  `}
+  ${({ theme }) => theme.mediaWidth.upToXL`
+    & > * {
+      width: calc(33% - 1rem);
+    }
+  `}
 `
 
 const HoverText = styled.div`
@@ -464,8 +469,7 @@ export default function WalletModal() {
       onDismiss={toggleWalletModal}
       minHeight={false}
       maxHeight={90}
-      width={walletView === WALLET_VIEWS.ACCOUNT || walletView === WALLET_VIEWS.CHANGE_WALLET ? 'unset' : undefined}
-      maxWidth={account && walletView === WALLET_VIEWS.ACCOUNT ? 544 : 752}
+      maxWidth={account && walletView === WALLET_VIEWS.ACCOUNT ? 544 : 850}
     >
       <Wrapper>{getModalContent()}</Wrapper>
     </Modal>

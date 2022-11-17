@@ -18,7 +18,6 @@ const IconWrapper = styled.div`
   align-items: center;
   justify-content: center;
   background-color: transparent;
-  transition: all 0.2s;
 
   & > img,
   span {
@@ -51,13 +50,12 @@ const OptionCardClickable = styled.button<{
   }
   padding: 0;
   display: flex;
-  gap: 4px;
+  gap: 8px;
   flex-direction: row;
   align-items: center;
   margin-top: 2rem;
   margin-top: 0;
   padding: 10px 8px;
-  transition: all 0.2s;
   background-color: ${({ theme }) => theme.buttonBlack};
 
   cursor: ${({ isDisabled, installLink, overridden }) =>

@@ -43,7 +43,7 @@ export default function NetworkModal({
     <Modal
       isOpen={isOpen !== undefined ? isOpen : networkModalOpen}
       onDismiss={toggleNetworkModal}
-      maxWidth={624}
+      maxWidth={850}
       zindex={Z_INDEXS.MODAL}
     >
       <Wrapper>

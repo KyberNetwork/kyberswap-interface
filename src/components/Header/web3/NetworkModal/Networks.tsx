@@ -3,7 +3,8 @@ import { Trans } from '@lingui/macro'
 import { stringify } from 'qs'
 import React from 'react'
 import { useHistory } from 'react-router-dom'
-import styled from 'styled-components'
+import { Text } from 'rebass'
+import styled, { css } from 'styled-components'
 
 import { ButtonEmpty } from 'components/Button'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -11,6 +12,7 @@ import { MAINNET_NETWORKS, NETWORKS_INFO } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { useChangeNetwork } from 'hooks/useChangeNetwork'
 import useParsedQueryString from 'hooks/useParsedQueryString'
+import useTheme from 'hooks/useTheme'
 import { useIsDarkMode } from 'state/user/hooks'
 
 const NewLabel = styled.span`
@@ -29,15 +31,15 @@ const ListItem = styled.div<{ selected?: boolean }>`
   border-radius: 999px;
   ${({ theme, selected }) =>
     selected
-      ? `
-        background-color: ${theme.primary};
-        & ${NetworkLabel} {
-          color: ${theme.background};
-        }
-      `
-      : `
-        background-color : ${theme.buttonBlack};
-      `}
+      ? css`
+          background-color: ${theme.primary};
+          & > div {
+            color: ${theme.background};
+          }
+        `
+      : css`
+          background-color: ${theme.buttonBlack};
+        `}
 `
 
 const SelectNetworkButton = styled(ButtonEmpty)<{ disabled: boolean }>`
@@ -66,26 +68,26 @@ const SelectNetworkButton = styled(ButtonEmpty)<{ disabled: boolean }>`
   }
 `
 
-const NetworkLabel = styled.span`
-  color: ${({ theme }) => theme.text13};
-  font-size: 12px;
-`
-
 const NetworkList = styled.div<{ width: number; mt: number; mb: number }>`
-  display: grid;
-  grid-gap: 1rem;
-  grid-template-columns: repeat(${({ width }) => width}, 1fr);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
   width: 100%;
   margin-top: ${({ mt }) => mt}px;
   margin-bottom: ${({ mb }) => mb}px;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-gap: 10px;
+  & > * {
+    width: calc(20% - 1rem);
+  }
+  ${({ theme }) => theme.mediaWidth.upToXXL`
+    & > * {
+      width: calc(25% - 1rem);
+    }
   `}
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    grid-template-columns: 1fr 1fr;
-    grid-gap: 10px;
+  ${({ theme }) => theme.mediaWidth.upToXL`
+    & > * {
+      width: calc(33% - 1rem);
+    }
   `}
 `
 
@@ -120,6 +122,7 @@ const Networks = ({
   const qs = useParsedQueryString()
   const history = useHistory()
   const isDarkMode = useIsDarkMode()
+  const theme = useTheme()
 
   const onSelect = (chainId: ChainId) => {
     customToggleModal?.()
@@ -162,8 +165,10 @@ const Networks = ({
               disabled={disabledAll || disabled}
             >
               <ListItem selected={selected}>
-                <img src={imgSrc} alt="Switch Network" style={{ height: '20px', marginRight: '4px' }} />
-                <NetworkLabel>{name}</NetworkLabel>
+                <img src={imgSrc} alt="Switch Network" style={{ height: '20px', width: '20px', marginRight: '8px' }} />
+                <Text fontSize={14} color={theme.subText}>
+                  {name}
+                </Text>
                 {key === ChainId.SOLANA && (
                   <NewLabel>
                     <Trans>New</Trans>

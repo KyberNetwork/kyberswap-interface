@@ -2,7 +2,7 @@ import { Trans } from '@lingui/macro'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useCallback, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
-import { FileText } from 'react-feather'
+import { FileText, LogOut } from 'react-feather'
 import { useDispatch } from 'react-redux'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -12,7 +12,7 @@ import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import Divider from 'components/Divider'
 import Wallet from 'components/Icons/Wallet'
-import { AutoRow } from 'components/Row'
+import { AutoRow, RowBetween, RowFit } from 'components/Row'
 import { PROMM_ANALYTICS_URL } from 'constants/index'
 import { SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -27,7 +27,7 @@ import {
 } from 'state/transactions/hooks'
 import { TransactionDetails } from 'state/transactions/type'
 import { useIsDarkMode, useIsUserManuallyDisconnect } from 'state/user/hooks'
-import { ExternalLink, LinkStyledButton, TYPE } from 'theme'
+import { ButtonText, ExternalLink, LinkStyledButton, TYPE } from 'theme'
 import { getEtherscanLink, shortenAddress } from 'utils'
 
 import Transaction from './Transaction'
@@ -241,8 +241,17 @@ export default function AccountDetails({ toggleWalletModal, openOptions }: Accou
         </HeaderRow>
 
         <Flex flexDirection="column" marginTop="8px" paddingX="20px">
-          {formatConnectorName()}
-
+          <RowBetween>
+            <Text>{formatConnectorName()}</Text>
+            <ButtonText onClick={handleDisconnect}>
+              <RowFit color={theme.subText} gap="4px">
+                <LogOut size={16} />{' '}
+                <Text fontSize={14}>
+                  <Trans>Disconnect</Trans>
+                </Text>
+              </RowFit>
+            </ButtonText>
+          </RowBetween>
           <YourAccount>
             <AccountGroupingRow id="web3-account-identifier-row">
               <AccountControl>
@@ -285,19 +294,6 @@ export default function AccountDetails({ toggleWalletModal, openOptions }: Accou
               </Flex>
             </ExternalLink>
           )}
-        </Flex>
-
-        <Flex justifyContent="space-between" marginTop="24px" paddingX="20px" sx={{ gap: '1rem' }}>
-          <ButtonOutlined onClick={handleDisconnect}>
-            <Trans>Disconnect</Trans>
-          </ButtonOutlined>
-          <ButtonPrimary
-            onClick={() => {
-              openOptions()
-            }}
-          >
-            <Trans>Change Wallet</Trans>
-          </ButtonPrimary>
         </Flex>
       </UpperSection>
 
