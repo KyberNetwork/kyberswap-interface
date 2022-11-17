@@ -235,15 +235,18 @@ export function useVotingInfo() {
     return merkleDataFileUrl
   }, [merkleData])
 
-  const { data: userRewards } = useSWRImmutable(merkleDataFileUrl, (url: string) => {
-    return fetch(url)
-      .then(res => res.json())
-      .then(res => {
-        res.userReward = account ? res.userRewards[account] : undefined
-        delete res.userRewards
-        return res
-      })
-  })
+  const { data: userRewards } = useSWRImmutable(
+    account && merkleDataFileUrl ? [merkleDataFileUrl, account] : null,
+    (url: string, address: string) => {
+      return fetch(url)
+        .then(res => res.json())
+        .then(res => {
+          res.userReward = address ? res.userRewards[address] : undefined
+          delete res.userRewards
+          return res
+        })
+    },
+  )
 
   const claimedRewardAmounts = useSingleCallResult(rewardDistributorContract, 'getClaimedAmounts', [
     account,

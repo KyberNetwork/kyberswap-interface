@@ -22,7 +22,7 @@ const SearchInput = styled.input`
   outline: none;
   background-color: transparent;
   line-height: 18px;
-  width: ${isMobile ? '120px' : 'auto'};
+  width: ${isMobile ? '120px' : '400px'};
   ${({ theme }) =>
     css`
       color: ${theme.subText};

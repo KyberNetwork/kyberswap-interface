@@ -19,7 +19,7 @@ const Select = styled.div`
   padding: 8px 12px;
   width: 140px;
   height: 36px;
-  z-index: 2;
+  z-index: 5;
   font-weight: 500;
 
   ${({ theme }) => css`
@@ -39,7 +39,7 @@ const DropdownList = styled.div<{ show: boolean }>`
   flex-direction: column;
   padding: 8px;
   width: 140px;
-  z-index: 1;
+  z-index: 2;
   overflow: hidden;
   ${({ theme, show }) => css`
     background-color: ${theme.tableHeader};

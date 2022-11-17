@@ -385,9 +385,11 @@ export default function StakeKNCComponent() {
                     <SmallButton onClick={() => handleMaxClick()}>Max</SmallButton>
                     <SmallButton onClick={() => handleMaxClick(true)}>Half</SmallButton>
                   </AutoRow>
-                  <AutoRow gap="3px" justify="flex-end" color={theme.subText}>
-                    <Wallet /> <Text fontSize={12}>{KNCBalance ? formatUnits(KNCBalance) : 0}</Text>
-                  </AutoRow>
+                  {activeTab === STAKE_TAB.Stake && (
+                    <AutoRow gap="3px" justify="flex-end" color={theme.subText}>
+                      <Wallet /> <Text fontSize={12}>{KNCBalance ? formatUnits(KNCBalance) : 0}</Text>
+                    </AutoRow>
+                  )}
                 </RowBetween>
                 <RowBetween>
                   <CurrencyInput type="number" value={inputValue} onChange={e => setInputValue(e.target.value)} />
@@ -503,7 +505,11 @@ export default function StakeKNCComponent() {
             </RowBetween>
             <RowBetween>
               <Text>
-                <Trans>Voting power</Trans>
+                <Trans>Voting power</Trans>{' '}
+                <InfoHelper
+                  text={t`Your voting power is calculated by
+[Your Staked KNC] / [Total Staked KNC] * 100%`}
+                />
               </Text>
               <Text>
                 {calculateVotingPower(formatUnits(stakedBalance))}% &rarr;{' '}

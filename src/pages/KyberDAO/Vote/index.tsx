@@ -22,7 +22,7 @@ import { useClaimRewardActions, useStakingInfo, useVotingInfo } from 'hooks/kybe
 import useTotalVotingReward from 'hooks/kyberdao/useTotalVotingRewards'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
-import { useKNCPrice, useToggleModal } from 'state/application/hooks'
+import { useKNCPrice, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
 import { StyledInternalLink } from 'theme'
 import { formattedNumLong } from 'utils'
 import { formatUnitsToFixed } from 'utils/formatBalance'
@@ -120,7 +120,10 @@ export default function Vote() {
   const { knc, usd } = useTotalVotingReward()
   const { claim } = useClaimRewardActions()
   const isHasReward = !!remainingCumulativeAmount && !remainingCumulativeAmount.eq(0)
+
   const toggleClaimConfirmModal = useToggleModal(ApplicationModal.KYBER_DAO_CLAIM)
+  const toggleWalletModal = useWalletModalToggle()
+
   const [showConfirm, setShowConfirm] = useState(false)
   const [attemptingTxn, setAttemptingTxn] = useState<boolean>(false)
   const [pendingText, setPendingText] = useState<string>('')
@@ -198,13 +201,11 @@ export default function Vote() {
           <Card>
             <AutoColumn>
               <Text color={theme.subText} marginBottom="20px">
-                <Trans>
-                  Your Voting Power{' '}
-                  <InfoHelper
-                    text={t`Your voting power is calculated by
+                <Trans>Your Voting Power</Trans>{' '}
+                <InfoHelper
+                  text={t`Your voting power is calculated by
 [Your Staked KNC] / [Total Staked KNC] * 100%`}
-                  />
-                </Trans>
+                />
               </Text>
 
               <RowBetween marginBottom="8px">
@@ -318,7 +319,7 @@ export default function Vote() {
                   </ButtonPrimary>
                 </RowBetween>
               ) : (
-                <ButtonLight>
+                <ButtonLight onClick={toggleWalletModal}>
                   <Trans>Connect Your Wallet</Trans>
                 </ButtonLight>
               )}

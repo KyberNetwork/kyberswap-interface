@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { parseUnits } from 'ethers/lib/utils'
 import { useEffect, useState } from 'react'
@@ -10,6 +11,7 @@ import { AutoColumn } from 'components/Column'
 import Modal from 'components/Modal'
 import { AutoRow, RowBetween } from 'components/Row'
 import { KNCL_ADDRESS, KNC_ADDRESS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import { useKyberDaoStakeActions } from 'hooks/kyberdao'
 import { ApprovalState } from 'hooks/useApproveCallback'
 import useTheme from 'hooks/useTheme'
@@ -39,6 +41,7 @@ export default function MigrateModal({
   setTxHash: React.Dispatch<React.SetStateAction<string | undefined>>
 }) {
   const theme = useTheme()
+  const { chainId } = useActiveWeb3React()
   const modalOpen = useModalOpen(ApplicationModal.MIGRATE_KNC)
   const toggleModal = useToggleModal(ApplicationModal.MIGRATE_KNC)
   const { migrate } = useKyberDaoStakeActions()
@@ -46,18 +49,21 @@ export default function MigrateModal({
   const [error, setError] = useState('')
   const oldKNCBalance = useTokenBalance(KNCL_ADDRESS)
   useEffect(() => {
-    setError('')
-  }, [value])
+    if (!value || isNaN(parseFloat(value)) || parseFloat(value) <= 0) {
+      setError(t`Invalid amount`)
+    } else if (!oldKNCBalance.value.gte(parseUnits(value, 18))) {
+      setError(t`Insufficient KNCL balance!`)
+      return
+    } else {
+      setError('')
+    }
+  }, [value, oldKNCBalance?.value])
   const { switchToEthereum } = useSwitchToEthereum()
   const toggleApproveModal = useToggleModal(ApplicationModal.APPROVE_KNCL)
 
   const handleMigrate = () => {
     setError('')
     switchToEthereum().then(() => {
-      if (!oldKNCBalance.value.gte(parseUnits(value, 18))) {
-        setError(t`Insufficient KNCL balance!`)
-        return
-      }
       try {
         if (approval === ApprovalState.APPROVED) {
           setPendingText(t`Migrating ${value} KNCL to KNC`)
@@ -79,6 +85,8 @@ export default function MigrateModal({
       }
     })
   }
+
+  const isWrongChain = chainId !== ChainId.MAINNET
   return (
     <Modal isOpen={modalOpen} onDismiss={toggleModal} minHeight={false} maxHeight={664} maxWidth={420}>
       <Wrapper>
@@ -126,15 +134,8 @@ export default function MigrateModal({
             tokenName="KNC"
             disabled
           />
-          {error && (
-            <Text color={theme.red} fontSize={14}>
-              {error}
-            </Text>
-          )}
-          <ButtonPrimary onClick={handleMigrate}>
-            <Text fontSize={14}>
-              <Trans>Migrate</Trans>
-            </Text>
+          <ButtonPrimary disabled={!!error && !isWrongChain} onClick={handleMigrate}>
+            <Text fontSize={14}>{(!isWrongChain && error) || <Trans>Migrate</Trans>}</Text>
           </ButtonPrimary>
         </AutoColumn>
       </Wrapper>
