@@ -8,7 +8,7 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { AppState } from 'state'
 import {
   setLoadingNotification,
-  setNeedShowModalSubscribe,
+  setNeedShowModalSubscribeNotificationAfterLogin,
   setSubscribedNotificationTopic,
 } from 'state/application/actions'
 import { useNotificationModalToggle } from 'state/application/hooks'
@@ -25,7 +25,7 @@ type Topic = {
 
 export const NOTIFICATION_TOPICS = {
   TRENDING_SOON: 2,
-  POSITION_POOL: 1, 
+  POSITION_POOL: 1,
 }
 
 const useNotification = (topicId: number) => {
@@ -71,7 +71,7 @@ const useNotification = (topicId: number) => {
 
   const setNeedShowModalSubscribeState = useCallback(
     (value: boolean) => {
-      dispatch(setNeedShowModalSubscribe(value))
+      dispatch(setNeedShowModalSubscribeNotificationAfterLogin(value))
     },
     [dispatch],
   )

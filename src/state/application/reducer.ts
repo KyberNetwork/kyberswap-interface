@@ -8,7 +8,7 @@ import {
   addPopup,
   removePopup,
   setLoadingNotification,
-  setNeedShowModalSubscribe,
+  setNeedShowModalSubscribeNotificationAfterLogin,
   setOpenModal,
   setSubscribedNotificationTopic,
   updateBlockNumber,
@@ -114,11 +114,13 @@ export default createReducer(initialState, builder =>
     .addCase(updateServiceWorker, (state, { payload }) => {
       state.serviceWorkerRegistration = payload
     })
+
+    // ------ notification subscription ------
     .addCase(setLoadingNotification, (state, { payload: isLoading }) => {
       const notification = state.notification ?? initialStateNotification
       state.notification = { ...notification, isLoading }
     })
-    .addCase(setNeedShowModalSubscribe, (state, { payload: needShowModalSubscribe }) => {
+    .addCase(setNeedShowModalSubscribeNotificationAfterLogin, (state, { payload: needShowModalSubscribe }) => {
       const notification = state.notification ?? initialStateNotification
       state.notification = { ...notification, needShowModalSubscribe }
     })

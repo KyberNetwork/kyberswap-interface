@@ -63,6 +63,7 @@ const Input = styled.input`
   color: ${({ theme }) => theme.text};
   font-size: 12px;
   background-color: ${({ theme }) => theme.buttonBlack};
+  transition: border 0.5s;
   ::placeholder {
     color: ${({ theme }) => theme.border};
     font-size: 12px;
@@ -156,7 +157,7 @@ export default function NotificationModal({
               </Text>
               <Tooltip text={error} show={!!error}>
                 <Input
-                  style={{ width: '100%', border: error ? `1px solid ${theme.red}` : 'none' }}
+                  style={{ border: `1px solid ${error ? theme.red : 'transparent'}` }}
                   value={email}
                   placeholder="example@gmail.com"
                   onChange={onChangeInput}

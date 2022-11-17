@@ -99,4 +99,6 @@ export const setSubscribedNotificationTopic = createAction<{
 }>('application/setSubscribedNotificationTopic')
 
 export const setLoadingNotification = createAction<boolean>('application/setLoadingNotification')
-export const setNeedShowModalSubscribe = createAction<boolean>('application/setNeedShowModalSubscribe')
+export const setNeedShowModalSubscribeNotificationAfterLogin = createAction<boolean>(
+  'application/setNeedShowModalSubscribeNotificationAfterLogin',
+)
