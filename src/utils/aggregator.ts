@@ -372,6 +372,7 @@ export class Aggregator {
         slippageTolerance: slippageTolerance?.toString() ?? '',
         deadline: deadline?.toString() ?? '',
         to,
+        programState: ZERO_ADDRESS_SOLANA,
 
         // Fee config
         chargeFeeBy: feeConfig?.chargeFeeBy ?? '',

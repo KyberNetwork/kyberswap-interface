@@ -43,7 +43,7 @@ const solanaInfo: SolanaNetworkInfo = {
   connection: new Connection('https://solana.kyberengineering.io', { commitment: 'confirmed' }),
   trueSightId: NOT_SUPPORT,
   serumPool: new PublicKey('9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin'),
-  dexToCompare: NOT_SUPPORT,
+  dexToCompare: 'OrcaV2',
 }
 
 export default solanaInfo
