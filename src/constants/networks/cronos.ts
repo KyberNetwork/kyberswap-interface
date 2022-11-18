@@ -71,6 +71,7 @@ const cronosInfo: EVMNetworkInfo = {
   coingeckoNativeTokenId: 'crypto-com-chain',
   deBankSlug: 'cro',
   trueSightId: 'cronos',
+  dexToCompare: 'vvs',
 }
 
 export default cronosInfo

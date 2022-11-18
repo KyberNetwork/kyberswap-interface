@@ -72,6 +72,7 @@ const bnbInfo: EVMNetworkInfo = {
   coingeckoNativeTokenId: 'binancecoin',
   deBankSlug: 'bsc',
   trueSightId: 'bsc',
+  dexToCompare: 'pancake',
 }
 
 export default bnbInfo

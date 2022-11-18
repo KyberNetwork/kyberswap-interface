@@ -75,6 +75,7 @@ const cronosTestnetInfo: EVMNetworkInfo = {
   coingeckoNativeTokenId: 'crypto-com-chain',
   deBankSlug: EMPTY,
   trueSightId: NOT_SUPPORT,
+  dexToCompare: NOT_SUPPORT,
 }
 
 export default cronosTestnetInfo

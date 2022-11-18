@@ -17,7 +17,6 @@ import { toByteArray } from 'base64-js'
 import JSBI from 'jsbi'
 import invariant from 'tiny-invariant'
 
-import { DEX_TO_COMPARE } from 'constants/dexes'
 import { ETHER_ADDRESS, KYBERSWAP_SOURCE, ZERO_ADDRESS_SOLANA, sentryRequestId } from 'constants/index'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
@@ -359,7 +358,7 @@ export class Aggregator {
         : WETH[currencyOut.chainId].address
       : tokenOut.address
 
-    const comparedDex = DEX_TO_COMPARE[currencyAmountIn.currency.chainId]
+    const comparedDex = NETWORKS_INFO[currencyAmountIn.currency.chainId].dexToCompare
 
     if (tokenInAddress && tokenOutAddress && comparedDex) {
       const search = new URLSearchParams({

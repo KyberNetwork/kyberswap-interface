@@ -29,6 +29,7 @@ export interface NetworkInfo {
   readonly coingeckoNativeTokenId: string | null //https://api.coingecko.com/api/v3/coins/list
   readonly tokenListUrl: string
   readonly trueSightId: string | null
+  readonly dexToCompare: string | null
   // token: {
   //   DAI: Token
   //   USDC: Token
