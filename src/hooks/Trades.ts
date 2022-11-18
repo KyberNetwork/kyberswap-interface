@@ -220,7 +220,7 @@ export function useTradeExactInV2(
     const controller = new AbortController()
     const encodeSolana = async () => {
       if (!trade) return
-      const encodeSolana = await Aggregator.encodeSolana(trade, controller)
+      const encodeSolana = await Aggregator.encodeSolana(trade, controller.signal)
       if (encodeSolana && !controller.signal.aborted) setEncodeSolana(encodeSolana)
     }
     encodeSolana()
