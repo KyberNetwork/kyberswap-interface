@@ -97,6 +97,7 @@ import {
 } from 'state/user/hooks'
 import { TYPE } from 'theme'
 import { formattedNum, isAddressString } from 'utils'
+import { Aggregator } from 'utils/aggregator'
 import { currencyId } from 'utils/currencyId'
 import { filterTokensWithExactKeyword } from 'utils/filtering'
 import { halfAmountSpend, maxAmountSpend } from 'utils/maxAmountSpend'
@@ -232,11 +233,6 @@ export default function Swap({ history }: RouteComponentProps) {
     feeConfig,
     [Field.INPUT]: INPUT,
     [Field.OUTPUT]: OUTPUT,
-    showConfirm,
-    tradeToConfirm,
-    swapErrorMessage,
-    attemptingTxn,
-    txHash,
   } = useSwapState()
 
   const {
@@ -246,7 +242,6 @@ export default function Swap({ history }: RouteComponentProps) {
     onUserInput,
     onChangeRecipient,
     onChangeTrade,
-    onSetSwapState,
   } = useSwapActionHandlers()
 
   const {
@@ -260,6 +255,21 @@ export default function Swap({ history }: RouteComponentProps) {
     loading: loadingAPI,
     isPairNotfound,
   } = useDerivedSwapInfoV2()
+
+  // modal and loading
+  const [{ showConfirm, tradeToConfirm, swapErrorMessage, attemptingTxn, txHash }, setSwapState] = useState<{
+    showConfirm: boolean
+    tradeToConfirm: Aggregator | undefined
+    attemptingTxn: boolean
+    swapErrorMessage: string | undefined
+    txHash: string | undefined
+  }>({
+    showConfirm: false,
+    tradeToConfirm: undefined,
+    attemptingTxn: false,
+    swapErrorMessage: undefined,
+    txHash: undefined,
+  })
 
   const comparedDex = useMemo(
     () => allDexes?.find(dex => dex.id === tradeComparer?.comparedDex),
@@ -387,10 +397,10 @@ export default function Swap({ history }: RouteComponentProps) {
     if (!swapCallback) {
       return
     }
-    onSetSwapState({ attemptingTxn: true, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: undefined })
+    setSwapState({ attemptingTxn: true, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: undefined })
     swapCallback()
       .then(hash => {
-        onSetSwapState({ attemptingTxn: false, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: hash })
+        setSwapState({ attemptingTxn: false, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: hash })
       })
       .catch(error => {
         const getRootErrorMessage = (error: Error): string => {
@@ -401,7 +411,7 @@ export default function Swap({ history }: RouteComponentProps) {
           if (!msg) msg = error.message
           return msg
         }
-        onSetSwapState({
+        setSwapState({
           attemptingTxn: false,
           tradeToConfirm,
           showConfirm,
@@ -409,7 +419,7 @@ export default function Swap({ history }: RouteComponentProps) {
           txHash: undefined,
         })
       })
-  }, [swapCallback, onSetSwapState, tradeToConfirm, showConfirm])
+  }, [swapCallback, tradeToConfirm, showConfirm])
 
   // show approve flow when: no error on inputs, not approved or pending, or approved in current session
   // never show if price impact is above threshold in non expert mode
@@ -420,16 +430,16 @@ export default function Swap({ history }: RouteComponentProps) {
       (approvalSubmitted && approval === ApprovalState.APPROVED))
 
   const handleConfirmDismiss = useCallback(() => {
-    onSetSwapState({ showConfirm: false, tradeToConfirm, attemptingTxn, swapErrorMessage, txHash })
+    setSwapState({ showConfirm: false, tradeToConfirm, attemptingTxn, swapErrorMessage, txHash })
     // if there was a tx hash, we want to clear the input
     if (txHash) {
       onUserInput(Field.INPUT, '')
     }
-  }, [attemptingTxn, onSetSwapState, onUserInput, swapErrorMessage, tradeToConfirm, txHash])
+  }, [attemptingTxn, onUserInput, swapErrorMessage, tradeToConfirm, txHash])
 
   const handleAcceptChanges = useCallback(() => {
-    onSetSwapState({ tradeToConfirm: trade, swapErrorMessage, txHash, attemptingTxn, showConfirm })
-  }, [attemptingTxn, onSetSwapState, showConfirm, swapErrorMessage, trade, txHash])
+    setSwapState({ tradeToConfirm: trade, swapErrorMessage, txHash, attemptingTxn, showConfirm })
+  }, [attemptingTxn, setSwapState, showConfirm, swapErrorMessage, trade, txHash])
 
   const handleInputSelect = useCallback(
     (inputCurrency: Currency) => {
@@ -1020,7 +1030,7 @@ export default function Swap({ history }: RouteComponentProps) {
                                 if (isExpertMode) {
                                   handleSwap()
                                 } else {
-                                  onSetSwapState({
+                                  setSwapState({
                                     tradeToConfirm: trade,
                                     attemptingTxn: false,
                                     swapErrorMessage: undefined,
@@ -1065,7 +1075,7 @@ export default function Swap({ history }: RouteComponentProps) {
                             if (isExpertMode) {
                               handleSwap()
                             } else {
-                              onSetSwapState({
+                              setSwapState({
                                 tradeToConfirm: trade,
                                 attemptingTxn: false,
                                 swapErrorMessage: undefined,

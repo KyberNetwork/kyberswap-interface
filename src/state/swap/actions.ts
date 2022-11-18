@@ -23,13 +23,6 @@ export const replaceSwapState = createAction<{
   recipient: string | null
   feeConfig: FeeConfig | undefined
 }>('swap/replaceSwapState')
-export const setSwapState = createAction<{
-  showConfirm: boolean
-  tradeToConfirm: Aggregator | undefined
-  attemptingTxn: boolean
-  swapErrorMessage: string | undefined
-  txHash: string | undefined
-}>('swap/setSwapState')
 export const setRecipient = createAction<{ recipient: string | null }>('swap/setRecipient')
 export const setFeeConfig = createAction<{ feeConfig: FeeConfig | undefined }>('swap/setFeeConfig')
 export const setTrendingSoonShowed = createAction('swap/setTrendingSoonShowed')

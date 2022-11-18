@@ -12,7 +12,6 @@ import {
   selectCurrency,
   setFeeConfig,
   setRecipient,
-  setSwapState,
   setTrade,
   setTrendingSoonShowed,
   switchCurrencies,
@@ -89,19 +88,6 @@ export default createReducer<SwapState>(initialState, builder =>
           feeConfig,
           trendingSoonShowed: state.trendingSoonShowed,
           trade: state.trade,
-        }
-      },
-    )
-    .addCase(
-      setSwapState,
-      (state, { payload: { showConfirm, tradeToConfirm, attemptingTxn, swapErrorMessage, txHash } }) => {
-        return {
-          ...state,
-          showConfirm,
-          tradeToConfirm,
-          attemptingTxn,
-          swapErrorMessage,
-          txHash,
         }
       },
     )
