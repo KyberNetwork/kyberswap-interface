@@ -15,6 +15,7 @@ import { useActiveWeb3React } from 'hooks'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
 import useTheme from 'hooks/useTheme'
 import { Field } from 'state/swap/actions'
+import { useEncodeSolana } from 'state/swap/hooks'
 import { TYPE } from 'theme'
 import { formattedNum } from 'utils'
 import { Aggregator } from 'utils/aggregator'
@@ -49,6 +50,7 @@ export default function SwapModalFooter({
     () => computeSlippageAdjustedAmounts(trade, allowedSlippage),
     [allowedSlippage, trade],
   )
+  const [encodeSolana] = useEncodeSolana()
 
   const nativeInput = useCurrencyConvertedToNative(trade.inputAmount.currency as Currency)
 
@@ -179,7 +181,7 @@ export default function SwapModalFooter({
       )}
       <HurryUpBanner startedTime={startedTime} />
       <AutoRow>
-        {isSolana && typeof trade.solana?.swap !== 'object' ? (
+        {isSolana && !encodeSolana ? (
           <GreyCard
             style={{ textAlign: 'center', borderRadius: '999px', padding: '12px', marginTop: '24px' }}
             id="confirm-swap-or-send"

@@ -5,7 +5,7 @@ import { useCallback, useMemo } from 'react'
 
 import { useActiveWeb3React, useWeb3React } from 'hooks/index'
 import useENS from 'hooks/useENS'
-import { useSwapState } from 'state/swap/hooks'
+import { useEncodeSolana, useSwapState } from 'state/swap/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
@@ -38,6 +38,7 @@ export function useSwapV2Callback(
   const { account, chainId, isEVM, isSolana, walletSolana } = useActiveWeb3React()
   const { library } = useWeb3React()
   const provider = useProvider()
+  const [encodeSolana] = useEncodeSolana()
 
   const { typedValue, feeConfig, saveGas, recipient: recipientAddressOrName } = useSwapState()
 
@@ -111,7 +112,7 @@ export function useSwapV2Callback(
       typedValue,
     ],
   )
-  const solanaSwap = trade?.solana?.swap
+
   return useMemo(() => {
     if (!trade || !account) {
       return { state: SwapCallbackState.INVALID, callback: null, error: 'Missing dependencies' }
@@ -140,10 +141,9 @@ export function useSwapV2Callback(
     const onSwapSolana = async (): Promise<string> => {
       if (!provider) throw new Error('Please connect wallet first')
       if (!walletSolana.wallet?.adapter) throw new Error('Please connect wallet first')
-      if (!solanaSwap) throw new Error('Encode not found')
-      if (solanaSwap === 'loading') throw new Error('Loading encode')
+      if (!encodeSolana) throw new Error('Encode not found')
       const hash = await sendSolanaTransactions(
-        trade,
+        encodeSolana,
         walletSolana.wallet.adapter as any as SignerWalletAdapter,
         onHandleSwapResponse,
         addTransactionWithType,
@@ -154,12 +154,12 @@ export function useSwapV2Callback(
 
     return {
       state: SwapCallbackState.VALID,
-      callback: isEVM ? onSwapWithBackendEncode : isSolana ? (solanaSwap ? onSwapSolana : null) : null,
+      callback: isEVM ? onSwapWithBackendEncode : isSolana ? (encodeSolana ? onSwapSolana : null) : null,
       error: null,
     }
   }, [
     trade,
-    solanaSwap,
+    encodeSolana,
     account,
     recipient,
     isEVM,

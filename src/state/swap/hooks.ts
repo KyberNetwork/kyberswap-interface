@@ -19,6 +19,7 @@ import { AppDispatch, AppState } from 'state/index'
 import {
   Field,
   chooseToSaveGas,
+  encodedSolana,
   replaceSwapState,
   resetSelectCurrency,
   selectCurrency,
@@ -35,8 +36,24 @@ import { isAddress } from 'utils'
 import { Aggregator } from 'utils/aggregator'
 import { computeSlippageAdjustedAmounts } from 'utils/prices'
 
+import { SolanaEncode } from './types'
+
 export function useSwapState(): AppState['swap'] {
   return useSelector<AppState, AppState['swap']>(state => state.swap)
+}
+
+export function useEncodeSolana(): [SolanaEncode | undefined, (encodeSolana: SolanaEncode) => void] {
+  const encodeSolana = useSelector<AppState, AppState['swap']['encodeSolana']>(state => state.swap.encodeSolana)
+
+  const dispatch = useDispatch<AppDispatch>()
+  const setEncodeSolana = useCallback(
+    (encodeSolana: SolanaEncode) => {
+      dispatch(encodedSolana({ encodeSolana }))
+    },
+    [dispatch],
+  )
+
+  return [encodeSolana, setEncodeSolana]
 }
 
 export function useSwapActionHandlers(): {

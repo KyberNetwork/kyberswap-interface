@@ -7,7 +7,7 @@ import TransactionConfirmationModal, {
   TransactionErrorContent,
 } from 'components/TransactionConfirmationModal'
 import { useActiveWeb3React } from 'hooks'
-import { useSwapState } from 'state/swap/hooks'
+import { useEncodeSolana, useSwapState } from 'state/swap/hooks'
 import { Aggregator } from 'utils/aggregator'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 
@@ -61,11 +61,12 @@ export default function ConfirmSwapModal({
   const { isSolana } = useActiveWeb3React()
   const { feeConfig, typedValue } = useSwapState()
   const [startedTime, setStartedTime] = useState<number | undefined>(undefined)
+  const [encodeSolana, setEncodeSolana] = useEncodeSolana()
 
   useEffect(() => {
-    if (isSolana && typeof trade?.solana?.swap === 'object') setStartedTime(Date.now())
+    if (isSolana && encodeSolana) setStartedTime(Date.now())
     else setStartedTime(undefined)
-  }, [trade?.solana?.swap, isOpen, isSolana])
+  }, [encodeSolana, isOpen, isSolana])
 
   const showAcceptChanges = useMemo(
     () => Boolean(trade && originalTrade && tradeMeaningfullyDiffers(trade, originalTrade)),
@@ -89,14 +90,24 @@ export default function ConfirmSwapModal({
       <SwapModalFooter
         onConfirm={onConfirm}
         trade={trade}
-        disabledConfirm={showAcceptChanges || (isSolana && typeof trade.solana?.swap !== 'object')}
+        disabledConfirm={showAcceptChanges || (isSolana && !encodeSolana)}
         swapErrorMessage={swapErrorMessage}
         allowedSlippage={allowedSlippage}
         feeConfig={feeConfig}
         startedTime={startedTime}
       />
     ) : null
-  }, [allowedSlippage, onConfirm, showAcceptChanges, swapErrorMessage, trade, feeConfig, isSolana, startedTime])
+  }, [
+    allowedSlippage,
+    onConfirm,
+    showAcceptChanges,
+    swapErrorMessage,
+    trade,
+    feeConfig,
+    isSolana,
+    startedTime,
+    encodeSolana,
+  ])
 
   const nativeInput = useCurrencyConvertedToNative(trade?.inputAmount?.currency)
   const nativeOutput = useCurrencyConvertedToNative(trade?.outputAmount?.currency)
@@ -121,8 +132,13 @@ export default function ConfirmSwapModal({
   )
 
   useEffect(() => {
-    trade?.encodeSolana()
-  }, [trade])
+    const run = async () => {
+      if (!trade) return
+      const encodeSolana = await Aggregator.encodeSolana(trade)
+      if (encodeSolana) setEncodeSolana(encodeSolana)
+    }
+    run()
+  }, [trade, setEncodeSolana])
 
   return (
     <TransactionConfirmationModal
