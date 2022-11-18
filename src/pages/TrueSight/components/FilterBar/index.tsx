@@ -56,7 +56,6 @@ const FilterBar: React.FC<FilterBarProps> = ({ activeTab, filter, setFilter }) =
   const isActiveTabTrending = activeTab === TrueSightTabs.TRENDING
   const below992 = useMedia('(max-width: 992px)')
 
-  const queryString = useParsedQueryString()
   const theme = useTheme()
   const { tab } = useParsedQueryString<{ tab: string }>()
 
