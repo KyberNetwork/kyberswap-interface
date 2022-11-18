@@ -105,7 +105,7 @@ const Networks = ({
   disabledAll,
   disabledAllMsg,
 }: {
-  onChangedNetwork?: () => any
+  onChangedNetwork?: () => void
   width: number
   mt?: number
   mb?: number
