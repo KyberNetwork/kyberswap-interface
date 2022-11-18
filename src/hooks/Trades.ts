@@ -11,7 +11,7 @@ import { useAllCurrencyCombinations } from 'hooks/useAllCurrencyCombinations'
 import useDebounce from 'hooks/useDebounce'
 import { AppState } from 'state'
 import { useAllDexes, useExcludeDexes } from 'state/customizeDexes/hooks'
-import { useSwapState } from 'state/swap/hooks'
+import { useEncodeSolana, useSwapState } from 'state/swap/hooks'
 import { AggregationComparer } from 'state/swap/types'
 import { useAllTransactions } from 'state/transactions/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
@@ -100,6 +100,7 @@ export function useTradeExactInV2(
   const controller = useRef(new AbortController())
   const [allowedSlippage] = useUserSlippageTolerance()
   const allTransactions = useAllTransactions()
+  const [, setEncodeSolana] = useEncodeSolana()
 
   const allDexes = useAllDexes()
   const [excludeDexes] = useExcludeDexes()
@@ -193,6 +194,7 @@ export function useTradeExactInV2(
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
+      isEVM,
       allTransactions,
       debounceCurrencyAmountIn,
       currencyOut,
@@ -205,14 +207,28 @@ export function useTradeExactInV2(
       dexes,
       allowedSlippage,
       feeConfig,
-      // trade, //don't add this, this value refresh every time
-      comparer,
+      // trade, //don't add this
+      // comparer, //don't add this
     ],
   )
 
   useEffect(() => {
     onUpdateCallback(false, 0)
   }, [onUpdateCallback])
+
+  useEffect(() => {
+    const controller = new AbortController()
+    const encodeSolana = async () => {
+      if (!trade) return
+      const encodeSolana = await Aggregator.encodeSolana(trade, controller)
+      if (encodeSolana && !controller.signal.aborted) setEncodeSolana(encodeSolana)
+    }
+    encodeSolana()
+
+    return () => {
+      controller.abort()
+    }
+  }, [trade, setEncodeSolana])
 
   return {
     trade,

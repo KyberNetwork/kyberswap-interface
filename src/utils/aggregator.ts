@@ -17,7 +17,7 @@ import { toByteArray } from 'base64-js'
 import JSBI from 'jsbi'
 import invariant from 'tiny-invariant'
 
-import { ETHER_ADDRESS, KYBERSWAP_SOURCE, ZERO_ADDRESS_SOLANA, sentryRequestId } from 'constants/index'
+import { AbortedError, ETHER_ADDRESS, KYBERSWAP_SOURCE, ZERO_ADDRESS_SOLANA, sentryRequestId } from 'constants/index'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
 import connection from 'state/connection/connection'
@@ -435,7 +435,7 @@ export class Aggregator {
     return null
   }
 
-  public static async encodeSolana(agg: Aggregator): Promise<undefined | SolanaEncode> {
+  public static async encodeSolana(agg: Aggregator, controller: AbortController): Promise<undefined | SolanaEncode> {
     if (!agg.solana) return
     if (!agg.solana.encodedMessage) return
     if (agg.solana.to === ZERO_ADDRESS_SOLANA) return
@@ -480,6 +480,7 @@ export class Aggregator {
                 toPK,
                 NETWORKS_INFO[ChainId.SOLANA].serumPool,
               )
+              if (controller.signal.aborted) throw new AbortedError()
               let openOrders: PublicKey
               if (openOrdersList.length > 0) {
                 // if there is an OpenOrders, use it
@@ -493,9 +494,11 @@ export class Aggregator {
               actualOpenOrdersByMarket[market] = openOrders
             }),
           )
+          if (controller.signal.aborted) throw new AbortedError()
 
           const openOrdersSpace = OpenOrders.getLayout(NETWORKS_INFO[ChainId.SOLANA].serumPool).span
           const openOrdersRent = await connection.getMinimumBalanceForRentExemption(openOrdersSpace)
+          if (controller.signal.aborted) throw new AbortedError()
           const createOpenOrdersIxs = []
           for (const [market, openOrders] of newOpenOrders) {
             createOpenOrdersIxs.push(
@@ -534,12 +537,15 @@ export class Aggregator {
         const { blockhash, lastValidBlockHeight } = await getLatestBlockhash
 
         swapTx = await convertToVersionedTx('confirmed', blockhash, message, toPK)
+        if (controller.signal.aborted) throw new AbortedError()
 
         await swapTx.sign([agg.solana.programState])
+        if (controller.signal.aborted) throw new AbortedError()
 
         let initializedWrapSOL = false
         if (agg.inputAmount.currency.isNative) {
           const wrapIxs = await checkAndCreateWrapSOLInstructions(toPK, agg.inputAmount)
+          if (controller.signal.aborted) throw new AbortedError()
           if (wrapIxs) {
             setupTx.add(...wrapIxs)
             initializedWrapSOL = true
@@ -554,9 +560,11 @@ export class Aggregator {
               toPK,
               new Token(ChainId.SOLANA, tokenAddress, token?.decimals || 0),
             )
+            if (controller.signal.aborted) throw new AbortedError()
             if (createAtaIxs) (setupTx as Transaction).add(createAtaIxs)
           }),
         )
+        if (controller.signal.aborted) throw new AbortedError()
         setupTx.recentBlockhash = blockhash
         setupTx.lastValidBlockHeight = lastValidBlockHeight
         newOpenOrders.length && setupTx.partialSign(...newOpenOrders.map(i => i[1]))
@@ -570,6 +578,7 @@ export class Aggregator {
             feePayer: toPK,
           })
           const closeWSOLIxs = await createUnwrapSOLInstruction(toPK)
+          if (controller.signal.aborted) throw new AbortedError()
           if (closeWSOLIxs) cleanUpTx.add(closeWSOLIxs)
         }
         //#endregion create clean up tx
@@ -580,6 +589,8 @@ export class Aggregator {
           cleanUpTx,
         }
       } catch (error) {
+        if (error instanceof AbortedError) console.info('Aborted encode Solana')
+        else console.debug('Error encode Solana:', { error })
         return
       }
     }

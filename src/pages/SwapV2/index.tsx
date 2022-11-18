@@ -180,7 +180,7 @@ export default function Swap({ history }: RouteComponentProps) {
   const allDexes = useAllDexes()
   const [{ show: isShowTutorial = false }] = useTutorialSwapGuide()
   useSyncNetworkParamWithStore()
-  const [encodeSolana, setEncodeSolana] = useEncodeSolana()
+  const [encodeSolana] = useEncodeSolana()
 
   const refSuggestPair = useRef<PairSuggestionHandle>(null)
   const [showingPairSuggestionImport, setShowingPairSuggestionImport] = useState<boolean>(false) // show modal import when click pair suggestion
@@ -693,18 +693,10 @@ export default function Swap({ history }: RouteComponentProps) {
   }, [chainId])
 
   useEffect(() => {
-    const encodeSolana = async () => {
-      if (!trade) return
-      const encodeSolana = await Aggregator.encodeSolana(trade)
-      if (encodeSolana) setEncodeSolana(encodeSolana)
-    }
-
     if (isExpertMode) {
       mixpanelHandler(MIXPANEL_TYPE.ADVANCED_MODE_ON)
-      encodeSolana()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isExpertMode])
+  }, [isExpertMode, mixpanelHandler])
 
   const [rawSlippage, setRawSlippage] = useUserSlippageTolerance()
 

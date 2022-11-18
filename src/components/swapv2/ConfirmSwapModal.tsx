@@ -61,7 +61,7 @@ export default function ConfirmSwapModal({
   const { isSolana } = useActiveWeb3React()
   const { feeConfig, typedValue } = useSwapState()
   const [startedTime, setStartedTime] = useState<number | undefined>(undefined)
-  const [encodeSolana, setEncodeSolana] = useEncodeSolana()
+  const [encodeSolana] = useEncodeSolana()
 
   useEffect(() => {
     if (isSolana && encodeSolana) setStartedTime(Date.now())
@@ -130,15 +130,6 @@ export default function ConfirmSwapModal({
       ),
     [onDismiss, modalBottom, modalHeader, swapErrorMessage],
   )
-
-  useEffect(() => {
-    const run = async () => {
-      if (!trade) return
-      const encodeSolana = await Aggregator.encodeSolana(trade)
-      if (encodeSolana) setEncodeSolana(encodeSolana)
-    }
-    run()
-  }, [trade, setEncodeSolana])
 
   return (
     <TransactionConfirmationModal
