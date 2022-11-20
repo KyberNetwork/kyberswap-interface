@@ -18,7 +18,7 @@ import WarningIcon from 'components/Icons/WarningIcon'
 import Modal from 'components/Modal'
 import { AutoRow, RowFixed } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
-import { SUPPORTED_WALLET, SUPPORTED_WALLETS } from 'constants/wallets'
+import { SUPPORTED_WALLET, SUPPORTED_WALLETS, WalletInfo } from 'constants/wallets'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useActivationWallet } from 'hooks/useActivationWallet'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -158,6 +158,13 @@ enum WALLET_VIEWS {
   PENDING = 'pending',
 }
 
+type WalletInfoExtended = WalletInfo & {
+  key: string
+  readyState: WalletReadyState | undefined
+  isSupportCurrentChain: boolean
+  isOverridden: boolean
+}
+
 export default function WalletModal() {
   const { account, isSolana, isEVM, chainId, walletKey } = useActiveWeb3React()
   // important that these are destructed from the account-specific web3-react context
@@ -245,7 +252,7 @@ export default function WalletModal() {
 
   function getOptions() {
     // Generate list of wallets and states of it depend on current network
-    const parsedWalletList = Object.keys(SUPPORTED_WALLETS).map((k: string) => {
+    const parsedWalletList: WalletInfoExtended[] = Object.keys(SUPPORTED_WALLETS).map((k: string) => {
       const wallet = SUPPORTED_WALLETS[k]
       const readyState = (() => {
         const readyStateEVM = isEVMWallet(wallet) ? wallet.readyState() : undefined
@@ -263,7 +270,7 @@ export default function WalletModal() {
       }
     })
 
-    const sortWallets = (walletA: any, walletB: any) => {
+    const sortWallets = (walletA: WalletInfoExtended, walletB: WalletInfoExtended): -1 | 0 | 1 => {
       if (walletA.isSupportCurrentChain === walletB.isSupportCurrentChain) {
         if (!!walletA.isOverridden === !!walletB.isOverridden) {
           if (walletA.readyState === walletB.readyState) {
