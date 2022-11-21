@@ -14,6 +14,7 @@ import { checkPairHasDextoolsData } from 'components/TradingViewChart/datafeed'
 import { useActiveWeb3React } from 'hooks'
 import useBasicChartData, { LiveDataTimeframeEnum } from 'hooks/useBasicChartData'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import usePrevious from 'hooks/usePrevious'
 import useTheme from 'hooks/useTheme'
 import { Field } from 'state/swap/actions'
 import { useShowProLiveChart, useToggleProLiveChart } from 'state/user/hooks'
@@ -117,8 +118,12 @@ function LiveChart({
 }) {
   const { chainId } = useActiveWeb3React()
   const theme = useTheme()
-  const nativeInputCurrency = useCurrencyConvertedToNative(currencies[Field.INPUT] || undefined)
-  const nativeOutputCurrency = useCurrencyConvertedToNative(currencies[Field.OUTPUT] || undefined)
+  const prevCurrencies = usePrevious(currencies)
+  const [currenciesState, setCurrenciesState] = useState(currencies)
+
+  const nativeInputCurrency = useCurrencyConvertedToNative(currenciesState[Field.INPUT] || undefined)
+  const nativeOutputCurrency = useCurrencyConvertedToNative(currenciesState[Field.OUTPUT] || undefined)
+
   const tokens = useMemo(() => {
     return [nativeInputCurrency, nativeOutputCurrency].map(currency => currency?.wrapped)
   }, [nativeInputCurrency, nativeOutputCurrency])
@@ -150,6 +155,22 @@ function LiveChart({
   useEffect(() => {
     let currenciesChanged = false
     if (!currencies.INPUT || !currencies.OUTPUT) return
+
+    setCurrenciesState(prev => {
+      // Check if switched currencies (INPUT become OUTPUT and OUTPUT become INPUT)
+      if (
+        prevCurrencies &&
+        currencies &&
+        prevCurrencies?.INPUT?.symbol === currencies?.OUTPUT?.symbol &&
+        prevCurrencies?.OUTPUT?.symbol === currencies?.INPUT?.symbol
+      ) {
+        // then keep current local currencies order
+        return prev
+      }
+      // If currencies changed with new currencies pair => update new currencies
+      return currencies
+    })
+
     setStateProChart({ hasProChart: false, pairAddress: '', apiVersion: '', loading: true })
     checkPairHasDextoolsData(currencies, chainId)
       .then((res: any) => {
@@ -230,7 +251,10 @@ function LiveChart({
     )
   }, [isBasicchartError, isProchartError, isShowProChart, bothChartError, toggleProLiveChart, mixpanelHandler])
 
-  const currenciesList = useMemo(() => [currencies.INPUT, currencies.OUTPUT], [currencies.INPUT, currencies.OUTPUT])
+  const currenciesList = useMemo(
+    () => [currenciesState.INPUT, currenciesState.OUTPUT],
+    [currenciesState.INPUT, currenciesState.OUTPUT],
+  )
 
   return (
     <LiveChartWrapper>
@@ -272,7 +296,13 @@ function LiveChart({
                     {nativeOutputCurrency?.symbol}
                   </Text>
                 </Flex>
-                <SwitchButtonWrapper onClick={onRotateClick}>
+                <SwitchButtonWrapper
+                  onClick={() =>
+                    setCurrenciesState(prev => {
+                      return { INPUT: prev[Field.OUTPUT], OUTPUT: prev[Field.INPUT] }
+                    })
+                  }
+                >
                   <Repeat size={14} />
                 </SwitchButtonWrapper>
               </Flex>
