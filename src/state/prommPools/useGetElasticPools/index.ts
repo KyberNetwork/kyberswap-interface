@@ -1,4 +1,4 @@
-import { CHAINS_SUPPORT_NEW_POOL_FARM_API } from 'constants/networks'
+// import { CHAINS_SUPPORT_NEW_POOL_FARM_API } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { ElasticPoolDetail } from 'types/pool'
 
@@ -16,7 +16,7 @@ export type CommonReturn = {
 const useGetElasticPools = (poolAddresses: string[]): CommonReturn => {
   const { chainId } = useActiveWeb3React()
 
-  const shouldRunV2 = chainId && CHAINS_SUPPORT_NEW_POOL_FARM_API.includes(chainId)
+  const shouldRunV2 = !!chainId // && CHAINS_SUPPORT_NEW_POOL_FARM_API.includes(chainId)
   const responseV1 = useGetElasticPoolsV1(poolAddresses, shouldRunV2)
   const responseV2 = useGetElasticPoolsV2()
 
