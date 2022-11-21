@@ -61,6 +61,7 @@ const rinkebyInfo: EVMNetworkInfo = {
     initCodeHash: '0x9af381b43515b80cfc9d1c3abe15a1ebd48392d5df2bcce1eb4940eea548c789',
     quoter: '0x5BcbB0bb7236d9fb3DB4C996B05f0e6162Ba5B64',
     routers: '0x335cB9b399e3c33c4a0d1bE7407675C888f66e86',
+    farms: ['0x13c8F670d3bbd4456870a2C49Bb927F166A977Bd'],
   },
   averageBlockTimeInSeconds: 13.13,
   coingeckoNetworkId: 'ethereum',

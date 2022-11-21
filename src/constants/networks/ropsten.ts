@@ -64,6 +64,7 @@ const ropstenInfo: EVMNetworkInfo = {
     initCodeHash: '0xc597aba1bb02db42ba24a8878837965718c032f8b46be94a6e46452a9f89ca01',
     quoter: '0x7BA7cC55D3Ef5226b421bb3fD689251855B4cd21',
     routers: '0x1A46dCaC1d91F1731574BEfAEDaC4E0392726e35',
+    farms: [],
   },
   averageBlockTimeInSeconds: 13.13,
   coingeckoNetworkId: 'ethereum',

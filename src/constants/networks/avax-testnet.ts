@@ -60,6 +60,7 @@ const avaxTestnetInfo: EVMNetworkInfo = {
     initCodeHash: '0xc597aba1bb02db42ba24a8878837965718c032f8b46be94a6e46452a9f89ca01',
     quoter: '0x9CFf23e05A18b6f8Aff587B7fEf64F9580A6C85E',
     routers: '0xd74134d330FB567abD08675b57dD588a7447b5Ac',
+    farms: [],
   },
   averageBlockTimeInSeconds: 1.85,
   coingeckoNetworkId: 'avalanche',

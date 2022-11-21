@@ -32,7 +32,6 @@ import ZAP_ABI from 'constants/abis/zap.json'
 import { MULTICALL_ABI } from 'constants/multicall'
 import { EVM_NETWORK, isEVM } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
-import { FARM_CONTRACTS as PROMM_FARM_CONTRACTS } from 'constants/v2'
 import { useWeb3React } from 'hooks'
 import { FairLaunchVersion, RewardLockerVersion } from 'state/farms/types'
 import { useRewardLockerAddressesWithVersion } from 'state/vesting/hooks'
@@ -206,11 +205,6 @@ export function useZapContract(isStaticFeeContract: boolean, isOldStaticFeeContr
       : undefined,
     isStaticFeeContract && !isOldStaticFeeContract ? ZAP_STATIC_FEE_ABI : ZAP_ABI,
   )
-}
-
-export function useProMMFarmContracts(): { [key: string]: Contract } | null {
-  const { chainId } = useActiveWeb3React()
-  return useMultipleContracts(chainId && PROMM_FARM_CONTRACTS[chainId], PROMM_FARM_ABI)
 }
 
 export function useProMMFarmContract(address: string): Contract | null {

@@ -66,6 +66,7 @@ const bnbTestnetInfo: EVMNetworkInfo = {
     initCodeHash: '0xc597aba1bb02db42ba24a8878837965718c032f8b46be94a6e46452a9f89ca01',
     quoter: '0xF4117D3c57BFe20fB2600eaE4028FB12bF99Ac10',
     routers: '0x785b8893342dfEf9B5D565f67be971b859d34a15',
+    farms: [],
   },
   averageBlockTimeInSeconds: 3,
   coingeckoNetworkId: 'binance-smart-chain',

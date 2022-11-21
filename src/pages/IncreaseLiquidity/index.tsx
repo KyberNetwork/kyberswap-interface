@@ -24,7 +24,7 @@ import { TutorialType } from 'components/Tutorial'
 import { Dots } from 'components/swap/styleds'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
-import { FARM_CONTRACTS, VERSION } from 'constants/v2'
+import { VERSION } from 'constants/v2'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
@@ -78,7 +78,9 @@ export default function AddLiquidity({
 
   const owner = useSingleCallResult(!!tokenId ? positionManager : null, 'ownerOf', [tokenId]).result?.[0]
   const ownsNFT = owner === account || existingPositionDetails?.operator === account
-  const ownByFarm = Object.values(FARM_CONTRACTS).flat().includes(isAddressString(chainId, owner))
+  const ownByFarm = isEVM
+    ? (networkInfo as EVMNetworkInfo).elastic.farms.flat().includes(isAddressString(chainId, owner))
+    : false
 
   const { position: existingPosition } = useProAmmDerivedPositionInfo(existingPositionDetails)
 
@@ -252,32 +254,6 @@ export default function AddLiquidity({
           if (error?.code !== 4001) {
             console.error(error)
           }
-
-          // const newTxn = {
-          //   ...txn,
-          //   gasLimit: '0x0827f6'
-          // }
-          // return library
-          //   .getSigner()
-          //   .sendTransaction(newTxn)
-          //   .then((response: TransactionResponse) => {
-          //     console.log(response)
-          //     setAttemptingTxn(false)
-          //     addTransactionWithType({hash: response.hash,
-          //       type: TRANSACTION_TYPE.ADD_LIQUIDITY,
-          //       summary:
-          //         (parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) || 0) +
-          //         ' ' +
-          //         baseCurrency?.symbol +
-          //         ' and ' +
-          //         (parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) || 0) +
-          //         ' ' +
-          //         quoteCurrency?.symbol +
-          //         //  ' with fee ' +  position.pool.fee / 100 + '%' +
-          //         ' (ProMM)'
-          //     })
-          //     setTxHash(response.hash)
-          //   })
         })
     } else {
       return
@@ -373,13 +349,6 @@ export default function AddLiquidity({
         </ButtonError>
       </Flex>
     )
-
-  //disable = !feeAmount || invalidPool || (noLiquidity && !startPriceTypedValue)
-  // useProAmmClientSideTrade(
-  //   0,
-  //   position && CurrencyAmount.fromRawAmount(position?.pool.token0, JSBI.BigInt('10000000000000')),
-  //   position?.pool.token1,
-  // )
 
   if (!isEVM) return <Redirect to="/" />
   return (

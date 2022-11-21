@@ -71,6 +71,7 @@ export interface EVMNetworkInfo extends NetworkInfo {
     readonly initCodeHash: string
     readonly quoter: string
     readonly routers: string
+    readonly farms: string[]
   }
   readonly averageBlockTimeInSeconds: number
   readonly deBankSlug: string
