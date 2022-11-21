@@ -35,7 +35,7 @@ const slopeAdapter = new SlopeWalletAdapter({ network: SelectedNetwork })
 // const ledgerAdapter = new LedgerWalletAdapter()
 
 const detectMetamask = (): WalletReadyState => {
-  //if (isMobile) return WalletReadyState.Unsupported
+  if (!window.ethereum) return WalletReadyState.Unsupported
   // In Brave browser, by default ethereum.isMetaMask and ethereum.isBraveWallet is true even Metamask not installed
   if (window.ethereum?.isMetaMask && !window.ethereum?.isBraveWallet) return WalletReadyState.Installed
   return WalletReadyState.NotDetected
