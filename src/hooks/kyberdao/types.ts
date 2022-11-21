@@ -60,7 +60,13 @@ export interface StakerInfo {
 export interface StakerAction {
   timestamp: number
   epoch: number
-  meta: { amount?: number; d_addr?: string }
+  meta: {
+    amount?: number
+    d_addr?: string
+    proposal_id?: string
+    proposal_type?: 'BinaryProposal' | 'GenericProposal'
+    options?: number[]
+  }
   tx_hash: string
   type: string
 }

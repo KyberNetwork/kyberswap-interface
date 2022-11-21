@@ -1,6 +1,4 @@
 import { Trans, t } from '@lingui/macro'
-import { isAddress } from 'ethers/lib/utils'
-import { useEffect, useState } from 'react'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -26,16 +24,7 @@ const AddressWrapper = styled.input`
   ${({ theme }) => css`
     background-color: ${theme.buttonBlack};
     color: ${theme.subText};
-    :disabled {
-      color: ${theme.border};
-    }
   `}
-`
-const ErrorMessage = styled.div`
-  font-size: 12px;
-  padding-left: 12px;
-  margin-top: -14px;
-  color: ${({ theme }) => theme.red};
 `
 export default function DelegateConfirmModal({
   address,
@@ -53,14 +42,6 @@ export default function DelegateConfirmModal({
   const isDelegated = !!delegatedAccount && delegatedAccount !== account
   const modalOpen = useModalOpen(ApplicationModal.DELEGATE_CONFIRM)
   const toggleModal = useToggleModal(ApplicationModal.DELEGATE_CONFIRM)
-  const [error, setError] = useState('')
-  useEffect(() => {
-    if (address !== '' && !isAddress(address)) {
-      setError(t`Invalid wallet address!`)
-    } else {
-      setError('')
-    }
-  }, [address])
 
   return (
     <Modal isOpen={modalOpen} onDismiss={toggleModal} minHeight={false} maxHeight={90} maxWidth={500}>
@@ -86,9 +67,8 @@ export default function DelegateConfirmModal({
             placeholder={t`Ethereum Address`}
             value={isDelegated ? delegatedAccount : address}
             onChange={e => onAddressChange(e.target.value)}
-            disabled={isDelegated}
+            disabled
           />
-          {error && <ErrorMessage>{error}</ErrorMessage>}
           <RowBetween gap="24px">
             <ButtonOutlined onClick={toggleModal}>
               <Text fontSize={14} lineHeight="20px">

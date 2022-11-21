@@ -383,7 +383,7 @@ export default function Vote() {
           <Trans>Note: Voting on KyberDAO is only available on Ethereum chain</Trans>
         </Text>
         <ProposalListComponent voteCallback={handleVote} />
-        <SwitchToEthereumModal />
+        <SwitchToEthereumModal featureText={t`Vote`} />
         <ClaimConfirmModal amount={formatUnitsToFixed(remainingCumulativeAmount)} onConfirmClaim={handleConfirmClaim} />
         <TransactionConfirmationModal
           isOpen={showConfirm}

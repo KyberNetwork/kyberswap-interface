@@ -49,6 +49,13 @@ export default function MigrateModal({
   const [error, setError] = useState('')
   const oldKNCBalance = useTokenBalance(KNCL_ADDRESS)
   useEffect(() => {
+    // Check if too many decimals
+    try {
+      parseUnits(value, 18)
+    } catch {
+      setError(t`Invalid amount`)
+      return
+    }
     if (!value || isNaN(parseFloat(value)) || parseFloat(value) <= 0) {
       setError(t`Invalid amount`)
     } else if (!oldKNCBalance.value.gte(parseUnits(value, 18))) {

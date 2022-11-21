@@ -40,7 +40,7 @@ export const useSwitchToEthereum = () => {
   }
 }
 
-export default function SwitchToEthereumModal() {
+export default function SwitchToEthereumModal({ featureText }: { featureText: string }) {
   const { chainId } = useActiveWeb3React()
 
   const theme = useTheme()
@@ -70,7 +70,7 @@ export default function SwitchToEthereumModal() {
             </Flex>
           </RowBetween>
           <Text fontSize={14} lineHeight="20px">
-            <Trans>Staking KNC is only available on Ethereum chain. Please switch network to continue.</Trans>
+            <Trans>{featureText} is only available on Ethereum chain. Please switch network to continue.</Trans>
           </Text>
           <ButtonPrimary onClick={handleChangeToEthereum}>
             <Text fontSize={16}>

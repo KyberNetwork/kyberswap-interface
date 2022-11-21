@@ -9,6 +9,7 @@ import ForumIcon from 'components/Icons/ForumIcon'
 import History from 'components/Icons/History'
 import Loader from 'components/Loader'
 import { RowBetween, RowFit } from 'components/Row'
+import { useActiveWeb3React } from 'hooks'
 import { useVotingInfo } from 'hooks/kyberdao'
 import { ProposalDetail } from 'hooks/kyberdao/types'
 import useTheme from 'hooks/useTheme'
@@ -53,6 +54,7 @@ const HistoryButton = styled(RowFit)`
 
 function ProposalListComponent({ voteCallback }: { voteCallback?: (proposal_id: number, option: number) => void }) {
   const theme = useTheme()
+  const { account } = useActiveWeb3React()
   const { proposals } = useVotingInfo()
   const [status, setStatus] = useState<string | undefined>()
   const [search, setSearch] = useState<string | undefined>()
@@ -119,13 +121,15 @@ function ProposalListComponent({ voteCallback }: { voteCallback?: (proposal_id: 
           </Text>
         </Flex>
         <Flex style={{ gap: '30px' }}>
-          <HistoryButton onClick={toggleYourTransactions}>
-            <History />
-            <Text fontSize={14} hidden={isMobile}>
-              {' '}
-              <Trans>History</Trans>
-            </Text>
-          </HistoryButton>
+          {account && (
+            <HistoryButton onClick={toggleYourTransactions}>
+              <History />
+              <Text fontSize={14} hidden={isMobile}>
+                {' '}
+                <Trans>History</Trans>
+              </Text>
+            </HistoryButton>
+          )}
           <TextButton href="https://gov.kyber.org/" target="_blank" rel="noreferrer">
             <ForumIcon />{' '}
             <Text hidden={isMobile}>

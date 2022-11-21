@@ -206,6 +206,7 @@ export default function StakeKNCComponent() {
   const [showConfirm, setShowConfirm] = useState(false)
   const [attemptingTxn, setAttemptingTxn] = useState<boolean>(false)
   const [pendingText, setPendingText] = useState<string>('')
+  const [featureText, setFeatureText] = useState('')
 
   const [txHash, setTxHash] = useState<string | undefined>(undefined)
   const [inputValue, setInputValue] = useState('1')
@@ -216,6 +217,14 @@ export default function StakeKNCComponent() {
       setErrorMessage(undefined)
       return
     }
+    // Check if too many decimals
+    try {
+      parseUnits(inputValue, 18)
+    } catch {
+      setErrorMessage(t`Invalid amount`)
+      return
+    }
+
     if (!inputValue || isNaN(parseFloat(inputValue)) || parseFloat(inputValue) <= 0) {
       setErrorMessage(t`Invalid amount`)
     } else if (
@@ -223,7 +232,7 @@ export default function StakeKNCComponent() {
       (parseFloat(inputValue) > parseFloat(formatUnits(stakedBalance)) && activeTab === STAKE_TAB.Unstake)
     ) {
       setErrorMessage(t`Insufficient amount`)
-    } else if (activeTab === STAKE_TAB.Delegate && delegateAddress !== '' && !isAddress(delegateAddress)) {
+    } else if (activeTab === STAKE_TAB.Delegate && !isAddress(delegateAddress)) {
       setErrorMessage(t`Invalid Ethereum address`)
     } else {
       setErrorMessage(undefined)
@@ -245,49 +254,55 @@ export default function StakeKNCComponent() {
     KNCL_ADDRESS,
   )
   const handleStake = useCallback(() => {
-    switchToEthereum().then(() => {
-      if (approval === ApprovalState.APPROVED) {
-        setPendingText(t`Staking ${inputValue} KNC to KyberDAO`)
-        setShowConfirm(true)
-        setAttemptingTxn(true)
-        stake(parseUnits(inputValue, 18))
-          .then(tx => {
-            setAttemptingTxn(false)
-            setTxHash(tx)
-          })
-          .catch(() => {
-            setAttemptingTxn(false)
-            setTxHash(undefined)
-          })
-      } else {
-        toggleApproveModal()
-      }
-    })
+    switchToEthereum()
+      .then(() => {
+        if (approval === ApprovalState.APPROVED) {
+          setPendingText(t`Staking ${inputValue} KNC to KyberDAO`)
+          setShowConfirm(true)
+          setAttemptingTxn(true)
+          stake(parseUnits(inputValue, 18))
+            .then(tx => {
+              setAttemptingTxn(false)
+              setTxHash(tx)
+            })
+            .catch(() => {
+              setAttemptingTxn(false)
+              setTxHash(undefined)
+            })
+        } else {
+          toggleApproveModal()
+        }
+      })
+      .catch(() => setFeatureText(t`Staking KNC`))
   }, [switchToEthereum, stake, toggleApproveModal, approval, inputValue])
 
   const handleUnstake = useCallback(() => {
-    switchToEthereum().then(() => {
-      if (approval === ApprovalState.APPROVED) {
-        setPendingText(t`Unstaking ${inputValue} KNC from KyberDAO`)
-        setShowConfirm(true)
-        setAttemptingTxn(true)
-        unstake(parseUnits(inputValue, 18))
-          .then(tx => {
-            setAttemptingTxn(false)
-            setTxHash(tx)
-          })
-          .catch(() => {
-            setAttemptingTxn(false)
-          })
-      } else {
-        toggleApproveModal()
-      }
-    })
+    switchToEthereum()
+      .then(() => {
+        if (approval === ApprovalState.APPROVED) {
+          setPendingText(t`Unstaking ${inputValue} KNC from KyberDAO`)
+          setShowConfirm(true)
+          setAttemptingTxn(true)
+          unstake(parseUnits(inputValue, 18))
+            .then(tx => {
+              setAttemptingTxn(false)
+              setTxHash(tx)
+            })
+            .catch(() => {
+              setAttemptingTxn(false)
+            })
+        } else {
+          toggleApproveModal()
+        }
+      })
+      .catch(() => setFeatureText(t`Unstaking KNC`))
   }, [switchToEthereum, unstake, toggleApproveModal, approval, inputValue])
   const handleDelegate = useCallback(() => {
-    switchToEthereum().then(() => {
-      toggleDelegateConfirm()
-    })
+    switchToEthereum()
+      .then(() => {
+        toggleDelegateConfirm()
+      })
+      .catch(() => setFeatureText(t`Delegate`))
   }, [switchToEthereum, toggleDelegateConfirm])
 
   const onDelegateConfirmed = useCallback(() => {
@@ -373,9 +388,11 @@ export default function StakeKNCComponent() {
                 <Trans>Get KNC</Trans>
               </Text>
             </GetKNCButton>
-            <HistoryButton onClick={toggleYourTransactions}>
-              <HistoryIcon size={18} /> <Text fontSize={14}>History</Text>
-            </HistoryButton>
+            {account && (
+              <HistoryButton onClick={toggleYourTransactions}>
+                <HistoryIcon size={18} /> <Text fontSize={14}>History</Text>
+              </HistoryButton>
+            )}
           </RowBetween>
           {(activeTab === STAKE_TAB.Stake || activeTab === STAKE_TAB.Unstake) && (
             <>
@@ -455,16 +472,16 @@ export default function StakeKNCComponent() {
                 style={{ filter: 'drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.16))' }}
                 headerContent={
                   <AutoRow>
-                    <ColumnCenter style={{ width: '30px' }}>
+                    <ColumnCenter style={{ width: '30px', marginRight: '6px' }}>
                       <WarningIcon />
                     </ColumnCenter>
-                    <Text fontSize={12} color={theme.subText}>
+                    <Text fontSize={12} lineHeight="16px" color={theme.subText}>
                       <Trans>Important Notice: Kyber Network does not hold your funds or manage this process.</Trans>
                     </Text>
                   </AutoRow>
                 }
                 expandContent={
-                  <Text margin={'0 30px'} fontSize={12}>
+                  <Text margin={'0 20px 0 30px'} fontSize={12} lineHeight="16px">
                     <Trans>
                       In this default delegation method, your delegate is responsible for voting on your behalf and
                       distributing your KNC rewards to you, though only you can withdraw/unstake your own KNC
@@ -524,7 +541,7 @@ export default function StakeKNCComponent() {
           </AutoColumn>
         }
       />
-      <SwitchToEthereumModal />
+      <SwitchToEthereumModal featureText={featureText} />
       <DelegateConfirmModal
         address={delegateAddress}
         delegatedAccount={delegatedAccount}

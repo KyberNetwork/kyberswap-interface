@@ -1,5 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { useMemo, useState } from 'react'
 import 'react-device-detect'
@@ -12,11 +12,12 @@ import { AutoColumn } from 'components/Column'
 import CopyIcon from 'components/Icons/CopyIcon'
 import LaunchIcon from 'components/Icons/LaunchIcon'
 import CircleInfoIcon from 'components/LiveChart/CircleInfoIcon'
+import { NetworkLogo } from 'components/Logo'
 import Modal from 'components/Modal'
 import Pagination from 'components/Pagination'
 import Row, { RowBetween } from 'components/Row'
 import { KNC_ADDRESS } from 'constants/index'
-import { useStakingInfo } from 'hooks/kyberdao'
+import { useStakingInfo, useVotingInfo } from 'hooks/kyberdao'
 import { StakerAction } from 'hooks/kyberdao/types'
 import useCopyClipboard from 'hooks/useCopyClipboard'
 import useTheme from 'hooks/useTheme'
@@ -30,7 +31,7 @@ const Wrapper = styled.div`
   width: 100%;
   padding: 20px;
 `
-const gridTemplate = `4fr 3.6fr 3.6fr 1.8fr`
+const gridTemplate = `5fr 3fr 3fr 3fr`
 const gridTemplateMobile = '1fr 1fr'
 const TableWrapper = styled.div`
   display: flex;
@@ -97,24 +98,47 @@ const ButtonIcon = styled.div`
   cursor: pointer;
 `
 export default function YourTransactionsModal() {
+  console.log(ChainId)
   const theme = useTheme()
+  const { proposals } = useVotingInfo()
   const modalOpen = useModalOpen(ApplicationModal.YOUR_TRANSACTIONS_STAKE_KNC)
   const toggleModal = useToggleModal(ApplicationModal.YOUR_TRANSACTIONS_STAKE_KNC)
   const windowSize = useWindowSize()
   const [page, setPage] = useState(1)
   const { stakerActions } = useStakingInfo()
-  const formattedActions: (StakerAction & { hashText: string })[] = useMemo(
+  const formattedActions: (StakerAction & { hashText: string; description: string })[] = useMemo(
     () =>
       stakerActions?.map((action: StakerAction) => {
-        return { ...action, hashText: action.tx_hash.slice(0, 6) + '...' + action.tx_hash.slice(-4) }
+        return {
+          ...action,
+          hashText: action.tx_hash.slice(0, 6) + '...' + action.tx_hash.slice(-4),
+          type: action.type === 'VoteEmitted' ? 'Vote' : action.type === 'ClaimReward' ? 'Claim' : action.type,
+          description: (() => {
+            if (action.type === 'VoteEmitted') {
+              const proposal = proposals?.find(p => p.proposal_id.toString() === action.meta.proposal_id)
+              if (!proposal) return ''
+              if (action.meta.proposal_type === 'BinaryProposal')
+                return t`Voted on ${proposal?.options[action.meta?.options?.[0] || 0]} of ${proposal.title}`
+              if (action.meta.proposal_type === 'GenericProposal')
+                return t`Voted on ${action.meta?.options
+                  ?.map((o: number) => proposal?.options[o] || '')
+                  .join(',')} of ${proposal.title}`
+            }
+            return action.meta.amount
+              ? `${action.meta.amount} KNC`
+              : action.meta.d_addr
+              ? action.meta.d_addr.slice(0, 6) + '...' + action.meta.d_addr.slice(-4)
+              : ''
+          })(),
+        }
       }) || [],
-    [stakerActions],
+    [stakerActions, proposals],
   )
   const isMobile = windowSize.width && windowSize.width < 768
 
   const [, setCopied] = useCopyClipboard()
   return (
-    <Modal isOpen={modalOpen} onDismiss={toggleModal} maxHeight={750} maxWidth={800}>
+    <Modal isOpen={modalOpen} onDismiss={toggleModal} maxHeight={750} maxWidth={800} width="70vw">
       <Wrapper>
         <Flex flexDirection="column" style={{ minHeight: '500px', gap: '20px' }}>
           <RowBetween>
@@ -143,16 +167,11 @@ export default function YourTransactionsModal() {
             {formattedActions.length > 0 ? (
               !isMobile ? (
                 <>
-                  {formattedActions.map((action: StakerAction & { hashText: string }) => {
+                  {formattedActions.map((action: StakerAction & { hashText: string; description: string }) => {
                     return (
                       <TableRow key={action.tx_hash}>
                         <TableCell>
-                          <img
-                            src={`/static/media/mainnet-network.421331b9.svg`}
-                            alt="knc-logo"
-                            width="16px"
-                            height="16px"
-                          />
+                          <NetworkLogo style={{ width: 16, height: 16 }} chainId={ChainId.MAINNET} />
                           <Text>{action.hashText}</Text>
                           <ButtonIcon onClick={() => setCopied(action.tx_hash)}>
                             <CopyIcon />
@@ -172,13 +191,7 @@ export default function YourTransactionsModal() {
                         </TableCell>
                         <TableCell>
                           <AutoColumn justify="flex-end" style={{ width: '100%' }}>
-                            <Text color={theme.text}>
-                              {action.meta.amount
-                                ? `${action.meta.amount} KNC`
-                                : action.meta.d_addr
-                                ? action.meta.d_addr.slice(0, 6) + '...' + action.meta.d_addr.slice(-4)
-                                : ''}
-                            </Text>
+                            <Text color={theme.text}>{action.description}</Text>
                           </AutoColumn>
                         </TableCell>
                       </TableRow>
@@ -187,9 +200,9 @@ export default function YourTransactionsModal() {
                 </>
               ) : (
                 <>
-                  {formattedActions.map((tx: any) => {
+                  {formattedActions.map((action: StakerAction & { hashText: string; description: string }) => {
                     return (
-                      <TableRow key={tx.hash}>
+                      <TableRow key={action.tx_hash}>
                         <TableCell>
                           <Row gap="4px">
                             <img
@@ -198,22 +211,22 @@ export default function YourTransactionsModal() {
                               width="24px"
                               height="24px"
                             />
-                            <Text>{tx.type}</Text>
-                            <ButtonIcon onClick={() => setCopied(tx.hash)}>
+                            <Text>{action.type}</Text>
+                            <ButtonIcon onClick={() => setCopied(action.tx_hash)}>
                               <CopyIcon />
                             </ButtonIcon>
-                            <ExternalLink href={getEtherscanLink(1, tx.hash, 'transaction')}>
+                            <ExternalLink href={getEtherscanLink(1, action.tx_hash, 'transaction')}>
                               <LaunchIcon />
                             </ExternalLink>
                           </Row>
                           <Row gap="4px">
-                            <Text color={theme.text}>{dayjs(tx.confirmedTime).format('MM/DD/YYYY')}</Text>
-                            <Text color={theme.subText}>{dayjs(tx.confirmedTime).format('hh:mm:ss')}</Text>
+                            <Text color={theme.text}>{dayjs(action.timestamp).format('MM/DD/YYYY')}</Text>
+                            <Text color={theme.subText}>{dayjs(action.timestamp).format('hh:mm:ss')}</Text>
                           </Row>
                         </TableCell>
                         <TableCell>
                           <AutoColumn justify="flex-end" style={{ width: '100%' }}>
-                            <Text color={theme.text}>{tx.arbitrary?.amount ? `${tx.arbitrary.amount} KNC` : ''}</Text>
+                            <Text color={theme.text}>{action.description}</Text>
                           </AutoColumn>
                         </TableCell>
                       </TableRow>
