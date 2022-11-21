@@ -174,7 +174,7 @@ export default function ProAmmFee({
             <RowFixed>
               <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={token0Shown} />
               <Text fontSize={14} fontWeight={500} marginLeft={'6px'}>
-                {feeValue0 && <FormattedCurrencyAmount currencyAmount={feeValue0} />}
+                {feeValue0 && <FormattedCurrencyAmount currencyAmount={feeValue0} />} {token0Shown.symbol}
               </Text>
             </RowFixed>
           </RowBetween>
@@ -186,7 +186,7 @@ export default function ProAmmFee({
             <RowFixed>
               <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={token1Shown} />
               <Text fontSize={14} fontWeight={500} marginLeft={'6px'}>
-                {feeValue1 && <FormattedCurrencyAmount currencyAmount={feeValue1} />}
+                {feeValue1 && <FormattedCurrencyAmount currencyAmount={feeValue1} />} {token1Shown.symbol}
               </Text>
             </RowFixed>
           </RowBetween>
@@ -221,7 +221,7 @@ export default function ProAmmFee({
           <RowFixed>
             <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={token0Shown} />
             <Text fontSize={12} fontWeight={500} marginLeft={'6px'}>
-              {feeValue0 && <FormattedCurrencyAmount currencyAmount={feeValue0} />}
+              {feeValue0 && <FormattedCurrencyAmount currencyAmount={feeValue0} />} {token0Shown.symbol}
             </Text>
           </RowFixed>
         </RowBetween>
@@ -235,7 +235,7 @@ export default function ProAmmFee({
           <RowFixed>
             <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={token1Shown} />
             <Text fontSize={12} fontWeight={500} marginLeft={'6px'}>
-              {feeValue1 && <FormattedCurrencyAmount currencyAmount={feeValue1} />}
+              {feeValue1 && <FormattedCurrencyAmount currencyAmount={feeValue1} />} {token1Shown.symbol}
             </Text>
           </RowFixed>
         </RowBetween>
