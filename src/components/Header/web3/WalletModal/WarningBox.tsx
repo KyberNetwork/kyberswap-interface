@@ -66,10 +66,10 @@ const StepContainer = styled.div`
 
 export const C98OverrideGuide = ({
   walletKey,
-  isSureKeo = true,
+  isOpened = true,
 }: {
   walletKey?: SUPPORTED_WALLET
-  isSureKeo?: boolean
+  isOpened?: boolean
 }) => {
   const theme = useTheme()
   const [show, setShow] = useState(false)
@@ -86,7 +86,7 @@ export const C98OverrideGuide = ({
     <WarningBoxWrapper>
       <InfoWrapper>
         <StyledAlert />
-        {isSureKeo ? (
+        {!isOpened ? (
           <Trans>
             {walletName} is not available. In order to use {walletName}, please follow the steps below to disable{' '}
             {injectedName} Wallet:
@@ -182,7 +182,7 @@ export const WarningBox = ({ walletKey }: { walletKey?: SUPPORTED_WALLET }) => {
   }
 
   if (isOverriddenWallet(walletKey)) {
-    return <C98OverrideGuide walletKey={walletKey} isSureKeo={false} />
+    return <C98OverrideGuide walletKey={walletKey} isOpened={false} />
   }
 
   return null
