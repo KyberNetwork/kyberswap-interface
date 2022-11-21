@@ -105,10 +105,10 @@ const UpperSection = styled.div`
     font-weight: 500;
   }
 `
-
+const gap = '1rem'
 const OptionGrid = styled.div`
   display: flex;
-  gap: 1rem;
+  gap: ${gap};
   align-items: center;
   flex-wrap: wrap;
   margin-top: 16px;
@@ -117,12 +117,17 @@ const OptionGrid = styled.div`
   }
   ${({ theme }) => theme.mediaWidth.upToXXL`
     & > * {
-      width: calc(25% - 1rem);
+      width: calc(25% - ${gap} * 3 / 4);
     }
   `}
   ${({ theme }) => theme.mediaWidth.upToXL`
     & > * {
-      width: calc(33% - 1rem);
+      width: calc(33.33% - ${gap} * 2 / 3);
+    }
+  `}
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    & > * {
+      width: calc(50% - ${gap} / 2);
     }
   `}
 `
@@ -409,7 +414,7 @@ export default function WalletModal() {
                           <Flex style={{ padding: '0 8px' }}>
                             <WarningIcon />
                           </Flex>
-                          <Text style={{ flex: 1, padding: '0 2px' }}>
+                          <Text fontSize={12} style={{ flex: 1, padding: '0 2px' }}>
                             <Trans>
                               If you haven&lsquo;t created a Solflare wallet yet, please follow the steps below
                             </Trans>
@@ -417,7 +422,7 @@ export default function WalletModal() {
                         </AutoRow>
                       }
                       expandContent={
-                        <AutoColumn gap="6px">
+                        <AutoColumn gap="6px" style={{ fontSize: '12px' }}>
                           <RowFixed>
                             <Step alignItems="center" justifyContent="center">
                               1

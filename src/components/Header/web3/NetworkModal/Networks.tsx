@@ -29,6 +29,9 @@ const ListItem = styled.div<{ selected?: boolean }>`
   align-items: center;
   padding: 10px 8px;
   border-radius: 999px;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 14px;
   ${({ theme, selected }) =>
     selected
       ? css`
@@ -39,7 +42,10 @@ const ListItem = styled.div<{ selected?: boolean }>`
         `
       : css`
           background-color: ${theme.buttonBlack};
-        `}
+        `};
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    font-size: 12px;
+  `}
 `
 
 const SelectNetworkButton = styled(ButtonEmpty)<{ disabled: boolean }>`
@@ -67,11 +73,11 @@ const SelectNetworkButton = styled(ButtonEmpty)<{ disabled: boolean }>`
     }
   }
 `
-
+const gap = '1rem'
 const NetworkList = styled.div<{ width: number; mt: number; mb: number }>`
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: ${gap};
   flex-wrap: wrap;
   width: 100%;
   margin-top: ${({ mt }) => mt}px;
@@ -81,12 +87,17 @@ const NetworkList = styled.div<{ width: number; mt: number; mb: number }>`
   }
   ${({ theme }) => theme.mediaWidth.upToXXL`
     & > * {
-      width: calc(25% - 1rem);
+      width: calc(25% - ${gap} * 3 / 4);
     }
   `}
   ${({ theme }) => theme.mediaWidth.upToXL`
     & > * {
-      width: calc(33% - 1rem);
+      width: calc(33.33% - ${gap} * 2 / 3);
+    }
+  `}
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    & > * {
+      width: calc(50% - ${gap} / 2);
     }
   `}
 `
@@ -166,9 +177,7 @@ const Networks = ({
             >
               <ListItem selected={selected}>
                 <img src={imgSrc} alt="Switch Network" style={{ height: '20px', width: '20px', marginRight: '8px' }} />
-                <Text fontSize={14} color={theme.subText}>
-                  {name}
-                </Text>
+                <Text color={theme.subText}>{name}</Text>
                 {key === ChainId.SOLANA && (
                   <NewLabel>
                     <Trans>New</Trans>
