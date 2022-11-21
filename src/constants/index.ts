@@ -16,6 +16,7 @@ export const BAD_RECIPIENT_ADDRESSES: string[] = [
   NETWORKS_INFO[ChainId.MAINNET].classic.static.router,
 ]
 
+export class AbortedError extends Error {}
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 export const ZERO_ADDRESS_SOLANA = 'zeroooooooooooooooooooooooooooooooooooooooo'
 
@@ -331,4 +332,5 @@ export const APP_PATHS = {
   DISCOVER: '/discover',
   BUY_CRYPTO: '/buy-crypto',
   BRIDGE: '/bridge',
+  VERIFY: '/verify',
 }

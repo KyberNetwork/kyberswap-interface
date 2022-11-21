@@ -63,6 +63,7 @@ const optimismInfo: EVMNetworkInfo = {
   coingeckoNativeTokenId: 'ethereum',
   deBankSlug: 'op',
   trueSightId: NOT_SUPPORT,
+  dexToCompare: 'uniswapv3',
 }
 
 export default optimismInfo

@@ -32,7 +32,6 @@ const IconWrapper = styled.div`
 const HeaderText = styled.div`
   ${({ theme }) => theme.flexRowNoWrap};
   color: ${({ theme }) => theme.subText};
-  font-size: 14px;
   font-weight: 500;
 `
 
@@ -57,6 +56,9 @@ const OptionCardClickable = styled.button<{
   margin-top: 0;
   padding: 10px 8px;
   background-color: ${({ theme }) => theme.buttonBlack};
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 14px;
 
   cursor: ${({ isDisabled, installLink, overridden }) =>
     !isDisabled && !installLink && !overridden ? 'pointer' : 'not-allowed'};
@@ -91,6 +93,7 @@ const OptionCardClickable = styled.button<{
   ${({ theme }) => theme.mediaWidth.upToSmall`
     width: 100%;
     margin: 0 0 8px 0;
+    font-size:12px;
   `};
 `
 

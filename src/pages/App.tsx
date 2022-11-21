@@ -32,6 +32,7 @@ import { RedirectPathToFarmNetwork } from './Farm/redirect'
 import { RedirectPathToMyPoolsNetwork } from './Pool/redirect'
 import { RedirectPathToPoolsNetwork } from './Pools/redirect'
 import { RedirectPathToSwapNetwork } from './SwapV2/redirects'
+import Verify from './Verify'
 
 // Route-based code splitting
 const Swap = lazy(() => import(/* webpackChunkName: 'swap-page' */ './Swap'))
@@ -267,6 +268,7 @@ export default function App() {
                     <Route exact path={`${APP_PATHS.BUY_CRYPTO}`} component={BuyCrypto} />
                     <Route exact path={`${APP_PATHS.CAMPAIGN}/:slug?`} component={Campaign} />
                     <Route exact path={`${APP_PATHS.BRIDGE}`} component={Bridge} />
+                    <Route exact path={`${APP_PATHS.VERIFY}`} component={Verify} />
 
                     <Route component={RedirectPathToSwapNetwork} />
                   </Switch>

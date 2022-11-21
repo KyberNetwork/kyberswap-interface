@@ -18,7 +18,7 @@ import WarningIcon from 'components/Icons/WarningIcon'
 import Modal from 'components/Modal'
 import { AutoRow, RowFixed } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
-import { SUPPORTED_WALLET, SUPPORTED_WALLETS } from 'constants/wallets'
+import { SUPPORTED_WALLET, SUPPORTED_WALLETS, WalletInfo } from 'constants/wallets'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useActivationWallet } from 'hooks/useActivationWallet'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -105,10 +105,10 @@ const UpperSection = styled.div`
     font-weight: 500;
   }
 `
-
+const gap = '1rem'
 const OptionGrid = styled.div`
   display: flex;
-  gap: 1rem;
+  gap: ${gap};
   align-items: center;
   flex-wrap: wrap;
   margin-top: 16px;
@@ -117,12 +117,17 @@ const OptionGrid = styled.div`
   }
   ${({ theme }) => theme.mediaWidth.upToXXL`
     & > * {
-      width: calc(25% - 1rem);
+      width: calc(25% - ${gap} * 3 / 4);
     }
   `}
   ${({ theme }) => theme.mediaWidth.upToXL`
     & > * {
-      width: calc(33% - 1rem);
+      width: calc(33.33% - ${gap} * 2 / 3);
+    }
+  `}
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    & > * {
+      width: calc(50% - ${gap} / 2);
     }
   `}
 `
@@ -156,6 +161,13 @@ enum WALLET_VIEWS {
   CHANGE_WALLET = 'CHANGE_WALLET',
   ACCOUNT = 'account',
   PENDING = 'pending',
+}
+
+type WalletInfoExtended = WalletInfo & {
+  key: string
+  readyState: WalletReadyState | undefined
+  isSupportCurrentChain: boolean
+  isOverridden: boolean
 }
 
 export default function WalletModal() {
@@ -245,7 +257,7 @@ export default function WalletModal() {
 
   function getOptions() {
     // Generate list of wallets and states of it depend on current network
-    const parsedWalletList = Object.keys(SUPPORTED_WALLETS).map((k: string) => {
+    const parsedWalletList: WalletInfoExtended[] = Object.keys(SUPPORTED_WALLETS).map((k: string) => {
       const wallet = SUPPORTED_WALLETS[k]
       const readyState = (() => {
         const readyStateEVM = isEVMWallet(wallet) ? wallet.readyState() : undefined
@@ -263,7 +275,7 @@ export default function WalletModal() {
       }
     })
 
-    const sortWallets = (walletA: any, walletB: any) => {
+    const sortWallets = (walletA: WalletInfoExtended, walletB: WalletInfoExtended): -1 | 0 | 1 => {
       if (walletA.isSupportCurrentChain === walletB.isSupportCurrentChain) {
         if (!!walletA.isOverridden === !!walletB.isOverridden) {
           if (walletA.readyState === walletB.readyState) {
@@ -402,7 +414,7 @@ export default function WalletModal() {
                           <Flex style={{ padding: '0 8px' }}>
                             <WarningIcon />
                           </Flex>
-                          <Text style={{ flex: 1, padding: '0 2px' }}>
+                          <Text fontSize={12} style={{ flex: 1, padding: '0 2px' }}>
                             <Trans>
                               If you haven&lsquo;t created a Solflare wallet yet, please follow the steps below
                             </Trans>
@@ -410,7 +422,7 @@ export default function WalletModal() {
                         </AutoRow>
                       }
                       expandContent={
-                        <AutoColumn gap="6px">
+                        <AutoColumn gap="6px" style={{ fontSize: '12px' }}>
                           <RowFixed>
                             <Step alignItems="center" justifyContent="center">
                               1

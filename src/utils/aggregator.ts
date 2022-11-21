@@ -17,12 +17,11 @@ import { toByteArray } from 'base64-js'
 import JSBI from 'jsbi'
 import invariant from 'tiny-invariant'
 
-import { DEX_TO_COMPARE } from 'constants/dexes'
-import { ETHER_ADDRESS, KYBERSWAP_SOURCE, ZERO_ADDRESS_SOLANA, sentryRequestId } from 'constants/index'
+import { AbortedError, ETHER_ADDRESS, KYBERSWAP_SOURCE, ZERO_ADDRESS_SOLANA, sentryRequestId } from 'constants/index'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
 import connection from 'state/connection/connection'
-import { AggregationComparer } from 'state/swap/types'
+import { AggregationComparer, SolanaEncode } from 'state/swap/types'
 
 import fetchWaiting from './fetchWaiting'
 import {
@@ -97,14 +96,6 @@ export class Aggregator {
     readonly programState: Keypair
     readonly encodedMessage: string
     readonly serumOpenOrdersAccountByMarket: Record<string, string>
-    swap:
-      | {
-          setupTx: Transaction | null
-          swapTx: VersionedTransaction
-          cleanUpTx: Transaction | null
-        }
-      | 'loading'
-      | undefined
   } | null
 
   private constructor(
@@ -157,7 +148,6 @@ export class Aggregator {
         programState,
         encodedMessage,
         serumOpenOrdersAccountByMarket,
-        swap: undefined,
       }
     } else this.solana = null
   }
@@ -368,7 +358,7 @@ export class Aggregator {
         : WETH[currencyOut.chainId].address
       : tokenOut.address
 
-    const comparedDex = DEX_TO_COMPARE[currencyAmountIn.currency.chainId]
+    const comparedDex = NETWORKS_INFO[currencyAmountIn.currency.chainId].dexToCompare
 
     if (tokenInAddress && tokenOutAddress && comparedDex) {
       const search = new URLSearchParams({
@@ -382,6 +372,7 @@ export class Aggregator {
         slippageTolerance: slippageTolerance?.toString() ?? '',
         deadline: deadline?.toString() ?? '',
         to,
+        programState: ZERO_ADDRESS_SOLANA,
 
         // Fee config
         chargeFeeBy: feeConfig?.chargeFeeBy ?? '',
@@ -444,10 +435,10 @@ export class Aggregator {
     return null
   }
 
-  public async encodeSolana(): Promise<void> {
-    if (!this.solana) return
-    if (!this.solana.encodedMessage) return
-    if (this.solana.to === ZERO_ADDRESS_SOLANA) return
+  public static async encodeSolana(agg: Aggregator, signal: AbortSignal): Promise<undefined | SolanaEncode> {
+    if (!agg.solana) return
+    if (!agg.solana.encodedMessage) return
+    if (agg.solana.to === ZERO_ADDRESS_SOLANA) return
 
     const encode = async (): Promise<
       | {
@@ -457,9 +448,9 @@ export class Aggregator {
         }
       | undefined
     > => {
-      if (!this.solana) return undefined
-      if (!this.solana.encodedMessage) return undefined
-      if (this.solana.to === ZERO_ADDRESS_SOLANA) return undefined
+      if (!agg.solana) return undefined
+      if (!agg.solana.encodedMessage) return undefined
+      if (agg.solana.to === ZERO_ADDRESS_SOLANA) return undefined
 
       try {
         let swapTx: VersionedTransaction | null = null
@@ -467,21 +458,21 @@ export class Aggregator {
         let cleanUpTx: Transaction | null = null
         const getLatestBlockhash = connection.getLatestBlockhash()
         //#region create set up tx and swap tx
-        const toPK = new PublicKey(this.solana.to)
-        const message = Message.from(toByteArray(this.solana.encodedMessage))
+        const toPK = new PublicKey(agg.solana.to)
+        const message = Message.from(toByteArray(agg.solana.encodedMessage))
         setupTx = new Transaction({
           feePayer: toPK,
         })
 
         const newOpenOrders: [PublicKey, Keypair][] = [] // OpenOrders accounts to be created
         if (
-          this.solana.serumOpenOrdersAccountByMarket &&
-          Object.keys(this.solana.serumOpenOrdersAccountByMarket).length
+          agg.solana.serumOpenOrdersAccountByMarket &&
+          Object.keys(agg.solana.serumOpenOrdersAccountByMarket).length
         ) {
           // do Solana magic things
           const actualOpenOrdersByMarket: { [key: string]: PublicKey } = {}
           Promise.all(
-            Object.entries(this.solana.serumOpenOrdersAccountByMarket).map(async ([market]) => {
+            Object.entries(agg.solana.serumOpenOrdersAccountByMarket).map(async ([market]) => {
               const marketPK = new PublicKey(market)
               const openOrdersList = await OpenOrders.findForMarketAndOwner(
                 connection,
@@ -489,6 +480,7 @@ export class Aggregator {
                 toPK,
                 NETWORKS_INFO[ChainId.SOLANA].serumPool,
               )
+              if (signal.aborted) throw new AbortedError()
               let openOrders: PublicKey
               if (openOrdersList.length > 0) {
                 // if there is an OpenOrders, use it
@@ -502,9 +494,11 @@ export class Aggregator {
               actualOpenOrdersByMarket[market] = openOrders
             }),
           )
+          if (signal.aborted) throw new AbortedError()
 
           const openOrdersSpace = OpenOrders.getLayout(NETWORKS_INFO[ChainId.SOLANA].serumPool).span
           const openOrdersRent = await connection.getMinimumBalanceForRentExemption(openOrdersSpace)
+          if (signal.aborted) throw new AbortedError()
           const createOpenOrdersIxs = []
           for (const [market, openOrders] of newOpenOrders) {
             createOpenOrdersIxs.push(
@@ -532,7 +526,7 @@ export class Aggregator {
           // replace dummy OpenOrders account with actual ones
           for (let i = 0; i < message.accountKeys.length; i += 1) {
             const pubkey = message.accountKeys[i]
-            for (const [market, dummyOpenOrders] of Object.entries(this.solana.serumOpenOrdersAccountByMarket)) {
+            for (const [market, dummyOpenOrders] of Object.entries(agg.solana.serumOpenOrdersAccountByMarket)) {
               if (pubkey.toBase58() === dummyOpenOrders) {
                 message.accountKeys[i] = actualOpenOrdersByMarket[market]
                 break
@@ -543,12 +537,15 @@ export class Aggregator {
         const { blockhash, lastValidBlockHeight } = await getLatestBlockhash
 
         swapTx = await convertToVersionedTx('confirmed', blockhash, message, toPK)
+        if (signal.aborted) throw new AbortedError()
 
-        await swapTx.sign([this.solana.programState])
+        await swapTx.sign([agg.solana.programState])
+        if (signal.aborted) throw new AbortedError()
 
         let initializedWrapSOL = false
-        if (this.inputAmount.currency.isNative) {
-          const wrapIxs = await checkAndCreateWrapSOLInstructions(toPK, this.inputAmount)
+        if (agg.inputAmount.currency.isNative) {
+          const wrapIxs = await checkAndCreateWrapSOLInstructions(toPK, agg.inputAmount)
+          if (signal.aborted) throw new AbortedError()
           if (wrapIxs) {
             setupTx.add(...wrapIxs)
             initializedWrapSOL = true
@@ -556,29 +553,32 @@ export class Aggregator {
         }
 
         await Promise.all(
-          Object.entries(this.tokens || {}).map(async ([tokenAddress, token]: [any, any]) => {
+          Object.entries(agg.tokens || {}).map(async ([tokenAddress, token]: [any, any]) => {
             if (!token) return
             if (tokenAddress === WETH[ChainId.SOLANA].address && initializedWrapSOL) return // for case WSOL as part of route
             const createAtaIxs = await checkAndCreateAtaInstruction(
               toPK,
               new Token(ChainId.SOLANA, tokenAddress, token?.decimals || 0),
             )
+            if (signal.aborted) throw new AbortedError()
             if (createAtaIxs) (setupTx as Transaction).add(createAtaIxs)
           }),
         )
+        if (signal.aborted) throw new AbortedError()
         setupTx.recentBlockhash = blockhash
         setupTx.lastValidBlockHeight = lastValidBlockHeight
         newOpenOrders.length && setupTx.partialSign(...newOpenOrders.map(i => i[1]))
         //#endregion create set up tx and swap tx
 
         //#region create clean up tx
-        if (this.outputAmount.currency.isNative) {
+        if (agg.outputAmount.currency.isNative) {
           cleanUpTx = new Transaction({
             blockhash,
             lastValidBlockHeight,
             feePayer: toPK,
           })
           const closeWSOLIxs = await createUnwrapSOLInstruction(toPK)
+          if (signal.aborted) throw new AbortedError()
           if (closeWSOLIxs) cleanUpTx.add(closeWSOLIxs)
         }
         //#endregion create clean up tx
@@ -589,12 +589,12 @@ export class Aggregator {
           cleanUpTx,
         }
       } catch (error) {
+        if (error instanceof AbortedError) console.info('Aborted encode Solana')
+        else console.debug('Error encode Solana:', { error })
         return
       }
     }
 
-    if (this.solana.swap) return
-    this.solana.swap = 'loading'
-    this.solana.swap = await encode()
+    return await encode()
   }
 }

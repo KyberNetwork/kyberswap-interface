@@ -65,6 +65,7 @@ const fantomInfo: EVMNetworkInfo = {
   coingeckoNativeTokenId: 'fantom',
   deBankSlug: 'ftm',
   trueSightId: 'fantom',
+  dexToCompare: 'spookyswap',
 }
 
 export default fantomInfo

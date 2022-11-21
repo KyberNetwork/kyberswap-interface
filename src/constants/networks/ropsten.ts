@@ -70,6 +70,7 @@ const ropstenInfo: EVMNetworkInfo = {
   coingeckoNativeTokenId: 'ethereum',
   deBankSlug: EMPTY,
   trueSightId: NOT_SUPPORT,
+  dexToCompare: NOT_SUPPORT,
 }
 
 export default ropstenInfo

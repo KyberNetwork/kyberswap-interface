@@ -7,12 +7,11 @@ import { Transaction, VersionedTransaction } from '@solana/web3.js'
 import { ethers } from 'ethers'
 
 import connection from 'state/connection/connection'
+import { SolanaEncode } from 'state/swap/types'
 import { TransactionHistory } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 // import connection from 'state/connection/connection'
 import { calculateGasMargin } from 'utils'
-
-import { Aggregator } from './aggregator'
 
 export async function sendEVMTransaction(
   account: string,
@@ -110,26 +109,24 @@ const getInspectTxSolanaUrl = (tx: Transaction | VersionedTransaction | undefine
 }
 
 export async function sendSolanaTransactions(
-  trade: Aggregator,
+  encode: SolanaEncode,
   solanaWallet: SignerWalletAdapter,
   handler: (hash: string, firstTxHash: string) => void,
   addTransactionWithType: (tx: TransactionHistory) => void,
 ): Promise<string[] | undefined> {
-  const swap = trade.solana?.swap
-  if (!swap) return
-  if (swap === 'loading') return
-  if (!swap.swapTx) return
+  if (!encode) return
+  if (!encode.swapTx) return
 
   const txs: (Transaction | VersionedTransaction)[] = []
 
-  if (swap.setupTx) {
-    txs.push(swap.setupTx)
+  if (encode.setupTx) {
+    txs.push(encode.setupTx)
   }
 
-  txs.push(swap.swapTx)
+  txs.push(encode.swapTx)
 
-  if (swap.cleanUpTx) {
-    txs.push(swap.cleanUpTx)
+  if (encode.cleanUpTx) {
+    txs.push(encode.cleanUpTx)
   }
 
   const populateTx = (
@@ -145,7 +142,7 @@ export async function sendSolanaTransactions(
       signedCleanUpTx: Transaction | undefined
     } = { signedSetupTx: undefined, signedSwapTx: undefined, signedCleanUpTx: undefined }
     let count = 0
-    if (swap.setupTx) result.signedSetupTx = txs[count++] as Transaction
+    if (encode.setupTx) result.signedSetupTx = txs[count++] as Transaction
     result.signedSwapTx = txs[count++] as VersionedTransaction
     result.signedCleanUpTx = txs[count++] as Transaction
     return result as {
@@ -156,9 +153,9 @@ export async function sendSolanaTransactions(
   }
 
   console.group('Sending transactions:')
-  swap.setupTx && console.info('setup tx:', getInspectTxSolanaUrl(swap.setupTx))
-  console.info('swap tx:', getInspectTxSolanaUrl(swap.swapTx))
-  swap.cleanUpTx && console.info('clean up tx:', getInspectTxSolanaUrl(swap.cleanUpTx))
+  encode.setupTx && console.info('setup tx:', getInspectTxSolanaUrl(encode.setupTx))
+  console.info('swap tx:', getInspectTxSolanaUrl(encode.swapTx))
+  encode.cleanUpTx && console.info('clean up tx:', getInspectTxSolanaUrl(encode.cleanUpTx))
   console.info('inspector: https://explorer.solana.com/tx/inspector')
   console.groupEnd()
 

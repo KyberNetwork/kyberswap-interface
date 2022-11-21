@@ -72,6 +72,7 @@ const bnbTestnetInfo: EVMNetworkInfo = {
   coingeckoNativeTokenId: 'binancecoin',
   deBankSlug: EMPTY,
   trueSightId: NOT_SUPPORT,
+  dexToCompare: NOT_SUPPORT,
 }
 
 export default bnbTestnetInfo

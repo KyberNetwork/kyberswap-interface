@@ -1,5 +1,5 @@
 import { CSSProperties, ReactNode, useRef, useState } from 'react'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { AutoColumn } from 'components/Column'
@@ -18,19 +18,10 @@ const Header = styled(RowBetween)<{ $expanded: boolean }>`
 `
 
 const Content = styled.div<{ $expanded: boolean; $height: number }>`
-  padding: 10px 0;
-  ${({ $expanded, $height }) =>
-    $expanded
-      ? css`
-          margin-top: 0;
-          opacity: 1;
-          max-height: 500px;
-        `
-      : css`
-          margin-top: -${$height || 20}px;
-          opacity: 0;
-          max-height: 0;
-        `}
+  max-height: 0;
+  margin-top: 0;
+
+  ${({ $expanded }) => ($expanded ? `opacity:1; max-height:500px;` : `opacity:0; max-height:0;`)}
   z-index: 0;
 `
 export default function ExpandableBox({
@@ -67,6 +58,7 @@ export default function ExpandableBox({
         borderRadius: borderRadius || '8px',
         overflow: 'hidden',
         color: color,
+        padding: padding,
         ...style,
       }}
       className={className}
@@ -76,14 +68,19 @@ export default function ExpandableBox({
         $expanded={expanded}
         style={{
           backgroundColor: backgroundColor || 'black',
-          padding: padding,
         }}
       >
         {headerContent || 'Header'} <DropdownSVG style={{ transform: expanded ? 'rotate(180deg)' : undefined }} />
       </Header>
-      <Divider style={{ margin: '0px 16px', opacity: expanded ? '1' : '0' }} />
-      <Content ref={contentRef as any} $expanded={expanded} $height={contentHeight} style={{ padding: padding }}>
-        {expandContent || 'Template content'}
+
+      <Content ref={contentRef as any} $expanded={expanded} $height={contentHeight}>
+        <Divider
+          style={{
+            margin: '16px 0',
+            opacity: expanded ? '1' : '0',
+          }}
+        />
+        {expandContent}
       </Content>
     </Wrapper>
   )

@@ -74,6 +74,7 @@ const avaxInfo: EVMNetworkInfo = {
   coingeckoNativeTokenId: 'avalanche-2',
   deBankSlug: 'avax',
   trueSightId: 'avax',
+  dexToCompare: 'traderjoe',
 }
 
 export default avaxInfo

@@ -69,6 +69,7 @@ const arbitrumInfo: EVMNetworkInfo = {
   coingeckoNativeTokenId: 'ethereum',
   deBankSlug: 'arb',
   trueSightId: NOT_SUPPORT,
+  dexToCompare: 'uniswapv3',
 }
 
 export default arbitrumInfo

@@ -70,6 +70,7 @@ const velasInfo: EVMNetworkInfo = {
   coingeckoNativeTokenId: 'velas',
   deBankSlug: EMPTY,
   trueSightId: NOT_SUPPORT,
+  dexToCompare: 'wagyuswap',
 }
 
 export default velasInfo

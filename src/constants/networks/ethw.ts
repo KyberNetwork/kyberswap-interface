@@ -71,6 +71,7 @@ const ethereumInfo: EVMNetworkInfo = {
   coingeckoNativeTokenId: '',
   deBankSlug: '',
   trueSightId: NOT_SUPPORT,
+  dexToCompare: NOT_SUPPORT,
 }
 
 export default ethereumInfo

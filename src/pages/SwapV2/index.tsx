@@ -84,7 +84,7 @@ import { ClickableText } from 'pages/Pool/styleds'
 import { useToggleTransactionSettingsMenu, useWalletModalToggle } from 'state/application/hooks'
 import { useAllDexes } from 'state/customizeDexes/hooks'
 import { Field } from 'state/swap/actions'
-import { useDefaultsFromURLSearch, useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
+import { useDefaultsFromURLSearch, useEncodeSolana, useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
 import { useDerivedSwapInfoV2 } from 'state/swap/useAggregator'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import {
@@ -180,6 +180,7 @@ export default function Swap({ history }: RouteComponentProps) {
   const allDexes = useAllDexes()
   const [{ show: isShowTutorial = false }] = useTutorialSwapGuide()
   useSyncNetworkParamWithStore()
+  const [encodeSolana] = useEncodeSolana()
 
   const refSuggestPair = useRef<PairSuggestionHandle>(null)
   const [showingPairSuggestionImport, setShowingPairSuggestionImport] = useState<boolean>(false) // show modal import when click pair suggestion
@@ -694,10 +695,8 @@ export default function Swap({ history }: RouteComponentProps) {
   useEffect(() => {
     if (isExpertMode) {
       mixpanelHandler(MIXPANEL_TYPE.ADVANCED_MODE_ON)
-      trade?.encodeSolana()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isExpertMode])
+  }, [isExpertMode, mixpanelHandler])
 
   const [rawSlippage, setRawSlippage] = useUserSlippageTolerance()
 
@@ -1090,7 +1089,7 @@ export default function Swap({ history }: RouteComponentProps) {
                             !!swapCallbackError ||
                             approval !== ApprovalState.APPROVED ||
                             (!isExpertMode && (isPriceImpactVeryHigh || isPriceImpactInvalid)) ||
-                            (isExpertMode && typeof trade?.solana?.swap !== 'object')
+                            (isExpertMode && isSolana && !encodeSolana)
                           }
                           style={{
                             border: 'none',
@@ -1112,7 +1111,7 @@ export default function Swap({ history }: RouteComponentProps) {
                               <Dots>
                                 <Trans>Checking allowance</Trans>
                               </Dots>
-                            ) : isExpertMode && typeof trade?.solana?.swap !== 'object' ? (
+                            ) : isExpertMode && isSolana && !encodeSolana ? (
                               <Dots>
                                 <Trans>Checking accounts</Trans>
                               </Dots>

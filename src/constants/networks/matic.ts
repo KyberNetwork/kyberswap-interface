@@ -72,6 +72,7 @@ const maticInfo: EVMNetworkInfo = {
   coingeckoNativeTokenId: 'matic-network',
   deBankSlug: 'matic',
   trueSightId: 'polygon',
+  dexToCompare: 'quickswap',
 }
 
 export default maticInfo

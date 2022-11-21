@@ -59,7 +59,7 @@ export enum ApplicationModal {
   SELECT_CAMPAIGN,
   REGISTER_CAMPAIGN_CAPTCHA,
   REGISTER_CAMPAIGN_SUCCESS,
-  UNSUBSCRIBE_TRUESIGHT,
+  NOTIFICATION_SUBSCRIPTION,
   YOUR_CAMPAIGN_TRANSACTIONS,
   ETH_POW_ACK,
 }
@@ -88,3 +88,15 @@ export const updateETHPrice = createAction<{
 export const updateKNCPrice = createAction<string | undefined>('application/updateKNCPrice')
 
 export const updateServiceWorker = createAction<ServiceWorkerRegistration>('application/updateServiceWorker')
+
+export const setSubscribedNotificationTopic = createAction<{
+  isSubscribed: boolean
+  isVerified: boolean
+  topicId: number
+  verifiedEmail?: string
+}>('application/setSubscribedNotificationTopic')
+
+export const setLoadingNotification = createAction<boolean>('application/setLoadingNotification')
+export const setNeedShowModalSubscribeNotificationAfterLogin = createAction<boolean>(
+  'application/setNeedShowModalSubscribeNotificationAfterLogin',
+)
