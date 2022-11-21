@@ -47,10 +47,14 @@ export function useChangeNetwork() {
 
       const wallet = walletKey && SUPPORTED_WALLETS[walletKey]
       if (wallet && isEVMWallet(wallet) && !isSolana(desiredChainId)) {
-        tryActivationEVM(wallet.connector)
+        try {
+          tryActivationEVM(wallet.connector)
+        } catch {}
       }
       if (wallet && isSolanaWallet(wallet) && !isEVM(desiredChainId)) {
-        tryActivationSolana(wallet.adapter)
+        try {
+          tryActivationSolana(wallet.adapter)
+        } catch {}
       }
       if (isEVM(desiredChainId)) {
         const switchNetworkParams = {
