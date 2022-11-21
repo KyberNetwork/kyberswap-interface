@@ -373,7 +373,7 @@ export const isSolanaWallet = (wallet: WalletInfo): wallet is SolanaWalletInfo =
 // https://docs.metamask.io/guide/ethereum-provider.html#basic-usage
 // https://docs.cloud.coinbase.com/wallet-sdk/docs/injected-provider#properties
 // Coin98 and Brave wallet is overriding Metamask. So at a time, there is only 1 exists
-export const detectInjectedType = (): 'COIN98' | 'BRAVE' | 'METAMASK' | 'COINBASE' | null => {
+export const detectInjectedType = (): 'COIN98' | 'BRAVE' | 'METAMASK' | 'COINBASE' | 'TRUST_WALLET' | null => {
   const { ethereum } = window
   // When Coinbase wallet connected will inject selectedProvider property and some others props
   if (ethereum?.selectedProvider) {
@@ -382,6 +382,8 @@ export const detectInjectedType = (): 'COIN98' | 'BRAVE' | 'METAMASK' | 'COINBAS
   }
 
   if (ethereum?.isCoinbaseWallet) return 'COINBASE'
+
+  if (ethereum?.isTrustWallet) return 'TRUST_WALLET'
 
   if (checkForBraveBrowser() && ethereum?.isBraveWallet) return 'BRAVE'
 

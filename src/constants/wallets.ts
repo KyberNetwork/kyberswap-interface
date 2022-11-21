@@ -7,6 +7,7 @@ import {
   SlopeWalletAdapter,
   SolflareWalletAdapter,
   SolletExtensionWalletAdapter,
+  TrustWalletAdapter,
 } from '@solana/wallet-adapter-wallets'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import { isMobile } from 'react-device-detect'
@@ -19,8 +20,16 @@ import PHANTOM from 'assets/wallets-connect/phantom.svg'
 import SLOPE from 'assets/wallets-connect/slope.svg'
 import SOLFLARE from 'assets/wallets-connect/solflare.svg'
 import SOLLET from 'assets/wallets-connect/sollet.png'
+import TRUSTWALLET from 'assets/wallets-connect/trust-wallet.svg'
 import WALLETCONNECT from 'assets/wallets-connect/wallet-connect.svg'
-import { braveInjectedConnector, coin98InjectedConnector, injected, walletconnect, walletlink } from 'connectors'
+import {
+  braveInjectedConnector,
+  coin98InjectedConnector,
+  injected,
+  trustWalletConnector,
+  walletconnect,
+  walletlink,
+} from 'connectors'
 import checkForBraveBrowser from 'utils/checkForBraveBrowser'
 
 import { SelectedNetwork } from './networks/solana'
@@ -32,10 +41,11 @@ const solflareAdapter = new SolflareWalletAdapter({ network: SelectedNetwork })
 const phantomAdapter = new PhantomWalletAdapter({ network: SelectedNetwork })
 const solletAdapter = new SolletExtensionWalletAdapter()
 const slopeAdapter = new SlopeWalletAdapter({ network: SelectedNetwork })
+const trustWalletAdapter = new TrustWalletAdapter()
 // const ledgerAdapter = new LedgerWalletAdapter()
 
 const detectMetamask = (): WalletReadyState => {
-  if (isMobile) return WalletReadyState.Unsupported
+  if (!window.ethereum) return WalletReadyState.Unsupported
   // In Brave browser, by default ethereum.isMetaMask and ethereum.isBraveWallet is true even Metamask not installed
   if (window.ethereum?.isMetaMask && !window.ethereum?.isBraveWallet) return WalletReadyState.Installed
   return WalletReadyState.NotDetected
@@ -71,6 +81,11 @@ const detectPhantomWallet = (): WalletReadyState => {
   // On Brave browser disable phantom
   if (window.solana?.isPhantom && window.solana?.isBraveWallet) return WalletReadyState.NotDetected
   return phantomAdapter.readyState
+}
+const detectTrustWallet = (): WalletReadyState => {
+  if (!window.ethereum) return WalletReadyState.Unsupported
+  if (window.ethereum?.isTrustWallet) return WalletReadyState.Installed
+  return WalletReadyState.NotDetected
 }
 
 export interface WalletInfo {
@@ -186,6 +201,16 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
     installLink: slopeAdapter.url,
     readyStateSolana: () => (isMobile ? WalletReadyState.Unsupported : slopeAdapter.readyState),
   } as SolanaWalletInfo,
+  TRUST_WALLET: {
+    connector: trustWalletConnector,
+    adapter: trustWalletAdapter,
+    name: 'Trust Wallet',
+    icon: TRUSTWALLET,
+    iconLight: TRUSTWALLET,
+    installLink: 'https://trustwallet.com/vi/deeplink/',
+    readyState: detectTrustWallet,
+    readyStateSolana: () => trustWalletAdapter.readyState,
+  } as EVMWalletInfo & SolanaWalletInfo,
 } as const
 
 export type SUPPORTED_WALLET = keyof typeof SUPPORTED_WALLETS

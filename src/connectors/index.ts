@@ -56,3 +56,5 @@ export const walletlink = new WalletLinkConnector({
   appName: 'KyberSwap',
   appLogoUrl: 'https://kyberswap.com/favicon.ico',
 })
+
+export const trustWalletConnector = new InjectedConnector(injectedConnectorParam)
