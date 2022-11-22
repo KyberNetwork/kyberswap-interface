@@ -7,7 +7,7 @@ import { Popover, Sidetab } from '@typeform/embed-react'
 import { Suspense, lazy, useEffect } from 'react'
 import { isMobile } from 'react-device-detect'
 import { AlertTriangle } from 'react-feather'
-import { Route, Switch } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -197,7 +197,6 @@ export default function App() {
 
       {(!account || !BLACKLIST_WALLETS.includes(account)) && (
         <ApolloProvider client={classicClient}>
-          <Route component={DarkModeQueryParamReader} />
           <AppWrapper>
             <TopBanner />
             <HeaderWrapper>
@@ -207,68 +206,55 @@ export default function App() {
               <BodyWrapper>
                 <Popups />
                 <Web3ReactManager>
-                  <Switch>
-                    <Route exact strict path={AppPaths.SWAP_LEGACY} component={Swap} />
+                  <Routes>
+                    <Route element={<DarkModeQueryParamReader />} />
+                    <Route path={AppPaths.SWAP_LEGACY} element={<Swap />} />
 
-                    <Route exact strict path="/swap/:network/:fromCurrency-to-:toCurrency" component={SwapV2} />
-                    <Route exact strict path="/swap/:network/:fromCurrency" component={SwapV2} />
+                    <Route path="/swap/:network/:fromCurrency-to-:toCurrency" element={<SwapV2 />} />
+                    <Route path="/swap/:network/:fromCurrency" element={<SwapV2 />} />
 
-                    <Route exact strict path="/swap/:outputCurrency" component={RedirectToSwap} />
-                    <Route exact strict path="/swap" component={SwapV2} />
+                    <Route path="/swap/:outputCurrency" element={<RedirectToSwap />} />
+                    <Route path="/swap" element={<SwapV2 />} />
 
-                    <Route exact strict path="/find" component={PoolFinder} />
-                    <Route exact strict path="/pools" component={Pools} />
-                    <Route exact strict path="/pools/:currencyIdA" component={Pools} />
-                    <Route exact strict path="/pools/:currencyIdA/:currencyIdB" component={Pools} />
-                    <Route exact strict path="/farms" component={Farm} />
-                    <Route exact strict path="/myPools" component={Pool} />
+                    <Route path="/find" element={<PoolFinder />} />
+                    <Route path="/pools" element={<Pools />} />
+                    <Route path="/pools/:currencyIdA" element={<Pools />} />
+                    <Route path="/pools/:currencyIdA/:currencyIdB" element={<Pools />} />
+                    <Route path="/farms" element={<Farm />} />
+                    <Route path="/myPools" element={<Pool />} />
 
                     {/* Create new pool */}
-                    <Route exact path="/create" component={CreatePool} />
-                    <Route exact path="/create/:currencyIdA" component={RedirectOldCreatePoolPathStructure} />
-                    <Route
-                      exact
-                      path="/create/:currencyIdA/:currencyIdB"
-                      component={RedirectCreatePoolDuplicateTokenIds}
-                    />
+                    <Route path="/create" element={<CreatePool />} />
+                    <Route path="/create/:currencyIdA" element={<RedirectOldCreatePoolPathStructure />} />
+                    <Route path="/create/:currencyIdA/:currencyIdB" element={<RedirectCreatePoolDuplicateTokenIds />} />
 
                     {/* Add liquidity */}
-                    <Route exact path="/add/:currencyIdA/:currencyIdB/:pairAddress" component={AddLiquidity} />
+                    <Route path="/add/:currencyIdA/:currencyIdB/:pairAddress" element={<AddLiquidity />} />
 
-                    <Route
-                      exact
-                      strict
-                      path="/remove/:currencyIdA/:currencyIdB/:pairAddress"
-                      component={RemoveLiquidity}
-                    />
+                    <Route path="/remove/:currencyIdA/:currencyIdB/:pairAddress" element={<RemoveLiquidity />} />
 
-                    <Route exact strict path="/elastic/swap" component={ProAmmSwap} />
-                    <Route exact strict path="/elastic/remove/:tokenId" component={ProAmmRemoveLiquidity} />
+                    <Route path="/elastic/swap" element={<ProAmmSwap />} />
+                    <Route path="/elastic/remove/:tokenId" element={<ProAmmRemoveLiquidity />} />
                     <Route
-                      exact
-                      strict
-                      path="/elastic/add/:currencyIdA?/:currencyIdB?/:feeAmount?"
-                      component={RedirectDuplicateTokenIds}
+                      path="/elastic/add/:currencyIdA/:currencyIdB/:feeAmount"
+                      element={<RedirectDuplicateTokenIds />}
                     />
 
                     <Route
-                      exact
-                      strict
-                      path="/elastic/increase/:currencyIdA?/:currencyIdB?/:feeAmount?/:tokenId?"
-                      component={IncreaseLiquidity}
+                      path="/elastic/increase/:currencyIdA/:currencyIdB/:feeAmount/:tokenId"
+                      element={<IncreaseLiquidity />}
                     />
 
-                    <Route exact path="/about/kyberswap" component={AboutKyberSwap} />
-                    <Route exact path="/about/knc" component={AboutKNC} />
-                    <Route exact path="/referral" component={CreateReferral} />
-                    <Route exact path="/discover" component={TrueSight} />
-                    <Route exact path="/buy-crypto" component={BuyCrypto} />
-                    <Route exact path={`${AppPaths.CAMPAIGN}/:slug?`} component={Campaign} />
-                    <Route exact path={AppPaths.BRIDGE} component={Bridge} />
-                    <Route exact path={AppPaths.VERIFY} component={Verify} />
-
-                    <Route component={RedirectPathToSwapOnly} />
-                  </Switch>
+                    <Route path="/about/kyberswap" element={<AboutKyberSwap />} />
+                    <Route path="/about/knc" element={<AboutKNC />} />
+                    <Route path="/referral" element={<CreateReferral />} />
+                    <Route path="/discover" element={<TrueSight />} />
+                    <Route path="/buy-crypto" element={<BuyCrypto />} />
+                    <Route path={`${AppPaths.CAMPAIGN}/:slug`} element={<Campaign />} />
+                    <Route path={AppPaths.BRIDGE} element={<Bridge />} />
+                    <Route path={AppPaths.VERIFY} element={<Verify />} />
+                    <Route element={<RedirectPathToSwapOnly />} />
+                  </Routes>
                 </Web3ReactManager>
               </BodyWrapper>
               {showFooter && <Footer />}

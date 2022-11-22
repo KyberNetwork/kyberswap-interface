@@ -1,8 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { darken } from 'polished'
-import React from 'react'
 import { ArrowLeft, Trash } from 'react-feather'
-import { NavLink, useHistory } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -117,10 +116,10 @@ const StyledMenuButton = styled.button<{ active?: boolean }>`
 export function SwapPoolTabs({ active }: { active: 'swap' | 'pool' }) {
   return (
     <Tabs style={{ marginBottom: '20px', display: 'none' }}>
-      <StyledNavLink id={`swap-nav-link`} to={'/swap'} isActive={() => active === 'swap'}>
+      <StyledNavLink id={`swap-nav-link`} to={'/swap'}>
         <Trans>Swap</Trans>
       </StyledNavLink>
-      <StyledNavLink id={`pool-nav-link`} to={'/pool'} isActive={() => active === 'pool'}>
+      <StyledNavLink id={`pool-nav-link`} to={'/pool'}>
         <Trans>Pool</Trans>
       </StyledNavLink>
     </Tabs>
@@ -128,10 +127,10 @@ export function SwapPoolTabs({ active }: { active: 'swap' | 'pool' }) {
 }
 
 export function FindPoolTabs() {
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const goBack = () => {
-    history.goBack()
+    navigate(-1)
   }
 
   return (
@@ -175,10 +174,10 @@ export function AddRemoveTabs({
   tooltip?: string
   tutorialType?: TutorialType
 }) {
-  const history = useHistory()
+  const navigate = useNavigate()
   const below768 = useMedia('(max-width: 768px)')
   const goBack = () => {
-    history.goBack()
+    navigate(-1)
   }
 
   const theme = useTheme()
@@ -253,10 +252,10 @@ export function AddRemoveTabs({
 }
 
 export function MigrateTab() {
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const goBack = () => {
-    history.goBack()
+    navigate(-1)
   }
 
   return (

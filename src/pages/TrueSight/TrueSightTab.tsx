@@ -1,6 +1,5 @@
 import { Trans } from '@lingui/macro'
-import React from 'react'
-import { useHistory } from 'react-router'
+import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
@@ -11,7 +10,7 @@ import { TrueSightTabs } from 'pages/TrueSight/index'
 import { TabContainer, TabDivider, TabItem } from 'pages/TrueSight/styled'
 
 const TrueSightTab = ({ activeTab }: { activeTab: TrueSightTabs | undefined }) => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const { tab } = useParsedQueryString()
   const { mixpanelHandler } = useMixpanel()
 
@@ -24,7 +23,7 @@ const TrueSightTab = ({ activeTab }: { activeTab: TrueSightTabs | undefined }) =
           if (tab !== 'trending_soon') {
             mixpanelHandler(MIXPANEL_TYPE.DISCOVER_TRENDING_SOON_CLICKED)
           }
-          history.push({ search: '?tab=' + TrueSightTabs.TRENDING_SOON })
+          navigate({ search: '?tab=' + TrueSightTabs.TRENDING_SOON })
         }}
       >
         <Trans>Trending Soon</Trans>
@@ -37,7 +36,7 @@ const TrueSightTab = ({ activeTab }: { activeTab: TrueSightTabs | undefined }) =
           if (tab !== 'trending') {
             mixpanelHandler(MIXPANEL_TYPE.DISCOVER_TRENDING_CLICKED)
           }
-          history.push({ search: '?tab=' + TrueSightTabs.TRENDING })
+          navigate({ search: '?tab=' + TrueSightTabs.TRENDING })
         }}
       >
         <Trans>Trending</Trans>

@@ -2,9 +2,9 @@ import { Currency, CurrencyAmount, Token, TradeType } from '@kyberswap/ks-sdk-co
 import { Trade } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
 import JSBI from 'jsbi'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ArrowDown } from 'react-feather'
-import { RouteComponentProps } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 
 import AddressInputPanel from 'components/AddressInputPanel'
@@ -44,7 +44,8 @@ import { basisPointsToPercent } from 'utils'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { warningSeverity } from 'utils/prices'
 
-export default function SwapProAmm({ history }: RouteComponentProps) {
+export default function SwapProAmm() {
+  const navigate = useNavigate()
   const { account } = useActiveWeb3React()
   const loadedUrlParams = useDefaultsFromURLSearch()
 
@@ -134,8 +135,8 @@ export default function SwapProAmm({ history }: RouteComponentProps) {
   // reset if they close warning without tokens in params
   const handleDismissTokenWarning = useCallback(() => {
     setDismissTokenWarning(true)
-    history.push('/elastic/swap/')
-  }, [history])
+    navigate('/elastic/swap/')
+  }, [navigate])
 
   // modal and loading
   const [{ showConfirm, tradeToConfirm, swapErrorMessage, attemptingTxn, txHash }, setSwapState] = useState<{

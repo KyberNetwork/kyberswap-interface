@@ -6,7 +6,7 @@ import { rgba } from 'polished'
 import { useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
-import { useHistory, useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -187,13 +187,13 @@ export default function ProAmmPool() {
   const qs = useParsedQueryString()
   const searchValueInQs: string = (qs.search as string) ?? ''
 
-  const history = useHistory()
+  const navigate = useNavigate()
   const location = useLocation()
 
   const tab = (qs.tab as string) || VERSION.ELASTIC
 
   const onSearch = (search: string) => {
-    history.replace(location.pathname + '?search=' + search + '&tab=' + tab)
+    navigate(location.pathname + '?search=' + search + '&tab=' + tab, { replace: true })
   }
 
   const debouncedSearchText = useDebounce(searchValueInQs.trim().toLowerCase(), 300)

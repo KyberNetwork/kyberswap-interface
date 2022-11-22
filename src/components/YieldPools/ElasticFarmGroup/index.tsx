@@ -4,6 +4,7 @@ import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useState } from 'react'
 import { ArrowDown, ArrowUp, Info } from 'react-feather'
+import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -82,7 +83,7 @@ enum SORT_FIELD {
   APR = 'apr',
   END_TIME = 'end_time',
   MY_DEPOSIT = 'my_deposit',
-  MY_REWARD = 'reward',
+  MY_REWARD = 'my_reward',
 }
 
 enum SORT_DIRECTION {
@@ -96,8 +97,9 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
   const above768 = useMedia('(min-width: 768px)')
   const above1000 = useMedia('(min-width: 1000px)')
 
-  const [sortField, setSortField] = useState(SORT_FIELD.PID)
-  const [sortDirection, setSortDirection] = useState(SORT_DIRECTION.DESC)
+  const [searchParams] = useSearchParams()
+  const sortField = searchParams.get('orderBy')
+  const sortDirection = searchParams.get('orderDirection')
 
   const { poolFeeLast24h } = useElasticFarms()
 
@@ -602,22 +604,11 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
     )
   }
 
-  const handleSortClick = (field: SORT_FIELD) => {
-    setSortField(field)
-    setSortDirection(prev =>
-      sortField !== field
-        ? SORT_DIRECTION.DESC
-        : prev === SORT_DIRECTION.DESC
-        ? SORT_DIRECTION.ASC
-        : SORT_DIRECTION.DESC,
-    )
-  }
-
   const renderTableHeaderOnDesktop = () => {
     return (
       <ProMMFarmTableHeader>
         <Flex grid-area="token_pairs" alignItems="center" justifyContent="flex-start">
-          <ClickableText onClick={() => handleSortClick(SORT_FIELD.PID)}>
+          <ClickableText>
             <Trans>Pool</Trans>
             {sortField === SORT_FIELD.PID &&
               (sortDirection === SORT_DIRECTION.DESC ? (
@@ -629,11 +620,7 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
         </Flex>
 
         <Flex grid-area="liq" alignItems="center" justifyContent="flex-start">
-          <ClickableText
-            onClick={() => {
-              handleSortClick(SORT_FIELD.STAKED_TVL)
-            }}
-          >
+          <ClickableText>
             <Trans>Staked TVL</Trans>
             {sortField === SORT_FIELD.STAKED_TVL &&
               (sortDirection === SORT_DIRECTION.DESC ? (
@@ -645,7 +632,7 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
         </Flex>
 
         <Flex grid-area="apy" alignItems="center" justifyContent="flex-start">
-          <ClickableText onClick={() => handleSortClick(SORT_FIELD.APR)}>
+          <ClickableText>
             <Trans>AVG APR</Trans>
 
             {sortField === SORT_FIELD.APR &&
@@ -661,7 +648,7 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
         </Flex>
 
         <Flex grid-area="end" alignItems="center" justifyContent="flex-start">
-          <ClickableText onClick={() => handleSortClick(SORT_FIELD.END_TIME)}>
+          <ClickableText>
             <Trans>Ending In</Trans>
             {sortField === SORT_FIELD.END_TIME &&
               (sortDirection === SORT_DIRECTION.DESC ? (
@@ -678,7 +665,7 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
             padding="8px 0"
             hideIcon
             content={
-              <ClickableText onClick={() => handleSortClick(SORT_FIELD.MY_DEPOSIT)}>
+              <ClickableText>
                 <Flex flex={1}>My Deposit | Target Volume</Flex>{' '}
                 {sortField === SORT_FIELD.MY_DEPOSIT &&
                   (sortDirection === SORT_DIRECTION.DESC ? (
@@ -709,7 +696,7 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
         </Flex>
 
         <Flex grid-area="reward" alignItems="center" justifyContent="flex-end">
-          <ClickableText onClick={() => handleSortClick(SORT_FIELD.MY_REWARD)}>
+          <ClickableText>
             <Trans>My Rewards</Trans>
             {sortField === SORT_FIELD.MY_REWARD &&
               (sortDirection === SORT_DIRECTION.DESC ? (

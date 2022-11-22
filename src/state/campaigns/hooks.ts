@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useHistory } from 'react-router'
+import { useNavigate } from 'react-router-dom'
 
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import {
@@ -110,7 +110,7 @@ export function useRecaptchaCampaignManager() {
 export function useSwapNowHandler() {
   const { mixpanelHandler } = useMixpanel()
   const selectedCampaign = useSelector((state: AppState) => state.campaigns.selectedCampaign)
-  const history = useHistory()
+  const navigate = useNavigate()
 
   return useCallback(
     (chainId: ChainId) => {
@@ -122,9 +122,9 @@ export function useSwapNowHandler() {
           path += '&outputCurrency=' + firstTokenOfChain.address
         }
       }
-      history.push(path)
+      navigate(path)
     },
-    [history, mixpanelHandler, selectedCampaign],
+    [navigate, mixpanelHandler, selectedCampaign],
   )
 }
 

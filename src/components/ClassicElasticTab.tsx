@@ -1,8 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { stringify } from 'qs'
-import React from 'react'
-import { useHistory } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 
 import { ELASTIC_NOT_SUPPORTED, VERSION } from 'constants/v2'
@@ -24,9 +23,10 @@ function ClassicElasticTab() {
   const notSupportedMsg = ELASTIC_NOT_SUPPORTED[chainId as ChainId]
 
   const theme = useTheme()
-  const history = useHistory()
+  const location = useLocation()
+  const navigate = useNavigate()
 
-  const isFarmpage = history.location.pathname === '/farms'
+  const isFarmpage = location.pathname === '/farms'
 
   return (
     <Flex>
@@ -37,7 +37,7 @@ function ClassicElasticTab() {
             if (!!notSupportedMsg) return
             const newQs = { ...qs, tab: VERSION.ELASTIC }
             let type: MIXPANEL_TYPE | '' = ''
-            switch (history.location.pathname) {
+            switch (location.pathname) {
               case '/pools':
                 type = MIXPANEL_TYPE.ELASTIC_POOLS_ELASTIC_POOLS_CLICKED
                 break
@@ -49,7 +49,7 @@ function ClassicElasticTab() {
                 break
             }
             if (type) mixpanelHandler(type)
-            history.replace({ search: stringify(newQs) })
+            navigate({ search: stringify(newQs) }, { replace: true })
           }}
         >
           <Text
@@ -76,7 +76,7 @@ function ClassicElasticTab() {
         alignItems={'center'}
         onClick={() => {
           const newQs = { ...qs, tab: VERSION.CLASSIC }
-          history.replace({ search: stringify(newQs) })
+          navigate({ search: stringify(newQs) }, { replace: true })
         }}
       >
         <Text
