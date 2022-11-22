@@ -113,7 +113,7 @@ const OptionGrid = styled.div`
   flex-wrap: wrap;
   margin-top: 16px;
   & > * {
-    width: calc(20% - 1rem);
+    width: calc(20% - ${gap} * 4 / 5);
   }
   ${({ theme }) => theme.mediaWidth.upToXXL`
     & > * {

@@ -82,10 +82,17 @@ const NetworkList = styled.div<{ width: number; mt: number; mb: number }>`
   width: 100%;
   margin-top: ${({ mt }) => mt}px;
   margin-bottom: ${({ mb }) => mb}px;
+
   & > * {
-    width: calc(20% - 1rem);
+    width: ${({ width }) => css`
+    // when width = 3 => width: calc(33.33% - 1rem * 2 / 3)
+      calc(100% / ${width} - ${gap} * ${width - 1} / ${width})
+    `};
   }
-  ${({ theme }) => theme.mediaWidth.upToXXL`
+
+  ${({ theme, width }) =>
+    width > 3 &&
+    theme.mediaWidth.upToXXL`
     & > * {
       width: calc(25% - ${gap} * 3 / 4);
     }
