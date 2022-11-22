@@ -15,7 +15,7 @@ import { useSetClaimingCampaignRewardId } from 'state/campaigns/hooks'
 import connection from 'state/connection/connection'
 import { AppDispatch, AppState } from 'state/index'
 import { findTx } from 'utils'
-import { getFullDisplayBalance } from 'utils/formatBalance'
+import { getFullDisplayBalance, getFullDisplayBalanceSignificant } from 'utils/formatBalance'
 
 import { checkedTransaction, finalizeTransaction, removeTx, replaceTx } from './actions'
 import { SerializableTransactionReceipt, TRANSACTION_TYPE, TransactionDetails } from './type'
@@ -131,8 +131,11 @@ const parseSolanaTransactionSummary = ({
   const outputPreAmount = BigNumber.from(outputBalancePre.uiTokenAmount.amount)
   const outputPostAmount = BigNumber.from(outputBalancePost.uiTokenAmount.amount)
 
-  const inputAmount = getFullDisplayBalance(inputPreAmount.sub(inputPostAmount), inputBalancePre.uiTokenAmount.decimals)
-  const outputAmount = getFullDisplayBalance(
+  const inputAmount = getFullDisplayBalanceSignificant(
+    inputPreAmount.sub(inputPostAmount),
+    inputBalancePre.uiTokenAmount.decimals,
+  )
+  const outputAmount = getFullDisplayBalanceSignificant(
     BigNumber.from(outputPostAmount.sub(outputPreAmount).toString()),
     outputBalancePre.uiTokenAmount.decimals,
   )
