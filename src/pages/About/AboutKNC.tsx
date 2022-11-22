@@ -445,7 +445,7 @@ function AboutKNC() {
                 <ExternalLink href={`https://coinmarketcap.com/currencies/kyber-network-crystal-v2/`}>
                   <img src={isDarkMode ? CoinMarketCap : CoinMarketCapLight} alt="CoinMarketCap" width="227px" />
                 </ExternalLink>
-                <ExternalLink href="https://www.geckoterminal.com">
+                <ExternalLink href="https://www.geckoterminal.com/eth/pools/0xa38a0165e82b7a5e8650109e9e54087a34c93020">
                   <img
                     src={isDarkMode ? GeckoterminalIcon : GeckoterminalIconLight}
                     alt="Geckoterminal"
