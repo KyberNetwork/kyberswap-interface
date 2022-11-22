@@ -179,7 +179,7 @@ export default function TransactionPopup({
               {type + ' - ' + (success ? 'Success' : 'Error') + '!'}
             </Text>
           )}
-          <Text fontSize="14px" fontWeight={400} color={theme.text}>
+          <Text fontSize="14px" fontWeight={400} color={theme.text} lineHeight={1.6}>
             {type
               ? SUMMARY[type][success ? 'success' : 'failure'](summary)
               : summary ?? 'Hash: ' + hash.slice(0, 8) + '...' + hash.slice(58, 65)}
