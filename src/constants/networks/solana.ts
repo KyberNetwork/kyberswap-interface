@@ -28,7 +28,12 @@ const solanaInfo: SolanaNetworkInfo = {
     name: 'SOL',
     logo: Solana,
     decimal: 9,
-    minForGas: 10 ** 5,
+    // Fee for Solana: 5000 lamport * signature = 5000 * 10^-9 SOL * signature
+    // Rent fee for set up account: 0.00203928 SOL
+    // We might need setup up to 3 accounts or even more for openbook
+    // => use 0.01
+    // above values might change
+    minForGas: 10 ** 7,
   },
   routerUri: `${AGGREGATOR_API}/solana/route/encode`,
   aggregatorProgramAddress: 'GmgkeeJtcjHgeiSDdT5gxznUDr5ygq9jo8tmA4ny7ziv',
