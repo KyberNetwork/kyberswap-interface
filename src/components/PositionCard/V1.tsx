@@ -1,6 +1,6 @@
 import { Token, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { Link, RouteComponentProps, withRouter } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { Text } from 'rebass'
 
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -13,7 +13,7 @@ import DoubleCurrencyLogo from '../DoubleLogo'
 import { RowBetween, RowFixed } from '../Row'
 import { FixedHeightRow, HoverCard } from './index'
 
-interface PositionCardProps extends RouteComponentProps {
+interface PositionCardProps {
   token: Token
   V1LiquidityBalance: TokenAmount
 }
@@ -76,4 +76,4 @@ function V1PositionCard({ token, V1LiquidityBalance }: PositionCardProps) {
   )
 }
 
-export default withRouter(V1PositionCard)
+export default V1PositionCard

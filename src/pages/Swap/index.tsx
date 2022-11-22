@@ -2,9 +2,9 @@ import { Trade } from '@kyberswap/ks-sdk-classic'
 import { Currency, CurrencyAmount, Token, TradeType } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import JSBI from 'jsbi'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ArrowDown } from 'react-feather'
-import { RouteComponentProps } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -48,7 +48,8 @@ const AppBody = styled(AppBodyRaw)`
   padding-top: 24px;
 `
 
-export default function Swap({ history }: RouteComponentProps) {
+export default function Swap() {
+  const navigate = useNavigate()
   const loadedUrlParams = useDefaultsFromURLSearch()
 
   // token warning stuff
@@ -129,8 +130,8 @@ export default function Swap({ history }: RouteComponentProps) {
   // reset if they close warning without tokens in params
   const handleDismissTokenWarning = useCallback(() => {
     setDismissTokenWarning(true)
-    history.push('/swap-legacy')
-  }, [history])
+    navigate('/swap-legacy')
+  }, [navigate])
 
   // modal and loading
   const [{ showConfirm, tradeToConfirm, swapErrorMessage, attemptingTxn, txHash }, setSwapState] = useState<{

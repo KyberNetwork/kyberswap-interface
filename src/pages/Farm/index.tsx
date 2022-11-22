@@ -1,51 +1,47 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { stringify } from 'qs'
 import { useMemo } from 'react'
+import { Share2 } from 'react-feather'
 import { useSelector } from 'react-redux'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
+import { ReactComponent as TutorialIcon } from 'assets/svg/play_circle_outline.svg'
 import ClassicElasticTab from 'components/ClassicElasticTab'
 import Loader from 'components/Loader'
 import RewardTokenPrices from 'components/RewardTokenPrices'
+import ShareModal from 'components/ShareModal'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import Tutorial, { TutorialType } from 'components/Tutorial'
-import UpcomingFarms from 'components/UpcomingFarms'
 import Vesting from 'components/Vesting'
 import ProMMVesting from 'components/Vesting/ProMMVesting'
 import YieldPools from 'components/YieldPools'
-import ElasticFarmSummary from 'components/YieldPools/ElasticFarmSummary'
 import ElasticFarms from 'components/YieldPools/ElasticFarms'
 import FarmGuide from 'components/YieldPools/FarmGuide'
-import {
-  NewText,
-  PageWrapper,
-  PoolTitleContainer,
-  Tab,
-  TabContainer,
-  TabWrapper,
-  TopBar,
-  UpcomingPoolsWrapper,
-} from 'components/YieldPools/styleds'
+import { PageWrapper, PoolTitleContainer, Tab, TabContainer, TabWrapper, TopBar } from 'components/YieldPools/styleds'
 import { ZERO_ADDRESS } from 'constants/index'
-import { UPCOMING_POOLS } from 'constants/upcoming-pools'
 import { VERSION } from 'constants/v2'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
+import useTheme from 'hooks/useTheme'
 import { AppState } from 'state'
-import { useBlockNumber } from 'state/application/hooks'
+import { ApplicationModal } from 'state/application/actions'
+import { useBlockNumber, useOpenModal } from 'state/application/hooks'
 import { FarmUpdater, useElasticFarms } from 'state/farms/elastic/hooks'
 import { useFarmsData } from 'state/farms/hooks'
 import { isInEnum } from 'utils/string'
 
 const Farm = () => {
   const { loading } = useFarmsData()
+  const theme = useTheme()
   const qs = useParsedQueryString()
   const type = qs.type || 'active'
   const farmType = qs.tab && typeof qs.tab === 'string' && isInEnum(qs.tab, VERSION) ? qs.tab : VERSION.ELASTIC
-  const history = useHistory()
+  const navigate = useNavigate()
+
+  const openShareModal = useOpenModal(ApplicationModal.SHARE)
 
   const vestingLoading = useSelector<AppState, boolean>(state => state.vesting.loading)
 
@@ -53,8 +49,6 @@ const Farm = () => {
     switch (type) {
       case 'active':
         return farmType === VERSION.ELASTIC ? <ElasticFarms active /> : <YieldPools loading={loading} active />
-      case 'coming':
-        return <UpcomingFarms />
       case 'ended':
         return farmType === VERSION.ELASTIC ? (
           <ElasticFarms active={false} />
@@ -107,7 +101,7 @@ const Farm = () => {
     return Object.values(tokenMap)
   }, [farmsByFairLaunch, blockNumber, elasticFarms])
 
-  const rewardPriceAndTutorial = !!rewardTokens.length && (
+  const rewardPrice = !!rewardTokens.length && (
     <Flex
       flex={1}
       width={below768 ? 'calc(100vw - 32px)' : below1500 ? 'calc(100vw - 412px)' : '1088px'}
@@ -126,17 +120,59 @@ const Farm = () => {
     <>
       <FarmUpdater />
       <PageWrapper gap="24px">
-        <TopBar>
-          <ClassicElasticTab />
+        <div>
+          <TopBar>
+            <ClassicElasticTab />
 
-          {!below768 && rewardPriceAndTutorial}
-        </TopBar>
+            {!below768 && (
+              <Flex sx={{ gap: '24px' }}>
+                <Tutorial
+                  type={farmType === VERSION.ELASTIC ? TutorialType.ELASTIC_FARMS : TutorialType.CLASSIC_FARMS}
+                  customIcon={
+                    <Flex
+                      sx={{ gap: '4px', cursor: 'pointer' }}
+                      fontSize="14px"
+                      alignItems="center"
+                      fontWeight="500"
+                      color={theme.subText}
+                      role="button"
+                    >
+                      <TutorialIcon />
+                      <Trans>Video Tutorial</Trans>
+                    </Flex>
+                  }
+                />
 
-        <FarmGuide farmType={farmType} />
+                <Flex
+                  sx={{ gap: '4px', cursor: 'pointer' }}
+                  fontSize="14px"
+                  alignItems="center"
+                  fontWeight="500"
+                  color={theme.subText}
+                  onClick={() => openShareModal()}
+                >
+                  <Share2 size={20} />
+                  Share
+                </Flex>
+              </Flex>
+            )}
+          </TopBar>
 
-        {farmType === VERSION.ELASTIC && <ElasticFarmSummary />}
+          <FarmGuide farmType={farmType} />
+        </div>
+        {below768 && (
+          <Flex alignItems="center" sx={{ gap: '6px' }}>
+            {rewardPrice}
 
-        {below768 && rewardPriceAndTutorial}
+            <Flex sx={{ gap: '16px' }} alignItems="center">
+              <Tutorial
+                type={farmType === VERSION.ELASTIC ? TutorialType.ELASTIC_FARMS : TutorialType.CLASSIC_FARMS}
+                customIcon={<TutorialIcon color={theme.subText} style={{ width: '20px', height: '20px' }} />}
+              />
+              <Share2 color={theme.subText} size={20} onClick={() => openShareModal()} />
+            </Flex>
+          </Flex>
+        )}
 
         <div>
           <TabContainer>
@@ -147,7 +183,7 @@ const Farm = () => {
                     mixpanelHandler(MIXPANEL_TYPE.FARMS_ACTIVE_VIEWED)
                   }
                   const newQs = { ...qs, type: 'active' }
-                  history.push({
+                  navigate({
                     search: stringify(newQs),
                   })
                 }}
@@ -165,7 +201,7 @@ const Farm = () => {
                     mixpanelHandler(MIXPANEL_TYPE.FARMS_ENDING_VIEWED)
                   }
                   const newQs = { ...qs, type: 'ended' }
-                  history.push({
+                  navigate({
                     search: stringify(newQs),
                   })
                 }}
@@ -180,33 +216,11 @@ const Farm = () => {
 
               <Tab
                 onClick={() => {
-                  if (type !== 'coming') {
-                    mixpanelHandler(MIXPANEL_TYPE.FARMS_UPCOMING_VIEWED)
-                  }
-                  const newQs = { ...qs, type: 'coming' }
-                  history.push({
-                    search: stringify(newQs),
-                  })
-                }}
-                isActive={type === 'coming'}
-              >
-                <UpcomingPoolsWrapper>
-                  <Trans>Upcoming</Trans>
-                  {UPCOMING_POOLS.length > 0 && (
-                    <NewText>
-                      <Trans>New</Trans>
-                    </NewText>
-                  )}
-                </UpcomingPoolsWrapper>
-              </Tab>
-
-              <Tab
-                onClick={() => {
                   if (type !== 'vesting') {
                     mixpanelHandler(MIXPANEL_TYPE.FARMS_MYVESTING_VIEWED)
                   }
                   const newQs = { ...qs, type: 'vesting' }
-                  history.push({
+                  navigate({
                     search: stringify(newQs),
                   })
                 }}
@@ -221,14 +235,14 @@ const Farm = () => {
               </Tab>
             </TabWrapper>
 
-            {farmType === VERSION.CLASSIC && <Tutorial type={TutorialType.CLASSIC_FARMS} />}
-            {farmType === VERSION.ELASTIC && <Tutorial type={TutorialType.ELASTIC_FARMS} />}
+            {!below768 && rewardPrice}
           </TabContainer>
 
           {renderTabContent()}
         </div>
       </PageWrapper>
       <SwitchLocaleLink />
+      <ShareModal title={t`Share farms with your friends!`} />
     </>
   )
 }

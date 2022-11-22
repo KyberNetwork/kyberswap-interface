@@ -3,7 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import { stringify } from 'qs'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useHistory, useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
@@ -55,7 +55,7 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
   useOnClickOutside(ref, open ? () => setOpen(prev => !prev) : undefined)
   const qs = useParsedQueryString()
   const search = (qs.search as string) || ''
-  const history = useHistory()
+  const navigate = useNavigate()
   const location = useLocation()
   const debouncedSearchText = useDebounce(search.trim().toLowerCase(), 200)
   const [isCheckUserStaked, setIsCheckUserStaked] = useState(false)
@@ -67,9 +67,9 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
         search: stringify({ ...qs, search }),
       }
 
-      history.replace(target)
+      navigate(target, { replace: true })
     },
-    [history, location, qs],
+    [navigate, location, qs],
   )
 
   const filterFarm = useCallback(

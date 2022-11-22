@@ -17,12 +17,10 @@ export const PageWrapper = styled(AutoColumn)`
 `
 
 export const ProMMFarmGuideWrapper = styled.div`
-  padding: 1rem 0;
   font-size: 12px;
   color: ${({ theme }) => theme.subText};
   line-height: 1.5;
-  border-top: 1px solid ${({ theme }) => theme.border};
-  border-bottom: 1px solid ${({ theme }) => theme.border};
+  margin-top: 12px;
 `
 
 export const ProMMFarmGuide = styled.div`
@@ -33,6 +31,8 @@ export const ShowGuideBtn = styled.button<{ show: boolean }>`
   border: none;
   outline: none;
   line-height: 0;
+  width: 36px;
+  height: 36px;
   background: transparent;
   color: ${({ theme }) => theme.text};
   cursor: pointer;
@@ -95,6 +95,7 @@ export const TabContainer = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
+  gap: 24px;
 `
 
 export const TabWrapper = styled.div`
@@ -133,20 +134,6 @@ export const Tab = styled(ButtonEmpty)<{ isActive: boolean }>`
 export const PoolTitleContainer = styled.div`
   display: flex;
   align-items: center;
-`
-
-export const UpcomingPoolsWrapper = styled.div`
-  position: relative;
-  margin-right: 4px;
-`
-
-export const NewText = styled.div`
-  position: absolute;
-  top: -10px;
-  right: -12px;
-  font-size: 10px;
-  font-weight: 500;
-  color: #ff537b;
 `
 
 export const StakedOnlyToggleWrapper = styled.div`

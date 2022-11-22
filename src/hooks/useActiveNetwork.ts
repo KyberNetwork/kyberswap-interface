@@ -3,7 +3,7 @@ import { t } from '@lingui/macro'
 import { UnsupportedChainIdError } from '@web3-react/core'
 import { stringify } from 'qs'
 import { useCallback, useEffect, useMemo } from 'react'
-import { useHistory, useLocation } from 'react-router'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
@@ -37,7 +37,7 @@ function parseNetworkId(maybeSupportedNetwork: string): ChainId | undefined {
 
 export function useActiveNetwork() {
   const { chainId, library, error } = useActiveWeb3React()
-  const history = useHistory()
+  const navigate = useNavigate()
   const location = useLocation()
   const qs = useParsedQueryString()
   const dispatch = useAppDispatch()
@@ -74,7 +74,7 @@ export function useActiveNetwork() {
         return
       }
 
-      history.push(locationWithoutNetworkId)
+      navigate(locationWithoutNetworkId)
       const activeProvider = library?.provider ?? window.ethereum
       if (activeProvider && activeProvider.request) {
         try {
@@ -116,7 +116,7 @@ export function useActiveNetwork() {
         }
       }
     },
-    [dispatch, history, library, locationWithoutNetworkId, error, showError],
+    [dispatch, navigate, library, locationWithoutNetworkId, error, showError],
   )
 
   useEffect(() => {

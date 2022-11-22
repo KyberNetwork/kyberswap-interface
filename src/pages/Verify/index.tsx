@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import axios from 'axios'
 import React, { useEffect, useRef, useState } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -46,7 +46,7 @@ function Verify() {
   const theme = useTheme()
   const refTimeoutVerify = useRef<NodeJS.Timeout>()
   const refTimeoutRedirect = useRef<NodeJS.Timeout>()
-  const history = useHistory()
+  const navigate = useNavigate()
   const timeRedirect = 5
   useEffect(() => {
     refTimeoutVerify.current = setTimeout(() => {
@@ -58,7 +58,7 @@ function Verify() {
         .then(() => {
           setStatus(STATUS.SUCCESS)
           refTimeoutRedirect.current = setTimeout(() => {
-            history.push(AppPaths.SWAP)
+            navigate(AppPaths.SWAP, { replace: true })
           }, timeRedirect * 1000)
           if (qs.email) {
             // temp off, will release soon
@@ -74,7 +74,7 @@ function Verify() {
       refTimeoutVerify.current && clearTimeout(refTimeoutVerify.current)
       refTimeoutRedirect.current && clearTimeout(refTimeoutRedirect.current)
     }
-  }, [qs?.confirmation, qs?.email, history])
+  }, [qs?.confirmation, qs?.email, navigate])
 
   const icon = (() => {
     switch (status) {

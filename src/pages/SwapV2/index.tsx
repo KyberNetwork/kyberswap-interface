@@ -5,7 +5,7 @@ import { stringify } from 'qs'
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
 import Skeleton from 'react-loading-skeleton'
-import { RouteComponentProps, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Box, Flex, Text } from 'rebass'
 import styled, { DefaultTheme, keyframes } from 'styled-components'
 
@@ -164,7 +164,8 @@ const RoutingIconWrapper = styled(RoutingIcon)`
   }
 `
 
-export default function Swap({ history }: RouteComponentProps) {
+export default function Swap() {
+  const navigateFn = useNavigate()
   const [rotate, setRotate] = useState(false)
   const [showInverted, setShowInverted] = useState<boolean>(false)
   const isShowLiveChart = useShowLiveChart()
@@ -488,9 +489,9 @@ export default function Swap({ history }: RouteComponentProps) {
       delete newQs.outputCurrency
       delete newQs.inputCurrency
       delete newQs.networkId
-      history.push(`${url}?${stringify(newQs)}`) // keep query params
+      navigateFn(`${url}?${stringify(newQs)}`) // keep query params
     },
-    [history, qs],
+    [navigateFn, qs],
   )
 
   function findTokenPairFromUrl() {
@@ -662,9 +663,12 @@ export default function Swap({ history }: RouteComponentProps) {
       const newQuery = { ...qs }
       delete newQuery.inputCurrency
       delete newQuery.outputCurrency
-      history.replace({
-        search: stringify(newQuery),
-      })
+      navigateFn(
+        {
+          search: stringify(newQuery),
+        },
+        { replace: true },
+      )
     }
   }
 

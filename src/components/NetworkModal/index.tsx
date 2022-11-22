@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { stringify } from 'qs'
 import { X } from 'react-feather'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
@@ -115,7 +115,7 @@ export default function NetworkModal({
   const toggleNetworkModalGlobal = useNetworkModalToggle()
   const { changeNetwork } = useActiveNetwork()
   const isDarkMode = useIsDarkMode()
-  const history = useHistory()
+  const navigate = useNavigate()
   const qs = useParsedQueryString()
 
   const toggleNetworkModal = () => {
@@ -130,9 +130,12 @@ export default function NetworkModal({
     } else {
       changeNetwork(chainId, () => {
         const { networkId, inputCurrency, outputCurrency, ...rest } = qs
-        history.replace({
-          search: stringify(rest),
-        })
+        navigate(
+          {
+            search: stringify(rest),
+          },
+          { replace: true },
+        )
       })
     }
   }

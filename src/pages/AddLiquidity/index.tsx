@@ -1,8 +1,8 @@
 import { Fraction, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import JSBI from 'jsbi'
-import React, { useEffect, useState } from 'react'
-import { RouteComponentProps } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
 
 import LiquidityProviderMode from 'components/LiquidityProviderMode'
 import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
@@ -19,11 +19,8 @@ import TokenPair from './TokenPair'
 import ZapIn from './ZapIn'
 import { Container, LiquidityProviderModeWrapper, PageWrapper, PoolName, TopBar } from './styled'
 
-export default function AddLiquidity({
-  match: {
-    params: { currencyIdA, currencyIdB, pairAddress },
-  },
-}: RouteComponentProps<{ currencyIdA: string; currencyIdB: string; pairAddress: string }>) {
+export default function AddLiquidity() {
+  const { currencyIdA = '', currencyIdB = '', pairAddress = '' } = useParams()
   const { chainId } = useActiveWeb3React()
   const currencyA = useCurrency(currencyIdA)
   const currencyB = useCurrency(currencyIdB)

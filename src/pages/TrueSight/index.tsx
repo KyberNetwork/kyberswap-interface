@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import React, { useEffect, useState } from 'react'
-import { RouteComponentProps } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
@@ -46,7 +46,8 @@ export interface TrueSightSortSettings {
   sortDirection: 'asc' | 'desc'
 }
 
-export default function TrueSight({ history }: RouteComponentProps) {
+export default function TrueSight() {
+  const navigate = useNavigate()
   const { tab } = useParsedQueryString()
   const [activeTab, setActiveTab] = useState<TrueSightTabs>()
 
@@ -61,7 +62,7 @@ export default function TrueSight({ history }: RouteComponentProps) {
 
   useEffect(() => {
     if (tab === undefined) {
-      history.push({ search: '?tab=' + TrueSightTabs.TRENDING_SOON })
+      navigate({ search: '?tab=' + TrueSightTabs.TRENDING_SOON })
     } else {
       setActiveTab(tab as TrueSightTabs)
       setFilter({
@@ -73,7 +74,7 @@ export default function TrueSight({ history }: RouteComponentProps) {
       })
       setSortSettings({ sortBy: 'rank', sortDirection: 'asc' })
     }
-  }, [history, tab])
+  }, [navigate, tab])
 
   const theme = useTheme()
 

@@ -3,7 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import { stringify } from 'querystring'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Search } from 'react-feather'
-import { useHistory, useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 
 import FarmIssueAnnouncement from 'components/FarmIssueAnnouncement'
@@ -26,6 +26,7 @@ import ElasticFarmGroup from './ElasticFarmGroup'
 import { DepositModal, StakeUnstakeModal } from './ElasticFarmModals'
 import HarvestModal from './ElasticFarmModals/HarvestModal'
 import WithdrawModal from './ElasticFarmModals/WithdrawModal'
+import FarmSort from './FarmSort'
 import { SharePoolContext } from './SharePoolContext'
 import {
   HeadingContainer,
@@ -38,14 +39,12 @@ import {
 
 type ModalType = 'deposit' | 'withdraw' | 'stake' | 'unstake' | 'harvest' | 'forcedWithdraw'
 
-// this address exists on both Polygon and Avalanche
-
 function ElasticFarms({ active }: { active: boolean }) {
   const theme = useTheme()
   const { chainId } = useActiveWeb3React()
   const [stakedOnly, setStakedOnly] = useState({
     active: false,
-    ended: false,
+    ended: true,
   })
   const activeTab = active ? 'active' : 'ended'
 
@@ -58,7 +57,7 @@ function ElasticFarms({ active }: { active: boolean }) {
   useOnClickOutside(ref, open ? () => setOpen(prev => !prev) : undefined)
   const qs = useParsedQueryString()
   const search = ((qs.search as string) || '').toLowerCase()
-  const history = useHistory()
+  const navigate = useNavigate()
   const location = useLocation()
 
   const handleSearch = useCallback(
@@ -68,9 +67,9 @@ function ElasticFarms({ active }: { active: boolean }) {
         search: stringify({ ...qs, search }),
       }
 
-      history.replace(target)
+      navigate(target, { replace: true })
     },
-    [history, location, qs],
+    [navigate, location, qs],
   )
 
   const filteredFarms = useMemo(() => {
@@ -232,15 +231,18 @@ function ElasticFarms({ active }: { active: boolean }) {
           />
         </StakedOnlyToggleWrapper>
         <HeadingRight>
-          <SearchContainer>
-            <SearchInput
-              placeholder={t`Search by token name or pool address`}
-              maxLength={255}
-              value={search}
-              onChange={e => handleSearch(e.target.value)}
-            />
-            <Search color={theme.subText} />
-          </SearchContainer>
+          <Flex sx={{ gap: '16px' }} flex={1}>
+            <FarmSort />
+            <SearchContainer>
+              <SearchInput
+                placeholder={t`Search by token name or pool address`}
+                maxLength={255}
+                value={search}
+                onChange={e => handleSearch(e.target.value)}
+              />
+              <Search color={theme.subText} />
+            </SearchContainer>
+          </Flex>
         </HeadingRight>
       </HeadingContainer>
 
@@ -254,18 +256,17 @@ function ElasticFarms({ active }: { active: boolean }) {
       )}
 
       {(!qs.type || qs.type === 'active') && qs.tab !== VERSION.CLASSIC && (
-        <>
-          <Text fontSize={12} fontWeight="500" marginBottom="0.375rem">
-            <Trans>Farms will run in multiple phases</Trans>
-          </Text>
-          <Text fontStyle="italic" fontSize={12} marginBottom="1rem" color={theme.subText}>
-            <Trans>
-              Once the current phase ends, you can harvest your rewards from the farm in the{' '}
-              <StyledInternalLink to="/farms?type=ended">Ended</StyledInternalLink> tab. To continue earning rewards in
-              the new phase, you must restake your NFT position into the active farm
-            </Trans>
-          </Text>
-        </>
+        <Text fontSize={12} marginBottom="1.25rem" color={theme.subText}>
+          <Trans>
+            Note: Farms will run in{' '}
+            <Text as="span" color={theme.warning}>
+              multiple phases
+            </Text>
+            . Once the current phase ends, you can harvest your rewards from the farm in the{' '}
+            <StyledInternalLink to="/farms?type=ended">Ended</StyledInternalLink> tab. To continue earning rewards in
+            the new phase, you must restake your NFT position into the active farm
+          </Trans>
+        </Text>
       )}
 
       {loading && noFarms ? (
