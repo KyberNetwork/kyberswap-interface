@@ -24,7 +24,7 @@ import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
-import { basisPointsToPercent, calculateGasMargin, formatNumberWithPrecisionRange } from 'utils'
+import { basisPointsToPercent, calculateGasMargin, formattedNumLong } from 'utils'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
 export default function ProAmmFee({
@@ -165,7 +165,7 @@ export default function ProAmmFee({
             </Text>
             <RowFixed>
               <Text fontSize={14} fontWeight={500} marginLeft={'6px'}>
-                ${formatNumberWithPrecisionRange(totalFeeRewardUSD, 0, 8)}
+                {formattedNumLong(totalFeeRewardUSD, true)}
               </Text>
             </RowFixed>
           </RowBetween>
@@ -177,7 +177,7 @@ export default function ProAmmFee({
             <RowFixed>
               <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={token0Shown} />
               <Text fontSize={14} fontWeight={500} marginLeft={'6px'}>
-                {feeValue0 && <FormattedCurrencyAmount currencyAmount={feeValue0} />}
+                {feeValue0 && <FormattedCurrencyAmount currencyAmount={feeValue0} />} {token0Shown.symbol}
               </Text>
             </RowFixed>
           </RowBetween>
@@ -189,7 +189,7 @@ export default function ProAmmFee({
             <RowFixed>
               <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={token1Shown} />
               <Text fontSize={14} fontWeight={500} marginLeft={'6px'}>
-                {feeValue1 && <FormattedCurrencyAmount currencyAmount={feeValue1} />}
+                {feeValue1 && <FormattedCurrencyAmount currencyAmount={feeValue1} />} {token1Shown.symbol}
               </Text>
             </RowFixed>
           </RowBetween>
@@ -209,7 +209,7 @@ export default function ProAmmFee({
           </Flex>
           <RowFixed>
             <Text fontSize={12} fontWeight={500}>
-              ${formatNumberWithPrecisionRange(totalFeeRewardUSD, 0, 8)}
+              {formattedNumLong(totalFeeRewardUSD, true)}
             </Text>
           </RowFixed>
         </RowBetween>
@@ -224,7 +224,7 @@ export default function ProAmmFee({
           <RowFixed>
             <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={token0Shown} />
             <Text fontSize={12} fontWeight={500} marginLeft={'6px'}>
-              {feeValue0 && <FormattedCurrencyAmount currencyAmount={feeValue0} />}
+              {feeValue0 && <FormattedCurrencyAmount currencyAmount={feeValue0} />} {token0Shown.symbol}
             </Text>
           </RowFixed>
         </RowBetween>
@@ -238,7 +238,7 @@ export default function ProAmmFee({
           <RowFixed>
             <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={token1Shown} />
             <Text fontSize={12} fontWeight={500} marginLeft={'6px'}>
-              {feeValue1 && <FormattedCurrencyAmount currencyAmount={feeValue1} />}
+              {feeValue1 && <FormattedCurrencyAmount currencyAmount={feeValue1} />} {token1Shown.symbol}
             </Text>
           </RowFixed>
         </RowBetween>

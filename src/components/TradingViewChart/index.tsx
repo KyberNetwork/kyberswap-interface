@@ -118,7 +118,7 @@ function ProLiveChart({
   const datafeed = useDatafeed(currencies, pairAddress, apiVersion)
 
   useEffect(() => {
-    if (!ref || !hasProChart) {
+    if (!ref || !hasProChart || !window.TradingView) {
       return
     }
     setLoading(true)
