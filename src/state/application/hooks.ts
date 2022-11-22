@@ -3,7 +3,7 @@ import { ChainId, NativeCurrency, Token } from '@kyberswap/ks-sdk-core'
 import dayjs from 'dayjs'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useDeepCompareEffect } from 'react-use'
+import { useDeepCompareEffect, useLocalStorage } from 'react-use'
 
 import { ETH_PRICE, PROMM_ETH_PRICE, TOKEN_DERIVED_ETH } from 'apollo/queries'
 import { NETWORKS_INFO } from 'constants/networks'
@@ -333,7 +333,12 @@ export function useKNCPrice(): AppState['application']['kncPrice'] {
   const apolloClient = NETWORKS_INFO[chainId || ChainId.MAINNET].classicClient
 
   const kncPrice = useSelector((state: AppState) => state.application.kncPrice)
-
+  const [localStoredKNCPrice, setLocalStoredKNCPrice] = useLocalStorage<string | undefined>('knc-price')
+  useEffect(() => {
+    if (kncPrice) {
+      setLocalStoredKNCPrice(kncPrice)
+    }
+  }, [kncPrice, setLocalStoredKNCPrice])
   useEffect(() => {
     async function checkForKNCPrice() {
       const kncPriceByETH = await getKNCPriceByETH(chainId as ChainId, apolloClient)
@@ -343,7 +348,7 @@ export function useKNCPrice(): AppState['application']['kncPrice'] {
     checkForKNCPrice()
   }, [kncPrice, dispatch, ethPrice.currentPrice, chainId, blockNumber, apolloClient])
 
-  return kncPrice
+  return kncPrice || localStoredKNCPrice
 }
 
 /**

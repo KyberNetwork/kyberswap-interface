@@ -182,9 +182,7 @@ export default function Vote() {
       <Container>
         <RowBetween marginBottom={isMobile ? 0 : 36}>
           <Text fontSize={isMobile ? 22 : 24} lineHeight="28px" fontWeight={500} flex={1}>
-            <Trans>
-              <span style={{ color: theme.primary }}>Vote</span> - Earn Rewards
-            </Trans>
+            <Trans>Vote - Earn Rewards</Trans>
           </Text>
           <RowFit gap="4px">
             <KNCLogo size={20} />

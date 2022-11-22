@@ -1,24 +1,24 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { useMemo, useState } from 'react'
-import 'react-device-detect'
+import { ReactNode, useMemo, useState } from 'react'
 import { X } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import { AutoColumn } from 'components/Column'
+import CopyHelper from 'components/Copy'
 import CopyIcon from 'components/Icons/CopyIcon'
 import LaunchIcon from 'components/Icons/LaunchIcon'
 import CircleInfoIcon from 'components/LiveChart/CircleInfoIcon'
 import { NetworkLogo } from 'components/Logo'
 import Modal from 'components/Modal'
 import Pagination from 'components/Pagination'
-import Row, { RowBetween } from 'components/Row'
+import Row, { RowBetween, RowFit } from 'components/Row'
 import { KNC_ADDRESS } from 'constants/index'
 import { useStakingInfo, useVotingInfo } from 'hooks/kyberdao'
-import { StakerAction } from 'hooks/kyberdao/types'
+import { ActionType, ProposalType, StakerAction } from 'hooks/kyberdao/types'
 import useCopyClipboard from 'hooks/useCopyClipboard'
 import useTheme from 'hooks/useTheme'
 import { useWindowSize } from 'hooks/useWindowSize'
@@ -98,31 +98,76 @@ const ButtonIcon = styled.div`
   cursor: pointer;
 `
 export default function YourTransactionsModal() {
-  console.log(ChainId)
   const theme = useTheme()
-  const { proposals } = useVotingInfo()
+  const { proposals, calculateVotingPower } = useVotingInfo()
   const modalOpen = useModalOpen(ApplicationModal.YOUR_TRANSACTIONS_STAKE_KNC)
   const toggleModal = useToggleModal(ApplicationModal.YOUR_TRANSACTIONS_STAKE_KNC)
   const windowSize = useWindowSize()
+  const isMobile = windowSize.width && windowSize.width < 768
   const [page, setPage] = useState(1)
+  const pageSize = isMobile ? 5 : 10
   const { stakerActions } = useStakingInfo()
-  const formattedActions: (StakerAction & { hashText: string; description: string })[] = useMemo(
+  const formattedActions: (StakerAction & { hashText: string; description: ReactNode })[] = useMemo(
     () =>
-      stakerActions?.map((action: StakerAction) => {
+      stakerActions?.slice((page - 1) * pageSize, page * pageSize - 1)?.map((action: StakerAction) => {
         return {
           ...action,
           hashText: action.tx_hash.slice(0, 6) + '...' + action.tx_hash.slice(-4),
-          type: action.type === 'VoteEmitted' ? 'Vote' : action.type === 'ClaimReward' ? 'Claim' : action.type,
+          type:
+            action.type === ActionType.VoteEmitted
+              ? 'Vote'
+              : action.type === ActionType.ClaimReward
+              ? 'Claim'
+              : action.type === ActionType.Deposit
+              ? 'Stake'
+              : action.type === ActionType.Withdraw
+              ? 'Unstake'
+              : action.type,
           description: (() => {
-            if (action.type === 'VoteEmitted') {
-              const proposal = proposals?.find(p => p.proposal_id.toString() === action.meta.proposal_id)
-              if (!proposal) return ''
-              if (action.meta.proposal_type === 'BinaryProposal')
-                return t`Voted on ${proposal?.options[action.meta?.options?.[0] || 0]} of ${proposal.title}`
-              if (action.meta.proposal_type === 'GenericProposal')
-                return t`Voted on ${action.meta?.options
-                  ?.map((o: number) => proposal?.options[o] || '')
-                  .join(',')} of ${proposal.title}`
+            switch (action.type) {
+              case ActionType.VoteEmitted:
+                const proposal = proposals?.find(p => {
+                  return p.proposal_id === action.meta.proposal_id
+                })
+                if (!proposal) return <></>
+
+                if (action.meta.proposal_type === ProposalType.BinaryProposal)
+                  return t`Voted ${proposal?.options[action.meta?.options?.[0] || 0]}`
+                else {
+                  //return t`Voted ${action.meta?.options?.map((o: number) => proposal?.options[o] || '').join(',')}`
+                  return ''
+                }
+              case ActionType.Deposit:
+                return (
+                  <>
+                    {action.meta?.amount || 0} KNC{' '}
+                    <Text fontSize={12} color={theme.subText}>
+                      + {calculateVotingPower(action.meta?.amount?.toString() || '0')}% Power
+                    </Text>
+                  </>
+                )
+              case ActionType.Withdraw:
+                return (
+                  <>
+                    {action.meta?.amount || 0} KNC{' '}
+                    <Text fontSize={12} color={theme.subText}>
+                      - {calculateVotingPower(action.meta?.amount?.toString() || '0')}% Power
+                    </Text>
+                  </>
+                )
+              case ActionType.Delegate:
+                return (
+                  <>
+                    --
+                    <RowFit fontSize={12} color={theme.subText}>
+                      to {`${action?.meta?.d_addr?.slice(0, 6)}...${action?.meta?.d_addr?.slice(-4)}`}
+                      <CopyHelper
+                        toCopy={action?.meta?.d_addr || ''}
+                        style={{ display: 'inline-block', width: '12px', height: '16px' }}
+                      />
+                    </RowFit>
+                  </>
+                )
             }
             return action.meta.amount
               ? `${action.meta.amount} KNC`
@@ -132,10 +177,8 @@ export default function YourTransactionsModal() {
           })(),
         }
       }) || [],
-    [stakerActions, proposals],
+    [stakerActions, proposals, calculateVotingPower, theme.subText, page, pageSize],
   )
-  const isMobile = windowSize.width && windowSize.width < 768
-
   const [, setCopied] = useCopyClipboard()
   return (
     <Modal isOpen={modalOpen} onDismiss={toggleModal} maxHeight={750} maxWidth={800} width="70vw">
@@ -152,13 +195,13 @@ export default function YourTransactionsModal() {
           <TableWrapper>
             <TableHeader>
               <TableHeaderItem>
-                <Trans>Transactions</Trans>
+                <Trans>TXN HASH</Trans>
               </TableHeaderItem>
               <TableHeaderItem>
                 <Trans>Action</Trans>
               </TableHeaderItem>
               <TableHeaderItem>
-                <Trans>Time</Trans>
+                <Trans>Local Time</Trans>
               </TableHeaderItem>
               <TableHeaderItem align="right">
                 <Trans>Amount</Trans>
@@ -167,7 +210,7 @@ export default function YourTransactionsModal() {
             {formattedActions.length > 0 ? (
               !isMobile ? (
                 <>
-                  {formattedActions.map((action: StakerAction & { hashText: string; description: string }) => {
+                  {formattedActions.map((action: StakerAction & { hashText: string; description: ReactNode }) => {
                     return (
                       <TableRow key={action.tx_hash}>
                         <TableCell>
@@ -185,13 +228,13 @@ export default function YourTransactionsModal() {
                         </TableCell>
                         <TableCell>
                           <AutoColumn>
-                            <Text color={theme.text}>{dayjs(action.timestamp).format('MM/DD/YYYY')}</Text>
-                            <Text color={theme.subText}>{dayjs(action.timestamp).format('hh:mm:ss')}</Text>
+                            <Text color={theme.text}>{dayjs(action.timestamp * 1000).format('DD/MM/YYYY')}</Text>
+                            <Text color={theme.subText}>{dayjs(action.timestamp * 1000).format('hh:mm:ss A')}</Text>
                           </AutoColumn>
                         </TableCell>
                         <TableCell>
-                          <AutoColumn justify="flex-end" style={{ width: '100%' }}>
-                            <Text color={theme.text}>{action.description}</Text>
+                          <AutoColumn justify="flex-end" style={{ width: '100%', color: theme.text }} gap="4px">
+                            {action.description}
                           </AutoColumn>
                         </TableCell>
                       </TableRow>
@@ -200,7 +243,7 @@ export default function YourTransactionsModal() {
                 </>
               ) : (
                 <>
-                  {formattedActions.map((action: StakerAction & { hashText: string; description: string }) => {
+                  {formattedActions.map((action: StakerAction & { hashText: string; description: ReactNode }) => {
                     return (
                       <TableRow key={action.tx_hash}>
                         <TableCell>
@@ -226,7 +269,7 @@ export default function YourTransactionsModal() {
                         </TableCell>
                         <TableCell>
                           <AutoColumn justify="flex-end" style={{ width: '100%' }}>
-                            <Text color={theme.text}>{action.description}</Text>
+                            {action.description}
                           </AutoColumn>
                         </TableCell>
                       </TableRow>
@@ -253,8 +296,8 @@ export default function YourTransactionsModal() {
             <Pagination
               currentPage={page}
               onPageChange={e => setPage(e)}
-              pageSize={isMobile ? 5 : 10}
-              totalCount={formattedActions.length}
+              pageSize={pageSize}
+              totalCount={stakerActions?.length || 0}
               haveBg={false}
             />
           </TableWrapper>

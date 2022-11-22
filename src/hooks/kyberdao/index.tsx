@@ -1,7 +1,8 @@
 import { t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
+import { useLocalStorage } from 'react-use'
 import useSWR from 'swr'
 import useSWRImmutable from 'swr/immutable'
 
@@ -246,7 +247,12 @@ export function useVotingInfo() {
   const { account } = useActiveWeb3React()
   const rewardDistributorContract = useContract(KYBERDAO_ADDRESSES.REWARDS_DISTRIBUTOR, RewardDistributorABI)
   const { data: daoInfo } = useSWR(APIS.DAO + '/dao-info', fetcher)
-
+  const [localStoredDaoInfo, setLocalStoredDaoInfo] = useLocalStorage('kyberdao-daoInfo')
+  useEffect(() => {
+    if (daoInfo) {
+      setLocalStoredDaoInfo(daoInfo)
+    }
+  }, [daoInfo, setLocalStoredDaoInfo])
   const merkleData = useSingleCallResult(rewardDistributorContract, 'getMerkleData')
 
   const merkleDataFileUrl = useMemo(() => {
@@ -311,9 +317,9 @@ export function useVotingInfo() {
       const votingPower = (parseFloat(kncAmount) / totalStakedKNC) * 100
       if (votingPower === 0) return '0'
       if (votingPower < 0.000001) {
-        return `~ 0.000001`
+        return '0.000001'
       } else {
-        return parseFloat(votingPower.toFixed(7)).toString()
+        return parseFloat(votingPower.toPrecision(3)).toString()
       }
     },
     [daoInfo],
@@ -322,7 +328,7 @@ export function useVotingInfo() {
   const { data: votesInfo } = useSWR<VoteInfo[]>(account ? APIS.DAO + '/stakers/' + account + '/votes' : null, fetcher)
 
   return {
-    daoInfo,
+    daoInfo: daoInfo || localStoredDaoInfo || undefined,
     userRewards,
     calculateVotingPower,
     proposals,

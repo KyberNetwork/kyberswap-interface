@@ -2,6 +2,7 @@ import { gql } from '@apollo/client'
 import { ChainId, Fraction } from '@kyberswap/ks-sdk-core'
 import { BigNumber, Contract } from 'ethers'
 import { useEffect, useMemo, useState } from 'react'
+import { useLocalStorage } from 'react-use'
 
 import { ERC20_ABI } from 'constants/abis/erc20'
 import { KNC_ADDRESS } from 'constants/index'
@@ -83,6 +84,17 @@ const getMaticTresuaryBalances = async () => {
 export default function useTotalVotingReward() {
   const [totalVotingReward, setTotalVotingReward] = useState(0)
   const kncPrice = useKNCPrice()
+  const [localStoredTotalVotingReward, setLocalStoredTotalVotingReward] = useLocalStorage(
+    'kyberdao-totalVotingRewards',
+    0,
+  )
+
+  useEffect(() => {
+    if (totalVotingReward) {
+      setLocalStoredTotalVotingReward(totalVotingReward)
+    }
+  }, [totalVotingReward, setLocalStoredTotalVotingReward])
+
   useEffect(() => {
     const a = async () => {
       try {
@@ -169,10 +181,13 @@ export default function useTotalVotingReward() {
   }, [])
 
   return {
-    usd: Math.floor(totalVotingReward),
+    usd: Math.floor(totalVotingReward || localStoredTotalVotingReward || 0),
     knc: useMemo(
-      () => (kncPrice && kncPrice !== '0' ? Math.floor(totalVotingReward / parseFloat(kncPrice)) : 0),
-      [totalVotingReward, kncPrice],
+      () =>
+        kncPrice && kncPrice !== '0'
+          ? Math.floor((totalVotingReward || localStoredTotalVotingReward || 0) / parseFloat(kncPrice))
+          : 0,
+      [totalVotingReward, kncPrice, localStoredTotalVotingReward],
     ),
   }
 }

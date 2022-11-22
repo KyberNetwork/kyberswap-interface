@@ -5,6 +5,7 @@ import { isMobile } from 'react-device-detect'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
+import FAQIcon from 'components/Icons/FAQIcon'
 import ForumIcon from 'components/Icons/ForumIcon'
 import History from 'components/Icons/History'
 import Loader from 'components/Loader'
@@ -134,6 +135,16 @@ function ProposalListComponent({ voteCallback }: { voteCallback?: (proposal_id: 
             <ForumIcon />{' '}
             <Text hidden={isMobile}>
               <Trans>Forum</Trans>
+            </Text>
+          </TextButton>
+          <TextButton
+            href="https://docs.kyberswap.com/kyber-dao/kyber-dao-introduction"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <FAQIcon />
+            <Text hidden={isMobile}>
+              <Trans>FAQ</Trans>
             </Text>
           </TextButton>
         </Flex>

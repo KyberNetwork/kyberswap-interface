@@ -57,14 +57,26 @@ export interface StakerInfo {
   stake_amount: number
 }
 
+export enum ProposalType {
+  BinaryProposal = 'BinaryProposal',
+  GenericProposal = 'GenericProposal',
+}
+
+export enum ActionType {
+  VoteEmitted = 'VoteEmitted',
+  ClaimReward = 'ClaimReward',
+  Deposit = 'Deposit',
+  Withdraw = 'Withdraw',
+  Delegate = 'Delegate',
+}
 export interface StakerAction {
   timestamp: number
   epoch: number
   meta: {
     amount?: number
     d_addr?: string
-    proposal_id?: string
-    proposal_type?: 'BinaryProposal' | 'GenericProposal'
+    proposal_id?: number
+    proposal_type?: ProposalType
     options?: number[]
   }
   tx_hash: string

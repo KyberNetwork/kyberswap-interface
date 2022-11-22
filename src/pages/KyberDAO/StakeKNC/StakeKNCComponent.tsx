@@ -234,10 +234,12 @@ export default function StakeKNCComponent() {
       setErrorMessage(t`Insufficient amount`)
     } else if (activeTab === STAKE_TAB.Delegate && !isAddress(delegateAddress)) {
       setErrorMessage(t`Invalid Ethereum address`)
+    } else if (activeTab === STAKE_TAB.Delegate && delegateAddress.toLowerCase() === account?.toLowerCase()) {
+      setErrorMessage(t`Cannot delegate to your wallet address`)
     } else {
       setErrorMessage(undefined)
     }
-  }, [chainId, inputValue, KNCBalance, stakedBalance, activeTab, delegateAddress])
+  }, [chainId, inputValue, KNCBalance, stakedBalance, activeTab, delegateAddress, account])
 
   const toggleWalletModal = useWalletModalToggle()
   const toggleDelegateConfirm = useToggleModal(ApplicationModal.DELEGATE_CONFIRM)
