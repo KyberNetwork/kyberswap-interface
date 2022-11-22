@@ -95,9 +95,9 @@ const parseSolanaTransactionSummary = ({
   tx: TransactionDetails | null
   meta?: ParsedTransactionMeta | null
 }): string | undefined => {
-  console.log({ meta })
   // Parse summary message for Swapped event
   if (!tx || !tx?.arbitrary) return tx?.summary
+  if (!meta || meta.err) return tx?.summary
 
   const inputSymbol = tx?.arbitrary?.inputSymbol
   const outputSymbol = tx?.arbitrary?.outputSymbol
@@ -115,15 +115,15 @@ const parseSolanaTransactionSummary = ({
     // !outputDecimals ||
     !inputAddress ||
     !outputAddress ||
-    !meta?.preTokenBalances ||
-    !meta?.postTokenBalances
+    !meta.preTokenBalances ||
+    !meta.postTokenBalances
   )
     return tx?.summary
 
-  const inputBalancePre = meta?.preTokenBalances.find(tokenBalance => tokenBalance.mint === inputAddress)
-  const inputBalancePost = meta?.postTokenBalances.find(tokenBalance => tokenBalance.mint === inputAddress)
-  const outputBalancePre = meta?.preTokenBalances.find(tokenBalance => tokenBalance.mint === outputAddress)
-  const outputBalancePost = meta?.postTokenBalances.find(tokenBalance => tokenBalance.mint === outputAddress)
+  const inputBalancePre = meta.preTokenBalances.find(tokenBalance => tokenBalance.mint === inputAddress)
+  const inputBalancePost = meta.postTokenBalances.find(tokenBalance => tokenBalance.mint === inputAddress)
+  const outputBalancePre = meta.preTokenBalances.find(tokenBalance => tokenBalance.mint === outputAddress)
+  const outputBalancePost = meta.postTokenBalances.find(tokenBalance => tokenBalance.mint === outputAddress)
   if (!inputBalancePre || !outputBalancePre || !inputBalancePost || !outputBalancePost) return tx?.summary
 
   const inputPreAmount = BigNumber.from(inputBalancePre.uiTokenAmount.amount)

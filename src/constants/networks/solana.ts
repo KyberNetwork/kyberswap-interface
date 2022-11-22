@@ -42,7 +42,7 @@ const solanaInfo: SolanaNetworkInfo = {
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.SOLANA}&isWhitelisted=${true}`,
   connection: new Connection('https://solana.kyberengineering.io', { commitment: 'confirmed' }),
   trueSightId: NOT_SUPPORT,
-  serumPool: new PublicKey('9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin'),
+  openBookAddress: new PublicKey('srmqPvymJeFKQ4zGQed1GFppgkRHL9kaELCbyksJtPX'),
   dexToCompare: 'OrcaV2',
 }
 

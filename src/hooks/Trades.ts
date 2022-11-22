@@ -122,10 +122,10 @@ export function useTradeExactInV2(
 
   const { feeConfig, saveGas } = useSwapState()
 
-  const txsInChain = allTransactions?.[chainId]
+  const txsInChain = allTransactions
 
-  // refresh aggregator data on any tx done
-  const allFinalizedTx = useMemo(() => JSON.stringify(txsInChain?.flat().map(i => i.receipt)), [txsInChain])
+  // refresh aggregator data on new sent tx
+  const allTxGroup = useMemo(() => JSON.stringify(Object.keys(txsInChain || {})), [txsInChain])
 
   const onUpdateCallback = useCallback(
     async (resetRoute: boolean, minimumLoadingTime: number) => {
@@ -200,7 +200,8 @@ export function useTradeExactInV2(
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       isEVM,
-      allFinalizedTx,
+      allTxGroup,
+      // allFinalizedTxs,
       debounceCurrencyAmountIn,
       currencyOut,
       chainId,

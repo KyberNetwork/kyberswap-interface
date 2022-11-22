@@ -65,6 +65,7 @@ import {
   TabWrapper,
   Wrapper,
 } from 'components/swapv2/styleds'
+import { AGGREGATOR_WAITING_TIME, TIME_TO_REFRESH_SWAP_RATE } from 'constants/index'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { NativeCurrencies, STABLE_COINS_ADDRESS } from 'constants/tokens'
@@ -324,7 +325,6 @@ export default function Swap({ history }: RouteComponentProps) {
     onChangeRecipient(value)
   }
 
-  const isValidInput = !swapInputError
   const dependentField: Field = independentField === Field.INPUT ? Field.OUTPUT : Field.INPUT
 
   const handleTypeInput = useCallback(
@@ -430,13 +430,26 @@ export default function Swap({ history }: RouteComponentProps) {
       approval === ApprovalState.PENDING ||
       (approvalSubmitted && approval === ApprovalState.APPROVED))
 
+  const tradeLoadedRef = useRef(0)
+  useEffect(() => {
+    tradeLoadedRef.current = Date.now()
+  }, [trade])
+
   const handleConfirmDismiss = useCallback(() => {
     setSwapState({ showConfirm: false, tradeToConfirm, attemptingTxn, swapErrorMessage, txHash })
+
+    // when open modal, trade is locked from to be updated
+    // if user open modal too long, trade is outdated
+    // need to refresh data on close modal
+    if (Date.now() - tradeLoadedRef.current > TIME_TO_REFRESH_SWAP_RATE * 1000) {
+      onRefresh(false, AGGREGATOR_WAITING_TIME)
+    }
+
     // if there was a tx hash, we want to clear the input
     if (txHash) {
       onUserInput(Field.INPUT, '')
     }
-  }, [attemptingTxn, onUserInput, swapErrorMessage, tradeToConfirm, txHash])
+  }, [attemptingTxn, onUserInput, swapErrorMessage, tradeToConfirm, txHash, onRefresh])
 
   const handleAcceptChanges = useCallback(() => {
     setSwapState({ tradeToConfirm: trade, swapErrorMessage, txHash, attemptingTxn, showConfirm })
@@ -1025,6 +1038,8 @@ export default function Swap({ history }: RouteComponentProps) {
                             </ButtonConfirmed>
                             <ButtonError
                               onClick={() => {
+                                // TODO check this button, it will never run, is it?
+                                // console.error('This will never be run')
                                 mixpanelSwapInit()
                                 if (isExpertMode) {
                                   handleSwap()
@@ -1040,7 +1055,7 @@ export default function Swap({ history }: RouteComponentProps) {
                               }}
                               width="48%"
                               id="swap-button"
-                              disabled={!isValidInput || approval !== ApprovalState.APPROVED}
+                              disabled={!!swapInputError || approval !== ApprovalState.APPROVED}
                               backgroundColor={
                                 isPriceImpactHigh || isPriceImpactInvalid
                                   ? isPriceImpactVeryHigh
@@ -1085,7 +1100,7 @@ export default function Swap({ history }: RouteComponentProps) {
                           }}
                           id="swap-button"
                           disabled={
-                            !isValidInput ||
+                            !!swapInputError ||
                             !!swapCallbackError ||
                             approval !== ApprovalState.APPROVED ||
                             (!isExpertMode && (isPriceImpactVeryHigh || isPriceImpactInvalid)) ||
@@ -1094,7 +1109,7 @@ export default function Swap({ history }: RouteComponentProps) {
                           style={{
                             border: 'none',
                             ...(!(
-                              !isValidInput ||
+                              !!swapInputError ||
                               !!swapCallbackError ||
                               approval !== ApprovalState.APPROVED ||
                               (!isExpertMode && (isPriceImpactVeryHigh || isPriceImpactInvalid))

@@ -85,5 +85,5 @@ export interface SolanaNetworkInfo extends NetworkInfo {
   // }
   connection: Connection
   aggregatorProgramAddress: string
-  serumPool: PublicKey
+  openBookAddress: PublicKey
 }

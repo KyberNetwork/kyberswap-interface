@@ -63,9 +63,9 @@ export function useTransactionAdder(): (tx: TransactionHistory) => void {
 export function useAllTransactions(): GroupedTxsByHash | undefined {
   const { chainId } = useActiveWeb3React()
 
-  const state = useSelector<AppState, AppState['transactions']>(state => state.transactions)
+  const state = useSelector<AppState, AppState['transactions'][number]>(state => state.transactions[chainId])
 
-  return state[chainId]
+  return state
 }
 
 export function useIsTransactionPending(transactionHash?: string): boolean {

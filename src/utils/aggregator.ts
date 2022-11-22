@@ -478,7 +478,7 @@ export class Aggregator {
                 connection,
                 marketPK,
                 toPK,
-                NETWORKS_INFO[ChainId.SOLANA].serumPool,
+                NETWORKS_INFO[ChainId.SOLANA].openBookAddress,
               )
               if (signal.aborted) throw new AbortedError()
               let openOrders: PublicKey
@@ -496,7 +496,7 @@ export class Aggregator {
           )
           if (signal.aborted) throw new AbortedError()
 
-          const openOrdersSpace = OpenOrders.getLayout(NETWORKS_INFO[ChainId.SOLANA].serumPool).span
+          const openOrdersSpace = OpenOrders.getLayout(NETWORKS_INFO[ChainId.SOLANA].openBookAddress).span
           const openOrdersRent = await connection.getMinimumBalanceForRentExemption(openOrdersSpace)
           if (signal.aborted) throw new AbortedError()
           const createOpenOrdersIxs = []
@@ -507,13 +507,13 @@ export class Aggregator {
                 newAccountPubkey: openOrders.publicKey,
                 lamports: openOrdersRent,
                 space: openOrdersSpace,
-                programId: NETWORKS_INFO[ChainId.SOLANA].serumPool,
+                programId: NETWORKS_INFO[ChainId.SOLANA].openBookAddress,
               }),
               DexInstructions.initOpenOrders({
                 market,
                 openOrders: openOrders.publicKey,
                 owner: toPK,
-                programId: NETWORKS_INFO[ChainId.SOLANA].serumPool,
+                programId: NETWORKS_INFO[ChainId.SOLANA].openBookAddress,
                 marketAuthority: null,
               }),
             )
@@ -589,8 +589,9 @@ export class Aggregator {
           cleanUpTx,
         }
       } catch (error) {
-        if (error instanceof AbortedError) console.info('Aborted encode Solana')
-        else console.debug('Error encode Solana:', { error })
+        if (error instanceof AbortedError) {
+          // console.info('Aborted encode Solana')
+        } else console.error('Error encode Solana:', { error })
         return
       }
     }
