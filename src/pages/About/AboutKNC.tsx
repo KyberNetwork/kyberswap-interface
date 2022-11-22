@@ -7,6 +7,8 @@ import { Flex, Text } from 'rebass'
 import { Pagination } from 'swiper'
 import { Swiper, SwiperSlide } from 'swiper/react/swiper-react'
 
+import GeckoterminalIcon from 'assets/images/geckoterminal_dark.png'
+import GeckoterminalIconLight from 'assets/images/geckoterminal_light.png'
 import KNCGraphic from 'assets/images/knc-graphic.png'
 import CoinGecko from 'assets/svg/coingecko_color.svg'
 import CoinGeckoLight from 'assets/svg/coingecko_color_light.svg'
@@ -438,6 +440,13 @@ function AboutKNC() {
                 </ExternalLink>
                 <ExternalLink href={`https://coinmarketcap.com/currencies/kyber-network-crystal-v2/`}>
                   <img src={isDarkMode ? CoinMarketCap : CoinMarketCapLight} alt="CoinMarketCap" width="227px" />
+                </ExternalLink>
+                <ExternalLink href="https://www.geckoterminal.com">
+                  <img
+                    src={isDarkMode ? GeckoterminalIcon : GeckoterminalIconLight}
+                    alt="Geckoterminal"
+                    width="235px"
+                  />
                 </ExternalLink>
               </Flex>
             </Flex>
