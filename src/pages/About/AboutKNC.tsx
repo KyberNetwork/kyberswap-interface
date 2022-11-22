@@ -434,7 +434,11 @@ function AboutKNC() {
               <Text as="h2" fontWeight="500" fontSize={['28px', '36px']}>
                 <Trans>More information about KNC is available on:</Trans>
               </Text>
-              <Flex flexDirection={above768 ? 'row' : 'column'} marginTop="48px" style={{ gap: '48px' }}>
+              <Flex
+                flexDirection={above768 ? 'row' : 'column'}
+                marginTop="48px"
+                style={{ gap: '48px', alignItems: 'center' }}
+              >
                 <ExternalLink href={`https://www.coingecko.com/en/coins/kyber-network-crystal`}>
                   <img src={isDarkMode ? CoinGecko : CoinGeckoLight} alt="CoinGecko" width="165px" />
                 </ExternalLink>
