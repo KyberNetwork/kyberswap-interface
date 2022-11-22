@@ -236,7 +236,7 @@ export function useTradeExactInV2(
   }, [trade, setEncodeSolana])
 
   return {
-    trade,
+    trade, //todo: not return this anymore, set & use it from redux
     comparer,
     onUpdateCallback,
     loading,
