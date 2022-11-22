@@ -88,11 +88,7 @@ export default createReducer<SwapState>(initialState, builder =>
           independentField: field,
           typedValue: typedValue || state.typedValue || '1',
           recipient,
-          saveGas: state.saveGas,
           feeConfig,
-          trendingSoonShowed: state.trendingSoonShowed,
-          trade: state.trade,
-          encodeSolana: undefined,
         }
       },
     )
@@ -166,5 +162,6 @@ export default createReducer<SwapState>(initialState, builder =>
     })
     .addCase(setTrade, (state, { payload: { trade } }) => {
       state.trade = trade
+      state.encodeSolana = undefined
     }),
 )

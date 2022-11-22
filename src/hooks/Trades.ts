@@ -116,11 +116,17 @@ export function useTradeExactInV2(
   const [comparer, setComparer] = useState<AggregationComparer | null>(null)
   const [loading, setLoading] = useState(false)
 
-  const debounceCurrencyAmountIn = useDebounce(currencyAmountIn, 300)
+  const debounceCurrencyAmountIn = useDebounce(currencyAmountIn, 100)
 
   const ttl = useSelector<AppState, number>(state => state.user.userDeadline)
 
   const { feeConfig, saveGas } = useSwapState()
+
+  // refresh aggregator data on any tx done
+  const allFinalizedTx = useMemo(
+    () => JSON.stringify(allTransactions?.[chainId]?.flat().map(i => i.receipt)),
+    [allTransactions],
+  )
 
   const onUpdateCallback = useCallback(
     async (resetRoute: boolean, minimumLoadingTime: number) => {
@@ -195,7 +201,7 @@ export function useTradeExactInV2(
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       isEVM,
-      allTransactions,
+      allFinalizedTx,
       debounceCurrencyAmountIn,
       currencyOut,
       chainId,
