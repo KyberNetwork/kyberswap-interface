@@ -122,11 +122,10 @@ export function useTradeExactInV2(
 
   const { feeConfig, saveGas } = useSwapState()
 
+  const txsInChain = allTransactions?.[chainId]
+
   // refresh aggregator data on any tx done
-  const allFinalizedTx = useMemo(
-    () => JSON.stringify(allTransactions?.[chainId]?.flat().map(i => i.receipt)),
-    [allTransactions],
-  )
+  const allFinalizedTx = useMemo(() => JSON.stringify(txsInChain?.flat().map(i => i.receipt)), [txsInChain])
 
   const onUpdateCallback = useCallback(
     async (resetRoute: boolean, minimumLoadingTime: number) => {
