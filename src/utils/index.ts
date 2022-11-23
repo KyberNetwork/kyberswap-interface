@@ -158,7 +158,7 @@ export function formattedNum(number: string, usd = false, fractionDigits = 5) {
     return usd ? '< $0.0001' : '< 0.0001'
   }
 
-  if (num > 1000) {
+  if (num >= 1000) {
     return usd ? formatDollarFractionAmount(num, 0) : Number(num.toFixed(0)).toLocaleString()
   }
 
