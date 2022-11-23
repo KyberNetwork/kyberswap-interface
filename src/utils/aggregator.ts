@@ -59,9 +59,10 @@ export type Swap = {
     | undefined
   collectAmount: string | undefined
   recipient: string | undefined
+  reserveUsd: number // Solana only
 }
 type Tokens = {
-  [address: string]: Token | undefined
+  [address: string]: (Token & { price: number }) | undefined
 }
 let maxSwapBytelength = 0
 /**
@@ -460,13 +461,12 @@ export class Aggregator {
       if (agg.solana.to === ZERO_ADDRESS_SOLANA) return undefined
 
       try {
-        let swapTx: VersionedTransaction | null = null
-        let setupTx: Transaction | null = null
-        const getLatestBlockhash = connection.getLatestBlockhash()
-        //#region create set up tx and swap tx
         const toPK = new PublicKey(agg.solana.to)
+        const getLatestBlockhash = connection.getLatestBlockhash()
         const message = Message.from(toByteArray(agg.solana.encodedMessage))
-        setupTx = new Transaction({
+
+        //#region set up tx
+        const setupTx: Transaction = new Transaction({
           feePayer: toPK,
         })
 
@@ -556,16 +556,6 @@ export class Aggregator {
           const closeWSOLIxs = await createUnwrapSOLInstruction(toPK)
           cleanUpIxs.push(closeWSOLIxs)
         }
-        swapTx = await convertToVersionedTx('confirmed', blockhash, message, toPK, wrapIxs, cleanUpIxs)
-        if (signal.aborted) throw new AbortedError()
-
-        await swapTx.sign([agg.solana.programState])
-        console.debug('swap byteLength:', swapTx.serialize().buffer.byteLength)
-        console.debug(
-          'swap byteLength max:',
-          (maxSwapBytelength = Math.max(swapTx.serialize().buffer.byteLength, maxSwapBytelength)),
-        )
-        if (signal.aborted) throw new AbortedError()
 
         await Promise.all(
           Object.entries(agg.tokens || {}).map(async ([tokenAddress, token]: [any, any]) => {
@@ -576,14 +566,29 @@ export class Aggregator {
               new Token(ChainId.SOLANA, tokenAddress, token?.decimals || 0),
             )
             if (signal.aborted) throw new AbortedError()
-            if (createAtaIxs) (setupTx as Transaction).add(createAtaIxs)
+            if (createAtaIxs) {
+              setupTx.add(createAtaIxs)
+            }
           }),
         )
         if (signal.aborted) throw new AbortedError()
         setupTx.recentBlockhash = blockhash
         setupTx.lastValidBlockHeight = lastValidBlockHeight
         newOpenOrders.length && setupTx.partialSign(...newOpenOrders.map(i => i[1]))
-        //#endregion create set up tx and swap tx
+        //#endregion set up tx
+
+        //#region swap tx
+        const swapTx = await convertToVersionedTx('confirmed', blockhash, message, toPK, wrapIxs, cleanUpIxs)
+        if (signal.aborted) throw new AbortedError()
+
+        await swapTx.sign([agg.solana.programState])
+        console.debug('swap byteLength:', swapTx.serialize().buffer.byteLength)
+        console.debug(
+          'swap byteLength max:',
+          (maxSwapBytelength = Math.max(swapTx.serialize().buffer.byteLength, maxSwapBytelength)),
+        )
+        if (signal.aborted) throw new AbortedError()
+        //#endregion swap tx
 
         return {
           setupTx: setupTx?.instructions.length ? setupTx : null,
