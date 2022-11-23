@@ -12,7 +12,15 @@ import {
 } from '@kyberswap/ks-sdk-core'
 import { DexInstructions, OpenOrders } from '@project-serum/serum'
 import { captureException } from '@sentry/react'
-import { Keypair, Message, PublicKey, SystemProgram, Transaction, VersionedTransaction } from '@solana/web3.js'
+import {
+  Keypair,
+  Message,
+  PublicKey,
+  SystemProgram,
+  Transaction,
+  TransactionInstruction,
+  VersionedTransaction,
+} from '@solana/web3.js'
 import { toByteArray } from 'base64-js'
 import JSBI from 'jsbi'
 import invariant from 'tiny-invariant'
@@ -444,7 +452,6 @@ export class Aggregator {
       | {
           setupTx: Transaction | null
           swapTx: VersionedTransaction
-          cleanUpTx: Transaction | null
         }
       | undefined
     > => {
@@ -455,7 +462,6 @@ export class Aggregator {
       try {
         let swapTx: VersionedTransaction | null = null
         let setupTx: Transaction | null = null
-        let cleanUpTx: Transaction | null = null
         const getLatestBlockhash = connection.getLatestBlockhash()
         //#region create set up tx and swap tx
         const toPK = new PublicKey(agg.solana.to)
@@ -536,21 +542,26 @@ export class Aggregator {
         }
         const { blockhash, lastValidBlockHeight } = await getLatestBlockhash
 
-        swapTx = await convertToVersionedTx('confirmed', blockhash, message, toPK)
-        if (signal.aborted) throw new AbortedError()
-
-        await swapTx.sign([agg.solana.programState])
-        if (signal.aborted) throw new AbortedError()
-
         let initializedWrapSOL = false
+        let wrapIxs: TransactionInstruction[] | null = null
         if (agg.inputAmount.currency.isNative) {
-          const wrapIxs = await checkAndCreateWrapSOLInstructions(toPK, agg.inputAmount)
+          wrapIxs = await checkAndCreateWrapSOLInstructions(toPK, agg.inputAmount)
           if (signal.aborted) throw new AbortedError()
           if (wrapIxs) {
-            setupTx.add(...wrapIxs)
             initializedWrapSOL = true
           }
         }
+        const cleanUpIxs = []
+        if (agg.outputAmount.currency.isNative) {
+          const closeWSOLIxs = await createUnwrapSOLInstruction(toPK)
+          cleanUpIxs.push(closeWSOLIxs)
+        }
+        swapTx = await convertToVersionedTx('confirmed', blockhash, message, toPK, wrapIxs, cleanUpIxs)
+        if (signal.aborted) throw new AbortedError()
+
+        await swapTx.sign([agg.solana.programState])
+        console.log('swapTx.byteLength:', swapTx.serialize().buffer.byteLength)
+        if (signal.aborted) throw new AbortedError()
 
         await Promise.all(
           Object.entries(agg.tokens || {}).map(async ([tokenAddress, token]: [any, any]) => {
@@ -570,23 +581,9 @@ export class Aggregator {
         newOpenOrders.length && setupTx.partialSign(...newOpenOrders.map(i => i[1]))
         //#endregion create set up tx and swap tx
 
-        //#region create clean up tx
-        if (agg.outputAmount.currency.isNative) {
-          cleanUpTx = new Transaction({
-            blockhash,
-            lastValidBlockHeight,
-            feePayer: toPK,
-          })
-          const closeWSOLIxs = await createUnwrapSOLInstruction(toPK)
-          if (signal.aborted) throw new AbortedError()
-          if (closeWSOLIxs) cleanUpTx.add(closeWSOLIxs)
-        }
-        //#endregion create clean up tx
-
         return {
           setupTx: setupTx?.instructions.length ? setupTx : null,
           swapTx,
-          cleanUpTx,
         }
       } catch (error) {
         if (error instanceof AbortedError) {

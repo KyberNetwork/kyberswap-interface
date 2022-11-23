@@ -18,5 +18,4 @@ export interface AggregationComparer {
 export type SolanaEncode = {
   setupTx: Transaction | null
   swapTx: VersionedTransaction
-  cleanUpTx: Transaction | null
 }

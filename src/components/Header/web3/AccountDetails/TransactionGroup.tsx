@@ -17,9 +17,7 @@ export const TransactionState = styled.div<{ success?: boolean; isInGroup?: bool
 
 export default function TransactionGroup({ transactions }: { transactions: TransactionDetails[] }) {
   const mainTx: TransactionDetails =
-    transactions.find(
-      transaction => transaction.type !== TRANSACTION_TYPE.SETUP && transaction.type !== TRANSACTION_TYPE.CLEANUP,
-    ) || transactions[0]
+    transactions.find(transaction => transaction.type !== TRANSACTION_TYPE.SETUP) || transactions[0]
 
   const pending = !mainTx.receipt
   const success = !pending && mainTx && (mainTx.receipt?.status === 1 || typeof mainTx.receipt?.status === 'undefined')

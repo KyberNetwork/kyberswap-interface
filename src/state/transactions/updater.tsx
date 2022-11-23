@@ -8,6 +8,7 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { AGGREGATOR_ROUTER_SWAPPED_EVENT_TOPIC, APP_PATHS, ZERO_ADDRESS_SOLANA } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE, NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES } from 'hooks/useMixpanel'
 import { NotificationType, useBlockNumber, useTransactionNotify } from 'state/application/hooks'
@@ -120,24 +121,47 @@ const parseSolanaTransactionSummary = ({
   )
     return tx?.summary
 
-  const inputBalancePre = meta.preTokenBalances.find(tokenBalance => tokenBalance.mint === inputAddress)
-  const inputBalancePost = meta.postTokenBalances.find(tokenBalance => tokenBalance.mint === inputAddress)
-  const outputBalancePre = meta.preTokenBalances.find(tokenBalance => tokenBalance.mint === outputAddress)
-  const outputBalancePost = meta.postTokenBalances.find(tokenBalance => tokenBalance.mint === outputAddress)
-  if (!inputBalancePre || !outputBalancePre || !inputBalancePost || !outputBalancePost) return tx?.summary
-
-  const inputPreAmount = BigNumber.from(inputBalancePre.uiTokenAmount.amount)
-  const inputPostAmount = BigNumber.from(inputBalancePost.uiTokenAmount.amount)
-  const outputPreAmount = BigNumber.from(outputBalancePre.uiTokenAmount.amount)
-  const outputPostAmount = BigNumber.from(outputBalancePost.uiTokenAmount.amount)
-
-  const inputAmount = getFullDisplayBalanceSignificant(
-    inputPreAmount.sub(inputPostAmount),
-    inputBalancePre.uiTokenAmount.decimals,
+  const inputTokenBalancePre = meta.preTokenBalances.find(
+    tokenBalance => tokenBalance.mint === inputAddress && tokenBalance.owner === tx.from,
   )
+  const inputTokenBalancePost = meta.postTokenBalances.find(
+    tokenBalance => tokenBalance.mint === inputAddress && tokenBalance.owner === tx.from,
+  )
+  const outputTokenBalancePre = meta.preTokenBalances.find(
+    tokenBalance => tokenBalance.mint === outputAddress && tokenBalance.owner === tx.from,
+  )
+  const outputTokenBalancePost = meta.postTokenBalances.find(
+    tokenBalance => tokenBalance.mint === outputAddress && tokenBalance.owner === tx.from,
+  )
+
+  const inputBalancePre =
+    inputSymbol === NETWORKS_INFO[ChainId.SOLANA].nativeToken.symbol
+      ? { amount: meta.preBalances[0], decimals: NETWORKS_INFO[ChainId.SOLANA].nativeToken.decimal }
+      : inputTokenBalancePre?.uiTokenAmount
+  const inputBalancePost =
+    inputSymbol === NETWORKS_INFO[ChainId.SOLANA].nativeToken.symbol
+      ? { amount: meta.postBalances[0], decimals: NETWORKS_INFO[ChainId.SOLANA].nativeToken.decimal }
+      : inputTokenBalancePost?.uiTokenAmount
+  const outputBalancePre =
+    outputSymbol === NETWORKS_INFO[ChainId.SOLANA].nativeToken.symbol
+      ? { amount: meta.preBalances[0], decimals: NETWORKS_INFO[ChainId.SOLANA].nativeToken.decimal }
+      : outputTokenBalancePre?.uiTokenAmount
+  const outputBalancePost =
+    outputSymbol === NETWORKS_INFO[ChainId.SOLANA].nativeToken.symbol
+      ? { amount: meta.postBalances[0], decimals: NETWORKS_INFO[ChainId.SOLANA].nativeToken.decimal }
+      : outputTokenBalancePost?.uiTokenAmount
+  if (!inputBalancePre || !outputBalancePre || !inputBalancePost || !outputBalancePost) return tx?.summary
+  console.log({ meta })
+  debugger
+  const inputPreAmount = BigNumber.from(inputBalancePre.amount)
+  const inputPostAmount = BigNumber.from(inputBalancePost.amount)
+  const outputPreAmount = BigNumber.from(outputBalancePre.amount)
+  const outputPostAmount = BigNumber.from(outputBalancePost.amount)
+
+  const inputAmount = getFullDisplayBalanceSignificant(inputPreAmount.sub(inputPostAmount), inputBalancePre.decimals)
   const outputAmount = getFullDisplayBalanceSignificant(
     BigNumber.from(outputPostAmount.sub(outputPreAmount).toString()),
-    outputBalancePre.uiTokenAmount.decimals,
+    outputBalancePre.decimals,
   )
   return `${inputAmount} ${inputSymbol} for ${outputAmount} ${outputSymbol}`
 }
@@ -330,6 +354,7 @@ export default function Updater(): null {
                           arbitrary: transaction.arbitrary,
                           gas_price: tx.meta?.fee,
                           tx_hash: hash,
+                          actual_gas: BigNumber.from(tx.meta?.fee || 0),
                         })
                       }
                       break

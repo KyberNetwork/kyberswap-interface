@@ -53,7 +53,7 @@ async function getAssociatedTokenAccount(
   mint: PublicKey,
   owner: PublicKey,
   allowOwnerOffCurve = false,
-  commitment?: Commitment,
+  commitment: Commitment = 'processed',
   programId = TOKEN_PROGRAM_ID,
   associatedTokenProgramId = ASSOCIATED_TOKEN_PROGRAM_ID,
 ): Promise<Account | null> {
@@ -124,8 +124,10 @@ export const checkAndCreateAtaInstruction = async (
   const mint = new PublicKey(currencyIn.wrapped.address)
   try {
     const ata = await getAssociatedTokenAccount(connection, mint, account, true)
-    if (!ata) throw Error()
-  } catch (e) {
+    console.log({ ata, account: account.toBase58(), currencyIn: currencyIn.isNative ? 'SOL' : currencyIn.address })
+    if (!ata) throw Error('Create ata')
+  } catch (error) {
+    console.log({ error })
     const associatedTokenAccount = await getAssociatedTokenAddress(mint, account)
 
     const createAtaIx = createIdempotentAssociatedTokenAccountInstruction(

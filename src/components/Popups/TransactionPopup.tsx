@@ -19,9 +19,9 @@ const RowNoFlex = styled(AutoRow)`
 
 export const SUMMARY: {
   [type in TRANSACTION_TYPE]: {
-    success: (summary?: string) => string
-    pending: (summary?: string) => string
-    failure: (summary?: string) => string
+    success: (summary?: string, isShort?: boolean) => string
+    pending: (summary?: string, isShort?: boolean) => string
+    failure: (summary?: string, isShort?: boolean) => string
   }
 } = {
   [TRANSACTION_TYPE.WRAP]: {
@@ -136,14 +136,9 @@ export const SUMMARY: {
     failure: () => 'Error Force withdrawing ',
   },
   [TRANSACTION_TYPE.SETUP]: {
-    success: () => 'Set up ',
-    pending: () => 'Setting up ',
-    failure: () => 'Error Set up  ',
-  },
-  [TRANSACTION_TYPE.CLEANUP]: {
-    success: () => 'Clean up ',
-    pending: () => 'Cleaning up ',
-    failure: () => 'Error Clean up  ',
+    success: (summary, isShort) => 'Set up ' + (isShort ? '' : summary),
+    pending: (summary, isShort) => 'Setting up ' + (isShort ? '' : summary),
+    failure: (summary, isShort) => 'Error Set up  ' + (isShort ? '' : summary),
   },
 }
 

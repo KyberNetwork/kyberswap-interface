@@ -111,8 +111,8 @@ const getInspectTxSolanaUrl = (tx: Transaction | VersionedTransaction | undefine
 export async function sendSolanaTransactions(
   encode: SolanaEncode,
   solanaWallet: SignerWalletAdapter,
-  handler: (hash: string, firstTxHash: string) => void,
   addTransactionWithType: (tx: TransactionHistory) => void,
+  swapData: TransactionHistory,
 ): Promise<string[] | undefined> {
   if (!encode) return
   if (!encode.swapTx) return
@@ -125,37 +125,28 @@ export async function sendSolanaTransactions(
 
   txs.push(encode.swapTx)
 
-  if (encode.cleanUpTx) {
-    txs.push(encode.cleanUpTx)
-  }
-
   const populateTx = (
     txs: (Transaction | VersionedTransaction)[],
   ): {
     signedSetupTx: Transaction | undefined
     signedSwapTx: VersionedTransaction
-    signedCleanUpTx: Transaction | undefined
   } => {
     const result: {
       signedSetupTx: Transaction | undefined
       signedSwapTx: VersionedTransaction | undefined
-      signedCleanUpTx: Transaction | undefined
-    } = { signedSetupTx: undefined, signedSwapTx: undefined, signedCleanUpTx: undefined }
+    } = { signedSetupTx: undefined, signedSwapTx: undefined }
     let count = 0
     if (encode.setupTx) result.signedSetupTx = txs[count++] as Transaction
     result.signedSwapTx = txs[count++] as VersionedTransaction
-    result.signedCleanUpTx = txs[count++] as Transaction
     return result as {
       signedSetupTx: Transaction | undefined
       signedSwapTx: VersionedTransaction
-      signedCleanUpTx: Transaction | undefined
     }
   }
 
   console.group('Sending transactions:')
   encode.setupTx && console.info('setup tx:', getInspectTxSolanaUrl(encode.setupTx))
   console.info('swap tx:', getInspectTxSolanaUrl(encode.swapTx))
-  encode.cleanUpTx && console.info('clean up tx:', getInspectTxSolanaUrl(encode.cleanUpTx))
   console.info('inspector: https://explorer.solana.com/tx/inspector')
   console.groupEnd()
 
@@ -167,7 +158,7 @@ export async function sendSolanaTransactions(
       console.log({ e })
       throw e
     }
-    const { signedSetupTx, signedSwapTx, signedCleanUpTx } = populateTx(signedTxs)
+    const { signedSetupTx, signedSwapTx } = populateTx(signedTxs)
     const txHashs: string[] = []
     let setupHash: string
     if (signedSetupTx) {
@@ -178,22 +169,14 @@ export async function sendSolanaTransactions(
           type: TRANSACTION_TYPE.SETUP,
           hash: setupHash,
           firstTxHash: txHashs[0],
+          summary: 'for swapping ' + swapData.summary,
           arbitrary: {
             index: 1,
             total: signedTxs.length,
-            leadTx: {
-              summary: '',
-              type: '',
-            },
+            mainTx: swapData,
           },
         })
-      } catch (error) {
-        console.error({ error })
-        throw new Error('Set up error' + (error.message ? ': ' + error.message : ''))
-      }
-
-      try {
-        await connection.confirmTransaction(setupHash)
+        await connection.confirmTransaction(setupHash, 'finalized')
       } catch (error) {
         console.error({ error })
         throw new Error('Set up error' + (error.message ? ': ' + error.message : ''))
@@ -204,7 +187,7 @@ export async function sendSolanaTransactions(
     try {
       swapHash = await connection.sendRawTransaction(Buffer.from(signedSwapTx.serialize()))
       txHashs.push(swapHash)
-      handler(swapHash, txHashs[0])
+      addTransactionWithType({ ...swapData, hash: swapHash, firstTxHash: txHashs[0] })
     } catch (error) {
       console.error({ error })
       if (error?.message?.endsWith('0x1771')) {
@@ -213,34 +196,6 @@ export async function sendSolanaTransactions(
       throw error
     }
 
-    if (signedCleanUpTx) {
-      try {
-        await connection.confirmTransaction(swapHash)
-      } catch (error) {
-        console.error({ error })
-        if (error?.message?.endsWith('0x1771')) {
-          throw new Error(t`An error occurred. Try refreshing the price rate or increase max slippage`)
-        }
-        throw error
-      }
-      try {
-        const cleanUpHash = await connection.sendRawTransaction(signedCleanUpTx.serialize())
-        txHashs.push(cleanUpHash)
-        addTransactionWithType({
-          type: TRANSACTION_TYPE.CLEANUP,
-          hash: cleanUpHash,
-          firstTxHash: txHashs[0],
-          arbitrary: {
-            index: 3,
-            total: signedTxs.length,
-            leadTx: {},
-          },
-        })
-      } catch (error) {
-        console.error({ error })
-        throw new Error('Clean up error' + (error.message ? ': ' + error.message : ''))
-      }
-    }
     return txHashs
   } catch (e) {
     throw e

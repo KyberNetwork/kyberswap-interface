@@ -6,7 +6,7 @@ import Loader from 'components/Loader'
 import { SUMMARY } from 'components/Popups/TransactionPopup'
 import { RowFixed } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
-import { TransactionDetails } from 'state/transactions/type'
+import { TRANSACTION_TYPE, TransactionDetails } from 'state/transactions/type'
 import { ExternalLink } from 'theme'
 import { getEtherscanLink } from 'utils'
 
@@ -47,7 +47,10 @@ export default function Transaction({ transaction, step }: { transaction: Transa
   const type = transaction?.type
   const summary = transaction?.summary
   const parsedSummary = type
-    ? SUMMARY[type]?.[pending ? 'pending' : success ? 'success' : 'failure'](summary)
+    ? SUMMARY[type]?.[pending ? 'pending' : success ? 'success' : 'failure'](
+        summary,
+        !!(step && type === TRANSACTION_TYPE.SETUP),
+      )
     : summary ?? 'Hash: ' + transaction.hash.slice(0, 8) + '...' + transaction.hash.slice(58, 65)
 
   return (

@@ -1112,7 +1112,8 @@ export default function Swap({ history }: RouteComponentProps) {
                               !!swapInputError ||
                               !!swapCallbackError ||
                               approval !== ApprovalState.APPROVED ||
-                              (!isExpertMode && (isPriceImpactVeryHigh || isPriceImpactInvalid))
+                              (!isExpertMode && (isPriceImpactVeryHigh || isPriceImpactInvalid)) ||
+                              (isExpertMode && isSolana && !encodeSolana)
                             ) &&
                             (isPriceImpactHigh || isPriceImpactInvalid)
                               ? { background: isPriceImpactVeryHigh ? theme.red : theme.warning, color: theme.white }

@@ -1,4 +1,12 @@
-import { Commitment, Message, PublicKey, Transaction, TransactionMessage, VersionedTransaction } from '@solana/web3.js'
+import {
+  Commitment,
+  Message,
+  PublicKey,
+  Transaction,
+  TransactionInstruction,
+  TransactionMessage,
+  VersionedTransaction,
+} from '@solana/web3.js'
 
 import connection from 'state/connection/connection'
 import { filterTruthy } from 'utils'
@@ -17,6 +25,8 @@ export async function convertToVersionedTx(
   recentBlockhash: string,
   message: Message,
   payer: PublicKey,
+  preTxs?: TransactionInstruction[] | null | undefined,
+  postTxs?: TransactionInstruction[] | null | undefined,
 ): Promise<VersionedTransaction> {
   const LOOKUP_TABLES_BY_POOL = (await lookupTablesByPool).LOOKUP_TABLES_BY_POOL
   // get tables that can be used in this message
@@ -36,9 +46,13 @@ export async function convertToVersionedTx(
 
   // convert to VersionedTransaction
   const tx = Transaction.populate(message)
+  const instructions: TransactionInstruction[] = []
+  if (preTxs) instructions.push(...preTxs)
+  instructions.push(...tx.instructions)
+  if (postTxs) instructions.push(...postTxs)
   const versionedMessage = new TransactionMessage({
     payerKey: payer,
-    instructions: tx.instructions,
+    instructions,
     recentBlockhash,
   }).compileToV0Message(lookupTables)
 
