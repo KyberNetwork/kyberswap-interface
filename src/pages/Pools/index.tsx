@@ -103,9 +103,12 @@ const Pools = ({
   const [, setUrlOnEthPowAck] = useUrlOnEthPowAck()
   const toggleEthPowAckModal = useToggleEthPowAckModal()
 
-  const onSearch = (search: string) => {
-    history.replace(location.pathname + '?search=' + search + '&tab=' + tab)
-  }
+  const onSearch = useCallback(
+    (search: string) => {
+      history.replace(location.pathname + '?search=' + search + '&tab=' + tab)
+    },
+    [tab, history, location.pathname],
+  )
 
   useSyncNetworkParamWithStore()
 

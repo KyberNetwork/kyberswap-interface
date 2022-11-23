@@ -20,8 +20,8 @@ export function useSyncNetworkParamWithStore() {
       isOnInit.current = false
       return
     }
-    const paramChainId = Object.values(NETWORKS_INFO).find(n => n.route === params?.network)?.chainId
     if (isOnInit.current) {
+      const paramChainId = Object.values(NETWORKS_INFO).find(n => n.route === params?.network)?.chainId
       /**
        * Try to change to network on route param on init. Exp: /swap/ethereum => try to connect to ethereum on init
        * @param isOnInit.current: make sure only run 1 time after init
@@ -32,14 +32,12 @@ export function useSyncNetworkParamWithStore() {
           await changeNetwork(paramChainId, undefined, () => {
             history.replace({ pathname: match.path.replace(':network', networkInfo.route) })
           })
-          isOnInit.current = false
         } else if (paramChainId && isSolana(paramChainId)) {
-          await changeNetwork(paramChainId, () => {
-            isOnInit.current = false
-          })
+          await changeNetwork(paramChainId)
         }
       })()
     }
+    isOnInit.current = false
   }, [
     changeNetwork,
     history,
