@@ -190,7 +190,7 @@ export default function Updater(): null {
                     }
                     break
                   }
-                  case 'Bridge': {
+                  case 'Bridge Transaction': {
                     if (transaction.arbitrary) {
                       mixpanelHandler(MIXPANEL_TYPE.BRIDGE_TRANSACTION_SUBMIT, {
                         ...transaction.arbitrary,

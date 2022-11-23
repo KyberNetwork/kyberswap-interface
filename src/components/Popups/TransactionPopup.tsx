@@ -39,7 +39,7 @@ export const SUMMARY: {
     pending: summary => 'Approving ' + summary,
     failure: summary => 'Error approving ' + summary,
   },
-  Bridge: {
+  'Bridge Transaction': {
     success: summary => `Your bridge transaction from ${summary} is being processed.`,
     pending: summary => 'Transferring ' + summary,
     failure: summary => 'Error Transferring ' + summary,
@@ -140,7 +140,8 @@ export const SUMMARY: {
 const getTitle = (type: string, success: boolean) => {
   let statusText = success ? 'Success' : 'Error'
   // custom
-  if (type === 'Bridge' && success) {
+  if (type === 'Bridge Transaction' && success) {
+    // todo: I see pr Solana refactor this use constant => TRANSACTION_TYPE.BRIDGE
     statusText = 'Processing'
   }
   return `${type} - ${statusText}!`

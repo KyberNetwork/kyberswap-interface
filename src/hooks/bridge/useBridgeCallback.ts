@@ -164,7 +164,7 @@ function useRouterSwap(
             const from_token = currencyIn?.symbol ?? ''
             const to_token = currencyOut?.symbol ?? ''
             addTransactionWithType(txReceipt, {
-              type: 'Bridge',
+              type: 'Bridge Transaction',
               summary: `${inputAmountStr} ${from_token} (${from_network}) to ${outputAmountStr} ${to_token} (${to_network})`,
               arbitrary: {
                 from_token,
@@ -283,7 +283,7 @@ function useBridgeSwap(
             const from_token = currencyIn?.symbol ?? ''
             const to_token = currencyOut?.symbol ?? ''
             addTransactionWithType(txReceipt, {
-              type: 'Bridge',
+              type: 'Bridge Transaction',
               summary: `${inputAmountStr} ${from_token} (${from_network}) to ${outputAmountStr} ${to_token} (${to_network})`,
               arbitrary: {
                 from_token,
