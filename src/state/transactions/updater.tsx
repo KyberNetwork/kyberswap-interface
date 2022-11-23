@@ -268,7 +268,7 @@ export default function Updater(): null {
                 })
                 if (receipt.status === 1 && transaction) {
                   switch (transaction.type) {
-                    case 'Swap': {
+                    case TRANSACTION_TYPE.SWAP: {
                       if (transaction.arbitrary) {
                         mixpanelHandler(MIXPANEL_TYPE.SWAP_COMPLETED, {
                           arbitrary: transaction.arbitrary,
@@ -279,7 +279,7 @@ export default function Updater(): null {
                       }
                       break
                     }
-                    case 'Bridge': {
+                    case TRANSACTION_TYPE.BRIDGE: {
                       if (transaction.arbitrary) {
                         mixpanelHandler(MIXPANEL_TYPE.BRIDGE_TRANSACTION_SUBMIT, {
                           ...transaction.arbitrary,
@@ -288,13 +288,13 @@ export default function Updater(): null {
                       }
                       break
                     }
-                    case 'Collect fee': {
+                    case TRANSACTION_TYPE.COLLECT_FEE: {
                       if (transaction.arbitrary) {
                         mixpanelHandler(MIXPANEL_TYPE.ELASTIC_COLLECT_FEES_COMPLETED, transaction.arbitrary)
                       }
                       break
                     }
-                    case 'Increase liquidity': {
+                    case TRANSACTION_TYPE.INCREASE_LIQUIDITY: {
                       if (transaction.arbitrary) {
                         mixpanelHandler(MIXPANEL_TYPE.ELASTIC_INCREASE_LIQUIDITY_COMPLETED, {
                           ...transaction.arbitrary,
@@ -303,7 +303,7 @@ export default function Updater(): null {
                       }
                       break
                     }
-                    case 'Claim': {
+                    case TRANSACTION_TYPE.CLAIM: {
                       // claim campaign reward successfully
                       // reset id claiming when finished
                       if (window.location.pathname.startsWith(APP_PATHS.CAMPAIGN)) setClaimingCampaignRewardId(null)

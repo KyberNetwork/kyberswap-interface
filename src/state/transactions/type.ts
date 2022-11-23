@@ -29,7 +29,7 @@ export enum TRANSACTION_TYPE {
   WRAP = 'Wrap',
   UNWRAP = 'Unwrap',
   APPROVE = 'Approve',
-  BRIDGE = 'Bridge',
+  BRIDGE = 'Bridge Transaction',
   SWAP = 'Swap',
   CREATE_POOL = 'Create pool',
   ELASTIC_CREATE_POOL = 'Elastic Create pool',
