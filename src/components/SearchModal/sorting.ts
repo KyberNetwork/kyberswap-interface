@@ -1,4 +1,5 @@
 import { ChainId, Currency, CurrencyAmount, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
+import JSBI from 'jsbi'
 import { useMemo } from 'react'
 
 import { useActiveWeb3React } from 'hooks'
@@ -11,7 +12,14 @@ function balanceComparator(
   balanceB?: TokenAmount | CurrencyAmount<Currency>,
 ) {
   if (balanceA && balanceB) {
-    return balanceA.greaterThan(balanceB) ? -1 : balanceA.equalTo(balanceB) ? 0 : 1
+    return JSBI.greaterThan(
+      JSBI.multiply(balanceA.quotient, balanceB.decimalScale),
+      JSBI.multiply(balanceB.quotient, balanceA.decimalScale),
+    )
+      ? -1
+      : balanceA.equalTo(balanceB)
+      ? 0
+      : 1
   } else if (balanceA && balanceA.greaterThan('0')) {
     return -1
   } else if (balanceB && balanceB.greaterThan('0')) {
