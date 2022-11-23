@@ -419,6 +419,14 @@ export default function StakeKNCComponent() {
                   </KNCLogoWrapper>
                 </RowBetween>
               </InnerCard>
+              <Text fontSize={12} fontStyle="italic" color={theme.subText} style={{ textDecoration: 'italic' }}>
+                <Trans>
+                  *By using KyberDAO, you agree to the{' '}
+                  <a href="https://files.kyber.network/dao-tac.pdf" target="_blank" rel="noreferrer">
+                    Terms of Use
+                  </a>
+                </Trans>
+              </Text>
               {account ? (
                 <ButtonPrimary
                   margin="8px 0px"
