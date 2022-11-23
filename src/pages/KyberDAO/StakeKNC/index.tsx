@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { isMobile } from 'react-device-detect'
-import { Link, useHistory } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 

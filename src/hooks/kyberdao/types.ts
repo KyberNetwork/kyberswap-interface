@@ -10,6 +10,19 @@ export const ProposalStatus = {
   Expired: 'Expired',
   Ended: 'Ended',
 }
+
+export enum ProposalType {
+  BinaryProposal = 'BinaryProposal',
+  GenericProposal = 'GenericProposal',
+}
+
+export enum ActionType {
+  VoteEmitted = 'VoteEmitted',
+  ClaimReward = 'ClaimReward',
+  Deposit = 'Deposit',
+  Withdraw = 'Withdraw',
+  Delegate = 'Delegate',
+}
 export interface VoteOption {
   option: number
   vote_count: number
@@ -27,7 +40,7 @@ export interface VoteStat {
   options: VoteOption[]
   total_address_count: number
   total_vote_count: number
-  votes: VoteDetail[]
+  votes: VoteDetail[] | null
 }
 export interface ProposalDetail {
   cancelled: boolean
@@ -43,7 +56,7 @@ export interface ProposalDetail {
   options: string[]
   opts_desc: string[]
   proposal_id: number
-  proposal_type: string
+  proposal_type: ProposalType
   start_timestamp: number
   status: typeof ProposalStatus[keyof typeof ProposalStatus]
   title: string
@@ -57,18 +70,6 @@ export interface StakerInfo {
   stake_amount: number
 }
 
-export enum ProposalType {
-  BinaryProposal = 'BinaryProposal',
-  GenericProposal = 'GenericProposal',
-}
-
-export enum ActionType {
-  VoteEmitted = 'VoteEmitted',
-  ClaimReward = 'ClaimReward',
-  Deposit = 'Deposit',
-  Withdraw = 'Withdraw',
-  Delegate = 'Delegate',
-}
 export interface StakerAction {
   timestamp: number
   epoch: number
@@ -85,6 +86,8 @@ export interface StakerAction {
 
 export interface VoteInfo {
   proposal_id: number
-  option?: number
   options?: number[]
+  epoch: number
+  staker: string
+  power: string
 }

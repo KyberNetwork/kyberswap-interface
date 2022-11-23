@@ -12,7 +12,7 @@ import LaunchIcon from 'components/Icons/LaunchIcon'
 import { RowBetween, RowFit, RowFixed } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import { useVotingInfo } from 'hooks/kyberdao'
-import { ProposalDetail, ProposalStatus } from 'hooks/kyberdao/types'
+import { ProposalDetail, ProposalStatus, ProposalType } from 'hooks/kyberdao/types'
 import useTheme from 'hooks/useTheme'
 import { useSwitchToEthereum } from 'pages/KyberDAO/StakeKNC/SwitchToEthereumModal'
 import { ApplicationModal } from 'state/application/actions'
@@ -162,7 +162,7 @@ export default function ProposalItem({
   const { votesInfo } = useVotingInfo()
 
   const [show, setShow] = useState(!!showByDefault)
-  const [selectedOption, setSelectedOption] = useState<number | undefined>()
+  const [selectedOptions, setSelectedOptions] = useState<number[]>([])
   const contentRef = useRef<any>()
   const statusType = () => {
     switch (proposal.status) {
@@ -182,41 +182,69 @@ export default function ProposalItem({
   const { switchToEthereum } = useSwitchToEthereum()
   const handleVote = useCallback(() => {
     switchToEthereum().then(() => {
-      selectedOption !== undefined && toggleVoteModal()
+      selectedOptions !== undefined && toggleVoteModal()
     })
-  }, [switchToEthereum, toggleVoteModal, selectedOption])
+  }, [switchToEthereum, toggleVoteModal, selectedOptions])
 
   const handleVoteConfirm = useCallback(() => {
-    selectedOption !== undefined && voteCallback?.(proposal.proposal_id, selectedOption)
-  }, [selectedOption, proposal.proposal_id, voteCallback])
+    selectedOptions !== undefined &&
+      voteCallback?.(
+        proposal.proposal_id,
+        selectedOptions.map(i => i + 1).reduce((acc, item) => (acc += 1 << (item - 1)), 0),
+      )
+  }, [selectedOptions, proposal.proposal_id, voteCallback])
 
   const votedOfCurrentProposal = useMemo(
     () => votesInfo?.find(v => v.proposal_id === proposal.proposal_id),
     [votesInfo, proposal.proposal_id],
   )
+
+  const handleOptionClick = useCallback(
+    (option: number) => {
+      if (proposal.proposal_type === ProposalType.BinaryProposal) {
+        setSelectedOptions([option])
+      }
+      if (proposal.proposal_type === ProposalType.GenericProposal) {
+        if (selectedOptions.length === 0) {
+          setSelectedOptions([option])
+        } else {
+          const newOptions: number[] = [...selectedOptions] || []
+          const index = newOptions.indexOf(option)
+          if (index !== -1) {
+            newOptions.splice(index, index + 1)
+          } else {
+            newOptions.push(option)
+          }
+          setSelectedOptions(newOptions)
+        }
+      }
+    },
+    [proposal.proposal_type, setSelectedOptions, selectedOptions],
+  )
   const renderVotes = useMemo(() => {
     return (
       <RowBetween gap={isMobile ? '16px' : '20px'} flexDirection={isMobile ? 'column' : 'row'}>
         {proposal.options.map((option: string, index: number) => {
-          const voted = votedOfCurrentProposal?.option === index
+          const voted = votedOfCurrentProposal?.options?.includes(index) || false
           return (
             <VoteProgress
               key={option}
               percent={
-                proposal.vote_stats.options[index]
+                proposal?.vote_stats?.options?.[index]
                   ? (proposal.vote_stats.options[index]?.vote_count / proposal.vote_stats.total_vote_count) * 100
                   : 0
               }
               title={option}
-              checked={index === selectedOption}
-              onVoteClick={() => setSelectedOption(index)}
-              type={index === selectedOption ? 'Choosing' : voted ? 'Active' : 'Finished'}
+              checked={selectedOptions?.includes(index)}
+              onOptionClick={() => handleOptionClick(index)}
+              type={selectedOptions?.includes(index) ? 'Choosing' : voted ? 'Active' : 'Finished'}
+              isCheckBox={proposal.proposal_type === ProposalType.GenericProposal}
             />
           )
         })}
       </RowBetween>
     )
-  }, [proposal, selectedOption, votedOfCurrentProposal?.option])
+  }, [proposal, selectedOptions, votedOfCurrentProposal?.options, handleOptionClick])
 
   const isActive = proposal.status === ProposalStatus.Active
 
@@ -287,7 +315,7 @@ export default function ProposalItem({
       </Content>
       {proposal.status === ProposalStatus.Active && (
         <VoteConfirmModal
-          option={selectedOption !== undefined ? proposal.options[selectedOption] : ''}
+          options={selectedOptions.length > 0 ? selectedOptions.map(option => proposal.options[option]).join(', ') : ''}
           onVoteConfirm={handleVoteConfirm}
         />
       )}

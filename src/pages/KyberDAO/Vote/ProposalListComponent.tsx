@@ -64,7 +64,7 @@ function ProposalListComponent({ voteCallback }: { voteCallback?: (proposal_id: 
       [
         {
           proposal_id: 13,
-          proposal_type: 'BinaryProposal',
+          proposal_type: 'GenericProposal',
           start_timestamp: 1652166600,
           end_timestamp: 1668917822,
           execution_timestamp: 1652588089,
@@ -73,11 +73,11 @@ function ProposalListComponent({ voteCallback }: { voteCallback?: (proposal_id: 
           executor_vote_differential: '1',
           executor_minimum_quorum: '400',
           max_voting_power: '198281381848103231744926452',
-          options: ['YES', 'NO'],
+          options: ['YES', 'NO', 'NONE', 'YEAH'],
           link: 'https://github.com/KyberNetwork/KIPs/blob/master/KIPs/kip-20.md',
           title: 'KIP:20 KNC Ecosystem Fund Allocation',
           desc: '<p>- We strongly believe that we can effectively utilize the remaining KNC in the ecosystem growth fund to drive adoption for KyberSwap.com and the KNC token itself. Burning KNC would only result in a short-term supply shock but does not support long-term value accrual.</p>\\n<p>- On the other hand, effective utilization of KNC in upcoming initiatives could potentially result in more users, volume, and fees for LPs and KyberDAO voters. This would also increase the number of KNC holders who help expand the Kyber ecosystem, with the ability to stake KNC and vote.</p>\\n<p>- KNC plays a valuable and central role in the Kyber ecosystem. KNC holders not only own a useful asset, but also a stake in DeFi’s liquidity infrastructure. We want to work closely with the community to ensure that KNC is utilized in the most efficient and impactful way possible and enhance its long-term value.',
-          opts_desc: ['YES', 'NO'],
+          opts_desc: ['YES', 'NO', 'NONE', 'YEAH'],
           cancelled: false,
           status: 'Active',
           vote_stats: {

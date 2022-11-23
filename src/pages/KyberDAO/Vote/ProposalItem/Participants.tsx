@@ -65,7 +65,7 @@ export default function Participants({ proposalId }: { proposalId?: number }) {
   const [showMore, setShowMore] = useState(false)
   const theme = useTheme()
   const participants = useMemo(() => {
-    if (!proposalInfo) return
+    if (!proposalInfo?.vote_stats?.votes) return
     return proposalInfo.vote_stats.votes
       .sort((a, b) => (BigNumber.from(a.power).sub(BigNumber.from(b.power)).gt(0) ? -1 : 1))
       .map(v => {

@@ -28,7 +28,7 @@ export const useSwitchToEthereum = () => {
     switchToEthereum: useCallback(
       () =>
         new Promise(async (resolve: any, reject: any) => {
-          if (chainId === ChainId.MAINNET) {
+          if (chainId === ChainId.GÖRLI) {
             resolve()
           } else {
             reject()
@@ -49,8 +49,8 @@ export default function SwitchToEthereumModal({ featureText }: { featureText: st
   const { changeNetwork } = useActiveNetwork()
 
   const handleChangeToEthereum = useCallback(async () => {
-    if (chainId !== ChainId.MAINNET) {
-      await changeNetwork(ChainId.MAINNET)
+    if (chainId !== ChainId.GÖRLI) {
+      await changeNetwork(ChainId.GÖRLI)
       toggleModal()
     }
   }, [changeNetwork, toggleModal, chainId])
@@ -70,11 +70,11 @@ export default function SwitchToEthereumModal({ featureText }: { featureText: st
             </Flex>
           </RowBetween>
           <Text fontSize={14} lineHeight="20px">
-            <Trans>{featureText} is only available on Ethereum chain. Please switch network to continue.</Trans>
+            <Trans>{featureText} is only available on Goerli chain. Please switch network to continue.</Trans>
           </Text>
           <ButtonPrimary onClick={handleChangeToEthereum}>
             <Text fontSize={16}>
-              <Trans>Switch to Ethereum Network</Trans>
+              <Trans>Switch to Goerli Network</Trans>
             </Text>
           </ButtonPrimary>
         </AutoColumn>

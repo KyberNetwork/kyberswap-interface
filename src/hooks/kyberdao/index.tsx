@@ -33,12 +33,12 @@ export const KYBERDAO_TESTNET_ADDRESSES = {
   REWARDS_DISTRIBUTOR: '0x62D82BC6aa44a4340F29E629b43859b7e0C1E915',
 }
 export const APIS = {
-  DAO: 'https://kyberswap-dao-stats.kyberengineering.io',
+  DAO: 'https://kyberswap-dao-stats.dev.kyberengineering.io',
 }
 
 export function useKyberDaoStakeActions() {
   const addTransactionWithType = useTransactionAdder()
-  const stakingContract = useContract(KYBERDAO_ADDRESSES.STAKING, StakingABI)
+  const stakingContract = useContract(KYBERDAO_TESTNET_ADDRESSES.STAKING, StakingABI)
   const migrateContract = useContract(KNC_ADDRESS, MigrateABI)
 
   const stake = useCallback(
@@ -139,7 +139,7 @@ export function useKyberDaoStakeActions() {
 }
 
 export function useClaimRewardActions() {
-  const rewardDistributorContract = useContract(KYBERDAO_ADDRESSES.REWARDS_DISTRIBUTOR, RewardDistributorABI)
+  const rewardDistributorContract = useContract(KYBERDAO_TESTNET_ADDRESSES.REWARDS_DISTRIBUTOR, RewardDistributorABI)
   const addTransactionWithType = useTransactionAdder()
 
   const claim = useCallback(
@@ -188,7 +188,7 @@ export function useClaimRewardActions() {
 }
 
 export const useVotingActions = () => {
-  const daoContract = useContract(KYBERDAO_ADDRESSES.DAO, DaoABI)
+  const daoContract = useContract(KYBERDAO_TESTNET_ADDRESSES.DAO, DaoABI)
   const addTransactionWithType = useTransactionAdder()
 
   const vote = useCallback(
@@ -220,7 +220,7 @@ const fetcher = (url: string) => {
 
 export function useStakingInfo() {
   const { account } = useActiveWeb3React()
-  const stakingContract = useContract(KYBERDAO_ADDRESSES.STAKING, StakingABI)
+  const stakingContract = useContract(KYBERDAO_TESTNET_ADDRESSES.STAKING, StakingABI)
 
   const stakedBalance = useSingleCallResult(stakingContract, 'getLatestStakeBalance', [account ?? undefined])
   const delegatedAccount = useSingleCallResult(stakingContract, 'getLatestRepresentative', [account ?? undefined])
@@ -245,7 +245,7 @@ export function useStakingInfo() {
 
 export function useVotingInfo() {
   const { account } = useActiveWeb3React()
-  const rewardDistributorContract = useContract(KYBERDAO_ADDRESSES.REWARDS_DISTRIBUTOR, RewardDistributorABI)
+  const rewardDistributorContract = useContract(KYBERDAO_TESTNET_ADDRESSES.REWARDS_DISTRIBUTOR, RewardDistributorABI)
   const { data: daoInfo } = useSWR(APIS.DAO + '/dao-info', fetcher)
   const [localStoredDaoInfo, setLocalStoredDaoInfo] = useLocalStorage('kyberdao-daoInfo')
   useEffect(() => {

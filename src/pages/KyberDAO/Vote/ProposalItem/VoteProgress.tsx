@@ -1,4 +1,4 @@
-import React from 'react'
+import { CheckSquare, Square } from 'react-feather'
 import { Text } from 'rebass'
 import styled, { css, keyframes } from 'styled-components'
 
@@ -83,22 +83,34 @@ export default function VoteProgress({
   percent = 40,
   title,
   type = 'Finished',
-  onVoteClick,
+  onOptionClick,
+  isCheckBox,
 }: {
   checked?: boolean
   percent?: number
   title?: string
   type?: 'Finished' | 'Active' | 'Choosing'
-  onVoteClick?: () => void
+  onOptionClick?: () => void
+  isCheckBox: boolean
 }) {
-  console.log('🚀 ~ file: VoteProgress.tsx ~ line 96 ~ checked', checked)
   const parsedPercent = parseFloat(percent.toFixed(2) || '0')
   return (
     <Wrapper>
-      <div onClick={onVoteClick} style={{ zIndex: 4, width: '100%' }}>
+      <div onClick={onOptionClick} style={{ zIndex: 4, width: '100%' }}>
         <RowBetween style={{ zIndex: 1 }} alignItems="center">
           <RowFit gap="5px" style={{ fontSize: '12px', cursor: type !== 'Finished' ? 'pointer' : 'default' }}>
-            {checked ? <RadioButtonChecked /> : <RadioButtonUnchecked />} {title}
+            {isCheckBox ? (
+              checked ? (
+                <CheckSquare size={18} />
+              ) : (
+                <Square size={18} />
+              )
+            ) : checked ? (
+              <RadioButtonChecked />
+            ) : (
+              <RadioButtonUnchecked />
+            )}{' '}
+            {title}
           </RowFit>
           <Text fontSize="12px">{parsedPercent}%</Text>
         </RowBetween>
