@@ -270,42 +270,44 @@ function CurrencyList({
   const itemCount = hasMore ? currencies.length + 1 : currencies.length // If there are more items to be loaded then add an extra row to hold a loading indicator.
   const isItemLoaded = (index: number) => !hasMore || index < currencies.length
   return (
-    <AutoSizer>
-      {({ height, width }) => (
-        <InfiniteLoader isItemLoaded={isItemLoaded} itemCount={itemCount} loadMoreItems={loadMoreItems}>
-          {({ onItemsRendered, ref }) => (
-            <FixedSizeList
-              height={height + 100}
-              width={width}
-              itemCount={itemCount}
-              itemSize={56}
-              onItemsRendered={onItemsRendered}
-              ref={ref}
-              outerRef={listTokenRef}
-            >
-              {({ index, style }: { index: number; style: CSSProperties }) => {
-                if (!isItemLoaded(index)) {
+    <div style={{ flex: 1 }}>
+      <AutoSizer>
+        {({ height, width }) => (
+          <InfiniteLoader isItemLoaded={isItemLoaded} itemCount={itemCount} loadMoreItems={loadMoreItems}>
+            {({ onItemsRendered, ref }) => (
+              <FixedSizeList
+                height={height}
+                width={width}
+                itemCount={itemCount}
+                itemSize={56}
+                onItemsRendered={onItemsRendered}
+                ref={ref}
+                outerRef={listTokenRef}
+              >
+                {({ index, style }: { index: number; style: CSSProperties }) => {
+                  if (!isItemLoaded(index)) {
+                    return (
+                      <Flex justifyContent={'center'} fontSize={13} marginBottom={10} style={style}>
+                        <Text>loading...</Text>
+                      </Flex>
+                    )
+                  }
                   return (
-                    <Flex justifyContent={'center'} fontSize={13} marginBottom={10} style={style}>
-                      <Text>loading...</Text>
-                    </Flex>
+                    <Row
+                      index={index}
+                      currency={currencies[index]}
+                      key={currencies[index]?.wrapped.address || index}
+                      currencyBalance={currencyBalances[index]}
+                      style={style}
+                    />
                   )
-                }
-                return (
-                  <Row
-                    index={index}
-                    currency={currencies[index]}
-                    key={currencies[index]?.wrapped.address || index}
-                    currencyBalance={currencyBalances[index]}
-                    style={style}
-                  />
-                )
-              }}
-            </FixedSizeList>
-          )}
-        </InfiniteLoader>
-      )}
-    </AutoSizer>
+                }}
+              </FixedSizeList>
+            )}
+          </InfiniteLoader>
+        )}
+      </AutoSizer>
+    </div>
   )
 }
 export default memo(CurrencyList)
