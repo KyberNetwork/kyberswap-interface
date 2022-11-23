@@ -109,12 +109,12 @@ export default function ConfirmSwapModal({
     encodeSolana,
   ])
 
-  const nativeInput = useCurrencyConvertedToNative(trade?.inputAmount?.currency)
-  const nativeOutput = useCurrencyConvertedToNative(trade?.outputAmount?.currency)
+  const nativeInput = useCurrencyConvertedToNative(originalTrade?.inputAmount?.currency)
+  const nativeOutput = useCurrencyConvertedToNative(originalTrade?.outputAmount?.currency)
   // text to show while loading
-  const pendingText = `Swapping ${!!feeConfig ? typedValue : trade?.inputAmount?.toSignificant(6)} ${
+  const pendingText = `Swapping ${!!feeConfig ? typedValue : originalTrade?.inputAmount?.toSignificant(6)} ${
     nativeInput?.symbol
-  } for ${trade?.outputAmount?.toSignificant(6)} ${nativeOutput?.symbol}`
+  } for ${originalTrade?.outputAmount?.toSignificant(6)} ${nativeOutput?.symbol}`
 
   const confirmationContent = useCallback(
     () =>
