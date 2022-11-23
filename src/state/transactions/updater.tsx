@@ -136,23 +136,35 @@ const parseSolanaTransactionSummary = ({
 
   const inputBalancePre =
     inputSymbol === NETWORKS_INFO[ChainId.SOLANA].nativeToken.symbol
-      ? { amount: meta.preBalances[0], decimals: NETWORKS_INFO[ChainId.SOLANA].nativeToken.decimal }
+      ? {
+          amount: meta.preBalances[0] + (Number(inputTokenBalancePre?.uiTokenAmount?.amount) ?? 0),
+          decimals: NETWORKS_INFO[ChainId.SOLANA].nativeToken.decimal,
+        }
       : inputTokenBalancePre?.uiTokenAmount
   const inputBalancePost =
     inputSymbol === NETWORKS_INFO[ChainId.SOLANA].nativeToken.symbol
-      ? { amount: meta.postBalances[0], decimals: NETWORKS_INFO[ChainId.SOLANA].nativeToken.decimal }
+      ? {
+          amount: meta.preBalances[0] + (Number(inputTokenBalancePost?.uiTokenAmount?.amount) ?? 0),
+          decimals: NETWORKS_INFO[ChainId.SOLANA].nativeToken.decimal,
+        }
       : inputTokenBalancePost?.uiTokenAmount
   const outputBalancePre =
     outputSymbol === NETWORKS_INFO[ChainId.SOLANA].nativeToken.symbol
-      ? { amount: meta.preBalances[0], decimals: NETWORKS_INFO[ChainId.SOLANA].nativeToken.decimal }
+      ? {
+          amount: meta.preBalances[0] + (Number(outputTokenBalancePre?.uiTokenAmount?.amount) ?? 0),
+          decimals: NETWORKS_INFO[ChainId.SOLANA].nativeToken.decimal,
+        }
       : outputTokenBalancePre?.uiTokenAmount
   const outputBalancePost =
     outputSymbol === NETWORKS_INFO[ChainId.SOLANA].nativeToken.symbol
-      ? { amount: meta.postBalances[0], decimals: NETWORKS_INFO[ChainId.SOLANA].nativeToken.decimal }
+      ? {
+          amount: meta.preBalances[0] + (Number(outputTokenBalancePost?.uiTokenAmount?.amount) ?? 0),
+          decimals: NETWORKS_INFO[ChainId.SOLANA].nativeToken.decimal,
+        }
       : outputTokenBalancePost?.uiTokenAmount
   if (!inputBalancePre || !outputBalancePre || !inputBalancePost || !outputBalancePost) return tx?.summary
   console.log({ meta })
-  debugger
+
   const inputPreAmount = BigNumber.from(inputBalancePre.amount)
   const inputPostAmount = BigNumber.from(inputBalancePost.amount)
   const outputPreAmount = BigNumber.from(outputBalancePre.amount)
