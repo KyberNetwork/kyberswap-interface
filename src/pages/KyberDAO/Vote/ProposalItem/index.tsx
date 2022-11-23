@@ -292,9 +292,11 @@ export default function ProposalItem({
       <Content ref={contentRef as any} show={show}>
         <div style={{ flex: 1 }}>
           <ExternalLink href={proposal.link} style={{ marginBottom: '12px' }}>
-            <RowFit gap="2px">
-              <Trans>Github</Trans>
-              <LaunchIcon size={16} />
+            <RowFit gap="4px">
+              <LaunchIcon size={14} />
+              <Text fontSize={14}>
+                <Trans>Github</Trans>
+              </Text>
             </RowFit>
           </ExternalLink>
           <Text
