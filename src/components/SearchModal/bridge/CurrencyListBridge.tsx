@@ -82,7 +82,7 @@ const CurrencyListBridge = memo(function CurrencyListV2({
         <AutoSizer>
           {({ height, width }) => (
             <FixedSizeList
-              height={height + 100}
+              height={height}
               width={width}
               itemSize={56}
               itemCount={currencies.length}
