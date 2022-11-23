@@ -63,7 +63,7 @@ export type Swap = {
 type Tokens = {
   [address: string]: Token | undefined
 }
-
+let maxSwapBytelength = 0
 /**
  */
 export class Aggregator {
@@ -560,7 +560,11 @@ export class Aggregator {
         if (signal.aborted) throw new AbortedError()
 
         await swapTx.sign([agg.solana.programState])
-        console.info('swap byteLength:', swapTx.serialize().buffer.byteLength)
+        console.debug('swap byteLength:', swapTx.serialize().buffer.byteLength)
+        console.debug(
+          'swap byteLength max:',
+          (maxSwapBytelength = Math.max(swapTx.serialize().buffer.byteLength, maxSwapBytelength)),
+        )
         if (signal.aborted) throw new AbortedError()
 
         await Promise.all(

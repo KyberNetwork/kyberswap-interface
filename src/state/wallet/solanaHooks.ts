@@ -129,22 +129,18 @@ export function useTokensBalanceSolana(tokens?: Token[]): [TokenAmount | undefin
         acc[token.address] = undefined
         return acc
       }, {} as { [mintAddress: string]: TokenAmount | undefined }) || {}
-    console.debug('useTokensBalanceSolana - useEffect 1', { newTokensBalance })
     setTokensBalance(newTokensBalance)
   }, [allTransactions, tokens])
 
   useEffect(() => {
     async function getTokenAccounts() {
-      console.debug('useTokensBalanceSolana - useEffect getTokenAccounts - 2', { tokens, atas })
       if (!tokens) return
       if (!atas) return
-      console.debug('useTokensBalanceSolana - useEffect getTokenAccounts - 3')
       // Init all tokens balance by 0
       const newTokensBalance: { [mintAddress: string]: TokenAmount | undefined } = tokens.reduce((acc, token) => {
         acc[token.address] = CurrencyAmount.fromRawAmount(token, 0)
         return acc
       }, {} as { [mintAddress: string]: TokenAmount | undefined })
-      console.debug('useTokensBalanceSolana - useEffect getTokenAccounts - 4', { newTokensBalance })
 
       tokens.forEach(token => {
         newTokensBalance[token.address] = CurrencyAmount.fromRawAmount(
@@ -152,13 +148,10 @@ export function useTokensBalanceSolana(tokens?: Token[]): [TokenAmount | undefin
           JSBI.BigInt(atas[token.address]?.data.amount.toString() || 0),
         )
       })
-      console.debug('useTokensBalanceSolana - useEffect getTokenAccounts - 5', { newTokensBalance })
 
       setTokensBalance(newTokensBalance)
     }
-    console.debug('useTokensBalanceSolana - useEffect getTokenAccounts - 1', { atas })
     if (atas) {
-      console.debug('useTokensBalanceSolana - useEffect getTokenAccounts - 1.1')
       getTokenAccounts()
     }
   }, [allTransactions, atas, tokens, tokensMap])
