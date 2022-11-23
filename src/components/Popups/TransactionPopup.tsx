@@ -40,7 +40,7 @@ export const SUMMARY: {
     failure: summary => 'Error approving ' + summary,
   },
   [TRANSACTION_TYPE.BRIDGE]: {
-    success: summary => 'Transferred ' + summary,
+    success: summary => `Your bridge transaction from ${summary} is being processed.`,
     pending: summary => 'Transferring ' + summary,
     failure: summary => 'Error Transferring ' + summary,
   },
@@ -142,6 +142,15 @@ export const SUMMARY: {
   },
 }
 
+const getTitle = (type: string, success: boolean) => {
+  let statusText = success ? 'Success' : 'Error'
+  // custom
+  if (type === TRANSACTION_TYPE.BRIDGE && success) {
+    statusText = 'Processing'
+  }
+  return `${type} - ${statusText}!`
+}
+
 export default function TransactionPopup({
   hash,
   notiType,
@@ -171,12 +180,12 @@ export default function TransactionPopup({
         <AutoColumn gap="8px">
           {type && (
             <Text fontSize="16px" fontWeight={500} color={success ? theme.primary : theme.red}>
-              {type + ' - ' + (success ? 'Success' : 'Error') + '!'}
+              {getTitle(type, success)}
             </Text>
           )}
           <Text fontSize="14px" fontWeight={400} color={theme.text} lineHeight={1.6}>
             {type
-              ? SUMMARY[type][success ? 'success' : 'failure'](summary)
+              ? SUMMARY[type]?.[success ? 'success' : 'failure']?.(summary) || summary
               : summary ?? 'Hash: ' + hash.slice(0, 8) + '...' + hash.slice(58, 65)}
           </Text>
         </AutoColumn>
