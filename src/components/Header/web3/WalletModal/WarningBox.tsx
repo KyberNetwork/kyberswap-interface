@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { AlertTriangle, ChevronUp } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'

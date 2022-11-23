@@ -749,28 +749,31 @@ export default function Swap({ history }: RouteComponentProps) {
   const isLargeSwap = ((): boolean => {
     if (!isSolana) return false
     if (!trade) return false
+    try {
+      return trade.swaps.some(swapPath =>
+        swapPath.some(swap => {
+          // return swapAmountInUsd / swap.reserveUsd > 1%
+          //  =  (swap.swapAmount / 10**decimal * tokenIn.price) / swap.reserveUsd > 1%
+          //  = swap.swapAmount * tokenIn.price / (10**decimal * swap.reserveUsd) > 1%
+          //  = 10**decimal * swap.reserveUsd / (swap.swapAmount * tokenIn.price) < 100
+          const tokenIn = trade.tokens[swap.tokenIn]
+          if (!tokenIn || !tokenIn.decimals) return false
 
-    return trade.swaps.some(swapPath =>
-      swapPath.some(swap => {
-        // return swapAmountInUsd / swap.reserveUsd > 1%
-        //  =  (swap.swapAmount / 10**decimal * tokenIn.price) / swap.reserveUsd > 1%
-        //  = swap.swapAmount * tokenIn.price / (10**decimal * swap.reserveUsd) > 1%
-        //  = 10**decimal * swap.reserveUsd / (swap.swapAmount * tokenIn.price) < 100
-        const tokenIn = trade.tokens[swap.tokenIn]
-        if (!tokenIn || !tokenIn.decimals) return false
-
-        return JSBI.lessThan(
-          JSBI.divide(
-            JSBI.multiply(
-              JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(tokenIn.decimals + 20)),
-              JSBI.BigInt(swap.reserveUsd * 10 ** 20),
+          return JSBI.lessThan(
+            JSBI.divide(
+              JSBI.multiply(
+                JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(tokenIn.decimals + 20)),
+                JSBI.BigInt(swap.reserveUsd * 10 ** 20),
+              ),
+              JSBI.multiply(JSBI.BigInt(tokenIn.price * 10 ** 20), JSBI.BigInt(Number(swap.swapAmount) * 10 ** 20)),
             ),
-            JSBI.multiply(JSBI.BigInt(tokenIn.price * 10 ** 20), JSBI.BigInt(Number(swap.swapAmount) * 10 ** 20)),
-          ),
-          JSBI.BigInt(100),
-        )
-      }),
-    )
+            JSBI.BigInt(100),
+          )
+        }),
+      )
+    } catch (e) {
+      return false
+    }
   })()
 
   return (
