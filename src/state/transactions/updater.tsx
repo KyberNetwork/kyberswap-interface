@@ -150,17 +150,11 @@ const parseSolanaTransactionSummary = ({
       : inputTokenBalancePost?.uiTokenAmount
   const outputBalancePre =
     outputSymbol === NETWORKS_INFO[ChainId.SOLANA].nativeToken.symbol
-      ? {
-          amount: meta.preBalances[0] + (Number(outputTokenBalancePre?.uiTokenAmount?.amount) ?? 0),
-          decimals: NETWORKS_INFO[ChainId.SOLANA].nativeToken.decimal,
-        }
+      ? { amount: meta.preBalances[0], decimals: NETWORKS_INFO[ChainId.SOLANA].nativeToken.decimal }
       : outputTokenBalancePre?.uiTokenAmount
   const outputBalancePost =
     outputSymbol === NETWORKS_INFO[ChainId.SOLANA].nativeToken.symbol
-      ? {
-          amount: meta.preBalances[0] + (Number(outputTokenBalancePost?.uiTokenAmount?.amount) ?? 0),
-          decimals: NETWORKS_INFO[ChainId.SOLANA].nativeToken.decimal,
-        }
+      ? { amount: meta.postBalances[0], decimals: NETWORKS_INFO[ChainId.SOLANA].nativeToken.decimal }
       : outputTokenBalancePost?.uiTokenAmount
   if (!inputBalancePre || !outputBalancePre || !inputBalancePost || !outputBalancePost) return tx?.summary
   console.log({ meta })
