@@ -3,8 +3,9 @@ import { Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
 import { useWeb3React } from '@web3-react/core'
 import { BigNumber } from 'ethers'
+import html2canvas from 'html2canvas'
 import { stringify } from 'qs'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -161,6 +162,7 @@ function PositionListItem({
   } = positionDetails
 
   const { farms } = useElasticFarms()
+  const cardRef = useRef<HTMLDivElement>()
 
   let farmAddress = ''
   let pid = ''
@@ -313,10 +315,57 @@ function PositionListItem({
     return ''
   })()
 
+  const copyCardImageToClipboard = async () => {
+    const node = cardRef.current
+    if (!node) {
+      return
+    }
+
+    const canvas = await html2canvas(node, {
+      useCORS: true,
+      allowTaint: true,
+    })
+
+    canvas.toBlob(blob => {
+      if (!blob) {
+        return
+      }
+
+      navigator.clipboard.write([
+        new window.ClipboardItem({
+          [blob.type]: blob,
+        }),
+      ])
+    })
+  }
+
+  const downloadCardImage = async () => {
+    const node = cardRef.current
+    if (!node) {
+      return
+    }
+
+    const canvas = await html2canvas(node, {
+      useCORS: true,
+      allowTaint: true,
+    })
+
+    const a = document.createElement('a')
+    a.href = canvas.toDataURL('image/png') // convert to dataURL
+    a.download = 'position' + '.png'
+    a.click()
+  }
+
   return position && priceLower && priceUpper ? (
-    <StyledPositionCard>
+    <StyledPositionCard ref={cardRef}>
       <>
-        <ProAmmPoolInfo position={position} tokenId={positionDetails.tokenId.toString()} isFarmActive={hasActiveFarm} />
+        <ProAmmPoolInfo
+          onCopyImage={copyCardImageToClipboard}
+          onDownloadImage={downloadCardImage}
+          position={position}
+          tokenId={positionDetails.tokenId.toString()}
+          isFarmActive={hasActiveFarm}
+        />
         <TabContainer style={{ marginTop: '1rem' }}>
           <Tab isActive={activeTab === TAB.MY_LIQUIDITY} padding="0" onClick={() => setActiveTab(TAB.MY_LIQUIDITY)}>
             <TabText isActive={activeTab === TAB.MY_LIQUIDITY} style={{ fontSize: '12px' }}>

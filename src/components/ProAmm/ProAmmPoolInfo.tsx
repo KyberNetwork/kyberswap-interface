@@ -14,6 +14,8 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
 import useTheme from 'hooks/useTheme'
+import CopyImage from 'pages/ProAmmPool/CopyImage'
+import DownloadImage from 'pages/ProAmmPool/DownloadImage'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 import { unwrappedToken } from 'utils/wrappedCurrency'
@@ -22,10 +24,14 @@ export default function ProAmmPoolInfo({
   isFarmActive,
   position,
   tokenId,
+  onCopyImage,
+  onDownloadImage,
 }: {
   isFarmActive?: boolean
   position: Position
   tokenId?: string
+  onCopyImage?: () => Promise<any>
+  onDownloadImage?: () => Promise<any>
 }) {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const theme = useTheme()
@@ -83,6 +89,8 @@ export default function ProAmmPoolInfo({
             </Flex>
 
             <Flex sx={{ gap: '8px' }}>
+              {onCopyImage && <CopyImage onCopy={onCopyImage} />}
+              {onDownloadImage && <DownloadImage onDownload={onDownloadImage} />}
               {renderFarmIcon()}
               <RangeBadge removed={removed} inRange={!outOfRange} hideText />
             </Flex>
