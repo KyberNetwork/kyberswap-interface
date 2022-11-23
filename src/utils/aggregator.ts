@@ -560,7 +560,7 @@ export class Aggregator {
         if (signal.aborted) throw new AbortedError()
 
         await swapTx.sign([agg.solana.programState])
-        console.log('swapTx.byteLength:', swapTx.serialize().buffer.byteLength)
+        console.info('swap byteLength:', swapTx.serialize().buffer.byteLength)
         if (signal.aborted) throw new AbortedError()
 
         await Promise.all(

@@ -192,8 +192,11 @@ export async function sendSolanaTransactions(
       console.error({ error })
       if (error?.message?.endsWith('0x1771')) {
         throw new Error(t`An error occurred. Try refreshing the price rate or increase max slippage`)
+      } else if (/0x[0-9a-f]+$/.test(error.message)) {
+        const errorCode = error.message.split(' ').slice(-1)[0]
+        throw new Error(t`Error encountered. We haven’t send the transaction yet. Error code ${errorCode}`)
       }
-      throw error
+      throw new Error(t`Error encountered. We haven’t send the transaction yet.`)
     }
 
     return txHashs

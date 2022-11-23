@@ -32,18 +32,16 @@ function HurryUpBanner({ startedTime }: { startedTime: number | undefined }) {
   const color = currentTime <= 5 ? theme.green : currentTime <= 10 ? theme.yellow1 : theme.red2
 
   return (
-    <>
-      <GreyCard style={{ padding: '12px 16px', marginTop: '24px', fontSize: '12px' }}>
-        <RowFixed style={{ gap: '8px' }}>
-          <ConfirmedIcon>
-            <CountdountNumber style={{ color }}>{currentTime}</CountdountNumber>
-            <Loader size="28px" stroke={color} />
-          </ConfirmedIcon>
+    <GreyCard style={{ padding: '12px 16px', marginTop: '24px', fontSize: '12px' }}>
+      <RowFixed style={{ gap: '8px' }}>
+        <ConfirmedIcon>
+          <CountdountNumber style={{ color }}>{currentTime}</CountdountNumber>
+          <Loader size="28px" stroke={color} />
+        </ConfirmedIcon>
 
-          <Trans>We&apos;ve got you the best price! Confirm soon to lock-in this rate</Trans>
-        </RowFixed>
-      </GreyCard>
-    </>
+        <Trans>We&apos;ve got you the best price! Confirm soon to lock-in this rate</Trans>
+      </RowFixed>
+    </GreyCard>
   )
 }
 

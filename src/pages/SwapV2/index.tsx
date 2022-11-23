@@ -404,19 +404,11 @@ export default function Swap({ history }: RouteComponentProps) {
         setSwapState({ attemptingTxn: false, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: hash })
       })
       .catch(error => {
-        const getRootErrorMessage = (error: Error): string => {
-          let msg: string | undefined = undefined
-          if (error.cause) {
-            msg = getRootErrorMessage(error.cause as any)
-          }
-          if (!msg) msg = error.message
-          return msg
-        }
         setSwapState({
           attemptingTxn: false,
           tradeToConfirm,
           showConfirm,
-          swapErrorMessage: 'Swap error: ' + getRootErrorMessage(error),
+          swapErrorMessage: error.message,
           txHash: undefined,
         })
       })
