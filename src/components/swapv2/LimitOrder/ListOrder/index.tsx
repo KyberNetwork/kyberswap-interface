@@ -19,6 +19,7 @@ import { NOTIFICATION_TOPICS } from 'hooks/useNotification'
 import useTheme from 'hooks/useTheme'
 import { NotificationType, useNotify } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { TRANSACTION_STATE_DEFAULT, TransactionFlowState } from 'types'
 import {
   insertCancelledOrder,
@@ -493,12 +494,16 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
     setTimeout(() => {
       insertCancelledOrder(order, chainId, account)
     }, 30 * 1000)
-
-    // if (response)
-    //   addTransactionWithType(response, {
-    //     type: 'Test',
-    //     summary: `test`,
-    //   })
+    response &&
+      addTransactionWithType({
+        ...response,
+        type: TRANSACTION_TYPE.CANCEL_LIMIT_ORDER,
+        summary: order
+          ? t`Order ${formatAmountOrder(order.makingAmount)} ${order.makerAssetSymbol} to ${formatAmountOrder(
+              order.takingAmount,
+            )} ${order.takerAssetSymbol}`
+          : t`all orders`,
+      })
     return
   }
 

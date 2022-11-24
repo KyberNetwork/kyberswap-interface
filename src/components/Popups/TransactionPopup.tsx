@@ -141,13 +141,19 @@ export const SUMMARY: {
     failure: (summary, isShort) =>
       isShort ? 'Setting up transaction' : 'There was an issue while setting up your swap. Please try again.',
   },
+  [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER]: {
+    success: summary => `Cancel ${summary}`,
+    pending: summary => 'Cancelling ' + summary,
+    failure: summary => 'Error Cancel ' + summary,
+  },
 }
 
 const getTitle = (type: string, success: boolean) => {
   let statusText = success ? 'Success' : 'Error'
   // custom
-  if (type === TRANSACTION_TYPE.BRIDGE && success) {
-    statusText = 'Processing'
+  if (success) {
+    if (type === TRANSACTION_TYPE.BRIDGE) statusText = 'Processing'
+    if (type === TRANSACTION_TYPE.CANCEL_LIMIT_ORDER) statusText = 'Submitted'
   }
   return `${type} - ${statusText}!`
 }

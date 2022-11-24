@@ -86,7 +86,7 @@ import { useToggleTransactionSettingsMenu, useWalletModalToggle } from 'state/ap
 import { useAllDexes } from 'state/customizeDexes/hooks'
 import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { Field } from 'state/swap/actions'
-import { useEncodeSolana, useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
+import { useDefaultsFromURLSearch, useEncodeSolana, useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
 import { useDerivedSwapInfoV2 } from 'state/swap/useAggregator'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import {
@@ -212,7 +212,7 @@ export default function Swap({ history }: RouteComponentProps) {
       refListLimitOrder.current?.refreshListOrder()
     }
   }
-
+  useDefaultsFromURLSearch()
   const [dismissTokenWarning, setDismissTokenWarning] = useState<boolean>(false)
 
   const theme = useTheme()
