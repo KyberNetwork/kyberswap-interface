@@ -142,7 +142,7 @@ const HoverText = styled.div`
   }
 `
 
-const ToSText = styled.span`
+const ToSText = styled.label`
   color: ${({ theme }) => theme.text9};
   font-weight: 500;
 `
@@ -371,12 +371,13 @@ export default function WalletModal() {
         {(walletView === WALLET_VIEWS.ACCOUNT || walletView === WALLET_VIEWS.CHANGE_WALLET) && (
           <TermAndCondition>
             <input
+              id="checkboxTermSelectNetwork"
               type="checkbox"
               checked={isAcceptedTerm}
               onChange={() => setIsAcceptedTerm(!isAcceptedTerm)}
               style={{ marginRight: '12px' }}
             />
-            <ToSText>
+            <ToSText htmlFor="checkboxTermSelectNetwork">
               <Trans>Accept</Trans>{' '}
               <ExternalLink href="/15022022KyberSwapTermsofUse.pdf">
                 <Trans>Terms of Use</Trans>
