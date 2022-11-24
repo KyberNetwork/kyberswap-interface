@@ -17,7 +17,7 @@ const Header = styled(RowBetween)<{ $expanded: boolean }>`
   z-index: 1;
 `
 
-const Content = styled.div<{ $expanded: boolean; $height: number }>`
+const Content = styled.div<{ $expanded: boolean; $height: number | undefined }>`
   max-height: 0;
   margin-top: 0;
 
@@ -48,7 +48,7 @@ export default function ExpandableBox({
   className?: string
 }) {
   const [expanded, setExpanded] = useState(expandedDefault)
-  const contentRef = useRef<any>()
+  const contentRef = useRef<HTMLDivElement>(null)
   const contentHeight = contentRef.current?.getBoundingClientRect().height
   return (
     <Wrapper
@@ -73,7 +73,7 @@ export default function ExpandableBox({
         {headerContent || 'Header'} <DropdownSVG style={{ transform: expanded ? 'rotate(180deg)' : undefined }} />
       </Header>
 
-      <Content ref={contentRef as any} $expanded={expanded} $height={contentHeight}>
+      <Content ref={contentRef} $expanded={expanded} $height={contentHeight}>
         <Divider
           style={{
             margin: '16px 0',
