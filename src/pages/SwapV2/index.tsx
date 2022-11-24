@@ -777,8 +777,9 @@ export default function Swap({ history }: RouteComponentProps) {
     } catch (e) {
       return false
     }
-    */
   }, [isSolana, trade])
+  */
+  }, [])
 
   return (
     <>
