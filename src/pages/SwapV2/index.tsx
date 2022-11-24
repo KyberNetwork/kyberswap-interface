@@ -746,7 +746,7 @@ export default function Swap({ history }: RouteComponentProps) {
   const isShowModalImportToken =
     isLoadedTokenDefault && importTokensNotInDefault.length > 0 && (!dismissTokenWarning || showingPairSuggestionImport)
 
-  const isLargeSwap = ((): boolean => {
+  const isLargeSwap = useMemo((): boolean => {
     if (!isSolana) return false
     if (!trade) return false
     try {
@@ -774,7 +774,7 @@ export default function Swap({ history }: RouteComponentProps) {
     } catch (e) {
       return false
     }
-  })()
+  }, [isSolana, trade])
 
   return (
     <>

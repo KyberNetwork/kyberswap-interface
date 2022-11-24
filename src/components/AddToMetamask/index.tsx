@@ -43,9 +43,7 @@ export default function AddTokenToMetaMask({ token }: { token: Token }) {
         console.error(error)
       }
     } else {
-      if (!account) return
-      if (!provider) return
-      if (!isAddress(chainId, tokenAddress)) return
+      if (!account || !provider || !isAddress(chainId, tokenAddress)) return
       try {
         await createUserAssociatedTokenAccount(provider, new PublicKey(tokenAddress), new PublicKey(account))
       } catch (error) {
