@@ -1,6 +1,6 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Repeat } from 'react-feather'
 import { Flex, Text } from 'rebass'
@@ -146,6 +146,13 @@ function LiveChart({
   const toggleProLiveChart = useToggleProLiveChart()
   const { mixpanelHandler } = useMixpanel()
 
+  const handleSetLoading = useCallback(
+    (loading: boolean) =>
+      setStateProChart(prev => {
+        return { ...prev, loading: loading }
+      }),
+    [],
+  )
   useEffect(() => {
     if (hoverValue !== null) {
       setHoverValue(null)
@@ -177,7 +184,7 @@ function LiveChart({
       .then((res: any) => {
         if (currenciesChanged) return
         if ((res.ver || res.ver === 0) && res.pairAddress) {
-          setStateProChart({ hasProChart: true, pairAddress: res.pairAddress, apiVersion: res.ver, loading: false })
+          setStateProChart({ hasProChart: true, pairAddress: res.pairAddress, apiVersion: res.ver, loading: true })
         } else {
           setStateProChart({ hasProChart: false, pairAddress: '', apiVersion: '', loading: false })
         }
@@ -321,6 +328,7 @@ function LiveChart({
             currencies={currenciesList}
             stateProChart={stateProChart}
             $isShowProChart={isShowProChart}
+            setLoading={handleSetLoading}
           />
           {!isShowProChart && (
             <>
