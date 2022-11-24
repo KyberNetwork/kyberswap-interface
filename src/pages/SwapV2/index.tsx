@@ -747,6 +747,9 @@ export default function Swap({ history }: RouteComponentProps) {
     isLoadedTokenDefault && importTokensNotInDefault.length > 0 && (!dismissTokenWarning || showingPairSuggestionImport)
 
   const isLargeSwap = useMemo((): boolean => {
+    return false // todo: not used for current release yet
+    // if these line is 6 months old, feel free to delete it
+    /*
     if (!isSolana) return false
     if (!trade) return false
     try {
@@ -774,6 +777,7 @@ export default function Swap({ history }: RouteComponentProps) {
     } catch (e) {
       return false
     }
+    */
   }, [isSolana, trade])
 
   return (

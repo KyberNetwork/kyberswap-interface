@@ -96,6 +96,8 @@ const parseSolanaTransactionSummary = ({
   tx: TransactionDetails | null
   meta?: ParsedTransactionMeta | null
 }): string | undefined => {
+  return tx?.summary // todo: many edge case not handle yet. handle them and delete this line
+  /*
   // Parse summary message for Swapped event
   if (!tx || !tx?.arbitrary) return tx?.summary
   if (!meta || meta.err) return tx?.summary
@@ -170,6 +172,7 @@ const parseSolanaTransactionSummary = ({
     outputBalancePre.decimals,
   )
   return `${inputAmount} ${inputSymbol} for ${outputAmount} ${outputSymbol}`
+  */
 }
 
 export default function Updater(): null {
