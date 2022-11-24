@@ -540,41 +540,6 @@ export const DataTitle = styled.div`
   font-size: 12px;
 `
 
-export const SearchContainer = styled.div`
-  background: ${({ theme }) => theme.background};
-  border-radius: 999px;
-  width: 320px;
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  padding: 8px 12px;
-  gap: 8px;
-
-  > svg {
-    cursor: pointer;
-  }
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    width: 100%;
-  `}
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    width: 100%;
-  `}
-`
-
-export const SearchInput = styled.input`
-  outline: none;
-  border: none;
-  flex: 1;
-  color: ${({ theme }) => theme.text};
-  background: ${({ theme }) => theme.background};
-
-  :placeholder {
-    color: ${({ theme }) => theme.disableText};
-  }
-`
-
 export const ProMMFarmTableRowMobile = styled.div`
   background: ${({ theme }) => theme.background};
   padding: 24px 16px;

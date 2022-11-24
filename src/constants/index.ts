@@ -333,4 +333,12 @@ export const APP_PATHS = {
   BUY_CRYPTO: '/buy-crypto',
   BRIDGE: '/bridge',
   VERIFY: '/verify',
+  LIMIT: '/limit',
 }
+
+export const EIP712Domain = [
+  { name: 'name', type: 'string' },
+  { name: 'version', type: 'string' },
+  { name: 'chainId', type: 'uint256' },
+  { name: 'verifyingContract', type: 'address' },
+]

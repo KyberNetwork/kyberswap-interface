@@ -206,6 +206,16 @@ export default function App() {
                     />
                     <Route exact strict path={`${APP_PATHS.SWAP}/:network/:fromCurrency`} component={SwapV2} />
                     <Route exact strict path={`${APP_PATHS.SWAP}/:network`} component={SwapV2} />
+
+                    <Route
+                      exact
+                      strict
+                      path={`${APP_PATHS.LIMIT}/:network/:fromCurrency-to-:toCurrency`}
+                      component={SwapV2}
+                    />
+                    <Route exact strict path={`${APP_PATHS.LIMIT}/:network/:fromCurrency`} component={SwapV2} />
+                    <Route exact strict path={`${APP_PATHS.LIMIT}/:network`} component={SwapV2} />
+
                     <Route exact strict path={`${APP_PATHS.FIND_POOL}`} component={PoolFinder} />
                     <Route exact strict path={`${APP_PATHS.POOLS}/:network`} component={Pools} />
                     <Route exact strict path={`${APP_PATHS.POOLS}/:network/:currencyIdA`} component={Pools} />

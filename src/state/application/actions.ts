@@ -13,7 +13,7 @@ export type PopupContentTxn = {
 
 export type PopupContentSimple = {
   title: string
-  summary?: string
+  summary?: ReactNode
   type: NotificationType
 }
 

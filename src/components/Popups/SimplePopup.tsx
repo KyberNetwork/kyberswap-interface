@@ -1,3 +1,4 @@
+import { ReactNode } from 'react'
 import { Box, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -24,7 +25,7 @@ export default function SimplePopup({
 }: {
   title: string
   type?: NotificationType
-  summary?: string
+  summary?: ReactNode
 }) {
   const theme = useTheme()
   const mapColor = {

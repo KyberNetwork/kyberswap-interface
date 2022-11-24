@@ -2,12 +2,12 @@ import { computePoolAddress } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
 import { stringify } from 'querystring'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Search } from 'react-feather'
 import { useHistory, useLocation } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 
 import FarmIssueAnnouncement from 'components/FarmIssueAnnouncement'
 import LocalLoader from 'components/LocalLoader'
+import SearchInput from 'components/SearchInput'
 import ShareModal from 'components/ShareModal'
 import Toggle from 'components/Toggle'
 import { EVMNetworkInfo } from 'constants/networks/type'
@@ -27,14 +27,7 @@ import { DepositModal, StakeUnstakeModal } from './ElasticFarmModals'
 import HarvestModal from './ElasticFarmModals/HarvestModal'
 import WithdrawModal from './ElasticFarmModals/WithdrawModal'
 import { SharePoolContext } from './SharePoolContext'
-import {
-  HeadingContainer,
-  HeadingRight,
-  SearchContainer,
-  SearchInput,
-  StakedOnlyToggleText,
-  StakedOnlyToggleWrapper,
-} from './styleds'
+import { HeadingContainer, HeadingRight, StakedOnlyToggleText, StakedOnlyToggleWrapper } from './styleds'
 
 type ModalType = 'deposit' | 'withdraw' | 'stake' | 'unstake' | 'harvest' | 'forcedWithdraw'
 
@@ -232,15 +225,12 @@ function ElasticFarms({ active }: { active: boolean }) {
           />
         </StakedOnlyToggleWrapper>
         <HeadingRight>
-          <SearchContainer>
-            <SearchInput
-              placeholder={t`Search by token name or pool address`}
-              maxLength={255}
-              value={search}
-              onChange={e => handleSearch(e.target.value)}
-            />
-            <Search color={theme.subText} />
-          </SearchContainer>
+          <SearchInput
+            placeholder={t`Search by token name or pool address`}
+            maxLength={255}
+            value={search}
+            onChange={handleSearch}
+          />
         </HeadingRight>
       </HeadingContainer>
 

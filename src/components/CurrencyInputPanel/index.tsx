@@ -124,6 +124,9 @@ const StyledBalanceMax = styled.button`
   border: none;
   border-radius: 999px;
   cursor: pointer;
+  &:focus-visible {
+    outline-width: 0;
+  }
 `
 
 const Card2 = styled(Card)<{ balancePosition: string }>`
@@ -133,9 +136,9 @@ const Card2 = styled(Card)<{ balancePosition: string }>`
 
 interface CurrencyInputPanelProps {
   value: string
-  onUserInput: (value: string) => void
   onMax: (() => void) | null
   onHalf: (() => void) | null
+  onUserInput?: (value: string) => void
   positionMax?: 'inline' | 'top'
   label?: string
   onCurrencySelect?: (currency: Currency) => void
@@ -158,11 +161,17 @@ interface CurrencyInputPanelProps {
   isSwitchMode?: boolean
   locked?: boolean
   maxCurrencySymbolLength?: number
+  error?: boolean
+  maxLength?: number
+  supportNative?: boolean
 }
 
 export default function CurrencyInputPanel({
   value,
-  onUserInput,
+  error,
+  onUserInput = (value: string) => {
+    //
+  },
   onMax,
   onHalf,
   positionMax = 'inline',
@@ -187,6 +196,8 @@ export default function CurrencyInputPanel({
   isSwitchMode = false,
   locked = false,
   maxCurrencySymbolLength,
+  maxLength,
+  supportNative = true,
 }: CurrencyInputPanelProps) {
   const [modalOpen, setModalOpen] = useState(false)
   const { chainId, account } = useActiveWeb3React()
@@ -241,7 +252,7 @@ export default function CurrencyInputPanel({
             </Flex>
           </FixedContainer>
         )}
-        <Container hideInput={hideInput} selected={disableCurrencySelect}>
+        <Container hideInput={hideInput} selected={disableCurrencySelect} error={error}>
           {!hideBalance && (
             <Flex justifyContent="space-between" fontSize="12px" marginBottom="12px" alignItems="center">
               {(onMax || onHalf) && positionMax === 'top' && currency && account ? (
@@ -272,9 +283,11 @@ export default function CurrencyInputPanel({
             {!hideInput && (
               <>
                 <NumericalInput
+                  error={error}
                   className="token-amount-input"
                   value={value}
                   disabled={disabledInput}
+                  maxLength={maxLength}
                   onUserInput={val => {
                     onUserInput(val)
                   }}
@@ -347,6 +360,7 @@ export default function CurrencyInputPanel({
             selectedCurrency={currency}
             otherSelectedCurrency={otherCurrency}
             showCommonBases={showCommonBases}
+            supportNative={supportNative}
           />
         )}
       </InputPanel>
