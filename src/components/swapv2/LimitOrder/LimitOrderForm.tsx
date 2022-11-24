@@ -397,7 +397,7 @@ const LimitOrderForm = function LimitOrderForm({
       ...state,
       pendingText: t`Sign limit order: ${inputAmount} ${currencyIn.symbol} to ${outputAmount} ${currencyOut.symbol}`,
     }))
-
+    //
     const signature = await library.getSigner().signMessage(ethers.utils.arrayify(orderHash))
 
     setFlowState(state => ({ ...state, pendingText: t`Placing order` }))
