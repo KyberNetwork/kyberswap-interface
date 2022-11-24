@@ -59,7 +59,8 @@ const filterTokenList = (tokens: { [key: string]: MultiChainTokenInfo }) => {
       Object.keys(destChains).forEach((chain: string) => {
         Object.keys(destChains[chain]).forEach(address => {
           const info = destChains[chain][address]
-          if (!isAddress(info.address)) {
+          info.chainId = Number(info.chainId)
+          if (!isAddress(info.chainId, info.address)) {
             delete destChains[chain][address]
           }
         })
@@ -82,7 +83,7 @@ export async function getTokenlist(chainId: ChainId, isStaleData: boolean) {
   let local: any
   try {
     local = getTokenListCache()
-    if (local[chainId] && !isStaleData) {
+    if (local[chainId] && Object.keys(local[chainId]).length && !isStaleData) {
       return local[chainId]
     }
     tokens = await fetchListTokenByChain(chainId)
