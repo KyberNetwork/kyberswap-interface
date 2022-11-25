@@ -33,11 +33,11 @@ const Toggle: React.FC<ToggleProps> = ({ id, isActive, toggle, style, className 
   )
 }
 
-export default styled(Toggle)`
+export default styled(Toggle)<{ backgroundColor?: string }>`
   position: relative;
   width: 56px;
   height: 28px;
-  background: ${({ theme }) => theme.background};
+  background: ${({ theme, backgroundColor }) => backgroundColor || theme.background};
   border-radius: 999px;
   transition: all 0.2s ease-in-out;
   cursor: pointer;

@@ -15,11 +15,13 @@ const Base = styled(RebassButton)<{
   height?: string
   borderRadius?: string
   altDisabledStyle?: boolean
+  gap?: string
 }>`
   padding: ${({ padding }) => (padding ? padding : '12px')};
   width: ${({ width }) => (width ? width : '100%')};
   height: ${({ height }) => (height ? height : 'auto')};
   margin: ${({ margin }) => (margin ? margin : 'unset')};
+  gap: ${({ gap }) => gap && gap};
   font-weight: 500;
   font-size: 14px;
   text-align: center;
@@ -34,6 +36,7 @@ const Base = styled(RebassButton)<{
   cursor: pointer;
   position: relative;
   z-index: 1;
+
   &:disabled {
     cursor: auto;
   }

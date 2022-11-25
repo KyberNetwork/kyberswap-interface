@@ -340,7 +340,11 @@ export default function CreateReferral() {
                   width="300px"
                 />
               </Text>
-              <Toggle isActive={isShowChain} toggle={() => setIsShowChain(prev => !prev)} />
+              <Toggle
+                isActive={isShowChain}
+                toggle={() => setIsShowChain(prev => !prev)}
+                backgroundColor={theme.buttonBlack}
+              />
             </Flex>
             {isShowChain && (
               <>
@@ -369,7 +373,11 @@ export default function CreateReferral() {
                       width="300px"
                     />
                   </Text>
-                  <Toggle isActive={isShowTokens} toggle={() => setIsShowTokens(prev => !prev)} />
+                  <Toggle
+                    isActive={isShowTokens}
+                    toggle={() => setIsShowTokens(prev => !prev)}
+                    backgroundColor={theme.buttonBlack}
+                  />
                 </Flex>
                 {isShowTokens && (
                   <Flex alignItems="flex-start" marginBottom="28px">

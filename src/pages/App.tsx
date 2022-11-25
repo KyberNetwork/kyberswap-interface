@@ -36,6 +36,7 @@ import Swap from './Swap'
 import { RedirectPathToSwapOnly, RedirectToSwap } from './Swap/redirects'
 import ProAmmSwap from './SwapProAmm'
 import SwapV2 from './SwapV2'
+import TrueSightV2 from './TrueSightV2'
 import Verify from './Verify'
 
 // Route-based code splitting
@@ -262,6 +263,7 @@ export default function App() {
                     <Route exact path="/about/knc" component={AboutKNC} />
                     <Route exact path="/referral" component={CreateReferral} />
                     <Route exact path="/discover" component={TrueSight} />
+                    <Route exact path="/discover-v2" component={TrueSightV2} />
                     <Route exact path="/buy-crypto" component={BuyCrypto} />
                     <Route exact path={`${AppPaths.CAMPAIGN}/:slug?`} component={Campaign} />
                     <Route exact path={AppPaths.BRIDGE} component={Bridge} />
