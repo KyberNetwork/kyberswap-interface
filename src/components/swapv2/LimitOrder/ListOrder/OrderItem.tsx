@@ -1,4 +1,4 @@
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { useState } from 'react'
 import { Repeat } from 'react-feather'
@@ -191,7 +191,8 @@ export default function OrderItem({
   const progressComponent = (
     <Colum>
       <Text color={colorStatus}>
-        {(partiallyFilled ? t`Partially Filled: ${filledPercent}%` : t`Filled ${filledPercent}%`) + expandTitle}
+        {partiallyFilled ? <Trans>Partially Filled {filledPercent}%</Trans> : <Trans>Filled {filledPercent}%</Trans>}
+        {expandTitle}
       </Text>
       <ProgressBar
         width={upToSmall ? '160px' : 'unset'}

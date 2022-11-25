@@ -1,4 +1,4 @@
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { darken, rgba } from 'polished'
 import React from 'react'
 import { ChevronDown, Info } from 'react-feather'
@@ -310,7 +310,9 @@ export const ButtonApprove = ({
               </Flex>
             </MouseoverTooltip>
           )}
-          <Text textAlign="left">{t`Approve ${tokenSymbol}`}</Text>
+          <Text textAlign="left">
+            <Trans>Approve {tokenSymbol}</Trans>
+          </Text>
         </>
       )}
     </BtnApprovedWraper>

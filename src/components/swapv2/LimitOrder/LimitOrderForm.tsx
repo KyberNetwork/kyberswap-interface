@@ -395,7 +395,7 @@ const LimitOrderForm = function LimitOrderForm({
     const { hash: orderHash } = await hashOrder(payload)
     setFlowState(state => ({
       ...state,
-      pendingText: t`Sign limit order: ${inputAmount} ${currencyIn.symbol} to ${outputAmount} ${currencyOut.symbol}`,
+      pendingText: `Sign limit order: ${inputAmount} ${currencyIn.symbol} to ${outputAmount} ${currencyOut.symbol}`,
     }))
     //
     const signature = await library.getSigner().signMessage(ethers.utils.arrayify(orderHash))
@@ -613,7 +613,9 @@ const LimitOrderForm = function LimitOrderForm({
           options={[...EXPIRED_OPTIONS, { label: 'Custom', onSelect: toggleDatePicker }]}
           activeRender={item => (
             <Flex justifyContent={'space-between'}>
-              <Text>{t`Expires In`}</Text>
+              <Text>
+                <Trans>Expires In</Trans>
+              </Text>
               <Text color={theme.text} fontSize={14}>
                 {customDateExpire ? dayjs(customDateExpire).format('DD/MM/YYYY HH:mm') : item?.label}
               </Text>
@@ -641,7 +643,7 @@ const LimitOrderForm = function LimitOrderForm({
                 />
                 <ButtonError width="48%" id="swap-button" disabled={disableBtnReview} onClick={showPreview}>
                   <Text fontSize={16} fontWeight={500}>
-                    {t`Review Order`}
+                    <Trans>Review Order</Trans>
                   </Text>
                 </ButtonError>
               </RowBetween>
@@ -651,7 +653,9 @@ const LimitOrderForm = function LimitOrderForm({
         )}
         {!showApproveFlow && account && (
           <ButtonError onClick={showPreview} disabled={disableBtnReview}>
-            <Text fontWeight={500}>{t`Review Order`}</Text>
+            <Text fontWeight={500}>
+              <Trans>Review Order</Trans>
+            </Text>
           </ButtonError>
         )}
       </Flex>
