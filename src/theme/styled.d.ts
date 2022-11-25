@@ -90,7 +90,7 @@ export interface Colors {
   shadow: Color
 }
 
-export interface Grids {
+interface Grids {
   sm: number
   md: number
   lg: number

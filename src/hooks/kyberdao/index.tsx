@@ -10,13 +10,14 @@ import DaoABI from 'constants/abis/kyberdao/dao.json'
 import MigrateABI from 'constants/abis/kyberdao/migrate.json'
 import RewardDistributorABI from 'constants/abis/kyberdao/reward_distributor.json'
 import StakingABI from 'constants/abis/kyberdao/staking.json'
-import { KNC_ADDRESS } from 'constants/index'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
+import { KNC_ADDRESS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useContract } from 'hooks/useContract'
 import useTokenBalance from 'hooks/useTokenBalance'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { calculateGasMargin } from 'utils'
 
 import { ProposalDetail, StakerAction, StakerInfo, VoteInfo } from './types'
@@ -51,8 +52,9 @@ export function useKyberDaoStakeActions() {
         const tx = await stakingContract.deposit(amount, {
           gasLimit: calculateGasMargin(estimateGas),
         })
-        addTransactionWithType(tx, {
-          type: 'KyberDAO Stake',
+        addTransactionWithType({
+          hash: tx,
+          type: TRANSACTION_TYPE.KYBERDAO_STAKE,
           summary: t`You have successfully staked to KyberDAO`,
           arbitrary: { amount: formatUnits(amount) },
         })
@@ -72,8 +74,9 @@ export function useKyberDaoStakeActions() {
       const tx = await stakingContract.withdraw(amount, {
         gasLimit: calculateGasMargin(estimateGas),
       })
-      addTransactionWithType(tx, {
-        type: 'KyberDAO Unstake',
+      addTransactionWithType({
+        hash: tx,
+        type: TRANSACTION_TYPE.KYBERDAO_UNSTAKE,
         summary: t`You have successfully unstaked from KyberDAO`,
         arbitrary: { amount: formatUnits(amount) },
       })
@@ -91,7 +94,11 @@ export function useKyberDaoStakeActions() {
         const tx = await migrateContract.mintWithOldKnc(amount, {
           gasLimit: calculateGasMargin(estimateGas),
         })
-        addTransactionWithType(tx, { type: 'KyberDAO Migrate', summary: `KyberDAO` })
+        addTransactionWithType({
+          hash: tx,
+          type: TRANSACTION_TYPE.MIGRATE,
+          summary: `KyberDAO`,
+        })
         return tx.hash
       } catch (error) {
         console.log('Migrate error: ', error.message)
@@ -108,8 +115,9 @@ export function useKyberDaoStakeActions() {
       const tx = await stakingContract.delegate(address, {
         gasLimit: calculateGasMargin(estimateGas),
       })
-      addTransactionWithType(tx, {
-        type: 'KyberDAO Delegate',
+      addTransactionWithType({
+        hash: tx,
+        type: TRANSACTION_TYPE.KYBERDAO_DELEGATE,
         summary: t`You have successfully delegated voting power to ${address.slice(0, 6)}...${address.slice(-4)}`,
       })
       return tx.hash
@@ -126,8 +134,9 @@ export function useKyberDaoStakeActions() {
       const tx = await stakingContract.delegate(address, {
         gasLimit: calculateGasMargin(estimateGas),
       })
-      addTransactionWithType(tx, {
-        type: 'KyberDAO Undelegate',
+      addTransactionWithType({
+        hash: tx,
+        type: TRANSACTION_TYPE.KYBERDAO_UNDELEGATE,
         summary: t`You have successfully undelegated your voting power`,
       })
       return tx.hash
@@ -176,8 +185,9 @@ export function useClaimRewardActions() {
       const tx = await rewardDistributorContract.claim(cycle, index, address, tokens, cumulativeAmounts, merkleProof, {
         gasLimit: calculateGasMargin(estimateGas),
       })
-      addTransactionWithType(tx, {
-        type: 'KyberDAO Claim',
+      addTransactionWithType({
+        hash: tx,
+        type: TRANSACTION_TYPE.KYBERDAO_CLAIM,
         summary: t`Claimed reward successful`,
       })
       return tx.hash
@@ -201,8 +211,9 @@ export const useVotingActions = () => {
       const tx = await daoContract.submitVote(campId, option, {
         gasLimit: calculateGasMargin(estimateGas),
       })
-      addTransactionWithType(tx, {
-        type: 'KyberDAO Vote',
+      addTransactionWithType({
+        hash: tx,
+        type: TRANSACTION_TYPE.KYBERDAO_VOTE,
         summary: t`Voted successful`,
       })
       return tx.hash

@@ -11,7 +11,7 @@ import WarningIcon from 'components/Icons/WarningIcon'
 import Modal from 'components/Modal'
 import { AutoRow, RowBetween } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
-import { useActiveNetwork } from 'hooks/useActiveNetwork'
+import { useChangeNetwork } from 'hooks/useChangeNetwork'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
@@ -46,7 +46,7 @@ export default function SwitchToEthereumModal({ featureText }: { featureText: st
   const theme = useTheme()
   const modalOpen = useModalOpen(ApplicationModal.SWITCH_TO_ETHEREUM)
   const toggleModal = useToggleModal(ApplicationModal.SWITCH_TO_ETHEREUM)
-  const { changeNetwork } = useActiveNetwork()
+  const changeNetwork = useChangeNetwork()
 
   const handleChangeToEthereum = useCallback(async () => {
     if (chainId !== ChainId.GÖRLI) {

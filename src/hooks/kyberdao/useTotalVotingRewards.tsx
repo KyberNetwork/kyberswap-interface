@@ -5,9 +5,9 @@ import { useEffect, useMemo, useState } from 'react'
 import { useLocalStorage } from 'react-use'
 
 import { ERC20_ABI } from 'constants/abis/erc20'
-import { KNC_ADDRESS } from 'constants/index'
 import ethereumInfo from 'constants/networks/ethereum'
 import maticInfo from 'constants/networks/matic'
+import { KNC_ADDRESS } from 'constants/tokens'
 import { providers } from 'hooks'
 import { useKNCPrice } from 'state/application/hooks'
 

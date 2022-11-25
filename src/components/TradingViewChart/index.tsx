@@ -55,24 +55,6 @@ const MobileChart = styled.div<{ fullscreen: boolean; $loading: boolean }>`
   ${({ $loading }) => `display:${$loading ? 'none' : 'block'};`}
 `
 
-export interface ChartContainerProps {
-  symbol: ChartingLibraryWidgetOptions['symbol']
-  interval: ChartingLibraryWidgetOptions['interval']
-
-  // BEWARE: no trailing slash is expected in feed URL
-  datafeedUrl: string
-  libraryPath: ChartingLibraryWidgetOptions['library_path']
-  chartsStorageUrl: ChartingLibraryWidgetOptions['charts_storage_url']
-  chartsStorageApiVersion: ChartingLibraryWidgetOptions['charts_storage_api_version']
-  clientId: ChartingLibraryWidgetOptions['client_id']
-  userId: ChartingLibraryWidgetOptions['user_id']
-  fullscreen: ChartingLibraryWidgetOptions['fullscreen']
-  autosize: ChartingLibraryWidgetOptions['autosize']
-  studiesOverrides: ChartingLibraryWidgetOptions['studies_overrides']
-  container: ChartingLibraryWidgetOptions['container']
-  onReady: () => void
-}
-
 const LOCALSTORAGE_STATE_NAME = 'proChartSavedState'
 
 function openFullscreen(elem: any) {
@@ -121,22 +103,23 @@ function ProLiveChart({
   currencies,
   stateProChart,
   className,
+  setLoading,
 }: {
   currencies: Array<Currency | undefined>
   stateProChart?: any
   className?: string
+  setLoading: (loading: boolean) => void
 }) {
   const theme = useTheme()
   const userLocale = useUserLocale()
-  const { hasProChart, apiVersion, pairAddress, loading: loadingProp } = stateProChart
+  const { hasProChart, apiVersion, pairAddress, loading } = stateProChart
   const [ref, setRef] = useState<HTMLDivElement | null>(null)
-  const [loading, setLoading] = useState(true)
   const [fullscreen, setFullscreen] = useState(false)
 
   const datafeed = useDatafeed(currencies, pairAddress, apiVersion)
 
   useEffect(() => {
-    if (!ref || !hasProChart) {
+    if (!ref || !hasProChart || !window.TradingView) {
       return
     }
     setLoading(true)
@@ -235,7 +218,7 @@ function ProLiveChart({
 
   return (
     <ProLiveChartWrapper fullscreen={fullscreen} onClick={() => setFullscreen(false)} className={className}>
-      {(loading || loadingProp) && (
+      {loading && (
         <Loader>
           <AnimatedLoader />
         </Loader>
@@ -249,12 +232,12 @@ function ProLiveChart({
             e.stopPropagation()
           }}
           fullscreen={fullscreen}
-          $loading={loading || loadingProp}
+          $loading={loading}
         />
       ) : (
         <div
           ref={newRef => setRef(newRef)}
-          style={{ height: '100%', width: '100%', display: loading || loadingProp ? 'none' : 'block' }}
+          style={{ height: '100%', width: '100%', display: loading ? 'none' : 'block' }}
           onClick={(e: any) => {
             e.stopPropagation()
           }}

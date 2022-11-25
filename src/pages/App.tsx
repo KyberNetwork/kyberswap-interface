@@ -1,6 +1,4 @@
-import { ApolloProvider } from '@apollo/client'
 import { datadogRum } from '@datadog/browser-rum'
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import * as Sentry from '@sentry/react'
 import { Popover, Sidetab } from '@typeform/embed-react'
@@ -11,6 +9,7 @@ import { Route, Switch } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
+import AppHaveUpdate from 'components/AppHaveUpdate'
 import ErrorBoundary from 'components/ErrorBoundary'
 import Footer from 'components/Footer/Footer'
 import Header from 'components/Header'
@@ -19,8 +18,7 @@ import Loader from 'components/LocalLoader'
 import Modal from 'components/Modal'
 import Popups from 'components/Popups'
 import Web3ReactManager from 'components/Web3ReactManager'
-import { BLACKLIST_WALLETS } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
+import { APP_PATHS, BLACKLIST_WALLETS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useGlobalMixpanelEvents } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
@@ -30,13 +28,16 @@ import DarkModeQueryParamReader from 'theme/DarkModeQueryParamReader'
 import { isAddressString, shortenAddress } from 'utils'
 
 import { RedirectDuplicateTokenIds } from './AddLiquidityV2/redirects'
-import Bridge from './Bridge'
-import Swap from './Swap'
-import { RedirectPathToSwapOnly, RedirectToSwap } from './Swap/redirects'
-import ProAmmSwap from './SwapProAmm'
-import SwapV2 from './SwapV2'
+import { RedirectPathToFarmNetwork } from './Farm/redirect'
+import { RedirectPathToMyPoolsNetwork } from './Pool/redirect'
+import { RedirectPathToPoolsNetwork } from './Pools/redirect'
+import { RedirectPathToSwapNetwork } from './SwapV2/redirects'
+import Verify from './Verify'
 
 // Route-based code splitting
+const Swap = lazy(() => import(/* webpackChunkName: 'swap-page' */ './Swap'))
+const SwapV2 = lazy(() => import(/* webpackChunkName: 'swapv2-page' */ './SwapV2'))
+const Bridge = lazy(() => import(/* webpackChunkName: 'bridge-page' */ './Bridge'))
 const Pools = lazy(() => import(/* webpackChunkName: 'pools-page' */ './Pools'))
 const Pool = lazy(() => import(/* webpackChunkName: 'my-pool-page' */ './Pool'))
 
@@ -67,7 +68,6 @@ const RemoveLiquidity = lazy(() => import(/* webpackChunkName: 'remove-liquidity
 
 const KyberDAOStakeKNC = lazy(() => import(/* webpackChunkName: 'stake-knc' */ './KyberDAO/StakeKNC'))
 const KyberDAOVote = lazy(() => import(/* webpackChunkName: 'vote' */ './KyberDAO/Vote'))
-const KyberDAOFeatureRequest = lazy(() => import(/* webpackChunkName: 'vote' */ './KyberDAO/FeatureRequest'))
 const AboutKyberSwap = lazy(() => import(/* webpackChunkName: 'about-page' */ './About/AboutKyberSwap'))
 const AboutKNC = lazy(() => import(/* webpackChunkName: 'about-knc' */ './About/AboutKNC'))
 
@@ -103,16 +103,8 @@ const BodyWrapper = styled.div`
 
   ${isMobile && `overflow-x: hidden;`}
 `
-export const AppPaths = {
-  SWAP_LEGACY: '/swap-legacy',
-  ABOUT: '/about',
-  SWAP: '/swap',
-  CAMPAIGN: '/campaigns',
-  BRIDGE: '/bridge',
-}
-
 export default function App() {
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, networkInfo } = useActiveWeb3React()
 
   useEffect(() => {
     if (account) {
@@ -125,12 +117,10 @@ export default function App() {
     if (chainId) {
       Sentry.setContext('network', {
         chainId: chainId,
-        name: NETWORKS_INFO[chainId].name,
+        name: networkInfo.name,
       })
     }
-  }, [chainId])
-
-  const classicClient = NETWORKS_INFO[chainId || ChainId.MAINNET].classicClient
+  }, [chainId, networkInfo.name])
 
   const theme = useTheme()
   const isDarkTheme = useIsDarkMode()
@@ -138,11 +128,12 @@ export default function App() {
   const { width } = useWindowSize()
   useGlobalMixpanelEvents()
   const { pathname } = window.location
-  const showFooter = !pathname.includes(AppPaths.ABOUT)
+  const showFooter = !pathname.includes(APP_PATHS.ABOUT)
   const feedbackId = isDarkTheme ? 'W5TeOyyH' : 'K0dtSO0v'
 
   return (
     <ErrorBoundary>
+      <AppHaveUpdate />
       {width && width >= 768 ? (
         <Sidetab
           id={feedbackId}
@@ -156,7 +147,7 @@ export default function App() {
           customIcon={isDarkTheme ? 'https://i.imgur.com/iTOOKnr.png' : 'https://i.imgur.com/aPCpnGg.png'}
         />
       )}
-      {(BLACKLIST_WALLETS.includes(isAddressString(account)) ||
+      {(BLACKLIST_WALLETS.includes(isAddressString(chainId, account)) ||
         BLACKLIST_WALLETS.includes(account?.toLowerCase() || '')) && (
         <Modal
           isOpen
@@ -187,7 +178,7 @@ export default function App() {
             >
               <Text>Your wallet address</Text>
               <Text color={theme.subText} fontSize={20} marginTop="12px" fontWeight="500">
-                {isMobile ? shortenAddress(account || '', 10) : account}
+                {isMobile ? shortenAddress(chainId, account || '', 10) : account}
               </Text>
             </Flex>
           </Flex>
@@ -195,7 +186,7 @@ export default function App() {
       )}
 
       {(!account || !BLACKLIST_WALLETS.includes(account)) && (
-        <ApolloProvider client={classicClient}>
+        <>
           <Route component={DarkModeQueryParamReader} />
           <AppWrapper>
             <TopBanner />
@@ -207,75 +198,91 @@ export default function App() {
                 <Popups />
                 <Web3ReactManager>
                   <Switch>
-                    <Route exact strict path={AppPaths.SWAP_LEGACY} component={Swap} />
+                    <Route exact strict path={APP_PATHS.SWAP_LEGACY} component={Swap} />
 
-                    <Route exact strict path="/swap/:network/:fromCurrency-to-:toCurrency" component={SwapV2} />
-                    <Route exact strict path="/swap/:network/:fromCurrency" component={SwapV2} />
-
-                    <Route exact strict path="/swap/:outputCurrency" component={RedirectToSwap} />
-                    <Route exact strict path="/swap" component={SwapV2} />
-
-                    <Route exact strict path="/find" component={PoolFinder} />
-                    <Route exact strict path="/pools" component={Pools} />
-                    <Route exact strict path="/pools/:currencyIdA" component={Pools} />
-                    <Route exact strict path="/pools/:currencyIdA/:currencyIdB" component={Pools} />
-                    <Route exact strict path="/farms" component={Farm} />
-                    <Route exact strict path="/myPools" component={Pool} />
-
-                    {/* Create new pool */}
-                    <Route exact path="/create" component={CreatePool} />
-                    <Route exact path="/create/:currencyIdA" component={RedirectOldCreatePoolPathStructure} />
                     <Route
                       exact
-                      path="/create/:currencyIdA/:currencyIdB"
+                      strict
+                      path={`${APP_PATHS.SWAP}/:network/:fromCurrency-to-:toCurrency`}
+                      component={SwapV2}
+                    />
+                    <Route exact strict path={`${APP_PATHS.SWAP}/:network/:fromCurrency`} component={SwapV2} />
+                    <Route exact strict path={`${APP_PATHS.SWAP}/:network`} component={SwapV2} />
+                    <Route exact strict path={`${APP_PATHS.FIND_POOL}`} component={PoolFinder} />
+                    <Route exact strict path={`${APP_PATHS.POOLS}/:network`} component={Pools} />
+                    <Route exact strict path={`${APP_PATHS.POOLS}/:network/:currencyIdA`} component={Pools} />
+                    <Route exact strict path={`${APP_PATHS.POOLS}`} component={RedirectPathToPoolsNetwork} />
+                    <Route
+                      exact
+                      strict
+                      path={`${APP_PATHS.POOLS}/:network/:currencyIdA/:currencyIdB`}
+                      component={Pools}
+                    />
+                    <Route exact strict path={`${APP_PATHS.FARMS}/:network`} component={Farm} />
+                    <Route exact strict path={`${APP_PATHS.FARMS}`} component={RedirectPathToFarmNetwork} />
+                    <Route exact strict path={`${APP_PATHS.MY_POOLS}/:network`} component={Pool} />
+                    <Route exact strict path={`${APP_PATHS.MY_POOLS}`} component={RedirectPathToMyPoolsNetwork} />
+
+                    <Route exact path={`${APP_PATHS.CLASSIC_CREATE_POOL}`} component={CreatePool} />
+                    <Route
+                      exact
+                      path={`${APP_PATHS.CLASSIC_CREATE_POOL}/:currencyIdA`}
+                      component={RedirectOldCreatePoolPathStructure}
+                    />
+                    <Route
+                      exact
+                      path={`${APP_PATHS.CLASSIC_CREATE_POOL}/:currencyIdA/:currencyIdB`}
                       component={RedirectCreatePoolDuplicateTokenIds}
                     />
-
-                    {/* Add liquidity */}
-                    <Route exact path="/add/:currencyIdA/:currencyIdB/:pairAddress" component={AddLiquidity} />
-
+                    <Route
+                      exact
+                      path={`${APP_PATHS.CLASSIC_ADD_LIQ}/:currencyIdA/:currencyIdB/:pairAddress`}
+                      component={AddLiquidity}
+                    />
                     <Route
                       exact
                       strict
-                      path="/remove/:currencyIdA/:currencyIdB/:pairAddress"
+                      path={`${APP_PATHS.CLASSIC_REMOVE_POOL}/:currencyIdA/:currencyIdB/:pairAddress`}
                       component={RemoveLiquidity}
                     />
-
-                    <Route exact strict path="/elastic/swap" component={ProAmmSwap} />
-                    <Route exact strict path="/elastic/remove/:tokenId" component={ProAmmRemoveLiquidity} />
                     <Route
                       exact
                       strict
-                      path="/elastic/add/:currencyIdA?/:currencyIdB?/:feeAmount?"
+                      path={`${APP_PATHS.ELASTIC_REMOVE_POOL}/:tokenId`}
+                      component={ProAmmRemoveLiquidity}
+                    />
+                    <Route
+                      exact
+                      strict
+                      path={`${APP_PATHS.ELASTIC_CREATE_POOL}/:currencyIdA?/:currencyIdB?/:feeAmount?`}
                       component={RedirectDuplicateTokenIds}
                     />
-
                     <Route
                       exact
                       strict
-                      path="/elastic/increase/:currencyIdA?/:currencyIdB?/:feeAmount?/:tokenId?"
+                      path={`${APP_PATHS.ELASTIC_INCREASE_LIQ}/:currencyIdA?/:currencyIdB?/:feeAmount?/:tokenId?`}
                       component={IncreaseLiquidity}
                     />
 
-                    <Route exact path="/kyberdao/stake-knc" component={KyberDAOStakeKNC} />
-                    <Route exact path="/kyberdao/vote" component={KyberDAOVote} />
-                    <Route exact path="/kyberdao/feature-request" component={KyberDAOFeatureRequest} />
-                    <Route exact path="/about/kyberswap" component={AboutKyberSwap} />
-                    <Route exact path="/about/knc" component={AboutKNC} />
-                    <Route exact path="/referral" component={CreateReferral} />
-                    <Route exact path="/discover" component={TrueSight} />
-                    <Route exact path="/buy-crypto" component={BuyCrypto} />
-                    <Route exact path={`${AppPaths.CAMPAIGN}/:slug?`} component={Campaign} />
-                    <Route exact path={AppPaths.BRIDGE} component={Bridge} />
+                    <Route exact path={`${APP_PATHS.KYBERDAO_STAKE}`} component={KyberDAOStakeKNC} />
+                    <Route exact path={`${APP_PATHS.KYBERDAO_VOTE}`} component={KyberDAOVote} />
+                    <Route exact path={`${APP_PATHS.ABOUT}/kyberswap`} component={AboutKyberSwap} />
+                    <Route exact path={`${APP_PATHS.ABOUT}/knc`} component={AboutKNC} />
+                    <Route exact path={`${APP_PATHS.REFERRAL}`} component={CreateReferral} />
+                    <Route exact path={`${APP_PATHS.DISCOVER}`} component={TrueSight} />
+                    <Route exact path={`${APP_PATHS.BUY_CRYPTO}`} component={BuyCrypto} />
+                    <Route exact path={`${APP_PATHS.CAMPAIGN}/:slug?`} component={Campaign} />
+                    <Route exact path={`${APP_PATHS.BRIDGE}`} component={Bridge} />
+                    <Route exact path={`${APP_PATHS.VERIFY}`} component={Verify} />
 
-                    <Route component={RedirectPathToSwapOnly} />
+                    <Route component={RedirectPathToSwapNetwork} />
                   </Switch>
                 </Web3ReactManager>
               </BodyWrapper>
               {showFooter && <Footer />}
             </Suspense>
           </AppWrapper>
-        </ApolloProvider>
+        </>
       )}
     </ErrorBoundary>
   )

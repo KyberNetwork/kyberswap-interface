@@ -1,4 +1,3 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { computePoolAddress } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
@@ -6,7 +5,7 @@ import { rgba } from 'polished'
 import { useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
-import { useHistory, useLocation } from 'react-router-dom'
+import { Redirect, useHistory, useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -15,13 +14,15 @@ import Card from 'components/Card'
 import { AutoColumn } from 'components/Column'
 import Wallet from 'components/Icons/Wallet'
 import Search from 'components/Search'
+import SubscribeNotificationButton from 'components/SubscribeButton'
 import Toggle from 'components/Toggle'
 import Tutorial, { TutorialType } from 'components/Tutorial'
 import { PROMM_ANALYTICS_URL } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
+import { NOTIFICATION_TOPICS } from 'hooks/useNotification'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useProAmmPositions } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
@@ -32,6 +33,16 @@ import { PositionDetails } from 'types/position'
 
 import ContentLoader from './ContentLoader'
 import PositionListItem from './PositionListItem'
+
+const Hightlight = styled.span`
+  color: ${({ theme }) => theme.text};
+`
+const StyledText = styled.div`
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 22px;
+  color: ${({ theme }) => theme.subText};
+`
 
 const TabRow = styled.div`
   display: flex;
@@ -50,8 +61,55 @@ interface AddressSymbolMapInterface {
   [key: string]: string
 }
 
+const renderNotificationButton = (iconOnly: boolean) => {
+  return null // temp off feature, will release soon
+  return (
+    <SubscribeNotificationButton
+      iconOnly={iconOnly}
+      topicId={NOTIFICATION_TOPICS.POSITION_POOL}
+      unsubscribeModalContent={
+        <StyledText>
+          Unsubscribe to stop receiving notifications on <Hightlight>all</Hightlight> your liquidity positions
+        </StyledText>
+      }
+      unsubscribeTooltip={
+        <StyledText>
+          Unsubscribe to stop receiving notifications on <Hightlight>all</Hightlight> your liquidity positions
+        </StyledText>
+      }
+      subscribeModalContent={
+        <>
+          <StyledText>
+            <Trans>
+              You can subscribe to email notifications for your liquidity positions. Whenever your position goes{' '}
+              <Hightlight>out-of-range</Hightlight>, comes back <Hightlight>in-range</Hightlight>, or is{' '}
+              <Hightlight>closed</Hightlight> you will receive a notification.
+            </Trans>
+          </StyledText>
+          <br />
+          <StyledText>
+            <Trans>
+              You can enable or disable notifications for individual positions by clicking on the toggle on top of the
+              liquidity positions card
+            </Trans>
+          </StyledText>
+        </>
+      }
+      subscribeTooltip={
+        <div>
+          <Trans>
+            Subscribe to receive email notifications on <Hightlight>all</Hightlight> your liquidity positions. When your
+            liquidity position goes <Hightlight>out-of-range</Hightlight>, back <Hightlight>in-range</Hightlight> or is{' '}
+            <Hightlight>closed</Hightlight> you will receive a notification
+          </Trans>
+        </div>
+      }
+    />
+  )
+}
+
 export default function ProAmmPool() {
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
   const tokenAddressSymbolMap = useRef<AddressSymbolMapInterface>({})
   const { positions, loading: positionsLoading } = useProAmmPositions(account)
 
@@ -60,17 +118,17 @@ export default function ProAmmPool() {
   const farmingPools = useMemo(() => farms?.map(farm => farm.pools).flat() || [], [farms])
 
   const farmPositions = useMemo(() => {
-    if (!chainId) return []
+    if (!isEVM) return []
     return Object.values(userFarmInfo || {})
       .map(info => {
         return info.depositedPositions
           .map(pos => {
             const poolAddress = computePoolAddress({
-              factoryAddress: NETWORKS_INFO[chainId].elastic.coreFactory,
+              factoryAddress: (networkInfo as EVMNetworkInfo).elastic.coreFactory,
               tokenA: pos.pool.token0,
               tokenB: pos.pool.token1,
               fee: pos.pool.fee,
-              initCodeHashManualOverride: NETWORKS_INFO[chainId].elastic.initCodeHash,
+              initCodeHashManualOverride: (networkInfo as EVMNetworkInfo).elastic.initCodeHash,
             })
             const pool = farmingPools.filter(pool => pool.poolAddress.toLowerCase() === poolAddress.toLowerCase())
 
@@ -109,7 +167,7 @@ export default function ProAmmPool() {
           .flat()
       })
       .flat()
-  }, [chainId, farmingPools, userFarmInfo])
+  }, [farmingPools, userFarmInfo, isEVM, networkInfo])
 
   const [openPositions, closedPositions] = useMemo(
     () =>
@@ -125,13 +183,13 @@ export default function ProAmmPool() {
 
   const theme = useTheme()
 
-  const qs = useParsedQueryString()
-  const searchValueInQs: string = (qs.search as string) ?? ''
+  const { search: searchValueInQs = '', tab = VERSION.ELASTIC } = useParsedQueryString<{
+    search: string
+    tab: string
+  }>()
 
   const history = useHistory()
   const location = useLocation()
-
-  const tab = (qs.tab as string) || VERSION.ELASTIC
 
   const onSearch = (search: string) => {
     history.replace(location.pathname + '?search=' + search + '&tab=' + tab)
@@ -191,6 +249,7 @@ export default function ProAmmPool() {
     )
   }, [farms])
 
+  if (!isEVM) return <Redirect to="/" />
   return (
     <>
       <PageWrapper style={{ padding: 0, marginTop: '24px' }}>
@@ -198,7 +257,7 @@ export default function ProAmmPool() {
           <InstructionText>
             <Trans>Here you can view all your liquidity and staked balances in the Elastic Pools</Trans>
             {!upToSmall && (
-              <ExternalLink href={`${PROMM_ANALYTICS_URL[chainId as ChainId]}/account/${account}`}>
+              <ExternalLink href={`${PROMM_ANALYTICS_URL[chainId]}/account/${account}`}>
                 <Flex alignItems="center">
                   <Wallet size={16} />
                   <Text fontSize="14px" marginLeft="4px">
@@ -234,7 +293,7 @@ export default function ProAmmPool() {
 
               {upToSmall && (
                 <Flex sx={{ gap: '8px' }}>
-                  <ExternalLink href={`${PROMM_ANALYTICS_URL[chainId as ChainId]}/account/${account}`}>
+                  <ExternalLink href={`${PROMM_ANALYTICS_URL[chainId]}/account/${account}`}>
                     <Flex
                       sx={{ borderRadius: '50%' }}
                       width="36px"
@@ -247,10 +306,10 @@ export default function ProAmmPool() {
                     </Flex>
                   </ExternalLink>
                   <Tutorial type={TutorialType.ELASTIC_MY_POOLS} />
+                  {renderNotificationButton(true)}
                 </Flex>
               )}
             </Flex>
-
             <FilterRow>
               <Flex alignItems="center" style={{ gap: '8px' }}>
                 <Text fontSize="14px" color={theme.subText}>
@@ -264,7 +323,12 @@ export default function ProAmmPool() {
                 onSearch={onSearch}
                 placeholder={t`Search by token or pool address`}
               />
-              {!upToSmall && <Tutorial type={TutorialType.ELASTIC_MY_POOLS} />}
+              {!upToSmall && (
+                <>
+                  <Tutorial type={TutorialType.ELASTIC_MY_POOLS} />
+                  {renderNotificationButton(false)}
+                </>
+              )}
             </FilterRow>
           </TabRow>
 
@@ -274,13 +338,13 @@ export default function ProAmmPool() {
                 <Trans>Connect to a wallet to view your liquidity.</Trans>
               </TYPE.body>
             </Card>
-          ) : positionsLoading || loading ? (
+          ) : (positionsLoading && !positions) || (loading && !farms && !userFarmInfo) ? (
             <PositionCardGrid>
               <ContentLoader />
               <ContentLoader />
               <ContentLoader />
             </PositionCardGrid>
-          ) : (filteredPositions && filteredPositions.length > 0) || filteredFarmPositions.length > 0 ? (
+          ) : filteredPositions.length > 0 || filteredFarmPositions.length > 0 ? (
             <>
               {/* Use display attribute here instead of condition rendering to prevent re-render full list when toggle showStaked => increase performance */}
               <PositionCardGrid style={{ display: showStaked ? 'none' : 'grid' }}>

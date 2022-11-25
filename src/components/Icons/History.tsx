@@ -1,5 +1,3 @@
-import React from 'react'
-
 function History({ size }: { size?: number | string }) {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width={size || '16'} height={size || '16'} viewBox="0 0 22 20">

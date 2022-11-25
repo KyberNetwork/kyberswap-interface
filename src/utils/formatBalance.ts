@@ -16,6 +16,12 @@ export const getFullDisplayBalance = (balance: BigNumber, decimals = 18, signifi
   return parseFloat(amount.toFixed(significant)).toString()
 }
 
+export const getFullDisplayBalanceSignificant = (balance: BigNumber, decimals = 18, significant = 6): string => {
+  const amount = new Fraction(balance.toString(), JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals)))
+
+  return amount.toSignificant(significant)
+}
+
 export const formatJSBIValue = (balance?: JSBI, decimals = 18, significant = 6): string => {
   if (!balance) {
     return '0'

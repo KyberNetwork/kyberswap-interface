@@ -17,7 +17,7 @@ import WarningIcon from 'components/Icons/WarningIcon'
 import InfoHelper from 'components/InfoHelper'
 import { AutoRow, RowBetween, RowFit } from 'components/Row'
 import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
-import { KNCL_ADDRESS, KNC_ADDRESS } from 'constants/index'
+import { KNCL_ADDRESS, KNC_ADDRESS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { KYBERDAO_ADDRESSES, useKyberDaoStakeActions, useStakingInfo, useVotingInfo } from 'hooks/kyberdao'
@@ -232,7 +232,7 @@ export default function StakeKNCComponent() {
       (parseFloat(inputValue) > parseFloat(formatUnits(stakedBalance)) && activeTab === STAKE_TAB.Unstake)
     ) {
       setErrorMessage(t`Insufficient amount`)
-    } else if (activeTab === STAKE_TAB.Delegate && !isAddress(delegateAddress)) {
+    } else if (activeTab === STAKE_TAB.Delegate && !isAddress(chainId, delegateAddress)) {
       setErrorMessage(t`Invalid Ethereum address`)
     } else if (activeTab === STAKE_TAB.Delegate && delegateAddress.toLowerCase() === account?.toLowerCase()) {
       setErrorMessage(t`Cannot delegate to your wallet address`)

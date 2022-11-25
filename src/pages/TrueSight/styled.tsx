@@ -1,9 +1,5 @@
-import { rgba } from 'polished'
 import { Text } from 'rebass'
-import styled from 'styled-components'
-
-import { ButtonEmpty, ButtonPrimary } from 'components/Button'
-import { Spinner } from 'components/Header/Polling'
+import styled, { keyframes } from 'styled-components'
 
 export const TrueSightPageWrapper = styled.div`
   display: flex;
@@ -126,34 +122,6 @@ export const TextTooltip = styled(Text)<{ color: string }>`
   }
 `
 
-export const SubscribeButton = styled(ButtonPrimary)<{ isDisabled: boolean }>`
-  overflow: hidden;
-  width: fit-content;
-  height: 36px;
-  padding: 8px 12px;
-  background: ${({ theme, isDisabled }) => (isDisabled ? theme.buttonGray : theme.primary)};
-  color: ${({ theme, isDisabled }) => (isDisabled ? theme.border : theme.textReverse)};
-
-  ${({ theme, isDisabled }) => theme.mediaWidth.upToExtraSmall`
-    width: 36px;
-    min-width: 36px;
-    padding: 6px;
-    background: ${isDisabled ? theme.buttonGray : rgba(theme.primary, 0.2)};
-    color: ${isDisabled ? theme.border : theme.primary};
-  `}
-`
-
-export const UnSubscribeButton = styled(ButtonEmpty)`
-  width: fit-content;
-  height: 36px;
-  padding: 8px 12px;
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    width: 36px;
-    min-width: 36px;
-    padding: 6px;
-  `}
-`
-
 export const ButtonText = styled(Text)`
   font-size: 14px;
   font-weight: 500;
@@ -164,10 +132,29 @@ export const ButtonText = styled(Text)`
   `}
 `
 
-export const StyledSpinner = styled(Spinner)<{ color: string }>`
+const rotate360 = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+`
+
+export const StyledSpinner = styled.div<{ color: string }>`
+  animation: ${rotate360} 1s cubic-bezier(0.83, 0, 0.17, 1) infinite;
+  transform: translateZ(0);
+
+  border-top: 1px solid transparent;
+  border-right: 1px solid transparent;
+  border-bottom: 1px solid transparent;
   border-left: ${({ color }) => `1px solid  ${color}`};
+  background: transparent;
   width: 16px;
   height: 16px;
+  border-radius: 50%;
+  position: relative;
+
   top: 0px;
   left: 0px;
 `

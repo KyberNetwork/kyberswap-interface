@@ -16,14 +16,15 @@ import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
 import QuestionHelper from 'components/QuestionHelper'
 import { RowBetween, RowFixed } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { useActiveWeb3React } from 'hooks'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
-import { basisPointsToPercent, calculateGasMargin, formatNumberWithPrecisionRange } from 'utils'
+import { basisPointsToPercent, calculateGasMargin, formattedNumLong } from 'utils'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
 export default function ProAmmFee({
@@ -45,7 +46,8 @@ export default function ProAmmFee({
   feeValue0: CurrencyAmount<Currency> | undefined
   feeValue1: CurrencyAmount<Currency> | undefined
 }) {
-  const { chainId, account, library } = useActiveWeb3React()
+  const { chainId, account } = useActiveWeb3React()
+  const { library } = useWeb3React()
   const theme = useTheme()
   const token0Shown = unwrappedToken(position.pool.token0)
   const token1Shown = unwrappedToken(position.pool.token1)
@@ -93,7 +95,7 @@ export default function ProAmmFee({
     library
       .getSigner()
       .estimateGas(txn)
-      .then(estimate => {
+      .then((estimate: BigNumber) => {
         const newTxn = {
           ...txn,
           gasLimit: calculateGasMargin(estimate),
@@ -102,8 +104,9 @@ export default function ProAmmFee({
           .getSigner()
           .sendTransaction(newTxn)
           .then((response: TransactionResponse) => {
-            addTransactionWithType(response, {
-              type: 'Collect fee',
+            addTransactionWithType({
+              hash: response.hash,
+              type: TRANSACTION_TYPE.COLLECT_FEE,
               summary:
                 feeValue0.toSignificant(6) +
                 ' ' +
@@ -121,7 +124,7 @@ export default function ProAmmFee({
             })
           })
       })
-      .catch(error => {
+      .catch((error: any) => {
         console.error(error)
       })
   }, [
@@ -158,18 +161,18 @@ export default function ProAmmFee({
           <Divider />
           <RowBetween>
             <Text fontSize={12} fontWeight={500} color={theme.subText}>
-              <Trans>Total fee rewards</Trans>
+              <Trans>Total Fees Earned</Trans>
             </Text>
             <RowFixed>
               <Text fontSize={14} fontWeight={500} marginLeft={'6px'}>
-                $ {formatNumberWithPrecisionRange(totalFeeRewardUSD, 0, 8)}
+                {formattedNumLong(totalFeeRewardUSD, true)}
               </Text>
             </RowFixed>
           </RowBetween>
 
           <RowBetween>
             <Text fontSize={12} fontWeight={500} color={theme.subText}>
-              <Trans>{token0Shown.symbol} FEES EARNED</Trans>
+              <Trans>{token0Shown.symbol} Fees Earned</Trans>
             </Text>
             <RowFixed>
               <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={token0Shown} />
@@ -181,7 +184,7 @@ export default function ProAmmFee({
 
           <RowBetween>
             <Text fontSize={12} fontWeight={500} color={theme.subText}>
-              <Trans>{token1Shown.symbol} FEES EARNED</Trans>
+              <Trans>{token1Shown.symbol} Fees Earned</Trans>
             </Text>
             <RowFixed>
               <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={token1Shown} />
@@ -201,12 +204,12 @@ export default function ProAmmFee({
         <RowBetween>
           <Flex>
             <Text fontSize={12} fontWeight={500} color={theme.subText}>
-              <Trans>My rewards</Trans>
+              <Trans>Total Fees Earned</Trans>
             </Text>
           </Flex>
           <RowFixed>
             <Text fontSize={12} fontWeight={500}>
-              $ {formatNumberWithPrecisionRange(totalFeeRewardUSD, 0, 8)}
+              {formattedNumLong(totalFeeRewardUSD, true)}
             </Text>
           </RowFixed>
         </RowBetween>
@@ -221,7 +224,7 @@ export default function ProAmmFee({
           <RowFixed>
             <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={token0Shown} />
             <Text fontSize={12} fontWeight={500} marginLeft={'6px'}>
-              {feeValue0 && <FormattedCurrencyAmount currencyAmount={feeValue0} />}
+              {feeValue0 && <FormattedCurrencyAmount currencyAmount={feeValue0} />} {token0Shown.symbol}
             </Text>
           </RowFixed>
         </RowBetween>
@@ -235,7 +238,7 @@ export default function ProAmmFee({
           <RowFixed>
             <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={token1Shown} />
             <Text fontSize={12} fontWeight={500} marginLeft={'6px'}>
-              {feeValue1 && <FormattedCurrencyAmount currencyAmount={feeValue1} />}
+              {feeValue1 && <FormattedCurrencyAmount currencyAmount={feeValue1} />} {token1Shown.symbol}
             </Text>
           </RowFixed>
         </RowBetween>
