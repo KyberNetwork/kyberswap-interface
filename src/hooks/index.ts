@@ -112,6 +112,8 @@ export function useActiveWeb3React(): {
 
 export function useWeb3React(key?: string): Web3ReactContextInterface<Web3Provider> & { chainId?: ChainId } {
   const { connector, library, chainId, account, active, error, activate, setError, deactivate } = useWeb3ReactCore(key)
+  const chainIdState = useSelector<AppState, ChainId>(state => state.user.chainId) || ChainId.MAINNET
+
   const activateWrapped = useCallback(
     (connector: AbstractConnector, onError?: (error: Error) => void, throwErrors?: boolean) => {
       return activate(connector, onError, throwErrors)
@@ -123,7 +125,7 @@ export function useWeb3React(key?: string): Web3ReactContextInterface<Web3Provid
   }, [deactivate])
   return {
     connector,
-    library: library || providers[ChainId.MAINNET],
+    library: library || providers[chainIdState === ChainId.SOLANA ? ChainId.MAINNET : chainIdState],
     chainId: chainId || ChainId.MAINNET,
     account,
     active,
