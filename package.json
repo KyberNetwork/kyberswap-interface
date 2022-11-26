@@ -38,14 +38,21 @@
     "ChromeAndroid >= 52"
   ],
   "resolutions": {
-    "trezor-connect": "8.1.15"
+    "trezor-connect": "8.1.15",
+    "@lingui/cli": "3.14.0",
+    "@lingui/conf": "3.14.0",
+    "@lingui/core": "3.14.0",
+    "@lingui/loader": "3.14.0",
+    "@lingui/macro": "3.14.0",
+    "@lingui/react": "3.14.0",
+    "@lingui/babel-plugin-extract-messages": "3.14.0"
   },
   "dependencies": {
     "@apollo/client": "^3.7.1",
     "@datadog/browser-rum": "^4.23.3",
-    "@lingui/loader": "^3.14.0",
-    "@lingui/macro": "^3.14.0",
-    "@lingui/react": "^3.14.0",
+    "@lingui/loader": "~3.14.0",
+    "@lingui/macro": "~3.14.0",
+    "@lingui/react": "~3.14.0",
     "@kyberswap/ks-sdk-solana": "^1.0.0-rc.1",
     "@kyberswap/ks-sdk-classic": "^1.0.0-rc.1",
     "@kyberswap/ks-sdk-core": "^1.0.0-rc.1",
@@ -125,7 +132,7 @@
     "workbox-routing": "^6.5.4"
   },
   "devDependencies": {
-    "@lingui/cli": "^3.14.0",
+    "@lingui/cli": "~3.14.0",
     "@trivago/prettier-plugin-sort-imports": "^3.3.1",
     "@types/aos": "^3.0.4",
     "@types/big.js": "^6.0.0",
