@@ -38,14 +38,7 @@
     "ChromeAndroid >= 52"
   ],
   "resolutions": {
-    "trezor-connect": "8.1.15",
-    "@lingui/cli": "3.14.0",
-    "@lingui/conf": "3.14.0",
-    "@lingui/core": "3.14.0",
-    "@lingui/loader": "3.14.0",
-    "@lingui/macro": "3.14.0",
-    "@lingui/react": "3.14.0",
-    "@lingui/babel-plugin-extract-messages": "3.14.0"
+    "trezor-connect": "8.1.15"
   },
   "dependencies": {
     "@apollo/client": "^3.7.1",
