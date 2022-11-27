@@ -1,51 +1,13 @@
-import { ChainId, Fraction } from '@kyberswap/ks-sdk-core'
-import axios from 'axios'
+import { Fraction } from '@kyberswap/ks-sdk-core'
 import { ethers } from 'ethers'
 import JSBI from 'jsbi'
 
 import { formatNumberWithPrecisionRange, formattedNum } from 'utils'
-import { removeCollection } from 'utils/firebase'
 
 import { LimitOrder, LimitOrderStatus } from './type'
 
 export const isActiveStatus = (status: LimitOrderStatus) =>
   [LimitOrderStatus.ACTIVE, LimitOrderStatus.OPEN, LimitOrderStatus.PARTIALLY_FILLED].includes(status)
-
-const formatData = (data: any) => data.data.data
-export const getListOrder = (params: any): Promise<{ orders: LimitOrder[]; pagination: { totalItems: number } }> => {
-  return axios.get(`${process.env.REACT_APP_LIMIT_ORDER_API_READ}/v1/orders`, { params }).then(formatData)
-}
-
-export const submitOrder = (data: any) => {
-  return axios.post(`${process.env.REACT_APP_LIMIT_ORDER_API_WRITE}/v1/orders`, data).then(formatData)
-}
-
-export const hashOrder = (data: any) => {
-  return axios.post(`${process.env.REACT_APP_LIMIT_ORDER_API_WRITE}/v1/orders/hash`, data).then(formatData)
-}
-
-export const getTotalActiveMakingAmount = (chainId: string, tokenAddress: string, account: string) => {
-  return axios
-    .get(`${process.env.REACT_APP_LIMIT_ORDER_API_READ}/v1/orders/active-making-amount`, {
-      params: {
-        chainId,
-        makerAsset: tokenAddress,
-        maker: account,
-      },
-    })
-    .then(formatData)
-}
-
-export const getEncodeData = (orderIds: number[], isCancelAll = false) => {
-  const method = isCancelAll ? 'increase-nonce' : 'cancel-batch-orders'
-  return axios
-    .post(`${process.env.REACT_APP_LIMIT_ORDER_API_READ}/v1/encode/${method}`, isCancelAll ? {} : { orderIds })
-    .then(formatData)
-}
-
-export const ackNotificationOrder = (type: LimitOrderStatus, account: string, chainId: ChainId) => {
-  return removeCollection(type, chainId, account)
-}
 
 // js number to fraction
 function parseFraction(value: string, decimals = 18) {

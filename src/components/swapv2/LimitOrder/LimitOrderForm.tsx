@@ -35,16 +35,8 @@ import ConfirmOrderModal from './ConfirmOrderModal'
 import DeltaRate from './DeltaRate'
 import ExpirePicker from './ExpirePicker'
 import { DEFAULT_EXPIRED, EXPIRED_OPTIONS, LIMIT_ORDER_CONTRACT } from './const'
-import {
-  calcInvert,
-  calcOutput,
-  calcPercentFilledOrder,
-  calcRate,
-  formatUsdPrice,
-  getTotalActiveMakingAmount,
-  hashOrder,
-  submitOrder,
-} from './helpers'
+import { calcInvert, calcOutput, calcPercentFilledOrder, calcRate, formatUsdPrice } from './helpers'
+import { getTotalActiveMakingAmount, hashOrder, submitOrder } from './request'
 import { LimitOrder, LimitOrderActions, LimitOrderStatus, RateInfo } from './type'
 import useBaseTradeInfo from './useBaseTradeInfo'
 

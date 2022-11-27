@@ -22,7 +22,6 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { TRANSACTION_STATE_DEFAULT, TransactionFlowState } from 'types'
 import {
-  insertCancelledOrder,
   subscribeNotificationOrderCancelled,
   subscribeNotificationOrderExpired,
   subscribeNotificationOrderFilled,
@@ -32,14 +31,8 @@ import { sendEVMTransaction } from 'utils/sendTransaction'
 import { CancelOrderModal } from '../ConfirmOrderModal'
 import EditOrderModal from '../EditOrderModal'
 import { LIMIT_ORDER_CONTRACT } from '../const'
-import {
-  ackNotificationOrder,
-  calcPercentFilledOrder,
-  formatAmountOrder,
-  formatRateOrder,
-  getEncodeData,
-  getListOrder,
-} from '../helpers'
+import { calcPercentFilledOrder, formatAmountOrder, formatRateOrder } from '../helpers'
+import { ackNotificationOrder, getEncodeData, getListOrder, insertCancellingOrder } from '../request'
 import { LimitOrder, LimitOrderActions, LimitOrderStatus, ListOrderHandle } from '../type'
 import useCancellingOrders from '../useCancellingOrders'
 import OrderItem from './OrderItem'
@@ -319,8 +312,8 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
 
   const refreshListOrder = useCallback(() => {
     onReset()
-    if (orderType) fetchListOrder(orderType, '', 1)
-  }, [fetchListOrder, orderType])
+    fetchListOrder(orderType || activeTab, '', 1)
+  }, [fetchListOrder, orderType, activeTab])
 
   useImperativeHandle(ref, () => ({
     refreshListOrder,
@@ -335,8 +328,6 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
   useEffect(() => {
     if (!account || !chainId) return
     const unsubscribeCancelled = subscribeNotificationOrderCancelled(account, chainId, data => {
-      console.log(data)
-      // todo noti here. call api ack
       refreshListOrder()
       const isSuccessful = data?.all?.[0]?.isSuccessful
       if (isSuccessful !== undefined) {
@@ -357,7 +348,8 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
           10000,
         )
       }
-      data?.orders.forEach((order: any) => {
+      const orders: LimitOrder[] = data?.orders ?? []
+      orders?.forEach(order => {
         // todo
         notify(
           {
@@ -373,13 +365,19 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
           10000,
         )
       })
-      ackNotificationOrder(LimitOrderStatus.CANCELLED, account, chainId).catch(console.error)
+      if (orders.length)
+        ackNotificationOrder(
+          orders.map(e => e.id.toString()),
+          account,
+          chainId,
+        ).catch(console.error)
     })
     const unsubscribeExpired = subscribeNotificationOrderExpired(account, chainId, data => {
       console.log(data)
       // todo noti here. call api ack
       refreshListOrder()
-      data?.orders.forEach((order: LimitOrder) => {
+      const orders: LimitOrder[] = data?.orders ?? []
+      orders.forEach(order => {
         notify(
           {
             type: NotificationType.WARNING,
@@ -389,13 +387,15 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
           10000,
         )
       })
-      ackNotificationOrder(LimitOrderStatus.EXPIRED, account, chainId).catch(console.error)
+      //  if (orders.length)
+      // ackNotificationOrder(LimitOrderStatus.EXPIRED, account, chainId).catch(console.error)
     })
     const unsubscribeFilled = subscribeNotificationOrderFilled(account, chainId, data => {
       console.log(data)
       // todo noti here. call api ack
       refreshListOrder()
-      data?.orders.forEach((order: LimitOrder) => {
+      const orders: LimitOrder[] = data?.orders ?? []
+      orders.forEach(order => {
         const isPartialFilled = order.status === LimitOrderStatus.PARTIALLY_FILLED
         notify(
           {
@@ -406,7 +406,8 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
           10000,
         )
       })
-      ackNotificationOrder(LimitOrderStatus.FILLED, account, chainId).catch(console.error)
+      //  if (orders.length)
+      // ackNotificationOrder(LimitOrderStatus.FILLED, account, chainId).catch(console.error)
     })
     return () => {
       unsubscribeCancelled?.()
@@ -452,7 +453,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
   }, [])
 
   const addTransactionWithType = useTransactionAdder()
-  const { isOrderCancelling, setCancellingOrders, cancellingOrdersMap } = useCancellingOrders(orders)
+  const { isOrderCancelling, setCancellingOrders, cancellingOrdersIds } = useCancellingOrders(orders)
 
   const orderFiltered = useMemo(() => {
     // filter order that not cancelling
@@ -481,19 +482,20 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
               (x, y) => y,
             ),
           }
-        : { orderIds: cancellingOrdersMap.concat(newOrders) },
+        : { orderIds: cancellingOrdersIds.concat(newOrders) },
     ) // todo
-    setFlowState(state => ({ ...state, showConfirm: false }))
-    if (!order) {
-      setTimeout(() => {
-        insertCancelledOrder(null, chainId, account)
-      }, 30 * 1000)
-      // todo remove
-      return
+
+    if (response?.hash && account) {
+      insertCancellingOrder({
+        maker: account,
+        chainId: chainId.toString(),
+        txHash: response.hash,
+        isCancelAll,
+        orderIds: newOrders,
+      })
     }
-    setTimeout(() => {
-      insertCancelledOrder(order, chainId, account)
-    }, 30 * 1000)
+
+    setFlowState(state => ({ ...state, showConfirm: false }))
     response &&
       addTransactionWithType({
         ...response,

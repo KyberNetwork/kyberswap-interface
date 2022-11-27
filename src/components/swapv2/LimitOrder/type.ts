@@ -40,6 +40,7 @@ export type LimitOrder = {
   }>
   // custom
   filledPercent: number
+  isSuccessful: boolean
 }
 
 export type RateInfo = {
