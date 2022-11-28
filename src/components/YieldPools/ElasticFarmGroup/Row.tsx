@@ -38,6 +38,7 @@ import { APRTooltipContent } from '../FarmingPoolAPRCell'
 import { useSharePoolContext } from '../SharePoolContext'
 import { InfoRow, ProMMFarmTableRow, ProMMFarmTableRowMobile, RewardMobileArea } from '../styleds'
 import { ActionButton, ButtonColorScheme, MinimalActionButton } from './buttons'
+import { FeeTag } from './styleds'
 
 const ButtonGroupContainerOnMobile = styled.div`
   display: flex;
@@ -566,18 +567,7 @@ const Row = ({
             </Text>
           </Link>
 
-          <Flex
-            onClick={() => {
-              setSharePoolAddress(farmingPool.poolAddress)
-            }}
-            sx={{
-              marginLeft: '8px',
-              cursor: 'pointer',
-            }}
-            role="button"
-          >
-            <Share2 size="14px" color={theme.subText} />
-          </Flex>
+          <FeeTag>{(farmingPool.pool.fee * 100) / ELASTIC_BASE_FEE_UNIT}%</FeeTag>
         </Flex>
 
         <Flex
@@ -588,12 +578,25 @@ const Row = ({
           color={theme.subText}
           width="max-content"
         >
-          <Text>Fee = {(farmingPool.pool.fee * 100) / ELASTIC_BASE_FEE_UNIT}%</Text>
-          <Text color={theme.subText}>|</Text>
-
-          <Flex alignItems="center">
-            <Text>{shortenAddress(farmingPool.poolAddress, 2)}</Text>
+          <Flex alignItems="center" sx={{ gap: '4px' }}>
             <CopyHelper toCopy={farmingPool.poolAddress} />
+            <Text>{shortenAddress(farmingPool.poolAddress, 2)}</Text>
+          </Flex>
+
+          <Flex
+            marginLeft="12px"
+            onClick={() => {
+              setSharePoolAddress(farmingPool.poolAddress)
+            }}
+            sx={{
+              cursor: 'pointer',
+              gap: '4px',
+            }}
+            role="button"
+            color={theme.subText}
+          >
+            <Share2 size="14px" color={theme.subText} />
+            <Trans>Share</Trans>
           </Flex>
         </Flex>
       </div>

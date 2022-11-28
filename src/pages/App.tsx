@@ -253,7 +253,7 @@ export default function App() {
                     <Route path={`${AppPaths.CAMPAIGN}/:slug`} element={<Campaign />} />
                     <Route path={AppPaths.BRIDGE} element={<Bridge />} />
                     <Route path={AppPaths.VERIFY} element={<Verify />} />
-                    <Route element={<RedirectPathToSwapOnly />} />
+                    <Route path="*" element={<RedirectPathToSwapOnly />} />
                   </Routes>
                 </Web3ReactManager>
               </BodyWrapper>
