@@ -29,6 +29,7 @@ import { isAddressString, shortenAddress } from 'utils'
 
 import { RedirectDuplicateTokenIds } from './AddLiquidityV2/redirects'
 import { RedirectPathToFarmNetwork } from './Farm/redirect'
+import Icons from './Icons'
 import { RedirectPathToMyPoolsNetwork } from './Pool/redirect'
 import { RedirectPathToPoolsNetwork } from './Pools/redirect'
 import { RedirectPathToSwapNetwork } from './SwapV2/redirects'
@@ -266,11 +267,12 @@ export default function App() {
                     <Route exact path={`${APP_PATHS.ABOUT}/knc`} component={AboutKNC} />
                     <Route exact path={`${APP_PATHS.REFERRAL}`} component={CreateReferral} />
                     <Route exact path={`${APP_PATHS.DISCOVER}`} component={TrueSightV2} />
+                    <Route exact path={`${APP_PATHS.DISCOVER}/single-token`} component={TrueSightV2} />
                     <Route exact path={`${APP_PATHS.BUY_CRYPTO}`} component={BuyCrypto} />
                     <Route exact path={`${APP_PATHS.CAMPAIGN}/:slug?`} component={Campaign} />
                     <Route exact path={`${APP_PATHS.BRIDGE}`} component={Bridge} />
                     <Route exact path={`${APP_PATHS.VERIFY}`} component={Verify} />
-
+                    <Route exact path="/icons" component={Icons} />
                     <Route component={RedirectPathToSwapNetwork} />
                   </Switch>
                 </Web3ReactManager>

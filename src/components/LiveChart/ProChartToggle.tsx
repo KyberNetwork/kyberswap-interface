@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 import useTheme from 'hooks/useTheme'
 
@@ -37,7 +37,7 @@ const ToggleElement = styled.span<{
   cursor: ${({ disabled }) => (disabled ? 'inherit' : 'pointer')};
 `
 
-const ToggleWrapper = styled.button<{ size?: string; border?: boolean; background?: string }>`
+const ToggleWrapper = styled.button<{ size?: string; border?: boolean; background?: string; disabled?: boolean }>`
   position: relative;
   border-radius: ${({ size }) => (size === 'md' ? '18px' : '12px')};
   border: ${({ background, border }) => (border ? `2px solid ${background}` : 'none')};
@@ -46,6 +46,13 @@ const ToggleWrapper = styled.button<{ size?: string; border?: boolean; backgroun
   width: fit-content;
   outline: none;
   padding: 0;
+
+  ${({ disabled }) =>
+    disabled &&
+    css`
+      opacity: 0.4;
+      pointer-events: none;
+    `}
 `
 
 interface IToggleButton {
@@ -60,6 +67,7 @@ interface ProChartToggleProps {
   toggle: (name: string) => void
   size?: 'sm' | 'md'
   border?: boolean
+  disabled?: boolean
 }
 
 export default function ProChartToggle({
@@ -72,6 +80,7 @@ export default function ProChartToggle({
   toggle,
   size = 'sm',
   border = false,
+  disabled,
 }: ProChartToggleProps) {
   const buttonsRef = useRef<any>({})
   const theme = useTheme()
@@ -87,6 +96,7 @@ export default function ProChartToggle({
       size={size}
       border={border}
       background={`${theme.tabBackgound}${buttons.some((b: any) => b.disabled) ? '20' : ''}`}
+      disabled={disabled}
     >
       {buttons.map(button => {
         return (
@@ -100,7 +110,7 @@ export default function ProChartToggle({
             border={border}
             disabled={button.disabled}
             onClick={() => {
-              !button.disabled && toggle(button.name)
+              !disabled && !button.disabled && toggle(button.name)
             }}
           >
             {button.title}

@@ -1,10 +1,5 @@
 import { t } from '@lingui/macro'
 
-export const TruesightV2Pages = {
-  Overview: t`Overview`,
-  TokenAnalysis: t`Token Analysis`,
-}
-
 export const TokenAnalysisTab = {
   All: t`All`,
   Bullish: t`Bullish`,

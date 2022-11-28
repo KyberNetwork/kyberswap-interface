@@ -7,18 +7,19 @@ import { ButtonEmpty } from 'components/Button'
 import SearchIcon from 'components/Icons/Search'
 import useTheme from 'hooks/useTheme'
 
-export const Container = styled.div`
+export const Container = styled.div<{ minWidth?: string }>`
   z-index: 1;
   position: relative;
   background-color: ${({ theme }) => theme.background};
   border-radius: 999px;
+  min-width: ${({ minWidth }) => minWidth || '360px'};
 
   @media screen and (max-width: 768px) {
     width: 100%;
   }
 `
 
-export const Wrapper = styled.div<{ minWidth?: string }>`
+export const Wrapper = styled.div`
   display: flex;
   position: relative;
   flex-direction: row;
@@ -27,7 +28,6 @@ export const Wrapper = styled.div<{ minWidth?: string }>`
   padding: 6px 12px;
   border-radius: 40px;
   width: 100%;
-  min-width: ${({ minWidth }) => minWidth || '360px'};
   box-sizing: border-box;
   @media screen and (max-width: 500px) {
     box-shadow: none;
@@ -64,8 +64,8 @@ interface SearchProps {
 const Search = ({ searchValue, onSearch, placeholder, minWidth, style }: SearchProps) => {
   const theme = useTheme()
   return (
-    <Container style={style}>
-      <Wrapper minWidth={minWidth}>
+    <Container style={style} minWidth={minWidth}>
+      <Wrapper>
         <Input
           type="text"
           placeholder={placeholder || t`Search by pool address`}

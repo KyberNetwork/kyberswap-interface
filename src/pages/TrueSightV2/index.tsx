@@ -1,19 +1,19 @@
 import { Trans } from '@lingui/macro'
 import { useState } from 'react'
-import { Bell, Star } from 'react-feather'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
-import Divider from 'components/Divider'
+import { ButtonOutlined, ButtonPrimary } from 'components/Button'
+import Icon from 'components/Icons/Icon'
 import { RowBetween, RowFit } from 'components/Row'
-import { TabButton, TabDivider } from 'components/Tab'
+import Search from 'components/Search'
 import useTheme from 'hooks/useTheme'
-import { ButtonText } from 'theme'
 
-import TokenAnalysis from './TokenAnalysis'
-import { TokenAnalysisTab, TruesightV2Pages } from './types'
+import SingleToken from './SingleToken'
+import TokenAnalysisList from './TokenAnalysisList'
 
 const Wrapper = styled.div`
+  padding: 28px 0;
   display: flex;
   align-items: stretch;
   justify-content: center;
@@ -23,53 +23,46 @@ const Wrapper = styled.div`
   color: ${({ theme }) => theme.subText};
 `
 
-export default function TrueSightV2() {
+export default function TrueSightV2(props: any) {
   const theme = useTheme()
-  const [currentPage, setCurrentPage] = useState<string>(TruesightV2Pages.TokenAnalysis)
+  const [subscribed, setSubscribed] = useState(false)
+  const isSingleToken = props.match?.path?.includes('single-token')
   return (
     <Wrapper>
-      Truesight v2
-      <RowBetween>
-        <RowFit>
-          <TabButton
-            color={currentPage === TruesightV2Pages.Overview ? theme.primary : theme.subText}
-            key={TruesightV2Pages.Overview}
-            onClick={() => setCurrentPage(TruesightV2Pages.Overview)}
-            fontSize={24}
-          >
-            {TruesightV2Pages.Overview}
-          </TabButton>
-          <TabDivider width={3} height={24} color={theme.subText} margin="0 15px" />
-          <TabButton
-            color={currentPage === TruesightV2Pages.TokenAnalysis ? theme.primary : theme.subText}
-            key={TruesightV2Pages.TokenAnalysis}
-            onClick={() => setCurrentPage(TruesightV2Pages.TokenAnalysis)}
-            fontSize={24}
-          >
-            {TruesightV2Pages.TokenAnalysis}
-          </TabButton>
+      <RowBetween marginBottom="20px">
+        <RowFit color={theme.text} gap="6px">
+          <Icon id="truesight-v2" size={20} />
+          <Text fontSize={24}>
+            <Trans>Discover Tokens</Trans>
+          </Text>
         </RowFit>
-        <RowFit gap="24px">
-          <ButtonText color={theme.subText} gap="4px">
-            <Star size={16} fill="currentColor" />
-            <Text fontSize={14} fontWeight={500}>
-              <Trans>My Watchlist</Trans>
-            </Text>
-          </ButtonText>
-          <ButtonText color={theme.subText} gap="4px">
-            <Bell size={16} fill="currentColor" />
-            <Text fontSize={14} fontWeight={500}>
-              <Trans>My Alerts</Trans>
-            </Text>
-          </ButtonText>
+        <RowFit gap="16px">
+          <Search
+            onSearch={(search: string) => console.log(search)}
+            searchValue=""
+            placeholder="Search"
+            minWidth="240px"
+          />
+          {subscribed ? (
+            <ButtonPrimary onClick={() => setSubscribed(prev => !prev)} width="120px" height="36px" gap="4px">
+              <Icon id="notification-2" size={16} />
+              <Trans>Subscribe</Trans>
+            </ButtonPrimary>
+          ) : (
+            <ButtonOutlined onClick={() => setSubscribed(prev => !prev)} width="120px" height="36px">
+              <Trans>Unsubscribe</Trans>
+            </ButtonOutlined>
+          )}
         </RowFit>
       </RowBetween>
-      <Divider color={theme.border} />
-      <Text fontSize={12} margin="16px 0">
-        Lorem Ipsum, some explanation text here
+      <Text fontSize={12} color={theme.subText} lineHeight="16px" marginBottom={24}>
+        <Trans>
+          Our algorithm analyzes thousands of tokens and multiple on-chain / off-chain indicators each day to give you a
+          curated list of tokens across various categories. You can further explore each token in detail - use our
+          on-chain, technical and social analysis to find alpha and make better trading decisions!
+        </Trans>
       </Text>
-      <Divider color={theme.border} />
-      <TokenAnalysis />
+      {isSingleToken ? <SingleToken /> : <TokenAnalysisList />}
     </Wrapper>
   )
 }
