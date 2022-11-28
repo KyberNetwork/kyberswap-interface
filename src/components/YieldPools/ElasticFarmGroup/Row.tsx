@@ -20,7 +20,7 @@ import InfoHelper from 'components/InfoHelper'
 import Modal from 'components/Modal'
 import { MouseoverTooltip, MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { TOBE_EXTENDED_FARMING_POOLS } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useProMMFarmContract } from 'hooks/useContract'
@@ -113,13 +113,11 @@ const Row = ({
   onOpenModal: (modalType: 'deposit' | 'withdraw' | 'stake' | 'unstake', pid?: number | string) => void
   onHarvest: () => void
 }) => {
+  const { chainId } = useActiveWeb3React()
   const theme = useTheme()
   const currentTimestamp = Math.floor(Date.now() / 1000)
   const above1000 = useMedia('(min-width: 1000px)')
-  const qs = useParsedQueryString()
-  const tab = qs.type || 'active'
-
-  const { chainId } = useActiveWeb3React()
+  const { type: tab = 'active' } = useParsedQueryString<{ type: string }>()
 
   const { userFarmInfo } = useElasticFarms()
 
@@ -129,11 +127,11 @@ const Row = ({
       return (
         farmingPool.poolAddress.toLowerCase() ===
         computePoolAddress({
-          factoryAddress: NETWORKS_INFO[chainId || ChainId.MAINNET].elastic.coreFactory,
+          factoryAddress: NETWORKS_INFO[isEVM(chainId) ? chainId : ChainId.MAINNET].elastic.coreFactory,
           tokenA: pos.pool.token0,
           tokenB: pos.pool.token1,
           fee: pos.pool.fee,
-          initCodeHashManualOverride: NETWORKS_INFO[chainId || ChainId.MAINNET].elastic.initCodeHash,
+          initCodeHashManualOverride: NETWORKS_INFO[isEVM(chainId) ? chainId : ChainId.MAINNET].elastic.initCodeHash,
         }).toLowerCase()
       )
     }) || []
@@ -294,7 +292,7 @@ const Row = ({
             <Text color={theme.subText}>|</Text>
 
             <Flex alignItems="center">
-              <Text>{shortenAddress(farmingPool.poolAddress, 2)}</Text>
+              <Text>{shortenAddress(chainId, farmingPool.poolAddress, 2)}</Text>
               <CopyHelper toCopy={farmingPool.poolAddress} />
             </Flex>
           </Flex>
@@ -311,7 +309,7 @@ const Row = ({
               <Trans>AVG APR</Trans>
               <InfoHelper
                 text={
-                  qs.type === 'active'
+                  tab === 'active'
                     ? t`Average estimated return based on yearly fees and bonus rewards of the pool`
                     : t`Average estimated return based on yearly fees of the pool plus bonus rewards from the farm`
                 }
@@ -580,7 +578,7 @@ const Row = ({
         >
           <Flex alignItems="center" sx={{ gap: '4px' }}>
             <CopyHelper toCopy={farmingPool.poolAddress} />
-            <Text>{shortenAddress(farmingPool.poolAddress, 2)}</Text>
+            <Text>{shortenAddress(chainId, farmingPool.poolAddress, 2)}</Text>
           </Flex>
 
           <Flex

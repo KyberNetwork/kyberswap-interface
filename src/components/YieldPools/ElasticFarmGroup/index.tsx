@@ -17,7 +17,7 @@ import Harvest from 'components/Icons/Harvest'
 import InfoHelper from 'components/InfoHelper'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { ZERO_ADDRESS } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import useParsedQueryString from 'hooks/useParsedQueryString'
@@ -162,11 +162,12 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
           return (
             pool.poolAddress.toLowerCase() ===
             computePoolAddress({
-              factoryAddress: NETWORKS_INFO[chainId || ChainId.MAINNET].elastic.coreFactory,
+              factoryAddress: NETWORKS_INFO[isEVM(chainId) ? chainId : ChainId.MAINNET].elastic.coreFactory,
               tokenA: pos.pool.token0,
               tokenB: pos.pool.token1,
               fee: pos.pool.fee,
-              initCodeHashManualOverride: NETWORKS_INFO[chainId || ChainId.MAINNET].elastic.initCodeHash,
+              initCodeHashManualOverride:
+                NETWORKS_INFO[isEVM(chainId) ? chainId : ChainId.MAINNET].elastic.initCodeHash,
             }).toLowerCase()
           )
         }) || []

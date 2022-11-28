@@ -8,9 +8,9 @@ import styled from 'styled-components'
 import { CheckCircle, XCircle } from 'components/Icons'
 import Loader from 'components/Loader'
 import { NOTIFICATION_API } from 'constants/env'
+import { APP_PATHS } from 'constants/index'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
-import { AppPaths } from 'pages/App'
 
 const PageWrapper = styled.div`
   padding: 32px 50px;
@@ -58,7 +58,7 @@ function Verify() {
         .then(() => {
           setStatus(STATUS.SUCCESS)
           refTimeoutRedirect.current = setTimeout(() => {
-            navigate(AppPaths.SWAP, { replace: true })
+            navigate(APP_PATHS.SWAP, { replace: true })
           }, timeRedirect * 1000)
           if (qs.email) {
             // temp off, will release soon
