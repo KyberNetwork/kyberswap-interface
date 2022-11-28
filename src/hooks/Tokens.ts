@@ -58,7 +58,7 @@ export type TokenMap = { [address: string]: WrappedTokenInfo }
 
 export function useAllTokens(lowercaseAddress = false): TokenMap {
   const { mapWhitelistTokens } = useSelector((state: AppState) => state.lists)
-  const allTokens = useDebounce(mapWhitelistTokens, 1000)
+  const allTokens = useDebounce(mapWhitelistTokens, 300)
   return useTokensFromMap(allTokens, lowercaseAddress)
 }
 
