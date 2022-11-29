@@ -12,25 +12,14 @@ module.exports = function override(config, env) {
     }
   })
 
-  config.module.rules.push({
-    test: /\.mjs$/,
-    include: /node_modules/,
-    type: 'javascript/auto',
-  })
-
   config.optimization = {
     ...config.optimization,
     moduleIds: 'named',
     splitChunks: {
       cacheGroups: {
-        ethers: {
+        vendor: {
           test: /[\\/]node_modules[\\/](ethers|@ethersproject)[\\/]/,
           name: 'ethers',
-          chunks: 'all',
-        },
-        solana: {
-          test: /[\\/]node_modules[\\/](@solana)[\\/]/,
-          name: 'solana',
           chunks: 'all',
         },
         // commons: {

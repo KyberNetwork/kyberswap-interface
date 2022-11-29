@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useMedia } from 'react-use'
 import styled from 'styled-components'
 
@@ -55,7 +55,7 @@ const SelectWrapper = styled.select`
   border-radius: 999px;
   border: none;
 `
-interface StaticFeeSelectorProps {
+export interface StaticFeeSelectorProps {
   active?: number
   onChange: (name: number) => void
   options: { name: number; title: string }[]

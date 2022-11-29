@@ -32,15 +32,15 @@ export function navigatorLocale(): SupportedLocale | undefined {
 }
 
 export function useSetLocaleFromUrl() {
-  const { lng } = useParsedQueryString<{ lng: string }>()
+  const parsed = useParsedQueryString()
   const [userLocale, setUserLocale] = useUserLocaleManager()
 
   useEffect(() => {
-    const urlLocale = typeof lng === 'string' ? parseLocale(lng) : undefined
+    const urlLocale = typeof parsed.lng === 'string' ? parseLocale(parsed.lng) : undefined
     if (urlLocale && urlLocale !== userLocale) {
       setUserLocale(urlLocale)
     }
-  }, [lng, setUserLocale, userLocale])
+  }, [parsed.lng, setUserLocale, userLocale])
 }
 
 /**

@@ -3,10 +3,11 @@ import { BigNumber, Contract } from 'ethers'
 import { useCallback, useEffect, useState } from 'react'
 
 import ERC20_ABI from 'constants/abis/erc20.json'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { useContract } from 'hooks/useContract'
-import useTransactionStatus from 'hooks/useTransactionStatus'
+import { useActiveWeb3React } from 'hooks'
 import { isAddress } from 'utils'
+
+import { useContract } from './useContract'
+import useTransactionStatus from './useTransactionStatus'
 
 export interface BalanceProps {
   value: BigNumber
@@ -15,12 +16,11 @@ export interface BalanceProps {
 
 function useTokenBalance(tokenAddress: string) {
   const [balance, setBalance] = useState<BalanceProps>({ value: BigNumber.from(0), decimals: 18 })
-  const { account, chainId } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { account, chainId, library } = useActiveWeb3React()
   //const currentBlockNumber = useBlockNumber()
   // allows balance to update given transaction updates
   const currentTransactionStatus = useTransactionStatus()
-  const addressCheckSum = isAddress(chainId, tokenAddress)
+  const addressCheckSum = isAddress(tokenAddress)
   const tokenContract = useContract(addressCheckSum ? addressCheckSum : undefined, ERC20_ABI, false)
 
   const fetchBalance = useCallback(async () => {

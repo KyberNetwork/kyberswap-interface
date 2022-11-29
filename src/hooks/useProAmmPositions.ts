@@ -2,9 +2,10 @@ import { defaultAbiCoder } from '@ethersproject/abi'
 import { getCreate2Address } from '@ethersproject/address'
 import { BigNumber } from '@ethersproject/bignumber'
 import { keccak256 } from '@ethersproject/solidity'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
 
-import { EVMNetworkInfo } from 'constants/networks/type'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { Result, useSingleCallResult, useSingleContractMultipleData } from 'state/multicall/hooks'
 import { PositionDetails } from 'types/position'
@@ -26,7 +27,7 @@ interface UseProAmmPositionsResults {
 
 export function useProAmmPositionsFromTokenIds(tokenIds: BigNumber[] | undefined): UseProAmmPositionsResults {
   const positionManager = useProAmmNFTPositionManagerContract()
-  const { isEVM, networkInfo } = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React()
 
   const inputs = useMemo(() => (tokenIds ? tokenIds.map(tokenId => [tokenId]) : []), [tokenIds])
   const results = useSingleContractMultipleData(positionManager, 'positions', inputs)
@@ -35,7 +36,7 @@ export function useProAmmPositionsFromTokenIds(tokenIds: BigNumber[] | undefined
   const error = useMemo(() => results.some(({ error }) => error), [results])
 
   const positions = useMemo(() => {
-    if (!loading && !error && tokenIds && isEVM) {
+    if (!loading && !error && tokenIds) {
       return results.map((call, i) => {
         const tokenId = tokenIds[i]
         const result = call.result as Result
@@ -43,7 +44,7 @@ export function useProAmmPositionsFromTokenIds(tokenIds: BigNumber[] | undefined
         return {
           tokenId: tokenId,
           poolId: getCreate2Address(
-            (networkInfo as EVMNetworkInfo).elastic.coreFactory,
+            NETWORKS_INFO[chainId || ChainId.MAINNET].elastic.coreFactory,
             keccak256(
               ['bytes'],
               [
@@ -53,7 +54,7 @@ export function useProAmmPositionsFromTokenIds(tokenIds: BigNumber[] | undefined
                 ),
               ],
             ),
-            (networkInfo as EVMNetworkInfo).elastic.initCodeHash,
+            NETWORKS_INFO[chainId || ChainId.MAINNET].elastic.initCodeHash,
           ),
           feeGrowthInsideLast: result.pos.feeGrowthInsideLast,
           nonce: result.pos.nonce,
@@ -69,7 +70,7 @@ export function useProAmmPositionsFromTokenIds(tokenIds: BigNumber[] | undefined
       })
     }
     return undefined
-  }, [loading, error, results, tokenIds, networkInfo, isEVM])
+  }, [loading, error, results, tokenIds, chainId])
 
   return useMemo(() => {
     return {

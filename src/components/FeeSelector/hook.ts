@@ -3,7 +3,7 @@ import { FeeAmount } from '@kyberswap/ks-sdk-elastic'
 import { useEffect, useMemo, useState } from 'react'
 
 import { POOL_POSITION_COUNT } from 'apollo/queries/promm'
-import { EVMNetworkInfo } from 'constants/networks/type'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useProAmmPoolInfos } from 'hooks/useProAmmPoolInfo'
 
@@ -11,7 +11,7 @@ export const useFeeTierDistribution = (
   currencyA: Currency | undefined,
   currencyB: Currency | undefined,
 ): { [key in FeeAmount]: number } => {
-  const { isEVM, networkInfo } = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React()
 
   const feeAmounts = useMemo(() => {
     return [FeeAmount.HIGH, FeeAmount.LOW, FeeAmount.LOWEST, FeeAmount.STABLE, FeeAmount.MEDIUM]
@@ -37,8 +37,8 @@ export const useFeeTierDistribution = (
   }, [currencyA, currencyB, initState])
 
   useEffect(() => {
-    if (!isEVM) return
-    ;(networkInfo as EVMNetworkInfo).elasticClient
+    if (!chainId) return
+    NETWORKS_INFO[chainId].elasticClient
       .query({
         query: POOL_POSITION_COUNT(poolIds),
       })
@@ -53,20 +53,20 @@ export const useFeeTierDistribution = (
           },
         )
 
-        const totalPositions = feeArray.reduce((total, cur) => total + cur.activePositions, 0)
+        const totalPostions = feeArray.reduce((total, cur) => total + cur.activePositions, 0)
 
-        if (!totalPositions) return
+        if (!totalPostions) return
         setFeeTierDistribution(
           Object.keys(FeeAmount).reduce((acc, cur) => {
             const temp = feeArray.find(item => item.feeTier === cur)
             return {
               ...acc,
-              [cur]: temp ? (temp.activePositions * 100) / totalPositions : 0,
+              [cur]: temp ? (temp.activePositions * 100) / totalPostions : 0,
             }
           }, initState),
         )
       })
-  }, [initState, poolIds, isEVM, networkInfo])
+  }, [chainId, initState, poolIds])
 
   return feeTierDistribution
 }

@@ -1,3 +1,4 @@
+import React from 'react'
 import { Flex } from 'rebass'
 import styled, { keyframes } from 'styled-components'
 

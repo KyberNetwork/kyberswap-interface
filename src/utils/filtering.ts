@@ -1,4 +1,4 @@
-import { ChainId, Token } from '@kyberswap/ks-sdk-core'
+import { Token } from '@kyberswap/ks-sdk-core'
 import { TokenInfo } from '@uniswap/token-lists'
 
 import { isAddress } from 'utils'
@@ -9,11 +9,8 @@ const alwaysTrue = () => true
  * Create a filter function to apply to a token for whether it matches a particular search query
  * @param search the search query to apply to the token
  */
-function createTokenFilterFunction<T extends Token | TokenInfo>(
-  chainId: ChainId,
-  search: string,
-): (tokens: T) => boolean {
-  const searchingAddress = isAddress(chainId, search)
+export function createTokenFilterFunction<T extends Token | TokenInfo>(search: string): (tokens: T) => boolean {
+  const searchingAddress = isAddress(search)
 
   if (searchingAddress) {
     const lower = searchingAddress.toLowerCase()
@@ -39,17 +36,13 @@ function createTokenFilterFunction<T extends Token | TokenInfo>(
   return ({ name, symbol }: T): boolean => Boolean((symbol && matchesSearch(symbol)) || (name && matchesSearch(name)))
 }
 
-export function filterTokens<T extends Token | TokenInfo>(chainId: ChainId, tokens: T[], search: string): T[] {
-  return tokens.filter(createTokenFilterFunction(chainId, search))
+export function filterTokens<T extends Token | TokenInfo>(tokens: T[], search: string): T[] {
+  return tokens.filter(createTokenFilterFunction(search))
 }
 
-export function filterTokensWithExactKeyword<T extends Token | TokenInfo>(
-  chainId: ChainId,
-  tokens: T[],
-  search: string,
-): T[] {
-  const result = filterTokens(chainId, tokens, search)
-  if (isAddress(chainId, search)) return result
+export function filterTokensWithExactKeyword<T extends Token | TokenInfo>(tokens: T[], search: string): T[] {
+  const result = filterTokens(tokens, search)
+  if (isAddress(search)) return result
   const filterExact = result.filter(e => (e.symbol ? e.symbol.toLowerCase() === search.toLowerCase() : true)) // Exact Keyword
   return filterExact.length ? filterExact : result
 }

@@ -1,4 +1,3 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import React, { useRef, useState } from 'react'
@@ -15,22 +14,21 @@ import gPay from 'assets/buy-crypto/google-pay.svg'
 import introImg from 'assets/buy-crypto/intro.png'
 import masterCard from 'assets/buy-crypto/master-card.svg'
 import visa from 'assets/buy-crypto/visa.svg'
+import { ReactComponent as Brave } from 'assets/images/brave_wallet.svg'
+import c98 from 'assets/images/coin98.svg'
+import { ReactComponent as Ledger } from 'assets/images/ledger.svg'
+import metamask from 'assets/images/metamask.svg'
+import walletConnect from 'assets/images/wallet-connect.svg'
+import { ReactComponent as Coinbase } from 'assets/images/wallet-link.svg'
 import ForTraderImage from 'assets/svg/for_trader.svg'
 import ForTraderImageLight from 'assets/svg/for_trader_light.svg'
 import SeamlessImg from 'assets/svg/seamless.svg'
-import { ReactComponent as Brave } from 'assets/wallets-connect/brave.svg'
-import c98 from 'assets/wallets-connect/coin98.svg'
-import { ReactComponent as Coinbase } from 'assets/wallets-connect/coinbase.svg'
-import { ReactComponent as Ledger } from 'assets/wallets-connect/ledger.svg'
-import metamask from 'assets/wallets-connect/metamask.svg'
-import walletConnect from 'assets/wallets-connect/wallet-connect.svg'
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import Cart from 'components/Icons/Cart'
 import Deposit from 'components/Icons/Deposit'
 import Modal from 'components/Modal'
-import { TRANSAK_API_KEY, TRANSAK_URL } from 'constants/env'
-import { SUPPORTED_WALLETS } from 'constants/wallets'
+import { SUPPORTED_WALLETS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
@@ -38,6 +36,12 @@ import { KSStatistic } from 'pages/About/AboutKyberSwap'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useDarkModeManager } from 'state/user/hooks'
 import { ButtonText, ExternalLink } from 'theme'
+
+const CoinbaseSVG = styled(Coinbase)`
+  path {
+    fill: currentColor;
+  }
+`
 
 const LedgerSVG = styled(Ledger)`
   path {
@@ -181,7 +185,7 @@ function BuyCrypto() {
   const upToMedium = useMedia('(max-width: 992px)')
   const upToSmall = useMedia('(max-width: 768px)')
 
-  const { account, chainId } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
 
   const toggleWalletModal = useWalletModalToggle()
 
@@ -190,32 +194,7 @@ function BuyCrypto() {
   const step2Ref = useRef<HTMLDivElement>(null)
   const step3Ref = useRef<HTMLDivElement>(null)
 
-  const supportedNetworks: { [chain in ChainId]: string | null } = {
-    [ChainId.MAINNET]: 'ethereum',
-    [ChainId.MATIC]: 'polygon',
-    [ChainId.ARBITRUM]: 'arbitrum',
-    [ChainId.OPTIMISM]: 'optimism',
-    [ChainId.BSCMAINNET]: 'bsc',
-    [ChainId.AVAXMAINNET]: 'avaxcchain',
-    [ChainId.FANTOM]: 'fantom',
-    [ChainId.VELAS]: 'velasevm',
-    [ChainId.SOLANA]: 'solana',
-
-    [ChainId.CRONOS]: null,
-    [ChainId.ROPSTEN]: null,
-    [ChainId.RINKEBY]: null,
-    [ChainId.GÖRLI]: null,
-    [ChainId.KOVAN]: null,
-    [ChainId.MUMBAI]: null,
-    [ChainId.BSCTESTNET]: null,
-    [ChainId.AVAXTESTNET]: null,
-    [ChainId.CRONOSTESTNET]: null,
-    [ChainId.ARBITRUM_TESTNET]: null,
-    [ChainId.BTTC]: null,
-    [ChainId.AURORA]: null,
-    [ChainId.OASIS]: null,
-    [ChainId.ETHW]: null,
-  }
+  const supportedNetworks = ['ethereum', 'polygon', 'arbitrum', 'optimism', 'bsc', 'avaxcchain', 'fantom', 'velasevm']
   const supportedCurrencies = [
     'AVAX',
     'USDC',
@@ -230,17 +209,16 @@ function BuyCrypto() {
     'MATIC',
     'WETH',
     'VLX',
-    'SOL',
   ]
 
   const redirectURL = window.location.hostname.includes('localhost')
-    ? 'https://kyberswap.com/swap'
+    ? 'https://KyberSwap.com/swap'
     : window.location.origin + '/swap'
-  const transakUrl = `${TRANSAK_URL}?apiKey=${TRANSAK_API_KEY}&cryptoCurrencyList=${supportedCurrencies.join(
-    ',',
-  )}&networks=${Object.values(supportedNetworks).filter(Boolean).join(',')}${
+  const transakUrl = `${process.env.REACT_APP_TRANSAK_URL}?apiKey=${
+    process.env.REACT_APP_TRANSAK_API_KEY
+  }&cryptoCurrencyList=${supportedCurrencies.join(',')}&networks=${supportedNetworks.join(',')}${
     account ? `&walletAddress=${account}` : ''
-  }&defaultNetwork=${supportedNetworks[chainId] || supportedNetworks[ChainId.MAINNET]}&redirectURL=${redirectURL}`
+  }&redirectURL=${redirectURL}`
 
   const [isDarkMode] = useDarkModeManager()
   const { mixpanelHandler } = useMixpanel()
@@ -293,7 +271,10 @@ function BuyCrypto() {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Image width="24px" src={isDarkMode ? item.icon : item.iconLight} />
+                  <Image
+                    width="24px"
+                    src={require(`../../assets/images/${isDarkMode ? '' : 'light-'}${item.iconName}`).default}
+                  />
                   {item.name}
                 </DownloadWalletRow>
               ))}
@@ -408,7 +389,7 @@ function BuyCrypto() {
                   <Image src={metamask} width={upToSmall ? '36px' : '48px'} />
                   <Image src={c98} width={upToSmall ? '36px' : '48px'} />
                   <Image src={walletConnect} width={upToSmall ? '36px' : '48px'} />
-                  <Coinbase width={upToSmall ? '36px' : '48px'} />
+                  <CoinbaseSVG width={upToSmall ? '36px' : '48px'} />
                   <LedgerSVG width={upToSmall ? '36px' : '48px'} />
                   <Brave width={upToSmall ? '36px' : '48px'} height="48px" />
                 </Flex>

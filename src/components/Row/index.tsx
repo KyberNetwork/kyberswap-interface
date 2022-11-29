@@ -8,7 +8,6 @@ const Row = styled(Box)<{
   padding?: string
   border?: string
   borderRadius?: string
-  gap?: string
 }>`
   width: ${({ width }) => width ?? '100%'};
   display: flex;
@@ -18,7 +17,6 @@ const Row = styled(Box)<{
   padding: ${({ padding }) => padding};
   border: ${({ border }) => border};
   border-radius: ${({ borderRadius }) => borderRadius};
-  gap: ${({ gap }) => gap};
 `
 
 export const RowBetween = styled(Row)`
@@ -43,10 +41,6 @@ export const AutoRow = styled(Row)<{ gap?: string; justify?: string }>`
 export const RowFixed = styled(Row)<{ gap?: string; justify?: string }>`
   width: fit-content;
   margin: ${({ gap }) => gap && `-${gap}`};
-`
-
-export const RowFit = styled(Row)`
-  width: fit-content;
 `
 
 export default Row

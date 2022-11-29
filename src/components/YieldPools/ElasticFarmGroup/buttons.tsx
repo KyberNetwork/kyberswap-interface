@@ -15,7 +15,10 @@ export enum ButtonColorScheme {
   Red = 'Red',
   Gray = 'Gray',
   Green = 'Green',
-  APR = 'APR',
+}
+
+const useUpToSmall = () => {
+  return useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 }
 
 export const BtnLight = styled(ButtonLight)`
@@ -41,7 +44,6 @@ const generateButtonOutlinedCSS = (theme: DefaultTheme, colorScheme?: ButtonColo
     [ButtonColorScheme.Red]: theme.red,
     [ButtonColorScheme.Gray]: theme.subText,
     [ButtonColorScheme.Green]: theme.primary,
-    [ButtonColorScheme.APR]: theme.apr,
   }
   colorScheme ||= ButtonColorScheme.Green
   const mainColor = colorMap[colorScheme]
@@ -62,7 +64,7 @@ const generateButtonOutlinedCSS = (theme: DefaultTheme, colorScheme?: ButtonColo
   `
 }
 
-const ButtonOutlined = styled(ButtonLight)<{ colorScheme?: ButtonColorScheme }>`
+export const ButtonOutlined = styled(ButtonLight)<{ colorScheme?: ButtonColorScheme }>`
   padding: 8px 12px;
   width: fit-content;
   white-space: nowrap;
@@ -79,7 +81,24 @@ export const DepositButton: React.FC<React.ComponentPropsWithoutRef<'button'>> =
   style,
   ...others
 }) => {
-  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+  const upToSmall = useUpToSmall()
+  const buttonWidth = upToSmall ? '44px' : 'max-content'
+  const buttonHeight = upToSmall ? '44px' : '38px'
+
+  const renderButtonBody = () => {
+    if (upToSmall) {
+      return <Deposit width={24} height={24} />
+    }
+
+    return (
+      <>
+        <Deposit width={20} height={20} />
+        <Text fontSize="14px" marginLeft="4px">
+          <Trans>Deposit</Trans>
+        </Text>
+      </>
+    )
+  }
 
   const renderButton = () => {
     return (
@@ -87,17 +106,13 @@ export const DepositButton: React.FC<React.ComponentPropsWithoutRef<'button'>> =
         disabled={disabled}
         onClick={onClick}
         style={{
-          width: upToExtraSmall ? '100%' : 'max-content',
-          height: '38px',
-          padding: '12px',
+          width: buttonWidth,
+          height: buttonHeight,
           ...style,
         }}
         {...others}
       >
-        <Deposit width={20} height={20} />
-        <Text fontSize="14px" marginLeft="4px">
-          <Trans>Deposit</Trans>
-        </Text>
+        {renderButtonBody()}
       </ButtonOutlined>
     )
   }
@@ -109,7 +124,6 @@ export const DepositButton: React.FC<React.ComponentPropsWithoutRef<'button'>> =
   return (
     <MouseoverTooltipDesktopOnly
       text={t`Deposit your liquidity positions (i.e. your NFT tokens) into the farming contract. Then stake them into the farm`}
-      style={{ flex: 1 }}
     >
       {renderButton()}
     </MouseoverTooltipDesktopOnly>
@@ -122,7 +136,24 @@ export const WithdrawButton: React.FC<React.ComponentPropsWithoutRef<'button'>> 
   style,
   ...others
 }) => {
-  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+  const upToSmall = useUpToSmall()
+  const buttonWidth = upToSmall ? '44px' : 'max-content'
+  const buttonHeight = upToSmall ? '44px' : '38px'
+
+  const renderButtonBody = () => {
+    if (upToSmall) {
+      return <Withdraw width={24} height={24} />
+    }
+
+    return (
+      <>
+        <Withdraw width={20} height={20} />
+        <Text fontSize="14px" marginLeft="4px">
+          <Trans>Withdraw</Trans>
+        </Text>
+      </>
+    )
+  }
 
   const renderButton = () => {
     return (
@@ -131,17 +162,13 @@ export const WithdrawButton: React.FC<React.ComponentPropsWithoutRef<'button'>> 
         onClick={onClick}
         disabled={disabled}
         style={{
-          width: upToExtraSmall ? '100%' : 'max-content',
-          height: '38px',
-          padding: '12px',
+          width: buttonWidth,
+          height: buttonHeight,
           ...style,
         }}
         {...others}
       >
-        <Withdraw width={20} height={20} />
-        <Text fontSize="14px" marginLeft="4px">
-          <Trans>Withdraw</Trans>
-        </Text>
+        {renderButtonBody()}
       </ButtonOutlined>
     )
   }
@@ -153,7 +180,6 @@ export const WithdrawButton: React.FC<React.ComponentPropsWithoutRef<'button'>> 
   return (
     <MouseoverTooltipDesktopOnly
       text={t`Withdraw your liquidity positions (i.e. your NFT tokens) from the farming contract`}
-      style={{ flex: 1 }}
     >
       {renderButton()}
     </MouseoverTooltipDesktopOnly>
@@ -166,26 +192,40 @@ export const HarvestAllButton: React.FC<React.ComponentPropsWithoutRef<'button'>
   style,
   ...others
 }) => {
-  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+  const upToSmall = useUpToSmall()
+  const buttonWidth = upToSmall ? '44px' : 'max-content'
+  const buttonHeight = upToSmall ? '44px' : '38px'
+
+  const renderButtonBody = () => {
+    if (upToSmall) {
+      return <Harvest width={24} height={24} />
+    }
+
+    return (
+      <>
+        <Harvest width={20} height={20} />
+        <Text fontSize="14px" marginLeft="4px">
+          <Trans>Harvest All</Trans>
+        </Text>
+      </>
+    )
+  }
 
   return (
-    <ButtonPrimary
+    <ButtonOutlined
       onClick={onClick}
+      colorScheme={ButtonColorScheme.Gray}
       disabled={disabled}
       style={{
-        boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.16)',
         whiteSpace: 'nowrap',
-        width: upToExtraSmall ? '100%' : 'max-content',
-        height: '38px',
+        width: buttonWidth,
+        height: buttonHeight,
         ...style,
       }}
       {...others}
     >
-      <Harvest width={20} height={20} />
-      <Text fontSize="14px" marginLeft="4px">
-        <Trans>Harvest All</Trans>
-      </Text>
-    </ButtonPrimary>
+      {renderButtonBody()}
+    </ButtonOutlined>
   )
 }
 
@@ -194,10 +234,43 @@ export const ConnectWalletButton: React.FC<React.ComponentPropsWithoutRef<'butto
   style,
   ...others
 }) => {
+  const upToSmall = useUpToSmall()
+  const defaultStyle = upToSmall
+    ? {
+        flex: '1',
+        height: '44px',
+      }
+    : {}
+
+  const mergedStyle = {
+    ...defaultStyle,
+    ...style,
+  }
+
   return (
-    <BtnLight style={{ flex: 1, height: '38px', padding: '8px 16px' }} onClick={onClick} {...others}>
+    <BtnLight style={mergedStyle} onClick={onClick} {...others}>
       <Trans>Connect Wallet</Trans>
     </BtnLight>
+  )
+}
+
+export const ForceWithdrawButton: React.FC<React.ComponentPropsWithoutRef<'button'>> = ({
+  onClick,
+  style,
+  ...others
+}) => {
+  const mergedStyle = {
+    padding: '8px',
+    ...style,
+  }
+
+  return (
+    <ButtonOutlined colorScheme={ButtonColorScheme.Red} style={mergedStyle} onClick={onClick} {...others}>
+      <Withdraw width={20} height={20} />
+      <Text fontSize="14px" marginLeft="4px">
+        <Trans>Force Withdraw</Trans>
+      </Text>
+    </ButtonOutlined>
   )
 }
 
@@ -206,7 +279,6 @@ const generateActionButtonCSS = (theme: DefaultTheme, colorScheme?: ButtonColorS
     [ButtonColorScheme.Red]: theme.red,
     [ButtonColorScheme.Gray]: theme.subText,
     [ButtonColorScheme.Green]: theme.primary,
-    [ButtonColorScheme.APR]: theme.apr,
   }
   colorScheme ||= ButtonColorScheme.Green
   const mainColor = colorMap[colorScheme]
@@ -228,8 +300,6 @@ const generateActionButtonCSS = (theme: DefaultTheme, colorScheme?: ButtonColorS
 
 export const MinimalActionButton = styled(ButtonLight)<{ colorScheme?: ButtonColorScheme }>`
   background-color: ${({ theme }) => rgba(theme.primary, 0.2)};
-  min-width: 28px;
-  min-height: 28px;
   width: 28px;
   height: 28px;
   padding: 0;
@@ -255,23 +325,3 @@ export const ActionButton = styled(ButtonLight)<{ colorScheme?: ButtonColorSchem
 
   ${({ theme, colorScheme, disabled }) => generateActionButtonCSS(theme, colorScheme, disabled)}
 `
-
-export const ForceWithdrawButton: React.FC<React.ComponentPropsWithoutRef<'button'>> = ({
-  onClick,
-  style,
-  ...others
-}) => {
-  const mergedStyle = {
-    padding: '8px',
-    ...style,
-  }
-
-  return (
-    <ButtonOutlined colorScheme={ButtonColorScheme.Red} style={mergedStyle} onClick={onClick} {...others}>
-      <Withdraw width={20} height={20} />
-      <Text fontSize="14px" marginLeft="4px">
-        <Trans>Force Withdraw</Trans>
-      </Text>
-    </ButtonOutlined>
-  )
-}

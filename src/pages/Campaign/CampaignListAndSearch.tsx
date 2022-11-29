@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Text } from 'rebass'
 import styled from 'styled-components'

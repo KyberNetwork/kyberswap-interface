@@ -3,7 +3,6 @@ import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
-import { NETWORKS_INFO } from 'constants/networks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import {
   setClaimingCampaignRewardId,
@@ -116,7 +115,7 @@ export function useSwapNowHandler() {
   return useCallback(
     (chainId: ChainId) => {
       mixpanelHandler(MIXPANEL_TYPE.CAMPAIGN_SWAP_NOW_CLICKED, { campaign_name: selectedCampaign?.name })
-      let path = `/swap/${NETWORKS_INFO[chainId].route}`
+      let path = `/swap?networkId=${chainId}`
       if (selectedCampaign?.eligibleTokens?.length) {
         const firstTokenOfChain = selectedCampaign.eligibleTokens.find(token => token.chainId === chainId)
         if (firstTokenOfChain) {

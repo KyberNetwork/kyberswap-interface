@@ -4,7 +4,7 @@ import { stringify } from 'qs'
 import { useMemo } from 'react'
 import { Share2 } from 'react-feather'
 import { useSelector } from 'react-redux'
-import { Navigate, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
@@ -23,10 +23,8 @@ import FarmGuide from 'components/YieldPools/FarmGuide'
 import { PageWrapper, PoolTitleContainer, Tab, TabContainer, TabWrapper, TopBar } from 'components/YieldPools/styleds'
 import { ZERO_ADDRESS } from 'constants/index'
 import { VERSION } from 'constants/v2'
-import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import { useSyncNetworkParamWithStore } from 'hooks/useSyncNetworkParamWithStore'
 import useTheme from 'hooks/useTheme'
 import { AppState } from 'state'
 import { ApplicationModal } from 'state/application/actions'
@@ -36,12 +34,11 @@ import { useFarmsData } from 'state/farms/hooks'
 import { isInEnum } from 'utils/string'
 
 const Farm = () => {
-  const { isEVM } = useActiveWeb3React()
   const { loading } = useFarmsData()
   const theme = useTheme()
-  const qs = useParsedQueryString<{ type: string; tab: string }>()
-  const { type = 'active', tab = VERSION.ELASTIC } = qs
-  const farmType = isInEnum(tab, VERSION) ? tab : VERSION.ELASTIC
+  const qs = useParsedQueryString()
+  const type = qs.type || 'active'
+  const farmType = qs.tab && typeof qs.tab === 'string' && isInEnum(qs.tab, VERSION) ? qs.tab : VERSION.ELASTIC
   const navigate = useNavigate()
 
   const openShareModal = useOpenModal(ApplicationModal.SHARE)
@@ -65,7 +62,6 @@ const Farm = () => {
     }
   }
   const { mixpanelHandler } = useMixpanel()
-  useSyncNetworkParamWithStore()
 
   // Total rewards for Classic pool
   const { data: farmsByFairLaunch } = useFarmsData()
@@ -120,7 +116,6 @@ const Farm = () => {
     </Flex>
   )
 
-  if (!isEVM) return <Navigate to="/" />
   return (
     <>
       <FarmUpdater />

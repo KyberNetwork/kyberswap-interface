@@ -1,4 +1,5 @@
 import { Trans } from '@lingui/macro'
+import React from 'react'
 import styled from 'styled-components'
 
 const ToggleButton = styled.span<{ isActive?: boolean; size?: string }>`
@@ -41,7 +42,7 @@ const StyledToggle = styled.button<{ isActive?: boolean; activeElement?: boolean
   padding: 0;
 `
 
-interface ToggleProps {
+export interface ToggleProps {
   id?: string
   isActive: boolean
   toggle: () => void

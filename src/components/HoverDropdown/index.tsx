@@ -1,9 +1,8 @@
-import { CSSProperties, ReactNode, useState } from 'react'
+import React, { CSSProperties, ReactNode } from 'react'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as DownSvg } from 'assets/svg/down.svg'
-import Tooltip from 'components/Tooltip'
 
 const Dropdown = styled.div<{ placement?: string }>`
   display: none;
@@ -42,7 +41,7 @@ const HoverDropdownWrapper = styled.div<{ disabledHover: boolean; padding?: stri
   cursor: pointer;
 
   width: fit-content;
-  padding: ${({ padding }) => padding || '8px 0'};
+  padding: ${({ padding }) => padding || '8px 12px'};
 
   :hover {
     ${Dropdown} {
@@ -61,30 +60,24 @@ const HoverDropdown = ({
   content,
   dropdownContent,
   padding,
+  placement,
   style = {},
 }: {
   hideIcon?: boolean
   content: string | ReactNode
   dropdownContent: ReactNode
   padding?: string
+  placement?: 'left' | 'center' | 'right'
   style?: CSSProperties
 }) => {
-  const [open, setOpen] = useState(false)
-
   return (
-    <HoverDropdownWrapper
-      disabledHover={!dropdownContent}
-      padding={padding}
-      style={style}
-      onMouseOver={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
-    >
-      <Tooltip show={open} text={dropdownContent} placement="bottom" width="max-content">
-        <Flex alignItems="center">
-          {content}
-          {!hideIcon && <DropdownIcon />}
-        </Flex>
-      </Tooltip>
+    <HoverDropdownWrapper disabledHover={!dropdownContent} padding={padding} style={style}>
+      <Flex alignItems="center">
+        {content}
+        {!hideIcon && <DropdownIcon />}
+      </Flex>
+
+      {dropdownContent && <Dropdown placement={placement}>{dropdownContent}</Dropdown>}
     </HoverDropdownWrapper>
   )
 }

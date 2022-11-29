@@ -85,7 +85,7 @@ export const CollapseItem: React.FC<Props> = ({
 
 export type ToggleItemType = { title: React.ReactNode; content: ReactNode | string }
 // open one, close the others
-const ToggleCollapse = ({
+export const ToggleCollapse = ({
   data,
   itemActiveStyle = {},
   itemStyle = {},

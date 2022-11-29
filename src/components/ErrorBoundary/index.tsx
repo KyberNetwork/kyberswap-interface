@@ -6,9 +6,10 @@ import styled from 'styled-components/macro'
 import { UAParser } from 'ua-parser-js'
 
 import { ButtonPrimary } from 'components/Button'
-import { AutoColumn } from 'components/Column'
-import { AutoRow } from 'components/Row'
-import { ExternalLink } from 'theme'
+
+import { ExternalLink } from '../../theme'
+import { AutoColumn } from '../Column'
+import { AutoRow } from '../Row'
 
 const parser = new UAParser(window.navigator.userAgent)
 
@@ -53,7 +54,7 @@ export default class ErrorBoundary extends React.Component<PropsWithChildren<unk
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    const e = new Error(`[${error.name}] ${error.message}`, {
+    const e = new Error(`Page Crash: ${error.toString()} ${errorInfo.toString()}`, {
       cause: error,
     })
     e.name = 'AppCrash'

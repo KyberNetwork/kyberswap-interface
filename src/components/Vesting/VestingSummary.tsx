@@ -1,5 +1,6 @@
 import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import React from 'react'
 import { ChevronDown, DollarSign, Lock, Unlock } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -85,6 +86,7 @@ function VestingSummary({
             </Text>
 
             <HoverDropdown
+              placement="right"
               hideIcon
               content={
                 <Flex alignItems="center" color={theme.subText} fontSize="14px">
@@ -127,6 +129,7 @@ function VestingSummary({
 
             <HoverDropdown
               hideIcon
+              placement="right"
               content={
                 <Flex alignItems="center" color={theme.subText} fontSize="14px">
                   <Text>
@@ -174,6 +177,7 @@ function VestingSummary({
 
             <HoverDropdown
               hideIcon
+              placement="right"
               content={
                 <Flex alignItems="center" color={theme.subText} fontSize="14px">
                   <Text>
@@ -215,6 +219,7 @@ function VestingSummary({
 
             <HoverDropdown
               hideIcon
+              placement="right"
               content={
                 <Flex alignItems="center" color={theme.subText} fontSize="14px">
                   <Text>

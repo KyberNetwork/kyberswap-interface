@@ -35,7 +35,7 @@ const ButtonWithOptions = ({
   const containerRef = useRef<HTMLDivElement>(null)
   useOnClickOutside(containerRef, () => setIsShowNetworks(false))
 
-  const { tab } = useParsedQueryString<{ tab: string }>()
+  const { tab } = useParsedQueryString()
   const { mixpanelHandler } = useMixpanel()
 
   const triggerDiscoverSwapInitiated = (platform: string) => {
@@ -89,9 +89,9 @@ const ButtonWithOptions = ({
                     onClick={() => {
                       toggleTrendingSoonTokenDetailModal()
                       navigate(
-                        `/swap/${NETWORKS_INFO[mappedChainId].route}?inputCurrency=ETH&outputCurrency=${getAddress(
+                        `/swap?inputCurrency=ETH&outputCurrency=${getAddress(
                           platforms.get(platform) ?? '',
-                        )}`,
+                        )}&networkId=${mappedChainId}`,
                       )
                       mixpanelHandler(MIXPANEL_TYPE.DISCOVER_SWAP_BUY_NOW_POPUP_CLICKED, {
                         trending_token: tokenData.symbol,
@@ -119,9 +119,9 @@ const ButtonWithOptions = ({
                   key={platform}
                   alignItems="center"
                   as={ExternalLink}
-                  href={`/swap/${NETWORKS_INFO[mappedChainId].route}?inputCurrency=ETH&outputCurrency=${getAddress(
+                  href={`/swap?inputCurrency=ETH&outputCurrency=${getAddress(
                     platforms.get(platform) ?? '',
-                  )}`}
+                  )}&networkId=${mappedChainId}`}
                   onClick={() => {
                     triggerDiscoverSwapInitiated(platform)
                   }}

@@ -15,7 +15,7 @@ import {
 import { Trans, t } from '@lingui/macro'
 import { captureException } from '@sentry/react'
 import JSBI from 'jsbi'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
 
 import { ButtonConfirmed, ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
@@ -35,31 +35,29 @@ import TransactionConfirmationModal, {
 import ZapError from 'components/ZapError'
 import FormattedPriceImpact from 'components/swap/FormattedPriceImpact'
 import { Dots } from 'components/swap/styleds'
-import { EVMNetworkInfo } from 'constants/networks/type'
-import { NativeCurrencies } from 'constants/tokens'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { NETWORKS_INFO } from 'constants/networks'
+import { nativeOnChain } from 'constants/tokens'
+import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { usePairContract } from 'hooks/useContract'
 import useIsArgentWallet from 'hooks/useIsArgentWallet'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
-import { Wrapper } from 'pages/Pool/styleds'
 import { useTokensPrice, useWalletModalToggle } from 'state/application/hooks'
 import { Field } from 'state/burn/actions'
 import { useBurnState, useDerivedZapOutInfo, useZapOutActionHandlers } from 'state/burn/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
-import { TRANSACTION_TYPE } from 'state/transactions/type'
-import { useExpertModeManager, useUserSlippageTolerance } from 'state/user/hooks'
+import { useIsExpertMode, useUserSlippageTolerance } from 'state/user/hooks'
 import { StyledInternalLink, TYPE, UppercaseText } from 'theme'
-import { calculateGasMargin, formattedNum } from 'utils'
+import { calculateGasMargin, formattedNum, getZapContract } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { formatJSBIValue } from 'utils/formatBalance'
-import { getZapContract } from 'utils/getContract'
 import { computePriceImpactWithoutFee, warningSeverity } from 'utils/prices'
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
 
+import { Wrapper } from '../Pool/styleds'
 import {
   CurrentPriceWrapper,
   DetailBox,
@@ -82,8 +80,7 @@ export default function ZapOut({
   pairAddress: string
 }) {
   const [currencyA, currencyB] = [useCurrency(currencyIdA) ?? undefined, useCurrency(currencyIdB) ?? undefined]
-  const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { account, chainId, library } = useActiveWeb3React()
 
   const nativeA = useCurrencyConvertedToNative(currencyA as Currency)
   const nativeB = useCurrencyConvertedToNative(currencyB as Currency)
@@ -91,7 +88,7 @@ export default function ZapOut({
 
   const theme = useTheme()
 
-  const [expertMode] = useExpertModeManager()
+  const expertMode = useIsExpertMode()
 
   // toggle wallet when disconnected
   const toggleWalletModal = useWalletModalToggle()
@@ -164,12 +161,12 @@ export default function ZapOut({
   const [signatureData, setSignatureData] = useState<{ v: number; r: string; s: string; deadline: number } | null>(null)
   const [approval, approveCallback] = useApproveCallback(
     parsedAmounts[Field.LIQUIDITY],
-    isEVM
+    !!chainId
       ? isStaticFeePair
         ? isOldStaticFeeContract
-          ? (networkInfo as EVMNetworkInfo).classic.oldStatic?.zap
-          : (networkInfo as EVMNetworkInfo).classic.static.zap
-        : (networkInfo as EVMNetworkInfo).classic.dynamic?.zap
+          ? NETWORKS_INFO[chainId].classic.oldStatic?.zap
+          : NETWORKS_INFO[chainId].classic.static.zap
+        : NETWORKS_INFO[chainId].classic.dynamic?.zap
       : undefined,
   )
 
@@ -215,13 +212,11 @@ export default function ZapOut({
     ]
     const message = {
       owner: account,
-      spender: isEVM
-        ? isStaticFeePair
-          ? isOldStaticFeeContract
-            ? (networkInfo as EVMNetworkInfo).classic.oldStatic?.zap
-            : (networkInfo as EVMNetworkInfo).classic.static.zap
-          : (networkInfo as EVMNetworkInfo).classic.dynamic?.zap
-        : undefined,
+      spender: isStaticFeePair
+        ? isOldStaticFeeContract
+          ? NETWORKS_INFO[chainId].classic.oldStatic?.zap
+          : NETWORKS_INFO[chainId].classic.static.zap
+        : NETWORKS_INFO[chainId].classic.dynamic?.zap,
       value: liquidityAmount.quotient.toString(),
       nonce: nonce.toHexString(),
       deadline: deadline.toNumber(),
@@ -247,7 +242,7 @@ export default function ZapOut({
           deadline: deadline.toNumber(),
         })
       })
-      .catch((error: any) => {
+      .catch(error => {
         // for all errors other than 4001 (EIP-1193 user rejected request), fall back to manual approve
         if (error?.code !== 4001) {
           approveCallback()
@@ -276,7 +271,7 @@ export default function ZapOut({
   // tx sending
   const addTransactionWithType = useTransactionAdder()
   async function onRemove() {
-    if (!isEVM || !library || !account || !deadline) throw new Error('missing dependencies')
+    if (!chainId || !library || !account || !deadline) throw new Error('missing dependencies')
     const { [Field.CURRENCY_A]: currencyAmountA, [Field.CURRENCY_B]: currencyAmountB } = parsedAmounts
     if (!currencyAmountA || !currencyAmountB) {
       throw new Error('missing currency amounts')
@@ -365,7 +360,7 @@ export default function ZapOut({
 
     // All methods of new zap static fee contract include factory address as first arg
     if (isStaticFeePair && !isOldStaticFeeContract) {
-      args.unshift((networkInfo as EVMNetworkInfo).classic.static.factory)
+      args.unshift(NETWORKS_INFO[chainId].classic.static.factory)
     }
     const safeGasEstimates: (BigNumber | undefined)[] = await Promise.all(
       methodNames.map(methodName =>
@@ -410,9 +405,8 @@ export default function ZapOut({
           if (!!currencyA && !!currencyB) {
             setAttemptingTxn(false)
 
-            addTransactionWithType({
-              hash: response.hash,
-              type: TRANSACTION_TYPE.REMOVE_LIQUIDITY,
+            addTransactionWithType(response, {
+              type: 'Remove liquidity',
               summary: parsedAmounts[independentTokenField]?.toSignificant(6) + ' ' + independentToken?.symbol,
               arbitrary: {
                 poolAddress: pairAddress,
@@ -670,8 +664,7 @@ export default function ZapOut({
                   hideLogo
                   value={formattedAmounts[Field.LIQUIDITY]}
                   onUserInput={onLiquidityInput}
-                  onMax={null}
-                  onHalf={null}
+                  showMaxButton={false}
                   disableCurrencySelect
                   currency={
                     new Token(
@@ -694,8 +687,7 @@ export default function ZapOut({
                   value={formattedAmounts[independentTokenField]}
                   onUserInput={onCurrencyInput}
                   onSwitchCurrency={handleSwitchCurrency}
-                  onMax={null}
-                  onHalf={null}
+                  showMaxButton={false}
                   currency={currencies[independentTokenField]}
                   id="zap-out-input"
                   label={t`Output`}
@@ -717,12 +709,12 @@ export default function ZapOut({
                             ? `/remove/${
                                 selectedCurrencyIsETHER
                                   ? currencyId(WETH[chainId], chainId)
-                                  : currencyId(NativeCurrencies[chainId], chainId)
+                                  : currencyId(nativeOnChain(chainId), chainId)
                               }/${currencyId(currencies[dependentTokenField] as Currency, chainId)}/${pairAddress}`
                             : `/remove/${currencyId(currencies[dependentTokenField] as Currency, chainId)}/${
                                 selectedCurrencyIsETHER
                                   ? currencyId(WETH[chainId], chainId)
-                                  : currencyId(NativeCurrencies[chainId], chainId)
+                                  : currencyId(nativeOnChain(chainId), chainId)
                               }/${pairAddress}`
                         }
                       >

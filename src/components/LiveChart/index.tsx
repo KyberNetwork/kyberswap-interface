@@ -1,6 +1,6 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Repeat } from 'react-feather'
 import { Flex, Text } from 'rebass'
@@ -14,7 +14,6 @@ import { checkPairHasDextoolsData } from 'components/TradingViewChart/datafeed'
 import { useActiveWeb3React } from 'hooks'
 import useBasicChartData, { LiveDataTimeframeEnum } from 'hooks/useBasicChartData'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import usePrevious from 'hooks/usePrevious'
 import useTheme from 'hooks/useTheme'
 import { Field } from 'state/swap/actions'
 import { useShowProLiveChart, useToggleProLiveChart } from 'state/user/hooks'
@@ -116,20 +115,15 @@ function LiveChart({
   currencies: { [field in Field]?: Currency }
   onRotateClick?: () => void
 }) {
-  const { chainId, isSolana } = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React()
   const theme = useTheme()
-  const prevCurrencies = usePrevious(currencies)
-  const [currenciesState, setCurrenciesState] = useState(currencies)
-
-  const nativeInputCurrency = useCurrencyConvertedToNative(currenciesState[Field.INPUT] || undefined)
-  const nativeOutputCurrency = useCurrencyConvertedToNative(currenciesState[Field.OUTPUT] || undefined)
-
+  const nativeInputCurrency = useCurrencyConvertedToNative(currencies[Field.INPUT] || undefined)
+  const nativeOutputCurrency = useCurrencyConvertedToNative(currencies[Field.OUTPUT] || undefined)
   const tokens = useMemo(() => {
     return [nativeInputCurrency, nativeOutputCurrency].map(currency => currency?.wrapped)
   }, [nativeInputCurrency, nativeOutputCurrency])
 
   const isWrappedToken = !!tokens[0]?.address && tokens[0]?.address === tokens[1]?.address
-  const isUnwrapingWSOL = isSolana && isWrappedToken && currencies[Field.INPUT]?.isToken
   const [hoverValue, setHoverValue] = useState<number | null>(null)
   const [timeFrame, setTimeFrame] = useState<LiveDataTimeframeEnum>(LiveDataTimeframeEnum.DAY)
   const [stateProChart, setStateProChart] = useState({
@@ -146,13 +140,6 @@ function LiveChart({
   const toggleProLiveChart = useToggleProLiveChart()
   const { mixpanelHandler } = useMixpanel()
 
-  const handleSetLoading = useCallback(
-    (loading: boolean) =>
-      setStateProChart(prev => {
-        return { ...prev, loading: loading }
-      }),
-    [],
-  )
   useEffect(() => {
     if (hoverValue !== null) {
       setHoverValue(null)
@@ -163,28 +150,12 @@ function LiveChart({
   useEffect(() => {
     let currenciesChanged = false
     if (!currencies.INPUT || !currencies.OUTPUT) return
-
-    setCurrenciesState(prev => {
-      // Check if switched currencies (INPUT become OUTPUT and OUTPUT become INPUT)
-      if (
-        prevCurrencies &&
-        currencies &&
-        prevCurrencies?.INPUT?.symbol === currencies?.OUTPUT?.symbol &&
-        prevCurrencies?.OUTPUT?.symbol === currencies?.INPUT?.symbol
-      ) {
-        // then keep current local currencies order
-        return prev
-      }
-      // If currencies changed with new currencies pair => update new currencies
-      return currencies
-    })
-
     setStateProChart({ hasProChart: false, pairAddress: '', apiVersion: '', loading: true })
     checkPairHasDextoolsData(currencies, chainId)
       .then((res: any) => {
         if (currenciesChanged) return
         if ((res.ver || res.ver === 0) && res.pairAddress) {
-          setStateProChart({ hasProChart: true, pairAddress: res.pairAddress, apiVersion: res.ver, loading: true })
+          setStateProChart({ hasProChart: true, pairAddress: res.pairAddress, apiVersion: res.ver, loading: false })
         } else {
           setStateProChart({ hasProChart: false, pairAddress: '', apiVersion: '', loading: false })
         }
@@ -259,10 +230,7 @@ function LiveChart({
     )
   }, [isBasicchartError, isProchartError, isShowProChart, bothChartError, toggleProLiveChart, mixpanelHandler])
 
-  const currenciesList = useMemo(
-    () => [currenciesState.INPUT, currenciesState.OUTPUT],
-    [currenciesState.INPUT, currenciesState.OUTPUT],
-  )
+  const currenciesList = useMemo(() => [currencies.INPUT, currencies.OUTPUT], [currencies.INPUT, currencies.OUTPUT])
 
   return (
     <LiveChartWrapper>
@@ -277,15 +245,11 @@ function LiveChart({
         >
           <CircleInfoIcon />
           <Text fontSize={16} textAlign={'center'}>
-            {isUnwrapingWSOL ? (
-              <Trans>You can only swap all WSOL to SOL</Trans>
-            ) : (
-              <Trans>
-                You can swap {nativeInputCurrency?.symbol} for {nativeOutputCurrency?.symbol} (and vice versa)
-              </Trans>
-            )}
-            <br />
-            <Trans>Exchange rate is always 1 to 1.</Trans>
+            <Trans>
+              You can swap {nativeInputCurrency?.symbol} for {nativeOutputCurrency?.symbol} (and vice versa)
+              <br />
+              Exchange rate is always 1 to 1.
+            </Trans>
           </Text>
         </Flex>
       ) : (
@@ -308,13 +272,7 @@ function LiveChart({
                     {nativeOutputCurrency?.symbol}
                   </Text>
                 </Flex>
-                <SwitchButtonWrapper
-                  onClick={() =>
-                    setCurrenciesState(prev => {
-                      return { INPUT: prev[Field.OUTPUT], OUTPUT: prev[Field.INPUT] }
-                    })
-                  }
-                >
+                <SwitchButtonWrapper onClick={onRotateClick}>
                   <Repeat size={14} />
                 </SwitchButtonWrapper>
               </Flex>
@@ -328,7 +286,6 @@ function LiveChart({
             currencies={currenciesList}
             stateProChart={stateProChart}
             $isShowProChart={isShowProChart}
-            setLoading={handleSetLoading}
           />
           {!isShowProChart && (
             <>

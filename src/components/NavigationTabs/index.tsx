@@ -8,12 +8,13 @@ import styled, { css } from 'styled-components'
 
 import { ReactComponent as TutorialIcon } from 'assets/svg/play_circle_outline.svg'
 import { ButtonEmpty } from 'components/Button'
-import QuestionHelper from 'components/QuestionHelper'
-import { RowBetween } from 'components/Row'
 import { ShareButtonWithModal } from 'components/ShareModal'
 import TransactionSettings from 'components/TransactionSettings'
 import Tutorial, { TutorialType } from 'components/Tutorial'
 import useTheme from 'hooks/useTheme'
+
+import QuestionHelper from '../QuestionHelper'
+import { RowBetween } from '../Row'
 
 const Tabs = styled.div`
   ${({ theme }) => theme.flexRowNoWrap}
@@ -246,6 +247,33 @@ export function AddRemoveTabs({
           {!hideShare && <ShareButtonWithModal onShared={onShared} />}
         </Flex>
       </Wrapper>
+    </Tabs>
+  )
+}
+
+export function MigrateTab() {
+  const navigate = useNavigate()
+
+  const goBack = () => {
+    navigate(-1)
+  }
+
+  return (
+    <Tabs>
+      <RowBetween style={{ padding: '1rem 0' }}>
+        <ButtonBack width="fit-content" padding="0" onClick={goBack}>
+          <StyledArrowLeft />
+        </ButtonBack>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <ActiveText>
+            <Trans>Migrate Liquidity</Trans>
+          </ActiveText>
+          <QuestionHelper
+            text={t`Converts your liquidity position on Sushiswap into underlying tokens at the current rate. Tokens are deposited into the basic AMP=1 pool on the KyberSwap and you will be given DMM-LP tokens representing your new pool share. If rates are different between the two platforms, some tokens may be refunded to your address.`}
+          />
+        </div>
+        <TransactionSettings />
+      </RowBetween>
     </Tabs>
   )
 }

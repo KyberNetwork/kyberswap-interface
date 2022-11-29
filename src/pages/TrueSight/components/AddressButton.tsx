@@ -8,6 +8,7 @@ import useCopyClipboard from 'hooks/useCopyClipboard'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { OptionsContainer } from 'pages/TrueSight/styled'
+import { isAddress } from 'utils'
 import getShortenAddress from 'utils/getShortenAddress'
 
 function AddressButtonItself({
@@ -30,7 +31,7 @@ function AddressButtonItself({
 
   const onCopy = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     event.stopPropagation()
-    setCopied(address)
+    setCopied(isAddress(address) || address)
   }
 
   const mappedChainId = network ? TRUESIGHT_NETWORK_TO_CHAINID[network] : undefined
@@ -109,7 +110,7 @@ export default function AddressButton({ platforms }: { platforms: Map<string, st
   )
 }
 
-const AddressCopyContainer = styled.div`
+export const AddressCopyContainer = styled.div`
   cursor: pointer;
   display: flex;
   align-items: center;

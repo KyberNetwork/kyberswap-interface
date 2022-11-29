@@ -1,6 +1,4 @@
-import { useActiveWeb3React } from 'hooks'
-import { isAddress } from 'utils'
-
+import { isAddress } from '../utils'
 import useENSAddress from './useENSAddress'
 import useENSName from './useENSName'
 
@@ -13,10 +11,9 @@ export default function useENS(nameOrAddress?: string | null): {
   address: string | null
   name: string | null
 } {
-  const { chainId, isEVM } = useActiveWeb3React()
-  const validated = isAddress(chainId, nameOrAddress)
-  const reverseLookup = useENSName(isEVM ? validated || undefined : undefined)
-  const lookup = useENSAddress(isEVM ? nameOrAddress : undefined)
+  const validated = isAddress(nameOrAddress)
+  const reverseLookup = useENSName(validated ? validated : undefined)
+  const lookup = useENSAddress(nameOrAddress)
 
   return {
     loading: reverseLookup.loading || lookup.loading,

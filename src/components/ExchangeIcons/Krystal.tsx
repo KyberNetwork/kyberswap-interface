@@ -1,3 +1,5 @@
+import React from 'react'
+
 import useTheme from 'hooks/useTheme'
 
 function Krystal({ width, height }: { width?: number; height?: number }) {

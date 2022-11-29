@@ -1,21 +1,21 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { Pair } from '@kyberswap/ks-sdk-classic'
-import { Currency, CurrencyAmount, Percent, Price, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount, Percent, Price, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import JSBI from 'jsbi'
 import { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 
-import { NativeCurrencies } from 'constants/tokens'
-import { PairState, usePairByAddress, useUnAmplifiedPair } from 'data/Reserves'
-import { useTotalSupply } from 'data/TotalSupply'
-import { useActiveWeb3React } from 'hooks'
+import { nativeOnChain } from 'constants/tokens'
 import { useZapInAmounts } from 'hooks/useZap'
 import { useAppDispatch } from 'state/hooks'
-import { AppState } from 'state/index'
-import { tryParseAmount } from 'state/swap/hooks'
-import { useCurrencyBalances } from 'state/wallet/hooks'
 
+import { PairState, usePairByAddress, useUnAmplifiedPair } from '../../data/Reserves'
+import { useTotalSupply } from '../../data/TotalSupply'
+import { useActiveWeb3React } from '../../hooks'
+import { AppState } from '../index'
+import { tryParseAmount } from '../swap/hooks'
+import { useCurrencyBalances } from '../wallet/hooks'
 import { Field, switchTokenField, typeInput } from './actions'
 
 const ZERO = JSBI.BigInt(0)
@@ -73,10 +73,13 @@ export function useDerivedMintInfo(
 
   const noLiquidity: boolean =
     (pairState === PairState.NOT_EXISTS || Boolean(totalSupply && JSBI.equal(totalSupply.quotient, ZERO))) &&
-    (tokenA?.symbol !== WETH[chainId].symbol || tokenB?.symbol !== WETH[chainId].symbol)
+    (tokenA?.symbol !== WETH[chainId as ChainId].symbol || tokenB?.symbol !== WETH[chainId as ChainId].symbol)
 
   // balances
-  const balances = useCurrencyBalances([currencies[Field.CURRENCY_A], currencies[Field.CURRENCY_B]])
+  const balances = useCurrencyBalances(account ?? undefined, [
+    currencies[Field.CURRENCY_A],
+    currencies[Field.CURRENCY_B],
+  ])
   const currencyBalances: { [field in Field]?: CurrencyAmount<Currency> } = {
     [Field.CURRENCY_A]: balances[0],
     [Field.CURRENCY_B]: balances[1],
@@ -287,10 +290,11 @@ export function useDerivedZapInInfo(
   const totalSupply = useTotalSupply(pair?.liquidityToken)
   const noLiquidity: boolean =
     (pairState === PairState.NOT_EXISTS || Boolean(totalSupply && JSBI.equal(totalSupply.quotient, ZERO))) &&
-    (tokenA?.symbol !== WETH[chainId].symbol || tokenB?.symbol !== WETH[chainId].symbol)
+    (tokenA?.symbol !== WETH[chainId as ChainId].symbol || tokenB?.symbol !== WETH[chainId as ChainId].symbol)
 
   // balances
   const balances = useCurrencyBalances(
+    account ?? undefined,
     useMemo(() => [currencies[Field.CURRENCY_A], currencies[Field.CURRENCY_B]], [currencies]),
   )
   const currencyBalances: { [field in Field]?: CurrencyAmount<Currency> } = {
@@ -412,7 +416,7 @@ export function useDerivedZapInInfo(
       currencyBalances?.[independentField]?.lessThan(userInCurrencyAmount))
   ) {
     error = t`Insufficient ${
-      selectedCurrency.isNative ? NativeCurrencies[chainId].symbol : selectedCurrency.symbol
+      selectedCurrency.isNative ? nativeOnChain(chainId as ChainId).symbol : selectedCurrency.symbol
     } balance`
   }
 

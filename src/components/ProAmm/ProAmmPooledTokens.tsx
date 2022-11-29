@@ -40,7 +40,7 @@ export default function ProAmmPooledTokens({
       <OutlineCard marginTop="1rem" padding="1rem">
         <AutoColumn gap="md">
           <Text fontSize="16px" fontWeight="500">
-            {title ? <Trans>{title}</Trans> : <Trans>Your Liquidity</Trans>}
+            <Trans>{title || 'Your Liquidity'}</Trans>
           </Text>
 
           <Divider />

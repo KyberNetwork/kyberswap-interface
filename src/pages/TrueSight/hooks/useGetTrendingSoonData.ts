@@ -1,6 +1,5 @@
 import useSWR from 'swr'
 
-import { TRUESIGHT_API } from 'constants/env'
 import { TRENDING_SOON_SUPPORTED_NETWORKS } from 'constants/index'
 import { TrueSightFilter, TrueSightTimeframe } from 'pages/TrueSight/index'
 
@@ -49,7 +48,7 @@ export interface TrueSightTokenResponse {
 
 export default function useGetTrendingSoonData(filter: TrueSightFilter, maxItems: number) {
   const { data, error } = useSWR(
-    `${TRUESIGHT_API}/api/v1/trending-soon?timeframe=${
+    `${process.env.REACT_APP_TRUESIGHT_API}/api/v1/trending-soon?timeframe=${
       filter.timeframe === TrueSightTimeframe.ONE_DAY ? '24h' : '7d'
     }&page_number=0&page_size=${maxItems}&search_token_id=${
       filter.selectedTokenData?.token_id ?? ''

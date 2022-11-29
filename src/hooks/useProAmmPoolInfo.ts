@@ -1,8 +1,8 @@
-import { Currency } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, computePoolAddress } from '@kyberswap/ks-sdk-elastic'
 import { useMemo } from 'react'
 
-import { EVMNetworkInfo } from 'constants/networks/type'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 
 export function useProAmmPoolInfos(
@@ -10,8 +10,8 @@ export function useProAmmPoolInfos(
   currencyB: Currency | null | undefined,
   feeAmount: (FeeAmount | undefined)[],
 ): string[] {
-  const { isEVM, networkInfo } = useActiveWeb3React()
-  const proAmmCoreFactoryAddress = isEVM && (networkInfo as EVMNetworkInfo).elastic.coreFactory
+  const { chainId } = useActiveWeb3React()
+  const proAmmCoreFactoryAddress = chainId && NETWORKS_INFO[chainId].elastic.coreFactory
   return useMemo(
     () =>
       feeAmount.map(fee => {
@@ -21,11 +21,11 @@ export function useProAmmPoolInfos(
               tokenA: currencyA?.wrapped,
               tokenB: currencyB?.wrapped,
               fee: fee,
-              initCodeHashManualOverride: (networkInfo as EVMNetworkInfo).elastic.initCodeHash,
+              initCodeHashManualOverride: NETWORKS_INFO[chainId || ChainId.MAINNET].elastic.initCodeHash,
             })
           : ''
       }),
-    [currencyA, currencyB, proAmmCoreFactoryAddress, feeAmount, networkInfo],
+    [chainId, currencyA, currencyB, proAmmCoreFactoryAddress, feeAmount],
   )
 }
 

@@ -56,8 +56,9 @@ const FilterBar: React.FC<FilterBarProps> = ({ activeTab, filter, setFilter }) =
   const isActiveTabTrending = activeTab === TrueSightTabs.TRENDING
   const below992 = useMedia('(max-width: 992px)')
 
+  const queryString = useParsedQueryString()
   const theme = useTheme()
-  const { tab } = useParsedQueryString<{ tab: string }>()
+  const { tab } = useParsedQueryString()
 
   const setActiveTimeframe = (timeframe: TrueSightTimeframe) => {
     setFilter(prev => ({ ...prev, timeframe }))
@@ -132,7 +133,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ activeTab, filter, setFilter }) =
           columnGap: '16px',
         }}
       >
-        {tab === 'trending' && (
+        {queryString.tab === 'trending' && (
           <TrueSightToggle
             isActive={filter.isShowTrueSightOnly}
             toggle={() => setFilter(prev => ({ ...prev, isShowTrueSightOnly: !prev.isShowTrueSightOnly }))}

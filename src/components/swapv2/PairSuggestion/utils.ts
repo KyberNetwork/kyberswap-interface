@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import { ETHER_ADDRESS } from 'constants/index'
-import { NativeCurrencies } from 'constants/tokens'
+import { nativeOnChain } from 'constants/tokens'
 import { AllTokenType } from 'hooks/Tokens'
 import { getTokenLogoURL } from 'utils'
 import { currencyId } from 'utils/currencyId'
@@ -20,7 +20,11 @@ const isTokenInWhiteList = (activeTokens: AllTokenType, address: string) =>
 export const isActivePair = (activeTokens: AllTokenType, pair: SuggestionPairData) =>
   isTokenInWhiteList(activeTokens, pair.tokenIn) && isTokenInWhiteList(activeTokens, pair.tokenOut)
 
-export const findLogoAndSortPair = (activeTokens: AllTokenType, list: SuggestionPairData[], chainId: ChainId) => {
+export const findLogoAndSortPair = (
+  activeTokens: AllTokenType,
+  list: SuggestionPairData[],
+  chainId: ChainId | undefined,
+) => {
   return list
     .map(token => {
       // find logo
@@ -42,5 +46,5 @@ export const findLogoAndSortPair = (activeTokens: AllTokenType, list: Suggestion
 
 export const getAddressParam = (address: string, chainId: ChainId | undefined) =>
   address.toLowerCase() === ETHER_ADDRESS.toLowerCase() && chainId
-    ? currencyId(NativeCurrencies[chainId], chainId)
+    ? currencyId(nativeOnChain(chainId), chainId)
     : address

@@ -1,5 +1,6 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useRef } from 'react'
+import React, { useRef } from 'react'
 import { isMobile } from 'react-device-detect'
 import {
   Award,
@@ -28,10 +29,8 @@ import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import Faucet from 'components/Icons/Faucet'
 import Loader from 'components/Loader'
 import MenuFlyout from 'components/MenuFlyout'
-import { MAINNET_ENV, TAG } from 'constants/env'
 import { AGGREGATOR_ANALYTICS_URL, DMM_ANALYTICS_URL } from 'constants/index'
-import { FAUCET_NETWORKS } from 'constants/networks'
-import { EVMNetworkInfo } from 'constants/networks/type'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useClaimReward from 'hooks/useClaimReward'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -172,7 +171,7 @@ export const NewLabel = styled.span`
 `
 
 export default function Menu() {
-  const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
+  const { chainId, account } = useActiveWeb3React()
   const theme = useTheme()
   const node = useRef<HTMLDivElement>()
   const open = useModalOpen(ApplicationModal.MENU)
@@ -183,7 +182,12 @@ export default function Menu() {
   const above768 = useMedia('(min-width: 768px)')
   const under369 = useMedia('(max-width: 370px)')
 
-  const bridgeLink = networkInfo.bridgeURL
+  const getBridgeLink = () => {
+    if (!chainId) return ''
+    return NETWORKS_INFO[chainId].bridgeURL
+  }
+
+  const bridgeLink = getBridgeLink()
   const toggleClaimPopup = useToggleModal(ApplicationModal.CLAIM_POPUP)
   const toggleFaucetPopup = useToggleModal(ApplicationModal.FAUCET_POPUP)
   const { pendingTx } = useClaimReward()
@@ -203,7 +207,7 @@ export default function Menu() {
         translatedTitle={t`Menu`}
         hasArrow
       >
-        {FAUCET_NETWORKS.includes(chainId) && (
+        {chainId && [ChainId.BTTC, ChainId.RINKEBY].includes(chainId) && (
           <MenuButton
             onClick={() => {
               toggleFaucetPopup()
@@ -269,7 +273,7 @@ export default function Menu() {
             link="#"
             title={'Analytics'}
             options={[
-              { link: DMM_ANALYTICS_URL[chainId], label: 'Liquidity', external: true },
+              { link: DMM_ANALYTICS_URL[chainId as ChainId], label: 'Liquidity', external: true },
               {
                 link: AGGREGATOR_ANALYTICS_URL,
                 label: 'Aggregator',
@@ -283,12 +287,12 @@ export default function Menu() {
           <Trans>Docs</Trans>
         </ExternalNavMenuItem>
 
-        <ExternalNavMenuItem href="https://kyberswap.canny.io/feature-request" onClick={toggle}>
+        <ExternalNavMenuItem href="https://request.kyberswap.com" onClick={toggle}>
           <StyledLightIcon />
           <Trans>Feature Request</Trans>
         </ExternalNavMenuItem>
 
-        <ExternalNavMenuItem href="https://kyberswap.canny.io/" onClick={toggle}>
+        <ExternalNavMenuItem href="https://request.kyberswap.com/roadmap" onClick={toggle}>
           <StyledRoadMapIcon />
           <Trans>Roadmap</Trans>
         </ExternalNavMenuItem>
@@ -309,7 +313,7 @@ export default function Menu() {
           <FileText size={14} />
           <Trans>Terms</Trans>
         </ExternalNavMenuItem>
-        {MAINNET_ENV !== 'production' && (
+        {process.env.REACT_APP_MAINNET_ENV !== 'production' && (
           <NavMenuItem to="/swap-legacy" onClick={toggle}>
             <Triangle size={14} />
             <Trans>Swap Legacy</Trans>
@@ -321,7 +325,7 @@ export default function Menu() {
           <Trans>Contact Us</Trans>
         </ExternalNavMenuItem>
         <ClaimRewardButton
-          disabled={!account || !isEVM || !(networkInfo as EVMNetworkInfo).classic.claimReward || pendingTx}
+          disabled={!account || (!!chainId && NETWORKS_INFO[chainId].classic.claimReward === '') || pendingTx}
           onClick={() => {
             mixpanelHandler(MIXPANEL_TYPE.CLAIM_REWARDS_INITIATED)
             toggleClaimPopup()
@@ -335,12 +339,20 @@ export default function Menu() {
             <Trans>Claim Rewards</Trans>
           )}
         </ClaimRewardButton>
-        <Text fontSize="10px" fontWeight={300} color={theme.subText} mt="16px" textAlign={isMobile ? 'left' : 'center'}>
-          kyberswap@{TAG}
-        </Text>
+        {!!process.env.REACT_APP_TAG && (
+          <Text
+            fontSize="10px"
+            fontWeight={300}
+            color={theme.subText}
+            mt="16px"
+            textAlign={isMobile ? 'left' : 'center'}
+          >
+            kyberswap@{process.env.REACT_APP_TAG}
+          </Text>
+        )}
       </MenuFlyout>
       <ClaimRewardModal />
-      {FAUCET_NETWORKS.includes(chainId) && <FaucetModal />}
+      {chainId && [ChainId.BTTC, ChainId.RINKEBY].includes(chainId) && <FaucetModal />}
     </StyledMenu>
   )
 }

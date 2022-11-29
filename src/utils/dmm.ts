@@ -1,14 +1,22 @@
 import { getAddress } from '@ethersproject/address'
 import { BigNumber } from '@ethersproject/bignumber'
 import { Pair } from '@kyberswap/ks-sdk-classic'
-import { ChainId, Currency, CurrencyAmount, Fraction, Price, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
-import { t } from '@lingui/macro'
+import {
+  ChainId,
+  ChainId as ChainIdDMM,
+  Currency,
+  CurrencyAmount,
+  Fraction,
+  Price,
+  Token,
+  TokenAmount,
+} from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 import { useMemo } from 'react'
 
 import { BLOCKS_PER_YEAR, SECONDS_PER_YEAR, ZERO_ADDRESS } from 'constants/index'
-import { EVM_NETWORK } from 'constants/networks'
-import { NativeCurrencies } from 'constants/tokens'
+import { NETWORKS_INFO } from 'constants/networks'
+import { nativeOnChain } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import { useBlockNumber } from 'state/application/hooks'
@@ -71,7 +79,7 @@ export function parseSubgraphPoolData(
   const virtualReserve0 = tryParseAmount(poolData.vReserve0, currency0)
   const reserve1 = tryParseAmount(poolData.reserve1, currency1)
   const virtualReserve1 = tryParseAmount(poolData.vReserve1, currency1)
-  const totalSupply = tryParseAmount(poolData.totalSupply, NativeCurrencies[chainId]) // Only care about decimals 18
+  const totalSupply = tryParseAmount(poolData.totalSupply, nativeOnChain(chainId)) // Only care about decimals 18
 
   return {
     reserve0,
@@ -270,7 +278,7 @@ export const getMyLiquidity = (liquidityPosition?: UserLiquidityPosition): strin
   return formattedNum(myLiquidity.toString(), true)
 }
 
-function useFarmRewardsPerTimeUnit(farm?: Farm): RewardPerTimeUnit[] {
+export function useFarmRewardsPerTimeUnit(farm?: Farm): RewardPerTimeUnit[] {
   if (!farm) {
     return []
   }
@@ -314,7 +322,7 @@ function useFarmRewardsPerTimeUnit(farm?: Farm): RewardPerTimeUnit[] {
  * @returns
  */
 export function useFarmApr(farm: Farm, poolLiquidityUsd: string): number {
-  const { chainId, isEVM } = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React()
   const currentBlock = useBlockNumber()
   const rewardsPerTimeUnit = useFarmRewardsPerTimeUnit(farm)
   const tokenPrices = useRewardTokenPrices((rewardsPerTimeUnit || []).map(item => item.token))
@@ -375,10 +383,10 @@ export function useFarmApr(farm: Farm, poolLiquidityUsd: string): number {
         return total
       }
 
-      if (isEVM && tokenPrices[index]) {
+      if (chainId && tokenPrices[index]) {
         const rewardPerBlockAmount = TokenAmount.fromRawAmount(rewardPerBlock.token, rewardPerBlock.amount.toString())
         const yearlyETHRewardAllocation =
-          parseFloat(rewardPerBlockAmount.toSignificant(6)) * BLOCKS_PER_YEAR(chainId as EVM_NETWORK)
+          parseFloat(rewardPerBlockAmount.toSignificant(6)) * BLOCKS_PER_YEAR(chainId as ChainId)
         total += yearlyETHRewardAllocation * tokenPrices[index]
       }
 
@@ -395,7 +403,7 @@ export function useCurrencyConvertedToNative(currency?: Currency): Currency | un
   const { chainId } = useActiveWeb3React()
   return useMemo(() => {
     if (!!currency && !!chainId) {
-      return currency.isNative ? NativeCurrencies[chainId] : currency
+      return currency.isNative ? nativeOnChain(chainId) : currency
     }
     return undefined
   }, [chainId, currency])
@@ -497,14 +505,14 @@ export function useRewardTokensFullInfo(): Token[] {
   const rewardTokens = useRewardTokens()
 
   const allTokens = useAllTokens()
-  const nativeName = NativeCurrencies[chainId].symbol
+  const nativeName = NETWORKS_INFO[chainId || ChainId.MAINNET].nativeToken.symbol
 
   return useMemo(
     () =>
       !!rewardTokens && allTokens
         ? rewardTokens.map(address =>
             address.toLowerCase() === ZERO_ADDRESS.toLowerCase()
-              ? new Token(chainId, ZERO_ADDRESS.toLowerCase(), 18, nativeName, nativeName)
+              ? new Token(chainId as ChainIdDMM, ZERO_ADDRESS.toLowerCase(), 18, nativeName, nativeName)
               : allTokens[address],
           )
         : [],
@@ -531,8 +539,8 @@ export function errorFriendly(text: string): string {
     error.includes('code=call_exception') ||
     error.includes('none of the calls threw an error')
   ) {
-    return t`An error occurred. Try refreshing the price rate or increase max slippage`
+    return 'An error occurred. Try refreshing the price rate or increase max slippage'
   } else if (error.includes('header not found') || error.includes('swap failed') || error.includes('json-rpc error')) {
-    return t`An error occurred. Refresh the page and try again. If the issue still persists, it might be an issue with your RPC node settings in Metamask.`
+    return 'An error occurred. Refresh the page and try again. If the issue still persists, it might be an issue with your RPC node settings in Metamask.'
   } else return text
 }

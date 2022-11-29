@@ -1,14 +1,13 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createAction } from '@reduxjs/toolkit'
 import { TokenList } from '@uniswap/token-lists'
-
-import { TRANSACTION_TYPE } from 'state/transactions/type'
 
 import { NotificationType } from './hooks'
 
 export type PopupContentTxn = {
   hash: string
   notiType: NotificationType
-  type?: TRANSACTION_TYPE
+  type?: string
   summary?: string
 }
 export type PopupContentListUpdate = {
@@ -25,6 +24,7 @@ export type PopupContentSimple = {
 
 export enum PopupType {
   TRANSACTION,
+  LIST_UPDATE,
   SIMPLE,
 }
 
@@ -86,6 +86,8 @@ export const updateETHPrice = createAction<{
 }>('application/updateETHPrice')
 
 export const updateKNCPrice = createAction<string | undefined>('application/updateKNCPrice')
+
+export const updateChainIdWhenNotConnected = createAction<ChainId>('application/updateChainIdWhenNotConnected')
 
 export const updateServiceWorker = createAction<ServiceWorkerRegistration>('application/updateServiceWorker')
 

@@ -2,25 +2,20 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import ARBITRUM from 'assets/networks/arbitrum-network.svg'
-import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
-import { EVMNetworkInfo } from 'constants/networks/type'
+import { KS_SETTING_API } from 'constants/env'
 import { createClient } from 'utils/client'
 
-// const EMPTY = ''
+import { NetworkInfo } from '../type'
+
+const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const arbitrumInfo: EVMNetworkInfo = {
+const arbitrumInfo: NetworkInfo = {
   chainId: ChainId.ARBITRUM,
   route: 'arbitrum',
-  ksSettingRoute: 'arbitrum',
-  priceRoute: 'arbitrum',
-  poolFarmRoute: 'arbitrum',
   name: 'Arbitrum',
   icon: ARBITRUM,
-  iconDark: NOT_SUPPORT,
-  iconSelected: NOT_SUPPORT,
-  iconDarkSelected: NOT_SUPPORT,
   classicClient: createClient(
     'https://arbitrum-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-arbitrum',
   ),
@@ -32,14 +27,13 @@ const arbitrumInfo: EVMNetworkInfo = {
   bridgeURL: 'https://bridge.arbitrum.io',
   nativeToken: {
     symbol: 'ETH',
-    name: 'ETH',
+    name: 'ETH (Wrapped)',
+    address: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
     logo: EthereumLogo,
     decimal: 18,
-    minForGas: 10 ** 16,
   },
   rpcUrl: 'https://arbitrum.kyberengineering.io',
-  routerUri: `${AGGREGATOR_API}/arbitrum/route/encode`,
-  multicall: '0x80C7DD17B01855a6D2347444a0FCC36136a314de', // must use this for arbitrum to get exactly block number instead of L1 block number
+  routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/arbitrum/route/encode`,
   classic: {
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',
@@ -52,7 +46,7 @@ const arbitrumInfo: EVMNetworkInfo = {
       factory: '0x51E8D106C646cA58Caf32A47812e95887C071a62',
     },
     dynamic: NOT_SUPPORT,
-    claimReward: NOT_SUPPORT,
+    claimReward: EMPTY,
     fairlaunch: EMPTY_ARRAY,
     fairlaunchV2: EMPTY_ARRAY,
   },
@@ -63,14 +57,12 @@ const arbitrumInfo: EVMNetworkInfo = {
     initCodeHash: '0xc597aba1bb02db42ba24a8878837965718c032f8b46be94a6e46452a9f89ca01',
     quoter: '0x0D125c15D54cA1F8a813C74A81aEe34ebB508C1f',
     routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
-    farms: ['0xBdEc4a045446F583dc564C0A227FFd475b329bf0'],
   },
   averageBlockTimeInSeconds: 1, // TODO: check these info
   coingeckoNetworkId: 'arbitrum-one',
   coingeckoNativeTokenId: 'ethereum',
   deBankSlug: 'arb',
-  trueSightId: NOT_SUPPORT,
-  dexToCompare: 'uniswapv3',
+  internalRoute: 'arbitrum',
 }
 
 export default arbitrumInfo

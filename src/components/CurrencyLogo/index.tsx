@@ -2,11 +2,13 @@ import { Currency } from '@kyberswap/ks-sdk-core'
 import React, { memo, useMemo } from 'react'
 import styled from 'styled-components'
 
-import Logo from 'components/Logo'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import useHttpLocations from 'hooks/useHttpLocations'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { getTokenLogoURL } from 'utils'
+
+import useHttpLocations from '../../hooks/useHttpLocations'
+import Logo from '../Logo'
 
 const StyledNativeCurrencyLogo = styled.img<{ size: string }>`
   width: ${({ size }) => size};
@@ -32,7 +34,7 @@ function CurrencyLogo({
   size?: string
   style?: React.CSSProperties
 }) {
-  const { chainId, networkInfo } = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React()
   const logoURI = currency instanceof WrappedTokenInfo ? currency?.logoURI : undefined
   const uriLocations = useHttpLocations(logoURI)
 
@@ -52,7 +54,7 @@ function CurrencyLogo({
   if (currency?.isNative && chainId) {
     return (
       <StyledNativeCurrencyLogo
-        src={networkInfo.nativeToken.logo}
+        src={NETWORKS_INFO[chainId].nativeToken.logo}
         size={size}
         style={style}
         alt={`${currency.symbol}Logo`}

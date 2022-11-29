@@ -2,7 +2,7 @@ import { Fraction, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import JSBI from 'jsbi'
 import { useEffect, useState } from 'react'
-import { Navigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 
 import LiquidityProviderMode from 'components/LiquidityProviderMode'
 import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
@@ -20,7 +20,7 @@ import { Container, LiquidityProviderModeWrapper, PageWrapper, PoolName, TopBar 
 export default function RemoveLiquidity() {
   const { currencyIdA = '', currencyIdB = '', pairAddress = '' } = useParams()
   const [currencyA, currencyB] = [useCurrency(currencyIdA) ?? undefined, useCurrency(currencyIdB) ?? undefined]
-  const { chainId, isEVM } = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React()
 
   const nativeA = useCurrencyConvertedToNative(currencyA)
   const nativeB = useCurrencyConvertedToNative(currencyB)
@@ -44,7 +44,6 @@ export default function RemoveLiquidity() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  if (!isEVM) return <Navigate to="/" />
   return (
     <>
       <PageWrapper>

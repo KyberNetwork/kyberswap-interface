@@ -9,12 +9,9 @@ import { Trash } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
-import Column from 'components/Column'
 import InfoHelper from 'components/InfoHelper'
-import { RowBetween } from 'components/Row'
 import { KS_SETTING_API } from 'constants/env'
-import { NativeCurrencies } from 'constants/tokens'
-import { useActiveWeb3React } from 'hooks'
+import { nativeOnChain } from 'constants/tokens'
 import { AllTokenType, useAllTokens, useToken } from 'hooks/Tokens'
 import useDebounce from 'hooks/useDebounce'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
@@ -23,10 +20,13 @@ import useTheme from 'hooks/useTheme'
 import useToggle from 'hooks/useToggle'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useRemoveUserAddedToken, useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
-import { ButtonText, CloseIcon, TYPE } from 'theme'
-import { filterTruthy, isAddress } from 'utils'
 import { filterTokens } from 'utils/filtering'
 
+import { useActiveWeb3React } from '../../hooks'
+import { ButtonText, CloseIcon, TYPE } from '../../theme'
+import { filterTruthy, isAddress } from '../../utils'
+import Column from '../Column'
+import { RowBetween } from '../Row'
 import CommonBases from './CommonBases'
 import CurrencyList from './CurrencyList'
 import { useTokenComparator } from './sorting'
@@ -88,8 +88,8 @@ export type TokenResponse = Token & { isWhitelisted: boolean }
 const cacheTokens: AllTokenType = {}
 
 const fetchTokenByAddress = async (address: string, chainId: ChainId) => {
-  const cachedToken = cacheTokens[address] || cacheTokens[address.toLowerCase()]
-  if (cachedToken) return cachedToken
+  const findToken = cacheTokens[address] || cacheTokens[address.toLowerCase()]
+  if (findToken) return findToken
   const url = `${KS_SETTING_API}/v1/tokens?query=${address}&chainIds=${chainId}`
   const response = await axios.get(url)
   const token = response.data.data.tokens[0]
@@ -175,21 +175,21 @@ export function CurrencySearch({
   const tokenComparator = useTokenComparator(false)
 
   // if they input an address, use it
-  const isAddressSearch = isAddress(chainId, debouncedQuery)
+  const isAddressSearch = isAddress(debouncedQuery)
   const searchToken = useToken(debouncedQuery)
 
   const [commonTokens, setCommonTokens] = useState<(Token | Currency)[]>([])
   const [loadingCommon, setLoadingCommon] = useState(true)
 
   const showETH: boolean = useMemo(() => {
-    const nativeToken = NativeCurrencies[chainId]
+    const nativeToken = chainId && nativeOnChain(chainId)
     const s = debouncedQuery.toLowerCase().trim()
     return !!nativeToken?.symbol?.toLowerCase().startsWith(s)
   }, [debouncedQuery, chainId])
 
   const tokenImportsFiltered = useMemo(() => {
-    return (debouncedQuery ? filterTokens(chainId, tokenImports, debouncedQuery) : tokenImports).sort(tokenComparator)
-  }, [debouncedQuery, chainId, tokenImports, tokenComparator])
+    return (debouncedQuery ? filterTokens(tokenImports, debouncedQuery) : tokenImports).sort(tokenComparator)
+  }, [debouncedQuery, tokenImports, tokenComparator])
 
   const filteredTokens: Token[] = useMemo(() => {
     if (isAddressSearch) return searchToken ? [searchToken.wrapped] : []
@@ -197,8 +197,8 @@ export function CurrencySearch({
   }, [isAddressSearch, searchToken, fetchedTokens])
 
   const filteredCommonTokens: Token[] = useMemo(() => {
-    return filterTokens(chainId, commonTokens as Token[], debouncedQuery)
-  }, [chainId, commonTokens, debouncedQuery])
+    return filterTokens(commonTokens as Token[], debouncedQuery)
+  }, [commonTokens, debouncedQuery])
 
   const filteredSortedTokens: Token[] = useMemo(() => {
     if (!debouncedQuery) {
@@ -239,25 +239,19 @@ export function CurrencySearch({
 
   const listTokenRef = useRef<HTMLDivElement>(null)
 
-  const handleInput = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
-      const input = event.target.value
-      const checksumInput = isAddress(chainId, input)
-      setSearchQuery(checksumInput || input)
-      if (listTokenRef?.current) listTokenRef.current.scrollTop = 0
-    },
-    [chainId],
-  )
+  const handleInput = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    const input = event.target.value
+    const checksumInput = isAddress(input)
+    setSearchQuery(checksumInput || input)
+    if (listTokenRef?.current) listTokenRef.current.scrollTop = 0
+  }, [])
 
   const handleEnter = useCallback(
     (e: KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter') {
         const s = searchQuery.toLowerCase().trim()
-        if (
-          s === NativeCurrencies[chainId].symbol?.toLowerCase() ||
-          s === NativeCurrencies[chainId].name?.toLowerCase()
-        ) {
-          handleCurrencySelect(NativeCurrencies[chainId])
+        if (s === 'eth') {
+          handleCurrencySelect(nativeOnChain(chainId as ChainId))
         } else if (filteredSortedTokens.length > 0) {
           if (
             filteredSortedTokens[0].symbol?.toLowerCase() === searchQuery.trim().toLowerCase() ||
@@ -285,7 +279,7 @@ export function CurrencySearch({
       const curTotal =
         currentList.filter(address => !!cacheTokens[address] || !!defaultTokens[address]).length +
         (favoriteTokens?.includeNativeToken ? 1 : 0)
-      if (isAddFavorite && curTotal === MAX_FAVORITE_PAIR) return
+      if (!chainId || (isAddFavorite && curTotal === MAX_FAVORITE_PAIR)) return
 
       if (currency.isNative) {
         toggleFavoriteToken({
@@ -316,8 +310,8 @@ export function CurrencySearch({
       setLoadingCommon(true)
       const promises: Promise<any>[] = []
       const result: (Token | Currency)[] = []
-      if (favoriteTokens?.includeNativeToken) {
-        result.push(NativeCurrencies[chainId])
+      if (favoriteTokens?.includeNativeToken && chainId) {
+        result.push(nativeOnChain(chainId))
       }
       favoriteTokens?.addresses.forEach(address => {
         if (defaultTokens[address]) {
@@ -328,7 +322,9 @@ export function CurrencySearch({
           result.push(cacheTokens[address])
           return
         }
-        promises.push(fetchTokenByAddress(address, chainId))
+        if (chainId) {
+          promises.push(fetchTokenByAddress(address, chainId))
+        }
       })
       if (promises.length) {
         const data = await Promise.allSettled(promises)
@@ -393,7 +389,7 @@ export function CurrencySearch({
 
   const combinedTokens = useMemo(() => {
     const currencies: Currency[] = filteredSortedTokens
-    if (showETH && !currencies.find(e => e.isNative)) currencies.unshift(NativeCurrencies[chainId])
+    if (showETH && chainId && !currencies.find(e => e.isNative)) currencies.unshift(nativeOnChain(chainId))
     return currencies
   }, [showETH, chainId, filteredSortedTokens])
 
@@ -405,6 +401,7 @@ export function CurrencySearch({
 
   const removeImportedToken = useCallback(
     (token: Token) => {
+      if (!chainId) return
       removeToken(chainId, token.address)
       if (favoriteTokens?.addresses.includes(token.address))
         // remove in favorite too

@@ -1,4 +1,5 @@
 import { Trans } from '@lingui/macro'
+import React from 'react'
 import styled from 'styled-components'
 
 import TrendingHeroLight from 'assets/images/trending-light.png'

@@ -1,4 +1,5 @@
 import { Trans, t } from '@lingui/macro'
+import React from 'react'
 import { Flex } from 'rebass'
 
 import Toggle, { ToggleProps } from 'components/Toggle'

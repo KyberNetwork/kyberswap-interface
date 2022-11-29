@@ -10,9 +10,7 @@ import { ReactComponent as BarChartIcon } from 'assets/svg/bar_chart_icon.svg'
 import { ButtonOutlined } from 'components/Button'
 import Divider from 'components/Divider'
 import useTheme from 'hooks/useTheme'
-import AddressRowOnMobile from 'pages/TrueSight/components/AddressRowOnMobile'
 import ButtonWithOptions from 'pages/TrueSight/components/ButtonWithOptions'
-import CommunityRowOnMobile from 'pages/TrueSight/components/CommunityRowOnMobile'
 import Tags from 'pages/TrueSight/components/Tags'
 import { TableBodyItemSmallDiff } from 'pages/TrueSight/components/TrendingLayout/index'
 import {
@@ -25,6 +23,9 @@ import { TrueSightFilter } from 'pages/TrueSight/index'
 import getFormattedNumLongDiscoveredDetails from 'pages/TrueSight/utils/getFormattedNumLongDiscoveredDetails'
 import { ExternalLink } from 'theme'
 import { formattedNumLong } from 'utils'
+
+import AddressRowOnMobile from '../AddressRowOnMobile'
+import CommunityRowOnMobile from '../CommunityRowOnMobile'
 
 const StyledTrendingTokenItem = styled(Flex)`
   position: relative;

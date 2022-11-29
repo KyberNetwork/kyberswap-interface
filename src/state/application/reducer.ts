@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createReducer, nanoid } from '@reduxjs/toolkit'
 
 import {
@@ -11,6 +12,7 @@ import {
   setOpenModal,
   setSubscribedNotificationTopic,
   updateBlockNumber,
+  updateChainIdWhenNotConnected,
   updateETHPrice,
   updateKNCPrice,
   updatePrommETHPrice,
@@ -38,6 +40,7 @@ export interface ApplicationState {
   readonly ethPrice: ETHPrice
   readonly prommEthPrice: ETHPrice
   readonly kncPrice?: string
+  readonly chainIdWhenNotConnected: ChainId
   readonly serviceWorkerRegistration: ServiceWorkerRegistration | null
   readonly notification: {
     isLoading: boolean
@@ -55,6 +58,7 @@ const initialState: ApplicationState = {
   ethPrice: {},
   prommEthPrice: {},
   kncPrice: '',
+  chainIdWhenNotConnected: ChainId.MAINNET,
   serviceWorkerRegistration: null,
   notification: initialStateNotification,
 }
@@ -103,6 +107,9 @@ export default createReducer(initialState, builder =>
     })
     .addCase(updateKNCPrice, (state, { payload: kncPrice }) => {
       state.kncPrice = kncPrice
+    })
+    .addCase(updateChainIdWhenNotConnected, (state, { payload: chainId }) => {
+      state.chainIdWhenNotConnected = chainId
     })
     .addCase(updateServiceWorker, (state, { payload }) => {
       state.serviceWorkerRegistration = payload

@@ -1,4 +1,5 @@
 import { Trans } from '@lingui/macro'
+import React from 'react'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'

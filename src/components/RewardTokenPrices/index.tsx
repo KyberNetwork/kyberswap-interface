@@ -1,11 +1,10 @@
-import { Currency, WETH } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, WETH } from '@kyberswap/ks-sdk-core'
 import React, { useEffect, useRef } from 'react'
 import ScrollContainer from 'react-indiana-drag-scroll'
 import styled from 'styled-components'
 
 import CurrencyLogo from 'components/CurrencyLogo'
-import { ZERO_ADDRESS } from 'constants/index'
-import { KNC } from 'constants/tokens'
+import { KNC, ZERO_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useThrottle from 'hooks/useThrottle'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
@@ -81,27 +80,27 @@ const RewardTokenPrices = ({ style = {}, rewardTokens }: { style?: React.CSSProp
   const { chainId } = useActiveWeb3React()
   // let rewardTokens = useRewardTokensFullInfo()
   const isContainETH = rewardTokens.findIndex(token => token.wrapped.address === ZERO_ADDRESS) >= 0
-  const isContainWETH = rewardTokens.findIndex(token => token.wrapped.address === WETH[chainId].address) >= 0
+  const isContainWETH = rewardTokens.findIndex(token => token.wrapped.address === WETH[chainId as ChainId].address) >= 0
   rewardTokens =
     isContainETH && isContainWETH
-      ? rewardTokens.filter(token => token.wrapped.address !== WETH[chainId].address)
+      ? rewardTokens.filter(token => token.wrapped.address !== WETH[chainId as ChainId].address)
       : rewardTokens
 
   // Sort the list of reward tokens in order: KNC -> Native token -> Other tokens
   rewardTokens.sort(function (tokenA, tokenB) {
-    if (tokenA.wrapped.address === KNC[chainId].address) {
+    if (tokenA.wrapped.address === KNC[chainId as ChainId].address) {
       return -1
     }
 
-    if (tokenB.wrapped.address === KNC[chainId].address) {
+    if (tokenB.wrapped.address === KNC[chainId as ChainId].address) {
       return 1
     }
 
-    if (tokenA.wrapped.address === ZERO_ADDRESS || tokenA.wrapped.address === WETH[chainId].address) {
+    if (tokenA.wrapped.address === ZERO_ADDRESS || tokenA.wrapped.address === WETH[chainId as ChainId].address) {
       return -1
     }
 
-    if (tokenB.wrapped.address === ZERO_ADDRESS || tokenB.wrapped.address === WETH[chainId].address) {
+    if (tokenB.wrapped.address === ZERO_ADDRESS || tokenB.wrapped.address === WETH[chainId as ChainId].address) {
       return 1
     }
 

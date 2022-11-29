@@ -8,15 +8,15 @@ import InfiniteLoader from 'react-window-infinite-loader'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
-import Column from 'components/Column'
-import CurrencyLogo from 'components/CurrencyLogo'
-import Loader from 'components/Loader'
-import { RowBetween, RowFixed } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import { useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 
+import Column from '../Column'
+import CurrencyLogo from '../CurrencyLogo'
+import Loader from '../Loader'
+import { RowBetween, RowFixed } from '../Row'
 import { TokenResponse } from './CurrencySearch'
 import ImportRow from './ImportRow'
 
@@ -79,7 +79,7 @@ const DescText = styled.div`
   font-weight: 300;
   color: ${({ theme }) => theme.subText};
 `
-export const getDisplayTokenInfo = (currency: Currency) => {
+export const getDisplayTokenInfo = (currency: any) => {
   return {
     symbol: currency.isNative ? currency.symbol : currency?.wrapped?.symbol || currency.symbol,
   }
@@ -116,6 +116,7 @@ export function CurrencyRow({
   const { chainId, account } = useActiveWeb3React()
 
   const nativeCurrency = useCurrencyConvertedToNative(currency || undefined)
+  // only show add or remove buttons if not on selected list
 
   const { favoriteTokens } = useUserFavoriteTokens(chainId)
   const onClickRemove = (e: React.MouseEvent) => {
@@ -204,7 +205,8 @@ function CurrencyList({
   loadMoreRows: () => Promise<void>
   listTokenRef: React.Ref<HTMLDivElement>
 }) {
-  const currencyBalances = useCurrencyBalances(currencies)
+  const { account } = useActiveWeb3React()
+  const currencyBalances = useCurrencyBalances(account || undefined, currencies)
 
   const Row: any = useCallback(
     function TokenRow({ style, currency, currencyBalance }: TokenRowProps) {
@@ -268,44 +270,42 @@ function CurrencyList({
   const itemCount = hasMore ? currencies.length + 1 : currencies.length // If there are more items to be loaded then add an extra row to hold a loading indicator.
   const isItemLoaded = (index: number) => !hasMore || index < currencies.length
   return (
-    <div style={{ flex: 1 }}>
-      <AutoSizer>
-        {({ height, width }) => (
-          <InfiniteLoader isItemLoaded={isItemLoaded} itemCount={itemCount} loadMoreItems={loadMoreItems}>
-            {({ onItemsRendered, ref }) => (
-              <FixedSizeList
-                height={height}
-                width={width}
-                itemCount={itemCount}
-                itemSize={56}
-                onItemsRendered={onItemsRendered}
-                ref={ref}
-                outerRef={listTokenRef}
-              >
-                {({ index, style }: { index: number; style: CSSProperties }) => {
-                  if (!isItemLoaded(index)) {
-                    return (
-                      <Flex justifyContent={'center'} fontSize={13} marginBottom={10} style={style}>
-                        <Text>loading...</Text>
-                      </Flex>
-                    )
-                  }
+    <AutoSizer>
+      {({ height, width }) => (
+        <InfiniteLoader isItemLoaded={isItemLoaded} itemCount={itemCount} loadMoreItems={loadMoreItems}>
+          {({ onItemsRendered, ref }) => (
+            <FixedSizeList
+              height={height + 100}
+              width={width}
+              itemCount={itemCount}
+              itemSize={56}
+              onItemsRendered={onItemsRendered}
+              ref={ref}
+              outerRef={listTokenRef}
+            >
+              {({ index, style }: { index: number; style: CSSProperties }) => {
+                if (!isItemLoaded(index)) {
                   return (
-                    <Row
-                      index={index}
-                      currency={currencies[index]}
-                      key={currencies[index]?.wrapped.address || index}
-                      currencyBalance={currencyBalances[index]}
-                      style={style}
-                    />
+                    <Flex justifyContent={'center'} fontSize={13} marginBottom={10} style={style}>
+                      <Text>loading...</Text>
+                    </Flex>
                   )
-                }}
-              </FixedSizeList>
-            )}
-          </InfiniteLoader>
-        )}
-      </AutoSizer>
-    </div>
+                }
+                return (
+                  <Row
+                    index={index}
+                    currency={currencies[index]}
+                    key={currencies[index]?.wrapped.address || index}
+                    currencyBalance={currencyBalances[index]}
+                    style={style}
+                  />
+                )
+              }}
+            </FixedSizeList>
+          )}
+        </InfiniteLoader>
+      )}
+    </AutoSizer>
   )
 }
 export default memo(CurrencyList)

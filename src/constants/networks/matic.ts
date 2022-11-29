@@ -1,24 +1,19 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import Polygon from 'assets/networks/polygon-network.png'
-import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
-import { EVMNetworkInfo } from 'constants/networks/type'
+import { KS_SETTING_API } from 'constants/env'
 import { createClient } from 'utils/client'
+
+import { NetworkInfo } from '../type'
 
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const maticInfo: EVMNetworkInfo = {
+const maticInfo: NetworkInfo = {
   chainId: ChainId.MATIC,
   route: 'polygon',
-  ksSettingRoute: 'polygon',
-  priceRoute: 'polygon',
-  poolFarmRoute: 'polygon',
   name: 'Polygon',
   icon: Polygon,
-  iconDark: NOT_SUPPORT,
-  iconSelected: NOT_SUPPORT,
-  iconDarkSelected: NOT_SUPPORT,
   classicClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-polygon'),
   elasticClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-matic'),
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-polygon'),
@@ -28,14 +23,13 @@ const maticInfo: EVMNetworkInfo = {
   bridgeURL: 'https://wallet.matic.network/bridge',
   nativeToken: {
     symbol: 'MATIC',
-    name: 'Polygon',
+    name: 'MATIC (Wrapped)',
+    address: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270',
     logo: Polygon,
     decimal: 18,
-    minForGas: 10 ** 17,
   },
   rpcUrl: 'https://polygon.kyberengineering.io',
-  routerUri: `${AGGREGATOR_API}/polygon/route/encode`,
-  multicall: '0xed386Fe855C1EFf2f843B910923Dd8846E45C5A4',
+  routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/polygon/route/encode`,
   classic: {
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',
@@ -66,14 +60,12 @@ const maticInfo: EVMNetworkInfo = {
     initCodeHash: '0xc597aba1bb02db42ba24a8878837965718c032f8b46be94a6e46452a9f89ca01',
     quoter: '0x0D125c15D54cA1F8a813C74A81aEe34ebB508C1f',
     routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
-    farms: ['0xBdEc4a045446F583dc564C0A227FFd475b329bf0', '0x5C503D4b7DE0633f031229bbAA6A5e4A31cc35d8'],
   },
   averageBlockTimeInSeconds: 2.6,
   coingeckoNetworkId: 'polygon-pos',
   coingeckoNativeTokenId: 'matic-network',
   deBankSlug: 'matic',
-  trueSightId: 'polygon',
-  dexToCompare: 'quickswap',
+  internalRoute: 'polygon',
 }
 
 export default maticInfo

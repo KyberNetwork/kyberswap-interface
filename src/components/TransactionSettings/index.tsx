@@ -5,11 +5,8 @@ import React, { useCallback, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import styled, { css } from 'styled-components'
 
-import { AutoColumn } from 'components/Column'
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import MenuFlyout from 'components/MenuFlyout'
-import QuestionHelper from 'components/QuestionHelper'
-import { RowBetween, RowFixed } from 'components/Row'
 import LegacyToggle from 'components/Toggle/LegacyToggle'
 import Tooltip from 'components/Tooltip'
 import useTopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoonTokensInCurrentNetwork/useTopTrendingSoonTokensInCurrentNetwork'
@@ -32,9 +29,12 @@ import {
   useUserSlippageTolerance,
   useUserTransactionTTL,
 } from 'state/user/hooks'
-import { TYPE } from 'theme'
 import { isEqual } from 'utils/numbers'
 
+import { TYPE } from '../../theme'
+import { AutoColumn } from '../Column'
+import QuestionHelper from '../QuestionHelper'
+import { RowBetween, RowFixed } from '../Row'
 import AdvanceModeModal from './AdvanceModeModal'
 
 enum SlippageError {
@@ -153,14 +153,14 @@ const StyledLabel = styled.div`
   line-height: 20px;
 `
 
-interface SlippageTabsProps {
+export interface SlippageTabsProps {
   rawSlippage: number
   setRawSlippage: (rawSlippage: number) => void
   deadline: number
   setDeadline: (deadline: number) => void
 }
 
-function SlippageTabs({ rawSlippage, setRawSlippage, deadline, setDeadline }: SlippageTabsProps) {
+export function SlippageTabs({ rawSlippage, setRawSlippage, deadline, setDeadline }: SlippageTabsProps) {
   const theme = useTheme()
 
   const inputRef = useRef<HTMLInputElement>()

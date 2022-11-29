@@ -3,24 +3,19 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import Mainnet from 'assets/networks/mainnet-network.svg'
 import { KS_SETTING_API } from 'constants/env'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
+
+import { NetworkInfo } from '../type'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const kovanInfo: EVMNetworkInfo = {
+const kovanInfo: NetworkInfo = {
   chainId: ChainId.KOVAN,
   route: 'kovan',
-  ksSettingRoute: 'ethereum',
-  priceRoute: 'ethereum',
-  poolFarmRoute: EMPTY,
   name: 'Kovan',
   icon: Mainnet,
-  iconDark: NOT_SUPPORT,
-  iconSelected: NOT_SUPPORT,
-  iconDarkSelected: NOT_SUPPORT,
   classicClient: createClient('https://api.thegraph.com/subgraphs/name/nguyenhuudungz/dmm-exchange-ropsten'), //todo: not exits yet
   elasticClient: createClient('https://api.thegraph.com/subgraphs/name/viet-nv/promm-rinkeby'), //todo: not exits yet
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/edwardevans094/ropsten-blocks'), //todo: not exits yet
@@ -29,15 +24,14 @@ const kovanInfo: EVMNetworkInfo = {
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.ROPSTEN}&isWhitelisted=${true}`,
   bridgeURL: EMPTY,
   nativeToken: {
-    symbol: 'kETH',
-    name: 'KovanETH',
+    symbol: 'ETH',
+    name: 'ETH (Wrapped)',
+    address: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
     logo: EthereumLogo,
     decimal: 18,
-    minForGas: 10 ** 16,
   },
   rpcUrl: 'https://kovan.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
   routerUri: EMPTY,
-  multicall: '0x5ba1e12693dc8f9c48aad8770482f4739beed696',
   classic: {
     static: {
       zap: EMPTY,
@@ -46,7 +40,7 @@ const kovanInfo: EVMNetworkInfo = {
     },
     oldStatic: NOT_SUPPORT,
     dynamic: NOT_SUPPORT,
-    claimReward: NOT_SUPPORT,
+    claimReward: EMPTY,
     fairlaunch: EMPTY_ARRAY,
     fairlaunchV2: EMPTY_ARRAY,
   },
@@ -57,14 +51,12 @@ const kovanInfo: EVMNetworkInfo = {
     initCodeHash: '0xc597aba1bb02db42ba24a8878837965718c032f8b46be94a6e46452a9f89ca01',
     quoter: '0x0D125c15D54cA1F8a813C74A81aEe34ebB508C1f',
     routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
-    farms: [],
   },
   averageBlockTimeInSeconds: 13.13,
-  coingeckoNetworkId: 'ethereum',
-  coingeckoNativeTokenId: 'ethereum',
+  coingeckoNetworkId: EMPTY,
+  coingeckoNativeTokenId: EMPTY,
   deBankSlug: EMPTY,
-  trueSightId: NOT_SUPPORT,
-  dexToCompare: NOT_SUPPORT,
+  internalRoute: EMPTY,
 }
 
 export default kovanInfo

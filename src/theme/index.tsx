@@ -37,7 +37,7 @@ const mediaWidthTemplates: { [width in keyof typeof MEDIA_WIDTHS]: typeof css } 
 const white = '#FFFFFF'
 const black = '#000000'
 
-function colors(darkMode: boolean): Colors {
+export function colors(darkMode: boolean): Colors {
   return {
     // base
     white,
@@ -101,7 +101,6 @@ function colors(darkMode: boolean): Colors {
     bg23: darkMode
       ? 'linear-gradient(90deg, rgba(255, 153, 1, 0.5) 0%, rgba(255, 153, 1, 0) 100%)'
       : 'linear-gradient(90deg, rgba(255, 153, 1, 0.5) 0%, rgba(255, 153, 1, 0) 100%)', // warning
-    radialGradient: darkMode ? 'radial-gradient(#095143, #06291d)' : 'radial-gradient(#DAEBE6, #DAF1EC)',
 
     //specialty colors
     modalBG: darkMode ? 'rgba(0,0,0,.425)' : 'rgba(0,0,0,0.3)',
@@ -135,12 +134,12 @@ function colors(darkMode: boolean): Colors {
     blue1: '#31cb9e',
     lightBlue: '#78d5ff',
     darkBlue: '#1183b7',
-    blue: darkMode ? '#08A1E7' : '#31cb9e',
+    blue: darkMode ? '#78d5ff' : '#31cb9e',
     shadow: darkMode ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.04)',
   }
 }
 
-function theme(darkMode: boolean): DefaultTheme {
+export function theme(darkMode: boolean): DefaultTheme {
   return {
     ...colors(darkMode),
 

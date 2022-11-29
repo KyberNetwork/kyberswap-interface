@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import React, { memo } from 'react'
 import { X } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 

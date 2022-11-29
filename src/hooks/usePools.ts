@@ -1,10 +1,10 @@
 import { Interface } from '@ethersproject/abi'
-import { Currency, Token } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, Pool, computePoolAddress } from '@kyberswap/ks-sdk-elastic'
 import { useMemo } from 'react'
 
 import ProAmmPoolStateABI from 'constants/abis/v2/ProAmmPoolState.json'
-import { EVMNetworkInfo } from 'constants/networks/type'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useMultipleContractSingleData } from 'state/multicall/hooks'
 
@@ -20,7 +20,7 @@ const POOL_STATE_INTERFACE = new Interface(ProAmmPoolStateABI.abi)
 export function usePools(
   poolKeys: [Currency | undefined, Currency | undefined, FeeAmount | undefined][],
 ): [PoolState, Pool | null][] {
-  const { chainId, isEVM, networkInfo } = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React()
 
   const transformed: ([Token, Token, FeeAmount] | null)[] = useMemo(() => {
     return poolKeys.map(([currencyA, currencyB, feeAmount]) => {
@@ -34,8 +34,7 @@ export function usePools(
     })
   }, [chainId, poolKeys])
   const poolAddresses: (string | undefined)[] = useMemo(() => {
-    if (!isEVM) return []
-    const proAmmCoreFactoryAddress = (networkInfo as EVMNetworkInfo).elastic.coreFactory
+    const proAmmCoreFactoryAddress = chainId && NETWORKS_INFO[chainId].elastic.coreFactory
 
     return transformed.map(value => {
       if (!proAmmCoreFactoryAddress || !value || value[0].equals(value[1])) return undefined
@@ -44,10 +43,10 @@ export function usePools(
         tokenA: value[0],
         tokenB: value[1],
         fee: value[2],
-        initCodeHashManualOverride: (networkInfo as EVMNetworkInfo).elastic.initCodeHash,
+        initCodeHashManualOverride: NETWORKS_INFO[chainId || ChainId.MAINNET].elastic.initCodeHash,
       })
     })
-  }, [transformed, isEVM, networkInfo])
+  }, [chainId, transformed])
 
   const slot0s = useMultipleContractSingleData(poolAddresses, POOL_STATE_INTERFACE, 'getPoolState')
   const liquidities = useMultipleContractSingleData(poolAddresses, POOL_STATE_INTERFACE, 'getLiquidityState')

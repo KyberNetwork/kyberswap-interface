@@ -1,25 +1,20 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import BTT from 'assets/networks/bttc.png'
-import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
-import { EVMNetworkInfo } from 'constants/networks/type'
+import { KS_SETTING_API } from 'constants/env'
 import { createClient } from 'utils/client'
+
+import { NetworkInfo } from '../type'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const bttcInfo: EVMNetworkInfo = {
+const bttcInfo: NetworkInfo = {
   chainId: ChainId.BTTC,
   route: 'bittorrent',
-  ksSettingRoute: 'bttc',
-  priceRoute: 'bttc',
-  poolFarmRoute: 'bttc',
   name: 'BitTorrent',
   icon: BTT,
-  iconDark: NOT_SUPPORT,
-  iconSelected: NOT_SUPPORT,
-  iconDarkSelected: NOT_SUPPORT,
   classicClient: createClient(
     'https://bttc-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-bttc',
   ),
@@ -33,14 +28,13 @@ const bttcInfo: EVMNetworkInfo = {
   bridgeURL: 'https://wallet.bt.io/bridge',
   nativeToken: {
     symbol: 'BTT',
-    name: 'BTT',
+    name: 'BTT (Wrapped)',
+    address: '0x8D193c6efa90BCFf940A98785d1Ce9D093d3DC8A',
     logo: BTT,
     decimal: 18,
-    minForGas: 10 ** 16,
   },
   rpcUrl: 'https://bttc.kyberengineering.io',
-  routerUri: `${AGGREGATOR_API}/bttc/route/encode`,
-  multicall: '0xBF69a56D35B8d6f5A8e0e96B245a72F735751e54',
+  routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/bttc/route/encode`,
   classic: {
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',
@@ -68,14 +62,12 @@ const bttcInfo: EVMNetworkInfo = {
     initCodeHash: '0xc597aba1bb02db42ba24a8878837965718c032f8b46be94a6e46452a9f89ca01',
     quoter: '0x0D125c15D54cA1F8a813C74A81aEe34ebB508C1f',
     routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
-    farms: [],
   },
   averageBlockTimeInSeconds: 2, // TODO: check these info
   coingeckoNetworkId: 'tron',
   coingeckoNativeTokenId: 'bittorrent',
   deBankSlug: EMPTY,
-  trueSightId: NOT_SUPPORT,
-  dexToCompare: NOT_SUPPORT,
+  internalRoute: 'bttc',
 }
 
 export default bttcInfo

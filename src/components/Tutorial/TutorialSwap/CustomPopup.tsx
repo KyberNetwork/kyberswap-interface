@@ -8,8 +8,7 @@ import { CardinalOrientation, OrientationCoords, WalktourLogic } from 'walktour'
 import { ButtonPrimary } from 'components/Button'
 import useTheme from 'hooks/useTheme'
 
-import { Heading } from '.'
-import { StepTutorial } from './constant'
+import { StepCustom, TutorialNumbers } from './constant'
 
 const PopupWrapper = styled.div<{ center: boolean }>`
   background-color: ${({ theme }) => theme.tableHeader};
@@ -142,34 +141,18 @@ const Arrow = ({
     </div>
   )
 }
-const TitlePopup = ({ stepNumber, totalStep }: { stepNumber: number; totalStep: number }) => {
-  const theme = useTheme()
-  return (
-    <Heading style={{ display: 'flex', alignItems: 'flex-end' }}>
-      <Trans>
-        <span>Step: {stepNumber}/</span>
-        <span style={{ color: theme.subText, fontSize: '0.85em' }}>{totalStep}</span>
-      </Trans>
-    </Heading>
-  )
-}
 
 export default function CustomPopup(props: WalktourLogic | undefined): JSX.Element {
-  const { stepContent, stepIndex, next, prev, close, allSteps = [] } = props || ({} as WalktourLogic)
+  const { stepContent, stepIndex, next, prev, close } = props || ({} as WalktourLogic)
   const theme = useTheme()
   const {
     customFooterRenderer,
-    customTitleRenderer,
     popupStyle,
+    title,
     center = false,
     stopPropagationMouseDown,
-    lastStep,
-    stepNumber = 1,
-  } = stepContent as StepTutorial
-  const totalStep = allSteps.reduce(
-    (maxStep, step: StepTutorial) => Math.max(maxStep, step.stepNumber ?? stepNumber),
-    0,
-  )
+  } = stepContent as StepCustom
+  const isLastStep = stepIndex - 1 === TutorialNumbers.TOTAL_STEP
   return (
     <PopupWrapper
       center={center}
@@ -188,7 +171,7 @@ export default function CustomPopup(props: WalktourLogic | undefined): JSX.Eleme
         color={theme.tableHeader}
       />
       <Flex justifyContent={'space-between'}>
-        {customTitleRenderer ? customTitleRenderer() : <TitlePopup stepNumber={stepNumber} totalStep={totalStep} />}
+        {title}
         <span>
           <X cursor={'pointer'} onClick={() => close()} />
         </span>
@@ -208,7 +191,7 @@ export default function CustomPopup(props: WalktourLogic | undefined): JSX.Eleme
             </Text>
           )}
           <ButtonPrimary className="action-walktour" onClick={() => next()} style={{ width: 72, height: 36 }}>
-            {lastStep ? t`Done` : t`Next`}
+            {isLastStep ? t`Done` : t`Next`}
           </ButtonPrimary>
         </Flex>
       )}

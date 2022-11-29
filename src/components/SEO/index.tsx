@@ -1,3 +1,4 @@
+import React from 'react'
 import Helmet from 'react-helmet'
 
 interface SEOProps {
@@ -5,7 +6,7 @@ interface SEOProps {
   description: string
 }
 
-const SEO = ({ title, description }: SEOProps) => {
+export const SEO = ({ title, description }: SEOProps) => {
   return (
     <Helmet title={title}>
       <meta charSet="utf-8" />

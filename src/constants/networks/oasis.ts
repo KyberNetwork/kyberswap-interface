@@ -1,25 +1,20 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import OASIS from 'assets/networks/oasis-network.svg'
-import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
-import { EVMNetworkInfo } from 'constants/networks/type'
+import { KS_SETTING_API } from 'constants/env'
 import { createClient } from 'utils/client'
+
+import { NetworkInfo } from '../type'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const oasisInfo: EVMNetworkInfo = {
+const oasisInfo: NetworkInfo = {
   chainId: ChainId.OASIS,
   route: 'oasis',
-  ksSettingRoute: 'oasis',
-  priceRoute: 'oasis',
-  poolFarmRoute: 'oasis',
   name: 'Oasis',
   icon: OASIS,
-  iconDark: NOT_SUPPORT,
-  iconSelected: NOT_SUPPORT,
-  iconDarkSelected: NOT_SUPPORT,
   classicClient: createClient(
     'https://oasis-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-oasis',
   ),
@@ -33,14 +28,13 @@ const oasisInfo: EVMNetworkInfo = {
   bridgeURL: 'https://oasisprotocol.org/b-ridges',
   nativeToken: {
     symbol: 'ROSE',
-    name: 'ROSE',
+    name: 'ROSE (Wrapped)',
+    address: '0x21C718C22D52d0F3a789b752D4c2fD5908a8A733',
     logo: OASIS,
     decimal: 18,
-    minForGas: 10 ** 16,
   },
   rpcUrl: 'https://oasis.kyberengineering.io',
-  routerUri: `${AGGREGATOR_API}/oasis/route/encode`,
-  multicall: '0xBF69a56D35B8d6f5A8e0e96B245a72F735751e54',
+  routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/oasis/route/encode`,
   classic: {
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',
@@ -53,7 +47,7 @@ const oasisInfo: EVMNetworkInfo = {
       factory: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',
     },
     dynamic: NOT_SUPPORT,
-    claimReward: NOT_SUPPORT,
+    claimReward: EMPTY,
     fairlaunch: EMPTY_ARRAY,
     fairlaunchV2: EMPTY_ARRAY,
   },
@@ -64,14 +58,12 @@ const oasisInfo: EVMNetworkInfo = {
     initCodeHash: '0xc597aba1bb02db42ba24a8878837965718c032f8b46be94a6e46452a9f89ca01',
     quoter: '0x0D125c15D54cA1F8a813C74A81aEe34ebB508C1f',
     routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
-    farms: [],
   },
   averageBlockTimeInSeconds: 10,
   coingeckoNetworkId: 'oasis',
   coingeckoNativeTokenId: 'oasis-network',
   deBankSlug: EMPTY,
-  trueSightId: NOT_SUPPORT,
-  dexToCompare: 'valleyswap-v2',
+  internalRoute: 'oasis',
 }
 
 export default oasisInfo

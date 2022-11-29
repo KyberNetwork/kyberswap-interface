@@ -1,11 +1,9 @@
 import { namehash } from 'ethers/lib/utils'
 import { useMemo } from 'react'
 
-import { useActiveWeb3React } from 'hooks'
-import { useSingleCallResult } from 'state/multicall/hooks'
-import { isAddress } from 'utils'
-import isZero from 'utils/isZero'
-
+import { useSingleCallResult } from '../state/multicall/hooks'
+import { isAddress } from '../utils'
+import isZero from '../utils/isZero'
 import { useENSRegistrarContract, useENSResolverContract } from './useContract'
 import useDebounce from './useDebounce'
 
@@ -14,17 +12,15 @@ import useDebounce from './useDebounce'
  * Note this is not the same as looking up an ENS name to find an address.
  */
 export default function useENSName(address?: string): { ENSName: string | null; loading: boolean } {
-  const { chainId, isEVM } = useActiveWeb3React()
   const debouncedAddress = useDebounce(address, 200)
   const ensNodeArgument = useMemo(() => {
-    if (!isEVM) return [undefined]
-    if (!debouncedAddress || !isAddress(chainId, debouncedAddress)) return [undefined]
+    if (!debouncedAddress || !isAddress(debouncedAddress)) return [undefined]
     try {
       return debouncedAddress ? [namehash(`${debouncedAddress.toLowerCase().substr(2)}.addr.reverse`)] : [undefined]
     } catch (error) {
       return [undefined]
     }
-  }, [chainId, debouncedAddress, isEVM])
+  }, [debouncedAddress])
   const registrarContract = useENSRegistrarContract(false)
   const resolverAddress = useSingleCallResult(registrarContract, 'resolver', ensNodeArgument)
   const resolverAddressResult = resolverAddress.result?.[0]

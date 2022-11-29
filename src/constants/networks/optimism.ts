@@ -2,25 +2,20 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import OPTIMISM from 'assets/networks/optimism-network.svg'
-import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
-import { EVMNetworkInfo } from 'constants/networks/type'
+import { KS_SETTING_API } from 'constants/env'
 import { createClient } from 'utils/client'
 
-// const EMPTY = ''
+import { NetworkInfo } from '../type'
+
+const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const optimismInfo: EVMNetworkInfo = {
+const optimismInfo: NetworkInfo = {
   chainId: ChainId.OPTIMISM,
   route: 'optimism',
-  ksSettingRoute: 'optimism',
-  priceRoute: 'optimism',
-  poolFarmRoute: 'optimism',
   name: 'Optimism',
   icon: OPTIMISM,
-  iconDark: NOT_SUPPORT,
-  iconSelected: NOT_SUPPORT,
-  iconDarkSelected: NOT_SUPPORT,
   classicClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-optimism'),
   elasticClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-optimism'),
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/ianlapham/uni-testing-subgraph'),
@@ -30,14 +25,13 @@ const optimismInfo: EVMNetworkInfo = {
   bridgeURL: 'https://app.optimism.io/bridge',
   nativeToken: {
     symbol: 'ETH',
-    name: 'ETH',
+    name: 'ETH (Wrapped)',
+    address: '0x4200000000000000000000000000000000000006',
     logo: EthereumLogo,
     decimal: 18,
-    minForGas: 10 ** 16,
   },
   rpcUrl: 'https://opt-mainnet.g.alchemy.com/v2/N7gZFcuMkhLTTpdsRLEcDXYIJssj6GsI',
-  routerUri: `${AGGREGATOR_API}/optimism/route/encode`,
-  multicall: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',
+  routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/optimism/route/encode`,
   classic: {
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',
@@ -46,7 +40,7 @@ const optimismInfo: EVMNetworkInfo = {
     },
     oldStatic: NOT_SUPPORT,
     dynamic: NOT_SUPPORT,
-    claimReward: NOT_SUPPORT,
+    claimReward: EMPTY,
     fairlaunch: EMPTY_ARRAY,
     fairlaunchV2: EMPTY_ARRAY,
   },
@@ -57,14 +51,12 @@ const optimismInfo: EVMNetworkInfo = {
     initCodeHash: '0xc597aba1bb02db42ba24a8878837965718c032f8b46be94a6e46452a9f89ca01',
     quoter: '0x0D125c15D54cA1F8a813C74A81aEe34ebB508C1f',
     routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
-    farms: ['0xb85ebE2e4eA27526f817FF33fb55fB240057C03F'],
   },
   averageBlockTimeInSeconds: 120,
   coingeckoNetworkId: 'optimistic-ethereum',
   coingeckoNativeTokenId: 'ethereum',
   deBankSlug: 'op',
-  trueSightId: NOT_SUPPORT,
-  dexToCompare: 'uniswapv3',
+  internalRoute: 'optimism',
 }
 
 export default optimismInfo

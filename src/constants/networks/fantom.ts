@@ -1,24 +1,20 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import FTM from 'assets/networks/fantom-network.png'
-import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
-import { EVMNetworkInfo } from 'constants/networks/type'
+import { KS_SETTING_API } from 'constants/env'
 import { createClient } from 'utils/client'
 
+import { NetworkInfo } from '../type'
+
+const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const fantomInfo: EVMNetworkInfo = {
+const fantomInfo: NetworkInfo = {
   chainId: ChainId.FANTOM,
   route: 'fantom',
-  ksSettingRoute: 'fantom',
-  priceRoute: 'fantom',
-  poolFarmRoute: 'fantom',
   name: 'Fantom',
   icon: FTM,
-  iconDark: NOT_SUPPORT,
-  iconSelected: NOT_SUPPORT,
-  iconDarkSelected: NOT_SUPPORT,
   classicClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-fantom'),
   elasticClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-fantom'),
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/fantom-blocks'),
@@ -28,14 +24,13 @@ const fantomInfo: EVMNetworkInfo = {
   bridgeURL: 'https://multichain.xyz',
   nativeToken: {
     symbol: 'FTM',
-    name: 'FTM',
+    name: 'FTM (Wrapped)',
+    address: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83',
     logo: FTM,
     decimal: 18,
-    minForGas: 10 ** 16,
   },
   rpcUrl: 'https://fantom.kyberengineering.io',
-  routerUri: `${AGGREGATOR_API}/fantom/route/encode`,
-  multicall: '0x878dFE971d44e9122048308301F540910Bbd934c',
+  routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/fantom/route/encode`,
   classic: {
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',
@@ -48,7 +43,7 @@ const fantomInfo: EVMNetworkInfo = {
       router: '0x5d5A5a0a465129848c2549669e12cDC2f8DE039A',
       factory: '0x78df70615ffc8066cc0887917f2Cd72092C86409',
     },
-    claimReward: NOT_SUPPORT,
+    claimReward: EMPTY,
     fairlaunch: EMPTY_ARRAY,
     fairlaunchV2: EMPTY_ARRAY,
   },
@@ -59,14 +54,12 @@ const fantomInfo: EVMNetworkInfo = {
     initCodeHash: '0xc597aba1bb02db42ba24a8878837965718c032f8b46be94a6e46452a9f89ca01',
     quoter: '0x0D125c15D54cA1F8a813C74A81aEe34ebB508C1f',
     routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
-    farms: [],
   },
   averageBlockTimeInSeconds: 1,
   coingeckoNetworkId: 'fantom',
   coingeckoNativeTokenId: 'fantom',
   deBankSlug: 'ftm',
-  trueSightId: 'fantom',
-  dexToCompare: 'spookyswap',
+  internalRoute: 'fantom',
 }
 
 export default fantomInfo

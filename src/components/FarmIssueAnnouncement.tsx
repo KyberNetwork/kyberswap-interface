@@ -28,7 +28,7 @@ const Wrapper = styled.div`
   }
 `
 
-const StyledUL = styled.ul`
+export const StyledUL = styled.ul`
   flex-shrink: 0;
 
   display: flex;
@@ -55,7 +55,7 @@ const StyledUL = styled.ul`
   line-height: 20px;
 `
 
-const Highlighted = styled.span`
+export const Highlighted = styled.span`
   font-weight: 500;
   color: ${({ theme }) => theme.text};
 `

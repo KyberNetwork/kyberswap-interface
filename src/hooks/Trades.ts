@@ -1,20 +1,18 @@
 import { Pair, Trade } from '@kyberswap/ks-sdk-classic'
 import { Currency, CurrencyAmount, Token, TradeType } from '@kyberswap/ks-sdk-core'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 
-import { MAINNET_ENV } from 'constants/env'
-import { ZERO_ADDRESS, ZERO_ADDRESS_SOLANA } from 'constants/index'
+import { ZERO_ADDRESS } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
 import { PairState, usePairs } from 'data/Reserves'
 import { useActiveWeb3React } from 'hooks/index'
 import { useAllCurrencyCombinations } from 'hooks/useAllCurrencyCombinations'
 import useDebounce from 'hooks/useDebounce'
 import { AppState } from 'state'
 import { useAllDexes, useExcludeDexes } from 'state/customizeDexes/hooks'
-import { useEncodeSolana, useSwapState } from 'state/swap/hooks'
+import { useSwapState } from 'state/swap/hooks'
 import { AggregationComparer } from 'state/swap/types'
-import { useAllTransactions } from 'state/transactions/hooks'
-import { useUserSlippageTolerance } from 'state/user/hooks'
 import { isAddress } from 'utils'
 import { Aggregator } from 'utils/aggregator'
 
@@ -61,7 +59,7 @@ export function useTradeExactIn(
     const fn = async function () {
       timeout = setTimeout(() => {
         if (currencyAmountIn && currencyOut && allowedPairs.length > 0) {
-          if (MAINNET_ENV === 'staging') {
+          if (process.env.REACT_APP_MAINNET_ENV === 'staging') {
             console.log('trade amount: ', currencyAmountIn.toSignificant(10))
           }
 
@@ -83,24 +81,23 @@ export function useTradeExactIn(
   return trade
 }
 
+let controller = new AbortController()
 /**
  * Returns the best trade for the exact amount of tokens in to the given token out
  */
 export function useTradeExactInV2(
   currencyAmountIn: CurrencyAmount<Currency> | undefined,
   currencyOut: Currency | undefined,
+  saveGas: boolean,
   recipient: string | null,
+  allowedSlippage: number,
 ): {
   trade: Aggregator | null
   comparer: AggregationComparer | null
   onUpdateCallback: (resetRoute: boolean, minimumLoadingTime: number) => void
   loading: boolean
 } {
-  const { account, chainId, networkInfo, isEVM } = useActiveWeb3React()
-  const controller = useRef(new AbortController())
-  const [allowedSlippage] = useUserSlippageTolerance()
-  const allTransactions = useAllTransactions()
-  const [, setEncodeSolana] = useEncodeSolana()
+  const { account, chainId } = useActiveWeb3React()
 
   const allDexes = useAllDexes()
   const [excludeDexes] = useExcludeDexes()
@@ -116,16 +113,15 @@ export function useTradeExactInV2(
   const [comparer, setComparer] = useState<AggregationComparer | null>(null)
   const [loading, setLoading] = useState(false)
 
-  const debounceCurrencyAmountIn = useDebounce(currencyAmountIn, 100)
+  const debounceCurrencyAmountIn = useDebounce(currencyAmountIn, 300)
+
+  const routerApi = useMemo((): string => {
+    return (chainId && NETWORKS_INFO[chainId].routerUri) || ''
+  }, [chainId])
 
   const ttl = useSelector<AppState, number>(state => state.user.userDeadline)
 
-  const { feeConfig, saveGas } = useSwapState()
-
-  const txsInChain = allTransactions
-
-  // refresh aggregator data on new sent tx
-  const allTxGroup = useMemo(() => JSON.stringify(Object.keys(txsInChain || {})), [txsInChain])
+  const { feeConfig } = useSwapState()
 
   const onUpdateCallback = useCallback(
     async (resetRoute: boolean, minimumLoadingTime: number) => {
@@ -135,22 +131,20 @@ export function useTradeExactInV2(
         (debounceCurrencyAmountIn.currency as Token)?.address !== (currencyOut as Token)?.address
       ) {
         if (resetRoute) setTrade(null)
-        controller.current.abort()
+        controller.abort()
 
-        controller.current = new AbortController()
-        const signal = controller.current.signal
+        controller = new AbortController()
+        const signal = controller.signal
 
         setLoading(true)
 
-        const to =
-          (isAddress(chainId, recipient) ? (recipient as string) : account) ??
-          (isEVM ? ZERO_ADDRESS : ZERO_ADDRESS_SOLANA)
+        const to = (isAddress(recipient) ? (recipient as string) : account) ?? ZERO_ADDRESS
 
         const deadline = Math.round(Date.now() / 1000) + ttl
 
         const [state, comparedResult] = await Promise.all([
           Aggregator.bestTradeExactIn(
-            networkInfo.routerUri,
+            routerApi,
             debounceCurrencyAmountIn,
             currencyOut,
             saveGas,
@@ -163,7 +157,7 @@ export function useTradeExactInV2(
             minimumLoadingTime,
           ),
           Aggregator.compareDex(
-            networkInfo.routerUri,
+            routerApi,
             debounceCurrencyAmountIn,
             currencyOut,
             allowedSlippage,
@@ -176,45 +170,26 @@ export function useTradeExactInV2(
         ])
 
         if (!signal.aborted) {
-          try {
-            if (JSON.stringify(trade) !== JSON.stringify(state)) setTrade(state)
-          } catch (e) {
-            setTrade(state)
-          }
-          try {
-            if (JSON.stringify(comparer) !== JSON.stringify(comparedResult)) setComparer(comparedResult)
-          } catch (e) {
-            setComparer(comparedResult)
-          }
+          setTrade(state)
+          setComparer(comparedResult)
         }
         setLoading(false)
-        // if (!signal.aborted && state) {
-        //   const swap = await state.solana?.swap
-        //   if (swap) setTrade(state)
-        // }
       } else {
         setTrade(null)
         setComparer(null)
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
-      isEVM,
-      allTxGroup,
-      // allFinalizedTxs,
       debounceCurrencyAmountIn,
       currencyOut,
-      chainId,
       recipient,
       account,
-      ttl,
-      networkInfo.routerUri,
+      routerApi,
       saveGas,
       dexes,
       allowedSlippage,
+      ttl,
       feeConfig,
-      // trade, //don't add this
-      // comparer, //don't add this
     ],
   )
 
@@ -222,22 +197,8 @@ export function useTradeExactInV2(
     onUpdateCallback(false, 0)
   }, [onUpdateCallback])
 
-  useEffect(() => {
-    const controller = new AbortController()
-    const encodeSolana = async () => {
-      if (!trade) return
-      const encodeSolana = await Aggregator.encodeSolana(trade, controller.signal)
-      if (encodeSolana && !controller.signal.aborted) setEncodeSolana(encodeSolana)
-    }
-    encodeSolana()
-
-    return () => {
-      controller.abort()
-    }
-  }, [trade, setEncodeSolana])
-
   return {
-    trade, //todo: not return this anymore, set & use it from redux
+    trade,
     comparer,
     onUpdateCallback,
     loading,

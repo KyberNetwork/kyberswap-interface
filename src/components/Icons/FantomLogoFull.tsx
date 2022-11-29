@@ -1,3 +1,5 @@
+import React from 'react'
+
 function FantomLogoFull({ color, width, height }: { size?: number; color?: string; width?: string; height?: string }) {
   return (
     <svg

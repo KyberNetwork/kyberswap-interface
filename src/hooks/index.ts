@@ -1,153 +1,67 @@
 import { Web3Provider } from '@ethersproject/providers'
-import { ChainId, ChainType, getChainType } from '@kyberswap/ks-sdk-core'
-import { Wallet, useWallet } from '@solana/wallet-adapter-react'
-import { AbstractConnector } from '@web3-react/abstract-connector'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useWeb3React as useWeb3ReactCore } from '@web3-react/core'
 import { Web3ReactContextInterface } from '@web3-react/core/dist/types'
 import { ethers } from 'ethers'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useSelector } from 'react-redux'
+import { useLocalStorage } from 'react-use'
 
-import { injected, walletconnect, walletlink } from 'connectors'
-import { EVM_NETWORK, EVM_NETWORKS, NETWORKS_INFO, isEVM } from 'constants/networks'
-import { NetworkInfo } from 'constants/networks/type'
-import { SUPPORTED_WALLET, SUPPORTED_WALLETS, WALLETLINK_LOCALSTORAGE_NAME } from 'constants/wallets'
-import { AppState } from 'state'
-import { useIsUserManuallyDisconnect } from 'state/user/hooks'
-import { detectInjectedType, isEVMWallet, isSolanaWallet } from 'utils'
+import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
+
+import { injected } from '../connectors'
+import { AppState } from '../state'
 
 export const providers: {
-  [chainId in EVM_NETWORK]: ethers.providers.JsonRpcProvider
-} = EVM_NETWORKS.reduce(
+  [chainId in ChainId]: ethers.providers.JsonRpcProvider
+} = SUPPORTED_NETWORKS.reduce(
   (acc, val) => {
     acc[val] = new ethers.providers.JsonRpcProvider(NETWORKS_INFO[val].rpcUrl)
     return acc
   },
   {} as {
-    [chainId in EVM_NETWORK]: ethers.providers.JsonRpcProvider
+    [chainId in ChainId]: ethers.providers.JsonRpcProvider
   },
 )
 
-export function useActiveWeb3React(): {
-  chainId: ChainId
-  account?: string
-  walletKey: SUPPORTED_WALLET | undefined
-  walletEVM: { isConnected: boolean; walletKey?: string | number; connector?: AbstractConnector; chainId?: ChainId }
-  walletSolana: { isConnected: boolean; walletKey?: string | number; wallet: Wallet | null }
-  isEVM: boolean
-  isSolana: boolean
-  networkInfo: NetworkInfo
-} {
-  const chainIdState = useSelector<AppState, ChainId>(state => state.user.chainId) || ChainId.MAINNET
-  /**Hook for EVM infos */
-  const { connector: connectedConnectorEVM, active: isConnectedEVM, account, chainId: chainIdEVM } = useWeb3React()
-  /**Hook for Solana infos */
-  const { wallet: connectedWalletSolana, connected: isConnectedSolana, publicKey } = useWallet()
+export function useActiveWeb3React(): Web3ReactContextInterface<Web3Provider> & { chainId?: ChainId } {
+  const context = useWeb3ReactCore()
+  // const contextNetwork = useWeb3ReactCore<Web3Provider>(NetworkContextName)
 
-  const isEVM = useMemo(() => getChainType(chainIdState) === ChainType.EVM, [chainIdState])
-  const isSolana = useMemo(() => getChainType(chainIdState) === ChainType.SOLANA, [chainIdState])
-
-  const addressEVM = account ?? undefined
-  const addressSolana = publicKey?.toBase58()
-
-  const walletKeyEVM = useMemo(() => {
-    if (!isConnectedEVM) return undefined
-    const detectedWallet = detectInjectedType()
-    if (
-      detectedWallet !== 'COINBASE' &&
-      (connectedConnectorEVM === walletlink || !!(connectedConnectorEVM as any)?.walletLink)
-    ) {
-      return 'COINBASE_LINK'
-    }
-    if (connectedConnectorEVM === walletconnect) {
-      return 'WALLET_CONNECT'
-    }
-    return (
-      detectedWallet ??
-      (Object.keys(SUPPORTED_WALLETS) as SUPPORTED_WALLET[]).find(walletKey => {
-        const wallet = SUPPORTED_WALLETS[walletKey]
-        return isEVMWallet(wallet) && isConnectedEVM && wallet.connector === connectedConnectorEVM
-      })
-    )
-  }, [connectedConnectorEVM, isConnectedEVM])
-
-  const walletKeySolana = useMemo(
-    () =>
-      isConnectedSolana
-        ? (Object.keys(SUPPORTED_WALLETS) as SUPPORTED_WALLET[]).find(walletKey => {
-            const wallet = SUPPORTED_WALLETS[walletKey]
-            return isSolanaWallet(wallet) && wallet.adapter === connectedWalletSolana?.adapter
-          })
-        : undefined,
-    [isConnectedSolana, connectedWalletSolana?.adapter],
-  )
-  const mockAccountEVM = ''
-  const mockAccountSolana = ''
-
-  return {
-    chainId: chainIdState,
-    account: isEVM ? mockAccountEVM || addressEVM : mockAccountSolana || addressSolana,
-    walletKey: isEVM ? walletKeyEVM : walletKeySolana,
-    walletEVM: useMemo(() => {
-      return {
-        isConnected: isConnectedEVM,
-        connector: connectedConnectorEVM,
-        walletKey: walletKeyEVM,
-        chainId: chainIdEVM,
-      }
-    }, [isConnectedEVM, connectedConnectorEVM, walletKeyEVM, chainIdEVM]),
-    walletSolana: useMemo(() => {
-      return {
-        isConnected: isConnectedSolana,
-        wallet: connectedWalletSolana,
-        walletKey: walletKeySolana,
-      }
-    }, [isConnectedSolana, connectedWalletSolana, walletKeySolana]),
-    isEVM: isEVM,
-    isSolana: isSolana,
-    networkInfo: NETWORKS_INFO[chainIdState],
+  const { library, chainId, ...web3React } = context
+  const chainIdWhenNotConnected = useSelector<AppState, ChainId>(state => state.application.chainIdWhenNotConnected)
+  if (context.active && context.chainId) {
+    // const provider = providers[context.chainId as ChainId].cl
+    // provider.provider = { isMetaMask: true }
+    // provider.send = context.library.__proto__.send
+    // provider.jsonRpcFetchFunc = context.library.jsonRpcFetchFunc
+    // return {
+    //   library: provider,
+    //   chainId: context.chainId as ChainId,
+    //   ...web3React
+    // } as Web3ReactContextInterface
+    return context
+  } else {
+    return {
+      library: providers[chainIdWhenNotConnected],
+      chainId: chainIdWhenNotConnected,
+      ...web3React,
+    } as Web3ReactContextInterface
   }
-}
-
-export function useWeb3React(key?: string): Web3ReactContextInterface<Web3Provider> & { chainId?: ChainId } {
-  const { connector, library, chainId, account, active, error, activate, setError, deactivate } = useWeb3ReactCore(key)
-  const chainIdState = useSelector<AppState, ChainId>(state => state.user.chainId)
-
-  const activateWrapped = useCallback(
-    (connector: AbstractConnector, onError?: (error: Error) => void, throwErrors?: boolean) => {
-      return activate(connector, onError, throwErrors)
-    },
-    [activate],
-  )
-  const deactivateWrapped = useCallback(() => {
-    return deactivate()
-  }, [deactivate])
-  return {
-    connector,
-    library: library || providers[isEVM(chainIdState) ? chainIdState : ChainId.MAINNET],
-    chainId: chainId || ChainId.MAINNET,
-    account,
-    active,
-    error,
-    activate: activateWrapped,
-    setError,
-    deactivate: deactivateWrapped,
-  } as Web3ReactContextInterface
 }
 
 async function isAuthorized(): Promise<boolean> {
-  // Check if previous connected to Coinbase Link
-  if (window.localStorage.getItem(WALLETLINK_LOCALSTORAGE_NAME)) {
-    return true
-  }
   if (!window.ethereum) {
     return false
   }
 
   try {
     const accounts = await window.ethereum.request({ method: 'eth_accounts' })
-    if (accounts?.length > 0) return true
+
+    if (accounts?.length > 0) {
+      return true
+    }
     return false
   } catch {
     return false
@@ -157,9 +71,10 @@ async function isAuthorized(): Promise<boolean> {
 let globalTried = false
 
 export function useEagerConnect() {
-  const { activate, active } = useWeb3React()
+  const { activate, active } = useWeb3ReactCore() // specifically using useWeb3ReactCore because of what this hook does
   const [tried, setTried] = useState(false)
-  const [isManuallyDisconnect] = useIsUserManuallyDisconnect()
+  const [isManuallyDisconnect] = useLocalStorage('user-manually-disconnect')
+
   useEffect(() => {
     globalTried = tried
   }, [tried])
@@ -176,19 +91,18 @@ export function useEagerConnect() {
     try {
       isAuthorized()
         .then(isAuthorized => {
-          // try to connect if previous connected to Coinbase Link
-          if (isAuthorized && window.localStorage.getItem(WALLETLINK_LOCALSTORAGE_NAME)) {
-            activate(walletlink).catch(() => {
-              setTried(true)
-            })
-          } else if (isAuthorized && !isManuallyDisconnect) {
+          if (isAuthorized && !isManuallyDisconnect) {
             activate(injected, undefined, true).catch(() => {
               setTried(true)
             })
-          } else if (isMobile && window.ethereum) {
-            activate(injected, undefined, true).catch(() => {
+          } else {
+            if (isMobile && window.ethereum) {
+              activate(injected, undefined, true).catch(() => {
+                setTried(true)
+              })
+            } else {
               setTried(true)
-            })
+            }
           }
         })
         .catch(e => {
@@ -199,8 +113,7 @@ export function useEagerConnect() {
       console.log('Eagerly connect: authorize error', e)
       setTried(true)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []) // intentionally only running on mount (make sure it's only mounted once :))
+  }, [activate, isManuallyDisconnect]) // intentionally only running on mount (make sure it's only mounted once :))
 
   // if the connection worked, wait until we get confirmation of that to flip the flag
   useEffect(() => {
@@ -214,15 +127,13 @@ export function useEagerConnect() {
 
 /**
  * Use for network and injected - logs user in
- * and out after checking what network they're on
+ * and out after checking what network theyre on
  */
 export function useInactiveListener(suppress = false) {
-  const { isEVM } = useActiveWeb3React()
-  const { active, error, activate } = useWeb3React() // specifically using useWeb3React because of what this hook does
+  const { active, error, activate } = useWeb3ReactCore() // specifically using useWeb3React because of what this hook does
 
   useEffect(() => {
     const { ethereum } = window
-    if (!isEVM) return
     if (ethereum && ethereum.on && !active && !error && !suppress) {
       const handleChainChanged = () => {
         // eat errors
@@ -251,5 +162,5 @@ export function useInactiveListener(suppress = false) {
       }
     }
     return undefined
-  }, [active, error, suppress, activate, isEVM])
+  }, [active, error, suppress, activate])
 }

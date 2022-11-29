@@ -1,7 +1,8 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
+import React from 'react'
 import styled from 'styled-components'
 
-import CurrencyLogo from 'components/CurrencyLogo'
+import CurrencyLogo from '../CurrencyLogo'
 
 const Wrapper = styled.div<{ margin: boolean; sizeraw: number }>`
   position: relative;

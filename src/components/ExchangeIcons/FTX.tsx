@@ -1,3 +1,5 @@
+import React from 'react'
+
 import useTheme from 'hooks/useTheme'
 
 function FTX({ width, height }: { width?: number; height?: number }) {

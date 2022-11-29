@@ -16,13 +16,12 @@ import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
 import QuestionHelper from 'components/QuestionHelper'
 import { RowBetween, RowFixed } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useTransactionAdder } from 'state/transactions/hooks'
-import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { basisPointsToPercent, calculateGasMargin, formattedNumLong } from 'utils'
 import { unwrappedToken } from 'utils/wrappedCurrency'
@@ -46,8 +45,7 @@ export default function ProAmmFee({
   feeValue0: CurrencyAmount<Currency> | undefined
   feeValue1: CurrencyAmount<Currency> | undefined
 }) {
-  const { chainId, account } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { chainId, account, library } = useActiveWeb3React()
   const theme = useTheme()
   const token0Shown = unwrappedToken(position.pool.token0)
   const token1Shown = unwrappedToken(position.pool.token1)
@@ -95,7 +93,7 @@ export default function ProAmmFee({
     library
       .getSigner()
       .estimateGas(txn)
-      .then((estimate: BigNumber) => {
+      .then(estimate => {
         const newTxn = {
           ...txn,
           gasLimit: calculateGasMargin(estimate),
@@ -104,9 +102,8 @@ export default function ProAmmFee({
           .getSigner()
           .sendTransaction(newTxn)
           .then((response: TransactionResponse) => {
-            addTransactionWithType({
-              hash: response.hash,
-              type: TRANSACTION_TYPE.COLLECT_FEE,
+            addTransactionWithType(response, {
+              type: 'Collect fee',
               summary:
                 feeValue0.toSignificant(6) +
                 ' ' +
@@ -124,7 +121,7 @@ export default function ProAmmFee({
             })
           })
       })
-      .catch((error: any) => {
+      .catch(error => {
         console.error(error)
       })
   }, [

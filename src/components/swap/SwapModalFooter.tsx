@@ -1,26 +1,27 @@
+import { Trade } from '@kyberswap/ks-sdk-classic'
 import { Currency, TradeType } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import React, { useMemo, useState } from 'react'
 import { Repeat } from 'react-feather'
 import { Text } from 'rebass'
 
-import { ButtonError } from 'components/Button'
-import { AutoColumn } from 'components/Column'
-import QuestionHelper from 'components/QuestionHelper'
-import { AutoRow, RowBetween, RowFixed } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import { AnyTrade } from 'hooks/useSwapCallback'
 import useTheme from 'hooks/useTheme'
-import { Field } from 'state/swap/actions'
-import { TYPE } from 'theme'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
+
+import { Field } from '../../state/swap/actions'
+import { TYPE } from '../../theme'
 import {
   computeSlippageAdjustedAmounts,
   computeTradePriceBreakdown,
   formatExecutionPrice,
   warningSeverity,
-} from 'utils/prices'
-
+} from '../../utils/prices'
+import { ButtonError } from '../Button'
+import { AutoColumn } from '../Column'
+import QuestionHelper from '../QuestionHelper'
+import { AutoRow, RowBetween, RowFixed } from '../Row'
 import FormattedPriceImpact from './FormattedPriceImpact'
 import { StyledBalanceMaxMini, SwapCallbackError } from './styleds'
 
@@ -44,10 +45,11 @@ export default function SwapModalFooter({
     () => computeSlippageAdjustedAmounts(trade, allowedSlippage),
     [allowedSlippage, trade],
   )
-  const { priceImpactWithoutFee, realizedLPFee, accruedFeePercent } = useMemo(
-    () => computeTradePriceBreakdown(trade),
-    [trade],
-  )
+  const { priceImpactWithoutFee, realizedLPFee, accruedFeePercent } = useMemo(() => {
+    return trade instanceof Trade
+      ? computeTradePriceBreakdown(trade)
+      : { priceImpactWithoutFee: trade.priceImpact, realizedLPFee: undefined, accruedFeePercent: undefined }
+  }, [trade])
   const severity = warningSeverity(priceImpactWithoutFee)
 
   const nativeInput = useCurrencyConvertedToNative(trade.inputAmount.currency as Currency)
@@ -110,21 +112,23 @@ export default function SwapModalFooter({
           </RowFixed>
           <FormattedPriceImpact priceImpact={priceImpactWithoutFee} />
         </RowBetween>
-        <RowBetween>
-          <RowFixed>
-            <TYPE.black fontSize={14} fontWeight={400} color={theme.text2}>
-              <Trans>Liquidity Provider Fee</Trans>
+        {trade instanceof Trade && (
+          <RowBetween>
+            <RowFixed>
+              <TYPE.black fontSize={14} fontWeight={400} color={theme.text2}>
+                <Trans>Liquidity Provider Fee</Trans>
+              </TYPE.black>
+              <QuestionHelper
+                text={t`A portion of each trade (${
+                  accruedFeePercent && accruedFeePercent.toSignificant(6)
+                }%) goes to liquidity providers as a protocol incentive`}
+              />
+            </RowFixed>
+            <TYPE.black fontSize={14}>
+              {realizedLPFee ? realizedLPFee?.toSignificant(6) + ' ' + nativeInput?.symbol : '-'}
             </TYPE.black>
-            <QuestionHelper
-              text={t`A portion of each trade (${
-                accruedFeePercent && accruedFeePercent.toSignificant(6)
-              }%) goes to liquidity providers as a protocol incentive`}
-            />
-          </RowFixed>
-          <TYPE.black fontSize={14}>
-            {realizedLPFee ? realizedLPFee?.toSignificant(6) + ' ' + nativeInput?.symbol : '-'}
-          </TYPE.black>
-        </RowBetween>
+          </RowBetween>
+        )}
       </AutoColumn>
 
       <AutoRow>

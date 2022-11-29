@@ -1,16 +1,15 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
+import { useSwapState } from 'state/swap/hooks'
+import { useCurrencyConvertedToNative } from 'utils/dmm'
+
+import { Aggregator } from '../../utils/aggregator'
 import TransactionConfirmationModal, {
   ConfirmationModalContent,
   TransactionErrorContent,
-} from 'components/TransactionConfirmationModal'
-import { useActiveWeb3React } from 'hooks'
-import { useEncodeSolana, useSwapState } from 'state/swap/hooks'
-import { Aggregator } from 'utils/aggregator'
-import { useCurrencyConvertedToNative } from 'utils/dmm'
-
+} from '../TransactionConfirmationModal'
 import SwapModalFooter from './SwapModalFooter'
 import SwapModalHeader from './SwapModalHeader'
 
@@ -58,15 +57,7 @@ export default function ConfirmSwapModal({
   onDismiss: () => void
   showTxBanner?: boolean
 }) {
-  const { isSolana } = useActiveWeb3React()
   const { feeConfig, typedValue } = useSwapState()
-  const [startedTime, setStartedTime] = useState<number | undefined>(undefined)
-  const [encodeSolana] = useEncodeSolana()
-
-  useEffect(() => {
-    if (isSolana && encodeSolana) setStartedTime(Date.now())
-    else setStartedTime(undefined)
-  }, [encodeSolana, isOpen, isSolana])
 
   const showAcceptChanges = useMemo(
     () => Boolean(trade && originalTrade && tradeMeaningfullyDiffers(trade, originalTrade)),
@@ -90,31 +81,20 @@ export default function ConfirmSwapModal({
       <SwapModalFooter
         onConfirm={onConfirm}
         trade={trade}
-        disabledConfirm={showAcceptChanges || (isSolana && !encodeSolana)}
+        disabledConfirm={showAcceptChanges}
         swapErrorMessage={swapErrorMessage}
         allowedSlippage={allowedSlippage}
         feeConfig={feeConfig}
-        startedTime={startedTime}
       />
     ) : null
-  }, [
-    allowedSlippage,
-    onConfirm,
-    showAcceptChanges,
-    swapErrorMessage,
-    trade,
-    feeConfig,
-    isSolana,
-    startedTime,
-    encodeSolana,
-  ])
+  }, [allowedSlippage, onConfirm, showAcceptChanges, swapErrorMessage, trade, feeConfig])
 
-  const nativeInput = useCurrencyConvertedToNative(originalTrade?.inputAmount?.currency)
-  const nativeOutput = useCurrencyConvertedToNative(originalTrade?.outputAmount?.currency)
+  const nativeInput = useCurrencyConvertedToNative(trade?.inputAmount?.currency)
+  const nativeOutput = useCurrencyConvertedToNative(trade?.outputAmount?.currency)
   // text to show while loading
-  const pendingText = `Swapping ${!!feeConfig ? typedValue : originalTrade?.inputAmount?.toSignificant(6)} ${
+  const pendingText = `Swapping ${!!feeConfig ? typedValue : trade?.inputAmount?.toSignificant(6)} ${
     nativeInput?.symbol
-  } for ${originalTrade?.outputAmount?.toSignificant(6)} ${nativeOutput?.symbol}`
+  } for ${trade?.outputAmount?.toSignificant(6)} ${nativeOutput?.symbol}`
 
   const confirmationContent = useCallback(
     () =>
@@ -141,7 +121,6 @@ export default function ConfirmSwapModal({
       pendingText={pendingText}
       tokenAddToMetaMask={tokenAddToMetaMask}
       showTxBanner={showTxBanner}
-      startedTime={startedTime}
     />
   )
 }

@@ -1,5 +1,5 @@
 import { NumberValue, ScaleLinear, axisBottom, Axis as d3Axis, select } from 'd3'
-import { useMemo } from 'react'
+import React, { useMemo } from 'react'
 import styled from 'styled-components'
 
 const StyledGroup = styled.g`

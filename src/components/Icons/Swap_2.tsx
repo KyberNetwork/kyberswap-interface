@@ -1,3 +1,5 @@
+import React from 'react'
+
 function Swap2({ size, color, rotate }: { size?: number; color?: string; rotate?: number }) {
   // style={{ transform: 'rotate(90deg)' }}
   return (

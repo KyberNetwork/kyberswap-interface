@@ -48,12 +48,12 @@ const ToggleWrapper = styled.button<{ size?: string; border?: boolean; backgroun
   padding: 0;
 `
 
-interface IToggleButton {
+export interface IToggleButton {
   name: string
   title: string
   disabled?: boolean
 }
-interface ProChartToggleProps {
+export interface ProChartToggleProps {
   id?: string
   activeName?: string
   buttons?: IToggleButton[]

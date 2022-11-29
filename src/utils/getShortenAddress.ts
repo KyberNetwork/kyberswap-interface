@@ -9,7 +9,7 @@ export default function getShortenAddress(address: string, showX = false) {
   try {
     return showX
       ? address.substr(0, 6) + (showX ? 'x'.repeat(address.length - 10) : '...') + address.slice(-4)
-      : shortenAddress(1, address)
+      : shortenAddress(address)
   } catch (err) {
     return address.length > 13
       ? address.substr(0, 6) + (showX ? 'x'.repeat(address.length - 10) : '...') + address.slice(-4)

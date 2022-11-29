@@ -1,7 +1,8 @@
 import { Pair } from '@kyberswap/ks-sdk-classic'
-import { Fraction, Percent, TokenAmount } from '@kyberswap/ks-sdk-core'
+import { ChainId, Fraction, Percent, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import JSBI from 'jsbi'
+import { darken } from 'polished'
 import { useState } from 'react'
 import { AlertTriangle } from 'react-feather'
 import { Link } from 'react-router-dom'
@@ -9,34 +10,35 @@ import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
-import { ButtonEmpty, ButtonOutlined, ButtonPrimary } from 'components/Button'
-import { LightCard } from 'components/Card'
-import { AutoColumn } from 'components/Column'
 import CopyHelper from 'components/Copy'
-import CurrencyLogo from 'components/CurrencyLogo'
 import Divider from 'components/Divider'
-import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { FarmingIcon } from 'components/Icons'
 import InfoHelper from 'components/InfoHelper'
-import { RowBetween, RowFixed } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { DMM_ANALYTICS_URL, ONE_BIPS } from 'constants/index'
-import { useTotalSupply } from 'data/TotalSupply'
-import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { TokenWrapper } from 'pages/AddLiquidity/styled'
 import { IconWrapper } from 'pages/Pools/styleds'
 import { useETHPrice, useTokensPrice } from 'state/application/hooks'
 import { Farm } from 'state/farms/types'
 import { UserLiquidityPosition, useSinglePoolData } from 'state/pools/hooks'
-import { useTokenBalance } from 'state/wallet/hooks'
-import { ExternalLink, MEDIA_WIDTHS, UppercaseText } from 'theme'
 import { formattedNum, shortenAddress } from 'utils'
-import { currencyId } from 'utils/currencyId'
 import { getTradingFeeAPR, useCurrencyConvertedToNative } from 'utils/dmm'
-import { unwrappedToken } from 'utils/wrappedCurrency'
 
-const FixedHeightRow = styled(RowBetween)`
+import { useTotalSupply } from '../../data/TotalSupply'
+import { useActiveWeb3React } from '../../hooks'
+import { useTokenBalance } from '../../state/wallet/hooks'
+import { ExternalLink, MEDIA_WIDTHS, UppercaseText } from '../../theme'
+import { currencyId } from '../../utils/currencyId'
+import { unwrappedToken } from '../../utils/wrappedCurrency'
+import { ButtonEmpty, ButtonOutlined, ButtonPrimary } from '../Button'
+import Card, { LightCard } from '../Card'
+import { AutoColumn } from '../Column'
+import CurrencyLogo from '../CurrencyLogo'
+import DoubleCurrencyLogo from '../DoubleLogo'
+import { RowBetween, RowFixed } from '../Row'
+
+export const FixedHeightRow = styled(RowBetween)`
   height: 24px;
 `
 
@@ -46,6 +48,12 @@ const VerticalDivider = styled.div`
   background-color: ${({ theme }) => theme.subText};
 `
 
+export const HoverCard = styled(Card)`
+  border: 1px solid transparent;
+  :hover {
+    border: 1px solid ${({ theme }) => darken(0.06, theme.bg2)};
+  }
+`
 const StyledPositionCard = styled(LightCard)`
   border: none;
   background: ${({ theme }) => theme.background};
@@ -122,12 +130,14 @@ interface PositionCardProps {
 }
 
 export function NarrowPositionCard({ pair, showUnwrapped = false, border }: PositionCardProps) {
+  const { account } = useActiveWeb3React()
+
   const currency0 = showUnwrapped ? pair.token0 : unwrappedToken(pair.token0)
   const currency1 = showUnwrapped ? pair.token1 : unwrappedToken(pair.token1)
 
   const [showMore, setShowMore] = useState(false)
 
-  const userPoolBalance = useTokenBalance(pair.liquidityToken)
+  const userPoolBalance = useTokenBalance(account ?? undefined, pair.liquidityToken)
   const totalPoolTokens = useTotalSupply(pair.liquidityToken)
 
   const poolTokenPercentage =
@@ -220,12 +230,13 @@ export function NarrowPositionCard({ pair, showUnwrapped = false, border }: Posi
 }
 
 export function MinimalPositionCard({ pair, showUnwrapped = false }: PositionCardProps) {
+  const { account } = useActiveWeb3React()
   const theme = useTheme()
 
   const currency0 = showUnwrapped ? pair.token0 : unwrappedToken(pair.token0)
   const currency1 = showUnwrapped ? pair.token1 : unwrappedToken(pair.token1)
 
-  const userPoolBalance = useTokenBalance(pair.liquidityToken)
+  const userPoolBalance = useTokenBalance(account ?? undefined, pair.liquidityToken)
   const totalPoolTokens = useTotalSupply(pair.liquidityToken)
 
   const poolTokenPercentage =
@@ -374,7 +385,7 @@ export default function FullPositionCard({
   farm,
   farmAPR = 0,
 }: PositionCardProps) {
-  const { chainId } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
@@ -392,7 +403,7 @@ export default function FullPositionCard({
   const currency0 = unwrappedToken(pair.token0)
   const currency1 = unwrappedToken(pair.token1)
 
-  const userDefaultPoolBalance = useTokenBalance(pair.liquidityToken)
+  const userDefaultPoolBalance = useTokenBalance(account ?? undefined, pair.liquidityToken)
   const totalPoolTokens = useTotalSupply(pair.liquidityToken)
 
   // if staked balance balance provided, add to standard liquidity amount
@@ -517,7 +528,7 @@ export default function FullPositionCard({
 
             <VerticalDivider />
             <Flex alignItems="center" color={theme.subText} fontSize={12}>
-              <Text>{shortenAddress(chainId, pair.address, 3)}</Text>
+              <Text>{shortenAddress(pair.address, 3)}</Text>
               <CopyHelper toCopy={pair.address} />
             </Flex>
           </Flex>
@@ -755,7 +766,7 @@ export default function FullPositionCard({
         <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0">
           <ExternalLink
             style={{ width: '100%', textAlign: 'center' }}
-            href={`${DMM_ANALYTICS_URL[chainId]}/pool/${poolData?.id ?? ''}`}
+            href={`${DMM_ANALYTICS_URL[chainId as ChainId]}/pool/${poolData?.id ?? ''}`}
           >
             <Trans>Analytics ↗</Trans>
           </ExternalLink>

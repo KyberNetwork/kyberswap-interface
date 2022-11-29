@@ -119,6 +119,7 @@ const PositionRow = ({
           </Flex>
           <Flex justifyContent="flex-end">
             <HoverDropdown
+              placement="right"
               content={<Text>{formatDollarAmount(usd)}</Text>}
               dropdownContent={
                 <>
@@ -148,7 +149,8 @@ function ProMMDepositNFTModal({
   onDismiss: () => void
   selectedFarmAddress: string
 }) {
-  const { type: tab = 'active' } = useParsedQueryString<{ type: string }>()
+  const qs = useParsedQueryString()
+  const tab = qs.type || 'active'
 
   const { account } = useActiveWeb3React()
   const theme = useTheme()

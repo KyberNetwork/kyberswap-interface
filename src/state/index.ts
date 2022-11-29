@@ -1,8 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { load, save } from 'redux-localstorage-simple'
 
-import { TAG } from 'constants/env'
-
 import application from './application/reducer'
 import bridge from './bridge/reducer'
 import burnProAmm from './burn/proamm/reducer'
@@ -25,8 +23,7 @@ import tutorial from './tutorial/reducer'
 import user from './user/reducer'
 import vesting from './vesting/reducer'
 
-const PERSISTED_KEYS: string[] = ['user', 'transactions']
-TAG && PERSISTED_KEYS.push('customizeDexes')
+const PERSISTED_KEYS: string[] = ['user', 'transactions', 'lists']
 
 const store = configureStore({
   devTools: process.env.NODE_ENV !== 'production',
@@ -56,7 +53,7 @@ const store = configureStore({
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({ thunk: false, immutableCheck: false, serializableCheck: false })
       // .concat(dataApi.middleware)
-      .concat(save({ states: PERSISTED_KEYS, debounce: 100 })),
+      .concat(save({ states: PERSISTED_KEYS, debounce: 1000 })),
   preloadedState: load({ states: PERSISTED_KEYS }),
 })
 
