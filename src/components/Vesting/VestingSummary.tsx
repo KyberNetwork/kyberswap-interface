@@ -85,7 +85,6 @@ function VestingSummary({
             </Text>
 
             <HoverDropdown
-              placement="right"
               hideIcon
               content={
                 <Flex alignItems="center" color={theme.subText} fontSize="14px">
@@ -128,7 +127,6 @@ function VestingSummary({
 
             <HoverDropdown
               hideIcon
-              placement="right"
               content={
                 <Flex alignItems="center" color={theme.subText} fontSize="14px">
                   <Text>
@@ -176,7 +174,6 @@ function VestingSummary({
 
             <HoverDropdown
               hideIcon
-              placement="right"
               content={
                 <Flex alignItems="center" color={theme.subText} fontSize="14px">
                   <Text>
@@ -218,7 +215,6 @@ function VestingSummary({
 
             <HoverDropdown
               hideIcon
-              placement="right"
               content={
                 <Flex alignItems="center" color={theme.subText} fontSize="14px">
                   <Text>

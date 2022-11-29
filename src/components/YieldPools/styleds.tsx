@@ -371,13 +371,10 @@ export const ProMMFarmTableHeader = styled(TableHeader)`
   `};
 `
 
-export const ProMMFarmTableRow = styled(ProMMFarmTableHeader)`
+export const ProMMFarmTableRow = styled(ProMMFarmTableHeader)<{ isOpen: boolean }>`
   font-size: 14px;
-  background-color: ${({ theme }) => theme.buttonBlack};
+  background-color: ${({ theme, isOpen }) => (isOpen ? theme.buttonGray : theme.buttonBlack)};
   border-radius: 0;
-  :not(:last-child) {
-    border-bottom: 1px solid ${({ theme }) => theme.border + '80'};
-  }
 `
 
 export const ClickableText = styled(Text)`

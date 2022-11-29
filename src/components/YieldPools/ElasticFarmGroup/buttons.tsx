@@ -15,6 +15,7 @@ export enum ButtonColorScheme {
   Red = 'Red',
   Gray = 'Gray',
   Green = 'Green',
+  APR = 'APR',
 }
 
 export const BtnLight = styled(ButtonLight)`
@@ -40,6 +41,7 @@ const generateButtonOutlinedCSS = (theme: DefaultTheme, colorScheme?: ButtonColo
     [ButtonColorScheme.Red]: theme.red,
     [ButtonColorScheme.Gray]: theme.subText,
     [ButtonColorScheme.Green]: theme.primary,
+    [ButtonColorScheme.APR]: theme.apr,
   }
   colorScheme ||= ButtonColorScheme.Green
   const mainColor = colorMap[colorScheme]
@@ -204,6 +206,7 @@ const generateActionButtonCSS = (theme: DefaultTheme, colorScheme?: ButtonColorS
     [ButtonColorScheme.Red]: theme.red,
     [ButtonColorScheme.Gray]: theme.subText,
     [ButtonColorScheme.Green]: theme.primary,
+    [ButtonColorScheme.APR]: theme.apr,
   }
   colorScheme ||= ButtonColorScheme.Green
   const mainColor = colorMap[colorScheme]
@@ -225,6 +228,8 @@ const generateActionButtonCSS = (theme: DefaultTheme, colorScheme?: ButtonColorS
 
 export const MinimalActionButton = styled(ButtonLight)<{ colorScheme?: ButtonColorScheme }>`
   background-color: ${({ theme }) => rgba(theme.primary, 0.2)};
+  min-width: 28px;
+  min-height: 28px;
   width: 28px;
   height: 28px;
   padding: 0;

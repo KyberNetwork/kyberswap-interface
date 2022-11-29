@@ -60,18 +60,20 @@ if (TAG) {
 
   datadogRum.startSessionReplayRecording()
 
-  Sentry.init({
-    dsn: SENTRY_DNS,
-    environment: 'production',
-    ignoreErrors: ['AbortError'],
-    integrations: [new BrowserTracing()],
-    tracesSampleRate: 0.1,
-  })
+  if (window.location.href.includes('kyberswap.com')) {
+    Sentry.init({
+      dsn: SENTRY_DNS,
+      environment: 'production',
+      ignoreErrors: ['AbortError'],
+      integrations: [new BrowserTracing()],
+      tracesSampleRate: 0.1,
+    })
 
-  Sentry.configureScope(scope => {
-    scope.setTag('request_id', sentryRequestId)
-    scope.setTag('version', TAG)
-  })
+    Sentry.configureScope(scope => {
+      scope.setTag('request_id', sentryRequestId)
+      scope.setTag('version', TAG)
+    })
+  }
 
   if (GTM_ID) {
     const tagManagerArgs = {

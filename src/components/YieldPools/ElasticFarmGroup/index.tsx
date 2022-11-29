@@ -477,7 +477,7 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
                 style={{ padding: '0' }}
                 content={
                   account && !!rewardUSD ? (
-                    <Text as="span" fontSize="20px" fontWeight="500">
+                    <Text as="span" fontSize="20px" fontWeight="500" color={theme.text}>
                       {formatDollarAmount(rewardUSD)}
                     </Text>
                   ) : (
@@ -485,10 +485,9 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
                   )
                 }
                 hideIcon={!account || !rewardUSD}
-                placement={upToExtraSmall ? 'right' : 'left'}
                 dropdownContent={
                   Object.values(rewardAmounts).length ? (
-                    <AutoColumn gap="sm">
+                    <AutoColumn>
                       {Object.values(rewardAmounts).map(
                         amount =>
                           amount.greaterThan(0) && (
@@ -513,7 +512,7 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
         </RewardContainer>
         <DepositedContainer>
           <RewardDetailContainer>
-            {!upToExtraSmall && <Deposit width={36} height={36} />}
+            {!upToExtraSmall && <Deposit width={36} height={36} color={theme.subText} />}
 
             <RewardDetail>
               <Text fontSize="12px" color={theme.subText}>
@@ -525,7 +524,6 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
               </Text>
 
               <HoverDropdown
-                placement={upToExtraSmall ? 'right' : 'left'}
                 style={{ padding: '0', color: theme.text }}
                 content={
                   account ? (
@@ -539,7 +537,7 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
                 hideIcon={!account || !depositedUsd}
                 dropdownContent={
                   Object.values(userDepositedTokenAmounts).some(amount => amount.greaterThan(0)) ? (
-                    <AutoColumn gap="sm">
+                    <AutoColumn>
                       {Object.values(userDepositedTokenAmounts).map(
                         amount =>
                           amount.greaterThan(0) && (
@@ -594,6 +592,7 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
               onHarvest={() => {
                 onOpenModal('harvest', Number(pool.pid))
               }}
+              tokenPrices={tokenPrices}
             />
           )
         })}
