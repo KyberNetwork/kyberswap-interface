@@ -1,6 +1,7 @@
 import { ChainId, CurrencyAmount, Fraction } from '@kyberswap/ks-sdk-core'
 import { computePoolAddress } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
+import dayjs from 'dayjs'
 import { BigNumber } from 'ethers'
 import { useEffect, useState } from 'react'
 import { Minus, Plus, Share2 } from 'react-feather'
@@ -150,7 +151,7 @@ const Row = ({
 
   const setSharePoolAddress = useSharePoolContext()
 
-  const amountCanStaked = farmingPool.depositedUsd - farmingPool.stakedUsd
+  const amountCanStaked = farmingPool.endTime < currentTimestamp ? 0 : farmingPool.depositedUsd - farmingPool.stakedUsd
 
   const cardMode = viewMode === VIEW_MODE.GRID || !above1000
 
@@ -366,7 +367,12 @@ const Row = ({
           ) : TOBE_EXTENDED_FARMING_POOLS.includes(farmingPool.poolAddress.toLowerCase()) ? (
             <Trans>To be extended soon</Trans>
           ) : (
-            <Trans>ENDED</Trans>
+            <>
+              <Text color={theme.subText} fontSize="12px">
+                <Trans>Ended at</Trans>
+              </Text>
+              {dayjs(farmingPool.endTime * 1000).format('DD-MM-YYYY HH:mm')}
+            </>
           )}
         </Flex>
 

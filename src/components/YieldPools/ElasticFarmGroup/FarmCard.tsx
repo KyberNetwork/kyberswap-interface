@@ -1,5 +1,6 @@
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import dayjs from 'dayjs'
 import { ReactNode, useState } from 'react'
 import { Share2 } from 'react-feather'
 import { Link } from 'react-router-dom'
@@ -91,8 +92,9 @@ const FarmCard = ({
 }: Props) => {
   const theme = useTheme()
   const currentTimestamp = Math.floor(Date.now() / 1000)
+  const isFarmEnded = pool.endTime < currentTimestamp
 
-  const amountCanStaked = pool.depositedUsd - pool.stakedUsd
+  const amountCanStaked = isFarmEnded ? 0 : pool.depositedUsd - pool.stakedUsd
   const setSharePoolAddress = useSharePoolContext()
   const [showPosition, setShowPosition] = useState(false)
 
@@ -179,7 +181,7 @@ const FarmCard = ({
             ) : TOBE_EXTENDED_FARMING_POOLS.includes(pool.poolAddress.toLowerCase()) ? (
               <Trans>To be extended soon</Trans>
             ) : (
-              <Trans>ENDED</Trans>
+              <Trans>Ended at</Trans>
             )}
           </Flex>
 
@@ -192,7 +194,7 @@ const FarmCard = ({
             ) : TOBE_EXTENDED_FARMING_POOLS.includes(pool.poolAddress.toLowerCase()) ? (
               <Trans>To be extended soon</Trans>
             ) : (
-              <Trans>ENDED</Trans>
+              <>{dayjs(pool.endTime * 1000).format('DD-MM-YYYY HH:mm')}</>
             )}
           </Flex>
 

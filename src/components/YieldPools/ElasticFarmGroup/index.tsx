@@ -564,10 +564,12 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
 
           <Flex alignItems="center" sx={{ gap: '16px' }} width={upToExtraSmall ? '100%' : undefined}>
             <DepositButton
+              style={{ flex: 1 }}
               disabled={!account || !isApprovedForAll || tab === 'ended'}
               onClick={() => onOpenModal('deposit')}
             />
             <WithdrawButton
+              style={{ flex: 1 }}
               disabled={!account || !canWithdraw || !isApprovedForAll}
               onClick={() => onOpenModal('withdraw')}
             />
