@@ -357,7 +357,7 @@ export const TableHeader = styled.div<{ fade?: boolean; oddRow?: boolean }>`
 
 export const ProMMFarmTableHeader = styled(TableHeader)`
   padding: 16px;
-  grid-template-columns: 200px 0.5fr 0.75fr 1fr 1fr 0.75fr 120px;
+  grid-template-columns: 230px 0.5fr 0.5fr 1fr 1fr 0.75fr 120px;
   grid-template-areas: 'token_pairs staked_tvl apr ending_in my_deposit reward action';
   grid-gap: 2rem;
 
@@ -375,6 +375,7 @@ export const ProMMFarmTableRow = styled(ProMMFarmTableHeader)<{ isOpen: boolean 
   font-size: 14px;
   background-color: ${({ theme, isOpen }) => (isOpen ? theme.buttonGray : theme.buttonBlack)};
   border-radius: 0;
+  box-shadow: none;
 `
 
 export const ClickableText = styled(Text)`
@@ -559,28 +560,6 @@ export const SearchInput = styled.input`
   :placeholder {
     color: ${({ theme }) => theme.disableText};
   }
-`
-
-export const ProMMFarmTableRowMobile = styled.div`
-  background: ${({ theme }) => theme.background};
-  padding: 24px 16px;
-  :not(:last-child) {
-    border-bottom: 1px solid ${({ theme }) => theme.border};
-  }
-`
-
-export const InfoRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin-top: 12px;
-  font-size: 12px;
-`
-
-export const RewardMobileArea = styled.div`
-  background: ${({ theme }) => theme.buttonBlack};
-  border-radius: 16px;
-  padding: 12px;
-  margin-top: 12px;
 `
 
 export const ActionButton = styled(ButtonLight)<{ backgroundColor?: string }>`

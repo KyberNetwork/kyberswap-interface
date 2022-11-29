@@ -1,4 +1,5 @@
-import styled from 'styled-components'
+import { rgba } from 'polished'
+import styled, { css } from 'styled-components'
 
 export const RewardAndDepositInfo = styled.div`
   display: flex;
@@ -74,7 +75,7 @@ export const RewardDetail = styled.div`
   `};
 `
 
-export const FarmList = styled.div`
+export const FarmList = styled.div<{ gridMode: boolean }>`
   margin: 1.5rem;
   border-radius: 20px;
   overflow: hidden;
@@ -83,6 +84,23 @@ export const FarmList = styled.div`
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     margin: 1.5rem 1rem;
   `}
+
+  ${({ gridMode }) =>
+    gridMode &&
+    css`
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 24px;
+      background: ${({ theme }) => theme.background};
+
+      ${({ theme }) => theme.mediaWidth.upToMedium`
+        grid-template-columns: 1fr 1fr;
+      `};
+
+      ${({ theme }) => theme.mediaWidth.upToSmall`
+        grid-template-columns: 1fr;
+      `};
+    `}
 `
 
 export const FeeTag = styled.div`
@@ -90,6 +108,7 @@ export const FeeTag = styled.div`
   background: ${({ theme }) => theme.darkBlue + '33'};
   color: ${({ theme }) => theme.darkBlue};
   font-size: 10px;
+  font-weight: 500;
   padding: 2px 4px;
   margin-left: 6px;
   min-width: 36px;
@@ -100,7 +119,7 @@ export const NFTWrapper = styled.div`
   border: 1px solid ${({ theme }) => theme.border};
   border-radius: 12px;
   padding: 12px;
-  background: ${({ theme }) => theme.background};
+  background: ${({ theme }) => rgba(theme.background, 0.5)};
   width: 100%;
   font-size: 14px;
   line-height: 20px;

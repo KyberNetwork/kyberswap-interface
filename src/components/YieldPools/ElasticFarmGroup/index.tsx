@@ -29,6 +29,8 @@ import { FarmingPool, UserInfo } from 'state/farms/elastic/types'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useIsTransactionPending } from 'state/transactions/hooks'
+import { useViewMode } from 'state/user/hooks'
+import { VIEW_MODE } from 'state/user/reducer'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { formatDollarAmount } from 'utils/numbers'
 
@@ -257,6 +259,8 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
   const tab = qs.type || 'active'
 
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+
+  const [viewMode] = useViewMode()
 
   if (!pools) return null
 
@@ -578,8 +582,8 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
       {renderFarmGroupHeader()}
       {summaryRewardAndDepositInfo()}
 
-      <FarmList>
-        {above1000 && renderTableHeaderOnDesktop()}
+      <FarmList gridMode={viewMode === VIEW_MODE.GRID || !above1000}>
+        {above1000 && viewMode === VIEW_MODE.LIST && renderTableHeaderOnDesktop()}
         {sortedPools.map(pool => {
           return (
             <Row
