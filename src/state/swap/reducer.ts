@@ -46,7 +46,7 @@ export interface SwapState {
 
 const { search, pathname } = window.location
 const { inputCurrency = '', outputCurrency = '' } = pathname.startsWith('/swap') // pathname.startsWith(APP_PATHS.SWAP)
-  ?  queryStringToObject(search)
+  ? queryStringToObject(search)
   : {}
 
 const initialState: SwapState = {

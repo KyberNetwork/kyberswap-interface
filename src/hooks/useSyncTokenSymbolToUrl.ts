@@ -1,5 +1,5 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
-import { stringify } from 'qs'
+import { stringify } from 'querystring'
 import { useCallback, useEffect, useRef } from 'react'
 import { useHistory, useLocation, useParams } from 'react-router-dom'
 

@@ -1,4 +1,5 @@
 import { createAction } from '@reduxjs/toolkit'
+import { ReactNode } from 'react'
 
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 

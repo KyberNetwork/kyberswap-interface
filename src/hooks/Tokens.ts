@@ -14,8 +14,6 @@ import { useActiveWeb3React } from 'hooks/index'
 import { useBytes32TokenContract, useTokenContract } from 'hooks/useContract'
 import { AppState } from 'state'
 import { TokenAddressMap } from 'state/lists/reducer'
-import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
-import { TokenAddressMap, useCombinedActiveList } from 'state/lists/hooks'
 import { TokenInfo, WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { NEVER_RELOAD, useMultipleContractSingleData, useSingleCallResult } from 'state/multicall/hooks'
 import { useUserAddedTokens } from 'state/user/hooks'
@@ -227,7 +225,7 @@ export function useToken(tokenAddress?: string): Token | NativeCurrency | undefi
   ])
 }
 
-const cacheTokens: AllTokenType = {}
+const cacheTokens: TokenMap = {}
 export const fetchTokenByAddress = async (address: string, chainId: ChainId) => {
   if (address === ZERO_ADDRESS) return NativeCurrencies[chainId]
   const findToken = cacheTokens[address] || cacheTokens[address.toLowerCase()]

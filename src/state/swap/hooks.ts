@@ -307,7 +307,7 @@ function validatedRecipient(recipient: any, chainId: ChainId): string | null {
 }
 
 export function queryParametersToSwapState(
-  parsedQs: ParsedQs,
+  parsedQs: ParsedUrlQuery,
   chainId: ChainId,
   isMatchPath: boolean,
 ): Omit<SwapState, 'saveGas' | 'typedValue'> {
