@@ -48,14 +48,13 @@ export default function UpdateOrderModal({
   const { status, makingAmount, takingAmount, makerAsset, takerAsset, filledTakingAmount, expiredAt } = order
   const currencyIn = useCurrencyV2(makerAsset) ?? undefined
   const currencyOut = useCurrencyV2(takerAsset) ?? undefined
-  const inputAmount = uint256ToFraction(makingAmount).toFixed(currencyIn?.decimals ?? 16) // todo check xem sai số
-  const outputAmount = uint256ToFraction(takingAmount).toFixed(currencyOut?.decimals ?? 16) // todo check xem sai số
+  const inputAmount = uint256ToFraction(makingAmount).toFixed(currencyIn?.decimals ?? 16)
+  const outputAmount = uint256ToFraction(takingAmount).toFixed(currencyOut?.decimals ?? 16)
   const formatIn = inputAmount ? removeTrailingZero(inputAmount) : inputAmount
   const formatOut = outputAmount ? removeTrailingZero(outputAmount) : outputAmount
   const defaultExpire = new Date(expiredAt * 1000)
   const rate = calcRate(formatIn, formatOut, currencyOut?.decimals ?? 18)
   const defaultRate: RateInfo = { rate, invertRate: calcInvert(rate), invert: false }
-  // todo check exess decimal all
   const filled = calcPercentFilledOrder(filledTakingAmount, takingAmount)
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss}>

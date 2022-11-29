@@ -207,11 +207,12 @@ export default function Swap({ history }: RouteComponentProps) {
     setActiveTab(isSwapPage ? TAB.SWAP : TAB.LIMIT)
   }, [isSwapPage])
 
-  const refreshListOrder = () => {
+  const refreshListOrder = useCallback(() => {
     if (isLimitPage) {
       refListLimitOrder.current?.refreshListOrder()
     }
-  }
+  }, [isLimitPage])
+
   useDefaultsFromURLSearch()
   const [dismissTokenWarning, setDismissTokenWarning] = useState<boolean>(false)
 

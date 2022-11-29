@@ -171,10 +171,10 @@ export function CurrencySearch({
     return (debouncedQuery ? filterTokens(chainId, tokenImports, debouncedQuery) : tokenImports).sort(tokenComparator)
   }, [debouncedQuery, chainId, tokenImports, tokenComparator])
 
-  const filteredCommonTokens: any[] = useMemo(() => {
-    return filterTokens(chainId, commonTokens as Token[], debouncedQuery).filter((e: any) =>
+  const filteredCommonTokens = useMemo(() => {
+    return filterTokens(chainId, commonTokens as Token[], debouncedQuery).filter(e =>
       supportNative ? true : !e.isNative,
-    ) // todo
+    )
   }, [commonTokens, debouncedQuery, supportNative, chainId])
 
   const filteredSortedTokens: Token[] = useMemo(() => {

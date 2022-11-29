@@ -1,5 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
+import { debounce } from 'lodash'
 import { rgba } from 'polished'
 import { ReactNode, forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -14,7 +15,6 @@ import SearchInput from 'components/SearchInput'
 import Select from 'components/Select'
 import SubscribeButton from 'components/SubscribeButton'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import useDebounce from 'hooks/useDebounce'
 import { NOTIFICATION_TOPICS } from 'hooks/useNotification'
 import useTheme from 'hooks/useTheme'
 import { NotificationType, useNotify } from 'state/application/hooks'
@@ -31,7 +31,7 @@ import { sendEVMTransaction } from 'utils/sendTransaction'
 import { CancelOrderModal } from '../ConfirmOrderModal'
 import EditOrderModal from '../EditOrderModal'
 import { LIMIT_ORDER_CONTRACT } from '../const'
-import { calcPercentFilledOrder, formatAmountOrder, formatRateOrder } from '../helpers'
+import { calcPercentFilledOrder, formatAmountOrder, formatRateOrder, isActiveStatus } from '../helpers'
 import { ackNotificationOrder, getEncodeData, getListOrder, insertCancellingOrder } from '../request'
 import { LimitOrder, LimitOrderActions, LimitOrderStatus, ListOrderHandle } from '../type'
 import useCancellingOrders from '../useCancellingOrders'
@@ -255,9 +255,8 @@ function SummaryNotify({ type, message, order }: { type?: LimitOrderStatus; mess
 export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
   const { account, chainId } = useActiveWeb3React()
   const { library } = useWeb3React()
-  const [activeTab, setActiveTab] = useState<LimitOrderStatus>(LimitOrderStatus.ACTIVE)
   const [curPage, setCurPage] = useState(1)
-  const [orderType, setOrderType] = useState<LimitOrderStatus>()
+  const [orderType, setOrderType] = useState<LimitOrderStatus>(LimitOrderStatus.ACTIVE)
   const [keyword, setKeyword] = useState('')
   const [isOpenCancel, setIsOpenCancel] = useState(false)
   const [isOpenEdit, setIsOpenEdit] = useState(false)
@@ -275,12 +274,6 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
     setKeyword('')
     setCurPage(1)
   }
-
-  useEffect(() => {
-    onReset()
-  }, [activeTab])
-
-  // todo allowance when update order
 
   const fetchListOrder = useCallback(
     async (status: LimitOrderStatus, query: string, curPage: number) => {
@@ -305,15 +298,16 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
     [account, chainId, orderType],
   )
 
-  const query = useDebounce(keyword, 500)
+  const fetchListOrderDebouce = useMemo(() => debounce(fetchListOrder, 400), [fetchListOrder])
+
   useEffect(() => {
-    if (orderType) fetchListOrder(orderType, query, curPage)
-  }, [orderType, query, fetchListOrder, curPage])
+    if (orderType) fetchListOrderDebouce(orderType, keyword, curPage)
+  }, [orderType, keyword, fetchListOrderDebouce, curPage])
 
   const refreshListOrder = useCallback(() => {
     onReset()
-    fetchListOrder(orderType || activeTab, '', 1)
-  }, [fetchListOrder, orderType, activeTab])
+    fetchListOrderDebouce(orderType, '', 1)
+  }, [fetchListOrderDebouce, orderType])
 
   useImperativeHandle(ref, () => ({
     refreshListOrder,
@@ -329,16 +323,16 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
     if (!account || !chainId) return
     const unsubscribeCancelled = subscribeNotificationOrderCancelled(account, chainId, data => {
       refreshListOrder()
-      const isSuccessful = data?.all?.[0]?.isSuccessful
-      if (isSuccessful !== undefined) {
+      const hasCancelAllNotification = data?.all?.[0]?.isSuccessful !== undefined
+      if (hasCancelAllNotification) {
         notify(
           {
-            type: isSuccessful ? NotificationType.WARNING : NotificationType.ERROR,
-            title: isSuccessful ? t`Order Cancelled` : t`Cancel Orders Failed`,
+            type: hasCancelAllNotification ? NotificationType.WARNING : NotificationType.ERROR,
+            title: hasCancelAllNotification ? t`Order Cancelled` : t`Cancel Orders Failed`,
             summary: (
               <SummaryNotify
                 message={
-                  isSuccessful
+                  hasCancelAllNotification
                     ? t`You have successfully cancelled all orders.`
                     : t`Cancel all orders failed. Please try again.`
                 }
@@ -347,10 +341,12 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
           },
           10000,
         )
+        const nonces = data?.all.map((e: { id: string }) => e.id) ?? []
+        if (nonces.length)
+          ackNotificationOrder(nonces, account, chainId, LimitOrderStatus.CANCELLED).catch(console.error)
       }
       const orders: LimitOrder[] = data?.orders ?? []
       orders?.forEach(order => {
-        // todo
         notify(
           {
             type: order.isSuccessful ? NotificationType.WARNING : NotificationType.ERROR,
@@ -370,11 +366,10 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
           orders.map(e => e.id.toString()),
           account,
           chainId,
+          LimitOrderStatus.CANCELLED,
         ).catch(console.error)
     })
     const unsubscribeExpired = subscribeNotificationOrderExpired(account, chainId, data => {
-      console.log(data)
-      // todo noti here. call api ack
       refreshListOrder()
       const orders: LimitOrder[] = data?.orders ?? []
       orders.forEach(order => {
@@ -387,12 +382,15 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
           10000,
         )
       })
-      //  if (orders.length)
-      // ackNotificationOrder(LimitOrderStatus.EXPIRED, account, chainId).catch(console.error)
+      if (orders.length)
+        ackNotificationOrder(
+          orders.map(e => e.id.toString()),
+          account,
+          chainId,
+          LimitOrderStatus.EXPIRED,
+        ).catch(console.error)
     })
     const unsubscribeFilled = subscribeNotificationOrderFilled(account, chainId, data => {
-      console.log(data)
-      // todo noti here. call api ack
       refreshListOrder()
       const orders: LimitOrder[] = data?.orders ?? []
       orders.forEach(order => {
@@ -406,8 +404,13 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
           10000,
         )
       })
-      //  if (orders.length)
-      // ackNotificationOrder(LimitOrderStatus.FILLED, account, chainId).catch(console.error)
+      if (orders.length)
+        ackNotificationOrder(
+          orders.map(e => e.uuid),
+          account,
+          chainId,
+          LimitOrderStatus.FILLED,
+        ).catch(console.error)
     })
     return () => {
       unsubscribeCancelled?.()
@@ -416,11 +419,6 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
     }
     // eslint-disable-next-line
   }, [account, chainId])
-
-  useEffect(() => {
-    setOrderType(activeTab)
-    setKeyword('')
-  }, [activeTab])
 
   const [flowState, setFlowState] = useState<TransactionFlowState>(TRANSACTION_STATE_DEFAULT)
   const [currentOrder, setCurrentOrder] = useState<LimitOrder>()
@@ -471,19 +469,9 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
       attemptingTxn: true,
     }))
     const { encodedData } = await getEncodeData([order?.id].filter(Boolean) as number[], isCancelAll)
-    // todo test case cancel all + create one and cancel check status
     const response = await sendEVMTransaction(account, library, LIMIT_ORDER_CONTRACT, encodedData, BigNumber.from(0))
     const newOrders = isCancelAll ? orders.map(e => e.id) : order?.id ? [order?.id] : []
-    setCancellingOrders(
-      isCancelAll
-        ? {
-            nonces: Array.from(
-              { length: 1 + orders.reduce((max, order) => Math.max(max, order.nonce), 0) },
-              (x, y) => y,
-            ),
-          }
-        : { orderIds: cancellingOrdersIds.concat(newOrders) },
-    ) // todo
+    setCancellingOrders({ orderIds: cancellingOrdersIds.concat(newOrders) })
 
     if (response?.hash && account) {
       insertCancellingOrder({
@@ -534,10 +522,17 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
   }
   const [isCancelAll, setIsCancelAll] = useState(false)
   const isDiabledBtnCancelAll = orderFiltered.length === 0
+  const isTabActive = isActiveStatus(orderType)
   return (
     <>
       <Flex justifyContent={'space-between'} alignItems="center">
-        <TabSelector setActiveTab={setActiveTab} activeTab={activeTab} />
+        <TabSelector
+          setActiveTab={(type: LimitOrderStatus) => {
+            setOrderType(type)
+            onReset()
+          }}
+          activeTab={isTabActive ? LimitOrderStatus.ACTIVE : LimitOrderStatus.CLOSED}
+        />
         <SubscribeButton
           topicId={NOTIFICATION_TOPICS.TRENDING_SOON}
           subscribeModalContent={t`You can subscribe to email notifications for tokens that could be trending soon. We will send out notifications periodically on the top 3 tokens that could be trending soon`}
@@ -549,11 +544,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
 
       <Flex flexDirection={'column'} style={{ gap: '1rem' }}>
         <SearchFilter>
-          <SelectFilter
-            key={activeTab}
-            options={activeTab === LimitOrderStatus.ACTIVE ? ActiveOptions : ClosedOptions}
-            onChange={setOrderType}
-          />
+          <SelectFilter key={orderType} options={isTabActive ? ActiveOptions : ClosedOptions} onChange={setOrderType} />
           <SearchInputWrapped
             placeholder={t`Search by token symbol or token address`}
             maxLength={255}
@@ -584,15 +575,13 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
               <NoResultWrapper>
                 <Info size={isMobile ? 40 : 48} />
                 <Text marginTop={'10px'}>
-                  <Trans>
-                    You don&apos;t have any {activeTab === LimitOrderStatus.ACTIVE ? 'active' : 'history'} orders yet
-                  </Trans>
+                  <Trans>You don&apos;t have any {isTabActive ? 'active' : 'history'} orders yet</Trans>
                 </Text>
               </NoResultWrapper>
             )}
             {orders.length !== 0 && (
               <TableFooterWrapper>
-                {activeTab === LimitOrderStatus.ACTIVE ? (
+                {isTabActive ? (
                   <ButtonCancelAll onClick={onCancelAllOrder} disabled={isDiabledBtnCancelAll}>
                     <Trash size={15} />
                     <Text marginLeft={'5px'}>

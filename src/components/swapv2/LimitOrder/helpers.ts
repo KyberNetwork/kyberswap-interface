@@ -24,15 +24,13 @@ function parseFraction(value: string, decimals = 18) {
 // 1.00010000 => 1.0001
 export const removeTrailingZero = (value: string) => parseFloat(value).toString()
 
-// uint256 to fraction
-export const uint256ToFraction = (value: string, decimals = 18) =>
-  new Fraction(value, JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals)))
+export const uint256ToFraction = (value: string) =>
+  new Fraction(value, JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(18)))
 
-export function calcOutput(input: string, rate: string, decimals: number) {
+export function calcOutput(input: string, rate: string, decimalsIn: number, decimalsOut: number) {
   try {
-    if (parseFloat(rate) === 1) return input
-    const value = parseFraction(input, decimals).multiply(parseFraction(rate))
-    return removeTrailingZero(value.toFixed(16))
+    const value = parseFraction(input, decimalsIn).multiply(parseFraction(rate))
+    return removeTrailingZero(value.toFixed(decimalsOut))
   } catch (error) {
     return ''
   }

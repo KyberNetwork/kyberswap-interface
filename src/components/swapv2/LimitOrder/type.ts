@@ -41,6 +41,7 @@ export type LimitOrder = {
   // custom
   filledPercent: number
   isSuccessful: boolean
+  uuid: string
 }
 
 export type RateInfo = {

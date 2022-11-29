@@ -19,7 +19,6 @@ export default function useCancellingOrders(orders: LimitOrder[]) {
   useEffect(() => {
     if (!account || !chainId) return
     const unsubscribe = subscribeCancellingOrders(account, chainId, data => {
-      console.log(data)
       setCancellingOrdersIds(data?.orderIds ?? [])
       setCancellingOrdersNonces(data?.nonces ?? [])
     })
@@ -29,7 +28,7 @@ export default function useCancellingOrders(orders: LimitOrder[]) {
   const isOrderCancelling = useCallback(
     (order: LimitOrder) => {
       return (
-        order.status !== LimitOrderStatus.CANCELLED &&
+        order.status === LimitOrderStatus.OPEN &&
         (cancellingOrdersNonces.includes(order.nonce) || cancellingOrdersIds?.includes(order.id))
       )
     },

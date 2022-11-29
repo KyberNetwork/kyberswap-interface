@@ -130,7 +130,7 @@ const LimitOrderForm = function LimitOrderForm({
 
     if (rate) {
       if (inputAmount) {
-        const output = calcOutput(inputAmount, rate, currencyIn.decimals)
+        const output = calcOutput(inputAmount, rate, currencyIn.decimals, currencyOut.decimals)
         setOuputAmount(output)
       }
       if (!invertRate) {
@@ -142,7 +142,7 @@ const LimitOrderForm = function LimitOrderForm({
     if (invertRate) {
       newRate.rate = calcInvert(invertRate)
       if (inputAmount) {
-        const output = calcOutput(inputAmount, newRate.rate, currencyIn.decimals)
+        const output = calcOutput(inputAmount, newRate.rate, currencyIn.decimals, currencyOut.decimals)
         setOuputAmount(output)
       }
       setRateInfo(newRate)
@@ -184,11 +184,11 @@ const LimitOrderForm = function LimitOrderForm({
         setRateInfo({ ...rateInfo, rate: '', invertRate: '' })
         return
       }
-      if (rateInfo.rate && currencyIn && input) {
-        setOuputAmount(calcOutput(input, rateInfo.rate, currencyIn.decimals))
+      if (rateInfo.rate && currencyIn && currencyOut && input) {
+        setOuputAmount(calcOutput(input, rateInfo.rate, currencyIn.decimals, currencyOut.decimals))
       }
     },
-    [rateInfo, currencyIn],
+    [rateInfo, currencyIn, currencyOut],
   )
 
   const onInvertRate = (invert: boolean) => {
@@ -275,7 +275,6 @@ const LimitOrderForm = function LimitOrderForm({
   }, [currencyIn, balance, inputAmount, outputAmount, displayRate, parsedAtiveOrderMakingAmount, parseInputAmount])
 
   const outPutError = useMemo(() => {
-    return // todo consider calc tính ra số chữ số thập phân dài quá decimal.
     if (outputAmount && !tryParseAmount(outputAmount, currencyOut)) {
       return t`Your output amount is invalid.`
     }
@@ -438,7 +437,7 @@ const LimitOrderForm = function LimitOrderForm({
       10000,
     )
     onResetForm()
-    setTimeout(() => refreshListOrder?.(), 1000)
+    setTimeout(() => refreshListOrder?.(), 500)
     return
   }
 

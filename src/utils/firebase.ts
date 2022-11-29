@@ -22,7 +22,7 @@ const firebaseConfig = {
 }
 
 const firebaseApp = firebase.initializeApp(firebaseConfig)
-const firestoreDB = getFirestore(firebaseApp)
+const db = getFirestore(firebaseApp)
 
 const COLLECTIONS = {
   CANCELLING_ORDERS: 'cancellingOrders',
@@ -31,8 +31,8 @@ const COLLECTIONS = {
   FILLED_ORDERS: 'filledEvents',
 }
 
-function subscribeDocumentFirebase(collectionName: string, paths: string[], callback: (data: any) => void) {
-  const ref = doc(firestoreDB, collectionName, ...paths)
+function subscribeDocument(collectionName: string, paths: string[], callback: (data: any) => void) {
+  const ref = doc(db, collectionName, ...paths)
   const unsubscribe = onSnapshot(
     ref,
     querySnapshot => {
@@ -43,26 +43,27 @@ function subscribeDocumentFirebase(collectionName: string, paths: string[], call
   return unsubscribe
 }
 
-function subscribeListOrderFirebase(
+type ListOrderResponse = {
+  orders: LimitOrder[]
+  all: { isSuccessful: boolean; id: string }[]
+}
+function subscribeListLimitOrder(
   collectionName: string,
   account: string,
   chainId: ChainId,
-  callback: (data: any) => void,
+  callback: (data: ListOrderResponse) => void,
 ) {
-  const q = query(collection(firestoreDB, collectionName, account.toLowerCase(), chainId.toString()))
+  const q = query(collection(db, collectionName, account.toLowerCase(), chainId.toString()))
   const unsubscribe = onSnapshot(
     q,
     querySnapshot => {
-      const result: {
-        orders: LimitOrder[]
-        all: { isSuccessful: boolean }[]
-      } = {
+      const result: ListOrderResponse = {
         orders: [],
         all: [],
       }
       querySnapshot?.forEach(e => {
         if (e.id.startsWith('nonce')) {
-          result.all.push(e.data() as { isSuccessful: boolean })
+          result.all.push({ ...e.data(), id: e.id } as { isSuccessful: boolean; id: string })
         } else {
           result.orders.push({ id: Number(e.id), ...e.data() } as LimitOrder)
         }
@@ -75,18 +76,34 @@ function subscribeListOrderFirebase(
   return unsubscribe
 }
 
-// todo any
-export function subscribeCancellingOrders(account: string, chainId: ChainId, callback: (data: any) => void) {
-  return subscribeDocumentFirebase(COLLECTIONS.CANCELLING_ORDERS, [`${account}:${chainId}`], callback)
+export function subscribeCancellingOrders(
+  account: string,
+  chainId: ChainId,
+  callback: (data: { orderIds: number[]; nonces: number[] }) => void,
+) {
+  return subscribeDocument(COLLECTIONS.CANCELLING_ORDERS, [`${account.toLowerCase()}:${chainId}`], callback)
 }
 
-export function subscribeNotificationOrderCancelled(account: string, chainId: ChainId, callback: (data: any) => void) {
-  return subscribeListOrderFirebase(COLLECTIONS.CANCELLED_ORDERS, account, chainId, callback)
+export function subscribeNotificationOrderCancelled(
+  account: string,
+  chainId: ChainId,
+  callback: (data: ListOrderResponse) => void,
+) {
+  return subscribeListLimitOrder(COLLECTIONS.CANCELLED_ORDERS, account, chainId, callback)
 }
 
-export function subscribeNotificationOrderFilled(account: string, chainId: ChainId, callback: (data: any) => void) {
-  return subscribeListOrderFirebase(COLLECTIONS.FILLED_ORDERS, account, chainId, callback)
+export function subscribeNotificationOrderFilled(
+  account: string,
+  chainId: ChainId,
+  callback: (data: ListOrderResponse) => void,
+) {
+  return subscribeListLimitOrder(COLLECTIONS.FILLED_ORDERS, account, chainId, callback)
 }
-export function subscribeNotificationOrderExpired(account: string, chainId: ChainId, callback: (data: any) => void) {
-  return subscribeListOrderFirebase(COLLECTIONS.EXPIRED_ORDERS, account, chainId, callback)
+
+export function subscribeNotificationOrderExpired(
+  account: string,
+  chainId: ChainId,
+  callback: (data: ListOrderResponse) => void,
+) {
+  return subscribeListLimitOrder(COLLECTIONS.EXPIRED_ORDERS, account, chainId, callback)
 }

@@ -148,12 +148,15 @@ export const SUMMARY: {
   },
 }
 
+const MAP_STATUS: { [key in string]: string } = {
+  [TRANSACTION_TYPE.BRIDGE]: 'Processing',
+  [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER]: 'Submitted',
+}
 const getTitle = (type: string, success: boolean) => {
   let statusText = success ? 'Success' : 'Error'
-  // custom
   if (success) {
-    if (type === TRANSACTION_TYPE.BRIDGE) statusText = 'Processing'
-    if (type === TRANSACTION_TYPE.CANCEL_LIMIT_ORDER) statusText = 'Submitted'
+    // custom
+    statusText = MAP_STATUS[type] || statusText
   }
   return `${type} - ${statusText}!`
 }
