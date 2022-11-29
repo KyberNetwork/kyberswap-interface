@@ -23,12 +23,12 @@ import { calculateGasMargin } from 'utils'
 import { ProposalDetail, StakerAction, StakerInfo, VoteInfo } from './types'
 
 //TODO Diep: Move this to ethereum.js
+// export const KYBERDAO_ADDRESSES = {
+//   STAKING: '0xeadb96F1623176144EBa2B24e35325220972b3bD',
+//   DAO: '0x7Ec8FcC26bE7e9E85B57E73083E5Fe0550d8A7fE',
+//   REWARDS_DISTRIBUTOR: '0x5ec0dcf4f6f55f28550c70b854082993fdc0d3b2',
+// }
 export const KYBERDAO_ADDRESSES = {
-  STAKING: '0xeadb96F1623176144EBa2B24e35325220972b3bD',
-  DAO: '0x7Ec8FcC26bE7e9E85B57E73083E5Fe0550d8A7fE',
-  REWARDS_DISTRIBUTOR: '0x5ec0dcf4f6f55f28550c70b854082993fdc0d3b2',
-}
-export const KYBERDAO_TESTNET_ADDRESSES = {
   STAKING: '0x9bc1214E28005e9c3f5E99Ff01C23D42796702CF',
   DAO: '0x583c0A1a49CdC99f4709337fa5500844316366dc',
   REWARDS_DISTRIBUTOR: '0x62D82BC6aa44a4340F29E629b43859b7e0C1E915',
@@ -39,7 +39,7 @@ export const APIS = {
 
 export function useKyberDaoStakeActions() {
   const addTransactionWithType = useTransactionAdder()
-  const stakingContract = useContract(KYBERDAO_TESTNET_ADDRESSES.STAKING, StakingABI)
+  const stakingContract = useContract(KYBERDAO_ADDRESSES.STAKING, StakingABI)
   const migrateContract = useContract(KNC_ADDRESS, MigrateABI)
 
   const stake = useCallback(
@@ -148,7 +148,7 @@ export function useKyberDaoStakeActions() {
 }
 
 export function useClaimRewardActions() {
-  const rewardDistributorContract = useContract(KYBERDAO_TESTNET_ADDRESSES.REWARDS_DISTRIBUTOR, RewardDistributorABI)
+  const rewardDistributorContract = useContract(KYBERDAO_ADDRESSES.REWARDS_DISTRIBUTOR, RewardDistributorABI)
   const addTransactionWithType = useTransactionAdder()
 
   const claim = useCallback(
@@ -198,7 +198,7 @@ export function useClaimRewardActions() {
 }
 
 export const useVotingActions = () => {
-  const daoContract = useContract(KYBERDAO_TESTNET_ADDRESSES.DAO, DaoABI)
+  const daoContract = useContract(KYBERDAO_ADDRESSES.DAO, DaoABI)
   const addTransactionWithType = useTransactionAdder()
 
   const vote = useCallback(
@@ -231,7 +231,7 @@ const fetcher = (url: string) => {
 
 export function useStakingInfo() {
   const { account } = useActiveWeb3React()
-  const stakingContract = useContract(KYBERDAO_TESTNET_ADDRESSES.STAKING, StakingABI)
+  const stakingContract = useContract(KYBERDAO_ADDRESSES.STAKING, StakingABI)
 
   const stakedBalance = useSingleCallResult(stakingContract, 'getLatestStakeBalance', [account ?? undefined])
   const delegatedAccount = useSingleCallResult(stakingContract, 'getLatestRepresentative', [account ?? undefined])
@@ -256,7 +256,7 @@ export function useStakingInfo() {
 
 export function useVotingInfo() {
   const { account } = useActiveWeb3React()
-  const rewardDistributorContract = useContract(KYBERDAO_TESTNET_ADDRESSES.REWARDS_DISTRIBUTOR, RewardDistributorABI)
+  const rewardDistributorContract = useContract(KYBERDAO_ADDRESSES.REWARDS_DISTRIBUTOR, RewardDistributorABI)
   const { data: daoInfo } = useSWR(APIS.DAO + '/dao-info', fetcher)
   const [localStoredDaoInfo, setLocalStoredDaoInfo] = useLocalStorage('kyberdao-daoInfo')
   useEffect(() => {
