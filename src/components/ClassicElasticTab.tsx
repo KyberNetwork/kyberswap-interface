@@ -1,4 +1,3 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { stringify } from 'qs'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -15,12 +14,12 @@ import { PoolClassicIcon, PoolElasticIcon } from './Icons'
 import { MouseoverTooltip } from './Tooltip'
 
 function ClassicElasticTab() {
-  const qs = useParsedQueryString()
-  const tab = qs.tab && typeof qs.tab === 'string' && isInEnum(qs.tab, VERSION) ? qs.tab : VERSION.ELASTIC
+  const { tab: tabQS = VERSION.ELASTIC, ...qs } = useParsedQueryString<{ tab: string }>()
+  const tab = isInEnum(tabQS, VERSION) ? tabQS : VERSION.ELASTIC
   const { mixpanelHandler } = useMixpanel()
 
   const { chainId } = useActiveWeb3React()
-  const notSupportedMsg = ELASTIC_NOT_SUPPORTED[chainId as ChainId]
+  const notSupportedMsg = ELASTIC_NOT_SUPPORTED[chainId]
 
   const theme = useTheme()
   const location = useLocation()

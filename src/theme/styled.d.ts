@@ -54,6 +54,7 @@ export interface Colors {
   bg23: Color
   buttonBlack: Color
   buttonGray: Color
+  radialGradient: Color
 
   modalBG: Color
   advancedBG: Color
@@ -89,7 +90,7 @@ export interface Colors {
   shadow: Color
 }
 
-export interface Grids {
+interface Grids {
   sm: number
   md: number
   lg: number

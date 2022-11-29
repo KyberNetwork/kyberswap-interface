@@ -2,7 +2,7 @@ import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useCallback, useMemo, useState } from 'react'
 import { Plus } from 'react-feather'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled, { DefaultTheme, keyframes } from 'styled-components'
@@ -23,6 +23,7 @@ import { useCurrency } from 'hooks/Tokens'
 import useDebounce from 'hooks/useDebounce'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
+import { useSyncNetworkParamWithStore } from 'hooks/useSyncNetworkParamWithStore'
 import useTheme from 'hooks/useTheme'
 import FarmingPoolsMarquee from 'pages/Pools/FarmingPoolsMarquee'
 import { GlobalData, Instruction } from 'pages/Pools/InstructionAndGlobalData'
@@ -76,19 +77,25 @@ const Pools = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const theme = useTheme()
-  const { chainId } = useActiveWeb3React()
+  const { chainId, isEVM, networkInfo } = useActiveWeb3React()
   const above1000 = useMedia('(min-width: 1000px)')
   const above1260 = useMedia('(min-width: 1260px)')
   const below1124 = useMedia('(max-width: 1124px)')
   const [isShowOnlyActiveFarmPools, setIsShowOnlyActiveFarmPools] = useState(false)
   const [shouldShowLowTVLPools, setShowLowTVLPools] = useState(false)
-  const qs = useParsedQueryString()
-  const searchValueInQs: string = (qs.search as string) ?? ''
+  const {
+    search: searchValueInQs = '',
+    tab = VERSION.ELASTIC,
+    highlightCreateButton,
+  } = useParsedQueryString<{
+    search: string
+    tab: string
+    highlightCreateButton: string
+  }>()
   const debouncedSearchValue = useDebounce(searchValueInQs.trim().toLowerCase(), 200)
 
   const [onlyShowStable, setOnlyShowStable] = useState(false)
-  const tab = (qs.tab as string) || VERSION.ELASTIC
-  const shouldHighlightCreatePoolButton = qs.highlightCreateButton === 'true'
+  const shouldHighlightCreatePoolButton = highlightCreateButton === 'true'
 
   const [, setUrlOnEthPowAck] = useUrlOnEthPowAck()
   const toggleEthPowAckModal = useToggleEthPowAckModal()
@@ -96,6 +103,8 @@ const Pools = () => {
   const onSearch = (search: string) => {
     navigate(location.pathname + '?search=' + search + '&tab=' + tab, { replace: true })
   }
+
+  useSyncNetworkParamWithStore()
 
   const currencyA = useCurrency(currencyIdA)
   const currencyB = useCurrency(currencyIdB)
@@ -107,35 +116,36 @@ const Pools = () => {
     [currencyA, currencyB],
   )
 
+  const chainRoute = networkInfo.route
   const handleCurrencyASelect = useCallback(
     (currencyA: Currency) => {
       const newCurrencyIdA = currencyId(currencyA, chainId)
       if (newCurrencyIdA === currencyIdB) {
-        navigate(`/pools/${currencyIdB}/${currencyIdA}?tab=${tab}`)
+        navigate(`/pools/${chainRoute}/${currencyIdB}/${currencyIdA}?tab=${tab}`)
       } else {
-        navigate(`/pools/${newCurrencyIdA}/${currencyIdB}?tab=${tab}`)
+        navigate(`/pools/${chainRoute}/${newCurrencyIdA}/${currencyIdB}?tab=${tab}`)
       }
     },
-    [currencyIdB, navigate, currencyIdA, chainId, tab],
+    [chainRoute, currencyIdB, navigate, currencyIdA, chainId, tab],
   )
 
   const handleCurrencyBSelect = useCallback(
     (currencyB: Currency) => {
       const newCurrencyIdB = currencyId(currencyB, chainId)
       if (currencyIdA === newCurrencyIdB) {
-        navigate(`/pools/${currencyIdB}/${currencyIdA}?tab=${tab}`)
+        navigate(`/pools/${chainRoute}/${currencyIdB}/${currencyIdA}?tab=${tab}`)
       } else {
-        navigate(`/pools/${currencyIdA}/${newCurrencyIdB}?tab=${tab}`)
+        navigate(`/pools/${chainRoute}/${currencyIdA}/${newCurrencyIdB}?tab=${tab}`)
       }
     },
-    [currencyIdA, navigate, currencyIdB, chainId, tab],
+    [chainRoute, currencyIdA, navigate, currencyIdB, chainId, tab],
   )
   const handleClearCurrencyA = useCallback(() => {
-    navigate(`/pools/undefined/${currencyIdB}?tab=${tab}`)
-  }, [currencyIdB, navigate, tab])
+    navigate(`/pools/${chainRoute}/undefined/${currencyIdB}?tab=${tab}`)
+  }, [chainRoute, currencyIdB, navigate, tab])
   const handleClearCurrencyB = useCallback(() => {
-    navigate(`/pools/${currencyIdA}/undefined?tab=${tab}`)
-  }, [currencyIdA, navigate, tab])
+    navigate(`/pools/${chainRoute}/${currencyIdA}/undefined?tab=${tab}`)
+  }, [chainRoute, currencyIdA, navigate, tab])
 
   const { mixpanelHandler } = useMixpanel()
 
@@ -165,6 +175,7 @@ const Pools = () => {
     }
   }
 
+  if (!isEVM) return <Navigate to="/" />
   return (
     <>
       <PoolsPageWrapper>

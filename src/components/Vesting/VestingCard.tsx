@@ -204,7 +204,6 @@ function VestingCard({
           </Text>
           <HoverDropdown
             hideIcon
-            placement="right"
             content={
               <Flex alignItems="center" fontSize="14px">
                 <HoverInlineText maxCharacters={12} text={formatDollarAmount(harvestedUSD)} />
@@ -234,7 +233,6 @@ function VestingCard({
 
           <HoverDropdown
             hideIcon
-            placement="right"
             content={
               <Flex alignItems="center" fontSize="14px">
                 <HoverInlineText maxCharacters={12} text={formatDollarAmount(claimedUSD)} />

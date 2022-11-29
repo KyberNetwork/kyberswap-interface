@@ -3,10 +3,11 @@ import { ONE } from '@kyberswap/ks-sdk-classic'
 import { Currency, CurrencyAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, NonfungiblePositionManager } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
+import { BigNumber } from 'ethers'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -29,10 +30,10 @@ import Row, { RowBetween, RowFixed } from 'components/Row'
 import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
 import { TutorialType } from 'components/Tutorial'
 import { ArrowWrapper as ArrowWrapperVertical, Dots } from 'components/swapv2/styleds'
-import { NETWORKS_INFO } from 'constants/networks'
-import { nativeOnChain } from 'constants/tokens'
+import { EVMNetworkInfo } from 'constants/networks/type'
+import { NativeCurrencies } from 'constants/tokens'
 import { VERSION } from 'constants/v2'
-import { useActiveWeb3React } from 'hooks'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
@@ -49,14 +50,14 @@ import {
   useRangeHopCallbacks,
 } from 'state/mint/proamm/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
-import { useIsExpertMode } from 'state/user/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
+import { useExpertModeManager, useUserSlippageTolerance } from 'state/user/hooks'
 import { StyledInternalLink, TYPE } from 'theme'
 import { basisPointsToPercent, calculateGasMargin, formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
-import { useUserSlippageTolerance } from '../../state/user/hooks'
 import {
   Container,
   DynamicSection,
@@ -71,9 +72,7 @@ import {
   StyledInput,
 } from './styled'
 
-// const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
-
-export const ArrowWrapper = styled(ArrowWrapperVertical)<{ rotated?: boolean }>`
+const ArrowWrapper = styled(ArrowWrapperVertical)<{ rotated?: boolean }>`
   transform: rotate(${({ rotated }) => (rotated ? '270deg' : '90deg')});
   width: 40px;
   height: 40px;
@@ -82,10 +81,11 @@ export default function AddLiquidity() {
   const { currencyIdA, currencyIdB, feeAmount: feeAmountFromUrl } = useParams()
   const navigate = useNavigate()
   const [rotate, setRotate] = useState(false)
-  const { account, chainId, library } = useActiveWeb3React()
+  const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
+  const { library } = useWeb3React()
   const theme = useTheme()
   const toggleWalletModal = useWalletModalToggle() // toggle wallet when disconnected
-  const expertMode = useIsExpertMode()
+  const [expertMode] = useExpertModeManager()
   const addTransactionWithType = useTransactionAdder()
   const positionManager = useProAmmNFTPositionManagerContract()
   // check for existing position if tokenId in url
@@ -219,14 +219,14 @@ export default function AddLiquidity() {
     !!currencies[Field.CURRENCY_A] && depositADisabled && noLiquidity
       ? CurrencyAmount.fromFractionalAmount(currencies[Field.CURRENCY_A] as Currency, ONE, ONE)
       : parsedAmounts[Field.CURRENCY_A],
-    chainId ? NETWORKS_INFO[chainId].elastic.nonfungiblePositionManager : undefined,
+    isEVM ? (networkInfo as EVMNetworkInfo).elastic.nonfungiblePositionManager : undefined,
   )
 
   const [approvalB, approveBCallback] = useApproveCallback(
     !!currencies[Field.CURRENCY_B] && depositBDisabled && noLiquidity
       ? CurrencyAmount.fromFractionalAmount(currencies[Field.CURRENCY_B] as Currency, ONE, ONE)
       : parsedAmounts[Field.CURRENCY_B],
-    chainId ? NETWORKS_INFO[chainId].elastic.nonfungiblePositionManager : undefined,
+    isEVM ? (networkInfo as EVMNetworkInfo).elastic.nonfungiblePositionManager : undefined,
   )
 
   const tokens = useMemo(
@@ -247,7 +247,7 @@ export default function AddLiquidity() {
   const allowedSlippage = useUserSlippageTolerance()
 
   async function onAdd() {
-    if (!chainId || !library || !account) return
+    if (!isEVM || !library || !account) return
 
     if (!positionManager || !baseCurrency || !quoteCurrency) {
       return
@@ -269,7 +269,7 @@ export default function AddLiquidity() {
 
       //0.00283161
       const txn: { to: string; data: string; value: string } = {
-        to: NETWORKS_INFO[chainId].elastic.nonfungiblePositionManager,
+        to: (networkInfo as EVMNetworkInfo).elastic.nonfungiblePositionManager,
         data: calldata,
         value,
       }
@@ -278,7 +278,7 @@ export default function AddLiquidity() {
       library
         .getSigner()
         .estimateGas(txn)
-        .then(estimate => {
+        .then((estimate: BigNumber) => {
           const newTxn = {
             ...txn,
             gasLimit: calculateGasMargin(estimate),
@@ -291,8 +291,9 @@ export default function AddLiquidity() {
             .then((response: TransactionResponse) => {
               setAttemptingTxn(false)
               if (noLiquidity) {
-                addTransactionWithType(response, {
-                  type: 'Elastic Create pool',
+                addTransactionWithType({
+                  hash: response.hash,
+                  type: TRANSACTION_TYPE.ELASTIC_CREATE_POOL,
                   summary: `${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) ?? '0'} ${baseCurrency.symbol} and ${
                     parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) ?? '0'
                   } ${quoteCurrency.symbol} `,
@@ -302,8 +303,9 @@ export default function AddLiquidity() {
                   },
                 })
               } else {
-                addTransactionWithType(response, {
-                  type: 'Elastic Add liquidity',
+                addTransactionWithType({
+                  hash: response.hash,
+                  type: TRANSACTION_TYPE.ELASTIC_ADD_LIQUIDITY,
                   summary: `${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) ?? '0'} ${baseCurrency.symbol} and ${
                     parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) ?? '0'
                   } ${quoteCurrency.symbol} `,
@@ -318,7 +320,7 @@ export default function AddLiquidity() {
               setTxHash(response.hash)
             })
         })
-        .catch(error => {
+        .catch((error: any) => {
           console.error('Failed to send transaction', error)
           setAttemptingTxn(false)
           // we only care if the error is something _other_ than the user rejected the tx
@@ -343,7 +345,7 @@ export default function AddLiquidity() {
         const isETHOrWETHNew = currencyNew.isNative || (chainId && currencyIdNew === WETH[chainId]?.address)
         const isETHOrWETHOther =
           !!currencyIdOther &&
-          ((chainId && currencyIdOther === nativeOnChain(chainId).symbol) ||
+          ((chainId && currencyIdOther === NativeCurrencies[chainId].symbol) ||
             (chainId && currencyIdOther === WETH[chainId]?.address))
 
         if (isETHOrWETHNew && isETHOrWETHOther) {
@@ -701,6 +703,7 @@ export default function AddLiquidity() {
     </>
   )
 
+  if (!isEVM) return <Navigate to="/" />
   return (
     <>
       <TransactionConfirmationModal
@@ -772,7 +775,8 @@ export default function AddLiquidity() {
                   value={formattedAmounts[Field.CURRENCY_A]}
                   onUserInput={onFieldAInput}
                   hideInput={true}
-                  showMaxButton={false}
+                  onMax={null}
+                  onHalf={null}
                   onCurrencySelect={handleCurrencyASelect}
                   currency={currencies[Field.CURRENCY_A] ?? null}
                   id="add-liquidity-input-tokena"
@@ -812,7 +816,8 @@ export default function AddLiquidity() {
                   hideInput={true}
                   onUserInput={onFieldBInput}
                   onCurrencySelect={handleCurrencyBSelect}
-                  showMaxButton={false}
+                  onMax={null}
+                  onHalf={null}
                   positionMax="top"
                   currency={currencies[Field.CURRENCY_B] ?? null}
                   id="add-liquidity-input-tokenb"
@@ -853,7 +858,6 @@ export default function AddLiquidity() {
                       onHalf={() => {
                         onFieldAInput(currencyBalances[Field.CURRENCY_A]?.divide(2).toExact() ?? '')
                       }}
-                      showMaxButton
                       currency={currencies[Field.CURRENCY_A] ?? null}
                       id="add-liquidity-input-tokena"
                       showCommonBases
@@ -866,7 +870,7 @@ export default function AddLiquidity() {
                         chainId &&
                           navigate(
                             `/elastic/add/${
-                              baseCurrencyIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
+                              baseCurrencyIsETHER ? WETH[chainId].address : NativeCurrencies[chainId].symbol
                             }/${currencyIdB}/${feeAmount}`,
                             { replace: true },
                           )
@@ -886,7 +890,6 @@ export default function AddLiquidity() {
                       onHalf={() => {
                         onFieldBInput(currencyBalances[Field.CURRENCY_B]?.divide(2).toExact() ?? '')
                       }}
-                      showMaxButton
                       currency={currencies[Field.CURRENCY_B] ?? null}
                       id="add-liquidity-input-tokenb"
                       showCommonBases
@@ -899,7 +902,7 @@ export default function AddLiquidity() {
                         chainId &&
                           navigate(
                             `/elastic/add/${currencyIdA}/${
-                              quoteCurrencyIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
+                              quoteCurrencyIsETHER ? WETH[chainId].address : NativeCurrencies[chainId].symbol
                             }/${feeAmount}`,
                             { replace: true },
                           )

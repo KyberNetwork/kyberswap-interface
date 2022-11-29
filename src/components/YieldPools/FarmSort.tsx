@@ -119,7 +119,7 @@ const FarmSort = () => {
 
   const theme = useTheme()
   const selectedOption =
-    sortOptions.find(item => item.orderBy === orderBy && item.orderDirection === orderDirection) || sortOptions[1]
+    sortOptions.find(item => item.orderBy === orderBy && item.orderDirection === orderDirection) || sortOptions[7]
 
   const [show, setShow] = useState(false)
 
@@ -160,7 +160,13 @@ const FarmSort = () => {
         )}
       </Wrapper>
 
-      <Modal isOpen={show} onDismiss={() => setShow(false)} maxWidth="808px" maxHeight={80} minHeight={50}>
+      <Modal
+        isOpen={show && upToExtraSmall}
+        onDismiss={() => setShow(false)}
+        maxWidth="808px"
+        maxHeight={80}
+        minHeight={50}
+      >
         <Flex flexDirection="column" width="100%" padding="24px 20px" backgroundColor={theme.background}>
           <Flex alignItems="center" justifyContent="space-between">
             <Text fontWeight="500">
