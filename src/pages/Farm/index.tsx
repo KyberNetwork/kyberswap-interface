@@ -1,6 +1,6 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { stringify } from 'qs'
+import { stringify } from 'querystring'
 import { useMemo } from 'react'
 import { Share2 } from 'react-feather'
 import { useSelector } from 'react-redux'
