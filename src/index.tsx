@@ -18,7 +18,7 @@ import 'swiper/swiper-bundle.min.css'
 import 'swiper/swiper.min.css'
 
 import SolanaWalletContext from 'components/SolanaWalletContext'
-import { GTM_ID, MAINNET_ENV, MIXPANEL_PROJECT_TOKEN, SENTRY_DNS, TAG } from 'constants/env'
+import { ENV_LEVEL, ENV_TYPE, GTM_ID, MIXPANEL_PROJECT_TOKEN, SENTRY_DNS, TAG } from 'constants/env'
 import { updateServiceWorker } from 'state/application/actions'
 import CampaignsUpdater from 'state/campaigns/updater'
 
@@ -40,9 +40,10 @@ import getLibrary from './utils/getLibrary'
 dayjs.extend(utc)
 
 mixpanel.init(MIXPANEL_PROJECT_TOKEN, {
-  debug: MAINNET_ENV === 'staging',
+  debug: ENV_LEVEL < ENV_TYPE.PROD,
 })
-if (TAG) {
+
+if (ENV_LEVEL > ENV_TYPE.LOCAL) {
   datadogRum.init({
     applicationId: '5bd0c243-6141-4bab-be21-5dac9b9efa9f',
     clientToken: 'pub9163f29b2cdb31314b89ae232af37d5a',
@@ -50,37 +51,31 @@ if (TAG) {
     service: 'kyberswap-interface',
 
     version: TAG,
-    sampleRate: TAG.startsWith('v') ? 10 : 100,
+    sampleRate: ENV_LEVEL === ENV_TYPE.PROD ? 10 : 100,
     sessionReplaySampleRate: 100,
     trackInteractions: true,
     trackResources: true,
     trackLongTasks: true,
     defaultPrivacyLevel: 'mask-user-input',
   })
-
   datadogRum.startSessionReplayRecording()
 
-  if (window.location.href.includes('kyberswap.com')) {
-    Sentry.init({
-      dsn: SENTRY_DNS,
-      environment: 'production',
-      ignoreErrors: ['AbortError'],
-      integrations: [new BrowserTracing()],
-      tracesSampleRate: 0.1,
-    })
-
-    Sentry.configureScope(scope => {
-      scope.setTag('request_id', sentryRequestId)
-      scope.setTag('version', TAG)
-    })
-  }
+  Sentry.init({
+    dsn: SENTRY_DNS,
+    environment: 'production',
+    ignoreErrors: ['AbortError'],
+    integrations: [new BrowserTracing()],
+    tracesSampleRate: 0.1,
+  })
+  Sentry.configureScope(scope => {
+    scope.setTag('request_id', sentryRequestId)
+    scope.setTag('version', TAG)
+  })
 
   if (GTM_ID) {
-    const tagManagerArgs = {
+    TagManager.initialize({
       gtmId: GTM_ID,
-    }
-
-    TagManager.initialize(tagManagerArgs)
+    })
   }
 }
 
