@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 
-import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
+import { MAINNET_NETWORKS, NETWORKS_INFO } from 'constants/networks'
 import { AppDispatch } from 'state'
 import { getTokenList } from 'utils/getTokenList'
 
@@ -11,7 +11,7 @@ export default function Updater(): null {
   const dispatch = useDispatch<AppDispatch>()
 
   useEffect(() => {
-    SUPPORTED_NETWORKS.forEach(chainId => {
+    MAINNET_NETWORKS.forEach(chainId => {
       const listUrl = NETWORKS_INFO[chainId].tokenListUrl
       getTokenList(listUrl, chainId)
         .then(tokenList => {

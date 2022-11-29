@@ -9,24 +9,22 @@ import { getFormattedAddress } from './tokenInfo'
 
 // loop to fetch all whitelist token
 export async function getTokenList(listUrl: string, chainId: ChainId): Promise<TokenMap> {
-  return new Promise(async (resolve, reject) => {
-    let tokens: any[] = []
-    try {
-      const pageSize = 100
-      const maximumPage = 15
-      let page = 1
-      while (true) {
-        const { data } = await axios.get(`${listUrl}&pageSize=${pageSize}&page=${page}`)
-        page++
-        const tokensResponse = data.data.tokens ?? []
-        tokens = tokens.concat(tokensResponse)
-        if (tokensResponse.length < pageSize || page >= maximumPage) break // out of tokens, and prevent infinity loop
-      }
-    } catch (error) {
-      return reject(`Failed to download list ${listUrl}`)
+  let tokens: any[] = []
+  try {
+    const pageSize = 100
+    const maximumPage = 15
+    let page = 1
+    while (true) {
+      const { data } = await axios.get(`${listUrl}&pageSize=${pageSize}&page=${page}`)
+      page++
+      const tokensResponse = data.data.tokens ?? []
+      tokens = tokens.concat(tokensResponse)
+      if (tokensResponse.length < pageSize || page >= maximumPage) break // out of tokens, and prevent infinity loop
     }
-    resolve(listToTokenMap(tokens, chainId))
-  })
+  } catch (error) {
+    console.error(`Failed to download list ${listUrl}`)
+  }
+  return listToTokenMap(tokens, chainId)
 }
 function listToTokenMap(list: TokenInfo[], chainId: ChainId): TokenMap {
   const map = list.reduce((tokenMap, tokenInfo) => {
