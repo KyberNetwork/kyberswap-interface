@@ -1,5 +1,5 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { stringify } from 'querystring'
 import { useMemo } from 'react'
 import { Share2 } from 'react-feather'
@@ -12,7 +12,6 @@ import { ReactComponent as TutorialIcon } from 'assets/svg/play_circle_outline.s
 import ClassicElasticTab from 'components/ClassicElasticTab'
 import Loader from 'components/Loader'
 import RewardTokenPrices from 'components/RewardTokenPrices'
-import ShareModal from 'components/ShareModal'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import Tutorial, { TutorialType } from 'components/Tutorial'
 import Vesting from 'components/Vesting'
@@ -247,7 +246,6 @@ const Farm = () => {
         </div>
       </PageWrapper>
       <SwitchLocaleLink />
-      <ShareModal title={t`Share farms with your friends!`} />
     </>
   )
 }

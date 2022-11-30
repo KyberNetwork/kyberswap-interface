@@ -346,7 +346,10 @@ function ElasticFarms({ active }: { active: boolean }) {
           })}
         </Flex>
       )}
-      <ShareModal title={t`Share this farm with your friends!`} url={shareUrl} />
+      <ShareModal
+        title={!sharePoolAddress ? t`Share farms with your friends` : t`Share this farm with your friends!`}
+        url={shareUrl}
+      />
     </SharePoolContext.Provider>
   )
 }

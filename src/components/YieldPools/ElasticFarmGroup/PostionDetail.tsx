@@ -1,14 +1,12 @@
 import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
-import { Minus, Plus } from 'react-feather'
-import { Link } from 'react-router-dom'
+import { Minus } from 'react-feather'
 import { Flex, Text } from 'rebass'
 
 import RangeBadge from 'components/Badge/RangeBadge'
 import CurrencyLogo from 'components/CurrencyLogo'
 import HoverDropdown from 'components/HoverDropdown'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
-import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { useElasticFarms, useFarmAction } from 'state/farms/elastic/hooks'
 import { FarmingPool, NFTPosition } from 'state/farms/elastic/types'
@@ -84,22 +82,7 @@ const PositionDetail = ({ farmAddress, pool, targetPercent, nftInfo: item, token
           NFT ID <Text color={outOfRange ? theme.warning : theme.primary}>{item.nftId.toString()}</Text>
           <RangeBadge size={12} hideText removed={false} inRange={!outOfRange} />
         </Flex>
-        <Flex sx={{ gap: '4px' }}>
-          <MouseoverTooltipDesktopOnly text={t`Increase liquidity`} placement="top" width="fit-content">
-            <Link
-              target="_blank"
-              to={`${APP_PATHS.ELASTIC_INCREASE_LIQ}/${item.amount0.currency.address}/${
-                item.amount1.currency.address
-              }/${item.pool.fee}/${item.nftId.toString()}`}
-            >
-              <MinimalActionButton colorScheme={ButtonColorScheme.Green}>
-                <Plus size={16} />
-              </MinimalActionButton>
-            </Link>
-          </MouseoverTooltipDesktopOnly>
-
-          {renderUnstakeButton()}
-        </Flex>
+        {renderUnstakeButton()}
       </Flex>
 
       <Flex
@@ -128,7 +111,7 @@ const PositionDetail = ({ farmAddress, pool, targetPercent, nftInfo: item, token
           style={{ padding: '0' }}
           content={
             rewardValue ? (
-              <Text as="span" fontSize="20px" fontWeight="500">
+              <Text as="span" fontSize="16px" fontWeight="500">
                 {formatDollarAmount(rewardValue)}
               </Text>
             ) : (
@@ -149,7 +132,7 @@ const PositionDetail = ({ farmAddress, pool, targetPercent, nftInfo: item, token
         <HoverDropdown
           style={{ padding: '0' }}
           content={
-            <Text as="span" fontSize="20px" fontWeight="500">
+            <Text as="span" fontSize="16px" fontWeight="500">
               {formatDollarAmount(positionValue)}
             </Text>
           }

@@ -101,7 +101,7 @@ const Row = ({
 
   const contract = useProMMFarmContract(fairlaunchAddress)
   const [targetPercent, setTargetPercent] = useState('')
-  const [rowOpen, setRowOpen] = useState(true)
+  const [rowOpen, setRowOpen] = useState(false)
 
   useEffect(() => {
     const getFeeTargetInfo = async () => {

@@ -25,7 +25,7 @@ function ClassicElasticTab() {
   const location = useLocation()
   const navigate = useNavigate()
 
-  const isFarmpage = location.pathname === '/farms'
+  const isFarmpage = location.pathname.includes('/farms')
 
   return (
     <Flex>
@@ -36,17 +36,10 @@ function ClassicElasticTab() {
             if (!!notSupportedMsg) return
             const newQs = { ...qs, tab: VERSION.ELASTIC }
             let type: MIXPANEL_TYPE | '' = ''
-            switch (location.pathname) {
-              case '/pools':
-                type = MIXPANEL_TYPE.ELASTIC_POOLS_ELASTIC_POOLS_CLICKED
-                break
-              case '/myPools':
-                type = MIXPANEL_TYPE.ELASTIC_MYPOOLS_ELASTIC_POOLS_CLICKED
-                break
-
-              default:
-                break
-            }
+            if (location.pathname.startsWith('/pools')) {
+              type = MIXPANEL_TYPE.ELASTIC_POOLS_ELASTIC_POOLS_CLICKED
+            } else if (location.pathname.startsWith('/myPools'))
+              type = MIXPANEL_TYPE.ELASTIC_MYPOOLS_ELASTIC_POOLS_CLICKED
             if (type) mixpanelHandler(type)
             navigate({ search: stringify(newQs) }, { replace: true })
           }}

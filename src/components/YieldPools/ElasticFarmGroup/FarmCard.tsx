@@ -1,5 +1,5 @@
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { ReactNode, useState } from 'react'
 import { Share2 } from 'react-feather'
@@ -123,7 +123,7 @@ const FarmCard = ({
 
             <Flex sx={{ gap: '4px' }}>
               <MinimalActionButton colorScheme={ButtonColorScheme.Gray} cardMode>
-                <CopyHelper toCopy={pool.poolAddress} style={{ marginLeft: 0 }} />
+                <CopyHelper toCopy={pool.poolAddress} style={{ marginLeft: 0, padding: '12px' }} />
               </MinimalActionButton>
               <MinimalActionButton
                 colorScheme={ButtonColorScheme.Gray}
@@ -137,17 +137,21 @@ const FarmCard = ({
             </Flex>
           </Flex>
 
-          <Text
-            width="fit-content"
-            lineHeight="16px"
-            fontSize="12px"
-            fontWeight="500"
-            color={theme.subText}
-            sx={{ borderBottom: `1px dashed ${theme.border}` }}
-            marginTop="20px"
+          <MouseoverTooltip
+            text={t`Average estimated return based on yearly fees of the pool and if it's still active, plus bonus rewards of the pool`}
           >
-            <Trans>Avg APR</Trans>
-          </Text>
+            <Text
+              width="fit-content"
+              lineHeight="16px"
+              fontSize="12px"
+              fontWeight="500"
+              color={theme.subText}
+              sx={{ borderBottom: `1px dashed ${theme.border}` }}
+              marginTop="20px"
+            >
+              <Trans>Avg APR</Trans>
+            </Text>
+          </MouseoverTooltip>
 
           <Flex
             alignItems="center"
