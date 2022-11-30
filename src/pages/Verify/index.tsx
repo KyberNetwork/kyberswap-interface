@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import axios from 'axios'
 import React, { useEffect, useRef, useState } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useHistory, useLocation } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -40,6 +40,15 @@ enum STATUS {
   ERROR = 'Error occur, please try again.',
 }
 
+function validateUrl(url: string) {
+  if (!url) return ''
+  const whitelistDomain = ['https://blog.kyberswap.com']
+  try {
+    if (whitelistDomain.some(e => new URL(e).host === new URL(url).host)) return url
+  } catch (error) {}
+  return ''
+}
+
 function Verify() {
   const [status, setStatus] = useState(STATUS.VERIFYING)
   const qs = useParsedQueryString()
@@ -48,22 +57,28 @@ function Verify() {
   const refTimeoutRedirect = useRef<NodeJS.Timeout>()
   const history = useHistory()
   const timeRedirect = 5
+  const { pathname } = useLocation()
+
+  const isVerifyExternal = pathname.startsWith(APP_PATHS.VERIFY_EXTERNAL)
+  const redirectUrl = validateUrl(qs.redirectUrl as string)
+
   useEffect(() => {
     refTimeoutVerify.current = setTimeout(() => {
       if (!qs?.confirmation) return
+      const apiUrl = `${NOTIFICATION_API}/v1/${isVerifyExternal ? 'external' : 'topics'}/verify`
       axios
-        .get(`${NOTIFICATION_API}/v1/topics/verify`, {
+        .get(apiUrl, {
           params: { confirmation: qs.confirmation },
         })
         .then(() => {
           setStatus(STATUS.SUCCESS)
           refTimeoutRedirect.current = setTimeout(() => {
-            history.push(APP_PATHS.SWAP)
+            if (isVerifyExternal) {
+              if (redirectUrl) window.location.href = redirectUrl
+            } else {
+              history.push(APP_PATHS.SWAP)
+            }
           }, timeRedirect * 1000)
-          if (qs.email) {
-            // temp off, will release soon
-            //   axios.post(`${KS_SETTING_API}/v1/sendgrid/add-contact`, { email: qs.email }).catch(console.error)
-          }
         })
         .catch(e => {
           console.error(e)
@@ -74,7 +89,7 @@ function Verify() {
       refTimeoutVerify.current && clearTimeout(refTimeoutVerify.current)
       refTimeoutRedirect.current && clearTimeout(refTimeoutRedirect.current)
     }
-  }, [qs?.confirmation, qs?.email, history])
+  }, [qs?.confirmation, history, isVerifyExternal, redirectUrl])
 
   const icon = (() => {
     switch (status) {
@@ -101,9 +116,12 @@ function Verify() {
               <hr style={{ width: '100%', borderTop: `1px solid ${theme.border}`, borderBottom: 'none' }} />
               <Text as="p" color={theme.subText} lineHeight="20px" fontSize="14px">
                 <Trans>
-                  <Text fontWeight={'500'}>Your email have been verified by KyberSwap.com.</Text> If it has been more
-                  than a few days and you still haven’t receive any notification yet, please contact us through our
-                  channels. You will be redirected to our Swap page after {timeRedirect}s.
+                  <Text fontWeight={'500'}>
+                    Your email have been verified {isVerifyExternal ? 'by KyberSwap.com' : null}.
+                  </Text>{' '}
+                  If it has been more than a few days and you still haven’t receive any notification yet, please contact
+                  us through our channels. You will be redirected to {isVerifyExternal ? redirectUrl : 'our Swap page'}{' '}
+                  after {timeRedirect}s.
                 </Trans>
               </Text>
               <Text as="p" color={theme.subText} fontSize="14px">
