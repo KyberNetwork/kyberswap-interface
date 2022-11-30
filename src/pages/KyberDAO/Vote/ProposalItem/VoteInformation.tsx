@@ -74,13 +74,15 @@ export default function VoteInformation({ proposal }: { proposal: ProposalDetail
           />
         </Text>
         <Text color={theme.text}>
-          {stakedBalance && proposal.vote_stats.total_vote_count
+          {stakedBalance && proposal.vote_stats.total_vote_count > 0
             ? parseFloat(
                 (
                   (parseFloat(getFullDisplayBalance(stakedBalance, 18)) / proposal.vote_stats.total_vote_count) *
                   100
                 ).toFixed(6),
               )
+            : proposal.vote_stats.total_vote_count === 0
+            ? 100
             : 0}
           %
         </Text>

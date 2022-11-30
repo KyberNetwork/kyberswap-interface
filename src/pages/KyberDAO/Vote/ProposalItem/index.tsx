@@ -162,10 +162,12 @@ const VoteButton = ({
   status,
   onVoteClick,
   errorMessage,
+  voted,
 }: {
   status: string
   onVoteClick: () => void
   errorMessage: string | null
+  voted: boolean
 }) => {
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
@@ -181,7 +183,7 @@ const VoteButton = ({
             onClick={onVoteClick}
             disabled={!!errorMessage}
           >
-            {errorMessage ? errorMessage : <Trans>Vote now</Trans>}
+            {errorMessage ? errorMessage : voted ? <Trans>Update Vote</Trans> : <Trans>Vote now</Trans>}
           </ButtonPrimary>
         ) : (
           <ButtonLight width={isMobile ? '100%' : '200px'} onClick={toggleWalletModal}>
@@ -341,12 +343,17 @@ export default function ProposalItem({
         {(show || isActive) && renderVotes}
         <RowBetween>
           {isActive ? (
-            <VoteButton status={proposal.status} onVoteClick={handleVote} errorMessage={errorMessage} />
-          ) : (
+            <VoteButton
+              status={proposal.status}
+              onVoteClick={handleVote}
+              errorMessage={errorMessage}
+              voted={!!votedOfCurrentProposal?.options && votedOfCurrentProposal.options.length > 0}
+            />
+          ) : proposal.status !== ProposalStatus.Pending ? (
             <Text color={theme.subText} fontSize={12}>
               Ended {dayjs(proposal.end_timestamp * 1000).format('DD MMM YYYY')}
             </Text>
-          )}
+          ) : null}
           {!((show || isActive) && isMobile) && (
             <RowFixed gap="8px">
               <StatusBadged status={statusType()} onClick={() => onBadgeClick?.(proposal.status)}>

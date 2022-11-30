@@ -111,7 +111,7 @@ export default function YourTransactionsModal() {
   const { stakerActions } = useStakingInfo()
   const formattedActions: (StakerAction & { hashText: string; description: ReactNode })[] = useMemo(
     () =>
-      stakerActions?.slice((page - 1) * pageSize, page * pageSize - 1)?.map((action: StakerAction) => {
+      stakerActions?.slice((page - 1) * pageSize, page * pageSize)?.map((action: StakerAction) => {
         return {
           ...action,
           hashText: action.tx_hash.slice(0, 6) + '...' + action.tx_hash.slice(-4),
