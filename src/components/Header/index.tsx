@@ -505,7 +505,7 @@ export default function Header() {
                 </StyledNavLink>
                 <StyledNavExternalLink
                   id={`kyberdao-feature-request`}
-                  href={'https://request.kyberswap.com/'}
+                  href={'https://kyberswap.canny.io/feature-request'}
                   target="_blank"
                 >
                   <LightBulb />
