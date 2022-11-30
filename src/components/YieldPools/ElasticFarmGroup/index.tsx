@@ -16,11 +16,10 @@ import Deposit from 'components/Icons/Deposit'
 import Harvest from 'components/Icons/Harvest'
 import InfoHelper from 'components/InfoHelper'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
-import { ZERO_ADDRESS } from 'constants/index'
+import { FARM_TAB, ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
-import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { Dots } from 'pages/Pool/styleds'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -255,8 +254,7 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
     }
   }
 
-  const qs = useParsedQueryString()
-  const tab = qs.type || 'active'
+  const tab = searchParams.get('type') || 'active'
 
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
 
@@ -579,30 +577,97 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
     )
   }
 
+  const currentTimestamp = Math.floor(Date.now() / 1000)
   return (
     <FarmContent data-testid="farm-block">
       {renderFarmGroupHeader()}
       {summaryRewardAndDepositInfo()}
 
-      <FarmList gridMode={viewMode === VIEW_MODE.GRID || !above1000}>
-        {above1000 && viewMode === VIEW_MODE.LIST && renderTableHeaderOnDesktop()}
-        {sortedPools.map(pool => {
-          return (
-            <Row
-              isUserAffectedByFarmIssue={hasAffectedByFarmIssue}
-              isApprovedForAll={isApprovedForAll}
-              pool={pool}
-              key={pool.id}
-              onOpenModal={onOpenModal}
-              fairlaunchAddress={address}
-              onHarvest={() => {
-                onOpenModal('harvest', Number(pool.pid))
-              }}
-              tokenPrices={tokenPrices}
-            />
-          )
-        })}
-      </FarmList>
+      {tab === FARM_TAB.MY_FARMS ? (
+        <>
+          <Text
+            fontSize="16px"
+            fontWeight="500"
+            color={theme.subText}
+            marginTop="24px"
+            paddingX={upToExtraSmall ? '1rem' : '24px'}
+          >
+            <Trans>Active</Trans>
+          </Text>
+          <FarmList gridMode={viewMode === VIEW_MODE.GRID || !above1000}>
+            {above1000 && viewMode === VIEW_MODE.LIST && renderTableHeaderOnDesktop()}
+            {sortedPools
+              .filter(pool => pool.endTime > currentTimestamp)
+              .map(pool => {
+                return (
+                  <Row
+                    isUserAffectedByFarmIssue={hasAffectedByFarmIssue}
+                    isApprovedForAll={isApprovedForAll}
+                    pool={pool}
+                    key={pool.id}
+                    onOpenModal={onOpenModal}
+                    fairlaunchAddress={address}
+                    onHarvest={() => {
+                      onOpenModal('harvest', Number(pool.pid))
+                    }}
+                    tokenPrices={tokenPrices}
+                  />
+                )
+              })}
+          </FarmList>
+
+          <Text
+            fontSize="16px"
+            fontWeight="500"
+            color={theme.subText}
+            marginTop="24px"
+            paddingX={upToExtraSmall ? '1rem' : '24px'}
+          >
+            <Trans>Ended</Trans>
+          </Text>
+          <FarmList gridMode={viewMode === VIEW_MODE.GRID || !above1000}>
+            {above1000 && viewMode === VIEW_MODE.LIST && renderTableHeaderOnDesktop()}
+            {sortedPools
+              .filter(pool => pool.endTime < currentTimestamp)
+              .map(pool => {
+                return (
+                  <Row
+                    isUserAffectedByFarmIssue={hasAffectedByFarmIssue}
+                    isApprovedForAll={isApprovedForAll}
+                    pool={pool}
+                    key={pool.id}
+                    onOpenModal={onOpenModal}
+                    fairlaunchAddress={address}
+                    onHarvest={() => {
+                      onOpenModal('harvest', Number(pool.pid))
+                    }}
+                    tokenPrices={tokenPrices}
+                  />
+                )
+              })}
+          </FarmList>
+        </>
+      ) : (
+        <FarmList gridMode={viewMode === VIEW_MODE.GRID || !above1000}>
+          {above1000 && viewMode === VIEW_MODE.LIST && renderTableHeaderOnDesktop()}
+          {sortedPools.map(pool => {
+            return (
+              <Row
+                isUserAffectedByFarmIssue={hasAffectedByFarmIssue}
+                isApprovedForAll={isApprovedForAll}
+                pool={pool}
+                key={pool.id}
+                onOpenModal={onOpenModal}
+                fairlaunchAddress={address}
+                onHarvest={() => {
+                  onOpenModal('harvest', Number(pool.pid))
+                }}
+                tokenPrices={tokenPrices}
+              />
+            )
+          })}
+        </FarmList>
+      )}
     </FarmContent>
   )
 }

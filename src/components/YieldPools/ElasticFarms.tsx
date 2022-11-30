@@ -3,7 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import { stringify } from 'querystring'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Search } from 'react-feather'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
@@ -14,6 +14,7 @@ import FarmIssueAnnouncement from 'components/FarmIssueAnnouncement'
 import LocalLoader from 'components/LocalLoader'
 import ShareModal from 'components/ShareModal'
 import Toggle from 'components/Toggle'
+import { FARM_TAB } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
@@ -45,16 +46,21 @@ import {
 
 type ModalType = 'deposit' | 'withdraw' | 'stake' | 'unstake' | 'harvest' | 'forcedWithdraw'
 
-function ElasticFarms({ active }: { active: boolean }) {
+function ElasticFarms() {
   const theme = useTheme()
   const { isEVM, networkInfo, chainId } = useActiveWeb3React()
   const [viewMode, setViewMode] = useViewMode()
+
+  const [searchParams] = useSearchParams()
+
+  const activeTab: string = searchParams.get('type') || FARM_TAB.ACTIVE
 
   const [stakedOnly, setStakedOnly] = useState({
     active: false,
     ended: true,
   })
-  const activeTab = active ? 'active' : 'ended'
+
+  const stakedOnlyKey = activeTab === FARM_TAB.ACTIVE ? 'active' : 'ended'
 
   const above1000 = useMedia('(min-width: 1000px)')
   const { farms, loading, userFarmInfo } = useElasticFarms()
@@ -87,7 +93,13 @@ function ElasticFarms({ active }: { active: boolean }) {
     // filter active/ended farm
     let result = farms
       ?.map(farm => {
-        const pools = farm.pools.filter(pool => (active ? pool.endTime >= now : pool.endTime < now))
+        const pools = farm.pools.filter(pool =>
+          activeTab === FARM_TAB.MY_FARMS
+            ? true
+            : activeTab === FARM_TAB.ACTIVE
+            ? pool.endTime >= now
+            : pool.endTime < now,
+        )
         return { ...farm, pools }
       })
       .filter(farm => !!farm.pools.length)
@@ -124,7 +136,7 @@ function ElasticFarms({ active }: { active: boolean }) {
       })
     }
 
-    if (stakedOnly[activeTab] && isEVM) {
+    if (stakedOnly[stakedOnlyKey] && isEVM) {
       result = result?.map(item => {
         if (!userFarmInfo?.[item.id].depositedPositions.length) {
           return { ...item, pools: [] }
@@ -145,7 +157,7 @@ function ElasticFarms({ active }: { active: boolean }) {
     }
 
     return result?.filter(farm => !!farm.pools.length) || []
-  }, [farms, active, search, stakedOnly, activeTab, chainId, userFarmInfo, isEVM, networkInfo])
+  }, [farms, search, stakedOnly, stakedOnlyKey, activeTab, chainId, userFarmInfo, isEVM, networkInfo])
 
   const noFarms = !filteredFarms.length
 
@@ -200,6 +212,25 @@ function ElasticFarms({ active }: { active: boolean }) {
     })
   }, [isShareModalOpen, setSharePoolAddress])
 
+  const gridListViewGroup = (
+    <Flex sx={{ gap: '0.5rem' }} marginRight="0.75rem">
+      <ButtonEmpty
+        padding="0"
+        style={{ color: viewMode === VIEW_MODE.GRID ? theme.subText : theme.primary }}
+        onClick={() => setViewMode(VIEW_MODE.LIST)}
+      >
+        <ListViewIcon />
+      </ButtonEmpty>
+      <ButtonEmpty
+        padding="0"
+        style={{ color: viewMode === VIEW_MODE.LIST ? theme.subText : theme.primary }}
+        onClick={() => setViewMode(VIEW_MODE.GRID)}
+      >
+        <GridViewIcon />
+      </ButtonEmpty>
+    </Flex>
+  )
+
   return (
     <SharePoolContext.Provider value={setSharePoolAddress}>
       {selectedFarm && selectedModal === 'deposit' && (
@@ -231,32 +262,19 @@ function ElasticFarms({ active }: { active: boolean }) {
 
       <HeadingContainer>
         <StakedOnlyToggleWrapper>
-          {above1000 && (
-            <Flex sx={{ gap: '0.5rem' }} marginRight="0.75rem">
-              <ButtonEmpty
-                padding="0"
-                style={{ color: viewMode === VIEW_MODE.GRID ? theme.subText : theme.primary }}
-                onClick={() => setViewMode(VIEW_MODE.LIST)}
-              >
-                <ListViewIcon />
-              </ButtonEmpty>
-              <ButtonEmpty
-                padding="0"
-                style={{ color: viewMode === VIEW_MODE.LIST ? theme.subText : theme.primary }}
-                onClick={() => setViewMode(VIEW_MODE.GRID)}
-              >
-                <GridViewIcon />
-              </ButtonEmpty>
-            </Flex>
-          )}
+          {above1000 && gridListViewGroup}
 
-          <StakedOnlyToggleText>
-            <Trans>Staked Only</Trans>
-          </StakedOnlyToggleText>
-          <Toggle
-            isActive={stakedOnly[active ? 'active' : 'ended']}
-            toggle={() => setStakedOnly(prev => ({ ...prev, [activeTab]: !prev[activeTab] }))}
-          />
+          {activeTab !== FARM_TAB.MY_FARMS && (
+            <>
+              <StakedOnlyToggleText>
+                <Trans>Staked Only</Trans>
+              </StakedOnlyToggleText>
+              <Toggle
+                isActive={stakedOnly[stakedOnlyKey]}
+                toggle={() => setStakedOnly(prev => ({ ...prev, [activeTab]: !prev[stakedOnlyKey] }))}
+              />
+            </>
+          )}
         </StakedOnlyToggleWrapper>
         <HeadingRight>
           <Flex sx={{ gap: '16px' }} flex={1}>
@@ -314,7 +332,7 @@ function ElasticFarms({ active }: { active: boolean }) {
           style={{ borderBottomLeftRadius: '20px', borderBottomRightRadius: '20px' }}
         >
           <Text color={theme.subText}>
-            {stakedOnly[activeTab] || search ? (
+            {stakedOnly[stakedOnlyKey] || search ? (
               <Trans>No Farms found</Trans>
             ) : (
               <Trans>Currently there are no Farms.</Trans>

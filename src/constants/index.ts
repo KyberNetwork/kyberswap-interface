@@ -334,3 +334,10 @@ export const APP_PATHS = {
   BRIDGE: '/bridge',
   VERIFY: '/verify',
 }
+
+export enum FARM_TAB {
+  ACTIVE = 'active',
+  ENDED = 'ended',
+  MY_FARMS = 'my_farms',
+  VESTING = 'vesting',
+}

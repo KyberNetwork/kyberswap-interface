@@ -20,7 +20,7 @@ import YieldPools from 'components/YieldPools'
 import ElasticFarms from 'components/YieldPools/ElasticFarms'
 import FarmGuide from 'components/YieldPools/FarmGuide'
 import { PageWrapper, PoolTitleContainer, Tab, TabContainer, TabWrapper, TopBar } from 'components/YieldPools/styleds'
-import { ZERO_ADDRESS } from 'constants/index'
+import { FARM_TAB, ZERO_ADDRESS } from 'constants/index'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -39,7 +39,7 @@ const Farm = () => {
   const { loading } = useFarmsData()
   const theme = useTheme()
   const qs = useParsedQueryString<{ type: string; tab: string }>()
-  const { type = 'active', tab = VERSION.ELASTIC } = qs
+  const { type = FARM_TAB.ACTIVE, tab = VERSION.ELASTIC } = qs
   const farmType = isInEnum(tab, VERSION) ? tab : VERSION.ELASTIC
   const navigate = useNavigate()
 
@@ -49,16 +49,14 @@ const Farm = () => {
 
   const renderTabContent = () => {
     switch (type) {
-      case 'active':
-        return farmType === VERSION.ELASTIC ? <ElasticFarms active /> : <YieldPools loading={loading} active />
-      case 'ended':
-        return farmType === VERSION.ELASTIC ? (
-          <ElasticFarms active={false} />
-        ) : (
-          <YieldPools loading={loading} active={false} />
-        )
-      case 'vesting':
+      case FARM_TAB.ACTIVE:
+        return farmType === VERSION.ELASTIC ? <ElasticFarms /> : <YieldPools loading={loading} active />
+      case FARM_TAB.ENDED:
+        return farmType === VERSION.ELASTIC ? <ElasticFarms /> : <YieldPools loading={loading} active={false} />
+      case FARM_TAB.VESTING:
         return farmType === VERSION.ELASTIC ? <ProMMVesting /> : <Vesting loading={vestingLoading} />
+      case FARM_TAB.MY_FARMS:
+        return <ElasticFarms />
       default:
         return <YieldPools loading={loading} active />
     }
@@ -215,6 +213,20 @@ const Farm = () => {
                   <span>
                     <Trans>Ended</Trans>
                   </span>
+                </PoolTitleContainer>
+              </Tab>
+
+              <Tab
+                onClick={() => {
+                  const newQs = { ...qs, type: FARM_TAB.MY_FARMS }
+                  navigate({
+                    search: stringify(newQs),
+                  })
+                }}
+                isActive={type === FARM_TAB.MY_FARMS}
+              >
+                <PoolTitleContainer>
+                  <Trans>My Farms</Trans>
                 </PoolTitleContainer>
               </Tab>
 

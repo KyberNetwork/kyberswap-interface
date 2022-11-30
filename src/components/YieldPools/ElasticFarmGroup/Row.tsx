@@ -23,7 +23,6 @@ import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { TOBE_EXTENDED_FARMING_POOLS } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useProMMFarmContract } from 'hooks/useContract'
-import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { useElasticFarms } from 'state/farms/elastic/hooks'
 import { FarmingPool } from 'state/farms/elastic/types'
@@ -72,7 +71,6 @@ const Row = ({
   const currentTimestamp = Math.floor(Date.now() / 1000)
   const [viewMode] = useViewMode()
   const above1000 = useMedia('(min-width: 1000px)')
-  const { type: tab = 'active' } = useParsedQueryString<{ type: string }>()
 
   const { userFarmInfo } = useElasticFarms()
   const joinedPositions = userFarmInfo?.[fairlaunchAddress]?.joinedPositions[farmingPool.pid] || []
@@ -137,12 +135,14 @@ const Row = ({
     getFeeTargetInfo()
   }, [contract, farmingPool.feeTarget, fairlaunchAddress, farmingPool.pid, userFarmInfo])
 
-  const canStake = depositedPositions.some(pos => {
-    const stakedPos = joinedPositions.find(j => j.nftId.toString() === pos.nftId.toString())
-    return !stakedPos
-      ? true
-      : BigNumber.from(pos.liquidity.toString()).gt(BigNumber.from(stakedPos.liquidity.toString()))
-  })
+  const canStake =
+    farmingPool.endTime > currentTimestamp &&
+    depositedPositions.some(pos => {
+      const stakedPos = joinedPositions.find(j => j.nftId.toString() === pos.nftId.toString())
+      return !stakedPos
+        ? true
+        : BigNumber.from(pos.liquidity.toString()).gt(BigNumber.from(stakedPos.liquidity.toString()))
+    })
 
   const canHarvest = rewardPendings.some(amount => amount.greaterThan(0))
 
@@ -176,7 +176,7 @@ const Row = ({
       )
     }
 
-    if (!isApprovedForAll || tab === 'ended' || !canStake) {
+    if (!isApprovedForAll || !canStake) {
       return (
         <MinimalActionButton disabled cardMode={cardMode}>
           <Plus size={cardMode ? 20 : 16} />
