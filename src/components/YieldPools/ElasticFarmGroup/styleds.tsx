@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components'
 
 export const RewardAndDepositInfo = styled.div`
   display: flex;
-  padding: 0 1.5rem;
+  margin: 0 1.5rem;
   gap: 24px;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
@@ -11,12 +11,12 @@ export const RewardAndDepositInfo = styled.div`
   `};
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-      padding: 0 1rem;
+      margin: 0 1rem;
   `}
 `
 export const RewardContainer = styled.div`
   border-radius: 20px;
-  flex: 1;
+  width: calc(100% / 3 - 16px);
   padding: 1.25rem 1rem;
   display: flex;
   align-items: center;
@@ -24,7 +24,8 @@ export const RewardContainer = styled.div`
   background: ${({ theme }) => theme.radialGradient};
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
-    flex: 2
+    width: 100%;
+    flex: 1
   `};
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
@@ -34,17 +35,13 @@ export const RewardContainer = styled.div`
 `
 
 export const DepositedContainer = styled.div`
-  flex: 2;
+  flex: 1;
   border-radius: 1.25rem;
   padding: 1.25rem 1rem;
   background: ${({ theme }) => theme.buttonBlack};
   display: flex;
   align-items: center;
   justify-content: space-between;
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    flex: 3
-  `};
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     flex-direction: column;
@@ -93,7 +90,7 @@ export const FarmList = styled.div<{ gridMode: boolean }>`
       gap: 24px;
       background: ${({ theme }) => theme.background};
 
-      ${({ theme }) => theme.mediaWidth.upToMedium`
+      ${({ theme }) => theme.mediaWidth.upToLarge`
         grid-template-columns: 1fr 1fr;
       `};
 
