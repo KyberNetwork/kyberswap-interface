@@ -28,13 +28,15 @@ const Wrapper = styled.div`
 `
 
 export default function MigrateModal({
-  approval,
+  approvalKNC,
+  approvalKNCL,
   setPendingText,
   setShowConfirm,
   setAttemptingTxn,
   setTxHash,
 }: {
-  approval: ApprovalState
+  approvalKNC: ApprovalState
+  approvalKNCL: ApprovalState
   setPendingText: React.Dispatch<React.SetStateAction<string>>
   setShowConfirm: React.Dispatch<React.SetStateAction<boolean>>
   setAttemptingTxn: React.Dispatch<React.SetStateAction<boolean>>
@@ -66,27 +68,33 @@ export default function MigrateModal({
     }
   }, [value, oldKNCBalance?.value])
   const { switchToEthereum } = useSwitchToEthereum()
-  const toggleApproveModal = useToggleModal(ApplicationModal.APPROVE_KNCL)
+  const toggleApproveKNCModal = useToggleModal(ApplicationModal.APPROVE_KNC)
+  const toggleApproveKNCLModal = useToggleModal(ApplicationModal.APPROVE_KNCL)
 
   const handleMigrate = () => {
     setError('')
     switchToEthereum().then(() => {
+      if (approvalKNC !== ApprovalState.APPROVED) {
+        toggleApproveKNCModal()
+        return
+      }
+      if (approvalKNCL !== ApprovalState.APPROVED) {
+        toggleApproveKNCLModal()
+        return
+      }
+
       try {
-        if (approval === ApprovalState.APPROVED) {
-          setPendingText(t`Migrating ${value} KNCL to KNC`)
-          setShowConfirm(true)
-          setAttemptingTxn(true)
-          migrate(parseUnits(value, 18))
-            .then(tx => {
-              setAttemptingTxn(false)
-              setTxHash(tx)
-            })
-            .catch(() => {
-              setAttemptingTxn(false)
-            })
-        } else {
-          toggleApproveModal()
-        }
+        setPendingText(t`Migrating ${value} KNCL to KNC`)
+        setShowConfirm(true)
+        setAttemptingTxn(true)
+        migrate(parseUnits(value, 18))
+          .then(tx => {
+            setAttemptingTxn(false)
+            setTxHash(tx)
+          })
+          .catch(error => {
+            setAttemptingTxn(false)
+          })
       } catch (error) {
         setError(error)
       }

@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
@@ -11,6 +12,7 @@ import MigrateABI from 'constants/abis/kyberdao/migrate.json'
 import RewardDistributorABI from 'constants/abis/kyberdao/reward_distributor.json'
 import StakingABI from 'constants/abis/kyberdao/staking.json'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
+import { NETWORKS_INFO } from 'constants/networks'
 import { KNC_ADDRESS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useContract } from 'hooks/useContract'
@@ -22,25 +24,17 @@ import { calculateGasMargin } from 'utils'
 
 import { ProposalDetail, StakerAction, StakerInfo, VoteInfo } from './types'
 
-//TODO Diep: Move this to ethereum.js
-// export const KYBERDAO_ADDRESSES = {
-//   STAKING: '0xeadb96F1623176144EBa2B24e35325220972b3bD',
-//   DAO: '0x7Ec8FcC26bE7e9E85B57E73083E5Fe0550d8A7fE',
-//   REWARDS_DISTRIBUTOR: '0x5ec0dcf4f6f55f28550c70b854082993fdc0d3b2',
-// }
-export const KYBERDAO_ADDRESSES = {
-  STAKING: '0x9bc1214E28005e9c3f5E99Ff01C23D42796702CF',
-  DAO: '0x583c0A1a49CdC99f4709337fa5500844316366dc',
-  REWARDS_DISTRIBUTOR: '0x62D82BC6aa44a4340F29E629b43859b7e0C1E915',
-}
-export const APIS = {
-  DAO: 'https://kyberswap-dao-stats.dev.kyberengineering.io',
+export function useKyberDAOInfo() {
+  const { chainId } = useActiveWeb3React()
+  const kyberDaoInfo = NETWORKS_INFO[chainId !== ChainId.GÖRLI ? ChainId.MAINNET : ChainId.GÖRLI].kyberDAO
+  return kyberDaoInfo
 }
 
 export function useKyberDaoStakeActions() {
   const addTransactionWithType = useTransactionAdder()
-  const stakingContract = useContract(KYBERDAO_ADDRESSES.STAKING, StakingABI)
-  const migrateContract = useContract(KNC_ADDRESS, MigrateABI)
+  const kyberDaoInfo = useKyberDAOInfo()
+  const stakingContract = useContract(kyberDaoInfo?.staking, StakingABI)
+  const migrateContract = useContract(kyberDaoInfo?.KNCAddress, MigrateABI)
 
   const stake = useCallback(
     async (amount: BigNumber) => {
@@ -101,7 +95,7 @@ export function useKyberDaoStakeActions() {
         })
         return tx.hash
       } catch (error) {
-        console.log('Migrate error: ', error.message)
+        console.error('Migrate error: ', error.message)
       }
     },
     [addTransactionWithType, migrateContract],
@@ -148,7 +142,8 @@ export function useKyberDaoStakeActions() {
 }
 
 export function useClaimRewardActions() {
-  const rewardDistributorContract = useContract(KYBERDAO_ADDRESSES.REWARDS_DISTRIBUTOR, RewardDistributorABI)
+  const kyberDaoInfo = useKyberDAOInfo()
+  const rewardDistributorContract = useContract(kyberDaoInfo?.rewardsDistributor, RewardDistributorABI)
   const addTransactionWithType = useTransactionAdder()
 
   const claim = useCallback(
@@ -198,7 +193,8 @@ export function useClaimRewardActions() {
 }
 
 export const useVotingActions = () => {
-  const daoContract = useContract(KYBERDAO_ADDRESSES.DAO, DaoABI)
+  const kyberDaoInfo = useKyberDAOInfo()
+  const daoContract = useContract(kyberDaoInfo?.dao, DaoABI)
   const addTransactionWithType = useTransactionAdder()
 
   const vote = useCallback(
@@ -231,7 +227,8 @@ const fetcher = (url: string) => {
 
 export function useStakingInfo() {
   const { account } = useActiveWeb3React()
-  const stakingContract = useContract(KYBERDAO_ADDRESSES.STAKING, StakingABI)
+  const kyberDaoInfo = useKyberDAOInfo()
+  const stakingContract = useContract(kyberDaoInfo?.staking, StakingABI)
 
   const stakedBalance = useSingleCallResult(stakingContract, 'getLatestStakeBalance', [account ?? undefined])
   const delegatedAccount = useSingleCallResult(stakingContract, 'getLatestRepresentative', [account ?? undefined])
@@ -241,7 +238,7 @@ export function useStakingInfo() {
   }, [delegatedAccount, account])
 
   const { data: stakerActions } = useSWR<StakerAction[]>(
-    account && APIS.DAO + '/stakers/' + account + '/actions',
+    account && kyberDaoInfo?.daoStatsApi + '/stakers/' + account + '/actions',
     fetcher,
   )
 
@@ -256,8 +253,9 @@ export function useStakingInfo() {
 
 export function useVotingInfo() {
   const { account } = useActiveWeb3React()
-  const rewardDistributorContract = useContract(KYBERDAO_ADDRESSES.REWARDS_DISTRIBUTOR, RewardDistributorABI)
-  const { data: daoInfo } = useSWR(APIS.DAO + '/dao-info', fetcher)
+  const kyberDaoInfo = useKyberDAOInfo()
+  const rewardDistributorContract = useContract(kyberDaoInfo?.rewardsDistributor, RewardDistributorABI)
+  const { data: daoInfo } = useSWR(kyberDaoInfo?.daoStatsApi + '/dao-info', fetcher)
   const [localStoredDaoInfo, setLocalStoredDaoInfo] = useLocalStorage('kyberdao-daoInfo')
   useEffect(() => {
     if (daoInfo) {
@@ -314,18 +312,25 @@ export function useVotingInfo() {
     )
   }, [claimedRewardAmounts, userRewards?.userReward])
 
-  const { data: proposals } = useSWRImmutable<ProposalDetail[]>(APIS.DAO + '/proposals', fetcher)
+  const { data: proposals } = useSWRImmutable<ProposalDetail[]>(kyberDaoInfo?.daoStatsApi + '/proposals', fetcher)
 
   const { data: stakerInfo } = useSWR<StakerInfo>(
-    daoInfo?.current_epoch && account && APIS.DAO + '/stakers/' + account + '?epoch=' + daoInfo?.current_epoch,
+    daoInfo?.current_epoch &&
+      account &&
+      kyberDaoInfo?.daoStatsApi + '/stakers/' + account + '?epoch=' + daoInfo?.current_epoch,
     fetcher,
   )
 
   const calculateVotingPower = useCallback(
-    (kncAmount: string) => {
+    (kncAmount: string, newStakingAmount?: string) => {
       if (!daoInfo?.total_staked) return '0'
       const totalStakedKNC = daoInfo.total_staked
-      const votingPower = (parseFloat(kncAmount) / totalStakedKNC) * 100
+      if (parseFloat(totalStakedKNC) === 0) return '0'
+
+      const votingPower = newStakingAmount
+        ? ((parseFloat(kncAmount) + parseFloat(newStakingAmount)) / (totalStakedKNC + parseFloat(newStakingAmount))) *
+          100
+        : (parseFloat(kncAmount) / totalStakedKNC) * 100
       if (votingPower === 0) return '0'
       if (votingPower < 0.000001) {
         return '0.000001'
@@ -336,7 +341,10 @@ export function useVotingInfo() {
     [daoInfo],
   )
 
-  const { data: votesInfo } = useSWR<VoteInfo[]>(account ? APIS.DAO + '/stakers/' + account + '/votes' : null, fetcher)
+  const { data: votesInfo } = useSWR<VoteInfo[]>(
+    account ? kyberDaoInfo?.daoStatsApi + '/stakers/' + account + '/votes' : null,
+    fetcher,
+  )
 
   return {
     daoInfo: daoInfo || localStoredDaoInfo || undefined,
@@ -351,6 +359,11 @@ export function useVotingInfo() {
 }
 
 export function useProposalInfoById(id?: number): { proposalInfo?: ProposalDetail } {
-  const { data } = useSWRImmutable(id !== undefined ? APIS.DAO + '/proposals/' + id : undefined, fetcher, {})
+  const kyberDaoInfo = useKyberDAOInfo()
+  const { data } = useSWRImmutable(
+    id !== undefined ? kyberDaoInfo?.daoStatsApi + '/proposals/' + id : undefined,
+    fetcher,
+    {},
+  )
   return { proposalInfo: data }
 }

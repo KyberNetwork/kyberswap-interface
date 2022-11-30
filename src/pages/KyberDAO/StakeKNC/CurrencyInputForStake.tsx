@@ -4,6 +4,7 @@ import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import Wallet from 'components/Icons/Wallet'
+import Input from 'components/NumericalInput'
 import { AutoRow, RowBetween } from 'components/Row'
 import useTheme from 'hooks/useTheme'
 import useTokenBalance from 'hooks/useTokenBalance'
@@ -11,7 +12,7 @@ import { useKNCPrice } from 'state/application/hooks'
 import { getTokenLogoURL } from 'utils'
 import { getFullDisplayBalance } from 'utils/formatBalance'
 
-import { CurrencyInput, KNCLogoWrapper, SmallButton } from './StakeKNCComponent'
+import { KNCLogoWrapper, SmallButton } from './StakeKNCComponent'
 
 const InnerCard = styled.div`
   border-radius: 16px;
@@ -69,12 +70,7 @@ export default function CurrencyInputForStake({
         </AutoRow>
       </RowBetween>
       <RowBetween>
-        <CurrencyInput
-          type="number"
-          value={value}
-          disabled={disabled}
-          onChange={(e: any) => setValue(e.target.value)}
-        />
+        <Input value={value} onUserInput={setValue} disabled={disabled} />
         <span style={{ color: theme.border, fontSize: '14px', marginRight: '6px' }}>~${kncValueInUsd}</span>
         <KNCLogoWrapper>
           <img src={`${getTokenLogoURL(tokenAddress, ChainId.MAINNET)}`} alt="knc-logo" width="24px" height="24px" />

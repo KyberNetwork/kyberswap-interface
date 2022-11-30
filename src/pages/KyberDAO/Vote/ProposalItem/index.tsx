@@ -9,7 +9,7 @@ import styled, { css } from 'styled-components'
 
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import LaunchIcon from 'components/Icons/LaunchIcon'
-import { RowBetween, RowFit, RowFixed } from 'components/Row'
+import Row, { RowBetween, RowFit, RowFixed } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import { useVotingInfo } from 'hooks/kyberdao'
 import { ProposalDetail, ProposalStatus, ProposalType } from 'hooks/kyberdao/types'
@@ -110,6 +110,7 @@ const Content = styled.div<{ show?: boolean }>`
   transition: all 0.2s ease;
   z-index: 0;
   display: flex;
+  flex-direction: column;
   gap: 20px;
   ${({ show }) =>
     show
@@ -290,30 +291,33 @@ export default function ProposalItem({
         </RowBetween>
       </ProposalHeader>
       <Content ref={contentRef as any} show={show}>
-        <div style={{ flex: 1 }}>
-          <ExternalLink href={proposal.link} style={{ marginBottom: '12px' }}>
-            <RowFit gap="4px">
-              <LaunchIcon size={14} />
-              <Text fontSize={14}>
-                <Trans>Github</Trans>
-              </Text>
-            </RowFit>
-          </ExternalLink>
-          <Text
-            fontSize={isMobile ? 14 : 16}
-            lineHeight={isMobile ? '18px' : '22px'}
-            color={theme.subText}
-            marginBottom="20px"
-            dangerouslySetInnerHTML={{ __html: proposal.desc.replaceAll('\\n', '').replaceAll('\\r', '') }}
-          ></Text>
-          {isMobile && <VoteInformation proposal={proposal} />}
-          <Participants proposalId={show ? proposal.proposal_id : undefined} />
-        </div>
-        {!isMobile && (
-          <div style={{ width: '368px' }}>
-            <VoteInformation proposal={proposal} />
+        <Row align="flex-start">
+          <div style={{ flex: 1 }}>
+            <ExternalLink href={proposal.link} style={{ marginBottom: '12px' }}>
+              <RowFit gap="4px">
+                <LaunchIcon size={14} />
+                <Text fontSize={14}>
+                  <Trans>Github</Trans>
+                </Text>
+              </RowFit>
+            </ExternalLink>
+            <Text
+              fontSize={isMobile ? 14 : 16}
+              lineHeight={isMobile ? '18px' : '22px'}
+              color={theme.subText}
+              marginBottom="20px"
+              dangerouslySetInnerHTML={{ __html: proposal.desc.replaceAll('\\n', '').replaceAll('\\r', '') }}
+              style={{ wordBreak: 'break-word' }}
+            ></Text>
+            {isMobile && <VoteInformation proposal={proposal} />}
           </div>
-        )}
+          {!isMobile && (
+            <div style={{ width: '368px' }}>
+              <VoteInformation proposal={proposal} />
+            </div>
+          )}
+        </Row>
+        <Participants proposalId={show ? proposal.proposal_id : undefined} />
       </Content>
       {proposal.status === ProposalStatus.Active && (
         <VoteConfirmModal

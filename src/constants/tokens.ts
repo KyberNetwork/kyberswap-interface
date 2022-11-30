@@ -389,13 +389,9 @@ export const WBTC_ARBITRUM = new Token(
   'Wrapped BTC',
 )
 
-//export const KNC_ADDRESS = '0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202'
-//TODO: Diep change back later
 export const KNC_ADDRESS = '0xd19e5119Efc73FeA1e70f9fbbc105DaB89D914e4'
-// export const KNCL_ADDRESS = '0xdd974D5C2e2928deA5F71b9825b8b646686BD200'
 export const KNCL_ADDRESS = '0x03010458f00F1B9fEb6Ad5d67A065971126fBBc1'
 export const KNCL_ADDRESS_ROPSTEN = '0x7b2810576aa1cce68f2b118cef1f36467c648f92'
-export const KNCL_ADDRESS_GOERLI = '0x03010458f00F1B9fEb6Ad5d67A065971126fBBc1'
 
 // todo: make it nullable
 export const KNC: { [chainId in ChainId]: Token } = {

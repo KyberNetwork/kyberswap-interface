@@ -28,7 +28,7 @@ export const useSwitchToEthereum = () => {
     switchToEthereum: useCallback(
       () =>
         new Promise(async (resolve: any, reject: any) => {
-          if (chainId === ChainId.GÖRLI) {
+          if ([ChainId.GÖRLI, ChainId.MAINNET].includes(chainId)) {
             resolve()
           } else {
             reject()
@@ -49,8 +49,8 @@ export default function SwitchToEthereumModal({ featureText }: { featureText: st
   const changeNetwork = useChangeNetwork()
 
   const handleChangeToEthereum = useCallback(async () => {
-    if (chainId !== ChainId.GÖRLI) {
-      await changeNetwork(ChainId.GÖRLI)
+    if (![ChainId.GÖRLI, ChainId.MAINNET].includes(chainId)) {
+      await changeNetwork(ChainId.MAINNET)
       toggleModal()
     }
   }, [changeNetwork, toggleModal, chainId])

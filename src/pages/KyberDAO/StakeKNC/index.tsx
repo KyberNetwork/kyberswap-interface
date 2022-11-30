@@ -2,7 +2,7 @@ import { Trans } from '@lingui/macro'
 import { isMobile } from 'react-device-detect'
 import { useHistory } from 'react-router-dom'
 import { Text } from 'rebass'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 import bgimg from 'assets/images/about_background.png'
 import governancePNG from 'assets/images/kyberdao/governance.png'
@@ -101,6 +101,19 @@ const CardInfo = styled.div`
   flex: 1;
 `
 
+const MigrateButton = styled(ButtonOutlined)`
+  :hover {
+    box-shadow: none;
+    ${({ theme }) => css`
+      border-color: ${theme.primary};
+      color: ${theme.primary};
+    `};
+  }
+  :active {
+    box-shadow: 0 0 0 1px ${({ theme }) => theme.primary};
+  }
+`
+
 export default function StakeKNC() {
   const theme = useTheme()
   const toggleMigrationModal = useToggleModal(ApplicationModal.MIGRATE_KNC)
@@ -167,9 +180,9 @@ export default function StakeKNC() {
                 <Trans>Migrate your KNCL tokens to KNC</Trans>
               </Text>
             </CardInfo>
-            <ButtonOutlined onClick={toggleMigrationModal} width="120px" height="44px">
+            <MigrateButton onClick={toggleMigrationModal} width="120px" height="44px">
               Migrate
-            </ButtonOutlined>
+            </MigrateButton>
           </Card>
           <Card>
             <Image src={kyberdaoPNG} alt="KyberDAO v1" />
