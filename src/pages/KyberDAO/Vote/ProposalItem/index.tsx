@@ -65,6 +65,13 @@ const Badged = css`
   justify-content: center;
   border-radius: 10px;
 `
+const IDBadged = styled.div`
+  ${Badged}
+  font-size: 12px;
+  padding: 2px 14px;
+  color: ${({ theme }) => theme.subText};
+  background-color: ${({ theme }) => theme.buttonBlack};
+`
 
 const StatusBadged = styled.div<{ status?: string }>`
   ${Badged}
@@ -227,6 +234,7 @@ export default function ProposalItem({
         return 'error'
       case ProposalStatus.Executed:
       case ProposalStatus.Succeeded:
+      case ProposalStatus.Finalized:
         return 'success'
       default:
         return 'pending'
@@ -241,12 +249,13 @@ export default function ProposalItem({
   }, [switchToEthereum, toggleVoteModal, selectedOptions])
 
   const handleVoteConfirm = useCallback(() => {
+    toggleVoteModal()
     selectedOptions.length > 0 &&
       voteCallback?.(
         proposal.proposal_id,
         selectedOptions.map(i => i + 1).reduce((acc, item) => (acc += 1 << (item - 1)), 0),
       )
-  }, [selectedOptions, proposal.proposal_id, voteCallback])
+  }, [selectedOptions, proposal.proposal_id, voteCallback, toggleVoteModal])
 
   const votedOfCurrentProposal = useMemo(
     () => votesInfo?.find(v => v.proposal_id === proposal.proposal_id),
@@ -326,7 +335,7 @@ export default function ProposalItem({
             <StatusBadged status={statusType()} onClick={() => onBadgeClick?.(proposal.status)}>
               {proposal.status}
             </StatusBadged>
-            <StatusBadged>ID #{proposal.proposal_id}</StatusBadged>
+            <IDBadged>ID #{proposal.proposal_id}</IDBadged>
           </RowFit>
         )}
         {(show || isActive) && renderVotes}
@@ -343,7 +352,7 @@ export default function ProposalItem({
               <StatusBadged status={statusType()} onClick={() => onBadgeClick?.(proposal.status)}>
                 {proposal.status}
               </StatusBadged>
-              <StatusBadged>ID #{proposal.proposal_id}</StatusBadged>
+              <IDBadged>ID #{proposal.proposal_id}</IDBadged>
             </RowFixed>
           )}
         </RowBetween>

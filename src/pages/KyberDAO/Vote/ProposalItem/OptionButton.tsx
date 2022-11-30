@@ -68,7 +68,7 @@ const ChoosingProgress = styled.div<{ width: number }>`
   left: 0;
   bottom: 0;
   border-radius: 4px;
-  width: ${({ width }) => width || 0}%;
+  width: 100%;
   background-color: ${({ theme }) => theme.darkerGreen};
   z-index: 0;
   ::after {

@@ -17,6 +17,7 @@ import Modal from 'components/Modal'
 import Pagination from 'components/Pagination'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { KNC_ADDRESS } from 'constants/tokens'
+import { useActiveWeb3React } from 'hooks'
 import { useStakingInfo, useVotingInfo } from 'hooks/kyberdao'
 import { ActionType, ProposalType, StakerAction } from 'hooks/kyberdao/types'
 import useCopyClipboard from 'hooks/useCopyClipboard'
@@ -99,6 +100,7 @@ const ButtonIcon = styled.div`
 `
 export default function YourTransactionsModal() {
   const theme = useTheme()
+  const { chainId } = useActiveWeb3React()
   const { proposals, calculateVotingPower } = useVotingInfo()
   const modalOpen = useModalOpen(ApplicationModal.YOUR_TRANSACTIONS_STAKE_KNC)
   const toggleModal = useToggleModal(ApplicationModal.YOUR_TRANSACTIONS_STAKE_KNC)
@@ -219,7 +221,13 @@ export default function YourTransactionsModal() {
                           <ButtonIcon onClick={() => setCopied(action.tx_hash)}>
                             <CopyIcon />
                           </ButtonIcon>
-                          <ExternalLink href={getEtherscanLink(1, action.tx_hash, 'transaction')}>
+                          <ExternalLink
+                            href={getEtherscanLink(
+                              chainId === ChainId.GÖRLI ? ChainId.GÖRLI : ChainId.MAINNET,
+                              action.tx_hash,
+                              'transaction',
+                            )}
+                          >
                             <LaunchIcon />
                           </ExternalLink>
                         </TableCell>
