@@ -53,8 +53,11 @@ export function useSyncNetworkParamWithStore() {
     /**
      * Sync network route param with current active network, only after eager tried
      */
-    if (networkInfo.route !== params?.network && !isOnInit.current && triedEager) {
-      navigate({ ...location, pathname: location.pathname + '/' + networkInfo.route }, { replace: true })
+    if (params.network && networkInfo.route !== params?.network && !isOnInit.current && triedEager) {
+      navigate(
+        { ...location, pathname: location.pathname.replace(params.network, networkInfo.route) },
+        { replace: true },
+      )
     }
   }, [location, networkInfo.route, navigate, triedEager, params?.network])
 }

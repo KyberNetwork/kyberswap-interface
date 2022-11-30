@@ -175,7 +175,9 @@ const FarmCard = ({
             </Text>
 
             {pool.startTime > currentTimestamp ? (
-              <Trans>New phase will start in</Trans>
+              <Text color={theme.warning}>
+                <Trans>New phase will start in</Trans>
+              </Text>
             ) : pool.endTime > currentTimestamp ? (
               <Trans>Current phase will end in</Trans>
             ) : TOBE_EXTENDED_FARMING_POOLS.includes(pool.poolAddress.toLowerCase()) ? (
@@ -188,7 +190,7 @@ const FarmCard = ({
           <Flex justifyContent="space-between" marginTop="4px" fontSize="16px" fontWeight="500" marginBottom="16px">
             <Text fontWeight="500">{formatDollarAmount(pool.tvl)}</Text>
             {pool.startTime > currentTimestamp ? (
-              <>{getFormattedTimeFromSecond(pool.startTime - currentTimestamp)}</>
+              <Text color={theme.warning}>{getFormattedTimeFromSecond(pool.startTime - currentTimestamp)}</Text>
             ) : pool.endTime > currentTimestamp ? (
               <>{getFormattedTimeFromSecond(pool.endTime - currentTimestamp)}</>
             ) : TOBE_EXTENDED_FARMING_POOLS.includes(pool.poolAddress.toLowerCase()) ? (
