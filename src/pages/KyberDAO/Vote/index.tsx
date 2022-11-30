@@ -159,22 +159,25 @@ export default function Vote() {
 
   const handleVote = useCallback(
     async (proposal_id: number, option: number) => {
-      setPendingText(t`Vote submitting`)
-      setShowConfirm(true)
-      setAttemptingTxn(true)
-      vote(proposal_id, option)
-        .then(tx => {
-          setAttemptingTxn(false)
-          setTxHash(tx)
-        })
-        .catch(error => {
-          console.log(error)
-          setShowConfirm(false)
-          setAttemptingTxn(false)
-          setTxHash(undefined)
-        })
+      // only can vote when user has staked amount
+      if (!!stakerInfo?.stake_amount) {
+        setPendingText(t`Vote submitting`)
+        setShowConfirm(true)
+        setAttemptingTxn(true)
+        vote(proposal_id, option)
+          .then(tx => {
+            setAttemptingTxn(false)
+            setTxHash(tx)
+          })
+          .catch(error => {
+            console.log(error)
+            setShowConfirm(false)
+            setAttemptingTxn(false)
+            setTxHash(undefined)
+          })
+      }
     },
-    [vote],
+    [vote, stakerInfo?.stake_amount],
   )
 
   return (

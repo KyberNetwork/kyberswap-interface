@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { transparentize } from 'polished'
-import React, { useCallback, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { ChevronDown } from 'react-feather'
 import { Text } from 'rebass'
@@ -20,9 +20,9 @@ import { useToggleModal, useWalletModalToggle } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
 
 import VoteConfirmModal from '../VoteConfirmModal'
+import OptionButton from './OptionButton'
 import Participants from './Participants'
 import VoteInformation from './VoteInformation'
-import VoteProgress from './VoteProgress'
 
 const ProposalItemWrapper = styled.div`
   padding: ${isMobile ? '16px' : '20px 24px'};
@@ -125,7 +125,41 @@ const Content = styled.div<{ show?: boolean }>`
         `}
 `
 
-const VoteButton = ({ status, onVoteClick }: { status: string; onVoteClick: () => void }) => {
+const OptionsWrapper = styled(RowBetween)<{ optionCount?: number }>`
+  ${({ optionCount, theme }) => {
+    if (optionCount && optionCount > 2) {
+      return css`
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        > * {
+          width: calc(25% - 20px * 3 / 4);
+        }
+        ${theme.mediaWidth.upToMedium`
+          > * {
+            width: calc(50% - 20px / 2);
+          }
+        `}
+        ${theme.mediaWidth.upToSmall`
+          > * {
+            width: 100%;
+          }
+        `}
+      `
+    }
+
+    return ''
+  }}
+`
+
+const VoteButton = ({
+  status,
+  onVoteClick,
+  errorMessage,
+}: {
+  status: string
+  onVoteClick: () => void
+  errorMessage: string | null
+}) => {
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
 
@@ -133,8 +167,14 @@ const VoteButton = ({ status, onVoteClick }: { status: string; onVoteClick: () =
     <>
       {status === ProposalStatus.Active ? (
         account ? (
-          <ButtonPrimary width={isMobile ? '100%' : '200px'} fontWeight={500} fontSize="14px" onClick={onVoteClick}>
-            <Trans>Vote Now</Trans>
+          <ButtonPrimary
+            width={isMobile ? '100%' : '200px'}
+            fontWeight={500}
+            fontSize="14px"
+            onClick={onVoteClick}
+            disabled={!!errorMessage}
+          >
+            {errorMessage ? errorMessage : <Trans>Vote now</Trans>}
           </ButtonPrimary>
         ) : (
           <ButtonLight width={isMobile ? '100%' : '200px'} onClick={toggleWalletModal}>
@@ -160,10 +200,23 @@ export default function ProposalItem({
   voteCallback?: (proposal_id: number, option: number) => void
 }) {
   const theme = useTheme()
-  const { votesInfo } = useVotingInfo()
+  const { votesInfo, stakerInfo } = useVotingInfo()
 
   const [show, setShow] = useState(!!showByDefault)
   const [selectedOptions, setSelectedOptions] = useState<number[]>([])
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (selectedOptions.length === 0) {
+      setErrorMessage('Not selected option')
+    }
+    if (!stakerInfo?.stake_amount) {
+      setErrorMessage('You dont have voting power')
+    } else {
+      setErrorMessage(null)
+    }
+  }, [selectedOptions.length, stakerInfo?.stake_amount])
+
   const contentRef = useRef<any>()
   const statusType = () => {
     switch (proposal.status) {
@@ -183,12 +236,12 @@ export default function ProposalItem({
   const { switchToEthereum } = useSwitchToEthereum()
   const handleVote = useCallback(() => {
     switchToEthereum().then(() => {
-      selectedOptions !== undefined && toggleVoteModal()
+      selectedOptions.length > 0 && toggleVoteModal()
     })
   }, [switchToEthereum, toggleVoteModal, selectedOptions])
 
   const handleVoteConfirm = useCallback(() => {
-    selectedOptions !== undefined &&
+    selectedOptions.length > 0 &&
       voteCallback?.(
         proposal.proposal_id,
         selectedOptions.map(i => i + 1).reduce((acc, item) => (acc += 1 << (item - 1)), 0),
@@ -222,13 +275,20 @@ export default function ProposalItem({
     },
     [proposal.proposal_type, setSelectedOptions, selectedOptions],
   )
+  const isActive = proposal.status === ProposalStatus.Active
+
   const renderVotes = useMemo(() => {
     return (
-      <RowBetween gap={isMobile ? '16px' : '20px'} flexDirection={isMobile ? 'column' : 'row'}>
+      <OptionsWrapper
+        gap={isMobile ? '16px' : '20px'}
+        flexDirection={isMobile ? 'column' : 'row'}
+        optionCount={proposal.options.length}
+      >
         {proposal.options.map((option: string, index: number) => {
           const voted = votedOfCurrentProposal?.options?.includes(index) || false
           return (
-            <VoteProgress
+            <OptionButton
+              disabled={!isActive}
               key={option}
               percent={
                 proposal?.vote_stats?.options?.[index]
@@ -236,18 +296,16 @@ export default function ProposalItem({
                   : 0
               }
               title={option}
-              checked={selectedOptions?.includes(index)}
+              checked={selectedOptions?.includes(index) || voted}
               onOptionClick={() => handleOptionClick(index)}
               type={selectedOptions?.includes(index) ? 'Choosing' : voted ? 'Active' : 'Finished'}
               isCheckBox={proposal.proposal_type === ProposalType.GenericProposal}
             />
           )
         })}
-      </RowBetween>
+      </OptionsWrapper>
     )
-  }, [proposal, selectedOptions, votedOfCurrentProposal?.options, handleOptionClick])
-
-  const isActive = proposal.status === ProposalStatus.Active
+  }, [proposal, selectedOptions, votedOfCurrentProposal?.options, handleOptionClick, isActive])
 
   return (
     <ProposalItemWrapper>
@@ -274,7 +332,7 @@ export default function ProposalItem({
         {(show || isActive) && renderVotes}
         <RowBetween>
           {isActive ? (
-            <VoteButton status={proposal.status} onVoteClick={handleVote} />
+            <VoteButton status={proposal.status} onVoteClick={handleVote} errorMessage={errorMessage} />
           ) : (
             <Text color={theme.subText} fontSize={12}>
               Ended {dayjs(proposal.end_timestamp * 1000).format('DD MMM YYYY')}
@@ -291,9 +349,9 @@ export default function ProposalItem({
         </RowBetween>
       </ProposalHeader>
       <Content ref={contentRef as any} show={show}>
-        <Row align="flex-start">
+        <Row align="flex-start" gap="16px">
           <div style={{ flex: 1 }}>
-            <ExternalLink href={proposal.link} style={{ marginBottom: '12px' }}>
+            <ExternalLink href={proposal.link} style={{ marginBottom: '12px', width: 'fit-content' }}>
               <RowFit gap="4px">
                 <LaunchIcon size={14} />
                 <Text fontSize={14}>

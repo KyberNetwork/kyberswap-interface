@@ -6,19 +6,33 @@ import RadioButtonChecked from 'components/Icons/RadioButtonChecked'
 import RadioButtonUnchecked from 'components/Icons/RadioButtonUnchecked'
 import { RowBetween, RowFit } from 'components/Row'
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ type?: 'Finished' | 'Active' | 'Choosing'; disabled?: boolean }>`
   border-radius: 4px;
   overflow: hidden;
   position: relative;
-  height: 36px;
+  min-height: 36px;
   width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 10px;
+  user-select: none;
   ${({ theme }) => css`
     background-color: ${theme.buttonBlack};
   `};
+
+  ${({ disabled }) => {
+    if (!disabled) {
+      return css`
+        cursor: pointer;
+
+        :hover {
+          filter: brightness(1.1);
+        }
+      `
+    }
+    return ''
+  }}
 `
 const move = keyframes`
   0% {
@@ -78,13 +92,14 @@ const ChoosingProgress = styled.div<{ width: number }>`
     animation: ${move} 1.5s linear infinite;
   }
 `
-export default function VoteProgress({
+export default function OptionButton({
   checked,
   percent = 40,
   title,
   type = 'Finished',
   onOptionClick,
   isCheckBox,
+  disabled,
 }: {
   checked?: boolean
   percent?: number
@@ -92,25 +107,28 @@ export default function VoteProgress({
   type?: 'Finished' | 'Active' | 'Choosing'
   onOptionClick?: () => void
   isCheckBox: boolean
+  disabled?: boolean
 }) {
   const parsedPercent = parseFloat(percent.toFixed(2) || '0')
   return (
-    <Wrapper>
-      <div onClick={onOptionClick} style={{ zIndex: 4, width: '100%' }}>
+    <Wrapper onClick={() => !disabled && onOptionClick?.()} disabled={disabled} type={type}>
+      <div style={{ zIndex: 4, width: '100%' }}>
         <RowBetween style={{ zIndex: 1 }} alignItems="center">
-          <RowFit gap="5px" style={{ fontSize: '12px', cursor: type !== 'Finished' ? 'pointer' : 'default' }}>
-            {isCheckBox ? (
-              checked ? (
-                <CheckSquare size={18} />
+          <RowFit gap="5px" style={{ fontSize: '12px' }}>
+            <span style={{ width: '18px' }}>
+              {isCheckBox ? (
+                checked ? (
+                  <CheckSquare size={18} />
+                ) : (
+                  <Square size={18} />
+                )
+              ) : checked ? (
+                <RadioButtonChecked />
               ) : (
-                <Square size={18} />
-              )
-            ) : checked ? (
-              <RadioButtonChecked />
-            ) : (
-              <RadioButtonUnchecked />
-            )}{' '}
-            {title}
+                <RadioButtonUnchecked />
+              )}{' '}
+            </span>
+            <Text>{title}</Text>
           </RowFit>
           <Text fontSize="12px">{parsedPercent}%</Text>
         </RowBetween>

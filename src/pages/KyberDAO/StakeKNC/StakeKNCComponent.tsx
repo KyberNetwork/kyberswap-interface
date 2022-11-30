@@ -224,7 +224,6 @@ export default function StakeKNCComponent() {
       setErrorMessage(t`Invalid amount`)
       return
     }
-
     if (!inputValue || isNaN(parseFloat(inputValue)) || parseFloat(inputValue) <= 0) {
       setErrorMessage(t`Invalid amount`)
     } else if (
@@ -279,6 +278,7 @@ export default function StakeKNCComponent() {
             .catch(() => {
               setAttemptingTxn(false)
               setTxHash(undefined)
+              setShowConfirm(false)
             })
         } else {
           toggleApproveModal()
@@ -301,6 +301,7 @@ export default function StakeKNCComponent() {
             })
             .catch(() => {
               setAttemptingTxn(false)
+              setShowConfirm(false)
             })
         } else {
           toggleApproveModal()
@@ -314,7 +315,10 @@ export default function StakeKNCComponent() {
       .then(() => {
         toggleDelegateConfirm()
       })
-      .catch(() => setFeatureText(t`Delegate`))
+      .catch(() => {
+        setFeatureText(t`Delegate`)
+        setShowConfirm(false)
+      })
   }
 
   const onDelegateConfirmed = useCallback(() => {

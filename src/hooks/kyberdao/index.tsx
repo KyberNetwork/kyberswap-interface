@@ -47,14 +47,14 @@ export function useKyberDaoStakeActions() {
           gasLimit: calculateGasMargin(estimateGas),
         })
         addTransactionWithType({
-          hash: tx,
+          hash: tx.hash,
           type: TRANSACTION_TYPE.KYBERDAO_STAKE,
           summary: t`You have successfully staked to KyberDAO`,
           arbitrary: { amount: formatUnits(amount) },
         })
         return tx.hash
       } catch (error) {
-        console.log('Stake error:', error.message)
+        throw error
       }
     },
     [addTransactionWithType, stakingContract],
@@ -69,7 +69,7 @@ export function useKyberDaoStakeActions() {
         gasLimit: calculateGasMargin(estimateGas),
       })
       addTransactionWithType({
-        hash: tx,
+        hash: tx.hash,
         type: TRANSACTION_TYPE.KYBERDAO_UNSTAKE,
         summary: t`You have successfully unstaked from KyberDAO`,
         arbitrary: { amount: formatUnits(amount) },
@@ -89,13 +89,13 @@ export function useKyberDaoStakeActions() {
           gasLimit: calculateGasMargin(estimateGas),
         })
         addTransactionWithType({
-          hash: tx,
+          hash: tx.hash,
           type: TRANSACTION_TYPE.MIGRATE,
           summary: `KyberDAO`,
         })
         return tx.hash
       } catch (error) {
-        console.error('Migrate error: ', error.message)
+        throw error
       }
     },
     [addTransactionWithType, migrateContract],
@@ -105,16 +105,20 @@ export function useKyberDaoStakeActions() {
       if (!stakingContract) {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }
-      const estimateGas = await stakingContract.estimateGas.delegate(address)
-      const tx = await stakingContract.delegate(address, {
-        gasLimit: calculateGasMargin(estimateGas),
-      })
-      addTransactionWithType({
-        hash: tx,
-        type: TRANSACTION_TYPE.KYBERDAO_DELEGATE,
-        summary: t`You have successfully delegated voting power to ${address.slice(0, 6)}...${address.slice(-4)}`,
-      })
-      return tx.hash
+      try {
+        const estimateGas = await stakingContract.estimateGas.delegate(address)
+        const tx = await stakingContract.delegate(address, {
+          gasLimit: calculateGasMargin(estimateGas),
+        })
+        addTransactionWithType({
+          hash: tx.hash,
+          type: TRANSACTION_TYPE.KYBERDAO_DELEGATE,
+          summary: t`You have successfully delegated voting power to ${address.slice(0, 6)}...${address.slice(-4)}`,
+        })
+        return tx.hash
+      } catch (error) {
+        throw error
+      }
     },
     [addTransactionWithType, stakingContract],
   )
@@ -124,16 +128,20 @@ export function useKyberDaoStakeActions() {
       if (!stakingContract) {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }
-      const estimateGas = await stakingContract.estimateGas.delegate(address)
-      const tx = await stakingContract.delegate(address, {
-        gasLimit: calculateGasMargin(estimateGas),
-      })
-      addTransactionWithType({
-        hash: tx,
-        type: TRANSACTION_TYPE.KYBERDAO_UNDELEGATE,
-        summary: t`You have successfully undelegated your voting power`,
-      })
-      return tx.hash
+      try {
+        const estimateGas = await stakingContract.estimateGas.delegate(address)
+        const tx = await stakingContract.delegate(address, {
+          gasLimit: calculateGasMargin(estimateGas),
+        })
+        addTransactionWithType({
+          hash: tx.hash,
+          type: TRANSACTION_TYPE.KYBERDAO_UNDELEGATE,
+          summary: t`You have successfully undelegated your voting power`,
+        })
+        return tx.hash
+      } catch (error) {
+        throw error
+      }
     },
     [addTransactionWithType, stakingContract],
   )
@@ -158,34 +166,46 @@ export function useClaimRewardActions() {
       if (!rewardDistributorContract) {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }
-      const isValidClaim = await rewardDistributorContract.isValidClaim(
-        cycle,
-        index,
-        address,
-        tokens,
-        cumulativeAmounts,
-        merkleProof,
-      )
-      if (!isValidClaim) {
-        throw new Error('Invalid claim')
+      try {
+        const isValidClaim = await rewardDistributorContract.isValidClaim(
+          cycle,
+          index,
+          address,
+          tokens,
+          cumulativeAmounts,
+          merkleProof,
+        )
+        if (!isValidClaim) {
+          throw new Error('Invalid claim')
+        }
+        const estimateGas = await rewardDistributorContract.estimateGas.claim(
+          cycle,
+          index,
+          address,
+          tokens,
+          cumulativeAmounts,
+          merkleProof,
+        )
+        const tx = await rewardDistributorContract.claim(
+          cycle,
+          index,
+          address,
+          tokens,
+          cumulativeAmounts,
+          merkleProof,
+          {
+            gasLimit: calculateGasMargin(estimateGas),
+          },
+        )
+        addTransactionWithType({
+          hash: tx.hash,
+          type: TRANSACTION_TYPE.KYBERDAO_CLAIM,
+          summary: t`Claimed reward successful`,
+        })
+        return tx.hash
+      } catch (error) {
+        throw error
       }
-      const estimateGas = await rewardDistributorContract.estimateGas.claim(
-        cycle,
-        index,
-        address,
-        tokens,
-        cumulativeAmounts,
-        merkleProof,
-      )
-      const tx = await rewardDistributorContract.claim(cycle, index, address, tokens, cumulativeAmounts, merkleProof, {
-        gasLimit: calculateGasMargin(estimateGas),
-      })
-      addTransactionWithType({
-        hash: tx,
-        type: TRANSACTION_TYPE.KYBERDAO_CLAIM,
-        summary: t`Claimed reward successful`,
-      })
-      return tx.hash
     },
     [rewardDistributorContract, addTransactionWithType],
   )
@@ -202,17 +222,20 @@ export const useVotingActions = () => {
       if (!daoContract) {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }
-
-      const estimateGas = await daoContract.estimateGas.submitVote(campId, option)
-      const tx = await daoContract.submitVote(campId, option, {
-        gasLimit: calculateGasMargin(estimateGas),
-      })
-      addTransactionWithType({
-        hash: tx,
-        type: TRANSACTION_TYPE.KYBERDAO_VOTE,
-        summary: t`Voted successful`,
-      })
-      return tx.hash
+      try {
+        const estimateGas = await daoContract.estimateGas.submitVote(campId, option)
+        const tx = await daoContract.submitVote(campId, option, {
+          gasLimit: calculateGasMargin(estimateGas),
+        })
+        addTransactionWithType({
+          hash: tx.hash,
+          type: TRANSACTION_TYPE.KYBERDAO_VOTE,
+          summary: t`Voted successful`,
+        })
+        return tx.hash
+      } catch (error) {
+        throw error
+      }
     },
     [daoContract, addTransactionWithType],
   )
