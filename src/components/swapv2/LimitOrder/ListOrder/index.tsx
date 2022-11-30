@@ -234,13 +234,13 @@ function SummaryNotify({ type, message, order }: { type?: LimitOrderStatus; mess
     case LimitOrderStatus.EXPIRED:
       msg = (
         <Trans>
-          Your order to pay {mainMsg} has expired{' '}
-          {!!filledPercent && (
+          Your order to pay {mainMsg} has expired.
+          {filledPercent ? (
             <>
               <br />
               Your order was {filledPercent}% filled
             </>
-          )}
+          ) : null}
         </Trans>
       )
       break
