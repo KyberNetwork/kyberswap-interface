@@ -164,7 +164,8 @@ const Networks = ({
 
   return (
     <NetworkList width={width} mt={mt} mb={mb}>
-      {MAINNET_NETWORKS.map((key: ChainId, i: number) => {
+      {[...MAINNET_NETWORKS, ChainId.GÖRLI].map((key: ChainId, i: number) => {
+        // todo remove when release
         const { iconDark, icon, iconDarkSelected, iconSelected, name } = NETWORKS_INFO[key]
         const disabled = !isAcceptedTerm || (activeChainIds ? !activeChainIds?.includes(key) : false)
         const selected = selectedId === key

@@ -1,4 +1,4 @@
-import { Redirect, RouteComponentProps } from 'react-router-dom'
+import { Redirect, RouteComponentProps, useLocation } from 'react-router-dom'
 
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -6,5 +6,13 @@ import { useActiveWeb3React } from 'hooks'
 // Redirects to swap but only replace the pathname
 export function RedirectPathToSwapNetwork({ location }: RouteComponentProps) {
   const { networkInfo } = useActiveWeb3React()
-  return <Redirect to={{ ...location, pathname: `${APP_PATHS.SWAP}/` + networkInfo.route }} />
+  const { pathname } = useLocation()
+  return (
+    <Redirect
+      to={{
+        ...location,
+        pathname: `${pathname.startsWith(APP_PATHS.SWAP) ? APP_PATHS.SWAP : APP_PATHS.LIMIT}/` + networkInfo.route,
+      }}
+    />
+  )
 }
