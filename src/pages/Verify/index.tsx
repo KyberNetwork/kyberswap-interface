@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import axios from 'axios'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -11,6 +11,7 @@ import { NOTIFICATION_API } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
+import { ExternalLink } from 'theme'
 
 const PageWrapper = styled.div`
   padding: 32px 50px;
@@ -48,48 +49,60 @@ function validateUrl(url: string) {
   } catch (error) {}
   return ''
 }
-
 function Verify() {
   const [status, setStatus] = useState(STATUS.VERIFYING)
+  const [isExpireError, setIsExpireError] = useState(false)
+  const [time, setTime] = useState(5)
   const qs = useParsedQueryString()
   const theme = useTheme()
-  const refTimeoutVerify = useRef<NodeJS.Timeout>()
-  const refTimeoutRedirect = useRef<NodeJS.Timeout>()
+  const refTimeoutCountDown = useRef<NodeJS.Timeout>()
   const history = useHistory()
-  const timeRedirect = 5
+
   const { pathname } = useLocation()
 
   const isVerifyExternal = pathname.startsWith(APP_PATHS.VERIFY_EXTERNAL)
   const redirectUrl = validateUrl(qs.redirectUrl as string)
 
-  useEffect(() => {
-    refTimeoutVerify.current = setTimeout(() => {
-      if (!qs?.confirmation) return
-      const apiUrl = `${NOTIFICATION_API}/v1/${isVerifyExternal ? 'external' : 'topics'}/verify`
-      axios
-        .get(apiUrl, {
-          params: { confirmation: qs.confirmation },
-        })
-        .then(() => {
-          setStatus(STATUS.SUCCESS)
-          refTimeoutRedirect.current = setTimeout(() => {
-            if (isVerifyExternal) {
-              if (redirectUrl) window.location.href = redirectUrl
-            } else {
-              history.push(APP_PATHS.SWAP)
-            }
-          }, timeRedirect * 1000)
-        })
-        .catch(e => {
-          console.error(e)
-          setStatus(STATUS.ERROR)
-        })
-    }, 500)
-    return () => {
-      refTimeoutVerify.current && clearTimeout(refTimeoutVerify.current)
-      refTimeoutRedirect.current && clearTimeout(refTimeoutRedirect.current)
+  const refTime = useRef(time)
+  refTime.current = time
+  const handleCountDown = useCallback(() => {
+    const time = refTime.current
+    if (time > 0) {
+      setTime(time => time - 1)
+      return
     }
-  }, [qs?.confirmation, history, isVerifyExternal, redirectUrl])
+    refTimeoutCountDown.current && clearInterval(refTimeoutCountDown.current)
+    if (isVerifyExternal) {
+      if (redirectUrl) window.location.href = redirectUrl
+    } else {
+      history.push(APP_PATHS.SWAP)
+    }
+  }, [history, isVerifyExternal, redirectUrl])
+
+  useEffect(() => {
+    return () => refTimeoutCountDown.current && clearInterval(refTimeoutCountDown.current)
+  }, [])
+
+  const calledApi = useRef(false)
+  useEffect(() => {
+    if (!qs?.confirmation || calledApi.current) return
+    calledApi.current = true
+    const apiUrl = `${NOTIFICATION_API}/v1/${isVerifyExternal ? 'external' : 'topics'}/verify`
+    axios
+      .get(apiUrl, {
+        params: { confirmation: qs.confirmation },
+      })
+      .then(() => {
+        setStatus(STATUS.SUCCESS)
+        refTimeoutCountDown.current = setInterval(handleCountDown, 1000)
+      })
+      .catch(e => {
+        const code = e?.response?.data?.code
+        console.error(e)
+        if (code === '4001' && isVerifyExternal) setIsExpireError(true)
+        setStatus(STATUS.ERROR)
+      })
+  }, [qs?.confirmation, history, isVerifyExternal, time, handleCountDown])
 
   const icon = (() => {
     switch (status) {
@@ -101,28 +114,45 @@ function Verify() {
         return <Loader size="23px" />
     }
   })()
+
+  const showDescription = status === STATUS.SUCCESS || isExpireError
   return (
     <PageWrapper>
       <Wrapper>
         <>
           <Flex alignItems="center">
             {icon}
-            <Title>
-              <Trans>{status}</Trans>
-            </Title>
+            <Title>{isExpireError ? <Trans>Your verification link has expired!</Trans> : status}</Title>
           </Flex>
-          {status === STATUS.SUCCESS && (
+          {showDescription && (
             <>
               <hr style={{ width: '100%', borderTop: `1px solid ${theme.border}`, borderBottom: 'none' }} />
               <Text as="p" color={theme.subText} lineHeight="20px" fontSize="14px">
-                <Trans>
-                  <Text fontWeight={'500'}>
-                    Your email have been verified {isVerifyExternal ? 'by KyberSwap.com' : null}.
-                  </Text>{' '}
-                  If it has been more than a few days and you still haven’t receive any notification yet, please contact
-                  us through our channels. You will be redirected to {isVerifyExternal ? redirectUrl : 'our Swap page'}{' '}
-                  after {timeRedirect}s.
-                </Trans>
+                {isExpireError ? (
+                  <Trans>
+                    This verification link has expired.
+                    <br /> Please return to your inbox to verify with the latest verification link. <br />
+                    Or <ExternalLink href={redirectUrl}>resend</ExternalLink> to have a new email sent to your
+                    registered address. <br />
+                    <br />
+                    <ExternalLink href="https://forms.gle/gLiNsi7iUzHws2BY8">Contact Us</ExternalLink> for further
+                    assistance
+                  </Trans>
+                ) : (
+                  <Trans>
+                    <Text fontWeight={'500'}>
+                      Your email have been verified{isVerifyExternal ? null : ' by KyberSwap.com.'}.
+                    </Text>{' '}
+                    If it has been more than a few days and you still haven’t receive any notification yet, please
+                    contact us through our channels. You will be redirected to{' '}
+                    {isVerifyExternal ? <ExternalLink href={redirectUrl}>{redirectUrl}</ExternalLink> : 'our Swap page'}{' '}
+                    after{' '}
+                    <Text as="span" fontWeight={'500'} color={theme.text}>
+                      {time}
+                    </Text>
+                    s.
+                  </Trans>
+                )}
               </Text>
               <Text as="p" color={theme.subText} fontSize="14px">
                 <Trans>KyberSwap team.</Trans>
