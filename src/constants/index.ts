@@ -334,4 +334,5 @@ export const APP_PATHS = {
   VERIFY: '/verify',
   KYBERDAO_STAKE: '/kyberdao/stake-knc',
   KYBERDAO_VOTE: '/kyberdao/vote',
+  VERIFY_EXTERNAL: '/verify-external',
 }
