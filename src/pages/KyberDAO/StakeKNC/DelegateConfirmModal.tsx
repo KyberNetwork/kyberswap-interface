@@ -7,7 +7,6 @@ import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
-import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
@@ -28,18 +27,18 @@ const AddressWrapper = styled.input`
 `
 export default function DelegateConfirmModal({
   address,
-  delegatedAccount,
+  isUndelegate,
+  delegatedAddress,
   onAddressChange,
   delegateCallback,
 }: {
   address: string
-  delegatedAccount?: string
+  isUndelegate?: boolean
+  delegatedAddress: string
   onAddressChange: (address: string) => void
   delegateCallback: () => void
 }) {
-  const { account } = useActiveWeb3React()
   const theme = useTheme()
-  const isDelegated = !!delegatedAccount && delegatedAccount !== account
   const modalOpen = useModalOpen(ApplicationModal.DELEGATE_CONFIRM)
   const toggleModal = useToggleModal(ApplicationModal.DELEGATE_CONFIRM)
 
@@ -48,13 +47,13 @@ export default function DelegateConfirmModal({
       <Wrapper>
         <AutoColumn gap="20px">
           <RowBetween>
-            <Text fontSize={20}>{isDelegated ? <Trans>Undelegate</Trans> : <Trans>Delegate</Trans>}</Text>
+            <Text fontSize={20}>{isUndelegate ? <Trans>Undelegate</Trans> : <Trans>Delegate</Trans>}</Text>
             <Flex sx={{ cursor: 'pointer' }} role="button" onClick={toggleModal}>
               <X onClick={toggleModal} size={20} color={theme.subText} />
             </Flex>
           </RowBetween>
           <Text fontSize={16} lineHeight="24px" color={theme.subText}>
-            {isDelegated ? (
+            {isUndelegate ? (
               <Trans>You are undelegating your voting power from this address</Trans>
             ) : (
               <Trans>
@@ -65,7 +64,7 @@ export default function DelegateConfirmModal({
           </Text>
           <AddressWrapper
             placeholder={t`Ethereum Address`}
-            value={isDelegated ? delegatedAccount : address}
+            value={isUndelegate ? delegatedAddress : address}
             onChange={e => onAddressChange(e.target.value)}
             disabled
           />

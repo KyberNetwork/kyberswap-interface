@@ -20,6 +20,7 @@ import { useKNCPrice, useToggleModal } from 'state/application/hooks'
 
 import KNCLogo from '../kncLogo'
 import StakeKNCComponent from './StakeKNCComponent'
+import { useSwitchToEthereum } from './SwitchToEthereumModal'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -117,8 +118,15 @@ const MigrateButton = styled(ButtonOutlined)`
 export default function StakeKNC() {
   const theme = useTheme()
   const toggleMigrationModal = useToggleModal(ApplicationModal.MIGRATE_KNC)
+  const { switchToEthereum } = useSwitchToEthereum()
   const kncPrice = useKNCPrice()
   const history = useHistory()
+
+  const handleMigrateClick = () => {
+    switchToEthereum().then(() => {
+      toggleMigrationModal()
+    })
+  }
   return (
     <Wrapper>
       <Container>
@@ -180,7 +188,7 @@ export default function StakeKNC() {
                 <Trans>Migrate your KNCL tokens to KNC</Trans>
               </Text>
             </CardInfo>
-            <MigrateButton onClick={toggleMigrationModal} width="120px" height="44px">
+            <MigrateButton onClick={handleMigrateClick} width="120px" height="44px">
               Migrate
             </MigrateButton>
           </Card>

@@ -127,7 +127,7 @@ export default function Vote() {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const { daoInfo, remainingCumulativeAmount, userRewards, stakerInfo } = useVotingInfo()
-  const { isDelegated, delegatedAccount } = useStakingInfo()
+  const { isDelegated, delegatedAddress } = useStakingInfo()
   const kncPrice = useKNCPrice()
   const { knc, usd } = useTotalVotingReward()
   const { claim } = useClaimRewardActions()
@@ -144,8 +144,13 @@ export default function Vote() {
   const [txHash, setTxHash] = useState<string | undefined>(undefined)
 
   const totalStakedAmount = stakerInfo ? stakerInfo?.stake_amount + stakerInfo?.pending_stake_amount : 0
+  const totalVotePowerAmount = stakerInfo
+    ? (stakerInfo.delegate.toLowerCase() === account?.toLowerCase() ? stakerInfo.stake_amount : 0) +
+      stakerInfo.delegated_stake_amount
+    : 0
   const hasStakeAmount = stakerInfo && stakerInfo.stake_amount > 0
   const hasPendingStakeAmount = stakerInfo && stakerInfo.pending_stake_amount > 0
+
   const handleClaim = useCallback(() => {
     toggleClaimConfirmModal()
   }, [toggleClaimConfirmModal])
@@ -251,7 +256,9 @@ export default function Vote() {
                     fontWeight={500}
                   >
                     {formatVotingPower(
-                      daoInfo.total_staked && totalStakedAmount && (totalStakedAmount / daoInfo.total_staked) * 100,
+                      daoInfo?.total_staked &&
+                        totalVotePowerAmount &&
+                        (totalVotePowerAmount / daoInfo.total_staked) * 100,
                     )}
                     {hasPendingStakeAmount && hasStakeAmount && (
                       <InfoHelper
@@ -268,9 +275,9 @@ export default function Vote() {
                               <Trans>
                                 Voting Power this Epoch:{' '}
                                 {formatVotingPower(
-                                  stakerInfo?.stake_amount &&
+                                  totalVotePowerAmount &&
                                     daoInfo?.total_staked &&
-                                    (stakerInfo.stake_amount / daoInfo.total_staked) * 100,
+                                    (totalVotePowerAmount / daoInfo.total_staked) * 100,
                                 )}
                               </Trans>
                             </Text>
@@ -278,9 +285,11 @@ export default function Vote() {
                               <Trans>
                                 Voting Power next Epoch:{' '}
                                 {formatVotingPower(
-                                  totalStakedAmount &&
+                                  totalVotePowerAmount &&
                                     daoInfo?.total_staked &&
-                                    (totalStakedAmount / daoInfo?.total_staked) * 100,
+                                    stakerInfo?.pending_stake_amount &&
+                                    (totalVotePowerAmount + stakerInfo?.pending_stake_amount / daoInfo.total_staked) *
+                                      100,
                                 )}
                               </Trans>
                             </Text>
@@ -302,14 +311,14 @@ export default function Vote() {
                     <InfoHelper text={t`You have to stake KNC to be able to vote and earn voting reward`} />
                   )}
                 </RowFit>
-                {isDelegated && delegatedAccount && (
+                {isDelegated && delegatedAddress && (
                   <MouseoverTooltip
                     text={t`You have already delegated your voting power to this address`}
                     placement="top"
                   >
                     <RowFit gap="4px" color={theme.subText}>
                       <VoteIcon size={14} />
-                      <Text fontSize={12}>{delegatedAccount.slice(0, 5) + '...' + delegatedAccount.slice(-4)}</Text>
+                      <Text fontSize={12}>{delegatedAddress.slice(0, 5) + '...' + delegatedAddress.slice(-4)}</Text>
                     </RowFit>
                   </MouseoverTooltip>
                 )}

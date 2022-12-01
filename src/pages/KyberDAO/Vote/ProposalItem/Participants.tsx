@@ -4,9 +4,11 @@ import { useMemo } from 'react'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
+import Gold from 'assets/svg/gold_icon.svg'
 import Divider from 'components/Divider'
-import { RowBetween } from 'components/Row'
+import { RowBetween, RowFit } from 'components/Row'
 import { useProposalInfoById } from 'hooks/kyberdao'
+import { ProposalType } from 'hooks/kyberdao/types'
 import useTheme from 'hooks/useTheme'
 import { getFullDisplayBalance } from 'utils/formatBalance'
 
@@ -36,12 +38,14 @@ const Wrapper = styled.div`
     }
   `}
 `
-const OptionWrapper = styled.div`
+const OptionWrapper = styled.div<{ isWonOption?: boolean }>`
   border-radius: 20px;
   padding: 12px 16px;
-  ${({ theme }) => css`
+  ${({ theme, isWonOption }) => css`
     border: 1px solid ${theme.border};
     background-color: ${theme.buttonBlack};
+    ${isWonOption &&
+    `background: linear-gradient(180deg, rgba(41, 41, 41, 0) 0%, rgba(41, 41, 41, 0.12) 54.69%, rgba(41, 41, 41, 0.7) 100%), linear-gradient(90deg, rgba(228, 181, 86, 0.25) 0%, rgba(241, 192, 94, 0.127155) 69.27%, rgba(255, 204, 102, 0) 100%);`}
   `}
 `
 const ParticipantWrapper = styled.div`
@@ -94,17 +98,26 @@ export default function Participants({ proposalId }: { proposalId?: number }) {
       })
   }, [proposalInfo])
   const options = proposalInfo?.options
+
   return (
     <Wrapper>
       {options && participants
         ? options.map((o, index) => {
             const participantOptionList = participants.filter(p => p.option === index)
             const sumPower = participantOptionList.reduce((sum, p) => sum + parseFloat(p.power.replaceAll(',', '')), 0)
+            const isWonOption =
+              proposalInfo?.proposal_type === ProposalType.BinaryProposal &&
+              proposalInfo?.vote_stats?.options.reduce((max, o) => (o.vote_count > max.vote_count ? o : max)).option ===
+                index
             return (
-              <OptionWrapper key={o}>
+              <OptionWrapper key={o} isWonOption={isWonOption}>
                 <RowBetween>
-                  <Text>{o}</Text>
-                  <Text>{sumPower.toLocaleString()}</Text>
+                  <RowFit>
+                    {isWonOption && <img alt="gold-medal" src={Gold} style={{ marginRight: '8px' }} />}
+                    <Text style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{o}</Text>
+                  </RowFit>
+
+                  <Text style={{ paddingLeft: '10px' }}>{sumPower.toLocaleString()}</Text>
                 </RowBetween>
                 <Divider margin="10px 0" />
                 <TableHeaderWrapper fontSize={12} color={theme.subText}>

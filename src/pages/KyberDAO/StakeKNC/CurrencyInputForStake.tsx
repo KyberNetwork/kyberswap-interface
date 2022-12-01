@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
+import KNC from 'assets/images/KNC.svg'
 import Wallet from 'components/Icons/Wallet'
 import Input from 'components/NumericalInput'
 import { AutoRow, RowBetween } from 'components/Row'
@@ -73,7 +74,11 @@ export default function CurrencyInputForStake({
         <Input value={value} onUserInput={setValue} disabled={disabled} />
         <span style={{ color: theme.border, fontSize: '14px', marginRight: '6px' }}>~${kncValueInUsd}</span>
         <KNCLogoWrapper>
-          <img src={`${getTokenLogoURL(tokenAddress, ChainId.MAINNET)}`} alt="knc-logo" width="24px" height="24px" />
+          {getTokenLogoURL(tokenAddress, ChainId.MAINNET) !== '' ? (
+            <img src={`${getTokenLogoURL(tokenAddress, ChainId.MAINNET)}`} alt="knc-logo" width="24px" height="24px" />
+          ) : (
+            <img src={KNC} alt="knc-logo" width="24px" height="24px" />
+          )}
           {tokenName}
         </KNCLogoWrapper>
       </RowBetween>

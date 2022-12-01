@@ -1,4 +1,4 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId, MaxUint256, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { parseUnits } from 'ethers/lib/utils'
 import { useEffect, useState } from 'react'
@@ -9,11 +9,10 @@ import styled from 'styled-components'
 import { ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import Modal from 'components/Modal'
-import { AutoRow, RowBetween } from 'components/Row'
-import { KNCL_ADDRESS, KNC_ADDRESS } from 'constants/tokens'
+import Row, { AutoRow, RowBetween } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
-import { useKyberDaoStakeActions } from 'hooks/kyberdao'
-import { ApprovalState } from 'hooks/useApproveCallback'
+import { useKyberDAOInfo, useKyberDaoStakeActions } from 'hooks/kyberdao'
+import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import useTheme from 'hooks/useTheme'
 import useTokenBalance from 'hooks/useTokenBalance'
 import { ApplicationModal } from 'state/application/actions'
@@ -28,20 +27,17 @@ const Wrapper = styled.div`
 `
 
 export default function MigrateModal({
-  approvalKNC,
-  approvalKNCL,
   setPendingText,
   setShowConfirm,
   setAttemptingTxn,
   setTxHash,
 }: {
-  approvalKNC: ApprovalState
-  approvalKNCL: ApprovalState
   setPendingText: React.Dispatch<React.SetStateAction<string>>
   setShowConfirm: React.Dispatch<React.SetStateAction<boolean>>
   setAttemptingTxn: React.Dispatch<React.SetStateAction<boolean>>
   setTxHash: React.Dispatch<React.SetStateAction<string | undefined>>
 }) {
+  const kyberDAOInfo = useKyberDAOInfo()
   const theme = useTheme()
   const { chainId } = useActiveWeb3React()
   const modalOpen = useModalOpen(ApplicationModal.MIGRATE_KNC)
@@ -49,7 +45,14 @@ export default function MigrateModal({
   const { migrate } = useKyberDaoStakeActions()
   const [value, setValue] = useState('1')
   const [error, setError] = useState('')
-  const oldKNCBalance = useTokenBalance(KNCL_ADDRESS)
+  const [approval, approveCallback] = useApproveCallback(
+    TokenAmount.fromRawAmount(
+      new Token(chainId === ChainId.GÖRLI ? ChainId.GÖRLI : ChainId.MAINNET, kyberDAOInfo?.KNCLAddress || '', 18),
+      MaxUint256,
+    ),
+    kyberDAOInfo?.KNCAddress,
+  )
+  const oldKNCBalance = useTokenBalance(kyberDAOInfo?.KNCLAddress || '')
   useEffect(() => {
     // Check if too many decimals
     try {
@@ -68,21 +71,10 @@ export default function MigrateModal({
     }
   }, [value, oldKNCBalance?.value])
   const { switchToEthereum } = useSwitchToEthereum()
-  const toggleApproveKNCModal = useToggleModal(ApplicationModal.APPROVE_KNC)
-  const toggleApproveKNCLModal = useToggleModal(ApplicationModal.APPROVE_KNCL)
 
   const handleMigrate = () => {
     setError('')
     switchToEthereum().then(() => {
-      if (approvalKNC !== ApprovalState.APPROVED) {
-        toggleApproveKNCModal()
-        return
-      }
-      if (approvalKNCL !== ApprovalState.APPROVED) {
-        toggleApproveKNCLModal()
-        return
-      }
-
       try {
         setPendingText(t`Migrating ${value} KNCL to KNC`)
         setShowConfirm(true)
@@ -125,7 +117,12 @@ export default function MigrateModal({
               </ExternalLink>
             </Trans>
           </Text>
-          <CurrencyInputForStake value={value} setValue={setValue} tokenAddress={KNCL_ADDRESS} tokenName="KNCL" />
+          <CurrencyInputForStake
+            value={value}
+            setValue={setValue}
+            tokenAddress={kyberDAOInfo?.KNCLAddress || ''}
+            tokenName="KNCL"
+          />
           <RowBetween>
             <Text fontSize={12} color={theme.subText}>
               1KNCL = 1KNC
@@ -145,13 +142,23 @@ export default function MigrateModal({
           <CurrencyInputForStake
             value={value}
             setValue={setValue}
-            tokenAddress={KNC_ADDRESS}
+            tokenAddress={kyberDAOInfo?.KNCAddress || ''}
             tokenName="KNC"
             disabled
           />
-          <ButtonPrimary disabled={!!error && !isWrongChain} onClick={handleMigrate}>
-            <Text fontSize={14}>{(!isWrongChain && error) || <Trans>Migrate</Trans>}</Text>
-          </ButtonPrimary>
+          <Row gap="12px">
+            {(approval === ApprovalState.NOT_APPROVED || approval === ApprovalState.PENDING) && (
+              <ButtonPrimary onClick={approveCallback} disabled={approval === ApprovalState.PENDING}>
+                {approval === ApprovalState.PENDING ? 'Approving...' : 'Approve'}
+              </ButtonPrimary>
+            )}
+            <ButtonPrimary
+              disabled={approval !== ApprovalState.APPROVED || (!!error && !isWrongChain)}
+              onClick={handleMigrate}
+            >
+              <Text fontSize={14}>{(!isWrongChain && error) || <Trans>Migrate</Trans>}</Text>
+            </ButtonPrimary>
+          </Row>
         </AutoColumn>
       </Wrapper>
     </Modal>

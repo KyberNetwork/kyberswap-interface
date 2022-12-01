@@ -1,4 +1,4 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { transparentize } from 'polished'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -11,7 +11,7 @@ import { ButtonLight, ButtonPrimary } from 'components/Button'
 import LaunchIcon from 'components/Icons/LaunchIcon'
 import Row, { RowBetween, RowFit, RowFixed } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
-import { useVotingInfo } from 'hooks/kyberdao'
+import { useStakingInfo, useVotingInfo } from 'hooks/kyberdao'
 import { ProposalDetail, ProposalStatus, ProposalType } from 'hooks/kyberdao/types'
 import useTheme from 'hooks/useTheme'
 import { useSwitchToEthereum } from 'pages/KyberDAO/StakeKNC/SwitchToEthereumModal'
@@ -210,20 +210,23 @@ export default function ProposalItem({
 }) {
   const theme = useTheme()
   const { votesInfo, stakerInfo } = useVotingInfo()
+  const { isDelegated } = useStakingInfo()
 
   const [show, setShow] = useState(!!showByDefault)
   const [selectedOptions, setSelectedOptions] = useState<number[]>([])
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   useEffect(() => {
-    if (selectedOptions?.length === 0) {
-      setErrorMessage('Not selected option')
+    if (isDelegated) {
+      setErrorMessage(t`You already delegated your Voting power`)
     } else if (!stakerInfo?.stake_amount) {
-      setErrorMessage('You dont have voting power')
+      setErrorMessage(t`You dont have Voting power`)
+    } else if (selectedOptions?.length === 0) {
+      setErrorMessage(t`Not selected option`)
     } else {
       setErrorMessage(null)
     }
-  }, [selectedOptions.length, stakerInfo?.stake_amount])
+  }, [selectedOptions.length, stakerInfo?.stake_amount, isDelegated])
 
   const contentRef = useRef<any>()
   const statusType = () => {

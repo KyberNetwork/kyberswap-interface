@@ -2,7 +2,7 @@ import { ChainId, MaxUint256, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { lighten } from 'polished'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Repeat, X } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { Text } from 'rebass'
@@ -17,7 +17,7 @@ import Wallet from 'components/Icons/Wallet'
 import WarningIcon from 'components/Icons/WarningIcon'
 import InfoHelper from 'components/InfoHelper'
 import Input from 'components/NumericalInput'
-import { AutoRow, RowBetween, RowFit } from 'components/Row'
+import Row, { AutoRow, RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
 import { useActiveWeb3React } from 'hooks'
@@ -26,12 +26,9 @@ import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useKNCPrice, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
-import { tryParseAmount } from 'state/swap/hooks'
 import { isAddress, shortenAddress } from 'utils'
 
 import KNCLogo from '../kncLogo'
-import ApproveKNCLModal from './ApproveKNCLModal'
-import ApproveKNCModal from './ApproveKNCModal'
 import DelegateConfirmModal from './DelegateConfirmModal'
 import MigrateModal from './MigrateModal'
 import SwitchToEthereumModal, { useSwitchToEthereum } from './SwitchToEthereumModal'
@@ -220,9 +217,9 @@ export default function StakeKNCComponent() {
   const theme = useTheme()
   const { account, chainId } = useActiveWeb3React()
   const kyberDAOInfo = useKyberDAOInfo()
-  const { stakedBalance, KNCBalance, delegatedAccount } = useStakingInfo()
+  const { stakedBalance, KNCBalance, delegatedAddress } = useStakingInfo()
   const { calculateVotingPower } = useVotingInfo()
-  const isDelegated = !!delegatedAccount && delegatedAccount !== account
+  const isDelegated = !!delegatedAddress && delegatedAddress !== account
   const { stake, unstake, delegate, undelegate } = useKyberDaoStakeActions()
   const [activeTab, setActiveTab] = useState(STAKE_TAB.Stake)
   const [delegateAddress, setDelegateAddress] = useState('')
@@ -230,9 +227,10 @@ export default function StakeKNCComponent() {
   const [attemptingTxn, setAttemptingTxn] = useState<boolean>(false)
   const [pendingText, setPendingText] = useState<string>('')
   const [featureText, setFeatureText] = useState('')
-
   const [txHash, setTxHash] = useState<string | undefined>(undefined)
   const [inputValue, setInputValue] = useState('1')
+
+  const isUndelegate = useRef(false)
 
   const [errorMessage, setErrorMessage] = useState<string | undefined>()
   useEffect(() => {
@@ -258,7 +256,7 @@ export default function StakeKNCComponent() {
       setErrorMessage(t`Invalid Ethereum address`)
     } else if (activeTab === STAKE_TAB.Delegate && delegateAddress.toLowerCase() === account?.toLowerCase()) {
       setErrorMessage(t`Cannot delegate to your wallet address`)
-    } else if (activeTab === STAKE_TAB.Delegate && delegateAddress.toLowerCase() === delegatedAccount?.toLowerCase()) {
+    } else if (activeTab === STAKE_TAB.Delegate && delegateAddress.toLowerCase() === delegatedAddress?.toLowerCase()) {
       setErrorMessage(t`You already delegated to this address`)
     } else {
       setErrorMessage(undefined)
@@ -272,52 +270,37 @@ export default function StakeKNCComponent() {
     delegateAddress,
     account,
     isDelegated,
-    delegatedAccount,
+    delegatedAddress,
   ])
 
   const toggleWalletModal = useWalletModalToggle()
   const toggleDelegateConfirm = useToggleModal(ApplicationModal.DELEGATE_CONFIRM)
   const toggleYourTransactions = useToggleModal(ApplicationModal.YOUR_TRANSACTIONS_STAKE_KNC)
-  const toggleApproveModal = useToggleModal(ApplicationModal.APPROVE_KNC)
   const { switchToEthereum } = useSwitchToEthereum()
 
-  const KNCtoken = kyberDAOInfo?.KNCAddress
-    ? chainId === ChainId.GÖRLI
-      ? new Token(ChainId.GÖRLI, kyberDAOInfo?.KNCAddress, 18)
-      : new Token(ChainId.MAINNET, kyberDAOInfo?.KNCAddress, 18)
-    : undefined
-  const KNCLtoken = kyberDAOInfo?.KNCAddress
-    ? chainId === ChainId.GÖRLI
-      ? new Token(ChainId.GÖRLI, kyberDAOInfo?.KNCAddress, 18)
-      : new Token(ChainId.MAINNET, kyberDAOInfo?.KNCAddress, 18)
-    : undefined
-
-  const amountToApprove = tryParseAmount(inputValue, KNCtoken || undefined)
-  const [approvalKNC, approveCallback] = useApproveCallback(amountToApprove, kyberDAOInfo?.staking)
-  const [approvalKNCL, approveKNCLCallback] = useApproveCallback(
-    !!KNCLtoken ? TokenAmount.fromRawAmount(KNCLtoken, MaxUint256.toString()) : undefined,
-    kyberDAOInfo?.KNCLAddress,
+  const [approvalKNC, approveCallback] = useApproveCallback(
+    TokenAmount.fromRawAmount(
+      new Token(chainId === ChainId.GÖRLI ? ChainId.GÖRLI : ChainId.MAINNET, kyberDAOInfo?.KNCAddress || '', 18),
+      MaxUint256,
+    ),
+    kyberDAOInfo?.staking,
   )
   const handleStake = () => {
     switchToEthereum()
       .then(() => {
-        if (approvalKNC === ApprovalState.APPROVED) {
-          setPendingText(t`Staking ${inputValue} KNC to KyberDAO`)
-          setShowConfirm(true)
-          setAttemptingTxn(true)
-          stake(parseUnits(inputValue, 18))
-            .then(tx => {
-              setAttemptingTxn(false)
-              setTxHash(tx)
-            })
-            .catch(() => {
-              setAttemptingTxn(false)
-              setTxHash(undefined)
-              setShowConfirm(false)
-            })
-        } else {
-          toggleApproveModal()
-        }
+        setPendingText(t`Staking ${inputValue} KNC to KyberDAO`)
+        setShowConfirm(true)
+        setAttemptingTxn(true)
+        stake(parseUnits(inputValue, 18))
+          .then(tx => {
+            setAttemptingTxn(false)
+            setTxHash(tx)
+          })
+          .catch(() => {
+            setAttemptingTxn(false)
+            setTxHash(undefined)
+            setShowConfirm(false)
+          })
       })
       .catch(() => setFeatureText(t`Staking KNC`))
   }
@@ -325,22 +308,18 @@ export default function StakeKNCComponent() {
   const handleUnstake = () => {
     switchToEthereum()
       .then(() => {
-        if (approvalKNC === ApprovalState.APPROVED) {
-          setPendingText(t`Unstaking ${inputValue} KNC from KyberDAO`)
-          setShowConfirm(true)
-          setAttemptingTxn(true)
-          unstake(parseUnits(inputValue, 18))
-            .then(tx => {
-              setAttemptingTxn(false)
-              setTxHash(tx)
-            })
-            .catch(() => {
-              setAttemptingTxn(false)
-              setShowConfirm(false)
-            })
-        } else {
-          toggleApproveModal()
-        }
+        setPendingText(t`Unstaking ${inputValue} KNC from KyberDAO`)
+        setShowConfirm(true)
+        setAttemptingTxn(true)
+        unstake(parseUnits(inputValue, 18))
+          .then(tx => {
+            setAttemptingTxn(false)
+            setTxHash(tx)
+          })
+          .catch(() => {
+            setAttemptingTxn(false)
+            setShowConfirm(false)
+          })
       })
       .catch(() => setFeatureText(t`Unstaking KNC`))
   }
@@ -348,6 +327,7 @@ export default function StakeKNCComponent() {
   const handleDelegate = () => {
     switchToEthereum()
       .then(() => {
+        isUndelegate.current = false
         toggleDelegateConfirm()
       })
       .catch(() => {
@@ -356,16 +336,29 @@ export default function StakeKNCComponent() {
       })
   }
 
+  const handleUndelegate = () => {
+    switchToEthereum()
+      .then(() => {
+        isUndelegate.current = true
+        toggleDelegateConfirm()
+      })
+      .catch(() => {
+        setFeatureText(t`Undelegate`)
+        setShowConfirm(false)
+      })
+  }
+
   const onDelegateConfirmed = useCallback(() => {
     if (!account) return
-    if (isDelegated) {
-      setPendingText(t`You are undelegating your voting from ${delegatedAccount}.`)
+    if (isUndelegate.current) {
+      setPendingText(t`You are undelegating your voting from ${delegatedAddress}.`)
       setShowConfirm(true)
       setAttemptingTxn(true)
       undelegate(account)
         .then(tx => {
           setAttemptingTxn(false)
           setTxHash(tx)
+          setDelegateAddress('')
         })
         .catch(() => {
           setAttemptingTxn(false)
@@ -378,13 +371,14 @@ export default function StakeKNCComponent() {
         .then(tx => {
           setAttemptingTxn(false)
           setTxHash(tx)
+          setDelegateAddress('')
         })
         .catch(() => {
           setAttemptingTxn(false)
         })
     }
     toggleDelegateConfirm()
-  }, [delegate, delegateAddress, account, delegatedAccount, isDelegated, toggleDelegateConfirm, undelegate])
+  }, [delegate, delegateAddress, account, delegatedAddress, toggleDelegateConfirm, undelegate])
 
   const kncPrice = useKNCPrice()
   const kncValueInUsd = useMemo(() => {
@@ -477,19 +471,26 @@ export default function StakeKNCComponent() {
                 </Trans>
               </Text>
               {account ? (
-                <ButtonPrimary
-                  margin="8px 0px"
-                  onClick={() => {
-                    if (activeTab === STAKE_TAB.Stake) {
-                      handleStake()
-                    } else {
-                      handleUnstake()
-                    }
-                  }}
-                  disabled={!!errorMessage}
-                >
-                  {errorMessage || (activeTab === STAKE_TAB.Stake ? t`Stake` : t`Unstake`)}
-                </ButtonPrimary>
+                <Row gap="12px">
+                  {(approvalKNC === ApprovalState.NOT_APPROVED || approvalKNC === ApprovalState.PENDING) && (
+                    <ButtonPrimary onClick={approveCallback} disabled={approvalKNC === ApprovalState.PENDING}>
+                      {approvalKNC === ApprovalState.PENDING ? 'Approving...' : 'Approve'}
+                    </ButtonPrimary>
+                  )}
+                  <ButtonPrimary
+                    disabled={approvalKNC !== ApprovalState.APPROVED || !!errorMessage}
+                    margin="8px 0px"
+                    onClick={() => {
+                      if (activeTab === STAKE_TAB.Stake) {
+                        handleStake()
+                      } else {
+                        handleUnstake()
+                      }
+                    }}
+                  >
+                    {errorMessage || (activeTab === STAKE_TAB.Stake ? t`Stake` : t`Unstake`)}
+                  </ButtonPrimary>
+                </Row>
               ) : (
                 <ButtonLight onClick={toggleWalletModal}>
                   <InfoHelper
@@ -517,8 +518,8 @@ export default function StakeKNCComponent() {
                     placement="top"
                   >
                     <DelegatedAddressBadge>
-                      <VoteIcon /> {shortenAddress(ChainId.MAINNET, delegatedAccount)}{' '}
-                      <X style={{ cursor: 'pointer' }} size={16} onClick={handleDelegate} />
+                      <VoteIcon /> {shortenAddress(ChainId.MAINNET, delegatedAddress)}{' '}
+                      <X style={{ cursor: 'pointer' }} size={16} onClick={handleUndelegate} />
                     </DelegatedAddressBadge>
                   </MouseoverTooltip>
                 )}
@@ -612,12 +613,12 @@ export default function StakeKNCComponent() {
       <SwitchToEthereumModal featureText={featureText} />
       <DelegateConfirmModal
         address={delegateAddress}
-        delegatedAccount={delegatedAccount}
+        isUndelegate={isUndelegate.current}
+        delegatedAddress={delegatedAddress}
         onAddressChange={setDelegateAddress}
         delegateCallback={onDelegateConfirmed}
       />
       <YourTransactionsModal />
-      <ApproveKNCModal approvalState={approvalKNC} approveCallback={approveCallback} />
       <TransactionConfirmationModal
         isOpen={showConfirm}
         onDismiss={() => setShowConfirm(false)}
@@ -629,14 +630,11 @@ export default function StakeKNCComponent() {
         }}
       />
       <MigrateModal
-        approvalKNC={approvalKNC}
-        approvalKNCL={approvalKNCL}
         setPendingText={setPendingText}
         setShowConfirm={setShowConfirm}
         setAttemptingTxn={setAttemptingTxn}
         setTxHash={setTxHash}
       />
-      <ApproveKNCLModal approvalState={approvalKNCL} approveCallback={approveKNCLCallback} />
     </Wrapper>
   )
 }

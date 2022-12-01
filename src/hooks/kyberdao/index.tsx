@@ -253,11 +253,11 @@ export function useStakingInfo() {
   const stakingContract = useContract(kyberDaoInfo?.staking, StakingABI)
 
   const stakedBalance = useSingleCallResult(stakingContract, 'getLatestStakeBalance', [account ?? undefined])
-  const delegatedAccount = useSingleCallResult(stakingContract, 'getLatestRepresentative', [account ?? undefined])
+  const delegatedAddress = useSingleCallResult(stakingContract, 'getLatestRepresentative', [account ?? undefined])
   const KNCBalance = useTokenBalance(kyberDaoInfo?.KNCAddress || '')
   const isDelegated = useMemo(() => {
-    return delegatedAccount.result?.[0] && delegatedAccount.result?.[0] !== account
-  }, [delegatedAccount, account])
+    return delegatedAddress.result?.[0] && delegatedAddress.result?.[0] !== account
+  }, [delegatedAddress, account])
 
   const { data: stakerActions } = useSWR<StakerAction[]>(
     account && kyberDaoInfo?.daoStatsApi + '/stakers/' + account + '/actions',
@@ -267,7 +267,7 @@ export function useStakingInfo() {
   return {
     stakedBalance: stakedBalance.result?.[0] || 0,
     KNCBalance: KNCBalance.value || 0,
-    delegatedAccount: delegatedAccount.result?.[0],
+    delegatedAddress: delegatedAddress.result?.[0],
     isDelegated,
     stakerActions,
   }
@@ -348,7 +348,7 @@ export function useVotingInfo() {
   const calculateVotingPower = useCallback(
     (kncAmount: string, newStakingAmount?: string) => {
       if (!daoInfo?.total_staked) return '0'
-      const totalStakedKNC = daoInfo.total_staked
+      const totalStakedKNC = daoInfo?.total_staked
       if (parseFloat(totalStakedKNC) === 0) return '0'
 
       const votingPower = newStakingAmount
