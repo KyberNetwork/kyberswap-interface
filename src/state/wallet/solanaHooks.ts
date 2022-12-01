@@ -9,6 +9,7 @@ import { useActiveWeb3React } from 'hooks'
 import connection from 'state/connection/connection'
 import { useAllTransactions } from 'state/transactions/hooks'
 import { isAddress } from 'utils'
+import { wait } from 'utils/retry'
 
 export const useSOLBalance = (uncheckedAddress?: string): CurrencyAmount<Currency> | undefined => {
   const { chainId, account, isSolana } = useActiveWeb3React()
@@ -42,7 +43,7 @@ export const useSOLBalance = (uncheckedAddress?: string): CurrencyAmount<Currenc
           })
         }
       } catch (error) {
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await wait(100)
         if (!canceled && triedCount++ < 20) getBalance()
       }
     }
@@ -93,7 +94,7 @@ export const useAssociatedTokensAccounts = (): { [mintAddress: string]: AccountI
         setAtas(atas)
       } catch (error) {
         console.error('get ata failed', { error })
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await wait(100)
         if (!canceled && triedCount++ < 20) getTokenAccounts(publicKey)
       }
     }
