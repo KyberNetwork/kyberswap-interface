@@ -44,9 +44,7 @@ enum STATUS {
 function validateUrl(url: string) {
   if (!url) return ''
   const whitelistDomain = ['https://blog.kyberswap.com', 'http://blog.kyberswap.com']
-  try {
-    if (whitelistDomain.some(e => url.startsWith(e))) return url
-  } catch (error) {}
+  if (whitelistDomain.some(e => url.startsWith(e))) return url
   return ''
 }
 function Verify() {
