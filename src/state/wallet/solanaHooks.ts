@@ -42,6 +42,7 @@ export const useSOLBalance = (uncheckedAddress?: string): CurrencyAmount<Currenc
           })
         }
       } catch (error) {
+        await new Promise(resolve => setTimeout(resolve, 100))
         if (!canceled && triedCount++ < 20) getBalance()
       }
     }
@@ -71,6 +72,7 @@ export const useAssociatedTokensAccounts = (): { [mintAddress: string]: AccountI
     if (!isSolana) return
     if (!account) return
     let canceled = false
+    let triedCount = 0
     async function getTokenAccounts(publicKey: PublicKey) {
       try {
         const response = await connection.getTokenAccountsByOwner(publicKey, {
@@ -91,7 +93,8 @@ export const useAssociatedTokensAccounts = (): { [mintAddress: string]: AccountI
         setAtas(atas)
       } catch (error) {
         console.error('get ata failed', { error })
-        if (!canceled) getTokenAccounts(publicKey)
+        await new Promise(resolve => setTimeout(resolve, 100))
+        if (!canceled && triedCount++ < 20) getTokenAccounts(publicKey)
       }
     }
 
