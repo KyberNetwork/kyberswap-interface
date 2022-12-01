@@ -68,12 +68,16 @@ const Card = styled.div<{ hasGreenBackground?: boolean }>`
     background-color: ${transparentize(0.3, theme.buttonGray)};
     flex: 1;
   `}
-  ${({ hasGreenBackground }) =>
+  ${({ theme, hasGreenBackground }) =>
     hasGreenBackground &&
-    css`
-      background-image: url('${luxuryGreenBackground}');
-      background-size: cover;
-    `}
+    (theme.darkMode
+      ? css`
+          background-image: url('${luxuryGreenBackground}');
+          background-size: cover;
+        `
+      : css`
+          background: radial-gradient(#daebe6, #daf1ec);
+        `)}
 `
 
 const CardGroup = styled(RowBetween)`
@@ -177,24 +181,23 @@ export default function Vote() {
   const handleVote = useCallback(
     async (proposal_id: number, option: number) => {
       // only can vote when user has staked amount
-      if (!!stakerInfo?.stake_amount) {
-        setPendingText(t`Vote submitting`)
-        setShowConfirm(true)
-        setAttemptingTxn(true)
-        vote(proposal_id, option)
-          .then(tx => {
-            setAttemptingTxn(false)
-            setTxHash(tx)
-          })
-          .catch(error => {
-            console.log(error)
-            setShowConfirm(false)
-            setAttemptingTxn(false)
-            setTxHash(undefined)
-          })
-      }
+      setPendingText(t`Vote submitting`)
+      setShowConfirm(true)
+      setAttemptingTxn(true)
+      vote(proposal_id, option)
+        .then(tx => {
+          setAttemptingTxn(false)
+          setTxHash(tx)
+          setShowConfirm(false)
+        })
+        .catch(error => {
+          console.log(error)
+          setShowConfirm(false)
+          setAttemptingTxn(false)
+          setTxHash(undefined)
+        })
     },
-    [vote, stakerInfo?.stake_amount],
+    [vote],
   )
 
   return (

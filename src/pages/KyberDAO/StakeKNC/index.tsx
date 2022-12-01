@@ -14,6 +14,7 @@ import stakevotePNG from 'assets/images/kyberdao/stake_vote.png'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Divider from 'components/Divider'
 import { RowBetween, RowFit } from 'components/Row'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useKNCPrice, useToggleModal } from 'state/application/hooks'
@@ -103,20 +104,21 @@ const CardInfo = styled.div`
 `
 
 const MigrateButton = styled(ButtonOutlined)`
-  :hover {
+  :hover:enabled {
     box-shadow: none;
     ${({ theme }) => css`
       border-color: ${theme.primary};
       color: ${theme.primary};
     `};
   }
-  :active {
+  :active:enabled {
     box-shadow: 0 0 0 1px ${({ theme }) => theme.primary};
   }
 `
 
 export default function StakeKNC() {
   const theme = useTheme()
+  const { account } = useActiveWeb3React()
   const toggleMigrationModal = useToggleModal(ApplicationModal.MIGRATE_KNC)
   const { switchToEthereum } = useSwitchToEthereum()
   const kncPrice = useKNCPrice()
@@ -188,7 +190,7 @@ export default function StakeKNC() {
                 <Trans>Migrate your KNCL tokens to KNC</Trans>
               </Text>
             </CardInfo>
-            <MigrateButton onClick={handleMigrateClick} width="120px" height="44px">
+            <MigrateButton onClick={handleMigrateClick} width="120px" height="44px" disabled={!account}>
               Migrate
             </MigrateButton>
           </Card>

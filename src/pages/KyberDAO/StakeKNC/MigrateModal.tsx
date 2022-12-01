@@ -83,6 +83,7 @@ export default function MigrateModal({
           .then(tx => {
             setAttemptingTxn(false)
             setTxHash(tx)
+            toggleModal()
           })
           .catch(error => {
             setAttemptingTxn(false)
@@ -93,7 +94,6 @@ export default function MigrateModal({
     })
   }
 
-  const isWrongChain = chainId !== ChainId.MAINNET
   return (
     <Modal isOpen={modalOpen} onDismiss={toggleModal} minHeight={false} maxHeight={664} maxWidth={420}>
       <Wrapper>
@@ -147,16 +147,13 @@ export default function MigrateModal({
             disabled
           />
           <Row gap="12px">
-            {(approval === ApprovalState.NOT_APPROVED || approval === ApprovalState.PENDING) && (
+            {(approval === ApprovalState.NOT_APPROVED || approval === ApprovalState.PENDING) && !error && (
               <ButtonPrimary onClick={approveCallback} disabled={approval === ApprovalState.PENDING}>
                 {approval === ApprovalState.PENDING ? 'Approving...' : 'Approve'}
               </ButtonPrimary>
             )}
-            <ButtonPrimary
-              disabled={approval !== ApprovalState.APPROVED || (!!error && !isWrongChain)}
-              onClick={handleMigrate}
-            >
-              <Text fontSize={14}>{(!isWrongChain && error) || <Trans>Migrate</Trans>}</Text>
+            <ButtonPrimary disabled={approval !== ApprovalState.APPROVED || !!error} onClick={handleMigrate}>
+              <Text fontSize={14}>{error || <Trans>Migrate</Trans>}</Text>
             </ButtonPrimary>
           </Row>
         </AutoColumn>

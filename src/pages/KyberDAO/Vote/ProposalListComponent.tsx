@@ -2,6 +2,7 @@ import { Trans } from '@lingui/macro'
 import { lighten } from 'polished'
 import React, { useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
+import { Info } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
@@ -9,6 +10,7 @@ import FAQIcon from 'components/Icons/FAQIcon'
 import ForumIcon from 'components/Icons/ForumIcon'
 import History from 'components/Icons/History'
 import Loader from 'components/Loader'
+import AnimateLoader from 'components/Loader/AnimatedLoader'
 import { RowBetween, RowFit } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import { useVotingInfo } from 'hooks/kyberdao'
@@ -116,20 +118,43 @@ function ProposalListComponent({ voteCallback }: { voteCallback?: (proposal_id: 
         <SelectProposalStatus status={status} setStatus={setStatus} />
         <SearchProposal search={search} setSearch={setSearch} />
       </RowBetween>
-      {filteredProposals ? (
-        filteredProposals.map((p: ProposalDetail, index: number) => {
-          return (
-            <ProposalItem
-              key={p.proposal_id.toString()}
-              proposal={p}
-              showByDefault={index === 0}
-              onBadgeClick={setStatus}
-              voteCallback={voteCallback}
-            />
-          )
-        })
+      {proposals ? (
+        filteredProposals.length > 0 ? (
+          filteredProposals.map((p: ProposalDetail, index: number) => {
+            return (
+              <ProposalItem
+                key={p.proposal_id.toString()}
+                proposal={p}
+                showByDefault={index === 0}
+                onBadgeClick={setStatus}
+                voteCallback={voteCallback}
+              />
+            )
+          })
+        ) : (
+          <Flex
+            flexDirection="column"
+            justifyContent="center"
+            alignItems="center"
+            color={theme.subText}
+            style={{ height: '200px', gap: '12px' }}
+          >
+            <Info size={24} color={theme.subText} />
+            <Text color={theme.subText}>
+              <Trans>No proposal found</Trans>
+            </Text>
+          </Flex>
+        )
       ) : (
-        <Loader />
+        <Flex
+          flexDirection="column"
+          justifyContent="center"
+          alignItems="center"
+          color={theme.subText}
+          style={{ height: '200px', gap: '12px' }}
+        >
+          <AnimateLoader />
+        </Flex>
       )}
       <YourTransactionsModal />
     </Wrapper>

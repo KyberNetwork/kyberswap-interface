@@ -15,8 +15,7 @@ import { useStakingInfo, useVotingInfo } from 'hooks/kyberdao'
 import { ProposalDetail, ProposalStatus, ProposalType } from 'hooks/kyberdao/types'
 import useTheme from 'hooks/useTheme'
 import { useSwitchToEthereum } from 'pages/KyberDAO/StakeKNC/SwitchToEthereumModal'
-import { ApplicationModal } from 'state/application/actions'
-import { useToggleModal, useWalletModalToggle } from 'state/application/hooks'
+import { useWalletModalToggle } from 'state/application/hooks'
 
 import VoteConfirmModal from '../VoteConfirmModal'
 import OptionButton from './OptionButton'
@@ -209,24 +208,29 @@ export default function ProposalItem({
   voteCallback?: (proposal_id: number, option: number) => void
 }) {
   const theme = useTheme()
+  const { account } = useActiveWeb3React()
   const { votesInfo, stakerInfo } = useVotingInfo()
   const { isDelegated } = useStakingInfo()
+  const totalVotePowerAmount = stakerInfo
+    ? (stakerInfo.delegate.toLowerCase() === account?.toLowerCase() ? stakerInfo.stake_amount : 0) +
+      stakerInfo.delegated_stake_amount
+    : 0
 
   const [show, setShow] = useState(!!showByDefault)
   const [selectedOptions, setSelectedOptions] = useState<number[]>([])
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
-
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
   useEffect(() => {
     if (isDelegated) {
       setErrorMessage(t`You already delegated your Voting power`)
-    } else if (!stakerInfo?.stake_amount) {
+    } else if (!totalVotePowerAmount) {
       setErrorMessage(t`You dont have Voting power`)
     } else if (selectedOptions?.length === 0) {
       setErrorMessage(t`Not selected option`)
     } else {
       setErrorMessage(null)
     }
-  }, [selectedOptions.length, stakerInfo?.stake_amount, isDelegated])
+  }, [selectedOptions.length, stakerInfo?.stake_amount, isDelegated, totalVotePowerAmount])
 
   const contentRef = useRef<any>()
   const statusType = () => {
@@ -244,22 +248,20 @@ export default function ProposalItem({
         return 'pending'
     }
   }
-  const toggleVoteModal = useToggleModal(ApplicationModal.KYBER_DAO_VOTE)
   const { switchToEthereum } = useSwitchToEthereum()
   const handleVote = useCallback(() => {
     switchToEthereum().then(() => {
-      selectedOptions.length > 0 && toggleVoteModal()
+      selectedOptions.length > 0 && setShowConfirmModal(true)
     })
-  }, [switchToEthereum, toggleVoteModal, selectedOptions])
+  }, [switchToEthereum, setShowConfirmModal, selectedOptions])
 
   const handleVoteConfirm = useCallback(() => {
-    toggleVoteModal()
     selectedOptions.length > 0 &&
       voteCallback?.(
         proposal.proposal_id,
         selectedOptions.map(i => i + 1).reduce((acc, item) => (acc += 1 << (item - 1)), 0),
       )
-  }, [selectedOptions, proposal.proposal_id, voteCallback, toggleVoteModal])
+  }, [selectedOptions, proposal.proposal_id, voteCallback])
 
   const votedOfCurrentProposal = useMemo(
     () => votesInfo?.find(v => v.proposal_id === proposal.proposal_id),
@@ -371,14 +373,16 @@ export default function ProposalItem({
       <Content ref={contentRef as any} show={show}>
         <Row align="flex-start" gap="16px">
           <div style={{ flex: 1 }}>
-            <a href={proposal.link} style={{ marginBottom: '12px', width: 'fit-content' }}>
-              <span style={{ marginRight: '4px' }}>
-                <LaunchIcon size={14} />
-              </span>
-              <span style={{ fontSize: '14px', verticalAlign: 'top' }}>
-                <Trans>Github</Trans>
-              </span>
-            </a>
+            {proposal?.link && proposal.link !== '0x0' && (
+              <a href={proposal.link} style={{ marginBottom: '12px', width: 'fit-content' }}>
+                <span style={{ marginRight: '4px' }}>
+                  <LaunchIcon size={14} />
+                </span>
+                <span style={{ fontSize: '14px', verticalAlign: 'top' }}>
+                  <Trans>Github</Trans>
+                </span>
+              </a>
+            )}
             <Text
               fontSize={isMobile ? 14 : 16}
               lineHeight={isMobile ? '18px' : '22px'}
@@ -399,6 +403,8 @@ export default function ProposalItem({
       </Content>
       {proposal.status === ProposalStatus.Active && (
         <VoteConfirmModal
+          isShow={showConfirmModal}
+          toggle={() => setShowConfirmModal(prev => !prev)}
           options={selectedOptions.length > 0 ? selectedOptions.map(option => proposal.options[option]).join(', ') : ''}
           onVoteConfirm={handleVoteConfirm}
         />

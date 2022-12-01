@@ -472,11 +472,12 @@ export default function StakeKNCComponent() {
               </Text>
               {account ? (
                 <Row gap="12px">
-                  {(approvalKNC === ApprovalState.NOT_APPROVED || approvalKNC === ApprovalState.PENDING) && (
-                    <ButtonPrimary onClick={approveCallback} disabled={approvalKNC === ApprovalState.PENDING}>
-                      {approvalKNC === ApprovalState.PENDING ? 'Approving...' : 'Approve'}
-                    </ButtonPrimary>
-                  )}
+                  {(approvalKNC === ApprovalState.NOT_APPROVED || approvalKNC === ApprovalState.PENDING) &&
+                    !errorMessage && (
+                      <ButtonPrimary onClick={approveCallback} disabled={approvalKNC === ApprovalState.PENDING}>
+                        {approvalKNC === ApprovalState.PENDING ? 'Approving...' : 'Approve'}
+                      </ButtonPrimary>
+                    )}
                   <ButtonPrimary
                     disabled={approvalKNC !== ApprovalState.APPROVED || !!errorMessage}
                     margin="8px 0px"
@@ -586,10 +587,15 @@ export default function StakeKNCComponent() {
                 <Trans>Stake Amount</Trans>
               </Text>
               <Text>
-                {formatUnits(stakedBalance)} KNC &rarr;{' '}
-                <span style={{ color: theme.text }}>
-                  {parseFloat(formatUnits(stakedBalance)) + parseFloat(inputValue || '0')} KNC
-                </span>
+                {formatUnits(stakedBalance)} KNC
+                {activeTab !== STAKE_TAB.Delegate && (
+                  <>
+                    &rarr;{' '}
+                    <span style={{ color: theme.text }}>
+                      {parseFloat(formatUnits(stakedBalance)) - parseFloat(inputValue || '0')} KNC
+                    </span>
+                  </>
+                )}
               </Text>
             </RowBetween>
             <RowBetween>
@@ -601,10 +607,15 @@ export default function StakeKNCComponent() {
                 />
               </Text>
               <Text>
-                {calculateVotingPower(formatUnits(stakedBalance))}% &rarr;{' '}
-                <span style={{ color: theme.text }}>
-                  {parseFloat(calculateVotingPower(formatUnits(stakedBalance), inputValue))}%
-                </span>
+                {calculateVotingPower(formatUnits(stakedBalance))}%
+                {activeTab !== STAKE_TAB.Delegate && (
+                  <>
+                    &rarr;{' '}
+                    <span style={{ color: theme.text }}>
+                      {parseFloat(calculateVotingPower(formatUnits(stakedBalance), '-' + inputValue))}%
+                    </span>
+                  </>
+                )}
               </Text>
             </RowBetween>
           </AutoColumn>

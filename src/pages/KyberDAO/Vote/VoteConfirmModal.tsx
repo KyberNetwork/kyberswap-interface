@@ -7,8 +7,6 @@ import { ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
 import { AutoRow, RowBetween } from 'components/Row'
 import useTheme from 'hooks/useTheme'
-import { ApplicationModal } from 'state/application/actions'
-import { useModalOpen, useToggleModal } from 'state/application/hooks'
 
 const Wrapper = styled.div`
   padding: 20px;
@@ -22,12 +20,20 @@ const TextWrapper = styled(Text)`
     color: ${({ theme }) => theme.text};
   }
 `
-export default function VoteConfirmModal({ options, onVoteConfirm }: { options: string; onVoteConfirm: () => void }) {
+export default function VoteConfirmModal({
+  isShow,
+  toggle,
+  options,
+  onVoteConfirm,
+}: {
+  isShow: boolean
+  toggle: () => void
+  options: string
+  onVoteConfirm: () => void
+}) {
   const theme = useTheme()
-  const modalOpen = useModalOpen(ApplicationModal.KYBER_DAO_VOTE)
-  const toggleModal = useToggleModal(ApplicationModal.KYBER_DAO_VOTE)
   return (
-    <Modal isOpen={modalOpen} onDismiss={toggleModal}>
+    <Modal isOpen={isShow} onDismiss={toggle}>
       <Wrapper>
         <RowBetween>
           <AutoRow gap="2px">
@@ -35,8 +41,8 @@ export default function VoteConfirmModal({ options, onVoteConfirm }: { options: 
               <Trans>Vote</Trans>
             </Text>
           </AutoRow>
-          <Flex sx={{ cursor: 'pointer' }} role="button" onClick={toggleModal}>
-            <X onClick={toggleModal} size={20} color={theme.subText} />
+          <Flex sx={{ cursor: 'pointer' }} role="button" onClick={toggle}>
+            <X onClick={toggle} size={20} color={theme.subText} />
           </Flex>
         </RowBetween>
         <TextWrapper fontSize={16} lineHeight="24px" color={theme.subText}>
