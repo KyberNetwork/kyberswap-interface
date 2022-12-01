@@ -117,6 +117,9 @@ const formatVotingPower = (votingPowerNumber: number) => {
   if (votingPowerNumber < 0.0001) {
     return '<0.0001 %'
   }
+  if (votingPowerNumber < 1) {
+    return votingPowerNumber.toFixed(4) + ' %'
+  }
   return votingPowerNumber.toPrecision(4) + ' %'
 }
 
