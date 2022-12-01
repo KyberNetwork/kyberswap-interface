@@ -171,7 +171,7 @@ export function useMulticallContract(customChainId?: ChainId): Contract | null {
   const { chainId: curChainId } = useActiveWeb3React()
   const chainId = customChainId || curChainId
   return useContractForReading(
-    isEVM(chainId) ? (NETWORKS_INFO[chainId] as EVMNetworkInfo).multicall : undefined,
+    isEVM(chainId) ? NETWORKS_INFO[chainId].multicall : undefined,
     MULTICALL_ABI,
     chainId,
   )
