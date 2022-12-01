@@ -30,10 +30,16 @@ export const useSOLBalance = (uncheckedAddress?: string): CurrencyAmount<Currenc
           const balance = await connection.getBalance(publicKey)
           if (canceled) return
           const balanceJSBI = JSBI.BigInt(balance)
-          if (solBalance === undefined || !JSBI.equal(balanceJSBI, solBalance.quotient))
-            setSolBalance(CurrencyAmount.fromRawAmount(NativeCurrencies[chainId], balanceJSBI))
+          setSolBalance(prev => {
+            if (prev === undefined || !JSBI.equal(balanceJSBI, prev.quotient))
+              return CurrencyAmount.fromRawAmount(NativeCurrencies[chainId], balanceJSBI)
+            return prev
+          })
         } else {
-          if (solBalance !== undefined) setSolBalance(undefined)
+          setSolBalance(prev => {
+            if (prev !== undefined) return undefined
+            return prev
+          })
         }
       } catch (error) {
         if (!canceled && triedCount++ < 20) getBalance()
@@ -43,16 +49,7 @@ export const useSOLBalance = (uncheckedAddress?: string): CurrencyAmount<Currenc
     return () => {
       canceled = true
     }
-    // do not add solBalance to deps list, it would trigger infinity loops calling rpc calls
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    allTransactions,
-    account,
-    chainId,
-    isSolana,
-    // solBalance,
-    uncheckedAddress,
-  ])
+  }, [allTransactions, account, chainId, isSolana, uncheckedAddress])
 
   return solBalance
 }
