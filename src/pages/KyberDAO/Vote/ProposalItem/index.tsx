@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { transparentize } from 'polished'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { ChevronDown } from 'react-feather'
 import { Text } from 'rebass'
@@ -17,7 +17,6 @@ import useTheme from 'hooks/useTheme'
 import { useSwitchToEthereum } from 'pages/KyberDAO/StakeKNC/SwitchToEthereumModal'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal, useWalletModalToggle } from 'state/application/hooks'
-import { ExternalLink } from 'theme'
 
 import VoteConfirmModal from '../VoteConfirmModal'
 import OptionButton from './OptionButton'
@@ -177,7 +176,8 @@ const VoteButton = ({
       {status === ProposalStatus.Active ? (
         account ? (
           <ButtonPrimary
-            width={isMobile ? '100%' : '200px'}
+            width={isMobile ? '100%' : 'fit-content'}
+            minWidth={'200px'}
             fontWeight={500}
             fontSize="14px"
             onClick={onVoteClick}
@@ -216,10 +216,9 @@ export default function ProposalItem({
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   useEffect(() => {
-    if (selectedOptions.length === 0) {
+    if (selectedOptions?.length === 0) {
       setErrorMessage('Not selected option')
-    }
-    if (!stakerInfo?.stake_amount) {
+    } else if (!stakerInfo?.stake_amount) {
       setErrorMessage('You dont have voting power')
     } else {
       setErrorMessage(null)
@@ -353,7 +352,9 @@ export default function ProposalItem({
             <Text color={theme.subText} fontSize={12}>
               Ended {dayjs(proposal.end_timestamp * 1000).format('DD MMM YYYY')}
             </Text>
-          ) : null}
+          ) : (
+            <div></div>
+          )}
           {!((show || isActive) && isMobile) && (
             <RowFixed gap="8px">
               <StatusBadged status={statusType()} onClick={() => onBadgeClick?.(proposal.status)}>
@@ -367,14 +368,14 @@ export default function ProposalItem({
       <Content ref={contentRef as any} show={show}>
         <Row align="flex-start" gap="16px">
           <div style={{ flex: 1 }}>
-            <ExternalLink href={proposal.link} style={{ marginBottom: '12px', width: 'fit-content' }}>
-              <RowFit gap="4px">
+            <a href={proposal.link} style={{ marginBottom: '12px', width: 'fit-content' }}>
+              <span style={{ marginRight: '4px' }}>
                 <LaunchIcon size={14} />
-                <Text fontSize={14}>
-                  <Trans>Github</Trans>
-                </Text>
-              </RowFit>
-            </ExternalLink>
+              </span>
+              <span style={{ fontSize: '14px', verticalAlign: 'top' }}>
+                <Trans>Github</Trans>
+              </span>
+            </a>
             <Text
               fontSize={isMobile ? 14 : 16}
               lineHeight={isMobile ? '18px' : '22px'}

@@ -114,7 +114,7 @@ export default function OptionButton({
     <Wrapper onClick={() => !disabled && onOptionClick?.()} disabled={disabled} type={type}>
       <div style={{ zIndex: 4, width: '100%' }}>
         <RowBetween style={{ zIndex: 1 }} alignItems="center">
-          <RowFit gap="5px" style={{ fontSize: '12px' }}>
+          <RowFit gap="5px" style={{ fontSize: '12px', overflow: 'hidden', wordBreak: 'break-word' }}>
             <span style={{ width: '18px' }}>
               {isCheckBox ? (
                 checked ? (
@@ -130,7 +130,9 @@ export default function OptionButton({
             </span>
             <Text>{title}</Text>
           </RowFit>
-          <Text fontSize="12px">{parsedPercent}%</Text>
+          <Text fontSize="12px" padding={'0 4px'}>
+            {parsedPercent}%
+          </Text>
         </RowBetween>
       </div>
 

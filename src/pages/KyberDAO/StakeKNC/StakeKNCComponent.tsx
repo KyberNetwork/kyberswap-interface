@@ -3,7 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { lighten } from 'polished'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Repeat } from 'react-feather'
+import { Repeat, X } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -12,11 +12,13 @@ import { ButtonLight, ButtonPrimary } from 'components/Button'
 import { AutoColumn, ColumnCenter } from 'components/Column'
 import ExpandableBox from 'components/ExpandableBox'
 import HistoryIcon from 'components/Icons/History'
+import VoteIcon from 'components/Icons/Vote'
 import Wallet from 'components/Icons/Wallet'
 import WarningIcon from 'components/Icons/WarningIcon'
 import InfoHelper from 'components/InfoHelper'
 import Input from 'components/NumericalInput'
 import { AutoRow, RowBetween, RowFit } from 'components/Row'
+import { MouseoverTooltip } from 'components/Tooltip'
 import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
 import { useActiveWeb3React } from 'hooks'
 import { useKyberDAOInfo, useKyberDaoStakeActions, useStakingInfo, useVotingInfo } from 'hooks/kyberdao'
@@ -25,7 +27,7 @@ import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useKNCPrice, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
-import { isAddress } from 'utils'
+import { isAddress, shortenAddress } from 'utils'
 
 import KNCLogo from '../kncLogo'
 import ApproveKNCLModal from './ApproveKNCLModal'
@@ -193,6 +195,27 @@ const HistoryButton = styled(RowFit)`
   }
 `
 
+const DelegatedAddressBadge = styled.div`
+  font-size: 12px;
+  line-height: 16px;
+  padding: 4px 6px;
+  border-radius: 30px;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.1);
+  user-select: none;
+  margin-bottom: -8px;
+  ${({ theme }) => css`
+    background-color: ${theme.tableHeader};
+    color: ${theme.subText};
+  `}
+
+  > svg:hover {
+    filter: brightness(1.2);
+  }
+`
+
 export default function StakeKNCComponent() {
   const theme = useTheme()
   const { account, chainId } = useActiveWeb3React()
@@ -235,10 +258,22 @@ export default function StakeKNCComponent() {
       setErrorMessage(t`Invalid Ethereum address`)
     } else if (activeTab === STAKE_TAB.Delegate && delegateAddress.toLowerCase() === account?.toLowerCase()) {
       setErrorMessage(t`Cannot delegate to your wallet address`)
+    } else if (activeTab === STAKE_TAB.Delegate && delegateAddress.toLowerCase() === delegatedAccount?.toLowerCase()) {
+      setErrorMessage(t`You already delegated to this address`)
     } else {
       setErrorMessage(undefined)
     }
-  }, [chainId, inputValue, KNCBalance, stakedBalance, activeTab, delegateAddress, account])
+  }, [
+    chainId,
+    inputValue,
+    KNCBalance,
+    stakedBalance,
+    activeTab,
+    delegateAddress,
+    account,
+    isDelegated,
+    delegatedAccount,
+  ])
 
   const toggleWalletModal = useWalletModalToggle()
   const toggleDelegateConfirm = useToggleModal(ApplicationModal.DELEGATE_CONFIRM)
@@ -472,16 +507,28 @@ export default function StakeKNCComponent() {
           )}
           {activeTab === STAKE_TAB.Delegate && (
             <>
-              <Text color={theme.subText} fontSize={12} lineHeight="16px">
-                <Trans>Delegate Address</Trans>
-              </Text>
+              <RowBetween>
+                <Text color={theme.subText} fontSize={12} lineHeight="16px">
+                  <Trans>Delegate Address</Trans>
+                </Text>
+                {isDelegated && (
+                  <MouseoverTooltip
+                    text={t`You have already delegated your voting power to this address`}
+                    placement="top"
+                  >
+                    <DelegatedAddressBadge>
+                      <VoteIcon /> {shortenAddress(ChainId.MAINNET, delegatedAccount)}{' '}
+                      <X style={{ cursor: 'pointer' }} size={16} onClick={handleDelegate} />
+                    </DelegatedAddressBadge>
+                  </MouseoverTooltip>
+                )}
+              </RowBetween>
               <InnerCard>
                 <AddressInput
-                  value={isDelegated ? delegatedAccount : delegateAddress}
+                  value={delegateAddress}
                   onChange={e => {
                     setDelegateAddress(e.target.value)
                   }}
-                  disabled={isDelegated}
                   placeholder="Ethereum Address"
                 />
               </InnerCard>
@@ -514,7 +561,7 @@ export default function StakeKNCComponent() {
                 }
               />
               <ButtonPrimary margin="8px 0px" onClick={handleDelegate} disabled={!!errorMessage}>
-                {errorMessage || (isDelegated ? <Trans>Undelegate</Trans> : <Trans>Delegate</Trans>)}
+                {errorMessage || <Trans>Delegate</Trans>}
               </ButtonPrimary>
             </>
           )}

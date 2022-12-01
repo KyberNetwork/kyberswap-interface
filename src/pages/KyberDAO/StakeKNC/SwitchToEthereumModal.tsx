@@ -70,11 +70,11 @@ export default function SwitchToEthereumModal({ featureText }: { featureText: st
             </Flex>
           </RowBetween>
           <Text fontSize={14} lineHeight="20px">
-            <Trans>{featureText} is only available on Goerli chain. Please switch network to continue.</Trans>
+            <Trans>{featureText} is only available on Ethereum chain. Please switch network to continue.</Trans>
           </Text>
           <ButtonPrimary onClick={handleChangeToEthereum}>
             <Text fontSize={16}>
-              <Trans>Switch to Goerli Network</Trans>
+              <Trans>Switch to Ethereum Network</Trans>
             </Text>
           </ButtonPrimary>
         </AutoColumn>

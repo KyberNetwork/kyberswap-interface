@@ -13,7 +13,6 @@ import RewardDistributorABI from 'constants/abis/kyberdao/reward_distributor.jso
 import StakingABI from 'constants/abis/kyberdao/staking.json'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
 import { NETWORKS_INFO } from 'constants/networks'
-import { KNC_ADDRESS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useContract } from 'hooks/useContract'
 import useTokenBalance from 'hooks/useTokenBalance'
@@ -255,7 +254,7 @@ export function useStakingInfo() {
 
   const stakedBalance = useSingleCallResult(stakingContract, 'getLatestStakeBalance', [account ?? undefined])
   const delegatedAccount = useSingleCallResult(stakingContract, 'getLatestRepresentative', [account ?? undefined])
-  const KNCBalance = useTokenBalance(KNC_ADDRESS)
+  const KNCBalance = useTokenBalance(kyberDaoInfo?.KNCAddress || '')
   const isDelegated = useMemo(() => {
     return delegatedAccount.result?.[0] && delegatedAccount.result?.[0] !== account
   }, [delegatedAccount, account])
@@ -335,7 +334,9 @@ export function useVotingInfo() {
     )
   }, [claimedRewardAmounts, userRewards?.userReward])
 
-  const { data: proposals } = useSWRImmutable<ProposalDetail[]>(kyberDaoInfo?.daoStatsApi + '/proposals', fetcher)
+  const { data: proposals } = useSWR<ProposalDetail[]>(kyberDaoInfo?.daoStatsApi + '/proposals', fetcher, {
+    refreshInterval: 15000,
+  })
 
   const { data: stakerInfo } = useSWR<StakerInfo>(
     daoInfo?.current_epoch &&
@@ -386,7 +387,7 @@ export function useProposalInfoById(id?: number): { proposalInfo?: ProposalDetai
   const { data } = useSWRImmutable(
     id !== undefined ? kyberDaoInfo?.daoStatsApi + '/proposals/' + id : undefined,
     fetcher,
-    {},
+    { refreshInterval: 15000 },
   )
   return { proposalInfo: data }
 }

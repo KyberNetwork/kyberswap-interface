@@ -111,6 +111,15 @@ function readableTime(seconds: number) {
   return returntext.trim()
 }
 
+const formatVotingPower = (votingPowerNumber: number) => {
+  if (votingPowerNumber === undefined) return '--'
+  if (votingPowerNumber === 0) return '0%'
+  if (votingPowerNumber < 0.0001) {
+    return '<0.0001 %'
+  }
+  return votingPowerNumber.toPrecision(4) + ' %'
+}
+
 export default function Vote() {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
@@ -238,9 +247,9 @@ export default function Vote() {
                     color={hasPendingStakeAmount ? (hasStakeAmount ? theme.warning : theme.border) : theme.text}
                     fontWeight={500}
                   >
-                    {stakerInfo && daoInfo?.total_staked
-                      ? parseFloat(((totalStakedAmount / daoInfo.total_staked) * 100).toFixed(6)) + ' %'
-                      : '--'}
+                    {formatVotingPower(
+                      daoInfo.total_staked && totalStakedAmount && (totalStakedAmount / daoInfo.total_staked) * 100,
+                    )}
                     {hasPendingStakeAmount && hasStakeAmount && (
                       <InfoHelper
                         fontSize={12}
@@ -255,23 +264,21 @@ export default function Vote() {
                             <Text color={theme.warning}>
                               <Trans>
                                 Voting Power this Epoch:{' '}
-                                {(stakerInfo?.stake_amount && daoInfo?.total_staked
-                                  ? parseFloat(
-                                      (((stakerInfo?.stake_amount || 0) / (daoInfo?.total_staked || 1)) * 100).toFixed(
-                                        6,
-                                      ),
-                                    )
-                                  : '--') + ' %'}
+                                {formatVotingPower(
+                                  stakerInfo?.stake_amount &&
+                                    daoInfo?.total_staked &&
+                                    (stakerInfo.stake_amount / daoInfo.total_staked) * 100,
+                                )}
                               </Trans>
                             </Text>
                             <Text color={theme.text}>
                               <Trans>
                                 Voting Power next Epoch:{' '}
-                                {(totalStakedAmount && daoInfo?.total_staked
-                                  ? parseFloat(
-                                      (((totalStakedAmount || 0) / (daoInfo?.total_staked || 1)) * 100).toFixed(6),
-                                    )
-                                  : '--') + ' %'}
+                                {formatVotingPower(
+                                  totalStakedAmount &&
+                                    daoInfo?.total_staked &&
+                                    (totalStakedAmount / daoInfo?.total_staked) * 100,
+                                )}
                               </Trans>
                             </Text>
                           </AutoColumn>
