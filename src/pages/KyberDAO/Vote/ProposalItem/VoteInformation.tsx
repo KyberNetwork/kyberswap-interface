@@ -1,12 +1,14 @@
 import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
+import { useMemo } from 'react'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import Divider from 'components/Divider'
 import InfoHelper from 'components/InfoHelper'
 import { RowBetween } from 'components/Row'
-import { useStakingInfo } from 'hooks/kyberdao'
+import { useActiveWeb3React } from 'hooks'
+import { useStakingInfo, useVotingInfo } from 'hooks/kyberdao'
 import { ProposalDetail } from 'hooks/kyberdao/types'
 import useTheme from 'hooks/useTheme'
 import { getFullDisplayBalance } from 'utils/formatBalance'
@@ -27,7 +29,16 @@ const InfoRow = styled(RowBetween)`
 `
 export default function VoteInformation({ proposal }: { proposal: ProposalDetail }) {
   const theme = useTheme()
-  const { stakedBalance } = useStakingInfo()
+  const { account } = useActiveWeb3React()
+  const { stakerInfo } = useVotingInfo()
+  const votePowerAmount: number = useMemo(
+    () =>
+      stakerInfo
+        ? (stakerInfo.delegate.toLowerCase() === account?.toLowerCase() ? stakerInfo.stake_amount : 0) +
+          stakerInfo.delegated_stake_amount
+        : 0,
+    [stakerInfo, account],
+  )
   return (
     <Wrapper>
       <Text>
@@ -74,13 +85,8 @@ export default function VoteInformation({ proposal }: { proposal: ProposalDetail
           />
         </Text>
         <Text color={theme.text}>
-          {stakedBalance && proposal.vote_stats.total_vote_count > 0
-            ? parseFloat(
-                (
-                  (parseFloat(getFullDisplayBalance(stakedBalance, 18)) / proposal.vote_stats.total_vote_count) *
-                  100
-                ).toFixed(6),
-              )
+          {votePowerAmount > 0 && proposal.vote_stats.total_vote_count > 0
+            ? +((votePowerAmount / proposal.vote_stats.total_vote_count) * 100).toPrecision(4)
             : proposal.vote_stats.total_vote_count === 0
             ? 100
             : 0}

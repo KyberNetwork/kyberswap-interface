@@ -8,7 +8,6 @@ export enum ProposalStatus {
   Queued = 'Queued',
   Failed = 'Failed',
   Expired = 'Expired',
-  Ended = 'Ended',
 }
 
 export enum ProposalType {
