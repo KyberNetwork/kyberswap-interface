@@ -1,5 +1,7 @@
+import { Trans } from '@lingui/macro'
 import { useHistory } from 'react-router-dom'
-import { Flex, Text } from 'rebass'
+import { Text } from 'rebass'
+import styled from 'styled-components'
 
 import Loader from 'components/Loader'
 import { APP_PATHS } from 'constants/index'
@@ -7,6 +9,14 @@ import useGetGrantProgram from 'hooks/campaigns/useGetGrantProgram'
 import useTheme from 'hooks/useTheme'
 
 import SingleProgram from './SingleProgram'
+
+const Wrapper = styled.div`
+  display: flex;
+  height: 400px;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+`
 
 type Props = {
   id: string
@@ -19,16 +29,9 @@ const SpecificProgram: React.FC<Props> = ({ id }) => {
 
   if (isValidating) {
     return (
-      <Flex
-        sx={{
-          height: '400px',
-          width: '100%',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
+      <Wrapper>
         <Loader />
-      </Flex>
+      </Wrapper>
     )
   }
 
@@ -36,14 +39,7 @@ const SpecificProgram: React.FC<Props> = ({ id }) => {
     history.push(APP_PATHS.GRANT_PROGRAMS)
 
     return (
-      <Flex
-        sx={{
-          height: '400px',
-          width: '100%',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
+      <Wrapper>
         <Text
           sx={{
             fontWeight: 400,
@@ -52,9 +48,9 @@ const SpecificProgram: React.FC<Props> = ({ id }) => {
             color: theme.text,
           }}
         >
-          {error || 'Something went wrong'}
+          {JSON.stringify(error) || <Trans>Something went wrong</Trans>}
         </Text>
-      </Flex>
+      </Wrapper>
     )
   }
 

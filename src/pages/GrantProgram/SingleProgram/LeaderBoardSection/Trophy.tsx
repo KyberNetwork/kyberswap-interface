@@ -124,23 +124,28 @@ const Trophy: React.FC<{
       return
     }
 
-    const observer = new IntersectionObserver(
-      (entries, observer) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            setVisible(true)
-          }
-        })
-      },
-      {
-        rootMargin: '0px',
-        threshold: 0.2,
-      },
-    )
-    observer.observe(ref.current)
+    try {
+      const observer = new IntersectionObserver(
+        entries => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              setVisible(true)
+            }
+          })
+        },
+        {
+          rootMargin: '0px',
+          threshold: 0.2,
+        },
+      )
+      observer.observe(ref.current)
 
-    return () => {
-      observer.disconnect()
+      return () => {
+        observer.disconnect()
+      }
+    } catch (e) {
+      setVisible(true)
+      return // redundant, but make ESLint happy
     }
   }, [])
 

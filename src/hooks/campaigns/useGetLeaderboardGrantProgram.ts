@@ -19,11 +19,7 @@ type Response = {
 }
 
 const generateUrl = ({ id, rankBy, page = 1, pageSize = 5 }: Args) => {
-  if (!id) {
-    return ''
-  }
-
-  if (!rankBy) {
+  if (!id || !rankBy) {
     return ''
   }
 

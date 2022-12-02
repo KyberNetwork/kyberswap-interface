@@ -145,7 +145,9 @@ const LeaderBoardSection: React.FC<Props> = ({ programId, showRefreshTimer }) =>
         gap: '48px',
       }}
     >
-      <HeaderText>Projects Leaderboard</HeaderText>
+      <HeaderText>
+        <Trans>Projects Leaderboard</Trans>
+      </HeaderText>
 
       <Flex
         sx={{

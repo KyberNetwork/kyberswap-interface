@@ -64,13 +64,7 @@ const StatsCard: React.FC<CardProps> = ({ icon, value, title }) => {
       </Flex>
 
       <CardContentWrapper>
-        {value ? (
-          <CardValue>{value}</CardValue>
-        ) : (
-          <CardValue>
-            <Loader />
-          </CardValue>
-        )}
+        <CardValue>{value || <Loader />}</CardValue>
         <CardTitle>{title}</CardTitle>
       </CardContentWrapper>
     </StatsCardWrapper>

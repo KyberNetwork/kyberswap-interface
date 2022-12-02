@@ -12,7 +12,7 @@ type Response = {
 
 const useGetGrantProgram = (id = 'latest') => {
   return useSWR<GrantProgram>(
-    `${SWR_KEYS.getGrantProgram}/${id}`,
+    `${SWR_KEYS.getGrantProgram(id)}`,
     async (url: string) => {
       const response = await axios.get<Response>(url)
 
