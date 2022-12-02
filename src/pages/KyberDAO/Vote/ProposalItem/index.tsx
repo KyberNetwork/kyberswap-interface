@@ -11,7 +11,7 @@ import { ButtonLight, ButtonPrimary } from 'components/Button'
 import LaunchIcon from 'components/Icons/LaunchIcon'
 import Row, { RowBetween, RowFit, RowFixed } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
-import { useStakingInfo, useVotingInfo } from 'hooks/kyberdao'
+import { useVotingInfo } from 'hooks/kyberdao'
 import { ProposalDetail, ProposalStatus, ProposalType } from 'hooks/kyberdao/types'
 import useTheme from 'hooks/useTheme'
 import { useSwitchToEthereum } from 'pages/KyberDAO/StakeKNC/SwitchToEthereumModal'
@@ -210,11 +210,12 @@ export default function ProposalItem({
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const { votesInfo, stakerInfo } = useVotingInfo()
-  const { isDelegated } = useStakingInfo()
   const totalVotePowerAmount = stakerInfo
     ? (stakerInfo.delegate.toLowerCase() === account?.toLowerCase() ? stakerInfo.stake_amount : 0) +
       stakerInfo.delegated_stake_amount
     : 0
+
+  const isDelegated = !!stakerInfo && stakerInfo.delegate.toLowerCase() !== account?.toLowerCase()
 
   const [show, setShow] = useState(!!showByDefault)
   const [selectedOptions, setSelectedOptions] = useState<number[]>([])
@@ -256,6 +257,7 @@ export default function ProposalItem({
   }, [switchToEthereum, setShowConfirmModal, selectedOptions])
 
   const handleVoteConfirm = useCallback(() => {
+    setShowConfirmModal(false)
     selectedOptions.length > 0 &&
       voteCallback?.(
         proposal.proposal_id,
@@ -267,6 +269,10 @@ export default function ProposalItem({
     () => votesInfo?.find(v => v.proposal_id === proposal.proposal_id),
     [votesInfo, proposal.proposal_id],
   )
+
+  useEffect(() => {
+    setSelectedOptions([])
+  }, [votedOfCurrentProposal])
 
   const handleOptionClick = useCallback(
     (option: number) => {
@@ -374,7 +380,12 @@ export default function ProposalItem({
         <Row align="flex-start" gap="16px">
           <div style={{ flex: 1 }}>
             {proposal?.link && proposal.link !== '0x0' && (
-              <a href={proposal.link} style={{ marginBottom: '12px', width: 'fit-content' }}>
+              <a
+                href={proposal.link}
+                style={{ marginBottom: '12px', width: 'fit-content' }}
+                target="_blank"
+                rel="noreferrer"
+              >
                 <span style={{ marginRight: '4px' }}>
                   <LaunchIcon size={14} />
                 </span>
@@ -404,7 +415,8 @@ export default function ProposalItem({
       {proposal.status === ProposalStatus.Active && (
         <VoteConfirmModal
           isShow={showConfirmModal}
-          toggle={() => setShowConfirmModal(prev => !prev)}
+          title={proposal.title}
+          toggle={() => setShowConfirmModal(false)}
           options={selectedOptions.length > 0 ? selectedOptions.map(option => proposal.options[option]).join(', ') : ''}
           onVoteConfirm={handleVoteConfirm}
         />

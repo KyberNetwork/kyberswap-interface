@@ -34,10 +34,10 @@ import MigrateModal from './MigrateModal'
 import SwitchToEthereumModal, { useSwitchToEthereum } from './SwitchToEthereumModal'
 import YourTransactionsModal from './YourTransactionsModal'
 
-const STAKE_TAB: { [key: string]: string } = {
-  Stake: 'Stake',
-  Unstake: 'Unstake',
-  Delegate: 'Delegate',
+enum STAKE_TAB {
+  Stake = 'Stake',
+  Unstake = 'Unstake',
+  Delegate = 'Delegate',
 }
 const Wrapper = styled.div`
   display: flex;
@@ -403,7 +403,7 @@ export default function StakeKNCComponent() {
     <Wrapper>
       <TabSelect>
         {Object.keys(STAKE_TAB).map((tab: string) => (
-          <TabOption key={tab} onClick={() => setActiveTab(STAKE_TAB[tab])} $active={activeTab === STAKE_TAB[tab]}>
+          <TabOption key={tab} onClick={() => setActiveTab(tab as STAKE_TAB)} $active={activeTab === tab}>
             {tab}
           </TabOption>
         ))}
@@ -590,9 +590,12 @@ export default function StakeKNCComponent() {
                 {formatUnits(stakedBalance)} KNC
                 {activeTab !== STAKE_TAB.Delegate && (
                   <>
+                    {' '}
                     &rarr;{' '}
                     <span style={{ color: theme.text }}>
-                      {parseFloat(formatUnits(stakedBalance)) - parseFloat(inputValue || '0')} KNC
+                      {+formatUnits(stakedBalance) +
+                        (activeTab === STAKE_TAB.Unstake ? -(inputValue || '0') : +(inputValue || '0'))}{' '}
+                      KNC
                     </span>
                   </>
                 )}
@@ -610,9 +613,16 @@ export default function StakeKNCComponent() {
                 {calculateVotingPower(formatUnits(stakedBalance))}%
                 {activeTab !== STAKE_TAB.Delegate && (
                   <>
+                    {' '}
                     &rarr;{' '}
                     <span style={{ color: theme.text }}>
-                      {parseFloat(calculateVotingPower(formatUnits(stakedBalance), '-' + inputValue))}%
+                      {parseFloat(
+                        calculateVotingPower(
+                          formatUnits(stakedBalance),
+                          (activeTab === STAKE_TAB.Unstake ? '-' : '') + inputValue,
+                        ),
+                      )}
+                      %
                     </span>
                   </>
                 )}

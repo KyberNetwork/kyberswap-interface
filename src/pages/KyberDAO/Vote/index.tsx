@@ -2,7 +2,7 @@ import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import RelativeTime from 'dayjs/plugin/relativeTime'
 import { transparentize } from 'polished'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Clock } from 'react-feather'
 import { Box, Text } from 'rebass'
@@ -18,7 +18,7 @@ import { AutoRow, RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
 import { useActiveWeb3React } from 'hooks'
-import { useClaimRewardActions, useStakingInfo, useVotingActions, useVotingInfo } from 'hooks/kyberdao'
+import { useClaimRewardActions, useVotingActions, useVotingInfo } from 'hooks/kyberdao'
 import useTotalVotingReward from 'hooks/kyberdao/useTotalVotingRewards'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
@@ -130,8 +130,7 @@ const formatVotingPower = (votingPowerNumber: number) => {
 export default function Vote() {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
-  const { daoInfo, remainingCumulativeAmount, userRewards, stakerInfo } = useVotingInfo()
-  const { isDelegated, delegatedAddress } = useStakingInfo()
+  const { daoInfo, remainingCumulativeAmount, userRewards, stakerInfo, stakerInfoNextEpoch } = useVotingInfo()
   const kncPrice = useKNCPrice()
   const { knc, usd } = useTotalVotingReward()
   const { claim } = useClaimRewardActions()
@@ -148,12 +147,28 @@ export default function Vote() {
   const [txHash, setTxHash] = useState<string | undefined>(undefined)
 
   const totalStakedAmount = stakerInfo ? stakerInfo?.stake_amount + stakerInfo?.pending_stake_amount : 0
-  const totalVotePowerAmount = stakerInfo
-    ? (stakerInfo.delegate.toLowerCase() === account?.toLowerCase() ? stakerInfo.stake_amount : 0) +
-      stakerInfo.delegated_stake_amount
-    : 0
+  const votePowerAmount: number = useMemo(
+    () =>
+      stakerInfo
+        ? (stakerInfo.delegate.toLowerCase() === account?.toLowerCase() ? stakerInfo.stake_amount : 0) +
+          stakerInfo.delegated_stake_amount
+        : 0,
+    [stakerInfo, account],
+  )
+  const nextEpochVotePowerAmount: number = useMemo(
+    () =>
+      stakerInfoNextEpoch
+        ? (stakerInfoNextEpoch.delegate.toLowerCase() === account?.toLowerCase()
+            ? stakerInfoNextEpoch.stake_amount
+            : 0) + stakerInfoNextEpoch.delegated_stake_amount
+        : 0,
+    [stakerInfoNextEpoch, account],
+  )
+
   const hasStakeAmount = stakerInfo && stakerInfo.stake_amount > 0
   const hasPendingStakeAmount = stakerInfo && stakerInfo.pending_stake_amount > 0
+  const hasDelegatedAmount = stakerInfo && stakerInfo.delegated_stake_amount > 0
+  const isDelegated = stakerInfo && account ? stakerInfo.delegate?.toLowerCase() !== account.toLowerCase() : false
 
   const handleClaim = useCallback(() => {
     toggleClaimConfirmModal()
@@ -188,7 +203,6 @@ export default function Vote() {
         .then(tx => {
           setAttemptingTxn(false)
           setTxHash(tx)
-          setShowConfirm(false)
         })
         .catch(error => {
           console.log(error)
@@ -246,6 +260,8 @@ export default function Vote() {
               <Text color={theme.subText} marginBottom="20px">
                 <Trans>Your Voting Power</Trans>{' '}
                 <InfoHelper
+                  fontSize={12}
+                  placement="top"
                   text={t`Your voting power is calculated by
 [Your Staked KNC] / [Total Staked KNC] * 100%`}
                 />
@@ -255,52 +271,67 @@ export default function Vote() {
                 <RowFit>
                   <Text
                     fontSize={20}
-                    color={hasPendingStakeAmount ? (hasStakeAmount ? theme.warning : theme.border) : theme.text}
+                    color={hasPendingStakeAmount && !hasStakeAmount ? theme.border : theme.text}
                     fontWeight={500}
                   >
                     {formatVotingPower(
-                      daoInfo?.total_staked &&
-                        totalVotePowerAmount &&
-                        (totalVotePowerAmount / daoInfo.total_staked) * 100,
+                      daoInfo?.total_staked && votePowerAmount && (votePowerAmount / daoInfo.total_staked) * 100,
                     )}
-                    {hasPendingStakeAmount && hasStakeAmount && (
+                    {(hasPendingStakeAmount && hasStakeAmount) || hasDelegatedAmount ? (
                       <InfoHelper
                         fontSize={12}
                         placement="top"
+                        width="fit-content"
                         color={theme.warning}
                         size={14}
                         text={
                           <AutoColumn gap="8px">
-                            <Text color={theme.subText} lineHeight="14px">
-                              <Trans>A portion of your voting power can only be used from the next Epoch onward</Trans>
-                            </Text>
-                            <Text color={theme.warning}>
-                              <Trans>
-                                Voting Power this Epoch:{' '}
-                                {formatVotingPower(
-                                  totalVotePowerAmount &&
-                                    daoInfo?.total_staked &&
-                                    (totalVotePowerAmount / daoInfo.total_staked) * 100,
-                                )}
-                              </Trans>
+                            <Text color={theme.subText} lineHeight="14px" style={{ width: '260px' }}>
+                              {hasPendingStakeAmount ? (
+                                <Trans>
+                                  A portion of your voting power can only be used from the next Epoch onward
+                                </Trans>
+                              ) : (
+                                <Trans>You have been delegated voting power from other address(es)</Trans>
+                              )}
                             </Text>
                             <Text color={theme.text}>
                               <Trans>
-                                Voting Power next Epoch:{' '}
+                                Your Voting Power this Epoch:{' '}
                                 {formatVotingPower(
-                                  totalVotePowerAmount &&
+                                  votePowerAmount &&
                                     daoInfo?.total_staked &&
-                                    stakerInfo?.pending_stake_amount &&
-                                    (totalVotePowerAmount + stakerInfo?.pending_stake_amount / daoInfo.total_staked) *
-                                      100,
+                                    (votePowerAmount / daoInfo.total_staked) * 100,
+                                )}
+                              </Trans>
+                            </Text>
+                            {stakerInfo?.delegated_stake_amount ? (
+                              <Text color={theme.text}>
+                                <Trans>
+                                  Your Delegated Voting Power:{' '}
+                                  {formatVotingPower(
+                                    stakerInfo?.delegated_stake_amount &&
+                                      daoInfo?.total_staked &&
+                                      (stakerInfo?.delegated_stake_amount / daoInfo.total_staked) * 100,
+                                  )}
+                                </Trans>
+                              </Text>
+                            ) : null}
+                            <Text color={theme.warning}>
+                              <Trans>
+                                Your Voting Power next Epoch:{' '}
+                                {formatVotingPower(
+                                  nextEpochVotePowerAmount &&
+                                    daoInfo?.total_staked &&
+                                    (nextEpochVotePowerAmount / daoInfo.total_staked) * 100,
                                 )}
                               </Trans>
                             </Text>
                           </AutoColumn>
                         }
                       />
-                    )}
-                    {hasPendingStakeAmount && !hasStakeAmount && (
+                    ) : null}
+                    {totalStakedAmount && stakerInfo?.stake_amount === 0 && !isDelegated ? (
                       <InfoHelper
                         fontSize={12}
                         size={14}
@@ -308,27 +339,29 @@ export default function Vote() {
                         placement="top"
                         text={t`You can only vote from the next Epoch onward`}
                       />
-                    )}
+                    ) : null}
                   </Text>
-                  {!totalStakedAmount && (
+                  {!totalStakedAmount ? (
                     <InfoHelper text={t`You have to stake KNC to be able to vote and earn voting reward`} />
-                  )}
+                  ) : null}
                 </RowFit>
-                {isDelegated && delegatedAddress && (
+                {isDelegated && (
                   <MouseoverTooltip
                     text={t`You have already delegated your voting power to this address`}
                     placement="top"
                   >
                     <RowFit gap="4px" color={theme.subText}>
                       <VoteIcon size={14} />
-                      <Text fontSize={12}>{delegatedAddress.slice(0, 5) + '...' + delegatedAddress.slice(-4)}</Text>
+                      <Text fontSize={12}>
+                        {stakerInfo?.delegate.slice(0, 5) + '...' + stakerInfo?.delegate.slice(-4)}
+                      </Text>
                     </RowFit>
                   </MouseoverTooltip>
                 )}
               </RowBetween>
               <RowBetween>
                 <Text fontSize={12} color={theme.subText}>
-                  {stakerInfo ? totalStakedAmount + ' KNC Staked' : '--'}
+                  {totalStakedAmount ? totalStakedAmount + ' KNC Staked' : '--'}
                 </Text>
                 <StyledInternalLink to="/kyberdao/stake-knc" style={{ fontSize: '12px' }}>
                   <Trans>Stake KNC ↗</Trans>
@@ -348,10 +381,7 @@ export default function Vote() {
                       {formatUnitsToFixed(remainingCumulativeAmount)} KNC
                     </Text>
                     <Text fontSize={12} color={theme.subText}>
-                      {(
-                        parseFloat(formatUnitsToFixed(remainingCumulativeAmount)) * parseFloat(kncPrice || '0')
-                      ).toFixed(2)}{' '}
-                      USD
+                      {(+formatUnitsToFixed(remainingCumulativeAmount) * +(kncPrice || '0')).toFixed(2)} USD
                     </Text>
                   </AutoColumn>
                   <ButtonPrimary

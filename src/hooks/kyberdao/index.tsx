@@ -344,6 +344,12 @@ export function useVotingInfo() {
       kyberDaoInfo?.daoStatsApi + '/stakers/' + account + '?epoch=' + daoInfo?.current_epoch,
     fetcher,
   )
+  const { data: stakerInfoNextEpoch } = useSWR<StakerInfo>(
+    daoInfo?.current_epoch &&
+      account &&
+      kyberDaoInfo?.daoStatsApi + '/stakers/' + account + '?epoch=' + daoInfo?.current_epoch + 1,
+    fetcher,
+  )
 
   const calculateVotingPower = useCallback(
     (kncAmount: string, newStakingAmount?: string) => {
@@ -378,6 +384,7 @@ export function useVotingInfo() {
     userReward: userRewards?.userReward,
     remainingCumulativeAmount,
     stakerInfo,
+    stakerInfoNextEpoch,
     votesInfo,
   }
 }
