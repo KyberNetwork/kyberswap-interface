@@ -1,7 +1,6 @@
 import { Trans, t } from '@lingui/macro'
-import { darken } from 'polished'
 import { ArrowLeft, Trash } from 'react-feather'
-import { NavLink, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -27,34 +26,6 @@ const Wrapper = styled(RowBetween)`
 
   @media only screen and (min-width: 768px) {
     padding: 1rem 0;
-  }
-`
-
-const activeClassName = 'ACTIVE'
-
-const StyledNavLink = styled(NavLink).attrs({
-  activeClassName,
-})`
-  ${({ theme }) => theme.flexRowNoWrap}
-  align-items: center;
-  justify-content: center;
-  height: 3rem;
-  border-radius: 3rem;
-  outline: none;
-  cursor: pointer;
-  text-decoration: none;
-  color: ${({ theme }) => theme.text3};
-  font-size: 20px;
-
-  &.${activeClassName} {
-    border-radius: 12px;
-    font-weight: 500;
-    color: ${({ theme }) => theme.text};
-  }
-
-  :hover,
-  :focus {
-    color: ${({ theme }) => darken(0.1, theme.text)};
   }
 `
 
@@ -111,19 +82,6 @@ const StyledMenuButton = styled.button<{ active?: boolean }>`
         `
       : ''}
 `
-
-export function SwapPoolTabs({ active }: { active: 'swap' | 'pool' }) {
-  return (
-    <Tabs style={{ marginBottom: '20px', display: 'none' }}>
-      <StyledNavLink id={`swap-nav-link`} to={'/swap'}>
-        <Trans>Swap</Trans>
-      </StyledNavLink>
-      <StyledNavLink id={`pool-nav-link`} to={'/pool'}>
-        <Trans>Pool</Trans>
-      </StyledNavLink>
-    </Tabs>
-  )
-}
 
 export function FindPoolTabs() {
   const navigate = useNavigate()

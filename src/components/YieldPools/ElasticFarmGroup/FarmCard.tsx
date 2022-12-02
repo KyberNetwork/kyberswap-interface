@@ -98,6 +98,10 @@ const FarmCard = ({
   const setSharePoolAddress = useSharePoolContext()
   const [showPosition, setShowPosition] = useState(false)
 
+  const addliquidityElasticPool = `/elastic/add/${pool.token0.isNative ? pool.token0.symbol : pool.token0.address}/${
+    pool.token1.isNative ? pool.token1.symbol : pool.token1.address
+  }/${pool.pool.fee}`
+
   return (
     <FlipCard flip={showPosition}>
       {!showPosition && (
@@ -106,9 +110,7 @@ const FarmCard = ({
             <Flex alignItems="center">
               <DoubleCurrencyLogo currency0={pool.token0} currency1={pool.token1} size={20} />
               <Link
-                to={`/elastic/add/${pool.token0.isNative ? pool.token0.symbol : pool.token0.address}/${
-                  pool.token1.isNative ? pool.token1.symbol : pool.token1.address
-                }/${pool.pool.fee}`}
+                to={addliquidityElasticPool}
                 style={{
                   textDecoration: 'none',
                 }}

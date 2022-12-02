@@ -3,6 +3,7 @@ import { stringify } from 'querystring'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 
+import { APP_PATHS } from 'constants/index'
 import { ELASTIC_NOT_SUPPORTED, VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -36,9 +37,9 @@ function ClassicElasticTab() {
             if (!!notSupportedMsg) return
             const newQs = { ...qs, tab: VERSION.ELASTIC }
             let type: MIXPANEL_TYPE | '' = ''
-            if (location.pathname.startsWith('/pools')) {
+            if (location.pathname.startsWith(APP_PATHS.POOLS)) {
               type = MIXPANEL_TYPE.ELASTIC_POOLS_ELASTIC_POOLS_CLICKED
-            } else if (location.pathname.startsWith('/myPools'))
+            } else if (location.pathname.startsWith(APP_PATHS.MY_POOLS))
               type = MIXPANEL_TYPE.ELASTIC_MYPOOLS_ELASTIC_POOLS_CLICKED
             if (type) mixpanelHandler(type)
             navigate({ search: stringify(newQs) }, { replace: true })

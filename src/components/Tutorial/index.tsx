@@ -150,13 +150,9 @@ function Tutorial({ customIcon, type, showTooltip }: Props) {
     <>
       {customIcon ? (
         <Flex onClick={() => setShow(true)} alignItems="center">
-          {showTooltip ? (
-            <MouseoverTooltip text={t`Tutorial`} placement="top" width="fit-content">
-              {customIcon}
-            </MouseoverTooltip>
-          ) : (
-            customIcon
-          )}
+          <MouseoverTooltip text={t`Tutorial`} placement="top" width="fit-content" disableTooltip={!showTooltip}>
+            {customIcon}
+          </MouseoverTooltip>
         </Flex>
       ) : (
         <Btn onClick={() => setShow(true)}>

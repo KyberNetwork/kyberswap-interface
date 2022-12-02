@@ -353,7 +353,7 @@ export default function Header() {
         <HeaderLinks>
           <HoverDropdown
             forceShowDropdown={isShowTutorial && stepInfo?.selector === `#${TutorialIds.BRIDGE_LINKS}`}
-            active={pathname.includes('/swap') || pathname === '/buy-crypto' || pathname === '/bridge'}
+            active={pathname.includes(APP_PATHS.SWAP) || [APP_PATHS.BUY_CRYPTO, APP_PATHS.BRIDGE].includes(pathname)}
           >
             <Flex alignItems="center">
               <Trans>Swap</Trans>
@@ -361,7 +361,7 @@ export default function Header() {
             </Flex>
 
             <Dropdown>
-              <StyledNavLink id={`swapv2-nav-link`} to={'/swap'} style={{ flexDirection: 'column' }}>
+              <StyledNavLink id={`swapv2-nav-link`} to={APP_PATHS.SWAP} style={{ flexDirection: 'column' }}>
                 <Flex alignItems="center" sx={{ gap: '13px' }}>
                   <Repeat size={16} />
                   <Trans>Swap</Trans>
@@ -370,7 +370,7 @@ export default function Header() {
               <div id={TutorialIds.BRIDGE_LINKS}>
                 <StyledNavLink
                   id={`buy-crypto-nav-link`}
-                  to={'/buy-crypto'}
+                  to={APP_PATHS.BUY_CRYPTO}
                   onClick={() => {
                     mixpanelHandler(MIXPANEL_TYPE.SWAP_BUY_CRYPTO_CLICKED)
                   }}
@@ -417,11 +417,11 @@ export default function Header() {
                   <DropdownIcon />
                 </Flex>
                 <Dropdown>
-                  <StyledNavLink id="pools-nav-link" to="/pools" style={{ width: '100%' }}>
+                  <StyledNavLink id="pools-nav-link" to={APP_PATHS.POOLS} style={{ width: '100%' }}>
                     <Trans>Pools</Trans>
                   </StyledNavLink>
 
-                  <StyledNavLink id="my-pools-nav-link" to="/myPools">
+                  <StyledNavLink id="my-pools-nav-link" to={APP_PATHS.MY_POOLS}>
                     <Trans>My Pools</Trans>
                   </StyledNavLink>
 

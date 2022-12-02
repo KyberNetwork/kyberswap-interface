@@ -22,6 +22,7 @@ import { RowBetween } from 'components/Row'
 import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
 import { TutorialType } from 'components/Tutorial'
 import { Dots } from 'components/swap/styleds'
+import { APP_PATHS } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { VERSION } from 'constants/v2'
@@ -62,7 +63,7 @@ export default function AddLiquidity() {
 
   useEffect(() => {
     if (!!chainId && !!prevChainId && chainId !== prevChainId) {
-      navigate('/myPools')
+      navigate(APP_PATHS.MY_POOLS)
     }
   }, [chainId, prevChainId, navigate])
 

@@ -15,7 +15,6 @@ import Card, { GreyCard } from 'components/Card/index'
 import Column, { AutoColumn } from 'components/Column/index'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import Loader from 'components/Loader'
-import { SwapPoolTabs } from 'components/NavigationTabs'
 import ProgressSteps from 'components/ProgressSteps'
 import { AutoRow, RowBetween } from 'components/Row'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
@@ -265,7 +264,6 @@ export default function Swap() {
         onDismiss={handleDismissTokenWarning}
       />
       <AppBody>
-        <SwapPoolTabs active={'swap'} />
         <RowBetween mb={'16px'}>
           <TYPE.black color={theme.text} fontSize={20} fontWeight={500}>{t`Swap`}</TYPE.black>
           <TransactionSettings />
