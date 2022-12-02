@@ -217,7 +217,7 @@ function VestingCard({
         <ScheduleCardContent>
           <TotalHarvested>
             <MouseoverTooltip
-              text={t`The total amount of rewards you have harvested from the farms. Harvested rewards are locked initially and vested linearly over a short period.`}
+              text={t`The total amount of rewards you have harvested from the farms. Harvested rewards are locked initially and vested linearly over a short period.`}
             >
               <Title>
                 <Trans>Total Harvested Rewards</Trans>
@@ -302,7 +302,7 @@ function VestingCard({
                 <Flex alignItems="center" color={theme.subText} sx={{ gap: '4px' }}>
                   <Wallet />
                   <MouseoverTooltip
-                    text={t`The amount of rewards that are unlocked and?can be claimed instantly as their vesting is over`}
+                    text={t`The amount of rewards that are unlocked and can be claimed instantly as their vesting is over`}
                   >
                     <Title>Claimable Rewards</Title>
                   </MouseoverTooltip>
@@ -329,7 +329,7 @@ function VestingCard({
               <SummaryItem>
                 <Flex alignItems="center" color={theme.subText} sx={{ gap: '4px' }}>
                   <Wallet />
-                  <MouseoverTooltip text={t`The amount of rewards that are locked as they are currently vesting`}>
+                  <MouseoverTooltip text={t`The amount of rewards that are locked as they are currently vesting`}>
                     <Title>
                       <Trans>Locked Rewards</Trans>
                     </Title>
