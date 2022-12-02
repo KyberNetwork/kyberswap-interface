@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { ChevronDown } from 'react-feather'
 import { Box, Flex } from 'rebass'
 import styled from 'styled-components'
@@ -40,7 +40,7 @@ type Props = {
 
 const LeaderBoard: React.FC<Props> = ({ rankings, rankByConfig, page, setPage, totalRankings }) => {
   const theme = useTheme()
-  const [expandedProjectId, setExpandedProjectId] = useState<number>()
+  const [expandedIndex, setExpandedIndex] = useState<number>()
   const renderTableContent = () => {
     return rankings.slice(0, ITEMS_PER_PAGE).map((data, index) => {
       const background = getBackgroundByRank(data.rankNo)
@@ -50,10 +50,10 @@ const LeaderBoard: React.FC<Props> = ({ rankings, rankByConfig, page, setPage, t
             $background={background}
             role="button"
             onClick={() => {
-              if (expandedProjectId === data.competitorId) {
-                setExpandedProjectId(undefined)
+              if (expandedIndex === index) {
+                setExpandedIndex(undefined)
               } else {
-                setExpandedProjectId(data.competitorId)
+                setExpandedIndex(index)
               }
             }}
           >
@@ -102,14 +102,14 @@ const LeaderBoard: React.FC<Props> = ({ rankings, rankByConfig, page, setPage, t
                   height: '20px',
                   cursor: 'pointer',
                   transition: 'all 150ms linear',
-                  transform: expandedProjectId === data.competitorId ? 'rotate(180deg)' : undefined,
+                  transform: expandedIndex === index ? 'rotate(180deg)' : undefined,
                 }}
               >
                 <ChevronDown size="20" color={theme.text} />
               </Flex>
             </Cell>
           </Row>
-          {expandedProjectId === data.competitorId && (
+          {expandedIndex === index && (
             <ExpandedRankingSection
               background={background}
               name={data.name}
@@ -129,6 +129,10 @@ const LeaderBoard: React.FC<Props> = ({ rankings, rankByConfig, page, setPage, t
         return <Row key={i} />
       })
   }
+
+  useEffect(() => {
+    setExpandedIndex(undefined)
+  }, [page, rankByConfig])
 
   return (
     <Flex
