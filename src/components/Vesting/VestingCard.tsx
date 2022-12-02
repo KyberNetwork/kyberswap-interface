@@ -301,7 +301,9 @@ function VestingCard({
               <SummaryItem colorfull>
                 <Flex alignItems="center" color={theme.subText} sx={{ gap: '4px' }}>
                   <Wallet />
-                  <MouseoverTooltip text={t`The amount of rewards you have already claimed`}>
+                  <MouseoverTooltip
+                    text={t`The amount of rewards that are unlocked and?can be claimed instantly as their vesting is over`}
+                  >
                     <Title>Claimable Rewards</Title>
                   </MouseoverTooltip>
                 </Flex>
@@ -327,7 +329,7 @@ function VestingCard({
               <SummaryItem>
                 <Flex alignItems="center" color={theme.subText} sx={{ gap: '4px' }}>
                   <Wallet />
-                  <MouseoverTooltip text={t`The amount of rewards you have already claimed`}>
+                  <MouseoverTooltip text={t`The amount of rewards that are locked as they are currently vesting`}>
                     <Title>
                       <Trans>Locked Rewards</Trans>
                     </Title>
