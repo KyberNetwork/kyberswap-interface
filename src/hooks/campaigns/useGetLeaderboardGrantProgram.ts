@@ -46,7 +46,7 @@ const useGetLeaderboardGrantProgram = (args: Args) => {
     },
     {
       revalidateOnFocus: false,
-      revalidateOnReconnect: false,
+      revalidateIfStale: false,
     },
   )
 

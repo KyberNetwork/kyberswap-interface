@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Info } from 'react-feather'
 import { Flex, Text } from 'rebass'
 
@@ -129,6 +129,11 @@ const LeaderBoardSection: React.FC<Props> = ({ programId, showRefreshTimer }) =>
 
     return null
   }
+
+  useEffect(() => {
+    // reset page to 1 when user changes tab
+    setPage(1)
+  }, [rankByConfig])
 
   return (
     <Flex
