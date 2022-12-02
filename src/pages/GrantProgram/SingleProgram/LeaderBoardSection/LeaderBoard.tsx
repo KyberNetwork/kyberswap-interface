@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import React, { useEffect, useState } from 'react'
 import { ChevronDown } from 'react-feather'
-import { Box, Flex } from 'rebass'
+import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import Bronze from 'assets/svg/bronze_icon.svg'
@@ -76,7 +76,8 @@ const LeaderBoard: React.FC<Props> = ({ rankings, rankByConfig, page, setPage, t
               <Flex
                 alignItems="center"
                 sx={{
-                  gap: '4px',
+                  columnGap: '4px',
+                  flexWrap: 'wrap',
                 }}
               >
                 <Box
@@ -90,7 +91,14 @@ const LeaderBoard: React.FC<Props> = ({ rankings, rankByConfig, page, setPage, t
                 >
                   <StyledLogo src={data.logoUrl} />
                 </Box>
-                <span>{data.name}</span>
+                <Text
+                  as="span"
+                  sx={{
+                    lineHeight: '1',
+                  }}
+                >
+                  {data.name}
+                </Text>
               </Flex>
             </Cell>
             <Cell textAlign="right">{rankByConfig.extracter(data)}</Cell>

@@ -32,7 +32,7 @@ export const TableWrapper = styled.div`
   width: 100%;
   padding: 20px;
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    padding: 16px;
+    padding: 16px 0;
   `}
 
   display: flex;
@@ -85,6 +85,11 @@ export const TableHeader = styled(Row)`
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
   background: ${({ theme }) => theme.tableHeader};
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+  `}
 `
 
 export const Cell = styled.div<{ textAlign?: 'left' | 'center' | 'right' }>`
