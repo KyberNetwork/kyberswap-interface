@@ -1057,6 +1057,7 @@ export const useGlobalMixpanelEvents = () => {
           break
       }
       pageName && mixpanelHandler(MIXPANEL_TYPE.PAGE_VIEWED, { page: pageName })
+      mixpanelHandler(MIXPANEL_TYPE.CAMPAIGN_ENTER_NOW_CLICKED, { campaign_name: 'test_enter_now' })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathName, account, chainId])
