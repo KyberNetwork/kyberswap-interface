@@ -1,7 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { transparentize } from 'polished'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { ChevronDown } from 'react-feather'
 import { Text } from 'rebass'
@@ -77,30 +77,30 @@ const StatusBadged = styled.div<{ status?: string }>`
   padding: 2px 14px;
   cursor: pointer;
 
+  :hover {
+    filter: brightness(0.8);
+  }
+
   ${({ status, theme }) => {
     if (status === 'pending')
       return css`
-        color: ${theme.blue};
-        background-color: ${transparentize(0.8, theme.blue)};
-        :hover {
-          background-color: ${transparentize(0.7, theme.blue)};
-        }
+        color: ${theme.warning};
+        background-color: ${transparentize(0.8, theme.warning)};
       `
     if (status === 'error')
       return css`
         color: ${theme.red};
         background-color: ${transparentize(0.8, theme.red)};
-        :hover {
-          background-color: ${transparentize(0.7, theme.red)};
-        }
       `
     if (status === 'success')
       return css`
         color: ${theme.primary};
         background-color: ${transparentize(0.8, theme.primary)};
-        :hover {
-          background-color: ${transparentize(0.7, theme.primary)};
-        }
+      `
+    if (status === 'active')
+      return css`
+        color: ${theme.blue};
+        background-color: ${transparentize(0.8, theme.blue)};
       `
     return css`
       color: ${theme.subText};
@@ -196,7 +196,7 @@ const VoteButton = ({
   )
 }
 
-export default function ProposalItem({
+function ProposalItem({
   proposal,
   showByDefault,
   onBadgeClick,
@@ -236,6 +236,8 @@ export default function ProposalItem({
   const contentRef = useRef<any>()
   const statusType = () => {
     switch (proposal.status) {
+      case ProposalStatus.Active:
+        return 'active'
       case ProposalStatus.Pending:
         return 'pending'
       case ProposalStatus.Canceled:
@@ -273,7 +275,6 @@ export default function ProposalItem({
   useEffect(() => {
     setSelectedOptions([])
   }, [votedOfCurrentProposal])
-
   const handleOptionClick = useCallback(
     (option: number) => {
       if (proposal.proposal_type === ProposalType.BinaryProposal) {
@@ -424,3 +425,4 @@ export default function ProposalItem({
     </ProposalItemWrapper>
   )
 }
+export default React.memo(ProposalItem)

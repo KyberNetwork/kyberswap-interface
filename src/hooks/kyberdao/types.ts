@@ -1,14 +1,14 @@
-export const ProposalStatus = {
-  Active: 'Active',
-  Pending: 'Pending',
-  Canceled: 'Canceled',
-  Executed: 'Executed',
-  Finalized: 'Finalized',
-  Succeeded: 'Approved',
-  Queued: 'Queued',
-  Failed: 'Failed',
-  Expired: 'Expired',
-  Ended: 'Ended',
+export enum ProposalStatus {
+  Active = 'Active',
+  Pending = 'Pending',
+  Canceled = 'Canceled',
+  Executed = 'Executed',
+  Finalized = 'Finalized',
+  Succeeded = 'Succeeded',
+  Queued = 'Queued',
+  Failed = 'Failed',
+  Expired = 'Expired',
+  Ended = 'Ended',
 }
 
 export enum ProposalType {
