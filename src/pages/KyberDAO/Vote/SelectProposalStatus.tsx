@@ -88,7 +88,7 @@ export default function SelectProposalStatus({
   return (
     <>
       <Wrapper ref={ref as any}>
-        <Select style={{ zIndex: 2 }} onClick={() => setShow(s => !s)}>
+        <Select onClick={() => setShow(s => !s)}>
           <Text color={!!status && status !== 'All' ? theme.text : undefined}>{status || 'All'}</Text>
           <ChevronDown size={16} />
         </Select>

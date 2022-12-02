@@ -169,6 +169,15 @@ const VoteButton = ({
 }) => {
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
+  const onLoad = useRef(true)
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      onLoad.current = false
+    }, 1500)
+    return () => {
+      clearTimeout(timeout)
+    }
+  }, [])
 
   return (
     <>
@@ -180,9 +189,15 @@ const VoteButton = ({
             fontWeight={500}
             fontSize="14px"
             onClick={onVoteClick}
-            disabled={!!errorMessage}
+            disabled={onLoad.current || !!errorMessage}
           >
-            {errorMessage ? errorMessage : voted ? <Trans>Update Vote</Trans> : <Trans>Vote now</Trans>}
+            {errorMessage && !onLoad.current ? (
+              errorMessage
+            ) : voted ? (
+              <Trans>Update Vote</Trans>
+            ) : (
+              <Trans>Vote now</Trans>
+            )}
           </ButtonPrimary>
         ) : (
           <ButtonLight width={isMobile ? '100%' : '200px'} onClick={toggleWalletModal}>
