@@ -333,6 +333,7 @@ export const APP_PATHS = {
   BUY_CRYPTO: '/buy-crypto',
   BRIDGE: '/bridge',
   VERIFY: '/verify',
+  VERIFY_EXTERNAL: '/verify-external',
 }
 
 export enum FARM_TAB {
