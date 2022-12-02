@@ -381,7 +381,7 @@ export default function ProposalItem({
           <div style={{ flex: 1 }}>
             {proposal?.link && proposal.link !== '0x0' && (
               <a
-                href={proposal.link}
+                href={proposal.link?.startsWith('http') ? proposal.link : 'http://' + proposal.link}
                 style={{ marginBottom: '12px', width: 'fit-content' }}
                 target="_blank"
                 rel="noreferrer"
