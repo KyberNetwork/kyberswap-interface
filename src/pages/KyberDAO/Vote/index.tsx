@@ -297,7 +297,7 @@ export default function Vote() {
                             </Text>
                             <Text color={theme.text}>
                               <Trans>
-                                Your Voting Power this Epoch:{' '}
+                                Voting Power this Epoch:{' '}
                                 {formatVotingPower(
                                   votePowerAmount &&
                                     daoInfo?.total_staked &&
@@ -308,7 +308,7 @@ export default function Vote() {
                             {stakerInfo?.delegated_stake_amount ? (
                               <Text color={theme.text}>
                                 <Trans>
-                                  Your Delegated Voting Power:{' '}
+                                  Delegated Voting Power:{' '}
                                   {formatVotingPower(
                                     stakerInfo?.delegated_stake_amount &&
                                       daoInfo?.total_staked &&
@@ -319,7 +319,7 @@ export default function Vote() {
                             ) : null}
                             <Text color={theme.warning}>
                               <Trans>
-                                Your Voting Power next Epoch:{' '}
+                                Voting Power next Epoch:{' '}
                                 {formatVotingPower(
                                   nextEpochVotePowerAmount &&
                                     daoInfo?.total_staked &&
