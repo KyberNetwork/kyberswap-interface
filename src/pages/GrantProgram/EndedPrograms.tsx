@@ -1,4 +1,5 @@
 import { Trans } from '@lingui/macro'
+import { rgba } from 'polished'
 import { ChevronRight } from 'react-feather'
 import { useHistory } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -18,28 +19,82 @@ import Banner from './Banner'
 import CountdownTimer from './CountdownTimer'
 import Stats from './SingleProgram/Stats'
 
-const ButtonWrapper = styled.div`
+const SeeMoreWrapper = styled.div`
   position: absolute;
   right: 8px;
   bottom: 8px;
 
-  width: 36px;
   height: 36px;
 
   display: flex;
-  justify-content: center;
   align-items: center;
+  gap: 8px;
 
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 999px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(5px);
+  color: ${({ theme }) => theme.white};
+  transition: color 100ms linear;
 `
+
+const BannerWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  display: flex;
+  cursor: pointer;
+
+  &:hover {
+    ${SeeMoreWrapper} {
+      color: ${({ theme }) => theme.primary};
+    }
+  }
+`
+
+const SeeMore = () => {
+  const theme = useTheme()
+  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+
+  if (upToExtraSmall) {
+    return (
+      <Flex
+        sx={{
+          position: 'absolute',
+          right: '8px',
+          bottom: '8px',
+          width: '36px',
+          height: '36px',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          background: rgba(255, 255, 255, 0.15),
+          borderRadius: '999px',
+          boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
+          backdropFilter: 'blur(5px)',
+          color: theme.white,
+        }}
+      >
+        <ChevronRight />
+      </Flex>
+    )
+  }
+
+  return (
+    <SeeMoreWrapper>
+      <Text
+        sx={{
+          fontWeight: 400,
+          fontSize: '20px',
+          whiteSpace: 'nowrap',
+          marginTop: '-4px', // horizontally aligned with ">"
+        }}
+      >
+        <Trans>See more</Trans>
+      </Text>
+      <ChevronRight size={20} />
+    </SeeMoreWrapper>
+  )
+}
 
 const EndedProgram: React.FC<{ program: GrantProgram }> = ({ program }) => {
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const history = useHistory()
-  const theme = useTheme()
 
   const handleClick = () => {
     const longName = convertToSlug(program.name)
@@ -64,20 +119,10 @@ const EndedProgram: React.FC<{ program: GrantProgram }> = ({ program }) => {
           gap: '4px',
         }}
       >
-        <Flex
-          sx={{
-            position: 'relative',
-            width: '100%',
-            cursor: 'pointer',
-          }}
-          role="button"
-          onClick={handleClick}
-        >
+        <BannerWrapper role="button" onClick={handleClick}>
           <Banner src={upToExtraSmall ? program?.mobileBanner : program?.desktopBanner} alt={program?.name} />
-          <ButtonWrapper>
-            <ChevronRight color={theme.white} />
-          </ButtonWrapper>
-        </Flex>
+          <SeeMore />
+        </BannerWrapper>
         <CountdownTimer startTime={program.startTime} endTime={program.endTime} />
       </Flex>
 
