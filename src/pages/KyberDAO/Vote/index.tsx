@@ -342,7 +342,11 @@ export default function Vote() {
                     ) : null}
                   </Text>
                   {!totalStakedAmount ? (
-                    <InfoHelper text={t`You have to stake KNC to be able to vote and earn voting reward`} />
+                    <InfoHelper
+                      placement="top"
+                      fontSize={12}
+                      text={t`You have to stake KNC to be able to vote and earn voting reward`}
+                    />
                   ) : null}
                 </RowFit>
                 {isDelegated && (
