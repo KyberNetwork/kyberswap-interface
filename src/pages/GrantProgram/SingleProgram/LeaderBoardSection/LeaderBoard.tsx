@@ -45,7 +45,8 @@ const LeaderBoard: React.FC<Props> = ({ rankings, rankByConfig, page, setPage, t
     return rankings.slice(0, ITEMS_PER_PAGE).map((data, index) => {
       const background = getBackgroundByRank(data.rankNo)
       return (
-        <React.Fragment key={index}>
+        // using ID + index to avoid competitorId being duplicated
+        <React.Fragment key={`${data.competitorId}-${index}`}>
           <Row
             $background={background}
             role="button"
