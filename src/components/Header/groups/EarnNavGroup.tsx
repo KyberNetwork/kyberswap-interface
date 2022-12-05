@@ -47,6 +47,10 @@ const EarnNavGroup = () => {
             <Trans>My Pools</Trans>
           </StyledNavLink>
 
+          <StyledNavLink id="my-earnings-link" to={APP_PATHS.MY_EARNINGS}>
+            <Trans>My Earnings</Trans>
+          </StyledNavLink>
+
           <StyledNavLink
             onClick={() => {
               mixpanelHandler(MIXPANEL_TYPE.FARM_UNDER_EARN_TAB_CLICK)

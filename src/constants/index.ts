@@ -271,6 +271,7 @@ export const APP_PATHS = {
   ELASTIC_REMOVE_POOL: '/elastic/remove',
   FARMS: '/farms',
   MY_POOLS: '/myPools',
+  MY_EARNINGS: '/my-earnings',
   REFERRAL: '/referral',
   DISCOVER: '/discover',
   BUY_CRYPTO: '/buy-crypto',
