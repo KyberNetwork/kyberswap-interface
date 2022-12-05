@@ -30,11 +30,13 @@ export default function MigrateModal({
   setPendingText,
   setShowConfirm,
   setAttemptingTxn,
+  setTransactionError,
   setTxHash,
 }: {
   setPendingText: React.Dispatch<React.SetStateAction<string>>
   setShowConfirm: React.Dispatch<React.SetStateAction<boolean>>
   setAttemptingTxn: React.Dispatch<React.SetStateAction<boolean>>
+  setTransactionError: React.Dispatch<React.SetStateAction<string | undefined>>
   setTxHash: React.Dispatch<React.SetStateAction<string | undefined>>
 }) {
   const kyberDAOInfo = useKyberDAOInfo()
@@ -79,13 +81,14 @@ export default function MigrateModal({
         setPendingText(t`Migrating ${value} KNCL to KNC`)
         setShowConfirm(true)
         setAttemptingTxn(true)
+        toggleModal()
         migrate(parseUnits(value, 18))
           .then(tx => {
             setAttemptingTxn(false)
             setTxHash(tx)
-            toggleModal()
           })
           .catch(error => {
+            setTransactionError(error?.message)
             setAttemptingTxn(false)
           })
       } catch (error) {

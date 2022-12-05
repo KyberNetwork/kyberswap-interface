@@ -229,7 +229,7 @@ export default function StakeKNCComponent() {
   const [featureText, setFeatureText] = useState('')
   const [txHash, setTxHash] = useState<string | undefined>(undefined)
   const [inputValue, setInputValue] = useState('1')
-  const [transactionError, setTransactionError] = useState()
+  const [transactionError, setTransactionError] = useState<string | undefined>()
 
   const isUndelegate = useRef(false)
 
@@ -476,13 +476,17 @@ export default function StakeKNCComponent() {
               {account ? (
                 <Row gap="12px">
                   {(approvalKNC === ApprovalState.NOT_APPROVED || approvalKNC === ApprovalState.PENDING) &&
+                    [ChainId.MAINNET, ChainId.GÖRLI].includes(chainId) &&
                     !errorMessage && (
                       <ButtonPrimary onClick={approveCallback} disabled={approvalKNC === ApprovalState.PENDING}>
                         {approvalKNC === ApprovalState.PENDING ? 'Approving...' : 'Approve'}
                       </ButtonPrimary>
                     )}
                   <ButtonPrimary
-                    disabled={approvalKNC !== ApprovalState.APPROVED || !!errorMessage}
+                    disabled={
+                      [ChainId.MAINNET, ChainId.GÖRLI].includes(chainId) &&
+                      (approvalKNC !== ApprovalState.APPROVED || !!errorMessage)
+                    }
                     margin="8px 0px"
                     onClick={() => {
                       if (activeTab === STAKE_TAB.Stake) {
@@ -662,6 +666,7 @@ export default function StakeKNCComponent() {
         setShowConfirm={setShowConfirm}
         setAttemptingTxn={setAttemptingTxn}
         setTxHash={setTxHash}
+        setTransactionError={setTransactionError}
       />
     </Wrapper>
   )
