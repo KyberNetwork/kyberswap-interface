@@ -191,3 +191,19 @@ export const CLAIM_REWARDS_DATA_URL: { [chainId: number]: string } = {
 export const DEFAULT_REWARDS: { [key: string]: string[] } = {
   [ChainId.MAINNET]: ['0x9F52c8ecbEe10e00D9faaAc5Ee9Ba0fF6550F511'],
 }
+
+export const SUPPORTED_NETWORKS_FOR_MY_EARNINGS = [
+  ChainId.MAINNET,
+  ChainId.ETHW,
+  ChainId.MATIC,
+  ChainId.BSCMAINNET,
+  ChainId.AVAXMAINNET,
+  ChainId.FANTOM,
+  ChainId.CRONOS,
+  ChainId.ARBITRUM,
+  ChainId.BTTC,
+  ChainId.VELAS,
+  ChainId.AURORA,
+  ChainId.OASIS,
+  ChainId.OPTIMISM,
+]
