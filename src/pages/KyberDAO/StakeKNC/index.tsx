@@ -2,7 +2,7 @@ import { Trans } from '@lingui/macro'
 import { isMobile } from 'react-device-detect'
 import { useHistory } from 'react-router-dom'
 import { Text } from 'rebass'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 
 import bgimg from 'assets/images/about_background.png'
 import governancePNG from 'assets/images/kyberdao/governance.png'
@@ -11,10 +11,9 @@ import kyberCrystal from 'assets/images/kyberdao/kyber_crystal.png'
 import kyberdaoPNG from 'assets/images/kyberdao/kyberdao.png'
 import migratePNG from 'assets/images/kyberdao/migrate.png'
 import stakevotePNG from 'assets/images/kyberdao/stake_vote.png'
-import { ButtonOutlined, ButtonPrimary } from 'components/Button'
+import { ButtonPrimary } from 'components/Button'
 import Divider from 'components/Divider'
 import { RowBetween, RowFit } from 'components/Row'
-import { useActiveWeb3React } from 'hooks'
 import useTotalVotingReward from 'hooks/kyberdao/useTotalVotingRewards'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
@@ -104,22 +103,8 @@ const CardInfo = styled.div`
   flex: 1;
 `
 
-const MigrateButton = styled(ButtonOutlined)`
-  :hover:enabled {
-    box-shadow: none;
-    ${({ theme }) => css`
-      border-color: ${theme.primary};
-      color: ${theme.primary};
-    `};
-  }
-  :active:enabled {
-    box-shadow: 0 0 0 1px ${({ theme }) => theme.primary};
-  }
-`
-
 export default function StakeKNC() {
   const theme = useTheme()
-  const { account } = useActiveWeb3React()
   const toggleMigrationModal = useToggleModal(ApplicationModal.MIGRATE_KNC)
   const { switchToEthereum } = useSwitchToEthereum()
   const { kncPriceETH } = useTotalVotingReward()
@@ -188,12 +173,18 @@ export default function StakeKNC() {
                 <Trans>Migrate</Trans>
               </Text>
               <Text fontSize={12} lineHeight="16px" fontWeight={500} textAlign="left" color={theme.subText}>
-                <Trans>Migrate your KNCL tokens to KNC</Trans>
+                <Trans>
+                  Migrate your KNCL tokens to KNC{' '}
+                  <Text
+                    style={{ cursor: 'pointer', display: 'inline-block' }}
+                    color={theme.primary}
+                    onClick={handleMigrateClick}
+                  >
+                    here ↗
+                  </Text>
+                </Trans>
               </Text>
             </CardInfo>
-            <MigrateButton onClick={handleMigrateClick} width="120px" height="44px" disabled={!account}>
-              Migrate
-            </MigrateButton>
           </Card>
           <Card>
             <Image src={kyberdaoPNG} alt="KyberDAO v1" />

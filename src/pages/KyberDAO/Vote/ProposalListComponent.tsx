@@ -13,7 +13,7 @@ import AnimateLoader from 'components/Loader/AnimatedLoader'
 import { RowBetween, RowFit } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import { useVotingInfo } from 'hooks/kyberdao'
-import { ProposalDetail } from 'hooks/kyberdao/types'
+import { ProposalDetail, ProposalStatus } from 'hooks/kyberdao/types'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
@@ -72,7 +72,12 @@ function ProposalListComponent({ voteCallback }: { voteCallback?: (proposal_id: 
           }
           return true
         })
-        .sort((a, b) => b.proposal_id - a.proposal_id) || [],
+        .sort((a, b) => b.proposal_id - a.proposal_id)
+        .sort((a, b) => {
+          if (a.status === ProposalStatus.Active) return -1
+          if (b.status === ProposalStatus.Active) return 1
+          return 0
+        }) || [],
     [proposals, status, search],
   )
   const toggleYourTransactions = useToggleModal(ApplicationModal.YOUR_TRANSACTIONS_STAKE_KNC)

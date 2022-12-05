@@ -57,8 +57,9 @@ export default function DelegateConfirmModal({
               <Trans>You are undelegating your voting power from this address</Trans>
             ) : (
               <Trans>
-                You are delegating your voting power to this address. Your staked balance will remain the same. The
-                delegated address will be responsible for the transaction fee
+                You are delegating your voting power to this address. Your stake balance will remain the same. The
+                delegated address will be responsible for the transaction fee The delegated wallet will be able to vote
+                from the <span style={{ color: theme.text }}>next epoch</span> onward
               </Trans>
             )}
           </Text>
