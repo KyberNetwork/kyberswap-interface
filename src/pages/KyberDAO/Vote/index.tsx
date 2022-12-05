@@ -22,7 +22,7 @@ import { useClaimRewardActions, useVotingActions, useVotingInfo } from 'hooks/ky
 import useTotalVotingReward from 'hooks/kyberdao/useTotalVotingRewards'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
-import { useKNCPrice, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
+import { useToggleModal, useWalletModalToggle } from 'state/application/hooks'
 import { StyledInternalLink } from 'theme'
 import { formattedNumLong } from 'utils'
 import { formatUnitsToFixed } from 'utils/formatBalance'
@@ -131,8 +131,7 @@ export default function Vote() {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const { daoInfo, remainingCumulativeAmount, userRewards, stakerInfo, stakerInfoNextEpoch } = useVotingInfo()
-  const kncPrice = useKNCPrice()
-  const { knc, usd } = useTotalVotingReward()
+  const { knc, usd, kncPriceETH } = useTotalVotingReward()
   const { claim } = useClaimRewardActions()
   const { vote } = useVotingActions()
   const isHasReward = !!remainingCumulativeAmount && !remainingCumulativeAmount.eq(0)
@@ -223,7 +222,7 @@ export default function Vote() {
           </Text>
           <RowFit gap="4px">
             <KNCLogo size={20} />
-            <Text fontSize={16}>KNC: ${kncPrice ? parseFloat(kncPrice).toFixed(2) : '--'}</Text>
+            <Text fontSize={16}>KNC: ${kncPriceETH ? kncPriceETH : '--'}</Text>
           </RowFit>
         </RowBetween>
         <CardGroup>
@@ -236,8 +235,8 @@ export default function Vote() {
                 {daoInfo ? formattedNumLong(Math.round(daoInfo.total_staked)) + ' KNC' : '--'}
               </Text>
               <Text fontSize={12} color={theme.subText}>
-                {daoInfo && kncPrice
-                  ? '~' + formattedNumLong(parseFloat(kncPrice) * Math.round(daoInfo.total_staked)) + ' USD'
+                {daoInfo && kncPriceETH
+                  ? '~' + formattedNumLong(kncPriceETH * Math.round(daoInfo.total_staked)) + ' USD'
                   : ''}
               </Text>
             </AutoColumn>
@@ -385,7 +384,7 @@ export default function Vote() {
                       {formatUnitsToFixed(remainingCumulativeAmount)} KNC
                     </Text>
                     <Text fontSize={12} color={theme.subText}>
-                      {(+formatUnitsToFixed(remainingCumulativeAmount) * +(kncPrice || '0')).toFixed(2)} USD
+                      {(+formatUnitsToFixed(remainingCumulativeAmount) * +(kncPriceETH || '0')).toFixed(2)} USD
                     </Text>
                   </AutoColumn>
                   <ButtonPrimary

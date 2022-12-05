@@ -5,11 +5,12 @@ import { useEffect, useMemo, useState } from 'react'
 import { useLocalStorage } from 'react-use'
 
 import { ERC20_ABI } from 'constants/abis/erc20'
+import { NETWORKS_INFO } from 'constants/networks'
 import ethereumInfo from 'constants/networks/ethereum'
 import maticInfo from 'constants/networks/matic'
 import { KNC_ADDRESS } from 'constants/tokens'
 import { providers } from 'hooks'
-import { useKNCPrice } from 'state/application/hooks'
+import { getEthPrice, getKNCPriceByETH } from 'state/application/hooks'
 
 const POOLS_BULK = gql`
   query pools($allPools: [Bytes]!) {
@@ -83,7 +84,8 @@ const getMaticTresuaryBalances = async () => {
 
 export default function useTotalVotingReward() {
   const [totalVotingReward, setTotalVotingReward] = useState(0)
-  const kncPrice = useKNCPrice()
+  const [kncPriceETH, setKncPriceETH] = useState(0)
+
   const [localStoredTotalVotingReward, setLocalStoredTotalVotingReward] = useLocalStorage(
     'kyberdao-totalVotingRewards',
     0,
@@ -180,14 +182,25 @@ export default function useTotalVotingReward() {
     a()
   }, [])
 
+  useEffect(() => {
+    async function checkForKNCPrice() {
+      const kncPriceByETH = await getKNCPriceByETH(ChainId.MAINNET, NETWORKS_INFO[ChainId.MAINNET].classicClient)
+      const ethPrice = await getEthPrice(ChainId.MAINNET, NETWORKS_INFO[ChainId.MAINNET].classicClient)
+      const kncPrice = kncPriceByETH * ethPrice[0] || 0
+      setKncPriceETH(+kncPrice.toPrecision(2))
+    }
+    checkForKNCPrice()
+  }, [])
+
   return {
     usd: Math.floor(totalVotingReward || localStoredTotalVotingReward || 0),
     knc: useMemo(
       () =>
-        kncPrice && kncPrice !== '0'
-          ? Math.floor((totalVotingReward || localStoredTotalVotingReward || 0) / parseFloat(kncPrice))
+        kncPriceETH && kncPriceETH !== 0
+          ? Math.floor((totalVotingReward || localStoredTotalVotingReward || 0) / kncPriceETH)
           : 0,
-      [totalVotingReward, kncPrice, localStoredTotalVotingReward],
+      [totalVotingReward, kncPriceETH, localStoredTotalVotingReward],
     ),
+    kncPriceETH,
   }
 }

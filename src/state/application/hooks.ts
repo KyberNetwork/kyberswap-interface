@@ -3,7 +3,7 @@ import { ChainId, NativeCurrency, Token } from '@kyberswap/ks-sdk-core'
 import dayjs from 'dayjs'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useDeepCompareEffect, useLocalStorage } from 'react-use'
+import { useDeepCompareEffect } from 'react-use'
 
 import { ETH_PRICE, PROMM_ETH_PRICE, TOKEN_DERIVED_ETH } from 'apollo/queries'
 import { OUTSITE_FARM_REWARDS_QUERY, ZERO_ADDRESS } from 'constants/index'
@@ -204,7 +204,7 @@ export function useActivePopups(): AppState['application']['popupList'] {
 /**
  * Gets the current price  of ETH, 24 hour price, and % change between them
  */
-const getEthPrice = async (chainId: ChainId, apolloClient: ApolloClient<NormalizedCacheObject>) => {
+export const getEthPrice = async (chainId: ChainId, apolloClient: ApolloClient<NormalizedCacheObject>) => {
   const utcCurrentTime = dayjs()
   const utcOneDayBack = utcCurrentTime.subtract(1, 'day').startOf('minute').unix()
 
@@ -309,7 +309,7 @@ export function useETHPrice(version: string = VERSION.CLASSIC): AppState['applic
 /**
  * Gets the current price of KNC by ETH
  */
-const getKNCPriceByETH = async (chainId: ChainId, apolloClient: ApolloClient<NormalizedCacheObject>) => {
+export const getKNCPriceByETH = async (chainId: ChainId, apolloClient: ApolloClient<NormalizedCacheObject>) => {
   let kncPriceByETH = 0
 
   try {
@@ -335,12 +335,7 @@ export function useKNCPrice(): AppState['application']['kncPrice'] {
   const blockNumber = useBlockNumber()
 
   const kncPrice = useSelector((state: AppState) => state.application.kncPrice)
-  const [localStoredKNCPrice, setLocalStoredKNCPrice] = useLocalStorage<string | undefined>('knc-price')
-  useEffect(() => {
-    if (kncPrice) {
-      setLocalStoredKNCPrice(kncPrice)
-    }
-  }, [kncPrice, setLocalStoredKNCPrice])
+
   useEffect(() => {
     if (!isEVM) return
     const apolloClient = (networkInfo as EVMNetworkInfo).classicClient
@@ -352,7 +347,7 @@ export function useKNCPrice(): AppState['application']['kncPrice'] {
     checkForKNCPrice()
   }, [kncPrice, dispatch, ethPrice.currentPrice, isEVM, networkInfo, chainId, blockNumber])
 
-  return kncPrice || localStoredKNCPrice
+  return kncPrice
 }
 
 /**

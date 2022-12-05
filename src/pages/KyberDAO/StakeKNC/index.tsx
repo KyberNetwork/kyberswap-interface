@@ -15,9 +15,10 @@ import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Divider from 'components/Divider'
 import { RowBetween, RowFit } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
+import useTotalVotingReward from 'hooks/kyberdao/useTotalVotingRewards'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
-import { useKNCPrice, useToggleModal } from 'state/application/hooks'
+import { useToggleModal } from 'state/application/hooks'
 
 import KNCLogo from '../kncLogo'
 import StakeKNCComponent from './StakeKNCComponent'
@@ -121,7 +122,7 @@ export default function StakeKNC() {
   const { account } = useActiveWeb3React()
   const toggleMigrationModal = useToggleModal(ApplicationModal.MIGRATE_KNC)
   const { switchToEthereum } = useSwitchToEthereum()
-  const kncPrice = useKNCPrice()
+  const { kncPriceETH } = useTotalVotingReward()
   const history = useHistory()
 
   const handleMigrateClick = () => {
@@ -139,7 +140,7 @@ export default function StakeKNC() {
             </Text>
             <RowFit gap="4px">
               <KNCLogo size={20} />
-              <Text fontSize={16}>KNC: ${kncPrice ? parseFloat(kncPrice).toFixed(2) : '--'}</Text>
+              <Text fontSize={16}>KNC: ${kncPriceETH ? kncPriceETH : '--'}</Text>
             </RowFit>
           </RowBetween>
           <Divider margin={isMobile ? '20px 0' : '28px 0'} />
