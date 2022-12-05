@@ -16,7 +16,7 @@ import VoteIcon from 'components/Icons/Vote'
 import InfoHelper from 'components/InfoHelper'
 import { AutoRow, RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
-import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
+import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { useActiveWeb3React } from 'hooks'
 import { useClaimRewardActions, useVotingActions, useVotingInfo } from 'hooks/kyberdao'
 import useTotalVotingReward from 'hooks/kyberdao/useTotalVotingRewards'
@@ -145,7 +145,7 @@ export default function Vote() {
   const [pendingText, setPendingText] = useState<string>('')
 
   const [txHash, setTxHash] = useState<string | undefined>(undefined)
-
+  const [transactionError, setTransactionError] = useState()
   const totalStakedAmount = stakerInfo ? stakerInfo?.stake_amount + stakerInfo?.pending_stake_amount : 0
   const votePowerAmount: number = useMemo(
     () =>
@@ -186,8 +186,8 @@ export default function Vote() {
         setAttemptingTxn(false)
         setTxHash(tx)
       })
-      .catch(() => {
-        setShowConfirm(false)
+      .catch(error => {
+        setTransactionError(error?.message)
         setAttemptingTxn(false)
         setTxHash(undefined)
       })
@@ -207,7 +207,7 @@ export default function Vote() {
         .catch(error => {
           console.log(error)
           setShowConfirm(false)
-          setAttemptingTxn(false)
+          setTransactionError(error?.message)
           setTxHash(undefined)
         })
     },
@@ -449,6 +449,9 @@ export default function Vote() {
           hash={txHash}
           pendingText={pendingText}
           content={() => {
+            if (transactionError) {
+              return <TransactionErrorContent message={transactionError} onDismiss={() => setShowConfirm(false)} />
+            }
             return <></>
           }}
         />

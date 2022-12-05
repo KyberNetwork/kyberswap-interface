@@ -112,7 +112,7 @@ export default function Participants({ proposalId }: { proposalId?: number }) {
             return (
               <OptionWrapper key={o} isWonOption={isWonOption}>
                 <RowBetween>
-                  <RowFit>
+                  <RowFit height={19}>
                     {isWonOption && <img alt="gold-medal" src={Gold} style={{ marginRight: '8px' }} />}
                     <Text style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{o}</Text>
                   </RowFit>

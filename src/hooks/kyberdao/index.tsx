@@ -53,7 +53,11 @@ export function useKyberDaoStakeActions() {
         })
         return tx.hash
       } catch (error) {
-        throw error
+        if (error?.code === 4001 || error?.code === 'ACTION_REJECTED') {
+          throw new Error('Transaction rejected.')
+        } else {
+          throw error
+        }
       }
     },
     [addTransactionWithType, stakingContract],
@@ -63,17 +67,25 @@ export function useKyberDaoStakeActions() {
       if (!stakingContract) {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }
-      const estimateGas = await stakingContract.estimateGas.withdraw(amount)
-      const tx = await stakingContract.withdraw(amount, {
-        gasLimit: calculateGasMargin(estimateGas),
-      })
-      addTransactionWithType({
-        hash: tx.hash,
-        type: TRANSACTION_TYPE.KYBERDAO_UNSTAKE,
-        summary: t`You have successfully unstaked from KyberDAO`,
-        arbitrary: { amount: formatUnits(amount) },
-      })
-      return tx.hash
+      try {
+        const estimateGas = await stakingContract.estimateGas.withdraw(amount)
+        const tx = await stakingContract.withdraw(amount, {
+          gasLimit: calculateGasMargin(estimateGas),
+        })
+        addTransactionWithType({
+          hash: tx.hash,
+          type: TRANSACTION_TYPE.KYBERDAO_UNSTAKE,
+          summary: t`You have successfully unstaked from KyberDAO`,
+          arbitrary: { amount: formatUnits(amount) },
+        })
+        return tx.hash
+      } catch (error) {
+        if (error?.code === 4001 || error?.code === 'ACTION_REJECTED') {
+          throw new Error('Transaction rejected.')
+        } else {
+          throw error
+        }
+      }
     },
     [addTransactionWithType, stakingContract],
   )
@@ -94,7 +106,11 @@ export function useKyberDaoStakeActions() {
         })
         return tx.hash
       } catch (error) {
-        throw error
+        if (error?.code === 4001 || error?.code === 'ACTION_REJECTED') {
+          throw new Error('Transaction rejected.')
+        } else {
+          throw error
+        }
       }
     },
     [addTransactionWithType, migrateContract],
@@ -116,7 +132,11 @@ export function useKyberDaoStakeActions() {
         })
         return tx.hash
       } catch (error) {
-        throw error
+        if (error?.code === 4001 || error?.code === 'ACTION_REJECTED') {
+          throw new Error('Transaction rejected.')
+        } else {
+          throw error
+        }
       }
     },
     [addTransactionWithType, stakingContract],
@@ -139,7 +159,11 @@ export function useKyberDaoStakeActions() {
         })
         return tx.hash
       } catch (error) {
-        throw error
+        if (error?.code === 4001 || error?.code === 'ACTION_REJECTED') {
+          throw new Error('Transaction rejected.')
+        } else {
+          throw error
+        }
       }
     },
     [addTransactionWithType, stakingContract],
@@ -203,7 +227,11 @@ export function useClaimRewardActions() {
         })
         return tx.hash
       } catch (error) {
-        throw error
+        if (error?.code === 4001 || error?.code === 'ACTION_REJECTED') {
+          throw new Error('Transaction rejected.')
+        } else {
+          throw error
+        }
       }
     },
     [rewardDistributorContract, addTransactionWithType],
@@ -233,7 +261,11 @@ export const useVotingActions = () => {
         })
         return tx.hash
       } catch (error) {
-        throw error
+        if (error?.code === 4001 || error?.code === 'ACTION_REJECTED') {
+          throw new Error('Transaction rejected.')
+        } else {
+          throw error
+        }
       }
     },
     [daoContract, addTransactionWithType],

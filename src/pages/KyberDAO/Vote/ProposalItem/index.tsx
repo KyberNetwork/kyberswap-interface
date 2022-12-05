@@ -23,6 +23,8 @@ import Participants from './Participants'
 import VoteInformation from './VoteInformation'
 
 const ProposalItemWrapper = styled.div`
+  content-visibility: auto;
+  contain-intrinsic-size: 60px;
   padding: ${isMobile ? '16px' : '20px 24px'};
   border-radius: 20px;
   box-shadow: 0px 2px 34px rgba(0, 0, 0, 0.0467931);

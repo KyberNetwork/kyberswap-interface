@@ -8,10 +8,9 @@ import Divider from 'components/Divider'
 import InfoHelper from 'components/InfoHelper'
 import { RowBetween } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
-import { useStakingInfo, useVotingInfo } from 'hooks/kyberdao'
+import { useVotingInfo } from 'hooks/kyberdao'
 import { ProposalDetail } from 'hooks/kyberdao/types'
 import useTheme from 'hooks/useTheme'
-import { getFullDisplayBalance } from 'utils/formatBalance'
 
 const Wrapper = styled.div`
   border-radius: 20px;

@@ -19,7 +19,7 @@ import InfoHelper from 'components/InfoHelper'
 import Input from 'components/NumericalInput'
 import Row, { AutoRow, RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
-import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
+import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { useActiveWeb3React } from 'hooks'
 import { useKyberDAOInfo, useKyberDaoStakeActions, useStakingInfo, useVotingInfo } from 'hooks/kyberdao'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
@@ -229,6 +229,7 @@ export default function StakeKNCComponent() {
   const [featureText, setFeatureText] = useState('')
   const [txHash, setTxHash] = useState<string | undefined>(undefined)
   const [inputValue, setInputValue] = useState('1')
+  const [transactionError, setTransactionError] = useState()
 
   const isUndelegate = useRef(false)
 
@@ -296,10 +297,10 @@ export default function StakeKNCComponent() {
             setAttemptingTxn(false)
             setTxHash(tx)
           })
-          .catch(() => {
+          .catch(error => {
             setAttemptingTxn(false)
             setTxHash(undefined)
-            setShowConfirm(false)
+            setTransactionError(error?.message)
           })
       })
       .catch(() => setFeatureText(t`Staking KNC`))
@@ -316,9 +317,9 @@ export default function StakeKNCComponent() {
             setAttemptingTxn(false)
             setTxHash(tx)
           })
-          .catch(() => {
+          .catch(error => {
             setAttemptingTxn(false)
-            setShowConfirm(false)
+            setTransactionError(error?.message)
           })
       })
       .catch(() => setFeatureText(t`Unstaking KNC`))
@@ -330,7 +331,7 @@ export default function StakeKNCComponent() {
         isUndelegate.current = false
         toggleDelegateConfirm()
       })
-      .catch(() => {
+      .catch(error => {
         setFeatureText(t`Delegate`)
         setShowConfirm(false)
       })
@@ -360,8 +361,9 @@ export default function StakeKNCComponent() {
           setTxHash(tx)
           setDelegateAddress('')
         })
-        .catch(() => {
+        .catch(error => {
           setAttemptingTxn(false)
+          setTransactionError(error?.message)
         })
     } else {
       setPendingText(t`You are delegating your voting power to ${delegateAddress}.`)
@@ -373,8 +375,9 @@ export default function StakeKNCComponent() {
           setTxHash(tx)
           setDelegateAddress('')
         })
-        .catch(() => {
+        .catch(error => {
           setAttemptingTxn(false)
+          setTransactionError(error?.message)
         })
     }
     toggleDelegateConfirm()
@@ -647,7 +650,11 @@ export default function StakeKNCComponent() {
         hash={txHash}
         pendingText={pendingText}
         content={() => {
-          return <></>
+          if (transactionError) {
+            return <TransactionErrorContent onDismiss={() => setShowConfirm(false)} message={transactionError} />
+          } else {
+            return <></>
+          }
         }}
       />
       <MigrateModal
