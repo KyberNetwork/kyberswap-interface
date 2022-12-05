@@ -73,7 +73,7 @@ const IDBadged = styled.div`
   background-color: ${({ theme }) => theme.buttonBlack};
 `
 
-const StatusBadged = styled.div<{ status?: string }>`
+const StatusBadged = styled.div<{ color?: string }>`
   ${Badged}
   font-size: 12px;
   padding: 2px 14px;
@@ -83,32 +83,16 @@ const StatusBadged = styled.div<{ status?: string }>`
     filter: brightness(0.8);
   }
 
-  ${({ status, theme }) => {
-    if (status === 'pending')
-      return css`
-        color: ${theme.warning};
-        background-color: ${transparentize(0.8, theme.warning)};
-      `
-    if (status === 'error')
-      return css`
-        color: ${theme.red};
-        background-color: ${transparentize(0.8, theme.red)};
-      `
-    if (status === 'success')
-      return css`
-        color: ${theme.primary};
-        background-color: ${transparentize(0.8, theme.primary)};
-      `
-    if (status === 'active')
-      return css`
-        color: ${theme.blue};
-        background-color: ${transparentize(0.8, theme.blue)};
-      `
-    return css`
-      color: ${theme.subText};
-      background-color: ${theme.buttonBlack};
-    `
-  }}
+  ${({ color, theme }) =>
+    color
+      ? css`
+          color: ${color};
+          background-color: ${transparentize(0.8, color)};
+        `
+      : css`
+          color: ${theme.subText};
+          background-color: ${theme.buttonBlack};
+        `}
 `
 
 const Content = styled.div<{ show?: boolean }>`
@@ -251,21 +235,20 @@ function ProposalItem({
   }, [selectedOptions.length, stakerInfo?.stake_amount, isDelegated, totalVotePowerAmount])
 
   const contentRef = useRef<any>()
-  const statusType = () => {
+  const tagColor = () => {
     switch (proposal.status) {
-      case ProposalStatus.Active:
-        return 'active'
       case ProposalStatus.Pending:
-        return 'pending'
+        return theme.warning
+      case ProposalStatus.Active:
+        return theme.blue
+      case ProposalStatus.Approved:
+      case ProposalStatus.Executed:
+        return theme.primary
       case ProposalStatus.Canceled:
       case ProposalStatus.Failed:
-        return 'error'
-      case ProposalStatus.Executed:
-      case ProposalStatus.Succeeded:
-      case ProposalStatus.Finalized:
-        return 'success'
+        return theme.red
       default:
-        return 'pending'
+        return theme.blue
     }
   }
   const { switchToEthereum } = useSwitchToEthereum()
@@ -362,7 +345,7 @@ function ProposalItem({
         </RowBetween>
         {(show || isActive) && isMobile && (
           <RowFit gap="8px">
-            <StatusBadged status={statusType()} onClick={() => onBadgeClick?.(proposal.status)}>
+            <StatusBadged color={tagColor()} onClick={() => onBadgeClick?.(proposal.status)}>
               {proposal.status}
             </StatusBadged>
             <IDBadged>ID #{proposal.proposal_id}</IDBadged>
@@ -386,7 +369,7 @@ function ProposalItem({
           )}
           {!((show || isActive) && isMobile) && (
             <RowFixed gap="8px">
-              <StatusBadged status={statusType()} onClick={() => onBadgeClick?.(proposal.status)}>
+              <StatusBadged color={tagColor()} onClick={() => onBadgeClick?.(proposal.status)}>
                 {proposal.status}
               </StatusBadged>
               <IDBadged>ID #{proposal.proposal_id}</IDBadged>

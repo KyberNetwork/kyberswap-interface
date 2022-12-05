@@ -1,13 +1,10 @@
 export enum ProposalStatus {
-  Active = 'Active',
   Pending = 'Pending',
-  Canceled = 'Canceled',
+  Active = 'Active',
+  Approved = 'Approved',
   Executed = 'Executed',
-  Finalized = 'Finalized',
-  Succeeded = 'Succeeded',
-  Queued = 'Queued',
   Failed = 'Failed',
-  Expired = 'Expired',
+  Canceled = 'Canceled',
 }
 
 export enum ProposalType {
@@ -57,7 +54,7 @@ export interface ProposalDetail {
   proposal_id: number
   proposal_type: ProposalType
   start_timestamp: number
-  status: typeof ProposalStatus[keyof typeof ProposalStatus]
+  status: ProposalStatus | string
   title: string
   vote_stats: VoteStat
 }

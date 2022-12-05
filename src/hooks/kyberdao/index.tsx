@@ -21,7 +21,7 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { calculateGasMargin } from 'utils'
 
-import { ProposalDetail, StakerAction, StakerInfo, VoteInfo } from './types'
+import { ProposalDetail, ProposalStatus, StakerAction, StakerInfo, VoteInfo } from './types'
 
 export function useKyberDAOInfo() {
   const { chainId } = useActiveWeb3React()
@@ -366,9 +366,34 @@ export function useVotingInfo() {
     )
   }, [claimedRewardAmounts, userRewards?.userReward])
 
-  const { data: proposals } = useSWR<ProposalDetail[]>(kyberDaoInfo?.daoStatsApi + '/proposals', fetcher, {
-    refreshInterval: 15000,
-  })
+  const { data: proposals } = useSWR<ProposalDetail[]>(
+    kyberDaoInfo?.daoStatsApi + '/proposals',
+    (url: string) =>
+      fetch(url)
+        .then(res => res.json())
+        .then(res =>
+          res.data.map((p: ProposalDetail) => {
+            let mappedStatus
+            switch (p.status) {
+              case 'Succeeded':
+              case 'Queued':
+              case 'Finalized':
+                mappedStatus = ProposalStatus.Approved
+                break
+              case 'Expired':
+                mappedStatus = ProposalStatus.Failed
+                break
+              default:
+                mappedStatus = p.status
+                break
+            }
+            return { ...p, status: mappedStatus }
+          }),
+        ),
+    {
+      refreshInterval: 15000,
+    },
+  )
 
   const { data: stakerInfo } = useSWR<StakerInfo>(
     daoInfo?.current_epoch &&
