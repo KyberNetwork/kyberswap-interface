@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
-import { Box, Flex, Text } from 'rebass'
+import { useRef, useState } from 'react'
+import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import { ButtonLight, ButtonOutlined } from 'components/Button'
@@ -12,7 +13,6 @@ import useTheme from 'hooks/useTheme'
 import HoldersPieChart from './HoldersPieChart'
 import LineChart from './LineChart'
 import StackedBarChart from './StackedBarChart'
-import chartsvg from './chart.svg'
 
 const Wrapper = styled.div`
   padding: 20px 0;
@@ -32,11 +32,17 @@ const SectionDescription = styled.div`
   margin-bottom: 20px;
   color: ${({ theme }) => theme.subText};
 `
-const TableWrapper = styled.div`
+const SectionWrapper = styled.div`
+  border-radius: 20px;
+  ${({ theme }) => `background-color: ${theme.background};`}
+  content-visibility:auto;
+  contain-intrinsic-height: auto;
+`
+
+const TableWrapper = styled(SectionWrapper)`
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  border-radius: 20px;
   overflow: hidden;
   padding: 0;
   font-size: 12px;
@@ -87,12 +93,207 @@ const ActionButton = styled(ButtonLight)<{ color: string }>`
     background-color: ${color ? rgba(color, 0.2) : rgba(theme.primary, 0.2)};
   `}
 `
-const ChartWrapper = styled.div`
+const ChartWrapper = styled(SectionWrapper)`
   padding: 10px 0;
   border-radius: 20px;
   height: 400px;
-  ${({ theme }) => `background-color: ${theme.background};`}
 `
+
+const LegendWrapper = styled.div`
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 20px;
+  z-index: 10;
+  > * {
+    cursor: pointer;
+  }
+`
+const InflowLegend = ({ enabled, onClick }: { enabled?: boolean; onClick?: () => void }) => {
+  const theme = useTheme()
+  return (
+    <RowFit gap="4px" style={{ cursor: 'pointer' }}>
+      <div style={{ height: '16px', width: '16px', borderRadius: '8px', backgroundColor: theme.primary }} />
+      <Text fontSize={12} fontWeight={500}>
+        Inflow
+      </Text>
+    </RowFit>
+  )
+}
+const OutflowLegend = ({ enabled, onClick }: { enabled?: boolean; onClick?: () => void }) => {
+  const theme = useTheme()
+  return (
+    <RowFit gap="4px" style={{ cursor: 'pointer' }}>
+      <div style={{ height: '16px', width: '16px', borderRadius: '8px', backgroundColor: theme.red }} />
+      <Text fontSize={12} fontWeight={500}>
+        Outflow
+      </Text>
+    </RowFit>
+  )
+}
+const NetflowLegend = ({ enabled, onClick }: { enabled?: boolean; onClick?: () => void }) => {
+  const theme = useTheme()
+  return (
+    <RowFit gap="4px" style={{ cursor: 'pointer' }}>
+      <div style={{ height: '4px', width: '16px', borderRadius: '8px', backgroundColor: theme.primary }} />
+      <Text fontSize={12} fontWeight={500}>
+        Netflow
+      </Text>
+    </RowFit>
+  )
+}
+
+const TimeFrameWrapper = styled.div`
+  height: 28px;
+  border-radius: 20px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  background-color: ${({ theme }) => theme.buttonBlack};
+  border: 2px solid ${({ theme }) => theme.buttonBlack};
+  color: ${({ theme }) => theme.subText};
+  cursor: pointer;
+`
+const Element = styled.div<{ active?: boolean }>`
+  padding: 6px 12px;
+  z-index: 2;
+  ${({ active, theme }) => active && `color: ${theme.text};`}
+  :hover {
+    filter: brightness(1.2);
+  }
+`
+
+const ActiveElement = styled.div<{ left?: number; width?: number }>`
+  width: 40px;
+  height: 24px;
+  border-radius: 20px;
+  position: absolute;
+  left: 0;
+  background-color: ${({ theme }) => theme.tableHeader};
+  z-index: 1;
+  transition: all 0.2s ease;
+  :hover {
+    filter: brightness(1.2);
+  }
+
+  ${({ left, width }) => css`
+    transform: translateX(${left ?? 0}px);
+    width: ${width || 40}px;
+  `}
+`
+
+const TimeFrameLegend = ({ timeframes }: { timeframes: string[] }) => {
+  const [selected, setSelected] = useState(timeframes[0])
+  const refs = useRef<any>({})
+  if (timeframes?.length < 1) return null
+  return (
+    <TimeFrameWrapper>
+      {timeframes.map((t: string, index: number) => {
+        return (
+          <Element
+            key={index}
+            ref={el => {
+              refs.current[t] = el
+            }}
+            onClick={() => setSelected(t)}
+            active={selected === t}
+          >
+            {t}
+          </Element>
+        )
+      })}
+      <ActiveElement left={refs.current?.[selected]?.offsetLeft} />
+    </TimeFrameWrapper>
+  )
+}
+
+const FullscreenButton = () => {
+  const theme = useTheme()
+  return (
+    <div style={{ color: theme.subText }}>
+      <Icon id="fullscreen" />
+    </div>
+  )
+}
+
+const NumberofTradesChart = () => {
+  return (
+    <ChartWrapper>
+      <LegendWrapper>
+        <InflowLegend />
+        <OutflowLegend />
+        <TimeFrameLegend timeframes={['1D', '7D', '1M', '3M']} />
+        <FullscreenButton />
+      </LegendWrapper>
+      <StackedBarChart />
+    </ChartWrapper>
+  )
+}
+const TradingVolumeChart = () => {
+  return (
+    <ChartWrapper>
+      <LegendWrapper>
+        <TimeFrameLegend timeframes={['1D', '7D', '1M', '3M']} />
+        <FullscreenButton />
+      </LegendWrapper>
+      <LineChart />
+    </ChartWrapper>
+  )
+}
+const NetflowToWhaleWallets = () => {
+  return (
+    <ChartWrapper>
+      <LegendWrapper>
+        <InflowLegend />
+        <OutflowLegend />
+        <NetflowLegend />
+        <TimeFrameLegend timeframes={['1D', '7D', '1M', '3M']} />
+        <FullscreenButton />
+      </LegendWrapper>
+      <StackedBarChart />
+    </ChartWrapper>
+  )
+}
+const NetflowToCentralizedExchanges = () => {
+  return (
+    <ChartWrapper>
+      <LegendWrapper>
+        <InflowLegend />
+        <OutflowLegend />
+        <NetflowLegend />
+        <TimeFrameLegend timeframes={['1D', '3D', '7D', '1M', '3M']} />
+        <FullscreenButton />
+      </LegendWrapper>
+      <StackedBarChart />
+    </ChartWrapper>
+  )
+}
+const NumberofTransfers = () => {
+  return (
+    <ChartWrapper>
+      <LegendWrapper>
+        <TimeFrameLegend timeframes={['1D', '7D', '1M', '3M']} />
+        <FullscreenButton />
+      </LegendWrapper>
+      <LineChart />
+    </ChartWrapper>
+  )
+}
+const NumberofHolders = () => {
+  return (
+    <ChartWrapper>
+      <LegendWrapper>
+        <TimeFrameLegend timeframes={['1D', '7D', '1M', '3M']} />
+        <FullscreenButton />
+      </LegendWrapper>
+      <LineChart />
+    </ChartWrapper>
+  )
+}
+
 export default function OnChainAnalysis() {
   const theme = useTheme()
   return (
@@ -107,9 +308,7 @@ export default function OnChainAnalysis() {
           can indicate that the token is bullish and vice-versa.
         </Trans>
       </SectionDescription>
-      <ChartWrapper>
-        <StackedBarChart />
-      </ChartWrapper>
+      <NumberofTradesChart />
       <SectionTitle>
         <Trans>Trading Volume</Trans>
       </SectionTitle>
@@ -121,9 +320,7 @@ export default function OnChainAnalysis() {
           prices and low volume cryptocurrency could indicate prices falling.
         </Trans>
       </SectionDescription>
-      <ChartWrapper>
-        <LineChart />
-      </ChartWrapper>
+      <TradingVolumeChart />
       <SectionTitle>
         <Trans>Netflow to Whale Wallets</Trans>
       </SectionTitle>
@@ -134,9 +331,7 @@ export default function OnChainAnalysis() {
           whales are selling.
         </Trans>
       </SectionDescription>
-      <ChartWrapper>
-        <StackedBarChart />
-      </ChartWrapper>
+      <NetflowToWhaleWallets />
       <SectionTitle>
         <RowFit gap="6px">
           <ButtonOutlined gap="6px" width="fit-content" height="36px" baseColor={theme.primary}>
@@ -160,9 +355,7 @@ export default function OnChainAnalysis() {
           that traders are interested in it.
         </Trans>
       </SectionDescription>
-      <ChartWrapper>
-        <StackedBarChart />
-      </ChartWrapper>
+      <NetflowToCentralizedExchanges />
       <SectionTitle>
         <RowFit gap="6px">
           <ButtonOutlined gap="6px" width="fit-content" height="36px" baseColor={theme.primary}>
@@ -181,9 +374,7 @@ export default function OnChainAnalysis() {
           indicate that traders are interested in it.
         </Trans>
       </SectionDescription>
-      <ChartWrapper>
-        <LineChart />
-      </ChartWrapper>
+      <NumberofTransfers />
       <SectionTitle>
         <Trans>Number of Holders</Trans>
       </SectionTitle>
@@ -194,9 +385,7 @@ export default function OnChainAnalysis() {
           number of holders may reduce the impact an individual (like a whale) can have on the price.
         </Trans>
       </SectionDescription>
-      <ChartWrapper>
-        <LineChart />
-      </ChartWrapper>
+      <NumberofHolders />
       <SectionTitle>
         <Trans>Top 10 Holders</Trans>
       </SectionTitle>

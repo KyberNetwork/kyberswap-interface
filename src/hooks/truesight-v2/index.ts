@@ -10,7 +10,7 @@ export default function useTruesightV2() {
           price: '0.00000004234',
           change: '20%',
           '24hVolume': '500M',
-          marketcap: '61,72M',
+          kyberscore: '88',
         },
         {
           id: 2,
@@ -20,7 +20,7 @@ export default function useTruesightV2() {
           price: '0.00000004234',
           change: '20%',
           '24hVolume': '500M',
-          marketcap: '61,72M',
+          kyberscore: '88',
         },
         {
           id: 3,
@@ -30,7 +30,7 @@ export default function useTruesightV2() {
           price: '0.00000004234',
           change: '20%',
           '24hVolume': '500M',
-          marketcap: '61,72M',
+          kyberscore: '88',
         },
         {
           id: 4,
@@ -40,7 +40,7 @@ export default function useTruesightV2() {
           price: '0.00000004234',
           change: '20%',
           '24hVolume': '500M',
-          marketcap: '61,72M',
+          kyberscore: '88',
         },
         {
           id: 5,
@@ -50,7 +50,7 @@ export default function useTruesightV2() {
           price: '0.00000004234',
           change: '20%',
           '24hVolume': '500M',
-          marketcap: '61,72M',
+          kyberscore: '88',
         },
         {
           id: 6,
@@ -60,7 +60,7 @@ export default function useTruesightV2() {
           price: '0.00000004234',
           change: '20%',
           '24hVolume': '500M',
-          marketcap: '61,72M',
+          kyberscore: '88',
         },
         {
           id: 7,
@@ -70,7 +70,7 @@ export default function useTruesightV2() {
           price: '0.00000004234',
           change: '20%',
           '24hVolume': '500M',
-          marketcap: '61,72M',
+          kyberscore: '88',
         },
         {
           id: 8,
@@ -80,7 +80,7 @@ export default function useTruesightV2() {
           price: '0.00000004234',
           change: '20%',
           '24hVolume': '500M',
-          marketcap: '61,72M',
+          kyberscore: '88',
         },
         {
           id: 9,
@@ -90,7 +90,7 @@ export default function useTruesightV2() {
           price: '0.00000004234',
           change: '20%',
           '24hVolume': '500M',
-          marketcap: '61,72M',
+          kyberscore: '88',
         },
         {
           id: 10,
@@ -100,7 +100,7 @@ export default function useTruesightV2() {
           price: '0.00000004234',
           change: '20%',
           '24hVolume': '500M',
-          marketcap: '61,72M',
+          kyberscore: '88',
         },
         {
           id: 11,
@@ -110,7 +110,7 @@ export default function useTruesightV2() {
           price: '0.00000004234',
           change: '20%',
           '24hVolume': '500M',
-          marketcap: '61,72M',
+          kyberscore: '88',
         },
         {
           id: 12,
@@ -120,7 +120,7 @@ export default function useTruesightV2() {
           price: '0.00000004234',
           change: '20%',
           '24hVolume': '500M',
-          marketcap: '61,72M',
+          kyberscore: '88',
         },
         {
           id: 13,
@@ -130,7 +130,7 @@ export default function useTruesightV2() {
           price: '0.00000004234',
           change: '20%',
           '24hVolume': '500M',
-          marketcap: '61,72M',
+          kyberscore: '88',
         },
         {
           id: 14,
@@ -140,7 +140,7 @@ export default function useTruesightV2() {
           price: '0.00000004234',
           change: '20%',
           '24hVolume': '500M',
-          marketcap: '61,72M',
+          kyberscore: '88',
         },
         {
           id: 15,
@@ -150,7 +150,7 @@ export default function useTruesightV2() {
           price: '0.00000004234',
           change: '20%',
           '24hVolume': '500M',
-          marketcap: '61,72M',
+          kyberscore: '88',
         },
         {
           id: 16,
@@ -160,7 +160,7 @@ export default function useTruesightV2() {
           price: '0.00000004234',
           change: '20%',
           '24hVolume': '500M',
-          marketcap: '61,72M',
+          kyberscore: '88',
         },
         {
           id: 17,
@@ -170,7 +170,7 @@ export default function useTruesightV2() {
           price: '0.00000004234',
           change: '20%',
           '24hVolume': '500M',
-          marketcap: '61,72M',
+          kyberscore: '88',
         },
         {
           id: 18,
@@ -180,7 +180,7 @@ export default function useTruesightV2() {
           price: '0.00000004234',
           change: '20%',
           '24hVolume': '500M',
-          marketcap: '61,72M',
+          kyberscore: '88',
         },
         {
           id: 19,
@@ -190,7 +190,7 @@ export default function useTruesightV2() {
           price: '0.00000004234',
           change: '20%',
           '24hVolume': '500M',
-          marketcap: '61,72M',
+          kyberscore: '88',
         },
         {
           id: 20,
@@ -200,7 +200,7 @@ export default function useTruesightV2() {
           price: '0.00000004234',
           change: '20%',
           '24hVolume': '500M',
-          marketcap: '61,72M',
+          kyberscore: '88',
         },
         {
           id: 21,
@@ -210,7 +210,7 @@ export default function useTruesightV2() {
           price: '0.00000004234',
           change: '20%',
           '24hVolume': '500M',
-          marketcap: '61,72M',
+          kyberscore: '88',
         },
       ],
       totalItems: 21,

@@ -1,7 +1,4 @@
-import { Text } from 'rebass'
-import { Cell, Pie, PieChart, ResponsiveContainer, Sector } from 'recharts'
-
-import useTheme from 'hooks/useTheme'
+import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts'
 
 const data01 = [
   { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 400 },

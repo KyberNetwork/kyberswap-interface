@@ -1,8 +1,12 @@
-import { Trans } from '@lingui/macro'
+import { ChainId } from '@kyberswap/ks-sdk-core'
+import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useState } from 'react'
-import { Share2, Star } from 'react-feather'
+import { useMemo, useRef, useState } from 'react'
+import { isMobile } from 'react-device-detect'
+import { ChevronRight, Share2, Star } from 'react-feather'
 import { useHistory } from 'react-router-dom'
+import { useWindowScroll } from 'react-use'
+import { useDrag } from 'react-use-gesture'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
@@ -10,13 +14,13 @@ import { ButtonGray, ButtonLight, ButtonOutlined } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import { Ethereum } from 'components/Icons'
 import Icon from 'components/Icons/Icon'
-import ProChartToggle from 'components/LiveChart/ProChartToggle'
+import InfoHelper from 'components/InfoHelper'
 import Pagination from 'components/Pagination'
-import Row, { RowBetween, RowFit } from 'components/Row'
-import Toggle from 'components/Toggle'
+import Row from 'components/Row'
 import useTruesightV2 from 'hooks/truesight-v2'
 import useTheme from 'hooks/useTheme'
 
+import NetworkSelect from './NetworkSelect'
 import TokenChart from './TokenChart'
 
 const TableWrapper = styled.div`
@@ -24,20 +28,22 @@ const TableWrapper = styled.div`
   flex-direction: column;
   align-items: stretch;
   border-radius: 20px;
-  overflow: hidden;
   padding: 0;
   font-size: 12px;
   margin-bottom: 40px;
 `
 
-const gridTemplateColumns = '1fr 2fr 1fr 2fr 2fr 1.4fr 1fr 2.4fr'
+const gridTemplateColumns = '0.6fr 2fr 0.8fr 2fr 2fr 1.2fr 1.4fr 2.1fr'
 const TableHeader = styled.div`
   display: grid;
   grid-template-columns: ${gridTemplateColumns};
   align-items: center;
   height: 48px;
   text-transform: uppercase;
-
+  position: sticky;
+  top: 0;
+  z-index: 22;
+  border-radius: 20px 20px 0 0;
   ${({ theme }) => css`
     background-color: ${theme.tableHeader};
     color: ${theme.subText};
@@ -48,8 +54,13 @@ const TableHeader = styled.div`
   }
 `
 const TableRow = styled(TableHeader)`
+  position: initial;
   height: 72px;
   font-size: 14px;
+  content-visibility: auto;
+  contain-intrinsic-height: 72px;
+  border-radius: 0;
+  z-index: 21;
   ${({ theme }) => css`
     background-color: ${theme.background};
     color: ${theme.text};
@@ -59,8 +70,8 @@ const TableRow = styled(TableHeader)`
 const TableCell = styled.div`
   display: flex;
   align-items: center;
+  text-align: left;
   padding: 16px;
-  gap: 4px;
 `
 
 const ActionButton = styled(ButtonLight)<{ color: string }>`
@@ -77,6 +88,16 @@ const ActionButton = styled(ButtonLight)<{ color: string }>`
   `}
 `
 
+const TabWrapper = styled.div`
+  width: 100%;
+  overflow: auto;
+  cursor: grab;
+`
+const TabInner = styled.div`
+  display: inline-flex;
+  gap: 8px;
+`
+
 const ButtonTypeActive = styled(ButtonLight)`
   height: 36px;
   width: fit-content;
@@ -84,6 +105,7 @@ const ButtonTypeActive = styled(ButtonLight)`
   display: flex;
   gap: 4px;
   font-size: 14px;
+  white-space: nowrap;
 `
 
 const ButtonTypeInactive = styled(ButtonOutlined)`
@@ -93,6 +115,7 @@ const ButtonTypeInactive = styled(ButtonOutlined)`
   display: flex;
   gap: 4px;
   font-size: 14px;
+  white-space: nowrap;
   ${({ theme }) => css`
     color: ${theme.border};
     border-color: ${theme.border};
@@ -102,6 +125,7 @@ const ButtonTypeInactive = styled(ButtonOutlined)`
 
 enum FilterType {
   All = 'All',
+  MyWatchlist = 'My Watchlist',
   Bullish = 'Bullish',
   Bearish = 'Bearish',
   TrendingSoon = 'Trending Soon',
@@ -109,11 +133,11 @@ enum FilterType {
   TopInflow = 'Top CEX Inflow',
   TopOutflow = 'Top CEX Outflow',
   TopTraded = 'Top Traded',
-  TopSocialMentions = 'Top Social Mentions',
 }
 
 const tokenTypeList: { type: FilterType; icon?: string }[] = [
   { type: FilterType.All },
+  { type: FilterType.MyWatchlist, icon: 'star' },
   { type: FilterType.Bullish, icon: 'bullish' },
   { type: FilterType.Bearish, icon: 'bearish' },
   { type: FilterType.TrendingSoon, icon: 'trending-soon' },
@@ -121,23 +145,26 @@ const tokenTypeList: { type: FilterType; icon?: string }[] = [
   { type: FilterType.TopInflow, icon: 'download' },
   { type: FilterType.TopOutflow, icon: 'upload' },
   { type: FilterType.TopTraded, icon: 'coin-bag' },
-  { type: FilterType.TopSocialMentions, icon: 'speaker' },
 ]
 
-export default function TokenAnalysisList() {
-  const theme = useTheme()
-  const history = useHistory()
-  const [page, setPage] = useState(1)
-  const [activeTimeframe, setActiveTimeframe] = useState('1D')
-  const [watchlisted, setWatchlisted] = useState(false)
-  const [filterType, setFilterType] = useState(FilterType.All)
+const TokenListDraggableTab = ({
+  filterType,
+  setFilterType,
+}: {
+  filterType: FilterType
+  setFilterType: (type: FilterType) => void
+}) => {
+  const ref = useRef<HTMLDivElement>(null)
+  const bind = useDrag(state => {
+    if (isMobile) return
+    if (ref.current && ref.current?.scrollLeft !== undefined && state.dragging) {
+      ref.current.scrollLeft -= state.values?.[0] - state.previous?.[0] || 0
+    }
+  })
 
-  const { tokenList } = useTruesightV2()
-  const loading = !tokenList.data
-  const pageSize = 10
   return (
-    <>
-      <Row gap="6px" marginBottom="24px">
+    <TabWrapper ref={ref}>
+      <TabInner {...bind()}>
         {tokenTypeList.map(({ type, icon }) => {
           const props = { onClick: () => setFilterType(type) }
           if (filterType === type) {
@@ -156,40 +183,48 @@ export default function TokenAnalysisList() {
             )
           }
         })}
+      </TabInner>
+    </TabWrapper>
+  )
+}
+
+export default function TokenAnalysisList() {
+  const theme = useTheme()
+  const history = useHistory()
+  const [page, setPage] = useState(1)
+  const [filterType, setFilterType] = useState(FilterType.All)
+  const [networkFilter, setNetworkFilter] = useState<ChainId>()
+
+  const { tokenList } = useTruesightV2()
+  const templateList = useMemo(
+    () =>
+      [...Array(5)]
+        .reduce((t, a) => t.concat(tokenList.data), [])
+        .map((t: any, index: number) => {
+          return { ...t, id: index + 1 }
+        }) || [],
+    [tokenList],
+  )
+  const pageSize = 50
+  useWindowScroll()
+  return (
+    <>
+      <Row gap="16px" marginBottom="20px">
+        <TokenListDraggableTab filterType={filterType} setFilterType={setFilterType} />
+        <ChevronRight size={12} />
+
+        <ButtonGray
+          color={theme.subText}
+          gap="4px"
+          width="36px"
+          height="36px"
+          padding="6px"
+          style={{ filter: 'drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.16))', flexShrink: 0 }}
+        >
+          <Share2 size={16} fill="currentcolor" />
+        </ButtonGray>
+        <NetworkSelect filter={networkFilter} setFilter={setNetworkFilter} />
       </Row>
-      <RowBetween marginBottom="24px">
-        <RowFit gap="8px">
-          <ProChartToggle
-            activeName={activeTimeframe}
-            buttons={[
-              { name: '1D', title: '1D' },
-              { name: '7D', title: '7D' },
-            ]}
-            toggle={(name: string) => setActiveTimeframe(name)}
-            disabled={filterType === FilterType.All}
-          />
-          <Text>
-            <Trans>Watchlist</Trans>
-          </Text>
-          <Toggle
-            isActive={watchlisted}
-            toggle={() => setWatchlisted(prev => !prev)}
-            style={{ filter: 'drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.16))' }}
-          />
-        </RowFit>
-        <RowFit gap="16px">
-          <ButtonGray
-            color={theme.subText}
-            gap="4px"
-            width="36px"
-            height="36px"
-            padding="6px"
-            style={{ filter: 'drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.16))' }}
-          >
-            <Share2 size={16} fill="currentcolor" />
-          </ButtonGray>
-        </RowFit>
-      </RowBetween>
       <TableWrapper>
         <TableHeader>
           <TableCell>#</TableCell>
@@ -209,20 +244,27 @@ export default function TokenAnalysisList() {
             <Trans>24h Volume</Trans>
           </TableCell>
           <TableCell>
-            <Trans>Marketcap</Trans>
+            <Trans>Kyberscrore</Trans>{' '}
+            <InfoHelper
+              placement="top"
+              width="300px"
+              size={12}
+              text={t`KyberScore is an algorithm created by us that takes into account multiple on-chain and off-chain indicators to measure the current trend of a token. The score ranges from 0 to 100.`}
+            />
           </TableCell>
           <TableCell>
             <Trans>Action</Trans>
           </TableCell>
         </TableHeader>
-        {tokenList.data.slice(pageSize * (page - 1), pageSize * page).map(token => (
+
+        {templateList.slice((page - 1) * pageSize, page * pageSize).map((token: any) => (
           <TableRow key={token.id}>
             <TableCell>
               <Star size={16} /> {token.id}
             </TableCell>
             <TableCell>
               <AutoColumn gap="10px">
-                <Text>{token.symbol}</Text>
+                <Text>{token.symbol}</Text>{' '}
                 <Text fontSize={12} color={theme.subText}>
                   {token.tokenName}
                 </Text>
@@ -243,10 +285,10 @@ export default function TokenAnalysisList() {
               <TokenChart />
             </TableCell>
             <TableCell>
-              <Text>{token['24hVolume']}</Text>
+              <Text>{token['24hVolume'] || '--'}</Text>
             </TableCell>
             <TableCell>
-              <Text>${token.marketcap}</Text>
+              <Text color={theme.primary}>{token.kyberscore || '--'}</Text>
             </TableCell>
             <TableCell>
               <Row gap="6px" justify={'flex-end'}>
@@ -262,7 +304,16 @@ export default function TokenAnalysisList() {
             </TableCell>
           </TableRow>
         ))}
-        <Pagination totalCount={tokenList?.totalItems} pageSize={pageSize} currentPage={page} onPageChange={setPage} />
+
+        <Pagination
+          totalCount={templateList.length}
+          pageSize={pageSize}
+          currentPage={page}
+          onPageChange={(page: number) => {
+            window.scroll({ top: 0 })
+            setPage(page)
+          }}
+        />
       </TableWrapper>
     </>
   )

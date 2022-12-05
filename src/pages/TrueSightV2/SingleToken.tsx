@@ -16,6 +16,7 @@ import useTheme from 'hooks/useTheme'
 import KyberScoreMeter from './KyberScoreMeter'
 import OnChainAnalysis from './OnChainAnalysis'
 import PriceRange from './PriceRange'
+import TechnicalAnalysis from './TechnicalAnalysis'
 
 const Wrapper = styled.div`
   display: flex;
@@ -262,7 +263,8 @@ export default function SingleToken() {
           </TabButton>
         ))}
       </Row>
-      <OnChainAnalysis />
+      {currentTab === DiscoverTokenTab.OnChainAnalysis && <OnChainAnalysis />}
+      {currentTab === DiscoverTokenTab.TechnicalAnalysis && <TechnicalAnalysis />}
     </Wrapper>
   )
 }

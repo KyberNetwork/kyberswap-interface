@@ -1,4 +1,4 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
 import { Text } from 'rebass'
 import styled from 'styled-components'
@@ -7,6 +7,7 @@ import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Icon from 'components/Icons/Icon'
 import { RowBetween, RowFit } from 'components/Row'
 import Search from 'components/Search'
+import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 
 import SingleToken from './SingleToken'
@@ -44,10 +45,16 @@ export default function TrueSightV2(props: any) {
             minWidth="240px"
           />
           {subscribed ? (
-            <ButtonPrimary onClick={() => setSubscribed(prev => !prev)} width="120px" height="36px" gap="4px">
-              <Icon id="notification-2" size={16} />
-              <Trans>Subscribe</Trans>
-            </ButtonPrimary>
+            <MouseoverTooltip
+              text={t`Subscribe to receive daily email notifications witha curated list of tokens from each category!`}
+              placement="right"
+              delay={1200}
+            >
+              <ButtonPrimary onClick={() => setSubscribed(prev => !prev)} width="120px" height="36px" gap="4px">
+                <Icon id="notification-2" size={16} />
+                <Trans>Subscribe</Trans>
+              </ButtonPrimary>
+            </MouseoverTooltip>
           ) : (
             <ButtonOutlined onClick={() => setSubscribed(prev => !prev)} width="120px" height="36px">
               <Trans>Unsubscribe</Trans>

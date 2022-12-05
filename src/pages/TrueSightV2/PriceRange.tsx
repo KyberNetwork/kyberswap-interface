@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
@@ -66,12 +66,11 @@ export default function PriceRange({
 }) {
   const theme = useTheme()
   const wrapperRef = useRef<HTMLDivElement | null>(null)
-
-  const barWidth = useMemo(() => {
-    const range = high - low
-    const ratio = (current - low) / range
-    return ratio * (wrapperRef.current?.clientWidth || 0)
-  }, [wrapperRef.current?.clientWidth])
+  const [width, setWidth] = useState(0)
+  useEffect(() => {
+    const ratio = (current - low) / (high - low)
+    setWidth(ratio * (wrapperRef.current?.clientWidth || 0))
+  }, [high, low, current])
   return (
     <Wrapper>
       <RowCenter>
@@ -80,9 +79,9 @@ export default function PriceRange({
         <Text>{`$${high}` || '--'}</Text>
       </RowCenter>
       <RangeBarWrapper ref={wrapperRef}>
-        <RangeBar $width={barWidth} />
+        <RangeBar $width={width} />
       </RangeBarWrapper>
-      <ArrowPointer $left={barWidth} />
+      <ArrowPointer $left={width} />
     </Wrapper>
   )
 }

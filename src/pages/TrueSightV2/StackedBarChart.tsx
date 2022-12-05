@@ -1,18 +1,7 @@
 import { rgba } from 'polished'
 import { Text } from 'rebass'
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Legend,
-  ResponsiveContainer,
-  Tooltip,
-  TooltipProps,
-  XAxis,
-  YAxis,
-} from 'recharts'
-import { ContentType } from 'recharts/types/component/Tooltip'
-import styled, { ThemeConsumer } from 'styled-components'
+import { Bar, BarChart, ResponsiveContainer, Tooltip, TooltipProps, XAxis, YAxis } from 'recharts'
+import styled from 'styled-components'
 
 import useTheme from 'hooks/useTheme'
 
