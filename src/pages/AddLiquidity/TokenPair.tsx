@@ -676,7 +676,9 @@ const TokenPair = ({
                           {approvalA === ApprovalState.PENDING ? (
                             <Dots>Approving {nativeA?.symbol}</Dots>
                           ) : (
-                            'Approve ' + nativeA?.symbol
+                            <>
+                              <Trans>Approve</Trans> {nativeA?.symbol}
+                            </>
                           )}
                         </ButtonPrimary>
                       )}
@@ -687,9 +689,13 @@ const TokenPair = ({
                           width={approvalA !== ApprovalState.APPROVED ? '48%' : '100%'}
                         >
                           {approvalB === ApprovalState.PENDING ? (
-                            <Dots>Approving {nativeB?.symbol}</Dots>
+                            <Dots>
+                              <Trans>Approving</Trans> {nativeB?.symbol}
+                            </Dots>
                           ) : (
-                            'Approve ' + nativeB?.symbol
+                            <>
+                              <Trans>Approve</Trans> {nativeB?.symbol}
+                            </>
                           )}
                         </ButtonPrimary>
                       )}
@@ -708,9 +714,7 @@ const TokenPair = ({
                     !!(pairAddress && +amp < 1)
                   }
                 >
-                  <Text fontSize={20} fontWeight={500}>
-                    {error ?? (!pairAddress && +amp < 1 ? t`Enter amp (>=1)` : t`Supply`)}
-                  </Text>
+                  <Text fontWeight={500}>{error ?? (!pairAddress && +amp < 1 ? t`Enter amp (>=1)` : t`Supply`)}</Text>
                 </ButtonError>
               </AutoColumn>
             )}
