@@ -17,8 +17,11 @@ import Icon from 'components/Icons/Icon'
 import InfoHelper from 'components/InfoHelper'
 import Pagination from 'components/Pagination'
 import Row from 'components/Row'
+import ShareModal from 'components/ShareModal'
 import useTruesightV2 from 'hooks/truesight-v2'
 import useTheme from 'hooks/useTheme'
+import { ApplicationModal } from 'state/application/actions'
+import { useToggleModal } from 'state/application/hooks'
 
 import NetworkSelect from './NetworkSelect'
 import TokenChart from './TokenChart'
@@ -194,7 +197,7 @@ export default function TokenAnalysisList() {
   const [page, setPage] = useState(1)
   const [filterType, setFilterType] = useState(FilterType.All)
   const [networkFilter, setNetworkFilter] = useState<ChainId>()
-
+  const toggle = useToggleModal(ApplicationModal.SHARE)
   const { tokenList } = useTruesightV2()
   const templateList = useMemo(
     () =>
@@ -220,6 +223,7 @@ export default function TokenAnalysisList() {
           height="36px"
           padding="6px"
           style={{ filter: 'drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.16))', flexShrink: 0 }}
+          onClick={toggle}
         >
           <Share2 size={16} fill="currentcolor" />
         </ButtonGray>
@@ -315,6 +319,7 @@ export default function TokenAnalysisList() {
           }}
         />
       </TableWrapper>
+      <ShareModal title={t`Share this token list with your friends!`} />
     </>
   )
 }

@@ -477,11 +477,7 @@ export default function Header() {
           )}
 
           <DiscoverWrapper id={TutorialIds.DISCOVER_LINK}>
-            <StyledNavLink
-              to={'/discover?tab=trending_soon'}
-              isActive={match => Boolean(match)}
-              style={{ alignItems: 'center' }}
-            >
+            <StyledNavLink to={'/discover'} isActive={match => Boolean(match)} style={{ alignItems: 'center' }}>
               <SlideToUnlock
                 active={pathname.includes('discover') || isHoverSlide}
                 onMouseEnter={() => setIsHoverSlide(true)}
