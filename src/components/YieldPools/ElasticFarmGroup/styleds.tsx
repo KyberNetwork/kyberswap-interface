@@ -136,3 +136,19 @@ export const NFTListWrapper = styled.div`
   gap: 12px;
   padding: 0 12px 12px;
 `
+
+export const PriceVisualize = styled.div`
+  margin-top: 12px;
+  height: 2px;
+  background: ${({ theme }) => theme.border};
+  align-items: center;
+  display: flex;
+`
+
+export const Dot = styled.div<{ isCurrentPrice?: boolean; outOfRange?: boolean }>`
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: ${({ theme, outOfRange, isCurrentPrice }) =>
+    isCurrentPrice ? theme.text : outOfRange ? theme.warning : theme.primary};
+`

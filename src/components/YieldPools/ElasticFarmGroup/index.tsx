@@ -391,7 +391,7 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
               ) : null)}
           </ClickableText>
           <InfoHelper
-            text={t`Average estimated return based on yearly fees of the pool and if it's still active, plus bonus rewards of the pool`}
+            text={t`Average estimated return based on yearly trading fees from the pool & additional bonus rewards if you participate in the farm`}
           />
         </Flex>
 

@@ -281,7 +281,7 @@ function Pool() {
 
   const upToSmall = useMedia('(max-width: 768px)')
 
-  if (!isEVM) return <Navigate to="/" />
+  if (!isEVM) return <Navigate to="/" replace />
   return (
     <>
       <PageWrapper style={{ padding: 0, marginTop: '24px' }}>

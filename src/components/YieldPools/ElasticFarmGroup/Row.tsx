@@ -14,7 +14,7 @@ import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import HoverInlineText from 'components/HoverInlineText'
-import { MoneyBag } from 'components/Icons'
+import { MoneyBag, Swap2 as SwapIcon } from 'components/Icons'
 import Harvest from 'components/Icons/Harvest'
 import InfoHelper from 'components/InfoHelper'
 import { MouseoverTooltip, MouseoverTooltipDesktopOnly } from 'components/Tooltip'
@@ -72,6 +72,7 @@ const Row = ({
   const [viewMode] = useViewMode()
   const above1000 = useMedia('(min-width: 1000px)')
 
+  const [isRevertPrice, setIsRevertPrice] = useState(false)
   const { userFarmInfo } = useElasticFarms()
   const joinedPositions = userFarmInfo?.[fairlaunchAddress]?.joinedPositions[farmingPool.pid] || []
   const depositedPositions =
@@ -99,6 +100,7 @@ const Row = ({
 
   const contract = useProMMFarmContract(fairlaunchAddress)
   const [targetPercent, setTargetPercent] = useState('')
+  const [targetPercentByNFT, setTargetPercentByNFT] = useState<{ [key: string]: string }>({})
   const [rowOpen, setRowOpen] = useState(false)
 
   useEffect(() => {
@@ -117,6 +119,12 @@ const Row = ({
           return new Fraction(res.vestingVolume.toString(), BigNumber.from(1e12).toString())
         }),
       )
+
+      const feeTargetByNFT = userJoinedPos.reduce((acc, cur, index) => {
+        acc[cur.nftId.toString()] = res[index].multiply(100).toFixed(2)
+        return acc
+      }, {} as { [key: string]: string })
+      setTargetPercentByNFT(feeTargetByNFT)
 
       const totalLiquidity =
         userJoinedPos.reduce((acc, cur) => acc.add(cur.liquidity.toString()), BigNumber.from(0)) || BigNumber.from(0)
@@ -153,8 +161,6 @@ const Row = ({
 
   const amountCanStaked = farmingPool.endTime < currentTimestamp ? 0 : farmingPool.depositedUsd - farmingPool.stakedUsd
 
-  const cardMode = viewMode === VIEW_MODE.GRID || !above1000
-
   const renderStakeButton = () => {
     if (isUserAffectedByFarmIssue) {
       return (
@@ -178,8 +184,8 @@ const Row = ({
 
     if (!isApprovedForAll || !canStake) {
       return (
-        <MinimalActionButton disabled cardMode={cardMode}>
-          <Plus size={cardMode ? 20 : 16} />
+        <MinimalActionButton disabled>
+          <Plus size={16} />
         </MinimalActionButton>
       )
     }
@@ -193,9 +199,8 @@ const Row = ({
               backgroundColor: theme.buttonGray,
               color: theme.border,
             }}
-            cardMode={cardMode}
           >
-            <Plus size={cardMode ? 20 : 16} />
+            <Plus size={16} />
           </MinimalActionButton>
         </MouseoverTooltipDesktopOnly>
       )
@@ -207,8 +212,8 @@ const Row = ({
         placement="top"
         width="300px"
       >
-        <MinimalActionButton onClick={() => onOpenModal('stake', Number(farmingPool.pid))} cardMode={cardMode}>
-          <Plus size={cardMode ? 20 : 16} />
+        <MinimalActionButton onClick={() => onOpenModal('stake', Number(farmingPool.pid))}>
+          <Plus size={16} />
         </MinimalActionButton>
       </MouseoverTooltipDesktopOnly>
     )
@@ -217,8 +222,8 @@ const Row = ({
   const renderUnstakeButton = () => {
     if (!canUnstake) {
       return (
-        <MinimalActionButton colorScheme={ButtonColorScheme.Red} disabled={!canUnstake} cardMode={cardMode}>
-          <Minus size={cardMode ? 20 : 16} />
+        <MinimalActionButton colorScheme={ButtonColorScheme.Red} disabled={!canUnstake}>
+          <Minus size={16} />
         </MinimalActionButton>
       )
     }
@@ -230,11 +235,10 @@ const Row = ({
         width="300px"
       >
         <MinimalActionButton
-          cardMode={cardMode}
           colorScheme={ButtonColorScheme.Red}
           onClick={() => onOpenModal('unstake', Number(farmingPool.pid))}
         >
-          <Minus size={cardMode ? 20 : 16} />
+          <Minus size={16} />
         </MinimalActionButton>
       </MouseoverTooltipDesktopOnly>
     )
@@ -243,7 +247,7 @@ const Row = ({
   const renderHarvestButton = () => {
     if (!canHarvest) {
       return (
-        <MinimalActionButton colorScheme={ButtonColorScheme.Gray} disabled cardMode={cardMode}>
+        <MinimalActionButton colorScheme={ButtonColorScheme.Gray} disabled>
           <Harvest />
         </MinimalActionButton>
       )
@@ -251,12 +255,19 @@ const Row = ({
 
     return (
       <MouseoverTooltipDesktopOnly text={t`Harvest`} placement="top" width="fit-content">
-        <MinimalActionButton colorScheme={ButtonColorScheme.APR} onClick={onHarvest} cardMode={cardMode}>
+        <MinimalActionButton colorScheme={ButtonColorScheme.APR} onClick={onHarvest}>
           <Harvest />
         </MinimalActionButton>
       </MouseoverTooltipDesktopOnly>
     )
   }
+
+  const representedPostion = depositedPositions?.[0]
+  const price =
+    representedPostion &&
+    (isRevertPrice
+      ? representedPostion.pool.priceOf(representedPostion.pool.token1)
+      : representedPostion.pool.priceOf(representedPostion.pool.token0))
 
   if (viewMode === VIEW_MODE.GRID || !above1000) {
     return (
@@ -264,14 +275,17 @@ const Row = ({
         pool={farmingPool}
         rewardValue={rewardValue}
         rewardPendings={rewardPendings}
-        renderHarvestButton={renderHarvestButton}
-        renderUnstakeButton={renderUnstakeButton}
-        renderStakeButton={renderStakeButton}
+        onHarvest={onHarvest}
+        onStake={() => onOpenModal('stake', Number(farmingPool.pid))}
+        disableStake={!isApprovedForAll || !canStake || !isFarmStarted}
+        onUnstake={() => onOpenModal('unstake', Number(farmingPool.pid))}
+        disableUnstake={!canUnstake}
         farmAddress={fairlaunchAddress}
         tokenPrices={tokenPrices}
         targetPercent={targetPercent}
+        targetPercentByNFT={targetPercentByNFT}
         depositedPositions={depositedPositions}
-      ></FarmCard>
+      />
     )
   }
 
@@ -306,6 +320,7 @@ const Row = ({
             fontSize="12px"
             color={theme.subText}
             width="max-content"
+            fontWeight="500"
           >
             <Flex alignItems="center" sx={{ gap: '4px' }}>
               <CopyHelper toCopy={farmingPool.poolAddress} />
@@ -416,7 +431,7 @@ const Row = ({
             </Flex>
           )}
 
-          {targetPercent && <FeeTarget percent={targetPercent} />}
+          {farmingPool.feeTarget !== '0' && <FeeTarget percent={targetPercent} />}
         </div>
 
         <Flex flexDirection="column" alignItems="flex-end" sx={{ gap: '8px' }}>
@@ -443,20 +458,36 @@ const Row = ({
         </Flex>
       </ProMMFarmTableRow>
       {rowOpen && !!depositedPositions.length && (
-        <NFTListWrapper>
-          {depositedPositions.map(item => {
-            return (
-              <PositionDetail
-                key={item.nftId.toString()}
-                farmAddress={fairlaunchAddress}
-                pool={farmingPool}
-                nftInfo={item}
-                tokenPrices={tokenPrices}
-                targetPercent={targetPercent}
-              />
-            )
-          })}
-        </NFTListWrapper>
+        <>
+          <Flex fontSize="12px" fontWeight="500" padding="0 16px 12px" sx={{ gap: '4px' }}>
+            <Text color={theme.subText}>
+              <Trans>Current Price</Trans>:
+            </Text>
+            <Text fontSize={'12px'} fontWeight="500" style={{ textAlign: 'right' }}>{`${price.toSignificant(10)} ${
+              price.quoteCurrency.symbol
+            } per ${price.baseCurrency.symbol}`}</Text>
+
+            <span onClick={() => setIsRevertPrice(prev => !prev)} style={{ marginLeft: '2px', cursor: 'pointer' }}>
+              <SwapIcon size={14} />
+            </span>
+          </Flex>
+          <NFTListWrapper>
+            {depositedPositions.map(item => {
+              return (
+                <PositionDetail
+                  key={item.nftId.toString()}
+                  farmAddress={fairlaunchAddress}
+                  pool={farmingPool}
+                  price={price}
+                  isRevertPrice={isRevertPrice}
+                  nftInfo={item}
+                  tokenPrices={tokenPrices}
+                  targetPercent={targetPercentByNFT[item.nftId.toString()]}
+                />
+              )
+            })}
+          </NFTListWrapper>
+        </>
       )}
     </RowWrapper>
   )

@@ -1,32 +1,38 @@
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { ReactNode, useState } from 'react'
-import { Share2 } from 'react-feather'
+import { darken } from 'polished'
+import { useState } from 'react'
+import { Minus, Plus, Share2 } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import bgimg from 'assets/images/farm-card-background.png'
+import { ReactComponent as DropIcon } from 'assets/svg/drop.svg'
+import { ButtonEmpty, ButtonLight } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Divider from 'components/Divider'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import HoverDropdown from 'components/HoverDropdown'
-import { MoneyBag, Swap as SwapIcon } from 'components/Icons'
+import { Swap as SwapIcon } from 'components/Icons'
+import Harvest from 'components/Icons/Harvest'
 import InfoHelper from 'components/InfoHelper'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
+import { APP_PATHS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { TOBE_EXTENDED_FARMING_POOLS } from 'constants/v2'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { FarmingPool, NFTPosition } from 'state/farms/elastic/types'
+import { shortenAddress } from 'utils'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
 import { formatDollarAmount } from 'utils/numbers'
 
 import { APRTooltipContent } from '../FarmingPoolAPRCell'
 import { useSharePoolContext } from '../SharePoolContext'
+import FeeTarget from './FeeTarget'
 import PositionDetail from './PostionDetail'
-import { ButtonColorScheme, MinimalActionButton } from './buttons'
 import { FeeTag } from './styleds'
 
 const FlipCard = styled.div<{ flip: boolean }>`
@@ -44,17 +50,49 @@ const FlipCard = styled.div<{ flip: boolean }>`
 `
 
 const FlipCardFront = styled.div`
+  display: flex;
+  height: 100%;
+  flex-direction: column;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 `
 
 const FlipCardBack = styled.div`
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   transform: rotateY(-180deg);
   height: 100%;
   display: flex;
   flex-direction: column;
+`
+
+const Button = styled(ButtonLight)<{ color: string }>`
+  background: ${({ color }) => color + '33'};
+  color: ${({ color }) => color};
+  height: 36px;
+  font-size: 12px;
+  gap: 4px;
+  width: fit-content;
+  padding: 10px 12px;
+
+  &:hover {
+    background-color: ${({ color, disabled }) => !disabled && darken(0.03, `${color}33`)};
+  }
+  &:active {
+    box-shadow: 0 0 0 1pt ${({ color, disabled }) => !disabled && darken(0.05, `${color}33`)};
+    background-color: ${({ color, disabled }) => !disabled && darken(0.05, `${color}33`)};
+  }
+  :disabled {
+    cursor: not-allowed;
+    background-color: ${({ theme }) => `${theme.buttonGray}`};
+    color: ${({ theme }) => theme.border};
+    box-shadow: none;
+    border: 1px solid transparent;
+    outline: none;
+  }
 `
 
 interface Pool extends FarmingPool {
@@ -70,18 +108,23 @@ type Props = {
   rewardPendings: CurrencyAmount<Currency>[]
   depositedPositions: NFTPosition[]
   rewardValue: number
-  renderHarvestButton: () => ReactNode
-  renderStakeButton: () => ReactNode
-  renderUnstakeButton: () => ReactNode
+  onHarvest: () => void
+  onStake: () => void
+  disableStake: boolean
+  onUnstake: () => void
+  disableUnstake: boolean
   farmAddress: string
   tokenPrices: { [key: string]: number }
   targetPercent: string
+  targetPercentByNFT: { [key: string]: string }
 }
 
 const FarmCard = ({
-  renderUnstakeButton,
-  renderStakeButton,
-  renderHarvestButton,
+  disableUnstake,
+  onUnstake,
+  disableStake,
+  onStake,
+  onHarvest,
   pool,
   rewardValue,
   rewardPendings,
@@ -89,10 +132,15 @@ const FarmCard = ({
   farmAddress,
   tokenPrices,
   targetPercent,
+  targetPercentByNFT,
 }: Props) => {
+  const { chainId } = useActiveWeb3React()
+  const [isRevertPrice, setIsRevertPrice] = useState(false)
   const theme = useTheme()
   const currentTimestamp = Math.floor(Date.now() / 1000)
   const isFarmEnded = pool.endTime < currentTimestamp
+
+  const canHarvest = rewardPendings.some(amount => amount.greaterThan(0))
 
   const amountCanStaked = isFarmEnded ? 0 : pool.depositedUsd - pool.stakedUsd
   const setSharePoolAddress = useSharePoolContext()
@@ -102,80 +150,87 @@ const FarmCard = ({
     pool.token1.isNative ? pool.token1.symbol : pool.token1.address
   }/${pool.pool.fee}`
 
+  const representedPostion = depositedPositions?.[0]
+  const price =
+    representedPostion &&
+    (isRevertPrice
+      ? representedPostion.pool.priceOf(representedPostion.pool.token1)
+      : representedPostion.pool.priceOf(representedPostion.pool.token0))
+
   return (
     <FlipCard flip={showPosition}>
       {!showPosition && (
         <FlipCardFront>
-          <Flex alignItems="center" justifyContent="space-between">
-            <Flex alignItems="center">
-              <DoubleCurrencyLogo currency0={pool.token0} currency1={pool.token1} size={20} />
-              <Link
-                to={addliquidityElasticPool}
-                style={{
-                  textDecoration: 'none',
-                }}
-              >
-                <Text fontSize={16} fontWeight={500}>
-                  {pool.token0.symbol} - {pool.token1.symbol}
-                </Text>
-              </Link>
+          <Flex alignItems="center">
+            <DoubleCurrencyLogo currency0={pool.token0} currency1={pool.token1} size={20} />
+            <Link
+              to={addliquidityElasticPool}
+              style={{
+                textDecoration: 'none',
+              }}
+            >
+              <Text fontSize={16} fontWeight={500}>
+                {pool.token0.symbol} - {pool.token1.symbol}
+              </Text>
+            </Link>
 
-              <FeeTag>FEE {(pool.pool.fee * 100) / ELASTIC_BASE_FEE_UNIT}%</FeeTag>
+            <FeeTag>FEE {(pool.pool.fee * 100) / ELASTIC_BASE_FEE_UNIT}%</FeeTag>
+          </Flex>
+
+          <Flex
+            marginTop="0.75rem"
+            alignItems="center"
+            sx={{ gap: '6px' }}
+            fontSize="12px"
+            color={theme.subText}
+            width="max-content"
+            fontWeight="500"
+          >
+            <Flex alignItems="center" sx={{ gap: '4px' }}>
+              <CopyHelper toCopy={pool.poolAddress} />
+              <Text>{shortenAddress(chainId, pool.poolAddress, 2)}</Text>
             </Flex>
 
-            <Flex sx={{ gap: '4px' }}>
-              <MinimalActionButton colorScheme={ButtonColorScheme.Gray} cardMode>
-                <CopyHelper toCopy={pool.poolAddress} style={{ marginLeft: 0, padding: '12px' }} />
-              </MinimalActionButton>
-              <MinimalActionButton
-                colorScheme={ButtonColorScheme.Gray}
-                cardMode
-                onClick={() => {
-                  setSharePoolAddress(pool.poolAddress)
-                }}
-              >
-                <Share2 size="16px" color={theme.subText} />
-              </MinimalActionButton>
+            <Flex
+              marginLeft="12px"
+              onClick={() => {
+                setSharePoolAddress(pool.poolAddress)
+              }}
+              sx={{
+                cursor: 'pointer',
+                gap: '4px',
+              }}
+              role="button"
+              color={theme.subText}
+            >
+              <Share2 size="14px" color={theme.subText} />
+              <Trans>Share</Trans>
             </Flex>
           </Flex>
 
-          <MouseoverTooltip
-            text={t`Average estimated return based on yearly fees of the pool and if it's still active, plus bonus rewards of the pool`}
-          >
-            <Text
-              width="fit-content"
-              lineHeight="16px"
-              fontSize="12px"
-              fontWeight="500"
-              color={theme.subText}
-              sx={{ borderBottom: `1px dashed ${theme.border}` }}
-              marginTop="20px"
-            >
-              <Trans>Avg APR</Trans>
-            </Text>
-          </MouseoverTooltip>
-
-          <Flex
-            alignItems="center"
-            justifyContent="flex-start"
-            fontSize="36px"
+          <Text
+            width="fit-content"
+            lineHeight="16px"
+            fontSize="12px"
             fontWeight="500"
-            color={theme.apr}
-            sx={{
-              gap: '4px',
-            }}
+            color={theme.subText}
+            sx={{ borderBottom: `1px dashed ${theme.border}` }}
+            marginTop="16px"
           >
-            {(pool.farmAPR + pool.poolAPR).toFixed(2)}%
             <MouseoverTooltip
               width="fit-content"
               placement="right"
               text={<APRTooltipContent farmAPR={pool.farmAPR} poolAPR={pool.poolAPR} />}
             >
-              <MoneyBag size={28} color={theme.apr} />
+              <Trans>Avg APR</Trans>
             </MouseoverTooltip>
-          </Flex>
+          </Text>
 
-          <Flex justifyContent="space-between" marginTop="20px" fontSize="12px" fontWeight="500" color={theme.subText}>
+          <Text fontSize="28px" fontWeight="500" color={theme.apr}>
+            {(pool.farmAPR + pool.poolAPR).toFixed(2)}%
+          </Text>
+
+          <Flex justifyContent="space-between" marginTop="16px" fontSize="12px" fontWeight="500" color={theme.subText}>
             <Text>
               <Trans>Staked TVL</Trans>
             </Text>
@@ -210,39 +265,14 @@ const FarmCard = ({
 
           <Flex marginTop="16px" justifyContent="space-between" fontSize="12px" fontWeight="500" color={theme.subText}>
             <Text>
-              <Trans>My Rewards</Trans>
+              <Trans>My Deposit</Trans>
             </Text>
             <Text>
-              <Trans>My Deposit</Trans>
+              <Trans>My Rewards</Trans>
             </Text>
           </Flex>
 
           <Flex marginTop="4px" justifyContent="space-between">
-            <HoverDropdown
-              style={{ padding: '0' }}
-              content={
-                rewardValue ? (
-                  <Text fontSize="16px" fontWeight="500" textAlign="right">
-                    {formatDollarAmount(rewardValue)}
-                  </Text>
-                ) : (
-                  '--'
-                )
-              }
-              hideIcon={!rewardValue}
-              dropdownContent={
-                <Flex flexDirection="column" alignItems="flex-end" sx={{ gap: '8px' }}>
-                  {rewardPendings.map((amount, i) => (
-                    <Flex alignItems="center" sx={{ gap: '4px' }} key={amount.currency.symbol || i}>
-                      <CurrencyLogo currency={amount.currency} size="16px" />
-                      {amount.toSignificant(6)}
-                      {amount.currency.symbol}
-                    </Flex>
-                  ))}
-                </Flex>
-              }
-            />
-
             {amountCanStaked ? (
               <Flex justifyContent="flex-start" color={theme.warning} fontWeight="500" fontSize="16px">
                 {formatDollarAmount(pool.depositedUsd)}
@@ -281,21 +311,53 @@ const FarmCard = ({
                 {pool.depositedUsd ? formatDollarAmount(pool.depositedUsd) : '--'}
               </Flex>
             )}
+
+            <HoverDropdown
+              style={{ padding: '0' }}
+              content={
+                rewardValue ? (
+                  <Text fontSize="16px" fontWeight="500" textAlign="right">
+                    {formatDollarAmount(rewardValue)}
+                  </Text>
+                ) : (
+                  '--'
+                )
+              }
+              hideIcon={!rewardValue}
+              dropdownContent={
+                <Flex flexDirection="column" sx={{ gap: '8px' }}>
+                  {rewardPendings.map((amount, i) => (
+                    <Flex alignItems="center" sx={{ gap: '4px' }} key={amount.currency.symbol || i}>
+                      <CurrencyLogo currency={amount.currency} size="16px" />
+                      {amount.toSignificant(6)} {amount.currency.symbol}
+                    </Flex>
+                  ))}
+                </Flex>
+              }
+            />
           </Flex>
 
-          <Flex marginTop="20px" justifyContent="space-between">
-            {renderHarvestButton()}
+          {pool.feeTarget !== '0' && <FeeTarget percent={targetPercent} style={{ maxWidth: '100%' }} />}
 
+          <Flex marginTop="20px" justifyContent="space-between">
             <Flex sx={{ gap: '12px' }}>
-              {renderStakeButton()}
-              {renderUnstakeButton()}
+              <Button color={theme.primary} disabled={disableStake} onClick={onStake}>
+                <Plus size={16} /> Stake
+              </Button>
+              <Button color={theme.red} disabled={disableUnstake} onClick={onUnstake}>
+                <Minus size={16} /> Unstake
+              </Button>
             </Flex>
+            <Button color={theme.apr} disabled={!canHarvest} onClick={onHarvest}>
+              <Harvest /> Harvest
+            </Button>
           </Flex>
 
           <Flex
             justifyContent="center"
             alignItems="center"
-            marginTop="20px"
+            marginTop="auto"
+            paddingTop="16px"
             fontSize="12px"
             fontWeight="500"
             role="button"
@@ -334,8 +396,43 @@ const FarmCard = ({
             <FeeTag>FEE {(pool.pool.fee * 100) / ELASTIC_BASE_FEE_UNIT}%</FeeTag>
           </Flex>
 
+          <Flex justifyContent="space-between" fontSize="12px" fontWeight="500" alignItems="center">
+            <Text color={theme.subText}>
+              <Trans>Current Price</Trans>:
+            </Text>
+
+            <ButtonEmpty
+              padding="0"
+              as={Link}
+              to={`${APP_PATHS.MY_POOLS}`}
+              style={{
+                width: 'max-content',
+                color: theme.subText,
+                fontSize: '12px',
+                fontWeight: '500',
+                gap: '4px',
+              }}
+            >
+              <DropIcon />
+              <Trans>My Pools</Trans> ↗
+            </ButtonEmpty>
+          </Flex>
+
+          <Flex marginTop="4px" alignItems="center">
+            <Text fontSize={'12px'} fontWeight="500" style={{ textAlign: 'right' }}>{`${price.toSignificant(10)} ${
+              price.quoteCurrency.symbol
+            } per ${price.baseCurrency.symbol}`}</Text>
+
+            <span
+              onClick={() => setIsRevertPrice(prev => !prev)}
+              style={{ marginLeft: '2px', cursor: 'pointer', transform: 'rotate(90deg)' }}
+            >
+              <SwapIcon size={14} />
+            </span>
+          </Flex>
+
           <Flex
-            maxHeight="244px"
+            maxHeight="200px"
             flex={1}
             marginTop="20px"
             sx={{ overflowY: 'scroll', gap: '12px' }}
@@ -346,10 +443,12 @@ const FarmCard = ({
                 <PositionDetail
                   key={item.nftId.toString()}
                   farmAddress={farmAddress}
+                  isRevertPrice={isRevertPrice}
+                  price={price}
                   pool={pool}
                   nftInfo={item}
                   tokenPrices={tokenPrices}
-                  targetPercent={targetPercent}
+                  targetPercent={targetPercentByNFT[item.nftId.toString()]}
                 />
               )
             })}
@@ -358,7 +457,8 @@ const FarmCard = ({
           <Flex
             justifyContent="center"
             alignItems="center"
-            marginTop="20px"
+            marginTop="auto"
+            paddingTop="16px"
             fontSize="12px"
             fontWeight="500"
             role="button"

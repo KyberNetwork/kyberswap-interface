@@ -226,10 +226,10 @@ const generateActionButtonCSS = (theme: DefaultTheme, colorScheme?: ButtonColorS
   `
 }
 
-export const MinimalActionButton = styled(ButtonLight)<{ colorScheme?: ButtonColorScheme; cardMode?: boolean }>`
+export const MinimalActionButton = styled(ButtonLight)<{ colorScheme?: ButtonColorScheme }>`
   background-color: ${({ theme }) => rgba(theme.primary, 0.2)};
-  min-width: ${({ cardMode }) => (!cardMode ? '28px' : '36px')};
-  min-height: ${({ cardMode }) => (!cardMode ? '28px' : '36px')};
+  min-width: 28px;
+  min-height: 28px;
   width: 28px;
   height: 28px;
   padding: 0;
