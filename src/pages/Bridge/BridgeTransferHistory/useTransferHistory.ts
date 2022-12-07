@@ -11,9 +11,8 @@ const useTransferHistory = (account: string) => {
   const dispatch = useDispatch()
   const [page, setPage] = useState(1)
 
-  const fetchAccount = account
-  const swrKey = fetchAccount
-    ? `${KS_SETTING_API}/v1/multichain-transfers?userAddress=${fetchAccount}&page=${page}&pageSize=${ITEMS_PER_PAGE}`
+  const swrKey = account
+    ? `${KS_SETTING_API}/v1/multichain-transfers?userAddress=${account}&page=${page}&pageSize=${ITEMS_PER_PAGE}`
     : ''
   const { data, isValidating, error } = useGetBridgeTransfers(swrKey)
 

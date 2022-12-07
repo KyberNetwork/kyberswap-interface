@@ -136,17 +136,13 @@ const Container = styled.div`
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
       ${css`
-        .custom-date-picker {
-          .custom-calendar {
-            .react-calendar__month-view__days {
-              button {
-                height: 48px;
-                abbr {
-                  width: 48px;
-                  height: 48px;
-                  line-height: 48px;
-                }
-              }
+        .custom-date-picker .custom-calendar .react-calendar__month-view__days {
+          button {
+            height: 48px;
+            abbr {
+              width: 48px;
+              height: 48px;
+              line-height: 48px;
             }
           }
         }

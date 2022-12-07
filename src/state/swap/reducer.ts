@@ -1,5 +1,6 @@
 import { createReducer } from '@reduxjs/toolkit'
 
+import { APP_PATHS } from 'constants/index'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
 import { Aggregator } from 'utils/aggregator'
 import { queryStringToObject } from 'utils/string'
@@ -45,7 +46,7 @@ export interface SwapState {
 }
 
 const { search, pathname } = window.location
-const { inputCurrency = '', outputCurrency = '' } = pathname.startsWith('/swap') // pathname.startsWith(APP_PATHS.SWAP)
+const { inputCurrency = '', outputCurrency = '' } = pathname.startsWith(APP_PATHS.SWAP)
   ? queryStringToObject(search)
   : {}
 

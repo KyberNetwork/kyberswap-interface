@@ -87,6 +87,7 @@ export const MAINNET_NETWORKS = [
   // todo danh remove
   ChainId.GÖRLI,
 ] as const
+
 export type MAINNET_NETWORK = typeof MAINNET_NETWORKS[number]
 
 export const EVM_NETWORKS = SUPPORTED_NETWORKS.filter(chainId => getChainType(chainId) === ChainType.EVM) as Exclude<

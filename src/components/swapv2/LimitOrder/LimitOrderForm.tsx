@@ -102,7 +102,7 @@ const LimitOrderForm = function LimitOrderForm({
 
   const { setCurrencyIn, setCurrencyOut, switchCurrency, setCurrentOrder, removeCurrentOrder } =
     useLimitActionHandlers()
-  const { orderUpdating } = useLimitState()
+  const { ordersUpdating } = useLimitState()
 
   const [inputAmount, setInputAmount] = useState(defaultInputAmount)
   const [outputAmount, setOuputAmount] = useState(defaultOutputAmount)
@@ -195,9 +195,7 @@ const LimitOrderForm = function LimitOrderForm({
     setRateInfo({ ...rateInfo, invert })
   }
 
-  const balances = useCurrencyBalances(
-    useMemo(() => [currencyIn ?? undefined, currencyOut ?? undefined], [currencyIn, currencyOut]),
-  )
+  const balances = useCurrencyBalances(useMemo(() => [currencyIn, currencyOut], [currencyIn, currencyOut]))
 
   const maxAmountInput = maxAmountSpend(balances[0])
   const handleMaxInput = useCallback(() => {
@@ -354,21 +352,25 @@ const LimitOrderForm = function LimitOrderForm({
     currencyIn && getActiveMakingAmount(currencyIn)
   }
 
-  const handleError = (error: any) => {
-    const errorCode: string = error?.response?.data?.code || error.code || ''
-    const mapErrorMessageByErrCode: { [code: string]: string } = {
-      4001: t`User denied message signature`,
-      4002: t`You don't have sufficient fund for this transaction.`,
-      4004: t`Invalid signature`,
-    }
-    const msg = mapErrorMessageByErrCode[errorCode]
-    console.error(error)
-    setFlowState(state => ({
-      ...state,
-      attemptingTxn: false,
-      errorMessage: msg || 'Error occur. Please try again.',
-    }))
-  }
+  const handleError = useCallback(
+    (error: any) => {
+      const errorCode: string = error?.response?.data?.code || error.code || ''
+      const mapErrorMessageByErrCode: { [code: string]: string } = {
+        4001: t`User denied message signature`,
+        4002: t`You don't have sufficient fund for this transaction.`,
+        4004: t`Invalid signature`,
+      }
+      const msg = mapErrorMessageByErrCode[errorCode]
+      console.error(error)
+      setFlowState(state => ({
+        ...state,
+        attemptingTxn: false,
+        errorMessage: msg || 'Error occur. Please try again.',
+      }))
+    },
+    [setFlowState],
+  )
+
   const { library } = useWeb3React()
 
   const getPayloadCreateOrder = (params: CreateOrderParam) => {
@@ -400,91 +402,88 @@ const LimitOrderForm = function LimitOrderForm({
     return { signature, orderHash }
   }
 
-  const requestCreateOrder = async (params: CreateOrderParam) => {
-    const { currencyIn, currencyOut, chainId, account, inputAmount, outputAmount, expiredAt } = params
-    if (
-      !library ||
-      !currencyIn ||
-      !currencyOut ||
-      !chainId ||
-      !account ||
-      !inputAmount ||
-      !outputAmount ||
-      !expiredAt
-    ) {
-      return Promise.reject('wrong input')
-    }
-
-    let signature = params.signature
-    let orderHash = params.orderHash
-    if (!signature && !orderHash) {
-      setFlowState(state => ({
-        ...state,
-        attemptingTxn: true,
-        showConfirm: true,
-        pendingText: t`Sign limit order: ${formatAmountOrder(inputAmount, false)} ${
-          currencyIn.symbol
-        } to ${formatAmountOrder(outputAmount, false)} ${currencyOut.symbol}`,
-      }))
-      const signData = await signOrder(params)
-      signature = signData.signature
-      orderHash = signData.orderHash
-    }
-
-    const payload = getPayloadCreateOrder(params)
-    setFlowState(state => ({ ...state, pendingText: t`Placing order` }))
-    await submitOrder({ ...payload, orderHash, signature })
-    setFlowState(state => ({ ...state, showConfirm: false }))
-    notify(
-      {
-        type: NotificationType.SUCCESS,
-        title: isEdit ? t`Order Edited` : t`Order Placed`,
-        summary: (
-          <Text color={theme.text} lineHeight="18px">
-            <Trans>
-              You have successfully placed an order to pay{' '}
-              <Text as="span" fontWeight={500}>
-                {formatAmountOrder(inputAmount, false)} {currencyIn.symbol}
-              </Text>{' '}
-              and receive{' '}
-              <Text as="span" fontWeight={500}>
-                {formatAmountOrder(outputAmount, false)} {currencyOut.symbol}{' '}
-              </Text>
-              <Text as="span" color={theme.subText}>
-                when 1 {currencyIn.symbol} is equal to {formatAmountOrder(rateInfo.rate, false)} {currencyOut.symbol}.
-              </Text>
-            </Trans>
-            {isEdit &&
-              (() => {
-                const isPartialFilled = orderInfo?.status === LimitOrderStatus.PARTIALLY_FILLED
-                const filledPercent =
-                  orderInfo && isPartialFilled
-                    ? calcPercentFilledOrder(orderInfo?.filledTakingAmount, orderInfo?.takingAmount)
-                    : ''
-                return (
-                  <>
-                    <br />
-                    {isPartialFilled ? (
-                      <Trans>Your previous order which was {filledPercent}% filled was automatically cancelled.</Trans>
-                    ) : (
-                      <Trans>Your previous order was automatically cancelled.</Trans>
-                    )}
-                  </>
-                )
-              })()}
-          </Text>
-        ),
-      },
-      10000,
-    )
-    onResetForm()
-    setTimeout(() => refreshListOrder?.(), 500)
-    return
-  }
-
   const onSubmitCreateOrder = async (params: CreateOrderParam) => {
     try {
-      await requestCreateOrder(params)
+      const { currencyIn, currencyOut, chainId, account, inputAmount, outputAmount, expiredAt } = params
+      if (
+        !library ||
+        !currencyIn ||
+        !currencyOut ||
+        !chainId ||
+        !account ||
+        !inputAmount ||
+        !outputAmount ||
+        !expiredAt
+      ) {
+        throw new Error('wrong input')
+      }
+
+      let signature = params.signature
+      let orderHash = params.orderHash
+      if (!signature && !orderHash) {
+        setFlowState(state => ({
+          ...state,
+          attemptingTxn: true,
+          showConfirm: true,
+          pendingText: t`Sign limit order: ${formatAmountOrder(inputAmount, false)} ${
+            currencyIn.symbol
+          } to ${formatAmountOrder(outputAmount, false)} ${currencyOut.symbol}`,
+        }))
+        const signData = await signOrder(params)
+        signature = signData.signature
+        orderHash = signData.orderHash
+      }
+
+      const payload = getPayloadCreateOrder(params)
+      setFlowState(state => ({ ...state, pendingText: t`Placing order` }))
+      await submitOrder({ ...payload, orderHash, signature })
+      setFlowState(state => ({ ...state, showConfirm: false }))
+      notify(
+        {
+          type: NotificationType.SUCCESS,
+          title: isEdit ? t`Order Edited` : t`Order Placed`,
+          summary: (
+            <Text color={theme.text} lineHeight="18px">
+              <Trans>
+                You have successfully placed an order to pay{' '}
+                <Text as="span" fontWeight={500}>
+                  {formatAmountOrder(inputAmount, false)} {currencyIn.symbol}
+                </Text>{' '}
+                and receive{' '}
+                <Text as="span" fontWeight={500}>
+                  {formatAmountOrder(outputAmount, false)} {currencyOut.symbol}{' '}
+                </Text>
+                <Text as="span" color={theme.subText}>
+                  when 1 {currencyIn.symbol} is equal to {formatAmountOrder(rateInfo.rate, false)} {currencyOut.symbol}.
+                </Text>
+              </Trans>
+              {isEdit &&
+                (() => {
+                  const isPartialFilled = orderInfo?.status === LimitOrderStatus.PARTIALLY_FILLED
+                  const filledPercent =
+                    orderInfo && isPartialFilled
+                      ? calcPercentFilledOrder(orderInfo?.filledTakingAmount, orderInfo?.takingAmount)
+                      : ''
+                  return (
+                    <>
+                      <br />
+                      {isPartialFilled ? (
+                        <Trans>
+                          Your previous order which was {filledPercent}% filled was automatically cancelled.
+                        </Trans>
+                      ) : (
+                        <Trans>Your previous order was automatically cancelled.</Trans>
+                      )}
+                    </>
+                  )
+                })()}
+            </Text>
+          ),
+        },
+        10000,
+      )
+      onResetForm()
+      setTimeout(() => refreshListOrder?.(), 500)
     } catch (error) {
       handleError(error)
     }
@@ -531,25 +530,23 @@ const LimitOrderForm = function LimitOrderForm({
     () =>
       debounce(data => {
         if (currencyIn) {
-          // todo danh bị dúp khi cancel thành công
           getActiveMakingAmount(currencyIn)
         }
       }, 500),
     [currencyIn, getActiveMakingAmount],
   )
-  const ref = useRef(onSubmitCreateOrder)
-  ref.current = onSubmitCreateOrder
+  const refSubmitCreateOrder = useRef(onSubmitCreateOrder)
+  refSubmitCreateOrder.current = onSubmitCreateOrder
 
   useEffect(() => {
     if (!account || !chainId || !currencyIn) return
-    // todo danh check api call
     // call when currencyIn change or cancel expired/cancelled
     const unsubscribeCancelled = subscribeNotificationOrderCancelled(account, chainId, data => {
       data?.orders.forEach(order => {
-        const findInfo = orderUpdating.find(e => e.orderId === order.id)
+        const findInfo = ordersUpdating.find(e => e.orderId === order.id)
         if (findInfo?.orderId) {
           removeCurrentOrder(findInfo.orderId)
-          if (order.isSuccessful) ref.current(findInfo) // todo danh
+          if (order.isSuccessful) refSubmitCreateOrder.current(findInfo)
         }
       })
       refreshActiveMakingAmount(data)
@@ -559,7 +556,7 @@ const LimitOrderForm = function LimitOrderForm({
       unsubscribeCancelled?.()
       unsubscribeExpired?.()
     }
-  }, [account, chainId, currencyIn, refreshActiveMakingAmount, orderUpdating, removeCurrentOrder])
+  }, [account, chainId, currencyIn, refreshActiveMakingAmount, ordersUpdating, removeCurrentOrder])
 
   const styleTooltip = { maxWidth: '250px', zIndex: zIndexToolTip }
   return (

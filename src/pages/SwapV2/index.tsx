@@ -541,7 +541,7 @@ export default function Swap() {
     })
   }, [tokenImports, chainId, prevTokenImports, currencyIn, currencyOut, onResetSelectCurrency])
 
-  useSyncTokenSymbolToUrl(currencyIn, currencyOut, onSelectSuggestedPair, isSelectCurrencyManually, APP_PATHS.SWAP)
+  useSyncTokenSymbolToUrl(currencyIn, currencyOut, onSelectSuggestedPair, isSelectCurrencyManually, isLimitPage)
   const isLoadedTokenDefault = useIsLoadedTokenDefault()
 
   useEffect(() => {
@@ -633,6 +633,17 @@ export default function Swap() {
   */
   }, [])
 
+  const onClickTab = (tab: TAB) => {
+    setActiveTab(tab)
+    const isLimit = tab === TAB.LIMIT
+    isLimit && toggleProLiveChart(true)
+    const { inputCurrency, outputCurrency, ...newQs } = qs
+    navigateFn({
+      pathname: `${isLimit ? APP_PATHS.LIMIT : APP_PATHS.SWAP}/${networkInfo.route}`,
+      search: stringify(newQs),
+    })
+  }
+
   return (
     <>
       {/**
@@ -655,29 +666,16 @@ export default function Swap() {
             <RowBetween>
               <TabContainer>
                 <TabWrapper>
-                  <Tab
-                    onClick={() => {
-                      setActiveTab(TAB.SWAP)
-                      const { inputCurrency, outputCurrency, ...newQs } = qs
-                      navigateFn({ pathname: APP_PATHS.SWAP, search: stringify(newQs) })
-                    }}
-                    isActive={isSwapPage}
-                  >
+                  <Tab onClick={() => onClickTab(TAB.SWAP)} isActive={isSwapPage}>
                     <Text fontSize={20} fontWeight={500}>
                       <Trans>Swap</Trans>
                     </Text>
                   </Tab>
                   {SUPPORT_LIMIT_ORDER && (
-                    <Tab
-                      onClick={() => {
-                        setActiveTab(TAB.LIMIT)
-                        toggleProLiveChart(true)
-                        const { inputCurrency, outputCurrency, ...newQs } = qs
-                        navigateFn({ pathname: APP_PATHS.LIMIT, search: stringify(newQs) })
-                      }}
-                      isActive={isLimitPage}
-                    >
-                      <Text fontSize={20} fontWeight={500}>{t`Limit`}</Text>
+                    <Tab onClick={() => onClickTab(TAB.LIMIT)} isActive={isLimitPage}>
+                      <Text fontSize={20} fontWeight={500}>
+                        <Trans>Limit</Trans>
+                      </Text>
                     </Tab>
                   )}
                 </TabWrapper>

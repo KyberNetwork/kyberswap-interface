@@ -54,6 +54,7 @@ const StyledIcon = styled.div<{ rotate?: boolean; size?: number; color?: string 
     fill: ${({ color }) => color || 'currentColor'};
   }
 `
+// arrow icon can rotate
 export const DropdownArrowIcon = ({
   rotate,
   size = 24,

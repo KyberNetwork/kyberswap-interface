@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { NETWORKS_INFO, isEVM, isSolana } from 'constants/networks'
@@ -15,6 +15,7 @@ export function useSyncNetworkParamWithStore() {
   const triedEager = useEagerConnect()
 
   const location = useLocation()
+  const [requestingNetwork, setRequestingNetwork] = useState<string>()
 
   useEffect(() => {
     if (!params?.network) {
@@ -30,10 +31,17 @@ export function useSyncNetworkParamWithStore() {
        */
       ;(async () => {
         if (paramChainId && isEVM(paramChainId)) {
+          setRequestingNetwork(params?.network)
           await changeNetwork(paramChainId, undefined, () => {
-            navigate({ ...location, pathname: location.pathname + '/' + networkInfo.route }, { replace: true })
+            if (params.network) {
+              navigate(
+                { ...location, pathname: location.pathname.replace(params.network, networkInfo.route) },
+                { replace: true },
+              )
+            }
           })
         } else if (paramChainId && isSolana(paramChainId)) {
+          setRequestingNetwork(params?.network)
           await changeNetwork(paramChainId)
         }
       })()
@@ -53,11 +61,18 @@ export function useSyncNetworkParamWithStore() {
     /**
      * Sync network route param with current active network, only after eager tried
      */
-    if (params.network && networkInfo.route !== params?.network && !isOnInit.current && triedEager) {
+
+    if (
+      requestingNetwork !== params?.network &&
+      params.network &&
+      networkInfo.route !== params?.network &&
+      !isOnInit.current &&
+      triedEager
+    ) {
       navigate(
         { ...location, pathname: location.pathname.replace(params.network, networkInfo.route) },
         { replace: true },
       )
     }
-  }, [location, networkInfo.route, navigate, triedEager, params?.network])
+  }, [location, networkInfo.route, navigate, triedEager, params?.network, requestingNetwork])
 }

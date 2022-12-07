@@ -9,6 +9,7 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 
+// 1 knc = ?? usdt
 export default function useBaseTradeInfo(currencyIn: Currency | undefined, currencyOut: Currency | undefined) {
   const { account, chainId } = useActiveWeb3React()
   const tokenInAddress = currencyIn?.isNative ? ETHER_ADDRESS : currencyIn?.wrapped.address ?? ''

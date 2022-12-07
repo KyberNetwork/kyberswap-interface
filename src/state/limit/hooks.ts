@@ -20,7 +20,7 @@ export function useLimitState(): LimitState {
   return useSelector((state: AppState) => state.limit)
 }
 
-const useDefaultsFromURLSearch = () => {
+const useDefaultsTokenFromURLSearch = () => {
   const { chainId } = useActiveWeb3React()
   const parsedQs = useParsedQueryString()
   const { currencyIn, currencyOut } = useLimitState()
@@ -34,10 +34,6 @@ const useDefaultsFromURLSearch = () => {
   const parsedInputValue = parsed[Field.INPUT].currencyId // default inputCurrency is the native token
   const parsedOutputValue = parsed[Field.OUTPUT].currencyId || outputCurrencyAddress || ''
 
-  // priority order
-  // 1. address on url (inputCurrency, outputCurrency)
-  // 2. previous currency (to not reset default pair when back to limit page)
-  // 3. default pair
   const inputCurrencyId = parsedQs.inputCurrency ? parsedInputValue : storedInputValue || parsedInputValue
   let outputCurrencyId = parsedQs.outputCurrency ? parsedOutputValue : storedOutputValue || parsedOutputValue
 
@@ -58,7 +54,7 @@ const useDefaultsFromURLSearch = () => {
 export function useLimitActionHandlers() {
   const dispatch = useDispatch<AppDispatch>()
   const { currencyIn, currencyOut } = useLimitState()
-  const { inputCurrency, outputCurrency } = useDefaultsFromURLSearch()
+  const { inputCurrency, outputCurrency } = useDefaultsTokenFromURLSearch()
 
   const onSelectPair = useCallback(
     (currencyIn: Currency | undefined, currencyOut: Currency | undefined) => {

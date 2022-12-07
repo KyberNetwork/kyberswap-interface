@@ -2,7 +2,7 @@ import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import { debounce } from 'lodash'
 import { rgba } from 'polished'
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react'
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Info, Trash } from 'react-feather'
 import { Flex, Text } from 'rebass'
@@ -119,7 +119,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
 
   const limitOrderContract = useContract(LIMIT_ORDER_CONTRACT, LIMIT_ORDER_ABI)
   const notify = useNotify()
-  const { orderUpdating } = useLimitState()
+  const { ordersUpdating } = useLimitState()
   const addTransactionWithType = useTransactionAdder()
   const { isOrderCancelling, setCancellingOrders, cancellingOrdersIds } = useCancellingOrders()
   const transactions = useAllTransactions()
@@ -169,12 +169,11 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
 
   const fetchListOrderDebounce = useMemo(() => debounce(fetchListOrder, 400), [fetchListOrder])
 
+  const isInit = useRef(false)
   useEffect(() => {
-    if (orderType) {
-      // todo danh call nhiều quá
-      console.log('calll', orderType, keyword, curPage)
-      fetchListOrderDebounce(orderType, keyword, curPage)
-    }
+    if (!isInit.current) return
+    fetchListOrderDebounce(orderType, keyword, curPage)
+    isInit.current = true
   }, [orderType, keyword, fetchListOrderDebounce, curPage])
 
   const refreshListOrder = useCallback(() => {
@@ -192,13 +191,13 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
     return () => clearTimeout(timeout)
   }, [])
 
-  const isTxFailed = useCallback(
-    (txHash: string) => {
-      const transactionInfo = findTx(transactions, txHash)
-      return transactionInfo?.receipt?.status !== 1
-    },
-    [transactions],
-  )
+  const isTransactionFailed = (txHash: string) => {
+    const transactionInfo = findTx(transactions, txHash)
+    return transactionInfo?.receipt?.status !== 1
+  }
+
+  const isTxFailed = useRef(isTransactionFailed)
+  isTxFailed.current = isTransactionFailed
 
   useEffect(() => {
     if (!account || !chainId) return
@@ -207,7 +206,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
       const cancelAllSuccess = data?.all?.[0]?.isSuccessful
       if (cancelAllSuccess !== undefined) {
         // not show noti when cancel failed because duplicate.
-        if (!isTxFailed(data?.all?.[0]?.txHash ?? '')) {
+        if (!isTxFailed.current(data?.all?.[0]?.txHash ?? '')) {
           notify(
             {
               type: cancelAllSuccess ? NotificationType.WARNING : NotificationType.ERROR,
@@ -233,7 +232,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
 
       const orders: LimitOrder[] = data?.orders ?? []
       const orderCancelSuccess = orders.filter(e => e.isSuccessful)
-      const orderCancelFailed = orders.filter(e => !e.isSuccessful && !isTxFailed(e.txHash))
+      const orderCancelFailed = orders.filter(e => !e.isSuccessful && !isTxFailed.current(e.txHash))
 
       if (orderCancelSuccess.length)
         notify(
@@ -324,7 +323,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
       unsubscribeExpired?.()
       unsubscribeFilled?.()
     }
-  }, [account, chainId, isTxFailed, notify, refreshListOrder])
+  }, [account, chainId, notify, refreshListOrder])
 
   const hideConfirmCancel = useCallback(() => {
     setFlowState(state => ({ ...state, showConfirm: false }))
@@ -426,8 +425,8 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
 
   useEffect(() => {
     const orderCancelling = orders.length - totalOrderNotCancelling
-    window.onbeforeunload = () => (orderCancelling > 0 && orderUpdating.length > 0 ? '' : null)
-  }, [totalOrderNotCancelling, orders, orderUpdating])
+    window.onbeforeunload = () => (orderCancelling > 0 && ordersUpdating.length > 0 ? '' : null)
+  }, [totalOrderNotCancelling, orders, ordersUpdating])
 
   return (
     <>

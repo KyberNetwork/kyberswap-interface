@@ -8,13 +8,13 @@ import { removeCurrentOrderUpdate, setCurrentOrderUpdate, setLimitCurrency } fro
 export interface LimitState {
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
-  orderUpdating: CreateOrderParam[]
+  ordersUpdating: CreateOrderParam[]
 }
 
 const initialState: LimitState = {
   currencyIn: undefined,
   currencyOut: undefined,
-  orderUpdating: [],
+  ordersUpdating: [],
 }
 
 export default createReducer<LimitState>(initialState, builder =>
@@ -24,9 +24,9 @@ export default createReducer<LimitState>(initialState, builder =>
       state.currencyOut = currencyOut
     })
     .addCase(setCurrentOrderUpdate, (state, { payload }) => {
-      state.orderUpdating = [...state.orderUpdating, payload]
+      state.ordersUpdating = [...state.ordersUpdating, payload]
     })
     .addCase(removeCurrentOrderUpdate, (state, { payload: orderId }) => {
-      state.orderUpdating = state.orderUpdating.filter(e => e.orderId !== orderId)
+      state.ordersUpdating = state.ordersUpdating.filter(e => e.orderId !== orderId)
     }),
 )

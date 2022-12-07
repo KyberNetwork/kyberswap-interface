@@ -281,8 +281,7 @@ export function useDerivedSwapInfo(): {
   }
 }
 
-function parseCurrencyFromURLParameter(urlParam: any, chainId: ChainId | undefined): string {
-  if (!chainId) return ''
+function parseCurrencyFromURLParameter(urlParam: any, chainId: ChainId): string {
   if (typeof urlParam === 'string') {
     const valid = isAddress(chainId, urlParam)
     if (valid) return valid

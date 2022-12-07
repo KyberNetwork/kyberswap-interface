@@ -550,13 +550,6 @@ export const SearchContainer = styled.div`
   `}
 `
 
-export const RewardMobileArea = styled.div`
-  background: ${({ theme }) => theme.buttonBlack};
-  border-radius: 16px;
-  padding: 12px;
-  margin-top: 12px;
-`
-
 export const SearchInput = styled.input`
   outline: none;
   border: none;
