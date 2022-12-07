@@ -350,6 +350,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
   const showEditOrderModal = useCallback((order: LimitOrder) => {
     setCurrentOrder(order)
     setIsOpenEdit(true)
+    setIsCancelAll(false)
   }, [])
 
   const totalOrderNotCancelling = useMemo(() => {
