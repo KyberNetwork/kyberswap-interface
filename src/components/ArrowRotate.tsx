@@ -29,6 +29,7 @@ export const ArrowWrapper = styled.div<{ rotated?: boolean; isVertical?: boolean
   }
 `
 
+// arrow can rotate
 export default function ArrowRotate({
   rotate,
   onClick,

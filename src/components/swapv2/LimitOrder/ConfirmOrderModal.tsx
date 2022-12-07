@@ -368,7 +368,7 @@ export function CancelOrderModal({
 }) {
   const currencyIn = useCurrencyV2(order?.makerAsset) || undefined
   const currencyOut = useCurrencyV2(order?.takerAsset) || undefined
-  const { tradeInfo } = useBaseTradeInfo(currencyIn, currencyOut) // todo danh check api call
+  const { tradeInfo } = useBaseTradeInfo(currencyIn, currencyOut)
   const confirmationContent = useCallback(
     () =>
       flowState.errorMessage ? (

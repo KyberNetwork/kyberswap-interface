@@ -58,7 +58,7 @@ const useDefaultsFromURLSearch = () => {
 export function useLimitActionHandlers() {
   const dispatch = useDispatch<AppDispatch>()
   const { currencyIn, currencyOut } = useLimitState()
-  const { inputCurrency, outputCurrency } = useDefaultsFromURLSearch() // todo danh refator + swap ???, not use id
+  const { inputCurrency, outputCurrency } = useDefaultsFromURLSearch()
 
   const onSelectPair = useCallback(
     (currencyIn: Currency | undefined, currencyOut: Currency | undefined) => {
