@@ -67,7 +67,7 @@ import {
   TabWrapper,
   Wrapper,
 } from 'components/swapv2/styleds'
-import { AGGREGATOR_WAITING_TIME, APP_PATHS, TIME_TO_REFRESH_SWAP_RATE } from 'constants/index'
+import { AGGREGATOR_WAITING_TIME, APP_PATHS, SUPPORT_LIMIT_ORDER, TIME_TO_REFRESH_SWAP_RATE } from 'constants/index'
 import { STABLE_COINS_ADDRESS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens, useIsLoadedTokenDefault } from 'hooks/Tokens'
@@ -667,17 +667,19 @@ export default function Swap() {
                       <Trans>Swap</Trans>
                     </Text>
                   </Tab>
-                  <Tab
-                    onClick={() => {
-                      setActiveTab(TAB.LIMIT)
-                      toggleProLiveChart(true)
-                      const { inputCurrency, outputCurrency, ...newQs } = qs
-                      navigateFn({ pathname: APP_PATHS.LIMIT, search: stringify(newQs) })
-                    }}
-                    isActive={isLimitPage}
-                  >
-                    <Text fontSize={20} fontWeight={500}>{t`Limit`}</Text>
-                  </Tab>
+                  {SUPPORT_LIMIT_ORDER && (
+                    <Tab
+                      onClick={() => {
+                        setActiveTab(TAB.LIMIT)
+                        toggleProLiveChart(true)
+                        const { inputCurrency, outputCurrency, ...newQs } = qs
+                        navigateFn({ pathname: APP_PATHS.LIMIT, search: stringify(newQs) })
+                      }}
+                      isActive={isLimitPage}
+                    >
+                      <Text fontSize={20} fontWeight={500}>{t`Limit`}</Text>
+                    </Tab>
+                  )}
                 </TabWrapper>
               </TabContainer>
 

@@ -12,7 +12,7 @@ export function RedirectPathToSwapNetwork() {
     <Navigate
       to={{
         ...location,
-        pathname: `${pathname.startsWith(APP_PATHS.SWAP) ? APP_PATHS.SWAP : APP_PATHS.LIMIT}/` + networkInfo.route,
+        pathname: `${pathname.startsWith(APP_PATHS.LIMIT) ? APP_PATHS.LIMIT : APP_PATHS.SWAP}/` + networkInfo.route,
       }}
     />
   )

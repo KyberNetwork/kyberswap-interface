@@ -22,7 +22,7 @@ import Row, { RowFixed } from 'components/Row'
 import Settings from 'components/Settings'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import { AGGREGATOR_ANALYTICS_URL, APP_PATHS, PROMM_ANALYTICS_URL } from 'constants/index'
+import { AGGREGATOR_ANALYTICS_URL, APP_PATHS, PROMM_ANALYTICS_URL, SUPPORT_LIMIT_ORDER } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useWindowSize } from 'hooks/useWindowSize'
@@ -383,12 +383,15 @@ export default function Header() {
                   <Trans>Swap</Trans>
                 </Flex>
               </StyledNavLink>
-              <StyledNavLink to={APP_PATHS.LIMIT} style={{ flexDirection: 'column' }}>
-                <Flex alignItems="center" sx={{ gap: '13px' }}>
-                  <StyledLimitOrderIcon />
-                  <Trans>Limit Order</Trans>
-                </Flex>
-              </StyledNavLink>
+
+              {SUPPORT_LIMIT_ORDER && (
+                <StyledNavLink to={APP_PATHS.LIMIT} style={{ flexDirection: 'column' }}>
+                  <Flex alignItems="center" sx={{ gap: '13px' }}>
+                    <StyledLimitOrderIcon />
+                    <Trans>Limit Order</Trans>
+                  </Flex>
+                </StyledNavLink>
+              )}
 
               {isSolana || (
                 <StyledNavLink to={APP_PATHS.BRIDGE} style={{ flexDirection: 'column', width: '100%' }}>

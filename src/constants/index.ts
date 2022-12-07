@@ -350,3 +350,5 @@ export const EIP712Domain = [
   { name: 'chainId', type: 'uint256' },
   { name: 'verifyingContract', type: 'address' },
 ]
+
+export const SUPPORT_LIMIT_ORDER = true
