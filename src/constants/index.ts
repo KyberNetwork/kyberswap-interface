@@ -333,6 +333,7 @@ export const APP_PATHS = {
   BUY_CRYPTO: '/buy-crypto',
   BRIDGE: '/bridge',
   VERIFY: '/verify',
+  LIMIT: '/limit',
   VERIFY_EXTERNAL: '/verify-external',
 }
 
@@ -342,3 +343,10 @@ export enum FARM_TAB {
   MY_FARMS = 'my_farms',
   VESTING = 'vesting',
 }
+
+export const EIP712Domain = [
+  { name: 'name', type: 'string' },
+  { name: 'version', type: 'string' },
+  { name: 'chainId', type: 'uint256' },
+  { name: 'verifyingContract', type: 'address' },
+]

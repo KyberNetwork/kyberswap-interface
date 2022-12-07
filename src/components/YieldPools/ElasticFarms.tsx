@@ -12,6 +12,7 @@ import { ReactComponent as ListViewIcon } from 'assets/svg/list_view.svg'
 import { ButtonEmpty } from 'components/Button'
 import FarmIssueAnnouncement from 'components/FarmIssueAnnouncement'
 import LocalLoader from 'components/LocalLoader'
+import SearchInput from 'components/SearchInput'
 import ShareModal from 'components/ShareModal'
 import Toggle from 'components/Toggle'
 import { FARM_TAB } from 'constants/index'
@@ -35,14 +36,7 @@ import HarvestModal from './ElasticFarmModals/HarvestModal'
 import WithdrawModal from './ElasticFarmModals/WithdrawModal'
 import FarmSort from './FarmSort'
 import { SharePoolContext } from './SharePoolContext'
-import {
-  HeadingContainer,
-  HeadingRight,
-  SearchContainer,
-  SearchInput,
-  StakedOnlyToggleText,
-  StakedOnlyToggleWrapper,
-} from './styleds'
+import { HeadingContainer, HeadingRight, StakedOnlyToggleText, StakedOnlyToggleWrapper } from './styleds'
 
 type ModalType = 'deposit' | 'withdraw' | 'stake' | 'unstake' | 'harvest' | 'forcedWithdraw'
 

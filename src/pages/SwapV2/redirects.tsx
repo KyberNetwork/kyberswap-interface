@@ -7,5 +7,13 @@ import { useActiveWeb3React } from 'hooks'
 export function RedirectPathToSwapNetwork() {
   const location = useLocation
   const { networkInfo } = useActiveWeb3React()
-  return <Navigate to={{ ...location, pathname: `${APP_PATHS.SWAP}/` + networkInfo.route }} />
+  const { pathname } = useLocation()
+  return (
+    <Navigate
+      to={{
+        ...location,
+        pathname: `${pathname.startsWith(APP_PATHS.SWAP) ? APP_PATHS.SWAP : APP_PATHS.LIMIT}/` + networkInfo.route,
+      }}
+    />
+  )
 }

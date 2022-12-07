@@ -201,6 +201,10 @@ export default function App() {
                     <Route path={`${APP_PATHS.SWAP}/:network/:fromCurrency-to-:toCurrency`} element={<SwapV2 />} />
                     <Route path={`${APP_PATHS.SWAP}/:network/:fromCurrency`} element={<SwapV2 />} />
                     <Route path={`${APP_PATHS.SWAP}/:network`} element={<SwapV2 />} />
+                    <Route path={`${APP_PATHS.LIMIT}/:network/:fromCurrency-to-:toCurrency`} element={<SwapV2 />} />
+                    <Route path={`${APP_PATHS.LIMIT}/:network/:fromCurrency`} element={<SwapV2 />} />
+                    <Route path={`${APP_PATHS.LIMIT}/:network`} element={<SwapV2 />} />
+
                     <Route path={`${APP_PATHS.FIND_POOL}`} element={<PoolFinder />} />
                     <Route path={`${APP_PATHS.POOLS}/:network`} element={<Pools />} />
                     <Route path={`${APP_PATHS.POOLS}/:network/:currencyIdA`} element={<Pools />} />

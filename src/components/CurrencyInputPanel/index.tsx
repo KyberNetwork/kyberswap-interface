@@ -35,7 +35,7 @@ const StyledSwitchIcon = styled(SwitchIcon)<{ selected: boolean }>`
   }
 `
 
-export const CurrencySelect = styled.button<{ selected: boolean; hideInput?: boolean }>`
+export const CurrencySelect = styled.button<{ selected: boolean; hideInput?: boolean; disabled?: boolean }>`
   align-items: center;
   height: ${({ hideInput }) => (hideInput ? '2.5rem' : 'unset')};
   width: ${({ hideInput }) => (hideInput ? '100%' : 'initial')};
@@ -55,11 +55,12 @@ export const CurrencySelect = styled.button<{ selected: boolean; hideInput?: boo
 
   :focus,
   :hover {
-    background-color: ${({ selected, hideInput, theme }) =>
+    cursor: ${({ disabled }) => (disabled ? 'default' : 'pointer')};
+    background-color: ${({ selected, hideInput, theme, disabled }) =>
       selected
         ? hideInput
-          ? darken(0.05, theme.buttonBlack)
-          : lighten(0.05, theme.background)
+          ? darken(disabled ? 0 : 0.05, theme.buttonBlack)
+          : lighten(disabled ? 0 : 0.05, theme.background)
         : darken(0.05, theme.primary)};
     color: ${({ selected, theme }) => (selected ? theme.subText : theme.textReverse)};
   }
@@ -124,6 +125,9 @@ const StyledBalanceMax = styled.button`
   border: none;
   border-radius: 999px;
   cursor: pointer;
+  &:focus-visible {
+    outline-width: 0;
+  }
 `
 
 const Card2 = styled(Card)<{ balancePosition: string }>`
@@ -133,9 +137,9 @@ const Card2 = styled(Card)<{ balancePosition: string }>`
 
 interface CurrencyInputPanelProps {
   value: string
-  onUserInput: (value: string) => void
   onMax: (() => void) | null
   onHalf: (() => void) | null
+  onUserInput?: (value: string) => void
   positionMax?: 'inline' | 'top'
   label?: string
   onCurrencySelect?: (currency: Currency) => void
@@ -158,11 +162,17 @@ interface CurrencyInputPanelProps {
   isSwitchMode?: boolean
   locked?: boolean
   maxCurrencySymbolLength?: number
+  error?: boolean
+  maxLength?: number
+  supportNative?: boolean
 }
 
 export default function CurrencyInputPanel({
   value,
-  onUserInput,
+  error,
+  onUserInput = (value: string) => {
+    //
+  },
   onMax,
   onHalf,
   positionMax = 'inline',
@@ -187,6 +197,8 @@ export default function CurrencyInputPanel({
   isSwitchMode = false,
   locked = false,
   maxCurrencySymbolLength,
+  maxLength,
+  supportNative = true,
 }: CurrencyInputPanelProps) {
   const [modalOpen, setModalOpen] = useState(false)
   const { chainId, account } = useActiveWeb3React()
@@ -241,7 +253,7 @@ export default function CurrencyInputPanel({
             </Flex>
           </FixedContainer>
         )}
-        <Container hideInput={hideInput} selected={disableCurrencySelect}>
+        <Container hideInput={hideInput} selected={disableCurrencySelect} error={error}>
           {!hideBalance && (
             <Flex justifyContent="space-between" fontSize="12px" marginBottom="12px" alignItems="center">
               {(onMax || onHalf) && positionMax === 'top' && currency && account ? (
@@ -272,9 +284,11 @@ export default function CurrencyInputPanel({
             {!hideInput && (
               <>
                 <NumericalInput
+                  error={error}
                   className="token-amount-input"
                   value={value}
                   disabled={disabledInput}
+                  maxLength={maxLength}
                   onUserInput={val => {
                     onUserInput(val)
                   }}
@@ -297,6 +311,7 @@ export default function CurrencyInputPanel({
             )}
             {customCurrencySelect || (
               <CurrencySelect
+                disabled={disableCurrencySelect}
                 hideInput={hideInput}
                 selected={!!currency}
                 className="open-currency-select-button"
@@ -347,6 +362,7 @@ export default function CurrencyInputPanel({
             selectedCurrency={currency}
             otherSelectedCurrency={otherCurrency}
             showCommonBases={showCommonBases}
+            supportNative={supportNative}
           />
         )}
       </InputPanel>

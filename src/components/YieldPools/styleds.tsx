@@ -550,16 +550,11 @@ export const SearchContainer = styled.div`
   `}
 `
 
-export const SearchInput = styled.input`
-  outline: none;
-  border: none;
-  flex: 1;
-  color: ${({ theme }) => theme.text};
-  background: ${({ theme }) => theme.background};
-
-  :placeholder {
-    color: ${({ theme }) => theme.disableText};
-  }
+export const RewardMobileArea = styled.div`
+  background: ${({ theme }) => theme.buttonBlack};
+  border-radius: 16px;
+  padding: 12px;
+  margin-top: 12px;
 `
 
 export const ActionButton = styled(ButtonLight)<{ backgroundColor?: string }>`

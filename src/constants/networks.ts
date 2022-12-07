@@ -84,6 +84,8 @@ export const MAINNET_NETWORKS = [
   ChainId.OASIS,
   ChainId.OPTIMISM,
   ChainId.SOLANA,
+  // todo danh remove
+  ChainId.GÖRLI,
 ] as const
 export type MAINNET_NETWORK = typeof MAINNET_NETWORKS[number]
 
