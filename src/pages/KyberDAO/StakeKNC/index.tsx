@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { isMobile } from 'react-device-detect'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -108,7 +108,7 @@ export default function StakeKNC() {
   const toggleMigrationModal = useToggleModal(ApplicationModal.MIGRATE_KNC)
   const { switchToEthereum } = useSwitchToEthereum()
   const { kncPriceETH } = useTotalVotingReward()
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const handleMigrateClick = () => {
     switchToEthereum().then(() => {
@@ -162,7 +162,7 @@ export default function StakeKNC() {
                 <Trans>The more you stake and vote, the more KNC you will earn. </Trans>
               </Text>
             </CardInfo>
-            <ButtonPrimary onClick={() => history.push('/kyberdao/vote')} width="120px" height="44px">
+            <ButtonPrimary onClick={() => navigate('/kyberdao/vote')} width="120px" height="44px">
               Vote
             </ButtonPrimary>
           </Card>
