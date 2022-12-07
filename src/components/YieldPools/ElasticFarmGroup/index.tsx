@@ -467,51 +467,6 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
   const summaryRewardAndDepositInfo = () => {
     return (
       <RewardAndDepositInfo>
-        <RewardContainer>
-          <RewardDetailContainer>
-            {!upToExtraSmall && <Harvest width={36} height={36} color={theme.subText} />}
-            <RewardDetail>
-              <Text fontSize={upToExtraSmall ? '14px' : '12px'} color={theme.subText} fontWeight="500">
-                <Trans>Available Rewards</Trans>
-              </Text>
-
-              <HoverDropdown
-                style={{ padding: '0' }}
-                content={
-                  account && !!rewardUSD ? (
-                    <Text as="span" fontSize="20px" fontWeight="500" color={theme.text}>
-                      {formatDollarAmount(rewardUSD)}
-                    </Text>
-                  ) : (
-                    '--'
-                  )
-                }
-                hideIcon={!account || !rewardUSD}
-                dropdownContent={
-                  Object.values(rewardAmounts).length ? (
-                    <AutoColumn>
-                      {Object.values(rewardAmounts).map(
-                        amount =>
-                          amount.greaterThan(0) && (
-                            <Flex alignItems="center" key={amount.currency.wrapped.address}>
-                              <CurrencyLogo currency={amount.currency} size="16px" />
-                              <Text fontSize="12px" marginLeft="4px" fontWeight="500">
-                                {amount.toSignificant(8)} {amount.currency.symbol}
-                              </Text>
-                            </Flex>
-                          ),
-                      )}
-                    </AutoColumn>
-                  ) : (
-                    ''
-                  )
-                }
-              />
-            </RewardDetail>
-          </RewardDetailContainer>
-
-          <HarvestAllButton onClick={() => onOpenModal('harvest')} disabled={!account || !canHarvest} />
-        </RewardContainer>
         <DepositedContainer>
           <RewardDetailContainer>
             {!upToExtraSmall && <Deposit width={36} height={36} color={theme.subText} />}
@@ -573,6 +528,52 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
             />
           </Flex>
         </DepositedContainer>
+
+        <RewardContainer>
+          <RewardDetailContainer>
+            {!upToExtraSmall && <Harvest width={36} height={36} color={theme.subText} />}
+            <RewardDetail>
+              <Text fontSize={upToExtraSmall ? '14px' : '12px'} color={theme.subText} fontWeight="500">
+                <Trans>Available Rewards</Trans>
+              </Text>
+
+              <HoverDropdown
+                style={{ padding: '0' }}
+                content={
+                  account && !!rewardUSD ? (
+                    <Text as="span" fontSize="20px" fontWeight="500" color={theme.text}>
+                      {formatDollarAmount(rewardUSD)}
+                    </Text>
+                  ) : (
+                    '--'
+                  )
+                }
+                hideIcon={!account || !rewardUSD}
+                dropdownContent={
+                  Object.values(rewardAmounts).length ? (
+                    <AutoColumn>
+                      {Object.values(rewardAmounts).map(
+                        amount =>
+                          amount.greaterThan(0) && (
+                            <Flex alignItems="center" key={amount.currency.wrapped.address}>
+                              <CurrencyLogo currency={amount.currency} size="16px" />
+                              <Text fontSize="12px" marginLeft="4px" fontWeight="500">
+                                {amount.toSignificant(8)} {amount.currency.symbol}
+                              </Text>
+                            </Flex>
+                          ),
+                      )}
+                    </AutoColumn>
+                  ) : (
+                    ''
+                  )
+                }
+              />
+            </RewardDetail>
+          </RewardDetailContainer>
+
+          <HarvestAllButton onClick={() => onOpenModal('harvest')} disabled={!account || !canHarvest} />
+        </RewardContainer>
       </RewardAndDepositInfo>
     )
   }
