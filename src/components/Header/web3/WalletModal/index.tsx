@@ -1,4 +1,4 @@
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { WalletReadyState } from '@solana/wallet-adapter-base'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { UnsupportedChainIdError } from '@web3-react/core'
@@ -13,7 +13,6 @@ import { ReactComponent as Close } from 'assets/images/x.svg'
 import { AutoColumn } from 'components/Column'
 import ExpandableBox from 'components/ExpandableBox'
 import AccountDetails from 'components/Header/web3/AccountDetails'
-import Networks from 'components/Header/web3/NetworkModal/Networks'
 import WarningIcon from 'components/Icons/WarningIcon'
 import Modal from 'components/Modal'
 import Row, { AutoRow, RowFixed } from 'components/Row'
@@ -142,7 +141,7 @@ type WalletInfoExtended = WalletInfo & {
 }
 
 export default function WalletModal() {
-  const { account, isSolana, isEVM, chainId, walletKey } = useActiveWeb3React()
+  const { account, isSolana, isEVM, walletKey } = useActiveWeb3React()
   // important that these are destructed from the account-specific web3-react context
   const { active, connector, error } = useWeb3React()
   const { connected, connecting, wallet: solanaWallet } = useWallet()

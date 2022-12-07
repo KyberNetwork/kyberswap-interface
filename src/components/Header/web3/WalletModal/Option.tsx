@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { WalletReadyState } from '@solana/wallet-adapter-base'
-import { darken, rgba } from 'polished'
+import { darken } from 'polished'
 import React from 'react'
 import styled, { css } from 'styled-components'
 
@@ -9,7 +9,7 @@ import { SUPPORTED_WALLET, SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React } from 'hooks'
 import { useIsAcceptedTerm, useIsDarkMode } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
-import { isEVMWallet, isOverriddenWallet, isSolanaWallet } from 'utils'
+import { isEVMWallet, isSolanaWallet } from 'utils'
 import checkForBraveBrowser from 'utils/checkForBraveBrowser'
 
 import { C98OverrideGuide } from './WarningBox'
