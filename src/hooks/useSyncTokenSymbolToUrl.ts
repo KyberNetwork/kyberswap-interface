@@ -1,7 +1,7 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { stringify } from 'querystring'
 import { useCallback, useEffect, useRef } from 'react'
-import { useHistory, useLocation, useParams } from 'react-router-dom'
+import { Params, useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
@@ -20,7 +20,7 @@ type TokenSymbolUrl = {
   toCurrency: string
   network: string
 }
-const getUrlMatchParams = (params: TokenSymbolUrl) => {
+const getUrlMatchParams = (params: Params): TokenSymbolUrl => {
   const fromCurrency = (params.fromCurrency || '').toLowerCase()
   const toCurrency = (params.toCurrency || '').toLowerCase()
   const network: string = convertToSlug(params.network || '')
@@ -37,10 +37,10 @@ export default function useSyncTokenSymbolToUrl(
   isSelectCurrencyManual: boolean,
   path: string,
 ) {
-  const params = useParams<TokenSymbolUrl>()
+  const params = useParams()
   const { fromCurrency, toCurrency, network } = getUrlMatchParams(params)
   const { chainId } = useActiveWeb3React()
-  const history = useHistory()
+  const navigateFn = useNavigate()
   const qs = useParsedQueryString()
   const { pathname } = useLocation()
   const defaultTokens = useAllTokens()
@@ -53,9 +53,9 @@ export default function useSyncTokenSymbolToUrl(
   const navigate = useCallback(
     (url: string) => {
       const { networkId, inputCurrency, outputCurrency, ...newQs } = qs
-      history.push(`${curPath}${url ? `/${url}` : ''}?${stringify(newQs)}`) // keep query params
+      navigateFn(`${curPath}${url ? `/${url}` : ''}?${stringify(newQs)}`) // keep query params
     },
-    [history, qs, curPath],
+    [navigateFn, qs, curPath],
   )
 
   const findTokenBySymbol = useCallback(

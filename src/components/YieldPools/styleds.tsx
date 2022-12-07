@@ -557,6 +557,17 @@ export const RewardMobileArea = styled.div`
   margin-top: 12px;
 `
 
+export const SearchInput = styled.input`
+  outline: none;
+  border: none;
+  flex: 1;
+  color: ${({ theme }) => theme.text};
+  background: ${({ theme }) => theme.background};
+  :placeholder {
+    color: ${({ theme }) => theme.disableText};
+  }
+`
+
 export const ActionButton = styled(ButtonLight)<{ backgroundColor?: string }>`
   background-color: ${({ theme, backgroundColor }) => backgroundColor || theme.primary + '33'};
   width: 28px;

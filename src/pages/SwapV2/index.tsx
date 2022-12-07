@@ -5,7 +5,7 @@ import { stringify } from 'querystring'
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
 import Skeleton from 'react-loading-skeleton'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Box, Flex, Text } from 'rebass'
 import styled, { DefaultTheme, keyframes } from 'styled-components'
 
@@ -659,7 +659,7 @@ export default function Swap() {
                     onClick={() => {
                       setActiveTab(TAB.SWAP)
                       const { inputCurrency, outputCurrency, ...newQs } = qs
-                      history.push({ pathname: APP_PATHS.SWAP, search: stringify(newQs) })
+                      navigateFn({ pathname: APP_PATHS.SWAP, search: stringify(newQs) })
                     }}
                     isActive={isSwapPage}
                   >
@@ -672,7 +672,7 @@ export default function Swap() {
                       setActiveTab(TAB.LIMIT)
                       toggleProLiveChart(true)
                       const { inputCurrency, outputCurrency, ...newQs } = qs
-                      history.push({ pathname: APP_PATHS.LIMIT, search: stringify(newQs) })
+                      navigateFn({ pathname: APP_PATHS.LIMIT, search: stringify(newQs) })
                     }}
                     isActive={isLimitPage}
                   >

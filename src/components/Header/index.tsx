@@ -377,22 +377,13 @@ export default function Header() {
             </Flex>
 
             <Dropdown id={TutorialIds.BRIDGE_LINKS}>
-              <StyledNavLink
-                id={`swapv2-nav-link`}
-                to={APP_PATHS.SWAP}
-                isActive={match => Boolean(match)}
-                style={{ flexDirection: 'column' }}
-              >
+              <StyledNavLink id={`swapv2-nav-link`} to={APP_PATHS.SWAP} style={{ flexDirection: 'column' }}>
                 <Flex alignItems="center" sx={{ gap: '13px' }}>
                   <Repeat size={16} />
                   <Trans>Swap</Trans>
                 </Flex>
               </StyledNavLink>
-              <StyledNavLink
-                to={APP_PATHS.LIMIT}
-                isActive={match => Boolean(match)}
-                style={{ flexDirection: 'column' }}
-              >
+              <StyledNavLink to={APP_PATHS.LIMIT} style={{ flexDirection: 'column' }}>
                 <Flex alignItems="center" sx={{ gap: '13px' }}>
                   <StyledLimitOrderIcon />
                   <Trans>Limit Order</Trans>
@@ -400,11 +391,7 @@ export default function Header() {
               </StyledNavLink>
 
               {isSolana || (
-                <StyledNavLink
-                  to={APP_PATHS.BRIDGE}
-                  isActive={match => Boolean(match)}
-                  style={{ flexDirection: 'column', width: '100%' }}
-                >
+                <StyledNavLink to={APP_PATHS.BRIDGE} style={{ flexDirection: 'column', width: '100%' }}>
                   <Flex alignItems="center" sx={{ gap: '10px' }} justifyContent="space-between">
                     <StyledBridgeIcon height={15} />
                     <Flex alignItems={'center'} style={{ flex: 1 }} justifyContent={'space-between'}>
@@ -423,7 +410,6 @@ export default function Header() {
               <StyledNavLink
                 id={`buy-crypto-nav-link`}
                 to={'/buy-crypto'}
-                isActive={match => Boolean(match)}
                 onClick={() => {
                   mixpanelHandler(MIXPANEL_TYPE.SWAP_BUY_CRYPTO_CLICKED)
                 }}
