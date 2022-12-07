@@ -17,7 +17,7 @@ const solanaInfo: SolanaNetworkInfo = {
   priceRoute: 'solana',
   name: 'Solana',
   icon: Solana,
-  iconSelected: SolanaDark,
+  iconSelected: Solana,
   iconDark: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
   etherscanUrl: 'https://solscan.io',
