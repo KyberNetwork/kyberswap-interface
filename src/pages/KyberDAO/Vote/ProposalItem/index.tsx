@@ -308,15 +308,12 @@ function ProposalItem({
       >
         {proposal.options.map((option: string, index: number) => {
           const voted = votedOfCurrentProposal?.options?.includes(index) || false
+          const voteStat = proposal?.vote_stats?.options?.find(o => o.option === index)
           return (
             <OptionButton
               disabled={!isActive}
               key={option}
-              percent={
-                proposal?.vote_stats?.options?.[index]
-                  ? (proposal.vote_stats.options[index]?.vote_count / proposal.vote_stats.total_vote_count) * 100
-                  : 0
-              }
+              percent={voteStat ? (voteStat.vote_count / proposal.vote_stats.total_vote_count) * 100 : 0}
               title={option}
               checked={selectedOptions?.includes(index) || voted}
               onOptionClick={() => handleOptionClick(index)}

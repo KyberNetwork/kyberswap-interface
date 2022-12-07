@@ -1,5 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { ReactNode, useMemo, useState } from 'react'
 import { X } from 'react-feather'
@@ -19,7 +19,7 @@ import Row, { RowBetween, RowFit } from 'components/Row'
 import { KNC_ADDRESS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useStakingInfo, useVotingInfo } from 'hooks/kyberdao'
-import { ActionType, ProposalType, StakerAction } from 'hooks/kyberdao/types'
+import { ActionType, StakerAction } from 'hooks/kyberdao/types'
 import useCopyClipboard from 'hooks/useCopyClipboard'
 import useTheme from 'hooks/useTheme'
 import { useWindowSize } from 'hooks/useWindowSize'
@@ -133,12 +133,15 @@ export default function YourTransactionsModal() {
                 })
                 if (!proposal) return <></>
 
-                if (action.meta.proposal_type === ProposalType.BinaryProposal)
-                  return t`Voted ${proposal?.options[action.meta?.options?.[0] || 0]}`
-                else {
-                  //return t`Voted ${action.meta?.options?.map((o: number) => proposal?.options[o] || '').join(',')}`
-                  return ''
-                }
+                return (
+                  <>
+                    {action.meta?.amount?.toPrecision(2) + ' KNC'}
+                    <Text fontSize={12} color={theme.subText}>
+                      + {((+(action.meta?.amount || 0) / proposal.vote_stats?.total_vote_count) * 100).toPrecision(3)}%
+                      Power
+                    </Text>
+                  </>
+                )
               case ActionType.Deposit:
                 return (
                   <>
