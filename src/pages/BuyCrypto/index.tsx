@@ -242,7 +242,7 @@ function BuyCrypto() {
     account ? `&walletAddress=${account}` : ''
   }&defaultNetwork=${
     supportedNetworks[chainId] || supportedNetworks[ChainId.MAINNET]
-  }&redirectURL=${redirectURL}&excludeFiatCurrencies=SGD`
+  }&excludeFiatCurrencies=SGD&redirectURL=${redirectURL}`
 
   const [isDarkMode] = useDarkModeManager()
   const { mixpanelHandler } = useMixpanel()
