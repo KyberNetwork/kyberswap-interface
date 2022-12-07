@@ -12,7 +12,7 @@ import InfoHelper from 'components/InfoHelper'
 import LocalLoader from 'components/LocalLoader'
 import Toggle from 'components/Toggle'
 import FairLaunchPools from 'components/YieldPools/FairLaunchPools'
-import { AMP_HINT, TOBE_EXTENDED_FARMING_POOLS } from 'constants/index'
+import { AMP_HINT, FARM_TAB, TOBE_EXTENDED_FARMING_POOLS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
@@ -88,7 +88,11 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
         // for active/ended farms
         return (
           currentTimestamp &&
-          (active ? farm.endTime >= currentTimestamp || tobeExtended : farm.endTime < currentTimestamp) &&
+          (qs.type === FARM_TAB.MY_FARMS
+            ? true
+            : active
+            ? farm.endTime >= currentTimestamp || tobeExtended
+            : farm.endTime < currentTimestamp) &&
           // search farms
           (debouncedSearchText
             ? farm.token0?.symbol.toLowerCase().includes(debouncedSearchText) ||
@@ -96,7 +100,7 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
               farm.id === debouncedSearchText
             : true) &&
           // stakedOnly
-          (stakedOnly[activeTab]
+          (stakedOnly[activeTab] || qs.type === FARM_TAB.MY_FARMS
             ? farm.userData?.stakedBalance && BigNumber.from(farm.userData.stakedBalance).gt(0)
             : true)
         )
@@ -104,7 +108,9 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
         // for active/ended farms
         return (
           blockNumber &&
-          (isSipherFarm
+          (qs.type === FARM_TAB.MY_FARMS
+            ? true
+            : isSipherFarm
             ? active
             : active
             ? farm.endBlock >= blockNumber || tobeExtended
@@ -116,13 +122,13 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
               farm.id === debouncedSearchText
             : true) &&
           // stakedOnly
-          (stakedOnly[activeTab]
+          (stakedOnly[activeTab] || qs.type === FARM_TAB.MY_FARMS
             ? farm.userData?.stakedBalance && BigNumber.from(farm.userData.stakedBalance).gt(0)
             : true)
         )
       }
     },
-    [active, activeTab, blockNumber, debouncedSearchText, stakedOnly, currentTimestamp, chainId],
+    [active, activeTab, blockNumber, debouncedSearchText, stakedOnly, currentTimestamp, chainId, qs.type],
   )
 
   const farms = useMemo(
@@ -172,13 +178,17 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
       <ConfirmHarvestingModal />
       <HeadingContainer>
         <StakedOnlyToggleWrapper>
-          <StakedOnlyToggleText>
-            <Trans>Staked Only</Trans>
-          </StakedOnlyToggleText>
-          <Toggle
-            isActive={stakedOnly[active ? 'active' : 'ended']}
-            toggle={() => setStakedOnly(prev => ({ ...prev, [activeTab]: !prev[activeTab] }))}
-          />
+          {qs.type !== FARM_TAB.MY_FARMS && (
+            <>
+              <StakedOnlyToggleText>
+                <Trans>Staked Only</Trans>
+              </StakedOnlyToggleText>
+              <Toggle
+                isActive={stakedOnly[active ? 'active' : 'ended']}
+                toggle={() => setStakedOnly(prev => ({ ...prev, [activeTab]: !prev[activeTab] }))}
+              />
+            </>
+          )}
         </StakedOnlyToggleWrapper>
         <HeadingRight>
           <SearchContainer>

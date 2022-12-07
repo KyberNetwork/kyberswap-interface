@@ -56,7 +56,8 @@ const Farm = () => {
       case FARM_TAB.VESTING:
         return farmType === VERSION.ELASTIC ? <ProMMVesting /> : <Vesting loading={vestingLoading} />
       case FARM_TAB.MY_FARMS:
-        return <ElasticFarms />
+        return farmType === VERSION.ELASTIC ? <ElasticFarms /> : <YieldPools loading={loading} active={false} />
+
       default:
         return <YieldPools loading={loading} active />
     }
