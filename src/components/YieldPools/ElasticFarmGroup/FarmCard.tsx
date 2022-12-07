@@ -63,10 +63,7 @@ const FlipCardBack = styled.div`
   flex-direction: column;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  transform: rotateY(-180deg);
-  height: 100%;
-  display: flex;
-  flex-direction: column;
+  transform: rotateY(180deg);
 `
 
 const Button = styled(ButtonLight)<{ color: string }>`
