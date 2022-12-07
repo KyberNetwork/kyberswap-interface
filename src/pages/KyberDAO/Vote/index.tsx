@@ -198,17 +198,17 @@ export default function Vote() {
       setPendingText(t`Vote submitting`)
       setShowConfirm(true)
       setAttemptingTxn(true)
-      vote(proposal_id, option)
-        .then(tx => {
-          setAttemptingTxn(false)
-          setTxHash(tx)
-        })
-        .catch(error => {
-          console.log(error)
-          setShowConfirm(false)
-          setTransactionError(error?.message)
-          setTxHash(undefined)
-        })
+      try {
+        const tx = await vote(proposal_id, option)
+        setAttemptingTxn(false)
+        setTxHash(tx)
+        return Promise.resolve(true)
+      } catch (error) {
+        setShowConfirm(false)
+        setTransactionError(error?.message)
+        setTxHash(undefined)
+        return Promise.reject(error)
+      }
     },
     [vote],
   )

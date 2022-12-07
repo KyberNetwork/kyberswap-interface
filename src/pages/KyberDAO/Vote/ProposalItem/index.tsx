@@ -206,7 +206,7 @@ function ProposalItem({
   proposal: ProposalDetail
   showByDefault?: boolean
   onBadgeClick?: (name: string) => void
-  voteCallback?: (proposal_id: number, option: number) => void
+  voteCallback?: (proposal_id: number, option: number) => Promise<boolean>
 }) {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
@@ -264,7 +264,9 @@ function ProposalItem({
       voteCallback?.(
         proposal.proposal_id,
         selectedOptions.map(i => i + 1).reduce((acc, item) => (acc += 1 << (item - 1)), 0),
-      )
+      ).then(() => {
+        setSelectedOptions([])
+      })
   }, [selectedOptions, proposal.proposal_id, voteCallback])
 
   const votedOfCurrentProposal = useMemo(

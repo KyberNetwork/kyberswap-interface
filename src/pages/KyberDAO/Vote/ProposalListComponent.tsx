@@ -54,7 +54,11 @@ const HistoryButton = styled(RowFit)`
   }
 `
 
-function ProposalListComponent({ voteCallback }: { voteCallback?: (proposal_id: number, option: number) => void }) {
+function ProposalListComponent({
+  voteCallback,
+}: {
+  voteCallback?: (proposal_id: number, option: number) => Promise<boolean>
+}) {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const { proposals } = useVotingInfo()
