@@ -123,14 +123,14 @@ const SummaryWrapper = styled(Flex)`
   `}
 `
 
-const SummaryItem = styled.div<{ colorfull?: boolean }>`
+const SummaryItem = styled.div<{ colorful?: boolean }>`
   border-radius: 20px;
   flex: 1;
   padding: 16px 24px;
-  background: ${({ theme, colorfull }) => (!colorfull ? theme.background : theme.radialGradient)};
+  background: ${({ theme, colorful }) => (!colorful ? theme.background : theme.radialGradient)};
 
-  ${({ theme, colorfull }) => theme.mediaWidth.upToSmall`
-    background: ${!colorfull ? theme.buttonBlack : theme.radialGradient};
+  ${({ theme, colorful }) => theme.mediaWidth.upToSmall`
+    background: ${!colorful ? theme.buttonBlack : theme.radialGradient};
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -298,7 +298,7 @@ function VestingCard({
                 />
               </SummaryItem>
 
-              <SummaryItem colorfull>
+              <SummaryItem colorful>
                 <Flex alignItems="center" color={theme.subText} sx={{ gap: '4px' }}>
                   <Wallet />
                   <MouseoverTooltip
