@@ -35,6 +35,7 @@ export default function ExpandableBox({
   color,
   style,
   className,
+  hasDivider = true,
 }: {
   expandedDefault?: boolean
   headerContent?: ReactNode
@@ -46,6 +47,7 @@ export default function ExpandableBox({
   color?: string
   style?: CSSProperties
   className?: string
+  hasDivider?: boolean
 }) {
   const [expanded, setExpanded] = useState(expandedDefault)
   const contentRef = useRef<HTMLDivElement>(null)
@@ -74,12 +76,14 @@ export default function ExpandableBox({
       </Header>
 
       <Content ref={contentRef} $expanded={expanded} $height={contentHeight}>
-        <Divider
-          style={{
-            margin: '16px 0',
-            opacity: expanded ? '1' : '0',
-          }}
-        />
+        {hasDivider && (
+          <Divider
+            style={{
+              margin: '16px 0',
+              opacity: expanded ? '1' : '0',
+            }}
+          />
+        )}
         {expandContent}
       </Content>
     </Wrapper>

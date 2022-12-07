@@ -1,5 +1,9 @@
 import styled from 'styled-components'
 
+export const SectionWrapper = styled.div<{ show?: boolean }>`
+  content-visibility: ${({ show }) => (show ?? 'auto' ? 'auto' : 'hidden')};
+`
+
 export const SectionTitle = styled.div`
   font-size: 16px;
   line-height: 20px;
@@ -14,9 +18,10 @@ export const SectionDescription = styled.div`
   margin-bottom: 20px;
   color: ${({ theme }) => theme.subText};
 `
-export const SectionWrapper = styled.div`
+export const ContentWrapper = styled.div`
   border-radius: 20px;
   ${({ theme }) => `background-color: ${theme.background};`}
-  content-visibility:auto;
+
+  content-visibility: auto;
   contain-intrinsic-height: auto;
 `

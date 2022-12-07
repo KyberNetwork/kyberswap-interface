@@ -82,6 +82,7 @@ import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { BodyWrapper } from 'pages/AppBody'
 import { ClickableText } from 'pages/Pool/styleds'
+import TruesightV2Widget from 'pages/TrueSightV2/Widget'
 import { useToggleTransactionSettingsMenu, useWalletModalToggle } from 'state/application/hooks'
 import { useAllDexes } from 'state/customizeDexes/hooks'
 import { Field } from 'state/swap/actions'
@@ -1249,6 +1250,7 @@ export default function Swap({ history }: RouteComponentProps) {
           </SwitchLocaleLinkWrapper>
         </Flex>
       </PageWrapper>
+      <TruesightV2Widget />
     </>
   )
 }

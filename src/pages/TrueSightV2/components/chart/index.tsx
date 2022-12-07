@@ -6,13 +6,13 @@ import Icon from 'components/Icons/Icon'
 import { RowFit } from 'components/Row'
 import useTheme from 'hooks/useTheme'
 
-import { SectionWrapper } from '..'
+import { ContentWrapper } from '..'
 import HoldersPieChart from './HoldersPieChart'
 import LineChart from './LineChart'
 import SignedBarChart from './SignedBarChart'
 import StackedBarChart from './StackedBarChart'
 
-const ChartWrapper = styled(SectionWrapper)`
+const ChartWrapper = styled(ContentWrapper)`
   padding: 10px 0;
   border-radius: 20px;
   height: 400px;

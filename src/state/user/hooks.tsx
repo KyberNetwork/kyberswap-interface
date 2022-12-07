@@ -30,6 +30,7 @@ import {
   toggleTradeRoutes,
   updateIsAcceptedTerm,
   updateIsUserManuallyDisconnect,
+  updateTokenAnalysisSettings,
   updateUserDarkMode,
   updateUserDeadline,
   updateUserExpertMode,
@@ -365,6 +366,16 @@ export function useShowTokenInfo(): boolean {
 export function useShowTopTrendingSoonTokens(): boolean {
   const showTrendingSoon = useSelector((state: AppState) => state.user.showTopTrendingSoonTokens)
   return showTrendingSoon ?? true
+}
+
+export function useTokenAnalysisSettings(): { [k: string]: boolean } {
+  return useSelector((state: AppState) => state.user.tokenAnalysisSettings) ?? null
+}
+
+export function useUpdateTokenAnalysisSettings(): (payload: string) => void {
+  const dispatch = useDispatch<AppDispatch>()
+  const { chainId } = useActiveWeb3React()
+  return useCallback((payload: string) => dispatch(updateTokenAnalysisSettings(payload)), [dispatch, chainId])
 }
 
 export function useToggleLiveChart(): () => void {

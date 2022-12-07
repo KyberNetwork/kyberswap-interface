@@ -49,3 +49,4 @@ export const toggleFavoriteToken = createAction<ToggleFavoriteTokenPayload>('use
 export const updateChainId = createAction<ChainId>('user/updateChainId')
 export const updateIsUserManuallyDisconnect = createAction<boolean>('user/updateIsUserManuallyDisconnect')
 export const updateIsAcceptedTerm = createAction<boolean>('user/updateIsAcceptedTerm')
+export const updateTokenAnalysisSettings = createAction<string>('user/updateTokenAnalysisSettings')

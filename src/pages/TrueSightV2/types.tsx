@@ -11,3 +11,9 @@ export const TokenAnalysisTab = {
   TopTraded: t`Top Traded`,
   TopSocialMentions: t`Top Social Mentions`,
 }
+
+export enum DiscoverTokenTab {
+  OnChainAnalysis = 'On-Chain Analysis',
+  TechnicalAnalysis = 'Technical Analysis',
+  News = 'News',
+}

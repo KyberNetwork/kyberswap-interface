@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -9,9 +10,9 @@ import Pagination from 'components/Pagination'
 import Row, { RowFit } from 'components/Row'
 import useTheme from 'hooks/useTheme'
 
-import { SectionWrapper } from '..'
+import { ContentWrapper } from '..'
 
-const TableWrapper = styled(SectionWrapper)`
+const TableWrapper = styled(ContentWrapper)`
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -363,6 +364,63 @@ export const LiveDEXTrades = () => {
         </TableRow>
       ))}
       <Pagination currentPage={1} pageSize={10} totalCount={100} onPageChange={page => console.log(page)} />
+    </TableWrapper>
+  )
+}
+
+export const WidgetTable = () => {
+  const theme = useTheme()
+  const gridTemplateColumns = '1fr 1fr 1fr 1fr 2fr 1.5fr'
+
+  return (
+    <TableWrapper style={{ borderRadius: '0' }}>
+      <TableHeader gridTemplateColumns={gridTemplateColumns} style={{ backgroundColor: theme.background }}>
+        <TableCell>
+          <Trans>Token</Trans>
+        </TableCell>
+        <TableCell>
+          <Trans>Chain</Trans>
+        </TableCell>
+        <TableCell>
+          <Trans>Price</Trans>
+        </TableCell>
+        <TableCell>
+          <Trans>24 Change</Trans>
+        </TableCell>
+        <TableCell>
+          <Trans>Last 7 days</Trans>
+        </TableCell>
+        <TableCell>
+          <Trans>Action</Trans>
+        </TableCell>
+      </TableHeader>
+      {[...Array(5)].map((_, i) => (
+        <TableRow
+          key={i}
+          gridTemplateColumns={gridTemplateColumns}
+          height={64}
+          style={{ backgroundColor: theme.tableHeader }}
+        >
+          <TableCell>
+            <Icon id="star" size={16} />
+          </TableCell>
+          <TableCell>
+            <Icon id="star" size={16} />
+          </TableCell>
+          <TableCell>
+            <Icon id="star" size={16} />
+          </TableCell>
+          <TableCell>
+            <Icon id="star" size={16} />
+          </TableCell>
+          <TableCell>
+            <Icon id="star" size={16} />
+          </TableCell>
+          <TableCell>
+            <Icon id="star" size={16} />
+          </TableCell>
+        </TableRow>
+      ))}
     </TableWrapper>
   )
 }

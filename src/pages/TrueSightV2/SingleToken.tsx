@@ -1,7 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useState } from 'react'
-import { ChevronLeft, Share2, Sliders, Star } from 'react-feather'
+import { ChevronLeft, Share2, Star } from 'react-feather'
 import { useHistory } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -9,7 +9,6 @@ import styled, { css } from 'styled-components'
 import { ButtonGray, ButtonLight } from 'components/Button'
 import { Ethereum } from 'components/Icons'
 import Icon from 'components/Icons/Icon'
-import Popover from 'components/Popover'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
@@ -19,6 +18,8 @@ import News from './News'
 import OnChainAnalysis from './OnChainAnalysis'
 import PriceRange from './PriceRange'
 import TechnicalAnalysis from './TechnicalAnalysis'
+import DisplaySettings from './components/DisplaySettings'
+import { DiscoverTokenTab } from './types'
 
 const Wrapper = styled.div`
   display: flex;
@@ -78,12 +79,6 @@ const CardWrapper = styled.div<{ gap?: string }>`
   `}
 `
 
-enum DiscoverTokenTab {
-  OnChainAnalysis = 'On-Chain Analysis',
-  TechnicalAnalysis = 'Technical Analysis',
-  News = 'News',
-}
-
 const TabButton = styled.div<{ active?: boolean }>`
   cursor: pointer;
   font-size: 20px;
@@ -93,11 +88,7 @@ const TabButton = styled.div<{ active?: boolean }>`
     filter: brightness(0.8);
   }
 `
-const SettingsWrapper = styled.div`
-  padding: 16px;
-  border-radius: 20px;
-  background-color: ${({ theme }) => theme.tableHeader};
-`
+
 export default function SingleToken() {
   const theme = useTheme()
   const history = useHistory()
@@ -117,19 +108,7 @@ export default function SingleToken() {
           <Ethereum size={20} />
         </RowFit>
         <RowFit gap="8px">
-          <Popover show={true} content={<SettingsWrapper>123123123</SettingsWrapper>} noArrow={true} placement="bottom">
-            <ButtonGray
-              color={theme.subText}
-              gap="4px"
-              width="36px"
-              height="36px"
-              padding="6px"
-              style={{ filter: 'drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.16))' }}
-            >
-              <Sliders size={16} fill="currentcolor" style={{ transform: 'rotate(-90deg)' }} />
-            </ButtonGray>
-          </Popover>
-
+          <DisplaySettings currentTab={currentTab} />
           <ButtonGray
             color={theme.subText}
             gap="4px"

@@ -24,6 +24,7 @@ import {
   updateIsAcceptedTerm,
   updateIsUserManuallyDisconnect,
   updateMatchesDarkMode,
+  updateTokenAnalysisSettings,
   updateUserDarkMode,
   updateUserDeadline,
   updateUserExpertMode,
@@ -71,7 +72,9 @@ export interface UserState {
   showTradeRoutes: boolean
   showTokenInfo: boolean
   showTopTrendingSoonTokens: boolean
-
+  tokenAnalysisSettings: {
+    [k: string]: boolean
+  }
   favoriteTokensByChainId: Partial<
     Record<
       ChainId,
@@ -137,6 +140,16 @@ const initialState: UserState = {
   showTradeRoutes: true,
   showTokenInfo: true,
   showTopTrendingSoonTokens: true,
+  tokenAnalysisSettings: {
+    numberOfTrades: true,
+    numberOfHolders: true,
+    tradingVolume: true,
+    netflowToWhaleWallets: true,
+    netflowToCEX: true,
+    volumeOfTransfers: true,
+    top10Holders: true,
+    top25Holders: true,
+  },
   favoriteTokensByChainId: {},
   chainId: ChainId.MAINNET,
   isUserManuallyDisconnect: false,
@@ -266,5 +279,9 @@ export default createReducer(initialState, builder =>
     })
     .addCase(updateIsAcceptedTerm, (state, { payload: isAcceptedTerm }) => {
       state.isAcceptedTerm = isAcceptedTerm
+    })
+    .addCase(updateTokenAnalysisSettings, (state, { payload }) => {
+      if (!state.tokenAnalysisSettings) return
+      state.tokenAnalysisSettings[payload] = !state.tokenAnalysisSettings[payload] ?? false
     }),
 )

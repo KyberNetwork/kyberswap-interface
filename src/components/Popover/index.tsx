@@ -7,11 +7,11 @@ import styled from 'styled-components'
 import { Z_INDEXS } from 'constants/styles'
 import useInterval from 'hooks/useInterval'
 
-const PopoverContainer = styled.div<{ show: boolean }>`
+const PopoverContainer = styled.div<{ show: boolean; opacity?: number }>`
   z-index: ${Z_INDEXS.POPOVER_CONTAINER};
 
   visibility: ${props => (props.show ? 'visible' : 'hidden')};
-  opacity: ${props => (props.show ? 0.95 : 0)};
+  opacity: ${props => (props.show ? props.opacity || 0.95 : 0)};
   transition: visibility 150ms linear, opacity 150ms linear;
 
   background: ${({ theme }) => theme.tableHeader};
@@ -82,6 +82,7 @@ export interface PopoverProps {
   children: React.ReactNode
   placement?: Placement
   noArrow?: boolean
+  opacity?: number
   style?: React.CSSProperties
 }
 
@@ -91,6 +92,7 @@ export default function Popover({
   children,
   placement = 'auto',
   noArrow = false,
+  opacity,
   style = {},
 }: PopoverProps) {
   const [referenceElement, setReferenceElement] = useState<HTMLDivElement | null>(null)
@@ -116,6 +118,7 @@ export default function Popover({
         <PopoverContainer
           show={show}
           ref={setPopperElement as any}
+          opacity={opacity}
           style={{ ...styles.popper, ...style }}
           {...attributes.popper}
         >
