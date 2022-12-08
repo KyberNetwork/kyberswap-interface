@@ -55,6 +55,15 @@ export default function SummaryNotify({
       ))}
     </ul>
   )
+
+  const filledComponent =
+    filledPercent && parseFloat(filledPercent) !== 0 ? (
+      <>
+        <br />
+        Your order was {filledPercent}% filled
+      </>
+    ) : null
+
   switch (type) {
     case LimitOrderStatus.CANCELLED:
       if (isMultiOrder)
@@ -69,12 +78,7 @@ export default function SummaryNotify({
         msg = (
           <Trans>
             You have successfully cancelled an order to pay {mainMsg}
-            {filledPercent ? (
-              <>
-                <br />
-                Your order was {filledPercent}% filled
-              </>
-            ) : null}
+            {filledComponent}
           </Trans>
         )
       break
@@ -120,12 +124,7 @@ export default function SummaryNotify({
         msg = (
           <Trans>
             Your order to pay {mainMsg} has expired
-            {filledPercent ? (
-              <>
-                <br />
-                Your order was {filledPercent}% filled
-              </>
-            ) : null}
+            {filledComponent}
           </Trans>
         )
       break
