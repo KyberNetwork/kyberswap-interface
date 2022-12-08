@@ -29,8 +29,8 @@ import {
 } from 'utils/firebase'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 
-import { CancelOrderModal } from '../ConfirmOrderModal'
 import EditOrderModal from '../EditOrderModal'
+import CancelOrderModal from '../Modals/CancelOrderModal'
 import { ACTIVE_ORDER_OPTIONS, CLOSE_ORDER_OPTIONS, LIMIT_ORDER_CONTRACT } from '../const'
 import { calcPercentFilledOrder, formatAmountOrder, isActiveStatus } from '../helpers'
 import { ackNotificationOrder, getEncodeData, getListOrder, insertCancellingOrder } from '../request'

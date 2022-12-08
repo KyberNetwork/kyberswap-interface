@@ -33,9 +33,9 @@ import { subscribeNotificationOrderCancelled, subscribeNotificationOrderExpired 
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 
 import TradePrice from '../TradePrice'
-import ConfirmOrderModal from './ConfirmOrderModal'
 import DeltaRate from './DeltaRate'
 import ExpirePicker from './ExpirePicker'
+import ConfirmOrderModal from './Modals/ConfirmOrderModal'
 import { DEFAULT_EXPIRED, EXPIRED_OPTIONS, LIMIT_ORDER_CONTRACT } from './const'
 import { calcInvert, calcOutput, calcPercentFilledOrder, calcRate, formatAmountOrder, formatUsdPrice } from './helpers'
 import { getTotalActiveMakingAmount, hashOrder, submitOrder } from './request'

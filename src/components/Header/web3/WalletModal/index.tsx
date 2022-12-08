@@ -342,7 +342,7 @@ export default function WalletModal() {
               checked={isAcceptedTerm}
               style={{ marginRight: '12px', height: '14px', width: '14px', cursor: 'pointer' }}
             />
-            <Text color={theme.subText} as="label">
+            <Text color={theme.subText}>
               <Trans>By connecting a wallet, you agree to KyberSwap&lsquo;s </Trans>{' '}
               <ExternalLink href="/15022022KyberSwapTermsofUse.pdf" onClick={e => e.stopPropagation()}>
                 <Trans>Terms of Use</Trans>

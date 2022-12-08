@@ -51,7 +51,6 @@ const SelectedWrap = styled.div`
   flex: 1;
 `
 type SelectOption = { value?: string | number; label: string | number; onSelect?: () => void }
-export type SelectOptions = SelectOption[]
 
 const getOptionValue = (option: SelectOption | undefined) => {
   if (!option) return ''
@@ -80,7 +79,7 @@ function Select({
 }: {
   value?: string | number
   className?: string
-  options: SelectOptions
+  options: SelectOption[]
   activeRender?: (selectedItem: SelectOption | undefined) => ReactNode
   optionRender?: (option: SelectOption | undefined) => ReactNode
   style?: CSSProperties
