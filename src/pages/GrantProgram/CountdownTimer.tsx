@@ -2,7 +2,7 @@ import { t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { rgba } from 'polished'
 import { Text } from 'rebass'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
@@ -42,20 +42,25 @@ const TimeWrapper = styled.div<{ $background: string }>`
   `}
 `
 
-const TextWithTooltip = styled(Text)`
+const CustomText = styled(Text)<{ underlined?: boolean }>`
   position: relative;
   cursor: pointer;
 
-  ::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: calc(100% - 2px);
-    height: 0;
-    border-bottom: ${({ theme }) => `1px dashed ${theme.subText}`};
-  }
+  ${({ underlined }) =>
+    underlined
+      ? css`
+          ::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 2px);
+            height: 0;
+            border-bottom: ${({ theme }) => `1px dashed ${theme.subText}`};
+          }
+        `
+      : ''}
 `
 
 type TimeProps = {
@@ -81,21 +86,9 @@ const Time: React.FC<TimeProps> = ({ title, timeStr, background, tooltip }) => {
         {title}
       </Text>
 
-      {tooltip ? (
-        <MouseoverTooltip text={tooltip} placement="top" width="fit-content">
-          <TextWithTooltip
-            sx={{
-              fontWeight: 500,
-              fontSize: '20px',
-              lineHeight: '24px',
-              color: theme.text,
-            }}
-          >
-            {timeStr}
-          </TextWithTooltip>
-        </MouseoverTooltip>
-      ) : (
-        <Text
+      <MouseoverTooltip text={tooltip} placement="top" width="fit-content" disableTooltip={!tooltip}>
+        <CustomText
+          underlined={!!tooltip}
           sx={{
             fontWeight: 500,
             fontSize: '20px',
@@ -104,8 +97,8 @@ const Time: React.FC<TimeProps> = ({ title, timeStr, background, tooltip }) => {
           }}
         >
           {timeStr}
-        </Text>
-      )}
+        </CustomText>
+      </MouseoverTooltip>
     </TimeWrapper>
   )
 }
@@ -115,7 +108,7 @@ type Props = {
   endTime: number
 }
 
-const RemindingTime: React.FC<Props> = ({ startTime, endTime }) => {
+const CountdownTimer: React.FC<Props> = ({ startTime, endTime }) => {
   const theme = useTheme()
   const now = Math.floor(Date.now() / 1000)
 
@@ -150,4 +143,4 @@ const RemindingTime: React.FC<Props> = ({ startTime, endTime }) => {
   )
 }
 
-export default RemindingTime
+export default CountdownTimer

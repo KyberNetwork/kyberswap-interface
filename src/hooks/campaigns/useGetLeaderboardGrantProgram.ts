@@ -34,7 +34,7 @@ const useGetLeaderboardGrantProgram = (args: Args) => {
     url,
     async (url: string) => {
       const response = await axios.get<Response>(url)
-      if (response.data && response.data.data) {
+      if (response?.data?.data) {
         return response.data.data
       }
 
