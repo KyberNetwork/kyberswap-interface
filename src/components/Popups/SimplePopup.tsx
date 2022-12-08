@@ -30,7 +30,7 @@ export default function SimplePopup({
   const theme = useTheme()
   const mapColor = {
     [NotificationType.SUCCESS]: theme.primary,
-    [NotificationType.WARNING]: theme.text,
+    [NotificationType.WARNING]: theme.warning,
     [NotificationType.ERROR]: theme.red,
   }
   return (

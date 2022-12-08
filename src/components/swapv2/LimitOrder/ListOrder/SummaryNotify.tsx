@@ -65,7 +65,18 @@ export default function SummaryNotify({
             {listOrderName}
           </Trans>
         )
-      else msg = <Trans>You have successfully cancelled an order to pay {mainMsg}.</Trans>
+      else
+        msg = (
+          <Trans>
+            You have successfully cancelled an order to pay {mainMsg}
+            {filledPercent ? (
+              <>
+                <br />
+                Your order was {filledPercent}% filled
+              </>
+            ) : null}
+          </Trans>
+        )
       break
     case LimitOrderStatus.CANCELLED_FAILED:
       if (isMultiOrder)
@@ -108,7 +119,7 @@ export default function SummaryNotify({
       else
         msg = (
           <Trans>
-            Your order to pay {mainMsg} has expired.
+            Your order to pay {mainMsg} has expired
             {filledPercent ? (
               <>
                 <br />
