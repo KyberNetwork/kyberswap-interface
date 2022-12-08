@@ -193,7 +193,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
 
   const isTransactionFailed = (txHash: string) => {
     const transactionInfo = findTx(transactions, txHash)
-    return transactionInfo !== undefined && transactionInfo?.receipt?.status !== 1
+    return transactionInfo?.receipt !== undefined && transactionInfo?.receipt?.status !== 1
   }
 
   const isTxFailed = useRef(isTransactionFailed)
