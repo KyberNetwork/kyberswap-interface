@@ -3,7 +3,7 @@ import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { CSSProperties, memo, useMemo } from 'react'
 import { Flex } from 'rebass'
-import styled, { keyframes } from 'styled-components'
+import styled from 'styled-components'
 
 import CurrencyLogo from 'components/CurrencyLogo'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
@@ -12,6 +12,7 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import useGetTrendingSoonTokenId from 'pages/TrueSight/hooks/useGetTrendingSoonTokenId'
 import { ExternalLink } from 'theme'
+import { FadeIn } from 'utils/keyframes'
 
 const TrendingSoonTokenBanner = ({
   currencyIn,
@@ -65,16 +66,6 @@ const TrendingSoonTokenBanner = ({
   )
 }
 
-const fadeIn = keyframes`
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-`
-
 const Container = styled.div`
   background: ${({ theme }) => rgba(theme.primary, 0.25)};
   border-radius: 999px;
@@ -83,7 +74,7 @@ const Container = styled.div`
   grid-template-columns: auto 1fr;
   row-gap: 4px;
   column-gap: 8px;
-  animation: ${fadeIn} 0.3s linear;
+  animation: ${FadeIn} 0.3s linear;
 `
 
 const DiscoverIconWrapper = styled.div`
