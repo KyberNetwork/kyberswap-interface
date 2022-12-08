@@ -41,7 +41,7 @@ const ListItem = styled.div<{ selected?: boolean }>`
   ${({ theme, selected }) =>
     selected &&
     css`
-      background-color: ${theme.buttonBlack};
+      background-color: ${theme.darkMode ? theme.buttonBlack : theme.buttonGray};
       & > div {
         color: ${theme.text};
       }

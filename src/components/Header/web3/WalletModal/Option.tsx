@@ -173,7 +173,7 @@ const Option = ({
     if (!isBraveBrowser) {
       return (
         <MouseoverTooltip
-          placement="top"
+          placement="bottom"
           text={
             <Trans>
               Brave wallet can only be used in Brave Browser. Download it{' '}
@@ -189,7 +189,7 @@ const Option = ({
     if (isBraveBrowser && !window.ethereum?.isBraveWallet && isEVM) {
       return (
         <MouseoverTooltip
-          placement="top"
+          placement="bottom"
           text={
             <Trans>
               Brave Wallet overridden by MetaMask Wallet. Disable MetaMask extension in order to use Brave Wallet.
@@ -204,7 +204,7 @@ const Option = ({
     if (isBraveBrowser && !window.solana?.isBraveWallet && isSolana) {
       return (
         <MouseoverTooltip
-          placement="top"
+          placement="bottom"
           text={
             <Trans>
               Brave Wallet overridden by Phantom Wallet. Disable Phantom extension in order to use Brave Wallet.
@@ -220,7 +220,7 @@ const Option = ({
   if (readyState === WalletReadyState.NotDetected && (walletKey !== 'COINBASE' || !isEVM)) {
     return (
       <MouseoverTooltip
-        placement="top"
+        placement="bottom"
         text={
           <Trans>
             You will need to install {wallet.name} extension/dapp before you can connect with it on KyberSwap. Get it{' '}
@@ -246,7 +246,7 @@ const Option = ({
             <C98OverrideGuide walletKey={walletKey} />
           )
         }
-        placement="top"
+        placement="bottom"
       >
         {content}
       </MouseoverTooltip>
