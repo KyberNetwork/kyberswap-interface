@@ -172,9 +172,9 @@ export default function ShareModal({
   )
 }
 
-type Props = { url?: string; onShared?: () => void; color?: string }
+type Props = { url?: string; onShared?: () => void; color?: string; title: string }
 
-export const ShareButtonWithModal: React.FC<Props> = ({ url, onShared, color }) => {
+export const ShareButtonWithModal: React.FC<Props> = ({ url, onShared, color, title }) => {
   const theme = useTheme()
   const toggle = useToggleModal(ApplicationModal.SHARE)
 
