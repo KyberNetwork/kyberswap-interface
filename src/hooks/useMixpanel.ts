@@ -145,6 +145,12 @@ export enum MIXPANEL_TYPE {
   BRIDGE_CLICK_TRANSFER,
   BRIDGE_TRANSACTION_SUBMIT,
   BRIDGE_CLICK_HISTORY_TRANSFER_TAB,
+
+  //Kyber DAO
+  KYBER_DAO_STAKE_CLICK,
+  KYBER_DAO_UNSTAKE_CLICK,
+  KYBER_DAO_DELEGATE_CLICK,
+  KYBER_DAO_VOTE_CLICK,
 }
 
 export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES = [
@@ -729,6 +735,22 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           })
           break
         }
+        case MIXPANEL_TYPE.KYBER_DAO_STAKE_CLICK: {
+          mixpanel.track('KyberDAO - Stake Click', payload)
+          break
+        }
+        case MIXPANEL_TYPE.KYBER_DAO_UNSTAKE_CLICK: {
+          mixpanel.track('KyberDAO - Unstake Click', payload)
+          break
+        }
+        case MIXPANEL_TYPE.KYBER_DAO_DELEGATE_CLICK: {
+          mixpanel.track('KyberDAO - Delegate Click', payload)
+          break
+        }
+        case MIXPANEL_TYPE.KYBER_DAO_VOTE_CLICK: {
+          mixpanel.track('KyberDAO - Vote Click', payload)
+          break
+        }
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1052,6 +1074,12 @@ export const useGlobalMixpanelEvents = () => {
           break
         case 'bridge':
           pageName = 'Bridge'
+          break
+        case 'kyberdao/stake-knc':
+          pageName = 'KyberDAO Stake'
+          break
+        case 'kyberdao/vote':
+          pageName = 'KyberDAO Vote'
           break
         default:
           break

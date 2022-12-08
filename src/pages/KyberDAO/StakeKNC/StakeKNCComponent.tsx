@@ -23,6 +23,7 @@ import TransactionConfirmationModal, { TransactionErrorContent } from 'component
 import { useActiveWeb3React } from 'hooks'
 import { useKyberDAOInfo, useKyberDaoStakeActions, useStakingInfo, useVotingInfo } from 'hooks/kyberdao'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useKNCPrice, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
@@ -278,7 +279,7 @@ export default function StakeKNCComponent() {
   const toggleDelegateConfirm = useToggleModal(ApplicationModal.DELEGATE_CONFIRM)
   const toggleYourTransactions = useToggleModal(ApplicationModal.YOUR_TRANSACTIONS_STAKE_KNC)
   const { switchToEthereum } = useSwitchToEthereum()
-
+  const { mixpanelHandler } = useMixpanel()
   const [approvalKNC, approveCallback] = useApproveCallback(
     TokenAmount.fromRawAmount(
       new Token(chainId === ChainId.GÖRLI ? ChainId.GÖRLI : ChainId.MAINNET, kyberDAOInfo?.KNCAddress || '', 18),
@@ -294,6 +295,7 @@ export default function StakeKNCComponent() {
         setAttemptingTxn(true)
         stake(parseUnits(inputValue, 18))
           .then(tx => {
+            mixpanelHandler(MIXPANEL_TYPE.KYBER_DAO_STAKE_CLICK, { amount: inputValue })
             setAttemptingTxn(false)
             setTxHash(tx)
           })
@@ -314,6 +316,7 @@ export default function StakeKNCComponent() {
         setAttemptingTxn(true)
         unstake(parseUnits(inputValue, 18))
           .then(tx => {
+            mixpanelHandler(MIXPANEL_TYPE.KYBER_DAO_UNSTAKE_CLICK, { amount: inputValue })
             setAttemptingTxn(false)
             setTxHash(tx)
           })
@@ -371,6 +374,7 @@ export default function StakeKNCComponent() {
       setAttemptingTxn(true)
       delegate(delegateAddress)
         .then(tx => {
+          mixpanelHandler(MIXPANEL_TYPE.KYBER_DAO_DELEGATE_CLICK, { delegateAddress: delegateAddress })
           setAttemptingTxn(false)
           setTxHash(tx)
           setDelegateAddress('')
