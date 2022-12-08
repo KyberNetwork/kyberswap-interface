@@ -136,7 +136,7 @@ export default function Participants({ proposalId }: { proposalId?: number }) {
                     .map(vote => {
                       return (
                         <InfoRow key={vote.staker}>
-                          <Text>{vote.staker}</Text>
+                          <Text>{vote.staker_name || vote.staker}</Text>
                           <Text color={theme.subText}>{vote.power}</Text>
                         </InfoRow>
                       )

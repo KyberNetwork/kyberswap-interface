@@ -180,6 +180,8 @@ export default function Vote() {
     setPendingText(t`Claming ${formatUnitsToFixed(remainingCumulativeAmount)} KNC`)
     setShowConfirm(true)
     setAttemptingTxn(true)
+    toggleClaimConfirmModal()
+
     claim(cycle, index, account, tokens, cumulativeAmounts, proof)
       .then(tx => {
         setAttemptingTxn(false)
@@ -190,7 +192,7 @@ export default function Vote() {
         setAttemptingTxn(false)
         setTxHash(undefined)
       })
-  }, [userRewards, account, claim, remainingCumulativeAmount])
+  }, [userRewards, account, claim, remainingCumulativeAmount, toggleClaimConfirmModal])
 
   const handleVote = useCallback(
     async (proposal_id: number, option: number) => {

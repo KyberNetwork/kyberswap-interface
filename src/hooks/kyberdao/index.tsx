@@ -404,7 +404,7 @@ export function useVotingInfo() {
   const { data: stakerInfoNextEpoch } = useSWR<StakerInfo>(
     daoInfo?.current_epoch &&
       account &&
-      kyberDaoInfo?.daoStatsApi + '/stakers/' + account + '?epoch=' + daoInfo?.current_epoch + 1,
+      kyberDaoInfo?.daoStatsApi + '/stakers/' + account + '?epoch=' + (parseFloat(daoInfo?.current_epoch) + 1),
     fetcher,
   )
 

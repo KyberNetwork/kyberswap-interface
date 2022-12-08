@@ -127,39 +127,44 @@ export default function YourTransactionsModal() {
               : action.type,
           description: (() => {
             switch (action.type) {
-              case ActionType.VoteEmitted:
+              case ActionType.VoteEmitted: {
                 const proposal = proposals?.find(p => {
                   return p.proposal_id === action.meta.proposal_id
                 })
                 if (!proposal) return <></>
-
+                const amount = action.meta?.amount ?? 0
                 return (
                   <>
-                    {action.meta?.amount?.toPrecision(2) + ' KNC'}
+                    {amount > 0 && amount < 0.001 ? '<0.001' : amount?.toLocaleString() + ' KNC'}
                     <Text fontSize={12} color={theme.subText}>
                       + {((+(action.meta?.amount || 0) / proposal.vote_stats?.total_vote_count) * 100).toPrecision(3)}%
                       Power
                     </Text>
                   </>
                 )
-              case ActionType.Deposit:
+              }
+              case ActionType.Deposit: {
+                const amount = action.meta?.amount ?? 0
                 return (
                   <>
-                    {action.meta?.amount || 0} KNC{' '}
+                    {amount > 0 && amount < 0.001 ? '<0.001' : amount?.toLocaleString() + ' KNC'}
                     <Text fontSize={12} color={theme.subText}>
                       + {calculateVotingPower(action.meta?.amount?.toString() || '0')}% Power
                     </Text>
                   </>
                 )
-              case ActionType.Withdraw:
+              }
+              case ActionType.Withdraw: {
+                const amount = action.meta?.amount ?? 0
                 return (
                   <>
-                    {action.meta?.amount || 0} KNC{' '}
+                    {amount > 0 && amount < 0.001 ? '<0.001' : amount?.toLocaleString() + ' KNC'}
                     <Text fontSize={12} color={theme.subText}>
                       - {calculateVotingPower(action.meta?.amount?.toString() || '0')}% Power
                     </Text>
                   </>
                 )
+              }
               case ActionType.Delegate:
                 return (
                   <>
