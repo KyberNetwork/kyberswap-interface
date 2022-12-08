@@ -454,7 +454,8 @@ const LimitOrderForm = function LimitOrderForm({
                   {formatAmountOrder(outputAmount, false)} {currencyOut.symbol}{' '}
                 </Text>
                 <Text as="span" color={theme.subText}>
-                  when 1 {currencyIn.symbol} is equal to {formatAmountOrder(rateInfo.rate, false)} {currencyOut.symbol}.
+                  when 1 {currencyIn.symbol} is equal to{' '}
+                  {calcRate(inputAmount, outputAmount, currencyOut?.decimals ?? 18)} {currencyOut.symbol}.
                 </Text>
               </Trans>
               {isEdit &&
