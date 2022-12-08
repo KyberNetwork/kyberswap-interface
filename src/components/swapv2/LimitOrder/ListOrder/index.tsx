@@ -199,14 +199,20 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
   const isTxFailed = useRef(isTransactionFailed)
   isTxFailed.current = isTransactionFailed
 
+  const showedNoti = useRef<{ [id: string]: boolean }>({})
+  const ackNoti = (id: string) => {
+    showedNoti.current = { ...showedNoti.current, [id]: true }
+  }
+
   useEffect(() => {
     if (!account || !chainId) return
     const unsubscribeCancelled = subscribeNotificationOrderCancelled(account, chainId, data => {
+      console.log(data)
       refreshListOrder()
       const cancelAllSuccess = data?.all?.[0]?.isSuccessful
       if (cancelAllSuccess !== undefined) {
         // not show noti when cancel failed because duplicate.
-        if (!isTxFailed.current(data?.all?.[0]?.txHash ?? '')) {
+        if (!isTxFailed.current(data?.all?.[0]?.txHash ?? '') && !showedNoti.current[data?.all?.[0].id ?? '']) {
           notify(
             {
               type: cancelAllSuccess ? NotificationType.WARNING : NotificationType.ERROR,
@@ -224,15 +230,21 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
             10000,
           )
         }
-        const nonces = data?.all.map((e: { id: string }) => e.id) ?? []
+        const nonces =
+          data?.all.map((e: { id: string }) => {
+            ackNoti(e.id)
+            return e.id
+          }) ?? []
         if (nonces.length) {
           ackNotificationOrder(nonces, account, chainId, LimitOrderStatus.CANCELLED).catch(console.error)
         }
       }
 
       const orders: LimitOrder[] = data?.orders ?? []
-      const orderCancelSuccess = orders.filter(e => e.isSuccessful)
-      const orderCancelFailed = orders.filter(e => !e.isSuccessful && !isTxFailed.current(e.txHash))
+      const orderCancelSuccess = orders.filter(e => e.isSuccessful && !showedNoti.current[e.id])
+      const orderCancelFailed = orders.filter(
+        e => !e.isSuccessful && !isTxFailed.current(e.txHash) && !showedNoti.current[e.id],
+      )
 
       if (orderCancelSuccess.length)
         notify(
@@ -254,7 +266,10 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
         )
       if (orders.length)
         ackNotificationOrder(
-          orders.map(e => e.id.toString()),
+          orders.map(e => {
+            ackNoti(e.id.toString())
+            return e.id.toString()
+          }),
           account,
           chainId,
           LimitOrderStatus.CANCELLED,
