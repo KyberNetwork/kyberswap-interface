@@ -85,7 +85,7 @@ export const formatRateOrder = (order: LimitOrder, invert: boolean) => {
   } catch (error) {
     console.log(error)
   }
-  return formatNumberWithPrecisionRange(parseFloat(rateValue.toFixed(16)), 2, 8)
+  return formatNumberWithPrecisionRange(parseFloat(rateValue.toFixed(16)), 0, 8)
 }
 
 export const calcPercentFilledOrder = (value: string, total: string) => {
