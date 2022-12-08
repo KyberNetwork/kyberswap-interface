@@ -623,7 +623,7 @@ const LimitOrderForm = function LimitOrderForm({
         <Flex justifyContent={'space-between'} alignItems="center" style={{ gap: '1rem' }}>
           <Flex flexDirection={'column'} flex={1} style={{ gap: '0.75rem' }}>
             <Flex justifyContent={'space-between'} alignItems="flex-end">
-              <DeltaRate symbol={currencyIn?.symbol ?? ''} marketPrice={tradeInfo?.price} rate={rateInfo.rate} />
+              <DeltaRate marketPrice={tradeInfo?.price} rateInfo={rateInfo} />
 
               <Set2Market onClick={setPriceRateMarket}>
                 <Trans>Set to Market</Trans>

@@ -721,9 +721,9 @@ export default function Swap() {
             <RowBetween>
               <Text fontSize={12} color={theme.subText}>
                 {isLimitPage ? (
-                  <Trans>Buy or sell tokens at a specific price</Trans>
+                  <Trans>Buy or sell any token at a specific price</Trans>
                 ) : (
-                  <Trans>Buy or sell tokens instantly at the best price</Trans>
+                  <Trans>Buy or sell any token instantly at the best price</Trans>
                 )}
               </Text>
             </RowBetween>
