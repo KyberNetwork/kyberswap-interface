@@ -458,9 +458,9 @@ export default function Header() {
                     <Trans>Trading Campaigns</Trans>
                   </StyledNavLink>
 
-                  <StyledNavLink id="grant_programs" to={APP_PATHS.GRANT_PROGRAMS}>
+                  {/* <StyledNavLink id="grant_programs" to={APP_PATHS.GRANT_PROGRAMS}>
                     <Trans>Inter-Project Trading</Trans>
-                  </StyledNavLink>
+                  </StyledNavLink> */}
                 </Dropdown>
               </HoverDropdown>
             </CampaignWrapper>
