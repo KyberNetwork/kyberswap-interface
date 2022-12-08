@@ -72,7 +72,7 @@ function ProposalListComponent({
             return p.status === status
           }
           if (!!search) {
-            return p.title.toLowerCase().search(search.toLowerCase()) >= 0
+            return p.title.toLowerCase().includes(search.toLowerCase())
           }
           return true
         })
