@@ -27,7 +27,7 @@ const NewLabel = styled.span`
   margin-top: -10px;
 `
 
-const ListItem = styled.div<{ selected?: boolean; connected?: boolean }>`
+const ListItem = styled.div<{ selected?: boolean }>`
   width: 100%;
   display: flex;
   justify-content: flex-start;
@@ -38,18 +38,15 @@ const ListItem = styled.div<{ selected?: boolean; connected?: boolean }>`
   white-space: nowrap;
   font-size: 14px;
   height: 36px;
-  ${({ theme, selected, connected }) =>
-    selected
-      ? css`
-          background-color: ${theme.buttonBlack};
-          & > div {
-            color: ${theme.text};
-          }
-        `
-      : connected &&
-        css`
-          background-color: ${rgba(theme.buttonBlack, 0.5)};
-        `};
+  ${({ theme, selected }) =>
+    selected &&
+    css`
+      background-color: ${theme.buttonBlack};
+      & > div {
+        color: ${theme.text};
+      }
+    `}
+
   ${({ theme }) => theme.mediaWidth.upToSmall`
     font-size: 12px;
   `}
@@ -186,7 +183,7 @@ const Networks = ({
               onClick={() => !selected && onSelect(key)}
               disabled={disabledAll || disabled}
             >
-              <ListItem selected={selected} connected={!!walletKey}>
+              <ListItem selected={selected}>
                 <img src={imgSrc} alt="Switch Network" style={{ height: '20px', width: '20px', marginRight: '8px' }} />
                 <Text color={theme.subText}>{name}</Text>
                 {key === ChainId.SOLANA && (

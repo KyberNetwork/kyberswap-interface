@@ -83,6 +83,10 @@ const TermAndCondition = styled.div`
   border-radius: 16px;
   display: flex;
   align-items: center;
+  cursor: pointer;
+  :hover {
+    background-color: ${({ theme }) => rgba(theme.buttonBlack, 0.5)};
+  }
 `
 
 const UpperSection = styled.div`
@@ -332,20 +336,19 @@ export default function WalletModal() {
           </HoverText>
         </Row>
         {(walletView === WALLET_VIEWS.ACCOUNT || walletView === WALLET_VIEWS.CHANGE_WALLET) && (
-          <TermAndCondition>
+          <TermAndCondition onClick={() => setIsAcceptedTerm(!isAcceptedTerm)}>
             <input
               type="checkbox"
               checked={isAcceptedTerm}
-              onChange={() => setIsAcceptedTerm(!isAcceptedTerm)}
-              style={{ marginRight: '12px', height: '14px', width: '14px' }}
+              style={{ marginRight: '12px', height: '14px', width: '14px', cursor: 'pointer' }}
             />
             <Text color={theme.subText}>
               <Trans>By connecting a wallet, you agree to KyberSwap&lsquo;s </Trans>{' '}
-              <ExternalLink href="/15022022KyberSwapTermsofUse.pdf">
+              <ExternalLink href="/15022022KyberSwapTermsofUse.pdf" onClick={e => e.stopPropagation()}>
                 <Trans>Terms of Use</Trans>
               </ExternalLink>{' '}
               <Trans>and</Trans>{' '}
-              <ExternalLink href="http://files.dmm.exchange/privacy.pdf">
+              <ExternalLink href="http://files.dmm.exchange/privacy.pdf" onClick={e => e.stopPropagation()}>
                 <Trans>Privacy Policy</Trans>
               </ExternalLink>
             </Text>

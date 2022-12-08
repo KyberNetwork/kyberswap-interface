@@ -49,7 +49,7 @@ const OptionCardClickable = styled.div<{
   flex-direction: row;
   gap: 8px;
   align-items: center;
-  padding: 8px;
+  padding: 8px 10px;
   background-color: ${({ theme }) => theme.tableHeader};
   overflow: hidden;
   white-space: nowrap;
