@@ -193,26 +193,29 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
 
   const isTransactionFailed = (txHash: string) => {
     const transactionInfo = findTx(transactions, txHash)
-    return transactionInfo?.receipt?.status !== 1
+    return transactionInfo !== undefined && transactionInfo?.receipt?.status !== 1
   }
 
   const isTxFailed = useRef(isTransactionFailed)
   isTxFailed.current = isTransactionFailed
 
-  const showedNoti = useRef<{ [id: string]: boolean }>({})
-  const ackNoti = (id: string) => {
-    showedNoti.current = { ...showedNoti.current, [id]: true }
+  const showedNotificationOrderIds = useRef<{ [id: string]: boolean }>({})
+  const ackNotiLocal = (id: string | number) => {
+    showedNotificationOrderIds.current = { ...showedNotificationOrderIds.current, [id]: true }
   }
 
   useEffect(() => {
     if (!account || !chainId) return
     const unsubscribeCancelled = subscribeNotificationOrderCancelled(account, chainId, data => {
-      console.log(data)
       refreshListOrder()
-      const cancelAllSuccess = data?.all?.[0]?.isSuccessful
+      const cancelAllData = data?.all?.[0]
+      const cancelAllSuccess = cancelAllData?.isSuccessful
       if (cancelAllSuccess !== undefined) {
-        // not show noti when cancel failed because duplicate.
-        if (!isTxFailed.current(data?.all?.[0]?.txHash ?? '') && !showedNoti.current[data?.all?.[0].id ?? '']) {
+        // not show Notification when cancel failed because duplicate.
+        if (
+          !isTxFailed.current(cancelAllData?.txHash ?? '') &&
+          !showedNotificationOrderIds.current[cancelAllData.id ?? '']
+        ) {
           notify(
             {
               type: cancelAllSuccess ? NotificationType.WARNING : NotificationType.ERROR,
@@ -232,7 +235,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
         }
         const nonces =
           data?.all.map((e: { id: string }) => {
-            ackNoti(e.id)
+            ackNotiLocal(e.id)
             return e.id
           }) ?? []
         if (nonces.length) {
@@ -241,9 +244,9 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
       }
 
       const orders: LimitOrder[] = data?.orders ?? []
-      const orderCancelSuccess = orders.filter(e => e.isSuccessful && !showedNoti.current[e.id])
+      const orderCancelSuccess = orders.filter(e => e.isSuccessful && !showedNotificationOrderIds.current[e.id])
       const orderCancelFailed = orders.filter(
-        e => !e.isSuccessful && !isTxFailed.current(e.txHash) && !showedNoti.current[e.id],
+        e => !e.isSuccessful && !isTxFailed.current(e.txHash) && !showedNotificationOrderIds.current[e.id],
       )
 
       if (orderCancelSuccess.length)
@@ -266,9 +269,9 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
         )
       if (orders.length)
         ackNotificationOrder(
-          orders.map(e => {
-            ackNoti(e.id.toString())
-            return e.id.toString()
+          orders.map(({ id }) => {
+            ackNotiLocal(id)
+            return id.toString()
           }),
           account,
           chainId,
