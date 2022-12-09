@@ -76,7 +76,6 @@ export const MAINNET_NETWORKS = [
   ChainId.VELAS,
   ChainId.AURORA,
   ChainId.ETHW,
-  ChainId.GÖRLI, // todo danh
 ] as const
 
 export type MAINNET_NETWORK = typeof MAINNET_NETWORKS[number]
