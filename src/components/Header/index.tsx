@@ -403,7 +403,7 @@ export default function Header() {
                 <Trans>Swap</Trans>
               </StyledNavLink>
               {SUPPORT_LIMIT_ORDER && (
-                <StyledNavLink to={APP_PATHS.LIMIT} style={{ flexDirection: 'column' }}>
+                <StyledNavLink to={APP_PATHS.LIMIT}>
                   <LimitOrderIcon />
                   <Trans>Limit Order</Trans>
                 </StyledNavLink>
