@@ -35,7 +35,7 @@ const StyledSwitchIcon = styled(SwitchIcon)<{ selected: boolean }>`
   }
 `
 
-export const CurrencySelect = styled.button<{ selected: boolean; hideInput?: boolean; disabled?: boolean }>`
+export const CurrencySelect = styled.button<{ selected: boolean; hideInput?: boolean; isDisable?: boolean }>`
   align-items: center;
   height: ${({ hideInput }) => (hideInput ? '2.5rem' : 'unset')};
   width: ${({ hideInput }) => (hideInput ? '100%' : 'initial')};
@@ -55,8 +55,8 @@ export const CurrencySelect = styled.button<{ selected: boolean; hideInput?: boo
 
   :focus,
   :hover {
-    cursor: ${({ disabled }) => (disabled ? 'default' : 'pointer')};
-    background-color: ${({ selected, hideInput, theme, disabled }) =>
+    cursor: ${({ isDisable: disabled }) => (disabled ? 'default' : 'pointer')};
+    background-color: ${({ selected, hideInput, theme, isDisable: disabled }) =>
       selected
         ? hideInput
           ? darken(disabled ? 0 : 0.05, theme.buttonBlack)
@@ -311,7 +311,7 @@ export default function CurrencyInputPanel({
             )}
             {customCurrencySelect || (
               <CurrencySelect
-                disabled={disableCurrencySelect}
+                isDisable={disableCurrencySelect}
                 hideInput={hideInput}
                 selected={!!currency}
                 className="open-currency-select-button"

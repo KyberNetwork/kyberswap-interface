@@ -105,7 +105,7 @@ const HeaderControls = styled.div`
     background-color: ${({ theme }) => theme.background};
   `};
   ${({ theme }) => theme.mediaWidth.upToSmall`
-      height:60px;
+      height: 60px;
   `};
 `
 
