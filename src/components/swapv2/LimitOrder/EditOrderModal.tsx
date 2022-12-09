@@ -1,4 +1,5 @@
 import { Trans } from '@lingui/macro'
+import { ethers } from 'ethers'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -9,7 +10,7 @@ import { useCurrencyV2 } from 'hooks/Tokens'
 import { TransactionFlowState } from 'types'
 
 import LimitOrderForm, { Label } from './LimitOrderForm'
-import { calcInvert, calcPercentFilledOrder, calcRate, removeTrailingZero, uint256ToFraction } from './helpers'
+import { calcInvert, calcPercentFilledOrder, calcRate, removeTrailingZero } from './helpers'
 import { LimitOrder, LimitOrderStatus, RateInfo } from './type'
 
 const Wrapper = styled.div`
@@ -45,8 +46,9 @@ export default function EditOrderModal({
   const { status, makingAmount, takingAmount, makerAsset, takerAsset, filledTakingAmount, expiredAt } = order
   const currencyIn = useCurrencyV2(makerAsset) ?? undefined
   const currencyOut = useCurrencyV2(takerAsset) ?? undefined
-  const inputAmount = currencyIn ? uint256ToFraction(makingAmount).toFixed(currencyIn.decimals) : ''
-  const outputAmount = currencyOut ? uint256ToFraction(takingAmount).toFixed(currencyOut.decimals) : ''
+  const inputAmount = currencyIn ? ethers.utils.formatUnits(makingAmount, currencyIn.decimals) : ''
+  const outputAmount = currencyOut ? ethers.utils.formatUnits(takingAmount, currencyOut.decimals) : ''
+
   const formatIn = inputAmount ? removeTrailingZero(inputAmount) : inputAmount
   const formatOut = outputAmount ? removeTrailingZero(outputAmount) : outputAmount
   const defaultExpire = new Date(expiredAt * 1000)
