@@ -691,7 +691,10 @@ export default function Swap() {
                   }
                 />
                 {chainId !== ChainId.ETHW && (
-                  <MobileTokenInfo currencies={currencies} onClick={() => onToggleActionTab(TAB.INFO)} />
+                  <MobileTokenInfo
+                    currencies={isSwapPage ? currencies : currenciesLimit}
+                    onClick={() => onToggleActionTab(TAB.INFO)}
+                  />
                 )}
                 <ShareButtonWithModal
                   title={t`Share this with your friends!`}
@@ -1096,7 +1099,10 @@ export default function Swap() {
                       />
                     }
                   >
-                    <LiveChart onRotateClick={handleRotateClick} currencies={currencies} />
+                    <LiveChart
+                      onRotateClick={handleRotateClick}
+                      currencies={isSwapPage ? currencies : currenciesLimit}
+                    />
                   </Suspense>
                 </LiveChartWrapper>
               )}
