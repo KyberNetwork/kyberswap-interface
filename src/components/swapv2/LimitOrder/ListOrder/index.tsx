@@ -443,7 +443,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
 
   useEffect(() => {
     const orderCancelling = orders.length - totalOrderNotCancelling
-    window.onbeforeunload = () => (orderCancelling > 0 && ordersUpdating.length > 0 ? '' : null)
+    window.onbeforeunload = () => (orderCancelling > 0 && ordersUpdating.length > 0 ? '' : null) // return null will not show confirm, else will show
   }, [totalOrderNotCancelling, orders, ordersUpdating])
 
   return (
