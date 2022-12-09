@@ -357,11 +357,6 @@ const StyledBridgeIcon = styled(BridgeIcon)`
     fill: currentColor;
   }
 `
-const StyledLimitOrderIcon = styled(LimitOrderIcon)`
-  path {
-    fill: currentColor;
-  }
-`
 const StyledBuyCrypto = styled(BuyCrypto)`
   path {
     fill: currentColor;
@@ -407,7 +402,7 @@ export default function Header() {
               {SUPPORT_LIMIT_ORDER && (
                 <StyledNavLink to={APP_PATHS.LIMIT} style={{ flexDirection: 'column' }}>
                   <Flex alignItems="center" sx={{ gap: '13px' }}>
-                    <StyledLimitOrderIcon />
+                    <LimitOrderIcon />
                     <Trans>Limit Order</Trans>
                   </Flex>
                 </StyledNavLink>
