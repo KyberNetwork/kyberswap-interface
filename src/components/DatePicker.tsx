@@ -2,8 +2,6 @@ import { rgba } from 'polished'
 import Picker from 'react-date-picker'
 import styled, { css } from 'styled-components'
 
-const today = new Date()
-const minDate = new Date(today.getFullYear(), today.getMonth(), today.getDate())
 const Container = styled.div`
   // custom css
   .custom-date-picker {
@@ -150,6 +148,8 @@ const Container = styled.div`
   `}
 `
 export default function DatePicker({ onChange, value }: { value: Date; onChange: (date: Date) => void }) {
+  const today = new Date()
+  const minDate = new Date(today.getFullYear(), today.getMonth(), today.getDate())
   return (
     <Container>
       <Picker

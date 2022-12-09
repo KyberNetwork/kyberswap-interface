@@ -49,10 +49,9 @@ const ResultContainer = styled.div`
   justify-content: space-between;
   font-size: 14px;
 `
-const today = new Date()
-const minDate = new Date(today.getFullYear(), today.getMonth(), today.getDate())
 
 const isToday = (date: Date) => {
+  const today = new Date()
   return (
     today.getDate() === date.getDate() &&
     today.getFullYear() === date.getFullYear() &&
@@ -73,6 +72,8 @@ export default function DateTimePicker({
   expire: number
   defaultDate?: Date
 }) {
+  const today = new Date()
+  const minDate = new Date(today.getFullYear(), today.getMonth(), today.getDate())
   const [date, setDate] = useState(minDate)
   const [min, setMin] = useState(0)
   const [hour, setHour] = useState(0)
