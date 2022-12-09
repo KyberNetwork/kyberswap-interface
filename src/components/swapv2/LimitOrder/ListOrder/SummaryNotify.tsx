@@ -24,7 +24,7 @@ export default function SummaryNotify({
   const rate = order ? formatRateOrder(order, false) : ''
   const filledPercent = order ? calcPercentFilledOrder(filledTakingAmount, takingAmount) : 0
   const mainMsg = order ? (
-    <>
+    <Trans>
       <Text as="span" fontWeight={500}>
         {formatAmountOrder(makingAmount)} {makerAssetSymbol}
       </Text>{' '}
@@ -35,7 +35,7 @@ export default function SummaryNotify({
       <Text as="span" color={theme.subText}>
         when 1 {takerAssetSymbol} is equal to {rate} {makerAssetSymbol}
       </Text>
-    </>
+    </Trans>
   ) : null
 
   let msg: ReactNode

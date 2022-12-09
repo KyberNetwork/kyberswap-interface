@@ -132,9 +132,11 @@ export const Rate = ({
       style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', maxWidth: 290 }}
       onClick={() => setInvertRate(!invertRate)}
     >
-      <Text>{`1 ${invertRate ? symbolOut : symbolIn} is equal to ${rateStr} ${
-        invertRate ? symbolIn : symbolOut
-      }`}</Text>
+      <Text>
+        <Trans>{`1 ${invertRate ? symbolOut : symbolIn} is equal to ${rateStr} ${
+          invertRate ? symbolIn : symbolOut
+        }`}</Trans>
+      </Text>
       <SwapIcon rotate={90} size={19} />
     </Value>
   )
