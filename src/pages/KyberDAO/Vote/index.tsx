@@ -197,7 +197,7 @@ export default function Vote() {
 
   const handleVote = useCallback(
     async (proposal_id: number, option: number) => {
-      // only can vote when user has staked amount
+      // only can vote when user has stake amount
       setPendingText(t`Vote submitting`)
       setShowConfirm(true)
       setAttemptingTxn(true)
