@@ -352,4 +352,4 @@ export const EIP712Domain = [
   { name: 'verifyingContract', type: 'address' },
 ]
 
-export const SUPPORT_LIMIT_ORDER = true
+export const SUPPORT_LIMIT_ORDER = window.location.host !== 'kyberswap.com'
