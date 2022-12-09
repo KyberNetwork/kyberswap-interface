@@ -55,7 +55,8 @@ const CampaignListAndSearch = ({ onSelectCampaign }: CampaignListAndSearchProps)
   const [searchCampaign, setSearchCampaign] = useState('')
   const theme = useTheme()
 
-  const { data: campaigns, selectedCampaign } = useSelector((state: AppState) => state.campaigns)
+  const campaigns = useSelector((state: AppState) => state.campaigns.data)
+  const selectedCampaign = useSelector((state: AppState) => state.campaigns.selectedCampaign)
 
   const filteredCampaigns = campaigns.filter(item =>
     item.name.toLowerCase().includes(searchCampaign.trim().toLowerCase()),
@@ -77,7 +78,7 @@ const CampaignListAndSearch = ({ onSelectCampaign }: CampaignListAndSearchProps)
           <CampaignItem
             campaign={campaign}
             onSelectCampaign={onSelectCampaign}
-            key={index}
+            key={campaign.id}
             isSelected={Boolean(selectedCampaign && selectedCampaign.id === campaign.id)}
           />
         ))}
