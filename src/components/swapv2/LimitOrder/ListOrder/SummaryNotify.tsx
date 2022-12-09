@@ -60,7 +60,7 @@ export default function SummaryNotify({
     filledPercent && parseFloat(filledPercent) !== 0 ? (
       <>
         <br />
-        Your order was {filledPercent}% filled
+        <Trans>Your order was {filledPercent}% filled</Trans>
       </>
     ) : null
 

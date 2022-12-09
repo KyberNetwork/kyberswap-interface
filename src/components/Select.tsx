@@ -32,7 +32,7 @@ const SelectMenu = styled.div`
   padding: 10px 0px;
 `
 
-const Option = styled.div<{ selected: boolean }>`
+const Option = styled.div<{ $selected: boolean }>`
   padding: 10px 18px;
   cursor: pointer;
   font-size: 12px;
@@ -41,7 +41,7 @@ const Option = styled.div<{ selected: boolean }>`
   &:hover {
     background-color: ${({ theme }) => theme.background};
   }
-  font-weight: ${({ selected }) => (selected ? '500' : 'unset')};
+  font-weight: ${({ $selected }) => ($selected ? '500' : 'unset')};
 `
 
 const SelectedWrap = styled.div`
@@ -129,7 +129,7 @@ function Select({
               <Option
                 key={value}
                 role="button"
-                selected={value === selectedValue || value === getOptionValue(selectedInfo)}
+                $selected={value === selectedValue || value === getOptionValue(selectedInfo)}
                 onClick={e => {
                   e.stopPropagation()
                   e.preventDefault()

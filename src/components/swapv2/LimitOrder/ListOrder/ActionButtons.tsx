@@ -21,7 +21,7 @@ const IconWrap = styled.div<{ color: string; isDisabled?: boolean }>`
   ${({ isDisabled }) =>
     isDisabled
       ? css`
-          filter: grayscale(${isDisabled ? 1 : 0});
+          filter: grayscale(1);
           pointer-events: none;
           cursor: not-allowed;
         `

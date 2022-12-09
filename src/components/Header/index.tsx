@@ -412,7 +412,7 @@ export default function Header() {
                 <StyledNavLink to={APP_PATHS.BRIDGE} style={{ flexDirection: 'column', width: '100%' }}>
                   <Flex alignItems="center" sx={{ gap: '10px' }} justifyContent="space-between">
                     <StyledBridgeIcon height={15} />
-                    <Flex alignItems={'center'} style={{ flex: 1 }} justifyContent={'space-between'}>
+                    <Flex alignItems={'center'} sx={{ flex: 1 }} justifyContent={'space-between'}>
                       <Text>
                         <Trans>Bridge</Trans>
                       </Text>

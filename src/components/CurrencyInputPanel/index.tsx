@@ -52,10 +52,9 @@ export const CurrencySelect = styled.button<{ selected: boolean; hideInput?: boo
   border: none;
   padding: 6px 8px;
   padding-right: ${({ hideInput }) => (hideInput ? '8px' : 0)};
-
+  cursor: ${({ isDisable: disabled }) => (disabled ? 'default' : 'pointer')};
   :focus,
   :hover {
-    cursor: ${({ isDisable: disabled }) => (disabled ? 'default' : 'pointer')};
     background-color: ${({ selected, hideInput, theme, isDisable: disabled }) =>
       selected
         ? hideInput
