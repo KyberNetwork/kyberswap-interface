@@ -12,6 +12,7 @@ import {
   SerializedToken,
   addSerializedPair,
   addSerializedToken,
+  changeViewMode,
   removeSerializedPair,
   removeSerializedToken,
   toggleFavoriteToken,
@@ -33,6 +34,11 @@ import {
 } from './actions'
 
 const currentTimestamp = () => new Date().getTime()
+
+export enum VIEW_MODE {
+  GRID = 'grid',
+  LIST = 'list',
+}
 
 export interface UserState {
   // the timestamp of the last updateVersion action
@@ -87,6 +93,7 @@ export interface UserState {
   readonly chainId: ChainId
   isUserManuallyDisconnect: boolean
   isAcceptedTerm: boolean
+  viewMode: VIEW_MODE
 }
 
 function pairKey(token0Address: string, token1Address: string) {
@@ -113,13 +120,9 @@ export const defaultShowLiveCharts: { [chainId in ChainId]: boolean } = {
   [ChainId.OPTIMISM]: true,
   [ChainId.SOLANA]: true,
 
-  [ChainId.ROPSTEN]: false,
-  [ChainId.RINKEBY]: false,
   [ChainId.GÖRLI]: false,
-  [ChainId.KOVAN]: false,
   [ChainId.MUMBAI]: false,
   [ChainId.BSCTESTNET]: false,
-  [ChainId.CRONOSTESTNET]: false,
   [ChainId.AVAXTESTNET]: false,
   [ChainId.ARBITRUM_TESTNET]: false,
   [ChainId.ETHW]: true,
@@ -154,6 +157,7 @@ const initialState: UserState = {
   chainId: ChainId.MAINNET,
   isUserManuallyDisconnect: false,
   isAcceptedTerm: false,
+  viewMode: VIEW_MODE.GRID,
 }
 
 export default createReducer(initialState, builder =>
@@ -281,7 +285,12 @@ export default createReducer(initialState, builder =>
       state.isAcceptedTerm = isAcceptedTerm
     })
     .addCase(updateTokenAnalysisSettings, (state, { payload }) => {
-      if (!state.tokenAnalysisSettings) return
+      if (!state.tokenAnalysisSettings) {
+        state.tokenAnalysisSettings = {}
+      }
       state.tokenAnalysisSettings[payload] = !state.tokenAnalysisSettings[payload] ?? false
+    })
+    .addCase(changeViewMode, (state, { payload: viewType }) => {
+      state.viewMode = viewType
     }),
 )

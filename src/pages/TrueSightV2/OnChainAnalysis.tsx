@@ -1,7 +1,6 @@
 import { Trans } from '@lingui/macro'
-import { rgba } from 'polished'
 import { Text } from 'rebass'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 
 import { ButtonOutlined } from 'components/Button'
 import Icon from 'components/Icons/Icon'
@@ -9,7 +8,7 @@ import { RowFit } from 'components/Row'
 import useTheme from 'hooks/useTheme'
 import { useTokenAnalysisSettings } from 'state/user/hooks'
 
-import { ContentWrapper, SectionDescription, SectionTitle, SectionWrapper } from './components'
+import { SectionDescription, SectionTitle, SectionWrapper } from './components'
 import {
   HoldersChartWrapper,
   NetflowToCentralizedExchanges,

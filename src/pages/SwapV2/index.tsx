@@ -1,11 +1,11 @@
 import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import JSBI from 'jsbi'
-import { stringify } from 'qs'
+import { stringify } from 'querystring'
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
 import Skeleton from 'react-loading-skeleton'
-import { RouteComponentProps, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Box, Flex, Text } from 'rebass'
 import styled, { DefaultTheme, keyframes } from 'styled-components'
 
@@ -167,7 +167,8 @@ const RoutingIconWrapper = styled(RoutingIcon)`
   }
 `
 
-export default function Swap({ history }: RouteComponentProps) {
+export default function Swap() {
+  const navigateFn = useNavigate()
   const { account, chainId, networkInfo, isSolana, isEVM } = useActiveWeb3React()
   const [rotate, setRotate] = useState(false)
   const [showInverted, setShowInverted] = useState<boolean>(false)
@@ -513,9 +514,9 @@ export default function Swap({ history }: RouteComponentProps) {
     (url: string) => {
       // /swap/net/symA-to-symB?inputCurrency= addressC/symC &outputCurrency= addressD/symD
       const { inputCurrency, outputCurrency, ...newQs } = qs
-      history.push(`${url}?${stringify(newQs)}`) // keep query params
+      navigateFn(`${url}?${stringify(newQs)}`) // keep query params
     },
-    [history, qs],
+    [navigateFn, qs],
   )
 
   function findTokenPairFromUrl() {
@@ -686,9 +687,12 @@ export default function Swap({ history }: RouteComponentProps) {
       const newQuery = { ...qs }
       delete newQuery.inputCurrency
       delete newQuery.outputCurrency
-      history.replace({
-        search: stringify(newQuery),
-      })
+      navigateFn(
+        {
+          search: stringify(newQuery),
+        },
+        { replace: true },
+      )
     }
   }
 

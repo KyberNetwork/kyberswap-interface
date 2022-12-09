@@ -2,7 +2,7 @@ import { Currency, CurrencyAmount, Price, Token } from '@kyberswap/ks-sdk-core'
 import { Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
-import { stringify } from 'qs'
+import { stringify } from 'querystring'
 import React, { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
@@ -286,7 +286,7 @@ function PositionListItem({
     )
   }, 0)
 
-  const farmAPR = (farmRewardValue * 365 * 100) / usd
+  const farmAPR = reward24h !== null ? (farmRewardValue * 365 * 100) / usd : 0
 
   const tickAtLimit = useIsTickAtLimit(feeAmount, tickLower, tickUpper)
 

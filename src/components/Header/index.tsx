@@ -1,8 +1,9 @@
 import { Trans, t } from '@lingui/macro'
 import { darken } from 'polished'
-import { useState } from 'react'
+import { CSSProperties, forwardRef, useState } from 'react'
 import { Repeat } from 'react-feather'
-import { Link, NavLink, useLocation } from 'react-router-dom'
+import { NavLink as BaseNavLink, Link, NavLinkProps, useLocation } from 'react-router-dom'
+import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled, { css, keyframes } from 'styled-components'
 
@@ -24,10 +25,30 @@ import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { AGGREGATOR_ANALYTICS_URL, APP_PATHS, PROMM_ANALYTICS_URL } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import { useWindowSize } from 'hooks/useWindowSize'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
 import { ExternalLink } from 'theme/components'
+
+interface Props extends NavLinkProps {
+  activeClassName?: string
+  activeStyle?: CSSProperties
+}
+// fix warning of activeClassName: https://reactrouter.com/en/6.4.5/upgrading/v5#remove-activeclassname-and-activestyle-props-from-navlink-
+const NavLink = forwardRef(({ activeClassName, activeStyle, ...props }: Props, ref: any) => {
+  return (
+    <BaseNavLink
+      ref={ref}
+      {...props}
+      className={({ isActive }) => [props.className, isActive ? activeClassName : null].filter(Boolean).join(' ')}
+      style={({ isActive }) => ({
+        ...props.style,
+        ...(isActive ? activeStyle : null),
+      })}
+    />
+  )
+})
+
+NavLink.displayName = 'NavLink'
 
 const VisaSVG = styled(Visa)`
   path {
@@ -334,13 +355,12 @@ const StyledBridgeIcon = styled(BridgeIcon)`
 export default function Header() {
   const { chainId, isEVM, isSolana, walletKey } = useActiveWeb3React()
 
+  const upTo420 = useMedia('(max-width: 420px)')
   const isDark = useIsDarkMode()
   const { pathname } = useLocation()
   const [isHoverSlide, setIsHoverSlide] = useState(false)
 
-  const { width } = useWindowSize()
   const [{ show: isShowTutorial = false, stepInfo }] = useTutorialSwapGuide()
-  const under369 = width && width < 369
   const { mixpanelHandler } = useMixpanel()
   return (
     <HeaderFrame>
@@ -353,7 +373,7 @@ export default function Header() {
         <HeaderLinks>
           <HoverDropdown
             forceShowDropdown={isShowTutorial && stepInfo?.selector === `#${TutorialIds.BRIDGE_LINKS}`}
-            active={pathname.includes('/swap') || pathname === '/buy-crypto'}
+            active={pathname.includes(APP_PATHS.SWAP) || [APP_PATHS.BUY_CRYPTO, APP_PATHS.BRIDGE].includes(pathname)}
           >
             <Flex alignItems="center">
               <Trans>Swap</Trans>
@@ -361,12 +381,7 @@ export default function Header() {
             </Flex>
 
             <Dropdown>
-              <StyledNavLink
-                id={`swapv2-nav-link`}
-                to={'/swap'}
-                isActive={match => Boolean(match)}
-                style={{ flexDirection: 'column' }}
-              >
+              <StyledNavLink id={`swapv2-nav-link`} to={APP_PATHS.SWAP} style={{ flexDirection: 'column' }}>
                 <Flex alignItems="center" sx={{ gap: '13px' }}>
                   <Repeat size={16} />
                   <Trans>Swap</Trans>
@@ -375,8 +390,7 @@ export default function Header() {
               <div id={TutorialIds.BRIDGE_LINKS}>
                 <StyledNavLink
                   id={`buy-crypto-nav-link`}
-                  to={'/buy-crypto'}
-                  isActive={match => Boolean(match)}
+                  to={APP_PATHS.BUY_CRYPTO}
                   onClick={() => {
                     mixpanelHandler(MIXPANEL_TYPE.SWAP_BUY_CRYPTO_CLICKED)
                   }}
@@ -393,11 +407,7 @@ export default function Header() {
                   </Flex>
                 </StyledNavLink>
                 {isSolana || (
-                  <StyledNavLink
-                    to={APP_PATHS.BRIDGE}
-                    isActive={match => Boolean(match)}
-                    style={{ flexDirection: 'column', width: '100%' }}
-                  >
+                  <StyledNavLink to={APP_PATHS.BRIDGE} style={{ flexDirection: 'column', width: '100%' }}>
                     <Flex alignItems="center" sx={{ gap: '10px' }} justifyContent="space-between">
                       <StyledBridgeIcon height={15} />
                       <Flex alignItems={'center'} style={{ flex: 1 }} justifyContent={'space-between'}>
@@ -427,26 +437,11 @@ export default function Header() {
                   <DropdownIcon />
                 </Flex>
                 <Dropdown>
-                  <StyledNavLink
-                    id="pools-nav-link"
-                    to="/pools"
-                    isActive={(match, { pathname }) => Boolean(match) || pathname.startsWith('/pools')}
-                    style={{ width: '100%' }}
-                  >
+                  <StyledNavLink id="pools-nav-link" to={APP_PATHS.POOLS} style={{ width: '100%' }}>
                     <Trans>Pools</Trans>
                   </StyledNavLink>
 
-                  <StyledNavLink
-                    id="my-pools-nav-link"
-                    to="/myPools"
-                    isActive={(match, { pathname }) =>
-                      Boolean(match) ||
-                      pathname.startsWith(APP_PATHS.CLASSIC_ADD_LIQ) ||
-                      pathname.startsWith(APP_PATHS.CLASSIC_REMOVE_POOL) ||
-                      pathname.startsWith(APP_PATHS.CLASSIC_CREATE_POOL) ||
-                      (pathname.startsWith(APP_PATHS.FIND_POOL) && pathname.endsWith(APP_PATHS.FIND_POOL))
-                    }
-                  >
+                  <StyledNavLink id="my-pools-nav-link" to={APP_PATHS.MY_POOLS}>
                     <Trans>My Pools</Trans>
                   </StyledNavLink>
 
@@ -456,7 +451,6 @@ export default function Header() {
                     }}
                     id="farms-nav-link"
                     to="/farms"
-                    isActive={match => Boolean(match)}
                   >
                     <Trans>Farms</Trans>
                     <NewLabel>
@@ -468,16 +462,16 @@ export default function Header() {
             </Flex>
           )}
 
-          {!under369 && (
+          {!upTo420 && (
             <CampaignWrapper id={TutorialIds.CAMPAIGN_LINK}>
-              <StyledNavLink id={`campaigns`} to={'/campaigns'} isActive={match => Boolean(match)}>
+              <StyledNavLink id="campaigns" to={APP_PATHS.CAMPAIGN}>
                 <Trans>Campaigns</Trans>
               </StyledNavLink>
             </CampaignWrapper>
           )}
 
           <DiscoverWrapper id={TutorialIds.DISCOVER_LINK}>
-            <StyledNavLink to={'/discover'} isActive={match => Boolean(match)} style={{ alignItems: 'center' }}>
+            <StyledNavLink to={'/discover'} style={{ alignItems: 'center' }}>
               <SlideToUnlock
                 active={pathname.includes('discover') || isHoverSlide}
                 onMouseEnter={() => setIsHoverSlide(true)}
@@ -520,11 +514,11 @@ export default function Header() {
                 <DropdownIcon />
               </Flex>
               <Dropdown>
-                <StyledNavLink id={`about-kyberswap`} to={'/about/kyberswap'} isActive={match => Boolean(match)}>
+                <StyledNavLink id={`about-kyberswap`} to={'/about/kyberswap'}>
                   <Trans>KyberSwap</Trans>
                 </StyledNavLink>
 
-                <StyledNavLink id={`about-knc`} to={'/about/knc'} isActive={match => Boolean(match)}>
+                <StyledNavLink id={`about-knc`} to={'/about/knc'}>
                   <Trans> KNC</Trans>
                 </StyledNavLink>
               </Dropdown>

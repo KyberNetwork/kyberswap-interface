@@ -2,7 +2,7 @@ import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useState } from 'react'
 import { ChevronLeft, Share2, Star } from 'react-feather'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
@@ -22,11 +22,13 @@ import DisplaySettings from './components/DisplaySettings'
 import { DiscoverTokenTab } from './types'
 
 const Wrapper = styled.div`
+  padding: 28px 0;
   display: flex;
   align-items: stretch;
   justify-content: center;
   flex-direction: column;
   width: 100%;
+  max-width: 1224px;
   color: ${({ theme }) => theme.subText};
 `
 
@@ -91,14 +93,14 @@ const TabButton = styled.div<{ active?: boolean }>`
 
 export default function SingleToken() {
   const theme = useTheme()
-  const history = useHistory()
+  const navigate = useNavigate()
   const [currentTab, setCurrentTab] = useState<DiscoverTokenTab>(DiscoverTokenTab.OnChainAnalysis)
 
   return (
     <Wrapper>
       <RowBetween marginBottom="24px">
         <RowFit gap="8px">
-          <ButtonIcon onClick={() => history.push('/discover')}>
+          <ButtonIcon onClick={() => navigate('/discover')}>
             <ChevronLeft size={24} />
           </ButtonIcon>
           <Star size={20} />

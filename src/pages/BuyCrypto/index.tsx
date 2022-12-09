@@ -202,14 +202,10 @@ function BuyCrypto() {
     [ChainId.SOLANA]: 'solana',
 
     [ChainId.CRONOS]: null,
-    [ChainId.ROPSTEN]: null,
-    [ChainId.RINKEBY]: null,
     [ChainId.GÖRLI]: null,
-    [ChainId.KOVAN]: null,
     [ChainId.MUMBAI]: null,
     [ChainId.BSCTESTNET]: null,
     [ChainId.AVAXTESTNET]: null,
-    [ChainId.CRONOSTESTNET]: null,
     [ChainId.ARBITRUM_TESTNET]: null,
     [ChainId.BTTC]: null,
     [ChainId.AURORA]: null,
@@ -240,7 +236,9 @@ function BuyCrypto() {
     ',',
   )}&networks=${Object.values(supportedNetworks).filter(Boolean).join(',')}${
     account ? `&walletAddress=${account}` : ''
-  }&defaultNetwork=${supportedNetworks[chainId] || supportedNetworks[ChainId.MAINNET]}&redirectURL=${redirectURL}`
+  }&defaultNetwork=${
+    supportedNetworks[chainId] || supportedNetworks[ChainId.MAINNET]
+  }&excludeFiatCurrencies=SGD&redirectURL=${redirectURL}`
 
   const [isDarkMode] = useDarkModeManager()
   const { mixpanelHandler } = useMixpanel()

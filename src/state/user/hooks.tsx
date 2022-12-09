@@ -21,6 +21,7 @@ import {
   ToggleFavoriteTokenPayload,
   addSerializedPair,
   addSerializedToken,
+  changeViewMode,
   removeSerializedToken,
   toggleFavoriteToken as toggleFavoriteTokenAction,
   toggleLiveChart,
@@ -37,7 +38,7 @@ import {
   updateUserLocale,
   updateUserSlippageTolerance,
 } from 'state/user/actions'
-import { defaultShowLiveCharts, getFavoriteTokenDefault } from 'state/user/reducer'
+import { VIEW_MODE, defaultShowLiveCharts, getFavoriteTokenDefault } from 'state/user/reducer'
 import { isAddress } from 'utils'
 
 function serializeToken(token: Token | WrappedTokenInfo): SerializedToken {
@@ -47,12 +48,12 @@ function serializeToken(token: Token | WrappedTokenInfo): SerializedToken {
     decimals: token.decimals,
     symbol: token.symbol,
     name: token.name,
-    logoURI: token instanceof WrappedTokenInfo ? token.tokenInfo.logoURI : undefined,
+    logoURI: token instanceof WrappedTokenInfo ? token.logoURI : undefined,
   }
 }
 
 function deserializeToken(serializedToken: SerializedToken): Token {
-  return serializedToken?.logoURI && serializedToken?.list
+  return serializedToken?.logoURI
     ? new WrappedTokenInfo({
         chainId: serializedToken.chainId,
         address: serializedToken.address,
@@ -374,8 +375,7 @@ export function useTokenAnalysisSettings(): { [k: string]: boolean } {
 
 export function useUpdateTokenAnalysisSettings(): (payload: string) => void {
   const dispatch = useDispatch<AppDispatch>()
-  const { chainId } = useActiveWeb3React()
-  return useCallback((payload: string) => dispatch(updateTokenAnalysisSettings(payload)), [dispatch, chainId])
+  return useCallback((payload: string) => dispatch(updateTokenAnalysisSettings(payload)), [dispatch])
 }
 
 export function useToggleLiveChart(): () => void {
@@ -419,4 +419,13 @@ export const useUserFavoriteTokens = (chainId: ChainId) => {
   )
 
   return { favoriteTokens, toggleFavoriteToken }
+}
+
+export const useViewMode: () => [VIEW_MODE, (mode: VIEW_MODE) => void] = () => {
+  const dispatch = useAppDispatch()
+  const viewMode = useAppSelector(state => state.user.viewMode || VIEW_MODE.GRID)
+
+  const setViewMode = useCallback((mode: VIEW_MODE) => dispatch(changeViewMode(mode)), [dispatch])
+
+  return [viewMode, setViewMode]
 }

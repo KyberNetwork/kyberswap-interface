@@ -23,12 +23,12 @@ module.exports = function override(config, env) {
     moduleIds: 'named',
     splitChunks: {
       cacheGroups: {
-        vendor: {
+        ethers: {
           test: /[\\/]node_modules[\\/](ethers|@ethersproject)[\\/]/,
           name: 'ethers',
           chunks: 'all',
         },
-        vendor: {
+        solana: {
           test: /[\\/]node_modules[\\/](@solana)[\\/]/,
           name: 'solana',
           chunks: 'all',

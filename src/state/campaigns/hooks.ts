@@ -1,10 +1,9 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useHistory } from 'react-router'
+import { useNavigate } from 'react-router-dom'
 
 import { NETWORKS_INFO } from 'constants/networks'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import {
   setClaimingCampaignRewardId,
   setRecaptchaCampaignId,
@@ -109,13 +108,11 @@ export function useRecaptchaCampaignManager() {
 }
 
 export function useSwapNowHandler() {
-  const { mixpanelHandler } = useMixpanel()
   const selectedCampaign = useSelector((state: AppState) => state.campaigns.selectedCampaign)
-  const history = useHistory()
+  const navigate = useNavigate()
 
   return useCallback(
     (chainId: ChainId) => {
-      mixpanelHandler(MIXPANEL_TYPE.CAMPAIGN_SWAP_NOW_CLICKED, { campaign_name: selectedCampaign?.name })
       let path = `/swap/${NETWORKS_INFO[chainId].route}`
       if (selectedCampaign?.eligibleTokens?.length) {
         const firstTokenOfChain = selectedCampaign.eligibleTokens.find(token => token.chainId === chainId)
@@ -123,9 +120,9 @@ export function useSwapNowHandler() {
           path += '&outputCurrency=' + firstTokenOfChain.address
         }
       }
-      history.push(path)
+      navigate(path)
     },
-    [history, mixpanelHandler, selectedCampaign],
+    [navigate, selectedCampaign],
   )
 }
 

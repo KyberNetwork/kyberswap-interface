@@ -3,7 +3,7 @@ import { Currency, CurrencyAmount, Token, TradeType } from '@kyberswap/ks-sdk-co
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 
-import { MAINNET_ENV } from 'constants/env'
+import { ENV_LEVEL, ENV_TYPE } from 'constants/env'
 import { ZERO_ADDRESS, ZERO_ADDRESS_SOLANA } from 'constants/index'
 import { PairState, usePairs } from 'data/Reserves'
 import { useActiveWeb3React } from 'hooks/index'
@@ -61,7 +61,7 @@ export function useTradeExactIn(
     const fn = async function () {
       timeout = setTimeout(() => {
         if (currencyAmountIn && currencyOut && allowedPairs.length > 0) {
-          if (MAINNET_ENV === 'staging') {
+          if (ENV_LEVEL < ENV_TYPE.PROD) {
             console.log('trade amount: ', currencyAmountIn.toSignificant(10))
           }
 
@@ -176,16 +176,22 @@ export function useTradeExactInV2(
         ])
 
         if (!signal.aborted) {
-          try {
-            if (JSON.stringify(trade) !== JSON.stringify(state)) setTrade(state)
-          } catch (e) {
-            setTrade(state)
-          }
-          try {
-            if (JSON.stringify(comparer) !== JSON.stringify(comparedResult)) setComparer(comparedResult)
-          } catch (e) {
-            setComparer(comparedResult)
-          }
+          setTrade(prev => {
+            try {
+              if (JSON.stringify(prev) !== JSON.stringify(state)) return state
+            } catch (e) {
+              return state
+            }
+            return prev
+          })
+          setComparer(prev => {
+            try {
+              if (JSON.stringify(prev) !== JSON.stringify(comparedResult)) return comparedResult
+            } catch (e) {
+              return comparedResult
+            }
+            return prev
+          })
         }
         setLoading(false)
         // if (!signal.aborted && state) {
@@ -200,8 +206,7 @@ export function useTradeExactInV2(
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       isEVM,
-      allTxGroup,
-      // allFinalizedTxs,
+      allTxGroup, // required. Refresh aggregator data after swap.
       debounceCurrencyAmountIn,
       currencyOut,
       chainId,
@@ -213,8 +218,6 @@ export function useTradeExactInV2(
       dexes,
       allowedSlippage,
       feeConfig,
-      // trade, //don't add this
-      // comparer, //don't add this
     ],
   )
 

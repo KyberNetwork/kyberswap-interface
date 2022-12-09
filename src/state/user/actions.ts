@@ -2,7 +2,8 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createAction } from '@reduxjs/toolkit'
 
 import { SupportedLocale } from 'constants/locales'
-import { LiteTokenList } from 'state/lists/wrappedTokenInfo'
+
+import { VIEW_MODE } from './reducer'
 
 export interface SerializedToken {
   chainId: number
@@ -11,7 +12,6 @@ export interface SerializedToken {
   symbol?: string
   name?: string
   logoURI?: string
-  list?: LiteTokenList
 }
 
 export interface SerializedPair {
@@ -50,3 +50,4 @@ export const updateChainId = createAction<ChainId>('user/updateChainId')
 export const updateIsUserManuallyDisconnect = createAction<boolean>('user/updateIsUserManuallyDisconnect')
 export const updateIsAcceptedTerm = createAction<boolean>('user/updateIsAcceptedTerm')
 export const updateTokenAnalysisSettings = createAction<string>('user/updateTokenAnalysisSettings')
+export const changeViewMode = createAction<VIEW_MODE>('user/changeViewMode')

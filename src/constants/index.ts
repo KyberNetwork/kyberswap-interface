@@ -227,7 +227,6 @@ export const AGGREGATOR_ROUTER_SWAPPED_EVENT_TOPIC =
   '0xd6d4f5681c246c9f42c203e287975af1601f8df8035a9251f79aab5c8f09e2f8'
 
 export const CLAIM_REWARDS_DATA_URL: { [chainId: number]: string } = {
-  [ChainId.ROPSTEN]: '/claim-reward-data.json',
   [ChainId.AVAXMAINNET]:
     'https://raw.githubusercontent.com/KyberNetwork/avax-trading-contest-reward-distribution/develop/results/reward_proof.json',
   [ChainId.MATIC]:
@@ -246,8 +245,6 @@ export const STATIC_FEE_OPTIONS: { [chainId: number]: number[] | undefined } = {
   [ChainId.VELAS]: [8, 10, 50, 300, 500, 1000],
   [ChainId.OASIS]: [8, 10, 50, 300, 500, 1000],
   [ChainId.MAINNET]: [8, 10, 50, 300, 500, 1000],
-  [ChainId.ROPSTEN]: [8, 10, 50, 300, 500, 1000],
-  [ChainId.RINKEBY]: [8, 10, 50, 300, 500, 1000],
   [ChainId.MATIC]: [8, 10, 50, 300, 500, 1000],
   [ChainId.AVAXMAINNET]: [8, 10, 50, 300, 500, 1000],
   [ChainId.FANTOM]: [8, 10, 50, 300, 500, 1000],
@@ -297,6 +294,9 @@ export const KYBERSWAP_SOURCE = '{"source":"kyberswap"}'
 
 export const CAMPAIGN_BASE_URL = `${CAMPAIGN_BASE_DOMAIN}/api/v1/campaigns`
 export const SWR_KEYS = {
+  getGrantProgramLeaderBoard: (id: number | string) => `${CAMPAIGN_BASE_DOMAIN}/api/v1/competitions/${id}/leaderboard`,
+  getListGrantPrograms: `${CAMPAIGN_BASE_DOMAIN}/api/v1/competitions`,
+  getGrantProgram: (id: number | string) => `${CAMPAIGN_BASE_DOMAIN}/api/v1/competitions/${id}`,
   getListCampaign: CAMPAIGN_BASE_URL,
   getLeaderboard: (id: number) => CAMPAIGN_BASE_URL + '/' + id + '/leaderboard',
   getLuckyWinners: (id: number) => CAMPAIGN_BASE_URL + '/' + id + '/lucky-winners',
@@ -333,4 +333,13 @@ export const APP_PATHS = {
   BUY_CRYPTO: '/buy-crypto',
   BRIDGE: '/bridge',
   VERIFY: '/verify',
+  VERIFY_EXTERNAL: '/verify-external',
+  GRANT_PROGRAMS: '/inter-project-trading-campaigns',
+}
+
+export enum FARM_TAB {
+  ACTIVE = 'active',
+  ENDED = 'ended',
+  MY_FARMS = 'my_farms',
+  VESTING = 'vesting',
 }

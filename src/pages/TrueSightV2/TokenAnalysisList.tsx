@@ -4,7 +4,7 @@ import { rgba } from 'polished'
 import { useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { ChevronRight, Share2, Star } from 'react-feather'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useWindowScroll } from 'react-use'
 import { useDrag } from 'react-use-gesture'
 import { Text } from 'rebass'
@@ -193,7 +193,7 @@ const TokenListDraggableTab = ({
 
 export default function TokenAnalysisList() {
   const theme = useTheme()
-  const history = useHistory()
+  const navigate = useNavigate()
   const [page, setPage] = useState(1)
   const [filterType, setFilterType] = useState(FilterType.All)
   const [networkFilter, setNetworkFilter] = useState<ChainId>()
@@ -296,7 +296,7 @@ export default function TokenAnalysisList() {
             </TableCell>
             <TableCell>
               <Row gap="6px" justify={'flex-end'}>
-                <ActionButton color={theme.subText} onClick={() => history.push('/discover/single-token')}>
+                <ActionButton color={theme.subText} onClick={() => navigate('/discover/single-token')}>
                   <Icon id="truesight-v2" size={16} />
                   <Trans>Explore</Trans>
                 </ActionButton>

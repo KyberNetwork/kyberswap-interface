@@ -1,5 +1,13 @@
 import invariant from 'tiny-invariant'
 
+export enum ENV_TYPE {
+  LOCAL,
+  ADPR,
+  DEV,
+  STG,
+  PROD,
+}
+
 const required = (envKey: string): string => {
   const key = 'REACT_APP_' + envKey
   const envValue = process.env[key]
@@ -7,15 +15,16 @@ const required = (envKey: string): string => {
   return envValue
 }
 
-const validate = <T extends string>(envKey: string, validateValues: T[]): T => {
-  const key = 'REACT_APP_' + envKey
-  const envValue = required(envKey)
-  invariant(validateValues.includes(envValue as any), `env ${key} is incorrect`)
-  return envValue as T
-}
+// uncomment when needed
+// example of use: https://github.com/KyberNetwork/kyberswap-interface/blob/f7a8c56fc06fa75514b8ac59ff53e838e27cf4c5/src/constants/env.ts#L18
+// const validate = <T extends string>(envKey: string, validateValues: T[]): T => {
+//   const key = 'REACT_APP_' + envKey
+//   const envValue = required(envKey)
+//   invariant(validateValues.includes(envValue as any), `env ${key} is incorrect`)
+//   return envValue as T
+// }
 
 const ENV = {
-  MAINNET_ENV: validate('MAINNET_ENV', ['staging', 'production']),
   GOOGLE_RECAPTCHA_KEY: required('GOOGLE_RECAPTCHA_KEY'),
   PRICE_API: required('PRICE_API'),
   AGGREGATOR_API: required('AGGREGATOR_API'),
@@ -40,10 +49,18 @@ const ENV = {
   CAMPAIGN_BASE_URL: required('CAMPAIGN_BASE_URL'),
   GTM_ID: process.env.REACT_APP_GTM_ID,
   TAG: process.env.REACT_APP_TAG || 'localhost',
+  ENV_LEVEL: !process.env.REACT_APP_TAG
+    ? ENV_TYPE.LOCAL
+    : process.env.REACT_APP_TAG.startsWith('adpr')
+    ? ENV_TYPE.ADPR
+    : process.env.REACT_APP_TAG.startsWith('main')
+    ? ENV_TYPE.DEV
+    : process.env.REACT_APP_TAG.startsWith('release')
+    ? ENV_TYPE.STG
+    : ENV_TYPE.PROD,
 } as const
 
 export const {
-  MAINNET_ENV, // for logging, tracking
   GOOGLE_RECAPTCHA_KEY,
   PRICE_API,
   AGGREGATOR_API,
@@ -68,6 +85,7 @@ export const {
   CAMPAIGN_BASE_URL,
   GTM_ID,
   TAG,
+  ENV_LEVEL,
 } = ENV
 
-MAINNET_ENV !== 'production' && console.info({ ENV })
+ENV_LEVEL < ENV_TYPE.PROD && console.info({ ENV })
