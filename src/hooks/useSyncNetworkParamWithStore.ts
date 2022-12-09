@@ -9,7 +9,7 @@ import { useChangeNetwork } from './useChangeNetwork'
 export function useSyncNetworkParamWithStore() {
   const params = useParams<{ network?: string }>()
   const changeNetwork = useChangeNetwork()
-  const { networkInfo, walletEVM, walletSolana } = useActiveWeb3React()
+  const { networkInfo, walletEVM, walletSolana, chainId } = useActiveWeb3React()
   const isOnInit = useRef(true)
   const navigate = useNavigate()
   const triedEager = useEagerConnect()
@@ -58,12 +58,15 @@ export function useSyncNetworkParamWithStore() {
   ])
 
   useEffect(() => {
+    if (NETWORKS_INFO[chainId].route === requestingNetwork) setRequestingNetwork(undefined)
+  }, [chainId, requestingNetwork])
+
+  useEffect(() => {
     /**
      * Sync network route param with current active network, only after eager tried
      */
-
     if (
-      requestingNetwork !== params?.network &&
+      ((requestingNetwork && requestingNetwork !== params?.network) || !requestingNetwork) &&
       params.network &&
       networkInfo.route !== params?.network &&
       !isOnInit.current &&
