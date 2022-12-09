@@ -129,7 +129,7 @@ export const Rate = ({
   }
   return (
     <Value
-      style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+      style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', maxWidth: 290 }}
       onClick={() => setInvertRate(!invertRate)}
     >
       <Text>{`1 ${invertRate ? symbolOut : symbolIn} is equal to ${rateStr} ${
