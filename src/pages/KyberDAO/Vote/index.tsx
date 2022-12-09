@@ -57,7 +57,6 @@ const Container = styled.div`
   ${({ theme }) => theme.mediaWidth.upToLarge`
     width:100%;
     padding: 48px 16px;
-
   `}
 `
 
@@ -215,7 +214,7 @@ export default function Vote() {
         return Promise.reject(error)
       }
     },
-    [vote],
+    [vote, mixpanelHandler],
   )
 
   return (

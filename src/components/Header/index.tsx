@@ -1,8 +1,9 @@
 import { Trans, t } from '@lingui/macro'
 import { darken } from 'polished'
-import { useState } from 'react'
+import { CSSProperties, forwardRef, useState } from 'react'
 import { Repeat } from 'react-feather'
-import { Link, NavLink, useLocation } from 'react-router-dom'
+import { NavLink as BaseNavLink, Link, NavLinkProps, useLocation } from 'react-router-dom'
+import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled, { css, keyframes } from 'styled-components'
 
@@ -11,8 +12,9 @@ import { ReactComponent as Visa } from 'assets/buy-crypto/visa.svg'
 import MultichainLogoDark from 'assets/images/multichain_black.png'
 import MultichainLogoLight from 'assets/images/multichain_white.png'
 import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
-import { ReactComponent as Dollar } from 'assets/svg/dollar.svg'
+import { ReactComponent as BuyCrypto } from 'assets/svg/buy_crypto.svg'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
+import { ReactComponent as LimitOrderIcon } from 'assets/svg/limit_order.svg'
 import SelectNetwork from 'components/Header/web3/SelectNetwork'
 import SelectWallet from 'components/Header/web3/SelectWallet'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
@@ -24,13 +26,33 @@ import Row, { RowFixed } from 'components/Row'
 import Settings from 'components/Settings'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import { AGGREGATOR_ANALYTICS_URL, APP_PATHS, PROMM_ANALYTICS_URL } from 'constants/index'
+import { AGGREGATOR_ANALYTICS_URL, APP_PATHS, PROMM_ANALYTICS_URL, SUPPORT_LIMIT_ORDER } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import { useWindowSize } from 'hooks/useWindowSize'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
 import { ExternalLink } from 'theme/components'
+
+interface Props extends NavLinkProps {
+  activeClassName?: string
+  activeStyle?: CSSProperties
+}
+// fix warning of activeClassName: https://reactrouter.com/en/6.4.5/upgrading/v5#remove-activeclassname-and-activestyle-props-from-navlink-
+const NavLink = forwardRef(({ activeClassName, activeStyle, ...props }: Props, ref: any) => {
+  return (
+    <BaseNavLink
+      ref={ref}
+      {...props}
+      className={({ isActive }) => [props.className, isActive ? activeClassName : null].filter(Boolean).join(' ')}
+      style={({ isActive }) => ({
+        ...props.style,
+        ...(isActive ? activeStyle : null),
+      })}
+    />
+  )
+})
+
+NavLink.displayName = 'NavLink'
 
 const VisaSVG = styled(Visa)`
   path {
@@ -60,6 +82,7 @@ const HeaderFrame = styled.div`
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
    padding: 0.5rem 1rem;
+   height: 60px;
   `}
 `
 
@@ -83,6 +106,9 @@ const HeaderControls = styled.div`
     height: 72px;
     border-radius: 12px 12px 0 0;
     background-color: ${({ theme }) => theme.background};
+  `};
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+      height: 60px;
   `};
 `
 
@@ -343,21 +369,16 @@ const HoverDropdown = styled.div<{ active: boolean; forceShowDropdown?: boolean 
     ${cssDropDown}
   }
 `
-const StyledBridgeIcon = styled(BridgeIcon)`
-  path {
-    fill: currentColor;
-  }
-`
+
 export default function Header() {
   const { chainId, isEVM, isSolana, walletKey } = useActiveWeb3React()
 
+  const upTo420 = useMedia('(max-width: 420px)')
   const isDark = useIsDarkMode()
   const { pathname } = useLocation()
   const [isHoverSlide, setIsHoverSlide] = useState(false)
 
-  const { width } = useWindowSize()
   const [{ show: isShowTutorial = false, stepInfo }] = useTutorialSwapGuide()
-  const under369 = width && width < 369
   const { mixpanelHandler } = useMixpanel()
   return (
     <HeaderFrame>
@@ -376,32 +397,21 @@ export default function Header() {
               <Trans>Swap</Trans>
               <DropdownIcon />
             </Flex>
-
             <Dropdown>
-              <StyledNavLink id={`swapv2-nav-link`} to={'/swap'}>
+              <StyledNavLink id={`swapv2-nav-link`} to={APP_PATHS.SWAP}>
                 <Repeat size={16} />
                 <Trans>Swap</Trans>
               </StyledNavLink>
-              <div id={TutorialIds.BRIDGE_LINKS}>
-                <StyledNavLink
-                  id={`buy-crypto-nav-link`}
-                  to={APP_PATHS.BUY_CRYPTO}
-                  onClick={() => {
-                    mixpanelHandler(MIXPANEL_TYPE.SWAP_BUY_CRYPTO_CLICKED)
-                  }}
-                >
-                  <Dollar />
-                  <Text flex={1}>
-                    <Trans>Buy Crypto</Trans>
-                  </Text>
-                  <Flex sx={{ gap: '8px' }}>
-                    <VisaSVG width="20" height="20" />
-                    <MasterCard width="20" height="20" />
-                  </Flex>
+              {SUPPORT_LIMIT_ORDER && (
+                <StyledNavLink to={APP_PATHS.LIMIT} style={{ flexDirection: 'column' }}>
+                  <LimitOrderIcon />
+                  <Trans>Limit Order</Trans>
                 </StyledNavLink>
+              )}
+              <div id={TutorialIds.BRIDGE_LINKS}>
                 {isSolana || (
                   <StyledNavLink to={APP_PATHS.BRIDGE}>
-                    <StyledBridgeIcon height={15} />
+                    <BridgeIcon height={15} />
                     <Text flex={1}>
                       <Trans>Bridge</Trans>
                     </Text>
@@ -412,6 +422,22 @@ export default function Header() {
                     />
                   </StyledNavLink>
                 )}
+                <StyledNavLink
+                  id={`buy-crypto-nav-link`}
+                  to={APP_PATHS.BUY_CRYPTO}
+                  onClick={() => {
+                    mixpanelHandler(MIXPANEL_TYPE.SWAP_BUY_CRYPTO_CLICKED)
+                  }}
+                >
+                  <BuyCrypto />
+                  <Text flex={1}>
+                    <Trans>Buy Crypto</Trans>
+                  </Text>
+                  <Flex sx={{ gap: '8px' }}>
+                    <VisaSVG width="20" height="20" />
+                    <MasterCard width="20" height="20" />
+                  </Flex>
+                </StyledNavLink>
               </div>
             </Dropdown>
           </HoverDropdown>
@@ -451,9 +477,9 @@ export default function Header() {
             </Flex>
           )}
 
-          {!under369 && (
+          {!upTo420 && (
             <CampaignWrapper id={TutorialIds.CAMPAIGN_LINK}>
-              <StyledNavLink id={`campaigns`} to={'/campaigns'}>
+              <StyledNavLink id="campaigns" to={APP_PATHS.CAMPAIGN}>
                 <Trans>Campaigns</Trans>
               </StyledNavLink>
             </CampaignWrapper>

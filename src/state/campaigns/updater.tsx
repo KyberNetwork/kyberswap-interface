@@ -99,7 +99,6 @@ const fetchLeaderBoard = ({
       pageNumber,
       userAddress,
       lookupAddress,
-      eligibleOnly: true,
     },
   }).then(({ data }) => formatLeaderboardData(data.data))
 }
@@ -108,7 +107,7 @@ const LEADERBOARD_DEFAULT: CampaignLeaderboard = {
   finalizedAt: 0,
   distributedRewardsAt: 0,
   userRank: 0,
-  numberOfEligibleParticipants: 0,
+  totalParticipants: 0,
   rankings: [],
   rewards: [],
 }
@@ -174,9 +173,13 @@ export default function CampaignsUpdater(): null {
         const STATUS_PRIORITY = Object.values(CampaignStatus)
         const a_status_index = STATUS_PRIORITY.indexOf(a_status)
         const b_status_index = STATUS_PRIORITY.indexOf(b_status)
-        if (a_status_index !== b_status_index) return a_status_index - b_status_index
-        if (a.startTime !== b.startTime) return b.startTime - a.startTime
-        return b.endTime - a.endTime
+
+        if (a_status_index !== b_status_index) {
+          return a_status_index - b_status_index
+        }
+        const rev = a_status === CampaignStatus.UPCOMING ? -1 : 1
+        if (a.startTime !== b.startTime) return (b.startTime - a.startTime) * rev
+        return (b.endTime - a.endTime) * rev
       })
     const formattedCampaigns: CampaignData[] = campaigns.map((campaign: any) => {
       const rewardDistribution: RewardDistribution[] = []
@@ -289,13 +292,13 @@ export default function CampaignsUpdater(): null {
     dispatch(setCampaignData({ campaigns: campaignData ?? [] }))
     if (campaignData && campaignData.length) {
       if (selectedCampaignId === undefined) {
-        navigate(getSlugUrlCampaign(campaignData[0]))
+        navigate(getSlugUrlCampaign(campaignData[0].id, campaignData[0].name))
       } else {
         const selectedCampaign = campaignData.find(campaign => campaign.id.toString() === selectedCampaignId)
         if (selectedCampaign) {
           dispatch(setSelectedCampaign({ campaign: selectedCampaign }))
         } else {
-          navigate(getSlugUrlCampaign(campaignData[0]))
+          navigate(getSlugUrlCampaign(campaignData[0].id, campaignData[0].name))
         }
       }
     }

@@ -117,13 +117,9 @@ export const defaultShowLiveCharts: { [chainId in ChainId]: boolean } = {
   [ChainId.OPTIMISM]: true,
   [ChainId.SOLANA]: true,
 
-  [ChainId.ROPSTEN]: false,
-  [ChainId.RINKEBY]: false,
   [ChainId.GÖRLI]: false,
-  [ChainId.KOVAN]: false,
   [ChainId.MUMBAI]: false,
   [ChainId.BSCTESTNET]: false,
-  [ChainId.CRONOSTESTNET]: false,
   [ChainId.AVAXTESTNET]: false,
   [ChainId.ARBITRUM_TESTNET]: false,
   [ChainId.ETHW]: true,
@@ -227,8 +223,8 @@ export default createReducer(initialState, builder =>
       }
       state.showLiveCharts[chainId] = !state.showLiveCharts[chainId]
     })
-    .addCase(toggleProLiveChart, state => {
-      state.showProLiveChart = !state.showProLiveChart
+    .addCase(toggleProLiveChart, (state, { payload: showProLiveChart }) => {
+      state.showProLiveChart = showProLiveChart !== undefined ? showProLiveChart : !state.showProLiveChart
     })
     .addCase(toggleTradeRoutes, state => {
       state.showTradeRoutes = !state.showTradeRoutes

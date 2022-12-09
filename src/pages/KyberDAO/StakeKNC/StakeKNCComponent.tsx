@@ -385,7 +385,7 @@ export default function StakeKNCComponent() {
         })
     }
     toggleDelegateConfirm()
-  }, [delegate, delegateAddress, account, delegatedAddress, toggleDelegateConfirm, undelegate])
+  }, [delegate, delegateAddress, account, delegatedAddress, toggleDelegateConfirm, undelegate, mixpanelHandler])
 
   const kncPrice = useKNCPrice()
   const kncValueInUsd = useMemo(() => {

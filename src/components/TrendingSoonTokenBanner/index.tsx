@@ -3,7 +3,7 @@ import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { CSSProperties, memo, useMemo } from 'react'
 import { Flex } from 'rebass'
-import styled, { keyframes } from 'styled-components'
+import styled from 'styled-components'
 
 import CurrencyLogo from 'components/CurrencyLogo'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
@@ -11,27 +11,29 @@ import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import useGetTrendingSoonTokenId from 'pages/TrueSight/hooks/useGetTrendingSoonTokenId'
-import { Field } from 'state/swap/actions'
 import { ExternalLink } from 'theme'
+import { FadeIn } from 'utils/keyframes'
 
 const TrendingSoonTokenBanner = ({
-  currencies,
+  currencyIn,
+  currencyOut,
   style,
 }: {
-  currencies: { [field in Field]?: Currency }
   style?: CSSProperties
+  currencyIn: Currency | undefined
+  currencyOut: Currency | undefined
 }) => {
   const { chainId } = useActiveWeb3React()
   const theme = useTheme()
   const { mixpanelHandler } = useMixpanel()
 
-  const token0 = currencies[Field.INPUT]?.wrapped
-  const token1 = currencies[Field.OUTPUT]?.wrapped
+  const token0 = currencyIn?.wrapped
+  const token1 = currencyOut?.wrapped
   const trendingToken0Id = useGetTrendingSoonTokenId(token0)
   const trendingToken1Id = useGetTrendingSoonTokenId(token1)
   const trendingSoonCurrency = useMemo(
-    () => (trendingToken0Id ? currencies[Field.INPUT] : trendingToken1Id ? currencies[Field.OUTPUT] : undefined),
-    [currencies, trendingToken0Id, trendingToken1Id],
+    () => (trendingToken0Id ? currencyIn : trendingToken1Id ? currencyOut : undefined),
+    [currencyIn, currencyOut, trendingToken0Id, trendingToken1Id],
   )
 
   if (trendingSoonCurrency === undefined) return null
@@ -64,16 +66,6 @@ const TrendingSoonTokenBanner = ({
   )
 }
 
-const fadeIn = keyframes`
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-`
-
 const Container = styled.div`
   background: ${({ theme }) => rgba(theme.primary, 0.25)};
   border-radius: 999px;
@@ -82,7 +74,7 @@ const Container = styled.div`
   grid-template-columns: auto 1fr;
   row-gap: 4px;
   column-gap: 8px;
-  animation: ${fadeIn} 0.3s linear;
+  animation: ${FadeIn} 0.3s linear;
 `
 
 const DiscoverIconWrapper = styled.div`

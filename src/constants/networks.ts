@@ -12,18 +12,14 @@ import {
   bnbTestnet,
   bttc,
   cronos,
-  cronosTestnet,
   ethereum,
   ethw,
   fantom,
   görli,
-  kovan,
   matic,
   mumbai,
   oasis,
   optimism,
-  rinkeby,
-  ropsten,
   solana,
   velas,
 } from './networks/index'
@@ -35,10 +31,7 @@ type NETWORKS_INFO_CONFIG_TYPE = { [chainId in EVM_NETWORK]: EVMNetworkInfo } & 
 export const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.MAINNET]: ethereum,
   [ChainId.ETHW]: ethw,
-  [ChainId.ROPSTEN]: ropsten,
-  [ChainId.RINKEBY]: rinkeby,
   [ChainId.GÖRLI]: görli,
-  [ChainId.KOVAN]: kovan,
   [ChainId.MATIC]: matic,
   [ChainId.MUMBAI]: mumbai,
   [ChainId.BSCMAINNET]: bnb,
@@ -47,7 +40,6 @@ export const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.AVAXTESTNET]: avaxTestnet,
   [ChainId.FANTOM]: fantom,
   [ChainId.CRONOS]: cronos,
-  [ChainId.CRONOSTESTNET]: cronosTestnet,
   [ChainId.ARBITRUM]: arbitrum,
   [ChainId.ARBITRUM_TESTNET]: arbitrumTestnet,
   [ChainId.BTTC]: bttc,
@@ -71,20 +63,21 @@ export const SUPPORTED_NETWORKS = Object.keys(NETWORKS_INFO).map(Number) as Chai
 
 export const MAINNET_NETWORKS = [
   ChainId.MAINNET,
-  ChainId.ETHW,
-  ChainId.MATIC,
   ChainId.BSCMAINNET,
+  ChainId.MATIC,
   ChainId.AVAXMAINNET,
-  ChainId.FANTOM,
-  ChainId.CRONOS,
   ChainId.ARBITRUM,
-  ChainId.BTTC,
-  ChainId.VELAS,
-  ChainId.AURORA,
-  ChainId.OASIS,
   ChainId.OPTIMISM,
   ChainId.SOLANA,
+  ChainId.BTTC,
+  ChainId.OASIS,
+  ChainId.FANTOM,
+  ChainId.CRONOS,
+  ChainId.VELAS,
+  ChainId.AURORA,
+  ChainId.ETHW,
 ] as const
+
 export type MAINNET_NETWORK = typeof MAINNET_NETWORKS[number]
 
 export const EVM_NETWORKS = SUPPORTED_NETWORKS.filter(chainId => getChainType(chainId) === ChainType.EVM) as Exclude<
@@ -101,7 +94,6 @@ export type EVM_MAINNET_NETWORK = typeof EVM_MAINNET_NETWORKS[number]
 export const WALLET_CONNECT_SUPPORTED_CHAIN_IDS: ChainId[] = [
   ChainId.MAINNET,
   ChainId.ETHW,
-  ChainId.ROPSTEN,
   ChainId.MUMBAI,
   ChainId.MATIC,
   ChainId.BSCTESTNET,
@@ -109,7 +101,6 @@ export const WALLET_CONNECT_SUPPORTED_CHAIN_IDS: ChainId[] = [
   ChainId.AVAXTESTNET,
   ChainId.AVAXMAINNET,
   ChainId.FANTOM,
-  ChainId.CRONOSTESTNET,
   ChainId.CRONOS,
   ChainId.BTTC,
   ChainId.ARBITRUM,
@@ -144,7 +135,7 @@ export const TRUESIGHT_NETWORK_TO_CHAINID: NetToChain = SUPPORTED_NETWORKS.reduc
   return acc
 }, {} as NetToChain) as NetToChain
 
-export const FAUCET_NETWORKS = [ChainId.BTTC, ChainId.RINKEBY]
+export const FAUCET_NETWORKS = [ChainId.BTTC]
 export const CHAINS_SUPPORT_NEW_POOL_FARM_API = [
   ChainId.OPTIMISM,
   ChainId.AVAXMAINNET,

@@ -18,7 +18,7 @@ import Loader from 'components/LocalLoader'
 import Modal from 'components/Modal'
 import Popups from 'components/Popups'
 import Web3ReactManager from 'components/Web3ReactManager'
-import { APP_PATHS, BLACKLIST_WALLETS } from 'constants/index'
+import { APP_PATHS, BLACKLIST_WALLETS, SUPPORT_LIMIT_ORDER } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useGlobalMixpanelEvents } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
@@ -78,6 +78,7 @@ const TrueSight = lazy(() => import(/* webpackChunkName: 'true-sight-page' */ '.
 const BuyCrypto = lazy(() => import(/* webpackChunkName: 'true-sight-page' */ './BuyCrypto'))
 
 const Campaign = lazy(() => import(/* webpackChunkName: 'campaigns-page' */ './Campaign'))
+const GrantProgramPage = lazy(() => import(/* webpackChunkName: 'grant-program-page' */ './GrantProgram'))
 
 const AppWrapper = styled.div`
   display: flex;
@@ -103,6 +104,7 @@ const BodyWrapper = styled.div`
 
   ${isMobile && `overflow-x: hidden;`}
 `
+
 export default function App() {
   const { account, chainId, networkInfo } = useActiveWeb3React()
 
@@ -203,6 +205,15 @@ export default function App() {
                     <Route path={`${APP_PATHS.SWAP}/:network/:fromCurrency-to-:toCurrency`} element={<SwapV2 />} />
                     <Route path={`${APP_PATHS.SWAP}/:network/:fromCurrency`} element={<SwapV2 />} />
                     <Route path={`${APP_PATHS.SWAP}/:network`} element={<SwapV2 />} />
+
+                    {SUPPORT_LIMIT_ORDER && (
+                      <>
+                        <Route path={`${APP_PATHS.LIMIT}/:network/:fromCurrency-to-:toCurrency`} element={<SwapV2 />} />
+                        <Route path={`${APP_PATHS.LIMIT}/:network/:fromCurrency`} element={<SwapV2 />} />
+                        <Route path={`${APP_PATHS.LIMIT}/:network`} element={<SwapV2 />} />
+                      </>
+                    )}
+
                     <Route path={`${APP_PATHS.FIND_POOL}`} element={<PoolFinder />} />
                     <Route path={`${APP_PATHS.POOLS}/:network`} element={<Pools />} />
                     <Route path={`${APP_PATHS.POOLS}/:network/:currencyIdA`} element={<Pools />} />
@@ -266,6 +277,8 @@ export default function App() {
                     <Route path={`${APP_PATHS.BRIDGE}`} element={<Bridge />} />
                     <Route path={`${APP_PATHS.VERIFY}`} element={<Verify />} />
                     <Route path={`${APP_PATHS.VERIFY_EXTERNAL}`} element={<Verify />} />
+                    <Route path={`${APP_PATHS.GRANT_PROGRAMS}`} element={<GrantProgramPage />} />
+                    <Route path={`${APP_PATHS.GRANT_PROGRAMS}/:slug`} element={<GrantProgramPage />} />
 
                     <Route path="*" element={<RedirectPathToSwapNetwork />} />
                   </Routes>
