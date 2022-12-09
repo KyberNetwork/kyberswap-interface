@@ -472,7 +472,7 @@ export default function StakeKNCComponent() {
               <Text fontSize={12} fontStyle="italic" color={theme.subText} style={{ textDecoration: 'italic' }}>
                 <Trans>
                   *By using KyberDAO, you agree to the{' '}
-                  <a href="https://files.kyber.network/dao-tac.pdf" target="_blank" rel="noreferrer">
+                  <a href="/files/dao-tac.pdf" target="_blank" rel="noreferrer">
                     Terms of Use
                   </a>
                 </Trans>
