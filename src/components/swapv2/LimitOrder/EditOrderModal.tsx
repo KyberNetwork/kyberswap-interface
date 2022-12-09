@@ -45,16 +45,16 @@ export default function EditOrderModal({
   const { status, makingAmount, takingAmount, makerAsset, takerAsset, filledTakingAmount, expiredAt } = order
   const currencyIn = useCurrencyV2(makerAsset) ?? undefined
   const currencyOut = useCurrencyV2(takerAsset) ?? undefined
-  const inputAmount = uint256ToFraction(makingAmount).toFixed(currencyIn?.decimals ?? 16)
-  const outputAmount = uint256ToFraction(takingAmount).toFixed(currencyOut?.decimals ?? 16)
+  const inputAmount = currencyIn ? uint256ToFraction(makingAmount).toFixed(currencyIn.decimals) : ''
+  const outputAmount = currencyOut ? uint256ToFraction(takingAmount).toFixed(currencyOut.decimals) : ''
   const formatIn = inputAmount ? removeTrailingZero(inputAmount) : inputAmount
   const formatOut = outputAmount ? removeTrailingZero(outputAmount) : outputAmount
   const defaultExpire = new Date(expiredAt * 1000)
-  const rate = calcRate(formatIn, formatOut, currencyOut?.decimals ?? 18)
+  const rate = currencyOut ? calcRate(formatIn, formatOut, currencyOut.decimals) : ''
   const defaultRate: RateInfo = { rate, invertRate: calcInvert(rate), invert: false }
   const filled = calcPercentFilledOrder(filledTakingAmount, takingAmount)
   return (
-    <Modal isOpen={isOpen} onDismiss={onDismiss}>
+    <Modal isOpen={isOpen && !!currencyIn && !!currencyOut} onDismiss={onDismiss}>
       <Wrapper>
         <Flex justifyContent={'space-between'} alignItems="center">
           <Text>
