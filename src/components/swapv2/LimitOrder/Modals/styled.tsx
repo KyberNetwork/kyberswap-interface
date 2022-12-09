@@ -133,9 +133,9 @@ export const Rate = ({
       onClick={() => setInvertRate(!invertRate)}
     >
       <Text>
-        <Trans>{`1 ${invertRate ? symbolOut : symbolIn} is equal to ${rateStr} ${
-          invertRate ? symbolIn : symbolOut
-        }`}</Trans>
+        <Trans>
+          1 {invertRate ? symbolOut : symbolIn} is equal to {rateStr} {invertRate ? symbolIn : symbolOut}
+        </Trans>
       </Text>
       <SwapIcon rotate={90} size={19} />
     </Value>
