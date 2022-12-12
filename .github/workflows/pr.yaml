@@ -112,7 +112,7 @@ jobs:
           CI: false
           REACT_APP_TAG: ${{ needs.prepare.outputs.image_tag }}
           CURRENT_BRANCH: ${{ needs.prepare.outputs.current_branch }}
-        run: yarn --max-old-space-size=4096 build
+        run: yarn --max-old-space-size=8192 build
 
       - name: Docker build and push
         uses: docker/build-push-action@v2
