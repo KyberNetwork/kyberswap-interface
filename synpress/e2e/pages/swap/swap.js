@@ -1,46 +1,44 @@
-import Page from "../page";
+import Page from '../page'
 
 export default class Swap extends Page {
   getInputAmountTxt() {
-    return cy.get("#swap-currency-input .token-amount-input");
+    return cy.get('#swap-currency-input .token-amount-input')
   }
 
   getTokenInOption() {
-    return cy.get("#swap-currency-input .token-symbol-container");
+    return cy.get('#swap-currency-input .token-symbol-container')
   }
 
   getTokenOutOption() {
-    return cy.get("#swap-currency-output .token-symbol-container");
+    return cy.get('#swap-currency-output .token-symbol-container')
   }
 
   getTokenSearchBox() {
-    return cy.get("#token-search-input");
+    return cy.get('#token-search-input')
   }
 
   getSwapButton() {
-    return cy.get("#swap-button");
+    return cy.get('#swap-button')
   }
 
   getTokenSearchByName(name) {
-    cy.wait(700);
-    return cy.get(`div[title='${name}']`).first();
+    cy.wait(700)
+    return cy.get(`div[title='${name}']`).first()
   }
 
   getRoutePercentLabel() {
-    return cy.xpath("//div[contains(@class,'StyledPercent')]");
+    return cy.xpath("//div[contains(@class,'StyledPercent')]")
   }
 
   getMoreInfoBtn() {
-    return cy.contains("div", "MORE INFORMATION");
+    return cy.contains('div', 'MORE INFORMATION')
   }
 
   getPriceImpactLabel() {
-    return cy.xpath(
-      "//*[contains(@class,'AdvancedSwapDetailsDropdown')]//div[contains(text(),'%')]"
-    );
+    return cy.xpath("//*[contains(@class,'AdvancedSwapDetailsDropdown')]//div[contains(text(),'%')]")
   }
 
   getWaringMessage(content) {
-    return cy.contains(content).should("be.visible");
+    return cy.contains(content).should('be.visible')
   }
 }

@@ -40,6 +40,7 @@ module.exports = {
     'plugin:@typescript-eslint/recommended',
     'plugin:react-hooks/recommended',
     'plugin:prettier/recommended',
+    'plugin:cypress/recommended',
   ],
   plugins: ['better-styled-components', 'unused-imports'],
   rules: {

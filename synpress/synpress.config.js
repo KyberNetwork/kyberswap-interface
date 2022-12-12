@@ -1,4 +1,3 @@
-const log = require('debug')('synpress:config')
 const path = require('path')
 const { defineConfig } = require('cypress')
 const synpressPath = path.join(process.cwd(), '../node_modules/@synthetixio/synpress')
