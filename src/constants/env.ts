@@ -59,6 +59,7 @@ const ENV = {
     : ENV_TYPE.PROD,
   LIMIT_ORDER_API_READ: required('LIMIT_ORDER_API_READ'),
   LIMIT_ORDER_API_WRITE: required('LIMIT_ORDER_API_WRITE'),
+  KYBER_DAO_STATS_API: required('KYBER_DAO_STATS_API'),
 } as const
 
 export const {
@@ -88,6 +89,7 @@ export const {
   ENV_LEVEL,
   LIMIT_ORDER_API_READ,
   LIMIT_ORDER_API_WRITE,
+  KYBER_DAO_STATS_API,
 } = ENV
 
 ENV_LEVEL < ENV_TYPE.PROD && console.info({ ENV })
