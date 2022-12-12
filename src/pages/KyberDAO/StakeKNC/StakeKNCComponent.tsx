@@ -565,9 +565,23 @@ export default function StakeKNCComponent() {
                   </Text>
                 }
               />
-              <ButtonPrimary margin="8px 0px" onClick={handleDelegate} disabled={!!errorMessage}>
-                {errorMessage || <Trans>Delegate</Trans>}
-              </ButtonPrimary>
+              {account ? (
+                <ButtonPrimary margin="8px 0px" onClick={handleDelegate} disabled={!!errorMessage}>
+                  {errorMessage || <Trans>Delegate</Trans>}
+                </ButtonPrimary>
+              ) : (
+                <ButtonLight onClick={toggleWalletModal}>
+                  <InfoHelper
+                    size={20}
+                    fontSize={12}
+                    color={theme.primary}
+                    text={t`Delegate is only available on Ethereum chain`}
+                    style={{ marginRight: '5px' }}
+                    placement="top"
+                  />
+                  <Trans>Connect Wallet</Trans>
+                </ButtonLight>
+              )}
             </>
           )}
         </StakeForm>
