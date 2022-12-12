@@ -7,7 +7,7 @@ let metamaskWalletAddress
 
 describe('Swap Test On With Connect MetaMask Wallet', () => {
   before(() => {
-    cy.switchMetamaskAccount
+    cy.switchMetamaskAccount()
     cy.addMetamaskNetwork({
       networkName: 'Binance Smart Chain Mainnet',
       rpcUrl: 'https://bsc.kyberengineering.io',
@@ -50,6 +50,7 @@ describe('Swap Test On With Connect MetaMask Wallet', () => {
         const percent = swapPage.getRoute()
         expect(percent).not.to.be.equal('')
         const priceImpact = swapPage.getPriImpact()
+        // eslint-disable-next-line no-unused-expressions
         expect(priceImpact).to.be.true
       })
     })

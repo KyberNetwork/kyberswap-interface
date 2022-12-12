@@ -22,6 +22,7 @@ export default class Swap extends Page {
   }
 
   getTokenSearchByName(name) {
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(700)
     return cy.get(`div[title='${name}']`).first()
   }
