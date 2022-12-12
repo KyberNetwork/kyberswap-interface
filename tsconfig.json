@@ -26,6 +26,6 @@
     "baseUrl": "src",
     "useUnknownInCatchVariables": false
   },
-  "exclude": ["node_modules", "cypress"],
-  "include": ["./src/**/*.ts", "./src/**/*.tsx","./synpress/**/*.*"]
+  "exclude": ["node_modules", "synpress"],
+  "include": ["./src/**/*.ts", "./src/**/*.tsx"]
 }
