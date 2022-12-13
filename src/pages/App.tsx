@@ -2,7 +2,7 @@ import { datadogRum } from '@datadog/browser-rum'
 import { Trans, t } from '@lingui/macro'
 import * as Sentry from '@sentry/react'
 import { Popover, Sidetab } from '@typeform/embed-react'
-import { Suspense, lazy, useEffect } from 'react'
+import { Suspense, useEffect } from 'react'
 import { isMobile } from 'react-device-detect'
 import { AlertTriangle } from 'react-feather'
 import { Route, Routes } from 'react-router-dom'
@@ -27,56 +27,34 @@ import { useIsDarkMode } from 'state/user/hooks'
 import DarkModeQueryParamReader from 'theme/DarkModeQueryParamReader'
 import { isAddressString, shortenAddress } from 'utils'
 
+import AboutKNC from './About/AboutKNC'
+import AboutKyberSwap from './About/AboutKyberSwap'
+import AddLiquidity from './AddLiquidity'
 import { RedirectDuplicateTokenIds } from './AddLiquidityV2/redirects'
+import Bridge from './Bridge'
+import BuyCrypto from './BuyCrypto'
+import Campaign from './Campaign'
+import CreatePool from './CreatePool'
+import RedirectCreatePoolDuplicateTokenIds from './CreatePool/RedirectDuplicateTokenIds'
+import RedirectOldCreatePoolPathStructure from './CreatePool/RedirectOldCreatePoolPathStructure'
+import CreateReferral from './CreateReferral'
+import Farm from './Farm'
 import { RedirectPathToFarmNetwork } from './Farm/redirect'
+import GrantProgram from './GrantProgram'
+import IncreaseLiquidity from './IncreaseLiquidity'
+import Pool from './Pool'
 import { RedirectPathToMyPoolsNetwork } from './Pool/redirect'
+import PoolFinder from './PoolFinder'
+import Pools from './Pools'
 import { RedirectPathToPoolsNetwork } from './Pools/redirect'
-import { RedirectPathToSwapNetwork } from './SwapV2/redirects'
-import Verify from './Verify'
-
+import RemoveLiquidity from './RemoveLiquidity'
+import ProAmmRemoveLiquidity from './RemoveLiquidityProAmm'
 // Route-based code splitting
-const Swap = lazy(() => import(/* webpackChunkName: 'swap-page' */ './Swap'))
-const SwapV2 = lazy(() => import(/* webpackChunkName: 'swapv2-page' */ './SwapV2'))
-const Bridge = lazy(() => import(/* webpackChunkName: 'bridge-page' */ './Bridge'))
-const Pools = lazy(() => import(/* webpackChunkName: 'pools-page' */ './Pools'))
-const Pool = lazy(() => import(/* webpackChunkName: 'my-pool-page' */ './Pool'))
-
-const Farm = lazy(() => import(/* webpackChunkName: 'yield-page' */ './Farm'))
-
-const PoolFinder = lazy(() => import(/* webpackChunkName: 'pool-finder-page' */ './PoolFinder'))
-const CreatePool = lazy(() => import(/* webpackChunkName: 'create-pool-page' */ './CreatePool'))
-const ProAmmRemoveLiquidity = lazy(
-  () => import(/* webpackChunkName: 'elastic-remove-liquidity-page' */ './RemoveLiquidityProAmm'),
-)
-const RedirectCreatePoolDuplicateTokenIds = lazy(
-  () =>
-    import(
-      /* webpackChunkName: 'redirect-create-pool-duplicate-token-ids-page' */ './CreatePool/RedirectDuplicateTokenIds'
-    ),
-)
-const RedirectOldCreatePoolPathStructure = lazy(
-  () =>
-    import(
-      /* webpackChunkName: 'redirect-old-create-pool-path-structure-page' */ './CreatePool/RedirectOldCreatePoolPathStructure'
-    ),
-)
-
-const AddLiquidity = lazy(() => import(/* webpackChunkName: 'add-liquidity-page' */ './AddLiquidity'))
-const IncreaseLiquidity = lazy(() => import(/* webpackChunkName: 'add-liquidity-page' */ './IncreaseLiquidity'))
-
-const RemoveLiquidity = lazy(() => import(/* webpackChunkName: 'remove-liquidity-page' */ './RemoveLiquidity'))
-
-const AboutKyberSwap = lazy(() => import(/* webpackChunkName: 'about-page' */ './About/AboutKyberSwap'))
-const AboutKNC = lazy(() => import(/* webpackChunkName: 'about-knc' */ './About/AboutKNC'))
-
-const CreateReferral = lazy(() => import(/* webpackChunkName: 'create-referral-page' */ './CreateReferral'))
-
-const TrueSight = lazy(() => import(/* webpackChunkName: 'true-sight-page' */ './TrueSight'))
-
-const BuyCrypto = lazy(() => import(/* webpackChunkName: 'true-sight-page' */ './BuyCrypto'))
-
-const Campaign = lazy(() => import(/* webpackChunkName: 'campaigns-page' */ './Campaign'))
-const GrantProgramPage = lazy(() => import(/* webpackChunkName: 'grant-program-page' */ './GrantProgram'))
+import Swap from './Swap'
+import SwapV2 from './SwapV2'
+import { RedirectPathToSwapNetwork } from './SwapV2/redirects'
+import TrueSight from './TrueSight'
+import Verify from './Verify'
 
 const AppWrapper = styled.div`
   display: flex;
@@ -273,8 +251,8 @@ export default function App() {
                     <Route path={`${APP_PATHS.BRIDGE}`} element={<Bridge />} />
                     <Route path={`${APP_PATHS.VERIFY}`} element={<Verify />} />
                     <Route path={`${APP_PATHS.VERIFY_EXTERNAL}`} element={<Verify />} />
-                    <Route path={`${APP_PATHS.GRANT_PROGRAMS}`} element={<GrantProgramPage />} />
-                    <Route path={`${APP_PATHS.GRANT_PROGRAMS}/:slug`} element={<GrantProgramPage />} />
+                    <Route path={`${APP_PATHS.GRANT_PROGRAMS}`} element={<GrantProgram />} />
+                    <Route path={`${APP_PATHS.GRANT_PROGRAMS}/:slug`} element={<GrantProgram />} />
 
                     <Route path="*" element={<RedirectPathToSwapNetwork />} />
                   </Routes>

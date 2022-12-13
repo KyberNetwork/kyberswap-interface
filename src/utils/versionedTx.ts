@@ -8,10 +8,10 @@ import {
   VersionedTransaction,
 } from '@solana/web3.js'
 
+import { LOOKUP_TABLES_BY_POOL } from 'constants/lookupTablesByPool'
 import connection from 'state/connection/connection'
 import { filterTruthy } from 'utils'
 
-const lookupTablesByPool = import(/* webpackChunkName: 'lookupTablesByPool' */ 'constants/lookupTablesByPool')
 /**
  * @param {Connection} connection Web3.js connection
  * @param {Commitment} commitment The level of commitment desired when querying state
@@ -28,7 +28,6 @@ export async function convertToVersionedTx(
   preTxs?: TransactionInstruction[] | null | undefined,
   postTxs?: TransactionInstruction[] | null | undefined,
 ): Promise<VersionedTransaction> {
-  const LOOKUP_TABLES_BY_POOL = (await lookupTablesByPool).LOOKUP_TABLES_BY_POOL
   // get tables that can be used in this message
   const lookupTableAddrs: Array<PublicKey> = []
   for (const pubkey of message.accountKeys) {
