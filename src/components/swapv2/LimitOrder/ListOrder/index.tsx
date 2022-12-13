@@ -150,22 +150,27 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
     setCurPage(1)
   }
 
-  const currentOrderType = useRef(orderType)
-  currentOrderType.current = orderType
+  const controller = useRef(new AbortController())
   const fetchListOrder = useCallback(
     async (orderType: LimitOrderStatus, query: string, curPage: number) => {
       try {
+        if (account) {
+          controller.current.abort()
+          controller.current = new AbortController()
+        }
         const { orders = [], pagination = { totalItems: 0 } } = await (account
-          ? getListOrder({
-              chainId,
-              maker: account,
-              status: orderType,
-              query,
-              page: curPage,
-              pageSize: PAGE_SIZE,
-            })
+          ? getListOrder(
+              {
+                chainId,
+                maker: account,
+                status: orderType,
+                query,
+                page: curPage,
+                pageSize: PAGE_SIZE,
+              },
+              controller.current.signal,
+            )
           : Promise.resolve({ orders: [], pagination: { totalItems: 0 } }))
-        if (currentOrderType.current !== orderType) return
         setOrders(orders)
         setTotalOrder(pagination.totalItems ?? 0)
       } catch (error) {
