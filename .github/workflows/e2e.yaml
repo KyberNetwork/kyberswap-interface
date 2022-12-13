@@ -14,13 +14,11 @@ on:
 env:
   SERVICE: kyberswap-interface
 
-
 jobs:
   e2e:
     runs-on: ubuntu-18.04
-    container: cypress/browsers:node12.18.3-chrome87-ff82
-    needs: install
-
+    needs:
+      - prepare
     steps:
       - name: Checkout
         uses: actions/checkout@v2
