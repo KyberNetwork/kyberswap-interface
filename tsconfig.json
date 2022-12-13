@@ -22,7 +22,7 @@
     "jsx": "react-jsx",
     "downlevelIteration": true,
     "allowSyntheticDefaultImports": true,
-    "types": ["jest", "cypress", "cypress-wait-until", "@testing-library/cypress","synpress/support"],
+    "types": ["jest", "cypress", "cypress-wait-until", "@testing-library/cypress"],
     "baseUrl": "src",
     "useUnknownInCatchVariables": false
   },
