@@ -22,10 +22,10 @@
     "jsx": "react-jsx",
     "downlevelIteration": true,
     "allowSyntheticDefaultImports": true,
-    "types": ["jest"],
+    "types": ["jest", "cypress", "cypress-wait-until", "@testing-library/cypress","synpress/support"],
     "baseUrl": "src",
     "useUnknownInCatchVariables": false
   },
-  "exclude": ["node_modules", "synpress","cypress"],
+  "exclude": ["node_modules", "synpress", "cypress"],
   "include": ["./src/**/*.ts", "./src/**/*.tsx"]
 }
