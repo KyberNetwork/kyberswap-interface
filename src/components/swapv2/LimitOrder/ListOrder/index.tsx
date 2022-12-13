@@ -150,20 +150,22 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
     setCurPage(1)
   }
 
+  const currentOrderType = useRef(orderType)
+  currentOrderType.current = orderType
   const fetchListOrder = useCallback(
-    async (status: LimitOrderStatus, query: string, curPage: number) => {
+    async (orderType: LimitOrderStatus, query: string, curPage: number) => {
       try {
         const { orders = [], pagination = { totalItems: 0 } } = await (account
           ? getListOrder({
               chainId,
               maker: account,
-              status,
+              status: orderType,
               query,
               page: curPage,
               pageSize: PAGE_SIZE,
             })
           : Promise.resolve({ orders: [], pagination: { totalItems: 0 } }))
-        if (orderType !== status) return
+        if (currentOrderType.current !== orderType) return
         setOrders(orders)
         setTotalOrder(pagination.totalItems ?? 0)
       } catch (error) {
@@ -171,7 +173,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
       }
       setLoading(false)
     },
-    [account, chainId, orderType],
+    [account, chainId],
   )
 
   const fetchListOrderDebounce = useMemo(() => debounce(fetchListOrder, 400), [fetchListOrder])
