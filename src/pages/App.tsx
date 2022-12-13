@@ -2,7 +2,7 @@ import { datadogRum } from '@datadog/browser-rum'
 import { Trans, t } from '@lingui/macro'
 import * as Sentry from '@sentry/react'
 import { Popover, Sidetab } from '@typeform/embed-react'
-import { Suspense, lazy, useEffect } from 'react'
+import React, { ReactNode, Suspense, lazy, useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { AlertTriangle } from 'react-feather'
 import { Route, Routes } from 'react-router-dom'
@@ -103,6 +103,26 @@ const BodyWrapper = styled.div`
   ${isMobile && `overflow-x: hidden;`}
 `
 
+function ChunkPage({ children }: { children: JSX.Element }) {
+  const [page, setPage] = useState<JSX.Element | null>(null)
+  const [isError, setIsError] = useState(false)
+
+  useEffect(() => {
+    const handle = async () => {
+      try {
+        const loadedChunk = await children
+        setPage(loadedChunk)
+      } catch {
+        setIsError(true)
+      }
+    }
+    handle()
+  }, [children])
+
+  if (isError) return <>We have new update</>
+  return page
+}
+
 export default function App() {
   const { account, chainId, networkInfo } = useActiveWeb3React()
 
@@ -118,6 +138,10 @@ export default function App() {
       Sentry.setContext('network', {
         chainId: chainId,
         name: networkInfo.name,
+      })
+      datadogRum.setGlobalContext({
+        chainId,
+        networkName: networkInfo.name,
       })
     }
   }, [chainId, networkInfo.name])
@@ -200,7 +224,14 @@ export default function App() {
                     <Route element={<DarkModeQueryParamReader />} />
                     <Route path={APP_PATHS.SWAP_LEGACY} element={<Swap />} />
 
-                    <Route path={`${APP_PATHS.SWAP}/:network/:fromCurrency-to-:toCurrency`} element={<SwapV2 />} />
+                    <Route
+                      path={`${APP_PATHS.SWAP}/:network/:fromCurrency-to-:toCurrency`}
+                      element={
+                        <ChunkPage>
+                          <SwapV2 />
+                        </ChunkPage>
+                      }
+                    />
                     <Route path={`${APP_PATHS.SWAP}/:network/:fromCurrency`} element={<SwapV2 />} />
                     <Route path={`${APP_PATHS.SWAP}/:network`} element={<SwapV2 />} />
 
