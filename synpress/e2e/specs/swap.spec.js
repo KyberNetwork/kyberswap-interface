@@ -7,7 +7,6 @@ let metamaskWalletAddress
 
 describe('Swap Test On With Connect MetaMask Wallet', () => {
   before(() => {
-    cy.switchMetamaskAccount()
     cy.addMetamaskNetwork({
       networkName: 'Binance Smart Chain Mainnet',
       rpcUrl: 'https://bsc.kyberengineering.io',
