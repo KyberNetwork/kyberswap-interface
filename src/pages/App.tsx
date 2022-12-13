@@ -105,7 +105,6 @@ const BodyWrapper = styled.div`
 
 function ChunkPage({ children }: { children: JSX.Element }) {
   const [page, setPage] = useState<JSX.Element | null>(null)
-  const [isError, setIsError] = useState(false)
 
   useEffect(() => {
     const handle = async () => {
@@ -113,13 +112,12 @@ function ChunkPage({ children }: { children: JSX.Element }) {
         const loadedChunk = await children
         setPage(loadedChunk)
       } catch {
-        setIsError(true)
+        location.reload()
       }
     }
     handle()
   }, [children])
 
-  if (isError) return <>We have new update</>
   return page
 }
 
@@ -138,10 +136,6 @@ export default function App() {
       Sentry.setContext('network', {
         chainId: chainId,
         name: networkInfo.name,
-      })
-      datadogRum.setGlobalContext({
-        chainId,
-        networkName: networkInfo.name,
       })
     }
   }, [chainId, networkInfo.name])
