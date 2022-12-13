@@ -1,0 +1,29 @@
+name: E2E CI
+
+concurrency:
+  group: pr-workflow-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+    
+env:
+  SERVICE: kyberswap-interface
+
+
+jobs:
+  e2e:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Test
+        uses: cypress-io/github-action@30008f1458a5a2c97054bfe118fe33d75976c482 # pin@v4
+        with:
+          install-command: yarn --frozen-lockfile --prefer-offline --no-audit
+          command: yarn test:e2e
