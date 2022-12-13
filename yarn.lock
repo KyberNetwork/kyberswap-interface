@@ -10314,7 +10314,7 @@ cypress-xpath@^2.0.1:
   resolved "https://registry.yarnpkg.com/cypress-xpath/-/cypress-xpath-2.0.1.tgz#052db5d18b4f5c03434cba7dcf1fe0b69d292308"
   integrity sha512-qMagjvinBppNJdMAkucWESP9aP4rDTs7c96m0vwMuZTVx3NqP2E3z/hkoRf8Ea9soL8yTvUuuyF1cg/Sb1Yhbg==
 
-cypress@*:
+cypress@*, cypress@^12.1.0:
   version "12.1.0"
   resolved "https://registry.yarnpkg.com/cypress/-/cypress-12.1.0.tgz#1fdaa631bc30df466dc9505154616f4cf69dbd4b"
   integrity sha512-7fz8N84uhN1+ePNDsfQvoWEl4P3/VGKKmAg+bJQFY4onhA37Ys+6oBkGbNdwGeC7n2QqibNVPhk8x3YuQLwzfw==

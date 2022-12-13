@@ -155,6 +155,7 @@
     "browserslist": "^4.21.4",
     "caniuse-lite": "^1.0.30001439",
     "compression-webpack-plugin": "^6.1.1",
+    "cypress": "^12.1.0",
     "cypress-xpath": "^2.0.1",
     "env-cmd": "^10.1.0",
     "eslint": "^7.32.0",
