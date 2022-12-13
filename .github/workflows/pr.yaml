@@ -107,6 +107,13 @@ jobs:
       - name: Run Lint
         run: yarn lint --quiet
 
+      - name: Test:E2E
+        uses: cypress-io/github-action@v4
+        with:
+          browser: chrome
+          install-command: yarn --frozen-lockfile --prefer-offline --no-audit
+          command: yarn test:e2e  
+
       - name: Yarn Build
         env:
           CI: false
