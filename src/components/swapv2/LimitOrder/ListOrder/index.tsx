@@ -154,26 +154,29 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
   const fetchListOrder = useCallback(
     async (orderType: LimitOrderStatus, query: string, curPage: number) => {
       try {
+        let orders: LimitOrder[] = []
+        let totalItems = 0
         if (account) {
           controller.current.abort()
           controller.current = new AbortController()
+          const response = await getListOrder(
+            {
+              chainId,
+              maker: account,
+              status: orderType,
+              query,
+              page: curPage,
+              pageSize: PAGE_SIZE,
+            },
+            controller.current.signal,
+          )
+          orders = response.orders
+          totalItems = response.pagination.totalItems ?? 0
         }
-        const { orders = [], pagination = { totalItems: 0 } } = await (account
-          ? getListOrder(
-              {
-                chainId,
-                maker: account,
-                status: orderType,
-                query,
-                page: curPage,
-                pageSize: PAGE_SIZE,
-              },
-              controller.current.signal,
-            )
-          : Promise.resolve({ orders: [], pagination: { totalItems: 0 } }))
         setOrders(orders)
-        setTotalOrder(pagination.totalItems ?? 0)
+        setTotalOrder(totalItems)
       } catch (error) {
+        if (error?.name === 'AbortError') return
         console.error(error)
       }
       setLoading(false)
