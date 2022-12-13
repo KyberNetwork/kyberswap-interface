@@ -107,11 +107,19 @@ jobs:
       - name: Run Lint
         run: yarn lint --quiet
 
+      - name: install cypress cache
+        uses: actions/cache@v3
+        id: cypress-cache
+        with:
+          path: /home/runner/.cache/Cypress
+          key: ${{ runner.os }}-cypress-${{ hashFiles('node_modules/cypress') }}
+      - if: steps.cypress-cache.outputs.cache-hit != 'true'
+        run: yarn cypress install  
+
       - name: Test:E2E
         uses: cypress-io/github-action@v4
         with:
           browser: chrome
-          install-command: yarn --frozen-lockfile --prefer-offline --no-audit
           command: yarn test:e2e  
 
       - name: Yarn Build
