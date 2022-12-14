@@ -59,7 +59,15 @@ jobs:
           fi
 
       - name: Run e2e tests (${{ matrix.resolution }} resolution)
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
+          #!/bin/bash
+
+          REPLACE_DOMAIN=$(echo "https://kyberswap-internface-${PR_NUMBER}.pr.kyberengineering.io")
+
+          sed "s/kyberswap.com/${REPLACE_DOMAIN}/" synpress/synpress.config.js
+          cat synpress/synpress.config.js
           docker-compose --env-file ./${{ matrix.resolution }}-res.env up --build --exit-code-from synpress
         env:
           COMPOSE_DOCKER_CLI_BUILD: 1
