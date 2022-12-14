@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        resolution: ['high']
+        resolution: ['low']
 
     steps:
       # npm > 6 doesn't play well with docker on gh actions
