@@ -77,6 +77,7 @@ export const MAINNET_NETWORKS = [
   ChainId.AURORA,
   ChainId.ETHW,
 ] as const
+
 export type MAINNET_NETWORK = typeof MAINNET_NETWORKS[number]
 
 export const EVM_NETWORKS = SUPPORTED_NETWORKS.filter(chainId => getChainType(chainId) === ChainType.EVM) as Exclude<
@@ -139,7 +140,7 @@ export const CHAINS_SUPPORT_NEW_POOL_FARM_API = [
   ChainId.OPTIMISM,
   ChainId.AVAXMAINNET,
   ChainId.ARBITRUM,
-  ChainId.MAINNET,
+  // ChainId.MAINNET,
   ChainId.CRONOS,
   ChainId.BTTC,
   ChainId.VELAS,

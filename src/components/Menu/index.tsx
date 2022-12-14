@@ -29,7 +29,7 @@ import Faucet from 'components/Icons/Faucet'
 import Loader from 'components/Loader'
 import MenuFlyout from 'components/MenuFlyout'
 import { ENV_LEVEL, ENV_TYPE, TAG } from 'constants/env'
-import { AGGREGATOR_ANALYTICS_URL, APP_PATHS, DMM_ANALYTICS_URL } from 'constants/index'
+import { AGGREGATOR_ANALYTICS_URL, DMM_ANALYTICS_URL } from 'constants/index'
 import { FAUCET_NETWORKS } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
@@ -241,15 +241,10 @@ export default function Menu() {
         )}
 
         {under420 && (
-          <NavDropDown
-            icon={<Award size={14} />}
-            title="Campaigns"
-            link="#"
-            options={[
-              { link: APP_PATHS.CAMPAIGN, label: t`Trading campaigns` },
-              { link: APP_PATHS.GRANT_PROGRAMS, label: t`Project trading grant` },
-            ]}
-          />
+          <NavMenuItem to="/campaigns" onClick={toggle}>
+            <Award size={14} />
+            <Trans>Campaigns</Trans>
+          </NavMenuItem>
         )}
         {under1440 && (
           <NavDropDown

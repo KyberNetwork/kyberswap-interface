@@ -444,7 +444,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
         haveBg={above1000}
       />
       <PoolDetailModal />
-      <ShareModal url={shareUrl} />
+      <ShareModal url={shareUrl} title={t`Share this pool with your friends!`} />
     </PageWrapper>
   )
 }

@@ -39,10 +39,8 @@ type PoolListProps = {
 
 const PageWrapper = styled.div`
   overflow: hidden;
-  &[data-above1000='true'] {
-    background: ${({ theme }) => theme.background};
-    border-radius: 20px;
-  }
+  border-radius: 20px;
+  background: ${({ theme }) => theme.background};
 
   ${PaginationInput} {
     background: ${({ theme }) => theme.background};
@@ -97,6 +95,7 @@ const Grid = styled.div`
   `};
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
+    padding: 16px;
     grid-template-columns: 1fr;
   `};
 `
@@ -363,7 +362,7 @@ export default function ProAmmPoolList({
     ) : null
   }
 
-  const ITEM_PER_PAGE = 8
+  const ITEM_PER_PAGE = 12
   const [page, setPage] = useState(1)
   useEffect(() => {
     setPage(1)
@@ -394,7 +393,7 @@ export default function ProAmmPoolList({
 
   const pageData = filteredData.slice((page - 1) * ITEM_PER_PAGE, page * ITEM_PER_PAGE)
 
-  if (!anyLoading && !Object.keys(filteredData).length) {
+  if (!anyLoading && !filteredData.length) {
     return (
       <SelectPairInstructionWrapper>
         <div style={{ marginBottom: '1rem' }}>
@@ -408,9 +407,9 @@ export default function ProAmmPoolList({
   }
 
   return (
-    <PageWrapper data-above1000={!upToMedium}>
+    <PageWrapper>
       {renderHeader()}
-      {anyLoading && !Object.keys(filteredData).length && <LocalLoader />}
+      {anyLoading && !filteredData.length && <LocalLoader />}
       {viewMode === VIEW_MODE.LIST && !upToMedium ? (
         pageData.map(p => (
           <ProAmmPoolListItem key={p.address} pool={p} onShared={setSharedPoolId} userPositions={userPositions} />
@@ -428,10 +427,12 @@ export default function ProAmmPoolList({
           totalCount={filteredData.length}
           currentPage={page}
           pageSize={ITEM_PER_PAGE}
-          haveBg={!upToMedium}
         />
       )}
-      <ShareModal url={shareUrl} />
+      <ShareModal
+        url={shareUrl}
+        title={sharedPoolId ? t`Share this pool with your friends!` : t`Share this list of pools with your friends`}
+      />
       <FarmUpdater interval={false} />
     </PageWrapper>
   )
