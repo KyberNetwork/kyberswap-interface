@@ -19,10 +19,10 @@ jobs:
     if:
       github.ref == 'refs/heads/main' ||
       github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     container:
-      image: synthetixio/docker-sec-tools:16.18-alpine
+      image: synthetixio/docker-sec-tools:16.17-alpine
 
     steps:
       - name: Checkout
@@ -47,7 +47,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: synthetixio/docker-node:16.18-alpine
+      image: synthetixio/docker-node:16.17-alpine
 
     steps:
       - name: Checkout
