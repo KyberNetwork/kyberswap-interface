@@ -1,103 +1,23 @@
-name: test:e2e
-
-concurrency:
-  group: pr-workflow-${{ github.ref }}
-  cancel-in-progress: true
+name: e2e pipeline
 
 on:
   push:
-   branches:
-     - "hdo/**"
+   branches:     
+   - "hdo/**"
 
-    
-env:
-  SERVICE: kyberswap-interface
+concurrency:
+  group: ${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
-  audit:
-    # run only on master/dev branch and pull requests
-    if:
-      github.ref == 'refs/heads/main' ||
-      github.event_name == 'pull_request'
-    runs-on: ubuntu-22.04
-
-    container:
-      image: synthetixio/docker-sec-tools:16.17-alpine
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # pin@v2
-
-      - name: Audit dependencies
-        run:
-          audit-ci --critical --report-type full --allowlist loader-utils
-          underscore
-
-      - name: Lockfile lint
-        run:
-          lockfile-lint -p yarn.lock --type yarn --allowed-schemes "https:"
-          "git+https:" --empty-hostname false
-
-  build:
-    needs: audit
-    # run only on audit success or audit skipped
-    if:
-      always() && (needs.audit.result == 'success' || needs.audit.result ==
-      'skipped')
-    runs-on: ubuntu-latest
-
-    container:
-      image: synthetixio/docker-node:16.17-alpine
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # pin@v2
-
-      - name: Set yarn cache directory
-        run: yarn config set cache-folder .yarn-cache
-        continue-on-error: true
-
-      - uses: actions/cache@9b0c1fce7a93df8e3bb8926b0d6e9d89e92f20a7 # pin@v2
-        with:
-          path: |
-            .yarn-cache
-            node_modules
-          key: ${{ runner.os }}-yarn-v1-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-v1-
-        continue-on-error: true
-
-      - name: Install dependencies
-        run: yarn --frozen-lockfile --prefer-offline --no-audit
-
-      - name: Lint
-        # run only on master/dev branch and pull requests
-        if:
-          github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' ||
-          github.event_name == 'pull_request'
-        run: yarn lint:sarif
-
-      - name: Upload lint results
-        # run if lint failed and only on master/dev branch and pull requests
-        if:
-          always() && (github.ref == 'refs/heads/main' || github.event_name == 'pull_request')
-        uses: github/codeql-action/upload-sarif@a669cc5936cc5e1b6a362ec1ff9e410dc570d190 # pin@codeql-bundle-20210517
-        with:
-          sarif_file: lint-results.sarif
-        continue-on-error: true
-
   e2e:
-    needs: build
-    # run only on master/dev branch
-    if:
-      github.ref == 'refs/heads/hdo/**' ||
-      github.event_name == 'push'
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        resolution: ['low', 'medium', 'high']
+        resolution: ['high']
 
     steps:
+      # npm > 6 doesn't play well with docker on gh actions
       - name: Chown workspace
         run: chown -R $(whoami) .
 
@@ -105,39 +25,57 @@ jobs:
         uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # pin@v2
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@e81a89b1732b9c48d79cd809d8d81d79c4647a18 # pin@v1
+        uses: docker/setup-qemu-action@8b122486cedac8393e77aa9734c3528886e4a1a8 # pin@v1
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@8c0edbc76e98fa90f69d9a2c020dcb50019dc325 # pin@v1
+        uses: docker/setup-buildx-action@dc7b9719a96d48369863986a06765841d7ea23f6 # pin@v1
 
       - name: Cache Docker layers
-        uses: actions/cache@9b0c1fce7a93df8e3bb8926b0d6e9d89e92f20a7 # pin@v2
+        uses: actions/cache@56461b9eb0f8438fd15c7a9968e3c9ebb18ceff1 # pin@v2
         with:
           path: /tmp/.buildx-cache
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-buildx-
-      - name: Run e2e tests (${{ matrix.resolution }} res)
+
+      # thanks to this, you will never have issues with transactions in your e2e tests
+      # because every transaction will be done from different wallet (and tests are ran in parallel)
+      - name:
+          Set private keys for e2e testing (different wallet for each
+          resolution)
+        shell: bash
         run: |
-          docker-compose -f docker-compose.ci.yml --env-file ${{ matrix.resolution }}-res.env --profile foundry up --build --exit-code-from synpress run -cf synpress/synpress.config.js
+          if [ ${{ matrix.resolution }} == 'low' ]
+          then
+            echo "PRIVATE_KEY=${{ secrets.PRIVATE_KEY1 }}" >> $GITHUB_ENV
+          elif [ ${{ matrix.resolution }} == 'medium' ]
+          then
+            echo "PRIVATE_KEY=${{ secrets.PRIVATE_KEY2 }}" >> $GITHUB_ENV
+          elif [ ${{ matrix.resolution }} == 'high' ]
+          then
+            echo "PRIVATE_KEY=${{ secrets.PRIVATE_KEY3 }}" >> $GITHUB_ENV
+          else
+            echo "Nothing has been set."
+          fi
+
+      - name: Run e2e tests (${{ matrix.resolution }} resolution)
+        run: |
+          docker-compose --env-file ./${{ matrix.resolution }}-res.env up --build --exit-code-from synpress
         env:
           COMPOSE_DOCKER_CLI_BUILD: 1
           DOCKER_BUILDKIT: 1
           DOCKER_DEFAULT_PLATFORM: linux/amd64
+          PRIVATE_KEY: ${{ env.PRIVATE_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NGROK_AUTH: ${{ secrets.NGROK_AUTH }}
           GH_PAT: ${{ secrets.GH_PAT }}
           GH_USERNAME: ${{ secrets.GH_USERNAME }}
-          # cypress dashboard
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
-          # CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
-          COMMIT_INFO_SHA: ${{ github.event.pull_request.head.sha }}
 
-      - name: Archive e2e artifacts (${{ matrix.resolution }} res)
-        uses: actions/upload-artifact@83fd05a356d7e2593de66fc9913b3002723633cb # pin@v2
+      - name: Archive e2e artifacts (${{ matrix.resolution }} resolution)
+        uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8 # pin@v2
         if: always()
         with:
-          name: e2e-artifacts-${{ matrix.resolution }}-res
+          name: e2e-artifacts-${{ matrix.resolution }}-resolution
           path: |
             docker/videos
             docker/videos-ci
