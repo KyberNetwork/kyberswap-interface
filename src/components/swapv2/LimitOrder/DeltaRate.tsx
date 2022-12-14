@@ -38,7 +38,7 @@ const DeltaRate = ({
         Price&nbsp;
         {Math.abs(delta) > 0.0005 && percent ? (
           <Flex alignItems={'center'} color={color}>
-            <Text> {deltaText} </Text>
+            <Text>{deltaText} </Text>
             <InfoHelper
               color={color}
               text={t`Your selected price is ${deltaText} ${delta > 0 ? `above` : `below`} the current market price.`}
