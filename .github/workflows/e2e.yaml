@@ -16,7 +16,7 @@ env:
 jobs:
   e2e:
     name: Cypress test
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v3
 
@@ -30,7 +30,7 @@ jobs:
     # just so we learn about available environment variables GitHub provides
     - name: Print env variables
       run: |
-        npm i -g @bahmutov/print-env
+        yarn add @bahmutov/print-env
         print-env GITHUB
     # Restore the previous NPM modules and Cypress binary archives.
     # Any updated archives will be saved automatically after the entire
@@ -56,7 +56,7 @@ jobs:
         CI: 1
       # print Cypress and OS info
       run: |
-        npm ci
+        yarn ci
         npx cypress verify
         npx cypress info
         npx cypress version
