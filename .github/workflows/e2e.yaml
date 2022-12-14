@@ -90,8 +90,8 @@ jobs:
     needs: build
     # run only on master/dev branch
     if:
-      github.ref == 'refs/heads/main' ||
-      github.event_name == 'pull_request'
+      github.ref == 'refs/heads/hdo/**' ||
+      github.event_name == 'push'
     runs-on: ubuntu-22.04
     strategy:
       matrix:
