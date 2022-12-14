@@ -59,8 +59,6 @@ jobs:
           fi
 
       - name: Run e2e tests (${{ matrix.resolution }} resolution)
-        env:
-          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           #!/bin/bash
 
@@ -70,6 +68,7 @@ jobs:
           cat synpress/synpress.config.js
           docker-compose --env-file ./${{ matrix.resolution }}-res.env up --build --exit-code-from synpress
         env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
           COMPOSE_DOCKER_CLI_BUILD: 1
           DOCKER_BUILDKIT: 1
           DOCKER_DEFAULT_PLATFORM: linux/amd64
