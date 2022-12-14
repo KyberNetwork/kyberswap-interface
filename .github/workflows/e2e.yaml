@@ -14,67 +14,132 @@ env:
   SERVICE: kyberswap-interface
 
 jobs:
-  e2e:
-    name: Cypress test
-    runs-on: ubuntu-22.04
+  audit:
+    # run only on master/dev branch and pull requests
+    if:
+      github.ref == 'refs/heads/main' ||
+      github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+
+    container:
+      image: synthetixio/docker-sec-tools:16.18-alpine
+
     steps:
-    - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # pin@v2
 
-    # install a specific version of Node using
-    # https://github.com/actions/setup-node
-    - name: Use Node.js v16.x
-      uses: actions/setup-node@v3
-      with:
-        node-version: 16.18.1
+      - name: Audit dependencies
+        run:
+          audit-ci --critical --report-type full --allowlist loader-utils
+          underscore
 
-    - name: Cache node modules
-      uses: actions/cache@v3
-      with:
-        path: ~/.npm
-        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-
-    - name: Cache Cypress binary
-      uses: actions/cache@v3
-      with:
-        path: ~/.cache/Cypress
-        key: cypress-${{ runner.os }}-cypress-${{ hashFiles('**/package.json') }}
-        restore-keys: |
-          cypress-${{ runner.os }}-cypress-
-    - name: install dependencies and verify Cypress
-      env:
-        # make sure every Cypress install prints minimal information
-        CI: 1
-      # print Cypress and OS info
-      run: |
-        npx cypress verify
-        npx cypress info
-        npx cypress version
-        npx cypress version --component package
-        npx cypress version --component binary
-        npx cypress version --component electron
-        npx cypress version --component node
-    # Starts local server, then runs Cypress tests and records results on the dashboard
-    - name: Cypress tests
-      run: yarn test:e2e
-      env:
-        # place your secret record key at
-        # https://github.com/cypress-io/cypress-example-kitchensink/settings/secrets
-        # CYPRESS_RECORD_KEY: ${{ secrets.dashboardRecordKey }}
-        TERM: xterm
+      - name: Lockfile lint
+        run:
+          lockfile-lint -p yarn.lock --type yarn --allowed-schemes "https:"
+          "git+https:" --empty-hostname false
 
-    # Save videos and screenshots as test artifacts
-    # https://github.com/actions/upload-artifact
-    - uses: actions/upload-artifact@v3
-      with:
-        name: screenshots
-        path: cypress/screenshots
-        # there might be no screenshots created when:
-        # - there are no test failures
-        # so only upload screenshots if previous step has failed
-        if: failure()
-    # video should always be generated
-    - uses: actions/upload-artifact@v3
-      with:
-        name: videos
-        path: target/videos
+  build:
+    needs: audit
+    # run only on audit success or audit skipped
+    if:
+      always() && (needs.audit.result == 'success' || needs.audit.result ==
+      'skipped')
+    runs-on: ubuntu-latest
+
+    container:
+      image: synthetixio/docker-node:16.18-alpine
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # pin@v2
+
+      - name: Set yarn cache directory
+        run: yarn config set cache-folder .yarn-cache
+        continue-on-error: true
+
+      - uses: actions/cache@9b0c1fce7a93df8e3bb8926b0d6e9d89e92f20a7 # pin@v2
+        with:
+          path: |
+            .yarn-cache
+            node_modules
+          key: ${{ runner.os }}-yarn-v1-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-v1-
+        continue-on-error: true
+
+      - name: Install dependencies
+        run: yarn --frozen-lockfile --prefer-offline --no-audit
+
+      - name: Lint
+        # run only on master/dev branch and pull requests
+        if:
+          github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' ||
+          github.event_name == 'pull_request'
+        run: yarn lint:sarif
+
+      - name: Upload lint results
+        # run if lint failed and only on master/dev branch and pull requests
+        if:
+          always() && (github.ref == 'refs/heads/main' || github.event_name == 'pull_request')
+        uses: github/codeql-action/upload-sarif@a669cc5936cc5e1b6a362ec1ff9e410dc570d190 # pin@codeql-bundle-20210517
+        with:
+          sarif_file: lint-results.sarif
+        continue-on-error: true
+
+  e2e:
+    needs: build
+    # run only on master/dev branch
+    if:
+      github.ref == 'refs/heads/main' ||
+      github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        resolution: ['low', 'medium', 'high']
+
+    steps:
+      - name: Chown workspace
+        run: chown -R $(whoami) .
+
+      - name: Checkout
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # pin@v2
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@e81a89b1732b9c48d79cd809d8d81d79c4647a18 # pin@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@8c0edbc76e98fa90f69d9a2c020dcb50019dc325 # pin@v1
+
+      - name: Cache Docker layers
+        uses: actions/cache@9b0c1fce7a93df8e3bb8926b0d6e9d89e92f20a7 # pin@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+      - name: Run e2e tests (${{ matrix.resolution }} res)
+        run: |
+          docker-compose -f docker-compose.ci.yml --env-file ${{ matrix.resolution }}-res.env --profile foundry up --build --exit-code-from synpress
+        env:
+          COMPOSE_DOCKER_CLI_BUILD: 1
+          DOCKER_BUILDKIT: 1
+          DOCKER_DEFAULT_PLATFORM: linux/amd64
+          GH_PAT: ${{ secrets.GH_PAT }}
+          GH_USERNAME: ${{ secrets.GH_USERNAME }}
+          # cypress dashboard
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+          # CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
+          COMMIT_INFO_SHA: ${{ github.event.pull_request.head.sha }}
+
+      - name: Archive e2e artifacts (${{ matrix.resolution }} res)
+        uses: actions/upload-artifact@83fd05a356d7e2593de66fc9913b3002723633cb # pin@v2
+        if: always()
+        with:
+          name: e2e-artifacts-${{ matrix.resolution }}-res
+          path: |
+            docker/videos
+            docker/videos-ci
+            docker/screenshots
+        continue-on-error: true
