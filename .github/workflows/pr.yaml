@@ -115,13 +115,7 @@ jobs:
           key: ${{ runner.os }}-cypress-${{ hashFiles('node_modules/cypress') }}
       - if: steps.cypress-cache.outputs.cache-hit != 'true'
         run: yarn cypress install  
-
-      - name: Test:E2E
-        uses: cypress-io/github-action@v4
-        with:
-          browser: chrome
-          command: yarn test:e2e  
-
+  
       - name: Yarn Build
         env:
           CI: false
@@ -149,3 +143,17 @@ jobs:
         run: |
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+  chrome:
+    runs-on: ubuntu-latest
+    # https://github.com/cypress-io/cypress-docker-images
+    container: cypress/browsers:node14.17.6-chrome100-ff98
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Chrome
+        uses: cypress-io/github-action@v5
+        timeout-minutes: 10
+        with:
+          # build: npm run build
+          # start: npm start
+          browser: chrome
