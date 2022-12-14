@@ -2,6 +2,7 @@ import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ChevronDown, ChevronUp } from 'react-feather'
+import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
@@ -68,29 +69,25 @@ interface PoolListProps {
   searchValue: string
   isShowOnlyActiveFarmPools: boolean
   onlyShowStable: boolean
-  shouldShowLowTVLPools: boolean
 }
 
-const SORT_FIELD = {
-  LIQ: 0,
-  VOL: 1,
-  FEES: 2,
-  APR: 3,
+enum SORT_FIELD {
+  TVL = 'tvl',
+  APR = 'apr',
+  VOLUME = 'volume',
+  FEE = 'fee',
+}
+
+enum SORT_DIRECTION {
+  ASC = 'asc',
+  DESC = 'desc',
 }
 
 const ITEM_PER_PAGE = 8
 
-const PoolList = ({
-  currencies,
-  searchValue,
-  isShowOnlyActiveFarmPools,
-  onlyShowStable,
-  shouldShowLowTVLPools,
-}: PoolListProps) => {
+const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShowStable }: PoolListProps) => {
   const above1000 = useMedia('(min-width: 1000px)')
 
-  const [sortDirection, setSortDirection] = useState(true)
-  const [sortedColumn, setSortedColumn] = useState(SORT_FIELD.LIQ)
   const { loading: loadingPoolsData, data: subgraphPoolsData } = useAllPoolsData()
 
   const { account, chainId, networkInfo, isEVM } = useActiveWeb3React()
@@ -108,18 +105,24 @@ const PoolList = ({
       transformedUserLiquidityPositions[position.pool.id] = position
     })
 
+  const [searchParams, setSearchParams] = useSearchParams()
+  const sortedColumn = searchParams.get('orderBy') || SORT_FIELD.TVL
+  const sortOrder = searchParams.get('orderDirection') || SORT_DIRECTION.DESC
+
+  const sortDirection = sortOrder === SORT_DIRECTION.DESC
+
   const listComparator = useCallback(
     (poolA: SubgraphPoolData, poolB: SubgraphPoolData): number => {
       const feeA = poolA?.oneDayFeeUSD ? poolA?.oneDayFeeUSD : poolA?.oneDayFeeUntracked
       const feeB = poolB?.oneDayFeeUSD ? poolB?.oneDayFeeUSD : poolB?.oneDayFeeUntracked
 
       switch (sortedColumn) {
-        case SORT_FIELD.LIQ:
+        case SORT_FIELD.TVL:
           return parseFloat(poolA?.amp?.toString() || '0') * parseFloat(poolA?.reserveUSD) >
             parseFloat(poolB?.amp?.toString() || '0') * parseFloat(poolB?.reserveUSD)
             ? (sortDirection ? -1 : 1) * 1
             : (sortDirection ? -1 : 1) * -1
-        case SORT_FIELD.VOL:
+        case SORT_FIELD.VOLUME:
           const volumeA = poolA?.oneDayVolumeUSD ? poolA?.oneDayVolumeUSD : poolA?.oneDayVolumeUntracked
 
           const volumeB = poolB?.oneDayVolumeUSD ? poolB?.oneDayVolumeUSD : poolB?.oneDayVolumeUntracked
@@ -127,7 +130,7 @@ const PoolList = ({
           return parseFloat(volumeA) > parseFloat(volumeB)
             ? (sortDirection ? -1 : 1) * 1
             : (sortDirection ? -1 : 1) * -1
-        case SORT_FIELD.FEES:
+        case SORT_FIELD.FEE:
           return parseFloat(feeA) > parseFloat(feeB) ? (sortDirection ? -1 : 1) * 1 : (sortDirection ? -1 : 1) * -1
         case SORT_FIELD.APR:
           const oneYearFLPoolA =
@@ -145,6 +148,19 @@ const PoolList = ({
     [sortDirection, sortedColumn],
   )
 
+  const handleSort = (field: SORT_FIELD) => {
+    const direction =
+      sortedColumn !== field
+        ? SORT_DIRECTION.DESC
+        : sortOrder === SORT_DIRECTION.DESC
+        ? SORT_DIRECTION.ASC
+        : SORT_DIRECTION.DESC
+
+    searchParams.set('orderDirection', direction)
+    searchParams.set('orderBy', field)
+    setSearchParams(searchParams)
+  }
+
   const renderHeader = () => {
     return above1000 ? (
       <TableHeader>
@@ -160,18 +176,12 @@ const PoolList = ({
           <InfoHelper text={AMP_HINT} />
         </Flex>
         <Flex alignItems="center" justifyContent="flex-end">
-          <ClickableText
-            onClick={() => {
-              setSortedColumn(SORT_FIELD.LIQ)
-              setSortDirection(sortedColumn !== SORT_FIELD.LIQ ? true : !sortDirection)
-            }}
-            style={{ textAlign: 'right' }}
-          >
+          <ClickableText onClick={() => handleSort(SORT_FIELD.TVL)} style={{ textAlign: 'right' }}>
             <Trans>AMP LIQUIDITY</Trans>
             <InfoHelper text={AMP_LIQUIDITY_HINT} />
             <span style={{ marginLeft: '0.25rem' }}>|</span>
             <span style={{ marginLeft: '0.25rem' }}>TVL</span>
-            {sortedColumn === SORT_FIELD.LIQ ? (
+            {sortedColumn === SORT_FIELD.TVL ? (
               !sortDirection ? (
                 <ChevronUp size="14" style={{ marginLeft: '2px' }} />
               ) : (
@@ -191,8 +201,7 @@ const PoolList = ({
         >
           <ClickableText
             onClick={() => {
-              setSortedColumn(SORT_FIELD.APR)
-              setSortDirection(sortedColumn !== SORT_FIELD.APR ? true : !sortDirection)
+              handleSort(SORT_FIELD.APR)
             }}
           >
             <Trans>APR</Trans>
@@ -211,13 +220,12 @@ const PoolList = ({
         <Flex alignItems="center" justifyContent="flex-end">
           <ClickableText
             onClick={() => {
-              setSortedColumn(SORT_FIELD.VOL)
-              setSortDirection(sortedColumn !== SORT_FIELD.VOL ? true : !sortDirection)
+              handleSort(SORT_FIELD.VOLUME)
             }}
             style={{ textAlign: 'right' }}
           >
             <Trans>Volume (24h)</Trans>
-            {sortedColumn === SORT_FIELD.VOL ? (
+            {sortedColumn === SORT_FIELD.VOLUME ? (
               !sortDirection ? (
                 <ChevronUp size="14" style={{ marginLeft: '2px' }} />
               ) : (
@@ -231,12 +239,11 @@ const PoolList = ({
         <Flex alignItems="center" justifyContent="flex-end">
           <ClickableText
             onClick={() => {
-              setSortedColumn(SORT_FIELD.FEES)
-              setSortDirection(sortedColumn !== SORT_FIELD.FEES ? true : !sortDirection)
+              handleSort(SORT_FIELD.FEE)
             }}
           >
             <Trans>Fee (24h)</Trans>
-            {sortedColumn === SORT_FIELD.FEES ? (
+            {sortedColumn === SORT_FIELD.FEE ? (
               !sortDirection ? (
                 <ChevronUp size="14" style={{ marginLeft: '2px' }} />
               ) : (
@@ -270,10 +277,6 @@ const PoolList = ({
     if (isShowOnlyActiveFarmPools) {
       const farmAddresses = farms.map(farm => farm.id)
       res = res.filter(poolData => farmAddresses.includes(poolData.id))
-    }
-
-    if (!shouldShowLowTVLPools) {
-      res = res.filter(poolData => parseFloat(poolData.reserveUSD) > 1)
     }
 
     const ca = currencies[Field.CURRENCY_A]
@@ -319,7 +322,6 @@ const PoolList = ({
     subgraphPoolsData,
     listComparator,
     isShowOnlyActiveFarmPools,
-    shouldShowLowTVLPools,
     currencies,
     onlyShowStable,
     farms,

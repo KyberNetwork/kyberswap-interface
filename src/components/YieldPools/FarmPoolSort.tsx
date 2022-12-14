@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { useRef, useState } from 'react'
 import { X } from 'react-feather'
-import { useSearchParams } from 'react-router-dom'
+import { useLocation, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -55,8 +55,50 @@ const Row = styled.div`
     background: ${({ theme }) => theme.buttonBlack};
   }
 `
+const poolSortOptions = [
+  {
+    orderBy: 'apr',
+    orderDirection: 'asc',
+    label: <Trans>AVG APR ↑</Trans>,
+  },
+  {
+    orderBy: 'apr',
+    orderDirection: 'desc',
+    label: <Trans>AVG APR ↓</Trans>,
+  },
+  {
+    orderBy: 'tvl',
+    orderDirection: 'asc',
+    label: <Trans>TVL ↑</Trans>,
+  },
+  {
+    orderBy: 'tvl',
+    orderDirection: 'desc',
+    label: <Trans>TVL ↓</Trans>,
+  },
+  {
+    orderBy: 'volume',
+    orderDirection: 'asc',
+    label: <Trans>VOLUME ↑</Trans>,
+  },
+  {
+    orderBy: 'volume',
+    orderDirection: 'desc',
+    label: <Trans>VOLUME ↓</Trans>,
+  },
+  {
+    orderBy: 'fee',
+    orderDirection: 'asc',
+    label: <Trans>FEES ↑</Trans>,
+  },
+  {
+    orderBy: 'fee',
+    orderDirection: 'desc',
+    label: <Trans>FEES ↓</Trans>,
+  },
+]
 
-const sortOptions = [
+const farmSortOptions = [
   {
     orderBy: 'apr',
     orderDirection: 'asc',
@@ -109,13 +151,17 @@ const sortOptions = [
   },
 ]
 
-const FarmSort = () => {
+const FarmSort = ({ className }: { className?: string }) => {
   const [searchParams, setSearchParams] = useSearchParams()
   const { orderBy, orderDirection } = useParsedQueryString()
   const ref = useRef<HTMLDivElement>(null)
   useOnClickOutside(ref, () => {
     setShow(false)
   })
+
+  const { pathname } = useLocation()
+
+  const sortOptions = pathname.startsWith('/farms') ? farmSortOptions : poolSortOptions
 
   const theme = useTheme()
   const selectedOption =
@@ -128,6 +174,7 @@ const FarmSort = () => {
   return (
     <>
       <Wrapper
+        className={className}
         role="button"
         ref={ref}
         onClick={e => {
