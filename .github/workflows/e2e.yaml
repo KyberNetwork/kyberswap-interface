@@ -64,7 +64,7 @@ jobs:
 
           REPLACE_DOMAIN=$(echo "https://kyberswap-interface-${PR_NUMBER}.pr.kyberengineering.io")
 
-          sed "s/kyberswap.com/${REPLACE_DOMAIN}/" synpress/synpress.config.js
+          sed -i -e "s@kyberswap.com@${REPLACE_DOMAIN}@" synpress/synpress.config.js
           cat synpress/synpress.config.js
           docker-compose --env-file ./${{ matrix.resolution }}-res.env up --build --exit-code-from synpress
         env:
