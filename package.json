@@ -5,7 +5,7 @@
   "homepage": "/",
   "license": "GPL-3.0-or-later",
   "engines": {
-    "node": "^16.18.1"
+    "node": "^16.17.0"
   },
   "scripts": {
     "analyze": "source-map-explorer 'build/static/js/*.js'",
