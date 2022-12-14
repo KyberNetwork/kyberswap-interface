@@ -64,7 +64,7 @@ jobs:
         run: |
           #!/bin/bash
 
-          REPLACE_DOMAIN=$(echo "https://kyberswap-internface-${PR_NUMBER}.pr.kyberengineering.io")
+          REPLACE_DOMAIN=$(echo "https://kyberswap-interface-${PR_NUMBER}.pr.kyberengineering.io")
 
           sed "s/kyberswap.com/${REPLACE_DOMAIN}/" synpress/synpress.config.js
           cat synpress/synpress.config.js
