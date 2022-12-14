@@ -27,15 +27,6 @@ jobs:
       with:
         node-version: 16.18.1
 
-    # just so we learn about available environment variables GitHub provides
-    - name: Print env variables
-      run: |
-        yarn add @bahmutov/print-env
-        print-env GITHUB
-    # Restore the previous NPM modules and Cypress binary archives.
-    # Any updated archives will be saved automatically after the entire
-    # workflow successfully finishes.
-    # See https://github.com/actions/cache
     - name: Cache node modules
       uses: actions/cache@v3
       with:
