@@ -129,6 +129,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
   const [flowState, setFlowState] = useState<TransactionFlowState>(TRANSACTION_STATE_DEFAULT)
   const [currentOrder, setCurrentOrder] = useState<LimitOrder>()
   const [isCancelAll, setIsCancelAll] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   const onPageChange = (page: number) => {
     setCurPage(page)
@@ -144,31 +145,49 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
     onReset()
   }
 
+  const onChangeKeyword = (val: string) => {
+    setKeyword(val)
+    setCurPage(1)
+  }
+
+  const controller = useRef(new AbortController())
   const fetchListOrder = useCallback(
-    async (status: LimitOrderStatus, query: string, curPage: number) => {
+    async (orderType: LimitOrderStatus, query: string, curPage: number) => {
       try {
-        const { orders = [], pagination = { totalItems: 0 } } = await (account
-          ? getListOrder({
+        let orders: LimitOrder[] = []
+        let totalItems = 0
+        if (account) {
+          controller.current.abort()
+          controller.current = new AbortController()
+          const response = await getListOrder(
+            {
               chainId,
               maker: account,
-              status,
+              status: orderType,
               query,
               page: curPage,
               pageSize: PAGE_SIZE,
-            })
-          : Promise.resolve({ orders: [], pagination: { totalItems: 0 } }))
-        if (orderType !== status) return
+            },
+            controller.current.signal,
+          )
+          orders = response.orders ?? []
+          totalItems = response.pagination.totalItems ?? 0
+        }
         setOrders(orders)
-        setTotalOrder(pagination.totalItems ?? 0)
+        setTotalOrder(totalItems)
       } catch (error) {
+        if (error?.name === 'AbortError') return
         console.error(error)
       }
+      setLoading(false)
     },
-    [account, chainId, orderType],
+    [account, chainId],
   )
 
   const fetchListOrderDebounce = useMemo(() => debounce(fetchListOrder, 400), [fetchListOrder])
   useEffect(() => {
+    setLoading(true)
+    setOrders([])
     fetchListOrderDebounce(orderType, keyword, curPage)
   }, [orderType, keyword, fetchListOrderDebounce, curPage])
 
@@ -180,12 +199,6 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
   useImperativeHandle(ref, () => ({
     refreshListOrder,
   }))
-
-  const [loading, setLoading] = useState(true)
-  useEffect(() => {
-    const timeout = setTimeout(() => setLoading(false), 500)
-    return () => clearTimeout(timeout)
-  }, [])
 
   const isTransactionFailed = (txHash: string) => {
     const transactionInfo = findTx(transactions, txHash)
@@ -463,7 +476,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
             placeholder={t`Search by token symbol or token address`}
             maxLength={255}
             value={keyword}
-            onChange={setKeyword}
+            onChange={onChangeKeyword}
           />
         </SearchFilter>
         {loading ? (
