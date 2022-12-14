@@ -92,7 +92,7 @@ jobs:
     if:
       github.ref == 'refs/heads/main' ||
       github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         resolution: ['low', 'medium', 'high']
@@ -119,7 +119,7 @@ jobs:
             ${{ runner.os }}-buildx-
       - name: Run e2e tests (${{ matrix.resolution }} res)
         run: |
-          docker-compose -f docker-compose.ci.yml --env-file ${{ matrix.resolution }}-res.env --profile foundry up --build --exit-code-from synpress
+          docker-compose -f docker-compose.ci.yml --env-file ${{ matrix.resolution }}-res.env --profile foundry up --build --exit-code-from synpress run -cf synpress/synpress.config.js
         env:
           COMPOSE_DOCKER_CLI_BUILD: 1
           DOCKER_BUILDKIT: 1
