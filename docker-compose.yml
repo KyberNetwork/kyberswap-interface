@@ -24,7 +24,7 @@ services:
     command: >
       bash -c 'echo -n "======> local noVNC URL:
       http://localhost:8080/vnc.html?autoconnect=true " && npx wait-on
-      http://display:8080 && yarn test:e2e'
+      http://display:8080 && yarn start && yarn test:e2e'
     networks:
       - x11
 
