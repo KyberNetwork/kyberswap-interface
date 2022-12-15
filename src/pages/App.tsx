@@ -25,9 +25,9 @@ import { useActiveWeb3React } from 'hooks'
 import { useGlobalMixpanelEvents } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { useWindowSize } from 'hooks/useWindowSize'
-import { useIsDarkMode } from 'state/user/hooks'
+import { useHolidayMode, useIsDarkMode } from 'state/user/hooks'
 import DarkModeQueryParamReader from 'theme/DarkModeQueryParamReader'
-import { isAddressString, isChristmasTime, shortenAddress } from 'utils'
+import { isAddressString, shortenAddress } from 'utils'
 
 import { RedirectDuplicateTokenIds } from './AddLiquidityV2/redirects'
 import { RedirectPathToFarmNetwork } from './Farm/redirect'
@@ -132,6 +132,7 @@ export default function App() {
   const { pathname } = window.location
   const showFooter = !pathname.includes(APP_PATHS.ABOUT)
   const feedbackId = isDarkTheme ? 'W5TeOyyH' : 'K0dtSO0v'
+  const [holidayMode] = useHolidayMode()
 
   const snowflake = document.createElement('img')
   snowflake.src = snow
@@ -199,7 +200,7 @@ export default function App() {
             </HeaderWrapper>
             <Suspense fallback={<Loader />}>
               <BodyWrapper>
-                {isChristmasTime() && (
+                {holidayMode && (
                   <Snowfall
                     speed={[0.5, 1]}
                     wind={[-0.5, 0.25]}

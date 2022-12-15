@@ -27,9 +27,8 @@ import { AGGREGATOR_ANALYTICS_URL, APP_PATHS, PROMM_ANALYTICS_URL, SUPPORT_LIMIT
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
-import { useIsDarkMode } from 'state/user/hooks'
+import { useHolidayMode, useIsDarkMode } from 'state/user/hooks'
 import { ExternalLink } from 'theme/components'
-import { isChristmasTime } from 'utils'
 
 interface Props extends NavLinkProps {
   activeClassName?: string
@@ -372,6 +371,7 @@ export default function Header() {
   const isDark = useIsDarkMode()
   const { pathname } = useLocation()
   const [isHoverSlide, setIsHoverSlide] = useState(false)
+  const [holidayMode] = useHolidayMode()
 
   const [{ show: isShowTutorial = false, stepInfo }] = useTutorialSwapGuide()
   const { mixpanelHandler } = useMixpanel()
@@ -379,7 +379,7 @@ export default function Header() {
     <HeaderFrame>
       <HeaderRow>
         <Title to="/swap">
-          {isChristmasTime() ? (
+          {holidayMode ? (
             <LogoIcon>
               <IconImage
                 isChristmas

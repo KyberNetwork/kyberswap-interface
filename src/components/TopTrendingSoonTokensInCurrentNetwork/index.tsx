@@ -30,9 +30,8 @@ import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { setTrendingSoonShowed } from 'state/swap/actions'
 import { useSwapState } from 'state/swap/hooks'
-import { useShowTopTrendingSoonTokens } from 'state/user/hooks'
+import { useHolidayMode, useShowTopTrendingSoonTokens } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
-import { isChristmasTime } from 'utils'
 
 const ChristmasDecor = styled.img`
   position: absolute;
@@ -89,6 +88,8 @@ const TopTrendingSoonTokensInCurrentNetwork = () => {
       sto && clearTimeout(sto)
     }
   }, [dispatch, trendingSoonShowed])
+
+  const [holidayMode] = useHolidayMode()
 
   if (isLoadingTrendingSoonTokens) return above768 ? <Box height="61px" /> : <Box height="83px" />
 
@@ -162,7 +163,7 @@ const TopTrendingSoonTokensInCurrentNetwork = () => {
                   style={{ fontSize: '14px', whiteSpace: 'nowrap', position: 'relative' }}
                 >
                   <Trans>Discover more</Trans>
-                  {isChristmasTime() && <ChristmasDecor src={christmasImg} />}
+                  {holidayMode && <ChristmasDecor src={christmasImg} />}
                 </ButtonLight>
               </ExternalLink>
             </TrendingSoonTokensContainer>

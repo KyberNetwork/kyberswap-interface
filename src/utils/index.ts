@@ -417,5 +417,5 @@ export const findTx = (txs: GroupedTxsByHash | undefined, hash: string): Transac
 
 export const isChristmasTime = () => {
   const currentTime = dayjs()
-  return currentTime.month() === 11 && currentTime.date() >= 15 && currentTime.date() <= 31
+  return currentTime.month() === 11 && currentTime.date() >= 15
 }
