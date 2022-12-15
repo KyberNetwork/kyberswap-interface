@@ -226,7 +226,7 @@ export default function Vote() {
           </Text>
           <RowFit gap="4px">
             <KNCLogo size={20} />
-            <Text fontSize={16}>KNC: ${kncPriceETH ? kncPriceETH : '--'}</Text>
+            <Text fontSize={16}>KNC: ${kncPriceETH ? kncPriceETH.toPrecision(4) : '--'}</Text>
           </RowFit>
         </RowBetween>
         <CardGroup>

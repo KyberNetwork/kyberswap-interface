@@ -82,7 +82,11 @@ const getMaticTresuaryBalances = async () => {
   return balances
 }
 
-export default function useTotalVotingReward() {
+export default function useTotalVotingReward(): {
+  usd: number
+  knc: number
+  kncPriceETH: number
+} {
   const [totalVotingReward, setTotalVotingReward] = useState(0)
   const [kncPriceETH, setKncPriceETH] = useState(0)
 
@@ -199,6 +203,6 @@ export default function useTotalVotingReward() {
           : 0,
       [totalVotingReward, kncPriceETH, localStoredTotalVotingReward],
     ),
-    kncPriceETH: kncPriceETH.toPrecision(4),
+    kncPriceETH,
   }
 }

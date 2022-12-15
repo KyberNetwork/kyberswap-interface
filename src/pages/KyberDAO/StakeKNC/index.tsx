@@ -125,7 +125,7 @@ export default function StakeKNC() {
             </Text>
             <RowFit gap="4px">
               <KNCLogo size={20} />
-              <Text fontSize={16}>KNC: ${kncPriceETH ? kncPriceETH : '--'}</Text>
+              <Text fontSize={16}>KNC: ${kncPriceETH ? kncPriceETH.toPrecision(4) : '--'}</Text>
             </RowFit>
           </RowBetween>
           <Divider margin={isMobile ? '20px 0' : '28px 0'} />
