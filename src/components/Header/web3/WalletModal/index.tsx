@@ -359,7 +359,7 @@ export default function WalletModal() {
                 <Trans>KyberDAO&lsquo;s Terms of Use.</Trans>
               </ExternalLink>
               <Text fontSize={10}>
-                <Trans>Last updated: 12 Dec 2022</Trans>
+                <Trans>Last updated: 15 Dec 2022</Trans>
               </Text>
             </Text>
           </TermAndCondition>
