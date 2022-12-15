@@ -9,6 +9,7 @@ import { Route, Routes } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
+import snow from 'assets/images/snow.png'
 import AppHaveUpdate from 'components/AppHaveUpdate'
 import ErrorBoundary from 'components/ErrorBoundary'
 import Footer from 'components/Footer/Footer'
@@ -17,6 +18,7 @@ import TopBanner from 'components/Header/TopBanner'
 import Loader from 'components/LocalLoader'
 import Modal from 'components/Modal'
 import Popups from 'components/Popups'
+import Snowfall from 'components/Snowflake/Snowfall'
 import Web3ReactManager from 'components/Web3ReactManager'
 import { APP_PATHS, BLACKLIST_WALLETS, SUPPORT_LIMIT_ORDER } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -25,7 +27,7 @@ import useTheme from 'hooks/useTheme'
 import { useWindowSize } from 'hooks/useWindowSize'
 import { useIsDarkMode } from 'state/user/hooks'
 import DarkModeQueryParamReader from 'theme/DarkModeQueryParamReader'
-import { isAddressString, shortenAddress } from 'utils'
+import { isAddressString, isChristmasTime, shortenAddress } from 'utils'
 
 import { RedirectDuplicateTokenIds } from './AddLiquidityV2/redirects'
 import { RedirectPathToFarmNetwork } from './Farm/redirect'
@@ -131,6 +133,9 @@ export default function App() {
   const showFooter = !pathname.includes(APP_PATHS.ABOUT)
   const feedbackId = isDarkTheme ? 'W5TeOyyH' : 'K0dtSO0v'
 
+  const snowflake = document.createElement('img')
+  snowflake.src = snow
+
   return (
     <ErrorBoundary>
       <AppHaveUpdate />
@@ -194,6 +199,16 @@ export default function App() {
             </HeaderWrapper>
             <Suspense fallback={<Loader />}>
               <BodyWrapper>
+                {isChristmasTime() && (
+                  <Snowfall
+                    speed={[0.5, 1]}
+                    wind={[-0.5, 0.25]}
+                    snowflakeCount={isMobile ? 13 : 31}
+                    images={[snowflake]}
+                    radius={[5, 15]}
+                  />
+                )}
+
                 <Popups />
                 <Web3ReactManager>
                   <Routes>

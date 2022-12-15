@@ -29,6 +29,7 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
 import { ExternalLink } from 'theme/components'
+import { isChristmasTime } from 'utils'
 
 interface Props extends NavLinkProps {
   activeClassName?: string
@@ -138,12 +139,13 @@ const HeaderLinks = styled(Row)`
   `};
 `
 
-const IconImage = styled.img`
+const IconImage = styled.img<{ isChristmas?: boolean }>`
   width: 140px;
-  margin-top: 1px;
+  margin-top: ${({ isChristmas }) => (isChristmas ? '-18px' : '1px')};
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
+  ${({ theme, isChristmas }) => theme.mediaWidth.upToSmall`
     width: 114px;
+    margin-top: ${isChristmas ? '-10px' : '1px'};
   `};
 
   @media only screen and (max-width: 400px) {
@@ -193,7 +195,7 @@ const Title = styled(Link)`
   }
 `
 
-const UniIcon = styled.div`
+const LogoIcon = styled.div`
   transition: transform 0.3s ease;
 
   :hover {
@@ -377,9 +379,19 @@ export default function Header() {
     <HeaderFrame>
       <HeaderRow>
         <Title to="/swap">
-          <UniIcon>
-            <IconImage src={isDark ? '/logo-dark.svg' : '/logo.svg'} alt="logo" />
-          </UniIcon>
+          {isChristmasTime() ? (
+            <LogoIcon>
+              <IconImage
+                isChristmas
+                src={isDark ? '/christmas-logo-dark.svg' : '/christmas-logo-light.svg'}
+                alt="logo"
+              />
+            </LogoIcon>
+          ) : (
+            <LogoIcon>
+              <IconImage src={isDark ? '/logo-dark.svg' : '/logo.svg'} alt="logo" />
+            </LogoIcon>
+          )}
         </Title>
         <HeaderLinks>
           <HoverDropdown
