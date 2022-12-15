@@ -102,8 +102,7 @@ export default function useTotalVotingReward() {
       try {
         const rewards = await Promise.all([
           (async () => {
-            let sum = 0
-            const pools = await ethereumInfo.classicClient.query({
+            const poolsQuery = ethereumInfo.classicClient.query({
               query: POOLS_BULK,
               variables: {
                 allPools: LP_ADDRESSES,
@@ -111,19 +110,19 @@ export default function useTotalVotingReward() {
               fetchPolicy: 'network-only',
             })
             const balances = await getTresuaryBalances()
-            balances.forEach(result => {
+            const pools = await poolsQuery
+            const balancesNum = balances.map(result => {
               const pool = pools.data.pools.find((pool: any) => pool.id === result.id)
-              sum =
-                sum +
-                (parseFloat(new Fraction(result.balance.toString(), 10 ** 18).toSignificant(6)) *
+              return (
+                (parseFloat(new Fraction(result.balance.toString(), 10 ** 18).toSignificant(18)) *
                   parseFloat(pool.reserveUSD)) /
-                  parseFloat(pool.totalSupply)
+                parseFloat(pool.totalSupply)
+              )
             })
-            return sum
+            return balancesNum.reduce((a: number, b: number) => a + b, 0)
           })(),
           (async () => {
-            let sum = 0
-            const poolsMatic = await maticInfo.classicClient.query({
+            const poolsMaticQuery = maticInfo.classicClient.query({
               query: POOLS_BULK,
               variables: {
                 allPools: MATIC_LP_ADDRESSES,
@@ -131,50 +130,49 @@ export default function useTotalVotingReward() {
               fetchPolicy: 'network-only',
             })
             const balancesMatic = await getMaticTresuaryBalances()
-            balancesMatic.forEach(result => {
+            const poolsMatic = await poolsMaticQuery
+
+            const balancesMaticNum = balancesMatic.map(result => {
               const pool = poolsMatic.data.pools.find((pool: any) => pool.id === result.id)
-              sum =
-                sum +
-                (parseFloat(new Fraction(result.balance.toString(), 10 ** 18).toSignificant(6)) *
+              return (
+                (parseFloat(new Fraction(result.balance.toString(), 10 ** 18).toSignificant(18)) *
                   parseFloat(pool.reserveUSD)) /
-                  parseFloat(pool.totalSupply)
+                parseFloat(pool.totalSupply)
+              )
             })
-            return sum
+            return balancesMaticNum.reduce((a: number, b: number) => a + b, 0)
           })(),
           (async () => {
-            const ethBalance = await providers[ChainId.MAINNET].getBalance(TRESUARY_ADDRESS)
+            const ethBalanceQuery = providers[ChainId.MAINNET].getBalance(TRESUARY_ADDRESS)
             const ethPrice = await ethereumInfo.classicClient.query({
               query: ETH_PRICE,
               fetchPolicy: 'network-only',
             })
+            const ethBalance = await ethBalanceQuery
             return (
-              parseFloat(new Fraction(ethBalance.toString(), Math.pow(10, 18)).toSignificant(6)) *
+              parseFloat(new Fraction(ethBalance.toString(), 10 ** 18).toSignificant(18)) *
               parseFloat(ethPrice.data.bundles[0].ethPrice)
             )
           })(),
           (async () => {
-            const maticBalance = await providers[ChainId.MATIC].getBalance(MATIC_TRESUARY_ADDRESS)
+            const maticBalanceQuery = providers[ChainId.MATIC].getBalance(MATIC_TRESUARY_ADDRESS)
             const maticPrice = await maticInfo.classicClient.query({
               query: ETH_PRICE,
               fetchPolicy: 'network-only',
             })
+            const maticBalance = await maticBalanceQuery
             return (
-              parseFloat(new Fraction(maticBalance.toString(), Math.pow(10, 18)).toSignificant(6)) *
+              parseFloat(new Fraction(maticBalance.toString(), 10 ** 18).toSignificant(18)) *
               parseFloat(maticPrice.data.bundles[0].ethPrice)
             )
           })(),
           (async () => {
             const KNCContract = new Contract(KNC_ADDRESS, ERC20_ABI, providers[ChainId.MAINNET])
             const kncBalance = await KNCContract.balanceOf(REWARD_POOL_ADDRESS)
-            return parseFloat(new Fraction(kncBalance.toString(), Math.pow(10, 18)).toSignificant(6))
+            return parseFloat(new Fraction(kncBalance.toString(), 10 ** 18).toSignificant(18))
           })(),
         ])
-
-        setTotalVotingReward(
-          rewards.reduce((a: number, total: number) => {
-            return total + a
-          }),
-        )
+        setTotalVotingReward(rewards.reduce((a: number, b: number) => a + b, 0))
       } catch {
         setTotalVotingReward(0)
       }
@@ -187,7 +185,7 @@ export default function useTotalVotingReward() {
       const kncPriceByETH = await getKNCPriceByETH(ChainId.MAINNET, NETWORKS_INFO[ChainId.MAINNET].classicClient)
       const ethPrice = await getEthPrice(ChainId.MAINNET, NETWORKS_INFO[ChainId.MAINNET].classicClient)
       const kncPrice = kncPriceByETH * ethPrice[0] || 0
-      setKncPriceETH(+kncPrice.toPrecision(2))
+      setKncPriceETH(kncPrice)
     }
     checkForKNCPrice()
   }, [])
