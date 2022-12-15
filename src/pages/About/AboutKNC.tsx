@@ -45,6 +45,7 @@ import {
   OptimismLogo,
   Polygon,
 } from 'components/Icons'
+import { APP_PATHS } from 'constants/index'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { useDarkModeManager } from 'state/user/hooks'
@@ -317,21 +318,19 @@ function AboutKNC() {
                 alt="KyberDao"
                 style={{ display: above768 ? 'none' : 'block', marginTop: '40px' }}
               />
-              <ExternalLink href="https://kyber.org/vote">
-                <Flex
-                  width={above768 ? '236px' : '100%'}
-                  marginTop={['40px', '48px']}
-                  sx={{ gap: above768 ? '24px' : '16px' }}
-                  justifyContent="center"
-                >
-                  <BtnPrimary>
-                    <Archive />
-                    <Text fontSize="16px" marginLeft="8px">
-                      <Trans>Stake KNC</Trans>
-                    </Text>
-                  </BtnPrimary>
-                </Flex>
-              </ExternalLink>
+
+              <BtnPrimary
+                width={above768 ? '236px' : '100%'}
+                margin="40px 0 0"
+                as={Link}
+                to={APP_PATHS.KYBERDAO_VOTE}
+                onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_STAKE_KNC_CLICKED)}
+              >
+                <Archive />
+                <Text fontSize="16px" marginLeft="8px">
+                  <Trans>Stake KNC</Trans>
+                </Text>
+              </BtnPrimary>
             </Flex>
           </Flex>
           <Text
