@@ -414,11 +414,12 @@ export function useVotingInfo() {
       const totalStakedKNC = daoInfo?.total_staked
       if (parseFloat(totalStakedKNC) === 0) return '0'
 
-      const votingPower = newStakingAmount
-        ? ((parseFloat(kncAmount) + parseFloat(newStakingAmount)) / (totalStakedKNC + parseFloat(newStakingAmount))) *
-          100
-        : (parseFloat(kncAmount) / totalStakedKNC) * 100
-      if (votingPower === 0) return '0'
+      const votingPower =
+        newStakingAmount && parseFloat(newStakingAmount) > 0
+          ? ((parseFloat(kncAmount) + parseFloat(newStakingAmount)) / (totalStakedKNC + parseFloat(newStakingAmount))) *
+            100
+          : (parseFloat(kncAmount) / totalStakedKNC) * 100
+      if (votingPower <= 0) return '0'
       if (votingPower < 0.000001) {
         return '0.000001'
       } else {
