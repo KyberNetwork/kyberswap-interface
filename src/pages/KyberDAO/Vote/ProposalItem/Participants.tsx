@@ -103,8 +103,7 @@ export default function Participants({ proposalId }: { proposalId?: number }) {
     <Wrapper>
       {options && participants
         ? options.map((o, index) => {
-            const participantOptionList = participants.filter(p => p.option === index)
-            const sumPower = participantOptionList.reduce((sum, p) => sum + parseFloat(p.power.replaceAll(',', '')), 0)
+            const sumPower = proposalInfo?.vote_stats.options.find(option => option.option === index)?.vote_count
             const isWonOption =
               proposalInfo?.proposal_type === ProposalType.BinaryProposal &&
               proposalInfo?.vote_stats?.options.reduce((max, o) => (o.vote_count > max.vote_count ? o : max)).option ===
@@ -117,7 +116,7 @@ export default function Participants({ proposalId }: { proposalId?: number }) {
                     <Text style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{o}</Text>
                   </RowFit>
 
-                  <Text style={{ paddingLeft: '10px' }}>{sumPower.toLocaleString()}</Text>
+                  <Text style={{ paddingLeft: '10px' }}>{sumPower ? Math.round(sumPower).toLocaleString() : '--'}</Text>
                 </RowBetween>
                 <Divider margin="10px 0" />
                 <TableHeaderWrapper fontSize={12} color={theme.subText}>
