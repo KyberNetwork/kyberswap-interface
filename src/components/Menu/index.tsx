@@ -153,6 +153,7 @@ const MenuFlyoutBrowserStyle = css`
 `
 
 const MenuFlyoutMobileStyle = css`
+  overflow-y: scroll;
   & ${ExternalNavMenuItem}:nth-child(1),
   & ${NavMenuItem}:nth-child(1) {
     padding-top: 0.75rem;
