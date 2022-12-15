@@ -15,7 +15,6 @@ jobs:
         resolution: ['low']
 
     steps:
-      # npm > 6 doesn't play well with docker on gh actions
       - name: Chown workspace
         run: chown -R $(whoami) .
 
@@ -35,8 +34,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildx-
 
-      # thanks to this, you will never have issues with transactions in your e2e tests
-      # because every transaction will be done from different wallet (and tests are ran in parallel)
       - name:
           Set private keys for e2e testing (different wallet for each
           resolution)
@@ -58,12 +55,8 @@ jobs:
       - name: Run e2e tests (${{ matrix.resolution }} resolution)
         run: |
           #!/bin/bash
-          printenv
-
           REPLACE_DOMAIN=$(echo "kyberswap-interface-${PR_NUMBER}.pr.kyberengineering.io")
-
           sed -i -e "s@kyberswap.com@${REPLACE_DOMAIN}@" synpress/synpress.config.js
-          cat synpress/synpress.config.js
           docker-compose --env-file ./${{ matrix.resolution }}-res.env up --build --exit-code-from synpress
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}
@@ -83,6 +76,4 @@ jobs:
           name: e2e-artifacts-${{ matrix.resolution }}-resolution
           path: |
             docker/videos
-            docker/videos-ci
-            docker/screenshots
         continue-on-error: true
