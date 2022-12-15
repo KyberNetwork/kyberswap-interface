@@ -6,6 +6,7 @@ import {
   BookOpen,
   Edit,
   FileText,
+  HelpCircle,
   Info,
   Menu as MenuIcon,
   MessageCircle,
@@ -315,10 +316,13 @@ export default function Menu() {
             <Trans>Swap Legacy</Trans>
           </NavMenuItem>
         )}
-
         <ExternalNavMenuItem href="https://forms.gle/gLiNsi7iUzHws2BY8">
           <Edit size={14} />
-          <Trans>Contact Us</Trans>
+          <Trans>Business Enquiries</Trans>
+        </ExternalNavMenuItem>
+        <ExternalNavMenuItem href="https://support.kyberswap.com">
+          <HelpCircle size={16} />
+          <Trans>Help</Trans>
         </ExternalNavMenuItem>
         <ClaimRewardButton
           disabled={!account || !isEVM || !(networkInfo as EVMNetworkInfo).classic.claimReward || pendingTx}
