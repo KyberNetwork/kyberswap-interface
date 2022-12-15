@@ -81,7 +81,6 @@ interface CurrencySearchProps {
   showImportView: () => void
   setImportToken: (token: Token) => void
   customChainId?: ChainId
-  supportNative?: boolean
 }
 
 const PAGE_SIZE = 20
@@ -136,7 +135,6 @@ export function CurrencySearch({
   showImportView,
   setImportToken,
   customChainId,
-  supportNative = true,
 }: CurrencySearchProps) {
   const { chainId: web3ChainId } = useActiveWeb3React()
   const chainId = customChainId || web3ChainId
@@ -160,21 +158,18 @@ export function CurrencySearch({
   const [loadingCommon, setLoadingCommon] = useState(true)
 
   const showETH: boolean = useMemo(() => {
-    if (!supportNative) return false
     const nativeToken = NativeCurrencies[chainId]
     const s = debouncedQuery.toLowerCase().trim()
     return !!nativeToken?.symbol?.toLowerCase().startsWith(s)
-  }, [debouncedQuery, chainId, supportNative])
+  }, [debouncedQuery, chainId])
 
   const tokenImportsFiltered = useMemo(() => {
     return (debouncedQuery ? filterTokens(chainId, tokenImports, debouncedQuery) : tokenImports).sort(tokenComparator)
   }, [debouncedQuery, chainId, tokenImports, tokenComparator])
 
   const filteredCommonTokens = useMemo(() => {
-    return filterTokens(chainId, commonTokens as Token[], debouncedQuery).filter(e =>
-      supportNative ? true : !e.isNative,
-    )
-  }, [commonTokens, debouncedQuery, supportNative, chainId])
+    return filterTokens(chainId, commonTokens as Token[], debouncedQuery)
+  }, [commonTokens, debouncedQuery, chainId])
 
   const filteredSortedTokens: Token[] = useMemo(() => {
     if (!debouncedQuery) {
