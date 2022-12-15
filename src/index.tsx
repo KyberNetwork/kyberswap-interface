@@ -87,19 +87,22 @@ if (ENV_LEVEL > ENV_TYPE.LOCAL) {
 AOS.init()
 
 // customer support widget
+window.zESettings = {
+  webWidget: {
+    offset: {
+      vertical: window.innerWidth > MEDIA_WIDTHS.upToLarge ? '0px' : '75px',
+      mobile: {
+        vertical: '65px',
+        horizontal: '-5px',
+      },
+    },
+    zIndex: Z_INDEXS.ICON_SUPPORT,
+  },
+}
 const script = document.createElement('script')
 script.src = 'https://static.zdassets.com/ekr/snippet.js?key=a73faacd-ba50-493a-8bf5-4b6878035346'
 script.id = 'ze-snippet'
 document.body.appendChild(script)
-window.zESettings.offset = {
-  offset: {
-    vertical: window.innerWidth > MEDIA_WIDTHS.upToLarge ? '0px' : '75px',
-    mobile: {
-      vertical: '75px',
-    },
-  },
-  zIndex: Z_INDEXS.ICON_SUPPORT,
-}
 
 const Web3ProviderNetwork = createWeb3ReactRoot(NetworkContextName)
 
