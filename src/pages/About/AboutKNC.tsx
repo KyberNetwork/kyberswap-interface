@@ -20,8 +20,9 @@ import TrophyIcon from 'assets/svg/trophy.svg'
 import {
   Binance,
   Bithumb,
+  Bitrue,
+  Coinbase,
   Etoro,
-  FTX,
   Gate,
   Gemini,
   Huobi,
@@ -29,10 +30,10 @@ import {
   Krystal,
   Kucoin,
   KyberSwap,
-  Okex,
+  Mexc,
+  Okx,
   TokyoCrypto,
   Upbit,
-  Wazirx,
 } from 'components/ExchangeIcons'
 import { FooterSocialLink } from 'components/Footer/Footer'
 import {
@@ -70,18 +71,19 @@ const LIST_EXCHANGES = [
   { name: 'KyberSwap', logo: <KyberSwap /> },
   { name: 'Krystal', logo: <Krystal /> },
   { name: 'Binance', logo: <Binance /> },
-  { name: 'FTX', logo: <FTX /> },
+  { name: 'Mexc', logo: <Mexc /> },
   { name: 'Etoro', logo: <Etoro /> },
   { name: 'Huobi', logo: <Huobi /> },
   { name: 'Upbit', logo: <Upbit /> },
   { name: 'Kraken', logo: <Kraken /> },
   { name: 'Kucoin', logo: <Kucoin /> },
   { name: 'Gate', logo: <Gate /> },
-  { name: 'Okex', logo: <Okex /> },
+  { name: 'Coinbase', logo: <Coinbase width={160} /> },
   { name: 'Bithumb', logo: <Bithumb /> },
   { name: 'Gemini', logo: <Gemini /> },
-  { name: 'Wazirx', logo: <Wazirx /> },
+  { name: 'Okx', logo: <Okx /> },
   { name: 'TokyoCrypto', logo: <TokyoCrypto /> },
+  { name: 'Bitrue', logo: <Bitrue /> },
 ]
 
 const LIST_WALLETS = [
