@@ -199,6 +199,6 @@ export default function useTotalVotingReward() {
           : 0,
       [totalVotingReward, kncPriceETH, localStoredTotalVotingReward],
     ),
-    kncPriceETH,
+    kncPriceETH: kncPriceETH.toPrecision(4),
   }
 }

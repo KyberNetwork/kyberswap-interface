@@ -622,8 +622,7 @@ export default function StakeKNCComponent() {
               <Text>
                 <Trans>Voting power</Trans>{' '}
                 <InfoHelper
-                  text={t`Your voting power is calculated by
-[Your Staked KNC] / [Total Staked KNC] * 100%`}
+                  text={t`Your voting power is calculated by [Your Staked KNC] / [Total Staked KNC] * 100%`}
                 />
               </Text>
               <Text>
