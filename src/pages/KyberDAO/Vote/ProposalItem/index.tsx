@@ -95,7 +95,7 @@ const StatusBadged = styled.div<{ color?: string }>`
         `}
 `
 
-const Content = styled.div<{ show?: boolean }>`
+const Content = styled.div`
   gap: 24px;
   padding: 24px 0;
   transition: all 0.2s ease;
@@ -103,17 +103,6 @@ const Content = styled.div<{ show?: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 20px;
-  ${({ show }) =>
-    show
-      ? css`
-          opacity: 1;
-          max-height: 'max-content';
-        `
-      : css`
-          opacity: 0;
-          padding: 0;
-          max-height: 0;
-        `}
 `
 
 const OptionsWrapper = styled(RowBetween)<{ optionCount?: number }>`
@@ -376,42 +365,44 @@ function ProposalItem({
           )}
         </RowBetween>
       </ProposalHeader>
-      <Content ref={contentRef as any} show={show}>
-        <Row align="flex-start" gap="16px">
-          <div style={{ flex: 1 }}>
-            {proposal?.link && proposal.link !== '0x0' && (
-              <a
-                href={proposal.link?.startsWith('http') ? proposal.link : 'http://' + proposal.link}
-                style={{ marginBottom: '12px', width: 'fit-content' }}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <span style={{ marginRight: '4px' }}>
-                  <LaunchIcon size={14} />
-                </span>
-                <span style={{ fontSize: '14px', verticalAlign: 'top' }}>
-                  <Trans>Github</Trans>
-                </span>
-              </a>
-            )}
-            <Text
-              fontSize={isMobile ? 14 : 16}
-              lineHeight={isMobile ? '18px' : '22px'}
-              color={theme.subText}
-              marginBottom="20px"
-              dangerouslySetInnerHTML={{ __html: proposal.desc.replaceAll('\\n', '').replaceAll('\\r', '') }}
-              style={{ wordBreak: 'break-word' }}
-            ></Text>
-            {isMobile && <VoteInformation proposal={proposal} />}
-          </div>
-          {!isMobile && (
-            <div style={{ width: '368px' }}>
-              <VoteInformation proposal={proposal} />
+      {show && (
+        <Content ref={contentRef as any}>
+          <Row align="flex-start" gap="16px">
+            <div style={{ flex: 1 }}>
+              {proposal?.link && proposal.link !== '0x0' && (
+                <a
+                  href={proposal.link?.startsWith('http') ? proposal.link : 'http://' + proposal.link}
+                  style={{ marginBottom: '12px', width: 'fit-content' }}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <span style={{ marginRight: '4px' }}>
+                    <LaunchIcon size={14} />
+                  </span>
+                  <span style={{ fontSize: '14px', verticalAlign: 'top' }}>
+                    <Trans>Github</Trans>
+                  </span>
+                </a>
+              )}
+              <Text
+                fontSize={isMobile ? 14 : 16}
+                lineHeight={isMobile ? '18px' : '22px'}
+                color={theme.subText}
+                marginBottom="20px"
+                dangerouslySetInnerHTML={{ __html: proposal.desc.replaceAll('\\n', '').replaceAll('\\r', '') }}
+                style={{ wordBreak: 'break-word' }}
+              ></Text>
+              {isMobile && <VoteInformation proposal={proposal} />}
             </div>
-          )}
-        </Row>
-        <Participants proposalId={show ? proposal.proposal_id : undefined} />
-      </Content>
+            {!isMobile && (
+              <div style={{ width: '368px' }}>
+                <VoteInformation proposal={proposal} />
+              </div>
+            )}
+          </Row>
+          <Participants proposalId={proposal.proposal_id} />
+        </Content>
+      )}
       {proposal.status === ProposalStatus.Active && (
         <VoteConfirmModal
           isShow={showConfirmModal}
