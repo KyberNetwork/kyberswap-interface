@@ -152,6 +152,7 @@ const MenuFlyoutBrowserStyle = css`
 `
 
 const MenuFlyoutMobileStyle = css`
+  overflow-y: scroll;
   & ${ExternalNavMenuItem}:nth-child(1),
   & ${NavMenuItem}:nth-child(1) {
     padding-top: 0.75rem;
@@ -315,10 +316,9 @@ export default function Menu() {
             <Trans>Swap Legacy</Trans>
           </NavMenuItem>
         )}
-
         <ExternalNavMenuItem href="https://forms.gle/gLiNsi7iUzHws2BY8">
           <Edit size={14} />
-          <Trans>Contact Us</Trans>
+          <Trans>Business Enquiries</Trans>
         </ExternalNavMenuItem>
         <ClaimRewardButton
           disabled={!account || !isEVM || !(networkInfo as EVMNetworkInfo).classic.claimReward || pendingTx}
