@@ -6,7 +6,6 @@ import {
   BookOpen,
   Edit,
   FileText,
-  HelpCircle,
   Info,
   Menu as MenuIcon,
   MessageCircle,
