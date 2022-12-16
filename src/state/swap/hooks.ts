@@ -37,7 +37,7 @@ import { isAddress } from 'utils'
 import { Aggregator } from 'utils/aggregator'
 import { computeSlippageAdjustedAmounts } from 'utils/prices'
 
-import { SolanaEncode } from './types'
+import { SolanaEncode } from '../types'
 
 export function useSwapState(): AppState['swap'] {
   return useSelector<AppState, AppState['swap']>(state => state.swap)
@@ -346,6 +346,7 @@ export function queryParametersToSwapState(
     attemptingTxn: false,
     swapErrorMessage: undefined,
     txHash: undefined,
+    isSelectTokenManually: false,
   }
 }
 
@@ -429,4 +430,15 @@ export const useDefaultsFromURLSearch = ():
   }, [dispatch, chainId, parsedQs])
 
   return result
+}
+
+export const useInputCurrency = () => {
+  const inputCurrencyId = useSelector((state: AppState) => state.swap[Field.INPUT].currencyId)
+  const inputCurrency = useCurrencyV2(inputCurrencyId)
+  return inputCurrency || undefined
+}
+export const useOutputCurrency = () => {
+  const outputCurrencyId = useSelector((state: AppState) => state.swap[Field.OUTPUT].currencyId)
+  const outputCurrency = useCurrencyV2(outputCurrencyId)
+  return outputCurrency || undefined
 }
