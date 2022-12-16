@@ -264,7 +264,7 @@ export function ButtonDropdownLight({
   )
 }
 
-const BtnApprovedWrapper = styled(ButtonConfirmed)`
+const BtnInfoWrapper = styled(ButtonConfirmed)`
   padding: 0;
   height: 44px;
   display: flex;
@@ -288,7 +288,7 @@ export const ButtonWithInfoHelper = ({
   text?: ReactNode
 }) => {
   return (
-    <BtnApprovedWrapper disabled={disabled} altDisabledStyle={loading} confirmed={confirmed} onClick={onClick}>
+    <BtnInfoWrapper disabled={disabled} altDisabledStyle={loading} confirmed={confirmed} onClick={onClick}>
       <MouseoverTooltip width="300px" text={tooltipMsg} disableTooltip={loading}>
         <Flex
           style={{ alignItems: 'center', height: 44, paddingRight: 8, paddingLeft: 2 }}
@@ -298,7 +298,7 @@ export const ButtonWithInfoHelper = ({
         </Flex>
       </MouseoverTooltip>
       <Text textAlign="left">{text}</Text>
-    </BtnApprovedWrapper>
+    </BtnInfoWrapper>
   )
 }
 

@@ -562,7 +562,7 @@ const LimitOrderForm = function LimitOrderForm({
         )} ${WETH[chainId].symbol}`,
       }))
       const hash = await onWrap?.()
-      setTxHashWrapped(hash)
+      hash && setTxHashWrapped(hash)
       setFlowState(state => ({ ...state, showConfirm: false }))
     } catch (error) {
       handleError(error)

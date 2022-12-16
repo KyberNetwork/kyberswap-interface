@@ -136,7 +136,7 @@ export function CurrencySearch({
   showImportView,
   setImportToken,
   customChainId,
-  filterWrap = false, // if input eth => output filter weth, and else
+  filterWrap = false, // input eth => output filter weth, input weth => output filter eth
 }: CurrencySearchProps) {
   const { chainId: web3ChainId } = useActiveWeb3React()
   const chainId = customChainId || web3ChainId
@@ -163,6 +163,7 @@ export function CurrencySearch({
     return (debouncedQuery ? filterTokens(chainId, tokenImports, debouncedQuery) : tokenImports).sort(tokenComparator)
   }, [debouncedQuery, chainId, tokenImports, tokenComparator])
 
+  // input eth => output filter weth, input weth => output filter eth
   const filterWrapFunc = useCallback(
     (token: Currency | undefined) => {
       if (filterWrap && otherSelectedCurrency?.equals(WETH[chainId])) {
