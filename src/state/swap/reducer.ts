@@ -12,6 +12,7 @@ import {
   replaceSwapState,
   resetSelectCurrency,
   selectCurrency,
+  setConfirming,
   setRecipient,
   setTrade,
   setTrendingSoonShowed,
@@ -37,6 +38,7 @@ export interface SwapState {
   readonly trendingSoonShowed?: boolean
   readonly trade?: Aggregator
   readonly encodeSolana?: SolanaEncode
+  readonly isConfirming: boolean
 
   readonly showConfirm: boolean
   readonly tradeToConfirm: Aggregator | undefined
@@ -72,6 +74,7 @@ const initialState: SwapState = {
   attemptingTxn: false,
   swapErrorMessage: undefined,
   txHash: undefined,
+  isConfirming: false,
 }
 
 export default createReducer<SwapState>(initialState, builder =>
@@ -160,5 +163,8 @@ export default createReducer<SwapState>(initialState, builder =>
     .addCase(setTrade, (state, { payload: { trade } }) => {
       state.trade = trade
       state.encodeSolana = undefined
+    })
+    .addCase(setConfirming, (state, { payload }) => {
+      state.isConfirming = payload
     }),
 )

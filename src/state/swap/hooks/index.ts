@@ -346,6 +346,7 @@ export function queryParametersToSwapState(
     attemptingTxn: false,
     swapErrorMessage: undefined,
     txHash: undefined,
+    isConfirming: false,
   }
 }
 
