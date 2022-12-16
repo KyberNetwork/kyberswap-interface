@@ -321,10 +321,6 @@ export default function Menu() {
           <Edit size={14} />
           <Trans>Business Enquiries</Trans>
         </ExternalNavMenuItem>
-        <ExternalNavMenuItem href="https://support.kyberswap.com">
-          <HelpCircle size={16} />
-          <Trans>Help</Trans>
-        </ExternalNavMenuItem>
         <ClaimRewardButton
           disabled={!account || !isEVM || !(networkInfo as EVMNetworkInfo).classic.claimReward || pendingTx}
           onClick={() => {
