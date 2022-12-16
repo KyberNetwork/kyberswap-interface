@@ -141,7 +141,7 @@ export default function ProAmmPoolList({
         .flat()
         .filter(pool => pool.endTime > Date.now() / 1000)
         .map(pool => {
-          const v = pool.totalRewards.reduce((acc, cur, index) => {
+          const v = pool.totalRewards.reduce((acc, cur) => {
             return acc + Number(cur.toExact()) * tokenPriceMap[cur.currency.wrapped.address]
           }, 0)
           const farmDuration = (pool.endTime - pool.startTime) / 86400

@@ -165,7 +165,10 @@ const FarmSort = ({ className }: { className?: string }) => {
 
   const theme = useTheme()
   const selectedOption =
-    sortOptions.find(item => item.orderBy === orderBy && item.orderDirection === orderDirection) || sortOptions[7]
+    sortOptions.find(item => item.orderBy === orderBy && item.orderDirection === orderDirection) ||
+    pathname.startsWith('/farms')
+      ? sortOptions[7]
+      : sortOptions[3]
 
   const [show, setShow] = useState(false)
 

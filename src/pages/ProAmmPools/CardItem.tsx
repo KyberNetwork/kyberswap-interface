@@ -1,12 +1,13 @@
 import { ChainId, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
-import { BarChart2, Share2 } from 'react-feather'
+import { BarChart2, Plus, Share2 } from 'react-feather'
 import { Link, useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import bgimg from 'assets/images/card-background.png'
+import { ReactComponent as ViewPositionIcon } from 'assets/svg/view_positions.svg'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import Divider from 'components/Divider'
@@ -232,7 +233,9 @@ export default function ProAmmPoolCardItem({ pool, onShared, userPositions }: Li
             as={Link}
             to={`/myPools/${networkInfo.route}?tab=${VERSION.ELASTIC}&search=${pool.address}`}
             padding="10px"
+            style={{ height: '36px' }}
           >
+            <ViewPositionIcon />
             <Text width="max-content" fontSize="14px">
               <Trans>View Positions</Trans>
             </Text>
@@ -241,6 +244,7 @@ export default function ProAmmPoolCardItem({ pool, onShared, userPositions }: Li
 
         <ButtonPrimary
           padding="10px"
+          style={{ height: '36px' }}
           onClick={() => {
             const url = myLiquidity
               ? `/myPools/${networkInfo.route}?tab=${VERSION.ELASTIC}&search=${pool.address}`
@@ -254,7 +258,8 @@ export default function ProAmmPoolCardItem({ pool, onShared, userPositions }: Li
             }
           }}
         >
-          <Text width="max-content" fontSize="14px">
+          <Plus size={16} />
+          <Text width="max-content" fontSize="14px" marginLeft="4px">
             <Trans>Add Liquidity</Trans>
           </Text>
         </ButtonPrimary>
