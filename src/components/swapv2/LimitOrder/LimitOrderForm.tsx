@@ -311,13 +311,8 @@ const LimitOrderForm = function LimitOrderForm({
     if (outputAmount && !tryParseAmount(outputAmount, currencyOut)) {
       return t`Your output amount is invalid.`
     }
-
-    if (currencyIn?.isNative && currencyOut?.equals(WETH[chainId])) {
-      return t`Please choose another token. Because we will wrapping ${currencyIn.symbol}`
-    }
-
     return
-  }, [outputAmount, currencyOut, chainId, currencyIn])
+  }, [outputAmount, currencyOut])
 
   const hasInputError = inputError || outPutError
 
@@ -633,6 +628,7 @@ const LimitOrderForm = function LimitOrderForm({
               id="create-limit-order-input-tokena"
               maxCurrencySymbolLength={6}
               otherCurrency={currencyOut}
+              filterWrap
             />
             <ArrowRotate isVertical rotate={rotate} onClick={handleRotateClick} />
 
@@ -649,6 +645,7 @@ const LimitOrderForm = function LimitOrderForm({
               showCommonBases
               maxCurrencySymbolLength={6}
               otherCurrency={currencyIn}
+              filterWrap
             />
           </RowBetween>
         )}

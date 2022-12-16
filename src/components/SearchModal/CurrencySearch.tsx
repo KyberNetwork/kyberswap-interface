@@ -1,4 +1,4 @@
-import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import axios from 'axios'
 import { rgba } from 'polished'
@@ -81,6 +81,7 @@ interface CurrencySearchProps {
   showImportView: () => void
   setImportToken: (token: Token) => void
   customChainId?: ChainId
+  filterWrap?: boolean
 }
 
 const PAGE_SIZE = 20
@@ -135,6 +136,7 @@ export function CurrencySearch({
   showImportView,
   setImportToken,
   customChainId,
+  filterWrap = false, // if input eth => output filter weth, and else
 }: CurrencySearchProps) {
   const { chainId: web3ChainId } = useActiveWeb3React()
   const chainId = customChainId || web3ChainId
@@ -157,37 +159,38 @@ export function CurrencySearch({
   const [commonTokens, setCommonTokens] = useState<(Token | Currency)[]>([])
   const [loadingCommon, setLoadingCommon] = useState(true)
 
-  const showETH: boolean = useMemo(() => {
-    const nativeToken = NativeCurrencies[chainId]
-    const s = debouncedQuery.toLowerCase().trim()
-    return !!nativeToken?.symbol?.toLowerCase().startsWith(s)
-  }, [debouncedQuery, chainId])
-
   const tokenImportsFiltered = useMemo(() => {
     return (debouncedQuery ? filterTokens(chainId, tokenImports, debouncedQuery) : tokenImports).sort(tokenComparator)
   }, [debouncedQuery, chainId, tokenImports, tokenComparator])
 
+  const filterWrapFunc = useCallback(
+    (token: Currency | undefined) => {
+      if (filterWrap && otherSelectedCurrency?.equals(WETH[chainId])) {
+        return !token?.isNative
+      }
+      if (filterWrap && otherSelectedCurrency?.isNative) {
+        return !token?.equals(WETH[chainId])
+      }
+      return true
+    },
+    [chainId, otherSelectedCurrency, filterWrap],
+  )
+
   const filteredCommonTokens = useMemo(() => {
-    return filterTokens(chainId, commonTokens as Token[], debouncedQuery)
-  }, [commonTokens, debouncedQuery, chainId])
+    return filterTokens(chainId, commonTokens as Token[], debouncedQuery).filter(filterWrapFunc)
+  }, [commonTokens, debouncedQuery, chainId, filterWrapFunc])
 
   const filteredSortedTokens: Token[] = useMemo(() => {
+    const nativeToken = NativeCurrencies[chainId]
+    const tokensWithNative = [nativeToken, ...fetchedTokens] as Token[]
     if (!debouncedQuery) {
-      // only sort whitelist token,  token search we don't sort
-      const sorted = fetchedTokens.sort(tokenComparator)
-      const symbolMatch = debouncedQuery
-        .toLowerCase()
-        .split(/\s+/)
-        .filter(s => s.length > 0)
-      if (symbolMatch.length > 1) return sorted
-      return [
-        // sort any exact symbol matches first
-        ...sorted.filter(token => token.symbol?.toLowerCase() === symbolMatch[0]),
-        ...sorted.filter(token => token.symbol?.toLowerCase() !== symbolMatch[0]),
-      ]
+      // whitelist token
+      return tokensWithNative.sort(tokenComparator).filter(filterWrapFunc)
     }
-    return fetchedTokens
-  }, [fetchedTokens, debouncedQuery, tokenComparator])
+
+    const isMatchNative = nativeToken?.symbol?.toLowerCase().startsWith(debouncedQuery.toLowerCase().trim())
+    return (isMatchNative ? tokensWithNative : fetchedTokens).filter(filterWrapFunc)
+  }, [fetchedTokens, debouncedQuery, tokenComparator, filterWrapFunc, chainId])
 
   const handleCurrencySelect = useCallback(
     (currency: Currency) => {
@@ -357,15 +360,9 @@ export function CurrencySearch({
     // need call api when only debouncedQuery change
   }, [debouncedQuery, prevQuery, fetchListTokens])
 
-  const combinedTokens = useMemo(() => {
-    const currencies: Currency[] = filteredSortedTokens
-    if (showETH && !currencies.find(e => e.isNative)) currencies.unshift(NativeCurrencies[chainId])
-    return currencies
-  }, [showETH, chainId, filteredSortedTokens])
-
   const visibleCurrencies: Currency[] = useMemo(() => {
-    return activeTab === Tab.Imported ? tokenImportsFiltered : combinedTokens
-  }, [activeTab, combinedTokens, tokenImportsFiltered])
+    return activeTab === Tab.Imported ? tokenImportsFiltered : filteredSortedTokens
+  }, [activeTab, filteredSortedTokens, tokenImportsFiltered])
 
   const removeToken = useRemoveUserAddedToken()
 
