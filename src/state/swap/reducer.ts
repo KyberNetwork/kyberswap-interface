@@ -2,6 +2,7 @@ import { createReducer } from '@reduxjs/toolkit'
 
 import { APP_PATHS } from 'constants/index'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
+import { RouteSummary } from 'types/metaAggregator'
 import { Aggregator } from 'utils/aggregator'
 import { queryStringToObject } from 'utils/string'
 
@@ -9,9 +10,13 @@ import {
   Field,
   chooseToSaveGas,
   encodedSolana,
+  getMetaAggregatorRouteFailure,
+  getMetaAggregatorRouteRequest,
+  getMetaAggregatorRouteSuccess,
   replaceSwapState,
   resetSelectCurrency,
   selectCurrency,
+  setConfirming,
   setRecipient,
   setTrade,
   setTrendingSoonShowed,
@@ -37,12 +42,19 @@ export interface SwapState {
   readonly trendingSoonShowed?: boolean
   readonly trade?: Aggregator
   readonly encodeSolana?: SolanaEncode
+  readonly isConfirming: boolean
 
   readonly showConfirm: boolean
   readonly tradeToConfirm: Aggregator | undefined
   readonly attemptingTxn: boolean
   readonly swapErrorMessage: string | undefined
   readonly txHash: string | undefined
+
+  // swap v3 - new meta aggregator API
+  readonly isLoadingRoute: boolean
+  readonly routeSummary?: RouteSummary
+  readonly routerAddress?: string
+  readonly isSelectTokenManually: boolean
 }
 
 const { search, pathname } = window.location
@@ -72,6 +84,10 @@ const initialState: SwapState = {
   attemptingTxn: false,
   swapErrorMessage: undefined,
   txHash: undefined,
+  isConfirming: false,
+
+  isSelectTokenManually: false,
+  isLoadingRoute: false,
 }
 
 export default createReducer<SwapState>(initialState, builder =>
@@ -110,12 +126,18 @@ export default createReducer<SwapState>(initialState, builder =>
           independentField: state.independentField === Field.INPUT ? Field.OUTPUT : Field.INPUT,
           [field]: { currencyId },
           [otherField]: { currencyId: state[field].currencyId },
+          isSelectTokenManually: true,
+          routerAddress: undefined,
+          routeSummary: undefined,
         }
       } else {
         // the normal case
         return {
           ...state,
           [field]: { currencyId },
+          isSelectTokenManually: true,
+          routerAddress: undefined,
+          routeSummary: undefined,
         }
       }
     })
@@ -131,6 +153,7 @@ export default createReducer<SwapState>(initialState, builder =>
         independentField: state.independentField === Field.INPUT ? Field.OUTPUT : Field.INPUT,
         [Field.INPUT]: { currencyId: state[Field.OUTPUT].currencyId },
         [Field.OUTPUT]: { currencyId: state[Field.INPUT].currencyId },
+        isSelectTokenManually: true,
       }
     })
     .addCase(switchCurrenciesV2, state => {
@@ -139,13 +162,18 @@ export default createReducer<SwapState>(initialState, builder =>
         independentField: Field.INPUT,
         [Field.INPUT]: { currencyId: state[Field.OUTPUT].currencyId },
         [Field.OUTPUT]: { currencyId: state[Field.INPUT].currencyId },
+        isSelectTokenManually: true,
+        routerAddress: undefined,
+        routeSummary: undefined,
       }
     })
     .addCase(typeInput, (state, { payload: { field, typedValue } }) => {
-      return {
-        ...state,
-        independentField: field,
-        typedValue,
+      state.independentField = field
+      state.typedValue = typedValue
+
+      if (!typedValue) {
+        state.routerAddress = undefined
+        state.routeSummary = undefined
       }
     })
     .addCase(setRecipient, (state, { payload: { recipient } }) => {
@@ -160,5 +188,19 @@ export default createReducer<SwapState>(initialState, builder =>
     .addCase(setTrade, (state, { payload: { trade } }) => {
       state.trade = trade
       state.encodeSolana = undefined
+    })
+    .addCase(setConfirming, (state, { payload }) => {
+      state.isConfirming = payload
+    })
+    .addCase(getMetaAggregatorRouteRequest, (state, { payload }) => {
+      state.isLoadingRoute = true
+    })
+    .addCase(getMetaAggregatorRouteSuccess, (state, { payload }) => {
+      state.isLoadingRoute = false
+      state.routeSummary = payload.routeSummary
+      state.routerAddress = payload.routerAddress
+    })
+    .addCase(getMetaAggregatorRouteFailure, (state, { payload }) => {
+      state.isLoadingRoute = false
     }),
 )

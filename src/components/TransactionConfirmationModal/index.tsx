@@ -46,7 +46,7 @@ const StyledLogo = styled.img`
   margin-left: 6px;
 `
 
-function ConfirmationPendingContent({
+export function ConfirmationPendingContent({
   onDismiss,
   pendingText,
   startedTime,
@@ -132,7 +132,7 @@ function AddTokenToInjectedWallet({ token, chainId }: { token: Token; chainId: C
   )
 }
 
-function TransactionSubmittedContent({
+export function TransactionSubmittedContent({
   onDismiss,
   chainId,
   hash,

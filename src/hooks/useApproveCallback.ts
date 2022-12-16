@@ -4,10 +4,12 @@ import { Trade } from '@kyberswap/ks-sdk-classic'
 import { Currency, CurrencyAmount, TradeType } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 import { useCallback, useMemo } from 'react'
+import { useSelector } from 'react-redux'
 
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { useTokenAllowance } from 'data/Allowances'
+import { AppState } from 'state'
 import { Field } from 'state/swap/actions'
 import { useHasPendingApproval, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
@@ -152,4 +154,11 @@ export function useApproveCallbackFromTradeV2(
     [trade, allowedSlippage],
   )
   return useApproveCallback(amountToApprove, trade?.routerAddress || undefined)
+}
+
+// wraps useApproveCallback in the context of a swap
+export function useApproveCallbackV3(): [ApprovalState, () => Promise<void>] {
+  const amountToApprove = useSelector((state: AppState) => state.swap.routeSummary?.parsedAmountIn)
+  const routerAddress = useSelector((state: AppState) => state.swap.routerAddress)
+  return useApproveCallback(amountToApprove, routerAddress || undefined)
 }
