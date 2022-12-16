@@ -31,12 +31,12 @@ import { RedirectDuplicateTokenIds } from './AddLiquidityV2/redirects'
 import { RedirectPathToFarmNetwork } from './Farm/redirect'
 import { RedirectPathToMyPoolsNetwork } from './Pool/redirect'
 import { RedirectPathToPoolsNetwork } from './Pools/redirect'
-import { RedirectPathToSwapNetwork } from './SwapV2/redirects'
+import { RedirectPathToSwapNetwork } from './SwapV3/redirects'
 import Verify from './Verify'
 
 // Route-based code splitting
 const Swap = lazy(() => import(/* webpackChunkName: 'swap-page' */ './Swap'))
-const SwapV2 = lazy(() => import(/* webpackChunkName: 'swapv2-page' */ './SwapV2'))
+const SwapV3 = lazy(() => import(/* webpackChunkName: 'swapv2-page' */ './SwapV3'))
 const Bridge = lazy(() => import(/* webpackChunkName: 'bridge-page' */ './Bridge'))
 const Pools = lazy(() => import(/* webpackChunkName: 'pools-page' */ './Pools'))
 const Pool = lazy(() => import(/* webpackChunkName: 'my-pool-page' */ './Pool'))
@@ -204,15 +204,15 @@ export default function App() {
                     <Route element={<DarkModeQueryParamReader />} />
                     <Route path={APP_PATHS.SWAP_LEGACY} element={<Swap />} />
 
-                    <Route path={`${APP_PATHS.SWAP}/:network/:fromCurrency-to-:toCurrency`} element={<SwapV2 />} />
-                    <Route path={`${APP_PATHS.SWAP}/:network/:fromCurrency`} element={<SwapV2 />} />
-                    <Route path={`${APP_PATHS.SWAP}/:network`} element={<SwapV2 />} />
+                    <Route path={`${APP_PATHS.SWAP}/:network/:fromCurrency-to-:toCurrency`} element={<SwapV3 />} />
+                    <Route path={`${APP_PATHS.SWAP}/:network/:fromCurrency`} element={<SwapV3 />} />
+                    <Route path={`${APP_PATHS.SWAP}/:network`} element={<SwapV3 />} />
 
                     {getLimitOrderContract(chainId) && (
                       <>
-                        <Route path={`${APP_PATHS.LIMIT}/:network/:fromCurrency-to-:toCurrency`} element={<SwapV2 />} />
-                        <Route path={`${APP_PATHS.LIMIT}/:network/:fromCurrency`} element={<SwapV2 />} />
-                        <Route path={`${APP_PATHS.LIMIT}/:network`} element={<SwapV2 />} />
+                        <Route path={`${APP_PATHS.LIMIT}/:network/:fromCurrency-to-:toCurrency`} element={<SwapV3 />} />
+                        <Route path={`${APP_PATHS.LIMIT}/:network/:fromCurrency`} element={<SwapV3 />} />
+                        <Route path={`${APP_PATHS.LIMIT}/:network`} element={<SwapV3 />} />
                       </>
                     )}
 
