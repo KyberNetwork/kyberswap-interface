@@ -12,7 +12,6 @@ import { Swap as SwapIcon } from 'components/Icons'
 import Modal from 'components/Modal'
 import { Z_INDEXS } from 'constants/styles'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
-import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 
 const Wrapper = styled.div`
@@ -96,6 +95,16 @@ const poolSortOptions = [
     orderDirection: 'desc',
     label: <Trans>FEES ↓</Trans>,
   },
+  {
+    orderBy: 'my_liquidity',
+    orderDirection: 'asc',
+    label: <Trans>MY LIQUIDITY ↑</Trans>,
+  },
+  {
+    orderBy: 'my_liquidity',
+    orderDirection: 'desc',
+    label: <Trans>MY LIQUIDITY ↓</Trans>,
+  },
 ]
 
 const farmSortOptions = [
@@ -152,26 +161,21 @@ const farmSortOptions = [
 ]
 
 const FarmSort = ({ className }: { className?: string }) => {
+  const { pathname } = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
-  const { orderBy, orderDirection } = useParsedQueryString()
+  const orderDirection = searchParams.get('orderDirection') || 'desc'
+  const orderBy = searchParams.get('orderBy') || (pathname.startsWith('/farms') ? 'apr' : 'tvl')
   const ref = useRef<HTMLDivElement>(null)
   useOnClickOutside(ref, () => {
     setShow(false)
   })
 
-  const { pathname } = useLocation()
-
   const sortOptions = pathname.startsWith('/farms') ? farmSortOptions : poolSortOptions
 
   const theme = useTheme()
-  const selectedOption =
-    sortOptions.find(item => item.orderBy === orderBy && item.orderDirection === orderDirection) ||
-    pathname.startsWith('/farms')
-      ? sortOptions[7]
-      : sortOptions[3]
+  const selectedOption = sortOptions.find(item => item.orderBy === orderBy && item.orderDirection === orderDirection)
 
   const [show, setShow] = useState(false)
-
   const upToExtraSmall = useMedia('(max-width: 576px)')
 
   return (
@@ -187,7 +191,7 @@ const FarmSort = ({ className }: { className?: string }) => {
       >
         <Flex alignItems="center">
           <SwapIcon size={20} />
-          {!upToExtraSmall && <Text marginLeft="4px">{selectedOption.label}</Text>}
+          {!upToExtraSmall && <Text marginLeft="4px">{selectedOption?.label}</Text>}
         </Flex>
         {!upToExtraSmall && <DropdownIcon style={{ transform: `rotate(${show ? '180deg' : '0'})` }} />}
 

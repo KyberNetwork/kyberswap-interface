@@ -105,6 +105,7 @@ enum SORT_FIELD {
   APR = 'apr',
   VOLUME = 'volume',
   FEE = 'fee',
+  MY_LIQUIDITY = 'my_liquidity',
 }
 
 enum SORT_DIRECTION {
@@ -174,7 +175,10 @@ export default function ProAmmPoolList({
   const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
   const userLiquidityPositionsQueryResult = useUserProMMPositions()
   const loadingUserPositions = !account ? false : userLiquidityPositionsQueryResult.loading
-  const userPositions = !account ? {} : userLiquidityPositionsQueryResult.userLiquidityUsdByPool
+  const userPositions = useMemo(
+    () => (!account ? {} : userLiquidityPositionsQueryResult.userLiquidityUsdByPool),
+    [account, userLiquidityPositionsQueryResult],
+  )
 
   const isSortDesc = sortDirection === SORT_DIRECTION.DESC
   const listComparator = useCallback(
@@ -194,13 +198,18 @@ export default function ProAmmPoolList({
           const a = poolA.apr + (poolA.farmAPR || 0)
           const b = poolB.apr + (poolB.farmAPR || 0)
           return a > b ? (isSortDesc ? -1 : 1) * 1 : (isSortDesc ? -1 : 1) * -1
+        case SORT_FIELD.MY_LIQUIDITY:
+          const t1 = userPositions[poolA.address] || 0
+          const t2 = userPositions[poolB.address] || 0
+          return (t1 - t2) * (isSortDesc ? -1 : 1)
+
         default:
           break
       }
 
       return 0
     },
-    [isSortDesc, sortField],
+    [isSortDesc, sortField, userPositions],
   )
 
   const anyLoading = loading || poolDataLoading || loadingUserPositions
@@ -349,8 +358,17 @@ export default function ProAmmPoolList({
           </ClickableText>
         </Flex>
         <Flex alignItems="center" justifyContent="flex-end">
-          <ClickableText>
-            <Trans>YOUR LIQUIDITY</Trans>
+          <ClickableText onClick={() => handleSort(SORT_FIELD.MY_LIQUIDITY)}>
+            <Trans>MY LIQUIDITY</Trans>
+            {sortField === SORT_FIELD.MY_LIQUIDITY ? (
+              !isSortDesc ? (
+                <ArrowUp size="14" style={{ marginLeft: '2px' }} />
+              ) : (
+                <ArrowDown size="14" style={{ marginLeft: '2px' }} />
+              )
+            ) : (
+              ''
+            )}
           </ClickableText>
         </Flex>
         <Flex alignItems="center" justifyContent="flex-end">
