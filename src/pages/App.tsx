@@ -136,7 +136,7 @@ export default function App() {
   const feedbackId = isDarkTheme ? 'W5TeOyyH' : 'K0dtSO0v'
   const [holidayMode] = useHolidayMode()
 
-  const snowflake = document.createElement('img')
+  const snowflake = new Image()
   snowflake.src = snow
 
   return (
@@ -196,17 +196,17 @@ export default function App() {
               <Header />
             </HeaderWrapper>
             <Suspense fallback={<Loader />}>
-              <BodyWrapper>
-                {holidayMode && (
-                  <Snowfall
-                    speed={[0.5, 1]}
-                    wind={[-0.5, 0.25]}
-                    snowflakeCount={isMobile ? 13 : 31}
-                    images={[snowflake]}
-                    radius={[5, 15]}
-                  />
-                )}
+              {holidayMode && (
+                <Snowfall
+                  speed={[0.5, 1]}
+                  wind={[-0.5, 0.25]}
+                  snowflakeCount={isMobile ? 13 : 31}
+                  images={[snowflake]}
+                  radius={[5, 15]}
+                />
+              )}
 
+              <BodyWrapper>
                 <Popups />
                 <Web3ReactManager>
                   <Routes>
