@@ -409,7 +409,7 @@ export default function Header() {
               <Trans>Swap</Trans>
               <DropdownIcon />
             </Flex>
-            <Dropdown>
+            <Dropdown id={TutorialIds.BRIDGE_LINKS}>
               <StyledNavLink id={`swapv2-nav-link`} to={APP_PATHS.SWAP}>
                 <Repeat size={16} />
                 <Trans>Swap</Trans>
@@ -420,37 +420,35 @@ export default function Header() {
                   <Trans>Limit Order</Trans>
                 </StyledNavLink>
               )}
-              <div id={TutorialIds.BRIDGE_LINKS}>
-                {isSolana || (
-                  <StyledNavLink to={APP_PATHS.BRIDGE}>
-                    <BridgeIcon height={15} />
-                    <Text flex={1}>
-                      <Trans>Bridge</Trans>
-                    </Text>
-                    <img
-                      src={isDark ? MultichainLogoLight : MultichainLogoDark}
-                      alt="kyberswap with multichain"
-                      height={10}
-                    />
-                  </StyledNavLink>
-                )}
-                <StyledNavLink
-                  id={`buy-crypto-nav-link`}
-                  to={APP_PATHS.BUY_CRYPTO}
-                  onClick={() => {
-                    mixpanelHandler(MIXPANEL_TYPE.SWAP_BUY_CRYPTO_CLICKED)
-                  }}
-                >
-                  <BuyCrypto />
+              {isSolana || (
+                <StyledNavLink to={APP_PATHS.BRIDGE}>
+                  <BridgeIcon height={15} />
                   <Text flex={1}>
-                    <Trans>Buy Crypto</Trans>
+                    <Trans>Bridge</Trans>
                   </Text>
-                  <Flex sx={{ gap: '8px' }}>
-                    <VisaSVG width="20" height="20" />
-                    <MasterCard width="20" height="20" />
-                  </Flex>
+                  <img
+                    src={isDark ? MultichainLogoLight : MultichainLogoDark}
+                    alt="kyberswap with multichain"
+                    height={10}
+                  />
                 </StyledNavLink>
-              </div>
+              )}
+              <StyledNavLink
+                id={`buy-crypto-nav-link`}
+                to={APP_PATHS.BUY_CRYPTO}
+                onClick={() => {
+                  mixpanelHandler(MIXPANEL_TYPE.SWAP_BUY_CRYPTO_CLICKED)
+                }}
+              >
+                <BuyCrypto />
+                <Text flex={1}>
+                  <Trans>Buy Crypto</Trans>
+                </Text>
+                <Flex sx={{ gap: '8px' }}>
+                  <VisaSVG width="20" height="20" />
+                  <MasterCard width="20" height="20" />
+                </Flex>
+              </StyledNavLink>
             </Dropdown>
           </HoverDropdown>
 
