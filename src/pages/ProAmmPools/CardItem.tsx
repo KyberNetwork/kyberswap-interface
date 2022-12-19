@@ -105,37 +105,44 @@ export default function ProAmmPoolCardItem({ pool, onShared, userPositions }: Li
 
   return (
     <Wrapper key={pool.address}>
-      <Flex alignItems="center">
-        <DoubleCurrencyLogo
-          size={20}
-          currency0={isToken0WETH ? nativeToken : token0}
-          currency1={isToken1WETH ? nativeToken : token1}
-        />
-        <Text fontSize={16} fontWeight="500">
-          {token0Symbol} - {token1Symbol}
-        </Text>
-        <FeeTag style={{ fontSize: '12px', marginRight: '4px' }}>
-          Fee {(pool.feeTier * 100) / ELASTIC_BASE_FEE_UNIT}%
-        </FeeTag>
+      <Link
+        to={`/elastic/add/${token0Slug}/${token1Slug}/${pool.feeTier}`}
+        style={{
+          textDecoration: 'none',
+        }}
+      >
+        <Flex alignItems="center">
+          <DoubleCurrencyLogo
+            size={20}
+            currency0={isToken0WETH ? nativeToken : token0}
+            currency1={isToken1WETH ? nativeToken : token1}
+          />
+          <Text fontSize={16} fontWeight="500">
+            {token0Symbol} - {token1Symbol}
+          </Text>
+          <FeeTag style={{ fontSize: '12px', marginRight: '4px' }}>
+            Fee {(pool.feeTier * 100) / ELASTIC_BASE_FEE_UNIT}%
+          </FeeTag>
 
-        {isFarmingPool && (
-          <MouseoverTooltip
-            noArrow
-            text={
-              <Text>
-                <Trans>
-                  Available for yield farming. Click{' '}
-                  <Link to={`/farms?tab=elastic&type=active&search=${pool.address}`}>here</Link> to go to the farm.
-                </Trans>
-              </Text>
-            }
-          >
-            <IconWrapper style={{ background: rgba(theme.primary, 0.2), width: '20px', height: '20px' }}>
-              <MoneyBag size={12} color={theme.apr} />
-            </IconWrapper>
-          </MouseoverTooltip>
-        )}
-      </Flex>
+          {isFarmingPool && (
+            <MouseoverTooltip
+              noArrow
+              text={
+                <Text>
+                  <Trans>
+                    Available for yield farming. Click{' '}
+                    <Link to={`/farms?tab=elastic&type=active&search=${pool.address}`}>here</Link> to go to the farm.
+                  </Trans>
+                </Text>
+              }
+            >
+              <IconWrapper style={{ background: rgba(theme.primary, 0.2), width: '20px', height: '20px' }}>
+                <MoneyBag size={12} color={theme.apr} />
+              </IconWrapper>
+            </MouseoverTooltip>
+          )}
+        </Flex>
+      </Link>
 
       <Flex
         marginTop="0.75rem"

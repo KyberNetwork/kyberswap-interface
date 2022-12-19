@@ -164,17 +164,24 @@ export default function ProAmmPoolListItem({ pool, onShared, userPositions }: Li
   return (
     <TableRow key={pool.address}>
       <div>
-        <Flex alignItems="center">
-          <DoubleCurrencyLogo
-            size={20}
-            currency0={isToken0WETH ? nativeToken : token0}
-            currency1={isToken1WETH ? nativeToken : token1}
-          />
-          <Text fontSize={14} fontWeight="500">
-            {token0Symbol} - {token1Symbol}
-          </Text>
-          <FeeTag>Fee {(pool.feeTier * 100) / ELASTIC_BASE_FEE_UNIT}%</FeeTag>
-        </Flex>
+        <Link
+          to={`/elastic/add/${token0Slug}/${token1Slug}/${pool.feeTier}`}
+          style={{
+            textDecoration: 'none',
+          }}
+        >
+          <Flex alignItems="center">
+            <DoubleCurrencyLogo
+              size={20}
+              currency0={isToken0WETH ? nativeToken : token0}
+              currency1={isToken1WETH ? nativeToken : token1}
+            />
+            <Text fontSize={14} fontWeight="500">
+              {token0Symbol} - {token1Symbol}
+            </Text>
+            <FeeTag>Fee {(pool.feeTier * 100) / ELASTIC_BASE_FEE_UNIT}%</FeeTag>
+          </Flex>
+        </Link>
 
         <Flex
           marginTop="0.5rem"
