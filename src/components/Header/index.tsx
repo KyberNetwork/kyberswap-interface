@@ -1,7 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { useMedia } from 'react-use'
 import styled, { keyframes } from 'styled-components'
 
 import SelectNetwork from 'components/Header/web3/SelectNetwork'
@@ -125,7 +124,12 @@ const DiscoverWrapper = styled.span`
   `};
 `
 
-const CampaignWrapper = styled.span``
+const CampaignWrapper = styled.span`
+  /* It's better to break at 420px than at extraSmall */
+  @media (max-width: 420px) {
+    display: none;
+  }
+`
 
 const BlogWrapper = styled.span`
   @media (max-width: 1440px) {
@@ -191,8 +195,6 @@ export const SlideToUnlock = styled.div<{ active?: boolean }>`
 
 export default function Header() {
   const { walletKey } = useActiveWeb3React()
-
-  const upTo420 = useMedia('(max-width: 420px)')
   const isDark = useIsDarkMode()
   const { pathname } = useLocation()
   const [isHoverSlide, setIsHoverSlide] = useState(false)
@@ -222,13 +224,11 @@ export default function Header() {
 
           <EarnNavGroup />
 
-          {!upTo420 && (
-            <CampaignWrapper id={TutorialIds.CAMPAIGN_LINK}>
-              <StyledNavLink id="campaigns" to={APP_PATHS.CAMPAIGN}>
-                <Trans>Campaigns</Trans>
-              </StyledNavLink>
-            </CampaignWrapper>
-          )}
+          <CampaignWrapper id={TutorialIds.CAMPAIGN_LINK}>
+            <StyledNavLink id="campaigns" to={APP_PATHS.CAMPAIGN}>
+              <Trans>Campaigns</Trans>
+            </StyledNavLink>
+          </CampaignWrapper>
 
           <DiscoverWrapper id={TutorialIds.DISCOVER_LINK}>
             <StyledNavLink to={'/discover?tab=trending_soon'} style={{ alignItems: 'center' }}>

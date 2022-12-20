@@ -97,6 +97,15 @@ const DiscoverWrapper = styled.span`
   `};
 `
 
+const CampaignWrapper = styled.span`
+  display: none;
+
+  /* It's better to break at 420px than at extraSmall */
+  @media (max-width: 420px) {
+    display: inline-flex;
+  }
+`
+
 const StyledMenuButton = styled.button<{ active?: boolean }>`
   border: none;
   background-color: transparent;
@@ -189,7 +198,6 @@ export default function Menu() {
 
   const under1440 = useMedia('(max-width: 1440px)')
   const above1321 = useMedia('(min-width: 1321px)')
-  const under420 = useMedia('(max-width: 420px)')
 
   const bridgeLink = networkInfo.bridgeURL
   const toggleClaimPopup = useToggleModal(ApplicationModal.CLAIM_POPUP)
@@ -248,12 +256,13 @@ export default function Menu() {
           </NavMenuItem>
         </DiscoverWrapper>
 
-        {under420 && (
+        <CampaignWrapper>
           <NavMenuItem to="/campaigns" onClick={toggle}>
             <Award size={14} />
             <Trans>Campaigns</Trans>
           </NavMenuItem>
-        )}
+        </CampaignWrapper>
+
         {under1440 && (
           <NavDropDown
             icon={<Info size={14} />}
