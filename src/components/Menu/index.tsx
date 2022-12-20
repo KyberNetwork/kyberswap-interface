@@ -89,6 +89,14 @@ const StyledLightIcon = styled(LightIcon)`
   }
 `
 
+const DiscoverWrapper = styled.span`
+  display: none;
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    display: inline-flex;
+  `};
+`
+
 const StyledMenuButton = styled.button<{ active?: boolean }>`
   border: none;
   background-color: transparent;
@@ -181,7 +189,6 @@ export default function Menu() {
 
   const under1440 = useMedia('(max-width: 1440px)')
   const above1321 = useMedia('(min-width: 1321px)')
-  const above768 = useMedia('(min-width: 768px)')
   const under420 = useMedia('(max-width: 420px)')
 
   const bridgeLink = networkInfo.bridgeURL
@@ -227,7 +234,7 @@ export default function Menu() {
           </ExternalNavMenuItem>
         )}
 
-        {!above768 && (
+        <DiscoverWrapper>
           <NavMenuItem to={'/discover?tab=trending_soon'} onClick={toggle}>
             <DiscoverIcon size={14} />
             <SlideToUnlock>
@@ -239,7 +246,7 @@ export default function Menu() {
               <Trans>New</Trans>
             </NewLabel>
           </NavMenuItem>
-        )}
+        </DiscoverWrapper>
 
         {under420 && (
           <NavMenuItem to="/campaigns" onClick={toggle}>
