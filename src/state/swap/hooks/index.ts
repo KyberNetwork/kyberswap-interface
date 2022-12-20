@@ -309,7 +309,7 @@ export function queryParametersToSwapState(
   parsedQs: ParsedUrlQuery,
   chainId: ChainId,
   isMatchPath: boolean,
-): Omit<SwapState, 'saveGas' | 'typedValue'> {
+): Omit<SwapState, 'saveGas' | 'typedValue' | 'routeSummary' | 'routerAddress'> {
   let inputCurrency = parseCurrencyFromURLParameter(isMatchPath ? parsedQs.inputCurrency : null, chainId)
   let outputCurrency = parseCurrencyFromURLParameter(isMatchPath ? parsedQs.outputCurrency : null, chainId)
   if (inputCurrency === outputCurrency) {
@@ -347,6 +347,8 @@ export function queryParametersToSwapState(
     swapErrorMessage: undefined,
     txHash: undefined,
     isConfirming: false,
+    isSelectTokenManually: false,
+    isLoadingRoute: false,
   }
 }
 

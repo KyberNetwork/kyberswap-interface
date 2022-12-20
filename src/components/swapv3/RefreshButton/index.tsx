@@ -1,8 +1,12 @@
 import React, { useEffect, useRef } from 'react'
+import { useSelector } from 'react-redux'
 import styled from 'styled-components'
 
 import { TIME_TO_REFRESH_SWAP_RATE } from 'constants/index'
+import { AppState } from 'state'
+import useParsedAmountFromInputCurrency from 'state/swap/hooks/useParsedAmountFromInputCurrency'
 
+import useMetaAggregatorRouteFetcher from '../useMetaAggregatorRouteFetcher'
 import LoadingIcon from './LoadingIcon'
 
 const IconButton = styled.button`
@@ -28,41 +32,42 @@ const IconButton = styled.button`
   }
 `
 
-type Props = {
-  enabled: boolean
-  onRefresh: () => void
-}
+const RefreshButton: React.FC = () => {
+  const svgRef = useRef<SVGSVGElement>(null)
+  const fetcher = useMetaAggregatorRouteFetcher()
 
-const RefreshButton: React.FC<Props> = ({ enabled, onRefresh }) => {
-  const svgLoadingRef = useRef<SVGSVGElement>(null)
-  const onRefreshRef = useRef(onRefresh)
+  // disable when previewing or input amount is not yet entered
+  const parsedAmount = useParsedAmountFromInputCurrency()
+  const isConfirming = useSelector((state: AppState) => state.swap.isConfirming)
+  const shouldDisable = !parsedAmount || parsedAmount.equalTo(0) || isConfirming
 
-  onRefreshRef.current = onRefresh
   useEffect(() => {
     let interval: any
-    const element = svgLoadingRef?.current
+    const element = svgRef?.current
     if (!element) {
       return
     }
 
-    if (enabled) {
-      // reset svg animate duration to 0 and UNPAUSE animations
-      element.setCurrentTime(0)
-      element.unpauseAnimations()
-      interval = setInterval(() => {
-        onRefreshRef.current()
-      }, TIME_TO_REFRESH_SWAP_RATE * 1000)
-    } else {
-      clearInterval(interval)
+    if (shouldDisable) {
       // reset svg animate duration to 0 and PAUSE animations
+      clearInterval(interval)
       element.setCurrentTime(0)
       element.pauseAnimations()
+    } else {
+      // reset svg animate duration to 0 and UNPAUSE animations
+
+      element.setCurrentTime(0)
+      element.unpauseAnimations()
+      fetcher()
+      interval = setInterval(() => {
+        fetcher()
+      }, TIME_TO_REFRESH_SWAP_RATE * 1000)
     }
 
     return () => {
       clearInterval(interval)
     }
-  }, [enabled])
+  }, [fetcher, shouldDisable])
 
   const enableClickToRefresh = false
   return (
@@ -71,10 +76,10 @@ const RefreshButton: React.FC<Props> = ({ enabled, onRefresh }) => {
         if (!enableClickToRefresh) {
           return
         }
-        onRefresh()
+        fetcher()
       }}
     >
-      <LoadingIcon ref={svgLoadingRef} clickable={enableClickToRefresh} />
+      <LoadingIcon ref={svgRef} clickable={enableClickToRefresh} durationInSeconds={TIME_TO_REFRESH_SWAP_RATE} />
     </IconButton>
   )
 }

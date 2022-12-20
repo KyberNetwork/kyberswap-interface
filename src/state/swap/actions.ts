@@ -1,6 +1,7 @@
 import { createAction } from '@reduxjs/toolkit'
 
 import { FeeConfig } from 'hooks/useSwapV2Callback'
+import { RouteSummary } from 'types/metaAggregator'
 import { Aggregator } from 'utils/aggregator'
 
 import { SolanaEncode } from './types'
@@ -32,3 +33,9 @@ export const setRecipient = createAction<{ recipient: string | null }>('swap/set
 export const setTrendingSoonShowed = createAction('swap/setTrendingSoonShowed')
 export const setTrade = createAction<{ trade: Aggregator | undefined }>('swap/setTrade')
 export const setConfirming = createAction<boolean>('swap/setConfirming')
+
+export const getMetaAggregatorRouteRequest = createAction('swap/getMetaAggregatorRouteRequest')
+export const getMetaAggregatorRouteSuccess = createAction<{ routeSummary: RouteSummary; routerAddress: string }>(
+  'swap/getMetaAggregatorRouteSuccess',
+)
+export const getMetaAggregatorRouteFailure = createAction('swap/getMetaAggregatorRouteFailure')

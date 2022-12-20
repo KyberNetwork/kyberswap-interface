@@ -1,10 +1,10 @@
 import React from 'react'
 
-import { TIME_TO_REFRESH_SWAP_RATE } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 
 type Props = {
   clickable: boolean
+  durationInSeconds: number
 }
 
 const LoadingIcon = React.forwardRef<SVGSVGElement, Props>((props, ref) => {
@@ -53,7 +53,7 @@ const LoadingIcon = React.forwardRef<SVGSVGElement, Props>((props, ref) => {
             values="0;-30"
             begin={props.clickable ? 'arrow_loading.click; 0.7s' : '0s'}
             repeatCount="indefinite"
-            dur={`${TIME_TO_REFRESH_SWAP_RATE}s`}
+            dur={`${props.durationInSeconds}s`}
           />
         </circle>
       </g>

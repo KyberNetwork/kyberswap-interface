@@ -1,11 +1,14 @@
-import { Currency, Price } from '@kyberswap/ks-sdk-core'
-import React, { CSSProperties, useState } from 'react'
+import { Currency, CurrencyAmount, Price, TokenAmount } from '@kyberswap/ks-sdk-core'
+import JSBI from 'jsbi'
+import React, { useState } from 'react'
 import { Repeat } from 'react-feather'
-import { Flex, Text } from 'rebass'
+import { useSelector } from 'react-redux'
+import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 import useTheme from 'hooks/useTheme'
-import { useCurrencyConvertedToNative } from 'utils/dmm'
+import { AppState } from 'state'
+import { useInputCurrency, useOutputCurrency } from 'state/swap/hooks'
 
 export const IconButton = styled.button`
   width: 22px;
@@ -15,6 +18,7 @@ export const IconButton = styled.button`
   justify-content: center;
   align-items: center;
 
+  cursor: pointer;
   background-color: transparent;
   outline: none;
   border: none;
@@ -27,61 +31,75 @@ export const IconButton = styled.button`
 
   :hover {
     background-color: ${({ theme }) => theme.bg3};
-  }
-  :focus {
-    background-color: ${({ theme }) => theme.bg3};
     outline: none;
   }
 `
 
-type Props = {
-  price?: Price<Currency, Currency>
-  style?: CSSProperties
+const toCurrencyAmount = (currency: Currency, value = ''): CurrencyAmount<Currency> => {
+  try {
+    return TokenAmount.fromRawAmount(currency, JSBI.BigInt(value))
+  } catch (e) {
+    return TokenAmount.fromRawAmount(currency, 0)
+  }
 }
 
-const TradePrice: React.FC<Props> = ({ price, style = {} }) => {
-  const theme = useTheme()
-  const [showInverted, setShowInverted] = useState<boolean>(false)
+const toPrice = (
+  inputAmount: CurrencyAmount<Currency>,
+  outputAmount: CurrencyAmount<Currency>,
+): Price<Currency, Currency> => {
+  return new Price(inputAmount.currency, outputAmount.currency, inputAmount.quotient, outputAmount.quotient)
+}
 
-  const show = Boolean(price?.baseCurrency && price?.quoteCurrency)
-  const nativeQuote = useCurrencyConvertedToNative(price?.quoteCurrency)
-  const nativeBase = useCurrencyConvertedToNative(price?.baseCurrency)
-  const label = showInverted
-    ? `${nativeQuote?.symbol} = 1 ${nativeBase?.symbol}`
-    : `${nativeBase?.symbol} = 1 ${nativeQuote?.symbol}`
+const TradePrice: React.FC = () => {
+  const theme = useTheme()
+  const [inverted, setInverted] = useState(false)
+
+  const currencyIn = useInputCurrency()
+  const currencyOut = useOutputCurrency()
+  const currencyAmountIn = useSelector((state: AppState) => state.swap.routeSummary?.parsedAmountIn)
+  const currencyAmountOut = useSelector((state: AppState) => state.swap.routeSummary?.parsedAmountOut)
+
+  const price = currencyAmountIn && currencyAmountOut ? toPrice(currencyAmountIn, currencyAmountOut) : undefined
+
+  const label = inverted
+    ? `${currencyOut?.symbol} = 1 ${currencyIn?.symbol}`
+    : `${currencyIn?.symbol} = 1 ${currencyOut?.symbol}`
 
   const getFormattedPrice = () => {
     try {
-      return showInverted ? price?.toSignificant(6) : price?.invert()?.toSignificant(6)
+      return inverted ? price?.toSignificant(6) : price?.invert()?.toSignificant(6)
     } catch (error) {
       return ''
     }
   }
-
   const formattedPrice = getFormattedPrice()
+  const show = Boolean(price?.baseCurrency && price?.quoteCurrency)
 
   return (
     <Flex
       sx={{
         alignItems: 'center',
         gap: '4px',
+        cursor: 'pointer',
       }}
+      fontWeight={500}
+      fontSize={12}
+      height="22px"
+      color={theme.subText}
+      onClick={() => setInverted(!inverted)}
     >
-      <Text
-        fontWeight={500}
-        fontSize={12}
-        color={theme.subText}
-        sx={{ alignItems: 'center', display: 'flex', cursor: 'pointer', ...style }}
-        onClick={() => setShowInverted(!showInverted)}
-        height="22px"
-      >
-        {show && formattedPrice ? `${formattedPrice} ${label}` : '-'}
-      </Text>
+      {show && formattedPrice ? (
+        <>
+          <Flex sx={{ alignItems: 'center' }}>
+            {formattedPrice} {label}
+          </Flex>
 
-      {show && formattedPrice && (
-        <IconButton>
-          <Repeat size={12} />
-        </IconButton>
+          <IconButton onClick={() => setInverted(i => !i)}>
+            <Repeat size={12} />
+          </IconButton>
+        </>
+      ) : (
+        '-'
       )}
     </Flex>
   )

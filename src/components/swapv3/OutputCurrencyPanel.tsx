@@ -1,45 +1,45 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
+import { useSelector } from 'react-redux'
 
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
-import { useActiveWeb3React } from 'hooks'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
+import { AppState } from 'state'
 import { Field } from 'state/swap/actions'
-import { useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
-import { useDerivedSwapInfoV2 } from 'state/swap/useAggregator'
+import { useInputCurrency, useOutputCurrency, useSwapActionHandlers } from 'state/swap/hooks'
+import useParsedAmountFromInputCurrency from 'state/swap/hooks/useParsedAmountFromInputCurrency'
 import { formattedNum } from 'utils'
 
-type Props = {
-  onSelect: () => void
-  derivedSwapInfoV2: ReturnType<typeof useDerivedSwapInfoV2>
-}
-
-const OutputCurrencyPanel: React.FC<Props> = ({ onSelect, derivedSwapInfoV2 }) => {
-  const { isSolana } = useActiveWeb3React()
-
-  const { independentField, typedValue } = useSwapState()
+const OutputCurrencyPanel: React.FC = () => {
+  const typedValue = useSelector((state: AppState) => state.swap.typedValue)
+  const routeSummary = useSelector((state: AppState) => state.swap.routeSummary)
   const { onCurrencySelection } = useSwapActionHandlers()
-  const { v2Trade, parsedAmount, currencies } = derivedSwapInfoV2
 
-  const currencyIn: Currency | undefined = currencies[Field.INPUT]
-  const currencyOut: Currency | undefined = currencies[Field.OUTPUT]
+  const currencyIn = useInputCurrency()
+  const currencyOut = useOutputCurrency()
+  const parsedAmount = useParsedAmountFromInputCurrency()
 
   const { wrapType } = useWrapCallback(currencyIn, currencyOut, typedValue)
-  const showWrap: boolean = isSolana && wrapType !== WrapType.NOT_APPLICABLE
-  const trade = showWrap ? undefined : v2Trade
+  // showWrap = true if this swap is either WRAP or UNWRAP
+  const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
 
   const getFormattedAmount = () => {
-    if (independentField === Field.OUTPUT) {
-      return typedValue
-    }
     if (showWrap) {
       return parsedAmount?.toExact() || ''
     }
-    return trade?.outputAmount?.toSignificant(6) ?? ''
+
+    return routeSummary?.parsedAmountOut?.toSignificant(6) || ''
+  }
+
+  const getEstimatedUsd = () => {
+    if (showWrap) {
+      return undefined
+    }
+
+    return routeSummary?.amountOutUsd ? `${formattedNum(routeSummary.amountOutUsd.toString(), true)}` : undefined
   }
 
   const handleOutputSelect = (outputCurrency: Currency) => {
     onCurrencySelection(Field.OUTPUT, outputCurrency)
-    onSelect()
   }
 
   return (
@@ -53,7 +53,7 @@ const OutputCurrencyPanel: React.FC<Props> = ({ onSelect, derivedSwapInfoV2 }) =
       otherCurrency={currencyIn}
       id="swap-currency-output"
       showCommonBases={true}
-      estimatedUsd={trade?.amountOutUsd ? `${formattedNum(trade.amountOutUsd.toString(), true)}` : undefined}
+      estimatedUsd={getEstimatedUsd()}
     />
   )
 }

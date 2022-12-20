@@ -1,15 +1,13 @@
 import { Trans, t } from '@lingui/macro'
 import { AlertTriangle } from 'react-feather'
+import { useSelector } from 'react-redux'
 import styled, { useTheme } from 'styled-components'
 
 import InfoHelper from 'components/InfoHelper'
+import { AppState } from 'state'
 import { useExpertModeManager } from 'state/user/hooks'
 
 import { isHighPriceImpact, isInvalidPriceImpact, isVeryHighPriceImpact } from './utils'
-
-type Props = {
-  priceImpact?: number
-}
 
 const Wrapper = styled.div<{ veryHigh?: boolean }>`
   margin-top: 28px;
@@ -24,8 +22,9 @@ const Wrapper = styled.div<{ veryHigh?: boolean }>`
   font-size: 12px;
 `
 
-const PriceImpactNote: React.FC<Props> = ({ priceImpact }) => {
+const PriceImpactNote: React.FC = () => {
   const theme = useTheme()
+  const priceImpact = useSelector((state: AppState) => state.swap.routeSummary?.priceImpact)
   const [isExpertMode] = useExpertModeManager()
 
   const renderInfoHelper = () => {

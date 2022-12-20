@@ -1,9 +1,9 @@
-import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
 import { useSelector } from 'react-redux'
-import { Box, Flex } from 'rebass'
+import { Flex } from 'rebass'
 
 import AddressInputPanel from 'components/AddressInputPanel'
 import ArrowRotate from 'components/ArrowRotate'
@@ -12,47 +12,35 @@ import TrendingSoonTokenBanner from 'components/TrendingSoonTokenBanner'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import TradeTypeSelection from 'components/swapv2/TradeTypeSelection'
 import { PriceImpactHigh, Wrapper } from 'components/swapv2/styleds'
-import { AGGREGATOR_WAITING_TIME } from 'constants/index'
 import { STABLE_COINS_ADDRESS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import usePrevious from 'hooks/usePrevious'
-import { useSyncNetworkParamWithStore } from 'hooks/useSyncNetworkParamWithStore'
 import useSyncTokenSymbolToUrl from 'hooks/useSyncTokenSymbolToUrl'
 import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { ClickableText } from 'pages/Pool/styleds'
 import { AppState } from 'state'
 import { useToggleTransactionSettingsMenu } from 'state/application/hooks'
-import { useAllDexes } from 'state/customizeDexes/hooks'
 import { Field } from 'state/swap/actions'
-import { useDefaultsFromURLSearch, useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
-import { useDerivedSwapInfoV2 } from 'state/swap/useAggregator'
+import { useInputCurrency, useOutputCurrency, useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
+import useParsedAmountFromInputCurrency from 'state/swap/hooks/useParsedAmountFromInputCurrency'
 import { useExpertModeManager, useUserAddedTokens, useUserSlippageTolerance } from 'state/user/hooks'
+import { useCurrencyBalances } from 'state/wallet/hooks'
 
 import ActionButton from './ActionButton'
-import AdvancedSwapDetailsDropdown from './AdvancedSwapDetailsDropdown'
 import InputCurrencyPanel from './InputCurrencyPanel'
 import OutputCurrencyPanel from './OutputCurrencyPanel'
 import PriceImpactNote from './PriceImpactNote'
 import RefreshButton from './RefreshButton'
-import TradeComparisonNote from './TradeComparisonNote'
 import TradePrice from './TradePrice'
+import TradeSummary from './TradeSummary'
 
-type Props = {
-  derivedSwapInfoV2: ReturnType<typeof useDerivedSwapInfoV2>
-}
-const SwapForm: React.FC<Props> = ({ derivedSwapInfoV2 }) => {
+const SwapForm: React.FC = () => {
   const { chainId, isSolana, isEVM } = useActiveWeb3React()
   const [rotate, setRotate] = useState(false)
 
-  const allDexes = useAllDexes()
-  useSyncNetworkParamWithStore()
-
-  const [isSelectCurrencyManually, setIsSelectCurrencyManually] = useState(false) // true when: select token input, output manualy or click rotate token.
-  // else select via url
-
-  useDefaultsFromURLSearch()
+  const isSelectCurrencyManually = useSelector((state: AppState) => state.swap.isSelectTokenManually)
 
   const theme = useTheme()
 
@@ -64,29 +52,23 @@ const SwapForm: React.FC<Props> = ({ derivedSwapInfoV2 }) => {
   const [allowedSlippage] = useUserSlippageTolerance()
 
   // swap state
-  const { typedValue, recipient, [Field.INPUT]: INPUT, [Field.OUTPUT]: OUTPUT, feeConfig } = useSwapState()
+  const { typedValue, recipient, [Field.INPUT]: INPUT, [Field.OUTPUT]: OUTPUT } = useSwapState()
 
-  const {
-    onSwitchTokensV2,
-    onCurrencySelection,
-    onResetSelectCurrency,
-    onUserInput,
-    onChangeRecipient,
-    onChangeTrade,
-  } = useSwapActionHandlers()
+  const { onSwitchTokensV2, onCurrencySelection, onResetSelectCurrency, onUserInput, onChangeRecipient } =
+    useSwapActionHandlers()
 
-  const { v2Trade, currencyBalances, parsedAmount, currencies, tradeComparer, onRefresh } = derivedSwapInfoV2
+  const parsedAmount = useParsedAmountFromInputCurrency()
 
-  const isConfirming = useSelector((state: AppState) => state.swap.isConfirming)
+  const currencyIn = useInputCurrency()
+  const currencyOut = useOutputCurrency()
+  const currencies = {
+    [Field.INPUT]: currencyIn,
+    [Field.OUTPUT]: currencyIn,
+  }
 
-  const comparedDex = useMemo(
-    () => allDexes?.find(dex => dex.id === tradeComparer?.comparedDex),
-    [allDexes, tradeComparer],
+  const [balanceIn] = useCurrencyBalances(
+    useMemo(() => [currencyIn ?? undefined, currencyOut ?? undefined], [currencyIn, currencyOut]),
   )
-  const currencyIn: Currency | undefined = currencies[Field.INPUT]
-  const currencyOut: Currency | undefined = currencies[Field.OUTPUT]
-
-  const balanceIn: CurrencyAmount<Currency> | undefined = currencyBalances[Field.INPUT]
 
   const { wrapType } = useWrapCallback(currencyIn, currencyOut, typedValue)
 
@@ -99,17 +81,11 @@ const SwapForm: React.FC<Props> = ({ derivedSwapInfoV2 }) => {
   }, [balanceIn, isSolanaUnwrap, onUserInput, parsedAmount])
 
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
-  const trade = showWrap ? undefined : v2Trade
 
   // reset recipient
   useEffect(() => {
     onChangeRecipient(null)
   }, [onChangeRecipient, isExpertMode])
-
-  useEffect(() => {
-    // Save current trade to store
-    onChangeTrade(trade)
-  }, [trade, onChangeTrade])
 
   const handleRecipientChange = (value: string | null) => {
     if (recipient === null && value !== null) {
@@ -128,10 +104,10 @@ const SwapForm: React.FC<Props> = ({ derivedSwapInfoV2 }) => {
   const handleRotateClick = useCallback(() => {
     setRotate(prev => !prev)
     onSwitchTokensV2()
-    setIsSelectCurrencyManually(true)
   }, [onSwitchTokensV2])
 
-  const { mixpanelHandler } = useMixpanel(trade, currencies)
+  // it's safe to put undefined here for now as we're not using any action that involves `trade`
+  const { mixpanelHandler } = useMixpanel(undefined, currencies)
 
   const onSelectSuggestedPair = useCallback(
     (fromToken: Currency | undefined, toToken: Currency | undefined, amount?: string) => {
@@ -236,42 +212,22 @@ const SwapForm: React.FC<Props> = ({ derivedSwapInfoV2 }) => {
     <Flex sx={{ flexDirection: 'column', gap: '16px' }}>
       <Wrapper id={TutorialIds.SWAP_FORM_CONTENT}>
         <Flex flexDirection="column" sx={{ gap: '0.75rem' }}>
-          <InputCurrencyPanel
-            onSelect={() => {
-              setIsSelectCurrencyManually(true)
-            }}
-            derivedSwapInfoV2={derivedSwapInfoV2}
-          />
+          <InputCurrencyPanel />
+
           <AutoRow justify="space-between">
             <Flex alignItems="center">
               {!showWrap && (
                 <>
-                  <RefreshButton
-                    enabled={!isConfirming && !!trade?.outputAmount}
-                    onRefresh={() => {
-                      onRefresh(false, AGGREGATOR_WAITING_TIME)
-                    }}
-                  />
-                  <TradePrice price={trade?.executionPrice} />
+                  <RefreshButton />
+                  <TradePrice />
                 </>
               )}
             </Flex>
 
             <ArrowRotate rotate={rotate} onClick={handleRotateClick} />
           </AutoRow>
-          <Box sx={{ position: 'relative' }}>
-            <TradeComparisonNote
-              usd={tradeComparer?.tradeSaved?.usd}
-              percent={tradeComparer?.tradeSaved?.percent}
-              dexName={comparedDex?.name}
-            />
-            <OutputCurrencyPanel
-              onSelect={() => {
-                setIsSelectCurrencyManually(true)
-              }}
-              derivedSwapInfoV2={derivedSwapInfoV2}
-            />
-          </Box>
+
+          <OutputCurrencyPanel />
 
           {isExpertMode && isEVM && !showWrap && (
             <AddressInputPanel id="recipient" value={recipient} onChange={handleRecipientChange} />
@@ -293,7 +249,7 @@ const SwapForm: React.FC<Props> = ({ derivedSwapInfoV2 }) => {
           <TrendingSoonTokenBanner currencyIn={currencyIn} currencyOut={currencyOut} style={{ marginTop: '24px' }} />
         )}
 
-        <PriceImpactNote priceImpact={trade?.priceImpact} />
+        <PriceImpactNote />
 
         {isLargeSwap && (
           <PriceImpactHigh>
@@ -302,9 +258,9 @@ const SwapForm: React.FC<Props> = ({ derivedSwapInfoV2 }) => {
           </PriceImpactHigh>
         )}
 
-        <ActionButton derivedSwapInfoV2={derivedSwapInfoV2} />
+        <ActionButton />
       </Wrapper>
-      <AdvancedSwapDetailsDropdown trade={trade} feeConfig={feeConfig} />
+      <TradeSummary />
     </Flex>
   )
 }

@@ -1,8 +1,6 @@
-import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import JSBI from 'jsbi'
-import { useEffect, useRef, useState } from 'react'
-import { useDispatch } from 'react-redux'
+import { useEffect, useMemo, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 
@@ -11,23 +9,31 @@ import Column from 'components/Column/index'
 import Loader from 'components/Loader'
 import ProgressSteps from 'components/ProgressSteps'
 import { AutoRow, RowBetween } from 'components/Row'
-import ConfirmSwapModal from 'components/swapv2/ConfirmSwapModal'
 import { Dots, SwapCallbackError } from 'components/swapv2/styleds'
-import { AGGREGATOR_WAITING_TIME, TIME_TO_REFRESH_SWAP_RATE } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { ApprovalState, useApproveCallbackFromTradeV2 } from 'hooks/useApproveCallback'
+import { ApprovalState, useApproveCallbackV3 } from 'hooks/useApproveCallback'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import { useSwapV2Callback } from 'hooks/useSwapV2Callback'
+import useSwapCallbackV3 from 'hooks/useSwapCallbackV3'
 import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
+import { AppState } from 'state'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { Field, setConfirming } from 'state/swap/actions'
-import { useEncodeSolana, useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
-import { useDerivedSwapInfoV2 } from 'state/swap/useAggregator'
-import { useExpertModeManager, useUserSlippageTolerance } from 'state/user/hooks'
+import {
+  useEncodeSolana,
+  useInputCurrency,
+  useOutputCurrency,
+  useSwapActionHandlers,
+  useSwapState,
+} from 'state/swap/hooks'
+import useParsedAmountFromInputCurrency from 'state/swap/hooks/useParsedAmountFromInputCurrency'
+import { useExpertModeManager } from 'state/user/hooks'
+import { useCurrencyBalances } from 'state/wallet/hooks'
 import { Aggregator } from 'utils/aggregator'
 
-import { isHighPriceImpact, isInvalidPriceImpact } from './utils'
+import SwapModal from './SwapModalV2'
+import useGetError from './useGetError'
+import { isHighPriceImpact, isInvalidPriceImpact, isVeryHighPriceImpact } from './utils'
 
 const CustomPrimaryButton = styled(ButtonPrimary).attrs({
   id: 'swap-button',
@@ -39,37 +45,33 @@ const CustomPrimaryButton = styled(ButtonPrimary).attrs({
     border: none;
   }
 `
-type Props = {
-  derivedSwapInfoV2: ReturnType<typeof useDerivedSwapInfoV2>
-}
-const ActionButton: React.FC<Props> = ({ derivedSwapInfoV2 }) => {
+
+const ActionButton: React.FC = () => {
   const { account, isSolana } = useActiveWeb3React()
   const [encodeSolana] = useEncodeSolana()
   const theme = useTheme()
   const dispatch = useDispatch()
 
+  const isLoadingRoute = useSelector((state: AppState) => !!state.swap.isLoadingRoute)
+  const hasNoRoute = useSelector((state: AppState) => state.swap?.routeSummary?.route.length === 0)
+
   // toggle wallet when disconnected
   const toggleWalletModal = useWalletModalToggle()
   const [isExpertMode] = useExpertModeManager()
-  const [allowedSlippage] = useUserSlippageTolerance()
   const {
-    independentField,
     typedValue,
-    recipient,
     isConfirming,
     [Field.INPUT]: { currencyId: inputCurrencyId },
   } = useSwapState()
   const { onUserInput } = useSwapActionHandlers()
+  const priceImpact = useSelector((state: AppState) => state.swap.routeSummary?.priceImpact)
+  const inputAmount = useSelector((state: AppState) => state.swap.routeSummary?.parsedAmountIn)
+  const outputAmount = useSelector((state: AppState) => state.swap.routeSummary?.parsedAmountOut)
+  const routerAddress = useSelector((state: AppState) => state.swap.routerAddress)
 
-  const {
-    onRefresh,
-    v2Trade,
-    currencyBalances,
-    parsedAmount,
-    currencies,
-    inputError: swapInputError,
-    loading: loadingAPI,
-  } = derivedSwapInfoV2
+  const swapInputError = useGetError()
+
+  const parsedAmount = useParsedAmountFromInputCurrency()
 
   // modal and loading
   const [{ tradeToConfirm, swapErrorMessage, attemptingTxn, txHash }, setSwapState] = useState<{
@@ -84,11 +86,12 @@ const ActionButton: React.FC<Props> = ({ derivedSwapInfoV2 }) => {
     txHash: undefined,
   })
 
-  const currencyIn: Currency | undefined = currencies[Field.INPUT]
-  const currencyOut: Currency | undefined = currencies[Field.OUTPUT]
+  const currencyIn = useInputCurrency()
+  const currencyOut = useOutputCurrency()
 
-  const balanceIn: CurrencyAmount<Currency> | undefined = currencyBalances[Field.INPUT]
-  const balanceOut: CurrencyAmount<Currency> | undefined = currencyBalances[Field.OUTPUT]
+  const [balanceIn, balanceOut] = useCurrencyBalances(
+    useMemo(() => [currencyIn, currencyOut], [currencyIn, currencyOut]),
+  )
 
   const { wrapType, execute: onWrap, inputError: wrapInputError } = useWrapCallback(currencyIn, currencyOut, typedValue)
 
@@ -101,28 +104,11 @@ const ActionButton: React.FC<Props> = ({ derivedSwapInfoV2 }) => {
   }, [balanceIn, isSolanaUnwrap, onUserInput, parsedAmount])
 
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
-  const trade = showWrap ? undefined : v2Trade
-  const isPriceImpactInvalid = !!trade?.priceImpact && trade?.priceImpact === -1
-  const isPriceImpactHigh = !!trade?.priceImpact && trade?.priceImpact > 5
-  const isPriceImpactVeryHigh = !!trade?.priceImpact && trade?.priceImpact > 15
 
-  const parsedAmounts = showWrap
-    ? {
-        [Field.INPUT]: parsedAmount,
-        [Field.OUTPUT]: parsedAmount,
-      }
-    : {
-        [Field.INPUT]: independentField === Field.INPUT ? parsedAmount : trade?.inputAmount,
-        [Field.OUTPUT]: independentField === Field.OUTPUT ? parsedAmount : trade?.outputAmount,
-      }
-
-  const userHasSpecifiedInputOutput = Boolean(
-    currencyIn && currencyOut && parsedAmounts[independentField]?.greaterThan(JSBI.BigInt(0)),
-  )
-  const noRoute = !trade?.swaps?.length
+  const userHasSpecifiedInputOutput = Boolean(currencyIn && currencyOut && parsedAmount)
 
   // check whether the user has approved the router on the input token
-  const [approval, approveCallback] = useApproveCallbackFromTradeV2(trade, allowedSlippage)
+  const [approval, approveCallback] = useApproveCallbackV3()
 
   // check if user has gone through approval process, used to show two step buttons, reset on token change
   const [approvalSubmitted, setApprovalSubmitted] = useState<boolean>(false)
@@ -143,7 +129,13 @@ const ActionButton: React.FC<Props> = ({ derivedSwapInfoV2 }) => {
   }, [inputCurrencyId])
 
   // the callback to execute the swap
-  const { callback: swapCallback, error: swapCallbackError } = useSwapV2Callback(trade)
+  const { callback: swapCallback, error: swapCallbackError } = useSwapCallbackV3(
+    inputAmount,
+    outputAmount,
+    priceImpact,
+    routerAddress,
+    '',
+  )
 
   const handleSwap = () => {
     if (!swapCallback) {
@@ -165,7 +157,7 @@ const ActionButton: React.FC<Props> = ({ derivedSwapInfoV2 }) => {
   }
 
   const handleAcceptChanges = () => {
-    setSwapState({ tradeToConfirm: trade, swapErrorMessage, txHash, attemptingTxn })
+    setSwapState({ tradeToConfirm: undefined, swapErrorMessage, txHash, attemptingTxn })
   }
 
   // show approve flow when: no error on inputs, not approved or pending, or approved in current session
@@ -176,27 +168,19 @@ const ActionButton: React.FC<Props> = ({ derivedSwapInfoV2 }) => {
       approval === ApprovalState.PENDING ||
       (approvalSubmitted && approval === ApprovalState.APPROVED))
 
-  const isLoading = loadingAPI || ((!balanceIn || !balanceOut) && userHasSpecifiedInputOutput && !v2Trade)
+  const isLoading = isLoadingRoute || ((!balanceIn || !balanceOut) && userHasSpecifiedInputOutput)
 
-  const { mixpanelHandler } = useMixpanel(trade, currencies)
+  // TODO: fix mixpanel
+  const { mixpanelHandler } = useMixpanel(undefined, {
+    [Field.INPUT]: currencyIn,
+    [Field.OUTPUT]: currencyOut,
+  })
   const mixpanelSwapInit = () => {
     mixpanelHandler(MIXPANEL_TYPE.SWAP_INITIATED)
   }
 
-  const tradeLoadedRef = useRef(0)
-  useEffect(() => {
-    tradeLoadedRef.current = Date.now()
-  }, [trade])
-
   const handleConfirmDismiss = () => {
     dispatch(setConfirming(false))
-
-    // when open modal, trade is locked from to be updated
-    // if user open modal too long, trade is outdated
-    // need to refresh data on close modal
-    if (Date.now() - tradeLoadedRef.current > TIME_TO_REFRESH_SWAP_RATE * 1000) {
-      onRefresh(false, AGGREGATOR_WAITING_TIME)
-    }
 
     // if there was a tx hash, we want to clear the input
     if (txHash) {
@@ -211,7 +195,7 @@ const ActionButton: React.FC<Props> = ({ derivedSwapInfoV2 }) => {
     } else {
       dispatch(setConfirming(true))
       setSwapState({
-        tradeToConfirm: trade,
+        tradeToConfirm: undefined,
         attemptingTxn: false,
         swapErrorMessage: undefined,
         txHash: undefined,
@@ -236,7 +220,7 @@ const ActionButton: React.FC<Props> = ({ derivedSwapInfoV2 }) => {
       )
     }
 
-    if (userHasSpecifiedInputOutput && noRoute) {
+    if (userHasSpecifiedInputOutput && hasNoRoute) {
       return (
         <CustomPrimaryButton disabled>
           <Trans>Insufficient liquidity for this trade</Trans>
@@ -279,7 +263,7 @@ const ActionButton: React.FC<Props> = ({ derivedSwapInfoV2 }) => {
                 } else {
                   dispatch(setConfirming(true))
                   setSwapState({
-                    tradeToConfirm: trade,
+                    tradeToConfirm: undefined,
                     attemptingTxn: false,
                     swapErrorMessage: undefined,
                     txHash: undefined,
@@ -289,15 +273,15 @@ const ActionButton: React.FC<Props> = ({ derivedSwapInfoV2 }) => {
               width="48%"
               disabled={!!swapInputError || approval !== ApprovalState.APPROVED}
               backgroundColor={
-                isPriceImpactHigh || isPriceImpactInvalid
-                  ? isPriceImpactVeryHigh
-                    ? theme.red
-                    : theme.warning
+                isHighPriceImpact(priceImpact)
+                  ? theme.red
+                  : isInvalidPriceImpact(priceImpact)
+                  ? theme.warning
                   : undefined
               }
-              color={isPriceImpactHigh || isPriceImpactInvalid ? theme.white : undefined}
+              color={isHighPriceImpact(priceImpact) || isInvalidPriceImpact(priceImpact) ? theme.white : undefined}
             >
-              {isPriceImpactHigh ? <Trans>Swap Anyway</Trans> : <Trans>Swap</Trans>}
+              {isHighPriceImpact(priceImpact) ? <Trans>Swap Anyway</Trans> : <Trans>Swap</Trans>}
             </CustomPrimaryButton>
           </RowBetween>
           <Column style={{ marginTop: '1rem' }}>
@@ -341,14 +325,14 @@ const ActionButton: React.FC<Props> = ({ derivedSwapInfoV2 }) => {
       )
     }
 
-    if (isInvalidPriceImpact(trade?.priceImpact) || isHighPriceImpact(trade?.priceImpact)) {
+    if (isInvalidPriceImpact(priceImpact) || isHighPriceImpact(priceImpact)) {
       return (
         <CustomPrimaryButton
           onClick={handleClickSwapButton}
           disabled={!isExpertMode}
           style={
             isExpertMode
-              ? { background: isPriceImpactVeryHigh ? theme.red : theme.warning, color: theme.white }
+              ? { background: isVeryHighPriceImpact(priceImpact) ? theme.red : theme.warning, color: theme.white }
               : undefined
           }
         >
@@ -358,7 +342,10 @@ const ActionButton: React.FC<Props> = ({ derivedSwapInfoV2 }) => {
     }
 
     return (
-      <CustomPrimaryButton onClick={handleClickSwapButton} disabled={!!swapCallbackError}>
+      <CustomPrimaryButton
+        onClick={handleClickSwapButton}
+        // disabled={!!swapCallbackError}
+      >
         <Trans>Swap</Trans>
       </CustomPrimaryButton>
     )
@@ -375,15 +362,11 @@ const ActionButton: React.FC<Props> = ({ derivedSwapInfoV2 }) => {
         {renderButton()}
         {isExpertMode && swapErrorMessage ? <SwapCallbackError error={swapErrorMessage} /> : null}
       </Flex>
-      <ConfirmSwapModal
+      <SwapModal
         isOpen={isConfirming}
-        trade={trade}
-        originalTrade={tradeToConfirm}
         onAcceptChanges={handleAcceptChanges}
         attemptingTxn={attemptingTxn}
         txHash={txHash}
-        recipient={recipient}
-        allowedSlippage={allowedSlippage}
         onConfirm={handleSwap}
         swapErrorMessage={swapErrorMessage}
         onDismiss={handleConfirmDismiss}

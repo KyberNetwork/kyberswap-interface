@@ -54,12 +54,16 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import usePrevious from 'hooks/usePrevious'
 import { useSyncNetworkParamWithStore } from 'hooks/useSyncNetworkParamWithStore'
 import useTheme from 'hooks/useTheme'
-import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { BodyWrapper } from 'pages/AppBody'
 import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { Field } from 'state/swap/actions'
-import { useDefaultsFromURLSearch, useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
-import { useDerivedSwapInfoV2 } from 'state/swap/useAggregator'
+import {
+  useDefaultsFromURLSearch,
+  useInputCurrency,
+  useOutputCurrency,
+  useSwapActionHandlers,
+  useSwapState,
+} from 'state/swap/hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import {
   useExpertModeManager,
@@ -75,7 +79,6 @@ import { getSymbolSlug } from 'utils/string'
 import { checkPairInWhiteList } from 'utils/tokenInfo'
 
 const LiveChart = lazy(() => import('components/LiveChart'))
-const Routing = lazy(() => import('components/swapv2/Routing'))
 const TutorialIcon = styled(TutorialSvg)`
   width: 22px;
   height: 22px;
@@ -187,15 +190,20 @@ export default function Swap() {
   const [isExpertMode] = useExpertModeManager()
 
   // swap state
-  const { independentField, typedValue, [Field.INPUT]: INPUT, [Field.OUTPUT]: OUTPUT } = useSwapState()
+  const { [Field.INPUT]: INPUT, [Field.OUTPUT]: OUTPUT } = useSwapState()
 
   const { onSwitchTokensV2, onCurrencySelection, onResetSelectCurrency, onUserInput } = useSwapActionHandlers()
 
-  const derivedSwapInfoV2 = useDerivedSwapInfoV2()
-  const { v2Trade, parsedAmount, currencies } = derivedSwapInfoV2
+  const currencyIn = useInputCurrency()
+  const currencyOut = useOutputCurrency()
 
-  const currencyIn: Currency | undefined = currencies[Field.INPUT]
-  const currencyOut: Currency | undefined = currencies[Field.OUTPUT]
+  const currencies = useMemo(
+    () => ({
+      [Field.INPUT]: currencyIn,
+      [Field.OUTPUT]: currencyOut,
+    }),
+    [currencyIn, currencyOut],
+  )
 
   const urlLoadedTokens: Token[] = useMemo(
     () =>
@@ -211,23 +219,6 @@ export default function Swap() {
     urlLoadedTokens.filter((token: Token) => {
       return !Boolean(token.address in defaultTokens)
     })
-
-  const { wrapType } = useWrapCallback(currencyIn, currencyOut, typedValue)
-
-  const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
-  const trade = showWrap ? undefined : v2Trade
-
-  const parsedAmounts = showWrap
-    ? {
-        [Field.INPUT]: parsedAmount,
-        [Field.OUTPUT]: parsedAmount,
-      }
-    : {
-        [Field.INPUT]: independentField === Field.INPUT ? parsedAmount : trade?.inputAmount,
-        [Field.OUTPUT]: independentField === Field.OUTPUT ? parsedAmount : trade?.outputAmount,
-      }
-
-  const dependentField: Field = independentField === Field.INPUT ? Field.OUTPUT : Field.INPUT
 
   const handleTypeInput = useCallback(
     (value: string) => {
@@ -258,19 +249,13 @@ export default function Swap() {
     [isLimitPage, onSelectPairLimit, showingPairSuggestionImport, handleDismissTokenWarning],
   )
 
-  const formattedAmounts = {
-    [independentField]: typedValue,
-    [dependentField]: showWrap
-      ? parsedAmounts[independentField]?.toExact() ?? ''
-      : parsedAmounts[dependentField]?.toSignificant(6) ?? '',
-  }
-
   const handleRotateClick = useCallback(() => {
     onSwitchTokensV2()
     setIsSelectCurrencyManually(true)
   }, [onSwitchTokensV2])
 
-  const { mixpanelHandler } = useMixpanel(trade, currencies)
+  // TODO: fix mixpanel
+  const { mixpanelHandler } = useMixpanel(undefined, currencies)
 
   const onSelectSuggestedPair = useCallback(
     (fromToken: Currency | undefined, toToken: Currency | undefined, amount?: string) => {
@@ -475,7 +460,7 @@ export default function Swap() {
 
             <AppBodyWrapped data-highlight={shouldHighlightSwapBox} id={TutorialIds.SWAP_FORM}>
               {activeTab === TAB.SWAP && ( // todo danh split component, check router api call
-                <SwapForm derivedSwapInfoV2={derivedSwapInfoV2} />
+                <SwapForm />
               )}
               {activeTab === TAB.INFO && (
                 <TokenInfo currencies={isSwapPage ? currencies : currenciesLimit} onBack={onBackToSwapTab} />
@@ -534,18 +519,7 @@ export default function Swap() {
                         <Trans>Your trade route</Trans>
                       </Text>
                     </Flex>
-                    <Suspense
-                      fallback={
-                        <Skeleton
-                          height="100px"
-                          baseColor={theme.background}
-                          highlightColor={theme.buttonGray}
-                          borderRadius="1rem"
-                        />
-                      }
-                    >
-                      <Routing trade={trade} currencies={currencies} formattedAmounts={formattedAmounts} />
-                    </Suspense>
+                    {/* TODO: implement trading routes here */}
                   </Flex>
                 </RoutesWrapper>
               )}

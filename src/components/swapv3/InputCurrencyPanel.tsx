@@ -1,4 +1,4 @@
-import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { Currency } from '@kyberswap/ks-sdk-core'
 import { useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -7,55 +7,42 @@ import { useActiveWeb3React } from 'hooks'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { AppState } from 'state'
 import { Field, typeInput } from 'state/swap/actions'
-import { useSwapActionHandlers } from 'state/swap/hooks'
-import { useDerivedSwapInfoV2 } from 'state/swap/useAggregator'
+import { useInputCurrency, useOutputCurrency, useSwapActionHandlers } from 'state/swap/hooks'
+import { useCurrencyBalances } from 'state/wallet/hooks'
 import { formattedNum } from 'utils'
 import { halfAmountSpend, maxAmountSpend } from 'utils/maxAmountSpend'
 
-type Props = {
-  onSelect: () => void
-  derivedSwapInfoV2: ReturnType<typeof useDerivedSwapInfoV2>
-}
-
-const InputCurrencyPanel: React.FC<Props> = ({ onSelect, derivedSwapInfoV2 }) => {
+const InputCurrencyPanel: React.FC = () => {
   const dispatch = useDispatch()
   const { isSolana } = useActiveWeb3React()
-  const independentField = useSelector((state: AppState) => state.swap.independentField)
   const typedValue = useSelector((state: AppState) => state.swap.typedValue)
+  const routeSummary = useSelector((state: AppState) => state.swap.routeSummary)
 
   const { onCurrencySelection, onUserInput } = useSwapActionHandlers()
-  const { v2Trade, currencyBalances, parsedAmount, currencies } = derivedSwapInfoV2
 
-  const currencyIn: Currency | undefined = currencies[Field.INPUT]
-  const currencyOut: Currency | undefined = currencies[Field.OUTPUT]
-  const balanceIn: CurrencyAmount<Currency> | undefined = currencyBalances[Field.INPUT]
+  const currencyIn = useInputCurrency()
+  const currencyOut = useOutputCurrency()
+
+  const [balanceIn] = useCurrencyBalances(
+    useMemo(() => [currencyIn ?? undefined, currencyOut ?? undefined], [currencyIn, currencyOut]),
+  )
 
   const { wrapType } = useWrapCallback(currencyIn, currencyOut, typedValue)
   const isSolanaUnwrap = isSolana && wrapType === WrapType.UNWRAP
 
-  const showWrap: boolean = isSolana && wrapType !== WrapType.NOT_APPLICABLE
-  const trade = showWrap ? undefined : v2Trade
+  const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
+  const trade = showWrap ? undefined : routeSummary
 
   const maxAmountInput: string | undefined = useMemo(() => maxAmountSpend(balanceIn)?.toExact(), [balanceIn])
   const halfAmountInput: string | undefined = useMemo(() => halfAmountSpend(balanceIn)?.toExact(), [balanceIn])
 
-  const getFormattedAmount = () => {
-    if (independentField === Field.INPUT) {
-      return typedValue
-    }
-    if (showWrap) {
-      return parsedAmount?.toExact() || ''
-    }
-    return trade?.inputAmount?.toSignificant(6) || ''
-  }
-
   const handleTypeInput = (value: string) => {
+    console.log({ value })
     onUserInput(Field.INPUT, value)
   }
 
   const handleInputSelect = (inputCurrency: Currency) => {
     onCurrencySelection(Field.INPUT, inputCurrency)
-    onSelect()
   }
 
   const handleMaxInput = () => {
@@ -63,7 +50,7 @@ const InputCurrencyPanel: React.FC<Props> = ({ onSelect, derivedSwapInfoV2 }) =>
   }
 
   const handleHalfInput = () => {
-    !isSolanaUnwrap && onUserInput(Field.INPUT, halfAmountInput || '')
+    onUserInput(Field.INPUT, halfAmountInput || '')
   }
 
   const valueToUnwrap = balanceIn?.toExact() ?? ''
@@ -78,11 +65,11 @@ const InputCurrencyPanel: React.FC<Props> = ({ onSelect, derivedSwapInfoV2 }) =>
 
   return (
     <CurrencyInputPanel
-      value={getFormattedAmount()}
+      value={typedValue}
       positionMax="top"
       currency={currencyIn}
       onUserInput={handleTypeInput}
-      onMax={handleMaxInput}
+      onMax={isSolanaUnwrap ? null : handleMaxInput}
       onHalf={isSolanaUnwrap ? null : handleHalfInput}
       onCurrencySelect={handleInputSelect}
       otherCurrency={currencyOut}
