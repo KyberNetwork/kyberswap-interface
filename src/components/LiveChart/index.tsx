@@ -8,13 +8,11 @@ import styled from 'styled-components'
 
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import Loader from 'components/LocalLoader'
-import { checkPairHasDextoolsData } from 'components/TradingViewChart/datafeed'
 import { useActiveWeb3React } from 'hooks'
 import useBasicChartData, { LiveDataTimeframeEnum } from 'hooks/useBasicChartData'
-import usePrevious from 'hooks/usePrevious'
 import useTheme from 'hooks/useTheme'
 import { Field } from 'state/swap/actions'
-import { useShowProLiveChart, useToggleProLiveChart } from 'state/user/hooks'
+import { useShowProLiveChart } from 'state/user/hooks'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 
 import AnimatingNumber from './AnimatingNumber'
@@ -113,9 +111,8 @@ function LiveChart({
   currencies: { [field in Field]?: Currency }
   onRotateClick?: () => void
 }) {
-  const { chainId, isSolana } = useActiveWeb3React()
+  const { isSolana } = useActiveWeb3React()
   const theme = useTheme()
-  const prevCurrencies = usePrevious(currencies)
   const [currenciesState, setCurrenciesState] = useState(currencies)
 
   const nativeInputCurrency = useCurrencyConvertedToNative(currenciesState[Field.INPUT] || undefined)

@@ -49,16 +49,29 @@ export function useChangeNetwork() {
       }
 
       const wallet = walletKey && SUPPORTED_WALLETS[walletKey]
-      if (wallet && isEVMWallet(wallet) && walletSolana.isConnected && !isSolana(desiredChainId)) {
+      if (
+        wallet &&
+        isEVMWallet(wallet) &&
+        walletSolana.isConnected &&
+        !walletEVM.isConnected &&
+        !isSolana(desiredChainId)
+      ) {
         try {
-          tryActivationEVM(wallet.connector)
+          await tryActivationEVM(wallet.connector)
         } catch {}
       }
-      if (wallet && isSolanaWallet(wallet) && walletEVM.isConnected && !isEVM(desiredChainId)) {
+      if (
+        wallet &&
+        isSolanaWallet(wallet) &&
+        walletEVM.isConnected &&
+        !walletEVM.isConnected &&
+        !isEVM(desiredChainId)
+      ) {
         try {
-          tryActivationSolana(wallet.adapter)
+          await tryActivationSolana(wallet.adapter)
         } catch {}
       }
+
       if (isEVM(desiredChainId)) {
         const switchNetworkParams = {
           chainId: '0x' + Number(desiredChainId).toString(16),
