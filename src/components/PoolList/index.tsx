@@ -11,7 +11,6 @@ import InfoHelper from 'components/InfoHelper'
 import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
 import { Input as PaginationInput } from 'components/Pagination/PaginationInputOnMobile'
-import ItemCardGroup from 'components/PoolList/ItemCard/ItemCardGroup'
 import ListItem from 'components/PoolList/ListItem'
 import ShareModal from 'components/ShareModal'
 import { ClickableText } from 'components/YieldPools/styleds'
@@ -31,26 +30,29 @@ import {
   useSharedPoolIdManager,
   useUserLiquidityPositions,
 } from 'state/pools/hooks'
+import { useViewMode } from 'state/user/hooks'
+import { VIEW_MODE } from 'state/user/reducer'
 import { getTradingFeeAPR } from 'utils/dmm'
 
+import ItemCard from './ItemCard'
 import PoolDetailModal from './PoolDetailModal'
 
 const PageWrapper = styled.div`
-  overflow: 'hidden';
-  &[data-above1000='true'] {
-    background: ${({ theme }) => theme.background};
-    border-radius: 20px;
-  }
+  overflow: hidden;
+  border-radius: 20px;
+  background: ${({ theme }) => theme.background};
 
   ${PaginationInput} {
     background: ${({ theme }) => theme.background};
   }
+
+  border: 1px solid ${({ theme }) => theme.border};
 `
 
 const TableHeader = styled.div`
   display: grid;
   grid-gap: 1.5rem;
-  grid-template-columns: 1.5fr 1.5fr 2fr 0.75fr 1fr 1fr 1fr 1.5fr;
+  grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr 1fr 1fr;
   padding: 16px 20px;
   font-size: 12px;
   align-items: center;
@@ -62,6 +64,22 @@ const TableHeader = styled.div`
   z-index: 1;
   border-bottom: ${({ theme }) => `1px solid ${theme.border}`};
   text-align: right;
+`
+const Grid = styled.div`
+  padding: 24px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 24px;
+  background: ${({ theme }) => theme.background};
+
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    grid-template-columns: 1fr 1fr;
+  `};
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    padding: 16px;
+    grid-template-columns: 1fr;
+  `};
 `
 
 interface PoolListProps {
@@ -83,7 +101,7 @@ enum SORT_DIRECTION {
   DESC = 'desc',
 }
 
-const ITEM_PER_PAGE = 8
+const ITEM_PER_PAGE = 12
 
 const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShowStable }: PoolListProps) => {
   const above1000 = useMedia('(min-width: 1000px)')
@@ -91,6 +109,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
   const { loading: loadingPoolsData, data: subgraphPoolsData } = useAllPoolsData()
 
   const { account, chainId, networkInfo, isEVM } = useActiveWeb3React()
+  const [viewMode] = useViewMode()
 
   useResetPools(chainId)
 
@@ -162,13 +181,8 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
   }
 
   const renderHeader = () => {
-    return above1000 ? (
+    return viewMode === VIEW_MODE.LIST && above1000 ? (
       <TableHeader>
-        <Flex alignItems="center">
-          <ClickableText>
-            <Trans>Token Pair</Trans>
-          </ClickableText>
-        </Flex>
         <Flex alignItems="center">
           <ClickableText>
             <Trans>Pool | AMP</Trans>
@@ -271,6 +285,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
 
   const { data: farms } = useActiveAndUniqueFarmsData()
 
+  const [currentPage, setCurrentPage] = useState(1)
   const sortedFilteredSubgraphPoolsData = useMemo(() => {
     let res = [...subgraphPoolsData].sort(listComparator)
 
@@ -330,48 +345,13 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
     isEVM,
   ])
 
-  const [currentPage, setCurrentPage] = useState(1)
+  const startIndex = (currentPage - 1) * ITEM_PER_PAGE
+  const endIndex = currentPage * ITEM_PER_PAGE
+  const pageData = sortedFilteredSubgraphPoolsData.slice(startIndex, endIndex)
+
   useEffect(() => {
     setCurrentPage(1)
   }, [chainId, subgraphPoolsData, currencies, searchValue, isShowOnlyActiveFarmPools, onlyShowStable])
-
-  const sortedFilteredSubgraphPoolsObject = useMemo(() => {
-    const res = new Map<string, SubgraphPoolData[]>()
-    sortedFilteredSubgraphPoolsData.forEach(poolData => {
-      if (!poolData) return
-      const poolKey = poolData.token0.id + '-' + poolData.token1.id
-      const prevValue = res.get(poolKey)
-      res.set(poolKey, (prevValue ?? []).concat(poolData))
-    })
-    return res
-  }, [sortedFilteredSubgraphPoolsData])
-
-  const sortedFilteredPaginatedSubgraphPoolsList = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEM_PER_PAGE
-    const endIndex = currentPage * ITEM_PER_PAGE
-    const res = Array.from(sortedFilteredSubgraphPoolsObject, ([, pools]) => pools[0]).slice(startIndex, endIndex)
-    return res
-  }, [currentPage, sortedFilteredSubgraphPoolsObject])
-
-  const [expandedPoolKey, setExpandedPoolKey] = useState<string>()
-
-  // Active first expandable pool in first page for first time.
-  useEffect(() => {
-    if (!above1000 || expandedPoolKey !== undefined) return
-
-    const firstPoolHasMoreThanTwoExpandedPools = sortedFilteredPaginatedSubgraphPoolsList.filter(poolData => {
-      const poolKey = poolData.token0.id + '-' + poolData.token1.id
-
-      const expandedPools = sortedFilteredSubgraphPoolsObject.get(poolKey) ?? []
-
-      return expandedPools.length >= 2
-    })
-
-    firstPoolHasMoreThanTwoExpandedPools.length &&
-      setExpandedPoolKey(
-        firstPoolHasMoreThanTwoExpandedPools[0].token0.id + '-' + firstPoolHasMoreThanTwoExpandedPools[0].token1.id,
-      )
-  }, [above1000, sortedFilteredPaginatedSubgraphPoolsList, expandedPoolKey, sortedFilteredSubgraphPoolsObject])
 
   const [sharedPoolId, setSharedPoolId] = useSharedPoolIdManager()
   const openShareModal = useOpenModal(ApplicationModal.SHARE)
@@ -396,7 +376,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
 
   if (loadingUserLiquidityPositions || loadingPoolsData) return <LocalLoader />
 
-  if (sortedFilteredPaginatedSubgraphPoolsList.length === 0)
+  if (sortedFilteredSubgraphPoolsData.length === 0)
     return (
       <SelectPairInstructionWrapper>
         <div style={{ marginBottom: '1rem' }}>
@@ -411,36 +391,32 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
   return (
     <PageWrapper data-above1000={above1000}>
       {renderHeader()}
-      {sortedFilteredPaginatedSubgraphPoolsList.map(poolData => {
-        if (poolData) {
-          return above1000 ? (
-            <ListItem
-              key={poolData.id}
-              sortedFilteredSubgraphPoolsObject={sortedFilteredSubgraphPoolsObject}
-              poolData={poolData}
-              userLiquidityPositions={transformedUserLiquidityPositions}
-              expandedPoolKey={expandedPoolKey}
-              setExpandedPoolKey={setExpandedPoolKey}
-            />
-          ) : (
-            <ItemCardGroup
-              key={poolData.id}
-              sortedFilteredSubgraphPoolsObject={sortedFilteredSubgraphPoolsObject}
-              poolData={poolData}
-              userLiquidityPositions={transformedUserLiquidityPositions}
-              expandedPoolKey={expandedPoolKey}
-              setExpandedPoolKey={setExpandedPoolKey}
-            />
-          )
-        }
+      {viewMode === VIEW_MODE.LIST && above1000 ? (
+        pageData.map(poolData => {
+          if (poolData) {
+            return (
+              <ListItem
+                key={poolData.id}
+                poolData={poolData}
+                userLiquidityPositions={transformedUserLiquidityPositions}
+              />
+            )
+          }
 
-        return null
-      })}
+          return null
+        })
+      ) : (
+        <Grid>
+          {pageData.map(item => (
+            <ItemCard poolData={item} key={item.id} myLiquidity={transformedUserLiquidityPositions[item.id]} />
+          ))}
+        </Grid>
+      )}
       <Pagination
         pageSize={ITEM_PER_PAGE}
         onPageChange={newPage => setCurrentPage(newPage)}
         currentPage={currentPage}
-        totalCount={sortedFilteredSubgraphPoolsObject.size}
+        totalCount={sortedFilteredSubgraphPoolsData.length}
         haveBg={above1000}
       />
       <PoolDetailModal />

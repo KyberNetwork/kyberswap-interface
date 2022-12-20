@@ -336,7 +336,7 @@ const Pools = () => {
                   {selectTokenFilter}
 
                   <Flex sx={{ gap: '1rem' }}>
-                    {tab === VERSION.ELASTIC && <ListGridViewGroup />}
+                    <ListGridViewGroup />
                     <PoolSort />
                     {searchFilter}
                     {createPoolBtn}
@@ -346,7 +346,7 @@ const Pools = () => {
 
             return (
               <Flex sx={{ gap: '1rem' }}>
-                {tab === VERSION.ELASTIC && <ListGridViewGroup />}
+                <ListGridViewGroup />
                 <PoolSort />
                 {selectTokenFilter}
                 {searchFilter}
