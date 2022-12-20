@@ -37,7 +37,7 @@ import TradePrice from '../TradePrice'
 import DeltaRate from './DeltaRate'
 import ExpirePicker from './ExpirePicker'
 import ConfirmOrderModal from './Modals/ConfirmOrderModal'
-import { DEFAULT_EXPIRED, EXPIRED_OPTIONS, LIMIT_ORDER_CONTRACT } from './const'
+import { DEFAULT_EXPIRED, EXPIRED_OPTIONS } from './const'
 import { calcInvert, calcOutput, calcPercentFilledOrder, calcRate, formatAmountOrder, formatUsdPrice } from './helpers'
 import { getTotalActiveMakingAmount, hashOrder, submitOrder } from './request'
 import { CreateOrderParam, LimitOrder, LimitOrderStatus, RateInfo } from './type'
@@ -96,7 +96,7 @@ const LimitOrderForm = function LimitOrderForm({
   onDismissModalEdit,
   isEdit = false, // else create
 }: Props) {
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, networkInfo } = useActiveWeb3React()
 
   const toggleWalletModal = useWalletModalToggle()
   const theme = useTheme()
@@ -244,7 +244,7 @@ const LimitOrderForm = function LimitOrderForm({
   const currentAllowance = useTokenAllowance(
     currencyIn as Token,
     account ?? undefined,
-    LIMIT_ORDER_CONTRACT,
+    networkInfo.limitOrder ?? '',
   ) as CurrencyAmount<Currency>
 
   const parsedActiveOrderMakingAmount = useMemo(() => {
@@ -269,7 +269,11 @@ const LimitOrderForm = function LimitOrderForm({
     )
   }, [currencyIn?.isNative, currentAllowance, parseInputAmount, parsedActiveOrderMakingAmount])
 
-  const [approval, approveCallback] = useApproveCallback(parseInputAmount, LIMIT_ORDER_CONTRACT, !enoughAllowance)
+  const [approval, approveCallback] = useApproveCallback(
+    parseInputAmount,
+    networkInfo.limitOrder ?? '',
+    !enoughAllowance,
+  )
 
   const balance = useCurrencyBalance(currencyIn ?? undefined)
   const inputError = useMemo(() => {
