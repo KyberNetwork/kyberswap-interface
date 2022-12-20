@@ -19,8 +19,8 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
 
+import { DropdownTextAnchor, StyledNavLink } from '../styleds'
 import NavGroup from './NavGroup'
-import { DropdownTextAnchor, StyledNavLink } from './styleds'
 
 const IconWrapper = styled.div`
   flex: 0 0 16px;

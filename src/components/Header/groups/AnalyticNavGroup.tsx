@@ -6,8 +6,8 @@ import { AGGREGATOR_ANALYTICS_URL, PROMM_ANALYTICS_URL } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
+import { DropdownTextAnchor, StyledNavExternalLink } from '../styleds'
 import NavGroup from './NavGroup'
-import { DropdownTextAnchor, StyledNavExternalLink } from './styleds'
 
 const AnalyticsWrapper = styled.span`
   display: flex;

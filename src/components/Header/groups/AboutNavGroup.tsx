@@ -5,8 +5,8 @@ import styled from 'styled-components'
 
 import { APP_PATHS } from 'constants/index'
 
+import { DropdownTextAnchor, StyledNavLink } from '../styleds'
 import NavGroup from './NavGroup'
-import { DropdownTextAnchor, StyledNavLink } from './styleds'
 
 const AboutWrapper = styled.span`
   display: inline-flex;

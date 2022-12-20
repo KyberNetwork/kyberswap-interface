@@ -16,10 +16,10 @@ import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useHolidayMode, useIsDarkMode } from 'state/user/hooks'
 
-import AboutNavGroup from './AboutNavGroup'
-import AnalyticNavGroup from './AnalyticNavGroup'
-import EarnNavGroup from './EarnNavGroup'
-import SwapNavGroup from './SwapNavGroup'
+import AboutNavGroup from './groups/AboutNavGroup'
+import AnalyticNavGroup from './groups/AnalyticNavGroup'
+import EarnNavGroup from './groups/EarnNavGroup'
+import SwapNavGroup from './groups/SwapNavGroup'
 import { StyledNavExternalLink, StyledNavLink } from './styleds'
 
 const HeaderFrame = styled.div`

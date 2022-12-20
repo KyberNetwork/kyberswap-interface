@@ -9,8 +9,8 @@ import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
+import { DropdownTextAnchor, StyledNavLink } from '../styleds'
 import NavGroup from './NavGroup'
-import { DropdownTextAnchor, StyledNavLink } from './styleds'
 
 const EarnNavGroup = () => {
   const { isEVM } = useActiveWeb3React()
