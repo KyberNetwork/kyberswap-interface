@@ -10,6 +10,7 @@ import DoubleCurrencyLogo from 'components/DoubleLogo'
 import Loader from 'components/LocalLoader'
 import { useActiveWeb3React } from 'hooks'
 import useBasicChartData, { LiveDataTimeframeEnum } from 'hooks/useBasicChartData'
+import usePrevious from 'hooks/usePrevious'
 import useTheme from 'hooks/useTheme'
 import { Field } from 'state/swap/actions'
 import { useShowProLiveChart } from 'state/user/hooks'
@@ -113,6 +114,7 @@ function LiveChart({
 }) {
   const { isSolana } = useActiveWeb3React()
   const theme = useTheme()
+  const prevCurrencies = usePrevious(currencies)
   const [currenciesState, setCurrenciesState] = useState(currencies)
 
   const nativeInputCurrency = useCurrencyConvertedToNative(currenciesState[Field.INPUT] || undefined)
@@ -154,44 +156,44 @@ function LiveChart({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chartData])
 
-  // useEffect(() => {
-  //   let currenciesChanged = false
-  //   if (!currencies.INPUT || !currencies.OUTPUT) return
+  useEffect(() => {
+    // let currenciesChanged = false
+    if (!currencies.INPUT || !currencies.OUTPUT) return
 
-  //   setCurrenciesState(prev => {
-  //     // Check if switched currencies (INPUT become OUTPUT and OUTPUT become INPUT)
-  //     if (
-  //       prevCurrencies &&
-  //       currencies &&
-  //       prevCurrencies?.INPUT?.symbol === currencies?.OUTPUT?.symbol &&
-  //       prevCurrencies?.OUTPUT?.symbol === currencies?.INPUT?.symbol
-  //     ) {
-  //       // then keep current local currencies order
-  //       return prev
-  //     }
-  //     // If currencies changed with new currencies pair => update new currencies
-  //     return currencies
-  //   })
+    setCurrenciesState(prev => {
+      // Check if switched currencies (INPUT become OUTPUT and OUTPUT become INPUT)
+      if (
+        prevCurrencies &&
+        currencies &&
+        prevCurrencies?.INPUT?.symbol === currencies?.OUTPUT?.symbol &&
+        prevCurrencies?.OUTPUT?.symbol === currencies?.INPUT?.symbol
+      ) {
+        // then keep current local currencies order
+        return prev
+      }
+      // If currencies changed with new currencies pair => update new currencies
+      return currencies
+    })
 
-  //   setStateProChart({ hasProChart: false, pairAddress: '', apiVersion: '', loading: true })
-  //   checkPairHasDextoolsData(currencies, chainId)
-  //     .then((res: any) => {
-  //       if (currenciesChanged) return
-  //       if ((res.ver || res.ver === 0) && res.pairAddress) {
-  //         setStateProChart({ hasProChart: true, pairAddress: res.pairAddress, apiVersion: res.ver, loading: true })
-  //       } else {
-  //         setStateProChart({ hasProChart: false, pairAddress: '', apiVersion: '', loading: false })
-  //       }
-  //     })
-  //     .catch(error => {
-  //       console.log(error)
-  //       setStateProChart({ hasProChart: false, pairAddress: '', apiVersion: '', loading: false })
-  //     })
-  //   return () => {
-  //     currenciesChanged = true
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [JSON.stringify(currencies)])
+    // setStateProChart({ hasProChart: false, pairAddress: '', apiVersion: '', loading: true })
+    // checkPairHasDextoolsData(currencies, chainId)
+    //   .then((res: any) => {
+    //     if (currenciesChanged) return
+    //     if ((res.ver || res.ver === 0) && res.pairAddress) {
+    //       setStateProChart({ hasProChart: true, pairAddress: res.pairAddress, apiVersion: res.ver, loading: true })
+    //     } else {
+    //       setStateProChart({ hasProChart: false, pairAddress: '', apiVersion: '', loading: false })
+    //     }
+    //   })
+    //   .catch(error => {
+    //     console.log(error)
+    //     setStateProChart({ hasProChart: false, pairAddress: '', apiVersion: '', loading: false })
+    //   })
+    // return () => {
+    //   currenciesChanged = true
+    // }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(currencies)])
 
   const showingValue = hoverValue ?? (chartData[chartData.length - 1]?.value || 0)
 
