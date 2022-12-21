@@ -21,6 +21,7 @@ import Popups from 'components/Popups'
 import Snowfall from 'components/Snowflake/Snowfall'
 import Web3ReactManager from 'components/Web3ReactManager'
 import { APP_PATHS, BLACKLIST_WALLETS } from 'constants/index'
+import { CHAINS_SUPPORT_NEW_META_AGGREGATOR_APIS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useGlobalMixpanelEvents } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
@@ -38,7 +39,8 @@ import Verify from './Verify'
 
 // Route-based code splitting
 const Swap = lazy(() => import(/* webpackChunkName: 'swap-page' */ './Swap'))
-const SwapV3 = lazy(() => import(/* webpackChunkName: 'swapv2-page' */ './SwapV3'))
+const SwapV2 = lazy(() => import(/* webpackChunkName: 'swapv2-page' */ './SwapV2'))
+const SwapV3 = lazy(() => import(/* webpackChunkName: 'swapv3-page' */ './SwapV3'))
 const Bridge = lazy(() => import(/* webpackChunkName: 'bridge-page' */ './Bridge'))
 const Pools = lazy(() => import(/* webpackChunkName: 'pools-page' */ './Pools'))
 const Pool = lazy(() => import(/* webpackChunkName: 'my-pool-page' */ './Pool'))
@@ -106,6 +108,16 @@ const BodyWrapper = styled.div`
 
   ${isMobile && `overflow-x: hidden;`}
 `
+
+const SwapPage = () => {
+  const { chainId } = useActiveWeb3React()
+
+  if (CHAINS_SUPPORT_NEW_META_AGGREGATOR_APIS.includes(chainId)) {
+    return <SwapV3 />
+  }
+
+  return <SwapV2 />
+}
 
 export default function App() {
   const { account, chainId, networkInfo } = useActiveWeb3React()
@@ -213,15 +225,18 @@ export default function App() {
                     <Route element={<DarkModeQueryParamReader />} />
                     <Route path={APP_PATHS.SWAP_LEGACY} element={<Swap />} />
 
-                    <Route path={`${APP_PATHS.SWAP}/:network/:fromCurrency-to-:toCurrency`} element={<SwapV3 />} />
-                    <Route path={`${APP_PATHS.SWAP}/:network/:fromCurrency`} element={<SwapV3 />} />
-                    <Route path={`${APP_PATHS.SWAP}/:network`} element={<SwapV3 />} />
+                    <Route path={`${APP_PATHS.SWAP}/:network/:fromCurrency-to-:toCurrency`} element={<SwapPage />} />
+                    <Route path={`${APP_PATHS.SWAP}/:network/:fromCurrency`} element={<SwapPage />} />
+                    <Route path={`${APP_PATHS.SWAP}/:network`} element={<SwapPage />} />
 
                     {isSupportLimitOrder(chainId) && (
                       <>
-                        <Route path={`${APP_PATHS.LIMIT}/:network/:fromCurrency-to-:toCurrency`} element={<SwapV3 />} />
-                        <Route path={`${APP_PATHS.LIMIT}/:network/:fromCurrency`} element={<SwapV3 />} />
-                        <Route path={`${APP_PATHS.LIMIT}/:network`} element={<SwapV3 />} />
+                        <Route
+                          path={`${APP_PATHS.LIMIT}/:network/:fromCurrency-to-:toCurrency`}
+                          element={<SwapPage />}
+                        />
+                        <Route path={`${APP_PATHS.LIMIT}/:network/:fromCurrency`} element={<SwapPage />} />
+                        <Route path={`${APP_PATHS.LIMIT}/:network`} element={<SwapPage />} />
                       </>
                     )}
 

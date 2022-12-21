@@ -155,3 +155,5 @@ export const CHAINS_SUPPORT_NEW_POOL_FARM_API: ChainId[] = [
   // ChainId.OASIS,
   ChainId.OPTIMISM,
 ]
+
+export const CHAINS_SUPPORT_NEW_META_AGGREGATOR_APIS: ChainId[] = EVM_NETWORKS
