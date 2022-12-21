@@ -308,6 +308,7 @@ export const APP_PATHS = {
   SWAP_LEGACY: '/swap-legacy',
   ABOUT: '/about',
   SWAP: '/swap',
+  SWAP_V3: '/swap-v3',
   CAMPAIGN: '/campaigns',
   FIND_POOL: '/find',
   POOLS: '/pools',

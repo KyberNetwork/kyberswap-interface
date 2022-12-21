@@ -57,8 +57,8 @@ const SwapNavGroup = () => {
   const [{ show: isShowTutorial = false, stepInfo }] = useTutorialSwapGuide()
   const { mixpanelHandler } = useMixpanel()
 
-  const isActive = [APP_PATHS.SWAP, APP_PATHS.BUY_CRYPTO, APP_PATHS.BRIDGE, APP_PATHS.LIMIT].some(path =>
-    pathname.includes(path),
+  const isActive = [APP_PATHS.SWAP, APP_PATHS.SWAP_V3, APP_PATHS.BUY_CRYPTO, APP_PATHS.BRIDGE, APP_PATHS.LIMIT].some(
+    path => pathname.includes(path),
   )
 
   return (
@@ -79,6 +79,15 @@ const SwapNavGroup = () => {
                 <Repeat size={16} />
               </IconWrapper>
               <Trans>Swap</Trans>
+            </Flex>
+          </StyledNavLink>
+
+          <StyledNavLink id={`swapv3-nav-link`} to={APP_PATHS.SWAP_V3} style={{ flexDirection: 'column' }}>
+            <Flex alignItems="center" sx={{ gap: '12px' }}>
+              <IconWrapper>
+                <Repeat size={16} />
+              </IconWrapper>
+              <Trans>Swap V3</Trans>
             </Flex>
           </StyledNavLink>
 

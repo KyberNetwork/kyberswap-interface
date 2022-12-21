@@ -33,12 +33,13 @@ import { RedirectDuplicateTokenIds } from './AddLiquidityV2/redirects'
 import { RedirectPathToFarmNetwork } from './Farm/redirect'
 import { RedirectPathToMyPoolsNetwork } from './Pool/redirect'
 import { RedirectPathToPoolsNetwork } from './Pools/redirect'
-import { RedirectPathToSwapNetwork } from './SwapV3/redirects'
+import { RedirectPathToSwapV3Network } from './SwapV3/redirects'
 import Verify from './Verify'
 
 // Route-based code splitting
 const Swap = lazy(() => import(/* webpackChunkName: 'swap-page' */ './Swap'))
-const SwapV3 = lazy(() => import(/* webpackChunkName: 'swapv2-page' */ './SwapV3'))
+const SwapV2 = lazy(() => import(/* webpackChunkName: 'swapv2-page' */ './SwapV2'))
+const SwapV3 = lazy(() => import(/* webpackChunkName: 'swapv3-page' */ './SwapV3'))
 const Bridge = lazy(() => import(/* webpackChunkName: 'bridge-page' */ './Bridge'))
 const Pools = lazy(() => import(/* webpackChunkName: 'pools-page' */ './Pools'))
 const Pool = lazy(() => import(/* webpackChunkName: 'my-pool-page' */ './Pool'))
@@ -213,15 +214,19 @@ export default function App() {
                     <Route element={<DarkModeQueryParamReader />} />
                     <Route path={APP_PATHS.SWAP_LEGACY} element={<Swap />} />
 
-                    <Route path={`${APP_PATHS.SWAP}/:network/:fromCurrency-to-:toCurrency`} element={<SwapV3 />} />
-                    <Route path={`${APP_PATHS.SWAP}/:network/:fromCurrency`} element={<SwapV3 />} />
-                    <Route path={`${APP_PATHS.SWAP}/:network`} element={<SwapV3 />} />
+                    <Route path={`${APP_PATHS.SWAP_V3}/:network/:fromCurrency-to-:toCurrency`} element={<SwapV3 />} />
+                    <Route path={`${APP_PATHS.SWAP_V3}/:network/:fromCurrency`} element={<SwapV3 />} />
+                    <Route path={`${APP_PATHS.SWAP_V3}/:network`} element={<SwapV3 />} />
+
+                    <Route path={`${APP_PATHS.SWAP}/:network/:fromCurrency-to-:toCurrency`} element={<SwapV2 />} />
+                    <Route path={`${APP_PATHS.SWAP}/:network/:fromCurrency`} element={<SwapV2 />} />
+                    <Route path={`${APP_PATHS.SWAP}/:network`} element={<SwapV2 />} />
 
                     {isSupportLimitOrder(chainId) && (
                       <>
-                        <Route path={`${APP_PATHS.LIMIT}/:network/:fromCurrency-to-:toCurrency`} element={<SwapV3 />} />
-                        <Route path={`${APP_PATHS.LIMIT}/:network/:fromCurrency`} element={<SwapV3 />} />
-                        <Route path={`${APP_PATHS.LIMIT}/:network`} element={<SwapV3 />} />
+                        <Route path={`${APP_PATHS.LIMIT}/:network/:fromCurrency-to-:toCurrency`} element={<SwapV2 />} />
+                        <Route path={`${APP_PATHS.LIMIT}/:network/:fromCurrency`} element={<SwapV2 />} />
+                        <Route path={`${APP_PATHS.LIMIT}/:network`} element={<SwapV2 />} />
                       </>
                     )}
 
@@ -290,7 +295,7 @@ export default function App() {
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}`} element={<GrantProgramPage />} />
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}/:slug`} element={<GrantProgramPage />} />
 
-                    <Route path="*" element={<RedirectPathToSwapNetwork />} />
+                    <Route path="*" element={<RedirectPathToSwapV3Network />} />
                   </Routes>
                 </Web3ReactManager>
               </BodyWrapper>
