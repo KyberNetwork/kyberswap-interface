@@ -19,8 +19,11 @@ import 'swiper/swiper.min.css'
 
 import SolanaWalletContext from 'components/SolanaWalletContext'
 import { ENV_LEVEL, ENV_TYPE, GTM_ID, MIXPANEL_PROJECT_TOKEN, SENTRY_DNS, TAG } from 'constants/env'
+import * as ENV from 'constants/env'
+import { Z_INDEXS } from 'constants/styles'
 // import { updateServiceWorker } from 'state/application/actions'
 import CampaignsUpdater from 'state/campaigns/updater'
+import { MEDIA_WIDTHS } from 'theme'
 
 import SEO from './components/SEO'
 import { NetworkContextName, sentryRequestId } from './constants'
@@ -38,6 +41,8 @@ import ThemeProvider, { FixedGlobalStyle, ThemedGlobalStyle } from './theme'
 import getLibrary from './utils/getLibrary'
 
 dayjs.extend(utc)
+
+ENV_LEVEL < ENV_TYPE.PROD && console.info({ ENV })
 
 mixpanel.init(MIXPANEL_PROJECT_TOKEN, {
   debug: ENV_LEVEL < ENV_TYPE.PROD,
@@ -80,6 +85,24 @@ if (ENV_LEVEL > ENV_TYPE.LOCAL) {
 }
 
 AOS.init()
+
+// customer support widget
+window.zESettings = {
+  webWidget: {
+    offset: {
+      vertical: window.innerWidth > MEDIA_WIDTHS.upToLarge ? '0px' : '75px',
+      mobile: {
+        vertical: '65px',
+        horizontal: '-5px',
+      },
+    },
+    zIndex: Z_INDEXS.ICON_SUPPORT,
+  },
+}
+const script = document.createElement('script')
+script.src = 'https://static.zdassets.com/ekr/snippet.js?key=a73faacd-ba50-493a-8bf5-4b6878035346'
+script.id = 'ze-snippet'
+document.body.appendChild(script)
 
 const Web3ProviderNetwork = createWeb3ReactRoot(NetworkContextName)
 

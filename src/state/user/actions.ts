@@ -3,6 +3,8 @@ import { createAction } from '@reduxjs/toolkit'
 
 import { SupportedLocale } from 'constants/locales'
 
+import { VIEW_MODE } from './reducer'
+
 export interface SerializedToken {
   chainId: number
   address: string
@@ -38,7 +40,7 @@ export const toggleTradeRoutes = createAction<void>('user/toggleTradeRoutes')
 export const toggleTokenInfo = createAction<void>('user/toggleTokenInfo')
 
 export const toggleTopTrendingTokens = createAction<void>('user/toggleTopTrendingTokens')
-export const toggleProLiveChart = createAction<void>('user/toggleProLiveChart')
+export const toggleProLiveChart = createAction<boolean | undefined>('user/toggleProLiveChart')
 
 export type ToggleFavoriteTokenPayload = {
   chainId: ChainId
@@ -47,3 +49,5 @@ export const toggleFavoriteToken = createAction<ToggleFavoriteTokenPayload>('use
 export const updateChainId = createAction<ChainId>('user/updateChainId')
 export const updateIsUserManuallyDisconnect = createAction<boolean>('user/updateIsUserManuallyDisconnect')
 export const updateIsAcceptedTerm = createAction<boolean>('user/updateIsAcceptedTerm')
+export const changeViewMode = createAction<VIEW_MODE>('user/changeViewMode')
+export const toggleHolidayMode = createAction<void>('user/toggleHolidayMode')

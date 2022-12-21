@@ -1,10 +1,16 @@
+import { t } from '@lingui/macro'
 import { darken, rgba } from 'polished'
-import React from 'react'
-import { ChevronDown } from 'react-feather'
+import React, { ReactNode } from 'react'
+import { ChevronDown, Info } from 'react-feather'
+import { Flex, Text } from 'rebass'
 import { ButtonProps, Button as RebassButton } from 'rebass/styled-components'
 import styled from 'styled-components'
 
-import { RowBetween } from 'components/Row'
+import Loader from 'components/Loader'
+import { MouseoverTooltip } from 'components/Tooltip'
+import { ApprovalState } from 'hooks/useApproveCallback'
+
+import { RowBetween } from '../Row'
 
 const Base = styled(RebassButton)<{
   padding?: string
@@ -255,5 +261,70 @@ export function ButtonDropdownLight({
         <ChevronDown size={24} />
       </RowBetween>
     </ButtonOutlined>
+  )
+}
+
+const BtnInfoWrapper = styled(ButtonConfirmed)`
+  padding: 0;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  width: 48%;
+`
+// button with info helper in side - in mobile verify to touch info icon => enlarge region for tooltip
+export const ButtonWithInfoHelper = ({
+  tooltipMsg,
+  onClick,
+  disabled,
+  text,
+  confirmed,
+  loading,
+}: {
+  tooltipMsg: string
+  onClick: (() => void) | undefined | (() => Promise<void>)
+  disabled: boolean
+  loading: boolean
+  confirmed?: boolean
+  text?: ReactNode
+}) => {
+  return (
+    <BtnInfoWrapper disabled={disabled} altDisabledStyle={loading} confirmed={confirmed} onClick={onClick}>
+      <MouseoverTooltip width="300px" text={tooltipMsg} disableTooltip={loading}>
+        <Flex
+          sx={{ alignItems: 'center', height: '44px', paddingRight: '8px', paddingLeft: '2px' }}
+          onClick={e => e.stopPropagation()}
+        >
+          {loading ? <Loader stroke="white" /> : <Info size={20} />}
+        </Flex>
+      </MouseoverTooltip>
+      <Text textAlign="left">{text}</Text>
+    </BtnInfoWrapper>
+  )
+}
+
+export const ButtonApprove = ({
+  tooltipMsg,
+  tokenSymbol,
+  approval,
+  onClick,
+  disabled,
+  forceApprove = false,
+}: {
+  tooltipMsg: string
+  tokenSymbol: string | undefined
+  approval: ApprovalState
+  onClick: () => void
+  disabled: boolean
+  forceApprove?: boolean
+}) => {
+  return (
+    <ButtonWithInfoHelper
+      loading={approval === ApprovalState.PENDING}
+      tooltipMsg={tooltipMsg}
+      disabled={disabled}
+      onClick={onClick}
+      confirmed={approval === ApprovalState.APPROVED && !forceApprove}
+      text={approval === ApprovalState.PENDING ? t`Approving` : t`Approve ${tokenSymbol}`}
+    />
   )
 }

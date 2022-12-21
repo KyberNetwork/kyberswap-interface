@@ -12,9 +12,11 @@ import {
   SerializedToken,
   addSerializedPair,
   addSerializedToken,
+  changeViewMode,
   removeSerializedPair,
   removeSerializedToken,
   toggleFavoriteToken,
+  toggleHolidayMode,
   toggleLiveChart,
   toggleProLiveChart,
   toggleTokenInfo,
@@ -32,6 +34,11 @@ import {
 } from './actions'
 
 const currentTimestamp = () => new Date().getTime()
+
+export enum VIEW_MODE {
+  GRID = 'grid',
+  LIST = 'list',
+}
 
 export interface UserState {
   // the timestamp of the last updateVersion action
@@ -84,6 +91,8 @@ export interface UserState {
   readonly chainId: ChainId
   isUserManuallyDisconnect: boolean
   isAcceptedTerm: boolean
+  viewMode: VIEW_MODE
+  holidayMode: boolean
 }
 
 function pairKey(token0Address: string, token1Address: string) {
@@ -110,13 +119,9 @@ export const defaultShowLiveCharts: { [chainId in ChainId]: boolean } = {
   [ChainId.OPTIMISM]: true,
   [ChainId.SOLANA]: true,
 
-  [ChainId.ROPSTEN]: false,
-  [ChainId.RINKEBY]: false,
   [ChainId.GÖRLI]: false,
-  [ChainId.KOVAN]: false,
   [ChainId.MUMBAI]: false,
   [ChainId.BSCTESTNET]: false,
-  [ChainId.CRONOSTESTNET]: false,
   [ChainId.AVAXTESTNET]: false,
   [ChainId.ARBITRUM_TESTNET]: false,
   [ChainId.ETHW]: true,
@@ -141,6 +146,8 @@ const initialState: UserState = {
   chainId: ChainId.MAINNET,
   isUserManuallyDisconnect: false,
   isAcceptedTerm: false,
+  viewMode: VIEW_MODE.GRID,
+  holidayMode: true,
 }
 
 export default createReducer(initialState, builder =>
@@ -219,8 +226,8 @@ export default createReducer(initialState, builder =>
       }
       state.showLiveCharts[chainId] = !state.showLiveCharts[chainId]
     })
-    .addCase(toggleProLiveChart, state => {
-      state.showProLiveChart = !state.showProLiveChart
+    .addCase(toggleProLiveChart, (state, { payload: showProLiveChart }) => {
+      state.showProLiveChart = showProLiveChart !== undefined ? showProLiveChart : !state.showProLiveChart
     })
     .addCase(toggleTradeRoutes, state => {
       state.showTradeRoutes = !state.showTradeRoutes
@@ -266,5 +273,12 @@ export default createReducer(initialState, builder =>
     })
     .addCase(updateIsAcceptedTerm, (state, { payload: isAcceptedTerm }) => {
       state.isAcceptedTerm = isAcceptedTerm
+    })
+    .addCase(changeViewMode, (state, { payload: viewType }) => {
+      state.viewMode = viewType
+    })
+    .addCase(toggleHolidayMode, state => {
+      const oldMode = state.holidayMode
+      state.holidayMode = !oldMode
     }),
 )

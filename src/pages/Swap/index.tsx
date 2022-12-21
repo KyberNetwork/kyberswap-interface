@@ -4,7 +4,7 @@ import { Trans, t } from '@lingui/macro'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ArrowDown } from 'react-feather'
-import { RouteComponentProps } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -15,7 +15,6 @@ import Card, { GreyCard } from 'components/Card/index'
 import Column, { AutoColumn } from 'components/Column/index'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import Loader from 'components/Loader'
-import { SwapPoolTabs } from 'components/NavigationTabs'
 import ProgressSteps from 'components/ProgressSteps'
 import { AutoRow, RowBetween } from 'components/Row'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
@@ -29,7 +28,7 @@ import { ArrowWrapper, BottomGrouping, Dots, Wrapper } from 'components/swap/sty
 import { SwapCallbackError } from 'components/swapv2/styleds'
 import { INITIAL_ALLOWED_SLIPPAGE } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { useAllTokens, useCurrency } from 'hooks/Tokens'
+import { useAllTokens, useCurrencyV2 } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallbackFromTrade } from 'hooks/useApproveCallback'
 import { useSwapCallback } from 'hooks/useSwapCallback'
 import useTheme from 'hooks/useTheme'
@@ -48,13 +47,14 @@ const AppBody = styled(AppBodyRaw)`
   padding-top: 24px;
 `
 
-export default function Swap({ history }: RouteComponentProps) {
+export default function Swap() {
+  const navigate = useNavigate()
   const loadedUrlParams = useDefaultsFromURLSearch()
 
   // token warning stuff
   const [loadedInputCurrency, loadedOutputCurrency] = [
-    useCurrency(loadedUrlParams?.inputCurrencyId),
-    useCurrency(loadedUrlParams?.outputCurrencyId),
+    useCurrencyV2(loadedUrlParams?.inputCurrencyId),
+    useCurrencyV2(loadedUrlParams?.outputCurrencyId),
   ]
 
   const [dismissTokenWarning, setDismissTokenWarning] = useState<boolean>(false)
@@ -129,8 +129,8 @@ export default function Swap({ history }: RouteComponentProps) {
   // reset if they close warning without tokens in params
   const handleDismissTokenWarning = useCallback(() => {
     setDismissTokenWarning(true)
-    history.push('/swap-legacy')
-  }, [history])
+    navigate('/swap-legacy')
+  }, [navigate])
 
   // modal and loading
   const [{ showConfirm, tradeToConfirm, swapErrorMessage, attemptingTxn, txHash }, setSwapState] = useState<{
@@ -264,7 +264,6 @@ export default function Swap({ history }: RouteComponentProps) {
         onDismiss={handleDismissTokenWarning}
       />
       <AppBody>
-        <SwapPoolTabs active={'swap'} />
         <RowBetween mb={'16px'}>
           <TYPE.black color={theme.text} fontSize={20} fontWeight={500}>{t`Swap`}</TYPE.black>
           <TransactionSettings />

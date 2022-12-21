@@ -21,8 +21,10 @@ import {
   ToggleFavoriteTokenPayload,
   addSerializedPair,
   addSerializedToken,
+  changeViewMode,
   removeSerializedToken,
   toggleFavoriteToken as toggleFavoriteTokenAction,
+  toggleHolidayMode,
   toggleLiveChart,
   toggleProLiveChart,
   toggleTokenInfo,
@@ -36,8 +38,8 @@ import {
   updateUserLocale,
   updateUserSlippageTolerance,
 } from 'state/user/actions'
-import { defaultShowLiveCharts, getFavoriteTokenDefault } from 'state/user/reducer'
-import { isAddress } from 'utils'
+import { VIEW_MODE, defaultShowLiveCharts, getFavoriteTokenDefault } from 'state/user/reducer'
+import { isAddress, isChristmasTime } from 'utils'
 
 function serializeToken(token: Token | WrappedTokenInfo): SerializedToken {
   return {
@@ -372,9 +374,9 @@ export function useToggleLiveChart(): () => void {
   const { chainId } = useActiveWeb3React()
   return useCallback(() => dispatch(toggleLiveChart({ chainId: chainId })), [dispatch, chainId])
 }
-export function useToggleProLiveChart(): () => void {
+export function useToggleProLiveChart(): (showProLiveChart?: boolean) => void {
   const dispatch = useDispatch<AppDispatch>()
-  return useCallback(() => dispatch(toggleProLiveChart()), [dispatch])
+  return useCallback((showProLiveChart?: boolean) => dispatch(toggleProLiveChart(showProLiveChart)), [dispatch])
 }
 export function useToggleTradeRoutes(): () => void {
   const dispatch = useDispatch<AppDispatch>()
@@ -408,4 +410,24 @@ export const useUserFavoriteTokens = (chainId: ChainId) => {
   )
 
   return { favoriteTokens, toggleFavoriteToken }
+}
+
+export const useViewMode: () => [VIEW_MODE, (mode: VIEW_MODE) => void] = () => {
+  const dispatch = useAppDispatch()
+  const viewMode = useAppSelector(state => state.user.viewMode || VIEW_MODE.GRID)
+
+  const setViewMode = useCallback((mode: VIEW_MODE) => dispatch(changeViewMode(mode)), [dispatch])
+
+  return [viewMode, setViewMode]
+}
+
+export const useHolidayMode: () => [boolean, () => void] = () => {
+  const dispatch = useAppDispatch()
+  const holidayMode = useAppSelector(state => (state.user.holidayMode === undefined ? true : state.user.holidayMode))
+
+  const toggle = useCallback(() => {
+    dispatch(toggleHolidayMode())
+  }, [dispatch])
+
+  return [isChristmasTime() ? holidayMode : false, toggle]
 }

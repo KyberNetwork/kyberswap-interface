@@ -7,10 +7,10 @@ import { BigNumber } from 'ethers'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
-import { Redirect, RouteComponentProps } from 'react-router-dom'
+import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
+import { ArrowWrapper } from 'components/ArrowRotate'
 import { ButtonError, ButtonLight, ButtonPrimary, ButtonWarning } from 'components/Button'
 import { OutlineCard, WarningCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
@@ -29,10 +29,9 @@ import PresetsButtons from 'components/RangeSelector/PresetsButtons'
 import Row, { RowBetween, RowFixed } from 'components/Row'
 import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
 import { TutorialType } from 'components/Tutorial'
-import { ArrowWrapper as ArrowWrapperVertical, Dots } from 'components/swapv2/styleds'
+import { Dots } from 'components/swapv2/styleds'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
-import { VERSION } from 'constants/v2'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
@@ -41,7 +40,7 @@ import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
 import useProAmmPreviousTicks from 'hooks/useProAmmPreviousTicks'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
-import { useTokensPrice, useWalletModalToggle } from 'state/application/hooks'
+import { useWalletModalToggle } from 'state/application/hooks'
 import { Bound, Field } from 'state/mint/proamm/actions'
 import {
   useProAmmDerivedMintInfo,
@@ -49,6 +48,7 @@ import {
   useProAmmMintState,
   useRangeHopCallbacks,
 } from 'state/mint/proamm/hooks'
+import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useExpertModeManager, useUserSlippageTolerance } from 'state/user/hooks'
@@ -72,17 +72,9 @@ import {
   StyledInput,
 } from './styled'
 
-const ArrowWrapper = styled(ArrowWrapperVertical)<{ rotated?: boolean }>`
-  transform: rotate(${({ rotated }) => (rotated ? '270deg' : '90deg')});
-  width: 40px;
-  height: 40px;
-`
-export default function AddLiquidity({
-  match: {
-    params: { currencyIdA, currencyIdB, feeAmount: feeAmountFromUrl },
-  },
-  history,
-}: RouteComponentProps<{ currencyIdA?: string; currencyIdB?: string; feeAmount?: string; tokenId?: string }>) {
+export default function AddLiquidity() {
+  const { currencyIdA, currencyIdB, feeAmount: feeAmountFromUrl } = useParams()
+  const navigate = useNavigate()
   const [rotate, setRotate] = useState(false)
   const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
   const { library } = useWeb3React()
@@ -236,15 +228,18 @@ export default function AddLiquidity({
     () => [currencies[Field.CURRENCY_A], currencies[Field.CURRENCY_B]].map(currency => currency?.wrapped),
     [currencies],
   )
-  const usdPrices = useTokensPrice(tokens, VERSION.ELASTIC)
+  const usdPrices = useTokenPrices(tokens.map(t => t?.wrapped.address || ''))
+
   const estimatedUsdCurrencyA =
-    parsedAmounts[Field.CURRENCY_A] && usdPrices[0]
-      ? parseFloat((parsedAmounts[Field.CURRENCY_A] as CurrencyAmount<Currency>).toExact()) * usdPrices[0]
+    parsedAmounts[Field.CURRENCY_A] && usdPrices[tokens[0]?.address || '']
+      ? parseFloat((parsedAmounts[Field.CURRENCY_A] as CurrencyAmount<Currency>).toExact()) *
+        usdPrices[tokens[0]?.address || '']
       : 0
 
   const estimatedUsdCurrencyB =
-    parsedAmounts[Field.CURRENCY_B] && usdPrices[1]
-      ? parseFloat((parsedAmounts[Field.CURRENCY_B] as CurrencyAmount<Currency>).toExact()) * usdPrices[1]
+    parsedAmounts[Field.CURRENCY_B] && usdPrices[tokens[1]?.address || '']
+      ? parseFloat((parsedAmounts[Field.CURRENCY_B] as CurrencyAmount<Currency>).toExact()) *
+        usdPrices[tokens[1]?.address || '']
       : 0
 
   const allowedSlippage = useUserSlippageTolerance()
@@ -365,33 +360,33 @@ export default function AddLiquidity({
     (currencyANew: Currency) => {
       const [idA, idB] = handleCurrencySelect(currencyANew, currencyIdB)
       if (idB === undefined) {
-        history.push(`/elastic/add/${idA}`)
+        navigate(`/elastic/add/${idA}`)
       } else {
-        history.push(`/elastic/add/${idA}/${idB}`)
+        navigate(`/elastic/add/${idA}/${idB}`)
       }
     },
-    [handleCurrencySelect, currencyIdB, history],
+    [handleCurrencySelect, currencyIdB, navigate],
   )
 
   const handleCurrencyBSelect = useCallback(
     (currencyBNew: Currency) => {
       const [idB, idA] = handleCurrencySelect(currencyBNew, currencyIdA)
       if (idA === undefined) {
-        history.push(`/elastic/add/${idB}`)
+        navigate(`/elastic/add/${idB}`)
       } else {
-        history.push(`/elastic/add/${idA}/${idB}`)
+        navigate(`/elastic/add/${idA}/${idB}`)
       }
     },
-    [handleCurrencySelect, currencyIdA, history],
+    [handleCurrencySelect, currencyIdA, navigate],
   )
 
   const handleFeePoolSelect = useCallback(
     (newFeeAmount: FeeAmount) => {
       onLeftRangeInput('')
       onRightRangeInput('')
-      history.push(`/elastic/add/${currencyIdA}/${currencyIdB}/${newFeeAmount}`)
+      navigate(`/elastic/add/${currencyIdA}/${currencyIdB}/${newFeeAmount}`)
     },
-    [currencyIdA, currencyIdB, history, onLeftRangeInput, onRightRangeInput],
+    [currencyIdA, currencyIdB, navigate, onLeftRangeInput, onRightRangeInput],
   )
 
   const handleDismissConfirmation = useCallback(() => {
@@ -400,10 +395,10 @@ export default function AddLiquidity({
     if (txHash) {
       onFieldAInput('')
       // dont jump to pool page if creating
-      history.push('/myPools?tab=elastic')
+      navigate('/myPools?tab=elastic')
     }
     setTxHash('')
-  }, [history, onFieldAInput, txHash])
+  }, [navigate, onFieldAInput, txHash])
 
   const addIsUnsupported = false
 
@@ -706,7 +701,7 @@ export default function AddLiquidity({
     </>
   )
 
-  if (!isEVM) return <Redirect to="/" />
+  if (!isEVM) return <Navigate to="/" />
   return (
     <>
       <TransactionConfirmationModal
@@ -763,10 +758,10 @@ export default function AddLiquidity({
             onCleared={() => {
               onFieldAInput('0')
               onFieldBInput('0')
-              history.push('/elastic/add')
+              navigate('/elastic/add')
             }}
             onBack={() => {
-              history.replace('/pools?tab=elastic')
+              navigate('/pools?tab=elastic')
             }}
             tutorialType={TutorialType.ELASTIC_ADD_LIQUIDITY}
           />
@@ -789,6 +784,7 @@ export default function AddLiquidity({
                 />
 
                 <ArrowWrapper
+                  isVertical
                   rotated={rotate}
                   onClick={() => {
                     if (!!rightPrice) {
@@ -871,10 +867,11 @@ export default function AddLiquidity({
                       isSwitchMode={baseCurrencyIsETHER || baseCurrencyIsWETH}
                       onSwitchCurrency={() => {
                         chainId &&
-                          history.replace(
+                          navigate(
                             `/elastic/add/${
                               baseCurrencyIsETHER ? WETH[chainId].address : NativeCurrencies[chainId].symbol
                             }/${currencyIdB}/${feeAmount}`,
+                            { replace: true },
                           )
                       }}
                     />
@@ -902,10 +899,11 @@ export default function AddLiquidity({
                       isSwitchMode={quoteCurrencyIsETHER || quoteCurrencyIsWETH}
                       onSwitchCurrency={() => {
                         chainId &&
-                          history.replace(
+                          navigate(
                             `/elastic/add/${currencyIdA}/${
                               quoteCurrencyIsETHER ? WETH[chainId].address : NativeCurrencies[chainId].symbol
                             }/${feeAmount}`,
+                            { replace: true },
                           )
                       }}
                     />

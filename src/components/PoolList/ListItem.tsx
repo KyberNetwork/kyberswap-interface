@@ -5,7 +5,7 @@ import { rgba } from 'polished'
 import React, { CSSProperties, useState } from 'react'
 import { AlertTriangle, ChevronDown, ChevronUp, Info, Minus, Plus, Share2 } from 'react-feather'
 import { useDispatch } from 'react-redux'
-import { Link, useHistory } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Flex } from 'rebass'
 
 import { ButtonEmpty } from 'components/Button'
@@ -31,7 +31,7 @@ import {
   TokenPairContainer,
 } from 'components/PoolList/styled'
 import { MouseoverTooltip } from 'components/Tooltip'
-import FarmingPoolAPRCell from 'components/YieldPools/FarmingPoolAPRCell'
+import { ClassicFarmingPoolAPRCell } from 'components/YieldPools/FarmingPoolAPRCell'
 import { MAX_ALLOW_APY } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
@@ -132,12 +132,13 @@ const ListItemGroup = ({
 
   const amp = new Fraction(poolData.amp).divide(JSBI.BigInt(10000))
 
-  const history = useHistory()
+  const navigate = useNavigate()
   const [, setUrlOnEthPoWAck] = useUrlOnEthPowAck()
   const toggleEthPowAckModal = useToggleEthPowAckModal()
 
   const { data: uniqueAndActiveFarms } = useActiveAndUniqueFarmsData()
   const farm = uniqueAndActiveFarms.find(f => f.id.toLowerCase() === poolData.id.toLowerCase())
+
   const isFarmingPool = !!farm
 
   // Shorten address with 0x + 3 characters at start and end
@@ -189,9 +190,7 @@ const ListItemGroup = ({
     }
 
     if (isFarmingPool) {
-      return (
-        <FarmingPoolAPRCell poolAPR={Number(oneYearFL)} fairlaunchAddress={farm.fairLaunchAddress} pid={farm.pid} />
-      )
+      return <ClassicFarmingPoolAPRCell poolAPR={Number(oneYearFL)} farm={farm} />
     }
 
     return (
@@ -299,7 +298,7 @@ const ListItemGroup = ({
               if (chainId === ChainId.ETHW) {
                 toggleEthPowAckModal()
               } else {
-                history.push(url)
+                navigate(url)
               }
             }}
           >
@@ -368,5 +367,4 @@ const ListItemGroup = ({
     </>
   )
 }
-
 export default ListItem

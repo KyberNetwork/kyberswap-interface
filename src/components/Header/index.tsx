@@ -1,39 +1,26 @@
 import { Trans, t } from '@lingui/macro'
-import { darken } from 'polished'
 import { useState } from 'react'
-import { Repeat } from 'react-feather'
-import { Link, NavLink, useLocation } from 'react-router-dom'
-import { Flex, Text } from 'rebass'
-import styled, { css, keyframes } from 'styled-components'
+import { Link, useLocation } from 'react-router-dom'
+import styled, { keyframes } from 'styled-components'
 
-import { ReactComponent as MasterCard } from 'assets/buy-crypto/master-card.svg'
-import { ReactComponent as Visa } from 'assets/buy-crypto/visa.svg'
-import MultichainLogoDark from 'assets/images/multichain_black.png'
-import MultichainLogoLight from 'assets/images/multichain_white.png'
-import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
-import { ReactComponent as Dollar } from 'assets/svg/dollar.svg'
-import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import SelectNetwork from 'components/Header/web3/SelectNetwork'
 import SelectWallet from 'components/Header/web3/SelectWallet'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
-import Menu, { NewLabel } from 'components/Menu'
+import Menu from 'components/Menu'
 import Row, { RowFixed } from 'components/Row'
 import Settings from 'components/Settings'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import { AGGREGATOR_ANALYTICS_URL, APP_PATHS, PROMM_ANALYTICS_URL } from 'constants/index'
+import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import { useWindowSize } from 'hooks/useWindowSize'
-import { useTutorialSwapGuide } from 'state/tutorial/hooks'
-import { useIsDarkMode } from 'state/user/hooks'
-import { ExternalLink } from 'theme/components'
+import { useHolidayMode, useIsDarkMode } from 'state/user/hooks'
 
-const VisaSVG = styled(Visa)`
-  path {
-    fill: ${({ theme }) => theme.text};
-  }
-`
+import AboutNavGroup from './groups/AboutNavGroup'
+import AnalyticNavGroup from './groups/AnalyticNavGroup'
+import EarnNavGroup from './groups/EarnNavGroup'
+import SwapNavGroup from './groups/SwapNavGroup'
+import { StyledNavExternalLink, StyledNavLink } from './styleds'
 
 const HeaderFrame = styled.div`
   display: grid;
@@ -57,6 +44,7 @@ const HeaderFrame = styled.div`
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
    padding: 0.5rem 1rem;
+   height: 60px;
   `}
 `
 
@@ -80,6 +68,9 @@ const HeaderControls = styled.div`
     height: 72px;
     border-radius: 12px 12px 0 0;
     background-color: ${({ theme }) => theme.background};
+  `};
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+      height: 60px;
   `};
 `
 
@@ -105,6 +96,7 @@ const HeaderRow = styled(RowFixed)`
 `
 
 const HeaderLinks = styled(Row)`
+  gap: 4px;
   justify-content: center;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
@@ -112,24 +104,17 @@ const HeaderLinks = styled(Row)`
   `};
 `
 
-const IconImage = styled.img`
+const IconImage = styled.img<{ isChristmas?: boolean }>`
   width: 140px;
-  margin-top: 1px;
+  margin-top: ${({ isChristmas }) => (isChristmas ? '-18px' : '1px')};
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
+  ${({ theme, isChristmas }) => theme.mediaWidth.upToSmall`
     width: 114px;
+    margin-top: ${isChristmas ? '-10px' : '1px'};
   `};
 
   @media only screen and (max-width: 400px) {
     width: 100px;
-  }
-`
-
-const AnalyticsWrapper = styled.span`
-  display: flex;
-  align-items: center;
-  @media (max-width: 1320px) {
-    display: none;
   }
 `
 
@@ -139,16 +124,15 @@ const DiscoverWrapper = styled.span`
   `};
 `
 
-const CampaignWrapper = styled.span``
-
-const BlogWrapper = styled.span`
-  @media (max-width: 1440px) {
+const CampaignWrapper = styled.span`
+  /* It's better to break at 420px than at extraSmall */
+  @media (max-width: 420px) {
     display: none;
   }
 `
 
-const AboutWrapper = styled.span`
-  @media (max-width: 1400px) {
+const BlogWrapper = styled.span`
+  @media (max-width: 1440px) {
     display: none;
   }
 `
@@ -167,7 +151,7 @@ const Title = styled(Link)`
   }
 `
 
-const UniIcon = styled.div`
+const LogoIcon = styled.div`
   transition: transform 0.3s ease;
 
   :hover {
@@ -178,74 +162,6 @@ const UniIcon = styled.div`
     :hover {
       transform: rotate(0);
     }
-  `}
-`
-
-const activeClassName = 'ACTIVE'
-
-const StyledNavLink = styled(NavLink).attrs({
-  activeClassName,
-})`
-  ${({ theme }) => theme.flexRowNoWrap}
-  align-items: left;
-  border-radius: 3rem;
-  padding: 8px 12px;
-  outline: none;
-  cursor: pointer;
-  text-decoration: none;
-  color: ${({ theme }) => theme.subText};
-  font-size: 1rem;
-  width: fit-content;
-  font-weight: 500;
-
-  &.${activeClassName} {
-    border-radius: 12px;
-    font-weight: 600;
-    color: ${({ theme }) => theme.primary};
-  }
-
-  :hover {
-    color: ${({ theme }) => darken(0.1, theme.primary)};
-  }
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 8px 6px;
-  `}
-`
-
-const StyledNavExternalLink = styled(ExternalLink).attrs({
-  activeClassName,
-})`
-  ${({ theme }) => theme.flexRowNoWrap}
-  align-items: left;
-  border-radius: 3rem;
-  outline: none;
-  cursor: pointer;
-  text-decoration: none;
-  color: ${({ theme }) => theme.subText};
-  font-size: 1rem;
-  width: fit-content;
-  padding: 8px 12px;
-  font-weight: 500;
-
-  &.${activeClassName} {
-    border-radius: 12px;
-    font-weight: 600;
-    color: ${({ theme }) => theme.subText};
-  }
-
-  :hover {
-    color: ${({ theme }) => darken(0.1, theme.primary)};
-    text-decoration: none;
-  }
-
-  :focus {
-    color: ${({ theme }) => theme.subText};
-    text-decoration: none;
-  }
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-      display: none;
   `}
 `
 
@@ -271,217 +187,51 @@ export const SlideToUnlock = styled.div<{ active?: boolean }>`
   animation: ${shine} 1.3s infinite linear;
   animation-fill-mode: forwards;
   background-position: 0;
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   -webkit-text-size-adjust: none;
 `
 
-const Dropdown = styled.div`
-  display: none;
-  position: absolute;
-  background: ${({ theme }) => theme.tableHeader};
-  filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.36));
-  box-shadow: 0 0 1px rgba(0, 0, 0, 0.01), 0 4px 8px rgba(0, 0, 0, 0.04), 0 16px 24px rgba(0, 0, 0, 0.04),
-    0 24px 32px rgba(0, 0, 0, 0.01);
-  border-radius: 16px;
-  padding: 8px;
-  width: max-content;
-  top: 32px;
-`
-const DropdownIcon = styled(DropdownSVG)`
-  transition: transform 300ms;
-`
-const cssDropDown = css`
-  color: ${({ theme }) => darken(0.1, theme.primary)};
-
-  ${Dropdown} {
-    display: flex;
-    flex-direction: column;
-
-    ${StyledNavLink} {
-      margin: 0;
-    }
-  }
-
-  ${DropdownIcon} {
-    transform: rotate(-180deg);
-  }
-`
-const HoverDropdown = styled.div<{ active: boolean; forceShowDropdown?: boolean }>`
-  position: relative;
-  display: inline-block;
-  cursor: pointer;
-
-  color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
-  font-size: 1rem;
-  width: fit-content;
-  padding: 8px 6px 8px 12px;
-  font-weight: 500;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 8px 2px 8px 6px;
-  `}
-  ${({ forceShowDropdown }) => forceShowDropdown && cssDropDown}
-  :hover {
-    ${cssDropDown}
-  }
-`
-const StyledBridgeIcon = styled(BridgeIcon)`
-  path {
-    fill: currentColor;
-  }
-`
 export default function Header() {
-  const { chainId, isEVM, isSolana, walletKey } = useActiveWeb3React()
-
+  const { walletKey } = useActiveWeb3React()
   const isDark = useIsDarkMode()
   const { pathname } = useLocation()
   const [isHoverSlide, setIsHoverSlide] = useState(false)
+  const [holidayMode] = useHolidayMode()
 
-  const { width } = useWindowSize()
-  const [{ show: isShowTutorial = false, stepInfo }] = useTutorialSwapGuide()
-  const under369 = width && width < 369
   const { mixpanelHandler } = useMixpanel()
   return (
     <HeaderFrame>
       <HeaderRow>
         <Title to="/swap">
-          <UniIcon>
-            <IconImage src={isDark ? '/logo-dark.svg' : '/logo.svg'} alt="logo" />
-          </UniIcon>
+          {holidayMode ? (
+            <LogoIcon>
+              <IconImage
+                isChristmas
+                src={isDark ? '/christmas-logo-dark.svg' : '/christmas-logo-light.svg'}
+                alt="logo"
+              />
+            </LogoIcon>
+          ) : (
+            <LogoIcon>
+              <IconImage src={isDark ? '/logo-dark.svg' : '/logo.svg'} alt="logo" />
+            </LogoIcon>
+          )}
         </Title>
         <HeaderLinks>
-          <HoverDropdown
-            forceShowDropdown={isShowTutorial && stepInfo?.selector === `#${TutorialIds.BRIDGE_LINKS}`}
-            active={pathname.includes('/swap') || pathname === '/buy-crypto'}
-          >
-            <Flex alignItems="center">
-              <Trans>Swap</Trans>
-              <DropdownIcon />
-            </Flex>
+          <SwapNavGroup />
 
-            <Dropdown>
-              <StyledNavLink
-                id={`swapv2-nav-link`}
-                to={'/swap'}
-                isActive={match => Boolean(match)}
-                style={{ flexDirection: 'column' }}
-              >
-                <Flex alignItems="center" sx={{ gap: '13px' }}>
-                  <Repeat size={16} />
-                  <Trans>Swap</Trans>
-                </Flex>
-              </StyledNavLink>
-              <div id={TutorialIds.BRIDGE_LINKS}>
-                <StyledNavLink
-                  id={`buy-crypto-nav-link`}
-                  to={'/buy-crypto'}
-                  isActive={match => Boolean(match)}
-                  onClick={() => {
-                    mixpanelHandler(MIXPANEL_TYPE.SWAP_BUY_CRYPTO_CLICKED)
-                  }}
-                >
-                  <Flex alignItems="center" sx={{ gap: '8px' }}>
-                    <Flex sx={{ gap: '10px' }}>
-                      <Dollar style={{ marginLeft: -1 }} />
-                      <Trans>Buy Crypto</Trans>
-                    </Flex>
-                    <Flex sx={{ gap: '8px' }}>
-                      <VisaSVG width="20" height="20" />
-                      <MasterCard width="20" height="20" />
-                    </Flex>
-                  </Flex>
-                </StyledNavLink>
-                {isSolana || (
-                  <StyledNavLink
-                    to={APP_PATHS.BRIDGE}
-                    isActive={match => Boolean(match)}
-                    style={{ flexDirection: 'column', width: '100%' }}
-                  >
-                    <Flex alignItems="center" sx={{ gap: '10px' }} justifyContent="space-between">
-                      <StyledBridgeIcon height={15} />
-                      <Flex alignItems={'center'} style={{ flex: 1 }} justifyContent={'space-between'}>
-                        <Text>
-                          <Trans>Bridge</Trans>
-                        </Text>
-                        <img
-                          src={isDark ? MultichainLogoLight : MultichainLogoDark}
-                          alt="kyberswap with multichain"
-                          height={10}
-                        />
-                      </Flex>
-                    </Flex>
-                  </StyledNavLink>
-                )}
-              </div>
-            </Dropdown>
-          </HoverDropdown>
+          <EarnNavGroup />
 
-          {isEVM && (
-            <Flex id={TutorialIds.EARNING_LINKS} alignItems="center">
-              <HoverDropdown
-                active={pathname.toLowerCase().includes('pools') || pathname.toLowerCase().startsWith('/farms')}
-              >
-                <Flex alignItems="center">
-                  <Trans>Earn</Trans>
-                  <DropdownIcon />
-                </Flex>
-                <Dropdown>
-                  <StyledNavLink
-                    id="pools-nav-link"
-                    to="/pools"
-                    isActive={(match, { pathname }) => Boolean(match) || pathname.startsWith('/pools')}
-                    style={{ width: '100%' }}
-                  >
-                    <Trans>Pools</Trans>
-                  </StyledNavLink>
-
-                  <StyledNavLink
-                    id="my-pools-nav-link"
-                    to="/myPools"
-                    isActive={(match, { pathname }) =>
-                      Boolean(match) ||
-                      pathname.startsWith(APP_PATHS.CLASSIC_ADD_LIQ) ||
-                      pathname.startsWith(APP_PATHS.CLASSIC_REMOVE_POOL) ||
-                      pathname.startsWith(APP_PATHS.CLASSIC_CREATE_POOL) ||
-                      (pathname.startsWith(APP_PATHS.FIND_POOL) && pathname.endsWith(APP_PATHS.FIND_POOL))
-                    }
-                  >
-                    <Trans>My Pools</Trans>
-                  </StyledNavLink>
-
-                  <StyledNavLink
-                    onClick={() => {
-                      mixpanelHandler(MIXPANEL_TYPE.FARM_UNDER_EARN_TAB_CLICK)
-                    }}
-                    id="farms-nav-link"
-                    to="/farms"
-                    isActive={match => Boolean(match)}
-                  >
-                    <Trans>Farms</Trans>
-                    <NewLabel>
-                      <Trans>New</Trans>
-                    </NewLabel>
-                  </StyledNavLink>
-                </Dropdown>
-              </HoverDropdown>
-            </Flex>
-          )}
-
-          {!under369 && (
-            <CampaignWrapper id={TutorialIds.CAMPAIGN_LINK}>
-              <StyledNavLink id={`campaigns`} to={'/campaigns'} isActive={match => Boolean(match)}>
-                <Trans>Campaigns</Trans>
-              </StyledNavLink>
-            </CampaignWrapper>
-          )}
+          <CampaignWrapper id={TutorialIds.CAMPAIGN_LINK}>
+            <StyledNavLink id="campaigns" to={APP_PATHS.CAMPAIGN}>
+              <Trans>Campaigns</Trans>
+            </StyledNavLink>
+          </CampaignWrapper>
 
           <DiscoverWrapper id={TutorialIds.DISCOVER_LINK}>
-            <StyledNavLink
-              to={'/discover?tab=trending_soon'}
-              isActive={match => Boolean(match)}
-              style={{ alignItems: 'center' }}
-            >
+            <StyledNavLink to={'/discover?tab=trending_soon'} style={{ alignItems: 'center' }}>
               <SlideToUnlock
                 active={pathname.includes('discover') || isHoverSlide}
                 onMouseEnter={() => setIsHoverSlide(true)}
@@ -493,47 +243,8 @@ export default function Header() {
             </StyledNavLink>
           </DiscoverWrapper>
 
-          <AnalyticsWrapper>
-            <HoverDropdown active={false}>
-              <Flex alignItems="center">
-                <Trans>Analytics</Trans>
-                <DropdownIcon />
-              </Flex>
-              <Dropdown>
-                <StyledNavExternalLink
-                  onClick={() => {
-                    mixpanelHandler(MIXPANEL_TYPE.ANALYTICS_MENU_CLICKED)
-                  }}
-                  target="_blank"
-                  href={PROMM_ANALYTICS_URL[chainId] + '/home'}
-                >
-                  <Trans>Liquidity</Trans>
-                </StyledNavExternalLink>
-
-                <StyledNavExternalLink target="_blank" href={AGGREGATOR_ANALYTICS_URL}>
-                  <Trans>Aggregator</Trans>
-                </StyledNavExternalLink>
-              </Dropdown>
-            </HoverDropdown>
-          </AnalyticsWrapper>
-
-          <AboutWrapper>
-            <HoverDropdown active={pathname.toLowerCase().includes('about')}>
-              <Flex alignItems="center">
-                <Trans>About</Trans>
-                <DropdownIcon />
-              </Flex>
-              <Dropdown>
-                <StyledNavLink id={`about-kyberswap`} to={'/about/kyberswap'} isActive={match => Boolean(match)}>
-                  <Trans>KyberSwap</Trans>
-                </StyledNavLink>
-
-                <StyledNavLink id={`about-knc`} to={'/about/knc'} isActive={match => Boolean(match)}>
-                  <Trans> KNC</Trans>
-                </StyledNavLink>
-              </Dropdown>
-            </HoverDropdown>
-          </AboutWrapper>
+          <AnalyticNavGroup />
+          <AboutNavGroup />
 
           <BlogWrapper>
             <StyledNavExternalLink

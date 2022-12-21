@@ -36,10 +36,7 @@ interface Window {
   opr?: any
   solana?: any
   recaptchaOptions?: any
-
-  mozIndexedDB?: any
-  webkitIndexedDB?: any
-  msIndexedDB?: any
+  zESettings: any
 }
 
 declare module 'content-hash' {
