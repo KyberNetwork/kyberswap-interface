@@ -90,6 +90,23 @@ const StyledLightIcon = styled(LightIcon)`
   }
 `
 
+const DiscoverWrapper = styled.span`
+  display: none;
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    display: inline-flex;
+  `};
+`
+
+const CampaignWrapper = styled.span`
+  display: none;
+
+  /* It's better to break at 420px than at extraSmall */
+  @media (max-width: 420px) {
+    display: inline-flex;
+  }
+`
+
 const StyledMenuButton = styled.button<{ active?: boolean }>`
   border: none;
   background-color: transparent;
@@ -183,7 +200,6 @@ export default function Menu() {
 
   const under1440 = useMedia('(max-width: 1440px)')
   const above1321 = useMedia('(min-width: 1321px)')
-  const above768 = useMedia('(min-width: 768px)')
   const under1200 = useMedia('(max-width: 1200px)')
   const under420 = useMedia('(max-width: 420px)')
 
@@ -230,7 +246,7 @@ export default function Menu() {
           </ExternalNavMenuItem>
         )}
 
-        {!above768 && (
+        <DiscoverWrapper>
           <NavMenuItem to={'/discover?tab=trending_soon'} onClick={toggle}>
             <DiscoverIcon size={16} />
             <SlideToUnlock>
@@ -242,14 +258,15 @@ export default function Menu() {
               <Trans>New</Trans>
             </NewLabel>
           </NavMenuItem>
-        )}
+        </DiscoverWrapper>
 
-        {under420 && (
+        <CampaignWrapper>
           <NavMenuItem to="/campaigns" onClick={toggle}>
             <Award size={14} />
             <Trans>Campaigns</Trans>
           </NavMenuItem>
-        )}
+        </CampaignWrapper>
+
         {under1440 && (
           <NavDropDown
             icon={<Info size={16} />}

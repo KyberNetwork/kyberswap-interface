@@ -318,7 +318,6 @@ export const APP_PATHS = {
   CAMPAIGN: '/campaigns',
   FIND_POOL: '/find',
   POOLS: '/pools',
-  POOL: '/pool',
   CLASSIC_CREATE_POOL: '/create',
   CLASSIC_ADD_LIQ: '/add',
   CLASSIC_REMOVE_POOL: '/remove',
