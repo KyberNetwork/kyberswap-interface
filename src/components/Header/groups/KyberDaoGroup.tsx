@@ -1,8 +1,8 @@
 import { Trans } from '@lingui/macro'
 import { useLocation } from 'react-router-dom'
-import { Flex } from 'rebass'
 import styled from 'styled-components'
 
+import Column from 'components/Column'
 import LightBulb from 'components/Icons/LightBulb'
 import StakeIcon from 'components/Icons/Stake'
 import VoteIcon from 'components/Icons/Vote'
@@ -32,16 +32,12 @@ const KyberDAONavGroup = () => {
           </DropdownTextAnchor>
         }
         dropdownContent={
-          <Flex
-            sx={{
-              flexDirection: 'column',
-            }}
-          >
-            <StyledNavLink id={`kyberdao-stake-knc`} to={'/kyberdao/stake-knc'}>
+          <Column>
+            <StyledNavLink id={`kyberdao-stake-knc`} to={'/kyberdao/stake-knc'} style={{ gap: '4px' }}>
               <StakeIcon />
               <Trans>Stake KNC</Trans>
             </StyledNavLink>
-            <StyledNavLink id={`kyberdao-vote`} to={'/kyberdao/vote'}>
+            <StyledNavLink id={`kyberdao-vote`} to={'/kyberdao/vote'} style={{ gap: '4px' }}>
               <VoteIcon />
               <Trans>Vote</Trans>
             </StyledNavLink>
@@ -49,11 +45,12 @@ const KyberDAONavGroup = () => {
               id={`kyberdao-feature-request`}
               href={'https://kyberswap.canny.io/feature-request'}
               target="_blank"
+              style={{ gap: '4px' }}
             >
               <LightBulb />
               <Trans>Feature Request</Trans>
             </StyledNavExternalLink>
-          </Flex>
+          </Column>
         }
       />
     </KyberDaoWrapper>
