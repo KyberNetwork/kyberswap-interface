@@ -31,11 +31,7 @@ describe('Swap Test On With Connect MetaMask Wallet', () => {
         const formattedMetamaskWalletAddress =
           metamaskWalletAddress.slice(0, 6) + '...' + metamaskWalletAddress.slice(-4)
         expect(stakingWalletAddress.toLowerCase()).to.equal(formattedMetamaskWalletAddress.toLowerCase())
-        debugger
       })
-      // swapPage.getBalance().then((b) => {
-      //   debugger;
-      // });
     })
   })
 
