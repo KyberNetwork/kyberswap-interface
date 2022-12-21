@@ -33,11 +33,11 @@ const KyberDAONavGroup = () => {
         }
         dropdownContent={
           <Column>
-            <StyledNavLink id={`kyberdao-stake-knc`} to={'/kyberdao/stake-knc'} style={{ gap: '4px' }}>
+            <StyledNavLink id={`kyberdao-stake-knc`} to={APP_PATHS.KYBERDAO_STAKE} style={{ gap: '4px' }}>
               <StakeIcon />
               <Trans>Stake KNC</Trans>
             </StyledNavLink>
-            <StyledNavLink id={`kyberdao-vote`} to={'/kyberdao/vote'} style={{ gap: '4px' }}>
+            <StyledNavLink id={`kyberdao-vote`} to={APP_PATHS.KYBERDAO_VOTE} style={{ gap: '4px' }}>
               <VoteIcon />
               <Trans>Vote</Trans>
             </StyledNavLink>

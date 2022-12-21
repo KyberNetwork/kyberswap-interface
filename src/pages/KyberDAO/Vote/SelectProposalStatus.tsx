@@ -83,11 +83,11 @@ export default function SelectProposalStatus({
 }) {
   const theme = useTheme()
   const [show, setShow] = useState(false)
-  const ref = useRef()
+  const ref = useRef<HTMLDivElement>(null)
   useOnClickOutside(ref, () => setShow(false))
   return (
     <>
-      <Wrapper ref={ref as any}>
+      <Wrapper ref={ref}>
         <Select onClick={() => setShow(s => !s)}>
           <Text color={!!status && status !== 'All' ? theme.text : undefined}>{status || 'All'}</Text>
           <ChevronDown size={16} />
