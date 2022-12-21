@@ -98,6 +98,8 @@ const TableCell = styled.div<{ justify?: 'flex-end' | 'flex-right' | 'center' }>
 const ButtonIcon = styled.div`
   cursor: pointer;
 `
+const formatAmount = (amount: number) => (amount > 0 && amount < 0.001 ? '<0.001' : amount?.toLocaleString())
+
 export default function YourTransactionsModal() {
   const theme = useTheme()
   const { chainId } = useActiveWeb3React()
@@ -115,16 +117,12 @@ export default function YourTransactionsModal() {
         return {
           ...action,
           hashText: action.tx_hash.slice(0, 6) + '...' + action.tx_hash.slice(-4),
-          type:
-            action.type === ActionType.VoteEmitted
-              ? 'Vote'
-              : action.type === ActionType.ClaimReward
-              ? 'Claim'
-              : action.type === ActionType.Deposit
-              ? 'Stake'
-              : action.type === ActionType.Withdraw
-              ? 'Unstake'
-              : action.type,
+          type: {
+            [ActionType.VoteEmitted]: 'Vote',
+            [ActionType.ClaimReward]: 'Claim',
+            [ActionType.Deposit]: 'Stake',
+            [ActionType.Withdraw]: 'Unstake',
+          }[action.type] as string,
           description: (() => {
             switch (action.type) {
               case ActionType.VoteEmitted: {
@@ -135,7 +133,7 @@ export default function YourTransactionsModal() {
                 const amount = action.meta?.amount ?? 0
                 return (
                   <>
-                    {amount > 0 && amount < 0.001 ? '<0.001' : amount?.toLocaleString() + ' KNC'}
+                    {formatAmount(amount) + ' KNC'}
                     <Text fontSize={12} color={theme.subText}>
                       + {((+(action.meta?.amount || 0) / proposal.vote_stats?.total_vote_count) * 100).toPrecision(3)}%
                       Power
@@ -147,7 +145,7 @@ export default function YourTransactionsModal() {
                 const amount = action.meta?.amount ?? 0
                 return (
                   <>
-                    {amount > 0 && amount < 0.001 ? '<0.001' : amount?.toLocaleString() + ' KNC'}
+                    {formatAmount(amount) + ' KNC'}
                     <Text fontSize={12} color={theme.subText}>
                       + {calculateVotingPower(action.meta?.amount?.toString() || '0')}% Power
                     </Text>
@@ -158,7 +156,7 @@ export default function YourTransactionsModal() {
                 const amount = action.meta?.amount ?? 0
                 return (
                   <>
-                    {amount > 0 && amount < 0.001 ? '<0.001' : amount?.toLocaleString() + ' KNC'}
+                    {formatAmount(amount) + ' KNC'}
                     <Text fontSize={12} color={theme.subText}>
                       - {calculateVotingPower(action.meta?.amount?.toString() || '0')}% Power
                     </Text>

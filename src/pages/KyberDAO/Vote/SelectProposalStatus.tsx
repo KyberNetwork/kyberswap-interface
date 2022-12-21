@@ -113,7 +113,7 @@ export default function SelectProposalStatus({
                   setStatus?.(s)
                 }}
               >
-                <Trans>{s}</Trans>
+                {s}
               </DropdownItem>
             )
           })}

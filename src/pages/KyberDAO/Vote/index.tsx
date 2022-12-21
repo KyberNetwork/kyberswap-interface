@@ -106,7 +106,6 @@ function readableTime(seconds: number) {
     returntext +=
       ' ' +
       levels[i][0] +
-      '' +
       (levels[i][0] === 1 && levels[i][1] > 1
         ? levels[i][1].toString().substring(0, levels[i][1].toString().length - 1)
         : levels[i][1])

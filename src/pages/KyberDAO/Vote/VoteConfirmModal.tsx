@@ -48,7 +48,9 @@ export default function VoteConfirmModal({
           </Flex>
         </RowBetween>
         <TextWrapper fontSize={16} lineHeight="24px" color={theme.subText}>
-          You are voting for <b>{options}</b> on <b>{title}</b> with your KIP voting power
+          <Trans>
+            You are voting for <b>{options}</b> on <b>{title}</b> with your KIP voting power
+          </Trans>
         </TextWrapper>
         <ButtonPrimary onClick={onVoteConfirm}>Vote</ButtonPrimary>
       </Wrapper>
