@@ -253,9 +253,7 @@ export default function ProAmmPoolCardItem({ pool, onShared, userPositions }: Li
           padding="10px"
           style={{ height: '36px' }}
           onClick={() => {
-            const url = myLiquidity
-              ? `/myPools/${networkInfo.route}?tab=${VERSION.ELASTIC}&search=${pool.address}`
-              : `/elastic/add/${token0Slug}/${token1Slug}/${pool.feeTier}`
+            const url = `/elastic/add/${token0Slug}/${token1Slug}/${pool.feeTier}`
 
             if (chainId === ChainId.ETHW) {
               setUrlOnEthPoWAck(url)

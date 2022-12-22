@@ -135,7 +135,7 @@ const ListItem = ({ poolData, userLiquidityPositions }: ListItemGroupProps) => {
             </MouseoverTooltip>
           )}
           {isWarning && (
-            <MouseoverTooltip text={`One token is close to 0% in the pool ratio. Pool might go inactive`}>
+            <MouseoverTooltip text={`One of the tokens in the pool is close to 0%. Pool might become inactive soon`}>
               <IconWrapper style={{ background: theme.warning, marginLeft: '6px' }}>
                 <AlertTriangle color={theme.textReverse} size={12} />
               </IconWrapper>

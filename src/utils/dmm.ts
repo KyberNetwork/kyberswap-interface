@@ -318,7 +318,8 @@ export function useFarmApr(farm: Farm, poolLiquidityUsd: string): number {
   const { chainId, isEVM } = useActiveWeb3React()
   const currentBlock = useBlockNumber()
   const rewardsPerTimeUnit = useFarmRewardsPerTimeUnit(farm)
-  const tokenPrices = useTokenPrices((rewardsPerTimeUnit || []).map(item => item.token.address))
+  const tokenPrices = useTokenPrices((rewardsPerTimeUnit || []).map(item => item.token.wrapped.address))
+
   let yearlyRewardUSD
 
   if (farm.rewardPerSeconds) {
@@ -345,13 +346,13 @@ export function useFarmApr(farm: Farm, poolLiquidityUsd: string): number {
         return total
       }
 
-      if (chainId && tokenPrices[rewardPerSecond.token.address]) {
+      if (chainId && tokenPrices[rewardPerSecond.token.wrapped.address]) {
         const rewardPerSecondAmount = TokenAmount.fromRawAmount(
           rewardPerSecond.token,
           rewardPerSecond.amount.toString(),
         )
         const yearlyETHRewardAllocation = parseFloat(rewardPerSecondAmount.toSignificant(6)) * SECONDS_PER_YEAR
-        total += yearlyETHRewardAllocation * tokenPrices[rewardPerSecond.token.address]
+        total += yearlyETHRewardAllocation * tokenPrices[rewardPerSecond.token.wrapped.address]
       }
 
       return total
