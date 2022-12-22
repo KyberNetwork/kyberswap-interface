@@ -6,9 +6,15 @@ import FlagTR from 'assets/images/flag-TR.svg'
 import FlagVI from 'assets/images/flag-VI.svg'
 import FlagZH from 'assets/images/flag-ZH.svg'
 
-export const SUPPORTED_LOCALES = ['en-US', 'ko-KR', 'tr-TR', 'vi-VN', 'zh-CN'] as const
-export type SupportedLocale = typeof SUPPORTED_LOCALES[number]
+export const LOCALE_INFO = {
+  'en-US': { flag: FlagEN, name: 'English' },
+  'zh-CN': { flag: FlagZH, name: '中文' },
+  'tr-TR': { flag: FlagTR, name: 'Türkçe' },
+  'ko-KR': { flag: FlagKO, name: '한국어' },
+  'vi-VN': { flag: FlagVI, name: 'Tiếng Việt' },
+} as const
 
+export type SupportedLocale = keyof typeof LOCALE_INFO
 export const DEFAULT_LOCALE: SupportedLocale = 'en-US'
 
 const Flag = styled.img`
@@ -16,58 +22,12 @@ const Flag = styled.img`
   vertical-align: middle;
 `
 
-export const LOCALE_LABEL: { [locale in SupportedLocale]: JSX.Element } = {
-  'en-US': (
+export const getLocaleLabel = (locale: SupportedLocale | null, codeOnly = false) => {
+  locale = locale || DEFAULT_LOCALE
+  const { name, flag } = LOCALE_INFO[locale] || LOCALE_INFO[DEFAULT_LOCALE]
+  return (
     <>
-      <Flag src={FlagEN} /> &nbsp;English
+      <Flag src={flag} /> &nbsp;{codeOnly ? locale?.split('-')?.[0]?.toUpperCase() : name}
     </>
-  ),
-  'zh-CN': (
-    <>
-      <Flag src={FlagZH} /> &nbsp;中文
-    </>
-  ),
-  'tr-TR': (
-    <>
-      <Flag src={FlagTR} /> &nbsp;Türkçe
-    </>
-  ),
-  'ko-KR': (
-    <>
-      <Flag src={FlagKO} /> &nbsp;한국어
-    </>
-  ),
-  'vi-VN': (
-    <>
-      <Flag src={FlagVI} /> &nbsp;Tiếng Việt
-    </>
-  ),
-}
-
-export const LOCALE_LABEL_V2: { [locale in SupportedLocale]: JSX.Element } = {
-  'en-US': (
-    <>
-      <Flag src={FlagEN} /> &nbsp;EN
-    </>
-  ),
-  'zh-CN': (
-    <>
-      <Flag src={FlagZH} /> &nbsp;ZH
-    </>
-  ),
-  'tr-TR': (
-    <>
-      <Flag src={FlagTR} /> &nbsp;TR
-    </>
-  ),
-  'ko-KR': (
-    <>
-      <Flag src={FlagKO} /> &nbsp;KO
-    </>
-  ),
-  'vi-VN': (
-    <>
-      <Flag src={FlagVI} /> &nbsp;VI
-    </>
-  ),
+  )
 }

@@ -11,7 +11,6 @@ import {
   MessageCircle,
   PieChart,
   Share2,
-  Triangle,
   UserPlus,
 } from 'react-feather'
 import { NavLink, useLocation } from 'react-router-dom'
@@ -37,9 +36,9 @@ import NotificationModal from 'components/SubscribeButton/NotificationModal'
 import Toggle from 'components/Toggle'
 import ThemeToggle from 'components/Toggle/ThemeToggle'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import { ENV_LEVEL, ENV_TYPE, TAG } from 'constants/env'
+import { TAG } from 'constants/env'
 import { AGGREGATOR_ANALYTICS_URL, APP_PATHS, DMM_ANALYTICS_URL } from 'constants/index'
-import { LOCALE_LABEL_V2, SupportedLocale } from 'constants/locales'
+import { getLocaleLabel } from 'constants/locales'
 import { FAUCET_NETWORKS } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
@@ -407,12 +406,7 @@ export default function Menu() {
               <FileText size={16} />
               <Trans>Terms</Trans>
             </ExternalNavMenuItem>
-            {ENV_LEVEL < ENV_TYPE.PROD && (
-              <NavMenuItem to="/swap-legacy" onClick={toggle}>
-                <Triangle size={14} />
-                <Trans>Swap Legacy</Trans>
-              </NavMenuItem>
-            )}
+
             <ExternalNavMenuItem href="https://forms.gle/gLiNsi7iUzHws2BY8">
               <Edit size={16} />
               <Trans>Business Enquiries</Trans>
@@ -466,7 +460,7 @@ export default function Menu() {
                 width="fit-content"
                 style={{ color: theme.text, textDecoration: 'none', fontSize: '14px' }}
               >
-                {LOCALE_LABEL_V2[userLocale as SupportedLocale] || LOCALE_LABEL_V2['en-US']}&nbsp;&nbsp;
+                {getLocaleLabel(userLocale, true)}&nbsp;&nbsp;
                 <ArrowRight fill={theme.text} />
               </ButtonEmpty>
             </NavMenuItemBetween>
