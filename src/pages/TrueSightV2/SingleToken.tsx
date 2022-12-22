@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useState } from 'react'
+import { ReactNode, useState } from 'react'
 import { ChevronLeft, Share2, Star } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
@@ -96,6 +96,22 @@ const TabButton = styled.div<{ active?: boolean }>`
 const formatMoneyWithSign = (amount: number): string => {
   const isNegative = amount < 0
   return (isNegative ? '-' : '') + '$' + Math.abs(amount).toLocaleString()
+}
+
+const ExternalLinkWrapper = styled.a`
+  text-decoration: none;
+  color: ${({ theme }) => theme.text};
+  transition: color 0.2s ease;
+  :hover {
+    color: ${({ theme }) => theme.primary};
+  }
+`
+const ExternalLink = ({ href, className, children }: { href: string; className?: string; children?: ReactNode }) => {
+  return (
+    <ExternalLinkWrapper className={className} href={href} target="_blank" rel="noreferrer">
+      {children} ↗
+    </ExternalLinkWrapper>
+  )
 }
 
 export default function SingleToken() {
@@ -230,13 +246,15 @@ export default function SingleToken() {
             <Text color={theme.subText}>
               <Trans>Website</Trans>
             </Text>
-            <Text color={theme.text}>{data?.webs[0].value}</Text>
+            {data?.webs[0] && <ExternalLink href={data?.webs[0].value || ''}>{data?.webs[0].key}</ExternalLink>}
           </RowBetween>
           <RowBetween>
             <Text color={theme.subText}>
               <Trans>Community</Trans>
             </Text>
-            <Text color={theme.primary}>Telegram ↗</Text>
+            {data?.communities[0] && (
+              <ExternalLink href={data?.communities[0].value || ''}>{data?.communities[0].key}</ExternalLink>
+            )}
           </RowBetween>
           <RowBetween>
             <Text color={theme.subText}>
