@@ -40,6 +40,7 @@ export const FIREBASE_MESSAGING_SENDER_ID = required('FIREBASE_MESSAGING_SENDER_
 export const FIREBASE_APP_ID = required('FIREBASE_APP_ID')
 export const NOTIFICATION_API = required('NOTIFICATION_API')
 export const TRUESIGHT_API = required('TRUESIGHT_API')
+export const TRUESIGHT_V2_API = required('TRUESIGHT_V2_API')
 export const TRANSAK_URL = required('TRANSAK_URL')
 export const TRANSAK_API_KEY = required('TRANSAK_API_KEY')
 export const TYPE_AND_SWAP_URL = required('TYPE_AND_SWAP_URL')

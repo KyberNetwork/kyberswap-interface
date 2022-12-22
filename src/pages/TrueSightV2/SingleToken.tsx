@@ -9,6 +9,7 @@ import styled, { css } from 'styled-components'
 import { ButtonGray, ButtonLight } from 'components/Button'
 import { Ethereum } from 'components/Icons'
 import Icon from 'components/Icons/Icon'
+import { DotsLoader } from 'components/Loader/DotsLoader'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
@@ -19,6 +20,7 @@ import OnChainAnalysis from './OnChainAnalysis'
 import PriceRange from './PriceRange'
 import TechnicalAnalysis from './TechnicalAnalysis'
 import DisplaySettings from './components/DisplaySettings'
+import useTokenDetailsData from './hooks/useTokenDetailsData'
 import { DiscoverTokenTab } from './types'
 
 const Wrapper = styled.div`
@@ -91,10 +93,16 @@ const TabButton = styled.div<{ active?: boolean }>`
   }
 `
 
+const formatMoneyWithSign = (amount: number): string => {
+  const isNegative = amount < 0
+  return (isNegative ? '-' : '') + '$' + Math.abs(amount).toLocaleString()
+}
+
 export default function SingleToken() {
   const theme = useTheme()
   const navigate = useNavigate()
   const [currentTab, setCurrentTab] = useState<DiscoverTokenTab>(DiscoverTokenTab.OnChainAnalysis)
+  const { data, isLoading } = useTokenDetailsData('$TOKEN_ADDRESS')
 
   return (
     <Wrapper>
@@ -104,10 +112,16 @@ export default function SingleToken() {
             <ChevronLeft size={24} />
           </ButtonIcon>
           <Star size={20} />
-          <Text fontSize={24} color={theme.text} fontWeight={500}>
-            Bitcoin (BTC)
-          </Text>
-          <Ethereum size={20} />
+          {isLoading ? (
+            <DotsLoader />
+          ) : (
+            <>
+              <Text fontSize={24} color={theme.text} fontWeight={500}>
+                {data?.name}
+              </Text>
+              <Ethereum size={20} />
+            </>
+          )}
         </RowFit>
         <RowFit gap="8px">
           <DisplaySettings currentTab={currentTab} />
@@ -128,14 +142,12 @@ export default function SingleToken() {
         </RowFit>
       </RowBetween>
       <Text fontSize={12} color={theme.subText} marginBottom="12px">
-        Bitcoin is a decentralized cryptocurrency originally described in a 2008 whitepaper by a person, or group of
-        people, using the alias Satoshi Nakamoto. It was launched in January 2009.
+        {isLoading ? <DotsLoader /> : data?.desc}
       </Text>
       <Row gap="8px" marginBottom="24px">
-        <Tag>PoS</Tag>
-        <Tag>Smart Contracts</Tag>
-        <Tag>Ethereum Ecosystem</Tag>
-        <Tag>Coinbase Ventures Portfolio</Tag>
+        {data?.tags.map(tag => {
+          return <Tag key="tag">{tag}</Tag>
+        })}
         <Tag active>View All</Tag>
       </Row>
       <Row align="stretch" gap="24px" marginBottom="38px">
@@ -145,7 +157,7 @@ export default function SingleToken() {
           </Text>
           <RowFit gap="8px">
             <Text fontSize={28} lineHeight="32px" color={theme.text}>
-              $22,841.05
+              {isLoading ? <DotsLoader /> : '$' + (+(data?.price || 0)).toLocaleString()}
             </Text>
             <Text
               color={theme.red}
@@ -155,14 +167,24 @@ export default function SingleToken() {
               padding="4px 8px"
               style={{ borderRadius: '16px' }}
             >
-              23.32%
+              {data ? data?.['24hChange'].toFixed(2) : 0}%
             </Text>
           </RowFit>
           <Text color={theme.red} fontSize={12} lineHeight="16px">
-            -$414.03
+            {data && formatMoneyWithSign(data?.['24hChange'] * +data?.price || 0)}
           </Text>
-          <PriceRange title={t`Daily Range`} high={23464.79} low={22778.66} current={23078.66} />
-          <PriceRange title={t`1Y Range`} high={63000} low={17592.88} current={23078.66} />
+          <PriceRange
+            title={t`Daily Range`}
+            high={data?.['24hHigh'] || 0}
+            low={data?.['24hLow'] || 0}
+            current={+(data?.price || 0)}
+          />
+          <PriceRange
+            title={t`1Y Range`}
+            high={data?.['1yHigh'] || 0}
+            low={data?.['1yLow'] || 0}
+            current={data?.price ? +data.price : 0}
+          />
         </CardWrapper>
         <CardWrapper style={{ fontSize: '12px' }} gap="10px">
           <Text color={theme.text} marginBottom="4px">
@@ -172,43 +194,43 @@ export default function SingleToken() {
             <Text color={theme.subText}>
               <Trans>All Time Low</Trans>
             </Text>
-            <Text color={theme.text}>$65.53</Text>
+            <Text color={theme.text}>{data?.ATL && formatMoneyWithSign(data?.ATL)}</Text>
           </RowBetween>
           <RowBetween>
             <Text color={theme.subText}>
               <Trans>All Time High</Trans>
             </Text>
-            <Text color={theme.text}>$68,789.63</Text>
+            <Text color={theme.text}>{data?.ATH && formatMoneyWithSign(data?.ATH)}</Text>
           </RowBetween>
           <RowBetween>
             <Text color={theme.subText}>
               <Trans>24H Volume</Trans>
             </Text>
-            <Text color={theme.text}>$27,520,056,639</Text>
+            <Text color={theme.text}>{data?.['24hVolume'] && formatMoneyWithSign(data?.['24hVolume'])}</Text>
           </RowBetween>
           <RowBetween>
             <Text color={theme.subText}>
               <Trans>Circulating Supply</Trans>
             </Text>
-            <Text color={theme.text}>19,119,125.00 BTC</Text>
+            <Text color={theme.text}>{data && data.circulatingSupply + ' ' + data.symbol}</Text>
           </RowBetween>
           <RowBetween>
             <Text color={theme.subText}>
               <Trans>Market Cap</Trans>
             </Text>
-            <Text color={theme.text}>$436,224,824,038</Text>
+            <Text color={theme.text}>{data?.marketCap && formatMoneyWithSign(data?.marketCap)}</Text>
           </RowBetween>
           <RowBetween>
             <Text color={theme.subText}>
               <Trans>Holders (On-chain)</Trans>
             </Text>
-            <Text color={theme.text}>23,321</Text>
+            <Text color={theme.text}>{data?.holders}</Text>
           </RowBetween>
           <RowBetween>
             <Text color={theme.subText}>
               <Trans>Website</Trans>
             </Text>
-            <Text color={theme.text}>kyber.network</Text>
+            <Text color={theme.text}>{data?.webs[0].value}</Text>
           </RowBetween>
           <RowBetween>
             <Text color={theme.subText}>
@@ -235,13 +257,13 @@ export default function SingleToken() {
               </Text>
             </MouseoverTooltip>
           </Row>
-          <KyberScoreMeter value={78} />
+          <KyberScoreMeter value={data?.kyberScore.score} />
           <Text fontSize={24} fontWeight={500} color={theme.primary} marginBottom="12px">
-            Strong Buy
+            {data?.kyberScore.label}
           </Text>
           <Text fontSize={14} lineHeight="20px" fontWeight={500} color={theme.text} textAlign="center">
-            $BTC seems to be a <span style={{ color: theme.primary }}>Strong Buy</span> with a KyberScore of{' '}
-            <span style={{ color: theme.primary }}>86</span>/100
+            $BTC seems to be a <span style={{ color: theme.primary }}>{data?.kyberScore.label}</span> with a KyberScore
+            of <span style={{ color: theme.primary }}>{data?.kyberScore.score}</span>/100
           </Text>
         </CardWrapper>
       </Row>

@@ -4,6 +4,7 @@ import styled, { css } from 'styled-components'
 
 import { RowBetween } from 'components/Row'
 import useTheme from 'hooks/useTheme'
+import { setBridgeState } from 'state/bridge/actions'
 
 const Wrapper = styled.div`
   position: relative;
@@ -68,9 +69,10 @@ export default function PriceRange({
   const wrapperRef = useRef<HTMLDivElement | null>(null)
   const [width, setWidth] = useState(0)
   useEffect(() => {
-    const ratio = (current - low) / (high - low)
+    const ratio = Math.min((current - low) / (high - low), 1)
     setWidth(ratio * (wrapperRef.current?.clientWidth || 0))
   }, [high, low, current])
+
   return (
     <Wrapper>
       <RowCenter>
