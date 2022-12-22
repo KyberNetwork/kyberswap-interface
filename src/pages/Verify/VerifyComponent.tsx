@@ -10,6 +10,7 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { NotificationType, useNotificationModalToggle, useNotify } from 'state/application/hooks'
 
+// this component to verify email/telegram
 function VerifyComponent() {
   const qs = useParsedQueryString()
   const notify = useNotify()
@@ -42,14 +43,14 @@ function VerifyComponent() {
       .catch(e => {
         const code = e?.response?.data?.code
         console.error(e)
+        const isExpired = code === '4001' || code === '4090'
         notify({
           type: NotificationType.ERROR,
           title: t`Subscription Error`,
           icon: <MailIcon color={theme.red} />,
-          summary:
-            code === '4001'
-              ? t`This verification link has expired. Please return to your inbox to verify with the latest verification link.`
-              : t`Error occur, please try again.`,
+          summary: isExpired
+            ? t`This verification link has expired. Please return to your inbox to verify with the latest verification link.`
+            : t`Error occur, please try again.`,
         })
       })
   }, [qs, notify, navigate, toggleSubscribeModal, theme])

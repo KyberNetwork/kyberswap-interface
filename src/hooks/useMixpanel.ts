@@ -730,11 +730,11 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           break
         }
         case MIXPANEL_TYPE.NOTIFICATION_SELECT_TOPIC: {
-          mixpanel.track('Notification Features selected', payload)
+          mixpanel.track('Notification Features selected and save', payload)
           break
         }
         case MIXPANEL_TYPE.NOTIFICATION_DESELECT_TOPIC: {
-          mixpanel.track('Notification Features unselected', payload)
+          mixpanel.track('Notification Features unselected and save', payload)
           break
         }
         case MIXPANEL_TYPE.KYBER_DAO_STAKE_CLICK: {

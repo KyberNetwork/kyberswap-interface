@@ -1,7 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Check, Mail, X } from 'react-feather'
+import { Mail, X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -62,14 +62,14 @@ const Label = styled.p`
 const InputWrapper = styled.div`
   position: relative;
 `
-
-const CheckIcon = styled(Check)`
-  position: absolute;
-  right: 13px;
-  top: 0;
-  bottom: 0;
-  margin: auto;
-`
+// todo danh
+// const CheckIcon = styled(Check)`
+//   position: absolute;
+//   right: 13px;
+//   top: 0;
+//   bottom: 0;
+//   margin: auto;
+// `
 const Input = styled.input<{ error: string }>`
   display: flex;
   align-items: center;
@@ -306,7 +306,7 @@ export default function NotificationModal() {
                 placeholder={isEmailTab ? 'example@gmail.com' : '@example'}
                 onChange={onChangeInput}
               />
-              {!error && inputAccount && <CheckIcon color={theme.primary} />}
+              {/* {!error && inputAccount && <CheckIcon color={theme.primary} />} */}
             </InputWrapper>
             <Label style={{ color: theme.red, opacity: error ? 1 : 0, margin: '7px 0px 0px 0px' }}>
               {error || 'No data'}
