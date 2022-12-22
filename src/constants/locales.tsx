@@ -43,3 +43,31 @@ export const LOCALE_LABEL: { [locale in SupportedLocale]: JSX.Element } = {
     </>
   ),
 }
+
+export const LOCALE_LABEL_V2: { [locale in SupportedLocale]: JSX.Element } = {
+  'en-US': (
+    <>
+      <Flag src={FlagEN} /> &nbsp;EN
+    </>
+  ),
+  'zh-CN': (
+    <>
+      <Flag src={FlagZH} /> &nbsp;ZH
+    </>
+  ),
+  'tr-TR': (
+    <>
+      <Flag src={FlagTR} /> &nbsp;TR
+    </>
+  ),
+  'ko-KR': (
+    <>
+      <Flag src={FlagKO} /> &nbsp;KO
+    </>
+  ),
+  'vi-VN': (
+    <>
+      <Flag src={FlagVI} /> &nbsp;VI
+    </>
+  ),
+}

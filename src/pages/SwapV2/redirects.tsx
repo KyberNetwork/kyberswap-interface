@@ -5,16 +5,15 @@ import { useActiveWeb3React } from 'hooks'
 
 // Redirects to swap but only replace the pathname
 export function RedirectPathToSwapNetwork() {
-  const location = useLocation
   const { networkInfo } = useActiveWeb3React()
-  const { pathname } = useLocation()
+  const { pathname, ...rest } = useLocation()
   return (
     <Navigate
       to={{
-        ...location,
-        pathname:
-          `${pathname.startsWith(APP_PATHS.LIMIT) && SUPPORT_LIMIT_ORDER ? APP_PATHS.LIMIT : APP_PATHS.SWAP}/` +
-          networkInfo.route,
+        ...rest,
+        pathname: `${pathname.startsWith(APP_PATHS.LIMIT) && SUPPORT_LIMIT_ORDER ? APP_PATHS.LIMIT : APP_PATHS.SWAP}/${
+          networkInfo.route
+        }`,
       }}
     />
   )
