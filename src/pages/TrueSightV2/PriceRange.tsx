@@ -4,7 +4,6 @@ import styled, { css } from 'styled-components'
 
 import { RowBetween } from 'components/Row'
 import useTheme from 'hooks/useTheme'
-import { setBridgeState } from 'state/bridge/actions'
 
 const Wrapper = styled.div`
   position: relative;
