@@ -422,10 +422,10 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
         ...response,
         type: TRANSACTION_TYPE.CANCEL_LIMIT_ORDER,
         summary: order
-          ? `Order ${formatAmountOrder(order.makingAmount, order.makerAssetDecimals)} ${
+          ? t`Order ${formatAmountOrder(order.makingAmount, order.makerAssetDecimals)} ${
               order.makerAssetSymbol
             } to ${formatAmountOrder(order.takingAmount, order.takerAssetDecimals)} ${order.takerAssetSymbol}`
-          : `all orders`,
+          : t`all orders`,
       })
     return
   }
