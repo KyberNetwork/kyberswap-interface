@@ -11,6 +11,7 @@ import { ButtonEmpty } from 'components/Button'
 import { Swap as SwapIcon } from 'components/Icons'
 import Modal from 'components/Modal'
 import { Z_INDEXS } from 'constants/styles'
+import { VERSION } from 'constants/v2'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 
@@ -54,7 +55,7 @@ const Row = styled.div`
     background: ${({ theme }) => theme.buttonBlack};
   }
 `
-const poolSortOptions = [
+const poolSortOptions = (tab: string) => [
   {
     orderBy: 'apr',
     orderDirection: 'asc',
@@ -68,12 +69,12 @@ const poolSortOptions = [
   {
     orderBy: 'tvl',
     orderDirection: 'asc',
-    label: <Trans>TVL ↑</Trans>,
+    label: tab === VERSION.CLASSIC ? <Trans>AMP LIQUIDITY ↑</Trans> : <Trans>TVL ↑</Trans>,
   },
   {
     orderBy: 'tvl',
     orderDirection: 'desc',
-    label: <Trans>TVL ↓</Trans>,
+    label: tab === VERSION.CLASSIC ? <Trans>AMP LIQUIDITY ↓</Trans> : <Trans>TVL ↓</Trans>,
   },
   {
     orderBy: 'volume',
@@ -164,13 +165,15 @@ const FarmSort = ({ className }: { className?: string }) => {
   const { pathname } = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
   const orderDirection = searchParams.get('orderDirection') || 'desc'
-  const orderBy = searchParams.get('orderBy') || (pathname.startsWith('/farms') ? 'apr' : 'tvl')
+  const orderBy = searchParams.get('orderBy') || (pathname.startsWith('/farms') ? 'my_deposit' : 'tvl')
   const ref = useRef<HTMLDivElement>(null)
   useOnClickOutside(ref, () => {
     setShow(false)
   })
 
-  const sortOptions = pathname.startsWith('/farms') ? farmSortOptions : poolSortOptions
+  const tab = searchParams.get('tab') || VERSION.ELASTIC
+
+  const sortOptions = pathname.startsWith('/farms') ? farmSortOptions : poolSortOptions(tab)
 
   const theme = useTheme()
   const selectedOption = sortOptions.find(item => item.orderBy === orderBy && item.orderDirection === orderDirection)
