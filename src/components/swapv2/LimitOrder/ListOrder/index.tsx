@@ -422,9 +422,9 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
         ...response,
         type: TRANSACTION_TYPE.CANCEL_LIMIT_ORDER,
         summary: order
-          ? `Order ${formatAmountOrder(order.makingAmount)} ${order.makerAssetSymbol} to ${formatAmountOrder(
-              order.takingAmount,
-            )} ${order.takerAssetSymbol}`
+          ? `Order ${formatAmountOrder(order.makingAmount, order.makerAssetDecimals)} ${
+              order.makerAssetSymbol
+            } to ${formatAmountOrder(order.takingAmount, order.takerAssetDecimals)} ${order.takerAssetSymbol}`
           : `all orders`,
       })
     return
@@ -564,6 +564,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
               ? ` Your currently existing order is ${calcPercentFilledOrder(
                   currentOrder.filledTakingAmount,
                   currentOrder.takingAmount,
+                  currentOrder.takerAssetDecimals,
                 )}% filled`
               : ''
           }`}

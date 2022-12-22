@@ -431,9 +431,9 @@ const LimitOrderForm = function LimitOrderForm({
     const { hash: orderHash } = await hashOrder(payload)
     setFlowState(state => ({
       ...state,
-      pendingText: `Sign limit order: ${formatAmountOrder(inputAmount, false)} ${
-        currencyIn.symbol
-      } to ${formatAmountOrder(outputAmount, false)} ${currencyOut.symbol}`,
+      pendingText: `Sign limit order: ${formatAmountOrder(inputAmount)} ${currencyIn.symbol} to ${formatAmountOrder(
+        outputAmount,
+      )} ${currencyOut.symbol}`,
     }))
     const signature = await library.getSigner().signMessage(ethers.utils.arrayify(orderHash))
     return { signature, orderHash }
@@ -481,11 +481,11 @@ const LimitOrderForm = function LimitOrderForm({
               <Trans>
                 You have successfully placed an order to pay{' '}
                 <Text as="span" fontWeight={500}>
-                  {formatAmountOrder(inputAmount, false)} {currencyIn.symbol}
+                  {formatAmountOrder(inputAmount)} {currencyIn.symbol}
                 </Text>{' '}
                 and receive{' '}
                 <Text as="span" fontWeight={500}>
-                  {formatAmountOrder(outputAmount, false)} {currencyOut.symbol}{' '}
+                  {formatAmountOrder(outputAmount)} {currencyOut.symbol}{' '}
                 </Text>
                 <Text as="span" color={theme.subText}>
                   when 1 {currencyIn.symbol} is equal to {calcRate(inputAmount, outputAmount, currencyOut.decimals)}{' '}
@@ -497,7 +497,11 @@ const LimitOrderForm = function LimitOrderForm({
                   const isPartialFilled = orderInfo?.status === LimitOrderStatus.PARTIALLY_FILLED
                   const filledPercent =
                     orderInfo && isPartialFilled
-                      ? calcPercentFilledOrder(orderInfo?.filledTakingAmount, orderInfo?.takingAmount)
+                      ? calcPercentFilledOrder(
+                          orderInfo?.filledTakingAmount,
+                          orderInfo?.takingAmount,
+                          orderInfo.takerAssetDecimals,
+                        )
                       : ''
                   return (
                     <>
@@ -560,9 +564,8 @@ const LimitOrderForm = function LimitOrderForm({
         ...state,
         attemptingTxn: true,
         showConfirm: true,
-        pendingText: t`Wrapping ${formatAmountOrder(inputAmount, false)} ${currencyIn?.symbol} to ${formatAmountOrder(
+        pendingText: t`Wrapping ${formatAmountOrder(inputAmount)} ${currencyIn?.symbol} to ${formatAmountOrder(
           inputAmount,
-          false,
         )} ${WETH[chainId].symbol}`,
       }))
       const hash = await onWrap?.()
