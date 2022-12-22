@@ -1,7 +1,7 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { ChevronDown, ChevronUp } from 'react-feather'
+import { ArrowDown as ChevronDown, ArrowUp as ChevronUp } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
@@ -94,6 +94,7 @@ enum SORT_FIELD {
   APR = 'apr',
   VOLUME = 'volume',
   FEE = 'fee',
+  MY_LIQUIDITY = 'my_liquidity',
 }
 
 enum SORT_DIRECTION {
@@ -115,14 +116,21 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
 
   const userLiquidityPositionsQueryResult = useUserLiquidityPositions()
   const loadingUserLiquidityPositions = !account ? false : userLiquidityPositionsQueryResult.loading
-  const userLiquidityPositions = !account ? { liquidityPositions: [] } : userLiquidityPositionsQueryResult.data
+  const userLiquidityPositions = useMemo(
+    () => (!account ? { liquidityPositions: [] } : userLiquidityPositionsQueryResult.data),
+    [account, userLiquidityPositionsQueryResult],
+  )
+
   const transformedUserLiquidityPositions: {
     [key: string]: UserLiquidityPosition
-  } = {}
-  userLiquidityPositions &&
-    userLiquidityPositions.liquidityPositions.forEach(position => {
-      transformedUserLiquidityPositions[position.pool.id] = position
-    })
+  } = useMemo(() => {
+    if (!userLiquidityPositions) return {}
+
+    return userLiquidityPositions.liquidityPositions.reduce((acc, position) => {
+      acc[position.pool.id] = position
+      return acc
+    }, {} as { [key: string]: UserLiquidityPosition })
+  }, [userLiquidityPositions])
 
   const [searchParams, setSearchParams] = useSearchParams()
   const sortedColumn = searchParams.get('orderBy') || SORT_FIELD.TVL
@@ -134,8 +142,15 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
     (poolA: SubgraphPoolData, poolB: SubgraphPoolData): number => {
       const feeA = poolA?.oneDayFeeUSD ? poolA?.oneDayFeeUSD : poolA?.oneDayFeeUntracked
       const feeB = poolB?.oneDayFeeUSD ? poolB?.oneDayFeeUSD : poolB?.oneDayFeeUntracked
+      const a = transformedUserLiquidityPositions[poolA.id]
+      const b = transformedUserLiquidityPositions[poolB.id]
+      const t1 = a ? (+a.liquidityTokenBalance * +a.pool.reserveUSD) / +a.pool.totalSupply : 0
+      const t2 = b ? (+b.liquidityTokenBalance * +b.pool.reserveUSD) / +b.pool.totalSupply : 0
 
       switch (sortedColumn) {
+        case SORT_FIELD.MY_LIQUIDITY:
+          return (t1 - t2) * (sortDirection ? -1 : 1)
+
         case SORT_FIELD.TVL:
           return parseFloat(poolA?.amp?.toString() || '0') * parseFloat(poolA?.reserveUSD) >
             parseFloat(poolB?.amp?.toString() || '0') * parseFloat(poolB?.reserveUSD)
@@ -158,13 +173,12 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
             getTradingFeeAPR(poolB?.reserveUSD, feeB) > MAX_ALLOW_APY ? -1 : getTradingFeeAPR(poolB?.reserveUSD, feeB)
 
           return oneYearFLPoolA > oneYearFLPoolB ? (sortDirection ? -1 : 1) * 1 : (sortDirection ? -1 : 1) * -1
-        default:
-          break
-      }
 
-      return 0
+        default:
+          return 0
+      }
     },
-    [sortDirection, sortedColumn],
+    [sortDirection, sortedColumn, transformedUserLiquidityPositions],
   )
 
   const handleSort = (field: SORT_FIELD) => {
@@ -256,7 +270,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
               handleSort(SORT_FIELD.FEE)
             }}
           >
-            <Trans>Fee (24h)</Trans>
+            <Trans>Fees (24h)</Trans>
             {sortedColumn === SORT_FIELD.FEE ? (
               !sortDirection ? (
                 <ChevronUp size="14" style={{ marginLeft: '2px' }} />
@@ -269,8 +283,17 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
           </ClickableText>
         </Flex>
         <Flex alignItems="center" justifyContent="flex-end">
-          <ClickableText style={{ textAlign: 'right' }}>
+          <ClickableText style={{ textAlign: 'right' }} onClick={() => handleSort(SORT_FIELD.MY_LIQUIDITY)}>
             <Trans>My liquidity</Trans>
+            {sortedColumn === SORT_FIELD.MY_LIQUIDITY ? (
+              !sortDirection ? (
+                <ChevronUp size="14" style={{ marginLeft: '2px' }} />
+              ) : (
+                <ChevronDown size="14" style={{ marginLeft: '2px' }} />
+              )
+            ) : (
+              ''
+            )}
           </ClickableText>
         </Flex>
 
@@ -287,7 +310,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
 
   const [currentPage, setCurrentPage] = useState(1)
   const sortedFilteredSubgraphPoolsData = useMemo(() => {
-    let res = [...subgraphPoolsData].sort(listComparator)
+    let res = [...subgraphPoolsData]
 
     if (isShowOnlyActiveFarmPools) {
       const farmAddresses = farms.map(farm => farm.id)
@@ -332,7 +355,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
       })
     }
 
-    return res
+    return res.sort(listComparator)
   }, [
     subgraphPoolsData,
     listComparator,

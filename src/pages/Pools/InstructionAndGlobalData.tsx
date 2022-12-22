@@ -118,7 +118,7 @@ export const Instruction = () => {
           {tab === VERSION.ELASTIC ? (
             <Trans>Add liquidity to our Elastic Pools and earn trading fees automatically.</Trans>
           ) : (
-            <Trans>Add liquidity to our Classic Pools & earn trading fees automatically.</Trans>
+            <Trans>Add liquidity to our Classic Pools and earn trading fees automatically.</Trans>
           )}
           &nbsp;
           <ExternalLink

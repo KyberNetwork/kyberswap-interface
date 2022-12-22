@@ -62,6 +62,7 @@ const StyledDropDown = styled(DropDown)`
 
   path {
     stroke: ${({ theme }) => theme.subText};
+    fill: ${({ theme }) => theme.subText};
   }
 `
 

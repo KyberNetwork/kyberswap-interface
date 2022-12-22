@@ -8,7 +8,7 @@ import styled from 'styled-components'
 
 import bgimg from 'assets/images/card-background.png'
 import { ReactComponent as ViewPositionIcon } from 'assets/svg/view_positions.svg'
-import { ButtonOutlined, ButtonPrimary } from 'components/Button'
+import { ButtonLight, ButtonOutlined } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import Divider from 'components/Divider'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
@@ -249,7 +249,7 @@ export default function ProAmmPoolCardItem({ pool, onShared, userPositions }: Li
           </ButtonOutlined>
         )}
 
-        <ButtonPrimary
+        <ButtonLight
           padding="10px"
           style={{ height: '36px' }}
           onClick={() => {
@@ -269,7 +269,7 @@ export default function ProAmmPoolCardItem({ pool, onShared, userPositions }: Li
           <Text width="max-content" fontSize="14px" marginLeft="4px">
             <Trans>Add Liquidity</Trans>
           </Text>
-        </ButtonPrimary>
+        </ButtonLight>
       </Flex>
     </Wrapper>
   )
