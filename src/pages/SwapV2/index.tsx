@@ -9,6 +9,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { Box, Flex, Text } from 'rebass'
 import styled, { DefaultTheme, keyframes } from 'styled-components'
 
+import christmasImg from 'assets/images/christmas-decor2.svg'
 import { ReactComponent as TutorialSvg } from 'assets/svg/play_circle_outline.svg'
 import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import AddressInputPanel from 'components/AddressInputPanel'
@@ -92,6 +93,7 @@ import { useDerivedSwapInfoV2 } from 'state/swap/useAggregator'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import {
   useExpertModeManager,
+  useHolidayMode,
   useShowLiveChart,
   useShowTokenInfo,
   useShowTradeRoutes,
@@ -127,6 +129,18 @@ enum TAB {
   LIMIT = 'limit',
 }
 
+const ChristmasDecor = styled.div`
+  position: absolute;
+  top: -20px;
+  right: -8px;
+  left: -8px;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    top: -16px;
+    right: -6px;
+    left: -4px;
+  `}
+`
 const highlight = (theme: DefaultTheme) => keyframes`
   0% {
     box-shadow: 0 0 0 0 ${theme.primary};
@@ -172,6 +186,7 @@ export default function Swap() {
   const { account, chainId, networkInfo, isSolana, isEVM } = useActiveWeb3React()
   const [rotate, setRotate] = useState(false)
   const isShowLiveChart = useShowLiveChart()
+  const [holidayMode] = useHolidayMode()
   const toggleProLiveChart = useToggleProLiveChart()
   const isShowTradeRoutes = useShowTradeRoutes()
   const isShowTokenInfoSetting = useShowTokenInfo()
@@ -575,7 +590,7 @@ export default function Swap() {
   const shareUrl = useMemo(() => {
     const tokenIn = isSwapPage ? currencyIn : limitState.currencyIn
     const tokenOut = isSwapPage ? currencyOut : limitState.currencyOut
-    return `${window.location.origin}${isSwapPage ? APP_PATHS.SWAP : APP_PATHS.LIMIT}}/${networkInfo.route}${
+    return `${window.location.origin}${isSwapPage ? APP_PATHS.SWAP : APP_PATHS.LIMIT}/${networkInfo.route}${
       tokenIn && tokenOut
         ? `?${stringify({
             inputCurrency: currencyId(tokenIn, chainId),
@@ -1020,6 +1035,7 @@ export default function Swap() {
                             (isExpertMode && isSolana && !encodeSolana)
                           }
                           style={{
+                            position: 'relative',
                             border: 'none',
                             ...(!(
                               !!swapInputError ||
@@ -1050,6 +1066,12 @@ export default function Swap() {
                               <Trans>Swap</Trans>
                             )}
                           </Text>
+
+                          {holidayMode && !swapInputError && (
+                            <ChristmasDecor>
+                              <img src={christmasImg} width="100%" alt="" />
+                            </ChristmasDecor>
+                          )}
                         </ButtonError>
                       )}
 

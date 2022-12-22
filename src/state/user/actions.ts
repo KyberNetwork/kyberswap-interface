@@ -51,3 +51,4 @@ export const updateIsUserManuallyDisconnect = createAction<boolean>('user/update
 export const updateIsAcceptedTerm = createAction<boolean>('user/updateIsAcceptedTerm')
 export const updateTokenAnalysisSettings = createAction<string>('user/updateTokenAnalysisSettings')
 export const changeViewMode = createAction<VIEW_MODE>('user/changeViewMode')
+export const toggleHolidayMode = createAction<void>('user/toggleHolidayMode')

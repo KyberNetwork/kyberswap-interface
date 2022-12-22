@@ -89,6 +89,23 @@ const StyledLightIcon = styled(LightIcon)`
   }
 `
 
+const DiscoverWrapper = styled.span`
+  display: none;
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    display: inline-flex;
+  `};
+`
+
+const CampaignWrapper = styled.span`
+  display: none;
+
+  /* It's better to break at 420px than at extraSmall */
+  @media (max-width: 420px) {
+    display: inline-flex;
+  }
+`
+
 const StyledMenuButton = styled.button<{ active?: boolean }>`
   border: none;
   background-color: transparent;
@@ -152,6 +169,7 @@ const MenuFlyoutBrowserStyle = css`
 `
 
 const MenuFlyoutMobileStyle = css`
+  overflow-y: scroll;
   & ${ExternalNavMenuItem}:nth-child(1),
   & ${NavMenuItem}:nth-child(1) {
     padding-top: 0.75rem;
@@ -180,8 +198,6 @@ export default function Menu() {
 
   const under1440 = useMedia('(max-width: 1440px)')
   const above1321 = useMedia('(min-width: 1321px)')
-  const above768 = useMedia('(min-width: 768px)')
-  const under420 = useMedia('(max-width: 420px)')
 
   const bridgeLink = networkInfo.bridgeURL
   const toggleClaimPopup = useToggleModal(ApplicationModal.CLAIM_POPUP)
@@ -226,7 +242,7 @@ export default function Menu() {
           </ExternalNavMenuItem>
         )}
 
-        {!above768 && (
+        <DiscoverWrapper>
           <NavMenuItem to={'/discover?tab=trending_soon'} onClick={toggle}>
             <DiscoverIcon size={14} />
             <SlideToUnlock>
@@ -238,14 +254,15 @@ export default function Menu() {
               <Trans>New</Trans>
             </NewLabel>
           </NavMenuItem>
-        )}
+        </DiscoverWrapper>
 
-        {under420 && (
+        <CampaignWrapper>
           <NavMenuItem to="/campaigns" onClick={toggle}>
             <Award size={14} />
             <Trans>Campaigns</Trans>
           </NavMenuItem>
-        )}
+        </CampaignWrapper>
+
         {under1440 && (
           <NavDropDown
             icon={<Info size={14} />}
@@ -315,10 +332,9 @@ export default function Menu() {
             <Trans>Swap Legacy</Trans>
           </NavMenuItem>
         )}
-
         <ExternalNavMenuItem href="https://forms.gle/gLiNsi7iUzHws2BY8">
           <Edit size={14} />
-          <Trans>Contact Us</Trans>
+          <Trans>Business Enquiries</Trans>
         </ExternalNavMenuItem>
         <ClaimRewardButton
           disabled={!account || !isEVM || !(networkInfo as EVMNetworkInfo).classic.claimReward || pendingTx}

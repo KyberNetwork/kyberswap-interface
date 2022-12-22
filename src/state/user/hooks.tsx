@@ -24,6 +24,7 @@ import {
   changeViewMode,
   removeSerializedToken,
   toggleFavoriteToken as toggleFavoriteTokenAction,
+  toggleHolidayMode,
   toggleLiveChart,
   toggleProLiveChart,
   toggleTokenInfo,
@@ -39,7 +40,7 @@ import {
   updateUserSlippageTolerance,
 } from 'state/user/actions'
 import { VIEW_MODE, defaultShowLiveCharts, getFavoriteTokenDefault } from 'state/user/reducer'
-import { isAddress } from 'utils'
+import { isAddress, isChristmasTime } from 'utils'
 
 function serializeToken(token: Token | WrappedTokenInfo): SerializedToken {
   return {
@@ -428,4 +429,15 @@ export const useViewMode: () => [VIEW_MODE, (mode: VIEW_MODE) => void] = () => {
   const setViewMode = useCallback((mode: VIEW_MODE) => dispatch(changeViewMode(mode)), [dispatch])
 
   return [viewMode, setViewMode]
+}
+
+export const useHolidayMode: () => [boolean, () => void] = () => {
+  const dispatch = useAppDispatch()
+  const holidayMode = useAppSelector(state => (state.user.holidayMode === undefined ? true : state.user.holidayMode))
+
+  const toggle = useCallback(() => {
+    dispatch(toggleHolidayMode())
+  }, [dispatch])
+
+  return [isChristmasTime() ? holidayMode : false, toggle]
 }
