@@ -36,7 +36,9 @@ function VerifyComponent() {
           },
           10000,
         )
-        toggleSubscribeModal()
+        setTimeout(() => {
+          toggleSubscribeModal()
+        }, 1000)
         const { confirmation, email, ...rest } = qs
         navigate({ search: stringify(rest) })
       })

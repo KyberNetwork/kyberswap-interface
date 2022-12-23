@@ -1,5 +1,5 @@
 import { uuid4 } from '@sentry/utils'
-import axios from 'axios'
+import axios, { AxiosResponse } from 'axios'
 import { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import useSWR, { mutate } from 'swr'
@@ -29,7 +29,7 @@ export const NOTIFICATION_TOPICS = {
 const useNotification = () => {
   const { isLoading, topicGroups, userInfo } = useSelector((state: AppState) => state.application.notification)
 
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const dispatch = useDispatch()
 
   const setLoading = useCallback(
@@ -73,25 +73,39 @@ const useNotification = () => {
       try {
         setLoading(true)
         const promises = []
-        if (subIds.length)
+        if (isEmail) {
+          subIds.length &&
+            promises.push(
+              axios.post(`${NOTIFICATION_API}/v1/topics/subscribe?userType=EMAIL`, {
+                email: registerAccount,
+                walletAddress: account,
+                topicIDs: subIds,
+              }),
+            )
+          unsubIds.length &&
+            promises.push(
+              axios.post(`${NOTIFICATION_API}/v1/topics/unsubscribe?userType=EMAIL`, {
+                walletAddress: account,
+                topicIDs: unsubIds,
+              }),
+            )
+        } else {
           promises.push(
-            axios.post(`${NOTIFICATION_API}/v1/topics/subscribe?userType=EMAIL`, {
-              email: registerAccount,
-              walletAddress: account,
-              topicIDs: subIds,
+            axios.post(`${NOTIFICATION_API}/v1/topics/build-verification/telegram`, {
+              chainId: chainId + '',
+              wallet: account,
+              subscribe: unsubIds,
+              unsubscribe: unsubIds,
             }),
           )
-        if (unsubIds.length)
-          promises.push(
-            axios.post(`${NOTIFICATION_API}/v1/topics/unsubscribe?userType=EMAIL`, {
-              walletAddress: account,
-              topicIDs: unsubIds,
-            }),
-          )
+        }
+
+        let response: AxiosResponse[] = []
         if (promises.length) {
-          await Promise.all(promises)
+          response = await Promise.all(promises)
         }
         refreshTopics()
+        return response.map(e => e?.data?.data)
       } catch (e) {
         return Promise.reject(e)
       } finally {
@@ -99,7 +113,7 @@ const useNotification = () => {
       }
       return
     },
-    [setLoading, account, refreshTopics],
+    [setLoading, account, refreshTopics, chainId],
   )
 
   return {

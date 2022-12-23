@@ -1,12 +1,13 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Mail, X } from 'react-feather'
+import { Check, Mail, X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ButtonConfirmed, ButtonPrimary } from 'components/Button'
 import Checkbox from 'components/CheckBox'
+import Column from 'components/Column'
 import { Telegram } from 'components/Icons'
 import MailIcon from 'components/Icons/MailIcon'
 import Loader from 'components/Loader'
@@ -59,14 +60,13 @@ const Label = styled.p`
 const InputWrapper = styled.div`
   position: relative;
 `
-// todo danh
-// const CheckIcon = styled(Check)`
-//   position: absolute;
-//   right: 13px;
-//   top: 0;
-//   bottom: 0;
-//   margin: auto;
-// `
+const CheckIcon = styled(Check)`
+  position: absolute;
+  right: 13px;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+`
 const Input = styled.input<{ error: string }>`
   display: flex;
   align-items: center;
@@ -148,6 +148,7 @@ export default function NotificationModal() {
   const [selectedTopic, setSelectedTopic] = useState<number[]>([])
 
   const isEmailTab = activeTab === TAB.EMAIL
+  const isTelegramTab = activeTab === TAB.TELEGRAM
 
   useEffect(() => {
     setAccount((isEmailTab ? userInfo.email : userInfo.telegram) ?? '')
@@ -207,7 +208,7 @@ export default function NotificationModal() {
     try {
       validateInput(inputAccount, true)
       if (isLoading || error || !inputAccount) return
-      if (!isEmailTab) return alert('In developement')
+
       const { unsubscribeIds, subscribeIds, subscribeNames, unsubscribeNames } = getDiffChangeTopics()
       if (subscribeNames.length) {
         mixpanelHandler(MIXPANEL_TYPE.NOTIFICATION_SELECT_TOPIC, { topics: subscribeNames })
@@ -215,7 +216,13 @@ export default function NotificationModal() {
       if (unsubscribeNames.length) {
         mixpanelHandler(MIXPANEL_TYPE.NOTIFICATION_DESELECT_TOPIC, { topics: unsubscribeNames })
       }
-      await handleSubscribe(subscribeIds, unsubscribeIds, inputAccount, isEmailTab)
+      const data = await handleSubscribe(subscribeIds, unsubscribeIds, inputAccount, isEmailTab)
+      const verificationUrl = data?.[0]?.verificationUrl
+      if (isTelegramTab && verificationUrl) {
+        window.open(`https://${verificationUrl}`)
+        return
+      }
+
       const hasSubscribe = subscribeIds.length
       notify(
         {
@@ -254,10 +261,12 @@ export default function NotificationModal() {
     setSelectedTopic(selectedTopic.length === topicGroups.length ? [] : topicGroups.map(e => e.id))
   }
 
-  const disableButtonSave = useMemo(
-    () => isLoading || !inputAccount || !!error || !getDiffChangeTopics().hasChanged,
-    [getDiffChangeTopics, isLoading, inputAccount, error],
-  )
+  const isNewUser = false // !userInfo.email && !userInfo.telegram
+
+  const disableButtonSave = useMemo(() => {
+    if (inputAccount && !error && isNewUser) return false
+    return isLoading || !inputAccount || !!error || !getDiffChangeTopics().hasChanged
+  }, [getDiffChangeTopics, isLoading, inputAccount, error, isNewUser])
 
   const renderButton = () => (
     <ActionWrapper>
@@ -270,7 +279,9 @@ export default function NotificationModal() {
       ) : (
         <ButtonPrimary disabled={disableButtonSave} borderRadius="46px" height="44px" onClick={onSave}>
           <ButtonTextt>
-            {isLoading ? (
+            {isTelegramTab ? (
+              <Trans>Get Started</Trans>
+            ) : isLoading ? (
               <>
                 <Loader />
                 <Trans>Saving ...</Trans>
@@ -318,27 +329,41 @@ export default function NotificationModal() {
             onChange={setActiveTab}
           />
         </RowBetween>
-        <Flex flexDirection={'column'}>
-          <Label>
-            {isEmailTab ? (
+
+        {isEmailTab ? (
+          <Column>
+            <Label>
               <Trans>Enter your email address to receive notifications</Trans>
-            ) : (
-              <Trans>Your telegram account</Trans>
-            )}
-          </Label>
-          <InputWrapper>
-            <Input
-              error={error}
-              value={inputAccount}
-              placeholder={isEmailTab ? 'example@gmail.com' : '@example'}
-              onChange={onChangeInput}
-            />
-            {/* {!error && inputAccount && <CheckIcon color={theme.primary} />} */}
-          </InputWrapper>
-          <Label style={{ color: theme.red, opacity: error ? 1 : 0, margin: '7px 0px 0px 0px' }}>
-            {error || 'No data'}
-          </Label>
-        </Flex>
+            </Label>
+            <InputWrapper>
+              <Input
+                error={error}
+                value={inputAccount}
+                placeholder={isEmailTab ? 'example@gmail.com' : '@example'}
+                onChange={onChangeInput}
+              />
+              {userInfo?.email && inputAccount === userInfo?.email && topicGroups.some(e => e.isSubscribed) && (
+                <CheckIcon color={theme.primary} />
+              )}
+            </InputWrapper>
+            <Label style={{ color: theme.red, opacity: error ? 1 : 0, margin: '7px 0px 0px 0px' }}>
+              {error || 'No data'}
+            </Label>
+          </Column>
+        ) : (
+          <Flex
+            flexDirection="column"
+            alignItems={'center'}
+            color={theme.subText}
+            style={{ gap: 10, margin: '10px 0px' }}
+          >
+            <Telegram size={24} />
+            <Text>
+              <Trans>Click Get Started to subscribe to Telegram</Trans>
+            </Text>
+          </Flex>
+        )}
+
         <div>
           <TopicItemHeader>
             <Checkbox
