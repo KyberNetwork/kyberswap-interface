@@ -104,6 +104,7 @@ const TopicItemHeader = styled(TopicItem)`
   border-radius: 8px 8px 0px 0px;
   padding-top: 16px;
   padding-bottom: 16px;
+  align-items: center;
 `
 
 const Option = styled(Row)<{ active: boolean }>`
@@ -143,29 +144,35 @@ export default function NotificationModal() {
   const { mixpanelHandler } = useMixpanel()
 
   const [inputAccount, setAccount] = useState('')
-  const [error, setError] = useState('')
+  const [errorInput, setErrorInput] = useState('')
   const [activeTab, setActiveTab] = useState<TAB>(TAB.EMAIL)
   const [selectedTopic, setSelectedTopic] = useState<number[]>([])
 
   const isEmailTab = activeTab === TAB.EMAIL
   const isTelegramTab = activeTab === TAB.TELEGRAM
 
+  const validateInput = useCallback((value: string, required = false) => {
+    const isValid = value.match(/\S+@\S+\.\S+/)
+    const errMsg = t`Please input a valid email address`
+    setErrorInput((value.length && !isValid) || (required && !value.length) ? errMsg : '')
+  }, [])
+
   useEffect(() => {
-    setAccount((isEmailTab ? userInfo.email : userInfo.telegram) ?? '')
-  }, [userInfo, isEmailTab])
+    if (isOpen) {
+      setErrorInput('')
+      setAccount(userInfo.email)
+    }
+  }, [userInfo, activeTab, isOpen])
 
   useEffect(() => {
     setTimeout(
-      () => setSelectedTopic(isOpen ? topicGroups.filter(e => e.isSubscribed).map(e => e.id) : []),
+      () => {
+        setSelectedTopic(isOpen ? topicGroups.filter(e => e.isSubscribed).map(e => e.id) : [])
+        if (!isOpen) setErrorInput('')
+      },
       isOpen ? 0 : 400,
     )
   }, [isOpen, topicGroups])
-
-  useEffect(() => {
-    if (!isOpen) {
-      setError('')
-    }
-  }, [isOpen, activeTab])
 
   const getDiffChangeTopics = useCallback(() => {
     let unsubscribeIds: number[] = []
@@ -198,16 +205,10 @@ export default function NotificationModal() {
     }
   }, [topicGroups, selectedTopic])
 
-  const validateInput = (value: string, required = false) => {
-    const isValid = isEmailTab ? value.match(/\S+@\S+\.\S+/) : value.startsWith('@') && value.match(/@/g)?.length === 1
-    const errMsg = isEmailTab ? t`Please input a valid email address` : t`Please input a valid telegram account`
-    setError((value.length && !isValid) || (required && !value.length) ? errMsg : '')
-  }
-
   const onSave = async () => {
     try {
-      validateInput(inputAccount, true)
-      if (isLoading || error || !inputAccount) return
+      if (isEmailTab) validateInput(inputAccount, true)
+      if (isLoading || errorInput || (!inputAccount && isEmailTab)) return
 
       const { unsubscribeIds, subscribeIds, subscribeNames, unsubscribeNames } = getDiffChangeTopics()
       if (subscribeNames.length) {
@@ -246,9 +247,8 @@ export default function NotificationModal() {
   }
 
   const onChangeInput = (e: React.FormEvent<HTMLInputElement>) => {
-    const value = e.currentTarget.value
-    setAccount(value)
-    validateInput(value)
+    setAccount(e.currentTarget.value)
+    validateInput(e.currentTarget.value)
   }
 
   const onChangeTopic = (topicId: number) => {
@@ -261,7 +261,7 @@ export default function NotificationModal() {
     setSelectedTopic(selectedTopic.length === topicGroups.length ? [] : topicGroups.map(e => e.id))
   }
 
-  const isNewUserQualified = !userInfo.email && !userInfo.telegram && !!inputAccount && !error
+  const isNewUserQualified = !userInfo.email && !userInfo.telegram && !!inputAccount && !errorInput
 
   const autoSelect = useRef(false)
   useEffect(() => {
@@ -274,8 +274,11 @@ export default function NotificationModal() {
   }, [isNewUserQualified, topicGroups])
 
   const disableButtonSave = useMemo(() => {
-    return isLoading || !inputAccount || !!error || !getDiffChangeTopics().hasChanged
-  }, [getDiffChangeTopics, isLoading, inputAccount, error])
+    return isLoading || !inputAccount || !!errorInput || !getDiffChangeTopics().hasChanged
+  }, [getDiffChangeTopics, isLoading, inputAccount, errorInput])
+
+  const hasTopicSubscribed = topicGroups.some(e => e.isSubscribed)
+  const isVerifiedTelegram = userInfo?.telegram && hasTopicSubscribed
 
   const renderButton = () => (
     <ActionWrapper>
@@ -288,16 +291,17 @@ export default function NotificationModal() {
       ) : (
         <ButtonPrimary disabled={disableButtonSave} borderRadius="46px" height="44px" onClick={onSave}>
           <ButtonTextt>
-            {isTelegramTab ? (
-              <Trans>Get Started</Trans>
-            ) : isLoading ? (
-              <>
-                <Loader />
-                <Trans>Saving ...</Trans>
-              </>
-            ) : (
-              <Trans>Save</Trans>
-            )}
+            {(() => {
+              if (isLoading) {
+                return (
+                  <>
+                    <Loader />
+                    <Trans>Saving ...</Trans>
+                  </>
+                )
+              }
+              return isTelegramTab && !isVerifiedTelegram ? <Trans>Get Started</Trans> : <Trans>Save</Trans>
+            })()}
           </ButtonTextt>
         </ButtonPrimary>
       )}
@@ -346,17 +350,17 @@ export default function NotificationModal() {
             </Label>
             <InputWrapper>
               <Input
-                error={error}
+                error={errorInput}
                 value={inputAccount}
                 placeholder={isEmailTab ? 'example@gmail.com' : '@example'}
                 onChange={onChangeInput}
               />
-              {userInfo?.email && inputAccount === userInfo?.email && topicGroups.some(e => e.isSubscribed) && (
+              {userInfo?.email && inputAccount === userInfo?.email && hasTopicSubscribed && (
                 <CheckIcon color={theme.primary} />
               )}
             </InputWrapper>
-            <Label style={{ color: theme.red, opacity: error ? 1 : 0, margin: '7px 0px 0px 0px' }}>
-              {error || 'No data'}
+            <Label style={{ color: theme.red, opacity: errorInput ? 1 : 0, margin: '7px 0px 0px 0px' }}>
+              {errorInput || 'No data'}
             </Label>
           </Column>
         ) : (
@@ -367,9 +371,21 @@ export default function NotificationModal() {
             style={{ gap: 10, margin: '10px 0px' }}
           >
             <Telegram size={24} />
-            <Text>
-              <Trans>Click Get Started to subscribe to Telegram</Trans>
-            </Text>
+
+            {isVerifiedTelegram ? (
+              <Text fontSize={15}>
+                <Trans>
+                  Your verified telegram:{' '}
+                  <Text as="span" color={theme.text}>
+                    @{userInfo?.telegram}
+                  </Text>
+                </Trans>
+              </Text>
+            ) : (
+              <Text fontSize={15}>
+                <Trans>Click Get Started to subscribe to Telegram</Trans>
+              </Text>
+            )}
           </Flex>
         )}
 
