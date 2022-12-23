@@ -121,7 +121,7 @@ const LimitOrderForm = function LimitOrderForm({
   const [approvalSubmitted, setApprovalSubmitted] = useState(false)
   const { library } = useWeb3React()
 
-  const { loading: loadingTrade, tradeInfo } = useBaseTradeInfo(currencyIn, currencyOut)
+  const { loading: loadingTrade, tradeInfo, refresh: refreshTradeInfo } = useBaseTradeInfo(currencyIn, currencyOut)
 
   const { execute: onWrap, inputError: wrapInputError } = useWrapCallback(currencyIn, currencyOut, inputAmount, true)
   const showWrap = !!currencyIn?.isNative
@@ -168,11 +168,15 @@ const LimitOrderForm = function LimitOrderForm({
     setOuputAmount(output)
   }
 
-  const setPriceRateMarket = () => {
+  const setPriceRateMarket = async () => {
     try {
-      if (!loadingTrade && currencyIn && tradeInfo) {
-        onSetRate(tradeInfo?.price?.toSignificant(6) ?? '', tradeInfo?.price?.invert().toSignificant(6) ?? '')
+      if (loadingTrade) return
+      if (!tradeInfo) {
+        const newTradeInfo = await refreshTradeInfo()
+        onSetRate(newTradeInfo?.price?.toSignificant(6) ?? '', newTradeInfo?.price?.invert().toSignificant(6) ?? '')
+        return
       }
+      onSetRate(tradeInfo?.price?.toSignificant(6) ?? '', tradeInfo?.price?.invert().toSignificant(6) ?? '')
     } catch (error) {}
   }
 

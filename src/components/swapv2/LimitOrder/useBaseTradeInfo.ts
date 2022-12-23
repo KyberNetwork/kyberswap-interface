@@ -9,6 +9,13 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 
+type BaseTradeInfo = {
+  price: Price<Currency, Currency>
+  amountInUsd: number
+  amountOutUsd: number
+  routerAddress: string
+}
+
 // 1 knc = ?? usdt
 export default function useBaseTradeInfo(currencyIn: Currency | undefined, currencyOut: Currency | undefined) {
   const { account, chainId } = useActiveWeb3React()
@@ -16,44 +23,58 @@ export default function useBaseTradeInfo(currencyIn: Currency | undefined, curre
   const tokenOutAddress = currencyOut?.isNative ? ETHER_ADDRESS : currencyOut?.wrapped.address ?? ''
   const amountIn = tryParseAmount('1', currencyIn)
 
-  const { data, isValidating } = useSWR(
-    tokenInAddress && tokenOutAddress && chainId
+  const getApiUrl = () => {
+    return tokenInAddress && tokenOutAddress && chainId
       ? `${NETWORKS_INFO[chainId].routerUri}?${stringify({
           tokenIn: tokenInAddress.toLowerCase(),
           tokenOut: tokenOutAddress.toLowerCase(),
           amountIn: amountIn?.quotient?.toString() ?? '',
           to: account ?? ZERO_ADDRESS,
         })}`
-      : null,
-    async (url: string) => {
-      if (!currencyOut || !currencyIn || !url) return
+      : null
+  }
+
+  const fetchData = async (url: string | null): Promise<BaseTradeInfo | undefined> => {
+    if (!currencyOut || !currencyIn || !url) return
+    const { data } = await axios.get(url, {
+      headers: {
+        'X-Request-Id': sentryRequestId,
+        'Accept-Version': 'Latest',
+      },
+    })
+    const toCurrencyAmount = function (value: string, currency: Currency): CurrencyAmount<Currency> {
+      return TokenAmount.fromRawAmount(currency, JSBI.BigInt(value))
+    }
+    const { outputAmount, amountInUsd, amountOutUsd, routerAddress } = data
+    const amountOut = toCurrencyAmount(outputAmount, currencyOut)
+
+    if (amountIn?.quotient && amountOut?.quotient) {
+      return {
+        price: new Price(currencyIn, currencyOut, amountIn?.quotient, amountOut?.quotient),
+        amountInUsd,
+        amountOutUsd,
+        routerAddress,
+      }
+    }
+    return
+  }
+
+  const refresh = () => {
+    return fetchData(getApiUrl())
+  }
+
+  const { data, isValidating } = useSWR(
+    getApiUrl(),
+    async url => {
       try {
-        const { data } = await axios.get(url, {
-          headers: {
-            'X-Request-Id': sentryRequestId,
-            'Accept-Version': 'Latest',
-          },
-        })
-        const toCurrencyAmount = function (value: string, currency: Currency): CurrencyAmount<Currency> {
-          return TokenAmount.fromRawAmount(currency, JSBI.BigInt(value))
-        }
-        const { outputAmount, amountInUsd, amountOutUsd, routerAddress } = data
-        const amountOut = toCurrencyAmount(outputAmount, currencyOut)
-        if (amountIn?.quotient && amountOut?.quotient) {
-          return {
-            price: new Price(currencyIn, currencyOut, amountIn?.quotient, amountOut?.quotient),
-            amountInUsd,
-            amountOutUsd,
-            routerAddress,
-          }
-        }
+        return await fetchData(url)
       } catch (error) {
         console.error(error)
+        return
       }
-      return
     },
     { revalidateOnFocus: false, shouldRetryOnError: false },
   )
 
-  return { loading: isValidating, tradeInfo: data }
+  return { loading: isValidating, tradeInfo: data, refresh }
 }
