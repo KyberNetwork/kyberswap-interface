@@ -292,15 +292,17 @@ export default function NotificationModal() {
         <ButtonPrimary disabled={disableButtonSave} borderRadius="46px" height="44px" onClick={onSave}>
           <ButtonTextt>
             {(() => {
+              const isGenerateVerifyLink = isTelegramTab && !isVerifiedTelegram
               if (isLoading) {
                 return (
-                  <>
+                  <Row>
                     <Loader />
-                    <Trans>Saving ...</Trans>
-                  </>
+                    &nbsp;
+                    {isGenerateVerifyLink ? <Trans>Generating Verification Link ...</Trans> : <Trans>Saving ...</Trans>}
+                  </Row>
                 )
               }
-              return isTelegramTab && !isVerifiedTelegram ? <Trans>Get Started</Trans> : <Trans>Save</Trans>
+              return isGenerateVerifyLink ? <Trans>Get Started</Trans> : <Trans>Save</Trans>
             })()}
           </ButtonTextt>
         </ButtonPrimary>
