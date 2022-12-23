@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Check, Mail, X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -261,12 +261,21 @@ export default function NotificationModal() {
     setSelectedTopic(selectedTopic.length === topicGroups.length ? [] : topicGroups.map(e => e.id))
   }
 
-  const isNewUser = false // !userInfo.email && !userInfo.telegram
+  const isNewUserQualified = !userInfo.email && !userInfo.telegram && !!inputAccount && !error
+
+  const autoSelect = useRef(false)
+  useEffect(() => {
+    if (isNewUserQualified && !autoSelect.current) {
+      // auto select all checkbox when user no register any topic before and fill a valid email
+      // this effect will call once
+      setSelectedTopic(topicGroups.map(e => e.id))
+      autoSelect.current = true
+    }
+  }, [isNewUserQualified, topicGroups])
 
   const disableButtonSave = useMemo(() => {
-    if (inputAccount && !error && isNewUser) return false
     return isLoading || !inputAccount || !!error || !getDiffChangeTopics().hasChanged
-  }, [getDiffChangeTopics, isLoading, inputAccount, error, isNewUser])
+  }, [getDiffChangeTopics, isLoading, inputAccount, error])
 
   const renderButton = () => (
     <ActionWrapper>
