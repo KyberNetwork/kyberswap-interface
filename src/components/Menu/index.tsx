@@ -23,11 +23,12 @@ import { ReactComponent as BlogIcon } from 'assets/svg/blog.svg'
 import { ReactComponent as LightIcon } from 'assets/svg/light.svg'
 import { ReactComponent as RoadMapIcon } from 'assets/svg/roadmap.svg'
 import { ButtonPrimary } from 'components/Button'
-import { SlideToUnlock } from 'components/Header'
+import SlideToUnlock from 'components/Header/SlideToUnlock'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import Faucet from 'components/Icons/Faucet'
 import Loader from 'components/Loader'
 import MenuFlyout from 'components/MenuFlyout'
+import { AutoRow } from 'components/Row'
 import { ENV_LEVEL, TAG } from 'constants/env'
 import { AGGREGATOR_ANALYTICS_URL, DMM_ANALYTICS_URL } from 'constants/index'
 import { FAUCET_NETWORKS } from 'constants/networks'
@@ -87,6 +88,23 @@ const StyledBlogIcon = styled(BlogIcon)`
 const StyledLightIcon = styled(LightIcon)`
   path {
     stroke: ${({ theme }) => theme.subText};
+  }
+`
+
+const DiscoverWrapper = styled.span`
+  display: none;
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    display: inline-flex;
+  `};
+`
+
+const CampaignWrapper = styled.span`
+  display: none;
+
+  /* It's better to break at 420px than at extraSmall */
+  @media (max-width: 420px) {
+    display: inline-flex;
   }
 `
 
@@ -153,6 +171,7 @@ const MenuFlyoutBrowserStyle = css`
 `
 
 const MenuFlyoutMobileStyle = css`
+  overflow-y: scroll;
   & ${ExternalNavMenuItem}:nth-child(1),
   & ${NavMenuItem}:nth-child(1) {
     padding-top: 0.75rem;
@@ -162,7 +181,8 @@ const ClaimRewardButton = styled(ButtonPrimary)`
   margin-top: 20px;
   padding: 11px;
   font-size: 14px;
-  width: max-content;
+  width: 100%;
+  max-width: 180px;
 `
 
 export const NewLabel = styled.span`
@@ -181,8 +201,7 @@ export default function Menu() {
 
   const under1440 = useMedia('(max-width: 1440px)')
   const above1321 = useMedia('(min-width: 1321px)')
-  const above768 = useMedia('(min-width: 768px)')
-  const under420 = useMedia('(max-width: 420px)')
+  const under1200 = useMedia('(max-width: 1200px)')
 
   const bridgeLink = networkInfo.bridgeURL
   const toggleClaimPopup = useToggleModal(ApplicationModal.CLAIM_POPUP)
@@ -227,9 +246,9 @@ export default function Menu() {
           </ExternalNavMenuItem>
         )}
 
-        {!above768 && (
+        <DiscoverWrapper>
           <NavMenuItem to={'/discover?tab=trending_soon'} onClick={toggle}>
-            <DiscoverIcon size={14} />
+            <DiscoverIcon size={16} />
             <SlideToUnlock>
               <Text width="max-content">
                 <Trans>Discover</Trans>
@@ -239,17 +258,18 @@ export default function Menu() {
               <Trans>New</Trans>
             </NewLabel>
           </NavMenuItem>
-        )}
+        </DiscoverWrapper>
 
-        {under420 && (
+        <CampaignWrapper>
           <NavMenuItem to="/campaigns" onClick={toggle}>
             <Award size={14} />
             <Trans>Campaigns</Trans>
           </NavMenuItem>
-        )}
+        </CampaignWrapper>
+
         {under1440 && (
           <NavDropDown
-            icon={<Info size={14} />}
+            icon={<Info size={16} />}
             title={'About'}
             link={'/about'}
             options={[
@@ -260,13 +280,29 @@ export default function Menu() {
         )}
 
         <NavMenuItem to="/referral" onClick={toggle}>
-          <UserPlus size={14} />
+          <UserPlus size={16} />
           <Trans>Referral</Trans>
         </NavMenuItem>
-
+        {under1200 && (
+          <>
+            <NavDropDown
+              icon={<Info size={16} />}
+              title={'KyberDAO'}
+              link={'/kyberdao/stake-knc'}
+              options={[
+                { link: '/kyberdao/stake-knc', label: 'Stake KNC' },
+                { link: '/kyberdao/vote', label: 'Vote' },
+              ]}
+            />
+            <ExternalNavMenuItem href="https://kyberswap.canny.io/feature-request" onClick={toggle}>
+              <StyledLightIcon />
+              <Trans>Feature Request</Trans>
+            </ExternalNavMenuItem>
+          </>
+        )}
         {!above1321 && (
           <NavDropDown
-            icon={<PieChart size={14} />}
+            icon={<PieChart size={16} />}
             link="#"
             title={'Analytics'}
             options={[
@@ -280,13 +316,8 @@ export default function Menu() {
           />
         )}
         <ExternalNavMenuItem href="https://docs.kyberswap.com">
-          <BookOpen size={14} />
+          <BookOpen size={16} />
           <Trans>Docs</Trans>
-        </ExternalNavMenuItem>
-
-        <ExternalNavMenuItem href="https://kyberswap.canny.io/feature-request" onClick={toggle}>
-          <StyledLightIcon />
-          <Trans>Feature Request</Trans>
         </ExternalNavMenuItem>
 
         <ExternalNavMenuItem href="https://kyberswap.canny.io/" onClick={toggle}>
@@ -295,7 +326,7 @@ export default function Menu() {
         </ExternalNavMenuItem>
 
         <ExternalNavMenuItem href="https://gov.kyber.org">
-          <MessageCircle size={14} />
+          <MessageCircle size={16} />
           <Trans>Forum</Trans>
         </ExternalNavMenuItem>
 
@@ -307,7 +338,7 @@ export default function Menu() {
         )}
 
         <ExternalNavMenuItem href="/15022022KyberSwapTermsofUse.pdf">
-          <FileText size={14} />
+          <FileText size={16} />
           <Trans>Terms</Trans>
         </ExternalNavMenuItem>
         {ENV_LEVEL < ENV_TYPE.PROD && (
@@ -316,26 +347,28 @@ export default function Menu() {
             <Trans>Swap Legacy</Trans>
           </NavMenuItem>
         )}
-
         <ExternalNavMenuItem href="https://forms.gle/gLiNsi7iUzHws2BY8">
-          <Edit size={14} />
-          <Trans>Contact Us</Trans>
+          <Edit size={16} />
+          <Trans>Business Enquiries</Trans>
         </ExternalNavMenuItem>
-        <ClaimRewardButton
-          disabled={!account || !isEVM || !(networkInfo as EVMNetworkInfo).classic.claimReward || pendingTx}
-          onClick={() => {
-            mixpanelHandler(MIXPANEL_TYPE.CLAIM_REWARDS_INITIATED)
-            toggleClaimPopup()
-          }}
-        >
-          {pendingTx ? (
-            <>
-              <Loader style={{ marginRight: '5px' }} stroke={theme.disableText} /> <Trans>Claiming...</Trans>
-            </>
-          ) : (
-            <Trans>Claim Rewards</Trans>
-          )}
-        </ClaimRewardButton>
+        <AutoRow justify="center">
+          <ClaimRewardButton
+            disabled={!account || !isEVM || !(networkInfo as EVMNetworkInfo).classic.claimReward || pendingTx}
+            onClick={() => {
+              mixpanelHandler(MIXPANEL_TYPE.CLAIM_REWARDS_INITIATED)
+              toggleClaimPopup()
+            }}
+          >
+            {pendingTx ? (
+              <>
+                <Loader style={{ marginRight: '5px' }} stroke={theme.disableText} /> <Trans>Claiming...</Trans>
+              </>
+            ) : (
+              <Trans>Claim Rewards</Trans>
+            )}
+          </ClaimRewardButton>
+        </AutoRow>
+
         <Text fontSize="10px" fontWeight={300} color={theme.subText} mt="16px" textAlign={isMobile ? 'left' : 'center'}>
           kyberswap@{TAG}
         </Text>

@@ -1,4 +1,4 @@
-import { ChainId, Currency, CurrencyAmount, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount, Token, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { ethers } from 'ethers'
@@ -10,7 +10,7 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import ArrowRotate from 'components/ArrowRotate'
-import { ButtonApprove, ButtonError, ButtonLight } from 'components/Button'
+import { ButtonApprove, ButtonError, ButtonLight, ButtonWithInfoHelper } from 'components/Button'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import NumericalInput from 'components/NumericalInput'
 import ProgressSteps from 'components/ProgressSteps'
@@ -23,6 +23,7 @@ import { useTokenAllowance } from 'data/Allowances'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import useTheme from 'hooks/useTheme'
+import useWrapCallback from 'hooks/useWrapCallback'
 import { NotificationType, useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
@@ -36,15 +37,16 @@ import TradePrice from '../TradePrice'
 import DeltaRate from './DeltaRate'
 import ExpirePicker from './ExpirePicker'
 import ConfirmOrderModal from './Modals/ConfirmOrderModal'
-import { DEFAULT_EXPIRED, EXPIRED_OPTIONS, LIMIT_ORDER_CONTRACT } from './const'
+import { DEFAULT_EXPIRED, EXPIRED_OPTIONS } from './const'
 import { calcInvert, calcOutput, calcPercentFilledOrder, calcRate, formatAmountOrder, formatUsdPrice } from './helpers'
 import { getTotalActiveMakingAmount, hashOrder, submitOrder } from './request'
 import { CreateOrderParam, LimitOrder, LimitOrderStatus, RateInfo } from './type'
 import useBaseTradeInfo from './useBaseTradeInfo'
+import useWrapEthStatus from './useWrapEthStatus'
 
 export const Label = styled.div`
   font-weight: 500;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 16px;
   color: ${({ theme }) => theme.subText};
   margin-bottom: 0.5rem;
@@ -94,7 +96,7 @@ const LimitOrderForm = function LimitOrderForm({
   onDismissModalEdit,
   isEdit = false, // else create
 }: Props) {
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, networkInfo } = useActiveWeb3React()
 
   const toggleWalletModal = useWalletModalToggle()
   const theme = useTheme()
@@ -117,8 +119,12 @@ const LimitOrderForm = function LimitOrderForm({
   const [customDateExpire, setCustomDateExpire] = useState<Date | undefined>(defaultExpire)
 
   const [approvalSubmitted, setApprovalSubmitted] = useState(false)
+  const { library } = useWeb3React()
 
   const { loading: loadingTrade, tradeInfo } = useBaseTradeInfo(currencyIn, currencyOut)
+
+  const { execute: onWrap, inputError: wrapInputError } = useWrapCallback(currencyIn, currencyOut, inputAmount, true)
+  const showWrap = !!currencyIn?.isNative
 
   const onSetRate = (rate: string, invertRate: string) => {
     if (!currencyIn || !currencyOut) return
@@ -206,11 +212,21 @@ const LimitOrderForm = function LimitOrderForm({
     onSetInput(balances[0]?.divide(2).toExact() || '')
   }, [balances, onSetInput])
 
-  const handleInputSelect = (currency: Currency) => {
-    if (currencyOut && currency?.equals(currencyOut)) return
-    setCurrencyIn(currency)
-    setIsSelectCurrencyManual?.(true)
-  }
+  const handleInputSelect = useCallback(
+    (currency: Currency) => {
+      if (currencyOut && currency?.equals(currencyOut)) return
+      setCurrencyIn(currency)
+      setIsSelectCurrencyManual?.(true)
+    },
+    [currencyOut, setCurrencyIn, setIsSelectCurrencyManual],
+  )
+
+  const switchToWeth = useCallback(() => {
+    handleInputSelect(currencyIn?.wrapped as Currency)
+  }, [currencyIn, handleInputSelect])
+
+  const { isWrappingEth, setTxHashWrapped } = useWrapEthStatus(switchToWeth)
+
   const handleOutputSelect = (currency: Currency) => {
     if (currencyIn && currency?.equals(currencyIn)) return
     setCurrencyOut(currency)
@@ -228,7 +244,7 @@ const LimitOrderForm = function LimitOrderForm({
   const currentAllowance = useTokenAllowance(
     currencyIn as Token,
     account ?? undefined,
-    LIMIT_ORDER_CONTRACT,
+    networkInfo.limitOrder ?? '',
   ) as CurrencyAmount<Currency>
 
   const parsedActiveOrderMakingAmount = useMemo(() => {
@@ -253,7 +269,11 @@ const LimitOrderForm = function LimitOrderForm({
     )
   }, [currencyIn?.isNative, currentAllowance, parseInputAmount, parsedActiveOrderMakingAmount])
 
-  const [approval, approveCallback] = useApproveCallback(parseInputAmount, LIMIT_ORDER_CONTRACT, !enoughAllowance)
+  const [approval, approveCallback] = useApproveCallback(
+    parseInputAmount,
+    networkInfo.limitOrder ?? '',
+    !enoughAllowance,
+  )
 
   const balance = useCurrencyBalance(currencyIn ?? undefined)
   const inputError = useMemo(() => {
@@ -276,8 +296,20 @@ const LimitOrderForm = function LimitOrderForm({
     if (!parseInputAmount) {
       return t`Your input amount is invalid.`
     }
+
+    if (showWrap && wrapInputError) return wrapInputError
     return
-  }, [currencyIn, balance, inputAmount, outputAmount, displayRate, parsedActiveOrderMakingAmount, parseInputAmount])
+  }, [
+    currencyIn,
+    balance,
+    inputAmount,
+    outputAmount,
+    displayRate,
+    parsedActiveOrderMakingAmount,
+    parseInputAmount,
+    showWrap,
+    wrapInputError,
+  ])
 
   const outPutError = useMemo(() => {
     if (outputAmount && !tryParseAmount(outputAmount, currencyOut)) {
@@ -288,10 +320,10 @@ const LimitOrderForm = function LimitOrderForm({
 
   const hasInputError = inputError || outPutError
 
-  const hasInvalidInput = [outputAmount, inputAmount, currencyIn, currencyOut, displayRate].some(e => !e)
-
+  const isNotFillAllInput = [outputAmount, inputAmount, currencyIn, currencyOut, displayRate].some(e => !e)
   const showApproveFlow =
-    !hasInvalidInput &&
+    !showWrap &&
+    !isNotFillAllInput &&
     !hasInputError &&
     (approval === ApprovalState.NOT_APPROVED ||
       approval === ApprovalState.PENDING ||
@@ -299,8 +331,15 @@ const LimitOrderForm = function LimitOrderForm({
       (approvalSubmitted && approval === ApprovalState.APPROVED))
 
   const disableBtnApproved =
-    (approval !== ApprovalState.NOT_APPROVED || approvalSubmitted || !!hasInputError) && enoughAllowance
-  const disableBtnReview = hasInvalidInput || !!hasInputError || approval !== ApprovalState.APPROVED
+    approval === ApprovalState.PENDING ||
+    ((approval !== ApprovalState.NOT_APPROVED || approvalSubmitted || !!hasInputError) && enoughAllowance)
+
+  const disableBtnReview =
+    isNotFillAllInput ||
+    !!hasInputError ||
+    approval !== ApprovalState.APPROVED ||
+    isWrappingEth ||
+    (showWrap && !isWrappingEth)
 
   const expiredAt = customDateExpire?.getTime() || Date.now() + expire * 1000
 
@@ -371,8 +410,6 @@ const LimitOrderForm = function LimitOrderForm({
     [setFlowState],
   )
 
-  const { library } = useWeb3React()
-
   const getPayloadCreateOrder = (params: CreateOrderParam) => {
     const { currencyIn, currencyOut, chainId, account, inputAmount, outputAmount, expiredAt } = params
     const parseInputAmount = tryParseAmount(inputAmount, currencyIn ?? undefined)
@@ -394,9 +431,9 @@ const LimitOrderForm = function LimitOrderForm({
     const { hash: orderHash } = await hashOrder(payload)
     setFlowState(state => ({
       ...state,
-      pendingText: `Sign limit order: ${formatAmountOrder(inputAmount, false)} ${
-        currencyIn.symbol
-      } to ${formatAmountOrder(outputAmount, false)} ${currencyOut.symbol}`,
+      pendingText: `Sign limit order: ${formatAmountOrder(inputAmount)} ${currencyIn.symbol} to ${formatAmountOrder(
+        outputAmount,
+      )} ${currencyOut.symbol}`,
     }))
     const signature = await library.getSigner().signMessage(ethers.utils.arrayify(orderHash))
     return { signature, orderHash }
@@ -425,9 +462,6 @@ const LimitOrderForm = function LimitOrderForm({
           ...state,
           attemptingTxn: true,
           showConfirm: true,
-          pendingText: t`Sign limit order: ${formatAmountOrder(inputAmount, false)} ${
-            currencyIn.symbol
-          } to ${formatAmountOrder(outputAmount, false)} ${currencyOut.symbol}`,
         }))
         const signData = await signOrder(params)
         signature = signData.signature
@@ -447,11 +481,11 @@ const LimitOrderForm = function LimitOrderForm({
               <Trans>
                 You have successfully placed an order to pay{' '}
                 <Text as="span" fontWeight={500}>
-                  {formatAmountOrder(inputAmount, false)} {currencyIn.symbol}
+                  {formatAmountOrder(inputAmount)} {currencyIn.symbol}
                 </Text>{' '}
                 and receive{' '}
                 <Text as="span" fontWeight={500}>
-                  {formatAmountOrder(outputAmount, false)} {currencyOut.symbol}{' '}
+                  {formatAmountOrder(outputAmount)} {currencyOut.symbol}{' '}
                 </Text>
                 <Text as="span" color={theme.subText}>
                   when 1 {currencyIn.symbol} is equal to {calcRate(inputAmount, outputAmount, currencyOut.decimals)}{' '}
@@ -463,7 +497,11 @@ const LimitOrderForm = function LimitOrderForm({
                   const isPartialFilled = orderInfo?.status === LimitOrderStatus.PARTIALLY_FILLED
                   const filledPercent =
                     orderInfo && isPartialFilled
-                      ? calcPercentFilledOrder(orderInfo?.filledTakingAmount, orderInfo?.takingAmount)
+                      ? calcPercentFilledOrder(
+                          orderInfo?.filledTakingAmount,
+                          orderInfo?.takingAmount,
+                          orderInfo.takerAssetDecimals,
+                        )
                       : ''
                   return (
                     <>
@@ -518,6 +556,26 @@ const LimitOrderForm = function LimitOrderForm({
       handleError(error)
     }
   }
+
+  const onWrapToken = async () => {
+    try {
+      if (isNotFillAllInput || wrapInputError || isWrappingEth || hasInputError) return
+      setFlowState(state => ({
+        ...state,
+        attemptingTxn: true,
+        showConfirm: true,
+        pendingText: t`Wrapping ${formatAmountOrder(inputAmount)} ${currencyIn?.symbol} to ${formatAmountOrder(
+          inputAmount,
+        )} ${WETH[chainId].symbol}`,
+      }))
+      const hash = await onWrap?.()
+      hash && setTxHashWrapped(hash)
+      setFlowState(state => ({ ...state, showConfirm: false }))
+    } catch (error) {
+      handleError(error)
+    }
+  }
+
   useEffect(() => {
     if (approval === ApprovalState.PENDING) {
       setApprovalSubmitted(true)
@@ -577,7 +635,7 @@ const LimitOrderForm = function LimitOrderForm({
               id="create-limit-order-input-tokena"
               maxCurrencySymbolLength={6}
               otherCurrency={currencyOut}
-              supportNative={false}
+              filterWrap
             />
             <ArrowRotate isVertical rotate={rotate} onClick={handleRotateClick} />
 
@@ -594,6 +652,7 @@ const LimitOrderForm = function LimitOrderForm({
               showCommonBases
               maxCurrencySymbolLength={6}
               otherCurrency={currencyIn}
+              filterWrap
             />
           </RowBetween>
         )}
@@ -700,28 +759,38 @@ const LimitOrderForm = function LimitOrderForm({
             <Trans>Connect Wallet</Trans>
           </ButtonLight>
         ) : (
-          showApproveFlow && (
+          (showApproveFlow || showWrap) && (
             <>
               <RowBetween>
-                <ButtonApprove
-                  forceApprove={!enoughAllowance}
-                  tokenSymbol={currencyIn?.symbol}
-                  tooltipMsg={t`You need to first allow KyberSwaps smart contracts to use your ${currencyIn?.symbol}. This has to be done only once for each token.`}
-                  onClick={approveCallback}
-                  disabled={!!disableBtnApproved}
-                  approval={approval}
-                />
+                {showWrap ? (
+                  <ButtonWithInfoHelper
+                    loading={isWrappingEth}
+                    tooltipMsg={t`You will need to wrap your ${currencyIn?.symbol} to ${currencyIn?.wrapped.symbol} before you can place a limit order. Your tokens will be exchanged 1 to 1.`}
+                    text={isWrappingEth ? t`Wrapping` : t`Wrap ${currencyIn?.symbol}`}
+                    onClick={onWrapToken}
+                    disabled={Boolean(wrapInputError) || isNotFillAllInput || isWrappingEth}
+                  />
+                ) : (
+                  <ButtonApprove
+                    forceApprove={!enoughAllowance}
+                    tokenSymbol={currencyIn?.symbol}
+                    tooltipMsg={t`You need to first allow KyberSwaps smart contracts to use your ${currencyIn?.symbol}. This has to be done only once for each token.`}
+                    onClick={approveCallback}
+                    disabled={!!disableBtnApproved}
+                    approval={approval}
+                  />
+                )}
                 <ButtonError width="48%" id="swap-button" disabled={disableBtnReview} onClick={showPreview}>
                   <Text fontSize={16} fontWeight={500}>
                     <Trans>Review Order</Trans>
                   </Text>
                 </ButtonError>
               </RowBetween>
-              <ProgressSteps steps={[approval === ApprovalState.APPROVED]} />
+              {showApproveFlow && <ProgressSteps steps={[approval === ApprovalState.APPROVED]} />}
             </>
           )
         )}
-        {!showApproveFlow && account && (
+        {!showApproveFlow && !showWrap && account && (
           <ButtonError onClick={showPreview} disabled={disableBtnReview}>
             <Text fontWeight={500}>
               <Trans>Review Order</Trans>

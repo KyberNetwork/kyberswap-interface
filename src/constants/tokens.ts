@@ -2,7 +2,7 @@ import { ChainId, NativeCurrency, Token } from '@kyberswap/ks-sdk-core'
 
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from './networks'
 
-export const NativeCurrencies: { [chainId in ChainId]: NativeCurrency } = SUPPORTED_NETWORKS.reduce(
+const NativeCurrenciesLocal: { [chainId in ChainId]: NativeCurrency } = SUPPORTED_NETWORKS.reduce(
   (acc, chainId) => ({
     ...acc,
     [chainId]: new NativeCurrency(
@@ -14,6 +14,15 @@ export const NativeCurrencies: { [chainId in ChainId]: NativeCurrency } = SUPPOR
   }),
   {},
 ) as { [chainId in ChainId]: NativeCurrency }
+
+//this Proxy helps fallback undefined ChainId by Ethereum info
+export const NativeCurrencies = new Proxy(NativeCurrenciesLocal, {
+  get(target, p) {
+    const prop = p as any as ChainId
+    if (p && target[prop]) return target[prop]
+    return target[ChainId.MAINNET]
+  },
+})
 
 export const STABLE_COINS_ADDRESS: { [chainId in ChainId]: string[] } = {
   [ChainId.MAINNET]: [
@@ -354,7 +363,7 @@ export const KNC: { [chainId in ChainId]: Token } = {
   [ChainId.ETHW]: new Token(ChainId.ETHW, KNC_ADDRESS, 18, 'KNC', 'Kyber Network Crystal'),
   [ChainId.GÖRLI]: new Token(
     ChainId.GÖRLI,
-    '0x4f6519025e6de0edb6e4901827c1956ce18c39d3',
+    '0xd19e5119Efc73FeA1e70f9fbbc105DaB89D914e4',
     18,
     'KNC',
     'Kyber Network Crystal',

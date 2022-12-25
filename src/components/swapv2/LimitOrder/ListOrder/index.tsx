@@ -31,7 +31,7 @@ import { sendEVMTransaction } from 'utils/sendTransaction'
 
 import EditOrderModal from '../EditOrderModal'
 import CancelOrderModal from '../Modals/CancelOrderModal'
-import { ACTIVE_ORDER_OPTIONS, CLOSE_ORDER_OPTIONS, LIMIT_ORDER_CONTRACT } from '../const'
+import { ACTIVE_ORDER_OPTIONS, CLOSE_ORDER_OPTIONS } from '../const'
 import { calcPercentFilledOrder, formatAmountOrder, isActiveStatus } from '../helpers'
 import { ackNotificationOrder, getEncodeData, getListOrder, insertCancellingOrder } from '../request'
 import { LimitOrder, LimitOrderStatus, ListOrderHandle } from '../type'
@@ -109,7 +109,7 @@ const SearchInputWrapped = styled(SearchInput)`
 `
 
 export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, networkInfo } = useActiveWeb3React()
   const { library } = useWeb3React()
   const [curPage, setCurPage] = useState(1)
   const [orderType, setOrderType] = useState<LimitOrderStatus>(LimitOrderStatus.ACTIVE)
@@ -117,7 +117,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
   const [isOpenCancel, setIsOpenCancel] = useState(false)
   const [isOpenEdit, setIsOpenEdit] = useState(false)
 
-  const limitOrderContract = useContract(LIMIT_ORDER_CONTRACT, LIMIT_ORDER_ABI)
+  const limitOrderContract = useContract(networkInfo.limitOrder ?? '', LIMIT_ORDER_ABI)
   const notify = useNotify()
   const { ordersUpdating } = useLimitState()
   const addTransactionWithType = useTransactionAdder()
@@ -150,28 +150,38 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
     setCurPage(1)
   }
 
+  const controller = useRef(new AbortController())
   const fetchListOrder = useCallback(
-    async (status: LimitOrderStatus, query: string, curPage: number) => {
+    async (orderType: LimitOrderStatus, query: string, curPage: number) => {
       try {
-        const { orders = [], pagination = { totalItems: 0 } } = await (account
-          ? getListOrder({
+        let orders: LimitOrder[] = []
+        let totalItems = 0
+        if (account) {
+          controller.current.abort()
+          controller.current = new AbortController()
+          const response = await getListOrder(
+            {
               chainId,
               maker: account,
-              status,
+              status: orderType,
               query,
               page: curPage,
               pageSize: PAGE_SIZE,
-            })
-          : Promise.resolve({ orders: [], pagination: { totalItems: 0 } }))
-        if (orderType !== status) return
+            },
+            controller.current.signal,
+          )
+          orders = response.orders ?? []
+          totalItems = response.pagination.totalItems ?? 0
+        }
         setOrders(orders)
-        setTotalOrder(pagination.totalItems ?? 0)
+        setTotalOrder(totalItems)
       } catch (error) {
+        if (error?.name === 'AbortError') return
         console.error(error)
       }
       setLoading(false)
     },
-    [account, chainId, orderType],
+    [account, chainId],
   )
 
   const fetchListOrderDebounce = useMemo(() => debounce(fetchListOrder, 400), [fetchListOrder])
@@ -384,7 +394,13 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
     }))
 
     const { encodedData } = await getEncodeData([order?.id].filter(Boolean) as number[], isCancelAll)
-    const response = await sendEVMTransaction(account, library, LIMIT_ORDER_CONTRACT, encodedData, BigNumber.from(0))
+    const response = await sendEVMTransaction(
+      account,
+      library,
+      networkInfo.limitOrder ?? '',
+      encodedData,
+      BigNumber.from(0),
+    )
     const newOrders = isCancelAll ? orders.map(e => e.id) : order?.id ? [order?.id] : []
     setCancellingOrders({ orderIds: cancellingOrdersIds.concat(newOrders) })
 
@@ -406,10 +422,10 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
         ...response,
         type: TRANSACTION_TYPE.CANCEL_LIMIT_ORDER,
         summary: order
-          ? `Order ${formatAmountOrder(order.makingAmount)} ${order.makerAssetSymbol} to ${formatAmountOrder(
-              order.takingAmount,
-            )} ${order.takerAssetSymbol}`
-          : `all orders`,
+          ? t`Order ${formatAmountOrder(order.makingAmount, order.makerAssetDecimals)} ${
+              order.makerAssetSymbol
+            } to ${formatAmountOrder(order.takingAmount, order.takerAssetDecimals)} ${order.takerAssetSymbol}`
+          : t`all orders`,
       })
     return
   }
@@ -495,7 +511,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
                   {isTabActive ? (
                     <Trans>You don&apos;t have any active orders yet</Trans>
                   ) : (
-                    <Trans>You don&apos;t have any history orders yet</Trans>
+                    <Trans>You don&apos;t have any order history</Trans>
                   )}
                 </Text>
               </NoResultWrapper>
@@ -548,6 +564,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
               ? ` Your currently existing order is ${calcPercentFilledOrder(
                   currentOrder.filledTakingAmount,
                   currentOrder.takingAmount,
+                  currentOrder.takerAssetDecimals,
                 )}% filled`
               : ''
           }`}

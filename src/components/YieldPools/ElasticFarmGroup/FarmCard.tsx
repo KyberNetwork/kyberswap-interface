@@ -8,7 +8,6 @@ import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
-import bgimg from 'assets/images/card-background.png'
 import { ReactComponent as DropIcon } from 'assets/svg/drop.svg'
 import { ButtonEmpty, ButtonLight } from 'components/Button'
 import CopyHelper from 'components/Copy'
@@ -33,36 +32,7 @@ import { APRTooltipContent } from '../FarmingPoolAPRCell'
 import { useSharePoolContext } from '../SharePoolContext'
 import FeeTarget from './FeeTarget'
 import PositionDetail from './PostionDetail'
-import { FeeTag } from './styleds'
-
-const FlipCard = styled.div<{ flip: boolean }>`
-  border-radius: 20px;
-  padding: 16px;
-  background-image: url(${bgimg});
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-color: ${({ theme }) => theme.buttonBlack};
-  position: relative;
-  transition: transform 0.6s;
-  transform-style: preserve-3d;
-
-  transform: rotateY(${({ flip }) => (flip ? '-180deg' : '0')});
-`
-
-const FlipCardFront = styled.div`
-  display: flex;
-  height: 100%;
-  flex-direction: column;
-  backface-visibility: hidden;
-`
-
-const FlipCardBack = styled.div`
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  backface-visibility: hidden;
-  transform: rotateY(180deg);
-`
+import { FeeTag, FlipCard, FlipCardBack, FlipCardFront } from './styleds'
 
 const Button = styled(ButtonLight)<{ color: string }>`
   background: ${({ color }) => color + '33'};
@@ -145,7 +115,7 @@ const FarmCard = ({
     pool.token1.isNative ? pool.token1.symbol : pool.token1.address
   }/${pool.pool.fee}`
 
-  const representedPostion = depositedPositions?.[0]
+  const representedPostion = depositedPositions?.[0] as NFTPosition | undefined
   const price =
     representedPostion &&
     (isRevertPrice
@@ -414,9 +384,13 @@ const FarmCard = ({
           </Flex>
 
           <Flex marginTop="4px" alignItems="center">
-            <Text fontSize={'12px'} fontWeight="500" style={{ textAlign: 'right' }}>{`${price.toSignificant(10)} ${
-              price.quoteCurrency.symbol
-            } per ${price.baseCurrency.symbol}`}</Text>
+            {price && (
+              <Text fontSize={'12px'} fontWeight="500" style={{ textAlign: 'right' }}>
+                <Trans>
+                  {price.toSignificant(10)} {price.quoteCurrency.symbol} per {price.baseCurrency.symbol}
+                </Trans>
+              </Text>
+            )}
 
             <span
               onClick={() => setIsRevertPrice(prev => !prev)}
@@ -433,20 +407,21 @@ const FarmCard = ({
             sx={{ overflowY: 'scroll', gap: '12px' }}
             flexDirection="column"
           >
-            {depositedPositions.map(item => {
-              return (
-                <PositionDetail
-                  key={item.nftId.toString()}
-                  farmAddress={farmAddress}
-                  isRevertPrice={isRevertPrice}
-                  price={price}
-                  pool={pool}
-                  nftInfo={item}
-                  tokenPrices={tokenPrices}
-                  targetPercent={targetPercentByNFT[item.nftId.toString()]}
-                />
-              )
-            })}
+            {price &&
+              depositedPositions.map(item => {
+                return (
+                  <PositionDetail
+                    key={item.nftId.toString()}
+                    farmAddress={farmAddress}
+                    isRevertPrice={isRevertPrice}
+                    price={price}
+                    pool={pool}
+                    nftInfo={item}
+                    tokenPrices={tokenPrices}
+                    targetPercent={targetPercentByNFT[item.nftId.toString()]}
+                  />
+                )
+              })}
           </Flex>
 
           <Flex

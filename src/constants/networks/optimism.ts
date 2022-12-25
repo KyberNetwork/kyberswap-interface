@@ -48,7 +48,7 @@ const optimismInfo: EVMNetworkInfo = {
     dynamic: NOT_SUPPORT,
     claimReward: NOT_SUPPORT,
     fairlaunch: EMPTY_ARRAY,
-    fairlaunchV2: EMPTY_ARRAY,
+    fairlaunchV2: ['0x715Cc6C0d591CA3FA8EA6e4Cb445adA0DC79069A'],
   },
   elastic: {
     coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
@@ -59,6 +59,7 @@ const optimismInfo: EVMNetworkInfo = {
     routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
     farms: ['0xb85ebE2e4eA27526f817FF33fb55fB240057C03F'],
   },
+  limitOrder: NOT_SUPPORT,
   averageBlockTimeInSeconds: 120,
   coingeckoNetworkId: 'optimistic-ethereum',
   coingeckoNativeTokenId: 'ethereum',

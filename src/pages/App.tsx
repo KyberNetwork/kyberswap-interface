@@ -1,7 +1,7 @@
 import { datadogRum } from '@datadog/browser-rum'
 import { Trans, t } from '@lingui/macro'
 import * as Sentry from '@sentry/react'
-import { Popover, Sidetab } from '@typeform/embed-react'
+import { Sidetab } from '@typeform/embed-react'
 import { Suspense, lazy, useEffect } from 'react'
 import { isMobile } from 'react-device-detect'
 import { AlertTriangle } from 'react-feather'
@@ -9,6 +9,7 @@ import { Route, Routes } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
+import snow from 'assets/images/snow.png'
 import AppHaveUpdate from 'components/AppHaveUpdate'
 import ErrorBoundary from 'components/ErrorBoundary'
 import Footer from 'components/Footer/Footer'
@@ -17,13 +18,14 @@ import TopBanner from 'components/Header/TopBanner'
 import Loader from 'components/LocalLoader'
 import Modal from 'components/Modal'
 import Popups from 'components/Popups'
+import Snowfall from 'components/Snowflake/Snowfall'
 import Web3ReactManager from 'components/Web3ReactManager'
 import { APP_PATHS, BLACKLIST_WALLETS, SUPPORT_LIMIT_ORDER } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useGlobalMixpanelEvents } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { useWindowSize } from 'hooks/useWindowSize'
-import { useIsDarkMode } from 'state/user/hooks'
+import { useHolidayMode, useIsDarkMode } from 'state/user/hooks'
 import DarkModeQueryParamReader from 'theme/DarkModeQueryParamReader'
 import { isAddressString, shortenAddress } from 'utils'
 
@@ -66,6 +68,8 @@ const IncreaseLiquidity = lazy(() => import(/* webpackChunkName: 'add-liquidity-
 
 const RemoveLiquidity = lazy(() => import(/* webpackChunkName: 'remove-liquidity-page' */ './RemoveLiquidity'))
 
+const KyberDAOStakeKNC = lazy(() => import(/* webpackChunkName: 'stake-knc' */ './KyberDAO/StakeKNC'))
+const KyberDAOVote = lazy(() => import(/* webpackChunkName: 'vote' */ './KyberDAO/Vote'))
 const AboutKyberSwap = lazy(() => import(/* webpackChunkName: 'about-page' */ './About/AboutKyberSwap'))
 const AboutKNC = lazy(() => import(/* webpackChunkName: 'about-knc' */ './About/AboutKNC'))
 
@@ -134,6 +138,10 @@ export default function App() {
   const { pathname } = window.location
   const showFooter = !pathname.includes(APP_PATHS.ABOUT)
   const feedbackId = isDarkTheme ? 'W5TeOyyH' : 'K0dtSO0v'
+  const [holidayMode] = useHolidayMode()
+
+  const snowflake = new Image()
+  snowflake.src = snow
 
   return (
     <ErrorBoundary>
@@ -145,12 +153,7 @@ export default function App() {
           buttonColor={theme.primary}
           customIcon={isDarkTheme ? 'https://i.imgur.com/iTOOKnr.png' : 'https://i.imgur.com/aPCpnGg.png'}
         />
-      ) : (
-        <Popover
-          id={feedbackId}
-          customIcon={isDarkTheme ? 'https://i.imgur.com/iTOOKnr.png' : 'https://i.imgur.com/aPCpnGg.png'}
-        />
-      )}
+      ) : null}
       {(BLACKLIST_WALLETS.includes(isAddressString(chainId, account)) ||
         BLACKLIST_WALLETS.includes(account?.toLowerCase() || '')) && (
         <Modal
@@ -197,6 +200,16 @@ export default function App() {
               <Header />
             </HeaderWrapper>
             <Suspense fallback={<Loader />}>
+              {holidayMode && (
+                <Snowfall
+                  speed={[0.5, 1]}
+                  wind={[-0.5, 0.25]}
+                  snowflakeCount={isMobile ? 13 : 31}
+                  images={[snowflake]}
+                  radius={[5, 15]}
+                />
+              )}
+
               <BodyWrapper>
                 <Popups />
                 <Web3ReactManager>
@@ -267,6 +280,8 @@ export default function App() {
                       path={`${APP_PATHS.ELASTIC_INCREASE_LIQ}/:currencyIdA/:currencyIdB/:feeAmount/:tokenId`}
                       element={<IncreaseLiquidity />}
                     />
+                    <Route path={`${APP_PATHS.KYBERDAO_STAKE}`} element={<KyberDAOStakeKNC />} />
+                    <Route path={`${APP_PATHS.KYBERDAO_VOTE}`} element={<KyberDAOVote />} />
                     <Route path={`${APP_PATHS.ABOUT}/kyberswap`} element={<AboutKyberSwap />} />
                     <Route path={`${APP_PATHS.ABOUT}/knc`} element={<AboutKNC />} />
                     <Route path={`${APP_PATHS.REFERRAL}`} element={<CreateReferral />} />

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { ZERO } from '@kyberswap/ks-sdk-classic'
 import { Currency, CurrencyAmount, Fraction, Price, Rounding, Token } from '@kyberswap/ks-sdk-core'
 import {

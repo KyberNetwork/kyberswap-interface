@@ -4,7 +4,6 @@ import styled, { css } from 'styled-components'
 import { ButtonOutlined } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import Input from 'components/NumericalInput'
-import { MouseoverTooltip } from 'components/Tooltip'
 import { HideMedium } from 'theme'
 
 export const PageWrapper = styled.div`

@@ -174,6 +174,7 @@ interface CurrencyInputPanelProps {
   maxLength?: number
   supportNative?: boolean
   outline?: boolean
+  filterWrap?: boolean
 }
 
 export default function CurrencyInputPanel({
@@ -209,6 +210,7 @@ export default function CurrencyInputPanel({
   maxLength,
   supportNative = true,
   outline,
+  filterWrap,
 }: CurrencyInputPanelProps) {
   const [modalOpen, setModalOpen] = useState(false)
   const { chainId, account } = useActiveWeb3React()
@@ -370,7 +372,7 @@ export default function CurrencyInputPanel({
             selectedCurrency={currency}
             otherSelectedCurrency={otherCurrency}
             showCommonBases={showCommonBases}
-            supportNative={supportNative}
+            filterWrap={filterWrap}
           />
         )}
       </InputPanel>

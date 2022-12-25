@@ -283,14 +283,6 @@ export const TRENDING_SOON_SUPPORTED_NETWORKS: { [p: string]: ChainId } = {
   fantom: ChainId.FANTOM,
 }
 
-export const TOBE_EXTENDED_FARMING_POOLS: { [key: string]: number } = {
-  '0xD185094b8F3DF34d28d3f8740bAf5664Eb5b8636': 1651928400,
-  '0xa6bb71128B8F27a8a54a2087ef6E95249723C038': 1651928400,
-
-  '0xC6BC80490A3D022ac888b26A5Ae4f1fad89506Bd': 1651222800,
-  '0x9dD156dF57ad44c23f6e1FCB731C640B127fE2Be': 1651222800,
-}
-
 export const ELASTIC_BASE_FEE_UNIT = 100_000
 export const KYBERSWAP_SOURCE = '{"source":"kyberswap"}'
 
@@ -321,7 +313,6 @@ export const APP_PATHS = {
   CAMPAIGN: '/campaigns',
   FIND_POOL: '/find',
   POOLS: '/pools',
-  POOL: '/pool',
   CLASSIC_CREATE_POOL: '/create',
   CLASSIC_ADD_LIQ: '/add',
   CLASSIC_REMOVE_POOL: '/remove',
@@ -335,6 +326,9 @@ export const APP_PATHS = {
   BUY_CRYPTO: '/buy-crypto',
   BRIDGE: '/bridge',
   VERIFY: '/verify',
+  KYBERDAO: '/kyberdao',
+  KYBERDAO_STAKE: '/kyberdao/stake-knc',
+  KYBERDAO_VOTE: '/kyberdao/vote',
   LIMIT: '/limit',
   VERIFY_EXTERNAL: '/verify-external',
   GRANT_PROGRAMS: '/inter-project-trading-campaigns',

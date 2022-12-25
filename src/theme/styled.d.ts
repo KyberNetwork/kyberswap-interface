@@ -87,6 +87,7 @@ export interface Colors {
   darkBlue: Color
   blue: Color
   lightGreen: Color
+  darkerGreen: Color
   apr: Color
   shadow: Color
 }

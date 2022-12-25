@@ -35,7 +35,6 @@ import { Dots } from 'components/swapv2/styleds'
 import { APP_PATHS } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
-import { VERSION } from 'constants/v2'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
@@ -44,7 +43,7 @@ import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
 import useProAmmPreviousTicks from 'hooks/useProAmmPreviousTicks'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
-import { useTokensPrice, useWalletModalToggle } from 'state/application/hooks'
+import { useWalletModalToggle } from 'state/application/hooks'
 import {
   useProAmmDerivedAllMintInfo,
   useProAmmDerivedMintInfo,
@@ -53,6 +52,7 @@ import {
   useRangeHopCallbacks,
 } from 'state/mint/proamm/hooks'
 import { Bound, Field } from 'state/mint/proamm/type'
+import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useExpertModeManager, useUserSlippageTolerance } from 'state/user/hooks'
@@ -244,12 +244,17 @@ export default function AddLiquidity() {
     () => [currencies_A, currencies_B].map(currency => currency?.wrapped),
     [currencies_A, currencies_B],
   )
-  const usdPrices = useTokensPrice(tokens, VERSION.ELASTIC)
+  const usdPrices = useTokenPrices(tokens.map(t => t?.wrapped.address || ''))
+
   const estimatedUsdCurrencyA =
-    parsedAmounts_A && usdPrices[0] ? parseFloat(parsedAmounts_A.toExact()) * usdPrices[0] : 0
+    parsedAmounts_A && usdPrices[tokens[0]?.address || '']
+      ? parseFloat(parsedAmounts_A.toExact()) * usdPrices[tokens[0]?.address || '']
+      : 0
 
   const estimatedUsdCurrencyB =
-    parsedAmounts_B && usdPrices[1] ? parseFloat(parsedAmounts_B.toExact()) * usdPrices[1] : 0
+    parsedAmounts_B && usdPrices[tokens[1]?.address || '']
+      ? parseFloat(parsedAmounts_B.toExact()) * usdPrices[tokens[1]?.address || '']
+      : 0
 
   const [userSlippageTolerance] = useUserSlippageTolerance()
 
