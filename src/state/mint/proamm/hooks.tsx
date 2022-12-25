@@ -1,5 +1,5 @@
 import { ZERO } from '@kyberswap/ks-sdk-classic'
-import { Currency, CurrencyAmount, Price, Rounding, Token } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, Fraction, Price, Rounding, Token } from '@kyberswap/ks-sdk-core'
 import {
   FeeAmount,
   FullMath,
@@ -20,6 +20,7 @@ import { ReactNode, useCallback, useMemo } from 'react'
 import { BIG_INT_ZERO } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { PoolState, usePool } from 'hooks/usePools'
+import { RANGE_LIST } from 'pages/AddLiquidityV2/constants'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { AppState } from 'state/index'
 import { tryParseAmount } from 'state/swap/hooks'
@@ -27,54 +28,62 @@ import { useCurrencyBalances } from 'state/wallet/hooks'
 import { getTickToPrice } from 'utils/getTickToPrice'
 
 import {
-  Bound,
-  Field,
-  setFullRange,
+  addPosition,
+  removePosition,
+  resetMintState,
+  setRange,
   typeInput,
   typeLeftRangeInput,
   typeRightRangeInput,
   typeStartPriceInput,
 } from './actions'
-import { tryParseTick } from './utils'
+import { Bound, Field, Point, RANGE } from './type'
+import { getPairFactor, getRangeTicks, tryParseTick } from './utils'
 
 export function useProAmmMintState(): AppState['mintV2'] {
   return useAppSelector(state => state.mintV2)
 }
 
-export function useProAmmMintActionHandlers(noLiquidity: boolean | undefined): {
+export function useProAmmMintActionHandlers(
+  noLiquidity: boolean | undefined,
+  positionIndex: number,
+): {
   onFieldAInput: (typedValue: string) => void
   onFieldBInput: (typedValue: string) => void
   onLeftRangeInput: (typedValue: string) => void
   onRightRangeInput: (typedValue: string) => void
   onStartPriceInput: (typedValue: string) => void
+  onResetMintState: () => void
+  onAddPosition: () => void
+  onRemovePosition: (positionIndex: number) => void
 } {
   const dispatch = useAppDispatch()
   const onFieldAInput = useCallback(
     (typedValue: string) => {
-      dispatch(typeInput({ field: Field.CURRENCY_A, typedValue, noLiquidity: noLiquidity === true }))
+      dispatch(typeInput({ field: Field.CURRENCY_A, typedValue, noLiquidity: noLiquidity === true, positionIndex }))
     },
-    [dispatch, noLiquidity],
+    [dispatch, noLiquidity, positionIndex],
   )
 
   const onFieldBInput = useCallback(
     (typedValue: string) => {
-      dispatch(typeInput({ field: Field.CURRENCY_B, typedValue, noLiquidity: noLiquidity === true }))
+      dispatch(typeInput({ field: Field.CURRENCY_B, typedValue, noLiquidity: noLiquidity === true, positionIndex }))
     },
-    [dispatch, noLiquidity],
+    [dispatch, noLiquidity, positionIndex],
   )
 
   const onLeftRangeInput = useCallback(
     (typedValue: string) => {
-      dispatch(typeLeftRangeInput({ typedValue }))
+      dispatch(typeLeftRangeInput({ typedValue, positionIndex }))
     },
-    [dispatch],
+    [dispatch, positionIndex],
   )
 
   const onRightRangeInput = useCallback(
     (typedValue: string) => {
-      dispatch(typeRightRangeInput({ typedValue }))
+      dispatch(typeRightRangeInput({ typedValue, positionIndex }))
     },
-    [dispatch],
+    [dispatch, positionIndex],
   )
 
   const onStartPriceInput = useCallback(
@@ -83,16 +92,36 @@ export function useProAmmMintActionHandlers(noLiquidity: boolean | undefined): {
     },
     [dispatch],
   )
+
+  const onResetMintState = useCallback(() => {
+    dispatch(resetMintState())
+  }, [dispatch])
+
+  const onAddPosition = useCallback(() => {
+    dispatch(addPosition())
+  }, [dispatch])
+
+  const onRemovePosition = useCallback(
+    (positionIndex: number) => {
+      dispatch(removePosition({ positionIndex }))
+    },
+    [dispatch],
+  )
+
   return {
     onFieldAInput,
     onFieldBInput,
     onLeftRangeInput,
     onRightRangeInput,
     onStartPriceInput,
+    onResetMintState,
+    onAddPosition,
+    onRemovePosition,
   }
 }
 
 export function useProAmmDerivedMintInfo(
+  positionIndex: number,
   currencyA?: Currency,
   currencyB?: Currency,
   feeAmount?: FeeAmount,
@@ -123,10 +152,13 @@ export function useProAmmDerivedMintInfo(
   ticksAtLimit: { [bound in Bound]?: boolean | undefined }
   amount0Unlock: JSBI
   amount1Unlock: JSBI
+  riskPoint: Point
+  profitPoint: Point
+  activeRange: RANGE | null
 } {
   const { account } = useActiveWeb3React()
-  const { independentField, typedValue, leftRangeTypedValue, rightRangeTypedValue, startPriceTypedValue } =
-    useProAmmMintState()
+  const { positions, startPriceTypedValue } = useProAmmMintState()
+  const { independentField, typedValue, leftRangeTypedValue, rightRangeTypedValue } = positions[positionIndex]
   const dependentField = independentField === Field.CURRENCY_A ? Field.CURRENCY_B : Field.CURRENCY_A
 
   // currencies
@@ -138,18 +170,18 @@ export function useProAmmDerivedMintInfo(
     [currencyA, currencyB],
   )
   // formatted with tokens
-  const [tokenA, tokenB, baseToken] = useMemo(
+  const [tokenA, tokenB, baseToken]: [Token | undefined, Token | undefined, Token | undefined] = useMemo(
     () => [currencyA?.wrapped, currencyB?.wrapped, baseCurrency?.wrapped],
     [currencyA, currencyB, baseCurrency],
   )
 
-  const [token0, token1] = useMemo(
+  const [token0, token1]: [Token | undefined, Token | undefined] = useMemo(
     () =>
       tokenA && tokenB ? (tokenA.sortsBefore(tokenB) ? [tokenA, tokenB] : [tokenB, tokenA]) : [undefined, undefined],
     [tokenA, tokenB],
   )
   // balances
-  const balances = useCurrencyBalances(
+  const balances: CurrencyAmount<Currency>[] = useCurrencyBalances(
     useMemo(() => [currencies[Field.CURRENCY_A], currencies[Field.CURRENCY_B]], [currencies]),
   )
   const currencyBalances: { [field in Field]?: CurrencyAmount<Currency> } = {
@@ -189,27 +221,32 @@ export function useProAmmDerivedMintInfo(
     }
   }, [noLiquidity, startPriceTypedValue, invertPrice, token1, token0, pool])
   // check for invalid price input (converts to invalid ratio)
-  const invalidPrice = useMemo(() => {
+  const invalidPrice: boolean = useMemo(() => {
     const sqrtRatioX96 = price ? encodeSqrtRatioX96(price.numerator, price.denominator) : undefined
-    return (
+    return Boolean(
       price &&
-      sqrtRatioX96 &&
-      !(
-        JSBI.greaterThanOrEqual(sqrtRatioX96, TickMath.MIN_SQRT_RATIO) &&
-        JSBI.lessThan(sqrtRatioX96, TickMath.MAX_SQRT_RATIO)
-      )
+        sqrtRatioX96 &&
+        !(
+          JSBI.greaterThanOrEqual(sqrtRatioX96, TickMath.MIN_SQRT_RATIO) &&
+          JSBI.lessThan(sqrtRatioX96, TickMath.MAX_SQRT_RATIO)
+        ),
     )
   }, [price])
+
+  const currentTick = useMemo(
+    () => (price && !invalidPrice ? priceToClosestTick(price) : undefined),
+    [invalidPrice, price],
+  )
+
   // used for ratio calculation when pool not initialized
-  const mockPool = useMemo(() => {
-    if (tokenA && tokenB && feeAmount && price && !invalidPrice) {
-      const currentTick = priceToClosestTick(price)
+  const mockPool: Pool | undefined = useMemo(() => {
+    if (tokenA && tokenB && feeAmount && price && !invalidPrice && currentTick) {
       const currentSqrt = TickMath.getSqrtRatioAtTick(currentTick)
       return new Pool(tokenA, tokenB, feeAmount, currentSqrt, JSBI.BigInt(0), JSBI.BigInt(0), currentTick, [])
     } else {
       return undefined
     }
-  }, [feeAmount, invalidPrice, price, tokenA, tokenB])
+  }, [currentTick, feeAmount, invalidPrice, price, tokenA, tokenB])
 
   // if pool exists use it, if not use the mock pool
   const poolForPosition: Pool | undefined = pool ?? mockPool
@@ -228,7 +265,7 @@ export function useProAmmDerivedMintInfo(
   // parse typed range values and determine closest ticks
   // lower should always be a smaller tick
   const ticks: {
-    [key: string]: number | undefined
+    [bound in Bound]: number | undefined
   } = useMemo(() => {
     //case NO invert
     //      tickLower = tryParseTick(0, 1, left)
@@ -245,7 +282,7 @@ export function useProAmmDerivedMintInfo(
             (!invertPrice && typeof leftRangeTypedValue === 'boolean')
           ? tickSpaceLimits[Bound.LOWER]
           : invertPrice
-          ? tryParseTick(token1, token0, feeAmount, rightRangeTypedValue.toString())
+          ? tryParseTick(token1, token0, feeAmount, rightRangeTypedValue.toString()) // todo namgold: sthing wrong here
           : tryParseTick(token0, token1, feeAmount, leftRangeTypedValue.toString()),
       [Bound.UPPER]:
         typeof existingPosition?.tickUpper === 'number'
@@ -267,11 +304,14 @@ export function useProAmmDerivedMintInfo(
     token1,
     tickSpaceLimits,
   ])
-
+  if (invertPrice) {
+  }
   const { [Bound.LOWER]: tickLower, [Bound.UPPER]: tickUpper } = ticks || {}
 
   // specifies whether the lower and upper ticks is at the exteme bounds
-  const ticksAtLimit = useMemo(
+  const ticksAtLimit: {
+    [bound in Bound]: boolean | undefined
+  } = useMemo(
     () => ({
       [Bound.LOWER]: feeAmount && tickLower === tickSpaceLimits.LOWER,
       [Bound.UPPER]: feeAmount && tickUpper === tickSpaceLimits.UPPER,
@@ -280,15 +320,17 @@ export function useProAmmDerivedMintInfo(
   )
 
   // mark invalid range
-  const invalidRange = Boolean(typeof tickLower === 'number' && typeof tickUpper === 'number' && tickLower >= tickUpper)
+  const invalidRange: boolean = typeof tickLower === 'number' && typeof tickUpper === 'number' && tickLower >= tickUpper
 
   // always returns the price with 0 as base token
-  const pricesAtTicks = useMemo(() => {
+  const pricesAtTicks: {
+    [bound in Bound]: Price<Token, Token> | undefined
+  } = useMemo(() => {
     return {
-      [Bound.LOWER]: getTickToPrice(token0, token1, ticks[Bound.LOWER]),
-      [Bound.UPPER]: getTickToPrice(token0, token1, ticks[Bound.UPPER]),
+      [Bound.LOWER]: getTickToPrice(token0, token1, tickLower),
+      [Bound.UPPER]: getTickToPrice(token0, token1, tickUpper),
     }
-  }, [token0, token1, ticks])
+  }, [token0, token1, tickLower, tickUpper])
   const { [Bound.LOWER]: lowerPrice, [Bound.UPPER]: upperPrice } = pricesAtTicks
 
   // liquidity range warning
@@ -422,76 +464,169 @@ export function useProAmmDerivedMintInfo(
     tickUpper,
   ])
 
-  const amount0Unlock =
-    price && noLiquidity
-      ? FullMath.mulDiv(
-          SqrtPriceMath.getAmount0Unlock(encodeSqrtRatioX96(price.numerator, price.denominator)),
-          JSBI.BigInt('105'),
-          JSBI.BigInt('100'),
-        )
-      : JSBI.BigInt('0')
-  const amount1Unlock =
-    price && noLiquidity
-      ? FullMath.mulDiv(
-          SqrtPriceMath.getAmount1Unlock(encodeSqrtRatioX96(price.numerator, price.denominator)),
-          JSBI.BigInt('105'),
-          JSBI.BigInt('100'),
-        )
-      : JSBI.BigInt('0')
-  let errorMessage: ReactNode | undefined
-  if (!account) {
-    errorMessage = <Trans>Connect Wallet</Trans>
-  }
+  const amount0Unlock = useMemo(
+    () =>
+      price && noLiquidity
+        ? FullMath.mulDiv(
+            SqrtPriceMath.getAmount0Unlock(encodeSqrtRatioX96(price.numerator, price.denominator)),
+            JSBI.BigInt('105'),
+            JSBI.BigInt('100'),
+          )
+        : JSBI.BigInt('0'),
+    [noLiquidity, price],
+  )
 
-  if (poolState === PoolState.INVALID) {
-    errorMessage = errorMessage ?? <Trans>Invalid pair</Trans>
-  }
+  const amount1Unlock = useMemo(
+    () =>
+      price && noLiquidity
+        ? FullMath.mulDiv(
+            SqrtPriceMath.getAmount1Unlock(encodeSqrtRatioX96(price.numerator, price.denominator)),
+            JSBI.BigInt('105'),
+            JSBI.BigInt('100'),
+          )
+        : JSBI.BigInt('0'),
+    [noLiquidity, price],
+  )
 
-  if (invalidPrice) {
-    errorMessage = errorMessage ?? <Trans>Invalid price input</Trans>
-  }
+  const currencyBalanceA = currencyBalances?.[Field.CURRENCY_A]
+  const currencyBalanceB = currencyBalances?.[Field.CURRENCY_B]
+  const errorMessage: ReactNode | undefined = useMemo(() => {
+    if (!account) {
+      return <Trans>Connect Wallet</Trans>
+    }
 
-  if (
-    (!parsedAmounts[Field.CURRENCY_A] && !depositADisabled) ||
-    (!parsedAmounts[Field.CURRENCY_B] && !depositBDisabled)
-  ) {
-    errorMessage = errorMessage ?? <Trans>Enter an amount</Trans>
-  }
+    if (poolState === PoolState.INVALID) {
+      return errorMessage ?? <Trans>Invalid pair</Trans>
+    }
 
-  const { [Field.CURRENCY_A]: currencyAAmount, [Field.CURRENCY_B]: currencyBAmount } = parsedAmounts
+    if (invalidPrice) {
+      return errorMessage ?? <Trans>Invalid price input</Trans>
+    }
+    const { [Field.CURRENCY_A]: currencyAAmount, [Field.CURRENCY_B]: currencyBAmount } = parsedAmounts
 
-  if (
-    (currencyAAmount && currencyBalances?.[Field.CURRENCY_A]?.lessThan(currencyAAmount)) ||
-    (noLiquidity && depositADisabled && currencyBalances?.[Field.CURRENCY_A]?.equalTo(ZERO))
-  ) {
-    errorMessage = <Trans>Insufficient {currencies[Field.CURRENCY_A]?.symbol} balance</Trans>
-  } else if (
-    noLiquidity &&
-    currencyAAmount &&
-    currencyA &&
-    currencyBalances?.[Field.CURRENCY_A]?.lessThan(
-      currencyAAmount.add(CurrencyAmount.fromRawAmount(currencyA, !invertPrice ? amount0Unlock : amount1Unlock)),
-    )
-  ) {
-    errorMessage = <Trans>Insufficient {currencies[Field.CURRENCY_A]?.symbol} balance.</Trans>
-  }
+    if ((!currencyAAmount && !depositADisabled) || (!currencyBAmount && !depositBDisabled)) {
+      return errorMessage ?? <Trans>Enter an amount</Trans>
+    }
 
-  if (
-    (currencyBAmount && currencyBalances?.[Field.CURRENCY_B]?.lessThan(currencyBAmount)) ||
-    (noLiquidity && depositBDisabled && currencyBalances?.[Field.CURRENCY_B]?.equalTo(ZERO))
-  ) {
-    errorMessage = <Trans>Insufficient {currencies[Field.CURRENCY_B]?.symbol} balance</Trans>
-  } else if (
-    noLiquidity &&
-    currencyBAmount &&
-    currencyB &&
-    currencyBalances?.[Field.CURRENCY_B]?.lessThan(
-      currencyBAmount.add(CurrencyAmount.fromRawAmount(currencyB, !invertPrice ? amount1Unlock : amount0Unlock)),
-    )
-  ) {
-    errorMessage = <Trans>Insufficient {currencies[Field.CURRENCY_B]?.symbol} balance.</Trans>
-  }
+    if (
+      (currencyAAmount && currencyBalanceA?.lessThan(currencyAAmount)) ||
+      (noLiquidity && depositADisabled && currencyBalanceA?.equalTo(ZERO))
+    ) {
+      return <Trans>Insufficient {currencies[Field.CURRENCY_A]?.symbol} balance</Trans>
+    } else if (
+      noLiquidity &&
+      currencyAAmount &&
+      currencyA &&
+      currencyBalanceA?.lessThan(
+        currencyAAmount.add(CurrencyAmount.fromRawAmount(currencyA, !invertPrice ? amount0Unlock : amount1Unlock)),
+      )
+    ) {
+      return <Trans>Insufficient {currencies[Field.CURRENCY_A]?.symbol} balance.</Trans>
+    }
+
+    if (
+      (currencyBAmount && currencyBalanceB?.lessThan(currencyBAmount)) ||
+      (noLiquidity && depositBDisabled && currencyBalanceB?.equalTo(ZERO))
+    ) {
+      return <Trans>Insufficient {currencies[Field.CURRENCY_B]?.symbol} balance</Trans>
+    } else if (
+      noLiquidity &&
+      currencyBAmount &&
+      currencyB &&
+      currencyBalanceB?.lessThan(
+        currencyBAmount.add(CurrencyAmount.fromRawAmount(currencyB, !invertPrice ? amount1Unlock : amount0Unlock)),
+      )
+    ) {
+      return <Trans>Insufficient {currencies[Field.CURRENCY_B]?.symbol} balance.</Trans>
+    }
+
+    return
+  }, [
+    account,
+    amount0Unlock,
+    amount1Unlock,
+    currencies,
+    currencyA,
+    currencyB,
+    currencyBalanceA,
+    currencyBalanceB,
+    depositADisabled,
+    depositBDisabled,
+    invalidPrice,
+    invertPrice,
+    noLiquidity,
+    parsedAmounts,
+    poolState,
+  ])
+
   const invalidPool = poolState === PoolState.INVALID
+
+  const { [Bound.LOWER]: priceLower, [Bound.UPPER]: priceUpper } = pricesAtTicks
+
+  const R1 = 76
+  const R2 = 51
+  const R3 = 31
+  const R4 = 16
+  const riskPoint: Point = useMemo(() => {
+    if (price && priceLower && priceUpper) {
+      const pairFactor = getPairFactor([price.baseCurrency, price.quoteCurrency])
+      const D1 = new Fraction(1).subtract(priceLower.divide(price))
+      const D2 = priceUpper.divide(price).subtract(1)
+      const D = D1.lessThan(D2) ? D1 : D2
+      const R = D.divide(pairFactor).multiply(10000)
+      if (R.lessThan(R4)) return 5
+      if (R.lessThan(R3)) return 4
+      if (R.lessThan(R2)) return 3
+      if (R.lessThan(R1)) return 2
+      return 1
+    }
+    return 0
+  }, [price, priceLower, priceUpper])
+
+  const profitPoint: Point = useMemo(() => {
+    if (price && priceLower && priceUpper) {
+      if (priceLower.lessThan(price) && price.lessThan(priceUpper)) {
+        const pairFactor = getPairFactor([price.baseCurrency, price.quoteCurrency])
+        const D = new Fraction(1).subtract(priceLower.asFraction.multiply(2).divide(priceLower.add(priceUpper)))
+        const R = D.divide(pairFactor).multiply(10000)
+        if (R.lessThan(R4)) return 5
+        if (R.lessThan(R3)) return 4
+        if (R.lessThan(R2)) return 3
+        if (R.lessThan(R1)) return 2
+        return 1
+      } else {
+        return 0
+      }
+    }
+    return 0
+  }, [price, priceLower, priceUpper])
+
+  const activeRange: RANGE | null = useMemo(() => {
+    if (feeAmount && tokenA && tokenB && currentTick !== undefined && tickLower && tickUpper) {
+      if (ticksAtLimit[Bound.LOWER] && ticksAtLimit[Bound.UPPER]) return RANGE.FULL_RANGE
+      const rangeValue = RANGE_LIST.find(range => {
+        if (range === RANGE.FULL_RANGE) return false
+        let [rangeTickLower, rangeTickUpper] = getRangeTicks(range, tokenA, tokenB, currentTick)
+        // if (range === RANGE.COMMON) {
+        //   console.group()
+        //   console.log('invertPrice', invertPrice)
+        //   console.log({ currentTick })
+        //   console.log({ rangeTickLower, tickLower })
+        //   console.log({ rangeTickUpper, tickUpper })
+        //   console.groupEnd()
+        // }
+        if (invertPrice) [rangeTickLower, rangeTickUpper] = [rangeTickUpper, rangeTickLower]
+        if (
+          Math.abs(rangeTickLower - tickLower) < 3 * TICK_SPACINGS[feeAmount] &&
+          Math.abs(rangeTickUpper - tickUpper) < 3 * TICK_SPACINGS[feeAmount]
+        )
+          return true
+        return false
+      })
+      if (rangeValue) return rangeValue
+    }
+    return null
+  }, [currentTick, feeAmount, invertPrice, tickLower, tickUpper, ticksAtLimit, tokenA, tokenB])
 
   return {
     dependentField,
@@ -515,6 +650,497 @@ export function useProAmmDerivedMintInfo(
     ticksAtLimit,
     amount0Unlock,
     amount1Unlock,
+    riskPoint,
+    profitPoint,
+    activeRange,
+  }
+}
+
+export function useProAmmDerivedAllMintInfo(
+  currencyA?: Currency,
+  currencyB?: Currency,
+  feeAmount?: FeeAmount,
+  baseCurrency?: Currency,
+  existingPosition?: Position,
+): {
+  errorMessage?: ReactNode
+  currencyAmountSum: { [field in Field]: CurrencyAmount<Currency> | undefined }
+} {
+  const { account } = useActiveWeb3React()
+  const { positions, startPriceTypedValue } = useProAmmMintState()
+  // const { independentField, typedValue, leftRangeTypedValue, rightRangeTypedValue } = positions
+  const dependentField: Field[] = positions.map(({ independentField }) =>
+    independentField === Field.CURRENCY_A ? Field.CURRENCY_B : Field.CURRENCY_A,
+  )
+
+  // currencies
+  const currencies: { [field in Field]?: Currency } = useMemo(
+    () => ({
+      [Field.CURRENCY_A]: currencyA,
+      [Field.CURRENCY_B]: currencyB,
+    }),
+    [currencyA, currencyB],
+  )
+  // formatted with tokens
+  const [tokenA, tokenB, baseToken]: [Token | undefined, Token | undefined, Token | undefined] = useMemo(
+    () => [currencyA?.wrapped, currencyB?.wrapped, baseCurrency?.wrapped],
+    [currencyA, currencyB, baseCurrency],
+  )
+
+  const [token0, token1]: [Token | undefined, Token | undefined] = useMemo(
+    () =>
+      tokenA && tokenB ? (tokenA.sortsBefore(tokenB) ? [tokenA, tokenB] : [tokenB, tokenA]) : [undefined, undefined],
+    [tokenA, tokenB],
+  )
+  // balances
+  const balances: CurrencyAmount<Currency>[] = useCurrencyBalances(
+    useMemo(() => [currencies[Field.CURRENCY_A], currencies[Field.CURRENCY_B]], [currencies]),
+  )
+  const currencyBalances: { [field in Field]?: CurrencyAmount<Currency> } = {
+    [Field.CURRENCY_A]: balances[0],
+    [Field.CURRENCY_B]: balances[1],
+  }
+
+  // pool
+  const [poolState, pool] = usePool(currencies[Field.CURRENCY_A], currencies[Field.CURRENCY_B], feeAmount)
+
+  const noLiquidity = poolState === PoolState.NOT_EXISTS
+  // note to parse inputs in reverse
+  const invertPrice = Boolean(baseToken && token0 && !baseToken.equals(token0))
+
+  // always returns the price with 0 as base token
+  const price: Price<Token, Token> | undefined = useMemo(() => {
+    // if no liquidity use typed value
+    if (noLiquidity) {
+      const parsedQuoteAmount = tryParseAmount(startPriceTypedValue, invertPrice ? token0 : token1)
+      if (parsedQuoteAmount && token0 && token1) {
+        const baseAmount = tryParseAmount('1', invertPrice ? token1 : token0)
+        const price =
+          baseAmount && parsedQuoteAmount
+            ? new Price(
+                baseAmount.currency,
+                parsedQuoteAmount.currency,
+                baseAmount.quotient,
+                parsedQuoteAmount.quotient,
+              )
+            : undefined
+        return (invertPrice ? price?.invert() : price) ?? undefined
+      }
+      return undefined
+    } else {
+      // get the amount of quote currency
+      return pool && token0 ? pool.priceOf(token0) : undefined
+    }
+  }, [noLiquidity, startPriceTypedValue, invertPrice, token1, token0, pool])
+  // check for invalid price input (converts to invalid ratio)
+  const invalidPrice: boolean = useMemo(() => {
+    const sqrtRatioX96 = price ? encodeSqrtRatioX96(price.numerator, price.denominator) : undefined
+    return Boolean(
+      price &&
+        sqrtRatioX96 &&
+        !(
+          JSBI.greaterThanOrEqual(sqrtRatioX96, TickMath.MIN_SQRT_RATIO) &&
+          JSBI.lessThan(sqrtRatioX96, TickMath.MAX_SQRT_RATIO)
+        ),
+    )
+  }, [price])
+
+  const currentTick = useMemo(
+    () => (price && !invalidPrice ? priceToClosestTick(price) : undefined),
+    [invalidPrice, price],
+  )
+
+  // used for ratio calculation when pool not initialized
+  const mockPool: Pool | undefined = useMemo(() => {
+    if (tokenA && tokenB && feeAmount && price && !invalidPrice && currentTick) {
+      const currentSqrt = TickMath.getSqrtRatioAtTick(currentTick)
+      return new Pool(tokenA, tokenB, feeAmount, currentSqrt, JSBI.BigInt(0), JSBI.BigInt(0), currentTick, [])
+    } else {
+      return undefined
+    }
+  }, [currentTick, feeAmount, invalidPrice, price, tokenA, tokenB])
+
+  // if pool exists use it, if not use the mock pool
+  const poolForPosition: Pool | undefined = pool ?? mockPool
+
+  // lower and upper limits in the tick space for `feeAmount<Trans>
+  const tickSpaceLimits: {
+    [bound in Bound]: number | undefined
+  } = useMemo(
+    () => ({
+      [Bound.LOWER]: feeAmount ? nearestUsableTick(TickMath.MIN_TICK, TICK_SPACINGS[feeAmount]) : undefined,
+      [Bound.UPPER]: feeAmount ? nearestUsableTick(TickMath.MAX_TICK, TICK_SPACINGS[feeAmount]) : undefined,
+    }),
+    [feeAmount],
+  )
+
+  // parse typed range values and determine closest ticks
+  // lower should always be a smaller tick
+  const ticks: {
+    [bound in Bound]: (number | undefined)[]
+  } = useMemo(
+    () =>
+      positions.reduce(
+        (acc, { leftRangeTypedValue, rightRangeTypedValue }) => {
+          const lower =
+            typeof existingPosition?.tickLower === 'number'
+              ? existingPosition.tickLower
+              : (invertPrice && typeof rightRangeTypedValue === 'boolean') ||
+                (!invertPrice && typeof leftRangeTypedValue === 'boolean')
+              ? tickSpaceLimits[Bound.LOWER]
+              : invertPrice
+              ? tryParseTick(token1, token0, feeAmount, rightRangeTypedValue.toString()) // todo namgold: sthing wrong here
+              : tryParseTick(token0, token1, feeAmount, leftRangeTypedValue.toString())
+          const upper =
+            typeof existingPosition?.tickUpper === 'number'
+              ? existingPosition.tickUpper
+              : (!invertPrice && typeof rightRangeTypedValue === 'boolean') ||
+                (invertPrice && typeof leftRangeTypedValue === 'boolean')
+              ? tickSpaceLimits[Bound.UPPER]
+              : invertPrice
+              ? tryParseTick(token1, token0, feeAmount, leftRangeTypedValue.toString())
+              : tryParseTick(token0, token1, feeAmount, rightRangeTypedValue.toString())
+          if (!acc[Bound.LOWER]) acc[Bound.LOWER] = [lower]
+          else acc[Bound.LOWER]!.push(lower)
+          if (!acc[Bound.UPPER]) acc[Bound.UPPER] = [upper]
+          else acc[Bound.UPPER]!.push(upper)
+          return acc
+        },
+        {
+          [Bound.LOWER]: [],
+          [Bound.UPPER]: [],
+        } as {
+          [bound in Bound]: (number | undefined)[]
+        },
+      ),
+    [
+      positions,
+      existingPosition?.tickLower,
+      existingPosition?.tickUpper,
+      invertPrice,
+      tickSpaceLimits,
+      token1,
+      token0,
+      feeAmount,
+    ],
+  )
+  if (invertPrice) {
+  }
+  const { [Bound.LOWER]: tickLowers, [Bound.UPPER]: tickUppers } = ticks || {}
+
+  // mark invalid range
+  const invalidRange: boolean = tickLowers.some(
+    (_, index) =>
+      typeof tickLowers[index] === 'number' &&
+      typeof tickUppers[index] === 'number' &&
+      tickLowers[index]! >= tickUppers[index]!,
+  )
+
+  // always returns the price with 0 as base token
+  const pricesAtTicks: {
+    [bound in Bound]: (Price<Token, Token> | undefined)[]
+  } = useMemo(
+    () =>
+      positions.reduce(
+        (acc, _, index) => {
+          const lower = getTickToPrice(token0, token1, tickLowers[index])
+          const upper = getTickToPrice(token0, token1, tickUppers[index])
+          if (!acc[Bound.LOWER]) acc[Bound.LOWER] = [lower]
+          else acc[Bound.LOWER]!.push(lower)
+          if (!acc[Bound.UPPER]) acc[Bound.UPPER] = [upper]
+          else acc[Bound.UPPER]!.push(upper)
+          return acc
+        },
+        {
+          [Bound.LOWER]: [],
+          [Bound.UPPER]: [],
+        } as {
+          [bound in Bound]: (Price<Token, Token> | undefined)[]
+        },
+      ),
+    [positions, tickLowers, tickUppers, token0, token1],
+  )
+  const { [Bound.LOWER]: lowerPrices, [Bound.UPPER]: upperPrices } = pricesAtTicks
+
+  // liquidity range warning
+  const outOfRange = Boolean(
+    !invalidRange &&
+      price &&
+      (lowerPrices.some(lowerPrice => lowerPrice && price.lessThan(lowerPrice)) ||
+        upperPrices.some(upperPrice => upperPrice && price.greaterThan(upperPrice))),
+  )
+
+  // amounts
+  const independentAmount: (CurrencyAmount<Currency> | undefined)[] = useMemo(
+    () => positions.map(({ typedValue, independentField }) => tryParseAmount(typedValue, currencies[independentField])),
+    [currencies, positions],
+  )
+
+  const dependentAmount: (CurrencyAmount<Currency> | undefined)[] = useMemo(
+    () =>
+      positions.map((_, index) => {
+        // we wrap the currencies just to get the price in terms of the other token
+        const dependentCurrency = dependentField[index] === Field.CURRENCY_B ? currencyB : currencyA
+        const current_independentAmount = independentAmount[index]
+        const tickLower = tickLowers[index]
+        const tickUpper = tickUppers[index]
+        const wrappedIndependentAmount = current_independentAmount?.wrapped
+        if (
+          current_independentAmount &&
+          wrappedIndependentAmount &&
+          typeof tickLower === 'number' &&
+          typeof tickUpper === 'number' &&
+          poolForPosition
+        ) {
+          // if price is out of range or invalid range - return 0 (single deposit will be independent)
+          if (outOfRange || invalidRange) {
+            return undefined
+          }
+
+          const position: Position | undefined = wrappedIndependentAmount.currency.equals(poolForPosition.token0)
+            ? Position.fromAmount0({
+                pool: poolForPosition,
+                tickLower,
+                tickUpper,
+                amount0: current_independentAmount.quotient,
+                useFullPrecision: true, // we want full precision for the theoretical position
+              })
+            : Position.fromAmount1({
+                pool: poolForPosition,
+                tickLower,
+                tickUpper,
+                amount1: current_independentAmount.quotient,
+              })
+
+          const dependentTokenAmount = wrappedIndependentAmount.currency.equals(poolForPosition.token0)
+            ? position.amount1
+            : position.amount0
+          return dependentCurrency && CurrencyAmount.fromRawAmount(dependentCurrency, dependentTokenAmount.quotient)
+        }
+        return undefined
+      }),
+    [
+      positions,
+      dependentField,
+      currencyB,
+      currencyA,
+      independentAmount,
+      tickLowers,
+      tickUppers,
+      poolForPosition,
+      outOfRange,
+      invalidRange,
+    ],
+  )
+
+  const parsedAmounts: { [field in Field]: (CurrencyAmount<Currency> | undefined)[] } = useMemo(
+    () =>
+      positions.reduce(
+        (acc, { independentField }, index) => {
+          const a = independentField === Field.CURRENCY_A ? independentAmount[index] : dependentAmount[index]
+          const b = independentField === Field.CURRENCY_A ? dependentAmount[index] : independentAmount[index]
+          if (!acc[Field.CURRENCY_A]) acc[Field.CURRENCY_A] = [a]
+          else acc[Field.CURRENCY_A]!.push(a)
+          if (!acc[Field.CURRENCY_B]) acc[Field.CURRENCY_B] = [b]
+          else acc[Field.CURRENCY_B]!.push(b)
+          return acc
+        },
+        {
+          [Field.CURRENCY_A]: [],
+          [Field.CURRENCY_B]: [],
+        } as {
+          [field in Field]: (CurrencyAmount<Currency> | undefined)[]
+        },
+      ),
+    [dependentAmount, independentAmount, positions],
+  )
+
+  const amount0Unlock = useMemo(
+    () =>
+      price && noLiquidity
+        ? FullMath.mulDiv(
+            SqrtPriceMath.getAmount0Unlock(encodeSqrtRatioX96(price.numerator, price.denominator)),
+            JSBI.BigInt('105'),
+            JSBI.BigInt('100'),
+          )
+        : JSBI.BigInt('0'),
+    [noLiquidity, price],
+  )
+
+  const amount1Unlock = useMemo(
+    () =>
+      price && noLiquidity
+        ? FullMath.mulDiv(
+            SqrtPriceMath.getAmount1Unlock(encodeSqrtRatioX96(price.numerator, price.denominator)),
+            JSBI.BigInt('105'),
+            JSBI.BigInt('100'),
+          )
+        : JSBI.BigInt('0'),
+    [noLiquidity, price],
+  )
+
+  const currencyBalanceA = currencyBalances?.[Field.CURRENCY_A]
+  const currencyBalanceB = currencyBalances?.[Field.CURRENCY_B]
+
+  const { [Field.CURRENCY_A]: currencyAAmounts, [Field.CURRENCY_B]: currencyBAmounts } = parsedAmounts
+  const currencyAmountSum: { [field in Field]: CurrencyAmount<Currency> | undefined } = useMemo(() => {
+    let currencyAAmountSum: CurrencyAmount<Currency> | undefined
+    currencyAAmounts.forEach(currencyAAmount => {
+      currencyAAmountSum =
+        currencyAAmount && currencyAAmountSum
+          ? currencyAAmount.add(currencyAAmountSum)
+          : currencyAAmount || currencyAAmountSum
+    })
+
+    let currencyBAmountSum: CurrencyAmount<Currency> | undefined
+    currencyBAmounts.forEach(currencyBAmount => {
+      currencyBAmountSum =
+        currencyBAmount && currencyBAmountSum
+          ? currencyBAmount.add(currencyBAmountSum)
+          : currencyBAmount || currencyBAmountSum
+    })
+    return {
+      [Field.CURRENCY_A]: currencyAAmountSum,
+      [Field.CURRENCY_B]: currencyBAmountSum,
+    }
+  }, [currencyAAmounts, currencyBAmounts])
+
+  const errorMessage: ReactNode | undefined = useMemo(() => {
+    if (!account) {
+      return <Trans>Connect Wallet</Trans>
+    }
+
+    if (poolState === PoolState.INVALID) {
+      return errorMessage ?? <Trans>Invalid pair</Trans>
+    }
+
+    if (invalidPrice) {
+      return errorMessage ?? <Trans>Invalid price input</Trans>
+    }
+
+    const errorMessages = positions.map((_, index) => {
+      const currencyAAmount = currencyAAmounts?.[index]
+      const currencyBAmount = currencyBAmounts?.[index]
+      const tickUpper = tickUppers[index]
+      const tickLower = tickLowers[index]
+      // single deposit only if price is out of range
+      const deposit0Disabled = Boolean(
+        // tickUppers.some
+        typeof tickUpper === 'number' && poolForPosition && poolForPosition.tickCurrent >= tickUpper,
+      )
+      const deposit1Disabled = Boolean(
+        typeof tickLower === 'number' && poolForPosition && poolForPosition.tickCurrent < tickLower,
+      )
+      // sorted for token order
+      const depositADisabled =
+        invalidRange ||
+        Boolean(
+          (deposit0Disabled && poolForPosition && tokenA && poolForPosition.token0.equals(tokenA)) ||
+            (deposit1Disabled && poolForPosition && tokenA && poolForPosition.token1.equals(tokenA)),
+        )
+      const depositBDisabled =
+        invalidRange ||
+        Boolean(
+          (deposit0Disabled && poolForPosition && tokenB && poolForPosition.token0.equals(tokenB)) ||
+            (deposit1Disabled && poolForPosition && tokenB && poolForPosition.token1.equals(tokenB)),
+        )
+
+      if ((!currencyAAmount && !depositADisabled) || (!currencyBAmount && !depositBDisabled)) {
+        return <Trans key={index}>Position {index + 1}: Enter an amount</Trans>
+      }
+
+      if (
+        (currencyAAmount && currencyBalanceA?.lessThan(currencyAAmount)) ||
+        (noLiquidity && depositADisabled && currencyBalanceA?.equalTo(ZERO))
+      ) {
+        return (
+          <Trans key={index}>
+            Position {index + 1}: Insufficient {currencies[Field.CURRENCY_A]?.symbol} balance
+          </Trans>
+        )
+      } else if (
+        noLiquidity &&
+        currencyAAmount &&
+        currencyA &&
+        currencyBalanceA?.lessThan(
+          currencyAAmount.add(CurrencyAmount.fromRawAmount(currencyA, !invertPrice ? amount0Unlock : amount1Unlock)),
+        )
+      ) {
+        return (
+          <Trans key={index}>
+            Position {index + 1}: Insufficient {currencies[Field.CURRENCY_A]?.symbol} balance.
+          </Trans>
+        )
+      }
+
+      if (
+        (currencyBAmount && currencyBalanceB?.lessThan(currencyBAmount)) ||
+        (noLiquidity && depositBDisabled && currencyBalanceB?.equalTo(ZERO))
+      ) {
+        return (
+          <Trans key={index}>
+            Position {index + 1}: Insufficient {currencies[Field.CURRENCY_B]?.symbol} balance
+          </Trans>
+        )
+      } else if (
+        noLiquidity &&
+        currencyBAmount &&
+        currencyB &&
+        currencyBalanceB?.lessThan(
+          currencyBAmount.add(CurrencyAmount.fromRawAmount(currencyB, !invertPrice ? amount1Unlock : amount0Unlock)),
+        )
+      ) {
+        return (
+          <Trans key={index}>
+            Position {index + 1}: Insufficient {currencies[Field.CURRENCY_B]?.symbol} balance.
+          </Trans>
+        )
+      }
+
+      return undefined
+    })
+    const foundErrorMessage = errorMessages.find(Boolean)
+    if (foundErrorMessage) return foundErrorMessage
+
+    const currencyAAmountSum: CurrencyAmount<Currency> | undefined = currencyAmountSum[Field.CURRENCY_A]
+    if (currencyAAmountSum && currencyBalanceA?.lessThan(currencyAAmountSum)) {
+      return <Trans>Insufficient {currencies[Field.CURRENCY_A]?.symbol} balance</Trans>
+    }
+
+    const currencyBAmountSum: CurrencyAmount<Currency> | undefined = currencyAmountSum[Field.CURRENCY_B]
+    if (currencyBAmountSum && currencyBalanceA?.lessThan(currencyBAmountSum)) {
+      return <Trans>Insufficient {currencies[Field.CURRENCY_B]?.symbol} balance</Trans>
+    }
+
+    return
+  }, [
+    account,
+    amount0Unlock,
+    amount1Unlock,
+    currencies,
+    currencyA,
+    currencyAAmounts,
+    currencyAmountSum,
+    currencyB,
+    currencyBAmounts,
+    currencyBalanceA,
+    currencyBalanceB,
+    invalidPrice,
+    invalidRange,
+    invertPrice,
+    noLiquidity,
+    poolForPosition,
+    poolState,
+    positions,
+    tickLowers,
+    tickUppers,
+    tokenA,
+    tokenB,
+  ])
+
+  return {
+    errorMessage,
+    currencyAmountSum,
   }
 }
 
@@ -524,6 +1150,7 @@ export function useRangeHopCallbacks(
   feeAmount: FeeAmount | undefined,
   tickLower: number | undefined,
   tickUpper: number | undefined,
+  positionIndex: number,
   pool?: Pool | undefined | null,
   price?: Price<Token, Token> | undefined | null,
 ) {
@@ -596,9 +1223,26 @@ export function useRangeHopCallbacks(
     return ''
   }, [baseToken, quoteToken, tickUpper, feeAmount, initTick])
 
-  const getSetFullRange = useCallback(() => {
-    dispatch(setFullRange())
-  }, [dispatch])
+  const getSetRange = useCallback(
+    (range: RANGE) => {
+      if (range === RANGE.FULL_RANGE) {
+        dispatch(setRange({ leftRangeTypedValue: true, rightRangeTypedValue: true, positionIndex }))
+      } else if (initTick !== undefined && baseToken && quoteToken && feeAmount) {
+        const [tickLower, tickUpper] = getRangeTicks(range, baseToken, quoteToken, initTick)
 
-  return { getDecrementLower, getIncrementLower, getDecrementUpper, getIncrementUpper, getSetFullRange }
+        const parsedLower = tickToPrice(baseToken, quoteToken, tickLower)
+        const parsedUpper = tickToPrice(baseToken, quoteToken, tickUpper)
+
+        const result = {
+          leftRangeTypedValue: parsedLower.toSignificant(18),
+          rightRangeTypedValue: parsedUpper.toSignificant(18),
+          positionIndex,
+        }
+        dispatch(setRange(result))
+      }
+    },
+    [baseToken, dispatch, initTick, quoteToken, positionIndex, feeAmount],
+  )
+
+  return { getDecrementLower, getIncrementLower, getDecrementUpper, getIncrementUpper, getSetRange }
 }

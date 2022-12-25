@@ -1,4 +1,4 @@
-import { Bound } from 'state/mint/proamm/actions'
+import { Bound } from 'state/mint/proamm/type'
 
 export interface ChartEntry {
   activeLiquidity: number

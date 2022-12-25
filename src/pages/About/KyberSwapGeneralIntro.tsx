@@ -6,10 +6,12 @@ import { Box, Flex, Text } from 'rebass'
 
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import { MoneyBagOutline } from 'components/Icons'
+import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 
-const KyberSwapGeneralIntro = ({ isSolana }: { isSolana: boolean }) => {
+const KyberSwapGeneralIntro = () => {
+  const { networkInfo, isSolana } = useActiveWeb3React()
   const above768 = useMedia('(min-width: 768px)')
   const theme = useTheme()
   const { mixpanelHandler } = useMixpanel()
@@ -57,7 +59,7 @@ const KyberSwapGeneralIntro = ({ isSolana }: { isSolana: boolean }) => {
       <ButtonPrimary
         onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_SWAP_CLICKED)}
         as={Link}
-        to="/swap?highlightBox=true"
+        to={`/swap/${networkInfo.route}?highlightBox=true`}
         style={{
           width: '216px',
           padding: '10px 12px',

@@ -6,6 +6,7 @@ import { saturate } from 'polished'
 import { CSSProperties, ReactNode, useCallback, useMemo } from 'react'
 import { BarChart2, Inbox } from 'react-feather'
 import { batch } from 'react-redux'
+import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -14,7 +15,8 @@ import WarningIcon from 'components/LiveChart/WarningIcon'
 import Loader from 'components/Loader'
 import { useColor } from 'hooks/useColor'
 import useTheme from 'hooks/useTheme'
-import { Bound } from 'state/mint/proamm/actions'
+import { Bound } from 'state/mint/proamm/type'
+import { MEDIA_WIDTHS } from 'theme'
 
 import { Chart } from './Chart'
 import { useDensityChartData } from './hooks'
@@ -27,7 +29,6 @@ const ZOOM_LEVELS: Record<FeeAmount, ZoomLevels> = {
     min: 0.00001,
     max: 1.5,
   },
-
   [FeeAmount.LOWEST]: {
     initialMin: 0.999,
     initialMax: 1.001,
@@ -164,6 +165,8 @@ export default function LiquidityChartRangeInput({
     [isSorted, price, ticksAtLimit],
   )
 
+  const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
+
   return (
     <AutoColumn gap="md" style={{ minHeight: '200px', ...style }}>
       {isUninitialized ? (
@@ -184,7 +187,7 @@ export default function LiquidityChartRangeInput({
         <ChartWrapper>
           <Chart
             data={{ series: formattedData, current: price }}
-            dimensions={{ width: 400, height: 200 }}
+            dimensions={{ width: upToLarge ? 400 : 800, height: 200 }}
             margins={{ top: 10, right: 2, bottom: 20, left: 0 }}
             styles={{
               area: {

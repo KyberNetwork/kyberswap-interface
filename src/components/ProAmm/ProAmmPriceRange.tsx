@@ -11,7 +11,7 @@ import InfoHelper from 'components/InfoHelper'
 import LiquidityChartRangeInput from 'components/LiquidityChartRangeInput'
 import { RowBetween, RowFixed } from 'components/Row'
 import useTheme from 'hooks/useTheme'
-import { Bound } from 'state/mint/proamm/actions'
+import { Bound } from 'state/mint/proamm/type'
 import { formatTickPrice } from 'utils/formatTickPrice'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 

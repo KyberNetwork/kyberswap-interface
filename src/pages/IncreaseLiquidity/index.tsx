@@ -37,8 +37,8 @@ import useProAmmPreviousTicks from 'hooks/useProAmmPreviousTicks'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useTokensPrice, useWalletModalToggle } from 'state/application/hooks'
-import { Field } from 'state/mint/proamm/actions'
 import { useProAmmDerivedMintInfo, useProAmmMintActionHandlers, useProAmmMintState } from 'state/mint/proamm/hooks'
+import { Field } from 'state/mint/proamm/type'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
@@ -93,7 +93,8 @@ export default function AddLiquidity() {
   const quoteCurrency =
     baseCurrency && currencyB && baseCurrency.wrapped.equals(currencyB.wrapped) ? undefined : currencyB
   // mint state
-  const { independentField, typedValue } = useProAmmMintState()
+  const { positions } = useProAmmMintState()
+  const { independentField, typedValue } = positions[0]
   const {
     pool,
     // ticks,
@@ -111,6 +112,7 @@ export default function AddLiquidity() {
     depositBDisabled,
     ticksAtLimit,
   } = useProAmmDerivedMintInfo(
+    0,
     baseCurrency ?? undefined,
     quoteCurrency ?? undefined,
     feeAmount,
@@ -137,7 +139,11 @@ export default function AddLiquidity() {
   const previousTicks =
     // : number[] = []
     useProAmmPreviousTicks(pool, position)
-  const { onFieldAInput, onFieldBInput } = useProAmmMintActionHandlers(noLiquidity)
+  const { onFieldAInput, onFieldBInput, onResetMintState } = useProAmmMintActionHandlers(noLiquidity, 0)
+
+  useEffect(() => {
+    onResetMintState()
+  }, [onResetMintState])
 
   const isValid = !errorMessage && !invalidRange
 

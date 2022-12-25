@@ -167,6 +167,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const [percentForSlider, onPercentSelectForSlider] = useDebouncedChangeHandler(
     Number.parseInt(parsedAmounts[Field.LIQUIDITY_PERCENT].toFixed(0)),
     liquidityPercentChangeCallback,
+    0,
   )
   const formattedAmounts = {
     [Field.LIQUIDITY_PERCENT]: parsedAmounts[Field.LIQUIDITY_PERCENT].equalTo('0')

@@ -4,7 +4,7 @@ import { Trans } from '@lingui/macro'
 import { darken, lighten, rgba } from 'polished'
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { ReactComponent as Lock } from 'assets/svg/ic_lock.svg'
@@ -91,11 +91,20 @@ const FixedContainer = styled.div`
   z-index: 2;
 `
 
-export const Container = styled.div<{ selected: boolean; hideInput: boolean; error?: boolean }>`
+export const Container = styled.div<{ selected: boolean; hideInput: boolean; error?: boolean; $outline?: boolean }>`
   border-radius: 16px;
   background-color: ${({ theme, hideInput }) => (hideInput ? 'transparent' : theme.buttonBlack)};
   padding: ${({ hideInput }) => (hideInput ? 0 : '0.75rem')};
-  border: ${({ error, theme }) => (error ? `1px solid ${theme.red}` : 'none')};
+  ${({ error, theme, $outline }) =>
+    error
+      ? css`
+          border: 1px solid ${theme.red};
+        `
+      : $outline
+      ? css`
+          border: 1px solid ${theme.border};
+        `
+      : ''}
 `
 
 export const StyledTokenName = styled.span<{ active?: boolean; fontSize?: string }>`
@@ -164,6 +173,7 @@ interface CurrencyInputPanelProps {
   error?: boolean
   maxLength?: number
   supportNative?: boolean
+  outline?: boolean
 }
 
 export default function CurrencyInputPanel({
@@ -198,6 +208,7 @@ export default function CurrencyInputPanel({
   maxCurrencySymbolLength,
   maxLength,
   supportNative = true,
+  outline,
 }: CurrencyInputPanelProps) {
   const [modalOpen, setModalOpen] = useState(false)
   const { chainId, account } = useActiveWeb3React()
@@ -227,12 +238,10 @@ export default function CurrencyInputPanel({
     <div style={{ width: '100%' }}>
       {label && (
         <Card2 borderRadius={'20px'} balancePosition={balancePosition}>
-          <Flex justifyContent={label ? 'space-between' : 'end'} alignItems="center">
-            {label && (
-              <Text fontSize={12} color={theme.subText} fontWeight={500}>
-                {label}:
-              </Text>
-            )}
+          <Flex justifyContent={'space-between'} alignItems="center">
+            <Text fontSize={12} color={theme.subText} fontWeight={500}>
+              {label}:
+            </Text>
           </Flex>
         </Card2>
       )}
@@ -252,7 +261,7 @@ export default function CurrencyInputPanel({
             </Flex>
           </FixedContainer>
         )}
-        <Container hideInput={hideInput} selected={disableCurrencySelect} error={error}>
+        <Container hideInput={hideInput} selected={disableCurrencySelect} error={error} $outline={outline}>
           {!hideBalance && (
             <Flex justifyContent="space-between" fontSize="12px" marginBottom="12px" alignItems="center">
               {(onMax || onHalf) && positionMax === 'top' && currency && account ? (

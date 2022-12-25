@@ -4,7 +4,9 @@ import JSBI from 'jsbi'
 import { v4 as uuid } from 'uuid'
 
 import { CAMPAIGN_BASE_URL as CAMPAIGN_BASE_DOMAIN } from './env'
+import * as ENV from './env'
 import { EVM_NETWORK, NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM } from './networks'
+import { ENV_TYPE } from './type'
 
 export const EMPTY_OBJECT: any = {}
 export const EMPTY_ARRAY: any[] = []
@@ -353,3 +355,9 @@ export const EIP712Domain = [
 ]
 
 export const SUPPORT_LIMIT_ORDER = window.location.host !== 'kyberswap.com'
+
+if (ENV.ENV_LEVEL < ENV_TYPE.PROD) {
+  console.groupCollapsed('ENV')
+  console.log(JSON.stringify(ENV, null, 4))
+  console.groupEnd()
+}

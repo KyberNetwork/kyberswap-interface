@@ -45,6 +45,8 @@ import {
   OptimismLogo,
   Polygon,
 } from 'components/Icons'
+import { APP_PATHS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { useDarkModeManager } from 'state/user/hooks'
@@ -98,6 +100,7 @@ const LIST_WALLETS = [
 ]
 
 function AboutKNC() {
+  const { networkInfo } = useActiveWeb3React()
   const theme = useTheme()
   const [isDarkMode] = useDarkModeManager()
   const above768 = useMedia('(min-width: 768px)')
@@ -275,7 +278,7 @@ function AboutKNC() {
             <BtnPrimary
               width="216px"
               as={Link}
-              to="/swap"
+              to={APP_PATHS.SWAP + '/' + networkInfo.route}
               onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_SWAP_CLICKED)}
             >
               <Repeat />

@@ -7,6 +7,7 @@ import {
   TOKEN_PROGRAM_ID,
   TokenInvalidMintError,
   TokenInvalidOwnerError,
+  createAssociatedTokenAccountInstruction,
   createCloseAccountInstruction,
   createSyncNativeInstruction,
   getAccount,

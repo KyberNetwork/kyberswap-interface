@@ -364,7 +364,7 @@ const StyledBuyCrypto = styled(BuyCrypto)`
 `
 
 export default function Header() {
-  const { chainId, isEVM, isSolana, walletKey } = useActiveWeb3React()
+  const { chainId, isEVM, isSolana, walletKey, networkInfo } = useActiveWeb3React()
 
   const upTo420 = useMedia('(max-width: 420px)')
   const isDark = useIsDarkMode()
@@ -376,7 +376,7 @@ export default function Header() {
   return (
     <HeaderFrame>
       <HeaderRow>
-        <Title to="/swap">
+        <Title to={APP_PATHS.SWAP + '/' + networkInfo.route}>
           <UniIcon>
             <IconImage src={isDark ? '/logo-dark.svg' : '/logo.svg'} alt="logo" />
           </UniIcon>
@@ -392,7 +392,11 @@ export default function Header() {
             </Flex>
 
             <Dropdown id={TutorialIds.BRIDGE_LINKS}>
-              <StyledNavLink id={`swapv2-nav-link`} to={APP_PATHS.SWAP} style={{ flexDirection: 'column' }}>
+              <StyledNavLink
+                id={`swapv2-nav-link`}
+                to={`${APP_PATHS.SWAP}/${networkInfo.route}`}
+                style={{ flexDirection: 'column' }}
+              >
                 <Flex alignItems="center" sx={{ gap: '13px' }}>
                   <Repeat size={16} />
                   <Trans>Swap</Trans>
@@ -400,7 +404,7 @@ export default function Header() {
               </StyledNavLink>
 
               {SUPPORT_LIMIT_ORDER && (
-                <StyledNavLink to={APP_PATHS.LIMIT} style={{ flexDirection: 'column' }}>
+                <StyledNavLink to={`${APP_PATHS.LIMIT}/${networkInfo.route}`} style={{ flexDirection: 'column' }}>
                   <Flex alignItems="center" sx={{ gap: '13px' }}>
                     <LimitOrderIcon />
                     <Trans>Limit Order</Trans>
@@ -456,11 +460,15 @@ export default function Header() {
                   <DropdownIcon />
                 </Flex>
                 <Dropdown>
-                  <StyledNavLink id="pools-nav-link" to={APP_PATHS.POOLS} style={{ width: '100%' }}>
+                  <StyledNavLink
+                    id="pools-nav-link"
+                    to={`${APP_PATHS.POOLS}/${networkInfo.route}`}
+                    style={{ width: '100%' }}
+                  >
                     <Trans>Pools</Trans>
                   </StyledNavLink>
 
-                  <StyledNavLink id="my-pools-nav-link" to={APP_PATHS.MY_POOLS}>
+                  <StyledNavLink id="my-pools-nav-link" to={`${APP_PATHS.MY_POOLS}/${networkInfo.route}`}>
                     <Trans>My Pools</Trans>
                   </StyledNavLink>
 
@@ -469,7 +477,7 @@ export default function Header() {
                       mixpanelHandler(MIXPANEL_TYPE.FARM_UNDER_EARN_TAB_CLICK)
                     }}
                     id="farms-nav-link"
-                    to="/farms"
+                    to={`${APP_PATHS.FARMS}/${networkInfo.route}`}
                   >
                     <Trans>Farms</Trans>
                     <NewLabel>

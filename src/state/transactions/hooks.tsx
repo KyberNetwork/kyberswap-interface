@@ -1,6 +1,6 @@
 import { TransactionResponse } from '@ethersproject/abstract-provider'
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -28,6 +28,11 @@ export function useTransactionAdder(): (tx: TransactionHistory) => void {
   const dispatch = useDispatch<AppDispatch>()
   const blockNumber = useBlockNumber()
 
+  const blockNumberRef = useRef(blockNumber)
+  useEffect(() => {
+    blockNumberRef.current = blockNumber
+  }, [blockNumber])
+
   return useCallback(
     async ({ hash, desiredChainId, type, summary, approval, arbitrary, firstTxHash }: TransactionHistory) => {
       if (!account) return
@@ -45,7 +50,7 @@ export function useTransactionAdder(): (tx: TransactionHistory) => void {
           to: tx?.to,
           nonce: tx?.nonce,
           data: tx?.data,
-          sentAtBlock: blockNumber,
+          sentAtBlock: blockNumberRef.current,
           chainId: desiredChainId ?? chainId,
           approval,
           type,
@@ -55,7 +60,7 @@ export function useTransactionAdder(): (tx: TransactionHistory) => void {
         }),
       )
     },
-    [account, chainId, dispatch, blockNumber, library, isEVM],
+    [account, chainId, dispatch, library, isEVM],
   )
 }
 

@@ -1,7 +1,7 @@
 import { ZoomTransform, max, scaleLinear } from 'd3'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
-import { Bound } from 'state/mint/proamm/actions'
+import { Bound } from 'state/mint/proamm/type'
 
 import { Area } from './Area'
 import { AxisBottom } from './AxisBottom'
