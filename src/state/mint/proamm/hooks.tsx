@@ -1047,18 +1047,26 @@ export function useProAmmDerivedAllMintInfo(
         )
 
       if ((!currencyAAmount && !depositADisabled) || (!currencyBAmount && !depositBDisabled)) {
-        return <Trans key={index}>Position {index + 1}: Enter an amount</Trans>
+        if (positions.length > 1) {
+          return <Trans key={index}>Position {index + 1}: Enter an amount</Trans>
+        } else {
+          return <Trans key={index}>Enter an amount</Trans>
+        }
       }
 
       if (
         (currencyAAmount && currencyBalanceA?.lessThan(currencyAAmount)) ||
         (noLiquidity && depositADisabled && currencyBalanceA?.equalTo(ZERO))
       ) {
-        return (
-          <Trans key={index}>
-            Position {index + 1}: Insufficient {currencies[Field.CURRENCY_A]?.symbol} balance
-          </Trans>
-        )
+        if (positions.length > 1) {
+          return (
+            <Trans key={index}>
+              Position {index + 1}: Insufficient {currencies[Field.CURRENCY_A]?.symbol} balance
+            </Trans>
+          )
+        } else {
+          return <Trans key={index}>Insufficient {currencies[Field.CURRENCY_A]?.symbol} balance</Trans>
+        }
       } else if (
         noLiquidity &&
         currencyAAmount &&
@@ -1067,22 +1075,30 @@ export function useProAmmDerivedAllMintInfo(
           currencyAAmount.add(CurrencyAmount.fromRawAmount(currencyA, !invertPrice ? amount0Unlock : amount1Unlock)),
         )
       ) {
-        return (
-          <Trans key={index}>
-            Position {index + 1}: Insufficient {currencies[Field.CURRENCY_A]?.symbol} balance.
-          </Trans>
-        )
+        if (positions.length > 1) {
+          return (
+            <Trans key={index}>
+              Position {index + 1}: Insufficient {currencies[Field.CURRENCY_A]?.symbol} balance.
+            </Trans>
+          )
+        } else {
+          return <Trans key={index}>Insufficient {currencies[Field.CURRENCY_A]?.symbol} balance.</Trans>
+        }
       }
 
       if (
         (currencyBAmount && currencyBalanceB?.lessThan(currencyBAmount)) ||
         (noLiquidity && depositBDisabled && currencyBalanceB?.equalTo(ZERO))
       ) {
-        return (
-          <Trans key={index}>
-            Position {index + 1}: Insufficient {currencies[Field.CURRENCY_B]?.symbol} balance
-          </Trans>
-        )
+        if (positions.length > 1) {
+          return (
+            <Trans key={index}>
+              Position {index + 1}: Insufficient {currencies[Field.CURRENCY_B]?.symbol} balance
+            </Trans>
+          )
+        } else {
+          return <Trans key={index}>Insufficient {currencies[Field.CURRENCY_B]?.symbol} balance</Trans>
+        }
       } else if (
         noLiquidity &&
         currencyBAmount &&
@@ -1091,11 +1107,15 @@ export function useProAmmDerivedAllMintInfo(
           currencyBAmount.add(CurrencyAmount.fromRawAmount(currencyB, !invertPrice ? amount1Unlock : amount0Unlock)),
         )
       ) {
-        return (
-          <Trans key={index}>
-            Position {index + 1}: Insufficient {currencies[Field.CURRENCY_B]?.symbol} balance.
-          </Trans>
-        )
+        if (positions.length > 1) {
+          return (
+            <Trans key={index}>
+              Position {index + 1}: Insufficient {currencies[Field.CURRENCY_B]?.symbol} balance.
+            </Trans>
+          )
+        } else {
+          return <Trans key={index}>Insufficient {currencies[Field.CURRENCY_B]?.symbol} balance.</Trans>
+        }
       }
 
       return undefined
@@ -1109,7 +1129,7 @@ export function useProAmmDerivedAllMintInfo(
     }
 
     const currencyBAmountSum: CurrencyAmount<Currency> | undefined = currencyAmountSum[Field.CURRENCY_B]
-    if (currencyBAmountSum && currencyBalanceA?.lessThan(currencyBAmountSum)) {
+    if (currencyBAmountSum && currencyBalanceB?.lessThan(currencyBAmountSum)) {
       return <Trans>Insufficient {currencies[Field.CURRENCY_B]?.symbol} balance</Trans>
     }
 

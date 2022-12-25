@@ -429,10 +429,10 @@ export default function AddLiquidity() {
     if (txHash) {
       onFieldAInput('')
       // dont jump to pool page if creating
-      navigate('/myPools?tab=elastic')
+      navigate(`${APP_PATHS.MY_POOLS}/${networkInfo.route}?tab=elastic`)
     }
     setTxHash('')
-  }, [navigate, onFieldAInput, txHash])
+  }, [navigate, networkInfo.route, onFieldAInput, txHash])
 
   const leftPrice = isSorted ? priceLower : priceUpper?.invert()
   const rightPrice = isSorted ? priceUpper : priceLower?.invert()
@@ -803,7 +803,7 @@ export default function AddLiquidity() {
             navigate('/elastic/add')
           }}
           onBack={() => {
-            navigate(`/pools/${networkInfo.route}?tab=elastic`)
+            navigate(`${APP_PATHS.POOLS}/${networkInfo.route}?tab=elastic`)
           }}
           tutorialType={TutorialType.ELASTIC_ADD_LIQUIDITY}
         />
