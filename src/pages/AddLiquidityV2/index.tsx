@@ -815,7 +815,13 @@ export default function AddLiquidity() {
                   <Trans>Choose pool</Trans>
                 </Text>
                 <div>
-                  <ButtonLight padding="2px 8px" as={Link} to={APP_PATHS.SWAP + '/' + networkInfo.route}>
+                  <ButtonLight
+                    padding="2px 8px"
+                    as={Link}
+                    to={`${APP_PATHS.SWAP}/${networkInfo.route}?${currencyIdA ? `inputCurrency=${currencyIdA}` : ''}${
+                      currencyIdB ? `&outputCurrency=${currencyIdB}` : ''
+                    }`}
+                  >
                     <Repeat size={16} />
                     <Text marginLeft="4px">
                       <Trans>Swap</Trans>
