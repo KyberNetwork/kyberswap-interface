@@ -658,6 +658,7 @@ export function useProAmmDerivedMintInfo(
 }
 
 export function useProAmmDerivedAllMintInfo(
+  positionIndex: number,
   currencyA?: Currency,
   currencyB?: Currency,
   feeAmount?: FeeAmount,
@@ -1019,107 +1020,109 @@ export function useProAmmDerivedAllMintInfo(
       return errorMessage ?? <Trans>Invalid price input</Trans>
     }
 
-    const errorMessages = positions.map((_, index) => {
-      const currencyAAmount = currencyAAmounts?.[index]
-      const currencyBAmount = currencyBAmounts?.[index]
-      const tickUpper = tickUppers[index]
-      const tickLower = tickLowers[index]
-      // single deposit only if price is out of range
-      const deposit0Disabled = Boolean(
-        // tickUppers.some
-        typeof tickUpper === 'number' && poolForPosition && poolForPosition.tickCurrent >= tickUpper,
-      )
-      const deposit1Disabled = Boolean(
-        typeof tickLower === 'number' && poolForPosition && poolForPosition.tickCurrent < tickLower,
-      )
-      // sorted for token order
-      const depositADisabled =
-        invalidRange ||
-        Boolean(
-          (deposit0Disabled && poolForPosition && tokenA && poolForPosition.token0.equals(tokenA)) ||
-            (deposit1Disabled && poolForPosition && tokenA && poolForPosition.token1.equals(tokenA)),
+    const errorMessages = [positionIndex, ...new Array(positions.length).fill(0).map((_, index) => index)].map(
+      index => {
+        const currencyAAmount = currencyAAmounts?.[index]
+        const currencyBAmount = currencyBAmounts?.[index]
+        const tickUpper = tickUppers[index]
+        const tickLower = tickLowers[index]
+        // single deposit only if price is out of range
+        const deposit0Disabled = Boolean(
+          // tickUppers.some
+          typeof tickUpper === 'number' && poolForPosition && poolForPosition.tickCurrent >= tickUpper,
         )
-      const depositBDisabled =
-        invalidRange ||
-        Boolean(
-          (deposit0Disabled && poolForPosition && tokenB && poolForPosition.token0.equals(tokenB)) ||
-            (deposit1Disabled && poolForPosition && tokenB && poolForPosition.token1.equals(tokenB)),
+        const deposit1Disabled = Boolean(
+          typeof tickLower === 'number' && poolForPosition && poolForPosition.tickCurrent < tickLower,
         )
-
-      if ((!currencyAAmount && !depositADisabled) || (!currencyBAmount && !depositBDisabled)) {
-        if (positions.length > 1) {
-          return <Trans key={index}>Position {index + 1}: Enter an amount</Trans>
-        } else {
-          return <Trans key={index}>Enter an amount</Trans>
-        }
-      }
-
-      if (
-        (currencyAAmount && currencyBalanceA?.lessThan(currencyAAmount)) ||
-        (noLiquidity && depositADisabled && currencyBalanceA?.equalTo(ZERO))
-      ) {
-        if (positions.length > 1) {
-          return (
-            <Trans key={index}>
-              Position {index + 1}: Insufficient {currencies[Field.CURRENCY_A]?.symbol} balance
-            </Trans>
+        // sorted for token order
+        const depositADisabled =
+          invalidRange ||
+          Boolean(
+            (deposit0Disabled && poolForPosition && tokenA && poolForPosition.token0.equals(tokenA)) ||
+              (deposit1Disabled && poolForPosition && tokenA && poolForPosition.token1.equals(tokenA)),
           )
-        } else {
-          return <Trans key={index}>Insufficient {currencies[Field.CURRENCY_A]?.symbol} balance</Trans>
-        }
-      } else if (
-        noLiquidity &&
-        currencyAAmount &&
-        currencyA &&
-        currencyBalanceA?.lessThan(
-          currencyAAmount.add(CurrencyAmount.fromRawAmount(currencyA, !invertPrice ? amount0Unlock : amount1Unlock)),
-        )
-      ) {
-        if (positions.length > 1) {
-          return (
-            <Trans key={index}>
-              Position {index + 1}: Insufficient {currencies[Field.CURRENCY_A]?.symbol} balance.
-            </Trans>
+        const depositBDisabled =
+          invalidRange ||
+          Boolean(
+            (deposit0Disabled && poolForPosition && tokenB && poolForPosition.token0.equals(tokenB)) ||
+              (deposit1Disabled && poolForPosition && tokenB && poolForPosition.token1.equals(tokenB)),
           )
-        } else {
-          return <Trans key={index}>Insufficient {currencies[Field.CURRENCY_A]?.symbol} balance.</Trans>
-        }
-      }
 
-      if (
-        (currencyBAmount && currencyBalanceB?.lessThan(currencyBAmount)) ||
-        (noLiquidity && depositBDisabled && currencyBalanceB?.equalTo(ZERO))
-      ) {
-        if (positions.length > 1) {
-          return (
-            <Trans key={index}>
-              Position {index + 1}: Insufficient {currencies[Field.CURRENCY_B]?.symbol} balance
-            </Trans>
-          )
-        } else {
-          return <Trans key={index}>Insufficient {currencies[Field.CURRENCY_B]?.symbol} balance</Trans>
+        if ((!currencyAAmount && !depositADisabled) || (!currencyBAmount && !depositBDisabled)) {
+          if (positionIndex !== index) {
+            return <Trans key={index}>Position {index + 1}: Enter an amount</Trans>
+          } else {
+            return <Trans key={index}>Enter an amount</Trans>
+          }
         }
-      } else if (
-        noLiquidity &&
-        currencyBAmount &&
-        currencyB &&
-        currencyBalanceB?.lessThan(
-          currencyBAmount.add(CurrencyAmount.fromRawAmount(currencyB, !invertPrice ? amount1Unlock : amount0Unlock)),
-        )
-      ) {
-        if (positions.length > 1) {
-          return (
-            <Trans key={index}>
-              Position {index + 1}: Insufficient {currencies[Field.CURRENCY_B]?.symbol} balance.
-            </Trans>
-          )
-        } else {
-          return <Trans key={index}>Insufficient {currencies[Field.CURRENCY_B]?.symbol} balance.</Trans>
-        }
-      }
 
-      return undefined
-    })
+        if (
+          (currencyAAmount && currencyBalanceA?.lessThan(currencyAAmount)) ||
+          (noLiquidity && depositADisabled && currencyBalanceA?.equalTo(ZERO))
+        ) {
+          if (positionIndex !== index) {
+            return (
+              <Trans key={index}>
+                Position {index + 1}: Insufficient {currencies[Field.CURRENCY_A]?.symbol} balance
+              </Trans>
+            )
+          } else {
+            return <Trans key={index}>Insufficient {currencies[Field.CURRENCY_A]?.symbol} balance</Trans>
+          }
+        } else if (
+          noLiquidity &&
+          currencyAAmount &&
+          currencyA &&
+          currencyBalanceA?.lessThan(
+            currencyAAmount.add(CurrencyAmount.fromRawAmount(currencyA, !invertPrice ? amount0Unlock : amount1Unlock)),
+          )
+        ) {
+          if (positionIndex !== index) {
+            return (
+              <Trans key={index}>
+                Position {index + 1}: Insufficient {currencies[Field.CURRENCY_A]?.symbol} balance.
+              </Trans>
+            )
+          } else {
+            return <Trans key={index}>Insufficient {currencies[Field.CURRENCY_A]?.symbol} balance.</Trans>
+          }
+        }
+
+        if (
+          (currencyBAmount && currencyBalanceB?.lessThan(currencyBAmount)) ||
+          (noLiquidity && depositBDisabled && currencyBalanceB?.equalTo(ZERO))
+        ) {
+          if (positionIndex !== index) {
+            return (
+              <Trans key={index}>
+                Position {index + 1}: Insufficient {currencies[Field.CURRENCY_B]?.symbol} balance
+              </Trans>
+            )
+          } else {
+            return <Trans key={index}>Insufficient {currencies[Field.CURRENCY_B]?.symbol} balance</Trans>
+          }
+        } else if (
+          noLiquidity &&
+          currencyBAmount &&
+          currencyB &&
+          currencyBalanceB?.lessThan(
+            currencyBAmount.add(CurrencyAmount.fromRawAmount(currencyB, !invertPrice ? amount1Unlock : amount0Unlock)),
+          )
+        ) {
+          if (positionIndex !== index) {
+            return (
+              <Trans key={index}>
+                Position {index + 1}: Insufficient {currencies[Field.CURRENCY_B]?.symbol} balance.
+              </Trans>
+            )
+          } else {
+            return <Trans key={index}>Insufficient {currencies[Field.CURRENCY_B]?.symbol} balance.</Trans>
+          }
+        }
+
+        return undefined
+      },
+    )
     const foundErrorMessage = errorMessages.find(Boolean)
     if (foundErrorMessage) return foundErrorMessage
 
@@ -1152,6 +1155,7 @@ export function useProAmmDerivedAllMintInfo(
     noLiquidity,
     poolForPosition,
     poolState,
+    positionIndex,
     positions,
     tickLowers,
     tickUppers,

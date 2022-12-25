@@ -1,6 +1,7 @@
 import { ChainId, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
+import { useMemo } from 'react'
 import { BarChart2, Plus, Share2 } from 'react-feather'
 import { Link, useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
@@ -87,21 +88,23 @@ export default function ProAmmPoolCardItem({ pool, onShared, userPositions }: Li
   const myLiquidity = userPositions[pool.address]
   const hasLiquidity = pool.address in userPositions
 
-  let fairlaunchAddress = ''
-  let pid = -1
+  const isFarmingPool: boolean = useMemo(() => {
+    let fairlaunchAddress = ''
+    let pid = -1
 
-  farms?.forEach(farm => {
-    const p = farm.pools
-      .filter(item => item.endTime > Date.now() / 1000)
-      .find(item => item.poolAddress.toLowerCase() === pool.address.toLowerCase())
+    farms?.forEach(farm => {
+      const p = farm.pools
+        .filter(item => item.endTime > Date.now() / 1000)
+        .find(item => item.poolAddress.toLowerCase() === pool.address.toLowerCase())
 
-    if (p) {
-      fairlaunchAddress = farm.id
-      pid = Number(p.pid)
-    }
-  })
+      if (p) {
+        fairlaunchAddress = farm.id
+        pid = Number(p.pid)
+      }
+    })
 
-  const isFarmingPool = !!fairlaunchAddress && pid !== -1
+    return !!fairlaunchAddress && pid !== -1
+  }, [farms, pool.address])
 
   return (
     <Wrapper key={pool.address}>

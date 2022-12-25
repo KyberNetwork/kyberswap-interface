@@ -148,6 +148,7 @@ export default function AddLiquidity() {
     baseCurrency ?? undefined,
   )
   const { errorMessage } = useProAmmDerivedAllMintInfo(
+    positionIndex,
     baseCurrency ?? undefined,
     quoteCurrency ?? undefined,
     feeAmount,
