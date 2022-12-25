@@ -2,6 +2,7 @@ import { Currency, CurrencyAmount, Price, TokenAmount } from '@kyberswap/ks-sdk-
 import axios from 'axios'
 import JSBI from 'jsbi'
 import { stringify } from 'querystring'
+import { useRef } from 'react'
 import useSWR from 'swr'
 
 import { ETHER_ADDRESS, ZERO_ADDRESS, sentryRequestId } from 'constants/index'
@@ -15,6 +16,8 @@ type BaseTradeInfo = {
   amountOutUsd: number
   routerAddress: string
 }
+
+const MAX_RETRY_COUNT = 2
 
 // 1 knc = ?? usdt
 export default function useBaseTradeInfo(currencyIn: Currency | undefined, currencyOut: Currency | undefined) {
@@ -33,7 +36,6 @@ export default function useBaseTradeInfo(currencyIn: Currency | undefined, curre
         })}`
       : null
   }
-
   const fetchData = async (url: string | null): Promise<BaseTradeInfo | undefined> => {
     if (!currencyOut || !currencyIn || !url) return
     const { data } = await axios.get(url, {
@@ -59,22 +61,30 @@ export default function useBaseTradeInfo(currencyIn: Currency | undefined, curre
     return
   }
 
-  const refresh = () => {
-    return fetchData(getApiUrl())
-  }
-
+  const retryCount = useRef(0)
   const { data, isValidating } = useSWR(
     getApiUrl(),
     async url => {
       try {
-        return await fetchData(url)
+        const data = await fetchData(url)
+        retryCount.current = 0
+        return data
       } catch (error) {
+        retryCount.current++
+        if (retryCount.current <= MAX_RETRY_COUNT) {
+          throw new Error(error) // retry max RETRY_COUNT times
+        }
         console.error(error)
-        return
       }
+      return
     },
-    { revalidateOnFocus: false, shouldRetryOnError: false },
+    {
+      revalidateOnFocus: false,
+      shouldRetryOnError: true,
+      errorRetryCount: MAX_RETRY_COUNT,
+      errorRetryInterval: 1500,
+    },
   )
 
-  return { loading: isValidating, tradeInfo: data, refresh }
+  return { loading: isValidating, tradeInfo: data }
 }
