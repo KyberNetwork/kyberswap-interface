@@ -41,7 +41,6 @@ export default function useBaseTradeInfo(currencyIn: Currency | undefined, curre
     const { data } = await axios.get(url, {
       headers: {
         'X-Request-Id': sentryRequestId,
-        'Accept-Version': 'Latest',
       },
     })
     const toCurrencyAmount = function (value: string, currency: Currency): CurrencyAmount<Currency> {
