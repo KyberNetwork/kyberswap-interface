@@ -26,7 +26,6 @@ import {
   toggleFavoriteToken as toggleFavoriteTokenAction,
   toggleHolidayMode,
   toggleLiveChart,
-  toggleProLiveChart,
   toggleTokenInfo,
   toggleTopTrendingTokens,
   toggleTradeRoutes,
@@ -350,11 +349,6 @@ export function useShowLiveChart(): boolean {
   return !!show
 }
 
-export function useShowProLiveChart(): boolean {
-  const showProLiveChart = useSelector((state: AppState) => state.user.showProLiveChart)
-  return showProLiveChart
-}
-
 export function useShowTradeRoutes(): boolean {
   const showTradeRoutes = useSelector((state: AppState) => state.user.showTradeRoutes)
   return showTradeRoutes
@@ -374,10 +368,7 @@ export function useToggleLiveChart(): () => void {
   const { chainId } = useActiveWeb3React()
   return useCallback(() => dispatch(toggleLiveChart({ chainId: chainId })), [dispatch, chainId])
 }
-export function useToggleProLiveChart(): (showProLiveChart?: boolean) => void {
-  const dispatch = useDispatch<AppDispatch>()
-  return useCallback((showProLiveChart?: boolean) => dispatch(toggleProLiveChart(showProLiveChart)), [dispatch])
-}
+
 export function useToggleTradeRoutes(): () => void {
   const dispatch = useDispatch<AppDispatch>()
   return useCallback(() => dispatch(toggleTradeRoutes()), [dispatch])
