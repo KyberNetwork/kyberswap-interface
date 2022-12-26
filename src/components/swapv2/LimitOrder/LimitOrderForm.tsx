@@ -102,9 +102,9 @@ const LimitOrderForm = function LimitOrderForm({
   const theme = useTheme()
   const notify = useNotify()
 
-  const { setCurrencyIn, setCurrencyOut, switchCurrency, setCurrentOrder, removeCurrentOrder } =
+  const { setCurrencyIn, setCurrencyOut, switchCurrency, setCurrentOrder, removeCurrentOrder, resetState } =
     useLimitActionHandlers()
-  const { ordersUpdating } = useLimitState()
+  const { ordersUpdating, inputAmount: inputAmountGlobal } = useLimitState()
 
   const [inputAmount, setInputAmount] = useState(defaultInputAmount)
   const [outputAmount, setOuputAmount] = useState(defaultOutputAmount)
@@ -403,7 +403,7 @@ const LimitOrderForm = function LimitOrderForm({
       setFlowState(state => ({
         ...state,
         attemptingTxn: false,
-        errorMessage: msg || 'Error occur. Please try again.',
+        errorMessage: msg?.toString?.() || 'Error occur. Please try again.',
       }))
     },
     [setFlowState],
@@ -615,6 +615,16 @@ const LimitOrderForm = function LimitOrderForm({
       unsubscribeExpired?.()
     }
   }, [account, chainId, currencyIn, refreshActiveMakingAmount, ordersUpdating, removeCurrentOrder])
+
+  useEffect(() => {
+    if (inputAmountGlobal) onSetInput(inputAmountGlobal)
+  }, [inputAmountGlobal, onSetInput]) // when redux state change, ex: type and swap
+
+  useEffect(() => {
+    return () => {
+      resetState()
+    }
+  }, [resetState])
 
   const styleTooltip = { maxWidth: '250px', zIndex: zIndexToolTip }
   return (
