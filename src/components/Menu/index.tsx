@@ -248,7 +248,7 @@ export default function Menu() {
 
   return (
     <StyledMenu ref={node}>
-      <StyledMenuButton active={open} onClick={toggle} aria-label="Menu" id={TutorialIds.BUTTON_SETTING}>
+      <StyledMenuButton active={open} onClick={toggle} aria-label="Menu" id={TutorialIds.BUTTON_MENU_HEADER}>
         <StyledMenuIcon />
       </StyledMenuButton>
 
