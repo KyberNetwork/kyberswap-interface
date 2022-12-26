@@ -58,7 +58,7 @@ import NavDropDown from './NavDropDown'
 
 const MenuItem = styled.li`
   flex: 1;
-  padding: 0.7rem 0;
+  padding: 0.75rem 0;
   text-decoration: none;
   display: flex;
   font-weight: 500;
