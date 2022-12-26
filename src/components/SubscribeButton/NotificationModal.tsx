@@ -1,7 +1,6 @@
 import { Trans, t } from '@lingui/macro'
-import { rgba } from 'polished'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Check, Mail, X } from 'react-feather'
+import { Check, X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -13,7 +12,6 @@ import MailIcon from 'components/Icons/MailIcon'
 import Loader from 'components/Loader'
 import Modal from 'components/Modal'
 import Row, { RowBetween } from 'components/Row'
-import Select from 'components/Select'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useNotification, { Topic } from 'hooks/useNotification'
@@ -107,31 +105,31 @@ const TopicItemHeader = styled(TopicItem)`
   align-items: center;
 `
 
-const Option = styled(Row)<{ active: boolean }>`
-  padding: 10px 16px;
-  gap: 10px;
-  color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
-  :hover {
-    color: ${({ theme }) => theme.primary};
-    background: ${({ theme }) => rgba(theme.subText, 0.1)};
-  }
-`
+// const Option = styled(Row)<{ active: boolean }>`
+//   padding: 10px 16px;
+//   gap: 10px;
+//   color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
+//   :hover {
+//     color: ${({ theme }) => theme.primary};
+//     background: ${({ theme }) => rgba(theme.subText, 0.1)};
+//   }
+// `
 
 enum TAB {
   EMAIL,
   TELEGRAM,
 }
 
-const NOTIFICATION_OPTIONS = [
-  {
-    label: 'Email',
-    value: TAB.EMAIL,
-  },
-  {
-    label: 'Telegram',
-    value: TAB.TELEGRAM,
-  },
-]
+// const NOTIFICATION_OPTIONS = [
+//   {
+//     label: 'Email',
+//     value: TAB.EMAIL,
+//   },
+//   {
+//     label: 'Telegram',
+//     value: TAB.TELEGRAM,
+//   },
+// ]
 
 export default function NotificationModal() {
   const toggleModal = useNotificationModalToggle()
@@ -145,7 +143,7 @@ export default function NotificationModal() {
 
   const [inputAccount, setAccount] = useState('')
   const [errorInput, setErrorInput] = useState('')
-  const [activeTab, setActiveTab] = useState<TAB>(TAB.EMAIL)
+  const [activeTab] = useState<TAB>(TAB.EMAIL)
   const [selectedTopic, setSelectedTopic] = useState<number[]>([])
 
   const isEmailTab = activeTab === TAB.EMAIL
@@ -319,7 +317,7 @@ export default function NotificationModal() {
           </Row>
           <CloseIcon onClick={toggleModal} />
         </RowBetween>
-        <RowBetween gap="14px">
+        {/* <RowBetween gap="14px">
           <Label>
             <Trans>Select mode of notification</Trans>
           </Label>
@@ -343,7 +341,7 @@ export default function NotificationModal() {
             )}
             onChange={setActiveTab}
           />
-        </RowBetween>
+        </RowBetween> */}
 
         {isEmailTab ? (
           <Column>
