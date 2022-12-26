@@ -29,12 +29,15 @@ export function useChangeNetwork() {
   const { chainId, walletKey, walletEVM, walletSolana } = useActiveWeb3React()
   const { library, error } = useWeb3React()
   const { tryActivationEVM, tryActivationSolana } = useActivationWallet()
+  console.log(123, 'test', chainId, walletEVM, library, error)
 
   const dispatch = useAppDispatch()
   const notify = useNotify()
 
   const changeNetworkHandler = useCallback(
     (desiredChainId: ChainId, successCallback?: () => void) => {
+      console.log('123', changeNetworkHandler, desiredChainId)
+
       dispatch(updateChainId(desiredChainId))
       successCallback?.()
     },
@@ -82,6 +85,14 @@ export function useChangeNetwork() {
           (!walletEVM.isConnected && !isWrongNetwork) ||
           (walletEVM.isConnected && walletEVM.chainId === desiredChainId)
         ) {
+          console.log(
+            123,
+            'changeNetworkHandler else 1',
+            library?.network?.chainId,
+            !walletEVM.isConnected && !isWrongNetwork,
+            walletEVM.isConnected && walletEVM.chainId === desiredChainId,
+            walletEVM,
+          )
           changeNetworkHandler(desiredChainId, successCallback)
           return
         }
@@ -128,6 +139,7 @@ export function useChangeNetwork() {
           }
         }
       } else {
+        console.log(123, 'changeNetworkHandler else')
         changeNetworkHandler(desiredChainId, successCallback)
       }
     },

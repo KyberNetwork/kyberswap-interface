@@ -45,6 +45,7 @@ export default function Web3ReactManager({ children }: { children: JSX.Element }
   useEffect(() => {
     if (triedEager && chainIdEVM && chainIdState !== chainIdEVM && active && isEVM) {
       dispatch(updateChainId(chainIdEVM))
+      console.log('123', 'changeNetworkHandler 2', chainIdEVM)
     }
     // Only run on change network from wallet
     // eslint-disable-next-line react-hooks/exhaustive-deps

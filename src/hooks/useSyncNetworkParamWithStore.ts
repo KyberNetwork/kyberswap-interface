@@ -29,6 +29,7 @@ export function useSyncNetworkParamWithStore() {
        * @param isOnInit.current: make sure only run 1 time after init
        * @param triedEager: only run after tried to connect injected wallet
        */
+      console.log(123, { paramChainId })
       ;(async () => {
         if (paramChainId && isEVM(paramChainId)) {
           setRequestingNetwork(params?.network)
@@ -58,13 +59,18 @@ export function useSyncNetworkParamWithStore() {
   ])
 
   useEffect(() => {
-    if (NETWORKS_INFO[chainId].route === requestingNetwork) setRequestingNetwork(undefined)
+    console.log(123, chainId, requestingNetwork)
+    if (NETWORKS_INFO[chainId].route === requestingNetwork) {
+      console.log(123, chainId, requestingNetwork, 'reset')
+      setRequestingNetwork(undefined)
+    }
   }, [chainId, requestingNetwork])
 
   useEffect(() => {
     /**
      * Sync network route param with current active network, only after eager tried
      */
+    console.log(123, { requestingNetwork })
     if (
       ((requestingNetwork && requestingNetwork !== params?.network) || !requestingNetwork) &&
       params.network &&
