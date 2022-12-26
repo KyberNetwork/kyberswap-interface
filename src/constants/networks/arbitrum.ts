@@ -29,7 +29,7 @@ const arbitrumInfo: EVMNetworkInfo = {
   etherscanUrl: 'https://arbiscan.io',
   etherscanName: 'Arbiscan',
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.ARBITRUM}&isWhitelisted=${true}`,
-  bridgeURL: 'https://bridge.arbitrum.io',
+  bridgeURL: '',
   nativeToken: {
     symbol: 'ETH',
     name: 'ETH',

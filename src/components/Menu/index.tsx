@@ -19,13 +19,13 @@ import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import { ReactComponent as BlogIcon } from 'assets/svg/blog.svg'
+import { ReactComponent as DiscoverIconSvg } from 'assets/svg/discover_icon.svg'
 import { ReactComponent as LightIcon } from 'assets/svg/light.svg'
 import { ReactComponent as RoadMapIcon } from 'assets/svg/roadmap.svg'
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import SlideToUnlock from 'components/Header/SlideToUnlock'
 import ArrowRight from 'components/Icons/ArrowRight'
-import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import Faucet from 'components/Icons/Faucet'
 import MailIcon from 'components/Icons/MailIcon'
 import LanguageSelector from 'components/LanguageSelector'
@@ -56,7 +56,7 @@ import ClaimRewardModal from './ClaimRewardModal'
 import FaucetModal from './FaucetModal'
 import NavDropDown from './NavDropDown'
 
-const sharedStylesMenuItem = css`
+const MenuItem = styled.li`
   flex: 1;
   padding: 0.7rem 0;
   text-decoration: none;
@@ -70,11 +70,25 @@ const sharedStylesMenuItem = css`
   :hover {
     color: ${({ theme }) => theme.text};
     cursor: pointer;
-    text-decoration: none;
+    a {
+      color: ${({ theme }) => theme.text};
+    }
   }
 
-  > svg {
+  svg {
     margin-right: 8px;
+    height: 16px;
+    width: 16px;
+  }
+
+  a {
+    color: ${({ theme }) => theme.subText};
+    display: flex;
+    align-items: center;
+    :hover {
+      text-decoration: none;
+      color: ${({ theme }) => theme.text};
+    }
   }
 `
 
@@ -84,38 +98,31 @@ const StyledMenuIcon = styled(MenuIcon)`
   }
 `
 
-const StyledRoadMapIcon = styled(RoadMapIcon)`
-  path {
-    stroke: ${({ theme }) => theme.subText};
-  }
-`
-
-const StyledBlogIcon = styled(BlogIcon)`
-  path {
-    fill: ${({ theme }) => theme.subText};
-  }
-`
-
-const StyledLightIcon = styled(LightIcon)<{ color?: string }>`
-  path {
-    stroke: ${({ theme, color }) => color ?? theme.subText};
-  }
-`
-
-const DiscoverWrapper = styled.span`
+const DiscoverWrapper = styled(MenuItem)`
   display: none;
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    display: inline-flex;
+    display: flex;
   `};
 `
 
-const CampaignWrapper = styled.span`
+const NavLinkBetween = styled(MenuItem)`
+  justify-content: space-between;
+  position: unset !important;
+  max-height: 40px;
+  svg {
+    margin: 0;
+    width: unset;
+    height: unset;
+  }
+`
+
+const CampaignWrapper = styled(MenuItem)`
   display: none;
 
   /* It's better to break at 420px than at extraSmall */
   @media (max-width: 420px) {
-    display: inline-flex;
+    display: flex;
   }
 `
 
@@ -159,44 +166,16 @@ const StyledMenu = styled.div`
   text-align: left;
 `
 
-export const NavMenuItem = styled(NavLink)`
-  ${sharedStylesMenuItem}
-`
-
-const NavMenuItemBetween = styled.div`
-  ${sharedStylesMenuItem}
-  justify-content: space-between;
-  position: unset !important;
-  max-height: 40px;
-`
-const noop = () => {
-  //
-}
-export const ExternalNavMenuItem = styled(ExternalLink)`
-  ${sharedStylesMenuItem}
-`
-
-const MenuButton = styled.div`
-  ${sharedStylesMenuItem}
-`
-
 const MenuFlyoutBrowserStyle = css`
   min-width: unset;
   right: -8px;
   width: 230px;
-  & ${ExternalNavMenuItem}:nth-child(1),
-  & ${NavMenuItem}:nth-child(1) {
-    padding-top: 0.75rem;
-  }
 `
 
 const MenuFlyoutMobileStyle = css`
   overflow-y: scroll;
-  & ${ExternalNavMenuItem}:nth-child(1),
-  & ${NavMenuItem}:nth-child(1) {
-    padding-top: 0.75rem;
-  }
 `
+
 const ClaimRewardButton = styled(ButtonPrimary)`
   margin-top: 10px;
   padding: 11px;
@@ -221,12 +200,14 @@ const Divider = styled.div`
   margin-bottom: 10px;
 `
 
-const Title = styled.div`
-  ${sharedStylesMenuItem}
+const Title = styled(MenuItem)`
   font-weight: 500;
   font-size: 16px;
   color: ${({ theme }) => theme.text};
 `
+const noop = () => {
+  //
+}
 
 export default function Menu() {
   const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
@@ -289,7 +270,7 @@ export default function Menu() {
               <Trans>Menu</Trans>
             </Title>
             {FAUCET_NETWORKS.includes(chainId) && (
-              <MenuButton
+              <MenuItem
                 onClick={() => {
                   toggleFaucetPopup()
                   mixpanelHandler(MIXPANEL_TYPE.FAUCET_MENU_CLICKED)
@@ -299,118 +280,129 @@ export default function Menu() {
                 <Text width="max-content">
                   <Trans>Faucet</Trans>
                 </Text>
-              </MenuButton>
+              </MenuItem>
             )}
 
             {bridgeLink && (
-              <ExternalNavMenuItem href={bridgeLink}>
-                <Share2 size={14} />
-                <Text width="max-content">
+              <MenuItem>
+                <ExternalLink href={bridgeLink}>
+                  <Share2 />
                   <Trans>Bridge Assets</Trans>
-                </Text>
-              </ExternalNavMenuItem>
+                </ExternalLink>
+              </MenuItem>
             )}
 
             <DiscoverWrapper>
-              <NavMenuItem to={'/discover?tab=trending_soon'} onClick={toggle}>
-                <DiscoverIcon size={16} />
+              <NavLink to={'/discover?tab=trending_soon'} onClick={toggle}>
+                <DiscoverIconSvg />
                 <SlideToUnlock>
-                  <Text width="max-content">
-                    <Trans>Discover</Trans>
-                  </Text>
+                  <Trans>Discover</Trans>
                 </SlideToUnlock>
                 <NewLabel>
                   <Trans>New</Trans>
                 </NewLabel>
-              </NavMenuItem>
+              </NavLink>
             </DiscoverWrapper>
 
             <CampaignWrapper>
-              <NavMenuItem to="/campaigns" onClick={toggle}>
-                <Award size={14} />
+              <NavLink to="/campaigns" onClick={toggle}>
+                <Award />
                 <Trans>Campaigns</Trans>
-              </NavMenuItem>
+              </NavLink>
             </CampaignWrapper>
 
             {under1440 && (
-              <NavDropDown
-                icon={<Info size={16} />}
-                title={'About'}
-                link={'/about'}
-                options={[
-                  { link: '/about/kyberswap', label: 'Kyberswap' },
-                  { link: '/about/knc', label: 'KNC' },
-                ]}
-              />
-            )}
-
-            <NavMenuItem to="/referral" onClick={toggle}>
-              <UserPlus size={16} />
-              <Trans>Referral</Trans>
-            </NavMenuItem>
-            {under1200 && (
-              <>
+              <MenuItem>
                 <NavDropDown
-                  icon={<Info size={16} />}
+                  icon={<Info />}
+                  title={'About'}
+                  link={'/about'}
+                  options={[
+                    { link: '/about/kyberswap', label: 'Kyberswap' },
+                    { link: '/about/knc', label: 'KNC' },
+                  ]}
+                />
+              </MenuItem>
+            )}
+            <MenuItem>
+              <NavLink to="/referral" onClick={toggle}>
+                <UserPlus />
+                <Trans>Referral</Trans>
+              </NavLink>
+            </MenuItem>
+            {under1200 && (
+              <MenuItem>
+                <NavDropDown
+                  icon={<Info />}
                   title={'KyberDAO'}
                   link={'/kyberdao/stake-knc'}
                   options={[
                     { link: '/kyberdao/stake-knc', label: 'Stake KNC' },
                     { link: '/kyberdao/vote', label: 'Vote' },
+                    { link: 'https://kyberswap.canny.io/feature-request', label: 'Feature Request', external: true },
                   ]}
                 />
-                <ExternalNavMenuItem href="https://kyberswap.canny.io/feature-request" onClick={toggle}>
-                  <StyledLightIcon />
-                  <Trans>Feature Request</Trans>
-                </ExternalNavMenuItem>
-              </>
+              </MenuItem>
             )}
             {!above1321 && (
-              <NavDropDown
-                icon={<PieChart size={16} />}
-                link="#"
-                title={'Analytics'}
-                options={[
-                  { link: DMM_ANALYTICS_URL[chainId], label: t`Liquidity`, external: true },
-                  {
-                    link: AGGREGATOR_ANALYTICS_URL,
-                    label: t`Aggregator`,
-                    external: true,
-                  },
-                ]}
-              />
+              <MenuItem>
+                <NavDropDown
+                  icon={<PieChart />}
+                  link="#"
+                  title={'Analytics'}
+                  options={[
+                    { link: DMM_ANALYTICS_URL[chainId], label: t`Liquidity`, external: true },
+                    {
+                      link: AGGREGATOR_ANALYTICS_URL,
+                      label: t`Aggregator`,
+                      external: true,
+                    },
+                  ]}
+                />
+              </MenuItem>
             )}
-            <ExternalNavMenuItem href="https://docs.kyberswap.com">
-              <BookOpen size={16} />
-              <Trans>Docs</Trans>
-            </ExternalNavMenuItem>
+            <MenuItem>
+              <ExternalLink href="https://docs.kyberswap.com">
+                <BookOpen />
+                <Trans>Docs</Trans>
+              </ExternalLink>
+            </MenuItem>
 
-            <ExternalNavMenuItem href="https://kyberswap.canny.io/" onClick={toggle}>
-              <StyledRoadMapIcon />
-              <Trans>Roadmap</Trans>
-            </ExternalNavMenuItem>
+            <MenuItem>
+              <ExternalLink href="https://kyberswap.canny.io/" onClick={toggle}>
+                <RoadMapIcon />
+                <Trans>Roadmap</Trans>
+              </ExternalLink>
+            </MenuItem>
 
-            <ExternalNavMenuItem href="https://gov.kyber.org">
-              <MessageCircle size={16} />
-              <Trans>Forum</Trans>
-            </ExternalNavMenuItem>
+            <MenuItem>
+              <ExternalLink href="https://gov.kyber.org">
+                <MessageCircle />
+                <Trans>Forum</Trans>
+              </ExternalLink>
+            </MenuItem>
 
             {under1440 && (
-              <ExternalNavMenuItem href="https://blog.kyberswap.com">
-                <StyledBlogIcon />
-                <Trans>Blog</Trans>
-              </ExternalNavMenuItem>
+              <MenuItem>
+                <ExternalLink href="https://blog.kyberswap.com">
+                  <BlogIcon />
+                  <Trans>Blog</Trans>
+                </ExternalLink>
+              </MenuItem>
             )}
 
-            <ExternalNavMenuItem href="/15022022KyberSwapTermsofUse.pdf">
-              <FileText size={16} />
-              <Trans>Terms</Trans>
-            </ExternalNavMenuItem>
-
-            <ExternalNavMenuItem href="https://forms.gle/gLiNsi7iUzHws2BY8">
-              <Edit size={16} />
-              <Trans>Business Enquiries</Trans>
-            </ExternalNavMenuItem>
+            <MenuItem>
+              <ExternalLink href="/15022022KyberSwapTermsofUse.pdf">
+                <FileText />
+                <Trans>Terms</Trans>
+              </ExternalLink>
+            </MenuItem>
+            <MenuItem>
+              <ExternalLink href="https://forms.gle/gLiNsi7iUzHws2BY8">
+                <Edit />
+                <Trans>Business Enquiries</Trans>
+              </ExternalLink>
+            </MenuItem>
 
             <Divider />
 
@@ -419,7 +411,7 @@ export default function Menu() {
             </Title>
 
             {location.pathname.startsWith(APP_PATHS.SWAP) && (
-              <NavMenuItemBetween
+              <NavLinkBetween
                 id={TutorialIds.BUTTON_VIEW_GUIDE_SWAP}
                 onClick={() => {
                   toggle()
@@ -429,22 +421,22 @@ export default function Menu() {
                 <Trans>Swap Guide</Trans>
                 <Row justify="flex-end">
                   <Text color={theme.text}>View</Text>&nbsp;
-                  <StyledLightIcon color={theme.text} />
+                  <LightIcon color={theme.text} />
                 </Row>
-              </NavMenuItemBetween>
+              </NavLinkBetween>
             )}
             {isChristmasTime() && (
-              <NavMenuItemBetween onClick={toggleHolidayMode}>
+              <NavLinkBetween onClick={toggleHolidayMode}>
                 <Trans>Holiday Mode</Trans>
                 <Toggle isActive={holidayMode} toggle={noop} />
-              </NavMenuItemBetween>
+              </NavLinkBetween>
             )}
 
-            <NavMenuItemBetween onClick={toggleSetDarkMode}>
+            <NavLinkBetween onClick={toggleSetDarkMode}>
               <Trans>Dark Mode</Trans>
               <ThemeToggle id="toggle-dark-mode-button" isDarkMode={darkMode} toggle={noop} />
-            </NavMenuItemBetween>
-            <NavMenuItemBetween
+            </NavLinkBetween>
+            <NavLinkBetween
               onClick={() => {
                 toggleNotificationModal()
                 mixpanelHandler(MIXPANEL_TYPE.NOTIFICATION_CLICK_MENU)
@@ -452,8 +444,8 @@ export default function Menu() {
             >
               <Trans>Notifications</Trans>
               <MailIcon size={17} color={theme.text} />
-            </NavMenuItemBetween>
-            <NavMenuItemBetween onClick={() => setIsSelectingLanguage(true)}>
+            </NavLinkBetween>
+            <NavLinkBetween onClick={() => setIsSelectingLanguage(true)}>
               <Trans>Language</Trans>
               <ButtonEmpty
                 padding="0"
@@ -463,7 +455,7 @@ export default function Menu() {
                 {getLocaleLabel(userLocale, true)}&nbsp;&nbsp;
                 <ArrowRight fill={theme.text} />
               </ButtonEmpty>
-            </NavMenuItemBetween>
+            </NavLinkBetween>
 
             <Divider />
 

@@ -25,7 +25,7 @@ const bnbInfo: EVMNetworkInfo = {
   etherscanUrl: 'https://bscscan.com',
   etherscanName: 'BscScan',
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.BSCMAINNET}&isWhitelisted=${true}`,
-  bridgeURL: 'https://www.binance.org/en/bridge',
+  bridgeURL: '',
   nativeToken: {
     symbol: 'BNB',
     name: 'BNB',

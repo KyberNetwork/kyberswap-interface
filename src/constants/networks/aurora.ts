@@ -26,7 +26,7 @@ const auroraInfo: EVMNetworkInfo = {
   etherscanUrl: 'https://aurorascan.dev',
   etherscanName: 'Aurora Explorer',
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.AURORA}&isWhitelisted=${true}`,
-  bridgeURL: 'https://rainbowbridge.app',
+  bridgeURL: '',
   nativeToken: {
     symbol: 'ETH',
     name: 'ETH',

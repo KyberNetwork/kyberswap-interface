@@ -24,7 +24,7 @@ const maticInfo: EVMNetworkInfo = {
   etherscanUrl: 'https://polygonscan.com',
   etherscanName: 'Polygonscan',
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.MATIC}&isWhitelisted=${true}`,
-  bridgeURL: 'https://wallet.matic.network/bridge',
+  bridgeURL: '',
   nativeToken: {
     symbol: 'MATIC',
     name: 'Polygon',

@@ -27,7 +27,7 @@ const optimismInfo: EVMNetworkInfo = {
   etherscanUrl: 'https://optimistic.etherscan.io',
   etherscanName: 'Optimistic Ethereum Explorer',
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.OPTIMISM}&isWhitelisted=${true}`,
-  bridgeURL: 'https://app.optimism.io/bridge',
+  bridgeURL: '',
   nativeToken: {
     symbol: 'ETH',
     name: 'ETH',

@@ -31,7 +31,7 @@ const cronosInfo: EVMNetworkInfo = {
   etherscanUrl: 'https://cronoscan.com',
   etherscanName: 'Cronos explorer',
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.CRONOS}&isWhitelisted=${true}`,
-  bridgeURL: 'https://cronos.crypto.org/docs/bridge/cdcapp.html',
+  bridgeURL: '',
   nativeToken: {
     symbol: 'CRO',
     name: 'CRO',
