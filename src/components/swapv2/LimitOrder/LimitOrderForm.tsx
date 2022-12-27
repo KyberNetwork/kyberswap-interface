@@ -203,17 +203,6 @@ const LimitOrderForm = function LimitOrderForm({
     setRateInfo({ ...rateInfo, invert })
   }
 
-  const balances = useCurrencyBalances(useMemo(() => [currencyIn, currencyOut], [currencyIn, currencyOut]))
-
-  const maxAmountInput = maxAmountSpend(balances[0])
-  const handleMaxInput = useCallback(() => {
-    maxAmountInput && onSetInput(maxAmountInput?.toExact())
-  }, [maxAmountInput, onSetInput])
-
-  const handleHalfInput = useCallback(() => {
-    onSetInput(balances[0]?.divide(2).toExact() || '')
-  }, [balances, onSetInput])
-
   const handleInputSelect = useCallback(
     (currency: Currency) => {
       if (currencyOut && currency?.equals(currencyOut)) return
@@ -261,6 +250,20 @@ const LimitOrderForm = function LimitOrderForm({
     } catch (error) {}
     return undefined
   }, [currencyIn, activeOrderMakingAmount, isEdit, orderInfo])
+
+  const balances = useCurrencyBalances(useMemo(() => [currencyIn, currencyOut], [currencyIn, currencyOut]))
+
+  const maxAmountInput = maxAmountSpend(balances[0])
+
+  const handleMaxInput = useCallback(() => {
+    if (!parsedActiveOrderMakingAmount || !maxAmountInput) return
+    onSetInput(maxAmountInput.subtract(parsedActiveOrderMakingAmount)?.toExact())
+  }, [maxAmountInput, onSetInput, parsedActiveOrderMakingAmount])
+
+  const handleHalfInput = useCallback(() => {
+    if (!balances[0] || !parsedActiveOrderMakingAmount) return
+    onSetInput(balances[0]?.subtract(parsedActiveOrderMakingAmount)?.divide(2).toExact() || '')
+  }, [balances, onSetInput, parsedActiveOrderMakingAmount])
 
   const enoughAllowance = useMemo(() => {
     return (
