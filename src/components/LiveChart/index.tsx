@@ -114,20 +114,21 @@ function LiveChart({ currencies }: { currencies: { [field in Field]?: Currency }
   )
   const prochartLoading = prochartLoading1 || prochartLoading2
 
-  const pools0 = (dataToken0?.data?.attributes?.pools || []).reduce(
-    (acc, cur) => ({ ...acc, [cur.address]: true }),
-    {} as { [key: string]: boolean },
-  )
+  const pools0 = (dataToken0?.data?.attributes?.pools || [])
+    .filter(p => p?.tokens?.length === 2)
+    .reduce((acc, cur) => ({ ...acc, [cur.address]: true }), {} as { [key: string]: boolean })
   const availablePools = (dataToken1?.data?.attributes?.pools || [])
     .filter(p => pools0[p.address])
     .sort((a, b) => +b?.reserve_in_usd - +a?.reserve_in_usd)
 
   let poolAddress = availablePools[0]?.address
+  let network = availablePools[0]?.network?.identifier
 
   // in case 2 api search is not match, we get pool by symbol
   if (!poolAddress) {
     const pools0 = (dataToken0?.data?.attributes?.pools || [])
       .filter(p => {
+        if (p?.tokens?.length !== 2) return false
         const token0 = p?.tokens?.[0]?.symbol
         const token1 = p?.tokens?.[1]?.symbol
 
@@ -139,6 +140,7 @@ function LiveChart({ currencies }: { currencies: { [field in Field]?: Currency }
 
     const pools1 = (dataToken1?.data?.attributes?.pools || [])
       .filter(p => {
+        if (p?.tokens?.length !== 2) return false
         const token0 = p?.tokens?.[0]?.symbol
         const token1 = p?.tokens?.[1]?.symbol
 
@@ -149,6 +151,7 @@ function LiveChart({ currencies }: { currencies: { [field in Field]?: Currency }
       .sort((a, b) => +b?.reserve_in_usd - +a?.reserve_in_usd)
 
     poolAddress = pools0?.[0]?.address || pools1?.[0]?.address
+    network = pools0?.[0]?.network?.identifier || pools1?.[0]?.network?.identifier
   }
 
   useEffect(() => {
@@ -298,7 +301,7 @@ function LiveChart({ currencies }: { currencies: { [field in Field]?: Currency }
               width="100%"
               id="geckoterminal-embed"
               title="GeckoTerminal Embed"
-              src={`https://www.geckoterminal.com/polygon_pos/pools/${poolAddress}?embed=1&info=0&swaps=0`}
+              src={`https://www.geckoterminal.com/${network}/pools/${poolAddress}?embed=1&info=0&swaps=0`}
               frameBorder="0"
               allow="clipboard-write"
               allowFullScreen

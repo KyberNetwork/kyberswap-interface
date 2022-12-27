@@ -8,6 +8,9 @@ type SearchResponse = {
         address: string
         reserve_in_usd: string
         tokens: [{ symbol: string }, { symbol: string }]
+        network: {
+          identifier: string
+        }
       }[]
     }
   }
@@ -17,7 +20,7 @@ const geckoTerminalApi = createApi({
   reducerPath: 'geckoTerminalApi',
   baseQuery: fetchBaseQuery({
     // TODO(viet-nv): for testting
-    baseUrl: 'https://1a97-2a09-bac1-7ae0-50-00-245-28.ap.ngrok.io/geckoterminal',
+    baseUrl: 'https://ks-proxy.dev.kyberengineering.io/geckoterminal',
   }),
   endpoints: builder => ({
     geckoTerminalSearch: builder.query<SearchResponse, string>({
