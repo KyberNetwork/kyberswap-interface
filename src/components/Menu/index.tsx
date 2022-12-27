@@ -29,7 +29,7 @@ import Loader from 'components/Loader'
 import MenuFlyout from 'components/MenuFlyout'
 import { AutoRow } from 'components/Row'
 import { ENV_LEVEL, ENV_TYPE, TAG } from 'constants/env'
-import { AGGREGATOR_ANALYTICS_URL, DMM_ANALYTICS_URL } from 'constants/index'
+import { AGGREGATOR_ANALYTICS_URL, DMM_ANALYTICS_URL, TERM_FILES_PATH } from 'constants/index'
 import { FAUCET_NETWORKS } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
@@ -320,7 +320,7 @@ export default function Menu() {
         )}
 
         <MenuItem>
-          <ExternalLink href="/15022022KyberSwapTermsofUse.pdf">
+          <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS}>
             <FileText />
             <Trans>Terms</Trans>
           </ExternalLink>
