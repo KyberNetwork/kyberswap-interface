@@ -3,6 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import { stringify } from 'querystring'
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Skeleton from 'react-loading-skeleton'
+import { useSelector } from 'react-redux'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled, { DefaultTheme, keyframes } from 'styled-components'
@@ -59,6 +60,7 @@ import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { BodyWrapper } from 'pages/AppBody'
 import VerifyComponent from 'pages/Verify/VerifyComponent'
+import { AppState } from 'state'
 import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { Field } from 'state/swap/actions'
 import {
@@ -69,7 +71,6 @@ import {
   useSwapState,
 } from 'state/swap/hooks'
 import useParsedAmountFromInputCurrency from 'state/swap/hooks/useParsedAmountFromInputCurrency'
-import { useDerivedSwapInfoV2 } from 'state/swap/useAggregator'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import {
   useExpertModeManager,
@@ -204,7 +205,8 @@ export default function Swap() {
 
   const { onCurrencySelection, onResetSelectCurrency, onUserInput, onChangeRecipient } = useSwapActionHandlers()
 
-  const { v2Trade } = useDerivedSwapInfoV2()
+  // useEffect in SwapForm V2 is used to sync trade to Redux
+  const storedTrade = useSelector((state: AppState) => state.swap.trade)
 
   const currencyIn = useInputCurrency()
   const currencyOut = useOutputCurrency()
@@ -236,7 +238,7 @@ export default function Swap() {
   const { wrapType } = useWrapCallback(currencyIn, currencyOut, typedValue)
 
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
-  const trade = showWrap ? undefined : v2Trade
+  const trade = showWrap ? undefined : storedTrade
 
   const parsedAmounts = showWrap
     ? {
