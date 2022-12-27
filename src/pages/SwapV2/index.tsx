@@ -199,7 +199,7 @@ export default function Swap() {
   // swap state
   const { independentField, typedValue, feeConfig, [Field.INPUT]: INPUT, [Field.OUTPUT]: OUTPUT } = useSwapState()
 
-  const { onCurrencySelection, onResetSelectCurrency, onUserInput, onChangeRecipient } = useSwapActionHandlers()
+  const { onCurrencySelection, onResetSelectCurrency, onUserInput } = useSwapActionHandlers()
 
   // useEffect in SwapForm V2 is used to sync trade to Redux
   const storedTrade = useSelector((state: AppState) => state.swap.trade)
@@ -245,11 +245,6 @@ export default function Swap() {
         [Field.INPUT]: independentField === Field.INPUT ? parsedAmount : trade?.inputAmount,
         [Field.OUTPUT]: independentField === Field.OUTPUT ? parsedAmount : trade?.outputAmount,
       }
-
-  // reset recipient
-  useEffect(() => {
-    onChangeRecipient(null)
-  }, [onChangeRecipient, isExpertMode])
 
   const dependentField: Field = independentField === Field.INPUT ? Field.OUTPUT : Field.INPUT
 
