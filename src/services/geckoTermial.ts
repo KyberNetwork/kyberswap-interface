@@ -16,7 +16,8 @@ type SearchResponse = {
 const geckoTerminalApi = createApi({
   reducerPath: 'geckoTerminalApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'http://localhost:3001/geckoterminal',
+    // TODO(viet-nv): for testting
+    baseUrl: 'https://1a97-2a09-bac1-7ae0-50-00-245-28.ap.ngrok.io/geckoterminal',
   }),
   endpoints: builder => ({
     geckoTerminalSearch: builder.query<SearchResponse, string>({
