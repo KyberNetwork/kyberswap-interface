@@ -39,7 +39,7 @@ import DeltaRate from './DeltaRate'
 import ExpirePicker from './ExpirePicker'
 import ConfirmOrderModal from './Modals/ConfirmOrderModal'
 import { DEFAULT_EXPIRED, EXPIRED_OPTIONS } from './const'
-import { calcInvert, calcOutput, calcPercentFilledOrder, calcRate, formatAmountOrder, formatUsdPrice } from './helpers'
+import { calcInvert, calcOutput, calcPercentFilledOrder, calcRate, calcUsdPrices, formatAmountOrder } from './helpers'
 import { getTotalActiveMakingAmount, hashOrder, submitOrder } from './request'
 import { CreateOrderParam, LimitOrder, LimitOrderStatus, RateInfo } from './type'
 import useBaseTradeInfo from './useBaseTradeInfo'
@@ -124,6 +124,7 @@ const LimitOrderForm = function LimitOrderForm({
   const { library } = useWeb3React()
 
   const { loading: loadingTrade, tradeInfo } = useBaseTradeInfo(currencyIn, currencyOut)
+  const { tradeInfo: tradeInfoInvert } = useBaseTradeInfo(currencyOut, currencyIn)
 
   const { execute: onWrap, inputError: wrapInputError } = useWrapCallback(currencyIn, currencyOut, inputAmount, true)
   const showWrap = !!currencyIn?.isNative
@@ -453,6 +454,7 @@ const LimitOrderForm = function LimitOrderForm({
     const bytes = ethers.utils.arrayify(signature)
     const lastByte = bytes[64]
     if (lastByte === 0 || lastByte === 1) {
+      // to support hardware wallet
       bytes[64] += 27
     }
 
@@ -681,6 +683,17 @@ const LimitOrderForm = function LimitOrderForm({
   }
 
   const styleTooltip = { maxWidth: '250px', zIndex: zIndexToolTip }
+  const estimateUSD = useMemo(() => {
+    return calcUsdPrices({
+      inputAmount,
+      outputAmount,
+      priceUsdIn: tradeInfo?.amountInUsd,
+      priceUsdOut: tradeInfoInvert?.amountInUsd,
+      currencyIn,
+      currencyOut,
+    })
+  }, [inputAmount, outputAmount, tradeInfo, tradeInfoInvert, currencyIn, currencyOut])
+
   return (
     <>
       <Flex flexDirection={'column'} style={{ gap: '1rem' }}>
@@ -739,7 +752,7 @@ const LimitOrderForm = function LimitOrderForm({
               otherCurrency={currencyOut}
               id="swap-currency-input"
               disableCurrencySelect
-              estimatedUsd={formatUsdPrice(inputAmount, tradeInfo?.amountInUsd)}
+              estimatedUsd={estimateUSD.input}
               onFocus={trackingTouchInput}
             />
           </Tooltip>
@@ -795,7 +808,7 @@ const LimitOrderForm = function LimitOrderForm({
               id="swap-currency-output"
               onMax={null}
               onHalf={null}
-              estimatedUsd={formatUsdPrice(outputAmount, tradeInfo?.amountOutUsd)}
+              estimatedUsd={estimateUSD.output}
               onFocus={trackingTouchInput}
             />
           </Tooltip>
