@@ -323,7 +323,6 @@ export const APP_PATHS = {
   DISCOVER: '/discover',
   BUY_CRYPTO: '/buy-crypto',
   BRIDGE: '/bridge',
-  VERIFY: '/verify',
   KYBERDAO: '/kyberdao',
   KYBERDAO_STAKE: '/kyberdao/stake-knc',
   KYBERDAO_VOTE: '/kyberdao/vote',
@@ -353,5 +352,3 @@ export const EIP712Domain = [
   { name: 'chainId', type: 'uint256' },
   { name: 'verifyingContract', type: 'address' },
 ]
-
-export const SUPPORT_LIMIT_ORDER = window.location.host !== 'kyberswap.com'
