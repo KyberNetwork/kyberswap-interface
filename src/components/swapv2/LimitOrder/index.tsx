@@ -17,12 +17,11 @@ export const Label = styled.div`
 
 type Props = {
   refreshListOrder: () => void
-  setIsSelectCurrencyManual: (v: boolean) => void
-  isSelectCurrencyManual: boolean
 }
 
-function LimitOrderComp({ refreshListOrder, setIsSelectCurrencyManual, isSelectCurrencyManual }: Props) {
+function LimitOrderComp({ refreshListOrder }: Props) {
   const { onSelectPair } = useLimitActionHandlers()
+  const [isSelectCurrencyManual, setIsSelectCurrencyManual] = useState(false) // true when: select token input, output manually or click rotate token.
 
   const { currencyIn, currencyOut } = useLimitState()
 

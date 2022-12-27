@@ -29,6 +29,7 @@ import { useActiveWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallbackFromTradeV2 } from 'hooks/useApproveCallback'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useSwapV2Callback } from 'hooks/useSwapV2Callback'
+import useSyncTokenSymbolToUrl from 'hooks/useSyncTokenSymbolToUrl'
 import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { ClickableText } from 'pages/Pool/styleds'
@@ -63,7 +64,7 @@ const SwapForm = () => {
   const allDexes = useAllDexes()
   const [encodeSolana] = useEncodeSolana()
 
-  const [_, setIsSelectCurrencyManually] = useState(false) // true when: select token input, output manually or click rotate token.
+  const [isSelectCurrencyManually, setIsSelectCurrencyManually] = useState(false) // true when: select token input, output manually or click rotate token.
 
   const theme = useTheme()
 
@@ -288,6 +289,15 @@ const SwapForm = () => {
     [onCurrencySelection],
   )
 
+  const onSelectSuggestedPair = useCallback(
+    (fromToken: Currency | undefined, toToken: Currency | undefined, amount?: string) => {
+      if (fromToken) onCurrencySelection(Field.INPUT, fromToken)
+      if (toToken) onCurrencySelection(Field.OUTPUT, toToken)
+      if (amount) handleTypeInput(amount)
+    },
+    [handleTypeInput, onCurrencySelection],
+  )
+
   const isLoading = loadingAPI || ((!balanceIn || !balanceOut) && userHasSpecifiedInputOutput && !v2Trade)
 
   const { mixpanelHandler } = useMixpanel(trade, currencies)
@@ -329,6 +339,8 @@ const SwapForm = () => {
   }, [isSolana, trade])
   */
   }, [])
+
+  useSyncTokenSymbolToUrl(currencyIn, currencyOut, onSelectSuggestedPair, isSelectCurrencyManually)
 
   return (
     <Wrapper id={TutorialIds.SWAP_FORM_CONTENT}>
