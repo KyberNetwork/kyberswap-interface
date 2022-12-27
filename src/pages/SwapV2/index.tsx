@@ -74,6 +74,7 @@ import {
   useUserSlippageTolerance,
 } from 'state/user/hooks'
 import { isSupportLimitOrder } from 'utils'
+import { SwapRouteV2, getTradeComposition } from 'utils/aggregationRouting'
 import { currencyId } from 'utils/currencyId'
 import { getSymbolSlug } from 'utils/string'
 import { checkPairInWhiteList } from 'utils/tokenInfo'
@@ -384,6 +385,14 @@ export default function Swap() {
     })
   }
 
+  const tradeComposition = useMemo((): SwapRouteV2[] | undefined => {
+    try {
+      return getTradeComposition(trade, chainId, defaultTokens)
+    } catch (e) {
+      return undefined
+    }
+  }, [trade, chainId, defaultTokens])
+
   return (
     <>
       {/**
@@ -551,7 +560,11 @@ export default function Swap() {
                         />
                       }
                     >
-                      <Routing trade={trade} currencies={currencies} formattedAmounts={formattedAmounts} />
+                      <Routing
+                        tradeComposition={tradeComposition}
+                        currencies={currencies}
+                        formattedAmounts={formattedAmounts}
+                      />
                     </Suspense>
                   </Flex>
                 </RoutesWrapper>
