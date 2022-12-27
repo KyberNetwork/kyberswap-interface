@@ -68,6 +68,7 @@ import {
   useSwapActionHandlers,
   useSwapState,
 } from 'state/swap/hooks'
+import useParsedAmountFromInputCurrency from 'state/swap/hooks/useParsedAmountFromInputCurrency'
 import { useDerivedSwapInfoV2 } from 'state/swap/useAggregator'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import {
@@ -203,10 +204,11 @@ export default function Swap() {
 
   const { onCurrencySelection, onResetSelectCurrency, onUserInput, onChangeRecipient } = useSwapActionHandlers()
 
-  const { v2Trade, parsedAmount } = useDerivedSwapInfoV2()
+  const { v2Trade } = useDerivedSwapInfoV2()
 
   const currencyIn = useInputCurrency()
   const currencyOut = useOutputCurrency()
+  const parsedAmount = useParsedAmountFromInputCurrency()
 
   const currencies = useMemo(
     () => ({
