@@ -430,3 +430,14 @@ export const useDefaultsFromURLSearch = ():
 
   return result
 }
+
+export const useInputCurrency = () => {
+  const inputCurrencyId = useSelector((state: AppState) => state.swap[Field.INPUT].currencyId)
+  const inputCurrency = useCurrencyV2(inputCurrencyId)
+  return inputCurrency || undefined
+}
+export const useOutputCurrency = () => {
+  const outputCurrencyId = useSelector((state: AppState) => state.swap[Field.OUTPUT].currencyId)
+  const outputCurrency = useCurrencyV2(outputCurrencyId)
+  return outputCurrency || undefined
+}
