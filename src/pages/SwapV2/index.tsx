@@ -55,7 +55,6 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import usePrevious from 'hooks/usePrevious'
 import { useSyncNetworkParamWithStore } from 'hooks/useSyncNetworkParamWithStore'
-import useSyncTokenSymbolToUrl from 'hooks/useSyncTokenSymbolToUrl'
 import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { BodyWrapper } from 'pages/AppBody'
@@ -169,9 +168,6 @@ export default function Swap() {
   const [showingPairSuggestionImport, setShowingPairSuggestionImport] = useState<boolean>(false) // show modal import when click pair suggestion
 
   const shouldHighlightSwapBox = qs.highlightBox === 'true'
-
-  const [isSelectCurrencyManually, setIsSelectCurrencyManually] = useState(false) // true when: select token input, output manualy or click rotate token.
-  // else select via url
 
   const isSwapPage = pathname.startsWith(APP_PATHS.SWAP)
   const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT)
@@ -334,7 +330,6 @@ export default function Swap() {
     })
   }, [tokenImports, chainId, prevTokenImports, currencyIn, currencyOut, onResetSelectCurrency])
 
-  useSyncTokenSymbolToUrl(currencyIn, currencyOut, onSelectSuggestedPair, isSelectCurrencyManually, isLimitPage)
   const isLoadedTokenDefault = useIsLoadedTokenDefault()
 
   useEffect(() => {
@@ -498,15 +493,18 @@ export default function Swap() {
               </Text>
             </RowBetween>
 
-            {chainId !== ChainId.ETHW && !isSolana && (
-              <RowBetween>
-                <PairSuggestion
-                  ref={refSuggestPair}
-                  onSelectSuggestedPair={onSelectSuggestedPair}
-                  setShowModalImportToken={setShowingPairSuggestionImport}
-                />
-              </RowBetween>
-            )}
+            {
+              // Type & Swap
+              chainId !== ChainId.ETHW && !isSolana && (
+                <RowBetween>
+                  <PairSuggestion
+                    ref={refSuggestPair}
+                    onSelectSuggestedPair={onSelectSuggestedPair}
+                    setShowModalImportToken={setShowingPairSuggestionImport}
+                  />
+                </RowBetween>
+              )
+            }
 
             <AppBodyWrapped data-highlight={shouldHighlightSwapBox} id={TutorialIds.SWAP_FORM}>
               {activeTab === TAB.SWAP && ( // todo danh split component, check router api call
@@ -529,13 +527,7 @@ export default function Swap() {
               {activeTab === TAB.LIQUIDITY_SOURCES && (
                 <LiquiditySourcesPanel onBack={() => setActiveTab(TAB.SETTINGS)} />
               )}
-              {activeTab === TAB.LIMIT && (
-                <LimitOrder
-                  isSelectCurrencyManual={isSelectCurrencyManually}
-                  setIsSelectCurrencyManual={setIsSelectCurrencyManually}
-                  refreshListOrder={refreshListOrder}
-                />
-              )}
+              {activeTab === TAB.LIMIT && <LimitOrder refreshListOrder={refreshListOrder} />}
             </AppBodyWrapped>
             {isSwapPage && <AdvancedSwapDetailsDropdown trade={trade} feeConfig={feeConfig} />}
           </SwapFormWrapper>
