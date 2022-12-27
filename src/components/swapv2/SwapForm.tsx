@@ -342,6 +342,11 @@ const SwapForm = () => {
 
   useSyncTokenSymbolToUrl(currencyIn, currencyOut, onSelectSuggestedPair, isSelectCurrencyManually)
 
+  // reset recipient
+  useEffect(() => {
+    onChangeRecipient(null)
+  }, [onChangeRecipient, isExpertMode])
+
   return (
     <Wrapper id={TutorialIds.SWAP_FORM_CONTENT}>
       <ConfirmSwapModal
