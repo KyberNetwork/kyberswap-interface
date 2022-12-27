@@ -22,6 +22,7 @@ import { Z_INDEXS } from 'constants/styles'
 import { useTokenAllowance } from 'data/Allowances'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import useWrapCallback from 'hooks/useWrapCallback'
 import { NotificationType, useNotify, useWalletModalToggle } from 'state/application/hooks'
@@ -101,6 +102,7 @@ const LimitOrderForm = function LimitOrderForm({
   const toggleWalletModal = useWalletModalToggle()
   const theme = useTheme()
   const notify = useNotify()
+  const { mixpanelHandler } = useMixpanel()
 
   const { setCurrencyIn, setCurrencyOut, switchCurrency, setCurrentOrder, removeCurrentOrder, resetState } =
     useLimitActionHandlers()
@@ -170,6 +172,7 @@ const LimitOrderForm = function LimitOrderForm({
 
   const setPriceRateMarket = () => {
     try {
+      mixpanelHandler(MIXPANEL_TYPE.LO_ENTER_DETAIL, 'set price')
       if (loadingTrade || !tradeInfo) return
       onSetRate(tradeInfo?.price?.toSignificant(6) ?? '', tradeInfo?.price?.invert().toSignificant(6) ?? '')
     } catch (error) {}
@@ -345,6 +348,13 @@ const LimitOrderForm = function LimitOrderForm({
   const showPreview = () => {
     if (!currencyIn || !currencyOut || !outputAmount || !inputAmount || !displayRate) return
     setFlowState({ ...TRANSACTION_STATE_DEFAULT, showConfirm: true })
+    if (!isEdit)
+      mixpanelHandler(MIXPANEL_TYPE.LO_CLICK_REVIEW_PLACE_ORDER, {
+        from_token: currencyIn.symbol,
+        to_token: currencyOut.symbol,
+        from_network: chainId,
+        trade_qty: inputAmount,
+      })
   }
 
   const hidePreview = useCallback(() => {
@@ -359,6 +369,7 @@ const LimitOrderForm = function LimitOrderForm({
     if (typeof val === 'number') {
       setExpire(val)
       setCustomDateExpire(undefined)
+      mixpanelHandler(MIXPANEL_TYPE.LO_ENTER_DETAIL, 'choose date')
     } else {
       setCustomDateExpire(val)
     }
@@ -469,7 +480,7 @@ const LimitOrderForm = function LimitOrderForm({
 
       const payload = getPayloadCreateOrder(params)
       setFlowState(state => ({ ...state, pendingText: t`Placing order` }))
-      await submitOrder({ ...payload, orderHash, signature })
+      const response = await submitOrder({ ...payload, orderHash, signature })
       setFlowState(state => ({ ...state, showConfirm: false }))
       notify(
         {
@@ -522,6 +533,7 @@ const LimitOrderForm = function LimitOrderForm({
       )
       onResetForm()
       setTimeout(() => refreshListOrder?.(), 500)
+      return response?.id
     } catch (error) {
       handleError(error)
     }
@@ -626,6 +638,38 @@ const LimitOrderForm = function LimitOrderForm({
     }
   }, [resetState])
 
+  const trackingTouchInput = useCallback(() => {
+    mixpanelHandler(MIXPANEL_TYPE.LO_ENTER_DETAIL, 'touch enter amount box')
+  }, [mixpanelHandler])
+
+  const trackingTouchSelectToken = useCallback(() => {
+    mixpanelHandler(MIXPANEL_TYPE.LO_ENTER_DETAIL, 'touch enter token box')
+  }, [mixpanelHandler])
+
+  const trackingPlaceOrder = (data = {}) => {
+    mixpanelHandler(MIXPANEL_TYPE.LO_CLICK_PLACE_ORDER, {
+      from_token: currencyIn?.symbol,
+      to_token: currencyOut?.symbol,
+      from_network: networkInfo.name,
+      trade_qty: inputAmount,
+      ...data,
+    })
+  }
+
+  const onSubmitCreateOrderWithTracking = async () => {
+    trackingPlaceOrder()
+    const order_id = await onSubmitCreateOrder({
+      currencyIn,
+      currencyOut,
+      chainId,
+      account,
+      inputAmount,
+      outputAmount,
+      expiredAt,
+    })
+    if (order_id) trackingPlaceOrder({ order_id })
+  }
+
   const styleTooltip = { maxWidth: '250px', zIndex: zIndexToolTip }
   return (
     <>
@@ -645,6 +689,7 @@ const LimitOrderForm = function LimitOrderForm({
               maxCurrencySymbolLength={6}
               otherCurrency={currencyOut}
               filterWrap
+              onClickSelect={trackingTouchSelectToken}
             />
             <ArrowRotate isVertical rotate={rotate} onClick={handleRotateClick} />
 
@@ -662,6 +707,7 @@ const LimitOrderForm = function LimitOrderForm({
               maxCurrencySymbolLength={6}
               otherCurrency={currencyIn}
               filterWrap
+              onClickSelect={trackingTouchSelectToken}
             />
           </RowBetween>
         )}
@@ -684,6 +730,7 @@ const LimitOrderForm = function LimitOrderForm({
               id="swap-currency-input"
               disableCurrencySelect
               estimatedUsd={formatUsdPrice(inputAmount, tradeInfo?.amountInUsd)}
+              onFocus={trackingTouchInput}
             />
           </Tooltip>
         </Flex>
@@ -703,6 +750,7 @@ const LimitOrderForm = function LimitOrderForm({
                 style={{ borderRadius: 12, padding: '10px 12px', fontSize: 14, height: 48 }}
                 value={displayRate}
                 onUserInput={onChangeRate}
+                onFocus={trackingTouchInput}
               />
               {currencyIn && currencyOut && (
                 <Flex style={{ gap: 6, cursor: 'pointer' }} onClick={() => onInvertRate(!rateInfo.invert)}>
@@ -738,6 +786,7 @@ const LimitOrderForm = function LimitOrderForm({
               onMax={null}
               onHalf={null}
               estimatedUsd={formatUsdPrice(outputAmount, tradeInfo?.amountOutUsd)}
+              onFocus={trackingTouchInput}
             />
           </Tooltip>
         </Flex>
@@ -810,12 +859,7 @@ const LimitOrderForm = function LimitOrderForm({
       <ConfirmOrderModal
         flowState={flowState}
         onDismiss={hidePreview}
-        onSubmit={
-          isEdit
-            ? onSubmitEditOrder
-            : () =>
-                onSubmitCreateOrder({ currencyIn, currencyOut, chainId, account, inputAmount, outputAmount, expiredAt })
-        }
+        onSubmit={isEdit ? onSubmitEditOrder : onSubmitCreateOrderWithTracking}
         currencyIn={currencyIn}
         currencyOut={currencyOut}
         inputAmount={inputAmount}
