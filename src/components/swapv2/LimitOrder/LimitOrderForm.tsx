@@ -449,7 +449,14 @@ const LimitOrderForm = function LimitOrderForm({
       )} ${currencyOut.symbol}`,
     }))
     const signature = await library.getSigner().signMessage(ethers.utils.arrayify(orderHash))
-    return { signature, orderHash }
+
+    const bytes = ethers.utils.arrayify(signature)
+    const lastByte = bytes[64]
+    if (lastByte === 0 || lastByte === 1) {
+      bytes[64] += 27
+    }
+
+    return { signature: ethers.utils.hexlify(bytes), orderHash }
   }
 
   const onSubmitCreateOrder = async (params: CreateOrderParam) => {
