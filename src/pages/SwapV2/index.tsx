@@ -61,7 +61,13 @@ import { BodyWrapper } from 'pages/AppBody'
 import VerifyComponent from 'pages/Verify/VerifyComponent'
 import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { Field } from 'state/swap/actions'
-import { useDefaultsFromURLSearch, useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
+import {
+  useDefaultsFromURLSearch,
+  useInputCurrency,
+  useOutputCurrency,
+  useSwapActionHandlers,
+  useSwapState,
+} from 'state/swap/hooks'
 import { useDerivedSwapInfoV2 } from 'state/swap/useAggregator'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import {
@@ -195,13 +201,20 @@ export default function Swap() {
   // swap state
   const { independentField, typedValue, feeConfig, [Field.INPUT]: INPUT, [Field.OUTPUT]: OUTPUT } = useSwapState()
 
-  const { onCurrencySelection, onResetSelectCurrency, onUserInput, onChangeRecipient, onChangeTrade } =
-    useSwapActionHandlers()
+  const { onCurrencySelection, onResetSelectCurrency, onUserInput, onChangeRecipient } = useSwapActionHandlers()
 
-  const { v2Trade, parsedAmount, currencies } = useDerivedSwapInfoV2()
+  const { v2Trade, parsedAmount } = useDerivedSwapInfoV2()
 
-  const currencyIn: Currency | undefined = currencies[Field.INPUT]
-  const currencyOut: Currency | undefined = currencies[Field.OUTPUT]
+  const currencyIn = useInputCurrency()
+  const currencyOut = useOutputCurrency()
+
+  const currencies = useMemo(
+    () => ({
+      [Field.INPUT]: currencyIn,
+      [Field.OUTPUT]: currencyOut,
+    }),
+    [currencyIn, currencyOut],
+  )
 
   const urlLoadedTokens: Token[] = useMemo(
     () =>
