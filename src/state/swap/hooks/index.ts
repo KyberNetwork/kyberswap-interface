@@ -37,7 +37,7 @@ import { isAddress } from 'utils'
 import { Aggregator } from 'utils/aggregator'
 import { computeSlippageAdjustedAmounts } from 'utils/prices'
 
-import { SolanaEncode } from './types'
+import { SolanaEncode } from '../types'
 
 export function useSwapState(): AppState['swap'] {
   return useSelector<AppState, AppState['swap']>(state => state.swap)
