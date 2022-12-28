@@ -21,7 +21,7 @@ import { ClickableText } from 'pages/Pool/styleds'
 import { AppState } from 'state'
 import { useToggleTransactionSettingsMenu } from 'state/application/hooks'
 import { Field } from 'state/swap/actions'
-import { useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
+import { useSwapState } from 'state/swap/hooks'
 import useParsedAmountFromInputCurrency from 'state/swap/hooks/useParsedAmountFromInputCurrency'
 import { useUserAddedTokens, useUserSlippageTolerance } from 'state/user/hooks'
 
@@ -41,8 +41,13 @@ export type SwapFormProps = {
   balanceOut: CurrencyAmount<Currency> | undefined
   isAdvancedMode: boolean
   allowedSlippage: number
+  recipient: string | null
 
   onReverseTokenSelection: () => void
+  onUserInput: (field: Field, value: string) => void
+  onCurrencySelection: (field: Field, currency: Currency) => void
+  onResetSelectCurrency: (field: Field) => void
+  onChangeRecipient: (recipient: string | null) => void
 }
 const SwapForm: React.FC<SwapFormProps> = ({
   currencyIn,
@@ -51,8 +56,13 @@ const SwapForm: React.FC<SwapFormProps> = ({
   balanceOut,
   isAdvancedMode,
   allowedSlippage,
+  recipient,
 
   onReverseTokenSelection,
+  onUserInput,
+  onCurrencySelection,
+  onResetSelectCurrency,
+  onChangeRecipient,
 }) => {
   const { chainId, isSolana, isEVM } = useActiveWeb3React()
 
@@ -64,9 +74,7 @@ const SwapForm: React.FC<SwapFormProps> = ({
   const toggleSettings = useToggleTransactionSettingsMenu()
 
   // swap state
-  const { typedValue, recipient, [Field.INPUT]: INPUT, [Field.OUTPUT]: OUTPUT } = useSwapState()
-
-  const { onCurrencySelection, onResetSelectCurrency, onUserInput, onChangeRecipient } = useSwapActionHandlers()
+  const { typedValue, [Field.INPUT]: INPUT, [Field.OUTPUT]: OUTPUT } = useSwapState()
 
   const parsedAmount = useParsedAmountFromInputCurrency()
 
