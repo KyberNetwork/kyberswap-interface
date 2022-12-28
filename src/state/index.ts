@@ -29,6 +29,7 @@ import vesting from './vesting/reducer'
 
 const PERSISTED_KEYS: string[] = ['user', 'transactions']
 ENV_LEVEL < ENV_TYPE.PROD && PERSISTED_KEYS.push('customizeDexes')
+ENV_LEVEL < ENV_TYPE.PROD && PERSISTED_KEYS.push('mintV2')
 
 const store = configureStore({
   devTools: process.env.NODE_ENV !== 'production',

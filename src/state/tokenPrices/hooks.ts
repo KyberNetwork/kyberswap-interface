@@ -8,7 +8,11 @@ import { isAddressString } from 'utils'
 
 import { updatePrices } from '.'
 
-export const useTokenPrices = (addresses: Array<string>) => {
+export const useTokenPrices = (
+  addresses: Array<string>,
+): {
+  [address: string]: number
+} => {
   const tokenPrices = useAppSelector(state => state.tokenPrices)
   const dispatch = useAppDispatch()
   const { chainId } = useActiveWeb3React()

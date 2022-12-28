@@ -369,13 +369,7 @@ export default function AddLiquidity() {
             topContent={() =>
               existingPosition && (
                 <div style={{ marginTop: '1rem' }}>
-                  {/* <PositionPreview
-                    position={position}
-                    title={<Trans>Selected Range</Trans>}
-                    inRange={!outOfRange}
-                    ticksAtLimit={ticksAtLimit}
-                  /> */}
-                  <ProAmmPoolInfo position={existingPosition} />
+                  <ProAmmPoolInfo position={existingPosition} tokenId={tokenId} />
                   <ProAmmPooledTokens
                     liquidityValue0={parsedAmounts[Field.CURRENCY_A]}
                     liquidityValue1={parsedAmounts[Field.CURRENCY_B]}
@@ -497,12 +491,6 @@ export default function AddLiquidity() {
                     }}
                   />
                 </AutoColumn>
-                {/* <PositionPreview
-                  position={existingPosition}
-                  title={<Trans>Selected Range</Trans>}
-                  inRange={!outOfRange}
-                  ticksAtLimit={ticksAtLimit}
-                /> */}
               </FirstColumn>
               <SecondColumn>
                 <ProAmmPriceRange position={existingPosition} ticksAtLimit={ticksAtLimit} />
@@ -511,12 +499,6 @@ export default function AddLiquidity() {
             </GridColumn>
           </AutoColumn>
         ) : (
-          // <PositionPreview
-          //   position={existingPosition}
-          //   title={<Trans>Selected Range</Trans>}
-          //   inRange={!outOfRange}
-          //   ticksAtLimit={ticksAtLimit}
-          // />
           <Loader />
         )}
       </Container>

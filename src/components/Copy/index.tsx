@@ -1,5 +1,6 @@
-import React, { CSSProperties } from 'react'
+import React, { CSSProperties, ReactNode } from 'react'
 import { CheckCircle, Copy } from 'react-feather'
+import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 import useCopyClipboard from 'hooks/useCopyClipboard'
@@ -30,12 +31,14 @@ export default function CopyHelper({
   margin,
   style = {},
   size = '14',
+  text,
 }: {
   toCopy: string
   children?: React.ReactNode
   margin?: string
   style?: CSSProperties
   size?: string
+  text?: ReactNode
 }) {
   const [isCopied, setCopied] = useCopyClipboard()
 
@@ -44,16 +47,24 @@ export default function CopyHelper({
     setCopied(toCopy)
   }
 
+  const copyIcon = isCopied ? (
+    <TransactionStatusText>
+      <CheckCircle size={size} />
+    </TransactionStatusText>
+  ) : (
+    <TransactionStatusText>
+      <Copy size={size} />
+    </TransactionStatusText>
+  )
+
   return (
     <CopyIcon onClick={onCopy} margin={margin} style={style}>
-      {isCopied ? (
-        <TransactionStatusText>
-          <CheckCircle size={size} />
-        </TransactionStatusText>
+      {text ? (
+        <Flex>
+          {copyIcon}&nbsp;{text}
+        </Flex>
       ) : (
-        <TransactionStatusText>
-          <Copy size={size} />
-        </TransactionStatusText>
+        copyIcon
       )}
     </CopyIcon>
   )

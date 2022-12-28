@@ -665,8 +665,12 @@ export function useProAmmDerivedAllMintInfo(
   baseCurrency?: Currency,
   existingPosition?: Position,
 ): {
+  positions: (Position | undefined)[]
   errorMessage?: ReactNode
   currencyAmountSum: { [field in Field]: CurrencyAmount<Currency> | undefined }
+  ticksAtLimits: {
+    [bound in Bound]: (boolean | undefined)[]
+  }
 } {
   const { account } = useActiveWeb3React()
   const { positions, startPriceTypedValue } = useProAmmMintState()
@@ -1163,9 +1167,73 @@ export function useProAmmDerivedAllMintInfo(
     tokenB,
   ])
 
+  const positionsFormatted: (Position | undefined)[] = useMemo(
+    () =>
+      positions.map((_, index) => {
+        const tickUpper = tickUppers[index]
+        const tickLower = tickLowers[index]
+        const currentParsedAmounts = {
+          [Field.CURRENCY_A]: parsedAmounts?.[Field.CURRENCY_A][index],
+          [Field.CURRENCY_B]: parsedAmounts?.[Field.CURRENCY_B][index],
+        }
+        const deposit0Disabled = Boolean(
+          typeof tickUpper === 'number' && poolForPosition && poolForPosition.tickCurrent >= tickUpper,
+        )
+        const deposit1Disabled = Boolean(
+          typeof tickLower === 'number' && poolForPosition && poolForPosition.tickCurrent < tickLower,
+        )
+
+        if (
+          !poolForPosition ||
+          !tokenA ||
+          !tokenB ||
+          typeof tickLower !== 'number' ||
+          typeof tickUpper !== 'number' ||
+          invalidRange
+        ) {
+          return undefined
+        }
+        // mark as 0 if disabled because out of range
+        const amount0 = !deposit0Disabled
+          ? currentParsedAmounts?.[tokenA.equals(poolForPosition.token0) ? Field.CURRENCY_A : Field.CURRENCY_B]
+              ?.quotient
+          : BIG_INT_ZERO
+        const amount1 = !deposit1Disabled
+          ? currentParsedAmounts?.[tokenA.equals(poolForPosition.token0) ? Field.CURRENCY_B : Field.CURRENCY_A]
+              ?.quotient
+          : BIG_INT_ZERO
+
+        if (amount0 !== undefined && amount1 !== undefined) {
+          return Position.fromAmounts({
+            pool: poolForPosition,
+            tickLower,
+            tickUpper,
+            amount0,
+            amount1,
+            useFullPrecision: true, // we want full precision for the theoretical position
+          })
+        } else {
+          return undefined
+        }
+      }),
+    [positions, tickUppers, tickLowers, parsedAmounts, poolForPosition, tokenA, tokenB, invalidRange],
+  )
+
+  const ticksAtLimits: {
+    [bound in Bound]: (boolean | undefined)[]
+  } = useMemo(
+    () => ({
+      [Bound.LOWER]: tickLowers.map(tickLower => feeAmount && tickLower === tickSpaceLimits.LOWER),
+      [Bound.UPPER]: tickUppers.map(tickUpper => feeAmount && tickUpper === tickSpaceLimits.UPPER),
+    }),
+    [tickSpaceLimits, tickLowers, tickUppers, feeAmount],
+  )
+
   return {
+    positions: positionsFormatted,
     errorMessage,
     currencyAmountSum,
+    ticksAtLimits,
   }
 }
 

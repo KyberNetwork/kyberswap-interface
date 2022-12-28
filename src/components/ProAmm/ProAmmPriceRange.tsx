@@ -6,7 +6,6 @@ import { Flex, Text } from 'rebass'
 import { OutlineCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
 import Divider from 'components/Divider'
-import { Swap2 as SwapIcon } from 'components/Icons'
 import InfoHelper from 'components/InfoHelper'
 import LiquidityChartRangeInput from 'components/LiquidityChartRangeInput'
 import { RowBetween, RowFixed } from 'components/Row'
@@ -14,6 +13,8 @@ import useTheme from 'hooks/useTheme'
 import { Bound } from 'state/mint/proamm/type'
 import { formatTickPrice } from 'utils/formatTickPrice'
 import { unwrappedToken } from 'utils/wrappedCurrency'
+
+import { RotateSwapIcon } from './styles'
 
 export default function ProAmmPriceRange({
   position,
@@ -74,11 +75,11 @@ export default function ProAmmPriceRange({
               <Trans>Current Price</Trans>
             </Text>
             <RowFixed>
-              <Text fontSize={'12px'} fontWeight="500" style={{ textAlign: 'right' }}>{`${price.toSignificant(10)} ${
+              <Text fontSize={'12px'} fontWeight="500" style={{ textAlign: 'right' }}>{`${price.toSignificant(6)} ${
                 quoteCurrency.symbol
               } per ${baseCurrency.symbol}`}</Text>
               <span onClick={handleRateChange} style={{ marginLeft: '2px', cursor: 'pointer' }}>
-                <SwapIcon size={layout === 0 ? 16 : 14} />
+                <RotateSwapIcon rotated={baseCurrency !== currency0} size={layout === 0 ? 16 : 14} />
               </span>
             </RowFixed>
           </Flex>
@@ -112,12 +113,13 @@ export default function ProAmmPriceRange({
               text={t`Your position will be 100% composed of ${baseCurrency?.symbol} at this price`}
               placement={'right'}
               size={12}
-            ></InfoHelper>
+            />
           </Flex>
 
           <Text fontWeight="500" fontSize="12px">
-            {`${formatTickPrice(priceLower, ticksAtLimit, Bound.LOWER)}`} {quoteCurrency.symbol} per{' '}
-            {baseCurrency.symbol}
+            <Trans>
+              {formatTickPrice(priceLower, ticksAtLimit, Bound.LOWER)} {quoteCurrency.symbol} per {baseCurrency.symbol}
+            </Trans>
           </Text>
         </RowBetween>
         <RowBetween style={{ gap: '12px' }}>
@@ -129,12 +131,13 @@ export default function ProAmmPriceRange({
               text={t`Your position will be 100% composed of ${quoteCurrency?.symbol} at this price`}
               placement={'right'}
               size={12}
-            ></InfoHelper>
+            />
           </Flex>
 
           <Text fontSize="12px" fontWeight="500">
-            {`${formatTickPrice(priceUpper, ticksAtLimit, Bound.UPPER)}`} {quoteCurrency.symbol} per{' '}
-            {baseCurrency.symbol}
+            <Trans>
+              {formatTickPrice(priceUpper, ticksAtLimit, Bound.UPPER)} {quoteCurrency.symbol} per {baseCurrency.symbol}
+            </Trans>
           </Text>
         </RowBetween>
       </AutoColumn>

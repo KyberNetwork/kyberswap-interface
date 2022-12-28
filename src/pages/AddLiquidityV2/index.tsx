@@ -1,7 +1,7 @@
 import { TransactionResponse } from '@ethersproject/providers'
 import { ONE } from '@kyberswap/ks-sdk-classic'
 import { Currency, CurrencyAmount, WETH } from '@kyberswap/ks-sdk-core'
-import { FeeAmount, NonfungiblePositionManager } from '@kyberswap/ks-sdk-elastic'
+import { FeeAmount, NonfungiblePositionManager, Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import JSBI from 'jsbi'
@@ -22,19 +22,23 @@ import { Swap as SwapIcon } from 'components/Icons'
 import InfoHelper from 'components/InfoHelper'
 import LiquidityChartRangeInput from 'components/LiquidityChartRangeInput'
 import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
+import ChartPositions from 'components/ProAmm/ChartPositions'
+import ListPositions from 'components/ProAmm/ListPositions'
 import ProAmmPoolInfo from 'components/ProAmm/ProAmmPoolInfo'
 import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
 import ProAmmPriceRange from 'components/ProAmm/ProAmmPriceRange'
 import RangeSelector from 'components/RangeSelector'
 import Rating from 'components/Rating'
 import Row, { RowBetween, RowFit, RowFixed } from 'components/Row'
-import { MouseoverTooltip } from 'components/Tooltip'
+import Tooltip from 'components/Tooltip'
 import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
 import { TutorialType } from 'components/Tutorial'
 import { Dots } from 'components/swapv2/styleds'
+import { ENV_LEVEL } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
+import { ENV_TYPE } from 'constants/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
@@ -51,11 +55,12 @@ import {
   useProAmmMintState,
   useRangeHopCallbacks,
 } from 'state/mint/proamm/hooks'
-import { Bound, Field } from 'state/mint/proamm/type'
+import { Bound, Field, RANGE } from 'state/mint/proamm/type'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
-import { useExpertModeManager, useUserSlippageTolerance } from 'state/user/hooks'
+import { useExpertModeManager, useUserSlippageTolerance, useViewMode } from 'state/user/hooks'
+import { VIEW_MODE } from 'state/user/reducer'
 import { HideMedium, MEDIA_WIDTHS, MediumOnly, StyledInternalLink, TYPE } from 'theme'
 import { basisPointsToPercent, calculateGasMargin, formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
@@ -113,8 +118,8 @@ export default function AddLiquidity() {
   const isSorted = tokenA && tokenB && tokenA.sortsBefore(tokenB)
 
   // mint state
-  const { positions, startPriceTypedValue, positionCount } = useProAmmMintState()
-  const { independentField, typedValue } = positions[positionIndex]
+  const { positions: positionsState, startPriceTypedValue, positionCount } = useProAmmMintState()
+  const { independentField, typedValue } = positionsState[positionIndex]
 
   const {
     pool,
@@ -147,7 +152,7 @@ export default function AddLiquidity() {
     feeAmount,
     baseCurrency ?? undefined,
   )
-  const { errorMessage } = useProAmmDerivedAllMintInfo(
+  const { errorMessage, positions, ticksAtLimits } = useProAmmDerivedAllMintInfo(
     positionIndex,
     baseCurrency ?? undefined,
     quoteCurrency ?? undefined,
@@ -177,7 +182,7 @@ export default function AddLiquidity() {
   } = useProAmmMintActionHandlers(noLiquidity, positionIndex)
 
   useEffect(() => {
-    onResetMintState()
+    ENV_LEVEL > ENV_TYPE.LOCAL && onResetMintState()
   }, [onResetMintState])
 
   const isValid = !errorMessage && !invalidRange
@@ -562,6 +567,7 @@ export default function AddLiquidity() {
   const disableRangeSelect = !feeAmount || invalidPool || (noLiquidity && !startPriceTypedValue)
   const hasTab = !noLiquidity && !disableRangeSelect
   const disableAmountSelect = disableRangeSelect || tickLower === undefined || tickUpper === undefined || invalidRange
+  const [shownTooltip, setShownTooltip] = useState<RANGE | null>(null)
   const chart = (
     <>
       {hasTab && (
@@ -595,11 +601,21 @@ export default function AddLiquidity() {
                   <Row gap={gap} flexWrap="wrap">
                     {RANGE_LIST.map(range => (
                       <Flex key={rangeData[range].title} width={buttonWidth}>
-                        <MouseoverTooltip text={rangeData[range].tooltip} containerStyle={{ width: '100%' }}>
-                          <RangeBtn onClick={() => getSetRange(range)} isSelected={range === activeRange}>
+                        <Tooltip
+                          text={rangeData[range].tooltip}
+                          containerStyle={{ width: '100%' }}
+                          show={shownTooltip === range}
+                          placement="bottom"
+                        >
+                          <RangeBtn
+                            onClick={() => getSetRange(range)}
+                            isSelected={range === activeRange}
+                            onMouseEnter={() => setShownTooltip(range)}
+                            onMouseLeave={() => setShownTooltip(null)}
+                          >
                             {rangeData[range].title}
                           </RangeBtn>
-                        </MouseoverTooltip>
+                        </Tooltip>
                       </Flex>
                     ))}
                   </Row>
@@ -744,6 +760,44 @@ export default function AddLiquidity() {
     </>
   )
 
+  const [viewMode] = useViewMode()
+  const modalContent = () => {
+    if (!isMultiplePosition) {
+      return (
+        position && (
+          <div style={{ marginTop: '1rem' }}>
+            <ProAmmPoolInfo position={position} />
+            <ProAmmPooledTokens
+              liquidityValue0={CurrencyAmount.fromRawAmount(
+                unwrappedToken(position.pool.token0),
+                position.amount0.quotient,
+              )}
+              liquidityValue1={CurrencyAmount.fromRawAmount(
+                unwrappedToken(position.pool.token1),
+                position.amount1.quotient,
+              )}
+              title={t`New Liquidity Amount`}
+            />
+            <ProAmmPriceRange position={position} ticksAtLimit={ticksAtLimit} hideChart />
+          </div>
+        )
+      )
+    }
+    if (!positions.every(Boolean)) return null
+    const positionsValidated: Position[] = positions as Position[]
+    return (
+      <div style={{ marginTop: '1rem' }}>
+        <ProAmmPoolInfo position={positionsValidated[0]} narrow={true} />
+        {viewMode === VIEW_MODE.LIST ? (
+          <ListPositions positions={positionsValidated} usdPrices={usdPrices} ticksAtLimits={ticksAtLimits} />
+        ) : (
+          <ChartPositions positions={positionsValidated} />
+        )}
+      </div>
+    )
+  }
+
+  const isMultiplePosition = positionsState.length > 1
   if (!isEVM) return <Navigate to="/" />
   return (
     <>
@@ -752,42 +806,32 @@ export default function AddLiquidity() {
         onDismiss={handleDismissConfirmation}
         attemptingTxn={attemptingTxn}
         hash={txHash}
+        maxWidth="unset"
+        width="unset"
         content={() => (
           <ConfirmationModalContent
             title={!!noLiquidity ? t`Create a new pool` : t`Add Liquidity`}
             onDismiss={handleDismissConfirmation}
-            topContent={() =>
-              position && (
-                // <PositionPreview
-                //   position={position}
-                //   title={<Trans>Selected Range</Trans>}
-                //   inRange={!outOfRange}
-                //   ticksAtLimit={ticksAtLimit}
-                // />
-                <div style={{ marginTop: '1rem' }}>
-                  <ProAmmPoolInfo position={position} />
-                  <ProAmmPooledTokens
-                    liquidityValue0={CurrencyAmount.fromRawAmount(
-                      unwrappedToken(position.pool.token0),
-                      position.amount0.quotient,
-                    )}
-                    liquidityValue1={CurrencyAmount.fromRawAmount(
-                      unwrappedToken(position.pool.token1),
-                      position.amount1.quotient,
-                    )}
-                    title={t`New Liquidity Amount`}
-                  />
-                  <ProAmmPriceRange position={position} ticksAtLimit={ticksAtLimit} hideChart />
-                </div>
+            topContent={modalContent}
+            showGridListOption={isMultiplePosition}
+            bottomContent={() =>
+              isMultiplePosition ? (
+                <RowBetween>
+                  <div />
+                  <ButtonPrimary onClick={onAdd} width="160px">
+                    <Text fontWeight={500}>
+                      <Trans>Supply</Trans>
+                    </Text>
+                  </ButtonPrimary>
+                </RowBetween>
+              ) : (
+                <ButtonPrimary onClick={onAdd} width="160px">
+                  <Text fontWeight={500}>
+                    <Trans>Supply</Trans>
+                  </Text>
+                </ButtonPrimary>
               )
             }
-            bottomContent={() => (
-              <ButtonPrimary onClick={onAdd}>
-                <Text fontWeight={500}>
-                  <Trans>Supply</Trans>
-                </Text>
-              </ButtonPrimary>
-            )}
           />
         )}
         pendingText={pendingText}
@@ -963,11 +1007,13 @@ export default function AddLiquidity() {
                   </AutoColumn>
                 </AutoColumn>
               ) : null}
-              <MediumOnly>{chart}</MediumOnly>
+              {upToMedium && chart}
             </FlexLeft>
-            <BorderedHideMedium>
-              <RightContainer gap="lg">{chart}</RightContainer>
-            </BorderedHideMedium>
+            {!upToMedium && (
+              <BorderedHideMedium>
+                <RightContainer gap="lg">{chart}</RightContainer>
+              </BorderedHideMedium>
+            )}
           </Flex>
           <RowBetween flexDirection={upToMedium ? 'column' : 'row'}>
             <div />
