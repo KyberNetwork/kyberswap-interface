@@ -1,14 +1,10 @@
-import { Currency, CurrencyAmount, Price, TokenAmount } from '@kyberswap/ks-sdk-core'
-import JSBI from 'jsbi'
+import { Currency, CurrencyAmount, Price } from '@kyberswap/ks-sdk-core'
 import React, { useState } from 'react'
 import { Repeat } from 'react-feather'
-import { useSelector } from 'react-redux'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 import useTheme from 'hooks/useTheme'
-import { AppState } from 'state'
-import { useInputCurrency, useOutputCurrency } from 'state/swap/hooks'
 
 export const IconButton = styled.button`
   width: 22px;
@@ -35,14 +31,6 @@ export const IconButton = styled.button`
   }
 `
 
-const toCurrencyAmount = (currency: Currency, value = ''): CurrencyAmount<Currency> => {
-  try {
-    return TokenAmount.fromRawAmount(currency, JSBI.BigInt(value))
-  } catch (e) {
-    return TokenAmount.fromRawAmount(currency, 0)
-  }
-}
-
 const toPrice = (
   inputAmount: CurrencyAmount<Currency>,
   outputAmount: CurrencyAmount<Currency>,
@@ -50,16 +38,17 @@ const toPrice = (
   return new Price(inputAmount.currency, outputAmount.currency, inputAmount.quotient, outputAmount.quotient)
 }
 
-const TradePrice: React.FC = () => {
+type Props = {
+  currencyIn: Currency | undefined
+  currencyOut: Currency | undefined
+  parsedAmountIn: CurrencyAmount<Currency> | undefined
+  parsedAmountOut: CurrencyAmount<Currency> | undefined
+}
+const TradePrice: React.FC<Props> = ({ currencyIn, currencyOut, parsedAmountIn, parsedAmountOut }) => {
   const theme = useTheme()
   const [inverted, setInverted] = useState(false)
 
-  const currencyIn = useInputCurrency()
-  const currencyOut = useOutputCurrency()
-  const currencyAmountIn = useSelector((state: AppState) => state.swap.routeSummary?.parsedAmountIn)
-  const currencyAmountOut = useSelector((state: AppState) => state.swap.routeSummary?.parsedAmountOut)
-
-  const price = currencyAmountIn && currencyAmountOut ? toPrice(currencyAmountIn, currencyAmountOut) : undefined
+  const price = parsedAmountIn && parsedAmountOut ? toPrice(parsedAmountIn, parsedAmountOut) : undefined
 
   const label = inverted
     ? `${currencyOut?.symbol} = 1 ${currencyIn?.symbol}`

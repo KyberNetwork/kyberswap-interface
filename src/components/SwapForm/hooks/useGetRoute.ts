@@ -1,19 +1,12 @@
-import { WETH } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { useCallback, useRef } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 
 import { ETHER_ADDRESS } from 'constants/index'
 import { isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import { AppState } from 'state'
+import useDebounce from 'hooks/useDebounce'
 import { useAllDexes, useExcludeDexes } from 'state/customizeDexes/hooks'
-import {
-  getMetaAggregatorRouteFailure,
-  getMetaAggregatorRouteRequest,
-  getMetaAggregatorRouteSuccess,
-} from 'state/swap/actions'
-import { useInputCurrency, useOutputCurrency } from 'state/swap/hooks'
-import useParsedAmountFromInputCurrency from 'state/swap/hooks/useParsedAmountFromInputCurrency'
+import { FeeConfig, RouteSummary } from 'types/metaAggregator'
 import { asyncCallWithMinimumTime } from 'utils/fetchWaiting'
 import getMetaAggregatorRoute, { Params } from 'utils/getMetaAggregatorRoutes'
 
@@ -33,24 +26,30 @@ const useDexes = () => {
   return dexes
 }
 
-const useMetaAggregatorRouteFetcher = () => {
-  const dispatch = useDispatch()
+type Args = {
+  isSaveGas: boolean
+  parsedAmount: CurrencyAmount<Currency> | undefined
+  currencyIn: Currency | undefined
+  currencyOut: Currency | undefined
+  feeConfig: FeeConfig | undefined
+  setLoading: (value: boolean) => void
+  setResult: (value: RouteSummary) => void
+}
+const useGetRoute = (args: Args) => {
+  const { isSaveGas, parsedAmount, currencyIn, currencyOut, feeConfig, setLoading, setResult } = args
   const { chainId } = useActiveWeb3React()
-  const currencyIn = useInputCurrency()
-  const currencyOut = useOutputCurrency()
-  const feeConfig = useSelector((state: AppState) => state.swap.feeConfig)
-  const abortControllerRef = useRef(new AbortController())
-  const parsedAmount = useParsedAmountFromInputCurrency()
 
-  const amountIn = parsedAmount?.quotient?.toString() || ''
+  const abortControllerRef = useRef(new AbortController())
+
+  const amountIn = useDebounce(parsedAmount?.quotient?.toString() || '', 200)
+
   const dexes = useDexes()
-  const saveGas = String(useSelector((state: AppState) => state.swap.saveGas))
   const { chargeFeeBy = '', feeReceiver = '', feeAmount = '' } = feeConfig || {}
   const isInBps = feeConfig?.isInBps !== undefined ? (feeConfig.isInBps ? '1' : '0') : ''
 
   const fetcher = useCallback(async () => {
     if (!currencyIn || !currencyOut || !amountIn) {
-      return
+      return undefined
     }
 
     const tokenInAddress = currencyIn.isNative
@@ -69,7 +68,7 @@ const useMetaAggregatorRouteFetcher = () => {
       tokenIn: tokenInAddress,
       tokenOut: tokenOutAddress,
       amountIn,
-      saveGas,
+      saveGas: String(isSaveGas),
       dexes,
       gasInclude: 'true', // default
       gasPrice: '', // default
@@ -83,7 +82,8 @@ const useMetaAggregatorRouteFetcher = () => {
       useMeta: 'true',
     }
 
-    dispatch(getMetaAggregatorRouteRequest())
+    setLoading(true)
+
     try {
       // abort the previous request
       abortControllerRef.current.abort()
@@ -98,12 +98,14 @@ const useMetaAggregatorRouteFetcher = () => {
       )
 
       if (!abortController.signal.aborted) {
-        dispatch(getMetaAggregatorRouteSuccess(response))
+        setResult(response.routeSummary)
+        setLoading(false)
       }
     } catch (e) {
       console.error(e)
-      dispatch(getMetaAggregatorRouteFailure())
     }
+
+    return undefined
   }, [
     amountIn,
     chainId,
@@ -111,14 +113,15 @@ const useMetaAggregatorRouteFetcher = () => {
     currencyIn,
     currencyOut,
     dexes,
-    dispatch,
     feeAmount,
     feeReceiver,
     isInBps,
-    saveGas,
+    isSaveGas,
+    setLoading,
+    setResult,
   ])
 
   return fetcher
 }
 
-export default useMetaAggregatorRouteFetcher
+export default useGetRoute

@@ -31,13 +31,12 @@ import {
   typeInput,
 } from 'state/swap/actions'
 import { SwapState } from 'state/swap/reducer'
+import { SolanaEncode } from 'state/swap/types'
 import { useExpertModeManager, useUserSlippageTolerance } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { isAddress } from 'utils'
 import { Aggregator } from 'utils/aggregator'
 import { computeSlippageAdjustedAmounts } from 'utils/prices'
-
-import { SolanaEncode } from '../types'
 
 export function useSwapState(): AppState['swap'] {
   return useSelector<AppState, AppState['swap']>(state => state.swap)

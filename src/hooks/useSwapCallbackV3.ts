@@ -1,27 +1,17 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
-import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
-import { SignerWalletAdapter } from '@solana/wallet-adapter-base'
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 
+import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
+import { ZERO_ADDRESS_SOLANA } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks/index'
 import useENS from 'hooks/useENS'
-import { useEncodeSolana, useSwapState } from 'state/swap/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { isAddress, shortenAddress } from 'utils'
 import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
-import { sendEVMTransaction, sendSolanaTransactions } from 'utils/sendTransaction'
-
-import { ZERO_ADDRESS_SOLANA } from './../constants/index'
-import useProvider from './solana/useProvider'
-
-enum SwapCallbackState {
-  INVALID,
-  LOADING,
-  VALID,
-}
+import { sendEVMTransaction } from 'utils/sendTransaction'
 
 export interface FeeConfig {
   chargeFeeBy: 'currency_in' | 'currency_out'
@@ -32,19 +22,12 @@ export interface FeeConfig {
 
 // returns a function that will execute a swap, if the parameters are all valid
 // and the user has approved the slippage adjusted input amount for the trade
-const useSwapCallbackV3 = (
-  inputAmount?: CurrencyAmount<Currency>,
-  outputAmount?: CurrencyAmount<Currency>,
-  priceImpact?: number,
-  routerAddress?: string,
-  encodedSwapData?: string,
-): { state: SwapCallbackState; callback: null | (() => Promise<string>); error: string | null } => {
-  const { account, chainId, isEVM, isSolana, walletSolana } = useActiveWeb3React()
+const useSwapCallbackV3 = () => {
+  const { account, chainId, isEVM } = useActiveWeb3React()
   const { library } = useWeb3React()
-  const provider = useProvider()
-  const [encodeSolana] = useEncodeSolana()
 
-  const { typedValue, feeConfig, saveGas, recipient: recipientAddressOrName } = useSwapState()
+  const { typedValue, feeConfig, isSaveGas, recipient: recipientAddressOrName, routeSummary } = useSwapFormContext()
+  const { parsedAmountIn: inputAmount, parsedAmountOut: outputAmount, priceImpact } = routeSummary || {}
 
   const [allowedSlippage] = useUserSlippageTolerance()
 
@@ -54,9 +37,7 @@ const useSwapCallbackV3 = (
 
   const recipient = recipientAddressOrName === null || recipientAddressOrName === '' ? account : recipientAddress
 
-  const solanaWalletAdapter = walletSolana?.wallet?.adapter
-
-  const extractSwapData = useCallback(() => {
+  const getSwapData = useCallback(() => {
     if (!inputAmount || !outputAmount) {
       throw new Error('"inputAmount" is undefined.')
     }
@@ -92,7 +73,7 @@ const useSwapCallbackV3 = (
         inputDecimals: inputAmount.currency.decimals,
         outputDecimals: outputAmount.currency.decimals,
         withRecipient,
-        saveGas,
+        saveGas: isSaveGas,
         inputAmount: inputAmount.toExact(),
         slippageSetting: allowedSlippage ? allowedSlippage / 100 : 0,
         priceImpact: priceImpact && priceImpact > 0.01 ? priceImpact.toFixed(2) : '<0.01',
@@ -108,80 +89,48 @@ const useSwapCallbackV3 = (
     priceImpact,
     recipient,
     recipientAddressOrName,
-    saveGas,
+    isSaveGas,
     typedValue,
   ])
 
-  return useMemo(() => {
-    if (!account || !inputAmount || !routerAddress || !encodedSwapData) {
-      return { state: SwapCallbackState.INVALID, callback: null, error: 'Missing dependencies' }
-    }
+  const handleSwapResponse = useCallback(
+    (tx: TransactionResponse) => {
+      const swapData = getSwapData()
 
-    const swapData = extractSwapData()
-    const onHandleSwapResponse = (tx: TransactionResponse) => {
       addTransactionWithType({
         ...swapData,
         hash: tx.hash,
       })
-    }
+    },
+    [addTransactionWithType, getSwapData],
+  )
 
-    if (!recipient) {
-      if (recipientAddressOrName !== null) {
-        return { state: SwapCallbackState.INVALID, callback: null, error: 'Invalid recipient' }
-      } else {
-        return { state: SwapCallbackState.LOADING, callback: null, error: null }
+  const swapCallbackForEVM = useCallback(
+    async (routerAddress: string | undefined, encodedSwapData: string | undefined) => {
+      if (!account || !inputAmount || !routerAddress || !encodedSwapData) {
+        throw new Error('Missing dependencies')
       }
-    }
 
-    const value = BigNumber.from(inputAmount.currency.isNative ? inputAmount.quotient.toString() : 0)
-    const onSwapWithBackendEncode = async (): Promise<string> => {
+      const value = BigNumber.from(inputAmount.currency.isNative ? inputAmount.quotient.toString() : 0)
       const response = await sendEVMTransaction(
         account,
         library,
         routerAddress,
         encodedSwapData,
         value,
-        onHandleSwapResponse,
+        handleSwapResponse,
       )
       if (response?.hash === undefined) throw new Error('sendTransaction returned undefined.')
       return response?.hash
-    }
-    const onSwapSolana = async (): Promise<string> => {
-      if (!provider) throw new Error('Please connect wallet first')
-      if (!solanaWalletAdapter) throw new Error('Please connect wallet first')
-      if (!encodeSolana) throw new Error('Encode not found')
+    },
+    [account, handleSwapResponse, inputAmount, library],
+  )
 
-      const hash = await sendSolanaTransactions(
-        encodeSolana,
-        solanaWalletAdapter as any as SignerWalletAdapter,
-        addTransactionWithType,
-        swapData,
-      )
-      if (hash === undefined) throw new Error('sendTransaction returned undefined.')
-      return hash[0]
-    }
+  if (isEVM) {
+    return swapCallbackForEVM
+  }
 
-    return {
-      state: SwapCallbackState.VALID,
-      callback: isEVM ? onSwapWithBackendEncode : isSolana ? (encodeSolana ? onSwapSolana : null) : null,
-      error: null,
-    }
-  }, [
-    account,
-    addTransactionWithType,
-    encodeSolana,
-    encodedSwapData,
-    extractSwapData,
-    inputAmount,
-    isEVM,
-    isSolana,
-    library,
-    provider,
-    recipient,
-    recipientAddressOrName,
-    routerAddress,
-    solanaWalletAdapter,
-  ])
+  return null
 }
 
 export default useSwapCallbackV3

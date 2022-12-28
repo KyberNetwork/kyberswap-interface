@@ -44,7 +44,8 @@ export default function useSyncTokenSymbolToUrl(
   const { pathname } = useLocation()
   const defaultTokens = useAllTokens()
   const isLoadedTokenDefault = useIsLoadedTokenDefault()
-  const curPath = pathname.startsWith(APP_PATHS.SWAP) ? APP_PATHS.SWAP : APP_PATHS.LIMIT
+  const curPath =
+    [APP_PATHS.SWAP_V3, APP_PATHS.SWAP, APP_PATHS.LIMIT].find(path => pathname.startsWith(path)) || APP_PATHS.SWAP
 
   const redirect = useCallback(
     (url: string) => {

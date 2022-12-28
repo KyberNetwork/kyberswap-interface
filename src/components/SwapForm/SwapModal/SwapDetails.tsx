@@ -3,26 +3,21 @@ import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useState } from 'react'
 import { AlertTriangle, Repeat } from 'react-feather'
-import { useSelector } from 'react-redux'
 import { Text } from 'rebass'
 
-import { ButtonError } from 'components/Button'
-import { GreyCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
 import InfoHelper from 'components/InfoHelper'
 import { AutoRow, RowBetween, RowFixed } from 'components/Row'
-import HurryUpBanner from 'components/swapv2/HurryUpBanner'
-import { Dots, StyledBalanceMaxMini, SwapCallbackError } from 'components/swapv2/styleds'
+import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
+import { StyledBalanceMaxMini } from 'components/swapv2/styleds'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { AppState } from 'state'
-import { useEncodeSolana, useOutputCurrency } from 'state/swap/hooks'
-import { useUserSlippageTolerance } from 'state/user/hooks'
 import { TYPE } from 'theme'
+import { RouteSummary } from 'types/metaAggregator'
 import { formattedNum } from 'utils'
 import { minimumAmountAfterSlippage } from 'utils/currencyAmount'
-
-import { getFormattedFeeAmountUsd, isHighPriceImpact, isVeryHighPriceImpact } from '../utils'
+import { getFormattedFeeAmountUsdV2 } from 'utils/fee'
+import { checkPriceImpact } from 'utils/prices'
 
 function formatExecutionPrice(executionPrice?: Price<Currency, Currency>, inverted?: boolean): string {
   if (!executionPrice) {
@@ -37,48 +32,51 @@ function formatExecutionPrice(executionPrice?: Price<Currency, Currency>, invert
     : `${executionPrice.toSignificant(6)} ${outputSymbol} / ${inputSymbol}`
 }
 
-type Props = {
-  onConfirm: () => void
-  swapErrorMessage: string | undefined
-  disabledConfirm: boolean
-  startedTime: number | undefined
+export type Props = {
+  acceptedChanges:
+    | Pick<RouteSummary, 'gasUsd' | 'parsedAmountOut' | 'priceImpact' | 'executionPrice' | 'amountInUsd'>
+    | undefined
 }
-const SwapDetails: React.FC<Props> = ({ onConfirm, swapErrorMessage, disabledConfirm, startedTime }) => {
+const SwapDetails: React.FC<Props> = ({ acceptedChanges }) => {
   const { isSolana, isEVM } = useActiveWeb3React()
   const [showInverted, setShowInverted] = useState<boolean>(false)
   const theme = useTheme()
-  const [encodeSolana] = useEncodeSolana()
+  const { routeSummary, feeConfig, slippage } = useSwapFormContext()
 
-  const currencyOut = useOutputCurrency()
-  const [allowedSlippage] = useUserSlippageTolerance()
-  const priceImpact = useSelector((state: AppState) => state.swap.routeSummary?.priceImpact)
-  const amountInUsd = useSelector((state: AppState) => state.swap.routeSummary?.amountInUsd)
-  const amountOut = useSelector((state: AppState) => state.swap.routeSummary?.parsedAmountOut)
-  const gasUsd = useSelector((state: AppState) => state.swap.routeSummary?.gasUsd)
-  const executionPrice = useSelector((state: AppState) => state.swap.routeSummary?.executionPrice)
-  const feeConfig = useSelector((state: AppState) => state.swap.feeConfig)
-  const isPriceImpactHigh = isHighPriceImpact(priceImpact)
-  const isPriceImpactVeryHigh = isVeryHighPriceImpact(priceImpact)
+  const { gasUsd, parsedAmountOut, priceImpact, executionPrice, amountInUsd } = acceptedChanges || routeSummary || {}
 
-  const formattedFeeAmountUsd = getFormattedFeeAmountUsd(Number(amountInUsd || 0), feeConfig?.feeAmount)
+  const priceImpactResult = checkPriceImpact(priceImpact)
 
-  const minimumAmountOut = amountOut ? minimumAmountAfterSlippage(amountOut, allowedSlippage) : undefined
+  const formattedFeeAmountUsd = getFormattedFeeAmountUsdV2(Number(amountInUsd || 0), feeConfig?.feeAmount)
+
+  const minimumAmountOut = parsedAmountOut ? minimumAmountAfterSlippage(parsedAmountOut, slippage) : undefined
+  const currencyOut = parsedAmountOut?.currency
   const minimumAmountOutStr =
-    minimumAmountOut && currencyOut
-      ? `${formattedNum(minimumAmountOut.toSignificant(10) || '0')} ${currencyOut.symbol}`
-      : ''
+    minimumAmountOut && currencyOut ? (
+      <Text
+        as="span"
+        sx={{
+          color: theme.text,
+          fontWeight: 'bold',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {formattedNum(minimumAmountOut.toSignificant(6) || '0')} {currencyOut.symbol}
+      </Text>
+    ) : (
+      ''
+    )
   return (
     <>
-      <AutoColumn justify="flex-start" gap="sm" style={{ padding: '12px 0 0 0px' }}>
-        <TYPE.italic textAlign="left" style={{ width: '100%' }}>
+      <AutoColumn justify="flex-start" gap="sm">
+        <TYPE.subHeader textAlign="left" style={{ width: '100%', marginBottom: '16px', color: theme.subText }}>
           {minimumAmountOutStr && (
             <Trans>
-              Output is estimated. You will receive at least <b>{minimumAmountOutStr}</b> or the transaction will
-              revert.
+              Output is estimated. You will receive at least {minimumAmountOutStr} or the transaction will revert.
             </Trans>
           )}
           {isSolana && <Trans>We may send multiple transactions to complete the swap.</Trans>}
-        </TYPE.italic>
+        </TYPE.subHeader>
       </AutoColumn>
 
       <AutoColumn gap="0.5rem" style={{ padding: '1rem', border: `1px solid ${theme.border}`, borderRadius: '8px' }}>
@@ -140,7 +138,7 @@ const SwapDetails: React.FC<Props> = ({ onConfirm, swapErrorMessage, disabledCon
           </RowFixed>
           <TYPE.black
             fontSize={14}
-            color={isPriceImpactVeryHigh ? theme.red : isPriceImpactHigh ? theme.warning : theme.text}
+            color={priceImpactResult.isVeryHigh ? theme.red : priceImpactResult.isHigh ? theme.warning : theme.text}
           >
             {priceImpact && priceImpact > 0.01 ? parseFloat(priceImpact.toFixed(3)) : '< 0.01'}%
           </TYPE.black>
@@ -152,7 +150,7 @@ const SwapDetails: React.FC<Props> = ({ onConfirm, swapErrorMessage, disabledCon
               <Trans>Slippage</Trans>
             </TYPE.black>
           </RowFixed>
-          <TYPE.black fontSize={14}>{allowedSlippage / 100}%</TYPE.black>
+          <TYPE.black fontSize={14}>{slippage / 100}%</TYPE.black>
         </RowBetween>
 
         {feeConfig && (
@@ -170,13 +168,13 @@ const SwapDetails: React.FC<Props> = ({ onConfirm, swapErrorMessage, disabledCon
         )}
       </AutoColumn>
 
-      {isPriceImpactHigh && (
+      {priceImpactResult.isHigh && (
         <AutoRow
           style={{
             marginTop: '16px',
             padding: '15px 20px',
             borderRadius: '16px',
-            backgroundColor: rgba(isPriceImpactVeryHigh ? theme.red : theme.warning, 0.35),
+            backgroundColor: rgba(priceImpactResult.isVeryHigh ? theme.red : theme.warning, 0.35),
             color: theme.text,
             fontSize: '12px',
             fontWeight: 400,
@@ -184,46 +182,17 @@ const SwapDetails: React.FC<Props> = ({ onConfirm, swapErrorMessage, disabledCon
           }}
         >
           <AlertTriangle
-            color={isPriceImpactVeryHigh ? theme.red : theme.warning}
+            color={priceImpactResult.isVeryHigh ? theme.red : theme.warning}
             size={16}
             style={{ marginRight: '10px' }}
           />
-          {isPriceImpactVeryHigh ? <Trans>Price impact is VERY high!</Trans> : <Trans>Price impact is high!</Trans>}
+          {priceImpactResult.isVeryHigh ? (
+            <Trans>Price impact is VERY high!</Trans>
+          ) : (
+            <Trans>Price impact is high!</Trans>
+          )}
         </AutoRow>
       )}
-      <HurryUpBanner startedTime={startedTime} />
-      <AutoRow>
-        {isSolana && !encodeSolana ? (
-          <GreyCard
-            style={{ textAlign: 'center', borderRadius: '999px', padding: '12px', marginTop: '24px' }}
-            id="confirm-swap-or-send"
-          >
-            <Dots>
-              <Trans>Checking accounts</Trans>
-            </Dots>
-          </GreyCard>
-        ) : (
-          <ButtonError
-            onClick={onConfirm}
-            disabled={disabledConfirm}
-            style={{
-              marginTop: '24px',
-              ...(isPriceImpactHigh && {
-                border: 'none',
-                background: isPriceImpactVeryHigh ? theme.red : theme.warning,
-                color: theme.text,
-              }),
-            }}
-            id="confirm-swap-or-send"
-          >
-            <Text fontSize={16} fontWeight={500}>
-              <Trans>Confirm Swap</Trans>
-            </Text>
-          </ButtonError>
-        )}
-
-        {swapErrorMessage ? <SwapCallbackError error={swapErrorMessage} /> : null}
-      </AutoRow>
     </>
   )
 }
