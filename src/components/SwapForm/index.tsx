@@ -1,11 +1,10 @@
 import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { useSelector } from 'react-redux'
 import { Flex } from 'rebass'
 
 import AddressInputPanel from 'components/AddressInputPanel'
-import ArrowRotate from 'components/ArrowRotate'
 import { AutoRow } from 'components/Row'
 import TrendingSoonTokenBanner from 'components/TrendingSoonTokenBanner'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
@@ -31,6 +30,7 @@ import InputCurrencyPanel from './InputCurrencyPanel'
 import OutputCurrencyPanel from './OutputCurrencyPanel'
 import PriceImpactNote from './PriceImpactNote'
 import RefreshButton from './RefreshButton'
+import ReverseTokenSelectionButton from './ReverseTokenSelectionButton'
 import TradePrice from './TradePrice'
 import TradeSummary from './TradeSummary'
 
@@ -51,7 +51,6 @@ const SwapForm: React.FC<SwapFormProps> = ({
   allowedSlippage,
 }) => {
   const { chainId, isSolana, isEVM } = useActiveWeb3React()
-  const [rotate, setRotate] = useState(false)
 
   const isSelectCurrencyManually = useSelector((state: AppState) => state.swap.isSelectTokenManually)
 
@@ -103,11 +102,6 @@ const SwapForm: React.FC<SwapFormProps> = ({
     },
     [onUserInput],
   )
-
-  const handleRotateClick = useCallback(() => {
-    setRotate(prev => !prev)
-    onSwitchTokensV2()
-  }, [onSwitchTokensV2])
 
   // it's safe to put undefined here for now as we're not using any action that involves `trade`
   const { mixpanelHandler } = useMixpanel(undefined, currencies)
@@ -192,7 +186,7 @@ const SwapForm: React.FC<SwapFormProps> = ({
               )}
             </Flex>
 
-            <ArrowRotate rotate={rotate} onClick={handleRotateClick} />
+            <ReverseTokenSelectionButton onClick={onSwitchTokensV2} />
           </AutoRow>
 
           <OutputCurrencyPanel />
