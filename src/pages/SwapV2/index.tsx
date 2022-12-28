@@ -69,7 +69,7 @@ import {
   useSwapActionHandlers,
   useSwapState,
 } from 'state/swap/hooks'
-import useParsedAmountFromInputCurrency from 'state/swap/hooks/useParsedAmountFromInputCurrency'
+import useParsedAmountFromTypedInput from 'state/swap/hooks/useParsedAmountFromTypedInput'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import {
   useExpertModeManager,
@@ -206,7 +206,7 @@ export default function Swap() {
 
   const currencyIn = useInputCurrency()
   const currencyOut = useOutputCurrency()
-  const parsedAmount = useParsedAmountFromInputCurrency()
+  const parsedAmount = useParsedAmountFromTypedInput()
 
   const currencies = useMemo(
     () => ({

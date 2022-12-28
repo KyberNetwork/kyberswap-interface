@@ -5,14 +5,15 @@ import { AppState } from 'state'
 import { useInputCurrency, useOutputCurrency } from 'state/swap/hooks'
 
 import { tryParseAmount } from '.'
+import { Field } from '../actions'
 
-// from the current swap inputs, compute the best trade and return it.
-const useParsedAmountFromInputCurrency = () => {
+const useParsedAmountFromTypedInput = () => {
   const typedValue = useSelector((state: AppState) => state.swap.typedValue)
+  const independentField = useSelector((state: AppState) => state.swap.independentField)
   const inputCurrency = useInputCurrency()
   const outputCurrency = useOutputCurrency()
 
-  const isExactIn = true
+  const isExactIn = independentField === Field.INPUT
 
   const currency = isExactIn ? inputCurrency : outputCurrency
   const parsedAmount = useMemo(() => {
@@ -22,4 +23,4 @@ const useParsedAmountFromInputCurrency = () => {
   return parsedAmount
 }
 
-export default useParsedAmountFromInputCurrency
+export default useParsedAmountFromTypedInput
