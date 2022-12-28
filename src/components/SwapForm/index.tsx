@@ -40,8 +40,16 @@ export type SwapFormProps = {
   balanceIn: CurrencyAmount<Currency> | undefined
   balanceOut: CurrencyAmount<Currency> | undefined
   isAdvancedMode: boolean
+  allowedSlippage: number
 }
-const SwapForm: React.FC<SwapFormProps> = ({ currencyIn, currencyOut, balanceIn, balanceOut, isAdvancedMode }) => {
+const SwapForm: React.FC<SwapFormProps> = ({
+  currencyIn,
+  currencyOut,
+  balanceIn,
+  balanceOut,
+  isAdvancedMode,
+  allowedSlippage,
+}) => {
   const { chainId, isSolana, isEVM } = useActiveWeb3React()
   const [rotate, setRotate] = useState(false)
 
@@ -51,9 +59,6 @@ const SwapForm: React.FC<SwapFormProps> = ({ currencyIn, currencyOut, balanceIn,
 
   // for expert mode
   const toggleSettings = useToggleTransactionSettingsMenu()
-
-  // get custom setting values for user
-  const [allowedSlippage] = useUserSlippageTolerance()
 
   // swap state
   const { typedValue, recipient, [Field.INPUT]: INPUT, [Field.OUTPUT]: OUTPUT } = useSwapState()

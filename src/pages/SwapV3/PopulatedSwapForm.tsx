@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 
 import SwapForm, { SwapFormProps } from 'components/SwapForm'
 import { useInputCurrency, useOutputCurrency } from 'state/swap/hooks'
-import { useExpertModeManager } from 'state/user/hooks'
+import { useExpertModeManager, useUserSlippageTolerance } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 
 const PopulatedSwapForm = () => {
@@ -14,6 +14,7 @@ const PopulatedSwapForm = () => {
   )
 
   const [isAdvancedMode] = useExpertModeManager()
+  const [allowedSlippage] = useUserSlippageTolerance()
 
   const props: SwapFormProps = {
     currencyIn,
@@ -21,6 +22,7 @@ const PopulatedSwapForm = () => {
     balanceIn,
     balanceOut,
     isAdvancedMode,
+    allowedSlippage,
   }
 
   return <SwapForm {...props} />
