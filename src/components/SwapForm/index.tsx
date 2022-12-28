@@ -41,6 +41,8 @@ export type SwapFormProps = {
   balanceOut: CurrencyAmount<Currency> | undefined
   isAdvancedMode: boolean
   allowedSlippage: number
+
+  onReverseTokenSelection: () => void
 }
 const SwapForm: React.FC<SwapFormProps> = ({
   currencyIn,
@@ -49,6 +51,8 @@ const SwapForm: React.FC<SwapFormProps> = ({
   balanceOut,
   isAdvancedMode,
   allowedSlippage,
+
+  onReverseTokenSelection,
 }) => {
   const { chainId, isSolana, isEVM } = useActiveWeb3React()
 
@@ -62,8 +66,7 @@ const SwapForm: React.FC<SwapFormProps> = ({
   // swap state
   const { typedValue, recipient, [Field.INPUT]: INPUT, [Field.OUTPUT]: OUTPUT } = useSwapState()
 
-  const { onSwitchTokensV2, onCurrencySelection, onResetSelectCurrency, onUserInput, onChangeRecipient } =
-    useSwapActionHandlers()
+  const { onCurrencySelection, onResetSelectCurrency, onUserInput, onChangeRecipient } = useSwapActionHandlers()
 
   const parsedAmount = useParsedAmountFromInputCurrency()
 
@@ -186,7 +189,7 @@ const SwapForm: React.FC<SwapFormProps> = ({
               )}
             </Flex>
 
-            <ReverseTokenSelectionButton onClick={onSwitchTokensV2} />
+            <ReverseTokenSelectionButton onClick={onReverseTokenSelection} />
           </AutoRow>
 
           <OutputCurrencyPanel />
