@@ -1,4 +1,4 @@
-import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
@@ -26,7 +26,6 @@ import { Field } from 'state/swap/actions'
 import { useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
 import useParsedAmountFromInputCurrency from 'state/swap/hooks/useParsedAmountFromInputCurrency'
 import { useExpertModeManager, useUserAddedTokens, useUserSlippageTolerance } from 'state/user/hooks'
-import { useCurrencyBalances } from 'state/wallet/hooks'
 
 import ActionButton from './ActionButton'
 import InputCurrencyPanel from './InputCurrencyPanel'
@@ -39,8 +38,10 @@ import TradeSummary from './TradeSummary'
 type Props = {
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
+  balanceIn: CurrencyAmount<Currency> | undefined
+  balanceOut: CurrencyAmount<Currency> | undefined
 }
-const SwapForm: React.FC<Props> = ({ currencyIn, currencyOut }) => {
+const SwapForm: React.FC<Props> = ({ currencyIn, currencyOut, balanceIn, balanceOut }) => {
   const { chainId, isSolana, isEVM } = useActiveWeb3React()
   const [rotate, setRotate] = useState(false)
 
@@ -67,10 +68,6 @@ const SwapForm: React.FC<Props> = ({ currencyIn, currencyOut }) => {
     [Field.INPUT]: currencyIn,
     [Field.OUTPUT]: currencyIn,
   }
-
-  const [balanceIn] = useCurrencyBalances(
-    useMemo(() => [currencyIn ?? undefined, currencyOut ?? undefined], [currencyIn, currencyOut]),
-  )
 
   const { wrapType } = useWrapCallback(currencyIn, currencyOut, typedValue)
 
