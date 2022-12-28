@@ -1,7 +1,6 @@
 import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { AlertTriangle } from 'react-feather'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Flex } from 'rebass'
 
@@ -11,7 +10,7 @@ import { AutoRow } from 'components/Row'
 import TrendingSoonTokenBanner from 'components/TrendingSoonTokenBanner'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import TradeTypeSelection from 'components/swapv2/TradeTypeSelection'
-import { PriceImpactHigh, Wrapper } from 'components/swapv2/styleds'
+import { Wrapper } from 'components/swapv2/styleds'
 import { STABLE_COINS_ADDRESS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -172,41 +171,6 @@ const SwapForm: React.FC<Props> = ({ currencyIn, currencyOut, balanceIn, balance
     }
   }, [isStableCoinSwap, setRawSlippage])
 
-  const isLargeSwap = useMemo((): boolean => {
-    return false
-    // Not used yet
-    // if these line is 6 months old, feel free to delete it
-    /*
-      if (!isSolana) return false
-      if (!trade) return false
-      try {
-        return trade.swaps.some(swapPath =>
-          swapPath.some(swap => {
-            // return swapAmountInUsd / swap.reserveUsd > 1%
-            //  =  (swap.swapAmount / 10**decimal * tokenIn.price) / swap.reserveUsd > 1%
-            //  = swap.swapAmount * tokenIn.price / (10**decimal * swap.reserveUsd) > 1%
-            //  = 10**decimal * swap.reserveUsd / (swap.swapAmount * tokenIn.price) < 100
-            const tokenIn = trade.tokens[swap.tokenIn]
-            if (!tokenIn || !tokenIn.decimals) return false
-
-            return JSBI.lessThan(
-              JSBI.divide(
-                JSBI.multiply(
-                  JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(tokenIn.decimals + 20)),
-                  JSBI.BigInt(swap.reserveUsd * 10 ** 20),
-                ),
-                JSBI.multiply(JSBI.BigInt(tokenIn.price * 10 ** 20), JSBI.BigInt(Number(swap.swapAmount) * 10 ** 20)),
-              ),
-              JSBI.BigInt(100),
-            )
-          }),
-        )
-      } catch (e) {
-        return false
-      }
-    */
-  }, [])
-
   return (
     <Flex sx={{ flexDirection: 'column', gap: '16px' }}>
       <Wrapper id={TutorialIds.SWAP_FORM_CONTENT}>
@@ -249,13 +213,6 @@ const SwapForm: React.FC<Props> = ({ currencyIn, currencyOut, balanceIn, balance
         )}
 
         <PriceImpactNote />
-
-        {isLargeSwap && (
-          <PriceImpactHigh>
-            <AlertTriangle color={theme.warning} size={24} style={{ marginRight: '10px' }} />
-            <Trans>Your transaction may not be successful. We recommend increasing the slippage for this trade</Trans>
-          </PriceImpactHigh>
-        )}
 
         <ActionButton />
       </Wrapper>
