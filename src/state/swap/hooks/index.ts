@@ -11,7 +11,7 @@ import { useLocation } from 'react-router-dom'
 import { APP_PATHS, BAD_RECIPIENT_ADDRESSES } from 'constants/index'
 import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import { useCurrencyV2 } from 'hooks/Tokens'
+import { useCurrency, useCurrencyV2 } from 'hooks/Tokens'
 import { useTradeExactIn } from 'hooks/Trades'
 import useENS from 'hooks/useENS'
 import useParsedQueryString from 'hooks/useParsedQueryString'
@@ -433,11 +433,11 @@ export const useDefaultsFromURLSearch = ():
 
 export const useInputCurrency = () => {
   const inputCurrencyId = useSelector((state: AppState) => state.swap[Field.INPUT].currencyId)
-  const inputCurrency = useCurrencyV2(inputCurrencyId)
+  const inputCurrency = useCurrency(inputCurrencyId)
   return inputCurrency || undefined
 }
 export const useOutputCurrency = () => {
   const outputCurrencyId = useSelector((state: AppState) => state.swap[Field.OUTPUT].currencyId)
-  const outputCurrency = useCurrencyV2(outputCurrencyId)
+  const outputCurrency = useCurrency(outputCurrencyId)
   return outputCurrency || undefined
 }
