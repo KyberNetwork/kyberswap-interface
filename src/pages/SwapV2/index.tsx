@@ -104,6 +104,7 @@ import {
 } from 'state/user/hooks'
 import { TYPE } from 'theme'
 import { formattedNum, getLimitOrderContract } from 'utils'
+import { getTradeComposition } from 'utils/aggregationRouting'
 import { Aggregator } from 'utils/aggregator'
 import { currencyId } from 'utils/currencyId'
 import { halfAmountSpend, maxAmountSpend } from 'utils/maxAmountSpend'
@@ -112,7 +113,7 @@ import { getSymbolSlug } from 'utils/string'
 import { checkPairInWhiteList } from 'utils/tokenInfo'
 
 const LiveChart = lazy(() => import('components/LiveChart'))
-const Routing = lazy(() => import('components/swapv2/Routing'))
+const Routing = lazy(() => import('components/TradeRouting'))
 const TutorialIcon = styled(TutorialSvg)`
   width: 22px;
   height: 22px;
@@ -671,6 +672,10 @@ export default function Swap() {
   */
   }, [])
 
+  const tradeRouteComposition = useMemo(() => {
+    return getTradeComposition(trade?.inputAmount, trade?.tokens, trade?.swaps, chainId, defaultTokens)
+  }, [chainId, defaultTokens, trade])
+
   const onClickTab = (tab: TAB) => {
     setActiveTab(tab)
     const isLimit = tab === TAB.LIMIT
@@ -1175,7 +1180,13 @@ export default function Swap() {
                         />
                       }
                     >
-                      <Routing trade={trade} currencies={currencies} formattedAmounts={formattedAmounts} />
+                      <Routing
+                        tradeComposition={tradeRouteComposition}
+                        currencyIn={currencyIn}
+                        currencyOut={currencyOut}
+                        inputAmount={trade?.inputAmount}
+                        outputAmount={trade?.outputAmount}
+                      />
                     </Suspense>
                   </Flex>
                 </RoutesWrapper>

@@ -1,267 +1,234 @@
-import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { AlertTriangle } from 'react-feather'
-import { useSelector } from 'react-redux'
+import { useEffect, useState } from 'react'
 import { Flex } from 'rebass'
 
 import AddressInputPanel from 'components/AddressInputPanel'
-import ArrowRotate from 'components/ArrowRotate'
 import { AutoRow } from 'components/Row'
+import InputCurrencyPanel from 'components/SwapForm/InputCurrencyPanel'
+import OutputCurrencyPanel from 'components/SwapForm/OutputCurrencyPanel'
+import { SwapFormContextProvider } from 'components/SwapForm/SwapFormContext'
+import useBuildRoute from 'components/SwapForm/hooks/useBuildRoute'
+import useGetInputError from 'components/SwapForm/hooks/useGetInputError'
+import useGetRoute from 'components/SwapForm/hooks/useGetRoute'
+import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
 import TrendingSoonTokenBanner from 'components/TrendingSoonTokenBanner'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import TradeTypeSelection from 'components/swapv2/TradeTypeSelection'
-import { PriceImpactHigh, Wrapper } from 'components/swapv2/styleds'
-import { STABLE_COINS_ADDRESS } from 'constants/tokens'
+import { Wrapper } from 'components/swapv2/styleds'
 import { useActiveWeb3React } from 'hooks'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import usePrevious from 'hooks/usePrevious'
-import useSyncTokenSymbolToUrl from 'hooks/useSyncTokenSymbolToUrl'
 import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { ClickableText } from 'pages/Pool/styleds'
-import { AppState } from 'state'
-import { useToggleTransactionSettingsMenu } from 'state/application/hooks'
-import { Field } from 'state/swap/actions'
-import { useInputCurrency, useOutputCurrency, useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
-import useParsedAmountFromInputCurrency from 'state/swap/hooks/useParsedAmountFromInputCurrency'
-import { useExpertModeManager, useUserAddedTokens, useUserSlippageTolerance } from 'state/user/hooks'
-import { useCurrencyBalances } from 'state/wallet/hooks'
+import { FeeConfig, RouteSummary } from 'types/metaAggregator'
 
-import ActionButton from './ActionButton'
-import InputCurrencyPanel from './InputCurrencyPanel'
-import OutputCurrencyPanel from './OutputCurrencyPanel'
 import PriceImpactNote from './PriceImpactNote'
 import RefreshButton from './RefreshButton'
+import ReverseTokenSelectionButton from './ReverseTokenSelectionButton'
+import SwapActionButton from './SwapActionButton'
 import TradePrice from './TradePrice'
 import TradeSummary from './TradeSummary'
+import TradeTypeSelection from './TradeTypeSelection'
 
-const SwapForm: React.FC = () => {
-  const { chainId, isSolana, isEVM } = useActiveWeb3React()
-  const [rotate, setRotate] = useState(false)
+export type SwapFormProps = {
+  currencyIn: Currency | undefined
+  currencyOut: Currency | undefined
 
-  const isSelectCurrencyManually = useSelector((state: AppState) => state.swap.isSelectTokenManually)
+  balanceIn: CurrencyAmount<Currency> | undefined
+  balanceOut: CurrencyAmount<Currency> | undefined
+
+  routeSummary: RouteSummary | undefined
+  setRouteSummary: React.Dispatch<React.SetStateAction<RouteSummary | undefined>>
+
+  isAdvancedMode: boolean
+  slippage: number
+  feeConfig: FeeConfig | undefined
+  transactionTimeout: number
+
+  onChangeCurrencyIn: (c: Currency) => void
+  onChangeCurrencyOut: (c: Currency) => void
+  goToSettingsView: () => void
+}
+
+const SwapForm: React.FC<SwapFormProps> = props => {
+  const {
+    currencyIn,
+    currencyOut,
+    balanceIn,
+    balanceOut,
+    routeSummary,
+    setRouteSummary,
+    isAdvancedMode,
+    slippage,
+    feeConfig,
+    transactionTimeout,
+    onChangeCurrencyIn,
+    onChangeCurrencyOut,
+    goToSettingsView,
+  } = props
+
+  const { chainId, isEVM, isSolana } = useActiveWeb3React()
 
   const theme = useTheme()
+  const [isGettingRoute, setGettingRoute] = useState(false)
+  const [isProcessingSwap, setProcessingSwap] = useState(false)
+  const [typedValue, setTypedValue] = useState('1')
+  const [recipient, setRecipient] = useState<string | null>(null)
+  const [isSaveGas, setSaveGas] = useState(false)
 
-  // for expert mode
-  const toggleSettings = useToggleTransactionSettingsMenu()
-  const [isExpertMode] = useExpertModeManager()
+  const parsedAmount = useParsedAmount(currencyIn, typedValue)
+  const { wrapType, inputError: wrapInputError, execute: onWrap } = useWrapCallback(currencyIn, currencyOut, typedValue)
+  const isWrapOrUnwrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
 
-  // get custom setting values for user
-  const [allowedSlippage] = useUserSlippageTolerance()
+  const getRoute = useGetRoute({
+    currencyIn,
+    currencyOut,
+    feeConfig,
+    isSaveGas,
+    parsedAmount,
+    setLoading: setGettingRoute,
+    setResult: setRouteSummary,
+  })
 
-  // swap state
-  const { typedValue, recipient, [Field.INPUT]: INPUT, [Field.OUTPUT]: OUTPUT } = useSwapState()
+  const buildRoute = useBuildRoute({
+    referral: feeConfig?.feeReceiver || '',
+    recipient: isAdvancedMode && recipient ? recipient : '',
+    routeSummary,
+    slippage,
+    transactionTimeout,
+  })
 
-  const { onSwitchTokensV2, onCurrencySelection, onResetSelectCurrency, onUserInput, onChangeRecipient } =
-    useSwapActionHandlers()
+  const swapInputError = useGetInputError({
+    currencyIn,
+    currencyOut,
+    typedValue,
+    recipient,
+    balanceIn,
+    parsedAmountFromTypedValue: parsedAmount,
+  })
 
-  const parsedAmount = useParsedAmountFromInputCurrency()
-
-  const currencyIn = useInputCurrency()
-  const currencyOut = useOutputCurrency()
-  const currencies = {
-    [Field.INPUT]: currencyIn,
-    [Field.OUTPUT]: currencyIn,
+  const handleChangeCurrencyIn = (c: Currency) => {
+    setRouteSummary(undefined)
+    onChangeCurrencyIn(c)
   }
 
-  const [balanceIn] = useCurrencyBalances(
-    useMemo(() => [currencyIn ?? undefined, currencyOut ?? undefined], [currencyIn, currencyOut]),
-  )
-
-  const { wrapType } = useWrapCallback(currencyIn, currencyOut, typedValue)
+  const handleChangeCurrencyOut = (c: Currency) => {
+    setRouteSummary(undefined)
+    onChangeCurrencyOut(c)
+  }
 
   const isSolanaUnwrap = isSolana && wrapType === WrapType.UNWRAP
   useEffect(() => {
     // reset value for unwrapping WSOL
     // because on Solana, unwrap WSOL is closing WSOL account,
     // which mean it will unwrap all WSOL at once and we can't unwrap partial amount of WSOL
-    if (isSolanaUnwrap) onUserInput(Field.INPUT, balanceIn?.toExact() ?? '')
-  }, [balanceIn, isSolanaUnwrap, onUserInput, parsedAmount])
-
-  const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
-
-  // reset recipient
-  useEffect(() => {
-    onChangeRecipient(null)
-  }, [onChangeRecipient, isExpertMode])
-
-  const handleRecipientChange = (value: string | null) => {
-    if (recipient === null && value !== null) {
-      mixpanelHandler(MIXPANEL_TYPE.ADD_RECIPIENT_CLICKED)
-    }
-    onChangeRecipient(value)
-  }
-
-  const handleTypeInput = useCallback(
-    (value: string) => {
-      onUserInput(Field.INPUT, value)
-    },
-    [onUserInput],
-  )
-
-  const handleRotateClick = useCallback(() => {
-    setRotate(prev => !prev)
-    onSwitchTokensV2()
-  }, [onSwitchTokensV2])
-
-  // it's safe to put undefined here for now as we're not using any action that involves `trade`
-  const { mixpanelHandler } = useMixpanel(undefined, currencies)
-
-  const onSelectSuggestedPair = useCallback(
-    (fromToken: Currency | undefined, toToken: Currency | undefined, amount?: string) => {
-      if (fromToken) onCurrencySelection(Field.INPUT, fromToken)
-      if (toToken) onCurrencySelection(Field.OUTPUT, toToken)
-      if (amount) handleTypeInput(amount)
-    },
-    [handleTypeInput, onCurrencySelection],
-  )
-
-  const tokenImports: Token[] = useUserAddedTokens()
-  const prevTokenImports = usePrevious(tokenImports)
-
-  useEffect(() => {
-    // when remove token imported
-    if (!prevTokenImports) return
-    const isRemoved = prevTokenImports?.length > tokenImports.length
-    if (!isRemoved || prevTokenImports[0].chainId !== chainId) return
-
-    const addressIn = currencyIn?.wrapped?.address
-    const addressOut = currencyOut?.wrapped?.address
-    // removed token => deselect input
-    const tokenRemoved = prevTokenImports.filter(
-      token => !tokenImports.find(token2 => token2.address === token.address),
-    )
-
-    tokenRemoved.forEach(({ address }: Token) => {
-      if (address === addressIn || !currencyIn) {
-        onResetSelectCurrency(Field.INPUT)
-      }
-      if (address === addressOut || !currencyOut) {
-        onResetSelectCurrency(Field.OUTPUT)
-      }
-    })
-  }, [tokenImports, chainId, prevTokenImports, currencyIn, currencyOut, onResetSelectCurrency])
-
-  useSyncTokenSymbolToUrl(currencyIn, currencyOut, onSelectSuggestedPair, isSelectCurrencyManually)
-
-  useEffect(() => {
-    if (isExpertMode) {
-      mixpanelHandler(MIXPANEL_TYPE.ADVANCED_MODE_ON)
-    }
-  }, [isExpertMode, mixpanelHandler])
-
-  const [rawSlippage, setRawSlippage] = useUserSlippageTolerance()
-
-  const isStableCoinSwap =
-    INPUT?.currencyId &&
-    OUTPUT?.currencyId &&
-    chainId &&
-    STABLE_COINS_ADDRESS[chainId].includes(INPUT?.currencyId) &&
-    STABLE_COINS_ADDRESS[chainId].includes(OUTPUT?.currencyId)
-
-  const rawSlippageRef = useRef(rawSlippage)
-  rawSlippageRef.current = rawSlippage
-
-  useEffect(() => {
-    if (isStableCoinSwap && rawSlippageRef.current > 10) {
-      setRawSlippage(10)
-    }
-    if (!isStableCoinSwap && rawSlippageRef.current === 10) {
-      setRawSlippage(50)
-    }
-  }, [isStableCoinSwap, setRawSlippage])
-
-  const isLargeSwap = useMemo((): boolean => {
-    return false
-    // Not used yet
-    // if these line is 6 months old, feel free to delete it
-    /*
-      if (!isSolana) return false
-      if (!trade) return false
-      try {
-        return trade.swaps.some(swapPath =>
-          swapPath.some(swap => {
-            // return swapAmountInUsd / swap.reserveUsd > 1%
-            //  =  (swap.swapAmount / 10**decimal * tokenIn.price) / swap.reserveUsd > 1%
-            //  = swap.swapAmount * tokenIn.price / (10**decimal * swap.reserveUsd) > 1%
-            //  = 10**decimal * swap.reserveUsd / (swap.swapAmount * tokenIn.price) < 100
-            const tokenIn = trade.tokens[swap.tokenIn]
-            if (!tokenIn || !tokenIn.decimals) return false
-
-            return JSBI.lessThan(
-              JSBI.divide(
-                JSBI.multiply(
-                  JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(tokenIn.decimals + 20)),
-                  JSBI.BigInt(swap.reserveUsd * 10 ** 20),
-                ),
-                JSBI.multiply(JSBI.BigInt(tokenIn.price * 10 ** 20), JSBI.BigInt(Number(swap.swapAmount) * 10 ** 20)),
-              ),
-              JSBI.BigInt(100),
-            )
-          }),
-        )
-      } catch (e) {
-        return false
-      }
-    */
-  }, [])
+    if (isSolanaUnwrap) setTypedValue(balanceIn?.toExact() ?? '')
+  }, [balanceIn, isSolanaUnwrap])
 
   return (
-    <Flex sx={{ flexDirection: 'column', gap: '16px' }}>
-      <Wrapper id={TutorialIds.SWAP_FORM_CONTENT}>
-        <Flex flexDirection="column" sx={{ gap: '0.75rem' }}>
-          <InputCurrencyPanel />
+    <SwapFormContextProvider
+      feeConfig={feeConfig}
+      slippage={slippage}
+      routeSummary={routeSummary}
+      typedValue={typedValue}
+      isSaveGas={isSaveGas}
+      recipient={recipient}
+    >
+      <Flex sx={{ flexDirection: 'column', gap: '16px' }}>
+        <Wrapper id={TutorialIds.SWAP_FORM_CONTENT}>
+          <Flex flexDirection="column" sx={{ gap: '0.75rem' }}>
+            <InputCurrencyPanel
+              wrapType={wrapType}
+              typedValue={typedValue}
+              setTypedValue={setTypedValue}
+              routeSummary={routeSummary}
+              currencyIn={currencyIn}
+              currencyOut={currencyOut}
+              balanceIn={balanceIn}
+              onChangeCurrencyIn={handleChangeCurrencyIn}
+            />
 
-          <AutoRow justify="space-between">
-            <Flex alignItems="center">
-              {!showWrap && (
-                <>
-                  <RefreshButton />
-                  <TradePrice />
-                </>
-              )}
-            </Flex>
+            <AutoRow justify="space-between">
+              <Flex alignItems="center">
+                {!isWrapOrUnwrap && (
+                  <>
+                    <RefreshButton
+                      shouldDisable={!parsedAmount || parsedAmount.equalTo(0) || isProcessingSwap}
+                      callback={getRoute}
+                    />
+                    <TradePrice
+                      currencyIn={currencyIn}
+                      currencyOut={currencyOut}
+                      parsedAmountIn={routeSummary?.parsedAmountIn}
+                      parsedAmountOut={routeSummary?.parsedAmountOut}
+                    />
+                  </>
+                )}
+              </Flex>
 
-            <ArrowRotate rotate={rotate} onClick={handleRotateClick} />
-          </AutoRow>
+              <ReverseTokenSelectionButton onClick={() => currencyIn && handleChangeCurrencyOut(currencyIn)} />
+            </AutoRow>
 
-          <OutputCurrencyPanel />
+            <OutputCurrencyPanel
+              wrapType={wrapType}
+              parsedAmountIn={parsedAmount}
+              parsedAmountOut={routeSummary?.parsedAmountOut}
+              currencyIn={currencyIn}
+              currencyOut={currencyOut}
+              amountOutUsd={routeSummary?.amountOutUsd}
+              onChangeCurrencyOut={handleChangeCurrencyOut}
+            />
 
-          {isExpertMode && isEVM && !showWrap && (
-            <AddressInputPanel id="recipient" value={recipient} onChange={handleRecipientChange} />
+            {isAdvancedMode && isEVM && !isWrapOrUnwrap && (
+              <AddressInputPanel id="recipient" value={recipient} onChange={setRecipient} />
+            )}
+
+            {!isWrapOrUnwrap && (
+              <Flex
+                alignItems="center"
+                fontSize={12}
+                color={theme.subText}
+                onClick={goToSettingsView}
+                width="fit-content"
+              >
+                <ClickableText color={theme.subText} fontWeight={500}>
+                  <Trans>Max Slippage:</Trans>&nbsp;
+                  {slippage / 100}%
+                </ClickableText>
+              </Flex>
+            )}
+          </Flex>
+
+          <TradeTypeSelection isSaveGas={isSaveGas} setSaveGas={setSaveGas} />
+
+          {chainId !== ChainId.ETHW && (
+            <TrendingSoonTokenBanner currencyIn={currencyIn} currencyOut={currencyOut} style={{ marginTop: '24px' }} />
           )}
 
-          {!showWrap && (
-            <Flex alignItems="center" fontSize={12} color={theme.subText} onClick={toggleSettings} width="fit-content">
-              <ClickableText color={theme.subText} fontWeight={500}>
-                <Trans>Max Slippage:</Trans>&nbsp;
-                {allowedSlippage / 100}%
-              </ClickableText>
-            </Flex>
-          )}
-        </Flex>
+          <PriceImpactNote priceImpact={routeSummary?.priceImpact} isAdvancedMode={isAdvancedMode} />
 
-        <TradeTypeSelection />
+          <SwapActionButton
+            isGettingRoute={isGettingRoute}
+            parsedAmountFromTypedValue={parsedAmount}
+            balanceIn={balanceIn}
+            balanceOut={balanceOut}
+            isAdvancedMode={isAdvancedMode}
+            typedValue={typedValue}
+            currencyIn={currencyIn}
+            currencyOut={currencyOut}
+            wrapInputError={wrapInputError}
+            wrapType={wrapType}
+            routeSummary={routeSummary}
+            isProcessingSwap={isProcessingSwap}
+            setProcessingSwap={setProcessingSwap}
+            onWrap={onWrap}
+            buildRoute={buildRoute}
+            swapInputError={swapInputError}
+          />
+        </Wrapper>
 
-        {chainId !== ChainId.ETHW && (
-          <TrendingSoonTokenBanner currencyIn={currencyIn} currencyOut={currencyOut} style={{ marginTop: '24px' }} />
-        )}
-
-        <PriceImpactNote />
-
-        {isLargeSwap && (
-          <PriceImpactHigh>
-            <AlertTriangle color={theme.warning} size={24} style={{ marginRight: '10px' }} />
-            <Trans>Your transaction may not be successful. We recommend increasing the slippage for this trade</Trans>
-          </PriceImpactHigh>
-        )}
-
-        <ActionButton />
-      </Wrapper>
-      <TradeSummary />
-    </Flex>
+        <TradeSummary feeConfig={feeConfig} routeSummary={routeSummary} slippage={slippage} />
+      </Flex>
+    </SwapFormContextProvider>
   )
 }
 

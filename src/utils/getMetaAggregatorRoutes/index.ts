@@ -38,8 +38,8 @@ const getMetaAggregatorRoute = async (
   })
 
   if (resp.status === 200) {
-    if (resp.data) {
-      return convertRawResponse(resp.data, currencyIn, currencyOut)
+    if (resp.data?.data) {
+      return convertRawResponse(resp.data.data, currencyIn, currencyOut)
     }
 
     const err = new Error('Invalid response when getting route')

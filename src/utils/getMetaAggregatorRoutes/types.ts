@@ -25,23 +25,28 @@ export type RawRouteSummary = {
   tokenIn: string
   amountIn: string
   amountInUsd: string
-  tokenInMarketPriceAvailable: null
 
   tokenOut: string
   amountOut: string
   amountOutUsd: string
   tokenOutMarketPriceAvailable: null
 
-  gas: number
-  gasUsd: number
+  gas: string
+  gasUsd: string
   gasPrice: string
 
   extraFee: RawFeeConfig
   route: RawRoute[][]
 }
 
-export type Response = {
+export type RouteData = {
   routeSummary: RawRouteSummary
   routerAddress: string
   fromMeta: boolean
+}
+
+export type Response = {
+  code: number
+  message: string
+  data?: RouteData
 }
