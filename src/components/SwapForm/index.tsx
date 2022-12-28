@@ -1,6 +1,6 @@
 import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import { Flex } from 'rebass'
 
@@ -10,7 +10,6 @@ import TrendingSoonTokenBanner from 'components/TrendingSoonTokenBanner'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import TradeTypeSelection from 'components/swapv2/TradeTypeSelection'
 import { Wrapper } from 'components/swapv2/styleds'
-import { STABLE_COINS_ADDRESS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import usePrevious from 'hooks/usePrevious'
@@ -21,9 +20,8 @@ import { ClickableText } from 'pages/Pool/styleds'
 import { AppState } from 'state'
 import { useToggleTransactionSettingsMenu } from 'state/application/hooks'
 import { Field } from 'state/swap/actions'
-import { useSwapState } from 'state/swap/hooks'
 import useParsedAmountFromInputCurrency from 'state/swap/hooks/useParsedAmountFromInputCurrency'
-import { useUserAddedTokens, useUserSlippageTolerance } from 'state/user/hooks'
+import { useUserAddedTokens } from 'state/user/hooks'
 
 import ActionButton from './ActionButton'
 import InputCurrencyPanel from './InputCurrencyPanel'
@@ -39,6 +37,7 @@ export type SwapFormProps = {
   currencyOut: Currency | undefined
   balanceIn: CurrencyAmount<Currency> | undefined
   balanceOut: CurrencyAmount<Currency> | undefined
+  typedValue: string
   isAdvancedMode: boolean
   allowedSlippage: number
   recipient: string | null
@@ -54,6 +53,7 @@ const SwapForm: React.FC<SwapFormProps> = ({
   currencyOut,
   balanceIn,
   balanceOut,
+  typedValue,
   isAdvancedMode,
   allowedSlippage,
   recipient,
@@ -72,9 +72,6 @@ const SwapForm: React.FC<SwapFormProps> = ({
 
   // for expert mode
   const toggleSettings = useToggleTransactionSettingsMenu()
-
-  // swap state
-  const { typedValue, [Field.INPUT]: INPUT, [Field.OUTPUT]: OUTPUT } = useSwapState()
 
   const parsedAmount = useParsedAmountFromInputCurrency()
 
@@ -159,27 +156,6 @@ const SwapForm: React.FC<SwapFormProps> = ({
       mixpanelHandler(MIXPANEL_TYPE.ADVANCED_MODE_ON)
     }
   }, [isAdvancedMode, mixpanelHandler])
-
-  const [rawSlippage, setRawSlippage] = useUserSlippageTolerance()
-
-  const isStableCoinSwap =
-    INPUT?.currencyId &&
-    OUTPUT?.currencyId &&
-    chainId &&
-    STABLE_COINS_ADDRESS[chainId].includes(INPUT?.currencyId) &&
-    STABLE_COINS_ADDRESS[chainId].includes(OUTPUT?.currencyId)
-
-  const rawSlippageRef = useRef(rawSlippage)
-  rawSlippageRef.current = rawSlippage
-
-  useEffect(() => {
-    if (isStableCoinSwap && rawSlippageRef.current > 10) {
-      setRawSlippage(10)
-    }
-    if (!isStableCoinSwap && rawSlippageRef.current === 10) {
-      setRawSlippage(50)
-    }
-  }, [isStableCoinSwap, setRawSlippage])
 
   return (
     <Flex sx={{ flexDirection: 'column', gap: '16px' }}>
