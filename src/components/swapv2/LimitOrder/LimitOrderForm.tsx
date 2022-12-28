@@ -518,7 +518,7 @@ const LimitOrderForm = function LimitOrderForm({
                   {formatAmountOrder(outputAmount)} {currencyOut.symbol}{' '}
                 </Text>
                 <Text as="span" color={theme.subText}>
-                  when 1 {currencyIn.symbol} is equal to {calcRate(inputAmount, outputAmount, currencyOut.decimals)}{' '}
+                  at a {currencyIn.symbol} price of {calcRate(inputAmount, outputAmount, currencyOut.decimals)}{' '}
                   {currencyOut.symbol}.
                 </Text>
               </Trans>
