@@ -241,7 +241,7 @@ export function useProAmmDerivedMintInfo(
 
   // used for ratio calculation when pool not initialized
   const mockPool: Pool | undefined = useMemo(() => {
-    if (tokenA && tokenB && feeAmount && price && !invalidPrice && currentTick) {
+    if (tokenA && tokenB && feeAmount && price && !invalidPrice && typeof currentTick === 'number') {
       const currentSqrt = TickMath.getSqrtRatioAtTick(currentTick)
       return new Pool(tokenA, tokenB, feeAmount, currentSqrt, JSBI.BigInt(0), JSBI.BigInt(0), currentTick, [])
     } else {
@@ -758,7 +758,7 @@ export function useProAmmDerivedAllMintInfo(
 
   // used for ratio calculation when pool not initialized
   const mockPool: Pool | undefined = useMemo(() => {
-    if (tokenA && tokenB && feeAmount && price && !invalidPrice && currentTick) {
+    if (tokenA && tokenB && feeAmount && price && !invalidPrice && typeof currentTick === 'number') {
       const currentSqrt = TickMath.getSqrtRatioAtTick(currentTick)
       return new Pool(tokenA, tokenB, feeAmount, currentSqrt, JSBI.BigInt(0), JSBI.BigInt(0), currentTick, [])
     } else {

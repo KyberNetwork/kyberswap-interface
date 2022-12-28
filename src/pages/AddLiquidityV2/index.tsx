@@ -159,6 +159,7 @@ export default function AddLiquidity() {
     feeAmount,
     baseCurrency ?? undefined,
   )
+  const isMultiplePosition = !noLiquidity && positionsState.length > 1
 
   const { [Field.CURRENCY_A]: currencies_A, [Field.CURRENCY_B]: currencies_B } = currencies
   const { [Field.CURRENCY_A]: currencyBalanceA, [Field.CURRENCY_B]: currencyBalanceB } = currencyBalances
@@ -264,6 +265,12 @@ export default function AddLiquidity() {
 
   const [userSlippageTolerance] = useUserSlippageTolerance()
 
+  const positionsParam = isMultiplePosition
+    ? positions.every(Boolean)
+      ? (positions as Position[])
+      : undefined
+    : position
+
   const onAdd = useCallback(
     async function () {
       if (!isEVM || !library || !account) return
@@ -275,10 +282,10 @@ export default function AddLiquidity() {
       if (!previousTicks || previousTicks.length !== 2) {
         return
       }
-      if (position && account && deadline) {
+      if (positionsParam && account && deadline) {
         const useNative = baseCurrency.isNative ? baseCurrency : quoteCurrency.isNative ? quoteCurrency : undefined
 
-        const { calldata, value } = NonfungiblePositionManager.addCallParameters(position, previousTicks, {
+        const { calldata, value } = NonfungiblePositionManager.addCallParameters(positionsParam, previousTicks, {
           slippageTolerance: basisPointsToPercent(userSlippageTolerance),
           recipient: account,
           deadline: deadline.toString(),
@@ -364,7 +371,7 @@ export default function AddLiquidity() {
       parsedAmounts_A,
       parsedAmounts_B,
       poolAddress,
-      position,
+      positionsParam,
       positionManager,
       previousTicks,
       quoteCurrency,
@@ -797,7 +804,6 @@ export default function AddLiquidity() {
     )
   }
 
-  const isMultiplePosition = positionsState.length > 1
   if (!isEVM) return <Navigate to="/" />
   return (
     <>
@@ -806,8 +812,8 @@ export default function AddLiquidity() {
         onDismiss={handleDismissConfirmation}
         attemptingTxn={attemptingTxn}
         hash={txHash}
-        maxWidth="unset"
-        width="unset"
+        maxWidth={isMultiplePosition ? 'unset' : undefined}
+        width={isMultiplePosition ? 'unset' : undefined}
         content={() => (
           <ConfirmationModalContent
             title={!!noLiquidity ? t`Create a new pool` : t`Add Liquidity`}
@@ -825,7 +831,7 @@ export default function AddLiquidity() {
                   </ButtonPrimary>
                 </RowBetween>
               ) : (
-                <ButtonPrimary onClick={onAdd} width="160px">
+                <ButtonPrimary onClick={onAdd} width="100%">
                   <Text fontWeight={500}>
                     <Trans>Supply</Trans>
                   </Text>
