@@ -23,7 +23,7 @@ import { ClickableText } from 'pages/Pool/styleds'
 import { AppState } from 'state'
 import { useToggleTransactionSettingsMenu } from 'state/application/hooks'
 import { Field } from 'state/swap/actions'
-import { useInputCurrency, useOutputCurrency, useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
+import { useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
 import useParsedAmountFromInputCurrency from 'state/swap/hooks/useParsedAmountFromInputCurrency'
 import { useExpertModeManager, useUserAddedTokens, useUserSlippageTolerance } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
@@ -36,7 +36,11 @@ import RefreshButton from './RefreshButton'
 import TradePrice from './TradePrice'
 import TradeSummary from './TradeSummary'
 
-const SwapForm: React.FC = () => {
+type Props = {
+  currencyIn: Currency | undefined
+  currencyOut: Currency | undefined
+}
+const SwapForm: React.FC<Props> = ({ currencyIn, currencyOut }) => {
   const { chainId, isSolana, isEVM } = useActiveWeb3React()
   const [rotate, setRotate] = useState(false)
 
@@ -59,8 +63,6 @@ const SwapForm: React.FC = () => {
 
   const parsedAmount = useParsedAmountFromInputCurrency()
 
-  const currencyIn = useInputCurrency()
-  const currencyOut = useOutputCurrency()
   const currencies = {
     [Field.INPUT]: currencyIn,
     [Field.OUTPUT]: currencyIn,
