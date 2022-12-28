@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import SwapForm from 'components/SwapForm'
+import SwapForm, { SwapFormProps } from 'components/SwapForm'
 import { useInputCurrency, useOutputCurrency } from 'state/swap/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 
@@ -12,7 +12,14 @@ const PopulatedSwapForm = () => {
     useMemo(() => [currencyIn ?? undefined, currencyOut ?? undefined], [currencyIn, currencyOut]),
   )
 
-  return <SwapForm currencyIn={currencyIn} currencyOut={currencyOut} balanceIn={balanceIn} balanceOut={balanceOut} />
+  const props: SwapFormProps = {
+    currencyIn,
+    currencyOut,
+    balanceIn,
+    balanceOut,
+  }
+
+  return <SwapForm {...props} />
 }
 
 export default PopulatedSwapForm

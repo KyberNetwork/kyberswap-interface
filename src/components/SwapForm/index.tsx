@@ -34,13 +34,13 @@ import RefreshButton from './RefreshButton'
 import TradePrice from './TradePrice'
 import TradeSummary from './TradeSummary'
 
-type Props = {
+export type SwapFormProps = {
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
   balanceIn: CurrencyAmount<Currency> | undefined
   balanceOut: CurrencyAmount<Currency> | undefined
 }
-const SwapForm: React.FC<Props> = ({ currencyIn, currencyOut, balanceIn, balanceOut }) => {
+const SwapForm: React.FC<SwapFormProps> = ({ currencyIn, currencyOut, balanceIn, balanceOut }) => {
   const { chainId, isSolana, isEVM } = useActiveWeb3React()
   const [rotate, setRotate] = useState(false)
 
