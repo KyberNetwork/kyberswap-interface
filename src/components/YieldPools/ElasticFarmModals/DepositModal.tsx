@@ -83,7 +83,6 @@ const PositionRow = ({
   return (
     <TableRow>
       <Checkbox
-        type="checkbox"
         onChange={e => {
           onChange(e.currentTarget.checked)
         }}
@@ -288,7 +287,6 @@ function ProMMDepositNFTModal({
           <>
             <TableHeader>
               <Checkbox
-                type="checkbox"
                 ref={checkboxGroupRef}
                 onChange={e => {
                   if (e.currentTarget.checked) {

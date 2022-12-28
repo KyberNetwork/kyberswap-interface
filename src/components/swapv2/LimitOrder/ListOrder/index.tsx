@@ -13,9 +13,11 @@ import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
 import SearchInput from 'components/SearchInput'
 import Select from 'components/Select'
+import SubscribeNotificationButton from 'components/SubscribeButton'
 import LIMIT_ORDER_ABI from 'constants/abis/limit_order.json'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useContract } from 'hooks/useContract'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { NotificationType, useNotify } from 'state/application/hooks'
 import { useLimitState } from 'state/limit/hooks'
 import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
@@ -123,6 +125,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
   const addTransactionWithType = useTransactionAdder()
   const { isOrderCancelling, setCancellingOrders, cancellingOrdersIds } = useCancellingOrders()
   const transactions = useAllTransactions()
+  const { mixpanelHandler } = useMixpanel()
 
   const [orders, setOrders] = useState<LimitOrder[]>([])
   const [totalOrder, setTotalOrder] = useState<number>(0)
@@ -366,18 +369,42 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
     setIsOpenEdit(false)
   }, [])
 
-  const showConfirmCancel = useCallback((order?: LimitOrder) => {
-    setCurrentOrder(order)
-    setFlowState({ ...TRANSACTION_STATE_DEFAULT, showConfirm: true })
-    setIsOpenCancel(true)
-    setIsCancelAll(false)
-  }, [])
+  const getPayloadTracking = useCallback(
+    (order: LimitOrder) => {
+      const { makerAssetSymbol, takerAssetSymbol, makingAmount, makerAssetDecimals, id } = order
+      return {
+        from_token: makerAssetSymbol,
+        to_token: takerAssetSymbol,
+        from_network: networkInfo.name,
+        trade_qty: formatAmountOrder(makingAmount, makerAssetDecimals),
+        order_id: id,
+      }
+    },
+    [networkInfo],
+  )
 
-  const showEditOrderModal = useCallback((order: LimitOrder) => {
-    setCurrentOrder(order)
-    setIsOpenEdit(true)
-    setIsCancelAll(false)
-  }, [])
+  const showConfirmCancel = useCallback(
+    (order?: LimitOrder) => {
+      setCurrentOrder(order)
+      setFlowState({ ...TRANSACTION_STATE_DEFAULT, showConfirm: true })
+      setIsOpenCancel(true)
+      setIsCancelAll(false)
+      if (order) {
+        mixpanelHandler(MIXPANEL_TYPE.LO_CLICK_CANCEL_ORDER, getPayloadTracking(order))
+      }
+    },
+    [mixpanelHandler, getPayloadTracking],
+  )
+
+  const showEditOrderModal = useCallback(
+    (order: LimitOrder) => {
+      setCurrentOrder(order)
+      setIsOpenEdit(true)
+      setIsCancelAll(false)
+      mixpanelHandler(MIXPANEL_TYPE.LO_CLICK_EDIT_ORDER, getPayloadTracking(order))
+    },
+    [mixpanelHandler, getPayloadTracking],
+  )
 
   const totalOrderNotCancelling = useMemo(() => {
     return orders.filter(e => !isOrderCancelling(e)).length
@@ -426,6 +453,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
               order.makerAssetSymbol
             } to ${formatAmountOrder(order.takingAmount, order.takerAssetDecimals)} ${order.takerAssetSymbol}`
           : t`all orders`,
+        arbitrary: order ? getPayloadTracking(order) : undefined,
       })
     return
   }
@@ -468,6 +496,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
           setActiveTab={onSelectTab}
           activeTab={isTabActive ? LimitOrderStatus.ACTIVE : LimitOrderStatus.CLOSED}
         />
+        <SubscribeNotificationButton subscribeTooltip={t`Subscribe to receive notifications on your limit orders`} />
       </Flex>
 
       <Flex flexDirection={'column'} style={{ gap: '1rem' }}>

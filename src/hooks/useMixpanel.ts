@@ -107,7 +107,6 @@ export enum MIXPANEL_TYPE {
   FAUCET_REQUEST_INITIATED,
   FAUCET_REQUEST_COMPLETED,
   DISCOVER_CLICK_SUBSCRIBE_TRENDING_SOON,
-  DISCOVER_CLICK_UNSUBSCRIBE_TRENDING_SOON,
   DISCOVER_SUBSCRIBE_TRENDING_SOON_SUCCESS,
   DISCOVER_UNSUBSCRIBE_TRENDING_SOON_SUCCESS,
   CAMPAIGN_ENTER_NOW_CLICKED,
@@ -132,10 +131,6 @@ export enum MIXPANEL_TYPE {
   TAS_DISLIKE_PAIR,
   TAS_PRESS_CTRL_K,
 
-  MANAGE_TOKEN_LISTS_CLICK,
-  MANAGE_TOKEN_LISTS_TAB_CLICK,
-  MANAGE_TOKEN_LISTS_ON_OFF_TOGGLE,
-
   BANNER_CLICK,
   CLOSE_BANNER_CLICK,
 
@@ -152,6 +147,20 @@ export enum MIXPANEL_TYPE {
   KYBER_DAO_UNSTAKE_CLICK,
   KYBER_DAO_DELEGATE_CLICK,
   KYBER_DAO_VOTE_CLICK,
+
+  // notification
+  NOTIFICATION_CLICK_MENU,
+  NOTIFICATION_SELECT_TOPIC,
+  NOTIFICATION_DESELECT_TOPIC,
+
+  // limit order
+  LO_CLICK_PLACE_ORDER,
+  LO_PLACE_ORDER_SUCCESS,
+  LO_ENTER_DETAIL,
+  LO_CLICK_CANCEL_ORDER,
+  LO_CANCEL_ORDER_SUBMITTED,
+  LO_CLICK_REVIEW_PLACE_ORDER,
+  LO_CLICK_EDIT_ORDER,
 }
 
 export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES = [
@@ -463,10 +472,6 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           mixpanel.track(`Discover - 'Subscribe' clicked on Trending Soon`)
           break
         }
-        case MIXPANEL_TYPE.DISCOVER_CLICK_UNSUBSCRIBE_TRENDING_SOON: {
-          mixpanel.track(`Discover - 'Unsubscribe' clicked on Trending Soon`)
-          break
-        }
         case MIXPANEL_TYPE.DISCOVER_SUBSCRIBE_TRENDING_SOON_SUCCESS: {
           mixpanel.track(`Discover - 'Subscribed' Trending Soon successfully`)
           break
@@ -690,18 +695,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           })
           break
         }
-        case MIXPANEL_TYPE.MANAGE_TOKEN_LISTS_CLICK: {
-          mixpanel.track('Manage Token Lists - User click on "Manage Token Lists" button')
-          break
-        }
-        case MIXPANEL_TYPE.MANAGE_TOKEN_LISTS_TAB_CLICK: {
-          mixpanel.track('Manage Token Lists - User click on "List" or "Token" toggle', payload)
-          break
-        }
-        case MIXPANEL_TYPE.MANAGE_TOKEN_LISTS_ON_OFF_TOGGLE: {
-          mixpanel.track('Manage Token Lists - User clicked On/Off toggle from Token Lists', payload)
-          break
-        }
+
         case MIXPANEL_TYPE.BANNER_CLICK: {
           mixpanel.track('User click on "Banner" at swap page')
           break
@@ -740,6 +734,18 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           })
           break
         }
+        case MIXPANEL_TYPE.NOTIFICATION_CLICK_MENU: {
+          mixpanel.track('Notification Clicked')
+          break
+        }
+        case MIXPANEL_TYPE.NOTIFICATION_SELECT_TOPIC: {
+          mixpanel.track('Notification Features selected and save', payload)
+          break
+        }
+        case MIXPANEL_TYPE.NOTIFICATION_DESELECT_TOPIC: {
+          mixpanel.track('Notification Features unselected and save', payload)
+          break
+        }
         case MIXPANEL_TYPE.KYBER_DAO_STAKE_CLICK: {
           mixpanel.track('KyberDAO - Stake Click', payload)
           break
@@ -754,6 +760,35 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
         }
         case MIXPANEL_TYPE.KYBER_DAO_VOTE_CLICK: {
           mixpanel.track('KyberDAO - Vote Click', payload)
+          break
+        }
+        case MIXPANEL_TYPE.LO_CLICK_PLACE_ORDER: {
+          mixpanel.track('Limit Order -  Place Order Click', payload)
+          break
+        }
+        case MIXPANEL_TYPE.LO_PLACE_ORDER_SUCCESS: {
+          mixpanel.track('Limit Order -  Place Order Submit Success', payload)
+          break
+        }
+        case MIXPANEL_TYPE.LO_ENTER_DETAIL: {
+          mixpanel.track('Limit Order - Enter Detail', { action: payload })
+          break
+        }
+        case MIXPANEL_TYPE.LO_CLICK_CANCEL_ORDER: {
+          mixpanel.track('Limit Order -  Cancel Order Click', payload)
+          break
+        }
+
+        case MIXPANEL_TYPE.LO_CANCEL_ORDER_SUBMITTED: {
+          mixpanel.track('Limit Order -  Cancel Order Submit Success', payload)
+          break
+        }
+        case MIXPANEL_TYPE.LO_CLICK_REVIEW_PLACE_ORDER: {
+          mixpanel.track('Limit Order -  Review Order Click', payload)
+          break
+        }
+        case MIXPANEL_TYPE.LO_CLICK_EDIT_ORDER: {
+          mixpanel.track('Limit Order -  Update Order Click', payload)
           break
         }
       }
@@ -1085,6 +1120,9 @@ export const useGlobalMixpanelEvents = () => {
           break
         case 'kyberdao/vote':
           pageName = 'KyberDAO Vote'
+          break
+        case 'limit':
+          pageName = 'Limit Order'
           break
         default:
           break
