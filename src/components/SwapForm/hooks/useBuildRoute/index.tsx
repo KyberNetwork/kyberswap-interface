@@ -1,42 +1,36 @@
 import { t } from '@lingui/macro'
 import { useCallback, useRef } from 'react'
-import { useSelector } from 'react-redux'
 
 import { useActiveWeb3React } from 'hooks'
-import { AppState } from 'state'
-import { useUserSlippageTolerance } from 'state/user/hooks'
+import { RouteSummary } from 'types/metaAggregator'
 import { asyncCallWithMinimumTime } from 'utils/fetchWaiting'
 import { getRawRouteSummary } from 'utils/getMetaAggregatorRoutes/utils'
 
-import buildRoute, { Payload, Response } from './buildRoute'
+import buildRoute, { BuildRouteData, Payload } from './buildRoute'
 
-const MINIMUM_LOADING_TIME = 5_000
+const MINIMUM_LOADING_TIME = 1_000
 
 export type BuildRouteResult =
   | {
-      response: Response
+      data: BuildRouteData
       error?: never
     }
   | {
-      response?: never
+      data?: never
       error: string
     }
 
-const useBuildRoute = () => {
+type Args = {
+  referral: string
+  recipient: string
+  routeSummary: RouteSummary | undefined
+  slippage: number
+  transactionTimeout: number
+}
+const useBuildRoute = (args: Args) => {
+  const { referral, recipient, routeSummary, slippage, transactionTimeout } = args
   const { chainId, account } = useActiveWeb3React()
-  const routeSummary = useSelector((state: AppState) => state.swap.routeSummary)
   const abortControllerRef = useRef(new AbortController())
-  const [allowedSlippage] = useUserSlippageTolerance()
-
-  // recipient is only allowed in Advanced mode
-  const recipient = useSelector((state: AppState) => {
-    if (state.user.userExpertMode) {
-      return state.swap.recipient
-    }
-
-    return ''
-  })
-  const referral = useSelector((state: AppState) => state.swap.feeConfig?.feeReceiver)
 
   const fetcher = useCallback(async (): Promise<BuildRouteResult> => {
     if (!account) {
@@ -53,9 +47,8 @@ const useBuildRoute = () => {
 
     const payload: Payload = {
       routeSummary: getRawRouteSummary(routeSummary),
-      // TODO: apply real deadline from user setting
-      deadline: Math.floor(Date.now() / 1000) + 20 * 60,
-      slippageTolerant: allowedSlippage,
+      deadline: Math.floor(Date.now() / 1000) + transactionTimeout,
+      slippageTolerant: slippage,
       to: recipient || account,
       referral,
       source: 'kyberswap',
@@ -71,17 +64,15 @@ const useBuildRoute = () => {
         MINIMUM_LOADING_TIME,
       )
 
-      console.log({ response })
-
       return {
-        response,
+        data: response,
       }
     } catch (e) {
       return {
         error: e.message || t`Something went wrong`,
       }
     }
-  }, [account, allowedSlippage, chainId, recipient, referral, routeSummary])
+  }, [account, chainId, recipient, referral, routeSummary, slippage, transactionTimeout])
 
   return fetcher
 }

@@ -15,7 +15,7 @@ export type Payload = {
   useMeta: true
 }
 
-export type Response = {
+export type BuildRouteData = {
   data: string
   amountIn: string
   amountInUsd: string
@@ -31,6 +31,12 @@ export type Response = {
   routerAddress: string
 }
 
+type Response = {
+  code: number
+  message: string
+  data?: BuildRouteData
+}
+
 const buildRoute = async (chainId: ChainId, payload: Payload, signal?: AbortSignal) => {
   const chainSlug = NETWORKS_INFO[chainId].ksSettingRoute
 
@@ -39,8 +45,8 @@ const buildRoute = async (chainId: ChainId, payload: Payload, signal?: AbortSign
   })
 
   if (resp.status === 200) {
-    if (resp.data) {
-      return resp.data
+    if (resp.data?.data) {
+      return resp.data.data
     }
 
     const err = new Error('Invalid response when building route')

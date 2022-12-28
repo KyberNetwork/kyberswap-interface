@@ -1,10 +1,8 @@
 import { ZERO } from '@kyberswap/ks-sdk-classic'
-import { ChainId, Percent, Rounding, Token, WETH } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount, Percent, Rounding, Token, WETH } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 
 import { isAddressString } from 'utils'
-
-import { Aggregator } from './aggregator'
 
 export interface SwapPool {
   id: string
@@ -14,6 +12,15 @@ export interface SwapPool {
 }
 
 type PathItem = Token
+
+type Swap = {
+  pool: string
+  tokenIn: string
+  tokenOut: string
+  swapAmount: string
+  amountOut: string
+  exchange: string
+}
 
 interface SwapRoute {
   slug: string
@@ -108,33 +115,35 @@ function formatRoutesV2(routes: SwapRoute[]): SwapRouteV2[] {
 }
 
 export function getTradeComposition(
-  trade?: Aggregator,
-  chainId?: ChainId,
-  allTokens?: { [address: string]: Token },
+  inputAmount: CurrencyAmount<Currency> | undefined,
+  involvingTokens: { [address: string]: Token | undefined } | undefined,
+  swaps: Swap[][] | undefined,
+  chainId: ChainId | undefined,
+  allTokens: { [address: string]: Token } | undefined,
 ): SwapRouteV2[] | undefined {
-  if (!trade || !trade.swaps || !chainId) {
+  if (!inputAmount || !swaps || !chainId) {
     return undefined
   }
-  const inputTokenAmount = trade.inputAmount?.wrapped
+  const inputTokenAmount = inputAmount.wrapped
 
   const calcSwapPercentage = function (tokenIn: string, amount: string): number | undefined {
     if (!tokenIn || !amount) {
       return undefined
     }
     const exactTokenIn = tokenIn?.toLowerCase() === inputTokenAmount?.currency.address?.toLowerCase()
-    if (exactTokenIn && trade.inputAmount.greaterThan(JSBI.BigInt(0))) {
-      const percent = new Percent(JSBI.BigInt(amount || 0), trade.inputAmount.quotient).toFixed(0)
+    if (exactTokenIn && inputAmount.greaterThan(JSBI.BigInt(0))) {
+      const percent = new Percent(JSBI.BigInt(amount || 0), inputAmount.quotient).toFixed(0)
       return parseInt(percent)
     }
     return undefined
   }
 
-  const tokens = trade.tokens || ({} as any)
+  const tokens = involvingTokens || ({} as any)
   const defaultToken = new Token(chainId, WETH[chainId].address, 0, '--', '--')
   const routes: SwapRoute[] = []
 
   // Convert all Swaps to ChartSwaps
-  trade.swaps.forEach(sorMultiSwap => {
+  swaps.forEach(sorMultiSwap => {
     if (sorMultiSwap.length === 1) {
       const hop = sorMultiSwap[0]
       const path = [

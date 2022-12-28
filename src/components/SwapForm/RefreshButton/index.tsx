@@ -1,12 +1,8 @@
 import React, { useEffect, useRef } from 'react'
-import { useSelector } from 'react-redux'
 import styled from 'styled-components'
 
 import { TIME_TO_REFRESH_SWAP_RATE } from 'constants/index'
-import { AppState } from 'state'
-import useParsedAmountFromInputCurrency from 'state/swap/hooks/useParsedAmountFromInputCurrency'
 
-import useMetaAggregatorRouteFetcher from '../useMetaAggregatorRouteFetcher'
 import LoadingIcon from './LoadingIcon'
 
 const IconButton = styled.button`
@@ -31,15 +27,12 @@ const IconButton = styled.button`
     outline: none;
   }
 `
-
-const RefreshButton: React.FC = () => {
+type Props = {
+  shouldDisable: boolean
+  callback: () => void
+}
+const RefreshButton: React.FC<Props> = ({ shouldDisable, callback }) => {
   const svgRef = useRef<SVGSVGElement>(null)
-  const fetcher = useMetaAggregatorRouteFetcher()
-
-  // disable when previewing or input amount is not yet entered
-  const parsedAmount = useParsedAmountFromInputCurrency()
-  const isConfirming = useSelector((state: AppState) => state.swap.isConfirming)
-  const shouldDisable = !parsedAmount || parsedAmount.equalTo(0) || isConfirming
 
   useEffect(() => {
     let interval: any
@@ -58,16 +51,16 @@ const RefreshButton: React.FC = () => {
 
       element.setCurrentTime(0)
       element.unpauseAnimations()
-      fetcher()
+      callback()
       interval = setInterval(() => {
-        fetcher()
+        callback()
       }, TIME_TO_REFRESH_SWAP_RATE * 1000)
     }
 
     return () => {
       clearInterval(interval)
     }
-  }, [fetcher, shouldDisable])
+  }, [callback, shouldDisable])
 
   const enableClickToRefresh = false
   return (
@@ -76,7 +69,7 @@ const RefreshButton: React.FC = () => {
         if (!enableClickToRefresh) {
           return
         }
-        fetcher()
+        callback()
       }}
     >
       <LoadingIcon ref={svgRef} clickable={enableClickToRefresh} durationInSeconds={TIME_TO_REFRESH_SWAP_RATE} />

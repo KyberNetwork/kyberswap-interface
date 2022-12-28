@@ -6,6 +6,7 @@ import { Text } from 'rebass'
 import { AutoColumn } from 'components/Column'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { RowBetween, RowFixed } from 'components/Row'
+import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import { TruncatedText } from 'components/swapv2/styleds'
 import useTheme from 'hooks/useTheme'
 
@@ -16,13 +17,14 @@ type Props = {
 
 const SwapBrief: React.FC<Props> = ({ inputAmount, outputAmount }) => {
   const theme = useTheme()
+  const { typedValue, feeConfig } = useSwapFormContext()
   return (
     <AutoColumn gap={'md'} style={{ marginTop: '20px' }}>
       <RowBetween align="flex-end">
         <RowFixed gap={'0px'}>
           <CurrencyLogo currency={inputAmount.currency} size={'24px'} style={{ marginRight: '12px' }} />
           <TruncatedText fontSize={24} fontWeight={500}>
-            {inputAmount.toSignificant(6)}
+            {!!feeConfig ? typedValue : inputAmount.toSignificant(6)}
           </TruncatedText>
         </RowFixed>
         <RowFixed gap={'0px'}>
