@@ -24,7 +24,7 @@ import { useToggleTransactionSettingsMenu } from 'state/application/hooks'
 import { Field } from 'state/swap/actions'
 import { useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
 import useParsedAmountFromInputCurrency from 'state/swap/hooks/useParsedAmountFromInputCurrency'
-import { useExpertModeManager, useUserAddedTokens, useUserSlippageTolerance } from 'state/user/hooks'
+import { useUserAddedTokens, useUserSlippageTolerance } from 'state/user/hooks'
 
 import ActionButton from './ActionButton'
 import InputCurrencyPanel from './InputCurrencyPanel'
@@ -39,8 +39,9 @@ export type SwapFormProps = {
   currencyOut: Currency | undefined
   balanceIn: CurrencyAmount<Currency> | undefined
   balanceOut: CurrencyAmount<Currency> | undefined
+  isAdvancedMode: boolean
 }
-const SwapForm: React.FC<SwapFormProps> = ({ currencyIn, currencyOut, balanceIn, balanceOut }) => {
+const SwapForm: React.FC<SwapFormProps> = ({ currencyIn, currencyOut, balanceIn, balanceOut, isAdvancedMode }) => {
   const { chainId, isSolana, isEVM } = useActiveWeb3React()
   const [rotate, setRotate] = useState(false)
 
@@ -50,7 +51,6 @@ const SwapForm: React.FC<SwapFormProps> = ({ currencyIn, currencyOut, balanceIn,
 
   // for expert mode
   const toggleSettings = useToggleTransactionSettingsMenu()
-  const [isExpertMode] = useExpertModeManager()
 
   // get custom setting values for user
   const [allowedSlippage] = useUserSlippageTolerance()
@@ -83,7 +83,7 @@ const SwapForm: React.FC<SwapFormProps> = ({ currencyIn, currencyOut, balanceIn,
   // reset recipient
   useEffect(() => {
     onChangeRecipient(null)
-  }, [onChangeRecipient, isExpertMode])
+  }, [onChangeRecipient, isAdvancedMode])
 
   const handleRecipientChange = (value: string | null) => {
     if (recipient === null && value !== null) {
@@ -145,10 +145,10 @@ const SwapForm: React.FC<SwapFormProps> = ({ currencyIn, currencyOut, balanceIn,
   useSyncTokenSymbolToUrl(currencyIn, currencyOut, onSelectSuggestedPair, isSelectCurrencyManually)
 
   useEffect(() => {
-    if (isExpertMode) {
+    if (isAdvancedMode) {
       mixpanelHandler(MIXPANEL_TYPE.ADVANCED_MODE_ON)
     }
-  }, [isExpertMode, mixpanelHandler])
+  }, [isAdvancedMode, mixpanelHandler])
 
   const [rawSlippage, setRawSlippage] = useUserSlippageTolerance()
 
@@ -192,7 +192,7 @@ const SwapForm: React.FC<SwapFormProps> = ({ currencyIn, currencyOut, balanceIn,
 
           <OutputCurrencyPanel />
 
-          {isExpertMode && isEVM && !showWrap && (
+          {isAdvancedMode && isEVM && !showWrap && (
             <AddressInputPanel id="recipient" value={recipient} onChange={handleRecipientChange} />
           )}
 
