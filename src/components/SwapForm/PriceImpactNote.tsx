@@ -1,13 +1,9 @@
 import { Trans, t } from '@lingui/macro'
 import { AlertTriangle } from 'react-feather'
-import { useSelector } from 'react-redux'
 import styled, { useTheme } from 'styled-components'
 
 import InfoHelper from 'components/InfoHelper'
-import { AppState } from 'state'
-import { useExpertModeManager } from 'state/user/hooks'
-
-import { isHighPriceImpact, isInvalidPriceImpact, isVeryHighPriceImpact } from './utils'
+import { checkPriceImpact } from 'utils/prices'
 
 const Wrapper = styled.div<{ veryHigh?: boolean }>`
   margin-top: 28px;
@@ -22,30 +18,20 @@ const Wrapper = styled.div<{ veryHigh?: boolean }>`
   font-size: 12px;
 `
 
-const PriceImpactNote: React.FC = () => {
+type Props = {
+  isAdvancedMode: boolean
+  priceImpact: number | undefined
+}
+const PriceImpactNote: React.FC<Props> = ({ isAdvancedMode, priceImpact }) => {
   const theme = useTheme()
-  const priceImpact = useSelector((state: AppState) => state.swap.routeSummary?.priceImpact)
-  const [isExpertMode] = useExpertModeManager()
-
-  const renderInfoHelper = () => {
-    return (
-      <InfoHelper
-        text={
-          isExpertMode
-            ? t`You have turned on Advanced Mode from settings. Trades with high price impact can be executed`
-            : t`Turn on Advanced Mode from settings to execute trades with high price impact`
-        }
-        color={theme.text}
-      />
-    )
-  }
+  const priceImpactResult = checkPriceImpact(priceImpact)
 
   if (priceImpact === undefined) {
     return null
   }
 
   // invalid
-  if (isInvalidPriceImpact(priceImpact)) {
+  if (priceImpactResult.isInvalid) {
     return (
       <Wrapper>
         <AlertTriangle color={theme.warning} size={16} style={{ marginRight: '10px' }} />
@@ -55,14 +41,19 @@ const PriceImpactNote: React.FC = () => {
     )
   }
 
-  if (isHighPriceImpact(priceImpact)) {
-    const veryHigh = isVeryHighPriceImpact(priceImpact)
-
+  if (priceImpactResult.isHigh) {
     return (
-      <Wrapper veryHigh={veryHigh}>
+      <Wrapper veryHigh={priceImpactResult.isVeryHigh}>
         <AlertTriangle size={16} style={{ marginRight: '10px' }} />
-        {veryHigh ? <Trans>Price Impact is Very High</Trans> : <Trans>Price Impact is High</Trans>}
-        {renderInfoHelper()}
+        {priceImpactResult.isVeryHigh ? <Trans>Price Impact is Very High</Trans> : <Trans>Price Impact is High</Trans>}
+
+        <InfoHelper
+          text={
+            isAdvancedMode
+              ? t`You have turned on Advanced Mode from settings. Trades with high price impact can be executed`
+              : t`Turn on Advanced Mode from settings to execute trades with high price impact`
+          }
+        />
       </Wrapper>
     )
   }

@@ -1,25 +1,17 @@
-import { Currency, CurrencyAmount, Price, TokenAmount } from '@kyberswap/ks-sdk-core'
-import JSBI from 'jsbi'
+import { Currency, Price } from '@kyberswap/ks-sdk-core'
 
 import { RouteSummary } from 'types/metaAggregator'
+import { toCurrencyAmount } from 'utils/currencyAmount'
 
-import { RawRouteSummary, Response } from './types'
+import { RawRouteSummary, RouteData } from './types'
 
-const toCurrencyAmount = function (currency: Currency, value: string | number): CurrencyAmount<Currency> {
-  try {
-    return TokenAmount.fromRawAmount(currency, JSBI.BigInt(value))
-  } catch (e) {
-    return TokenAmount.fromRawAmount(currency, 0)
-  }
-}
-
-const calculatePriceImpact = (amountInUsd: number, amountOutUsd: number) => {
+export const calculatePriceImpact = (amountInUsd: number, amountOutUsd: number) => {
   const priceImpact = !amountOutUsd ? -1 : ((amountInUsd - amountOutUsd) * 100) / amountInUsd
   return priceImpact
 }
 
 export const convertRawResponse = (
-  rawData: Response,
+  rawData: RouteData,
   currencyIn: Currency,
   currencyOut: Currency,
 ): {
@@ -43,6 +35,7 @@ export const convertRawResponse = (
     parsedAmountOut,
     priceImpact: calculatePriceImpact(Number(rawRouteSummary.amountInUsd), Number(rawRouteSummary.amountOutUsd)),
     executionPrice,
+    routerAddress: rawData.routerAddress,
   }
 
   return {
@@ -54,6 +47,6 @@ export const convertRawResponse = (
 
 export const getRawRouteSummary = (data: RouteSummary): RawRouteSummary => {
   // remove fields that are added in the function above
-  const { parsedAmountIn, parsedAmountOut, priceImpact, executionPrice, ...rawData } = data
+  const { parsedAmountIn, parsedAmountOut, priceImpact, executionPrice, routerAddress, ...rawData } = data
   return rawData as RawRouteSummary
 }

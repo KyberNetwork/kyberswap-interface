@@ -19,3 +19,11 @@ export const maximumAmountAfterSlippage = (amount: CurrencyAmount<Currency>, sli
   const slippageAdjustedAmount = new Fraction(JSBI.BigInt(1)).add(slippagePercent).multiply(amount.quotient).quotient
   return TokenAmount.fromRawAmount(amount.currency, slippageAdjustedAmount)
 }
+
+export const toCurrencyAmount = function (currency: Currency, value: string | number): CurrencyAmount<Currency> {
+  try {
+    return TokenAmount.fromRawAmount(currency, JSBI.BigInt(value))
+  } catch (e) {
+    return TokenAmount.fromRawAmount(currency, 0)
+  }
+}

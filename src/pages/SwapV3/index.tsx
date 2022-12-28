@@ -45,41 +45,29 @@ import {
   TabWrapper,
 } from 'components/swapv2/styleds'
 import { APP_PATHS } from 'constants/index'
-import { STABLE_COINS_ADDRESS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens, useIsLoadedTokenDefault } from 'hooks/Tokens'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import usePrevious from 'hooks/usePrevious'
 import { useSyncNetworkParamWithStore } from 'hooks/useSyncNetworkParamWithStore'
 import useTheme from 'hooks/useTheme'
 import { BodyWrapper } from 'pages/AppBody'
 import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { Field } from 'state/swap/actions'
-import {
-  useDefaultsFromURLSearch,
-  useInputCurrency,
-  useOutputCurrency,
-  useSwapActionHandlers,
-  useSwapState,
-} from 'state/swap/hooks'
+import { useDefaultsFromURLSearch, useInputCurrency, useOutputCurrency, useSwapActionHandlers } from 'state/swap/hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
-import {
-  useExpertModeManager,
-  useShowLiveChart,
-  useShowTokenInfo,
-  useShowTradeRoutes,
-  useToggleProLiveChart,
-  useUserAddedTokens,
-  useUserSlippageTolerance,
-} from 'state/user/hooks'
+import { useExpertModeManager, useShowLiveChart, useShowTokenInfo, useShowTradeRoutes } from 'state/user/hooks'
+import { RouteSummary } from 'types/metaAggregator'
+import { getTradeComposition } from 'utils/aggregationRouting'
 import { currencyId } from 'utils/currencyId'
 import { getSymbolSlug } from 'utils/string'
 import { checkPairInWhiteList } from 'utils/tokenInfo'
 
 import PopulatedSwapForm from './PopulatedSwapForm'
 
+const TradeRouting = lazy(() => import('../../components/TradeRouting'))
 const LiveChart = lazy(() => import('components/LiveChart'))
+
 const TutorialIcon = styled(TutorialSvg)`
   width: 22px;
   height: 22px;
@@ -142,7 +130,6 @@ export default function Swap() {
   const navigateFn = useNavigate()
   const { chainId, networkInfo, isSolana } = useActiveWeb3React()
   const isShowLiveChart = useShowLiveChart()
-  const toggleProLiveChart = useToggleProLiveChart()
   const isShowTradeRoutes = useShowTradeRoutes()
   const isShowTokenInfoSetting = useShowTokenInfo()
   const qs = useParsedQueryString<{
@@ -151,6 +138,8 @@ export default function Swap() {
     inputCurrency: string
   }>()
   const [{ show: isShowTutorial = false }] = useTutorialSwapGuide()
+  const [routeSummary, setRouteSummary] = useState<RouteSummary>()
+
   const { pathname } = useLocation()
   useSyncNetworkParamWithStore()
 
@@ -190,10 +179,7 @@ export default function Swap() {
 
   const [isExpertMode] = useExpertModeManager()
 
-  // swap state
-  const { [Field.INPUT]: INPUT, [Field.OUTPUT]: OUTPUT } = useSwapState()
-
-  const { onSwitchTokensV2, onCurrencySelection, onResetSelectCurrency, onUserInput } = useSwapActionHandlers()
+  const { onCurrencySelection, onUserInput } = useSwapActionHandlers()
 
   const currencyIn = useInputCurrency()
   const currencyOut = useOutputCurrency()
@@ -250,13 +236,7 @@ export default function Swap() {
     [isLimitPage, onSelectPairLimit, showingPairSuggestionImport, handleDismissTokenWarning],
   )
 
-  const handleRotateClick = useCallback(() => {
-    onSwitchTokensV2()
-    setIsSelectCurrencyManually(true)
-  }, [onSwitchTokensV2])
-
-  // TODO: fix mixpanel
-  const { mixpanelHandler } = useMixpanel(undefined, currencies)
+  const { mixpanelHandler } = useMixpanel(currencies)
 
   const onSelectSuggestedPair = useCallback(
     (fromToken: Currency | undefined, toToken: Currency | undefined, amount?: string) => {
@@ -271,32 +251,6 @@ export default function Swap() {
     [handleTypeInput, onCurrencySelection, onSelectPairLimit, isLimitPage],
   )
 
-  const tokenImports: Token[] = useUserAddedTokens()
-  const prevTokenImports = usePrevious(tokenImports)
-
-  useEffect(() => {
-    // when remove token imported
-    if (!prevTokenImports) return
-    const isRemoved = prevTokenImports?.length > tokenImports.length
-    if (!isRemoved || prevTokenImports[0].chainId !== chainId) return
-
-    const addressIn = currencyIn?.wrapped?.address
-    const addressOut = currencyOut?.wrapped?.address
-    // removed token => deselect input
-    const tokenRemoved = prevTokenImports.filter(
-      token => !tokenImports.find(token2 => token2.address === token.address),
-    )
-
-    tokenRemoved.forEach(({ address }: Token) => {
-      if (address === addressIn || !currencyIn) {
-        onResetSelectCurrency(Field.INPUT)
-      }
-      if (address === addressOut || !currencyOut) {
-        onResetSelectCurrency(Field.OUTPUT)
-      }
-    })
-  }, [tokenImports, chainId, prevTokenImports, currencyIn, currencyOut, onResetSelectCurrency])
-
   const isLoadedTokenDefault = useIsLoadedTokenDefault()
 
   useEffect(() => {
@@ -304,27 +258,6 @@ export default function Swap() {
       mixpanelHandler(MIXPANEL_TYPE.ADVANCED_MODE_ON)
     }
   }, [isExpertMode, mixpanelHandler])
-
-  const [rawSlippage, setRawSlippage] = useUserSlippageTolerance()
-
-  const isStableCoinSwap =
-    INPUT?.currencyId &&
-    OUTPUT?.currencyId &&
-    chainId &&
-    STABLE_COINS_ADDRESS[chainId].includes(INPUT?.currencyId) &&
-    STABLE_COINS_ADDRESS[chainId].includes(OUTPUT?.currencyId)
-
-  const rawSlippageRef = useRef(rawSlippage)
-  rawSlippageRef.current = rawSlippage
-
-  useEffect(() => {
-    if (isStableCoinSwap && rawSlippageRef.current > 10) {
-      setRawSlippage(10)
-    }
-    if (!isStableCoinSwap && rawSlippageRef.current === 10) {
-      setRawSlippage(50)
-    }
-  }, [isStableCoinSwap, setRawSlippage])
 
   const shareUrl = useMemo(() => {
     const tokenIn = isSwapPage ? currencyIn : limitState.currencyIn
@@ -356,13 +289,16 @@ export default function Swap() {
   const onClickTab = (tab: TAB) => {
     setActiveTab(tab)
     const isLimit = tab === TAB.LIMIT
-    isLimit && toggleProLiveChart(true)
     const { inputCurrency, outputCurrency, ...newQs } = qs
     navigateFn({
       pathname: `${isLimit ? APP_PATHS.LIMIT : APP_PATHS.SWAP}/${networkInfo.route}`,
       search: stringify(newQs),
     })
   }
+
+  const tradeRouteComposition = useMemo(() => {
+    return getTradeComposition(routeSummary?.parsedAmountIn, undefined, routeSummary?.route, chainId, defaultTokens)
+  }, [chainId, defaultTokens, routeSummary])
 
   return (
     <>
@@ -461,7 +397,11 @@ export default function Swap() {
 
             <AppBodyWrapped data-highlight={shouldHighlightSwapBox} id={TutorialIds.SWAP_FORM}>
               {activeTab === TAB.SWAP && ( // todo danh split component, check router api call
-                <PopulatedSwapForm />
+                <PopulatedSwapForm
+                  routeSummary={routeSummary}
+                  setRouteSummary={setRouteSummary}
+                  goToSettingsView={() => setActiveTab(TAB.SETTINGS)}
+                />
               )}
               {activeTab === TAB.INFO && (
                 <TokenInfo currencies={isSwapPage ? currencies : currenciesLimit} onBack={onBackToSwapTab} />
@@ -504,10 +444,7 @@ export default function Swap() {
                       />
                     }
                   >
-                    <LiveChart
-                      onRotateClick={handleRotateClick}
-                      currencies={isSwapPage ? currencies : currenciesLimit}
-                    />
+                    <LiveChart currencies={isSwapPage ? currencies : currenciesLimit} />
                   </Suspense>
                 </LiveChartWrapper>
               )}
@@ -520,7 +457,24 @@ export default function Swap() {
                         <Trans>Your trade route</Trans>
                       </Text>
                     </Flex>
-                    {/* TODO: implement trading routes here */}
+                    <Suspense
+                      fallback={
+                        <Skeleton
+                          height="100px"
+                          baseColor={theme.background}
+                          highlightColor={theme.buttonGray}
+                          borderRadius="1rem"
+                        />
+                      }
+                    >
+                      <TradeRouting
+                        tradeComposition={tradeRouteComposition}
+                        currencyIn={currencyIn}
+                        currencyOut={currencyOut}
+                        inputAmount={routeSummary?.parsedAmountIn}
+                        outputAmount={routeSummary?.parsedAmountOut}
+                      />
+                    </Suspense>
                   </Flex>
                 </RoutesWrapper>
               )}
