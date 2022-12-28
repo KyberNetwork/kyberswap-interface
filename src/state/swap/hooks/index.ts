@@ -16,6 +16,7 @@ import { useTradeExactIn } from 'hooks/Trades'
 import useENS from 'hooks/useENS'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
+import { useAppSelector } from 'state/hooks'
 import { AppDispatch, AppState } from 'state/index'
 import {
   Field,
@@ -432,12 +433,12 @@ export const useDefaultsFromURLSearch = ():
 }
 
 export const useInputCurrency = () => {
-  const inputCurrencyId = useSelector((state: AppState) => state.swap[Field.INPUT].currencyId)
+  const inputCurrencyId = useAppSelector(state => state.swap[Field.INPUT].currencyId)
   const inputCurrency = useCurrency(inputCurrencyId)
   return inputCurrency || undefined
 }
 export const useOutputCurrency = () => {
-  const outputCurrencyId = useSelector((state: AppState) => state.swap[Field.OUTPUT].currencyId)
+  const outputCurrencyId = useAppSelector(state => state.swap[Field.OUTPUT].currencyId)
   const outputCurrency = useCurrency(outputCurrencyId)
   return outputCurrency || undefined
 }

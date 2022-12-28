@@ -1,15 +1,15 @@
 import { useMemo } from 'react'
-import { useSelector } from 'react-redux'
 
 import { AppState } from 'state'
+import { useAppSelector } from 'state/hooks'
 import { useInputCurrency, useOutputCurrency } from 'state/swap/hooks'
 
 import { tryParseAmount } from '.'
 import { Field } from '../actions'
 
 const useParsedAmountFromTypedInput = () => {
-  const typedValue = useSelector((state: AppState) => state.swap.typedValue)
-  const independentField = useSelector((state: AppState) => state.swap.independentField)
+  const typedValue = useAppSelector((state: AppState) => state.swap.typedValue)
+  const independentField = useAppSelector((state: AppState) => state.swap.independentField)
   const inputCurrency = useInputCurrency()
   const outputCurrency = useOutputCurrency()
 
