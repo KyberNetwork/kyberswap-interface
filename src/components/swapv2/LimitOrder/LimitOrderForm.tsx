@@ -40,7 +40,7 @@ import ExpirePicker from './ExpirePicker'
 import ConfirmOrderModal from './Modals/ConfirmOrderModal'
 import { DEFAULT_EXPIRED, EXPIRED_OPTIONS } from './const'
 import { calcInvert, calcOutput, calcPercentFilledOrder, calcRate, calcUsdPrices, formatAmountOrder } from './helpers'
-import { getTotalActiveMakingAmount, hashOrder, submitOrder } from './request'
+import { clearCacheActiveMakingAmount, getTotalActiveMakingAmount, hashOrder, submitOrder } from './request'
 import { CreateOrderParam, LimitOrder, LimitOrderStatus, RateInfo } from './type'
 import useBaseTradeInfo from './useBaseTradeInfo'
 import useWrapEthStatus from './useWrapEthStatus'
@@ -66,6 +66,7 @@ type Props = {
   currencyOut: Currency | undefined
   defaultInputAmount?: string
   defaultOutputAmount?: string
+  defaultActiveMakingAmount?: string
   defaultExpire?: Date
   setIsSelectCurrencyManual?: (val: boolean) => void
   note?: string
@@ -86,6 +87,7 @@ const LimitOrderForm = function LimitOrderForm({
   currencyOut,
   defaultInputAmount = '',
   defaultOutputAmount = '',
+  defaultActiveMakingAmount = '',
   defaultExpire,
   defaultRate = { rate: '', invertRate: '', invert: false },
   setIsSelectCurrencyManual,
@@ -110,7 +112,7 @@ const LimitOrderForm = function LimitOrderForm({
 
   const [inputAmount, setInputAmount] = useState(defaultInputAmount)
   const [outputAmount, setOuputAmount] = useState(defaultOutputAmount)
-  const [activeOrderMakingAmount, setActiveOrderMakingAmount] = useState('')
+  const [activeOrderMakingAmount, setActiveOrderMakingAmount] = useState(defaultActiveMakingAmount)
 
   const [rateInfo, setRateInfo] = useState<RateInfo>(defaultRate)
   const displayRate = rateInfo.invert ? rateInfo.invertRate : rateInfo.rate
@@ -267,12 +269,16 @@ const LimitOrderForm = function LimitOrderForm({
   }, [balances, onSetInput, parsedActiveOrderMakingAmount])
 
   const enoughAllowance = useMemo(() => {
-    return (
-      currencyIn?.isNative ||
-      (parsedActiveOrderMakingAmount &&
-        parseInputAmount &&
-        currentAllowance?.subtract(parsedActiveOrderMakingAmount).greaterThan(parseInputAmount))
-    )
+    try {
+      return (
+        currencyIn?.isNative ||
+        (parsedActiveOrderMakingAmount &&
+          parseInputAmount &&
+          currentAllowance?.subtract(parsedActiveOrderMakingAmount).greaterThan(parseInputAmount))
+      )
+    } catch (error) {
+      return false
+    }
   }, [currencyIn?.isNative, currentAllowance, parseInputAmount, parsedActiveOrderMakingAmount])
 
   const [approval, approveCallback] = useApproveCallback(
@@ -325,9 +331,13 @@ const LimitOrderForm = function LimitOrderForm({
   }, [outputAmount, currencyOut])
 
   const hasInputError = inputError || outPutError
+  const checkingAllowance =
+    !(currencyIn && parsedActiveOrderMakingAmount?.currency?.equals(currencyIn)) ||
+    !(currencyIn && currentAllowance?.currency?.equals(currencyIn))
 
   const isNotFillAllInput = [outputAmount, inputAmount, currencyIn, currencyOut, displayRate].some(e => !e)
   const showApproveFlow =
+    !checkingAllowance &&
     !showWrap &&
     !isNotFillAllInput &&
     !hasInputError &&
@@ -341,6 +351,7 @@ const LimitOrderForm = function LimitOrderForm({
     ((approval !== ApprovalState.NOT_APPROVED || approvalSubmitted || !!hasInputError) && enoughAllowance)
 
   const disableBtnReview =
+    checkingAllowance ||
     isNotFillAllInput ||
     !!hasInputError ||
     approval !== ApprovalState.APPROVED ||
@@ -382,12 +393,9 @@ const LimitOrderForm = function LimitOrderForm({
   const getActiveMakingAmount = useCallback(
     async (currencyIn: Currency) => {
       try {
-        if (!currencyIn?.wrapped.address || !account) return
-        const { activeMakingAmount } = await getTotalActiveMakingAmount(
-          chainId + '',
-          currencyIn?.wrapped.address,
-          account,
-        )
+        const address = currencyIn?.wrapped.address
+        if (!address || !account) return
+        const { activeMakingAmount } = await getTotalActiveMakingAmount(chainId, address, account)
         setActiveOrderMakingAmount(activeMakingAmount)
       } catch (error) {
         console.log(error)
@@ -402,7 +410,7 @@ const LimitOrderForm = function LimitOrderForm({
     setRateInfo(defaultRate)
     setExpire(DEFAULT_EXPIRED)
     setCustomDateExpire(undefined)
-    currencyIn && getActiveMakingAmount(currencyIn)
+    refreshActiveMakingAmount()
   }
 
   const handleError = useCallback(
@@ -454,7 +462,7 @@ const LimitOrderForm = function LimitOrderForm({
     const bytes = ethers.utils.arrayify(signature)
     const lastByte = bytes[64]
     if (lastByte === 0 || lastByte === 1) {
-      // to support hardware wallet
+      // to support hardware wallet https://ethereum.stackexchange.com/a/113727
       bytes[64] += 27
     }
 
@@ -610,35 +618,45 @@ const LimitOrderForm = function LimitOrderForm({
 
   const refreshActiveMakingAmount = useMemo(
     () =>
-      debounce(data => {
+      debounce(() => {
+        clearCacheActiveMakingAmount()
         if (currencyIn) {
           getActiveMakingAmount(currencyIn)
         }
-      }, 500),
+      }, 100),
     [currencyIn, getActiveMakingAmount],
   )
+
+  const isInit = useRef(false)
+  useEffect(() => {
+    if (isInit.current && currencyIn) getActiveMakingAmount(currencyIn) // skip the first time
+    isInit.current = true
+  }, [currencyIn, getActiveMakingAmount, isEdit])
+
+  // use ref to prevent too many api call when firebase update status
   const refSubmitCreateOrder = useRef(onSubmitCreateOrder)
   refSubmitCreateOrder.current = onSubmitCreateOrder
+  const refRefreshActiveMakingAmount = useRef(refreshActiveMakingAmount)
+  refRefreshActiveMakingAmount.current = refreshActiveMakingAmount
 
   useEffect(() => {
-    if (!account || !chainId || !currencyIn) return
-    // call when currencyIn change or cancel expired/cancelled
+    if (!account || !chainId) return
+    // call when cancel expired/cancelled
     const unsubscribeCancelled = subscribeNotificationOrderCancelled(account, chainId, data => {
       data?.orders.forEach(order => {
         const findInfo = ordersUpdating.find(e => e.orderId === order.id)
-        if (findInfo?.orderId) {
-          removeCurrentOrder(findInfo.orderId)
-          if (order.isSuccessful) refSubmitCreateOrder.current(findInfo)
-        }
+        if (!findInfo?.orderId) return
+        removeCurrentOrder(findInfo.orderId)
+        if (order.isSuccessful) refSubmitCreateOrder.current(findInfo)
       })
-      refreshActiveMakingAmount(data)
+      refRefreshActiveMakingAmount.current()
     })
-    const unsubscribeExpired = subscribeNotificationOrderExpired(account, chainId, refreshActiveMakingAmount)
+    const unsubscribeExpired = subscribeNotificationOrderExpired(account, chainId, refRefreshActiveMakingAmount.current)
     return () => {
       unsubscribeCancelled?.()
       unsubscribeExpired?.()
     }
-  }, [account, chainId, currencyIn, refreshActiveMakingAmount, ordersUpdating, removeCurrentOrder])
+  }, [account, chainId, ordersUpdating, removeCurrentOrder])
 
   useEffect(() => {
     if (inputAmountGlobal) onSetInput(inputAmountGlobal)
@@ -874,7 +892,7 @@ const LimitOrderForm = function LimitOrderForm({
         {!showApproveFlow && !showWrap && account && (
           <ButtonError onClick={showPreview} disabled={disableBtnReview}>
             <Text fontWeight={500}>
-              <Trans>Review Order</Trans>
+              {checkingAllowance ? <Trans>Checking Allowance...</Trans> : <Trans>Review Order</Trans>}
             </Text>
           </ButtonError>
         )}
