@@ -1,11 +1,8 @@
 import { Trans, t } from '@lingui/macro'
 import { AlertTriangle } from 'react-feather'
-import { useSelector } from 'react-redux'
 import styled, { useTheme } from 'styled-components'
 
 import InfoHelper from 'components/InfoHelper'
-import { AppState } from 'state'
-import { useExpertModeManager } from 'state/user/hooks'
 
 import { isHighPriceImpact, isInvalidPriceImpact, isVeryHighPriceImpact } from './utils'
 
@@ -22,16 +19,17 @@ const Wrapper = styled.div<{ veryHigh?: boolean }>`
   font-size: 12px;
 `
 
-const PriceImpactNote: React.FC = () => {
+type Props = {
+  priceImpact: number | undefined
+  isAdvancedMode: boolean
+}
+const PriceImpactNote: React.FC<Props> = ({ priceImpact, isAdvancedMode }) => {
   const theme = useTheme()
-  const priceImpact = useSelector((state: AppState) => state.swap.routeSummary?.priceImpact)
-  const [isExpertMode] = useExpertModeManager()
-
   const renderInfoHelper = () => {
     return (
       <InfoHelper
         text={
-          isExpertMode
+          isAdvancedMode
             ? t`You have turned on Advanced Mode from settings. Trades with high price impact can be executed`
             : t`Turn on Advanced Mode from settings to execute trades with high price impact`
         }

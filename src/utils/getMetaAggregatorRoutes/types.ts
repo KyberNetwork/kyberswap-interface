@@ -32,8 +32,8 @@ export type RawRouteSummary = {
   amountOutUsd: string
   tokenOutMarketPriceAvailable: null
 
-  gas: number
-  gasUsd: number
+  gas: string
+  gasUsd: string
   gasPrice: string
 
   extraFee: RawFeeConfig

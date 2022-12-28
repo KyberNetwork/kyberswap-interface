@@ -5,17 +5,25 @@ import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { AppState } from 'state'
 import { Field } from 'state/swap/actions'
-import { useInputCurrency, useOutputCurrency, useSwapActionHandlers } from 'state/swap/hooks'
 import useParsedAmountFromInputCurrency from 'state/swap/hooks/useParsedAmountFromInputCurrency'
 import { formattedNum } from 'utils'
 
-const OutputCurrencyPanel: React.FC = () => {
-  const typedValue = useSelector((state: AppState) => state.swap.typedValue)
-  const routeSummary = useSelector((state: AppState) => state.swap.routeSummary)
-  const { onCurrencySelection } = useSwapActionHandlers()
+type Props = {
+  typedValue: string
+  currencyIn: Currency | undefined
+  currencyOut: Currency | undefined
+  usdValue: string | undefined
 
-  const currencyIn = useInputCurrency()
-  const currencyOut = useOutputCurrency()
+  onCurrencySelection: (field: Field, currency: Currency) => void
+}
+const OutputCurrencyPanel: React.FC<Props> = ({
+  typedValue,
+  currencyIn,
+  currencyOut,
+  usdValue,
+  onCurrencySelection,
+}) => {
+  const routeSummary = useSelector((state: AppState) => state.swap.routeSummary)
   const parsedAmount = useParsedAmountFromInputCurrency()
 
   const { wrapType } = useWrapCallback(currencyIn, currencyOut, typedValue)
@@ -28,14 +36,6 @@ const OutputCurrencyPanel: React.FC = () => {
     }
 
     return routeSummary?.parsedAmountOut?.toSignificant(6) || ''
-  }
-
-  const getEstimatedUsd = () => {
-    if (showWrap) {
-      return undefined
-    }
-
-    return routeSummary?.amountOutUsd ? `${formattedNum(routeSummary.amountOutUsd.toString(), true)}` : undefined
   }
 
   const handleOutputSelect = (outputCurrency: Currency) => {
@@ -53,7 +53,7 @@ const OutputCurrencyPanel: React.FC = () => {
       otherCurrency={currencyIn}
       id="swap-currency-output"
       showCommonBases={true}
-      estimatedUsd={getEstimatedUsd()}
+      estimatedUsd={usdValue ? String(formattedNum(usdValue, true)) : undefined}
     />
   )
 }

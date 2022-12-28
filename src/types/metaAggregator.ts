@@ -39,8 +39,8 @@ export type RouteSummary = {
   priceImpact: number
   executionPrice: Price<Currency, Currency>
 
-  gas: number
-  gasUsd: number
+  gas: string
+  gasUsd: string
   gasPrice: string
 
   extraFee: FeeConfig

@@ -39,6 +39,7 @@ const PopulatedSwapForm = () => {
   const currencyOut = useOutputCurrency()
 
   const isSelectCurrencyManually = useAppSelector(state => state.swap.isSelectTokenManually)
+  const routeSummary = useAppSelector(state => state.swap.routeSummary)
   const [balanceIn, balanceOut] = useCurrencyBalances(
     useMemo(() => [currencyIn ?? undefined, currencyOut ?? undefined], [currencyIn, currencyOut]),
   )
@@ -46,7 +47,7 @@ const PopulatedSwapForm = () => {
   const [isAdvancedMode] = useExpertModeManager()
   const [allowedSlippage] = useUserSlippageTolerance()
 
-  const { recipient, typedValue } = useSwapState()
+  const { recipient, typedValue, feeConfig } = useSwapState()
   const { onSwitchTokensV2, onUserInput, onCurrencySelection, onChangeRecipient, onResetSelectCurrency } =
     useSwapActionHandlers()
 
@@ -73,8 +74,15 @@ const PopulatedSwapForm = () => {
     balanceOut,
     typedValue,
     isAdvancedMode,
-    allowedSlippage,
+    slippage: allowedSlippage,
     recipient,
+    feeConfig,
+    parsedAmountIn: routeSummary?.parsedAmountIn,
+    parsedAmountOut: routeSummary?.parsedAmountOut,
+    amountInUsd: routeSummary?.amountInUsd,
+    amountOutUsd: routeSummary?.amountOutUsd,
+    priceImpact: routeSummary?.priceImpact,
+    gasUsd: routeSummary?.gasUsd,
 
     onReverseTokenSelection: onSwitchTokensV2,
     onUserInput,

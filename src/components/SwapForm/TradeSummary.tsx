@@ -1,3 +1,4 @@
+import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
 import { useSelector } from 'react-redux'
@@ -9,12 +10,10 @@ import { AutoColumn } from 'components/Column'
 import Divider from 'components/Divider'
 import InfoHelper from 'components/InfoHelper'
 import { RowBetween, RowFixed } from 'components/Row'
-import { useActiveWeb3React } from 'hooks'
-import { useLastTruthy } from 'hooks/useLast'
 import useTheme from 'hooks/useTheme'
 import { AppState } from 'state'
-import { useOutputCurrency } from 'state/swap/hooks'
 import { TYPE } from 'theme'
+import { FeeConfig } from 'types/metaAggregator'
 import { formattedNum } from 'utils'
 import { minimumAmountAfterSlippage } from 'utils/currencyAmount'
 
@@ -46,58 +45,52 @@ const Wrapper = styled.div<{ show: boolean }>`
   overflow: hidden;
 `
 
-const SummaryContent = () => {
-  const { isEVM } = useActiveWeb3React()
+type Props = {
+  feeConfig: FeeConfig | undefined
+  slippage: number
+  amountInUsd: string | undefined
+  parsedAmountOut: CurrencyAmount<Currency> | undefined
+  priceImpact: number | undefined
+  gasUsd: string | undefined
+}
+
+const TradeSummary: React.FC<Props> = ({ feeConfig, slippage, amountInUsd, parsedAmountOut, priceImpact, gasUsd }) => {
+  const hasTrade = useSelector((state: AppState) => !!state.swap.routeSummary)
   const theme = useTheme()
-  const feeConfig = useSelector((state: AppState) => state.swap.feeConfig)
-  const slippage = useSelector((state: AppState) => state.user.userSlippageTolerance)
-  const storedTrade = useSelector((state: AppState) => state.swap.routeSummary)
-  const lastTrade = useLastTruthy(storedTrade)
-  const trade = storedTrade || lastTrade || undefined
   const [show, setShow] = useState(feeConfig ? true : false)
-  const amountOut = useSelector((state: AppState) => state.swap.routeSummary?.parsedAmountOut)
-  const currencyOut = useOutputCurrency()
 
-  const isExactIn = true
-  const minimumAmountOut = amountOut ? minimumAmountAfterSlippage(amountOut, slippage) : undefined
-  const formattedFeeAmountUsd = getFormattedFeeAmountUsd(Number(trade?.amountInUsd || 0), feeConfig?.feeAmount)
-
-  if (!trade) {
-    return null
-  }
+  const formattedFeeAmountUsd = amountInUsd ? getFormattedFeeAmountUsd(Number(amountInUsd), feeConfig?.feeAmount) : 0
+  const minimumAmountOut = parsedAmountOut ? minimumAmountAfterSlippage(parsedAmountOut, slippage) : undefined
 
   return (
-    <AutoColumn>
-      <RowBetween style={{ cursor: 'pointer' }} onClick={() => setShow(prev => !prev)} role="button">
-        <Text fontSize={12} fontWeight={500} color={theme.text}>
-          <Trans>MORE INFORMATION</Trans>
-        </Text>
-        <IconWrapper show={show}>
-          <DropdownSVG />
-        </IconWrapper>
-      </RowBetween>
-      <ContentWrapper show={show} gap="0.75rem">
-        <Divider />
-        <RowBetween>
-          <RowFixed>
-            <TYPE.black fontSize={12} fontWeight={400} color={theme.subText}>
-              {isExactIn ? t`Minimum Received` : t`Maximum Sold`}
-            </TYPE.black>
-            <InfoHelper size={14} text={t`Minimum amount you will receive or your transaction will revert`} />
-          </RowFixed>
-          <RowFixed>
-            <TYPE.black color={theme.text} fontSize={12}>
-              {minimumAmountOut && currencyOut ? (
-                <>
-                  {formattedNum(minimumAmountOut.toSignificant(10) || '0')} {currencyOut.symbol}
-                </>
-              ) : (
-                '--'
-              )}
-            </TYPE.black>
-          </RowFixed>
+    <Wrapper show={hasTrade}>
+      <AutoColumn>
+        <RowBetween style={{ cursor: 'pointer' }} onClick={() => setShow(prev => !prev)} role="button">
+          <Text fontSize={12} fontWeight={500} color={theme.text}>
+            <Trans>MORE INFORMATION</Trans>
+          </Text>
+          <IconWrapper show={show}>
+            <DropdownSVG />
+          </IconWrapper>
         </RowBetween>
-        {isEVM && (
+        <ContentWrapper show={show} gap="0.75rem">
+          <Divider />
+          <RowBetween>
+            <RowFixed>
+              <TYPE.black fontSize={12} fontWeight={400} color={theme.subText}>
+                <Trans>Minimum Received</Trans>
+              </TYPE.black>
+              <InfoHelper size={14} text={t`Minimum amount you will receive or your transaction will revert`} />
+            </RowFixed>
+            <RowFixed>
+              <TYPE.black color={theme.text} fontSize={12}>
+                {minimumAmountOut
+                  ? `${formattedNum(minimumAmountOut.toSignificant(10) || '0')} ${minimumAmountOut.currency.symbol}`
+                  : '--'}
+              </TYPE.black>
+            </RowFixed>
+          </RowBetween>
+
           <RowBetween>
             <RowFixed>
               <TYPE.black fontSize={12} fontWeight={400} color={theme.subText}>
@@ -107,53 +100,46 @@ const SummaryContent = () => {
               <InfoHelper size={14} text={t`Estimated network fee for your transaction`} />
             </RowFixed>
             <TYPE.black color={theme.text} fontSize={12}>
-              {trade.gasUsd ? formattedNum(trade.gasUsd?.toString(), true) : '--'}
+              {gasUsd ? formattedNum(gasUsd, true) : '--'}
             </TYPE.black>
           </RowBetween>
-        )}
 
-        <RowBetween>
-          <RowFixed>
-            <TYPE.black fontSize={12} fontWeight={400} color={theme.subText}>
-              <Trans>Price Impact</Trans>
-            </TYPE.black>
-            <InfoHelper size={14} text={t`Estimated change in price due to the size of your transaction`} />
-          </RowFixed>
-          <TYPE.black
-            fontSize={12}
-            color={trade.priceImpact > 15 ? theme.red : trade.priceImpact > 5 ? theme.warning : theme.text}
-          >
-            {trade.priceImpact === -1
-              ? '--'
-              : trade.priceImpact > 0.01
-              ? trade.priceImpact.toFixed(2) + '%'
-              : '< 0.01%'}
-          </TYPE.black>
-        </RowBetween>
-
-        {feeConfig && (
           <RowBetween>
             <RowFixed>
               <TYPE.black fontSize={12} fontWeight={400} color={theme.subText}>
-                <Trans>Referral Fee</Trans>
+                <Trans>Price Impact</Trans>
               </TYPE.black>
-              <InfoHelper size={14} text={t`Commission fee to be paid directly to your referrer`} />
+              <InfoHelper size={14} text={t`Estimated change in price due to the size of your transaction`} />
             </RowFixed>
-            <TYPE.black color={theme.text} fontSize={12}>
-              {formattedFeeAmountUsd}
+            <TYPE.black
+              fontSize={12}
+              color={
+                priceImpact ? (priceImpact > 15 ? theme.red : priceImpact > 5 ? theme.warning : theme.text) : theme.text
+              }
+            >
+              {priceImpact === -1 || !priceImpact
+                ? '--'
+                : priceImpact > 0.01
+                ? priceImpact.toFixed(2) + '%'
+                : '< 0.01%'}
             </TYPE.black>
           </RowBetween>
-        )}
-      </ContentWrapper>
-    </AutoColumn>
-  )
-}
 
-const TradeSummary = () => {
-  const hasTrade = useSelector((state: AppState) => !!state.swap.routeSummary)
-  return (
-    <Wrapper show={hasTrade}>
-      <SummaryContent />
+          {feeConfig && (
+            <RowBetween>
+              <RowFixed>
+                <TYPE.black fontSize={12} fontWeight={400} color={theme.subText}>
+                  <Trans>Referral Fee</Trans>
+                </TYPE.black>
+                <InfoHelper size={14} text={t`Commission fee to be paid directly to your referrer`} />
+              </RowFixed>
+              <TYPE.black color={theme.text} fontSize={12}>
+                {formattedFeeAmountUsd}
+              </TYPE.black>
+            </RowBetween>
+          )}
+        </ContentWrapper>
+      </AutoColumn>
     </Wrapper>
   )
 }
