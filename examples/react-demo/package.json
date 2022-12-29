@@ -1,0 +1,29 @@
+{
+  "name": "kyberswap-widgets-demo",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
+    "@kyberswap/widgets": "^0.0.2",
+    "@web3-onboard/injected-wallets": "^2.2.4",
+    "@web3-onboard/react": "^2.3.5",
+    "@web3-onboard/walletconnect": "^2.1.3",
+    "ethers": "^5.7.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "rollup-plugin-polyfill-node": "^0.11.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.17",
+    "@types/react-dom": "^18.0.6",
+    "@vitejs/plugin-react": "^2.0.1",
+    "typescript": "^4.6.4",
+    "vite": "^3.0.7"
+  }
+}

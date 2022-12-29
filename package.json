@@ -1,48 +1,11 @@
 {
-  "name": "@kyberswap/widgets",
-  "license": "MIT",
-  "version": "0.0.2",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "@popperjs/core": "^2.11.6",
-    "@reach/portal": "^0.18.0",
-    "ethers": "^5.7.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-popper": "^2.3.0",
-    "vite-plugin-svgr": "^2.2.1",
-    "styled-components": "^5.3.5"
-  },
-  "devDependencies": {
-    "@types/react": "^18.0.17",
-    "@types/react-dom": "^18.0.6",
-    "@types/styled-components": "^5.1.26",
-    "@vitejs/plugin-react": "^2.0.1",
-    "@web3-onboard/injected-wallets": "^2.2.4",
-    "@web3-onboard/react": "^2.3.6",
-    "typescript": "^4.6.4",
-    "vite": "^3.0.7",
-    "vite-plugin-dts": "^1.4.1"
-  },
-  "peerDependencies": {
-    "react": "^16.8.0 || 17.x",
-    "react-dom": "^16.8.0 || 17.x"
-  },
-  "files": [
-    "dist"
+  "name": "root",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "examples/*"
   ],
-  "main": "./dist/widget.umd.js",
-  "module": "./dist/widget.es.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./dist/widget.es.js",
-      "require": "./dist/widget.umd.js"
-    }
+  "devDependencies": {
+    "lerna": "^6.3.0"
   }
 }
