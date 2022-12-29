@@ -1,43 +1,138 @@
 import { parseUnits } from "@ethersproject/units";
 import { BigNumber } from "ethers";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { NATIVE_TOKEN_ADDRESS, ZERO_ADDRESS } from "../constants";
+import {
+  AGGREGATOR_PATH,
+  NATIVE_TOKEN_ADDRESS,
+  SUPPORTED_NETWORKS,
+  ZERO_ADDRESS,
+} from "../constants";
 import useTokenBalances from "./useTokenBalances";
 import { useTokens } from "./useTokens";
 import { useActiveWeb3 } from "./useWeb3Provider";
 
-const getPath = (chainId: number) => {
-  switch (chainId) {
-    case 1:
-      return "ethereum";
-    case 137:
-      return "polygon";
-    default:
-      return "ethereum";
-  }
-};
-const useSwap = () => {
+export interface Trade {
+  amountInUsd: number;
+  amountOutUsd: number;
+  encodedSwapData: string;
+  gasUsd: number;
+  inputAmount: string;
+  outputAmount: string;
+  routerAddress: string;
+}
+
+export interface Dex {
+  name: string;
+  logoURL: string;
+  dexId: string;
+}
+
+const useSwap = ({
+  defaultTokenIn,
+  defaultTokenOut,
+  feeSetting,
+}: {
+  defaultTokenIn?: string;
+  defaultTokenOut?: string;
+  feeSetting?: {
+    chargeFeeBy: "currency_in" | "currency_out";
+    feeAmount: number;
+    feeReceiver: string;
+    isInBps: boolean;
+  };
+}) => {
   const { provider, chainId } = useActiveWeb3();
-  const [tokenIn, setTokenIn] = useState(NATIVE_TOKEN_ADDRESS);
-  const [tokenOut, setTokenOut] = useState("");
+  const [tokenIn, setTokenIn] = useState(
+    defaultTokenIn || NATIVE_TOKEN_ADDRESS
+  );
+  const [tokenOut, setTokenOut] = useState(defaultTokenOut || "");
   const tokens = useTokens();
 
-  const { balances } = useTokenBalances(tokens.map((item) => item.address));
+  const isUnsupported = !SUPPORTED_NETWORKS.includes(chainId.toString());
+  useEffect(() => {
+    if (isUnsupported) {
+      setTokenIn("");
+      setTokenOut("");
+      setTrade(null);
+    } else {
+      setTrade(null);
+      setTokenIn(defaultTokenIn || NATIVE_TOKEN_ADDRESS);
+      setTokenOut(defaultTokenOut || "");
+    }
+  }, [isUnsupported, chainId]);
 
-  const [inputAmout, setInputAmount] = useState("");
+  const { balances } = useTokenBalances(tokens.map((item) => item.address));
+  const [allDexes, setAllDexes] = useState<Dex[]>([]);
+  const [excludedDexes, setExcludedDexes] = useState<Dex[]>([]);
+
+  const excludedDexIds = excludedDexes.map((i) => i.dexId);
+  const dexes =
+    excludedDexes.length === 0
+      ? ""
+      : allDexes
+          .filter((item) => !excludedDexIds.includes(item.dexId))
+          .map((item) => item.dexId)
+          .join(",")
+          .replace("kyberswapv1", "kyberswap,kyberswap-static");
+
+  useEffect(() => {
+    const fetchAllDexes = async () => {
+      if (isUnsupported) return;
+      const res = await fetch(
+        `https://ks-setting.kyberswap.com/api/v1/dexes?chain=${AGGREGATOR_PATH[chainId]}&isEnabled=true&pageSize=100`
+      ).then((res) => res.json());
+
+      let dexes: Dex[] = res?.data?.dexes || [];
+      const ksClassic = dexes.find((dex) => dex.dexId === "kyberswap");
+      const ksClassicStatic = dexes.find(
+        (dex) => dex.dexId === "kyberswap-static"
+      );
+      if (ksClassic || ksClassicStatic)
+        dexes = [
+          {
+            dexId: "kyberswapv2",
+            name: "KyberSwap Elastic",
+            logoURL: "https://kyberswap.com/favicon.ico",
+          },
+          {
+            dexId: "kyberswapv1",
+            name: "KyberSwap Classic",
+            logoURL: "https://kyberswap.com/favicon.ico",
+          },
+        ].concat(
+          dexes.filter(
+            (dex) =>
+              !["kyberswap", "kyberswap-static", "kyberswapv2"].includes(
+                dex.dexId
+              )
+          )
+        );
+
+      setAllDexes(dexes);
+    };
+
+    fetchAllDexes();
+  }, [isUnsupported, chainId]);
+
+  const [inputAmout, setInputAmount] = useState("1");
   const [loading, setLoading] = useState(false);
-  const [trade, setTrade] = useState<any>(null);
+  const [trade, setTrade] = useState<Trade | null>(null);
   const [error, setError] = useState("");
   const [slippage, setSlippage] = useState(50);
+  const [deadline, setDeadline] = useState(20);
 
   const controllerRef = useRef<AbortController | null>();
 
+  const { chargeFeeBy, feeAmount, isInBps, feeReceiver } = feeSetting || {};
+
   const getRate = useCallback(async () => {
+    if (isUnsupported) return;
+
     const listAccounts = await provider?.listAccounts();
     const account = listAccounts?.[0];
 
     const date = new Date();
-    date.setMinutes(date.getMinutes() + 20);
+    date.setMinutes(date.getMinutes() + (deadline || 20));
 
     const tokenInDecimal =
       tokenIn === NATIVE_TOKEN_ADDRESS
@@ -65,10 +160,10 @@ const useSwap = () => {
     }
 
     if (!provider) {
-      setError("Please connect wallet");
+      setError("Please connect your wallet");
     }
 
-    const params: { [key: string]: string | number } = {
+    const params: { [key: string]: string | number | boolean | undefined } = {
       tokenIn,
       tokenOut,
       saveGas: 0,
@@ -78,10 +173,18 @@ const useSwap = () => {
       to: account || ZERO_ADDRESS,
       clientData: JSON.stringify({ source: "Widget" }),
       amountIn: amountIn.toString(),
+      dexes,
+      chargeFeeBy,
+      feeAmount,
+      isInBps,
+      feeReceiver,
     };
 
     const search = Object.keys(params).reduce(
-      (searchString, key) => `${searchString}&${key}=${params[key]}`,
+      (searchString, key) =>
+        params[key] !== undefined
+          ? `${searchString}&${key}=${params[key]}`
+          : searchString,
       ""
     );
 
@@ -94,9 +197,9 @@ const useSwap = () => {
     const controller = new AbortController();
     controllerRef.current = controller;
     const res = await fetch(
-      `https://aggregator-api.kyberswap.com/${getPath(
-        chainId
-      )}/route/encode?${search.slice(1)}`,
+      `https://aggregator-api.kyberswap.com/${
+        AGGREGATOR_PATH[chainId]
+      }/route/encode?${search.slice(1)}`,
       {
         headers: {
           "accept-version": "Latest",
@@ -106,7 +209,7 @@ const useSwap = () => {
     ).then((r) => r.json());
 
     setTrade(res);
-    if (res?.outputAmount) {
+    if (Number(res?.outputAmount)) {
       if (provider && !tokenInBalance.lt(amountIn)) setError("");
     } else {
       setTrade(null);
@@ -115,16 +218,25 @@ const useSwap = () => {
 
     controllerRef.current = null;
     setLoading(false);
-  }, [tokenIn, tokenOut, provider, inputAmout, balances, slippage]);
+  }, [
+    tokenIn,
+    tokenOut,
+    provider,
+    inputAmout,
+    JSON.stringify(balances),
+    slippage,
+    deadline,
+    dexes,
+    isUnsupported,
+    chainId,
+    chargeFeeBy,
+    feeAmount,
+    isInBps,
+    feeReceiver,
+  ]);
 
   useEffect(() => {
     getRate();
-    const interval = setInterval(() => {
-      getRate();
-    }, 10_000);
-    return () => {
-      interval && clearInterval(interval);
-    };
   }, [getRate]);
 
   return {
@@ -139,6 +251,13 @@ const useSwap = () => {
     error,
     slippage,
     setSlippage,
+    getRate,
+    deadline,
+    setDeadline,
+    allDexes,
+    excludedDexes,
+    setExcludedDexes,
+    setTrade,
   };
 };
 

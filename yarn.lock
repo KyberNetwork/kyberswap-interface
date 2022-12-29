@@ -1128,6 +1128,23 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
+"@popperjs/core@^2.11.6":
+  version "2.11.6"
+  resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.11.6.tgz#cee20bd55e68a1720bdab363ecf0c821ded4cd45"
+  integrity sha512-50/17A98tWUfQ176raKiOGXuYpLyyVMkxxG6oylzL3BPOlA6ADGdK7EYunSa4I064xerltq9TGXs8HmOk5E+vw==
+
+"@reach/portal@^0.18.0":
+  version "0.18.0"
+  resolved "https://registry.yarnpkg.com/@reach/portal/-/portal-0.18.0.tgz#dd466f5110689d14a0e7491b3aa8a449e8cefb40"
+  integrity sha512-TImozRapd576ofRk30Le2L3lRTFXF1p47B182wnp5eMTdZa74JX138BtNGEPJFOyrMaVmguVF8SSwZ6a0fon1Q==
+  dependencies:
+    "@reach/utils" "0.18.0"
+
+"@reach/utils@0.18.0":
+  version "0.18.0"
+  resolved "https://registry.yarnpkg.com/@reach/utils/-/utils-0.18.0.tgz#4f3cebe093dd436eeaff633809bf0f68f4f9d2ee"
+  integrity sha512-KdVMdpTgDyK8FzdKO9SCpiibuy/kbv3pwgfXshTI6tEcQT1OOwj7BAksnzGC0rPz0UholwC+AgkqEl3EJX3M1A==
+
 "@rollup/pluginutils@^4.2.1":
   version "4.2.1"
   resolved "https://registry.yarnpkg.com/@rollup/pluginutils/-/pluginutils-4.2.1.tgz#e6c6c3aba0744edce3fb2074922d3776c0af2a6d"
@@ -1347,36 +1364,27 @@
     magic-string "^0.26.2"
     react-refresh "^0.14.0"
 
-"@web3-onboard/common@^2.2.1":
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/@web3-onboard/common/-/common-2.2.1.tgz#1143e2237d44c80df2d4e34d5959197ed29c0153"
-  integrity sha512-714kgZoTiZ7I1vWE8Ah6jzpd3nVqOitioHvYy/gLoOECSFNzOqcHQMystOn1sLpl05j/uOkPRgUwWHYmPI60Og==
+"@web3-onboard/common@^2.2.3":
+  version "2.2.3"
+  resolved "https://registry.yarnpkg.com/@web3-onboard/common/-/common-2.2.3.tgz#fc0841186d84cf017f4cf0368dcd349e6ed8dc8b"
+  integrity sha512-ZI0XuCpxtuL9XGgeWglXR6rhgLP261EMEstjonxy8ptuOKLlTJcgvL7wSx2MjNDO3i/qmb/PGQpInvxYx5klSA==
   dependencies:
     bignumber.js "^9.1.0"
     ethers "5.5.4"
-    joi "^17.4.2"
+    joi "^17.6.1"
 
-"@web3-onboard/common@^2.2.2":
-  version "2.2.2"
-  resolved "https://registry.yarnpkg.com/@web3-onboard/common/-/common-2.2.2.tgz#abef8ca861835ab00e5b4641462de2c3db73fc89"
-  integrity sha512-04Y2Fryiu48nW27dgAtYmPugdhYbeIZq4HM1wsqRftQjgyEWnsam3YyeKRWBABa5iTsE2a/Fo4LofuBG5RMVYw==
+"@web3-onboard/core@^2.9.0":
+  version "2.9.0"
+  resolved "https://registry.yarnpkg.com/@web3-onboard/core/-/core-2.9.0.tgz#123846c520b79d5fed156206d4a14faf2ba34eeb"
+  integrity sha512-utBdzL55NfhsnMxktM+KXRVKwSr2lxuBbbFBHJ6RHlijLzbSJYMWFGMiDgmO82FVc4R+zJ4AomBJODzL9Az79A==
   dependencies:
-    bignumber.js "^9.1.0"
-    ethers "5.5.4"
-    joi "^17.4.2"
-
-"@web3-onboard/core@^2.8.1":
-  version "2.8.1"
-  resolved "https://registry.yarnpkg.com/@web3-onboard/core/-/core-2.8.1.tgz#559552f667850578e319a94ed98948d77da496f6"
-  integrity sha512-96wrXCYbXzjNC1r0r6fN2KMQddpSIrxunpTkhaO6IDiglEyX2+Im7OWktUxQDlwBce36gv6ahFwxL+dmAVXSkg==
-  dependencies:
-    "@web3-onboard/common" "^2.2.1"
+    "@web3-onboard/common" "^2.2.3"
     bignumber.js "^9.0.0"
     bnc-sdk "^4.4.1"
     bowser "^2.11.0"
     ethers "5.5.3"
     eventemitter3 "^4.0.7"
-    joi "17.6.0"
+    joi "^17.6.1"
     lodash.merge "^4.6.2"
     lodash.partition "^4.6.0"
     nanoid "^4.0.0"
@@ -1384,41 +1392,22 @@
     svelte "^3.49.0"
     svelte-i18n "^3.3.13"
 
-"@web3-onboard/core@^2.8.2":
-  version "2.8.2"
-  resolved "https://registry.yarnpkg.com/@web3-onboard/core/-/core-2.8.2.tgz#70d1730384a3e028bbe07769086361db5c631d78"
-  integrity sha512-AE2xQVKsmjtvW7lI7xFFdfAtoLxmZRa9qfCv5MtHRDY9Ojqkj06dLgteJmB4FBFZnh79iXoKbIj7N+vRpvjHIw==
+"@web3-onboard/injected-wallets@^2.2.4":
+  version "2.2.4"
+  resolved "https://registry.yarnpkg.com/@web3-onboard/injected-wallets/-/injected-wallets-2.2.4.tgz#93508d73febbc7e688fa9775af39b9c819216f35"
+  integrity sha512-95r31Wpy4pFWMEn7T0Vm2hf1dCiiLO9aUMWqMdWB+ypYiRu/BGl/3ualXsZ2pfI4ze8TmGu+rjaLL3z+ga+4rg==
   dependencies:
-    "@web3-onboard/common" "^2.2.2"
-    bignumber.js "^9.0.0"
-    bnc-sdk "^4.4.1"
-    bowser "^2.11.0"
-    ethers "5.5.3"
-    eventemitter3 "^4.0.7"
-    joi "17.6.0"
-    lodash.merge "^4.6.2"
-    lodash.partition "^4.6.0"
-    nanoid "^4.0.0"
-    rxjs "^7.5.2"
-    svelte "^3.49.0"
-    svelte-i18n "^3.3.13"
-
-"@web3-onboard/injected-wallets@^2.2.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@web3-onboard/injected-wallets/-/injected-wallets-2.2.0.tgz#9166e37a905ce3048b7bc13c241d6678b6fb5d1b"
-  integrity sha512-vcThIb5iw86LfqPoxwiijEeBPDurxv3GjYLWRKxwXgFVi3bIpXjXNuf4LKDHwo27AHkdI64hihHQscCTlHmatQ==
-  dependencies:
-    "@web3-onboard/common" "^2.2.1"
-    joi "^17.4.2"
+    "@web3-onboard/common" "^2.2.3"
+    joi "^17.6.1"
     lodash.uniqby "^4.7.0"
 
-"@web3-onboard/react@^2.3.1":
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/@web3-onboard/react/-/react-2.3.1.tgz#43b1d001ae9ca3e9363b3f4a7614bdc21031a3f0"
-  integrity sha512-62429orJ/uuWhKZQz75YTTu6SLcAhd5yi4tcQIEstk4NLjWD7cTsoPcI1gGxMa3Q+vu/4NllNcrxwfbwitfu/w==
+"@web3-onboard/react@^2.3.6":
+  version "2.3.6"
+  resolved "https://registry.yarnpkg.com/@web3-onboard/react/-/react-2.3.6.tgz#b16775d147961a83437c05eb1dd153b50d2f882c"
+  integrity sha512-V07Iw/8VRrJibrD7mzmRc+fAbF1yVVED4MKrLg4F8I/39IDzPF6RES5vtytoWSntg7KsJoEYiOW2VerjX0D8Og==
   dependencies:
-    "@web3-onboard/common" "^2.2.1"
-    "@web3-onboard/core" "^2.8.1"
+    "@web3-onboard/common" "^2.2.3"
+    "@web3-onboard/core" "^2.9.0"
     use-sync-external-store "1.0.0"
 
 aes-js@3.0.0:
@@ -2155,10 +2144,10 @@ jju@~1.4.0:
   resolved "https://registry.yarnpkg.com/jju/-/jju-1.4.0.tgz#a3abe2718af241a2b2904f84a625970f389ae32a"
   integrity sha512-8wb9Yw966OSxApiCt0K3yNJL8pnNeIv+OEq2YMidz4FKP6nonSRoOXc80iXY4JaN2FC11B9qsNmDsm+ZOfMROA==
 
-joi@17.6.0, joi@^17.4.2:
-  version "17.6.0"
-  resolved "https://registry.yarnpkg.com/joi/-/joi-17.6.0.tgz#0bb54f2f006c09a96e75ce687957bd04290054b2"
-  integrity sha512-OX5dG6DTbcr/kbMFj0KGYxuew69HPcAE3K/sZpEV2nP6e/j/C0HV+HNiBPCASxdx5T7DMoa0s8UeHWMnb6n2zw==
+joi@^17.6.1:
+  version "17.6.3"
+  resolved "https://registry.yarnpkg.com/joi/-/joi-17.6.3.tgz#b8e9e143f0188884563e6de50f8b23ddcd3cb2f5"
+  integrity sha512-YlQsIaS9MHYekzf1Qe11LjTkNzx9qhYluK3172z38RxYoAUf82XMX1p1DG1H4Wtk2ED/vPdSn9OggqtDu+aTow==
   dependencies:
     "@hapi/hoek" "^9.0.0"
     "@hapi/topo" "^5.0.0"
@@ -2252,7 +2241,7 @@ lodash@^4.17.11, lodash@~4.17.15:
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
   integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
 
-loose-envify@^1.1.0:
+loose-envify@^1.0.0, loose-envify@^1.1.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/loose-envify/-/loose-envify-1.4.0.tgz#71ee51fa7be4caec1a63839f7e682d8132d30caf"
   integrity sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==
@@ -2407,10 +2396,23 @@ react-dom@^18.2.0:
     loose-envify "^1.1.0"
     scheduler "^0.23.0"
 
+react-fast-compare@^3.0.1:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/react-fast-compare/-/react-fast-compare-3.2.0.tgz#641a9da81b6a6320f270e89724fb45a0b39e43bb"
+  integrity sha512-rtGImPZ0YyLrscKI9xTpV8psd6I8VAtjKCzQDlzyDvqJA8XOW78TXYQwNRNd8g8JZnDu8q9Fu/1v4HPAVwVdHA==
+
 react-is@^16.7.0:
   version "16.13.1"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
   integrity sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==
+
+react-popper@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/react-popper/-/react-popper-2.3.0.tgz#17891c620e1320dce318bad9fede46a5f71c70ba"
+  integrity sha512-e1hj8lL3uM+sgSR4Lxzn5h1GxBlpa4CQz0XLF8kx4MDrDRWY0Ena4c97PUeSX9i5W3UAfDP0z0FXCTQkoXUl3Q==
+  dependencies:
+    react-fast-compare "^3.0.1"
+    warning "^4.0.2"
 
 react-refresh@^0.14.0:
   version "0.14.0"
@@ -2735,6 +2737,13 @@ vite@^3.0.7:
     rollup ">=2.75.6 <2.77.0 || ~2.77.0"
   optionalDependencies:
     fsevents "~2.3.2"
+
+warning@^4.0.2:
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/warning/-/warning-4.0.3.tgz#16e9e077eb8a86d6af7d64aa1e05fd85b4678ca3"
+  integrity sha512-rpJyN222KWIvHJ/F53XSZv0Zl/accqHR8et1kpaMTD/fLCRxtV8iX8czMzY7sVZupTI3zcUTg8eycS2kNF9l6w==
+  dependencies:
+    loose-envify "^1.0.0"
 
 ws@7.4.6:
   version "7.4.6"

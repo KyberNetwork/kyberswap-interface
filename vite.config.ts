@@ -20,12 +20,16 @@ export default defineConfig({
       fileName: (format) => `widget.${format}.js`,
     },
     rollupOptions: {
-      external: ["react", "react-dom", "styled-components"],
+      external: [
+        "react",
+        "react-dom",
+        // "styled-components"
+      ],
       output: {
         globals: {
           react: "React",
           "react-dom": "ReactDOM",
-          "styled-components": "styled",
+          // "styled-components": "styled",
         },
       },
     },

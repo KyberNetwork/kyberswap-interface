@@ -1,13 +1,16 @@
 import { StrictMode, useState } from "react";
 import styled, { ThemeProvider } from "styled-components";
-import { darkTheme } from "../../theme";
+import { defaultTheme, Theme } from "../../theme";
 import { ReactComponent as SettingIcon } from "../../assets/setting.svg";
 import { ReactComponent as WalletIcon } from "../../assets/wallet.svg";
 import { ReactComponent as DropdownIcon } from "../../assets/dropdown.svg";
 import { ReactComponent as SwitchIcon } from "../../assets/switch.svg";
-import { ReactComponent as BackIcon } from "../../assets/back.svg";
-import { ReactComponent as ErrorIcon } from "../../assets/x-circle.svg";
-import { ReactComponent as SubmittedIcon } from "../../assets/arrow-up-circle.svg";
+import { ReactComponent as SwapIcon } from "../../assets/swap.svg";
+import { ReactComponent as BackIcon } from "../../assets/back1.svg";
+import { ReactComponent as KyberSwapLogo } from "../../assets/kyberswap.svg";
+import { ReactComponent as AlertIcon } from "../../assets/alert.svg";
+
+import useTheme from "../../hooks/useTheme";
 
 import {
   AccountBalance,
@@ -24,12 +27,26 @@ import {
   Wrapper,
   Button,
   Dots,
-  CustomLightSpinner,
   Rate,
+  MiddleLeft,
+  Detail,
+  DetailTitle,
+  Divider,
+  DetailRow,
+  DetailLabel,
+  DetailRight,
+  ModalHeader,
+  ModalTitle,
 } from "./styled";
 
 import { BigNumber } from "ethers";
-import { NATIVE_TOKEN, NATIVE_TOKEN_ADDRESS, ZIndex } from "../../constants";
+import {
+  NATIVE_TOKEN,
+  NATIVE_TOKEN_ADDRESS,
+  SUPPORTED_NETWORKS,
+  TokenInfo,
+  ZIndex,
+} from "../../constants";
 import SelectCurrency from "../SelectCurrency";
 import { useActiveWeb3, Web3Provider } from "../../hooks/useWeb3Provider";
 import useSwap from "../../hooks/useSwap";
@@ -37,10 +54,16 @@ import useTokenBalances from "../../hooks/useTokenBalances";
 import { formatUnits } from "ethers/lib/utils";
 import useApproval, { APPROVAL_STATE } from "../../hooks/useApproval";
 import Settings from "../Settings";
-import { Token, TokenListProvider, useTokens } from "../../hooks/useTokens";
+import { TokenListProvider, useTokens } from "../../hooks/useTokens";
+import RefreshBtn from "../RefreshBtn";
+import Confirmation from "../Confirmation";
+import DexesSetting from "../DexesSetting";
+import ImportModal from "../ImportModal";
+import InfoHelper from "../InfoHelper";
 
 export const DialogWrapper = styled.div`
-  background-color: ${({ theme }) => theme.bg1};
+  background-color: ${({ theme }) => theme.dialog};
+  border-radius: ${({ theme }) => theme.borderRadius};
   position: absolute;
   left: 0;
   top: 0;
@@ -68,25 +91,15 @@ export const DialogWrapper = styled.div`
   }
 `;
 
-const ModalHeader = styled.div`
+const ContentWrapper = styled.div`
+  flex: 1;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
+  flex-direction: column;
+  gap: 1rem;
+  overflow-y: scroll;
 
-const ModalTitle = styled.div`
-  cursor: pointer;
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  font-size: 1.125rem;
-  :hover {
-    opacity: 0.8;
-  }
-
-  > svg {
-    width: 1.25rem;
-    height: 1.25rem;
+  ::-webkit-scrollbar {
+    display: none;
   }
 `;
 
@@ -95,18 +108,14 @@ const SelectTokenText = styled.span`
   width: max-content;
 `;
 
-const FlexCenter = styled.div`
+const PoweredBy = styled.div`
   display: flex;
   align-items: center;
-  flex-direction: column;
   justify-content: center;
-  height: 100%;
-`;
-
-const ConfirmText = styled.div`
-  font-size: 14px;
+  gap: 8px;
   color: ${({ theme }) => theme.subText};
-  margin-top: 1.5rem;
+  font-size: 12px;
+  margin-top: 1rem;
 `;
 
 enum ModalType {
@@ -114,16 +123,41 @@ enum ModalType {
   CURRENCY_IN = "currency_in",
   CURRENCY_OUT = "currency_out",
   REVIEW = "review",
+  DEXES_SETTING = "dexes_setting",
+  IMPORT_TOKEN = "import_token",
+}
+
+interface FeeSetting {
+  chargeFeeBy: "currency_in" | "currency_out";
+  feeReceiver: string;
+  // BPS: 10_000
+  // 10 means 0.1%
+  feeAmount: number;
+  isInBps: boolean;
 }
 
 export interface WidgetProps {
   provider?: any;
-  tokenList?: Token[];
+  tokenList?: TokenInfo[];
+  theme?: Theme;
+  defaultTokenIn?: string;
+  defaultTokenOut?: string;
+  feeSetting?: FeeSetting;
 }
 
-const Widget = () => {
+const Widget = ({
+  defaultTokenIn,
+  defaultTokenOut,
+  feeSetting,
+}: {
+  defaultTokenIn?: string;
+  defaultTokenOut?: string;
+  feeSetting?: FeeSetting;
+}) => {
   const [showModal, setShowModal] = useState<ModalType | null>(null);
-  const { provider, chainId, account } = useActiveWeb3();
+  const { chainId } = useActiveWeb3();
+  const isUnsupported = !SUPPORTED_NETWORKS.includes(chainId.toString());
+
   const tokens = useTokens();
   const {
     loading,
@@ -134,12 +168,29 @@ const Widget = () => {
     setTokenOut,
     inputAmout,
     setInputAmount,
-    trade,
+    trade: routeTrade,
     slippage,
     setSlippage,
-  } = useSwap();
+    getRate,
+    deadline,
+    setDeadline,
+    allDexes,
+    excludedDexes,
+    setExcludedDexes,
+    setTrade,
+  } = useSwap({
+    defaultTokenIn,
+    defaultTokenOut,
+    feeSetting,
+  });
 
-  const { balances } = useTokenBalances(tokens.map((item) => item.address));
+  const trade = isUnsupported ? null : routeTrade;
+
+  const [inverseRate, setInverseRate] = useState(false);
+
+  const { balances, refetch } = useTokenBalances(
+    tokens.map((item) => item.address)
+  );
 
   const tokenInInfo =
     tokenIn === NATIVE_TOKEN_ADDRESS
@@ -155,6 +206,14 @@ const Widget = () => {
     ? formatUnits(trade.outputAmount, tokenOutInfo?.decimals).toString()
     : "";
 
+  let minAmountOut = "";
+
+  if (amountOut) {
+    minAmountOut = (Number(amountOut) * (1 - slippage / 10_000))
+      .toPrecision(8)
+      .toString();
+  }
+
   const tokenInBalance = balances[tokenIn] || BigNumber.from(0);
   const tokenOutBalance = balances[tokenOut] || BigNumber.from(0);
 
@@ -168,9 +227,11 @@ const Widget = () => {
   );
 
   const rate =
-    trade &&
+    trade?.inputAmount &&
+    trade?.outputAmount &&
     parseFloat(formatUnits(trade.outputAmount, tokenOutInfo?.decimals || 18)) /
-      parseFloat(formatUnits(trade.inputAmount, tokenInInfo?.decimals || 18));
+      parseFloat(inputAmout);
+
   const formattedTokenInBalance = parseFloat(
     parseFloat(tokenInWithUnit).toPrecision(10)
   );
@@ -179,9 +240,11 @@ const Widget = () => {
     parseFloat(tokenOutWithUnit).toPrecision(10)
   );
 
-  const [attempTx, setAttempTx] = useState(false);
-  const [txHash, setTxHash] = useState("");
-  const [txError, setTxError] = useState<any>("");
+  const theme = useTheme();
+
+  const priceImpact = !trade?.amountOutUsd
+    ? -1
+    : ((-trade.amountOutUsd + trade.amountInUsd) * 100) / trade.amountInUsd;
 
   const modalTitle = (() => {
     switch (showModal) {
@@ -191,17 +254,33 @@ const Widget = () => {
         return "Select a token";
       case ModalType.CURRENCY_OUT:
         return "Select a token";
-      case ModalType.REVIEW:
-        return "Confirmation";
+      case ModalType.DEXES_SETTING:
+        return "Liquidity Sources";
+      case ModalType.IMPORT_TOKEN:
+        return "Import Token";
+
       default:
         return null;
     }
   })();
 
+  const [tokenToImport, setTokenToImport] = useState<TokenInfo | null>(null);
+  const [importType, setImportType] = useState<"in" | "out">("in");
+
   const modalContent = (() => {
     switch (showModal) {
       case ModalType.SETTING:
-        return <Settings slippage={slippage} setSlippage={setSlippage} />;
+        return (
+          <Settings
+            slippage={slippage}
+            setSlippage={setSlippage}
+            deadline={deadline}
+            setDeadline={setDeadline}
+            allDexes={allDexes}
+            excludedDexes={excludedDexes}
+            onShowSource={() => setShowModal(ModalType.DEXES_SETTING)}
+          />
+        );
       case ModalType.CURRENCY_IN:
         return (
           <SelectCurrency
@@ -210,6 +289,11 @@ const Widget = () => {
               if (address === tokenOut) setTokenOut(tokenIn);
               setTokenIn(address);
               setShowModal(null);
+            }}
+            onImport={(token: TokenInfo) => {
+              setTokenToImport(token);
+              setShowModal(ModalType.IMPORT_TOKEN);
+              setImportType("in");
             }}
           />
         );
@@ -222,40 +306,58 @@ const Widget = () => {
               setTokenOut(address);
               setShowModal(null);
             }}
+            onImport={(token: TokenInfo) => {
+              setTokenToImport(token);
+              setShowModal(ModalType.IMPORT_TOKEN);
+              setImportType("out");
+            }}
           />
         );
       case ModalType.REVIEW:
+        if (rate && tokenInInfo && trade && tokenOutInfo)
+          return (
+            <Confirmation
+              trade={trade}
+              tokenInInfo={tokenInInfo}
+              amountIn={inputAmout}
+              tokenOutInfo={tokenOutInfo}
+              amountOut={amountOut}
+              rate={rate}
+              priceImpact={priceImpact}
+              slippage={slippage}
+              onClose={() => {
+                setShowModal(null);
+                refetch();
+              }}
+            />
+          );
+        return null;
+      case ModalType.DEXES_SETTING:
         return (
-          <FlexCenter>
-            {attempTx ? (
-              <>
-                <CustomLightSpinner
-                  size="90px"
-                  src={
-                    new URL("../../assets/blue-loader.svg", import.meta.url)
-                      .href
-                  }
-                />
-
-                <ConfirmText>
-                  Please confirm transaction on your wallet
-                </ConfirmText>
-              </>
-            ) : txHash ? (
-              <>
-                <SubmittedIcon style={{ width: "60px", height: "60px" }} />
-                <ConfirmText>Transaction submitted</ConfirmText>
-              </>
-            ) : (
-              <>
-                <ErrorIcon
-                  style={{ width: "60px", height: "60px", color: "red" }}
-                />
-                <ConfirmText>Error</ConfirmText>
-              </>
-            )}
-          </FlexCenter>
+          <DexesSetting
+            allDexes={allDexes}
+            excludedDexes={excludedDexes}
+            setExcludedDexes={setExcludedDexes}
+          />
         );
+
+      case ModalType.IMPORT_TOKEN:
+        if (tokenToImport)
+          return (
+            <ImportModal
+              token={tokenToImport}
+              onImport={() => {
+                if (importType === "in") {
+                  setTokenIn(tokenToImport.address);
+                  setShowModal(null);
+                } else {
+                  setTokenOut(tokenToImport.address);
+                  setShowModal(null);
+                }
+              }}
+            />
+          );
+        return null;
       default:
         return null;
     }
@@ -268,19 +370,32 @@ const Widget = () => {
   } = useApproval(
     BigNumber.from(trade?.inputAmount || 0),
     tokenIn,
-    trade?.routerAddress
+    trade?.routerAddress || ""
   );
 
   return (
     <Wrapper>
       <DialogWrapper className={showModal ? "open" : "close"}>
-        <ModalHeader>
-          <ModalTitle onClick={() => setShowModal(null)} role="button">
-            <BackIcon />
-            {modalTitle}
-          </ModalTitle>
-        </ModalHeader>
-        {modalContent}
+        {showModal !== ModalType.REVIEW && (
+          <ModalHeader>
+            <ModalTitle
+              onClick={() =>
+                showModal === ModalType.DEXES_SETTING
+                  ? setShowModal(ModalType.SETTING)
+                  : setShowModal(null)
+              }
+              role="button"
+            >
+              <BackIcon style={{ color: theme.subText }} />
+              {modalTitle}
+            </ModalTitle>
+          </ModalHeader>
+        )}
+        <ContentWrapper>{modalContent}</ContentWrapper>
+        <PoweredBy style={{ marginTop: "0" }}>
+          Powered By
+          <KyberSwapLogo />
+        </PoweredBy>
       </DialogWrapper>
       <Title>
         Swap
@@ -325,7 +440,28 @@ const Widget = () => {
             maxLength={79}
             spellCheck="false"
           />
-          <SelectTokenBtn onClick={() => setShowModal(ModalType.CURRENCY_IN)}>
+
+          {!!trade?.amountInUsd && (
+            <span
+              style={{
+                fontSize: "12px",
+                marginRight: "4px",
+                color: theme.subText,
+              }}
+            >
+              ~
+              {trade.amountInUsd.toLocaleString("en-US", {
+                style: "currency",
+                currency: "USD",
+              })}
+            </span>
+          )}
+
+          <SelectTokenBtn
+            onClick={() =>
+              !isUnsupported && setShowModal(ModalType.CURRENCY_IN)
+            }
+          >
             {tokenInInfo ? (
               <>
                 <img
@@ -333,6 +469,13 @@ const Widget = () => {
                   height="20"
                   src={tokenInInfo?.logoURI}
                   style={{ borderRadius: "50%" }}
+                  onError={({ currentTarget }) => {
+                    currentTarget.onerror = null; // prevents looping
+                    currentTarget.src = new URL(
+                      "../../assets/question.svg",
+                      import.meta.url
+                    ).href;
+                  }}
                 />
                 <div style={{ marginLeft: "0.375rem" }}>
                   {tokenInInfo?.symbol}
@@ -347,13 +490,37 @@ const Widget = () => {
       </InputWrapper>
 
       <MiddleRow>
-        <Rate>
-          1 {tokenInInfo?.symbol} = {rate?.toPrecision(10) || "--"}{" "}
-          {tokenOutInfo?.symbol}
-        </Rate>
+        <MiddleLeft>
+          <RefreshBtn
+            loading={loading}
+            onRefresh={() => {
+              getRate();
+            }}
+            trade={trade}
+          />
+          <Rate>
+            {(() => {
+              if (!rate) return "--";
+              return !inverseRate
+                ? `1 ${tokenInInfo?.symbol} = ${+rate.toPrecision(10)} ${
+                    tokenOutInfo?.symbol
+                  }`
+                : `1 ${tokenOutInfo?.symbol} = ${+(1 / rate).toPrecision(10)} ${
+                    tokenInInfo?.symbol
+                  }`;
+            })()}
+          </Rate>
+
+          {!!rate && (
+            <SettingBtn onClick={() => setInverseRate((prev) => !prev)}>
+              <SwapIcon />
+            </SettingBtn>
+          )}
+        </MiddleLeft>
 
         <SwitchBtn
           onClick={() => {
+            setTrade(null);
             setTokenIn(tokenOut);
             setTokenOut(tokenIn);
           }}
@@ -372,8 +539,28 @@ const Widget = () => {
         </BalanceRow>
 
         <InputRow>
-          <Input disabled value={amountOut} />
-          <SelectTokenBtn onClick={() => setShowModal(ModalType.CURRENCY_OUT)}>
+          <Input disabled value={+Number(amountOut).toPrecision(8)} />
+
+          {!!trade?.amountOutUsd && (
+            <span
+              style={{
+                fontSize: "12px",
+                marginRight: "4px",
+                color: theme.subText,
+              }}
+            >
+              ~
+              {trade.amountOutUsd.toLocaleString("en-US", {
+                style: "currency",
+                currency: "USD",
+              })}
+            </span>
+          )}
+          <SelectTokenBtn
+            onClick={() =>
+              !isUnsupported && setShowModal(ModalType.CURRENCY_OUT)
+            }
+          >
             {tokenOutInfo ? (
               <>
                 <img
@@ -381,6 +568,13 @@ const Widget = () => {
                   height="20"
                   src={tokenOutInfo?.logoURI}
                   style={{ borderRadius: "50%" }}
+                  onError={({ currentTarget }) => {
+                    currentTarget.onerror = null; // prevents looping
+                    currentTarget.src = new URL(
+                      "../../assets/question.svg",
+                      import.meta.url
+                    ).href;
+                  }}
                 />
                 <div style={{ marginLeft: "0.375rem" }}>
                   {tokenOutInfo?.symbol}
@@ -394,45 +588,77 @@ const Widget = () => {
         </InputRow>
       </InputWrapper>
 
+      <Detail style={{ marginTop: "1rem" }}>
+        <DetailTitle>More information</DetailTitle>
+        <Divider />
+        <DetailRow>
+          <DetailLabel>
+            Minimum Received
+            <InfoHelper
+              text={`Minimum amount you will receive or your transaction will revert`}
+            />
+          </DetailLabel>
+          <DetailRight>
+            {minAmountOut ? `${minAmountOut} ${tokenOutInfo?.symbol}` : "--"}
+          </DetailRight>
+        </DetailRow>
+
+        <DetailRow>
+          <DetailLabel>
+            Gas Fee{" "}
+            <InfoHelper text="Estimated network fee for your transaction" />
+          </DetailLabel>
+          <DetailRight>
+            {trade?.gasUsd ? "$" + trade.gasUsd.toPrecision(4) : "--"}
+          </DetailRight>
+        </DetailRow>
+
+        <DetailRow>
+          <DetailLabel>
+            Price Impact
+            <InfoHelper text="Estimated change in price due to the size of your transaction" />
+          </DetailLabel>
+          <DetailRight
+            style={{
+              color:
+                priceImpact > 15
+                  ? theme.error
+                  : priceImpact > 5
+                  ? theme.warning
+                  : theme.text,
+            }}
+          >
+            {priceImpact === -1
+              ? "--"
+              : priceImpact > 0.01
+              ? priceImpact.toFixed(3) + "%"
+              : "< 0.01%"}
+          </DetailRight>
+        </DetailRow>
+      </Detail>
+
       <Button
         disabled={
           !!error ||
           loading ||
           checkingAllowance ||
-          approvalState === APPROVAL_STATE.PENDING
+          approvalState === APPROVAL_STATE.PENDING ||
+          isUnsupported
         }
         onClick={async () => {
           if (approvalState === APPROVAL_STATE.NOT_APPROVED) {
             approve();
           } else {
-            const estimateGasOption = {
-              from: account,
-              to: trade?.routerAddress,
-              data: trade?.encodedSwapData,
-              value: BigNumber.from(
-                tokenIn === NATIVE_TOKEN_ADDRESS ? trade?.inputAmount : 0
-              ),
-            };
-
-            try {
-              setAttempTx(true);
-              setTxHash("");
-              setTxError(false);
-              setShowModal(ModalType.REVIEW);
-              const res = await provider
-                ?.getSigner()
-                .sendTransaction(estimateGasOption);
-
-              setTxHash(res?.hash || "");
-              setAttempTx(false);
-            } catch (e) {
-              setAttempTx(false);
-              setTxError(e);
-            }
+            setShowModal(ModalType.REVIEW);
           }
         }}
       >
-        {loading ? (
+        {isUnsupported ? (
+          <PoweredBy style={{ fontSize: "16px", marginTop: "0" }}>
+            <AlertIcon style={{ width: "24px", height: "24px" }} />
+            Unsupported network
+          </PoweredBy>
+        ) : loading ? (
           <Dots>Calculate best route</Dots>
         ) : error ? (
           error
@@ -446,17 +672,33 @@ const Widget = () => {
           "Swap"
         )}
       </Button>
+
+      <PoweredBy>
+        Powered By
+        <KyberSwapLogo />
+      </PoweredBy>
     </Wrapper>
   );
 };
 
-export default ({ provider, tokenList }: WidgetProps) => {
+export default ({
+  provider,
+  tokenList,
+  theme,
+  defaultTokenIn,
+  defaultTokenOut,
+  feeSetting,
+}: WidgetProps) => {
   return (
     <StrictMode>
-      <ThemeProvider theme={darkTheme}>
+      <ThemeProvider theme={theme || defaultTheme}>
         <Web3Provider provider={provider}>
           <TokenListProvider tokenList={tokenList}>
-            <Widget />
+            <Widget
+              defaultTokenIn={defaultTokenIn}
+              defaultTokenOut={defaultTokenOut}
+              feeSetting={feeSetting}
+            />
           </TokenListProvider>
         </Web3Provider>
       </ThemeProvider>

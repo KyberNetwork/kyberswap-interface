@@ -43,21 +43,19 @@ function useApproval(
   }, [contract, spender]);
 
   useEffect(() => {
-    if (pendingTx && provider) {
-      provider.on("block", () => {
-        provider.getTransactionReceipt(pendingTx).then((receipt) => {
-          if (receipt) {
-            setPendingTx("");
-            setApprovalState(APPROVAL_STATE.APPROVED);
-          }
-        });
+    const i = setInterval(() => {
+      provider?.getTransactionReceipt(pendingTx).then((receipt) => {
+        if (receipt) {
+          setPendingTx("");
+          setApprovalState(APPROVAL_STATE.APPROVED);
+        }
       });
-    }
+    }, 8_000);
 
     return () => {
-      provider?.off("block");
+      clearInterval(i);
     };
-  }, [pendingTx, provider, provider?.blockNumber]);
+  }, [pendingTx, provider]);
 
   useEffect(() => {
     if (contract && token !== NATIVE_TOKEN_ADDRESS && account && spender) {

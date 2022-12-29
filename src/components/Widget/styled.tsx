@@ -1,36 +1,39 @@
 import styled, { keyframes } from "styled-components";
 
 export const Wrapper = styled.div`
-  border-radius: 1rem;
+  border-radius: ${({ theme }) => theme.borderRadius};
   padding: 1rem;
   width: 375px;
-  background: ${({ theme }) => theme.bg1};
+  background: ${({ theme }) => theme.primary};
   color: ${({ theme }) => theme.text};
-  font-family: "Work Sans", "Inter var", sans-serif;
+  font-family: ${({ theme }) =>
+    theme.fontFamily || `"Work Sans", "Inter var", sans-serif`};
   position: relative;
   overflow: hidden;
+  box-shadow: ${({ theme }) => theme.boxShadow};
 `;
 
 export const Title = styled.div`
   display: flex;
   justify-content: space-between;
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   font-weight: 500;
   align-items: center;
 `;
 
 export const InputWrapper = styled.div`
-  border-radius: 1rem;
+  border-radius: ${({ theme }) => theme.borderRadius};
   padding: 0.75rem;
-  background: ${({ theme }) => theme.bg2};
+  background: ${({ theme }) => theme.secondary};
   margin-top: 1rem;
+  box-shadow: ${({ theme }) => theme.boxShadow};
 `;
 
 export const MaxHalfBtn = styled.button`
   outline: none;
   border: none;
-  background: ${({ theme }) => theme.subText + "33"};
-  border-radius: 999px;
+  background: ${({ theme }) => theme.interactive};
+  border-radius: ${({ theme }) => theme.buttonRadius};
   color: ${({ theme }) => theme.subText};
   font-size: 0.75rem;
   padding: 0.125rem 0.5rem;
@@ -52,7 +55,7 @@ export const BalanceRow = styled.div`
 export const SettingBtn = styled.button`
   outline: none;
   border: none;
-  border-radius: 50%;
+  border-radius: ${({ theme }) => theme.buttonRadius};
   width: 2.25rem;
   height: 2.25rem;
   background: transparent;
@@ -63,14 +66,19 @@ export const SettingBtn = styled.button`
   color: ${({ theme }) => theme.subText};
 
   :hover {
-    background: ${({ theme }) => theme.bg2};
+    background: ${({ theme }) => theme.secondary};
+  }
+
+  svg {
+    width: 1.25rem;
+    height: 1.25rem;
   }
 `;
 
 export const SwitchBtn = styled(SettingBtn)`
   width: 40px;
   height: 40px;
-  background: ${({ theme }) => theme.bg2};
+  background: ${({ theme }) => theme.secondary};
 
   :hover {
     opacity: 0.8;
@@ -94,7 +102,7 @@ export const InputRow = styled.div`
 export const Input = styled.input`
   width: 100%;
   font-size: 1.5rem;
-  background: ${({ theme }) => theme.bg2};
+  background: ${({ theme }) => theme.secondary};
   outline: none;
   border: none;
   color: ${({ theme }) => theme.text};
@@ -107,8 +115,8 @@ export const Input = styled.input`
 export const SelectTokenBtn = styled.button`
   outline: none;
   border: none;
-  background: ${({ theme }) => theme.bg1};
-  border-radius: 999px;
+  background: ${({ theme }) => theme.interactive};
+  border-radius: ${({ theme }) => theme.buttonRadius};
   padding: 0.375rem 0 0.375rem 0.5rem;
   font-size: 1.125rem;
   color: ${({ theme }) => theme.subText};
@@ -129,21 +137,33 @@ export const MiddleRow = styled.div`
   justify-content: space-between;
 `;
 
+export const MiddleLeft = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
 export const Button = styled.button`
   outline: none;
   border: none;
-  border-radius: 999px;
+  border-radius: ${({ theme }) => theme.buttonRadius};
   width: 100%;
-  margin-top: 1.5rem;
-  font-size: 0.875rem;
+  margin-top: 1rem;
+  font-size: 1rem;
   font-weight: 500;
   padding: 0.75rem;
-  background: ${({ theme }) => theme.primary};
+  background: ${({ theme }) => theme.accent};
+  color: ${({ theme }) => theme.dialog};
   cursor: pointer;
+  box-shadow: ${({ theme }) => theme.boxShadow};
 
   :disabled {
-    background: #292929;
     color: ${({ theme }) => theme.subText};
+    background: ${({ theme }) => theme.interactive};
+    cursor: not-allowed;
+
+    :active {
+      transform: none;
+    }
   }
 
   :active {
@@ -172,27 +192,67 @@ export const Dots = styled.span`
   }
 `;
 
-const rotate = keyframes`
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-`;
-
-export const Spinner = styled.img`
-  animation: 2s ${rotate} linear infinite;
-  width: 16px;
-  height: 16px;
-`;
-
-export const CustomLightSpinner = styled(Spinner)<{ size: string }>`
-  height: ${({ size }) => size};
-  width: ${({ size }) => size};
-`;
-
 export const Rate = styled.div`
   font-size: 14px;
+  font-weight: 500;
   color: ${({ theme }) => theme.subText};
+  margin-left: 4px;
+`;
+
+export const Detail = styled.div`
+  background: ${({ theme }) => theme.secondary};
+  border-radius: ${({ theme }) => theme.borderRadius};
+  border: 1px solid ${({ theme }) => theme.stroke};
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 12px;
+`;
+
+export const DetailRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+export const DetailLabel = styled.div`
+  display: flex;
+  align-items: center;
+  color: ${({ theme }) => theme.subText};
+`;
+export const DetailRight = styled.div`
+  font-weight: 500;
+`;
+
+export const DetailTitle = styled.div`
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  text-align: left;
+`;
+export const Divider = styled.div`
+  width: 100%;
+  height: 1px;
+  border-bottom: 1px solid ${({ theme }) => theme.stroke};
+`;
+export const ModalHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+export const ModalTitle = styled.div`
+  cursor: pointer;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  font-size: 1.25rem;
+  font-weight: 500;
+  :hover {
+    opacity: 0.8;
+  }
+
+  > svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
 `;
