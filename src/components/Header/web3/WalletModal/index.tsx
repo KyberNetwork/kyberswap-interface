@@ -350,8 +350,8 @@ export default function WalletModal() {
               <Trans>Accept </Trans>{' '}
               <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS} onClick={e => e.stopPropagation()}>
                 <Trans>KyberSwap&lsquo;s Terms of Use</Trans>
-              </ExternalLink>{' '}
-              <Trans>and</Trans>{' '}
+              </ExternalLink>
+              {', '}
               <ExternalLink href={TERM_FILES_PATH.PRIVACY_POLICY} onClick={e => e.stopPropagation()}>
                 <Trans>Privacy Policy</Trans>
               </ExternalLink>{' '}
