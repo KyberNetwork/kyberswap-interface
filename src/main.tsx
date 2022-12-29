@@ -57,13 +57,18 @@ const App = () => {
     const connectedWalletsLabelArray = connectedWallets.map(
       ({ label }) => label
     );
-    window.localStorage.setItem(
-      "connectedWallets",
-      JSON.stringify(connectedWalletsLabelArray)
-    );
+    if (typeof window !== "undefined")
+      window.localStorage.setItem(
+        "connectedWallets",
+        JSON.stringify(connectedWalletsLabelArray)
+      );
   }, [connectedWallets, wallet]);
 
   useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
     const previouslyConnectedWallets = JSON.parse(
       window.localStorage.getItem("connectedWallets") || "[]"
     );

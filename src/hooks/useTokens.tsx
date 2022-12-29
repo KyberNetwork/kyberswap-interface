@@ -31,7 +31,7 @@ export const TokenListProvider = ({
   const { chainId } = useActiveWeb3();
 
   const [importedTokens, setImportedTokens] = useState<TokenInfo[]>(() => {
-    if (localStorage) {
+    if (typeof window !== "undefined") {
       try {
         const localStorageTokens = JSON.parse(
           localStorage.getItem("importedTokens") || "[]"
@@ -52,7 +52,7 @@ export const TokenListProvider = ({
       token,
     ];
     setImportedTokens(newTokens);
-    if (localStorage)
+    if (typeof window !== "undefined")
       localStorage.setItem("importedTokens", JSON.stringify(newTokens));
   };
 
@@ -64,7 +64,7 @@ export const TokenListProvider = ({
     );
 
     setImportedTokens(newTokens);
-    if (localStorage)
+    if (typeof window !== "undefined")
       localStorage.setItem("importedTokens", JSON.stringify(newTokens));
   };
 
