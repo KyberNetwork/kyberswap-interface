@@ -21,13 +21,9 @@ const görliInfo: EVMNetworkInfo = {
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
-  classicClient: createClient(
-    'https://ethereum-graph.dev.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-classic-goerli',
-  ),
-  elasticClient: createClient(
-    'https://ethereum-graph.dev.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-elastic-goerli',
-  ),
-  blockClient: createClient('https://ethereum-graph.dev.kyberengineering.io/subgraphs/name/kybernetwork/goerli-blocks'),
+  classicClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-ethereum'), //todo: not exists yet
+  elasticClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-mainnet'), //todo: not exists yet
+  blockClient: createClient('https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-ethereum'), //todo: not exists yet
   etherscanUrl: 'https://goerli.etherscan.io',
   etherscanName: 'Goerli Explorer',
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.GÖRLI}&isWhitelisted=${true}`,

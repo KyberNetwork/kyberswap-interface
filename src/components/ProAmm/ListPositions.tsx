@@ -59,6 +59,7 @@ const PositionListItem = ({
   index,
   usdPrices,
   ticksAtLimit,
+  rotated,
 }: {
   position: Position
   index: number
@@ -68,14 +69,19 @@ const PositionListItem = ({
   ticksAtLimit: {
     [bound in Bound]: boolean | undefined
   }
+  rotated: boolean
 }) => {
+  const [tokenA, tokenB] = rotated
+    ? [position.amount1.currency, position.amount0.currency]
+    : [position.amount0.currency, position.amount1.currency]
+  const [boundLower, boundUpper] = rotated ? [Bound.UPPER, Bound.LOWER] : [Bound.LOWER, Bound.UPPER]
   const usdValue =
-    parseFloat(position.amount0.toSignificant(6)) * usdPrices[position.amount0.currency.address] +
-    parseFloat(position.amount1.toSignificant(6)) * usdPrices[position.amount1.currency.address]
-  const priceLower = getTickToPrice(position.amount0.currency, position.amount1.currency, position.tickLower)
-  const priceUpper = getTickToPrice(position.amount0.currency, position.amount1.currency, position.tickUpper)
-  const formattedPriceLower = formatTickPrice(priceLower, ticksAtLimit, Bound.LOWER)
-  const formattedPriceUpper = formatTickPrice(priceUpper, ticksAtLimit, Bound.UPPER)
+    parseFloat(position.amount0.toSignificant(6)) * usdPrices[tokenA.address] +
+    parseFloat(position.amount1.toSignificant(6)) * usdPrices[tokenB.address]
+  const priceLower = getTickToPrice(tokenA, tokenB, position.tickLower)
+  const priceUpper = getTickToPrice(tokenA, tokenB, position.tickUpper)
+  const formattedPriceLower = formatTickPrice(priceLower, ticksAtLimit, boundLower)
+  const formattedPriceUpper = formatTickPrice(priceUpper, ticksAtLimit, boundUpper)
 
   return (
     <TableRow>
@@ -100,9 +106,15 @@ const PositionListItem = ({
         </Flex>
       </RowItem>
       <RowItem alignItems="flex-end">
-        <Text>
-          {formattedPriceLower} <DoubleArrow /> {formattedPriceUpper}
-        </Text>
+        {rotated ? (
+          <Text>
+            {formattedPriceUpper} <DoubleArrow /> {formattedPriceLower}
+          </Text>
+        ) : (
+          <Text>
+            {formattedPriceLower} <DoubleArrow /> {formattedPriceUpper}
+          </Text>
+        )}
       </RowItem>
     </TableRow>
   )
@@ -112,6 +124,7 @@ const ListPositions = ({
   positions,
   usdPrices,
   ticksAtLimits,
+  rotated,
 }: {
   positions: Position[]
   usdPrices: {
@@ -120,7 +133,12 @@ const ListPositions = ({
   ticksAtLimits: {
     [bound in Bound]: (boolean | undefined)[]
   }
+  rotated: boolean
 }) => {
+  const [tokenA, tokenB] = rotated
+    ? [positions[0].amount1.currency, positions[0].amount0.currency]
+    : [positions[0].amount0.currency, positions[0].amount1.currency]
+
   const header = (
     <TableHeader>
       <RowItem alignItems="flex-start">
@@ -140,7 +158,7 @@ const ListPositions = ({
 
       <RowItem alignItems="flex-end">
         <Trans>
-          PRICE RANGE ({positions[0].amount1.currency.symbol} per {positions[0].amount0.currency.symbol})
+          PRICE RANGE ({tokenB.symbol} per {tokenA.symbol})
         </Trans>
       </RowItem>
     </TableHeader>
@@ -157,6 +175,7 @@ const ListPositions = ({
           [Bound.LOWER]: ticksAtLimits[Bound.LOWER][index],
           [Bound.UPPER]: ticksAtLimits[Bound.UPPER][index],
         }}
+        rotated={rotated}
       />
     )
   })

@@ -834,8 +834,7 @@ export function useProAmmDerivedAllMintInfo(
   }
   const { [Bound.LOWER]: tickLowers, [Bound.UPPER]: tickUppers } = ticks || {}
 
-  // mark invalid range
-  const invalidRange: boolean = tickLowers.some(
+  const invalidRange: boolean[] = positions.map(
     (_, index) =>
       typeof tickLowers[index] === 'number' &&
       typeof tickUppers[index] === 'number' &&
@@ -868,14 +867,6 @@ export function useProAmmDerivedAllMintInfo(
   )
   const { [Bound.LOWER]: lowerPrices, [Bound.UPPER]: upperPrices } = pricesAtTicks
 
-  // liquidity range warning
-  const outOfRange = Boolean(
-    !invalidRange &&
-      price &&
-      (lowerPrices.some(lowerPrice => lowerPrice && price.lessThan(lowerPrice)) ||
-        upperPrices.some(upperPrice => upperPrice && price.greaterThan(upperPrice))),
-  )
-
   // amounts
   const independentAmount: (CurrencyAmount<Currency> | undefined)[] = useMemo(
     () => positions.map(({ typedValue, independentField }) => tryParseAmount(typedValue, currencies[independentField])),
@@ -898,8 +889,16 @@ export function useProAmmDerivedAllMintInfo(
           typeof tickUpper === 'number' &&
           poolForPosition
         ) {
+          const outOfRange = Boolean(
+            !invalidRange[index] &&
+              price &&
+              lowerPrices[index] &&
+              upperPrices[index] &&
+              (price.lessThan(lowerPrices[index]!) || price.greaterThan(upperPrices[index]!)),
+          )
+
           // if price is out of range or invalid range - return 0 (single deposit will be independent)
-          if (outOfRange || invalidRange) {
+          if (outOfRange || invalidRange[index]) {
             return undefined
           }
 
@@ -934,8 +933,10 @@ export function useProAmmDerivedAllMintInfo(
       tickLowers,
       tickUppers,
       poolForPosition,
-      outOfRange,
       invalidRange,
+      price,
+      lowerPrices,
+      upperPrices,
     ],
   )
 
@@ -1040,13 +1041,13 @@ export function useProAmmDerivedAllMintInfo(
         )
         // sorted for token order
         const depositADisabled =
-          invalidRange ||
+          invalidRange[index] ||
           Boolean(
             (deposit0Disabled && poolForPosition && tokenA && poolForPosition.token0.equals(tokenA)) ||
               (deposit1Disabled && poolForPosition && tokenA && poolForPosition.token1.equals(tokenA)),
           )
         const depositBDisabled =
-          invalidRange ||
+          invalidRange[index] ||
           Boolean(
             (deposit0Disabled && poolForPosition && tokenB && poolForPosition.token0.equals(tokenB)) ||
               (deposit1Disabled && poolForPosition && tokenB && poolForPosition.token1.equals(tokenB)),
@@ -1189,7 +1190,7 @@ export function useProAmmDerivedAllMintInfo(
           !tokenB ||
           typeof tickLower !== 'number' ||
           typeof tickUpper !== 'number' ||
-          invalidRange
+          invalidRange[index]
         ) {
           return undefined
         }

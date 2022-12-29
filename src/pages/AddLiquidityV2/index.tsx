@@ -768,6 +768,7 @@ export default function AddLiquidity() {
   )
 
   const [viewMode] = useViewMode()
+  const [rotated, setRotated] = useState(false)
   const modalContent = () => {
     if (!isMultiplePosition) {
       return (
@@ -794,11 +795,26 @@ export default function AddLiquidity() {
     const positionsValidated: Position[] = positions as Position[]
     return (
       <div style={{ marginTop: '1rem' }}>
-        <ProAmmPoolInfo position={positionsValidated[0]} narrow={true} />
+        <ProAmmPoolInfo
+          position={positionsValidated[0]}
+          narrow={true}
+          rotatedProp={rotated}
+          setRotatedProp={setRotated}
+        />
         {viewMode === VIEW_MODE.LIST ? (
-          <ListPositions positions={positionsValidated} usdPrices={usdPrices} ticksAtLimits={ticksAtLimits} />
+          <ListPositions
+            positions={positionsValidated}
+            usdPrices={usdPrices}
+            ticksAtLimits={ticksAtLimits}
+            rotated={rotated}
+          />
         ) : (
-          <ChartPositions positions={positionsValidated} />
+          <ChartPositions
+            positions={positionsValidated}
+            usdPrices={usdPrices}
+            rotated={rotated}
+            ticksAtLimits={ticksAtLimits}
+          />
         )}
       </div>
     )

@@ -27,11 +27,15 @@ export default function ProAmmPoolInfo({
   position,
   tokenId,
   narrow = false,
+  rotatedProp,
+  setRotatedProp,
 }: {
   isFarmActive?: boolean
   position: Position
   tokenId?: string
   narrow?: boolean
+  rotatedProp?: boolean
+  setRotatedProp?: (rotated: boolean) => void
 }) {
   const { networkInfo } = useActiveWeb3React()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -80,7 +84,11 @@ export default function ProAmmPoolInfo({
     )
   }
 
-  const [rotated, setRotated] = useState(false)
+  const [rotatedState, setRotatedState] = useState(false)
+  const [rotated, setRotated] =
+    typeof rotatedProp === 'boolean' && typeof setRotatedProp !== 'undefined'
+      ? [rotatedProp, setRotatedProp]
+      : [rotatedState, setRotatedState]
   const [tokenA, tokenB] = rotated ? [position.amount0, position.amount1] : [position.amount1, position.amount0]
 
   const onReversePrice: React.MouseEventHandler<HTMLSpanElement> = useCallback(
@@ -89,7 +97,7 @@ export default function ProAmmPoolInfo({
       e.stopPropagation()
       setRotated(!rotated)
     },
-    [rotated],
+    [rotated, setRotated],
   )
 
   return (

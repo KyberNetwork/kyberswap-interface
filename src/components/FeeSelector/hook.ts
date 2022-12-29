@@ -66,6 +66,7 @@ export const useFeeTierDistribution = (
           }, initState),
         )
       })
+      .catch(err => console.warn({ err }))
   }, [initState, poolIds, isEVM, networkInfo])
 
   return feeTierDistribution
