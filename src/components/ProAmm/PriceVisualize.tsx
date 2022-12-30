@@ -51,9 +51,11 @@ const PriceVisualize = ({
   const maxPrice = priceUpper.greaterThan(price) ? priceUpper : price
   const middlePrice = priceLower.lessThan(price) ? (priceUpper.greaterThan(price) ? price : priceUpper) : priceLower
 
-  const delta = maxPrice.equalTo(minPrice)
-    ? '1'
-    : middlePrice.subtract(minPrice).divide(maxPrice.subtract(minPrice)).toSignificant(6)
+  const deltaRelative =
+    Math.log(parseFloat(middlePrice.asFraction.divide(minPrice.asFraction).toSignificant(18))) /
+    Math.log(parseFloat(maxPrice.asFraction.divide(middlePrice.asFraction).toSignificant(18)))
+
+  const delta = deltaRelative / (deltaRelative + 1)
 
   const formattedMinPrice = formatTickPrice(minPrice, ticksAtLimit, Bound.LOWER)
   const formattedMaxPrice = formatTickPrice(maxPrice, ticksAtLimit, Bound.UPPER)
@@ -90,7 +92,7 @@ const PriceVisualize = ({
       </Dot>
       <Flex
         height="2px"
-        width={(+delta * 60).toString() + '%'}
+        width={(delta * 50).toString() + '%'}
         backgroundColor={
           middlePrice.equalTo(priceUpper) ? theme.warning : middlePrice.equalTo(price) ? theme.primary : theme.border
         }
