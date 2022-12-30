@@ -152,7 +152,7 @@ export default function AddLiquidity() {
     feeAmount,
     baseCurrency ?? undefined,
   )
-  const { errorMessage, positions, ticksAtLimits } = useProAmmDerivedAllMintInfo(
+  const { errorMessage, positions, ticksAtLimits, currencyAmountSum } = useProAmmDerivedAllMintInfo(
     positionIndex,
     baseCurrency ?? undefined,
     quoteCurrency ?? undefined,
@@ -465,11 +465,31 @@ export default function AddLiquidity() {
   const showApprovalA = approvalA !== ApprovalState.APPROVED && (noLiquidity ? true : !!parsedAmounts_A)
   const showApprovalB = approvalB !== ApprovalState.APPROVED && (noLiquidity ? true : !!parsedAmounts_B)
 
-  const pendingText = `Supplying ${!depositADisabled ? parsedAmounts_A?.toSignificant(10) : ''} ${
-    !depositADisabled ? currencies_A?.symbol : ''
-  } ${!depositADisabled && !depositBDisabled ? 'and' : ''} ${
-    !depositBDisabled ? parsedAmounts_B?.toSignificant(10) : ''
-  } ${!depositBDisabled ? currencies_B?.symbol : ''}`
+  const pendingText: string = useMemo(() => {
+    let amountAText: string, amountBText: string
+    if (isMultiplePosition) {
+      const amountA = currencyAmountSum[Field.CURRENCY_A]
+      const amountB = currencyAmountSum[Field.CURRENCY_B]
+      amountAText = amountA ? `${amountA.toSignificant(10)} ${amountA.currency.symbol}` : ''
+      amountBText = amountB ? `${amountB.toSignificant(10)} ${amountB.currency.symbol}` : ''
+    } else {
+      amountAText = !depositADisabled ? `${parsedAmounts_A?.toSignificant(10)} ${currencies_A?.symbol}` : ''
+      amountBText = !depositBDisabled ? `${parsedAmounts_B?.toSignificant(10)} ${currencies_B?.symbol}` : ''
+    }
+
+    if (amountAText && amountBText) return t`Supplying ${amountAText} and ${amountBText}`
+    else if (amountAText || amountBText) return t`Supplying ${amountAText || amountBText}`
+    return ''
+  }, [
+    currencies_A?.symbol,
+    currencies_B?.symbol,
+    currencyAmountSum,
+    depositADisabled,
+    depositBDisabled,
+    isMultiplePosition,
+    parsedAmounts_A,
+    parsedAmounts_B,
+  ])
 
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
