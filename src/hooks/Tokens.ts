@@ -53,14 +53,14 @@ function useTokensFromMap(tokenMap: TokenAddressMap, lowercaseAddress?: boolean)
             { ...mapWithoutUrls },
           )
       )
-    return mapWithoutUrls
+    return mapWithoutUrls ?? {}
   }, [chainId, userAddedTokens, tokenMap, lowercaseAddress])
 }
 
 export type TokenMap = { [address: string]: WrappedTokenInfo }
 
 export function useAllTokens(lowercaseAddress = false): TokenMap {
-  const { mapWhitelistTokens } = useSelector((state: AppState) => state.lists)
+  const mapWhitelistTokens = useSelector((state: AppState) => state.lists.mapWhitelistTokens)
   const allTokens = useDebounce(mapWhitelistTokens, 300)
   return useTokensFromMap(allTokens, lowercaseAddress)
 }
@@ -282,7 +282,10 @@ export function useCurrency(currencyId: string | undefined): Currency | null | u
 export function useCurrencyV2(currencyId: string | undefined): Currency | null | undefined {
   const { chainId } = useActiveWeb3React()
   const isETH = useMemo(
-    () => chainId && currencyId?.toUpperCase() === NativeCurrencies[chainId].symbol?.toUpperCase(),
+    () =>
+      chainId &&
+      (currencyId?.toUpperCase() === NativeCurrencies[chainId].symbol?.toUpperCase() ||
+        currencyId?.toLowerCase() === 'eth'),
     [chainId, currencyId],
   )
   const whitelistTokens = useAllTokens()
