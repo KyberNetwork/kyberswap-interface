@@ -26,7 +26,7 @@ import { useETHPrice } from 'state/application/hooks'
 import { Field } from 'state/swap/actions'
 import { useSwapState } from 'state/swap/hooks'
 import { checkedSubgraph } from 'state/transactions/actions'
-import { TransactionDetails } from 'state/transactions/type'
+import { TRANSACTION_TYPE, TransactionDetails } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { Aggregator } from 'utils/aggregator'
 
@@ -163,14 +163,14 @@ export enum MIXPANEL_TYPE {
   LO_CLICK_EDIT_ORDER,
 }
 
-export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES = [
-  'Add liquidity',
-  'Elastic Add liquidity',
-  'Remove liquidity',
-  'Elastic Remove liquidity',
-  'Create pool',
-  'Elastic Create pool',
-]
+export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES: readonly TRANSACTION_TYPE[] = [
+  TRANSACTION_TYPE.ADD_LIQUIDITY,
+  TRANSACTION_TYPE.ELASTIC_ADD_LIQUIDITY,
+  TRANSACTION_TYPE.REMOVE_LIQUIDITY,
+  TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY,
+  TRANSACTION_TYPE.CREATE_POOL,
+  TRANSACTION_TYPE.ELASTIC_CREATE_POOL,
+] as const
 
 export default function useMixpanel(trade?: Aggregator | undefined, currencies?: { [field in Field]?: Currency }) {
   const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
@@ -804,7 +804,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
 
       const hash = transaction.hash
       switch (transaction.type) {
-        case 'Add liquidity': {
+        case TRANSACTION_TYPE.ADD_LIQUIDITY: {
           const res = await apolloClient.query({
             query: GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
             variables: {
@@ -837,7 +837,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           dispatch(checkedSubgraph({ chainId, hash }))
           break
         }
-        case 'Elastic Add liquidity': {
+        case TRANSACTION_TYPE.ELASTIC_ADD_LIQUIDITY: {
           const res = await apolloProMMClient.query({
             query: PROMM_GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
             variables: {
@@ -869,7 +869,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           dispatch(checkedSubgraph({ chainId, hash }))
           break
         }
-        case 'Remove liquidity': {
+        case TRANSACTION_TYPE.REMOVE_LIQUIDITY: {
           const res = await apolloClient.query({
             query: GET_POOL_VALUES_AFTER_BURNS_SUCCESS,
             variables: {
@@ -903,7 +903,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           dispatch(checkedSubgraph({ chainId, hash }))
           break
         }
-        case 'Elastic Remove liquidity': {
+        case TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY: {
           const res = await apolloProMMClient.query({
             query: PROMM_GET_POOL_VALUES_AFTER_BURNS_SUCCESS,
             variables: {
@@ -935,7 +935,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           dispatch(checkedSubgraph({ chainId, hash }))
           break
         }
-        case 'Create pool': {
+        case TRANSACTION_TYPE.CREATE_POOL: {
           const res = await apolloClient.query({
             query: GET_MINT_VALUES_AFTER_CREATE_POOL_SUCCESS,
             variables: {
@@ -958,7 +958,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           })
           break
         }
-        case 'Elastic Create pool': {
+        case TRANSACTION_TYPE.ELASTIC_CREATE_POOL: {
           const res = await apolloProMMClient.query({
             query: PROMM_GET_MINT_VALUES_AFTER_CREATE_POOL_SUCCESS,
             variables: {

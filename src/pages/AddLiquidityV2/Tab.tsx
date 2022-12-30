@@ -1,11 +1,40 @@
 import { Trans } from '@lingui/macro'
-import { rgba } from 'polished'
+import { darken, lighten, rgba } from 'polished'
 import { MouseEventHandler, useCallback, useEffect, useRef, useState } from 'react'
 import { TrendingUp, X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import { RowBetween } from 'components/Row'
+
+const RemoveTab = styled.span`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 14px;
+  :hover {
+    ${({ theme }) =>
+      css`
+        background-color: ${theme.darkMode ? lighten(0.3, theme.buttonBlack) : darken(0.2, theme.buttonBlack)};
+      `}
+  }
+  border-radius: 999px;
+`
+
+const buttonBackgroundColor = css<{ active?: boolean }>`
+  background-color: ${({ theme, active }) => (active ? rgba(theme.primary, 0.3) : theme.buttonBlack)};
+  :hover {
+    ${({ theme, active }) =>
+      !active
+        ? css`
+            background-color: ${theme.darkMode ? lighten(0.03, theme.buttonBlack) : darken(0.1, theme.buttonBlack)};
+          `
+        : ''}
+  }
+  :has(${RemoveTab}:hover) {
+    background-color: ${({ theme, active }) => (active ? rgba(theme.primary, 0.3) : theme.buttonBlack)};
+  }
+`
 
 const borderLeft = css`
   position: relative;
@@ -50,7 +79,7 @@ const ScrollBtn = styled.button<{ position: 'left' | 'right'; show: boolean }>`
   position: absolute;
   width: 40px;
   height: 100%;
-  background-color: ${({ theme }) => theme.buttonBlack};
+  ${buttonBackgroundColor}
   color: ${({ theme }) => theme.text};
   display: ${({ show }) => (show ? 'initial' : 'none')};
   z-index: 1;
@@ -63,7 +92,8 @@ const AddTab = styled.button`
   padding: 8px 12px;
   height: 100%;
   border: none;
-  background-color: ${({ theme }) => theme.buttonBlack};
+  ${buttonBackgroundColor}
+
   color: ${({ theme }) => theme.text};
   :focus {
     outline: 0;
@@ -73,9 +103,16 @@ const AddTab = styled.button`
   cursor: pointer;
 `
 
-const ChartButton = styled(AddTab)`
+const ChartButton = styled(AddTab)<{ active: boolean }>`
   min-width: 120px;
   ${borderLeft}
+  ${buttonBackgroundColor}
+  ${({ active, theme }) =>
+    active
+      ? css`
+          color: ${theme.primary};
+        `
+      : ''}
 `
 
 const Container = styled(RowBetween)`
@@ -103,11 +140,11 @@ const TabContainer = styled(RowBetween)<{ active: boolean; noBorder?: boolean }>
   padding: 8px 12px;
   cursor: pointer;
   user-select: none;
+  ${buttonBackgroundColor}
   ${({ noBorder, active, theme }) =>
     active
       ? css`
           color: ${theme.primary};
-          background-color: ${rgba(theme.primary, 0.3)};
           border-width: 0;
           border-bottom: 2px solid ${({ theme }) => theme.primary};
           padding: 8px 12px 6px;
@@ -115,13 +152,6 @@ const TabContainer = styled(RowBetween)<{ active: boolean; noBorder?: boolean }>
       : noBorder
       ? ''
       : borderRight}
-`
-
-const RemoveTab = styled.span`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 14px;
 `
 
 const Tab = ({
@@ -163,6 +193,7 @@ const Tabs = ({
   onChangedTab,
   onAddTab,
   onRemoveTab,
+  showChart,
   onToggleChart,
 }: {
   tabsCount: number
@@ -170,7 +201,8 @@ const Tabs = ({
   onChangedTab: (index: number) => void
   onAddTab: () => void
   onRemoveTab: (index: number) => void
-  onToggleChart: () => void
+  showChart: boolean
+  onToggleChart: (newValue?: boolean) => void
 }) => {
   const [showScrollLeft, setShowScrollLeft] = useState(false)
   const [showScrollRight, setShowScrollRight] = useState(false)
@@ -214,9 +246,12 @@ const Tabs = ({
             return (
               <Tab
                 key={index}
-                active={selectedTab === index}
+                active={!showChart && selectedTab === index}
                 index={index}
-                onSelected={() => onChangedTab(index)}
+                onSelected={() => {
+                  onChangedTab(index)
+                  onToggleChart(false)
+                }}
                 onRemove={() => {
                   if (tabsCount > 1) {
                     if (selectedTab >= tabsCount - 1) {
@@ -236,7 +271,7 @@ const Tabs = ({
           &gt;
         </ScrollBtn>
       </ScrollBar>
-      <ChartButton onClick={onToggleChart}>
+      <ChartButton onClick={() => onToggleChart()} active={showChart}>
         <TrendingUp size={14} />
         &nbsp;Price chart
       </ChartButton>

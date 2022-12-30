@@ -183,8 +183,9 @@ export default function AddLiquidity() {
   } = useProAmmMintActionHandlers(noLiquidity, positionIndex)
 
   useEffect(() => {
-    ENV_LEVEL > ENV_TYPE.LOCAL && onResetMintState()
-  }, [onResetMintState])
+    setPositionIndex(0)
+    onResetMintState()
+  }, [onResetMintState, baseCurrency, quoteCurrency, feeAmount, chainId])
 
   const isValid = !errorMessage && !invalidRange
 
@@ -604,7 +605,10 @@ export default function AddLiquidity() {
           onChangedTab={index => setPositionIndex(index)}
           onAddTab={onAddPosition}
           onRemoveTab={onRemovePosition}
-          onToggleChart={() => setShowChart(showChart => !showChart)}
+          showChart={showChart}
+          onToggleChart={(newShowChart: boolean | undefined) =>
+            setShowChart(showChart => (typeof newShowChart !== 'undefined' ? newShowChart : !showChart))
+          }
         />
       )}
       <ChartContainer hasTab={hasTab}>

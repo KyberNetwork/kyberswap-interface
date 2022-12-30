@@ -14,6 +14,7 @@ import { useSetClaimingCampaignRewardId } from 'state/campaigns/hooks'
 import connection from 'state/connection/connection'
 import { AppDispatch, AppState } from 'state/index'
 import { findTx } from 'utils'
+import { includes } from 'utils/array'
 import { getFullDisplayBalance } from 'utils/formatBalance'
 
 import { checkedTransaction, finalizeTransaction, removeTx, replaceTx } from './actions'
@@ -263,7 +264,7 @@ export default function Updater(): null {
                       blockHash: receipt.blockHash,
                       status: receipt.status,
                     },
-                    needCheckSubgraph: NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES.includes(transaction.type || ''),
+                    needCheckSubgraph: includes(NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES, transaction.type || ''),
                   }),
                 )
 
