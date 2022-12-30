@@ -327,7 +327,13 @@ export default function TransactionConfirmationModal({
   if (!chainId) return null
 
   return (
-    <Modal isOpen={isOpen} onDismiss={onDismiss} maxHeight={90} maxWidth={maxWidth} width={width}>
+    <Modal
+      isOpen={isOpen}
+      onDismiss={onDismiss}
+      maxHeight={90}
+      maxWidth={!attemptingTxn && !hash ? maxWidth : undefined}
+      width={!attemptingTxn && !hash ? width : undefined}
+    >
       {attemptingTxn ? (
         <ConfirmationPendingContent onDismiss={onDismiss} pendingText={pendingText} startedTime={startedTime} />
       ) : hash ? (
