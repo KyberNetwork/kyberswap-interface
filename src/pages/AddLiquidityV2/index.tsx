@@ -314,6 +314,7 @@ export default function AddLiquidity() {
               .getSigner()
               .sendTransaction(newTxn)
               .then((response: TransactionResponse) => {
+                onResetMintState()
                 setAttemptingTxn(false)
                 if (noLiquidity) {
                   addTransactionWithType({
