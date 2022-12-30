@@ -29,14 +29,16 @@ function useTokensFromMap(tokenMap: TokenAddressMap, lowercaseAddress?: boolean)
   return useMemo(() => {
     if (!chainId) return {}
 
+    const map = tokenMap[chainId] ?? {}
+
     // reduce to just tokens
     const mapWithoutUrls = lowercaseAddress
-      ? Object.keys(tokenMap[chainId]).reduce<TokenMap>((newMap, address) => {
+      ? Object.keys(map).reduce<TokenMap>((newMap, address) => {
           const key = address.toLowerCase()
-          newMap[key] = tokenMap[chainId][address]
+          newMap[key] = map[address]
           return newMap
         }, {})
-      : tokenMap[chainId]
+      : map
 
     if (userAddedTokens.length)
       return (
@@ -53,7 +55,7 @@ function useTokensFromMap(tokenMap: TokenAddressMap, lowercaseAddress?: boolean)
             { ...mapWithoutUrls },
           )
       )
-    return mapWithoutUrls ?? {}
+    return mapWithoutUrls
   }, [chainId, userAddedTokens, tokenMap, lowercaseAddress])
 }
 
