@@ -40,6 +40,7 @@ const useNotification = () => {
     },
     [dispatch],
   )
+
   const { data: resp } = useSWR(
     getAllTopicUrl(account),
     (url: string) => {
@@ -95,7 +96,7 @@ const useNotification = () => {
             axios.post(`${NOTIFICATION_API}/v1/topics/build-verification/telegram`, {
               chainId: chainId + '',
               wallet: account,
-              subscribe: unsubIds,
+              subscribe: subIds,
               unsubscribe: unsubIds,
             }),
           )
@@ -127,6 +128,7 @@ const useNotification = () => {
     userInfo,
     handleSubscribe,
     showNotificationModal,
+    refreshTopics,
   }
 }
 

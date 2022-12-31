@@ -1,6 +1,8 @@
 import { Trans, t } from '@lingui/macro'
+import axios from 'axios'
+import { rgba } from 'polished'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Check, X } from 'react-feather'
+import { Check, Mail, X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -12,6 +14,8 @@ import MailIcon from 'components/Icons/MailIcon'
 import Loader from 'components/Loader'
 import Modal from 'components/Modal'
 import Row, { RowBetween } from 'components/Row'
+import Select from 'components/Select'
+import { NOTIFICATION_API } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useNotification, { Topic } from 'hooks/useNotification'
@@ -25,6 +29,7 @@ import {
   useWalletModalToggle,
 } from 'state/application/hooks'
 import { pushUnique } from 'utils'
+import { subscribeTelegramSubscription } from 'utils/firebase'
 
 const Wrapper = styled.div`
   margin: 0;
@@ -105,55 +110,73 @@ const TopicItemHeader = styled(TopicItem)`
   align-items: center;
 `
 
-// const Option = styled(Row)<{ active: boolean }>`
-//   padding: 10px 16px;
-//   gap: 10px;
-//   color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
-//   :hover {
-//     color: ${({ theme }) => theme.primary};
-//     background: ${({ theme }) => rgba(theme.subText, 0.1)};
-//   }
-// `
+const Option = styled(Row)<{ active: boolean }>`
+  padding: 10px 16px;
+  gap: 10px;
+  color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
+  :hover {
+    color: ${({ theme }) => theme.primary};
+    background: ${({ theme }) => rgba(theme.subText, 0.1)};
+  }
+`
 
 enum TAB {
   EMAIL,
   TELEGRAM,
 }
 
-// const NOTIFICATION_OPTIONS = [
-//   {
-//     label: 'Email',
-//     value: TAB.EMAIL,
-//   },
-//   {
-//     label: 'Telegram',
-//     value: TAB.TELEGRAM,
-//   },
-// ]
+const NOTIFICATION_OPTIONS = [
+  {
+    label: 'Email',
+    value: TAB.EMAIL,
+  },
+  {
+    label: 'Telegram',
+    value: TAB.TELEGRAM,
+  },
+]
+
+const ackTelegramSubscriptionStatus = async (wallet: string) => {
+  return axios.delete(`${NOTIFICATION_API}/v1/subscription-result/telegram`, { data: { wallet } })
+}
 
 export default function NotificationModal() {
   const toggleModal = useNotificationModalToggle()
   const isOpen = useModalOpen(ApplicationModal.NOTIFICATION_SUBSCRIPTION)
   const theme = useTheme()
   const { account } = useActiveWeb3React()
-  const { isLoading, handleSubscribe, topicGroups, userInfo } = useNotification()
+  const { isLoading, handleSubscribe, refreshTopics, topicGroups, userInfo } = useNotification()
   const notify = useNotify()
   const toggleWalletModal = useWalletModalToggle()
   const { mixpanelHandler } = useMixpanel()
 
   const [inputAccount, setAccount] = useState('')
   const [errorInput, setErrorInput] = useState('')
-  const [activeTab] = useState<TAB>(TAB.EMAIL)
+  const [activeTab, setActiveTab] = useState<TAB>(TAB.EMAIL)
   const [selectedTopic, setSelectedTopic] = useState<number[]>([])
 
   const isEmailTab = activeTab === TAB.EMAIL
   const isTelegramTab = activeTab === TAB.TELEGRAM
+
+  const isNewUserQualified = !userInfo.email && !userInfo.telegram && !!inputAccount && !errorInput
+  const notFillEmail = !inputAccount && isEmailTab
 
   const validateInput = useCallback((value: string, required = false) => {
     const isValid = value.match(/\S+@\S+\.\S+/)
     const errMsg = t`Please input a valid email address`
     setErrorInput((value.length && !isValid) || (required && !value.length) ? errMsg : '')
   }, [])
+
+  useEffect(() => {
+    if (!account) return
+    const unsubscribe = subscribeTelegramSubscription(account, data => {
+      if (data?.isSuccessfully) {
+        refreshTopics()
+        ackTelegramSubscriptionStatus(account).catch(console.error)
+      }
+    })
+    return () => unsubscribe?.()
+  }, [account, refreshTopics])
 
   useEffect(() => {
     if (isOpen) {
@@ -210,7 +233,7 @@ export default function NotificationModal() {
   const onSave = async () => {
     try {
       if (isEmailTab) validateInput(inputAccount, true)
-      if (isLoading || errorInput || (!inputAccount && isEmailTab)) return
+      if (isLoading || errorInput || notFillEmail) return
 
       const { unsubscribeIds, subscribeIds, subscribeNames, unsubscribeNames } = getDiffChangeTopics()
       if (subscribeNames.length) {
@@ -264,8 +287,6 @@ export default function NotificationModal() {
     setSelectedTopic(selectedTopic.length === topicGroups.length ? [] : topicGroups.map(e => e.id))
   }
 
-  const isNewUserQualified = !userInfo.email && !userInfo.telegram && !!inputAccount && !errorInput
-
   const autoSelect = useRef(false)
   useEffect(() => {
     if (isNewUserQualified && !autoSelect.current) {
@@ -276,13 +297,27 @@ export default function NotificationModal() {
     }
   }, [isNewUserQualified, topicGroups])
 
-  const disableButtonSave = useMemo(() => {
-    return isLoading || isSubmit || !inputAccount || !!errorInput || !getDiffChangeTopics().hasChanged
-  }, [getDiffChangeTopics, isSubmit, isLoading, inputAccount, errorInput])
-
+  const isVerifiedEmail = userInfo?.email && inputAccount === userInfo?.email
+  const isVerifiedTelegram = userInfo?.telegram
   const hasTopicSubscribed = topicGroups.some(e => e.isSubscribed)
-  const isVerifiedTelegram = userInfo?.telegram && hasTopicSubscribed
-  const disableCheckbox = !account || !inputAccount || !!errorInput
+
+  const canSaveAnotherOption = // todo danh: check this case : allow sub topic empty ???? email && telegram
+    hasTopicSubscribed &&
+    ((isVerifiedEmail && isTelegramTab && !isVerifiedTelegram) ||
+      (isVerifiedTelegram && !isVerifiedEmail && isEmailTab))
+
+  const disableButtonSave = useMemo(() => {
+    const value =
+      isLoading ||
+      isSubmit ||
+      notFillEmail ||
+      errorInput ||
+      (!getDiffChangeTopics().hasChanged && !canSaveAnotherOption)
+    return Boolean(value)
+  }, [getDiffChangeTopics, isSubmit, isLoading, notFillEmail, errorInput, canSaveAnotherOption])
+
+  const disableCheckbox = !account || notFillEmail || !!errorInput
+
   const renderButton = () => (
     <ActionWrapper>
       {!account ? (
@@ -322,7 +357,7 @@ export default function NotificationModal() {
           </Row>
           <CloseIcon onClick={toggleModal} />
         </RowBetween>
-        {/* <RowBetween gap="14px">
+        <RowBetween gap="14px">
           <Label>
             <Trans>Select mode of notification</Trans>
           </Label>
@@ -346,7 +381,7 @@ export default function NotificationModal() {
             )}
             onChange={setActiveTab}
           />
-        </RowBetween> */}
+        </RowBetween>
 
         {isEmailTab ? (
           <Column>
@@ -354,15 +389,8 @@ export default function NotificationModal() {
               <Trans>Enter your email address to receive notifications</Trans>
             </Label>
             <InputWrapper>
-              <Input
-                error={errorInput}
-                value={inputAccount}
-                placeholder={isEmailTab ? 'example@gmail.com' : '@example'}
-                onChange={onChangeInput}
-              />
-              {userInfo?.email && inputAccount === userInfo?.email && hasTopicSubscribed && (
-                <CheckIcon color={theme.primary} />
-              )}
+              <Input error={errorInput} value={inputAccount} placeholder="example@gmail.com" onChange={onChangeInput} />
+              {isVerifiedEmail && hasTopicSubscribed && <CheckIcon color={theme.primary} />}
             </InputWrapper>
             <Label style={{ color: theme.red, opacity: errorInput ? 1 : 0, margin: '7px 0px 0px 0px' }}>
               {errorInput || 'No data'}
@@ -378,14 +406,17 @@ export default function NotificationModal() {
             <Telegram size={24} />
 
             {isVerifiedTelegram ? (
-              <Text fontSize={15}>
-                <Trans>
-                  Your verified telegram:{' '}
-                  <Text as="span" color={theme.text}>
-                    @{userInfo?.telegram}
-                  </Text>
-                </Trans>
-              </Text>
+              <Row align="center" justify="center" gap="3px">
+                <Text fontSize={15}>
+                  <Trans>
+                    Your verified telegram:{' '}
+                    <Text as="span" color={theme.text}>
+                      @{userInfo?.telegram}
+                    </Text>
+                  </Trans>
+                </Text>
+                <Check color={theme.primary} />
+              </Row>
             ) : (
               <Text fontSize={15}>
                 <Trans>Click Get Started to subscribe to Telegram</Trans>
