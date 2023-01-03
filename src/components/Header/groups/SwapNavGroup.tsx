@@ -2,13 +2,11 @@ import { Trans } from '@lingui/macro'
 import { Repeat } from 'react-feather'
 import { useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
+import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as MasterCard } from 'assets/buy-crypto/master-card.svg'
 import { ReactComponent as Visa } from 'assets/buy-crypto/visa.svg'
-import MultichainLogoDark from 'assets/images/multichain_black.png'
-import MultichainLogoLight from 'assets/images/multichain_white.png'
 import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
 import { ReactComponent as BuyCrypto } from 'assets/svg/buy_crypto.svg'
 import { ReactComponent as LimitOrderIcon } from 'assets/svg/limit_order.svg'
@@ -17,7 +15,6 @@ import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
-import { useIsDarkMode } from 'state/user/hooks'
 import { isSupportLimitOrder } from 'utils'
 
 import { DropdownTextAnchor, StyledNavLink } from '../styleds'
@@ -50,7 +47,6 @@ const StyledBuyCrypto = styled(BuyCrypto)`
 
 const SwapNavGroup = () => {
   const { isSolana, chainId } = useActiveWeb3React()
-  const isDark = useIsDarkMode()
   const { pathname } = useLocation()
   const upTo420 = useMedia('(max-width: 420px)')
 
@@ -100,14 +96,7 @@ const SwapNavGroup = () => {
                   <StyledBridgeIcon height={15} />
                 </IconWrapper>
                 <Flex alignItems={'center'} sx={{ flex: 1 }} justifyContent={'space-between'}>
-                  <Text>
-                    <Trans>Bridge</Trans>
-                  </Text>
-                  <img
-                    src={isDark ? MultichainLogoLight : MultichainLogoDark}
-                    alt="kyberswap with multichain"
-                    height={10}
-                  />
+                  <Trans>Bridge</Trans>
                 </Flex>
               </Flex>
             </StyledNavLink>
