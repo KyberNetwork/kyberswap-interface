@@ -151,6 +151,7 @@ export function useSwapV2Callback(
       error: null,
     }
   }, [
+    chainId,
     trade,
     encodeSolana,
     account,

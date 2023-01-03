@@ -13,14 +13,17 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as TutorialIcon } from 'assets/svg/play_circle_outline.svg'
+import RangeBadge from 'components/Badge/RangeBadge'
 import { ButtonConfirmed, ButtonPrimary } from 'components/Button'
 import { BlackCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
 import Copy from 'components/Copy'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
+import CurrencyLogo from 'components/CurrencyLogo'
 import Divider from 'components/Divider'
+import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
 import Loader from 'components/Loader'
-import { AddRemoveTabs, LiquidityAction, StyledMenuButton } from 'components/NavigationTabs'
+import { StyledMenuButton } from 'components/NavigationTabs'
 import ProAmmFee from 'components/ProAmm/ProAmmFee'
 import ProAmmPoolInfo from 'components/ProAmm/ProAmmPoolInfo'
 import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
@@ -31,7 +34,6 @@ import TransactionConfirmationModal, {
 } from 'components/TransactionConfirmationModal'
 import TransactionSettings from 'components/TransactionSettings'
 import Tutorial, { TutorialType } from 'components/Tutorial'
-import { VERSION } from 'constants/v2'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import usePrevious from 'hooks/usePrevious'
@@ -40,18 +42,28 @@ import { useProAmmPositionsFromTokenId } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { MaxButton as MaxBtn } from 'pages/RemoveLiquidity/styled'
-import { useTokensPrice, useWalletModalToggle } from 'state/application/hooks'
+import { useWalletModalToggle } from 'state/application/hooks'
 import { Field } from 'state/burn/proamm/actions'
 import { useBurnProAmmActionHandlers, useBurnProAmmState, useDerivedProAmmBurnInfo } from 'state/burn/proamm/hooks'
 import { useSingleCallResult } from 'state/multicall/hooks'
+import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
-import { basisPointsToPercent, calculateGasMargin, formattedNum, shortenAddress } from 'utils'
+import { basisPointsToPercent, calculateGasMargin, formattedNum, formattedNumLong, shortenAddress } from 'utils'
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
-import { Container, Content, FirstColumn, GridColumn, SecondColumn } from './styled'
+import {
+  AmoutToRemoveContent,
+  Container,
+  Content,
+  FirstColumn,
+  GridColumn,
+  SecondColumn,
+  TokenId,
+  TokenInputWrapper,
+} from './styled'
 
 const MaxButton = styled(MaxBtn)`
   margin: 0;
@@ -61,6 +73,9 @@ const MaxButton = styled(MaxBtn)`
   font-weight: 500;
   height: max-content;
   width: max-content;
+  background: transparent;
+  border-color: ${({ theme }) => theme.border};
+  color: ${({ theme }) => theme.subText};
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     padding: 0.375rem 0.75rem;
@@ -142,7 +157,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
     pooledAmount1,
     feeValue0,
     feeValue1,
-    // outOfRange,
+    outOfRange,
     error,
     parsedAmounts,
   } = useDerivedProAmmBurnInfo(position, receiveWETH)
@@ -152,6 +167,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const currency1IsWETH = !!(chainId && liquidityValue1?.currency.equals(WETH[chainId]))
   const { onUserInput } = useBurnProAmmActionHandlers()
   const removed = position?.liquidity?.eq(0)
+
   const poolAddress = useProAmmPoolInfo(
     positionSDK?.pool?.token0,
     positionSDK?.pool?.token1,
@@ -182,22 +198,27 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
     [Field.CURRENCY_B]:
       independentField === Field.CURRENCY_B ? typedValue : parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) ?? '',
   }
-  const usdPrices = useTokensPrice(
-    [liquidityValue0?.currency.wrapped, liquidityValue1?.currency.wrapped],
-    VERSION.ELASTIC,
-  )
+  const address0 = pooledAmount0?.currency.wrapped.address || ''
+  const address1 = pooledAmount1?.currency.wrapped.address || ''
+
+  const usdPrices = useTokenPrices([address0, address1])
+
+  const totalPooledUSD =
+    parseFloat(pooledAmount0?.toExact() || '0') * usdPrices[address0] +
+    parseFloat(pooledAmount1?.toExact() || '0') * usdPrices[address1]
 
   const totalFeeRewardUSD =
-    parseFloat(feeValue0?.toExact() || '0') * usdPrices[0] + parseFloat(feeValue1?.toExact() || '0') * usdPrices[1]
+    parseFloat(feeValue0?.toExact() || '0') * usdPrices[address0] +
+    parseFloat(feeValue1?.toExact() || '0') * usdPrices[address1]
 
   const estimatedUsdCurrencyA =
-    parsedAmounts[Field.CURRENCY_A] && usdPrices[0]
-      ? parseFloat((parsedAmounts[Field.CURRENCY_A] as CurrencyAmount<Currency>).toSignificant(6)) * usdPrices[0]
+    parsedAmounts[Field.CURRENCY_A] && usdPrices[address0]
+      ? parseFloat((parsedAmounts[Field.CURRENCY_A] as CurrencyAmount<Currency>).toSignificant(6)) * usdPrices[address0]
       : 0
 
   const estimatedUsdCurrencyB =
-    parsedAmounts[Field.CURRENCY_B] && usdPrices[1]
-      ? parseFloat((parsedAmounts[Field.CURRENCY_B] as CurrencyAmount<Currency>).toSignificant(6)) * usdPrices[1]
+    parsedAmounts[Field.CURRENCY_B] && usdPrices[address1]
+      ? parseFloat((parsedAmounts[Field.CURRENCY_B] as CurrencyAmount<Currency>).toSignificant(6)) * usdPrices[address0]
       : 0
 
   const deadline = useTransactionDeadline() // custom from users settings
@@ -254,7 +275,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
     library
       .getSigner()
       .estimateGas(txn)
-      .then((estimate: BigNumber) => {
+      .then(async (estimate: BigNumber) => {
         const newTxn = {
           ...txn,
           gasLimit: calculateGasMargin(estimate),
@@ -359,6 +380,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   )
 
   if (!isEVM) return <Navigate to="/" />
+
   return (
     <>
       <TransactionConfirmationModal
@@ -446,23 +468,87 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
               <GridColumn>
                 <FirstColumn>
                   {positionSDK ? <ProAmmPoolInfo position={positionSDK} tokenId={tokenId.toString()} /> : <Loader />}
-                  <ProAmmPooledTokens pooled liquidityValue0={pooledAmount0} liquidityValue1={pooledAmount1} />
-                  {positionSDK ? (
-                    <ProAmmFee
-                      totalFeeRewardUSD={totalFeeRewardUSD}
-                      position={positionSDK}
-                      tokenId={tokenId}
-                      text={t`When you remove liquidity (even partially), you will receive 100% of your fee earnings`}
-                      feeValue0={feeValue0}
-                      feeValue1={feeValue1}
-                    />
-                  ) : (
-                    <Loader />
-                  )}
+
+                  <BlackCard style={{ borderRadius: '1rem', padding: '1rem' }}>
+                    <Flex alignItems="center" sx={{ gap: '4px' }}>
+                      <TokenId color={removed ? theme.red : outOfRange ? theme.warning : theme.primary}>
+                        #{tokenId.toString()}
+                      </TokenId>
+                      <RangeBadge removed={removed} inRange={!outOfRange} hideText size={14} />
+                    </Flex>
+
+                    <Flex
+                      justifyContent="space-between"
+                      fontSize="12px"
+                      fontWeight="500"
+                      marginTop="1rem"
+                      marginBottom="0.75rem"
+                    >
+                      <Text>My Liquidity</Text>
+                      <Text>{formattedNumLong(totalPooledUSD, true)}</Text>
+                    </Flex>
+
+                    <Divider />
+
+                    <Flex justifyContent="space-between" fontSize="12px" marginTop="0.75rem">
+                      <Text color={theme.subText}>Pooled {pooledAmount0?.currency.symbol}</Text>
+                      <Flex alignItems="center">
+                        <CurrencyLogo currency={pooledAmount0?.currency} size="16px" />
+                        <Text fontWeight="500" marginLeft="4px">
+                          {pooledAmount0 && <FormattedCurrencyAmount currencyAmount={pooledAmount0} />}{' '}
+                          {pooledAmount0?.currency?.symbol}
+                        </Text>
+                      </Flex>
+                    </Flex>
+
+                    <Flex justifyContent="space-between" fontSize="12px" marginTop="0.75rem">
+                      <Text color={theme.subText}>Pooled {pooledAmount1?.currency.symbol}</Text>
+                      <Flex alignItems="center">
+                        <CurrencyLogo currency={pooledAmount1?.currency} size="16px" />
+                        <Text fontWeight="500" marginLeft="4px">
+                          {pooledAmount1?.toSignificant(10)} {pooledAmount1?.currency.symbol}
+                        </Text>
+                      </Flex>
+                    </Flex>
+
+                    <Flex
+                      justifyContent="space-between"
+                      fontSize="12px"
+                      fontWeight="500"
+                      marginTop="1.25rem"
+                      marginBottom="0.75rem"
+                    >
+                      <Text>My Fee Earnings</Text>
+                      <Text>{formattedNumLong(totalFeeRewardUSD, true)}</Text>
+                    </Flex>
+
+                    <Divider />
+
+                    <Flex justifyContent="space-between" fontSize="12px" marginTop="0.75rem">
+                      <Text color={theme.subText}>{feeValue0?.currency.symbol} Fee Earned</Text>
+                      <Flex alignItems="center">
+                        <CurrencyLogo currency={feeValue0?.currency} size="16px" />
+                        <Text fontWeight="500" marginLeft="4px">
+                          {feeValue0 && <FormattedCurrencyAmount currencyAmount={feeValue0} />}{' '}
+                          {feeValue0?.currency?.symbol}
+                        </Text>
+                      </Flex>
+                    </Flex>
+
+                    <Flex justifyContent="space-between" fontSize="12px" marginTop="0.75rem">
+                      <Text color={theme.subText}>{feeValue1?.currency.symbol} Fee Earned</Text>
+                      <Flex alignItems="center">
+                        <CurrencyLogo currency={feeValue1?.currency} size="16px" />
+                        <Text fontWeight="500" marginLeft="4px">
+                          {feeValue1?.toSignificant(10)} {feeValue1?.currency.symbol}
+                        </Text>
+                      </Flex>
+                    </Flex>
+                  </BlackCard>
                 </FirstColumn>
 
                 <SecondColumn>
-                  <BlackCard style={{ padding: '1rem' }}>
+                  <AmoutToRemoveContent>
                     <Text fontSize={12} color={theme.subText} fontWeight="500">
                       <Trans>Amount to remove</Trans>
                     </Text>
@@ -472,7 +558,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                       marginTop="1rem"
                       style={{ borderRadius: '1rem', border: `1px solid ${theme.border}` }}
                     >
-                      <Flex marginTop="0.5rem" sx={{ gap: '1rem' }} alignItems="center">
+                      <Flex sx={{ gap: '1rem' }} alignItems="center">
                         <PercentText fontSize={36} fontWeight="500">
                           {percentForSlider}%
                         </PercentText>
@@ -501,7 +587,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                       />
                     </BlackCard>
 
-                    <Flex sx={{ gap: '1rem', width: '100%' }} marginTop="1rem">
+                    <TokenInputWrapper>
                       <div
                         style={{
                           flex: 1,
@@ -539,7 +625,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                           onSwitchCurrency={() => setReceiveWETH(prev => !prev)}
                         />
                       </div>
-                    </Flex>
+                    </TokenInputWrapper>
 
                     <Text
                       fontSize="0.75rem"
@@ -552,7 +638,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                         Note: When you remove liquidity (even partially), you will receive 100% of your fee earnings
                       </Trans>
                     </Text>
-                  </BlackCard>
+                  </AmoutToRemoveContent>
 
                   <Flex justifyContent="flex-end">
                     <ButtonConfirmed
