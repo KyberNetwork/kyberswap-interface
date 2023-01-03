@@ -1,6 +1,6 @@
-import { Currency, CurrencyAmount, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import ERC20_INTERFACE from 'constants/abis/erc20'
 import { EMPTY_ARRAY, EMPTY_OBJECT } from 'constants/index'
@@ -150,4 +150,36 @@ export function useAllTokenBalances(): { [tokenAddress: string]: TokenAmount | u
   const allTokens = useAllTokens()
   const allTokensArray = useMemo(() => Object.values(allTokens ?? {}), [allTokens])
   return useTokenBalances(allTokensArray) ?? EMPTY_OBJECT
+}
+
+// return list token has balance
+export const useTokensHasBalance = () => {
+  const { chainId } = useActiveWeb3React()
+  const whitelistTokens = useAllTokens()
+
+  const currencies: Currency[] = useMemo(
+    () => [NativeCurrencies[chainId], ...Object.values(whitelistTokens)],
+    [whitelistTokens, chainId],
+  )
+  const currencyBalances = useCurrencyBalances(currencies)
+  const loadBalanceDone = chainId === ChainId.GÖRLI ? currencyBalances.some(el => el) : currencyBalances.every(el => el)
+
+  const [visibleCurrencies, setVisibleCurrencies] = useState<Currency[]>([])
+  const [visibleCurrenciesBalances, setVisibleCurrenciesBalances] = useState<CurrencyAmount<Currency>[]>([])
+
+  useEffect(() => {
+    if (loadBalanceDone) {
+      const removeIndexes: { [index: string]: boolean } = {}
+      setVisibleCurrencies(
+        currencies.filter((currency, i) => {
+          const value = !currencyBalances[i]?.equalTo(CurrencyAmount.fromRawAmount(currency, '0'))
+          if (!value) removeIndexes[i] = true
+          return value
+        }),
+      )
+      setVisibleCurrenciesBalances(currencyBalances.filter((_, i) => !removeIndexes[i]))
+    }
+  }, [loadBalanceDone, currencies, currencyBalances])
+
+  return { loading: !loadBalanceDone, currencies: visibleCurrencies, currencyBalances: visibleCurrenciesBalances }
 }

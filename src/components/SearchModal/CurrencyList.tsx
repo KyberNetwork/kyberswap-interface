@@ -91,7 +91,7 @@ export function CurrencyRow({
   onSelect,
   isSelected,
   otherSelected,
-  style,
+  style = {},
   handleClickFavorite,
   removeImportedToken,
   showFavoriteIcon = true,
@@ -104,10 +104,10 @@ export function CurrencyRow({
   showFavoriteIcon?: boolean
   currency: Currency
   currencyBalance: CurrencyAmount<Currency>
-  onSelect: () => void
+  onSelect: (currency: Currency) => void
   isSelected: boolean
-  otherSelected: boolean
-  style: CSSProperties
+  otherSelected?: boolean
+  style?: CSSProperties
   handleClickFavorite?: (e: React.MouseEvent, currency: Currency) => void
   removeImportedToken?: (token: Token) => void
   customName?: ReactNode
@@ -143,7 +143,7 @@ export function CurrencyRow({
   const balanceComponent = currencyBalance ? <Balance balance={currencyBalance} /> : account ? <Loader /> : null
   const { symbol } = getDisplayTokenInfo(currency)
   return (
-    <CurrencyRowWrapper style={style} onClick={() => onSelect()} data-selected={isSelected || otherSelected}>
+    <CurrencyRowWrapper style={style} onClick={() => onSelect(currency)} data-selected={isSelected || otherSelected}>
       <Flex alignItems="center" style={{ gap: 8 }}>
         <CurrencyLogo currency={currency} size={'24px'} />
         <Column>

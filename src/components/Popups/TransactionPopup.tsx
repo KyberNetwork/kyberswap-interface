@@ -29,6 +29,7 @@ const defaultValue: Summary = {
   failure: summary => `${summary}`,
 }
 
+// todo danh ?? remove
 export const SUMMARY: { [type in TRANSACTION_TYPE]: Summary } = {
   [TRANSACTION_TYPE.WRAP_TOKEN]: {
     success: summary => 'Wrapped ' + summary,

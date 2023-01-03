@@ -166,6 +166,7 @@ interface CurrencyInputPanelProps {
   error?: boolean
   maxLength?: number
   filterWrap?: boolean
+  loadingText?: string
 }
 
 export default function CurrencyInputPanel({
@@ -202,6 +203,7 @@ export default function CurrencyInputPanel({
   maxCurrencySymbolLength,
   maxLength,
   filterWrap,
+  loadingText,
 }: CurrencyInputPanelProps) {
   const [modalOpen, setModalOpen] = useState(false)
   const { chainId, account } = useActiveWeb3React()
@@ -347,7 +349,8 @@ export default function CurrencyInputPanel({
                       >
                         {(nativeCurrency?.symbol && maxCurrencySymbolLength
                           ? shortString(nativeCurrency.symbol, maxCurrencySymbolLength)
-                          : nativeCurrency?.symbol) || <Trans>Select a token</Trans>}
+                          : nativeCurrency?.symbol) ||
+                          loadingText || <Trans>Select a token</Trans>}
                       </StyledTokenName>
                     )}
                   </RowFixed>
