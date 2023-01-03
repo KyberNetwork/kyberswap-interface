@@ -99,33 +99,35 @@ const FallbackView: React.FC<Props> = ({ error }) => {
             <Trans>{foundError?.title || 'Oops! Something went wrong'}</Trans>
           </Text>
 
-          {foundError?.description && (
+          {foundError?.description ? (
             <Text textAlign="center" fontSize="16px" maxWidth={'600px'} marginTop="16px">
               <Trans>{foundError.description}</Trans>
             </Text>
+          ) : (
+            <>
+              <CodeBlockWrapper>
+                <code>
+                  <Text fontSize={10}>{error.stack}</Text>
+                </code>
+              </CodeBlockWrapper>
+              <AutoRow>
+                <LinkWrapper>
+                  <ExternalLink
+                    id="create-github-issue-link"
+                    href={`https://github.com/KyberNetwork/kyberswap-interface/issues/new?assignees=&labels=bug&body=${encodedBody}&title=${encodeURIComponent(
+                      `Crash report: \`${error.name}${error.message && `: ${error.message}`}\``,
+                    )}`}
+                    target="_blank"
+                  >
+                    <Text fontSize={16}>
+                      <Trans>Create an issue on GitHub</Trans>
+                      <span>↗</span>
+                    </Text>
+                  </ExternalLink>
+                </LinkWrapper>
+              </AutoRow>
+            </>
           )}
-
-          <CodeBlockWrapper>
-            <code>
-              <Text fontSize={10}>{error.stack}</Text>
-            </code>
-          </CodeBlockWrapper>
-          <AutoRow>
-            <LinkWrapper>
-              <ExternalLink
-                id="create-github-issue-link"
-                href={`https://github.com/KyberNetwork/kyberswap-interface/issues/new?assignees=&labels=bug&body=${encodedBody}&title=${encodeURIComponent(
-                  `Crash report: \`${error.name}${error.message && `: ${error.message}`}\``,
-                )}`}
-                target="_blank"
-              >
-                <Text fontSize={16}>
-                  <Trans>Create an issue on GitHub</Trans>
-                  <span>↗</span>
-                </Text>
-              </ExternalLink>
-            </LinkWrapper>
-          </AutoRow>
 
           <ButtonPrimary
             margin="auto"
