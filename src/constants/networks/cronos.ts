@@ -40,7 +40,7 @@ const cronosInfo: EVMNetworkInfo = {
     decimal: 18,
     minForGas: 10 ** 16,
   },
-  rpcUrl: 'https://evm-cronos.crypto.org',
+  rpcUrl: 'https://evm.cronos.org',
   routerUri: `${AGGREGATOR_API}/cronos/route/encode`,
   multicall: '0x63Abb9973506189dC3741f61d25d4ed508151E6d',
   classic: {
