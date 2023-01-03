@@ -8,8 +8,7 @@ import { ethers } from 'ethers'
 
 import connection from 'state/connection/connection'
 import { SolanaEncode } from 'state/swap/types'
-import { TransactionHistory } from 'state/transactions/hooks'
-import { TRANSACTION_TYPE } from 'state/transactions/type'
+import { TRANSACTION_TYPE, TransactionHistory } from 'state/transactions/type'
 // import connection from 'state/connection/connection'
 import { calculateGasMargin } from 'utils'
 
@@ -166,14 +165,16 @@ export async function sendSolanaTransactions(
         setupHash = await connection.sendRawTransaction(signedSetupTx.serialize())
         txHashs.push(setupHash)
         addTransactionWithType({
-          type: TRANSACTION_TYPE.SETUP,
+          type: TRANSACTION_TYPE.SETUP_SOLANA_SWAP,
           hash: setupHash,
           firstTxHash: txHashs[0],
           summary: 'swap ' + swapData.summary,
-          arbitrary: {
-            index: 1,
-            total: signedTxs.length,
-            mainTx: swapData,
+          extraInfo: {
+            tracking: {
+              index: 1,
+              total: signedTxs.length,
+              mainTx: swapData,
+            },
           },
         })
         await connection.confirmTransaction(setupHash, 'finalized')

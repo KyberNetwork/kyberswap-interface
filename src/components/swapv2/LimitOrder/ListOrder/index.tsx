@@ -443,18 +443,37 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
         [isCancelAll ? 'nonce' : 'orderIds']: isCancelAll ? nonce?.toNumber() : newOrders,
       })
     }
-
-    response &&
+    if (response) {
+      const {
+        makerAssetDecimals,
+        takerAssetDecimals,
+        takerAssetSymbol,
+        takingAmount,
+        makingAmount,
+        takerAsset,
+        makerAssetSymbol,
+        makerAsset,
+      } = order || ({} as LimitOrder)
+      const amountIn = order ? formatAmountOrder(makingAmount, makerAssetDecimals) : ''
+      const amountOut = order ? formatAmountOrder(takingAmount, takerAssetDecimals) : ''
       addTransactionWithType({
         ...response,
         type: TRANSACTION_TYPE.CANCEL_LIMIT_ORDER,
-        summary: order
-          ? t`Order ${formatAmountOrder(order.makingAmount, order.makerAssetDecimals)} ${
-              order.makerAssetSymbol
-            } to ${formatAmountOrder(order.takingAmount, order.takerAssetDecimals)} ${order.takerAssetSymbol}`
-          : t`all orders`,
-        arbitrary: order ? getPayloadTracking(order) : undefined,
+        summary: order ? t`Order ${amountIn} ${makerAssetSymbol} to ${amountOut} ${takerAssetSymbol}` : t`all orders`,
+        extraInfo: order
+          ? {
+              tokenAddressIn: makerAsset,
+              tokenAddressOut: takerAsset,
+              tokenSymbolIn: makerAssetSymbol,
+              tokenSymbolOut: takerAssetSymbol,
+              tokenAmountIn: amountIn,
+              tokenAmountOut: amountOut,
+              tracking: getPayloadTracking(order),
+            }
+          : undefined,
       })
+    }
+
     return
   }
 

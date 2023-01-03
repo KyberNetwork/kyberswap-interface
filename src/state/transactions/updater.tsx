@@ -62,13 +62,10 @@ const parseEVMTransactionSummary = ({
   if (!log) return tx?.summary
 
   // Parse summary message for Swapped event
-  if (!tx || !tx?.arbitrary) return tx?.summary
+  const tracking = tx?.extraInfo?.tracking
+  if (!tx || !tracking) return tx?.summary
 
-  const inputSymbol = tx?.arbitrary?.inputSymbol
-  const outputSymbol = tx?.arbitrary?.outputSymbol
-  const inputDecimals = tx?.arbitrary?.inputDecimals
-  const outputDecimals = tx?.arbitrary?.outputDecimals
-  const withRecipient = tx?.arbitrary?.withRecipient
+  const { inputSymbol, outputSymbol, inputDecimals, outputDecimals, withRecipient } = tracking || {}
 
   if (!inputSymbol || !outputSymbol || !inputDecimals || !outputDecimals) {
     return tx?.summary
@@ -95,82 +92,6 @@ const parseSolanaTransactionSummary = ({
   meta?: ParsedTransactionMeta | null
 }): string | undefined => {
   return tx?.summary // todo: many edge case not handle yet. handle them and delete this line
-  /*
-  // Parse summary message for Swapped event
-  if (!tx || !tx?.arbitrary) return tx?.summary
-  if (!meta || meta.err) return tx?.summary
-
-  const inputSymbol = tx?.arbitrary?.inputSymbol
-  const outputSymbol = tx?.arbitrary?.outputSymbol
-  // const inputDecimals = tx?.arbitrary?.inputDecimals
-  // const outputDecimals = tx?.arbitrary?.outputDecimals
-  const inputAddress =
-    tx?.arbitrary?.inputAddress === ZERO_ADDRESS_SOLANA ? WETH[ChainId.SOLANA].address : tx?.arbitrary?.inputAddress
-  const outputAddress =
-    tx?.arbitrary?.outputAddress === ZERO_ADDRESS_SOLANA ? WETH[ChainId.SOLANA].address : tx?.arbitrary?.outputAddress
-
-  if (
-    !inputSymbol ||
-    !outputSymbol ||
-    // !inputDecimals ||
-    // !outputDecimals ||
-    !inputAddress ||
-    !outputAddress ||
-    !meta.preTokenBalances ||
-    !meta.postTokenBalances
-  )
-    return tx?.summary
-
-  const inputTokenBalancePre = meta.preTokenBalances.find(
-    tokenBalance => tokenBalance.mint === inputAddress && tokenBalance.owner === tx.from,
-  )
-  const inputTokenBalancePost = meta.postTokenBalances.find(
-    tokenBalance => tokenBalance.mint === inputAddress && tokenBalance.owner === tx.from,
-  )
-  const outputTokenBalancePre = meta.preTokenBalances.find(
-    tokenBalance => tokenBalance.mint === outputAddress && tokenBalance.owner === tx.from,
-  )
-  const outputTokenBalancePost = meta.postTokenBalances.find(
-    tokenBalance => tokenBalance.mint === outputAddress && tokenBalance.owner === tx.from,
-  )
-
-  const inputBalancePre =
-    inputSymbol === NETWORKS_INFO[ChainId.SOLANA].nativeToken.symbol
-      ? {
-          amount: meta.preBalances[0] + (Number(inputTokenBalancePre?.uiTokenAmount?.amount) ?? 0),
-          decimals: NETWORKS_INFO[ChainId.SOLANA].nativeToken.decimal,
-        }
-      : inputTokenBalancePre?.uiTokenAmount
-  const inputBalancePost =
-    inputSymbol === NETWORKS_INFO[ChainId.SOLANA].nativeToken.symbol
-      ? {
-          amount: meta.preBalances[0] + (Number(inputTokenBalancePost?.uiTokenAmount?.amount) ?? 0),
-          decimals: NETWORKS_INFO[ChainId.SOLANA].nativeToken.decimal,
-        }
-      : inputTokenBalancePost?.uiTokenAmount
-  const outputBalancePre =
-    outputSymbol === NETWORKS_INFO[ChainId.SOLANA].nativeToken.symbol
-      ? { amount: meta.preBalances[0], decimals: NETWORKS_INFO[ChainId.SOLANA].nativeToken.decimal }
-      : outputTokenBalancePre?.uiTokenAmount
-  const outputBalancePost =
-    outputSymbol === NETWORKS_INFO[ChainId.SOLANA].nativeToken.symbol
-      ? { amount: meta.postBalances[0], decimals: NETWORKS_INFO[ChainId.SOLANA].nativeToken.decimal }
-      : outputTokenBalancePost?.uiTokenAmount
-  if (!inputBalancePre || !outputBalancePre || !inputBalancePost || !outputBalancePost) return tx?.summary
-  console.log({ meta })
-
-  const inputPreAmount = BigNumber.from(inputBalancePre.amount)
-  const inputPostAmount = BigNumber.from(inputBalancePost.amount)
-  const outputPreAmount = BigNumber.from(outputBalancePre.amount)
-  const outputPostAmount = BigNumber.from(outputBalancePost.amount)
-
-  const inputAmount = getFullDisplayBalanceSignificant(inputPreAmount.sub(inputPostAmount), inputBalancePre.decimals)
-  const outputAmount = getFullDisplayBalanceSignificant(
-    BigNumber.from(outputPostAmount.sub(outputPreAmount).toString()),
-    outputBalancePre.decimals,
-  )
-  return `${inputAmount} ${inputSymbol} for ${outputAmount} ${outputSymbol}`
-  */
 }
 
 export default function Updater(): null {
@@ -263,7 +184,9 @@ export default function Updater(): null {
                       blockHash: receipt.blockHash,
                       status: receipt.status,
                     },
-                    needCheckSubgraph: NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES.includes(transaction.type || ''),
+                    needCheckSubgraph: NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES.includes(
+                      transaction.type as TRANSACTION_TYPE,
+                    ),
                   }),
                 )
 
@@ -274,11 +197,12 @@ export default function Updater(): null {
                   summary: parseEVMTransactionSummary({ tx: transaction, logs: receipt.logs }),
                 })
                 if (receipt.status === 1 && transaction) {
+                  const tracking = transaction.extraInfo?.tracking
                   switch (transaction.type) {
                     case TRANSACTION_TYPE.SWAP: {
-                      if (transaction.arbitrary) {
+                      if (tracking) {
                         mixpanelHandler(MIXPANEL_TYPE.SWAP_COMPLETED, {
-                          arbitrary: transaction.arbitrary,
+                          tracking,
                           actual_gas: receipt.gasUsed || BigNumber.from(0),
                           gas_price: receipt.effectiveGasPrice || BigNumber.from(0),
                           tx_hash: receipt.transactionHash,
@@ -287,39 +211,39 @@ export default function Updater(): null {
                       break
                     }
                     case TRANSACTION_TYPE.BRIDGE: {
-                      if (transaction.arbitrary) {
+                      if (tracking) {
                         mixpanelHandler(MIXPANEL_TYPE.BRIDGE_TRANSACTION_SUBMIT, {
-                          ...transaction.arbitrary,
+                          ...tracking,
                           tx_hash: receipt.transactionHash,
                         })
                       }
                       break
                     }
                     case TRANSACTION_TYPE.COLLECT_FEE: {
-                      if (transaction.arbitrary) {
-                        mixpanelHandler(MIXPANEL_TYPE.ELASTIC_COLLECT_FEES_COMPLETED, transaction.arbitrary)
+                      if (tracking) {
+                        mixpanelHandler(MIXPANEL_TYPE.ELASTIC_COLLECT_FEES_COMPLETED, tracking)
                       }
                       break
                     }
                     case TRANSACTION_TYPE.INCREASE_LIQUIDITY: {
-                      if (transaction.arbitrary) {
+                      if (tracking) {
                         mixpanelHandler(MIXPANEL_TYPE.ELASTIC_INCREASE_LIQUIDITY_COMPLETED, {
-                          ...transaction.arbitrary,
+                          ...tracking,
                           tx_hash: receipt.transactionHash,
                         })
                       }
                       break
                     }
-                    case TRANSACTION_TYPE.CLAIM: {
+                    case TRANSACTION_TYPE.CLAIM_REWARD: {
                       // claim campaign reward successfully
                       // reset id claiming when finished
                       if (window.location.pathname.startsWith(APP_PATHS.CAMPAIGN)) setClaimingCampaignRewardId(null)
                       break
                     }
                     case TRANSACTION_TYPE.CANCEL_LIMIT_ORDER: {
-                      if (transaction.arbitrary) {
+                      if (tracking) {
                         mixpanelHandler(MIXPANEL_TYPE.LO_CANCEL_ORDER_SUBMITTED, {
-                          ...transaction.arbitrary,
+                          ...tracking,
                           tx_hash: receipt.transactionHash,
                         })
                       }
@@ -363,11 +287,12 @@ export default function Updater(): null {
                   summary: parseSolanaTransactionSummary({ tx: transaction, meta: tx.meta }),
                 })
                 if (!tx.meta?.err && transaction) {
+                  const tracking = transaction.extraInfo?.tracking
                   switch (transaction.type) {
-                    case 'Swap': {
-                      if (transaction.arbitrary) {
+                    case TRANSACTION_TYPE.SWAP: {
+                      if (tracking) {
                         mixpanelHandler(MIXPANEL_TYPE.SWAP_COMPLETED, {
-                          arbitrary: transaction.arbitrary,
+                          tracking,
                           gas_price: tx.meta?.fee,
                           tx_hash: hash,
                           actual_gas: BigNumber.from(tx.meta?.fee || 0),

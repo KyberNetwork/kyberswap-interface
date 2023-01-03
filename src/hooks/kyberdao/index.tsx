@@ -49,7 +49,12 @@ export function useKyberDaoStakeActions() {
           hash: tx.hash,
           type: TRANSACTION_TYPE.KYBERDAO_STAKE,
           summary: t`You have successfully staked to KyberDAO`,
-          arbitrary: { amount: formatUnits(amount) },
+          extraInfo: {
+            tokenSymbol: 'KNC',
+            tokenAddress: kyberDaoInfo?.KNCAddress ?? '',
+            tokenAmount: formatUnits(amount),
+            tracking: { amount: formatUnits(amount) },
+          },
         })
         return tx.hash
       } catch (error) {
@@ -60,7 +65,7 @@ export function useKyberDaoStakeActions() {
         }
       }
     },
-    [addTransactionWithType, stakingContract],
+    [addTransactionWithType, stakingContract, kyberDaoInfo],
   )
   const unstake = useCallback(
     async (amount: BigNumber) => {
@@ -76,7 +81,12 @@ export function useKyberDaoStakeActions() {
           hash: tx.hash,
           type: TRANSACTION_TYPE.KYBERDAO_UNSTAKE,
           summary: t`You have successfully unstaked from KyberDAO`,
-          arbitrary: { amount: formatUnits(amount) },
+          extraInfo: {
+            tokenSymbol: 'KNC',
+            tokenAddress: kyberDaoInfo?.KNCAddress ?? '',
+            tokenAmount: formatUnits(amount),
+            tracking: { amount: formatUnits(amount) },
+          },
         })
         return tx.hash
       } catch (error) {
@@ -87,10 +97,10 @@ export function useKyberDaoStakeActions() {
         }
       }
     },
-    [addTransactionWithType, stakingContract],
+    [addTransactionWithType, stakingContract, kyberDaoInfo?.KNCAddress],
   )
   const migrate = useCallback(
-    async (amount: BigNumber) => {
+    async (amount: BigNumber, rawAmount: string) => {
       if (!migrateContract) {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }
@@ -101,8 +111,18 @@ export function useKyberDaoStakeActions() {
         })
         addTransactionWithType({
           hash: tx.hash,
-          type: TRANSACTION_TYPE.MIGRATE,
+          type: TRANSACTION_TYPE.KYBERDAO_MIGRATE,
           summary: `KyberDAO`,
+          extraInfo: kyberDaoInfo
+            ? {
+                tokenAddressIn: kyberDaoInfo.KNCLAddress,
+                tokenAddressOut: kyberDaoInfo.KNCAddress,
+                tokenAmountIn: rawAmount,
+                tokenAmountOut: rawAmount,
+                tokenSymbolIn: 'KNCL',
+                tokenSymbolOut: 'KNC',
+              }
+            : undefined,
         })
         return tx.hash
       } catch (error) {
@@ -113,7 +133,7 @@ export function useKyberDaoStakeActions() {
         }
       }
     },
-    [addTransactionWithType, migrateContract],
+    [addTransactionWithType, migrateContract, kyberDaoInfo],
   )
   const delegate = useCallback(
     async (address: string) => {
@@ -129,6 +149,7 @@ export function useKyberDaoStakeActions() {
           hash: tx.hash,
           type: TRANSACTION_TYPE.KYBERDAO_DELEGATE,
           summary: t`You have successfully delegated voting power to ${address.slice(0, 6)}...${address.slice(-4)}`,
+          extraInfo: { contract: address },
         })
         return tx.hash
       } catch (error) {
@@ -156,6 +177,7 @@ export function useKyberDaoStakeActions() {
           hash: tx.hash,
           type: TRANSACTION_TYPE.KYBERDAO_UNDELEGATE,
           summary: t`You have successfully undelegated your voting power`,
+          extraInfo: { contract: address },
         })
         return tx.hash
       } catch (error) {
@@ -224,6 +246,7 @@ export function useClaimRewardActions() {
           hash: tx.hash,
           type: TRANSACTION_TYPE.KYBERDAO_CLAIM,
           summary: t`Claimed reward successful`,
+          extraInfo: { contract: address },
         })
         return tx.hash
       } catch (error) {
@@ -258,6 +281,7 @@ export const useVotingActions = () => {
           hash: tx.hash,
           type: TRANSACTION_TYPE.KYBERDAO_VOTE,
           summary: t`Voted successful`,
+          extraInfo: { contract: kyberDaoInfo?.dao },
         })
         return tx.hash
       } catch (error) {
@@ -268,7 +292,7 @@ export const useVotingActions = () => {
         }
       }
     },
-    [daoContract, addTransactionWithType],
+    [daoContract, addTransactionWithType, kyberDaoInfo?.dao],
   )
   return { vote }
 }

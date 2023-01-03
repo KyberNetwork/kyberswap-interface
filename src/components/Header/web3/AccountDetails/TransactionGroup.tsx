@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { ChevronUp } from 'react-feather'
 import styled from 'styled-components'
 
-import { SUMMARY } from 'components/Popups/TransactionPopup'
+import { getSummaryTransaction } from 'components/Popups/TransactionPopup'
 import useTheme from 'hooks/useTheme'
 import { TRANSACTION_TYPE, TransactionDetails } from 'state/transactions/type'
 
@@ -37,20 +37,14 @@ export default function TransactionGroup({ transactions }: { transactions: Trans
   const [show, setShow] = useState(false)
 
   const mainTx: TransactionDetails =
-    transactions.find(transaction => transaction.type !== TRANSACTION_TYPE.SETUP) || transactions[0]
+    transactions.find(transaction => transaction.type !== TRANSACTION_TYPE.SETUP_SOLANA_SWAP) || transactions[0]
 
-  const pending = !mainTx.receipt
-  const success = !pending && mainTx && (mainTx.receipt?.status === 1 || typeof mainTx.receipt?.status === 'undefined')
-  const type = mainTx.type
-  const summary = mainTx.summary
-  const parsedSummary = type
-    ? SUMMARY[type]?.[pending ? 'pending' : success ? 'success' : 'failure'](summary)
-    : summary ?? 'Swap'
+  const { summary } = getSummaryTransaction(mainTx)
 
   return (
     <>
       <InfoWrapper onClick={() => setShow(prev => !prev)}>
-        <TransactionState>{parsedSummary}</TransactionState>
+        <TransactionState>{summary}</TransactionState>
         <IconWrapper show={show}>
           <ChevronUp size={16} color={theme.subText} />
         </IconWrapper>

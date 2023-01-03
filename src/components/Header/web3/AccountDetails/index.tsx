@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { useWallet } from '@solana/wallet-adapter-react'
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 import { isMobile } from 'react-device-detect'
 import { FileText, LogOut } from 'react-feather'
 import { useDispatch } from 'react-redux'
@@ -19,11 +19,7 @@ import useENSName from 'hooks/useENSName'
 import useTheme from 'hooks/useTheme'
 import { AppDispatch } from 'state'
 import { clearAllTransactions } from 'state/transactions/actions'
-import {
-  isTransactionGroupRecent as isTxGroupRecent,
-  newTransactionsGroupFirst as newTxGroupFirst,
-  useAllTransactions,
-} from 'state/transactions/hooks'
+import { useSortRecentTransactions } from 'state/transactions/hooks'
 import { TransactionDetails } from 'state/transactions/type'
 import { useIsDarkMode, useIsUserManuallyDisconnect } from 'state/user/hooks'
 import { ButtonText, ExternalLink, LinkStyledButton, TYPE } from 'theme'
@@ -187,14 +183,7 @@ export default function AccountDetails({ toggleWalletModal, openOptions }: Accou
   const isDarkMode = useIsDarkMode()
   const { ENSName } = useENSName(isEVM ? account ?? undefined : undefined)
 
-  const allTransactions = useAllTransactions()
-
-  const sortedRecentTxGroups: TransactionDetails[][] = useMemo(() => {
-    const txGroups: TransactionDetails[][] = allTransactions
-      ? (Object.values(allTransactions).filter(Boolean) as TransactionDetails[][])
-      : []
-    return txGroups.filter(isTxGroupRecent).sort(newTxGroupFirst)
-  }, [allTransactions])
+  const sortedRecentTxGroups: TransactionDetails[][] = useSortRecentTransactions()
 
   const pendingTxGroups: TransactionDetails[][] = sortedRecentTxGroups.filter(txs => txs.some(txs => !txs.receipt))
   const confirmedTxGroups: TransactionDetails[][] = sortedRecentTxGroups.filter(txs => txs.every(txs => txs.receipt))

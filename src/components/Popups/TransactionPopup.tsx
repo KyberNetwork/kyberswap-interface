@@ -9,7 +9,7 @@ import { AutoRow } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { NotificationType } from 'state/application/hooks'
-import { TRANSACTION_TYPE } from 'state/transactions/type'
+import { TRANSACTION_TYPE, TransactionDetails } from 'state/transactions/type'
 import { ExternalLink, HideSmall } from 'theme'
 import { getEtherscanLink } from 'utils'
 
@@ -17,19 +17,25 @@ const RowNoFlex = styled(AutoRow)`
   flex-wrap: nowrap;
 `
 
-export const SUMMARY: {
-  [type in TRANSACTION_TYPE]: {
-    success: (summary?: string, isShort?: boolean) => string
-    pending: (summary?: string, isShort?: boolean) => string
-    failure: (summary?: string, isShort?: boolean) => string
-  }
-} = {
-  [TRANSACTION_TYPE.WRAP]: {
+type Summary = {
+  success: (summary?: string, isShort?: boolean) => string
+  pending: (summary?: string, isShort?: boolean) => string
+  failure: (summary?: string, isShort?: boolean) => string
+}
+
+const defaultValue: Summary = {
+  success: summary => `${summary}`,
+  pending: summary => `${summary}`,
+  failure: summary => `${summary}`,
+}
+
+export const SUMMARY: { [type in TRANSACTION_TYPE]: Summary } = {
+  [TRANSACTION_TYPE.WRAP_TOKEN]: {
     success: summary => 'Wrapped ' + summary,
     pending: summary => 'Wrapping ' + summary,
     failure: summary => 'Error wrapping ' + summary,
   },
-  [TRANSACTION_TYPE.UNWRAP]: {
+  [TRANSACTION_TYPE.UNWRAP_TOKEN]: {
     success: summary => 'Unwrapped ' + summary,
     pending: summary => 'Unwrapping ' + summary,
     failure: summary => 'Error unwrapping ' + summary,
@@ -104,16 +110,6 @@ export const SUMMARY: {
     pending: () => 'Harvesting your rewards',
     failure: () => 'Error harvesting your rewards',
   },
-  [TRANSACTION_TYPE.CLAIM]: {
-    success: summary => 'Claimed ' + summary,
-    pending: summary => 'Claiming ' + summary,
-    failure: summary => 'Error claiming ' + summary,
-  },
-  [TRANSACTION_TYPE.MIGRATE]: {
-    success: () => 'Migrated your liquidity',
-    pending: () => 'Migrating your liquidity',
-    failure: () => 'Error migrating your liquidity',
-  },
   [TRANSACTION_TYPE.CLAIM_REWARD]: {
     success: summary => 'Claimed ' + summary,
     pending: summary => 'Claiming ' + summary,
@@ -134,42 +130,7 @@ export const SUMMARY: {
     pending: () => 'Force Withdrawing ',
     failure: () => 'Error Force withdrawing ',
   },
-  [TRANSACTION_TYPE.KYBERDAO_STAKE]: {
-    success: summary => `${summary}`,
-    pending: summary => `${summary}`,
-    failure: summary => `${summary}`,
-  },
-  [TRANSACTION_TYPE.KYBERDAO_UNSTAKE]: {
-    success: summary => `${summary}`,
-    pending: summary => `${summary}`,
-    failure: summary => `${summary}`,
-  },
-  [TRANSACTION_TYPE.KYBERDAO_DELEGATE]: {
-    success: summary => `${summary}`,
-    pending: summary => `${summary}`,
-    failure: summary => `${summary}`,
-  },
-  [TRANSACTION_TYPE.KYBERDAO_UNDELEGATE]: {
-    success: summary => `${summary}`,
-    pending: summary => `${summary}`,
-    failure: summary => `${summary}`,
-  },
-  [TRANSACTION_TYPE.KYBERDAO_MIGRATE]: {
-    success: summary => `${summary}`,
-    pending: summary => `${summary}`,
-    failure: summary => `${summary}`,
-  },
-  [TRANSACTION_TYPE.KYBERDAO_CLAIM]: {
-    success: summary => `${summary}`,
-    pending: summary => `${summary}`,
-    failure: summary => `${summary}`,
-  },
-  [TRANSACTION_TYPE.KYBERDAO_VOTE]: {
-    success: summary => `${summary}`,
-    pending: summary => `${summary}`,
-    failure: summary => `${summary}`,
-  },
-  [TRANSACTION_TYPE.SETUP]: {
+  [TRANSACTION_TYPE.SETUP_SOLANA_SWAP]: {
     success: (summary, isShort) => (isShort ? 'Setting up transaction' : 'Setting up some stuff to ' + summary),
     pending: (summary, isShort) => (isShort ? 'Setting up transaction' : 'Setting up some stuff to ' + summary),
     failure: (summary, isShort) =>
@@ -180,6 +141,34 @@ export const SUMMARY: {
     pending: summary => 'Cancelling ' + summary,
     failure: summary => 'Error Cancel ' + summary,
   },
+  [TRANSACTION_TYPE.TRANSFER_TOKEN]: {
+    success: summary => `Transfer ${summary}`,
+    pending: summary => 'Transferring ' + summary,
+    failure: summary => 'Error Transfer ' + summary,
+  },
+  // to make sure you don't forgot set sup the new type
+  [TRANSACTION_TYPE.KYBERDAO_CLAIM]: defaultValue,
+  [TRANSACTION_TYPE.KYBERDAO_UNDELEGATE]: defaultValue,
+  [TRANSACTION_TYPE.KYBERDAO_MIGRATE]: defaultValue,
+  [TRANSACTION_TYPE.KYBERDAO_STAKE]: defaultValue,
+  [TRANSACTION_TYPE.KYBERDAO_UNSTAKE]: defaultValue,
+  [TRANSACTION_TYPE.KYBERDAO_VOTE]: defaultValue,
+  [TRANSACTION_TYPE.KYBERDAO_DELEGATE]: defaultValue,
+}
+
+export const getSummaryTransaction = (transaction: TransactionDetails, step?: number) => {
+  const pending = !transaction?.receipt
+  const success =
+    !pending && transaction && (transaction.receipt?.status === 1 || typeof transaction.receipt?.status === 'undefined')
+  const type = transaction?.type
+  const rawSummary = transaction?.summary
+  const summary = type
+    ? SUMMARY?.[type][pending ? 'pending' : success ? 'success' : 'failure']?.(
+        rawSummary,
+        !!(step && type === TRANSACTION_TYPE.SETUP_SOLANA_SWAP),
+      )
+    : rawSummary ?? 'Hash: ' + transaction.hash.slice(0, 8) + '...' + transaction.hash.slice(58, 65)
+  return { summary, pending, success }
 }
 
 const MAP_STATUS: { [key in string]: string } = {

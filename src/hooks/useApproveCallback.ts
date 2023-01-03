@@ -116,7 +116,11 @@ export function useApproveCallback(
           summary: amountToApprove?.currency?.isNative
             ? NativeCurrencies[chainId].symbol
             : amountToApprove?.currency?.symbol,
-          approval: { tokenAddress: token.address, spender: spender },
+          extraInfo: {
+            tokenSymbol: token.symbol ?? '',
+            tokenAddress: token.address,
+            contract: spender,
+          },
         })
       })
       .catch((error: Error) => {

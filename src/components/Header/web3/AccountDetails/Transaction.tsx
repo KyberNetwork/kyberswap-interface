@@ -3,10 +3,10 @@ import { CheckCircle, Triangle } from 'react-feather'
 import styled from 'styled-components'
 
 import Loader from 'components/Loader'
-import { SUMMARY } from 'components/Popups/TransactionPopup'
+import { getSummaryTransaction } from 'components/Popups/TransactionPopup'
 import { RowFixed } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
-import { TRANSACTION_TYPE, TransactionDetails } from 'state/transactions/type'
+import { TransactionDetails } from 'state/transactions/type'
 import { ExternalLink } from 'theme'
 import { getEtherscanLink } from 'utils'
 
@@ -40,18 +40,7 @@ const IconWrapper = styled.div<{ pending: boolean; success?: boolean }>`
 
 export default function Transaction({ transaction, step }: { transaction: TransactionDetails; step?: number }) {
   const { chainId } = useActiveWeb3React()
-
-  const pending = !transaction?.receipt
-  const success =
-    !pending && transaction && (transaction.receipt?.status === 1 || typeof transaction.receipt?.status === 'undefined')
-  const type = transaction?.type
-  const summary = transaction?.summary
-  const parsedSummary = type
-    ? SUMMARY[type]?.[pending ? 'pending' : success ? 'success' : 'failure'](
-        summary,
-        !!(step && type === TRANSACTION_TYPE.SETUP),
-      )
-    : summary ?? 'Hash: ' + transaction.hash.slice(0, 8) + '...' + transaction.hash.slice(58, 65)
+  const { summary, pending, success } = getSummaryTransaction(transaction, step)
 
   return (
     <TransactionWrapper>
@@ -62,7 +51,7 @@ export default function Transaction({ transaction, step }: { transaction: Transa
       >
         <RowFixed>
           <TransactionStatusText>
-            {step ? <Trans>Step {step}: </Trans> : ''} {parsedSummary} ↗
+            {step ? <Trans>Step {step}: </Trans> : ''} {summary} ↗
           </TransactionStatusText>
         </RowFixed>
         <IconWrapper pending={pending} success={success}>

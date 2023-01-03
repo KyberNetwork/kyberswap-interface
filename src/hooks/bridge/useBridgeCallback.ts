@@ -168,13 +168,23 @@ function useRouterSwap(
               hash: txReceipt,
               type: TRANSACTION_TYPE.BRIDGE,
               summary: `${inputAmountStr} ${from_token} (${from_network}) to ${outputAmountStr} ${to_token} (${to_network})`,
-              arbitrary: {
-                from_token,
-                to_token,
-                bridge_fee: outputInfo.fee,
-                from_network,
-                to_network,
-                trade_qty: typedValue,
+              extraInfo: {
+                tokenSymbolIn: from_token,
+                tokenSymbolOut: to_token,
+                tokenAmountIn: inputAmountStr,
+                tokenAmountOut: outputAmountStr,
+                chainIdIn: chainId,
+                chainIdOut,
+                tokenAddressIn: currencyIn?.address ?? '',
+                tokenAddressOut: currencyOut?.address ?? '',
+                tracking: {
+                  from_token,
+                  to_token,
+                  bridge_fee: outputInfo.fee,
+                  from_network,
+                  to_network,
+                  trade_qty: typedValue,
+                },
               },
             })
             sendTxToKsSetting(
@@ -203,7 +213,6 @@ function useRouterSwap(
     tokenInfoIn,
     account,
     chainIdOut,
-    currencyIn?.symbol,
     inputAmount,
     balance,
     inputToken,
@@ -213,6 +222,7 @@ function useRouterSwap(
     sendTxToKsSetting,
     addTransactionWithType,
     typedValue,
+    currencyIn,
   ])
 }
 
@@ -289,13 +299,23 @@ function useBridgeSwap(
               hash: txReceipt,
               type: TRANSACTION_TYPE.BRIDGE,
               summary: `${inputAmountStr} ${from_token} (${from_network}) to ${outputAmountStr} ${to_token} (${to_network})`,
-              arbitrary: {
-                from_token,
-                to_token,
-                bridge_fee: outputInfo.fee,
-                from_network,
-                to_network,
-                trade_qty: typedValue,
+              extraInfo: {
+                tokenSymbolIn: from_token,
+                tokenSymbolOut: to_token,
+                tokenAmountIn: inputAmountStr,
+                tokenAmountOut: outputAmountStr,
+                chainIdIn: chainId,
+                chainIdOut,
+                tokenAddressIn: currencyIn?.address ?? '',
+                tokenAddressOut: currencyOut?.address ?? '',
+                tracking: {
+                  from_token,
+                  to_token,
+                  bridge_fee: outputInfo.fee,
+                  from_network,
+                  to_network,
+                  trade_qty: typedValue,
+                },
               },
             })
             sendTxToKsSetting(
@@ -327,7 +347,6 @@ function useBridgeSwap(
     tokenInfoOut?.type,
     inputToken,
     tokenInfoIn?.tokenType,
-    currencyIn?.symbol,
     contractETH,
     contractBTC,
     outputInfo.outputAmount,
@@ -336,5 +355,6 @@ function useBridgeSwap(
     sendTxToKsSetting,
     addTransactionWithType,
     typedValue,
+    currencyIn,
   ])
 }

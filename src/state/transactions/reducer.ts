@@ -11,7 +11,7 @@ import {
   removeTx,
   replaceTx,
 } from './actions'
-import { GroupedTxsByHash } from './type'
+import { GroupedTxsByHash, getTransactionGroupByType } from './type'
 
 const now = () => new Date().getTime()
 
@@ -27,26 +27,24 @@ export default createReducer(initialState, builder =>
       addTransaction,
       (
         transactions,
-        {
-          payload: {
-            sentAtBlock,
-            to,
-            nonce,
-            data,
-            chainId,
-            from,
-            hash,
-            approval,
-            type,
-            summary,
-            arbitrary,
-            firstTxHash,
-          },
-        },
+        { payload: { sentAtBlock, to, nonce, data, chainId, from, hash, type, summary, firstTxHash, extraInfo } },
       ) => {
         const chainTxs = transactions[chainId] ?? {}
         const txs = (firstTxHash && chainTxs[firstTxHash]) || []
-        txs.push({ sentAtBlock, to, nonce, data, hash, approval, type, summary, arbitrary, from, addedTime: now() })
+        txs.push({
+          sentAtBlock,
+          to,
+          nonce,
+          data,
+          hash,
+          type,
+          summary,
+          from,
+          addedTime: now(),
+          chainId,
+          extraInfo,
+          group: getTransactionGroupByType(type),
+        })
         chainTxs[txs[0].hash] = txs
         transactions[chainId] = chainTxs
       },

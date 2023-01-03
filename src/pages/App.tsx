@@ -19,6 +19,7 @@ import Loader from 'components/LocalLoader'
 import Modal from 'components/Modal'
 import Popups from 'components/Popups'
 import Snowfall from 'components/Snowflake/Snowfall'
+import WalletPopup from 'components/Wallet'
 import Web3ReactManager from 'components/Web3ReactManager'
 import { APP_PATHS, BLACKLIST_WALLETS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -296,6 +297,7 @@ export default function App() {
               </BodyWrapper>
               {showFooter && <Footer />}
             </Suspense>
+            <WalletPopup />
           </AppWrapper>
         </>
       )}

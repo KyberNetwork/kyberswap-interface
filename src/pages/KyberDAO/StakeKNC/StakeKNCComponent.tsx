@@ -282,7 +282,7 @@ export default function StakeKNCComponent() {
   const { mixpanelHandler } = useMixpanel()
   const [approvalKNC, approveCallback] = useApproveCallback(
     TokenAmount.fromRawAmount(
-      new Token(chainId === ChainId.GÖRLI ? ChainId.GÖRLI : ChainId.MAINNET, kyberDAOInfo?.KNCAddress || '', 18),
+      new Token(chainId === ChainId.GÖRLI ? ChainId.GÖRLI : ChainId.MAINNET, kyberDAOInfo?.KNCAddress || '', 18, 'KNC'),
       MaxUint256,
     ),
     kyberDAOInfo?.staking,
