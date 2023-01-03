@@ -75,9 +75,6 @@ const bnbTestnetInfo: EVMNetworkInfo = {
   deBankSlug: EMPTY,
   trueSightId: NOT_SUPPORT,
   dexToCompare: NOT_SUPPORT,
-  aggregator: {
-    routerAddress: '',
-  },
 }
 
 export default bnbTestnetInfo

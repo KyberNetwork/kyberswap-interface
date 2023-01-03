@@ -79,9 +79,6 @@ const avaxInfo: EVMNetworkInfo = {
   deBankSlug: 'avax',
   trueSightId: 'avax',
   dexToCompare: 'traderjoe',
-  aggregator: {
-    routerAddress: '0x617Dee16B86534a5d792A4d7A62FB491B544111E',
-  },
 }
 
 export default avaxInfo

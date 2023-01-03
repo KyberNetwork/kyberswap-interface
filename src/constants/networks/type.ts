@@ -85,9 +85,6 @@ export interface EVMNetworkInfo extends NetworkInfo {
     readonly KNCAddress: string
     readonly KNCLAddress: string
   }
-  readonly aggregator: {
-    routerAddress: string
-  }
 }
 
 export interface SolanaNetworkInfo extends NetworkInfo {

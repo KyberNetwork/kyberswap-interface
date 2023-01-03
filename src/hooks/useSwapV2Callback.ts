@@ -4,8 +4,6 @@ import { SignerWalletAdapter } from '@solana/wallet-adapter-base'
 import { useCallback, useMemo } from 'react'
 
 import { ZERO_ADDRESS_SOLANA } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks/index'
 import useENS from 'hooks/useENS'
 import { useEncodeSolana, useSwapState } from 'state/swap/hooks'
@@ -51,7 +49,6 @@ export function useSwapV2Callback(
   const { address: recipientAddress } = useENS(recipientAddressOrName)
 
   const recipient = recipientAddressOrName === null || recipientAddressOrName === '' ? account : recipientAddress
-  const routerAddress = isEVM ? (NETWORKS_INFO[chainId] as EVMNetworkInfo).aggregator.routerAddress : ''
 
   const extractSwapData = useCallback(() => {
     if (!trade) {
@@ -124,7 +121,7 @@ export function useSwapV2Callback(
       const response = await sendEVMTransaction(
         account,
         library,
-        routerAddress,
+        trade.routerAddress,
         trade.encodedSwapData,
         value,
         onHandleSwapResponse,
@@ -165,6 +162,5 @@ export function useSwapV2Callback(
     walletSolana,
     addTransactionWithType,
     extractSwapData,
-    routerAddress,
   ])
 }

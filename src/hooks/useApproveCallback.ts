@@ -5,7 +5,6 @@ import { Currency, CurrencyAmount, TradeType } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 import { useCallback, useMemo } from 'react'
 
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { useTokenAllowance } from 'data/Allowances'
@@ -148,16 +147,10 @@ export function useApproveCallbackFromTradeV2(
   trade?: Aggregator,
   allowedSlippage = 0,
 ): [ApprovalState, () => Promise<void>] {
-  const { chainId } = useActiveWeb3React()
   const amountToApprove = useMemo(
     () => (trade ? computeSlippageAdjustedAmounts(trade, allowedSlippage)[Field.INPUT] : undefined),
     [trade, allowedSlippage],
   )
 
-  let routerAddress
-  if (isEVM(chainId)) {
-    routerAddress = NETWORKS_INFO[chainId].aggregator.routerAddress
-  }
-
-  return useApproveCallback(amountToApprove, routerAddress)
+  return useApproveCallback(amountToApprove, trade?.routerAddress)
 }

@@ -69,9 +69,6 @@ const fantomInfo: EVMNetworkInfo = {
   deBankSlug: 'ftm',
   trueSightId: 'fantom',
   dexToCompare: 'spookyswap',
-  aggregator: {
-    routerAddress: '0x617Dee16B86534a5d792A4d7A62FB491B544111E',
-  },
 }
 
 export default fantomInfo

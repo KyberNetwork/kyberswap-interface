@@ -928,6 +928,9 @@ export default function Swap() {
                         </Trans>
                       </PriceImpactHigh>
                     )}
+
+                    <ApproveMessage routerAddress={trade?.routerAddress} />
+
                     <BottomGrouping>
                       {!account ? (
                         <ButtonLight onClick={toggleWalletModal}>
@@ -950,7 +953,6 @@ export default function Swap() {
                         </GreyCard>
                       ) : showApproveFlow ? (
                         <>
-                          <ApproveMessage />
                           <RowBetween>
                             <ButtonConfirmed
                               onClick={approveCallback}

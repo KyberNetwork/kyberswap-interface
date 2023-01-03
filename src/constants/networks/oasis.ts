@@ -73,9 +73,6 @@ const oasisInfo: EVMNetworkInfo = {
   deBankSlug: EMPTY,
   trueSightId: NOT_SUPPORT,
   dexToCompare: 'valleyswap-v2',
-  aggregator: {
-    routerAddress: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
-  },
 }
 
 export default oasisInfo
