@@ -7,10 +7,12 @@ import { Trans, t } from '@lingui/macro'
 import { captureException } from '@sentry/react'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { ChevronLeft } from 'react-feather'
 import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
+import { ReactComponent as TutorialIcon } from 'assets/svg/play_circle_outline.svg'
 import { ButtonConfirmed, ButtonPrimary } from 'components/Button'
 import { BlackCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
@@ -18,7 +20,7 @@ import Copy from 'components/Copy'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import Divider from 'components/Divider'
 import Loader from 'components/Loader'
-import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
+import { AddRemoveTabs, LiquidityAction, StyledMenuButton } from 'components/NavigationTabs'
 import ProAmmFee from 'components/ProAmm/ProAmmFee'
 import ProAmmPoolInfo from 'components/ProAmm/ProAmmPoolInfo'
 import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
@@ -27,7 +29,8 @@ import TransactionConfirmationModal, {
   ConfirmationModalContent,
   TransactionErrorContent,
 } from 'components/TransactionConfirmationModal'
-import { TutorialType } from 'components/Tutorial'
+import TransactionSettings from 'components/TransactionSettings'
+import Tutorial, { TutorialType } from 'components/Tutorial'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
@@ -48,7 +51,7 @@ import { basisPointsToPercent, calculateGasMargin, formattedNum, shortenAddress 
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
-import { Container, FirstColumn, GridColumn, SecondColumn } from './styled'
+import { Container, Content, FirstColumn, GridColumn, SecondColumn } from './styled'
 
 const MaxButton = styled(MaxBtn)`
   margin: 0;
@@ -397,139 +400,186 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
         pendingText={pendingText}
       />
       <Container>
-        <AddRemoveTabs
-          action={LiquidityAction.REMOVE}
-          hideShare
-          tooltip={t`You can remove your liquidity here. When you remove liquidity (even partially), you will receive 100% of your fee earnings`}
-          tutorialType={TutorialType.ELASTIC_REMOVE_LIQUIDITY}
-        />
-        {owner && account && !ownsNFT ? (
-          <Text
-            fontSize="12px"
-            fontWeight="500"
-            paddingTop={'10px'}
-            paddingBottom={'10px'}
-            backgroundColor={theme.bg3Opacity4}
-            color={theme.subText}
-            style={{ borderRadius: '4px', marginBottom: '1.25rem' }}
+        <Flex justifyContent="space-between" alignItems="center" marginTop="32px" marginBottom="24px">
+          <Flex
+            role="button"
+            onClick={() => navigate(-1)}
+            alignItems="center"
+            sx={{ cursor: 'pointer', ':hover': { opacity: '0.8' } }}
           >
-            The owner of this liquidity position is {shortenAddress(chainId, owner)}
-            <span style={{ display: 'inline-block' }}>
-              <Copy toCopy={owner}></Copy>
-            </span>
-          </Text>
-        ) : (
-          <Divider style={{ marginBottom: '1.25rem' }} />
-        )}
-        {position ? (
-          <AutoColumn gap="md" style={{ textAlign: 'left' }}>
-            {positionSDK ? <ProAmmPoolInfo position={positionSDK} tokenId={tokenId.toString()} /> : <Loader />}
-            <GridColumn>
-              <FirstColumn>
-                <ProAmmPooledTokens pooled liquidityValue0={pooledAmount0} liquidityValue1={pooledAmount1} />
-                {positionSDK ? (
-                  <ProAmmFee
-                    totalFeeRewardUSD={totalFeeRewardUSD}
-                    position={positionSDK}
-                    tokenId={tokenId}
-                    text={t`When you remove liquidity (even partially), you will receive 100% of your fee earnings`}
-                    feeValue0={feeValue0}
-                    feeValue1={feeValue1}
-                  />
-                ) : (
-                  <Loader />
-                )}
-              </FirstColumn>
-              <SecondColumn>
-                <>
-                  <BlackCard padding="1rem" marginTop="1rem">
+            <ChevronLeft size={28} color={theme.subText} />
+            <Text fontSize="24px" fontWeight="500" marginLeft="8px">
+              Remove Liquidity
+            </Text>
+          </Flex>
+
+          <Flex>
+            {owner && account && !ownsNFT && (
+              <Text
+                fontSize="12px"
+                fontWeight="500"
+                color={theme.subText}
+                display="flex"
+                alignItems="center"
+                marginRight="8px"
+              >
+                The owner of this liquidity position is {shortenAddress(chainId, owner)}
+                <Copy toCopy={owner}></Copy>
+              </Text>
+            )}
+
+            <Tutorial
+              type={TutorialType.ELASTIC_REMOVE_LIQUIDITY}
+              customIcon={
+                <StyledMenuButton>
+                  <TutorialIcon />
+                </StyledMenuButton>
+              }
+            />
+            <TransactionSettings hoverBg={theme.buttonBlack} />
+          </Flex>
+        </Flex>
+
+        <Content>
+          {position ? (
+            <AutoColumn gap="md" style={{ textAlign: 'left' }}>
+              <GridColumn>
+                <FirstColumn>
+                  {positionSDK ? <ProAmmPoolInfo position={positionSDK} tokenId={tokenId.toString()} /> : <Loader />}
+                  <ProAmmPooledTokens pooled liquidityValue0={pooledAmount0} liquidityValue1={pooledAmount1} />
+                  {positionSDK ? (
+                    <ProAmmFee
+                      totalFeeRewardUSD={totalFeeRewardUSD}
+                      position={positionSDK}
+                      tokenId={tokenId}
+                      text={t`When you remove liquidity (even partially), you will receive 100% of your fee earnings`}
+                      feeValue0={feeValue0}
+                      feeValue1={feeValue1}
+                    />
+                  ) : (
+                    <Loader />
+                  )}
+                </FirstColumn>
+
+                <SecondColumn>
+                  <BlackCard style={{ padding: '1rem' }}>
                     <Text fontSize={12} color={theme.subText} fontWeight="500">
                       <Trans>Amount to remove</Trans>
                     </Text>
 
-                    <Flex marginTop="0.5rem" sx={{ gap: '1rem' }} alignItems="center">
-                      <PercentText fontSize={36} fontWeight="500">
-                        {percentForSlider}%
-                      </PercentText>
+                    <BlackCard
+                      padding="1rem"
+                      marginTop="1rem"
+                      style={{ borderRadius: '1rem', border: `1px solid ${theme.border}` }}
+                    >
+                      <Flex marginTop="0.5rem" sx={{ gap: '1rem' }} alignItems="center">
+                        <PercentText fontSize={36} fontWeight="500">
+                          {percentForSlider}%
+                        </PercentText>
 
-                      <MaxButtonGroup>
-                        <MaxButton onClick={() => onUserInput(Field.LIQUIDITY_PERCENT, '25')}>
-                          <Trans>25%</Trans>
-                        </MaxButton>
-                        <MaxButton onClick={() => onUserInput(Field.LIQUIDITY_PERCENT, '50')}>
-                          <Trans>50%</Trans>
-                        </MaxButton>
-                        <MaxButton onClick={() => onUserInput(Field.LIQUIDITY_PERCENT, '75')}>
-                          <Trans>75%</Trans>
-                        </MaxButton>
-                        <MaxButton onClick={() => onUserInput(Field.LIQUIDITY_PERCENT, '100')}>
-                          <Trans>Max</Trans>
-                        </MaxButton>
-                      </MaxButtonGroup>
+                        <MaxButtonGroup>
+                          <MaxButton onClick={() => onUserInput(Field.LIQUIDITY_PERCENT, '25')}>
+                            <Trans>25%</Trans>
+                          </MaxButton>
+                          <MaxButton onClick={() => onUserInput(Field.LIQUIDITY_PERCENT, '50')}>
+                            <Trans>50%</Trans>
+                          </MaxButton>
+                          <MaxButton onClick={() => onUserInput(Field.LIQUIDITY_PERCENT, '75')}>
+                            <Trans>75%</Trans>
+                          </MaxButton>
+                          <MaxButton onClick={() => onUserInput(Field.LIQUIDITY_PERCENT, '100')}>
+                            <Trans>Max</Trans>
+                          </MaxButton>
+                        </MaxButtonGroup>
+                      </Flex>
+
+                      <Slider
+                        value={percentForSlider}
+                        onChange={onPercentSelectForSlider}
+                        size={16}
+                        style={{ width: '100%', margin: '1rem 0 0', padding: '0.75rem 0' }}
+                      />
+                    </BlackCard>
+
+                    <Flex sx={{ gap: '1rem', width: '100%' }} marginTop="1rem">
+                      <div
+                        style={{
+                          flex: 1,
+                          border: `1px solid ${theme.border}`,
+                          borderRadius: '1rem',
+                        }}
+                      >
+                        <CurrencyInputPanel
+                          value={formattedAmounts[Field.CURRENCY_A]}
+                          onUserInput={onCurrencyAInput}
+                          onMax={null}
+                          onHalf={null}
+                          currency={liquidityValue0?.currency}
+                          onCurrencySelect={() => null}
+                          id="remove-liquidity-tokena"
+                          estimatedUsd={formattedNum(estimatedUsdCurrencyA.toString(), true) || undefined}
+                          disableCurrencySelect={!currency0IsETHER && !currency0IsWETH}
+                          isSwitchMode={currency0IsETHER || currency0IsWETH}
+                          onSwitchCurrency={() => setReceiveWETH(prev => !prev)}
+                        />
+                      </div>
+
+                      <div style={{ flex: 1, border: `1px solid ${theme.border}`, borderRadius: '1rem' }}>
+                        <CurrencyInputPanel
+                          value={formattedAmounts[Field.CURRENCY_B]}
+                          onUserInput={onCurrencyBInput}
+                          onMax={null}
+                          onHalf={null}
+                          currency={liquidityValue1?.currency}
+                          onCurrencySelect={() => null}
+                          id="remove-liquidity-tokenb"
+                          estimatedUsd={formattedNum(estimatedUsdCurrencyB.toString(), true) || undefined}
+                          disableCurrencySelect={!currency1IsETHER && !currency1IsWETH}
+                          isSwitchMode={currency1IsETHER || currency1IsWETH}
+                          onSwitchCurrency={() => setReceiveWETH(prev => !prev)}
+                        />
+                      </div>
                     </Flex>
 
-                    <Slider
-                      value={percentForSlider}
-                      onChange={onPercentSelectForSlider}
-                      size={16}
-                      style={{ width: '100%', margin: '1rem 0 0', padding: '0.75rem 0' }}
-                    />
+                    <Text
+                      fontSize="0.75rem"
+                      fontStyle="italic"
+                      textAlign="right"
+                      marginTop="12px"
+                      color={theme.subText}
+                    >
+                      <Trans>
+                        Note: When you remove liquidity (even partially), you will receive 100% of your fee earnings
+                      </Trans>
+                    </Text>
                   </BlackCard>
-                  <div style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
-                    <CurrencyInputPanel
-                      value={formattedAmounts[Field.CURRENCY_A]}
-                      onUserInput={onCurrencyAInput}
-                      onMax={null}
-                      onHalf={null}
-                      currency={liquidityValue0?.currency}
-                      onCurrencySelect={() => null}
-                      id="remove-liquidity-tokena"
-                      estimatedUsd={formattedNum(estimatedUsdCurrencyA.toString(), true) || undefined}
-                      disableCurrencySelect={!currency0IsETHER && !currency0IsWETH}
-                      isSwitchMode={currency0IsETHER || currency0IsWETH}
-                      onSwitchCurrency={() => setReceiveWETH(prev => !prev)}
-                    />
-                  </div>
 
-                  <div>
-                    <CurrencyInputPanel
-                      value={formattedAmounts[Field.CURRENCY_B]}
-                      onUserInput={onCurrencyBInput}
-                      onMax={null}
-                      onHalf={null}
-                      currency={liquidityValue1?.currency}
-                      onCurrencySelect={() => null}
-                      id="remove-liquidity-tokenb"
-                      estimatedUsd={formattedNum(estimatedUsdCurrencyB.toString(), true) || undefined}
-                      disableCurrencySelect={!currency1IsETHER && !currency1IsWETH}
-                      isSwitchMode={currency1IsETHER || currency1IsWETH}
-                      onSwitchCurrency={() => setReceiveWETH(prev => !prev)}
-                    />
-                  </div>
-                  <ButtonConfirmed
-                    style={{ marginTop: '28px' }}
-                    confirmed={false}
-                    disabled={
-                      removed ||
-                      liquidityPercentage?.equalTo(new Percent(0, 100)) ||
-                      !liquidityValue0 ||
-                      (!!owner && !!account && !ownsNFT)
-                    }
-                    onClick={() => {
-                      if (!account) {
-                        toggleWalletModal()
-                      } else setShowConfirm(true)
-                    }}
-                  >
-                    {removed ? <Trans>Closed</Trans> : error ?? <Trans>Preview</Trans>}
-                  </ButtonConfirmed>
-                </>
-              </SecondColumn>
-            </GridColumn>
-          </AutoColumn>
-        ) : (
-          <Loader />
-        )}
+                  <Flex justifyContent="flex-end">
+                    <ButtonConfirmed
+                      style={{ marginTop: '24px', width: 'fit-content', minWidth: '164px' }}
+                      confirmed={false}
+                      disabled={
+                        removed ||
+                        liquidityPercentage?.equalTo(new Percent(0, 100)) ||
+                        !liquidityValue0 ||
+                        (!!owner && !!account && !ownsNFT)
+                      }
+                      onClick={() => {
+                        if (!account) {
+                          toggleWalletModal()
+                        } else setShowConfirm(true)
+                      }}
+                    >
+                      {removed ? <Trans>Closed</Trans> : error ?? <Trans>Preview</Trans>}
+                    </ButtonConfirmed>
+                  </Flex>
+                </SecondColumn>
+              </GridColumn>
+            </AutoColumn>
+          ) : (
+            <Loader />
+          )}
+        </Content>
       </Container>
     </>
   )
