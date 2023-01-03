@@ -20,6 +20,7 @@ export async function sendEVMTransaction(
   encodedData: string,
   value: BigNumber,
   handler?: (response: TransactionResponse) => void,
+  chainId?: number,
 ): Promise<TransactionResponse | undefined> {
   if (!account || !library) return
 
@@ -62,7 +63,7 @@ export async function sendEVMTransaction(
     from: account,
     to: contractAddress,
     data: encodedData,
-    gasLimit: calculateGasMargin(gasEstimate),
+    gasLimit: calculateGasMargin(gasEstimate, chainId),
     ...(value.eq('0') ? {} : { value }),
   }
 

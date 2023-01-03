@@ -125,6 +125,7 @@ export function useSwapV2Callback(
         trade.encodedSwapData,
         value,
         onHandleSwapResponse,
+        chainId,
       )
       if (response?.hash === undefined) throw new Error('sendTransaction returned undefined.')
       return response?.hash
