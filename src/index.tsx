@@ -95,7 +95,7 @@ window.zESettings = {
         horizontal: '-5px',
       },
     },
-    zIndex: Z_INDEXS.ICON_SUPPORT,
+    zIndex: Z_INDEXS.ICON_CHAT,
   },
 }
 const script = document.createElement('script')
