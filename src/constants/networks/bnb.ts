@@ -76,6 +76,9 @@ const bnbInfo: EVMNetworkInfo = {
   deBankSlug: 'bsc',
   trueSightId: 'bsc',
   dexToCompare: 'pancake',
+  aggregator: {
+    routerAddress: '0x617Dee16B86534a5d792A4d7A62FB491B544111E',
+  },
 }
 
 export default bnbInfo

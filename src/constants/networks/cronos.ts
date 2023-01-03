@@ -75,6 +75,9 @@ const cronosInfo: EVMNetworkInfo = {
   deBankSlug: 'cro',
   trueSightId: 'cronos',
   dexToCompare: 'vvs',
+  aggregator: {
+    routerAddress: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
+  },
 }
 
 export default cronosInfo

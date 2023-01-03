@@ -75,6 +75,9 @@ const maticInfo: EVMNetworkInfo = {
   deBankSlug: 'matic',
   trueSightId: 'polygon',
   dexToCompare: 'quickswap',
+  aggregator: {
+    routerAddress: '0x617Dee16B86534a5d792A4d7A62FB491B544111E',
+  },
 }
 
 export default maticInfo

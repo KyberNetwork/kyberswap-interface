@@ -83,6 +83,9 @@ const ethereumInfo: EVMNetworkInfo = {
     KNCAddress: '0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202',
     KNCLAddress: '0xdd974D5C2e2928deA5F71b9825b8b646686BD200',
   },
+  aggregator: {
+    routerAddress: '0x617Dee16B86534a5d792A4d7A62FB491B544111E',
+  },
 }
 
 export default ethereumInfo
