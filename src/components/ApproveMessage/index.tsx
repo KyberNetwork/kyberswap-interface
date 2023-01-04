@@ -12,12 +12,12 @@ import { ExternalLink, TYPE } from 'theme/index'
 import { getEtherscanLink, isAddress, shortenAddress } from 'utils/index'
 
 export default function ApproveMessage({ routerAddress = '' }: { routerAddress?: string }) {
-  const { chainId } = useActiveWeb3React()
+  const { chainId, account } = useActiveWeb3React()
   const theme = useTheme()
   const [showApproveMsgDetails, toggleShowApproveMsgDetails] = useToggle(false)
   const timeout = 1673913600000 // Tuesday, January 17, 2023 0:00:00
 
-  if (Date.now() > timeout || !isAddress(chainId, routerAddress)) {
+  if (Date.now() > timeout || !isAddress(chainId, routerAddress) || !account) {
     return null
   }
 
