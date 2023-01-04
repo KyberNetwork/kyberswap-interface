@@ -1,8 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import axios from 'axios'
-import { rgba } from 'polished'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Check, Mail, X } from 'react-feather'
+import { Check, X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -14,7 +13,6 @@ import MailIcon from 'components/Icons/MailIcon'
 import Loader from 'components/Loader'
 import Modal from 'components/Modal'
 import Row, { RowBetween } from 'components/Row'
-import Select from 'components/Select'
 import { NOTIFICATION_API } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -96,11 +94,15 @@ const ButtonTextt = styled.div`
   font-weight: 500;
 `
 
-const TopicItem = styled(Row)`
-  padding: 14px;
+const TopicItem = styled.label`
+  display: flex;
+  padding: 0px 14px;
   gap: 14px;
   font-weight: 500;
-  align-items: flex-start;
+  align-items: center;
+  :last-child {
+    margin-bottom: 10px;
+  }
 `
 const TopicItemHeader = styled(TopicItem)`
   background: ${({ theme }) => theme.buttonBlack};
@@ -110,31 +112,31 @@ const TopicItemHeader = styled(TopicItem)`
   align-items: center;
 `
 
-const Option = styled(Row)<{ active: boolean }>`
-  padding: 10px 16px;
-  gap: 10px;
-  color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
-  :hover {
-    color: ${({ theme }) => theme.primary};
-    background: ${({ theme }) => rgba(theme.subText, 0.1)};
-  }
-`
+// const Option = styled(Row)<{ active: boolean }>`
+//   padding: 10px 16px;
+//   gap: 10px;
+//   color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
+//   :hover {
+//     color: ${({ theme }) => theme.primary};
+//     background: ${({ theme }) => rgba(theme.subText, 0.1)};
+//   }
+// `
 
 enum TAB {
   EMAIL,
   TELEGRAM,
 }
 
-const NOTIFICATION_OPTIONS = [
-  {
-    label: 'Email',
-    value: TAB.EMAIL,
-  },
-  {
-    label: 'Telegram',
-    value: TAB.TELEGRAM,
-  },
-]
+// const NOTIFICATION_OPTIONS = [
+//   {
+//     label: 'Email',
+//     value: TAB.EMAIL,
+//   },
+//   {
+//     label: 'Telegram',
+//     value: TAB.TELEGRAM,
+//   },
+// ]
 
 const ackTelegramSubscriptionStatus = async (wallet: string) => {
   return axios.delete(`${NOTIFICATION_API}/v1/subscription-result/telegram`, { data: { wallet } })
@@ -152,7 +154,7 @@ export default function NotificationModal() {
 
   const [inputAccount, setAccount] = useState('')
   const [errorInput, setErrorInput] = useState('')
-  const [activeTab, setActiveTab] = useState<TAB>(TAB.EMAIL)
+  const [activeTab] = useState<TAB>(TAB.EMAIL)
   const [selectedTopic, setSelectedTopic] = useState<number[]>([])
 
   const isEmailTab = activeTab === TAB.EMAIL
@@ -301,20 +303,11 @@ export default function NotificationModal() {
   const isVerifiedTelegram = userInfo?.telegram
   const hasTopicSubscribed = topicGroups.some(e => e.isSubscribed)
 
-  const canSaveAnotherOption = // todo danh: check this case : allow sub topic empty ???? email && telegram
-    hasTopicSubscribed &&
-    ((isVerifiedEmail && isTelegramTab && !isVerifiedTelegram) ||
-      (isVerifiedTelegram && !isVerifiedEmail && isEmailTab))
-
   const disableButtonSave = useMemo(() => {
-    const value =
-      isLoading ||
-      isSubmit ||
-      notFillEmail ||
-      errorInput ||
-      (!getDiffChangeTopics().hasChanged && !canSaveAnotherOption)
+    if (isTelegramTab) return isLoading
+    const value = isLoading || isSubmit || notFillEmail || errorInput || !getDiffChangeTopics().hasChanged
     return Boolean(value)
-  }, [getDiffChangeTopics, isSubmit, isLoading, notFillEmail, errorInput, canSaveAnotherOption])
+  }, [getDiffChangeTopics, isSubmit, isLoading, notFillEmail, errorInput, isTelegramTab])
 
   const disableCheckbox = !account || notFillEmail || !!errorInput
 
@@ -330,17 +323,16 @@ export default function NotificationModal() {
         <ButtonPrimary disabled={disableButtonSave} borderRadius="46px" height="44px" onClick={onSave}>
           <ButtonTextt>
             {(() => {
-              const isGenerateVerifyLink = isTelegramTab && !isVerifiedTelegram
               if (isLoading) {
                 return (
                   <Row>
                     <Loader />
                     &nbsp;
-                    {isGenerateVerifyLink ? <Trans>Generating Verification Link ...</Trans> : <Trans>Saving ...</Trans>}
+                    {isTelegramTab ? <Trans>Generating Verification Link ...</Trans> : <Trans>Saving ...</Trans>}
                   </Row>
                 )
               }
-              return isGenerateVerifyLink ? <Trans>Get Started</Trans> : <Trans>Save</Trans>
+              return isTelegramTab ? <Trans>Get Started</Trans> : <Trans>Save</Trans>
             })()}
           </ButtonTextt>
         </ButtonPrimary>
@@ -357,7 +349,7 @@ export default function NotificationModal() {
           </Row>
           <CloseIcon onClick={toggleModal} />
         </RowBetween>
-        <RowBetween gap="14px">
+        {/* <RowBetween gap="14px">
           <Label>
             <Trans>Select mode of notification</Trans>
           </Label>
@@ -381,7 +373,7 @@ export default function NotificationModal() {
             )}
             onChange={setActiveTab}
           />
-        </RowBetween>
+        </RowBetween> */}
 
         {isEmailTab ? (
           <Column>
@@ -409,7 +401,7 @@ export default function NotificationModal() {
               <Row align="center" justify="center" gap="3px">
                 <Text fontSize={15}>
                   <Trans>
-                    Your verified telegram:{' '}
+                    Your Verified Account:{' '}
                     <Text as="span" color={theme.text}>
                       @{userInfo?.telegram}
                     </Text>
@@ -425,41 +417,36 @@ export default function NotificationModal() {
           </Flex>
         )}
 
-        <div>
-          <TopicItemHeader>
+        <Column gap="16px">
+          <TopicItemHeader htmlFor="selectAll">
             <Checkbox
               disabled={disableCheckbox}
               id="selectAll"
               borderStyle
               onChange={onToggleAllTopic}
-              style={{ width: 17, height: 17 }}
+              style={{ width: 14, height: 14 }}
               checked={topicGroups.length === selectedTopic.length}
             />
-            <Text as="label" htmlFor="selectAll" fontSize={12} color={theme.subText}>
+            <Text fontSize={12} color={theme.subText}>
               <Trans>NOTIFICATION PREFERENCES</Trans>
             </Text>
           </TopicItemHeader>
           {topicGroups.map(topic => (
-            <TopicItem key={topic.id}>
+            <TopicItem key={topic.id} htmlFor={`topic${topic.id}`}>
               <Checkbox
                 disabled={disableCheckbox}
                 borderStyle
                 checked={selectedTopic.includes(topic.id)}
                 id={`topic${topic.id}`}
-                style={{ width: 17, height: 17, minWidth: 17 }}
+                style={{ width: 14, height: 14, minWidth: 14 }}
                 onChange={() => onChangeTopic(topic.id)}
               />
-              <label htmlFor={`topic${topic.id}`}>
-                <Text color={theme.text} fontSize={14}>
-                  <Trans>{topic.name}</Trans>
-                </Text>
-                <Text color={theme.subText} fontSize={12} marginTop={'5px'}>
-                  <Trans>{topic.description}</Trans>
-                </Text>
-              </label>
+              <Text color={theme.text} fontSize={14}>
+                <Trans>{topic.name}</Trans>
+              </Text>
             </TopicItem>
           ))}
-        </div>
+        </Column>
         {renderButton()}
       </Wrapper>
     </Modal>
