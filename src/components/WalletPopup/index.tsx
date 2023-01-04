@@ -10,6 +10,7 @@ import { ReactComponent as SendIcon } from 'assets/svg/send_icon.svg'
 import { ButtonLight } from 'components/Button'
 import Column from 'components/Column'
 import Row, { RowBetween } from 'components/Row'
+import AccountInfo from 'components/WalletPopup/AccountInfo'
 import SendToken from 'components/WalletPopup/SendToken'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
@@ -62,11 +63,11 @@ export default function WalletPopup() {
 
   const actionGroup = (
     <RowBetween>
-      <ButtonLight width={'110px'} onClick={() => setView(View.RECEIVE_TOKEN)}>
+      <ButtonLight width={'105px'} padding="10px" onClick={() => setView(View.RECEIVE_TOKEN)}>
         <SendIcon style={{ marginRight: 7, transform: 'rotate(180deg)' }} />
         <Trans>Receive</Trans>
       </ButtonLight>
-      <ButtonLight width={'110px'} onClick={() => setView(View.SEND_TOKEN)}>
+      <ButtonLight width={'105px'} padding="10px" onClick={() => setView(View.SEND_TOKEN)}>
         <SendIcon style={{ marginRight: 7 }} />
         <Trans>Send</Trans>
       </ButtonLight>
@@ -89,20 +90,22 @@ export default function WalletPopup() {
       case View.TRANSACTIONS:
         return (
           <>
+            <AccountInfo />
             {actionGroup}
             {underTab}
             <ListTransaction />
           </>
         )
-      case View.SEND_TOKEN:
-        return <SendToken />
       case View.ASSETS:
         return (
           <>
+            <AccountInfo />
             {actionGroup}
             {underTab}
           </>
         )
+      case View.SEND_TOKEN:
+        return <SendToken />
     }
     return null
   }

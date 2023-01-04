@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/macro'
-import { useWallet } from '@solana/wallet-adapter-react'
 import { useCallback } from 'react'
 import { isMobile } from 'react-device-detect'
 import { FileText, LogOut } from 'react-feather'
@@ -14,16 +13,17 @@ import Wallet from 'components/Icons/Wallet'
 import { AutoRow, RowBetween, RowFit } from 'components/Row'
 import { PROMM_ANALYTICS_URL } from 'constants/index'
 import { SUPPORTED_WALLETS } from 'constants/wallets'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
+import useDisconnectWallet from 'hooks/useDisconnectWallet'
 import useENSName from 'hooks/useENSName'
 import useTheme from 'hooks/useTheme'
 import { AppDispatch } from 'state'
 import { clearAllTransactions } from 'state/transactions/actions'
 import { useSortRecentTransactions } from 'state/transactions/hooks'
 import { TransactionDetails } from 'state/transactions/type'
-import { useIsDarkMode, useIsUserManuallyDisconnect } from 'state/user/hooks'
+import { useIsDarkMode } from 'state/user/hooks'
 import { ButtonText, ExternalLink, LinkStyledButton, TYPE } from 'theme'
-import { getEtherscanLink, isEVMWallet, isSolanaWallet, shortenAddress } from 'utils'
+import { getEtherscanLink, shortenAddress } from 'utils'
 
 import Transaction from './Transaction'
 import TransactionGroup from './TransactionGroup'
@@ -175,9 +175,7 @@ interface AccountDetailsProps {
 }
 
 export default function AccountDetails({ toggleWalletModal, openOptions }: AccountDetailsProps) {
-  const { chainId, account, walletKey, isEVM, isSolana } = useActiveWeb3React()
-  const { connector, deactivate } = useWeb3React()
-  const { disconnect } = useWallet()
+  const { chainId, account, walletKey, isEVM } = useActiveWeb3React()
   const theme = useTheme()
   const dispatch = useDispatch<AppDispatch>()
   const isDarkMode = useIsDarkMode()
@@ -205,26 +203,7 @@ export default function AccountDetails({ toggleWalletModal, openOptions }: Accou
     if (chainId) dispatch(clearAllTransactions({ chainId }))
   }, [dispatch, chainId])
 
-  const [, setIsUserManuallyDisconnect] = useIsUserManuallyDisconnect()
-
-  const handleDisconnect = () => {
-    const wallet = walletKey && SUPPORTED_WALLETS[walletKey]
-    //If wallet support both network, disconnect to both
-    if (wallet && isEVMWallet(wallet) && isSolanaWallet(wallet)) {
-      deactivate()
-      disconnect()
-      return
-    }
-
-    if (isEVM) {
-      deactivate()
-      // @ts-expect-error close can be returned by wallet
-      if (connector && connector.close) connector.close()
-    } else if (isSolana) {
-      disconnect()
-    }
-    setIsUserManuallyDisconnect(true)
-  }
+  const handleDisconnect = useDisconnectWallet()
 
   return (
     <>
