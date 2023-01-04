@@ -7,5 +7,4 @@ export const Z_INDEXS = {
 
   SUGGESTION_PAIR: 2,
   TOOL_TIP_ERROR_INPUT_SWAP_FORM: 1,
-  ICON_CHAT: 2,
 }
