@@ -119,7 +119,7 @@ export enum TRANSACTION_TYPE {
   KYBERDAO_CLAIM = 'KyberDAO Claim',
 
   CANCEL_LIMIT_ORDER = 'Cancel Limit Order',
-  TRANSFER_TOKEN = 'Transfer token',
+  TRANSFER_TOKEN = 'Transfer',
 }
 
 const GROUP_TRANSACTION_BY_TYPE = {

@@ -244,7 +244,8 @@ function TransactionItem({ transaction, style }: { transaction: TransactionDetai
         // to make sure you don't forget set up a new type
         return null // don't show
       default:
-        throw new Error(`Please make sure add config for this transaction => ${type}`)
+        console.error(`Please make sure add config for this transaction => ${type}`)
+        return null
     }
   }
   return (

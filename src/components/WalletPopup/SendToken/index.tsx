@@ -92,6 +92,9 @@ export default function SendToken() {
   const hasError = inputError || recipientError
 
   const { sendToken, isSending, estimateGas } = useSendToken(currencyIn, address ?? '', inputAmount)
+  const hideModalConfirm = () => {
+    setFlowState(TRANSACTION_STATE_DEFAULT)
+  }
 
   const onSendToken = async () => {
     try {
@@ -102,6 +105,9 @@ export default function SendToken() {
         pendingText: t`Sending ${inputAmount} ${currencyIn?.symbol} to ${recipient}`,
       }))
       await sendToken()
+      hideModalConfirm()
+      setInputAmount('')
+      setRecipient('')
     } catch (error) {
       console.error(error)
       setFlowState(state => ({
@@ -126,16 +132,12 @@ export default function SendToken() {
     setShowListToken(false)
   })
 
-  const onDismiss = () => {
-    setFlowState(TRANSACTION_STATE_DEFAULT)
-  }
-
   const confirmationContent = () => {
     return (
       <Flex flexDirection={'column'} width="100%">
         <div>
           {flowState.errorMessage ? (
-            <TransactionErrorContent onDismiss={onDismiss} message={flowState.errorMessage} />
+            <TransactionErrorContent onDismiss={hideModalConfirm} message={flowState.errorMessage} />
           ) : null}
         </div>
       </Flex>
@@ -218,7 +220,7 @@ export default function SendToken() {
       <TransactionConfirmationModal
         hash={flowState.txHash}
         isOpen={flowState.showConfirm}
-        onDismiss={onDismiss}
+        onDismiss={hideModalConfirm}
         attemptingTxn={flowState.attemptingTxn}
         content={confirmationContent}
         pendingText={flowState.pendingText}

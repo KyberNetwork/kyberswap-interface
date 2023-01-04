@@ -14,7 +14,7 @@ const PanelTokenWrapper = styled.div`
   align-items: center;
   background-color: ${({ theme }) => theme.background};
   overflow-y: scroll;
-  max-height: 200px;
+  max-height: 250px;
   min-height: 100px;
   width: 300px;
   right: 10px;

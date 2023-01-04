@@ -50,8 +50,8 @@ const View = {
 }
 export default function WalletPopup() {
   const { account } = useActiveWeb3React()
-  const [isOpen, setIsOpen] = useState(true)
-  const [view, setView] = useState<string>(View.SEND_TOKEN)
+  const [isOpen, setIsOpen] = useState(false)
+  const [view, setView] = useState<string>(View.TRANSACTIONS)
   const theme = useTheme()
   const onDismiss = () => {
     setIsOpen(false)

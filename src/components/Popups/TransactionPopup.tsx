@@ -164,10 +164,10 @@ export const getSummaryTransaction = (transaction: TransactionDetails, step?: nu
   const type = transaction?.type
   const rawSummary = transaction?.summary
   const summary = type
-    ? SUMMARY?.[type][pending ? 'pending' : success ? 'success' : 'failure']?.(
+    ? SUMMARY?.[type]?.[pending ? 'pending' : success ? 'success' : 'failure']?.(
         rawSummary,
         !!(step && type === TRANSACTION_TYPE.SETUP_SOLANA_SWAP),
-      )
+      ) ?? rawSummary
     : rawSummary ?? 'Hash: ' + transaction.hash.slice(0, 8) + '...' + transaction.hash.slice(58, 65)
   return { summary, pending, success }
 }
