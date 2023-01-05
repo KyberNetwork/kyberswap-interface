@@ -476,7 +476,7 @@ export function CurrencySearch({
           listTokenRef={listTokenRef}
           removeImportedToken={removeImportedToken}
           currencies={visibleCurrencies}
-          isImportedTab={isImportedTab}
+          showImported={isImportedTab}
           handleClickFavorite={handleClickFavorite}
           onCurrencySelect={handleCurrencySelect}
           otherCurrency={otherSelectedCurrency}

@@ -11,13 +11,16 @@ import { ButtonLight } from 'components/Button'
 import Column from 'components/Column'
 import Row, { RowBetween } from 'components/Row'
 import AccountInfo from 'components/WalletPopup/AccountInfo'
+import MyAssets from 'components/WalletPopup/MyAssets'
 import SendToken from 'components/WalletPopup/SendToken'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { useTokensHasBalance } from 'state/wallet/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
 import ListTransaction from './ListTransaction'
+import ReceiveToken from './ReceiveToken'
 
 const Wrapper = styled(Column)`
   width: 410px;
@@ -42,7 +45,6 @@ const TabItem = styled.div<{ active: boolean }>`
   cursor: pointer;
   user-select: none;
 `
-
 const View = {
   ASSETS: t`Assets`,
   SEND_TOKEN: t`Send`,
@@ -52,11 +54,14 @@ const View = {
 export default function WalletPopup() {
   const { account } = useActiveWeb3React()
   const [isOpen, setIsOpen] = useState(false)
-  const [view, setView] = useState<string>(View.TRANSACTIONS)
+  const [view, setView] = useState<string>(View.ASSETS)
   const theme = useTheme()
+
   const onDismiss = () => {
     setIsOpen(false)
   }
+
+  const { loading: loadingTokens, currencies, currencyBalances, totalBalanceInUsd } = useTokensHasBalance()
 
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
   if (isMobile || !account) return null
@@ -90,7 +95,7 @@ export default function WalletPopup() {
       case View.TRANSACTIONS:
         return (
           <>
-            <AccountInfo />
+            <AccountInfo totalBalanceInUsd={totalBalanceInUsd} />
             {actionGroup}
             {underTab}
             <ListTransaction />
@@ -99,13 +104,16 @@ export default function WalletPopup() {
       case View.ASSETS:
         return (
           <>
-            <AccountInfo />
+            <AccountInfo totalBalanceInUsd={totalBalanceInUsd} />
             {actionGroup}
             {underTab}
+            <MyAssets loadingTokens={loadingTokens} tokens={currencies} />
           </>
         )
       case View.SEND_TOKEN:
-        return <SendToken />
+        return <SendToken loadingTokens={loadingTokens} currencies={currencies} currencyBalances={currencyBalances} />
+      case View.RECEIVE_TOKEN:
+        return <ReceiveToken />
     }
     return null
   }

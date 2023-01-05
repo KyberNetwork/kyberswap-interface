@@ -2,6 +2,7 @@ import { ChainId, Currency, CurrencyAmount, Token, TokenAmount } from '@kyberswa
 import JSBI from 'jsbi'
 import { useEffect, useMemo, useState } from 'react'
 
+import { useTokenComparator } from 'components/SearchModal/sorting'
 import ERC20_INTERFACE from 'constants/abis/erc20'
 import { EMPTY_ARRAY, EMPTY_OBJECT } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
@@ -9,6 +10,7 @@ import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import { useMulticallContract } from 'hooks/useContract'
 import { useMultipleContractSingleData, useSingleCallResult } from 'state/multicall/hooks'
+import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { isAddress } from 'utils'
 import { isTokenNative } from 'utils/tokenInfo'
 
@@ -157,29 +159,51 @@ export const useTokensHasBalance = () => {
   const { chainId } = useActiveWeb3React()
   const whitelistTokens = useAllTokens()
 
-  const currencies: Currency[] = useMemo(
-    () => [NativeCurrencies[chainId], ...Object.values(whitelistTokens)],
-    [whitelistTokens, chainId],
-  )
-  const currencyBalances = useCurrencyBalances(currencies)
-  const loadBalanceDone = chainId === ChainId.GÖRLI ? currencyBalances.some(el => el) : currencyBalances.every(el => el)
+  const currencies: Currency[] = useMemo(() => Object.values(whitelistTokens), [whitelistTokens])
+  const currencyBalances = useAllTokenBalances()
+  const ethBalance = useETHBalance()
 
-  const [visibleCurrencies, setVisibleCurrencies] = useState<Currency[]>([])
-  const [visibleCurrenciesBalances, setVisibleCurrenciesBalances] = useState<CurrencyAmount<Currency>[]>([])
+  const loadBalanceDone =
+    chainId === ChainId.GÖRLI
+      ? ethBalance && Object.values(currencyBalances).length
+      : Object.values(currencyBalances).length === currencies.length && ethBalance
+
+  const [tokensHasBalance, setTokensHasBalance] = useState<Currency[]>([])
+  const tokensHasBalanceAddresses = useMemo(() => tokensHasBalance.map(e => e.wrapped.address), [tokensHasBalance])
 
   useEffect(() => {
-    if (loadBalanceDone) {
-      const removeIndexes: { [index: string]: boolean } = {}
-      setVisibleCurrencies(
-        currencies.filter((currency, i) => {
-          const value = !currencyBalances[i]?.equalTo(CurrencyAmount.fromRawAmount(currency, '0'))
-          if (!value) removeIndexes[i] = true
-          return value
-        }),
+    if (loadBalanceDone && ethBalance) {
+      // call once per chain
+      const list = currencies.filter(
+        currency => !currencyBalances[currency.wrapped.address]?.equalTo(CurrencyAmount.fromRawAmount(currency, '0')),
       )
-      setVisibleCurrenciesBalances(currencyBalances.filter((_, i) => !removeIndexes[i]))
+      if (!ethBalance.equalTo(CurrencyAmount.fromRawAmount(NativeCurrencies[chainId], '0'))) {
+        list.push(NativeCurrencies[chainId])
+      }
+      setTokensHasBalance(list)
     }
-  }, [loadBalanceDone, currencies, currencyBalances])
+  }, [loadBalanceDone, currencies, currencyBalances, ethBalance, chainId])
 
-  return { loading: !loadBalanceDone, currencies: visibleCurrencies, currencyBalances: visibleCurrenciesBalances }
+  const tokensPrices = useTokenPrices(tokensHasBalanceAddresses)
+
+  const totalBalanceInUsd = useMemo(() => {
+    if (!loadBalanceDone && !tokensHasBalance.length) return null
+    return tokensHasBalance.reduce((total, token) => {
+      const balance = currencyBalances[token.wrapped.address]
+      if (!balance) return total
+      return total + parseFloat(balance.toExact()) * (tokensPrices[balance.currency.wrapped.address] ?? 0)
+    }, 0)
+  }, [tokensPrices, loadBalanceDone, tokensHasBalance, currencyBalances])
+
+  const tokenComparator = useTokenComparator(false)
+  const tokensHasBalanceSorted = useMemo(() => {
+    return (tokensHasBalance as Token[]).sort(tokenComparator)
+  }, [tokenComparator, tokensHasBalance])
+
+  return {
+    loading: !loadBalanceDone,
+    totalBalanceInUsd,
+    currencies: tokensHasBalanceSorted,
+    currencyBalances,
+  }
 }

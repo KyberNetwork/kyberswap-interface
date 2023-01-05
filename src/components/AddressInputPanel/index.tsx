@@ -75,12 +75,12 @@ const DropdownIcon = styled(DropdownSVG)<{ open: boolean }>`
 export const AddressInput = ({
   onChange,
   value,
-  error,
+  error = false,
   placeholder,
   icon,
 }: {
   onChange: (e: ChangeEvent<HTMLInputElement>) => void
-  error: boolean
+  error?: boolean
   value: string | null
   placeholder?: string
   icon?: ReactNode

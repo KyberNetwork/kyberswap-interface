@@ -1,4 +1,4 @@
-import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { memo } from 'react'
 import { Flex, Text } from 'rebass'
@@ -41,7 +41,7 @@ function CurrencyList({
   selectedCurrency?: Currency | null
   onCurrencySelect: (currency: Currency) => void
   currencies: Currency[]
-  currencyBalances: CurrencyAmount<Currency>[]
+  currencyBalances: { [address: string]: TokenAmount | undefined }
   loading: boolean
 }) {
   return (
@@ -62,12 +62,12 @@ function CurrencyList({
           </Text>
         </NotifyWrapper>
       ) : (
-        currencies.map((currency, index) => (
+        currencies.map(currency => (
           <CurrencyRow
             showFavoriteIcon={false}
             currency={currency}
             key={currency.wrapped.address}
-            currencyBalance={currencyBalances[index]}
+            currencyBalance={currencyBalances[currency.wrapped.address] as CurrencyAmount<Currency>}
             isSelected={Boolean(currency && selectedCurrency?.equals(currency))}
             onSelect={onCurrencySelect}
           />

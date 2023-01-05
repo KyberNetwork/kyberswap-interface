@@ -8,6 +8,7 @@ import styled, { css } from 'styled-components'
 import KyberPanelImage from 'assets/images/kyber_panel.png'
 import Column from 'components/Column'
 import CopyHelper from 'components/Copy'
+import Loader from 'components/Loader'
 import MenuFlyout from 'components/MenuFlyout'
 import { PROMM_ANALYTICS_URL } from 'constants/index'
 import { SUPPORTED_WALLETS } from 'constants/wallets'
@@ -16,7 +17,7 @@ import useDisconnectWallet from 'hooks/useDisconnectWallet'
 import useTheme from 'hooks/useTheme'
 import { useIsDarkMode } from 'state/user/hooks'
 import { ExternalLink, ExternalLinkIcon } from 'theme'
-import { getEtherscanLink, shortenAddress } from 'utils'
+import { formatNumberWithPrecisionRange, getEtherscanLink, shortenAddress } from 'utils'
 
 const shareStyleMenuItem = css`
   display: flex;
@@ -77,7 +78,7 @@ const Content = styled.div`
 
 const customStyleMenu = { padding: '10px 0px' }
 
-export default function AccountInfo() {
+export default function AccountInfo({ totalBalanceInUsd }: { totalBalanceInUsd: number | null }) {
   const node = useRef<HTMLDivElement>(null)
   const [isOpen, setIsOpen] = useState(false)
   const toggle = () => setTimeout(() => setIsOpen(!isOpen), 100)
@@ -134,8 +135,12 @@ export default function AccountInfo() {
           <Trans>Current Balance</Trans>
         </Text>
 
-        <Text fontSize={'36px'} fontWeight="500">
-          $--.--
+        <Text fontSize={'36px'} fontWeight="500" style={{ height: 42 }}>
+          {totalBalanceInUsd !== null ? (
+            `$${formatNumberWithPrecisionRange(totalBalanceInUsd, 0, 8)}`
+          ) : (
+            <Loader size="30px" />
+          )}
         </Text>
       </Content>
     </Wrapper>

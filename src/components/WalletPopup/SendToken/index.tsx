@@ -1,4 +1,4 @@
-import { Currency } from '@kyberswap/ks-sdk-core'
+import { Currency, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Clipboard } from 'react-feather'
@@ -11,7 +11,7 @@ import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import { RowBetween } from 'components/Row'
 import Tooltip from 'components/Tooltip'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
-import CurrencyListHasBalance from 'components/WalletPopup/SendToken/CurrencyList'
+import CurrencyListHasBalance from 'components/WalletPopup/SendToken/CurrencyListSelect'
 import useSendToken from 'components/WalletPopup/SendToken/useSendToken'
 import { Z_INDEXS } from 'constants/styles'
 import { NativeCurrencies } from 'constants/tokens'
@@ -20,7 +20,7 @@ import useENS from 'hooks/useENS'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { tryParseAmount } from 'state/swap/hooks'
-import { useCurrencyBalance, useTokensHasBalance } from 'state/wallet/hooks'
+import { useCurrencyBalance } from 'state/wallet/hooks'
 import { TRANSACTION_STATE_DEFAULT, TransactionFlowState } from 'types'
 import { formatNumberWithPrecisionRange } from 'utils'
 import { errorFriendly } from 'utils/dmm'
@@ -45,7 +45,15 @@ const InputWrapper = styled.div`
   flex-direction: column;
 `
 
-export default function SendToken() {
+export default function SendToken({
+  loadingTokens,
+  currencies,
+  currencyBalances,
+}: {
+  loadingTokens: boolean
+  currencies: Currency[]
+  currencyBalances: { [address: string]: TokenAmount | undefined }
+}) {
   const [recipient, setRecipient] = useState('')
   const [currencyIn, setCurrency] = useState<Currency>()
   const [inputAmount, setInputAmount] = useState<string>('')
@@ -56,7 +64,6 @@ export default function SendToken() {
   const theme = useTheme()
   const balance = useCurrencyBalance(currencyIn)
   const maxAmountInput = maxAmountSpend(balance)
-  const { loading: loadingTokens, currencies, currencyBalances } = useTokensHasBalance()
 
   const handleMaxInput = useCallback(() => {
     if (!maxAmountInput) return
