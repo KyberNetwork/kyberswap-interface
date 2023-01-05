@@ -44,6 +44,9 @@ const TabItem = styled.div<{ active: boolean }>`
   padding-bottom: 10px;
   cursor: pointer;
   user-select: none;
+  :hover {
+    color: ${({ theme }) => theme.primary};
+  }
 `
 const View = {
   ASSETS: t`Assets`,

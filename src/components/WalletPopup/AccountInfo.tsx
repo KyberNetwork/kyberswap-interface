@@ -107,7 +107,7 @@ export default function AccountInfo({ totalBalanceInUsd }: { totalBalanceInUsd: 
           </Flex>
 
           <div ref={node} onClick={toggle}>
-            <Settings size={25} />
+            <Settings size={25} cursor="pointer" />
             <MenuFlyout
               node={node}
               isOpen={isOpen}
@@ -117,11 +117,11 @@ export default function AccountInfo({ totalBalanceInUsd }: { totalBalanceInUsd: 
             >
               <Column>
                 <MenuItemLink href={`${PROMM_ANALYTICS_URL[chainId]}/account/${account}`}>
-                  <LogOut size={16} />
+                  <BarChart2 size={16} />
                   <Trans>Analytics ↗</Trans>
                 </MenuItemLink>
                 <MenuItem onClick={disconnectWallet}>
-                  <BarChart2 size={16} />
+                  <LogOut size={16} />
                   <Text>
                     <Trans>Disconnect</Trans>
                   </Text>
