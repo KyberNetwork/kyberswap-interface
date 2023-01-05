@@ -13,6 +13,7 @@ import christmasImg from 'assets/images/christmas-decor2.svg'
 import { ReactComponent as TutorialSvg } from 'assets/svg/play_circle_outline.svg'
 import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import AddressInputPanel from 'components/AddressInputPanel'
+import ApproveMessage from 'components/ApproveMessage'
 import ArrowRotate from 'components/ArrowRotate'
 import Banner from 'components/Banner'
 import { ButtonConfirmed, ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
@@ -113,6 +114,7 @@ const Routing = lazy(() => import('components/swapv2/Routing'))
 const TutorialIcon = styled(TutorialSvg)`
   width: 22px;
   height: 22px;
+
   path {
     fill: ${({ theme }) => theme.subText};
     stroke: ${({ theme }) => theme.subText};
@@ -175,6 +177,7 @@ const RoutingIconWrapper = styled(RoutingIcon)`
   height: 27px;
   width: 27px;
   margin-right: 10px;
+
   path {
     fill: ${({ theme }) => theme.subText} !important;
   }
@@ -519,7 +522,7 @@ export default function Swap() {
   const onSelectSuggestedPair = useCallback(
     (fromToken: Currency | undefined, toToken: Currency | undefined, amount?: string) => {
       if (isLimitPage) {
-        onSelectPairLimit(fromToken, toToken)
+        onSelectPairLimit(fromToken, toToken, amount)
         return
       }
       if (fromToken) onCurrencySelection(Field.INPUT, fromToken)
@@ -922,6 +925,9 @@ export default function Swap() {
                         </Trans>
                       </PriceImpactHigh>
                     )}
+
+                    <ApproveMessage routerAddress={trade?.routerAddress} />
+
                     <BottomGrouping>
                       {!account ? (
                         <ButtonLight onClick={toggleWalletModal}>

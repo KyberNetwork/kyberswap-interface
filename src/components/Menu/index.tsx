@@ -37,7 +37,7 @@ import Toggle from 'components/Toggle'
 import ThemeToggle from 'components/Toggle/ThemeToggle'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { TAG } from 'constants/env'
-import { AGGREGATOR_ANALYTICS_URL, APP_PATHS, DMM_ANALYTICS_URL } from 'constants/index'
+import { AGGREGATOR_ANALYTICS_URL, APP_PATHS, DMM_ANALYTICS_URL, TERM_FILES_PATH } from 'constants/index'
 import { getLocaleLabel } from 'constants/locales'
 import { FAUCET_NETWORKS } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
@@ -235,7 +235,7 @@ export default function Menu() {
   }
   const under1440 = useMedia('(max-width: 1440px)')
   const above1321 = useMedia('(min-width: 1321px)')
-  const under1200 = useMedia('(max-width: 1200px)')
+  const under1040 = useMedia('(max-width: 1040px)')
 
   const bridgeLink = networkInfo.bridgeURL
   const toggleClaimPopup = useToggleModal(ApplicationModal.CLAIM_POPUP)
@@ -330,7 +330,7 @@ export default function Menu() {
                 <Trans>Referral</Trans>
               </NavLink>
             </MenuItem>
-            {under1200 && (
+            {under1040 && (
               <MenuItem>
                 <NavDropDown
                   icon={<Info />}
@@ -392,7 +392,7 @@ export default function Menu() {
             )}
 
             <MenuItem>
-              <ExternalLink href="/15022022KyberSwapTermsofUse.pdf">
+              <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS}>
                 <FileText />
                 <Trans>Terms</Trans>
               </ExternalLink>
