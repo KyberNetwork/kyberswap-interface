@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useRef, useState } from 'react'
@@ -116,10 +117,12 @@ export default function AccountInfo({ totalBalanceInUsd }: { totalBalanceInUsd: 
               mobileCustomStyle={customStyleMenu}
             >
               <Column>
-                <MenuItemLink href={`${PROMM_ANALYTICS_URL[chainId]}/account/${account}`}>
-                  <BarChart2 size={16} />
-                  <Trans>Analytics ↗</Trans>
-                </MenuItemLink>
+                {chainId !== ChainId.ETHW && chainId !== ChainId.SOLANA && (
+                  <MenuItemLink href={`${PROMM_ANALYTICS_URL[chainId]}/account/${account}`}>
+                    <BarChart2 size={16} />
+                    <Trans>Analytics ↗</Trans>
+                  </MenuItemLink>
+                )}
                 <MenuItem onClick={disconnectWallet}>
                   <LogOut size={16} />
                   <Text>
