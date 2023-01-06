@@ -190,10 +190,12 @@ export const useTokensHasBalance = () => {
     if (!loadBalanceDone && !tokensHasBalance.length) return null
     return tokensHasBalance.reduce((total, token) => {
       const balance = currencyBalances[token.wrapped.address]
-      if (!balance) return total
-      return total + parseFloat(balance.toExact()) * (tokensPrices[balance.currency.wrapped.address] ?? 0)
+      if (!balance || !ethBalance) return total
+      const usdPrice = tokensPrices[balance.currency.wrapped.address] ?? 0
+      const tokenBalance = token.isNative ? ethBalance?.toExact() : balance.toExact()
+      return total + parseFloat(tokenBalance) * usdPrice
     }, 0)
-  }, [tokensPrices, loadBalanceDone, tokensHasBalance, currencyBalances])
+  }, [tokensPrices, loadBalanceDone, tokensHasBalance, currencyBalances, ethBalance])
 
   const tokenComparator = useTokenComparator(false)
   const tokensHasBalanceSorted = useMemo(() => {
