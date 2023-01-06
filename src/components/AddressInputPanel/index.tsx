@@ -1,7 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { ChangeEvent, ReactNode, useCallback } from 'react'
 import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
+import styled, { CSSProperties } from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { AutoColumn } from 'components/Column'
@@ -78,18 +78,24 @@ export const AddressInput = ({
   error = false,
   placeholder,
   icon,
+  disabled = false,
+  style = {},
 }: {
-  onChange: (e: ChangeEvent<HTMLInputElement>) => void
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void
   error?: boolean
   value: string | null
   placeholder?: string
   icon?: ReactNode
+  disabled?: boolean
+  style?: CSSProperties
 }) => {
   return (
     <ContainerRow error={error}>
       <InputContainer>
         <Row gap="5px">
           <Input
+            style={style}
+            disabled={disabled}
             className="recipient-address-input"
             type="text"
             autoComplete="off"

@@ -160,6 +160,7 @@ export default function SendToken({
 
         <div>
           <AddressInput
+            style={{ color: theme.subText }}
             error={!!recipientError}
             onChange={e => setRecipient(e.target.value)}
             value={recipient}

@@ -161,7 +161,7 @@ export const useTokensHasBalance = () => {
 
   const currencies: Currency[] = useMemo(() => Object.values(whitelistTokens), [whitelistTokens])
   const currencyBalances = useAllTokenBalances()
-  const ethBalance = useETHBalance()
+  const ethBalance = useNativeBalance()
 
   const loadBalanceDone =
     chainId === ChainId.GÖRLI
