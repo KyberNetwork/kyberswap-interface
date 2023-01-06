@@ -192,7 +192,7 @@ export const useTokensHasBalance = () => {
       const balance = currencyBalances[token.wrapped.address]
       if (!balance || !ethBalance) return total
       const usdPrice = tokensPrices[balance.currency.wrapped.address] ?? 0
-      const tokenBalance = token.isNative ? ethBalance?.toExact() : balance.toExact()
+      const tokenBalance = token.isNative ? ethBalance.toExact() : balance.toExact()
       return total + parseFloat(tokenBalance) * usdPrice
     }, 0)
   }, [tokensPrices, loadBalanceDone, tokensHasBalance, currencyBalances, ethBalance])

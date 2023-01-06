@@ -6,6 +6,7 @@ import styled from 'styled-components'
 
 import Loader from 'components/Loader'
 import { CurrencyRow } from 'components/SearchModal/CurrencyList'
+import { useNativeBalance } from 'state/wallet/hooks'
 
 const PanelTokenWrapper = styled.div`
   position: absolute;
@@ -44,6 +45,7 @@ function CurrencyList({
   currencyBalances: { [address: string]: TokenAmount | undefined }
   loading: boolean
 }) {
+  const ethBalance = useNativeBalance()
   return (
     <PanelTokenWrapper>
       {loading ? (
@@ -62,16 +64,19 @@ function CurrencyList({
           </Text>
         </NotifyWrapper>
       ) : (
-        currencies.map(currency => (
-          <CurrencyRow
-            showFavoriteIcon={false}
-            currency={currency}
-            key={currency.wrapped.address}
-            currencyBalance={currencyBalances[currency.wrapped.address] as CurrencyAmount<Currency>}
-            isSelected={Boolean(currency && selectedCurrency?.equals(currency))}
-            onSelect={onCurrencySelect}
-          />
-        ))
+        currencies.map(currency => {
+          const balance = currency.isNative ? ethBalance : currencyBalances[currency.wrapped.address]
+          return (
+            <CurrencyRow
+              showFavoriteIcon={false}
+              currency={currency}
+              key={currency.wrapped.address}
+              currencyBalance={balance as CurrencyAmount<Currency>}
+              isSelected={Boolean(currency && selectedCurrency?.equals(currency))}
+              onSelect={onCurrencySelect}
+            />
+          )
+        })
       )}
     </PanelTokenWrapper>
   )
