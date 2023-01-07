@@ -77,8 +77,6 @@ interface CurrencySearchProps {
   onCurrencySelect: (currency: Currency) => void
   otherSelectedCurrency?: Currency | null
   showCommonBases?: boolean
-  showManageView: () => void
-  showImportView: () => void
   setImportToken: (token: Token) => void
   customChainId?: ChainId
   filterWrap?: boolean
@@ -133,7 +131,6 @@ export function CurrencySearch({
   showCommonBases,
   onDismiss,
   isOpen,
-  showImportView,
   setImportToken,
   customChainId,
   filterWrap = false,
@@ -418,7 +415,6 @@ export function CurrencySearch({
 
         {showCommonBases && (
           <CommonBases
-            chainId={chainId}
             tokens={filteredCommonTokens}
             handleToggleFavorite={handleClickFavorite}
             onSelect={handleCurrencySelect}
@@ -481,7 +477,6 @@ export function CurrencySearch({
           onCurrencySelect={handleCurrencySelect}
           otherCurrency={otherSelectedCurrency}
           selectedCurrency={selectedCurrency}
-          showImportView={showImportView}
           setImportToken={setImportToken}
           loadMoreRows={fetchListTokens}
           hasMore={hasMoreToken}

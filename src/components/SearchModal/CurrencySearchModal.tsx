@@ -21,9 +21,7 @@ interface CurrencySearchModalProps {
 
 export enum CurrencyModalView {
   search,
-  manage,
   importToken,
-  importList,
 }
 
 export default function CurrencySearchModal({
@@ -35,7 +33,7 @@ export default function CurrencySearchModal({
   showCommonBases = false,
   filterWrap,
 }: CurrencySearchModalProps) {
-  const [modalView, setModalView] = useState<CurrencyModalView>(CurrencyModalView.manage)
+  const [modalView, setModalView] = useState<CurrencyModalView>(CurrencyModalView.search)
   const lastOpen = useLast(isOpen)
 
   useEffect(() => {
@@ -59,11 +57,15 @@ export default function CurrencySearchModal({
   const [importToken, setImportToken] = useState<Token | undefined>()
 
   // change min height if not searching
-  const minHeight = modalView === CurrencyModalView.importToken || modalView === CurrencyModalView.importList ? 40 : 80
+  const minHeight = modalView === CurrencyModalView.importToken ? 40 : 80
 
-  const showImportView = useCallback(() => setModalView(CurrencyModalView.importToken), [])
-  const showManageView = useCallback(() => setModalView(CurrencyModalView.manage), [])
   const isMobileHorizontal = Math.abs(window.orientation) === 90 && isMobile
+
+  const onImportToken = useCallback((token: Token) => {
+    setImportToken(token)
+    setModalView(CurrencyModalView.importToken)
+  }, [])
+
   return (
     <Modal
       isOpen={isOpen}
@@ -81,9 +83,7 @@ export default function CurrencySearchModal({
           selectedCurrency={selectedCurrency}
           otherSelectedCurrency={otherSelectedCurrency}
           showCommonBases={showCommonBases}
-          showImportView={showImportView}
-          setImportToken={setImportToken}
-          showManageView={showManageView}
+          setImportToken={onImportToken}
           filterWrap={filterWrap}
         />
       ) : modalView === CurrencyModalView.importToken && importToken ? (
