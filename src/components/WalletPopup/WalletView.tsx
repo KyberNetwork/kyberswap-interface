@@ -17,8 +17,8 @@ import { Z_INDEXS } from 'constants/styles'
 import useTheme from 'hooks/useTheme'
 import { useTokensHasBalance } from 'state/wallet/hooks'
 
-import ListTransaction from './ListTransaction'
 import ReceiveToken from './ReceiveToken'
+import ListTransaction from './Transactions'
 
 type WrapperProps = { $pinned: boolean }
 const Wrapper = styled(Column).attrs<WrapperProps>(props => ({
@@ -59,7 +59,7 @@ const View = {
 
 type Props = {
   onDismiss: () => void
-  onPin: () => void
+  onPin?: () => void
   isPinned: boolean
 }
 
@@ -140,7 +140,7 @@ export default function WalletView({ onDismiss, onPin, isPinned }: Props) {
           </Text>
         )}
         <Flex style={{ gap: 20 }} alignItems="center">
-          {!isPinned && <PinButton isActive={false} onClick={onPin} />}
+          {!isPinned && onPin && <PinButton isActive={false} onClick={onPin} />}
           <X onClick={onDismiss} color={theme.subText} cursor="pointer" />
         </Flex>
       </RowBetween>

@@ -59,7 +59,7 @@ const lisTab = [
   { text: t`Others`, value: TRANSACTION_GROUP.OTHER },
 ]
 export default function ListTransaction() {
-  const transactions = useSortRecentTransactions(false, true) // todo danh firebase , check nhiều có crash ???
+  const transactions = useSortRecentTransactions(false, true) // todo danh check nhiều có crash ???
   const { chainId } = useActiveWeb3React()
   const [activeTab, setActiveTab] = useState<TRANSACTION_GROUP | string>('')
   const theme = useTheme()

@@ -13,10 +13,10 @@ import styled from 'styled-components'
 import { ReactComponent as Close } from 'assets/images/x.svg'
 import { AutoColumn } from 'components/Column'
 import ExpandableBox from 'components/ExpandableBox'
-import AccountDetails from 'components/Header/web3/AccountDetails'
 import WarningIcon from 'components/Icons/WarningIcon'
 import Modal from 'components/Modal'
 import Row, { AutoRow, RowFixed } from 'components/Row'
+import WalletPopup from 'components/WalletPopup'
 import { APP_PATHS, TERM_FILES_PATH } from 'constants/index'
 import { SUPPORTED_WALLET, SUPPORTED_WALLETS, WalletInfo } from 'constants/wallets'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -284,6 +284,9 @@ export default function WalletModal() {
     )
   }
 
+  const showAccount = account && walletView === WALLET_VIEWS.ACCOUNT
+  const [isPinnedPopupWallet, setPinnedPopupWallet] = useState(false)
+
   function getModalContent() {
     if (error) {
       return (
@@ -300,12 +303,10 @@ export default function WalletModal() {
         </UpperSection>
       )
     }
-    if (account && walletView === WALLET_VIEWS.ACCOUNT) {
+
+    if (showAccount) {
       return (
-        <AccountDetails
-          toggleWalletModal={toggleWalletModal}
-          openOptions={() => setWalletView(WALLET_VIEWS.CHANGE_WALLET)}
-        />
+        <WalletPopup isPinned={isPinnedPopupWallet} setPinned={setPinnedPopupWallet} onDismiss={toggleWalletModal} />
       )
     }
 
@@ -439,6 +440,9 @@ export default function WalletModal() {
     )
   }
 
+  if (isPinnedPopupWallet && showAccount) {
+    return getModalContent()
+  }
   return (
     <Modal isOpen={walletModalOpen} onDismiss={toggleWalletModal} minHeight={false} maxHeight={90} maxWidth={600}>
       <Wrapper>{getModalContent()}</Wrapper>

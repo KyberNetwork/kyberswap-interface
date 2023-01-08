@@ -40,7 +40,7 @@ export type TransactionExtraInfo = TransactionExtraInfo1Token | TransactionExtra
 
 export interface TransactionDetails {
   hash: string
-  type?: TRANSACTION_TYPE
+  type: TRANSACTION_TYPE
   receipt?: SerializableTransactionReceipt
   lastCheckedBlockNumber?: number
   addedTime: number
@@ -80,8 +80,8 @@ export type TransactionPayload = TransactionHistory & {
 /**
  * when you put a new type, let's do:
  * 1. classify it by putting it into GROUP_TRANSACTION_BY_TYPE
- * 2. update function render summary for it (=> this variable SUMMARY)
- * 3. add a case in renderDescription function in TransactionItem.tsx to render transaction detail by type
+ * 2. add a case in SUMMARY in TransactionPopup.tsx to render notification detail by type
+ * 3. add a case in RENDER_DESCRIPTION_MAP in TransactionItem.tsx to render transaction detail by type
  * if you forgot. typescript error will occur.
  */
 export enum TRANSACTION_TYPE {

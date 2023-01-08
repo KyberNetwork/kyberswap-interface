@@ -26,9 +26,9 @@ const RowNoFlex = styled(AutoRow)`
   flex-wrap: nowrap;
 `
 
-type Summary = (summary: TransactionDetails, isShort?: boolean) => string
+type SummaryFunction = (summary: TransactionDetails) => { success: string; error: string } | string
 
-const summaryBase = (txs: TransactionDetails) => {
+const summaryBasic = (txs: TransactionDetails) => {
   const { summary = '' } = (txs.extraInfo || {}) as TransactionExtraBaseInfo
   return `${txs.type} ${summary}`
 }
@@ -39,12 +39,14 @@ const summary1Token = (txs: TransactionDetails) => {
   return `${txs.type} ${tokenAmount} ${tokenSymbol}`
 }
 
+// ex: swap 2knc to 3eth
 const summary2Token = (txs: TransactionDetails, withType = true) => {
   const { tokenAmountIn, tokenSymbolIn, tokenAmountOut, tokenSymbolOut } = (txs.extraInfo ||
     {}) as TransactionExtraInfo2Token
   return `${withType ? txs.type : ''} ${tokenAmountIn} ${tokenSymbolIn} to ${tokenAmountOut} ${tokenSymbolOut}`
 }
 
+// ex: approve knc, approve elastic farm
 const summaryApproveOrClaim = (txs: TransactionDetails) => {
   const { tokenSymbol } = (txs.extraInfo || {}) as TransactionExtraInfo1Token
   const { summary } = (txs.extraInfo || {}) as TransactionExtraBaseInfo
@@ -71,29 +73,33 @@ const summaryBridge = (txs: TransactionDetails) => {
     chainIdIn = ChainId.MAINNET,
     chainIdOut = ChainId.MAINNET,
   } = (txs.extraInfo || {}) as TransactionExtraInfo2Token
-  const summary = `${tokenAmountIn} ${tokenSymbolIn} (${NETWORKS_INFO[chainIdIn].name}}) to ${tokenAmountOut} ${tokenSymbolOut} (${NETWORKS_INFO[chainIdOut].name}})`
-  return `Your bridge transaction from ${summary} is being processed.`
+  const summary = `Your bridge transaction from ${tokenAmountIn} ${tokenSymbolIn} (${NETWORKS_INFO[chainIdIn].name}}) to ${tokenAmountOut} ${tokenSymbolOut} (${NETWORKS_INFO[chainIdOut].name}})`
+  return { success: `${summary} is being processed`, error: `${summary} failed` }
 }
 
 const summaryDelegateDao = (txs: TransactionDetails) => {
   const { contract = '' } = (txs.extraInfo || {}) as TransactionExtraBaseInfo
-  return txs.type === TRANSACTION_TYPE.KYBERDAO_UNDELEGATE
-    ? t`You have successfully undelegated your voting power`
-    : t`You have successfully delegated voting power to ${contract.slice(0, 6)}...${contract.slice(-4)}`
+  const summary =
+    txs.type === TRANSACTION_TYPE.KYBERDAO_UNDELEGATE
+      ? t`undelegated your voting power`
+      : t`delegated voting power to ${contract.slice(0, 6)}...${contract.slice(-4)}`
+
+  return { success: t`You have successfully ${summary}`, error: t`Error ${summary}` }
 }
 
 const summaryCancelLimitOrder = (txs: TransactionDetails) => {
   const { tokenAmountIn, tokenAmountOut, tokenSymbolIn, tokenSymbolOut } = (txs.extraInfo ||
     {}) as TransactionExtraInfo2Token
   const summary = txs.extraInfo
-    ? t`Order ${tokenAmountIn} ${tokenSymbolIn} to ${tokenAmountOut} ${tokenSymbolOut}`
+    ? t`order ${tokenAmountIn} ${tokenSymbolIn} to ${tokenAmountOut} ${tokenSymbolOut}`
     : t`all orders`
-  return `Your cancellation ${summary} has been submitted`
+  return { success: `Your cancellation ${summary} has been submitted`, error: `Error cancel ${summary}` }
 }
 
 const summaryTypeOnly = (txs: TransactionDetails) => `${txs.type}`
 
-const SUMMARY: { [type in TRANSACTION_TYPE]: Summary } = {
+// to render summary in notify transaction
+const SUMMARY: { [type in TRANSACTION_TYPE]: SummaryFunction } = {
   [TRANSACTION_TYPE.WRAP_TOKEN]: summary2Token,
   [TRANSACTION_TYPE.UNWRAP_TOKEN]: summary2Token,
   [TRANSACTION_TYPE.APPROVE]: summaryApproveOrClaim,
@@ -110,20 +116,19 @@ const SUMMARY: { [type in TRANSACTION_TYPE]: Summary } = {
   [TRANSACTION_TYPE.INCREASE_LIQUIDITY]: summaryLiquidity,
   [TRANSACTION_TYPE.COLLECT_FEE]: summaryLiquidity,
 
-  [TRANSACTION_TYPE.STAKE]: summaryBase,
-  [TRANSACTION_TYPE.UNSTAKE]: summaryBase,
+  [TRANSACTION_TYPE.STAKE]: summaryBasic,
+  [TRANSACTION_TYPE.UNSTAKE]: summaryBasic,
   [TRANSACTION_TYPE.HARVEST]: () => 'Harvested rewards',
   [TRANSACTION_TYPE.CLAIM_REWARD]: summaryApproveOrClaim,
-  [TRANSACTION_TYPE.DEPOSIT]: summaryBase,
-  [TRANSACTION_TYPE.WITHDRAW]: summaryBase,
+  [TRANSACTION_TYPE.DEPOSIT]: summaryBasic,
+  [TRANSACTION_TYPE.WITHDRAW]: summaryBasic,
 
   [TRANSACTION_TYPE.FORCE_WITHDRAW]: summaryTypeOnly,
-  [TRANSACTION_TYPE.SETUP_SOLANA_SWAP]: (txs, isShort) =>
-    isShort ? summaryTypeOnly(txs) : 'Setting up some stuff to ' + summary2Token(txs, false),
+  [TRANSACTION_TYPE.SETUP_SOLANA_SWAP]: summaryTypeOnly,
   [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER]: summaryCancelLimitOrder,
   [TRANSACTION_TYPE.TRANSFER_TOKEN]: summary1Token,
 
-  [TRANSACTION_TYPE.KYBERDAO_CLAIM]: summaryBase,
+  [TRANSACTION_TYPE.KYBERDAO_CLAIM]: summaryBasic,
   [TRANSACTION_TYPE.KYBERDAO_UNDELEGATE]: summaryDelegateDao,
   [TRANSACTION_TYPE.KYBERDAO_MIGRATE]: summary2Token,
   [TRANSACTION_TYPE.KYBERDAO_STAKE]: summary1Token,
@@ -133,11 +138,11 @@ const SUMMARY: { [type in TRANSACTION_TYPE]: Summary } = {
 }
 
 const MAP_STATUS: { [key in string]: string } = {
-  [TRANSACTION_TYPE.BRIDGE]: '- Processing',
+  [TRANSACTION_TYPE.BRIDGE]: 'Processing',
   [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER]: 'Submitted',
 }
 
-const getTitleAlert = (type: string, success: boolean) => {
+const getTitle = (type: string, success: boolean) => {
   const statusText = success ? 'Success' : 'Error'
   if (success && MAP_STATUS[type]) {
     // custom
@@ -146,10 +151,7 @@ const getTitleAlert = (type: string, success: boolean) => {
   return `${type} - ${statusText}!`
 }
 
-export const getSummaryTransaction = (transaction: TransactionDetails) => {
-  // todo check group thì show 1 cái thôi: wallet popup
-  // todo check success error:  title alert, desc alert, titlet transaction/transaction group
-
+const getSummary = (transaction: TransactionDetails) => {
   const pending = !transaction?.receipt
   const success =
     !pending && transaction && (transaction.receipt?.status === 1 || typeof transaction.receipt?.status === 'undefined')
@@ -157,11 +159,18 @@ export const getSummaryTransaction = (transaction: TransactionDetails) => {
 
   const shortHash = 'Hash: ' + transaction.hash.slice(0, 8) + '...' + transaction.hash.slice(58, 65)
 
-  const summary = transaction.group && type ? SUMMARY[type]?.(transaction) ?? shortHash : shortHash
+  const summary = transaction.group ? SUMMARY[type]?.(transaction) ?? shortHash : shortHash
 
-  const title = type ? getTitleAlert(type, success) : shortHash
+  let formatSummary
+  if (summary === shortHash) {
+    formatSummary = summary
+  } else if (typeof summary === 'string') {
+    formatSummary = success ? summary : `Error ${summary}`
+  } else {
+    formatSummary = success ? summary.success : summary.error
+  }
 
-  return { pending, success, title, summary }
+  return { title: getTitle(type, success), summary: formatSummary }
 }
 
 export default function TransactionPopup({ hash, notiType }: { hash: string; notiType: NotificationType }) {
@@ -172,7 +181,7 @@ export default function TransactionPopup({ hash, notiType }: { hash: string; not
   const transactions = useAllTransactions()
   const transaction = findTx(transactions, hash)
   if (!transaction) return null
-  const { title, summary } = getSummaryTransaction(transaction)
+  const { title, summary } = getSummary(transaction)
   return (
     <Box>
       <RowNoFlex>
