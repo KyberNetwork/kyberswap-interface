@@ -2,15 +2,12 @@ import { createAction } from '@reduxjs/toolkit'
 import { ReactNode } from 'react'
 
 import { Topic } from 'hooks/useNotification'
-import { TRANSACTION_TYPE } from 'state/transactions/type'
 
 import { NotificationType } from './hooks'
 
 export type PopupContentTxn = {
   hash: string
   notiType: NotificationType
-  type?: TRANSACTION_TYPE
-  summary?: string
 }
 
 export type PopupContentSimple = {

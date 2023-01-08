@@ -1,12 +1,10 @@
-import { Log } from '@ethersproject/abstract-provider'
 import { BigNumber } from '@ethersproject/bignumber'
-import { ParsedTransactionMeta, ParsedTransactionWithMeta } from '@solana/web3.js'
-import { ethers } from 'ethers'
+import { ParsedTransactionWithMeta } from '@solana/web3.js'
 import { findReplacementTx } from 'find-replacement-tx'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { AGGREGATOR_ROUTER_SWAPPED_EVENT_TOPIC, APP_PATHS } from 'constants/index'
+import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE, NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES } from 'hooks/useMixpanel'
 import { NotificationType, useBlockNumber, useTransactionNotify } from 'state/application/hooks'
@@ -14,7 +12,6 @@ import { useSetClaimingCampaignRewardId } from 'state/campaigns/hooks'
 import connection from 'state/connection/connection'
 import { AppDispatch, AppState } from 'state/index'
 import { findTx } from 'utils'
-import { getFullDisplayBalance } from 'utils/formatBalance'
 
 import { checkedTransaction, finalizeTransaction, removeTx, replaceTx } from './actions'
 import { SerializableTransactionReceipt, TRANSACTION_TYPE, TransactionDetails } from './type'
@@ -41,59 +38,6 @@ function shouldCheck(
   }
 }
 
-const parseEVMTransactionSummary = ({
-  tx,
-  logs,
-}: {
-  tx: TransactionDetails | undefined
-  logs?: Log[]
-}): string | undefined => {
-  let log = undefined
-  if (!logs) return tx?.summary
-
-  for (let i = 0; i < logs.length; i++) {
-    if (logs[i].topics.includes(AGGREGATOR_ROUTER_SWAPPED_EVENT_TOPIC)) {
-      log = logs[i]
-      break
-    }
-  }
-
-  // No event log includes Swapped event topic
-  if (!log) return tx?.summary
-
-  // Parse summary message for Swapped event
-  const tracking = tx?.extraInfo?.tracking
-  if (!tx || !tracking) return tx?.summary
-
-  const { inputSymbol, outputSymbol, inputDecimals, outputDecimals, withRecipient } = tracking || {}
-
-  if (!inputSymbol || !outputSymbol || !inputDecimals || !outputDecimals) {
-    return tx?.summary
-  }
-
-  const decodedValues = ethers.utils.defaultAbiCoder.decode(
-    ['address', 'address', 'address', 'address', 'uint256', 'uint256'],
-    log.data,
-  )
-
-  const inputAmount = getFullDisplayBalance(BigNumber.from(decodedValues[4].toString()), inputDecimals)
-  const outputAmount = getFullDisplayBalance(BigNumber.from(decodedValues[5].toString()), outputDecimals)
-
-  const base = `${inputAmount} ${inputSymbol} for ${outputAmount} ${outputSymbol}`
-
-  return `${base} ${withRecipient ?? ''}`
-}
-
-const parseSolanaTransactionSummary = ({
-  tx,
-  meta,
-}: {
-  tx: TransactionDetails | null
-  meta?: ParsedTransactionMeta | null
-}): string | undefined => {
-  return tx?.summary // todo: many edge case not handle yet. handle them and delete this line
-}
-
 export default function Updater(): null {
   const { chainId, isEVM, isSolana } = useActiveWeb3React()
   const { library } = useWeb3React()
@@ -105,13 +49,6 @@ export default function Updater(): null {
   const transactions = useMemo(() => (chainId ? state[chainId] ?? {} : {}), [chainId, state])
 
   // show popup on confirm
-
-  const parseTransactionType = useCallback(
-    (hash: string): TRANSACTION_TYPE | undefined => {
-      return findTx(transactions, hash)?.type
-    },
-    [transactions],
-  )
 
   const { mixpanelHandler, subgraphMixpanelHandler } = useMixpanel()
   const transactionNotify = useTransactionNotify()
@@ -193,8 +130,6 @@ export default function Updater(): null {
                 transactionNotify({
                   hash: receipt.transactionHash,
                   notiType: receipt.status === 1 ? NotificationType.SUCCESS : NotificationType.ERROR,
-                  type: parseTransactionType(hash),
-                  summary: parseEVMTransactionSummary({ tx: transaction, logs: receipt.logs }),
                 })
                 if (receipt.status === 1 && transaction) {
                   const tracking = transaction.extraInfo?.tracking
@@ -283,8 +218,6 @@ export default function Updater(): null {
                 transactionNotify({
                   hash,
                   notiType: tx.meta?.err ? NotificationType.ERROR : NotificationType.SUCCESS,
-                  type: parseTransactionType(hash),
-                  summary: parseSolanaTransactionSummary({ tx: transaction, meta: tx.meta }),
                 })
                 if (!tx.meta?.err && transaction) {
                   const tracking = transaction.extraInfo?.tracking
@@ -325,7 +258,7 @@ export default function Updater(): null {
       })
 
     // eslint-disable-next-line
-  }, [chainId, library, transactions, lastBlockNumber, dispatch, parseEVMTransactionSummary, parseTransactionType])
+  }, [chainId, library, transactions, lastBlockNumber, dispatch])
 
   return null
 }

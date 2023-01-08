@@ -84,8 +84,8 @@ export function useIsTransactionPending(transactionHash?: string): boolean {
   return !tx.receipt
 }
 
-export function isOwnTransactionGroup(txs: TransactionDetails[], account: string | undefined): boolean {
-  return !!account && txs[0]?.from === account
+function isOwnTransactionGroup(txs: TransactionDetails[], account: string | undefined): boolean {
+  return !!account && txs[0]?.from === account && !!txs[0]?.group
 }
 
 /**

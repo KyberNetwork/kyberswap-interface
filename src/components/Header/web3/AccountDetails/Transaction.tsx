@@ -40,7 +40,7 @@ const IconWrapper = styled.div<{ pending: boolean; success?: boolean }>`
 
 export default function Transaction({ transaction, step }: { transaction: TransactionDetails; step?: number }) {
   const { chainId } = useActiveWeb3React()
-  const { summary, pending, success } = getSummaryTransaction(transaction, step)
+  const { summary, pending, success } = getSummaryTransaction(transaction)
 
   return (
     <TransactionWrapper>
