@@ -1,162 +1,99 @@
-import { Trans, t } from '@lingui/macro'
-import { useState } from 'react'
-import { ChevronLeft, FileText, StopCircle, X } from 'react-feather'
+import { useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
+import Draggable from 'react-draggable'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
-import { ReactComponent as PinIcon } from 'assets/svg/pin_icon.svg'
-import { ReactComponent as SendIcon } from 'assets/svg/send_icon.svg'
-import { ButtonLight } from 'components/Button'
-import Column from 'components/Column'
-import Row, { RowBetween } from 'components/Row'
-import AccountInfo from 'components/WalletPopup/AccountInfo'
-import MyAssets from 'components/WalletPopup/MyAssets'
-import SendToken from 'components/WalletPopup/SendToken'
-import { Z_INDEXS } from 'constants/styles'
+import Modal from 'components/Modal'
+import { HANDLE_CLASS_NAME } from 'components/WalletPopup/DragHandle'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
-import { useTokensHasBalance } from 'state/wallet/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
-import ListTransaction from './ListTransaction'
-import ReceiveToken from './ReceiveToken'
+import WalletView from './WalletView'
 
-const Wrapper = styled(Column)`
-  width: 410px;
-  height: 680px;
-  padding: 20px;
-  gap: 14px;
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  border-radius: 20px 0px 0px 0px;
-  background-color: ${({ theme }) => theme.tabActive};
-  z-index: ${Z_INDEXS.WALLET_POPUP};
-`
-
-const TabItem = styled.div<{ active: boolean }>`
-  color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-weight: 500;
-  padding-bottom: 10px;
-  cursor: pointer;
-  user-select: none;
-  :hover {
-    color: ${({ theme }) => theme.primary};
-  }
-`
-const View = {
-  ASSETS: t`Assets`,
-  SEND_TOKEN: t`Send`,
-  RECEIVE_TOKEN: t`Receive`,
-  TRANSACTIONS: t`Transactions`,
-}
-export default function WalletPopup() {
-  const { account } = useActiveWeb3React()
-  const [isOpen, setIsOpen] = useState(false)
-  const [view, setView] = useState<string>(View.ASSETS)
-  const theme = useTheme()
-
-  const onDismiss = () => {
-    setIsOpen(false)
-  }
-
-  const { loading: loadingTokens, currencies, currencyBalances, totalBalanceInUsd } = useTokensHasBalance()
-
-  const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
-  if (isMobile || !account) return null
-
-  const actionGroup = (
-    <RowBetween>
-      <ButtonLight width={'105px'} padding="10px" onClick={() => setView(View.RECEIVE_TOKEN)}>
-        <SendIcon style={{ marginRight: 7, transform: 'rotate(180deg)' }} />
-        <Trans>Receive</Trans>
-      </ButtonLight>
-      <ButtonLight width={'105px'} padding="10px" onClick={() => setView(View.SEND_TOKEN)}>
-        <SendIcon style={{ marginRight: 7 }} />
-        <Trans>Send</Trans>
-      </ButtonLight>
-    </RowBetween>
-  )
-
-  const underTab = (
-    <Row gap="20px" style={{ borderBottom: `1px solid ${theme.border}` }}>
-      <TabItem active={view === View.ASSETS} onClick={() => setView(View.ASSETS)}>
-        <StopCircle size={16} /> <Trans>Assets</Trans>
-      </TabItem>
-      <TabItem active={view === View.TRANSACTIONS} onClick={() => setView(View.TRANSACTIONS)}>
-        <FileText size={16} /> <Trans>Transactions</Trans>
-      </TabItem>
-    </Row>
-  )
-
-  const renderContent = () => {
-    switch (view) {
-      case View.TRANSACTIONS:
-        return (
-          <>
-            <AccountInfo totalBalanceInUsd={totalBalanceInUsd} />
-            {actionGroup}
-            {underTab}
-            <ListTransaction />
-          </>
-        )
-      case View.ASSETS:
-        return (
-          <>
-            <AccountInfo totalBalanceInUsd={totalBalanceInUsd} />
-            {actionGroup}
-            {underTab}
-            <MyAssets loadingTokens={loadingTokens} tokens={currencies} />
-          </>
-        )
-      case View.SEND_TOKEN:
-        return <SendToken loadingTokens={loadingTokens} currencies={currencies} currencyBalances={currencyBalances} />
-      case View.RECEIVE_TOKEN:
-        return <ReceiveToken />
-    }
+const Portal: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const root = document.getElementById('app')
+  if (!root) {
     return null
   }
 
-  const isSendTab = view === View.SEND_TOKEN
-  const isExchangeTokenTab = isSendTab || view === View.RECEIVE_TOKEN
+  return createPortal(children, root)
+}
 
-  return !isOpen ? (
-    <button
-      style={{
-        position: 'fixed',
-        right: 30,
-        bottom: 130,
-      }}
-      onClick={() => setIsOpen(true)}
-    >
-      wallet ui
-    </button>
-  ) : (
-    <Wrapper>
-      <RowBetween height={'28px'} style={{ borderBottom: `1px solid ${theme.border}`, paddingBottom: 18 }}>
-        {isExchangeTokenTab ? (
-          <>
-            <ChevronLeft cursor="pointer" size={28} onClick={() => setView(View.ASSETS)} color={theme.subText} />
-            <Flex alignItems="center">
-              <SendIcon style={{ marginRight: 7, transform: isSendTab ? 'unset' : 'rotate(180deg)' }} /> {view}
-            </Flex>
-          </>
-        ) : (
-          <Text fontWeight={'500'} fontSize="20px">
-            <Trans>Your Account</Trans>{' '}
-          </Text>
-        )}
-        <Flex style={{ gap: 20 }} alignItems="center">
-          <PinIcon cursor="pointer" />
-          <X onClick={onDismiss} color={theme.subText} cursor="pointer" />
-        </Flex>
-      </RowBetween>
+const WalletPopup = () => {
+  const [isOpen, setOpen] = useState(false)
+  const [showOverlay, setShowOverlay] = useState(false)
+  const [isPinned, setPinned] = useState(false)
+  const nodeRef = useRef<HTMLDivElement>(null)
+  const { account } = useActiveWeb3React()
+  const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
-      {renderContent()}
-    </Wrapper>
+  if (isMobile || !account) {
+    return null
+  }
+
+  const handleOpenPopup = () => {
+    setOpen(true)
+    setShowOverlay(true)
+    setPinned(false)
+  }
+
+  const handleClosePopup = () => {
+    setOpen(false)
+    setShowOverlay(false)
+    setPinned(false)
+  }
+
+  const handlePinPopup = () => {
+    setShowOverlay(false)
+    setPinned(true)
+  }
+
+  return (
+    <>
+      {/* TODO: remove this and bind to wallet button instead */}
+      {!isOpen && (
+        <Portal>
+          <button
+            style={{
+              position: 'fixed',
+              right: 30,
+              bottom: 130,
+              zIndex: 10,
+            }}
+            onClick={handleOpenPopup}
+          >
+            wallet ui
+          </button>
+        </Portal>
+      )}
+
+      {/* render a modal separately instead of placing the popup inside, 
+      so that when popup is pinned, glitch won't happen */}
+      <Modal isOpen={showOverlay} onDismiss={handleClosePopup} zindex={80} />
+
+      {isOpen && (
+        <Draggable
+          disabled={!isPinned}
+          defaultPosition={{ x: 0, y: 0 }}
+          nodeRef={nodeRef}
+          handle={`.${HANDLE_CLASS_NAME}`}
+        >
+          <div
+            style={{
+              position: 'fixed',
+              zIndex: '98', // TODO: check this
+              right: isPinned ? '10px' : 0,
+              bottom: isPinned ? '10px' : 0,
+              transition: 'right 150ms, bottom 150ms',
+            }}
+            ref={nodeRef}
+          >
+            <WalletView onDismiss={handleClosePopup} isPinned={isPinned} onPin={handlePinPopup} />
+          </div>
+        </Draggable>
+      )}
+    </>
   )
 }
+
+export default WalletPopup
