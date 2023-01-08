@@ -53,8 +53,26 @@ export const RightContainer = styled(AutoColumn)`
   `};
 `
 
-export const ChartContainer = styled.div<{ hasTab: boolean }>`
-  border-radius: ${({ hasTab }) => (hasTab ? '0 0 ' : '')} 20px 20px;
+export const ChartWrapper = styled.div`
+  border-radius: 20px;
+  overflow: hidden;
+  background-color: ${({ theme }) => theme.buttonBlack};
+  width: 850px;
+  ${({ theme }) => theme.mediaWidth.upToXL`
+    width: 600px;
+  `};
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    width: 450px;
+  `};
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    width: 425px;
+  `};
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    width: 100%;
+  `};
+`
+
+export const ChartBody = styled.div`
   background-color: ${({ theme }) => theme.buttonBlack};
   padding: 16px;
 `
@@ -65,6 +83,7 @@ export const FlexLeft = styled(Flex)`
   gap: 24px;
 
   width: 425px;
+  max-width: 425px;
   padding-right: 20px;
   ${({ theme }) => theme.mediaWidth.upToMedium`
     width: 100%;

@@ -20,7 +20,6 @@ interface MintState {
     readonly leftRangeTypedValue: string | FullRange
     readonly rightRangeTypedValue: string | FullRange
   }[]
-  readonly positionCount: number
 }
 
 const initialState: MintState = {
@@ -33,13 +32,12 @@ const initialState: MintState = {
       rightRangeTypedValue: '',
     },
   ],
-  positionCount: 1,
 }
 
 export default createReducer<MintState>(initialState, builder =>
   builder
     .addCase(resetMintState, () => initialState)
-    .addCase(setRange, (state, { payload: { leftRangeTypedValue, rightRangeTypedValue, positionIndex } }) => {
+    .addCase(setRange, (state, { payload: { positionIndex, leftRangeTypedValue, rightRangeTypedValue } }) => {
       state.positions[positionIndex].leftRangeTypedValue = leftRangeTypedValue
       state.positions[positionIndex].rightRangeTypedValue = rightRangeTypedValue
       return state
@@ -50,15 +48,15 @@ export default createReducer<MintState>(initialState, builder =>
         startPriceTypedValue: typedValue,
       }
     })
-    .addCase(typeLeftRangeInput, (state, { payload: { typedValue, positionIndex } }) => {
+    .addCase(typeLeftRangeInput, (state, { payload: { positionIndex, typedValue } }) => {
       state.positions[positionIndex].leftRangeTypedValue = typedValue
       return state
     })
-    .addCase(typeRightRangeInput, (state, { payload: { typedValue, positionIndex } }) => {
+    .addCase(typeRightRangeInput, (state, { payload: { positionIndex, typedValue } }) => {
       state.positions[positionIndex].rightRangeTypedValue = typedValue
       return state
     })
-    .addCase(typeInput, (state, { payload: { field, typedValue, noLiquidity, positionIndex } }) => {
+    .addCase(typeInput, (state, { payload: { field, positionIndex, typedValue, noLiquidity } }) => {
       if (noLiquidity) {
         // they're typing into the field they've last typed in
         if (field === state.positions[positionIndex].independentField) {
@@ -80,18 +78,16 @@ export default createReducer<MintState>(initialState, builder =>
     })
 
     .addCase(addPosition, state => {
-      state.positions[state.positionCount] = {
+      state.positions[state.positions.length] = {
         independentField: Field.CURRENCY_A,
         typedValue: '',
         leftRangeTypedValue: '',
         rightRangeTypedValue: '',
       }
-      state.positionCount++
       return state
     })
     .addCase(removePosition, (state, { payload: { positionIndex } }) => {
       state.positions.splice(positionIndex, 1)
-      state.positionCount--
       return state
     }),
 )

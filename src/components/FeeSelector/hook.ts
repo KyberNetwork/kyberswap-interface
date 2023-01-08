@@ -44,8 +44,8 @@ export const useFeeTierDistribution = (
       })
       .then(res => {
         const feeArray: { feeTier: string; activePositions: number }[] = res?.data?.pools?.map(
-          (item: { positionCount: string; closedPostionCount: string; feeTier: string }) => {
-            const activePositions = Number(item.positionCount) - Number(item.closedPostionCount)
+          (item: { positionCount: string; closedPositionCount: string; feeTier: string }) => {
+            const activePositions = Number(item.positionCount) - Number(item.closedPositionCount)
             return {
               feeTier: item.feeTier,
               activePositions,

@@ -80,6 +80,7 @@
     "graphql": "^15.8.0",
     "inter-ui": "^3.19.3",
     "jsbi": "^3.2.5",
+    "lightweight-charts": "^3.3.0",
     "mixpanel-browser": "^2.45.0",
     "ms.macro": "^2.0.0",
     "multicodec": "^2.1.3",
@@ -164,6 +165,6 @@
     "prettier": "^2.7.1",
     "react-scripts": "^4.0.3",
     "source-map-explorer": "^2.5.3",
-    "typescript": "^4.8.4"
+    "typescript": "4.8.4"
   }
 }

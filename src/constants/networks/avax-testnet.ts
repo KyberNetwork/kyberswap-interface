@@ -54,6 +54,7 @@ const avaxTestnetInfo: EVMNetworkInfo = {
     fairlaunchV2: EMPTY_ARRAY,
   },
   elastic: {
+    startBlock: 12351427,
     coreFactory: '0x6992a3c0613485644a634bfe22ea97b04f0916aa',
     nonfungiblePositionManager: '0x0C1f1B3608C10DD4E95EBca5a776f004B7EDFdb2',
     tickReader: '0xe3AC3fd66EB31cAf4EE0831b262D837c479FFCe5',

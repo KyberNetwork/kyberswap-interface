@@ -15,10 +15,14 @@ import {
   tickToPrice,
 } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
+import dayjs from 'dayjs'
 import JSBI from 'jsbi'
-import { ReactNode, useCallback, useMemo } from 'react'
+import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { BIG_INT_ZERO } from 'constants/index'
+import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import { getHourlyRateData } from 'data/poolRate'
+import { PoolRatesEntry } from 'data/type'
 import { useActiveWeb3React } from 'hooks'
 import { PoolState, usePool } from 'hooks/usePools'
 import { RANGE_LIST } from 'pages/AddLiquidityV2/constants'
@@ -38,7 +42,7 @@ import {
   typeRightRangeInput,
   typeStartPriceInput,
 } from './actions'
-import { Bound, Field, Point, RANGE } from './type'
+import { Bound, Field, Point, RANGE, TimeframeOptions } from './type'
 import { getPairFactor, getRangeTicks, tryParseTick } from './utils'
 
 export function useProAmmMintState(): AppState['mintV2'] {
@@ -1339,4 +1343,67 @@ export function useRangeHopCallbacks(
   )
 
   return { getDecrementLower, getIncrementLower, getDecrementUpper, getIncrementUpper, getSetRange }
+}
+
+export function useHourlyRateData(
+  poolAddress: string | undefined,
+  timeWindow: TimeframeOptions,
+): [PoolRatesEntry[], PoolRatesEntry[]] | null {
+  const dispatch = useAppDispatch()
+  const { chainId } = useActiveWeb3React()
+  const [ratesData, setRatesData] = useState<[PoolRatesEntry[], PoolRatesEntry[]] | null>(null)
+
+  useEffect(() => {
+    const controller = new AbortController()
+    const currentTime = dayjs.utc()
+    let startTime: number
+
+    switch (timeWindow) {
+      case TimeframeOptions.FOUR_HOURS:
+        startTime = currentTime.subtract(4, 'hour').startOf('second').unix()
+        break
+      case TimeframeOptions.ONE_DAY:
+        startTime = currentTime.subtract(1, 'day').startOf('minute').unix()
+        break
+      case TimeframeOptions.THERE_DAYS:
+        startTime = currentTime.subtract(3, 'day').startOf('hour').unix()
+        break
+      case TimeframeOptions.WEEK:
+        startTime = currentTime.subtract(1, 'week').startOf('hour').unix()
+        break
+      case TimeframeOptions.MONTH:
+        startTime = currentTime.subtract(1, 'month').startOf('hour').unix()
+        break
+      default:
+        startTime = currentTime.subtract(3, 'day').startOf('hour').unix()
+        break
+    }
+
+    async function fetch() {
+      const frequency =
+        timeWindow === TimeframeOptions.FOUR_HOURS
+          ? 30
+          : timeWindow === TimeframeOptions.ONE_DAY
+          ? 120
+          : timeWindow === TimeframeOptions.THERE_DAYS
+          ? 300
+          : 3600
+
+      if (isEVM(chainId) && poolAddress) {
+        setRatesData(null)
+        const ratesData = await getHourlyRateData(
+          poolAddress,
+          startTime,
+          frequency,
+          NETWORKS_INFO[chainId],
+          controller.signal,
+        )
+        !controller.signal.aborted && ratesData && setRatesData(ratesData)
+      }
+    }
+    fetch()
+    return () => controller.abort()
+  }, [timeWindow, poolAddress, dispatch, chainId])
+
+  return ratesData
 }

@@ -111,6 +111,8 @@ const ChartButton = styled(AddTab)<{ active: boolean }>`
     active
       ? css`
           color: ${theme.primary};
+          border-width: 0;
+          border-bottom: 2px solid ${({ theme }) => theme.primary};
         `
       : ''}
 `
@@ -119,7 +121,6 @@ const Container = styled(RowBetween)`
   width: 100%;
   height: 32px;
   background-color: ${({ theme }) => theme.buttonBlack};
-  border-radius: 20px 20px 0 0;
   box-sizing: content-box;
   border-bottom: 1px solid ${({ theme }) => theme.border};
   overflow: hidden;
@@ -127,10 +128,12 @@ const Container = styled(RowBetween)`
 
 const ScrollBar = styled(Flex)`
   position: relative;
+  width: 100%;
 `
+
 const TabSlide = styled(Flex)`
   flex-direction: row;
-  max-width: 712px;
+  width: 100%;
   overflow-x: scroll;
 `
 

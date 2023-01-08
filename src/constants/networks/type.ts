@@ -66,6 +66,7 @@ export interface EVMNetworkInfo extends NetworkInfo {
     readonly fairlaunchV2: string[]
   }
   readonly elastic: {
+    readonly startBlock: number
     readonly coreFactory: string
     readonly nonfungiblePositionManager: string
     readonly tickReader: string

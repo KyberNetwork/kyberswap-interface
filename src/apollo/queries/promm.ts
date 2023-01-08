@@ -102,7 +102,7 @@ export const POOL_POSITION_COUNT = (poolAddresses: string[]) => {
         id
         positionCount
         feeTier
-        closedPostionCount
+        closedPositionCount
       }
     }
   `

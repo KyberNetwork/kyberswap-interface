@@ -24,6 +24,7 @@ import LiquidityChartRangeInput from 'components/LiquidityChartRangeInput'
 import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
 import ChartPositions from 'components/ProAmm/ChartPositions'
 import ListPositions from 'components/ProAmm/ListPositions'
+import PoolPriceChart from 'components/ProAmm/PoolPriceChart'
 import ProAmmPoolInfo from 'components/ProAmm/ProAmmPoolInfo'
 import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
 import ProAmmPriceRange from 'components/ProAmm/ProAmmPriceRange'
@@ -69,7 +70,8 @@ import Tabs from './Tab'
 import { RANGE_LIST, rangeData } from './constants'
 import {
   BorderedHideMedium,
-  ChartContainer,
+  ChartBody,
+  ChartWrapper,
   Container,
   DynamicSection,
   FlexLeft,
@@ -116,8 +118,9 @@ export default function AddLiquidity() {
   const isSorted = tokenA && tokenB && tokenA.sortsBefore(tokenB)
 
   // mint state
-  const { positions: positionsState, startPriceTypedValue, positionCount } = useProAmmMintState()
-  const { independentField, typedValue } = positionsState[positionIndex]
+  const { positions: positionsState, startPriceTypedValue } = useProAmmMintState()
+  const { independentField, typedValue } =
+    positionsState[positionIndex > positionsState.length ? positionsState.length : positionIndex]
 
   const {
     pool,
@@ -375,6 +378,7 @@ export default function AddLiquidity() {
       positionManager,
       previousTicks,
       quoteCurrency,
+      onResetMintState,
     ],
   )
 
@@ -596,10 +600,10 @@ export default function AddLiquidity() {
   const disableAmountSelect = disableRangeSelect || tickLower === undefined || tickUpper === undefined || invalidRange
   const [shownTooltip, setShownTooltip] = useState<RANGE | null>(null)
   const chart = (
-    <>
+    <ChartWrapper>
       {hasTab && (
         <Tabs
-          tabsCount={positionCount}
+          tabsCount={positionsState.length}
           selectedTab={positionIndex}
           onChangedTab={index => setPositionIndex(index)}
           onAddTab={onAddPosition}
@@ -610,10 +614,11 @@ export default function AddLiquidity() {
           }
         />
       )}
-      <ChartContainer hasTab={hasTab}>
-        {showChart ? (
-          'pro-chart'
-        ) : (
+      <ChartBody>
+        {hasTab && (
+          <PoolPriceChart currencyA={baseCurrency} currencyB={quoteCurrency} feeAmount={feeAmount} show={showChart} />
+        )}
+        {hasTab && showChart ? null : (
           <>
             <DynamicSection gap="md" disabled={disableRangeSelect}>
               <Text fontWeight="500" style={{ display: 'flex' }} fontSize={12}>
@@ -625,7 +630,7 @@ export default function AddLiquidity() {
               </Text>
               {(() => {
                 const gap = '16px'
-                const buttonColumn = upToLarge ? (upToXXSmall ? 2 : 3) : 4
+                const buttonColumn = upToLarge ? 2 : 4
                 const buttonWidth = `calc((100% - ${gap} * (${buttonColumn} - 1)) / ${buttonColumn})`
                 return (
                   <Row gap={gap} flexWrap="wrap">
@@ -786,8 +791,8 @@ export default function AddLiquidity() {
             </DynamicSection>
           </>
         )}
-      </ChartContainer>
-    </>
+      </ChartBody>
+    </ChartWrapper>
   )
 
   const [viewMode] = useViewMode()
@@ -919,7 +924,7 @@ export default function AddLiquidity() {
                   </ButtonLight>
                 </div>
               </RowBetween>
-              <RowBetween style={{ gap: '20px' }} flexDirection={upToXXSmall ? 'column' : 'row'}>
+              <RowBetween style={{ gap: upToMedium ? '8px' : '20px' }} flexDirection={upToXXSmall ? 'column' : 'row'}>
                 <CurrencyInputPanel
                   hideBalance
                   value={formattedAmounts[Field.CURRENCY_A]}
@@ -1060,8 +1065,7 @@ export default function AddLiquidity() {
               </BorderedHideMedium>
             )}
           </Flex>
-          <RowBetween flexDirection={upToMedium ? 'column' : 'row'}>
-            <div />
+          <Row justify="flex-end" flexDirection={upToMedium ? 'column' : 'row'}>
             <Flex
               sx={{ gap: '16px' }}
               flexDirection={upToMedium ? 'column' : 'row'}
@@ -1070,7 +1074,7 @@ export default function AddLiquidity() {
               <HideMedium>{warning}</HideMedium>
               <Buttons />
             </Flex>
-          </RowBetween>
+          </Row>
         </Container>
       </PageWrapper>
     </>

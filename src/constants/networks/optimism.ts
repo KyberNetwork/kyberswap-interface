@@ -51,6 +51,7 @@ const optimismInfo: EVMNetworkInfo = {
     fairlaunchV2: ['0x715Cc6C0d591CA3FA8EA6e4Cb445adA0DC79069A'],
   },
   elastic: {
+    startBlock: 12001267,
     coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
     nonfungiblePositionManager: '0x2B1c7b41f6A8F2b2bc45C3233a5d5FB3cD6dC9A8',
     tickReader: '0x165c68077ac06c83800d19200e6E2B08D02dE75D',

@@ -74,7 +74,6 @@ const PositionListItem = ({
   const [tokenA, tokenB] = rotated
     ? [position.amount1.currency, position.amount0.currency]
     : [position.amount0.currency, position.amount1.currency]
-  const [boundLower, boundUpper] = rotated ? [Bound.UPPER, Bound.LOWER] : [Bound.LOWER, Bound.UPPER]
   const usdValue =
     parseFloat(position.amount0.toSignificant(6)) * usdPrices[tokenA.address] +
     parseFloat(position.amount1.toSignificant(6)) * usdPrices[tokenB.address]
