@@ -1,5 +1,4 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 import { useCallback, useEffect, useMemo } from 'react'
@@ -48,7 +47,6 @@ export function useKyberDaoStakeActions() {
         addTransactionWithType({
           hash: tx.hash,
           type: TRANSACTION_TYPE.KYBERDAO_STAKE,
-          summary: t`You have successfully staked to KyberDAO`,
           extraInfo: {
             tokenSymbol: 'KNC',
             tokenAddress: kyberDaoInfo?.KNCAddress ?? '',
@@ -80,7 +78,6 @@ export function useKyberDaoStakeActions() {
         addTransactionWithType({
           hash: tx.hash,
           type: TRANSACTION_TYPE.KYBERDAO_UNSTAKE,
-          summary: t`You have successfully unstaked from KyberDAO`,
           extraInfo: {
             tokenSymbol: 'KNC',
             tokenAddress: kyberDaoInfo?.KNCAddress ?? '',
@@ -112,7 +109,6 @@ export function useKyberDaoStakeActions() {
         addTransactionWithType({
           hash: tx.hash,
           type: TRANSACTION_TYPE.KYBERDAO_MIGRATE,
-          summary: `KyberDAO`,
           extraInfo: kyberDaoInfo
             ? {
                 tokenAddressIn: kyberDaoInfo.KNCLAddress,
@@ -148,7 +144,6 @@ export function useKyberDaoStakeActions() {
         addTransactionWithType({
           hash: tx.hash,
           type: TRANSACTION_TYPE.KYBERDAO_DELEGATE,
-          summary: t`You have successfully delegated voting power to ${address.slice(0, 6)}...${address.slice(-4)}`,
           extraInfo: { contract: address },
         })
         return tx.hash
@@ -176,7 +171,6 @@ export function useKyberDaoStakeActions() {
         addTransactionWithType({
           hash: tx.hash,
           type: TRANSACTION_TYPE.KYBERDAO_UNDELEGATE,
-          summary: t`You have successfully undelegated your voting power`,
           extraInfo: { contract: address },
         })
         return tx.hash
@@ -245,7 +239,6 @@ export function useClaimRewardActions() {
         addTransactionWithType({
           hash: tx.hash,
           type: TRANSACTION_TYPE.KYBERDAO_CLAIM,
-          summary: t`Claimed reward successful`,
           extraInfo: { contract: address },
         })
         return tx.hash
@@ -280,7 +273,6 @@ export const useVotingActions = () => {
         addTransactionWithType({
           hash: tx.hash,
           type: TRANSACTION_TYPE.KYBERDAO_VOTE,
-          summary: t`Voted successful`,
           extraInfo: { contract: kyberDaoInfo?.dao },
         })
         return tx.hash

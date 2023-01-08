@@ -263,7 +263,6 @@ export default function CreatePool() {
               addTransactionWithType({
                 hash: response.hash,
                 type: TRANSACTION_TYPE.CREATE_POOL,
-                summary: tokenAmountIn + ' ' + cA.symbol + ' and ' + tokenAmountOut + ' ' + cB.symbol,
                 extraInfo: {
                   tokenAddressIn: cA.wrapped.address,
                   tokenAddressOut: cB.wrapped.address,

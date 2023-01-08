@@ -27,7 +27,7 @@ export default createReducer(initialState, builder =>
       addTransaction,
       (
         transactions,
-        { payload: { sentAtBlock, to, nonce, data, chainId, from, hash, type, summary, firstTxHash, extraInfo } },
+        { payload: { sentAtBlock, to, nonce, data, chainId, from, hash, type, firstTxHash, extraInfo } },
       ) => {
         const chainTxs = transactions[chainId] ?? {}
         const txs = (firstTxHash && chainTxs[firstTxHash]) || []
@@ -38,7 +38,6 @@ export default createReducer(initialState, builder =>
           data,
           hash,
           type,
-          summary,
           from,
           addedTime: now(),
           chainId,

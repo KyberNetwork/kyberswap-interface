@@ -1,7 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { ParsedTransactionWithMeta } from '@solana/web3.js'
 import { findReplacementTx } from 'find-replacement-tx'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { APP_PATHS } from 'constants/index'

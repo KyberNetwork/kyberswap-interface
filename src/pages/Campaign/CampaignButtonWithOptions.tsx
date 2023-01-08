@@ -169,7 +169,6 @@ export default function CampaignButtonWithOptions({
               hash: transactionResponse.hash,
               type: TRANSACTION_TYPE.CLAIM_REWARD,
               desiredChainId: claimChainId,
-              summary: `${rewardString} from campaign "${campaign?.name}"`,
               extraInfo: {
                 summary: `${rewardString} from campaign "${campaign?.name}"`,
                 contract: rewardContractAddress,

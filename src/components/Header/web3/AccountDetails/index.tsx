@@ -1,32 +1,20 @@
 import { Trans } from '@lingui/macro'
-import { useCallback } from 'react'
 import { isMobile } from 'react-device-detect'
-import { FileText, LogOut } from 'react-feather'
-import { useDispatch } from 'react-redux'
+import { LogOut } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as Close } from 'assets/images/x.svg'
 import CopyHelper from 'components/Copy'
-import Divider from 'components/Divider'
-import Wallet from 'components/Icons/Wallet'
-import { AutoRow, RowBetween, RowFit } from 'components/Row'
-import { PROMM_ANALYTICS_URL } from 'constants/index'
+import { RowBetween, RowFit } from 'components/Row'
 import { SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React } from 'hooks'
 import useDisconnectWallet from 'hooks/useDisconnectWallet'
 import useENSName from 'hooks/useENSName'
 import useTheme from 'hooks/useTheme'
-import { AppDispatch } from 'state'
-import { clearAllTransactions } from 'state/transactions/actions'
-import { useSortRecentTransactions } from 'state/transactions/hooks'
-import { TransactionDetails } from 'state/transactions/type'
 import { useIsDarkMode } from 'state/user/hooks'
-import { ButtonText, ExternalLink, LinkStyledButton, TYPE } from 'theme'
-import { getEtherscanLink, shortenAddress } from 'utils'
-
-import Transaction from './Transaction'
-import TransactionGroup from './TransactionGroup'
+import { ButtonText } from 'theme'
+import { shortenAddress } from 'utils'
 
 const HeaderRow = styled.div`
   display: flex;
@@ -77,24 +65,10 @@ const YourAccount = styled.div`
   border-radius: 16px;
   background: ${({ theme }) => theme.buttonBlack};
   margin-top: 1rem;
+  margin-bottom: 1rem;
   display: flex;
   justify-content: space-between;
   gap: 8px;
-`
-
-const LowerSection = styled.div`
-  ${({ theme }) => theme.flexColumnNoWrap}
-  padding: 1.5rem;
-  flex-grow: 1;
-  overflow: auto;
-  border-bottom-left-radius: 20px;
-  border-bottom-right-radius: 20px;
-
-  h5 {
-    margin: 0;
-    font-weight: 400;
-    color: ${({ theme }) => theme.text3};
-  }
 `
 
 const AccountControl = styled.div`
@@ -154,21 +128,6 @@ const IconWrapper = styled.div<{ size?: number }>`
   `};
 `
 
-const TransactionListWrapper = styled.div`
-  ${({ theme }) => theme.flexColumnNoWrap};
-`
-
-function renderTxGroups(transactions: TransactionDetails[][]) {
-  return (
-    <TransactionListWrapper>
-      {transactions.map((groupTransactions, i) => {
-        if (groupTransactions.length === 1) return <Transaction key={i} transaction={groupTransactions[0]} />
-        return <TransactionGroup key={i} transactions={groupTransactions} />
-      })}
-    </TransactionListWrapper>
-  )
-}
-
 interface AccountDetailsProps {
   toggleWalletModal: () => void
   openOptions: () => void
@@ -177,14 +136,8 @@ interface AccountDetailsProps {
 export default function AccountDetails({ toggleWalletModal, openOptions }: AccountDetailsProps) {
   const { chainId, account, walletKey, isEVM } = useActiveWeb3React()
   const theme = useTheme()
-  const dispatch = useDispatch<AppDispatch>()
   const isDarkMode = useIsDarkMode()
   const { ENSName } = useENSName(isEVM ? account ?? undefined : undefined)
-
-  const sortedRecentTxGroups: TransactionDetails[][] = useSortRecentTransactions()
-
-  const pendingTxGroups: TransactionDetails[][] = sortedRecentTxGroups.filter(txs => txs.some(txs => !txs.receipt))
-  const confirmedTxGroups: TransactionDetails[][] = sortedRecentTxGroups.filter(txs => txs.every(txs => txs.receipt))
 
   function formatConnectorName(): JSX.Element | null {
     if (!walletKey) {
@@ -199,100 +152,50 @@ export default function AccountDetails({ toggleWalletModal, openOptions }: Accou
     )
   }
 
-  const clearAllTransactionsCallback = useCallback(() => {
-    if (chainId) dispatch(clearAllTransactions({ chainId }))
-  }, [dispatch, chainId])
-
   const handleDisconnect = useDisconnectWallet()
 
   return (
-    <>
-      <UpperSection>
-        <HeaderRow>
-          <Trans>Your Account</Trans>
-          <CloseIcon onClick={toggleWalletModal}>
-            <CloseColor />
-          </CloseIcon>
-        </HeaderRow>
+    <UpperSection>
+      <HeaderRow>
+        <Trans>Your Account</Trans>
+        <CloseIcon onClick={toggleWalletModal}>
+          <CloseColor />
+        </CloseIcon>
+      </HeaderRow>
 
-        <Flex flexDirection="column" marginTop="8px" paddingX="20px">
-          <RowBetween>
-            <Text>{formatConnectorName()}</Text>
-            <ButtonText onClick={handleDisconnect}>
-              <RowFit color={theme.subText} gap="4px">
-                <LogOut size={16} />{' '}
-                <Text fontSize={14}>
-                  <Trans>Disconnect</Trans>
-                </Text>
-              </RowFit>
-            </ButtonText>
-          </RowBetween>
-          <YourAccount>
-            <AccountGroupingRow id="web3-account-identifier-row">
-              <AccountControl>
-                <div>
-                  {walletKey && (
-                    <IconWrapper size={16}>
-                      <img
-                        src={isDarkMode ? SUPPORTED_WALLETS[walletKey].icon : SUPPORTED_WALLETS[walletKey].iconLight}
-                        alt={SUPPORTED_WALLETS[walletKey].name + ' icon'}
-                      />
-                    </IconWrapper>
-                  )}
-
-                  <p> {ENSName || (isMobile && account ? shortenAddress(chainId, account, 10) : account)}</p>
-                </div>
-              </AccountControl>
-            </AccountGroupingRow>
-
-            <CopyHelper toCopy={account || ''} />
-          </YourAccount>
-        </Flex>
-
-        <Flex justifyContent="space-between" marginTop="24px" paddingX="20px">
-          <ExternalLink href={getEtherscanLink(chainId, ENSName || account || '', 'address')}>
-            <Flex alignItems="center">
-              <FileText size={16} />
-              <Text marginLeft="4px" fontSize="14px">
-                <Trans>View Transactions</Trans> ↗
+      <Flex flexDirection="column" marginY="8px" paddingX="20px">
+        <RowBetween>
+          <Text>{formatConnectorName()}</Text>
+          <ButtonText onClick={handleDisconnect}>
+            <RowFit color={theme.subText} gap="4px">
+              <LogOut size={16} />{' '}
+              <Text fontSize={14}>
+                <Trans>Disconnect</Trans>
               </Text>
-            </Flex>
-          </ExternalLink>
+            </RowFit>
+          </ButtonText>
+        </RowBetween>
+        <YourAccount>
+          <AccountGroupingRow id="web3-account-identifier-row">
+            <AccountControl>
+              <div>
+                {walletKey && (
+                  <IconWrapper size={16}>
+                    <img
+                      src={isDarkMode ? SUPPORTED_WALLETS[walletKey].icon : SUPPORTED_WALLETS[walletKey].iconLight}
+                      alt={SUPPORTED_WALLETS[walletKey].name + ' icon'}
+                    />
+                  </IconWrapper>
+                )}
 
-          {isEVM && (
-            <ExternalLink href={`${PROMM_ANALYTICS_URL[chainId]}/account/${account}`}>
-              <Flex alignItems="center">
-                <Wallet size={16} />
-                <Text fontSize="14px" marginLeft="4px">
-                  <Trans>Analyze Wallet</Trans> ↗
-                </Text>
-              </Flex>
-            </ExternalLink>
-          )}
-        </Flex>
-      </UpperSection>
+                <p> {ENSName || (isMobile && account ? shortenAddress(chainId, account, 10) : account)}</p>
+              </div>
+            </AccountControl>
+          </AccountGroupingRow>
 
-      <Flex marginTop="24px" paddingX="20px" width="100%">
-        <Divider style={{ width: '100%' }} />
+          <CopyHelper toCopy={account || ''} />
+        </YourAccount>
       </Flex>
-      {!!pendingTxGroups.length || !!confirmedTxGroups.length ? (
-        <LowerSection>
-          <AutoRow mb={'1rem'} style={{ justifyContent: 'space-between' }}>
-            <TYPE.body>
-              <Trans>Recent Transactions</Trans>
-            </TYPE.body>
-            <LinkStyledButton onClick={clearAllTransactionsCallback}>(clear all)</LinkStyledButton>
-          </AutoRow>
-          {renderTxGroups(pendingTxGroups.slice(0, 5))}
-          {renderTxGroups(confirmedTxGroups.slice(0, 5))}
-        </LowerSection>
-      ) : (
-        <LowerSection>
-          <TYPE.body color={theme.text}>
-            <Trans>Your transactions will appear here...</Trans>
-          </TYPE.body>
-        </LowerSection>
-      )}
-    </>
+    </UpperSection>
   )
 }

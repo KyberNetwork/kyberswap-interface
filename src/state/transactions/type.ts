@@ -41,7 +41,6 @@ export type TransactionExtraInfo = TransactionExtraInfo1Token | TransactionExtra
 export interface TransactionDetails {
   hash: string
   type?: TRANSACTION_TYPE
-  summary?: string
   receipt?: SerializableTransactionReceipt
   lastCheckedBlockNumber?: number
   addedTime: number
@@ -65,7 +64,6 @@ export type TransactionHistory = {
   hash: string
   desiredChainId?: ChainId // ChainID after switching.
   type: TRANSACTION_TYPE
-  summary?: string
   firstTxHash?: string
   extraInfo?: TransactionExtraInfo
 }
@@ -107,8 +105,8 @@ export enum TRANSACTION_TYPE {
   CLAIM_REWARD = 'Claim',
   DEPOSIT = 'Deposit',
   WITHDRAW = 'Withdraw',
-  FORCE_WITHDRAW = 'ForceWithdraw',
-  SETUP_SOLANA_SWAP = 'Setting up your swap',
+  FORCE_WITHDRAW = 'Force Withdraw',
+  SETUP_SOLANA_SWAP = 'Set up swap solana',
 
   KYBERDAO_STAKE = 'KyberDAO Stake',
   KYBERDAO_UNSTAKE = 'KyberDAO Unstake',

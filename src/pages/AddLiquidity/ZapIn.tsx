@@ -253,7 +253,6 @@ const ZapIn = ({
             addTransactionWithType({
               hash: tx.hash,
               type: TRANSACTION_TYPE.ADD_LIQUIDITY,
-              summary: tokenAmount + ' ' + independentToken?.symbol,
               extraInfo: {
                 tokenSymbol: independentToken?.symbol ?? '',
                 tokenAmount,

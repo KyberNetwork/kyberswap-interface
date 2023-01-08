@@ -64,9 +64,9 @@ export function useSwapV2Callback(
     const inputAmount = formatCurrencyAmount(trade.inputAmount, 6)
     const outputAmount = formatCurrencyAmount(trade.outputAmount, 6)
 
-    const base = `${
+    const inputAmountFormat =
       feeConfig && feeConfig.chargeFeeBy === 'currency_in' && feeConfig.isInBps ? typedValue : inputAmount
-    } ${inputSymbol} for ${outputAmount} ${outputSymbol}`
+
     const withRecipient =
       recipient === account
         ? undefined
@@ -79,9 +79,8 @@ export function useSwapV2Callback(
     return {
       hash: '',
       type: TRANSACTION_TYPE.SWAP,
-      summary: `${base} ${withRecipient ?? ''}`,
       extraInfo: {
-        tokenAmountIn: inputAmount,
+        tokenAmountIn: inputAmountFormat,
         tokenAmountOut: outputAmount,
         tokenSymbolIn: inputSymbol,
         tokenSymbolOut: outputSymbol,

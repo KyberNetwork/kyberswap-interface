@@ -167,7 +167,6 @@ function useRouterSwap(
             addTransactionWithType({
               hash: txReceipt,
               type: TRANSACTION_TYPE.BRIDGE,
-              summary: `${inputAmountStr} ${from_token} (${from_network}) to ${outputAmountStr} ${to_token} (${to_network})`,
               extraInfo: {
                 tokenSymbolIn: from_token,
                 tokenSymbolOut: to_token,
@@ -298,7 +297,6 @@ function useBridgeSwap(
             addTransactionWithType({
               hash: txReceipt,
               type: TRANSACTION_TYPE.BRIDGE,
-              summary: `${inputAmountStr} ${from_token} (${from_network}) to ${outputAmountStr} ${to_token} (${to_network})`,
               extraInfo: {
                 tokenSymbolIn: from_token,
                 tokenSymbolOut: to_token,

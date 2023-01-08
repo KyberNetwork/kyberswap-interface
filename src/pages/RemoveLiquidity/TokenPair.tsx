@@ -367,7 +367,6 @@ export default function TokenPair({
             addTransactionWithType({
               hash: response.hash,
               type: TRANSACTION_TYPE.REMOVE_LIQUIDITY,
-              summary: tokenAmountIn + ' ' + tokenSymbolIn + ' and ' + tokenAmountOut + ' ' + tokenSymbolOut,
               extraInfo: {
                 tokenAmountIn,
                 tokenAmountOut,

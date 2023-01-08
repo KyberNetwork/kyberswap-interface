@@ -45,7 +45,6 @@ export const useFarmAction = (address: string) => {
     addTransactionWithType({
       hash: tx.hash,
       type: TRANSACTION_TYPE.APPROVE,
-      summary: `Elastic Farm`,
       extraInfo: {
         summary: `Elastic Farm`,
         contract: address,
@@ -69,7 +68,6 @@ export const useFarmAction = (address: string) => {
       addTransactionWithType({
         hash: tx.hash,
         type: TRANSACTION_TYPE.DEPOSIT,
-        summary: `liquidity`,
         extraInfo: {
           summary: `liquidity`,
           contract: address,
@@ -94,7 +92,6 @@ export const useFarmAction = (address: string) => {
       addTransactionWithType({
         hash: tx.hash,
         type: TRANSACTION_TYPE.WITHDRAW,
-        summary: `liquidity`,
         extraInfo: {
           summary: `liquidity`,
           contract: address,
@@ -139,7 +136,6 @@ export const useFarmAction = (address: string) => {
       addTransactionWithType({
         hash: tx.hash,
         type: TRANSACTION_TYPE.STAKE,
-        summary: `liquidity into farm`,
         extraInfo: { summary: `liquidity into farm` },
       })
 
@@ -161,7 +157,6 @@ export const useFarmAction = (address: string) => {
         addTransactionWithType({
           hash: tx.hash,
           type: TRANSACTION_TYPE.UNSTAKE,
-          summary: `liquidity from farm`,
           extraInfo: { summary: `liquidity from farm` },
         })
 

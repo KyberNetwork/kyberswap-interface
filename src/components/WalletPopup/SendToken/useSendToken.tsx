@@ -56,7 +56,6 @@ export default function useSendToken(currency: Currency | undefined, recipient: 
       addTransactionWithType({
         type: TRANSACTION_TYPE.TRANSFER_TOKEN,
         hash: transaction.hash,
-        summary: `${amount} ${currency.symbol}`,
         extraInfo: {
           tokenAddress: currency.wrapped.address,
           tokenAmount: amount,

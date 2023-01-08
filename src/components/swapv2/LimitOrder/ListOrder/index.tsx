@@ -459,7 +459,6 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
       addTransactionWithType({
         ...response,
         type: TRANSACTION_TYPE.CANCEL_LIMIT_ORDER,
-        summary: order ? t`Order ${amountIn} ${makerAssetSymbol} to ${amountOut} ${takerAssetSymbol}` : t`all orders`,
         extraInfo: order
           ? {
               tokenAddressIn: makerAsset,

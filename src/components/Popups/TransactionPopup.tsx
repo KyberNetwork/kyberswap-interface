@@ -1,4 +1,5 @@
-import { Trans } from '@lingui/macro'
+import { ChainId } from '@kyberswap/ks-sdk-core'
+import { Trans, t } from '@lingui/macro'
 import { Box, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -6,201 +7,172 @@ import IconFailure from 'assets/svg/notification_icon_failure.svg'
 import IconSuccess from 'assets/svg/notification_icon_success.svg'
 import { AutoColumn } from 'components/Column'
 import { AutoRow } from 'components/Row'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { NotificationType } from 'state/application/hooks'
-import { TRANSACTION_TYPE, TransactionDetails } from 'state/transactions/type'
+import { useAllTransactions } from 'state/transactions/hooks'
+import {
+  TRANSACTION_TYPE,
+  TransactionDetails,
+  TransactionExtraBaseInfo,
+  TransactionExtraInfo1Token,
+  TransactionExtraInfo2Token,
+} from 'state/transactions/type'
 import { ExternalLink, HideSmall } from 'theme'
-import { getEtherscanLink } from 'utils'
+import { findTx, getEtherscanLink } from 'utils'
 
 const RowNoFlex = styled(AutoRow)`
   flex-wrap: nowrap;
 `
 
-type Summary = {
-  success: (summary?: string, isShort?: boolean) => string
-  pending: (summary?: string, isShort?: boolean) => string
-  failure: (summary?: string, isShort?: boolean) => string
+type Summary = (summary: TransactionDetails, isShort?: boolean) => string
+
+const summaryBase = (txs: TransactionDetails) => {
+  const { summary = '' } = (txs.extraInfo || {}) as TransactionExtraBaseInfo
+  return `${txs.type} ${summary}`
 }
 
-const defaultValue: Summary = {
-  success: summary => `${summary}`,
-  pending: summary => `${summary}`,
-  failure: summary => `${summary}`,
+// ex: approve 3 knc
+const summary1Token = (txs: TransactionDetails) => {
+  const { tokenAmount, tokenSymbol } = (txs.extraInfo || {}) as TransactionExtraInfo1Token
+  return `${txs.type} ${tokenAmount} ${tokenSymbol}`
 }
 
-// todo danh ?? remove
-export const SUMMARY: { [type in TRANSACTION_TYPE]: Summary } = {
-  [TRANSACTION_TYPE.WRAP_TOKEN]: {
-    success: summary => 'Wrapped ' + summary,
-    pending: summary => 'Wrapping ' + summary,
-    failure: summary => 'Error wrapping ' + summary,
-  },
-  [TRANSACTION_TYPE.UNWRAP_TOKEN]: {
-    success: summary => 'Unwrapped ' + summary,
-    pending: summary => 'Unwrapping ' + summary,
-    failure: summary => 'Error unwrapping ' + summary,
-  },
-  [TRANSACTION_TYPE.APPROVE]: {
-    success: summary => summary + ' was approved',
-    pending: summary => 'Approving ' + summary,
-    failure: summary => 'Error approving ' + summary,
-  },
-  [TRANSACTION_TYPE.BRIDGE]: {
-    success: summary => `Your bridge transaction from ${summary} is being processed.`,
-    pending: summary => 'Transferring ' + summary,
-    failure: summary => 'Error Transferring ' + summary,
-  },
-  [TRANSACTION_TYPE.SWAP]: {
-    success: summary => 'Swapped ' + summary,
-    pending: summary => 'Swapping ' + summary,
-    failure: summary => 'Error swapping ' + summary,
-  },
-  [TRANSACTION_TYPE.CREATE_POOL]: {
-    success: summary => 'Created pool ' + summary,
-    pending: summary => 'Creating pool ' + summary,
-    failure: summary => 'Error creating pool ' + summary,
-  },
-  [TRANSACTION_TYPE.ELASTIC_CREATE_POOL]: {
-    success: summary => 'Created pool and added ' + summary,
-    pending: summary => 'Creating pool and adding ' + summary,
-    failure: summary => 'Error Creating ' + summary,
-  },
-  [TRANSACTION_TYPE.ADD_LIQUIDITY]: {
-    success: summary => 'Added ' + summary,
-    pending: summary => 'Adding ' + summary,
-    failure: summary => 'Error adding ' + summary,
-  },
-  [TRANSACTION_TYPE.ELASTIC_ADD_LIQUIDITY]: {
-    success: summary => 'Added ' + summary,
-    pending: summary => 'Adding ' + summary,
-    failure: summary => 'Error adding ' + summary,
-  },
-  [TRANSACTION_TYPE.REMOVE_LIQUIDITY]: {
-    success: summary => 'Removed ' + summary,
-    pending: summary => 'Removing ' + summary,
-    failure: summary => 'Error removing ' + summary,
-  },
-  [TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY]: {
-    success: summary => 'Removed ' + summary,
-    pending: summary => 'Removing ' + summary,
-    failure: summary => 'Error removing ' + summary,
-  },
-  [TRANSACTION_TYPE.INCREASE_LIQUIDITY]: {
-    success: summary => 'Increased ' + summary,
-    pending: summary => 'Increasing ' + summary,
-    failure: summary => 'Error increasing ' + summary,
-  },
-  [TRANSACTION_TYPE.COLLECT_FEE]: {
-    success: summary => 'Collected ' + summary,
-    pending: summary => 'Collecting ' + summary,
-    failure: summary => 'Error collecting ' + summary,
-  },
-  [TRANSACTION_TYPE.STAKE]: {
-    success: summary => 'Staked ' + summary,
-    pending: summary => 'Staking ' + summary,
-    failure: summary => 'Error staking ' + summary,
-  },
-  [TRANSACTION_TYPE.UNSTAKE]: {
-    success: summary => 'Unstaked ' + summary,
-    pending: summary => 'Unstaking ' + summary,
-    failure: summary => 'Error unstaking ' + summary,
-  },
-  [TRANSACTION_TYPE.HARVEST]: {
-    success: () => 'Harvested your rewards',
-    pending: () => 'Harvesting your rewards',
-    failure: () => 'Error harvesting your rewards',
-  },
-  [TRANSACTION_TYPE.CLAIM_REWARD]: {
-    success: summary => 'Claimed ' + summary,
-    pending: summary => 'Claiming ' + summary,
-    failure: summary => 'Error claiming ' + summary,
-  },
-  [TRANSACTION_TYPE.DEPOSIT]: {
-    success: summary => 'Deposited ' + summary,
-    pending: summary => 'Depositing ' + summary,
-    failure: summary => 'Error depositing ' + summary,
-  },
-  [TRANSACTION_TYPE.WITHDRAW]: {
-    success: summary => 'Withdrawn ' + summary,
-    pending: summary => 'Withdrawing ' + summary,
-    failure: summary => 'Error withdrawing ' + summary,
-  },
-  [TRANSACTION_TYPE.FORCE_WITHDRAW]: {
-    success: () => 'Force Withdrawn ',
-    pending: () => 'Force Withdrawing ',
-    failure: () => 'Error Force withdrawing ',
-  },
-  [TRANSACTION_TYPE.SETUP_SOLANA_SWAP]: {
-    success: (summary, isShort) => (isShort ? 'Setting up transaction' : 'Setting up some stuff to ' + summary),
-    pending: (summary, isShort) => (isShort ? 'Setting up transaction' : 'Setting up some stuff to ' + summary),
-    failure: (summary, isShort) =>
-      isShort ? 'Setting up transaction' : 'There was an issue while setting up your swap. Please try again.',
-  },
-  [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER]: {
-    success: summary => `Cancel ${summary}`,
-    pending: summary => 'Cancelling ' + summary,
-    failure: summary => 'Error Cancel ' + summary,
-  },
-  [TRANSACTION_TYPE.TRANSFER_TOKEN]: {
-    success: summary => `Transfer ${summary}`,
-    pending: summary => 'Transferring ' + summary,
-    failure: summary => 'Error Transfer ' + summary,
-  },
-  // to make sure you don't forgot set sup the new type
-  [TRANSACTION_TYPE.KYBERDAO_CLAIM]: defaultValue,
-  [TRANSACTION_TYPE.KYBERDAO_UNDELEGATE]: defaultValue,
-  [TRANSACTION_TYPE.KYBERDAO_MIGRATE]: defaultValue,
-  [TRANSACTION_TYPE.KYBERDAO_STAKE]: defaultValue,
-  [TRANSACTION_TYPE.KYBERDAO_UNSTAKE]: defaultValue,
-  [TRANSACTION_TYPE.KYBERDAO_VOTE]: defaultValue,
-  [TRANSACTION_TYPE.KYBERDAO_DELEGATE]: defaultValue,
+const summary2Token = (txs: TransactionDetails, withType = true) => {
+  const { tokenAmountIn, tokenSymbolIn, tokenAmountOut, tokenSymbolOut } = (txs.extraInfo ||
+    {}) as TransactionExtraInfo2Token
+  return `${withType ? txs.type : ''} ${tokenAmountIn} ${tokenSymbolIn} to ${tokenAmountOut} ${tokenSymbolOut}`
 }
 
-export const getSummaryTransaction = (transaction: TransactionDetails, step?: number) => {
-  const pending = !transaction?.receipt
-  const success =
-    !pending && transaction && (transaction.receipt?.status === 1 || typeof transaction.receipt?.status === 'undefined')
-  const type = transaction?.type
-  const rawSummary = transaction?.summary
-  const summary = type
-    ? SUMMARY?.[type]?.[pending ? 'pending' : success ? 'success' : 'failure']?.(
-        rawSummary,
-        !!(step && type === TRANSACTION_TYPE.SETUP_SOLANA_SWAP),
-      ) ?? rawSummary
-    : rawSummary ?? 'Hash: ' + transaction.hash.slice(0, 8) + '...' + transaction.hash.slice(58, 65)
-  return { summary, pending, success }
+const summaryApproveOrClaim = (txs: TransactionDetails) => {
+  const { tokenSymbol } = (txs.extraInfo || {}) as TransactionExtraInfo1Token
+  const { summary } = (txs.extraInfo || {}) as TransactionExtraBaseInfo
+  return `${txs.type} ${summary ?? tokenSymbol}`
+}
+
+const summaryLiquidity = (txs: TransactionDetails) => {
+  const extraInfo = txs.extraInfo || {}
+  const { tokenAmountIn, tokenAmountOut, tokenSymbolIn, tokenSymbolOut } = extraInfo as TransactionExtraInfo2Token
+  const { tokenSymbol, tokenAmount } = extraInfo as TransactionExtraInfo1Token
+  return `${txs.type} ${
+    tokenSymbol && tokenAmount
+      ? `${tokenAmount} ${tokenSymbol}`
+      : `${tokenAmountIn} ${tokenSymbolIn} and ${tokenAmountOut} ${tokenSymbolOut}`
+  }`
+}
+
+const summaryBridge = (txs: TransactionDetails) => {
+  const {
+    tokenAmountIn,
+    tokenAmountOut,
+    tokenSymbolIn,
+    tokenSymbolOut,
+    chainIdIn = ChainId.MAINNET,
+    chainIdOut = ChainId.MAINNET,
+  } = (txs.extraInfo || {}) as TransactionExtraInfo2Token
+  const summary = `${tokenAmountIn} ${tokenSymbolIn} (${NETWORKS_INFO[chainIdIn].name}}) to ${tokenAmountOut} ${tokenSymbolOut} (${NETWORKS_INFO[chainIdOut].name}})`
+  return `Your bridge transaction from ${summary} is being processed.`
+}
+
+const summaryDelegateDao = (txs: TransactionDetails) => {
+  const { contract = '' } = (txs.extraInfo || {}) as TransactionExtraBaseInfo
+  return txs.type === TRANSACTION_TYPE.KYBERDAO_UNDELEGATE
+    ? t`You have successfully undelegated your voting power`
+    : t`You have successfully delegated voting power to ${contract.slice(0, 6)}...${contract.slice(-4)}`
+}
+
+const summaryCancelLimitOrder = (txs: TransactionDetails) => {
+  const { tokenAmountIn, tokenAmountOut, tokenSymbolIn, tokenSymbolOut } = (txs.extraInfo ||
+    {}) as TransactionExtraInfo2Token
+  const summary = txs.extraInfo
+    ? t`Order ${tokenAmountIn} ${tokenSymbolIn} to ${tokenAmountOut} ${tokenSymbolOut}`
+    : t`all orders`
+  return `Your cancellation ${summary} has been submitted`
+}
+
+const summaryTypeOnly = (txs: TransactionDetails) => `${txs.type}`
+
+const SUMMARY: { [type in TRANSACTION_TYPE]: Summary } = {
+  [TRANSACTION_TYPE.WRAP_TOKEN]: summary2Token,
+  [TRANSACTION_TYPE.UNWRAP_TOKEN]: summary2Token,
+  [TRANSACTION_TYPE.APPROVE]: summaryApproveOrClaim,
+  [TRANSACTION_TYPE.SWAP]: summary2Token,
+
+  [TRANSACTION_TYPE.BRIDGE]: summaryBridge,
+
+  [TRANSACTION_TYPE.CREATE_POOL]: summaryLiquidity,
+  [TRANSACTION_TYPE.ELASTIC_CREATE_POOL]: summaryLiquidity,
+  [TRANSACTION_TYPE.ADD_LIQUIDITY]: summaryLiquidity,
+  [TRANSACTION_TYPE.ELASTIC_ADD_LIQUIDITY]: summaryLiquidity,
+  [TRANSACTION_TYPE.REMOVE_LIQUIDITY]: summaryLiquidity,
+  [TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY]: summaryLiquidity,
+  [TRANSACTION_TYPE.INCREASE_LIQUIDITY]: summaryLiquidity,
+  [TRANSACTION_TYPE.COLLECT_FEE]: summaryLiquidity,
+
+  [TRANSACTION_TYPE.STAKE]: summaryBase,
+  [TRANSACTION_TYPE.UNSTAKE]: summaryBase,
+  [TRANSACTION_TYPE.HARVEST]: () => 'Harvested rewards',
+  [TRANSACTION_TYPE.CLAIM_REWARD]: summaryApproveOrClaim,
+  [TRANSACTION_TYPE.DEPOSIT]: summaryBase,
+  [TRANSACTION_TYPE.WITHDRAW]: summaryBase,
+
+  [TRANSACTION_TYPE.FORCE_WITHDRAW]: summaryTypeOnly,
+  [TRANSACTION_TYPE.SETUP_SOLANA_SWAP]: (txs, isShort) =>
+    isShort ? summaryTypeOnly(txs) : 'Setting up some stuff to ' + summary2Token(txs, false),
+  [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER]: summaryCancelLimitOrder,
+  [TRANSACTION_TYPE.TRANSFER_TOKEN]: summary1Token,
+
+  [TRANSACTION_TYPE.KYBERDAO_CLAIM]: summaryBase,
+  [TRANSACTION_TYPE.KYBERDAO_UNDELEGATE]: summaryDelegateDao,
+  [TRANSACTION_TYPE.KYBERDAO_MIGRATE]: summary2Token,
+  [TRANSACTION_TYPE.KYBERDAO_STAKE]: summary1Token,
+  [TRANSACTION_TYPE.KYBERDAO_UNSTAKE]: summary1Token,
+  [TRANSACTION_TYPE.KYBERDAO_VOTE]: summaryTypeOnly,
+  [TRANSACTION_TYPE.KYBERDAO_DELEGATE]: summaryDelegateDao,
 }
 
 const MAP_STATUS: { [key in string]: string } = {
-  [TRANSACTION_TYPE.BRIDGE]: 'Processing',
+  [TRANSACTION_TYPE.BRIDGE]: '- Processing',
   [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER]: 'Submitted',
 }
-const getTitle = (type: string, success: boolean) => {
-  let statusText = success ? 'Success' : 'Error'
-  if (success) {
+
+const getTitleAlert = (type: string, success: boolean) => {
+  const statusText = success ? 'Success' : 'Error'
+  if (success && MAP_STATUS[type]) {
     // custom
-    statusText = MAP_STATUS[type] || statusText
+    return `${type} ${MAP_STATUS[type]}!`
   }
   return `${type} - ${statusText}!`
 }
 
-export default function TransactionPopup({
-  hash,
-  notiType,
-  type,
-  summary,
-}: {
-  hash: string
-  notiType: NotificationType
-  type?: TRANSACTION_TYPE
-  summary?: string
-}) {
+export const getSummaryTransaction = (transaction: TransactionDetails) => {
+  // todo check group thì show 1 cái thôi: wallet popup
+  // todo check success error:  title alert, desc alert, titlet transaction/transaction group
+
+  const pending = !transaction?.receipt
+  const success =
+    !pending && transaction && (transaction.receipt?.status === 1 || typeof transaction.receipt?.status === 'undefined')
+  const type = transaction?.type
+
+  const shortHash = 'Hash: ' + transaction.hash.slice(0, 8) + '...' + transaction.hash.slice(58, 65)
+
+  const summary = transaction.group && type ? SUMMARY[type]?.(transaction) ?? shortHash : shortHash
+
+  const title = type ? getTitleAlert(type, success) : shortHash
+
+  return { pending, success, title, summary }
+}
+
+export default function TransactionPopup({ hash, notiType }: { hash: string; notiType: NotificationType }) {
   const { chainId } = useActiveWeb3React()
 
   const theme = useTheme()
   const success = notiType === NotificationType.SUCCESS
-
+  const transactions = useAllTransactions()
+  const transaction = findTx(transactions, hash)
+  if (!transaction) return null
+  const { title, summary } = getSummaryTransaction(transaction)
   return (
     <Box>
       <RowNoFlex>
@@ -212,15 +184,11 @@ export default function TransactionPopup({
           )}
         </div>
         <AutoColumn gap="8px">
-          {type && (
-            <Text fontSize="16px" fontWeight={500} color={success ? theme.primary : theme.red}>
-              {getTitle(type, success)}
-            </Text>
-          )}
+          <Text fontSize="16px" fontWeight={500} color={success ? theme.primary : theme.red}>
+            {title}
+          </Text>
           <Text fontSize="14px" fontWeight={400} color={theme.text} lineHeight={1.6}>
-            {type
-              ? SUMMARY[type]?.[success ? 'success' : 'failure']?.(summary) || summary
-              : summary ?? 'Hash: ' + hash.slice(0, 8) + '...' + hash.slice(58, 65)}
+            {summary}
           </Text>
         </AutoColumn>
       </RowNoFlex>

@@ -90,7 +90,6 @@ export default function useWrapCallback(
                     addTransactionWithType({
                       hash,
                       type: TRANSACTION_TYPE.WRAP_TOKEN,
-                      summary: `${tokenAmount} ${nativeTokenSymbol} to ${tokenAmount} W${nativeTokenSymbol}`,
                       extraInfo: {
                         tokenAmountIn: tokenAmount,
                         tokenAmountOut: tokenAmount,
@@ -152,7 +151,6 @@ export default function useWrapCallback(
                     addTransactionWithType({
                       hash,
                       type: TRANSACTION_TYPE.UNWRAP_TOKEN,
-                      summary: `${tokenAmount} W${nativeTokenSymbol} to ${tokenAmount} ${nativeTokenSymbol}`,
                       extraInfo: {
                         tokenAmountIn: tokenAmount,
                         tokenAmountOut: tokenAmount,

@@ -90,16 +90,15 @@ function TransactionItem({ transaction, style }: { transaction: TransactionDetai
   const renderDescription = () => {
     // todo danh alert missing type this
     switch (type) {
-      case TRANSACTION_TYPE.FORCE_WITHDRAW: // xong chưa test
-      case TRANSACTION_TYPE.STAKE: // xong chưa test
-      case TRANSACTION_TYPE.DEPOSIT: // xong chưa test
-      case TRANSACTION_TYPE.WITHDRAW: // xong chưa test
-      case TRANSACTION_TYPE.KYBERDAO_CLAIM: // xong chưa test
-      case TRANSACTION_TYPE.UNSTAKE: // xong chưa test
-      case TRANSACTION_TYPE.KYBERDAO_VOTE: // xong chưa test
-      case TRANSACTION_TYPE.KYBERDAO_DELEGATE: // xong chưa test
+      case TRANSACTION_TYPE.FORCE_WITHDRAW:
+      case TRANSACTION_TYPE.STAKE:
+      case TRANSACTION_TYPE.DEPOSIT:
+      case TRANSACTION_TYPE.WITHDRAW:
+      case TRANSACTION_TYPE.KYBERDAO_CLAIM:
+      case TRANSACTION_TYPE.UNSTAKE:
+      case TRANSACTION_TYPE.KYBERDAO_VOTE:
+      case TRANSACTION_TYPE.KYBERDAO_DELEGATE:
       case TRANSACTION_TYPE.KYBERDAO_UNDELEGATE: {
-        // xong chưa test
         const { summary = '' } = extraInfo as TransactionExtraBaseInfo // approve elastic farm, ...
         return (
           <>
@@ -110,7 +109,6 @@ function TransactionItem({ transaction, style }: { transaction: TransactionDetai
       }
       case TRANSACTION_TYPE.APPROVE:
       case TRANSACTION_TYPE.CLAIM_REWARD: {
-        // xong chưa test
         const { tokenSymbol, tokenAmount, tokenAddress } = extraInfo as TransactionExtraInfo1Token
         const { summary = '' } = extraInfo as TransactionExtraBaseInfo // approve elastic farm, ...
         const plus = [TRANSACTION_TYPE.CLAIM_REWARD].includes(type)
@@ -129,7 +127,7 @@ function TransactionItem({ transaction, style }: { transaction: TransactionDetai
       // ex: stake -3knc
       case TRANSACTION_TYPE.KYBERDAO_STAKE:
       case TRANSACTION_TYPE.KYBERDAO_UNSTAKE:
-      case TRANSACTION_TYPE.TRANSFER_TOKEN: // xong chưa test
+      case TRANSACTION_TYPE.TRANSFER_TOKEN:
         const { tokenSymbol, tokenAmount, tokenAddress } = extraInfo as TransactionExtraInfo1Token
         const plus = [TRANSACTION_TYPE.KYBERDAO_UNSTAKE].includes(type)
         return (
@@ -142,7 +140,7 @@ function TransactionItem({ transaction, style }: { transaction: TransactionDetai
       //ex: +3knc -2usdt
       case TRANSACTION_TYPE.UNWRAP_TOKEN:
       case TRANSACTION_TYPE.WRAP_TOKEN:
-      case TRANSACTION_TYPE.SWAP: // chưa test
+      case TRANSACTION_TYPE.SWAP:
       case TRANSACTION_TYPE.KYBERDAO_MIGRATE: {
         const { tokenAmountIn, tokenAmountOut, tokenSymbolIn, tokenSymbolOut, tokenAddressIn, tokenAddressOut } =
           extraInfo as TransactionExtraInfo2Token
@@ -153,13 +151,12 @@ function TransactionItem({ transaction, style }: { transaction: TransactionDetai
           </>
         )
       }
-      case TRANSACTION_TYPE.ELASTIC_ADD_LIQUIDITY: // chưa test
-      case TRANSACTION_TYPE.REMOVE_LIQUIDITY: // chưa test
-      case TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY: // chưa test
-      case TRANSACTION_TYPE.INCREASE_LIQUIDITY: // chưa test
-      case TRANSACTION_TYPE.COLLECT_FEE: // chưa test
+      case TRANSACTION_TYPE.ELASTIC_ADD_LIQUIDITY:
+      case TRANSACTION_TYPE.REMOVE_LIQUIDITY:
+      case TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY:
+      case TRANSACTION_TYPE.INCREASE_LIQUIDITY:
+      case TRANSACTION_TYPE.COLLECT_FEE:
       case TRANSACTION_TYPE.ADD_LIQUIDITY: {
-        // chưa test
         const {
           tokenAmountIn,
           tokenAmountOut,
@@ -183,7 +180,6 @@ function TransactionItem({ transaction, style }: { transaction: TransactionDetai
       }
       case TRANSACTION_TYPE.ELASTIC_CREATE_POOL:
       case TRANSACTION_TYPE.CREATE_POOL: {
-        // chưa test
         const { tokenAmountIn, tokenAmountOut, tokenSymbolIn, tokenSymbolOut } = extraInfo as TransactionExtraInfo2Token
         return (
           <>

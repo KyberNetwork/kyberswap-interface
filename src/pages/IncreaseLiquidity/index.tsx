@@ -231,7 +231,6 @@ export default function AddLiquidity() {
               addTransactionWithType({
                 hash: response.hash,
                 type: TRANSACTION_TYPE.INCREASE_LIQUIDITY,
-                summary: tokenAmountIn + ' ' + tokenSymbolIn + ' and ' + tokenAmountOut + ' ' + tokenSymbolOut,
                 extraInfo: {
                   tokenAmountIn,
                   tokenAmountOut,

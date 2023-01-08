@@ -294,7 +294,6 @@ export default function AddLiquidity() {
                 addTransactionWithType({
                   hash: response.hash,
                   type: TRANSACTION_TYPE.ELASTIC_CREATE_POOL,
-                  summary: `${tokenAmountIn} ${baseCurrency.symbol} and ${tokenAmountOut} ${quoteCurrency.symbol} `,
                   extraInfo: {
                     tokenSymbolIn: baseCurrency.symbol ?? '',
                     tokenSymbolOut: quoteCurrency.symbol ?? '',
@@ -314,7 +313,6 @@ export default function AddLiquidity() {
                 addTransactionWithType({
                   hash: response.hash,
                   type: TRANSACTION_TYPE.ELASTIC_ADD_LIQUIDITY,
-                  summary: `${tokenAmountIn} ${baseCurrency.symbol} and ${tokenAmountOut} ${quoteCurrency.symbol} `,
                   extraInfo: {
                     contract: poolAddress,
                     tokenAmountIn,

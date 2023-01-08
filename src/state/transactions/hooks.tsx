@@ -18,7 +18,7 @@ export function useTransactionAdder(): (tx: TransactionHistory) => void {
   const blockNumber = useBlockNumber()
 
   return useCallback(
-    async ({ hash, desiredChainId, type, summary, firstTxHash, extraInfo }: TransactionHistory) => {
+    async ({ hash, desiredChainId, type, firstTxHash, extraInfo }: TransactionHistory) => {
       if (!account || !chainId) return
 
       let tx: TransactionResponse | undefined
@@ -36,7 +36,6 @@ export function useTransactionAdder(): (tx: TransactionHistory) => void {
           sentAtBlock: blockNumber,
           chainId: desiredChainId ?? chainId,
           type,
-          summary,
           firstTxHash,
           extraInfo,
         }),

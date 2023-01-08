@@ -268,7 +268,6 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
             addTransactionWithType({
               hash: response.hash,
               type: TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY,
-              summary: tokenAmountIn + ' ' + tokenSymbolIn + ' and ' + tokenAmountOut + ' ' + tokenSymbolOut,
               extraInfo: {
                 tokenAmountIn,
                 tokenAmountOut,

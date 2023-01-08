@@ -280,7 +280,6 @@ const TokenPair = ({
             addTransactionWithType({
               hash: response.hash,
               type: TRANSACTION_TYPE.ADD_LIQUIDITY,
-              summary: tokenAmountIn + ' ' + cA.symbol + ' and ' + tokenAmountOut + ' ' + cB.symbol,
               extraInfo: {
                 tokenSymbolIn: cA.symbol ?? '',
                 tokenSymbolOut: cB.symbol ?? '',

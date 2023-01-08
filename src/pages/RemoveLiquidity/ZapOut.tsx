@@ -408,7 +408,6 @@ export default function ZapOut({
             addTransactionWithType({
               hash: response.hash,
               type: TRANSACTION_TYPE.REMOVE_LIQUIDITY,
-              summary: tokenAmount + ' ' + independentToken?.symbol,
               extraInfo: {
                 tokenSymbol: independentToken?.symbol ?? '',
                 tokenAmount,

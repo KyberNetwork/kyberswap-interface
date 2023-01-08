@@ -62,7 +62,6 @@ const useFairLaunch = (address: string) => {
       addTransactionWithType({
         hash: tx.hash,
         type: TRANSACTION_TYPE.STAKE,
-        summary: `${getFullDisplayBalance(amount)} ${name} Tokens`,
         extraInfo: { summary: `${getFullDisplayBalance(amount)} ${name} Tokens` },
       })
 
@@ -85,7 +84,6 @@ const useFairLaunch = (address: string) => {
       addTransactionWithType({
         hash: tx.hash,
         type: TRANSACTION_TYPE.UNSTAKE,
-        summary: `${getFullDisplayBalance(amount)} ${name} Tokens`,
         extraInfo: { summary: `${getFullDisplayBalance(amount)} ${name} Tokens` },
       })
 

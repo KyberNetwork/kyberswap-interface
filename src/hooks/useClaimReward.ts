@@ -163,7 +163,6 @@ export default function useClaimReward() {
           addTransactionWithType({
             hash: tx.hash,
             type: TRANSACTION_TYPE.CLAIM_REWARD,
-            summary: rewardAmounts + ' KNC',
             extraInfo: {
               tokenAddress: KNC[chainId].address,
               tokenAmount: rewardAmounts,

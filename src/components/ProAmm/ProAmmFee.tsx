@@ -111,7 +111,6 @@ export default function ProAmmFee({
             addTransactionWithType({
               hash: response.hash,
               type: TRANSACTION_TYPE.COLLECT_FEE,
-              summary: tokenAmountIn + ' ' + tokenSymbolIn + ' and ' + tokenAmountOut + ' ' + tokenSymbolOut,
               extraInfo: {
                 tokenAmountIn,
                 tokenAmountOut,
