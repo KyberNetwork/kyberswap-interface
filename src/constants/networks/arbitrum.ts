@@ -54,7 +54,7 @@ const arbitrumInfo: EVMNetworkInfo = {
     dynamic: NOT_SUPPORT,
     claimReward: NOT_SUPPORT,
     fairlaunch: EMPTY_ARRAY,
-    fairlaunchV2: EMPTY_ARRAY,
+    fairlaunchV2: ['0xE8144386BF00f168ed7a0E0D821AC18e02a461BA'],
   },
   elastic: {
     startBlock: 14137735,

@@ -1,5 +1,5 @@
 import { rgba } from 'polished'
-import { RefObject } from 'react'
+import { ForwardedRef, InputHTMLAttributes, forwardRef } from 'react'
 import styled from 'styled-components'
 
 const CheckboxWrapper = styled.input`
@@ -41,7 +41,7 @@ const CheckboxBorder = styled.input`
   border-radius: 0.15em;
   display: grid;
   place-content: center;
-  border: 2px solid ${({ theme }) => theme.text};
+  border: 1.5px solid ${({ theme }) => theme.text};
   ::before {
     content: '';
     width: 13px;
@@ -62,11 +62,13 @@ const CheckboxBorder = styled.input`
     border-color: ${({ theme }) => rgba(theme.subText, 0.25)};
   }
 `
-interface Props extends React.InputHTMLAttributes<HTMLInputElement> {
-  ref?: RefObject<HTMLInputElement>
+interface Props extends InputHTMLAttributes<HTMLInputElement> {
   borderStyle?: boolean
 }
-export default function Checkbox(params: Props) {
-  if (params.borderStyle) return <CheckboxBorder type="checkbox" {...params} />
-  return <CheckboxWrapper type="checkbox" {...params} />
+
+const Checkbox = (params: Props, ref: ForwardedRef<HTMLInputElement>) => {
+  if (params.borderStyle) return <CheckboxBorder type="checkbox" ref={ref} {...params} />
+  return <CheckboxWrapper type="checkbox" ref={ref} {...params} />
 }
+
+export default forwardRef<HTMLInputElement, Props>(Checkbox)
