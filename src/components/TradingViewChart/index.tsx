@@ -1,7 +1,7 @@
-import { Currency } from '@kyberswap/ks-sdk-core'
 import React, { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import * as ReactDOMServer from 'react-dom/server'
+import { PoolResponse } from 'services/geckoTermial'
 import styled from 'styled-components'
 
 import { ReactComponent as FullscreenOff } from 'assets/svg/fullscreen_off.svg'
@@ -100,26 +100,25 @@ function closeFullscreen() {
 }
 
 function ProLiveChart({
-  currencies,
-  stateProChart,
+  poolDetail,
+  tokenId,
   className,
-  setLoading,
 }: {
-  currencies: Array<Currency | undefined>
-  stateProChart?: any
+  poolDetail: PoolResponse
+  // base token id
+  tokenId: string
   className?: string
-  setLoading: (loading: boolean) => void
 }) {
+  const [loading, setLoading] = useState(false)
   const theme = useTheme()
   const userLocale = useUserLocale()
-  const { hasProChart, apiVersion, pairAddress, loading } = stateProChart
   const [ref, setRef] = useState<HTMLDivElement | null>(null)
   const [fullscreen, setFullscreen] = useState(false)
 
-  const datafeed = useDatafeed(currencies, pairAddress, apiVersion)
+  const datafeed = useDatafeed(poolDetail, tokenId)
 
   useEffect(() => {
-    if (!ref || !hasProChart || !window.TradingView) {
+    if (!ref || !window.TradingView) {
       return
     }
     setLoading(true)
@@ -132,7 +131,7 @@ function ProLiveChart({
 
     const widgetOptions: ChartingLibraryWidgetOptions = {
       symbol: 'KNC',
-      datafeed: datafeed,
+      datafeed,
       interval: '1H' as ResolutionString,
       container: ref,
       library_path: '/charting_library/',
@@ -213,8 +212,7 @@ function ProLiveChart({
         tvWidget.remove()
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [theme, userLocale, ref, pairAddress, currencies, hasProChart])
+  }, [theme, userLocale, ref, datafeed])
 
   return (
     <ProLiveChartWrapper fullscreen={fullscreen} onClick={() => setFullscreen(false)} className={className}>

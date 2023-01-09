@@ -4,11 +4,12 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Repeat } from 'react-feather'
 import { Flex, Text } from 'rebass'
-import { useGeckoTerminalSearchQuery } from 'services/geckoTermial'
+import { useGeckoTerminalSearchQuery, useGetPoolDetailQuery } from 'services/geckoTermial'
 import styled from 'styled-components'
 
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import Loader from 'components/LocalLoader'
+import TradingViewChart from 'components/TradingViewChart'
 import { useActiveWeb3React } from 'hooks'
 import useBasicChartData, { LiveDataTimeframeEnum } from 'hooks/useBasicChartData'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -154,6 +155,13 @@ function LiveChart({ currencies }: { currencies: { [field in Field]?: Currency }
     network = pools0?.[0]?.network?.identifier || pools1?.[0]?.network?.identifier
   }
 
+  const { data: poolDetail } = useGetPoolDetailQuery(
+    { poolAddress: poolAddress || '', network },
+    {
+      skip: !poolAddress,
+    },
+  )
+
   useEffect(() => {
     setCurrenciesState(currencies)
   }, [currencies])
@@ -234,6 +242,7 @@ function LiveChart({ currencies }: { currencies: { [field in Field]?: Currency }
     )
   }, [isBasicchartError, isProchartError, isShowProChart, bothChartError, mixpanelHandler])
 
+  const isReverse = poolDetail?.included?.[0]?.attributes?.symbol === nativeOutputCurrency?.wrapped?.symbol
   return (
     <LiveChartWrapper>
       {isWrappedToken ? (
@@ -294,18 +303,8 @@ function LiveChart({ currencies }: { currencies: { [field in Field]?: Currency }
             </Flex>
           </Flex>
 
-          {isShowProChart && !!poolAddress && (
-            <iframe
-              style={{ borderRadius: '1rem' }}
-              height="100%"
-              width="100%"
-              id="geckoterminal-embed"
-              title="GeckoTerminal Embed"
-              src={`https://www.geckoterminal.com/${network}/pools/${poolAddress}?embed=1&info=0&swaps=0`}
-              frameBorder="0"
-              allow="clipboard-write"
-              allowFullScreen
-            />
+          {isShowProChart && !!poolDetail && (
+            <TradingViewChart poolDetail={poolDetail} tokenId={poolDetail.included[isReverse ? 1 : 0].id} />
           )}
 
           {!isShowProChart && (
