@@ -26,11 +26,13 @@ import ChartPositions from 'components/ProAmm/ChartPositions'
 import ListPositions from 'components/ProAmm/ListPositions'
 import PoolPriceChart from 'components/ProAmm/PoolPriceChart'
 import ProAmmPoolInfo from 'components/ProAmm/ProAmmPoolInfo'
+import ProAmmPoolStat from 'components/ProAmm/ProAmmPoolStat'
 import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
 import ProAmmPriceRange from 'components/ProAmm/ProAmmPriceRange'
 import RangeSelector from 'components/RangeSelector'
 import Rating from 'components/Rating'
 import Row, { RowBetween, RowFit, RowFixed } from 'components/Row'
+import ShareModal from 'components/ShareModal'
 import Tooltip from 'components/Tooltip'
 import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
 import { TutorialType } from 'components/Tutorial'
@@ -46,7 +48,8 @@ import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
 import useProAmmPreviousTicks from 'hooks/useProAmmPreviousTicks'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
-import { useWalletModalToggle } from 'state/application/hooks'
+import { ApplicationModal } from 'state/application/actions'
+import { useOpenModal, useWalletModalToggle } from 'state/application/hooks'
 import {
   useProAmmDerivedAllMintInfo,
   useProAmmDerivedMintInfo,
@@ -55,6 +58,8 @@ import {
   useRangeHopCallbacks,
 } from 'state/mint/proamm/hooks'
 import { Bound, Field, RANGE } from 'state/mint/proamm/type'
+import { useUserProMMPositions } from 'state/prommPools/hooks'
+import useGetElasticPools from 'state/prommPools/useGetElasticPools'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
@@ -272,6 +277,8 @@ export default function AddLiquidity() {
       ? (positions as Position[])
       : undefined
     : position
+
+  const { data: poolDatas } = useGetElasticPools([poolAddress])
 
   const onAdd = useCallback(
     async function () {
@@ -848,6 +855,14 @@ export default function AddLiquidity() {
     )
   }
 
+  const poolStat = poolDatas?.[poolAddress] || poolDatas?.[poolAddress.toLowerCase()]
+  const openShareModal = useOpenModal(ApplicationModal.SHARE)
+  const userLiquidityPositionsQueryResult = useUserProMMPositions()
+  const userPositions = useMemo(
+    () => (!account ? {} : userLiquidityPositionsQueryResult.userLiquidityUsdByPool),
+    [account, userLiquidityPositionsQueryResult],
+  )
+
   if (!isEVM) return <Navigate to="/" />
   return (
     <>
@@ -1056,7 +1071,22 @@ export default function AddLiquidity() {
                     </RowBetween>
                   </AutoColumn>
                 </AutoColumn>
-              ) : null}
+              ) : (
+                poolStat && (
+                  <>
+                    <AutoColumn gap="12px">
+                      <Text fontWeight={500} fontSize="12px">
+                        <Trans>Pool Stats</Trans>
+                      </Text>
+                      <ProAmmPoolStat pool={poolStat} onShared={openShareModal} userPositions={userPositions} />
+                    </AutoColumn>
+                    <ShareModal
+                      url={`${window.location.origin}/pools/${networkInfo.route}?search=${poolAddress}&tab=elastic`}
+                      title={t`Share this pool with your friends!`}
+                    />
+                  </>
+                )
+              )}
               {upToMedium && chart}
             </FlexLeft>
             {!upToMedium && (
