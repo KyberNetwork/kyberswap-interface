@@ -84,6 +84,7 @@
     "numbro": "^2.3.6",
     "numeral": "^2.0.6",
     "polished": "^3.7.2",
+    "re-resizable": "6.9.9",
     "react": "^18.2.0",
     "react-app-rewire-styled-components": "^3.0.2",
     "react-app-rewired": "^2.2.1",

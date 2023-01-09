@@ -30,10 +30,12 @@ const Label = styled.label<{ color?: string }>`
   line-height: 16px;
   color: ${({ theme, color }) => color ?? theme.subText};
 `
+
 const Wrapper = styled.div`
   display: flex;
-  flex: 1;
   flex-direction: column;
+  flex: 1 1 100%;
+  gap: 14px;
   justify-content: space-between;
 `
 

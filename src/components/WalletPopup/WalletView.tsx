@@ -7,11 +7,11 @@ import styled from 'styled-components'
 
 import { ReactComponent as DollarIcon } from 'assets/svg/dollar.svg'
 import { ReactComponent as SendIcon } from 'assets/svg/send_icon.svg'
+import { ReactComponent as DragHandleIcon } from 'assets/svg/wallet_drag_handle.svg'
 import { ButtonLight } from 'components/Button'
 import Column from 'components/Column'
 import Row, { RowBetween } from 'components/Row'
 import AccountInfo from 'components/WalletPopup/AccountInfo'
-import DragHandle from 'components/WalletPopup/DragHandle'
 import MyAssets from 'components/WalletPopup/MyAssets'
 import PinButton from 'components/WalletPopup/PinButton'
 import SendToken from 'components/WalletPopup/SendToken'
@@ -23,13 +23,16 @@ import { useTokensHasBalance } from 'state/wallet/hooks'
 import ReceiveToken from './ReceiveToken'
 import ListTransaction from './Transactions'
 
+export const HANDLE_CLASS_NAME = 'walletPopupDragHandle'
+
 type WrapperProps = { $pinned: boolean }
 const Wrapper = styled(Column).attrs<WrapperProps>(props => ({
   'data-pinned': props.$pinned,
 }))<WrapperProps>`
-  width: 410px;
-  height: 680px;
+  width: 100%;
+  height: 100%;
   padding: 20px;
+  padding-top: 0px;
   gap: 14px;
   border-radius: 20px 0px 0px 0px;
   background-color: ${({ theme }) => theme.tabActive};
@@ -53,6 +56,14 @@ const TabItem = styled.div<{ active: boolean }>`
     color: ${({ theme }) => theme.primary};
   }
 `
+
+const ContentWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 100%;
+  gap: 14px;
+`
+
 const View = {
   ASSETS: t`Assets`,
   SEND_TOKEN: t`Send`,
@@ -116,21 +127,21 @@ export default function WalletView({ onDismiss, onPin, isPinned }: Props) {
     switch (view) {
       case View.TRANSACTIONS:
         return (
-          <>
+          <ContentWrapper>
             <AccountInfo totalBalanceInUsd={totalBalanceInUsd} />
             {actionGroup}
             {underTab}
             <ListTransaction />
-          </>
+          </ContentWrapper>
         )
       case View.ASSETS:
         return (
-          <>
+          <ContentWrapper>
             <AccountInfo totalBalanceInUsd={totalBalanceInUsd} />
             {actionGroup}
             {underTab}
             <MyAssets loadingTokens={loadingTokens} tokens={currencies} />
-          </>
+          </ContentWrapper>
         )
       case View.SEND_TOKEN:
         return <SendToken loadingTokens={loadingTokens} currencies={currencies} currencyBalances={currencyBalances} />
@@ -145,28 +156,57 @@ export default function WalletView({ onDismiss, onPin, isPinned }: Props) {
 
   return (
     <Wrapper $pinned={isPinned}>
-      <RowBetween height={'28px'} style={{ borderBottom: `1px solid ${theme.border}`, paddingBottom: 18 }}>
-        {isExchangeTokenTab ? (
-          <>
-            <ChevronLeft cursor="pointer" size={28} onClick={() => setView(View.ASSETS)} color={theme.subText} />
-            <Flex alignItems="center">
-              <SendIcon style={{ marginRight: 7, transform: isSendTab ? 'unset' : 'rotate(180deg)' }} /> {view}
-            </Flex>
-          </>
-        ) : (
-          <Text fontWeight={'500'} fontSize="20px">
-            <Trans>Your Account</Trans>
-          </Text>
+      <Flex
+        className={isPinned ? HANDLE_CLASS_NAME : ''}
+        sx={{
+          flexDirection: 'column',
+          width: '100%',
+          height: '0 0 max-content',
+          justifyContent: 'center',
+          cursor: isPinned ? 'move' : undefined,
+        }}
+      >
+        {isPinned && (
+          <Flex
+            sx={{
+              height: '12px',
+              justifyContent: 'center',
+              alignItems: 'center',
+              paddingTop: '8px',
+            }}
+          >
+            <DragHandleIcon />
+          </Flex>
         )}
-        <Flex style={{ gap: 20 }} alignItems="center">
-          {!isPinned && onPin && <PinButton isActive={false} onClick={onPin} />}
-          <X onClick={onDismiss} color={theme.subText} cursor="pointer" />
+
+        <Flex
+          sx={{
+            flex: '0 0 48px',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            borderBottom: `1px solid ${theme.border}`,
+          }}
+        >
+          {isExchangeTokenTab ? (
+            <>
+              <ChevronLeft cursor="pointer" size={28} onClick={() => setView(View.ASSETS)} color={theme.subText} />
+              <Flex alignItems="center">
+                <SendIcon style={{ marginRight: 7, transform: isSendTab ? 'unset' : 'rotate(180deg)' }} /> {view}
+              </Flex>
+            </>
+          ) : (
+            <Text fontWeight={'500'} fontSize="20px">
+              <Trans>Your Account</Trans>
+            </Text>
+          )}
+          <Flex style={{ gap: 20 }} alignItems="center">
+            {!isPinned && onPin && <PinButton isActive={false} onClick={onPin} />}
+            <X onClick={onDismiss} color={theme.subText} cursor="pointer" />
+          </Flex>
         </Flex>
-      </RowBetween>
+      </Flex>
 
       {renderContent()}
-
-      {isPinned && <DragHandle />}
     </Wrapper>
   )
 }

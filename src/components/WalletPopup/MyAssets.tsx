@@ -19,29 +19,35 @@ export default function MyAssets({ tokens, loadingTokens }: { tokens: Currency[]
   const showModal = () => setModalOpen(true)
   const hideModal = () => setModalOpen(false)
 
-  return loadingTokens ? (
-    <Row style={{ height: 73 }} gap="6px" justify="center">
-      <Loader /> <Text color={theme.subText}>Loading tokens...</Text>
-    </Row>
-  ) : !tokens.length ? (
-    <>
-      <Column gap="6px" style={{ alignItems: 'center' }}>
-        <Info color={theme.subText} />
-        <Text color={theme.subText}>
-          <Trans>Don&apos;t see your tokens</Trans>
-        </Text>
-        <Text color={theme.primary} style={{ cursor: 'pointer' }} onClick={showModal}>
-          <Trans>Import tokens</Trans>
-        </Text>
-      </Column>
-      <CurrencySearchModal
-        isOpen={modalOpen}
-        onDismiss={hideModal}
-        onCurrencySelect={hideModal}
-        showCommonBases={false}
-      />
-    </>
-  ) : (
-    <CurrencyList currencies={tokens} itemStyle={tokenItemStyle} showFavoriteIcon={false} />
-  )
+  if (loadingTokens) {
+    return (
+      <Row style={{ height: 73 }} gap="6px" justify="center">
+        <Loader /> <Text color={theme.subText}>Loading tokens...</Text>
+      </Row>
+    )
+  }
+
+  if (!tokens.length) {
+    return (
+      <>
+        <Column gap="6px" style={{ alignItems: 'center' }}>
+          <Info color={theme.subText} />
+          <Text color={theme.subText}>
+            <Trans>Don&apos;t see your tokens</Trans>
+          </Text>
+          <Text color={theme.primary} style={{ cursor: 'pointer' }} onClick={showModal}>
+            <Trans>Import tokens</Trans>
+          </Text>
+        </Column>
+        <CurrencySearchModal
+          isOpen={modalOpen}
+          onDismiss={hideModal}
+          onCurrencySelect={hideModal}
+          showCommonBases={false}
+        />
+      </>
+    )
+  }
+
+  return <CurrencyList currencies={tokens} itemStyle={tokenItemStyle} showFavoriteIcon={false} />
 }

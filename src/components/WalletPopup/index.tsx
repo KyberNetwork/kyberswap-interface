@@ -1,12 +1,12 @@
+import { Resizable } from 're-resizable'
 import { useRef } from 'react'
 import Draggable from 'react-draggable'
 import { useMedia } from 'react-use'
 
 import Modal from 'components/Modal'
-import { HANDLE_CLASS_NAME } from 'components/WalletPopup/DragHandle'
 import { MEDIA_WIDTHS } from 'theme'
 
-import WalletView from './WalletView'
+import WalletView, { HANDLE_CLASS_NAME } from './WalletView'
 
 const WalletPopup = ({
   onDismiss,
@@ -31,7 +31,7 @@ const WalletPopup = ({
 
   if (isMobile) {
     return (
-      <Modal isOpen={true} onDismiss={onDismiss} minHeight={false} maxHeight={90} maxWidth={410}>
+      <Modal isOpen={true} onDismiss={onDismiss}>
         <WalletView onDismiss={handleClosePopup} isPinned={isPinned} />
       </Modal>
     )
@@ -50,7 +50,19 @@ const WalletPopup = ({
         }}
         ref={nodeRef}
       >
-        <WalletView onDismiss={handleClosePopup} isPinned={isPinned} onPin={handlePinPopup} />
+        <Resizable
+          defaultSize={{
+            width: '410px',
+            height: '680px',
+          }}
+          minWidth="320px"
+          minHeight="420px"
+          maxWidth="480px"
+          maxHeight="720px"
+          enable={isPinned ? undefined : {}}
+        >
+          <WalletView onDismiss={handleClosePopup} isPinned={isPinned} onPin={handlePinPopup} />
+        </Resizable>
       </div>
     </Draggable>
   )
