@@ -36,8 +36,13 @@ const usePoolTransactionsStat = (
   const sum = addCount + removeCount
 
   return [
-    { name: 'Add Liquidity', value: addCount, percent: addCount / sum, type: POOL_TRANSACTION_TYPE.ADD },
-    { name: 'Remove Liquidity', value: removeCount, percent: removeCount / sum, type: POOL_TRANSACTION_TYPE.REMOVE },
+    { name: 'Add Liquidity', value: addCount, percent: (addCount / sum) * 100, type: POOL_TRANSACTION_TYPE.ADD },
+    {
+      name: 'Remove Liquidity',
+      value: removeCount,
+      percent: (removeCount / sum) * 100,
+      type: POOL_TRANSACTION_TYPE.REMOVE,
+    },
   ]
 }
 
