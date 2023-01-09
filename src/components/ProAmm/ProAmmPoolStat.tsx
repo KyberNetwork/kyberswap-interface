@@ -13,6 +13,7 @@ import CopyHelper from 'components/Copy'
 import Divider from 'components/Divider'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { MoneyBag } from 'components/Icons'
+import CircleInfoIcon from 'components/LiveChart/CircleInfoIcon'
 import { Circle } from 'components/Rating'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { FeeTag } from 'components/YieldPools/ElasticFarmGroup/styleds'
@@ -250,13 +251,33 @@ export default function ProAmmPoolStat({ pool, onShared, userPositions }: ListIt
           <Text color={theme.subText} fontSize="12px" fontWeight="500">
             <Trans>Last 24H Transactions</Trans>
           </Text>
-          <Flex sx={{ gap: '32px', paddingLeft: '24px' }} alignItems="center">
+          <Flex sx={{ width: '100%', height: '88px' }} alignItems="center">
             {poolTransactionsStat === 0 ? (
-              <Text wrap="unwrap" fontSize="12px" fontWeight={500}>
-                No data
-              </Text>
+              <Flex
+                sx={{ width: '100%', gap: '16px', color: theme.subText }}
+                justifyContent="center"
+                flexDirection="column"
+                alignItems="center"
+              >
+                <CircleInfoIcon size="32" />
+
+                <Trans>
+                  <Text
+                    as={Flex}
+                    wrap="unwrap"
+                    fontSize="12px"
+                    fontWeight={500}
+                    color={theme.subText}
+                    alignItems="center"
+                    flexDirection="column"
+                  >
+                    <Text>There is no Add Liquidity nor Remove Liquidity</Text>
+                    <Text>transaction in the last 24h</Text>
+                  </Text>
+                </Trans>
+              </Flex>
             ) : (
-              <>
+              <Flex sx={{ gap: '32px', paddingLeft: '24px', width: '100%' }}>
                 <PieChart width={88} height={88}>
                   <Pie
                     stroke={isDarkMode ? 'black' : 'white'}
@@ -277,12 +298,12 @@ export default function ProAmmPoolStat({ pool, onShared, userPositions }: ListIt
                     <Tooltip />
                   </Pie>
                 </PieChart>
-                <Flex sx={{ gap: '12px' }} flexDirection="column">
+                <Flex sx={{ gap: '12px' }} flexDirection="column" alignSelf="center">
                   {poolTransactionsStat.map(data => (
                     <Flex sx={{ gap: '4px' }} key={data.type}>
                       <Circle color={COLORS[data.type]} size={12} />
                       <Text wrap="unwrap" fontSize="12px" fontWeight={500}>
-                        {data.name}&nbsp;
+                        {data.name}{' '}
                         <Text as="span" color={theme.subText}>
                           ({data.percent.toFixed(2)}%)
                         </Text>
@@ -290,7 +311,7 @@ export default function ProAmmPoolStat({ pool, onShared, userPositions }: ListIt
                     </Flex>
                   ))}
                 </Flex>
-              </>
+              </Flex>
             )}
           </Flex>
         </Flex>
