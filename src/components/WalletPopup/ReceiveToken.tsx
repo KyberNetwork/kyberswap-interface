@@ -13,6 +13,7 @@ import CopyHelper from 'components/Copy'
 import { useActiveWeb3React } from 'hooks'
 import useCopyClipboard from 'hooks/useCopyClipboard'
 import useTheme from 'hooks/useTheme'
+import { shortenAddress } from 'utils'
 
 const QR_SIZE = 200
 const QR_ID = 'react-qrcode-logo'
@@ -34,7 +35,7 @@ const Wrapper = styled.div`
 `
 
 export default function SendToken() {
-  const { account = '', isEVM } = useActiveWeb3React()
+  const { account = '', chainId, isEVM } = useActiveWeb3React()
   const [qrConfig, setQrConfig] = useState<{ [key: string]: any } | null>(null)
 
   useEffect(() => {
@@ -108,7 +109,7 @@ export default function SendToken() {
           <AddressInput
             style={{ color: theme.subText }}
             disabled
-            value={account}
+            value={shortenAddress(chainId, account, 17)}
             icon={<CopyHelper toCopy={account} style={{ color: theme.subText }} />}
           />
         </Column>
