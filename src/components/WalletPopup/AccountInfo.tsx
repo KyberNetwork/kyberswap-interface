@@ -6,11 +6,11 @@ import { BarChart2, LogOut, Settings } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
-import KyberPanelImage from 'assets/images/kyber_panel.png'
 import Column from 'components/Column'
 import CopyHelper from 'components/Copy'
 import Loader from 'components/Loader'
 import MenuFlyout from 'components/MenuFlyout'
+import CardBackground from 'components/WalletPopup/CardBackground'
 import { PROMM_ANALYTICS_URL } from 'constants/index'
 import { SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React } from 'hooks'
@@ -46,35 +46,29 @@ const Wrapper = styled.div`
   position: relative;
   width: 100%;
   height: 160px;
-`
-const shareStyleAbsolute = css`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-`
-
-const Image = styled.img`
-  ${shareStyleAbsolute}
-  z-index: 0;
-`
-
-const BlurImage = styled.div`
-  ${shareStyleAbsolute}
-  background: linear-gradient(113.18deg, ${({ theme }) => theme.background} -0.1%, rgba(0, 0, 0, 0) 98.9%);
-  opacity: 0.6;
   border-radius: 20px;
-  z-index: 1;
+  overflow: hidden;
 `
 
 const Content = styled.div`
-  ${shareStyleAbsolute}
+  position: relative;
   z-index: 2;
+
+  width: 100%;
+  height: 100%;
   padding: 20px;
+
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+`
+
+const IconWrapper = styled.div`
+  display: flex;
+  width: 20px;
+  height: 20px;
+  justify-content: center;
+  align-items: center;
 `
 
 const customStyleMenu = { padding: '10px 0px' }
@@ -90,25 +84,30 @@ export default function AccountInfo({ totalBalanceInUsd }: { totalBalanceInUsd: 
 
   return (
     <Wrapper>
-      <Image src={KyberPanelImage} alt="wallet ui kyberswap" />
-      <BlurImage />
+      <CardBackground />
       <Content>
-        <Flex justifyContent={'space-between'} fontWeight="500">
+        <Flex alignItems="center" justifyContent={'space-between'}>
           <Flex alignItems={'center'} style={{ gap: 5 }} color={theme.subText}>
             {walletKey && (
-              <img
-                height={20}
-                src={isDarkMode ? SUPPORTED_WALLETS[walletKey].icon : SUPPORTED_WALLETS[walletKey].iconLight}
-                alt={SUPPORTED_WALLETS[walletKey].name + ' icon'}
-              />
+              <IconWrapper>
+                <img
+                  height={18}
+                  src={isDarkMode ? SUPPORTED_WALLETS[walletKey].icon : SUPPORTED_WALLETS[walletKey].iconLight}
+                  alt={SUPPORTED_WALLETS[walletKey].name + ' icon'}
+                />
+              </IconWrapper>
             )}
-            {shortenAddress(chainId, account, 5)}
+            <Text as="span" fontWeight="500">
+              {shortenAddress(chainId, account, 5)}
+            </Text>
             <CopyHelper toCopy={account} />
             <ExternalLinkIcon href={getEtherscanLink(chainId, account, 'address')} color={theme.subText} />
           </Flex>
 
           <div ref={node} onClick={toggle}>
-            <Settings size={25} cursor="pointer" />
+            <IconWrapper>
+              <Settings size={20} cursor="pointer" />
+            </IconWrapper>
             <MenuFlyout
               node={node}
               isOpen={isOpen}
@@ -134,21 +133,28 @@ export default function AccountInfo({ totalBalanceInUsd }: { totalBalanceInUsd: 
           </div>
         </Flex>
 
-        <Text color={theme.subText} fontWeight="500">
-          <Trans>Current Balance</Trans>
-        </Text>
-
-        <Text
-          fontSize={'36px'}
-          fontWeight="500"
-          style={{ height: 42, textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}
+        <Flex
+          sx={{
+            flexDirection: 'column',
+            gap: '4px',
+          }}
         >
-          {totalBalanceInUsd !== null ? (
-            `$${formatNumberWithPrecisionRange(totalBalanceInUsd, 0, 8)}`
-          ) : (
-            <Loader size="30px" />
-          )}
-        </Text>
+          <Text color={theme.subText} fontWeight="500">
+            <Trans>Current Balance</Trans>
+          </Text>
+
+          <Text
+            fontSize={'36px'}
+            fontWeight="500"
+            sx={{ height: 42, textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}
+          >
+            {totalBalanceInUsd !== null ? (
+              `$${formatNumberWithPrecisionRange(totalBalanceInUsd, 0, 8)}`
+            ) : (
+              <Loader size="30px" />
+            )}
+          </Text>
+        </Flex>
       </Content>
     </Wrapper>
   )

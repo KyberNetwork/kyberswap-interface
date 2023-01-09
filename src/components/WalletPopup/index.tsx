@@ -46,6 +46,7 @@ const WalletPopup = ({
           right: isPinned ? '10px' : 0,
           bottom: isPinned ? '10px' : 0,
           transition: 'right 150ms, bottom 150ms',
+          cursor: 'auto',
         }}
         ref={nodeRef}
       >
