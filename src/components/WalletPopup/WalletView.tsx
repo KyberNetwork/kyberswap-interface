@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
-import { ChevronLeft, DollarSign, FileText, StopCircle, X } from 'react-feather'
+import { ChevronLeft, FileText, StopCircle, X } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'

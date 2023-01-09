@@ -11,7 +11,8 @@ import MigrateABI from 'constants/abis/kyberdao/migrate.json'
 import RewardDistributorABI from 'constants/abis/kyberdao/reward_distributor.json'
 import StakingABI from 'constants/abis/kyberdao/staking.json'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO, NETWORKS_INFO_CONFIG, isEVM } from 'constants/networks'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { useContract } from 'hooks/useContract'
 import useTokenBalance from 'hooks/useTokenBalance'
@@ -21,6 +22,10 @@ import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { calculateGasMargin } from 'utils'
 
 import { ProposalDetail, ProposalStatus, StakerAction, StakerInfo, VoteInfo } from './types'
+
+export function isSupportKyberDao(chainId: ChainId) {
+  return isEVM(chainId) && (NETWORKS_INFO_CONFIG[chainId] as EVMNetworkInfo).kyberDAO
+}
 
 export function useKyberDAOInfo() {
   const { chainId } = useActiveWeb3React()

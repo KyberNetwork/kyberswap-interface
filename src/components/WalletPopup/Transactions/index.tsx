@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Info } from 'react-feather'
@@ -9,6 +10,8 @@ import styled, { DefaultTheme, css } from 'styled-components'
 import Row from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import { fetchListTokenByAddresses, findCacheToken, useIsLoadedTokenDefault } from 'hooks/Tokens'
+import { isSupportKyberDao } from 'hooks/kyberdao'
+import { useChangeNetwork } from 'hooks/useChangeNetwork'
 import useTheme from 'hooks/useTheme'
 import { useSortRecentTransactions } from 'state/transactions/hooks'
 import {
@@ -63,6 +66,7 @@ export default function ListTransaction() {
   const { chainId } = useActiveWeb3React()
   const [activeTab, setActiveTab] = useState<TRANSACTION_GROUP | string>('')
   const theme = useTheme()
+  const changeNetwork = useChangeNetwork()
 
   const listTokenAddress = useRef<string[]>([])
   const pushAddress = (address: string) => {
@@ -105,22 +109,7 @@ export default function ListTransaction() {
         ))}
       </TabWrapper>
       <Wrapper>
-        <AutoSizer>
-          {({ height, width }) => (
-            <FixedSizeList
-              height={height}
-              width={width}
-              itemSize={70}
-              itemCount={formatTransactions.length}
-              itemData={formatTransactions}
-            >
-              {({ data, index, style }) => (
-                <TransactionItem style={style} transaction={data[index]} key={data[index].hash} />
-              )}
-            </FixedSizeList>
-          )}
-        </AutoSizer>
-        {formatTransactions.length === 0 && (
+        {formatTransactions.length === 0 ? (
           <Flex
             justifyContent="center"
             flexDirection="column"
@@ -129,10 +118,44 @@ export default function ListTransaction() {
             style={{ gap: 10, marginTop: 10 }}
           >
             <Info size={33} />
-            <Text>
-              <Trans>You have no Transaction History</Trans>
-            </Text>
+            {activeTab === TRANSACTION_GROUP.KYBERDAO && !isSupportKyberDao(chainId) ? (
+              <>
+                <Text textAlign="center" lineHeight="24px">
+                  <Trans>
+                    Staking KNC is only available on Ethereum chain. Please switch your network to see your KyberDAO
+                    transactions
+                  </Trans>
+                </Text>
+                <Text
+                  color={theme.primary}
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => changeNetwork(ChainId.MAINNET)}
+                >
+                  <Trans>Switch Network</Trans>
+                </Text>
+              </>
+            ) : (
+              <Text>
+                <Trans>You have no Transaction History</Trans>
+              </Text>
+            )}
           </Flex>
+        ) : (
+          <AutoSizer>
+            {({ height, width }) => (
+              <FixedSizeList
+                height={height}
+                width={width}
+                itemSize={70}
+                itemCount={formatTransactions.length}
+                itemData={formatTransactions}
+              >
+                {({ data, index, style }) => (
+                  <TransactionItem style={style} transaction={data[index]} key={data[index].hash} />
+                )}
+              </FixedSizeList>
+            )}
+          </AutoSizer>
         )}
       </Wrapper>
     </>
