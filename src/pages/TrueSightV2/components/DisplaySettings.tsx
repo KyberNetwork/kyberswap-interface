@@ -165,7 +165,7 @@ export default function DisplaySettings({ currentTab }: { currentTab: DiscoverTo
         width="36px"
         height="36px"
         padding="6px"
-        style={{ filter: 'drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.16))' }}
+        style={{ boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.16))' }}
         onClick={() => setShowSettings(true)}
       >
         <Sliders size={16} fill="currentcolor" style={{ transform: 'rotate(-90deg)' }} />
