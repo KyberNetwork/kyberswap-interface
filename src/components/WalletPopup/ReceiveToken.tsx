@@ -14,6 +14,9 @@ import { useActiveWeb3React } from 'hooks'
 import useCopyClipboard from 'hooks/useCopyClipboard'
 import useTheme from 'hooks/useTheme'
 
+const QR_SIZE = 200
+const QR_ID = 'react-qrcode-logo'
+
 const Label = styled.label<{ color?: string }>`
   font-weight: 500;
   font-size: 12px;
@@ -25,9 +28,10 @@ const Wrapper = styled.div`
   flex: 1;
   flex-direction: column;
   justify-content: space-between;
+  #${QR_ID} {
+    border-radius: 16px;
+  }
 `
-
-const QR_SIZE = 200
 
 export default function SendToken() {
   const { account = '', isEVM } = useActiveWeb3React()
@@ -35,7 +39,13 @@ export default function SendToken() {
 
   useEffect(() => {
     if (!account) return
-    setQrConfig({ logoImage: KncLogo, size: QR_SIZE, value: isEVM ? `ethereum:${account}` : account })
+    setQrConfig({
+      logoImage: KncLogo,
+      size: QR_SIZE,
+      value: isEVM ? `ethereum:${account}` : account,
+      eyeColor: { outer: '#000000', inner: '#000000' },
+      quietZone: '14',
+    })
   }, [account, isEVM])
 
   const [isCopied, setCopied] = useState(false)
@@ -48,7 +58,7 @@ export default function SendToken() {
 
   const downLoadQR = () => {
     try {
-      const canvas = document.getElementById('react-qrcode-logo') as HTMLCanvasElement
+      const canvas = document.getElementById(QR_ID) as HTMLCanvasElement
       if (!canvas) return
       const link = document.createElement('a')
       link.download = 'your_qrcode-logo.png'
@@ -62,73 +72,7 @@ export default function SendToken() {
 
   let qrElement = null
   try {
-    qrElement = !qrConfig ? (
-      <div style={{ height: QR_SIZE + 20 }} />
-    ) : (
-      <QRCode
-        {...{
-          ...qrConfig,
-          eyeRadius: [
-            {
-              outer: [
-                qrConfig.eyeradius_0_outer_0,
-                qrConfig.eyeradius_0_outer_1,
-                qrConfig.eyeradius_0_outer_2,
-                qrConfig.eyeradius_0_outer_3,
-              ],
-              inner: [
-                qrConfig.eyeradius_0_inner_0,
-                qrConfig.eyeradius_0_inner_1,
-                qrConfig.eyeradius_0_inner_2,
-                qrConfig.eyeradius_0_inner_3,
-              ],
-            },
-            {
-              outer: [
-                qrConfig.eyeradius_1_outer_0,
-                qrConfig.eyeradius_1_outer_1,
-                qrConfig.eyeradius_1_outer_2,
-                qrConfig.eyeradius_1_outer_3,
-              ],
-              inner: [
-                qrConfig.eyeradius_1_inner_0,
-                qrConfig.eyeradius_1_inner_1,
-                qrConfig.eyeradius_1_inner_2,
-                qrConfig.eyeradius_1_inner_3,
-              ],
-            },
-            {
-              outer: [
-                qrConfig.eyeradius_2_outer_0,
-                qrConfig.eyeradius_2_outer_1,
-                qrConfig.eyeradius_2_outer_2,
-                qrConfig.eyeradius_2_outer_3,
-              ],
-              inner: [
-                qrConfig.eyeradius_2_inner_0,
-                qrConfig.eyeradius_2_inner_1,
-                qrConfig.eyeradius_2_inner_2,
-                qrConfig.eyeradius_2_inner_3,
-              ],
-            },
-          ],
-          eyeColor: [
-            {
-              outer: qrConfig.eyecolor_0_outer ?? qrConfig.fgColor ?? '#000000',
-              inner: qrConfig.eyecolor_0_inner ?? qrConfig.fgColor ?? '#000000',
-            },
-            {
-              outer: qrConfig.eyecolor_1_outer ?? qrConfig.fgColor ?? '#000000',
-              inner: qrConfig.eyecolor_1_inner ?? qrConfig.fgColor ?? '#000000',
-            },
-            {
-              outer: qrConfig.eyecolor_2_outer ?? qrConfig.fgColor ?? '#000000',
-              inner: qrConfig.eyecolor_2_inner ?? qrConfig.fgColor ?? '#000000',
-            },
-          ],
-        }}
-      />
-    )
+    qrElement = qrConfig ? <QRCode {...qrConfig} /> : <div style={{ height: QR_SIZE + 20 }} />
   } catch (error) {}
   return (
     <Wrapper>
