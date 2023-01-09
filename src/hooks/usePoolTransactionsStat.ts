@@ -1,5 +1,6 @@
 import { useQuery } from '@apollo/client'
 import ms from 'ms.macro'
+import { useEffect, useMemo, useState } from 'react'
 
 import { RECENT_POOL_TX } from 'apollo/queries/promm'
 import { POOL_TRANSACTION_TYPE } from 'components/ProAmm/type'
@@ -20,30 +21,47 @@ const usePoolTransactionsStat = (
       percent: number
       type: POOL_TRANSACTION_TYPE
     }[]
+  | 0
   | undefined => {
   const { isEVM, networkInfo } = useActiveWeb3React()
-  const client = (networkInfo as EVMNetworkInfo).elasticClient
+  const [data, setData] = useState<RecentPoolTxsResult | null>(null)
 
-  const { data } = useQuery<RecentPoolTxsResult>(RECENT_POOL_TX(poolAddress?.toLowerCase()), {
-    client,
-    skip: !isEVM,
-    fetchPolicy: 'cache-first',
-  })
+  useEffect(() => {
+    const controller = new AbortController()
+    if (!isEVM) return
+    const client = (networkInfo as EVMNetworkInfo).elasticClient
+    const fetch = async () => {
+      setData(null)
+      const data = await client.query<RecentPoolTxsResult>({
+        query: RECENT_POOL_TX(poolAddress?.toLowerCase()),
+        fetchPolicy: 'cache-first',
+      })
+      if (!controller.signal.aborted) {
+        setData(data.data)
+      }
+    }
+    fetch()
+    return () => controller.abort()
+  }, [isEVM, networkInfo, poolAddress])
 
-  if (!data) return undefined
-  const addCount = data.mints.length
-  const removeCount = data.burns.length
-  const sum = addCount + removeCount
+  const result = useMemo(() => {
+    if (!data) return undefined
+    const addCount = data.mints.length
+    const removeCount = data.burns.length
+    const sum = addCount + removeCount
+    if (sum === 0) return 0
 
-  return [
-    { name: 'Add Liquidity', value: addCount, percent: (addCount / sum) * 100, type: POOL_TRANSACTION_TYPE.ADD },
-    {
-      name: 'Remove Liquidity',
-      value: removeCount,
-      percent: (removeCount / sum) * 100,
-      type: POOL_TRANSACTION_TYPE.REMOVE,
-    },
-  ]
+    return [
+      { name: 'Add Liquidity', value: addCount, percent: (addCount / sum) * 100, type: POOL_TRANSACTION_TYPE.ADD },
+      {
+        name: 'Remove Liquidity',
+        value: removeCount,
+        percent: (removeCount / sum) * 100,
+        type: POOL_TRANSACTION_TYPE.REMOVE,
+      },
+    ]
+  }, [data])
+  return result
 }
 
 export default usePoolTransactionsStat

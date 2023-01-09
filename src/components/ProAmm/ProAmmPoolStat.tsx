@@ -245,45 +245,53 @@ export default function ProAmmPoolStat({ pool, onShared, userPositions }: ListIt
         <Text>{myLiquidity ? formatDollarAmount(Number(myLiquidity)) : '-'}</Text>
       </Flex>
 
-      {poolTransactionsStat && (
+      {poolTransactionsStat !== undefined && (
         <Flex marginTop="20px" sx={{ gap: '16px' }} flexDirection="column">
           <Text color={theme.subText} fontSize="12px" fontWeight="500">
             <Trans>Last 24H Transactions</Trans>
           </Text>
           <Flex sx={{ gap: '32px', paddingLeft: '24px' }} alignItems="center">
-            <PieChart width={88} height={88}>
-              <Pie
-                stroke={isDarkMode ? 'black' : 'white'}
-                data={poolTransactionsStat}
-                dataKey="value"
-                nameKey="name"
-                cx="50%"
-                cy="50%"
-                innerRadius={30}
-                outerRadius={40}
-                fill="#82ca9d"
-                startAngle={90}
-                endAngle={-270}
-              >
-                {poolTransactionsStat.map((data, index) => (
-                  <Cell key={index} fill={COLORS[data.type]} />
-                ))}
-                <Tooltip />
-              </Pie>
-            </PieChart>
-            <Flex sx={{ gap: '12px' }} flexDirection="column">
-              {poolTransactionsStat.map(data => (
-                <Flex sx={{ gap: '4px' }} key={data.type}>
-                  <Circle color={COLORS[data.type]} size={12} />
-                  <Text wrap="unwrap" fontSize="12px" fontWeight={500}>
-                    {data.name}&nbsp;
-                    <Text as="span" color={theme.subText}>
-                      ({data.percent.toFixed(2)}%)
-                    </Text>
-                  </Text>
+            {poolTransactionsStat === 0 ? (
+              <Text wrap="unwrap" fontSize="12px" fontWeight={500}>
+                No data
+              </Text>
+            ) : (
+              <>
+                <PieChart width={88} height={88}>
+                  <Pie
+                    stroke={isDarkMode ? 'black' : 'white'}
+                    data={poolTransactionsStat}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={30}
+                    outerRadius={40}
+                    fill="#82ca9d"
+                    startAngle={90}
+                    endAngle={-270}
+                  >
+                    {poolTransactionsStat.map((data, index) => (
+                      <Cell key={index} fill={COLORS[data.type]} />
+                    ))}
+                    <Tooltip />
+                  </Pie>
+                </PieChart>
+                <Flex sx={{ gap: '12px' }} flexDirection="column">
+                  {poolTransactionsStat.map(data => (
+                    <Flex sx={{ gap: '4px' }} key={data.type}>
+                      <Circle color={COLORS[data.type]} size={12} />
+                      <Text wrap="unwrap" fontSize="12px" fontWeight={500}>
+                        {data.name}&nbsp;
+                        <Text as="span" color={theme.subText}>
+                          ({data.percent.toFixed(2)}%)
+                        </Text>
+                      </Text>
+                    </Flex>
+                  ))}
                 </Flex>
-              ))}
-            </Flex>
+              </>
+            )}
           </Flex>
         </Flex>
       )}
