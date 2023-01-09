@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components'
 
 import useTheme from 'hooks/useTheme'
 
-const Circle = styled.div<{ size?: number; color: string }>`
+export const Circle = styled.div<{ size?: number; color: string }>`
   width: ${({ size }) => size || 12}px;
   height: ${({ size }) => size || 12}px;
 

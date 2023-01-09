@@ -5,6 +5,7 @@ import { useMemo } from 'react'
 import { BarChart2, Share2 } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
+import { Cell, Pie, PieChart, Tooltip } from 'recharts'
 import styled from 'styled-components'
 
 import bgimg from 'assets/images/card-background.png'
@@ -12,6 +13,7 @@ import CopyHelper from 'components/Copy'
 import Divider from 'components/Divider'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { MoneyBag } from 'components/Icons'
+import { Circle } from 'components/Rating'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { FeeTag } from 'components/YieldPools/ElasticFarmGroup/styleds'
 import { APRTooltipContent } from 'components/YieldPools/FarmingPoolAPRCell'
@@ -23,10 +25,18 @@ import usePoolTransactionsStat from 'hooks/usePoolTransactionsStat'
 import useTheme from 'hooks/useTheme'
 import { IconWrapper } from 'pages/Pools/styleds'
 import { useElasticFarms } from 'state/farms/elastic/hooks'
+import { useIsDarkMode } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { ElasticPoolDetail } from 'types/pool'
 import { isAddressString, shortenAddress } from 'utils'
 import { formatDollarAmount } from 'utils/numbers'
+
+import { POOL_TRANSACTION_TYPE } from './type'
+
+const COLORS = {
+  [POOL_TRANSACTION_TYPE.ADD]: '#31CB9E',
+  [POOL_TRANSACTION_TYPE.REMOVE]: '#FF537B',
+}
 
 const StyledLink = styled(ExternalLink)`
   :hover {
@@ -100,6 +110,11 @@ export default function ProAmmPoolStat({ pool, onShared, userPositions }: ListIt
 
   const poolTransactionsStat = usePoolTransactionsStat(pool.address)
 
+  const pieChartData = [
+    { name: 'Add Liquidity', value: 10, percent: 30, type: POOL_TRANSACTION_TYPE.ADD },
+    { name: 'Remove Liquidity', value: 12, percent: 37, type: POOL_TRANSACTION_TYPE.REMOVE },
+  ]
+  const isDarkMode = useIsDarkMode()
   return (
     <Wrapper key={pool.address}>
       <Link
@@ -235,14 +250,44 @@ export default function ProAmmPoolStat({ pool, onShared, userPositions }: ListIt
       </Flex>
 
       {poolTransactionsStat && (
-        <Flex marginTop="20px" style={{ gap: '16px' }} flexDirection="column">
+        <Flex marginTop="20px" sx={{ gap: '16px' }} flexDirection="column">
           <Text color={theme.subText} fontSize="12px" fontWeight="500">
             <Trans>Last 24H Transactions</Trans>
           </Text>
-          <Flex>
-            {/* <Text>Add Liquidity (30%)</Text>
-            <Text>Increase Liquidity (30%)</Text>
-            <Text>Remove Liquidity (30%)</Text> */}
+          <Flex sx={{ gap: '32px', paddingLeft: '24px' }} alignItems="center">
+            <PieChart width={88} height={88}>
+              <Pie
+                stroke={isDarkMode ? 'black' : 'white'}
+                data={pieChartData}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                innerRadius={30}
+                outerRadius={40}
+                fill="#82ca9d"
+                startAngle={90}
+                endAngle={-270}
+              >
+                {pieChartData.map((data, index) => (
+                  <Cell key={index} fill={COLORS[data.type]} />
+                ))}
+                <Tooltip />
+              </Pie>
+            </PieChart>
+            <Flex sx={{ gap: '12px' }} flexDirection="column">
+              {pieChartData.map((data, index) => (
+                <Flex sx={{ gap: '4px' }} key={data.type}>
+                  <Circle color={COLORS[data.type]} size={12} />
+                  <Text wrap="unwrap">
+                    {data.name}&nbsp;
+                    <Text as="span" color={theme.subText}>
+                      ({data.percent}%)
+                    </Text>
+                  </Text>
+                </Flex>
+              ))}
+            </Flex>
           </Flex>
         </Flex>
       )}
