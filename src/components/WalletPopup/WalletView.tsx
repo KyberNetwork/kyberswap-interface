@@ -1,9 +1,11 @@
 import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
-import { ChevronLeft, FileText, StopCircle, X } from 'react-feather'
+import { ChevronLeft, DollarSign, FileText, StopCircle, X } from 'react-feather'
+import { useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
+import { ReactComponent as DollarIcon } from 'assets/svg/dollar.svg'
 import { ReactComponent as SendIcon } from 'assets/svg/send_icon.svg'
 import { ButtonLight } from 'components/Button'
 import Column from 'components/Column'
@@ -13,6 +15,7 @@ import DragHandle from 'components/WalletPopup/DragHandle'
 import MyAssets from 'components/WalletPopup/MyAssets'
 import PinButton from 'components/WalletPopup/PinButton'
 import SendToken from 'components/WalletPopup/SendToken'
+import { APP_PATHS } from 'constants/index'
 import { Z_INDEXS } from 'constants/styles'
 import useTheme from 'hooks/useTheme'
 import { useTokensHasBalance } from 'state/wallet/hooks'
@@ -63,22 +66,38 @@ type Props = {
   isPinned: boolean
 }
 
+const StyledButton = styled(ButtonLight)`
+  height: 40px;
+  width: 105px;
+  padding: 10px;
+`
+
 export default function WalletView({ onDismiss, onPin, isPinned }: Props) {
   const [view, setView] = useState<string>(View.ASSETS)
   const theme = useTheme()
+  const navigate = useNavigate()
 
   const { loading: loadingTokens, currencies, currencyBalances, totalBalanceInUsd } = useTokensHasBalance()
 
   const actionGroup = (
     <RowBetween>
-      <ButtonLight width={'105px'} padding="10px" onClick={() => setView(View.RECEIVE_TOKEN)}>
+      <StyledButton
+        onClick={() => {
+          navigate(`${APP_PATHS.BUY_CRYPTO}?step=3`)
+          onDismiss()
+        }}
+      >
+        <DollarIcon style={{ marginRight: 7 }} />
+        <Trans>Buy</Trans>
+      </StyledButton>
+      <StyledButton onClick={() => setView(View.RECEIVE_TOKEN)}>
         <SendIcon style={{ marginRight: 7, transform: 'rotate(180deg)' }} />
         <Trans>Receive</Trans>
-      </ButtonLight>
-      <ButtonLight width={'105px'} padding="10px" onClick={() => setView(View.SEND_TOKEN)}>
+      </StyledButton>
+      <StyledButton onClick={() => setView(View.SEND_TOKEN)}>
         <SendIcon style={{ marginRight: 7 }} />
         <Trans>Send</Trans>
-      </ButtonLight>
+      </StyledButton>
     </RowBetween>
   )
 
