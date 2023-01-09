@@ -8,14 +8,16 @@ import { isAddressString } from 'utils'
 
 import { updatePrices } from '.'
 
+const getAddress = (address: string, isEVM: boolean) => (isEVM ? address.toLowerCase() : address)
+
 export const useTokenPrices = (addresses: Array<string>) => {
   const tokenPrices = useAppSelector(state => state.tokenPrices)
   const dispatch = useAppDispatch()
-  const { chainId } = useActiveWeb3React()
+  const { chainId, isEVM } = useActiveWeb3React()
 
   const addressKeys = addresses
     .sort()
-    .map(x => x.toLowerCase())
+    .map(x => getAddress(x, isEVM))
     .join(',')
 
   const tokenList = useMemo(() => {
@@ -38,7 +40,7 @@ export const useTokenPrices = (addresses: Array<string>) => {
       if (res?.data?.prices?.length) {
         const formattedPrices = unknownPriceList.map(address => {
           const price = res.data.prices.find(
-            (p: { address: string; marketPrice: number; price: number }) => p.address.toLowerCase() === address,
+            (p: { address: string; marketPrice: number; price: number }) => getAddress(p.address, isEVM) === address,
           )
 
           return {
@@ -54,7 +56,7 @@ export const useTokenPrices = (addresses: Array<string>) => {
     }
 
     if (unknownPriceList.length) fetchPrices()
-  }, [unknownPriceList, chainId, dispatch])
+  }, [unknownPriceList, chainId, dispatch, isEVM])
 
   return useMemo(() => {
     return tokenList.reduce((acc, address) => {
