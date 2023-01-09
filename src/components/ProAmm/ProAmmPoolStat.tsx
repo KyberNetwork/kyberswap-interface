@@ -110,10 +110,6 @@ export default function ProAmmPoolStat({ pool, onShared, userPositions }: ListIt
 
   const poolTransactionsStat = usePoolTransactionsStat(pool.address)
 
-  const pieChartData = [
-    { name: 'Add Liquidity', value: 10, percent: 30, type: POOL_TRANSACTION_TYPE.ADD },
-    { name: 'Remove Liquidity', value: 12, percent: 37, type: POOL_TRANSACTION_TYPE.REMOVE },
-  ]
   const isDarkMode = useIsDarkMode()
   return (
     <Wrapper key={pool.address}>
@@ -258,7 +254,7 @@ export default function ProAmmPoolStat({ pool, onShared, userPositions }: ListIt
             <PieChart width={88} height={88}>
               <Pie
                 stroke={isDarkMode ? 'black' : 'white'}
-                data={pieChartData}
+                data={poolTransactionsStat}
                 dataKey="value"
                 nameKey="name"
                 cx="50%"
@@ -269,14 +265,14 @@ export default function ProAmmPoolStat({ pool, onShared, userPositions }: ListIt
                 startAngle={90}
                 endAngle={-270}
               >
-                {pieChartData.map((data, index) => (
+                {poolTransactionsStat.map((data, index) => (
                   <Cell key={index} fill={COLORS[data.type]} />
                 ))}
                 <Tooltip />
               </Pie>
             </PieChart>
             <Flex sx={{ gap: '12px' }} flexDirection="column">
-              {pieChartData.map((data, index) => (
+              {poolTransactionsStat.map(data => (
                 <Flex sx={{ gap: '4px' }} key={data.type}>
                   <Circle color={COLORS[data.type]} size={12} />
                   <Text wrap="unwrap">

@@ -157,3 +157,18 @@ export const PROMM_GET_MINT_VALUES_AFTER_CREATE_POOL_SUCCESS = gql`
     }
   }
 `
+
+export const RECENT_POOL_TX = (poolAddress: string) => gql`
+  query recentPoolTxs {
+    mints(where: { pool: "${poolAddress}", timestamp_gte: ${Math.trunc(
+  Date.now() / 1000 - 86400,
+)} }, subgraphError: allow) {
+      id
+    }
+    burns(where: { pool: "${poolAddress}", timestamp_gte: ${Math.trunc(
+  Date.now() / 1000 - 86400,
+)} }, subgraphError: allow) {
+      id
+    }
+  }
+`
