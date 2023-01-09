@@ -117,7 +117,7 @@ export default function SendToken() {
       <ButtonPrimary height="44px" onClick={onCopy}>
         {isCopied ? (
           <Trans>
-            <Trans>Copied Address</Trans>&nbsp;
+            <Trans>Address Copied</Trans>&nbsp;
             <Check size={16} />
           </Trans>
         ) : (

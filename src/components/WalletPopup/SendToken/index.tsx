@@ -9,11 +9,9 @@ import { AddressInput } from 'components/AddressInputPanel'
 import { ButtonPrimary } from 'components/Button'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import { RowBetween } from 'components/Row'
-import Tooltip from 'components/Tooltip'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import CurrencyListHasBalance from 'components/WalletPopup/SendToken/CurrencyListSelect'
 import useSendToken from 'components/WalletPopup/SendToken/useSendToken'
-import { Z_INDEXS } from 'constants/styles'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useENS from 'hooks/useENS'
@@ -173,27 +171,20 @@ export default function SendToken({
         </div>
 
         <InputWrapper ref={ref}>
-          <Tooltip
-            text={inputError}
-            show={!!inputError}
-            placement="top"
-            style={{ maxWidth: '250px', zIndex: Z_INDEXS.MODAL }}
-            width="fit-content"
-          >
-            <CurrencyInputPanel
-              id="send-token-wallet-ui"
-              error={!!inputError}
-              maxLength={16}
-              value={inputAmount}
-              positionMax="top"
-              currency={currencyIn}
-              onUserInput={setInputAmount}
-              onMax={handleMaxInput}
-              onHalf={handleHalfInput}
-              onClickSelect={() => setShowListToken(!showListToken)}
-              loadingText={loadingTokens ? t`Loading token...` : undefined}
-            />
-          </Tooltip>
+          <CurrencyInputPanel
+            id="send-token-wallet-ui"
+            error={!!inputError}
+            maxLength={16}
+            value={inputAmount}
+            positionMax="top"
+            currency={currencyIn}
+            onUserInput={setInputAmount}
+            onMax={handleMaxInput}
+            onHalf={handleHalfInput}
+            onClickSelect={() => setShowListToken(!showListToken)}
+            loadingText={loadingTokens ? t`Loading token...` : undefined}
+          />
+
           {showListToken && (
             <CurrencyListHasBalance
               loading={loadingTokens}
@@ -222,7 +213,7 @@ export default function SendToken({
         )}
       </Flex>
       <ButtonPrimary height="44px" onClick={onSendToken} disabled={disableButtonSend}>
-        {isSending ? <Trans>Sending token</Trans> : <Trans>Send</Trans>}
+        {inputError ? inputError : isSending ? <Trans>Sending token</Trans> : <Trans>Send</Trans>}
       </ButtonPrimary>
 
       <TransactionConfirmationModal
