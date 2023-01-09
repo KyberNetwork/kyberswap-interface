@@ -2,50 +2,106 @@ import useSWR from 'swr'
 
 import { TRUESIGHT_V2_API } from 'constants/env'
 
-import { TokenOverview } from '../types/index'
+import {
+  IHolderList,
+  INetflowToWhaleWallets,
+  INumberOfHolders,
+  INumberOfTrades,
+  ITokenOverview,
+  ITradeVolume,
+} from '../types/index'
+import {
+  HOLDER_LIST,
+  NETFLOW_TO_WHALE_WALLETS,
+  NUMBER_OF_HOLDERS,
+  NUMBER_OF_TRADES,
+  TOKEN_DETAIL,
+  TRADE_VOLUME,
+} from './sampleData'
 
 export default function useTokenDetailsData(tokenAddress: string) {
-  const { data, isLoading } = useSWR<TokenOverview>(
+  const { data, isLoading } = useSWR<ITokenOverview>(
     tokenAddress && `${TRUESIGHT_V2_API}/overview/chain/${tokenAddress}`,
     (url: string) =>
       fetch(url)
         .then(res => res.json())
         .then(res => {
-          return {
-            tags: ['Mineable', 'PoW', 'SHA-256', 'Store Of Value'],
-            name: 'Bitcoin',
-            symbol: 'BTC',
-            desc: '',
-            webs: [
-              {
-                key: 'bitcoin.org',
-                value: 'https://bitcoin.org/en/',
-              },
-            ],
-            communities: [
-              {
-                key: 'bitcointalk.org',
-                value: 'https://bitcointalk.org/',
-              },
-            ],
-            address: '',
-            price: '16781.24',
-            '24hChange': -0.09,
-            '24hLow': 16755.91,
-            '24hHigh': 16895.71,
-            '1yLow': 15599.05,
-            '1yHigh': 51956.33,
-            ATL: 15599.05,
-            ATH: 51956.33,
-            '24hVolume': 14562220489,
-            circulatingSupply: 19240143,
-            marketCap: 324048677736,
-            holders: 43588084,
-            kyberScore: {
-              score: 75.5,
-              label: 'Strong Bullish',
-            },
-          }
+          return TOKEN_DETAIL
+        }),
+  )
+  return { data, isLoading }
+}
+
+export function useNumberOfTrades(tokenAddress: string) {
+  const { data, isLoading } = useSWR<INumberOfTrades>(
+    tokenAddress && `${TRUESIGHT_V2_API}/trades/chain/${tokenAddress}`,
+    (url: string) =>
+      fetch(url)
+        .then(res => res.json())
+        .then(res => {
+          return NUMBER_OF_TRADES
+        }),
+  )
+  return { data, isLoading }
+}
+
+export function useTradingVolume(tokenAddress: string) {
+  const { data, isLoading } = useSWR<ITradeVolume[]>(
+    tokenAddress && `${TRUESIGHT_V2_API}/volume/chain/${tokenAddress}`,
+    (url: string) =>
+      fetch(url)
+        .then(res => res.json())
+        .then(res => {
+          return TRADE_VOLUME
+        }),
+  )
+  return { data, isLoading }
+}
+
+export function useNetflowToWhaleWallets(tokenAddress: string) {
+  const { data, isLoading } = useSWR<INetflowToWhaleWallets[]>(
+    tokenAddress && `${TRUESIGHT_V2_API}/netflow/chain/${tokenAddress}`,
+    (url: string) =>
+      fetch(url)
+        .then(res => res.json())
+        .then(res => {
+          return NETFLOW_TO_WHALE_WALLETS
+        }),
+  )
+  return { data, isLoading }
+}
+export function useNetflowToCEX(tokenAddress: string) {
+  const { data, isLoading } = useSWR<INetflowToWhaleWallets[]>(
+    tokenAddress && `${TRUESIGHT_V2_API}/netflow/cexes`,
+    (url: string) =>
+      fetch(url)
+        .then(res => res.json())
+        .then(res => {
+          return NETFLOW_TO_WHALE_WALLETS
+        }),
+  )
+  return { data, isLoading }
+}
+export function useNumberOfHolders(tokenAddress: string) {
+  const { data, isLoading } = useSWR<INumberOfHolders[]>(
+    tokenAddress && `${TRUESIGHT_V2_API}/holdersNum/chain/${tokenAddress}`,
+    (url: string) =>
+      fetch(url)
+        .then(res => res.json())
+        .then(res => {
+          return NUMBER_OF_HOLDERS
+        }),
+  )
+  return { data, isLoading }
+}
+export function useHolderList(tokenAddress: string) {
+  const { data, isLoading } = useSWR<IHolderList[]>(
+    tokenAddress && `${TRUESIGHT_V2_API}/holders/chain/${tokenAddress}`,
+    (url: string) =>
+      fetch(url)
+        .then(res => res.json())
+        .then(res => {
+          return HOLDER_LIST
         }),
   )
   return { data, isLoading }

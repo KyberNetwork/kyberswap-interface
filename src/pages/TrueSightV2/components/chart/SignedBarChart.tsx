@@ -132,7 +132,7 @@ export default function SignedBarChart() {
         <ReferenceLine y={0} stroke="#000" />
         <Bar dataKey="pv" fill={rgba(theme.red, 0.4)} stackId="stack" />
         <Bar dataKey="uv" fill={rgba(theme.primary, 0.4)} stackId="stack" />
-        <Line dataKey="amt" type="linear" stroke={theme.primary} strokeWidth={4} dot={false} />
+        <Line dataKey="amt" type="linear" stroke={theme.blue} strokeWidth={4} dot={false} />
       </ComposedChart>
     </ResponsiveContainer>
   )

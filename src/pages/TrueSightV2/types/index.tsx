@@ -1,4 +1,4 @@
-export interface TokenOverview {
+export interface ITokenOverview {
   tags: string[]
   name: string
   symbol: string
@@ -22,4 +22,36 @@ export interface TokenOverview {
     score: number
     label: string
   }
+}
+
+export interface INumberOfTrades {
+  trades: {
+    buy: number
+    sell: number
+    timestamp: number
+  }[]
+}
+export interface ITradeVolume {
+  volume: number
+  timestamp: number
+}
+export interface INetflowToWhaleWallets {
+  inflow: number
+  outflow: number
+  netflow: number
+  timestamp: number
+}
+export interface INumberOfHolders {
+  count: number
+  timestamp: number
+}
+export interface IHolderList {
+  address: string
+  percentage: number
+  quantity: number
+}
+export interface IPagination {
+  page: number
+  pageSize: number
+  totalItems: number
 }

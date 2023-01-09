@@ -1,3 +1,4 @@
+import dayjs from 'dayjs'
 import { rgba } from 'polished'
 import { Text } from 'rebass'
 import { Bar, BarChart, ResponsiveContainer, Tooltip, TooltipProps, XAxis, YAxis } from 'recharts'
@@ -5,7 +6,7 @@ import styled from 'styled-components'
 
 import useTheme from 'hooks/useTheme'
 
-const data = [
+const sampleData = [
   {
     date: 'Nov 21',
     buy: 2610,
@@ -85,18 +86,19 @@ const TooltipCustom = (props: TooltipProps<number, string>) => {
   }
   return null
 }
-export default function StakedBarChart() {
+export default function StackedBarChart({ data }: { data?: { buy?: number; sell?: number; time: number }[] }) {
   const theme = useTheme()
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <BarChart width={500} height={300} data={data}>
+      <BarChart width={500} height={300} data={data || sampleData}>
         <XAxis
           fontSize="12px"
-          dataKey="date"
+          dataKey="time"
           tickLine={false}
           axisLine={false}
           tick={{ fill: theme.subText, fontWeight: 400 }}
+          tickFormatter={value => dayjs(value).format('DD-MMM')}
         />
         <YAxis fontSize="12px" tickLine={false} axisLine={false} tick={{ fill: theme.subText, fontWeight: 400 }} />
         <Tooltip

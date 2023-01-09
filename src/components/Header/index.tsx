@@ -5,7 +5,7 @@ import styled, { keyframes } from 'styled-components'
 
 import SelectNetwork from 'components/Header/web3/SelectNetwork'
 import SelectWallet from 'components/Header/web3/SelectWallet'
-import DiscoverIcon from 'components/Icons/DiscoverIcon'
+import Icon from 'components/Icons/Icon'
 import Menu from 'components/Menu'
 import Row, { RowFixed } from 'components/Row'
 import Settings from 'components/Settings'
@@ -232,6 +232,7 @@ export default function Header() {
 
           <DiscoverWrapper id={TutorialIds.DISCOVER_LINK}>
             <StyledNavLink to={'/discover'} style={{ alignItems: 'center' }}>
+              <Icon id={'truesight-v2'} size={16} style={{ marginRight: '6px' }} />
               <SlideToUnlock
                 active={pathname.includes('discover') || isHoverSlide}
                 onMouseEnter={() => setIsHoverSlide(true)}
@@ -239,7 +240,6 @@ export default function Header() {
               >
                 <Trans>Discover</Trans>
               </SlideToUnlock>
-              <DiscoverIcon size={14} style={{ marginTop: '-20px', marginLeft: '4px' }} />
             </StyledNavLink>
           </DiscoverWrapper>
 
