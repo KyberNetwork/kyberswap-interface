@@ -78,9 +78,14 @@ function useTokensBalanceEVM(tokens?: Token[]): [TokenAmount | undefined, boolea
  * Returns a map of token addresses to their eventually consistent token balances for a single account.
  */
 export function useTokenBalancesWithLoadingIndicator(
-  tokens?: Token[],
+  tokenParams?: Token[],
 ): [{ [tokenAddress: string]: TokenAmount | undefined }, boolean] {
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
+
+  const tokens = useMemo(() => {
+    return tokenParams?.[0]?.chainId === chainId ? tokenParams : []
+  }, [tokenParams, chainId])
+
   const balances = useTokensBalance(tokens)
 
   const anyLoading: boolean = useMemo(() => balances.some(balanceCall => balanceCall[1]), [balances])
