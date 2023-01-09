@@ -1,5 +1,3 @@
-import { useQuery } from '@apollo/client'
-import ms from 'ms.macro'
 import { useEffect, useMemo, useState } from 'react'
 
 import { RECENT_POOL_TX } from 'apollo/queries/promm'
