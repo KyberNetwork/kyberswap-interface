@@ -18,7 +18,10 @@ export default function useSendToken(currency: Currency | undefined, recipient: 
   useEffect(() => {
     async function getGasFee() {
       try {
-        if (!library || !tokenContract || !currency || !amount || !recipient || !library) return
+        if (!library || !tokenContract || !currency || !amount || !recipient || !library) {
+          setGasFee(null)
+          return
+        }
         const promise = currency?.isNative
           ? library.estimateGas({
               from: account,
