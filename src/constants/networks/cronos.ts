@@ -7,6 +7,7 @@ import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
 
+const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
@@ -31,7 +32,7 @@ const cronosInfo: EVMNetworkInfo = {
   etherscanUrl: 'https://cronoscan.com',
   etherscanName: 'Cronos explorer',
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.CRONOS}&isWhitelisted=${true}`,
-  bridgeURL: 'https://cronos.crypto.org/docs/bridge/cdcapp.html',
+  bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'CRO',
     name: 'CRO',
@@ -67,6 +68,7 @@ const cronosInfo: EVMNetworkInfo = {
     routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
     farms: [],
   },
+  limitOrder: NOT_SUPPORT,
   averageBlockTimeInSeconds: 6,
   coingeckoNetworkId: 'cronos',
   coingeckoNativeTokenId: 'crypto-com-chain',

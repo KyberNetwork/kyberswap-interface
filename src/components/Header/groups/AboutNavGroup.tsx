@@ -24,7 +24,7 @@ const AboutNavGroup = () => {
       <NavGroup
         isActive={isActive}
         anchor={
-          <DropdownTextAnchor active={isActive}>
+          <DropdownTextAnchor>
             <Trans>About</Trans>
           </DropdownTextAnchor>
         }
@@ -34,11 +34,11 @@ const AboutNavGroup = () => {
               flexDirection: 'column',
             }}
           >
-            <StyledNavLink id="about-kyberswap" to={`${APP_PATHS}/kyberswap`}>
+            <StyledNavLink id="about-kyberswap" to={`${APP_PATHS.ABOUT}/kyberswap`}>
               <Trans>KyberSwap</Trans>
             </StyledNavLink>
 
-            <StyledNavLink id="about-knc" to={`${APP_PATHS}/knc`}>
+            <StyledNavLink id="about-knc" to={`${APP_PATHS.ABOUT}/knc`}>
               <Trans> KNC</Trans>
             </StyledNavLink>
           </Flex>

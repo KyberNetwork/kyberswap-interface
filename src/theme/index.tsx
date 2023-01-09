@@ -1,3 +1,4 @@
+import { lighten } from 'polished'
 import React, { useMemo } from 'react'
 import { Text, TextProps } from 'rebass'
 import styled, {
@@ -7,7 +8,6 @@ import styled, {
   css,
 } from 'styled-components'
 
-import { Z_INDEXS } from 'constants/styles'
 import { useIsDarkMode } from 'state/user/hooks'
 
 import { Colors } from './styled'
@@ -15,6 +15,7 @@ import { Colors } from './styled'
 export * from './components'
 
 export const MEDIA_WIDTHS = {
+  upToXXSmall: 420,
   upToExtraSmall: 576,
   upToSmall: 768,
   upToMedium: 992,
@@ -124,7 +125,7 @@ function colors(darkMode: boolean): Colors {
     warning: '#FF9901',
     apr: '#0faaa2',
     lightGreen: '#98E5CE',
-
+    darkerGreen: '#1D7A5F',
     red1: '#FF6871',
     red2: '#F82D3A',
     red3: '#D60000',
@@ -255,7 +256,11 @@ export const FixedGlobalStyle = createGlobalStyle`
   }
 
   a {
-    color: ${colors(false).blue1};
+    color: ${colors(false).primary};
+    text-decoration: none;
+    :hover{
+      color: ${lighten(0.2, colors(false).primary)};
+    }
   }
 
   * {
@@ -314,105 +319,17 @@ export const ThemedGlobalStyle = createGlobalStyle`
     }
   }
 
-
-  .tf-v1-sidetab {
-    z-index: 1 !important
-  }
-
-  .tf-v1-sidetab.open {
-    .tf-v1-sidetab-button {
-      display: none;
-    }
-  }
-
-  .tf-v1-sidetab-wrapper {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    height: 100%;
-    width: 100%;
-  }
-
-  .tf-v1-sidetab-button {
-    height: 36px !important;
-    left: -36px !important;
-    border-radius: 12px 12px 0 0 !important;
-    color: ${({ theme }) => theme.textReverse} !important;
-  }
-
-
-  .tf-v1-sidetab-button-icon {
-    > svg {
-      width: 24px;
-      height: 24px;
-
-      ${({ theme }) => theme.mediaWidth.upToSmall`
-      width: 24px;
-      height: 24px;
-    `}
-      > path {
-
-        fill: ${({ theme }) => theme.textReverse} !important;
-      }
-    }
-  }
-
-  .tf-v1-popover-button-icon {
-    > img {
-      width: 24px !important;
-      height: 24px !important;
-      object-fit: contain !important;
-      border-radius: 0 !important;
-    }
-  }
-
-  .tf-v1-sidetab-close {
-    position: absolute !important;
-    font-size: 32px !important;
-    line-height: 24px !important;
-    padding: 1rem;
-    width: max-content !important;
-    height: max-content !important;
-    right: 0 !important;
-    color: ${({ theme }) => theme.subText} !important;
-    display: block !important;
-    z-index: 1;
-    cursor: pointer;
-  }
-
-  .tf-v1-popover{
-    z-index: ${Z_INDEXS.ICON_SUPPORT} !important;
-  }
-
-  .tf-v1-popover-button {
-    width: 48px !important;
-    height: 48px !important;
-    bottom: 84px !important;
-    right: 16px !important;
-    background-color: ${({ theme }) => theme.primary} !important;
-  }
-
-  .tf-v1-popover-close {
-    position: absolute !important;
-    font-size: 32px !important;
-    line-height: 24px !important;
-    padding: 1rem;
-    width: max-content !important;
-    height: max-content !important;
-    right: 0 !important;
-    color: ${({ theme }) => theme.subText} !important;
-    z-index: 1;
-    cursor: pointer;
-
-  }
-
-  .tf-v1-sidetab-button-text {
-    font-family: 'Work Sans', 'Inter', sans-serif !important;
-    font-weight: 500;
-  }
-
   .grecaptcha-badge {
     visibility: hidden;
+  }
+
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0; 
+  }
+
+  input[type=number] {
+    -moz-appearance: textfield; /* Firefox */
   }
 `

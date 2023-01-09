@@ -5,6 +5,7 @@ import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
 
+const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
@@ -25,7 +26,7 @@ const fantomInfo: EVMNetworkInfo = {
   etherscanUrl: 'https://ftmscan.com',
   etherscanName: 'Ftmscan',
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.FANTOM}&isWhitelisted=${true}`,
-  bridgeURL: 'https://multichain.xyz',
+  bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'FTM',
     name: 'FTM',
@@ -61,6 +62,7 @@ const fantomInfo: EVMNetworkInfo = {
     routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
     farms: [],
   },
+  limitOrder: NOT_SUPPORT,
   averageBlockTimeInSeconds: 1,
   coingeckoNetworkId: 'fantom',
   coingeckoNativeTokenId: 'fantom',

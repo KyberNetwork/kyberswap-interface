@@ -26,7 +26,7 @@ const mumbaiInfo: EVMNetworkInfo = {
   etherscanUrl: 'https://mumbai.polygonscan.com/',
   etherscanName: 'Polygonscan',
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.MUMBAI}&isWhitelisted=${true}`,
-  bridgeURL: 'https://wallet.matic.network/bridge',
+  bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'MATIC',
     name: 'Polygon',
@@ -62,6 +62,7 @@ const mumbaiInfo: EVMNetworkInfo = {
     routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
     farms: [],
   },
+  limitOrder: NOT_SUPPORT,
   averageBlockTimeInSeconds: 2.6,
   coingeckoNetworkId: 'polygon-pos',
   coingeckoNativeTokenId: 'matic-network',
