@@ -138,7 +138,11 @@ export default function AccountInfo({ totalBalanceInUsd }: { totalBalanceInUsd: 
           <Trans>Current Balance</Trans>
         </Text>
 
-        <Text fontSize={'36px'} fontWeight="500" style={{ height: 42 }}>
+        <Text
+          fontSize={'36px'}
+          fontWeight="500"
+          style={{ height: 42, textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}
+        >
           {totalBalanceInUsd !== null ? (
             `$${formatNumberWithPrecisionRange(totalBalanceInUsd, 0, 8)}`
           ) : (
