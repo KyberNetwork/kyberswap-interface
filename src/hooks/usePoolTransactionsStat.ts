@@ -26,8 +26,8 @@ const usePoolTransactionsStat = (
 
   const { data } = useQuery<RecentPoolTxsResult>(RECENT_POOL_TX(poolAddress?.toLowerCase()), {
     client,
-    pollInterval: ms`30s`,
     skip: !isEVM,
+    fetchPolicy: 'cache-first',
   })
 
   if (!data) return undefined

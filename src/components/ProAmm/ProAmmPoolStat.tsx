@@ -275,10 +275,10 @@ export default function ProAmmPoolStat({ pool, onShared, userPositions }: ListIt
               {poolTransactionsStat.map(data => (
                 <Flex sx={{ gap: '4px' }} key={data.type}>
                   <Circle color={COLORS[data.type]} size={12} />
-                  <Text wrap="unwrap">
+                  <Text wrap="unwrap" fontSize="12px" fontWeight={500}>
                     {data.name}&nbsp;
                     <Text as="span" color={theme.subText}>
-                      ({data.percent}%)
+                      ({data.percent.toFixed(2)}%)
                     </Text>
                   </Text>
                 </Flex>
