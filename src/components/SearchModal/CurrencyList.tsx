@@ -209,7 +209,6 @@ function CurrencyList({
   listTokenRef,
   showFavoriteIcon,
   itemStyle = {},
-  usdBalances,
 }: {
   showFavoriteIcon?: boolean
   showImported?: boolean
@@ -224,7 +223,6 @@ function CurrencyList({
   loadMoreRows?: () => Promise<void>
   listTokenRef?: React.Ref<HTMLDivElement>
   itemStyle?: CSSProperties
-  usdBalances?: { [address: string]: number }
 }) {
   const currencyBalances = useCurrencyBalances(currencies)
 
@@ -248,7 +246,6 @@ function CurrencyList({
 
       if (currency) {
         // whitelist
-        const usdBalance = token && usdBalances ? usdBalances[token?.wrapped.address] : undefined
 
         return (
           <CurrencyRow
@@ -262,7 +259,6 @@ function CurrencyList({
             showFavoriteIcon={showFavoriteIcon}
             onSelect={onCurrencySelect}
             otherSelected={otherSelected}
-            usdBalance={usdBalance}
           />
         )
       }
@@ -279,7 +275,6 @@ function CurrencyList({
       removeImportedToken,
       itemStyle,
       showFavoriteIcon,
-      usdBalances,
     ],
   )
   const loadMoreItems = useCallback(() => loadMoreRows?.(), [loadMoreRows])

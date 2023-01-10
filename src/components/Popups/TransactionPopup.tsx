@@ -91,7 +91,7 @@ const summaryCancelLimitOrder = (txs: TransactionDetails) => {
   const { tokenAmountIn, tokenAmountOut, tokenSymbolIn, tokenSymbolOut } = (txs.extraInfo ||
     {}) as TransactionExtraInfo2Token
   const summary = txs.extraInfo
-    ? t`order ${tokenAmountIn} ${tokenSymbolIn} to ${tokenAmountOut} ${tokenSymbolOut}`
+    ? t`order to pay ${tokenAmountIn} ${tokenSymbolIn} and receive ${tokenAmountOut} ${tokenSymbolOut}`
     : t`all orders`
   return { success: `Your cancellation ${summary} has been submitted`, error: `Error cancel ${summary}` }
 }

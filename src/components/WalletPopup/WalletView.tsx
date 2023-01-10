@@ -147,7 +147,12 @@ export default function WalletView({ onDismiss, onPin, isPinned, blurBackground 
             <AccountInfo totalBalanceInUsd={totalBalanceInUsd} />
             {actionGroup}
             {underTab}
-            <MyAssets loadingTokens={loadingTokens} tokens={currencies} usdBalances={usdBalances} />
+            <MyAssets
+              loadingTokens={loadingTokens}
+              tokens={currencies}
+              usdBalances={usdBalances}
+              currencyBalances={currencyBalances}
+            />
           </ContentWrapper>
         )
       case View.SEND_TOKEN:
