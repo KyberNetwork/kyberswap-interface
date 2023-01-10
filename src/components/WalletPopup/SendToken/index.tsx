@@ -11,6 +11,7 @@ import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import { RowBetween } from 'components/Row'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import CurrencyListHasBalance from 'components/WalletPopup/SendToken/CurrencyListSelect'
+import WarningBrave from 'components/WalletPopup/SendToken/WarningBrave'
 import useSendToken from 'components/WalletPopup/SendToken/useSendToken'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -236,6 +237,8 @@ export default function SendToken({
             </Label>
           </RowBetween>
         )}
+
+        <WarningBrave token={currencyIn} />
       </Flex>
       <ButtonPrimary height="44px" onClick={onSendToken} disabled={disableButtonSend}>
         {inputError ? inputError : isSending ? <Trans>Sending token</Trans> : <Trans>Send</Trans>}

@@ -14,7 +14,7 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 
 export default function useSendToken(currency: Currency | undefined, recipient: string, amount: string) {
-  const { account, isEVM, walletSolana } = useActiveWeb3React()
+  const { account, isEVM, walletSolana, isSolana } = useActiveWeb3React()
   const { library } = useWeb3React()
   const [estimateGas, setGasFee] = useState<number | null>(null)
   const tokenContract = useTokenContract(currency?.wrapped.address)
@@ -85,7 +85,7 @@ export default function useSendToken(currency: Currency | undefined, recipient: 
   useEffect(() => {
     async function getGasFee() {
       try {
-        if (!library || !tokenContract || !currency || !amount || !recipient || !library) {
+        if (!library || !tokenContract || !currency || !amount || !recipient || !library || isSolana) {
           setGasFee(null)
           return
         }
@@ -105,7 +105,7 @@ export default function useSendToken(currency: Currency | undefined, recipient: 
       }
     }
     getGasFee()
-  }, [library, account, amount, currency, tokenContract, recipient])
+  }, [library, account, amount, currency, tokenContract, recipient, isSolana])
 
   const sendToken = useCallback(async () => {
     try {
