@@ -1,7 +1,7 @@
 import { Trans, t } from '@lingui/macro'
-import { useEffect, useRef, useState } from 'react'
+import { useMemo, useRef } from 'react'
 import { Download } from 'react-feather'
-import { QRCode } from 'react-qrcode-logo'
+import { QRCode, IProps as QRCodeProps } from 'react-qrcode-logo'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -38,29 +38,30 @@ const Wrapper = styled.div`
 
 export default function ReceiveToken() {
   const { account = '', chainId, isEVM } = useActiveWeb3React()
-  const [qrConfig, setQrConfig] = useState<{ [key: string]: any } | null>(null)
   const copyButtonRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
+  const qrCodeProps: QRCodeProps | undefined = useMemo(() => {
     if (!account) {
-      return
+      return undefined
     }
 
-    setQrConfig({
+    return {
       logoImage: KncLogo,
       size: QR_SIZE,
+      // `ethereum` is intentional. This QR is used to open the Send feature on the wallet (e.g. Metamask)
+      // Chain is not switched by this prefix
       value: isEVM ? `ethereum:${account}` : account,
       eyeColor: { outer: '#000000', inner: '#000000' },
-      quietZone: '14',
+      quietZone: 14,
       removeQrCodeBehindLogo: true,
-    })
+    }
   }, [account, isEVM])
 
   const onCopy = async () => {
     copyButtonRef.current?.click()
   }
 
-  const downLoadQR = () => {
+  const downloadQR = () => {
     try {
       const canvas = document.getElementById(QR_ID) as HTMLCanvasElement
       if (!canvas) return
@@ -75,9 +76,34 @@ export default function ReceiveToken() {
   const theme = useTheme()
 
   let qrElement = null
+  let error = true
   try {
-    qrElement = qrConfig ? <QRCode {...qrConfig} /> : <div style={{ height: QR_SIZE + 20 }} />
-  } catch (error) {}
+    error = false
+    qrElement = qrCodeProps ? <QRCode {...qrCodeProps} /> : <Flex sx={{ width: '228px', height: '228px' }} />
+  } catch (e) {
+    qrElement = (
+      <Flex
+        sx={{
+          // match size of QR
+          width: '228px',
+          height: '228px',
+          borderRadius: '16px',
+          justifyContent: 'center',
+          alignItems: 'center',
+          border: `2px solid ${theme.border}`,
+          textAlign: 'center',
+          color: theme.subText,
+          fontSize: '14px',
+        }}
+      >
+        <Trans>
+          Something went wrong,
+          <br />
+          please try again
+        </Trans>
+      </Flex>
+    )
+  }
 
   return (
     <Wrapper>
@@ -91,18 +117,20 @@ export default function ReceiveToken() {
         >
           {qrElement}
 
-          <Flex
-            onClick={downLoadQR}
-            color={theme.primary}
-            fontSize="14px"
-            alignItems={'center'}
-            style={{ gap: 5, cursor: 'pointer' }}
-          >
-            <Text>
-              <Trans>Download Image</Trans>
-            </Text>
-            <Download size={14} />
-          </Flex>
+          {!error && (
+            <Flex
+              onClick={downloadQR}
+              color={theme.primary}
+              fontSize="14px"
+              alignItems={'center'}
+              style={{ gap: 5, cursor: 'pointer' }}
+            >
+              <Text>
+                <Trans>Download Image</Trans>
+              </Text>
+              <Download size={14} />
+            </Flex>
+          )}
         </Column>
 
         <Column gap="12px">
