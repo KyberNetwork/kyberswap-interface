@@ -18,7 +18,7 @@ const WalletPopup = ({
   setPinned: (v: boolean) => void
 }) => {
   const nodeRef = useRef<HTMLDivElement>(null)
-  const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
+  const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
   const handleClosePopup = () => {
     onDismiss()
@@ -31,7 +31,7 @@ const WalletPopup = ({
 
   if (isMobile) {
     return (
-      <Modal isOpen={true} onDismiss={onDismiss}>
+      <Modal isOpen={true} onDismiss={onDismiss} minHeight={80}>
         <WalletView onDismiss={handleClosePopup} isPinned={isPinned} />
       </Modal>
     )

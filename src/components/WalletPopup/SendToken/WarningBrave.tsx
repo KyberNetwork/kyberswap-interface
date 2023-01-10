@@ -1,5 +1,5 @@
 import { Currency, Token } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { AlertTriangle } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -9,6 +9,7 @@ import Column from 'components/Column'
 import CopyHelper from 'components/Copy'
 import { NetworkLogo } from 'components/Logo'
 import Row from 'components/Row'
+import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { shortenAddress } from 'utils'
@@ -52,7 +53,9 @@ const WarningBrave = ({ token }: { token: Currency | undefined }) => {
             <NetworkLogo chainId={chainId} style={{ width: 16, height: 16 }} />
             {shortenAddress(chainId, token.wrapped.address, 5)}
             <CopyHelper toCopy={token.wrapped.address} />
-            <AddTokenToMetaMask token={token as Token} />
+            <MouseoverTooltipDesktopOnly text={t`Import token in Brave wallet`}>
+              <AddTokenToMetaMask token={token as Token} />
+            </MouseoverTooltipDesktopOnly>
           </Flex>
         </Row>
       </Column>

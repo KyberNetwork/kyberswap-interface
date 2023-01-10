@@ -24,7 +24,7 @@ const PanelTokenWrapper = styled.div`
   display: flex;
   flex-direction: column;
   padding: 10px 0px;
-  /* &::-webkit-scrollbar {
+  &::-webkit-scrollbar {
     display: block;
     width: 14px;
   }
@@ -32,7 +32,7 @@ const PanelTokenWrapper = styled.div`
     background: ${({ theme }) => theme.disableText};
     border-right: 10px solid transparent;
     background-clip: padding-box;
-  } */
+  }
 `
 
 const NotifyWrapper = styled.div`

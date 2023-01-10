@@ -19,6 +19,14 @@ const Wrapper = styled.div`
   width: 100%;
   flex: 1 0 auto;
   overflow-y: auto;
+  overflow-x: hidden;
+  &::-webkit-scrollbar {
+    display: block;
+    width: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: ${({ theme }) => theme.border};
+  }
 `
 
 export default function MyAssets({
@@ -40,9 +48,11 @@ export default function MyAssets({
 
   if (loadingTokens) {
     return (
-      <Row style={{ height: 73 }} gap="6px" justify="center">
-        <Loader /> <Text color={theme.subText}>Loading tokens...</Text>
-      </Row>
+      <Wrapper>
+        <Row style={{ height: 73 }} gap="6px" justify="center">
+          <Loader /> <Text color={theme.subText}>Loading tokens...</Text>
+        </Row>
+      </Wrapper>
     )
   }
 

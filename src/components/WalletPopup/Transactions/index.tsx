@@ -1,6 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Info } from 'react-feather'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
@@ -26,7 +26,17 @@ import TransactionItem from './TransactionItem'
 const ContentWrapper = styled.div`
   width: 100%;
   flex: 1;
-  overflow-y: scroll;
+  overflow-y: auto;
+  overflow-x: hidden;
+  .scrollbar {
+    &::-webkit-scrollbar {
+      display: block;
+      width: 4px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: ${({ theme }) => theme.border};
+    }
+  }
 `
 
 const Wrapper = styled.div`
@@ -75,6 +85,12 @@ export default function ListTransaction() {
     if (list.length) fetchListTokenByAddresses(list, chainId).catch(console.error) // todo danh ask: maxium tokens, transaction status, reset
   }, [total, isLoadedTokenDefault, chainId])
 
+  const onRefChange = useCallback((node: HTMLDivElement) => {
+    if (!node?.classList.contains('scrollbar')) {
+      node?.classList.add('scrollbar')
+    }
+  }, [])
+
   return (
     <Wrapper>
       <Tab activeTab={activeTab} setActiveTab={setActiveTab} />
@@ -117,6 +133,7 @@ export default function ListTransaction() {
                 height={height}
                 width={width}
                 itemSize={70}
+                outerRef={onRefChange}
                 itemCount={formatTransactions.length}
                 itemData={formatTransactions}
               >

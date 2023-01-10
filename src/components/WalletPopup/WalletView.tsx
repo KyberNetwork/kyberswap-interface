@@ -46,6 +46,11 @@ const Wrapper = styled(Column).attrs<WrapperProps>(props => ({
     background-color: ${({ theme }) => rgba(theme.tabActive, 0.92)};
     backdrop-filter: blur(4px);
   }
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    padding-bottom: 0;
+    height: unset;
+  `};
 `
 
 const TabItem = styled.div<{ active: boolean }>`
