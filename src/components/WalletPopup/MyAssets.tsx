@@ -13,7 +13,15 @@ import useTheme from 'hooks/useTheme'
 
 const tokenItemStyle = { paddingLeft: 0, paddingRight: 0 }
 
-export default function MyAssets({ tokens, loadingTokens }: { tokens: Currency[]; loadingTokens: boolean }) {
+export default function MyAssets({
+  tokens,
+  loadingTokens,
+  usdBalances,
+}: {
+  tokens: Currency[]
+  loadingTokens: boolean
+  usdBalances: { [address: string]: number }
+}) {
   const theme = useTheme()
   const [modalOpen, setModalOpen] = useState(false)
   const showModal = () => setModalOpen(true)
@@ -27,27 +35,24 @@ export default function MyAssets({ tokens, loadingTokens }: { tokens: Currency[]
     )
   }
 
-  if (!tokens.length) {
-    return (
-      <>
-        <Column gap="6px" style={{ alignItems: 'center' }}>
-          <Info color={theme.subText} />
-          <Text color={theme.subText}>
-            <Trans>Don&apos;t see your tokens</Trans>
-          </Text>
-          <Text color={theme.primary} style={{ cursor: 'pointer' }} onClick={showModal}>
-            <Trans>Import tokens</Trans>
-          </Text>
-        </Column>
-        <CurrencySearchModal
-          isOpen={modalOpen}
-          onDismiss={hideModal}
-          onCurrencySelect={hideModal}
-          showCommonBases={false}
-        />
-      </>
-    )
-  }
-
-  return <CurrencyList currencies={tokens} itemStyle={tokenItemStyle} showFavoriteIcon={false} />
+  return (
+    <>
+      <CurrencyList currencies={tokens} itemStyle={tokenItemStyle} showFavoriteIcon={false} usdBalances={usdBalances} />
+      <Column gap="6px" style={{ alignItems: 'center', borderTop: `1px solid ${theme.border}`, paddingTop: 12 }}>
+        <Info color={theme.subText} />
+        <Text color={theme.subText}>
+          <Trans>Don&apos;t see your tokens</Trans>
+        </Text>
+        <Text color={theme.primary} style={{ cursor: 'pointer' }} onClick={showModal}>
+          <Trans>Import tokens</Trans>
+        </Text>
+      </Column>
+      <CurrencySearchModal
+        isOpen={modalOpen}
+        onDismiss={hideModal}
+        onCurrencySelect={hideModal}
+        showCommonBases={false}
+      />
+    </>
+  )
 }

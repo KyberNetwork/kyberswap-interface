@@ -13,9 +13,11 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import Loader from 'components/Loader'
 import { RowBetween, RowFixed } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
+import useTheme from 'hooks/useTheme'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
+import { formattedNum } from 'utils'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 
 import ImportRow from './ImportRow'
@@ -101,6 +103,7 @@ export function CurrencyRow({
   showFavoriteIcon = true,
   customName,
   customBalance,
+  usdBalance,
 }: {
   showImported?: boolean
   showFavoriteIcon?: boolean
@@ -114,9 +117,10 @@ export function CurrencyRow({
   removeImportedToken?: (token: Token) => void
   customName?: ReactNode
   customBalance?: ReactNode
+  usdBalance?: number
 }) {
   const { chainId, account } = useActiveWeb3React()
-
+  const theme = useTheme()
   const nativeCurrency = useCurrencyConvertedToNative(currency || undefined)
 
   const { favoriteTokens } = useUserFavoriteTokens(chainId)
@@ -153,7 +157,7 @@ export function CurrencyRow({
     >
       <Flex alignItems="center" style={{ gap: 8 }}>
         <CurrencyLogo currency={currency} size={'24px'} />
-        <Column>
+        <Column gap="2px">
           <Text title={currency.name} fontWeight={500}>
             {customName || symbol}
           </Text>
@@ -161,18 +165,25 @@ export function CurrencyRow({
         </Column>
       </Flex>
 
-      <RowFixed style={{ justifySelf: 'flex-end', gap: 15 }}>
-        {showImported ? (
-          <DeleteButton onClick={onClickRemove} />
-        ) : customBalance !== undefined ? (
-          customBalance
-        ) : (
-          balanceComponent
+      <Column style={{ alignItems: 'flex-end', gap: 2 }}>
+        <RowFixed style={{ justifySelf: 'flex-end', gap: 15 }}>
+          {showImported ? (
+            <DeleteButton onClick={onClickRemove} />
+          ) : customBalance !== undefined ? (
+            customBalance
+          ) : (
+            balanceComponent
+          )}
+          {showFavoriteIcon && (
+            <FavoriteButton onClick={e => handleClickFavorite?.(e, currency)} data-active={isFavorite} />
+          )}
+        </RowFixed>
+        {usdBalance !== undefined && (
+          <Text fontSize={'10px'} color={theme.subText}>
+            {formattedNum(usdBalance + '', true)}
+          </Text>
         )}
-        {showFavoriteIcon && (
-          <FavoriteButton onClick={e => handleClickFavorite?.(e, currency)} data-active={isFavorite} />
-        )}
-      </RowFixed>
+      </Column>
     </CurrencyRowWrapper>
   )
 }
@@ -198,6 +209,7 @@ function CurrencyList({
   listTokenRef,
   showFavoriteIcon,
   itemStyle = {},
+  usdBalances,
 }: {
   showFavoriteIcon?: boolean
   showImported?: boolean
@@ -212,6 +224,7 @@ function CurrencyList({
   loadMoreRows?: () => Promise<void>
   listTokenRef?: React.Ref<HTMLDivElement>
   itemStyle?: CSSProperties
+  usdBalances?: { [address: string]: number }
 }) {
   const currencyBalances = useCurrencyBalances(currencies)
 
@@ -235,6 +248,8 @@ function CurrencyList({
 
       if (currency) {
         // whitelist
+        const usdBalance = token && usdBalances ? usdBalances[token?.wrapped.address] : undefined
+
         return (
           <CurrencyRow
             showImported={showImported}
@@ -247,6 +262,7 @@ function CurrencyList({
             showFavoriteIcon={showFavoriteIcon}
             onSelect={onCurrencySelect}
             otherSelected={otherSelected}
+            usdBalance={usdBalance}
           />
         )
       }
@@ -263,6 +279,7 @@ function CurrencyList({
       removeImportedToken,
       itemStyle,
       showFavoriteIcon,
+      usdBalances,
     ],
   )
   const loadMoreItems = useCallback(() => loadMoreRows?.(), [loadMoreRows])

@@ -88,7 +88,7 @@ export default function WalletView({ onDismiss, onPin, isPinned }: Props) {
   const theme = useTheme()
   const navigate = useNavigate()
 
-  const { loading: loadingTokens, currencies, currencyBalances, totalBalanceInUsd } = useTokensHasBalance()
+  const { loading: loadingTokens, currencies, currencyBalances, totalBalanceInUsd, usdBalances } = useTokensHasBalance()
 
   const actionGroup = (
     <RowBetween>
@@ -140,7 +140,7 @@ export default function WalletView({ onDismiss, onPin, isPinned }: Props) {
             <AccountInfo totalBalanceInUsd={totalBalanceInUsd} />
             {actionGroup}
             {underTab}
-            <MyAssets loadingTokens={loadingTokens} tokens={currencies} />
+            <MyAssets loadingTokens={loadingTokens} tokens={currencies} usdBalances={usdBalances} />
           </ContentWrapper>
         )
       case View.SEND_TOKEN:

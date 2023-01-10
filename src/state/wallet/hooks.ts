@@ -212,5 +212,6 @@ export const useTokensHasBalance = () => {
     totalBalanceInUsd,
     currencies: tokensHasBalanceSorted,
     currencyBalances,
+    usdBalances: tokensPrices,
   }
 }

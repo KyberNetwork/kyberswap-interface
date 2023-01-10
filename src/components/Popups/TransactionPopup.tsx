@@ -151,11 +151,16 @@ const getTitle = (type: string, success: boolean) => {
   return `${type} - ${statusText}!`
 }
 
-const getSummary = (transaction: TransactionDetails) => {
+export const getTransactionStatus = (transaction: TransactionDetails) => {
   const pending = !transaction?.receipt
   const success =
     !pending && transaction && (transaction.receipt?.status === 1 || typeof transaction.receipt?.status === 'undefined')
+  return { pending, success }
+}
+
+const getSummary = (transaction: TransactionDetails) => {
   const type = transaction?.type
+  const { success } = getTransactionStatus(transaction)
 
   const shortHash = 'Hash: ' + transaction.hash.slice(0, 8) + '...' + transaction.hash.slice(58, 65)
 
