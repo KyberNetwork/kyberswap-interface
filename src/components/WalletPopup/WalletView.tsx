@@ -6,12 +6,10 @@ import { useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
-import { ReactComponent as DollarIcon } from 'assets/svg/dollar.svg'
 import { ReactComponent as SendIcon } from 'assets/svg/send_icon.svg'
 import { ReactComponent as DragHandleIcon } from 'assets/svg/wallet_drag_handle.svg'
-import { ButtonLight } from 'components/Button'
 import Column from 'components/Column'
-import Row, { RowBetween } from 'components/Row'
+import Row from 'components/Row'
 import AccountInfo from 'components/WalletPopup/AccountInfo'
 import MyAssets from 'components/WalletPopup/MyAssets'
 import PinButton from 'components/WalletPopup/PinButton'
@@ -71,18 +69,12 @@ const ContentWrapper = styled.div`
   gap: 14px;
 `
 
-const View = {
+export const View = {
   ASSETS: t`Assets`,
   SEND_TOKEN: t`Send`,
   RECEIVE_TOKEN: t`Receive`,
   TRANSACTIONS: t`Transactions`,
-}
-
-const StyledButton = styled(ButtonLight)`
-  height: 40px;
-  width: 105px;
-  padding: 10px;
-`
+} as const
 
 type Props = {
   onDismiss: () => void
@@ -97,28 +89,6 @@ export default function WalletView({ onDismiss, onPin, isPinned, blurBackground 
 
   const { loading: loadingTokens, currencies, currencyBalances, totalBalanceInUsd, usdBalances } = useTokensHasBalance()
 
-  const actionGroup = (
-    <RowBetween>
-      <StyledButton
-        onClick={() => {
-          navigate(`${APP_PATHS.BUY_CRYPTO}?step=3`)
-          onDismiss()
-        }}
-      >
-        <DollarIcon style={{ marginRight: 7 }} />
-        <Trans>Buy</Trans>
-      </StyledButton>
-      <StyledButton onClick={() => setView(View.RECEIVE_TOKEN)}>
-        <SendIcon style={{ marginRight: 7, transform: 'rotate(180deg)' }} />
-        <Trans>Receive</Trans>
-      </StyledButton>
-      <StyledButton onClick={() => setView(View.SEND_TOKEN)}>
-        <SendIcon style={{ marginRight: 7 }} />
-        <Trans>Send</Trans>
-      </StyledButton>
-    </RowBetween>
-  )
-
   const underTab = (
     <Row gap="20px" style={{ borderBottom: `1px solid ${theme.border}` }}>
       <TabItem active={view === View.ASSETS} onClick={() => setView(View.ASSETS)}>
@@ -130,13 +100,30 @@ export default function WalletView({ onDismiss, onPin, isPinned, blurBackground 
     </Row>
   )
 
+  const renderAccountInfo = () => {
+    const handleClickBuy = () => {
+      navigate(`${APP_PATHS.BUY_CRYPTO}?step=3`)
+      onDismiss()
+    }
+    const handleClickReceive = () => setView(View.RECEIVE_TOKEN)
+    const handleClickSend = () => setView(View.SEND_TOKEN)
+
+    return (
+      <AccountInfo
+        totalBalanceInUsd={totalBalanceInUsd}
+        onClickBuy={handleClickBuy}
+        onClickReceive={handleClickReceive}
+        onClickSend={handleClickSend}
+      />
+    )
+  }
+
   const renderContent = () => {
     switch (view) {
       case View.TRANSACTIONS:
         return (
           <ContentWrapper>
-            <AccountInfo totalBalanceInUsd={totalBalanceInUsd} />
-            {actionGroup}
+            {renderAccountInfo()}
             {underTab}
             <ListTransaction />
           </ContentWrapper>
@@ -144,8 +131,7 @@ export default function WalletView({ onDismiss, onPin, isPinned, blurBackground 
       case View.ASSETS:
         return (
           <ContentWrapper>
-            <AccountInfo totalBalanceInUsd={totalBalanceInUsd} />
-            {actionGroup}
+            {renderAccountInfo()}
             {underTab}
             <MyAssets
               loadingTokens={loadingTokens}
