@@ -196,7 +196,6 @@ export default function WalletView({ onDismiss, onPin, isPinned, blurBackground 
             flex: '0 0 48px',
             alignItems: 'center',
             justifyContent: 'space-between',
-            borderBottom: `1px solid ${theme.border}`,
           }}
         >
           {isExchangeTokenTab ? (

@@ -51,8 +51,11 @@ export default function MyAssets({
           <div style={{ height, width }}>
             {tokens.map(token => {
               const address = token.wrapped.address
-              const usdBalance = usdBalances[address]
               const currencyBalance = currencyBalances[address]
+              const usdBalance =
+                currencyBalance && usdBalances[address]
+                  ? usdBalances[address] * parseFloat(currencyBalance.toExact())
+                  : undefined
               return (
                 <CurrencyRow
                   isSelected={false}
