@@ -1,4 +1,4 @@
-import { Currency, CurrencyAmount, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useState } from 'react'
 import { Info } from 'react-feather'
@@ -11,9 +11,8 @@ import Loader from 'components/Loader'
 import Row from 'components/Row'
 import { CurrencyRow } from 'components/SearchModal/CurrencyList'
 import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
-import { ETHER_ADDRESS } from 'constants/index'
-import { isEVM } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
+import { useNativeBalance } from 'state/wallet/hooks'
 
 const tokenItemStyle = { paddingLeft: 0, paddingRight: 0 }
 const Wrapper = styled.div`
@@ -37,6 +36,7 @@ export default function MyAssets({
   const [modalOpen, setModalOpen] = useState(false)
   const showModal = () => setModalOpen(true)
   const hideModal = () => setModalOpen(false)
+  const nativeBalance = useNativeBalance()
 
   if (loadingTokens) {
     return (
@@ -52,13 +52,8 @@ export default function MyAssets({
         {({ height, width }) => (
           <div style={{ height, width }}>
             {tokens.map(token => {
-              const address = token.isNative
-                ? isEVM(token.chainId)
-                  ? ETHER_ADDRESS
-                  : WETH[token.chainId].address
-                : token.wrapped.address
-
-              const currencyBalance = currencyBalances[address]
+              const address = token.wrapped.address
+              const currencyBalance = token.isNative ? nativeBalance : currencyBalances[address]
               const usdBalance =
                 currencyBalance && usdBalances[address]
                   ? usdBalances[address] * parseFloat(currencyBalance.toExact())
