@@ -225,6 +225,8 @@ export default function SendToken({
           )}
         </InputWrapper>
 
+        <WarningBrave token={currencyIn} />
+
         {estimateGas && (
           <RowBetween>
             <Label>
@@ -237,8 +239,6 @@ export default function SendToken({
             </Label>
           </RowBetween>
         )}
-
-        <WarningBrave token={currencyIn} />
       </Flex>
       <ButtonPrimary height="44px" onClick={onSendToken} disabled={disableButtonSend}>
         {inputError ? inputError : isSending ? <Trans>Sending token</Trans> : <Trans>Send</Trans>}

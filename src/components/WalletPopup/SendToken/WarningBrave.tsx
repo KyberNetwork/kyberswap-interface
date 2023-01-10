@@ -5,7 +5,6 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import AddTokenToMetaMask from 'components/AddToMetamask'
-import Column from 'components/Column'
 import CopyHelper from 'components/Copy'
 import { NetworkLogo } from 'components/Logo'
 import Row from 'components/Row'
@@ -27,7 +26,6 @@ const Wrapper = styled.div`
 const WarningBrave = ({ token }: { token: Currency | undefined }) => {
   const { chainId, walletKey } = useActiveWeb3React()
   const theme = useTheme()
-  console.log(walletKey, walletKey)
 
   if (!token || walletKey !== 'BRAVE' || token.isNative) return null
   return (
@@ -35,11 +33,11 @@ const WarningBrave = ({ token }: { token: Currency | undefined }) => {
       <div>
         <AlertTriangle size={18} color={theme.subText} />
       </div>
-      <Column gap="10px">
+      <Flex style={{ gap: 10 }} flexDirection="column">
         <Text color={theme.text} fontWeight="400">
           <Trans> Notice for Brave wallet users</Trans>
         </Text>
-        <Text>
+        <Text style={{ whiteSpace: 'normal' }}>
           <Trans>
             Please ensure the selected token has been imported in your Brave wallet before send. Otherwise, your
             transaction will be rejected. In this case, you can quickly import token with contract address below.
@@ -58,7 +56,7 @@ const WarningBrave = ({ token }: { token: Currency | undefined }) => {
             </MouseoverTooltipDesktopOnly>
           </Flex>
         </Row>
-      </Column>
+      </Flex>
     </Wrapper>
   )
 }

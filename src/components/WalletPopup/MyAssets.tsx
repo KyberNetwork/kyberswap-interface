@@ -14,7 +14,7 @@ import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
 import useTheme from 'hooks/useTheme'
 import { useNativeBalance } from 'state/wallet/hooks'
 
-const tokenItemStyle = { paddingLeft: 0, paddingRight: 0 }
+const tokenItemStyle = { paddingLeft: 0, paddingRight: 4 }
 const Wrapper = styled.div`
   width: 100%;
   flex: 1 0 auto;

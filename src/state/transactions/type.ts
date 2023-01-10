@@ -91,7 +91,7 @@ export enum TRANSACTION_TYPE {
   BRIDGE = 'Bridge Transaction',
   SWAP = 'Swap',
 
-  CREATE_POOL = 'Create pool',
+  CREATE_POOL = 'Classic Create pool',
   ELASTIC_CREATE_POOL = 'Elastic Create pool',
   ADD_LIQUIDITY = 'Add liquidity',
   ELASTIC_ADD_LIQUIDITY = 'Elastic Add liquidity',
