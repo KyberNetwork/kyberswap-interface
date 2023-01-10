@@ -1,13 +1,13 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Info } from 'react-feather'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 import { Flex, Text } from 'rebass'
-import styled, { DefaultTheme, css } from 'styled-components'
+import styled from 'styled-components'
 
-import Row from 'components/Row'
+import Tab from 'components/WalletPopup/Transactions/Tab'
 import { useActiveWeb3React } from 'hooks'
 import { fetchListTokenByAddresses, findCacheToken, useIsLoadedTokenDefault } from 'hooks/Tokens'
 import { isSupportKyberDao } from 'hooks/kyberdao'
@@ -23,44 +23,20 @@ import {
 
 import TransactionItem from './TransactionItem'
 
-const Wrapper = styled.div`
+const ContentWrapper = styled.div`
   width: 100%;
   flex: 1;
   overflow-y: scroll;
 `
 
-const TabWrapper = styled(Row)`
-  background-color: ${({ theme }) => theme.background};
-  border-radius: 20px;
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 100%;
+  gap: 14px;
   justify-content: space-between;
-  padding: 3px;
 `
 
-const getCssTabActive = (theme: DefaultTheme) => css`
-  border-radius: 20px;
-  background-color: ${theme.tabActive};
-`
-const TabItem = styled.div<{ active: boolean }>`
-  padding: 6px;
-  font-weight: 500;
-  font-size: 12px;
-  line-height: 14px;
-  text-align: center;
-  cursor: pointer;
-  user-select: none;
-  :hover {
-    ${({ theme }) => getCssTabActive(theme)}
-  }
-  ${({ theme, active }) => active && getCssTabActive(theme)}
-`
-const lisTab = [
-  { text: t`All`, value: '' },
-  { text: t`Swaps`, value: TRANSACTION_GROUP.SWAP },
-  { text: t`Liquidity`, value: TRANSACTION_GROUP.LIQUIDITY },
-  { text: t`Transfers`, value: TRANSACTION_GROUP.TRANSFER },
-  { text: t`KyberDAO`, value: TRANSACTION_GROUP.KYBERDAO },
-  { text: t`Others`, value: TRANSACTION_GROUP.OTHER },
-]
 export default function ListTransaction() {
   const transactions = useSortRecentTransactions(false, true) // todo danh check nhiều có crash ???
   const { chainId } = useActiveWeb3React()
@@ -100,15 +76,9 @@ export default function ListTransaction() {
   }, [total, isLoadedTokenDefault, chainId])
 
   return (
-    <>
-      <TabWrapper>
-        {lisTab.map(tab => (
-          <TabItem key={tab.text} active={activeTab === tab.value} onClick={() => setActiveTab(tab.value)}>
-            {tab.text}
-          </TabItem>
-        ))}
-      </TabWrapper>
-      <Wrapper>
+    <Wrapper>
+      <Tab activeTab={activeTab} setActiveTab={setActiveTab} />
+      <ContentWrapper>
         {formatTransactions.length === 0 ? (
           <Flex
             justifyContent="center"
@@ -157,7 +127,7 @@ export default function ListTransaction() {
             )}
           </AutoSizer>
         )}
-      </Wrapper>
-    </>
+      </ContentWrapper>
+    </Wrapper>
   )
 }
