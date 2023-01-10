@@ -9,9 +9,12 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import HoverDropdown from 'components/HoverDropdown'
 import PriceVisualize from 'components/ProAmm/PriceVisualize'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
+import useIsTickAtLimit from 'hooks/useIsTickAtLimit'
 import useTheme from 'hooks/useTheme'
 import { useElasticFarms, useFarmAction } from 'state/farms/elastic/hooks'
 import { FarmingPool, NFTPosition } from 'state/farms/elastic/types'
+import { Bound } from 'state/mint/proamm/actions'
+import { formatTickPrice } from 'utils/formatTickPrice'
 import { formatDollarAmount } from 'utils/numbers'
 
 import FeeTarget from './FeeTarget'
@@ -51,6 +54,8 @@ const PositionDetail = ({
     (tokenPrices[item.amount1.currency.address] || 0) * +item.amount1.toExact()
 
   const outOfRange = item.pool.tickCurrent < item.tickLower || item.pool.tickCurrent >= item.tickUpper
+
+  const tickAtLimit = useIsTickAtLimit(item.pool.fee, item.tickLower, item.tickUpper)
 
   const priceLower = !isRevertPrice ? item.token0PriceLower : item.token0PriceUpper.invert()
   const priceUpper = !isRevertPrice ? item.token0PriceUpper : item.token0PriceLower.invert()
@@ -180,13 +185,13 @@ const PositionDetail = ({
           <Text as="span" color={theme.subText}>
             <Trans>Min Price</Trans>:
           </Text>{' '}
-          {priceLower.toSignificant(6)}
+          {formatTickPrice(priceLower, tickAtLimit, Bound.LOWER)}
         </Text>
         <Text>
           <Text as="span" color={theme.subText}>
             <Trans>Max Price</Trans>:
           </Text>{' '}
-          {priceUpper.toSignificant(6)}
+          {formatTickPrice(priceUpper, tickAtLimit, Bound.UPPER)}
         </Text>
       </Flex>
     </NFTWrapper>
