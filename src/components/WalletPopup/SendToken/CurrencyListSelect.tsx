@@ -14,16 +14,25 @@ const PanelTokenWrapper = styled.div`
   display: flex;
   align-items: center;
   background-color: ${({ theme }) => theme.background};
-  overflow-y: scroll;
+  overflow-y: auto;
   max-height: 250px;
   min-height: 76px;
   width: 300px;
   right: 10px;
   top: 85px;
-  z-index: 1;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   padding: 10px 0px;
+  /* &::-webkit-scrollbar {
+    display: block;
+    width: 14px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: ${({ theme }) => theme.disableText};
+    border-right: 10px solid transparent;
+    background-clip: padding-box;
+  } */
 `
 
 const NotifyWrapper = styled.div`

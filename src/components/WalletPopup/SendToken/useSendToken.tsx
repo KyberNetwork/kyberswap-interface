@@ -1,19 +1,60 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
+import { useWallet } from '@solana/wallet-adapter-react'
+import { PublicKey, SystemProgram, Transaction } from '@solana/web3.js'
 import { ethers } from 'ethers'
 import { useCallback, useEffect, useState } from 'react'
 
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useTokenContract } from 'hooks/useContract'
+import connection from 'state/connection/connection'
+import { tryParseAmount } from 'state/swap/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 
 export default function useSendToken(currency: Currency | undefined, recipient: string, amount: string) {
-  const { account } = useActiveWeb3React()
+  const { account, isEVM } = useActiveWeb3React()
   const { library } = useWeb3React()
   const [estimateGas, setGasFee] = useState<number | null>(null)
   const tokenContract = useTokenContract(currency?.wrapped.address)
   const addTransactionWithType = useTransactionAdder()
   const [isSending, setIsSending] = useState(false)
+  const { publicKey, sendTransaction } = useWallet()
+
+  const sendTokenSolana = useCallback(async () => {
+    try {
+      const amountIn = tryParseAmount(amount, currency)
+      if (!publicKey || !currency || !amount || !recipient || !amountIn) return Promise.reject('wrong input')
+      setIsSending(true)
+      const transaction = new Transaction().add(
+        SystemProgram.transfer({
+          fromPubkey: publicKey,
+          toPubkey: new PublicKey(recipient),
+          lamports: BigInt(amountIn.quotient.toString()),
+        }),
+      )
+      const blockhash = (await connection.getLatestBlockhash('finalized')).blockhash
+      transaction.recentBlockhash = blockhash
+      transaction.feePayer = publicKey
+      const signature = await sendTransaction(transaction, connection)
+      const resp = await connection.confirmTransaction(signature, 'processed')
+      // addTransactionWithType({
+      //   type: TRANSACTION_TYPE.TRANSFER_TOKEN,
+      //   hash: transaction.hash,
+      //   extraInfo: {
+      //     tokenAddress: currency.wrapped.address,
+      //     tokenAmount: amount,
+      //     tokenSymbol: currency.symbol ?? '',
+      //     contract: recipient,
+      //   },
+      // })
+      console.log(transaction, resp)
+      setIsSending(false)
+    } catch (error) {
+      setIsSending(false)
+      throw error
+    }
+    return
+  }, [publicKey, recipient, amount, sendTransaction, currency])
 
   useEffect(() => {
     async function getGasFee() {
@@ -74,5 +115,5 @@ export default function useSendToken(currency: Currency | undefined, recipient: 
     return
   }, [amount, account, currency, library, recipient, tokenContract, addTransactionWithType])
 
-  return { sendToken, isSending, estimateGas }
+  return { sendToken: isEVM ? sendToken : sendTokenSolana, isSending, estimateGas }
 }

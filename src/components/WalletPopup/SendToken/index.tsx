@@ -20,7 +20,7 @@ import useTheme from 'hooks/useTheme'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { TRANSACTION_STATE_DEFAULT, TransactionFlowState } from 'types'
-import { formatNumberWithPrecisionRange } from 'utils'
+import { formatNumberWithPrecisionRange, isWalletAddressSolana } from 'utils'
 import { errorFriendly } from 'utils/dmm'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 
@@ -45,6 +45,25 @@ const InputWrapper = styled.div`
   flex-direction: column;
 `
 
+function useCheckAddressSolana(addr: string) {
+  const [loading, setLoading] = useState(true)
+  const [address, setAddress] = useState<string | null>(null)
+
+  useEffect(() => {
+    setLoading(true)
+    isWalletAddressSolana(addr)
+      .then(() => {
+        setAddress(addr)
+      })
+      .catch(() => setAddress(null))
+      .finally(() => {
+        setLoading(false)
+      })
+  }, [addr])
+
+  return { address, loading }
+}
+
 export default function SendToken({
   loadingTokens,
   currencies,
@@ -58,7 +77,7 @@ export default function SendToken({
   const [currencyIn, setCurrency] = useState<Currency>()
   const [inputAmount, setInputAmount] = useState<string>('')
   const [showListToken, setShowListToken] = useState(false)
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, isEVM } = useActiveWeb3React()
   const [flowState, setFlowState] = useState<TransactionFlowState>(TRANSACTION_STATE_DEFAULT)
 
   const theme = useTheme()
@@ -77,9 +96,13 @@ export default function SendToken({
 
   const parseInputAmount = tryParseAmount(inputAmount, currencyIn)
 
-  const { address, loading } = useENS(recipient)
+  const respEvm = useENS(isEVM ? recipient : '')
+  const respSolana = useCheckAddressSolana(isEVM ? '' : recipient)
+
+  const { address, loading } = isEVM ? respEvm : respSolana
+
   const recipientError =
-    recipient && ((!loading && !address) || !recipient.startsWith('0x'))
+    recipient && ((!loading && !address) || (!recipient.startsWith('0x') && isEVM))
       ? t`Invalid wallet address`
       : recipient.toLowerCase() === account?.toLowerCase()
       ? t`You can’t use your own address as a receiver`

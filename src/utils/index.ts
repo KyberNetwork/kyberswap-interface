@@ -1,5 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { ChainId, Currency, CurrencyAmount, Percent, Token, WETH } from '@kyberswap/ks-sdk-core'
+import { PublicKey } from '@solana/web3.js'
 import dayjs from 'dayjs'
 import JSBI from 'jsbi'
 import Numeral from 'numeral'
@@ -14,6 +15,16 @@ import store from 'state'
 import { GroupedTxsByHash, TransactionDetails } from 'state/transactions/type'
 
 import checkForBraveBrowser from './checkForBraveBrowser'
+
+export const isWalletAddressSolana = async (addr: string) => {
+  try {
+    if (!addr) return false
+    const publicKey = new PublicKey(addr)
+    return await PublicKey.isOnCurve(publicKey.toBytes())
+  } catch (err) {
+    return false
+  }
+}
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(chainId: ChainId, value: any): string | false {
