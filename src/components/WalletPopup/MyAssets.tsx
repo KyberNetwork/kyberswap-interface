@@ -37,8 +37,22 @@ export default function MyAssets({
 
   return (
     <>
-      <CurrencyList currencies={tokens} itemStyle={tokenItemStyle} showFavoriteIcon={false} usdBalances={usdBalances} />
-      <Column gap="6px" style={{ alignItems: 'center', borderTop: `1px solid ${theme.border}`, paddingTop: 12 }}>
+      {tokens.length > 0 && (
+        <CurrencyList
+          currencies={tokens}
+          itemStyle={tokenItemStyle}
+          showFavoriteIcon={false}
+          usdBalances={usdBalances}
+        />
+      )}
+      <Column
+        gap="6px"
+        style={{
+          alignItems: 'center',
+          borderTop: tokens.length ? `1px solid ${theme.border}` : 'none',
+          paddingTop: 12,
+        }}
+      >
         <Info color={theme.subText} />
         <Text color={theme.subText}>
           <Trans>Don&apos;t see your tokens</Trans>
