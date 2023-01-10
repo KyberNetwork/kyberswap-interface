@@ -154,7 +154,7 @@ export default function AccountInfo({ totalBalanceInUsd, onClickBuy, onClickRece
                 </IconWrapper>
               )}
               <Text as="span" fontWeight="500">
-                {shortenAddress(chainId, account, 5)}
+                {shortenAddress(chainId, account, 5, false)}
               </Text>
               <CopyHelper toCopy={account} />
               <ExternalLinkIcon href={getEtherscanLink(chainId, account, 'address')} color={theme.subText} />

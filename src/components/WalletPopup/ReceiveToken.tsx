@@ -153,7 +153,7 @@ export default function ReceiveToken() {
               <AddressInput
                 style={{ color: theme.subText, cursor: 'pointer' }}
                 disabled
-                value={shortenAddress(chainId, account, 17)}
+                value={shortenAddress(chainId, account, 17, false)}
                 icon={<CopyHelper ref={copyButtonRef} toCopy={account} style={{ color: theme.subText }} />}
               />
             </Flex>
