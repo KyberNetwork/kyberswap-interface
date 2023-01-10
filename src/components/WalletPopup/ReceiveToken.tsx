@@ -52,6 +52,7 @@ export default function ReceiveToken() {
       value: isEVM ? `ethereum:${account}` : account,
       eyeColor: { outer: '#000000', inner: '#000000' },
       quietZone: '14',
+      removeQrCodeBehindLogo: true,
     })
   }, [account, isEVM])
 
@@ -77,6 +78,7 @@ export default function ReceiveToken() {
   try {
     qrElement = qrConfig ? <QRCode {...qrConfig} /> : <div style={{ height: QR_SIZE + 20 }} />
   } catch (error) {}
+
   return (
     <Wrapper>
       <Flex flexDirection={'column'} style={{ gap: 32, flex: 1, justifyContent: 'center' }}>
