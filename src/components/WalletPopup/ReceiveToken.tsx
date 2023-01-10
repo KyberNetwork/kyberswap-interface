@@ -5,7 +5,7 @@ import { QRCode, IProps as QRCodeProps } from 'react-qrcode-logo'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
-import KncLogo from 'assets/images/kyber_logo_black.png'
+import KncLogo from 'assets/images/kyber_logo_for_qr.png'
 import { AddressInput } from 'components/AddressInputPanel'
 import Column from 'components/Column'
 import CopyHelper from 'components/Copy'
@@ -47,6 +47,8 @@ export default function ReceiveToken() {
 
     return {
       logoImage: KncLogo,
+      logoWidth: 32,
+      logoHeight: 32,
       size: QR_SIZE,
       // `ethereum` is intentional. This QR is used to open the Send feature on the wallet (e.g. Metamask)
       // Chain is not switched by this prefix
