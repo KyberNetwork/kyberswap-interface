@@ -80,6 +80,7 @@ export const AddressInput = ({
   icon,
   disabled = false,
   style = {},
+  className,
 }: {
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void
   error?: boolean
@@ -87,10 +88,11 @@ export const AddressInput = ({
   placeholder?: string
   icon?: ReactNode
   disabled?: boolean
+  className?: string
   style?: CSSProperties
 }) => {
   return (
-    <ContainerRow error={error}>
+    <ContainerRow error={error} className={className}>
       <InputContainer>
         <Row gap="5px">
           <Input

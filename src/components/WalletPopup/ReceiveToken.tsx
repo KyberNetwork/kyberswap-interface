@@ -1,17 +1,16 @@
-import { Trans } from '@lingui/macro'
-import { useEffect, useState } from 'react'
-import { Check, Download } from 'react-feather'
+import { Trans, t } from '@lingui/macro'
+import { useEffect, useRef, useState } from 'react'
+import { Download } from 'react-feather'
 import { QRCode } from 'react-qrcode-logo'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import KncLogo from 'assets/images/kyber_logo_black.png'
 import { AddressInput } from 'components/AddressInputPanel'
-import { ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
 import CopyHelper from 'components/Copy'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
-import useCopyClipboard from 'hooks/useCopyClipboard'
 import useTheme from 'hooks/useTheme'
 import { shortenAddress } from 'utils'
 
@@ -37,12 +36,16 @@ const Wrapper = styled.div`
   }
 `
 
-export default function SendToken() {
+export default function ReceiveToken() {
   const { account = '', chainId, isEVM } = useActiveWeb3React()
   const [qrConfig, setQrConfig] = useState<{ [key: string]: any } | null>(null)
+  const copyButtonRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (!account) return
+    if (!account) {
+      return
+    }
+
     setQrConfig({
       logoImage: KncLogo,
       size: QR_SIZE,
@@ -52,12 +55,8 @@ export default function SendToken() {
     })
   }, [account, isEVM])
 
-  const [isCopied, setCopied] = useState(false)
-  const [, copyToClipboard] = useCopyClipboard()
-
   const onCopy = async () => {
-    copyToClipboard(account)
-    setCopied(true)
+    copyButtonRef.current?.click()
   }
 
   const downLoadQR = () => {
@@ -109,24 +108,26 @@ export default function SendToken() {
             <Trans>Your Wallet Address</Trans>
           </Label>
 
-          <AddressInput
-            style={{ color: theme.subText }}
-            disabled
-            value={shortenAddress(chainId, account, 17)}
-            icon={<CopyHelper toCopy={account} style={{ color: theme.subText }} />}
-          />
+          <MouseoverTooltip placement="bottom" text={t`Copy address to clipboard`}>
+            <Flex
+              onClick={onCopy}
+              role="button"
+              sx={{
+                flexDirection: 'column',
+                width: '100%',
+                cursor: 'pointer',
+              }}
+            >
+              <AddressInput
+                style={{ color: theme.subText, cursor: 'pointer' }}
+                disabled
+                value={shortenAddress(chainId, account, 17)}
+                icon={<CopyHelper ref={copyButtonRef} toCopy={account} style={{ color: theme.subText }} />}
+              />
+            </Flex>
+          </MouseoverTooltip>
         </Column>
       </Flex>
-      <ButtonPrimary height="44px" onClick={onCopy}>
-        {isCopied ? (
-          <Trans>
-            <Trans>Address Copied</Trans>&nbsp;
-            <Check size={16} />
-          </Trans>
-        ) : (
-          <Trans>Copy Address</Trans>
-        )}
-      </ButtonPrimary>
     </Wrapper>
   )
 }
