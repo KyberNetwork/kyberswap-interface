@@ -1,4 +1,5 @@
 import { Trans, t } from '@lingui/macro'
+import { rgba } from 'polished'
 import { useState } from 'react'
 import { ChevronLeft, FileText, StopCircle, X } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
@@ -25,9 +26,10 @@ import ListTransaction from './Transactions'
 
 export const HANDLE_CLASS_NAME = 'walletPopupDragHandle'
 
-type WrapperProps = { $pinned: boolean }
+type WrapperProps = { $pinned: boolean; $blur: boolean }
 const Wrapper = styled(Column).attrs<WrapperProps>(props => ({
   'data-pinned': props.$pinned,
+  'data-blur': props.$blur,
 }))<WrapperProps>`
   width: 100%;
   height: 100%;
@@ -40,6 +42,11 @@ const Wrapper = styled(Column).attrs<WrapperProps>(props => ({
 
   &[data-pinned='true'] {
     border-radius: 20px;
+  }
+
+  &[data-blur='true'] {
+    background-color: ${({ theme }) => rgba(theme.tabActive, 0.92)};
+    backdrop-filter: blur(4px);
   }
 `
 
@@ -71,19 +78,19 @@ const View = {
   TRANSACTIONS: t`Transactions`,
 }
 
-type Props = {
-  onDismiss: () => void
-  onPin?: () => void
-  isPinned: boolean
-}
-
 const StyledButton = styled(ButtonLight)`
   height: 40px;
   width: 105px;
   padding: 10px;
 `
 
-export default function WalletView({ onDismiss, onPin, isPinned }: Props) {
+type Props = {
+  onDismiss: () => void
+  onPin?: () => void
+  isPinned: boolean
+  blurBackground?: boolean
+}
+export default function WalletView({ onDismiss, onPin, isPinned, blurBackground = false }: Props) {
   const [view, setView] = useState<string>(View.ASSETS)
   const theme = useTheme()
   const navigate = useNavigate()
@@ -155,7 +162,7 @@ export default function WalletView({ onDismiss, onPin, isPinned }: Props) {
   const isExchangeTokenTab = isSendTab || view === View.RECEIVE_TOKEN
 
   return (
-    <Wrapper $pinned={isPinned}>
+    <Wrapper $pinned={isPinned} $blur={blurBackground}>
       <Flex
         className={isPinned ? HANDLE_CLASS_NAME : ''}
         sx={{
