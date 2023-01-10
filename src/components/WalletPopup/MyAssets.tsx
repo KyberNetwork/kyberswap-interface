@@ -79,7 +79,7 @@ export default function MyAssets({
                 <Trans>Don&apos;t see your tokens</Trans>
               </Text>
               <Text color={theme.primary} style={{ cursor: 'pointer' }} onClick={showModal}>
-                <Trans>Import tokens</Trans>
+                <Trans>Import Tokens</Trans>
               </Text>
             </Column>
           </div>
