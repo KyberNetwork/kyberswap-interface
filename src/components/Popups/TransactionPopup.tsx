@@ -138,7 +138,7 @@ const SUMMARY: { [type in TRANSACTION_TYPE]: SummaryFunction } = {
 }
 
 const MAP_STATUS: { [key in string]: string } = {
-  [TRANSACTION_TYPE.BRIDGE]: 'Processing',
+  [TRANSACTION_TYPE.BRIDGE]: '- Processing',
   [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER]: 'Submitted',
 }
 
