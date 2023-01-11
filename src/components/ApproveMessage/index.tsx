@@ -39,6 +39,7 @@ export default function ApproveMessage({
       ChainId.AURORA,
       ChainId.MAINNET,
       ChainId.AVAXMAINNET,
+      ChainId.OASIS,
     ].includes(chainId)
   ) {
     return null
