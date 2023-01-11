@@ -127,7 +127,7 @@ const StyledBalanceMax = styled.button`
   }
 `
 
-const Card2 = styled(Card)`
+const StyledCard = styled(Card)`
   padding: 0 0.25rem 0.5rem;
   text-align: right;
 `
@@ -246,13 +246,13 @@ export default function CurrencyInputPanel({
   return (
     <div style={{ width: '100%' }}>
       {label && positionLabel === 'out' && (
-        <Card2 borderRadius={'20px'}>
+        <StyledCard borderRadius={'20px'}>
           <Flex justifyContent={'space-between'} alignItems="center">
             <Text fontSize={12} color={theme.subText} fontWeight={500}>
               {label}:
             </Text>
           </Flex>
-        </Card2>
+        </StyledCard>
       )}
       <InputPanel id={id} hideInput={hideInput}>
         {locked && PoolLockContent}
