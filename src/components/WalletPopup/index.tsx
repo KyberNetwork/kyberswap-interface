@@ -23,22 +23,25 @@ const viewportWidth = Math.max(document.documentElement.clientWidth || 0, window
 const viewportHeight = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
 
 type Props = {
-  isOpen: boolean
-  onDismiss: () => void
+  isModalOpen: boolean
+  onDismissModal: () => void
   isPinned: boolean
   setPinned: (v: boolean) => void
 }
-const WalletPopup: React.FC<Props> = ({ isOpen, onDismiss, isPinned, setPinned }) => {
+const WalletPopup: React.FC<Props> = ({ isModalOpen, onDismissModal, isPinned, setPinned }) => {
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const rootNode = document.getElementById('app')
 
+  const shouldOpenPopup = (!isPinned && isModalOpen) || isPinned
+
   const handleClosePopup = () => {
-    onDismiss()
+    onDismissModal()
     setPinned(false)
   }
 
   const handlePinPopup = () => {
     setPinned(true)
+    onDismissModal()
   }
 
   if (!rootNode) {
@@ -47,7 +50,7 @@ const WalletPopup: React.FC<Props> = ({ isOpen, onDismiss, isPinned, setPinned }
 
   if (isMobile) {
     return (
-      <Modal isOpen={isOpen} onDismiss={onDismiss} minHeight={80}>
+      <Modal isOpen={isModalOpen} onDismiss={onDismissModal} minHeight={80}>
         <WalletView onDismiss={handleClosePopup} isPinned={isPinned} />
       </Modal>
     )
@@ -62,8 +65,8 @@ const WalletPopup: React.FC<Props> = ({ isOpen, onDismiss, isPinned, setPinned }
   return (
     <>
       <GlobalStyle $pinned={isPinned} />
-      <Modal isOpen={isOpen && !isPinned} onDismiss={onDismiss} minHeight={false} />
-      {isOpen &&
+      <Modal isOpen={isModalOpen && !isPinned} onDismiss={onDismissModal} minHeight={false} />
+      {shouldOpenPopup &&
         createPortal(
           <Rnd
             default={{

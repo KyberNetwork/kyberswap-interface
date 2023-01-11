@@ -436,13 +436,12 @@ export default function WalletModal() {
   }
 
   if (showAccount) {
-    console.log({ walletModalOpen })
     return (
       <WalletPopup
-        isOpen={walletModalOpen}
         isPinned={isPinnedPopupWallet}
         setPinned={setPinnedPopupWallet}
-        onDismiss={toggleWalletModal}
+        isModalOpen={walletModalOpen}
+        onDismissModal={toggleWalletModal}
       />
     )
   }
