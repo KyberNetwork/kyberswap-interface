@@ -125,7 +125,7 @@ export const calcPercentFilledOrder = (value: string, total: string, decimals: n
 }
 
 export const getErrorMessage = (error: any) => {
-  console.error(error)
+  console.error(`Limit order error: `, error)
   const errorCode: string = error?.response?.data?.code || error.code || ''
   const mapErrorMessageByErrCode: { [code: string]: string } = {
     4001: t`User denied message signature`,
@@ -146,6 +146,6 @@ export const getPayloadCreateOrder = (params: CreateOrderParam) => {
     maker: account,
     makingAmount: parseInputAmount?.quotient?.toString(),
     takingAmount: tryParseAmount(outputAmount, currencyOut)?.quotient?.toString(),
-    expiredAt: (expiredAt / 1000) | 0,
+    expiredAt: Math.floor(expiredAt / 1000),
   }
 }
