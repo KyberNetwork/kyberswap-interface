@@ -2,7 +2,7 @@ import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { darken, lighten, rgba } from 'polished'
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
-import { Flex, Text } from 'rebass'
+import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
@@ -135,9 +135,9 @@ const StyledCard = styled(Card)`
 const PoolLockContent = (
   <FixedContainer>
     <Flex padding={'0 20px'} sx={{ gap: '16px' }}>
-      <div style={{ width: '26px', margin: 'auto' }}>
+      <Box margin="auto" width="26px">
         <Lock />
-      </div>
+      </Box>
       <Text fontSize="12px" textAlign="left" padding="8px 16px" lineHeight={'16px'}>
         <Trans>
           The price of the pool is outside your selected price range and hence you can only deposit a single token. To
