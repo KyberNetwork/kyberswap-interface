@@ -716,9 +716,10 @@ const LimitOrderForm = function LimitOrderForm({
               <Trans>Expires In</Trans>
             </Label>
             <Select
-              forceMenuPlacementTop={isEdit}
               value={expire}
               onChange={onChangeExpire}
+              optionStyle={isEdit ? { paddingTop: 8, paddingBottom: 8 } : {}}
+              menuStyle={isEdit ? { paddingTop: 8, paddingBottom: 8 } : {}}
               style={{ width: '100%', padding: 0, height: INPUT_HEIGHT }}
               options={[...EXPIRED_OPTIONS, { label: 'Custom', onSelect: toggleDatePicker }]}
               activeRender={item => (
