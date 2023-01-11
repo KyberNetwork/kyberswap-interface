@@ -47,6 +47,13 @@ const Farm = () => {
 
   const vestingLoading = useSelector<AppState, boolean>(state => state.vesting.loading)
 
+  const navigateTab = (nextTab: FARM_TAB) => {
+    const newQs = { ...qs, type: nextTab }
+    navigate({
+      search: stringify(newQs),
+    })
+  }
+
   const renderTabContent = () => {
     switch (type) {
       case FARM_TAB.ACTIVE:
@@ -186,17 +193,12 @@ const Farm = () => {
                   if (type && type !== 'active') {
                     mixpanelHandler(MIXPANEL_TYPE.FARMS_ACTIVE_VIEWED)
                   }
-                  const newQs = { ...qs, type: 'active' }
-                  navigate({
-                    search: stringify(newQs),
-                  })
+                  navigateTab(FARM_TAB.ACTIVE)
                 }}
                 isActive={!type || type === 'active'}
               >
                 <PoolTitleContainer>
-                  <span>
-                    <Trans>Active</Trans>
-                  </span>
+                  <Trans>Active</Trans>
                 </PoolTitleContainer>
               </Tab>
               <Tab
@@ -204,26 +206,18 @@ const Farm = () => {
                   if (type !== 'ended') {
                     mixpanelHandler(MIXPANEL_TYPE.FARMS_ENDING_VIEWED)
                   }
-                  const newQs = { ...qs, type: 'ended' }
-                  navigate({
-                    search: stringify(newQs),
-                  })
+                  navigateTab(FARM_TAB.ENDED)
                 }}
-                isActive={type === 'ended'}
+                isActive={type === FARM_TAB.ENDED}
               >
                 <PoolTitleContainer>
-                  <span>
-                    <Trans>Ended</Trans>
-                  </span>
+                  <Trans>Ended</Trans>
                 </PoolTitleContainer>
               </Tab>
 
               <Tab
                 onClick={() => {
-                  const newQs = { ...qs, type: FARM_TAB.MY_FARMS }
-                  navigate({
-                    search: stringify(newQs),
-                  })
+                  navigateTab(FARM_TAB.MY_FARMS)
                 }}
                 isActive={type === FARM_TAB.MY_FARMS}
               >
@@ -237,12 +231,9 @@ const Farm = () => {
                   if (type !== 'vesting') {
                     mixpanelHandler(MIXPANEL_TYPE.FARMS_MYVESTING_VIEWED)
                   }
-                  const newQs = { ...qs, type: 'vesting' }
-                  navigate({
-                    search: stringify(newQs),
-                  })
+                  navigateTab(FARM_TAB.VESTING)
                 }}
-                isActive={type === 'vesting'}
+                isActive={type === FARM_TAB.VESTING}
               >
                 <PoolTitleContainer>
                   <Text>
