@@ -67,6 +67,7 @@ export enum ApplicationModal {
 
 export const updateBlockNumber = createAction<{ chainId: number; blockNumber: number }>('application/updateBlockNumber')
 export const setOpenModal = createAction<ApplicationModal | null>('application/setOpenModal')
+export const closeModal = createAction<ApplicationModal | null>('application/closeModal')
 export const addPopup = createAction<{
   key?: string
   removeAfterMs?: number | null
