@@ -740,7 +740,7 @@ const LimitOrderForm = function LimitOrderForm({
           />
           <ArrowRotate
             rotate={rotate}
-            onClick={handleRotateClick}
+            onClick={isEdit ? undefined : handleRotateClick}
             style={{ width: 25, height: 25, padding: 4, background: theme.buttonGray }}
           />
         </RowBetween>
