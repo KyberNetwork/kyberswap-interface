@@ -330,7 +330,6 @@ export default function CurrencyInputPanel({
               >
                 <Aligner>
                   <RowFixed>
-                          loadingText || <Trans>Select a token</Trans>}
                     {currency && !hideLogo ? <CurrencyLogo currency={currency} size={'20px'} /> : null}
                     <StyledTokenName
                       className="token-symbol-container"
@@ -340,7 +339,8 @@ export default function CurrencyInputPanel({
                     >
                       {(nativeCurrency?.symbol && maxCurrencySymbolLength
                         ? shortString(nativeCurrency.symbol, maxCurrencySymbolLength)
-                        : nativeCurrency?.symbol) || <Trans>Select a token</Trans>}
+                        : nativeCurrency?.symbol) ||
+                        loadingText || <Trans>Select a token</Trans>}
                     </StyledTokenName>
                   </RowFixed>
                   {!disableCurrencySelect && !isSwitchMode && <DropdownSVG />}
