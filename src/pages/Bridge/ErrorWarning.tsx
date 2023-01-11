@@ -21,7 +21,7 @@ const ErrorWarningPanel = ({ title, type }: { title: string; type: 'error' | 'wa
         <div>
           <AlertTriangle size={15} />
         </div>
-        <Text fontWeight={500} fontSize={13}>
+        <Text fontWeight={400} fontSize={13} color={theme.text}>
           {title}
         </Text>
       </Flex>
