@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/macro'
-import { useLayoutEffect, useRef, useState } from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -99,6 +98,7 @@ const IconWrapper = styled.div`
 
 type Props = {
   totalBalanceInUsd: number | null
+  isMinimal: boolean
 } & ClickHandlerProps
 
 export type ClickHandlerProps = {
@@ -107,38 +107,13 @@ export type ClickHandlerProps = {
   onClickSend: () => void
 }
 
-export default function AccountInfo({ totalBalanceInUsd, onClickBuy, onClickReceive, onClickSend }: Props) {
-  const nodeRef = useRef<HTMLDivElement>(null)
+export default function AccountInfo({ totalBalanceInUsd, onClickBuy, onClickReceive, onClickSend, isMinimal }: Props) {
   const { chainId, account = '', walletKey } = useActiveWeb3React()
   const theme = useTheme()
   const isDarkMode = useIsDarkMode()
-  const [isMinimal, setMinimal] = useState(false)
-
-  useLayoutEffect(() => {
-    const { ResizeObserver } = window
-    const node = nodeRef.current
-    if (!node) {
-      return
-    }
-
-    const resizeHandler = () => {
-      const width = node.clientWidth
-      setMinimal(width <= 320)
-    }
-
-    if (typeof ResizeObserver === 'function') {
-      const resizeObserver = new ResizeObserver(resizeHandler)
-      resizeObserver.observe(node)
-
-      return () => resizeObserver.disconnect()
-    } else {
-      window.addEventListener('resize', resizeHandler)
-      return () => window.removeEventListener('resize', resizeHandler)
-    }
-  }, [nodeRef])
 
   return (
-    <Wrapper ref={nodeRef} $minimal={isMinimal}>
+    <Wrapper $minimal={isMinimal}>
       <ContentWrapper>
         <CardBackground />
         <Content>

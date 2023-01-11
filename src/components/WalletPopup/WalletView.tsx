@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import { ChevronLeft, FileText, StopCircle, X } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
@@ -91,6 +91,8 @@ export default function WalletView({ onDismiss, onPin, isPinned, blurBackground 
   const [view, setView] = useState<string>(View.ASSETS)
   const theme = useTheme()
   const navigate = useNavigate()
+  const nodeRef = useRef<HTMLDivElement>(null)
+  const [isMinimal, setMinimal] = useState(false)
 
   const { loading: loadingTokens, currencies, currencyBalances, totalBalanceInUsd, usdBalances } = useTokensHasBalance()
 
@@ -119,6 +121,7 @@ export default function WalletView({ onDismiss, onPin, isPinned, blurBackground 
         onClickBuy={handleClickBuy}
         onClickReceive={handleClickReceive}
         onClickSend={handleClickSend}
+        isMinimal={isMinimal}
       />
     )
   }
@@ -157,8 +160,33 @@ export default function WalletView({ onDismiss, onPin, isPinned, blurBackground 
   const isSendTab = view === View.SEND_TOKEN
   const isExchangeTokenTab = isSendTab || view === View.RECEIVE_TOKEN
 
+  useLayoutEffect(() => {
+    // handle minimal mode when width & height become small
+
+    const { ResizeObserver } = window
+    const node = nodeRef.current
+    if (!node) {
+      return
+    }
+
+    const resizeHandler = () => {
+      const { clientWidth, clientHeight } = node
+      setMinimal(clientWidth <= 360 || clientHeight <= 480)
+    }
+
+    if (typeof ResizeObserver === 'function') {
+      const resizeObserver = new ResizeObserver(resizeHandler)
+      resizeObserver.observe(node)
+
+      return () => resizeObserver.disconnect()
+    } else {
+      window.addEventListener('resize', resizeHandler)
+      return () => window.removeEventListener('resize', resizeHandler)
+    }
+  }, [nodeRef])
+
   return (
-    <Wrapper $pinned={isPinned} $blur={blurBackground}>
+    <Wrapper ref={nodeRef} $pinned={isPinned} $blur={blurBackground}>
       <Flex
         className={isPinned ? HANDLE_CLASS_NAME : ''}
         sx={{
