@@ -58,9 +58,9 @@ const NetworkSelect = ({ filter, setFilter }: { filter?: ChainId; setFilter: (c?
         {filter ? (
           <Image minHeight={20} minWidth={20} height={20} width={20} src={NETWORKS_INFO[filter].icon} />
         ) : (
-          <Kyber size={24} color={theme.border} />
+          <Kyber size={24} color={theme.subText} />
         )}
-        <Text color={filter ? theme.subText : theme.border} fontSize="14px" lineHeight="24px">
+        <Text color={theme.subText} fontSize="14px" lineHeight="24px">
           {filter ? NETWORKS_INFO[filter].name : <Trans>All Chains</Trans>}
         </Text>
       </Flex>

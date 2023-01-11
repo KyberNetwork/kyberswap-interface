@@ -1,11 +1,11 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Share2, Star } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
-import { useDrag } from 'react-use-gesture'
+import { useGesture } from 'react-use-gesture'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
@@ -121,6 +121,7 @@ const TabInner = styled.div`
   display: inline-flex;
   gap: 8px;
   padding: 1px;
+  position: relative;
 `
 
 const ButtonTypeActive = styled(ButtonLight)`
@@ -132,7 +133,13 @@ const ButtonTypeActive = styled(ButtonLight)`
   font-size: 14px;
   white-space: nowrap;
   border: 1px solid ${({ theme }) => theme.primary};
-  background-color: ${({ theme }) => theme.primary + '33'};
+  background-color: ${({ theme }) => rgba(theme.primary, 0.33)};
+  transition: all 0.1s ease;
+
+  :hover {
+    background-color: ${({ theme }) => rgba(theme.primary, 0.5)};
+    filter: none;
+  }
 `
 
 const ButtonTypeInactive = styled(ButtonOutlined)`
@@ -143,10 +150,14 @@ const ButtonTypeInactive = styled(ButtonOutlined)`
   gap: 4px;
   font-size: 14px;
   white-space: nowrap;
+  transition: all 0.1s ease;
   ${({ theme }) => css`
     color: ${theme.subText};
     border-color: ${theme.subText};
   `}
+  :hover {
+    background-color: ${({ theme }) => rgba(theme.border, 0.5)};
+  }
 `
 
 enum FilterType {
@@ -180,37 +191,105 @@ const TokenListDraggableTab = ({
   filterType: FilterType
   setFilterType: (type: FilterType) => void
 }) => {
-  const ref = useRef<HTMLDivElement>(null)
-  const bind = useDrag(state => {
-    if (isMobile) return
-    if (ref.current && ref.current?.scrollLeft !== undefined && state.dragging) {
-      ref.current.scrollLeft -= state.values?.[0] - state.previous?.[0] || 0
-    }
-  })
+  const [showScrollRightButton, setShowScrollRightButton] = useState(false)
+  const [scrollLeftValue, setScrollLeftValue] = useState(0)
+  const wrapperRef = useRef<HTMLDivElement>(null)
+  const innerRef = useRef<HTMLDivElement>(null)
+  const tabListRef = useRef<HTMLDivElement[]>([])
 
+  const bind = useGesture({
+    onDrag: state => {
+      if (isMobile || !wrapperRef.current) return
+      state.event?.preventDefault()
+      if (wrapperRef.current?.scrollLeft !== undefined && state.dragging) {
+        wrapperRef.current.scrollLeft -= state.values?.[0] - state.previous?.[0] || 0
+      }
+      if (!state.dragging) {
+        setScrollLeftValue(wrapperRef.current.scrollLeft)
+      }
+    },
+  })
+  useEffect(() => {
+    wrapperRef.current?.scrollTo({ left: scrollLeftValue, behavior: 'smooth' })
+  }, [scrollLeftValue])
+
+  useEffect(() => {
+    const wRef = wrapperRef.current
+    if (!wRef) return
+    const handleWheel = (e: any) => {
+      e.preventDefault()
+      setScrollLeftValue(prev => Math.min(Math.max(prev + e.deltaY, 0), wRef.scrollWidth - wRef.clientWidth))
+    }
+    if (wRef) {
+      wRef.addEventListener('wheel', handleWheel)
+    }
+    return () => wRef?.removeEventListener('wheel', handleWheel)
+  }, [])
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (
+        wrapperRef.current?.clientWidth &&
+        innerRef.current?.clientWidth &&
+        wrapperRef.current?.clientWidth <= innerRef.current?.clientWidth
+      ) {
+        setShowScrollRightButton(true)
+      } else {
+        setShowScrollRightButton(false)
+      }
+    }
+    handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => {
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [])
   return (
-    <TabWrapper ref={ref}>
-      <TabInner {...bind()}>
-        {tokenTypeList.map(({ type, icon }) => {
-          const props = { onClick: () => setFilterType(type) }
-          if (filterType === type) {
-            return (
-              <ButtonTypeActive key={type} {...props}>
-                {icon && <Icon id={icon} size={16} />}
-                {type}
-              </ButtonTypeActive>
-            )
-          } else {
-            return (
-              <ButtonTypeInactive key={type} {...props}>
-                {icon && <Icon id={icon} size={16} />}
-                {type}
-              </ButtonTypeInactive>
-            )
-          }
-        })}
-      </TabInner>
-    </TabWrapper>
+    <>
+      <TabWrapper ref={wrapperRef} onScrollCapture={e => e.preventDefault()}>
+        <TabInner {...bind()} ref={innerRef} onScrollCapture={e => e.preventDefault()}>
+          {tokenTypeList.map(({ type, icon }, index) => {
+            const props = {
+              onClick: () => {
+                setFilterType(type)
+                if (!wrapperRef.current) return
+                const tabRef = tabListRef.current[index]
+                const wRef = wrapperRef.current
+                if (tabRef.offsetLeft < wRef.scrollLeft) {
+                  setScrollLeftValue(tabRef.offsetLeft)
+                }
+                if (wRef.scrollLeft + wRef.clientWidth < tabRef.offsetLeft + tabRef.offsetWidth) {
+                  setScrollLeftValue(tabRef.offsetLeft + tabRef.offsetWidth - wRef.offsetWidth)
+                }
+              },
+            }
+            if (filterType === type) {
+              return (
+                <ButtonTypeActive key={type} {...props} ref={el => (tabListRef.current[index] = el)}>
+                  {icon && <Icon id={icon} size={16} />}
+                  {type}
+                </ButtonTypeActive>
+              )
+            } else {
+              return (
+                <ButtonTypeInactive key={type} {...props} ref={el => (tabListRef.current[index] = el)}>
+                  {icon && <Icon id={icon} size={16} />}
+                  {type}
+                </ButtonTypeInactive>
+              )
+            }
+          })}
+        </TabInner>
+      </TabWrapper>
+      {showScrollRightButton && (
+        <DropdownSVG
+          style={{ transform: 'rotate(-90deg)', cursor: 'pointer', flexShrink: '0' }}
+          onClick={() => {
+            setScrollLeftValue(prev => prev + 120)
+          }}
+        />
+      )}
+    </>
   )
 }
 
@@ -236,13 +315,6 @@ export default function TokenAnalysisList() {
     <>
       <Row gap="16px" marginBottom="20px">
         <TokenListDraggableTab filterType={filterType} setFilterType={setFilterType} />
-        <DropdownSVG
-          style={{ transform: 'rotate(-90deg)', cursor: 'pointer' }}
-          onClick={() => {
-            console.log(1)
-          }}
-        />
-
         <ButtonGray
           color={theme.subText}
           gap="4px"
