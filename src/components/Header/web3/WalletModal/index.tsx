@@ -91,6 +91,7 @@ const TermAndCondition = styled.div`
 `
 
 const UpperSection = styled.div`
+  position: relative;
   padding: 24px;
 `
 
@@ -435,6 +436,7 @@ export default function WalletModal() {
   }
 
   if (showAccount) {
+    console.log({ walletModalOpen })
     return (
       <WalletPopup
         isOpen={walletModalOpen}
