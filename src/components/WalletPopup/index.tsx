@@ -59,7 +59,11 @@ const WalletPopup = ({
           minHeight="420px"
           maxWidth="480px"
           maxHeight="720px"
-          enable={isPinned ? undefined : {}}
+          enable={{
+            top: true,
+            left: true,
+            topLeft: true,
+          }}
         >
           <WalletView blurBackground onDismiss={handleClosePopup} isPinned={isPinned} onPin={handlePinPopup} />
         </Resizable>
