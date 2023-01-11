@@ -45,14 +45,15 @@ export default function useSendToken(currency: Currency | undefined, recipient: 
           currency.decimals,
         ),
       )
+    } else {
+      transaction = new Transaction().add(
+        SystemProgram.transfer({
+          fromPubkey: publicKey,
+          toPubkey: recipientAddress,
+          lamports: BigInt(amountIn.quotient.toString()),
+        }),
+      )
     }
-    transaction = new Transaction().add(
-      SystemProgram.transfer({
-        fromPubkey: publicKey,
-        toPubkey: recipientAddress,
-        lamports: BigInt(amountIn.quotient.toString()),
-      }),
-    )
 
     const { blockhash } = await connection.getLatestBlockhash('finalized')
     transaction.recentBlockhash = blockhash
