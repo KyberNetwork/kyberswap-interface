@@ -591,9 +591,9 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
                   currentOrder.filledTakingAmount,
                   currentOrder.takingAmount,
                   currentOrder.takerAssetDecimals,
-                )}% filled`
+                )}% filled.`
               : ''
-          }`}
+          } Cancelling an order will cost gas fees`}
         />
       )}
     </>

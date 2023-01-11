@@ -652,6 +652,8 @@ const LimitOrderForm = function LimitOrderForm({
       !enoughAllowance ||
       (approvalSubmitted && approval === ApprovalState.APPROVED))
 
+  const showWarningRate = Boolean(currencyIn && displayRate && !deltaRate.profit && deltaRate.percent)
+
   return (
     <>
       <Flex flexDirection={'column'} style={{ gap: '1rem' }}>
@@ -777,10 +779,10 @@ const LimitOrderForm = function LimitOrderForm({
 
         {chainId !== ChainId.ETHW && <TrendingSoonTokenBanner currencyIn={currencyIn} currencyOut={currencyOut} />}
 
-        {currencyIn && displayRate && !deltaRate.profit && deltaRate.percent && (
+        {showWarningRate && (
           <ErrorWarningPanel
             type="error"
-            title={t`Limit order price is ${deltaRate.percent} lower than the market. You will be selling your ${currencyIn.symbol} exceedingly cheap.`}
+            title={t`Limit order price is ${deltaRate.percent} lower than the market. You will be selling your ${currencyIn?.symbol} exceedingly cheap.`}
           />
         )}
 
@@ -800,6 +802,7 @@ const LimitOrderForm = function LimitOrderForm({
             onWrapToken,
             showPreview,
             showApproveFlow,
+            showWarningRate,
           }}
         />
       </Flex>
