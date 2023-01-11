@@ -15,7 +15,6 @@ import MyAssets from 'components/WalletPopup/MyAssets'
 import PinButton from 'components/WalletPopup/PinButton'
 import SendToken from 'components/WalletPopup/SendToken'
 import { APP_PATHS } from 'constants/index'
-import { Z_INDEXS } from 'constants/styles'
 import useTheme from 'hooks/useTheme'
 import { useTokensHasBalance } from 'state/wallet/hooks'
 
@@ -36,13 +35,12 @@ const Wrapper = styled(Column).attrs<WrapperProps>(props => ({
   gap: 14px;
   border-radius: 20px 0px 0px 0px;
   background-color: ${({ theme }) => theme.tabActive};
-  z-index: ${Z_INDEXS.WALLET_POPUP};
 
   &[data-pinned='true'] {
     border-radius: 20px;
   }
 
-  &[data-blur='true'] {
+  &[data-blur='1'] {
     background-color: ${({ theme }) => rgba(theme.tabActive, 0.92)};
     backdrop-filter: blur(4px);
   }

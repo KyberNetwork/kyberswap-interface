@@ -304,12 +304,6 @@ export default function WalletModal() {
       )
     }
 
-    if (showAccount) {
-      return (
-        <WalletPopup isPinned={isPinnedPopupWallet} setPinned={setPinnedPopupWallet} onDismiss={toggleWalletModal} />
-      )
-    }
-
     return (
       <UpperSection>
         <CloseIcon onClick={toggleWalletModal}>
@@ -440,9 +434,17 @@ export default function WalletModal() {
     )
   }
 
-  if (isPinnedPopupWallet && showAccount) {
-    return getModalContent()
+  if (showAccount) {
+    return (
+      <WalletPopup
+        isOpen={walletModalOpen}
+        isPinned={isPinnedPopupWallet}
+        setPinned={setPinnedPopupWallet}
+        onDismiss={toggleWalletModal}
+      />
+    )
   }
+
   return (
     <Modal isOpen={walletModalOpen} onDismiss={toggleWalletModal} minHeight={false} maxHeight={90} maxWidth={600}>
       <Wrapper>{getModalContent()}</Wrapper>
