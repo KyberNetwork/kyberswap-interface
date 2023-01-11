@@ -37,6 +37,7 @@ const ChartWrapper = styled(ContentWrapper)`
   padding: 10px 0;
   border-radius: 20px;
   height: 400px;
+  border: 1px solid ${({ theme }) => theme.border};
 `
 
 const LegendWrapper = styled.div`

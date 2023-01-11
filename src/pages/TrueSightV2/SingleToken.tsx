@@ -76,7 +76,7 @@ const CardWrapper = styled.div<{ gap?: string }>`
   flex: 1;
   display: flex;
   flex-direction: column;
-
+  border: 1px solid ${({ theme }) => theme.border};
   ${({ theme, gap }) => css`
     background-color: ${theme.background};
     gap: ${gap || '0px'};

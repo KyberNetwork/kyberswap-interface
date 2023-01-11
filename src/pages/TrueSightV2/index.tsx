@@ -14,12 +14,12 @@ import SingleToken from './SingleToken'
 import TokenAnalysisList from './TokenAnalysisList'
 
 const Wrapper = styled.div`
-  padding: 28px 0;
+  padding: 32px 24px 50px;
   display: flex;
   align-items: stretch;
   justify-content: center;
   flex-direction: column;
-  max-width: 1224px;
+  max-width: 1500px;
   width: 100%;
   color: ${({ theme }) => theme.subText};
 `
