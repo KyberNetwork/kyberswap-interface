@@ -182,14 +182,10 @@ interface CurrencyInputPanelProps {
   lockIcon?: boolean
 }
 
-const noop = (value: string) => {
-  //
-}
-
 export default function CurrencyInputPanel({
   value,
   error,
-  onUserInput = noop,
+  onUserInput,
   onMax,
   onHalf,
   positionMax = 'inline',
