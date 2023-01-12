@@ -40,7 +40,7 @@ const Wrapper = styled(Column).attrs<WrapperProps>(props => ({
     border-radius: 20px;
   }
 
-  &[data-blur='1'] {
+  &[data-blur='true'] {
     background-color: ${({ theme }) => rgba(theme.tabActive, 0.92)};
     backdrop-filter: blur(4px);
   }
