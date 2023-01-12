@@ -421,5 +421,4 @@ export const isChristmasTime = () => {
   return currentTime.month() === 11 && currentTime.date() >= 15
 }
 
-export const isSupportLimitOrder = (chainId: ChainId) =>
-  ENV_LEVEL < ENV_TYPE.PROD && NETWORKS_INFO_CONFIG[chainId].limitOrder
+export const isSupportLimitOrder = (chainId: ChainId) => NETWORKS_INFO_CONFIG[chainId].limitOrder
