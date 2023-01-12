@@ -15,7 +15,6 @@ import { ChartingLibraryWidgetOptions, LanguageCode, ResolutionString, Timezone 
 import { useDatafeed } from './datafeed'
 
 const ProLiveChartWrapper = styled.div<{ fullscreen: boolean }>`
-  margin-top: 10px;
   height: ${isMobile ? '100%' : 'calc(100% - 0px)'};
   ${({ theme }) => `border: 1px solid ${theme.background};`}
   overflow: hidden;

@@ -3,6 +3,7 @@ import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { ChevronDown, ChevronUp } from 'react-feather'
 import { useToggle } from 'react-use'
+import styled from 'styled-components'
 
 import Card from 'components/Card'
 import LightBulbEffect from 'components/Icons/LightBulbEffect'
@@ -25,7 +26,21 @@ export default function ApproveMessage({
   const [showApproveMsgDetails, toggleShowApproveMsgDetails] = useToggle(false)
   const timeout = 1673913600000 // Tuesday, January 17, 2023 0:00:00
 
-  if (![ChainId.BSCMAINNET, ChainId.BTTC, ChainId.VELAS, ChainId.CRONOS, ChainId.ARBITRUM].includes(chainId)) {
+  if (
+    ![
+      ChainId.BSCMAINNET,
+      ChainId.BTTC,
+      ChainId.VELAS,
+      ChainId.CRONOS,
+      ChainId.ARBITRUM,
+      ChainId.MATIC,
+      ChainId.FANTOM,
+      ChainId.OPTIMISM,
+      ChainId.AURORA,
+      ChainId.AVAXMAINNET,
+      ChainId.OASIS,
+    ].includes(chainId)
+  ) {
     return null
   }
 
@@ -45,9 +60,9 @@ export default function ApproveMessage({
 
   return (
     <Card m="24px 0" backgroundColor={rgba(theme.subText, 0.2)} padding="12px">
-      <RowBetween alignItems="center" gap="6px">
-        <LightBulbEffect color={theme.subText} />
-        <TYPE.subHeader textAlign="center">
+      <RowBetween align="flex-start" gap="6px">
+        <StyledLightBulbEffect color={theme.subText} />
+        <TYPE.subHeader>
           {showApproveMsgDetails ? (
             <Content />
           ) : (
@@ -77,3 +92,7 @@ export default function ApproveMessage({
     </Card>
   )
 }
+
+const StyledLightBulbEffect = styled(LightBulbEffect)`
+  margin-top: 2px;
+`

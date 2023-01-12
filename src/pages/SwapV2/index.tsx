@@ -51,6 +51,7 @@ import TokenInfoV2 from 'components/swapv2/TokenInfoV2'
 import TradePrice from 'components/swapv2/TradePrice'
 import TradeTypeSelection from 'components/swapv2/TradeTypeSelection'
 import {
+  BetaTag,
   BottomGrouping,
   Container,
   Dots,
@@ -693,6 +694,9 @@ export default function Swap() {
                       <Text fontSize={20} fontWeight={500}>
                         <Trans>Limit</Trans>
                       </Text>
+                      <BetaTag>
+                        <Trans>Beta</Trans>
+                      </BetaTag>
                     </Tab>
                   )}
                 </TabWrapper>
