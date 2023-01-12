@@ -7,6 +7,8 @@ import { Flex, Text } from 'rebass'
 import { useGeckoTerminalSearchQuery, useGetPoolDetailQuery } from 'services/geckoTermial'
 import styled from 'styled-components'
 
+import { ReactComponent as GeckoTerminalSVG } from 'assets/svg/geckoterminal.svg'
+import { ReactComponent as GeckoTerminalLightSVG } from 'assets/svg/geckoterminal_light.svg'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import Loader from 'components/LocalLoader'
 import TradingViewChart from 'components/TradingViewChart'
@@ -15,6 +17,7 @@ import useBasicChartData, { LiveDataTimeframeEnum } from 'hooks/useBasicChartDat
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { Field } from 'state/swap/actions'
+import { useIsDarkMode } from 'state/user/hooks'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 
 import AnimatingNumber from './AnimatingNumber'
@@ -104,6 +107,7 @@ const getTimeFrameText = (timeFrame: LiveDataTimeframeEnum) => {
 
 function LiveChart({ currencies }: { currencies: { [field in Field]?: Currency } }) {
   const { isSolana } = useActiveWeb3React()
+  const isDarkMode = useIsDarkMode()
   const theme = useTheme()
   const [currenciesState, setCurrenciesState] = useState(currencies)
 
@@ -304,7 +308,19 @@ function LiveChart({ currencies }: { currencies: { [field in Field]?: Currency }
           </Flex>
 
           {isShowProChart && !!poolDetail && (
-            <TradingViewChart poolDetail={poolDetail} tokenId={poolDetail.included[isReverse ? 1 : 0].id} />
+            <>
+              <TradingViewChart poolDetail={poolDetail} tokenId={poolDetail.included[isReverse ? 1 : 0].id} />
+              <Flex justifyContent="flex-end" sx={{ gap: '0.5rem' }}>
+                <Text color={theme.subText} fontSize="10px">
+                  Power By
+                </Text>
+                {isDarkMode ? (
+                  <GeckoTerminalSVG style={{ width: '75px' }} />
+                ) : (
+                  <GeckoTerminalLightSVG style={{ width: '75px' }} />
+                )}
+              </Flex>
+            </>
           )}
 
           {!isShowProChart && (
