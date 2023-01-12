@@ -22,6 +22,8 @@ const MinimalActionButtonGroup: React.FC<Props> = ({ onClickBuy, onClickReceive,
       className={className}
       sx={{
         gap: '4px',
+        height: '100%',
+        alignItems: 'center',
       }}
     >
       <MinimalActionButton onClick={onClickBuy}>

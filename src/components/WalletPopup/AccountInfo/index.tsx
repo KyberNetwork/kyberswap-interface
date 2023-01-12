@@ -37,7 +37,7 @@ const Content = styled.div`
 `
 
 const BalanceTitle = styled.span`
-  font-size: 16px;
+  font-size: 12px;
   font-weight: 500;
   color: ${({ theme }) => theme.subText};
 `
@@ -141,7 +141,7 @@ export default function AccountInfo({ totalBalanceInUsd, onClickBuy, onClickRece
           <Flex
             sx={{
               justifyContent: 'space-between',
-              alignItems: 'flex-end',
+              alignItems: 'center',
             }}
           >
             <Flex
