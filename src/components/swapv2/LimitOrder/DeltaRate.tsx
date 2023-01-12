@@ -63,7 +63,11 @@ const DeltaRate = ({
           </Text>
           <InfoHelper
             color={color}
-            text={t`Your selected price is ${percent} ${profit ? t`above` : t`below`} the current market price.`}
+            text={
+              profit
+                ? t`Your selected price is ${percent} above the current market price.`
+                : t`Your selected price is ${percent} below the current market price.`
+            }
           />
         </>
       ) : null}
