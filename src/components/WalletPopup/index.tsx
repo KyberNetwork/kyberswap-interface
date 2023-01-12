@@ -1,7 +1,7 @@
-import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Rnd } from 'react-rnd'
 import { useMedia } from 'react-use'
+import { Flex } from 'rebass'
 import { createGlobalStyle } from 'styled-components'
 
 import Modal from 'components/Modal'
@@ -22,6 +22,8 @@ const GlobalStyle = createGlobalStyle<{ $pinned: boolean }>`
 
 const viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0)
 const viewportHeight = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
+const defaultWidth = 410
+const defaultHeight = 680
 
 type Props = {
   isModalOpen: boolean
@@ -33,13 +35,6 @@ type Props = {
 const WalletPopup: React.FC<Props> = ({ isModalOpen, onDismissModal, isPinned, setPinned, onOpenModal }) => {
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const rootNode = document.getElementById('app')
-
-  // this key is used only for the popup
-  // without this, when unpinning the popup, it will stay where it is
-  const [key, setKey] = useState(String(Date.now()))
-  const resetKey = () => {
-    setKey(String(Date.now()))
-  }
 
   const shouldOpenPopup = (!isPinned && isModalOpen) || isPinned
 
@@ -54,7 +49,6 @@ const WalletPopup: React.FC<Props> = ({ isModalOpen, onDismissModal, isPinned, s
   }
 
   const handleUnpinPopup = () => {
-    resetKey()
     setPinned(false)
     onOpenModal()
   }
@@ -71,8 +65,30 @@ const WalletPopup: React.FC<Props> = ({ isModalOpen, onDismissModal, isPinned, s
     )
   }
 
-  const defaultWidth = 410
-  const defaultHeight = 680
+  if (!isPinned) {
+    return (
+      <Modal isOpen={isModalOpen && !isPinned} onDismiss={onDismissModal} minHeight={false}>
+        <Flex
+          sx={{
+            width: defaultWidth,
+            height: defaultHeight,
+            position: 'absolute',
+            bottom: 0,
+            right: 0,
+          }}
+        >
+          <WalletView
+            blurBackground
+            onDismiss={onDismissModal}
+            isPinned={isPinned}
+            onPin={handlePinPopup}
+            onUnpin={handleUnpinPopup}
+          />
+        </Flex>
+      </Modal>
+    )
+  }
+
   const offset = isPinned ? 10 : 0
   const left = viewportWidth - offset - defaultWidth
   const top = viewportHeight - offset - defaultHeight
@@ -80,11 +96,9 @@ const WalletPopup: React.FC<Props> = ({ isModalOpen, onDismissModal, isPinned, s
   return (
     <>
       <GlobalStyle $pinned={isPinned} />
-      <Modal isOpen={isModalOpen && !isPinned} onDismiss={onDismissModal} minHeight={false} />
       {shouldOpenPopup &&
         createPortal(
           <Rnd
-            key={key}
             default={{
               x: left,
               y: top,
