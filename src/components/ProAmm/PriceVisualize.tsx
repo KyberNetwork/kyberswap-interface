@@ -1,8 +1,9 @@
 import { Currency, Price } from '@kyberswap/ks-sdk-core'
 import { useCallback, useState } from 'react'
-import { Flex } from 'rebass'
-import styled from 'styled-components'
+import { Flex, Text } from 'rebass'
+import styled, { css } from 'styled-components'
 
+import { ReactComponent as DoubleArrow } from 'assets/svg/double_arrow.svg'
 import Tooltip from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import { Bound } from 'state/mint/proamm/type'
@@ -17,8 +18,13 @@ export const Dot = styled.div<{ isCurrentPrice?: boolean; outOfRange?: boolean }
     isCurrentPrice ? theme.text : outOfRange ? theme.warning : theme.primary};
 `
 
-const PriceVisualizeWrapper = styled.div`
-  margin-top: 12px;
+const PriceVisualizeWrapper = styled.div<{ center?: boolean }>`
+  ${({ center }) =>
+    center
+      ? ''
+      : css`
+          margin-top: 12px;
+        `}
   height: 2px;
   background: ${({ theme }) => theme.border};
   align-items: center;
@@ -32,6 +38,7 @@ const PriceVisualize = ({
   price,
   showTooltip,
   ticksAtLimit,
+  center,
 }: {
   priceLower: Price<Currency, Currency>
   priceUpper: Price<Currency, Currency>
@@ -40,6 +47,7 @@ const PriceVisualize = ({
   ticksAtLimit?: {
     [bound in Bound]: boolean | undefined
   }
+  center?: boolean
 }) => {
   const theme = useTheme()
   const reverted = !priceLowerProp.baseCurrency.wrapped.sortsBefore(priceLowerProp.quoteCurrency.wrapped)
@@ -57,9 +65,8 @@ const PriceVisualize = ({
 
   const delta = deltaRelative / (deltaRelative + 1)
 
-  const formattedMinPrice = formatTickPrice(minPrice, ticksAtLimit, Bound.LOWER)
-  const formattedMaxPrice = formatTickPrice(maxPrice, ticksAtLimit, Bound.UPPER)
-  const formattedMiddlePrice = formatTickPrice(middlePrice)
+  const formattedLowerPrice = formatTickPrice(priceLower, ticksAtLimit, Bound.LOWER)
+  const formattedUpperPrice = formatTickPrice(priceUpper, ticksAtLimit, Bound.UPPER)
 
   const [show, setShow] = useState(false)
 
@@ -73,23 +80,10 @@ const PriceVisualize = ({
     setShow(false)
   }, [])
 
-  console.log('render show =', show)
   return (
-    <PriceVisualizeWrapper onMouseEnter={onFocus} onMouseLeave={onLeave}>
+    <PriceVisualizeWrapper onMouseEnter={onFocus} onMouseLeave={onLeave} center={center}>
       <Flex width="20%" />
-      <Dot isCurrentPrice={minPrice.equalTo(price)} outOfRange={outOfRange}>
-        {showTooltip && (
-          <Tooltip
-            text={formattedMinPrice}
-            containerStyle={{ width: '100%' }}
-            style={{ minWidth: '50px' }}
-            width="fit-content"
-            show={show}
-            placement="left"
-            offset={[0, 8]}
-          />
-        )}
-      </Dot>
+      <Dot isCurrentPrice={minPrice.equalTo(price)} outOfRange={outOfRange} />
       <Flex
         height="2px"
         width={(delta * 50).toString() + '%'}
@@ -100,7 +94,11 @@ const PriceVisualize = ({
       <Dot isCurrentPrice={middlePrice.equalTo(price)} outOfRange={outOfRange}>
         {showTooltip && (
           <Tooltip
-            text={formattedMiddlePrice}
+            text={
+              <Text>
+                {formattedLowerPrice} <DoubleArrow /> {formattedUpperPrice}
+              </Text>
+            }
             containerStyle={{ width: '100%' }}
             style={{ minWidth: '70px' }}
             width="fit-content"
@@ -118,20 +116,7 @@ const PriceVisualize = ({
           middlePrice.equalTo(priceLower) ? theme.warning : middlePrice.equalTo(price) ? theme.primary : theme.border
         }
       />
-      <Dot isCurrentPrice={maxPrice.equalTo(price)} outOfRange={outOfRange}>
-        {showTooltip && (
-          <Tooltip
-            text={formattedMaxPrice}
-            containerStyle={{ width: '100%' }}
-            style={{ minWidth: '50px' }}
-            width="fit-content"
-            show={show}
-            placement="right"
-            offset={[0, 8]}
-          />
-        )}
-      </Dot>
-
+      <Dot isCurrentPrice={maxPrice.equalTo(price)} outOfRange={outOfRange} />
       <Flex width="20%" />
     </PriceVisualizeWrapper>
   )

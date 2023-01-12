@@ -4,6 +4,7 @@ import { rgba } from 'polished'
 import { useMemo } from 'react'
 import { BarChart2, Share2 } from 'react-feather'
 import { Link } from 'react-router-dom'
+import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { Cell, Pie, PieChart, Tooltip } from 'recharts'
 import styled from 'styled-components'
@@ -27,7 +28,7 @@ import useTheme from 'hooks/useTheme'
 import { IconWrapper } from 'pages/Pools/styleds'
 import { useElasticFarms } from 'state/farms/elastic/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
-import { ExternalLink } from 'theme'
+import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { ElasticPoolDetail } from 'types/pool'
 import { isAddressString, shortenAddress } from 'utils'
 import { formatDollarAmount } from 'utils/numbers'
@@ -110,6 +111,7 @@ export default function ProAmmPoolStat({ pool, onShared, userPositions }: ListIt
   }, [farms, pool.address])
 
   const poolTransactionsStat = usePoolTransactionsStat(pool.address)
+  const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
   const isDarkMode = useIsDarkMode()
   return (
@@ -271,13 +273,12 @@ export default function ProAmmPoolStat({ pool, onShared, userPositions }: ListIt
                     alignItems="center"
                     flexDirection="column"
                   >
-                    <Text>There is no Add Liquidity nor Remove Liquidity</Text>
-                    <Text>transaction in the last 24h</Text>
+                    <Text>No add / remove transactions in the last 24 hrs</Text>
                   </Text>
                 </Trans>
               </Flex>
             ) : (
-              <Flex sx={{ gap: '32px', paddingLeft: '24px', width: '100%' }}>
+              <Flex sx={{ gap: upToLarge ? '16px' : '32px', paddingLeft: upToLarge ? '0' : '24px', width: '100%' }}>
                 <PieChart width={88} height={88}>
                   <Pie
                     stroke={isDarkMode ? 'black' : 'white'}
@@ -305,7 +306,7 @@ export default function ProAmmPoolStat({ pool, onShared, userPositions }: ListIt
                       <Text wrap="unwrap" fontSize="12px" fontWeight={500}>
                         {data.name}{' '}
                         <Text as="span" color={theme.subText}>
-                          ({data.percent.toFixed(2)}%)
+                          ({data.percent.toFixed(0)}%)
                         </Text>
                       </Text>
                     </Flex>

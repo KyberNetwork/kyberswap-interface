@@ -6,6 +6,10 @@ import useTheme from 'hooks/useTheme'
 export const Circle = styled.div<{ size?: number; color: string }>`
   width: ${({ size }) => size || 12}px;
   height: ${({ size }) => size || 12}px;
+  min-width: ${({ size }) => size || 12}px;
+  min-height: ${({ size }) => size || 12}px;
+  max-width: ${({ size }) => size || 12}px;
+  max-height: ${({ size }) => size || 12}px;
 
   border-radius: 999px;
   ${({ color }) =>

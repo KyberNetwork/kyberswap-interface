@@ -111,6 +111,7 @@
     "react-window-infinite-loader": "^1.0.8",
     "rebass": "^4.0.7",
     "recharts": "2.1.13",
+    "recharts-legacy": "npm:recharts@2.0.9",
     "redux-localstorage-simple": "^2.5.1",
     "styled-components": "^5.3.6",
     "swiper": "^8.4.4",

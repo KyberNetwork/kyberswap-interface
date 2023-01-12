@@ -3,12 +3,12 @@ import { Trans } from '@lingui/macro'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
-import { ReactComponent as DoubleArrow } from 'assets/svg/double_arrow.svg'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { Bound } from 'state/mint/proamm/type'
 import { formattedNum } from 'utils'
-import { formatTickPrice } from 'utils/formatTickPrice'
 import { getTickToPrice } from 'utils/getTickToPrice'
+
+import PriceVisualize from './PriceVisualize'
 
 const TableWrapper = styled.div`
   margin-top: 1rem;
@@ -74,14 +74,12 @@ const PositionListItem = ({
   const [tokenA, tokenB] = rotated
     ? [position.amount1.currency, position.amount0.currency]
     : [position.amount0.currency, position.amount1.currency]
-  const [boundLower, boundUpper] = rotated ? [Bound.UPPER, Bound.LOWER] : [Bound.LOWER, Bound.UPPER]
   const usdValue =
     parseFloat(position.amount0.toSignificant(6)) * usdPrices[tokenA.address] +
     parseFloat(position.amount1.toSignificant(6)) * usdPrices[tokenB.address]
   const priceLower = getTickToPrice(tokenA, tokenB, position.tickLower)
   const priceUpper = getTickToPrice(tokenA, tokenB, position.tickUpper)
-  const formattedPriceLower = formatTickPrice(priceLower, ticksAtLimit, boundLower)
-  const formattedPriceUpper = formatTickPrice(priceUpper, ticksAtLimit, boundUpper)
+  if (!priceLower || !priceUpper) return null
 
   return (
     <TableRow>
@@ -105,26 +103,25 @@ const PositionListItem = ({
           </Text>
         </Flex>
       </RowItem>
-      <RowItem alignItems="flex-end">
-        {rotated ? (
-          <Text>
-            {formattedPriceUpper} <DoubleArrow /> {formattedPriceLower}
-          </Text>
-        ) : (
-          <Text>
-            {formattedPriceLower} <DoubleArrow /> {formattedPriceUpper}
-          </Text>
-        )}
+      <RowItem alignItems="flex-end" width="100%">
+        <PriceVisualize
+          priceLower={priceLower}
+          priceUpper={priceUpper}
+          price={rotated ? position.pool.token1Price : position.pool.token0Price}
+          showTooltip={true}
+          ticksAtLimit={ticksAtLimit}
+          center
+        />
       </RowItem>
     </TableRow>
   )
 }
 
-const ListPositions = ({
+const ChartPositions = ({
   positions,
   usdPrices,
-  ticksAtLimits,
   rotated,
+  ticksAtLimits,
 }: {
   positions: Position[]
   usdPrices: {
@@ -171,11 +168,11 @@ const ListPositions = ({
         position={position}
         index={index}
         usdPrices={usdPrices}
+        rotated={rotated}
         ticksAtLimit={{
           [Bound.LOWER]: ticksAtLimits[Bound.LOWER][index],
           [Bound.UPPER]: ticksAtLimits[Bound.UPPER][index],
         }}
-        rotated={rotated}
       />
     )
   })
@@ -187,4 +184,4 @@ const ListPositions = ({
   )
 }
 
-export default ListPositions
+export default ChartPositions

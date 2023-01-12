@@ -6,11 +6,14 @@ import { AutoColumn } from 'components/Column'
 import Input from 'components/NumericalInput'
 import { HideMedium } from 'theme'
 
-export const PageWrapper = styled.div`
-  margin: 1rem 36px;
+export const PageWrapper = styled(AutoColumn)`
+  padding: 1rem 2rem;
+  width: 100%;
+  max-width: calc(1500px + 2rem * 2);
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
-    margin: 24px 12px;
+    padding: 24px 12px;
+    max-width: calc(500px + 12px * 2);
   `};
 `
 export const Container = styled.div`
@@ -20,10 +23,6 @@ export const Container = styled.div`
   background: ${({ theme }) => theme.background};
 
   padding: 24px;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    max-width: 480px;
-  `};
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     padding: 24px 16px 24px;
@@ -57,24 +56,14 @@ export const ChartWrapper = styled.div`
   border-radius: 20px;
   overflow: hidden;
   background-color: ${({ theme }) => theme.buttonBlack};
-  width: 850px;
-  ${({ theme }) => theme.mediaWidth.upToXL`
-    width: 600px;
-  `};
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    width: 450px;
-  `};
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    width: 425px;
-  `};
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    width: 100%;
-  `};
+  height: 100%;
+  width: 100%;
 `
 
 export const ChartBody = styled.div`
   background-color: ${({ theme }) => theme.buttonBlack};
   padding: 16px;
+  width: 100%;
 `
 
 export const FlexLeft = styled(Flex)`
@@ -82,11 +71,12 @@ export const FlexLeft = styled(Flex)`
   flex-direction: column;
   gap: 24px;
 
-  width: 425px;
+  width: calc(100vw / 26 * 9 - 64px);
   max-width: 425px;
   padding-right: 20px;
   ${({ theme }) => theme.mediaWidth.upToMedium`
     width: 100%;
+    max-width: 500px;
     padding-right: 0px;
   `};
 `
@@ -103,6 +93,7 @@ export const StackedItem = styled.div<{ zIndex?: number }>`
 `
 
 export const BorderedHideMedium = styled(HideMedium)`
+  width: 100%;
   border-left: 1px solid ${({ theme }) => theme.border};
   ${({ theme }) => theme.mediaWidth.upToMedium`
     border-left: none;
@@ -132,4 +123,26 @@ export const RangeBtn = styled(ButtonOutlined)<{ isSelected: boolean }>`
           }
         `
       : ''}
+`
+
+export const ArrowWrapper = styled.div<{ rotated?: boolean; isVertical?: boolean; size?: number }>`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* background: ${({ theme }) => theme.buttonBlack}; */
+  width: fit-content;
+  height: fit-content;
+  cursor: pointer;
+  border-radius: 999px;
+
+  transform: rotate(
+    ${({ rotated, isVertical }) => {
+      if (isVertical) return rotated ? '270deg' : '90deg'
+      return rotated ? '180deg' : '0'
+    }}
+  );
+  transition: transform 300ms;
+  :hover {
+    opacity: 0.8;
+  }
 `

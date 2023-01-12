@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { darken, lighten, rgba } from 'polished'
 import { MouseEventHandler, useCallback, useEffect, useRef, useState } from 'react'
-import { TrendingUp, X } from 'react-feather'
+import { Plus, TrendingUp, X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
@@ -118,7 +118,8 @@ const ChartButton = styled(AddTab)<{ active: boolean }>`
 `
 
 const Container = styled(RowBetween)`
-  width: 100%;
+  width: 0;
+  min-width: 100%;
   height: 32px;
   background-color: ${({ theme }) => theme.buttonBlack};
   box-sizing: content-box;
@@ -263,11 +264,13 @@ const Tabs = ({
                     onRemoveTab(index)
                   }
                 }}
-                noBorder={selectedTab === index + 1}
+                noBorder={!showChart && selectedTab === index + 1}
               />
             )
           })}
-          <AddTab onClick={() => onAddTab()}>+</AddTab>
+          <AddTab onClick={() => onAddTab()}>
+            <Plus size={12} />
+          </AddTab>
         </TabSlide>
 
         <ScrollBtn onClick={scrollRight} position="right" show={showScrollRight}>

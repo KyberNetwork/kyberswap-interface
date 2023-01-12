@@ -115,8 +115,8 @@ const CandleStickChart = ({
   useEffect(() => {
     if (!chartCreated.current && ref.current && formattedData && formattedData?.length > 0) {
       const chart = createChart(ref.current, {
-        width: width,
-        height: height,
+        width,
+        height,
         layout: {
           backgroundColor: 'transparent',
           textColor: textColor,
@@ -206,7 +206,7 @@ const CandleStickChart = ({
   // responsiveness
   useEffect(() => {
     if (width) {
-      chartCreated.current?.resize(width, height)
+      chartCreated.current?.resize(width, height, true)
       chartCreated.current?.timeScale().scrollToPosition(0, true)
     }
   }, [chartCreated, height, width])

@@ -1,17 +1,17 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { FeeAmount } from '@kyberswap/ks-sdk-elastic'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Repeat } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { Box } from 'rebass/styled-components'
-import { ResponsiveContainer } from 'recharts'
+import { ResponsiveContainer } from 'recharts-legacy'
 import styled from 'styled-components'
 
 import { AutoColumn } from 'components/Column'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Loader from 'components/Loader'
-import { AutoRow, RowBetween } from 'components/Row'
+import Row, { AutoRow, RowBetween } from 'components/Row'
 import { usePool } from 'hooks/usePools'
 import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
 import useTheme from 'hooks/useTheme'
@@ -26,15 +26,16 @@ import DropdownSelect from './DropdownSelect'
 const RelativeBox = styled(Box)`
   position: relative;
   width: 100%;
-  height: 528px;
+  height: calc(100% - 28.5px - 16px);
 `
 
 const ChartWrapper = styled.div`
-  height: 100%;
+  height: 500px;
   min-height: 500px;
 
   @media screen and (max-width: 600px) {
-    min-height: 200px;
+    height: 500px;
+    min-height: 500px;
   }
 `
 
@@ -105,27 +106,13 @@ const PoolPriceChart = ({
   const ratesData1 = ratesDatas?.[1]
   const ratesData = priceView === PRICE_CHART_VIEW.PRICE0 ? ratesData0 : ratesData1
   const baseToken = priceView === PRICE_CHART_VIEW.PRICE0 ? poolData?.token1Price : poolData?.token0Price
-  const ref = useRef<typeof ResponsiveContainer>(null)
-  const isClient = typeof window === 'object'
-  const [width, setWidth] = useState((ref?.current as any | undefined)?.container?.clientWidth)
-  const [height, setHeight] = useState((ref?.current as any | undefined)?.container?.clientHeight)
-  useEffect(() => {
-    if (!isClient) {
-      return
-    }
-    function handleResize() {
-      setWidth((ref?.current as any | undefined)?.container?.clientWidth ?? width)
-      setHeight((ref?.current as any | undefined)?.container?.clientHeight ?? height)
-    }
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [height, isClient, width]) // Empty array ensures that effect is only run on mount and unmount
 
   useEffect(() => {
     setCurrentRate(null)
   }, [ratesDatas])
 
   const { ALL_TIME: _0, THREE_MONTHS: _1, YEAR: _2, FOUR_HOURS: _3, THERE_DAYS: _4, ...timeframes } = TimeframeOptions
+  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
   if (!show) return null
@@ -142,30 +129,34 @@ const PoolPriceChart = ({
   return (
     <ChartWrapper>
       {upToLarge ? (
-        <Flex flexDirection="column" sx={{ gap: '8px' }}>
+        <Flex flexDirection="row" justifyContent="space-between" alignItems="flex-start">
           <Flex flexDirection="column" sx={{ gap: '8px' }}>
-            <Flex alignItems="center" sx={{ gap: '8px' }}>
-              <AutoRow width="unset">
-                {priceView === PRICE_CHART_VIEW.PRICE0 && <CurrencyLogo currency={currencyA} size={'28px'} />}
-                <CurrencyLogo currency={currencyB} size={'28px'} />
-                {priceView === PRICE_CHART_VIEW.PRICE1 && <CurrencyLogo currency={currencyA} size={'28px'} />}
-              </AutoRow>
-              {currentRate && (
-                <Flex alignItems="baseline" sx={{ gap: '4px' }}>
-                  <Text fontSize="24px">{currentRate?.price}</Text>
-                  <Flex sx={{ gap: '8px' }}>
-                    <Text fontSize="14px" color={theme.subText}>
-                      {priceView === PRICE_CHART_VIEW.PRICE0
-                        ? `${formattedSymbol0}/${formattedSymbol1}`
-                        : `${formattedSymbol1}/${formattedSymbol0}`}
-                    </Text>
+            {currentRate && (
+              <>
+                <Flex alignItems="center" sx={{ gap: '8px' }}>
+                  <Row width="unset">
+                    {priceView === PRICE_CHART_VIEW.PRICE0 && <CurrencyLogo currency={currencyA} size={'28px'} />}
+                    <CurrencyLogo currency={currencyB} size={'28px'} />
+                    {priceView === PRICE_CHART_VIEW.PRICE1 && <CurrencyLogo currency={currencyA} size={'28px'} />}
+                  </Row>
+                  <Flex alignItems="baseline" sx={{ gap: '4px' }}>
+                    <Text fontSize={upToExtraSmall ? '16px' : '24px'}>{currentRate?.price}</Text>
+                    {!upToExtraSmall && (
+                      <Flex sx={{ gap: '8px' }}>
+                        <Text fontSize="14px" color={theme.subText}>
+                          {priceView === PRICE_CHART_VIEW.PRICE0
+                            ? `${formattedSymbol0}/${formattedSymbol1}`
+                            : `${formattedSymbol1}/${formattedSymbol0}`}
+                        </Text>
+                      </Flex>
+                    )}
                   </Flex>
                 </Flex>
-              )}
-            </Flex>
-            <Text fontSize="14px" color={theme.subText}>
-              {currentRate?.time ? currentRate?.time : `\u00A0`}
-            </Text>
+                <Text fontSize="14px" color={theme.subText}>
+                  {currentRate.time || `\u00A0`}
+                </Text>
+              </>
+            )}
           </Flex>
 
           <DropdownSelect
@@ -240,17 +231,17 @@ const PoolPriceChart = ({
 
       {ratesData ? (
         <RelativeBox>
-          <ResponsiveContainer ref={ref} height="100%">
+          <ResponsiveContainer width="100%" height="100%">
             <CandleStickChart
               data={ratesData}
               base={parseFloat(baseToken?.toSignificant(18) ?? '0')}
-              width={width}
+              width={undefined}
               onSetCurrentRate={setCurrentRate}
             />
           </ResponsiveContainer>
         </RelativeBox>
       ) : (
-        <Flex justifyContent="center" height="100%" alignItems="center">
+        <Flex justifyContent="center" height="100%" minHeight="100%" alignItems="center">
           <Loader size="40px" />
         </Flex>
       )}

@@ -42,10 +42,10 @@ export default function RangeSelector({
   const leftPrice = isSorted ? priceLower : priceUpper?.invert()
   const rightPrice = isSorted ? priceUpper : priceLower?.invert()
 
-  const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
+  const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
   return (
-    <Flex sx={{ gap: '16px' }} flexDirection={upToLarge ? 'column' : 'row'}>
+    <Flex sx={{ gap: '16px' }} flexDirection={upToMedium ? 'column' : 'row'}>
       <StepCounter
         value={ticksAtLimit[isSorted ? Bound.LOWER : Bound.UPPER] ? '0' : leftPrice?.toSignificant(5) ?? ''}
         onUserInput={onLeftRangeInput}

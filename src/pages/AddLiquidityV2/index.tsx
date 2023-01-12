@@ -7,11 +7,10 @@ import { BigNumber } from 'ethers'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle, Repeat } from 'react-feather'
-import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
+import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
-import { ArrowWrapper } from 'components/ArrowRotate'
 import { ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
 import { OutlineCard, WarningCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
@@ -63,9 +62,9 @@ import useGetElasticPools from 'state/prommPools/useGetElasticPools'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
-import { useExpertModeManager, useUserSlippageTolerance, useViewMode } from 'state/user/hooks'
+import { useExpertModeManager, useUserSlippageTolerance } from 'state/user/hooks'
 import { VIEW_MODE } from 'state/user/reducer'
-import { HideMedium, MEDIA_WIDTHS, MediumOnly, StyledInternalLink, TYPE } from 'theme'
+import { ExternalLink, HideMedium, MEDIA_WIDTHS, MediumOnly, StyledInternalLink, TYPE } from 'theme'
 import { basisPointsToPercent, calculateGasMargin, formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
@@ -74,6 +73,7 @@ import { unwrappedToken } from 'utils/wrappedCurrency'
 import Tabs from './Tab'
 import { RANGE_LIST, rangeData } from './constants'
 import {
+  ArrowWrapper,
   BorderedHideMedium,
   ChartBody,
   ChartWrapper,
@@ -637,7 +637,7 @@ export default function AddLiquidity() {
               </Text>
               {(() => {
                 const gap = '16px'
-                const buttonColumn = upToLarge ? 2 : 4
+                const buttonColumn = upToMedium ? 2 : 4
                 const buttonWidth = `calc((100% - ${gap} * (${buttonColumn} - 1)) / ${buttonColumn})`
                 return (
                   <Row gap={gap} flexWrap="wrap">
@@ -733,7 +733,7 @@ export default function AddLiquidity() {
               <Text fontWeight={500} fontSize="12px">
                 <Trans>Deposit Amounts</Trans>
               </Text>
-              <Flex sx={{ gap: '16px' }} flexDirection={upToLarge ? 'column' : 'row'}>
+              <Flex sx={{ gap: '16px' }} flexDirection={upToMedium ? 'column' : 'row'}>
                 <Flex width="100%">
                   <CurrencyInputPanel
                     value={formattedAmounts[Field.CURRENCY_A]}
@@ -802,7 +802,8 @@ export default function AddLiquidity() {
     </ChartWrapper>
   )
 
-  const [viewMode] = useViewMode()
+  // const [viewMode] = useViewMode()
+  const viewMode = VIEW_MODE.LIST
   const [rotated, setRotated] = useState(false)
   const modalContent = () => {
     if (!isMultiplePosition) {
@@ -878,7 +879,8 @@ export default function AddLiquidity() {
             title={!!noLiquidity ? t`Create a new pool` : t`Add Liquidity`}
             onDismiss={handleDismissConfirmation}
             topContent={modalContent}
-            showGridListOption={isMultiplePosition}
+            // showGridListOption={isMultiplePosition} //todo enable this again when support multiple position chart
+            showGridListOption={false}
             bottomContent={() =>
               isMultiplePosition ? (
                 <RowBetween>
@@ -927,8 +929,8 @@ export default function AddLiquidity() {
                 <div>
                   <ButtonLight
                     padding="2px 8px"
-                    as={Link}
-                    to={`${APP_PATHS.SWAP}/${networkInfo.route}?${currencyIdA ? `inputCurrency=${currencyIdA}` : ''}${
+                    as={ExternalLink}
+                    href={`${APP_PATHS.SWAP}/${networkInfo.route}?${currencyIdA ? `inputCurrency=${currencyIdA}` : ''}${
                       currencyIdB ? `&outputCurrency=${currencyIdB}` : ''
                     }`}
                   >
@@ -939,7 +941,10 @@ export default function AddLiquidity() {
                   </ButtonLight>
                 </div>
               </RowBetween>
-              <RowBetween style={{ gap: upToMedium ? '8px' : '20px' }} flexDirection={upToXXSmall ? 'column' : 'row'}>
+              <RowBetween
+                sx={{ gap: upToLarge ? (upToMedium ? '8px' : '0px') : '20px' }}
+                flexDirection={upToXXSmall ? 'column' : 'row'}
+              >
                 <CurrencyInputPanel
                   hideBalance
                   value={formattedAmounts[Field.CURRENCY_A]}
@@ -969,7 +974,7 @@ export default function AddLiquidity() {
                   }}
                 >
                   {!currencyIdA && !currencyIdB ? (
-                    <SwapIcon size={24} color={theme.subText} />
+                    <SwapIcon size={upToMedium ? 12 : 24} color={theme.subText} />
                   ) : (
                     <StyledInternalLink
                       replace

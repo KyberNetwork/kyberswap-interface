@@ -6,7 +6,6 @@ import { saturate } from 'polished'
 import { CSSProperties, ReactNode, useCallback, useMemo } from 'react'
 import { BarChart2, Inbox } from 'react-feather'
 import { batch } from 'react-redux'
-import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -16,7 +15,6 @@ import Loader from 'components/Loader'
 import { useColor } from 'hooks/useColor'
 import useTheme from 'hooks/useTheme'
 import { Bound } from 'state/mint/proamm/type'
-import { MEDIA_WIDTHS } from 'theme'
 
 import { Chart } from './Chart'
 import { useDensityChartData } from './hooks'
@@ -165,8 +163,6 @@ export default function LiquidityChartRangeInput({
     [isSorted, price, ticksAtLimit],
   )
 
-  const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
-
   return (
     <AutoColumn gap="md" style={{ minHeight: '200px', ...style }}>
       {isUninitialized ? (
@@ -187,7 +183,13 @@ export default function LiquidityChartRangeInput({
         <ChartWrapper>
           <Chart
             data={{ series: formattedData, current: price }}
-            dimensions={{ width: upToLarge ? 400 : 800, height: 200 }}
+            dimensions={{
+              // 992 screen width => 400
+              // 1500 => 800
+              // scale linear
+              width: 400 + (Math.min(Math.max(window.innerWidth, 992), 1500) - 992) / ((1500 - 992) / 400),
+              height: 200,
+            }}
             margins={{ top: 10, right: 2, bottom: 20, left: 0 }}
             styles={{
               area: {
