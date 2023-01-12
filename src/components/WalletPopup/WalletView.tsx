@@ -82,10 +82,11 @@ export const View = {
 type Props = {
   onDismiss: () => void
   onPin?: () => void
+  onUnpin?: () => void
   isPinned: boolean
   blurBackground?: boolean
 }
-export default function WalletView({ onDismiss, onPin, isPinned, blurBackground = false }: Props) {
+export default function WalletView({ onDismiss, onPin, isPinned, blurBackground = false, onUnpin }: Props) {
   const [view, setView] = useState<string>(View.ASSETS)
   const theme = useTheme()
   const navigate = useNavigate()
@@ -228,7 +229,7 @@ export default function WalletView({ onDismiss, onPin, isPinned, blurBackground 
             </Text>
           )}
           <Flex style={{ gap: 20 }} alignItems="center">
-            {!isPinned && onPin && <PinButton isActive={false} onClick={onPin} />}
+            {onPin && onUnpin && <PinButton isActive={isPinned} onClick={isPinned ? onUnpin : onPin} />}
             <X onClick={onDismiss} color={theme.subText} cursor="pointer" />
           </Flex>
         </Flex>

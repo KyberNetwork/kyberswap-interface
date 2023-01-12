@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Rnd } from 'react-rnd'
 import { useMedia } from 'react-use'
@@ -27,10 +28,18 @@ type Props = {
   onDismissModal: () => void
   isPinned: boolean
   setPinned: (v: boolean) => void
+  onOpenModal: () => void
 }
-const WalletPopup: React.FC<Props> = ({ isModalOpen, onDismissModal, isPinned, setPinned }) => {
+const WalletPopup: React.FC<Props> = ({ isModalOpen, onDismissModal, isPinned, setPinned, onOpenModal }) => {
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const rootNode = document.getElementById('app')
+
+  // this key is used only for the popup
+  // without this, when unpinning the popup, it will stay where it is
+  const [key, setKey] = useState(String(Date.now()))
+  const resetKey = () => {
+    setKey(String(Date.now()))
+  }
 
   const shouldOpenPopup = (!isPinned && isModalOpen) || isPinned
 
@@ -42,6 +51,12 @@ const WalletPopup: React.FC<Props> = ({ isModalOpen, onDismissModal, isPinned, s
   const handlePinPopup = () => {
     setPinned(true)
     onDismissModal()
+  }
+
+  const handleUnpinPopup = () => {
+    resetKey()
+    setPinned(false)
+    onOpenModal()
   }
 
   if (!rootNode) {
@@ -69,6 +84,7 @@ const WalletPopup: React.FC<Props> = ({ isModalOpen, onDismissModal, isPinned, s
       {shouldOpenPopup &&
         createPortal(
           <Rnd
+            key={key}
             default={{
               x: left,
               y: top,
@@ -91,7 +107,13 @@ const WalletPopup: React.FC<Props> = ({ isModalOpen, onDismissModal, isPinned, s
             enableResizing={isPinned}
             disableDragging={!isPinned}
           >
-            <WalletView blurBackground onDismiss={handleClosePopup} isPinned={isPinned} onPin={handlePinPopup} />
+            <WalletView
+              blurBackground
+              onDismiss={handleClosePopup}
+              isPinned={isPinned}
+              onPin={handlePinPopup}
+              onUnpin={handleUnpinPopup}
+            />
           </Rnd>,
           rootNode,
         )}

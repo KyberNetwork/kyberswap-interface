@@ -25,7 +25,13 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import usePrevious from 'hooks/usePrevious'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
-import { useCloseModal, useModalOpen, useOpenNetworkModal, useWalletModalToggle } from 'state/application/hooks'
+import {
+  useCloseModal,
+  useModalOpen,
+  useOpenModal,
+  useOpenNetworkModal,
+  useWalletModalToggle,
+} from 'state/application/hooks'
 import { useIsAcceptedTerm, useIsUserManuallyDisconnect } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { isEVMWallet, isOverriddenWallet, isSolanaWallet } from 'utils'
@@ -166,6 +172,7 @@ export default function WalletModal() {
   const walletModalOpen = useModalOpen(ApplicationModal.WALLET)
   const toggleWalletModal = useWalletModalToggle()
   const closeWalletModal = useCloseModal(ApplicationModal.WALLET)
+  const openWalletModal = useOpenModal(ApplicationModal.WALLET)
   const openNetworkModal = useOpenNetworkModal()
 
   const previousAccount = usePrevious(account)
@@ -443,6 +450,7 @@ export default function WalletModal() {
         setPinned={setPinnedPopupWallet}
         isModalOpen={walletModalOpen}
         onDismissModal={closeWalletModal}
+        onOpenModal={openWalletModal}
       />
     )
   }
