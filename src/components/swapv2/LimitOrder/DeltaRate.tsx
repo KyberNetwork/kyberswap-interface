@@ -1,5 +1,6 @@
 import { Currency, Price } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { useMemo } from 'react'
 import { Text } from 'rebass'
 
 import InfoHelper from 'components/InfoHelper'
@@ -15,22 +16,24 @@ export function useGetDeltaRateLimitOrder({
   marketPrice: Price<Currency, Currency> | undefined
   rateInfo: RateInfo
 }) {
-  let percent: number | string = '',
-    deltaText = ''
-  try {
-    if (marketPrice && rateInfo.rate && rateInfo.invertRate) {
-      const { rate, invert, invertRate } = rateInfo
-      const ourRate = Number(invert ? invertRate : rate)
-      const marketRate = Number(invert ? marketPrice.invert().toFixed(10) : marketPrice.toFixed(10))
-      percent = ((ourRate - marketRate) / marketRate) * 100
-      if (invert) percent = -percent
-      const delta = Number(percent)
-      const sign = delta > 0 ? '+' : ''
-      deltaText = `${Math.abs(delta) > 100 ? '>100' : `${sign}${delta.toFixed(2)}`}%`
+  const { deltaText, percent } = useMemo(() => {
+    try {
+      if (marketPrice && rateInfo.rate && rateInfo.invertRate) {
+        const { rate, invert, invertRate } = rateInfo
+        const ourRate = Number(invert ? invertRate : rate)
+        const marketRate = Number(invert ? marketPrice.invert().toFixed(10) : marketPrice.toFixed(10))
+        let percent = ((ourRate - marketRate) / marketRate) * 100
+        if (invert) percent = -percent
+        const delta = Number(percent)
+        const sign = delta > 0 ? '+' : ''
+        const deltaText = `${Math.abs(delta) > 100 ? '>100' : `${sign}${delta.toFixed(2)}`}%`
+        return { percent, deltaText }
+      }
+    } catch (error) {
+      console.log(error)
     }
-  } catch (error) {
-    console.log(error)
-  }
+    return { percent: '', deltaText: '' }
+  }, [marketPrice, rateInfo])
 
   const percentText = Math.abs(Number(percent)) > 0.009 ? deltaText : ''
   return {
