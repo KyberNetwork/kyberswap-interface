@@ -70,7 +70,10 @@ const bnbInfo: EVMNetworkInfo = {
     routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
     farms: [],
   },
-  limitOrder: '0x851ff96CDEf154496fE5E6c2F54F3bF16e1F2173',
+  limitOrder: {
+    development: '0x26279604204aa9D3B530bcd8514fc4276bf0962C',
+    production: '0x227B0c196eA8db17A665EA6824D972A64202E936',
+  },
   averageBlockTimeInSeconds: 3,
   coingeckoNetworkId: 'binance-smart-chain',
   coingeckoNativeTokenId: 'binancecoin',

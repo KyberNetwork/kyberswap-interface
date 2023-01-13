@@ -14,8 +14,7 @@ import { ENV_TYPE } from 'constants/type'
 import { EVMWalletInfo, SUPPORTED_WALLET, SolanaWalletInfo, WalletInfo } from 'constants/wallets'
 import store from 'state'
 import { GroupedTxsByHash, TransactionDetails } from 'state/transactions/type'
-
-import checkForBraveBrowser from './checkForBraveBrowser'
+import checkForBraveBrowser from 'utils/checkForBraveBrowser'
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(chainId: ChainId, value: any): string | false {
@@ -440,5 +439,8 @@ export const isChristmasTime = () => {
   return currentTime.month() === 11 && currentTime.date() >= 15
 }
 
-export const isSupportLimitOrder = (chainId: ChainId) =>
-  ENV_LEVEL < ENV_TYPE.PROD && NETWORKS_INFO_CONFIG[chainId].limitOrder
+export const getLimitOrderContract = (chainId: ChainId) => {
+  const { production, development } = NETWORKS_INFO_CONFIG[chainId]?.limitOrder ?? {}
+  // return ENV_LEVEL >= ENV_TYPE.STG ? production : development
+  return ENV_LEVEL === ENV_TYPE.PROD ? '' : ENV_LEVEL === ENV_TYPE.STG ? production : development // for testing on stg
+}
