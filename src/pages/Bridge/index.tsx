@@ -166,7 +166,7 @@ export default function Bridge() {
             <Title>
               <Trans>Bridge</Trans>
             </Title>
-            <Text fontSize={12} color={theme.subText} marginTop={'8px'}>
+            <Text fontSize={12} color={theme.subText} marginTop="8px">
               <Trans>Easily transfer tokens from one chain to another</Trans>
             </Text>
           </div>

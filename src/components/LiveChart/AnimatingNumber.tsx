@@ -108,7 +108,7 @@ export default function AnimatingNumber({
         )}
       </TicketView>
       {eValue && (
-        <Flex fontSize="16px" alignItems={'flex-end'} color={theme.subText} paddingBottom="3px" paddingTop="5px">
+        <Flex fontSize="16px" alignItems="flex-end" color={theme.subText} paddingBottom="3px" paddingTop="5px">
           10<sup style={{ fontSize: '10px', alignSelf: 'flex-start' }}>{eValue}</sup>
         </Flex>
       )}

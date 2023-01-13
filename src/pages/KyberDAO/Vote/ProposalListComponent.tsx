@@ -88,7 +88,7 @@ function ProposalListComponent({
 
   return (
     <Wrapper>
-      <RowBetween marginBottom={'10px'}>
+      <RowBetween marginBottom="10px">
         <Flex>
           <Text color={theme.primary} fontSize={20}>
             <Trans>KIPs</Trans>

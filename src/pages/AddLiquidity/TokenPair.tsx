@@ -388,7 +388,7 @@ const TokenPair = ({
         <Row>
           <Text fontSize="24px">{'DMM ' + nativeA?.symbol + '/' + nativeB?.symbol + ' LP Tokens'}</Text>
         </Row>
-        <TYPE.italic fontSize={12} textAlign="left" padding={'8px 0 0 0 '}>
+        <TYPE.italic fontSize={12} textAlign="left" padding="8px 0 0 0 ">
           {t`Output is estimated. If the price changes by more than ${
             allowedSlippage / 100
           }% your transaction will revert.`}
@@ -543,7 +543,7 @@ const TokenPair = ({
 
           <SecondColumn>
             {currencies[independentField] && currencies[dependentField] && pairState !== PairState.INVALID && (
-              <Section borderRadius={'20px'} marginBottom="24px">
+              <Section borderRadius="20px" marginBottom="24px">
                 <ToggleComponent title={t`Pool Information`}>
                   <AutoRow padding="16px 0" style={{ borderBottom: `1px dashed ${theme.border}`, gap: '1rem' }}>
                     {!noLiquidity && (
@@ -660,7 +660,7 @@ const TokenPair = ({
                 <Trans>Connect Wallet</Trans>
               </ButtonLight>
             ) : (
-              <AutoColumn gap={'md'}>
+              <AutoColumn gap="md">
                 {(approvalA === ApprovalState.NOT_APPROVED ||
                   approvalA === ApprovalState.PENDING ||
                   approvalB === ApprovalState.NOT_APPROVED ||

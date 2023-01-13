@@ -156,7 +156,7 @@ const CampaignItem = ({ campaign, onSelectCampaign, isSelected }: CampaignItemPr
 
       {isQualified ? (
         <Flex style={{ gap: 10 }} flexDirection="column">
-          <Flex justifyContent={'space-between'} alignItems="center">
+          <Flex justifyContent="space-between" alignItems="center">
             <Text fontSize={12}>
               <Trans>Condition(s) to qualify:</Trans>
             </Text>

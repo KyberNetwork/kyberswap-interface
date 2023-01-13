@@ -219,7 +219,7 @@ function LiveChart({
 
   const renderTimeframes = () => {
     return (
-      <Flex marginTop={'5px'}>
+      <Flex marginTop="5px">
         {[...Object.values(LiveDataTimeframeEnum)].map(item => {
           return (
             <TimeFrameButton key={item} onClick={() => setTimeFrame(item)} active={timeFrame === item}>
@@ -265,14 +265,14 @@ function LiveChart({
       {isWrappedToken ? (
         <Flex
           minHeight={isMobile ? '380px' : '440px'}
-          flexDirection={'column'}
-          alignItems={'center'}
-          justifyContent={'center'}
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
           color={theme.border}
           style={{ gap: '16px' }}
         >
           <CircleInfoIcon />
-          <Text fontSize={16} textAlign={'center'}>
+          <Text fontSize={16} textAlign="center">
             {isUnwrapingWSOL ? (
               <Trans>You can only swap all WSOL to SOL</Trans>
             ) : (
@@ -367,9 +367,9 @@ function LiveChart({
             {basicChartLoading || isBasicchartError ? (
               <Flex
                 minHeight={isMobile ? '300px' : '370px'}
-                flexDirection={'column'}
-                alignItems={'center'}
-                justifyContent={'center'}
+                flexDirection="column"
+                alignItems="center"
+                justifyContent="center"
                 color={theme.disableText}
                 style={{ gap: '16px' }}
               >

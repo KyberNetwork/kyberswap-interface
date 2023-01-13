@@ -134,11 +134,11 @@ const StyledCard = styled(Card)`
 
 const PoolLockContent = (
   <FixedContainer>
-    <Flex padding={'0 20px'} sx={{ gap: '16px' }}>
+    <Flex padding="0 20px" sx={{ gap: '16px' }}>
       <Box margin="auto" width="26px">
         <Lock />
       </Box>
-      <Text fontSize="12px" textAlign="left" padding="8px 16px" lineHeight={'16px'}>
+      <Text fontSize="12px" textAlign="left" padding="8px 16px" lineHeight="16px">
         <Trans>
           The price of the pool is outside your selected price range and hence you can only deposit a single token. To
           see more options, update the price range.
@@ -242,8 +242,8 @@ export default function CurrencyInputPanel({
   return (
     <div style={{ width: '100%' }}>
       {label && positionLabel === 'out' && (
-        <StyledCard borderRadius={'20px'}>
-          <Flex justifyContent={'space-between'} alignItems="center">
+        <StyledCard borderRadius="20px">
+          <Flex justifyContent="space-between" alignItems="center">
             <Text fontSize={12} color={theme.subText} fontWeight={500}>
               {label}:
             </Text>
@@ -328,7 +328,7 @@ export default function CurrencyInputPanel({
               >
                 <Aligner>
                   <RowFixed>
-                    {currency && !hideLogo ? <CurrencyLogo currency={currency} size={'20px'} /> : null}
+                    {currency && !hideLogo ? <CurrencyLogo currency={currency} size="20px" /> : null}
                     <StyledTokenName
                       className="token-symbol-container"
                       active={Boolean(currency && currency.symbol)}

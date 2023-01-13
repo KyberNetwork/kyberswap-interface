@@ -90,9 +90,9 @@ export function ImportToken({ enterToImport = false, tokens, onBack, onDismiss, 
         </RowBetween>
       </PaddedColumn>
       <SectionBreak />
-      <Flex flexDirection={'column'} style={{ padding: '1rem', gap: '1rem' }}>
+      <Flex flexDirection="column" style={{ padding: '1rem', gap: '1rem' }}>
         <WarningWrapper borderRadius="20px" padding="15px">
-          <Flex alignItems={'flex-start'}>
+          <Flex alignItems="flex-start">
             <div>
               <AlertTriangle stroke={theme.warning} size="17px" />
             </div>
@@ -105,7 +105,7 @@ export function ImportToken({ enterToImport = false, tokens, onBack, onDismiss, 
           return (
             <Card backgroundColor={theme.buttonBlack} key={token.address} padding="2rem">
               <Flex style={{ gap: 10 }}>
-                <CurrencyLogo currency={token} size={'44px'} />
+                <CurrencyLogo currency={token} size="44px" />
                 <AutoColumn gap="4px">
                   <TYPE.body fontWeight={500} fontSize={20}>
                     {token.symbol}
@@ -113,7 +113,7 @@ export function ImportToken({ enterToImport = false, tokens, onBack, onDismiss, 
                   <Text color={theme.subText} fontWeight={400} fontSize={14}>
                     {token.name}
                   </Text>
-                  <Flex alignItems={'center'} color={theme.text} style={{ gap: 5 }}>
+                  <Flex alignItems="center" color={theme.text} style={{ gap: 5 }}>
                     <AddressText>
                       <Trans>Address</Trans>: {shortenAddress(chainId, token.address, 7)}
                     </AddressText>

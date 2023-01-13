@@ -293,7 +293,7 @@ export default function YourTransactionsModal() {
               )
             ) : (
               <Flex alignItems="center" justifyContent="center" flex={1} flexDirection="column" style={{ gap: '10px' }}>
-                <CircleInfoIcon></CircleInfoIcon>
+                <CircleInfoIcon />
                 <Text>
                   <Trans>You have no Transaction History</Trans>
                 </Text>

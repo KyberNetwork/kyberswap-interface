@@ -486,7 +486,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
 
   return (
     <>
-      <Flex justifyContent={'space-between'} alignItems="center">
+      <Flex justifyContent="space-between" alignItems="center">
         <TabSelector
           setActiveTab={onSelectTab}
           activeTab={isTabActive ? LimitOrderStatus.ACTIVE : LimitOrderStatus.CLOSED}
@@ -494,7 +494,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
         <SubscribeNotificationButton subscribeTooltip={t`Subscribe to receive notifications on your limit orders`} />
       </Flex>
 
-      <Flex flexDirection={'column'} style={{ gap: '1rem' }}>
+      <Flex flexDirection="column" style={{ gap: '1rem' }}>
         <SearchFilter>
           <SelectFilter
             key={orderType}
@@ -531,7 +531,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
             {orders.length === 0 && (
               <NoResultWrapper>
                 <Info size={isMobile ? 40 : 48} />
-                <Text marginTop={'10px'}>
+                <Text marginTop="10px">
                   {keyword ? (
                     <Trans>No orders found</Trans>
                   ) : isTabActive ? (
@@ -547,7 +547,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
                 {isTabActive ? (
                   <ButtonCancelAll onClick={onCancelAllOrder} disabled={disabledBtnCancelAll}>
                     <Trash size={15} />
-                    <Text marginLeft={'5px'}>
+                    <Text marginLeft="5px">
                       <Trans>Cancel All</Trans>
                     </Text>
                   </ButtonCancelAll>

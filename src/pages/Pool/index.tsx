@@ -397,9 +397,9 @@ function Pool() {
             ) : !showStaked ? (
               loading && !v2PairsWithoutStakedAmount.length && !userFarms.length ? (
                 <PositionCardGrid>
-                  <PreloadCard></PreloadCard>
-                  <PreloadCard></PreloadCard>
-                  <PreloadCard></PreloadCard>
+                  <PreloadCard />
+                  <PreloadCard />
+                  <PreloadCard />
                 </PositionCardGrid>
               ) : v2PairsWithoutStakedAmount?.length > 0 || !!userFarms.length ? (
                 <>
@@ -432,7 +432,7 @@ function Pool() {
                           farm={farm}
                           key={farm.id}
                           userLiquidityPositions={userLiquidityPositions?.liquidityPositions}
-                          tab={'ALL'}
+                          tab="ALL"
                         />
                       ))}
                   </PositionCardGrid>

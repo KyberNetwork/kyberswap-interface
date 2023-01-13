@@ -32,7 +32,7 @@ function ClassicElasticTab() {
     <Flex>
       <MouseoverTooltip text={notSupportedMsg || ''}>
         <Flex
-          alignItems={'center'}
+          alignItems="center"
           onClick={() => {
             if (!!notSupportedMsg) return
             const newQs = { ...qs, tab: VERSION.ELASTIC }
@@ -50,7 +50,7 @@ function ClassicElasticTab() {
             fontWeight={500}
             fontSize={[18, 20, 24]}
             color={tab === VERSION.ELASTIC ? (!!notSupportedMsg ? theme.disableText : theme.primary) : theme.subText}
-            width={'auto'}
+            width="auto"
             marginLeft="4px"
             role="button"
             style={{
@@ -61,12 +61,12 @@ function ClassicElasticTab() {
           </Text>
         </Flex>
       </MouseoverTooltip>
-      <Text fontWeight={500} fontSize={[18, 20, 24]} color={theme.subText} marginX={'12px'}>
+      <Text fontWeight={500} fontSize={[18, 20, 24]} color={theme.subText} marginX="12px">
         |
       </Text>
 
       <Flex
-        alignItems={'center'}
+        alignItems="center"
         onClick={() => {
           const newQs = { ...qs, tab: VERSION.CLASSIC }
           navigate({ search: stringify(newQs) }, { replace: true })
@@ -77,7 +77,7 @@ function ClassicElasticTab() {
           fontWeight={500}
           fontSize={[18, 20, 24]}
           color={tab === VERSION.CLASSIC ? theme.primary : theme.subText}
-          width={'auto'}
+          width="auto"
           marginLeft="4px"
           style={{ cursor: 'pointer' }}
           role="button"

@@ -82,8 +82,8 @@ const SwapNavGroup = () => {
         </DropdownTextAnchor>
       }
       dropdownContent={
-        <Flex flexDirection={'column'} id={TutorialIds.BRIDGE_LINKS}>
-          <StyledNavLink id={`swapv2-nav-link`} to={APP_PATHS.SWAP} style={{ flexDirection: 'column' }}>
+        <Flex flexDirection="column" id={TutorialIds.BRIDGE_LINKS}>
+          <StyledNavLink id="swapv2-nav-link" to={APP_PATHS.SWAP} style={{ flexDirection: 'column' }}>
             <Flex alignItems="center" sx={{ gap: '12px' }}>
               <IconWrapper>
                 <Repeat size={16} />
@@ -98,7 +98,7 @@ const SwapNavGroup = () => {
                 <IconWrapper>
                   <LimitOrderIcon />
                 </IconWrapper>
-                <Flex alignItems={'center'} sx={{ flex: 1 }} justifyContent={'space-between'}>
+                <Flex alignItems="center" sx={{ flex: 1 }} justifyContent="space-between">
                   <Trans>Limit Order</Trans>
                   <BetaTag>Beta</BetaTag>
                 </Flex>
@@ -112,7 +112,7 @@ const SwapNavGroup = () => {
                 <IconWrapper>
                   <StyledBridgeIcon height={15} />
                 </IconWrapper>
-                <Flex alignItems={'center'} sx={{ flex: 1 }} justifyContent={'space-between'}>
+                <Flex alignItems="center" sx={{ flex: 1 }} justifyContent="space-between">
                   <Text>
                     <Trans>Bridge</Trans>
                   </Text>
@@ -126,7 +126,7 @@ const SwapNavGroup = () => {
             </StyledNavLink>
           )}
           <StyledNavLink
-            id={`buy-crypto-nav-link`}
+            id="buy-crypto-nav-link"
             to={APP_PATHS.BUY_CRYPTO}
             onClick={() => {
               mixpanelHandler(MIXPANEL_TYPE.SWAP_BUY_CRYPTO_CLICKED)

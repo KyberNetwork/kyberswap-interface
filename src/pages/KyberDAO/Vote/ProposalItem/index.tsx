@@ -160,7 +160,7 @@ const VoteButton = ({
         account ? (
           <ButtonPrimary
             width={isMobile ? '100%' : 'fit-content'}
-            minWidth={'200px'}
+            minWidth="200px"
             fontWeight={500}
             fontSize="14px"
             onClick={onVoteClick}
@@ -391,7 +391,7 @@ function ProposalItem({
                 marginBottom="20px"
                 dangerouslySetInnerHTML={{ __html: proposal.desc.replaceAll('\\n', '').replaceAll('\\r', '') }}
                 style={{ wordBreak: 'break-word' }}
-              ></Text>
+              />
               {isMobile && <VoteInformation proposal={proposal} />}
             </div>
             {!isMobile && (

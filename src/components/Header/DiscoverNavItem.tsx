@@ -56,7 +56,7 @@ const DiscoverNavItem = () => {
   const isActive = pathname.includes(APP_PATHS.DISCOVER)
   return (
     <DiscoverWrapper id={TutorialIds.DISCOVER_LINK}>
-      <StyledNavLink to={'/discover?tab=trending_soon'} style={{ alignItems: 'center' }}>
+      <StyledNavLink to="/discover?tab=trending_soon" style={{ alignItems: 'center' }}>
         <CustomSlideToUnlock data-active={isActive}>
           <Trans>Discover</Trans>
         </CustomSlideToUnlock>

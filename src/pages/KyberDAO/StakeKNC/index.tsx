@@ -152,7 +152,7 @@ export default function StakeKNC() {
               </Text>
               <Text fontSize={12} lineHeight="16px" fontWeight={500} color={theme.subText}>
                 <Trans>KNC holders can stake their tokens to vote on proposals and receive rewards in KNC. </Trans>{' '}
-                <ExternalLink href={'https://docs.kyberswap.com/kyber-dao/kyber-dao-introduction'}>FAQ ↗</ExternalLink>
+                <ExternalLink href="https://docs.kyberswap.com/kyber-dao/kyber-dao-introduction">FAQ ↗</ExternalLink>
               </Text>
             </CardInfo>
           </Card>

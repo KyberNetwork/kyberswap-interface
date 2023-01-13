@@ -449,7 +449,7 @@ export default function StakeKNCComponent() {
           {(activeTab === STAKE_TAB.Stake || activeTab === STAKE_TAB.Unstake) && (
             <>
               <InnerCard>
-                <RowBetween width={'100%'}>
+                <RowBetween width="100%">
                   <AutoRow gap="2px">
                     <SmallButton onClick={() => handleMaxClick()}>Max</SmallButton>
                     <SmallButton onClick={() => handleMaxClick(true)}>Half</SmallButton>
@@ -557,7 +557,7 @@ export default function StakeKNCComponent() {
                   </AutoRow>
                 }
                 expandContent={
-                  <Text margin={'0 20px 0 30px'} fontSize={12} lineHeight="16px">
+                  <Text margin="0 20px 0 30px" fontSize={12} lineHeight="16px">
                     <Trans>
                       In this default delegation method, your delegate is responsible for voting on your behalf and
                       distributing your KNC rewards to you, though only you can withdraw/unstake your own KNC
@@ -591,7 +591,7 @@ export default function StakeKNCComponent() {
         backgroundColor={theme.buttonBlack}
         borderRadius="16px"
         color={theme.subText}
-        padding={'12px 16px'}
+        padding="12px 16px"
         headerContent={
           <Text fontSize={12} color={theme.text} style={{ textTransform: 'uppercase' }}>
             <Trans>Stake Information</Trans>

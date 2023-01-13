@@ -234,7 +234,7 @@ function AboutKNC() {
             color={theme.primary}
             marginTop={['100px', '160px']}
             fontWeight="500"
-            fontSize={'20px'}
+            fontSize="20px"
             textAlign="center"
           >
             <Trans>TOKEN UTILITY</Trans>
@@ -429,7 +429,7 @@ function AboutKNC() {
             <Flex
               marginRight={above768 ? '180px' : '0px'}
               alignItems={!above768 ? 'center' : 'flex-start'}
-              flexDirection={'column'}
+              flexDirection="column"
             >
               <Text as="h2" fontWeight="500" fontSize={['28px', '36px']}>
                 <Trans>More information about KNC is available on:</Trans>
@@ -439,10 +439,10 @@ function AboutKNC() {
                 marginTop="48px"
                 style={{ gap: '48px', alignItems: 'center' }}
               >
-                <ExternalLink href={`https://www.coingecko.com/en/coins/kyber-network-crystal`}>
+                <ExternalLink href="https://www.coingecko.com/en/coins/kyber-network-crystal">
                   <img src={isDarkMode ? CoinGecko : CoinGeckoLight} alt="CoinGecko" width="165px" />
                 </ExternalLink>
-                <ExternalLink href={`https://coinmarketcap.com/currencies/kyber-network-crystal-v2/`}>
+                <ExternalLink href="https://coinmarketcap.com/currencies/kyber-network-crystal-v2/">
                   <img src={isDarkMode ? CoinMarketCap : CoinMarketCapLight} alt="CoinMarketCap" width="227px" />
                 </ExternalLink>
                 <ExternalLink href="https://www.geckoterminal.com/eth/pools/0xa38a0165e82b7a5e8650109e9e54087a34c93020">
@@ -461,23 +461,23 @@ function AboutKNC() {
       <Footer background={isDarkMode ? theme.background : theme.white}>
         <FooterContainer>
           <Flex flexWrap="wrap" sx={{ gap: '12px' }} justifyContent="center">
-            <ExternalLink href={`https://docs.kyberswap.com`}>
+            <ExternalLink href="https://docs.kyberswap.com">
               <Trans>Docs</Trans>
             </ExternalLink>
             <VerticalDivider />
-            <ExternalLink href={`https://github.com/KyberNetwork`}>
+            <ExternalLink href="https://github.com/KyberNetwork">
               <Trans>Github</Trans>
             </ExternalLink>
             <VerticalDivider />
-            <ExternalLink href={`https://kyber.org`}>KyberDAO</ExternalLink>
+            <ExternalLink href="https://kyber.org">KyberDAO</ExternalLink>
             <VerticalDivider />
-            <ExternalLink href={`https://gov.kyber.org`}>
+            <ExternalLink href="https://gov.kyber.org">
               <Trans>Forum</Trans>
             </ExternalLink>
             {!above500 ? <div /> : <VerticalDivider />}
-            <ExternalLink href={`https://kyber.network`}>Kyber Network</ExternalLink>
+            <ExternalLink href="https://kyber.network">Kyber Network</ExternalLink>
             <VerticalDivider />
-            <StyledInternalLink to={`/about/knc`}>KNC</StyledInternalLink>
+            <StyledInternalLink to="/about/knc">KNC</StyledInternalLink>
           </Flex>
           <FooterSocialLink />
         </FooterContainer>

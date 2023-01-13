@@ -506,9 +506,9 @@ export default function ZapOut({
 
   function modalHeader() {
     return (
-      <AutoColumn gap={'md'} style={{ marginTop: '20px' }}>
+      <AutoColumn gap="md" style={{ marginTop: '20px' }}>
         <AutoRow gap="4px">
-          <CurrencyLogo currency={currencies[independentTokenField]} size={'24px'} />
+          <CurrencyLogo currency={currencies[independentTokenField]} size="24px" />
           <Text fontSize={24} fontWeight={500}>
             {parsedAmounts[independentTokenField]?.toSignificant(6)}
           </Text>
@@ -616,7 +616,7 @@ export default function ZapOut({
               <TransactionErrorContent onDismiss={handleDismissConfirmation} message={zapOutError} />
             ) : (
               <ConfirmationModalContent
-                title={'You will receive'}
+                title="You will receive"
                 onDismiss={handleDismissConfirmation}
                 topContent={modalHeader}
                 bottomContent={modalBottom}

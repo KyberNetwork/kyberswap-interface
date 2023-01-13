@@ -61,7 +61,7 @@ function TradeSummary({ trade, feeConfig, allowedSlippage }: TradeSummaryProps) 
             <Trans>MORE INFORMATION</Trans>
           </Text>
           <IconWrapper show={show}>
-            <DropdownSVG></DropdownSVG>
+            <DropdownSVG />
           </IconWrapper>
         </RowBetween>
         <ContentWrapper show={show} gap="0.75rem">
@@ -166,7 +166,7 @@ export function TradeSummaryBridge({ outputInfo }: { outputInfo: OutputBridgeInf
             <Trans>MORE INFORMATION</Trans>
           </Text>
           <IconWrapper show={show}>
-            <DropdownSVG></DropdownSVG>
+            <DropdownSVG />
           </IconWrapper>
         </RowBetween>
         <ContentWrapper show={show} gap="0.75rem">
@@ -210,7 +210,7 @@ export function TradeSummaryBridge({ outputInfo }: { outputInfo: OutputBridgeInf
                       </Text>
                       {tokenInfoOut?.MinimumSwapFee === tokenInfoOut?.MaximumSwapFee ? (
                         outputInfo.fee > 0 && (
-                          <Text marginTop={'5px'}>
+                          <Text marginTop="5px">
                             <Trans>
                               Gas Fee: {`${fee} ${tokenInfoOut.symbol} `}
                               for your cross-chain transaction on destination chain
@@ -218,7 +218,7 @@ export function TradeSummaryBridge({ outputInfo }: { outputInfo: OutputBridgeInf
                           </Text>
                         )
                       ) : (
-                        <Text marginTop={'5px'}>
+                        <Text marginTop="5px">
                           <Trans>
                             Min Transaction Fee is {formattedNum(tokenInfoOut.MinimumSwapFee)} {tokenInfoOut.symbol}{' '}
                             <br />
@@ -245,7 +245,7 @@ export function TradeSummaryBridge({ outputInfo }: { outputInfo: OutputBridgeInf
 
             <TYPE.black fontSize={12} color={theme.text} textAlign="right">
               {tokenInfoOut ? (
-                <Flex flexDirection={'column'} style={{ gap: 10 }}>
+                <Flex flexDirection="column" style={{ gap: 10 }}>
                   <div>{t`Min ${formattedNum(tokenInfoOut?.MinimumSwap)} ${tokenInfoOut?.symbol}`}</div>
                   <div> {t`Max ${formattedNum(tokenInfoOut?.MaximumSwap)} ${tokenInfoOut?.symbol}`}</div>
                 </Flex>

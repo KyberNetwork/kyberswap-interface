@@ -96,9 +96,9 @@ function Verify() {
   const icon = (() => {
     switch (status) {
       case STATUS.SUCCESS:
-        return <CheckCircle color={theme.primary} size={'23px'} />
+        return <CheckCircle color={theme.primary} size="23px" />
       case STATUS.ERROR:
-        return <XCircle color={theme.red} size={'23px'} />
+        return <XCircle color={theme.red} size="23px" />
       case STATUS.VERIFYING:
         return <Loader size="23px" />
     }
@@ -129,11 +129,11 @@ function Verify() {
                   </Trans>
                 ) : (
                   <Trans>
-                    <Text fontWeight={'500'}>Your email have been verified.</Text> If it has been more than a few days
-                    and you still haven’t receive any notification yet, please contact us through our channels.
+                    <Text fontWeight="500">Your email have been verified.</Text> If it has been more than a few days and
+                    you still haven’t receive any notification yet, please contact us through our channels.
                     <br />
                     You will be redirected to <ExternalLink href={redirectUrl}>{redirectUrl}</ExternalLink> after{' '}
-                    <Text as="span" fontWeight={'500'} color={theme.text}>
+                    <Text as="span" fontWeight="500" color={theme.text}>
                       {time}
                     </Text>
                     s.

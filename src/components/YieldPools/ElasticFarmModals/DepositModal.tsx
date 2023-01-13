@@ -132,7 +132,7 @@ const PositionRow = ({
                   </Flex>
                 </>
               }
-            ></HoverDropdown>
+            />
           </Flex>
         </>
       )}

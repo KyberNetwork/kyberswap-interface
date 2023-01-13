@@ -127,12 +127,12 @@ export default function PoolFinder() {
           {native0 ? (
             <Row>
               <CurrencyLogo currency={currency0 || undefined} />
-              <Text fontWeight={500} fontSize={20} marginLeft={'12px'}>
+              <Text fontWeight={500} fontSize={20} marginLeft="12px">
                 {native0?.symbol}
               </Text>
             </Row>
           ) : (
-            <Text fontWeight={500} fontSize={20} marginLeft={'12px'}>
+            <Text fontWeight={500} fontSize={20} marginLeft="12px">
               Select a Token
             </Text>
           )}
@@ -151,12 +151,12 @@ export default function PoolFinder() {
           {native1 ? (
             <Row>
               <CurrencyLogo currency={currency1 || undefined} />
-              <Text fontWeight={500} fontSize={20} marginLeft={'12px'}>
+              <Text fontWeight={500} fontSize={20} marginLeft="12px">
                 {native1?.symbol}
               </Text>
             </Row>
           ) : (
-            <Text fontWeight={500} fontSize={20} marginLeft={'12px'}>
+            <Text fontWeight={500} fontSize={20} marginLeft="12px">
               Select a Token
             </Text>
           )}
@@ -190,7 +190,7 @@ export default function PoolFinder() {
                   <Text textAlign="center" fontWeight={500}>
                     <Trans>Pool Found!</Trans>
                   </Text>
-                  <StyledInternalLink to={`/myPools?tab=classic`}>
+                  <StyledInternalLink to="/myPools?tab=classic">
                     <Text textAlign="center">
                       <Trans>Manage your pools.</Trans>
                     </Text>

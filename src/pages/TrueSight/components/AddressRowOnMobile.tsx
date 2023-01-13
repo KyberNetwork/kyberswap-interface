@@ -43,7 +43,7 @@ const AddressRowOnMobile: React.FC<Props> = ({ platforms }) => {
           />
           <Flex alignItems="center" onClick={onCopy}>
             <div style={{ width: '90px' }}>{getShortenAddress(defaultAddress)}</div>
-            {isCopied ? <CheckCircle size={'14'} /> : <Copy size={'14'} />}
+            {isCopied ? <CheckCircle size="14" /> : <Copy size="14" />}
           </Flex>
         </FieldValue>
       </Flex>

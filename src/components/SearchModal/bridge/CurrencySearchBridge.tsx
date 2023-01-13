@@ -182,7 +182,7 @@ export default function CurrencySearchBridge({
         <NoResult
           msg={
             debouncedQuery && (
-              <Text fontSize={12} color={theme.subText} fontWeight="normal" lineHeight={'18px'}>
+              <Text fontSize={12} color={theme.subText} fontWeight="normal" lineHeight="18px">
                 <Trans>
                   Multichain doesn’t support this token yet. <br />
                   If you want to apply this token for cross-chain bridges on Multichain, please read more{' '}

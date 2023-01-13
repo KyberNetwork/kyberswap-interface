@@ -57,7 +57,7 @@ const Colum = styled.div`
 const TimeText = ({ time, style = {} }: { time: number; style?: CSSProperties }) => {
   const theme = useTheme()
   return (
-    <Flex fontWeight={'500'} color={theme.subText} style={style}>
+    <Flex fontWeight="500" color={theme.subText} style={style}>
       <Text>{dayjs(time * 1000).format('DD/MM/YYYY')}</Text>
       &nbsp; <Text>{dayjs(time * 1000).format('HH:mm')}</Text>
     </Flex>
@@ -89,7 +89,7 @@ const SingleAmountInfo = ({
   hideLogo?: boolean
   decimals: number
 }) => (
-  <Flex alignItems={'center'}>
+  <Flex alignItems="center">
     {!hideLogo && <TokenLogo srcs={[logoUrl]} />}
     <DeltaAmount color={color}>
       {plus ? '+' : '-'} {formatAmountOrder(amount, decimals)} {symbol || '???'}
@@ -223,7 +223,7 @@ export default function OrderItem({
   if (upToSmall) {
     return (
       <ItemWrapperMobile>
-        <Flex justifyContent={'space-between'}>
+        <Flex justifyContent="space-between">
           <AmountInfo order={order} />
           <ActionButtons
             order={order}
@@ -235,7 +235,7 @@ export default function OrderItem({
             isCancelling={isCancelling}
           />
         </Flex>
-        <Flex justifyContent={'space-between'}>
+        <Flex justifyContent="space-between">
           {progressComponent}
           <TradeRateOrder order={order} style={{ textAlign: 'right' }} />
         </Flex>
@@ -252,7 +252,7 @@ export default function OrderItem({
                     symbol={takerAssetSymbol}
                     hideLogo
                   />
-                  <Flex alignItems={'center'}>
+                  <Flex alignItems="center">
                     <TimeText time={txs.txTime} style={{ marginRight: '7px' }} />
                     <ActionButtons itemStyle={{ margin: 0 }} order={order} txHash={txHash} isChildren />
                   </Flex>
@@ -261,7 +261,7 @@ export default function OrderItem({
             })}
           </div>
         )}
-        <Flex justifyContent={'space-between'}>
+        <Flex justifyContent="space-between">
           <Colum>
             <Text>
               <Trans>Created</Trans>
@@ -269,7 +269,7 @@ export default function OrderItem({
             <TimeText time={createdAt} />
           </Colum>
           <Colum>
-            <Text textAlign={'right'}>
+            <Text textAlign="right">
               <Trans>Expiry</Trans>
             </Text>
             <TimeText time={order.expiredAt} />
@@ -281,7 +281,7 @@ export default function OrderItem({
   return (
     <>
       <ItemWrapper hasBorder={!transactions.length || !expand}>
-        <Flex alignItems={'center'} style={{ gap: 10 }}>
+        <Flex alignItems="center" style={{ gap: 10 }}>
           <IndexText>{index + 1}</IndexText>
           <AmountInfo order={order} />
         </Flex>
@@ -309,7 +309,7 @@ export default function OrderItem({
             const filledPercent = calcPercentFilledOrder(txs.takingAmount, takingAmount, takerAssetDecimals)
             return (
               <ItemWrapper key={txs.txHash} hasBorder={false} style={{ paddingTop: 0, paddingBottom: 0 }}>
-                <Flex alignItems={'center'} style={{ gap: 10 }}>
+                <Flex alignItems="center" style={{ gap: 10 }}>
                   <IndexText />
                   <Flex>
                     <div style={{ width: LOGO_SIZE, marginRight: 8 }} />
@@ -318,7 +318,7 @@ export default function OrderItem({
                     </DeltaAmount>
                   </Flex>
                 </Flex>
-                <Colum className="rate"></Colum>
+                <Colum className="rate" />
                 <Colum>
                   <TimeText time={txs.txTime} />
                 </Colum>

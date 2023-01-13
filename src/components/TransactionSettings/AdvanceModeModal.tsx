@@ -102,7 +102,7 @@ function AdvanceModeModal({ show, setShow }: { show: boolean; setShow: (v: boole
           <Trans>Use this mode if you are aware of the risks.</Trans>
         </Text>
 
-        <Flex sx={{ gap: '16px' }} marginTop="28px" justifyContent={'center'}>
+        <Flex sx={{ gap: '16px' }} marginTop="28px" justifyContent="center">
           <ButtonWarning
             style={{
               flex: 1,

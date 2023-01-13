@@ -309,7 +309,7 @@ export default function AccountDetails({ toggleWalletModal, openOptions }: Accou
       </Flex>
       {!!pendingTxGroups.length || !!confirmedTxGroups.length ? (
         <LowerSection>
-          <AutoRow mb={'1rem'} style={{ justifyContent: 'space-between' }}>
+          <AutoRow mb="1rem" style={{ justifyContent: 'space-between' }}>
             <TYPE.body>
               <Trans>Recent Transactions</Trans>
             </TYPE.body>

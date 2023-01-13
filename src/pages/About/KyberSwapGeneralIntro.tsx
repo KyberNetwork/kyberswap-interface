@@ -79,7 +79,7 @@ const KyberSwapGeneralIntro = ({ isSolana }: { isSolana: boolean }) => {
     return (
       <ButtonLight
         as={Link}
-        to={'/pools?tab=elastic'}
+        to="/pools?tab=elastic"
         onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_START_EARNING_CLICKED)}
         style={{
           width: '216px',
@@ -165,7 +165,7 @@ const KyberSwapGeneralIntro = ({ isSolana }: { isSolana: boolean }) => {
     >
       {isSolana ? (
         <Flex
-          flexDirection={'column'}
+          flexDirection="column"
           sx={{
             alignItems: 'center',
             rowGap: '16px',
@@ -178,7 +178,7 @@ const KyberSwapGeneralIntro = ({ isSolana }: { isSolana: boolean }) => {
       ) : (
         <>
           <Flex
-            flexDirection={'column'}
+            flexDirection="column"
             sx={{
               alignItems: 'center',
               rowGap: '16px',
@@ -189,7 +189,7 @@ const KyberSwapGeneralIntro = ({ isSolana }: { isSolana: boolean }) => {
           </Flex>
 
           <Flex
-            flexDirection={'column'}
+            flexDirection="column"
             sx={{
               alignItems: 'center',
               rowGap: '16px',

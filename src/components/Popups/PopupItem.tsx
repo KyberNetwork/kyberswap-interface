@@ -157,7 +157,7 @@ export default function PopupItem({
     <PopupWrapper removeAfterMs={removeAfterMs}>
       <SolidBackgroundLayer />
       <Popup type={notiType}>
-        <Flex justifyContent={'space-between'}>
+        <Flex justifyContent="space-between">
           {popupContent}
           <StyledClose color={theme.text2} onClick={removeThisPopup} />
         </Flex>

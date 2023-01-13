@@ -63,7 +63,7 @@ const TransactionTimeLimitSetting: React.FC<Props> = ({ className }) => {
   }, [deadline])
 
   return (
-    <Flex justifyContent={'space-between'} alignItems="center" className={className}>
+    <Flex justifyContent="space-between" alignItems="center" className={className}>
       <Flex alignItems="center">
         <Text
           className="label"
@@ -105,7 +105,7 @@ const TransactionTimeLimitSetting: React.FC<Props> = ({ className }) => {
             data-valid={isValid}
           />
         </Box>
-        <Text fontWeight={500} fontSize="12px" lineHeight={'16px'}>
+        <Text fontWeight={500} fontSize="12px" lineHeight="16px">
           <Trans>mins</Trans>
         </Text>
       </Flex>

@@ -107,7 +107,7 @@ export default function CurrencyInputPanelBridge({
             >
               <Aligner>
                 <RowFixed>
-                  {currency && <CurrencyLogo currency={currency} size={'20px'} />}
+                  {currency && <CurrencyLogo currency={currency} size="20px" />}
                   <StyledTokenName
                     className="token-symbol-container"
                     active={Boolean(currency?.symbol)}

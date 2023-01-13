@@ -236,7 +236,7 @@ const Pools = () => {
       searchValue={searchValueInQs}
       onSearch={onSearch}
       placeholder={t`Search by token name or pool address`}
-      minWidth={'280px'}
+      minWidth="280px"
     />
   )
 

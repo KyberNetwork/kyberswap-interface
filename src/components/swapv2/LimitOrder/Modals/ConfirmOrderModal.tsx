@@ -84,7 +84,7 @@ export default memo(function ConfirmOrderModal({
 
   const confirmationContent = useCallback(() => {
     return (
-      <Flex flexDirection={'column'} width="100%">
+      <Flex flexDirection="column" width="100%">
         <div>
           {flowState.errorMessage ? (
             <TransactionErrorContent onDismiss={onDismiss} message={flowState.errorMessage} />

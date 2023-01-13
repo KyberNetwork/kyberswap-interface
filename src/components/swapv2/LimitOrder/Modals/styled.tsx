@@ -50,7 +50,7 @@ export const Label = styled.div`
 export const Header = ({ title, onDismiss }: { title: string; onDismiss: () => void }) => {
   const theme = useTheme()
   return (
-    <Flex justifyContent={'space-between'}>
+    <Flex justifyContent="space-between">
       <Flex color={theme.text} alignItems="center" style={{ gap: 8 }}>
         <Text fontSize={20}>{title}</Text>
       </Flex>
@@ -85,7 +85,7 @@ export const MarketInfo = ({ marketPrice }: { marketPrice: Price<Currency, Curre
   const theme = useTheme()
   return (
     <Flex
-      flexDirection={'column'}
+      flexDirection="column"
       style={{
         borderRadius: 16,
         padding: '14px 18px',

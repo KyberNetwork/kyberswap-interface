@@ -167,7 +167,7 @@ const Step = ({
     >
       {steps.map((item, index) => (
         <React.Fragment key={item}>
-          <StepItem role="button" active={currentStep === item} onClick={() => onStepClick(item)}></StepItem>
+          <StepItem role="button" active={currentStep === item} onClick={() => onStepClick(item)} />
           {index !== steps.length - 1 && <StepSeparator direction={direction} />}
         </React.Fragment>
       ))}
@@ -312,7 +312,7 @@ function BuyCrypto() {
             >
               <Flex flexDirection="column" flex={1}>
                 <Text
-                  color={'white'}
+                  color="white"
                   fontSize={upToMedium ? '28px' : '44px'}
                   lineHeight={upToMedium ? '32px' : '60px'}
                   marginTop={upToMedium ? '40px' : undefined}
@@ -321,7 +321,7 @@ function BuyCrypto() {
                 </Text>
 
                 <Text
-                  color={'#A7B6BD'}
+                  color="#A7B6BD"
                   fontSize={upToMedium ? '16px' : '20px'}
                   lineHeight={upToMedium ? '24px' : '28px'}
                   marginTop={upToMedium ? '40px' : '48px'}
@@ -487,11 +487,11 @@ function BuyCrypto() {
                   <Trans>Step 2</Trans>
                 </Text>
 
-                <Text color={'white'} fontSize={upToMedium ? '28px' : '44px'} lineHeight={upToMedium ? '32px' : '60px'}>
+                <Text color="white" fontSize={upToMedium ? '28px' : '44px'} lineHeight={upToMedium ? '32px' : '60px'}>
                   <Trans>Buy Crypto</Trans>
                 </Text>
 
-                <Text color={'#A7B6BD'} lineHeight={1.5} marginTop={upToMedium ? '40px' : '48px'}>
+                <Text color="#A7B6BD" lineHeight={1.5} marginTop={upToMedium ? '40px' : '48px'}>
                   Note: Clicking &quot;Buy Crypto&quot; will bring you to a third party website, owned and operated by
                   an independent party over which KyberSwap has no control (&quot;
                   <ExternalLink href="https://app.transak.com/">Third Party Website</ExternalLink>&quot;).
@@ -501,12 +501,12 @@ function BuyCrypto() {
                   <ExternalLink href="https://support.transak.com/">here</ExternalLink>
                 </Text>
 
-                <Text color={'#A7B6BD'} marginTop="24px">
+                <Text color="#A7B6BD" marginTop="24px">
                   Your wallet address
                 </Text>
 
                 {!account ? (
-                  <ButtonLight margin={'16px 0 0'} width={upToSmall ? '100%' : '50%'} onClick={toggleWalletModal}>
+                  <ButtonLight margin="16px 0 0" width={upToSmall ? '100%' : '50%'} onClick={toggleWalletModal}>
                     Connect your wallet
                   </ButtonLight>
                 ) : (

@@ -398,7 +398,7 @@ const Row = ({
               <InfoHelper
                 placement="top"
                 color={theme.warning}
-                width={'270px'}
+                width="270px"
                 text={
                   <Flex
                     sx={{
@@ -437,7 +437,7 @@ const Row = ({
         <Flex flexDirection="column" alignItems="flex-end" sx={{ gap: '8px' }}>
           {rewardPendings.map((amount, i) => (
             <Flex alignItems="center" sx={{ gap: '4px' }} key={amount.currency.symbol || i}>
-              <HoverInlineText text={amount.toSignificant(6)} maxCharacters={10}></HoverInlineText>
+              <HoverInlineText text={amount.toSignificant(6)} maxCharacters={10} />
               <MouseoverTooltip placement="top" text={amount.currency.symbol} width="fit-content">
                 <CurrencyLogo currency={amount.currency} size="16px" />
               </MouseoverTooltip>
@@ -463,7 +463,7 @@ const Row = ({
             <Text color={theme.subText}>
               <Trans>Current Price</Trans>:
             </Text>
-            <Text fontSize={'12px'} fontWeight="500" style={{ textAlign: 'right' }}>
+            <Text fontSize="12px" fontWeight="500" style={{ textAlign: 'right' }}>
               {price ? (
                 <Trans>
                   {price.toSignificant(10)} {price.quoteCurrency.symbol} per {price.baseCurrency.symbol}

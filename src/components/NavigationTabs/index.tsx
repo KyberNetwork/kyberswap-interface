@@ -177,7 +177,7 @@ export function AddRemoveTabs({
     <Tabs>
       <Wrapper>
         {below768 && (
-          <Flex alignItems={'center'}>
+          <Flex alignItems="center">
             {arrow}
             {title}
           </Flex>

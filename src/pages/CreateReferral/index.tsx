@@ -248,7 +248,7 @@ export default function CreateReferral() {
               {/* {isShowAbout && (
                 <>
                   <Divider margin={'10px 0'} /> */}
-              <Text fontSize={12} lineHeight={'20px'}>
+              <Text fontSize={12} lineHeight="20px">
                 <Trans>
                   You can create referral links here. If your referral link is used by anyone during a trade, you will
                   receive a small commission from their transaction. The commission will be instantly sent to your
@@ -286,7 +286,7 @@ export default function CreateReferral() {
                   placement="top"
                 />
               </Text>
-              <Text fontSize={20} lineHeight={'24px'} color={theme.text}>
+              <Text fontSize={20} lineHeight="24px" color={theme.text}>
                 <AddressInput
                   type="text"
                   value={address}

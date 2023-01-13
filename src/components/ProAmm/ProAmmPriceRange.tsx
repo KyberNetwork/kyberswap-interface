@@ -63,9 +63,9 @@ export default function ProAmmPriceRange({
           </Text>
           <InfoHelper
             text={t`Represents the range where all your liquidity is concentrated. When market price of your token pair is no longer between your selected price range, your liquidity becomes inactive and you stop earning fees`}
-            placement={'right'}
+            placement="right"
             size={12}
-          ></InfoHelper>
+          />
         </Flex>
 
         <div>
@@ -74,7 +74,7 @@ export default function ProAmmPriceRange({
               <Trans>Current Price</Trans>
             </Text>
             <RowFixed>
-              <Text fontSize={'12px'} fontWeight="500" style={{ textAlign: 'right' }}>{`${price.toSignificant(10)} ${
+              <Text fontSize="12px" fontWeight="500" style={{ textAlign: 'right' }}>{`${price.toSignificant(10)} ${
                 quoteCurrency.symbol
               } per ${baseCurrency.symbol}`}</Text>
               <span onClick={handleRateChange} style={{ marginLeft: '2px', cursor: 'pointer' }}>
@@ -110,9 +110,9 @@ export default function ProAmmPriceRange({
             </Text>
             <InfoHelper
               text={t`Your position will be 100% composed of ${baseCurrency?.symbol} at this price`}
-              placement={'right'}
+              placement="right"
               size={12}
-            ></InfoHelper>
+            />
           </Flex>
 
           <Text fontWeight="500" fontSize="12px">
@@ -127,9 +127,9 @@ export default function ProAmmPriceRange({
             </Text>
             <InfoHelper
               text={t`Your position will be 100% composed of ${quoteCurrency?.symbol} at this price`}
-              placement={'right'}
+              placement="right"
               size={12}
-            ></InfoHelper>
+            />
           </Flex>
 
           <Text fontSize="12px" fontWeight="500">

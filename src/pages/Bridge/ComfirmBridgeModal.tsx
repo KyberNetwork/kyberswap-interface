@@ -117,8 +117,8 @@ export default memo(function Disclaimer({
         <TransactionErrorContent onDismiss={onDismiss} message={swapState.errorMessage} />
       ) : (
         <Container>
-          <Flex flexDirection={'column'} style={{ gap: 25 }}>
-            <Flex justifyContent={'space-between'}>
+          <Flex flexDirection="column" style={{ gap: 25 }}>
+            <Flex justifyContent="space-between">
               <Flex color={theme.text} alignItems="center" style={{ gap: 8 }}>
                 <Text fontSize={20}>{t`Review your transfer`}</Text>
               </Flex>
@@ -135,7 +135,7 @@ export default memo(function Disclaimer({
             </Flex>
 
             <Flex
-              flexDirection={'column'}
+              flexDirection="column"
               style={{
                 borderRadius: 16,
                 padding: '14px 18px',

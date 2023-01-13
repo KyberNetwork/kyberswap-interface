@@ -86,7 +86,7 @@ const NetworkWrapper = styled.div`
 
 const ImageMobile = ({ imageName, marginTop = false }: { imageName: string; marginTop?: boolean }) =>
   isMobile ? (
-    <Flex justifyContent={'center'}>
+    <Flex justifyContent="center">
       <img
         style={{ marginTop: marginTop ? 20 : 0, width: '100%', maxWidth: 800 }}
         src={require(`../../../assets/images/tutorial_swap/${imageName}`).default}
@@ -234,7 +234,7 @@ const getListSteps = (isLogin: boolean, isSolana: boolean) => {
         </Heading>
       ),
       customFooterRenderer: (logic: WalktourLogic) => (
-        <Flex justifyContent={'space-between'} style={{ gap: 25, marginTop: 20 }}>
+        <Flex justifyContent="space-between" style={{ gap: 25, marginTop: 20 }}>
           <ButtonOutlined onClick={() => logic.close()}>
             <Trans>Maybe later</Trans>
           </ButtonOutlined>

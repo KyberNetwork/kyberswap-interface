@@ -44,9 +44,9 @@ export default function ProgressBar({
 }) {
   const theme = useTheme()
   return (
-    <Flex flexDirection={'column'} style={{ gap: 5 }}>
+    <Flex flexDirection="column" style={{ gap: 5 }}>
       {label && value ? (
-        <Flex justifyContent={'space-between'} fontSize={12} color={labelColor || theme.subText} lineHeight={'normal'}>
+        <Flex justifyContent="space-between" fontSize={12} color={labelColor || theme.subText} lineHeight="normal">
           {label} <Text color={valueColor || theme.subText}>{value}</Text>
         </Flex>
       ) : null}

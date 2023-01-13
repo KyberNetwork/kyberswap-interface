@@ -76,7 +76,7 @@ export default function LanguageSelector({
             >
               <OptionTitle isSelected={locale === userLocale}>{getLocaleLabel(locale)}</OptionTitle>
 
-              {locale === userLocale && <Check color={theme.primary}></Check>}
+              {locale === userLocale && <Check color={theme.primary} />}
             </ButtonEmpty>
           )
         })}

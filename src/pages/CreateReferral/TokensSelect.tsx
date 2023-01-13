@@ -47,7 +47,7 @@ export default function TokensSelect({
     <TokensSelectWrapper {...rest} onClick={() => setModalOpen(true)}>
       {currency ? (
         <>
-          <CurrencyLogo currency={currency || undefined} size={'20px'} style={{ marginRight: '8px' }} />
+          <CurrencyLogo currency={currency || undefined} size="20px" style={{ marginRight: '8px' }} />
           {currency.isNative ? NativeCurrencies[chainId].symbol : currency.symbol}
         </>
       ) : (

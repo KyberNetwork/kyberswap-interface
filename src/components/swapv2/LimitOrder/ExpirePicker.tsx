@@ -155,9 +155,9 @@ export default function DateTimePicker({
   }, [date, hour])
 
   return (
-    <Modal maxWidth={'98vw'} width={'480px'} isOpen={isOpen} enableSwipeGesture={false}>
+    <Modal maxWidth="98vw" width="480px" isOpen={isOpen} enableSwipeGesture={false}>
       <Container>
-        <Flex justifyContent={'space-between'} alignItems="center">
+        <Flex justifyContent="space-between" alignItems="center">
           <Text fontSize={14}>
             <Trans>Customize the Expiry Time</Trans>
           </Text>
@@ -182,11 +182,11 @@ export default function DateTimePicker({
           <Flex flexDirection="column" style={{ gap: 5, alignItems: 'center', flex: 1 }}>
             <DatePicker value={date} onChange={(date: Date) => setCustomDate(date, hour, min)} />
 
-            <Flex justifyContent={'space-between'} width="100%" padding="0px 8px">
+            <Flex justifyContent="space-between" width="100%" padding="0px 8px">
               <Select
                 value={hour}
                 activeRender={item => (
-                  <Flex justifyContent={'space-between'} alignItems="center">
+                  <Flex justifyContent="space-between" alignItems="center">
                     <Text color={theme.text} fontSize={14}>
                       {item?.label}
                     </Text>
@@ -202,7 +202,7 @@ export default function DateTimePicker({
               <Select
                 value={min}
                 activeRender={item => (
-                  <Flex justifyContent={'space-between'} alignItems="center">
+                  <Flex justifyContent="space-between" alignItems="center">
                     <Text color={theme.text} fontSize={14}>
                       {item?.label}
                     </Text>
@@ -219,15 +219,15 @@ export default function DateTimePicker({
           </Flex>
         </Flex>
         <ResultContainer>
-          <Flex alignItems={'center'} color={theme.subText}>
+          <Flex alignItems="center" color={theme.subText}>
             <Calendar color={theme.warning} size={17} />
-            <Text marginLeft={'5px'}>
+            <Text marginLeft="5px">
               <Trans>Order will Expire on</Trans>
             </Text>
           </Flex>
           <Text color={theme.text}>{dayjs(expireResult).format('DD/MM/YYYY HH:mm')}</Text>
         </ResultContainer>
-        <Flex justifyContent={'flex-end'} style={{ gap: 16 }}>
+        <Flex justifyContent="flex-end" style={{ gap: 16 }}>
           <ButtonOutlined
             onClick={onDismiss}
             style={{

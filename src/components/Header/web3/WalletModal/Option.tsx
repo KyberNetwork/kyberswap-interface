@@ -150,7 +150,7 @@ const Option = ({
       overridden={isOverridden}
     >
       <IconWrapper>
-        <img src={icon} alt={'Icon'} />
+        <img src={icon} alt="Icon" />
       </IconWrapper>
       <OptionCardLeft>
         <HeaderText>{wallet.name}</HeaderText>

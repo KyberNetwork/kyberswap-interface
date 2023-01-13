@@ -294,7 +294,7 @@ export default function Menu() {
             )}
 
             <DiscoverWrapper>
-              <NavLink to={'/discover?tab=trending_soon'} onClick={toggle}>
+              <NavLink to="/discover?tab=trending_soon" onClick={toggle}>
                 <DiscoverIconSvg />
                 <SlideToUnlock>
                   <Trans>Discover</Trans>
@@ -316,8 +316,8 @@ export default function Menu() {
               <MenuItem>
                 <NavDropDown
                   icon={<Info />}
-                  title={'About'}
-                  link={'/about'}
+                  title="About"
+                  link="/about"
                   options={[
                     { link: '/about/kyberswap', label: 'Kyberswap' },
                     { link: '/about/knc', label: 'KNC' },
@@ -335,8 +335,8 @@ export default function Menu() {
               <MenuItem>
                 <NavDropDown
                   icon={<Info />}
-                  title={'KyberDAO'}
-                  link={'/kyberdao/stake-knc'}
+                  title="KyberDAO"
+                  link="/kyberdao/stake-knc"
                   options={[
                     { link: '/kyberdao/stake-knc', label: 'Stake KNC' },
                     { link: '/kyberdao/vote', label: 'Vote' },
@@ -350,7 +350,7 @@ export default function Menu() {
                 <NavDropDown
                   icon={<PieChart />}
                   link="#"
-                  title={'Analytics'}
+                  title="Analytics"
                   options={[
                     { link: DMM_ANALYTICS_URL[chainId], label: t`Liquidity`, external: true },
                     {
@@ -484,7 +484,7 @@ export default function Menu() {
               </ClaimRewardButton>
             </AutoRow>
 
-            <Text fontSize="10px" fontWeight={300} color={theme.subText} mt="16px" textAlign={'center'}>
+            <Text fontSize="10px" fontWeight={300} color={theme.subText} mt="16px" textAlign="center">
               kyberswap@{TAG}
             </Text>
           </>

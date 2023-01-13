@@ -480,7 +480,7 @@ export default function CreatePool() {
               <BlueCard>
                 <AutoColumn gap="10px">
                   {isPoolExisted && (
-                    <TYPE.link fontSize="14px" lineHeight="22px" color={'text1'} fontWeight="normal">
+                    <TYPE.link fontSize="14px" lineHeight="22px" color="text1" fontWeight="normal">
                       <Trans>Note: There are existing pools for this token pair. Please check</Trans>{' '}
                       <Link to={`/pools/${networkInfo.route}/${currencyIdA}/${currencyIdB}?tab=classic`}>
                         <Trans>here</Trans>
@@ -587,7 +587,7 @@ export default function CreatePool() {
                 </div>
 
                 {currencies[Field.CURRENCY_A] && currencies[Field.CURRENCY_B] && pairState !== PairState.INVALID && (
-                  <Section padding="0px" borderRadius={'20px'}>
+                  <Section padding="0px" borderRadius="20px">
                     <Row padding="0 0 1rem 0">
                       <TYPE.subHeader fontWeight={500} fontSize={14} color={theme.subText}>
                         <Trans>Prices and Pool share</Trans>
@@ -620,7 +620,7 @@ export default function CreatePool() {
                   <QuestionHelper text={CREATE_POOL_AMP_HINT} />
                 </AutoRow>
 
-                <LightCard padding="0 0.75rem" borderRadius={'10px'} style={{ background: theme.buttonBlack }}>
+                <LightCard padding="0 0.75rem" borderRadius="10px" style={{ background: theme.buttonBlack }}>
                   <NumericalInput2 className="token-amount-input" value={amp} onUserInput={onAmpChange} />
                 </LightCard>
 
@@ -732,7 +732,7 @@ export default function CreatePool() {
                     <Trans>Connect Wallet</Trans>
                   </ButtonLight>
                 ) : (
-                  <AutoColumn gap={'md'}>
+                  <AutoColumn gap="md">
                     {(approvalA === ApprovalState.NOT_APPROVED ||
                       approvalA === ApprovalState.PENDING ||
                       approvalB === ApprovalState.NOT_APPROVED ||

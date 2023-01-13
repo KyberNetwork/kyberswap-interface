@@ -168,7 +168,7 @@ function HarvestModal({
         <RewardRow>
           {Object.values(rewards).map(reward => (
             <Flex alignItems="center" sx={{ gap: '4px' }} key={reward.currency.symbol}>
-              <HoverInlineText text={reward.toSignificant(6) || '0'} maxCharacters={10}></HoverInlineText>
+              <HoverInlineText text={reward.toSignificant(6) || '0'} maxCharacters={10} />
               <MouseoverTooltip placement="top" text={reward.currency.symbol} width="fit-content">
                 <CurrencyLogo currency={reward.currency} size="16px" />
               </MouseoverTooltip>

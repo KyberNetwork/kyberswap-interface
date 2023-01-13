@@ -42,7 +42,7 @@ function AddressButtonItself({
           <img src={NETWORKS_INFO[mappedChainId].icon} alt="Network" style={{ minWidth: '16px', width: '16px' }} />
           <AddressCopyContainer onClick={onCopy}>
             <div style={{ width: '90px' }}>{getShortenAddress(address)}</div>
-            {isCopied ? <CheckCircle size={'14'} /> : <Copy size={'14'} />}
+            {isCopied ? <CheckCircle size="14" /> : <Copy size="14" />}
           </AddressCopyContainer>
           <ChevronDownWrapper
             style={{

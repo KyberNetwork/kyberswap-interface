@@ -33,17 +33,17 @@ const KyberDAONavGroup = () => {
         }
         dropdownContent={
           <Column>
-            <StyledNavLink id={`kyberdao-stake-knc`} to={APP_PATHS.KYBERDAO_STAKE} style={{ gap: '4px' }}>
+            <StyledNavLink id="kyberdao-stake-knc" to={APP_PATHS.KYBERDAO_STAKE} style={{ gap: '4px' }}>
               <StakeIcon />
               <Trans>Stake KNC</Trans>
             </StyledNavLink>
-            <StyledNavLink id={`kyberdao-vote`} to={APP_PATHS.KYBERDAO_VOTE} style={{ gap: '4px' }}>
+            <StyledNavLink id="kyberdao-vote" to={APP_PATHS.KYBERDAO_VOTE} style={{ gap: '4px' }}>
               <VoteIcon />
               <Trans>Vote</Trans>
             </StyledNavLink>
             <StyledNavExternalLink
-              id={`kyberdao-feature-request`}
-              href={'https://kyberswap.canny.io/feature-request'}
+              id="kyberdao-feature-request"
+              href="https://kyberswap.canny.io/feature-request"
               target="_blank"
               style={{ gap: '4px' }}
             >

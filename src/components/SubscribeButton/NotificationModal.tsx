@@ -428,7 +428,7 @@ export default function NotificationModal() {
         ) : (
           <Flex
             flexDirection="column"
-            alignItems={'center'}
+            alignItems="center"
             color={theme.subText}
             style={{ gap: 10, margin: '10px 0px' }}
           >

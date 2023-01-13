@@ -74,7 +74,7 @@ export default function EditOrderModal({
   return (
     <Modal isOpen={isOpen && !!currencyIn && !!currencyOut && !!defaultActiveMakingAmount} onDismiss={onDismiss}>
       <Wrapper>
-        <Flex justifyContent={'space-between'} alignItems="center">
+        <Flex justifyContent="space-between" alignItems="center">
           <Text>
             <Trans>Edit Order</Trans>
           </Text>

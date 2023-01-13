@@ -52,8 +52,8 @@ const guideStepByVersion: Record<
       content: (
         <Trans>
           <Highlight>Add liquidity</Highlight> to the corresponding{' '}
-          {<StyledInternalLink to="/pools?tab=elastic">Elastic pool</StyledInternalLink>} and receive a NFT token for
-          your liquidity position
+          <StyledInternalLink to="/pools?tab=elastic">Elastic pool</StyledInternalLink> and receive a NFT token for your
+          liquidity position
         </Trans>
       ),
       icon: <Drop size={20} />,

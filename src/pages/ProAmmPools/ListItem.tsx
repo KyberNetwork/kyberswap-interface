@@ -131,7 +131,7 @@ export default function ProAmmPoolListItem({ pool, onShared, userPositions }: Li
       if (pool.farmAPR) {
         return (
           <Flex
-            alignItems={'center'}
+            alignItems="center"
             sx={{
               gap: '4px',
             }}
@@ -224,7 +224,7 @@ export default function ProAmmPoolListItem({ pool, onShared, userPositions }: Li
       </DataText>
       <DataText alignItems="flex-end">{myLiquidity ? formatDollarAmount(Number(myLiquidity)) : '-'}</DataText>
       <ButtonWrapper>
-        <MouseoverTooltip text={<Trans> Add liquidity </Trans>} placement={'top'} width={'fit-content'}>
+        <MouseoverTooltip text={<Trans> Add liquidity </Trans>} placement="top" width="fit-content">
           <ButtonEmpty
             padding="0"
             style={{
@@ -256,7 +256,7 @@ export default function ProAmmPoolListItem({ pool, onShared, userPositions }: Li
           </ButtonEmpty>
         </MouseoverTooltip>
         {hasLiquidity && (
-          <MouseoverTooltip text={t`View positions`} placement={'top'} width={'fit-content'}>
+          <MouseoverTooltip text={t`View positions`} placement="top" width="fit-content">
             <ButtonIcon as={Link} to={`/myPools?tab=${VERSION.ELASTIC}&search=${pool.address}`}>
               <ViewPositionIcon />
             </ButtonIcon>
@@ -264,7 +264,7 @@ export default function ProAmmPoolListItem({ pool, onShared, userPositions }: Li
         )}
 
         <ExternalLink href={getPrommAnalyticLink(chainId, pool.address)}>
-          <MouseoverTooltip text={t`View analytics`} placement={'top'} width={'fit-content'}>
+          <MouseoverTooltip text={t`View analytics`} placement="top" width="fit-content">
             <ButtonIcon
               onClick={e => {
                 e.stopPropagation()

@@ -1142,7 +1142,7 @@ export default function Swap() {
               {isShowTradeRoutes && isSwapPage && (
                 <RoutesWrapper isOpenChart={isShowLiveChart}>
                   <Flex flexDirection="column" width="100%">
-                    <Flex alignItems={'center'}>
+                    <Flex alignItems="center">
                       <RoutingIconWrapper />
                       <Text fontSize={20} fontWeight={500} color={theme.subText}>
                         <Trans>Your trade route</Trans>

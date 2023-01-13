@@ -407,15 +407,15 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
           <Text
             fontSize="12px"
             fontWeight="500"
-            paddingTop={'10px'}
-            paddingBottom={'10px'}
+            paddingTop="10px"
+            paddingBottom="10px"
             backgroundColor={theme.bg3Opacity4}
             color={theme.subText}
             style={{ borderRadius: '4px', marginBottom: '1.25rem' }}
           >
             The owner of this liquidity position is {shortenAddress(chainId, owner)}
             <span style={{ display: 'inline-block' }}>
-              <Copy toCopy={owner}></Copy>
+              <Copy toCopy={owner} />
             </span>
           </Text>
         ) : (

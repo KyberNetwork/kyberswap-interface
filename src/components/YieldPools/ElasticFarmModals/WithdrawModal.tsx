@@ -85,7 +85,7 @@ const PositionRow = ({
 
   const disableCheckbox = (
     <Flex
-      width={'17.5px'}
+      width="17.5px"
       height="17.5px"
       backgroundColor={theme.disableText}
       sx={{ borderRadius: '2px' }}
@@ -156,7 +156,7 @@ const PositionRow = ({
                   </Flex>
                 </>
               }
-            ></HoverDropdown>
+            />
           </Flex>
         </>
       )}

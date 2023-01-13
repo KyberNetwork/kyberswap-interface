@@ -76,7 +76,7 @@ const ActionButtons = ({
   const disabledCancel = isCancelling
 
   return (
-    <Flex alignItems={'center'}>
+    <Flex alignItems="center">
       {isActiveTab && !isChildren ? (
         <>
           {numberTxs === 0 && (

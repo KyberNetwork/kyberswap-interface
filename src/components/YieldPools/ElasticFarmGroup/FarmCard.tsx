@@ -244,7 +244,7 @@ const FarmCard = ({
                 <InfoHelper
                   placement="top"
                   color={theme.warning}
-                  width={'270px'}
+                  width="270px"
                   text={
                     <Flex
                       sx={{
@@ -385,7 +385,7 @@ const FarmCard = ({
 
           <Flex marginTop="4px" alignItems="center">
             {price && (
-              <Text fontSize={'12px'} fontWeight="500" style={{ textAlign: 'right' }}>
+              <Text fontSize="12px" fontWeight="500" style={{ textAlign: 'right' }}>
                 <Trans>
                   {price.toSignificant(10)} {price.quoteCurrency.symbol} per {price.baseCurrency.symbol}
                 </Trans>

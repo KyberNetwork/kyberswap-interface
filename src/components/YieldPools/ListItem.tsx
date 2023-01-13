@@ -377,7 +377,7 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
                     <Trans>Connect Wallet</Trans>
                   </ButtonLight>
                 ) : (
-                  approvalState === ApprovalState.UNKNOWN && <Dots></Dots>
+                  approvalState === ApprovalState.UNKNOWN && <Dots />
                 )}
                 {(approvalState === ApprovalState.NOT_APPROVED || approvalState === ApprovalState.PENDING) && (
                   <ButtonPrimary
@@ -694,12 +694,12 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
               <Text color={theme.subText}>
                 <Trans>APR</Trans>
                 <InfoHelper
-                  text={'Once a farm has ended, you will continue to receive returns through LP Fees'}
+                  text="Once a farm has ended, you will continue to receive returns through LP Fees"
                   size={12}
                 />
               </Text>
 
-              <Flex alignItems={'center'} sx={{ gap: '4px' }} color={theme.apr} fontWeight="500">
+              <Flex alignItems="center" sx={{ gap: '4px' }} color={theme.apr} fontWeight="500">
                 <Text as="span">{(tradingFeeAPR + farmAPR).toFixed(2)}%</Text>
                 <MouseoverTooltip
                   width="fit-content"

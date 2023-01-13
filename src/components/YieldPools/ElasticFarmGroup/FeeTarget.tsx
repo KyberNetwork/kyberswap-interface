@@ -44,7 +44,7 @@ const FeeTarget = ({ percent, style = {} }: { percent: string; style?: CSSProper
         {p >= 100 ? <Text color={theme.primary}>✓</Text> : <div>{p.toFixed(2)}%</div>}
       </Flex>
       <FeeTargetWrapper fullUnlock={p >= 100} style={style}>
-        <FeeArchive width={p}></FeeArchive>
+        <FeeArchive width={p} />
       </FeeTargetWrapper>
     </>
   )

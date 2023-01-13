@@ -42,7 +42,7 @@ const ErrorWarningPanel = ({ title, type }: { title: string; type: 'error' | 'wa
       }
     >
       <div style={{ marginLeft: 22 }}>
-        <Text as="p" fontSize={12} lineHeight={'16px'} marginTop={'5px'}>
+        <Text as="p" fontSize={12} lineHeight="16px" marginTop="5px">
           <Trans>
             There is a chance that during your transfer another high volume transaction utilizes the available
             liquidity. As a result, for the unavailable liquidity, you may receive ‘anyToken’ from Multichain. You can

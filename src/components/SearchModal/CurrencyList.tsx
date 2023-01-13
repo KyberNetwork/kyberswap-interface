@@ -145,7 +145,7 @@ export function CurrencyRow({
   return (
     <CurrencyRowWrapper style={style} onClick={() => onSelect()} data-selected={isSelected || otherSelected}>
       <Flex alignItems="center" style={{ gap: 8 }}>
-        <CurrencyLogo currency={currency} size={'24px'} />
+        <CurrencyLogo currency={currency} size="24px" />
         <Column>
           <Text title={currency.name} fontWeight={500}>
             {customName || symbol}
@@ -285,7 +285,7 @@ function CurrencyList({
                 {({ index, style }: { index: number; style: CSSProperties }) => {
                   if (!isItemLoaded(index)) {
                     return (
-                      <Flex justifyContent={'center'} fontSize={13} marginBottom={10} style={style}>
+                      <Flex justifyContent="center" fontSize={13} marginBottom={10} style={style}>
                         <Text>loading...</Text>
                       </Flex>
                     )

@@ -395,7 +395,7 @@ function PositionListItem({
           <ProAmmPriceRange position={position} ticksAtLimit={tickAtLimit} layout={1} />
         )}
         <div style={{ marginTop: '20px' }} />
-        <Flex flexDirection={'column'} marginTop="auto">
+        <Flex flexDirection="column" marginTop="auto">
           {stakedLayout ? (
             <ButtonPrimary
               style={{ marginBottom: '20px', textDecoration: 'none', color: theme.textReverse, fontSize: '14px' }}

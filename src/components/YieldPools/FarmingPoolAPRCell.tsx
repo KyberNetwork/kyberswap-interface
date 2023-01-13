@@ -35,7 +35,7 @@ export const APRTooltipContent = ({ poolAPR, farmAPR }: { poolAPR: number; farmA
         width: upToSmall ? '300px' : 'fit-content',
       }}
     >
-      <Text as="span" fontSize={'14px'}>
+      <Text as="span" fontSize="14px">
         Total APR:{' '}
         <Text as="span" color={theme.text} fontWeight={500}>
           {(poolAPR + farmAPR).toFixed(2)}%
@@ -46,7 +46,7 @@ export const APRTooltipContent = ({ poolAPR, farmAPR }: { poolAPR: number; farmA
           width: '100%',
           borderBottom: `1px solid ${theme.border}`,
         }}
-      ></Box>
+      />
       <Flex
         sx={{
           flexDirection: 'column',
@@ -127,7 +127,7 @@ const FarmingPoolAPRCell: React.FC<Props> = ({ poolAPR, fairlaunchAddress, pid, 
 
   return (
     <Flex
-      alignItems={'center'}
+      alignItems="center"
       sx={{
         gap: '4px',
       }}
@@ -157,7 +157,7 @@ export const ClassicFarmingPoolAPRCell = ({ poolAPR, farm }: { poolAPR: number; 
 
   return (
     <Flex
-      alignItems={'center'}
+      alignItems="center"
       sx={{
         gap: '4px',
       }}

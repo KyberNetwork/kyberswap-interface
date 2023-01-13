@@ -61,7 +61,7 @@ interface ProgressCirclesProps {
  */
 export default function ProgressCircles({ steps, disabled = false, ...rest }: ProgressCirclesProps) {
   return (
-    <Wrapper justify={'center'} {...rest}>
+    <Wrapper justify="center" {...rest}>
       <Grouping>
         {steps.map((step, i) => {
           return (

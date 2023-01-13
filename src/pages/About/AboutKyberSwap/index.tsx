@@ -442,7 +442,7 @@ function AboutKyberSwap() {
     ) : (
       <BtnPrimary
         as={Link}
-        to={'/pools?tab=elastic&highlightCreateButton=true'}
+        to="/pools?tab=elastic&highlightCreateButton=true"
         onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_CREATE_NEW_POOL_CLICKED)}
         style={{ flex: '0 0 216px', padding: '12px' }}
       >
@@ -1060,23 +1060,23 @@ function AboutKyberSwap() {
       <Footer background={isDarkMode ? theme.background : theme.white}>
         <FooterContainer>
           <Flex flexWrap="wrap" sx={{ gap: '12px' }} justifyContent="center">
-            <ExternalLink href={`https://docs.kyberswap.com`}>
+            <ExternalLink href="https://docs.kyberswap.com">
               <Trans>Docs</Trans>
             </ExternalLink>
             <VerticalDivider />
-            <ExternalLink href={`https://github.com/KyberNetwork`}>
+            <ExternalLink href="https://github.com/KyberNetwork">
               <Trans>Github</Trans>
             </ExternalLink>
             <VerticalDivider />
-            <ExternalLink href={`https://kyber.org`}>KyberDAO</ExternalLink>
+            <ExternalLink href="https://kyber.org">KyberDAO</ExternalLink>
             <VerticalDivider />
-            <ExternalLink href={`https://gov.kyber.org`}>
+            <ExternalLink href="https://gov.kyber.org">
               <Trans>Forum</Trans>
             </ExternalLink>
             {!above500 ? <div /> : <VerticalDivider />}
-            <ExternalLink href={`https://kyber.network`}>Kyber Network</ExternalLink>
+            <ExternalLink href="https://kyber.network">Kyber Network</ExternalLink>
             <VerticalDivider />
-            <StyledInternalLink to={`/about/knc`}>KNC</StyledInternalLink>
+            <StyledInternalLink to="/about/knc">KNC</StyledInternalLink>
           </Flex>
           <FooterSocialLink />
         </FooterContainer>

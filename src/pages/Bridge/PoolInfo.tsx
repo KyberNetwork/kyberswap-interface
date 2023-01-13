@@ -21,7 +21,7 @@ const PoolInfo = ({
   return (
     <Flex
       alignItems="center"
-      justifyContent={'flex-end'}
+      justifyContent="flex-end"
       fontSize={12}
       fontWeight={500}
       color={theme.subText}

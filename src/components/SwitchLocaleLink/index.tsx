@@ -41,7 +41,7 @@ export function SwitchLocaleLink() {
 
     return (
       <Container>
-        KyberSwap available in: {<StyledInternalLink to={target}>{getLocaleLabel(targetLocale)}</StyledInternalLink>}
+        KyberSwap available in: <StyledInternalLink to={target}>{getLocaleLabel(targetLocale)}</StyledInternalLink>
       </Container>
     )
   }

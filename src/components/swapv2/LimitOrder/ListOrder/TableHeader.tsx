@@ -29,7 +29,7 @@ const TableHeader = () => {
     <Header>
       {!upToSmall ? (
         <>
-          <Flex alignItems={'center'} style={{ gap: 10 }}>
+          <Flex alignItems="center" style={{ gap: 10 }}>
             <Text>
               <Trans>TRADE</Trans>
             </Text>
@@ -43,7 +43,7 @@ const TableHeader = () => {
           <Text>
             <Trans> FILLED % | STATUS</Trans>
           </Text>
-          <Text textAlign={'center'}>
+          <Text textAlign="center">
             <Trans>ACTION</Trans>
           </Text>
         </>

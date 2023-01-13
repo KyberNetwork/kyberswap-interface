@@ -30,7 +30,7 @@ export default function Disclaimer() {
   return (
     <ModalCenter isOpen={show}>
       <Container>
-        <Flex justifyContent={'space-between'}>
+        <Flex justifyContent="space-between">
           <Flex color={theme.warning} alignItems="center" style={{ gap: 8 }}>
             <AlertTriangle size={20} /> <Text fontSize={20}>{t`Disclaimer`}</Text>
           </Flex>

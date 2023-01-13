@@ -92,7 +92,7 @@ const SettingsPanel: React.FC<Props> = ({
 
   return (
     <Box width="100%" className={className} id={TutorialIds.TRADING_SETTING_CONTENT}>
-      <Flex width={'100%'} flexDirection={'column'} marginBottom="4px">
+      <Flex width="100%" flexDirection="column" marginBottom="4px">
         <Flex
           alignItems="center"
           sx={{
@@ -100,7 +100,7 @@ const SettingsPanel: React.FC<Props> = ({
             marginTop: '5px',
           }}
         >
-          <BackIconWrapper onClick={onBack}></BackIconWrapper>
+          <BackIconWrapper onClick={onBack} />
           <BackText>{t`Settings`}</BackText>
         </Flex>
 

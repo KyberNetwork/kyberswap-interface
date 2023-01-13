@@ -381,7 +381,7 @@ export default function SwapForm() {
       <Flex style={{ position: 'relative', flexDirection: 'column', gap: 22, alignItems: 'center' }}>
         <SwapFormWrapper style={{ position: 'unset' }}>
           <AppBodyWrapped style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <Flex flexDirection={'column'}>
+            <Flex flexDirection="column">
               <Label>
                 <Trans>You Transfer</Trans>
               </Label>
@@ -409,7 +409,7 @@ export default function SwapForm() {
             <PoolInfo chainId={chainId} tokenIn={tokenInfoIn} poolValue={poolValue.poolValueIn} />
 
             <div>
-              <Flex alignItems={'flex-end'} justifyContent="space-between">
+              <Flex alignItems="flex-end" justifyContent="space-between">
                 <Label>
                   <Trans>You Receive</Trans>
                 </Label>
@@ -463,8 +463,8 @@ export default function SwapForm() {
                 <Text fontWeight={500}>{t`Review Transfer`}</Text>
               </ButtonError>
             )}
-            <Flex justifyContent={'flex-end'}>
-              <Flex alignItems={'center'} style={{ gap: 6 }}>
+            <Flex justifyContent="flex-end">
+              <Flex alignItems="center" style={{ gap: 6 }}>
                 <Text color={theme.subText} fontSize={12}>
                   Powered by
                 </Text>

@@ -67,11 +67,11 @@ function ConfirmationPendingContent({
         <ConfirmedIcon>
           <Loader size="90px" stroke={theme.primary} strokeWidth="1" />
         </ConfirmedIcon>
-        <AutoColumn gap="12px" justify={'center'}>
+        <AutoColumn gap="12px" justify="center">
           <Text fontWeight={500} fontSize={20}>
             <Trans>Waiting For Confirmation</Trans>
           </Text>
-          <AutoColumn gap="12px" justify={'center'}>
+          <AutoColumn gap="12px" justify="center">
             <Text fontWeight={600} fontSize={14} color="" textAlign="center">
               {pendingText}
             </Text>
@@ -162,7 +162,7 @@ function TransactionSubmittedContent({
         <ConfirmedIcon>
           <ArrowUpCircle strokeWidth={0.5} size={90} color={theme.primary} />
         </ConfirmedIcon>
-        <AutoColumn gap="16px" justify={'center'}>
+        <AutoColumn gap="16px" justify="center">
           <Text fontWeight={500} fontSize={20}>
             <Trans>Transaction Submitted</Trans>
           </Text>
@@ -252,7 +252,7 @@ export function TransactionErrorContent({ message, onDismiss }: { message: strin
             fontWeight={500}
             fontSize={16}
             color={theme.red}
-            lineHeight={'24px'}
+            lineHeight="24px"
             style={{ textAlign: 'center', width: '85%' }}
           >
             {errorFriendly(message)}

@@ -55,7 +55,7 @@ export default function ProAmmPooledTokens({
                   style={{ marginLeft: '8px' }}
                   currency={unwrappedToken(liquidityValue0.currency)}
                 />
-                <Text fontSize={14} fontWeight={500} marginLeft={'6px'}>
+                <Text fontSize={14} fontWeight={500} marginLeft="6px">
                   {liquidityValue0 && <FormattedCurrencyAmount currencyAmount={liquidityValue0} />}{' '}
                   {liquidityValue0?.currency && unwrappedToken(liquidityValue0.currency)?.symbol}
                 </Text>
@@ -73,7 +73,7 @@ export default function ProAmmPooledTokens({
                   style={{ marginLeft: '8px' }}
                   currency={unwrappedToken(liquidityValue1.currency)}
                 />
-                <Text fontSize={14} fontWeight={500} marginLeft={'6px'}>
+                <Text fontSize={14} fontWeight={500} marginLeft="6px">
                   {liquidityValue1 && <FormattedCurrencyAmount currencyAmount={liquidityValue1} />}{' '}
                   {liquidityValue1?.currency && unwrappedToken(liquidityValue1.currency)?.symbol}
                 </Text>
@@ -100,7 +100,7 @@ export default function ProAmmPooledTokens({
               </Text>
               <RowFixed>
                 <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={liquidityValue0?.currency} />
-                <Text fontSize={12} fontWeight={500} marginLeft={'6px'}>
+                <Text fontSize={12} fontWeight={500} marginLeft="6px">
                   {liquidityValue0 && <FormattedCurrencyAmount currencyAmount={liquidityValue0} />}{' '}
                   {liquidityValue0?.currency.symbol}
                 </Text>
@@ -112,7 +112,7 @@ export default function ProAmmPooledTokens({
               </Text>
               <RowFixed>
                 <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={liquidityValue1?.currency} />
-                <Text fontSize={12} fontWeight={500} marginLeft={'6px'}>
+                <Text fontSize={12} fontWeight={500} marginLeft="6px">
                   {liquidityValue1 && <FormattedCurrencyAmount currencyAmount={liquidityValue1} />}{' '}
                   {liquidityValue1?.currency.symbol}
                 </Text>

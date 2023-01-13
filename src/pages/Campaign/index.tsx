@@ -110,7 +110,7 @@ function RankDetail({ campaign }: { campaign: CampaignData | undefined }) {
           <Text color={theme.text} fontSize={16}>
             <Trans>Requirements</Trans>
           </Text>
-          <Text lineHeight={'20px'}>
+          <Text lineHeight="20px">
             <Trans>Fulfil these requirements to participate in the campaign</Trans>
           </Text>
           <Flex style={{ gap: 10 }} flexDirection="column">

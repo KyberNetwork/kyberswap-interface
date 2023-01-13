@@ -149,7 +149,7 @@ const PriceLabel = () => {
   const theme = useTheme()
   return (
     <Flex
-      alignItems={'center'}
+      alignItems="center"
       sx={{
         color: theme.text,
         fontSize: '14px',
@@ -182,7 +182,7 @@ const MarketCapRankLabel = () => {
   const theme = useTheme()
   return (
     <Flex
-      alignItems={'center'}
+      alignItems="center"
       sx={{
         color: theme.text,
         fontSize: '14px',
@@ -203,7 +203,7 @@ const VolumeLabel = () => {
   const theme = useTheme()
   return (
     <Flex
-      alignItems={'center'}
+      alignItems="center"
       sx={{
         color: theme.text,
         fontSize: '14px',

@@ -444,9 +444,9 @@ export default function TokenPair({
 
   function modalHeader() {
     return (
-      <AutoColumn gap={'md'} style={{ marginTop: '20px' }}>
+      <AutoColumn gap="md" style={{ marginTop: '20px' }}>
         <AutoRow gap="4px">
-          <CurrencyLogo currency={currencyA} size={'28px'} />
+          <CurrencyLogo currency={currencyA} size="28px" />
           <Text fontSize={32} fontWeight={500}>
             {parsedAmounts[Field.CURRENCY_A]?.toSignificant(6)}
           </Text>
@@ -461,7 +461,7 @@ export default function TokenPair({
         </AutoRow>
 
         <AutoRow gap="4px">
-          <CurrencyLogo currency={currencyB} size={'28px'} />
+          <CurrencyLogo currency={currencyB} size="28px" />
           <Text fontSize={32} fontWeight={500}>
             {parsedAmounts[Field.CURRENCY_B]?.toSignificant(6)}
           </Text>
@@ -565,7 +565,7 @@ export default function TokenPair({
               <TransactionErrorContent onDismiss={handleDismissConfirmation} message={removeLiquidityError} />
             ) : (
               <ConfirmationModalContent
-                title={'You will receive'}
+                title="You will receive"
                 onDismiss={handleDismissConfirmation}
                 topContent={modalHeader}
                 bottomContent={modalBottom}

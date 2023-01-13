@@ -55,7 +55,7 @@ function ClaimRewardModal() {
         message={claimRewardError}
       />
     ) : (
-      <Flex flexDirection={'column'} padding="26px 24px" style={{ gap: '25px' }}>
+      <Flex flexDirection="column" padding="26px 24px" style={{ gap: '25px' }}>
         <RowBetween>
           <Text fontSize={20} fontWeight={500} color={theme.text}>
             <Trans>Claim your rewards</Trans>

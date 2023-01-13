@@ -187,10 +187,10 @@ export default function CustomPopup(props: WalktourLogic | undefined): JSX.Eleme
         tooltipPosition={props?.tooltipPosition || ({} as OrientationCoords)}
         color={theme.tableHeader}
       />
-      <Flex justifyContent={'space-between'}>
+      <Flex justifyContent="space-between">
         {customTitleRenderer ? customTitleRenderer() : <TitlePopup stepNumber={stepNumber} totalStep={totalStep} />}
         <span>
-          <X cursor={'pointer'} onClick={() => close()} />
+          <X cursor="pointer" onClick={() => close()} />
         </span>
       </Flex>
       <div>{stepContent.description}</div>

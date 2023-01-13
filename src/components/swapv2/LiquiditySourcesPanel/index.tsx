@@ -168,8 +168,8 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack }) => {
   return (
     <Box width="100%">
       <Flex
-        width={'100%'}
-        flexDirection={'column'}
+        width="100%"
+        flexDirection="column"
         sx={{
           rowGap: '20px',
         }}
@@ -181,7 +181,7 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack }) => {
             marginTop: '5px',
           }}
         >
-          <BackIconWrapper onClick={onBack}></BackIconWrapper>
+          <BackIconWrapper onClick={onBack} />
           <BackText>{t`Liquidity Sources`}</BackText>
         </Flex>
 

@@ -170,7 +170,7 @@ const TokenInfo = ({ currencies, onBack }: { currencies: { [field in Field]?: Cu
         <Flex justifyContent="space-between" alignItems="center" marginBottom="4px">
           {onBack && (
             <Flex alignItems="center" marginRight={20}>
-              <BackIconWrapper onClick={onBack}></BackIconWrapper>
+              <BackIconWrapper onClick={onBack} />
               <BackText>{t`Info`}</BackText>
             </Flex>
           )}

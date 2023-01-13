@@ -34,7 +34,7 @@ function ContractAddressItem({ network, address, lastItem }: { network: string; 
           <div style={{ width: '90px', fontSize: '14px' }}>{getShortenAddress(address)}</div>
         </Flex>
         <Flex alignItems="center" onClick={onCopy}>
-          {isCopied ? <CheckCircle size={'14'} /> : <Copy size={'14'} />}
+          {isCopied ? <CheckCircle size="14" /> : <Copy size="14" />}
         </Flex>
       </StyledContractAddressItem>
       {!lastItem && <Divider style={{ margin: '16px 0' }} />}

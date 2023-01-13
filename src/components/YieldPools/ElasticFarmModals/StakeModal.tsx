@@ -399,12 +399,12 @@ function StakeModal({
               />
               <Text textAlign="left">{above768 ? 'ID' : 'ID | Token | Status'}</Text>
               {type === 'stake' && (
-                <Text textAlign={'right'}>
+                <Text textAlign="right">
                   <Trans>Available Balance</Trans>
                 </Text>
               )}
               {(type === 'unstake' || above768) && (
-                <Text textAlign={'right'}>
+                <Text textAlign="right">
                   <Trans>Staked Balance</Trans>
                 </Text>
               )}

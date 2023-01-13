@@ -264,7 +264,7 @@ export default function Swap() {
         onDismiss={handleDismissTokenWarning}
       />
       <AppBody>
-        <RowBetween mb={'16px'}>
+        <RowBetween mb="16px">
           <TYPE.black color={theme.text} fontSize={20} fontWeight={500}>{t`Swap`}</TYPE.black>
           <TransactionSettings />
         </RowBetween>
@@ -285,7 +285,7 @@ export default function Swap() {
             tokenAddToMetaMask={currencies[Field.OUTPUT]}
           />
 
-          <AutoColumn gap={'7px'}>
+          <AutoColumn gap="7px">
             <CurrencyInputPanel
               label={independentField === Field.OUTPUT && !showWrap && trade ? t`From (estimated)` : t`From`}
               value={formattedAmounts[Field.INPUT]}
@@ -347,7 +347,7 @@ export default function Swap() {
             ) : null}
 
             {showWrap ? null : (
-              <Card padding={'0 .75rem 0 .75rem'} borderRadius={'20px'}>
+              <Card padding="0 .75rem 0 .75rem" borderRadius="20px">
                 <AutoColumn gap="4px">
                   {Boolean(trade) && (
                     <div style={{ alignItems: 'center', display: 'flex' }}>

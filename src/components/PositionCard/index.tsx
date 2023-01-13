@@ -190,7 +190,7 @@ export function NarrowPositionCard({ pair, showUnwrapped = false, border }: Posi
               </Text>
               {token0Deposited ? (
                 <RowFixed>
-                  <Text fontSize={16} fontWeight={500} marginLeft={'6px'}>
+                  <Text fontSize={16} fontWeight={500} marginLeft="6px">
                     {token0Deposited?.toSignificant(6)}
                   </Text>
                 </RowFixed>
@@ -204,7 +204,7 @@ export function NarrowPositionCard({ pair, showUnwrapped = false, border }: Posi
               </Text>
               {token1Deposited ? (
                 <RowFixed>
-                  <Text fontSize={16} fontWeight={500} marginLeft={'6px'}>
+                  <Text fontSize={16} fontWeight={500} marginLeft="6px">
                     {token1Deposited?.toSignificant(6)}
                   </Text>
                 </RowFixed>
@@ -564,7 +564,7 @@ export default function FullPositionCard({
         </Flex>
       </Flex>
 
-      <Flex marginTop="0.25rem" justifyContent="flex-end" alignItems="center"></Flex>
+      <Flex marginTop="0.25rem" justifyContent="flex-end" alignItems="center" />
 
       <Flex alignItems="center" justifyContent="space-between" marginTop="1rem">
         <Text fontSize="1rem" fontWeight={500} color={theme.subText}>
@@ -622,7 +622,7 @@ export default function FullPositionCard({
               {token0Deposited ? (
                 <RowFixed>
                   <CurrencyLogo size="16px" currency={currency0} />
-                  <Text fontSize={14} fontWeight={500} marginLeft={'6px'} color={theme.text}>
+                  <Text fontSize={14} fontWeight={500} marginLeft="6px" color={theme.text}>
                     {token0Deposited?.toSignificant(6)}
                   </Text>
                 </RowFixed>
@@ -637,7 +637,7 @@ export default function FullPositionCard({
               {token1Deposited ? (
                 <RowFixed>
                   <CurrencyLogo size="16px" currency={currency1} />
-                  <Text color={theme.text} fontSize={14} fontWeight={500} marginLeft={'6px'}>
+                  <Text color={theme.text} fontSize={14} fontWeight={500} marginLeft="6px">
                     {token1Deposited?.toSignificant(6)}
                   </Text>
                 </RowFixed>
@@ -682,7 +682,7 @@ export default function FullPositionCard({
               {token0Staked ? (
                 <RowFixed>
                   <CurrencyLogo size="16px" currency={currency0} />
-                  <Text fontSize={14} fontWeight={500} marginLeft={'6px'} color={theme.text}>
+                  <Text fontSize={14} fontWeight={500} marginLeft="6px" color={theme.text}>
                     {token0Staked?.toSignificant(6)}
                   </Text>
                 </RowFixed>
@@ -697,7 +697,7 @@ export default function FullPositionCard({
               {token1Staked ? (
                 <RowFixed>
                   <CurrencyLogo size="16px" currency={currency1} />
-                  <Text color={theme.text} fontSize={14} fontWeight={500} marginLeft={'6px'}>
+                  <Text color={theme.text} fontSize={14} fontWeight={500} marginLeft="6px">
                     {token1Staked?.toSignificant(6)}
                   </Text>
                 </RowFixed>

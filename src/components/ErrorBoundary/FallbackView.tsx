@@ -94,13 +94,13 @@ const FallbackView: React.FC<Props> = ({ error }) => {
   return (
     <FallbackWrapper>
       <BodyWrapper>
-        <AutoColumn gap={'lg'} justify="center">
-          <Text textAlign="center" fontSize="24px" maxWidth={'600px'}>
+        <AutoColumn gap="lg" justify="center">
+          <Text textAlign="center" fontSize="24px" maxWidth="600px">
             <Trans>{foundError?.title || 'Oops! Something went wrong'}</Trans>
           </Text>
 
           {foundError?.description ? (
-            <Text textAlign="center" fontSize="16px" maxWidth={'600px'} marginTop="16px">
+            <Text textAlign="center" fontSize="16px" maxWidth="600px" marginTop="16px">
               <Trans>{foundError.description}</Trans>
             </Text>
           ) : (

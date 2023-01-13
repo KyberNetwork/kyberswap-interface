@@ -93,7 +93,7 @@ export const FooterSocialLink = () => {
       <ExternalLinkNoLineHeight href={KYBER_NETWORK_DISCORD_URL}>
         <Discord width={16} height={12} color={theme.subText} />
       </ExternalLinkNoLineHeight>
-      <ExternalLinkNoLineHeight href={`https://blog.kyber.network`}>
+      <ExternalLinkNoLineHeight href="https://blog.kyber.network">
         <Medium />
       </ExternalLinkNoLineHeight>
     </Flex>

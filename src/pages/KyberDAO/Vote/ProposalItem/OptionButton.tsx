@@ -131,7 +131,7 @@ export default function OptionButton({
             </span>
             <Text>{title}</Text>
           </RowFit>
-          <Text fontSize="12px" padding={'0 4px'}>
+          <Text fontSize="12px" padding="0 4px">
             {parsedPercent}%
           </Text>
         </RowBetween>

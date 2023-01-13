@@ -426,7 +426,7 @@ export function CurrencySearch({
           />
         )}
         {loadingCommon && (
-          <Flex justifyContent={'center'}>
+          <Flex justifyContent="center">
             <Text fontSize={12} color={theme.subText}>
               Loading ...
             </Text>

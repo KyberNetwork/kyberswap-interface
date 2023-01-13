@@ -656,7 +656,7 @@ const LimitOrderForm = function LimitOrderForm({
 
   return (
     <>
-      <Flex flexDirection={'column'} style={{ gap: '1rem' }}>
+      <Flex flexDirection="column" style={{ gap: '1rem' }}>
         <Tooltip text={inputError} show={!!inputError} placement="top" style={styleTooltip} width="fit-content">
           <CurrencyInputPanel
             maxLength={16}
@@ -688,13 +688,13 @@ const LimitOrderForm = function LimitOrderForm({
 
         <RowBetween gap="1rem">
           <InputWrapper>
-            <Flex justifyContent={'space-between'} alignItems="center">
+            <Flex justifyContent="space-between" alignItems="center">
               <DeltaRate symbolIn={currencyIn?.symbol ?? ''} marketPrice={tradeInfo?.price} rateInfo={rateInfo} />
               <Set2Market onClick={setPriceRateMarket}>
                 <Trans>Market</Trans>
               </Set2Market>
             </Flex>
-            <Flex alignItems={'center'} style={{ background: theme.buttonBlack, borderRadius: 12 }}>
+            <Flex alignItems="center" style={{ background: theme.buttonBlack, borderRadius: 12 }}>
               <NumericalInput
                 maxLength={16}
                 style={{ fontSize: 14, height: INPUT_HEIGHT }}
@@ -704,7 +704,7 @@ const LimitOrderForm = function LimitOrderForm({
               />
               {currencyIn && currencyOut && (
                 <Flex style={{ gap: 6, cursor: 'pointer' }} onClick={() => onInvertRate(!rateInfo.invert)}>
-                  <CurrencyLogo size={'18px'} currency={rateInfo.invert ? currencyIn : currencyOut} />
+                  <CurrencyLogo size="18px" currency={rateInfo.invert ? currencyIn : currencyOut} />
                   <Text fontSize={14} color={theme.subText}>
                     {rateInfo.invert ? currencyIn?.symbol : currencyOut?.symbol}
                   </Text>

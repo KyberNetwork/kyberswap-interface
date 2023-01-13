@@ -199,7 +199,7 @@ const TrendingSoonTokenItem = ({
       <Flex justifyContent="space-between" alignItems="center" onClick={onSelect} style={{ gap: '16px' }}>
         <Flex
           alignItems="center"
-          justifyContent={'space-between'}
+          justifyContent="space-between"
           flex={1}
           sx={{
             columnGap: '4px',
@@ -219,7 +219,7 @@ const TrendingSoonTokenItem = ({
               }}
               alt={tokenData.name}
             />
-            <Box marginLeft={'8px'}>
+            <Box marginLeft="8px">
               <TruncatedText fontSize="14px" fontWeight={400} color={theme.text}>
                 {tokenData.name}
               </TruncatedText>
@@ -240,7 +240,7 @@ const TrendingSoonTokenItem = ({
           <Flex
             width="28px"
             height="28px"
-            justifyContent={'center'}
+            justifyContent="center"
             alignItems="center"
             sx={{
               backgroundColor: rgba(theme.subText, 0.2),
