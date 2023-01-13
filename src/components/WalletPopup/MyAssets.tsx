@@ -1,7 +1,9 @@
-import { Currency, CurrencyAmount, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import { stringify } from 'querystring'
 import { useState } from 'react'
 import { Info } from 'react-feather'
+import { useNavigate } from 'react-router-dom'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { Text } from 'rebass'
 import styled from 'styled-components'
@@ -12,9 +14,11 @@ import Row from 'components/Row'
 import { CurrencyRow } from 'components/SearchModal/CurrencyList'
 import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
 import { ETHER_ADDRESS } from 'constants/index'
-import { isEVM } from 'constants/networks'
+import { useActiveWeb3React } from 'hooks'
+import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { useNativeBalance } from 'state/wallet/hooks'
+import { currencyId } from 'utils/currencyId'
 
 const tokenItemStyle = { paddingLeft: 0, paddingRight: 4 }
 const Wrapper = styled.div`
@@ -47,6 +51,9 @@ export default function MyAssets({
   const showModal = () => setModalOpen(true)
   const hideModal = () => setModalOpen(false)
   const nativeBalance = useNativeBalance()
+  const navigate = useNavigate()
+  const qs = useParsedQueryString()
+  const { chainId, isEVM } = useActiveWeb3React()
 
   if (loadingTokens) {
     return (
@@ -64,12 +71,7 @@ export default function MyAssets({
         {({ height, width }) => (
           <div style={{ height, width }}>
             {tokens.map(token => {
-              const address = token.isNative
-                ? isEVM(token.chainId)
-                  ? ETHER_ADDRESS
-                  : WETH[token.chainId].address
-                : token.wrapped.address
-
+              const address = token.isNative && isEVM ? ETHER_ADDRESS : token.wrapped.address
               const currencyBalance = token.isNative ? nativeBalance : currencyBalances[address]
               const usdBalance =
                 currencyBalance && usdBalances[address]
@@ -77,6 +79,9 @@ export default function MyAssets({
                   : undefined
               return (
                 <CurrencyRow
+                  onSelect={() => {
+                    navigate({ search: stringify({ ...qs, inputCurrency: currencyId(token, chainId) }) })
+                  }}
                   isSelected={false}
                   key={address}
                   style={tokenItemStyle}
