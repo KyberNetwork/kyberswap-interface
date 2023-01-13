@@ -6,7 +6,6 @@ import JSBI from 'jsbi'
 import Numeral from 'numeral'
 
 import { GET_BLOCK, GET_BLOCKS } from 'apollo/queries'
-import { ENV_LEVEL, ENV_TYPE } from 'constants/env'
 import { DEFAULT_GAS_LIMIT_MARGIN, ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO, NETWORKS_INFO_CONFIG, isEVM } from 'constants/networks'
 import { KNC, KNCL_ADDRESS } from 'constants/tokens'
@@ -14,6 +13,7 @@ import { EVMWalletInfo, SUPPORTED_WALLET, SolanaWalletInfo, WalletInfo } from 'c
 import store from 'state'
 import { GroupedTxsByHash, TransactionDetails } from 'state/transactions/type'
 
+import { ENV_LEVEL, ENV_TYPE } from '../constants/env'
 import checkForBraveBrowser from './checkForBraveBrowser'
 
 export const isWalletAddressSolana = async (addr: string) => {

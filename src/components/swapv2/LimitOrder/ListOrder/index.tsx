@@ -550,7 +550,9 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
               <NoResultWrapper>
                 <Info size={isMobile ? 40 : 48} />
                 <Text marginTop={'10px'}>
-                  {isTabActive ? (
+                  {keyword ? (
+                    <Trans>No orders found</Trans>
+                  ) : isTabActive ? (
                     <Trans>You don&apos;t have any active orders yet</Trans>
                   ) : (
                     <Trans>You don&apos;t have any order history</Trans>
@@ -607,9 +609,9 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
                   currentOrder.filledTakingAmount,
                   currentOrder.takingAmount,
                   currentOrder.takerAssetDecimals,
-                )}% filled`
+                )}% filled.`
               : ''
-          }`}
+          } Cancelling an order will cost gas fees`}
         />
       )}
     </>

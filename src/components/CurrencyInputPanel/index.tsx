@@ -309,7 +309,7 @@ export default function CurrencyInputPanel({
                     </StyledBalanceMax>
                   )
                 )}
-                {lockIcon && <Lock color={theme.subText} style={{ marginRight: 8 }} />}
+                {lockIcon && <Lock color={theme.subText} style={{ marginRight: 8, height: 16 }} />}
               </>
             )}
             {customCurrencySelect || (
