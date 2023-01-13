@@ -60,5 +60,13 @@ module.exports = {
     'react/react-in-jsx-scope': 'off',
     'react/jsx-pascal-case': 'off',
     '@typescript-eslint/no-var-requires': 'off',
+    'react/self-closing-comp': [
+      'error',
+      {
+        component: true,
+        html: false,
+      },
+    ],
+    'react/jsx-curly-brace-presence': ['error', { props: 'never', children: 'never', propElementValues: 'always' }],
   },
 }
