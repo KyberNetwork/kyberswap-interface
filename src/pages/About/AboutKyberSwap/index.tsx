@@ -51,7 +51,7 @@ import {
 } from 'components/Icons'
 import AntiSnippingAttack from 'components/Icons/AntiSnippingAttack'
 import Loader from 'components/Loader'
-import { APP_PATHS } from 'constants'
+import { APP_PATHS } from 'constants/index'
 import { MAINNET_NETWORKS, NETWORKS_INFO } from 'constants/networks'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
