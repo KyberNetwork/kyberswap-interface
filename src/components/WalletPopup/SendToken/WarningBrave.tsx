@@ -39,7 +39,7 @@ const WarningBrave = ({ token }: { token: Currency | undefined }) => {
         </Text>
         <Text style={{ whiteSpace: 'normal' }}>
           <Trans>
-            Please ensure the selected token has been imported in your Brave wallet before send. Otherwise, your
+            Please ensure the selected token has been imported in your Brave wallet before sending. Otherwise, your
             transaction will be rejected. In this case, you can quickly import token with contract address below.
           </Trans>
         </Text>
