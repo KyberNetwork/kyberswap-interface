@@ -707,7 +707,7 @@ export default function Swap() {
 
               <SwapFormActions>
                 <Tutorial
-                  type={TutorialType.SWAP}
+                  type={isSwapPage ? TutorialType.SWAP : TutorialType.LIMIT_ORDER}
                   customIcon={
                     <StyledActionButtonSwapForm>
                       <TutorialIcon />
