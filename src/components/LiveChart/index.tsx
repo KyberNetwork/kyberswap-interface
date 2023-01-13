@@ -226,16 +226,14 @@ function LiveChart({ currencies }: { currencies: { [field in Field]?: Currency }
       <ProChartToggle
         activeName={isShowProChart ? 'pro' : 'basic'}
         toggle={(name: string) => {
-          if (!bothChartError) {
-            if (name !== (isShowProChart ? 'pro' : 'basic')) {
-              if (name === 'pro') {
-                mixpanelHandler(MIXPANEL_TYPE.PRO_CHART_CLICKED)
-              } else {
-                mixpanelHandler(MIXPANEL_TYPE.BASIC_CHART_CLICKED)
-              }
-              setIsManualChange(true)
-              setIsShowProChart(prev => !prev)
+          if (!bothChartError && name !== (isShowProChart ? 'pro' : 'basic')) {
+            if (name === 'pro') {
+              mixpanelHandler(MIXPANEL_TYPE.PRO_CHART_CLICKED)
+            } else {
+              mixpanelHandler(MIXPANEL_TYPE.BASIC_CHART_CLICKED)
             }
+            setIsManualChange(true)
+            setIsShowProChart(prev => !prev)
           }
         }}
         buttons={[
@@ -312,7 +310,7 @@ function LiveChart({ currencies }: { currencies: { [field in Field]?: Currency }
               <TradingViewChart poolDetail={poolDetail} tokenId={poolDetail.included[isReverse ? 1 : 0].id} />
               <Flex justifyContent="flex-end" sx={{ gap: '0.5rem' }}>
                 <Text color={theme.subText} fontSize="10px">
-                  Power By
+                  Powered by
                 </Text>
                 {isDarkMode ? (
                   <GeckoTerminalSVG style={{ width: '75px' }} />

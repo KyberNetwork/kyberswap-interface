@@ -13,7 +13,7 @@ import {
 } from './charting_library'
 
 const configurationData = {
-  supported_resolutions: ['1', '3', '5', '15', '30', '1H', '2H', '4H', '1D', '1W', '1M'],
+  supported_resolutions: ['1', '5', '15', '1H', '2H', '4H', '1D'],
 }
 
 export const useDatafeed = (poolDetail: PoolResponse, tokenId: string) => {
@@ -63,11 +63,7 @@ export const useDatafeed = (poolDetail: PoolResponse, tokenId: string) => {
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone as Timezone,
             exchange: '',
             minmov: 1,
-            // TODO(viet-nv): check pricescale
-            pricescale:
-              // candles.length > 0
-              //   ? Math.pow(10, Math.ceil(Math.log10(isReverse ? candles[0].open : 1 / candles[0].open)) + 5)
-              10000,
+            pricescale: 10000,
             has_intraday: true,
             has_empty_bars: true,
             has_weekly_and_monthly: true,
