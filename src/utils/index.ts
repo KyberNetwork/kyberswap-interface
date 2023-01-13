@@ -12,7 +12,6 @@ import { EVMWalletInfo, SUPPORTED_WALLET, SolanaWalletInfo, WalletInfo } from 'c
 import store from 'state'
 import { GroupedTxsByHash, TransactionDetails } from 'state/transactions/type'
 
-import { ENV_LEVEL, ENV_TYPE } from '../constants/env'
 import checkForBraveBrowser from './checkForBraveBrowser'
 
 // returns the checksummed address if the address is valid, otherwise returns false
@@ -422,7 +421,7 @@ export const isChristmasTime = () => {
 }
 
 export const getLimitOrderContract = (chainId: ChainId) => {
-  const { production, development } = NETWORKS_INFO_CONFIG[chainId]?.limitOrder ?? {}
+  const { development } = NETWORKS_INFO_CONFIG[chainId]?.limitOrder ?? {}
   // return ENV_LEVEL >= ENV_TYPE.STG ? production : development
-  return ENV_LEVEL === ENV_TYPE.PROD ? '' : ENV_LEVEL === ENV_TYPE.STG ? production : development // for testing on stg
+  return development
 }
