@@ -84,6 +84,7 @@ export default function ProAmmFee({
       recipient: account,
       deadline: deadline.toString(),
       havingFee: true,
+      isPositionClosed: position.liquidity.toString() === '0',
     })
 
     const txn = {
