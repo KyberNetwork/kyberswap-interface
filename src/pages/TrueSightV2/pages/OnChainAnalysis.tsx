@@ -8,7 +8,7 @@ import { RowFit } from 'components/Row'
 import useTheme from 'hooks/useTheme'
 import { useTokenAnalysisSettings } from 'state/user/hooks'
 
-import { SectionDescription, SectionTitle, SectionWrapper } from './components'
+import { SectionDescription, SectionTitle, SectionWrapper } from '../components'
 import {
   HoldersChartWrapper,
   NetflowToCentralizedExchanges,
@@ -17,8 +17,8 @@ import {
   NumberofTradesChart,
   NumberofTransfers,
   TradingVolumeChart,
-} from './components/chart'
-import { Top10HoldersTable } from './components/table'
+} from '../components/chart'
+import { Top10HoldersTable } from '../components/table'
 
 const Wrapper = styled.div`
   padding: 20px 0;

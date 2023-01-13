@@ -5,9 +5,9 @@ import styled, { useTheme } from 'styled-components'
 import { ButtonOutlined } from 'components/Button'
 import Row, { RowFit } from 'components/Row'
 
-import { SectionDescription, SectionTitle } from './components'
-import { LiquidOnCentralizedExchanges } from './components/chart'
-import { FundingRateTable, LiveDEXTrades } from './components/table'
+import { SectionDescription, SectionTitle } from '../components'
+import { LiquidOnCentralizedExchanges } from '../components/chart'
+import { FundingRateTable, LiveDEXTrades } from '../components/table'
 
 const Wrapper = styled.div`
   padding: 20px 0;

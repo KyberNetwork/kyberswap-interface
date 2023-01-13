@@ -55,3 +55,21 @@ export interface IPagination {
   pageSize: number
   totalItems: number
 }
+
+export enum DiscoverTokenTab {
+  OnChainAnalysis = 'On-Chain Analysis',
+  TechnicalAnalysis = 'Technical Analysis',
+  News = 'News',
+}
+
+export enum TokenListTab {
+  All = 'All',
+  MyWatchlist = 'My Watchlist',
+  Bullish = 'Bullish',
+  Bearish = 'Bearish',
+  TrendingSoon = 'Trending Soon',
+  CurrentlyTrending = 'Currently Trending',
+  TopInflow = 'Top CEX Inflow',
+  TopOutflow = 'Top CEX Outflow',
+  TopTraded = 'Top Traded',
+}

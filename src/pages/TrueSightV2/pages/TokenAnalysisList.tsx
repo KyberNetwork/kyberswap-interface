@@ -23,8 +23,9 @@ import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
 
-import NetworkSelect from './NetworkSelect'
-import TokenChart from './TokenChart'
+import NetworkSelect from '../components/NetworkSelect'
+import TokenChart from '../components/TokenChartSVG'
+import { TokenListTab } from '../types'
 
 const TableWrapper = styled.div`
   display: flex;
@@ -160,37 +161,19 @@ const ButtonTypeInactive = styled(ButtonOutlined)`
   }
 `
 
-enum FilterType {
-  All = 'All',
-  MyWatchlist = 'My Watchlist',
-  Bullish = 'Bullish',
-  Bearish = 'Bearish',
-  TrendingSoon = 'Trending Soon',
-  CurrentlyTrending = 'Currently Trending',
-  TopInflow = 'Top CEX Inflow',
-  TopOutflow = 'Top CEX Outflow',
-  TopTraded = 'Top Traded',
-}
-
-const tokenTypeList: { type: FilterType; icon?: string }[] = [
-  { type: FilterType.All },
-  { type: FilterType.MyWatchlist, icon: 'star' },
-  { type: FilterType.Bullish, icon: 'bullish' },
-  { type: FilterType.Bearish, icon: 'bearish' },
-  { type: FilterType.TrendingSoon, icon: 'trending-soon' },
-  { type: FilterType.CurrentlyTrending, icon: 'flame' },
-  { type: FilterType.TopInflow, icon: 'download' },
-  { type: FilterType.TopOutflow, icon: 'upload' },
-  { type: FilterType.TopTraded, icon: 'coin-bag' },
+const tokenTypeList: { type: TokenListTab; icon?: string }[] = [
+  { type: TokenListTab.All },
+  { type: TokenListTab.MyWatchlist, icon: 'star' },
+  { type: TokenListTab.Bullish, icon: 'bullish' },
+  { type: TokenListTab.Bearish, icon: 'bearish' },
+  { type: TokenListTab.TrendingSoon, icon: 'trending-soon' },
+  { type: TokenListTab.CurrentlyTrending, icon: 'flame' },
+  { type: TokenListTab.TopInflow, icon: 'download' },
+  { type: TokenListTab.TopOutflow, icon: 'upload' },
+  { type: TokenListTab.TopTraded, icon: 'coin-bag' },
 ]
 
-const TokenListDraggableTab = ({
-  filterType,
-  setFilterType,
-}: {
-  filterType: FilterType
-  setFilterType: (type: FilterType) => void
-}) => {
+const TokenListDraggableTab = ({ tab, setTab }: { tab: TokenListTab; setTab: (type: TokenListTab) => void }) => {
   const [showScrollRightButton, setShowScrollRightButton] = useState(false)
   const [scrollLeftValue, setScrollLeftValue] = useState(0)
   const wrapperRef = useRef<HTMLDivElement>(null)
@@ -251,7 +234,7 @@ const TokenListDraggableTab = ({
           {tokenTypeList.map(({ type, icon }, index) => {
             const props = {
               onClick: () => {
-                setFilterType(type)
+                setTab(type)
                 if (!wrapperRef.current) return
                 const tabRef = tabListRef.current[index]
                 const wRef = wrapperRef.current
@@ -263,7 +246,7 @@ const TokenListDraggableTab = ({
                 }
               },
             }
-            if (filterType === type) {
+            if (tab === type) {
               return (
                 <ButtonTypeActive key={type} {...props} ref={el => (tabListRef.current[index] = el)}>
                   {icon && <Icon id={icon} size={16} />}
@@ -297,7 +280,7 @@ export default function TokenAnalysisList() {
   const theme = useTheme()
   const navigate = useNavigate()
   const [page, setPage] = useState(1)
-  const [filterType, setFilterType] = useState(FilterType.All)
+  const [currentTab, setCurrentTab] = useState(TokenListTab.All)
   const [networkFilter, setNetworkFilter] = useState<ChainId>()
   const toggle = useToggleModal(ApplicationModal.SHARE)
   const { tokenList } = useTruesightV2()
@@ -314,14 +297,18 @@ export default function TokenAnalysisList() {
   return (
     <>
       <Row gap="16px" marginBottom="20px">
-        <TokenListDraggableTab filterType={filterType} setFilterType={setFilterType} />
+        <TokenListDraggableTab tab={currentTab} setTab={setCurrentTab} />
         <ButtonGray
           color={theme.subText}
           gap="4px"
           width="36px"
           height="36px"
           padding="6px"
-          style={{ filter: 'drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.16))', flexShrink: 0 }}
+          style={{
+            filter: 'drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.16))',
+            flexShrink: 0,
+            backgroundColor: theme.background,
+          }}
           onClick={toggle}
         >
           <Share2 size={16} fill="currentcolor" />

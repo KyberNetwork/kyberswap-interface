@@ -11,7 +11,7 @@ import Row from 'components/Row'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 
-import { WidgetTable } from './components/table'
+import { WidgetTable } from './table'
 
 const WidgetWrapper = styled.div`
   display: flex;

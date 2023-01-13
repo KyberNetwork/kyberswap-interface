@@ -14,23 +14,23 @@ import Row, { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 
-import KyberScoreMeter from './KyberScoreMeter'
+import DisplaySettings from '../components/DisplaySettings'
+import KyberScoreMeter from '../components/KyberScoreMeter'
+import PriceRange from '../components/PriceRange'
+import useTokenDetailsData from '../hooks/useTokenDetailsData'
+import { DiscoverTokenTab } from '../types'
 import News from './News'
 import OnChainAnalysis from './OnChainAnalysis'
-import PriceRange from './PriceRange'
 import TechnicalAnalysis from './TechnicalAnalysis'
-import DisplaySettings from './components/DisplaySettings'
-import useTokenDetailsData from './hooks/useTokenDetailsData'
-import { DiscoverTokenTab } from './types'
 
 const Wrapper = styled.div`
-  padding: 28px 0;
+  padding: 32px 24px 50px;
   display: flex;
   align-items: stretch;
   justify-content: center;
   flex-direction: column;
   width: 100%;
-  max-width: 1224px;
+  max-width: 1500px;
   color: ${({ theme }) => theme.subText};
 `
 

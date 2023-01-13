@@ -10,8 +10,8 @@ import Search from 'components/Search'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 
-import SingleToken from './SingleToken'
-import TokenAnalysisList from './TokenAnalysisList'
+import SingleToken from './pages/SingleToken'
+import TokenAnalysisList from './pages/TokenAnalysisList'
 
 const Wrapper = styled.div`
   padding: 32px 24px 50px;

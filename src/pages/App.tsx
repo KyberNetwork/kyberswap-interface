@@ -20,6 +20,7 @@ import Popups from 'components/Popups'
 import Snowfall from 'components/Snowflake/Snowfall'
 import Web3ReactManager from 'components/Web3ReactManager'
 import { APP_PATHS, BLACKLIST_WALLETS } from 'constants/index'
+import { NETWORKS_INFO_CONFIG } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useGlobalMixpanelEvents } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
@@ -34,7 +35,7 @@ import { RedirectPathToMyPoolsNetwork } from './Pool/redirect'
 import { RedirectPathToPoolsNetwork } from './Pools/redirect'
 import { RedirectPathToSwapNetwork } from './SwapV2/redirects'
 import TrueSightV2 from './TrueSightV2'
-import SingleToken from './TrueSightV2/SingleToken'
+import SingleToken from './TrueSightV2/pages/SingleToken'
 import Verify from './Verify'
 
 // Route-based code splitting
@@ -108,8 +109,26 @@ const BodyWrapper = styled.div`
   ${isMobile && `overflow-x: hidden;`}
 `
 
+const preloadImages = () => {
+  const imageList: (string | null)[] = [
+    ...Object.values(NETWORKS_INFO_CONFIG).map(network => network.icon),
+    ...Object.values(NETWORKS_INFO_CONFIG)
+      .map(network => network.iconDark)
+      .filter(Boolean),
+  ]
+  imageList.forEach(image => {
+    if (image) {
+      new Image().src = image
+    }
+  })
+}
+
 export default function App() {
   const { account, chainId, networkInfo } = useActiveWeb3React()
+
+  useEffect(() => {
+    preloadImages()
+  }, [])
 
   useEffect(() => {
     if (account) {

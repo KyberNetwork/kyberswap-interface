@@ -608,3 +608,123 @@ export const LiquidOnCentralizedExchanges = ({ style }: { style?: React.CSSPrope
     </ChartWrapper>
   )
 }
+
+// const LOCALSTORAGE_STATE_NAME = 'proChartState'
+
+// export const Prochart = () => {
+//   const theme = useTheme()
+//   const userLocale = useUserLocale()
+//   const [ref, setRef] = useState<HTMLDivElement | null>(null)
+//   const [fullscreen, setFullscreen] = useState(false)
+
+//   //const datafeed = useDatafeed(currencies, pairAddress, apiVersion)
+
+//   useEffect(() => {
+//     if (!ref || !hasProChart || !window.TradingView) {
+//       return
+//     }
+//     //setLoading(true)
+
+//     const localStorageState = JSON.parse(localStorage.getItem(LOCALSTORAGE_STATE_NAME) || 'null')
+//     // set auto scale mode to true to fix wrong behavious of right axis price range
+//     if (localStorageState?.charts[0]?.panes[0]?.rightAxisesState[0]?.state?.m_isAutoScale === false) {
+//       localStorageState.charts[0].panes[0].rightAxisesState[0].state.m_isAutoScale = true
+//     }
+
+//     const widgetOptions: ChartingLibraryWidgetOptions = {
+//       symbol: 'KNC',
+//       datafeed: datafeed,
+//       interval: '1H' as ResolutionString,
+//       container: ref,
+//       library_path: '/charting_library/',
+//       locale: (userLocale ? userLocale.slice(0, 2) : 'en') as LanguageCode,
+//       disabled_features: [
+//         'header_symbol_search',
+//         'header_fullscreen_button',
+//         'header_compare',
+//         'header_saveload',
+//         'drawing_templates',
+//       ],
+//       enabled_features: [
+//         'study_templates',
+//         'create_volume_indicator_by_default',
+//         'use_localstorage_for_settings',
+//         'save_chart_properties_to_local_storage',
+//       ],
+//       fullscreen: false,
+//       autosize: true,
+//       studies_overrides: {},
+//       theme: theme.darkMode ? 'Dark' : 'Light',
+//       custom_css_url: '/charting_library/style.css',
+//       timeframe: '2w',
+//       time_frames: [
+//         { text: '6m', resolution: '4H' as ResolutionString, description: '6 Months' },
+//         { text: '1m', resolution: '1H' as ResolutionString, description: '1 Month' },
+//         { text: '2w', resolution: '1H' as ResolutionString, description: '2 Weeks' },
+//         { text: '1w', resolution: '1H' as ResolutionString, description: '1 Week' },
+//         { text: '1d', resolution: '15' as ResolutionString, description: '1 Day' },
+//       ],
+//       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone as Timezone,
+//       auto_save_delay: 2,
+//       saved_data: localStorageState,
+//     }
+//     const tvWidget = new window.TradingView.widget(widgetOptions)
+
+//     tvWidget.onChartReady(() => {
+//       tvWidget.applyOverrides({
+//         'paneProperties.backgroundType': 'solid',
+//         'paneProperties.background': theme.darkMode ? theme.buttonBlack : theme.background,
+//         'mainSeriesProperties.candleStyle.upColor': theme.primary,
+//         'mainSeriesProperties.candleStyle.borderUpColor': theme.primary,
+//         'mainSeriesProperties.candleStyle.wickUpColor': theme.primary,
+//         'mainSeriesProperties.candleStyle.downColor': theme.red,
+//         'mainSeriesProperties.candleStyle.borderDownColor': theme.red,
+//         'mainSeriesProperties.candleStyle.wickDownColor': theme.red,
+//         'mainSeriesProperties.priceAxisProperties.autoScale': true,
+//         'scalesProperties.textColor': theme.text,
+//       })
+//       tvWidget.subscribe('onAutoSaveNeeded', () => {
+//         tvWidget.save((object: any) => {
+//           localStorage.setItem(LOCALSTORAGE_STATE_NAME, JSON.stringify(object))
+//         })
+//       })
+//     })
+
+//     return () => {
+//       if (tvWidget !== null) {
+//         tvWidget.remove()
+//       }
+//     }
+//     // eslint-disable-next-line react-hooks/exhaustive-deps
+//   }, [theme, userLocale, ref])
+
+//   return (
+//     <ProLiveChartWrapper fullscreen={fullscreen} onClick={() => setFullscreen(false)} className={className}>
+//       {loading && (
+//         <Loader>
+//           <AnimatedLoader />
+//         </Loader>
+//       )}
+
+//       {isMobile ? (
+//         <MobileChart
+//           id="mobile25235"
+//           ref={newRef => setRef(newRef)}
+//           onClick={(e: any) => {
+//             e.stopPropagation()
+//           }}
+//           fullscreen={fullscreen}
+//           $loading={loading}
+//         />
+//       ) : (
+//         <div
+//           ref={newRef => setRef(newRef)}
+//           style={{ height: '100%', width: '100%', display: 'block' }}
+//           onClick={(e: any) => {
+//             e.stopPropagation()
+//           }}
+//         />
+//       )}
+//     </ProLiveChartWrapper>
+//   )
+// }

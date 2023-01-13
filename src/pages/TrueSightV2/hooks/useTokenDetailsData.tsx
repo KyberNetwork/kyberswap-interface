@@ -9,7 +9,7 @@ import {
   INumberOfTrades,
   ITokenOverview,
   ITradeVolume,
-} from '../types/index'
+} from '../types'
 import {
   HOLDER_LIST,
   NETFLOW_TO_WHALE_WALLETS,
