@@ -3,9 +3,9 @@ import { Trans } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Info } from 'react-feather'
 import AutoSizer from 'react-virtualized-auto-sizer'
-import { FixedSizeList } from 'react-window'
+import { VariableSizeList } from 'react-window'
 import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
+import styled, { CSSProperties } from 'styled-components'
 
 import Tab from 'components/WalletPopup/Transactions/Tab'
 import { useActiveWeb3React } from 'hooks'
@@ -47,8 +47,34 @@ const Wrapper = styled.div`
   justify-content: space-between;
 `
 
-export default function ListTransaction() {
-  const transactions = useSortRecentTransactions(false, true) // todo danh check nhiều có crash ???
+function Row({
+  index,
+  style,
+  transaction,
+  setRowHeight,
+  isMinimal,
+}: {
+  transaction: TransactionDetails
+  style: CSSProperties
+  index: number
+  setRowHeight: (v: number, height: number) => void
+  isMinimal: boolean
+}) {
+  const rowRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (rowRef.current) {
+      const [child1, child2] = rowRef.current.childNodes
+      const rowNum = Math.max(child1.childNodes.length, child2.childNodes.length)
+      setRowHeight(index, rowNum === 2 ? 70 : 98)
+    }
+  }, [rowRef, index, setRowHeight])
+
+  return <TransactionItem isMinimal={isMinimal} ref={rowRef} style={style} transaction={transaction} />
+}
+
+export default function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
+  const transactions = useSortRecentTransactions(false) // todo danh check nhiều có crash ???
   const { chainId } = useActiveWeb3React()
   const [activeTab, setActiveTab] = useState<TRANSACTION_GROUP | string>('')
   const theme = useTheme()
@@ -91,6 +117,17 @@ export default function ListTransaction() {
     }
   }, [])
 
+  const rowHeights = useRef<{ [key: string]: number }>({})
+  const listRef = useRef<any>(null)
+  const setRowHeight = useCallback((index: number, size: number) => {
+    listRef.current?.resetAfterIndex(0)
+    rowHeights.current = { ...rowHeights.current, [index]: size }
+  }, [])
+
+  function getRowHeight(index: number) {
+    return rowHeights.current[index] || 100
+  }
+
   return (
     <Wrapper>
       <Tab activeTab={activeTab} setActiveTab={setActiveTab} />
@@ -129,18 +166,26 @@ export default function ListTransaction() {
         ) : (
           <AutoSizer>
             {({ height, width }) => (
-              <FixedSizeList
+              <VariableSizeList
                 height={height}
                 width={width}
-                itemSize={70}
+                itemSize={getRowHeight}
+                ref={listRef}
                 outerRef={onRefChange}
                 itemCount={formatTransactions.length}
                 itemData={formatTransactions}
               >
                 {({ data, index, style }) => (
-                  <TransactionItem style={style} transaction={data[index]} key={data[index].hash} />
+                  <Row
+                    isMinimal={isMinimal}
+                    style={style}
+                    transaction={data[index]}
+                    index={index}
+                    key={data[index].hash}
+                    setRowHeight={setRowHeight}
+                  />
                 )}
-              </FixedSizeList>
+              </VariableSizeList>
             )}
           </AutoSizer>
         )}

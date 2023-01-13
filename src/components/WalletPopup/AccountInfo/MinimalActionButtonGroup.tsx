@@ -2,8 +2,8 @@ import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as DollarIcon } from 'assets/svg/dollar.svg'
-import { ReactComponent as SendIcon } from 'assets/svg/send_icon.svg'
 import { ButtonLight } from 'components/Button'
+import SendIcon from 'components/Icons/SendIcon'
 import { ClickHandlerProps } from 'components/WalletPopup/AccountInfo'
 
 const MinimalActionButton = styled(ButtonLight)`
@@ -30,10 +30,10 @@ const MinimalActionButtonGroup: React.FC<Props> = ({ onClickBuy, onClickReceive,
         <DollarIcon width={'24px'} height={'24px'} />
       </MinimalActionButton>
       <MinimalActionButton onClick={onClickReceive}>
-        <SendIcon width={'14px'} height={'14px'} style={{ transform: 'rotate(180deg)' }} />
+        <SendIcon size={14} style={{ transform: 'rotate(180deg)' }} />
       </MinimalActionButton>
       <MinimalActionButton onClick={onClickSend}>
-        <SendIcon width={'14px'} height={'14px'} />
+        <SendIcon size={14} />
       </MinimalActionButton>
     </Flex>
   )

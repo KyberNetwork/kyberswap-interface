@@ -93,9 +93,9 @@ export enum TRANSACTION_TYPE {
 
   CREATE_POOL = 'Classic Create pool',
   ELASTIC_CREATE_POOL = 'Elastic Create pool',
-  ADD_LIQUIDITY = 'Add liquidity',
+  ADD_LIQUIDITY = 'Classic Add liquidity',
   ELASTIC_ADD_LIQUIDITY = 'Elastic Add liquidity',
-  REMOVE_LIQUIDITY = 'Remove liquidity',
+  REMOVE_LIQUIDITY = 'Classic Remove liquidity',
   ELASTIC_REMOVE_LIQUIDITY = 'Elastic Remove liquidity',
   INCREASE_LIQUIDITY = 'Increase liquidity',
   COLLECT_FEE = 'Collect fee',

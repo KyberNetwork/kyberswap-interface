@@ -3,8 +3,8 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as DollarIcon } from 'assets/svg/dollar.svg'
-import { ReactComponent as SendIcon } from 'assets/svg/send_icon.svg'
 import { ButtonLight } from 'components/Button'
+import SendIcon from 'components/Icons/SendIcon'
 import { ClickHandlerProps } from 'components/WalletPopup/AccountInfo'
 
 const ActionButton = styled(ButtonLight)`

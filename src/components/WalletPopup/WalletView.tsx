@@ -6,9 +6,9 @@ import { useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
-import { ReactComponent as SendIcon } from 'assets/svg/send_icon.svg'
 import { ReactComponent as DragHandleIcon } from 'assets/svg/wallet_drag_handle.svg'
 import Column from 'components/Column'
+import SendIcon from 'components/Icons/SendIcon'
 import Row from 'components/Row'
 import AccountInfo from 'components/WalletPopup/AccountInfo'
 import MyAssets from 'components/WalletPopup/MyAssets'
@@ -132,7 +132,7 @@ export default function WalletView({ onDismiss, onPin, isPinned, blurBackground 
           <ContentWrapper>
             {renderAccountInfo()}
             {underTab}
-            <ListTransaction />
+            <ListTransaction isMinimal={isMinimal} />
           </ContentWrapper>
         )
       case View.ASSETS:

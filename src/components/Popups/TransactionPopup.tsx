@@ -46,13 +46,14 @@ const summary2Token = (txs: TransactionDetails, withType = true) => {
   return `${withType ? txs.type : ''} ${tokenAmountIn} ${tokenSymbolIn} to ${tokenAmountOut} ${tokenSymbolOut}`
 }
 
-// ex: approve knc, approve elastic farm
+// ex: approve knc, approve elastic farm, claim rewards
 const summaryApproveOrClaim = (txs: TransactionDetails) => {
   const { tokenSymbol } = (txs.extraInfo || {}) as TransactionExtraInfo1Token
   const { summary } = (txs.extraInfo || {}) as TransactionExtraBaseInfo
   return `${txs.type} ${summary ?? tokenSymbol}`
 }
 
+// ex: elastic add liquidity 30 knc and 40 usdt
 const summaryLiquidity = (txs: TransactionDetails) => {
   const extraInfo = txs.extraInfo || {}
   const { tokenAmountIn, tokenAmountOut, tokenSymbolIn, tokenSymbolOut } = extraInfo as TransactionExtraInfo2Token
@@ -137,16 +138,15 @@ const SUMMARY: { [type in TRANSACTION_TYPE]: SummaryFunction } = {
   [TRANSACTION_TYPE.KYBERDAO_DELEGATE]: summaryDelegateDao,
 }
 
-const MAP_STATUS: { [key in string]: string } = {
+const CUSTOM_STATUS: { [key in string]: string } = {
   [TRANSACTION_TYPE.BRIDGE]: '- Processing',
   [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER]: 'Submitted',
 }
 
 const getTitle = (type: string, success: boolean) => {
   const statusText = success ? 'Success' : 'Error'
-  if (success && MAP_STATUS[type]) {
-    // custom
-    return `${type} ${MAP_STATUS[type]}!`
+  if (success && CUSTOM_STATUS[type]) {
+    return `${type} ${CUSTOM_STATUS[type]}!`
   }
   return `${type} - ${statusText}!`
 }
@@ -180,25 +180,23 @@ const getSummary = (transaction: TransactionDetails) => {
 
 export default function TransactionPopup({ hash, notiType }: { hash: string; notiType: NotificationType }) {
   const { chainId } = useActiveWeb3React()
-
   const theme = useTheme()
   const success = notiType === NotificationType.SUCCESS
   const transactions = useAllTransactions()
   const transaction = findTx(transactions, hash)
+  const color = success ? theme.primary : theme.red
+
   if (!transaction) return null
   const { title, summary } = getSummary(transaction)
+
   return (
     <Box>
       <RowNoFlex>
         <div style={{ paddingRight: 16 }}>
-          {success ? (
-            <img src={IconSuccess} alt="IconSuccess" style={{ display: 'block' }} />
-          ) : (
-            <img src={IconFailure} alt="IconFailure" style={{ display: 'block' }} />
-          )}
+          <img src={success ? IconSuccess : IconFailure} alt="Icon status" style={{ display: 'block' }} />
         </div>
         <AutoColumn gap="8px">
-          <Text fontSize="16px" fontWeight={500} color={success ? theme.primary : theme.red}>
+          <Text fontSize="16px" fontWeight={500} color={color}>
             {title}
           </Text>
           <Text fontSize="14px" fontWeight={400} color={theme.text} lineHeight={1.6}>
@@ -207,10 +205,7 @@ export default function TransactionPopup({ hash, notiType }: { hash: string; not
         </AutoColumn>
       </RowNoFlex>
       <HideSmall style={{ margin: '8px 0 0 40px', display: 'block' }}>
-        <ExternalLink
-          href={getEtherscanLink(chainId, hash, 'transaction')}
-          style={{ color: success ? theme.primary : theme.red, fontSize: 14 }}
-        >
+        <ExternalLink href={getEtherscanLink(chainId, hash, 'transaction')} style={{ color: color, fontSize: 14 }}>
           <Trans>View transaction</Trans>
         </ExternalLink>
       </HideSmall>
