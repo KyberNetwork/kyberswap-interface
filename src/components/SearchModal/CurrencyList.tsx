@@ -6,7 +6,7 @@ import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 import InfiniteLoader from 'react-window-infinite-loader'
 import { Flex, Text } from 'rebass'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 
 import Column from 'components/Column'
 import CurrencyLogo from 'components/CurrencyLogo'
@@ -53,26 +53,21 @@ const DeleteButton = styled(Trash)`
   }
 `
 
-const CurrencyRowWrapper = styled(RowBetween)<{ canSelect: boolean }>`
+const CurrencyRowWrapper = styled(RowBetween)<{ hoverColor?: string }>`
   padding: 4px 20px;
   height: 56px;
   display: flex;
   gap: 16px;
-
+  cursor: pointer;
   &[data-selected='true'] {
     background: ${({ theme }) => rgba(theme.bg8, 0.15)};
   }
 
-  ${({ canSelect }) =>
-    canSelect &&
-    css`
-      cursor: pointer;
-      @media (hover: hover) {
-        :hover {
-          background: ${({ theme }) => theme.buttonBlack};
-        }
-      }
-    `}
+  @media (hover: hover) {
+    :hover {
+      background: ${({ theme, hoverColor }) => hoverColor || theme.buttonBlack};
+    }
+  }
 `
 
 function Balance({ balance }: { balance: CurrencyAmount<Currency> }) {
@@ -104,6 +99,7 @@ export function CurrencyRow({
   customName,
   customBalance,
   usdBalance,
+  hoverColor,
 }: {
   showImported?: boolean
   showFavoriteIcon?: boolean
@@ -118,6 +114,7 @@ export function CurrencyRow({
   customName?: ReactNode
   customBalance?: ReactNode
   usdBalance?: number
+  hoverColor?: string
 }) {
   const { chainId, account } = useActiveWeb3React()
   const theme = useTheme()
@@ -151,7 +148,7 @@ export function CurrencyRow({
   return (
     <CurrencyRowWrapper
       style={style}
-      canSelect={!!onSelect}
+      hoverColor={hoverColor}
       onClick={() => onSelect?.(currency)}
       data-selected={isSelected || otherSelected}
     >

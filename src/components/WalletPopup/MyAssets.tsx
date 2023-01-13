@@ -89,6 +89,7 @@ export default function MyAssets({
                   currencyBalance={currencyBalance as CurrencyAmount<Currency>}
                   showFavoriteIcon={false}
                   usdBalance={usdBalance}
+                  hoverColor="transparent"
                 />
               )
             })}
