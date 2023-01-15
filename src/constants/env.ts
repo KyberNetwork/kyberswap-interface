@@ -1,12 +1,6 @@
 import invariant from 'tiny-invariant'
 
-export enum ENV_TYPE {
-  LOCAL,
-  ADPR,
-  DEV,
-  STG,
-  PROD,
-}
+import { ENV_TYPE } from './type'
 
 const required = (envKey: string): string => {
   const key = 'REACT_APP_' + envKey
@@ -51,10 +45,10 @@ export const ENV_LEVEL = !process.env.REACT_APP_TAG
   ? ENV_TYPE.LOCAL
   : process.env.REACT_APP_TAG.startsWith('adpr')
   ? ENV_TYPE.ADPR
+  : process.env.REACT_APP_TAG.startsWith('main-stg')
+  ? ENV_TYPE.STG
   : process.env.REACT_APP_TAG.startsWith('main')
   ? ENV_TYPE.DEV
-  : process.env.REACT_APP_TAG.startsWith('release')
-  ? ENV_TYPE.STG
   : ENV_TYPE.PROD
 export const LIMIT_ORDER_API_READ = required('LIMIT_ORDER_API_READ')
 export const LIMIT_ORDER_API_WRITE = required('LIMIT_ORDER_API_WRITE')

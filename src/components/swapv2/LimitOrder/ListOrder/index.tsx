@@ -24,7 +24,7 @@ import { useLimitState } from 'state/limit/hooks'
 import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { TRANSACTION_STATE_DEFAULT, TransactionFlowState } from 'types'
-import { findTx } from 'utils'
+import { findTx, getLimitOrderContract } from 'utils'
 import {
   subscribeNotificationOrderCancelled,
   subscribeNotificationOrderExpired,
@@ -115,7 +115,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
   const [isOpenCancel, setIsOpenCancel] = useState(false)
   const [isOpenEdit, setIsOpenEdit] = useState(false)
 
-  const limitOrderContract = useContract(networkInfo.limitOrder ?? '', LIMIT_ORDER_ABI)
+  const limitOrderContract = useContract(getLimitOrderContract(chainId) ?? '', LIMIT_ORDER_ABI)
   const notify = useNotify()
   const { ordersUpdating } = useLimitState()
   const addTransactionWithType = useTransactionAdder()
@@ -420,7 +420,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
     const response = await sendEVMTransaction(
       account,
       library,
-      networkInfo.limitOrder ?? '',
+      getLimitOrderContract(chainId) ?? '',
       encodedData,
       BigNumber.from(0),
     )
@@ -532,7 +532,9 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
               <NoResultWrapper>
                 <Info size={isMobile ? 40 : 48} />
                 <Text marginTop={'10px'}>
-                  {isTabActive ? (
+                  {keyword ? (
+                    <Trans>No orders found</Trans>
+                  ) : isTabActive ? (
                     <Trans>You don&apos;t have any active orders yet</Trans>
                   ) : (
                     <Trans>You don&apos;t have any order history</Trans>
@@ -589,9 +591,9 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
                   currentOrder.filledTakingAmount,
                   currentOrder.takingAmount,
                   currentOrder.takerAssetDecimals,
-                )}% filled`
+                )}% filled.`
               : ''
-          }`}
+          } Cancelling an order will cost gas fees`}
         />
       )}
     </>
