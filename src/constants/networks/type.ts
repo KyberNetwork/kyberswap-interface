@@ -30,6 +30,10 @@ export interface NetworkInfo {
   readonly tokenListUrl: string
   readonly trueSightId: string | null
   readonly dexToCompare: string | null
+  readonly limitOrder: {
+    development: string | null
+    production: string | null
+  }
   // token: {
   //   DAI: Token
   //   USDC: Token
@@ -73,8 +77,20 @@ export interface EVMNetworkInfo extends NetworkInfo {
     readonly routers: string
     readonly farms: string[]
   }
+  readonly limitOrder: {
+    development: string | null
+    production: string | null
+  }
   readonly averageBlockTimeInSeconds: number
   readonly deBankSlug: string
+  readonly kyberDAO?: {
+    readonly staking: string
+    readonly dao: string
+    readonly rewardsDistributor: string
+    readonly daoStatsApi: string
+    readonly KNCAddress: string
+    readonly KNCLAddress: string
+  }
 }
 
 export interface SolanaNetworkInfo extends NetworkInfo {

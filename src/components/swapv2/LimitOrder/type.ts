@@ -24,6 +24,8 @@ export type LimitOrder = {
   takerAssetSymbol: string
   makerAssetLogoURL: string
   takerAssetLogoURL: string
+  makerAssetDecimals: number
+  takerAssetDecimals: number
   makingAmount: string
   takingAmount: string
   filledMakingAmount: string
@@ -64,5 +66,5 @@ export type CreateOrderParam = {
   expiredAt: number
   orderId?: number
   signature?: string
-  orderHash?: string
+  salt?: string
 }

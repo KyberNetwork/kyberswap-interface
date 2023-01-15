@@ -1,6 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createReducer } from '@reduxjs/toolkit'
-import { isMobile } from 'react-device-detect'
 
 import { SUGGESTED_BASES } from 'constants/bases'
 import { DEFAULT_DEADLINE_FROM_NOW, INITIAL_ALLOWED_SLIPPAGE } from 'constants/index'
@@ -18,12 +17,11 @@ import {
   toggleFavoriteToken,
   toggleHolidayMode,
   toggleLiveChart,
-  toggleProLiveChart,
   toggleTokenInfo,
   toggleTopTrendingTokens,
   toggleTradeRoutes,
+  updateAcceptedTermVersion,
   updateChainId,
-  updateIsAcceptedTerm,
   updateIsUserManuallyDisconnect,
   updateMatchesDarkMode,
   updateUserDarkMode,
@@ -74,7 +72,6 @@ export interface UserState {
   showLiveCharts: {
     [chainId: number]: boolean
   }
-  showProLiveChart: boolean
   showTradeRoutes: boolean
   showTokenInfo: boolean
   showTopTrendingSoonTokens: boolean
@@ -90,7 +87,7 @@ export interface UserState {
   >
   readonly chainId: ChainId
   isUserManuallyDisconnect: boolean
-  isAcceptedTerm: boolean
+  acceptedTermVersion: number | null
   viewMode: VIEW_MODE
   holidayMode: boolean
 }
@@ -138,14 +135,13 @@ const initialState: UserState = {
   pairs: {},
   timestamp: currentTimestamp(),
   showLiveCharts: { ...defaultShowLiveCharts },
-  showProLiveChart: !isMobile,
   showTradeRoutes: true,
   showTokenInfo: true,
   showTopTrendingSoonTokens: true,
   favoriteTokensByChainId: {},
   chainId: ChainId.MAINNET,
   isUserManuallyDisconnect: false,
-  isAcceptedTerm: false,
+  acceptedTermVersion: null,
   viewMode: VIEW_MODE.GRID,
   holidayMode: true,
 }
@@ -226,9 +222,6 @@ export default createReducer(initialState, builder =>
       }
       state.showLiveCharts[chainId] = !state.showLiveCharts[chainId]
     })
-    .addCase(toggleProLiveChart, (state, { payload: showProLiveChart }) => {
-      state.showProLiveChart = showProLiveChart !== undefined ? showProLiveChart : !state.showProLiveChart
-    })
     .addCase(toggleTradeRoutes, state => {
       state.showTradeRoutes = !state.showTradeRoutes
     })
@@ -271,8 +264,8 @@ export default createReducer(initialState, builder =>
     .addCase(updateIsUserManuallyDisconnect, (state, { payload: isUserManuallyDisconnect }) => {
       state.isUserManuallyDisconnect = isUserManuallyDisconnect
     })
-    .addCase(updateIsAcceptedTerm, (state, { payload: isAcceptedTerm }) => {
-      state.isAcceptedTerm = isAcceptedTerm
+    .addCase(updateAcceptedTermVersion, (state, { payload: acceptedTermVersion }) => {
+      state.acceptedTermVersion = acceptedTermVersion
     })
     .addCase(changeViewMode, (state, { payload: viewType }) => {
       state.viewMode = viewType

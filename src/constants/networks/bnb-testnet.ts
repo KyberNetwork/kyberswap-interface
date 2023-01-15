@@ -27,7 +27,7 @@ const bnbTestnetInfo: EVMNetworkInfo = {
   etherscanUrl: 'https://testnet.bscscan.com',
   etherscanName: 'BscScan',
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.BSCTESTNET}&isWhitelisted=${true}`,
-  bridgeURL: 'https://www.binance.org/en/bridge',
+  bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'BNB',
     name: 'BNB',
@@ -67,6 +67,10 @@ const bnbTestnetInfo: EVMNetworkInfo = {
     quoter: '0xF4117D3c57BFe20fB2600eaE4028FB12bF99Ac10',
     routers: '0x785b8893342dfEf9B5D565f67be971b859d34a15',
     farms: [],
+  },
+  limitOrder: {
+    development: NOT_SUPPORT,
+    production: NOT_SUPPORT,
   },
   averageBlockTimeInSeconds: 3,
   coingeckoNetworkId: 'binance-smart-chain',

@@ -5,6 +5,7 @@ import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
 
+const EMPTY = ''
 const NOT_SUPPORT = null
 
 const maticInfo: EVMNetworkInfo = {
@@ -24,7 +25,7 @@ const maticInfo: EVMNetworkInfo = {
   etherscanUrl: 'https://polygonscan.com',
   etherscanName: 'Polygonscan',
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.MATIC}&isWhitelisted=${true}`,
-  bridgeURL: 'https://wallet.matic.network/bridge',
+  bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'MATIC',
     name: 'Polygon',
@@ -66,6 +67,10 @@ const maticInfo: EVMNetworkInfo = {
     quoter: '0x0D125c15D54cA1F8a813C74A81aEe34ebB508C1f',
     routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
     farms: ['0xBdEc4a045446F583dc564C0A227FFd475b329bf0', '0x5C503D4b7DE0633f031229bbAA6A5e4A31cc35d8'],
+  },
+  limitOrder: {
+    development: '0x3C2E9227A6d3779e5b469E425CAa7067b40Ff124',
+    production: '0x227B0c196eA8db17A665EA6824D972A64202E936',
   },
   averageBlockTimeInSeconds: 2.6,
   coingeckoNetworkId: 'polygon-pos',

@@ -26,7 +26,7 @@ const avaxTestnetInfo: EVMNetworkInfo = {
   etherscanUrl: 'https://testnet.snowtrace.io',
   etherscanName: 'Snowtrace',
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.AVAXTESTNET}&isWhitelisted=${true}`,
-  bridgeURL: 'https://bridge.avax.network',
+  bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'AVAX',
     name: 'AVAX',
@@ -61,6 +61,10 @@ const avaxTestnetInfo: EVMNetworkInfo = {
     quoter: '0x9CFf23e05A18b6f8Aff587B7fEf64F9580A6C85E',
     routers: '0xd74134d330FB567abD08675b57dD588a7447b5Ac',
     farms: [],
+  },
+  limitOrder: {
+    production: NOT_SUPPORT,
+    development: NOT_SUPPORT,
   },
   averageBlockTimeInSeconds: 1.85,
   coingeckoNetworkId: 'avalanche',

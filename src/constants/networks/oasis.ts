@@ -30,7 +30,7 @@ const oasisInfo: EVMNetworkInfo = {
   etherscanUrl: 'https://explorer.emerald.oasis.dev',
   etherscanName: 'Oasis Emerald Explorer',
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.OASIS}&isWhitelisted=${true}`,
-  bridgeURL: 'https://oasisprotocol.org/b-ridges',
+  bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'ROSE',
     name: 'ROSE',
@@ -65,6 +65,10 @@ const oasisInfo: EVMNetworkInfo = {
     quoter: '0x0D125c15D54cA1F8a813C74A81aEe34ebB508C1f',
     routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
     farms: [],
+  },
+  limitOrder: {
+    development: NOT_SUPPORT,
+    production: '0x227B0c196eA8db17A665EA6824D972A64202E936',
   },
   averageBlockTimeInSeconds: 10,
   coingeckoNetworkId: 'oasis',

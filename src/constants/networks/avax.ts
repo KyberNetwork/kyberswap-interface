@@ -5,6 +5,7 @@ import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
 
+const EMPTY = ''
 const NOT_SUPPORT = null
 
 const avaxInfo: EVMNetworkInfo = {
@@ -24,7 +25,7 @@ const avaxInfo: EVMNetworkInfo = {
   etherscanUrl: 'https://snowtrace.io',
   etherscanName: 'Snowtrace',
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.AVAXMAINNET}&isWhitelisted=${true}`,
-  bridgeURL: 'https://bridge.avax.network',
+  bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'AVAX',
     name: 'AVAX',
@@ -59,6 +60,8 @@ const avaxInfo: EVMNetworkInfo = {
       '0x845d1d0d9b344fba8a205461b9e94aefe258b918',
       '0xa107e6466Be74361840059a11e390200371a7538',
       '0x89929Bc485cE72D2Af7b7283B40b921e9F4f80b3',
+      '0xc9B4001F0f858D2679CF6BBf4C1CE626B1390c0B',
+      '0xF2D574807624bdAd750436AfA940563c5fa34726',
     ],
   },
   elastic: {
@@ -69,6 +72,10 @@ const avaxInfo: EVMNetworkInfo = {
     quoter: '0x0D125c15D54cA1F8a813C74A81aEe34ebB508C1f',
     routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
     farms: ['0xBdEc4a045446F583dc564C0A227FFd475b329bf0', '0x5C503D4b7DE0633f031229bbAA6A5e4A31cc35d8'],
+  },
+  limitOrder: {
+    development: '0x1877Ec0770901cc6886FDA7E7525a78c2Ed4e975',
+    production: '0x227B0c196eA8db17A665EA6824D972A64202E936',
   },
   averageBlockTimeInSeconds: 1.85,
   coingeckoNetworkId: 'avalanche',

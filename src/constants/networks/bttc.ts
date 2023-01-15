@@ -30,7 +30,7 @@ const bttcInfo: EVMNetworkInfo = {
   etherscanUrl: 'https://bttcscan.com',
   etherscanName: 'Bttcscan',
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.BTTC}&isWhitelisted=${true}`,
-  bridgeURL: 'https://wallet.bt.io/bridge',
+  bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'BTT',
     name: 'BTT',
@@ -69,6 +69,10 @@ const bttcInfo: EVMNetworkInfo = {
     quoter: '0x0D125c15D54cA1F8a813C74A81aEe34ebB508C1f',
     routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
     farms: [],
+  },
+  limitOrder: {
+    production: '0x227B0c196eA8db17A665EA6824D972A64202E936',
+    development: NOT_SUPPORT,
   },
   averageBlockTimeInSeconds: 2, // TODO: check these info
   coingeckoNetworkId: 'tron',

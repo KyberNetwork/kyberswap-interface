@@ -6,7 +6,7 @@ import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { createClient } from 'utils/client'
 
-// const EMPTY = ''
+const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
@@ -29,7 +29,7 @@ const arbitrumInfo: EVMNetworkInfo = {
   etherscanUrl: 'https://arbiscan.io',
   etherscanName: 'Arbiscan',
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.ARBITRUM}&isWhitelisted=${true}`,
-  bridgeURL: 'https://bridge.arbitrum.io',
+  bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'ETH',
     name: 'ETH',
@@ -54,7 +54,7 @@ const arbitrumInfo: EVMNetworkInfo = {
     dynamic: NOT_SUPPORT,
     claimReward: NOT_SUPPORT,
     fairlaunch: EMPTY_ARRAY,
-    fairlaunchV2: EMPTY_ARRAY,
+    fairlaunchV2: ['0xE8144386BF00f168ed7a0E0D821AC18e02a461BA'],
   },
   elastic: {
     coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
@@ -64,6 +64,10 @@ const arbitrumInfo: EVMNetworkInfo = {
     quoter: '0x0D125c15D54cA1F8a813C74A81aEe34ebB508C1f',
     routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
     farms: ['0xBdEc4a045446F583dc564C0A227FFd475b329bf0'],
+  },
+  limitOrder: {
+    production: '0x227B0c196eA8db17A665EA6824D972A64202E936',
+    development: '0x9deCa89E0934a5E0F187a1865299a9a586550864',
   },
   averageBlockTimeInSeconds: 1, // TODO: check these info
   coingeckoNetworkId: 'arbitrum-one',

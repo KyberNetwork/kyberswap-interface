@@ -9,19 +9,22 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ButtonEmpty } from 'components/Button'
+import Column from 'components/Column'
 import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
 import SearchInput from 'components/SearchInput'
 import Select from 'components/Select'
+import SubscribeNotificationButton from 'components/SubscribeButton'
 import LIMIT_ORDER_ABI from 'constants/abis/limit_order.json'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useContract } from 'hooks/useContract'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { NotificationType, useNotify } from 'state/application/hooks'
 import { useLimitState } from 'state/limit/hooks'
 import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { TRANSACTION_STATE_DEFAULT, TransactionFlowState } from 'types'
-import { findTx } from 'utils'
+import { findTx, getLimitOrderContract } from 'utils'
 import {
   subscribeNotificationOrderCancelled,
   subscribeNotificationOrderExpired,
@@ -31,8 +34,8 @@ import { sendEVMTransaction } from 'utils/sendTransaction'
 
 import EditOrderModal from '../EditOrderModal'
 import CancelOrderModal from '../Modals/CancelOrderModal'
-import { ACTIVE_ORDER_OPTIONS, CLOSE_ORDER_OPTIONS, LIMIT_ORDER_CONTRACT } from '../const'
-import { calcPercentFilledOrder, formatAmountOrder, isActiveStatus } from '../helpers'
+import { ACTIVE_ORDER_OPTIONS, CLOSE_ORDER_OPTIONS } from '../const'
+import { calcPercentFilledOrder, formatAmountOrder, getErrorMessage, isActiveStatus } from '../helpers'
 import { ackNotificationOrder, getEncodeData, getListOrder, insertCancellingOrder } from '../request'
 import { LimitOrder, LimitOrderStatus, ListOrderHandle } from '../type'
 import useCancellingOrders from '../useCancellingOrders'
@@ -40,11 +43,6 @@ import OrderItem from './OrderItem'
 import SummaryNotify from './SummaryNotify'
 import TabSelector from './TabSelector'
 import TableHeader from './TableHeader'
-
-const ListWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-`
 
 const ButtonCancelAll = styled(ButtonEmpty)`
   background-color: ${({ theme }) => rgba(theme.red, 0.2)};
@@ -109,7 +107,7 @@ const SearchInputWrapped = styled(SearchInput)`
 `
 
 export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, networkInfo } = useActiveWeb3React()
   const { library } = useWeb3React()
   const [curPage, setCurPage] = useState(1)
   const [orderType, setOrderType] = useState<LimitOrderStatus>(LimitOrderStatus.ACTIVE)
@@ -117,12 +115,13 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
   const [isOpenCancel, setIsOpenCancel] = useState(false)
   const [isOpenEdit, setIsOpenEdit] = useState(false)
 
-  const limitOrderContract = useContract(LIMIT_ORDER_CONTRACT, LIMIT_ORDER_ABI)
+  const limitOrderContract = useContract(getLimitOrderContract(chainId) ?? '', LIMIT_ORDER_ABI)
   const notify = useNotify()
   const { ordersUpdating } = useLimitState()
   const addTransactionWithType = useTransactionAdder()
   const { isOrderCancelling, setCancellingOrders, cancellingOrdersIds } = useCancellingOrders()
   const transactions = useAllTransactions()
+  const { mixpanelHandler } = useMixpanel()
 
   const [orders, setOrders] = useState<LimitOrder[]>([])
   const [totalOrder, setTotalOrder] = useState<number>(0)
@@ -366,18 +365,42 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
     setIsOpenEdit(false)
   }, [])
 
-  const showConfirmCancel = useCallback((order?: LimitOrder) => {
-    setCurrentOrder(order)
-    setFlowState({ ...TRANSACTION_STATE_DEFAULT, showConfirm: true })
-    setIsOpenCancel(true)
-    setIsCancelAll(false)
-  }, [])
+  const getPayloadTracking = useCallback(
+    (order: LimitOrder) => {
+      const { makerAssetSymbol, takerAssetSymbol, makingAmount, makerAssetDecimals, id } = order
+      return {
+        from_token: makerAssetSymbol,
+        to_token: takerAssetSymbol,
+        from_network: networkInfo.name,
+        trade_qty: formatAmountOrder(makingAmount, makerAssetDecimals),
+        order_id: id,
+      }
+    },
+    [networkInfo],
+  )
 
-  const showEditOrderModal = useCallback((order: LimitOrder) => {
-    setCurrentOrder(order)
-    setIsOpenEdit(true)
-    setIsCancelAll(false)
-  }, [])
+  const showConfirmCancel = useCallback(
+    (order?: LimitOrder) => {
+      setCurrentOrder(order)
+      setFlowState({ ...TRANSACTION_STATE_DEFAULT, showConfirm: true })
+      setIsOpenCancel(true)
+      setIsCancelAll(false)
+      if (order) {
+        mixpanelHandler(MIXPANEL_TYPE.LO_CLICK_CANCEL_ORDER, getPayloadTracking(order))
+      }
+    },
+    [mixpanelHandler, getPayloadTracking],
+  )
+
+  const showEditOrderModal = useCallback(
+    (order: LimitOrder) => {
+      setCurrentOrder(order)
+      setIsOpenEdit(true)
+      setIsCancelAll(false)
+      mixpanelHandler(MIXPANEL_TYPE.LO_CLICK_EDIT_ORDER, getPayloadTracking(order))
+    },
+    [mixpanelHandler, getPayloadTracking],
+  )
 
   const totalOrderNotCancelling = useMemo(() => {
     return orders.filter(e => !isOrderCancelling(e)).length
@@ -394,7 +417,13 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
     }))
 
     const { encodedData } = await getEncodeData([order?.id].filter(Boolean) as number[], isCancelAll)
-    const response = await sendEVMTransaction(account, library, LIMIT_ORDER_CONTRACT, encodedData, BigNumber.from(0))
+    const response = await sendEVMTransaction(
+      account,
+      library,
+      getLimitOrderContract(chainId) ?? '',
+      encodedData,
+      BigNumber.from(0),
+    )
     const newOrders = isCancelAll ? orders.map(e => e.id) : order?.id ? [order?.id] : []
     setCancellingOrders({ orderIds: cancellingOrdersIds.concat(newOrders) })
 
@@ -416,10 +445,11 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
         ...response,
         type: TRANSACTION_TYPE.CANCEL_LIMIT_ORDER,
         summary: order
-          ? `Order ${formatAmountOrder(order.makingAmount)} ${order.makerAssetSymbol} to ${formatAmountOrder(
-              order.takingAmount,
-            )} ${order.takerAssetSymbol}`
-          : `all orders`,
+          ? t`order to pay ${formatAmountOrder(order.makingAmount, order.makerAssetDecimals)} ${
+              order.makerAssetSymbol
+            } and receive ${formatAmountOrder(order.takingAmount, order.takerAssetDecimals)} ${order.takerAssetSymbol}`
+          : t`all orders`,
+        arbitrary: order ? getPayloadTracking(order) : undefined,
       })
     return
   }
@@ -429,11 +459,10 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
       await requestCancelOrder(order)
       setFlowState(state => ({ ...state, showConfirm: false }))
     } catch (error) {
-      console.error(error)
       setFlowState(state => ({
         ...state,
         attemptingTxn: false,
-        errorMessage: 'Error occur. Please try again.',
+        errorMessage: getErrorMessage(error),
       }))
     }
   }
@@ -462,6 +491,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
           setActiveTab={onSelectTab}
           activeTab={isTabActive ? LimitOrderStatus.ACTIVE : LimitOrderStatus.CLOSED}
         />
+        <SubscribeNotificationButton subscribeTooltip={t`Subscribe to receive notifications on your limit orders`} />
       </Flex>
 
       <Flex flexDirection={'column'} style={{ gap: '1rem' }}>
@@ -485,7 +515,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
           <>
             <div>
               <TableHeader />
-              <ListWrapper>
+              <Column>
                 {orders.map((order, index) => (
                   <OrderItem
                     isOrderCancelling={isOrderCancelling}
@@ -496,13 +526,15 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
                     onEditOrder={showEditOrderModal}
                   />
                 ))}
-              </ListWrapper>
+              </Column>
             </div>
             {orders.length === 0 && (
               <NoResultWrapper>
                 <Info size={isMobile ? 40 : 48} />
                 <Text marginTop={'10px'}>
-                  {isTabActive ? (
+                  {keyword ? (
+                    <Trans>No orders found</Trans>
+                  ) : isTabActive ? (
                     <Trans>You don&apos;t have any active orders yet</Trans>
                   ) : (
                     <Trans>You don&apos;t have any order history</Trans>
@@ -558,9 +590,10 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
               ? ` Your currently existing order is ${calcPercentFilledOrder(
                   currentOrder.filledTakingAmount,
                   currentOrder.takingAmount,
-                )}% filled`
+                  currentOrder.takerAssetDecimals,
+                )}% filled.`
               : ''
-          }`}
+          } Cancelling an order will cost gas fees`}
         />
       )}
     </>

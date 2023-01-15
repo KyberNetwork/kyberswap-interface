@@ -39,7 +39,9 @@ const phantomAdapter = new PhantomWalletAdapter({ network: SelectedNetwork })
 const slopeAdapter = new SlopeWalletAdapter({ network: SelectedNetwork })
 
 const detectMetamask = (): WalletReadyState => {
-  if (!window.ethereum) return WalletReadyState.Unsupported
+  if (!window.ethereum) {
+    return isMobile ? WalletReadyState.Unsupported : WalletReadyState.NotDetected
+  }
   // In Brave browser, by default ethereum.isMetaMask and ethereum.isBraveWallet is true even Metamask not installed
   if (window.ethereum?.isMetaMask && !window.ethereum?.isBraveWallet) return WalletReadyState.Installed
   return WalletReadyState.NotDetected
@@ -60,7 +62,7 @@ const detectCoin98 = (): WalletReadyState => {
 const detectCoinbase = (): WalletReadyState => {
   if (isMobile) return WalletReadyState.Unsupported
   // in NotDetected case, Coinbase show install link itself
-  if (window.ethereum?.isCoinbaseWallet || window.ethereum?.providers?.some(p => p.isCoinbaseWallet))
+  if (window.ethereum?.isCoinbaseWallet || window.ethereum?.providers?.some(p => p?.isCoinbaseWallet))
     return WalletReadyState.Installed
   if (window.coinbaseWalletExtension) return WalletReadyState.Loadable
   return WalletReadyState.NotDetected

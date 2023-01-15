@@ -129,11 +129,45 @@ export const SUMMARY: {
     pending: summary => 'Withdrawing ' + summary,
     failure: summary => 'Error withdrawing ' + summary,
   },
-
   [TRANSACTION_TYPE.FORCE_WITHDRAW]: {
     success: () => 'Force Withdrawn ',
     pending: () => 'Force Withdrawing ',
     failure: () => 'Error Force withdrawing ',
+  },
+  [TRANSACTION_TYPE.KYBERDAO_STAKE]: {
+    success: summary => `${summary}`,
+    pending: summary => `${summary}`,
+    failure: summary => `${summary}`,
+  },
+  [TRANSACTION_TYPE.KYBERDAO_UNSTAKE]: {
+    success: summary => `${summary}`,
+    pending: summary => `${summary}`,
+    failure: summary => `${summary}`,
+  },
+  [TRANSACTION_TYPE.KYBERDAO_DELEGATE]: {
+    success: summary => `${summary}`,
+    pending: summary => `${summary}`,
+    failure: summary => `${summary}`,
+  },
+  [TRANSACTION_TYPE.KYBERDAO_UNDELEGATE]: {
+    success: summary => `${summary}`,
+    pending: summary => `${summary}`,
+    failure: summary => `${summary}`,
+  },
+  [TRANSACTION_TYPE.KYBERDAO_MIGRATE]: {
+    success: summary => `${summary}`,
+    pending: summary => `${summary}`,
+    failure: summary => `${summary}`,
+  },
+  [TRANSACTION_TYPE.KYBERDAO_CLAIM]: {
+    success: summary => `${summary}`,
+    pending: summary => `${summary}`,
+    failure: summary => `${summary}`,
+  },
+  [TRANSACTION_TYPE.KYBERDAO_VOTE]: {
+    success: summary => `${summary}`,
+    pending: summary => `${summary}`,
+    failure: summary => `${summary}`,
   },
   [TRANSACTION_TYPE.SETUP]: {
     success: (summary, isShort) => (isShort ? 'Setting up transaction' : 'Setting up some stuff to ' + summary),
@@ -142,21 +176,21 @@ export const SUMMARY: {
       isShort ? 'Setting up transaction' : 'There was an issue while setting up your swap. Please try again.',
   },
   [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER]: {
-    success: summary => `Cancel ${summary}`,
+    success: summary => `Your cancellation ${summary} has been submitted`,
     pending: summary => 'Cancelling ' + summary,
     failure: summary => 'Error Cancel ' + summary,
   },
 }
 
 const MAP_STATUS: { [key in string]: string } = {
-  [TRANSACTION_TYPE.BRIDGE]: 'Processing',
+  [TRANSACTION_TYPE.BRIDGE]: '- Processing',
   [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER]: 'Submitted',
 }
 const getTitle = (type: string, success: boolean) => {
-  let statusText = success ? 'Success' : 'Error'
-  if (success) {
+  const statusText = success ? 'Success' : 'Error'
+  if (success && MAP_STATUS[type]) {
     // custom
-    statusText = MAP_STATUS[type] || statusText
+    return `${type} ${MAP_STATUS[type] || statusText}!`
   }
   return `${type} - ${statusText}!`
 }

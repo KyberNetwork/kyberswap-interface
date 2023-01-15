@@ -1,10 +1,12 @@
-import { Fraction } from '@kyberswap/ks-sdk-core'
+import { Currency, Fraction } from '@kyberswap/ks-sdk-core'
+import { t } from '@lingui/macro'
 import { ethers } from 'ethers'
 import JSBI from 'jsbi'
 
+import { tryParseAmount } from 'state/swap/hooks'
 import { formatNumberWithPrecisionRange, formattedNum } from 'utils'
 
-import { LimitOrder, LimitOrderStatus } from './type'
+import { CreateOrderParam, LimitOrder, LimitOrderStatus } from './type'
 
 export const isActiveStatus = (status: LimitOrderStatus) =>
   [LimitOrderStatus.ACTIVE, LimitOrderStatus.OPEN, LimitOrderStatus.PARTIALLY_FILLED].includes(status)
@@ -24,8 +26,8 @@ function parseFraction(value: string, decimals = 18) {
 // 1.00010000 => 1.0001
 export const removeTrailingZero = (value: string) => parseFloat(value).toString()
 
-export const uint256ToFraction = (value: string) =>
-  new Fraction(value, JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(18)))
+export const uint256ToFraction = (value: string, decimals?: number) =>
+  new Fraction(value, JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals ?? 18)))
 
 export function calcOutput(input: string, rate: string, decimalsIn: number, decimalsOut: number) {
   try {
@@ -56,44 +58,95 @@ export function calcInvert(value: string) {
   }
 }
 
-export function calcPriceUsd(input: string, price: number) {
+export const calcUsdPrices = ({
+  inputAmount,
+  outputAmount,
+  priceUsdIn,
+  priceUsdOut,
+  currencyIn,
+  currencyOut,
+}: {
+  inputAmount: string
+  outputAmount: string
+  priceUsdIn: number | undefined
+  priceUsdOut: number | undefined
+  currencyIn: Currency | undefined
+  currencyOut: Currency | undefined
+}) => {
+  const empty = { input: '', output: '' }
+  if (!inputAmount || !priceUsdIn || !priceUsdOut || !outputAmount || !currencyIn || !currencyOut) return empty
   try {
-    const value = parseFraction(input).multiply(parseFraction(price.toString()))
-    return value.toFixed(16)
+    const inputAmountInUsd = parseFraction(priceUsdIn.toString()) // 1 knc = ??? usd
+    const outputAmountInUsd = parseFraction(priceUsdOut.toString())
+
+    const input = parseFraction(inputAmount, currencyIn.decimals).multiply(inputAmountInUsd)
+    const output = parseFraction(outputAmount, currencyOut.decimals).multiply(outputAmountInUsd)
+    return {
+      input: input ? `${formattedNum(input.toFixed(16), true)}` : undefined,
+      output: output ? `${formattedNum(output.toFixed(16), true)}` : undefined,
+    }
   } catch (error) {
-    return
+    return empty
   }
 }
 
-export const formatUsdPrice = (input: string, price: number | undefined) => {
-  if (!price || !input) return
-  const calcPrice = calcPriceUsd(input, price)
-  return calcPrice ? `${formattedNum(calcPrice, true)}` : undefined
-}
-
-export const formatAmountOrder = (value: string, isUint256 = true) => {
-  return formatNumberWithPrecisionRange(parseFloat(isUint256 ? uint256ToFraction(value).toFixed(16) : value), 0, 10)
+export const formatAmountOrder = (value: string, decimals?: number) => {
+  const isUint256 = decimals !== undefined
+  return formatNumberWithPrecisionRange(
+    parseFloat(isUint256 ? uint256ToFraction(value, decimals).toFixed(16) : value),
+    0,
+    10,
+  )
 }
 
 export const formatRateOrder = (order: LimitOrder, invert: boolean) => {
   let rateValue = new Fraction(0)
-  const { takingAmount, makingAmount } = order
+  const { takingAmount, makingAmount, makerAssetDecimals, takerAssetDecimals } = order
   try {
     rateValue = invert
-      ? uint256ToFraction(takingAmount).divide(uint256ToFraction(makingAmount))
-      : uint256ToFraction(makingAmount).divide(uint256ToFraction(takingAmount))
+      ? uint256ToFraction(takingAmount, takerAssetDecimals).divide(uint256ToFraction(makingAmount, makerAssetDecimals))
+      : uint256ToFraction(makingAmount, makerAssetDecimals).divide(uint256ToFraction(takingAmount, takerAssetDecimals))
   } catch (error) {
     console.log(error)
   }
   return formatNumberWithPrecisionRange(parseFloat(rateValue.toFixed(16)), 0, 8)
 }
 
-export const calcPercentFilledOrder = (value: string, total: string) => {
+export const calcPercentFilledOrder = (value: string, total: string, decimals: number) => {
   try {
-    const float = parseFloat(uint256ToFraction(value).divide(uint256ToFraction(total)).multiply(100).toFixed(16))
+    const float = parseFloat(
+      uint256ToFraction(value, decimals).divide(uint256ToFraction(total, decimals)).multiply(100).toFixed(16),
+    )
     return float && float < 0.01 ? '< 0.01' : formatNumberWithPrecisionRange(float, 0, 2)
   } catch (error) {
     console.log(error)
     return '0'
+  }
+}
+
+export const getErrorMessage = (error: any) => {
+  console.error('Limit order error: ', error)
+  const errorCode: string = error?.response?.data?.code || error.code || ''
+  const mapErrorMessageByErrCode: { [code: string]: string } = {
+    4001: t`User denied message signature`,
+    4002: t`You don't have sufficient fund for this transaction.`,
+    4004: t`Invalid signature`,
+    '-32603': t`Error occurred. Please check your device.`,
+  }
+  const msg = mapErrorMessageByErrCode[errorCode]
+  return msg?.toString?.() || error?.message || 'Error occur. Please try again.'
+}
+
+export const getPayloadCreateOrder = (params: CreateOrderParam) => {
+  const { currencyIn, currencyOut, chainId, account, inputAmount, outputAmount, expiredAt } = params
+  const parseInputAmount = tryParseAmount(inputAmount, currencyIn ?? undefined)
+  return {
+    chainId: chainId.toString(),
+    makerAsset: currencyIn?.wrapped.address,
+    takerAsset: currencyOut?.wrapped.address,
+    maker: account,
+    makingAmount: parseInputAmount?.quotient?.toString(),
+    takingAmount: tryParseAmount(outputAmount, currencyOut)?.quotient?.toString(),
+    expiredAt: Math.floor(expiredAt / 1000),
   }
 }

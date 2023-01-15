@@ -13,11 +13,12 @@ import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
 import { ReactComponent as BuyCrypto } from 'assets/svg/buy_crypto.svg'
 import { ReactComponent as LimitOrderIcon } from 'assets/svg/limit_order.svg'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import { APP_PATHS, SUPPORT_LIMIT_ORDER } from 'constants/index'
+import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
+import { getLimitOrderContract } from 'utils'
 
 import { DropdownTextAnchor, StyledNavLink } from '../styleds'
 import NavGroup from './NavGroup'
@@ -47,8 +48,18 @@ const StyledBuyCrypto = styled(BuyCrypto)`
   }
 `
 
+const BetaTag = styled.span`
+  right: -40px;
+  top: 0px;
+  font-size: 10px;
+  border-radius: 10px;
+  background-color: ${({ theme }) => theme.buttonGray};
+  color: ${({ theme }) => theme.subText};
+  padding: 2px 6px;
+`
+
 const SwapNavGroup = () => {
-  const { isSolana } = useActiveWeb3React()
+  const { isSolana, chainId } = useActiveWeb3React()
   const isDark = useIsDarkMode()
   const { pathname } = useLocation()
   const upTo420 = useMedia('(max-width: 420px)')
@@ -66,7 +77,7 @@ const SwapNavGroup = () => {
       isActive={isActive}
       forceOpen={isShowTutorial && stepInfo?.selector === `#${TutorialIds.BRIDGE_LINKS}`}
       anchor={
-        <DropdownTextAnchor active={isActive}>
+        <DropdownTextAnchor>
           <Trans>Swap</Trans>
         </DropdownTextAnchor>
       }
@@ -81,13 +92,16 @@ const SwapNavGroup = () => {
             </Flex>
           </StyledNavLink>
 
-          {SUPPORT_LIMIT_ORDER && (
-            <StyledNavLink to={APP_PATHS.LIMIT} style={{ flexDirection: 'column' }}>
+          {getLimitOrderContract(chainId) && (
+            <StyledNavLink to={APP_PATHS.LIMIT} style={{ flexDirection: 'column', width: '100%' }}>
               <Flex alignItems="center" sx={{ gap: '12px' }}>
                 <IconWrapper>
                   <LimitOrderIcon />
                 </IconWrapper>
-                <Trans>Limit Order</Trans>
+                <Flex alignItems={'center'} sx={{ flex: 1 }} justifyContent={'space-between'}>
+                  <Trans>Limit Order</Trans>
+                  <BetaTag>Beta</BetaTag>
+                </Flex>
               </Flex>
             </StyledNavLink>
           )}

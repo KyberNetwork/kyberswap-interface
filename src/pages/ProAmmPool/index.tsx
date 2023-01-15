@@ -17,12 +17,11 @@ import Search from 'components/Search'
 import SubscribeNotificationButton from 'components/SubscribeButton'
 import Toggle from 'components/Toggle'
 import Tutorial, { TutorialType } from 'components/Tutorial'
-import { PROMM_ANALYTICS_URL } from 'constants/index'
+import { APP_PATHS, PROMM_ANALYTICS_URL } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
-import { NOTIFICATION_TOPICS } from 'hooks/useNotification'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useProAmmPositions } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
@@ -36,12 +35,6 @@ import PositionListItem from './PositionListItem'
 
 const Hightlight = styled.span`
   color: ${({ theme }) => theme.text};
-`
-const StyledText = styled.div`
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 22px;
-  color: ${({ theme }) => theme.subText};
 `
 
 const TabRow = styled.div`
@@ -66,35 +59,6 @@ const renderNotificationButton = (iconOnly: boolean) => {
   return (
     <SubscribeNotificationButton
       iconOnly={iconOnly}
-      topicId={NOTIFICATION_TOPICS.POSITION_POOL}
-      unsubscribeModalContent={
-        <StyledText>
-          Unsubscribe to stop receiving notifications on <Hightlight>all</Hightlight> your liquidity positions
-        </StyledText>
-      }
-      unsubscribeTooltip={
-        <StyledText>
-          Unsubscribe to stop receiving notifications on <Hightlight>all</Hightlight> your liquidity positions
-        </StyledText>
-      }
-      subscribeModalContent={
-        <>
-          <StyledText>
-            <Trans>
-              You can subscribe to email notifications for your liquidity positions. Whenever your position goes{' '}
-              <Hightlight>out-of-range</Hightlight>, comes back <Hightlight>in-range</Hightlight>, or is{' '}
-              <Hightlight>closed</Hightlight> you will receive a notification.
-            </Trans>
-          </StyledText>
-          <br />
-          <StyledText>
-            <Trans>
-              You can enable or disable notifications for individual positions by clicking on the toggle on top of the
-              liquidity positions card
-            </Trans>
-          </StyledText>
-        </>
-      }
       subscribeTooltip={
         <div>
           <Trans>
@@ -380,7 +344,9 @@ export default function ProAmmPool() {
               <Text fontSize={16} lineHeight={1.5} color={theme.subText} textAlign="center" marginTop="1rem">
                 <Trans>
                   No liquidity found. Check out our{' '}
-                  <StyledInternalLink to="/pools?tab=elastic">Pools.</StyledInternalLink>
+                  <StyledInternalLink to={`${APP_PATHS.POOLS}/${networkInfo.route}?tab=elastic`}>
+                    Pools.
+                  </StyledInternalLink>
                 </Trans>
               </Text>
             </Flex>

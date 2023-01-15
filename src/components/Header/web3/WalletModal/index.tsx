@@ -2,6 +2,7 @@ import { Trans } from '@lingui/macro'
 import { WalletReadyState } from '@solana/wallet-adapter-base'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { UnsupportedChainIdError } from '@web3-react/core'
+import dayjs from 'dayjs'
 import { rgba, transparentize } from 'polished'
 import { useCallback, useEffect, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
@@ -16,7 +17,7 @@ import AccountDetails from 'components/Header/web3/AccountDetails'
 import WarningIcon from 'components/Icons/WarningIcon'
 import Modal from 'components/Modal'
 import Row, { AutoRow, RowFixed } from 'components/Row'
-import { APP_PATHS } from 'constants/index'
+import { APP_PATHS, TERM_FILES_PATH } from 'constants/index'
 import { SUPPORTED_WALLET, SUPPORTED_WALLETS, WalletInfo } from 'constants/wallets'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useActivationWallet } from 'hooks/useActivationWallet'
@@ -346,14 +347,21 @@ export default function WalletModal() {
               style={{ marginRight: '12px', height: '14px', width: '14px', cursor: 'pointer' }}
             />
             <Text color={theme.subText}>
-              <Trans>By connecting a wallet, you agree to KyberSwap&lsquo;s </Trans>{' '}
-              <ExternalLink href="/15022022KyberSwapTermsofUse.pdf" onClick={e => e.stopPropagation()}>
-                <Trans>Terms of Use</Trans>
+              <Trans>Accept </Trans>{' '}
+              <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS} onClick={e => e.stopPropagation()}>
+                <Trans>KyberSwap&lsquo;s Terms of Use</Trans>
+              </ExternalLink>
+              {', '}
+              <ExternalLink href={TERM_FILES_PATH.PRIVACY_POLICY} onClick={e => e.stopPropagation()}>
+                <Trans>Privacy Policy</Trans>
               </ExternalLink>{' '}
               <Trans>and</Trans>{' '}
-              <ExternalLink href="http://files.dmm.exchange/privacy.pdf" onClick={e => e.stopPropagation()}>
-                <Trans>Privacy Policy</Trans>
+              <ExternalLink href={TERM_FILES_PATH.KYBER_DAO_TERMS} onClick={e => e.stopPropagation()}>
+                <Trans>KyberDAO&lsquo;s Terms of Use.</Trans>
               </ExternalLink>
+              <Text fontSize={10}>
+                <Trans>Last updated: {dayjs(TERM_FILES_PATH.VERSION).format('DD MMM YYYY')}</Trans>
+              </Text>
             </Text>
           </TermAndCondition>
         )}

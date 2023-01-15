@@ -13,6 +13,7 @@ import christmasImg from 'assets/images/christmas-decor2.svg'
 import { ReactComponent as TutorialSvg } from 'assets/svg/play_circle_outline.svg'
 import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import AddressInputPanel from 'components/AddressInputPanel'
+import ApproveMessage from 'components/ApproveMessage'
 import ArrowRotate from 'components/ArrowRotate'
 import Banner from 'components/Banner'
 import { ButtonConfirmed, ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
@@ -50,6 +51,7 @@ import TokenInfoV2 from 'components/swapv2/TokenInfoV2'
 import TradePrice from 'components/swapv2/TradePrice'
 import TradeTypeSelection from 'components/swapv2/TradeTypeSelection'
 import {
+  BetaTag,
   BottomGrouping,
   Container,
   Dots,
@@ -68,7 +70,7 @@ import {
   TabWrapper,
   Wrapper,
 } from 'components/swapv2/styleds'
-import { AGGREGATOR_WAITING_TIME, APP_PATHS, SUPPORT_LIMIT_ORDER, TIME_TO_REFRESH_SWAP_RATE } from 'constants/index'
+import { AGGREGATOR_WAITING_TIME, APP_PATHS, TIME_TO_REFRESH_SWAP_RATE } from 'constants/index'
 import { STABLE_COINS_ADDRESS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens, useIsLoadedTokenDefault } from 'hooks/Tokens'
@@ -83,6 +85,7 @@ import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { BodyWrapper } from 'pages/AppBody'
 import { ClickableText } from 'pages/Pool/styleds'
+import VerifyComponent from 'pages/Verify/VerifyComponent'
 import { useToggleTransactionSettingsMenu, useWalletModalToggle } from 'state/application/hooks'
 import { useAllDexes } from 'state/customizeDexes/hooks'
 import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
@@ -96,12 +99,11 @@ import {
   useShowLiveChart,
   useShowTokenInfo,
   useShowTradeRoutes,
-  useToggleProLiveChart,
   useUserAddedTokens,
   useUserSlippageTolerance,
 } from 'state/user/hooks'
 import { TYPE } from 'theme'
-import { formattedNum } from 'utils'
+import { formattedNum, getLimitOrderContract } from 'utils'
 import { Aggregator } from 'utils/aggregator'
 import { currencyId } from 'utils/currencyId'
 import { halfAmountSpend, maxAmountSpend } from 'utils/maxAmountSpend'
@@ -113,6 +115,7 @@ const Routing = lazy(() => import('components/swapv2/Routing'))
 const TutorialIcon = styled(TutorialSvg)`
   width: 22px;
   height: 22px;
+
   path {
     fill: ${({ theme }) => theme.subText};
     stroke: ${({ theme }) => theme.subText};
@@ -175,6 +178,7 @@ const RoutingIconWrapper = styled(RoutingIcon)`
   height: 27px;
   width: 27px;
   margin-right: 10px;
+
   path {
     fill: ${({ theme }) => theme.subText} !important;
   }
@@ -186,7 +190,6 @@ export default function Swap() {
   const [rotate, setRotate] = useState(false)
   const isShowLiveChart = useShowLiveChart()
   const [holidayMode] = useHolidayMode()
-  const toggleProLiveChart = useToggleProLiveChart()
   const isShowTradeRoutes = useShowTradeRoutes()
   const isShowTokenInfoSetting = useShowTokenInfo()
   const qs = useParsedQueryString<{
@@ -520,7 +523,7 @@ export default function Swap() {
   const onSelectSuggestedPair = useCallback(
     (fromToken: Currency | undefined, toToken: Currency | undefined, amount?: string) => {
       if (isLimitPage) {
-        onSelectPairLimit(fromToken, toToken)
+        onSelectPairLimit(fromToken, toToken, amount)
         return
       }
       if (fromToken) onCurrencySelection(Field.INPUT, fromToken)
@@ -651,7 +654,6 @@ export default function Swap() {
   const onClickTab = (tab: TAB) => {
     setActiveTab(tab)
     const isLimit = tab === TAB.LIMIT
-    isLimit && toggleProLiveChart(true)
     const { inputCurrency, outputCurrency, ...newQs } = qs
     navigateFn({
       pathname: `${isLimit ? APP_PATHS.LIMIT : APP_PATHS.SWAP}/${networkInfo.route}`,
@@ -667,6 +669,7 @@ export default function Swap() {
        */}
       <SEOSwap canonicalUrl={canonicalUrl} />
       <TutorialSwap />
+      <VerifyComponent />
       <TokenWarningModal
         isOpen={isShowModalImportToken}
         tokens={importTokensNotInDefault}
@@ -686,11 +689,14 @@ export default function Swap() {
                       <Trans>Swap</Trans>
                     </Text>
                   </Tab>
-                  {SUPPORT_LIMIT_ORDER && (
+                  {getLimitOrderContract(chainId) && (
                     <Tab onClick={() => onClickTab(TAB.LIMIT)} isActive={isLimitPage}>
                       <Text fontSize={20} fontWeight={500}>
                         <Trans>Limit</Trans>
                       </Text>
+                      <BetaTag>
+                        <Trans>Beta</Trans>
+                      </BetaTag>
                     </Tab>
                   )}
                 </TabWrapper>
@@ -698,7 +704,7 @@ export default function Swap() {
 
               <SwapFormActions>
                 <Tutorial
-                  type={TutorialType.SWAP}
+                  type={isSwapPage ? TutorialType.SWAP : TutorialType.LIMIT_ORDER}
                   customIcon={
                     <StyledActionButtonSwapForm>
                       <TutorialIcon />
@@ -923,6 +929,11 @@ export default function Swap() {
                         </Trans>
                       </PriceImpactHigh>
                     )}
+                    <ApproveMessage
+                      routerAddress={trade?.routerAddress}
+                      isCurrencyInNative={Boolean(currencyIn?.isNative)}
+                    />
+
                     <BottomGrouping>
                       {!account ? (
                         <ButtonLight onClick={toggleWalletModal}>
@@ -1121,10 +1132,7 @@ export default function Swap() {
                       />
                     }
                   >
-                    <LiveChart
-                      onRotateClick={handleRotateClick}
-                      currencies={isSwapPage ? currencies : currenciesLimit}
-                    />
+                    <LiveChart currencies={isSwapPage ? currencies : currenciesLimit} />
                   </Suspense>
                 </LiveChartWrapper>
               )}

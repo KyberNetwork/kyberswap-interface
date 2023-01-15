@@ -2,6 +2,7 @@ import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
+import { TERM_FILES_PATH } from 'constants/index'
 import { SupportedLocale } from 'constants/locales'
 import { PINNED_PAIRS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -26,11 +27,10 @@ import {
   toggleFavoriteToken as toggleFavoriteTokenAction,
   toggleHolidayMode,
   toggleLiveChart,
-  toggleProLiveChart,
   toggleTokenInfo,
   toggleTopTrendingTokens,
   toggleTradeRoutes,
-  updateIsAcceptedTerm,
+  updateAcceptedTermVersion,
   updateIsUserManuallyDisconnect,
   updateUserDarkMode,
   updateUserDeadline,
@@ -125,11 +125,15 @@ export function useIsUserManuallyDisconnect(): [boolean, (isUserManuallyDisconne
 
 export function useIsAcceptedTerm(): [boolean, (isAcceptedTerm: boolean) => void] {
   const dispatch = useAppDispatch()
-  const isAcceptedTerm = useSelector<AppState, AppState['user']['isAcceptedTerm']>(state => state.user.isAcceptedTerm)
+  const acceptedTermVersion = useSelector<AppState, AppState['user']['acceptedTermVersion']>(
+    state => state.user.acceptedTermVersion,
+  )
+
+  const isAcceptedTerm = !!acceptedTermVersion && acceptedTermVersion === TERM_FILES_PATH.VERSION
 
   const setIsAcceptedTerm = useCallback(
     (isAcceptedTerm: boolean) => {
-      dispatch(updateIsAcceptedTerm(isAcceptedTerm))
+      dispatch(updateAcceptedTermVersion(isAcceptedTerm ? TERM_FILES_PATH.VERSION : null))
     },
     [dispatch],
   )
@@ -350,11 +354,6 @@ export function useShowLiveChart(): boolean {
   return !!show
 }
 
-export function useShowProLiveChart(): boolean {
-  const showProLiveChart = useSelector((state: AppState) => state.user.showProLiveChart)
-  return showProLiveChart
-}
-
 export function useShowTradeRoutes(): boolean {
   const showTradeRoutes = useSelector((state: AppState) => state.user.showTradeRoutes)
   return showTradeRoutes
@@ -374,10 +373,7 @@ export function useToggleLiveChart(): () => void {
   const { chainId } = useActiveWeb3React()
   return useCallback(() => dispatch(toggleLiveChart({ chainId: chainId })), [dispatch, chainId])
 }
-export function useToggleProLiveChart(): (showProLiveChart?: boolean) => void {
-  const dispatch = useDispatch<AppDispatch>()
-  return useCallback((showProLiveChart?: boolean) => dispatch(toggleProLiveChart(showProLiveChart)), [dispatch])
-}
+
 export function useToggleTradeRoutes(): () => void {
   const dispatch = useDispatch<AppDispatch>()
   return useCallback(() => dispatch(toggleTradeRoutes()), [dispatch])

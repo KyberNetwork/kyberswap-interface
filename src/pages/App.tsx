@@ -1,7 +1,6 @@
 import { datadogRum } from '@datadog/browser-rum'
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import * as Sentry from '@sentry/react'
-import { Sidetab } from '@typeform/embed-react'
 import { Suspense, lazy, useEffect } from 'react'
 import { isMobile } from 'react-device-detect'
 import { AlertTriangle } from 'react-feather'
@@ -20,14 +19,13 @@ import Modal from 'components/Modal'
 import Popups from 'components/Popups'
 import Snowfall from 'components/Snowflake/Snowfall'
 import Web3ReactManager from 'components/Web3ReactManager'
-import { APP_PATHS, BLACKLIST_WALLETS, SUPPORT_LIMIT_ORDER } from 'constants/index'
+import { APP_PATHS, BLACKLIST_WALLETS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useGlobalMixpanelEvents } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
-import { useWindowSize } from 'hooks/useWindowSize'
-import { useHolidayMode, useIsDarkMode } from 'state/user/hooks'
+import { useHolidayMode } from 'state/user/hooks'
 import DarkModeQueryParamReader from 'theme/DarkModeQueryParamReader'
-import { isAddressString, shortenAddress } from 'utils'
+import { getLimitOrderContract, isAddressString, shortenAddress } from 'utils'
 
 import { RedirectDuplicateTokenIds } from './AddLiquidityV2/redirects'
 import { RedirectPathToFarmNetwork } from './Farm/redirect'
@@ -68,6 +66,8 @@ const IncreaseLiquidity = lazy(() => import(/* webpackChunkName: 'add-liquidity-
 
 const RemoveLiquidity = lazy(() => import(/* webpackChunkName: 'remove-liquidity-page' */ './RemoveLiquidity'))
 
+const KyberDAOStakeKNC = lazy(() => import(/* webpackChunkName: 'stake-knc' */ './KyberDAO/StakeKNC'))
+const KyberDAOVote = lazy(() => import(/* webpackChunkName: 'vote' */ './KyberDAO/Vote'))
 const AboutKyberSwap = lazy(() => import(/* webpackChunkName: 'about-page' */ './About/AboutKyberSwap'))
 const AboutKNC = lazy(() => import(/* webpackChunkName: 'about-knc' */ './About/AboutKNC'))
 
@@ -125,13 +125,10 @@ export default function App() {
   }, [chainId, networkInfo.name])
 
   const theme = useTheme()
-  const isDarkTheme = useIsDarkMode()
 
-  const { width } = useWindowSize()
   useGlobalMixpanelEvents()
   const { pathname } = window.location
   const showFooter = !pathname.includes(APP_PATHS.ABOUT)
-  const feedbackId = isDarkTheme ? 'W5TeOyyH' : 'K0dtSO0v'
   const [holidayMode] = useHolidayMode()
 
   const snowflake = new Image()
@@ -140,14 +137,6 @@ export default function App() {
   return (
     <ErrorBoundary>
       <AppHaveUpdate />
-      {width && width >= 768 ? (
-        <Sidetab
-          id={feedbackId}
-          buttonText={t`Feedback`}
-          buttonColor={theme.primary}
-          customIcon={isDarkTheme ? 'https://i.imgur.com/iTOOKnr.png' : 'https://i.imgur.com/aPCpnGg.png'}
-        />
-      ) : null}
       {(BLACKLIST_WALLETS.includes(isAddressString(chainId, account)) ||
         BLACKLIST_WALLETS.includes(account?.toLowerCase() || '')) && (
         <Modal
@@ -215,7 +204,7 @@ export default function App() {
                     <Route path={`${APP_PATHS.SWAP}/:network/:fromCurrency`} element={<SwapV2 />} />
                     <Route path={`${APP_PATHS.SWAP}/:network`} element={<SwapV2 />} />
 
-                    {SUPPORT_LIMIT_ORDER && (
+                    {getLimitOrderContract(chainId) && (
                       <>
                         <Route path={`${APP_PATHS.LIMIT}/:network/:fromCurrency-to-:toCurrency`} element={<SwapV2 />} />
                         <Route path={`${APP_PATHS.LIMIT}/:network/:fromCurrency`} element={<SwapV2 />} />
@@ -274,6 +263,8 @@ export default function App() {
                       path={`${APP_PATHS.ELASTIC_INCREASE_LIQ}/:currencyIdA/:currencyIdB/:feeAmount/:tokenId`}
                       element={<IncreaseLiquidity />}
                     />
+                    <Route path={`${APP_PATHS.KYBERDAO_STAKE}`} element={<KyberDAOStakeKNC />} />
+                    <Route path={`${APP_PATHS.KYBERDAO_VOTE}`} element={<KyberDAOVote />} />
                     <Route path={`${APP_PATHS.ABOUT}/kyberswap`} element={<AboutKyberSwap />} />
                     <Route path={`${APP_PATHS.ABOUT}/knc`} element={<AboutKNC />} />
                     <Route path={`${APP_PATHS.REFERRAL}`} element={<CreateReferral />} />
@@ -282,7 +273,6 @@ export default function App() {
                     <Route path={`${APP_PATHS.CAMPAIGN}`} element={<Campaign />} />
                     <Route path={`${APP_PATHS.CAMPAIGN}/:slug`} element={<Campaign />} />
                     <Route path={`${APP_PATHS.BRIDGE}`} element={<Bridge />} />
-                    <Route path={`${APP_PATHS.VERIFY}`} element={<Verify />} />
                     <Route path={`${APP_PATHS.VERIFY_EXTERNAL}`} element={<Verify />} />
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}`} element={<GrantProgramPage />} />
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}/:slug`} element={<GrantProgramPage />} />

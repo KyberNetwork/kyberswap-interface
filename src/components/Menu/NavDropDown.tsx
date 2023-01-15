@@ -1,15 +1,44 @@
 import { Trans } from '@lingui/macro'
-import React, { ReactNode, useState } from 'react'
-import { ChevronDown } from 'react-feather'
+import React, { ReactNode, useRef, useState } from 'react'
+import { NavLink } from 'react-router-dom'
+import { Text } from 'rebass'
 import styled from 'styled-components'
 
+import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
+import { ExternalLink } from 'theme'
 
-import { ExternalNavMenuItem, NavMenuItem } from '.'
+const Wrapper = styled.div`
+  transition: all 0.2s ease;
+  overflow: hidden;
+  flex: 1;
+`
+const LinkContainer = styled.div<{ isShow?: boolean; $height: number }>`
+  padding-left: 24px;
+  transition: all 0.3s ease;
+  ${({ isShow, $height }) => (isShow ? `height: ${$height}px;` : 'height: 0px;')}
+  > * {
+    padding: 12px 0;
+  }
 
-const LinkContainer = styled.div`
-  padding-left: 20px;
+  > *:first-child {
+    padding-top: 24px;
+  }
+  > *:last-child {
+    padding-bottom: 0;
+  }
+`
+const DropdownIcon = styled(DropdownSVG)<{ isShow?: boolean }>`
+  transition: all 0.2s ease;
+  height: 24px !important;
+  width: 24px !important;
+  ${({ isShow }) => isShow && 'transform: rotate(180deg);'}
+`
+
+const TitleWrapper = styled(NavLink)`
+  display: flex;
+  justify-content: space-between;
 `
 
 export default function NavDropDown({
@@ -31,28 +60,30 @@ export default function NavDropDown({
     setIsShowOptions(prev => !prev)
   }
 
+  const ref = useRef<HTMLDivElement>(null)
+
   return (
-    <div>
-      <NavMenuItem to={link} onClick={handleClick}>
+    <Wrapper>
+      <TitleWrapper to={link} onClick={handleClick}>
         {icon}
-        <Trans>{title}</Trans>
-        <ChevronDown size={16} style={{ marginLeft: '6px' }} />
-      </NavMenuItem>
-      {isShowOptions && (
-        <LinkContainer>
-          {options.map(item =>
-            item.external ? (
-              <ExternalNavMenuItem key={item.link} href={item.link} onClick={toggle}>
-                <Trans>{item.label}</Trans>
-              </ExternalNavMenuItem>
-            ) : (
-              <NavMenuItem to={item.link} key={item.link} onClick={toggle}>
-                <Trans>{item.label}</Trans>
-              </NavMenuItem>
-            ),
-          )}
-        </LinkContainer>
-      )}
-    </div>
+        <Text flex={1}>
+          <Trans>{title}</Trans>
+        </Text>
+        <DropdownIcon isShow={isShowOptions} />
+      </TitleWrapper>
+      <LinkContainer isShow={isShowOptions} ref={ref} $height={ref.current?.scrollHeight || 0}>
+        {options.map(item =>
+          item.external ? (
+            <ExternalLink key={item.link} href={item.link} onClick={toggle}>
+              <Trans>{item.label}</Trans>
+            </ExternalLink>
+          ) : (
+            <NavLink to={item.link} key={item.link} onClick={toggle}>
+              <Trans>{item.label}</Trans>
+            </NavLink>
+          ),
+        )}
+      </LinkContainer>
+    </Wrapper>
   )
 }
