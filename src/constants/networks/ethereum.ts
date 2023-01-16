@@ -69,7 +69,7 @@ const ethereumInfo: EVMNetworkInfo = {
     farms: ['0xb85ebE2e4eA27526f817FF33fb55fB240057C03F'],
   },
   limitOrder: {
-    development: '0x227B0c196eA8db17A665EA6824D972A64202E936',
+    development: NOT_SUPPORT,
     production: '0x227B0c196eA8db17A665EA6824D972A64202E936',
   },
   averageBlockTimeInSeconds: 13.13,
