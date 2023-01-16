@@ -75,8 +75,8 @@ export function TradePriceV2({ price, style = {}, label, color, symbolIn, symbol
   try {
     if (price) {
       formattedPrice = showInverted
-        ? toFixed(parseFloat(price?.invertRate.toFixed(10)))
-        : toFixed(parseFloat(price?.marketRate.toFixed(10)))
+        ? toFixed(parseFloat(price?.invertRate.toPrecision(6)))
+        : toFixed(parseFloat(price?.marketRate.toPrecision(6)))
     }
   } catch (error) {}
 
