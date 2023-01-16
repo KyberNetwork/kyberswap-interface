@@ -12,7 +12,7 @@ const useTokenPricesLocal = (addresses: Array<string>) => {
   const tokenPrices = useAppSelector(state => state.tokenPrices)
   const dispatch = useAppDispatch()
   const { chainId } = useActiveWeb3React()
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   const addressKeys = addresses
     .sort()
@@ -60,6 +60,9 @@ const useTokenPricesLocal = (addresses: Array<string>) => {
     }
 
     if (unknownPriceList.length) fetchPrices()
+    else {
+      setLoading(false)
+    }
   }, [unknownPriceList, chainId, dispatch])
 
   const data = useMemo(() => {
