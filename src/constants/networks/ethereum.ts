@@ -68,7 +68,10 @@ const ethereumInfo: EVMNetworkInfo = {
     routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
     farms: ['0xb85ebE2e4eA27526f817FF33fb55fB240057C03F'],
   },
-  limitOrder: { development: NOT_SUPPORT, production: '0x227B0c196eA8db17A665EA6824D972A64202E936' },
+  limitOrder: {
+    development: '0x227B0c196eA8db17A665EA6824D972A64202E936',
+    production: '0x227B0c196eA8db17A665EA6824D972A64202E936',
+  },
   averageBlockTimeInSeconds: 13.13,
   coingeckoNetworkId: 'ethereum',
   coingeckoNativeTokenId: 'ethereum',
@@ -86,3 +89,31 @@ const ethereumInfo: EVMNetworkInfo = {
 }
 
 export default ethereumInfo
+// // else
+// const amountA = tryParseAmount(mapAmountNative[chainId], WETH[chainId])
+// const [a, b, data] = await Promise.all([
+//   fetchData(
+//     getApiUrl(amountA, WETH[chainId].wrapped.address, currencyIn.wrapped.address),
+//     amountA,
+//     WETH[chainId],
+//     currencyIn,
+//   ),
+//   fetchData(
+//     getApiUrl(amountA, WETH[chainId].wrapped.address, currencyOut.wrapped.address),
+//     amountA,
+//     WETH[chainId],
+//     currencyOut,
+//   ),
+//   fetchData(url),
+// ])
+// if (!a || !b) return undefined
+
+// const outA = TokenAmount.fromRawAmount(currencyIn, JSBI.BigInt(a.outputAmount))
+// const outB = TokenAmount.fromRawAmount(currencyOut, JSBI.BigInt(b.outputAmount))
+// const rate = outB.divide(outA).toFixed(10)
+// console.log('test', rate, data)
+// retryCount.current = 0
+// return {
+//   ...data,
+//   price: new Price(currencyIn, currencyOut, outA?.quotient, outB?.quotient),
+// }

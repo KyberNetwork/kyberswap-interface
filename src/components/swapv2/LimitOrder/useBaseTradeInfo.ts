@@ -20,7 +20,6 @@ import { tryParseAmount } from 'state/swap/hooks'
 
 type BaseTradeInfo = {
   price: Price<Currency, Currency>
-  invert: Price<Currency, Currency>
   amountInUsd: number
   outputAmount: any
 }
@@ -81,7 +80,6 @@ export default function useBaseTradeInfo(currencyIn: Currency | undefined, curre
     const amountOut = TokenAmount.fromRawAmount(currencyOut, JSBI.BigInt(outputAmount))
 
     const customAmount = amount || amountIn
-    console.log(amount, amountIn)
 
     if (customAmount?.quotient && amountOut?.quotient) {
       return {
@@ -91,7 +89,6 @@ export default function useBaseTradeInfo(currencyIn: Currency | undefined, curre
           customAmount?.quotient,
           amountOut?.quotient,
         ),
-        invert: new Price(currencyOut, currencyIn, amountOut?.quotient, customAmount?.quotient),
         amountInUsd,
         outputAmount,
       }
@@ -109,51 +106,32 @@ export default function useBaseTradeInfo(currencyIn: Currency | undefined, curre
           const tokenNotNative = currencyIn.isNative ? currencyOut : currencyIn
           const amountA = tryParseAmount(mapAmountNative[chainId], WETH[chainId])
           const customUrl = getApiUrl(amountA, WETH[chainId].wrapped.address, tokenNotNative.wrapped.address)
-          const [data] = await Promise.all([fetchData(customUrl, amountA)])
+          const data = await fetchData(customUrl, amountA)
           retryCount.current = 0
-          return data
+          const data2 = await fetchData(url)
+          if (!data || !data2) return
+          return { ...data, amountInUsd: data2.amountInUsd }
         }
         if (currencyOut.isNative) {
           const amountA = tryParseAmount(mapAmountNative[chainId], WETH[chainId])
-          const [a] = await Promise.all([
-            fetchData(
-              getApiUrl(amountA, WETH[chainId].wrapped.address, currencyIn.wrapped.address),
-              amountA,
-              WETH[chainId],
-              currencyIn,
-            ),
-          ])
-          console.log(a)
-
+          const data = await fetchData(
+            getApiUrl(amountA, WETH[chainId].wrapped.address, currencyIn.wrapped.address),
+            amountA,
+            WETH[chainId],
+            currencyIn,
+          )
+          const data2 = await fetchData(url)
           retryCount.current = 0
-          return { ...a, price: a?.price.invert() }
-
-          retryCount.current = 0
-          // return currencyIn.isNative ? data : data
+          if (!data || !data2) return
+          return {
+            ...data,
+            price: data?.price.invert(),
+            amountInUsd: data2.amountInUsd,
+          }
         }
         const data = await fetchData(url)
         retryCount.current = 0
         return data
-
-        // // else
-        // const amountA = tryParseAmount(mapAmountNative[chainId], WETH[chainId])
-        // const amountB = tryParseAmount(mapAmountNative[chainId], WETH[chainId])
-        // const [a, b, data] = await Promise.all([
-        //   fetchData(getApiUrl(amountA, WETH[chainId].wrapped.address, currencyIn.wrapped.address)),
-        //   fetchData(getApiUrl(amountB, WETH[chainId].wrapped.address, currencyOut.wrapped.address)),
-        //   fetchData(url),
-        // ])
-        // if (!a || !b) return undefined
-
-        // const outA = TokenAmount.fromRawAmount(currencyIn, JSBI.BigInt(b.outputAmount))
-        // const outB = TokenAmount.fromRawAmount(currencyOut, JSBI.BigInt(a.outputAmount))
-        // const rate = outB.divide(outA).toFixed(10)
-        // console.log('test', rate, data)
-        // retryCount.current = 0
-        // return {
-        //   ...data,
-        //   price: new Price(currencyIn, currencyOut, outA?.quotient, outB?.quotient),
-        // }
       } catch (error) {
         retryCount.current++
         if (retryCount.current <= MAX_RETRY_COUNT) {
