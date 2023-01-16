@@ -17,6 +17,8 @@ const BackgroundWrapper = styled.div`
   filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
   backdrop-filter: blur(4px);
   mix-blend-mode: overlay;
+  border-radius: 20px;
+  overflow: hidden;
 `
 
 const Layer1 = styled.div`

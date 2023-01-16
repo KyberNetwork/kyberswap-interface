@@ -19,8 +19,6 @@ const ContentWrapper = styled.div`
   position: relative;
   width: 100%;
   height: 160px;
-  border-radius: 20px;
-  overflow: hidden;
 `
 
 const Content = styled.div`
