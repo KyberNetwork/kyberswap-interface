@@ -1,7 +1,7 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
 
-import { useTokenPrices } from 'state/tokenPrices/hooks'
+import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
 
 export type BaseTradeInfo = {
   priceUsdIn: number
@@ -16,7 +16,7 @@ export default function useBaseTradeInfo(currencyIn: Currency | undefined, curre
     return [currencyIn?.wrapped.address, currencyOut?.wrapped.address].filter(Boolean) as string[]
   }, [currencyIn, currencyOut])
 
-  const pricesUsd = useTokenPrices(addresses)
+  const { data: pricesUsd, loading } = useTokenPricesWithLoading(addresses)
   const tradeInfo: BaseTradeInfo | undefined = useMemo(() => {
     if (!currencyIn || !currencyOut) return
     const priceUsdIn = pricesUsd[currencyIn?.wrapped.address]
@@ -31,5 +31,5 @@ export default function useBaseTradeInfo(currencyIn: Currency | undefined, curre
     }
   }, [pricesUsd, currencyIn, currencyOut])
 
-  return { loading: false, tradeInfo }
+  return { loading, tradeInfo }
 }

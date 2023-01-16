@@ -65,8 +65,9 @@ interface TradePricePropsV2 {
   color?: string
   symbolIn: string | undefined
   symbolOut: string | undefined
+  loading: boolean
 }
-export function TradePriceV2({ price, style = {}, label, color, symbolIn, symbolOut }: TradePricePropsV2) {
+export function TradePriceV2({ price, style = {}, label, color, symbolIn, symbolOut, loading }: TradePricePropsV2) {
   const theme = useTheme()
   const [showInverted, setShowInverted] = useState<boolean>(false)
   let formattedPrice
@@ -86,7 +87,7 @@ export function TradePriceV2({ price, style = {}, label, color, symbolIn, symbol
       onClick={() => setShowInverted(!showInverted)}
       height="22px"
     >
-      {show ? (
+      {show || loading ? (
         <>
           {label && <>{label}&nbsp;</>}
           <Text color={color}>

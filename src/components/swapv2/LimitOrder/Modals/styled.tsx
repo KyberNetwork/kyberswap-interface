@@ -108,7 +108,13 @@ export const MarketInfo = ({
           <Trans>Current Market Price</Trans>
         </Label>
         <Value>
-          <TradePriceV2 price={marketPrice} style={{ color: theme.text }} symbolIn={symbolIn} symbolOut={symbolOut} />
+          <TradePriceV2
+            price={marketPrice}
+            loading={false}
+            style={{ color: theme.text }}
+            symbolIn={symbolIn}
+            symbolOut={symbolOut}
+          />
         </Value>
       </Row>
     </Flex>

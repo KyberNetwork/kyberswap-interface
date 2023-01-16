@@ -39,6 +39,7 @@ import { TRANSACTION_STATE_DEFAULT, TransactionFlowState } from 'types'
 import { formatNumberWithPrecisionRange, getLimitOrderContract } from 'utils'
 import { subscribeNotificationOrderCancelled, subscribeNotificationOrderExpired } from 'utils/firebase'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
+import { toFixed } from 'utils/numbers'
 
 import ExpirePicker from './ExpirePicker'
 import { DEFAULT_EXPIRED, EXPIRED_OPTIONS } from './const'
@@ -192,7 +193,10 @@ const LimitOrderForm = function LimitOrderForm({
     try {
       mixpanelHandler(MIXPANEL_TYPE.LO_ENTER_DETAIL, 'set price')
       if (loadingTrade || !tradeInfo) return
-      onSetRate(tradeInfo?.marketRate?.toPrecision(6) ?? '', tradeInfo?.invertRate?.toPrecision(6) ?? '')
+      onSetRate(
+        toFixed(parseFloat(tradeInfo.marketRate.toFixed(16))) ?? '',
+        toFixed(parseFloat(tradeInfo.invertRate.toFixed(16))) ?? '',
+      )
     } catch (error) {}
   }
 
@@ -742,6 +746,7 @@ const LimitOrderForm = function LimitOrderForm({
             style={{ width: 'fit-content', fontStyle: 'italic' }}
             color={theme.text}
             label={t`Estimate Market Price is`}
+            loading={loadingTrade}
             symbolIn={currencyIn?.symbol}
             symbolOut={currencyOut?.symbol}
           />
