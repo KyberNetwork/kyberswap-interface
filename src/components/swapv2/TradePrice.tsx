@@ -7,6 +7,7 @@ import { Text } from 'rebass'
 import { BaseTradeInfo } from 'components/swapv2/LimitOrder/useBaseTradeInfo'
 import useTheme from 'hooks/useTheme'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
+import { toFixed } from 'utils/numbers'
 
 import { StyledBalanceMaxMini } from './styleds'
 
@@ -72,7 +73,11 @@ export function TradePriceV2({ price, style = {}, label, color, symbolIn, symbol
   const [showInverted, setShowInverted] = useState<boolean>(false)
   let formattedPrice
   try {
-    formattedPrice = showInverted ? price?.marketRate?.toPrecision(6) : price?.invertRate?.toPrecision(6)
+    if (price) {
+      formattedPrice = showInverted
+        ? toFixed(parseFloat(price?.marketRate.toFixed(16)))
+        : toFixed(parseFloat(price?.invertRate.toFixed(16)))
+    }
   } catch (error) {}
 
   const show = Boolean(price?.marketRate && price?.invertRate && formattedPrice)
