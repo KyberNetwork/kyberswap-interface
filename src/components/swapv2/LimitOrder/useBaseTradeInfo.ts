@@ -21,7 +21,7 @@ import { tryParseAmount } from 'state/swap/hooks'
 type BaseTradeInfo = {
   price: Price<Currency, Currency>
   amountInUsd: number
-  outputAmount: any
+  outputAmount: string
 }
 
 const MAX_RETRY_COUNT = 2
@@ -97,14 +97,10 @@ export default function useBaseTradeInfo(currencyIn: Currency | undefined, curre
     async url => {
       try {
         if (!MAP_AMOUNT_NATIVE[chainId] || !currencyIn || !currencyOut) return
-        if (currencyIn.isNative) {
-          const tokenNotNative = currencyIn.isNative ? currencyOut : currencyIn
+        const isNative = (currency: Currency) => currency.isNative || currencyIn.equals(WETH[chainId])
+        if (isNative(currencyIn)) {
           const amountA = tryParseAmount(MAP_AMOUNT_NATIVE[chainId], WETH[chainId])
-          const customUrl = getApiUrl(
-            amountA,
-            ETHER_ADDRESS || WETH[chainId].wrapped.address,
-            tokenNotNative.wrapped.address,
-          )
+          const customUrl = getApiUrl(amountA, ETHER_ADDRESS, currencyOut.wrapped.address)
           const [dataCompareEth, data2] = await Promise.all([
             fetchData(customUrl, amountA, currencyIn, currencyOut),
             fetchData(url, amountIn, currencyIn, currencyOut),
@@ -113,7 +109,7 @@ export default function useBaseTradeInfo(currencyIn: Currency | undefined, curre
           retryCount.current = 0
           return { ...dataCompareEth, amountInUsd: data2.amountInUsd }
         }
-        if (currencyOut.isNative) {
+        if (isNative(currencyOut)) {
           const amountA = tryParseAmount(MAP_AMOUNT_NATIVE[chainId], WETH[chainId])
           const [dataCompareEth, data2] = await Promise.all([
             fetchData(
