@@ -108,7 +108,7 @@ export const FeeTag = styled.div`
   color: ${({ theme }) => theme.darkBlue};
   font-size: 10px;
   font-weight: 500;
-  padding: 2px 4px;
+  padding: 3px 4px;
   margin-left: 6px;
   min-width: 36px;
   text-align: center;
@@ -155,15 +155,24 @@ export const Dot = styled.div<{ isCurrentPrice?: boolean; outOfRange?: boolean }
     isCurrentPrice ? theme.text : outOfRange ? theme.warning : theme.primary};
 `
 
-export const FlipCard = styled.div<{ flip: boolean }>`
+export const FlipCard = styled.div<{ flip: boolean; joined?: boolean }>`
   border-radius: 20px;
   padding: 16px;
   width: 100%;
   min-height: 380px;
-  background-image: url(${bgimg});
-  background-size: cover;
-  background-repeat: no-repeat;
   background-color: ${({ theme }) => theme.buttonBlack};
+
+  ${({ joined = true }) =>
+    joined &&
+    css`
+      background-image: ${({ theme }) =>
+        `url(${bgimg}),
+        linear-gradient(to right, ${rgba(theme.apr, 0.12)}, ${rgba(theme.apr, 0.12)}),
+        linear-gradient(to right, ${theme.buttonBlack}, ${theme.buttonBlack})`};
+
+      background-size: cover, cover, cover;
+      background-repeat: no-repeat, no-repeat, no-repeat;
+    `}
   position: relative;
   transition: transform 0.6s;
   transform-style: preserve-3d;

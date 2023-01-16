@@ -1,9 +1,9 @@
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { darken } from 'polished'
+import { darken, rgba } from 'polished'
 import { useState } from 'react'
-import { Minus, Plus, Share2 } from 'react-feather'
+import { Info, Minus, Plus, Share2 } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -58,6 +58,19 @@ const Button = styled(ButtonLight)<{ color: string }>`
     border: 1px solid transparent;
     outline: none;
   }
+`
+
+const Range = styled.div<{ inrange?: boolean }>`
+  align-self: flex-end;
+  align-items: center;
+  color: ${({ theme, inrange }) => (inrange ? theme.primary : theme.warning)};
+  padding: 3px 4px;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  border-radius: 999px;
+  background: ${({ theme, inrange }) => rgba(inrange ? theme.primary : theme.warning, 0.3)};
 `
 
 interface Pool extends FarmingPool {
@@ -122,24 +135,52 @@ const FarmCard = ({
       ? representedPostion.pool.priceOf(representedPostion.pool.token1)
       : representedPostion.pool.priceOf(representedPostion.pool.token0))
 
+  const numberOutRangePos = depositedPositions.filter(
+    pos => pos.pool.tickCurrent < pos.tickLower || pos.pool.tickCurrent >= pos.tickUpper,
+  ).length
+
+  const numberInRangePos = depositedPositions.filter(
+    pos => pos.pool.tickCurrent >= pos.tickLower && pos.pool.tickCurrent < pos.tickUpper,
+  ).length
+
   return (
-    <FlipCard flip={showPosition}>
+    <FlipCard flip={showPosition} joined={!!depositedPositions.length}>
       {!showPosition && (
         <FlipCardFront>
-          <Flex alignItems="center">
-            <DoubleCurrencyLogo currency0={pool.token0} currency1={pool.token1} size={20} />
-            <Link
-              to={addliquidityElasticPool}
-              style={{
-                textDecoration: 'none',
-              }}
-            >
-              <Text fontSize={16} fontWeight={500}>
-                {pool.token0.symbol} - {pool.token1.symbol}
-              </Text>
-            </Link>
+          <Flex alignItems="center" justifyContent="space-between">
+            <Flex alignItems="center">
+              <DoubleCurrencyLogo currency0={pool.token0} currency1={pool.token1} size={20} />
+              <Link
+                to={addliquidityElasticPool}
+                style={{
+                  textDecoration: 'none',
+                }}
+              >
+                <Text fontSize={16} fontWeight={500}>
+                  {pool.token0.symbol} - {pool.token1.symbol}
+                </Text>
+              </Link>
 
-            <FeeTag style={{ fontSize: '12px' }}>FEE {(pool.pool.fee * 100) / ELASTIC_BASE_FEE_UNIT}%</FeeTag>
+              <FeeTag style={{ fontSize: '12px' }}>FEE {(pool.pool.fee * 100) / ELASTIC_BASE_FEE_UNIT}%</FeeTag>
+            </Flex>
+
+            <Flex sx={{ gap: '4px' }}>
+              {!!numberOutRangePos && (
+                <MouseoverTooltip text={t`You have ${numberOutRangePos} out-of-range positions`}>
+                  <Range>
+                    {numberOutRangePos} <Info size={12} />
+                  </Range>
+                </MouseoverTooltip>
+              )}
+
+              {!!numberInRangePos && (
+                <MouseoverTooltip text={t`You have ${numberInRangePos} in-range positions`}>
+                  <Range inrange>
+                    {numberInRangePos} <Info size={12} />
+                  </Range>
+                </MouseoverTooltip>
+              )}
+            </Flex>
           </Flex>
 
           <Flex
