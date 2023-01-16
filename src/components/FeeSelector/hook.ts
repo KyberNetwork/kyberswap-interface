@@ -17,7 +17,7 @@ export const useFeeTierDistribution = (
     return [FeeAmount.HIGH, FeeAmount.LOW, FeeAmount.LOWEST, FeeAmount.STABLE, FeeAmount.MEDIUM]
   }, [])
 
-  const poolIds = useProAmmPoolInfos(currencyA, currencyB, feeAmounts)
+  const poolIds = useProAmmPoolInfos(currencyA, currencyB, feeAmounts).filter(Boolean)
 
   const initState = useMemo(() => {
     return {
@@ -38,6 +38,7 @@ export const useFeeTierDistribution = (
 
   useEffect(() => {
     if (!isEVM) return
+    if (!poolIds.length) return
     ;(networkInfo as EVMNetworkInfo).elastic.client
       .query({
         query: POOL_POSITION_COUNT(poolIds),
