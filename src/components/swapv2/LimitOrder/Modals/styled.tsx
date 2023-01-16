@@ -6,8 +6,8 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { Swap as SwapIcon } from 'components/Icons'
+import TradePrice from 'components/swapv2/LimitOrder/TradePrice'
 import { BaseTradeInfo } from 'components/swapv2/LimitOrder/useBaseTradeInfo'
-import { TradePriceV2 } from 'components/swapv2/TradePrice'
 import useTheme from 'hooks/useTheme'
 
 import { formatAmountOrder, formatRateOrder } from '../helpers'
@@ -108,7 +108,7 @@ export const MarketInfo = ({
           <Trans>Current Market Price</Trans>
         </Label>
         <Value>
-          <TradePriceV2
+          <TradePrice
             price={marketPrice}
             loading={false}
             style={{ color: theme.text }}

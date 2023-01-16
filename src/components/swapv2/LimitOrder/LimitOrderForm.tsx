@@ -20,9 +20,9 @@ import TrendingSoonTokenBanner from 'components/TrendingSoonTokenBanner'
 import ActionButtonLimitOrder from 'components/swapv2/LimitOrder/ActionButtonLimitOrder'
 import DeltaRate, { useGetDeltaRateLimitOrder } from 'components/swapv2/LimitOrder/DeltaRate'
 import ConfirmOrderModal from 'components/swapv2/LimitOrder/Modals/ConfirmOrderModal'
+import TradePrice from 'components/swapv2/LimitOrder/TradePrice'
 import useBaseTradeInfo from 'components/swapv2/LimitOrder/useBaseTradeInfo'
 import useWrapEthStatus from 'components/swapv2/LimitOrder/useWrapEthStatus'
-import { TradePriceV2 } from 'components/swapv2/TradePrice'
 import { Z_INDEXS } from 'constants/styles'
 import { useTokenAllowance } from 'data/Allowances'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -744,7 +744,7 @@ const LimitOrderForm = function LimitOrderForm({
 
         <RowBetween>
           {currencyIn && currencyOut ? (
-            <TradePriceV2
+            <TradePrice
               price={tradeInfo}
               style={{ width: 'fit-content', fontStyle: 'italic' }}
               color={theme.text}
