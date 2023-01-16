@@ -26,8 +26,8 @@ export default function useBaseTradeInfo(currencyIn: Currency | undefined, curre
     return {
       priceUsdIn,
       priceUsdOut,
-      marketRate: priceUsdOut / priceUsdIn,
-      invertRate: priceUsdIn / priceUsdOut,
+      marketRate: priceUsdIn / priceUsdOut,
+      invertRate: priceUsdOut / priceUsdIn,
     }
   }, [pricesUsd, currencyIn, currencyOut])
 

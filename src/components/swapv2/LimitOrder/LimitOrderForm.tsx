@@ -194,8 +194,8 @@ const LimitOrderForm = function LimitOrderForm({
       mixpanelHandler(MIXPANEL_TYPE.LO_ENTER_DETAIL, 'set price')
       if (loadingTrade || !tradeInfo) return
       onSetRate(
-        toFixed(parseFloat(tradeInfo.invertRate.toFixed(16))) ?? '',
         toFixed(parseFloat(tradeInfo.marketRate.toFixed(16))) ?? '',
+        toFixed(parseFloat(tradeInfo.invertRate.toFixed(16))) ?? '',
       )
     } catch (error) {}
   }
