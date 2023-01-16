@@ -417,6 +417,10 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
     }))
 
     const { encodedData } = await getEncodeData([order?.id].filter(Boolean) as number[], isCancelAll)
+    let nonce: BigNumber = BigNumber.from(0)
+    if (isCancelAll) {
+      nonce = await limitOrderContract.nonce(account)
+    }
     const response = await sendEVMTransaction(
       account,
       library,
@@ -428,10 +432,6 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
     setCancellingOrders({ orderIds: cancellingOrdersIds.concat(newOrders) })
 
     if (response?.hash && account) {
-      let nonce: BigNumber = BigNumber.from(0)
-      if (isCancelAll) {
-        nonce = await limitOrderContract.nonce(account)
-      }
       insertCancellingOrder({
         maker: account,
         chainId: chainId.toString(),
