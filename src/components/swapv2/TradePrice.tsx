@@ -92,12 +92,10 @@ export function TradePriceV2({ price, style = {}, label, color, symbolIn, symbol
       onClick={() => setShowInverted(!showInverted)}
       height="22px"
     >
-      {loading ? null : show ? (
+      {show ? (
         <>
           {label && <>{label}&nbsp;</>}
-          <Text color={color}>
-            {formattedPrice} {value}
-          </Text>
+          <Text color={color}>{loading ? null : `${formattedPrice} ${value}`}</Text>
           <StyledBalanceMaxMini>
             <Repeat size={12} />
           </StyledBalanceMaxMini>
