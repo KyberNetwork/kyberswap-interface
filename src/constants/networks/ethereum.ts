@@ -89,31 +89,3 @@ const ethereumInfo: EVMNetworkInfo = {
 }
 
 export default ethereumInfo
-// // else
-// const amountA = tryParseAmount(mapAmountNative[chainId], WETH[chainId])
-// const [a, b, data] = await Promise.all([
-//   fetchData(
-//     getApiUrl(amountA, WETH[chainId].wrapped.address, currencyIn.wrapped.address),
-//     amountA,
-//     WETH[chainId],
-//     currencyIn,
-//   ),
-//   fetchData(
-//     getApiUrl(amountA, WETH[chainId].wrapped.address, currencyOut.wrapped.address),
-//     amountA,
-//     WETH[chainId],
-//     currencyOut,
-//   ),
-//   fetchData(url),
-// ])
-// if (!a || !b) return undefined
-
-// const outA = TokenAmount.fromRawAmount(currencyIn, JSBI.BigInt(a.outputAmount))
-// const outB = TokenAmount.fromRawAmount(currencyOut, JSBI.BigInt(b.outputAmount))
-// const rate = outB.divide(outA).toFixed(10)
-// console.log('test', rate, data)
-// retryCount.current = 0
-// return {
-//   ...data,
-//   price: new Price(currencyIn, currencyOut, outA?.quotient, outB?.quotient),
-// }
