@@ -29,6 +29,7 @@ import { RANGE_LIST } from 'pages/AddLiquidityV2/constants'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { AppState } from 'state/index'
 import { tryParseAmount } from 'state/swap/hooks'
+import { usePairFactor } from 'state/topTokens/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { getTickToPrice } from 'utils/getTickToPrice'
 
@@ -43,7 +44,7 @@ import {
   typeStartPriceInput,
 } from './actions'
 import { Bound, Field, Point, RANGE, TimeframeOptions } from './type'
-import { getPairFactor, getRangeTicks, tryParseTick } from './utils'
+import { getRangeTicks, tryParseTick } from './utils'
 
 export function useProAmmMintState(): AppState['mintV2'] {
   return useAppSelector(state => state.mintV2)
@@ -572,9 +573,9 @@ export function useProAmmDerivedMintInfo(
   const R2 = 51
   const R3 = 31
   const R4 = 16
+  const pairFactor = usePairFactor([price?.baseCurrency, price?.quoteCurrency])
   const riskPoint: Point = useMemo(() => {
     if (price && priceLower && priceUpper) {
-      const pairFactor = getPairFactor([price.baseCurrency, price.quoteCurrency])
       const D1 = new Fraction(1).subtract(priceLower.divide(price))
       const D2 = priceUpper.divide(price).subtract(1)
       const D = D1.lessThan(D2) ? D1 : D2
@@ -586,12 +587,11 @@ export function useProAmmDerivedMintInfo(
       return 1
     }
     return 0
-  }, [price, priceLower, priceUpper])
+  }, [pairFactor, price, priceLower, priceUpper])
 
   const profitPoint: Point = useMemo(() => {
     if (price && priceLower && priceUpper) {
       if (priceLower.lessThan(price) && price.lessThan(priceUpper)) {
-        const pairFactor = getPairFactor([price.baseCurrency, price.quoteCurrency])
         const D = new Fraction(1).subtract(priceLower.asFraction.multiply(2).divide(priceLower.add(priceUpper)))
         const R = D.divide(pairFactor).multiply(10000)
         if (R.lessThan(R4)) return 5
@@ -604,14 +604,14 @@ export function useProAmmDerivedMintInfo(
       }
     }
     return 0
-  }, [price, priceLower, priceUpper])
+  }, [pairFactor, price, priceLower, priceUpper])
 
   const activeRange: RANGE | null = useMemo(() => {
     if (feeAmount && tokenA && tokenB && currentTick !== undefined && tickLower && tickUpper) {
       if (ticksAtLimit[Bound.LOWER] && ticksAtLimit[Bound.UPPER]) return RANGE.FULL_RANGE
       const rangeValue = RANGE_LIST.find(range => {
         if (range === RANGE.FULL_RANGE) return false
-        let [rangeTickLower, rangeTickUpper] = getRangeTicks(range, tokenA, tokenB, currentTick)
+        let [rangeTickLower, rangeTickUpper] = getRangeTicks(range, tokenA, tokenB, currentTick, pairFactor)
         // if (range === RANGE.COMMON) {
         //   console.group()
         //   console.log('invertPrice', invertPrice)
@@ -631,7 +631,7 @@ export function useProAmmDerivedMintInfo(
       if (rangeValue) return rangeValue
     }
     return null
-  }, [currentTick, feeAmount, invertPrice, tickLower, tickUpper, ticksAtLimit, tokenA, tokenB])
+  }, [currentTick, feeAmount, invertPrice, pairFactor, tickLower, tickUpper, ticksAtLimit, tokenA, tokenB])
 
   return {
     dependentField,
@@ -1321,12 +1321,13 @@ export function useRangeHopCallbacks(
     return ''
   }, [baseToken, quoteToken, tickUpper, feeAmount, initTick])
 
+  const pairFactor = usePairFactor([baseToken, quoteToken])
   const getSetRange = useCallback(
     (range: RANGE) => {
       if (range === RANGE.FULL_RANGE) {
         dispatch(setRange({ leftRangeTypedValue: true, rightRangeTypedValue: true, positionIndex }))
       } else if (initTick !== undefined && baseToken && quoteToken && feeAmount) {
-        const [tickLower, tickUpper] = getRangeTicks(range, baseToken, quoteToken, initTick)
+        const [tickLower, tickUpper] = getRangeTicks(range, baseToken, quoteToken, initTick, pairFactor)
 
         const parsedLower = tickToPrice(baseToken, quoteToken, tickLower)
         const parsedUpper = tickToPrice(baseToken, quoteToken, tickUpper)
@@ -1339,7 +1340,7 @@ export function useRangeHopCallbacks(
         dispatch(setRange(result))
       }
     },
-    [baseToken, dispatch, initTick, quoteToken, positionIndex, feeAmount],
+    [initTick, baseToken, quoteToken, feeAmount, dispatch, positionIndex, pairFactor],
   )
 
   return { getDecrementLower, getIncrementLower, getDecrementUpper, getIncrementUpper, getSetRange }

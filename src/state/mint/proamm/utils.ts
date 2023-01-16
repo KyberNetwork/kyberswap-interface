@@ -68,17 +68,9 @@ export function tryParseTick(
   return nearestUsableTick(tick, TICK_SPACINGS[feeAmount])
 }
 
-export const getPairFactor = (tokens: [Token, Token]): number => {
-  // exotic: 100
-  // nomal: 30
-  // stable: 2
-  // todo namgold
-  return 2
-}
 const log10001 = (num: number) => Math.log(num) / Math.log(1.0001)
 
-export const getRangeTicks = (range: RANGE, tokenA: Token, tokenB: Token, currentTick: number) => {
-  const pairFactor = getPairFactor([tokenA, tokenB])
+export const getRangeTicks = (range: RANGE, tokenA: Token, tokenB: Token, currentTick: number, pairFactor: number) => {
   const rangeFactor = rangeData[range].factor
   const leftRange = 1 - (pairFactor * rangeFactor) / 10000
   const rightRange = 1 + (pairFactor * rangeFactor) / 10000

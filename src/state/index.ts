@@ -23,6 +23,7 @@ import pair from './pair/reducer'
 import pools from './pools/reducer'
 import swap from './swap/reducer'
 import tokenPrices from './tokenPrices'
+import topTokens from './topTokens'
 import transactions from './transactions/reducer'
 import tutorial from './tutorial/reducer'
 import user from './user/reducer'
@@ -58,6 +59,7 @@ const store = configureStore({
     customizeDexes,
     elasticFarm,
     tokenPrices,
+    topTokens,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({ thunk: true, immutableCheck: false, serializableCheck: false })

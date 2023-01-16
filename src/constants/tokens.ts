@@ -118,6 +118,52 @@ export const STABLE_COINS_ADDRESS: { [chainId in ChainId]: string[] } = {
   [ChainId.ARBITRUM_TESTNET]: [],
 }
 
+export const CORRELATED_COINS_ADDRESS: { [chainId in ChainId]: string[][] } = {
+  [ChainId.MAINNET]: [
+    [
+      '0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0', //MATIC
+      '0x9ee91F9f426fA633d227f7a9b000E28b9dfd8599', //stMATIC
+    ],
+    [
+      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', //WETH
+      '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84', //stETH
+    ],
+    [
+      '0xdd974D5C2e2928deA5F71b9825b8b646686BD200', //KNCL
+      '0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202', //KNC
+    ],
+  ],
+  [ChainId.ETHW]: [],
+  [ChainId.MATIC]: [
+    [
+      '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270', //WMATIC
+      '0x3A58a54C066FdC0f2D55FC9C89F0415C92eBf3C4', //stMATIC
+      '0x0000000000000000000000000000000000001010', //MATIC
+    ],
+  ],
+  [ChainId.BSCMAINNET]: [],
+  [ChainId.AVAXMAINNET]: [
+    [
+      '0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7', //WAVAX
+      '0x2b2C81e08f1Af8835a78Bb2A90AE924ACE0eA4bE', //sAVAX
+    ],
+  ],
+  [ChainId.FANTOM]: [],
+  [ChainId.CRONOS]: [],
+  [ChainId.ARBITRUM]: [],
+  [ChainId.BTTC]: [],
+  [ChainId.VELAS]: [],
+  [ChainId.AURORA]: [],
+  [ChainId.OASIS]: [],
+  [ChainId.OPTIMISM]: [],
+  [ChainId.SOLANA]: [],
+  [ChainId.GÖRLI]: [],
+  [ChainId.MUMBAI]: [],
+  [ChainId.BSCTESTNET]: [],
+  [ChainId.AVAXTESTNET]: [],
+  [ChainId.ARBITRUM_TESTNET]: [],
+}
+
 export const DAI = {
   [ChainId.MAINNET]: new Token(
     ChainId.MAINNET,
