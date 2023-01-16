@@ -7,7 +7,6 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as DragHandleIcon } from 'assets/svg/wallet_drag_handle.svg'
-import Column from 'components/Column'
 import SendIcon from 'components/Icons/SendIcon'
 import Row from 'components/Row'
 import AccountInfo from 'components/WalletPopup/AccountInfo'
@@ -24,15 +23,16 @@ import ListTransaction from './Transactions'
 export const HANDLE_CLASS_NAME = 'walletPopupDragHandle'
 
 type WrapperProps = { $pinned: boolean; $blur: boolean }
-const Wrapper = styled(Column).attrs<WrapperProps>(props => ({
+const Wrapper = styled.div.attrs<WrapperProps>(props => ({
   'data-pinned': props.$pinned,
   'data-blur': props.$blur,
 }))<WrapperProps>`
   width: 100%;
   height: 100%;
-  padding: 20px;
   padding-top: 0px;
-  gap: 14px;
+
+  display: flex;
+
   border-radius: 20px 0px 0px 0px;
   background-color: ${({ theme }) => theme.tabActive};
 
@@ -184,58 +184,99 @@ export default function WalletView({ onDismiss, onPin, isPinned, blurBackground 
     }
   }, [nodeRef])
 
+  const classNameForHandle = isPinned ? HANDLE_CLASS_NAME : ''
+  const cursorForHandle = isPinned ? 'move' : undefined
+
   return (
     <Wrapper ref={nodeRef} $pinned={isPinned} $blur={blurBackground}>
       <Flex
-        className={isPinned ? HANDLE_CLASS_NAME : ''}
+        className={classNameForHandle}
+        sx={{
+          height: '100%',
+          flex: '0 0 20px',
+          cursor: cursorForHandle,
+        }}
+      />
+
+      <Flex
         sx={{
           flexDirection: 'column',
           width: '100%',
-          height: '0 0 max-content',
+          alignSelf: 'stretch',
           justifyContent: 'center',
-          cursor: isPinned ? 'move' : undefined,
         }}
       >
-        {isPinned && (
-          <Flex
-            sx={{
-              height: '12px',
-              justifyContent: 'center',
-              alignItems: 'center',
-              paddingTop: '8px',
-            }}
-          >
-            <DragHandleIcon />
-          </Flex>
-        )}
-
         <Flex
+          className={classNameForHandle}
           sx={{
-            flex: '0 0 48px',
-            alignItems: 'center',
-            justifyContent: 'space-between',
+            flexDirection: 'column',
+            width: '100%',
+            alignSelf: 'stretch',
+            justifyContent: 'center',
+            cursor: cursorForHandle,
+            marginBottom: '8px',
           }}
         >
-          {isExchangeTokenTab ? (
-            <>
-              <ChevronLeft cursor="pointer" size={28} onClick={() => setView(View.ASSETS)} color={theme.subText} />
-              <Flex alignItems="center">
-                <SendIcon style={{ marginRight: 7, transform: isSendTab ? 'unset' : 'rotate(180deg)' }} /> {view}
-              </Flex>
-            </>
-          ) : (
-            <Text fontWeight={'500'} fontSize="20px">
-              <Trans>Your Account</Trans>
-            </Text>
+          {isPinned && (
+            <Flex
+              sx={{
+                height: '12px',
+                justifyContent: 'center',
+                alignItems: 'center',
+                paddingTop: '8px',
+              }}
+            >
+              <DragHandleIcon />
+            </Flex>
           )}
-          <Flex style={{ gap: 20 }} alignItems="center">
-            {onPin && onUnpin && <PinButton isActive={isPinned} onClick={isPinned ? onUnpin : onPin} />}
-            <X onClick={onDismiss} color={theme.subText} cursor="pointer" />
+
+          <Flex
+            sx={{
+              flex: '0 0 48px',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            {isExchangeTokenTab ? (
+              <>
+                <ChevronLeft cursor="pointer" size={28} onClick={() => setView(View.ASSETS)} color={theme.subText} />
+                <Flex alignItems="center">
+                  <SendIcon style={{ marginRight: 7, transform: isSendTab ? 'unset' : 'rotate(180deg)' }} /> {view}
+                </Flex>
+              </>
+            ) : (
+              <Text fontWeight={'500'} fontSize="20px">
+                <Trans>Your Account</Trans>
+              </Text>
+            )}
+            <Flex style={{ gap: 20 }} alignItems="center">
+              {onPin && onUnpin && <PinButton isActive={isPinned} onClick={isPinned ? onUnpin : onPin} />}
+              <X onClick={onDismiss} color={theme.subText} cursor="pointer" />
+            </Flex>
           </Flex>
         </Flex>
+
+        {renderContent()}
+
+        <Flex
+          className={classNameForHandle}
+          sx={{
+            height: '20px',
+            flex: '0 0 20px',
+            width: '100%',
+            cursor: cursorForHandle,
+          }}
+        />
       </Flex>
 
-      {renderContent()}
+      <Flex
+        className={classNameForHandle}
+        sx={{
+          height: '100%',
+          flex: '0 0 20px',
+          cursor: cursorForHandle,
+        }}
+      />
     </Wrapper>
   )
 }
