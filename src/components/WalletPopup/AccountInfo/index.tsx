@@ -115,7 +115,7 @@ export default function AccountInfo({ totalBalanceInUsd, onClickBuy, onClickRece
   return (
     <Wrapper $minimal={isMinimal}>
       <ContentWrapper>
-        <CardBackground />
+        <CardBackground noLogo={isMinimal} />
         <Content>
           <Flex alignItems="center" justifyContent={'space-between'}>
             <Flex alignItems={'center'} style={{ gap: 5 }} color={theme.subText}>

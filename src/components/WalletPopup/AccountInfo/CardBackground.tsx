@@ -40,15 +40,19 @@ const LogoWrapper = styled.div`
   top: 50%;
   transform: translateY(-50%);
 `
-
-const CardBackground = () => {
+type Props = {
+  noLogo: boolean
+}
+const CardBackground: React.FC<Props> = ({ noLogo }) => {
   return (
     <BackgroundWrapper>
       <Layer1 />
       <Layer2 />
-      <LogoWrapper>
-        <KyberLogo width="94px" height="auto" />
-      </LogoWrapper>
+      {!noLogo && (
+        <LogoWrapper>
+          <KyberLogo width="94px" height="auto" />
+        </LogoWrapper>
+      )}
     </BackgroundWrapper>
   )
 }
