@@ -88,7 +88,7 @@ export function TradePriceV2({ price, style = {}, label, color, symbolIn, symbol
       fontWeight={500}
       fontSize={12}
       color={theme.subText}
-      style={{ alignItems: 'center', display: 'flex', cursor: 'pointer', ...style }}
+      style={{ alignItems: 'center', display: 'flex', cursor: show ? 'pointer' : 'default', ...style }}
       onClick={() => setShowInverted(!showInverted)}
       height="22px"
     >
