@@ -183,7 +183,7 @@ export default function PoolCombination() {
 
 function Pool() {
   const theme = useTheme()
-  const { account, chainId, isEVM } = useActiveWeb3React()
+  const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
   const { width } = useWindowSize()
 
   const under768 = width && width <= 768
@@ -449,7 +449,9 @@ function Pool() {
                   <Text fontSize={16} lineHeight={1.5} color={theme.subText} textAlign="center" marginTop="1rem">
                     <Trans>
                       No liquidity found. Check out our{' '}
-                      <StyledInternalLink to="/pools?tab=classic">Pools.</StyledInternalLink>
+                      <StyledInternalLink to={`${APP_PATHS.POOLS}/${networkInfo.route}?tab=classic`}>
+                        Pools.
+                      </StyledInternalLink>
                     </Trans>
                     <br />
                     {t`Don't see a pool you joined?`}{' '}
@@ -492,7 +494,8 @@ function Pool() {
                 <Info size={48} color={theme.subText} />
                 <Text fontSize={16} lineHeight={1.5} color={theme.subText} textAlign="center" marginTop="1rem">
                   <Trans>
-                    No staked liquidity found. Check out our <StyledInternalLink to="/farms">Farms.</StyledInternalLink>
+                    No staked liquidity found. Check out our{' '}
+                    <StyledInternalLink to={`${APP_PATHS.FARMS}/${networkInfo.route}`}>Farms.</StyledInternalLink>
                   </Trans>
                 </Text>
               </Flex>
