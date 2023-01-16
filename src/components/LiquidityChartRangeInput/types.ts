@@ -6,8 +6,8 @@ export interface ChartEntry {
 }
 
 interface Dimensions {
-  width: number
-  height: number
+  viewBoxWidth: number
+  height?: string
 }
 
 interface Margins {

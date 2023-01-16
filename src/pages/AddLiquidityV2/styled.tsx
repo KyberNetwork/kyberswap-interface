@@ -24,8 +24,8 @@ export const Container = styled.div`
 
   padding: 24px;
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 24px 16px 24px;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    padding: 16px;
   `};
 `
 

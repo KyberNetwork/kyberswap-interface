@@ -707,6 +707,7 @@ export default function AddLiquidity() {
                 onLeftRangeInput={onLeftRangeInput}
                 onRightRangeInput={onRightRangeInput}
                 interactive
+                height="233.5px"
               />
               <DynamicSection gap="md" disabled={disableRangeSelect}>
                 <StackedContainer>
@@ -963,7 +964,7 @@ export default function AddLiquidity() {
                 />
 
                 <ArrowWrapper
-                  isVertical
+                  isVertical={!upToXXSmall}
                   rotated={rotate}
                   onClick={() => {
                     if (!!rightPrice) {
