@@ -101,7 +101,7 @@ export function TradePriceV2({ price, style = {}, label, color, symbolIn, symbol
           </StyledBalanceMaxMini>
         </>
       ) : (
-        <Text>
+        <Text color={theme.warning}>
           <Trans>Unable to get the market price</Trans>
         </Text>
       )}
