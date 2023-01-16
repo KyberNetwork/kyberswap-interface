@@ -60,6 +60,7 @@ import { Bound, Field, RANGE } from 'state/mint/proamm/type'
 import { useUserProMMPositions } from 'state/prommPools/hooks'
 import useGetElasticPools from 'state/prommPools/useGetElasticPools'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
+import { usePairFactor } from 'state/topTokens/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useExpertModeManager, useUserSlippageTolerance } from 'state/user/hooks'
@@ -606,6 +607,7 @@ export default function AddLiquidity() {
   const hasTab = !noLiquidity && !disableRangeSelect
   const disableAmountSelect = disableRangeSelect || tickLower === undefined || tickUpper === undefined || invalidRange
   const [shownTooltip, setShownTooltip] = useState<RANGE | null>(null)
+  const pairFactor = usePairFactor([tokenA, tokenB])
   const chart = (
     <ChartWrapper>
       {hasTab && (
@@ -644,7 +646,7 @@ export default function AddLiquidity() {
                     {RANGE_LIST.map(range => (
                       <Flex key={rangeData[range].title} width={buttonWidth}>
                         <Tooltip
-                          text={rangeData[range].tooltip}
+                          text={rangeData[range].tooltip(pairFactor)}
                           containerStyle={{ width: '100%' }}
                           show={shownTooltip === range}
                           placement="bottom"

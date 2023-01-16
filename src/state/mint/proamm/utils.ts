@@ -10,6 +10,7 @@ import {
 import JSBI from 'jsbi'
 
 import { rangeData } from 'pages/AddLiquidityV2/constants'
+import { PairFactor } from 'state/topTokens/type'
 
 import { RANGE } from './type'
 
@@ -70,7 +71,13 @@ export function tryParseTick(
 
 const log10001 = (num: number) => Math.log(num) / Math.log(1.0001)
 
-export const getRangeTicks = (range: RANGE, tokenA: Token, tokenB: Token, currentTick: number, pairFactor: number) => {
+export const getRangeTicks = (
+  range: RANGE,
+  tokenA: Token,
+  tokenB: Token,
+  currentTick: number,
+  pairFactor: PairFactor,
+) => {
   const rangeFactor = rangeData[range].factor
   const leftRange = 1 - (pairFactor * rangeFactor) / 10000
   const rightRange = 1 + (pairFactor * rangeFactor) / 10000

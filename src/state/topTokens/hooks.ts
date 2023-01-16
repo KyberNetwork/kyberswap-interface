@@ -8,7 +8,7 @@ import { useActiveWeb3React } from 'hooks'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 
 import { updateTopTokens } from '.'
-import { TopToken } from './type'
+import { PairFactor, TopToken } from './type'
 
 const validateAPI = (tokens: TopToken[]): boolean => {
   return tokens.every(
@@ -60,30 +60,31 @@ export const useTopTokens = (): {
   }, [topTokens])
 }
 
-export const usePairFactor = (tokens: [Token | undefined, Token | undefined]): number => {
+export const usePairFactor = (tokens: [Token | undefined | null, Token | undefined | null]): PairFactor => {
   // stable: - stable/stable
   //         - correlated
-  // normal: - token/token in top 50
+  // normal: - token/token in top 50 & not stable
   // exotic: other cases
   //         - token / token
   //         - token / stable
   //         - token / non-whitelisted
   //         - non-whitelisted / non-whitelisted
-  // stable: 2
-  // nomal:  30
-  // exotic: 100
   const { chainId } = useActiveWeb3React()
   const topTokens = useTopTokens()
   const token0 = tokens[0]
   const token1 = tokens[1]
-  if (!token0 || !token1) return 100
+  if (!token0 || !token1) return PairFactor.EXOTIC
   const isBothStable =
     STABLE_COINS_ADDRESS[chainId].includes(token0.address) && STABLE_COINS_ADDRESS[chainId].includes(token1.address)
   const isCorrelated = CORRELATED_COINS_ADDRESS[chainId].some(
     coinsGroup => coinsGroup.includes(token0.address) && coinsGroup.includes(token1.address),
   )
-  if (isBothStable || isCorrelated) return 2
-  const isBothTop = topTokens[token0.address] && topTokens[token1.address]
-  if (isBothTop) return 30
-  return 100
+  if (isBothStable || isCorrelated) return PairFactor.STABLE
+  const isBothTop =
+    topTokens[token0.address] &&
+    topTokens[token1.address] &&
+    !STABLE_COINS_ADDRESS[chainId].includes(token0.address) &&
+    !STABLE_COINS_ADDRESS[chainId].includes(token1.address)
+  if (isBothTop) return PairFactor.NOMAL
+  return PairFactor.EXOTIC
 }

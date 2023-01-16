@@ -10,3 +10,9 @@ export type TopToken = {
   logoURI: string
   isWhitelisted: boolean
 }
+
+export enum PairFactor {
+  STABLE = 2,
+  NOMAL = 30,
+  EXOTIC = 100,
+}
