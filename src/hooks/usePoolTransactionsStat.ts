@@ -27,7 +27,7 @@ const usePoolTransactionsStat = (
   useEffect(() => {
     const controller = new AbortController()
     if (!isEVM) return
-    const client = (networkInfo as EVMNetworkInfo).elasticClient
+    const client = (networkInfo as EVMNetworkInfo).elastic.client
     const fetch = async () => {
       setData(null)
       const data = await client.query<RecentPoolTxsResult>({

@@ -51,7 +51,7 @@ export const getHourlyRateData = async (
 
     const result = await splitQuery<ChartResults, Block, string>(
       HOURLY_POOL_RATES,
-      networkInfo.elasticClient,
+      networkInfo.elastic.client,
       blocks,
       [poolAddress],
       100,
