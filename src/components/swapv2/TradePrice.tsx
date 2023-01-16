@@ -92,7 +92,7 @@ export function TradePriceV2({ price, style = {}, label, color, symbolIn, symbol
       onClick={() => setShowInverted(!showInverted)}
       height="22px"
     >
-      {show || loading ? (
+      {loading ? null : show ? (
         <>
           {label && <>{label}&nbsp;</>}
           <Text color={color}>

@@ -194,8 +194,8 @@ const LimitOrderForm = function LimitOrderForm({
       mixpanelHandler(MIXPANEL_TYPE.LO_ENTER_DETAIL, 'set price')
       if (loadingTrade || !tradeInfo) return
       onSetRate(
-        toFixed(parseFloat(tradeInfo.marketRate.toFixed(16))) ?? '',
         toFixed(parseFloat(tradeInfo.invertRate.toFixed(16))) ?? '',
+        toFixed(parseFloat(tradeInfo.marketRate.toFixed(16))) ?? '',
       )
     } catch (error) {}
   }
@@ -741,15 +741,17 @@ const LimitOrderForm = function LimitOrderForm({
         </RowBetween>
 
         <RowBetween>
-          <TradePriceV2
-            price={tradeInfo}
-            style={{ width: 'fit-content', fontStyle: 'italic' }}
-            color={theme.text}
-            label={t`Estimate Market Price is`}
-            loading={loadingTrade}
-            symbolIn={currencyIn?.symbol}
-            symbolOut={currencyOut?.symbol}
-          />
+          {currencyIn && currencyOut ? (
+            <TradePriceV2
+              price={tradeInfo}
+              style={{ width: 'fit-content', fontStyle: 'italic' }}
+              color={theme.text}
+              label={t`Estimate Market Price is`}
+              loading={loadingTrade}
+              symbolIn={currencyIn?.symbol}
+              symbolOut={currencyOut?.symbol}
+            />
+          ) : null}
           <ArrowRotate
             rotate={rotate}
             onClick={isEdit ? undefined : handleRotateClick}
