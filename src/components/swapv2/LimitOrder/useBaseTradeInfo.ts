@@ -26,22 +26,23 @@ type BaseTradeInfo = {
 
 const MAX_RETRY_COUNT = 2
 
+// todo danh move to network.ts
+const MAP_AMOUNT_NATIVE: { [chain: number]: string } = {
+  [ChainId.MATIC]: '1000',
+  [ChainId.MAINNET]: '1',
+  [ChainId.BSCMAINNET]: '5',
+  [ChainId.ARBITRUM]: '1',
+  [ChainId.OPTIMISM]: '1',
+  [ChainId.AVAXMAINNET]: '20',
+  [ChainId.FANTOM]: '3000',
+}
+
 // 1 knc = ?? usdt
 export default function useBaseTradeInfo(currencyIn: Currency | undefined, currencyOut: Currency | undefined) {
   const { account, chainId } = useActiveWeb3React()
   const tokenInAddress = currencyIn?.isNative ? ETHER_ADDRESS : currencyIn?.wrapped.address ?? ''
   const tokenOutAddress = currencyOut?.isNative ? ETHER_ADDRESS : currencyOut?.wrapped.address ?? ''
   const amountIn = tryParseAmount('1', currencyIn)
-
-  const mapAmountNative: any = {
-    [ChainId.MATIC]: '1000',
-    [ChainId.MAINNET]: '1',
-    [ChainId.BSCMAINNET]: '5',
-    [ChainId.ARBITRUM]: '1',
-    [ChainId.OPTIMISM]: '1',
-    [ChainId.AVAXMAINNET]: '20',
-    [ChainId.FANTOM]: '3000',
-  }
 
   const getApiUrl = (
     amount?: CurrencyAmount<NativeCurrency | Token> | undefined,
@@ -58,12 +59,13 @@ export default function useBaseTradeInfo(currencyIn: Currency | undefined, curre
       : null
   }
 
+  // todo danh use controller later, bị dí
   // const controller = useRef(new AbortController())
   const fetchData = async (
     url: string | null,
-    amount?: any,
-    currencyA?: any,
-    currencyB?: any,
+    amount: CurrencyAmount<NativeCurrency | Token> | undefined,
+    currencyIn: Currency,
+    currencyOut: Currency,
   ): Promise<BaseTradeInfo | undefined> => {
     if (!currencyOut || !currencyIn || !url) return
 
@@ -79,16 +81,9 @@ export default function useBaseTradeInfo(currencyIn: Currency | undefined, curre
     const { outputAmount, amountInUsd } = data
     const amountOut = TokenAmount.fromRawAmount(currencyOut, JSBI.BigInt(outputAmount))
 
-    const customAmount = amount || amountIn
-
-    if (customAmount?.quotient && amountOut?.quotient) {
+    if (amount?.quotient && amountOut?.quotient) {
       return {
-        price: new Price(
-          currencyA ?? currencyIn,
-          currencyB ?? currencyOut,
-          customAmount?.quotient,
-          amountOut?.quotient,
-        ),
+        price: new Price(currencyIn, currencyOut, amount?.quotient, amountOut?.quotient),
         amountInUsd,
         outputAmount,
       }
@@ -101,37 +96,62 @@ export default function useBaseTradeInfo(currencyIn: Currency | undefined, curre
     getApiUrl(),
     async url => {
       try {
-        if (!mapAmountNative[chainId] || !currencyIn || !currencyOut) return
+        if (!MAP_AMOUNT_NATIVE[chainId] || !currencyIn || !currencyOut) return
         if (currencyIn.isNative) {
           const tokenNotNative = currencyIn.isNative ? currencyOut : currencyIn
-          const amountA = tryParseAmount(mapAmountNative[chainId], WETH[chainId])
-          const customUrl = getApiUrl(amountA, WETH[chainId].wrapped.address, tokenNotNative.wrapped.address)
-          const data = await fetchData(customUrl, amountA)
+          const amountA = tryParseAmount(MAP_AMOUNT_NATIVE[chainId], WETH[chainId])
+          const customUrl = getApiUrl(
+            amountA,
+            ETHER_ADDRESS || WETH[chainId].wrapped.address,
+            tokenNotNative.wrapped.address,
+          )
+          const [dataCompareEth, data2] = await Promise.all([
+            fetchData(customUrl, amountA, currencyIn, currencyOut),
+            fetchData(url, amountIn, currencyIn, currencyOut),
+          ])
+          if (!dataCompareEth || !data2) return
           retryCount.current = 0
-          const data2 = await fetchData(url)
-          if (!data || !data2) return
-          return { ...data, amountInUsd: data2.amountInUsd }
+          return { ...dataCompareEth, amountInUsd: data2.amountInUsd }
         }
         if (currencyOut.isNative) {
-          const amountA = tryParseAmount(mapAmountNative[chainId], WETH[chainId])
-          const data = await fetchData(
-            getApiUrl(amountA, WETH[chainId].wrapped.address, currencyIn.wrapped.address),
-            amountA,
-            WETH[chainId],
-            currencyIn,
-          )
-          const data2 = await fetchData(url)
+          const amountA = tryParseAmount(MAP_AMOUNT_NATIVE[chainId], WETH[chainId])
+          const [dataCompareEth, data2] = await Promise.all([
+            fetchData(
+              getApiUrl(amountA, ETHER_ADDRESS || WETH[chainId].wrapped.address, currencyIn.wrapped.address),
+              amountA,
+              WETH[chainId],
+              currencyIn,
+            ),
+            fetchData(url, amountIn, currencyIn, currencyOut),
+          ])
+          if (!dataCompareEth || !data2) return
           retryCount.current = 0
-          if (!data || !data2) return
           return {
-            ...data,
-            price: data?.price.invert(),
+            ...dataCompareEth,
+            price: dataCompareEth?.price.invert(),
             amountInUsd: data2.amountInUsd,
           }
         }
-        const data = await fetchData(url)
+        const amountA = tryParseAmount(MAP_AMOUNT_NATIVE[chainId], WETH[chainId])
+        const dataCompareEth1 = await fetchData(
+          getApiUrl(amountA, ETHER_ADDRESS || WETH[chainId].wrapped.address, currencyIn.wrapped.address),
+          amountA,
+          WETH[chainId],
+          currencyIn,
+        )
+        const dataCompareEth2 = await fetchData(
+          getApiUrl(amountA, ETHER_ADDRESS || WETH[chainId].wrapped.address, currencyOut.wrapped.address),
+          amountA,
+          WETH[chainId],
+          currencyOut,
+        )
+        if (!dataCompareEth1 || !dataCompareEth2) return
+        const amountOut1 = TokenAmount.fromRawAmount(currencyOut, JSBI.BigInt(dataCompareEth1.outputAmount))
+        const amountOut2 = TokenAmount.fromRawAmount(currencyOut, JSBI.BigInt(dataCompareEth2.outputAmount))
+
+        const data = await fetchData(url, amountIn, currencyIn, currencyOut)
         retryCount.current = 0
-        return data
+        return { ...data, price: new Price(currencyIn, currencyOut, amountOut1.quotient, amountOut2.quotient) }
       } catch (error) {
         retryCount.current++
         if (retryCount.current <= MAX_RETRY_COUNT) {
