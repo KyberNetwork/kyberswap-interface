@@ -68,7 +68,8 @@ export const useFeeTierDistribution = (
         )
       })
       .catch(err => console.warn({ err }))
-  }, [initState, poolIds, isEVM, networkInfo])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initState, JSON.stringify(poolIds), isEVM, networkInfo])
 
   return feeTierDistribution
 }
