@@ -230,8 +230,9 @@ const LimitOrderForm = function LimitOrderForm({
       if (currencyOut && currency?.equals(currencyOut)) return
       setCurrencyIn(currency)
       setIsSelectCurrencyManual?.(true)
+      setRateInfo({ ...rateInfo, invertRate: '', rate: '' })
     },
-    [currencyOut, setCurrencyIn, setIsSelectCurrencyManual],
+    [currencyOut, setCurrencyIn, setIsSelectCurrencyManual, rateInfo],
   )
 
   const switchToWeth = useCallback(() => {
@@ -244,6 +245,7 @@ const LimitOrderForm = function LimitOrderForm({
     if (currencyIn && currency?.equals(currencyIn)) return
     setCurrencyOut(currency)
     setIsSelectCurrencyManual?.(true)
+    setRateInfo({ ...rateInfo, invertRate: '', rate: '' })
   }
 
   const [rotate, setRotate] = useState(false)
