@@ -397,6 +397,8 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
               onDismiss={handleDismissConfirmation}
               topContent={() => (
                 <>
+                  <Flex marginTop="1.5rem" />
+                  {positionSDK && <ProAmmPoolInfo position={positionSDK} tokenId={tokenId.toString()} />}
                   <ProAmmPooledTokens
                     liquidityValue0={liquidityValue0}
                     liquidityValue1={liquidityValue1}
@@ -467,7 +469,11 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
             <AutoColumn gap="md" style={{ textAlign: 'left' }}>
               <GridColumn>
                 <FirstColumn>
-                  {positionSDK ? <ProAmmPoolInfo position={positionSDK} tokenId={tokenId.toString()} /> : <Loader />}
+                  {positionSDK ? (
+                    <ProAmmPoolInfo position={positionSDK} tokenId={tokenId.toString()} showRangeInfo={false} />
+                  ) : (
+                    <Loader />
+                  )}
 
                   <BlackCard style={{ borderRadius: '1rem', padding: '1rem' }}>
                     <Flex alignItems="center" sx={{ gap: '4px' }}>
