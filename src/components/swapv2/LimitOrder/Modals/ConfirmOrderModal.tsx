@@ -44,6 +44,8 @@ export default memo(function ConfirmOrderModal({
 }) {
   const { account } = useActiveWeb3React()
 
+  const displayCurrencyOut = currencyOut?.isNative ? currencyOut.wrapped : currencyOut
+
   const listData = useMemo(() => {
     return [
       {
@@ -59,18 +61,18 @@ export default memo(function ConfirmOrderModal({
       },
       {
         label: t`and receive at least`,
-        content: currencyOut && outputAmount && (
+        content: displayCurrencyOut && outputAmount && (
           <Value>
-            <CurrencyLogo currency={currencyOut} style={styleLogo} />
+            <CurrencyLogo currency={displayCurrencyOut} style={styleLogo} />
             <Text>
-              {formatAmountOrder(outputAmount)} {currencyOut?.symbol}
+              {formatAmountOrder(outputAmount)} {displayCurrencyOut?.symbol}
             </Text>
           </Value>
         ),
       },
       {
         label: t`at`,
-        content: account && <Rate rateInfo={rateInfo} currencyIn={currencyIn} currencyOut={currencyOut} />,
+        content: account && <Rate rateInfo={rateInfo} currencyIn={currencyIn} currencyOut={displayCurrencyOut} />,
       },
       {
         label: t`before the order expires on`,
@@ -81,7 +83,7 @@ export default memo(function ConfirmOrderModal({
         ),
       },
     ]
-  }, [account, currencyIn, currencyOut, inputAmount, rateInfo, outputAmount, expireAt])
+  }, [account, currencyIn, displayCurrencyOut, inputAmount, rateInfo, outputAmount, expireAt])
 
   const confirmationContent = useCallback(() => {
     return (
@@ -93,7 +95,11 @@ export default memo(function ConfirmOrderModal({
             <Container>
               <Header title={t`Review your order`} onDismiss={onDismiss} />
               <ListInfo listData={listData} />
-              <MarketInfo marketPrice={marketPrice} symbolIn={currencyIn?.symbol} symbolOut={currencyOut?.symbol} />
+              <MarketInfo
+                marketPrice={marketPrice}
+                symbolIn={currencyIn?.symbol}
+                symbolOut={displayCurrencyOut?.symbol}
+              />
               <Note note={note} />
               <ButtonPrimary onClick={onSubmit}>
                 <Trans>Place Order</Trans>
@@ -103,7 +109,7 @@ export default memo(function ConfirmOrderModal({
         </div>
       </Flex>
     )
-  }, [onDismiss, flowState.errorMessage, listData, onSubmit, marketPrice, note, currencyIn, currencyOut])
+  }, [onDismiss, flowState.errorMessage, listData, onSubmit, marketPrice, note, currencyIn, displayCurrencyOut])
 
   return (
     <TransactionConfirmationModal
