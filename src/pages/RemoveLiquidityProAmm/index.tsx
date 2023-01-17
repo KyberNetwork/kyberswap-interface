@@ -9,6 +9,7 @@ import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
 import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -50,6 +51,7 @@ import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
+import { MEDIA_WIDTHS } from 'theme'
 import { basisPointsToPercent, calculateGasMargin, formattedNum, formattedNumLong, shortenAddress } from 'utils'
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
 import { unwrappedToken } from 'utils/wrappedCurrency'
@@ -218,7 +220,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
 
   const estimatedUsdCurrencyB =
     parsedAmounts[Field.CURRENCY_B] && usdPrices[address1]
-      ? parseFloat((parsedAmounts[Field.CURRENCY_B] as CurrencyAmount<Currency>).toSignificant(6)) * usdPrices[address0]
+      ? parseFloat((parsedAmounts[Field.CURRENCY_B] as CurrencyAmount<Currency>).toSignificant(6)) * usdPrices[address1]
       : 0
 
   const deadline = useTransactionDeadline() // custom from users settings
@@ -378,6 +380,8 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
     (typedValue: string): void => onUserInput(Field.CURRENCY_B, typedValue),
     [onUserInput],
   )
+
+  const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
   if (!isEVM) return <Navigate to="/" />
 
@@ -633,13 +637,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                       </div>
                     </TokenInputWrapper>
 
-                    <Text
-                      fontSize="0.75rem"
-                      fontStyle="italic"
-                      textAlign="right"
-                      marginTop="12px"
-                      color={theme.subText}
-                    >
+                    <Text fontSize="0.75rem" fontStyle="italic" textAlign="left" marginTop="12px" color={theme.subText}>
                       <Trans>
                         Note: When you remove liquidity (even partially), you will receive 100% of your fee earnings
                       </Trans>
@@ -648,7 +646,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
 
                   <Flex justifyContent="flex-end">
                     <ButtonConfirmed
-                      style={{ marginTop: '24px', width: 'fit-content', minWidth: '164px' }}
+                      style={{ marginTop: '24px', width: upToMedium ? '100%' : 'fit-content', minWidth: '164px' }}
                       confirmed={false}
                       disabled={
                         removed ||

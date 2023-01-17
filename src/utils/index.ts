@@ -72,7 +72,7 @@ export function shortenAddress(chainId: ChainId, address: string, chars = 4): st
  * @param value BigNumber
  * @returns BigNumber
  */
-export function calculateGasMargin(value: BigNumber, chainId?: number): BigNumber {
+export function calculateGasMargin(value: BigNumber, chainId?: ChainId): BigNumber {
   const defaultGasLimitMargin = BigNumber.from(DEFAULT_GAS_LIMIT_MARGIN)
   const needHigherGas = [ChainId.MATIC, ChainId.OPTIMISM].includes(chainId as ChainId)
   const gasMargin = value.mul(BigNumber.from(needHigherGas ? 5000 : 2000)).div(BigNumber.from(10000))
