@@ -748,7 +748,7 @@ const LimitOrderForm = function LimitOrderForm({
               price={tradeInfo}
               style={{ width: 'fit-content', fontStyle: 'italic' }}
               color={theme.text}
-              label={t`Estimated Market Price =`}
+              label={t`Estimated Market Price:`}
               loading={loadingTrade}
               symbolIn={currencyIn?.symbol}
               symbolOut={currencyOut?.symbol}
