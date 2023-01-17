@@ -99,12 +99,11 @@ import {
   useShowLiveChart,
   useShowTokenInfo,
   useShowTradeRoutes,
-  useToggleProLiveChart,
   useUserAddedTokens,
   useUserSlippageTolerance,
 } from 'state/user/hooks'
 import { TYPE } from 'theme'
-import { formattedNum, isSupportLimitOrder } from 'utils'
+import { formattedNum, getLimitOrderContract } from 'utils'
 import { Aggregator } from 'utils/aggregator'
 import { currencyId } from 'utils/currencyId'
 import { halfAmountSpend, maxAmountSpend } from 'utils/maxAmountSpend'
@@ -191,7 +190,6 @@ export default function Swap() {
   const [rotate, setRotate] = useState(false)
   const isShowLiveChart = useShowLiveChart()
   const [holidayMode] = useHolidayMode()
-  const toggleProLiveChart = useToggleProLiveChart()
   const isShowTradeRoutes = useShowTradeRoutes()
   const isShowTokenInfoSetting = useShowTokenInfo()
   const qs = useParsedQueryString<{
@@ -656,7 +654,6 @@ export default function Swap() {
   const onClickTab = (tab: TAB) => {
     setActiveTab(tab)
     const isLimit = tab === TAB.LIMIT
-    isLimit && toggleProLiveChart(true)
     const { inputCurrency, outputCurrency, ...newQs } = qs
     navigateFn({
       pathname: `${isLimit ? APP_PATHS.LIMIT : APP_PATHS.SWAP}/${networkInfo.route}`,
@@ -692,7 +689,7 @@ export default function Swap() {
                       <Trans>Swap</Trans>
                     </Text>
                   </Tab>
-                  {isSupportLimitOrder(chainId) && (
+                  {getLimitOrderContract(chainId) && (
                     <Tab onClick={() => onClickTab(TAB.LIMIT)} isActive={isLimitPage}>
                       <Text fontSize={20} fontWeight={500}>
                         <Trans>Limit</Trans>
@@ -707,7 +704,7 @@ export default function Swap() {
 
               <SwapFormActions>
                 <Tutorial
-                  type={TutorialType.SWAP}
+                  type={isSwapPage ? TutorialType.SWAP : TutorialType.LIMIT_ORDER}
                   customIcon={
                     <StyledActionButtonSwapForm>
                       <TutorialIcon />

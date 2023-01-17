@@ -18,7 +18,7 @@ import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
-import { isSupportLimitOrder } from 'utils'
+import { getLimitOrderContract } from 'utils'
 
 import { DropdownTextAnchor, StyledNavLink } from '../styleds'
 import NavGroup from './NavGroup'
@@ -59,7 +59,7 @@ const BetaTag = styled.span`
 `
 
 const SwapNavGroup = () => {
-  const { isSolana, chainId } = useActiveWeb3React()
+  const { isSolana, networkInfo, chainId } = useActiveWeb3React()
   const isDark = useIsDarkMode()
   const { pathname } = useLocation()
   const upTo420 = useMedia('(max-width: 420px)')
@@ -83,7 +83,11 @@ const SwapNavGroup = () => {
       }
       dropdownContent={
         <Flex flexDirection={'column'} id={TutorialIds.BRIDGE_LINKS}>
-          <StyledNavLink id={`swapv2-nav-link`} to={APP_PATHS.SWAP} style={{ flexDirection: 'column' }}>
+          <StyledNavLink
+            id={`swapv2-nav-link`}
+            to={`${APP_PATHS.SWAP}/${networkInfo.route}`}
+            style={{ flexDirection: 'column' }}
+          >
             <Flex alignItems="center" sx={{ gap: '12px' }}>
               <IconWrapper>
                 <Repeat size={16} />
@@ -92,8 +96,11 @@ const SwapNavGroup = () => {
             </Flex>
           </StyledNavLink>
 
-          {isSupportLimitOrder(chainId) && (
-            <StyledNavLink to={APP_PATHS.LIMIT} style={{ flexDirection: 'column', width: '100%' }}>
+          {getLimitOrderContract(chainId) && (
+            <StyledNavLink
+              to={`${APP_PATHS.LIMIT}/${networkInfo.route}`}
+              style={{ flexDirection: 'column', width: '100%' }}
+            >
               <Flex alignItems="center" sx={{ gap: '12px' }}>
                 <IconWrapper>
                   <LimitOrderIcon />

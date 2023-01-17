@@ -21,8 +21,6 @@ const arbitrumTestnetInfo: EVMNetworkInfo = {
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
-  classicClient: createClient('https://api.thegraph.com/subgraphs/name/viet-nv/kyberswap-arbitrum-rinkeby'),
-  elasticClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-arbitrum-one'),
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/viet-nv/arbitrum-rinkeby-blocks'),
   etherscanUrl: 'https://testnet.arbiscan.io',
   etherscanName: 'Arbiscan',
@@ -39,6 +37,7 @@ const arbitrumTestnetInfo: EVMNetworkInfo = {
   routerUri: EMPTY,
   multicall: '0xefEb0223C51600d8059A4fD44094a1E2A2C54Bf7',
   classic: {
+    client: createClient('https://api.thegraph.com/subgraphs/name/viet-nv/kyberswap-arbitrum-rinkeby'),
     static: {
       zap: '0xfa33723F6fA00a35F69F8aCd72A5BE9AF3c8Bd25',
       router: '0x78Ad9A49327D73C6E3B9881eCD653232cF3E480C',
@@ -51,6 +50,7 @@ const arbitrumTestnetInfo: EVMNetworkInfo = {
     fairlaunchV2: EMPTY_ARRAY,
   },
   elastic: {
+    client: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-arbitrum-one'),
     coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
     nonfungiblePositionManager: '0x2B1c7b41f6A8F2b2bc45C3233a5d5FB3cD6dC9A8',
     tickReader: '0xe3AC3fd66EB31cAf4EE0831b262D837c479FFCe5',
@@ -59,7 +59,7 @@ const arbitrumTestnetInfo: EVMNetworkInfo = {
     routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
     farms: [],
   },
-  limitOrder: NOT_SUPPORT,
+  limitOrder: { development: NOT_SUPPORT, production: NOT_SUPPORT },
   averageBlockTimeInSeconds: 1, // TODO: check these info
   coingeckoNetworkId: NOT_SUPPORT,
   coingeckoNativeTokenId: 'ethereum',

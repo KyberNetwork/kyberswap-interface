@@ -20,8 +20,6 @@ const fantomInfo: EVMNetworkInfo = {
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
-  classicClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-fantom'),
-  elasticClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-fantom'),
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/fantom-blocks'),
   etherscanUrl: 'https://ftmscan.com',
   etherscanName: 'Ftmscan',
@@ -38,6 +36,7 @@ const fantomInfo: EVMNetworkInfo = {
   routerUri: `${AGGREGATOR_API}/fantom/route/encode`,
   multicall: '0x878dFE971d44e9122048308301F540910Bbd934c',
   classic: {
+    client: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-fantom'),
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',
       router: '0x5649B4DD00780e99Bab7Abb4A3d581Ea1aEB23D0',
@@ -54,6 +53,7 @@ const fantomInfo: EVMNetworkInfo = {
     fairlaunchV2: EMPTY_ARRAY,
   },
   elastic: {
+    client: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-fantom'),
     coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
     nonfungiblePositionManager: '0x2B1c7b41f6A8F2b2bc45C3233a5d5FB3cD6dC9A8',
     tickReader: '0x165c68077ac06c83800d19200e6E2B08D02dE75D',
@@ -62,7 +62,10 @@ const fantomInfo: EVMNetworkInfo = {
     routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
     farms: [],
   },
-  limitOrder: '0x15a7e4A0BD7B96ada9db1219fA62c521bDCd8F81',
+  limitOrder: {
+    development: '0x15a7e4A0BD7B96ada9db1219fA62c521bDCd8F81',
+    production: '0x227B0c196eA8db17A665EA6824D972A64202E936',
+  },
   averageBlockTimeInSeconds: 1,
   coingeckoNetworkId: 'fantom',
   coingeckoNativeTokenId: 'fantom',

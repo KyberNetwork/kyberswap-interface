@@ -1,6 +1,5 @@
 import { ReactNode } from 'react'
 import { Repeat } from 'react-feather'
-import styled from 'styled-components'
 
 import { ReactComponent as ApproveIcon } from 'assets/svg/approve_icon.svg'
 import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'

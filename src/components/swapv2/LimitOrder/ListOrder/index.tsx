@@ -24,7 +24,7 @@ import { useLimitState } from 'state/limit/hooks'
 import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { TRANSACTION_STATE_DEFAULT, TransactionFlowState } from 'types'
-import { findTx } from 'utils'
+import { findTx, getLimitOrderContract } from 'utils'
 import {
   subscribeNotificationOrderCancelled,
   subscribeNotificationOrderExpired,
@@ -115,7 +115,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
   const [isOpenCancel, setIsOpenCancel] = useState(false)
   const [isOpenEdit, setIsOpenEdit] = useState(false)
 
-  const limitOrderContract = useContract(networkInfo.limitOrder ?? '', LIMIT_ORDER_ABI)
+  const limitOrderContract = useContract(getLimitOrderContract(chainId) ?? '', LIMIT_ORDER_ABI)
   const notify = useNotify()
   const { ordersUpdating } = useLimitState()
   const addTransactionWithType = useTransactionAdder()
@@ -416,22 +416,22 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
       attemptingTxn: true,
     }))
 
-    const { encodedData } = await getEncodeData([order?.id].filter(Boolean) as number[], isCancelAll)
+    const [{ encodedData }, nonce] = await Promise.all([
+      getEncodeData([order?.id].filter(Boolean) as number[], isCancelAll),
+      isCancelAll ? limitOrderContract.nonce(account) : Promise.resolve(BigNumber.from(0)),
+    ])
+
     const response = await sendEVMTransaction(
       account,
       library,
-      networkInfo.limitOrder ?? '',
+      getLimitOrderContract(chainId) ?? '',
       encodedData,
       BigNumber.from(0),
     )
     const newOrders = isCancelAll ? orders.map(e => e.id) : order?.id ? [order?.id] : []
     setCancellingOrders({ orderIds: cancellingOrdersIds.concat(newOrders) })
 
-    if (response?.hash && account) {
-      let nonce: BigNumber = BigNumber.from(0)
-      if (isCancelAll) {
-        nonce = await limitOrderContract.nonce(account)
-      }
+    if (response?.hash) {
       insertCancellingOrder({
         maker: account,
         chainId: chainId.toString(),

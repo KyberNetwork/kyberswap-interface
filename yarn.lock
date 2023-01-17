@@ -2691,10 +2691,10 @@
     tiny-invariant "^1.1.0"
     toformat "^2.0.0"
 
-"@kyberswap/ks-sdk-elastic@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@kyberswap/ks-sdk-elastic/-/ks-sdk-elastic-1.0.1.tgz#dd072e7ddf278f7ee4c8b8e0250d38f0e1d6ed63"
-  integrity sha512-uSu0/UDjaL8YZckCsf1/VEYckZ5W+qfI3QcT7zU8n546MELiQzwgcQ0fET5PNVnvgdEg9tSXY95FiQwXthdWew==
+"@kyberswap/ks-sdk-elastic@^1.0.2-rc":
+  version "1.0.2-rc"
+  resolved "https://registry.yarnpkg.com/@kyberswap/ks-sdk-elastic/-/ks-sdk-elastic-1.0.2-rc.tgz#91a8b019bd180556d6e50893fd0a78d21ca0e563"
+  integrity sha512-e3rufxw7rlKzl76+kw9d2UqP8hkrw9IAUnXsyKlyX6q3hmb6piqYzgNYnvPMfkcVih4O2e4k3XzmGsaDuYTfIw==
   dependencies:
     "@ethersproject/abi" "^5.0.12"
     "@ethersproject/solidity" "^5.0.9"
@@ -17775,7 +17775,12 @@ typedarray@^0.0.6:
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==
 
-typescript@^4.6.2, typescript@^4.8.4:
+typescript@4.8.4:
+  version "4.8.4"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.8.4.tgz#c464abca159669597be5f96b8943500b238e60e6"
+  integrity sha512-QCh+85mCy+h0IGff8r5XWzOVSbBO+KfeYrMQh7NJ58QujwcE22u+NUSmUxqF+un70P9GXKxa2HCNiTTMJknyjQ==
+
+typescript@^4.6.2:
   version "4.9.4"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.9.4.tgz#a2a3d2756c079abda241d75f149df9d561091e78"
   integrity sha512-Uz+dTXYzxXXbsFpM86Wh3dKCxrQqUcVMxwU54orwlJjOpO3ao8L7j5lH+dWfTwgCwIuM9GQ2kvVotzYJMXTBZg==
