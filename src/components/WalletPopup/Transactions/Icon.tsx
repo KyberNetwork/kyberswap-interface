@@ -26,7 +26,7 @@ const MAP_ICON_BY_TYPE: Partial<Record<TRANSACTION_TYPE, ReactNode>> = {
 }
 
 const Icon = ({ txs }: { txs: TransactionDetails }) => {
-  const icon = MAP_ICON_BY_GROUP[txs.group] || MAP_ICON_BY_TYPE[txs.type]
+  const icon = MAP_ICON_BY_GROUP[txs.group] || MAP_ICON_BY_TYPE[txs.type] || <Repeat size={16} />
   return icon as JSX.Element
 }
 export default Icon
