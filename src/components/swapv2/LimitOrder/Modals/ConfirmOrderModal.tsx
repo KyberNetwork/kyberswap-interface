@@ -48,7 +48,9 @@ export default memo(function ConfirmOrderModal({
 }) {
   const { account } = useActiveWeb3React()
 
-  const displayCurrencyOut = currencyOut?.isNative ? currencyOut.wrapped : currencyOut
+  const displayCurrencyOut = useMemo(() => {
+    return currencyOut?.isNative ? currencyOut.wrapped : currencyOut
+  }, [currencyOut])
 
   const listData = useMemo(() => {
     return [
