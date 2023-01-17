@@ -1,14 +1,15 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { memo, useCallback, useMemo } from 'react'
+import { ReactNode, memo, useCallback, useMemo } from 'react'
 import { Flex, Text } from 'rebass'
 
-import { ButtonPrimary } from 'components/Button'
+import { ButtonPrimary, ButtonWarning } from 'components/Button'
 import CurrencyLogo from 'components/CurrencyLogo'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { BaseTradeInfo } from 'components/swapv2/LimitOrder/useBaseTradeInfo'
 import { useActiveWeb3React } from 'hooks'
+import ErrorWarningPanel from 'pages/Bridge/ErrorWarning'
 import { TransactionFlowState } from 'types'
 
 import { formatAmountOrder } from '../helpers'
@@ -29,6 +30,7 @@ export default memo(function ConfirmOrderModal({
   marketPrice,
   rateInfo,
   note,
+  warningMessage,
 }: {
   onSubmit: () => void
   onDismiss: () => void
@@ -41,6 +43,7 @@ export default memo(function ConfirmOrderModal({
   marketPrice: BaseTradeInfo | undefined
   rateInfo: RateInfo
   note?: string
+  warningMessage?: ReactNode
 }) {
   const { account } = useActiveWeb3React()
 
@@ -101,15 +104,32 @@ export default memo(function ConfirmOrderModal({
                 symbolOut={displayCurrencyOut?.symbol}
               />
               <Note note={note} />
-              <ButtonPrimary onClick={onSubmit}>
-                <Trans>Place Order</Trans>
-              </ButtonPrimary>
+              {warningMessage && <ErrorWarningPanel type="warn" title={warningMessage} />}
+              {warningMessage ? (
+                <ButtonWarning onClick={onSubmit}>
+                  <Trans>Place Order</Trans>
+                </ButtonWarning>
+              ) : (
+                <ButtonPrimary onClick={onSubmit}>
+                  <Trans>Place Order</Trans>
+                </ButtonPrimary>
+              )}
             </Container>
           )}
         </div>
       </Flex>
     )
-  }, [onDismiss, flowState.errorMessage, listData, onSubmit, marketPrice, note, currencyIn, displayCurrencyOut])
+  }, [
+    onDismiss,
+    flowState.errorMessage,
+    listData,
+    onSubmit,
+    marketPrice,
+    note,
+    currencyIn,
+    displayCurrencyOut,
+    warningMessage,
+  ])
 
   return (
     <TransactionConfirmationModal

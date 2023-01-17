@@ -16,7 +16,6 @@ import NumericalInput from 'components/NumericalInput'
 import { RowBetween } from 'components/Row'
 import Select from 'components/Select'
 import Tooltip from 'components/Tooltip'
-import TrendingSoonTokenBanner from 'components/TrendingSoonTokenBanner'
 import ActionButtonLimitOrder from 'components/swapv2/LimitOrder/ActionButtonLimitOrder'
 import DeltaRate, { useGetDeltaRateLimitOrder } from 'components/swapv2/LimitOrder/DeltaRate'
 import ConfirmOrderModal from 'components/swapv2/LimitOrder/Modals/ConfirmOrderModal'
@@ -663,8 +662,23 @@ const LimitOrderForm = function LimitOrderForm({
       !enoughAllowance ||
       (approvalSubmitted && approval === ApprovalState.APPROVED))
 
-  const showWarningRate = Boolean(currencyIn && displayRate && !deltaRate.profit && deltaRate.percent)
-
+  const warningMessage = useMemo(() => {
+    if (currencyIn && displayRate && !deltaRate.profit && deltaRate.percent) {
+      return t`Your limit order price is ${deltaRate.percent} lower than the current market price`
+    }
+    const thresHold = chainId === ChainId.MAINNET ? 35 : 10
+    if (outputAmount && estimateUSD.rawOutput && estimateUSD.rawOutput < thresHold) {
+      return (
+        <Text>
+          <Trans>
+            We suggest you increase the value of your limit order to at least $10. This will increase the odds of your
+            order being filled by someone
+          </Trans>
+        </Text>
+      )
+    }
+    return
+  }, [currencyIn, displayRate, deltaRate, estimateUSD, outputAmount, chainId])
   return (
     <>
       <Flex flexDirection={'column'} style={{ gap: '1rem' }}>
@@ -797,14 +811,7 @@ const LimitOrderForm = function LimitOrderForm({
           />
         </Tooltip>
 
-        {chainId !== ChainId.ETHW && <TrendingSoonTokenBanner currencyIn={currencyIn} currencyOut={currencyOut} />}
-
-        {showWarningRate && (
-          <ErrorWarningPanel
-            type="error"
-            title={t`Your limit order price is ${deltaRate.percent} lower than the current market price`}
-          />
-        )}
+        {warningMessage && <ErrorWarningPanel type="warn" title={warningMessage} />}
 
         <ActionButtonLimitOrder
           {...{
@@ -822,7 +829,7 @@ const LimitOrderForm = function LimitOrderForm({
             onWrapToken,
             showPreview,
             showApproveFlow,
-            showWarningRate,
+            showWarning: !!warningMessage,
           }}
         />
       </Flex>
@@ -839,6 +846,7 @@ const LimitOrderForm = function LimitOrderForm({
         rateInfo={rateInfo}
         marketPrice={tradeInfo}
         note={note}
+        warningMessage={warningMessage}
       />
 
       <ExpirePicker
