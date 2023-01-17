@@ -82,3 +82,4 @@ const maticInfo: EVMNetworkInfo = {
 }
 
 export default maticInfo
+//
