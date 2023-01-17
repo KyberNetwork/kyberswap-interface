@@ -35,6 +35,8 @@ const Wrapper = styled.div.attrs<WrapperProps>(props => ({
 
   border-radius: 20px 0px 0px 0px;
   background-color: ${({ theme }) => theme.tabActive};
+  box-shadow: 0px 0px 12px 8px rgb(0 0 0 / 4%);
+
   overflow: hidden;
 
   &[data-pinned='true'] {

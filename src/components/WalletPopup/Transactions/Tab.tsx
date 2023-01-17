@@ -1,6 +1,6 @@
 import { t } from '@lingui/macro'
 import { memo, useLayoutEffect, useRef, useState } from 'react'
-import styled, { DefaultTheme, css } from 'styled-components'
+import styled, { css } from 'styled-components'
 
 import Row from 'components/Row'
 import { TRANSACTION_GROUP } from 'state/transactions/type'
@@ -61,7 +61,7 @@ const TabWrapper = styled(Row).attrs<WrapperProps>(props => ({
         background: linear-gradient(
           -90deg,
           rgba(0, 0, 0, 0) 0%,
-          ${({ theme }) => theme.background} 60%,
+          ${({ theme }) => theme.background} 90%,
           ${({ theme }) => theme.background} 100%
         );
       }
@@ -85,7 +85,7 @@ const TabWrapper = styled(Row).attrs<WrapperProps>(props => ({
         background: linear-gradient(
           90deg,
           rgba(0, 0, 0, 0) 0%,
-          ${({ theme }) => theme.background} 60%,
+          ${({ theme }) => theme.background} 90%,
           ${({ theme }) => theme.background} 100%
         );
       }
@@ -93,10 +93,11 @@ const TabWrapper = styled(Row).attrs<WrapperProps>(props => ({
   }
 `
 
-const getCssTabActive = (theme: DefaultTheme) => css`
+const tabActiveCSS = css`
   border-radius: 20px;
-  background-color: ${theme.tabActive};
+  background-color: ${({ theme }) => (theme.darkMode ? theme.tabActive : theme.buttonGray)};
 `
+
 const TabItem = styled.div<{ active: boolean }>`
   padding: 6px;
   font-weight: 500;
@@ -106,9 +107,9 @@ const TabItem = styled.div<{ active: boolean }>`
   cursor: pointer;
   user-select: none;
   :hover {
-    ${({ theme }) => getCssTabActive(theme)}
+    ${tabActiveCSS}
   }
-  ${({ theme, active }) => active && getCssTabActive(theme)}
+  ${({ theme, active }) => (active ? tabActiveCSS : '')}
 `
 const listTab = [
   { text: t`All`, value: '' },
