@@ -648,13 +648,23 @@ const LimitOrderForm = function LimitOrderForm({
     if (outputAmount && estimateUSD.rawOutput && estimateUSD.rawOutput < thresHold) {
       messages.push(
         <Text>
-          <Trans>
-            We suggest you increase the value of your limit order to at least{' '}
-            <Text as="span" fontWeight={'500'} color={theme.warning}>
-              ${thresHold}
-            </Text>
-            . This will increase the odds of your order being filled
-          </Trans>
+          {chainId === ChainId.MAINNET ? (
+            <Trans>
+              We suggest you increase the value of your limit order to at least{' '}
+              <Text as="span" fontWeight={'500'} color={theme.warning}>
+                ${thresHold}
+              </Text>{' '}
+              due to high gas fees on Ethereum chain. This will increase the odds of your order being filled.
+            </Trans>
+          ) : (
+            <Trans>
+              We suggest you increase the value of your limit order to at least{' '}
+              <Text as="span" fontWeight={'500'} color={theme.warning}>
+                ${thresHold}
+              </Text>
+              . This will increase the odds of your order being filled.
+            </Trans>
+          )}
         </Text>,
       )
     }
