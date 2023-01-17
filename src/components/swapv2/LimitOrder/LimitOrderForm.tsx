@@ -277,7 +277,9 @@ const LimitOrderForm = function LimitOrderForm({
   }, [currencyIn, activeOrderMakingAmount, isEdit, orderInfo])
 
   const balance = useCurrencyBalance(currencyIn)
-  const maxAmountInput = maxAmountSpend(balance)
+  const maxAmountInput = useMemo(() => {
+    return maxAmountSpend(balance)
+  }, [balance])
 
   const handleMaxInput = useCallback(() => {
     if (!parsedActiveOrderMakingAmount || !maxAmountInput) return
