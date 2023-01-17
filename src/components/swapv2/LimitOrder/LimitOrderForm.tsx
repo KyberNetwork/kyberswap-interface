@@ -281,7 +281,9 @@ const LimitOrderForm = function LimitOrderForm({
 
   const handleMaxInput = useCallback(() => {
     if (!parsedActiveOrderMakingAmount || !maxAmountInput) return
-    onSetInput(maxAmountInput.subtract(parsedActiveOrderMakingAmount)?.toExact())
+    try {
+      onSetInput(maxAmountInput.subtract(parsedActiveOrderMakingAmount)?.toExact())
+    } catch (error) {}
   }, [maxAmountInput, onSetInput, parsedActiveOrderMakingAmount])
 
   const enoughAllowance = useMemo(() => {
@@ -304,28 +306,32 @@ const LimitOrderForm = function LimitOrderForm({
   )
 
   const inputError = useMemo(() => {
-    if (!inputAmount) return
-    if (parseFloat(inputAmount) === 0 && (parseFloat(outputAmount) === 0 || parseFloat(displayRate) === 0)) {
-      return t`Invalid input amount`
-    }
-    if (balance && parseInputAmount?.greaterThan(balance)) {
-      return t`Insufficient ${currencyIn?.symbol} balance`
-    }
+    try {
+      if (!inputAmount) return
+      if (parseFloat(inputAmount) === 0 && (parseFloat(outputAmount) === 0 || parseFloat(displayRate) === 0)) {
+        return t`Invalid input amount`
+      }
+      if (balance && parseInputAmount?.greaterThan(balance)) {
+        return t`Insufficient ${currencyIn?.symbol} balance`
+      }
 
-    const remainBalance = parsedActiveOrderMakingAmount ? balance?.subtract(parsedActiveOrderMakingAmount) : undefined
-    if (parseInputAmount && remainBalance?.lessThan(parseInputAmount)) {
-      const formatNum = formatNumberWithPrecisionRange(parseFloat(remainBalance.toFixed(3)), 0, 10)
-      return t`You don't have sufficient ${currencyIn?.symbol} balance. After your active orders, you have ${
-        Number(formatNum) !== 0 ? '~' : ''
-      }${formatNum} ${currencyIn?.symbol} left.`
-    }
+      const remainBalance = parsedActiveOrderMakingAmount ? balance?.subtract(parsedActiveOrderMakingAmount) : undefined
+      if (parseInputAmount && remainBalance?.lessThan(parseInputAmount)) {
+        const formatNum = formatNumberWithPrecisionRange(parseFloat(remainBalance.toFixed(3)), 0, 10)
+        return t`You don't have sufficient ${currencyIn?.symbol} balance. After your active orders, you have ${
+          Number(formatNum) !== 0 ? '~' : ''
+        }${formatNum} ${currencyIn?.symbol} left.`
+      }
 
-    if (!parseInputAmount) {
-      return t`Your input amount is invalid.`
-    }
+      if (!parseInputAmount) {
+        return t`Your input amount is invalid.`
+      }
 
-    if (showWrap && wrapInputError) return wrapInputError
-    return
+      if (showWrap && wrapInputError) return wrapInputError
+      return
+    } catch (error) {
+      return
+    }
   }, [
     currencyIn,
     balance,
