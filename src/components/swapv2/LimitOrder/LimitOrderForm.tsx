@@ -21,6 +21,7 @@ import DeltaRate, { useGetDeltaRateLimitOrder } from 'components/swapv2/LimitOrd
 import ConfirmOrderModal from 'components/swapv2/LimitOrder/Modals/ConfirmOrderModal'
 import TradePrice from 'components/swapv2/LimitOrder/TradePrice'
 import useBaseTradeInfo from 'components/swapv2/LimitOrder/useBaseTradeInfo'
+import useValidateInputError from 'components/swapv2/LimitOrder/useValidateInputError'
 import useWrapEthStatus from 'components/swapv2/LimitOrder/useWrapEthStatus'
 import { Z_INDEXS } from 'constants/styles'
 import { useTokenAllowance } from 'data/Allowances'
@@ -35,7 +36,7 @@ import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { TRANSACTION_STATE_DEFAULT, TransactionFlowState } from 'types'
-import { formatNumberWithPrecisionRange, getLimitOrderContract } from 'utils'
+import { getLimitOrderContract } from 'utils'
 import { subscribeNotificationOrderCancelled, subscribeNotificationOrderExpired } from 'utils/firebase'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { toFixed } from 'utils/numbers'
@@ -304,51 +305,17 @@ const LimitOrderForm = function LimitOrderForm({
     !enoughAllowance,
   )
 
-  const inputError = useMemo(() => {
-    try {
-      if (!inputAmount) return
-      if (parseFloat(inputAmount) === 0 && (parseFloat(outputAmount) === 0 || parseFloat(displayRate) === 0)) {
-        return t`Invalid input amount`
-      }
-      if (balance && parseInputAmount?.greaterThan(balance)) {
-        return t`Insufficient ${currencyIn?.symbol} balance`
-      }
-
-      const remainBalance = parsedActiveOrderMakingAmount ? balance?.subtract(parsedActiveOrderMakingAmount) : undefined
-      if (parseInputAmount && remainBalance?.lessThan(parseInputAmount)) {
-        const formatNum = formatNumberWithPrecisionRange(parseFloat(remainBalance.toFixed(3)), 0, 10)
-        return t`You don't have sufficient ${currencyIn?.symbol} balance. After your active orders, you have ${
-          Number(formatNum) !== 0 ? '~' : ''
-        }${formatNum} ${currencyIn?.symbol} left.`
-      }
-
-      if (!parseInputAmount) {
-        return t`Your input amount is invalid.`
-      }
-
-      if (showWrap && wrapInputError) return wrapInputError
-      return
-    } catch (error) {
-      return
-    }
-  }, [
-    currencyIn,
-    balance,
+  const { inputError, outPutError } = useValidateInputError({
     inputAmount,
     outputAmount,
+    balance,
     displayRate,
     parsedActiveOrderMakingAmount,
-    parseInputAmount,
-    showWrap,
+    currencyIn,
     wrapInputError,
-  ])
-
-  const outPutError = useMemo(() => {
-    if (outputAmount && !tryParseAmount(outputAmount, currencyOut)) {
-      return t`Your output amount is invalid.`
-    }
-    return
-  }, [outputAmount, currencyOut])
+    showWrap,
+    currencyOut,
+  })
 
   const hasInputError = Boolean(inputError || outPutError)
   const checkingAllowance =

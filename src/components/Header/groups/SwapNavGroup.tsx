@@ -50,7 +50,7 @@ const StyledBuyCrypto = styled(BuyCrypto)`
 
 const BetaTag = styled.span`
   position: absolute;
-  right: 15px;
+  right: 14px;
   top: -2px;
   font-size: 10px;
   border-radius: 10px;
