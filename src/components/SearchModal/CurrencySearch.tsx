@@ -80,6 +80,8 @@ interface CurrencySearchProps {
   setImportToken: (token: Token) => void
   customChainId?: ChainId
   filterWrap?: boolean
+  title?: string
+  tooltip?: ReactNode
 }
 
 const PAGE_SIZE = 20
@@ -134,6 +136,8 @@ export function CurrencySearch({
   setImportToken,
   customChainId,
   filterWrap = false,
+  title,
+  tooltip,
 }: CurrencySearchProps) {
   const { chainId: web3ChainId } = useActiveWeb3React()
   const chainId = customChainId || web3ChainId
@@ -377,17 +381,21 @@ export function CurrencySearch({
       <PaddedColumn gap="14px">
         <RowBetween>
           <Text fontWeight={500} fontSize={20} display="flex">
-            <Trans>Select a token</Trans>
+            {title || <Trans>Select a token</Trans>}
             <InfoHelper
               zIndexTooltip={Z_INDEXS.MODAL}
               size={16}
+              fontSize={14}
               text={
-                <Trans>
-                  Find a token by searching for its name or symbol or by pasting its address below
-                  <br />
-                  <br />
-                  You can select and trade any token on KyberSwap.
-                </Trans>
+                tooltip || (
+                  <Text>
+                    <Trans>
+                      Find a token by searching for its name or symbol or by pasting its address below.
+                      <br />
+                      You can select and trade any token on KyberSwap.
+                    </Trans>
+                  </Text>
+                )
               }
             />
           </Text>

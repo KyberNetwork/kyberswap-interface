@@ -1,5 +1,5 @@
 import { Currency, Token } from '@kyberswap/ks-sdk-core'
-import { useCallback, useEffect, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 
 import Modal from 'components/Modal'
@@ -17,9 +17,11 @@ interface CurrencySearchModalProps {
   otherSelectedCurrency?: Currency | null
   showCommonBases?: boolean
   filterWrap?: boolean
+  title?: string
+  tooltip?: ReactNode
 }
 
-export enum CurrencyModalView {
+enum CurrencyModalView {
   search,
   importToken,
 }
@@ -32,6 +34,8 @@ export default function CurrencySearchModal({
   otherSelectedCurrency,
   showCommonBases = false,
   filterWrap,
+  title,
+  tooltip,
 }: CurrencySearchModalProps) {
   const [modalView, setModalView] = useState<CurrencyModalView>(CurrencyModalView.search)
   const lastOpen = useLast(isOpen)
@@ -85,6 +89,8 @@ export default function CurrencySearchModal({
           showCommonBases={showCommonBases}
           setImportToken={onImportToken}
           filterWrap={filterWrap}
+          title={title}
+          tooltip={tooltip}
         />
       ) : modalView === CurrencyModalView.importToken && importToken ? (
         <ImportToken

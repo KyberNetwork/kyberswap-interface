@@ -1,5 +1,5 @@
 import { Currency, CurrencyAmount, TokenAmount } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { stringify } from 'querystring'
 import { useState } from 'react'
 import { Info } from 'react-feather'
@@ -113,6 +113,16 @@ export default function MyAssets({
         )}
       </AutoSizer>
       <CurrencySearchModal
+        title={t`Import Tokens`}
+        tooltip={
+          <Text>
+            <Trans>
+              Find a token by searching for name, symbol or address.
+              <br />
+              You can select and import any token on KyberSwap.
+            </Trans>
+          </Text>
+        }
         isOpen={modalOpen}
         onDismiss={hideModal}
         onCurrencySelect={hideModal}

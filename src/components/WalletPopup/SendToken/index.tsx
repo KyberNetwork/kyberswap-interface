@@ -158,6 +158,13 @@ export default function SendToken({
     }
   }, [loadingTokens, currencies])
 
+  const onPaste = async () => {
+    try {
+      const text = await navigator.clipboard.readText()
+      setRecipient(text)
+    } catch (error) {}
+  }
+
   const ref = useRef(null)
   useOnClickOutside(ref, () => {
     setShowListToken(false)
@@ -189,7 +196,7 @@ export default function SendToken({
             onChange={e => setRecipient(e.target.value)}
             value={recipient}
             placeholder="0x..."
-            icon={<Clipboard size={20} color={theme.subText} />}
+            icon={<Clipboard size={20} cursor="pointer" color={theme.subText} onClick={onPaste} />}
           />
           <Label color={theme.red} style={{ opacity: recipientError ? 1 : 0, transition: '0.3s' }}>
             {recipientError}
