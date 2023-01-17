@@ -19,6 +19,15 @@ const BackgroundWrapper = styled.div`
   mix-blend-mode: overlay;
   border-radius: 20px;
   overflow: hidden;
+
+  ${({ theme }) =>
+    !theme.darkMode
+      ? css`
+          opacity: 0.8;
+          filter: drop-shadow(0px 2px 2px rgba(0, 0, 0, 0.15));
+          mix-blend-mode: multiply;
+        `
+      : ''}
 `
 
 const Layer1 = styled.div`
@@ -26,6 +35,14 @@ const Layer1 = styled.div`
 
   background: linear-gradient(143.08deg, #31CB9E 41.26%, rgba(0, 0, 0, 0) 112.51%);
   opacity: 0.8;
+
+  ${({ theme }) =>
+    !theme.darkMode
+      ? css`
+          background: linear-gradient(120.55deg, #98e5ce 19.11%, rgba(255, 255, 255, 0.88) 104.63%);
+          opacity: 0.6;
+        `
+      : ''}
 `
 
 const Layer2 = styled.div`
@@ -33,7 +50,7 @@ const Layer2 = styled.div`
 
   background: linear-gradient(135.08deg, rgba(255, 255, 255, 0.6) -83%, rgba(0, 0, 0, 0) 118.53%);
   filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
-  opacity: 0.8;
+  opacity: 0.6;
 `
 
 const LogoWrapper = styled.div`
@@ -41,6 +58,13 @@ const LogoWrapper = styled.div`
   right: 16px;
   top: 50%;
   transform: translateY(-50%);
+
+  ${({ theme }) =>
+    !theme.darkMode
+      ? css`
+          opacity: 0.25;
+        `
+      : ''}
 `
 type Props = {
   noLogo: boolean

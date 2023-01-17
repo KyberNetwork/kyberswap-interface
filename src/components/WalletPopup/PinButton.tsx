@@ -23,7 +23,7 @@ const PinButton: React.FC<Props> = ({ isActive, onClick }) => {
       role="button"
       onClick={onClick}
     >
-      {isActive ? <PinSolidIcon /> : <PinIcon color={theme.subText} />}
+      {isActive ? <PinSolidIcon color={theme.text} /> : <PinIcon color={theme.subText} />}
     </Flex>
   )
 }
