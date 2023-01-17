@@ -665,7 +665,17 @@ const LimitOrderForm = function LimitOrderForm({
   const warningMessage = useMemo(() => {
     const messages = []
     if (currencyIn && displayRate && !deltaRate.profit && deltaRate.percent) {
-      messages.push(t`Your limit order price is ${deltaRate.percent} lower than the current market price`)
+      messages.push(
+        <Text>
+          <Trans>
+            Your limit order price is{' '}
+            <Text as="span" fontWeight={'500'} color={theme.warning}>
+              {deltaRate.percent}
+            </Text>{' '}
+            lower than the current market price
+          </Trans>
+        </Text>,
+      )
     }
     const thresHold = chainId === ChainId.MAINNET ? 35 : 10
     if (outputAmount && estimateUSD.rawOutput && estimateUSD.rawOutput < thresHold) {
@@ -773,7 +783,7 @@ const LimitOrderForm = function LimitOrderForm({
               price={tradeInfo}
               style={{ width: 'fit-content', fontStyle: 'italic' }}
               color={theme.text}
-              label={t`Estimated Market Price:`}
+              label={t`Est. Market Price:`}
               loading={loadingTrade}
               symbolIn={currencyIn?.symbol}
               symbolOut={currencyOut?.symbol}
