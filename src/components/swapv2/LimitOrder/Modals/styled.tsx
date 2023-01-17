@@ -105,7 +105,7 @@ export const MarketInfo = ({
     >
       <Row>
         <Label>
-          <Trans>Current Market Price</Trans>
+          <Trans>Estimated Market Price</Trans>
         </Label>
         <Value>
           <TradePrice
