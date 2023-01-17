@@ -5,7 +5,7 @@ import { FeeAmount, NonfungiblePositionManager, Position } from '@kyberswap/ks-s
 import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import JSBI from 'jsbi'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AlertTriangle, Repeat } from 'react-feather'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -36,9 +36,11 @@ import Tooltip from 'components/Tooltip'
 import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
 import { TutorialType } from 'components/Tutorial'
 import { Dots } from 'components/swapv2/styleds'
+import { ENV_LEVEL } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
+import { ENV_TYPE } from 'constants/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
@@ -188,9 +190,13 @@ export default function AddLiquidity() {
     onRemovePosition,
   } = useProAmmMintActionHandlers(noLiquidity, positionIndex)
 
+  const mountRef = useRef(false)
   useEffect(() => {
-    setPositionIndex(0)
-    onResetMintState()
+    if (ENV_LEVEL > ENV_TYPE.LOCAL && !mountRef.current) {
+      setPositionIndex(0)
+      onResetMintState()
+    }
+    mountRef.current = true
   }, [onResetMintState, baseCurrency, quoteCurrency, feeAmount, chainId])
 
   const isValid = !errorMessage && !invalidRange
