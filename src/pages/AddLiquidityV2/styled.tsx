@@ -4,7 +4,6 @@ import styled, { css } from 'styled-components'
 import { ButtonOutlined } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import Input from 'components/NumericalInput'
-import { HideMedium } from 'theme'
 
 export const PageWrapper = styled(AutoColumn)`
   padding: 1rem 2rem;
@@ -73,11 +72,9 @@ export const FlexLeft = styled(Flex)`
 
   width: calc(100vw / 26 * 9 - 64px);
   max-width: 425px;
-  padding-right: 20px;
   ${({ theme }) => theme.mediaWidth.upToMedium`
     width: 100%;
     max-width: 500px;
-    padding-right: 0px;
   `};
 `
 
@@ -90,14 +87,6 @@ export const StackedItem = styled.div<{ zIndex?: number }>`
   grid-row: 1;
   height: 100%;
   z-index: ${({ zIndex }) => zIndex};
-`
-
-export const BorderedHideMedium = styled(HideMedium)`
-  width: 100%;
-  border-left: 1px solid ${({ theme }) => theme.border};
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    border-left: none;
-`};
 `
 
 export const RangeBtn = styled(ButtonOutlined)<{ isSelected: boolean }>`

@@ -75,7 +75,6 @@ import Tabs from './Tab'
 import { RANGE_LIST, rangeData } from './constants'
 import {
   ArrowWrapper,
-  BorderedHideMedium,
   ChartBody,
   ChartWrapper,
   Container,
@@ -503,6 +502,7 @@ export default function AddLiquidity() {
     parsedAmounts_B,
   ])
 
+  const upToXL = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXL}px)`)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
@@ -867,6 +867,8 @@ export default function AddLiquidity() {
     [account, userLiquidityPositionsQueryResult],
   )
 
+  const tightTokenSelect = !upToMedium && upToLarge
+
   if (!isEVM) return <Navigate to="/" />
   return (
     <>
@@ -945,7 +947,7 @@ export default function AddLiquidity() {
                 </div>
               </RowBetween>
               <RowBetween
-                sx={{ gap: upToLarge ? (upToMedium ? '8px' : '0px') : '20px' }}
+                sx={{ gap: upToXL ? (upToMedium ? '8px' : '0px') : '20px' }}
                 flexDirection={upToXXSmall ? 'column' : 'row'}
               >
                 <CurrencyInputPanel
@@ -961,6 +963,7 @@ export default function AddLiquidity() {
                   showCommonBases
                   estimatedUsd={formattedNum(estimatedUsdCurrencyA.toString(), true) || undefined}
                   maxCurrencySymbolLength={6}
+                  tight={tightTokenSelect}
                 />
 
                 <ArrowWrapper
@@ -1003,6 +1006,7 @@ export default function AddLiquidity() {
                   showCommonBases
                   estimatedUsd={formattedNum(estimatedUsdCurrencyB.toString(), true) || undefined}
                   maxCurrencySymbolLength={6}
+                  tight={tightTokenSelect}
                 />
               </RowBetween>
               <DynamicSection disabled={disableFeeSelect} gap="md">
@@ -1097,11 +1101,7 @@ export default function AddLiquidity() {
               )}
               {upToMedium && chart}
             </FlexLeft>
-            {!upToMedium && (
-              <BorderedHideMedium>
-                <RightContainer gap="lg">{chart}</RightContainer>
-              </BorderedHideMedium>
-            )}
+            {!upToMedium && <RightContainer gap="lg">{chart}</RightContainer>}
           </Flex>
           <Row justify="flex-end" flexDirection={upToMedium ? 'column' : 'row'}>
             <Flex
