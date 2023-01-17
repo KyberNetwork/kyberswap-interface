@@ -209,11 +209,6 @@ const LimitOrderForm = function LimitOrderForm({
   const onSetInput = useCallback(
     (input: string) => {
       setInputAmount(input)
-      if (!input) {
-        setOuputAmount('')
-        setRateInfo({ ...rateInfo, rate: '', invertRate: '' })
-        return
-      }
       if (rateInfo.rate && currencyIn && currencyOut && input) {
         setOuputAmount(calcOutput(input, rateInfo.rate, currencyIn.decimals, currencyOut.decimals))
       }
