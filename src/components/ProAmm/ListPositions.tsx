@@ -1,24 +1,38 @@
 import { Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
+import { useState } from 'react'
+import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
+import { ReactComponent as DoubleArrow } from 'assets/svg/double_arrow.svg'
+import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import CurrencyLogo from 'components/CurrencyLogo'
+import { ClickableText } from 'components/YieldPools/styleds'
+import useTheme from 'hooks/useTheme'
 import { Bound } from 'state/mint/proamm/type'
+import { MEDIA_WIDTHS } from 'theme'
 import { formattedNum } from 'utils'
+import { formatTickPrice } from 'utils/formatTickPrice'
 import { getTickToPrice } from 'utils/getTickToPrice'
 
 import PriceVisualize from './PriceVisualize'
 
 const TableWrapper = styled.div`
   margin-top: 1rem;
-  /* width: 768px; */
+`
+
+const tableTemplateColumns = css`
+  display: grid;
+  grid-gap: 1.5rem;
+  grid-template-columns: 20px 1fr 2fr 2fr 3fr;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    grid-template-columns: 20px 1fr 3fr;
+  `};
 `
 
 const TableHeader = styled.div`
-  display: grid;
-  grid-gap: 1.5rem;
-  grid-template-columns: 20px 1fr 1fr 1fr 1.5fr;
+  ${tableTemplateColumns}
   padding: 16px 20px;
   font-size: 12px;
   align-items: center;
@@ -32,22 +46,26 @@ const TableHeader = styled.div`
   text-align: right;
 `
 
-const TableRow = styled.div`
-  display: grid;
-  grid-gap: 1.5rem;
-  grid-template-columns: 20px 1fr 1fr 1fr 1.5fr;
+const TableRowWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   padding: 12px 16px;
   font-size: 14px;
   align-items: center;
   height: fit-content;
   position: relative;
   border-bottom: 1px solid ${({ theme }) => theme.border};
-
   :last-child {
     border-bottom: none;
     border-bottom-right-radius: 20px;
     border-bottom-left-radius: 20px;
   }
+`
+
+const TableRow = styled.div`
+  ${tableTemplateColumns}
+  width: 100%;
 `
 
 const RowItem = styled(Flex)`
@@ -71,6 +89,9 @@ const PositionListItem = ({
   }
   rotated: boolean
 }) => {
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const [isExpanded, setIsExpanded] = useState(false)
+  const theme = useTheme()
   const [tokenA, tokenB] = rotated
     ? [position.amount1.currency, position.amount0.currency]
     : [position.amount0.currency, position.amount1.currency]
@@ -79,41 +100,95 @@ const PositionListItem = ({
     parseFloat(position.amount1.toSignificant(6)) * usdPrices[tokenB.address]
   const priceLower = getTickToPrice(tokenA, tokenB, position.tickLower)
   const priceUpper = getTickToPrice(tokenA, tokenB, position.tickUpper)
+  const formattedLowerPrice = formatTickPrice(priceLower, ticksAtLimit, Bound.LOWER)
+  const formattedUpperPrice = formatTickPrice(priceUpper, ticksAtLimit, Bound.UPPER)
   if (!priceLower || !priceUpper) return null
 
   return (
-    <TableRow>
-      <RowItem>
-        <Text>{index + 1}</Text>
-      </RowItem>
-      <RowItem>{formattedNum(usdValue.toString(), true)}</RowItem>
-      <RowItem>
-        <Flex sx={{ gap: '4px', alignItems: 'center' }}>
-          <CurrencyLogo currency={position.amount0.currency} size={'16px'} />
-          <Text>
-            {position.amount0.toSignificant(4)} {position.amount0.currency.symbol}
-          </Text>
+    <TableRowWrapper>
+      <TableRow>
+        <RowItem>
+          <Text>{index + 1}</Text>
+        </RowItem>
+        <RowItem>{formattedNum(usdValue.toString(), true)}</RowItem>
+
+        {upToSmall ? null : (
+          <>
+            <RowItem>
+              <Flex sx={{ gap: '4px' }} alignItems="center">
+                <CurrencyLogo currency={position.amount0.currency} size="16px" />
+                <Text>
+                  {position.amount0.toSignificant(4)} {position.amount0.currency.symbol}
+                </Text>
+              </Flex>
+            </RowItem>
+            <RowItem>
+              <Flex sx={{ gap: '4px' }} alignItems="center">
+                <CurrencyLogo currency={position.amount1.currency} size="16px" />
+                <Text>
+                  {position.amount1.toSignificant(4)} {position.amount1.currency.symbol}
+                </Text>
+              </Flex>
+            </RowItem>
+          </>
+        )}
+        <Flex sx={{ gap: '8px' }} width="100%" alignItems="center">
+          <PriceVisualize
+            priceLower={priceLower}
+            priceUpper={priceUpper}
+            price={rotated ? position.pool.token1Price : position.pool.token0Price}
+            showTooltip={true}
+            ticksAtLimit={ticksAtLimit}
+            center
+          />
+          {upToSmall && (
+            <ClickableText onClick={() => setIsExpanded(!isExpanded)}>
+              <DropdownSVG
+                // width="30px"
+                // height="30px"
+                style={{ transform: `rotate(${isExpanded ? '-180deg' : 0}) scale(1.5)`, transition: 'transform 0.15s' }}
+              />
+            </ClickableText>
+          )}
         </Flex>
-      </RowItem>
-      <RowItem>
-        <Flex sx={{ gap: '4px', alignItems: 'center' }}>
-          <CurrencyLogo currency={position.amount1.currency} size={'16px'} />
-          <Text>
-            {position.amount1.toSignificant(4)} {position.amount1.currency.symbol}
-          </Text>
+      </TableRow>
+      {isExpanded && upToSmall && (
+        <Flex flexDirection="column" width="100%" sx={{ gap: '12px' }}>
+          <Flex justifyContent="space-between">
+            <Flex sx={{ gap: '8px' }}>
+              {/* {position.amount0.currency.symbol} */}
+              <Flex sx={{ gap: '4px' }} alignItems="center">
+                <CurrencyLogo currency={position.amount0.currency} size="16px" />
+                <Text>
+                  {position.amount0.toSignificant(4)} {position.amount0.currency.symbol}
+                </Text>
+              </Flex>
+            </Flex>
+            <Flex sx={{ gap: '8px' }}>
+              {/* {position.amount1.currency.symbol} */}
+              <Flex sx={{ gap: '4px' }} alignItems="center">
+                <CurrencyLogo currency={position.amount1.currency} size="16px" />
+                <Text>
+                  {position.amount1.toSignificant(4)} {position.amount1.currency.symbol}
+                </Text>
+              </Flex>
+            </Flex>
+          </Flex>
+          <Flex justifyContent="space-between">
+            <Flex>
+              <Text color={theme.subText}>
+                <Trans>PRICE RANGE</Trans>
+              </Text>
+            </Flex>
+            <Flex>
+              <Text>
+                {formattedLowerPrice} <DoubleArrow /> {formattedUpperPrice}
+              </Text>
+            </Flex>
+          </Flex>
         </Flex>
-      </RowItem>
-      <RowItem alignItems="flex-end" width="100%">
-        <PriceVisualize
-          priceLower={priceLower}
-          priceUpper={priceUpper}
-          price={rotated ? position.pool.token1Price : position.pool.token0Price}
-          showTooltip={true}
-          ticksAtLimit={ticksAtLimit}
-          center
-        />
-      </RowItem>
-    </TableRow>
+      )}
+    </TableRowWrapper>
   )
 }
 
@@ -135,6 +210,7 @@ const ChartPositions = ({
   const [tokenA, tokenB] = rotated
     ? [positions[0].amount1.currency, positions[0].amount0.currency]
     : [positions[0].amount0.currency, positions[0].amount1.currency]
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const header = (
     <TableHeader>
@@ -145,17 +221,26 @@ const ChartPositions = ({
         <Trans>VALUE</Trans>
       </RowItem>
 
-      <RowItem alignItems="flex-start">
-        <Trans>{positions[0].amount0.currency.symbol}</Trans>
-      </RowItem>
+      {upToSmall ? null : (
+        <>
+          <RowItem alignItems="flex-start">
+            <Trans>{positions[0].amount0.currency.symbol}</Trans>
+          </RowItem>
 
-      <RowItem alignItems="flex-start">
-        <Trans>{positions[0].amount1.currency.symbol}</Trans>
-      </RowItem>
+          <RowItem alignItems="flex-start">
+            <Trans>{positions[0].amount1.currency.symbol}</Trans>
+          </RowItem>
+        </>
+      )}
 
       <RowItem alignItems="flex-end">
         <Trans>
-          PRICE RANGE ({tokenB.symbol} per {tokenA.symbol})
+          <Text>
+            PRICE RANGE{' '}
+            <Text as="span" sx={{ whiteSpace: 'nowrap' }}>
+              ({tokenB.symbol} per {tokenA.symbol})
+            </Text>
+          </Text>
         </Trans>
       </RowItem>
     </TableHeader>
