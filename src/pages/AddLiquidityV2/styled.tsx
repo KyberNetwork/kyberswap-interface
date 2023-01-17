@@ -18,6 +18,7 @@ export const PageWrapper = styled(AutoColumn)`
 export const Container = styled.div`
   width: 100%;
   border-radius: 20px;
+  border: 1px solid ${({ theme }) => theme.border};
 
   background: ${({ theme }) => theme.background};
 
