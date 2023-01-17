@@ -125,7 +125,7 @@ export default function AddLiquidity() {
   // mint state
   const { positions: positionsState, startPriceTypedValue } = useProAmmMintState()
   const { independentField, typedValue } =
-    positionsState[positionIndex > positionsState.length ? positionsState.length : positionIndex]
+    positionsState[positionIndex >= positionsState.length ? positionsState.length - 1 : positionIndex]
 
   const {
     pool,

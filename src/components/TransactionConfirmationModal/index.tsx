@@ -248,7 +248,7 @@ const StyledAlert = styled(Alert)`
 `
 export function TransactionErrorContent({ message, onDismiss }: { message: string; onDismiss: () => void }) {
   const theme = useTheme()
-  const [showDetail, setShowDetail] = useState<boolean>(false)
+  const [showDetail, setShowDetail] = useState<boolean>(true)
   return (
     <Wrapper>
       <Section>
@@ -305,7 +305,7 @@ interface ConfirmationModalProps {
   tokenAddToMetaMask?: Currency
   showTxBanner?: boolean
   startedTime?: number
-  maxWidth?: string
+  maxWidth?: string | number
   width?: string
 }
 
@@ -319,7 +319,7 @@ export default function TransactionConfirmationModal({
   tokenAddToMetaMask,
   showTxBanner,
   startedTime,
-  maxWidth,
+  maxWidth = 420,
   width,
 }: ConfirmationModalProps) {
   const { chainId } = useActiveWeb3React()

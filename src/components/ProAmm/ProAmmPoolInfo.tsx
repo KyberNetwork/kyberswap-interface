@@ -18,6 +18,7 @@ import { useActiveWeb3React } from 'hooks'
 import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
+import { shortenAddress } from 'utils'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
 import { RotateSwapIcon } from './styles'
@@ -29,6 +30,7 @@ export default function ProAmmPoolInfo({
   narrow = false,
   rotatedProp,
   setRotatedProp,
+  showRangeInfo = true,
 }: {
   isFarmActive?: boolean
   position: Position
@@ -36,8 +38,9 @@ export default function ProAmmPoolInfo({
   narrow?: boolean
   rotatedProp?: boolean
   setRotatedProp?: (rotated: boolean) => void
+  showRangeInfo?: boolean
 }) {
-  const { networkInfo } = useActiveWeb3React()
+  const { networkInfo, chainId } = useActiveWeb3React()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const theme = useTheme()
   const poolAddress = useProAmmPoolInfo(position.pool.token0, position.pool.token1, position.pool.fee as FeeAmount)
@@ -102,17 +105,15 @@ export default function ProAmmPoolInfo({
 
   return (
     <>
-      {poolAddress ? (
+      {poolAddress && (
         <AutoColumn>
           <Flex alignItems="center" justifyContent="space-between">
-            <Flex sx={{ gap: '4px', alignItems: 'center' }}>
-              <Flex>
-                <DoubleCurrencyLogo currency0={token0Shown} currency1={token1Shown} size={24} />
-                <Text fontSize="20px" fontWeight="500">
-                  {token0Shown.symbol} - {token1Shown.symbol}
-                </Text>
-              </Flex>
-              <FeeTag style={{ fontSize: '12px' }}>FEE {(position.pool.fee * 100) / ELASTIC_BASE_FEE_UNIT}%</FeeTag>
+            <Flex alignItems="center">
+              <DoubleCurrencyLogo currency0={token0Shown} currency1={token1Shown} size={20} />
+              <Text fontSize="16px" fontWeight="500">
+                {token0Shown.symbol} - {token1Shown.symbol}
+              </Text>
+              <FeeTag>FEE {(position?.pool.fee * 100) / ELASTIC_BASE_FEE_UNIT}% </FeeTag>
             </Flex>
 
             {narrow ? (
@@ -121,7 +122,7 @@ export default function ProAmmPoolInfo({
                   toCopy={poolAddress}
                   text={
                     <Text fontSize="12px" fontWeight="500" color={theme.subText}>
-                      <Trans>Address</Trans>
+                      <Trans>{shortenAddress(chainId, poolAddress)}</Trans>
                     </Text>
                   }
                 />
@@ -142,19 +143,19 @@ export default function ProAmmPoolInfo({
             ) : (
               <Flex sx={{ gap: '8px' }}>
                 {renderFarmIcon()}
-                <RangeBadge removed={removed} inRange={!outOfRange} hideText />
+                {showRangeInfo && <RangeBadge removed={removed} inRange={!outOfRange} hideText />}
               </Flex>
             )}
           </Flex>
 
-          {!narrow ? (
-            <Flex sx={{ gap: '16px' }} alignItems="center" marginTop="8px">
+          {!narrow && (
+            <Flex justifyContent="space-between" alignItems="center" marginTop="8px">
               <Flex alignItems="center" color={theme.subText} fontSize={12}>
                 <Copy
                   toCopy={poolAddress}
                   text={
                     <Text fontSize="12px" fontWeight="500" color={theme.subText}>
-                      <Trans>Address</Trans>
+                      {shortenAddress(chainId, poolAddress)}{' '}
                     </Text>
                   }
                 />
@@ -165,9 +166,9 @@ export default function ProAmmPoolInfo({
                 </Text>
               ) : null}
             </Flex>
-          ) : null}
+          )}
         </AutoColumn>
-      ) : null}
+      )}
     </>
   )
 }
