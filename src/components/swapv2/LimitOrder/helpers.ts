@@ -74,7 +74,7 @@ export const calcUsdPrices = ({
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
 }) => {
-  const empty = { input: '', output: '', rawOutput: 0 }
+  const empty = { input: '', output: '', rawInput: 0 }
   if (!inputAmount || !priceUsdIn || !priceUsdOut || !outputAmount || !currencyIn || !currencyOut) return empty
   try {
     const inputAmountInUsd = parseFraction(priceUsdIn.toString()) // 1 knc = ??? usd
