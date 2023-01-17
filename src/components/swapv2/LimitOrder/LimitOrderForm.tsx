@@ -653,7 +653,7 @@ const LimitOrderForm = function LimitOrderForm({
             <Text as="span" fontWeight={'500'} color={theme.warning}>
               ${thresHold}
             </Text>
-            . This will increase the odds of your order being filled by someone
+            . This will increase the odds of your order being filled
           </Trans>
         </Text>,
       )
