@@ -85,7 +85,7 @@ export const calcUsdPrices = ({
     return {
       input: input ? `${formattedNum(input.toFixed(16), true)}` : undefined,
       output: output ? `${formattedNum(output.toFixed(16), true)}` : undefined,
-      rawOutput: output,
+      rawOutput: parseFloat(output.toFixed(2)),
     }
   } catch (error) {
     return empty
