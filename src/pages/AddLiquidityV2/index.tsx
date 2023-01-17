@@ -65,7 +65,7 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useExpertModeManager, useUserSlippageTolerance } from 'state/user/hooks'
 import { VIEW_MODE } from 'state/user/reducer'
-import { ExternalLink, HideMedium, MEDIA_WIDTHS, MediumOnly, StyledInternalLink, TYPE } from 'theme'
+import { ExternalLink, MEDIA_WIDTHS, StyledInternalLink, TYPE } from 'theme'
 import { basisPointsToPercent, calculateGasMargin, formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
@@ -574,44 +574,47 @@ export default function AddLiquidity() {
       </>
     )
 
-  const warning = (
-    <>
-      {activeRange === RANGE.FULL_RANGE && (
-        <WarningCard padding="10px 16px">
-          <Flex alignItems="center">
-            <AlertTriangle stroke={theme.warning} size="16px" />
-            <TYPE.warning ml="12px" fontSize="12px" flex={1}>
-              <Trans>Efficiency Comparison: Full range positions may earn less fees than concentrated positions.</Trans>
-            </TYPE.warning>
-          </Flex>
-        </WarningCard>
-      )}
+  const warning =
+    activeRange === RANGE.FULL_RANGE || outOfRange || invalidRange ? (
+      <>
+        {activeRange === RANGE.FULL_RANGE && (
+          <WarningCard padding="10px 16px">
+            <Flex alignItems="center">
+              <AlertTriangle stroke={theme.warning} size="16px" />
+              <TYPE.warning ml="12px" fontSize="12px" flex={1}>
+                <Trans>
+                  Efficiency Comparison: Full range positions may earn less fees than concentrated positions.
+                </Trans>
+              </TYPE.warning>
+            </Flex>
+          </WarningCard>
+        )}
 
-      {outOfRange && (
-        <WarningCard padding="10px 16px">
-          <Flex alignItems="center">
-            <AlertTriangle stroke={theme.warning} size="16px" />
-            <TYPE.warning ml="12px" fontSize="12px" flex={1}>
-              <Trans>
-                Your position will not earn fees until the market price of the pool moves into your price range.
-              </Trans>
-            </TYPE.warning>
-          </Flex>
-        </WarningCard>
-      )}
+        {outOfRange && (
+          <WarningCard padding="10px 16px">
+            <Flex alignItems="center">
+              <AlertTriangle stroke={theme.warning} size="16px" />
+              <TYPE.warning ml="12px" fontSize="12px" flex={1}>
+                <Trans>
+                  Your position will not earn fees until the market price of the pool moves into your price range.
+                </Trans>
+              </TYPE.warning>
+            </Flex>
+          </WarningCard>
+        )}
 
-      {invalidRange && (
-        <WarningCard padding="10px 16px">
-          <Flex alignItems="center">
-            <AlertTriangle stroke={theme.warning} size="16px" />
-            <TYPE.warning ml="12px" fontSize="12px" flex={1}>
-              <Trans>Invalid range selected. The min price must be lower than the max price.</Trans>
-            </TYPE.warning>
-          </Flex>
-        </WarningCard>
-      )}
-    </>
-  )
+        {invalidRange && (
+          <WarningCard padding="10px 16px">
+            <Flex alignItems="center">
+              <AlertTriangle stroke={theme.warning} size="16px" />
+              <TYPE.warning ml="12px" fontSize="12px" flex={1}>
+                <Trans>Invalid range selected. The min price must be lower than the max price.</Trans>
+              </TYPE.warning>
+            </Flex>
+          </WarningCard>
+        )}
+      </>
+    ) : null
 
   const disableFeeSelect = !currencyIdA || !currencyIdB
   const disableRangeSelect = !feeAmount || invalidPool || (noLiquidity && !startPriceTypedValue)
@@ -739,8 +742,6 @@ export default function AddLiquidity() {
                     />
                   </StackedItem>
                 </StackedContainer>
-
-                <MediumOnly>{warning}</MediumOnly>
               </DynamicSection>
             </DynamicSection>
             <DynamicSection style={{ marginTop: '16px' }} gap="12px" disabled={disableAmountSelect}>
@@ -936,7 +937,7 @@ export default function AddLiquidity() {
           tutorialType={TutorialType.ELASTIC_ADD_LIQUIDITY}
         />
         <Container>
-          <Flex paddingBottom={32}>
+          <Flex paddingBottom={upToMedium ? 16 : 32}>
             <FlexLeft>
               <RowBetween>
                 <Text fontSize={20}>
@@ -1120,7 +1121,16 @@ export default function AddLiquidity() {
             sx={{ gap: '16px' }}
             width={upToMedium ? '100%' : 'initial'}
           >
-            <HideMedium style={{ maxWidth: 'calc(100% - 620px)', minWidth: '390px' }}>{warning}</HideMedium>
+            {warning && (
+              <Flex
+                sx={{
+                  maxWidth: upToMedium ? undefined : 'calc(100% - 620px)',
+                  minWidth: upToMedium ? undefined : '390px',
+                }}
+              >
+                {warning}
+              </Flex>
+            )}
             <Buttons />
           </Row>
         </Container>
