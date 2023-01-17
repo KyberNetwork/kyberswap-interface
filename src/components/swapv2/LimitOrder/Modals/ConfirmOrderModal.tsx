@@ -43,7 +43,7 @@ export default memo(function ConfirmOrderModal({
   marketPrice: BaseTradeInfo | undefined
   rateInfo: RateInfo
   note?: string
-  warningMessage?: ReactNode
+  warningMessage?: ReactNode[]
 }) {
   const { account } = useActiveWeb3React()
 
@@ -104,8 +104,10 @@ export default memo(function ConfirmOrderModal({
                 symbolOut={displayCurrencyOut?.symbol}
               />
               <Note note={note} />
-              {warningMessage && <ErrorWarningPanel type="warn" title={warningMessage} />}
-              {warningMessage ? (
+              {warningMessage?.map((mess, i) => (
+                <ErrorWarningPanel key={i} type="warn" title={mess} />
+              ))}
+              {warningMessage?.length ? (
                 <ButtonWarning onClick={onSubmit}>
                   <Trans>Place Order</Trans>
                 </ButtonWarning>

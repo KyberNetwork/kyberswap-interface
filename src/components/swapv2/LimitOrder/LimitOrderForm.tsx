@@ -663,22 +663,26 @@ const LimitOrderForm = function LimitOrderForm({
       (approvalSubmitted && approval === ApprovalState.APPROVED))
 
   const warningMessage = useMemo(() => {
+    const messages = []
     if (currencyIn && displayRate && !deltaRate.profit && deltaRate.percent) {
-      return t`Your limit order price is ${deltaRate.percent} lower than the current market price`
+      messages.push(t`Your limit order price is ${deltaRate.percent} lower than the current market price`)
     }
     const thresHold = chainId === ChainId.MAINNET ? 35 : 10
     if (outputAmount && estimateUSD.rawOutput && estimateUSD.rawOutput < thresHold) {
-      return (
+      messages.push(
         <Text>
           <Trans>
-            We suggest you increase the value of your limit order to at least $10. This will increase the odds of your
-            order being filled by someone
+            We suggest you increase the value of your limit order to at least{' '}
+            <Text as="span" fontWeight={'500'} color={theme.warning}>
+              ${thresHold}
+            </Text>
+            . This will increase the odds of your order being filled by someone
           </Trans>
-        </Text>
+        </Text>,
       )
     }
-    return
-  }, [currencyIn, displayRate, deltaRate, estimateUSD, outputAmount, chainId])
+    return messages
+  }, [currencyIn, displayRate, deltaRate, estimateUSD, outputAmount, chainId, theme])
   return (
     <>
       <Flex flexDirection={'column'} style={{ gap: '1rem' }}>
@@ -811,7 +815,9 @@ const LimitOrderForm = function LimitOrderForm({
           />
         </Tooltip>
 
-        {warningMessage && <ErrorWarningPanel type="warn" title={warningMessage} />}
+        {warningMessage.map((mess, i) => (
+          <ErrorWarningPanel type="warn" key={i} title={mess} />
+        ))}
 
         <ActionButtonLimitOrder
           {...{
@@ -829,7 +835,7 @@ const LimitOrderForm = function LimitOrderForm({
             onWrapToken,
             showPreview,
             showApproveFlow,
-            showWarning: !!warningMessage,
+            showWarning: warningMessage.length > 0,
           }}
         />
       </Flex>
