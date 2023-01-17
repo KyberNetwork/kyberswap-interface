@@ -13,7 +13,6 @@ import Loader from 'components/Loader'
 import Row from 'components/Row'
 import { CurrencyRow } from 'components/SearchModal/CurrencyList'
 import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
-import { ETHER_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
@@ -53,7 +52,7 @@ export default function MyAssets({
   const nativeBalance = useNativeBalance()
   const navigate = useNavigate()
   const qs = useParsedQueryString()
-  const { chainId, isEVM } = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React()
 
   if (loadingTokens) {
     return (
@@ -71,7 +70,7 @@ export default function MyAssets({
         {({ height, width }) => (
           <div style={{ height, width }}>
             {tokens.map(token => {
-              const address = token.isNative && isEVM ? ETHER_ADDRESS : token.wrapped.address
+              const address = token.wrapped.address
               const currencyBalance = token.isNative ? nativeBalance : currencyBalances[address]
               const usdBalance =
                 currencyBalance && usdBalances[address]
@@ -83,7 +82,7 @@ export default function MyAssets({
                     navigate({ search: stringify({ ...qs, inputCurrency: currencyId(token, chainId) }) })
                   }}
                   isSelected={false}
-                  key={address}
+                  key={address + token.symbol}
                   style={tokenItemStyle}
                   currency={token}
                   currencyBalance={currencyBalance as CurrencyAmount<Currency>}
