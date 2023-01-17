@@ -5,6 +5,7 @@ import { ReactNode, memo, useCallback, useMemo } from 'react'
 import { Flex, Text } from 'rebass'
 
 import { ButtonPrimary, ButtonWarning } from 'components/Button'
+import Column from 'components/Column'
 import CurrencyLogo from 'components/CurrencyLogo'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { BaseTradeInfo } from 'components/swapv2/LimitOrder/useBaseTradeInfo'
@@ -43,7 +44,7 @@ export default memo(function ConfirmOrderModal({
   marketPrice: BaseTradeInfo | undefined
   rateInfo: RateInfo
   note?: string
-  warningMessage?: ReactNode[]
+  warningMessage: ReactNode[]
 }) {
   const { account } = useActiveWeb3React()
 
@@ -104,9 +105,15 @@ export default memo(function ConfirmOrderModal({
                 symbolOut={displayCurrencyOut?.symbol}
               />
               <Note note={note} />
-              {warningMessage?.map((mess, i) => (
-                <ErrorWarningPanel key={i} type="warn" title={mess} />
-              ))}
+
+              {warningMessage?.length > 0 && (
+                <Column gap="16px">
+                  {warningMessage?.map((mess, i) => (
+                    <ErrorWarningPanel key={i} type="warn" title={mess} />
+                  ))}
+                </Column>
+              )}
+
               {warningMessage?.length ? (
                 <ButtonWarning onClick={onSubmit}>
                   <Trans>Place Order</Trans>
