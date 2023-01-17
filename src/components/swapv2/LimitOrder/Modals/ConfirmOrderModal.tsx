@@ -113,6 +113,7 @@ export default memo(function ConfirmOrderModal({
 
   return (
     <TransactionConfirmationModal
+      maxWidth={450}
       hash={flowState.txHash}
       isOpen={flowState.showConfirm}
       onDismiss={onDismiss}
