@@ -35,6 +35,7 @@ const Wrapper = styled.div.attrs<WrapperProps>(props => ({
 
   border-radius: 20px 0px 0px 0px;
   background-color: ${({ theme }) => theme.tabActive};
+  overflow: hidden;
 
   &[data-pinned='true'] {
     border-radius: 20px;
@@ -68,7 +69,7 @@ const TabItem = styled.div<{ active: boolean }>`
 const ContentWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  flex: 1 1 100%;
+  flex: 1 1 auto;
   gap: 14px;
 `
 
@@ -202,8 +203,7 @@ export default function WalletView({ onDismiss, onPin, isPinned, blurBackground 
         sx={{
           flexDirection: 'column',
           width: '100%',
-          alignSelf: 'stretch',
-          justifyContent: 'center',
+          height: '100%',
         }}
       >
         <Flex
@@ -211,8 +211,6 @@ export default function WalletView({ onDismiss, onPin, isPinned, blurBackground 
           sx={{
             flexDirection: 'column',
             width: '100%',
-            alignSelf: 'stretch',
-            justifyContent: 'center',
             cursor: cursorForHandle,
             marginBottom: '8px',
           }}

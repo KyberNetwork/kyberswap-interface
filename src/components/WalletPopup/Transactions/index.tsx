@@ -25,7 +25,7 @@ import TransactionItem from './TransactionItem'
 
 const ContentWrapper = styled.div`
   width: 100%;
-  flex: 1;
+  flex: 1 1 0;
   overflow-y: auto;
   overflow-x: hidden;
   .scrollbar {
@@ -40,11 +40,13 @@ const ContentWrapper = styled.div`
 `
 
 const Wrapper = styled.div`
+  width: 100%;
+  flex: 1 1 0;
+  overflow: hidden;
+
   display: flex;
   flex-direction: column;
-  flex: 1 1 100%;
-  gap: 14px;
-  justify-content: space-between;
+  gap: 12px;
 `
 
 function Row({
@@ -133,13 +135,7 @@ export default function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
       <Tab activeTab={activeTab} setActiveTab={setActiveTab} />
       <ContentWrapper>
         {formatTransactions.length === 0 ? (
-          <Flex
-            justifyContent="center"
-            flexDirection="column"
-            alignItems="center"
-            color={theme.subText}
-            style={{ gap: 10, marginTop: 10 }}
-          >
+          <Flex flexDirection="column" alignItems="center" color={theme.subText} sx={{ gap: 10 }}>
             <Info size={33} />
             {activeTab === TRANSACTION_GROUP.KYBERDAO && !isSupportKyberDao(chainId) ? (
               <>
