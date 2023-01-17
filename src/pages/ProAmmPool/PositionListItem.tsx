@@ -17,7 +17,7 @@ import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
 import ProAmmPriceRange from 'components/ProAmm/ProAmmPriceRange'
 import { RowBetween } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { PROMM_ANALYTICS_URL } from 'constants/index'
+import { APP_PATHS, PROMM_ANALYTICS_URL } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useToken } from 'hooks/Tokens'
 import { useProMMFarmContract } from 'hooks/useContract'
@@ -149,7 +149,7 @@ function PositionListItem({
   refe,
   hasActiveFarm,
 }: PositionListItemProps) {
-  const { chainId } = useActiveWeb3React()
+  const { chainId, networkInfo } = useActiveWeb3React()
   const {
     token0: token0Address,
     token1: token1Address,
@@ -401,7 +401,7 @@ function PositionListItem({
               style={{ marginBottom: '20px', textDecoration: 'none', color: theme.textReverse, fontSize: '14px' }}
               padding="8px"
               as={StyledInternalLink}
-              to={`/farms?${stringify({
+              to={`${APP_PATHS.FARMS}/${networkInfo.route}?${stringify({
                 tab: 'elastic',
                 type: positionDetails.endTime ? (positionDetails.endTime > now ? 'active' : 'ended') : 'active',
                 search: positionDetails.poolId,
@@ -501,7 +501,10 @@ function PositionListItem({
 
             {hasUserDepositedInFarm && (
               <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0">
-                <StyledInternalLink style={{ width: '100%', textAlign: 'center' }} to="/farms">
+                <StyledInternalLink
+                  style={{ width: '100%', textAlign: 'center' }}
+                  to={`${APP_PATHS.FARMS}/${networkInfo.route}`}
+                >
                   <Trans>Go to Farms ↗</Trans>
                 </StyledInternalLink>
               </ButtonEmpty>

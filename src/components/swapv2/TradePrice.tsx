@@ -1,5 +1,5 @@
 import { Currency, Price } from '@kyberswap/ks-sdk-core'
-import React, { CSSProperties, useState } from 'react'
+import React, { useState } from 'react'
 import { Repeat } from 'react-feather'
 import { Text } from 'rebass'
 
@@ -9,11 +9,10 @@ import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { StyledBalanceMaxMini } from './styleds'
 
 interface TradePriceProps {
-  price?: Price<Currency, Currency>
-  style?: CSSProperties
+  price: Price<Currency, Currency> | undefined
 }
 
-export default function TradePrice({ price, style = {} }: TradePriceProps) {
+export default function TradePrice({ price }: TradePriceProps) {
   const theme = useTheme()
   const [showInverted, setShowInverted] = useState<boolean>(false)
   let formattedPrice
@@ -21,10 +20,10 @@ export default function TradePrice({ price, style = {} }: TradePriceProps) {
     formattedPrice = showInverted ? price?.toSignificant(6) : price?.invert()?.toSignificant(6)
   } catch (error) {}
 
-  const show = Boolean(price?.baseCurrency && price?.quoteCurrency)
+  const show = Boolean(price?.baseCurrency && price?.quoteCurrency && formattedPrice)
   const nativeQuote = useCurrencyConvertedToNative(price?.quoteCurrency)
   const nativeBase = useCurrencyConvertedToNative(price?.baseCurrency)
-  const label = showInverted
+  const value = showInverted
     ? `${nativeQuote?.symbol} = 1 ${nativeBase?.symbol}`
     : `${nativeBase?.symbol} = 1 ${nativeQuote?.symbol}`
 
@@ -33,13 +32,15 @@ export default function TradePrice({ price, style = {} }: TradePriceProps) {
       fontWeight={500}
       fontSize={12}
       color={theme.subText}
-      style={{ alignItems: 'center', display: 'flex', cursor: 'pointer', ...style }}
+      style={{ alignItems: 'center', display: 'flex', cursor: 'pointer' }}
       onClick={() => setShowInverted(!showInverted)}
       height="22px"
     >
       {show ? (
         <>
-          {formattedPrice ?? '-'} {label}
+          <Text>
+            {formattedPrice} {value}
+          </Text>
           <StyledBalanceMaxMini>
             <Repeat size={12} />
           </StyledBalanceMaxMini>

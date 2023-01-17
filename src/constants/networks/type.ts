@@ -30,7 +30,10 @@ export interface NetworkInfo {
   readonly tokenListUrl: string
   readonly trueSightId: string | null
   readonly dexToCompare: string | null
-  readonly limitOrder: string | null
+  readonly limitOrder: {
+    development: string | null
+    production: string | null
+  }
   // token: {
   //   DAI: Token
   //   USDC: Token
@@ -40,12 +43,11 @@ export interface NetworkInfo {
 
 export interface EVMNetworkInfo extends NetworkInfo {
   readonly poolFarmRoute: string // use this to get data from our internal BE
-  readonly classicClient: ApolloClient<NormalizedCacheObject>
-  readonly elasticClient: ApolloClient<NormalizedCacheObject>
   readonly blockClient: ApolloClient<NormalizedCacheObject>
   readonly rpcUrl: string
   readonly multicall: string
   readonly classic: {
+    readonly client: ApolloClient<NormalizedCacheObject>
     readonly static: {
       readonly zap: string
       readonly router: string
@@ -66,6 +68,7 @@ export interface EVMNetworkInfo extends NetworkInfo {
     readonly fairlaunchV2: string[]
   }
   readonly elastic: {
+    readonly client: ApolloClient<NormalizedCacheObject>
     readonly coreFactory: string
     readonly nonfungiblePositionManager: string
     readonly tickReader: string
@@ -74,7 +77,10 @@ export interface EVMNetworkInfo extends NetworkInfo {
     readonly routers: string
     readonly farms: string[]
   }
-  readonly limitOrder: string | null
+  readonly limitOrder: {
+    development: string | null
+    production: string | null
+  }
   readonly averageBlockTimeInSeconds: number
   readonly deBankSlug: string
   readonly kyberDAO?: {

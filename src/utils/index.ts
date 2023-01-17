@@ -5,15 +5,15 @@ import JSBI from 'jsbi'
 import Numeral from 'numeral'
 
 import { GET_BLOCK, GET_BLOCKS } from 'apollo/queries'
-import { ENV_LEVEL, ENV_TYPE } from 'constants/env'
+import { ENV_LEVEL } from 'constants/env'
 import { DEFAULT_GAS_LIMIT_MARGIN, ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO, NETWORKS_INFO_CONFIG, isEVM } from 'constants/networks'
 import { KNC, KNCL_ADDRESS } from 'constants/tokens'
+import { ENV_TYPE } from 'constants/type'
 import { EVMWalletInfo, SUPPORTED_WALLET, SolanaWalletInfo, WalletInfo } from 'constants/wallets'
 import store from 'state'
 import { GroupedTxsByHash, TransactionDetails } from 'state/transactions/type'
-
-import checkForBraveBrowser from './checkForBraveBrowser'
+import checkForBraveBrowser from 'utils/checkForBraveBrowser'
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(chainId: ChainId, value: any): string | false {
@@ -422,5 +422,8 @@ export const isChristmasTime = () => {
   return currentTime.month() === 11 && currentTime.date() >= 15
 }
 
-export const isSupportLimitOrder = (chainId: ChainId) =>
-  ENV_LEVEL < ENV_TYPE.PROD && NETWORKS_INFO_CONFIG[chainId].limitOrder
+export const getLimitOrderContract = (chainId: ChainId) => {
+  const { production, development } = NETWORKS_INFO_CONFIG[chainId]?.limitOrder ?? {}
+  // return ENV_LEVEL >= ENV_TYPE.STG ? production : development
+  return ENV_LEVEL === ENV_TYPE.PROD ? '' : ENV_LEVEL === ENV_TYPE.STG ? production : development // for testing on stg
+}

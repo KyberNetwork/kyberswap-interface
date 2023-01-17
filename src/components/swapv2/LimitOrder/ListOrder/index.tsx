@@ -9,6 +9,7 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ButtonEmpty } from 'components/Button'
+import Column from 'components/Column'
 import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
 import SearchInput from 'components/SearchInput'
@@ -23,7 +24,7 @@ import { useLimitState } from 'state/limit/hooks'
 import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { TRANSACTION_STATE_DEFAULT, TransactionFlowState } from 'types'
-import { findTx } from 'utils'
+import { findTx, getLimitOrderContract } from 'utils'
 import {
   subscribeNotificationOrderCancelled,
   subscribeNotificationOrderExpired,
@@ -34,7 +35,7 @@ import { sendEVMTransaction } from 'utils/sendTransaction'
 import EditOrderModal from '../EditOrderModal'
 import CancelOrderModal from '../Modals/CancelOrderModal'
 import { ACTIVE_ORDER_OPTIONS, CLOSE_ORDER_OPTIONS } from '../const'
-import { calcPercentFilledOrder, formatAmountOrder, isActiveStatus } from '../helpers'
+import { calcPercentFilledOrder, formatAmountOrder, getErrorMessage, isActiveStatus } from '../helpers'
 import { ackNotificationOrder, getEncodeData, getListOrder, insertCancellingOrder } from '../request'
 import { LimitOrder, LimitOrderStatus, ListOrderHandle } from '../type'
 import useCancellingOrders from '../useCancellingOrders'
@@ -42,11 +43,6 @@ import OrderItem from './OrderItem'
 import SummaryNotify from './SummaryNotify'
 import TabSelector from './TabSelector'
 import TableHeader from './TableHeader'
-
-const ListWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-`
 
 const ButtonCancelAll = styled(ButtonEmpty)`
   background-color: ${({ theme }) => rgba(theme.red, 0.2)};
@@ -119,7 +115,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
   const [isOpenCancel, setIsOpenCancel] = useState(false)
   const [isOpenEdit, setIsOpenEdit] = useState(false)
 
-  const limitOrderContract = useContract(networkInfo.limitOrder ?? '', LIMIT_ORDER_ABI)
+  const limitOrderContract = useContract(getLimitOrderContract(chainId) ?? '', LIMIT_ORDER_ABI)
   const notify = useNotify()
   const { ordersUpdating } = useLimitState()
   const addTransactionWithType = useTransactionAdder()
@@ -420,22 +416,22 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
       attemptingTxn: true,
     }))
 
-    const { encodedData } = await getEncodeData([order?.id].filter(Boolean) as number[], isCancelAll)
+    const [{ encodedData }, nonce] = await Promise.all([
+      getEncodeData([order?.id].filter(Boolean) as number[], isCancelAll),
+      isCancelAll ? limitOrderContract.nonce(account) : Promise.resolve(BigNumber.from(0)),
+    ])
+
     const response = await sendEVMTransaction(
       account,
       library,
-      networkInfo.limitOrder ?? '',
+      getLimitOrderContract(chainId) ?? '',
       encodedData,
       BigNumber.from(0),
     )
     const newOrders = isCancelAll ? orders.map(e => e.id) : order?.id ? [order?.id] : []
     setCancellingOrders({ orderIds: cancellingOrdersIds.concat(newOrders) })
 
-    if (response?.hash && account) {
-      let nonce: BigNumber = BigNumber.from(0)
-      if (isCancelAll) {
-        nonce = await limitOrderContract.nonce(account)
-      }
+    if (response?.hash) {
       insertCancellingOrder({
         maker: account,
         chainId: chainId.toString(),
@@ -449,9 +445,9 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
         ...response,
         type: TRANSACTION_TYPE.CANCEL_LIMIT_ORDER,
         summary: order
-          ? t`Order ${formatAmountOrder(order.makingAmount, order.makerAssetDecimals)} ${
+          ? t`order to pay ${formatAmountOrder(order.makingAmount, order.makerAssetDecimals)} ${
               order.makerAssetSymbol
-            } to ${formatAmountOrder(order.takingAmount, order.takerAssetDecimals)} ${order.takerAssetSymbol}`
+            } and receive ${formatAmountOrder(order.takingAmount, order.takerAssetDecimals)} ${order.takerAssetSymbol}`
           : t`all orders`,
         arbitrary: order ? getPayloadTracking(order) : undefined,
       })
@@ -463,11 +459,10 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
       await requestCancelOrder(order)
       setFlowState(state => ({ ...state, showConfirm: false }))
     } catch (error) {
-      console.error(error)
       setFlowState(state => ({
         ...state,
         attemptingTxn: false,
-        errorMessage: 'Error occur. Please try again.',
+        errorMessage: getErrorMessage(error),
       }))
     }
   }
@@ -520,7 +515,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
           <>
             <div>
               <TableHeader />
-              <ListWrapper>
+              <Column>
                 {orders.map((order, index) => (
                   <OrderItem
                     isOrderCancelling={isOrderCancelling}
@@ -531,13 +526,15 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
                     onEditOrder={showEditOrderModal}
                   />
                 ))}
-              </ListWrapper>
+              </Column>
             </div>
             {orders.length === 0 && (
               <NoResultWrapper>
                 <Info size={isMobile ? 40 : 48} />
                 <Text marginTop={'10px'}>
-                  {isTabActive ? (
+                  {keyword ? (
+                    <Trans>No orders found</Trans>
+                  ) : isTabActive ? (
                     <Trans>You don&apos;t have any active orders yet</Trans>
                   ) : (
                     <Trans>You don&apos;t have any order history</Trans>
@@ -594,9 +591,9 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
                   currentOrder.filledTakingAmount,
                   currentOrder.takingAmount,
                   currentOrder.takerAssetDecimals,
-                )}% filled`
+                )}% filled.`
               : ''
-          }`}
+          } Cancelling an order will cost gas fees`}
         />
       )}
     </>

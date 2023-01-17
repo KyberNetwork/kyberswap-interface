@@ -7,6 +7,8 @@ import styled from 'styled-components'
 
 import { ReactComponent as MasterCard } from 'assets/buy-crypto/master-card.svg'
 import { ReactComponent as Visa } from 'assets/buy-crypto/visa.svg'
+import MultichainLogoDark from 'assets/images/multichain_black.png'
+import MultichainLogoLight from 'assets/images/multichain_white.png'
 import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
 import { ReactComponent as BuyCrypto } from 'assets/svg/buy_crypto.svg'
 import { ReactComponent as LimitOrderIcon } from 'assets/svg/limit_order.svg'
@@ -15,7 +17,8 @@ import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
-import { isSupportLimitOrder } from 'utils'
+import { useIsDarkMode } from 'state/user/hooks'
+import { getLimitOrderContract } from 'utils'
 
 import { DropdownTextAnchor, StyledNavLink } from '../styleds'
 import NavGroup from './NavGroup'
@@ -45,8 +48,19 @@ const StyledBuyCrypto = styled(BuyCrypto)`
   }
 `
 
+const BetaTag = styled.span`
+  right: -40px;
+  top: 0px;
+  font-size: 10px;
+  border-radius: 10px;
+  background-color: ${({ theme }) => theme.buttonGray};
+  color: ${({ theme }) => theme.subText};
+  padding: 2px 6px;
+`
+
 const SwapNavGroup = () => {
-  const { isSolana, chainId } = useActiveWeb3React()
+  const { isSolana, networkInfo, chainId } = useActiveWeb3React()
+  const isDark = useIsDarkMode()
   const { pathname } = useLocation()
   const upTo420 = useMedia('(max-width: 420px)')
 
@@ -69,7 +83,11 @@ const SwapNavGroup = () => {
       }
       dropdownContent={
         <Flex flexDirection={'column'} id={TutorialIds.BRIDGE_LINKS}>
-          <StyledNavLink id={`swapv2-nav-link`} to={APP_PATHS.SWAP} style={{ flexDirection: 'column' }}>
+          <StyledNavLink
+            id={`swapv2-nav-link`}
+            to={`${APP_PATHS.SWAP}/${networkInfo.route}`}
+            style={{ flexDirection: 'column' }}
+          >
             <Flex alignItems="center" sx={{ gap: '12px' }}>
               <IconWrapper>
                 <Repeat size={16} />
@@ -78,13 +96,19 @@ const SwapNavGroup = () => {
             </Flex>
           </StyledNavLink>
 
-          {isSupportLimitOrder(chainId) && (
-            <StyledNavLink to={APP_PATHS.LIMIT} style={{ flexDirection: 'column' }}>
+          {getLimitOrderContract(chainId) && (
+            <StyledNavLink
+              to={`${APP_PATHS.LIMIT}/${networkInfo.route}`}
+              style={{ flexDirection: 'column', width: '100%' }}
+            >
               <Flex alignItems="center" sx={{ gap: '12px' }}>
                 <IconWrapper>
                   <LimitOrderIcon />
                 </IconWrapper>
-                <Trans>Limit Order</Trans>
+                <Flex alignItems={'center'} sx={{ flex: 1 }} justifyContent={'space-between'}>
+                  <Trans>Limit Order</Trans>
+                  <BetaTag>Beta</BetaTag>
+                </Flex>
               </Flex>
             </StyledNavLink>
           )}
@@ -97,6 +121,12 @@ const SwapNavGroup = () => {
                 </IconWrapper>
                 <Flex alignItems={'center'} sx={{ flex: 1 }} justifyContent={'space-between'}>
                   <Trans>Bridge</Trans>
+
+                  <img
+                    src={isDark ? MultichainLogoLight : MultichainLogoDark}
+                    alt="kyberswap with multichain"
+                    height={10}
+                  />
                 </Flex>
               </Flex>
             </StyledNavLink>

@@ -1,7 +1,6 @@
 import { datadogRum } from '@datadog/browser-rum'
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import * as Sentry from '@sentry/react'
-import { Sidetab } from '@typeform/embed-react'
 import { Suspense, lazy, useEffect } from 'react'
 import { isMobile } from 'react-device-detect'
 import { AlertTriangle } from 'react-feather'
@@ -24,10 +23,9 @@ import { APP_PATHS, BLACKLIST_WALLETS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useGlobalMixpanelEvents } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
-import { useWindowSize } from 'hooks/useWindowSize'
-import { useHolidayMode, useIsDarkMode } from 'state/user/hooks'
+import { useHolidayMode } from 'state/user/hooks'
 import DarkModeQueryParamReader from 'theme/DarkModeQueryParamReader'
-import { isAddressString, isSupportLimitOrder, shortenAddress } from 'utils'
+import { getLimitOrderContract, isAddressString, shortenAddress } from 'utils'
 
 import { RedirectDuplicateTokenIds } from './AddLiquidityV2/redirects'
 import { RedirectPathToFarmNetwork } from './Farm/redirect'
@@ -127,13 +125,10 @@ export default function App() {
   }, [chainId, networkInfo.name])
 
   const theme = useTheme()
-  const isDarkTheme = useIsDarkMode()
 
-  const { width } = useWindowSize()
   useGlobalMixpanelEvents()
   const { pathname } = window.location
   const showFooter = !pathname.includes(APP_PATHS.ABOUT)
-  const feedbackId = isDarkTheme ? 'W5TeOyyH' : 'K0dtSO0v'
   const [holidayMode] = useHolidayMode()
 
   const snowflake = new Image()
@@ -142,14 +137,6 @@ export default function App() {
   return (
     <ErrorBoundary>
       <AppHaveUpdate />
-      {width && width >= 768 ? (
-        <Sidetab
-          id={feedbackId}
-          buttonText={t`Feedback`}
-          buttonColor={theme.primary}
-          customIcon={isDarkTheme ? 'https://i.imgur.com/iTOOKnr.png' : 'https://i.imgur.com/aPCpnGg.png'}
-        />
-      ) : null}
       {(BLACKLIST_WALLETS.includes(isAddressString(chainId, account)) ||
         BLACKLIST_WALLETS.includes(account?.toLowerCase() || '')) && (
         <Modal
@@ -217,7 +204,7 @@ export default function App() {
                     <Route path={`${APP_PATHS.SWAP}/:network/:fromCurrency`} element={<SwapV2 />} />
                     <Route path={`${APP_PATHS.SWAP}/:network`} element={<SwapV2 />} />
 
-                    {isSupportLimitOrder(chainId) && (
+                    {getLimitOrderContract(chainId) && (
                       <>
                         <Route path={`${APP_PATHS.LIMIT}/:network/:fromCurrency-to-:toCurrency`} element={<SwapV2 />} />
                         <Route path={`${APP_PATHS.LIMIT}/:network/:fromCurrency`} element={<SwapV2 />} />
