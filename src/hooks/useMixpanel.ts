@@ -17,7 +17,7 @@ import {
   PROMM_GET_POOL_VALUES_AFTER_BURNS_SUCCESS,
   PROMM_GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
 } from 'apollo/queries/promm'
-import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
+import { APP_PATHS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
@@ -34,6 +34,7 @@ export enum MIXPANEL_TYPE {
   PAGE_VIEWED,
   WALLET_CONNECTED,
   SWAP_INITIATED,
+  SWAP_CONFIRMED,
   SWAP_COMPLETED,
   ADVANCED_MODE_ON,
   ADD_RECIPIENT_CLICKED,
@@ -210,7 +211,18 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
             slippage_setting: allowedSlippage ? allowedSlippage / 100 : 0,
             price_impact: trade && trade?.priceImpact > 0.01 ? trade?.priceImpact.toFixed(2) : '<0.01',
           })
-
+          break
+        }
+        case MIXPANEL_TYPE.SWAP_CONFIRMED: {
+          mixpanel.track('Swap Confirmed', {
+            input_token: inputSymbol,
+            output_token: outputSymbol,
+            estimated_gas: trade?.gasUsd?.toFixed(4),
+            max_return_or_low_gas: saveGas ? 'Lowest Gas' : 'Maximum Return',
+            trade_qty: trade?.inputAmount.toExact(),
+            slippage_setting: allowedSlippage ? allowedSlippage / 100 : 0,
+            price_impact: trade && trade?.priceImpact > 0.01 ? trade?.priceImpact.toFixed(2) : '<0.01',
+          })
           break
         }
         case MIXPANEL_TYPE.SWAP_COMPLETED: {
@@ -994,10 +1006,6 @@ export const useGlobalMixpanelEvents = () => {
   const { mixpanelHandler } = useMixpanel()
   const oldNetwork = usePrevious(chainId)
   const location = useLocation()
-  const pathName = useMemo(() => {
-    if (location.pathname.split('/')[1] !== 'elastic') return location.pathname.split('/')[1]
-    return 'elastic/' + location.pathname.split('/')[2]
-  }, [location])
 
   useEffect(() => {
     if (account && isAddress(account)) {
@@ -1058,70 +1066,67 @@ export const useGlobalMixpanelEvents = () => {
   }, [chainId])
 
   useEffect(() => {
-    if (pathName) {
+    if (location?.pathname) {
       let pageName = ''
-      switch (pathName) {
-        case 'swap':
+      switch (true) {
+        case location?.pathname?.startsWith(APP_PATHS.SWAP):
           pageName = 'Swap'
           break
-        case 'find':
+        case location?.pathname?.startsWith(APP_PATHS.FIND_POOL):
           pageName = 'Pool Finder'
           break
-        case 'pools':
+        case location?.pathname?.startsWith(APP_PATHS.POOLS):
           pageName = 'Pools'
           break
-        case 'farms':
+        case location?.pathname?.startsWith(APP_PATHS.FARMS):
           pageName = 'Farms'
           break
-        case 'myPools':
+        case location?.pathname?.startsWith(APP_PATHS.MY_POOLS):
           pageName = 'My Pools'
           break
-        case 'migration':
-          pageName = 'Migration'
-          break
-        case 'create':
+        case location?.pathname?.startsWith(APP_PATHS.CLASSIC_CREATE_POOL):
           pageName = 'Create Pool'
           break
-        case 'add':
+        case location?.pathname?.startsWith(APP_PATHS.CLASSIC_ADD_LIQ):
           pageName = 'Add Liquidity'
           break
-        case 'remove':
+        case location?.pathname?.startsWith(APP_PATHS.CLASSIC_REMOVE_POOL):
           pageName = 'Remove Liquidity'
           break
-        case 'about':
+        case location?.pathname?.startsWith(APP_PATHS.ABOUT):
           pageName = 'About'
           break
-        case 'referral':
+        case location?.pathname?.startsWith(APP_PATHS.REFERRAL):
           pageName = 'Referral'
           break
-        case 'discover':
+        case location?.pathname?.startsWith(APP_PATHS.DISCOVER):
           pageName = 'Discover'
           break
-        case 'campaigns':
+        case location?.pathname?.startsWith(APP_PATHS.CAMPAIGN):
           pageName = 'Campaign'
           break
-        case 'elastic/remove':
+        case location?.pathname?.startsWith(APP_PATHS.ELASTIC_REMOVE_POOL):
           pageName = 'Elastic - Remove Liquidity'
           break
-        case 'elastic/add':
+        case location?.pathname?.startsWith(APP_PATHS.ELASTIC_CREATE_POOL):
           pageName = 'Elastic - Add Liquidity'
           break
-        case 'elastic/increase':
+        case location?.pathname?.startsWith(APP_PATHS.ELASTIC_INCREASE_LIQ):
           pageName = 'Elastic - Increase Liquidity'
           break
-        case 'buy-crypto':
+        case location?.pathname?.startsWith(APP_PATHS.BUY_CRYPTO):
           pageName = 'Buy Crypto'
           break
-        case 'bridge':
+        case location?.pathname?.startsWith(APP_PATHS.BRIDGE):
           pageName = 'Bridge'
           break
-        case 'kyberdao/stake-knc':
+        case location?.pathname?.startsWith(APP_PATHS.KYBERDAO_STAKE):
           pageName = 'KyberDAO Stake'
           break
-        case 'kyberdao/vote':
+        case location?.pathname?.startsWith(APP_PATHS.KYBERDAO_VOTE):
           pageName = 'KyberDAO Vote'
           break
-        case 'limit':
+        case location?.pathname?.startsWith(APP_PATHS.LIMIT):
           pageName = 'Limit Order'
           break
         default:
@@ -1130,5 +1135,5 @@ export const useGlobalMixpanelEvents = () => {
       pageName && mixpanelHandler(MIXPANEL_TYPE.PAGE_VIEWED, { page: pageName })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathName, account, chainId])
+  }, [location?.pathname, account, chainId])
 }

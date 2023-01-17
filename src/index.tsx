@@ -44,7 +44,7 @@ dayjs.extend(utc)
 ENV_LEVEL < ENV_TYPE.PROD && console.info({ ENV })
 
 mixpanel.init(MIXPANEL_PROJECT_TOKEN, {
-  debug: ENV_LEVEL < ENV_TYPE.PROD,
+  debug: true,
 })
 
 if (ENV_LEVEL > ENV_TYPE.LOCAL) {

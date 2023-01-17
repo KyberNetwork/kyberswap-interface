@@ -333,6 +333,8 @@ export default function Swap() {
   const isPriceImpactHigh = !!trade?.priceImpact && trade?.priceImpact > 5
   const isPriceImpactVeryHigh = !!trade?.priceImpact && trade?.priceImpact > 15
 
+  const { mixpanelHandler } = useMixpanel(trade, currencies)
+
   const parsedAmounts = showWrap
     ? {
         [Field.INPUT]: parsedAmount,
@@ -439,6 +441,7 @@ export default function Swap() {
     if (!swapCallback) {
       return
     }
+    mixpanelHandler(MIXPANEL_TYPE.SWAP_CONFIRMED)
     setSwapState({ attemptingTxn: true, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: undefined })
     swapCallback()
       .then(hash => {
@@ -453,7 +456,7 @@ export default function Swap() {
           txHash: undefined,
         })
       })
-  }, [swapCallback, tradeToConfirm, showConfirm])
+  }, [swapCallback, tradeToConfirm, showConfirm, mixpanelHandler])
 
   // show approve flow when: no error on inputs, not approved or pending, or approved in current session
   // never show if price impact is above threshold in non expert mode
@@ -514,11 +517,6 @@ export default function Swap() {
   )
 
   const isLoading = loadingAPI || ((!balanceIn || !balanceOut) && userHasSpecifiedInputOutput && !v2Trade)
-
-  const { mixpanelHandler } = useMixpanel(trade, currencies)
-  const mixpanelSwapInit = () => {
-    mixpanelHandler(MIXPANEL_TYPE.SWAP_INITIATED)
-  }
 
   const onSelectSuggestedPair = useCallback(
     (fromToken: Currency | undefined, toToken: Currency | undefined, amount?: string) => {
@@ -978,7 +976,7 @@ export default function Swap() {
                               onClick={() => {
                                 // TODO check this button, it will never run, is it?
                                 // console.error('This will never be run')
-                                mixpanelSwapInit()
+                                mixpanelHandler(MIXPANEL_TYPE.SWAP_INITIATED)
                                 if (isExpertMode) {
                                   handleSwap()
                                 } else {
@@ -1023,7 +1021,7 @@ export default function Swap() {
                       ) : (
                         <ButtonError
                           onClick={() => {
-                            mixpanelSwapInit()
+                            mixpanelHandler(MIXPANEL_TYPE.SWAP_INITIATED)
                             if (isExpertMode) {
                               handleSwap()
                             } else {
