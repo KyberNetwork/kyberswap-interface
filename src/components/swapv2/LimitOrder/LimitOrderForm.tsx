@@ -636,7 +636,7 @@ const LimitOrderForm = function LimitOrderForm({
             <Text as="span" fontWeight={'500'} color={theme.warning}>
               {deltaRate.percent}
             </Text>{' '}
-            lower than the current market price
+            worse than the current market price
           </Trans>
         </Text>,
       )
