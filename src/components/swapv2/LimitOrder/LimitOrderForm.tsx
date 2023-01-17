@@ -644,7 +644,7 @@ const LimitOrderForm = function LimitOrderForm({
         </Text>,
       )
     }
-    const thresHold = chainId === ChainId.MAINNET ? 35 : 10
+    const thresHold = chainId === ChainId.MAINNET ? 300 : 10
     if (outputAmount && estimateUSD.rawOutput && estimateUSD.rawOutput < thresHold) {
       messages.push(
         <Text>
