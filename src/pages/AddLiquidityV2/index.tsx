@@ -576,7 +576,18 @@ export default function AddLiquidity() {
 
   const warning = (
     <>
-      {outOfRange ? (
+      {activeRange === RANGE.FULL_RANGE && (
+        <WarningCard padding="10px 16px">
+          <Flex alignItems="center">
+            <AlertTriangle stroke={theme.warning} size="16px" />
+            <TYPE.warning ml="12px" fontSize="12px" flex={1}>
+              <Trans>Efficiency Comparison: Full range positions may earn less fees than concentrated positions.</Trans>
+            </TYPE.warning>
+          </Flex>
+        </WarningCard>
+      )}
+
+      {outOfRange && (
         <WarningCard padding="10px 16px">
           <Flex alignItems="center">
             <AlertTriangle stroke={theme.warning} size="16px" />
@@ -587,9 +598,9 @@ export default function AddLiquidity() {
             </TYPE.warning>
           </Flex>
         </WarningCard>
-      ) : null}
+      )}
 
-      {invalidRange ? (
+      {invalidRange && (
         <WarningCard padding="10px 16px">
           <Flex alignItems="center">
             <AlertTriangle stroke={theme.warning} size="16px" />
@@ -598,7 +609,7 @@ export default function AddLiquidity() {
             </TYPE.warning>
           </Flex>
         </WarningCard>
-      ) : null}
+      )}
     </>
   )
 
@@ -1103,15 +1114,14 @@ export default function AddLiquidity() {
             </FlexLeft>
             {!upToMedium && <RightContainer gap="lg">{chart}</RightContainer>}
           </Flex>
-          <Row justify="flex-end" flexDirection={upToMedium ? 'column' : 'row'}>
-            <Flex
-              sx={{ gap: '16px' }}
-              flexDirection={upToMedium ? 'column' : 'row'}
-              width={upToMedium ? '100%' : 'initial'}
-            >
-              <HideMedium>{warning}</HideMedium>
-              <Buttons />
-            </Flex>
+          <Row
+            justify="flex-end"
+            flexDirection={upToMedium ? 'column' : 'row'}
+            sx={{ gap: '16px' }}
+            width={upToMedium ? '100%' : 'initial'}
+          >
+            <HideMedium style={{ maxWidth: 'calc(100% - 620px)', minWidth: '390px' }}>{warning}</HideMedium>
+            <Buttons />
           </Row>
         </Container>
       </PageWrapper>
