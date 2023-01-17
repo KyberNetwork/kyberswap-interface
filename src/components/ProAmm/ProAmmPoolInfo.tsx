@@ -42,6 +42,7 @@ export default function ProAmmPoolInfo({
 }) {
   const { networkInfo, chainId } = useActiveWeb3React()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
   const theme = useTheme()
   const poolAddress = useProAmmPoolInfo(position.pool.token0, position.pool.token1, position.pool.fee as FeeAmount)
 
@@ -107,7 +108,12 @@ export default function ProAmmPoolInfo({
     <>
       {poolAddress && (
         <AutoColumn>
-          <Flex alignItems="center" justifyContent="space-between">
+          <Flex
+            alignItems={upToSmall ? undefined : 'center'}
+            justifyContent="space-between"
+            flexDirection={upToSmall ? 'column' : undefined}
+            sx={{ gap: '8px' }}
+          >
             <Flex alignItems="center">
               <DoubleCurrencyLogo currency0={token0Shown} currency1={token1Shown} size={20} />
               <Text fontSize="16px" fontWeight="500">
@@ -117,7 +123,7 @@ export default function ProAmmPoolInfo({
             </Flex>
 
             {narrow ? (
-              <Flex sx={{ gap: '16px' }}>
+              <Flex sx={{ gap: upToXXSmall ? '8px' : '16px' }} flexDirection={upToXXSmall ? 'column' : undefined}>
                 <Copy
                   toCopy={poolAddress}
                   text={
