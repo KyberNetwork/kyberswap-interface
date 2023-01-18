@@ -62,7 +62,7 @@ const PrimaryText = styled(Text)`
 `
 
 const SecondaryText = styled.span`
-  color: ${({ theme }) => theme.border};
+  color: ${({ theme }) => theme.subText};
   font-size: 12px;
 `
 
