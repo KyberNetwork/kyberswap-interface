@@ -157,6 +157,7 @@ function useRouterSwap(
           }
 
           txHash = txReceipt?.hash
+
           if (txHash) {
             const from_network = NETWORKS_INFO[chainId].name
             const to_network = NETWORKS_INFO[chainIdOut].name
@@ -165,7 +166,7 @@ function useRouterSwap(
             const from_token = currencyIn?.symbol ?? ''
             const to_token = currencyOut?.symbol ?? ''
             addTransactionWithType({
-              hash: txReceipt,
+              hash: txHash,
               type: TRANSACTION_TYPE.BRIDGE,
               extraInfo: {
                 tokenSymbolIn: from_token,
@@ -295,7 +296,7 @@ function useBridgeSwap(
             const from_token = currencyIn?.symbol ?? ''
             const to_token = currencyOut?.symbol ?? ''
             addTransactionWithType({
-              hash: txReceipt,
+              hash: txHash,
               type: TRANSACTION_TYPE.BRIDGE,
               extraInfo: {
                 tokenSymbolIn: from_token,

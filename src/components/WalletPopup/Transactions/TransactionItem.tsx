@@ -278,11 +278,11 @@ export default forwardRef<HTMLDivElement, Prop>(function TransactionItem({ trans
   const { type, addedTime, hash, chainId } = transaction
   const theme = useTheme()
   const { pending, success } = getTransactionStatus(transaction)
-
+  const customStatus = [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER, TRANSACTION_TYPE.BRIDGE].includes(type)
   return (
     <ItemWrapper style={style} ref={ref}>
       <ColumGroup>
-        <Row gap="8px">
+        <Row gap="6px">
           {!isMinimal && (
             <Flex alignItems="center" color={theme.text}>
               <Icon txs={transaction} />
@@ -297,7 +297,9 @@ export default forwardRef<HTMLDivElement, Prop>(function TransactionItem({ trans
       </ColumGroup>
       <ColumGroup style={{ alignItems: 'flex-end', justifyContent: 'space-between' }}>
         <Flex style={{ gap: '4px' }} alignItems={'center'}>
-          <PrimaryText color={theme.text}> {pending ? t`Pending` : success ? t`Completed` : t`Error`}</PrimaryText>
+          <PrimaryText color={theme.text}>
+            {pending ? t`Pending` : success ? (customStatus ? t`Submitted` : t`Completed`) : t`Error`}
+          </PrimaryText>
           {pending ? (
             <IconWarning width={'14px'} />
           ) : success ? (
