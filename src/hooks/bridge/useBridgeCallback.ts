@@ -157,6 +157,8 @@ function useRouterSwap(
           }
 
           txHash = txReceipt?.hash
+          console.log('this is your hash ', txHash, txReceipt)
+
           if (txHash) {
             const from_network = NETWORKS_INFO[chainId].name
             const to_network = NETWORKS_INFO[chainIdOut].name
@@ -287,6 +289,7 @@ function useBridgeSwap(
             }
           }
           const txHash = txReceipt?.hash
+          console.log('this is your hash 2', txHash, txReceipt)
           if (txHash) {
             const from_network = NETWORKS_INFO[chainId].name
             const to_network = NETWORKS_INFO[chainIdOut].name
