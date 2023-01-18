@@ -374,6 +374,7 @@ const LimitOrderForm = function LimitOrderForm({
     setExpire(DEFAULT_EXPIRED)
     setCustomDateExpire(undefined)
     refreshActiveMakingAmount()
+    resetState()
   }
 
   const handleError = useCallback(
