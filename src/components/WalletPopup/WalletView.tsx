@@ -124,6 +124,7 @@ export default function WalletView({ onDismiss, onPin, isPinned, blurBackground 
         onClickReceive={handleClickReceive}
         onClickSend={handleClickSend}
         isMinimal={isMinimal}
+        disabledSend={!currencies.length}
       />
     )
   }

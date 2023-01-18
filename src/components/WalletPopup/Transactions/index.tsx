@@ -76,7 +76,7 @@ function Row({
 }
 
 export default function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
-  const transactions = useSortRecentTransactions(false) // todo danh check nhiều có crash ???
+  const transactions = useSortRecentTransactions(false)
   const { chainId } = useActiveWeb3React()
   const [activeTab, setActiveTab] = useState<TRANSACTION_GROUP | string>('')
   const theme = useTheme()

@@ -1,3 +1,4 @@
+import { stringify } from 'querystring'
 import { useEffect, useMemo, useState } from 'react'
 
 import { PRICE_API } from 'constants/env'
@@ -33,16 +34,24 @@ const useTokenPricesLocal = (addresses: Array<string>) => {
     const fetchPrices = async () => {
       try {
         setLoading(true)
-        const res = await fetch(`${PRICE_API}/${NETWORKS_INFO[chainId].priceRoute}/api/v1/prices`, {
-          method: 'POST',
-          body: JSON.stringify({
-            ids: unknownPriceList.join(','),
-          }),
-        }).then(res => res.json())
+        const payload = {
+          ids: unknownPriceList.join(','),
+        }
+        const promise = isEVM
+          ? fetch(`${PRICE_API}/${NETWORKS_INFO[chainId].priceRoute}/api/v1/prices`, {
+              method: 'POST',
+              body: JSON.stringify(payload),
+            })
+          : fetch(
+              `https://aggregator-api.dev.kyberengineering.io/solana/prices?${stringify(payload)}`, // todo danh
+            )
 
-        if (res?.data?.prices?.length) {
+        const res = await promise.then(res => res.json())
+        const prices = res?.data?.prices || res
+
+        if (prices?.length) {
           const formattedPrices = unknownPriceList.map(address => {
-            const price = res.data.prices.find(
+            const price = prices.find(
               (p: { address: string; marketPrice: number; price: number }) => getAddress(p.address, isEVM) === address,
             )
 

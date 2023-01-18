@@ -16,7 +16,13 @@ const MinimalActionButton = styled(ButtonLight)`
 type Props = {
   className?: string
 } & ClickHandlerProps
-const MinimalActionButtonGroup: React.FC<Props> = ({ onClickBuy, onClickReceive, onClickSend, className }) => {
+const MinimalActionButtonGroup: React.FC<Props> = ({
+  onClickBuy,
+  onClickReceive,
+  onClickSend,
+  className,
+  disabledSend,
+}) => {
   return (
     <Flex
       className={className}
@@ -32,7 +38,7 @@ const MinimalActionButtonGroup: React.FC<Props> = ({ onClickBuy, onClickReceive,
       <MinimalActionButton onClick={onClickReceive}>
         <SendIcon size={14} style={{ transform: 'rotate(180deg)' }} />
       </MinimalActionButton>
-      <MinimalActionButton onClick={onClickSend}>
+      <MinimalActionButton onClick={onClickSend} disabled={disabledSend}>
         <SendIcon size={14} />
       </MinimalActionButton>
     </Flex>

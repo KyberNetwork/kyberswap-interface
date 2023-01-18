@@ -16,7 +16,7 @@ const ActionButton = styled(ButtonLight)`
 type Props = {
   className?: string
 } & ClickHandlerProps
-const ActionButtonGroup: React.FC<Props> = ({ onClickBuy, onClickReceive, onClickSend, className }) => {
+const ActionButtonGroup: React.FC<Props> = ({ onClickBuy, onClickReceive, onClickSend, className, disabledSend }) => {
   return (
     <Flex
       className={className}
@@ -37,7 +37,7 @@ const ActionButtonGroup: React.FC<Props> = ({ onClickBuy, onClickReceive, onClic
           <Trans>Receive</Trans>
         </Text>
       </ActionButton>
-      <ActionButton onClick={onClickSend}>
+      <ActionButton onClick={onClickSend} disabled={disabledSend}>
         <SendIcon />
         <Text as="span" marginLeft="7px">
           <Trans>Send</Trans>

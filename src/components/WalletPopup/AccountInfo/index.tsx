@@ -100,12 +100,20 @@ type Props = {
 } & ClickHandlerProps
 
 export type ClickHandlerProps = {
+  disabledSend: boolean
   onClickBuy: () => void
   onClickReceive: () => void
   onClickSend: () => void
 }
 
-export default function AccountInfo({ totalBalanceInUsd, onClickBuy, onClickReceive, onClickSend, isMinimal }: Props) {
+export default function AccountInfo({
+  totalBalanceInUsd,
+  disabledSend,
+  onClickBuy,
+  onClickReceive,
+  onClickSend,
+  isMinimal,
+}: Props) {
   const { chainId, account = '', walletKey } = useActiveWeb3React()
   const theme = useTheme()
   const isDarkMode = useIsDarkMode()
@@ -162,6 +170,7 @@ export default function AccountInfo({ totalBalanceInUsd, onClickBuy, onClickRece
             </Flex>
 
             <MinimalActionButtonGroup
+              disabledSend={disabledSend}
               onClickBuy={onClickBuy}
               onClickReceive={onClickReceive}
               onClickSend={onClickSend}
@@ -170,7 +179,12 @@ export default function AccountInfo({ totalBalanceInUsd, onClickBuy, onClickRece
         </Content>
       </ContentWrapper>
 
-      <ActionButtonGroup onClickBuy={onClickBuy} onClickReceive={onClickReceive} onClickSend={onClickSend} />
+      <ActionButtonGroup
+        disabledSend={disabledSend}
+        onClickBuy={onClickBuy}
+        onClickReceive={onClickReceive}
+        onClickSend={onClickSend}
+      />
     </Wrapper>
   )
 }
