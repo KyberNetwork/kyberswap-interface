@@ -167,7 +167,7 @@ function useRouterSwap(
             const from_token = currencyIn?.symbol ?? ''
             const to_token = currencyOut?.symbol ?? ''
             addTransactionWithType({
-              hash: txReceipt,
+              hash: txHash,
               type: TRANSACTION_TYPE.BRIDGE,
               extraInfo: {
                 tokenSymbolIn: from_token,
@@ -298,7 +298,7 @@ function useBridgeSwap(
             const from_token = currencyIn?.symbol ?? ''
             const to_token = currencyOut?.symbol ?? ''
             addTransactionWithType({
-              hash: txReceipt,
+              hash: txHash,
               type: TRANSACTION_TYPE.BRIDGE,
               extraInfo: {
                 tokenSymbolIn: from_token,
