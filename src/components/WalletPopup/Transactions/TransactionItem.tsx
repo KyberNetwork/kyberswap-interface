@@ -31,13 +31,13 @@ import getShortenAddress from 'utils/getShortenAddress'
 
 const ItemWrapper = styled.div`
   border-bottom: 1px solid ${({ theme }) => theme.border};
-  padding: 16px 0px;
+  padding: 14px 0px;
   width: 100%;
-  gap: 4px;
+  gap: 10px;
   height: 100%;
   justify-content: space-between;
-  align-items: flex-start;
   display: flex;
+  flex-direction: column;
   :last-child {
     border-bottom: none;
   }
@@ -281,7 +281,7 @@ export default forwardRef<HTMLDivElement, Prop>(function TransactionItem({ trans
   const customStatus = [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER, TRANSACTION_TYPE.BRIDGE].includes(type)
   return (
     <ItemWrapper style={style} ref={ref}>
-      <ColumGroup>
+      <Flex justifyContent="space-between" alignItems="flex-end">
         <Row gap="6px">
           {!isMinimal && (
             <Flex alignItems="center" color={theme.text}>
@@ -293,10 +293,7 @@ export default forwardRef<HTMLDivElement, Prop>(function TransactionItem({ trans
           </Text>{' '}
           <ExternalLinkIcon color={theme.subText} href={getEtherscanLink(chainId, hash, 'transaction')} />
         </Row>
-        {RENDER_DESCRIPTION_MAP?.[type]?.(transaction)}
-      </ColumGroup>
-      <ColumGroup style={{ alignItems: 'flex-end', justifyContent: 'space-between' }}>
-        <Flex style={{ gap: '4px' }} alignItems={'center'}>
+        <Flex style={{ gap: '4px', minWidth: 'unset' }} alignItems={'center'}>
           <PrimaryText color={theme.text}>
             {pending ? t`Pending` : success ? (customStatus ? t`Submitted` : t`Completed`) : t`Error`}
           </PrimaryText>
@@ -308,9 +305,14 @@ export default forwardRef<HTMLDivElement, Prop>(function TransactionItem({ trans
             <IconFailure width={'15px'} />
           )}
         </Flex>
-        <ContractAddress transaction={transaction} />
-        <SecondaryText>{dayjs(addedTime).format('DD/MM/YYYY HH:mm:ss')}</SecondaryText>
-      </ColumGroup>
+      </Flex>
+      <Flex justifyContent="space-between">
+        <ColumGroup>{RENDER_DESCRIPTION_MAP?.[type]?.(transaction)}</ColumGroup>
+        <ColumGroup style={{ alignItems: 'flex-end', justifyContent: 'space-between' }}>
+          <ContractAddress transaction={transaction} />
+          <SecondaryText>{dayjs(addedTime).format('DD/MM/YYYY HH:mm:ss')}</SecondaryText>
+        </ColumGroup>
+      </Flex>
     </ItemWrapper>
   )
 })

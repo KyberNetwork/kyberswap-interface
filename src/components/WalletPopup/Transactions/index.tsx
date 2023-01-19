@@ -66,9 +66,10 @@ function Row({
 
   useEffect(() => {
     if (rowRef.current) {
-      const [child1, child2] = rowRef.current.childNodes
-      const rowNum = Math.max(child1.childNodes.length, child2.childNodes.length)
-      setRowHeight(index, rowNum === 2 ? 70 : 98)
+      const [, child2] = rowRef.current.children // todo danh
+      const [sub1, sub2] = child2.children
+      const rowNum = Math.max(sub1.children.length, sub2.children.length) + 1
+      setRowHeight(index, rowNum === 2 ? 76 : 98)
     }
   }, [rowRef, index, setRowHeight])
 
