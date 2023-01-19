@@ -252,7 +252,7 @@ const ZapIn = ({
             setAttemptingTxn(false)
             addTransactionWithType({
               hash: tx.hash,
-              type: TRANSACTION_TYPE.ADD_LIQUIDITY,
+              type: TRANSACTION_TYPE.CLASSIC_ADD_LIQUIDITY,
               extraInfo: {
                 tokenSymbol: independentToken?.symbol ?? '',
                 tokenAmount,

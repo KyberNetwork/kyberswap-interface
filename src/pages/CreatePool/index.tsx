@@ -263,7 +263,7 @@ export default function CreatePool() {
               setAttemptingTxn(false)
               addTransactionWithType({
                 hash: response.hash,
-                type: TRANSACTION_TYPE.CREATE_POOL,
+                type: TRANSACTION_TYPE.CLASSIC_CREATE_POOL,
                 extraInfo: {
                   tokenAddressIn: cA.wrapped.address,
                   tokenAddressOut: cB.wrapped.address,

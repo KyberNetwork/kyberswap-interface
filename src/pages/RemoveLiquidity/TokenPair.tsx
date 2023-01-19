@@ -366,7 +366,7 @@ export default function TokenPair({
             const tokenSymbolOut = currencyBIsWETH ? NativeCurrencies[chainId].symbol : currencyB.symbol
             addTransactionWithType({
               hash: response.hash,
-              type: TRANSACTION_TYPE.REMOVE_LIQUIDITY,
+              type: TRANSACTION_TYPE.CLASSIC_REMOVE_LIQUIDITY,
               extraInfo: {
                 tokenAmountIn,
                 tokenAmountOut,

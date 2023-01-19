@@ -407,7 +407,7 @@ export default function ZapOut({
             const tokenAmount = parsedAmounts[independentTokenField]?.toSignificant(6)
             addTransactionWithType({
               hash: response.hash,
-              type: TRANSACTION_TYPE.REMOVE_LIQUIDITY,
+              type: TRANSACTION_TYPE.CLASSIC_REMOVE_LIQUIDITY,
               extraInfo: {
                 tokenSymbol: independentToken?.symbol ?? '',
                 tokenAmount,

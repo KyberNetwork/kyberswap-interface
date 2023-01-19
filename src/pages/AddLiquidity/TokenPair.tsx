@@ -279,7 +279,7 @@ const TokenPair = ({
             setAttemptingTxn(false)
             addTransactionWithType({
               hash: response.hash,
-              type: TRANSACTION_TYPE.ADD_LIQUIDITY,
+              type: TRANSACTION_TYPE.CLASSIC_ADD_LIQUIDITY,
               extraInfo: {
                 tokenSymbolIn: cA.symbol ?? '',
                 tokenSymbolOut: cB.symbol ?? '',

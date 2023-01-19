@@ -164,11 +164,11 @@ export enum MIXPANEL_TYPE {
 }
 
 export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES: readonly TRANSACTION_TYPE[] = [
-  TRANSACTION_TYPE.ADD_LIQUIDITY,
+  TRANSACTION_TYPE.CLASSIC_ADD_LIQUIDITY,
   TRANSACTION_TYPE.ELASTIC_ADD_LIQUIDITY,
-  TRANSACTION_TYPE.REMOVE_LIQUIDITY,
+  TRANSACTION_TYPE.CLASSIC_REMOVE_LIQUIDITY,
   TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY,
-  TRANSACTION_TYPE.CREATE_POOL,
+  TRANSACTION_TYPE.CLASSIC_CREATE_POOL,
   TRANSACTION_TYPE.ELASTIC_CREATE_POOL,
 ] as const
 
@@ -805,7 +805,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
       const hash = transaction.hash
       const tracking = transaction.extraInfo?.tracking
       switch (transaction.type) {
-        case TRANSACTION_TYPE.ADD_LIQUIDITY: {
+        case TRANSACTION_TYPE.CLASSIC_ADD_LIQUIDITY: {
           const { poolAddress, token_1, token_2, add_liquidity_method, amp } = tracking || {}
           const res = await apolloClient.query({
             query: GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
@@ -872,7 +872,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           dispatch(checkedSubgraph({ chainId, hash }))
           break
         }
-        case TRANSACTION_TYPE.REMOVE_LIQUIDITY: {
+        case TRANSACTION_TYPE.CLASSIC_REMOVE_LIQUIDITY: {
           const { poolAddress, token_1, token_2, amp, remove_liquidity_method } = tracking || {}
           const res = await apolloClient.query({
             query: GET_POOL_VALUES_AFTER_BURNS_SUCCESS,
@@ -940,7 +940,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           dispatch(checkedSubgraph({ chainId, hash }))
           break
         }
-        case TRANSACTION_TYPE.CREATE_POOL: {
+        case TRANSACTION_TYPE.CLASSIC_CREATE_POOL: {
           const { amp, token_1, token_2 } = tracking || {}
           const res = await apolloClient.query({
             query: GET_MINT_VALUES_AFTER_CREATE_POOL_SUCCESS,

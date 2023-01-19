@@ -14,6 +14,7 @@ import Logo from 'components/Logo'
 import { getTransactionStatus } from 'components/Popups/TransactionPopup'
 import Row from 'components/Row'
 import Icon from 'components/WalletPopup/Transactions/Icon'
+import useCancellingOrders from 'components/swapv2/LimitOrder/useCancellingOrders'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { findCacheToken } from 'hooks/Tokens'
@@ -107,11 +108,11 @@ const ContractAddress = ({ transaction }: { transaction: TransactionDetails }) =
 
   const poolTypes = [
     TRANSACTION_TYPE.ELASTIC_ADD_LIQUIDITY,
-    TRANSACTION_TYPE.REMOVE_LIQUIDITY,
+    TRANSACTION_TYPE.CLASSIC_REMOVE_LIQUIDITY,
     TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY,
     TRANSACTION_TYPE.INCREASE_LIQUIDITY,
     TRANSACTION_TYPE.COLLECT_FEE,
-    TRANSACTION_TYPE.ADD_LIQUIDITY,
+    TRANSACTION_TYPE.CLASSIC_ADD_LIQUIDITY,
   ]
 
   const prefix = poolTypes.includes(type)
@@ -256,14 +257,14 @@ const RENDER_DESCRIPTION_MAP: { [type in TRANSACTION_TYPE]: null | ((txs: Transa
 
   [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER]: renderDescriptionLimitOrder,
 
-  [TRANSACTION_TYPE.CREATE_POOL]: renderDescriptionLiquidity,
+  [TRANSACTION_TYPE.CLASSIC_CREATE_POOL]: renderDescriptionLiquidity,
   [TRANSACTION_TYPE.ELASTIC_CREATE_POOL]: renderDescriptionLiquidity,
   [TRANSACTION_TYPE.ELASTIC_ADD_LIQUIDITY]: renderDescriptionLiquidity,
-  [TRANSACTION_TYPE.REMOVE_LIQUIDITY]: renderDescriptionLiquidity,
+  [TRANSACTION_TYPE.CLASSIC_REMOVE_LIQUIDITY]: renderDescriptionLiquidity,
   [TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY]: renderDescriptionLiquidity,
   [TRANSACTION_TYPE.INCREASE_LIQUIDITY]: renderDescriptionLiquidity,
   [TRANSACTION_TYPE.COLLECT_FEE]: renderDescriptionLiquidity,
-  [TRANSACTION_TYPE.ADD_LIQUIDITY]: renderDescriptionLiquidity,
+  [TRANSACTION_TYPE.CLASSIC_ADD_LIQUIDITY]: renderDescriptionLiquidity,
 
   // to make sure you don't forgot setup
   [TRANSACTION_TYPE.HARVEST]: null,
