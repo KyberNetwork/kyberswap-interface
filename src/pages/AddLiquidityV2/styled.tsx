@@ -11,7 +11,7 @@ export const PageWrapper = styled(AutoColumn)`
   max-width: calc(1500px + 2rem * 2);
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding: 24px 12px;
+    padding: 0 12px;
     max-width: calc(500px + 12px * 2);
   `};
 `
@@ -99,8 +99,8 @@ export const RangeBtn = styled(ButtonOutlined)<{ isSelected: boolean }>`
       ? css`
           border-color: ${theme.primary};
           color: ${theme.primary};
-          pointer-events: none;
-          cursor: not-allowed;
+          /* pointer-events: none;
+          cursor: not-allowed; */
           box-shadow: none;
           &:focus {
             box-shadow: none;
