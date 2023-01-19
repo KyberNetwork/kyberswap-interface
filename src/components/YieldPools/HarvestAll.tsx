@@ -2,7 +2,6 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { Trans } from '@lingui/macro'
 import { Fragment, useRef, useState } from 'react'
 import { X } from 'react-feather'
-import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
@@ -10,6 +9,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import HoverDropdown from 'components/HoverDropdown'
 import Harvest from 'components/Icons/Harvest'
 import Modal from 'components/Modal'
+import { RowFit } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
@@ -37,8 +37,6 @@ const HarvestAll = ({ totalRewards, onHarvestAll }: { totalRewards: Reward[]; on
     }
   }
   useOnClickOutside(ref, open ? toggleRewardDetail : undefined)
-
-  const upToSmall = useMedia('(max-width: 768px)')
 
   const [show, setShow] = useState(false)
 
@@ -90,43 +88,42 @@ const HarvestAll = ({ totalRewards, onHarvestAll }: { totalRewards: Reward[]; on
         </ModalContentWrapper>
       </Modal>
 
-      <Flex
-        alignItems="center"
-        sx={{ gap: '24px' }}
-        justifyContent={!upToSmall ? 'flex-start' : 'space-between'}
-        width={!upToSmall ? undefined : '100%'}
-      >
-        <div>
-          <Text fontSize="12px" color={theme.subText} width="max-content">
-            <Trans>My Total Rewards</Trans>
-          </Text>
+      <RowFit>
+        <RowFit fontSize="14px" gap="4px" color={theme.subText} width="max-content" fontWeight={500} marginRight="8px">
+          <Harvest width={16} height={16} />
+          <Trans>Rewards</Trans>
+        </RowFit>
 
-          <HoverDropdown
-            padding="4px 0"
-            content={formatDollarAmount(totalRewardsUSD)}
-            dropdownContent={
-              totalRewards.some(reward => reward?.amount?.gt(0))
-                ? totalRewards.map((reward, index) => {
-                    if (!reward || !reward.amount || reward.amount.lte(0)) {
-                      return null
-                    }
+        <HoverDropdown
+          padding="4px 0"
+          content={
+            <Text fontSize="20px" fontWeight={500}>
+              {formatDollarAmount(totalRewardsUSD)}
+            </Text>
+          }
+          dropdownContent={
+            totalRewards.some(reward => reward?.amount?.gt(0))
+              ? totalRewards.map((reward, index) => {
+                  if (!reward || !reward.amount || reward.amount.lte(0)) {
+                    return null
+                  }
 
-                    return (
-                      <Flex alignItems="center" key={reward.token.address} marginTop={index === 0 ? 0 : '8px'}>
-                        <CurrencyLogo currency={reward.token} size="16px" />
-                        <Text marginLeft="4px" fontSize="12px">
-                          {fixedFormatting(reward.amount, reward.token.decimals)} {reward.token.symbol}
-                        </Text>
-                      </Flex>
-                    )
-                  })
-                : ''
-            }
-          />
-        </div>
+                  return (
+                    <Flex alignItems="center" key={reward.token.address} marginTop={index === 0 ? 0 : '8px'}>
+                      <CurrencyLogo currency={reward.token} size="16px" />
+                      <Text marginLeft="4px" fontSize="12px">
+                        {fixedFormatting(reward.amount, reward.token.decimals)} {reward.token.symbol}
+                      </Text>
+                    </Flex>
+                  )
+                })
+              : ''
+          }
+          style={{ marginRight: '24px' }}
+        />
 
         <ButtonPrimary
-          width="fit-content"
+          width="160px"
           onClick={() => setShow(true)}
           disabled={!canHarvestAll}
           padding="10px 12px"
@@ -137,7 +134,7 @@ const HarvestAll = ({ totalRewards, onHarvestAll }: { totalRewards: Reward[]; on
             <Trans>Harvest All</Trans>
           </Text>
         </ButtonPrimary>
-      </Flex>
+      </RowFit>
     </>
   )
 }

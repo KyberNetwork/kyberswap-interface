@@ -3,10 +3,14 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { Navigate } from 'react-router-dom'
-import { Text } from 'rebass'
+import { useMedia } from 'react-use'
+import { Flex, Text } from 'rebass'
 
+import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
+import InfoHelper from 'components/InfoHelper'
+import { RowBetween, RowFit } from 'components/Row'
 import ShareModal from 'components/ShareModal'
-import { OUTSIDE_FAIRLAUNCH_ADDRESSES } from 'constants/index'
+import { AMP_HINT, OUTSIDE_FAIRLAUNCH_ADDRESSES } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { useFairLaunchVersion } from 'hooks/useContract'
@@ -18,6 +22,8 @@ import { useBlockNumber, useModalOpen, useOpenModal } from 'state/application/ho
 import { setAttemptingTxn, setShowConfirm, setTxHash, setYieldPoolsError } from 'state/farms/actions'
 import { FairLaunchVersion, Farm } from 'state/farms/types'
 import { useAppDispatch } from 'state/hooks'
+import { useViewMode } from 'state/user/hooks'
+import { VIEW_MODE } from 'state/user/reducer'
 import { ExternalLink } from 'theme'
 import { useFarmRewards } from 'utils/dmm'
 import { getFullDisplayBalance } from 'utils/formatBalance'
@@ -25,15 +31,34 @@ import { getFormattedTimeFromSecond } from 'utils/formatTime'
 
 import HarvestAll from './HarvestAll'
 import ListItem from './ListItem'
-import { FairLaunchPoolsTitle, FairLaunchPoolsWrapper, ListItemWrapper } from './styleds'
+import {
+  ClassicFarmGridWrapper,
+  ClassicFarmWrapper,
+  ClickableText,
+  ExpandableWrapper,
+  ListItemWrapper,
+  TableHeader,
+  ToggleButtonWrapper,
+} from './styleds'
 
 interface FarmsListProps {
   fairLaunchAddress: string
   farms?: Farm[]
+  active?: boolean
 }
 
-const FairLaunchPools = ({ fairLaunchAddress, farms }: FarmsListProps) => {
+const ToggleButton = ({ isOpen, onClick }: { isOpen: boolean; onClick: () => void }) => {
+  return (
+    <ToggleButtonWrapper onClick={onClick}>
+      <DropdownSVG style={{ rotate: isOpen ? 'none' : '180deg' }} />
+    </ToggleButtonWrapper>
+  )
+}
+
+const FairLaunchPools = ({ fairLaunchAddress, farms, active }: FarmsListProps) => {
   const dispatch = useAppDispatch()
+  const [viewMode] = useViewMode()
+  const above1200 = useMedia('(min-width:1200px)')
   const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
   const networkRoute = networkInfo.route || undefined
   const theme = useTheme()
@@ -44,6 +69,8 @@ const FairLaunchPools = ({ fairLaunchAddress, farms }: FarmsListProps) => {
   const { mixpanelHandler } = useMixpanel()
 
   const [sharedPoolAddress, setSharedPoolAddress] = useState('')
+  const [expanded, setExpanded] = useState(true)
+
   const openShareModal = useOpenModal(ApplicationModal.SHARE)
   const isShareModalOpen = useModalOpen(ApplicationModal.SHARE)
 
@@ -176,40 +203,107 @@ const FairLaunchPools = ({ fairLaunchAddress, farms }: FarmsListProps) => {
 
   const outsideFarm = OUTSIDE_FAIRLAUNCH_ADDRESSES[fairLaunchAddress]
 
+  const ConditionListWrapper = viewMode === VIEW_MODE.LIST && above1200 ? ListItemWrapper : ClassicFarmGridWrapper
+
   return (
-    <FairLaunchPoolsWrapper>
+    <ClassicFarmWrapper>
       {!!displayFarms.length && (
         <>
-          <FairLaunchPoolsTitle justify={outsideFarm ? 'space-between' : 'flex-end'}>
-            {outsideFarm && (
-              <Text fontSize={14} fontStyle="italic" color={theme.subText}>
-                <Trans>
-                  This pool require {outsideFarm.name} LP Tokens. Get the LP Tokens{' '}
-                  <ExternalLink href={outsideFarm.getLPTokenLink}>here ↗</ExternalLink>{' '}
-                </Trans>
+          <RowBetween>
+            <RowFit>
+              <Text fontSize={16} lineHeight="20px" color={theme.subText}>
+                <Trans>Farming Contract</Trans>
               </Text>
-            )}
+              {outsideFarm && (
+                <Text fontSize={14} fontStyle="italic" color={theme.subText}>
+                  <Trans>
+                    This pool require {outsideFarm.name} LP Tokens. Get the LP Tokens{' '}
+                    <ExternalLink href={outsideFarm.getLPTokenLink}>here ↗</ExternalLink>{' '}
+                  </Trans>
+                </Text>
+              )}
+            </RowFit>
+            <RowFit gap="16px">
+              <HarvestAll totalRewards={totalRewards} onHarvestAll={handleHarvestAll} />
+              <ToggleButton isOpen={expanded} onClick={() => setExpanded(prev => !prev)} />
+            </RowFit>
+          </RowBetween>
+          <ExpandableWrapper expanded={expanded}>
+            <ConditionListWrapper>
+              {viewMode === VIEW_MODE.LIST && above1200 && (
+                <TableHeader>
+                  <Flex grid-area="pools" alignItems="center" justifyContent="flex-start">
+                    <ClickableText>
+                      <Trans>Pools | AMP</Trans>
+                    </ClickableText>
+                    <InfoHelper text={AMP_HINT} />
+                  </Flex>
 
-            <HarvestAll totalRewards={totalRewards} onHarvestAll={handleHarvestAll} />
-          </FairLaunchPoolsTitle>
+                  <Flex grid-area="liq" alignItems="center" justifyContent="flex-center">
+                    <ClickableText>
+                      <Trans>Staked TVL</Trans>
+                    </ClickableText>
+                  </Flex>
 
-          <ListItemWrapper>
-            {displayFarms.map((farm, index) => {
-              return (
-                <ListItem
-                  key={`${farm.fairLaunchAddress}_${farm.stakeToken}`}
-                  farm={farm}
-                  oddRow={(index + 1) % 2 !== 0}
-                  setSharedPoolAddress={setSharedPoolAddress}
-                />
-              )
-            })}
-          </ListItemWrapper>
+                  <Flex
+                    grid-area="apy"
+                    alignItems="center"
+                    justifyContent="flex-end"
+                    sx={{
+                      paddingRight: '18px', // to make the cells vertically align
+                    }}
+                  >
+                    <ClickableText>
+                      <Trans>APR</Trans>
+                    </ClickableText>
+                    <InfoHelper
+                      text={
+                        active
+                          ? t`Total estimated return based on yearly fees and bonus rewards of the pool`
+                          : t`Estimated return based on yearly fees of the pool`
+                      }
+                    />
+                  </Flex>
+
+                  <Flex grid-area="vesting_duration" alignItems="center" justifyContent="flex-end">
+                    <ClickableText>
+                      <Trans>Vesting</Trans>
+                    </ClickableText>
+                    <InfoHelper
+                      text={t`After harvesting, your rewards will unlock linearly over the indicated time period`}
+                    />
+                  </Flex>
+
+                  <Flex grid-area="staked_balance" alignItems="center" justifyContent="flex-end">
+                    <ClickableText>
+                      <Trans>My Deposit</Trans>
+                    </ClickableText>
+                  </Flex>
+
+                  <Flex grid-area="reward" alignItems="center" justifyContent="flex-end">
+                    <ClickableText>
+                      <Trans>My Rewards</Trans>
+                    </ClickableText>
+                  </Flex>
+                </TableHeader>
+              )}
+              {displayFarms.map((farm, index) => {
+                return (
+                  <ListItem
+                    key={`${farm.fairLaunchAddress}_${farm.stakeToken}`}
+                    farm={farm}
+                    oddRow={(index + 1) % 2 !== 0}
+                    setSharedPoolAddress={setSharedPoolAddress}
+                  />
+                )
+              })}
+            </ConditionListWrapper>
+          </ExpandableWrapper>
         </>
       )}
 
       <ShareModal title={t`Share this farm with your friends!`} url={shareUrl} />
-    </FairLaunchPoolsWrapper>
+    </ClassicFarmWrapper>
   )
 }
 
