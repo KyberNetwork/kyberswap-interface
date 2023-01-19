@@ -1,4 +1,3 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Info } from 'react-feather'
@@ -10,8 +9,6 @@ import styled, { CSSProperties } from 'styled-components'
 import Tab from 'components/WalletPopup/Transactions/Tab'
 import { useActiveWeb3React } from 'hooks'
 import { fetchListTokenByAddresses, findCacheToken, useIsLoadedTokenDefault } from 'hooks/Tokens'
-import { isSupportKyberDao } from 'hooks/kyberdao'
-import { useChangeNetwork } from 'hooks/useChangeNetwork'
 import useTheme from 'hooks/useTheme'
 import { useSortRecentTransactions } from 'state/transactions/hooks'
 import {
@@ -81,7 +78,6 @@ export default function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
   const { chainId } = useActiveWeb3React()
   const [activeTab, setActiveTab] = useState<TRANSACTION_GROUP | string>('')
   const theme = useTheme()
-  const changeNetwork = useChangeNetwork()
 
   const listTokenAddress = useRef<string[]>([])
   const pushAddress = (address: string) => {
