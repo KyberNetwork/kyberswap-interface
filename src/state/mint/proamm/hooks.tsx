@@ -174,7 +174,8 @@ export function useProAmmDerivedMintInfo(
 } {
   const { account } = useActiveWeb3React()
   const { positions, startPriceTypedValue } = useProAmmMintState()
-  const { independentField, typedValue, leftRangeTypedValue, rightRangeTypedValue } = positions[positionIndex]
+  const { independentField, typedValue, leftRangeTypedValue, rightRangeTypedValue } =
+    positions[positionIndex >= positions.length ? positions.length - 1 : positionIndex]
   const dependentField = independentField === Field.CURRENCY_A ? Field.CURRENCY_B : Field.CURRENCY_A
 
   // currencies

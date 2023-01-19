@@ -46,7 +46,7 @@ import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
-import useProAmmPreviousTicks from 'hooks/useProAmmPreviousTicks'
+import useProAmmPreviousTicks, { useProAmmMultiplePreviousTicks } from 'hooks/useProAmmPreviousTicks'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { ApplicationModal } from 'state/application/actions'
@@ -126,8 +126,8 @@ export default function AddLiquidity() {
 
   // mint state
   const { positions: positionsState, startPriceTypedValue } = useProAmmMintState()
-  const { independentField, typedValue } =
-    positionsState[positionIndex >= positionsState.length ? positionsState.length - 1 : positionIndex]
+  const pIndex = positionIndex >= positionsState.length ? positionsState.length - 1 : positionIndex
+  const { independentField, typedValue } = positionsState[pIndex]
 
   const {
     pool,
@@ -154,14 +154,14 @@ export default function AddLiquidity() {
     profitPoint,
     activeRange,
   } = useProAmmDerivedMintInfo(
-    positionIndex,
+    pIndex,
     baseCurrency ?? undefined,
     quoteCurrency ?? undefined,
     feeAmount,
     baseCurrency ?? undefined,
   )
   const { errorMessage, positions, ticksAtLimits, currencyAmountSum } = useProAmmDerivedAllMintInfo(
-    positionIndex,
+    pIndex,
     baseCurrency ?? undefined,
     quoteCurrency ?? undefined,
     feeAmount,
@@ -179,6 +179,9 @@ export default function AddLiquidity() {
   const previousTicks =
     // : number[] = []
     useProAmmPreviousTicks(pool, position)
+  const mutiplePreviousTicks =
+    // : number[] = []
+    useProAmmMultiplePreviousTicks(pool, positions)
   const {
     onFieldAInput,
     onFieldBInput,
@@ -188,7 +191,7 @@ export default function AddLiquidity() {
     onResetMintState,
     onAddPosition,
     onRemovePosition,
-  } = useProAmmMintActionHandlers(noLiquidity, positionIndex)
+  } = useProAmmMintActionHandlers(noLiquidity, pIndex)
 
   const mountRef = useRef(false)
   useEffect(() => {
@@ -284,6 +287,8 @@ export default function AddLiquidity() {
       : undefined
     : position
 
+  const previousTicksParam = isMultiplePosition ? mutiplePreviousTicks : previousTicks
+
   const { data: poolDatas } = useGetElasticPools([poolAddress])
 
   const onAdd = useCallback(
@@ -294,13 +299,13 @@ export default function AddLiquidity() {
         return
       }
 
-      if (!previousTicks || previousTicks.length !== 2) {
-        return
-      }
-      if (positionsParam && account && deadline) {
+      // if (!previousTicksParam || previousTicksParam.length !== 2) {
+      //   return
+      // }
+      if (positionsParam && account && deadline && previousTicksParam) {
         const useNative = baseCurrency.isNative ? baseCurrency : quoteCurrency.isNative ? quoteCurrency : undefined
 
-        const { calldata, value } = NonfungiblePositionManager.addCallParameters(positionsParam, previousTicks, {
+        const { calldata, value } = NonfungiblePositionManager.addCallParameters(positionsParam, previousTicksParam, {
           slippageTolerance: basisPointsToPercent(userSlippageTolerance),
           recipient: account,
           deadline: deadline.toString(),
@@ -375,23 +380,23 @@ export default function AddLiquidity() {
       }
     },
     [
-      account,
-      addTransactionWithType,
-      userSlippageTolerance,
-      baseCurrency,
-      deadline,
       isEVM,
       library,
-      networkInfo,
+      account,
+      positionManager,
+      baseCurrency,
+      quoteCurrency,
+      positionsParam,
+      deadline,
+      previousTicksParam,
+      userSlippageTolerance,
       noLiquidity,
+      networkInfo,
+      onResetMintState,
+      addTransactionWithType,
       parsedAmounts_A,
       parsedAmounts_B,
       poolAddress,
-      positionsParam,
-      positionManager,
-      previousTicks,
-      quoteCurrency,
-      onResetMintState,
     ],
   )
 
@@ -474,7 +479,7 @@ export default function AddLiquidity() {
       feeAmount,
       tickLower,
       tickUpper,
-      positionIndex,
+      pIndex,
       pool,
       price,
     )
@@ -633,7 +638,7 @@ export default function AddLiquidity() {
       {hasTab && (
         <Tabs
           tabsCount={positionsState.length}
-          selectedTab={positionIndex}
+          selectedTab={pIndex}
           onChangedTab={index => setPositionIndex(index)}
           onAddTab={onAddPosition}
           onRemoveTab={onRemovePosition}
