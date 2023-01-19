@@ -126,6 +126,16 @@ export function useProAmmMintActionHandlers(
   }
 }
 
+const ENHANCED_TICK_SPACINGS: {
+  [amount in FeeAmount]: number
+} = {
+  [FeeAmount.STABLE]: TICK_SPACINGS[FeeAmount.LOWEST] * 2,
+  [FeeAmount.LOWEST]: TICK_SPACINGS[FeeAmount.LOWEST] * 2,
+  [FeeAmount.LOW]: TICK_SPACINGS[FeeAmount.LOW],
+  [FeeAmount.MEDIUM]: TICK_SPACINGS[FeeAmount.MEDIUM],
+  [FeeAmount.HIGH]: TICK_SPACINGS[FeeAmount.HIGH] * 0.7,
+}
+
 export function useProAmmDerivedMintInfo(
   positionIndex: number,
   currencyA?: Currency,
@@ -622,8 +632,8 @@ export function useProAmmDerivedMintInfo(
         // }
         if (invertPrice) [rangeTickLower, rangeTickUpper] = [rangeTickUpper, rangeTickLower]
         if (
-          Math.abs(rangeTickLower - tickLower) < 3 * TICK_SPACINGS[feeAmount] &&
-          Math.abs(rangeTickUpper - tickUpper) < 3 * TICK_SPACINGS[feeAmount]
+          Math.abs(rangeTickLower - tickLower) < ENHANCED_TICK_SPACINGS[feeAmount] &&
+          Math.abs(rangeTickUpper - tickUpper) < ENHANCED_TICK_SPACINGS[feeAmount]
         )
           return true
         return false
