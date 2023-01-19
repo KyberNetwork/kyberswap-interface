@@ -74,7 +74,7 @@ const summaryBridge = (txs: TransactionDetails) => {
     chainIdIn = ChainId.MAINNET,
     chainIdOut = ChainId.MAINNET,
   } = (txs.extraInfo || {}) as TransactionExtraInfo2Token
-  const summary = `Your bridge transaction from ${tokenAmountIn} ${tokenSymbolIn} (${NETWORKS_INFO[chainIdIn].name}}) to ${tokenAmountOut} ${tokenSymbolOut} (${NETWORKS_INFO[chainIdOut].name}})`
+  const summary = `Your bridge transaction from ${tokenAmountIn} ${tokenSymbolIn} (${NETWORKS_INFO[chainIdIn].name}) to ${tokenAmountOut} ${tokenSymbolOut} (${NETWORKS_INFO[chainIdOut].name})`
   return { success: `${summary} is being processed`, error: `${summary} failed` }
 }
 
