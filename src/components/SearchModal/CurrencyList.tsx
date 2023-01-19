@@ -176,7 +176,7 @@ export function CurrencyRow({
           )}
         </RowFixed>
         {usdBalance !== undefined && (
-          <Text fontSize={'10px'} color={theme.subText}>
+          <Text fontSize={'12px'} color={theme.subText}>
             {formattedNum(usdBalance + '', true)}
           </Text>
         )}

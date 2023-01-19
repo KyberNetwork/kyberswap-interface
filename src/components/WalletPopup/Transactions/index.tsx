@@ -136,29 +136,11 @@ export default function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
       <Tab activeTab={activeTab} setActiveTab={setActiveTab} />
       <ContentWrapper>
         {formatTransactions.length === 0 ? (
-          <Flex flexDirection="column" alignItems="center" color={theme.subText} sx={{ gap: 10 }}>
-            <Info size={33} />
-            {activeTab === TRANSACTION_GROUP.KYBERDAO && !isSupportKyberDao(chainId) ? (
-              <>
-                <Text textAlign="center" lineHeight="24px">
-                  <Trans>
-                    Staking KNC is only available on Ethereum chain. Please switch your network to see your KyberDAO
-                    transactions
-                  </Trans>
-                </Text>
-                <Text
-                  color={theme.primary}
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => changeNetwork(ChainId.MAINNET)}
-                >
-                  <Trans>Switch Network</Trans>
-                </Text>
-              </>
-            ) : (
-              <Text>
-                <Trans>You have no Transaction History</Trans>
-              </Text>
-            )}
+          <Flex flexDirection="column" alignItems="center" color={theme.subText} sx={{ gap: 10, marginTop: '20px' }}>
+            <Info size={32} />
+            <Text fontSize={'14px'}>
+              <Trans>You have no Transaction History</Trans>
+            </Text>
           </Flex>
         ) : (
           <AutoSizer>
