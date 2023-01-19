@@ -1,7 +1,8 @@
-import { rgba } from 'polished'
+import { darken, rgba } from 'polished'
 import styled, { css } from 'styled-components'
 
 import bgimg from 'assets/images/card-background.png'
+import { ButtonLight } from 'components/Button'
 
 export const RewardAndDepositInfo = styled.div`
   display: flex;
@@ -196,4 +197,30 @@ export const FlipCardBack = styled.div`
   flex-direction: column;
   backface-visibility: hidden;
   transform: rotateY(180deg);
+`
+
+export const Button = styled(ButtonLight)<{ color: string }>`
+  background: ${({ color }) => color + '33'};
+  color: ${({ color }) => color};
+  height: 36px;
+  font-size: 12px;
+  gap: 4px;
+  width: fit-content;
+  padding: 10px 12px;
+
+  &:hover {
+    background-color: ${({ color, disabled }) => !disabled && darken(0.03, `${color}33`)};
+  }
+  &:active {
+    box-shadow: 0 0 0 1pt ${({ color, disabled }) => !disabled && darken(0.05, `${color}33`)};
+    background-color: ${({ color, disabled }) => !disabled && darken(0.05, `${color}33`)};
+  }
+  :disabled {
+    cursor: not-allowed;
+    background-color: ${({ theme }) => `${theme.buttonGray}`};
+    color: ${({ theme }) => theme.border};
+    box-shadow: none;
+    border: 1px solid transparent;
+    outline: none;
+  }
 `

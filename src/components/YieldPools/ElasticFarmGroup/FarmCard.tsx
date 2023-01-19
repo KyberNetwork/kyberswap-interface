@@ -1,7 +1,7 @@
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { darken, rgba } from 'polished'
+import { rgba } from 'polished'
 import { useState } from 'react'
 import { Info, Minus, Plus, Share2 } from 'react-feather'
 import { Link } from 'react-router-dom'
@@ -9,7 +9,7 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as DropIcon } from 'assets/svg/drop.svg'
-import { ButtonEmpty, ButtonLight } from 'components/Button'
+import { ButtonEmpty } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Divider from 'components/Divider'
@@ -32,33 +32,7 @@ import { APRTooltipContent } from '../FarmingPoolAPRCell'
 import { useSharePoolContext } from '../SharePoolContext'
 import FeeTarget from './FeeTarget'
 import PositionDetail from './PostionDetail'
-import { FeeTag, FlipCard, FlipCardBack, FlipCardFront } from './styleds'
-
-const Button = styled(ButtonLight)<{ color: string }>`
-  background: ${({ color }) => color + '33'};
-  color: ${({ color }) => color};
-  height: 36px;
-  font-size: 12px;
-  gap: 4px;
-  width: fit-content;
-  padding: 10px 12px;
-
-  &:hover {
-    background-color: ${({ color, disabled }) => !disabled && darken(0.03, `${color}33`)};
-  }
-  &:active {
-    box-shadow: 0 0 0 1pt ${({ color, disabled }) => !disabled && darken(0.05, `${color}33`)};
-    background-color: ${({ color, disabled }) => !disabled && darken(0.05, `${color}33`)};
-  }
-  :disabled {
-    cursor: not-allowed;
-    background-color: ${({ theme }) => `${theme.buttonGray}`};
-    color: ${({ theme }) => theme.border};
-    box-shadow: none;
-    border: 1px solid transparent;
-    outline: none;
-  }
-`
+import { Button, FeeTag, FlipCard, FlipCardBack, FlipCardFront } from './styleds'
 
 const Range = styled.div<{ inrange?: boolean }>`
   align-self: flex-end;
