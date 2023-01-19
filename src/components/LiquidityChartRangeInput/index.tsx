@@ -173,7 +173,7 @@ export default function LiquidityChartRangeInput({
   }, [height, ref])
 
   return (
-    <AutoColumn ref={newRef => setRef(newRef)} gap="md" style={{ minHeight: '200px', ...style }}>
+    <AutoColumn ref={newRef => setRef(newRef)} gap="md" style={{ minHeight: '237px', ...style }}>
       {isUninitialized ? (
         <InfoBox
           message={<Trans>Your position will appear here.</Trans>}
