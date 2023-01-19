@@ -28,6 +28,7 @@ import ProAmmPoolInfo from 'components/ProAmm/ProAmmPoolInfo'
 import ProAmmPoolStat from 'components/ProAmm/ProAmmPoolStat'
 import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
 import ProAmmPriceRange from 'components/ProAmm/ProAmmPriceRange'
+import Tabs from 'components/ProAmm/Tab'
 import RangeSelector from 'components/RangeSelector'
 import Rating from 'components/Rating'
 import Row, { RowBetween, RowFit, RowFixed } from 'components/Row'
@@ -73,7 +74,6 @@ import { currencyId } from 'utils/currencyId'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
-import Tabs from './Tab'
 import { RANGE_LIST, rangeData } from './constants'
 import {
   ArrowWrapper,
