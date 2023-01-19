@@ -164,12 +164,14 @@ const Tab = ({
   index,
   onRemove,
   noBorder,
+  tabsCount,
 }: {
   onSelected: () => void
   active: boolean
   index: number
   onRemove: () => void
   noBorder: boolean
+  tabsCount: number
 }) => {
   const onClickRemove: MouseEventHandler<HTMLSpanElement> = useCallback(
     event => {
@@ -184,9 +186,11 @@ const Tab = ({
       <Text fontSize={12}>
         <Trans>Position {index + 1}</Trans>
       </Text>
-      <RemoveTab onClick={onClickRemove}>
-        <X size={12} />
-      </RemoveTab>
+      {tabsCount > 1 && (
+        <RemoveTab onClick={onClickRemove}>
+          <X size={12} />
+        </RemoveTab>
+      )}
     </TabContainer>
   )
 }
@@ -265,6 +269,7 @@ const Tabs = ({
                   }
                 }}
                 noBorder={!showChart && selectedTab === index + 1}
+                tabsCount={tabsCount}
               />
             )
           })}
