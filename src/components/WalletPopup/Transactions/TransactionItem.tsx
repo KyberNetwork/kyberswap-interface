@@ -2,6 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { ReactNode, forwardRef } from 'react'
+import { Repeat } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled, { CSSProperties } from 'styled-components'
 
@@ -279,7 +280,7 @@ export default forwardRef<HTMLDivElement, Prop>(function TransactionItem({ trans
   const theme = useTheme()
   const { pending, success } = getTransactionStatus(transaction)
   const customStatus = [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER, TRANSACTION_TYPE.BRIDGE].includes(type)
-
+  const isPendingTooMuch = pending && Date.now() - addedTime > 5 * 3_600_1000 // 5 hour
   return (
     <ItemWrapper style={style} ref={ref}>
       <Flex justifyContent="space-between" alignItems="flex-end">
@@ -299,7 +300,11 @@ export default forwardRef<HTMLDivElement, Prop>(function TransactionItem({ trans
             {pending ? t`Pending` : success ? (customStatus ? t`Submitted` : t`Completed`) : t`Error`}
           </PrimaryText>
           {pending ? (
-            <IconWarning width={'14px'} />
+            isPendingTooMuch ? (
+              <IconWarning width={'14px'} />
+            ) : (
+              <Repeat size={14} color={theme.warning} />
+            )
           ) : success ? (
             <IconSuccess width={'15px'} height="15px" />
           ) : (

@@ -19,7 +19,7 @@ import useTheme from 'hooks/useTheme'
 import { useNativeBalance } from 'state/wallet/hooks'
 import { currencyId } from 'utils/currencyId'
 
-const tokenItemStyle = { paddingLeft: 0, paddingRight: 4 }
+const tokenItemStyle = { paddingLeft: 0, paddingRight: 8 }
 const Wrapper = styled.div`
   width: 100%;
   flex: 1 0 auto;
@@ -99,6 +99,7 @@ export default function MyAssets({
                 borderTop: tokens.length ? `1px solid ${theme.border}` : 'none',
                 padding: '12px 0',
                 marginTop: tokens.length ? 8 : 0,
+                fontSize: 14,
               }}
             >
               <Info color={theme.subText} />
