@@ -122,7 +122,7 @@ const SUMMARY: { [type in TRANSACTION_TYPE]: SummaryFunction } = {
   [TRANSACTION_TYPE.HARVEST]: () => 'Harvested rewards',
   [TRANSACTION_TYPE.CLAIM_REWARD]: summaryApproveOrClaim,
   [TRANSACTION_TYPE.DEPOSIT]: summaryBasic,
-  [TRANSACTION_TYPE.WITHDRAW]: summaryBasic,
+  [TRANSACTION_TYPE.WITHDRAW_LIQUIDITY]: summaryBasic,
 
   [TRANSACTION_TYPE.FORCE_WITHDRAW]: summaryTypeOnly,
   [TRANSACTION_TYPE.SETUP_SOLANA_SWAP]: summaryTypeOnly,

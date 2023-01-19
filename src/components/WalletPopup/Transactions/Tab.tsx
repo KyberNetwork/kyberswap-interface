@@ -1,8 +1,11 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { memo, useLayoutEffect, useRef, useState } from 'react'
+import { memo, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import styled, { css } from 'styled-components'
 
 import Row from 'components/Row'
+import { useActiveWeb3React } from 'hooks'
+import { isSupportKyberDao } from 'hooks/kyberdao'
 import { TRANSACTION_GROUP } from 'state/transactions/type'
 
 // TODO: there's 1px glitch when scrolling Tab
@@ -109,13 +112,12 @@ const TabItem = styled.div<{ active: boolean }>`
   :hover {
     ${tabActiveCSS}
   }
-  ${({ theme, active }) => (active ? tabActiveCSS : '')}
+  ${({ active }) => (active ? tabActiveCSS : '')}
 `
 const listTab = [
   { text: t`All`, value: '' },
   { text: t`Swaps`, value: TRANSACTION_GROUP.SWAP },
   { text: t`Liquidity`, value: TRANSACTION_GROUP.LIQUIDITY },
-  { text: t`Transfers`, value: TRANSACTION_GROUP.TRANSFER },
   { text: t`KyberDAO`, value: TRANSACTION_GROUP.KYBERDAO },
   { text: t`Others`, value: TRANSACTION_GROUP.OTHER },
 ] as const
@@ -128,6 +130,8 @@ const Tab: React.FC<Props> = ({ activeTab, setActiveTab }) => {
   const [isScrollable, setScrollable] = useState(false)
   const [scrollLeft, setScrollLeft] = useState(false)
   const [scrollRight, setScrollRight] = useState(false)
+
+  const { chainId } = useActiveWeb3React()
 
   const listRef = useRef<HTMLDivElement>(null)
 
@@ -168,11 +172,28 @@ const Tab: React.FC<Props> = ({ activeTab, setActiveTab }) => {
     }
   }, [])
 
+  const filterTab = useMemo(() => {
+    return listTab.filter(tab => {
+      if (tab.value === TRANSACTION_GROUP.KYBERDAO) {
+        return isSupportKyberDao(chainId)
+      }
+      if (tab.value === TRANSACTION_GROUP.LIQUIDITY) {
+        return chainId !== ChainId.SOLANA
+      }
+      return true
+    })
+  }, [chainId])
+
   return (
     <TabWrapper $scrollable={isScrollable} $scrollLeft={scrollLeft} $scrollRight={scrollRight}>
       <ListTab ref={listRef} onScroll={handleScroll}>
-        {listTab.map(tab => (
-          <TabItem key={tab.text} active={activeTab === tab.value} onClick={() => setActiveTab(tab.value)}>
+        {filterTab.map(tab => (
+          <TabItem
+            style={{ width: `${100 / filterTab.length}%` }}
+            key={tab.text}
+            active={activeTab === tab.value}
+            onClick={() => setActiveTab(tab.value)}
+          >
             {tab.text}
           </TabItem>
         ))}

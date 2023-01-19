@@ -91,7 +91,7 @@ export const useFarmAction = (address: string) => {
       })
       addTransactionWithType({
         hash: tx.hash,
-        type: TRANSACTION_TYPE.WITHDRAW,
+        type: TRANSACTION_TYPE.WITHDRAW_LIQUIDITY,
         extraInfo: {
           summary: `liquidity`,
           contract: address,

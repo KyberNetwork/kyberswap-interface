@@ -233,7 +233,7 @@ const RENDER_DESCRIPTION_MAP: { [type in TRANSACTION_TYPE]: null | ((txs: Transa
   [TRANSACTION_TYPE.FORCE_WITHDRAW]: renderDescriptionBasic,
   [TRANSACTION_TYPE.STAKE]: renderDescriptionBasic,
   [TRANSACTION_TYPE.DEPOSIT]: renderDescriptionBasic,
-  [TRANSACTION_TYPE.WITHDRAW]: renderDescriptionBasic,
+  [TRANSACTION_TYPE.WITHDRAW_LIQUIDITY]: renderDescriptionBasic,
   [TRANSACTION_TYPE.KYBERDAO_CLAIM]: renderDescriptionBasic,
   [TRANSACTION_TYPE.UNSTAKE]: renderDescriptionBasic,
   [TRANSACTION_TYPE.KYBERDAO_VOTE]: renderDescriptionBasic,
@@ -279,6 +279,7 @@ export default forwardRef<HTMLDivElement, Prop>(function TransactionItem({ trans
   const theme = useTheme()
   const { pending, success } = getTransactionStatus(transaction)
   const customStatus = [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER, TRANSACTION_TYPE.BRIDGE].includes(type)
+
   return (
     <ItemWrapper style={style} ref={ref}>
       <Flex justifyContent="space-between" alignItems="flex-end">
