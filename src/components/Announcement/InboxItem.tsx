@@ -7,7 +7,7 @@ import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
 import IconFailure from 'assets/svg/notification_icon_failure.svg'
 import IconSuccess from 'assets/svg/notification_icon_success.svg'
 import IconWarning from 'assets/svg/notification_icon_warning.svg'
-import { AnnouncementItem } from 'components/Announcement/type'
+import { Announcement } from 'components/Announcement/type'
 
 const Wrapper = styled.div<{ isRead: boolean }>`
   border-bottom: 1px solid ${({ theme }) => theme.border};
@@ -60,7 +60,7 @@ const RowItem = styled.div`
 const getIcon = () => {
   return <BridgeIcon />
 }
-export default function InboxItem({ announcement, onClick }: { announcement: AnnouncementItem; onClick: () => void }) {
+export default function InboxItem({ announcement, onClick }: { announcement: Announcement; onClick: () => void }) {
   const { isRead } = announcement
   return (
     <Wrapper isRead={isRead} onClick={onClick}>

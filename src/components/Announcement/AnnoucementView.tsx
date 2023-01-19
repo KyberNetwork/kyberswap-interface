@@ -5,9 +5,10 @@ import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import { ReactComponent as ListIcon } from 'assets/svg/list_icon.svg'
+import AnnouncementItem from 'components/Announcement/AnnoucementItem'
 import InboxItem from 'components/Announcement/InboxItem'
 import { ackReadAnnouncement, formatNumberOfUnread } from 'components/Announcement/helper'
-import { AnnouncementItem } from 'components/Announcement/type'
+import { Announcement } from 'components/Announcement/type'
 import Column from 'components/Column'
 import NotificationIcon from 'components/Icons/NotificationIcon'
 import { RowBetween } from 'components/Row'
@@ -120,17 +121,17 @@ export default function AnnouncementView({
 }: {
   numberOfUnreadInbox: number
   numberOfUnreadGeneral: number
-  announcements: AnnouncementItem[]
-  inboxes: AnnouncementItem[]
+  announcements: Announcement[]
+  inboxes: Announcement[]
   refreshAnnouncement: () => void
 }) {
   const { account } = useActiveWeb3React()
-  const [activeTab, setActiveTab] = useState(Tab.INBOX)
+  const [activeTab, setActiveTab] = useState(Tab.ANNOUNCEMENT)
   const theme = useTheme()
   const toggleWalletModal = useWalletModalToggle()
   const { showNotificationModal } = useNotification()
 
-  const onReadAnnouncement = async (item: AnnouncementItem) => {
+  const onReadAnnouncement = async (item: Announcement) => {
     try {
       await ackReadAnnouncement()
       refreshAnnouncement()
@@ -138,6 +139,8 @@ export default function AnnouncementView({
   }
   const isMyInboxTab = activeTab === Tab.INBOX
   const listData = isMyInboxTab ? inboxes : announcements
+  console.log(isMyInboxTab)
+
   return (
     <Wrapper>
       <Container>
@@ -170,9 +173,13 @@ export default function AnnouncementView({
 
       {listData.length ? (
         <ListAnnouncement>
-          {listData.map(item => (
-            <InboxItem key={item.id} announcement={item} onClick={() => onReadAnnouncement(item)} />
-          ))}
+          {listData.map(item =>
+            isMyInboxTab ? (
+              <InboxItem key={item.id} announcement={item} onClick={() => onReadAnnouncement(item)} />
+            ) : (
+              <AnnouncementItem key={item.id} announcement={item} onClick={() => onReadAnnouncement(item)} />
+            ),
+          )}
         </ListAnnouncement>
       ) : (
         <Column style={{ alignItems: 'center', margin: '24px 0px' }} gap="8px">

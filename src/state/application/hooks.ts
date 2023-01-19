@@ -57,6 +57,15 @@ export function useToggleModal(modal: ApplicationModal): () => void {
   return useCallback(() => dispatch(setOpenModal(open ? null : modal)), [dispatch, modal, open])
 }
 
+export function useToggleNotificationCenter() {
+  const toggleNotificationCenter = useToggleModal(ApplicationModal.NOTIFICATION_CENTER)
+  const clearAllPopup = useRemoveAllPopup()
+  return useCallback(() => {
+    toggleNotificationCenter()
+    clearAllPopup()
+  }, [clearAllPopup, toggleNotificationCenter])
+}
+
 export function useOpenModal(modal: ApplicationModal): () => void {
   const dispatch = useDispatch<AppDispatch>()
   return useCallback(() => dispatch(setOpenModal(modal)), [dispatch, modal])
@@ -196,14 +205,19 @@ export const useTransactionNotify = () => {
 }
 
 // returns a function that allows removing a popup via its key
-export function useRemovePopup(): (key: string) => void {
+export function useRemovePopup(): (key: string, removeAll?: boolean) => void {
   const dispatch = useDispatch()
   return useCallback(
-    (key: string) => {
-      dispatch(removePopup({ key }))
+    (key: string, removeAll = false) => {
+      dispatch(removePopup({ key, removeAll }))
     },
     [dispatch],
   )
+}
+
+export function useRemoveAllPopup() {
+  const remove = useRemovePopup()
+  return useCallback(() => remove('', true), [remove])
 }
 
 // get the list of active popups

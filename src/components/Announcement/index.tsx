@@ -4,7 +4,7 @@ import styled, { css } from 'styled-components'
 
 import AnnouncementView from 'components/Announcement/AnnoucementView'
 import { formatNumberOfUnread, getListAnnouncement, getListInbox } from 'components/Announcement/helper'
-import { AnnouncementItem } from 'components/Announcement/type'
+import { Announcement } from 'components/Announcement/type'
 import NotificationIcon from 'components/Icons/NotificationIcon'
 import MenuFlyout from 'components/MenuFlyout'
 import Modal from 'components/Modal'
@@ -12,7 +12,7 @@ import { useActiveWeb3React } from 'hooks'
 import useNotification from 'hooks/useNotification'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
-import { useModalOpen, useToggleModal } from 'state/application/hooks'
+import { useModalOpen, useToggleModal, useToggleNotificationCenter } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
 const StyledMenuButton = styled.button<{ active?: boolean }>`
@@ -73,11 +73,11 @@ export default function Annoucement() {
   const node = useRef<HTMLDivElement>(null)
 
   const open = useModalOpen(ApplicationModal.NOTIFICATION_CENTER)
-  const toggle = useToggleModal(ApplicationModal.NOTIFICATION_CENTER)
+  const toggle = useToggleNotificationCenter()
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
-  const [announcements, setAnnouncements] = useState<AnnouncementItem[]>([])
-  const [inboxes, setInbox] = useState<AnnouncementItem[]>([])
+  const [announcements, setAnnouncements] = useState<Announcement[]>([])
+  const [inboxes, setInbox] = useState<Announcement[]>([])
   const [numberOfUnreadInbox, setNumberOfUnreadInbox] = useState(0)
   const [numberOfUnreadGeneral, setNumberOfUnreadGeneral] = useState(0)
 
@@ -85,9 +85,23 @@ export default function Annoucement() {
     try {
       await Promise.allSettled([getListAnnouncement(), account ? getListInbox() : Promise.resolve([])])
       setNumberOfUnreadGeneral(0)
-      setAnnouncements(new Array(10).fill({ isRead: false, id: Math.random() }))
+      setAnnouncements(
+        Array.from({ length: 10 }, (x, y) => ({
+          isRead: Math.random() < 0.5,
+          id: y,
+          title: Math.random() + '',
+          time: Date.now(),
+        })),
+      )
       setNumberOfUnreadInbox(0)
-      setInbox(new Array(10).fill({ isRead: false, id: Math.random() }))
+      setInbox(
+        Array.from({ length: 10 }, (x, y) => ({
+          isRead: Math.random() < 0.5,
+          id: y,
+          title: Math.random() + '',
+          time: Date.now(),
+        })),
+      )
     } catch (e) {
       console.error('get Announcement Error', e)
     }

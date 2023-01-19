@@ -77,7 +77,8 @@ export const addPopup = createAction<{
   content: PopupContent
   popupType: PopupType
 }>('application/addPopup')
-export const removePopup = createAction<{ key: string }>('application/removePopup')
+export const removePopup = createAction<{ key: string; removeAll?: boolean }>('application/removePopup')
+
 export const updatePrommETHPrice = createAction<{
   currentPrice: string
   oneDayBackPrice: string

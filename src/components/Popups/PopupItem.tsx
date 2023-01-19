@@ -51,7 +51,7 @@ const getBackgroundColor = (theme: DefaultTheme, type: NotificationType = Notifi
   return mapColor[type]
 }
 
-export const Popup = styled.div<{ type?: NotificationType }>`
+const Popup = styled.div<{ type?: NotificationType }>`
   display: inline-block;
   width: 100%;
   background: ${({ theme, type }) => getBackgroundColor(theme, type)};
