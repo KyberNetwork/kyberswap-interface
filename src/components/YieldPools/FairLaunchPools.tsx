@@ -4,11 +4,11 @@ import { Trans, t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
+import { Text } from 'rebass'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import InfoHelper from 'components/InfoHelper'
-import { RowBetween, RowFit } from 'components/Row'
+import Row, { RowBetween, RowFit } from 'components/Row'
 import ShareModal from 'components/ShareModal'
 import { AMP_HINT, OUTSIDE_FAIRLAUNCH_ADDRESSES } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
@@ -59,6 +59,7 @@ const FairLaunchPools = ({ fairLaunchAddress, farms, active }: FarmsListProps) =
   const dispatch = useAppDispatch()
   const [viewMode] = useViewMode()
   const above1200 = useMedia('(min-width:1200px)')
+  const above768 = useMedia('(min-width:768px)')
   const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
   const networkRoute = networkInfo.route || undefined
   const theme = useTheme()
@@ -153,22 +154,16 @@ const FairLaunchPools = ({ fairLaunchAddress, farms, active }: FarmsListProps) =
           const isFarmEnded = farm && blockNumber && farm.endBlock < blockNumber
 
           let remainingBlocks: number | false | undefined
-          let estimatedRemainingSeconds: number | false | undefined
-          let formattedEstimatedRemainingTime: string | false | 0 | undefined
 
           if (!isFarmStarted) {
             remainingBlocks = farm && blockNumber && farm.startBlock - blockNumber
-            estimatedRemainingSeconds =
-              remainingBlocks && remainingBlocks * (networkInfo as EVMNetworkInfo).averageBlockTimeInSeconds
-            formattedEstimatedRemainingTime =
-              estimatedRemainingSeconds && getFormattedTimeFromSecond(estimatedRemainingSeconds)
           } else {
             remainingBlocks = farm && blockNumber && farm.endBlock - blockNumber
-            estimatedRemainingSeconds =
-              remainingBlocks && remainingBlocks * (networkInfo as EVMNetworkInfo).averageBlockTimeInSeconds
-            formattedEstimatedRemainingTime =
-              estimatedRemainingSeconds && getFormattedTimeFromSecond(estimatedRemainingSeconds)
           }
+          const estimatedRemainingSeconds =
+            remainingBlocks && remainingBlocks * (networkInfo as EVMNetworkInfo).averageBlockTimeInSeconds
+          const formattedEstimatedRemainingTime =
+            estimatedRemainingSeconds && getFormattedTimeFromSecond(estimatedRemainingSeconds)
 
           return {
             ...farm,
@@ -209,8 +204,8 @@ const FairLaunchPools = ({ fairLaunchAddress, farms, active }: FarmsListProps) =
     <ClassicFarmWrapper>
       {!!displayFarms.length && (
         <>
-          <RowBetween>
-            <RowFit>
+          <RowBetween gap="16px">
+            <RowFit style={{ whiteSpace: 'nowrap' }}>
               <Text fontSize={16} lineHeight="20px" color={theme.subText}>
                 <Trans>Farming Contract</Trans>
               </Text>
@@ -223,38 +218,38 @@ const FairLaunchPools = ({ fairLaunchAddress, farms, active }: FarmsListProps) =
                 </Text>
               )}
             </RowFit>
-            <RowFit gap="16px">
-              <HarvestAll totalRewards={totalRewards} onHarvestAll={handleHarvestAll} />
+            {above768 && (
+              <Row justify="flex-end">
+                <HarvestAll totalRewards={totalRewards} onHarvestAll={handleHarvestAll} />
+              </Row>
+            )}
+            <RowFit flex="0 0 36px">
               <ToggleButton isOpen={expanded} onClick={() => setExpanded(prev => !prev)} />
             </RowFit>
           </RowBetween>
+          {!above768 && (
+            <Row justify="flex-end">
+              <HarvestAll totalRewards={totalRewards} onHarvestAll={handleHarvestAll} />
+            </Row>
+          )}
           <ExpandableWrapper expanded={expanded}>
             <ConditionListWrapper>
               {viewMode === VIEW_MODE.LIST && above1200 && (
                 <TableHeader>
-                  <Flex grid-area="pools" alignItems="center" justifyContent="flex-start">
+                  <Row>
                     <ClickableText>
                       <Trans>Pools | AMP</Trans>
                     </ClickableText>
                     <InfoHelper text={AMP_HINT} />
-                  </Flex>
-
-                  <Flex grid-area="liq" alignItems="center" justifyContent="flex-center">
+                  </Row>
+                  <Row>
                     <ClickableText>
                       <Trans>Staked TVL</Trans>
                     </ClickableText>
-                  </Flex>
-
-                  <Flex
-                    grid-area="apy"
-                    alignItems="center"
-                    justifyContent="flex-end"
-                    sx={{
-                      paddingRight: '18px', // to make the cells vertically align
-                    }}
-                  >
+                  </Row>
+                  <Row>
                     <ClickableText>
-                      <Trans>APR</Trans>
+                      <Trans>AVG APR</Trans>
                     </ClickableText>
                     <InfoHelper
                       text={
@@ -263,28 +258,30 @@ const FairLaunchPools = ({ fairLaunchAddress, farms, active }: FarmsListProps) =
                           : t`Estimated return based on yearly fees of the pool`
                       }
                     />
-                  </Flex>
-
-                  <Flex grid-area="vesting_duration" alignItems="center" justifyContent="flex-end">
+                  </Row>
+                  <Row>
                     <ClickableText>
-                      <Trans>Vesting</Trans>
+                      <Trans>Ending in</Trans>
                     </ClickableText>
                     <InfoHelper
                       text={t`After harvesting, your rewards will unlock linearly over the indicated time period`}
                     />
-                  </Flex>
-
-                  <Flex grid-area="staked_balance" alignItems="center" justifyContent="flex-end">
+                  </Row>
+                  <Row>
                     <ClickableText>
-                      <Trans>My Deposit</Trans>
+                      <Trans>My Deposit | Target Volume</Trans>
                     </ClickableText>
-                  </Flex>
-
-                  <Flex grid-area="reward" alignItems="center" justifyContent="flex-end">
+                  </Row>
+                  <Row justify="flex-end">
                     <ClickableText>
                       <Trans>My Rewards</Trans>
                     </ClickableText>
-                  </Flex>
+                  </Row>
+                  <Row justify="flex-end">
+                    <ClickableText>
+                      <Trans>Actions</Trans>
+                    </ClickableText>
+                  </Row>
                 </TableHeader>
               )}
               {displayFarms.map((farm, index) => {

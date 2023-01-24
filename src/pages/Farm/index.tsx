@@ -13,6 +13,7 @@ import ClassicElasticTab from 'components/ClassicElasticTab'
 import Loader from 'components/Loader'
 import PoolsCurrencyInputPanel from 'components/PoolsCurrencyInputPanel'
 import RewardTokenPrices from 'components/RewardTokenPrices'
+import Row from 'components/Row'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import Toggle from 'components/Toggle'
 import Tutorial, { TutorialType } from 'components/Tutorial'
@@ -27,7 +28,6 @@ import {
   HeadingContainer,
   HeadingRight,
   PageWrapper,
-  PoolTitleContainer,
   SearchContainer,
   SearchInput,
   StakedOnlyToggleText,
@@ -297,9 +297,9 @@ const Farm = () => {
                 }}
                 active={!type || type === 'active'}
               >
-                <PoolTitleContainer>
+                <Row>
                   <Trans>Active</Trans>
-                </PoolTitleContainer>
+                </Row>
               </Tab>
               <Tab
                 onClick={() => {
@@ -310,9 +310,9 @@ const Farm = () => {
                 }}
                 active={type === FARM_TAB.ENDED}
               >
-                <PoolTitleContainer>
+                <Row>
                   <Trans>Ended</Trans>
-                </PoolTitleContainer>
+                </Row>
               </Tab>
 
               <Tab
@@ -321,9 +321,9 @@ const Farm = () => {
                 }}
                 active={type === FARM_TAB.MY_FARMS}
               >
-                <PoolTitleContainer>
+                <Row>
                   <Trans>My Farms</Trans>
-                </PoolTitleContainer>
+                </Row>
               </Tab>
 
               <Tab
@@ -335,12 +335,12 @@ const Farm = () => {
                 }}
                 active={type === FARM_TAB.VESTING}
               >
-                <PoolTitleContainer>
+                <Row>
                   <Text>
                     <Trans>Vesting</Trans>
                   </Text>
                   {vestingLoading && <Loader style={{ marginLeft: '4px' }} />}
-                </PoolTitleContainer>
+                </Row>
               </Tab>
             </Flex>
 

@@ -6,12 +6,14 @@ import dayjs from 'dayjs'
 import { ethers } from 'ethers'
 import JSBI from 'jsbi'
 import React, { useMemo, useState } from 'react'
-import { Clock, Minus, Plus, Share2, X } from 'react-feather'
-import { Link } from 'react-router-dom'
+import { Minus, Plus, Share2, X } from 'react-feather'
+import { Link, createSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
-import { ButtonEmpty, ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
+import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
+import { ReactComponent as DropSVG } from 'assets/svg/drop.svg'
+import { ButtonEmpty, ButtonLight, ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
 import CopyHelper from 'components/Copy'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
@@ -20,7 +22,7 @@ import Divider from 'components/Divider'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { MoneyBag } from 'components/Icons'
 import Harvest from 'components/Icons/Harvest'
-import InfoHelper from 'components/InfoHelper'
+import ReverseArrows from 'components/Icons/ReverseArrows'
 import Modal from 'components/Modal'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -39,6 +41,7 @@ import { useWalletModalToggle } from 'state/application/hooks'
 import { setAttemptingTxn, setShowConfirm, setTxHash, setYieldPoolsError } from 'state/farms/actions'
 import { Farm, Reward } from 'state/farms/types'
 import { useAppDispatch } from 'state/hooks'
+import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useViewMode } from 'state/user/hooks'
 import { VIEW_MODE } from 'state/user/reducer'
 import { ExternalLink } from 'theme'
@@ -51,16 +54,7 @@ import { formatDollarAmount } from 'utils/numbers'
 
 import { ModalContentWrapper } from './ElasticFarmModals/styled'
 import { APRTooltipContent } from './FarmingPoolAPRCell'
-import {
-  ActionButton,
-  CardButton,
-  DataText,
-  FarmCard,
-  GetLP,
-  RewardBalanceWrapper,
-  StyledItemCard,
-  TableRow,
-} from './styleds'
+import { ActionButton, CardButton, FarmCard, GetLP, RewardBalanceWrapper, TableRow } from './styleds'
 
 const fixedFormatting = (value: BigNumber, decimals: number) => {
   const fraction = new Fraction(value.toString(), JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals)))
@@ -72,6 +66,32 @@ const fixedFormatting = (value: BigNumber, decimals: number) => {
   return fraction.toFixed(18).replace(/\.?0+$/, '')
 }
 
+const RatioPrice = ({ currency0, currency1 }: { currency0: Token; currency1: Token }) => {
+  const [reversed, setReversed] = useState(false)
+  const usdPrices = useTokenPrices([currency0.address, currency1.address])
+  const tokensPriceRatio =
+    usdPrices?.[currency1.address] && usdPrices?.[currency0.address]
+      ? reversed
+        ? usdPrices?.[currency1.address] / usdPrices?.[currency0.address]
+        : usdPrices?.[currency0.address] / usdPrices?.[currency1.address]
+      : undefined
+  return (
+    <>
+      {!!tokensPriceRatio && !!currency0 && !!currency1 ? (
+        <Row gap="4px">
+          {tokensPriceRatio.toPrecision(10)}{' '}
+          {reversed ? `${currency0.symbol} per ${currency1.symbol}` : `${currency1.symbol} per ${currency0.symbol}`}{' '}
+          <RowFit style={{ cursor: 'pointer' }} onClick={() => setReversed(prev => !prev)}>
+            <ReverseArrows />
+          </RowFit>
+        </Row>
+      ) : (
+        '--'
+      )}
+    </>
+  )
+}
+
 interface ListItemProps {
   farm: Farm
   oddRow?: boolean
@@ -79,13 +99,14 @@ interface ListItemProps {
 }
 
 const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
+  console.log('🚀 ~ file: ListItem.tsx:103 ~ ListItem ~ farm', farm)
   const { account, chainId, isEVM } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const currentTimestamp = Math.floor(Date.now() / 1000)
   const [viewMode] = useViewMode()
+  const { mixpanelHandler } = useMixpanel()
 
   const { type = 'active' } = useParsedQueryString<{ type: string }>()
-  const breakpoint = useMedia('(min-width: 992px)')
   const above1200 = useMedia('(min-width: 1200px)')
   const dispatch = useAppDispatch()
 
@@ -161,11 +182,11 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
   const pairSymbol = `${farm.token0.symbol}-${farm.token1.symbol} LP`
   const [depositValue, setDepositValue] = useState('')
   const [withdrawValue, setWithdrawValue] = useState('')
+  const [expanded, setExpanded] = useState(false)
   const pairAddressChecksum = isAddressString(chainId, farm.id)
   const balance = useTokenBalance(pairAddressChecksum)
   const staked = useStakedBalance(farm.fairLaunchAddress, farm.pid)
   const rewardUSD = useFarmRewardsUSD(farmRewards)
-  const { mixpanelHandler } = useMixpanel()
 
   const amountToApprove = useMemo(
     () =>
@@ -317,297 +338,216 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
     <>
       {viewMode === VIEW_MODE.LIST && above1200 && (
         <>
-          {breakpoint ? (
-            <>
-              <TableRow>
-                <DataText grid-area="pools">
-                  <div>
-                    <Flex alignItems="center">
-                      <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={16} margin={true} />
-                      <Link
-                        to={`/add/${currencyIdFromAddress(farm.token0?.id, chainId)}/${currencyIdFromAddress(
-                          farm.token1?.id,
-                          chainId,
-                        )}/${farm.id}`}
-                        style={{ textDecoration: 'none' }}
-                      >
-                        {farm.token0?.symbol} - {farm.token1?.symbol}
-                      </Link>
-
-                      {farm.startTime > currentTimestamp && (
-                        <MouseoverTooltip text={farm.time} width="fit-content" placement="top">
-                          <Clock size={14} style={{ marginLeft: '6px' }} />
-                        </MouseoverTooltip>
-                      )}
-
-                      <Flex
-                        onClick={() => {
-                          setSharedPoolAddress(farm.id)
-                        }}
-                        sx={{
-                          marginLeft: '8px',
-                          cursor: 'pointer',
-                        }}
-                        role="button"
-                      >
-                        <Share2 size="14px" color={theme.subText} />
-                      </Flex>
-                    </Flex>
-                    <Text marginLeft="36px" marginTop="4px" color={theme.subText} fontSize={12}>
-                      AMP = {amp}
-                    </Text>
-                  </div>
-                </DataText>
-                <DataText grid-area="liq">{formattedNum(liquidity.toString(), true)}</DataText>
-                <DataText
-                  grid-area="apy"
-                  align="right"
+          <TableRow isExpanded={expanded} joined={!!userStakedBalanceUSD}>
+            <Column gap="12px">
+              <Row>
+                <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={16} />
+                <Link
+                  to={`/add/${currencyIdFromAddress(farm.token0?.id, chainId)}/${currencyIdFromAddress(
+                    farm.token1?.id,
+                    chainId,
+                  )}/${farm.id}`}
+                  style={{ textDecoration: 'none', marginRight: '6px' }}
+                >
+                  {farm.token0?.symbol} - {farm.token1?.symbol}
+                </Link>
+                {/* <MouseoverTooltip text={farm.time} width="fit-content" placement="top">
+                        <Clock size={14} style={{ marginLeft: '6px' }} />
+                      </MouseoverTooltip> */}
+                <Text
+                  color={theme.subText}
+                  fontSize="12px"
+                  lineHeight="16px"
                   style={{
-                    color: theme.apr,
+                    backgroundColor: theme.blue + '20',
+                    color: theme.blue,
+                    borderRadius: '16px',
+                    padding: '2px 4px',
+                    whiteSpace: 'nowrap',
+                    flex: '0 0 71px',
                   }}
                 >
-                  <Flex
-                    sx={{
-                      alignItems: 'center',
-                      gap: '4px',
-                    }}
-                  >
-                    {apr.toFixed(2)}%
-                    <Flex
-                      sx={{
-                        width: '16px',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      {apr !== 0 && (
-                        <MouseoverTooltip
-                          width="fit-content"
-                          placement="right"
-                          text={
-                            <APRTooltipContent
-                              farmAPR={farmAPR}
-                              poolAPR={tradingFeeAPR < MAX_ALLOW_APY ? tradingFeeAPR : 0}
-                            />
-                          }
-                        >
-                          <MoneyBag size={16} color={theme.apr} />
-                        </MouseoverTooltip>
-                      )}
-                    </Flex>
-                  </Flex>
-                </DataText>
-                <DataText grid-area="vesting_duration" align="right">
-                  {getFormattedTimeFromSecond(farm.vestingDuration, true)}
-                </DataText>
-
-                <DataText grid-area="staked_balance" align="right">
-                  {formattedNum(userStakedBalanceUSD.toString(), true)}
-                </DataText>
-
-                <DataText
-                  grid-area="reward"
-                  align="right"
-                  style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}
+                  AMP = {amp}
+                </Text>
+              </Row>
+              <Row>
+                <RowFit gap="6px" marginRight="16px">
+                  <CopyHelper toCopy={farm.id} />
+                  <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
+                    <Trans>Address</Trans>
+                  </Text>
+                </RowFit>
+                <RowFit
+                  onClick={() => {
+                    setSharedPoolAddress(farm.id)
+                  }}
+                  sx={{
+                    cursor: 'pointer',
+                  }}
+                  role="button"
+                  gap="6px"
                 >
-                  {farmRewards.map(reward => {
-                    return (
-                      <div key={reward.token.wrapped.address} style={{ marginTop: '2px' }}>
-                        <Flex alignItems="center">
-                          {getFullDisplayBalance(reward.amount, reward.token.decimals)}
-                          {chainId && reward.token.wrapped.address && (
-                            <CurrencyLogo currency={reward.token} size="16px" style={{ marginLeft: '3px' }} />
-                          )}
-                        </Flex>
-                      </div>
-                    )
-                  })}
-                </DataText>
-
-                <Flex grid-area="action" justifyContent="flex-end" sx={{ gap: '4px' }}>
-                  <ActionButton
-                    disabled={type === 'ended'}
-                    onClick={() => {
-                      setModalType('stake')
-                    }}
-                  >
-                    <MouseoverTooltip text={t`Stake`} placement="top" width="fit-content">
-                      <Plus color={type !== 'ended' ? theme.primary : theme.subText} size={16} />
-                    </MouseoverTooltip>
-                  </ActionButton>
-
-                  <ActionButton
-                    backgroundColor={theme.subText + '33'}
-                    onClick={() => {
-                      setModalType('unstake')
-                    }}
-                  >
-                    <MouseoverTooltip text={t`Unstake`} placement="top" width="fit-content">
-                      <Minus color={theme.subText} size={16} />
-                    </MouseoverTooltip>
-                  </ActionButton>
-
-                  <ActionButton
-                    backgroundColor={theme.subText + '33'}
-                    disabled={isHarvestDisabled}
-                    onClick={() => {
-                      setModalType('harvest')
-                    }}
-                  >
-                    <MouseoverTooltip text={t`Harvest`} placement="top" width="fit-content">
-                      <Harvest color={theme.subText} />
-                    </MouseoverTooltip>
-                  </ActionButton>
-                </Flex>
-              </TableRow>
-            </>
-          ) : (
-            <>
-              <StyledItemCard>
-                <Flex alignItems="center">
-                  <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={20} margin={true} />
-                  <Link
-                    to={`/add/${currencyIdFromAddress(farm.token0?.id, chainId)}/${currencyIdFromAddress(
-                      farm.token1?.id,
-                      chainId,
-                    )}/${farm.id}`}
-                  >
-                    <Text as="span" fontSize={16} fontWeight={500}>
-                      {farm.token0?.symbol} - {farm.token1?.symbol}
+                  <Share2 size="14px" color={theme.subText} fill={theme.subText} />
+                  <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
+                    <Trans>Share</Trans>
+                  </Text>
+                </RowFit>
+              </Row>
+            </Column>
+            <Row>
+              <Text fontSize="14px" fontWeight={400}>
+                {formatDollarAmount(liquidity)}
+              </Text>
+            </Row>
+            <Row color={theme.apr} gap="4px">
+              {apr.toFixed(2)}%
+              {apr !== 0 && (
+                <MouseoverTooltip
+                  width="fit-content"
+                  placement="right"
+                  text={
+                    <APRTooltipContent farmAPR={farmAPR} poolAPR={tradingFeeAPR < MAX_ALLOW_APY ? tradingFeeAPR : 0} />
+                  }
+                >
+                  <MoneyBag size={16} color={theme.apr} />
+                </MouseoverTooltip>
+              )}
+            </Row>
+            <Column gap="6px">
+              {farm.startTime > currentTimestamp ? (
+                <>
+                  <Text fontSize="12px" color={theme.warning}>
+                    <Trans>New phase will start in</Trans>
+                  </Text>
+                  <Text color={theme.warning}>{getFormattedTimeFromSecond(farm.startTime - currentTimestamp)}</Text>
+                </>
+              ) : farm.endTime > currentTimestamp ? (
+                <>
+                  <Text color={theme.subText} fontSize="12px">
+                    <Trans>Current phase will end in</Trans>
+                  </Text>
+                  {getFormattedTimeFromSecond(farm.endTime - currentTimestamp)}
+                </>
+              ) : (
+                <>
+                  <Text color={theme.subText} fontSize="12px">
+                    <Trans>Ended at</Trans>
+                  </Text>
+                  {dayjs(farm.endTime * 1000).format('DD-MM-YYYY HH:mm')}
+                </>
+              )}
+            </Column>
+            <Row>{formattedNum(userStakedBalanceUSD.toString(), true)}</Row>
+            <Column gap="8px" justify="flex-end">
+              {farmRewards.map(reward => {
+                return (
+                  <div key={reward.token.wrapped.address} style={{ marginTop: '2px' }}>
+                    <Row gap="4px">
+                      {chainId && reward.token.wrapped.address && (
+                        <CurrencyLogo currency={reward.token} size="16px" style={{ marginLeft: '3px' }} />
+                      )}
+                      {getFullDisplayBalance(reward.amount, reward.token.decimals)}
+                    </Row>
+                  </div>
+                )
+              })}
+            </Column>
+            <Row gap="4px" justify="flex-end">
+              <ActionButton
+                backgroundColor={theme.subText + '33'}
+                disabled={isHarvestDisabled}
+                onClick={() => {
+                  setModalType('harvest')
+                }}
+              >
+                <MouseoverTooltip text={t`Harvest`} placement="top" width="fit-content">
+                  <Harvest color={theme.subText} />
+                </MouseoverTooltip>
+              </ActionButton>
+              <ActionButton
+                backgroundColor={theme.subText + '33'}
+                onClick={() => {
+                  setModalType('unstake')
+                }}
+              >
+                <MouseoverTooltip text={t`Unstake`} placement="top" width="fit-content">
+                  <Minus color={theme.subText} size={16} />
+                </MouseoverTooltip>
+              </ActionButton>
+              <ActionButton
+                disabled={type === 'ended'}
+                onClick={() => {
+                  setModalType('stake')
+                }}
+              >
+                <MouseoverTooltip text={t`Stake`} placement="top" width="fit-content">
+                  <Plus color={type !== 'ended' ? theme.primary : theme.subText} size={16} />
+                </MouseoverTooltip>
+              </ActionButton>
+              <ActionButton backgroundColor={theme.subText + '33'} onClick={() => setExpanded(prev => !prev)}>
+                <MouseoverTooltip text={t`Expand`} placement="top" width="fit-content">
+                  <DropdownSVG
+                    color={theme.subText}
+                    width="24px"
+                    height="24px"
+                    style={{ rotate: expanded ? '180deg' : 'unset', transition: 'rotate 0.2s ease' }}
+                  />
+                </MouseoverTooltip>
+              </ActionButton>
+            </Row>
+            {expanded ? (
+              <>
+                <Column gap="4px" style={{ gridColumn: '1/3' }}>
+                  <Text fontSize={12} color={theme.subText} lineHeight="16px">
+                    <Trans>Current Price:</Trans>
+                  </Text>
+                  <Text>
+                    <RatioPrice currency0={currency0} currency1={currency1} />
+                  </Text>
+                </Column>
+                {!!userStakedBalanceUSD && (
+                  <Column gap="4px" style={{ gridColumn: '3' }}>
+                    <Text fontSize={12} color={theme.subText} lineHeight="16px">
+                      <Trans>My APR</Trans>
                     </Text>
-                  </Link>
-                  {farm.startTime > currentTimestamp && (
-                    <MouseoverTooltip text={farm.time} width="fit-content" placement="top">
-                      <Clock size={14} style={{ marginLeft: '6px' }} />
-                    </MouseoverTooltip>
-                  )}
-                </Flex>
-
-                <Flex marginTop="8px" marginBottom="16px" fontSize={12} color={theme.subText}>
-                  AMP = {amp} | {shortenAddress(chainId, farm.id)} <CopyHelper toCopy={farm.id} />
-                </Flex>
-
-                <Divider />
-
-                <Flex justifyContent="space-between" fontSize={12} marginTop="16px">
-                  <Text color={theme.subText}>
-                    <Trans>Staked TVL</Trans>
+                    <Text fontSize={14} color={theme.apr} lineHeight="20px">
+                      <Trans>{!!apr ? apr.toFixed(2) + '%' : '--'}</Trans>
+                    </Text>
+                  </Column>
+                )}
+                <Column gap="4px" style={{ gridColumn: '4' }}>
+                  <Text fontSize={12} color={theme.subText} lineHeight="16px">
+                    <Trans>Farming Time</Trans>
                   </Text>
-
-                  <Text fontWeight="500">{formattedNum(liquidity.toString(), true)}</Text>
-                </Flex>
-
-                {/* <Flex justifyContent="space-between" fontSize={12} marginTop="12px">
-              <Text color={theme.subText}>
-                <Trans>Ending In</Trans>
-              </Text>
-
-              <Text fontSize="12px">
-                {farm.time}
-              </Text>
-            </Flex>
-            */}
-
-                <Flex justifyContent="space-between" fontSize={12} marginTop="12px">
-                  <Text color={theme.subText}>
-                    <Trans>APR</Trans>
-                    <InfoHelper
-                      text={'Once a farm has ended, you will continue to receive returns through LP Fees'}
-                      size={12}
-                    />
+                  <Text>
+                    <Trans>--</Trans>
                   </Text>
-
-                  <Flex alignItems={'center'} sx={{ gap: '4px' }} color={theme.apr} fontWeight="500">
-                    <Text as="span">{(tradingFeeAPR + farmAPR).toFixed(2)}%</Text>
-                    <MouseoverTooltip
-                      width="fit-content"
-                      placement="top"
-                      text={<APRTooltipContent farmAPR={farmAPR} poolAPR={tradingFeeAPR} />}
-                    >
-                      <MoneyBag size={16} color={theme.apr} />
-                    </MouseoverTooltip>
-                  </Flex>
-                </Flex>
-
-                <Flex justifyContent="space-between" fontSize={12} marginTop="12px">
-                  <Text color={theme.subText}>
-                    <Trans>Vesting</Trans>
-                    <InfoHelper
-                      text={t`After harvesting, your rewards will unlock linearly over the indicated time period`}
-                      size={12}
-                    />
-                  </Text>
-
-                  <Text fontSize="12px" fontWeight="500">
-                    {getFormattedTimeFromSecond(farm.vestingDuration, true)}
-                  </Text>
-                </Flex>
-
-                <Flex justifyContent="space-between" fontSize={12} marginTop="12px">
-                  <Text color={theme.subText}>
-                    <Trans>My Deposit</Trans>
-                  </Text>
-
-                  <Text fontSize="12px" fontWeight="500">
-                    {formattedNum(userStakedBalanceUSD.toString(), true)}
-                  </Text>
-                </Flex>
-
-                <Flex justifyContent="space-between" fontSize={12} marginTop="12px">
-                  <Text color={theme.subText}>
-                    <Trans>My Rewards</Trans>
-                  </Text>
-
-                  <Text fontSize="12px" fontWeight="500">
-                    {formattedNum(rewardUSD.toString(), true)}
-                  </Text>
-                </Flex>
-
-                <RewardBalanceWrapper>
-                  {farmRewards.map((reward, index) => {
-                    return (
-                      <React.Fragment key={reward.token.wrapped.address}>
-                        <Flex alignItems="center" fontSize="12px" sx={{ gap: '4px' }}>
-                          {chainId && reward.token.wrapped.address && (
-                            <CurrencyLogo currency={reward.token} size="16px" />
-                          )}
-                          {getFullDisplayBalance(reward.amount, reward.token.decimals)}
-                        </Flex>
-                        {index !== farmRewards.length - 1 && <Text color={theme.subText}>|</Text>}
-                      </React.Fragment>
-                    )
-                  })}
-
-                  <ButtonLight
-                    margin="8px 0 0"
-                    disabled={isHarvestDisabled}
-                    onClick={() => {
-                      handleHarvest(farm.pid)
-                    }}
-                  >
-                    <Harvest />
-                    <Text marginLeft="8px">Harvest</Text>
-                  </ButtonLight>
-                </RewardBalanceWrapper>
-
-                <Flex sx={{ gap: '1rem' }} marginTop="16px">
-                  <ButtonOutlined onClick={() => setModalType('unstake')} flex={1}>
-                    <Trans>Unstake</Trans>
-                  </ButtonOutlined>
-                  <ButtonPrimary onClick={() => setModalType('stake')} flex={1}>
-                    <Trans>Stake</Trans>
-                  </ButtonPrimary>
-                </Flex>
-              </StyledItemCard>
-            </>
-          )}
+                </Column>
+                {!!userStakedBalanceUSD && (
+                  <Row alignSelf="start" justify="flex-end" style={{ gridColumn: '5/-1' }} color={theme.subText}>
+                    <Link to={'/myPools?' + createSearchParams({ tab: 'classic', search: farm.id })}>
+                      <Row>
+                        <DropSVG />
+                        <Text fontSize={12} lineHeight="16px">
+                          <Trans>My Pools</Trans> ↗
+                        </Text>
+                      </Row>
+                    </Link>
+                  </Row>
+                )}
+              </>
+            ) : (
+              <></>
+            )}
+          </TableRow>
         </>
       )}
       {(viewMode === VIEW_MODE.GRID || !above1200) && (
-        <FarmCard key={`${farm.fairLaunchAddress}_${farm.stakeToken}`} joined={!!farm.userData?.stakedBalance}>
+        <FarmCard key={`${farm.fairLaunchAddress}_${farm.stakeToken}`} joined={!!userStakedBalanceUSD}>
           <Row marginBottom="12px">
             <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={20} />
             <Text fontSize="16px" fontWeight="500" marginRight="4px" color={theme.green}>
-              {currency0.symbol} - {currency1.symbol}
+              {currency0?.symbol} - {currency1?.symbol}
             </Text>
             <Text
               fontSize={12}
@@ -672,7 +612,7 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
               {!!apr ? apr.toFixed(2) + '%' : '--'}
             </Text>
             <Text fontSize={28} lineHeight="32px" color={theme.apr} fontWeight={500}>
-              --
+              {!!apr ? apr.toFixed(2) + '%' : '--'}
             </Text>
           </RowBetween>
           <RowBetween marginBottom="4px">
@@ -697,12 +637,16 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
             <Text fontSize="16px" color={theme.text} lineHeight="20px">
               {formatDollarAmount(liquidity)}
             </Text>
-            {farm.startTime > currentTimestamp ? (
-              <Text color={theme.warning}>{getFormattedTimeFromSecond(farm.startTime - currentTimestamp)}</Text>
-            ) : farm.endTime > currentTimestamp ? (
-              <>{getFormattedTimeFromSecond(farm.endTime - currentTimestamp)}</>
+            {farm.startTime !== undefined ? (
+              farm.startTime > currentTimestamp ? (
+                <Text color={theme.warning}>{getFormattedTimeFromSecond(farm.startTime - currentTimestamp)}</Text>
+              ) : farm.endTime > currentTimestamp ? (
+                <>{getFormattedTimeFromSecond(farm.endTime - currentTimestamp)}</>
+              ) : (
+                <>{dayjs(farm.endTime * 1000).format('DD-MM-YYYY HH:mm')}</>
+              )
             ) : (
-              <>{dayjs(farm.endTime * 1000).format('DD-MM-YYYY HH:mm')}</>
+              '--'
             )}
           </RowBetween>
           <Divider marginBottom="16px" />

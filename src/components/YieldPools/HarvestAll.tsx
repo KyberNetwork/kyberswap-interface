@@ -2,14 +2,16 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { Trans } from '@lingui/macro'
 import { Fragment, useRef, useState } from 'react'
 import { X } from 'react-feather'
+import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
+import Column from 'components/Column'
 import CurrencyLogo from 'components/CurrencyLogo'
 import HoverDropdown from 'components/HoverDropdown'
 import Harvest from 'components/Icons/Harvest'
 import Modal from 'components/Modal'
-import { RowFit } from 'components/Row'
+import Row, { RowBetween, RowFit } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
@@ -27,6 +29,7 @@ const HarvestAll = ({ totalRewards, onHarvestAll }: { totalRewards: Reward[]; on
   const ref = useRef<HTMLDivElement>()
   const [open, setOpen] = useState<boolean>(false)
   const totalRewardsUSD = useFarmRewardsUSD(totalRewards)
+  const above500 = useMedia('(min-width:500px)')
 
   const { chainId } = useActiveWeb3React()
   const canHarvestAll = totalRewards.some(reward => reward?.amount.gt(BigNumber.from('0')))
@@ -87,54 +90,133 @@ const HarvestAll = ({ totalRewards, onHarvestAll }: { totalRewards: Reward[]; on
           </ButtonPrimary>
         </ModalContentWrapper>
       </Modal>
+      {above500 ? (
+        <RowFit>
+          <RowFit
+            fontSize="14px"
+            gap="4px"
+            color={theme.subText}
+            width="max-content"
+            fontWeight={500}
+            marginRight="8px"
+          >
+            <Harvest width={16} height={16} />
+            <Trans>Rewards</Trans>
+          </RowFit>
 
-      <RowFit>
-        <RowFit fontSize="14px" gap="4px" color={theme.subText} width="max-content" fontWeight={500} marginRight="8px">
-          <Harvest width={16} height={16} />
-          <Trans>Rewards</Trans>
-        </RowFit>
+          <HoverDropdown
+            padding="4px 0"
+            content={
+              <Text fontSize="20px" fontWeight={500}>
+                {formatDollarAmount(totalRewardsUSD)}
+              </Text>
+            }
+            dropdownContent={
+              totalRewards.some(reward => reward?.amount?.gt(0)) ? (
+                <Column gap="8px">
+                  {totalRewards.map(reward => {
+                    if (!reward || !reward.amount || reward.amount.lte(0)) {
+                      return null
+                    }
 
-        <HoverDropdown
-          padding="4px 0"
-          content={
-            <Text fontSize="20px" fontWeight={500}>
-              {formatDollarAmount(totalRewardsUSD)}
+                    return (
+                      <Row key={reward.token.address}>
+                        <CurrencyLogo currency={reward.token} size="16px" />
+                        <Text marginLeft="4px" fontSize="12px">
+                          {fixedFormatting(reward.amount, reward.token.decimals)} {reward.token.symbol}
+                        </Text>
+                      </Row>
+                    )
+                  })}
+                </Column>
+              ) : (
+                ''
+              )
+            }
+            style={{ marginRight: '24px' }}
+          />
+
+          <ButtonPrimary
+            width="160px"
+            onClick={() => setShow(true)}
+            disabled={!canHarvestAll}
+            padding="10px 12px"
+            height="fit-content"
+          >
+            <Harvest />
+            <Text marginLeft="4px">
+              <Trans>Harvest All</Trans>
             </Text>
-          }
-          dropdownContent={
-            totalRewards.some(reward => reward?.amount?.gt(0))
-              ? totalRewards.map((reward, index) => {
-                  if (!reward || !reward.amount || reward.amount.lte(0)) {
-                    return null
-                  }
-
-                  return (
-                    <Flex alignItems="center" key={reward.token.address} marginTop={index === 0 ? 0 : '8px'}>
-                      <CurrencyLogo currency={reward.token} size="16px" />
-                      <Text marginLeft="4px" fontSize="12px">
-                        {fixedFormatting(reward.amount, reward.token.decimals)} {reward.token.symbol}
-                      </Text>
-                    </Flex>
-                  )
-                })
-              : ''
-          }
-          style={{ marginRight: '24px' }}
-        />
-
-        <ButtonPrimary
-          width="160px"
-          onClick={() => setShow(true)}
-          disabled={!canHarvestAll}
-          padding="10px 12px"
-          height="fit-content"
+          </ButtonPrimary>
+        </RowFit>
+      ) : (
+        <Column
+          gap="12px"
+          style={{
+            flex: '1',
+            borderRadius: '20px',
+            background: theme.buttonBlack,
+            padding: '16px',
+            alignItems: 'stretch',
+          }}
         >
-          <Harvest />
-          <Text marginLeft="4px">
-            <Trans>Harvest All</Trans>
-          </Text>
-        </ButtonPrimary>
-      </RowFit>
+          <RowBetween>
+            <RowFit
+              fontSize="14px"
+              gap="4px"
+              color={theme.subText}
+              width="max-content"
+              fontWeight={500}
+              marginRight="8px"
+            >
+              <Harvest width={16} height={16} />
+              <Trans>Rewards</Trans>
+            </RowFit>
+
+            <HoverDropdown
+              padding="4px 0"
+              content={
+                <Text fontSize="20px" fontWeight={500}>
+                  {formatDollarAmount(totalRewardsUSD)}
+                </Text>
+              }
+              dropdownContent={
+                totalRewards.some(reward => reward?.amount?.gt(0)) ? (
+                  <Column gap="8px">
+                    {totalRewards.map(reward => {
+                      if (!reward || !reward.amount || reward.amount.lte(0)) {
+                        return null
+                      }
+
+                      return (
+                        <Row key={reward.token.address}>
+                          <CurrencyLogo currency={reward.token} size="16px" />
+                          <Text marginLeft="4px" fontSize="12px">
+                            {fixedFormatting(reward.amount, reward.token.decimals)} {reward.token.symbol}
+                          </Text>
+                        </Row>
+                      )
+                    })}
+                  </Column>
+                ) : (
+                  ''
+                )
+              }
+            />
+          </RowBetween>
+          <ButtonPrimary
+            onClick={() => setShow(true)}
+            disabled={!canHarvestAll}
+            padding="10px 12px"
+            height="fit-content"
+          >
+            <Harvest />
+            <Text marginLeft="4px">
+              <Trans>Harvest All</Trans>
+            </Text>
+          </ButtonPrimary>
+        </Column>
+      )}
     </>
   )
 }
