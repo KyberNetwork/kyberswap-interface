@@ -338,23 +338,30 @@ export const SearchInput = styled.input`
   }
 `
 
-export const ActionButton = styled(ButtonLight)<{ backgroundColor?: string }>`
-  background-color: ${({ theme, backgroundColor }) => backgroundColor || theme.primary + '33'};
+export const ActionButton = styled.button<{ color?: string }>`
+  border-radius: 20px;
+  border: none;
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background-color: ${({ theme, color }) => (color || theme.primary) + '33'};
+  color: ${({ theme, color }) => color || theme.primary};
   width: 28px;
   height: 28px;
-  :hover {
-    background-color: ${({ theme, backgroundColor }) => backgroundColor || theme.primary + '33'};
+  :hover:enabled {
     filter: brightness(0.8);
   }
-  :active {
-    background-color: ${({ theme, backgroundColor }) => backgroundColor || theme.primary + '33'};
-    box-shadow: 0 0 0 1px ${({ theme, backgroundColor }) => backgroundColor || theme.primary + '33'};
+  :active:enabled {
+    box-shadow: 0 0 0 1px ${({ theme, color }) => (color || theme.primary) + '33'};
     filter: brightness(1.1);
   }
   :disabled {
     background: ${({ theme }) => theme.buttonGray};
+    color: ${({ theme }) => theme.subText};
     cursor: not-allowed;
-    opacity: 0.4;
+    opacity: 0.5;
   }
 `
 

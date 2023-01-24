@@ -461,40 +461,40 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
             {/* ACTIONS */}
             <Row gap="4px" justify="flex-end">
               <ActionButton
-                backgroundColor={theme.subText + '33'}
+                color={theme.primary}
                 disabled={isHarvestDisabled}
                 onClick={() => {
                   setModalType('harvest')
                 }}
               >
                 <MouseoverTooltip text={t`Harvest`} placement="top" width="fit-content">
-                  <Harvest color={theme.subText} />
+                  <Harvest />
                 </MouseoverTooltip>
               </ActionButton>
               <ActionButton
-                backgroundColor={theme.subText + '33'}
+                color={theme.red}
                 onClick={() => {
                   setModalType('unstake')
                 }}
               >
                 <MouseoverTooltip text={t`Unstake`} placement="top" width="fit-content">
-                  <Minus color={theme.subText} size={16} />
+                  <Minus size={16} />
                 </MouseoverTooltip>
               </ActionButton>
               <ActionButton
+                color={theme.primary}
                 disabled={type === 'ended'}
                 onClick={() => {
                   setModalType('stake')
                 }}
               >
                 <MouseoverTooltip text={t`Stake`} placement="top" width="fit-content">
-                  <Plus color={type !== 'ended' ? theme.primary : theme.subText} size={16} />
+                  <Plus size={16} />
                 </MouseoverTooltip>
               </ActionButton>
-              <ActionButton backgroundColor={theme.subText + '33'} onClick={() => setExpanded(prev => !prev)}>
+              <ActionButton color={theme.subText} onClick={() => setExpanded(prev => !prev)}>
                 <MouseoverTooltip text={t`Expand`} placement="top" width="fit-content">
                   <DropdownSVG
-                    color={theme.subText}
                     width="24px"
                     height="24px"
                     style={{ rotate: expanded ? '180deg' : 'unset', transition: 'rotate 0.2s ease' }}
