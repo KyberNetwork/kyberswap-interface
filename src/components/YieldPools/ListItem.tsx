@@ -339,6 +339,7 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
       {viewMode === VIEW_MODE.LIST && above1200 && (
         <>
           <TableRow isExpanded={expanded} joined={!!userStakedBalanceUSD}>
+            {/* POOLS | AMP */}
             <Column gap="12px">
               <Row>
                 <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={16} />
@@ -394,11 +395,13 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
                 </RowFit>
               </Row>
             </Column>
+            {/* STAKED TVL */}
             <Row>
               <Text fontSize="14px" fontWeight={400}>
                 {formatDollarAmount(liquidity)}
               </Text>
             </Row>
+            {/* AVG APR */}
             <Row color={theme.apr} gap="4px">
               {apr.toFixed(2)}%
               {apr !== 0 && (
@@ -413,6 +416,7 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
                 </MouseoverTooltip>
               )}
             </Row>
+            {/* ENDING IN */}
             <Column gap="6px">
               {farm.startTime > currentTimestamp ? (
                 <>
@@ -437,8 +441,10 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
                 </>
               )}
             </Column>
+            {/* MY DEPOSIT | TARGET VOLUME */}
             <Row>{formattedNum(userStakedBalanceUSD.toString(), true)}</Row>
-            <Column gap="8px" justify="flex-end">
+            {/* MY REWARDS */}
+            <Column gap="8px" style={{ alignItems: 'end' }}>
               {farmRewards.map(reward => {
                 return (
                   <div key={reward.token.wrapped.address} style={{ marginTop: '2px' }}>
@@ -452,6 +458,7 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
                 )
               })}
             </Column>
+            {/* ACTIONS */}
             <Row gap="4px" justify="flex-end">
               <ActionButton
                 backgroundColor={theme.subText + '33'}

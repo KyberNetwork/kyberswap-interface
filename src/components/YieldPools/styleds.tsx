@@ -179,7 +179,7 @@ export const ListItemWrapper = styled.div`
 export const TableHeader = styled.div<{ fade?: boolean; oddRow?: boolean }>`
   display: grid;
   grid-gap: 1rem;
-  grid-template-columns: 1.75fr 0.75fr 0.75fr 1fr 1.5fr 0.5fr 160px;
+  grid-template-columns: 1.75fr 0.75fr 0.75fr 1fr 1.25fr 0.75fr 160px;
   padding: 16px;
   font-size: 12px;
   align-items: center;
@@ -244,7 +244,7 @@ export const ClickableText = styled(Text)`
 export const TableRow = styled.div<{ fade?: boolean; isExpanded?: boolean; joined?: boolean }>`
   display: grid;
   grid-gap: 1rem;
-  grid-template-columns: 1.75fr 0.75fr 0.75fr 1fr 1.5fr 0.5fr 160px;
+  grid-template-columns: 1.75fr 0.75fr 0.75fr 1fr 1.25fr 0.75fr 160px;
   padding: 14px 16px;
   font-size: 14px;
   align-items: center;
@@ -420,8 +420,7 @@ export const ToggleButtonWrapper = styled.div`
 `
 
 export const ExpandableWrapper = styled.div<{ expanded: boolean }>`
-  overflow: hidden;
-  max-height: ${({ expanded }) => (expanded ? `800px` : '0px')};
+  display: ${({ expanded }) => (expanded ? `block` : 'none')};
 `
 
 export const CardButton = styled(ButtonLight)<{ color?: string }>`

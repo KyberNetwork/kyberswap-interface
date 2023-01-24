@@ -50,7 +50,7 @@ interface FarmsListProps {
 const ToggleButton = ({ isOpen, onClick }: { isOpen: boolean; onClick: () => void }) => {
   return (
     <ToggleButtonWrapper onClick={onClick}>
-      <DropdownSVG style={{ rotate: isOpen ? 'none' : '180deg' }} />
+      <DropdownSVG style={{ rotate: isOpen ? '180deg' : 'none' }} />
     </ToggleButtonWrapper>
   )
 }
