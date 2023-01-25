@@ -1,10 +1,13 @@
 import { Currency, Fraction } from '@kyberswap/ks-sdk-core'
+import { t } from '@lingui/macro'
 import { ethers } from 'ethers'
 import JSBI from 'jsbi'
 
+import { tryParseAmount } from 'state/swap/hooks'
 import { formatNumberWithPrecisionRange, formattedNum } from 'utils'
+import { toFixed } from 'utils/numbers'
 
-import { LimitOrder, LimitOrderStatus } from './type'
+import { CreateOrderParam, LimitOrder, LimitOrderStatus } from './type'
 
 export const isActiveStatus = (status: LimitOrderStatus) =>
   [LimitOrderStatus.ACTIVE, LimitOrderStatus.OPEN, LimitOrderStatus.PARTIALLY_FILLED].includes(status)
@@ -30,7 +33,7 @@ export const uint256ToFraction = (value: string, decimals?: number) =>
 export function calcOutput(input: string, rate: string, decimalsIn: number, decimalsOut: number) {
   try {
     const value = parseFraction(input, decimalsIn).multiply(parseFraction(rate))
-    return removeTrailingZero(value.toFixed(decimalsOut))
+    return toFixed(parseFloat(value.toFixed(decimalsOut)))
   } catch (error) {
     return ''
   }
@@ -40,7 +43,7 @@ export function calcRate(input: string, output: string, decimalsOut: number) {
   try {
     if (input && input === output) return '1'
     const rate = parseFraction(output, decimalsOut).divide(parseFraction(input))
-    return removeTrailingZero(rate.toFixed(16))
+    return toFixed(parseFloat(rate.toFixed(16)))
   } catch (error) {
     return ''
   }
@@ -50,7 +53,7 @@ export function calcRate(input: string, output: string, decimalsOut: number) {
 export function calcInvert(value: string) {
   try {
     if (parseFloat(value) === 1) return '1'
-    return removeTrailingZero(new Fraction(1).divide(parseFraction(value)).toFixed(16))
+    return toFixed(parseFloat(new Fraction(1).divide(parseFraction(value)).toFixed(16)))
   } catch (error) {
     return ''
   }
@@ -71,7 +74,7 @@ export const calcUsdPrices = ({
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
 }) => {
-  const empty = { input: '', output: '' }
+  const empty = { input: '', output: '', rawInput: 0 }
   if (!inputAmount || !priceUsdIn || !priceUsdOut || !outputAmount || !currencyIn || !currencyOut) return empty
   try {
     const inputAmountInUsd = parseFraction(priceUsdIn.toString()) // 1 knc = ??? usd
@@ -82,6 +85,7 @@ export const calcUsdPrices = ({
     return {
       input: input ? `${formattedNum(input.toFixed(16), true)}` : undefined,
       output: output ? `${formattedNum(output.toFixed(16), true)}` : undefined,
+      rawInput: parseFloat(input.toFixed(2)),
     }
   } catch (error) {
     return empty
@@ -119,5 +123,32 @@ export const calcPercentFilledOrder = (value: string, total: string, decimals: n
   } catch (error) {
     console.log(error)
     return '0'
+  }
+}
+
+export const getErrorMessage = (error: any) => {
+  console.error('Limit order error: ', error)
+  const errorCode: string = error?.response?.data?.code || error.code || ''
+  const mapErrorMessageByErrCode: { [code: string]: string } = {
+    4001: t`User denied message signature`,
+    4002: t`You don't have sufficient fund for this transaction.`,
+    4004: t`Invalid signature`,
+    '-32603': t`Error occurred. Please check your device.`,
+  }
+  const msg = mapErrorMessageByErrCode[errorCode]
+  return msg?.toString?.() || error?.message || 'Error occur. Please try again.'
+}
+
+export const getPayloadCreateOrder = (params: CreateOrderParam) => {
+  const { currencyIn, currencyOut, chainId, account, inputAmount, outputAmount, expiredAt } = params
+  const parseInputAmount = tryParseAmount(inputAmount, currencyIn ?? undefined)
+  return {
+    chainId: chainId.toString(),
+    makerAsset: currencyIn?.wrapped.address,
+    takerAsset: currencyOut?.wrapped.address,
+    maker: account,
+    makingAmount: parseInputAmount?.quotient?.toString(),
+    takingAmount: tryParseAmount(outputAmount, currencyOut)?.quotient?.toString(),
+    expiredAt: Math.floor(expiredAt / 1000),
   }
 }

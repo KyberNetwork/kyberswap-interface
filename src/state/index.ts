@@ -1,8 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { load, save } from 'redux-localstorage-simple'
 
-import { ENV_LEVEL, ENV_TYPE } from 'constants/env'
+import { ENV_LEVEL } from 'constants/env'
+import { ENV_TYPE } from 'constants/type'
 
+import geckoTerminalApi from '../services/geckoTermial'
 import application from './application/reducer'
 import bridge from './bridge/reducer'
 import burnProAmm from './burn/proamm/reducer'
@@ -48,6 +50,7 @@ const store = configureStore({
     farms,
     vesting,
     // [dataApi.reducerPath]: dataApi.reducer
+    [geckoTerminalApi.reducerPath]: geckoTerminalApi.reducer,
     campaigns,
     tutorial,
     bridge,
@@ -56,9 +59,10 @@ const store = configureStore({
     tokenPrices,
   },
   middleware: getDefaultMiddleware =>
-    getDefaultMiddleware({ thunk: false, immutableCheck: false, serializableCheck: false })
+    getDefaultMiddleware({ thunk: true, immutableCheck: false, serializableCheck: false })
       // .concat(dataApi.middleware)
-      .concat(save({ states: PERSISTED_KEYS, debounce: 100 })),
+      .concat(save({ states: PERSISTED_KEYS, debounce: 100 }))
+      .concat(geckoTerminalApi.middleware),
   preloadedState: load({ states: PERSISTED_KEYS }),
 })
 
