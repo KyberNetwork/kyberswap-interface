@@ -1,10 +1,12 @@
 import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
+import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Icon from 'components/Icons/Icon'
+import ReadMore from 'components/ReadMore'
 import { RowBetween, RowFit } from 'components/Row'
 import Search from 'components/Search'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -22,28 +24,35 @@ const Wrapper = styled.div`
   max-width: 1500px;
   width: 100%;
   color: ${({ theme }) => theme.subText};
+  gap: 24px;
+
+  @media only screen and (max-width: 768px) {
+    gap: 20px;
+    padding: 28px 16px 40px;
+  }
 `
 
 export default function TrueSightV2(props: any) {
   const theme = useTheme()
   const [subscribed, setSubscribed] = useState(false)
   const isSingleToken = props.match?.path?.includes('single-token')
+  const above768 = useMedia('(min-width:768px)')
+  const above600 = useMedia('(min-width:600px)')
+
+  const RenderSearch = () => (
+    <Search onSearch={(search: string) => console.log(search)} searchValue="" placeholder="Search" minWidth="240px" />
+  )
   return (
     <Wrapper>
-      <RowBetween marginBottom="20px">
+      <RowBetween>
         <RowFit color={theme.text} gap="6px">
-          <Icon id="truesight-v2" size={20} />
-          <Text fontSize={24}>
+          {above768 && <Icon id="truesight-v2" size={20} />}
+          <Text fontSize={above768 ? 24 : 20}>
             <Trans>Discover Tokens</Trans>
           </Text>
         </RowFit>
         <RowFit gap="16px">
-          <Search
-            onSearch={(search: string) => console.log(search)}
-            searchValue=""
-            placeholder="Search"
-            minWidth="240px"
-          />
+          {above768 && <RenderSearch />}
           {subscribed ? (
             <MouseoverTooltip
               text={t`Subscribe to receive daily email notifications witha curated list of tokens from each category!`}
@@ -62,13 +71,16 @@ export default function TrueSightV2(props: any) {
           )}
         </RowFit>
       </RowBetween>
-      <Text fontSize={12} color={theme.subText} lineHeight="16px" marginBottom={24}>
-        <Trans>
-          Our algorithm analyzes thousands of tokens and multiple on-chain / off-chain indicators each day to give you a
-          curated list of tokens across various categories. You can further explore each token in detail - use our
-          on-chain, technical and social analysis to find alpha and make better trading decisions!
-        </Trans>
-      </Text>
+      <ReadMore open={above600 ? true : false}>
+        <Text fontSize={12} color={theme.subText} lineHeight="16px">
+          <Trans>
+            Our algorithm analyzes thousands of tokens and multiple on-chain / off-chain indicators each day to give you
+            a curated list of tokens across various categories. You can further explore each token in detail - use our
+            on-chain, technical and social analysis to find alpha and make better trading decisions!
+          </Trans>
+        </Text>
+      </ReadMore>
+      {!above768 && <RenderSearch />}
       {isSingleToken ? <SingleToken /> : <TokenAnalysisList />}
     </Wrapper>
   )
