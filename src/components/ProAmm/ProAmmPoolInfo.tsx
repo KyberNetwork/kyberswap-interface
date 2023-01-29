@@ -166,9 +166,9 @@ export default function ProAmmPoolInfo({
                   }
                 />
               </Flex>
-              {tokenId ? (
+              {showRangeInfo && !!tokenId ? (
                 <Text fontSize="12px" marginRight="4px" color={theme.subText}>
-                  NFT ID: {tokenId}
+                  #{tokenId}
                 </Text>
               ) : null}
             </Flex>
