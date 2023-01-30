@@ -254,7 +254,7 @@ export function useClaimRewardActions() {
           hash: tx.hash,
           type: TRANSACTION_TYPE.KYBERDAO_CLAIM,
           extraInfo: {
-            contract: address,
+            contract: kyberDaoInfo?.rewardsDistributor,
             tokenAmount: formatAmount,
             tokenSymbol: 'KNC',
             tokenAddress: kyberDaoInfo?.KNCAddress,
