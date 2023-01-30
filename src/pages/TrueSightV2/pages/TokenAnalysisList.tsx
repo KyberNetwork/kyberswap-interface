@@ -83,6 +83,9 @@ const Table = styled.table`
       border: none;
       outline: none;
       white-space: nowrap;
+      font-weight: 400 !important;
+      color: ${({ theme }) => theme.subText} !important;
+      font-size: 12px;
     }
     tr {
       height: 48px;
@@ -419,7 +422,7 @@ export default function TokenAnalysisList() {
 
               <tbody>
                 {templateList.slice((page - 1) * pageSize, page * pageSize).map((token: any) => (
-                  <tr key={token.id}>
+                  <tr key={token.id} onClick={() => navigate('/discover/single-token')}>
                     <td>
                       <span>
                         <Star size={16} style={{ marginRight: '6px' }} /> {token.id}

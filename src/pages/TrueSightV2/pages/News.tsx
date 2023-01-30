@@ -11,6 +11,18 @@ const Wrapper = styled.div`
   > * {
     width: calc(33.33% - 24px * 2 / 3);
   }
+
+  @media only screen and (max-width: 768px) {
+    gap: 16px;
+    > * {
+      width: calc(50% - 16px * 1 / 2);
+    }
+  }
+  @media only screen and (max-width: 450px) {
+    > * {
+      width: 100%;
+    }
+  } ;
 `
 
 const ArticleWrapper = styled.div`

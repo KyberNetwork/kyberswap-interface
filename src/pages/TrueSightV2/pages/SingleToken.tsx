@@ -3,10 +3,12 @@ import { rgba } from 'polished'
 import { ReactNode, useState } from 'react'
 import { ChevronLeft, Share2, Star } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
+import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import { ButtonGray, ButtonLight } from 'components/Button'
+import Column from 'components/Column'
 import { Ethereum } from 'components/Icons'
 import Icon from 'components/Icons/Icon'
 import { DotsLoader } from 'components/Loader/DotsLoader'
@@ -24,7 +26,6 @@ import OnChainAnalysis from './OnChainAnalysis'
 import TechnicalAnalysis from './TechnicalAnalysis'
 
 const Wrapper = styled.div`
-  padding: 32px 24px 50px;
   display: flex;
   align-items: stretch;
   justify-content: center;
@@ -50,6 +51,8 @@ const Tag = styled.div<{ active?: boolean }>`
   cursor: pointer;
   user-select: none;
   transition: all 0.1s ease;
+  white-space: nowrap;
+
   ${({ theme, active }) =>
     active
       ? css`
@@ -117,46 +120,80 @@ const ExternalLink = ({ href, className, children }: { href: string; className?:
 export default function SingleToken() {
   const theme = useTheme()
   const navigate = useNavigate()
+  const above768 = useMedia('(min-width:768px)')
+
   const [currentTab, setCurrentTab] = useState<DiscoverTokenTab>(DiscoverTokenTab.OnChainAnalysis)
   const { data, isLoading } = useTokenDetailsData('$TOKEN_ADDRESS')
 
-  return (
-    <Wrapper>
+  const RenderHeader = () => {
+    const TokenNameGroup = () => (
+      <>
+        <ButtonIcon onClick={() => navigate('/discover')}>
+          <ChevronLeft size={24} />
+        </ButtonIcon>
+        <Star size={20} />
+        {isLoading ? (
+          <DotsLoader />
+        ) : (
+          <>
+            <Text fontSize={24} color={theme.text} fontWeight={500}>
+              {data?.name}
+            </Text>
+            <Ethereum size={20} />
+          </>
+        )}
+      </>
+    )
+
+    const SettingButtons = () => (
+      <>
+        <DisplaySettings currentTab={currentTab} />
+        <ButtonGray
+          color={theme.subText}
+          gap="4px"
+          width="36px"
+          height="36px"
+          padding="6px"
+          style={{ boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.16))' }}
+        >
+          <Share2 size={16} fill="currentcolor" />
+        </ButtonGray>
+      </>
+    )
+
+    return above768 ? (
       <RowBetween marginBottom="24px">
         <RowFit gap="8px">
-          <ButtonIcon onClick={() => navigate('/discover')}>
-            <ChevronLeft size={24} />
-          </ButtonIcon>
-          <Star size={20} />
-          {isLoading ? (
-            <DotsLoader />
-          ) : (
-            <>
-              <Text fontSize={24} color={theme.text} fontWeight={500}>
-                {data?.name}
-              </Text>
-              <Ethereum size={20} />
-            </>
-          )}
+          <TokenNameGroup />
         </RowFit>
         <RowFit gap="8px">
-          <DisplaySettings currentTab={currentTab} />
-          <ButtonGray
-            color={theme.subText}
-            gap="4px"
-            width="36px"
-            height="36px"
-            padding="6px"
-            style={{ boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.16))' }}
-          >
-            <Share2 size={16} fill="currentcolor" />
-          </ButtonGray>
+          <SettingButtons />
           <ButtonLight height="36px" width="120px" gap="4px">
             <Icon id="swap" size={16} />
             Swap BTC
           </ButtonLight>
         </RowFit>
       </RowBetween>
+    ) : (
+      <Column gap="24px">
+        <Row gap="8px">
+          <TokenNameGroup />
+        </Row>
+        <RowBetween>
+          <RowFit gap="8px">
+            <SettingButtons />
+          </RowFit>
+          <ButtonLight height="36px" width="120px" gap="4px">
+            <Icon id="swap" size={16} />
+            Swap BTC
+          </ButtonLight>
+        </RowBetween>
+      </Column>
+    )
+  }
+  return (
+    <Wrapper>
+      <RenderHeader />
       <Text fontSize={12} color={theme.subText} marginBottom="12px">
         {isLoading ? <DotsLoader /> : data?.desc}
       </Text>
@@ -166,7 +203,7 @@ export default function SingleToken() {
         })}
         <Tag active>View All</Tag>
       </Row>
-      <Row align="stretch" gap="24px" marginBottom="38px">
+      <Row align="stretch" gap="24px" marginBottom="38px" flexDirection={above768 ? 'row' : 'column'}>
         <CardWrapper style={{ justifyContent: 'space-between' }}>
           <Text color={theme.text} fontSize="14px" lineHeight="20px" marginBottom="24px">
             <Trans>Price</Trans>

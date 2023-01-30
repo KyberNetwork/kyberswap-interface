@@ -35,7 +35,6 @@ import { RedirectPathToMyPoolsNetwork } from './Pool/redirect'
 import { RedirectPathToPoolsNetwork } from './Pools/redirect'
 import { RedirectPathToSwapNetwork } from './SwapV2/redirects'
 import TrueSightV2 from './TrueSightV2'
-import SingleToken from './TrueSightV2/pages/SingleToken'
 import Verify from './Verify'
 
 // Route-based code splitting
@@ -292,7 +291,7 @@ export default function App() {
                     <Route path={`${APP_PATHS.ABOUT}/knc`} element={<AboutKNC />} />
                     <Route path={`${APP_PATHS.REFERRAL}`} element={<CreateReferral />} />
                     <Route path={`${APP_PATHS.DISCOVER}`} element={<TrueSightV2 />} />
-                    <Route path={`${APP_PATHS.DISCOVER}/single-token`} element={<SingleToken />} />
+                    <Route path={`${APP_PATHS.DISCOVER}/single-token`} element={<TrueSightV2 />} />
                     <Route path={`${APP_PATHS.BUY_CRYPTO}`} element={<BuyCrypto />} />
                     <Route path={`${APP_PATHS.CAMPAIGN}`} element={<Campaign />} />
                     <Route path={`${APP_PATHS.CAMPAIGN}/:slug`} element={<Campaign />} />

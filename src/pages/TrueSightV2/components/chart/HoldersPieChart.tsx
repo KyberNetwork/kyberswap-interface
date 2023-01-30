@@ -1,4 +1,8 @@
+import { useMemo } from 'react'
+import { useMedia } from 'react-use'
 import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts'
+
+import { shortenAddress } from 'utils'
 
 const data01 = [
   { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 400 },
@@ -43,11 +47,30 @@ const CustomLabel = ({ x, y, cx, cy, name }: any) => {
 }
 
 export default function HoldersPieChart() {
+  const above1000 = useMedia('(min-width:1000px)')
+
+  const formattedData = useMemo(
+    () =>
+      above1000
+        ? data01
+        : data01.map(item => {
+            return { ...item, name: shortenAddress(1, item.name) }
+          }),
+    [above1000],
+  )
+
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <PieChart width={400} height={400}>
-        <Pie dataKey="value" label={CustomLabel} nameKey="name" data={data01} innerRadius={60} outerRadius={120}>
-          {data01.map((entry, index) => (
+      <PieChart width={100} height={100} margin={{ top: 20, right: 90, bottom: 20, left: 90 }}>
+        <Pie
+          dataKey="value"
+          label={CustomLabel}
+          nameKey="name"
+          data={formattedData}
+          innerRadius="40%"
+          outerRadius="80%"
+        >
+          {formattedData.map((entry, index) => (
             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length] + 'e0'} />
           ))}
         </Pie>

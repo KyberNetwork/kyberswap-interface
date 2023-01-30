@@ -1,5 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled from 'styled-components'
@@ -32,15 +33,16 @@ const Wrapper = styled.div`
   }
 `
 
-export default function TrueSightV2(props: any) {
+export default function TrueSightV2() {
   const theme = useTheme()
   const [subscribed, setSubscribed] = useState(false)
-  const isSingleToken = props.match?.path?.includes('single-token')
+  const location = useLocation()
+  const isSingleToken = location?.pathname.includes('single-token')
   const above768 = useMedia('(min-width:768px)')
   const above600 = useMedia('(min-width:600px)')
 
   const RenderSearch = () => (
-    <Search onSearch={(search: string) => console.log(search)} searchValue="" placeholder="Search" minWidth="240px" />
+    <Search onSearch={(search: string) => console.log(search)} searchValue="" placeholder="Search" minWidth="340px" />
   )
   return (
     <Wrapper>

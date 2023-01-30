@@ -17,7 +17,6 @@ import {
 } from 'recharts'
 import styled, { css } from 'styled-components'
 
-import Icon from 'components/Icons/Icon'
 import { RowFit } from 'components/Row'
 import useTheme from 'hooks/useTheme'
 import {
@@ -34,10 +33,8 @@ import LineChart from './LineChart'
 import SignedBarChart from './SignedBarChart'
 
 const ChartWrapper = styled(ContentWrapper)`
-  padding: 10px 0;
-  border-radius: 20px;
-  height: 400px;
-  border: 1px solid ${({ theme }) => theme.border};
+  min-height: 400px;
+  flex: 1;
 `
 
 const LegendWrapper = styled.div`
@@ -209,15 +206,6 @@ const TimeFrameLegend = ({
   )
 }
 
-const FullscreenButton = () => {
-  const theme = useTheme()
-  return (
-    <div style={{ color: theme.subText }}>
-      <Icon id="fullscreen" />
-    </div>
-  )
-}
-
 const TooltipWrapper = styled.div`
   background-color: ${({ theme }) => theme.tableHeader};
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.32);
@@ -296,7 +284,6 @@ export const NumberofTradesChart = () => {
           onClick={() => setShowSell(prev => !prev)}
         />
         <TimeFrameLegend selected={timeframe} onSelect={setTimeframe} timeframes={['1D', '7D', '1M', '3M']} />
-        <FullscreenButton />
       </LegendWrapper>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart width={500} height={300} data={formattedData} margin={{ top: 40, right: 30 }}>
@@ -342,7 +329,6 @@ export const TradingVolumeChart = () => {
     <ChartWrapper>
       <LegendWrapper>
         <TimeFrameLegend selected={timeframe} onSelect={setTimeframe} timeframes={['1D', '7D', '1M', '3M']} />
-        <FullscreenButton />
       </LegendWrapper>
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart
@@ -419,7 +405,6 @@ export const NetflowToWhaleWallets = () => {
           onClick={() => setShowNetflow(prev => !prev)}
         />
         <TimeFrameLegend selected={timeframe} onSelect={setTimeframe} timeframes={['1D', '7D', '1M', '3M']} />
-        <FullscreenButton />
       </LegendWrapper>
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart width={500} height={300} data={formattedData} stackOffset="sign" margin={{ top: 40, right: 30 }}>
@@ -489,7 +474,6 @@ export const NetflowToCentralizedExchanges = () => {
           onClick={() => setShowNetflow(prev => !prev)}
         />
         <TimeFrameLegend selected={timeframe} onSelect={setTimeframe} timeframes={['1D', '3D', '7D', '1M', '3M']} />
-        <FullscreenButton />
       </LegendWrapper>
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart width={500} height={300} data={formattedData} stackOffset="sign" margin={{ top: 40, right: 30 }}>
@@ -524,7 +508,6 @@ export const NumberofTransfers = () => {
     <ChartWrapper>
       <LegendWrapper>
         <TimeFrameLegend selected={timeframe} onSelect={setTimeframe} timeframes={['1D', '7D', '1M', '3M']} />
-        <FullscreenButton />
       </LegendWrapper>
       <LineChart />
     </ChartWrapper>
@@ -549,7 +532,6 @@ export const NumberofHolders = () => {
     <ChartWrapper>
       <LegendWrapper>
         <TimeFrameLegend selected={timeframe} onSelect={setTimeframe} timeframes={['1D', '7D', '1M', '3M']} />
-        <FullscreenButton />
       </LegendWrapper>
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart
@@ -602,7 +584,6 @@ export const LiquidOnCentralizedExchanges = ({ style }: { style?: React.CSSPrope
         <LongLegend />
         <PriceLegend />
         <TimeFrameLegend selected={timeframe} onSelect={setTimeframe} timeframes={['1D', '7D', '1M']} />
-        <FullscreenButton />
       </LegendWrapper>
       <SignedBarChart />
     </ChartWrapper>

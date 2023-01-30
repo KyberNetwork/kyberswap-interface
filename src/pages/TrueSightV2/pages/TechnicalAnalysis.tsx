@@ -1,4 +1,5 @@
 import { Trans } from '@lingui/macro'
+import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { useTheme } from 'styled-components'
 
@@ -15,7 +16,9 @@ const Wrapper = styled.div`
 `
 
 const Card = styled.div`
+  padding: 20px;
   border-radius: 16px;
+  border: 1px solid ${({ theme }) => theme.border};
   height: 104px;
   flex: 1;
   display: flex;
@@ -30,6 +33,7 @@ const Card = styled.div`
 
 export default function TechnicalAnalysis() {
   const theme = useTheme()
+  const above768 = useMedia('(min-width:768px)')
   return (
     <Wrapper>
       <RowFit gap="8px">
@@ -70,7 +74,7 @@ export default function TechnicalAnalysis() {
         </Trans>
       </SectionDescription>
       <LiquidOnCentralizedExchanges style={{ marginBottom: '24px' }} />
-      <Row gap="24px">
+      <Row gap="24px" flexDirection={above768 ? 'row' : 'column'} align="stretch">
         <Card>
           <Text fontSize={14}>4H Rekt</Text>
           <Text fontSize={28}>$352.03K</Text>
