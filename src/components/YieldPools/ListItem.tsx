@@ -99,7 +99,6 @@ interface ListItemProps {
 }
 
 const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
-  console.log('🚀 ~ file: ListItem.tsx:103 ~ ListItem ~ farm', farm)
   const { account, chainId, isEVM } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const currentTimestamp = Math.floor(Date.now() / 1000)
@@ -188,6 +187,9 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
   const staked = useStakedBalance(farm.fairLaunchAddress, farm.pid)
   const rewardUSD = useFarmRewardsUSD(farmRewards)
 
+  const isNotDeposited = !balance.value.gt(0)
+  const isNotStaked = !staked.value.gt(0)
+
   const amountToApprove = useMemo(
     () =>
       TokenAmount.fromRawAmount(
@@ -209,6 +211,7 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
     isStakeInvalidAmount = true
   }
 
+  // This only use to validate in Stake modal
   const isStakeDisabled = isStakeInvalidAmount
 
   let isUnstakeInvalidAmount
@@ -222,6 +225,7 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
     isUnstakeInvalidAmount = true
   }
 
+  // This only use to validate in Unstake modal
   const isUnstakeDisabled = isUnstakeInvalidAmount
 
   const canHarvest = (rewards: Reward[]): boolean => {
@@ -472,6 +476,7 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
                 </MouseoverTooltip>
               </ActionButton>
               <ActionButton
+                disabled={isNotStaked}
                 color={theme.red}
                 onClick={() => {
                   setModalType('unstake')
@@ -483,7 +488,7 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
               </ActionButton>
               <ActionButton
                 color={theme.primary}
-                disabled={type === 'ended'}
+                disabled={type === 'ended' || isNotDeposited}
                 onClick={() => {
                   setModalType('stake')
                 }}
@@ -709,11 +714,16 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
             </CardButton>
           </RowBetween>
           <Row gap="16px">
-            <CardButton flex={1} onClick={() => setModalType('unstake')} color={theme.red}>
+            <CardButton flex={1} disabled={isNotStaked} onClick={() => setModalType('unstake')} color={theme.red}>
               <Minus size={16} />
               <Trans>Unstake</Trans>
             </CardButton>
-            <CardButton flex={1} onClick={() => setModalType('stake')} color={theme.primary}>
+            <CardButton
+              disabled={type === 'ended' || isNotDeposited}
+              flex={1}
+              onClick={() => setModalType('stake')}
+              color={theme.primary}
+            >
               <Plus size={16} />
               <Trans>Stake</Trans>
             </CardButton>
