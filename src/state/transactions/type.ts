@@ -134,9 +134,9 @@ export enum TRANSACTION_TYPE {
 
   HARVEST = 'Harvest',
   CLAIM_REWARD = 'Claim Reward',
-  ELASTIC_DEPOSIT_LIQUIDITY = 'Deposit Liquidity',
-  ELASTIC_WITHDRAW_LIQUIDITY = 'Withdraw Liquidity',
-  ELASTIC_FORCE_WITHDRAW_LIQUIDITY = 'Force Withdraw Liquidity',
+  ELASTIC_DEPOSIT_LIQUIDITY = 'Elastic Deposit Liquidity',
+  ELASTIC_WITHDRAW_LIQUIDITY = 'Elastic Withdraw Liquidity',
+  ELASTIC_FORCE_WITHDRAW_LIQUIDITY = 'Elastic Force Withdraw Liquidity',
   SETUP_SOLANA_SWAP = 'Set Up Swap Solana',
 
   KYBERDAO_STAKE = 'KyberDAO Stake',
