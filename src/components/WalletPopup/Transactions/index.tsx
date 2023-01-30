@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Info } from 'react-feather'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { VariableSizeList } from 'react-window'
@@ -7,7 +7,7 @@ import { Flex, Text } from 'rebass'
 import styled, { CSSProperties } from 'styled-components'
 
 import Tab from 'components/WalletPopup/Transactions/Tab'
-import useCancellingOrders from 'components/swapv2/LimitOrder/useCancellingOrders'
+import useCancellingOrders, { CancellingOrderInfo } from 'components/swapv2/LimitOrder/useCancellingOrders'
 import { useActiveWeb3React } from 'hooks'
 import { fetchListTokenByAddresses, findCacheToken, useIsLoadedTokenDefault } from 'hooks/Tokens'
 import useTheme from 'hooks/useTheme'
@@ -34,6 +34,7 @@ const ContentWrapper = styled.div`
     &::-webkit-scrollbar-thumb {
       background: ${({ theme }) => theme.border};
     }
+    overflow-x: hidden !important;
   }
 `
 
@@ -53,16 +54,14 @@ function Row({
   transaction,
   setRowHeight,
   isMinimal,
-  cancellingOrdersNonces,
-  cancellingOrdersIds,
+  cancellingOrderInfo,
 }: {
   transaction: TransactionDetails
   style: CSSProperties
   index: number
   setRowHeight: (v: number, height: number) => void
   isMinimal: boolean
-  cancellingOrdersNonces: number[]
-  cancellingOrdersIds: number[]
+  cancellingOrderInfo: CancellingOrderInfo
 }) {
   const rowRef = useRef<HTMLDivElement>(null)
 
@@ -84,18 +83,17 @@ function Row({
       ref={rowRef}
       style={style}
       transaction={transaction}
-      cancellingOrdersNonces={cancellingOrdersNonces}
-      cancellingOrdersIds={cancellingOrdersIds}
+      cancellingOrderInfo={cancellingOrderInfo}
     />
   )
 }
 
-export default function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
+function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
   const transactions = useSortRecentTransactions(false)
   const { chainId } = useActiveWeb3React()
   const [activeTab, setActiveTab] = useState<TRANSACTION_GROUP | string>('')
   const theme = useTheme()
-  const { cancellingOrdersNonces, cancellingOrdersIds } = useCancellingOrders()
+  const cancellingOrderInfo = useCancellingOrders()
 
   const listTokenAddress = useRef<string[]>([])
   const pushAddress = (address: string) => {
@@ -176,8 +174,8 @@ export default function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
                     index={index}
                     key={data[index].hash}
                     setRowHeight={setRowHeight}
-                    cancellingOrdersNonces={cancellingOrdersNonces} // todo refacotr
-                    cancellingOrdersIds={cancellingOrdersIds}
+                    cancellingOrderInfo={cancellingOrderInfo}
+                    // todo refacotr
                   />
                 )}
               </VariableSizeList>
@@ -188,3 +186,5 @@ export default function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
     </Wrapper>
   )
 }
+
+export default memo(ListTransaction)

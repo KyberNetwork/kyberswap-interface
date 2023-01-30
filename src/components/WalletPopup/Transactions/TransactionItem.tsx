@@ -21,6 +21,7 @@ import Logo, { NetworkLogo } from 'components/Logo'
 import { getTransactionStatus } from 'components/Popups/TransactionPopup'
 import Row from 'components/Row'
 import Icon from 'components/WalletPopup/Transactions/Icon'
+import { CancellingOrderInfo } from 'components/swapv2/LimitOrder/useCancellingOrders'
 import { KS_SETTING_API } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
@@ -288,21 +289,27 @@ const renderDescriptionLimitOrder = (transaction: TransactionDetails) => {
   )
 }
 
+function useCheckPendingTransaction(transactions: TransactionDetails[]) {
+  //
+}
+
 const StatusIcon = ({
   transaction,
-  cancellingOrdersNonces,
-  cancellingOrdersIds,
+  cancellingOrderInfo,
 }: {
   transaction: TransactionDetails
-  cancellingOrdersNonces: number[]
-  cancellingOrdersIds: number[]
+  cancellingOrderInfo: CancellingOrderInfo
 }) => {
   const { type, addedTime, hash, extraInfo, chainId } = transaction
   const { pending: pendingTxsStatus, success } = getTransactionStatus(transaction)
-  const needCheckPending = [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER, TRANSACTION_TYPE.BRIDGE].includes(type) && success
+  const needCheckPending =
+    [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER, TRANSACTION_TYPE.BRIDGE].includes(type) &&
+    success &&
+    !extraInfo?.tracking?.actuallySuccess
   const isPendingTooLong = pendingTxsStatus && Date.now() - addedTime > 5 * 3_600_1000 // 5 hour
   const [isPendingState, setIsPendingState] = useState<boolean | null>(null)
   const dispatch = useDispatch<AppDispatch>()
+  const { cancellingOrdersIds, cancellingOrdersNonces, loading } = cancellingOrderInfo
 
   const pending = isPendingState
 
@@ -318,6 +325,7 @@ const StatusIcon = ({
       const orderId = extraInfo?.tracking?.order_id
 
       let isPending = false
+      const hasLoading = type === TRANSACTION_TYPE.CANCEL_LIMIT_ORDER && loading
       switch (type) {
         case TRANSACTION_TYPE.CANCEL_LIMIT_ORDER:
           isPending = cancellingOrdersIds.includes(orderId) || cancellingOrdersNonces.length > 0
@@ -328,8 +336,7 @@ const StatusIcon = ({
           break
         }
       }
-      if (!isPending) {
-        console.log('modifilend')
+      if (!isPending && !hasLoading) {
         dispatch(
           modifyTransaction({
             chainId,
@@ -341,27 +348,37 @@ const StatusIcon = ({
       setIsPendingState(isPending)
     } catch (error) {
       console.log(error)
+      interval.current && clearInterval(interval.current)
     }
-  }, [cancellingOrdersIds, cancellingOrdersNonces, chainId, dispatch, extraInfo, hash, type])
+  }, [cancellingOrdersIds, cancellingOrdersNonces, chainId, dispatch, extraInfo, hash, type, loading])
 
   const checkStatusDebound = useMemo(() => debounce(checkStatus, 1000), [checkStatus])
 
   useEffect(() => {
+    const invertalTypes = [TRANSACTION_TYPE.BRIDGE]
     if (!needCheckPending) {
       setIsPendingState(pendingTxsStatus)
       return
     }
     checkStatusDebound()
-    interval.current = setInterval(checkStatusDebound, 5000)
+    if (invertalTypes.includes(type)) interval.current = setInterval(checkStatusDebound, 5000)
     return () => interval.current && clearInterval(interval.current)
-  }, [needCheckPending, pendingTxsStatus, checkStatusDebound])
+  }, [needCheckPending, pendingTxsStatus, checkStatusDebound, type])
 
   const theme = useTheme()
   const checkingStatus = pending === null
   return (
     <Flex style={{ gap: '4px', minWidth: 'unset' }} alignItems={'center'}>
       <PrimaryText color={theme.text}>
-        {checkingStatus ? t`Checking` : pending ? t`Processing` : success ? t`Completed` : t`Failed`}
+        {checkingStatus
+          ? t`Checking`
+          : pending
+          ? isPendingTooLong
+            ? t`Pending`
+            : t`Processing`
+          : success
+          ? t`Completed`
+          : t`Failed`}
       </PrimaryText>
       {checkingStatus ? (
         <Loader size={'12px'} />
@@ -430,11 +447,10 @@ type Prop = {
   transaction: TransactionDetails
   style: CSSProperties
   isMinimal: boolean
-  cancellingOrdersNonces: number[]
-  cancellingOrdersIds: number[]
+  cancellingOrderInfo: CancellingOrderInfo
 }
 export default forwardRef<HTMLDivElement, Prop>(function TransactionItem(
-  { transaction, style, isMinimal, cancellingOrdersNonces, cancellingOrdersIds }: Prop,
+  { transaction, style, isMinimal, cancellingOrderInfo }: Prop,
   ref,
 ) {
   const { type, addedTime, hash, chainId } = transaction
@@ -458,11 +474,7 @@ export default forwardRef<HTMLDivElement, Prop>(function TransactionItem(
           </Text>
           <ExternalLinkIcon color={theme.subText} href={getEtherscanLink(chainId, hash, 'transaction')} />
         </Row>
-        <StatusIcon
-          transaction={transaction}
-          cancellingOrdersNonces={cancellingOrdersNonces}
-          cancellingOrdersIds={cancellingOrdersIds}
-        />
+        <StatusIcon transaction={transaction} cancellingOrderInfo={cancellingOrderInfo} />
       </Flex>
 
       <Flex justifyContent="space-between">
