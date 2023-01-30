@@ -20,6 +20,7 @@ import Loader from 'components/Loader'
 import Logo, { NetworkLogo } from 'components/Logo'
 import { getTransactionStatus } from 'components/Popups/TransactionPopup'
 import Row from 'components/Row'
+import { MouseoverTooltip } from 'components/Tooltip'
 import Icon from 'components/WalletPopup/Transactions/Icon'
 import { CancellingOrderInfo } from 'components/swapv2/LimitOrder/useCancellingOrders'
 import { KS_SETTING_API } from 'constants/env'
@@ -33,12 +34,13 @@ import ErrorWarningPanel from 'pages/Bridge/ErrorWarning'
 import { AppDispatch } from 'state'
 import { modifyTransaction } from 'state/transactions/actions'
 import {
+  TRANSACTION_GROUP, // TransactionExtraInfoHarvestFarm,
+  // TransactionExtraInfoStakeFarm,
   TRANSACTION_TYPE,
   TransactionDetails,
   TransactionExtraBaseInfo,
   TransactionExtraInfo1Token,
-  TransactionExtraInfo2Token, // TransactionExtraInfoHarvestFarm,
-  // TransactionExtraInfoStakeFarm,
+  TransactionExtraInfo2Token,
 } from 'state/transactions/type'
 import { ExternalLink, ExternalLinkIcon } from 'theme'
 import { getEtherscanLink } from 'utils'
@@ -459,9 +461,11 @@ function PendingWarning() {
         <Text color={theme.red}>
           <Trans>
             Transaction stuck?{' '}
-            <ExternalLink href="https://support.kyberswap.com/hc/en-us/articles/13785666409881-Why-is-my-transaction-stuck-in-Pending-state-">
-              See here
-            </ExternalLink>
+            <MouseoverTooltip text={t`Stuck transaction. Your transaction has been processing for more than 5 mins.`}>
+              <ExternalLink href="https://support.kyberswap.com/hc/en-us/articles/13785666409881-Why-is-my-transaction-stuck-in-Pending-state-">
+                See here
+              </ExternalLink>
+            </MouseoverTooltip>
           </Trans>
         </Text>
       }
@@ -479,17 +483,17 @@ export default forwardRef<HTMLDivElement, Prop>(function TransactionItem(
   { transaction, style, isMinimal, cancellingOrderInfo }: Prop,
   ref,
 ) {
-  const { type, addedTime, hash, chainId } = transaction
+  const { type, addedTime, hash, chainId, group } = transaction
   const theme = useTheme()
 
   const info: any = RENDER_DESCRIPTION_MAP?.[type]?.(transaction) ?? { leftComponent: null, rightComponent: null }
   const leftComponent: ReactNode = info.leftComponent !== undefined ? info.leftComponent : info
   const rightComponent: ReactNode = info.rightComponent
-  const isPendingTooLong = isTxsPendingTooLong(transaction)
+  const isStalled = group === TRANSACTION_GROUP.SWAP && isTxsPendingTooLong(transaction)
 
   return (
-    <ItemWrapper style={style} ref={ref} data-stalled={isPendingTooLong}>
-      {isPendingTooLong && <PendingWarning />}
+    <ItemWrapper style={style} ref={ref} data-stalled={isStalled}>
+      {isStalled && <PendingWarning />}
       <Flex justifyContent="space-between" alignItems="flex-end">
         <Row gap="6px">
           {!isMinimal && (
