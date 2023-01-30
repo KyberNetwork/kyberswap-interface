@@ -3,7 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import axios from 'axios'
 import dayjs from 'dayjs'
 import { debounce } from 'lodash'
-import { ReactNode, forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { ReactNode, forwardRef, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Repeat } from 'react-feather'
 import { useDispatch } from 'react-redux'
 import { Flex, Text } from 'rebass'
@@ -295,26 +295,29 @@ const renderDescriptionLimitOrder = (transaction: TransactionDetails) => {
 function useCheckPendingTransaction(transactions: TransactionDetails[]) {
   //
 }
+// todo refactor needcheck grath
 
 const STALLED_MINS = 1
+const MAX_TIME_CHECK_STATUS = 7 * 86_400_000
 const isTxsPendingTooLong = (txs: TransactionDetails) => {
   const { pending: pendingTxsStatus } = getTransactionStatus(txs)
   return pendingTxsStatus && Date.now() - txs.addedTime > STALLED_MINS * 60_000 && txs.group === TRANSACTION_GROUP.SWAP
 }
 
-const StatusIcon = ({
+const StatusIcon = memo(function StatusIcon({
   transaction,
   cancellingOrderInfo,
 }: {
   transaction: TransactionDetails
   cancellingOrderInfo: CancellingOrderInfo
-}) => {
-  const { type, hash, extraInfo, chainId } = transaction
+}) {
+  const { type, hash, extraInfo, chainId, addedTime } = transaction
   const { pending: pendingTxsStatus, success } = getTransactionStatus(transaction)
   const needCheckPending =
     [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER, TRANSACTION_TYPE.BRIDGE].includes(type) &&
     success &&
-    !extraInfo?.tracking?.actuallySuccess
+    !extraInfo?.tracking?.actuallySuccess &&
+    Date.now() - addedTime < MAX_TIME_CHECK_STATUS
   const isPendingTooLong = isTxsPendingTooLong(transaction)
   const [isPendingState, setIsPendingState] = useState<boolean | null>(null)
   const dispatch = useDispatch<AppDispatch>()
@@ -404,7 +407,7 @@ const StatusIcon = ({
       )}
     </Flex>
   )
-}
+})
 
 const RENDER_DESCRIPTION_MAP: {
   [type in TRANSACTION_TYPE]: (
