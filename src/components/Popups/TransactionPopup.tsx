@@ -21,17 +21,13 @@ import {
 } from 'state/transactions/type'
 import { ExternalLink, HideSmall } from 'theme'
 import { findTx, getEtherscanLink } from 'utils'
+import { getTransactionStatus } from 'utils/transaction'
 
 const RowNoFlex = styled(AutoRow)`
   flex-wrap: nowrap;
 `
 
 type SummaryFunction = (summary: TransactionDetails) => { success: string; error: string } | string
-
-// const summaryBasic = (txs: TransactionDetails) => {
-//   const { summary = '' } = (txs.extraInfo || {}) as TransactionExtraBaseInfo
-//   return `${txs.type} ${summary}`
-// }
 
 // ex: approve 3 knc
 const summary1Token = (txs: TransactionDetails) => {
@@ -60,7 +56,7 @@ const summaryClaim = (txs: TransactionDetails) => {
   return `Claim ${summary ?? tokenSymbol}`
 }
 
-const summaryStakeUnstake = (txs: TransactionDetails) => {
+const summaryStakeUnstakeFarm = (txs: TransactionDetails) => {
   const { summary } = (txs.extraInfo || {}) as TransactionExtraBaseInfo
   return txs.type === TRANSACTION_TYPE.STAKE ? `Stake ${summary} into farm` : `Unstake ${summary} from farm`
 }
@@ -121,15 +117,15 @@ const SUMMARY: { [type in TRANSACTION_TYPE]: SummaryFunction } = {
 
   [TRANSACTION_TYPE.CLASSIC_CREATE_POOL]: summaryLiquidity,
   [TRANSACTION_TYPE.ELASTIC_CREATE_POOL]: summaryLiquidity,
-  [TRANSACTION_TYPE.CLASSIC_ADD_LIQUIDITY]: summaryLiquidity, // needcheck
+  [TRANSACTION_TYPE.CLASSIC_ADD_LIQUIDITY]: summaryLiquidity, // todo danh needcheck
   [TRANSACTION_TYPE.ELASTIC_ADD_LIQUIDITY]: summaryLiquidity,
-  [TRANSACTION_TYPE.CLASSIC_REMOVE_LIQUIDITY]: summaryLiquidity, // needcheck
+  [TRANSACTION_TYPE.CLASSIC_REMOVE_LIQUIDITY]: summaryLiquidity, // todo danh needcheck
   [TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY]: summaryLiquidity,
   [TRANSACTION_TYPE.ELASTIC_INCREASE_LIQUIDITY]: summaryLiquidity,
   [TRANSACTION_TYPE.ELASTIC_COLLECT_FEE]: summaryLiquidity,
 
-  [TRANSACTION_TYPE.STAKE]: summaryStakeUnstake,
-  [TRANSACTION_TYPE.UNSTAKE]: summaryStakeUnstake,
+  [TRANSACTION_TYPE.STAKE]: summaryStakeUnstakeFarm,
+  [TRANSACTION_TYPE.UNSTAKE]: summaryStakeUnstakeFarm,
   [TRANSACTION_TYPE.HARVEST]: () => 'Harvested rewards',
   [TRANSACTION_TYPE.CLAIM_REWARD]: summaryClaim,
   [TRANSACTION_TYPE.ELASTIC_DEPOSIT_LIQUIDITY]: summaryTypeOnly,
@@ -149,33 +145,27 @@ const SUMMARY: { [type in TRANSACTION_TYPE]: SummaryFunction } = {
   [TRANSACTION_TYPE.KYBERDAO_DELEGATE]: summaryDelegateDao,
 }
 
-const CUSTOM_STATUS: { [key in string]: string } = {
+const CUSTOM_SUCCESS_STATUS: { [key in string]: string } = {
   [TRANSACTION_TYPE.BRIDGE]: '- Processing',
   [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER]: 'Submitted',
 }
 
 const getTitle = (type: string, success: boolean) => {
-  const statusText = success ? 'Success' : 'Error'
-  if (success && CUSTOM_STATUS[type]) {
-    return `${type} ${CUSTOM_STATUS[type]}!`
+  const statusText = success ? 'Success' : 'Failed'
+  if (success && CUSTOM_SUCCESS_STATUS[type]) {
+    return `${type} ${CUSTOM_SUCCESS_STATUS[type]}!`
   }
   return `${type} - ${statusText}!`
 }
 
-export const getTransactionStatus = (transaction: TransactionDetails) => {
-  const pending = !transaction?.receipt
-  const success =
-    !pending && transaction && (transaction.receipt?.status === 1 || typeof transaction.receipt?.status === 'undefined')
-  return { pending, success }
-}
-
 const getSummary = (transaction: TransactionDetails) => {
-  const type = transaction?.type
+  const { type, hash, group } = transaction
+
   const { success } = getTransactionStatus(transaction)
 
-  const shortHash = 'Hash: ' + transaction.hash.slice(0, 8) + '...' + transaction.hash.slice(58, 65)
+  const shortHash = 'Hash: ' + hash.slice(0, 8) + '...' + hash.slice(58, 65)
 
-  const summary = transaction.group ? SUMMARY[type]?.(transaction) ?? shortHash : shortHash
+  const summary = group ? SUMMARY[type]?.(transaction) ?? shortHash : shortHash
 
   let formatSummary
   if (summary === shortHash) {

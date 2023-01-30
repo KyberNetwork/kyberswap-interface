@@ -30,7 +30,14 @@ const Wrapper = styled.div`
   flex: 1 1 100%;
   gap: 14px;
   justify-content: space-between;
-
+  overflow-y: scroll;
+  &::-webkit-scrollbar {
+    display: block;
+    width: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: ${({ theme }) => theme.disableText};
+  }
   #${QR_ID} {
     border-radius: 16px;
   }

@@ -151,7 +151,7 @@ export enum TRANSACTION_TYPE {
   TRANSFER_TOKEN = 'Send',
 }
 
-const GROUP_TRANSACTION_BY_TYPE = {
+export const GROUP_TRANSACTION_BY_TYPE = {
   SWAP: [
     TRANSACTION_TYPE.SWAP,
     TRANSACTION_TYPE.WRAP_TOKEN,
@@ -198,13 +198,6 @@ export enum TRANSACTION_GROUP {
   LIQUIDITY = 'liquidity',
   KYBERDAO = 'kyber_dao',
   OTHER = 'other',
-}
-
-export const getTransactionGroupByType = (type: TRANSACTION_TYPE) => {
-  if (GROUP_TRANSACTION_BY_TYPE.SWAP.includes(type)) return TRANSACTION_GROUP.SWAP
-  if (GROUP_TRANSACTION_BY_TYPE.LIQUIDITY.includes(type)) return TRANSACTION_GROUP.LIQUIDITY
-  if (GROUP_TRANSACTION_BY_TYPE.KYBERDAO.includes(type)) return TRANSACTION_GROUP.KYBERDAO
-  return TRANSACTION_GROUP.OTHER
 }
 
 const totalType = Object.values(TRANSACTION_TYPE).length

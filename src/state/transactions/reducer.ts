@@ -1,6 +1,7 @@
 import { createReducer } from '@reduxjs/toolkit'
 
 import { findTx } from 'utils'
+import { getTransactionGroupByType } from 'utils/transaction'
 
 import {
   addTransaction,
@@ -11,7 +12,7 @@ import {
   removeTx,
   replaceTx,
 } from './actions'
-import { GroupedTxsByHash, getTransactionGroupByType } from './type'
+import { GroupedTxsByHash } from './type'
 
 const now = () => new Date().getTime()
 
@@ -68,12 +69,8 @@ export default createReducer(initialState, builder =>
     .addCase(modifyTransaction, (transactions, { payload: { chainId, hash, extraInfo, needCheckSubgraph } }) => {
       const tx = findTx(transactions[chainId], hash)
       if (!tx) return
-      if (needCheckSubgraph !== undefined) {
-        tx.needCheckSubgraph = needCheckSubgraph
-      }
-      if (extraInfo !== undefined) {
-        tx.extraInfo = extraInfo
-      }
+      if (needCheckSubgraph !== undefined) tx.needCheckSubgraph = needCheckSubgraph
+      if (extraInfo !== undefined) tx.extraInfo = extraInfo
     })
     .addCase(replaceTx, (transactions, { payload: { chainId, oldHash, newHash } }) => {
       const chainTxs = transactions[chainId] ?? {}

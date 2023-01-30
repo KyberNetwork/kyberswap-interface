@@ -105,7 +105,7 @@ const WalletPopup: React.FC<Props> = ({ isModalOpen, onDismissModal, isPinned, s
               width: defaultWidth,
               height: defaultHeight,
             }}
-            minWidth="320px"
+            minWidth="350px"
             minHeight="420px"
             maxWidth="480px"
             maxHeight="960px"
