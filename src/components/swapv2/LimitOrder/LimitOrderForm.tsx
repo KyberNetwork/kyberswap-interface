@@ -157,7 +157,7 @@ const LimitOrderForm = function LimitOrderForm({
 
     if (rate) {
       if (inputAmount) {
-        const output = calcOutput(inputAmount, rate, currencyIn.decimals, currencyOut.decimals)
+        const output = calcOutput(inputAmount, rate, currencyOut.decimals)
         setOuputAmount(output)
       }
       if (!invertRate) {
@@ -169,7 +169,7 @@ const LimitOrderForm = function LimitOrderForm({
     if (invertRate) {
       newRate.rate = calcInvert(invertRate)
       if (inputAmount) {
-        const output = calcOutput(inputAmount, newRate.rate, currencyIn.decimals, currencyOut.decimals)
+        const output = calcOutput(inputAmount, newRate.rate, currencyOut.decimals)
         setOuputAmount(output)
       }
       setRateInfo(newRate)
@@ -209,13 +209,8 @@ const LimitOrderForm = function LimitOrderForm({
   const onSetInput = useCallback(
     (input: string) => {
       setInputAmount(input)
-      if (!input) {
-        setOuputAmount('')
-        setRateInfo({ ...rateInfo, rate: '', invertRate: '' })
-        return
-      }
       if (rateInfo.rate && currencyIn && currencyOut && input) {
-        setOuputAmount(calcOutput(input, rateInfo.rate, currencyIn.decimals, currencyOut.decimals))
+        setOuputAmount(calcOutput(input, rateInfo.rate, currencyOut.decimals))
       }
     },
     [rateInfo, currencyIn, currencyOut],
@@ -226,17 +221,17 @@ const LimitOrderForm = function LimitOrderForm({
   }
 
   const handleInputSelect = useCallback(
-    (currency: Currency) => {
+    (currency: Currency, resetRate = true) => {
       if (currencyOut && currency?.equals(currencyOut)) return
       setCurrencyIn(currency)
       setIsSelectCurrencyManual?.(true)
-      setRateInfo({ ...rateInfo, invertRate: '', rate: '' })
+      resetRate && setRateInfo({ ...rateInfo, invertRate: '', rate: '' })
     },
     [currencyOut, setCurrencyIn, setIsSelectCurrencyManual, rateInfo],
   )
 
   const switchToWeth = useCallback(() => {
-    handleInputSelect(currencyIn?.wrapped as Currency)
+    handleInputSelect(currencyIn?.wrapped as Currency, false)
   }, [currencyIn, handleInputSelect])
 
   const { isWrappingEth, setTxHashWrapped } = useWrapEthStatus(switchToWeth)
@@ -379,6 +374,7 @@ const LimitOrderForm = function LimitOrderForm({
     setExpire(DEFAULT_EXPIRED)
     setCustomDateExpire(undefined)
     refreshActiveMakingAmount()
+    resetState()
   }
 
   const handleError = useCallback(
@@ -641,7 +637,7 @@ const LimitOrderForm = function LimitOrderForm({
             <Text as="span" fontWeight={'500'} color={theme.warning}>
               {deltaRate.percent}
             </Text>{' '}
-            lower than the current market price
+            worse than the current market price
           </Trans>
         </Text>,
       )
