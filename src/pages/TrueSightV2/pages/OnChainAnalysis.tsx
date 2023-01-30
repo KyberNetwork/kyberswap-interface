@@ -59,8 +59,8 @@ export default function OnChainAnalysis() {
         show={tokenAnalysisSettings?.netflowToWhaleWallets}
         id={'netflowwhalewallets'}
         title={t`Netflow to Whale Wallets`}
-        description={t`Netflow (Inflow - Outflow) of token to whale wallets. <span color={theme.primary}>Positive</span> netflow
-        generally means that whales are buying. <span color={theme.red}>Negative</span> netflow generally means that
+        description={t`Netflow (Inflow - Outflow) of token to whale wallets.Positive netflow
+        generally means that whales are buying. Negative netflow generally means that
         whales are selling.`}
         shareButton
         fullscreenButton
@@ -71,7 +71,7 @@ export default function OnChainAnalysis() {
         show={tokenAnalysisSettings?.netflowToCEX}
         id={'netflowtocex'}
         title={t`Netflow to Centralized Exchanges`}
-        description={t`Netflow (Inflow - Outflow) of token to centralized exchanges. <span color={theme.primary}>Positive</span> netflow means that more traders are depositing tokens than withdrawing, most likely for selling. <span color={theme.red}>Negative</span> netflow means that more traders are withdrawing tokens than depositing, most likely for holding or staking.`}
+        description={t`Netflow (Inflow - Outflow) of token to centralized exchanges. Positive netflow means that more traders are depositing tokens than withdrawing, most likely for selling. Negative netflow means that more traders are withdrawing tokens than depositing, most likely for holding or staking.`}
         shareButton
         fullscreenButton
       >
