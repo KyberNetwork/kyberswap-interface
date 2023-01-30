@@ -112,7 +112,7 @@ export default function ProAmmFee({
             const tokenSymbolOut = feeValue1.currency.symbol ?? ''
             addTransactionWithType({
               hash: response.hash,
-              type: TRANSACTION_TYPE.COLLECT_FEE,
+              type: TRANSACTION_TYPE.ELASTIC_COLLECT_FEE,
               extraInfo: {
                 tokenAmountIn,
                 tokenAmountOut,

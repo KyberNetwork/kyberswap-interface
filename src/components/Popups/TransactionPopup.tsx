@@ -28,10 +28,10 @@ const RowNoFlex = styled(AutoRow)`
 
 type SummaryFunction = (summary: TransactionDetails) => { success: string; error: string } | string
 
-const summaryBasic = (txs: TransactionDetails) => {
-  const { summary = '' } = (txs.extraInfo || {}) as TransactionExtraBaseInfo
-  return `${txs.type} ${summary}`
-}
+// const summaryBasic = (txs: TransactionDetails) => {
+//   const { summary = '' } = (txs.extraInfo || {}) as TransactionExtraBaseInfo
+//   return `${txs.type} ${summary}`
+// }
 
 // ex: approve 3 knc
 const summary1Token = (txs: TransactionDetails) => {
@@ -46,11 +46,23 @@ const summary2Token = (txs: TransactionDetails, withType = true) => {
   return `${withType ? txs.type : ''} ${tokenAmountIn} ${tokenSymbolIn} to ${tokenAmountOut} ${tokenSymbolOut}`
 }
 
-// ex: approve knc, approve elastic farm, claim rewards
-const summaryApproveOrClaim = (txs: TransactionDetails) => {
+// ex: approve knc, approve elastic farm
+const summaryApprove = (txs: TransactionDetails) => {
   const { tokenSymbol } = (txs.extraInfo || {}) as TransactionExtraInfo1Token
   const { summary } = (txs.extraInfo || {}) as TransactionExtraBaseInfo
   return `${txs.type} ${summary ?? tokenSymbol}`
+}
+
+// ex: claim rewards, claim 3 knc
+const summaryClaim = (txs: TransactionDetails) => {
+  const { tokenSymbol } = (txs.extraInfo || {}) as TransactionExtraInfo1Token
+  const { summary } = (txs.extraInfo || {}) as TransactionExtraBaseInfo
+  return `Claim ${summary ?? tokenSymbol}`
+}
+
+const summaryStakeUnstake = (txs: TransactionDetails) => {
+  const { summary } = (txs.extraInfo || {}) as TransactionExtraBaseInfo
+  return txs.type === TRANSACTION_TYPE.STAKE ? `Stake ${summary} into farm` : `Unstake ${summary} from farm`
 }
 
 // ex: elastic add liquidity 30 knc and 40 usdt
@@ -103,33 +115,32 @@ const summaryTypeOnly = (txs: TransactionDetails) => `${txs.type}`
 const SUMMARY: { [type in TRANSACTION_TYPE]: SummaryFunction } = {
   [TRANSACTION_TYPE.WRAP_TOKEN]: summary2Token,
   [TRANSACTION_TYPE.UNWRAP_TOKEN]: summary2Token,
-  [TRANSACTION_TYPE.APPROVE]: summaryApproveOrClaim,
+  [TRANSACTION_TYPE.APPROVE]: summaryApprove,
   [TRANSACTION_TYPE.SWAP]: summary2Token,
-
   [TRANSACTION_TYPE.BRIDGE]: summaryBridge,
 
   [TRANSACTION_TYPE.CLASSIC_CREATE_POOL]: summaryLiquidity,
   [TRANSACTION_TYPE.ELASTIC_CREATE_POOL]: summaryLiquidity,
-  [TRANSACTION_TYPE.CLASSIC_ADD_LIQUIDITY]: summaryLiquidity,
+  [TRANSACTION_TYPE.CLASSIC_ADD_LIQUIDITY]: summaryLiquidity, // needcheck
   [TRANSACTION_TYPE.ELASTIC_ADD_LIQUIDITY]: summaryLiquidity,
-  [TRANSACTION_TYPE.CLASSIC_REMOVE_LIQUIDITY]: summaryLiquidity,
+  [TRANSACTION_TYPE.CLASSIC_REMOVE_LIQUIDITY]: summaryLiquidity, // needcheck
   [TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY]: summaryLiquidity,
-  [TRANSACTION_TYPE.INCREASE_LIQUIDITY]: summaryLiquidity,
-  [TRANSACTION_TYPE.COLLECT_FEE]: summaryLiquidity,
+  [TRANSACTION_TYPE.ELASTIC_INCREASE_LIQUIDITY]: summaryLiquidity,
+  [TRANSACTION_TYPE.ELASTIC_COLLECT_FEE]: summaryLiquidity,
 
-  [TRANSACTION_TYPE.STAKE]: summaryBasic,
-  [TRANSACTION_TYPE.UNSTAKE]: summaryBasic,
+  [TRANSACTION_TYPE.STAKE]: summaryStakeUnstake,
+  [TRANSACTION_TYPE.UNSTAKE]: summaryStakeUnstake,
   [TRANSACTION_TYPE.HARVEST]: () => 'Harvested rewards',
-  [TRANSACTION_TYPE.CLAIM_REWARD]: summaryApproveOrClaim,
-  [TRANSACTION_TYPE.DEPOSIT]: summaryBasic,
-  [TRANSACTION_TYPE.WITHDRAW_LIQUIDITY]: summaryBasic,
+  [TRANSACTION_TYPE.CLAIM_REWARD]: summaryClaim,
+  [TRANSACTION_TYPE.ELASTIC_DEPOSIT_LIQUIDITY]: summaryTypeOnly,
+  [TRANSACTION_TYPE.ELASTIC_WITHDRAW_LIQUIDITY]: summaryTypeOnly,
+  [TRANSACTION_TYPE.ELASTIC_FORCE_WITHDRAW_LIQUIDITY]: summaryTypeOnly,
 
-  [TRANSACTION_TYPE.FORCE_WITHDRAW]: summaryTypeOnly,
   [TRANSACTION_TYPE.SETUP_SOLANA_SWAP]: summaryTypeOnly,
   [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER]: summaryCancelLimitOrder,
   [TRANSACTION_TYPE.TRANSFER_TOKEN]: summary1Token,
 
-  [TRANSACTION_TYPE.KYBERDAO_CLAIM]: summaryBasic,
+  [TRANSACTION_TYPE.KYBERDAO_CLAIM]: summary1Token,
   [TRANSACTION_TYPE.KYBERDAO_UNDELEGATE]: summaryDelegateDao,
   [TRANSACTION_TYPE.KYBERDAO_MIGRATE]: summary2Token,
   [TRANSACTION_TYPE.KYBERDAO_STAKE]: summary1Token,

@@ -154,13 +154,13 @@ export default function Updater(): null {
                       }
                       break
                     }
-                    case TRANSACTION_TYPE.COLLECT_FEE: {
+                    case TRANSACTION_TYPE.ELASTIC_COLLECT_FEE: {
                       if (tracking) {
                         mixpanelHandler(MIXPANEL_TYPE.ELASTIC_COLLECT_FEES_COMPLETED, tracking)
                       }
                       break
                     }
-                    case TRANSACTION_TYPE.INCREASE_LIQUIDITY: {
+                    case TRANSACTION_TYPE.ELASTIC_INCREASE_LIQUIDITY: {
                       if (tracking) {
                         mixpanelHandler(MIXPANEL_TYPE.ELASTIC_INCREASE_LIQUIDITY_COMPLETED, {
                           ...tracking,

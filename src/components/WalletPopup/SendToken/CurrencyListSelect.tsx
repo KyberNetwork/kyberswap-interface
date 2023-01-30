@@ -79,7 +79,7 @@ function CurrencyList({
             <CurrencyRow
               showFavoriteIcon={false}
               currency={currency}
-              key={currency.wrapped.address}
+              key={currency.wrapped.address + currency.symbol}
               currencyBalance={balance as CurrencyAmount<Currency>}
               isSelected={Boolean(currency && selectedCurrency?.equals(currency))}
               onSelect={onCurrencySelect}

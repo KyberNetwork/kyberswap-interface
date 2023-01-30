@@ -25,7 +25,7 @@ import { AppDispatch, AppState } from 'state'
 import { useETHPrice } from 'state/application/hooks'
 import { Field } from 'state/swap/actions'
 import { useSwapState } from 'state/swap/hooks'
-import { checkedSubgraph } from 'state/transactions/actions'
+import { modifyTransaction } from 'state/transactions/actions'
 import { TRANSACTION_TYPE, TransactionDetails } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { Aggregator } from 'utils/aggregator'
@@ -836,7 +836,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
             amp,
             tx_hash: hash,
           })
-          dispatch(checkedSubgraph({ chainId, hash }))
+          dispatch(modifyTransaction({ chainId, hash, needCheckSubgraph: false }))
           break
         }
         case TRANSACTION_TYPE.ELASTIC_ADD_LIQUIDITY: {
@@ -869,7 +869,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
             fee_tier: feeTier / ELASTIC_BASE_FEE_UNIT,
             tx_hash: hash,
           })
-          dispatch(checkedSubgraph({ chainId, hash }))
+          dispatch(modifyTransaction({ chainId, hash, needCheckSubgraph: false }))
           break
         }
         case TRANSACTION_TYPE.CLASSIC_REMOVE_LIQUIDITY: {
@@ -904,7 +904,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
             amp,
             tx_hash: hash,
           })
-          dispatch(checkedSubgraph({ chainId, hash }))
+          dispatch(modifyTransaction({ chainId, hash, needCheckSubgraph: false }))
           break
         }
         case TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY: {
@@ -937,7 +937,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
             fee_tier: feeTier / ELASTIC_BASE_FEE_UNIT,
             tx_hash: hash,
           })
-          dispatch(checkedSubgraph({ chainId, hash }))
+          dispatch(modifyTransaction({ chainId, hash, needCheckSubgraph: false }))
           break
         }
         case TRANSACTION_TYPE.CLASSIC_CREATE_POOL: {

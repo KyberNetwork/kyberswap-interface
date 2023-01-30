@@ -230,7 +230,7 @@ export default function AddLiquidity() {
               const tokenSymbolOut = quoteCurrency?.symbol ?? ''
               addTransactionWithType({
                 hash: response.hash,
-                type: TRANSACTION_TYPE.INCREASE_LIQUIDITY,
+                type: TRANSACTION_TYPE.ELASTIC_INCREASE_LIQUIDITY,
                 extraInfo: {
                   tokenAmountIn,
                   tokenAmountOut,

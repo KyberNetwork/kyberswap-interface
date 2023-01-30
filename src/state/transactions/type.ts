@@ -29,6 +29,30 @@ export type TransactionExtraInfo2Token = {
   tracking?: any
 }
 
+export type TransactionExtraInfoHarvestFarm = {
+  tokenAddressIn?: string
+  tokenAddressOut?: string
+  tokenSymbolIn?: string
+  tokenSymbolOut?: string
+  rewards: { tokenAddress: string; tokenSymbol: string; tokenAmount: string }[]
+  contract?: string // recipient, contract, spender, ...
+  tracking?: any
+}
+
+export type TransactionExtraInfoStakeFarm = {
+  pairs: {
+    tokenAddressIn: string
+    tokenAddressOut: string
+    tokenSymbolIn: string
+    tokenSymbolOut: string
+    tokenAmountIn: string
+    tokenAmountOut: string
+    poolAddress: string
+  }[]
+  contract?: string // recipient, contract, spender, ...
+  tracking?: any
+}
+
 export type TransactionExtraBaseInfo = {
   summary?: string
   contract?: string // recipient, contract, spender, ...
@@ -36,7 +60,12 @@ export type TransactionExtraBaseInfo = {
 }
 
 // structure data, let's create a new type if your transaction does not match 1 of 3 template
-export type TransactionExtraInfo = TransactionExtraInfo1Token | TransactionExtraInfo2Token | TransactionExtraBaseInfo
+export type TransactionExtraInfo =
+  | TransactionExtraInfo1Token
+  | TransactionExtraInfo2Token
+  | TransactionExtraBaseInfo
+  | TransactionExtraInfoHarvestFarm
+  | TransactionExtraInfoStakeFarm
 
 export interface TransactionDetails {
   hash: string
@@ -85,10 +114,10 @@ export type TransactionPayload = TransactionHistory & {
  * if you forgot. typescript error will occur.
  */
 export enum TRANSACTION_TYPE {
-  WRAP_TOKEN = 'Wrap',
-  UNWRAP_TOKEN = 'Unwrap',
+  WRAP_TOKEN = 'Wrap Token',
+  UNWRAP_TOKEN = 'Unwrap Token',
   APPROVE = 'Approve',
-  BRIDGE = 'Bridge Transaction',
+  BRIDGE = 'Bridge Token',
   SWAP = 'Swap',
 
   CLASSIC_CREATE_POOL = 'Classic Create Pool',
@@ -97,16 +126,17 @@ export enum TRANSACTION_TYPE {
   ELASTIC_ADD_LIQUIDITY = 'Elastic Add Liquidity',
   CLASSIC_REMOVE_LIQUIDITY = 'Classic Remove Liquidity',
   ELASTIC_REMOVE_LIQUIDITY = 'Elastic Remove Liquidity',
-  INCREASE_LIQUIDITY = 'Elastic Increase Liquidity',
-  COLLECT_FEE = 'Elastic Collect Fee',
+  ELASTIC_INCREASE_LIQUIDITY = 'Elastic Increase Liquidity',
+  ELASTIC_COLLECT_FEE = 'Elastic Collect Fee',
 
-  STAKE = 'Stake',
-  UNSTAKE = 'Unstake',
+  STAKE = 'Stake Into Farm',
+  UNSTAKE = 'Unstake From Farm',
+
   HARVEST = 'Harvest',
-  CLAIM_REWARD = 'Claim',
-  DEPOSIT = 'Deposit',
-  WITHDRAW_LIQUIDITY = 'Withdraw Liquidity',
-  FORCE_WITHDRAW = 'Force Withdraw',
+  CLAIM_REWARD = 'Claim Reward',
+  ELASTIC_DEPOSIT_LIQUIDITY = 'Deposit Liquidity',
+  ELASTIC_WITHDRAW_LIQUIDITY = 'Withdraw Liquidity',
+  ELASTIC_FORCE_WITHDRAW_LIQUIDITY = 'Force Withdraw Liquidity',
   SETUP_SOLANA_SWAP = 'Set Up Swap Solana',
 
   KYBERDAO_STAKE = 'KyberDAO Stake',
@@ -115,10 +145,10 @@ export enum TRANSACTION_TYPE {
   KYBERDAO_UNDELEGATE = 'KyberDAO Undelegate',
   KYBERDAO_MIGRATE = 'KyberDAO Migrate',
   KYBERDAO_VOTE = 'KyberDAO Vote',
-  KYBERDAO_CLAIM = 'KyberDAO Claim',
+  KYBERDAO_CLAIM = 'KyberDAO Claim Voting Reward',
 
-  CANCEL_LIMIT_ORDER = 'Cancel Order',
-  TRANSFER_TOKEN = 'Transfer',
+  CANCEL_LIMIT_ORDER = 'Cancel Limit Order',
+  TRANSFER_TOKEN = 'Send',
 }
 
 const GROUP_TRANSACTION_BY_TYPE = {
@@ -135,14 +165,14 @@ const GROUP_TRANSACTION_BY_TYPE = {
     TRANSACTION_TYPE.ELASTIC_ADD_LIQUIDITY,
     TRANSACTION_TYPE.CLASSIC_REMOVE_LIQUIDITY,
     TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY,
-    TRANSACTION_TYPE.INCREASE_LIQUIDITY,
-    TRANSACTION_TYPE.DEPOSIT,
-    TRANSACTION_TYPE.WITHDRAW_LIQUIDITY,
+    TRANSACTION_TYPE.ELASTIC_INCREASE_LIQUIDITY,
+    TRANSACTION_TYPE.ELASTIC_DEPOSIT_LIQUIDITY,
+    TRANSACTION_TYPE.ELASTIC_WITHDRAW_LIQUIDITY,
     TRANSACTION_TYPE.STAKE,
     TRANSACTION_TYPE.UNSTAKE,
     TRANSACTION_TYPE.HARVEST,
-    TRANSACTION_TYPE.COLLECT_FEE,
-    TRANSACTION_TYPE.FORCE_WITHDRAW,
+    TRANSACTION_TYPE.ELASTIC_COLLECT_FEE,
+    TRANSACTION_TYPE.ELASTIC_FORCE_WITHDRAW_LIQUIDITY,
   ],
   KYBERDAO: [
     TRANSACTION_TYPE.KYBERDAO_STAKE,

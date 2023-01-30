@@ -1,30 +1,42 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import axios from 'axios'
 import dayjs from 'dayjs'
-import { ReactNode, forwardRef } from 'react'
+import { debounce } from 'lodash'
+import { ReactNode, forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Repeat } from 'react-feather'
+import { useDispatch } from 'react-redux'
 import { Flex, Text } from 'rebass'
 import styled, { CSSProperties } from 'styled-components'
 
+import { ReactComponent as ArrowDown } from 'assets/svg/arrow_down.svg'
 import { ReactComponent as IconFailure } from 'assets/svg/notification_icon_failure.svg'
 import { ReactComponent as IconSuccess } from 'assets/svg/notification_icon_success.svg'
 import { ReactComponent as IconWarning } from 'assets/svg/notification_icon_warning.svg'
 import CopyHelper from 'components/Copy'
+import { DoubleCurrencyLogoV2 } from 'components/DoubleLogo'
 import SendIcon from 'components/Icons/SendIcon'
-import Logo from 'components/Logo'
+import Loader from 'components/Loader'
+import Logo, { NetworkLogo } from 'components/Logo'
 import { getTransactionStatus } from 'components/Popups/TransactionPopup'
 import Row from 'components/Row'
 import Icon from 'components/WalletPopup/Transactions/Icon'
+import { KS_SETTING_API } from 'constants/env'
+import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { findCacheToken } from 'hooks/Tokens'
+import { MultichainTransferStatus } from 'hooks/bridge/useGetBridgeTransfers'
 import useTheme from 'hooks/useTheme'
+import { AppDispatch } from 'state'
+import { modifyTransaction } from 'state/transactions/actions'
 import {
   TRANSACTION_TYPE,
   TransactionDetails,
   TransactionExtraBaseInfo,
   TransactionExtraInfo1Token,
-  TransactionExtraInfo2Token,
+  TransactionExtraInfo2Token, // TransactionExtraInfoHarvestFarm,
+  // TransactionExtraInfoStakeFarm,
 } from 'state/transactions/type'
 import { ExternalLink, ExternalLinkIcon } from 'theme'
 import { getEtherscanLink } from 'utils'
@@ -62,11 +74,6 @@ const PrimaryText = styled(Text)`
   color: ${({ theme }) => theme.subText};
 `
 
-const SecondaryText = styled.span`
-  color: ${({ theme }) => theme.subText};
-  font-size: 12px;
-`
-
 const StyledLink = styled(ExternalLink)`
   color: ${({ theme }) => theme.text};
   :hover {
@@ -75,29 +82,40 @@ const StyledLink = styled(ExternalLink)`
   }
 `
 
+const TokenAmountWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+`
+
+const getTokenLogo = (address: string | undefined) => findCacheToken(address ?? '')?.logoURI ?? ''
+
 const DeltaTokenAmount = ({
   symbol,
   amount,
   tokenAddress,
   plus,
+  whiteColor,
 }: {
   symbol?: string
   amount?: string
   tokenAddress?: string
   plus?: boolean
+  whiteColor?: boolean
 }) => {
   const withSign = plus !== undefined
   const theme = useTheme()
   const sign = amount === undefined || !withSign ? null : plus ? '+' : '-'
-  const color = plus ? theme.primary : theme.subText
-  const logoUrl = findCacheToken(tokenAddress ?? '')?.logoURI
+  const color = whiteColor ? theme.text : plus ? theme.primary : theme.subText
+  const logoUrl = getTokenLogo(tokenAddress)
   return (
-    <Flex fontSize={12} alignItems="center" style={{ gap: 4 }}>
+    <TokenAmountWrapper>
       {logoUrl && <TokenLogo srcs={[logoUrl]} />}
-      <PrimaryText style={{ color: withSign ? color : theme.subText }}>
+      <PrimaryText style={{ color }}>
         {sign} {amount} {symbol}
       </PrimaryText>
-    </Flex>
+    </TokenAmountWrapper>
   )
 }
 
@@ -106,28 +124,15 @@ const ContractAddress = ({ transaction }: { transaction: TransactionDetails }) =
   const { chainId } = useActiveWeb3React()
   const theme = useTheme()
 
-  const poolTypes = [
-    TRANSACTION_TYPE.ELASTIC_ADD_LIQUIDITY,
-    TRANSACTION_TYPE.CLASSIC_REMOVE_LIQUIDITY,
-    TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY,
-    TRANSACTION_TYPE.INCREASE_LIQUIDITY,
-    TRANSACTION_TYPE.COLLECT_FEE,
-    TRANSACTION_TYPE.CLASSIC_ADD_LIQUIDITY,
-  ]
-
-  const prefix = poolTypes.includes(type)
-    ? t`pool address`
-    : type === TRANSACTION_TYPE.TRANSFER_TOKEN
-    ? t`to`
-    : t`contract`
+  const prefix = type === TRANSACTION_TYPE.TRANSFER_TOKEN ? t`to` : t`contract`
 
   return extraInfo.contract ? (
-    <SecondaryText style={{ display: 'flex', color: theme.text, gap: 4, alignItems: 'center' }}>
+    <PrimaryText style={{ display: 'flex', color: theme.text, gap: 4, alignItems: 'center' }}>
       <StyledLink href={getEtherscanLink(chainId, extraInfo.contract, 'address')}>
         {prefix}: {getShortenAddress(extraInfo.contract)}
       </StyledLink>
-      {poolTypes.includes(type) ? <SendIcon size={10} /> : <CopyHelper toCopy={extraInfo.contract} margin="0" />}
-    </SecondaryText>
+      <CopyHelper toCopy={extraInfo.contract} margin="0" />
+    </PrimaryText>
   ) : null
 }
 
@@ -137,12 +142,28 @@ const renderDescriptionBasic = (transaction: TransactionDetails) => {
   return <PrimaryText>{summary}</PrimaryText>
 }
 
-// ex: stake -3knc
+// ex: claim 3knc
 const renderDescription1Token = (transaction: TransactionDetails) => {
   const { extraInfo = {}, type } = transaction
   const { tokenSymbol, tokenAmount, tokenAddress } = extraInfo as TransactionExtraInfo1Token
-  const plus = [TRANSACTION_TYPE.KYBERDAO_UNSTAKE].includes(type)
+  // +10KNC or -10KNC
+  const plus = [TRANSACTION_TYPE.KYBERDAO_CLAIM].includes(type)
   return <DeltaTokenAmount tokenAddress={tokenAddress} symbol={tokenSymbol} amount={tokenAmount} plus={plus} />
+}
+
+// ex: stake -3knc
+const renderDescriptionKyberDaoStake = (transaction: TransactionDetails) => {
+  const { extraInfo = {}, type } = transaction
+  const { tokenSymbol, tokenAmount, tokenAddress } = extraInfo as TransactionExtraInfo1Token
+  const votingPower = extraInfo?.tracking?.votingPower
+  const isUnstake = type === TRANSACTION_TYPE.KYBERDAO_UNSTAKE
+
+  return (
+    <>
+      {isUnstake ? null : <DeltaTokenAmount symbol={t`voting power`} amount={votingPower + '%'} plus={!isUnstake} />}
+      <DeltaTokenAmount tokenAddress={tokenAddress} symbol={tokenSymbol} amount={tokenAmount} plus={isUnstake} />
+    </>
+  )
 }
 
 //ex: +3knc -2usdt
@@ -158,51 +179,88 @@ const renderDescription2Token = (transaction: TransactionDetails) => {
   )
 }
 
+const PoolFarmLink = ({ transaction }: { transaction: TransactionDetails }) => {
+  const { extraInfo = {}, type } = transaction
+  const { contract, tokenAddress } = extraInfo as TransactionExtraInfo1Token
+  if (!contract) return null
+
+  const { tokenSymbolIn, tokenSymbolOut, tokenAddressIn, tokenAddressOut } = extraInfo as TransactionExtraInfo2Token
+  const isFarm = [TRANSACTION_TYPE.HARVEST].includes(type)
+  const isElastic = [
+    TRANSACTION_TYPE.ELASTIC_ADD_LIQUIDITY,
+    TRANSACTION_TYPE.ELASTIC_CREATE_POOL,
+    TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY,
+    TRANSACTION_TYPE.ELASTIC_COLLECT_FEE,
+    TRANSACTION_TYPE.ELASTIC_INCREASE_LIQUIDITY,
+    TRANSACTION_TYPE.HARVEST,
+  ].includes(type)
+  const logoUrlIn = getTokenLogo(tokenAddressIn ?? tokenAddress)
+  const logoUrlOut = getTokenLogo(tokenAddressOut ?? tokenAddress)
+  return (
+    <ExternalLink
+      href={`${window.location.origin}${isFarm ? APP_PATHS.FARMS : APP_PATHS.MY_POOLS}?search=${contract}&tab=${
+        isElastic ? 'elastic' : 'classic'
+      }`}
+    >
+      <Flex alignItems="center" style={{ gap: 4 }}>
+        <DoubleCurrencyLogoV2 style={{ marginRight: 12 }} logoUrl1={logoUrlIn} logoUrl2={logoUrlOut} size={16} />
+        <Text fontSize={12}>
+          {tokenSymbolIn}/{tokenSymbolOut}
+        </Text>
+        <SendIcon size={10} />
+      </Flex>
+    </ExternalLink>
+  )
+}
+
 const renderDescriptionLiquidity = (transaction: TransactionDetails) => {
   const { extraInfo = {} } = transaction
   const { tokenSymbol, tokenAmount } = extraInfo as TransactionExtraInfo1Token
-  if (tokenSymbol && tokenAmount) {
-    return renderDescription2Token(transaction)
+  return {
+    leftComponent:
+      tokenSymbol && tokenAmount ? renderDescription1Token(transaction) : renderDescription2Token(transaction),
+    rightComponent: <PoolFarmLink transaction={transaction} />,
   }
-  return renderDescription1Token(transaction)
 }
 
 const renderDescriptionBridge = (transaction: TransactionDetails) => {
   const { extraInfo = {} } = transaction
   const {
     tokenAmountIn,
-    tokenAmountOut,
     tokenSymbolIn,
-    tokenSymbolOut,
     chainIdIn = ChainId.MAINNET,
     chainIdOut = ChainId.MAINNET,
     tokenAddressIn,
-    tokenAddressOut,
   } = extraInfo as TransactionExtraInfo2Token
-  return (
-    <>
-      <DeltaTokenAmount
-        tokenAddress={tokenAddressOut}
-        symbol={`${tokenSymbolOut} (${NETWORKS_INFO[chainIdOut].name})`}
-        amount={tokenAmountOut}
-        plus
-      />
-      <DeltaTokenAmount
-        tokenAddress={tokenAddressIn}
-        symbol={`${tokenSymbolIn} (${NETWORKS_INFO[chainIdIn].name})`}
-        amount={tokenAmountIn}
-        plus={false}
-      />
-    </>
-  )
-}
 
+  return {
+    leftComponent: (
+      <>
+        <div style={{ position: 'relative' }}>
+          <TokenAmountWrapper>
+            <NetworkLogo chainId={chainIdIn} style={{ width: 12, height: 12 }} />
+            <PrimaryText>{NETWORKS_INFO[chainIdIn].name}</PrimaryText>
+          </TokenAmountWrapper>
+          <ArrowDown style={{ position: 'absolute', left: 4, height: 10 }} />
+        </div>
+        <TokenAmountWrapper>
+          <NetworkLogo chainId={chainIdOut} style={{ width: 12, height: 12 }} />
+          <PrimaryText>{NETWORKS_INFO[chainIdOut].name}</PrimaryText>
+        </TokenAmountWrapper>
+      </>
+    ),
+    rightComponent: (
+      <DeltaTokenAmount whiteColor symbol={tokenSymbolIn} amount={tokenAmountIn} tokenAddress={tokenAddressIn} />
+    ),
+  }
+}
 // ex: approve elastic farm, approve knc
 const renderDescriptionApproveClaim = (transaction: TransactionDetails) => {
   const { extraInfo = {}, type } = transaction
   const { tokenSymbol, tokenAmount, tokenAddress } = extraInfo as TransactionExtraInfo1Token
   const { summary = '' } = extraInfo as TransactionExtraBaseInfo
   const plus = [TRANSACTION_TYPE.CLAIM_REWARD].includes(type)
+
   return summary ? (
     <PrimaryText>{summary}</PrimaryText>
   ) : (
@@ -230,12 +288,108 @@ const renderDescriptionLimitOrder = (transaction: TransactionDetails) => {
   )
 }
 
-const RENDER_DESCRIPTION_MAP: { [type in TRANSACTION_TYPE]: null | ((txs: TransactionDetails) => ReactNode) } = {
-  [TRANSACTION_TYPE.FORCE_WITHDRAW]: renderDescriptionBasic,
+const StatusIcon = ({
+  transaction,
+  cancellingOrdersNonces,
+  cancellingOrdersIds,
+}: {
+  transaction: TransactionDetails
+  cancellingOrdersNonces: number[]
+  cancellingOrdersIds: number[]
+}) => {
+  const { type, addedTime, hash, extraInfo, chainId } = transaction
+  const { pending: pendingTxsStatus, success } = getTransactionStatus(transaction)
+  const needCheckPending = [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER, TRANSACTION_TYPE.BRIDGE].includes(type) && success
+  const isPendingTooLong = pendingTxsStatus && Date.now() - addedTime > 5 * 3_600_1000 // 5 hour
+  const [isPendingState, setIsPendingState] = useState<boolean | null>(null)
+  const dispatch = useDispatch<AppDispatch>()
+
+  const pending = isPendingState
+
+  const interval = useRef<NodeJS.Timeout>()
+
+  const checkStatus = useCallback(async () => {
+    try {
+      const actuallySuccess = extraInfo?.tracking?.actuallySuccess
+      if (actuallySuccess && interval.current) {
+        clearInterval(interval.current)
+        return
+      }
+      const orderId = extraInfo?.tracking?.order_id
+
+      let isPending = false
+      switch (type) {
+        case TRANSACTION_TYPE.CANCEL_LIMIT_ORDER:
+          isPending = cancellingOrdersIds.includes(orderId) || cancellingOrdersNonces.length > 0
+          break
+        case TRANSACTION_TYPE.BRIDGE: {
+          const { data: response } = await axios.get(`${KS_SETTING_API}/v1/multichain-transfers/${hash}`)
+          isPending = response?.data?.status === MultichainTransferStatus.Processing
+          break
+        }
+      }
+      if (!isPending) {
+        console.log('modifilend')
+        dispatch(
+          modifyTransaction({
+            chainId,
+            hash,
+            extraInfo: { ...extraInfo, tracking: { ...(extraInfo?.tracking ?? {}), actuallySuccess: true } },
+          }),
+        )
+      }
+      setIsPendingState(isPending)
+    } catch (error) {
+      console.log(error)
+    }
+  }, [cancellingOrdersIds, cancellingOrdersNonces, chainId, dispatch, extraInfo, hash, type])
+
+  const checkStatusDebound = useMemo(() => debounce(checkStatus, 1000), [checkStatus])
+
+  useEffect(() => {
+    if (!needCheckPending) {
+      setIsPendingState(pendingTxsStatus)
+      return
+    }
+    checkStatusDebound()
+    interval.current = setInterval(checkStatusDebound, 5000)
+    return () => interval.current && clearInterval(interval.current)
+  }, [needCheckPending, pendingTxsStatus, checkStatusDebound])
+
+  const theme = useTheme()
+  const checkingStatus = pending === null
+  return (
+    <Flex style={{ gap: '4px', minWidth: 'unset' }} alignItems={'center'}>
+      <PrimaryText color={theme.text}>
+        {checkingStatus ? t`Checking` : pending ? t`Processing` : success ? t`Completed` : t`Failed`}
+      </PrimaryText>
+      {checkingStatus ? (
+        <Loader size={'12px'} />
+      ) : pending ? (
+        isPendingTooLong ? (
+          <IconWarning width={'14px'} />
+        ) : (
+          <Repeat size={14} color={theme.warning} />
+        )
+      ) : success ? (
+        <IconSuccess width={'15px'} height="15px" />
+      ) : (
+        <IconFailure width={'15px'} />
+      )}
+    </Flex>
+  )
+}
+
+const RENDER_DESCRIPTION_MAP: {
+  [type in TRANSACTION_TYPE]: (
+    txs: TransactionDetails,
+  ) => null | JSX.Element | { leftComponent: ReactNode; rightComponent: ReactNode }
+} = {
   [TRANSACTION_TYPE.STAKE]: renderDescriptionBasic,
-  [TRANSACTION_TYPE.DEPOSIT]: renderDescriptionBasic,
-  [TRANSACTION_TYPE.WITHDRAW_LIQUIDITY]: renderDescriptionBasic,
-  [TRANSACTION_TYPE.KYBERDAO_CLAIM]: renderDescriptionBasic,
+  [TRANSACTION_TYPE.ELASTIC_FORCE_WITHDRAW_LIQUIDITY]: renderDescriptionBasic,
+  [TRANSACTION_TYPE.ELASTIC_DEPOSIT_LIQUIDITY]: renderDescriptionBasic,
+  [TRANSACTION_TYPE.ELASTIC_WITHDRAW_LIQUIDITY]: renderDescriptionBasic,
+  [TRANSACTION_TYPE.KYBERDAO_CLAIM]: renderDescription1Token,
   [TRANSACTION_TYPE.UNSTAKE]: renderDescriptionBasic,
   [TRANSACTION_TYPE.KYBERDAO_VOTE]: renderDescriptionBasic,
   [TRANSACTION_TYPE.KYBERDAO_DELEGATE]: renderDescriptionBasic,
@@ -244,8 +398,8 @@ const RENDER_DESCRIPTION_MAP: { [type in TRANSACTION_TYPE]: null | ((txs: Transa
   [TRANSACTION_TYPE.APPROVE]: renderDescriptionApproveClaim,
   [TRANSACTION_TYPE.CLAIM_REWARD]: renderDescriptionApproveClaim,
 
-  [TRANSACTION_TYPE.KYBERDAO_STAKE]: renderDescription1Token,
-  [TRANSACTION_TYPE.KYBERDAO_UNSTAKE]: renderDescription1Token,
+  [TRANSACTION_TYPE.KYBERDAO_STAKE]: renderDescriptionKyberDaoStake,
+  [TRANSACTION_TYPE.KYBERDAO_UNSTAKE]: renderDescriptionKyberDaoStake,
   [TRANSACTION_TYPE.TRANSFER_TOKEN]: renderDescription1Token,
 
   [TRANSACTION_TYPE.UNWRAP_TOKEN]: renderDescription2Token,
@@ -260,27 +414,36 @@ const RENDER_DESCRIPTION_MAP: { [type in TRANSACTION_TYPE]: null | ((txs: Transa
   [TRANSACTION_TYPE.CLASSIC_CREATE_POOL]: renderDescriptionLiquidity,
   [TRANSACTION_TYPE.ELASTIC_CREATE_POOL]: renderDescriptionLiquidity,
   [TRANSACTION_TYPE.ELASTIC_ADD_LIQUIDITY]: renderDescriptionLiquidity,
+  [TRANSACTION_TYPE.CLASSIC_ADD_LIQUIDITY]: renderDescriptionLiquidity,
   [TRANSACTION_TYPE.CLASSIC_REMOVE_LIQUIDITY]: renderDescriptionLiquidity,
   [TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY]: renderDescriptionLiquidity,
-  [TRANSACTION_TYPE.INCREASE_LIQUIDITY]: renderDescriptionLiquidity,
-  [TRANSACTION_TYPE.COLLECT_FEE]: renderDescriptionLiquidity,
-  [TRANSACTION_TYPE.CLASSIC_ADD_LIQUIDITY]: renderDescriptionLiquidity,
+  [TRANSACTION_TYPE.ELASTIC_INCREASE_LIQUIDITY]: renderDescriptionLiquidity,
+  [TRANSACTION_TYPE.ELASTIC_COLLECT_FEE]: renderDescriptionLiquidity,
+
+  [TRANSACTION_TYPE.HARVEST]: renderDescriptionBasic,
 
   // to make sure you don't forgot setup
-  [TRANSACTION_TYPE.HARVEST]: null,
-  [TRANSACTION_TYPE.SETUP_SOLANA_SWAP]: null, // todo danh test it" popup and noti, send token solana
+  [TRANSACTION_TYPE.SETUP_SOLANA_SWAP]: () => null, // todo danh test it" popup and noti, send token solana
 }
+
 type Prop = {
   transaction: TransactionDetails
   style: CSSProperties
   isMinimal: boolean
+  cancellingOrdersNonces: number[]
+  cancellingOrdersIds: number[]
 }
-export default forwardRef<HTMLDivElement, Prop>(function TransactionItem({ transaction, style, isMinimal }: Prop, ref) {
+export default forwardRef<HTMLDivElement, Prop>(function TransactionItem(
+  { transaction, style, isMinimal, cancellingOrdersNonces, cancellingOrdersIds }: Prop,
+  ref,
+) {
   const { type, addedTime, hash, chainId } = transaction
   const theme = useTheme()
-  const { pending, success } = getTransactionStatus(transaction)
-  const customStatus = [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER, TRANSACTION_TYPE.BRIDGE].includes(type)
-  const isPendingTooMuch = pending && Date.now() - addedTime > 5 * 3_600_1000 // 5 hour
+
+  const info: any = RENDER_DESCRIPTION_MAP?.[type]?.(transaction) ?? { leftComponent: null, rightComponent: null }
+  const leftComponent: ReactNode = info.leftComponent !== undefined ? info.leftComponent : info
+  const rightComponent: ReactNode = info.rightComponent
+
   return (
     <ItemWrapper style={style} ref={ref}>
       <Flex justifyContent="space-between" alignItems="flex-end">
@@ -292,31 +455,21 @@ export default forwardRef<HTMLDivElement, Prop>(function TransactionItem({ trans
           )}
           <Text color={theme.text} fontSize="14px">
             {type}
-          </Text>{' '}
+          </Text>
           <ExternalLinkIcon color={theme.subText} href={getEtherscanLink(chainId, hash, 'transaction')} />
         </Row>
-        <Flex style={{ gap: '4px', minWidth: 'unset' }} alignItems={'center'}>
-          <PrimaryText color={theme.text}>
-            {pending ? t`Pending` : success ? (customStatus ? t`Submitted` : t`Completed`) : t`Error`}
-          </PrimaryText>
-          {pending ? (
-            isPendingTooMuch ? (
-              <IconWarning width={'14px'} />
-            ) : (
-              <Repeat size={14} color={theme.warning} />
-            )
-          ) : success ? (
-            <IconSuccess width={'15px'} height="15px" />
-          ) : (
-            <IconFailure width={'15px'} />
-          )}
-        </Flex>
+        <StatusIcon
+          transaction={transaction}
+          cancellingOrdersNonces={cancellingOrdersNonces}
+          cancellingOrdersIds={cancellingOrdersIds}
+        />
       </Flex>
+
       <Flex justifyContent="space-between">
-        <ColumGroup>{RENDER_DESCRIPTION_MAP?.[type]?.(transaction)}</ColumGroup>
-        <ColumGroup style={{ alignItems: 'flex-end', justifyContent: 'space-between' }}>
-          <ContractAddress transaction={transaction} />
-          <SecondaryText>{dayjs(addedTime).format('DD/MM/YYYY HH:mm:ss')}</SecondaryText>
+        <ColumGroup>{leftComponent}</ColumGroup>
+        <ColumGroup style={{ justifyContent: 'flex-end', alignItems: 'flex-end' }}>
+          {rightComponent || <ContractAddress transaction={transaction} />}
+          <PrimaryText>{dayjs(addedTime).format('DD/MM/YYYY HH:mm:ss')}</PrimaryText>
         </ColumGroup>
       </Flex>
     </ItemWrapper>

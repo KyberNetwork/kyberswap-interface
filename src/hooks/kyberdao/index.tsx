@@ -40,7 +40,7 @@ export function useKyberDaoStakeActions() {
   const migrateContract = useContract(kyberDaoInfo?.KNCAddress, MigrateABI)
 
   const stake = useCallback(
-    async (amount: BigNumber) => {
+    async (amount: BigNumber, votingPower: string) => {
       if (!stakingContract) {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }
@@ -56,7 +56,7 @@ export function useKyberDaoStakeActions() {
             tokenSymbol: 'KNC',
             tokenAddress: kyberDaoInfo?.KNCAddress ?? '',
             tokenAmount: formatUnits(amount),
-            tracking: { amount: formatUnits(amount) },
+            tracking: { amount: formatUnits(amount), votingPower }, // todo danh rename tracking ??
           },
         })
         return tx.hash
@@ -199,14 +199,23 @@ export function useClaimRewardActions() {
   const addTransactionWithType = useTransactionAdder()
 
   const claim = useCallback(
-    async (
-      cycle: number,
-      index: number,
-      address: string,
-      tokens: string[],
-      cumulativeAmounts: string[],
-      merkleProof: string[],
-    ) => {
+    async ({
+      cycle,
+      index,
+      address,
+      tokens,
+      cumulativeAmounts,
+      merkleProof,
+      formatAmount,
+    }: {
+      cycle: number
+      index: number
+      address: string
+      tokens: string[]
+      cumulativeAmounts: string[]
+      merkleProof: string[]
+      formatAmount: string
+    }) => {
       if (!rewardDistributorContract) {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }
@@ -244,7 +253,12 @@ export function useClaimRewardActions() {
         addTransactionWithType({
           hash: tx.hash,
           type: TRANSACTION_TYPE.KYBERDAO_CLAIM,
-          extraInfo: { contract: address },
+          extraInfo: {
+            contract: address,
+            tokenAmount: formatAmount,
+            tokenSymbol: 'KNC',
+            tokenAddress: kyberDaoInfo?.KNCAddress,
+          },
         })
         return tx.hash
       } catch (error) {
@@ -255,7 +269,7 @@ export function useClaimRewardActions() {
         }
       }
     },
-    [rewardDistributorContract, addTransactionWithType],
+    [rewardDistributorContract, addTransactionWithType, kyberDaoInfo],
   )
   return { claim }
 }

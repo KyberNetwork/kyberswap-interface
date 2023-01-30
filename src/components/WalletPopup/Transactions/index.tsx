@@ -7,6 +7,7 @@ import { Flex, Text } from 'rebass'
 import styled, { CSSProperties } from 'styled-components'
 
 import Tab from 'components/WalletPopup/Transactions/Tab'
+import useCancellingOrders from 'components/swapv2/LimitOrder/useCancellingOrders'
 import { useActiveWeb3React } from 'hooks'
 import { fetchListTokenByAddresses, findCacheToken, useIsLoadedTokenDefault } from 'hooks/Tokens'
 import useTheme from 'hooks/useTheme'
@@ -52,12 +53,16 @@ function Row({
   transaction,
   setRowHeight,
   isMinimal,
+  cancellingOrdersNonces,
+  cancellingOrdersIds,
 }: {
   transaction: TransactionDetails
   style: CSSProperties
   index: number
   setRowHeight: (v: number, height: number) => void
   isMinimal: boolean
+  cancellingOrdersNonces: number[]
+  cancellingOrdersIds: number[]
 }) {
   const rowRef = useRef<HTMLDivElement>(null)
 
@@ -66,11 +71,23 @@ function Row({
       const [, child2] = rowRef.current.children // todo danh
       const [sub1, sub2] = child2.children
       const rowNum = Math.max(sub1.children.length, sub2.children.length) + 1
-      setRowHeight(index, rowNum === 2 ? 76 : 98)
+      const padding = 14
+      const lineHeight = 15
+      const gap = 10
+      setRowHeight(index, 2 * padding + lineHeight * rowNum + (rowNum - 1) * gap)
     }
   }, [rowRef, index, setRowHeight])
 
-  return <TransactionItem isMinimal={isMinimal} ref={rowRef} style={style} transaction={transaction} />
+  return (
+    <TransactionItem
+      isMinimal={isMinimal}
+      ref={rowRef}
+      style={style}
+      transaction={transaction}
+      cancellingOrdersNonces={cancellingOrdersNonces}
+      cancellingOrdersIds={cancellingOrdersIds}
+    />
+  )
 }
 
 export default function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
@@ -78,6 +95,7 @@ export default function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
   const { chainId } = useActiveWeb3React()
   const [activeTab, setActiveTab] = useState<TRANSACTION_GROUP | string>('')
   const theme = useTheme()
+  const { cancellingOrdersNonces, cancellingOrdersIds } = useCancellingOrders()
 
   const listTokenAddress = useRef<string[]>([])
   const pushAddress = (address: string) => {
@@ -158,6 +176,8 @@ export default function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
                     index={index}
                     key={data[index].hash}
                     setRowHeight={setRowHeight}
+                    cancellingOrdersNonces={cancellingOrdersNonces} // todo refacotr
+                    cancellingOrdersIds={cancellingOrdersIds}
                   />
                 )}
               </VariableSizeList>

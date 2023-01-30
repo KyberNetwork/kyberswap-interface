@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createAction } from '@reduxjs/toolkit'
 
-import { SerializableTransactionReceipt, TransactionPayload } from './type'
+import { SerializableTransactionReceipt, TransactionExtraInfo, TransactionPayload } from './type'
 
 export const addTransaction = createAction<TransactionPayload>('transactions/addTransaction')
 
@@ -20,7 +20,12 @@ export const checkedTransaction = createAction<{
   blockNumber: number
 }>('transactions/checkedTransaction')
 
-export const checkedSubgraph = createAction<{ chainId: ChainId; hash: string }>('transactions/checkedSubgraph')
+export const modifyTransaction = createAction<{
+  chainId: ChainId
+  hash: string
+  needCheckSubgraph?: boolean
+  extraInfo?: TransactionExtraInfo
+}>('transactions/modifyTransaction')
 
 export const replaceTx = createAction<{
   chainId: ChainId

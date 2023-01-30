@@ -4,10 +4,10 @@ import { findTx } from 'utils'
 
 import {
   addTransaction,
-  checkedSubgraph,
   checkedTransaction,
   clearAllTransactions,
   finalizeTransaction,
+  modifyTransaction,
   removeTx,
   replaceTx,
 } from './actions'
@@ -65,10 +65,15 @@ export default createReducer(initialState, builder =>
       tx.confirmedTime = now()
       tx.needCheckSubgraph = needCheckSubgraph
     })
-    .addCase(checkedSubgraph, (transactions, { payload: { chainId, hash } }) => {
+    .addCase(modifyTransaction, (transactions, { payload: { chainId, hash, extraInfo, needCheckSubgraph } }) => {
       const tx = findTx(transactions[chainId], hash)
       if (!tx) return
-      tx.needCheckSubgraph = false
+      if (needCheckSubgraph !== undefined) {
+        tx.needCheckSubgraph = needCheckSubgraph
+      }
+      if (extraInfo !== undefined) {
+        tx.extraInfo = extraInfo
+      }
     })
     .addCase(replaceTx, (transactions, { payload: { chainId, oldHash, newHash } }) => {
       const chainTxs = transactions[chainId] ?? {}

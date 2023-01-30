@@ -287,13 +287,20 @@ export default function StakeKNCComponent() {
     ),
     kyberDAOInfo?.staking,
   )
+
+  const currentVotingPower = calculateVotingPower(formatUnits(stakedBalance))
+  const newVotingPower = parseFloat(
+    calculateVotingPower(formatUnits(stakedBalance), (activeTab === STAKE_TAB.Unstake ? '-' : '') + inputValue),
+  )
+  const deltaVotingPower = Math.abs(newVotingPower - parseFloat(currentVotingPower)).toPrecision(3)
+
   const handleStake = () => {
     switchToEthereum()
       .then(() => {
         setPendingText(t`Staking ${inputValue} KNC to KyberDAO`)
         setShowConfirm(true)
         setAttemptingTxn(true)
-        stake(parseUnits(inputValue, 18))
+        stake(parseUnits(inputValue, 18), deltaVotingPower)
           .then(tx => {
             mixpanelHandler(MIXPANEL_TYPE.KYBER_DAO_STAKE_CLICK, { amount: inputValue })
             setAttemptingTxn(false)
@@ -626,20 +633,11 @@ export default function StakeKNCComponent() {
                 />
               </Text>
               <Text>
-                {calculateVotingPower(formatUnits(stakedBalance))}%
+                {currentVotingPower}%
                 {activeTab !== STAKE_TAB.Delegate && (
                   <>
                     {' '}
-                    &rarr;{' '}
-                    <span style={{ color: theme.text }}>
-                      {parseFloat(
-                        calculateVotingPower(
-                          formatUnits(stakedBalance),
-                          (activeTab === STAKE_TAB.Unstake ? '-' : '') + inputValue,
-                        ),
-                      )}
-                      %
-                    </span>
+                    &rarr; <span style={{ color: theme.text }}>{newVotingPower}%</span>
                   </>
                 )}
               </Text>

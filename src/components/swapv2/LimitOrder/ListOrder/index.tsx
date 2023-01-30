@@ -367,13 +367,14 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
 
   const getPayloadTracking = useCallback(
     (order: LimitOrder) => {
-      const { makerAssetSymbol, takerAssetSymbol, makingAmount, makerAssetDecimals, id } = order
+      const { makerAssetSymbol, takerAssetSymbol, makingAmount, makerAssetDecimals, id, nonce } = order
       return {
         from_token: makerAssetSymbol,
         to_token: takerAssetSymbol,
         from_network: networkInfo.name,
         trade_qty: formatAmountOrder(makingAmount, makerAssetDecimals),
         order_id: id,
+        order_nonce: nonce,
       }
     },
     [networkInfo],
