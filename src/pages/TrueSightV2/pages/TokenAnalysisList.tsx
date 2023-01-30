@@ -170,12 +170,23 @@ const ActionButton = styled.button<{ color: string }>`
 const TabWrapper = styled.div`
   overflow: auto;
   cursor: grab;
-`
-const TabInner = styled.div`
   display: inline-flex;
   gap: 8px;
   padding: 1px;
   position: relative;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  > * {
+    flex: 0 0 fit-content;
+    scroll-snap-align: start;
+  }
+  &.no-scroll {
+    scroll-snap-type: unset;
+    scroll-behavior: unset;
+    > * {
+      scroll-snap-align: unset;
+    }
+  }
 `
 
 const ButtonTypeActive = styled(ButtonLight)`
@@ -230,18 +241,19 @@ const TokenListDraggableTabs = ({ tab, setTab }: { tab: TokenListTab; setTab: (t
   const [showScrollRightButton, setShowScrollRightButton] = useState(false)
   const [scrollLeftValue, setScrollLeftValue] = useState(0)
   const wrapperRef = useRef<HTMLDivElement>(null)
-  const innerRef = useRef<HTMLDivElement>(null)
   const tabListRef = useRef<HTMLDivElement[]>([])
 
   const bind = useGesture({
     onDrag: state => {
       if (isMobile || !wrapperRef.current) return
-      state.event?.preventDefault()
+      //state.event?.preventDefault()
       if (wrapperRef.current?.scrollLeft !== undefined && state.dragging) {
+        wrapperRef.current.classList.add('no-scroll')
         wrapperRef.current.scrollLeft -= state.values?.[0] - state.previous?.[0] || 0
       }
       if (!state.dragging) {
         setScrollLeftValue(wrapperRef.current.scrollLeft)
+        wrapperRef.current.classList.remove('no-scroll')
       }
     },
   })
@@ -264,11 +276,7 @@ const TokenListDraggableTabs = ({ tab, setTab }: { tab: TokenListTab; setTab: (t
 
   useEffect(() => {
     const handleResize = () => {
-      if (
-        wrapperRef.current?.clientWidth &&
-        innerRef.current?.clientWidth &&
-        wrapperRef.current?.clientWidth <= innerRef.current?.clientWidth
-      ) {
+      if (wrapperRef.current?.clientWidth && wrapperRef.current?.clientWidth < wrapperRef.current?.scrollWidth) {
         setShowScrollRightButton(true)
       } else {
         setShowScrollRightButton(false)
@@ -282,41 +290,39 @@ const TokenListDraggableTabs = ({ tab, setTab }: { tab: TokenListTab; setTab: (t
   }, [])
 
   return (
-    <RowFit gap="16px">
-      <TabWrapper ref={wrapperRef} onScrollCapture={e => e.preventDefault()}>
-        <TabInner {...bind()} ref={innerRef} onScrollCapture={e => e.preventDefault()}>
-          {tokenTypeList.map(({ type, icon }, index) => {
-            const props = {
-              onClick: () => {
-                setTab(type)
-                if (!wrapperRef.current) return
-                const tabRef = tabListRef.current[index]
-                const wRef = wrapperRef.current
-                if (tabRef.offsetLeft < wRef.scrollLeft) {
-                  setScrollLeftValue(tabRef.offsetLeft)
-                }
-                if (wRef.scrollLeft + wRef.clientWidth < tabRef.offsetLeft + tabRef.offsetWidth) {
-                  setScrollLeftValue(tabRef.offsetLeft + tabRef.offsetWidth - wRef.offsetWidth)
-                }
-              },
-            }
-            if (tab === type) {
-              return (
-                <ButtonTypeActive key={type} {...props} ref={el => (tabListRef.current[index] = el)}>
-                  {icon && <Icon id={icon} size={16} />}
-                  {type}
-                </ButtonTypeActive>
-              )
-            } else {
-              return (
-                <ButtonTypeInactive key={type} {...props} ref={el => (tabListRef.current[index] = el)}>
-                  {icon && <Icon id={icon} size={16} />}
-                  {type}
-                </ButtonTypeInactive>
-              )
-            }
-          })}
-        </TabInner>
+    <>
+      <TabWrapper ref={wrapperRef} onScrollCapture={e => e.preventDefault()} {...bind()}>
+        {tokenTypeList.map(({ type, icon }, index) => {
+          const props = {
+            onClick: () => {
+              setTab(type)
+              if (!wrapperRef.current) return
+              const tabRef = tabListRef.current[index]
+              const wRef = wrapperRef.current
+              if (tabRef.offsetLeft < wRef.scrollLeft) {
+                setScrollLeftValue(tabRef.offsetLeft)
+              }
+              if (wRef.scrollLeft + wRef.clientWidth < tabRef.offsetLeft + tabRef.offsetWidth) {
+                setScrollLeftValue(tabRef.offsetLeft + tabRef.offsetWidth - wRef.offsetWidth)
+              }
+            },
+          }
+          if (tab === type) {
+            return (
+              <ButtonTypeActive key={type} {...props} ref={el => (tabListRef.current[index] = el)}>
+                {icon && <Icon id={icon} size={16} />}
+                {type}
+              </ButtonTypeActive>
+            )
+          } else {
+            return (
+              <ButtonTypeInactive key={type} {...props} ref={el => (tabListRef.current[index] = el)}>
+                {icon && <Icon id={icon} size={16} />}
+                {type}
+              </ButtonTypeInactive>
+            )
+          }
+        })}
       </TabWrapper>
       {showScrollRightButton && (
         <DropdownSVG
@@ -326,7 +332,7 @@ const TokenListDraggableTabs = ({ tab, setTab }: { tab: TokenListTab; setTab: (t
           }}
         />
       )}
-    </RowFit>
+    </>
   )
 }
 

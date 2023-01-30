@@ -50,6 +50,12 @@ export interface IHolderList {
   percentage: number
   quantity: number
 }
+export interface IFundingRate {
+  exchangeName: string
+  timestamp: number
+  rate: number
+  symbol: string
+}
 export interface IPagination {
   page: number
   pageSize: number

@@ -257,3 +257,30 @@ export const HOLDER_LIST = [
   { address: '', percentage: 1, quantity: 100000 },
   { address: '', percentage: 1, quantity: 100000 },
 ]
+
+export const FUNDING_RATE = [
+  {
+    exchangeName: 'Binance',
+    timestamp: 1234567890,
+    rate: 20,
+    symbol: 'BTC',
+  },
+  {
+    exchangeName: 'Bybit',
+    timestamp: 1234567890,
+    rate: 15,
+    symbol: 'BTC',
+  },
+  {
+    exchangeName: 'OKEx',
+    timestamp: 1234567890,
+    rate: 16,
+    symbol: 'BTC',
+  },
+  {
+    exchangeName: 'GateIO',
+    timestamp: 1234567890,
+    rate: 10,
+    symbol: 'BTC',
+  },
+]

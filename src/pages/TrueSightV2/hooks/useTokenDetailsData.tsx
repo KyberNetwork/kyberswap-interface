@@ -3,6 +3,7 @@ import useSWR from 'swr'
 import { TRUESIGHT_V2_API } from 'constants/env'
 
 import {
+  IFundingRate,
   IHolderList,
   INetflowToWhaleWallets,
   INumberOfHolders,
@@ -11,6 +12,7 @@ import {
   ITradeVolume,
 } from '../types'
 import {
+  FUNDING_RATE,
   HOLDER_LIST,
   NETFLOW_TO_WHALE_WALLETS,
   NUMBER_OF_HOLDERS,
@@ -103,6 +105,17 @@ export function useHolderList(tokenAddress: string) {
         .then(res => {
           return HOLDER_LIST
         }),
+  )
+  return { data, isLoading }
+}
+
+export function useFundingRate() {
+  const { data, isLoading } = useSWR<IFundingRate[]>(`${TRUESIGHT_V2_API}/holders/chain/C/BTC`, (url: string) =>
+    fetch(url)
+      .then(res => res.json())
+      .then(res => {
+        return FUNDING_RATE
+      }),
   )
   return { data, isLoading }
 }
