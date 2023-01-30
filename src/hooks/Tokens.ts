@@ -246,7 +246,7 @@ export const fetchListTokenByAddresses = async (address: string[], chainId: Chai
 export const formatAndCacheToken = (tokenResponse: TokenInfo) => {
   try {
     const tokenInfo = new WrappedTokenInfo(tokenResponse)
-    if (!tokenInfo.decimals) {
+    if (!tokenInfo.decimals && !tokenInfo.symbol && !tokenInfo.name) {
       return
     }
     cacheTokens[tokenResponse.address] = tokenInfo
