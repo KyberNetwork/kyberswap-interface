@@ -3,8 +3,8 @@ import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { Share2, Star } from 'react-feather'
-import { useNavigate } from 'react-router-dom'
+import { ArrowDown, ArrowUp, Share2, Star } from 'react-feather'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { useGesture } from 'react-use-gesture'
 import { Text } from 'rebass'
@@ -17,7 +17,7 @@ import { Ethereum } from 'components/Icons'
 import Icon from 'components/Icons/Icon'
 import InfoHelper from 'components/InfoHelper'
 import Pagination from 'components/Pagination'
-import Row from 'components/Row'
+import Row, { RowFit } from 'components/Row'
 import ShareModal from 'components/ShareModal'
 import useTruesightV2 from 'hooks/truesight-v2'
 import useTheme from 'hooks/useTheme'
@@ -86,6 +86,12 @@ const Table = styled.table`
       font-weight: 400 !important;
       color: ${({ theme }) => theme.subText} !important;
       font-size: 12px;
+      background-color: ${({ theme }) => theme.tableHeader};
+      cursor: pointer;
+
+      :hover {
+        filter: brightness(1.2);
+      }
     }
     tr {
       height: 48px;
@@ -105,20 +111,18 @@ const Table = styled.table`
       color: ${theme.text};
       border-bottom: 1px solid ${theme.border};
     `};
-    :hover {
+    :hover:not(thead tr) {
       filter: brightness(1.2);
     }
 
     td {
       background-color: ${({ theme }) => theme.background};
     }
-    th {
-      background-color: ${({ theme }) => theme.tableHeader};
-    }
 
     td,
     th {
       padding: 10px 16px;
+      text-align: center;
     }
 
     td:nth-child(1),
@@ -336,6 +340,18 @@ const TokenListDraggableTabs = ({ tab, setTab }: { tab: TokenListTab; setTab: (t
   )
 }
 
+enum SORT_FIELD {
+  NAME = 'name',
+  PRICE = 'price',
+  VOLUME = 'volume',
+  KYBERSCORE = 'kyberscore',
+}
+
+enum SORT_DIRECTION {
+  ASC = 'asc',
+  DESC = 'desc',
+}
+
 export default function TokenAnalysisList() {
   const theme = useTheme()
   const navigate = useNavigate()
@@ -345,6 +361,11 @@ export default function TokenAnalysisList() {
   const toggle = useToggleModal(ApplicationModal.SHARE)
   const { tokenList } = useTruesightV2()
   const above768 = useMedia('(min-width:768px)')
+
+  const [searchParams, setSearchParams] = useSearchParams()
+  const sortedColumn = searchParams.get('orderBy') || SORT_FIELD.VOLUME
+  const sortOrder = searchParams.get('orderDirection') || SORT_DIRECTION.DESC
+  const sortDirection = sortOrder === SORT_DIRECTION.DESC
 
   const templateList = useMemo(
     () =>
@@ -357,6 +378,19 @@ export default function TokenAnalysisList() {
   )
 
   const pageSize = 50
+
+  const handleSort = (field: SORT_FIELD) => {
+    const direction =
+      sortedColumn !== field
+        ? SORT_DIRECTION.DESC
+        : sortOrder === SORT_DIRECTION.DESC
+        ? SORT_DIRECTION.ASC
+        : SORT_DIRECTION.DESC
+
+    searchParams.set('orderDirection', direction)
+    searchParams.set('orderBy', field)
+    setSearchParams(searchParams)
+  }
 
   return (
     <>
@@ -385,42 +419,87 @@ export default function TokenAnalysisList() {
             <Table>
               <colgroup>
                 <col style={{ width: '35px' }} />
-                <col style={{ width: '350px', minWidth: '200px' }} />
+                <col style={{ width: '380px', minWidth: '200px' }} />
                 <col style={{ width: '50px' }} />
-                <col style={{ width: '250px', minWidth: 'auto' }} />
-                <col style={{ width: '250px', minWidth: 'auto' }} />
                 <col style={{ width: '150px', minWidth: 'auto' }} />
+                <col style={{ width: '220px', minWidth: 'auto' }} />
+                <col style={{ width: '250px', minWidth: 'auto' }} />
                 <col style={{ width: '150px', minWidth: 'auto' }} />
                 <col style={{ width: '300px', minWidth: 'auto' }} />
               </colgroup>
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>
-                    <Trans>Token name</Trans>
+                  <th style={{ textAlign: 'left' }} onClick={() => handleSort(SORT_FIELD.NAME)}>
+                    <Row>
+                      <Trans>Token name</Trans>
+                      {sortedColumn === SORT_FIELD.NAME ? (
+                        !sortDirection ? (
+                          <ArrowUp size="12" style={{ marginLeft: '2px' }} />
+                        ) : (
+                          <ArrowDown size="12" style={{ marginLeft: '2px' }} />
+                        )
+                      ) : (
+                        ''
+                      )}
+                    </Row>
                   </th>
                   <th>
                     <Trans>Chain</Trans>
                   </th>
-                  <th>
-                    <Trans>Price</Trans>
+                  <th onClick={() => handleSort(SORT_FIELD.KYBERSCORE)}>
+                    <Row>
+                      <Trans>Kyberscore</Trans>{' '}
+                      {sortedColumn === SORT_FIELD.KYBERSCORE ? (
+                        !sortDirection ? (
+                          <ArrowUp size="12" style={{ marginLeft: '2px' }} />
+                        ) : (
+                          <ArrowDown size="12" style={{ marginLeft: '2px' }} />
+                        )
+                      ) : (
+                        ''
+                      )}
+                      <InfoHelper
+                        placement="top"
+                        width="300px"
+                        size={12}
+                        text={t`KyberScore is an algorithm created by us that takes into account multiple on-chain and off-chain indicators to measure the current trend of a token. The score ranges from 0 to 100.`}
+                      />
+                    </Row>
+                  </th>
+                  <th onClick={() => handleSort(SORT_FIELD.PRICE)}>
+                    <Row justify="center">
+                      <Trans>Price</Trans>
+                      {sortedColumn === SORT_FIELD.PRICE ? (
+                        !sortDirection ? (
+                          <ArrowUp size="12" style={{ marginLeft: '2px' }} />
+                        ) : (
+                          <ArrowDown size="12" style={{ marginLeft: '2px' }} />
+                        )
+                      ) : (
+                        ''
+                      )}
+                    </Row>
                   </th>
                   <th>
                     <Trans>Last 7d price</Trans>
                   </th>
-                  <th>
-                    <Trans>24h Volume</Trans>
+                  <th onClick={() => handleSort(SORT_FIELD.VOLUME)}>
+                    <Row>
+                      <Trans>24h Volume</Trans>
+                      {sortedColumn === SORT_FIELD.VOLUME ? (
+                        !sortDirection ? (
+                          <ArrowUp size="12" style={{ marginLeft: '2px' }} />
+                        ) : (
+                          <ArrowDown size="12" style={{ marginLeft: '2px' }} />
+                        )
+                      ) : (
+                        ''
+                      )}
+                    </Row>
                   </th>
-                  <th>
-                    <Trans>Kyberscore</Trans>{' '}
-                    <InfoHelper
-                      placement="top"
-                      width="300px"
-                      size={12}
-                      text={t`KyberScore is an algorithm created by us that takes into account multiple on-chain and off-chain indicators to measure the current trend of a token. The score ranges from 0 to 100.`}
-                    />
-                  </th>
-                  <th>
+
+                  <th style={{ textAlign: 'end' }}>
                     <Trans>Action</Trans>
                   </th>
                 </tr>
@@ -430,9 +509,9 @@ export default function TokenAnalysisList() {
                 {templateList.slice((page - 1) * pageSize, page * pageSize).map((token: any) => (
                   <tr key={token.id} onClick={() => navigate('/discover/single-token')}>
                     <td>
-                      <span>
-                        <Star size={16} style={{ marginRight: '6px' }} /> {token.id}
-                      </span>
+                      <RowFit>
+                        <Star size={16} style={{ marginRight: '6px', cursor: 'pointer' }} /> {token.id}
+                      </RowFit>
                     </td>
                     <td>
                       <Row>
@@ -461,7 +540,7 @@ export default function TokenAnalysisList() {
 
                         <Column
                           gap="8px"
-                          style={{ cursor: 'pointer' }}
+                          style={{ cursor: 'pointer', alignItems: 'flex-start' }}
                           onClick={() => navigate('/discover/single-token')}
                         >
                           <Text>{token.symbol}</Text>{' '}
@@ -475,7 +554,10 @@ export default function TokenAnalysisList() {
                       <Ethereum size={16} />
                     </td>
                     <td>
-                      <Column gap="10px">
+                      <Text color={theme.primary}>{token.kyberscore || '--'}</Text>
+                    </td>
+                    <td>
+                      <Column gap="10px" style={{ textAlign: 'left' }}>
                         <Text>${token.price}</Text>
                         <Text fontSize={12} color={theme.primary}>
                           +{token.change}
@@ -488,9 +570,7 @@ export default function TokenAnalysisList() {
                     <td>
                       <Text>{token['24hVolume'] || '--'}</Text>
                     </td>
-                    <td>
-                      <Text color={theme.primary}>{token.kyberscore || '--'}</Text>
-                    </td>
+
                     <td>
                       <Row gap="6px" justify={'flex-end'}>
                         <ActionButton color={theme.subText} onClick={() => navigate('/discover/single-token')}>
