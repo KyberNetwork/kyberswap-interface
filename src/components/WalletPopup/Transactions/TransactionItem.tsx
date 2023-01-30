@@ -296,7 +296,7 @@ function useCheckPendingTransaction(transactions: TransactionDetails[]) {
   //
 }
 
-const STALLED_MINS = 1 / 60
+const STALLED_MINS = 1
 const isTxsPendingTooLong = (txs: TransactionDetails) => {
   const { pending: pendingTxsStatus } = getTransactionStatus(txs)
   return pendingTxsStatus && Date.now() - txs.addedTime > STALLED_MINS * 60_000 && txs.group === TRANSACTION_GROUP.SWAP
@@ -449,7 +449,7 @@ const RENDER_DESCRIPTION_MAP: {
   [TRANSACTION_TYPE.HARVEST]: renderDescriptionBasic,
 
   // to make sure you don't forgot setup
-  [TRANSACTION_TYPE.SETUP_SOLANA_SWAP]: () => null, // todo danh test it" popup and noti, send token solana
+  [TRANSACTION_TYPE.SETUP_SOLANA_SWAP]: () => null,
 }
 
 function PendingWarning() {
