@@ -29,6 +29,7 @@ import { useActiveWeb3React } from 'hooks'
 import { findCacheToken } from 'hooks/Tokens'
 import { MultichainTransferStatus } from 'hooks/bridge/useGetBridgeTransfers'
 import useTheme from 'hooks/useTheme'
+import ErrorWarningPanel from 'pages/Bridge/ErrorWarning'
 import { AppDispatch } from 'state'
 import { modifyTransaction } from 'state/transactions/actions'
 import {
@@ -293,6 +294,11 @@ function useCheckPendingTransaction(transactions: TransactionDetails[]) {
   //
 }
 
+const isTxsPendingTooLong = (txs: TransactionDetails) => {
+  const { pending: pendingTxsStatus } = getTransactionStatus(txs)
+  return pendingTxsStatus && Date.now() - txs.addedTime > 5 * 60_1000 // 5 mins
+}
+
 const StatusIcon = ({
   transaction,
   cancellingOrderInfo,
@@ -300,13 +306,13 @@ const StatusIcon = ({
   transaction: TransactionDetails
   cancellingOrderInfo: CancellingOrderInfo
 }) => {
-  const { type, addedTime, hash, extraInfo, chainId } = transaction
+  const { type, hash, extraInfo, chainId } = transaction
   const { pending: pendingTxsStatus, success } = getTransactionStatus(transaction)
   const needCheckPending =
     [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER, TRANSACTION_TYPE.BRIDGE].includes(type) &&
     success &&
     !extraInfo?.tracking?.actuallySuccess
-  const isPendingTooLong = pendingTxsStatus && Date.now() - addedTime > 5 * 3_600_1000 // 5 hour
+  const isPendingTooLong = isTxsPendingTooLong(transaction)
   const [isPendingState, setIsPendingState] = useState<boolean | null>(null)
   const dispatch = useDispatch<AppDispatch>()
   const { cancellingOrdersIds, cancellingOrdersNonces, loading } = cancellingOrderInfo
@@ -443,6 +449,26 @@ const RENDER_DESCRIPTION_MAP: {
   [TRANSACTION_TYPE.SETUP_SOLANA_SWAP]: () => null, // todo danh test it" popup and noti, send token solana
 }
 
+function PendingWarning() {
+  const theme = useTheme()
+  return (
+    <ErrorWarningPanel
+      style={{ borderRadius: 20, padding: '10px 14px' }}
+      type="error"
+      title={
+        <Text color={theme.red}>
+          <Trans>
+            Transaction stuck?{' '}
+            <ExternalLink href="https://support.kyberswap.com/hc/en-us/articles/13785666409881-Why-is-my-transaction-stuck-in-Pending-state-">
+              See here
+            </ExternalLink>
+          </Trans>
+        </Text>
+      }
+    />
+  )
+}
+
 type Prop = {
   transaction: TransactionDetails
   style: CSSProperties
@@ -459,9 +485,11 @@ export default forwardRef<HTMLDivElement, Prop>(function TransactionItem(
   const info: any = RENDER_DESCRIPTION_MAP?.[type]?.(transaction) ?? { leftComponent: null, rightComponent: null }
   const leftComponent: ReactNode = info.leftComponent !== undefined ? info.leftComponent : info
   const rightComponent: ReactNode = info.rightComponent
+  const isPendingTooLong = isTxsPendingTooLong(transaction)
 
   return (
-    <ItemWrapper style={style} ref={ref}>
+    <ItemWrapper style={style} ref={ref} data-stalled={isPendingTooLong}>
+      {isPendingTooLong && <PendingWarning />}
       <Flex justifyContent="space-between" alignItems="flex-end">
         <Row gap="6px">
           {!isMinimal && (

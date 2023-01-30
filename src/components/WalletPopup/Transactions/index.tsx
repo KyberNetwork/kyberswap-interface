@@ -66,14 +66,15 @@ function Row({
   const rowRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (rowRef.current) {
-      const [, child2] = rowRef.current.children // todo danh
-      const [sub1, sub2] = child2.children
-      const rowNum = Math.max(sub1.children.length, sub2.children.length) + 1
+    const lastChild = rowRef.current?.lastChild // todo danh
+    if (lastChild) {
+      const [sub1, sub2] = lastChild.childNodes
+      const rowNum = Math.max(sub1.childNodes.length, sub2.childNodes.length) + 1
       const padding = 14
       const lineHeight = 15
       const gap = 10
-      setRowHeight(index, 2 * padding + lineHeight * rowNum + (rowNum - 1) * gap)
+      const hasStall = rowRef.current.dataset.stalled === 'true' ? 36 + gap : 0
+      setRowHeight(index, hasStall + 2 * padding + lineHeight * rowNum + (rowNum - 1) * gap)
     }
   }, [rowRef, index, setRowHeight])
 
