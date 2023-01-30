@@ -296,9 +296,10 @@ function useCheckPendingTransaction(transactions: TransactionDetails[]) {
   //
 }
 
+const STALLED_MINS = 1 / 60
 const isTxsPendingTooLong = (txs: TransactionDetails) => {
   const { pending: pendingTxsStatus } = getTransactionStatus(txs)
-  return pendingTxsStatus && Date.now() - txs.addedTime > 5 * 60_1000 // 5 mins
+  return pendingTxsStatus && Date.now() - txs.addedTime > STALLED_MINS * 60_1000 && txs.group === TRANSACTION_GROUP.SWAP
 }
 
 const StatusIcon = ({
@@ -392,7 +393,7 @@ const StatusIcon = ({
         <Loader size={'12px'} />
       ) : pending ? (
         isPendingTooLong ? (
-          <IconWarning width={'14px'} />
+          <IconWarning width={'14px'} color={theme.red} />
         ) : (
           <Repeat size={14} color={theme.warning} />
         )
@@ -461,7 +462,9 @@ function PendingWarning() {
         <Text color={theme.red}>
           <Trans>
             Transaction stuck?{' '}
-            <MouseoverTooltip text={t`Stuck transaction. Your transaction has been processing for more than 5 mins.`}>
+            <MouseoverTooltip
+              text={t`Stuck transaction. Your transaction has been processing for more than ${STALLED_MINS} mins.`}
+            >
               <ExternalLink href="https://support.kyberswap.com/hc/en-us/articles/13785666409881-Why-is-my-transaction-stuck-in-Pending-state-">
                 See here
               </ExternalLink>
@@ -483,13 +486,13 @@ export default forwardRef<HTMLDivElement, Prop>(function TransactionItem(
   { transaction, style, isMinimal, cancellingOrderInfo }: Prop,
   ref,
 ) {
-  const { type, addedTime, hash, chainId, group } = transaction
+  const { type, addedTime, hash, chainId } = transaction
   const theme = useTheme()
 
   const info: any = RENDER_DESCRIPTION_MAP?.[type]?.(transaction) ?? { leftComponent: null, rightComponent: null }
   const leftComponent: ReactNode = info.leftComponent !== undefined ? info.leftComponent : info
   const rightComponent: ReactNode = info.rightComponent
-  const isStalled = group === TRANSACTION_GROUP.SWAP && isTxsPendingTooLong(transaction)
+  const isStalled = isTxsPendingTooLong(transaction)
 
   return (
     <ItemWrapper style={style} ref={ref} data-stalled={isStalled}>
