@@ -6,11 +6,11 @@ import svgr from "vite-plugin-svgr";
 
 export default defineConfig({
   plugins: [
-    react(),
-    svgr(),
     dts({
       insertTypesEntry: true,
     }),
+    react(),
+    svgr(),
   ],
   build: {
     lib: {

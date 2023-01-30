@@ -1140,6 +1140,20 @@
     "@jridgewell/resolve-uri" "3.1.0"
     "@jridgewell/sourcemap-codec" "1.4.14"
 
+"@kyberswap/widgets@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@kyberswap/widgets/-/widgets-0.0.2.tgz#89fbebaf01f705f9aa42afc0a49427ecd4168812"
+  integrity sha512-oIlQu0hpVxCP5CHhYI6wHjE6arfa1LRhFRf+dV8ZdhnhCJvYunPnw4bUrpx7s7T99CJPXTEBLMeuv27FUH3ImQ==
+  dependencies:
+    "@popperjs/core" "^2.11.6"
+    "@reach/portal" "^0.18.0"
+    ethers "^5.7.0"
+    react "^18.2.0"
+    react-dom "^18.2.0"
+    react-popper "^2.3.0"
+    styled-components "^5.3.5"
+    vite-plugin-svgr "^2.2.1"
+
 "@lerna/add@6.3.0":
   version "6.3.0"
   resolved "https://registry.yarnpkg.com/@lerna/add/-/add-6.3.0.tgz#4ff2b34298ff97f4d015b091441874efc1e95964"

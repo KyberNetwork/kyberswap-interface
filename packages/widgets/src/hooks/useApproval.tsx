@@ -43,18 +43,20 @@ function useApproval(
   }, [contract, spender]);
 
   useEffect(() => {
-    const i = setInterval(() => {
-      provider?.getTransactionReceipt(pendingTx).then((receipt) => {
-        if (receipt) {
-          setPendingTx("");
-          setApprovalState(APPROVAL_STATE.APPROVED);
-        }
-      });
-    }, 8_000);
+    if (pendingTx) {
+      const i = setInterval(() => {
+        provider?.getTransactionReceipt(pendingTx).then((receipt) => {
+          if (receipt) {
+            setPendingTx("");
+            setApprovalState(APPROVAL_STATE.APPROVED);
+          }
+        });
+      }, 8_000);
 
-    return () => {
-      clearInterval(i);
-    };
+      return () => {
+        clearInterval(i);
+      };
+    }
   }, [pendingTx, provider]);
 
   useEffect(() => {
