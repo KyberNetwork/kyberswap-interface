@@ -803,7 +803,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
       const apolloProMMClient = (networkInfo as EVMNetworkInfo).elastic.client
 
       const hash = transaction.hash
-      const tracking = transaction.extraInfo?.tracking
+      const tracking = transaction.extraInfo?.arbitrary
       switch (transaction.type) {
         case TRANSACTION_TYPE.CLASSIC_ADD_LIQUIDITY: {
           const { poolAddress, token_1, token_2, add_liquidity_method, amp } = tracking || {}
@@ -976,7 +976,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
             if (!res.data?.transaction?.mints || res.data.transaction.mints.length === 0) break
           }
           const { amount0, amount1, amountUSD } = res.data.transaction.mints[0]
-          const { token_1, token_2 } = transaction.extraInfo?.tracking || {}
+          const { token_1, token_2 } = transaction.extraInfo?.arbitrary || {}
           mixpanelHandler(MIXPANEL_TYPE.ELASTIC_CREATE_POOL_COMPLETED, {
             token_1,
             token_2,

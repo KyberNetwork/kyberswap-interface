@@ -56,7 +56,7 @@ export function useKyberDaoStakeActions() {
             tokenSymbol: 'KNC',
             tokenAddress: kyberDaoInfo?.KNCAddress ?? '',
             tokenAmount: formatUnits(amount),
-            tracking: { amount: formatUnits(amount), votingPower }, // todo danh rename tracking ??
+            arbitrary: { amount: formatUnits(amount), votingPower },
           },
         })
         return tx.hash
@@ -87,7 +87,7 @@ export function useKyberDaoStakeActions() {
             tokenSymbol: 'KNC',
             tokenAddress: kyberDaoInfo?.KNCAddress ?? '',
             tokenAmount: formatUnits(amount),
-            tracking: { amount: formatUnits(amount) },
+            arbitrary: { amount: formatUnits(amount) },
           },
         })
         return tx.hash

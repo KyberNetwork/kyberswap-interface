@@ -86,7 +86,7 @@ const renderDescription2Token = (transaction: TransactionDetails) => {
 const renderDescriptionKyberDaoStake = (transaction: TransactionDetails) => {
   const { extraInfo = {}, type } = transaction
   const { tokenSymbol, tokenAmount, tokenAddress } = extraInfo as TransactionExtraInfo1Token
-  const votingPower = extraInfo?.tracking?.votingPower
+  const votingPower = extraInfo?.arbitrary?.votingPower
   const isUnstake = type === TRANSACTION_TYPE.KYBERDAO_UNSTAKE
   return (
     <>
@@ -171,8 +171,6 @@ const renderDescriptionLimitOrder = (transaction: TransactionDetails) => {
     </Row>
   )
 }
-
-// todo danh refactor needcheck grath or acctually success
 
 const RENDER_DESCRIPTION_MAP: {
   [type in TRANSACTION_TYPE]: (

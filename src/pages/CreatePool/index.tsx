@@ -271,7 +271,7 @@ export default function CreatePool() {
                   tokenAmountOut,
                   tokenSymbolIn: cA.symbol ?? '',
                   tokenSymbolOut: cB.symbol ?? '',
-                  tracking: {
+                  arbitrary: {
                     token_1: cA.symbol,
                     token_2: cB.symbol,
                     amp,

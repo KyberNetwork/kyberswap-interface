@@ -176,7 +176,6 @@ function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
                     key={data[index].hash}
                     setRowHeight={setRowHeight}
                     cancellingOrderInfo={cancellingOrderInfo}
-                    // todo refacotr
                   />
                 )}
               </VariableSizeList>

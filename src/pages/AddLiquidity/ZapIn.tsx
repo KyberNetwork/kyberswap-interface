@@ -258,7 +258,7 @@ const ZapIn = ({
                 tokenAmount,
                 tokenAddressOut: independentToken?.wrapped?.address ?? '',
                 contract: pairAddress,
-                tracking: {
+                arbitrary: {
                   poolAddress: pairAddress,
                   token_1: cA.symbol,
                   token_2: cB.symbol,

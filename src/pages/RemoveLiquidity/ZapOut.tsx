@@ -413,7 +413,7 @@ export default function ZapOut({
                 tokenAmount,
                 tokenAddressOut: independentToken?.wrapped?.address ?? '',
                 contract: pairAddress,
-                tracking: {
+                arbitrary: {
                   poolAddress: pairAddress,
                   token_1: currencyA.symbol,
                   token_2: currencyB.symbol,

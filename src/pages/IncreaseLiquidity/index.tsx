@@ -238,7 +238,7 @@ export default function AddLiquidity() {
                   tokenAddressOut: quoteCurrency.wrapped.address,
                   tokenSymbolIn,
                   tokenSymbolOut,
-                  tracking: {
+                  arbitrary: {
                     token_1: tokenSymbolIn,
                     token_2: tokenSymbolOut,
                   },

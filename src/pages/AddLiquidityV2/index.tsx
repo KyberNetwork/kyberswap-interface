@@ -302,7 +302,7 @@ export default function AddLiquidity() {
                     tokenAmountOut,
                     tokenAddressIn: baseCurrency.wrapped.address,
                     tokenAddressOut: quoteCurrency.wrapped.address,
-                    tracking: {
+                    arbitrary: {
                       token_1: baseCurrency.symbol,
                       token_2: quoteCurrency.symbol,
                     },
@@ -322,7 +322,7 @@ export default function AddLiquidity() {
                     tokenSymbolOut: quoteCurrency.symbol,
                     tokenAddressIn: baseCurrency.wrapped.address,
                     tokenAddressOut: quoteCurrency.wrapped.address,
-                    tracking: {
+                    arbitrary: {
                       poolAddress,
                       token_1: baseCurrency.symbol,
                       token_2: quoteCurrency.symbol,

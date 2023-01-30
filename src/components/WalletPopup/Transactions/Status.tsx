@@ -25,7 +25,7 @@ const MAX_TIME_CHECK_STATUS = 7 * 86_400_000 // the time that we don't need to i
 const TYPE_NEED_CHECK_PENDING = [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER, TRANSACTION_TYPE.BRIDGE]
 const TYPE_INTERVAL = [TRANSACTION_TYPE.BRIDGE]
 
-const isTxsActuallySuccess = (txs: TransactionDetails) => txs.extraInfo?.tracking?.actuallySuccess
+const isTxsActuallySuccess = (txs: TransactionDetails) => txs.extraInfo?.actuallySuccess
 
 // this component to interval call api/listen firebase to check transaction status actually done or not
 function StatusIcon({
@@ -65,7 +65,7 @@ function StatusIcon({
       const isLoadingRemoteData = type === TRANSACTION_TYPE.CANCEL_LIMIT_ORDER && loading
       switch (type) {
         case TRANSACTION_TYPE.CANCEL_LIMIT_ORDER:
-          const orderId = extraInfo?.tracking?.order_id
+          const orderId = extraInfo?.arbitrary?.order_id
           isPending = cancellingOrdersIds.includes(orderId) || cancellingOrdersNonces.length > 0
           break
         case TRANSACTION_TYPE.BRIDGE: {
@@ -79,7 +79,7 @@ function StatusIcon({
           modifyTransaction({
             chainId,
             hash,
-            extraInfo: { ...(extraInfo ?? {}), tracking: { ...(extraInfo?.tracking ?? {}), actuallySuccess: true } },
+            extraInfo: { ...extraInfo, actuallySuccess: true },
           }),
         )
       }

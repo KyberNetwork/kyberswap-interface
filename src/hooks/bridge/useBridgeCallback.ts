@@ -177,7 +177,7 @@ function useRouterSwap(
                 chainIdOut,
                 tokenAddressIn: currencyIn?.address ?? '',
                 tokenAddressOut: currencyOut?.address ?? '',
-                tracking: {
+                arbitrary: {
                   from_token,
                   to_token,
                   bridge_fee: outputInfo.fee,
@@ -307,7 +307,7 @@ function useBridgeSwap(
                 chainIdOut,
                 tokenAddressIn: currencyIn?.address ?? '',
                 tokenAddressOut: currencyOut?.address ?? '',
-                tracking: {
+                arbitrary: {
                   from_token,
                   to_token,
                   bridge_fee: outputInfo.fee,

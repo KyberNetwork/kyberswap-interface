@@ -120,7 +120,7 @@ export default function ProAmmFee({
                 tokenAddressOut: feeValue1.currency.wrapped.address,
                 tokenSymbolIn,
                 tokenSymbolOut,
-                tracking: {
+                arbitrary: {
                   token_1: token0Shown?.symbol,
                   token_2: token1Shown?.symbol,
                   token_1_amount: tokenAmountIn,

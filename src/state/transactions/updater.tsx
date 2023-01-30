@@ -132,7 +132,7 @@ export default function Updater(): null {
                   notiType: receipt.status === 1 ? NotificationType.SUCCESS : NotificationType.ERROR,
                 })
                 if (receipt.status === 1 && transaction) {
-                  const tracking = transaction.extraInfo?.tracking
+                  const tracking = transaction.extraInfo?.arbitrary
                   switch (transaction.type) {
                     case TRANSACTION_TYPE.SWAP: {
                       if (tracking) {
@@ -220,7 +220,7 @@ export default function Updater(): null {
                   notiType: tx.meta?.err ? NotificationType.ERROR : NotificationType.SUCCESS,
                 })
                 if (!tx.meta?.err && transaction) {
-                  const tracking = transaction.extraInfo?.tracking
+                  const tracking = transaction.extraInfo?.arbitrary
                   switch (transaction.type) {
                     case TRANSACTION_TYPE.SWAP: {
                       if (tracking) {
@@ -247,7 +247,7 @@ export default function Updater(): null {
         }
       })
     uniqueTransactions
-      .filter(hash => findTx(transactions, hash)?.needCheckSubgraph)
+      .filter(hash => findTx(transactions, hash)?.extraInfo?.needCheckSubgraph)
       .forEach(async (hash: string) => {
         const transaction = findTx(transactions, hash)
         try {

@@ -171,7 +171,7 @@ export async function sendSolanaTransactions(
           hash: setupHash,
           firstTxHash: txHashs[0],
           extraInfo: {
-            tracking: {
+            arbitrary: {
               index: 1,
               total: signedTxs.length,
               mainTx: swapData,

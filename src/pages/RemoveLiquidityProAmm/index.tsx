@@ -302,7 +302,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                 tokenAddressIn: liquidityValue0?.currency.wrapped.address,
                 tokenAddressOut: liquidityValue1?.currency.wrapped.address,
                 contract: poolAddress,
-                tracking: {
+                arbitrary: {
                   poolAddress,
                   token_1: token0Shown?.symbol,
                   token_2: token1Shown?.symbol,

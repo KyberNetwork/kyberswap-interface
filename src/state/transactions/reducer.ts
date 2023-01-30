@@ -12,7 +12,7 @@ import {
   removeTx,
   replaceTx,
 } from './actions'
-import { GroupedTxsByHash } from './type'
+import { GroupedTxsByHash, TransactionExtraInfo } from './type'
 
 const now = () => new Date().getTime()
 
@@ -64,13 +64,15 @@ export default createReducer(initialState, builder =>
       if (!tx) return
       tx.receipt = receipt
       tx.confirmedTime = now()
-      tx.needCheckSubgraph = needCheckSubgraph
+      const newExtraInfo: TransactionExtraInfo = { ...tx.extraInfo, needCheckSubgraph }
+      tx.extraInfo = newExtraInfo
     })
     .addCase(modifyTransaction, (transactions, { payload: { chainId, hash, extraInfo, needCheckSubgraph } }) => {
       const tx = findTx(transactions[chainId], hash)
       if (!tx) return
-      if (needCheckSubgraph !== undefined) tx.needCheckSubgraph = needCheckSubgraph
-      if (extraInfo !== undefined) tx.extraInfo = extraInfo
+      const newExtraInfo: TransactionExtraInfo = { ...tx.extraInfo, ...extraInfo }
+      if (needCheckSubgraph !== undefined) newExtraInfo.needCheckSubgraph = needCheckSubgraph
+      tx.extraInfo = newExtraInfo
     })
     .addCase(replaceTx, (transactions, { payload: { chainId, oldHash, newHash } }) => {
       const chainTxs = transactions[chainId] ?? {}

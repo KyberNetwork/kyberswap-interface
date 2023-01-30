@@ -11,7 +11,6 @@ export type TransactionExtraInfo1Token = {
   tokenSymbol: string
   tokenAmount?: string
   contract?: string // recipient, contract, spender, ...
-  tracking?: any
 }
 
 // ex: swap 2knc to 2usdt
@@ -26,7 +25,6 @@ export type TransactionExtraInfo2Token = {
   contract?: string // recipient, contract, spender, ...
   chainIdIn?: ChainId
   chainIdOut?: ChainId
-  tracking?: any
 }
 
 export type TransactionExtraInfoHarvestFarm = {
@@ -36,7 +34,6 @@ export type TransactionExtraInfoHarvestFarm = {
   tokenSymbolOut?: string
   rewards: { tokenAddress: string; tokenSymbol: string; tokenAmount: string }[]
   contract?: string // recipient, contract, spender, ...
-  tracking?: any
 }
 
 export type TransactionExtraInfoStakeFarm = {
@@ -50,22 +47,25 @@ export type TransactionExtraInfoStakeFarm = {
     poolAddress: string
   }[]
   contract?: string // recipient, contract, spender, ...
-  tracking?: any
 }
 
 export type TransactionExtraBaseInfo = {
   summary?: string
   contract?: string // recipient, contract, spender, ...
-  tracking?: any
 }
 
 // structure data, let's create a new type if your transaction does not match 1 of 3 template
-export type TransactionExtraInfo =
+export type TransactionExtraInfo = (
   | TransactionExtraInfo1Token
   | TransactionExtraInfo2Token
   | TransactionExtraBaseInfo
   | TransactionExtraInfoHarvestFarm
   | TransactionExtraInfoStakeFarm
+) & {
+  actuallySuccess?: boolean
+  needCheckSubgraph?: boolean
+  arbitrary?: any // To store anything arbitrary, so it has any type
+}
 
 export interface TransactionDetails {
   hash: string
@@ -80,7 +80,6 @@ export interface TransactionDetails {
   nonce?: number
   sentAtBlock?: number
   extraInfo?: TransactionExtraInfo
-  needCheckSubgraph?: boolean
   group: TRANSACTION_GROUP
   chainId: ChainId
 }

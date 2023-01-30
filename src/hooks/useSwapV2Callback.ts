@@ -86,7 +86,7 @@ export function useSwapV2Callback(
         tokenSymbolOut: outputSymbol,
         tokenAddressIn: inputAddress,
         tokenAddressOut: outputAddress,
-        tracking: {
+        arbitrary: {
           inputSymbol,
           outputSymbol,
           inputAddress,
