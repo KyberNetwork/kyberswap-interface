@@ -299,7 +299,7 @@ function useCheckPendingTransaction(transactions: TransactionDetails[]) {
 const STALLED_MINS = 1 / 60
 const isTxsPendingTooLong = (txs: TransactionDetails) => {
   const { pending: pendingTxsStatus } = getTransactionStatus(txs)
-  return pendingTxsStatus && Date.now() - txs.addedTime > STALLED_MINS * 60_1000 && txs.group === TRANSACTION_GROUP.SWAP
+  return pendingTxsStatus && Date.now() - txs.addedTime > STALLED_MINS * 60_000 && txs.group === TRANSACTION_GROUP.SWAP
 }
 
 const StatusIcon = ({
