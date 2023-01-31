@@ -2,17 +2,14 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { MaxUint256 } from '@ethersproject/constants'
 import { Fraction, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import dayjs from 'dayjs'
 import { ethers } from 'ethers'
 import JSBI from 'jsbi'
 import React, { useMemo, useState } from 'react'
 import { Minus, Plus, Share2, X } from 'react-feather'
-import { Link, createSearchParams } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
-import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
-import { ReactComponent as DropSVG } from 'assets/svg/drop.svg'
 import { ButtonEmpty, ButtonLight, ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
 import CopyHelper from 'components/Copy'
@@ -22,7 +19,6 @@ import Divider from 'components/Divider'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { MoneyBag } from 'components/Icons'
 import Harvest from 'components/Icons/Harvest'
-import ReverseArrows from 'components/Icons/ReverseArrows'
 import Modal from 'components/Modal'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -41,7 +37,6 @@ import { useWalletModalToggle } from 'state/application/hooks'
 import { setAttemptingTxn, setShowConfirm, setTxHash, setYieldPoolsError } from 'state/farms/actions'
 import { Farm, Reward } from 'state/farms/types'
 import { useAppDispatch } from 'state/hooks'
-import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useViewMode } from 'state/user/hooks'
 import { VIEW_MODE } from 'state/user/reducer'
 import { ExternalLink } from 'theme'
@@ -64,32 +59,6 @@ const fixedFormatting = (value: BigNumber, decimals: number) => {
   }
 
   return fraction.toFixed(18).replace(/\.?0+$/, '')
-}
-
-const RatioPrice = ({ currency0, currency1 }: { currency0: Token; currency1: Token }) => {
-  const [reversed, setReversed] = useState(false)
-  const usdPrices = useTokenPrices([currency0.address, currency1.address])
-  const tokensPriceRatio =
-    usdPrices?.[currency1.address] && usdPrices?.[currency0.address]
-      ? reversed
-        ? usdPrices?.[currency1.address] / usdPrices?.[currency0.address]
-        : usdPrices?.[currency0.address] / usdPrices?.[currency1.address]
-      : undefined
-  return (
-    <>
-      {!!tokensPriceRatio && !!currency0 && !!currency1 ? (
-        <Row gap="4px">
-          {tokensPriceRatio.toPrecision(10)}{' '}
-          {reversed ? `${currency0.symbol} per ${currency1.symbol}` : `${currency1.symbol} per ${currency0.symbol}`}{' '}
-          <RowFit style={{ cursor: 'pointer' }} onClick={() => setReversed(prev => !prev)}>
-            <ReverseArrows />
-          </RowFit>
-        </Row>
-      ) : (
-        '--'
-      )}
-    </>
-  )
 }
 
 interface ListItemProps {
@@ -181,7 +150,6 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
   const pairSymbol = `${farm.token0.symbol}-${farm.token1.symbol} LP`
   const [depositValue, setDepositValue] = useState('')
   const [withdrawValue, setWithdrawValue] = useState('')
-  const [expanded, setExpanded] = useState(false)
   const pairAddressChecksum = isAddressString(chainId, farm.id)
   const balance = useTokenBalance(pairAddressChecksum)
   const staked = useStakedBalance(farm.fairLaunchAddress, farm.pid)
@@ -342,7 +310,7 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
     <>
       {viewMode === VIEW_MODE.LIST && above1200 && (
         <>
-          <TableRow isExpanded={expanded} joined={!!userStakedBalanceUSD}>
+          <TableRow joined={!!userStakedBalanceUSD}>
             {/* POOLS | AMP */}
             <Column gap="12px">
               <Row>
@@ -376,10 +344,10 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
                 </Text>
               </Row>
               <Row>
-                <RowFit gap="6px" marginRight="16px">
+                <RowFit color={theme.subText} gap="6px" marginRight="16px">
                   <CopyHelper toCopy={farm.id} />
-                  <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
-                    <Trans>Address</Trans>
+                  <Text fontSize="12px" lineHeight="16px">
+                    {shortenAddress(chainId, farm.id, 3)}
                   </Text>
                 </RowFit>
                 <RowFit
@@ -439,9 +407,8 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
               ) : (
                 <>
                   <Text color={theme.subText} fontSize="12px">
-                    <Trans>Ended at</Trans>
+                    <Trans>Farm Ended</Trans>
                   </Text>
-                  {dayjs(farm.endTime * 1000).format('DD-MM-YYYY HH:mm')}
                 </>
               )}
             </Column>
@@ -497,60 +464,7 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
                   <Plus size={16} />
                 </MouseoverTooltip>
               </ActionButton>
-              <ActionButton color={theme.subText} onClick={() => setExpanded(prev => !prev)}>
-                <MouseoverTooltip text={t`Expand`} placement="top" width="fit-content">
-                  <DropdownSVG
-                    width="24px"
-                    height="24px"
-                    style={{ rotate: expanded ? '180deg' : 'unset', transition: 'rotate 0.2s ease' }}
-                  />
-                </MouseoverTooltip>
-              </ActionButton>
             </Row>
-            {expanded ? (
-              <>
-                <Column gap="4px" style={{ gridColumn: '1/3' }}>
-                  <Text fontSize={12} color={theme.subText} lineHeight="16px">
-                    <Trans>Current Price:</Trans>
-                  </Text>
-                  <Text>
-                    <RatioPrice currency0={currency0} currency1={currency1} />
-                  </Text>
-                </Column>
-                {!!userStakedBalanceUSD && (
-                  <Column gap="4px" style={{ gridColumn: '3' }}>
-                    <Text fontSize={12} color={theme.subText} lineHeight="16px">
-                      <Trans>My APR</Trans>
-                    </Text>
-                    <Text fontSize={14} color={theme.apr} lineHeight="20px">
-                      <Trans>{!!apr ? apr.toFixed(2) + '%' : '--'}</Trans>
-                    </Text>
-                  </Column>
-                )}
-                <Column gap="4px" style={{ gridColumn: '4' }}>
-                  <Text fontSize={12} color={theme.subText} lineHeight="16px">
-                    <Trans>Farming Time</Trans>
-                  </Text>
-                  <Text>
-                    <Trans>--</Trans>
-                  </Text>
-                </Column>
-                {!!userStakedBalanceUSD && (
-                  <Row alignSelf="start" justify="flex-end" style={{ gridColumn: '5/-1' }} color={theme.subText}>
-                    <Link to={'/myPools?' + createSearchParams({ tab: 'classic', search: farm.id })}>
-                      <Row>
-                        <DropSVG />
-                        <Text fontSize={12} lineHeight="16px">
-                          <Trans>My Pools</Trans> ↗
-                        </Text>
-                      </Row>
-                    </Link>
-                  </Row>
-                )}
-              </>
-            ) : (
-              <></>
-            )}
           </TableRow>
         </>
       )}
@@ -606,23 +520,8 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
                 <Trans>Avg APR</Trans>
               </Text>
             </MouseoverTooltip>
-            <MouseoverTooltip text={<></>}>
-              <Text
-                width="fit-content"
-                lineHeight="16px"
-                fontSize="12px"
-                fontWeight="500"
-                color={theme.subText}
-                sx={{ borderBottom: `1px dashed ${theme.border}` }}
-              >
-                <Trans>My APR</Trans>
-              </Text>
-            </MouseoverTooltip>
           </RowBetween>
           <RowBetween marginBottom="16px">
-            <Text fontSize={28} lineHeight="32px" color={theme.apr} fontWeight={500}>
-              {!!apr ? apr.toFixed(2) + '%' : '--'}
-            </Text>
             <Text fontSize={28} lineHeight="32px" color={theme.apr} fontWeight={500}>
               {!!apr ? apr.toFixed(2) + '%' : '--'}
             </Text>
@@ -641,7 +540,7 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
               </Text>
             ) : (
               <Text fontSize={12} color={theme.subText} lineHeight="16px">
-                <Trans>Ended at</Trans>
+                <Trans>Farm ended</Trans>
               </Text>
             )}
           </RowBetween>
@@ -655,7 +554,7 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
               ) : farm.endTime > currentTimestamp ? (
                 <>{getFormattedTimeFromSecond(farm.endTime - currentTimestamp)}</>
               ) : (
-                <>{dayjs(farm.endTime * 1000).format('DD-MM-YYYY HH:mm')}</>
+                <></>
               )
             ) : (
               '--'
@@ -666,16 +565,10 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
             <Text fontSize={12} color={theme.subText} lineHeight="16px">
               <Trans>My Deposit</Trans>
             </Text>
-            <Text fontSize={12} color={theme.subText} lineHeight="16px">
-              <Trans>Farming Time</Trans>
-            </Text>
           </RowBetween>
           <RowBetween marginBottom="16px">
             <Text fontSize="16px" color={theme.text} lineHeight="20px">
               {!!userStakedBalanceUSD ? formatDollarAmount(userStakedBalanceUSD) : '--'}
-            </Text>
-            <Text fontSize="16px" color={theme.text} lineHeight="20px">
-              --
             </Text>
           </RowBetween>
           <RowBetween marginBottom="16px">

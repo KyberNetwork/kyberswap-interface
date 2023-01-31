@@ -241,7 +241,7 @@ export const ClickableText = styled(Text)`
   }
 `
 
-export const TableRow = styled.div<{ fade?: boolean; isExpanded?: boolean; joined?: boolean }>`
+export const TableRow = styled.div<{ fade?: boolean; joined?: boolean }>`
   display: grid;
   grid-gap: 1rem;
   grid-template-columns: 1.75fr 0.75fr 0.75fr 1fr 1.25fr 0.75fr 160px;
@@ -251,21 +251,16 @@ export const TableRow = styled.div<{ fade?: boolean; isExpanded?: boolean; joine
   height: fit-content;
   position: relative;
   opacity: ${({ fade }) => (fade ? '0.6' : '1')};
-  background-color: ${({ theme, isExpanded }) => (isExpanded ? theme.buttonBlack : theme.background)};
+  background-color: ${({ theme }) => theme.background};
   transition: all 0.15s ease;
   border: 1px solid transparent;
   border-bottom: 1px solid ${({ theme }) => theme.border};
 
-  ${({ joined, isExpanded }) =>
+  ${({ joined }) =>
     joined &&
     css`
       background: url(/static/media/card-background.77fbb037.png),
-        linear-gradient(
-          to right,
-          rgba(15, 170, 162, ${isExpanded ? 0.05 : 0.12}),
-          rgba(15, 170, 162, ${isExpanded ? 0.05 : 0.12})
-        ),
-        #0f0f0f;
+        linear-gradient(to right, rgba(15, 170, 162, 0.12), rgba(15, 170, 162, 0.12)), #0f0f0f;
       background-size: cover;
       background-position: center;
     `}
