@@ -105,6 +105,7 @@ const Table = styled.table`
     contain-intrinsic-height: 72px;
     border-radius: 0;
     z-index: 2;
+    cursor: pointer;
 
     ${({ theme }) => css`
       background-color: ${theme.background};
@@ -448,7 +449,7 @@ export default function TokenAnalysisList() {
                     <Trans>Chain</Trans>
                   </th>
                   <th onClick={() => handleSort(SORT_FIELD.KYBERSCORE)}>
-                    <Row>
+                    <Row justify="center">
                       <Trans>Kyberscore</Trans>{' '}
                       {sortedColumn === SORT_FIELD.KYBERSCORE ? (
                         !sortDirection ? (
@@ -485,7 +486,7 @@ export default function TokenAnalysisList() {
                     <Trans>Last 7d price</Trans>
                   </th>
                   <th onClick={() => handleSort(SORT_FIELD.VOLUME)}>
-                    <Row>
+                    <Row justify="center">
                       <Trans>24h Volume</Trans>
                       {sortedColumn === SORT_FIELD.VOLUME ? (
                         !sortDirection ? (

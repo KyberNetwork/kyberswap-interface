@@ -2,9 +2,13 @@ import { t } from '@lingui/macro'
 import { useEffect } from 'react'
 import styled from 'styled-components'
 
+import blurImage1 from 'assets/images/truesight-v2/blur_background_1.png'
+import blurImage2 from 'assets/images/truesight-v2/blur_background_2.png'
+import blurImage3 from 'assets/images/truesight-v2/blur_background_3.png'
+import blurImage4 from 'assets/images/truesight-v2/blur_background_4.png'
 import { useTokenAnalysisSettings } from 'state/user/hooks'
 
-import { SectionWrapper } from '../components'
+import { RequireConnectWalletWrapper, SectionWrapper } from '../components'
 import {
   HoldersChartWrapper,
   NetflowToCentralizedExchanges,
@@ -65,7 +69,9 @@ export default function OnChainAnalysis() {
         shareButton
         fullscreenButton
       >
-        <NetflowToWhaleWallets />
+        <RequireConnectWalletWrapper bgUrl={blurImage1}>
+          <NetflowToWhaleWallets />
+        </RequireConnectWalletWrapper>
       </SectionWrapper>
       <SectionWrapper
         show={tokenAnalysisSettings?.netflowToCEX}
@@ -75,7 +81,9 @@ export default function OnChainAnalysis() {
         shareButton
         fullscreenButton
       >
-        <NetflowToCentralizedExchanges />
+        <RequireConnectWalletWrapper bgUrl={blurImage1}>
+          <NetflowToCentralizedExchanges />
+        </RequireConnectWalletWrapper>
       </SectionWrapper>
       <SectionWrapper
         show={tokenAnalysisSettings?.volumeOfTransfers}
@@ -95,23 +103,31 @@ export default function OnChainAnalysis() {
         shareButton
         fullscreenButton
       >
-        <NumberofHolders />
+        <RequireConnectWalletWrapper bgUrl={blurImage2}>
+          <NumberofHolders />
+        </RequireConnectWalletWrapper>
       </SectionWrapper>
       <SectionWrapper
         show={tokenAnalysisSettings?.top10Holders}
         title={t`Top 10 Holders`}
         id="top10holders"
         shareButton
+        style={{ height: '820px' }}
       >
-        <Top10HoldersTable />
+        <RequireConnectWalletWrapper bgUrl={blurImage3}>
+          <Top10HoldersTable />
+        </RequireConnectWalletWrapper>
       </SectionWrapper>
       <SectionWrapper
         show={tokenAnalysisSettings?.top25Holders}
         title={t`Top 25 Holders`}
         id="top25holders"
         shareButton
+        style={{ height: '360px' }}
       >
-        <HoldersChartWrapper />
+        <RequireConnectWalletWrapper bgUrl={blurImage4}>
+          <HoldersChartWrapper />
+        </RequireConnectWalletWrapper>
       </SectionWrapper>
     </Wrapper>
   )
