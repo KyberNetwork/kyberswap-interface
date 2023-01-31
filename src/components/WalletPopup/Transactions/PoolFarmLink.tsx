@@ -4,20 +4,16 @@ import { DoubleCurrencyLogoV2 } from 'components/DoubleLogo'
 import SendIcon from 'components/Icons/SendIcon'
 import { getTokenLogo } from 'components/WalletPopup/Transactions/helper'
 import { APP_PATHS } from 'constants/index'
-import {
-  TRANSACTION_TYPE,
-  TransactionDetails,
-  TransactionExtraInfo1Token,
-  TransactionExtraInfo2Token,
-} from 'state/transactions/type'
+import { TRANSACTION_TYPE, TransactionDetails, TransactionExtraInfo2Token } from 'state/transactions/type'
 import { ExternalLink } from 'theme'
 
 const PoolFarmLink = ({ transaction }: { transaction: TransactionDetails }) => {
   const { extraInfo = {}, type } = transaction
-  const { contract, tokenAddress } = extraInfo as TransactionExtraInfo1Token
-  if (!contract) return null
+  const { tokenSymbolIn, tokenSymbolOut, tokenAddressIn, tokenAddressOut, contract } =
+    extraInfo as TransactionExtraInfo2Token
 
-  const { tokenSymbolIn, tokenSymbolOut, tokenAddressIn, tokenAddressOut } = extraInfo as TransactionExtraInfo2Token
+  if (!contract || !(tokenSymbolIn && tokenSymbolOut)) return null
+
   const isFarm = [TRANSACTION_TYPE.HARVEST].includes(type)
   const isElastic = [
     TRANSACTION_TYPE.ELASTIC_ADD_LIQUIDITY,
@@ -27,8 +23,9 @@ const PoolFarmLink = ({ transaction }: { transaction: TransactionDetails }) => {
     TRANSACTION_TYPE.ELASTIC_INCREASE_LIQUIDITY,
     TRANSACTION_TYPE.HARVEST,
   ].includes(type)
-  const logoUrlIn = getTokenLogo(tokenAddressIn ?? tokenAddress)
-  const logoUrlOut = getTokenLogo(tokenAddressOut ?? tokenAddress)
+
+  const logoUrlIn = getTokenLogo(tokenAddressIn)
+  const logoUrlOut = getTokenLogo(tokenAddressOut)
   return (
     <ExternalLink
       href={`${window.location.origin}${isFarm ? APP_PATHS.FARMS : APP_PATHS.MY_POOLS}?search=${contract}&tab=${
