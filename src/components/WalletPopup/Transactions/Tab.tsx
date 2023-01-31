@@ -8,9 +8,6 @@ import { useActiveWeb3React } from 'hooks'
 import { isSupportKyberDao } from 'hooks/kyberdao'
 import { TRANSACTION_GROUP } from 'state/transactions/type'
 
-// TODO: there's 1px glitch when scrolling Tab
-// Take a look: https://stackoverflow.com/questions/60925201/extra-pixel-in-before-and-after-pseudo-elements
-
 const ListTab = styled.div`
   display: flex;
   width: 100%;
