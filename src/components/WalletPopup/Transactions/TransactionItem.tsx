@@ -256,8 +256,8 @@ export default forwardRef<HTMLDivElement, Prop>(function TransactionItem(
       </Flex>
 
       <Flex justifyContent="space-between">
-        <ColumGroup>{leftComponent}</ColumGroup>
-        <ColumGroup style={{ justifyContent: 'flex-end', alignItems: 'flex-end' }}>
+        <ColumGroup className="left-column">{leftComponent}</ColumGroup>
+        <ColumGroup className="right-column" style={{ justifyContent: 'flex-end', alignItems: 'flex-end' }}>
           {rightComponent || <ContractAddress transaction={transaction} />}
           <PrimaryText>{dayjs(addedTime).format('DD/MM/YYYY HH:mm:ss')}</PrimaryText>
         </ColumGroup>

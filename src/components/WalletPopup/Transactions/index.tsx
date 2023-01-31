@@ -7,6 +7,7 @@ import { Flex, Text } from 'rebass'
 import styled, { CSSProperties } from 'styled-components'
 
 import Tab from 'components/WalletPopup/Transactions/Tab'
+import { NUMBERS } from 'components/WalletPopup/Transactions/helper'
 import useCancellingOrders, { CancellingOrderInfo } from 'components/swapv2/LimitOrder/useCancellingOrders'
 import { useActiveWeb3React } from 'hooks'
 import { fetchListTokenByAddresses, findCacheToken, useIsLoadedTokenDefault } from 'hooks/Tokens'
@@ -48,7 +49,7 @@ const Wrapper = styled.div`
   gap: 12px;
 `
 
-function Row({
+function RowItem({
   index,
   style,
   transaction,
@@ -66,15 +67,29 @@ function Row({
   const rowRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const lastChild = rowRef.current?.lastChild // todo danh
-    if (lastChild) {
-      const [sub1, sub2] = lastChild.childNodes
-      const rowNum = Math.max(sub1.childNodes.length, sub2.childNodes.length) + 1
-      const padding = 14
-      const lineHeight = 15
-      const gap = 10
-      const hasStall = rowRef.current.dataset.stalled === 'true' ? 36 + gap : 0
-      setRowHeight(index, hasStall + 2 * padding + lineHeight * rowNum + (rowNum - 1) * gap)
+    /** because react-window don't support dynamic height => manually calc height for each item
+     *
+     * --- warning ---
+     * title
+     * left    right
+     *
+     * => item height = warning_height + tile_height + max(height_left, height_right) + gap + padding
+     */
+    const leftCol = rowRef.current?.querySelector('.left-column')
+    const rightCol = rowRef.current?.querySelector('.right-column')
+    if (leftCol && rightCol && rowRef.current) {
+      const { paddingTop, paddingBottom, gap } = getComputedStyle(rowRef.current)
+      const rowGap = parseFloat(gap)
+      const warningHeight = rowRef.current.dataset.stalled === 'true' ? NUMBERS.STALL_WARNING_HEIGHT + rowGap : 0
+      const rowNum = Math.max(leftCol.children.length, rightCol.children.length) + 1 // 1 for title
+      setRowHeight(
+        index,
+        parseFloat(paddingTop) +
+          parseFloat(paddingBottom) +
+          warningHeight +
+          NUMBERS.TRANSACTION_LINE_HEIGHT * rowNum +
+          (rowNum - 1) * rowGap,
+      )
     }
   }, [rowRef, index, setRowHeight])
 
@@ -124,7 +139,7 @@ function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
   useEffect(() => {
     if (!isLoadedTokenDefault) return
     const list: string[] = listTokenAddress.current.filter(address => !findCacheToken(address))
-    if (list.length) fetchListTokenByAddresses(list, chainId).catch(console.error) // todo danh ask: maxium tokens, transaction status, reset
+    if (list.length) fetchListTokenByAddresses(list, chainId).catch(console.error)
   }, [total, isLoadedTokenDefault, chainId])
 
   const onRefChange = useCallback((node: HTMLDivElement) => {
@@ -168,7 +183,7 @@ function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
                 itemData={formatTransactions}
               >
                 {({ data, index, style }) => (
-                  <Row
+                  <RowItem
                     isMinimal={isMinimal}
                     style={style}
                     transaction={data[index]}
