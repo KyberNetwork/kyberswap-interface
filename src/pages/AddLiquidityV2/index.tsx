@@ -970,7 +970,7 @@ export default function AddLiquidity() {
                 </div>
               </RowBetween>
               <RowBetween
-                sx={{ gap: upToXL ? (upToMedium ? '8px' : '0px') : '20px' }}
+                sx={{ gap: upToXL ? (upToMedium ? '8px' : '4px') : '20px' }}
                 flexDirection={upToXXSmall ? 'column' : 'row'}
               >
                 <CurrencyInputPanel
