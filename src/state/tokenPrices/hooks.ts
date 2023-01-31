@@ -1,7 +1,7 @@
 import { stringify } from 'querystring'
 import { useEffect, useMemo, useState } from 'react'
 
-import { PRICE_API } from 'constants/env'
+import { AGGREGATOR_API, PRICE_API } from 'constants/env'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
@@ -42,9 +42,7 @@ const useTokenPricesLocal = (addresses: Array<string>) => {
               method: 'POST',
               body: JSON.stringify(payload),
             })
-          : fetch(
-              `https://aggregator-api.dev.kyberengineering.io/solana/prices?${stringify(payload)}`, // todo danh
-            )
+          : fetch(`${AGGREGATOR_API}/solana/prices?${stringify(payload)}`)
 
         const res = await promise.then(res => res.json())
         const prices = res?.data?.prices || res
