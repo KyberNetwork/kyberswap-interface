@@ -127,7 +127,7 @@ export default function MyAssets({
         isOpen={modalOpen}
         onDismiss={hideModal}
         onCurrencySelect={hideModal}
-        showCommonBases={false}
+        showCommonBases
       />
     </Wrapper>
   )
