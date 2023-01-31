@@ -48,7 +48,7 @@ const useGetBridgeTransfers = (swrKey: string | null) => {
 
       throw new Error(`Fetching bridge transfers failed with url = ${swrKey}`)
     },
-    { revalidateOnFocus: false, refreshInterval: 10_000 },
+    { revalidateOnFocus: false, refreshInterval: 5_000 },
   )
 }
 
