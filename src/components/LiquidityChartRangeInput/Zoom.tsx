@@ -15,6 +15,9 @@ const Wrapper = styled.div<{ count: number }>`
   position: absolute;
   top: -25px;
   right: 0;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    top: -64px;
+  `}
 `
 
 const Button = styled(ButtonGray)`
