@@ -126,7 +126,7 @@ function StatusIcon({
       ) : success ? (
         <IconSuccess width={'15px'} height="15px" />
       ) : (
-        <IconFailure width={'15px'} />
+        <IconFailure width={'15px'} height="15px" />
       )}
     </Flex>
   )
