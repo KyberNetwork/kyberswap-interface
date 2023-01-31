@@ -132,12 +132,12 @@ export default function Updater(): null {
                   notiType: receipt.status === 1 ? NotificationType.SUCCESS : NotificationType.ERROR,
                 })
                 if (receipt.status === 1 && transaction) {
-                  const tracking = transaction.extraInfo?.arbitrary
+                  const arbitrary = transaction.extraInfo?.arbitrary
                   switch (transaction.type) {
                     case TRANSACTION_TYPE.SWAP: {
-                      if (tracking) {
+                      if (arbitrary) {
                         mixpanelHandler(MIXPANEL_TYPE.SWAP_COMPLETED, {
-                          tracking,
+                          arbitrary,
                           actual_gas: receipt.gasUsed || BigNumber.from(0),
                           gas_price: receipt.effectiveGasPrice || BigNumber.from(0),
                           tx_hash: receipt.transactionHash,
@@ -146,24 +146,24 @@ export default function Updater(): null {
                       break
                     }
                     case TRANSACTION_TYPE.BRIDGE: {
-                      if (tracking) {
+                      if (arbitrary) {
                         mixpanelHandler(MIXPANEL_TYPE.BRIDGE_TRANSACTION_SUBMIT, {
-                          ...tracking,
+                          ...arbitrary,
                           tx_hash: receipt.transactionHash,
                         })
                       }
                       break
                     }
                     case TRANSACTION_TYPE.ELASTIC_COLLECT_FEE: {
-                      if (tracking) {
-                        mixpanelHandler(MIXPANEL_TYPE.ELASTIC_COLLECT_FEES_COMPLETED, tracking)
+                      if (arbitrary) {
+                        mixpanelHandler(MIXPANEL_TYPE.ELASTIC_COLLECT_FEES_COMPLETED, arbitrary)
                       }
                       break
                     }
                     case TRANSACTION_TYPE.ELASTIC_INCREASE_LIQUIDITY: {
-                      if (tracking) {
+                      if (arbitrary) {
                         mixpanelHandler(MIXPANEL_TYPE.ELASTIC_INCREASE_LIQUIDITY_COMPLETED, {
-                          ...tracking,
+                          ...arbitrary,
                           tx_hash: receipt.transactionHash,
                         })
                       }
@@ -176,9 +176,9 @@ export default function Updater(): null {
                       break
                     }
                     case TRANSACTION_TYPE.CANCEL_LIMIT_ORDER: {
-                      if (tracking) {
+                      if (arbitrary) {
                         mixpanelHandler(MIXPANEL_TYPE.LO_CANCEL_ORDER_SUBMITTED, {
-                          ...tracking,
+                          ...arbitrary,
                           tx_hash: receipt.transactionHash,
                         })
                       }
@@ -220,12 +220,12 @@ export default function Updater(): null {
                   notiType: tx.meta?.err ? NotificationType.ERROR : NotificationType.SUCCESS,
                 })
                 if (!tx.meta?.err && transaction) {
-                  const tracking = transaction.extraInfo?.arbitrary
+                  const arbitrary = transaction.extraInfo?.arbitrary
                   switch (transaction.type) {
                     case TRANSACTION_TYPE.SWAP: {
-                      if (tracking) {
+                      if (arbitrary) {
                         mixpanelHandler(MIXPANEL_TYPE.SWAP_COMPLETED, {
-                          tracking,
+                          arbitrary,
                           gas_price: tx.meta?.fee,
                           tx_hash: hash,
                           actual_gas: BigNumber.from(tx.meta?.fee || 0),

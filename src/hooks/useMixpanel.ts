@@ -241,20 +241,20 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
           break
         }
         case MIXPANEL_TYPE.SWAP_COMPLETED: {
-          const { tracking, actual_gas, gas_price, tx_hash } = payload
+          const { arbitrary, actual_gas, gas_price, tx_hash } = payload
           const formattedGas = gas_price ? formatUnits(gas_price, networkInfo.nativeToken.decimal) : '0'
           mixpanel.track('Swap Completed', {
-            input_token: tracking.inputSymbol,
-            output_token: tracking.outputSymbol,
+            input_token: arbitrary.inputSymbol,
+            output_token: arbitrary.outputSymbol,
             actual_gas:
               ethPrice &&
               ethPrice.currentPrice &&
               (actual_gas.toNumber() * parseFloat(formattedGas) * parseFloat(ethPrice.currentPrice)).toFixed(4),
             tx_hash: tx_hash,
-            max_return_or_low_gas: tracking.saveGas ? 'Lowest Gas' : 'Maximum Return',
-            trade_qty: tracking.inputAmount,
-            slippage_setting: tracking.slippageSetting,
-            price_impact: tracking.priceImpact,
+            max_return_or_low_gas: arbitrary.saveGas ? 'Lowest Gas' : 'Maximum Return',
+            trade_qty: arbitrary.inputAmount,
+            slippage_setting: arbitrary.slippageSetting,
+            price_impact: arbitrary.priceImpact,
             gas_price: formattedGas,
             eth_price: ethPrice?.currentPrice,
             actual_gas_native: actual_gas?.toNumber(),
@@ -838,10 +838,10 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
       const apolloProMMClient = (networkInfo as EVMNetworkInfo).elastic.client
 
       const hash = transaction.hash
-      const tracking = transaction.extraInfo?.arbitrary
+      const arbitrary = transaction.extraInfo?.arbitrary
       switch (transaction.type) {
         case TRANSACTION_TYPE.CLASSIC_ADD_LIQUIDITY: {
-          const { poolAddress, token_1, token_2, add_liquidity_method, amp } = tracking || {}
+          const { poolAddress, token_1, token_2, add_liquidity_method, amp } = arbitrary || {}
           const res = await apolloClient.query({
             query: GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
             variables: {
@@ -912,7 +912,7 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
           break
         }
         case TRANSACTION_TYPE.CLASSIC_REMOVE_LIQUIDITY: {
-          const { poolAddress, token_1, token_2, amp, remove_liquidity_method } = tracking || {}
+          const { poolAddress, token_1, token_2, amp, remove_liquidity_method } = arbitrary || {}
           const res = await apolloClient.query({
             query: GET_POOL_VALUES_AFTER_BURNS_SUCCESS,
             variables: {
@@ -947,7 +947,7 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
           break
         }
         case TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY: {
-          const { poolAddress, token_1, token_2 } = tracking || {}
+          const { poolAddress, token_1, token_2 } = arbitrary || {}
           const res = await apolloProMMClient.query({
             query: PROMM_GET_POOL_VALUES_AFTER_BURNS_SUCCESS,
             variables: {
@@ -980,7 +980,7 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
           break
         }
         case TRANSACTION_TYPE.CLASSIC_CREATE_POOL: {
-          const { amp, token_1, token_2 } = tracking || {}
+          const { amp, token_1, token_2 } = arbitrary || {}
           const res = await apolloClient.query({
             query: GET_MINT_VALUES_AFTER_CREATE_POOL_SUCCESS,
             variables: {
