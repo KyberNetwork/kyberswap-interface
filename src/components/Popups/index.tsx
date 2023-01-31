@@ -2,17 +2,11 @@ import { Trans } from '@lingui/macro'
 import styled from 'styled-components'
 
 import { ButtonEmpty } from 'components/Button'
-import Row from 'components/Row'
-import SubscribeNotificationButton from 'components/SubscribeButton'
+import AnnouncementPopups from 'components/Popups/Anouncement'
+import SnippetPopup from 'components/Popups/SnippetPopup'
 import { Z_INDEXS } from 'constants/styles'
 import { ApplicationModal } from 'state/application/actions'
-import {
-  useActivePopups,
-  useRemoveAllPopup,
-  useRemovePopup,
-  useToggleModal,
-  useToggleNotificationCenter,
-} from 'state/application/hooks'
+import { useActivePopups, useRemoveAllPopup, useToggleNotificationCenter } from 'state/application/hooks'
 
 import PopupItem from './PopupItem'
 
@@ -75,31 +69,34 @@ export default function Popups() {
   const totalNotification = activePopups.length
   if (!totalNotification) return null
   return (
-    <FixedPopupColumn>
-      <ActionWrapper>
-        {totalNotification >= MAX_NOTIFICATION && (
-          <ActionButton onClick={toggleNotificationCenter}>
-            <Trans>See All</Trans>
-          </ActionButton>
-        )}
-        {totalNotification > 1 && (
-          <ActionButton onClick={clearAll}>
-            <Trans>Clear All</Trans>
-          </ActionButton>
-        )}
-      </ActionWrapper>
+    <>
+      <AnnouncementPopups />
+      <FixedPopupColumn>
+        <ActionWrapper>
+          {totalNotification >= MAX_NOTIFICATION && (
+            <ActionButton onClick={toggleNotificationCenter}>
+              <Trans>See All</Trans>
+            </ActionButton>
+          )}
+          {totalNotification > 1 && (
+            <ActionButton onClick={clearAll}>
+              <Trans>Clear All</Trans>
+            </ActionButton>
+          )}
+        </ActionWrapper>
 
-      {activePopups.slice(0, MAX_NOTIFICATION).map(item => (
-        <PopupItem
-          key={item.key}
-          popupType={item.popupType}
-          content={item.content}
-          popKey={item.key}
-          removeAfterMs={item.removeAfterMs}
-        />
-      ))}
+        {activePopups.slice(0, MAX_NOTIFICATION).map(item => (
+          <PopupItem
+            key={item.key}
+            popupType={item.popupType}
+            content={item.content}
+            popKey={item.key}
+            removeAfterMs={item.removeAfterMs}
+          />
+        ))}
 
-      {totalNotification >= MAX_NOTIFICATION && <Overlay />}
-    </FixedPopupColumn>
+        {totalNotification >= MAX_NOTIFICATION && <Overlay />}
+      </FixedPopupColumn>
+    </>
   )
 }

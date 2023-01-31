@@ -1,12 +1,9 @@
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
-import { Flex } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
-import IconFailure from 'assets/svg/notification_icon_failure.svg'
 import IconSuccess from 'assets/svg/notification_icon_success.svg'
-import IconWarning from 'assets/svg/notification_icon_warning.svg'
 import { Announcement } from 'components/Announcement/type'
 
 const Wrapper = styled.div<{ isRead: boolean }>`
