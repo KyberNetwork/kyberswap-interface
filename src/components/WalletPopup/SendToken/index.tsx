@@ -86,7 +86,7 @@ export default function SendToken({
   const [currencyIn, setCurrency] = useState<Currency>()
   const [inputAmount, setInputAmount] = useState<string>('')
   const [showListToken, setShowListToken] = useState(false)
-  const { account, chainId, isEVM } = useActiveWeb3React()
+  const { account, chainId, isEVM, isSolana } = useActiveWeb3React()
   const [flowState, setFlowState] = useState<TransactionFlowState>(TRANSACTION_STATE_DEFAULT)
 
   const theme = useTheme()
@@ -111,7 +111,10 @@ export default function SendToken({
   const { address, loading } = isEVM ? respEvm : respSolana
 
   const recipientError =
-    recipient && ((!loading && !address) || (!recipient.startsWith('0x') && isEVM))
+    recipient &&
+    ((!loading && !address) ||
+      (!recipient.startsWith('0x') && isEVM) ||
+      (isSolana && recipient.toLowerCase().startsWith('0x')))
       ? t`Invalid wallet address`
       : recipient.toLowerCase() === account?.toLowerCase()
       ? t`You can’t use your own address as a receiver`
@@ -203,7 +206,7 @@ export default function SendToken({
             error={!!recipientError}
             onChange={e => setRecipient(e.target.value)}
             value={recipient}
-            placeholder="0x..."
+            placeholder={isEVM ? '0x...' : 'Wallet address'}
             icon={<Clipboard size={20} cursor="pointer" color={theme.subText} onClick={onPaste} />}
           />
           <Label color={theme.red} style={{ opacity: recipientError ? 1 : 0, transition: '0.3s' }}>
