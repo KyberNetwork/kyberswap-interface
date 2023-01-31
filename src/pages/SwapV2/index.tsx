@@ -343,7 +343,7 @@ export default function Swap() {
         [Field.OUTPUT]: independentField === Field.OUTPUT ? parsedAmount : trade?.outputAmount,
       }
 
-  const { mixpanelHandler } = useMixpanel(trade, currencies)
+  const { mixpanelHandler } = useMixpanel(currencies)
 
   // reset recipient
   useEffect(() => {
@@ -519,7 +519,11 @@ export default function Swap() {
   const isLoading = loadingAPI || ((!balanceIn || !balanceOut) && userHasSpecifiedInputOutput && !v2Trade)
 
   const mixpanelSwapInit = () => {
-    mixpanelHandler(MIXPANEL_TYPE.SWAP_INITIATED)
+    mixpanelHandler(MIXPANEL_TYPE.SWAP_INITIATED, {
+      gasUsd: trade?.gasUsd,
+      inputAmount: trade?.inputAmount,
+      priceImpact: trade?.priceImpact,
+    })
   }
 
   const onSelectSuggestedPair = useCallback(
