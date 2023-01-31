@@ -1,5 +1,5 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { rgba } from 'polished'
 import { useState } from 'react'
@@ -151,7 +151,13 @@ const FarmCard = ({
 
             <Flex sx={{ gap: '4px' }}>
               {!!numberOutRangePos && (
-                <MouseoverTooltip text={t`You have ${numberOutRangePos} out-of-range position(s)`}>
+                <MouseoverTooltip
+                  text={
+                    <Text fontSize="12px" fontStyle="italic">
+                      <Trans>You have {numberOutRangePos} out-of-range position(s)</Trans>
+                    </Text>
+                  }
+                >
                   <Range>
                     {numberOutRangePos} <Info size={12} />
                   </Range>
@@ -159,7 +165,13 @@ const FarmCard = ({
               )}
 
               {!!numberInRangePos && (
-                <MouseoverTooltip text={t`You have ${numberInRangePos} in-range position(s)`}>
+                <MouseoverTooltip
+                  text={
+                    <Text fontSize="12px" fontStyle="italic">
+                      <Trans>You have {numberInRangePos} in-range position(s)</Trans>
+                    </Text>
+                  }
+                >
                   <Range inrange>
                     {numberInRangePos} <Info size={12} />
                   </Range>
