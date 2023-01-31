@@ -302,10 +302,6 @@ export default function AddLiquidity() {
                     tokenAmountOut,
                     tokenAddressIn: baseCurrency.wrapped.address,
                     tokenAddressOut: quoteCurrency.wrapped.address,
-                    arbitrary: {
-                      token_1: baseCurrency.symbol,
-                      token_2: quoteCurrency.symbol,
-                    },
                   },
                 })
               } else {
@@ -322,11 +318,6 @@ export default function AddLiquidity() {
                     tokenSymbolOut: quoteCurrency.symbol,
                     tokenAddressIn: baseCurrency.wrapped.address,
                     tokenAddressOut: quoteCurrency.wrapped.address,
-                    arbitrary: {
-                      poolAddress,
-                      token_1: baseCurrency.symbol,
-                      token_2: quoteCurrency.symbol,
-                    },
                   },
                 })
               }

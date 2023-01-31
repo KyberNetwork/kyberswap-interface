@@ -20,8 +20,9 @@ import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
+import { useCheckAddressSolana } from 'state/wallet/solanaHooks'
 import { TRANSACTION_STATE_DEFAULT, TransactionFlowState } from 'types'
-import { formatNumberWithPrecisionRange, isWalletAddressSolana } from 'utils'
+import { formatNumberWithPrecisionRange } from 'utils'
 import { errorFriendly } from 'utils/dmm'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 
@@ -53,25 +54,6 @@ const InputWrapper = styled.div`
   display: flex;
   flex-direction: column;
 `
-
-function useCheckAddressSolana(addr: string) {
-  const [loading, setLoading] = useState(true)
-  const [address, setAddress] = useState<string | null>(null)
-
-  useEffect(() => {
-    setLoading(true)
-    isWalletAddressSolana(addr)
-      .then(() => {
-        setAddress(addr)
-      })
-      .catch(() => setAddress(null))
-      .finally(() => {
-        setLoading(false)
-      })
-  }, [addr])
-
-  return { address, loading }
-}
 
 export default function SendToken({
   loadingTokens,

@@ -121,14 +121,12 @@ export default function AddressInputPanel({
   id,
   value,
   onChange,
-  showDropdown = true,
 }: {
   id?: string
   // the typed string value
   value: string | null
   // triggers whenever the typed value changes
   onChange: (value: string | null) => void
-  showDropdown?: boolean
 }) {
   const { chainId, networkInfo, isEVM } = useActiveWeb3React()
   const { address, loading, name } = useENS(value)
@@ -160,7 +158,7 @@ export default function AddressInputPanel({
             </ExternalLink>
           )}
         </Text>
-        {showDropdown && <DropdownIcon open={value !== null} onClick={() => onChange(value === null ? '' : null)} />}
+        <DropdownIcon open={value !== null} onClick={() => onChange(value === null ? '' : null)} />
       </Flex>
 
       <InputPanel id={id} style={{ maxHeight: value === null ? 0 : '44px' }}>

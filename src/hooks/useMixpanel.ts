@@ -26,7 +26,7 @@ import { useETHPrice } from 'state/application/hooks'
 import { Field } from 'state/swap/actions'
 import { useSwapState } from 'state/swap/hooks'
 import { modifyTransaction } from 'state/transactions/actions'
-import { TRANSACTION_TYPE, TransactionDetails } from 'state/transactions/type'
+import { TRANSACTION_TYPE, TransactionDetails, TransactionExtraInfo2Token } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 
 export enum MIXPANEL_TYPE {
@@ -875,7 +875,11 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
           break
         }
         case TRANSACTION_TYPE.ELASTIC_ADD_LIQUIDITY: {
-          const { poolAddress, token_1, token_2 } = tracking || {}
+          const {
+            contract: poolAddress = '',
+            tokenSymbolIn: token_1,
+            tokenSymbolOut: token_2,
+          } = (transaction.extraInfo || {}) as TransactionExtraInfo2Token
           const res = await apolloProMMClient.query({
             query: PROMM_GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
             variables: {
@@ -1011,10 +1015,10 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
             if (!res.data?.transaction?.mints || res.data.transaction.mints.length === 0) break
           }
           const { amount0, amount1, amountUSD } = res.data.transaction.mints[0]
-          const { token_1, token_2 } = transaction.extraInfo?.arbitrary || {}
+          const { tokenSymbolIn, tokenSymbolOut } = (transaction.extraInfo ?? {}) as TransactionExtraInfo2Token
           mixpanelHandler(MIXPANEL_TYPE.ELASTIC_CREATE_POOL_COMPLETED, {
-            token_1,
-            token_2,
+            token_1: tokenSymbolIn,
+            token_2: tokenSymbolOut,
             tx_hash: hash,
             token_1_qty: amount0,
             token_2_qty: amount1,

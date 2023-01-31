@@ -33,8 +33,7 @@ type Props = {
   size?: string
 }
 
-// eslint-disable-next-line react/display-name
-const CopyHelper = forwardRef<HTMLDivElement, Props>((props, ref) => {
+const CopyHelper = forwardRef<HTMLDivElement, Props>(function CopyHelper(props, ref) {
   const { toCopy, margin, style = {}, size = '14' } = props
   const [isCopied, setCopied] = useCopyClipboard()
 

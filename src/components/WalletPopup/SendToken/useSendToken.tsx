@@ -88,6 +88,7 @@ export default function useSendToken(currency: Currency | undefined, recipient: 
         setGasFee(null)
       }
     }
+
     async function getGasFeeSolana() {
       try {
         const transaction = await prepareTransactionSolana()
@@ -99,6 +100,23 @@ export default function useSendToken(currency: Currency | undefined, recipient: 
     }
     isEVM ? getGasFee() : getGasFeeSolana()
   }, [library, account, amount, currency, prepareTransactionSolana, isEVM, recipient, tokenContract, isSolana])
+
+  const addTransaction = useCallback(
+    (hash: string) => {
+      if (!currency) return
+      addTransactionWithType({
+        type: TRANSACTION_TYPE.TRANSFER_TOKEN,
+        hash,
+        extraInfo: {
+          tokenAddress: currency.wrapped.address,
+          tokenAmount: amount,
+          tokenSymbol: currency.symbol ?? '',
+          contract: recipient,
+        },
+      })
+    },
+    [currency, amount, addTransactionWithType, recipient],
+  )
 
   const sendTokenEvm = useCallback(async () => {
     try {
@@ -116,23 +134,14 @@ export default function useSendToken(currency: Currency | undefined, recipient: 
         const numberOfTokens = ethers.utils.parseUnits(amount, currency.decimals)
         transaction = await tokenContract.transfer(recipient, numberOfTokens)
       }
-      addTransactionWithType({
-        type: TRANSACTION_TYPE.TRANSFER_TOKEN,
-        hash: transaction.hash,
-        extraInfo: {
-          tokenAddress: currency.wrapped.address,
-          tokenAmount: amount,
-          tokenSymbol: currency.symbol ?? '',
-          contract: recipient,
-        },
-      })
+      addTransaction(transaction.hash)
       setIsSending(false)
     } catch (error) {
       setIsSending(false)
       throw error
     }
     return
-  }, [amount, account, currency, library, recipient, tokenContract, addTransactionWithType])
+  }, [amount, account, currency, library, recipient, tokenContract, addTransaction])
 
   const sendTokenSolana = useCallback(async () => {
     try {
@@ -144,24 +153,14 @@ export default function useSendToken(currency: Currency | undefined, recipient: 
       const transaction = await prepareTransactionSolana()
       const signedTx = await (walletSolana.wallet?.adapter as SignerWalletAdapter)?.signTransaction(transaction)
       const hash = await connection.sendRawTransaction(Buffer.from(signedTx.serialize()))
-
-      addTransactionWithType({
-        type: TRANSACTION_TYPE.TRANSFER_TOKEN,
-        hash,
-        extraInfo: {
-          tokenAddress: currency.wrapped.address,
-          tokenAmount: amount,
-          tokenSymbol: currency.symbol ?? '',
-          contract: recipient,
-        },
-      })
+      addTransaction(hash)
       setIsSending(false)
     } catch (error) {
       setIsSending(false)
       throw error
     }
     return
-  }, [publicKey, recipient, amount, addTransactionWithType, prepareTransactionSolana, walletSolana, currency])
+  }, [publicKey, recipient, amount, addTransaction, prepareTransactionSolana, walletSolana, currency])
 
   return { sendToken: isEVM ? sendTokenEvm : sendTokenSolana, isSending, estimateGas }
 }
