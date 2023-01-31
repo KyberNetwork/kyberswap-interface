@@ -200,7 +200,7 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
           mixpanel.track('Wallet Connected')
           break
         case MIXPANEL_TYPE.SWAP_INITIATED: {
-          const { gasUsd, inputAmount, priceImpact } = payload as {
+          const { gasUsd, inputAmount, priceImpact } = (payload || {}) as {
             gasUsd: number | undefined
             inputAmount: CurrencyAmount<Currency> | undefined
             priceImpact: number | undefined
