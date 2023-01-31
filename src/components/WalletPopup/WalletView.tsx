@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ChevronLeft, FileText, StopCircle, X } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
@@ -89,8 +89,11 @@ type Props = {
   isPinned: boolean
   blurBackground?: boolean
 }
+
+// This is intentional, we don't need to persist in localStorage
+let storedView = View.ASSETS
 export default function WalletView({ onDismiss, onPin, isPinned, blurBackground = false, onUnpin }: Props) {
-  const [view, setView] = useState<string>(View.ASSETS)
+  const [view, setView] = useState<string>(storedView)
   const theme = useTheme()
   const navigate = useNavigate()
   const nodeRef = useRef<HTMLDivElement>(null)
@@ -187,6 +190,10 @@ export default function WalletView({ onDismiss, onPin, isPinned, blurBackground 
       return () => window.removeEventListener('resize', resizeHandler)
     }
   }, [nodeRef])
+
+  useEffect(() => {
+    storedView = view
+  }, [view])
 
   const classNameForHandle = isPinned ? HANDLE_CLASS_NAME : ''
   const cursorForHandle = isPinned ? 'move' : undefined

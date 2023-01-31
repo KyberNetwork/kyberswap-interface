@@ -104,10 +104,12 @@ function RowItem({
   )
 }
 
+// This is intentional, we don't need to persist in localStorage
+let storedActiveTab = ''
 function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
   const transactions = useSortRecentTransactions(false)
   const { chainId } = useActiveWeb3React()
-  const [activeTab, setActiveTab] = useState<TRANSACTION_GROUP | string>('')
+  const [activeTab, setActiveTab] = useState<TRANSACTION_GROUP | string>(storedActiveTab)
   const theme = useTheme()
   const cancellingOrderInfo = useCancellingOrders()
 
@@ -158,6 +160,10 @@ function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
   function getRowHeight(index: number) {
     return rowHeights.current[index] || 100
   }
+
+  useEffect(() => {
+    storedActiveTab = activeTab
+  }, [activeTab])
 
   return (
     <Wrapper>
