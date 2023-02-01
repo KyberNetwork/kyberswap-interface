@@ -338,33 +338,37 @@ export default function AddLiquidity() {
                 onResetMintState()
                 setAttemptingTxn(false)
                 if (noLiquidity) {
+                  const tokenAmountIn = parsedAmounts_A?.toSignificant(6) ?? '0'
+                  const tokenAmountOut = parsedAmounts_B?.toSignificant(6) ?? '0'
                   addTransactionWithType({
                     hash: response.hash,
                     type: TRANSACTION_TYPE.ELASTIC_CREATE_POOL,
-                    summary: `${parsedAmounts_A?.toSignificant(6) ?? '0'} ${baseCurrency.symbol} and ${
-                      parsedAmounts_B?.toSignificant(6) ?? '0'
-                    } ${quoteCurrency.symbol} `,
-                    arbitrary: {
-                      token_1: baseCurrency.symbol,
-                      token_2: quoteCurrency.symbol,
+                    extraInfo: {
+                      tokenSymbolIn: baseCurrency.symbol ?? '',
+                      tokenSymbolOut: quoteCurrency.symbol ?? '',
+                      tokenAmountIn,
+                      tokenAmountOut,
+                      tokenAddressIn: baseCurrency.wrapped.address,
+                      tokenAddressOut: quoteCurrency.wrapped.address,
                     },
                   })
                 } else {
+                  const tokenAmountIn = parsedAmounts_A?.toSignificant(6) ?? '0'
+                  const tokenAmountOut = parsedAmounts_B?.toSignificant(6) ?? '0'
                   addTransactionWithType({
                     hash: response.hash,
                     type: TRANSACTION_TYPE.ELASTIC_ADD_LIQUIDITY,
-                    summary: `${parsedAmounts_A?.toSignificant(6) ?? '0'} ${baseCurrency.symbol} and ${
-                      parsedAmounts_B?.toSignificant(6) ?? '0'
-                    } ${quoteCurrency.symbol} `,
-                    arbitrary: {
-                      poolAddress: poolAddress,
-                      token_1: baseCurrency.symbol,
-                      token_2: quoteCurrency.symbol,
+                    extraInfo: {
+                      contract: poolAddress,
+                      tokenAmountIn,
+                      tokenAmountOut,
+                      tokenSymbolIn: baseCurrency.symbol,
+                      tokenSymbolOut: quoteCurrency.symbol,
+                      tokenAddressIn: baseCurrency.wrapped.address,
+                      tokenAddressOut: quoteCurrency.wrapped.address,
                     },
                   })
                 }
-
-                setTxHash(response.hash)
               })
           })
           .catch((error: any) => {

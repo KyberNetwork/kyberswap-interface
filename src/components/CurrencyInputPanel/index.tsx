@@ -199,6 +199,7 @@ interface CurrencyInputPanelProps {
   maxLength?: number
   outline?: boolean
   filterWrap?: boolean
+  loadingText?: string
   lockIcon?: boolean
   tight?: boolean
 }
@@ -237,6 +238,7 @@ export default function CurrencyInputPanel({
   filterWrap,
   lockIcon = false, // lock when need approve
   tight: tightProp,
+  loadingText,
 }: CurrencyInputPanelProps) {
   const tight = Boolean(tightProp && !currency)
   const [modalOpen, setModalOpen] = useState(false)
@@ -363,7 +365,8 @@ export default function CurrencyInputPanel({
                     >
                       {(nativeCurrency?.symbol && maxCurrencySymbolLength
                         ? shortString(nativeCurrency.symbol, maxCurrencySymbolLength)
-                        : nativeCurrency?.symbol) || <Trans>Select a token</Trans>}
+                        : nativeCurrency?.symbol) ||
+                        loadingText || <Trans>Select a token</Trans>}
                     </StyledTokenName>
                   </RowFixed>
                   {!disableCurrencySelect && !isSwitchMode && (

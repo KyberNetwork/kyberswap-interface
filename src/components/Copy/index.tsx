@@ -1,4 +1,4 @@
-import React, { CSSProperties, ReactNode } from 'react'
+import React, { CSSProperties, ReactNode, forwardRef } from 'react'
 import { CheckCircle, Copy } from 'react-feather'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
@@ -26,20 +26,19 @@ const TransactionStatusText = styled.span`
   align-items: center;
 `
 
-export default function CopyHelper({
-  toCopy,
-  margin,
-  style = {},
-  size = '14',
-  text,
-}: {
+type Props = {
   toCopy: string
   children?: React.ReactNode
   margin?: string
   style?: CSSProperties
   size?: string
   text?: ReactNode
-}) {
+}
+
+const CopyHelper = forwardRef<HTMLDivElement, Props>(function CopyHelper(
+  { toCopy, margin, style = {}, size = '14', text },
+  ref,
+) {
   const [isCopied, setCopied] = useCopyClipboard()
 
   const onCopy = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -58,7 +57,7 @@ export default function CopyHelper({
   )
 
   return (
-    <CopyIcon onClick={onCopy} margin={margin} style={style}>
+    <CopyIcon ref={ref} onClick={onCopy} margin={margin} style={style}>
       {text ? (
         <Flex>
           {copyIcon}&nbsp;{text}
@@ -68,4 +67,6 @@ export default function CopyHelper({
       )}
     </CopyIcon>
   )
-}
+})
+
+export default CopyHelper
