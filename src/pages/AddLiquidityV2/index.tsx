@@ -27,7 +27,7 @@ import PoolPriceChart from 'components/ProAmm/PoolPriceChart'
 import ProAmmPoolInfo from 'components/ProAmm/ProAmmPoolInfo'
 import ProAmmPoolStat from 'components/ProAmm/ProAmmPoolStat'
 import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
-import ProAmmPriceRange from 'components/ProAmm/ProAmmPriceRange'
+import ProAmmPriceRangeConfirm from 'components/ProAmm/ProAmmPriceRangeConfirm'
 import Tabs from 'components/ProAmm/Tab'
 import RangeSelector from 'components/RangeSelector'
 import Rating from 'components/Rating'
@@ -850,7 +850,7 @@ export default function AddLiquidity() {
               )}
               title={t`New Liquidity Amount`}
             />
-            <ProAmmPriceRange position={position} ticksAtLimit={ticksAtLimit} hideChart />
+            <ProAmmPriceRangeConfirm position={position} ticksAtLimit={ticksAtLimit} />
           </div>
         )
       )

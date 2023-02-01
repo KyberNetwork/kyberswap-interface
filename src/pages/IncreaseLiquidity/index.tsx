@@ -24,7 +24,7 @@ import Loader from 'components/Loader'
 import { StyledMenuButton } from 'components/NavigationTabs'
 import ProAmmPoolInfo from 'components/ProAmm/ProAmmPoolInfo'
 import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
-import ProAmmPriceRange from 'components/ProAmm/ProAmmPriceRange'
+import ProAmmPriceRangeConfirm from 'components/ProAmm/ProAmmPriceRangeConfirm'
 import Rating from 'components/Rating'
 import { RowBetween, RowFit } from 'components/Row'
 import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
@@ -418,7 +418,7 @@ export default function AddLiquidity() {
                     liquidityValue1={parsedAmounts[Field.CURRENCY_B]}
                     title={t`Increase Amount`}
                   />
-                  <ProAmmPriceRange position={existingPosition} ticksAtLimit={ticksAtLimit} hideChart />
+                  <ProAmmPriceRangeConfirm position={existingPosition} ticksAtLimit={ticksAtLimit} />
                 </div>
               )
             }
