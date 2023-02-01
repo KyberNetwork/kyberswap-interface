@@ -164,7 +164,7 @@ export const useFarmAction = (address: string) => {
       }
 
       const nftIds = selectedNFTs.map(item => item.nftId)
-      const liqs = selectedNFTs.map(item => BigNumber.from(item.stakedLiquidity))
+      const liqs = selectedNFTs.map(item => BigNumber.from(item.position.liquidity.toString()))
 
       const estimateGas = await contract.estimateGas.join(pid, nftIds, liqs)
       const tx = await contract.join(pid, nftIds, liqs, {
