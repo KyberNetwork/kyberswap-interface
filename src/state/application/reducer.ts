@@ -19,13 +19,13 @@ import {
   updateServiceWorker,
 } from './actions'
 
-type PopupList = Array<{
+export type PopupItemType = {
   key: string
   show: boolean
   content: PopupContent
   removeAfterMs: number | null
   popupType: PopupType
-}>
+}
 
 type ETHPrice = {
   currentPrice?: string
@@ -35,7 +35,7 @@ type ETHPrice = {
 
 export interface ApplicationState {
   readonly blockNumber: { readonly [chainId: number]: number }
-  readonly popupList: PopupList
+  readonly popupList: PopupItemType[]
   readonly openModal: ApplicationModal | null
   readonly ethPrice: ETHPrice
   readonly prommEthPrice: ETHPrice

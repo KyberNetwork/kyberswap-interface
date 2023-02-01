@@ -18,8 +18,11 @@ export type PopupContentSimple = {
 }
 
 export enum PopupType {
-  TRANSACTION,
-  SIMPLE,
+  TRANSACTION, // top right
+  SIMPLE, // top right
+  TOP_BAR,
+  SNIPPET, // bottom left
+  CENTER,
 }
 
 export type PopupContent = PopupContentTxn | PopupContentSimple

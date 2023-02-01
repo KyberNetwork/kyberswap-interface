@@ -135,7 +135,7 @@ export default function PopupItem({
 
   const theme = useTheme()
 
-  let notiType: NotificationType
+  let notiType = NotificationType.SUCCESS
   let popupContent
   switch (popupType) {
     case PopupType.SIMPLE: {

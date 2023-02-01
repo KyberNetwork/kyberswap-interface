@@ -1,12 +1,22 @@
 import { Trans } from '@lingui/macro'
+import { useEffect, useState } from 'react'
+import { useMedia } from 'react-use'
 import styled from 'styled-components'
 
 import { ButtonEmpty } from 'components/Button'
-import AnnouncementPopups from 'components/Popups/Anouncement'
+import CenterPopup from 'components/Popups/CenterPopup'
 import SnippetPopup from 'components/Popups/SnippetPopup'
 import { Z_INDEXS } from 'constants/styles'
-import { ApplicationModal } from 'state/application/actions'
-import { useActivePopups, useRemoveAllPopup, useToggleNotificationCenter } from 'state/application/hooks'
+import { PopupType } from 'state/application/actions'
+import {
+  NotificationType,
+  useActivePopups,
+  useNotify,
+  useRemoveAllPopup,
+  useToggleNotificationCenter,
+} from 'state/application/hooks'
+import { PopupItemType } from 'state/application/reducer'
+import { MEDIA_WIDTHS } from 'theme'
 
 import PopupItem from './PopupItem'
 
@@ -47,7 +57,6 @@ const ActionButton = styled(ButtonEmpty)`
 `
 
 const Overlay = styled.div`
-  /* background-color: ${({ theme }) => theme.background}; */
   display: flex;
   position: absolute;
   top: 0;
@@ -61,42 +70,56 @@ const Overlay = styled.div`
 const MAX_NOTIFICATION = 4
 
 export default function Popups() {
-  const activePopups = useActivePopups()
+  const topRightPopups = useActivePopups()
   const clearAll = useRemoveAllPopup()
   const toggleNotificationCenter = useToggleNotificationCenter()
+  const notify = useNotify()
+
+  const [bottomLeftPopups, setBottomLeftPopups] = useState<PopupItemType[]>([])
+  const [centerPopup, setCenterPopup] = useState<PopupItemType>()
+
+  useEffect(() => {
+    notify({ title: 'test', type: NotificationType.WARNING }, null)
+  }, [])
 
   // todo check mobile, dark mode, check noti thuong hay noti kia
-  const totalNotification = activePopups.length
-  if (!totalNotification) return null
+
+  const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+
+  const totalTopRightPopup = topRightPopups.length
+  // todo xem may thong baso chung chung slice roi sao nua ???
   return (
     <>
-      <AnnouncementPopups />
-      <FixedPopupColumn>
-        <ActionWrapper>
-          {totalNotification >= MAX_NOTIFICATION && (
-            <ActionButton onClick={toggleNotificationCenter}>
-              <Trans>See All</Trans>
-            </ActionButton>
-          )}
-          {totalNotification > 1 && (
-            <ActionButton onClick={clearAll}>
-              <Trans>Clear All</Trans>
-            </ActionButton>
-          )}
-        </ActionWrapper>
+      {topRightPopups.length > 0 && (
+        <FixedPopupColumn>
+          <ActionWrapper>
+            {totalTopRightPopup >= MAX_NOTIFICATION && (
+              <ActionButton onClick={toggleNotificationCenter}>
+                <Trans>See All</Trans>
+              </ActionButton>
+            )}
+            {totalTopRightPopup > 1 && (
+              <ActionButton onClick={clearAll}>
+                <Trans>Clear All</Trans>
+              </ActionButton>
+            )}
+          </ActionWrapper>
 
-        {activePopups.slice(0, MAX_NOTIFICATION).map(item => (
-          <PopupItem
-            key={item.key}
-            popupType={item.popupType}
-            content={item.content}
-            popKey={item.key}
-            removeAfterMs={item.removeAfterMs}
-          />
-        ))}
+          {topRightPopups.slice(0, MAX_NOTIFICATION).map(item => (
+            <PopupItem
+              key={item.key}
+              popupType={item.popupType}
+              content={item.content}
+              popKey={item.key}
+              removeAfterMs={item.removeAfterMs}
+            />
+          ))}
 
-        {totalNotification >= MAX_NOTIFICATION && <Overlay />}
-      </FixedPopupColumn>
+          {totalTopRightPopup >= MAX_NOTIFICATION && <Overlay />}
+        </FixedPopupColumn>
+      )}
+      {bottomLeftPopups.length > 0 && <SnippetPopup announcements={bottomLeftPopups} />}
+      {centerPopup && <CenterPopup />}
     </>
   )
 }

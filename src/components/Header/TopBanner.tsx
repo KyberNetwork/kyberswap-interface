@@ -6,6 +6,7 @@ import { useLocalStorage, useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
+import { ButtonPrimary } from 'components/Button'
 import Announcement from 'components/Icons/Announcement'
 import { useActiveWeb3React } from 'hooks'
 import { ExternalLink } from 'theme'
@@ -73,15 +74,6 @@ const banners: Banner[] = [
       ' official announcement from the Binance Team.',
     ],
   },
-  {
-    key: 'ethw',
-    start: 'Thu, 13 Sep 2022 00:00:00 GMT',
-    end: 'Thu, 13 Oct 2022 00:00:00 GMT',
-    onlyChains: [ChainId.ETHW],
-    text: [
-      'On Ethereum POW, you can withdraw liquidity from pools and make swaps. In the long run, KyberSwap will only maintain support for Ethereum (PoS) as the canonical chain ',
-    ],
-  },
 ]
 
 function TopBanner() {
@@ -97,14 +89,14 @@ function TopBanner() {
   }, [showBanner])
 
   const renderBanner = (banner: Banner) => {
-    if (show[banner.key] === false || (chainId && !banner.onlyChains.includes(chainId))) {
-      return null
-    }
+    // if (show[banner.key] === false || (chainId && !banner.onlyChains.includes(chainId))) {
+    //   return null
+    // }
 
-    const now = new Date()
-    if (now < new Date(banner.start) || now > new Date(banner.end)) {
-      return null
-    }
+    // const now = new Date()
+    // if (now < new Date(banner.start) || now > new Date(banner.end)) {
+    //   return null
+    // }
 
     return (
       <BannerWrapper key={banner.key}>
@@ -137,7 +129,9 @@ function TopBanner() {
             ))}
           </Text>
         </Content>
-
+        <ButtonPrimary width="140px" height="36px">
+          CTA
+        </ButtonPrimary>
         <StyledClose size={24} onClick={() => setShowBanner({ ...showBanner, [banner.key]: false })} />
       </BannerWrapper>
     )
