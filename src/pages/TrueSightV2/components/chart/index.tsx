@@ -1,6 +1,6 @@
 import dayjs from 'dayjs'
 import { rgba } from 'polished'
-import React, { ReactNode, useMemo, useRef, useState } from 'react'
+import React, { useMemo, useRef, useState } from 'react'
 import { Text } from 'rebass'
 import {
   Area,
