@@ -336,6 +336,8 @@ export default function AddLiquidity() {
               .sendTransaction(newTxn)
               .then((response: TransactionResponse) => {
                 onResetMintState()
+                navigate(`${APP_PATHS.MY_POOLS}/${networkInfo.route}?tab=elastic`)
+
                 setAttemptingTxn(false)
                 if (noLiquidity) {
                   const tokenAmountIn = parsedAmounts_A?.toSignificant(6) ?? '0'
