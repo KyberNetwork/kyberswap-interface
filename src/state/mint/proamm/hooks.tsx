@@ -682,6 +682,7 @@ export function useProAmmDerivedAllMintInfo(
 ): {
   positions: (Position | undefined)[]
   errorMessage?: ReactNode
+  errorLabel?: ReactNode
   currencyAmountSum: { [field in Field]: CurrencyAmount<Currency> | undefined }
   ticksAtLimits: {
     [bound in Bound]: (boolean | undefined)[]
@@ -1027,17 +1028,44 @@ export function useProAmmDerivedAllMintInfo(
     }
   }, [currencyAAmounts, currencyBAmounts])
 
+  const errorLabel: ReactNode | undefined = useMemo(() => {
+    if (positions.length < 2) return
+    const currencyAAmountSum: CurrencyAmount<Currency> | undefined = currencyAmountSum[Field.CURRENCY_A]
+    if (currencyAAmountSum && currencyBalanceA?.lessThan(currencyAAmountSum)) {
+      return (
+        <Trans>
+          The total token amount ({currencyAAmountSum.toSignificant(4)} {currencyAAmountSum.currency.symbol}) you are
+          trying to deposit across the {positions.length} positions is more than your available token balance (
+          {currencyBalanceA.toSignificant(4)} {currencyBalanceA.currency.symbol})
+        </Trans>
+      )
+    }
+
+    const currencyBAmountSum: CurrencyAmount<Currency> | undefined = currencyAmountSum[Field.CURRENCY_B]
+    if (currencyBAmountSum && currencyBalanceB?.lessThan(currencyBAmountSum)) {
+      return (
+        <Trans>
+          The total token amount ({currencyBAmountSum.toSignificant(4)} {currencyBAmountSum.currency.symbol}) you are
+          trying to deposit across the {positions.length} positions is more than your available token balance (
+          {currencyBalanceB.toSignificant(4)} {currencyBalanceB.currency.symbol})
+        </Trans>
+      )
+    }
+
+    return
+  }, [currencyAmountSum, currencyBalanceA, currencyBalanceB, positions.length])
+
   const errorMessage: ReactNode | undefined = useMemo(() => {
     if (!account) {
       return <Trans>Connect Wallet</Trans>
     }
 
     if (poolState === PoolState.INVALID) {
-      return errorMessage ?? <Trans>Invalid pair</Trans>
+      return <Trans>Invalid pair</Trans>
     }
 
     if (invalidPrice) {
-      return errorMessage ?? <Trans>Invalid price input</Trans>
+      return <Trans>Invalid price input</Trans>
     }
 
     const errorMessages = [positionIndex, ...new Array(positions.length).fill(0).map((_, index) => index)].map(
@@ -1248,6 +1276,7 @@ export function useProAmmDerivedAllMintInfo(
   return {
     positions: positionsFormatted,
     errorMessage,
+    errorLabel,
     currencyAmountSum,
     ticksAtLimits,
   }

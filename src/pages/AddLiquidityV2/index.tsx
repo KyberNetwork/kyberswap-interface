@@ -160,7 +160,7 @@ export default function AddLiquidity() {
     feeAmount,
     baseCurrency ?? undefined,
   )
-  const { errorMessage, positions, ticksAtLimits, currencyAmountSum } = useProAmmDerivedAllMintInfo(
+  const { errorMessage, errorLabel, positions, ticksAtLimits, currencyAmountSum } = useProAmmDerivedAllMintInfo(
     pIndex,
     baseCurrency ?? undefined,
     quoteCurrency ?? undefined,
@@ -195,7 +195,7 @@ export default function AddLiquidity() {
 
   const mountRef = useRef(false)
   useEffect(() => {
-    if (ENV_LEVEL > ENV_TYPE.LOCAL && !mountRef.current) {
+    if (true && ENV_LEVEL > ENV_TYPE.LOCAL && !mountRef.current) {
       setPositionIndex(0)
       onResetMintState()
     }
@@ -585,47 +585,45 @@ export default function AddLiquidity() {
       </>
     )
 
-  const warning =
-    activeRange === RANGE.FULL_RANGE || outOfRange || invalidRange ? (
-      <>
-        {activeRange === RANGE.FULL_RANGE && (
-          <WarningCard padding="10px 16px">
-            <Flex alignItems="center">
-              <AlertTriangle stroke={theme.warning} size="16px" />
-              <TYPE.warning ml="12px" fontSize="12px" flex={1}>
-                <Trans>
-                  Efficiency Comparison: Full range positions may earn less fees than concentrated positions.
-                </Trans>
-              </TYPE.warning>
-            </Flex>
-          </WarningCard>
-        )}
-
-        {outOfRange && (
-          <WarningCard padding="10px 16px">
-            <Flex alignItems="center">
-              <AlertTriangle stroke={theme.warning} size="16px" />
-              <TYPE.warning ml="12px" fontSize="12px" flex={1}>
-                <Trans>
-                  Your position will not earn fees until the market price of the pool moves into your price range.
-                </Trans>
-              </TYPE.warning>
-            </Flex>
-          </WarningCard>
-        )}
-
-        {invalidRange && (
-          <WarningCard padding="10px 16px">
-            <Flex alignItems="center">
-              <AlertTriangle stroke={theme.warning} size="16px" />
-              <TYPE.warning ml="12px" fontSize="12px" flex={1}>
-                <Trans>Invalid range selected. The min price must be lower than the max price.</Trans>
-              </TYPE.warning>
-            </Flex>
-          </WarningCard>
-        )}
-      </>
-    ) : null
+  const warning = errorLabel ? (
+    <WarningCard padding="10px 16px">
+      <Flex alignItems="center">
+        <AlertTriangle stroke={theme.warning} size="16px" />
+        <TYPE.warning ml="12px" fontSize="12px" flex={1}>
+          {errorLabel}
+        </TYPE.warning>
+      </Flex>
+    </WarningCard>
+  ) : invalidRange ? (
+    <WarningCard padding="10px 16px">
+      <Flex alignItems="center">
+        <AlertTriangle stroke={theme.warning} size="16px" />
+        <TYPE.warning ml="12px" fontSize="12px" flex={1}>
+          <Trans>Invalid range selected. The min price must be lower than the max price.</Trans>
+        </TYPE.warning>
+      </Flex>
+    </WarningCard>
+  ) : activeRange === RANGE.FULL_RANGE ? (
+    <WarningCard padding="10px 16px">
+      <Flex alignItems="center">
+        <AlertTriangle stroke={theme.warning} size="16px" />
+        <TYPE.warning ml="12px" fontSize="12px" flex={1}>
+          <Trans>Efficiency Comparison: Full range positions may earn less fees than concentrated positions.</Trans>
+        </TYPE.warning>
+      </Flex>
+    </WarningCard>
+  ) : outOfRange ? (
+    <WarningCard padding="10px 16px">
+      <Flex alignItems="center">
+        <AlertTriangle stroke={theme.warning} size="16px" />
+        <TYPE.warning ml="12px" fontSize="12px" flex={1}>
+          <Trans>
+            Your position will not earn fees until the market price of the pool moves into your price range.
+          </Trans>
+        </TYPE.warning>
+      </Flex>
+    </WarningCard>
+  ) : null
 
   const disableFeeSelect = !currencyIdA || !currencyIdB
   const disableRangeSelect = !feeAmount || invalidPool || (noLiquidity && !startPriceTypedValue)
@@ -948,7 +946,7 @@ export default function AddLiquidity() {
           tutorialType={TutorialType.ELASTIC_ADD_LIQUIDITY}
         />
         <Container>
-          <Flex paddingBottom={upToMedium ? 16 : 32}>
+          <Flex sx={{ gap: '24px' }}>
             <FlexLeft>
               <RowBetween>
                 <Text fontSize={20}>
@@ -1126,23 +1124,15 @@ export default function AddLiquidity() {
             </FlexLeft>
             {!upToMedium && <RightContainer gap="lg">{chart}</RightContainer>}
           </Flex>
-          <Row
-            justify="flex-end"
-            flexDirection={upToMedium ? 'column' : 'row'}
-            sx={{ gap: '16px' }}
-            width={upToMedium ? '100%' : 'initial'}
-          >
+          <Row flexDirection="column" sx={{ gap: '16px' }}>
             {warning && (
-              <Flex
-                sx={{
-                  maxWidth: upToMedium ? undefined : 'calc(100% - 620px)',
-                  minWidth: upToMedium ? undefined : '390px',
-                }}
-              >
-                {warning}
-              </Flex>
+              <Row justify="flex-end">
+                <Flex>{warning}</Flex>
+              </Row>
             )}
-            <Buttons />
+            <Row justify="flex-end">
+              <Buttons />
+            </Row>
           </Row>
         </Container>
       </PageWrapper>

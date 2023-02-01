@@ -19,13 +19,15 @@ export const Container = styled.div`
   width: 100%;
   border-radius: 20px;
   border: 1px solid ${({ theme }) => theme.border};
-
   background: ${({ theme }) => theme.background};
-
+  display: flex;
+  flex-direction: column;
   padding: 24px;
+  gap: 24px;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     padding: 16px;
+    gap: 16px;
   `};
 `
 
@@ -45,7 +47,6 @@ export const RightContainer = styled(AutoColumn)`
   height: fit-content;
   min-width: 600px;
   width: 100%;
-  padding-left: 24px;
   gap: 0;
   ${({ theme }) => theme.mediaWidth.upToLarge`
     min-width: 450px;
