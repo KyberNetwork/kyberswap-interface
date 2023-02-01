@@ -50,7 +50,7 @@ const PositionRow = ({
 }: {
   selected: boolean
   position: UserPositionFarm
-  onChange: (value: boolean) => void
+  onChange: (value: boolean, position: Position | undefined) => void
   forced: boolean
   farmAddress: string
 }) => {
@@ -119,7 +119,7 @@ const PositionRow = ({
       ) : !position.stakedLiquidity.gt(BigNumber.from(0)) ? (
         <Checkbox
           onChange={e => {
-            onChange(e.currentTarget.checked)
+            onChange(e.currentTarget.checked, positionSDK)
           }}
           checked={selected}
         />
@@ -152,7 +152,15 @@ const PositionRow = ({
               style={{ height: '28px' }}
               disabled={position.stakedLiquidity.eq(BigNumber.from(0))}
               onClick={() => {
-                if (!!pid) unstake(BigNumber.from(pid), [position.tokenId], [position.stakedLiquidity])
+                if (!!pid && positionSDK)
+                  unstake(BigNumber.from(pid), [
+                    {
+                      nftId: position.tokenId,
+                      stakedLiquidity: position.stakedLiquidity.toString(),
+                      poolAddress: position.poolId,
+                      position: positionSDK,
+                    },
+                  ])
               }}
             >
               <Minus size={16} /> Unstake
@@ -264,7 +272,8 @@ function WithdrawModal({
     return (eligiblePositions as UserPositionFarm[]).filter(item => item.stakedLiquidity.eq(0))
   }, [eligiblePositions])
 
-  const [selectedNFTs, setSeletedNFTs] = useState<string[]>([])
+  const [selectedNFTs, setSeletedNFTs] = useState<PositionDetails[]>([])
+  const mapPositionInfo = useRef<{ [tokenId: string]: Position }>({})
 
   const { withdraw, emergencyWithdraw } = useFarmAction(selectedFarmAddress)
 
@@ -302,9 +311,14 @@ function WithdrawModal({
       return
     }
 
-    const txHash = await withdraw(selectedNFTs.map(item => BigNumber.from(item)))
+    const txHash = await withdraw(
+      selectedNFTs,
+      selectedNFTs.map(item => mapPositionInfo.current[item.tokenId.toString()]),
+    )
     if (txHash) {
-      const finishedPoses = eligiblePositions.filter(pos => selectedNFTs.includes(pos.tokenId.toString()))
+      const finishedPoses = eligiblePositions.filter(pos =>
+        selectedNFTs.find(e => e.tokenId.toString() === pos.tokenId.toString()),
+      )
       finishedPoses.forEach(pos => {
         mixpanelHandler(MIXPANEL_TYPE.ELASTIC_WITHDRAW_LIQUIDITY_COMPLETED, {
           token_1: pos.token0,
@@ -375,7 +389,7 @@ function WithdrawModal({
             ref={checkboxGroupRef}
             onChange={e => {
               if (e.currentTarget.checked) {
-                setSeletedNFTs(withDrawableNFTs.map(pos => pos.tokenId.toString()) || [])
+                setSeletedNFTs(withDrawableNFTs || [])
               } else {
                 setSeletedNFTs([])
               }
@@ -406,15 +420,17 @@ function WithdrawModal({
             })
             .map(pos => (
               <PositionRow
-                selected={selectedNFTs.includes(pos.tokenId.toString())}
+                selected={selectedNFTs.some(e => e.tokenId.toString() === pos.tokenId.toString())}
                 key={pos.tokenId.toString()}
                 position={pos}
                 farmAddress={selectedFarmAddress}
                 forced={forced}
-                onChange={(selected: boolean) => {
-                  if (selected) setSeletedNFTs(prev => [...prev, pos.tokenId.toString()])
+                onChange={(selected: boolean, position: Position | undefined) => {
+                  const tokenId = pos.tokenId.toString()
+                  if (position) mapPositionInfo.current[tokenId] = position
+                  if (selected) setSeletedNFTs(prev => [...prev, pos])
                   else {
-                    setSeletedNFTs(prev => prev.filter(item => item !== pos.tokenId.toString()))
+                    setSeletedNFTs(prev => prev.filter(item => item.tokenId.toString() !== tokenId))
                   }
                 }}
               />

@@ -1,5 +1,5 @@
-import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
+import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { rgba } from 'polished'
 import { useState } from 'react'
@@ -116,6 +116,17 @@ const FarmCard = ({
   const numberInRangePos = depositedPositions.filter(
     pos => pos.pool.tickCurrent >= pos.tickLower && pos.pool.tickCurrent < pos.tickUpper,
   ).length
+  //TODO namgold/vietnv: remove this hardcode
+  const token0Symbol =
+    chainId === ChainId.OPTIMISM &&
+    pool?.token0?.wrapped?.address.toLowerCase() === '0x4518231a8fdf6ac553b9bbd51bbb86825b583263'.toLowerCase()
+      ? 'mKNC'
+      : pool.token0.symbol
+  const token1Symbol =
+    chainId === ChainId.OPTIMISM &&
+    pool?.token1?.wrapped?.address.toLowerCase() === '0x4518231a8fdf6ac553b9bbd51bbb86825b583263'.toLowerCase()
+      ? 'mKNC'
+      : pool.token1.symbol
 
   return (
     <FlipCard flip={showPosition} joined={!!depositedPositions.length}>
@@ -131,7 +142,7 @@ const FarmCard = ({
                 }}
               >
                 <Text fontSize={16} fontWeight={500}>
-                  {pool.token0.symbol} - {pool.token1.symbol}
+                  {token0Symbol} - {token1Symbol}
                 </Text>
               </Link>
 
@@ -140,7 +151,13 @@ const FarmCard = ({
 
             <Flex sx={{ gap: '4px' }}>
               {!!numberOutRangePos && (
-                <MouseoverTooltip text={t`You have ${numberOutRangePos} out-of-range positions`}>
+                <MouseoverTooltip
+                  text={
+                    <Text fontSize="12px" fontStyle="italic">
+                      <Trans>You have {numberOutRangePos} out-of-range position(s)</Trans>
+                    </Text>
+                  }
+                >
                   <Range>
                     {numberOutRangePos} <Info size={12} />
                   </Range>
@@ -148,7 +165,13 @@ const FarmCard = ({
               )}
 
               {!!numberInRangePos && (
-                <MouseoverTooltip text={t`You have ${numberInRangePos} in-range positions`}>
+                <MouseoverTooltip
+                  text={
+                    <Text fontSize="12px" fontStyle="italic">
+                      <Trans>You have {numberInRangePos} in-range position(s)</Trans>
+                    </Text>
+                  }
+                >
                   <Range inrange>
                     {numberInRangePos} <Info size={12} />
                   </Range>
@@ -369,7 +392,7 @@ const FarmCard = ({
               }}
             >
               <Text fontSize={16} fontWeight={500}>
-                {pool.token0.symbol} - {pool.token1.symbol}
+                {token0Symbol} - {token1Symbol}
               </Text>
             </Link>
 

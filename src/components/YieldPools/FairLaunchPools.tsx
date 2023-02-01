@@ -116,7 +116,10 @@ const FairLaunchPools = ({ fairLaunchAddress, farms, active }: FarmsListProps) =
         return hasReward
       })
 
-      const txHash = await harvestMultiplePools(poolsHaveReward.map(farm => farm.pid))
+      const txHash = await harvestMultiplePools(
+        poolsHaveReward.map(farm => farm.pid),
+        totalRewards,
+      )
       if (txHash) {
         mixpanelHandler(MIXPANEL_TYPE.ALL_REWARDS_HARVESTED, {
           reward_tokens_and_amounts:

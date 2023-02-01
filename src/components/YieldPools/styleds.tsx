@@ -104,6 +104,11 @@ export const TabContainer = styled.div`
   `};
 `
 
+export const PoolTitleContainer = styled.div`
+  display: flex;
+  align-items: center;
+`
+
 export const StakedOnlyToggleWrapper = styled.div`
   display: flex;
   align-items: center;

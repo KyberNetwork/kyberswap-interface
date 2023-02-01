@@ -13,7 +13,7 @@ import ClassicElasticTab from 'components/ClassicElasticTab'
 import Loader from 'components/Loader'
 import PoolsCurrencyInputPanel from 'components/PoolsCurrencyInputPanel'
 import RewardTokenPrices from 'components/RewardTokenPrices'
-import Row from 'components/Row'
+import Row, { RowFit } from 'components/Row'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import Toggle from 'components/Toggle'
 import Tutorial, { TutorialType } from 'components/Tutorial'
@@ -28,6 +28,7 @@ import {
   HeadingContainer,
   HeadingRight,
   PageWrapper,
+  PoolTitleContainer,
   SearchContainer,
   SearchInput,
   StakedOnlyToggleText,
@@ -297,9 +298,9 @@ const Farm = () => {
                 }}
                 active={!type || type === 'active'}
               >
-                <Row>
+                <PoolTitleContainer>
                   <Trans>Active</Trans>
-                </Row>
+                </PoolTitleContainer>
               </Tab>
               <Tab
                 onClick={() => {
@@ -310,9 +311,9 @@ const Farm = () => {
                 }}
                 active={type === FARM_TAB.ENDED}
               >
-                <Row>
+                <PoolTitleContainer>
                   <Trans>Ended</Trans>
-                </Row>
+                </PoolTitleContainer>
               </Tab>
 
               <Tab
@@ -346,11 +347,11 @@ const Farm = () => {
 
             <HeadingContainer>
               <StakedOnlyToggleWrapper>
-                <Flex alignItems="center">
+                <Row gap="12px">
                   {above1000 && (
-                    <Flex marginRight="0.75rem">
+                    <RowFit>
                       <ListGridViewGroup />
-                    </Flex>
+                    </RowFit>
                   )}
 
                   {type !== FARM_TAB.MY_FARMS && (
@@ -364,8 +365,8 @@ const Farm = () => {
                       />
                     </>
                   )}
-                </Flex>
-                <FarmSort />
+                  <FarmSort />
+                </Row>
               </StakedOnlyToggleWrapper>
               <HeadingRight>
                 {selectTokenFilter}
