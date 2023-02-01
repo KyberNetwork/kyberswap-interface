@@ -17,6 +17,7 @@ import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useOpenModal } from 'state/application/hooks'
 import { useElasticFarms, useFailedNFTs } from 'state/farms/elastic/hooks'
+import { FarmingPool } from 'state/farms/elastic/types'
 import { StyledInternalLink } from 'theme'
 import { isAddressString } from 'utils'
 
@@ -167,7 +168,9 @@ function ElasticFarms({ stakedOnly }: { stakedOnly: { active: boolean; ended: bo
 
   const [selectedFarm, setSeletedFarm] = useState<null | string>(null)
   const [selectedModal, setSeletedModal] = useState<ModalType | null>(null)
-  const [selectedPoolId, setSeletedPoolId] = useState<number | null>(null)
+  const [selectedPool, setSeletedPool] = useState<FarmingPool>()
+  const pid = selectedPool?.pid
+  const selectedPoolId = Number.isNaN(Number(pid)) ? null : Number(pid)
 
   const openShareModal = useOpenModal(ApplicationModal.SHARE)
   const isShareModalOpen = useModalOpen(ApplicationModal.SHARE)
@@ -180,7 +183,7 @@ function ElasticFarms({ stakedOnly }: { stakedOnly: { active: boolean; ended: bo
   const onDismiss = () => {
     setSeletedFarm(null)
     setSeletedModal(null)
-    setSeletedPoolId(null)
+    setSeletedPool(undefined)
   }
 
   const renderAnnouncement = () => {
@@ -226,6 +229,7 @@ function ElasticFarms({ stakedOnly }: { stakedOnly: { active: boolean; ended: bo
         <StakeUnstakeModal
           type={selectedModal as any}
           poolId={selectedPoolId}
+          poolAddress={selectedPool?.poolAddress ?? ''}
           selectedFarmAddress={selectedFarm}
           onDismiss={onDismiss}
         />
@@ -307,11 +311,10 @@ function ElasticFarms({ stakedOnly }: { stakedOnly: { active: boolean; ended: bo
               <ElasticFarmGroup
                 key={farm.id}
                 address={farm.id}
-                onOpenModal={(modalType: ModalType, pid?: number | string, forced?: boolean) => {
+                onOpenModal={(modalType: ModalType, pool?: FarmingPool) => {
                   setSeletedModal(modalType)
                   setSeletedFarm(farm.id)
-                  const _pid = Number.isNaN(Number(pid)) ? null : Number(pid)
-                  setSeletedPoolId(_pid)
+                  setSeletedPool(pool)
                 }}
                 pools={farm.pools}
                 userInfo={userFarmInfo?.[farm.id]}

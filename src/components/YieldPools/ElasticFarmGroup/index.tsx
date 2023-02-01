@@ -56,7 +56,7 @@ type Props = {
   address: string
   onOpenModal: (
     modalType: 'forcedWithdraw' | 'harvest' | 'deposit' | 'withdraw' | 'stake' | 'unstake',
-    pid?: number | string,
+    pool?: FarmingPool,
   ) => void
   pools: FarmingPool[]
   userInfo?: UserInfo
@@ -654,7 +654,7 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
                       onOpenModal={onOpenModal}
                       fairlaunchAddress={address}
                       onHarvest={() => {
-                        onOpenModal('harvest', Number(pool.pid))
+                        onOpenModal('harvest', pool)
                       }}
                       tokenPrices={tokenPrices}
                     />
@@ -689,7 +689,7 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
                         onOpenModal={onOpenModal}
                         fairlaunchAddress={address}
                         onHarvest={() => {
-                          onOpenModal('harvest', Number(pool.pid))
+                          onOpenModal('harvest', pool)
                         }}
                         tokenPrices={tokenPrices}
                       />
@@ -725,7 +725,7 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
                   onOpenModal={onOpenModal}
                   fairlaunchAddress={address}
                   onHarvest={() => {
-                    onOpenModal('harvest', Number(pool.pid))
+                    onOpenModal('harvest', pool)
                   }}
                   tokenPrices={tokenPrices}
                 />
@@ -757,7 +757,7 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
                       onOpenModal={onOpenModal}
                       fairlaunchAddress={address}
                       onHarvest={() => {
-                        onOpenModal('harvest', Number(pool.pid))
+                        onOpenModal('harvest', pool)
                       }}
                       tokenPrices={tokenPrices}
                     />
