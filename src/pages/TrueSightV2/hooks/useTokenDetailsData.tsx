@@ -23,7 +23,7 @@ import {
 
 export default function useTokenDetailsData(tokenAddress: string) {
   const { data, isLoading } = useSWR<ITokenOverview>(
-    tokenAddress && `${TRUESIGHT_V2_API}/overview/chain/${tokenAddress}`,
+    tokenAddress && `${TRUESIGHT_V2_API}/overview/ethereum/${tokenAddress}`,
     (url: string) =>
       fetch(url)
         .then(res => res.json())
@@ -31,38 +31,38 @@ export default function useTokenDetailsData(tokenAddress: string) {
           return TOKEN_DETAIL
         }),
   )
-  return { data, isLoading }
+  return { data: TOKEN_DETAIL || data, isLoading }
 }
 
 export function useNumberOfTrades(tokenAddress: string) {
   const { data, isLoading } = useSWR<INumberOfTrades>(
-    tokenAddress && `${TRUESIGHT_V2_API}/trades/chain/${tokenAddress}`,
+    tokenAddress && `${TRUESIGHT_V2_API}/trades/ethereum/${tokenAddress}`,
     (url: string) =>
       fetch(url)
         .then(res => res.json())
         .then(res => {
-          return NUMBER_OF_TRADES
+          return res.data
         }),
   )
-  return { data, isLoading }
+  return { data: NUMBER_OF_TRADES || data, isLoading }
 }
 
 export function useTradingVolume(tokenAddress: string) {
   const { data, isLoading } = useSWR<ITradeVolume[]>(
-    tokenAddress && `${TRUESIGHT_V2_API}/volume/chain/${tokenAddress}`,
+    tokenAddress && `${TRUESIGHT_V2_API}/volume/ethereum/${tokenAddress}`,
     (url: string) =>
       fetch(url)
         .then(res => res.json())
         .then(res => {
-          return TRADE_VOLUME
+          return res.data
         }),
   )
-  return { data, isLoading }
+  return { data: TRADE_VOLUME || data, isLoading }
 }
 
 export function useNetflowToWhaleWallets(tokenAddress: string) {
   const { data, isLoading } = useSWR<INetflowToWhaleWallets[]>(
-    tokenAddress && `${TRUESIGHT_V2_API}/netflow/chain/${tokenAddress}`,
+    tokenAddress && `${TRUESIGHT_V2_API}/netflow/ethereum/${tokenAddress}`,
     (url: string) =>
       fetch(url)
         .then(res => res.json())
@@ -86,7 +86,7 @@ export function useNetflowToCEX(tokenAddress: string) {
 }
 export function useNumberOfHolders(tokenAddress: string) {
   const { data, isLoading } = useSWR<INumberOfHolders[]>(
-    tokenAddress && `${TRUESIGHT_V2_API}/holdersNum/chain/${tokenAddress}`,
+    tokenAddress && `${TRUESIGHT_V2_API}/holdersNum/ethereum/${tokenAddress}`,
     (url: string) =>
       fetch(url)
         .then(res => res.json())
@@ -98,7 +98,7 @@ export function useNumberOfHolders(tokenAddress: string) {
 }
 export function useHolderList(tokenAddress: string) {
   const { data, isLoading } = useSWR<IHolderList[]>(
-    tokenAddress && `${TRUESIGHT_V2_API}/holders/chain/${tokenAddress}`,
+    tokenAddress && `${TRUESIGHT_V2_API}/holders/ethereum/${tokenAddress}`,
     (url: string) =>
       fetch(url)
         .then(res => res.json())
@@ -110,7 +110,7 @@ export function useHolderList(tokenAddress: string) {
 }
 
 export function useFundingRate() {
-  const { data, isLoading } = useSWR<IFundingRate[]>(`${TRUESIGHT_V2_API}/holders/chain/C/BTC`, (url: string) =>
+  const { data, isLoading } = useSWR<IFundingRate[]>(`${TRUESIGHT_V2_API}/holders/ethereum/C/BTC`, (url: string) =>
     fetch(url)
       .then(res => res.json())
       .then(res => {

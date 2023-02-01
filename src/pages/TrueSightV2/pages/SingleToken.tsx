@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { ReactNode, useState } from 'react'
+import { ReactNode, useRef, useState } from 'react'
 import { ChevronLeft, Share2, Star } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -13,8 +13,11 @@ import { Ethereum } from 'components/Icons'
 import Icon from 'components/Icons/Icon'
 import { DotsLoader } from 'components/Loader/DotsLoader'
 import Row, { RowBetween, RowFit } from 'components/Row'
+import ShareModal from 'components/ShareModal'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
+import { ApplicationModal } from 'state/application/actions'
+import { useToggleModal } from 'state/application/hooks'
 
 import DisplaySettings from '../components/DisplaySettings'
 import KyberScoreMeter from '../components/KyberScoreMeter'
@@ -125,6 +128,14 @@ export default function SingleToken() {
   const [currentTab, setCurrentTab] = useState<DiscoverTokenTab>(DiscoverTokenTab.OnChainAnalysis)
   const { data, isLoading } = useTokenDetailsData('$TOKEN_ADDRESS')
 
+  const shareUrl = useRef<string>()
+  const toggleShareModal = useToggleModal(ApplicationModal.SHARE)
+
+  const handleShareClick = (url?: string) => {
+    shareUrl.current = url
+    toggleShareModal()
+  }
+
   const RenderHeader = () => {
     const TokenNameGroup = () => (
       <>
@@ -155,6 +166,7 @@ export default function SingleToken() {
           height="36px"
           padding="6px"
           style={{ boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.16))' }}
+          onClick={() => handleShareClick()}
         >
           <Share2 size={16} fill="currentcolor" />
         </ButtonGray>
@@ -329,9 +341,10 @@ export default function SingleToken() {
           </TabButton>
         ))}
       </Row>
-      {currentTab === DiscoverTokenTab.OnChainAnalysis && <OnChainAnalysis />}
+      {currentTab === DiscoverTokenTab.OnChainAnalysis && <OnChainAnalysis onShareClick={handleShareClick} />}
       {currentTab === DiscoverTokenTab.TechnicalAnalysis && <TechnicalAnalysis />}
       {currentTab === DiscoverTokenTab.News && <News />}
+      <ShareModal title="Share with your friends" url={shareUrl.current} />
     </Wrapper>
   )
 }

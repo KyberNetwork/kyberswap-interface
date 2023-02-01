@@ -25,12 +25,16 @@ const Wrapper = styled.div`
   width: 100%;
 `
 
-export default function OnChainAnalysis() {
+export default function OnChainAnalysis({ onShareClick }: { onShareClick: (url: string) => void }) {
   const tokenAnalysisSettings = useTokenAnalysisSettings()
   useEffect(() => {
     if (!window.location.hash) return
     document.getElementById(window.location.hash.replace('#', ''))?.scrollIntoView({ behavior: 'smooth' })
   }, [])
+  const handleShareClick = (tag?: string) => {
+    const { origin, pathname, search } = window.location
+    onShareClick(origin + pathname + search + (!!tag ? `#${tag}` : ''))
+  }
 
   return (
     <Wrapper>
@@ -43,6 +47,7 @@ export default function OnChainAnalysis() {
         timeperiod can indicate that the token is bullish and vice-versa.`}
         shareButton
         fullscreenButton
+        onShareClick={handleShareClick}
       >
         <NumberofTradesChart />
       </SectionWrapper>
@@ -56,6 +61,7 @@ export default function OnChainAnalysis() {
       increase in prices and low volume cryptocurrency could indicate prices falling.`}
         shareButton
         fullscreenButton
+        onShareClick={handleShareClick}
       >
         <TradingVolumeChart />
       </SectionWrapper>
@@ -68,6 +74,7 @@ export default function OnChainAnalysis() {
         whales are selling.`}
         shareButton
         fullscreenButton
+        onShareClick={handleShareClick}
       >
         <RequireConnectWalletWrapper bgUrl={blurImage1}>
           <NetflowToWhaleWallets />
@@ -80,6 +87,7 @@ export default function OnChainAnalysis() {
         description={t`Netflow (Inflow - Outflow) of token to centralized exchanges. Positive netflow means that more traders are depositing tokens than withdrawing, most likely for selling. Negative netflow means that more traders are withdrawing tokens than depositing, most likely for holding or staking.`}
         shareButton
         fullscreenButton
+        onShareClick={handleShareClick}
       >
         <RequireConnectWalletWrapper bgUrl={blurImage1}>
           <NetflowToCentralizedExchanges />
@@ -92,6 +100,7 @@ export default function OnChainAnalysis() {
         id="numberoftransfers"
         shareButton
         fullscreenButton
+        onShareClick={handleShareClick}
       >
         <NumberofTransfers />
       </SectionWrapper>
@@ -102,6 +111,7 @@ export default function OnChainAnalysis() {
         id="numberofholders"
         shareButton
         fullscreenButton
+        onShareClick={handleShareClick}
       >
         <RequireConnectWalletWrapper bgUrl={blurImage2}>
           <NumberofHolders />
@@ -112,6 +122,7 @@ export default function OnChainAnalysis() {
         title={t`Top 10 Holders`}
         id="top10holders"
         shareButton
+        onShareClick={handleShareClick}
         style={{ height: '820px' }}
       >
         <RequireConnectWalletWrapper bgUrl={blurImage3}>
@@ -123,6 +134,7 @@ export default function OnChainAnalysis() {
         title={t`Top 25 Holders`}
         id="top25holders"
         shareButton
+        onShareClick={handleShareClick}
         style={{ height: '360px' }}
       >
         <RequireConnectWalletWrapper bgUrl={blurImage4}>

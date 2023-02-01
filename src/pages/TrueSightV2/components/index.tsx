@@ -84,6 +84,7 @@ export const SectionWrapper = ({
   id,
   shareButton,
   fullscreenButton,
+  onShareClick,
   children,
   style,
 }: {
@@ -93,6 +94,7 @@ export const SectionWrapper = ({
   id?: string
   shareButton?: boolean
   fullscreenButton?: boolean
+  onShareClick?: (tag?: string) => void
   children: React.ReactNode
   style?: React.CSSProperties
 }) => {
@@ -104,7 +106,7 @@ export const SectionWrapper = ({
         <RowBetween>
           {title}
           <RowFit color={theme.subText} gap="12px">
-            {shareButton && <ShareButton />}
+            {shareButton && <ShareButton onClick={() => onShareClick?.(id)} />}
             {fullscreenButton && <FullscreenButton element={ref.current} />}
           </RowFit>
         </RowBetween>
