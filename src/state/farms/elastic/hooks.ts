@@ -35,7 +35,7 @@ export const useElasticFarms = () => {
 }
 export type StakeParam = {
   nftId: BigNumber
-  position: any // NFTPosition | UserPositionFarm
+  position: NFTPosition | Position
   stakedLiquidity: string
   poolAddress: string
 }
@@ -44,6 +44,9 @@ const getTransactionExtraInfo = (
   positions: Position[] | NFTPosition[],
   poolIds: string[],
 ): TransactionExtraInfoStakeFarm => {
+  if (!positions[0]?.amount0) {
+    return { pairs: [] }
+  }
   const pairs = positions.map((item, index) => {
     const { amount0, amount1 } = item
     return {

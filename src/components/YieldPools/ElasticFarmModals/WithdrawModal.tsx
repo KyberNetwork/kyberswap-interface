@@ -152,13 +152,13 @@ const PositionRow = ({
               style={{ height: '28px' }}
               disabled={position.stakedLiquidity.eq(BigNumber.from(0))}
               onClick={() => {
-                if (!!pid)
+                if (!!pid && positionSDK)
                   unstake(BigNumber.from(pid), [
                     {
                       nftId: position.tokenId,
                       stakedLiquidity: position.stakedLiquidity.toString(),
                       poolAddress: position.poolId,
-                      position,
+                      position: positionSDK,
                     },
                   ])
               }}
