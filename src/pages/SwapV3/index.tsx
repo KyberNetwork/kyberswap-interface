@@ -139,6 +139,7 @@ export default function Swap() {
   }>()
   const [{ show: isShowTutorial = false }] = useTutorialSwapGuide()
   const [routeSummary, setRouteSummary] = useState<RouteSummary>()
+  const [isSelectCurrencyManually, setIsSelectCurrencyManually] = useState(false) // true when: select token input, output manualy or click rotate token.
 
   const { pathname } = useLocation()
   useSyncNetworkParamWithStore()
@@ -150,10 +151,7 @@ export default function Swap() {
 
   const shouldHighlightSwapBox = qs.highlightBox === 'true'
 
-  const [isSelectCurrencyManually, setIsSelectCurrencyManually] = useState(false) // true when: select token input, output manualy or click rotate token.
-  // else select via url
-
-  const isSwapPage = pathname.startsWith(APP_PATHS.SWAP)
+  const isSwapPage = pathname.startsWith(APP_PATHS.SWAP_V3)
   const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT)
   const [activeTab, setActiveTab] = useState<TAB>(isSwapPage ? TAB.SWAP : TAB.LIMIT)
   const { onSelectPair: onSelectPairLimit } = useLimitActionHandlers()
@@ -231,6 +229,7 @@ export default function Swap() {
       }
       if (isLimitPage) {
         onSelectPairLimit(tokens[0], tokens[1])
+        setIsSelectCurrencyManually(true)
       }
     },
     [isLimitPage, onSelectPairLimit, showingPairSuggestionImport, handleDismissTokenWarning],
@@ -242,8 +241,10 @@ export default function Swap() {
     (fromToken: Currency | undefined, toToken: Currency | undefined, amount?: string) => {
       if (isLimitPage) {
         onSelectPairLimit(fromToken, toToken)
+        setIsSelectCurrencyManually(true)
         return
       }
+
       if (fromToken) onCurrencySelection(Field.INPUT, fromToken)
       if (toToken) onCurrencySelection(Field.OUTPUT, toToken)
       if (amount) handleTypeInput(amount)
@@ -262,7 +263,7 @@ export default function Swap() {
   const shareUrl = useMemo(() => {
     const tokenIn = isSwapPage ? currencyIn : limitState.currencyIn
     const tokenOut = isSwapPage ? currencyOut : limitState.currencyOut
-    return `${window.location.origin}${isSwapPage ? APP_PATHS.SWAP : APP_PATHS.LIMIT}}/${networkInfo.route}${
+    return `${window.location.origin}${isSwapPage ? APP_PATHS.SWAP_V3 : APP_PATHS.LIMIT}}/${networkInfo.route}${
       tokenIn && tokenOut
         ? `?${stringify({
             inputCurrency: currencyId(tokenIn, chainId),
@@ -287,11 +288,13 @@ export default function Swap() {
     isLoadedTokenDefault && importTokensNotInDefault.length > 0 && (!dismissTokenWarning || showingPairSuggestionImport)
 
   const onClickTab = (tab: TAB) => {
-    setActiveTab(tab)
-    const isLimit = tab === TAB.LIMIT
+    if (activeTab === tab) {
+      return
+    }
+
     const { inputCurrency, outputCurrency, ...newQs } = qs
     navigateFn({
-      pathname: `${isLimit ? APP_PATHS.LIMIT : APP_PATHS.SWAP}/${networkInfo.route}`,
+      pathname: `${tab === TAB.LIMIT ? APP_PATHS.LIMIT : APP_PATHS.SWAP_V3}/${networkInfo.route}`,
       search: stringify(newQs),
     })
   }

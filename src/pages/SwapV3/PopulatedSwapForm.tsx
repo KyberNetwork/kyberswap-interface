@@ -44,7 +44,7 @@ const PopulatedSwapForm: React.FC<Props> = ({ routeSummary, setRouteSummary, goT
   const currencyIn = useInputCurrency()
   const currencyOut = useOutputCurrency()
 
-  const isSelectCurrencyManually = useAppSelector(state => state.swap.isSelectTokenManually)
+  const isSelectTokenManually = useAppSelector(state => state.swap.isSelectTokenManually)
   const [balanceIn, balanceOut] = useCurrencyBalances(
     useMemo(() => [currencyIn ?? undefined, currencyOut ?? undefined], [currencyIn, currencyOut]),
   )
@@ -68,7 +68,7 @@ const PopulatedSwapForm: React.FC<Props> = ({ routeSummary, setRouteSummary, goT
     [onCurrencySelection, onUserInput],
   )
 
-  useSyncTokenSymbolToUrl(currencyIn, currencyOut, onSelectSuggestedPair, isSelectCurrencyManually)
+  useSyncTokenSymbolToUrl(currencyIn, currencyOut, onSelectSuggestedPair, isSelectTokenManually)
   useResetCurrenciesOnRemoveImportedTokens(currencyIn, currencyOut, onResetSelectCurrency)
 
   const onChangeCurrencyIn = useCallback(

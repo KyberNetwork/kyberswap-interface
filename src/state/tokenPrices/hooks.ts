@@ -68,6 +68,8 @@ const useTokenPricesLocal = (
 
           dispatch(updatePrices(formattedPrices))
         }
+      } catch (e) {
+        // empty
       } finally {
         setLoading(false)
       }
