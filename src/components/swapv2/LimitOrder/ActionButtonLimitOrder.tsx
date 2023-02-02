@@ -86,7 +86,7 @@ export default function ActionButtonLimitOrder({
             <ButtonApprove
               forceApprove={!enoughAllowance}
               tokenSymbol={currencyIn?.symbol}
-              tooltipMsg={t`You need to first allow KyberSwaps smart contracts to use your ${currencyIn?.symbol}. This has to be done only once for each token.`}
+              tooltipMsg={t`You need to first allow KyberSwap smart contracts to use your ${currencyIn?.symbol}. This has to be done only once for each token.`}
               onClick={approveCallback}
               disabled={!!disableBtnApproved}
               approval={approval}
