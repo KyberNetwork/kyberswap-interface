@@ -239,7 +239,12 @@ export default function AddLiquidity() {
           amountUnlock = amount1Unlock
         }
         maxAmount = maxAmount?.subtract(CurrencyAmount.fromRawAmount(currencies[field] as Currency, amountUnlock))
+        const zero = CurrencyAmount.fromRawAmount(currencies[field] as Currency, 0)
+        if (maxAmount.lessThan(zero)) {
+          maxAmount = zero
+        }
       }
+
       return {
         ...accumulator,
         [field]: maxAmount,
