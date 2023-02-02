@@ -42,7 +42,7 @@ export default function ProAmmPoolInfo({
 }) {
   const { networkInfo, chainId } = useActiveWeb3React()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-  const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
+  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const theme = useTheme()
   const poolAddress = useProAmmPoolInfo(position.pool.token0, position.pool.token1, position.pool.fee as FeeAmount)
 
@@ -122,57 +122,50 @@ export default function ProAmmPoolInfo({
               <FeeTag>FEE {(position?.pool.fee * 100) / ELASTIC_BASE_FEE_UNIT}% </FeeTag>
             </Flex>
 
-            {narrow ? (
-              <Flex sx={{ gap: upToXXSmall ? '8px' : '16px' }} flexDirection={upToXXSmall ? 'column' : undefined}>
-                <Copy
-                  toCopy={poolAddress}
-                  text={
-                    <Text fontSize="12px" fontWeight="500" color={theme.subText}>
-                      <Trans>{shortenAddress(chainId, poolAddress)}</Trans>
-                    </Text>
-                  }
-                />
-                <Flex sx={{ gap: '4px' }}>
-                  <Text fontSize={12}>
-                    <Trans>
-                      <Flex>
-                        <Text color={theme.subText}>Current Price:</Text>&nbsp;1 {tokenB.currency.symbol} ={' '}
-                        {position.pool.priceOf(tokenB.currency).toSignificant(6)} {tokenA.currency.symbol}
-                      </Flex>
-                    </Trans>
+            <Flex sx={{ gap: '8px' }}>
+              {renderFarmIcon()}
+              {showRangeInfo && <RangeBadge removed={removed} inRange={!outOfRange} hideText />}
+            </Flex>
+          </Flex>
+
+          <Flex
+            justifyContent="space-between"
+            alignItems={upToExtraSmall ? 'flex-start' : 'center'}
+            marginTop="8px"
+            sx={{ gap: '8px' }}
+            flexDirection={upToExtraSmall ? 'column' : 'row'}
+          >
+            <Flex alignItems="center" color={theme.subText} fontSize={12}>
+              <Copy
+                toCopy={poolAddress}
+                text={
+                  <Text fontSize="12px" fontWeight="500" color={theme.subText}>
+                    {shortenAddress(chainId, poolAddress)}{' '}
                   </Text>
-                  <span onClick={onReversePrice} style={{ cursor: 'pointer' }}>
-                    <RotateSwapIcon rotated={rotated} size={12} />
-                  </span>
-                </Flex>
-              </Flex>
-            ) : (
-              <Flex sx={{ gap: '8px' }}>
-                {renderFarmIcon()}
-                {showRangeInfo && <RangeBadge removed={removed} inRange={!outOfRange} hideText />}
+                }
+              />
+            </Flex>
+            {showRangeInfo && !!tokenId ? (
+              <Text fontSize="12px" marginRight="4px" color={theme.subText}>
+                #{tokenId}
+              </Text>
+            ) : null}
+            {narrow && (
+              <Flex sx={{ gap: '4px' }}>
+                <Text fontSize={12}>
+                  <Trans>
+                    <Flex>
+                      <Text color={theme.subText}>Current Price:</Text>&nbsp;1 {tokenB.currency.symbol} ={' '}
+                      {position.pool.priceOf(tokenB.currency).toSignificant(6)} {tokenA.currency.symbol}
+                    </Flex>
+                  </Trans>
+                </Text>
+                <span onClick={onReversePrice} style={{ cursor: 'pointer' }}>
+                  <RotateSwapIcon rotated={rotated} size={12} />
+                </span>
               </Flex>
             )}
           </Flex>
-
-          {!narrow && (
-            <Flex justifyContent="space-between" alignItems="center" marginTop="8px">
-              <Flex alignItems="center" color={theme.subText} fontSize={12}>
-                <Copy
-                  toCopy={poolAddress}
-                  text={
-                    <Text fontSize="12px" fontWeight="500" color={theme.subText}>
-                      {shortenAddress(chainId, poolAddress)}{' '}
-                    </Text>
-                  }
-                />
-              </Flex>
-              {showRangeInfo && !!tokenId ? (
-                <Text fontSize="12px" marginRight="4px" color={theme.subText}>
-                  #{tokenId}
-                </Text>
-              ) : null}
-            </Flex>
-          )}
         </AutoColumn>
       )}
     </>
