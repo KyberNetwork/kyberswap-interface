@@ -107,12 +107,7 @@ export default function ActionButtonLimitOrder({
       {checkingAllowance ? <Trans>Checking Allowance...</Trans> : <Trans>Review Order</Trans>}
     </Text>
   )
-  if (showWarning)
-    return (
-      <ButtonWarning onClick={showPreview} disabled={disableBtnReview}>
-        {contentButton}
-      </ButtonWarning>
-    )
+  if (showWarning && !disableBtnReview) return <ButtonWarning onClick={showPreview}>{contentButton}</ButtonWarning>
   return (
     <ButtonPrimary onClick={showPreview} disabled={disableBtnReview}>
       {contentButton}
