@@ -8,7 +8,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
+import { Box, Flex, Text } from 'rebass'
 
 import { ReactComponent as TutorialIcon } from 'assets/svg/play_circle_outline.svg'
 import RangeBadge from 'components/Badge/RangeBadge'
@@ -26,7 +26,7 @@ import ProAmmPoolInfo from 'components/ProAmm/ProAmmPoolInfo'
 import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
 import ProAmmPriceRangeConfirm from 'components/ProAmm/ProAmmPriceRangeConfirm'
 import Rating from 'components/Rating'
-import { RowBetween, RowFit } from 'components/Row'
+import { RowBetween } from 'components/Row'
 import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
 import TransactionSettings from 'components/TransactionSettings'
 import Tutorial, { TutorialType } from 'components/Tutorial'
@@ -538,25 +538,22 @@ export default function AddLiquidity() {
 
                 <SecondColumn>
                   <BlackCard style={{ marginBottom: '1rem' }}>
-                    <RowFit
-                      gap={upToMedium ? '12px' : '24px'}
-                      flexDirection={upToMedium ? 'column' : 'row'}
-                      align="unset"
+                    <Box
+                      sx={{
+                        display: 'grid',
+                        gridGap: upToMedium ? '12px' : '24px',
+                        gridTemplateColumns: `repeat(${upToMedium ? 1 : 2} , fit-content(100%) fit-content(100%))`,
+                      }}
                     >
-                      <RowFit gap="8px">
-                        <Text fontSize={12} color={theme.red}>
-                          <Trans>Estimated Risk</Trans>
-                        </Text>
-                        <Rating point={riskPoint} color={theme.red} />
-                      </RowFit>
-                      <RowFit gap="8px">
-                        <Text fontSize={12} color={theme.primary}>
-                          <Trans>Estimated Profit</Trans>
-                        </Text>
-                        <Rating point={profitPoint} color={theme.primary} />
-                      </RowFit>
-                    </RowFit>
-
+                      <Text fontSize={12} color={theme.red}>
+                        <Trans>Estimated Risk</Trans>
+                      </Text>
+                      <Rating point={riskPoint} color={theme.red} />
+                      <Text fontSize={12} color={theme.primary}>
+                        <Trans>Estimated Profit</Trans>
+                      </Text>
+                      <Rating point={profitPoint} color={theme.primary} />
+                    </Box>
                     <Flex marginTop="1rem" />
                     <Chart position={existingPosition} ticksAtLimit={ticksAtLimit} />
 

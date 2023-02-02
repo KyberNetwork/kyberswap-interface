@@ -9,7 +9,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AlertTriangle, Repeat } from 'react-feather'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
+import { Box, Flex, Text } from 'rebass'
 
 import { ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
 import { OutlineCard, WarningCard } from 'components/Card'
@@ -31,7 +31,7 @@ import ProAmmPriceRangeConfirm from 'components/ProAmm/ProAmmPriceRangeConfirm'
 import Tabs from 'components/ProAmm/Tab'
 import RangeSelector from 'components/RangeSelector'
 import Rating from 'components/Rating'
-import Row, { RowBetween, RowFit, RowFixed } from 'components/Row'
+import Row, { RowBetween, RowFixed } from 'components/Row'
 import ShareModal from 'components/ShareModal'
 import Tooltip from 'components/Tooltip'
 import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
@@ -707,20 +707,22 @@ export default function AddLiquidity() {
                 )
               })()}
 
-              <RowFit gap={upToMedium ? '12px' : '24px'} flexDirection={upToMedium ? 'column' : 'row'} align="unset">
-                <RowFit gap="8px">
-                  <Text fontSize={12} color={theme.red}>
-                    <Trans>Estimated Risk</Trans>
-                  </Text>
-                  <Rating point={riskPoint} color={theme.red} />
-                </RowFit>
-                <RowFit gap="8px">
-                  <Text fontSize={12} color={theme.primary}>
-                    <Trans>Estimated Profit</Trans>
-                  </Text>
-                  <Rating point={profitPoint} color={theme.primary} />
-                </RowFit>
-              </RowFit>
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridGap: upToMedium ? '12px' : '24px',
+                  gridTemplateColumns: `repeat(${upToMedium ? 1 : 2} , fit-content(100%) fit-content(100%))`,
+                }}
+              >
+                <Text fontSize={12} color={theme.red}>
+                  <Trans>Estimated Risk</Trans>
+                </Text>
+                <Rating point={riskPoint} color={theme.red} />
+                <Text fontSize={12} color={theme.primary}>
+                  <Trans>Estimated Profit</Trans>
+                </Text>
+                <Rating point={profitPoint} color={theme.primary} />
+              </Box>
               {price && baseCurrency && quoteCurrency && !noLiquidity && (
                 <Flex justifyContent="center" marginTop="0.5rem" sx={{ gap: '0.25rem' }}>
                   <Text fontWeight={500} textAlign="center" color={theme.subText} fontSize={12}>
