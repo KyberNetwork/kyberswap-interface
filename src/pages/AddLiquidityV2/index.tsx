@@ -399,9 +399,10 @@ export default function AddLiquidity() {
       noLiquidity,
       networkInfo,
       onResetMintState,
-      addTransactionWithType,
+      navigate,
       parsedAmounts_A,
       parsedAmounts_B,
+      addTransactionWithType,
       poolAddress,
     ],
   )
