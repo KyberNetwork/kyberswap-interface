@@ -67,6 +67,7 @@ export const STABLE_COINS_ADDRESS: { [chainId in ChainId]: string[] } = {
     '0xF2001B145b43032AAF5Ee2884e456CCd805F677D', // dai
     '0xc21223249CA28397B4B6541dfFaEcC539BfF0c59', //usdc
     '0x66e428c3f67a68878562e79A0234c1F83c208770', //'usdt'
+    '0xC74D59A548ecf7fc1754bb7810D716E9Ac3e3AE5', // busd
   ],
   [ChainId.ARBITRUM]: [
     '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1', //dai
@@ -156,6 +157,7 @@ export const SUPER_STABLE_COINS_ADDRESS: { [chainId in ChainId]: string[] } = {
     '0xF2001B145b43032AAF5Ee2884e456CCd805F677D', // dai
     '0xc21223249CA28397B4B6541dfFaEcC539BfF0c59', // usdc
     '0x66e428c3f67a68878562e79A0234c1F83c208770', // usdt
+    '0xC74D59A548ecf7fc1754bb7810D716E9Ac3e3AE5', // busd
   ],
   [ChainId.ARBITRUM]: [
     '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1', // dai
