@@ -88,7 +88,59 @@ const ScrollBtn = styled.button<{ position: 'left' | 'right'; show: boolean }>`
   }
 `
 
+const AddTabWrapper = styled.div`
+  padding: 8px;
+  cursor: pointer;
+  :hover {
+    ${({ theme }) =>
+      css`
+        ${AddTab} {
+          background-color: ${theme.darkMode ? lighten(0.5, theme.subText + '33') : darken(0.1, theme.subText + '33')};
+        }
+      `}
+  }
+`
+
 const AddTab = styled.button`
+  padding: 4px;
+  height: 100%;
+  border-radius: 999px;
+  border: none;
+
+  ${({ theme }) =>
+    css`
+      background-color: ${theme.subText}33;
+      :hover {
+        background-color: ${theme.darkMode ? lighten(0.5, theme.subText + '33') : darken(0.1, theme.subText + '33')};
+      }
+      color: ${theme.text};
+      box-shadow: 0 0 4px ${theme.primary}, 0 0 8px ${theme.primary}, 0 0 12px ${theme.primary},
+        0 0 16px ${theme.primary};
+    `}
+
+  :focus {
+    outline: 0;
+  }
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+
+  animation: glow 3000ms infinite;
+  animation-direction: alternate-reverse;
+  @keyframes glow {
+    0% {
+      box-shadow: none;
+    }
+    100% {
+      ${({ theme }) => css`
+        box-shadow: 0 0 4px ${theme.primary}, 0 0 8px ${theme.primary}, 0 0 12px ${theme.primary},
+          0 0 16px ${theme.primary};
+      `}
+    }
+  }
+`
+
+const ChartButton = styled.button<{ active: boolean }>`
   padding: 8px 12px;
   height: 100%;
   border: none;
@@ -101,9 +153,7 @@ const AddTab = styled.button`
   display: flex;
   align-items: center;
   cursor: pointer;
-`
 
-const ChartButton = styled(AddTab)<{ active: boolean }>`
   min-width: 120px;
   ${borderLeft}
   ${buttonBackgroundColor}
@@ -115,6 +165,8 @@ const ChartButton = styled(AddTab)<{ active: boolean }>`
           border-bottom: 2px solid ${({ theme }) => theme.primary};
         `
       : ''}
+  box-shadow: none;
+  animation: none;
 `
 
 const Container = styled(RowBetween)`
@@ -273,9 +325,11 @@ const Tabs = ({
               />
             )
           })}
-          <AddTab onClick={() => onAddTab()}>
-            <Plus size={12} />
-          </AddTab>
+          <AddTabWrapper onClick={() => onAddTab()}>
+            <AddTab>
+              <Plus size={12} />
+            </AddTab>
+          </AddTabWrapper>
         </TabSlide>
 
         <ScrollBtn onClick={scrollRight} position="right" show={showScrollRight}>
