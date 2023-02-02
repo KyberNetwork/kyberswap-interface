@@ -506,8 +506,13 @@ export default function AddLiquidity() {
       amountBText = !depositBDisabled ? `${parsedAmounts_B?.toSignificant(10)} ${currencies_B?.symbol}` : ''
     }
 
-    if (amountAText && amountBText) return t`Supplying ${amountAText} and ${amountBText}`
-    else if (amountAText || amountBText) return t`Supplying ${amountAText || amountBText}`
+    if (amountAText && amountBText) {
+      if (positions.length === 1) return t`Supplying ${amountAText} and ${amountBText}`
+      return t`Supplying ${amountAText} and ${amountBText} across ${positions.length} positions`
+    } else if (amountAText || amountBText) {
+      if (positions.length === 1) return t`Supplying ${amountAText || amountBText}`
+      return t`Supplying ${amountAText || amountBText} across ${positions.length} positions`
+    }
     return ''
   }, [
     currencies_A?.symbol,
@@ -518,6 +523,7 @@ export default function AddLiquidity() {
     isMultiplePosition,
     parsedAmounts_A,
     parsedAmounts_B,
+    positions.length,
   ])
 
   const upToXL = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXL}px)`)
