@@ -12,6 +12,7 @@ export type TopToken = {
 }
 
 export enum PairFactor {
+  SUPER_STABLE = 1,
   STABLE = 2,
   NOMAL = 30,
   EXOTIC = 100,

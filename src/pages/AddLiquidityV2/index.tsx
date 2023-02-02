@@ -687,7 +687,7 @@ export default function AddLiquidity() {
                     {RANGE_LIST.map(range => (
                       <Flex key={rangeData[range].title} width={buttonWidth}>
                         <Tooltip
-                          text={rangeData[range].tooltip(pairFactor)}
+                          text={rangeData[range].tooltip[pairFactor]}
                           containerStyle={{ width: '100%' }}
                           show={shownTooltip === range}
                           placement="bottom"
