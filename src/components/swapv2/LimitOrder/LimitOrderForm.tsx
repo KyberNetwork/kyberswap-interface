@@ -714,7 +714,10 @@ const LimitOrderForm = function LimitOrderForm({
             </Flex>
             <Flex alignItems={'center'} style={{ background: theme.buttonBlack, borderRadius: 12 }}>
               <NumericalInput
-                maxLength={16}
+                maxLength={(() => {
+                  const [decimals] = (displayRate ?? '').split('.')
+                  return decimals ? 36 : 18
+                })()}
                 style={{ fontSize: 14, height: INPUT_HEIGHT }}
                 value={displayRate}
                 onUserInput={onChangeRate}
