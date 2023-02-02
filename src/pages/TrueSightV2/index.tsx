@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
@@ -10,10 +10,10 @@ import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
 import ReadMore from 'components/ReadMore'
 import { RowBetween, RowFit } from 'components/Row'
-import Search from 'components/Search'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 
+import SearchWithDropDown from './components/SearchWithDropDown'
 import SingleToken from './pages/SingleToken'
 import TokenAnalysisList from './pages/TokenAnalysisList'
 
@@ -37,13 +37,15 @@ const Wrapper = styled.div`
 export default function TrueSightV2() {
   const theme = useTheme()
   const [subscribed, setSubscribed] = useState(false)
+  const [searchValue, setSearchValue] = useState('')
   const location = useLocation()
   const isSingleToken = location?.pathname.includes('single-token')
   const above768 = useMedia('(min-width:768px)')
   const above600 = useMedia('(min-width:600px)')
 
-  const RenderSearch = () => (
-    <Search onSearch={(search: string) => console.log(search)} searchValue="" placeholder="Search" minWidth="340px" />
+  const RenderSearch = useCallback(
+    () => <SearchWithDropDown onSearch={setSearchValue} searchValue={searchValue} />,
+    [searchValue],
   )
   return (
     <Wrapper>
@@ -55,7 +57,7 @@ export default function TrueSightV2() {
           </Text>
         </RowFit>
         <RowFit gap="16px">
-          {above768 && <RenderSearch />}
+          {above768 && <SearchWithDropDown onSearch={setSearchValue} searchValue={searchValue} />}
           {subscribed ? (
             <MouseoverTooltip
               text={t`Subscribe to receive daily email notifications witha curated list of tokens from each category!`}

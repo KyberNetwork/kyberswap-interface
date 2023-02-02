@@ -22,7 +22,7 @@ import { useToggleModal } from 'state/application/hooks'
 import DisplaySettings from '../components/DisplaySettings'
 import KyberScoreMeter from '../components/KyberScoreMeter'
 import PriceRange from '../components/PriceRange'
-import useTokenDetailsData from '../hooks/useTruesightV2Data'
+import { useTokenDetail } from '../hooks/useTruesightV2Data'
 import { DiscoverTokenTab } from '../types'
 import News from './News'
 import OnChainAnalysis from './OnChainAnalysis'
@@ -147,7 +147,7 @@ export default function SingleToken() {
   const above768 = useMedia('(min-width:768px)')
 
   const [currentTab, setCurrentTab] = useState<DiscoverTokenTab>(DiscoverTokenTab.OnChainAnalysis)
-  const { data, isLoading } = useTokenDetailsData(testParams.address)
+  const { data, isLoading } = useTokenDetail(testParams.address)
 
   const shareUrl = useRef<string>()
   const toggleShareModal = useToggleModal(ApplicationModal.SHARE)

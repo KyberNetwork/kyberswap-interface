@@ -19,13 +19,13 @@ import InfoHelper from 'components/InfoHelper'
 import Pagination from 'components/Pagination'
 import Row, { RowFit } from 'components/Row'
 import ShareModal from 'components/ShareModal'
-import useTruesightV2 from 'hooks/truesight-v2'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
 
 import NetworkSelect from '../components/NetworkSelect'
 import TokenChart from '../components/TokenChartSVG'
+import { useTokenList } from '../hooks/useTruesightV2Data'
 import { TokenListTab } from '../types'
 
 const TableWrapper = styled.div`
@@ -179,6 +179,7 @@ const TabWrapper = styled.div`
   gap: 8px;
   padding: 1px;
   position: relative;
+  flex: 1;
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
   > * {
@@ -360,7 +361,7 @@ export default function TokenAnalysisList() {
   const [currentTab, setCurrentTab] = useState(TokenListTab.All)
   const [networkFilter, setNetworkFilter] = useState<ChainId>()
   const toggle = useToggleModal(ApplicationModal.SHARE)
-  const { tokenList } = useTruesightV2()
+  const { tokenList } = useTokenList()
   const above768 = useMedia('(min-width:768px)')
 
   const [searchParams, setSearchParams] = useSearchParams()
