@@ -1,4 +1,4 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { darken, lighten, rgba } from 'polished'
 import { MouseEventHandler, useCallback, useEffect, useRef, useState } from 'react'
 import { Plus, TrendingUp, X } from 'react-feather'
@@ -6,6 +6,7 @@ import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import { RowBetween } from 'components/Row'
+import { MouseoverTooltip } from 'components/Tooltip'
 
 const RemoveTab = styled.span`
   display: flex;
@@ -235,7 +236,7 @@ const Tab = ({
 
   return (
     <TabContainer active={active} onClick={onSelected} noBorder={noBorder}>
-      <Text fontSize={12}>
+      <Text fontSize={14}>
         <Trans>Position {index + 1}</Trans>
       </Text>
       {tabsCount > 1 && (
@@ -326,9 +327,11 @@ const Tabs = ({
             )
           })}
           <AddTabWrapper onClick={() => onAddTab()}>
-            <AddTab>
-              <Plus size={12} />
-            </AddTab>
+            <MouseoverTooltip text={t`Add a new position`} width="fit-content" placement="top">
+              <AddTab>
+                <Plus size={12} />
+              </AddTab>
+            </MouseoverTooltip>
           </AddTabWrapper>
         </TabSlide>
 
