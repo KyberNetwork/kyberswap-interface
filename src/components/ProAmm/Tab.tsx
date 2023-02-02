@@ -127,7 +127,8 @@ const AddTab = styled.button`
   cursor: pointer;
 
   animation: glow 3000ms infinite;
-  animation-direction: alternate-reverse;
+  animation-direction: alternate;
+  animation-timing-function: ease-in;
   @keyframes glow {
     0% {
       box-shadow: none;
