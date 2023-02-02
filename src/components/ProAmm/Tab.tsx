@@ -129,6 +129,7 @@ const AddTab = styled.button`
   animation: glow 3000ms infinite;
   animation-direction: alternate;
   animation-timing-function: ease-in;
+  animation-delay: 3s;
   @keyframes glow {
     0% {
       box-shadow: none;
@@ -167,8 +168,6 @@ const ChartButton = styled.button<{ active: boolean }>`
           border-bottom: 2px solid ${({ theme }) => theme.primary};
         `
       : ''}
-  box-shadow: none;
-  animation: none;
 `
 
 const Container = styled(RowBetween)`
