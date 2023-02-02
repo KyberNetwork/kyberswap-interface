@@ -155,7 +155,7 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
   const staked = useStakedBalance(farm.fairLaunchAddress, farm.pid)
   const rewardUSD = useFarmRewardsUSD(farmRewards)
 
-  const isNotDeposited = !balance.value.gt(0)
+  const isAbleToStake = !balance.value.gt(0)
   const isNotStaked = !staked.value.gt(0)
 
   const amountToApprove = useMemo(
@@ -179,9 +179,6 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
     isStakeInvalidAmount = true
   }
 
-  // This only use to validate in Stake modal
-  const isStakeDisabled = isStakeInvalidAmount
-
   let isUnstakeInvalidAmount
 
   try {
@@ -192,9 +189,6 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
   } catch (err) {
     isUnstakeInvalidAmount = true
   }
-
-  // This only use to validate in Unstake modal
-  const isUnstakeDisabled = isUnstakeInvalidAmount
 
   const canHarvest = (rewards: Reward[]): boolean => {
     return rewards.some(reward => reward?.amount.gt(BigNumber.from('0')))
@@ -455,7 +449,7 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
               </ActionButton>
               <ActionButton
                 color={theme.primary}
-                disabled={type === 'ended' || isNotDeposited}
+                disabled={type === 'ended' || isAbleToStake}
                 onClick={() => {
                   setModalType('stake')
                 }}
@@ -612,7 +606,7 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
               <Trans>Unstake</Trans>
             </CardButton>
             <CardButton
-              disabled={type === 'ended' || isNotDeposited}
+              disabled={type === 'ended' || isAbleToStake}
               flex={1}
               onClick={() => setModalType('stake')}
               color={theme.primary}
@@ -742,7 +736,7 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
                         fontSize="14px"
                         customCurrencySelect={
                           <ButtonPrimary
-                            disabled={isStakeDisabled}
+                            disabled={isStakeInvalidAmount}
                             padding="8px 12px"
                             width="max-content"
                             style={{ minWidth: '80px' }}
@@ -771,7 +765,7 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
                         fontSize="14px"
                         customCurrencySelect={
                           <ButtonPrimary
-                            disabled={isUnstakeDisabled}
+                            disabled={isUnstakeInvalidAmount}
                             padding="8px 12px"
                             width="max-content"
                             style={{ minWidth: '80px' }}

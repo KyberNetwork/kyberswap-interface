@@ -24,7 +24,7 @@ import { FairLaunchVersion, Farm } from 'state/farms/types'
 import { useAppDispatch } from 'state/hooks'
 import { useViewMode } from 'state/user/hooks'
 import { VIEW_MODE } from 'state/user/reducer'
-import { ExternalLink } from 'theme'
+import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { useFarmRewards } from 'utils/dmm'
 import { getFullDisplayBalance } from 'utils/formatBalance'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
@@ -58,8 +58,8 @@ const ToggleButton = ({ isOpen, onClick }: { isOpen: boolean; onClick: () => voi
 const FairLaunchPools = ({ fairLaunchAddress, farms, active }: FarmsListProps) => {
   const dispatch = useAppDispatch()
   const [viewMode] = useViewMode()
-  const above1200 = useMedia('(min-width:1200px)')
-  const above768 = useMedia('(min-width:768px)')
+  const above1200 = useMedia(`(min-width:${MEDIA_WIDTHS.upToLarge})`)
+  const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall})`)
   const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
   const networkRoute = networkInfo.route || undefined
   const theme = useTheme()
