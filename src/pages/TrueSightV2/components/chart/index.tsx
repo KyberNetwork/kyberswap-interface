@@ -26,7 +26,8 @@ import {
   useNumberOfHolders,
   useNumberOfTrades,
   useTradingVolume,
-} from 'pages/TrueSightV2/hooks/useTokenDetailsData'
+} from 'pages/TrueSightV2/hooks/useTruesightV2Data'
+import { testParams } from 'pages/TrueSightV2/pages/SingleToken'
 
 import { ContentWrapper } from '..'
 import HoldersPieChart from './HoldersPieChart'
@@ -252,7 +253,7 @@ const TooltipCustom = (props: TooltipProps<number, string>) => {
 }
 
 export const NumberofTradesChart = () => {
-  const { data } = useNumberOfTrades('123')
+  const { data } = useNumberOfTrades(testParams.address)
   const [showSell, setShowSell] = useState(true)
   const [showBuy, setShowBuy] = useState(true)
   const [timeframe, setTimeframe] = useState('7D')

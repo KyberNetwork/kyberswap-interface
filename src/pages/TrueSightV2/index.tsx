@@ -6,6 +6,7 @@ import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
+import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
 import ReadMore from 'components/ReadMore'
 import { RowBetween, RowFit } from 'components/Row'
@@ -74,13 +75,18 @@ export default function TrueSightV2() {
         </RowFit>
       </RowBetween>
       <ReadMore open={above600 ? true : false}>
-        <Text fontSize={12} color={theme.subText} lineHeight="16px">
-          <Trans>
-            Our algorithm analyzes thousands of tokens and multiple on-chain / off-chain indicators each day to give you
-            a curated list of tokens across various categories. You can further explore each token in detail - use our
-            on-chain, technical and social analysis to find alpha and make better trading decisions!
-          </Trans>
-        </Text>
+        <Column gap="12px">
+          <Text fontSize={12} color={theme.subText} lineHeight="16px">
+            <Trans>
+              Our algorithm analyzes thousands of tokens and multiple on-chain / off-chain indicators each day to give
+              you a curated list of tokens across various categories. You can further explore each token in detail - use
+              our on-chain, technical and social analysis to find alpha and make better trading decisions!
+            </Trans>
+          </Text>
+          <Text fontSize={10} color={theme.subText} lineHeight="12px">
+            <Trans>Disclaimer: The information here should not be treated as any form of financial advice</Trans>
+          </Text>
+        </Column>
       </ReadMore>
       {!above768 && <RenderSearch />}
       {isSingleToken ? <SingleToken /> : <TokenAnalysisList />}

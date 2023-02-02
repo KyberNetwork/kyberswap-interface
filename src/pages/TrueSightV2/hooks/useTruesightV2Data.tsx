@@ -2,6 +2,7 @@ import useSWR from 'swr'
 
 import { TRUESIGHT_V2_API } from 'constants/env'
 
+import { testParams } from '../pages/SingleToken'
 import {
   IFundingRate,
   IHolderList,
@@ -36,7 +37,7 @@ export default function useTokenDetailsData(tokenAddress: string) {
 
 export function useNumberOfTrades(tokenAddress: string) {
   const { data, isLoading } = useSWR<INumberOfTrades>(
-    tokenAddress && `${TRUESIGHT_V2_API}/trades/ethereum/${tokenAddress}`,
+    tokenAddress && `${TRUESIGHT_V2_API}/trades/ethereum/${tokenAddress}?from=${testParams.from}&to=${testParams.to}`,
     (url: string) =>
       fetch(url)
         .then(res => res.json())
@@ -49,7 +50,7 @@ export function useNumberOfTrades(tokenAddress: string) {
 
 export function useTradingVolume(tokenAddress: string) {
   const { data, isLoading } = useSWR<ITradeVolume[]>(
-    tokenAddress && `${TRUESIGHT_V2_API}/volume/ethereum/${tokenAddress}`,
+    tokenAddress && `${TRUESIGHT_V2_API}/volume/ethereum/${tokenAddress}?from=${testParams.from}&to=${testParams.to}`,
     (url: string) =>
       fetch(url)
         .then(res => res.json())
@@ -62,7 +63,7 @@ export function useTradingVolume(tokenAddress: string) {
 
 export function useNetflowToWhaleWallets(tokenAddress: string) {
   const { data, isLoading } = useSWR<INetflowToWhaleWallets[]>(
-    tokenAddress && `${TRUESIGHT_V2_API}/netflow/ethereum/${tokenAddress}`,
+    tokenAddress && `${TRUESIGHT_V2_API}/netflow/ethereum/${tokenAddress}?from=${testParams.from}&to=${testParams.to}`,
     (url: string) =>
       fetch(url)
         .then(res => res.json())
@@ -70,7 +71,7 @@ export function useNetflowToWhaleWallets(tokenAddress: string) {
           return NETFLOW_TO_WHALE_WALLETS
         }),
   )
-  return { data, isLoading }
+  return { data: NETFLOW_TO_WHALE_WALLETS || data, isLoading }
 }
 export function useNetflowToCEX(tokenAddress: string) {
   const { data, isLoading } = useSWR<INetflowToWhaleWallets[]>(
@@ -82,11 +83,12 @@ export function useNetflowToCEX(tokenAddress: string) {
           return NETFLOW_TO_WHALE_WALLETS
         }),
   )
-  return { data, isLoading }
+  return { data: NETFLOW_TO_WHALE_WALLETS || data, isLoading }
 }
 export function useNumberOfHolders(tokenAddress: string) {
   const { data, isLoading } = useSWR<INumberOfHolders[]>(
-    tokenAddress && `${TRUESIGHT_V2_API}/holdersNum/ethereum/${tokenAddress}`,
+    tokenAddress &&
+      `${TRUESIGHT_V2_API}/holdersNum/ethereum/${tokenAddress}?from=${testParams.from}&to=${testParams.to}`,
     (url: string) =>
       fetch(url)
         .then(res => res.json())
@@ -94,11 +96,11 @@ export function useNumberOfHolders(tokenAddress: string) {
           return NUMBER_OF_HOLDERS
         }),
   )
-  return { data, isLoading }
+  return { data: NUMBER_OF_HOLDERS || data, isLoading }
 }
 export function useHolderList(tokenAddress: string) {
   const { data, isLoading } = useSWR<IHolderList[]>(
-    tokenAddress && `${TRUESIGHT_V2_API}/holders/ethereum/${tokenAddress}`,
+    tokenAddress && `${TRUESIGHT_V2_API}/holders/ethereum/${tokenAddress}?from=${testParams.from}&to=${testParams.to}`,
     (url: string) =>
       fetch(url)
         .then(res => res.json())
@@ -106,7 +108,7 @@ export function useHolderList(tokenAddress: string) {
           return HOLDER_LIST
         }),
   )
-  return { data, isLoading }
+  return { data: HOLDER_LIST || data, isLoading }
 }
 
 export function useFundingRate() {
@@ -117,5 +119,5 @@ export function useFundingRate() {
         return FUNDING_RATE
       }),
   )
-  return { data, isLoading }
+  return { data: FUNDING_RATE || data, isLoading }
 }

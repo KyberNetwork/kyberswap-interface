@@ -22,7 +22,7 @@ import { useToggleModal } from 'state/application/hooks'
 import DisplaySettings from '../components/DisplaySettings'
 import KyberScoreMeter from '../components/KyberScoreMeter'
 import PriceRange from '../components/PriceRange'
-import useTokenDetailsData from '../hooks/useTokenDetailsData'
+import useTokenDetailsData from '../hooks/useTruesightV2Data'
 import { DiscoverTokenTab } from '../types'
 import News from './News'
 import OnChainAnalysis from './OnChainAnalysis'
@@ -43,6 +43,21 @@ const ButtonIcon = styled.div`
   cursor: pointer;
   :hover {
     filter: brightness(1.8);
+  }
+`
+const HeaderButton = styled(ButtonGray)`
+  width: 36px;
+  height: 36px;
+  padding: 8px;
+  border-radius: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background-color: ${({ theme }) => theme.buttonGray};
+  color: ${({ theme }) => theme.subText};
+  :hover {
+    filter: brightness(0.9);
   }
 `
 
@@ -120,13 +135,19 @@ const ExternalLink = ({ href, className, children }: { href: string; className?:
   )
 }
 
+export const testParams = {
+  address: '0xdac17f958d2ee523a2206206994597c13d831ec7',
+  from: 1633344036,
+  to: 1675215565,
+}
+
 export default function SingleToken() {
   const theme = useTheme()
   const navigate = useNavigate()
   const above768 = useMedia('(min-width:768px)')
 
   const [currentTab, setCurrentTab] = useState<DiscoverTokenTab>(DiscoverTokenTab.OnChainAnalysis)
-  const { data, isLoading } = useTokenDetailsData('$TOKEN_ADDRESS')
+  const { data, isLoading } = useTokenDetailsData(testParams.address)
 
   const shareUrl = useRef<string>()
   const toggleShareModal = useToggleModal(ApplicationModal.SHARE)
@@ -135,7 +156,7 @@ export default function SingleToken() {
     shareUrl.current = url
     toggleShareModal()
   }
-
+  const [favorited, setFavorited] = useState(true)
   const RenderHeader = () => {
     const TokenNameGroup = () => (
       <>
@@ -158,18 +179,26 @@ export default function SingleToken() {
 
     const SettingButtons = () => (
       <>
+        <HeaderButton
+          style={{
+            boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.16))',
+            color: favorited ? theme.primary : theme.subText,
+            backgroundColor: favorited ? theme.primary + '33' : theme.buttonGray,
+          }}
+          onClick={() => setFavorited(prev => !prev)}
+        >
+          <Star size={16} fill={favorited ? 'currentcolor' : 'none'} />
+        </HeaderButton>
         <DisplaySettings currentTab={currentTab} />
-        <ButtonGray
-          color={theme.subText}
-          gap="4px"
-          width="36px"
-          height="36px"
-          padding="6px"
-          style={{ boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.16))' }}
+        <HeaderButton
+          style={{
+            boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.16))',
+            color: theme.subText,
+          }}
           onClick={() => handleShareClick()}
         >
           <Share2 size={16} fill="currentcolor" />
-        </ButtonGray>
+        </HeaderButton>
       </>
     )
 
