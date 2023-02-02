@@ -215,9 +215,9 @@ export default function App() {
 
                     {getLimitOrderContract(chainId) && (
                       <>
-                        <Route path={`${APP_PATHS.LIMIT}/:network/:fromCurrency-to-:toCurrency`} element={<SwapV2 />} />
-                        <Route path={`${APP_PATHS.LIMIT}/:network/:fromCurrency`} element={<SwapV2 />} />
-                        <Route path={`${APP_PATHS.LIMIT}/:network`} element={<SwapV2 />} />
+                        <Route path={`${APP_PATHS.LIMIT}/:network/:fromCurrency-to-:toCurrency`} element={<SwapV3 />} />
+                        <Route path={`${APP_PATHS.LIMIT}/:network/:fromCurrency`} element={<SwapV3 />} />
+                        <Route path={`${APP_PATHS.LIMIT}/:network`} element={<SwapV3 />} />
                       </>
                     )}
 
