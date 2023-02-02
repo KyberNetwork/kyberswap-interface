@@ -193,15 +193,6 @@ export default function AddLiquidity() {
     onRemovePosition,
   } = useProAmmMintActionHandlers(noLiquidity, pIndex)
 
-  const mountRef = useRef(false)
-  useEffect(() => {
-    if (true && ENV_LEVEL > ENV_TYPE.LOCAL && !mountRef.current) {
-      setPositionIndex(0)
-      onResetMintState()
-    }
-    mountRef.current = true
-  }, [onResetMintState, baseCurrency, quoteCurrency, feeAmount, chainId])
-
   const isValid = !errorMessage && !invalidRange
 
   // modal and loading
@@ -480,6 +471,18 @@ export default function AddLiquidity() {
     }
     setTxHash('')
   }, [navigate, networkInfo.route, onFieldAInput, txHash])
+
+  const mountRef = useRef(false)
+  const handleDismissConfirmationRef = useRef(handleDismissConfirmation)
+  useEffect(() => {
+    if (ENV_LEVEL > ENV_TYPE.LOCAL && !mountRef.current) {
+      // if (true) {
+      setPositionIndex(0)
+      onResetMintState()
+      handleDismissConfirmationRef.current()
+    }
+    mountRef.current = true
+  }, [onResetMintState, baseCurrency, quoteCurrency, feeAmount, chainId])
 
   const leftPrice = isSorted ? priceLower : priceUpper?.invert()
   const rightPrice = isSorted ? priceUpper : priceLower?.invert()
@@ -880,6 +883,7 @@ export default function AddLiquidity() {
           narrow={true}
           rotatedProp={rotated}
           setRotatedProp={setRotated}
+          showRangeInfo={false}
         />
         {viewMode === VIEW_MODE.LIST ? (
           <ListPositions
