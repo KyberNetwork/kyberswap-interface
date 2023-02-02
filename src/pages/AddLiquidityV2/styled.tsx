@@ -6,7 +6,7 @@ import { AutoColumn } from 'components/Column'
 import Input from 'components/NumericalInput'
 
 export const PageWrapper = styled(AutoColumn)`
-  padding: 1rem 2rem;
+  padding: 0 2rem 1rem;
   width: 100%;
   max-width: calc(1500px + 2rem * 2);
 
