@@ -58,8 +58,8 @@ const ToggleButton = ({ isOpen, onClick }: { isOpen: boolean; onClick: () => voi
 const FairLaunchPools = ({ fairLaunchAddress, farms, active }: FarmsListProps) => {
   const dispatch = useAppDispatch()
   const [viewMode] = useViewMode()
-  const above1200 = useMedia(`(min-width:${MEDIA_WIDTHS.upToLarge})`)
-  const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall})`)
+  const above1200 = useMedia(`(min-width:${MEDIA_WIDTHS.upToLarge}px)`)
+  const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
   const networkRoute = networkInfo.route || undefined
   const theme = useTheme()

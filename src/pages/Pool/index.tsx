@@ -4,7 +4,7 @@ import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useMemo, useState } from 'react'
 import { Info } from 'react-feather'
-import { Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { Navigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled, { keyframes } from 'styled-components'
@@ -185,19 +185,17 @@ function Pool() {
   const { account, chainId, isEVM, networkInfo } = useActiveWeb3React()
 
   const under768 = useMedia('(max-width:768px)')
-  const navigate = useNavigate()
-  const location = useLocation()
   const liquidityPositionTokenPairs = useLiquidityPositionTokenPairs()
   const { loading: loadingUserLiquidityPositions, data: userLiquidityPositions } = useUserLiquidityPositions()
 
   const { data: farms, loading: farmLoading } = useFarmsData()
-  const { search: searchValueInQs = '' } = useParsedQueryString<{
-    search: string
-  }>()
-  const debouncedSearchText = useDebounce(searchValueInQs.trim().toLowerCase(), 300)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const searchValue = searchParams.get('search') || ''
+  const debouncedSearchText = useDebounce(searchValue.trim().toLowerCase(), 300)
 
   const onSearch = (search: string) => {
-    navigate(location.pathname + '?search=' + search + '&tab=classic', { replace: true })
+    searchParams.set('search', search)
+    setSearchParams(searchParams)
   }
 
   useSyncNetworkParamWithStore()
@@ -365,7 +363,7 @@ function Pool() {
                 <Search
                   style={{ width: 'unset', flex: under768 ? 1 : undefined }}
                   minWidth={under768 ? '224px' : '254px'}
-                  searchValue={searchValueInQs}
+                  searchValue={searchValue}
                   onSearch={onSearch}
                   placeholder={t`Search by token name or pool address`}
                 />
