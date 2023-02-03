@@ -16,7 +16,7 @@ import { formattedNum } from 'utils'
 import { formatTickPrice } from 'utils/formatTickPrice'
 import { getTickToPrice } from 'utils/getTickToPrice'
 
-import PriceVisualize from './PriceVisualize'
+import PriceVisualizeAlignCurrent from './PriceVisualizeAlignCurrent'
 
 const TableWrapper = styled.div`
   margin-top: 1rem;
@@ -25,7 +25,7 @@ const TableWrapper = styled.div`
 const tableTemplateColumns = css`
   display: grid;
   grid-gap: 1.5rem;
-  grid-template-columns: 20px 1fr 2fr 2fr 3fr;
+  grid-template-columns: 20px 1fr 2fr 2fr 4fr;
   ${({ theme }) => theme.mediaWidth.upToSmall`
     grid-template-columns: 20px 1fr 3fr;
   `};
@@ -133,11 +133,10 @@ const PositionListItem = ({
           </>
         )}
         <Flex sx={{ gap: '8px' }} width="100%" alignItems="center">
-          <PriceVisualize
+          <PriceVisualizeAlignCurrent
             priceLower={priceLower}
             priceUpper={priceUpper}
             price={rotated ? position.pool.token1Price : position.pool.token0Price}
-            showTooltip={true}
             ticksAtLimit={ticksAtLimit}
             center
           />
