@@ -32,7 +32,7 @@ const getMetaAggregatorRoute = async (
 ) => {
   const chainSlug = NETWORKS_INFO[chainId].ksSettingRoute
 
-  const resp = await axios.get<Response>(`${AGGREGATOR_API}/${chainSlug}/api/v1/route`, {
+  const resp = await axios.get<Response>(`${AGGREGATOR_API}/${chainSlug}/api/v1/routes`, {
     params,
     signal,
   })
