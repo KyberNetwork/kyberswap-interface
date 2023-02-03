@@ -93,11 +93,13 @@ const SwapOnlyButton: React.FC<Props> = ({
     setBuildingRoute(false)
 
     if (result.error) {
+      setProcessingSwap(false)
       setErrorWhileSwap(result.error)
       return
     }
 
     if (!result.data?.data || !result.data?.routerAddress) {
+      setProcessingSwap(false)
       setErrorWhileSwap(t`Build failed. Please try again`)
       return
     }
