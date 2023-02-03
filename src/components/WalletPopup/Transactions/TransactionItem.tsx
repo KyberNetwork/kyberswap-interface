@@ -97,11 +97,8 @@ const renderDescriptionKyberDaoStake = (transaction: TransactionDetails) => {
 }
 
 const renderDescriptionLiquidity = (transaction: TransactionDetails) => {
-  const { extraInfo = {} } = transaction
-  const { tokenSymbol, tokenAmount } = extraInfo as TransactionExtraInfo1Token
   return {
-    leftComponent:
-      tokenSymbol && tokenAmount ? renderDescription1Token(transaction) : renderDescription2Token(transaction),
+    leftComponent: renderDescription2Token(transaction),
     rightComponent: <PoolFarmLink transaction={transaction} />,
   }
 }
