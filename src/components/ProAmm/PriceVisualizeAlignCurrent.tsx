@@ -110,9 +110,6 @@ const PriceVisualize = ({
     // ------ p1 -------- p2 -------- pCurrent -------- p3 -------- p4 ------
     //    a         b            c        |        d           e          f
 
-    // p1 = is0 ? false : price.lessThan(priceUpper)
-    // p4 = isInfinity ? false : priceLower.lessThan(price)
-
     if (is0 && isInfinity) {
       a = f = b = e = 0
       c = d = 50
@@ -162,8 +159,6 @@ const PriceVisualize = ({
     f = padding
     if (outOfRange) {
       if (price.lessThan(priceLower)) {
-        // ------ --------  Current -------- Lower -------- Higher -------- ------
-        //    a  50%  b        |        c              d              e        f
         p3 = p4 = true
         p1 = p2 = false
         b = 0
@@ -173,8 +168,6 @@ const PriceVisualize = ({
         d = -eN * deltaRelative
       } else {
         // price.greaterThan(priceUpper)
-        // ------ --------  Lower -------- Higher -------- Current -------- ------
-        //    a       b              c              d        |        e  50%   f
         p3 = p4 = false
         p1 = p2 = true
 
