@@ -7,7 +7,7 @@ import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
-import { ButtonGray, ButtonLight } from 'components/Button'
+import { ButtonGray, ButtonLight, ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
 import { Ethereum } from 'components/Icons'
 import Icon from 'components/Icons/Icon'
@@ -18,6 +18,7 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
+import { MEDIA_WIDTHS } from 'theme'
 
 import DisplaySettings from '../components/DisplaySettings'
 import KyberScoreMeter from '../components/KyberScoreMeter'
@@ -144,8 +145,7 @@ export const testParams = {
 export default function SingleToken() {
   const theme = useTheme()
   const navigate = useNavigate()
-  const above768 = useMedia('(min-width:768px)')
-
+  const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const [currentTab, setCurrentTab] = useState<DiscoverTokenTab>(DiscoverTokenTab.OnChainAnalysis)
   const { data, isLoading } = useTokenDetail(testParams.address)
 
@@ -209,10 +209,10 @@ export default function SingleToken() {
         </RowFit>
         <RowFit gap="8px">
           <SettingButtons />
-          <ButtonLight height="36px" width="120px" gap="4px">
+          <ButtonPrimary height="36px" width="120px" gap="4px">
             <Icon id="swap" size={16} />
             Swap BTC
-          </ButtonLight>
+          </ButtonPrimary>
         </RowFit>
       </RowBetween>
     ) : (

@@ -17,12 +17,11 @@ import {
   HOLDER_LIST,
   NETFLOW_TO_WHALE_WALLETS,
   NUMBER_OF_HOLDERS,
-  NUMBER_OF_TRADES,
   TOKEN_DETAIL,
   TRADE_VOLUME,
 } from './sampleData'
 
-export function useTokenDetail(tokenAddress: string) {
+export function useTokenDetail(tokenAddress?: string) {
   const { data, isLoading } = useSWR<ITokenOverview>(
     tokenAddress && `${TRUESIGHT_V2_API}/overview/ethereum/${tokenAddress}`,
     (url: string) =>
@@ -35,8 +34,8 @@ export function useTokenDetail(tokenAddress: string) {
   return { data: TOKEN_DETAIL || data, isLoading }
 }
 
-export function useNumberOfTrades(tokenAddress: string) {
-  const { data, isLoading } = useSWR<INumberOfTrades>(
+export function useNumberOfTrades(tokenAddress?: string) {
+  const { data, isLoading } = useSWR<INumberOfTrades[]>(
     tokenAddress && `${TRUESIGHT_V2_API}/trades/ethereum/${tokenAddress}?from=${testParams.from}&to=${testParams.to}`,
     (url: string) =>
       fetch(url)
@@ -45,18 +44,19 @@ export function useNumberOfTrades(tokenAddress: string) {
           return res.data
         }),
   )
-  return { data: NUMBER_OF_TRADES || data, isLoading }
+  return { data, isLoading }
 }
 
-export function useTradingVolume(tokenAddress: string) {
+export function useTradingVolume(tokenAddress?: string) {
   const { data, isLoading } = useSWR<ITradeVolume[]>(
-    tokenAddress && `${TRUESIGHT_V2_API}/volume/ethereum/${tokenAddress}?from=${testParams.from}&to=${testParams.to}`,
+    tokenAddress && `${TRUESIGHT_V2_API}/volume/ethereum/${tokenAddress}?from=1667362049&to=1675138049`,
     (url: string) =>
       fetch(url)
         .then(res => res.json())
         .then(res => {
           return res.data
         }),
+    { refreshInterval: 0 },
   )
   return { data: TRADE_VOLUME || data, isLoading }
 }

@@ -25,11 +25,9 @@ export interface ITokenOverview {
 }
 
 export interface INumberOfTrades {
-  trades: {
-    buy: number
-    sell: number
-    timestamp: number
-  }[]
+  buy: number
+  sell: number
+  timestamp: number
 }
 export interface ITradeVolume {
   volume: number

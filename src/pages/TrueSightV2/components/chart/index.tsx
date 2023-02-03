@@ -1,6 +1,7 @@
 import dayjs from 'dayjs'
 import { rgba } from 'polished'
 import React, { useMemo, useRef, useState } from 'react'
+import { useParams } from 'react-router-dom'
 import { Text } from 'rebass'
 import {
   Area,
@@ -20,6 +21,7 @@ import styled, { css } from 'styled-components'
 import { RowFit } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { NUMBER_OF_TRADES, TRADE_VOLUME } from 'pages/TrueSightV2/hooks/sampleData'
 import {
   useNetflowToCEX,
   useNetflowToWhaleWallets,
@@ -252,21 +254,25 @@ const TooltipCustom = (props: TooltipProps<number, string>) => {
   return null
 }
 
+export const ANIMATION_DELAY = 200
+export const ANIMATION_DURATION = 2000
+
 export const NumberofTradesChart = () => {
-  const { data } = useNumberOfTrades(testParams.address)
+  const { address } = useParams()
+  const { data } = useNumberOfTrades(address || testParams.address)
   const [showSell, setShowSell] = useState(true)
   const [showBuy, setShowBuy] = useState(true)
   const [timeframe, setTimeframe] = useState('7D')
   const formattedData = useMemo(
     () =>
-      data?.trades.map(item => {
+      (address ? data : NUMBER_OF_TRADES)?.map(item => {
         return {
           ...item,
           sell: showSell ? item.sell : undefined,
           buy: showBuy ? item.buy : undefined,
         }
       }),
-    [data, showSell, showBuy],
+    [data, showSell, showBuy, address],
   )
   const theme = useTheme()
   return (
@@ -304,8 +310,20 @@ export const NumberofTradesChart = () => {
             animationDuration={100}
             content={TooltipCustom}
           />
-          <Bar dataKey="sell" stackId="a" fill={rgba(theme.red, 0.6)} />
-          <Bar dataKey="buy" stackId="a" fill={rgba(theme.primary, 0.6)} />
+          <Bar
+            dataKey="sell"
+            stackId="a"
+            fill={rgba(theme.red, 0.6)}
+            animationBegin={ANIMATION_DELAY}
+            animationDuration={ANIMATION_DURATION}
+          />
+          <Bar
+            dataKey="buy"
+            stackId="a"
+            fill={rgba(theme.primary, 0.6)}
+            animationBegin={ANIMATION_DELAY}
+            animationDuration={ANIMATION_DURATION}
+          />
         </BarChart>
       </ResponsiveContainer>
     </ChartWrapper>
@@ -314,17 +332,19 @@ export const NumberofTradesChart = () => {
 
 export const TradingVolumeChart = () => {
   const theme = useTheme()
-  const { data } = useTradingVolume('124124')
+  const { address } = useParams()
+  const { data } = useTradingVolume(address)
   const [timeframe, setTimeframe] = useState('7D')
   const filteredData = useMemo(() => {
+    const datatemp = address ? data : TRADE_VOLUME
     switch (timeframe) {
       case '1D':
       case '7D':
-        return data?.slice(data.length - 8, data.length - 1)
+        return datatemp?.slice(datatemp.length - 8, datatemp.length - 1)
       default:
-        return data
+        return datatemp
     }
-  }, [data, timeframe])
+  }, [data, timeframe, address])
 
   return (
     <ChartWrapper>
@@ -358,7 +378,14 @@ export const TradingVolumeChart = () => {
             tickFormatter={value => dayjs(value).format('MMM DD')}
           />
           <YAxis fontSize="12px" tickLine={false} axisLine={false} tick={{ fill: theme.subText, fontWeight: 400 }} />
-          <Area type="monotone" dataKey="volume" stroke={theme.primary} fill="url(#colorUv)" />
+          <Area
+            type="monotone"
+            dataKey="volume"
+            stroke={theme.primary}
+            fill="url(#colorUv)"
+            animationBegin={ANIMATION_DELAY}
+            animationDuration={ANIMATION_DURATION}
+          />
         </AreaChart>
       </ResponsiveContainer>
     </ChartWrapper>
@@ -445,8 +472,20 @@ export const NetflowToWhaleWallets = () => {
                 animationDuration={100}
                 content={TooltipCustom}
               />
-              <Bar dataKey="inflow" stackId="a" fill={rgba(theme.primary, 0.6)} />
-              <Bar dataKey="outflow" stackId="a" fill={rgba(theme.red, 0.6)} />
+              <Bar
+                dataKey="inflow"
+                stackId="a"
+                fill={rgba(theme.primary, 0.6)}
+                animationBegin={ANIMATION_DELAY}
+                animationDuration={ANIMATION_DURATION}
+              />
+              <Bar
+                dataKey="outflow"
+                stackId="a"
+                fill={rgba(theme.red, 0.6)}
+                animationBegin={ANIMATION_DELAY}
+                animationDuration={ANIMATION_DURATION}
+              />
               <Line type="linear" dataKey="netflow" stroke={theme.primary} strokeWidth={3} dot={false} />
             </ComposedChart>
           </ResponsiveContainer>
@@ -518,8 +557,20 @@ export const NetflowToCentralizedExchanges = () => {
             animationDuration={100}
             content={TooltipCustom}
           />
-          <Bar dataKey="inflow" stackId="a" fill={rgba(theme.primary, 0.6)} />
-          <Bar dataKey="outflow" stackId="a" fill={rgba(theme.red, 0.6)} />
+          <Bar
+            dataKey="inflow"
+            stackId="a"
+            fill={rgba(theme.primary, 0.6)}
+            animationBegin={ANIMATION_DELAY}
+            animationDuration={ANIMATION_DURATION}
+          />
+          <Bar
+            dataKey="outflow"
+            stackId="a"
+            fill={rgba(theme.red, 0.6)}
+            animationBegin={ANIMATION_DELAY}
+            animationDuration={ANIMATION_DURATION}
+          />
           <Line type="linear" dataKey="netflow" stroke={theme.primary} strokeWidth={3} dot={false} />
         </ComposedChart>
       </ResponsiveContainer>
@@ -585,7 +636,14 @@ export const NumberofHolders = () => {
             tickFormatter={value => dayjs(value).format('MMM DD')}
           />
           <YAxis fontSize="12px" tickLine={false} axisLine={false} tick={{ fill: theme.subText, fontWeight: 400 }} />
-          <Area type="monotone" dataKey="count" stroke={theme.primary} fill="url(#colorUv)" />
+          <Area
+            type="monotone"
+            dataKey="count"
+            stroke={theme.primary}
+            fill="url(#colorUv)"
+            animationBegin={ANIMATION_DELAY}
+            animationDuration={ANIMATION_DURATION}
+          />
         </AreaChart>
       </ResponsiveContainer>
     </ChartWrapper>

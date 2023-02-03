@@ -4,6 +4,8 @@ import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts'
 
 import { shortenAddress } from 'utils'
 
+import { ANIMATION_DELAY, ANIMATION_DURATION } from '.'
+
 const data01 = [
   { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 400 },
   { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 300 },
@@ -69,6 +71,8 @@ export default function HoldersPieChart() {
           data={formattedData}
           innerRadius="40%"
           outerRadius="80%"
+          animationBegin={ANIMATION_DELAY}
+          animationDuration={ANIMATION_DURATION}
         >
           {formattedData.map((entry, index) => (
             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length] + 'e0'} />

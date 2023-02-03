@@ -292,6 +292,7 @@ export default function App() {
                     <Route path={`${APP_PATHS.REFERRAL}`} element={<CreateReferral />} />
                     <Route path={`${APP_PATHS.DISCOVER}`} element={<TrueSightV2 />} />
                     <Route path={`${APP_PATHS.DISCOVER}/single-token`} element={<TrueSightV2 />} />
+                    <Route path={`${APP_PATHS.DISCOVER}/single-token/:address`} element={<TrueSightV2 />} />
                     <Route path={`${APP_PATHS.BUY_CRYPTO}`} element={<BuyCrypto />} />
                     <Route path={`${APP_PATHS.CAMPAIGN}`} element={<Campaign />} />
                     <Route path={`${APP_PATHS.CAMPAIGN}/:slug`} element={<Campaign />} />

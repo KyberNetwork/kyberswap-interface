@@ -85,7 +85,7 @@ export default function TrueSightV2() {
               our on-chain, technical and social analysis to find alpha and make better trading decisions!
             </Trans>
           </Text>
-          <Text fontSize={10} color={theme.subText} lineHeight="12px">
+          <Text fontSize={10} color={theme.subText} lineHeight="12px" fontStyle="italic">
             <Trans>Disclaimer: The information here should not be treated as any form of financial advice</Trans>
           </Text>
         </Column>

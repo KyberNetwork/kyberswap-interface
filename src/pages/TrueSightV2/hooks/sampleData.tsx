@@ -30,64 +30,62 @@ export const TOKEN_DETAIL = {
   holders: 43588084,
   kyberScore: {
     score: 75.5,
-    label: 'Strong Bullish',
+    label: 'Very Bullish',
   },
 }
 
-export const NUMBER_OF_TRADES = {
-  trades: [
-    {
-      buy: 2045,
-      sell: 1992,
-      timestamp: 1671635349000,
-    },
-    {
-      buy: 2570,
-      sell: 2403,
-      timestamp: 1671721749000,
-    },
-    {
-      buy: 3467,
-      sell: 1509,
-      timestamp: 1671808149000,
-    },
-    {
-      buy: 1249,
-      sell: 2235,
-      timestamp: 1671894549000,
-    },
-    {
-      buy: 4256,
-      sell: 5231,
-      timestamp: 1671980949000,
-    },
-    {
-      buy: 4124,
-      sell: 6123,
-      timestamp: 1672067349000,
-    },
-    {
-      buy: 2314,
-      sell: 2562,
-      timestamp: 1672153749000,
-    },
-    {
-      buy: 3161,
-      sell: 2412,
-      timestamp: 1672240149000,
-    },
-    {
-      buy: 6242,
-      sell: 1214,
-      timestamp: 1672326549000,
-    },
-    {
-      buy: 4142,
-      sell: 5622,
-      timestamp: 1672412949000,
-    },
-  ],
-}
+export const NUMBER_OF_TRADES = [
+  {
+    buy: 2045,
+    sell: 1992,
+    timestamp: 1671635349000,
+  },
+  {
+    buy: 2570,
+    sell: 2403,
+    timestamp: 1671721749000,
+  },
+  {
+    buy: 3467,
+    sell: 1509,
+    timestamp: 1671808149000,
+  },
+  {
+    buy: 1249,
+    sell: 2235,
+    timestamp: 1671894549000,
+  },
+  {
+    buy: 4256,
+    sell: 5231,
+    timestamp: 1671980949000,
+  },
+  {
+    buy: 4124,
+    sell: 6123,
+    timestamp: 1672067349000,
+  },
+  {
+    buy: 2314,
+    sell: 2562,
+    timestamp: 1672153749000,
+  },
+  {
+    buy: 3161,
+    sell: 2412,
+    timestamp: 1672240149000,
+  },
+  {
+    buy: 6242,
+    sell: 1214,
+    timestamp: 1672326549000,
+  },
+  {
+    buy: 4142,
+    sell: 5622,
+    timestamp: 1672412949000,
+  },
+]
 
 export const TRADE_VOLUME = [
   { timestamp: 1669680000000, volume: 1584.9496927 },

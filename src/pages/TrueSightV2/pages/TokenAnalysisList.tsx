@@ -27,6 +27,7 @@ import NetworkSelect from '../components/NetworkSelect'
 import TokenChart from '../components/TokenChartSVG'
 import { useTokenList } from '../hooks/useTruesightV2Data'
 import { TokenListTab } from '../types'
+import { testParams } from './SingleToken'
 
 const TableWrapper = styled.div`
   border-radius: 20px 20px 0 0;
@@ -509,7 +510,7 @@ export default function TokenAnalysisList() {
 
               <tbody>
                 {templateList.slice((page - 1) * pageSize, page * pageSize).map((token: any) => (
-                  <tr key={token.id} onClick={() => navigate('/discover/single-token')}>
+                  <tr key={token.id} onClick={() => navigate('/discover/single-token/' + testParams.address)}>
                     <td>
                       <RowFit>
                         <Star size={16} style={{ marginRight: '6px', cursor: 'pointer' }} /> {token.id}
