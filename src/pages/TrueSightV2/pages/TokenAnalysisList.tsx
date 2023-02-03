@@ -3,7 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { ArrowDown, ArrowUp, Share2, Star } from 'react-feather'
+import { ArrowDown, ArrowRight, ArrowUp, Share2, Star } from 'react-feather'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { useGesture } from 'react-use-gesture'
@@ -397,6 +397,13 @@ export default function TokenAnalysisList() {
 
   return (
     <>
+      <Row justify="flex-end">
+        <ButtonGray width="fit-content" height="30px" onClick={() => navigate('/discover/single-token')}>
+          <Text fontSize={14} display="flex" alignItems="center">
+            Static UI <ArrowRight size={14} />
+          </Text>
+        </ButtonGray>
+      </Row>
       <Row gap="16px" justify="flex-end" flexWrap={above768 ? 'nowrap' : 'wrap'}>
         <TokenListDraggableTabs tab={currentTab} setTab={setCurrentTab} />
         <ButtonGray

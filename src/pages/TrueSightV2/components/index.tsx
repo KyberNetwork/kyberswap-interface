@@ -117,26 +117,34 @@ export const SectionWrapper = ({
   )
 }
 
-const StyledRequireConnectWalletWrapper = styled.div<{ bgUrl?: string }>`
+const StyledRequireConnectWalletWrapper = styled.div<{ bgUrl?: string; height?: string }>`
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 16px;
-  height: 100%;
+  height: ${({ height }) => height || '100%'};
   border-radius: 10px;
   ${({ bgUrl }) => `background: url(${bgUrl});`}
   background-size: 100% 100%;
   background-position: center;
 `
 
-export const RequireConnectWalletWrapper = ({ bgUrl, children }: { bgUrl: string; children: ReactNode }) => {
+export const RequireConnectWalletWrapper = ({
+  bgUrl,
+  height,
+  children,
+}: {
+  bgUrl: string
+  height?: string
+  children: ReactNode
+}) => {
   const { account } = useActiveWeb3React()
   const theme = useTheme()
   const toggleWalletModal = useWalletModalToggle()
   if (!account)
     return (
-      <StyledRequireConnectWalletWrapper bgUrl={bgUrl}>
+      <StyledRequireConnectWalletWrapper bgUrl={bgUrl} height={height}>
         <Text color={theme.text}>
           <Trans>Connect your wallet to view this insight</Trans>
         </Text>

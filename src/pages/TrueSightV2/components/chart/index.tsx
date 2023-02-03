@@ -21,7 +21,12 @@ import styled, { css } from 'styled-components'
 import { RowFit } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { NUMBER_OF_TRADES, TRADE_VOLUME } from 'pages/TrueSightV2/hooks/sampleData'
+import {
+  NETFLOW_TO_WHALE_WALLETS,
+  NUMBER_OF_HOLDERS,
+  NUMBER_OF_TRADES,
+  TRADE_VOLUME,
+} from 'pages/TrueSightV2/hooks/sampleData'
 import {
   useNetflowToCEX,
   useNetflowToWhaleWallets,
@@ -254,8 +259,8 @@ const TooltipCustom = (props: TooltipProps<number, string>) => {
   return null
 }
 
-export const ANIMATION_DELAY = 200
-export const ANIMATION_DURATION = 2000
+export const ANIMATION_DELAY = 1000
+export const ANIMATION_DURATION = 1500
 
 export const NumberofTradesChart = () => {
   const { address } = useParams()
@@ -394,7 +399,8 @@ export const TradingVolumeChart = () => {
 
 export const NetflowToWhaleWallets = () => {
   const theme = useTheme()
-  const { data } = useNetflowToWhaleWallets('123')
+  const { address } = useParams()
+  const { data } = useNetflowToWhaleWallets(address || testParams.address)
   const { account } = useActiveWeb3React()
   const [showInflow, setShowInflow] = useState(true)
   const [showOutflow, setShowOutflow] = useState(true)
@@ -402,7 +408,7 @@ export const NetflowToWhaleWallets = () => {
   const [timeframe, setTimeframe] = useState('7D')
   const formattedData = useMemo(
     () =>
-      data?.map(item => {
+      (address ? data : NETFLOW_TO_WHALE_WALLETS)?.map(item => {
         return {
           ...item,
           inflow: showInflow ? item.inflow : undefined,
@@ -410,7 +416,7 @@ export const NetflowToWhaleWallets = () => {
           netflow: showNetflow ? item.netflow : undefined,
         }
       }),
-    [data, showInflow, showOutflow, showNetflow],
+    [data, showInflow, showOutflow, showNetflow, address],
   )
 
   return (
@@ -592,17 +598,19 @@ export const NumberofTransfers = () => {
 
 export const NumberofHolders = () => {
   const theme = useTheme()
-  const { data } = useNumberOfHolders('124124')
+  const { address } = useParams()
+  const { data } = useNumberOfHolders(address)
   const [timeframe, setTimeframe] = useState('7D')
   const filteredData = useMemo(() => {
+    const d = address ? data : NUMBER_OF_HOLDERS
     switch (timeframe) {
       case '1D':
       case '7D':
-        return data?.slice(data.length - 8, data.length - 1)
+        return d && d.length >= 8 ? d?.slice(d.length - 8, d.length - 1) : d
       default:
-        return data
+        return d
     }
-  }, [data, timeframe])
+  }, [data, timeframe, address])
 
   return (
     <ChartWrapper>

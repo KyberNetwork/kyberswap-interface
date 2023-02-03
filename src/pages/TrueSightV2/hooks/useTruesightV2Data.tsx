@@ -12,14 +12,7 @@ import {
   ITokenOverview,
   ITradeVolume,
 } from '../types'
-import {
-  FUNDING_RATE,
-  HOLDER_LIST,
-  NETFLOW_TO_WHALE_WALLETS,
-  NUMBER_OF_HOLDERS,
-  TOKEN_DETAIL,
-  TRADE_VOLUME,
-} from './sampleData'
+import { FUNDING_RATE, HOLDER_LIST, NETFLOW_TO_WHALE_WALLETS, TOKEN_DETAIL, TRADE_VOLUME } from './sampleData'
 
 export function useTokenDetail(tokenAddress?: string) {
   const { data, isLoading } = useSWR<ITokenOverview>(
@@ -61,19 +54,20 @@ export function useTradingVolume(tokenAddress?: string) {
   return { data: TRADE_VOLUME || data, isLoading }
 }
 
-export function useNetflowToWhaleWallets(tokenAddress: string) {
+export function useNetflowToWhaleWallets(tokenAddress?: string) {
   const { data, isLoading } = useSWR<INetflowToWhaleWallets[]>(
-    tokenAddress && `${TRUESIGHT_V2_API}/netflow/ethereum/${tokenAddress}?from=${testParams.from}&to=${testParams.to}`,
+    tokenAddress &&
+      `${TRUESIGHT_V2_API}/netflow/ethereum/0xdefa4e8a7bcba345f687a2f1456f5edd9ce97202?from=1669867147&to=1672372747`,
     (url: string) =>
       fetch(url)
         .then(res => res.json())
         .then(res => {
-          return NETFLOW_TO_WHALE_WALLETS
+          return res.data.contents
         }),
   )
-  return { data: NETFLOW_TO_WHALE_WALLETS || data, isLoading }
+  return { data, isLoading }
 }
-export function useNetflowToCEX(tokenAddress: string) {
+export function useNetflowToCEX(tokenAddress?: string) {
   const { data, isLoading } = useSWR<INetflowToWhaleWallets[]>(
     tokenAddress && `${TRUESIGHT_V2_API}/netflow/cexes`,
     (url: string) =>
@@ -85,20 +79,20 @@ export function useNetflowToCEX(tokenAddress: string) {
   )
   return { data: NETFLOW_TO_WHALE_WALLETS || data, isLoading }
 }
-export function useNumberOfHolders(tokenAddress: string) {
+export function useNumberOfHolders(tokenAddress?: string) {
   const { data, isLoading } = useSWR<INumberOfHolders[]>(
     tokenAddress &&
-      `${TRUESIGHT_V2_API}/holdersNum/ethereum/${tokenAddress}?from=${testParams.from}&to=${testParams.to}`,
+      `${TRUESIGHT_V2_API}/holdersNum/ethereum/0xdac17f958d2ee523a2206206994597c13d831ec7?from=1633344036&to=1675215565`,
     (url: string) =>
       fetch(url)
         .then(res => res.json())
         .then(res => {
-          return NUMBER_OF_HOLDERS
+          return res.data
         }),
   )
-  return { data: NUMBER_OF_HOLDERS || data, isLoading }
+  return { data, isLoading }
 }
-export function useHolderList(tokenAddress: string) {
+export function useHolderList(tokenAddress?: string) {
   const { data, isLoading } = useSWR<IHolderList[]>(
     tokenAddress && `${TRUESIGHT_V2_API}/holders/ethereum/${tokenAddress}?from=${testParams.from}&to=${testParams.to}`,
     (url: string) =>

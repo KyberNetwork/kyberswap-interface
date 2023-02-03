@@ -123,9 +123,9 @@ export default function OnChainAnalysis({ onShareClick }: { onShareClick: (url: 
         id="top10holders"
         shareButton
         onShareClick={handleShareClick}
-        style={{ height: '820px' }}
+        style={{ height: 'fit-content' }}
       >
-        <RequireConnectWalletWrapper bgUrl={blurImage3}>
+        <RequireConnectWalletWrapper bgUrl={blurImage3} height="800px">
           <Top10HoldersTable />
         </RequireConnectWalletWrapper>
       </SectionWrapper>
