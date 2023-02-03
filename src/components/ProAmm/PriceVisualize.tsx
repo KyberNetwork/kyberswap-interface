@@ -1,5 +1,5 @@
 import { Currency, Price } from '@kyberswap/ks-sdk-core'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
@@ -80,38 +80,13 @@ const PriceVisualize = ({
     setShow(false)
   }, [])
 
-  const { a, b, c, d, e, f } = useMemo(() => {
-    // ------ --------  Dot ------- Dot -------- Dot -------- ------
-    //    a       b           c           d             e        f
-
-    const padding = 15
-    const a = padding + '%'
-    const f = padding + '%'
-    let b: string, c: string, d: string, e: string
-    const spaceLeft = 50 - padding
-    if (deltaRelative > 1) {
-      b = '0'
-      c = spaceLeft + '%'
-      const dN: number = spaceLeft / deltaRelative
-      d = dN.toFixed(4) + '%'
-      e = spaceLeft - dN + '%'
-    } else {
-      e = '0'
-      d = spaceLeft + '%'
-      const cN: number = spaceLeft * deltaRelative
-      c = cN.toFixed(4) + '%'
-      b = spaceLeft - cN + '%'
-    }
-    return { a, b, c, d, e, f }
-  }, [deltaRelative])
   return (
     <PriceVisualizeWrapper onMouseEnter={onFocus} onMouseLeave={onLeave} center={center}>
-      <Flex width={a} />
-      <Flex width={b} />
+      <Flex width="20%" />
       <Dot isCurrentPrice={minPrice.equalTo(price)} outOfRange={outOfRange} />
       <Flex
         height="2px"
-        width={c}
+        width={(delta * 50).toString() + '%'}
         backgroundColor={
           middlePrice.equalTo(priceUpper) ? theme.warning : middlePrice.equalTo(price) ? theme.primary : theme.border
         }
@@ -133,18 +108,15 @@ const PriceVisualize = ({
           />
         )}
       </Dot>
-
       <Flex
         height="2px"
-        width={d}
+        flex={1}
         backgroundColor={
           middlePrice.equalTo(priceLower) ? theme.warning : middlePrice.equalTo(price) ? theme.primary : theme.border
         }
       />
       <Dot isCurrentPrice={maxPrice.equalTo(price)} outOfRange={outOfRange} />
-
-      <Flex width={e} />
-      <Flex width={f} />
+      <Flex width="20%" />
     </PriceVisualizeWrapper>
   )
 }
