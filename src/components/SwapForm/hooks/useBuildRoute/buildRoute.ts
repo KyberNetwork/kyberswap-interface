@@ -9,7 +9,8 @@ export type Payload = {
   routeSummary: RawRouteSummary
   deadline: number
   slippageTolerant: number
-  to?: string
+  sender: string
+  recipient?: string
   referral?: string
   source: 'kyberswap'
   useMeta: true
