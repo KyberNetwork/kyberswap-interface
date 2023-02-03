@@ -78,9 +78,14 @@ const useGetRoute = (args: Args) => {
       isInBps,
       feeReceiver,
 
-      debug: 'false',
       useMeta: 'true',
     }
+
+    ;(Object.keys(params) as (keyof typeof params)[]).forEach(key => {
+      if (!params[key]) {
+        delete params[key]
+      }
+    })
 
     setLoading(true)
 

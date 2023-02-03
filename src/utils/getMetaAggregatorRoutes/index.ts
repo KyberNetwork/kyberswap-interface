@@ -19,7 +19,7 @@ export type Params = {
   chargeFeeBy: string
   isInBps: string
   feeReceiver: string
-  debug: string
+  debug?: string
   useMeta: string
 }
 
