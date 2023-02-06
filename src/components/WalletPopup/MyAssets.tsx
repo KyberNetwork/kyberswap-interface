@@ -1,4 +1,4 @@
-import { Currency, CurrencyAmount, TokenAmount } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { stringify } from 'querystring'
 import { useState } from 'react'
@@ -133,6 +133,9 @@ export default function MyAssets({
         onDismiss={hideModal}
         onCurrencySelect={hideModal}
         showCommonBases
+        onCurrencyImport={(token: Token) => {
+          mixpanelHandler(MIXPANEL_TYPE.WUI_IMPORT_TOKEN_BUTTON_CLICK, { token_name: token.symbol })
+        }}
       />
     </Wrapper>
   )

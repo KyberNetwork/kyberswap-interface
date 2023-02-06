@@ -848,7 +848,7 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
           break
         }
         case MIXPANEL_TYPE.WUI_BUTTON_CLICK: {
-          mixpanel.track('Wallet UI - Button click')
+          mixpanel.track('Wallet UI - Button click', payload)
           break
         }
         case MIXPANEL_TYPE.WUI_IMPORT_TOKEN_CLICK: {
@@ -860,7 +860,7 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
           break
         }
         case MIXPANEL_TYPE.WUI_IMPORT_TOKEN_BUTTON_CLICK: {
-          mixpanel.track('Wallet UI - Import Token - Import button click')
+          mixpanel.track('Wallet UI - Import Token - Import button click', payload)
           break
         }
       }

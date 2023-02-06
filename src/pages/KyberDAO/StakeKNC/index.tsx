@@ -139,9 +139,9 @@ export default function StakeKNC() {
               shape Kyber&lsquo;s future and earn KNC rewards from trading fees.
             </Trans>
           </Text>
-          <RowBetween align={isMobile ? 'flex-start' : 'center'} flexDirection={isMobile ? 'column' : 'row'}>
-            <Text fontSize={16} lineHeight="24px" fontWeight={400} color={theme.warning} marginBottom="24px">
-              Note: Staking KNC is only available on Ethereum chain
+          <RowBetween align={isMobile ? 'flex-start' : 'center'} flexDirection={isMobile ? 'column' : 'row'} gap="12px">
+            <Text fontSize={16} lineHeight="24px" fontWeight={400} color={theme.warning}>
+              <Trans>Note: Staking KNC is only available on Ethereum chain</Trans>
             </Text>
             <NavLink to={APP_PATHS.ABOUT + '/knc'}>Read about KNC ↗</NavLink>
           </RowBetween>
