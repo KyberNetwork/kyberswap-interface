@@ -148,7 +148,7 @@ const RewardTokenPrices = ({ style = {}, rewardTokens }: { style?: React.CSSProp
           {rewardTokens.map((token, index) => {
             return (
               <TokenWrapper
-                key={token.wrapped.address}
+                key={token.wrapped.address + index}
                 isFirstItem={index === 0}
                 isLastItem={index === rewardTokens?.length - 1}
               >
