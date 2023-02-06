@@ -8,7 +8,6 @@ import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import { ButtonGray, ButtonLight, ButtonPrimary } from 'components/Button'
-import Column from 'components/Column'
 import { Ethereum } from 'components/Icons'
 import Icon from 'components/Icons/Icon'
 import { DotsLoader } from 'components/Loader/DotsLoader'

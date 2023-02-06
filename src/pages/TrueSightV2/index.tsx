@@ -1,18 +1,16 @@
 import { Trans, t } from '@lingui/macro'
-import { useCallback, useState } from 'react'
+import { useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
-import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
 import ReadMore from 'components/ReadMore'
 import { RowBetween, RowFit } from 'components/Row'
 import SubscribeNotificationButton from 'components/SubscribeButton'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 
 import SearchWithDropDown from './components/SearchWithDropDown'
@@ -38,7 +36,6 @@ const Wrapper = styled.div`
 
 export default function TrueSightV2() {
   const theme = useTheme()
-  const [subscribed, setSubscribed] = useState(false)
   const [searchValue, setSearchValue] = useState('')
   const location = useLocation()
   const isSingleToken = location?.pathname.includes('single-token')
