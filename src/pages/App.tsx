@@ -105,8 +105,6 @@ const BodyWrapper = styled.div`
   min-height: calc(100vh - 148px);
   flex: 1;
   z-index: 1;
-
-  ${isMobile && `overflow-x: hidden;`}
 `
 
 const preloadImages = () => {

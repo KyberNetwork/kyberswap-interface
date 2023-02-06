@@ -1,15 +1,21 @@
 import { t } from '@lingui/macro'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { connectFirestoreEmulator } from 'firebase/firestore'
+import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { X } from 'react-feather'
+import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import { ButtonEmpty } from 'components/Button'
+import Column from 'components/Column'
 import History from 'components/Icons/History'
+import Icon from 'components/Icons/Icon'
 import SearchIcon from 'components/Icons/Search'
+import Modal from 'components/Modal'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
+import { MEDIA_WIDTHS } from 'theme'
 
 const Wrapper = styled.div<{ wider?: boolean; expanded?: boolean }>`
   display: flex;
@@ -89,13 +95,12 @@ const DropdownWrapper = styled.div<{ expanded?: boolean; height?: number }>`
 const DropdownSection = styled.div`
   border-top: 1px solid ${({ theme }) => theme.border};
   padding: 10px;
-  display: flex;
-  flex-direction: column;
 `
 
 const DropdownItem = styled(RowBetween)`
   padding: 6px;
   background-color: ${({ theme }) => theme.tableHeader};
+  height: 28px;
   :hover {
     filter: brightness(1.3);
   }
@@ -144,6 +149,83 @@ const SampleChainLogo = () => (
   </svg>
 )
 
+const MWrapper = styled.div<{ expanded?: boolean; wider?: boolean; width?: number }>`
+  width: 36px;
+  height: 36px;
+  border-radius: 18px;
+  padding: 10px;
+  background-color: ${({ theme }) => theme.tableHeader};
+  position: relative;
+  transition: all 0.5s ease;
+  left: 0;
+`
+const HiddenWrapper = styled.div<{ expanded?: boolean; width?: number; left?: number; top?: number; height?: number }>`
+  position: fixed;
+  height: 36px;
+  width: 36px;
+  overflow: hidden;
+  background-color: ${({ theme }) => theme.tableHeader};
+  left: ${({ left }) => left || 0}px;
+  top: ${({ top }) => top || 0}px;
+  z-index: 10;
+  border-radius: 18px;
+  visibility: hidden;
+  transition: all 0.4s ease;
+
+  ${({ expanded, width, height }) =>
+    expanded &&
+    css`
+      width: ${width}px;
+      height: ${height || 400}px;
+      left: 0px;
+      border-radius: 8px;
+      visibility: visible;
+    `}
+`
+
+const MobileWrapper = ({
+  expanded,
+  onClick,
+  children,
+}: {
+  expanded: boolean
+  onClick: () => void
+  children: ReactNode
+}) => {
+  const theme = useTheme()
+  const ref = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
+  const [top, setTop] = useState(0)
+  const left = ref.current?.offsetLeft || 0
+  useEffect(() => {
+    setTop(ref.current?.getBoundingClientRect().top || 0)
+    function updateTop() {
+      setTop(ref.current?.getBoundingClientRect().top || 0)
+    }
+    window.addEventListener('scroll', updateTop)
+    return () => window.removeEventListener('scroll', updateTop)
+  }, [])
+
+  const contentHeight = contentRef.current?.scrollHeight
+  return (
+    <MWrapper onClick={onClick} expanded={expanded} wider={expanded} ref={ref} width={window.innerWidth}>
+      <RowFit>
+        <SearchIcon color={theme.subText} size={16} />
+      </RowFit>
+      <HiddenWrapper
+        ref={contentRef}
+        expanded={expanded}
+        width={window.innerWidth}
+        left={left}
+        top={top}
+        height={contentHeight}
+      >
+        {children}
+      </HiddenWrapper>
+    </MWrapper>
+  )
+}
+
 const SearchWithDropdown = ({ searchValue, onSearch }: SearchProps) => {
   const theme = useTheme()
   const [expanded, setExpanded] = useState(false)
@@ -151,6 +233,7 @@ const SearchWithDropdown = ({ searchValue, onSearch }: SearchProps) => {
   const wrapperRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
 
   useOnClickOutside(wrapperRef, () => setExpanded(false))
   useEffect(() => {
@@ -159,11 +242,9 @@ const SearchWithDropdown = ({ searchValue, onSearch }: SearchProps) => {
     const onFocus = () => {
       setTimeout(() => {
         setExpanded(true)
-      }, 100)
+      }, 200)
     }
-
     inputEl.addEventListener('focusin', onFocus)
-
     return () => {
       inputEl.removeEventListener('focusin', onFocus)
     }
@@ -190,6 +271,67 @@ const SearchWithDropdown = ({ searchValue, onSearch }: SearchProps) => {
       </RowFit>
     </DropdownItem>
   )
+
+  const DropdownContent = () => (
+    <>
+      <DropdownSection>
+        <Row height="28px" padding="6px" color={theme.subText} gap="4px">
+          <History />
+          <Text fontSize="12px">Search History</Text>
+        </Row>
+        <SampleItem />
+        <SampleItem />
+        <SampleItem />
+      </DropdownSection>
+      <DropdownSection>
+        <Row height="28px" padding="6px" color={theme.subText} gap="4px">
+          <Icon id="bullish" size={16} />
+          <Text fontSize="12px">Bullish Tokens</Text>
+        </Row>
+        <SampleItem />
+        <SampleItem />
+        <SampleItem />
+      </DropdownSection>
+      <DropdownSection>
+        <Row height="28px" padding="6px" color={theme.subText} gap="4px">
+          <Icon id="bearish" size={16} />
+          <Text fontSize="12px">Bearish Tokens</Text>
+        </Row>
+        <SampleItem />
+        <SampleItem />
+        <SampleItem />
+      </DropdownSection>
+    </>
+  )
+
+  if (!above768) {
+    return (
+      <MobileWrapper expanded={expanded} onClick={() => setExpanded(true)}>
+        <Row padding="10px" gap="4px">
+          <SearchIcon color={expanded ? theme.border : theme.subText} size={16} />
+          {expanded && (
+            <>
+              <Input
+                type="text"
+                placeholder={expanded ? t`Search by token name or contract address` : t`Search`}
+                value={search}
+                onChange={e => {
+                  setSearch(e.target.value)
+                }}
+                expanded={expanded}
+              />
+              <ButtonEmpty onClick={handleXClick} style={{ padding: '2px 4px', width: 'max-content' }}>
+                <X color={theme.subText} size={14} style={{ minWidth: '14px' }} />
+              </ButtonEmpty>
+            </>
+          )}
+        </Row>
+        <Column>
+          <DropdownContent />
+        </Column>
+      </MobileWrapper>
+    )
+  }
   return (
     <>
       <Wrapper
@@ -198,15 +340,17 @@ const SearchWithDropdown = ({ searchValue, onSearch }: SearchProps) => {
         expanded={expanded}
         wider={expanded || !!search}
       >
-        <Input
-          type="text"
-          placeholder={expanded ? t`Search by token name or contract address` : t`Search`}
-          value={search}
-          onChange={e => {
-            setSearch(e.target.value)
-          }}
-          ref={inputRef}
-        />
+        {above768 && (
+          <Input
+            type="text"
+            placeholder={expanded ? t`Search by token name or contract address` : t`Search`}
+            value={search}
+            onChange={e => {
+              setSearch(e.target.value)
+            }}
+            ref={inputRef}
+          />
+        )}
         <RowFit style={{ zIndex: 2 }}>
           {search && (
             <ButtonEmpty onClick={handleXClick} style={{ padding: '2px 4px', width: 'max-content' }}>
@@ -216,33 +360,7 @@ const SearchWithDropdown = ({ searchValue, onSearch }: SearchProps) => {
           <SearchIcon color={theme.subText} />
         </RowFit>
         <DropdownWrapper expanded={expanded} ref={dropdownRef} height={dropdownRef.current?.scrollHeight}>
-          <DropdownSection>
-            <Row padding="6px" color={theme.subText} gap="4px">
-              <History />
-              <Text fontSize="12px">Search History</Text>
-            </Row>
-            <SampleItem />
-            <SampleItem />
-            <SampleItem />
-          </DropdownSection>
-          <DropdownSection>
-            <Row padding="6px" color={theme.subText} gap="4px">
-              <History />
-              <Text fontSize="12px">Search History</Text>
-            </Row>
-            <SampleItem />
-            <SampleItem />
-            <SampleItem />
-          </DropdownSection>
-          <DropdownSection>
-            <Row padding="6px" color={theme.subText} gap="4px">
-              <History />
-              <Text fontSize="12px">Search History</Text>
-            </Row>
-            <SampleItem />
-            <SampleItem />
-            <SampleItem />
-          </DropdownSection>
+          <DropdownContent />
         </DropdownWrapper>
       </Wrapper>
     </>

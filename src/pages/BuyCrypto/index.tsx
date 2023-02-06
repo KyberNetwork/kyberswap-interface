@@ -50,7 +50,7 @@ const LedgerSVG = styled(Ledger)`
 const IntroWrapper = styled.div`
   background: radial-gradient(88.77% 152.19% at 12.8% -49.11%, #237c71 0%, #251c72 31%, #0f054c 100%);
   width: 100%;
-  min-height: 100vh;
+  min-height: calc(100vh - 120px);
   display: flex;
 `
 
@@ -112,6 +112,7 @@ const DownloadWalletWrapper = styled.div`
 
 const DownloadWalletContent = styled(IntroContent)`
   padding: 120px 24px 48px;
+  overflow-x: hidden;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     flex-direction: column;

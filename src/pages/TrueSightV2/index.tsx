@@ -43,10 +43,6 @@ export default function TrueSightV2() {
   const above768 = useMedia('(min-width:768px)')
   const above600 = useMedia('(min-width:600px)')
 
-  const RenderSearch = useCallback(
-    () => <SearchWithDropDown onSearch={setSearchValue} searchValue={searchValue} />,
-    [searchValue],
-  )
   return (
     <Wrapper>
       <RowBetween>
@@ -57,7 +53,7 @@ export default function TrueSightV2() {
           </Text>
         </RowFit>
         <RowFit gap="16px">
-          {above768 && <SearchWithDropDown onSearch={setSearchValue} searchValue={searchValue} />}
+          <SearchWithDropDown onSearch={setSearchValue} searchValue={searchValue} />
           {subscribed ? (
             <MouseoverTooltip
               text={t`Subscribe to receive daily email notifications witha curated list of tokens from each category!`}
@@ -90,7 +86,6 @@ export default function TrueSightV2() {
           </Text>
         </Column>
       </ReadMore>
-      {!above768 && <RenderSearch />}
       {isSingleToken ? <SingleToken /> : <TokenAnalysisList />}
     </Wrapper>
   )

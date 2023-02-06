@@ -103,6 +103,9 @@ const CardWrapper = styled.div<{ gap?: string }>`
     background-color: ${theme.background};
     gap: ${gap || '0px'};
   `}
+  > * {
+    flex: 1;
+  }
 `
 
 const TabButton = styled.div<{ active?: boolean }>`
@@ -210,14 +213,20 @@ export default function SingleToken() {
         <RowFit gap="8px">
           <SettingButtons />
           <ButtonPrimary height="36px" width="120px" gap="4px">
-            <Icon id="swap" size={16} />
-            Swap BTC
+            <RowFit gap="4px">
+              <Icon id="swap" size={16} />
+              Swap {data?.symbol}
+            </RowFit>
           </ButtonPrimary>
         </RowFit>
       </RowBetween>
     ) : (
-      <Column gap="24px">
-        <Row gap="8px">
+      <>
+        <Row
+          gap="8px"
+          padding="10px 0"
+          style={{ position: 'sticky', top: '0px', backgroundColor: theme.buttonBlack, zIndex: 10 }}
+        >
           <TokenNameGroup />
         </Row>
         <RowBetween>
@@ -225,11 +234,13 @@ export default function SingleToken() {
             <SettingButtons />
           </RowFit>
           <ButtonLight height="36px" width="120px" gap="4px">
-            <Icon id="swap" size={16} />
-            Swap BTC
+            <RowFit>
+              <Icon id="swap" size={16} />
+              Swap {data?.symbol}
+            </RowFit>
           </ButtonLight>
         </RowBetween>
-      </Column>
+      </>
     )
   }
   return (
@@ -357,9 +368,19 @@ export default function SingleToken() {
           <Text fontSize={24} fontWeight={500} color={theme.primary} marginBottom="12px">
             {data?.kyberScore.label}
           </Text>
-          <Text fontSize={14} lineHeight="20px" fontWeight={500} color={theme.text} textAlign="center">
+          <Text
+            fontSize={14}
+            lineHeight="20px"
+            fontWeight={500}
+            color={theme.text}
+            textAlign="center"
+            marginBottom="12px"
+          >
             $BTC seems to be a <span style={{ color: theme.primary }}>{data?.kyberScore.label}</span> with a KyberScore
             of <span style={{ color: theme.primary }}>{data?.kyberScore.score}</span>/100
+          </Text>
+          <Text fontSize={10} lineHeight="12px" fontStyle="italic">
+            <Trans>Note: This should not be treated as financial advice</Trans>
           </Text>
         </CardWrapper>
       </Row>
