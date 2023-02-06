@@ -472,16 +472,13 @@ export default function AddLiquidity() {
     setTxHash('')
   }, [navigate, networkInfo.route, onFieldAInput, txHash])
 
-  const mountRef = useRef(false)
   const handleDismissConfirmationRef = useRef(handleDismissConfirmation)
   useEffect(() => {
-    if (ENV_LEVEL > ENV_TYPE.LOCAL && !mountRef.current) {
-      // if (true) {
+    if (ENV_LEVEL > ENV_TYPE.LOCAL) {
       setPositionIndex(0)
       onResetMintState()
       handleDismissConfirmationRef.current()
     }
-    mountRef.current = true
   }, [onResetMintState, baseCurrency, quoteCurrency, feeAmount, chainId])
 
   const leftPrice = isSorted ? priceLower : priceUpper?.invert()
