@@ -12,7 +12,6 @@ import PriceVisualize from './PriceVisualize'
 
 const TableWrapper = styled.div`
   margin-top: 1rem;
-  /* width: 768px; */
 `
 
 const TableHeader = styled.div`

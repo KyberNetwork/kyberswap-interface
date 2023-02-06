@@ -109,7 +109,7 @@ export default function ProAmmPoolCardItem({ pool, onShared, userPositions }: Li
   return (
     <Wrapper key={pool.address}>
       <Link
-        to={`/elastic/add/${token0Slug}/${token1Slug}/${pool.feeTier}`}
+        to={`${APP_PATHS.ELASTIC_CREATE_POOL}/${token0Slug}/${token1Slug}/${pool.feeTier}`}
         style={{
           textDecoration: 'none',
         }}
@@ -259,7 +259,7 @@ export default function ProAmmPoolCardItem({ pool, onShared, userPositions }: Li
           padding="10px"
           style={{ height: '36px' }}
           onClick={() => {
-            const url = `/elastic/add/${token0Slug}/${token1Slug}/${pool.feeTier}`
+            const url = `${APP_PATHS.ELASTIC_CREATE_POOL}/${token0Slug}/${token1Slug}/${pool.feeTier}`
 
             if (chainId === ChainId.ETHW) {
               setUrlOnEthPoWAck(url)

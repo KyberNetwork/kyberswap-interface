@@ -71,12 +71,10 @@ const PriceVisualize = ({
   const [show, setShow] = useState(false)
 
   const onFocus = useCallback(() => {
-    console.log('show')
     setShow(true)
   }, [])
 
   const onLeave = useCallback(() => {
-    console.log('leave')
     setShow(false)
   }, [])
 

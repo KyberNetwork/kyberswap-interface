@@ -478,8 +478,8 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                 alignItems="center"
                 marginRight="8px"
               >
-                The owner of this liquidity position is {shortenAddress(chainId, owner)}
-                <Copy toCopy={owner}></Copy>
+                <Trans>The owner of this liquidity position is {shortenAddress(chainId, owner)}</Trans>
+                <Copy toCopy={owner} />
               </Text>
             )}
 
@@ -521,7 +521,9 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                       marginTop="1rem"
                       marginBottom="0.75rem"
                     >
-                      <Text>My Liquidity</Text>
+                      <Text>
+                        <Trans>My Liquidity</Trans>
+                      </Text>
                       <Text>{formattedNumLong(totalPooledUSD, true)}</Text>
                     </Flex>
 

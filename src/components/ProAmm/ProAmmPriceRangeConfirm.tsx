@@ -129,42 +129,6 @@ export default function ProAmmPriceRangeConfirm({
             </Text>
           </Price>
         </RowBetween>
-        {/* <RowBetween style={{ gap: '12px' }}>
-          <Flex>
-            <Text fontSize="12px" fontWeight={500} color={theme.subText}>
-              <Trans>Min Price</Trans>
-            </Text>
-            <InfoHelper
-              text={t`Your position will be 100% composed of ${baseCurrency?.symbol} at this price`}
-              placement={'right'}
-              size={12}
-            />
-          </Flex>
-
-          <Text fontWeight="500" fontSize="12px">
-            <Trans>
-              {formatTickPrice(priceLower, ticksAtLimit, Bound.LOWER)} {quoteCurrency.symbol} per {baseCurrency.symbol}
-            </Trans>
-          </Text>
-        </RowBetween>
-        <RowBetween style={{ gap: '12px' }}>
-          <Flex>
-            <Text fontSize="12px" fontWeight={500} color={theme.subText}>
-              <Trans>Max Price</Trans>
-            </Text>
-            <InfoHelper
-              text={t`Your position will be 100% composed of ${quoteCurrency?.symbol} at this price`}
-              placement={'right'}
-              size={12}
-            />
-          </Flex>
-
-          <Text fontSize="12px" fontWeight="500">
-            <Trans>
-              {formatTickPrice(priceUpper, ticksAtLimit, Bound.UPPER)} {quoteCurrency.symbol} per {baseCurrency.symbol}
-            </Trans>
-          </Text>
-        </RowBetween> */}
       </AutoColumn>
     </OutlineCard>
   )

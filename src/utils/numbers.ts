@@ -20,6 +20,7 @@ export const formatDollarAmount = (num: number | undefined, digits = 2, round = 
   })
 }
 
+// do the same with above, without the $ sign
 export const formatNotDollarAmount = (num: number | undefined, digits = 2, round = true) => {
   if (num === 0) return '0.00'
   if (!num) return '-'

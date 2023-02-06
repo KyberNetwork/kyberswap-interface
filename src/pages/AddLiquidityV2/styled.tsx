@@ -100,8 +100,6 @@ export const RangeBtn = styled(ButtonOutlined)<{ isSelected: boolean }>`
       ? css`
           border-color: ${theme.primary};
           color: ${theme.primary};
-          /* pointer-events: none;
-          cursor: not-allowed; */
           box-shadow: none;
           &:focus {
             box-shadow: none;
@@ -120,7 +118,6 @@ export const ArrowWrapper = styled.div<{ rotated?: boolean; isVertical?: boolean
   display: flex;
   justify-content: center;
   align-items: center;
-  /* background: ${({ theme }) => theme.buttonBlack}; */
   width: fit-content;
   height: fit-content;
   cursor: pointer;

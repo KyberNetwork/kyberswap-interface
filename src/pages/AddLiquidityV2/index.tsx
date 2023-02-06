@@ -432,9 +432,9 @@ export default function AddLiquidity() {
     (currencyANew: Currency) => {
       const [idA, idB] = handleCurrencySelect(currencyANew, currencyIdB)
       if (idB === undefined) {
-        navigate(`/elastic/add/${idA}`)
+        navigate(`${APP_PATHS.ELASTIC_CREATE_POOL}/${idA}`)
       } else {
-        navigate(`/elastic/add/${idA}/${idB}`)
+        navigate(`${APP_PATHS.ELASTIC_CREATE_POOL}/${idA}/${idB}`)
       }
     },
     [handleCurrencySelect, currencyIdB, navigate],
@@ -444,9 +444,9 @@ export default function AddLiquidity() {
     (currencyBNew: Currency) => {
       const [idB, idA] = handleCurrencySelect(currencyBNew, currencyIdA)
       if (idA === undefined) {
-        navigate(`/elastic/add/${idB}`)
+        navigate(`${APP_PATHS.ELASTIC_CREATE_POOL}/${idB}`)
       } else {
-        navigate(`/elastic/add/${idA}/${idB}`)
+        navigate(`${APP_PATHS.ELASTIC_CREATE_POOL}/${idA}/${idB}`)
       }
     },
     [handleCurrencySelect, currencyIdA, navigate],
@@ -456,7 +456,7 @@ export default function AddLiquidity() {
     (newFeeAmount: FeeAmount) => {
       onLeftRangeInput('')
       onRightRangeInput('')
-      navigate(`/elastic/add/${currencyIdA}/${currencyIdB}/${newFeeAmount}`)
+      navigate(`${APP_PATHS.ELASTIC_CREATE_POOL}/${currencyIdA}/${currencyIdB}/${newFeeAmount}`)
     },
     [currencyIdA, currencyIdB, navigate, onLeftRangeInput, onRightRangeInput],
   )
@@ -802,7 +802,7 @@ export default function AddLiquidity() {
                     onSwitchCurrency={() => {
                       chainId &&
                         navigate(
-                          `/elastic/add/${
+                          `${APP_PATHS.ELASTIC_CREATE_POOL}/${
                             baseCurrencyIsETHER ? WETH[chainId].address : NativeCurrencies[chainId].symbol
                           }/${currencyIdB}/${feeAmount}`,
                           { replace: true },
@@ -832,7 +832,7 @@ export default function AddLiquidity() {
                     onSwitchCurrency={() => {
                       chainId &&
                         navigate(
-                          `/elastic/add/${currencyIdA}/${
+                          `${APP_PATHS.ELASTIC_CREATE_POOL}/${currencyIdA}/${
                             quoteCurrencyIsETHER ? WETH[chainId].address : NativeCurrencies[chainId].symbol
                           }/${feeAmount}`,
                           { replace: true },
@@ -962,7 +962,7 @@ export default function AddLiquidity() {
           onCleared={() => {
             onFieldAInput('0')
             onFieldBInput('0')
-            navigate('/elastic/add')
+            navigate(APP_PATHS.ELASTIC_CREATE_POOL)
           }}
           onBack={() => {
             navigate(`${APP_PATHS.POOLS}/${networkInfo.route}?tab=elastic`)
@@ -1029,7 +1029,7 @@ export default function AddLiquidity() {
                   ) : (
                     <StyledInternalLink
                       replace
-                      to={`/elastic/add/${currencyIdB}/${currencyIdA}/${feeAmount}`}
+                      to={`${APP_PATHS.ELASTIC_CREATE_POOL}/${currencyIdB}/${currencyIdA}/${feeAmount}`}
                       style={{ color: 'inherit', display: 'flex' }}
                     >
                       <SwapIcon size={24} color={theme.subText} />

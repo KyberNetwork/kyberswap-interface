@@ -39,7 +39,6 @@ const StyledArrowLeft = styled(ArrowLeft)`
 `
 
 const ButtonBack = styled(ButtonEmpty)`
-  // TODO namgold: handle this to handle 2 case old and new
   width: 28px;
   height: 28px;
   justify-content: center;

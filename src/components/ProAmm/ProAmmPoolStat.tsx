@@ -117,7 +117,7 @@ export default function ProAmmPoolStat({ pool, onShared, userPositions }: ListIt
   return (
     <Wrapper key={pool.address}>
       <Link
-        to={`/elastic/add/${token0Slug}/${token1Slug}/${pool.feeTier}`}
+        to={`${APP_PATHS.ELASTIC_CREATE_POOL}/${token0Slug}/${token1Slug}/${pool.feeTier}`}
         style={{
           textDecoration: 'none',
         }}
@@ -263,19 +263,17 @@ export default function ProAmmPoolStat({ pool, onShared, userPositions }: ListIt
               >
                 <CircleInfoIcon size="32" />
 
-                <Trans>
-                  <Text
-                    as={Flex}
-                    wrap="unwrap"
-                    fontSize="12px"
-                    fontWeight={500}
-                    color={theme.subText}
-                    alignItems="center"
-                    flexDirection="column"
-                  >
-                    <Text>No add / remove transactions in the last 24 hrs</Text>
-                  </Text>
-                </Trans>
+                <Text
+                  as={Flex}
+                  wrap="unwrap"
+                  fontSize="12px"
+                  fontWeight={500}
+                  color={theme.subText}
+                  alignItems="center"
+                  flexDirection="column"
+                >
+                  <Trans>No add / remove transactions in the last 24 hrs</Trans>
+                </Text>
               </Flex>
             ) : (
               <Flex sx={{ gap: upToLarge ? '16px' : '32px', paddingLeft: upToLarge ? '0' : '24px', width: '100%' }}>

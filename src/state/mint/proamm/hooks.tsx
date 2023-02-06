@@ -299,7 +299,7 @@ export function useProAmmDerivedMintInfo(
             (!invertPrice && typeof leftRangeTypedValue === 'boolean')
           ? tickSpaceLimits[Bound.LOWER]
           : invertPrice
-          ? tryParseTick(token1, token0, feeAmount, rightRangeTypedValue.toString()) // todo namgold: sthing wrong here
+          ? tryParseTick(token1, token0, feeAmount, rightRangeTypedValue.toString())
           : tryParseTick(token0, token1, feeAmount, leftRangeTypedValue.toString()),
       [Bound.UPPER]:
         typeof existingPosition?.tickUpper === 'number'
@@ -321,8 +321,7 @@ export function useProAmmDerivedMintInfo(
     token1,
     tickSpaceLimits,
   ])
-  if (invertPrice) {
-  }
+
   const { [Bound.LOWER]: tickLower, [Bound.UPPER]: tickUpper } = ticks || {}
 
   // specifies whether the lower and upper ticks is at the exteme bounds
@@ -811,7 +810,7 @@ export function useProAmmDerivedAllMintInfo(
                 (!invertPrice && typeof leftRangeTypedValue === 'boolean')
               ? tickSpaceLimits[Bound.LOWER]
               : invertPrice
-              ? tryParseTick(token1, token0, feeAmount, rightRangeTypedValue.toString()) // todo namgold: sthing wrong here
+              ? tryParseTick(token1, token0, feeAmount, rightRangeTypedValue.toString())
               : tryParseTick(token0, token1, feeAmount, leftRangeTypedValue.toString())
           const upper =
             typeof existingPosition?.tickUpper === 'number'
@@ -846,8 +845,7 @@ export function useProAmmDerivedAllMintInfo(
       feeAmount,
     ],
   )
-  if (invertPrice) {
-  }
+
   const { [Bound.LOWER]: tickLowers, [Bound.UPPER]: tickUppers } = ticks || {}
 
   const invalidRange: boolean[] = positions.map(

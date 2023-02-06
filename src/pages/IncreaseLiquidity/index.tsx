@@ -443,7 +443,7 @@ export default function AddLiquidity() {
           >
             <ChevronLeft size={28} color={theme.subText} />
             <Text fontSize="24px" fontWeight="500" marginLeft="8px">
-              Increase Liquidity
+              <Trans>Increase Liquidity</Trans>
             </Text>
           </Flex>
 
@@ -457,7 +457,7 @@ export default function AddLiquidity() {
                 alignItems="center"
                 marginRight="8px"
               >
-                The owner of this liquidity position is {shortenAddress(chainId, owner)}
+                <Trans>The owner of this liquidity position is {shortenAddress(chainId, owner)}</Trans>
                 <Copy toCopy={owner}></Copy>
               </Text>
             )}
@@ -496,7 +496,9 @@ export default function AddLiquidity() {
                       marginTop="1rem"
                       marginBottom="0.75rem"
                     >
-                      <Text>My Liquidity</Text>
+                      <Text>
+                        <Trans>My Liquidity</Trans>
+                      </Text>
                       <Text>{formattedNumLong(totalPooledUSD, true)}</Text>
                     </Flex>
 

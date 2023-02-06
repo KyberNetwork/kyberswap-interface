@@ -143,8 +143,6 @@ const PositionListItem = ({
           {upToSmall && (
             <ClickableText onClick={() => setIsExpanded(!isExpanded)}>
               <DropdownSVG
-                // width="30px"
-                // height="30px"
                 style={{ transform: `rotate(${isExpanded ? '-180deg' : 0}) scale(1.5)`, transition: 'transform 0.15s' }}
               />
             </ClickableText>

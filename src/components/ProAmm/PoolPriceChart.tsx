@@ -19,6 +19,7 @@ import { ApplicationModal } from 'state/application/actions'
 import { useHourlyRateData } from 'state/mint/proamm/hooks'
 import { TimeframeOptions } from 'state/mint/proamm/type'
 import { MEDIA_WIDTHS } from 'theme'
+import { shortString } from 'utils/string'
 
 import CandleStickChart from './CandleStickChart'
 import DropdownSelect from './DropdownSelect'
@@ -91,16 +92,8 @@ const PoolPriceChart = ({
   const [currentRate, setCurrentRate] = useState<{ price: string; time?: string } | null>(null)
   const theme = useTheme()
 
-  const formattedSymbol0 = poolData?.token0?.symbol
-    ? poolData?.token0?.symbol.length > 6
-      ? poolData?.token0?.symbol.slice(0, 5) + '...'
-      : poolData?.token0?.symbol
-    : ''
-  const formattedSymbol1 = poolData?.token1?.symbol
-    ? poolData?.token1?.symbol.length > 6
-      ? poolData?.token1?.symbol.slice(0, 5) + '...'
-      : poolData?.token1?.symbol
-    : ''
+  const formattedSymbol0 = shortString(poolData?.token0?.symbol, 5)
+  const formattedSymbol1 = shortString(poolData?.token1?.symbol, 5)
 
   const ratesData0 = ratesDatas?.[0]
   const ratesData1 = ratesDatas?.[1]
@@ -115,9 +108,7 @@ const PoolPriceChart = ({
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
-  if (!show) return null
-  if (!currencyA) return null
-  if (!currencyB) return null
+  if (!show || !currencyA || !currencyB) return null
   if (ratesData?.length === 0) {
     return (
       <ChartWrapper>

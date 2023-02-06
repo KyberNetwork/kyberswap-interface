@@ -45,9 +45,11 @@ export default function Updater(): null {
 
   const lastBlockNumber = useBlockNumber()
   const dispatch = useDispatch<AppDispatch>()
-  const state = useSelector<AppState, AppState['transactions']>(state => state.transactions)
+  const transactionsState = useSelector<AppState, AppState['transactions'][number]>(
+    state => state.transactions[chainId],
+  )
 
-  const transactions = useMemo(() => (chainId ? state[chainId] ?? {} : {}), [chainId, state])
+  const transactions = useMemo(() => transactionsState ?? {}, [transactionsState])
 
   // show popup on confirm
 
@@ -122,7 +124,7 @@ export default function Updater(): null {
                       blockHash: receipt.blockHash,
                       status: receipt.status,
                     },
-                    needCheckSubgraph: includes(NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES, transaction.type || ''),
+                    needCheckSubgraph: includes(NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES, transaction.type),
                   }),
                 )
 
