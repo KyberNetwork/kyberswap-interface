@@ -1007,18 +1007,22 @@ export function useProAmmDerivedAllMintInfo(
   const currencyAmountSum: { [field in Field]: CurrencyAmount<Currency> | undefined } = useMemo(() => {
     let currencyAAmountSum: CurrencyAmount<Currency> | undefined
     currencyAAmounts.forEach(currencyAAmount => {
-      currencyAAmountSum =
-        currencyAAmount && currencyAAmountSum
-          ? currencyAAmount.add(currencyAAmountSum)
-          : currencyAAmount || currencyAAmountSum
+      try {
+        currencyAAmountSum =
+          currencyAAmount && currencyAAmountSum
+            ? currencyAAmount.add(currencyAAmountSum)
+            : currencyAAmount || currencyAAmountSum
+      } catch {}
     })
 
     let currencyBAmountSum: CurrencyAmount<Currency> | undefined
     currencyBAmounts.forEach(currencyBAmount => {
-      currencyBAmountSum =
-        currencyBAmount && currencyBAmountSum
-          ? currencyBAmount.add(currencyBAmountSum)
-          : currencyBAmount || currencyBAmountSum
+      try {
+        currencyBAmountSum =
+          currencyBAmount && currencyBAmountSum
+            ? currencyBAmount.add(currencyBAmountSum)
+            : currencyBAmount || currencyBAmountSum
+      } catch {}
     })
     return {
       [Field.CURRENCY_A]: currencyAAmountSum,

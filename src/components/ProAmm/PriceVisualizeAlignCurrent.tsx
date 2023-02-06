@@ -103,7 +103,7 @@ const PriceVisualize = ({
     p3: boolean
     p4: boolean
   } = useMemo(() => {
-    const padding = 20
+    const padding = 15
     const spaceLeft = 50 - padding
     let a: number, b: number, c: number, d: number, e: number, f: number
     let p1: boolean, p2: boolean, p3: boolean, p4: boolean
