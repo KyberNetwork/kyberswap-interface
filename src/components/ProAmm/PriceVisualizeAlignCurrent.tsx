@@ -18,7 +18,7 @@ export const Dot = styled.div<{ isShow?: boolean | undefined; isCurrentPrice?: b
     !show ? 'transparent' : isCurrentPrice ? theme.text : outOfRange ? theme.warning : theme.primary};
   margin-left: -4px;
   margin-right: -4px;
-  z-index: 2;
+  z-index: ${({ isCurrentPrice }) => (isCurrentPrice ? 3 : 2)};
 `
 
 const PriceVisualizeWrapper = styled.div<{ center?: boolean }>`
