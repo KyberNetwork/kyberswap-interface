@@ -38,7 +38,7 @@ export default function useProAmmPreviousTicks(
     return undefined
   }, [results, loading, error, pool])
 }
-
+const isNullOrUndefined = <T>(value: T) => value === null || value === undefined
 export function useProAmmMultiplePreviousTicks(
   pool: Pool | null | undefined,
   positions: (Position | undefined)[],
@@ -59,7 +59,7 @@ export function useProAmmMultiplePreviousTicks(
         [
           [poolAddress, position?.tickLower],
           [poolAddress, position?.tickUpper],
-        ].filter(item => !!pool && !!item[0] && !!item[1]),
+        ].filter(item => !!pool && !isNullOrUndefined(item[0]) && !isNullOrUndefined(item[1])),
       )
       .flat()
       .filter(i => i?.length),
