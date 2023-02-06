@@ -232,18 +232,16 @@ export default function SendToken({
 
         <WarningBrave token={currencyIn} />
 
-        {estimateGas && (
-          <RowBetween>
-            <Label>
-              <Trans>Gas Fee</Trans>
-            </Label>
-            <Label>
-              {estimateGas
-                ? `~ ${formatNumberWithPrecisionRange(estimateGas, 0, 10)} ${NativeCurrencies[chainId].symbol}`
-                : '-'}{' '}
-            </Label>
-          </RowBetween>
-        )}
+        <RowBetween>
+          <Label>
+            <Trans>Gas Fee</Trans>
+          </Label>
+          <Label>
+            {estimateGas
+              ? `~ ${formatNumberWithPrecisionRange(estimateGas, 0, 10)} ${NativeCurrencies[chainId].symbol}`
+              : '-'}
+          </Label>
+        </RowBetween>
       </Flex>
       <ButtonPrimary height="44px" onClick={onSendToken} disabled={disableButtonSend}>
         {inputError ? inputError : isSending ? <Trans>Sending token</Trans> : <Trans>Send</Trans>}
