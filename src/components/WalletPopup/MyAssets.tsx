@@ -14,6 +14,7 @@ import Row from 'components/Row'
 import { CurrencyRow } from 'components/SearchModal/CurrencyList'
 import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
 import { useActiveWeb3React } from 'hooks'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { useNativeBalance } from 'state/wallet/hooks'
@@ -46,8 +47,12 @@ export default function MyAssets({
   currencyBalances: { [address: string]: TokenAmount | undefined }
 }) {
   const theme = useTheme()
+  const { mixpanelHandler } = useMixpanel()
   const [modalOpen, setModalOpen] = useState(false)
-  const showModal = () => setModalOpen(true)
+  const showModal = () => {
+    setModalOpen(true)
+    mixpanelHandler(MIXPANEL_TYPE.WUI_IMPORT_TOKEN_CLICK)
+  }
   const hideModal = () => setModalOpen(false)
   const nativeBalance = useNativeBalance()
   const navigate = useNavigate()
