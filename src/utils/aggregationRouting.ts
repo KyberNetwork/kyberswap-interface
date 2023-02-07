@@ -144,6 +144,10 @@ export function getTradeComposition(
 
   // Convert all Swaps to ChartSwaps
   swaps.forEach(sorMultiSwap => {
+    if (!sorMultiSwap.length || sorMultiSwap.length < 1) {
+      return
+    }
+
     if (sorMultiSwap.length === 1) {
       const hop = sorMultiSwap[0]
       const path = [
@@ -163,40 +167,44 @@ export function getTradeComposition(
         path,
         id: hop.pool,
       })
-    } else if (sorMultiSwap.length > 1) {
-      const path: PathItem[] = []
-      const pools: SwapPool[] = []
-      sorMultiSwap.forEach((hop: any, index: number) => {
-        pools.push({
-          id: hop.pool,
-          exchange: hop.exchange,
-          swapAmount: JSBI.BigInt(hop.swapAmount),
-          swapPercentage: index === 0 ? calcSwapPercentage(hop.tokenIn, hop.swapAmount) : 100,
-        })
-        if (index === 0) {
-          const token = tokens[hop.tokenIn] || defaultToken
-          path.push(
-            allTokens?.[isAddressString(chainId, token.address)] ||
-              new Token(chainId, token.address, token.decimals, token.symbol, token.name),
-          )
-        }
-        const token = tokens[hop.tokenOut] || defaultToken
+
+      return
+    }
+
+    const path: PathItem[] = []
+    const pools: SwapPool[] = []
+    sorMultiSwap.forEach((hop: any, index: number) => {
+      pools.push({
+        id: hop.pool,
+        exchange: hop.exchange,
+        swapAmount: JSBI.BigInt(hop.swapAmount),
+        swapPercentage: index === 0 ? calcSwapPercentage(hop.tokenIn, hop.swapAmount) : 100,
+      })
+
+      if (index === 0) {
+        const token = tokens[hop.tokenIn] || defaultToken
         path.push(
           allTokens?.[isAddressString(chainId, token.address)] ||
             new Token(chainId, token.address, token.decimals, token.symbol, token.name),
         )
-      })
-      routes.push({
-        slug: path
-          .slice(1)
-          .map(t => t.address)
-          .join('-')
-          .toLowerCase(),
-        path,
-        pools,
-        id: pools.map(p => p.id).join('-'),
-      })
-    }
+      }
+
+      const token = allTokens?.[isAddressString(chainId, hop.tokenOut)] || tokens[hop.tokenOut] || defaultToken
+      path.push(
+        allTokens?.[isAddressString(chainId, token.address)] ||
+          new Token(chainId, token.address, token.decimals, token.symbol, token.name),
+      )
+    })
+    routes.push({
+      slug: path
+        .slice(1)
+        .map(t => t.address)
+        .join('-')
+        .toLowerCase(),
+      path,
+      pools,
+      id: pools.map(p => p.id).join('-'),
+    })
   })
 
   // Convert to ChartSwaps v2
