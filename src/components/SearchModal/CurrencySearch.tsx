@@ -12,6 +12,7 @@ import Column from 'components/Column'
 import InfoHelper from 'components/InfoHelper'
 import { RowBetween } from 'components/Row'
 import { KS_SETTING_API } from 'constants/env'
+import { isEVM } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -152,6 +153,7 @@ export function CurrencySearch({
 
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedQuery = useDebounce(searchQuery, 200)
+  const isQueryValidEVMAddress = isEVM(chainId) && !!isAddress(chainId, debouncedQuery)
 
   const { favoriteTokens, toggleFavoriteToken } = useUserFavoriteTokens(chainId)
 
@@ -327,44 +329,38 @@ export function CurrencySearch({
 
   const fetchListTokens = useCallback(
     async (page?: number) => {
-      if (fetchingToken.current) return
+      if (fetchingToken.current) {
+        return
+      }
+
       const fetchId = Date.now()
       fetchingToken.current = fetchId
+
       const nextPage = (page ?? pageCount) + 1
       let tokens: WrappedTokenInfo[] = []
+
       if (debouncedQuery) {
-        const promiseResult = await Promise.allSettled([
-          fetchTokens(debouncedQuery, nextPage, chainId),
-          fetchTokenFromRPC(debouncedQuery),
-        ])
+        tokens = await fetchTokens(debouncedQuery, nextPage, chainId)
 
-        const fetchTokensResp = promiseResult[0]
-        const fetchTokenFromRPCResp = promiseResult[1]
+        if (tokens.length === 0 && isQueryValidEVMAddress) {
+          const rawToken = await fetchTokenFromRPC(debouncedQuery)
 
-        if (fetchTokensResp.status === 'fulfilled') {
-          tokens = fetchTokensResp.value
-        }
-
-        if (
-          fetchTokensResp.status === 'fulfilled' &&
-          fetchTokenFromRPCResp.status === 'fulfilled' &&
-          fetchTokensResp.value.length === 0 &&
-          fetchTokenFromRPCResp.value
-        ) {
-          const rawToken = fetchTokenFromRPCResp.value
-          tokens.push(
-            new WrappedTokenInfo({
-              chainId: rawToken.chainId,
-              address: rawToken.address,
-              name: rawToken.name || '',
-              decimals: rawToken.decimals,
-              symbol: rawToken.symbol || '',
-            }),
-          )
+          if (rawToken) {
+            tokens.push(
+              new WrappedTokenInfo({
+                chainId: rawToken.chainId,
+                address: rawToken.address,
+                name: rawToken.name || '',
+                decimals: rawToken.decimals,
+                symbol: rawToken.symbol || '',
+              }),
+            )
+          }
         }
       } else {
         tokens = Object.values(defaultTokens) as WrappedTokenInfo[]
       }
+
       if (fetchingToken.current === fetchId) {
         // sometimes, API slow, api fetch later has response sooner.
         setPageCount(nextPage)
@@ -373,7 +369,7 @@ export function CurrencySearch({
         fetchingToken.current = null
       }
     },
-    [chainId, debouncedQuery, defaultTokens, fetchTokenFromRPC, pageCount],
+    [chainId, debouncedQuery, defaultTokens, fetchTokenFromRPC, isQueryValidEVMAddress, pageCount],
   )
 
   const [hasMoreToken, setHasMoreToken] = useState(false)
