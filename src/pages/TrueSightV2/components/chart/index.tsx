@@ -2,6 +2,7 @@ import dayjs from 'dayjs'
 import { rgba } from 'polished'
 import React, { useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import {
   Area,
@@ -18,7 +19,7 @@ import {
 } from 'recharts'
 import styled, { css } from 'styled-components'
 
-import { RowFit } from 'components/Row'
+import Row, { RowFit } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import {
@@ -35,6 +36,7 @@ import {
   useTradingVolume,
 } from 'pages/TrueSightV2/hooks/useTruesightV2Data'
 import { testParams } from 'pages/TrueSightV2/pages/SingleToken'
+import { MEDIA_WIDTHS } from 'theme'
 
 import { ContentWrapper } from '..'
 import HoldersPieChart from './HoldersPieChart'
@@ -48,7 +50,7 @@ const ChartWrapper = styled(ContentWrapper)`
 const LegendWrapper = styled.div`
   position: absolute;
   top: 0;
-  right: 20px;
+  right: 0;
   display: flex;
   justify-content: flex-end;
   gap: 20px;
@@ -58,6 +60,14 @@ const LegendWrapper = styled.div`
   > * {
     cursor: pointer;
   }
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    left:0;
+    justify-content: center;
+    > * {
+      flex: 1;
+    }
+  `}
 `
 
 const LegendButtonWrapper = styled.div<{ enabled?: boolean }>`
@@ -154,9 +164,12 @@ const TimeFrameWrapper = styled.div`
   color: ${({ theme }) => theme.subText};
   cursor: pointer;
 `
-const Element = styled.div<{ active?: boolean }>`
+const Element = styled.div<{ active?: boolean; count?: number }>`
   padding: 6px 12px;
+  width: calc(100% / ${({ count }) => count || 1});
   z-index: 2;
+  display: flex;
+  justify-content: center;
   ${({ active, theme }) => active && `color: ${theme.text};`}
   :hover {
     filter: brightness(1.2);
@@ -164,7 +177,7 @@ const Element = styled.div<{ active?: boolean }>`
 `
 
 const ActiveElement = styled.div<{ left?: number; width?: number }>`
-  width: 40px;
+  width: 25%;
   height: 24px;
   border-radius: 20px;
   position: absolute;
@@ -204,12 +217,13 @@ const TimeFrameLegend = ({
             }}
             onClick={() => onSelect?.(t)}
             active={selected === t}
+            count={timeframes.length}
           >
             {t}
           </Element>
         )
       })}
-      <ActiveElement left={refs.current?.[selected]?.offsetLeft} />
+      <ActiveElement left={refs.current?.[selected]?.offsetLeft} width={refs.current?.[selected]?.offsetWidth} />
     </TimeFrameWrapper>
   )
 }
@@ -259,10 +273,11 @@ const TooltipCustom = (props: TooltipProps<number, string>) => {
   return null
 }
 
-export const ANIMATION_DELAY = 1000
+export const ANIMATION_DELAY = 500
 export const ANIMATION_DURATION = 1500
 
 export const NumberofTradesChart = () => {
+  const theme = useTheme()
   const { address } = useParams()
   const { data } = useNumberOfTrades(address || testParams.address)
   const [showSell, setShowSell] = useState(true)
@@ -279,26 +294,123 @@ export const NumberofTradesChart = () => {
       }),
     [data, showSell, showBuy, address],
   )
+  const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  return (
+    <>
+      <ChartWrapper>
+        <LegendWrapper>
+          {above768 && (
+            <>
+              <LegendButton
+                text="Buy"
+                iconStyle={{ backgroundColor: rgba(theme.primary, 0.6) }}
+                enabled={showBuy}
+                onClick={() => setShowBuy(prev => !prev)}
+              />
+              <LegendButton
+                text="Sell"
+                iconStyle={{ backgroundColor: rgba(theme.red, 0.6) }}
+                enabled={showSell}
+                onClick={() => setShowSell(prev => !prev)}
+              />
+            </>
+          )}
+          <TimeFrameLegend selected={timeframe} onSelect={setTimeframe} timeframes={['1D', '7D', '1M', '3M']} />
+        </LegendWrapper>
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart width={500} height={300} data={formattedData} margin={{ top: 50 }}>
+            <XAxis
+              fontSize="12px"
+              dataKey="timestamp"
+              tickLine={false}
+              axisLine={false}
+              tick={{ fill: theme.subText, fontWeight: 400 }}
+              tickFormatter={value => dayjs(value).format('MMM DD')}
+            />
+            <YAxis
+              fontSize="12px"
+              tickLine={false}
+              axisLine={false}
+              tick={{ fill: theme.subText, fontWeight: 400 }}
+              width={40}
+            />
+            <Tooltip
+              cursor={{ fill: 'transparent' }}
+              wrapperStyle={{ outline: 'none' }}
+              position={{ y: 120 }}
+              animationDuration={100}
+              content={TooltipCustom}
+            />
+            <Bar
+              dataKey="sell"
+              stackId="a"
+              fill={rgba(theme.red, 0.6)}
+              animationBegin={ANIMATION_DELAY}
+              animationDuration={ANIMATION_DURATION}
+            />
+            <Bar
+              dataKey="buy"
+              stackId="a"
+              fill={rgba(theme.primary, 0.6)}
+              animationBegin={ANIMATION_DELAY}
+              animationDuration={ANIMATION_DURATION}
+            />
+          </BarChart>
+        </ResponsiveContainer>
+      </ChartWrapper>
+      {!above768 && (
+        <Row justify="center" gap="16px">
+          <LegendButton
+            text="Buy"
+            iconStyle={{ backgroundColor: rgba(theme.primary, 0.6) }}
+            enabled={showBuy}
+            onClick={() => setShowBuy(prev => !prev)}
+          />
+          <LegendButton
+            text="Sell"
+            iconStyle={{ backgroundColor: rgba(theme.red, 0.6) }}
+            enabled={showSell}
+            onClick={() => setShowSell(prev => !prev)}
+          />
+        </Row>
+      )}
+    </>
+  )
+}
+
+export const TradingVolumeChart = () => {
   const theme = useTheme()
+  const { address } = useParams()
+  const { data } = useTradingVolume(address)
+  const [timeframe, setTimeframe] = useState('7D')
+  const filteredData = useMemo(() => {
+    const datatemp = address ? data : TRADE_VOLUME
+    return datatemp
+  }, [data, address])
+
   return (
     <ChartWrapper>
       <LegendWrapper>
-        <LegendButton
-          text="Buy"
-          iconStyle={{ backgroundColor: rgba(theme.primary, 0.6) }}
-          enabled={showBuy}
-          onClick={() => setShowBuy(prev => !prev)}
-        />
-        <LegendButton
-          text="Sell"
-          iconStyle={{ backgroundColor: rgba(theme.red, 0.6) }}
-          enabled={showSell}
-          onClick={() => setShowSell(prev => !prev)}
-        />
         <TimeFrameLegend selected={timeframe} onSelect={setTimeframe} timeframes={['1D', '7D', '1M', '3M']} />
       </LegendWrapper>
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart width={500} height={300} data={formattedData} margin={{ top: 40, right: 30 }}>
+        <ComposedChart
+          width={500}
+          height={400}
+          data={filteredData}
+          margin={{
+            top: 50,
+            right: 0,
+            left: 0,
+            bottom: 0,
+          }}
+        >
+          <defs>
+            <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={theme.primary} stopOpacity={0.8} />
+              <stop offset="100%" stopColor={theme.primary} stopOpacity={0} />
+            </linearGradient>
+          </defs>
           <XAxis
             fontSize="12px"
             dataKey="timestamp"
@@ -307,7 +419,13 @@ export const NumberofTradesChart = () => {
             tick={{ fill: theme.subText, fontWeight: 400 }}
             tickFormatter={value => dayjs(value).format('MMM DD')}
           />
-          <YAxis fontSize="12px" tickLine={false} axisLine={false} tick={{ fill: theme.subText, fontWeight: 400 }} />
+          <YAxis
+            fontSize="12px"
+            tickLine={false}
+            axisLine={false}
+            tick={{ fill: theme.subText, fontWeight: 400 }}
+            width={40}
+          />
           <Tooltip
             cursor={{ fill: 'transparent' }}
             wrapperStyle={{ outline: 'none' }}
@@ -329,69 +447,25 @@ export const NumberofTradesChart = () => {
             animationBegin={ANIMATION_DELAY}
             animationDuration={ANIMATION_DURATION}
           />
-        </BarChart>
-      </ResponsiveContainer>
-    </ChartWrapper>
-  )
-}
-
-export const TradingVolumeChart = () => {
-  const theme = useTheme()
-  const { address } = useParams()
-  const { data } = useTradingVolume(address)
-  const [timeframe, setTimeframe] = useState('7D')
-  const filteredData = useMemo(() => {
-    const datatemp = address ? data : TRADE_VOLUME
-    switch (timeframe) {
-      case '1D':
-      case '7D':
-        return datatemp?.slice(datatemp.length - 8, datatemp.length - 1)
-      default:
-        return datatemp
-    }
-  }, [data, timeframe, address])
-
-  return (
-    <ChartWrapper>
-      <LegendWrapper>
-        <TimeFrameLegend selected={timeframe} onSelect={setTimeframe} timeframes={['1D', '7D', '1M', '3M']} />
-      </LegendWrapper>
-      <ResponsiveContainer width="100%" height="100%">
-        <AreaChart
-          width={500}
-          height={400}
-          data={filteredData}
-          margin={{
-            top: 40,
-            right: 40,
-            left: 0,
-            bottom: 0,
-          }}
-        >
-          <defs>
-            <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={theme.primary} stopOpacity={0.8} />
-              <stop offset="100%" stopColor={theme.primary} stopOpacity={0} />
-            </linearGradient>
-          </defs>
-          <XAxis
-            fontSize="12px"
-            dataKey="timestamp"
-            tickLine={false}
-            axisLine={false}
-            tick={{ fill: theme.subText, fontWeight: 400 }}
-            tickFormatter={value => dayjs(value).format('MMM DD')}
-          />
-          <YAxis fontSize="12px" tickLine={false} axisLine={false} tick={{ fill: theme.subText, fontWeight: 400 }} />
-          <Area
-            type="monotone"
-            dataKey="volume"
+          <Line
+            type="linear"
+            dataKey="buyVolume"
             stroke={theme.primary}
-            fill="url(#colorUv)"
+            strokeWidth={3}
+            dot={false}
             animationBegin={ANIMATION_DELAY}
             animationDuration={ANIMATION_DURATION}
           />
-        </AreaChart>
+          <Line
+            type="linear"
+            dataKey="sellVolume"
+            stroke={theme.red}
+            strokeWidth={3}
+            dot={false}
+            animationBegin={ANIMATION_DELAY}
+            animationDuration={ANIMATION_DURATION}
+          />
+        </ComposedChart>
       </ResponsiveContainer>
     </ChartWrapper>
   )
@@ -418,88 +492,117 @@ export const NetflowToWhaleWallets = () => {
       }),
     [data, showInflow, showOutflow, showNetflow, address],
   )
+  const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   return (
-    <ChartWrapper>
-      {account ? (
-        <>
-          <LegendWrapper>
-            <LegendButton
-              text="Inflow"
-              iconStyle={{ backgroundColor: rgba(theme.primary, 0.6) }}
-              enabled={showInflow}
-              onClick={() => setShowInflow(prev => !prev)}
-            />
-            <LegendButton
-              text="Outflow"
-              iconStyle={{ backgroundColor: rgba(theme.red, 0.6) }}
-              enabled={showOutflow}
-              onClick={() => setShowOutflow(prev => !prev)}
-            />
-            <LegendButton
-              text="Netflow"
-              iconStyle={{
-                height: '4px',
-                width: '16px',
-                borderRadius: '8px',
-                backgroundColor: rgba(theme.primary, 0.8),
-              }}
-              enabled={showNetflow}
-              onClick={() => setShowNetflow(prev => !prev)}
-            />
-            <TimeFrameLegend selected={timeframe} onSelect={setTimeframe} timeframes={['1D', '7D', '1M', '3M']} />
-          </LegendWrapper>
-          <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart
-              width={500}
-              height={300}
-              data={formattedData}
-              stackOffset="sign"
-              margin={{ top: 40, right: 30 }}
-            >
-              <XAxis
-                fontSize="12px"
-                dataKey="timestamp"
-                tickLine={false}
-                axisLine={false}
-                tick={{ fill: theme.subText, fontWeight: 400 }}
-                tickFormatter={value => dayjs(value).format('MMM DD')}
-              />
-              <YAxis
-                fontSize="12px"
-                tickLine={false}
-                axisLine={false}
-                tick={{ fill: theme.subText, fontWeight: 400 }}
-              />
-              <Tooltip
-                cursor={{ fill: 'transparent' }}
-                wrapperStyle={{ outline: 'none' }}
-                position={{ y: 120 }}
-                animationDuration={100}
-                content={TooltipCustom}
-              />
-              <Bar
-                dataKey="inflow"
-                stackId="a"
-                fill={rgba(theme.primary, 0.6)}
-                animationBegin={ANIMATION_DELAY}
-                animationDuration={ANIMATION_DURATION}
-              />
-              <Bar
-                dataKey="outflow"
-                stackId="a"
-                fill={rgba(theme.red, 0.6)}
-                animationBegin={ANIMATION_DELAY}
-                animationDuration={ANIMATION_DURATION}
-              />
-              <Line type="linear" dataKey="netflow" stroke={theme.primary} strokeWidth={3} dot={false} />
-            </ComposedChart>
-          </ResponsiveContainer>
-        </>
-      ) : (
-        <></>
+    <>
+      <ChartWrapper>
+        {account ? (
+          <>
+            <LegendWrapper>
+              {above768 && (
+                <>
+                  <LegendButton
+                    text="Inflow"
+                    iconStyle={{ backgroundColor: rgba(theme.primary, 0.6) }}
+                    enabled={showInflow}
+                    onClick={() => setShowInflow(prev => !prev)}
+                  />
+                  <LegendButton
+                    text="Outflow"
+                    iconStyle={{ backgroundColor: rgba(theme.red, 0.6) }}
+                    enabled={showOutflow}
+                    onClick={() => setShowOutflow(prev => !prev)}
+                  />
+                  <LegendButton
+                    text="Netflow"
+                    iconStyle={{
+                      height: '4px',
+                      width: '16px',
+                      borderRadius: '8px',
+                      backgroundColor: rgba(theme.primary, 0.8),
+                    }}
+                    enabled={showNetflow}
+                    onClick={() => setShowNetflow(prev => !prev)}
+                  />
+                </>
+              )}
+              <TimeFrameLegend selected={timeframe} onSelect={setTimeframe} timeframes={['1D', '7D', '1M', '3M']} />
+            </LegendWrapper>
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart width={500} height={300} data={formattedData} stackOffset="sign" margin={{ top: 50 }}>
+                <XAxis
+                  fontSize="12px"
+                  dataKey="timestamp"
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fill: theme.subText, fontWeight: 400 }}
+                  tickFormatter={value => dayjs(value).format('MMM DD')}
+                />
+                <YAxis
+                  fontSize="12px"
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fill: theme.subText, fontWeight: 400 }}
+                  width={40}
+                />
+                <Tooltip
+                  cursor={{ fill: 'transparent' }}
+                  wrapperStyle={{ outline: 'none' }}
+                  position={{ y: 120 }}
+                  animationDuration={100}
+                  content={TooltipCustom}
+                />
+                <Bar
+                  dataKey="inflow"
+                  stackId="a"
+                  fill={rgba(theme.primary, 0.6)}
+                  animationBegin={ANIMATION_DELAY}
+                  animationDuration={ANIMATION_DURATION}
+                />
+                <Bar
+                  dataKey="outflow"
+                  stackId="a"
+                  fill={rgba(theme.red, 0.6)}
+                  animationBegin={ANIMATION_DELAY}
+                  animationDuration={ANIMATION_DURATION}
+                />
+                <Line type="linear" dataKey="netflow" stroke={theme.primary} strokeWidth={3} dot={false} />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </>
+        ) : (
+          <></>
+        )}
+      </ChartWrapper>
+      {!above768 && (
+        <Row justify="center" gap="16px">
+          <LegendButton
+            text="Inflow"
+            iconStyle={{ backgroundColor: rgba(theme.primary, 0.6) }}
+            enabled={showInflow}
+            onClick={() => setShowInflow(prev => !prev)}
+          />
+          <LegendButton
+            text="Outflow"
+            iconStyle={{ backgroundColor: rgba(theme.red, 0.6) }}
+            enabled={showOutflow}
+            onClick={() => setShowOutflow(prev => !prev)}
+          />
+          <LegendButton
+            text="Netflow"
+            iconStyle={{
+              height: '4px',
+              width: '16px',
+              borderRadius: '8px',
+              backgroundColor: rgba(theme.primary, 0.8),
+            }}
+            enabled={showNetflow}
+            onClick={() => setShowNetflow(prev => !prev)}
+          />
+        </Row>
       )}
-    </ChartWrapper>
+    </>
   )
 }
 
@@ -522,65 +625,116 @@ export const NetflowToCentralizedExchanges = () => {
     [data, showInflow, showOutflow, showNetflow],
   )
   const theme = useTheme()
+  const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   return (
-    <ChartWrapper>
-      <LegendWrapper>
-        <LegendButton
-          text="Inflow"
-          iconStyle={{ backgroundColor: rgba(theme.primary, 0.6) }}
-          enabled={showInflow}
-          onClick={() => setShowInflow(prev => !prev)}
-        />
-        <LegendButton
-          text="Outflow"
-          iconStyle={{ backgroundColor: rgba(theme.red, 0.6) }}
-          enabled={showOutflow}
-          onClick={() => setShowOutflow(prev => !prev)}
-        />
-        <LegendButton
-          text="Netflow"
-          iconStyle={{ height: '4px', width: '16px', borderRadius: '8px', backgroundColor: rgba(theme.primary, 0.8) }}
-          enabled={showNetflow}
-          onClick={() => setShowNetflow(prev => !prev)}
-        />
-        <TimeFrameLegend selected={timeframe} onSelect={setTimeframe} timeframes={['1D', '3D', '7D', '1M', '3M']} />
-      </LegendWrapper>
-      <ResponsiveContainer width="100%" height="100%">
-        <ComposedChart width={500} height={300} data={formattedData} stackOffset="sign" margin={{ top: 40, right: 30 }}>
-          <XAxis
-            fontSize="12px"
-            dataKey="timestamp"
-            tickLine={false}
-            axisLine={false}
-            tick={{ fill: theme.subText, fontWeight: 400 }}
-            tickFormatter={value => dayjs(value).format('MMM DD')}
+    <>
+      <ChartWrapper>
+        <LegendWrapper>
+          {above768 && (
+            <>
+              <LegendButton
+                text="Inflow"
+                iconStyle={{ backgroundColor: rgba(theme.primary, 0.6) }}
+                enabled={showInflow}
+                onClick={() => setShowInflow(prev => !prev)}
+              />
+              <LegendButton
+                text="Outflow"
+                iconStyle={{ backgroundColor: rgba(theme.red, 0.6) }}
+                enabled={showOutflow}
+                onClick={() => setShowOutflow(prev => !prev)}
+              />
+              <LegendButton
+                text="Netflow"
+                iconStyle={{
+                  height: '4px',
+                  width: '16px',
+                  borderRadius: '8px',
+                  backgroundColor: rgba(theme.primary, 0.8),
+                }}
+                enabled={showNetflow}
+                onClick={() => setShowNetflow(prev => !prev)}
+              />
+            </>
+          )}
+          <TimeFrameLegend selected={timeframe} onSelect={setTimeframe} timeframes={['1D', '3D', '7D', '1M', '3M']} />
+        </LegendWrapper>
+        <ResponsiveContainer width="100%" height="100%">
+          <ComposedChart
+            width={500}
+            height={300}
+            data={formattedData}
+            stackOffset="sign"
+            margin={{ top: 40, right: 30 }}
+          >
+            <XAxis
+              fontSize="12px"
+              dataKey="timestamp"
+              tickLine={false}
+              axisLine={false}
+              tick={{ fill: theme.subText, fontWeight: 400 }}
+              tickFormatter={value => dayjs(value).format('MMM DD')}
+            />
+            <YAxis
+              fontSize="12px"
+              tickLine={false}
+              axisLine={false}
+              tick={{ fill: theme.subText, fontWeight: 400 }}
+              width={40}
+            />
+            <Tooltip
+              cursor={{ fill: 'transparent' }}
+              wrapperStyle={{ outline: 'none' }}
+              position={{ y: 120 }}
+              animationDuration={100}
+              content={TooltipCustom}
+            />
+            <Bar
+              dataKey="inflow"
+              stackId="a"
+              fill={rgba(theme.primary, 0.6)}
+              animationBegin={ANIMATION_DELAY}
+              animationDuration={ANIMATION_DURATION}
+            />
+            <Bar
+              dataKey="outflow"
+              stackId="a"
+              fill={rgba(theme.red, 0.6)}
+              animationBegin={ANIMATION_DELAY}
+              animationDuration={ANIMATION_DURATION}
+            />
+            <Line type="linear" dataKey="netflow" stroke={theme.primary} strokeWidth={3} dot={false} />
+          </ComposedChart>
+        </ResponsiveContainer>
+      </ChartWrapper>
+      {!above768 && (
+        <Row justify="center" gap="16px">
+          <LegendButton
+            text="Inflow"
+            iconStyle={{ backgroundColor: rgba(theme.primary, 0.6) }}
+            enabled={showInflow}
+            onClick={() => setShowInflow(prev => !prev)}
           />
-          <YAxis fontSize="12px" tickLine={false} axisLine={false} tick={{ fill: theme.subText, fontWeight: 400 }} />
-          <Tooltip
-            cursor={{ fill: 'transparent' }}
-            wrapperStyle={{ outline: 'none' }}
-            position={{ y: 120 }}
-            animationDuration={100}
-            content={TooltipCustom}
+          <LegendButton
+            text="Outflow"
+            iconStyle={{ backgroundColor: rgba(theme.red, 0.6) }}
+            enabled={showOutflow}
+            onClick={() => setShowOutflow(prev => !prev)}
           />
-          <Bar
-            dataKey="inflow"
-            stackId="a"
-            fill={rgba(theme.primary, 0.6)}
-            animationBegin={ANIMATION_DELAY}
-            animationDuration={ANIMATION_DURATION}
+          <LegendButton
+            text="Netflow"
+            iconStyle={{
+              height: '4px',
+              width: '16px',
+              borderRadius: '8px',
+              backgroundColor: rgba(theme.primary, 0.8),
+            }}
+            enabled={showNetflow}
+            onClick={() => setShowNetflow(prev => !prev)}
           />
-          <Bar
-            dataKey="outflow"
-            stackId="a"
-            fill={rgba(theme.red, 0.6)}
-            animationBegin={ANIMATION_DELAY}
-            animationDuration={ANIMATION_DURATION}
-          />
-          <Line type="linear" dataKey="netflow" stroke={theme.primary} strokeWidth={3} dot={false} />
-        </ComposedChart>
-      </ResponsiveContainer>
-    </ChartWrapper>
+        </Row>
+      )}
+    </>
   )
 }
 
@@ -624,7 +778,7 @@ export const NumberofHolders = () => {
           data={filteredData}
           margin={{
             top: 40,
-            right: 40,
+            right: 0,
             left: 0,
             bottom: 0,
           }}
@@ -643,7 +797,13 @@ export const NumberofHolders = () => {
             tick={{ fill: theme.subText, fontWeight: 400 }}
             tickFormatter={value => dayjs(value).format('MMM DD')}
           />
-          <YAxis fontSize="12px" tickLine={false} axisLine={false} tick={{ fill: theme.subText, fontWeight: 400 }} />
+          <YAxis
+            fontSize="12px"
+            tickLine={false}
+            axisLine={false}
+            tick={{ fill: theme.subText, fontWeight: 400 }}
+            width={40}
+          />
           <Area
             type="monotone"
             dataKey="count"

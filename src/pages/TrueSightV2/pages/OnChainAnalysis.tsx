@@ -1,5 +1,5 @@
 import { t } from '@lingui/macro'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import styled from 'styled-components'
 
 import blurImage1 from 'assets/images/truesight-v2/blur_background_1.png'
@@ -19,6 +19,7 @@ import {
   TradingVolumeChart,
 } from '../components/chart'
 import { Top10HoldersTable } from '../components/table'
+import { ChartTab } from '../types'
 
 const Wrapper = styled.div`
   padding: 20px 0;
@@ -26,6 +27,9 @@ const Wrapper = styled.div`
 `
 
 export default function OnChainAnalysis({ onShareClick }: { onShareClick: (url: string) => void }) {
+  const [netflowToWhaleWallets, setNetflowToWhaleWallets] = useState<ChartTab>(ChartTab.First)
+  const [netflowToCEX, setNetflowToCEX] = useState<ChartTab>(ChartTab.First)
+  const [numberOfTransfers, setNumberOfTransfers] = useState<ChartTab>(ChartTab.First)
   const tokenAnalysisSettings = useTokenAnalysisSettings()
   useEffect(() => {
     if (!window.location.hash) return
@@ -68,13 +72,16 @@ export default function OnChainAnalysis({ onShareClick }: { onShareClick: (url: 
       <SectionWrapper
         show={tokenAnalysisSettings?.netflowToWhaleWallets}
         id={'netflowwhalewallets'}
-        title={t`Netflow to Whale Wallets`}
+        title={t`to Whale Wallets`}
         description={t`Netflow (Inflow - Outflow) of token to whale wallets.Positive netflow
         generally means that whales are buying. Negative netflow generally means that
         whales are selling.`}
         shareButton
         fullscreenButton
         onShareClick={handleShareClick}
+        tabs={[t`Netflow`, t`Inflow`, t`Outflow`]}
+        activeTab={netflowToWhaleWallets}
+        onTabClick={setNetflowToWhaleWallets}
       >
         <RequireConnectWalletWrapper bgUrl={blurImage1}>
           <NetflowToWhaleWallets />
@@ -83,11 +90,14 @@ export default function OnChainAnalysis({ onShareClick }: { onShareClick: (url: 
       <SectionWrapper
         show={tokenAnalysisSettings?.netflowToCEX}
         id={'netflowtocex'}
-        title={t`Netflow to Centralized Exchanges`}
+        title={t`to Centralized Exchanges`}
         description={t`Netflow (Inflow - Outflow) of token to centralized exchanges. Positive netflow means that more traders are depositing tokens than withdrawing, most likely for selling. Negative netflow means that more traders are withdrawing tokens than depositing, most likely for holding or staking.`}
         shareButton
         fullscreenButton
         onShareClick={handleShareClick}
+        tabs={[t`Netflow`, t`Inflow`, t`Outflow`]}
+        activeTab={netflowToCEX}
+        onTabClick={setNetflowToCEX}
       >
         <RequireConnectWalletWrapper bgUrl={blurImage1}>
           <NetflowToCentralizedExchanges />
@@ -95,12 +105,15 @@ export default function OnChainAnalysis({ onShareClick }: { onShareClick: (url: 
       </SectionWrapper>
       <SectionWrapper
         show={tokenAnalysisSettings?.volumeOfTransfers}
-        title={t`Number & Volume of Transfers`}
+        title={'of Transfers'}
         description={t`Indicates on-chain transfer activity between wallets. High transfer activity indicates that more traders are transferring the token between wallets. Token with high transfer activity and high transfer volume may indicate that traders are interested in it.`}
         id="numberoftransfers"
         shareButton
         fullscreenButton
         onShareClick={handleShareClick}
+        tabs={[t`Number`, t`Volume`]}
+        activeTab={numberOfTransfers}
+        onTabClick={setNumberOfTransfers}
       >
         <NumberofTransfers />
       </SectionWrapper>

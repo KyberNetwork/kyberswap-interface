@@ -30,7 +30,8 @@ export interface INumberOfTrades {
   timestamp: number
 }
 export interface ITradeVolume {
-  volume: number
+  numberOfTrade: number
+  tradeVolume: number
   timestamp: number
 }
 export interface INetflowToWhaleWallets {
@@ -76,4 +77,10 @@ export enum TokenListTab {
   TopInflow = 'Top CEX Inflow',
   TopOutflow = 'Top CEX Outflow',
   TopTraded = 'Top Traded',
+}
+
+export enum ChartTab {
+  First = 0,
+  Second = 1,
+  Third = 2,
 }

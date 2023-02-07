@@ -12,7 +12,7 @@ import {
   ITokenOverview,
   ITradeVolume,
 } from '../types'
-import { FUNDING_RATE, HOLDER_LIST, NETFLOW_TO_WHALE_WALLETS, TOKEN_DETAIL, TRADE_VOLUME } from './sampleData'
+import { FUNDING_RATE, HOLDER_LIST, NETFLOW_TO_WHALE_WALLETS, TOKEN_DETAIL } from './sampleData'
 
 export function useTokenDetail(tokenAddress?: string) {
   const { data, isLoading } = useSWR<ITokenOverview>(
@@ -41,17 +41,41 @@ export function useNumberOfTrades(tokenAddress?: string) {
 }
 
 export function useTradingVolume(tokenAddress?: string) {
-  const { data, isLoading } = useSWR<ITradeVolume[]>(
+  const { data, isLoading } = useSWR<
+    {
+      buy: number
+      sell: number
+      buyVolume: number
+      sellVolume: number
+      timestamp: number
+    }[]
+  >(
     tokenAddress && `${TRUESIGHT_V2_API}/volume/ethereum/${tokenAddress}?from=1667362049&to=1675138049`,
     (url: string) =>
       fetch(url)
         .then(res => res.json())
         .then(res => {
-          return res.data
+          const parsedData: {
+            buy: number
+            sell: number
+            buyVolume: number
+            sellVolume: number
+            timestamp: number
+          }[] = []
+          res.data.buy.forEach((item: ITradeVolume, index: number) => {
+            parsedData.push({
+              buy: item.numberOfTrade || 0,
+              buyVolume: item.tradeVolume || 0,
+              timestamp: item.timestamp || 0,
+              sell: res.data.sell[index].numberOfTrade || 0,
+              sellVolume: res.data.sell[index].tradeVolume || 0,
+            })
+          })
+          return parsedData
         }),
     { refreshInterval: 0 },
   )
-  return { data: TRADE_VOLUME || data, isLoading }
+  return { data, isLoading }
 }
 
 export function useNetflowToWhaleWallets(tokenAddress?: string) {

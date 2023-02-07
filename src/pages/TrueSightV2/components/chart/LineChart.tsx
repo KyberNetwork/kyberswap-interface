@@ -49,8 +49,8 @@ export default function LineChart() {
         height={400}
         data={data}
         margin={{
-          top: 10,
-          right: 30,
+          top: 40,
+          right: 0,
           left: 0,
           bottom: 0,
         }}

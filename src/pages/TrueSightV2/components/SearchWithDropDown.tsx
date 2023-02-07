@@ -165,7 +165,7 @@ const HiddenWrapper = styled.div<{ expanded?: boolean; width?: number; left?: nu
   background-color: ${({ theme }) => theme.tableHeader};
   left: ${({ left }) => left || 0}px;
   top: ${({ top }) => top || 0}px;
-  z-index: 10;
+  z-index: 20;
   border-radius: 18px;
   visibility: hidden;
   transition: all 0.4s ease;

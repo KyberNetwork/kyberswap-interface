@@ -20,7 +20,6 @@ import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import { ReactComponent as BlogIcon } from 'assets/svg/blog.svg'
-import { ReactComponent as DiscoverIconSvg } from 'assets/svg/discover_icon.svg'
 import { ReactComponent as LightIcon } from 'assets/svg/light.svg'
 import { ReactComponent as RoadMapIcon } from 'assets/svg/roadmap.svg'
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
@@ -28,6 +27,7 @@ import { AutoColumn } from 'components/Column'
 import SlideToUnlock from 'components/Header/SlideToUnlock'
 import ArrowRight from 'components/Icons/ArrowRight'
 import Faucet from 'components/Icons/Faucet'
+import Icon from 'components/Icons/Icon'
 import MailIcon from 'components/Icons/MailIcon'
 import LanguageSelector from 'components/LanguageSelector'
 import Loader from 'components/Loader'
@@ -295,7 +295,7 @@ export default function Menu() {
 
             <DiscoverWrapper>
               <NavLink to={'/discover?tab=trending_soon'} onClick={toggle}>
-                <DiscoverIconSvg />
+                <Icon id="truesight-v2" size={16} />
                 <SlideToUnlock>
                   <Trans>Discover</Trans>
                 </SlideToUnlock>

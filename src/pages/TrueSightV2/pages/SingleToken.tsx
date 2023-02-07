@@ -7,7 +7,7 @@ import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
-import { ButtonGray, ButtonLight, ButtonPrimary } from 'components/Button'
+import { ButtonGray, ButtonPrimary } from 'components/Button'
 import { Ethereum } from 'components/Icons'
 import Icon from 'components/Icons/Icon'
 import { DotsLoader } from 'components/Loader/DotsLoader'
@@ -91,6 +91,14 @@ const Tag = styled.div<{ active?: boolean }>`
   }
 `
 
+const TagWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+  overflow-x: scroll;
+`
+
 const CardWrapper = styled.div<{ gap?: string }>`
   border-radius: 20px;
   padding: 20px;
@@ -115,6 +123,26 @@ const TabButton = styled.div<{ active?: boolean }>`
   :hover {
     filter: brightness(0.8);
   }
+
+  ${({ theme, active }) => theme.mediaWidth.upToSmall`
+    font-size:14px;
+    line-height:20px;
+    border-radius: 20px;
+    padding: 8px 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    white-space: nowrap;
+    ${
+      active
+        ? css`
+            background-color: ${theme.primary + '30'};
+          `
+        : css`
+            border: 1px solid ${theme.border};
+          `
+    }
+  `}
 `
 
 const formatMoneyWithSign = (amount: number): string => {
@@ -232,12 +260,12 @@ export default function SingleToken() {
           <RowFit gap="8px">
             <SettingButtons />
           </RowFit>
-          <ButtonLight height="36px" width="120px" gap="4px">
-            <RowFit>
+          <ButtonPrimary height="36px" width="120px" gap="4px">
+            <RowFit gap="4px">
               <Icon id="swap" size={16} />
               Swap {data?.symbol}
             </RowFit>
-          </ButtonLight>
+          </ButtonPrimary>
         </RowBetween>
       </>
     )
@@ -248,12 +276,12 @@ export default function SingleToken() {
       <Text fontSize={12} color={theme.subText} marginBottom="12px">
         {isLoading ? <DotsLoader /> : data?.desc}
       </Text>
-      <Row gap="8px" marginBottom="24px">
+      <TagWrapper>
         {data?.tags.map(tag => {
           return <Tag key="tag">{tag}</Tag>
         })}
         <Tag active>View All</Tag>
-      </Row>
+      </TagWrapper>
       <Row align="stretch" gap="24px" marginBottom="38px" flexDirection={above768 ? 'row' : 'column'}>
         <CardWrapper style={{ justifyContent: 'space-between' }}>
           <Text color={theme.text} fontSize="14px" lineHeight="20px" marginBottom="24px">
@@ -383,10 +411,10 @@ export default function SingleToken() {
           </Text>
         </CardWrapper>
       </Row>
-      <Row gap="28px">
+      <Row gap={above768 ? '28px' : '8px'}>
         {Object.values(DiscoverTokenTab).map((tab: DiscoverTokenTab) => (
           <TabButton key={tab} active={tab === currentTab} onClick={() => setCurrentTab(tab)}>
-            {tab}
+            {above768 ? tab : tab.split(' Analysis')[0]}
           </TabButton>
         ))}
       </Row>
