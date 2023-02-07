@@ -69,7 +69,7 @@ const useGetRoute = (args: Args) => {
       tokenOut: tokenOutAddress,
       amountIn,
       saveGas: String(isSaveGas),
-      dexes,
+      includedSources: dexes,
       gasInclude: 'true', // default
       gasPrice: '', // default
 
