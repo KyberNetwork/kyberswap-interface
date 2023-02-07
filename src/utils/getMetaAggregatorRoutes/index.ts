@@ -12,7 +12,8 @@ export type Params = {
   tokenOut: string
   amountIn: string
   saveGas: string
-  dexes: string
+  includedSources: string
+  excludedSources?: string
   gasInclude: string
   gasPrice: string
   feeAmount: string
