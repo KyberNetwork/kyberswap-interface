@@ -31,7 +31,7 @@ const tableTemplateColumns = css`
   `};
 `
 const BodyWrapper = styled.div`
-  max-height: 500px;
+  max-height: calc(85vh - 300px);
   overflow-y: scroll;
 `
 
