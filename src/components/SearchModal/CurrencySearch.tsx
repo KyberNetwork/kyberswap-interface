@@ -15,7 +15,13 @@ import { KS_SETTING_API } from 'constants/env'
 import { Z_INDEXS } from 'constants/styles'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import { fetchListTokenByAddresses, fetchTokenByAddress, formatAndCacheToken, useAllTokens } from 'hooks/Tokens'
+import {
+  fetchListTokenByAddresses,
+  fetchTokenByAddress,
+  formatAndCacheToken,
+  useAllTokens,
+  useFetchTokenFromRPC,
+} from 'hooks/Tokens'
 import useDebounce from 'hooks/useDebounce'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import usePrevious from 'hooks/usePrevious'
@@ -163,6 +169,8 @@ export function CurrencySearch({
   const tokenImportsFiltered = useMemo(() => {
     return (debouncedQuery ? filterTokens(chainId, tokenImports, debouncedQuery) : tokenImports).sort(tokenComparator)
   }, [debouncedQuery, chainId, tokenImports, tokenComparator])
+
+  const fetchTokenFromRPC = useFetchTokenFromRPC()
 
   // input eth => output filter weth, input weth => output filter eth
   const filterWrapFunc = useCallback(
@@ -325,7 +333,35 @@ export function CurrencySearch({
       const nextPage = (page ?? pageCount) + 1
       let tokens: WrappedTokenInfo[] = []
       if (debouncedQuery) {
-        tokens = await fetchTokens(debouncedQuery, nextPage, chainId)
+        const promiseResult = await Promise.allSettled([
+          fetchTokens(debouncedQuery, nextPage, chainId),
+          fetchTokenFromRPC(debouncedQuery),
+        ])
+
+        const fetchTokensResp = promiseResult[0]
+        const fetchTokenFromRPCResp = promiseResult[1]
+
+        if (fetchTokensResp.status === 'fulfilled') {
+          tokens = fetchTokensResp.value
+        }
+
+        if (
+          fetchTokensResp.status === 'fulfilled' &&
+          fetchTokenFromRPCResp.status === 'fulfilled' &&
+          fetchTokensResp.value.length === 0 &&
+          fetchTokenFromRPCResp.value
+        ) {
+          const rawToken = fetchTokenFromRPCResp.value
+          tokens.push(
+            new WrappedTokenInfo({
+              chainId: rawToken.chainId,
+              address: rawToken.address,
+              name: rawToken.name || '',
+              decimals: rawToken.decimals,
+              symbol: rawToken.symbol || '',
+            }),
+          )
+        }
       } else {
         tokens = Object.values(defaultTokens) as WrappedTokenInfo[]
       }
@@ -337,7 +373,7 @@ export function CurrencySearch({
         fetchingToken.current = null
       }
     },
-    [chainId, debouncedQuery, defaultTokens, pageCount],
+    [chainId, debouncedQuery, defaultTokens, fetchTokenFromRPC, pageCount],
   )
 
   const [hasMoreToken, setHasMoreToken] = useState(false)
