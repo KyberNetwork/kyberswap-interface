@@ -14,16 +14,16 @@ import TransactionConfirmationModal, { TransactionErrorContent } from 'component
 import CurrencyListHasBalance from 'components/WalletPopup/SendToken/CurrencyListSelect'
 import WarningBrave from 'components/WalletPopup/SendToken/WarningBrave'
 import useSendToken from 'components/WalletPopup/SendToken/useSendToken'
-import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useENS from 'hooks/useENS'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { tryParseAmount } from 'state/swap/hooks'
+import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { useCheckAddressSolana } from 'state/wallet/solanaHooks'
 import { TRANSACTION_STATE_DEFAULT, TransactionFlowState } from 'types'
-import { formatNumberWithPrecisionRange } from 'utils'
+import { formattedNum } from 'utils'
 import { errorFriendly } from 'utils/dmm'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 
@@ -69,7 +69,7 @@ export default function SendToken({
   const [currencyIn, setCurrency] = useState<Currency>()
   const [inputAmount, setInputAmount] = useState<string>('')
   const [showListToken, setShowListToken] = useState(false)
-  const { account, chainId, isEVM, isSolana } = useActiveWeb3React()
+  const { account, isEVM, isSolana } = useActiveWeb3React()
   const [flowState, setFlowState] = useState<TransactionFlowState>(TRANSACTION_STATE_DEFAULT)
 
   const theme = useTheme()
@@ -176,6 +176,11 @@ export default function SendToken({
     )
   }
 
+  const addressParam = useMemo(() => (currencyIn ? [currencyIn.wrapped.address] : []), [currencyIn])
+  const tokensPrices = useTokenPrices(addressParam)
+  const usdPrice = currencyIn ? tokensPrices[currencyIn.wrapped.address] : 0
+  const estimateUsd = usdPrice * parseFloat(inputAmount)
+
   return (
     <Wrapper>
       <Flex flexDirection={'column'} style={{ gap: 18 }}>
@@ -214,6 +219,7 @@ export default function SendToken({
             onHalf={handleHalfInput}
             onClickSelect={() => setShowListToken(!showListToken)}
             loadingText={loadingTokens ? t`Loading token...` : undefined}
+            estimatedUsd={estimateUsd ? formattedNum(estimateUsd.toString(), true).toString() : undefined}
           />
 
           {showListToken && (
@@ -237,9 +243,7 @@ export default function SendToken({
             <Trans>Gas Fee</Trans>
           </Label>
           <Label>
-            {estimateGas
-              ? `~ ${formatNumberWithPrecisionRange(estimateGas, 0, 10)} ${NativeCurrencies[chainId].symbol}`
-              : '-'}
+            {estimateGas && usdPrice ? `~ ${formattedNum((estimateGas * usdPrice).toString(), true)} ` : '-'}
           </Label>
         </RowBetween>
       </Flex>
