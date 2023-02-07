@@ -32,6 +32,7 @@ import { tryParseAmount } from 'state/swap/hooks'
 import { usePairFactor } from 'state/topTokens/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { getTickToPrice } from 'utils/getTickToPrice'
+import { shortString } from 'utils/string'
 
 import {
   addPosition,
@@ -1036,9 +1037,10 @@ export function useProAmmDerivedAllMintInfo(
     if (currencyAAmountSum && currencyBalanceA?.lessThan(currencyAAmountSum)) {
       return (
         <Trans>
-          The total token amount ({currencyAAmountSum.toSignificant(4)} {currencyAAmountSum.currency.symbol}) you are
-          trying to deposit across the {positions.length} positions is more than your available token balance (
-          {currencyBalanceA.toSignificant(4)} {currencyBalanceA.currency.symbol})
+          The total token amount ({shortString(currencyAAmountSum.toSignificant(4), 10)}{' '}
+          {currencyAAmountSum.currency.symbol}) you are trying to deposit across the {positions.length} positions is
+          more than your available token balance ({currencyBalanceA.toSignificant(4)} {currencyBalanceA.currency.symbol}
+          )
         </Trans>
       )
     }
@@ -1047,9 +1049,10 @@ export function useProAmmDerivedAllMintInfo(
     if (currencyBAmountSum && currencyBalanceB?.lessThan(currencyBAmountSum)) {
       return (
         <Trans>
-          The total token amount ({currencyBAmountSum.toSignificant(4)} {currencyBAmountSum.currency.symbol}) you are
-          trying to deposit across the {positions.length} positions is more than your available token balance (
-          {currencyBalanceB.toSignificant(4)} {currencyBalanceB.currency.symbol})
+          The total token amount ({shortString(currencyBAmountSum.toSignificant(4), 10)}{' '}
+          {currencyBAmountSum.currency.symbol}) you are trying to deposit across the {positions.length} positions is
+          more than your available token balance ({currencyBalanceB.toSignificant(4)} {currencyBalanceB.currency.symbol}
+          )
         </Trans>
       )
     }

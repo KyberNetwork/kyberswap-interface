@@ -70,8 +70,14 @@ const PriceVisualize = ({
   const [priceLower, priceUpper] = reverted ? [priceUpperProp, priceLowerProp] : [priceLowerProp, priceUpperProp]
   const outOfRange = price.lessThan(priceLower) || price.greaterThan(priceUpper)
 
-  const formattedLowerPrice = formatTickPrice(priceLower, ticksAtLimit, Bound.LOWER)
-  const formattedUpperPrice = formatTickPrice(priceUpper, ticksAtLimit, Bound.UPPER)
+  const ticksAtLimitFormatted = reverted
+    ? {
+        [Bound.LOWER]: ticksAtLimit?.[Bound.UPPER],
+        [Bound.UPPER]: ticksAtLimit?.[Bound.LOWER],
+      }
+    : ticksAtLimit
+  const formattedLowerPrice = formatTickPrice(priceLower, ticksAtLimitFormatted, Bound.LOWER)
+  const formattedUpperPrice = formatTickPrice(priceUpper, ticksAtLimitFormatted, Bound.UPPER)
 
   const deltaRelative =
     Math.log(parseFloat(price.asFraction.divide(priceLower.asFraction).toSignificant(18))) /
