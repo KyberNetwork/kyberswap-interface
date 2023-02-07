@@ -30,6 +30,10 @@ const tableTemplateColumns = css`
     grid-template-columns: 20px 1fr 3fr;
   `};
 `
+const BodyWrapper = styled.div`
+  max-height: 500px;
+  overflow-y: scroll;
+`
 
 const TableHeader = styled.div`
   ${tableTemplateColumns}
@@ -261,7 +265,7 @@ const ChartPositions = ({
   return (
     <TableWrapper>
       {header}
-      {body}
+      <BodyWrapper>{body}</BodyWrapper>
     </TableWrapper>
   )
 }
