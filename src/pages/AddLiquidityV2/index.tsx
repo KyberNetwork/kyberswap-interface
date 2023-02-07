@@ -176,12 +176,8 @@ export default function AddLiquidity() {
   const { [Bound.LOWER]: priceLower, [Bound.UPPER]: priceUpper } = pricesAtTicks
 
   const poolAddress = useProAmmPoolInfo(baseCurrency, currencyB, feeAmount)
-  const previousTicks =
-    // : number[] = []
-    useProAmmPreviousTicks(pool, position)
-  const mutiplePreviousTicks =
-    // : number[] = []
-    useProAmmMultiplePreviousTicks(pool, positions)
+  const previousTicks: number[] | undefined = useProAmmPreviousTicks(pool, position)
+  const mutiplePreviousTicks: number[][] | undefined = useProAmmMultiplePreviousTicks(pool, positions)
   const {
     onFieldAInput,
     onFieldBInput,

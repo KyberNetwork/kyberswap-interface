@@ -11,7 +11,7 @@ import { useProAmmTickReader } from './useContract'
 import useProAmmPoolInfo from './useProAmmPoolInfo'
 
 // use this to prevent filter tick 0
-const isNullOrUndefined = <T>(value: T) => value === null || value === undefined
+const isNullOrUndefinedOrEmptyString = <T>(value: T) => value === null || value === undefined || value === ''
 
 export default function useProAmmPreviousTicks(
   pool: Pool | null | undefined,
@@ -26,7 +26,7 @@ export default function useProAmmPreviousTicks(
     [
       [poolAddress, position?.tickLower],
       [poolAddress, position?.tickUpper],
-    ].filter(item => !!pool && !isNullOrUndefined(item[0]) && !isNullOrUndefined(item[1])),
+    ].filter(item => !!pool && !isNullOrUndefinedOrEmptyString(item[0]) && !isNullOrUndefinedOrEmptyString(item[1])),
   )
   const loading = useMemo(() => results.some(({ loading }) => loading), [results])
   const error = useMemo(() => results.some(({ error }) => error), [results])
@@ -61,7 +61,9 @@ export function useProAmmMultiplePreviousTicks(
         [
           [poolAddress, position?.tickLower],
           [poolAddress, position?.tickUpper],
-        ].filter(item => !!pool && !isNullOrUndefined(item[0]) && !isNullOrUndefined(item[1])),
+        ].filter(
+          item => !!pool && !isNullOrUndefinedOrEmptyString(item[0]) && !isNullOrUndefinedOrEmptyString(item[1]),
+        ),
       )
       .flat()
       .filter(i => i?.length),

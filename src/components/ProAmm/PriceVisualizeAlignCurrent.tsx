@@ -77,8 +77,9 @@ const PriceVisualize = ({
     Math.log(parseFloat(price.asFraction.divide(priceLower.asFraction).toSignificant(18))) /
     Math.log(parseFloat(priceUpper.asFraction.divide(price.asFraction).toSignificant(18)))
 
-  const is0 = ticksAtLimit?.[Bound.LOWER]
-  const isInfinity = ticksAtLimit?.[Bound.UPPER]
+  const [is0, isInfinity] = reverted
+    ? [ticksAtLimit?.[Bound.UPPER], ticksAtLimit?.[Bound.LOWER]]
+    : [ticksAtLimit?.[Bound.LOWER], ticksAtLimit?.[Bound.UPPER]]
 
   const {
     a,
