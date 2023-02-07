@@ -1,6 +1,7 @@
 import { Currency, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import { Clipboard } from 'react-feather'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
@@ -185,7 +186,7 @@ export default function SendToken({
 
   const formatRecipient = (val: string) => {
     try {
-      setDisplayRecipient(shortenAddress(chainId, val, isEVM ? 16 : 14))
+      setDisplayRecipient(shortenAddress(chainId, val, isSolana || isMobile ? 14 : 16))
     } catch {
       setDisplayRecipient(val)
     }
@@ -213,7 +214,7 @@ export default function SendToken({
 
         <div>
           <AddressInput
-            style={{ color: theme.subText }}
+            style={{ color: theme.subText, textOverflow: 'unset' }}
             error={!!recipientError}
             onChange={e => onChangeRecipient(e.target.value)}
             onFocus={onFocus}
