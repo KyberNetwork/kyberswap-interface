@@ -23,7 +23,7 @@ import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { useCheckAddressSolana } from 'state/wallet/solanaHooks'
 import { TRANSACTION_STATE_DEFAULT, TransactionFlowState } from 'types'
-import { formattedNum } from 'utils'
+import { formattedNum, shortenAddress } from 'utils'
 import { errorFriendly } from 'utils/dmm'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 
@@ -66,10 +66,12 @@ export default function SendToken({
   currencyBalances: { [address: string]: TokenAmount | undefined }
 }) {
   const [recipient, setRecipient] = useState('')
+  const [displayRecipient, setDisplayRecipient] = useState('')
+
   const [currencyIn, setCurrency] = useState<Currency>()
   const [inputAmount, setInputAmount] = useState<string>('')
   const [showListToken, setShowListToken] = useState(false)
-  const { account, isEVM, isSolana } = useActiveWeb3React()
+  const { account, isEVM, isSolana, chainId } = useActiveWeb3React()
   const [flowState, setFlowState] = useState<TransactionFlowState>(TRANSACTION_STATE_DEFAULT)
 
   const theme = useTheme()
@@ -132,7 +134,7 @@ export default function SendToken({
       await sendToken()
       hideModalConfirm()
       setInputAmount('')
-      setRecipient('')
+      onChangeRecipient('')
     } catch (error) {
       console.error(error)
       setFlowState(state => ({
@@ -155,7 +157,7 @@ export default function SendToken({
   const onPaste = async () => {
     try {
       const text = await navigator.clipboard.readText()
-      setRecipient(text)
+      onChangeRecipient(text)
     } catch (error) {}
   }
 
@@ -181,6 +183,27 @@ export default function SendToken({
   const usdPrice = currencyIn ? tokensPrices[currencyIn.wrapped.address] : 0
   const estimateUsd = usdPrice * parseFloat(inputAmount)
 
+  const formatRecipient = (val: string) => {
+    try {
+      setDisplayRecipient(shortenAddress(chainId, val, isEVM ? 16 : 14))
+    } catch {
+      setDisplayRecipient(val)
+    }
+  }
+
+  const onChangeRecipient = (val: string) => {
+    setRecipient(val)
+    formatRecipient(val)
+  }
+
+  const onFocus = () => {
+    setDisplayRecipient(recipient)
+  }
+
+  const onBlur = () => {
+    formatRecipient(recipient)
+  }
+
   return (
     <Wrapper>
       <Flex flexDirection={'column'} style={{ gap: 18 }}>
@@ -192,8 +215,10 @@ export default function SendToken({
           <AddressInput
             style={{ color: theme.subText }}
             error={!!recipientError}
-            onChange={e => setRecipient(e.target.value)}
-            value={recipient}
+            onChange={e => onChangeRecipient(e.target.value)}
+            onFocus={onFocus}
+            onBlur={onBlur}
+            value={displayRecipient}
             placeholder={isEVM ? '0x...' : 'Wallet address'}
             icon={
               <MouseoverTooltip text={t`Paste from clipboard`} width="150px">

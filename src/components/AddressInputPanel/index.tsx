@@ -72,17 +72,10 @@ const DropdownIcon = styled(DropdownSVG)<{ open: boolean }>`
   transform: rotate(${({ open }) => (open ? '-180deg' : 0)});
 `
 
-export const AddressInput = ({
-  onChange,
-  value,
-  error = false,
-  placeholder,
-  icon,
-  disabled = false,
-  style = {},
-  className,
-}: {
+type Props = {
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void
+  onFocus?: (e: ChangeEvent<HTMLInputElement>) => void
+  onBlur?: (e: ChangeEvent<HTMLInputElement>) => void
   error?: boolean
   value: string | null
   placeholder?: string
@@ -90,7 +83,20 @@ export const AddressInput = ({
   disabled?: boolean
   className?: string
   style?: CSSProperties
-}) => {
+}
+
+export const AddressInput = function AddressInput({
+  onChange,
+  onFocus,
+  onBlur,
+  value,
+  error = false,
+  placeholder,
+  icon,
+  disabled = false,
+  style = {},
+  className,
+}: Props) {
   return (
     <ContainerRow error={error} className={className}>
       <InputContainer>
@@ -107,6 +113,8 @@ export const AddressInput = ({
             placeholder={placeholder || t`Wallet Address or ENS name`}
             error={error}
             pattern="^(0x[a-fA-F0-9]{40})$"
+            onBlur={onBlur}
+            onFocus={onFocus}
             onChange={onChange}
             value={value || ''}
           />
