@@ -63,6 +63,8 @@ export enum ApplicationModal {
   YOUR_TRANSACTIONS_STAKE_KNC,
   MIGRATE_KNC,
   KYBER_DAO_CLAIM,
+
+  SWAP_APPROVAL,
 }
 
 export const updateBlockNumber = createAction<{ chainId: number; blockNumber: number }>('application/updateBlockNumber')

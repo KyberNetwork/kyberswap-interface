@@ -24,7 +24,7 @@ import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import ProgressSteps from 'components/ProgressSteps'
-import { AutoRow, RowBetween } from 'components/Row'
+import Row, { AutoRow, RowBetween } from 'components/Row'
 import { SEOSwap } from 'components/SEO'
 import { ShareButtonWithModal } from 'components/ShareModal'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
@@ -86,7 +86,8 @@ import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { BodyWrapper } from 'pages/AppBody'
 import { ClickableText } from 'pages/Pool/styleds'
 import VerifyComponent from 'pages/Verify/VerifyComponent'
-import { useToggleTransactionSettingsMenu, useWalletModalToggle } from 'state/application/hooks'
+import { ApplicationModal } from 'state/application/actions'
+import { useToggleModal, useToggleTransactionSettingsMenu, useWalletModalToggle } from 'state/application/hooks'
 import { useAllDexes } from 'state/customizeDexes/hooks'
 import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { Field } from 'state/swap/actions'
@@ -110,6 +111,8 @@ import { halfAmountSpend, maxAmountSpend } from 'utils/maxAmountSpend'
 import { captureSwapError } from 'utils/sentry'
 import { getSymbolSlug } from 'utils/string'
 import { checkPairInWhiteList } from 'utils/tokenInfo'
+
+import { ApprovalModal } from './ApprovalModal'
 
 const LiveChart = lazy(() => import('components/LiveChart'))
 const Routing = lazy(() => import('components/swapv2/Routing'))
@@ -410,7 +413,7 @@ export default function Swap() {
   const noRoute = !trade?.swaps?.length
 
   // check whether the user has approved the router on the input token
-  const [approval, approveCallback] = useApproveCallbackFromTradeV2(trade, allowedSlippage)
+  const [approval, approveCallback] = useApproveCallbackFromTradeV2(trade, allowedSlippage) //
 
   // check if user has gone through approval process, used to show two step buttons, reset on token change
   const [approvalSubmitted, setApprovalSubmitted] = useState<boolean>(false)
@@ -680,6 +683,8 @@ export default function Swap() {
       search: stringify(newQs),
     })
   }
+
+  const toggleApprovalModal = useToggleModal(ApplicationModal.SWAP_APPROVAL)
 
   return (
     <>
@@ -953,9 +958,22 @@ export default function Swap() {
                       routerAddress={trade?.routerAddress}
                       isCurrencyInNative={Boolean(currencyIn?.isNative)}
                     />
-
-                    <BottomGrouping>
-                      {!account ? (
+                    <Row marginTop="24px" gap="16px">
+                      <ButtonPrimary onClick={toggleApprovalModal}>
+                        <Row justify="center" gap="4px">
+                          <InfoHelper
+                            color={theme.textReverse}
+                            text={t`You need to first allow KyberSwap's smart contract to use your KNC`}
+                            placement="top"
+                            size={14}
+                          />
+                          <Trans>Approve {currencyIn?.symbol}</Trans>
+                        </Row>
+                      </ButtonPrimary>
+                      <ButtonPrimary disabled>
+                        <Trans>Swap</Trans>
+                      </ButtonPrimary>
+                      {/* {!account ? (
                         <ButtonLight onClick={toggleWalletModal}>
                           <Trans>Connect Wallet</Trans>
                         </ButtonLight>
@@ -974,7 +992,7 @@ export default function Swap() {
                             <Trans>Insufficient liquidity for this trade.</Trans>
                           </TYPE.main>
                         </GreyCard>
-                      ) : showApproveFlow ? (
+                      ) : true ? (
                         <>
                           <RowBetween>
                             <ButtonConfirmed
@@ -1105,8 +1123,8 @@ export default function Swap() {
                         </ButtonError>
                       )}
 
-                      {isExpertMode && swapErrorMessage ? <SwapCallbackError error={swapErrorMessage} /> : null}
-                    </BottomGrouping>
+                      {isExpertMode && swapErrorMessage ? <SwapCallbackError error={swapErrorMessage} /> : null} */}
+                    </Row>
                   </Wrapper>
                 </>
               )}
@@ -1191,6 +1209,7 @@ export default function Swap() {
           </SwitchLocaleLinkWrapper>
         </Flex>
       </PageWrapper>
+      <ApprovalModal currencyInput={currencyIn} />
     </>
   )
 }

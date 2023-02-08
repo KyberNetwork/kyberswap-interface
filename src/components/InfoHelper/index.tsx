@@ -69,7 +69,7 @@ export default function InfoHelper({
         style={{ zIndex: zIndexTooltip }}
       >
         <InfoWrapper onClick={open} onMouseEnter={open} onMouseLeave={close} isActive={isActive}>
-          <Info size={size || 12} color={color} />
+          <Info size={size || 12} color={color || 'currentcolor'} />
         </InfoWrapper>
       </Tooltip>
     </InfoHelperWrapper>
