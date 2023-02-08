@@ -1,10 +1,12 @@
 import { Price } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import { rgba } from 'polished'
 import React, { useEffect, useState } from 'react'
+import { AlertTriangle } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
-import { ButtonEmpty, ButtonError } from 'components/Button'
+import { ButtonError, ButtonPrimary } from 'components/Button'
 import { GreyCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
 import Loader from 'components/Loader'
@@ -136,57 +138,81 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
             width: '100%',
             flexDirection: 'column',
             alignItems: 'center',
+            gap: '16px',
           }}
         >
-          <Text>{errorWhileBuildRoute}</Text>
-          <ButtonEmpty onClick={onRetry}>Try again</ButtonEmpty>
+          <Flex
+            sx={{
+              width: '100%',
+              padding: '12px 16px',
+              alignItems: 'center',
+              borderRadius: '8px',
+              background: rgba(theme.warning, 0.2),
+            }}
+            color={theme.warning}
+          >
+            <AlertTriangle size={16} style={{ marginRight: '10px', flex: '0 0 16px' }} />
+            <Text fontSize="12px" fontWeight="500">
+              {errorWhileBuildRoute}
+            </Text>
+          </Flex>
+          <ButtonPrimary onClick={onRetry}>
+            <Text fontSize={14} fontWeight={500}>
+              <Trans>Try again</Trans>
+            </Text>
+          </ButtonPrimary>
         </Flex>
       ) : (
-        <AutoColumn gap="0">
-          {isBuildingRoute ? (
-            <Flex
-              sx={{
-                height: '160px',
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-            >
-              <Loader size="48px" stroke={theme.primary} strokeWidth="1" />
-            </Flex>
-          ) : (
-            <SwapDetails {...getSwapDetailsProps()} />
-          )}
-        </AutoColumn>
-      )}
+        <>
+          <AutoColumn gap="0">
+            {isBuildingRoute ? (
+              <Flex
+                sx={{
+                  height: '160px',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                <Loader size="48px" stroke={theme.primary} strokeWidth="1" />
+              </Flex>
+            ) : (
+              <SwapDetails {...getSwapDetailsProps()} />
+            )}
+          </AutoColumn>
 
-      <AutoRow>
-        {isSolana && !encodeSolana ? (
-          <GreyCard style={{ textAlign: 'center', borderRadius: '999px', padding: '12px' }} id="confirm-swap-or-send">
-            <Dots>
-              <Trans>Checking accounts</Trans>
-            </Dots>
-          </GreyCard>
-        ) : (
-          <ButtonError
-            onClick={onSwap}
-            disabled={isBuildingRoute || !!errorWhileBuildRoute || shouldShowAcceptChanges}
-            style={
-              priceImpactCheck.isHigh
-                ? {
-                    border: 'none',
-                    background: priceImpactCheck.isVeryHigh ? theme.red : theme.warning,
-                    color: theme.text,
-                  }
-                : undefined
-            }
-            id="confirm-swap-or-send"
-          >
-            <Text fontSize={16} fontWeight={500}>
-              <Trans>Confirm Swap</Trans>
-            </Text>
-          </ButtonError>
-        )}
-      </AutoRow>
+          <AutoRow>
+            {isSolana && !encodeSolana ? (
+              <GreyCard
+                style={{ textAlign: 'center', borderRadius: '999px', padding: '12px' }}
+                id="confirm-swap-or-send"
+              >
+                <Dots>
+                  <Trans>Checking accounts</Trans>
+                </Dots>
+              </GreyCard>
+            ) : (
+              <ButtonError
+                onClick={onSwap}
+                disabled={isBuildingRoute || !!errorWhileBuildRoute || shouldShowAcceptChanges}
+                style={
+                  priceImpactCheck.isHigh
+                    ? {
+                        border: 'none',
+                        background: priceImpactCheck.isVeryHigh ? theme.red : theme.warning,
+                        color: theme.text,
+                      }
+                    : undefined
+                }
+                id="confirm-swap-or-send"
+              >
+                <Text fontSize={16} fontWeight={500}>
+                  <Trans>Confirm Swap</Trans>
+                </Text>
+              </ButtonError>
+            )}
+          </AutoRow>
+        </>
+      )}
     </Wrapper>
   )
 }
