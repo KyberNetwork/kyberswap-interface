@@ -196,7 +196,7 @@ const SwapActionButton: React.FC<Props> = ({
               )}
             </ButtonConfirmed>
 
-            <SwapOnlyButton minimal {...swapOnlyButtonProps} />
+            <SwapOnlyButton minimal isDisabled={approval !== ApprovalState.APPROVED} {...swapOnlyButtonProps} />
           </RowBetween>
           <Column style={{ marginTop: '1rem' }}>
             <ProgressSteps steps={[approval === ApprovalState.APPROVED]} />
