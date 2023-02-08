@@ -1,4 +1,4 @@
-import { Currency, TokenAmount } from '@kyberswap/ks-sdk-core'
+import { Currency, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -179,10 +179,10 @@ export default function SendToken({
     )
   }
 
-  const addressParam = useMemo(() => (currencyIn ? [currencyIn.wrapped.address] : []), [currencyIn])
+  const addressParam = useMemo(() => [WETH[chainId].wrapped.address], [chainId])
   const tokensPrices = useTokenPrices(addressParam)
-  const usdPrice = currencyIn ? tokensPrices[currencyIn.wrapped.address] : 0
-  const estimateUsd = usdPrice * parseFloat(inputAmount)
+  const usdPriceNative = tokensPrices[WETH[chainId].wrapped.address] ?? 0
+  const estimateUsd = usdPriceNative * parseFloat(inputAmount)
 
   const formatRecipient = (val: string) => {
     try {
@@ -269,7 +269,9 @@ export default function SendToken({
             <Trans>Gas Fee</Trans>
           </Label>
           <Label color={theme.text}>
-            {estimateGas && usdPrice ? `~ ${formattedNum((estimateGas * usdPrice).toString(), true)} ` : '-'}
+            {estimateGas && usdPriceNative
+              ? `~ ${formattedNum((estimateGas * usdPriceNative).toString(), true)} `
+              : '-'}
           </Label>
         </RowBetween>
       </Flex>
