@@ -401,7 +401,9 @@ export default function AddLiquidity() {
       parsedAmounts_A,
       parsedAmounts_B,
       addTransactionWithType,
+      isMultiplePosition,
       poolAddress,
+      currencyAmountSum,
     ],
   )
 
