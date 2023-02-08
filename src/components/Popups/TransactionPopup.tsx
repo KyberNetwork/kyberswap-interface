@@ -57,7 +57,7 @@ const summaryClaim = (txs: TransactionDetails) => {
 }
 
 const summaryStakeUnstakeFarm = (txs: TransactionDetails) => {
-  return txs.type === TRANSACTION_TYPE.STAKE ? `Stake liquidity into farm` : `Unstake liquidity from farm`
+  return txs.type === TRANSACTION_TYPE.STAKE ? t`Stake liquidity into farm` : t`Unstake liquidity from farm`
 }
 
 // ex: elastic add liquidity 30 knc and 40 usdt
