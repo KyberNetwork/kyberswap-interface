@@ -1,16 +1,10 @@
 import dayjs from 'dayjs'
-import utc from 'dayjs/plugin/utc'
-import weekOfYear from 'dayjs/plugin/weekOfYear'
 
 import { HOURLY_POOL_RATES } from 'apollo/queries'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { getBlocksFromTimestamps, splitQuery } from 'utils'
 
 import { Block, PoolRatesEntry } from './type'
-
-// format dayjs with the libraries that we need
-dayjs.extend(utc)
-dayjs.extend(weekOfYear)
 
 interface ChartResults {
   token0Price: string
