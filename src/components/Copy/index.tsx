@@ -46,14 +46,8 @@ const CopyHelper = forwardRef<HTMLDivElement, Props>(function CopyHelper(
     setCopied(toCopy)
   }
 
-  const copyIcon = isCopied ? (
-    <TransactionStatusText>
-      <CheckCircle size={size} />
-    </TransactionStatusText>
-  ) : (
-    <TransactionStatusText>
-      <Copy size={size} />
-    </TransactionStatusText>
+  const copyIcon = (
+    <TransactionStatusText>{isCopied ? <CheckCircle size={size} /> : <Copy size={size} />}</TransactionStatusText>
   )
 
   return (
