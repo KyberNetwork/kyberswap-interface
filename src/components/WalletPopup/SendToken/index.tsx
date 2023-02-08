@@ -216,7 +216,7 @@ export default function SendToken({
           <AddressInput
             style={{ color: theme.subText, textOverflow: 'unset' }}
             error={!!recipientError}
-            onChange={e => onChangeRecipient(e.target.value)}
+            onChange={e => onChangeRecipient(e.currentTarget.value)}
             onFocus={onFocus}
             onBlur={onBlur}
             value={displayRecipient}

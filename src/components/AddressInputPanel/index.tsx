@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { ChangeEvent, ReactNode, useCallback } from 'react'
+import { ChangeEvent, DOMAttributes, ReactNode, useCallback } from 'react'
 import { Flex, Text } from 'rebass'
 import styled, { CSSProperties } from 'styled-components'
 
@@ -73,9 +73,6 @@ const DropdownIcon = styled(DropdownSVG)<{ open: boolean }>`
 `
 
 type Props = {
-  onChange?: (e: ChangeEvent<HTMLInputElement>) => void
-  onFocus?: (e: ChangeEvent<HTMLInputElement>) => void
-  onBlur?: (e: ChangeEvent<HTMLInputElement>) => void
   error?: boolean
   value: string | null
   placeholder?: string
@@ -83,7 +80,7 @@ type Props = {
   disabled?: boolean
   className?: string
   style?: CSSProperties
-}
+} & Pick<DOMAttributes<HTMLInputElement>, 'onBlur' | 'onFocus' | 'onChange'>
 
 export const AddressInput = function AddressInput({
   onChange,
