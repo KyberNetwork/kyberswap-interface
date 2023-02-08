@@ -268,7 +268,7 @@ export default function SendToken({
           <Label>
             <Trans>Gas Fee</Trans>
           </Label>
-          <Label>
+          <Label color={theme.text}>
             {estimateGas && usdPrice ? `~ ${formattedNum((estimateGas * usdPrice).toString(), true)} ` : '-'}
           </Label>
         </RowBetween>
