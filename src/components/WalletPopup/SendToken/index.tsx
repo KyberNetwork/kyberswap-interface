@@ -179,10 +179,17 @@ export default function SendToken({
     )
   }
 
-  const addressParam = useMemo(() => [WETH[chainId].wrapped.address], [chainId])
+  const addressParam = useMemo(
+    () => [WETH[chainId].wrapped.address, currencyIn?.wrapped.address].filter(Boolean) as string[],
+    [chainId, currencyIn],
+  )
+
   const tokensPrices = useTokenPrices(addressParam)
+
   const usdPriceNative = tokensPrices[WETH[chainId].wrapped.address] ?? 0
-  const estimateUsd = usdPriceNative * parseFloat(inputAmount)
+  const usdPriceCurrencyIn = currencyIn ? tokensPrices[currencyIn.wrapped.address] : 0
+
+  const estimateUsd = usdPriceCurrencyIn * parseFloat(inputAmount)
 
   const formatRecipient = (val: string) => {
     try {
