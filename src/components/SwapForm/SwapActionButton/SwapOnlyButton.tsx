@@ -35,6 +35,7 @@ export type Props = {
   routeSummary: RouteSummary | undefined
   isGettingRoute: boolean
   isProcessingSwap: boolean
+  isDisabled?: boolean
 
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
@@ -53,6 +54,7 @@ const SwapOnlyButton: React.FC<Props> = ({
   routeSummary,
   isGettingRoute,
   isProcessingSwap,
+  isDisabled,
 
   currencyIn,
   currencyOut,
@@ -202,7 +204,7 @@ const SwapOnlyButton: React.FC<Props> = ({
     }
 
     return (
-      <CustomPrimaryButton onClick={handleClickSwapButton} $minimal={minimal}>
+      <CustomPrimaryButton disabled={isDisabled} onClick={handleClickSwapButton} $minimal={minimal}>
         <Trans>Swap</Trans>
       </CustomPrimaryButton>
     )
