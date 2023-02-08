@@ -331,9 +331,9 @@ export default function AddLiquidity() {
                 navigate(`${APP_PATHS.MY_POOLS}/${networkInfo.route}?tab=elastic`)
 
                 setAttemptingTxn(false)
-                const tokenAmountIn = parsedAmounts_A?.toSignificant(6) ?? '0'
-                const tokenAmountOut = parsedAmounts_B?.toSignificant(6) ?? '0'
                 if (noLiquidity) {
+                  const tokenAmountIn = parsedAmounts_A?.toSignificant(6) ?? '0'
+                  const tokenAmountOut = parsedAmounts_B?.toSignificant(6) ?? '0'
                   addTransactionWithType({
                     hash: response.hash,
                     type: TRANSACTION_TYPE.ELASTIC_CREATE_POOL,
@@ -347,6 +347,14 @@ export default function AddLiquidity() {
                     },
                   })
                 } else {
+                  let tokenAmountIn, tokenAmountOut
+                  if (isMultiplePosition) {
+                    tokenAmountIn = currencyAmountSum[Field.CURRENCY_A]?.toSignificant(6) ?? '0'
+                    tokenAmountOut = currencyAmountSum[Field.CURRENCY_B]?.toSignificant(6) ?? '0'
+                  } else {
+                    tokenAmountIn = parsedAmounts_A?.toSignificant(6) ?? '0'
+                    tokenAmountOut = parsedAmounts_B?.toSignificant(6) ?? '0'
+                  }
                   addTransactionWithType({
                     hash: response.hash,
                     type: TRANSACTION_TYPE.ELASTIC_ADD_LIQUIDITY,
