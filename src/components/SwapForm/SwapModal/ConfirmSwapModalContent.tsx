@@ -57,7 +57,7 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
   const { routeSummary } = useSwapFormContext()
 
   const shouldShowAcceptChanges =
-    !isBuildingRoute && !errorWhileBuildRoute && !isAcceptedChanges && buildResult?.data?.outputChange?.level === 0
+    !isBuildingRoute && !errorWhileBuildRoute && !isAcceptedChanges && buildResult?.data?.outputChange?.level !== 0
 
   const priceImpactCheck = checkPriceImpact(routeSummary?.priceImpact)
 
@@ -94,6 +94,23 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
     }
   }
 
+  const renderSwapBrief = () => {
+    if (!routeSummary) {
+      return null
+    }
+
+    let parsedAmountIn = routeSummary.parsedAmountIn
+    let parsedAmountOut = routeSummary.parsedAmountOut
+
+    if (isAcceptedChanges && buildResult?.data) {
+      const { amountIn, amountOut } = buildResult.data
+      parsedAmountIn = toCurrencyAmount(routeSummary.parsedAmountIn.currency, amountIn)
+      parsedAmountOut = toCurrencyAmount(routeSummary.parsedAmountOut.currency, amountOut)
+    }
+
+    return <SwapBrief inputAmount={parsedAmountIn} outputAmount={parsedAmountOut} />
+  }
+
   useEffect(() => {
     setAcceptedChanges(false)
   }, [buildResult])
@@ -107,9 +124,8 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
           </Text>
           <CloseIcon onClick={onDismiss} />
         </RowBetween>
-        {!!(routeSummary && routeSummary.parsedAmountIn && routeSummary.parsedAmountOut) && (
-          <SwapBrief inputAmount={routeSummary.parsedAmountIn} outputAmount={routeSummary.parsedAmountOut} />
-        )}
+
+        {renderSwapBrief()}
       </AutoColumn>
 
       {shouldShowAcceptChanges && <AcceptChangesNotice level={2} onAcceptChange={handleAcceptChanges} />}
