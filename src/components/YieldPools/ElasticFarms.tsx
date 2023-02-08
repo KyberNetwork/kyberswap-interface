@@ -1,16 +1,12 @@
 import { computePoolAddress } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
-import { stringify } from 'querystring'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Search } from 'react-feather'
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
-import { useMedia } from 'react-use'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 
 import FarmIssueAnnouncement from 'components/FarmIssueAnnouncement'
 import LocalLoader from 'components/LocalLoader'
 import ShareModal from 'components/ShareModal'
-import Toggle from 'components/Toggle'
 import { APP_PATHS, FARM_TAB } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { VERSION } from 'constants/v2'
@@ -21,6 +17,7 @@ import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useOpenModal } from 'state/application/hooks'
 import { useElasticFarms, useFailedNFTs } from 'state/farms/elastic/hooks'
+import { FarmingPool } from 'state/farms/elastic/types'
 import { StyledInternalLink } from 'theme'
 import { isAddressString } from 'utils'
 
@@ -28,36 +25,18 @@ import ElasticFarmGroup from './ElasticFarmGroup'
 import { DepositModal, StakeUnstakeModal } from './ElasticFarmModals'
 import HarvestModal from './ElasticFarmModals/HarvestModal'
 import WithdrawModal from './ElasticFarmModals/WithdrawModal'
-import FarmSort from './FarmPoolSort'
-import ListGridViewGroup from './ListGridViewGroup'
 import { SharePoolContext } from './SharePoolContext'
-import {
-  HeadingContainer,
-  HeadingRight,
-  SearchContainer,
-  SearchInput,
-  StakedOnlyToggleText,
-  StakedOnlyToggleWrapper,
-} from './styleds'
 
 type ModalType = 'deposit' | 'withdraw' | 'stake' | 'unstake' | 'harvest' | 'forcedWithdraw'
 
-function ElasticFarms() {
+function ElasticFarms({ stakedOnly }: { stakedOnly: { active: boolean; ended: boolean } }) {
   const theme = useTheme()
   const { isEVM, networkInfo, chainId } = useActiveWeb3React()
 
   const [searchParams] = useSearchParams()
+  const filteredToken0Id = searchParams.get('token0') || undefined
+  const filteredToken1Id = searchParams.get('token1') || undefined
 
-  const activeTab: string = searchParams.get('type') || FARM_TAB.ACTIVE
-
-  const [stakedOnly, setStakedOnly] = useState({
-    active: false,
-    ended: true,
-  })
-
-  const stakedOnlyKey = activeTab === FARM_TAB.ACTIVE ? 'active' : 'ended'
-
-  const above1000 = useMedia('(min-width: 1000px)')
   const { farms, loading, userFarmInfo } = useElasticFarms()
 
   const failedNFTs = useFailedNFTs()
@@ -66,21 +45,13 @@ function ElasticFarms() {
   const [open, setOpen] = useState(false)
   useOnClickOutside(ref, open ? () => setOpen(prev => !prev) : undefined)
   const qs = useParsedQueryString<{ search: string; type: string; tab: string }>()
-  const { search = '', type, tab } = qs
-  const navigate = useNavigate()
-  const location = useLocation()
 
-  const handleSearch = useCallback(
-    (search: string) => {
-      const target = {
-        ...location,
-        search: stringify({ ...qs, search }),
-      }
+  const type = searchParams.get('type')
+  const activeTab: string = type || FARM_TAB.ACTIVE
+  const stakedOnlyKey = activeTab === FARM_TAB.ACTIVE ? 'active' : 'ended'
 
-      navigate(target, { replace: true })
-    },
-    [navigate, location, qs],
-  )
+  const tab = searchParams.get('tab')
+  const search: string = searchParams.get('search') || ''
 
   const filteredFarms = useMemo(() => {
     const now = Date.now() / 1000
@@ -131,7 +102,34 @@ function ElasticFarms() {
       })
     }
 
-    if (stakedOnly[stakedOnlyKey] && isEVM) {
+    if (filteredToken0Id || filteredToken1Id) {
+      if (filteredToken1Id && filteredToken0Id) {
+        result = result?.map(farm => {
+          farm.pools = farm.pools.filter(pool => {
+            return (
+              (pool.token0.wrapped.address.toLowerCase() === filteredToken0Id.toLowerCase() &&
+                pool.token1.wrapped.address.toLowerCase() === filteredToken1Id.toLowerCase()) ||
+              (pool.token1.wrapped.address.toLowerCase() === filteredToken0Id.toLowerCase() &&
+                pool.token0.wrapped.address.toLowerCase() === filteredToken1Id.toLowerCase())
+            )
+          })
+          return farm
+        })
+      } else {
+        const address = filteredToken1Id || filteredToken0Id
+        result = result?.map(farm => {
+          farm.pools = farm.pools.filter(pool => {
+            return (
+              pool.token0.wrapped.address.toLowerCase() === address?.toLowerCase() ||
+              pool.token1.wrapped.address.toLowerCase() === address?.toLowerCase()
+            )
+          })
+          return farm
+        })
+      }
+    }
+
+    if ((stakedOnly[stakedOnlyKey] || activeTab === FARM_TAB.MY_FARMS) && isEVM) {
       result = result?.map(item => {
         if (!userFarmInfo?.[item.id].depositedPositions.length) {
           return { ...item, pools: [] }
@@ -152,13 +150,27 @@ function ElasticFarms() {
     }
 
     return result?.filter(farm => !!farm.pools.length) || []
-  }, [farms, search, stakedOnly, stakedOnlyKey, activeTab, chainId, userFarmInfo, isEVM, networkInfo])
+  }, [
+    farms,
+    search,
+    stakedOnly,
+    stakedOnlyKey,
+    activeTab,
+    chainId,
+    userFarmInfo,
+    isEVM,
+    networkInfo,
+    filteredToken0Id,
+    filteredToken1Id,
+  ])
 
   const noFarms = !filteredFarms.length
 
   const [selectedFarm, setSeletedFarm] = useState<null | string>(null)
   const [selectedModal, setSeletedModal] = useState<ModalType | null>(null)
-  const [selectedPoolId, setSeletedPoolId] = useState<number | null>(null)
+  const [selectedPool, setSeletedPool] = useState<FarmingPool>()
+  const pid = selectedPool?.pid
+  const selectedPoolId = Number.isNaN(Number(pid)) ? null : Number(pid)
 
   const openShareModal = useOpenModal(ApplicationModal.SHARE)
   const isShareModalOpen = useModalOpen(ApplicationModal.SHARE)
@@ -171,7 +183,7 @@ function ElasticFarms() {
   const onDismiss = () => {
     setSeletedFarm(null)
     setSeletedModal(null)
-    setSeletedPoolId(null)
+    setSeletedPool(undefined)
   }
 
   const renderAnnouncement = () => {
@@ -217,6 +229,7 @@ function ElasticFarms() {
         <StakeUnstakeModal
           type={selectedModal as any}
           poolId={selectedPoolId}
+          poolAddress={selectedPool?.poolAddress ?? ''}
           selectedFarmAddress={selectedFarm}
           onDismiss={onDismiss}
         />
@@ -236,43 +249,7 @@ function ElasticFarms() {
 
       {renderAnnouncement()}
 
-      <HeadingContainer>
-        <StakedOnlyToggleWrapper>
-          {above1000 && (
-            <Flex marginRight="0.75rem">
-              <ListGridViewGroup />
-            </Flex>
-          )}
-
-          {activeTab !== FARM_TAB.MY_FARMS && (
-            <>
-              <StakedOnlyToggleText>
-                <Trans>Staked Only</Trans>
-              </StakedOnlyToggleText>
-              <Toggle
-                isActive={stakedOnly[stakedOnlyKey]}
-                toggle={() => setStakedOnly(prev => ({ ...prev, [activeTab]: !prev[stakedOnlyKey] }))}
-              />
-            </>
-          )}
-        </StakedOnlyToggleWrapper>
-        <HeadingRight>
-          <Flex sx={{ gap: '16px' }} flex={1}>
-            <FarmSort />
-            <SearchContainer>
-              <SearchInput
-                placeholder={t`Search by token name or pool address`}
-                maxLength={255}
-                value={search}
-                onChange={e => handleSearch(e.target.value)}
-              />
-              <Search color={theme.subText} />
-            </SearchContainer>
-          </Flex>
-        </HeadingRight>
-      </HeadingContainer>
-
-      {type === 'ended' && tab !== VERSION.CLASSIC && (
+      {type === FARM_TAB.ENDED && tab !== VERSION.CLASSIC && (
         <Text fontStyle="italic" fontSize={12} marginBottom="1rem" color={theme.subText}>
           <Trans>
             Your rewards may be automatically harvested a few days after the farm ends. Please check the{' '}
@@ -282,7 +259,7 @@ function ElasticFarms() {
         </Text>
       )}
 
-      {(!type || type === 'active') && qs.tab !== VERSION.CLASSIC && (
+      {(!type || type === FARM_TAB.ACTIVE) && qs.tab !== VERSION.CLASSIC && (
         <Text fontSize={12} marginBottom="1.25rem" color={theme.subText}>
           <Trans>
             Note: Farms will run in{' '}
@@ -290,7 +267,9 @@ function ElasticFarms() {
               multiple phases
             </Text>
             . Once the current phase ends, you can harvest your rewards from the farm in the{' '}
-            <StyledInternalLink to={`${APP_PATHS.FARMS}/${networkInfo.route}?type=ended`}>Ended</StyledInternalLink>{' '}
+            <StyledInternalLink to={`${APP_PATHS.FARMS}/${networkInfo.route}?type=${FARM_TAB.ENDED}`}>
+              Ended
+            </StyledInternalLink>{' '}
             tab. To continue earning rewards in the new phase, you must restake your NFT position into the active farm
           </Trans>
         </Text>
@@ -332,11 +311,10 @@ function ElasticFarms() {
               <ElasticFarmGroup
                 key={farm.id}
                 address={farm.id}
-                onOpenModal={(modalType: ModalType, pid?: number | string, forced?: boolean) => {
+                onOpenModal={(modalType: ModalType, pool?: FarmingPool) => {
                   setSeletedModal(modalType)
                   setSeletedFarm(farm.id)
-                  const _pid = Number.isNaN(Number(pid)) ? null : Number(pid)
-                  setSeletedPoolId(_pid)
+                  setSeletedPool(pool)
                 }}
                 pools={farm.pools}
                 userInfo={userFarmInfo?.[farm.id]}

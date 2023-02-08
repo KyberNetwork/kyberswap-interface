@@ -2,7 +2,7 @@ import { Position, computePoolAddress } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { X } from 'react-feather'
+import { Minus, X } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
@@ -29,6 +29,7 @@ import { PositionDetails } from 'types/position'
 import { formatDollarAmount } from 'utils/numbers'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
+import { Button } from '../ElasticFarmGroup/styleds'
 import {
   DropdownIcon,
   ModalContentWrapper,
@@ -45,13 +46,28 @@ const PositionRow = ({
   onChange,
   selected,
   forced,
+  farmAddress,
 }: {
   selected: boolean
   position: UserPositionFarm
-  onChange: (value: boolean) => void
+  onChange: (value: boolean, position: Position | undefined) => void
   forced: boolean
+  farmAddress: string
 }) => {
   const { token0: token0Address, token1: token1Address, fee: feeAmount, liquidity, tickLower, tickUpper } = position
+
+  const { unstake } = useFarmAction(farmAddress)
+  const { userFarmInfo } = useElasticFarms()
+
+  const joinedPositions = userFarmInfo?.[farmAddress]?.joinedPositions
+  let pid: null | string = null
+  if (joinedPositions) {
+    Object.keys(joinedPositions).forEach(key => {
+      joinedPositions[key].forEach(pos => {
+        if (pos.nftId.toString() === position.tokenId.toString()) pid = key
+      })
+    })
+  }
 
   const token0 = useToken(token0Address)
   const token1 = useToken(token1Address)
@@ -103,7 +119,7 @@ const PositionRow = ({
       ) : !position.stakedLiquidity.gt(BigNumber.from(0)) ? (
         <Checkbox
           onChange={e => {
-            onChange(e.currentTarget.checked)
+            onChange(e.currentTarget.checked, positionSDK)
           }}
           checked={selected}
         />
@@ -114,9 +130,10 @@ const PositionRow = ({
       )}
       {above768 ? (
         <>
-          <Flex alignItems="center">
+          <Flex alignItems="center" sx={{ gap: '4px' }}>
             {/* <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={16} />*/}
             <Text>{position.tokenId.toString()}</Text>
+            <RangeBadge removed={removed} inRange={!outOfRange} hideText size={12} />
           </Flex>
           <Text>{formatDollarAmount(usd)}</Text>
           <Flex justifyContent="flex-end" sx={{ gap: '4px' }} alignItems="center">
@@ -130,7 +147,24 @@ const PositionRow = ({
           </Flex>
 
           <Flex justifyContent="flex-end">
-            <RangeBadge removed={removed} inRange={!outOfRange} />
+            <Button
+              color={theme.red}
+              style={{ height: '28px' }}
+              disabled={position.stakedLiquidity.eq(BigNumber.from(0))}
+              onClick={() => {
+                if (!!pid && positionSDK)
+                  unstake(BigNumber.from(pid), [
+                    {
+                      nftId: position.tokenId,
+                      stakedLiquidity: position.stakedLiquidity.toString(),
+                      poolAddress: position.poolId,
+                      position: positionSDK,
+                    },
+                  ])
+              }}
+            >
+              <Minus size={16} /> Unstake
+            </Button>
           </Flex>
         </>
       ) : (
@@ -238,7 +272,8 @@ function WithdrawModal({
     return (eligiblePositions as UserPositionFarm[]).filter(item => item.stakedLiquidity.eq(0))
   }, [eligiblePositions])
 
-  const [selectedNFTs, setSeletedNFTs] = useState<string[]>([])
+  const [selectedNFTs, setSeletedNFTs] = useState<PositionDetails[]>([])
+  const mapPositionInfo = useRef<{ [tokenId: string]: Position }>({})
 
   const { withdraw, emergencyWithdraw } = useFarmAction(selectedFarmAddress)
 
@@ -276,9 +311,14 @@ function WithdrawModal({
       return
     }
 
-    const txHash = await withdraw(selectedNFTs.map(item => BigNumber.from(item)))
+    const txHash = await withdraw(
+      selectedNFTs,
+      selectedNFTs.map(item => mapPositionInfo.current[item.tokenId.toString()]),
+    )
     if (txHash) {
-      const finishedPoses = eligiblePositions.filter(pos => selectedNFTs.includes(pos.tokenId.toString()))
+      const finishedPoses = eligiblePositions.filter(pos =>
+        selectedNFTs.find(e => e.tokenId.toString() === pos.tokenId.toString()),
+      )
       finishedPoses.forEach(pos => {
         mixpanelHandler(MIXPANEL_TYPE.ELASTIC_WITHDRAW_LIQUIDITY_COMPLETED, {
           token_1: pos.token0,
@@ -349,7 +389,7 @@ function WithdrawModal({
             ref={checkboxGroupRef}
             onChange={e => {
               if (e.currentTarget.checked) {
-                setSeletedNFTs(withDrawableNFTs.map(pos => pos.tokenId.toString()) || [])
+                setSeletedNFTs(withDrawableNFTs || [])
               } else {
                 setSeletedNFTs([])
               }
@@ -364,7 +404,7 @@ function WithdrawModal({
             <>
               <Text textAlign="right">Token 1</Text>
               <Text textAlign="right">Token 2</Text>
-              <Text textAlign="right">Status</Text>
+              <Text textAlign="right">Action</Text>
             </>
           )}
         </TableHeader>
@@ -380,14 +420,17 @@ function WithdrawModal({
             })
             .map(pos => (
               <PositionRow
-                selected={selectedNFTs.includes(pos.tokenId.toString())}
+                selected={selectedNFTs.some(e => e.tokenId.toString() === pos.tokenId.toString())}
                 key={pos.tokenId.toString()}
                 position={pos}
+                farmAddress={selectedFarmAddress}
                 forced={forced}
-                onChange={(selected: boolean) => {
-                  if (selected) setSeletedNFTs(prev => [...prev, pos.tokenId.toString()])
+                onChange={(selected: boolean, position: Position | undefined) => {
+                  const tokenId = pos.tokenId.toString()
+                  if (position) mapPositionInfo.current[tokenId] = position
+                  if (selected) setSeletedNFTs(prev => [...prev, pos])
                   else {
-                    setSeletedNFTs(prev => prev.filter(item => item !== pos.tokenId.toString()))
+                    setSeletedNFTs(prev => prev.filter(item => item.tokenId.toString() !== tokenId))
                   }
                 }}
               />

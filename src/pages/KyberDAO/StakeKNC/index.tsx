@@ -16,6 +16,7 @@ import Divider from 'components/Divider'
 import { RowBetween, RowFit } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
 import useTotalVotingReward from 'hooks/kyberdao/useTotalVotingRewards'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
@@ -60,7 +61,7 @@ const Information = styled.div`
   width: 772px;
   order: 1;
 
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+  ${({ theme }) => theme.mediaWidth.upToSmall`
     width: 100vw;
     padding: 0 16px;
   `}
@@ -111,7 +112,7 @@ export default function StakeKNC() {
   const { switchToEthereum } = useSwitchToEthereum()
   const { kncPriceETH } = useTotalVotingReward()
   const navigate = useNavigate()
-
+  const { mixpanelHandler } = useMixpanel()
   const handleMigrateClick = () => {
     switchToEthereum().then(() => {
       toggleMigrationModal()
@@ -131,14 +132,19 @@ export default function StakeKNC() {
             </RowFit>
           </RowBetween>
           <Divider margin={isMobile ? '20px 0' : '28px 0'} />
-          <Text fontSize={16} lineHeight="24px" fontWeight={400} color={theme.subText} marginBottom="24px">
+          <Text fontSize={16} lineHeight="24px" fontWeight={400} color={theme.subText} marginBottom="16px">
             <Trans>
               Kyber Network and its products like KyberSwap are governed by the community through KyberDAO, a
               Decentralized Autonomous Organization. KNC holders stake KNC tokens to vote on governance proposals that
               shape Kyber&lsquo;s future and earn KNC rewards from trading fees.
             </Trans>
           </Text>
-          <NavLink to={APP_PATHS.ABOUT + '/knc'}>Read about KNC ↗</NavLink>
+          <RowBetween align={isMobile ? 'flex-start' : 'center'} flexDirection={isMobile ? 'column' : 'row'} gap="12px">
+            <Text fontSize={16} lineHeight="24px" fontWeight={400} color={theme.warning}>
+              <Trans>Note: Staking KNC is only available on Ethereum chain</Trans>
+            </Text>
+            <NavLink to={APP_PATHS.ABOUT + '/knc'}>Read about KNC ↗</NavLink>
+          </RowBetween>
         </Information>
         <KyberImageWrapper>
           <img src={kyberCrystal} alt="KyberDAO" width="186px" />
@@ -166,7 +172,14 @@ export default function StakeKNC() {
                 <Trans>The more you stake and vote, the more KNC you will earn. </Trans>
               </Text>
             </CardInfo>
-            <ButtonPrimary onClick={() => navigate('/kyberdao/vote')} width="120px" height="44px">
+            <ButtonPrimary
+              onClick={() => {
+                mixpanelHandler(MIXPANEL_TYPE.KYBER_DAO_VOTE_CLICK)
+                navigate('/kyberdao/vote')
+              }}
+              width="120px"
+              height="44px"
+            >
               Vote
             </ButtonPrimary>
           </Card>

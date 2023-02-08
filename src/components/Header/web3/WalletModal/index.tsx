@@ -13,10 +13,10 @@ import styled from 'styled-components'
 import { ReactComponent as Close } from 'assets/images/x.svg'
 import { AutoColumn } from 'components/Column'
 import ExpandableBox from 'components/ExpandableBox'
-import AccountDetails from 'components/Header/web3/AccountDetails'
 import WarningIcon from 'components/Icons/WarningIcon'
 import Modal from 'components/Modal'
-import Row, { AutoRow, RowFixed } from 'components/Row'
+import { AutoRow, RowBetween, RowFixed } from 'components/Row'
+import WalletPopup from 'components/WalletPopup'
 import { APP_PATHS, TERM_FILES_PATH } from 'constants/index'
 import { SUPPORTED_WALLET, SUPPORTED_WALLETS, WalletInfo } from 'constants/wallets'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -25,7 +25,13 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import usePrevious from 'hooks/usePrevious'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
-import { useModalOpen, useOpenNetworkModal, useWalletModalToggle } from 'state/application/hooks'
+import {
+  useCloseModal,
+  useModalOpen,
+  useOpenModal,
+  useOpenNetworkModal,
+  useWalletModalToggle,
+} from 'state/application/hooks'
 import { useIsAcceptedTerm, useIsUserManuallyDisconnect } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { isEVMWallet, isOverriddenWallet, isSolanaWallet } from 'utils'
@@ -34,19 +40,12 @@ import Option from './Option'
 import PendingView from './PendingView'
 
 const CloseIcon = styled.div`
-  position: absolute;
-  right: 1rem;
-  top: 16px;
-  padding: 8px;
+  height: 24px;
+  align-self: flex-end;
+  cursor: pointer;
+  color: ${({ theme }) => theme.text};
   &:hover {
-    cursor: pointer;
     opacity: 0.6;
-  }
-`
-
-const CloseColor = styled(Close)`
-  path {
-    stroke: ${({ theme }) => theme.text4};
   }
 `
 
@@ -69,8 +68,6 @@ const HeaderRow = styled.div<{ padding?: string }>`
 const ContentWrapper = styled.div`
   border-bottom-left-radius: 20px;
   border-bottom-right-radius: 20px;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`padding: 1rem`};
 `
 
 const TermAndCondition = styled.div`
@@ -91,7 +88,9 @@ const TermAndCondition = styled.div`
 `
 
 const UpperSection = styled.div`
+  position: relative;
   padding: 24px;
+  position: relative;
 `
 
 const gap = '1rem'
@@ -164,6 +163,8 @@ export default function WalletModal() {
 
   const walletModalOpen = useModalOpen(ApplicationModal.WALLET)
   const toggleWalletModal = useWalletModalToggle()
+  const closeWalletModal = useCloseModal(ApplicationModal.WALLET)
+  const openWalletModal = useOpenModal(ApplicationModal.WALLET)
   const openNetworkModal = useOpenNetworkModal()
 
   const previousAccount = usePrevious(account)
@@ -284,44 +285,38 @@ export default function WalletModal() {
     )
   }
 
+  const showAccount = account && walletView === WALLET_VIEWS.ACCOUNT
+  const [isPinnedPopupWallet, setPinnedPopupWallet] = useState(false)
+
   function getModalContent() {
     if (error) {
       return (
         <UpperSection>
-          <CloseIcon onClick={toggleWalletModal}>
-            <CloseColor />
-          </CloseIcon>
-          <HeaderRow padding="1rem">
-            <Trans>Error connecting</Trans>
-          </HeaderRow>
+          <RowBetween>
+            <HeaderRow padding="1rem">
+              <Trans>Error connecting</Trans>
+            </HeaderRow>
+            <CloseIcon onClick={toggleWalletModal}>
+              <Close />
+            </CloseIcon>
+          </RowBetween>
           <ContentWrapper>
             <Trans>Error connecting. Try refreshing the page.</Trans>
           </ContentWrapper>
         </UpperSection>
       )
     }
-    if (account && walletView === WALLET_VIEWS.ACCOUNT) {
-      return (
-        <AccountDetails
-          toggleWalletModal={toggleWalletModal}
-          openOptions={() => setWalletView(WALLET_VIEWS.CHANGE_WALLET)}
-        />
-      )
-    }
 
     return (
       <UpperSection>
-        <CloseIcon onClick={toggleWalletModal}>
-          <CloseColor />
-        </CloseIcon>
-        <Row marginBottom="26px">
-          {(walletView === WALLET_VIEWS.CHANGE_WALLET || walletView === WALLET_VIEWS.PENDING) && (
+        <RowBetween marginBottom="26px" gap="20px">
+          {walletView === WALLET_VIEWS.PENDING && (
             <HoverText
               onClick={() => {
                 setPendingError(false)
                 setWalletView(WALLET_VIEWS.ACCOUNT)
               }}
-              style={{ marginRight: '1rem' }}
+              style={{ marginRight: '1rem', flex: 1 }}
             >
               <ChevronLeft color={theme.primary} />
             </HoverText>
@@ -329,13 +324,14 @@ export default function WalletModal() {
           <HoverText>
             {walletView === WALLET_VIEWS.ACCOUNT ? (
               <Trans>Connect your Wallet</Trans>
-            ) : walletView === WALLET_VIEWS.CHANGE_WALLET ? (
-              <Trans>Change Wallet</Trans>
             ) : (
               <Trans>Connecting Wallet</Trans>
             )}
           </HoverText>
-        </Row>
+          <CloseIcon onClick={toggleWalletModal}>
+            <Close />
+          </CloseIcon>
+        </RowBetween>
         {(walletView === WALLET_VIEWS.ACCOUNT || walletView === WALLET_VIEWS.CHANGE_WALLET) && (
           <TermAndCondition onClick={() => setIsAcceptedTerm(!isAcceptedTerm)}>
             <input
@@ -439,8 +435,20 @@ export default function WalletModal() {
     )
   }
 
+  if (showAccount) {
+    return (
+      <WalletPopup
+        isPinned={isPinnedPopupWallet}
+        setPinned={setPinnedPopupWallet}
+        isModalOpen={walletModalOpen}
+        onDismissModal={closeWalletModal}
+        onOpenModal={openWalletModal}
+      />
+    )
+  }
+
   return (
-    <Modal isOpen={walletModalOpen} onDismiss={toggleWalletModal} minHeight={false} maxHeight={90} maxWidth={600}>
+    <Modal isOpen={walletModalOpen} onDismiss={closeWalletModal} minHeight={false} maxHeight={90} maxWidth={600}>
       <Wrapper>{getModalContent()}</Wrapper>
     </Modal>
   )

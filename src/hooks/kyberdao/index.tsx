@@ -1,5 +1,4 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 import { useCallback, useEffect, useMemo } from 'react'
@@ -12,7 +11,8 @@ import MigrateABI from 'constants/abis/kyberdao/migrate.json'
 import RewardDistributorABI from 'constants/abis/kyberdao/reward_distributor.json'
 import StakingABI from 'constants/abis/kyberdao/staking.json'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO, NETWORKS_INFO_CONFIG, isEVM } from 'constants/networks'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { useContract } from 'hooks/useContract'
 import useTokenBalance from 'hooks/useTokenBalance'
@@ -22,6 +22,10 @@ import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { calculateGasMargin } from 'utils'
 
 import { ProposalDetail, ProposalStatus, StakerAction, StakerInfo, VoteInfo } from './types'
+
+export function isSupportKyberDao(chainId: ChainId) {
+  return isEVM(chainId) && (NETWORKS_INFO_CONFIG[chainId] as EVMNetworkInfo).kyberDAO
+}
 
 export function useKyberDAOInfo() {
   const { chainId } = useActiveWeb3React()
@@ -36,7 +40,7 @@ export function useKyberDaoStakeActions() {
   const migrateContract = useContract(kyberDaoInfo?.KNCAddress, MigrateABI)
 
   const stake = useCallback(
-    async (amount: BigNumber) => {
+    async (amount: BigNumber, votingPower: string) => {
       if (!stakingContract) {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }
@@ -48,8 +52,12 @@ export function useKyberDaoStakeActions() {
         addTransactionWithType({
           hash: tx.hash,
           type: TRANSACTION_TYPE.KYBERDAO_STAKE,
-          summary: t`You have successfully staked to KyberDAO`,
-          arbitrary: { amount: formatUnits(amount) },
+          extraInfo: {
+            tokenSymbol: 'KNC',
+            tokenAddress: kyberDaoInfo?.KNCAddress ?? '',
+            tokenAmount: formatUnits(amount),
+            arbitrary: { amount: formatUnits(amount), votingPower },
+          },
         })
         return tx.hash
       } catch (error) {
@@ -60,7 +68,7 @@ export function useKyberDaoStakeActions() {
         }
       }
     },
-    [addTransactionWithType, stakingContract],
+    [addTransactionWithType, stakingContract, kyberDaoInfo],
   )
   const unstake = useCallback(
     async (amount: BigNumber) => {
@@ -75,8 +83,12 @@ export function useKyberDaoStakeActions() {
         addTransactionWithType({
           hash: tx.hash,
           type: TRANSACTION_TYPE.KYBERDAO_UNSTAKE,
-          summary: t`You have successfully unstaked from KyberDAO`,
-          arbitrary: { amount: formatUnits(amount) },
+          extraInfo: {
+            tokenSymbol: 'KNC',
+            tokenAddress: kyberDaoInfo?.KNCAddress ?? '',
+            tokenAmount: formatUnits(amount),
+            arbitrary: { amount: formatUnits(amount) },
+          },
         })
         return tx.hash
       } catch (error) {
@@ -87,10 +99,10 @@ export function useKyberDaoStakeActions() {
         }
       }
     },
-    [addTransactionWithType, stakingContract],
+    [addTransactionWithType, stakingContract, kyberDaoInfo?.KNCAddress],
   )
   const migrate = useCallback(
-    async (amount: BigNumber) => {
+    async (amount: BigNumber, rawAmount: string) => {
       if (!migrateContract) {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }
@@ -101,8 +113,17 @@ export function useKyberDaoStakeActions() {
         })
         addTransactionWithType({
           hash: tx.hash,
-          type: TRANSACTION_TYPE.MIGRATE,
-          summary: `KyberDAO`,
+          type: TRANSACTION_TYPE.KYBERDAO_MIGRATE,
+          extraInfo: kyberDaoInfo
+            ? {
+                tokenAddressIn: kyberDaoInfo.KNCLAddress,
+                tokenAddressOut: kyberDaoInfo.KNCAddress,
+                tokenAmountIn: rawAmount,
+                tokenAmountOut: rawAmount,
+                tokenSymbolIn: 'KNCL',
+                tokenSymbolOut: 'KNC',
+              }
+            : undefined,
         })
         return tx.hash
       } catch (error) {
@@ -113,7 +134,7 @@ export function useKyberDaoStakeActions() {
         }
       }
     },
-    [addTransactionWithType, migrateContract],
+    [addTransactionWithType, migrateContract, kyberDaoInfo],
   )
   const delegate = useCallback(
     async (address: string) => {
@@ -128,7 +149,7 @@ export function useKyberDaoStakeActions() {
         addTransactionWithType({
           hash: tx.hash,
           type: TRANSACTION_TYPE.KYBERDAO_DELEGATE,
-          summary: t`You have successfully delegated voting power to ${address.slice(0, 6)}...${address.slice(-4)}`,
+          extraInfo: { contract: address },
         })
         return tx.hash
       } catch (error) {
@@ -155,7 +176,7 @@ export function useKyberDaoStakeActions() {
         addTransactionWithType({
           hash: tx.hash,
           type: TRANSACTION_TYPE.KYBERDAO_UNDELEGATE,
-          summary: t`You have successfully undelegated your voting power`,
+          extraInfo: { contract: address },
         })
         return tx.hash
       } catch (error) {
@@ -178,14 +199,23 @@ export function useClaimRewardActions() {
   const addTransactionWithType = useTransactionAdder()
 
   const claim = useCallback(
-    async (
-      cycle: number,
-      index: number,
-      address: string,
-      tokens: string[],
-      cumulativeAmounts: string[],
-      merkleProof: string[],
-    ) => {
+    async ({
+      cycle,
+      index,
+      address,
+      tokens,
+      cumulativeAmounts,
+      merkleProof,
+      formatAmount,
+    }: {
+      cycle: number
+      index: number
+      address: string
+      tokens: string[]
+      cumulativeAmounts: string[]
+      merkleProof: string[]
+      formatAmount: string
+    }) => {
       if (!rewardDistributorContract) {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }
@@ -223,7 +253,12 @@ export function useClaimRewardActions() {
         addTransactionWithType({
           hash: tx.hash,
           type: TRANSACTION_TYPE.KYBERDAO_CLAIM,
-          summary: t`Claimed reward successful`,
+          extraInfo: {
+            contract: kyberDaoInfo?.rewardsDistributor,
+            tokenAmount: formatAmount,
+            tokenSymbol: 'KNC',
+            tokenAddress: kyberDaoInfo?.KNCAddress,
+          },
         })
         return tx.hash
       } catch (error) {
@@ -234,7 +269,7 @@ export function useClaimRewardActions() {
         }
       }
     },
-    [rewardDistributorContract, addTransactionWithType],
+    [rewardDistributorContract, addTransactionWithType, kyberDaoInfo],
   )
   return { claim }
 }
@@ -257,7 +292,7 @@ export const useVotingActions = () => {
         addTransactionWithType({
           hash: tx.hash,
           type: TRANSACTION_TYPE.KYBERDAO_VOTE,
-          summary: t`Voted successful`,
+          extraInfo: { contract: kyberDaoInfo?.dao },
         })
         return tx.hash
       } catch (error) {
@@ -268,7 +303,7 @@ export const useVotingActions = () => {
         }
       }
     },
-    [daoContract, addTransactionWithType],
+    [daoContract, addTransactionWithType, kyberDaoInfo?.dao],
   )
   return { vote }
 }

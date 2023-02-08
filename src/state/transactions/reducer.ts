@@ -1,17 +1,18 @@
 import { createReducer } from '@reduxjs/toolkit'
 
 import { findTx } from 'utils'
+import { getTransactionGroupByType } from 'utils/transaction'
 
 import {
   addTransaction,
-  checkedSubgraph,
   checkedTransaction,
   clearAllTransactions,
   finalizeTransaction,
+  modifyTransaction,
   removeTx,
   replaceTx,
 } from './actions'
-import { GroupedTxsByHash } from './type'
+import { GroupedTxsByHash, TransactionExtraInfo } from './type'
 
 const now = () => new Date().getTime()
 
@@ -27,26 +28,23 @@ export default createReducer(initialState, builder =>
       addTransaction,
       (
         transactions,
-        {
-          payload: {
-            sentAtBlock,
-            to,
-            nonce,
-            data,
-            chainId,
-            from,
-            hash,
-            approval,
-            type,
-            summary,
-            arbitrary,
-            firstTxHash,
-          },
-        },
+        { payload: { sentAtBlock, to, nonce, data, chainId, from, hash, type, firstTxHash, extraInfo } },
       ) => {
         const chainTxs = transactions[chainId] ?? {}
         const txs = (firstTxHash && chainTxs[firstTxHash]) || []
-        txs.push({ sentAtBlock, to, nonce, data, hash, approval, type, summary, arbitrary, from, addedTime: now() })
+        txs.push({
+          sentAtBlock,
+          to,
+          nonce,
+          data,
+          hash,
+          type,
+          from,
+          addedTime: now(),
+          chainId,
+          extraInfo,
+          group: getTransactionGroupByType(type),
+        })
         chainTxs[txs[0].hash] = txs
         transactions[chainId] = chainTxs
       },
@@ -66,12 +64,15 @@ export default createReducer(initialState, builder =>
       if (!tx) return
       tx.receipt = receipt
       tx.confirmedTime = now()
-      tx.needCheckSubgraph = needCheckSubgraph
+      const newExtraInfo: TransactionExtraInfo = { ...tx.extraInfo, needCheckSubgraph }
+      tx.extraInfo = newExtraInfo
     })
-    .addCase(checkedSubgraph, (transactions, { payload: { chainId, hash } }) => {
+    .addCase(modifyTransaction, (transactions, { payload: { chainId, hash, extraInfo, needCheckSubgraph } }) => {
       const tx = findTx(transactions[chainId], hash)
       if (!tx) return
-      tx.needCheckSubgraph = false
+      const newExtraInfo: TransactionExtraInfo = { ...tx.extraInfo, ...extraInfo }
+      if (needCheckSubgraph !== undefined) newExtraInfo.needCheckSubgraph = needCheckSubgraph
+      tx.extraInfo = newExtraInfo
     })
     .addCase(replaceTx, (transactions, { payload: { chainId, oldHash, newHash } }) => {
       const chainTxs = transactions[chainId] ?? {}
