@@ -10,7 +10,7 @@ import { Field } from 'state/swap/actions'
 import { useInputCurrency, useOutputCurrency, useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
 import { useExpertModeManager, useUserSlippageTolerance, useUserTransactionTTL } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
-import { RouteSummary } from 'types/metaAggregator'
+import { DetailedRouteSummary } from 'types/route'
 
 import useResetCurrenciesOnRemoveImportedTokens from './useResetCurrenciesOnRemoveImportedTokens'
 
@@ -36,8 +36,8 @@ const useUpdateSlippageInStableCoinSwap = (currencyIn?: Currency, currencyOut?: 
 }
 
 type Props = {
-  routeSummary: RouteSummary | undefined
-  setRouteSummary: React.Dispatch<React.SetStateAction<RouteSummary | undefined>>
+  routeSummary: DetailedRouteSummary | undefined
+  setRouteSummary: React.Dispatch<React.SetStateAction<DetailedRouteSummary | undefined>>
   goToSettingsView: () => void
 }
 const PopulatedSwapForm: React.FC<Props> = ({ routeSummary, setRouteSummary, goToSettingsView }) => {

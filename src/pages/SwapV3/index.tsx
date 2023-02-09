@@ -57,7 +57,7 @@ import { Field } from 'state/swap/actions'
 import { useDefaultsFromURLSearch, useInputCurrency, useOutputCurrency, useSwapActionHandlers } from 'state/swap/hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { useExpertModeManager, useShowLiveChart, useShowTokenInfo, useShowTradeRoutes } from 'state/user/hooks'
-import { RouteSummary } from 'types/metaAggregator'
+import { DetailedRouteSummary } from 'types/route'
 import { getTradeComposition } from 'utils/aggregationRouting'
 import { currencyId } from 'utils/currencyId'
 import { getSymbolSlug } from 'utils/string'
@@ -138,7 +138,7 @@ export default function Swap() {
     inputCurrency: string
   }>()
   const [{ show: isShowTutorial = false }] = useTutorialSwapGuide()
-  const [routeSummary, setRouteSummary] = useState<RouteSummary>()
+  const [routeSummary, setRouteSummary] = useState<DetailedRouteSummary>()
   const [isSelectCurrencyManually, setIsSelectCurrencyManually] = useState(false) // true when: select token input, output manualy or click rotate token.
 
   const { pathname } = useLocation()

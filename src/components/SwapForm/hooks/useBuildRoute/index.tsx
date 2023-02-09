@@ -1,10 +1,9 @@
 import { t } from '@lingui/macro'
 import { useCallback, useRef } from 'react'
+import { RouteSummary } from 'services/route/types/getRoute'
 
 import { useActiveWeb3React } from 'hooks'
-import { RouteSummary } from 'types/metaAggregator'
 import { asyncCallWithMinimumTime } from 'utils/fetchWaiting'
-import { getRawRouteSummary } from 'utils/getMetaAggregatorRoutes/utils'
 
 import buildRoute, { BuildRouteData, Payload } from './buildRoute'
 
@@ -46,7 +45,7 @@ const useBuildRoute = (args: Args) => {
     }
 
     const payload: Payload = {
-      routeSummary: getRawRouteSummary(routeSummary),
+      routeSummary,
       deadline: Math.floor(Date.now() / 1000) + transactionTimeout,
       slippageTolerant: slippage,
       sender: account,

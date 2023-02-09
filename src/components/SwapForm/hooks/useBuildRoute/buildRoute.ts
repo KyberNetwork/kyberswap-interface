@@ -1,9 +1,9 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import axios from 'axios'
+import { RouteSummary as RawRouteSummary } from 'services/route/types/getRoute'
 
 import { AGGREGATOR_API } from 'constants/env'
 import { NETWORKS_INFO } from 'constants/networks'
-import { RawRouteSummary } from 'utils/getMetaAggregatorRoutes/types'
 
 export type Payload = {
   routeSummary: RawRouteSummary
