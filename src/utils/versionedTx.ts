@@ -1,4 +1,6 @@
 import {
+  AddressLookupTableAccount,
+  AddressLookupTableProgram,
   Commitment,
   Message,
   PublicKey,
@@ -11,7 +13,41 @@ import {
 import connection from 'state/connection/connection'
 import { filterTruthy } from 'utils'
 
-const lookupTablesByPool = import(/* webpackChunkName: 'lookupTablesByPool' */ 'constants/lookupTablesByPool')
+const lookupTablesByPool = (async () => {
+  const result: { LOOKUP_TABLES_BY_POOL: { [tableAddress: string]: string[] } } = {
+    LOOKUP_TABLES_BY_POOL: {},
+  }
+  const authority = new PublicKey('9YqphVt2hdE7RaL3YBCCP49thJbSovwgZQhyHjvgi1L3') // Kyber's lookuptable account owner
+  const tableAccs = await connection.getProgramAccounts(AddressLookupTableProgram.programId, {
+    commitment: 'confirmed',
+    filters: [
+      {
+        memcmp: {
+          offset:
+            4 + // Variant
+            8 + // DeactivationSlot
+            8 + // LastExtendedSlot
+            1 + // LastExtendedSlotStartIndex
+            1, // HasAuthority
+          bytes: authority.toBase58(),
+        },
+      },
+    ],
+  })
+  const tables: AddressLookupTableAccount[] = []
+  tableAccs.forEach(acc => {
+    tables.push(
+      new AddressLookupTableAccount({
+        key: acc.pubkey,
+        state: AddressLookupTableAccount.deserialize(acc.account.data),
+      }),
+    )
+  })
+  for (const table of tables) {
+    result.LOOKUP_TABLES_BY_POOL[table.key.toBase58()] = table.state.addresses.map(i => i.toBase58())
+  }
+  return result
+})()
 /**
  * @param {Connection} connection Web3.js connection
  * @param {Commitment} commitment The level of commitment desired when querying state
