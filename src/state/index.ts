@@ -1,5 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { load, save } from 'redux-localstorage-simple'
+import routeApi from 'services/route'
 
 import { ENV_LEVEL } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
@@ -61,12 +62,15 @@ const store = configureStore({
     elasticFarm,
     tokenPrices,
     topTokens,
+    routeApi: routeApi.reducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({ thunk: true, immutableCheck: false, serializableCheck: false })
+      // .concat(dataApi.middleware)
       .concat(save({ states: PERSISTED_KEYS, debounce: 100 }))
       .concat(geckoTerminalApi.middleware)
-      .concat(annoucementApi.middleware),
+      .concat(annoucementApi.middleware)
+      .concat(routeApi.middleware),
   preloadedState: load({ states: PERSISTED_KEYS }),
 })
 
