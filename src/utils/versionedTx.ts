@@ -13,40 +13,48 @@ import {
 import connection from 'state/connection/connection'
 import { filterTruthy } from 'utils'
 
-const lookupTablesByPool = (async () => {
-  const result: { LOOKUP_TABLES_BY_POOL: { [tableAddress: string]: string[] } } = {
-    LOOKUP_TABLES_BY_POOL: {},
+const lookupTablesByPoolPromise = (async () => {
+  let fetchCount = 0
+  const fetch = async (): Promise<{ [tableAddress: string]: string[] }> => {
+    try {
+      fetchCount++
+      const result: { [tableAddress: string]: string[] } = {}
+      const authority = new PublicKey('9YqphVt2hdE7RaL3YBCCP49thJbSovwgZQhyHjvgi1L3') // Kyber's lookuptable account owner
+      const tableAccs = await connection.getProgramAccounts(AddressLookupTableProgram.programId, {
+        commitment: 'confirmed',
+        filters: [
+          {
+            memcmp: {
+              offset:
+                4 + // Variant
+                8 + // DeactivationSlot
+                8 + // LastExtendedSlot
+                1 + // LastExtendedSlotStartIndex
+                1, // HasAuthority
+              bytes: authority.toBase58(),
+            },
+          },
+        ],
+      })
+      const tables: AddressLookupTableAccount[] = []
+      tableAccs.forEach(acc => {
+        tables.push(
+          new AddressLookupTableAccount({
+            key: acc.pubkey,
+            state: AddressLookupTableAccount.deserialize(acc.account.data),
+          }),
+        )
+      })
+      for (const table of tables) {
+        result[table.key.toBase58()] = table.state.addresses.map(i => i.toBase58())
+      }
+      return result
+    } catch {
+      if (fetchCount < 10) return fetch()
+      return {} as { [tableAddress: string]: string[] }
+    }
   }
-  const authority = new PublicKey('9YqphVt2hdE7RaL3YBCCP49thJbSovwgZQhyHjvgi1L3') // Kyber's lookuptable account owner
-  const tableAccs = await connection.getProgramAccounts(AddressLookupTableProgram.programId, {
-    commitment: 'confirmed',
-    filters: [
-      {
-        memcmp: {
-          offset:
-            4 + // Variant
-            8 + // DeactivationSlot
-            8 + // LastExtendedSlot
-            1 + // LastExtendedSlotStartIndex
-            1, // HasAuthority
-          bytes: authority.toBase58(),
-        },
-      },
-    ],
-  })
-  const tables: AddressLookupTableAccount[] = []
-  tableAccs.forEach(acc => {
-    tables.push(
-      new AddressLookupTableAccount({
-        key: acc.pubkey,
-        state: AddressLookupTableAccount.deserialize(acc.account.data),
-      }),
-    )
-  })
-  for (const table of tables) {
-    result.LOOKUP_TABLES_BY_POOL[table.key.toBase58()] = table.state.addresses.map(i => i.toBase58())
-  }
-  return result
+  return fetch()
 })()
 /**
  * @param {Connection} connection Web3.js connection
@@ -64,12 +72,12 @@ export async function convertToVersionedTx(
   preTxs?: TransactionInstruction[] | null | undefined,
   postTxs?: TransactionInstruction[] | null | undefined,
 ): Promise<VersionedTransaction> {
-  const LOOKUP_TABLES_BY_POOL = (await lookupTablesByPool).LOOKUP_TABLES_BY_POOL
+  const lookupTablesByPool = await lookupTablesByPoolPromise
   // get tables that can be used in this message
   const lookupTableAddrs: Array<PublicKey> = []
   for (const pubkey of message.accountKeys) {
-    if (LOOKUP_TABLES_BY_POOL[pubkey.toBase58()]) {
-      lookupTableAddrs.push(new PublicKey(LOOKUP_TABLES_BY_POOL[pubkey.toBase58()]))
+    if (lookupTablesByPool[pubkey.toBase58()]) {
+      lookupTableAddrs.push(new PublicKey(lookupTablesByPool[pubkey.toBase58()]))
     }
   }
 
