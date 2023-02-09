@@ -15,11 +15,11 @@ import { filterTruthy } from 'utils'
 
 const lookupTablesByPoolPromise = (async () => {
   let fetchCount = 0
+  const authority = new PublicKey('9YqphVt2hdE7RaL3YBCCP49thJbSovwgZQhyHjvgi1L3') // Kyber's lookuptable account owner
   const fetch = async (): Promise<{ [tableAddress: string]: string[] }> => {
     try {
       fetchCount++
       const result: { [tableAddress: string]: string[] } = {}
-      const authority = new PublicKey('9YqphVt2hdE7RaL3YBCCP49thJbSovwgZQhyHjvgi1L3') // Kyber's lookuptable account owner
       const tableAccs = await connection.getProgramAccounts(AddressLookupTableProgram.programId, {
         commitment: 'confirmed',
         filters: [
@@ -36,21 +36,17 @@ const lookupTablesByPoolPromise = (async () => {
           },
         ],
       })
-      const tables: AddressLookupTableAccount[] = []
       tableAccs.forEach(acc => {
-        tables.push(
-          new AddressLookupTableAccount({
-            key: acc.pubkey,
-            state: AddressLookupTableAccount.deserialize(acc.account.data),
-          }),
+        result[acc.pubkey.toBase58()] = AddressLookupTableAccount.deserialize(acc.account.data).addresses.map(i =>
+          i.toBase58(),
         )
       })
-      for (const table of tables) {
-        result[table.key.toBase58()] = table.state.addresses.map(i => i.toBase58())
-      }
       return result
     } catch {
-      if (fetchCount < 10) return fetch()
+      if (fetchCount < 10) {
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        return fetch()
+      }
       return {} as { [tableAddress: string]: string[] }
     }
   }
