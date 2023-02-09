@@ -52,7 +52,6 @@ import TradePrice from 'components/swapv2/TradePrice'
 import TradeTypeSelection from 'components/swapv2/TradeTypeSelection'
 import {
   BetaTag,
-  BottomGrouping,
   Container,
   Dots,
   InfoComponentsWrapper,
@@ -112,7 +111,7 @@ import { captureSwapError } from 'utils/sentry'
 import { getSymbolSlug } from 'utils/string'
 import { checkPairInWhiteList } from 'utils/tokenInfo'
 
-import { ApprovalModal } from './ApprovalModal'
+import ApprovalModal from './ApprovalModal'
 
 const LiveChart = lazy(() => import('components/LiveChart'))
 const Routing = lazy(() => import('components/swapv2/Routing'))
@@ -958,22 +957,8 @@ export default function Swap() {
                       routerAddress={trade?.routerAddress}
                       isCurrencyInNative={Boolean(currencyIn?.isNative)}
                     />
-                    <Row marginTop="24px" gap="16px">
-                      <ButtonPrimary onClick={toggleApprovalModal}>
-                        <Row justify="center" gap="4px">
-                          <InfoHelper
-                            color={theme.textReverse}
-                            text={t`You need to first allow KyberSwap's smart contract to use your KNC`}
-                            placement="top"
-                            size={14}
-                          />
-                          <Trans>Approve {currencyIn?.symbol}</Trans>
-                        </Row>
-                      </ButtonPrimary>
-                      <ButtonPrimary disabled>
-                        <Trans>Swap</Trans>
-                      </ButtonPrimary>
-                      {/* {!account ? (
+                    <Column marginTop="24px" gap="16px">
+                      {!account ? (
                         <ButtonLight onClick={toggleWalletModal}>
                           <Trans>Connect Wallet</Trans>
                         </ButtonLight>
@@ -992,24 +977,32 @@ export default function Swap() {
                             <Trans>Insufficient liquidity for this trade.</Trans>
                           </TYPE.main>
                         </GreyCard>
-                      ) : true ? (
+                      ) : showApproveFlow ? (
                         <>
-                          <RowBetween>
+                          <RowBetween gap="16px">
                             <ButtonConfirmed
-                              onClick={approveCallback}
+                              onClick={toggleApprovalModal}
                               disabled={approval !== ApprovalState.NOT_APPROVED || approvalSubmitted}
-                              width="48%"
                               altDisabledStyle={approval === ApprovalState.PENDING} // show solid button while waiting
                               confirmed={approval === ApprovalState.APPROVED}
+                              style={{ flex: 1 }}
                             >
                               {approval === ApprovalState.PENDING ? (
-                                <AutoRow gap="6px" justify="center">
+                                <Row gap="6px" justify="center">
                                   <Trans>Approving</Trans> <Loader stroke="white" />
-                                </AutoRow>
+                                </Row>
                               ) : approvalSubmitted && approval === ApprovalState.APPROVED ? (
                                 <Trans>Approved</Trans>
                               ) : (
-                                <Trans>Approve ${currencyIn?.symbol}</Trans>
+                                <Row justify="center" gap="6px">
+                                  <InfoHelper
+                                    color={theme.textReverse}
+                                    text={t`You need to first allow KyberSwap's smart contract to use your KNC`}
+                                    placement="top"
+                                    size={14}
+                                  />
+                                  <Trans>Approve {currencyIn?.symbol}</Trans>
+                                </Row>
                               )}
                             </ButtonConfirmed>
                             <ButtonError
@@ -1029,7 +1022,6 @@ export default function Swap() {
                                   })
                                 }
                               }}
-                              width="48%"
                               id="swap-button"
                               disabled={!!swapInputError || approval !== ApprovalState.APPROVED}
                               backgroundColor={
@@ -1040,15 +1032,14 @@ export default function Swap() {
                                   : undefined
                               }
                               color={isPriceImpactHigh || isPriceImpactInvalid ? theme.white : undefined}
+                              style={{ flex: 1 }}
                             >
                               <Text fontSize={16} fontWeight={500}>
                                 {isPriceImpactHigh ? <Trans>Swap Anyway</Trans> : <Trans>Swap</Trans>}
                               </Text>
                             </ButtonError>
                           </RowBetween>
-                          <Column style={{ marginTop: '1rem' }}>
-                            <ProgressSteps steps={[approval === ApprovalState.APPROVED]} />
-                          </Column>
+                          <ProgressSteps steps={[approval === ApprovalState.APPROVED]} />
                         </>
                       ) : isLoading ? (
                         <GreyCard style={{ textAlign: 'center', borderRadius: '999px', padding: '12px' }}>
@@ -1123,8 +1114,8 @@ export default function Swap() {
                         </ButtonError>
                       )}
 
-                      {isExpertMode && swapErrorMessage ? <SwapCallbackError error={swapErrorMessage} /> : null} */}
-                    </Row>
+                      {isExpertMode && swapErrorMessage ? <SwapCallbackError error={swapErrorMessage} /> : null}
+                    </Column>
                   </Wrapper>
                 </>
               )}
@@ -1209,7 +1200,7 @@ export default function Swap() {
           </SwitchLocaleLinkWrapper>
         </Flex>
       </PageWrapper>
-      <ApprovalModal currencyInput={currencyIn} />
+      <ApprovalModal typedValue={typedValue} currencyInput={currencyIn} onApprove={approveCallback} />
     </>
   )
 }

@@ -1,6 +1,7 @@
+import { Box } from 'rebass'
 import styled from 'styled-components'
 
-const Column = styled.div<{
+const Column = styled(Box)<{
   gap?: 'sm' | 'md' | 'lg' | string
   justify?: 'stretch' | 'center' | 'start' | 'end' | 'flex-start' | 'flex-end' | 'space-between'
 }>`

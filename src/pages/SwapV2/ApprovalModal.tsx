@@ -1,6 +1,9 @@
+import { MaxUint256 } from '@ethersproject/constants'
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { useState } from 'react'
+import { BigNumber } from 'ethers'
+import { parseUnits } from 'ethers/lib/utils'
+import React, { useEffect, useState } from 'react'
 import { X } from 'react-feather'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -10,7 +13,6 @@ import Column from 'components/Column'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Modal from 'components/Modal'
 import { RowBetween, RowFit } from 'components/Row'
-import { KNC } from 'constants/tokens'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useCloseModal, useModalOpen } from 'state/application/hooks'
@@ -38,6 +40,7 @@ const OptionWrapper = styled.div<{ active?: boolean }>`
           background-color: ${theme.primary + '30'};
           box-shadow: 0 2px 4px 0 ${theme.buttonBlack};
           transform: translateY(-2px);
+          filter: brightness(1.2);
         `
       : css`
           :hover {
@@ -78,11 +81,25 @@ enum ApproveOptions {
   Custom,
 }
 
-export const ApprovalModal = ({ currencyInput }: { currencyInput?: Currency }) => {
+const ApprovalModal = ({
+  typedValue,
+  currencyInput,
+  onApprove,
+}: {
+  typedValue?: string
+  currencyInput?: Currency
+  onApprove?: (amount: BigNumber) => void
+}) => {
   const theme = useTheme()
   const isOpen = useModalOpen(ApplicationModal.SWAP_APPROVAL)
   const closeModal = useCloseModal(ApplicationModal.SWAP_APPROVAL)
   const [option, setOption] = useState<ApproveOptions>(ApproveOptions.Infinite)
+  const [customValue, setCustomValue] = useState(typedValue || '0')
+
+  useEffect(() => {
+    setCustomValue(typedValue || '0')
+  }, [typedValue])
+
   return (
     <Modal isOpen={isOpen} onDismiss={closeModal}>
       <Wrapper>
@@ -193,7 +210,12 @@ export const ApprovalModal = ({ currencyInput }: { currencyInput?: Currency }) =
                 <Trans>Custom Allowance</Trans>
               </Text>
               <InputWrapper>
-                <Input pattern="^[0-9]*[.,]?[0-9]*$" value={300} />
+                <Input
+                  pattern="^[0-9]*[.,]?[0-9]*$"
+                  value={customValue}
+                  onChange={(e: any) => setCustomValue(e.target.value)}
+                  tabIndex={-1}
+                />
                 <CurrencyLogo currency={currencyInput} size="16px" />
                 <Text color={theme.subText} fontSize="14px">
                   {currencyInput?.symbol}
@@ -209,10 +231,19 @@ export const ApprovalModal = ({ currencyInput }: { currencyInput?: Currency }) =
             </Column>
           </OptionWrapper>
         </Column>
-        <ButtonPrimary>
+        <ButtonPrimary
+          onClick={() => {
+            onApprove?.(
+              option === ApproveOptions.Infinite ? MaxUint256 : parseUnits(customValue, currencyInput?.decimals),
+            )
+            closeModal()
+          }}
+        >
           <Trans>Approve</Trans>
         </ButtonPrimary>
       </Wrapper>
     </Modal>
   )
 }
+
+export default React.memo(ApprovalModal)

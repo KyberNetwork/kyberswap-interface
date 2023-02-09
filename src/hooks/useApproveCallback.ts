@@ -61,69 +61,76 @@ export function useApproveCallback(
   const tokenContract = useTokenContract(token?.address)
   const addTransactionWithType = useTransactionAdder()
 
-  const approve = useCallback(async (): Promise<void> => {
-    if (approvalState !== ApprovalState.NOT_APPROVED && !forceApprove) {
-      console.error('approve was called unnecessarily')
-      return
-    }
-    if (!token) {
-      console.error('no token')
-      return
-    }
+  const approve = useCallback(
+    async (customAmount?: CurrencyAmount<Currency>): Promise<void> => {
+      if (approvalState !== ApprovalState.NOT_APPROVED && !forceApprove) {
+        console.error('approve was called unnecessarily')
+        return
+      }
+      if (!token) {
+        console.error('no token')
+        return
+      }
 
-    if (!tokenContract) {
-      console.error('tokenContract is null')
-      return
-    }
+      if (!tokenContract) {
+        console.error('tokenContract is null')
+        return
+      }
 
-    if (!amountToApprove) {
-      console.error('missing amount to approve')
-      return
-    }
+      if (!amountToApprove) {
+        console.error('missing amount to approve')
+        return
+      }
 
-    if (!spender) {
-      console.error('no spender')
-      return
-    }
+      if (!spender) {
+        console.error('no spender')
+        return
+      }
 
-    let useExact = false
-    let needRevoke = false
+      let estimatedGas
+      let approvedAmount
+      try {
+        if (customAmount) {
+          estimatedGas = await tokenContract.estimateGas.approve(spender, customAmount)
+          approvedAmount = customAmount
+        } else {
+          estimatedGas = await tokenContract.estimateGas.approve(spender, MaxUint256)
+          approvedAmount = MaxUint256
+        }
+      } catch (e) {
+        try {
+          estimatedGas = await tokenContract.estimateGas.approve(spender, amountToApprove.quotient.toString())
+          approvedAmount = amountToApprove.quotient.toString()
+        } catch {
+          estimatedGas = await tokenContract.estimateGas.approve(spender, '0')
+          return tokenContract.approve(spender, '0', {
+            gasLimit: calculateGasMargin(estimatedGas),
+          })
+        }
+      }
 
-    const estimatedGas = await tokenContract.estimateGas.approve(spender, MaxUint256).catch(() => {
-      // general fallback for tokens who restrict approval amounts
-      useExact = true
-      return tokenContract.estimateGas.approve(spender, amountToApprove.quotient.toString()).catch(() => {
-        needRevoke = true
-        return tokenContract.estimateGas.approve(spender, '0')
-      })
-    })
-
-    if (needRevoke) {
-      return tokenContract.approve(spender, '0', {
-        gasLimit: calculateGasMargin(estimatedGas),
-      })
-    }
-
-    return tokenContract
-      .approve(spender, useExact ? amountToApprove.quotient.toString() : MaxUint256, {
-        gasLimit: calculateGasMargin(estimatedGas),
-      })
-      .then((response: TransactionResponse) => {
-        addTransactionWithType({
-          hash: response.hash,
-          type: TRANSACTION_TYPE.APPROVE,
-          extraInfo: {
-            tokenSymbol: token.symbol ?? '',
-            tokenAddress: token.address,
-            contract: spender,
-          },
+      return tokenContract
+        .approve(spender, approvedAmount, {
+          gasLimit: calculateGasMargin(estimatedGas),
         })
-      })
-      .catch((error: Error) => {
-        console.debug('Failed to approve token', error)
-        throw error
-      })
-  }, [approvalState, token, tokenContract, amountToApprove, spender, addTransactionWithType, forceApprove])
+        .then((response: TransactionResponse) => {
+          addTransactionWithType({
+            hash: response.hash,
+            type: TRANSACTION_TYPE.APPROVE,
+            extraInfo: {
+              tokenSymbol: token.symbol ?? '',
+              tokenAddress: token.address,
+              contract: spender,
+            },
+          })
+        })
+        .catch((error: Error) => {
+          console.debug('Failed to approve token', error)
+          throw error
+        })
+    },
+    [approvalState, token, tokenContract, amountToApprove, spender, addTransactionWithType, forceApprove],
+  )
 
   return [approvalState, approve]
 }
