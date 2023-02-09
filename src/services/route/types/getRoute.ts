@@ -1,4 +1,21 @@
-type RawRoute = {
+export type GetRouteParams = {
+  tokenIn: string
+  tokenOut: string
+  amountIn: string
+  saveGas: string
+  includedSources: string
+  excludedSources?: string
+  gasInclude: string
+  gasPrice: string
+  feeAmount: string
+  chargeFeeBy: string
+  isInBps: string
+  feeReceiver: string
+  debug?: string
+  useMeta: string
+}
+
+type Route = {
   pool: string
 
   tokenIn: string
@@ -14,14 +31,14 @@ type RawRoute = {
   extra: string
 }
 
-type RawFeeConfig = {
+type FeeConfig = {
   feeAmount: string
   chargeFeeBy: string
   isInBps: boolean
   feeReceiver: string
 }
 
-export type RawRouteSummary = {
+export type RouteSummary = {
   tokenIn: string
   amountIn: string
   amountInUsd: string
@@ -35,18 +52,18 @@ export type RawRouteSummary = {
   gasUsd: string
   gasPrice: string
 
-  extraFee: RawFeeConfig
-  route: RawRoute[][]
+  extraFee: FeeConfig
+  route: Route[][]
 }
 
-export type RouteData = {
-  routeSummary: RawRouteSummary
+export type GetRouteData = {
+  routeSummary: RouteSummary
   routerAddress: string
   fromMeta: boolean
 }
 
-export type Response = {
+export type GetRouteResponse = {
   code: number
   message: string
-  data?: RouteData
+  data?: GetRouteData
 }

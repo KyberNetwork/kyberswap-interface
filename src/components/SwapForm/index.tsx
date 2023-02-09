@@ -1,7 +1,8 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Flex } from 'rebass'
+import { parseGetRouteResponse } from 'services/route/utils'
 
 import AddressInputPanel from 'components/AddressInputPanel'
 import { AutoRow } from 'components/Row'
@@ -19,7 +20,7 @@ import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { ClickableText } from 'pages/Pool/styleds'
-import { FeeConfig, RouteSummary } from 'types/metaAggregator'
+import { DetailedRouteSummary, FeeConfig } from 'types/route'
 
 import PriceImpactNote from './PriceImpactNote'
 import RefreshButton from './RefreshButton'
@@ -36,8 +37,8 @@ export type SwapFormProps = {
   balanceIn: CurrencyAmount<Currency> | undefined
   balanceOut: CurrencyAmount<Currency> | undefined
 
-  routeSummary: RouteSummary | undefined
-  setRouteSummary: React.Dispatch<React.SetStateAction<RouteSummary | undefined>>
+  routeSummary: DetailedRouteSummary | undefined
+  setRouteSummary: React.Dispatch<React.SetStateAction<DetailedRouteSummary | undefined>>
 
   isAdvancedMode: boolean
   slippage: number
@@ -55,7 +56,6 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     currencyOut,
     balanceIn,
     balanceOut,
-    routeSummary,
     setRouteSummary,
     isAdvancedMode,
     slippage,
@@ -69,7 +69,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   const { chainId, isEVM, isSolana } = useActiveWeb3React()
 
   const theme = useTheme()
-  const [isGettingRoute, setGettingRoute] = useState(false)
+  // const [isGettingRoute, setGettingRoute] = useState(false)
   const [isProcessingSwap, setProcessingSwap] = useState(false)
   const [typedValue, setTypedValue] = useState('1')
   const [recipient, setRecipient] = useState<string | null>(null)
@@ -79,20 +79,29 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   const { wrapType, inputError: wrapInputError, execute: onWrap } = useWrapCallback(currencyIn, currencyOut, typedValue)
   const isWrapOrUnwrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
 
-  const getRoute = useGetRoute({
+  const { fetcher: getRoute, result } = useGetRoute({
     currencyIn,
     currencyOut,
     feeConfig,
     isSaveGas,
     parsedAmount,
-    setLoading: setGettingRoute,
-    setResult: setRouteSummary,
   })
+
+  const { data: rawGetRouteResponse, isFetching: isGettingRoute, error: errorWhileGettingRoute } = result
+  const getRouteResponse = useMemo(() => {
+    if (!rawGetRouteResponse?.data || errorWhileGettingRoute || !currencyIn || !currencyOut) {
+      return undefined
+    }
+
+    return parseGetRouteResponse(rawGetRouteResponse.data, currencyIn, currencyOut)
+  }, [currencyIn, currencyOut, errorWhileGettingRoute, rawGetRouteResponse])
+
+  const routeSummary = getRouteResponse?.routeSummary
 
   const buildRoute = useBuildRoute({
     referral: feeConfig?.feeReceiver || '',
     recipient: isAdvancedMode && recipient ? recipient : '',
-    routeSummary,
+    routeSummary: rawGetRouteResponse?.data?.routeSummary,
     slippage,
     transactionTimeout,
   })
@@ -123,6 +132,10 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     // which mean it will unwrap all WSOL at once and we can't unwrap partial amount of WSOL
     if (isSolanaUnwrap) setTypedValue(balanceIn?.toExact() ?? '')
   }, [balanceIn, isSolanaUnwrap])
+
+  useEffect(() => {
+    setRouteSummary(routeSummary)
+  }, [routeSummary, setRouteSummary])
 
   return (
     <SwapFormContextProvider

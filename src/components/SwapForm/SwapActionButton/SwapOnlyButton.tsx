@@ -13,7 +13,7 @@ import useSwapCallbackV3 from 'hooks/useSwapCallbackV3'
 import useTheme from 'hooks/useTheme'
 import { Field } from 'state/swap/actions'
 import { useEncodeSolana } from 'state/swap/hooks'
-import { RouteSummary } from 'types/metaAggregator'
+import { DetailedRouteSummary } from 'types/route'
 import { checkPriceImpact } from 'utils/prices'
 
 const CustomPrimaryButton = styled(ButtonPrimary).attrs({
@@ -32,7 +32,7 @@ const CustomPrimaryButton = styled(ButtonPrimary).attrs({
 export type Props = {
   minimal?: boolean
   isAdvancedMode: boolean
-  routeSummary: RouteSummary | undefined
+  routeSummary: DetailedRouteSummary | undefined
   isGettingRoute: boolean
   isProcessingSwap: boolean
   isDisabled?: boolean

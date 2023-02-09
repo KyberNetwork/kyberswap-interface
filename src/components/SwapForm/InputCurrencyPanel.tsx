@@ -4,14 +4,14 @@ import { useEffect } from 'react'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import { useActiveWeb3React } from 'hooks'
 import { WrapType } from 'hooks/useWrapCallback'
-import { RouteSummary } from 'types/metaAggregator'
+import { DetailedRouteSummary } from 'types/route'
 import { formattedNum } from 'utils'
 import { halfAmountSpend, maxAmountSpend } from 'utils/maxAmountSpend'
 
 type Props = {
   wrapType: WrapType
   typedValue: string
-  routeSummary: RouteSummary | undefined
+  routeSummary: DetailedRouteSummary | undefined
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
   balanceIn: CurrencyAmount<Currency> | undefined

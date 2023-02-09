@@ -1,16 +1,14 @@
 import { Currency, CurrencyAmount, WETH } from '@kyberswap/ks-sdk-core'
-import { useCallback, useRef } from 'react'
+import { useCallback } from 'react'
+import routeApi from 'services/route'
+import { GetRouteParams } from 'services/route/types/getRoute'
 
 import { ETHER_ADDRESS } from 'constants/index'
-import { isEVM } from 'constants/networks'
+import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import { useAllDexes, useExcludeDexes } from 'state/customizeDexes/hooks'
-import { FeeConfig, RouteSummary } from 'types/metaAggregator'
-import { asyncCallWithMinimumTime } from 'utils/fetchWaiting'
-import getMetaAggregatorRoute, { Params } from 'utils/getMetaAggregatorRoutes'
-
-const MINIMUM_LOADING_TIME = 1_500
+import { FeeConfig } from 'types/route'
 
 const useDexes = () => {
   const allDexes = useAllDexes()
@@ -32,14 +30,13 @@ type Args = {
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
   feeConfig: FeeConfig | undefined
-  setLoading: (value: boolean) => void
-  setResult: (value: RouteSummary) => void
 }
 const useGetRoute = (args: Args) => {
-  const { isSaveGas, parsedAmount, currencyIn, currencyOut, feeConfig, setLoading, setResult } = args
-  const { chainId } = useActiveWeb3React()
+  const [trigger, result] = routeApi.useLazyGetRouteQuery()
 
-  const abortControllerRef = useRef(new AbortController())
+  const { isSaveGas, parsedAmount, currencyIn, currencyOut, feeConfig } = args
+  const { chainId } = useActiveWeb3React()
+  const chainSlug = NETWORKS_INFO[chainId].ksSettingRoute
 
   const amountIn = useDebounce(parsedAmount?.quotient?.toString() || '', 200)
 
@@ -64,7 +61,7 @@ const useGetRoute = (args: Args) => {
         : WETH[currencyOut.chainId].address
       : currencyOut.wrapped.address
 
-    const params: Params = {
+    const params: GetRouteParams = {
       tokenIn: tokenInAddress,
       tokenOut: tokenOutAddress,
       amountIn,
@@ -87,33 +84,15 @@ const useGetRoute = (args: Args) => {
       }
     })
 
-    setLoading(true)
-
-    try {
-      // abort the previous request
-      abortControllerRef.current.abort()
-
-      // setup a new signal
-      const abortController = new AbortController()
-      abortControllerRef.current = abortController
-
-      const response = await asyncCallWithMinimumTime(
-        () => getMetaAggregatorRoute(chainId, params, currencyIn, currencyOut, abortController.signal),
-        MINIMUM_LOADING_TIME,
-      )
-
-      if (!abortController.signal.aborted) {
-        setResult(response.routeSummary)
-        setLoading(false)
-      }
-    } catch (e) {
-      console.error(e)
-    }
+    trigger({
+      params,
+      chainSlug,
+    })
 
     return undefined
   }, [
     amountIn,
-    chainId,
+    chainSlug,
     chargeFeeBy,
     currencyIn,
     currencyOut,
@@ -122,11 +101,10 @@ const useGetRoute = (args: Args) => {
     feeReceiver,
     isInBps,
     isSaveGas,
-    setLoading,
-    setResult,
+    trigger,
   ])
 
-  return fetcher
+  return { fetcher, result }
 }
 
 export default useGetRoute

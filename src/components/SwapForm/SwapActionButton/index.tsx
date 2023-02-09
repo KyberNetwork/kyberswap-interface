@@ -16,7 +16,7 @@ import { useActiveWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { WrapType } from 'hooks/useWrapCallback'
 import { useWalletModalToggle } from 'state/application/hooks'
-import { RouteSummary } from 'types/metaAggregator'
+import { DetailedRouteSummary } from 'types/route'
 
 import { Props as SwapOnlyButtonProps } from './SwapOnlyButton'
 
@@ -38,7 +38,7 @@ type Props = {
 
   typedValue: string
   parsedAmountFromTypedValue: CurrencyAmount<Currency> | undefined
-  routeSummary: RouteSummary | undefined
+  routeSummary: DetailedRouteSummary | undefined
 
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined

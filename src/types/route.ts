@@ -23,7 +23,7 @@ export type FeeConfig = {
   feeReceiver: string
 }
 
-export type RouteSummary = {
+export type DetailedRouteSummary = {
   tokenIn: string
   amountIn: string
   parsedAmountIn: CurrencyAmount<Currency>

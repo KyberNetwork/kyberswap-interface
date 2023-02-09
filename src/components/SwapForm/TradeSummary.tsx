@@ -10,7 +10,7 @@ import InfoHelper from 'components/InfoHelper'
 import { RowBetween, RowFixed } from 'components/Row'
 import useTheme from 'hooks/useTheme'
 import { TYPE } from 'theme'
-import { FeeConfig, RouteSummary } from 'types/metaAggregator'
+import { DetailedRouteSummary, FeeConfig } from 'types/route'
 import { formattedNum } from 'utils'
 import { minimumAmountAfterSlippage } from 'utils/currencyAmount'
 import { getFormattedFeeAmountUsdV2 } from 'utils/fee'
@@ -59,7 +59,7 @@ const Wrapper = styled.div.attrs<WrapperProps>(props => ({
 
 type Props = {
   feeConfig: FeeConfig | undefined
-  routeSummary: RouteSummary | undefined
+  routeSummary: DetailedRouteSummary | undefined
   slippage: number
 }
 const TradeSummary: React.FC<Props> = ({ feeConfig, routeSummary, slippage }) => {
