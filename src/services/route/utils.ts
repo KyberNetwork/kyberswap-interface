@@ -1,21 +1,21 @@
 import { Currency, Price } from '@kyberswap/ks-sdk-core'
 
-import { RouteSummary } from 'types/metaAggregator'
+import { DetailedRouteSummary } from 'types/route'
 import { toCurrencyAmount } from 'utils/currencyAmount'
 
-import { RawRouteSummary, RouteData } from './types'
+import { GetRouteData } from './types/getRoute'
 
 export const calculatePriceImpact = (amountInUsd: number, amountOutUsd: number) => {
   const priceImpact = !amountOutUsd ? -1 : ((amountInUsd - amountOutUsd) * 100) / amountInUsd
   return priceImpact
 }
 
-export const convertRawResponse = (
-  rawData: RouteData,
+export const parseGetRouteResponse = (
+  rawData: GetRouteData,
   currencyIn: Currency,
   currencyOut: Currency,
 ): {
-  routeSummary: RouteSummary
+  routeSummary: DetailedRouteSummary
   routerAddress: string
   fromMeta: boolean
 } => {
@@ -29,7 +29,7 @@ export const convertRawResponse = (
     parsedAmountOut.quotient,
   )
 
-  const routeSummary: RouteSummary = {
+  const routeSummary: DetailedRouteSummary = {
     ...rawRouteSummary,
     parsedAmountIn,
     parsedAmountOut,
@@ -43,10 +43,4 @@ export const convertRawResponse = (
     routerAddress: rawData.routerAddress,
     fromMeta: rawData.fromMeta,
   }
-}
-
-export const getRawRouteSummary = (data: RouteSummary): RawRouteSummary => {
-  // remove fields that are added in the function above
-  const { parsedAmountIn, parsedAmountOut, priceImpact, executionPrice, routerAddress, ...rawData } = data
-  return rawData as RawRouteSummary
 }

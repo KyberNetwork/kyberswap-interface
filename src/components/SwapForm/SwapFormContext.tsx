@@ -1,11 +1,11 @@
 import { createContext, useContext } from 'react'
 
-import { FeeConfig, RouteSummary } from 'types/metaAggregator'
+import { DetailedRouteSummary, FeeConfig } from 'types/route'
 
 type SwapFormContextProps = {
   feeConfig: FeeConfig | undefined
   slippage: number
-  routeSummary: RouteSummary | undefined
+  routeSummary: DetailedRouteSummary | undefined
   typedValue: string
   isSaveGas: boolean
   recipient: string | null

@@ -13,7 +13,7 @@ import { StyledBalanceMaxMini } from 'components/swapv2/styleds'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { TYPE } from 'theme'
-import { RouteSummary } from 'types/metaAggregator'
+import { DetailedRouteSummary } from 'types/route'
 import { formattedNum } from 'utils'
 import { minimumAmountAfterSlippage } from 'utils/currencyAmount'
 import { getFormattedFeeAmountUsdV2 } from 'utils/fee'
@@ -34,7 +34,7 @@ function formatExecutionPrice(executionPrice?: Price<Currency, Currency>, invert
 
 export type Props = {
   acceptedChanges:
-    | Pick<RouteSummary, 'gasUsd' | 'parsedAmountOut' | 'priceImpact' | 'executionPrice' | 'amountInUsd'>
+    | Pick<DetailedRouteSummary, 'gasUsd' | 'parsedAmountOut' | 'priceImpact' | 'executionPrice' | 'amountInUsd'>
     | undefined
 }
 const SwapDetails: React.FC<Props> = ({ acceptedChanges }) => {
