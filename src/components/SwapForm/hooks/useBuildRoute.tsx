@@ -1,11 +1,11 @@
 import { t } from '@lingui/macro'
 import { useCallback, useRef } from 'react'
+import { buildRoute } from 'services/route'
+import { BuildRouteData, BuildRoutePayload } from 'services/route/types/buildRoute'
 import { RouteSummary } from 'services/route/types/getRoute'
 
 import { useActiveWeb3React } from 'hooks'
 import { asyncCallWithMinimumTime } from 'utils/fetchWaiting'
-
-import buildRoute, { BuildRouteData, Payload } from './buildRoute'
 
 const MINIMUM_LOADING_TIME = 1_000
 
@@ -44,7 +44,7 @@ const useBuildRoute = (args: Args) => {
       }
     }
 
-    const payload: Payload = {
+    const payload: BuildRoutePayload = {
       routeSummary,
       deadline: Math.floor(Date.now() / 1000) + transactionTimeout,
       slippageTolerant: slippage,
