@@ -13,6 +13,8 @@ import {
 import connection from 'state/connection/connection'
 import { filterTruthy } from 'utils'
 
+import { wait } from './retry'
+
 const lookupTablesByPoolPromise = (async () => {
   let fetchCount = 0
   const authority = new PublicKey('9YqphVt2hdE7RaL3YBCCP49thJbSovwgZQhyHjvgi1L3') // Kyber's lookuptable account owner
@@ -44,7 +46,7 @@ const lookupTablesByPoolPromise = (async () => {
       return result
     } catch {
       if (fetchCount < 10) {
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        await wait(1000)
         return fetch()
       }
       return {} as { [tableAddress: string]: string[] }
