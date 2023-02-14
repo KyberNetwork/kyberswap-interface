@@ -169,6 +169,8 @@ const SwapActionButton: React.FC<Props> = ({
       setProcessingSwap,
       setErrorWhileSwap,
       buildRoute,
+
+      isDisabled: !routeSummary || approval !== ApprovalState.APPROVED,
     }
 
     if (showApproveFlow) {
@@ -196,7 +198,7 @@ const SwapActionButton: React.FC<Props> = ({
               )}
             </ButtonConfirmed>
 
-            <SwapOnlyButton minimal isDisabled={approval !== ApprovalState.APPROVED} {...swapOnlyButtonProps} />
+            <SwapOnlyButton minimal {...swapOnlyButtonProps} />
           </RowBetween>
           <Column style={{ marginTop: '1rem' }}>
             <ProgressSteps steps={[approval === ApprovalState.APPROVED]} />
