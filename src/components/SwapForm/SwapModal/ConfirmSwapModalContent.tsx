@@ -130,7 +130,9 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
         {renderSwapBrief()}
       </AutoColumn>
 
-      {shouldShowAcceptChanges && <AcceptChangesNotice level={2} onAcceptChange={handleAcceptChanges} />}
+      {shouldShowAcceptChanges && (
+        <AcceptChangesNotice level={buildResult?.data?.outputChange?.level || 0} onAcceptChange={handleAcceptChanges} />
+      )}
 
       {!isBuildingRoute && errorWhileBuildRoute ? (
         <Flex
