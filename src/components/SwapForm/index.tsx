@@ -217,7 +217,14 @@ const SwapForm: React.FC<SwapFormProps> = props => {
             <TrendingSoonTokenBanner currencyIn={currencyIn} currencyOut={currencyOut} style={{ marginTop: '24px' }} />
           )}
 
-          <PriceImpactNote priceImpact={routeSummary?.priceImpact} isAdvancedMode={isAdvancedMode} />
+          <PriceImpactNote
+            priceImpact={routeSummary?.priceImpact}
+            isAdvancedMode={isAdvancedMode}
+            hasTooltip
+            style={{
+              marginTop: '28px',
+            }}
+          />
 
           <SwapActionButton
             isGettingRoute={isGettingRoute}
