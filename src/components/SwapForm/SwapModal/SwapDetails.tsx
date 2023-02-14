@@ -1,4 +1,4 @@
-import { Currency, Price } from '@kyberswap/ks-sdk-core'
+import { Currency, Price, Rounding } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useState } from 'react'
@@ -28,8 +28,8 @@ function formatExecutionPrice(executionPrice?: Price<Currency, Currency>, invert
   const outputSymbol = executionPrice.quoteCurrency?.symbol
 
   return inverted
-    ? `${executionPrice.invert().toSignificant(6)} ${inputSymbol} / ${outputSymbol}`
-    : `${executionPrice.toSignificant(6)} ${outputSymbol} / ${inputSymbol}`
+    ? `${executionPrice.invert().toSignificant(6, undefined, Rounding.ROUND_DOWN)} ${inputSymbol} / ${outputSymbol}`
+    : `${executionPrice.toSignificant(6, undefined, Rounding.ROUND_DOWN)} ${outputSymbol} / ${inputSymbol}`
 }
 
 export type Props = {
