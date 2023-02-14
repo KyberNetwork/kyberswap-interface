@@ -112,7 +112,7 @@ export function escapeRegExp(string: string): string {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // $& means the whole matched string
 }
 
-const toK = (num: string) => {
+export const toK = (num: string) => {
   return Numeral(num).format('0.[00]a')
 }
 
