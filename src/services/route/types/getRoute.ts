@@ -12,7 +12,6 @@ export type GetRouteParams = {
   isInBps: string
   feeReceiver: string
   debug?: string
-  useMeta: string
 }
 
 type Route = {
