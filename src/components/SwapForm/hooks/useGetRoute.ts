@@ -74,8 +74,6 @@ const useGetRoute = (args: Args) => {
       chargeFeeBy,
       isInBps,
       feeReceiver,
-
-      useMeta: 'true',
     }
 
     ;(Object.keys(params) as (keyof typeof params)[]).forEach(key => {
