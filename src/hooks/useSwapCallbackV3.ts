@@ -7,7 +7,7 @@ import { ZERO_ADDRESS_SOLANA } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks/index'
 import useENS from 'hooks/useENS'
 import { useTransactionAdder } from 'state/transactions/hooks'
-import { TRANSACTION_TYPE } from 'state/transactions/type'
+import { TRANSACTION_TYPE, TransactionExtraInfo2Token } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { isAddress, shortenAddress } from 'utils'
 import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
@@ -49,9 +49,9 @@ const useSwapCallbackV3 = () => {
     const inputAmountStr = formatCurrencyAmount(inputAmount, 6)
     const outputAmountStr = formatCurrencyAmount(outputAmount, 6)
 
-    const base = `${
+    const inputAmountFormat =
       feeConfig && feeConfig.chargeFeeBy === 'currency_in' && feeConfig.isInBps ? typedValue : inputAmountStr
-    } ${inputSymbol} for ${outputAmountStr} ${outputSymbol}`
+
     const withRecipient =
       recipient === account
         ? undefined
@@ -64,20 +64,27 @@ const useSwapCallbackV3 = () => {
     return {
       hash: '',
       type: TRANSACTION_TYPE.SWAP,
-      summary: `${base} ${withRecipient ?? ''}`,
-      arbitrary: {
-        inputSymbol,
-        outputSymbol,
-        inputAddress,
-        outputAddress,
-        inputDecimals: inputAmount.currency.decimals,
-        outputDecimals: outputAmount.currency.decimals,
-        withRecipient,
-        saveGas: isSaveGas,
-        inputAmount: inputAmount.toExact(),
-        slippageSetting: allowedSlippage ? allowedSlippage / 100 : 0,
-        priceImpact: priceImpact && priceImpact > 0.01 ? priceImpact.toFixed(2) : '<0.01',
-      },
+      extraInfo: {
+        tokenAmountIn: inputAmountFormat,
+        tokenAmountOut: outputAmountStr,
+        tokenSymbolIn: inputSymbol,
+        tokenSymbolOut: outputSymbol,
+        tokenAddressIn: inputAddress,
+        tokenAddressOut: outputAddress,
+        arbitrary: {
+          inputSymbol,
+          outputSymbol,
+          inputAddress,
+          outputAddress,
+          inputDecimals: inputAmount.currency.decimals,
+          outputDecimals: outputAmount.currency.decimals,
+          withRecipient,
+          saveGas: isSaveGas,
+          inputAmount: inputAmount.toExact(),
+          slippageSetting: allowedSlippage ? allowedSlippage / 100 : 0,
+          priceImpact: priceImpact && priceImpact > 0.01 ? priceImpact.toFixed(2) : '<0.01',
+        },
+      } as TransactionExtraInfo2Token,
     }
   }, [
     account,
@@ -85,11 +92,11 @@ const useSwapCallbackV3 = () => {
     chainId,
     feeConfig,
     inputAmount,
+    isSaveGas,
     outputAmount,
     priceImpact,
     recipient,
     recipientAddressOrName,
-    isSaveGas,
     typedValue,
   ])
 
