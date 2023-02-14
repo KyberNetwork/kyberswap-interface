@@ -52,7 +52,6 @@ const useBuildRoute = (args: Args) => {
       recipient: recipient || account,
       referral,
       source: 'kyberswap',
-      useMeta: true,
     }
 
     try {

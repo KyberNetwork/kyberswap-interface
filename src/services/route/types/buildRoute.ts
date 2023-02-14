@@ -8,7 +8,6 @@ export type BuildRoutePayload = {
   recipient?: string
   referral?: string
   source: 'kyberswap'
-  useMeta: true
 }
 
 export type BuildRouteData = {
