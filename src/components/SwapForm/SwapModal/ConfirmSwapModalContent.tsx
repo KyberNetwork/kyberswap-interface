@@ -7,7 +7,7 @@ import { Flex, Text } from 'rebass'
 import { calculatePriceImpact } from 'services/route/utils'
 import styled from 'styled-components'
 
-import { ButtonError, ButtonPrimary } from 'components/Button'
+import { ButtonPrimary } from 'components/Button'
 import { GreyCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
 import Loader from 'components/Loader'
@@ -60,6 +60,7 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
 
   const shouldShowAcceptChanges =
     !isBuildingRoute && !errorWhileBuildRoute && !isAcceptedChanges && buildResult?.data?.outputChange?.level !== 0
+  const shouldDisableConfirmButton = isBuildingRoute || !!errorWhileBuildRoute || shouldShowAcceptChanges
 
   const priceImpactCheck = checkPriceImpact(routeSummary?.priceImpact)
 
@@ -159,7 +160,7 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
             </Text>
           </Flex>
           <ButtonPrimary onClick={onRetry}>
-            <Text fontSize={14} fontWeight={500}>
+            <Text fontSize={14} fontWeight={500} as="span" lineHeight={1}>
               <Trans>Try again</Trans>
             </Text>
           </ButtonPrimary>
@@ -193,24 +194,24 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
                 </Dots>
               </GreyCard>
             ) : (
-              <ButtonError
+              <ButtonPrimary
                 onClick={onSwap}
-                disabled={isBuildingRoute || !!errorWhileBuildRoute || shouldShowAcceptChanges}
+                disabled={shouldDisableConfirmButton}
                 style={
-                  priceImpactCheck.isHigh
+                  priceImpactCheck.isHigh && !shouldDisableConfirmButton
                     ? {
                         border: 'none',
                         background: priceImpactCheck.isVeryHigh ? theme.red : theme.warning,
-                        color: theme.text,
+                        color: theme.white,
                       }
                     : undefined
                 }
                 id="confirm-swap-or-send"
               >
-                <Text fontSize={16} fontWeight={500}>
+                <Text fontSize={14} fontWeight={500} as="span" lineHeight={1}>
                   <Trans>Confirm Swap</Trans>
                 </Text>
-              </ButtonError>
+              </ButtonPrimary>
             )}
           </AutoRow>
         </>

@@ -1,4 +1,5 @@
 import { Trans, t } from '@lingui/macro'
+import { CSSProperties } from 'react'
 import { AlertTriangle } from 'react-feather'
 import styled, { useTheme } from 'styled-components'
 
@@ -6,7 +7,6 @@ import InfoHelper from 'components/InfoHelper'
 import { checkPriceImpact } from 'utils/prices'
 
 const Wrapper = styled.div<{ veryHigh?: boolean }>`
-  margin-top: 28px;
   padding: 12px 16px;
 
   display: flex;
@@ -14,15 +14,17 @@ const Wrapper = styled.div<{ veryHigh?: boolean }>`
 
   border-radius: 999px;
   color: ${({ theme, veryHigh }) => (veryHigh ? theme.red : theme.warning)};
-  background: ${({ theme, veryHigh }) => (veryHigh ? `${theme.red}66` : `${theme.warning}66`)};
+  background: ${({ theme, veryHigh }) => (veryHigh ? `${theme.red}33` : `${theme.warning}33`)};
   font-size: 12px;
 `
 
 type Props = {
-  isAdvancedMode: boolean
+  isAdvancedMode?: boolean
   priceImpact: number | undefined
+  hasTooltip: boolean
+  style?: CSSProperties
 }
-const PriceImpactNote: React.FC<Props> = ({ isAdvancedMode, priceImpact }) => {
+const PriceImpactNote: React.FC<Props> = ({ isAdvancedMode, priceImpact, hasTooltip, style }) => {
   const theme = useTheme()
   const priceImpactResult = checkPriceImpact(priceImpact)
 
@@ -33,7 +35,7 @@ const PriceImpactNote: React.FC<Props> = ({ isAdvancedMode, priceImpact }) => {
   // invalid
   if (priceImpactResult.isInvalid) {
     return (
-      <Wrapper>
+      <Wrapper style={style}>
         <AlertTriangle color={theme.warning} size={16} style={{ marginRight: '10px' }} />
         <Trans>Unable to calculate Price Impact</Trans>
         <InfoHelper text={t`Turn on Advanced Mode to trade`} color={theme.text} />
@@ -43,17 +45,20 @@ const PriceImpactNote: React.FC<Props> = ({ isAdvancedMode, priceImpact }) => {
 
   if (priceImpactResult.isHigh) {
     return (
-      <Wrapper veryHigh={priceImpactResult.isVeryHigh}>
+      <Wrapper style={style} veryHigh={priceImpactResult.isVeryHigh}>
         <AlertTriangle size={16} style={{ marginRight: '10px' }} />
         {priceImpactResult.isVeryHigh ? <Trans>Price Impact is Very High</Trans> : <Trans>Price Impact is High</Trans>}
 
-        <InfoHelper
-          text={
-            isAdvancedMode
-              ? t`You have turned on Advanced Mode from settings. Trades with high price impact can be executed`
-              : t`Turn on Advanced Mode from settings to execute trades with high price impact`
-          }
-        />
+        {hasTooltip && (
+          <InfoHelper
+            color={priceImpactResult.isVeryHigh ? theme.red : theme.warning}
+            text={
+              isAdvancedMode
+                ? t`You have turned on Advanced Mode from settings. Trades with high price impact can be executed`
+                : t`Turn on Advanced Mode from settings to execute trades with high price impact`
+            }
+          />
+        )}
       </Wrapper>
     )
   }
