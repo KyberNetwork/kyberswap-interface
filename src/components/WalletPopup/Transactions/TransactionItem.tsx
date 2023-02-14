@@ -76,13 +76,28 @@ const Description1Token = (transaction: TransactionDetails) => {
 
 //ex: +3knc -2usdt
 const Description2Token = (transaction: TransactionDetails) => {
-  const { extraInfo = {} } = transaction
+  const { extraInfo = {}, type } = transaction
   const { tokenAmountIn, tokenAmountOut, tokenSymbolIn, tokenSymbolOut, tokenAddressIn, tokenAddressOut } =
     extraInfo as TransactionExtraInfo2Token
+
+  const plusA = ![
+    TRANSACTION_TYPE.CLASSIC_ADD_LIQUIDITY,
+    TRANSACTION_TYPE.ELASTIC_ADD_LIQUIDITY,
+    TRANSACTION_TYPE.CLASSIC_CREATE_POOL,
+    TRANSACTION_TYPE.ELASTIC_CREATE_POOL,
+    TRANSACTION_TYPE.ELASTIC_INCREASE_LIQUIDITY,
+  ].includes(type)
+
+  const plusB = [
+    TRANSACTION_TYPE.CLASSIC_REMOVE_LIQUIDITY,
+    TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY,
+    TRANSACTION_TYPE.ELASTIC_COLLECT_FEE,
+  ].includes(type)
+
   return (
     <>
-      <DeltaTokenAmount tokenAddress={tokenAddressOut} symbol={tokenSymbolOut} amount={tokenAmountOut} plus />
-      <DeltaTokenAmount tokenAddress={tokenAddressIn} symbol={tokenSymbolIn} amount={tokenAmountIn} plus={false} />
+      <DeltaTokenAmount tokenAddress={tokenAddressOut} symbol={tokenSymbolOut} amount={tokenAmountOut} plus={plusA} />
+      <DeltaTokenAmount tokenAddress={tokenAddressIn} symbol={tokenSymbolIn} amount={tokenAmountIn} plus={plusB} />
     </>
   )
 }

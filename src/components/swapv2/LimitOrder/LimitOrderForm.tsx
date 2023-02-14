@@ -36,13 +36,13 @@ import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { TRANSACTION_STATE_DEFAULT, TransactionFlowState } from 'types'
-import { getLimitOrderContract } from 'utils'
+import { formattedNum, getLimitOrderContract } from 'utils'
 import { subscribeNotificationOrderCancelled, subscribeNotificationOrderExpired } from 'utils/firebase'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { toFixed } from 'utils/numbers'
 
 import ExpirePicker from './ExpirePicker'
-import { DEFAULT_EXPIRED, EXPIRED_OPTIONS } from './const'
+import { DEFAULT_EXPIRED, EXPIRED_OPTIONS, NUMBERS } from './const'
 import {
   calcInvert,
   calcOutput,
@@ -643,17 +643,22 @@ const LimitOrderForm = function LimitOrderForm({
         </Text>,
       )
     }
-    const thresHold = chainId === ChainId.MAINNET ? 300 : 10
+    const isMainNet = chainId === ChainId.MAINNET
+    const thresHold = isMainNet ? NUMBERS.ETH_USD_THRESHOLD : NUMBERS.REST_USD_THRESHOLD
     if (outputAmount && estimateUSD.rawInput && estimateUSD.rawInput < thresHold) {
       messages.push(
         <Text>
-          {chainId === ChainId.MAINNET ? (
+          {isMainNet ? (
             <Trans>
-              We suggest you increase the value of your limit order to at least{' '}
+              Your order may only be filled when market price of {currencyIn?.symbol} to {currencyOut?.symbol} is &lt;
               <Text as="span" fontWeight={'500'} color={theme.warning}>
-                ${thresHold}
-              </Text>{' '}
-              due to high gas fees on Ethereum chain. This will increase the odds of your order being filled.
+                {formattedNum(String(tradeInfo?.marketRate), true)}
+              </Text>
+              , as estimated gas fee to fill your order is ~
+              <Text as="span" fontWeight={'500'} color={theme.warning}>
+                ${toFixed(parseFloat(tradeInfo?.gasFee?.toPrecision(6) ?? '0'))}
+              </Text>
+              .
             </Trans>
           ) : (
             <Trans>
@@ -668,7 +673,7 @@ const LimitOrderForm = function LimitOrderForm({
       )
     }
     return messages
-  }, [currencyIn, displayRate, deltaRate, estimateUSD, outputAmount, chainId, theme])
+  }, [currencyIn, currencyOut, displayRate, deltaRate, estimateUSD, outputAmount, chainId, theme, tradeInfo])
   return (
     <>
       <Flex flexDirection={'column'} style={{ gap: '1rem' }}>

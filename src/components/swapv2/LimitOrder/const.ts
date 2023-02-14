@@ -54,3 +54,9 @@ export const CLOSE_ORDER_OPTIONS = [
     value: LimitOrderStatus.EXPIRED,
   },
 ]
+
+export const NUMBERS = {
+  GAS_AMOUNT_ETHEREUM: 1_200_000,
+  ETH_USD_THRESHOLD: 300,
+  REST_USD_THRESHOLD: 10,
+}
