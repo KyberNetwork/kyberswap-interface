@@ -1,13 +1,13 @@
 import { Currency, Price, Rounding } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { rgba } from 'polished'
 import { useState } from 'react'
-import { AlertTriangle, Repeat } from 'react-feather'
+import { Repeat } from 'react-feather'
 import { Text } from 'rebass'
 
 import { AutoColumn } from 'components/Column'
 import InfoHelper from 'components/InfoHelper'
-import { AutoRow, RowBetween, RowFixed } from 'components/Row'
+import { RowBetween, RowFixed } from 'components/Row'
+import PriceImpactNote from 'components/SwapForm/PriceImpactNote'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import { StyledBalanceMaxMini } from 'components/swapv2/styleds'
 import { useActiveWeb3React } from 'hooks'
@@ -197,31 +197,13 @@ const SwapDetails: React.FC<Props> = ({ acceptedChanges }) => {
         )}
       </AutoColumn>
 
-      {priceImpactResult.isHigh && (
-        <AutoRow
-          style={{
-            marginTop: '16px',
-            padding: '15px 20px',
-            borderRadius: '16px',
-            backgroundColor: rgba(priceImpactResult.isVeryHigh ? theme.red : theme.warning, 0.35),
-            color: theme.text,
-            fontSize: '12px',
-            fontWeight: 400,
-            lineHeight: '18px',
-          }}
-        >
-          <AlertTriangle
-            color={priceImpactResult.isVeryHigh ? theme.red : theme.warning}
-            size={16}
-            style={{ marginRight: '10px' }}
-          />
-          {priceImpactResult.isVeryHigh ? (
-            <Trans>Price impact is VERY high!</Trans>
-          ) : (
-            <Trans>Price impact is high!</Trans>
-          )}
-        </AutoRow>
-      )}
+      <PriceImpactNote
+        priceImpact={routeSummary?.priceImpact}
+        hasTooltip={false}
+        style={{
+          marginTop: '16px',
+        }}
+      />
     </>
   )
 }
