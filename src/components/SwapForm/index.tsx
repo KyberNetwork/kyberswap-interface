@@ -101,7 +101,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   const buildRoute = useBuildRoute({
     referral: feeConfig?.feeReceiver || '',
     recipient: isAdvancedMode && recipient ? recipient : '',
-    routeSummary: rawGetRouteResponse?.data?.routeSummary,
+    routeSummary: rawGetRouteResponse?.data?.routeSummary || undefined,
     slippage,
     transactionTimeout,
   })

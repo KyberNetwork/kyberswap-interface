@@ -56,7 +56,7 @@ export type RouteSummary = {
 }
 
 export type GetRouteData = {
-  routeSummary: RouteSummary
+  routeSummary: RouteSummary | null
   routerAddress: string
   fromMeta: boolean
 }
