@@ -15,10 +15,18 @@ export const parseGetRouteResponse = (
   currencyIn: Currency,
   currencyOut: Currency,
 ): {
-  routeSummary: DetailedRouteSummary
+  routeSummary: DetailedRouteSummary | undefined
   routerAddress: string
   fromMeta: boolean
 } => {
+  if (!rawData.routeSummary) {
+    return {
+      routeSummary: undefined,
+      routerAddress: rawData.routerAddress,
+      fromMeta: rawData.fromMeta,
+    }
+  }
+
   const rawRouteSummary = rawData.routeSummary
   const parsedAmountIn = toCurrencyAmount(currencyIn, rawRouteSummary.amountIn)
   const parsedAmountOut = toCurrencyAmount(currencyOut, rawRouteSummary.amountOut)
