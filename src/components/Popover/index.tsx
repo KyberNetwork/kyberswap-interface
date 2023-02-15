@@ -79,11 +79,13 @@ const Arrow = styled.div`
 export interface PopoverProps {
   content: React.ReactNode
   show: boolean
-  children: React.ReactNode
+  children?: React.ReactNode
   placement?: Placement
   noArrow?: boolean
   opacity?: number
   style?: React.CSSProperties
+  containerStyle?: React.CSSProperties
+  offset?: [number, number]
 }
 
 export default function Popover({
@@ -94,6 +96,8 @@ export default function Popover({
   noArrow = false,
   opacity,
   style = {},
+  containerStyle = {},
+  offset = [8, 8],
 }: PopoverProps) {
   const [referenceElement, setReferenceElement] = useState<HTMLDivElement | null>(null)
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null)
@@ -102,7 +106,7 @@ export default function Popover({
     placement,
     strategy: 'fixed',
     modifiers: [
-      { name: 'offset', options: { offset: [8, 8] } },
+      { name: 'offset', options: { offset } },
       { name: 'arrow', options: { element: arrowElement } },
     ],
   })
@@ -113,7 +117,9 @@ export default function Popover({
 
   return (
     <>
-      <ReferenceElement ref={setReferenceElement as any}>{children}</ReferenceElement>
+      <ReferenceElement ref={setReferenceElement as any} style={containerStyle}>
+        {children}
+      </ReferenceElement>
       <Portal>
         <PopoverContainer
           show={show}

@@ -27,11 +27,8 @@ export { default as FarmUpdater } from './updaters'
 
 export const useElasticFarms = () => {
   const { chainId, isEVM } = useActiveWeb3React()
-  const elasticFarm = useAppSelector(state => state.elasticFarm)
-  return useMemo(
-    () => (isEVM ? elasticFarm[chainId] || defaultChainData : defaultChainData),
-    [isEVM, elasticFarm, chainId],
-  )
+  const elasticFarm = useAppSelector(state => state.elasticFarm[chainId])
+  return useMemo(() => (isEVM ? elasticFarm || defaultChainData : defaultChainData), [isEVM, elasticFarm])
 }
 export type StakeParam = {
   nftId: BigNumber
@@ -43,6 +40,7 @@ export type StakeParam = {
 const getTransactionExtraInfo = (
   positions: Position[] | NFTPosition[],
   poolIds: string[],
+  nftIds: string[],
 ): TransactionExtraInfoStakeFarm => {
   if (!positions[0]?.amount0) {
     return { pairs: [] }
@@ -56,7 +54,8 @@ const getTransactionExtraInfo = (
       tokenSymbolOut: amount1.currency.symbol ?? '',
       tokenAmountIn: amount0.toSignificant(6),
       tokenAmountOut: amount1.toSignificant(6),
-      poolAddress: poolIds?.[index],
+      poolAddress: poolIds[index],
+      nftId: nftIds[index],
     }
   })
   return { pairs }
@@ -105,6 +104,7 @@ export const useFarmAction = (address: string) => {
         extraInfo: getTransactionExtraInfo(
           positions,
           positionDetails.map(e => e.poolId),
+          positionDetails.map(e => e.tokenId.toString()),
         ),
       })
 
@@ -129,6 +129,7 @@ export const useFarmAction = (address: string) => {
         extraInfo: getTransactionExtraInfo(
           positions,
           positionDetails.map(e => e.poolId),
+          positionDetails.map(e => e.tokenId.toString()),
         ),
       })
 
@@ -176,6 +177,7 @@ export const useFarmAction = (address: string) => {
         extraInfo: getTransactionExtraInfo(
           selectedNFTs.map(e => e.position),
           selectedNFTs.map(e => e.poolAddress),
+          nftIds.map(e => e.toString()),
         ),
       })
 
@@ -202,6 +204,7 @@ export const useFarmAction = (address: string) => {
           extraInfo: getTransactionExtraInfo(
             selectedNFTs.map(e => e.position),
             selectedNFTs.map(e => e.poolAddress),
+            nftIds.map(e => e.toString()),
           ),
         })
 

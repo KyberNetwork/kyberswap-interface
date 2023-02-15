@@ -924,15 +924,15 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
             },
             fetchPolicy: 'network-only',
           })
-          if (transaction.confirmedTime && new Date().getTime() - transaction.confirmedTime < 3600000) {
+          if (transaction.confirmedTime && new Date().getTime() - transaction.confirmedTime < 3_600_000) {
             if (
               !res.data?.pool?.mints ||
               res.data.pool.mints.every((mint: { id: string }) => !mint.id.startsWith(transaction.hash))
             )
               break
           }
-          const { totalValueLockedToken0, totalValueLockedToken1, totalValueLockedUSD, feeTier } = res.data.pool
-          const mint = res.data.pool.mints.find((mint: { id: string }) => mint.id.startsWith(transaction.hash))
+          const { totalValueLockedToken0, totalValueLockedToken1, totalValueLockedUSD, feeTier, mints } = res.data.pool
+          const mint = mints.find((mint: { id: string }) => mint.id.startsWith(transaction.hash))
           mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_COMPLETED, {
             token_1_pool_qty: totalValueLockedToken0,
             token_2_pool_qty: totalValueLockedToken1,
@@ -984,7 +984,11 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
           break
         }
         case TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY: {
-          const { poolAddress, token_1, token_2 } = arbitrary || {}
+          const {
+            contract: poolAddress = '',
+            tokenSymbolIn,
+            tokenSymbolOut,
+          } = (transaction.extraInfo || {}) as TransactionExtraInfo2Token
           const res = await apolloProMMClient.query({
             query: PROMM_GET_POOL_VALUES_AFTER_BURNS_SUCCESS,
             variables: {
@@ -1005,8 +1009,8 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
             token_1_pool_qty: totalValueLockedToken0,
             token_2_pool_qty: totalValueLockedToken1,
             liquidity_USD: totalValueLockedUSD,
-            token_1,
-            token_2,
+            token_1: tokenSymbolIn,
+            token_2: tokenSymbolOut,
             token_1_qty: burn?.amount0,
             token_2_qty: burn?.amount1,
             tx_liquidity_USD: burn?.amountUSD,
