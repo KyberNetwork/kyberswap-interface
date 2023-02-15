@@ -159,25 +159,11 @@ const ChartPositions = ({
     </TableHeader>
   )
 
-  const body = positions.map((position, index) => {
-    return (
-      <PositionListItem
-        key={index}
-        position={position}
-        index={index}
-        usdPrices={usdPrices}
-        rotated={rotated}
-        ticksAtLimit={{
-          [Bound.LOWER]: ticksAtLimits[Bound.LOWER][index],
-          [Bound.UPPER]: ticksAtLimits[Bound.UPPER][index],
-        }}
-      />
-    )
-  })
   return (
     <TableWrapper>
-      {header}
-      {body}
+      Tab
+      <br />
+      Chart
     </TableWrapper>
   )
 }

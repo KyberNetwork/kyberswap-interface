@@ -66,7 +66,7 @@ import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { usePairFactor } from 'state/topTokens/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
-import { useExpertModeManager, useUserSlippageTolerance } from 'state/user/hooks'
+import { useExpertModeManager, useUserSlippageTolerance, useViewMode } from 'state/user/hooks'
 import { VIEW_MODE } from 'state/user/reducer'
 import { ExternalLink, MEDIA_WIDTHS, StyledInternalLink, TYPE } from 'theme'
 import { basisPointsToPercent, calculateGasMargin, formattedNum } from 'utils'
@@ -850,8 +850,7 @@ export default function AddLiquidity() {
     </ChartWrapper>
   )
 
-  // const [viewMode] = useViewMode()
-  const viewMode = VIEW_MODE.LIST
+  const [viewMode] = useViewMode()
   const [rotated, setRotated] = useState(false)
   const modalContent = () => {
     if (!isMultiplePosition) {
@@ -930,8 +929,7 @@ export default function AddLiquidity() {
             title={!!noLiquidity ? t`Create a new pool` : t`Add Liquidity`}
             onDismiss={handleDismissConfirmation}
             topContent={modalContent}
-            // showGridListOption={isMultiplePosition} //todo enable this again when support multiple position chart
-            showGridListOption={false}
+            showGridListOption={isMultiplePosition}
             bottomContent={() =>
               isMultiplePosition ? (
                 <RowBetween>
