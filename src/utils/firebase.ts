@@ -31,6 +31,8 @@ const COLLECTIONS = {
   LO_FILLED_ORDERS: 'filledEvents',
 
   TELEGRAM_SUBSCRIPTION: 'telegramSubscription',
+  ANNOUNCEMENT: 'wallets',
+  ANNOUNCEMENT_POPUP: 'broadcast',
 }
 
 function subscribeDocument(collectionName: string, paths: string[], callback: (data: any) => void) {
@@ -50,31 +52,43 @@ type ListOrderResponse = {
   orders: LimitOrder[]
   all: AllItem[]
 }
+
+function subscribeListDocument(collectionName: string, paths: string[], callback: (data: any) => void) {
+  const q = query(collection(db, collectionName, ...paths))
+  const unsubscribe = onSnapshot(
+    q,
+    querySnapshot => {
+      const result: any = []
+      querySnapshot?.forEach(e => {
+        result.push({ ...e.data(), id: e.id })
+      })
+      callback(result)
+    },
+    (error: any) => console.error('listen list error', error),
+  )
+  return unsubscribe
+}
+
 function subscribeListLimitOrder(
   collectionName: string,
   account: string,
   chainId: ChainId,
   callback: (data: ListOrderResponse) => void,
 ) {
-  const q = query(collection(db, collectionName, account.toLowerCase(), chainId.toString()))
-  const unsubscribe = onSnapshot(
-    q,
-    querySnapshot => {
-      const result: ListOrderResponse = {
-        orders: [],
-        all: [],
+  const unsubscribe = subscribeListDocument(collectionName, [account.toLowerCase(), chainId.toString()], data => {
+    const result: ListOrderResponse = {
+      orders: [],
+      all: [],
+    }
+    data.forEach((e: any) => {
+      if (e.id.startsWith('nonce')) {
+        result.all.push(e as AllItem)
+      } else {
+        result.orders.push({ ...e, id: Number(e.id) } as LimitOrder)
       }
-      querySnapshot?.forEach(e => {
-        if (e.id.startsWith('nonce')) {
-          result.all.push({ ...e.data(), id: e.id } as AllItem)
-        } else {
-          result.orders.push({ id: Number(e.id), ...e.data() } as LimitOrder)
-        }
-      })
-      callback(result)
-    },
-    (error: any) => console.error('listen list error', error),
-  )
+    })
+    callback(result)
+  })
 
   return unsubscribe
 }
@@ -113,4 +127,15 @@ export function subscribeNotificationOrderExpired(
 
 export function subscribeTelegramSubscription(account: string, callback: (data: { isSuccessfully: boolean }) => void) {
   return subscribeDocument(COLLECTIONS.TELEGRAM_SUBSCRIPTION, [account.toLowerCase()], callback)
+}
+
+export function subscribePrivateAnnouncement(account: string | undefined, callback: (data: any) => void) {
+  // todo any
+  if (!account) return
+  return subscribeListDocument(COLLECTIONS.ANNOUNCEMENT, [account.toLowerCase(), 'metaMessages'], callback)
+}
+
+export function subscribeAnnouncement(callback: (data: any) => void) {
+  // todo any
+  return subscribeListDocument(COLLECTIONS.ANNOUNCEMENT_POPUP, [], callback)
 }

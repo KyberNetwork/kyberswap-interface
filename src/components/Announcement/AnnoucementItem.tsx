@@ -60,20 +60,14 @@ const Image = styled.img`
   object-fit: contain;
 `
 
-export default function AnnouncementItem({
-  announcement,
-  onClick,
-}: {
-  announcement: Announcement
-  onClick: () => void
-}) {
-  const { isRead, title, time } = announcement
+export default function AnnouncementItem({ announcement, onRead }: { announcement: Announcement; onRead: () => void }) {
+  const { isRead, name, startAt: time } = announcement
   return (
-    <Wrapper isRead={isRead} onClick={onClick}>
+    <Wrapper isRead={isRead} onClick={onRead}>
       <Image src="https://media.vneconomy.vn/images/upload/2022/07/11/gettyimages-1207206237.jpg" />
       <RowItem>
         <Column gap="6px">
-          <Title>{title} hahah haha haha</Title>
+          <Title>{name} hahah haha haha</Title>
           <Desc>
             800 USDC to be won for 40 Winners in total! All users in the qualified field will be 800 USDC to be won for
             40 Winners in total! All users in the qualified field will be. 40 Winners in total! All users in the

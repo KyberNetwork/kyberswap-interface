@@ -4,7 +4,7 @@ import { Text } from 'rebass'
 
 import useTheme from 'hooks/useTheme'
 
-import { calcPercentFilledOrder, formatAmountOrder, formatRateOrder } from '../helpers'
+import { calcPercentFilledOrder, formatAmountOrder, formatRateLimitOrder } from '../helpers'
 import { LimitOrder, LimitOrderStatus } from '../type'
 
 export default function SummaryNotify({
@@ -28,7 +28,7 @@ export default function SummaryNotify({
     takerAssetDecimals,
   } = order || ({} as LimitOrder)
   const theme = useTheme()
-  const rate = order ? formatRateOrder(order, false) : ''
+  const rate = order ? formatRateLimitOrder(order, false) : ''
   const filledPercent = order ? calcPercentFilledOrder(filledTakingAmount, takingAmount, takerAssetDecimals) : 0
   const mainMsg = order ? (
     <Trans>

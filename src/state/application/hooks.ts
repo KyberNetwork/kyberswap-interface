@@ -6,21 +6,26 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useDeepCompareEffect } from 'react-use'
 
 import { ETH_PRICE, PROMM_ETH_PRICE, TOKEN_DERIVED_ETH } from 'apollo/queries'
+import { isPopupExpired, useAckAnnouncement } from 'components/Announcement/helper'
+import {
+  PopupContent,
+  PopupContentAnnouncement,
+  PopupContentSimple,
+  PopupContentTxn,
+  PopupType,
+} from 'components/Announcement/type'
 import { OUTSITE_FARM_REWARDS_QUERY, ZERO_ADDRESS } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { KNC } from 'constants/tokens'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks/index'
+import { PopupItemType } from 'state/application/reducer'
 import { useAppSelector } from 'state/hooks'
 import { AppDispatch, AppState } from 'state/index'
 import { getBlockFromTimestamp, getPercentChange } from 'utils'
 
 import {
   ApplicationModal,
-  PopupContent,
-  PopupContentSimple,
-  PopupContentTxn,
-  PopupType,
   addPopup,
   closeModal,
   removePopup,
@@ -59,10 +64,10 @@ export function useToggleModal(modal: ApplicationModal): () => void {
 
 export function useToggleNotificationCenter() {
   const toggleNotificationCenter = useToggleModal(ApplicationModal.NOTIFICATION_CENTER)
-  const clearAllPopup = useRemoveAllPopup()
+  const clearAllPopup = useRemoveAllPopupByType()
   return useCallback(() => {
     toggleNotificationCenter()
-    clearAllPopup()
+    clearAllPopup(PopupType.TOP_RIGHT)
   }, [clearAllPopup, toggleNotificationCenter])
 }
 
@@ -161,7 +166,7 @@ export function useToggleSwitchEthereumModal(): () => void {
 }
 
 // returns a function that allows adding a popup
-function useAddPopup(): (
+export function useAddPopup(): (
   content: PopupContent,
   popupType: PopupType,
   key?: string,
@@ -177,11 +182,6 @@ function useAddPopup(): (
   )
 }
 
-export enum NotificationType {
-  SUCCESS,
-  ERROR,
-  WARNING,
-}
 // simple notify with text and description
 export const useNotify = () => {
   const addPopup = useAddPopup()
@@ -205,25 +205,79 @@ export const useTransactionNotify = () => {
 }
 
 // returns a function that allows removing a popup via its key
-export function useRemovePopup(): (key: string, removeAll?: boolean) => void {
+export function useRemovePopup() {
   const dispatch = useDispatch()
+  const { ackAnnouncement } = useAckAnnouncement()
+  // todo phan biet
   return useCallback(
-    (key: string, removeAll = false) => {
-      dispatch(removePopup({ key, removeAll }))
+    (popup: PopupItemType) => {
+      const { key, popupType, content } = popup
+      if ([PopupType.CENTER, PopupType.SNIPPET, PopupType.TOP_RIGHT, PopupType.TOP_BAR].includes(popupType)) {
+        ackAnnouncement((content as PopupContentAnnouncement).metaMessageId)
+      }
+      dispatch(removePopup({ key }))
     },
-    [dispatch],
+    [dispatch, ackAnnouncement],
   )
 }
 
-export function useRemoveAllPopup() {
-  const remove = useRemovePopup()
-  return useCallback(() => remove('', true), [remove])
+export function useRemoveAllPopupByType() {
+  const data = useActivePopups()
+  const removePopup = useRemovePopup()
+
+  return useCallback(
+    (typesRemove: PopupType) => {
+      const { snippetPopups, centerPopups, topPopups, topRightPopups } = data
+      // todo test 3 case: topright+simple, simple, topright
+      // todo ack: phan biet noti thuong vs not normal
+
+      const map: Record<PopupType, PopupItemType[]> = {
+        [PopupType.SNIPPET]: snippetPopups,
+        [PopupType.CENTER]: centerPopups,
+        [PopupType.TOP_BAR]: topPopups,
+        [PopupType.TOP_RIGHT]: topRightPopups,
+        [PopupType.SIMPLE]: topRightPopups,
+        [PopupType.TRANSACTION]: topRightPopups,
+      }
+      const popups: PopupItemType[] = map[typesRemove] ?? []
+      popups.forEach(removePopup)
+    },
+    [data, removePopup],
+  )
 }
 
 // get the list of active popups
-export function useActivePopups(): AppState['application']['popupList'] {
-  const list = useSelector((state: AppState) => state.application.popupList)
-  return useMemo(() => list.filter(item => item.show), [list])
+export function useActivePopups() {
+  const popups = useSelector((state: AppState) => state.application.popupList)
+  const { announcementsAckMap } = useAckAnnouncement()
+
+  return useMemo(() => {
+    const topRightPopups = popups.filter(e =>
+      [PopupType.SIMPLE, PopupType.TOP_RIGHT, PopupType.TRANSACTION].includes(e.popupType),
+    )
+
+    const topPopups = popups.filter(
+      e =>
+        e.popupType === PopupType.TOP_BAR &&
+        !isPopupExpired(e.content as PopupContentAnnouncement, announcementsAckMap),
+    )
+    const snippetPopups = popups.filter(
+      e =>
+        e.popupType === PopupType.SNIPPET &&
+        !isPopupExpired(e.content as PopupContentAnnouncement, announcementsAckMap),
+    )
+
+    const centerPopups = popups.filter(
+      e =>
+        e.popupType === PopupType.CENTER && !isPopupExpired(e.content as PopupContentAnnouncement, announcementsAckMap),
+    )
+    return {
+      topPopups,
+      centerPopups,
+      topRightPopups,
+      snippetPopups,
+    }
+  }, [popups, announcementsAckMap])
 }
 
 /**

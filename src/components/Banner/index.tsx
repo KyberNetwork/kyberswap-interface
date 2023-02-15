@@ -2,7 +2,7 @@ import React, { memo, useMemo } from 'react'
 import { X } from 'react-feather'
 import { useLocalStorage } from 'react-use'
 import { Flex } from 'rebass'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 import { Autoplay, Navigation, Pagination } from 'swiper'
 import { Swiper, SwiperSlide } from 'swiper/react/swiper-react'
 

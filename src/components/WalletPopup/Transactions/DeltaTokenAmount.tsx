@@ -12,8 +12,8 @@ export const TokenAmountWrapper = styled.div`
   font-size: 12px;
 `
 const TokenLogo = styled(Logo)`
-  width: 16px;
-  height: 16px;
+  width: 12px;
+  height: 12px;
   border-radius: 100%;
 `
 
@@ -23,18 +23,20 @@ const DeltaTokenAmount = ({
   tokenAddress,
   plus,
   whiteColor,
+  logoURL,
 }: {
   symbol?: string
   amount?: string
   tokenAddress?: string
   plus?: boolean
   whiteColor?: boolean
+  logoURL?: string
 }) => {
   const withSign = plus !== undefined
   const theme = useTheme()
   const sign = amount === undefined || !withSign ? null : plus ? '+' : '-'
   const color = whiteColor ? theme.text : plus ? theme.primary : theme.subText
-  const logoUrl = getTokenLogo(tokenAddress)
+  const logoUrl = logoURL ?? getTokenLogo(tokenAddress)
   if (!amount) return null
   return (
     <TokenAmountWrapper>

@@ -7,10 +7,13 @@ import styled, { css } from 'styled-components'
 import { Navigation, Pagination } from 'swiper'
 import { Swiper, SwiperSlide } from 'swiper/react/swiper-react'
 
-import { ButtonPrimary } from 'components/Button'
+import CtaButton from 'components/Announcement/Popups/CtaButton'
+import { AnnouncementTemplatePopup, PopupContentAnnouncement } from 'components/Announcement/type'
 import { AutoColumn } from 'components/Column'
 import { Z_INDEXS } from 'constants/styles'
 import useTheme from 'hooks/useTheme'
+import { PopupItemType } from 'state/application/reducer'
+import { ExternalLink } from 'theme'
 
 const IMAGE_HEIGHT = '140px'
 const PADDING_MOBILE = '16px'
@@ -27,6 +30,18 @@ const ItemWrapper = styled.div<{ expand: boolean }>`
       height: unset;
       padding: 20px 20px 12px 20px;
     `};
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+     height: unset;
+  `}
+`
+
+const ContentColumn = styled(AutoColumn)<{ expand: boolean }>`
+  padding: ${({ expand }) => (expand ? '14px' : '14px 40px 14px 14px')};
+  gap: 14px;
+  flex: 1;
+  ${({ theme, expand }) => theme.mediaWidth.upToSmall`
+    padding: ${expand ? '14px' : '36px 40px 14px 14px'};
+  `}
 `
 
 const Image = styled.img<{ expand: boolean }>`
@@ -90,15 +105,28 @@ const SeeMore = styled.div<{ expand: boolean }>`
     `};
 `
 
+const StyledCtaButton = styled(CtaButton)`
+  width: 140px;
+  height: 36px;
+`
+
+const StyledLink = styled(ExternalLink)`
+  &:hover {
+    text-decoration: none;
+  }
+`
+
 function SnippetPopupItem({
   data,
   expand,
   setExpand,
 }: {
   expand: boolean
-  data: any
+  data: PopupItemType
   setExpand: (v: boolean) => void
 }) {
+  const { templateBody = {} } = data.content as PopupContentAnnouncement
+  const { ctas = [], name, content } = templateBody as AnnouncementTemplatePopup
   const toggle = () => {
     setExpand(!expand)
   }
@@ -106,25 +134,22 @@ function SnippetPopupItem({
   return (
     <ItemWrapper expand={expand}>
       <Image expand={expand} src="https://media.vneconomy.vn/images/upload/2022/07/11/gettyimages-1207206237.jpg" />
-      <AutoColumn gap="14px" style={{ padding: expand ? '14px' : '14px 40px 14px 14px' }}>
-        <Title expand={expand}>
-          mẹ bã sợ bị cô dít bã làm 1 đống nước cam, gừng các thứ kêu cạ nhà ún hơ hơ mẹ bã sợ bị cô dít bã làm 1 đống
-          nước cam, gừng các thứ kêu cạ nhà ún hơ hơ
-        </Title>
-        <Desc expand={expand}>
-          mẹ bã sợ bị cô dít bã làm 1 đống nước cam, gừng các thứ kêu cạ nhà ún hơ hơmẹ bã sợ bị cô dít bã làm 1 đống
-          nước cam, gừng các thứ kêu cạ nhà ún hơ hơ
-        </Desc>
-        <Flex alignItems="center" style={{ position: 'relative', justifyContent: expand ? 'center' : 'space-between' }}>
-          <ButtonPrimary width="140px" height="36px">
-            Enter Now
-          </ButtonPrimary>
+      <ContentColumn expand={expand}>
+        <Title expand={expand}>{name}</Title>
+        <Desc expand={expand}>{content}</Desc>
+        <Flex
+          alignItems="flex-end"
+          style={{ position: 'relative', justifyContent: expand ? 'center' : 'space-between' }}
+        >
+          <StyledLink href={ctas[0]?.url}>
+            <StyledCtaButton data={ctas[0]} color="primary" />
+          </StyledLink>
           <SeeMore onClick={toggle} expand={expand}>
             <ChevronsUp size={16} />
             {expand ? <Trans>See Less</Trans> : <Trans>See More</Trans>}
           </SeeMore>
         </Flex>
-      </AutoColumn>
+      </ContentColumn>
     </ItemWrapper>
   )
 }
@@ -169,7 +194,7 @@ const Wrapper = styled.div<{ expand: boolean }>`
     }
   }
 
-  ${({ theme }) => theme.mediaWidth.upToMedium`
+  ${({ theme }) => theme.mediaWidth.upToSmall`
     ${css`
       left: 0;
       right: 0;
@@ -192,24 +217,20 @@ const Close = styled(X)`
     right: calc(12px + ${PADDING_MOBILE});
   `}
 `
-export default function SnippetPopup({ announcements }: { announcements: any }) {
+export default function SnippetPopup({ data, clearAll }: { data: PopupItemType[]; clearAll: () => void }) {
   const theme = useTheme()
   const [expand, setExpand] = useState(false)
-
-  const closeAll = () => {
-    //
-  }
 
   return (
     <Wrapper expand={expand}>
       <Swiper slidesPerView={1} navigation={true} pagination={true} loop={true} modules={[Navigation, Pagination]}>
-        {announcements.map((banner: any, index: number) => (
+        {data.map((banner: PopupItemType, index: number) => (
           <SwiperSlide key={index}>
             <SnippetPopupItem expand={expand} setExpand={setExpand} data={banner} key={index} />
           </SwiperSlide>
         ))}
       </Swiper>
-      <Close size={18} color={theme.subText} onClick={closeAll} />
+      <Close size={18} color={theme.subText} onClick={clearAll} />
     </Wrapper>
   )
 }

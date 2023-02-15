@@ -1,31 +1,7 @@
 import { createAction } from '@reduxjs/toolkit'
-import { ReactNode } from 'react'
 
+import { PopupContent, PopupType } from 'components/Announcement/type'
 import { Topic } from 'hooks/useNotification'
-
-import { NotificationType } from './hooks'
-
-export type PopupContentTxn = {
-  hash: string
-  notiType: NotificationType
-}
-
-export type PopupContentSimple = {
-  title: string
-  summary?: ReactNode
-  icon?: ReactNode
-  type: NotificationType
-}
-
-export enum PopupType {
-  TRANSACTION, // top right
-  SIMPLE, // top right
-  TOP_BAR,
-  SNIPPET, // bottom left
-  CENTER,
-}
-
-export type PopupContent = PopupContentTxn | PopupContentSimple
 
 export enum ApplicationModal {
   NETWORK,
@@ -80,7 +56,7 @@ export const addPopup = createAction<{
   content: PopupContent
   popupType: PopupType
 }>('application/addPopup')
-export const removePopup = createAction<{ key: string; removeAll?: boolean }>('application/removePopup')
+export const removePopup = createAction<{ key: string }>('application/removePopup')
 
 export const updatePrommETHPrice = createAction<{
   currentPrice: string

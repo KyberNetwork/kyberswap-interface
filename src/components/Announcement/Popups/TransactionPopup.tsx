@@ -5,12 +5,12 @@ import styled from 'styled-components'
 
 import IconFailure from 'assets/svg/notification_icon_failure.svg'
 import IconSuccess from 'assets/svg/notification_icon_success.svg'
+import { NotificationType } from 'components/Announcement/type'
 import { AutoColumn } from 'components/Column'
 import { AutoRow } from 'components/Row'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { NotificationType } from 'state/application/hooks'
 import { useAllTransactions } from 'state/transactions/hooks'
 import {
   TRANSACTION_TYPE,

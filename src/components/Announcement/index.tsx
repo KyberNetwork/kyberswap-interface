@@ -1,18 +1,16 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useRef } from 'react'
 import { useMedia } from 'react-use'
+import AnnouncementApi from 'services/announcement'
 import styled, { css } from 'styled-components'
 
 import AnnouncementView from 'components/Announcement/AnnoucementView'
-import { formatNumberOfUnread, getListAnnouncement, getListInbox } from 'components/Announcement/helper'
-import { Announcement } from 'components/Announcement/type'
+import { formatNumberOfUnread } from 'components/Announcement/helper'
 import NotificationIcon from 'components/Icons/NotificationIcon'
 import MenuFlyout from 'components/MenuFlyout'
 import Modal from 'components/Modal'
 import { useActiveWeb3React } from 'hooks'
-import useNotification from 'hooks/useNotification'
-import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
-import { useModalOpen, useToggleModal, useToggleNotificationCenter } from 'state/application/hooks'
+import { useModalOpen, useToggleNotificationCenter } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
 const StyledMenuButton = styled.button<{ active?: boolean }>`
@@ -67,56 +65,36 @@ const browserCustomStyle = css`
   padding: 0;
 `
 
-export default function Annoucement() {
-  const { chainId, account } = useActiveWeb3React()
-  const theme = useTheme()
+export default function AnnouncementComponent() {
+  const { account } = useActiveWeb3React()
   const node = useRef<HTMLDivElement>(null)
 
   const open = useModalOpen(ApplicationModal.NOTIFICATION_CENTER)
   const toggle = useToggleNotificationCenter()
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
-  const [announcements, setAnnouncements] = useState<Announcement[]>([])
-  const [inboxes, setInbox] = useState<Announcement[]>([])
-  const [numberOfUnreadInbox, setNumberOfUnreadInbox] = useState(0)
-  const [numberOfUnreadGeneral, setNumberOfUnreadGeneral] = useState(0)
+  const { useGetAnnouncementsQuery, useGetPrivateAnnouncementsQuery } = AnnouncementApi
+  const { data: announcements = [], refetch: refetchAnnouncement } = useGetAnnouncementsQuery({ page: 1, pageSize: 20 })
+  const { data: inboxes = [], refetch: refetchPrivateAnnouncement } = useGetPrivateAnnouncementsQuery({
+    account,
+    page: 1,
+    pageSize: 20,
+  })
 
-  const fetchData = useCallback(async () => {
-    try {
-      await Promise.allSettled([getListAnnouncement(), account ? getListInbox() : Promise.resolve([])])
-      setNumberOfUnreadGeneral(0)
-      setAnnouncements(
-        Array.from({ length: 10 }, (x, y) => ({
-          isRead: Math.random() < 0.5,
-          id: y,
-          title: Math.random() + '',
-          time: Date.now(),
-        })),
-      )
-      setNumberOfUnreadInbox(0)
-      setInbox(
-        Array.from({ length: 10 }, (x, y) => ({
-          isRead: Math.random() < 0.5,
-          id: y,
-          title: Math.random() + '',
-          time: Date.now(),
-        })),
-      )
-    } catch (e) {
-      console.error('get Announcement Error', e)
-    }
-  }, [account])
+  const numberOfUnreadInbox = inboxes.length // todo filter
+  const numberOfUnreadGeneral = announcements.length
 
-  useEffect(() => {
-    fetchData()
-  }, [fetchData])
+  const refreshAnnouncement = () => {
+    refetchAnnouncement()
+    refetchPrivateAnnouncement()
+  }
 
   const props = {
     numberOfUnreadInbox,
     numberOfUnreadGeneral,
     announcements,
     inboxes,
-    refreshAnnouncement: fetchData,
+    refreshAnnouncement,
   }
 
   const numberOfUnread = numberOfUnreadInbox + numberOfUnreadGeneral

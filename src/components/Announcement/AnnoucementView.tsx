@@ -6,9 +6,9 @@ import styled, { css } from 'styled-components'
 
 import { ReactComponent as ListIcon } from 'assets/svg/list_icon.svg'
 import AnnouncementItem from 'components/Announcement/AnnoucementItem'
-import InboxItem from 'components/Announcement/InboxItem'
-import { ackReadAnnouncement, formatNumberOfUnread } from 'components/Announcement/helper'
-import { Announcement } from 'components/Announcement/type'
+import InboxItem from 'components/Announcement/PrivateAnnoucement'
+import { formatNumberOfUnread } from 'components/Announcement/helper'
+import { Announcement, PrivateAnnouncement } from 'components/Announcement/type'
 import Column from 'components/Column'
 import NotificationIcon from 'components/Icons/NotificationIcon'
 import { RowBetween } from 'components/Row'
@@ -22,11 +22,11 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
-  max-height: 70vh;
+  height: 70vh;
   padding-top: 20px;
   ${({ theme }) => theme.mediaWidth.upToSmall`
     width: 100%;
-    max-height: unset;
+    height: unset;
   `};
 `
 const Container = styled.div`
@@ -122,24 +122,22 @@ export default function AnnouncementView({
   numberOfUnreadInbox: number
   numberOfUnreadGeneral: number
   announcements: Announcement[]
-  inboxes: Announcement[]
+  inboxes: PrivateAnnouncement[]
   refreshAnnouncement: () => void
 }) {
   const { account } = useActiveWeb3React()
-  const [activeTab, setActiveTab] = useState(Tab.ANNOUNCEMENT)
+  const [activeTab, setActiveTab] = useState(account ? Tab.INBOX : Tab.ANNOUNCEMENT)
   const theme = useTheme()
   const toggleWalletModal = useWalletModalToggle()
   const { showNotificationModal } = useNotification()
 
-  const onReadAnnouncement = async (item: Announcement) => {
+  const onReadAnnouncement = async (item: PrivateAnnouncement | Announcement) => {
     try {
-      await ackReadAnnouncement()
       refreshAnnouncement()
     } catch (error) {}
   }
   const isMyInboxTab = activeTab === Tab.INBOX
   const listData = isMyInboxTab ? inboxes : announcements
-  console.log(isMyInboxTab)
 
   return (
     <Wrapper>
@@ -175,14 +173,22 @@ export default function AnnouncementView({
         <ListAnnouncement>
           {listData.map(item =>
             isMyInboxTab ? (
-              <InboxItem key={item.id} announcement={item} onClick={() => onReadAnnouncement(item)} />
+              <InboxItem
+                key={item.id}
+                announcement={item as PrivateAnnouncement}
+                onRead={() => onReadAnnouncement(item)}
+              />
             ) : (
-              <AnnouncementItem key={item.id} announcement={item} onClick={() => onReadAnnouncement(item)} />
+              <AnnouncementItem
+                key={item.id}
+                announcement={item as Announcement}
+                onRead={() => onReadAnnouncement(item)}
+              />
             ),
           )}
         </ListAnnouncement>
       ) : (
-        <Column style={{ alignItems: 'center', margin: '24px 0px' }} gap="8px">
+        <Column style={{ alignItems: 'center', margin: '24px 0px 32px 0px' }} gap="8px">
           <Info color={theme.subText} size={26} />
           <Text color={theme.subText} textAlign="center">
             {!account && isMyInboxTab ? (
