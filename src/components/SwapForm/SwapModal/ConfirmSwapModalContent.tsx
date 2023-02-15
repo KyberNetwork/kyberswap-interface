@@ -97,14 +97,24 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
 
     let parsedAmountIn = routeSummary.parsedAmountIn
     let parsedAmountOut = routeSummary.parsedAmountOut
+    let levelOfChanges
 
-    if (isAcceptedChanges && buildResult?.data) {
+    if (buildResult?.data) {
       const { amountIn, amountOut } = buildResult.data
       parsedAmountIn = toCurrencyAmount(routeSummary.parsedAmountIn.currency, amountIn)
       parsedAmountOut = toCurrencyAmount(routeSummary.parsedAmountOut.currency, amountOut)
+      const { amount, level } = buildResult.data.outputChange || {}
+
+      const changedAmount = Number(amount)
+
+      if (changedAmount >= 0) {
+        levelOfChanges = undefined
+      } else if (changedAmount < 0) {
+        levelOfChanges = level
+      }
     }
 
-    return <SwapBrief inputAmount={parsedAmountIn} outputAmount={parsedAmountOut} />
+    return <SwapBrief levelOfChanges={levelOfChanges} inputAmount={parsedAmountIn} outputAmount={parsedAmountOut} />
   }
 
   useEffect(() => {
