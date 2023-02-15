@@ -20,7 +20,7 @@ const SwapBrief: React.FC<Props> = ({ inputAmount, outputAmount }) => {
   const { typedValue, feeConfig } = useSwapFormContext()
   return (
     <AutoColumn gap={'md'} style={{ marginTop: '20px' }}>
-      <RowBetween align="flex-end">
+      <RowBetween align="flex-end" justify="flex-start">
         <RowFixed gap={'0px'}>
           <CurrencyLogo currency={inputAmount.currency} size={'24px'} style={{ marginRight: '12px' }} />
           <TruncatedText fontSize={24} fontWeight={500}>
@@ -36,7 +36,7 @@ const SwapBrief: React.FC<Props> = ({ inputAmount, outputAmount }) => {
       <RowFixed>
         <ArrowDown size="16" color={theme.text2} style={{ marginLeft: '4px', minWidth: '16px' }} />
       </RowFixed>
-      <RowBetween align="flex-end">
+      <RowBetween align="flex-end" justify="flex-start">
         <RowFixed gap={'0px'}>
           <CurrencyLogo currency={outputAmount?.currency} size={'24px'} style={{ marginRight: '12px' }} />
           <TruncatedText fontSize={24} fontWeight={500}>

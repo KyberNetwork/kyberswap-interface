@@ -1,13 +1,17 @@
 import { Currency, Price, Rounding } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { rgba } from 'polished'
 import { useState } from 'react'
-import { Repeat } from 'react-feather'
-import { Text } from 'rebass'
+import { AlertTriangle, Repeat } from 'react-feather'
+import { Flex, Text } from 'rebass'
+import styled from 'styled-components'
 
 import { AutoColumn } from 'components/Column'
 import InfoHelper from 'components/InfoHelper'
+import Loader from 'components/Loader'
 import { RowBetween, RowFixed } from 'components/Row'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
+import { Dots } from 'components/swap/styleds'
 import { StyledBalanceMaxMini } from 'components/swapv2/styleds'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
@@ -59,20 +63,41 @@ function formatExecutionPrice(executionPrice?: Price<Currency, Currency>, invert
     : `${executionPrice.toSignificant(6, undefined, Rounding.ROUND_DOWN)} ${outputSymbol} / ${inputSymbol}`
 }
 
-export type Props = {
-  acceptedChanges:
-    | Pick<DetailedRouteSummary, 'gasUsd' | 'parsedAmountOut' | 'priceImpact' | 'executionPrice' | 'amountInUsd'>
-    | undefined
+const StatusWrapper = styled.div`
+  width: 100%;
+  height: 40px;
+`
+
+type Optional<T> = {
+  [key in keyof T]: T[key] | undefined
 }
-const SwapDetails: React.FC<Props> = ({ acceptedChanges }) => {
+
+export type Props = {
+  isLoading: boolean
+  hasError: boolean
+} & Optional<Pick<DetailedRouteSummary, 'gasUsd' | 'parsedAmountOut' | 'executionPrice' | 'amountInUsd'>>
+
+const SwapDetails: React.FC<Props> = ({
+  isLoading,
+  hasError,
+  gasUsd,
+  parsedAmountOut,
+  executionPrice,
+  amountInUsd,
+}) => {
   const { isSolana, isEVM } = useActiveWeb3React()
   const [showInverted, setShowInverted] = useState<boolean>(false)
   const theme = useTheme()
-  const { routeSummary, feeConfig, slippage } = useSwapFormContext()
-
-  const { gasUsd, parsedAmountOut, executionPrice, amountInUsd } = acceptedChanges || routeSummary || {}
+  const { feeConfig, slippage } = useSwapFormContext()
 
   const formattedFeeAmountUsd = getFormattedFeeAmountUsdV2(Number(amountInUsd || 0), feeConfig?.feeAmount)
+
+  console.log({
+    gasUsd,
+    parsedAmountOut,
+    executionPrice,
+    amountInUsd,
+  })
 
   const minimumAmountOut = parsedAmountOut ? minimumAmountAfterSlippage(parsedAmountOut, slippage) : undefined
   const currencyOut = parsedAmountOut?.currency
@@ -92,10 +117,58 @@ const SwapDetails: React.FC<Props> = ({ acceptedChanges }) => {
       ''
     )
 
-  return (
-    <>
-      <AutoColumn justify="flex-start" gap="sm">
-        <TYPE.subHeader textAlign="left" style={{ width: '100%', marginBottom: '16px', color: theme.subText }}>
+  const renderStatusNotice = () => {
+    if (isLoading) {
+      return (
+        <StatusWrapper>
+          <Flex
+            width="100%"
+            height="100%"
+            padding="12px"
+            alignItems="center"
+            sx={{
+              borderRadius: '24px',
+              background: theme.buttonBlack,
+              gap: '8px',
+            }}
+          >
+            <Loader size="20px" stroke={theme.primary} />
+            <Text as="span" fontSize="12px" color={theme.primary} fontStyle="italic">
+              <Trans>
+                <Dots>Locking in this price</Dots>
+              </Trans>
+            </Text>
+          </Flex>
+        </StatusWrapper>
+      )
+    }
+
+    if (hasError) {
+      return (
+        <StatusWrapper>
+          <Flex
+            width="100%"
+            height="100%"
+            padding="12px"
+            alignItems="center"
+            sx={{
+              borderRadius: '24px',
+              background: rgba(theme.warning, 0.25),
+              gap: '8px',
+            }}
+          >
+            <AlertTriangle color={theme.warning} size={16} />
+            <Text as="span" color={theme.warning} fontSize="12px">
+              <Trans>Something went wrong. Please try again</Trans>
+            </Text>
+          </Flex>
+        </StatusWrapper>
+      )
+    }
+
+    return (
+      <StatusWrapper>
+        <TYPE.subHeader textAlign="left" style={{ width: '100%', color: theme.subText }}>
           {minimumAmountOutStr && (
             <Trans>
               Output is estimated. You will receive at least {minimumAmountOutStr} or the transaction will revert.
@@ -103,7 +176,13 @@ const SwapDetails: React.FC<Props> = ({ acceptedChanges }) => {
           )}
           {isSolana && <Trans>We may send multiple transactions to complete the swap.</Trans>}
         </TYPE.subHeader>
-      </AutoColumn>
+      </StatusWrapper>
+    )
+  }
+
+  return (
+    <>
+      {renderStatusNotice()}
 
       <AutoColumn gap="0.5rem" style={{ padding: '1rem', border: `1px solid ${theme.border}`, borderRadius: '8px' }}>
         <RowBetween align="center">
