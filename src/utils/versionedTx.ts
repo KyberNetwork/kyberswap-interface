@@ -18,10 +18,10 @@ import { wait } from './retry'
 const lookupTablesByPoolPromise = (async () => {
   let fetchCount = 0
   const authority = new PublicKey('9YqphVt2hdE7RaL3YBCCP49thJbSovwgZQhyHjvgi1L3') // Kyber's lookuptable account owner
-  const fetch = async (): Promise<{ [tableAddress: string]: string[] }> => {
+  const fetch = async (): Promise<{ [tableAddress: string]: PublicKey }> => {
     try {
       fetchCount++
-      const result: { [tableAddress: string]: string[] } = {}
+      const result: { [tableAddress: string]: PublicKey } = {}
       const tableAccs = await connection.getProgramAccounts(AddressLookupTableProgram.programId, {
         commitment: 'confirmed',
         filters: [
@@ -39,8 +39,8 @@ const lookupTablesByPoolPromise = (async () => {
         ],
       })
       tableAccs.forEach(acc => {
-        result[acc.pubkey.toBase58()] = AddressLookupTableAccount.deserialize(acc.account.data).addresses.map(i =>
-          i.toBase58(),
+        AddressLookupTableAccount.deserialize(acc.account.data).addresses.forEach(
+          i => (result[i.toBase58()] = acc.pubkey),
         )
       })
       return result
@@ -49,7 +49,7 @@ const lookupTablesByPoolPromise = (async () => {
         await wait(1000)
         return fetch()
       }
-      return {} as { [tableAddress: string]: string[] }
+      return {} as { [tableAddress: string]: PublicKey }
     }
   }
   return fetch()
@@ -75,7 +75,7 @@ export async function convertToVersionedTx(
   const lookupTableAddrs: Array<PublicKey> = []
   for (const pubkey of message.accountKeys) {
     if (lookupTablesByPool[pubkey.toBase58()]) {
-      lookupTableAddrs.push(new PublicKey(lookupTablesByPool[pubkey.toBase58()]))
+      lookupTableAddrs.push(lookupTablesByPool[pubkey.toBase58()])
     }
   }
 
