@@ -11,6 +11,7 @@ import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import { RowBetween, RowFixed } from 'components/Row'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
+import ValueWithLoadingSkeleton from 'components/SwapForm/SwapModal/SwapDetailsv2/ValueWithLoadingSkeleton'
 import { Dots } from 'components/swap/styleds'
 import { StyledBalanceMaxMini } from 'components/swapv2/styleds'
 import { useActiveWeb3React } from 'hooks'
@@ -92,13 +93,6 @@ const SwapDetails: React.FC<Props> = ({
 
   const formattedFeeAmountUsd = getFormattedFeeAmountUsdV2(Number(amountInUsd || 0), feeConfig?.feeAmount)
 
-  console.log({
-    gasUsd,
-    parsedAmountOut,
-    executionPrice,
-    amountInUsd,
-  })
-
   const minimumAmountOut = parsedAmountOut ? minimumAmountAfterSlippage(parsedAmountOut, slippage) : undefined
   const currencyOut = parsedAmountOut?.currency
   const minimumAmountOutStr =
@@ -168,7 +162,7 @@ const SwapDetails: React.FC<Props> = ({
 
     return (
       <StatusWrapper>
-        <TYPE.subHeader textAlign="left" style={{ width: '100%', color: theme.subText }}>
+        <TYPE.subHeader textAlign="left" style={{ width: '100%', color: theme.subText, fontStyle: 'italic' }}>
           {minimumAmountOutStr && (
             <Trans>
               Output is estimated. You will receive at least {minimumAmountOutStr} or the transaction will revert.
@@ -185,42 +179,60 @@ const SwapDetails: React.FC<Props> = ({
       {renderStatusNotice()}
 
       <AutoColumn gap="0.5rem" style={{ padding: '1rem', border: `1px solid ${theme.border}`, borderRadius: '8px' }}>
-        <RowBetween align="center">
+        <RowBetween align="center" height="20px">
           <Text fontWeight={400} fontSize={14} color={theme.subText}>
             <Trans>Current Price</Trans>
           </Text>
-          <Text
-            fontWeight={500}
-            fontSize={14}
-            color={theme.text}
-            sx={{
-              justifyContent: 'center',
-              alignItems: 'center',
-              display: 'flex',
-              textAlign: 'right',
-              paddingLeft: '10px',
+
+          <ValueWithLoadingSkeleton
+            skeletonStyle={{
+              width: '160px',
             }}
-          >
-            {formatExecutionPrice(executionPrice, showInverted)}
-            <StyledBalanceMaxMini onClick={() => setShowInverted(!showInverted)}>
-              <Repeat size={14} color={theme.text} />
-            </StyledBalanceMaxMini>
-          </Text>
+            isShowingSkeleton={isLoading}
+            content={
+              executionPrice ? (
+                <Flex
+                  fontWeight={500}
+                  fontSize={14}
+                  color={theme.text}
+                  sx={{
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    textAlign: 'right',
+                    paddingLeft: '10px',
+                  }}
+                >
+                  {formatExecutionPrice(executionPrice, showInverted)}
+                  <StyledBalanceMaxMini onClick={() => setShowInverted(!showInverted)}>
+                    <Repeat size={14} color={theme.text} />
+                  </StyledBalanceMaxMini>
+                </Flex>
+              ) : (
+                <TYPE.black fontSize={14}>--</TYPE.black>
+              )
+            }
+          />
         </RowBetween>
 
-        <RowBetween>
+        <RowBetween align="center" height="20px">
           <RowFixed>
             <TYPE.black fontSize={14} fontWeight={400} color={theme.subText}>
               <Trans>Minimum Received</Trans>
             </TYPE.black>
             <InfoHelper size={14} text={t`You will receive at least this amount or your transaction will revert`} />
           </RowFixed>
-          <RowFixed>
-            <TYPE.black fontSize={14}>{minimumAmountOutStr}</TYPE.black>
-          </RowFixed>
+
+          <ValueWithLoadingSkeleton
+            skeletonStyle={{
+              width: '108px',
+            }}
+            isShowingSkeleton={isLoading}
+            content={<TYPE.black fontSize={14}>{minimumAmountOutStr || '--'}</TYPE.black>}
+          />
         </RowBetween>
+
         {isEVM && (
-          <RowBetween>
+          <RowBetween height="20px">
             <RowFixed>
               <TYPE.black fontSize={14} fontWeight={400} color={theme.subText}>
                 <Trans>Gas Fee</Trans>
@@ -228,18 +240,27 @@ const SwapDetails: React.FC<Props> = ({
               <InfoHelper size={14} text={t`Estimated network fee for your transaction`} />
             </RowFixed>
 
-            <TYPE.black color={theme.text} fontSize={14}>
-              {gasUsd ? formattedNum(String(gasUsd), true) : '--'}
-            </TYPE.black>
+            <ValueWithLoadingSkeleton
+              skeletonStyle={{
+                width: '64px',
+              }}
+              isShowingSkeleton={isLoading}
+              content={
+                <TYPE.black color={theme.text} fontSize={14}>
+                  {gasUsd ? formattedNum(String(gasUsd), true) : '--'}
+                </TYPE.black>
+              }
+            />
           </RowBetween>
         )}
 
-        <RowBetween>
+        <RowBetween height="20px">
           <RowFixed>
             <TYPE.black fontSize={14} fontWeight={400} color={theme.subText}>
               <Trans>Slippage</Trans>
             </TYPE.black>
           </RowFixed>
+
           <TYPE.black fontSize={14}>{slippage / 100}%</TYPE.black>
         </RowBetween>
 
