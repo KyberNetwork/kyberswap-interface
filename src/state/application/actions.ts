@@ -65,6 +65,8 @@ export enum ApplicationModal {
   KYBER_DAO_CLAIM,
 
   TIME_DROPDOWN,
+
+  TRUESIGHT_POOLS,
 }
 
 export const updateBlockNumber = createAction<{ chainId: number; blockNumber: number }>('application/updateBlockNumber')

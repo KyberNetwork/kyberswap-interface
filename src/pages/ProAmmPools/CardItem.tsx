@@ -1,7 +1,7 @@
 import { ChainId, Token, WETH } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { BarChart2, Plus, Share2 } from 'react-feather'
 import { Link, useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
@@ -14,6 +14,8 @@ import CopyHelper from 'components/Copy'
 import Divider from 'components/Divider'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { MoneyBag } from 'components/Icons'
+import Icon from 'components/Icons/Icon'
+import { RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { FeeTag } from 'components/YieldPools/ElasticFarmGroup/styleds'
 import { APRTooltipContent } from 'components/YieldPools/FarmingPoolAPRCell'
@@ -31,6 +33,8 @@ import { ExternalLink } from 'theme'
 import { ElasticPoolDetail } from 'types/pool'
 import { isAddressString, shortenAddress } from 'utils'
 import { formatDollarAmount } from 'utils/numbers'
+
+import TruesightPoolModal from './TruesightPoolModal'
 
 const StyledLink = styled(ExternalLink)`
   :hover {
@@ -87,6 +91,8 @@ export default function ProAmmPoolCardItem({ pool, onShared, userPositions }: Li
 
   const myLiquidity = userPositions[pool.address]
   const hasLiquidity = pool.address in userPositions
+
+  const [openTruesightModal, setOpenTruesightModal] = useState(false)
 
   const isFarmingPool: boolean = useMemo(() => {
     let fairlaunchAddress = ''
@@ -153,7 +159,7 @@ export default function ProAmmPoolCardItem({ pool, onShared, userPositions }: Li
       <Flex
         marginTop="0.75rem"
         alignItems="center"
-        sx={{ gap: '6px' }}
+        sx={{ gap: '18px' }}
         fontSize="12px"
         color={theme.subText}
         width="max-content"
@@ -165,7 +171,6 @@ export default function ProAmmPoolCardItem({ pool, onShared, userPositions }: Li
         </Flex>
 
         <Flex
-          marginLeft="12px"
           onClick={() => {
             onShared(pool.address)
           }}
@@ -179,6 +184,12 @@ export default function ProAmmPoolCardItem({ pool, onShared, userPositions }: Li
           <Share2 size="14px" color={theme.subText} />
           <Trans>Share</Trans>
         </Flex>
+        <MouseoverTooltip text={t`Explore pool tokens in Truesight`} placement="top" delay={1000}>
+          <RowFit gap="4px" style={{ cursor: 'pointer' }} onClick={() => setOpenTruesightModal(true)}>
+            <Icon id="truesight-v2" size={14} />
+            <Trans>Truesight</Trans>
+          </RowFit>
+        </MouseoverTooltip>
       </Flex>
 
       <Text
@@ -275,6 +286,13 @@ export default function ProAmmPoolCardItem({ pool, onShared, userPositions }: Li
           </Text>
         </ButtonLight>
       </Flex>
+      {openTruesightModal && (
+        <TruesightPoolModal
+          currency0={isToken0WETH ? nativeToken : token0}
+          currency1={isToken1WETH ? nativeToken : token1}
+          onDismiss={() => setOpenTruesightModal(false)}
+        />
+      )}
     </Wrapper>
   )
 }

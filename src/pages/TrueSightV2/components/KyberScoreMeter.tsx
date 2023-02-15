@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 
 import useTheme from 'hooks/useTheme'
@@ -237,17 +237,43 @@ const GaugeValue = styled.div`
   left: 50%;
   ${({ theme }) => `color: ${theme.primary};`}
 `
+function sleep(ms: number) {
+  return new Promise(r => setTimeout(r, ms))
+}
+
 function KyberScoreMeter({ value }: { value?: number }) {
   const theme = useTheme()
   const numberOfGauge = gaugeList.length
-  const activeGaugeValue = value ? (numberOfGauge * value) / 100 : 0
+
+  const [stateValue, setStateValue] = useState(0)
+  useEffect(() => {
+    let unmounted = false
+    async function loop() {
+      if (!value) return
+      await sleep(500)
+      while (true) {
+        setStateValue(prev => prev + (value - prev) / 5 + (Math.random() * 0.2 - 0.1))
+        await sleep(1000 / 60)
+        if (unmounted) {
+          break
+        }
+      }
+    }
+    loop()
+    return () => {
+      unmounted = true
+    }
+  }, [value])
+
+  const activeGaugeValue = stateValue ? (numberOfGauge * stateValue) / 100 : 0
   const minRotate = 194,
     fullRotate = 204
-  const rotate = value
-    ? (fullRotate * value) / 100 + minRotate < 360
-      ? (fullRotate * value) / 100 + minRotate
-      : (fullRotate * value) / 100 + minRotate - 360
+  const rotate = stateValue
+    ? (fullRotate * stateValue) / 100 + minRotate < 360
+      ? (fullRotate * stateValue) / 100 + minRotate
+      : (fullRotate * stateValue) / 100 + minRotate - 360
     : minRotate
+
   return (
     <Wrapper>
       <svg xmlns="http://www.w3.org/2000/svg" width="218" height="133" viewBox="0 0 218 133" fill="none">
@@ -270,7 +296,7 @@ function KyberScoreMeter({ value }: { value?: number }) {
           strokeWidth="2"
         ></path>
       </svg>
-      <GaugeValue>{value}</GaugeValue>
+      <GaugeValue>{stateValue.toFixed(1)}</GaugeValue>
     </Wrapper>
   )
 }

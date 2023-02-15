@@ -30,7 +30,6 @@ import { ShareButtonWithModal } from 'components/ShareModal'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import TokenWarningModal from 'components/TokenWarningModal'
 import { MouseoverTooltip } from 'components/Tooltip'
-import TopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoonTokensInCurrentNetwork'
 import TrendingSoonTokenBanner from 'components/TrendingSoonTokenBanner'
 import Tutorial, { TutorialType } from 'components/Tutorial'
 import TutorialSwap from 'components/Tutorial/TutorialSwap'
@@ -699,7 +698,6 @@ export default function Swap() {
       />
       <PageWrapper>
         <Banner />
-        {chainId !== ChainId.ETHW && <TopTrendingSoonTokensInCurrentNetwork />}
         <Container>
           <SwapFormWrapper isShowTutorial={isShowTutorial}>
             <RowBetween>
