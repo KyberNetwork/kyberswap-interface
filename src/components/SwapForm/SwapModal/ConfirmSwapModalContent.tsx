@@ -1,6 +1,6 @@
 import { Price } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -12,7 +12,6 @@ import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
 import { Dots } from 'components/swapv2/styleds'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { useEncodeSolana } from 'state/swap/hooks'
 import { CloseIcon } from 'theme/components'
 import { toCurrencyAmount } from 'utils/currencyAmount'
@@ -46,15 +45,11 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
   onSwap,
   onRetry,
 }) => {
-  const theme = useTheme()
   const { isSolana } = useActiveWeb3React()
   const [encodeSolana] = useEncodeSolana()
-  const [isAcceptedChanges, setAcceptedChanges] = useState(false)
   const { routeSummary } = useSwapFormContext()
 
-  const shouldShowAcceptChanges =
-    !isBuildingRoute && !errorWhileBuildRoute && !isAcceptedChanges && buildResult?.data?.outputChange?.level !== 0
-  const shouldDisableConfirmButton = isBuildingRoute || !!errorWhileBuildRoute || shouldShowAcceptChanges
+  const shouldDisableConfirmButton = isBuildingRoute || !!errorWhileBuildRoute
 
   const getSwapDetailsProps = (): SwapDetailsProps => {
     if (!buildResult?.data || !routeSummary) {
@@ -116,10 +111,6 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
 
     return <SwapBrief levelOfChanges={levelOfChanges} inputAmount={parsedAmountIn} outputAmount={parsedAmountOut} />
   }
-
-  useEffect(() => {
-    setAcceptedChanges(false)
-  }, [buildResult])
 
   return (
     <Wrapper>
