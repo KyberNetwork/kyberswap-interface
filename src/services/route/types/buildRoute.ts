@@ -3,7 +3,7 @@ import { RouteSummary as RawRouteSummary } from 'services/route/types/getRoute'
 export type BuildRoutePayload = {
   routeSummary: RawRouteSummary
   deadline: number
-  slippageTolerant: number
+  slippageTolerance: number
   sender: string
   recipient?: string
   referral?: string
