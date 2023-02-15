@@ -118,7 +118,7 @@ const SwapDetails: React.FC<Props> = ({
           <Flex
             width="100%"
             height="100%"
-            padding="12px"
+            padding="0 10px"
             alignItems="center"
             sx={{
               borderRadius: '24px',
