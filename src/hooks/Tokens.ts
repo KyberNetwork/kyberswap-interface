@@ -202,7 +202,7 @@ export function useToken(tokenAddress?: string): Token | NativeCurrency | undefi
     if (token) return token
     if (!chainId || !address) return undefined
     if (decimals.loading || symbol.loading || tokenName.loading) return null
-    if (decimalsResult) {
+    if (typeof decimalsResult === 'number') {
       return new Token(
         chainId,
         address,
