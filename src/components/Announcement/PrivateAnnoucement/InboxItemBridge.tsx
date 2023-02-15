@@ -7,6 +7,7 @@ import { ReactComponent as ArrowDown } from 'assets/svg/arrow_down.svg'
 import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
 import IconFailure from 'assets/svg/notification_icon_failure.svg'
 import IconSuccess from 'assets/svg/notification_icon_success.svg'
+import { PrivateAnnouncementProp } from 'components/Announcement/PrivateAnnoucement'
 import {
   Dot,
   InboxItemRow,
@@ -16,7 +17,7 @@ import {
   RowItem,
   Title,
 } from 'components/Announcement/PrivateAnnoucement/styled'
-import { AnnouncementTemplateBridge, PrivateAnnouncement } from 'components/Announcement/type'
+import { AnnouncementTemplateBridge } from 'components/Announcement/type'
 import { NetworkLogo } from 'components/Logo'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
@@ -29,11 +30,10 @@ const NetWorkRow = styled.div`
   gap: 4px;
 `
 
-function InboxItemBridge({ announcement, onRead }: { announcement: PrivateAnnouncement; onRead: () => void }) {
-  const { templateBody } = announcement
+function InboxItemBridge({ announcement, onRead, style }: PrivateAnnouncementProp) {
+  const { templateBody, isRead } = announcement
   const { transaction = {} } = templateBody as AnnouncementTemplateBridge
   const { status, srcTokenSymbol, srcAmount, dstChainId, srcChainId } = transaction as MultichainTransfer
-  const isRead = Math.random() < 0.5
   const isSuccess = status === MultichainTransferStatus.Success
   const chainIdIn = Number(srcChainId) as ChainId
   const chainIdOut = Number(dstChainId) as ChainId
@@ -44,7 +44,7 @@ function InboxItemBridge({ announcement, onRead }: { announcement: PrivateAnnoun
     onRead()
   }
   return (
-    <InboxItemWrapper isRead={isRead} onClick={onClick}>
+    <InboxItemWrapper isRead={isRead} onClick={onClick} style={style}>
       <InboxItemRow>
         <RowItem>
           <BridgeIcon />

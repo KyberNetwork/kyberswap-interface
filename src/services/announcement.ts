@@ -1,24 +1,29 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
-import { PrivateAnnouncementType } from 'components/Announcement/type'
+import { Announcement, PrivateAnnouncement, PrivateAnnouncementType } from 'components/Announcement/type'
 import { NOTIFICATION_API } from 'constants/env'
 
-const transformResponse = (data: any) => {
-  return Array.from(
-    { length: 10 },
-    (x, y) =>
-      ({
-        isRead: Math.random() < 0.5,
-        id: y,
-        title: Math.random() + '',
-        startAt: Date.now(),
-        actionURL: '',
-      } as any),
-  )
+type Response = {
+  notifications: PrivateAnnouncement[] | Announcement[]
+  numberOfUnread: number
+  pagination: {
+    totalItems: number
+  }
 }
 
-const transformResponse2 = (data: any) => {
-  return Array.from({ length: 10 }, (x, y) => ({
+const transformResponse = (data: any) => {
+  const { metaMessages, notifications, ...rest } = data.data ?? {}
+  return {
+    ...rest,
+    notifications: (metaMessages ?? notifications ?? []).map((e: any) => ({
+      ...e,
+      templateBody: JSON.parse(e.templateBody ?? '{}'),
+    })),
+  } as Response
+}
+
+const transformResponseTest = (data: any) => {
+  const notifications = Array.from({ length: 20 }, (x, y) => ({
     id: y,
     templateType: y % 2 ? PrivateAnnouncementType.BRIDGE : PrivateAnnouncementType.TRENDING_SOON_TOKEN,
     templateId: y,
@@ -87,31 +92,40 @@ const transformResponse2 = (data: any) => {
       ],
     } as any,
   }))
+  return { notifications, pagination: { totalItems: notifications.length + 12 }, numberOfUnread: 1 } as Response
 }
 
 type Params = {
   page: number
-  pageSize: number
   account?: string
 }
 const AnnouncementApi = createApi({
   reducerPath: 'announcementApi',
   baseQuery: fetchBaseQuery({ baseUrl: NOTIFICATION_API }),
   endpoints: builder => ({
-    getAnnouncements: builder.query<any, Params>({
-      // todo any
+    getAnnouncements: builder.query<Response, Params>({
       query: params => ({
         url: `/v1/messages/announcements`,
         params,
       }),
       transformResponse,
     }),
-    getPrivateAnnouncements: builder.query<any, Params>({
+    getPrivateAnnouncements: builder.query<Response, Params>({
       query: ({ account, ...params }) => ({
         url: `/v1/users/${account}/notifications`,
-        params,
+        params: { ...params, excludedTemplateIds: '2,29' }, // todo danh config env
       }),
-      transformResponse: transformResponse2,
+      transformResponse,
+    }),
+    ackPrivateAnnouncements: builder.mutation<
+      Response,
+      { account: string; action: 'read' | 'clear-all'; ids?: number[] }
+    >({
+      query: ({ account, action, ids }) => ({
+        url: `/v1/users/${account}/notifications/${action}`,
+        method: 'put',
+        body: { ids },
+      }),
     }),
   }),
 })

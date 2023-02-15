@@ -1,11 +1,19 @@
+import { CSSProperties } from 'styled-components'
+
 import InboxItemBridge from 'components/Announcement/PrivateAnnoucement/InboxItemBridge'
 import InboxItemLO from 'components/Announcement/PrivateAnnoucement/InboxItemLO'
 import InboxItemTrendingSoon from 'components/Announcement/PrivateAnnoucement/InboxItemTrendingSoon'
 import { PrivateAnnouncement, PrivateAnnouncementType } from 'components/Announcement/type'
 
-export default function InboxItem({ announcement, onRead }: { announcement: PrivateAnnouncement; onRead: () => void }) {
+export type PrivateAnnouncementProp = {
+  announcement: PrivateAnnouncement
+  onRead: () => void
+  style: CSSProperties
+}
+
+export default function InboxItem({ announcement, onRead, style }: PrivateAnnouncementProp) {
   const { templateType } = announcement
-  const props = { announcement, onRead }
+  const props = { announcement, onRead, style }
   switch (templateType) {
     case PrivateAnnouncementType.BRIDGE:
       return <InboxItemBridge {...props} />

@@ -128,7 +128,7 @@ const AmountInfo = ({ order }: { order: LimitOrder }) => {
     </Colum>
   )
 }
-// todo rename field
+
 const TradeRateOrder = ({ order, style = {} }: { order: LimitOrder; style?: CSSProperties }) => {
   const [invert, setInvert] = useState(false)
   const theme = useTheme()

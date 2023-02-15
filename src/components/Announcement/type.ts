@@ -5,17 +5,14 @@ import { MultichainTransfer } from 'hooks/bridge/useGetBridgeTransfers'
 
 export type Announcement = {
   isRead: boolean
-  id: string
-  name: string
-  content: string
-  startAt: number
-  actionURL: string
+  id: number
+  templateBody: { announcement: AnnouncementTemplatePopup }
 }
 
 export enum PrivateAnnouncementType {
-  LIMIT_ORDER = 'LimitOrderFilled',
-  BRIDGE = 'Bridge',
-  TRENDING_SOON_TOKEN = 'TrendingSoonTokens',
+  LIMIT_ORDER = 'LIMIT_ORDER',
+  BRIDGE = 'BRIDGE_ASSET',
+  TRENDING_SOON_TOKEN = 'TRENDING_SOON',
 }
 
 export type PrivateAnnouncement = {
@@ -23,6 +20,7 @@ export type PrivateAnnouncement = {
   templateType: PrivateAnnouncementType
   templateId: number
   templateBody: AnnouncementTemplate
+  isRead: boolean
 }
 
 export type AnnouncementCTA = { name: string; url: string }
@@ -44,11 +42,13 @@ export type AnnouncementTemplateTrendingSoon = { tokens: TrueSightToken[] }
 export type AnnouncementTemplatePopup = {
   name: string
   content: string
-  ctas: AnnouncementCTA[]
   thumbnailImageURL: string
   type: 'NORMAL' | 'CRITICAL'
   startAt: number
   endAt: number
+
+  ctas: AnnouncementCTA[] // in popup
+  actionURL: string // in noti center
 }
 
 type AnnouncementTemplate = (

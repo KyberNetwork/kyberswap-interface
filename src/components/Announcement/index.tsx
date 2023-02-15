@@ -1,10 +1,11 @@
-import { useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useMedia } from 'react-use'
 import AnnouncementApi from 'services/announcement'
 import styled, { css } from 'styled-components'
 
-import AnnouncementView from 'components/Announcement/AnnoucementView'
+import AnnouncementView, { Tab } from 'components/Announcement/AnnoucementView'
 import { formatNumberOfUnread } from 'components/Announcement/helper'
+import { Announcement, PrivateAnnouncement } from 'components/Announcement/type'
 import NotificationIcon from 'components/Icons/NotificationIcon'
 import MenuFlyout from 'components/MenuFlyout'
 import Modal from 'components/Modal'
@@ -59,46 +60,126 @@ const Badge = styled.div`
   font-weight: 500;
   min-width: 20px;
   text-align: center;
+  z-index: 1;
 `
 
 const browserCustomStyle = css`
   padding: 0;
 `
+const responseDefault = { numberOfUnread: 0, pagination: { totalItems: 0 }, notifications: [] }
 
 export default function AnnouncementComponent() {
   const { account } = useActiveWeb3React()
   const node = useRef<HTMLDivElement>(null)
+  const [activeTab, setActiveTab] = useState(Tab.ANNOUNCEMENT)
 
   const open = useModalOpen(ApplicationModal.NOTIFICATION_CENTER)
   const toggle = useToggleNotificationCenter()
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
-  const { useGetAnnouncementsQuery, useGetPrivateAnnouncementsQuery } = AnnouncementApi
-  const { data: announcements = [], refetch: refetchAnnouncement } = useGetAnnouncementsQuery({ page: 1, pageSize: 20 })
-  const { data: inboxes = [], refetch: refetchPrivateAnnouncement } = useGetPrivateAnnouncementsQuery({
-    account,
-    page: 1,
-    pageSize: 20,
-  })
+  const [curPage, setPage] = useState(1)
 
-  const numberOfUnreadInbox = inboxes.length // todo filter
-  const numberOfUnreadGeneral = announcements.length
+  const [announcements, setAnnouncements] = useState<Announcement[]>([])
+  const [privateAnnouncements, setPrivateAnnouncements] = useState<PrivateAnnouncement[]>([])
+
+  const { useLazyGetAnnouncementsQuery, useLazyGetPrivateAnnouncementsQuery } = AnnouncementApi
+  const [fetchGeneralAnnouncement, { data: respAnnouncement }] = useLazyGetAnnouncementsQuery()
+  const [fetchPrivateAnnouncement, { data: respPrivateAnnouncement }] = useLazyGetPrivateAnnouncementsQuery()
+
+  const isMyInboxTab = activeTab === Tab.INBOX
+
+  const loading = useRef(false)
+
+  const fetchAnnouncements = useCallback(
+    async (isReset = false, tab: Tab = activeTab) => {
+      if (loading.current) return
+      try {
+        const isMyInboxTab = tab === Tab.INBOX
+        loading.current = true
+        const page = isReset ? 1 : curPage + 1
+        const promise = isMyInboxTab
+          ? account
+            ? fetchPrivateAnnouncement({ page, account })
+            : null
+          : fetchGeneralAnnouncement({ page })
+
+        if (!promise) return
+        const { data } = await promise
+        const notifications = data?.notifications ?? []
+        if (isMyInboxTab) {
+          const newData = isReset ? notifications : [...privateAnnouncements, ...notifications]
+          setPrivateAnnouncements(newData as PrivateAnnouncement[])
+        } else {
+          const newData = isReset ? notifications : [...announcements, ...notifications]
+          setAnnouncements(newData as Announcement[])
+        }
+        setPage(page)
+      } catch (error) {
+        console.error(error)
+      } finally {
+        loading.current = false
+      }
+    },
+    [
+      account,
+      announcements,
+      privateAnnouncements,
+      curPage,
+      activeTab,
+      fetchGeneralAnnouncement,
+      fetchPrivateAnnouncement,
+    ],
+  )
+
+  const {
+    pagination: { totalItems: totalAnnouncement },
+  } = respAnnouncement ?? responseDefault
+
+  const {
+    numberOfUnread,
+    pagination: { totalItems: totalPrivateAnnouncement },
+  } = respPrivateAnnouncement ?? responseDefault
 
   const refreshAnnouncement = () => {
-    refetchAnnouncement()
-    refetchPrivateAnnouncement()
+    fetchAnnouncements(true)
   }
+
+  const loadMoreAnnouncements = useCallback(() => {
+    fetchAnnouncements()
+  }, [fetchAnnouncements])
+
+  const onSetTab = (tab: Tab) => {
+    setActiveTab(tab)
+    setPage(1)
+    tab !== activeTab && fetchAnnouncements(true, tab)
+  }
+
+  useEffect(() => {
+    setActiveTab(account ? Tab.INBOX : Tab.ANNOUNCEMENT)
+    // prefetch data
+    account &&
+      fetchPrivateAnnouncement({ account, page: 1 })
+        .then(({ data }) => {
+          setPrivateAnnouncements((data?.notifications ?? []) as PrivateAnnouncement[])
+        })
+        .catch(console.error)
+
+    fetchGeneralAnnouncement({ page: 1 })
+      .then(({ data }) => {
+        setAnnouncements((data?.notifications ?? []) as Announcement[])
+      })
+      .catch(console.error)
+  }, [account, fetchPrivateAnnouncement, fetchGeneralAnnouncement])
 
   const props = {
-    numberOfUnreadInbox,
-    numberOfUnreadGeneral,
-    announcements,
-    inboxes,
+    numberOfUnread,
+    announcements: isMyInboxTab ? privateAnnouncements : announcements,
+    totalAnnouncement: isMyInboxTab ? totalPrivateAnnouncement : totalAnnouncement,
     refreshAnnouncement,
+    loadMoreAnnouncements,
+    isMyInboxTab,
+    onSetTab,
   }
-
-  const numberOfUnread = numberOfUnreadInbox + numberOfUnreadGeneral
-
   return (
     <StyledMenu ref={node}>
       <StyledMenuButton active={open || numberOfUnread > 0} onClick={toggle} aria-label="Notifications">

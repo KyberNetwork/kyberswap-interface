@@ -208,7 +208,6 @@ export const useTransactionNotify = () => {
 export function useRemovePopup() {
   const dispatch = useDispatch()
   const { ackAnnouncement } = useAckAnnouncement()
-  // todo phan biet
   return useCallback(
     (popup: PopupItemType) => {
       const { key, popupType, content } = popup
@@ -228,8 +227,6 @@ export function useRemoveAllPopupByType() {
   return useCallback(
     (typesRemove: PopupType) => {
       const { snippetPopups, centerPopups, topPopups, topRightPopups } = data
-      // todo test 3 case: topright+simple, simple, topright
-      // todo ack: phan biet noti thuong vs not normal
 
       const map: Record<PopupType, PopupItemType[]> = {
         [PopupType.SNIPPET]: snippetPopups,

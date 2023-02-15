@@ -1,8 +1,11 @@
 import { Trans } from '@lingui/macro'
-import { useState } from 'react'
 import { Info, Trash } from 'react-feather'
+import AutoSizer from 'react-virtualized-auto-sizer'
+import { FixedSizeList } from 'react-window'
+import InfiniteLoader from 'react-window-infinite-loader'
 import { Text } from 'rebass'
-import styled, { css } from 'styled-components'
+import AnnouncementApi from 'services/announcement'
+import styled, { CSSProperties, css } from 'styled-components'
 
 import { ReactComponent as ListIcon } from 'assets/svg/list_icon.svg'
 import AnnouncementItem from 'components/Announcement/AnnoucementItem'
@@ -15,7 +18,7 @@ import { RowBetween } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import useNotification from 'hooks/useNotification'
 import useTheme from 'hooks/useTheme'
-import { useWalletModalToggle } from 'state/application/hooks'
+import { useToggleNotificationCenter, useWalletModalToggle } from 'state/application/hooks'
 
 const Wrapper = styled.div`
   width: 380px;
@@ -107,37 +110,82 @@ const Badge = styled.div`
   min-width: 20px;
   text-align: center;
 `
-enum Tab {
+export enum Tab {
   INBOX,
   ANNOUNCEMENT,
 }
 
-export default function AnnouncementView({
-  numberOfUnreadInbox,
-  numberOfUnreadGeneral,
-  announcements,
-  inboxes,
-  refreshAnnouncement,
-}: {
-  numberOfUnreadInbox: number
-  numberOfUnreadGeneral: number
-  announcements: Announcement[]
-  inboxes: PrivateAnnouncement[]
+type Props = {
+  numberOfUnread: number
+  totalAnnouncement: number
+  announcements: Announcement[] | PrivateAnnouncement[]
+  isMyInboxTab: boolean
+  onSetTab: (tab: Tab) => void
   refreshAnnouncement: () => void
-}) {
+  loadMoreAnnouncements: () => void
+}
+
+export default function AnnouncementView({
+  numberOfUnread,
+  announcements,
+  totalAnnouncement,
+  refreshAnnouncement,
+  loadMoreAnnouncements,
+  isMyInboxTab,
+  onSetTab,
+}: Props) {
   const { account } = useActiveWeb3React()
-  const [activeTab, setActiveTab] = useState(account ? Tab.INBOX : Tab.ANNOUNCEMENT)
+
   const theme = useTheme()
   const toggleWalletModal = useWalletModalToggle()
   const { showNotificationModal } = useNotification()
+  const toggleNotificationCenter = useToggleNotificationCenter()
 
-  const onReadAnnouncement = async (item: PrivateAnnouncement | Announcement) => {
-    try {
-      refreshAnnouncement()
-    } catch (error) {}
+  const { useAckPrivateAnnouncementsMutation } = AnnouncementApi
+  const [ackAnnouncement] = useAckPrivateAnnouncementsMutation()
+
+  const onReadAnnouncement = (item: PrivateAnnouncement) => {
+    if (!account) return
+    if (item.isRead) {
+      toggleNotificationCenter()
+      return
+    }
+    ackAnnouncement({ account, action: 'read', ids: [item.id] })
+      .then(() => {
+        refreshAnnouncement()
+        toggleNotificationCenter()
+      })
+      .catch(err => {
+        console.error('ack noti error', err)
+      })
   }
-  const isMyInboxTab = activeTab === Tab.INBOX
-  const listData = isMyInboxTab ? inboxes : announcements
+
+  const clearAll = () => {
+    if (!announcements.length || !account) return
+    ackAnnouncement({ account, action: 'clear-all' })
+      .then(() => {
+        refreshAnnouncement()
+      })
+      .catch(err => {
+        console.error('ack noti error', err)
+      })
+  }
+
+  const hasMore = announcements.length !== totalAnnouncement
+  const isItemLoaded = (index: number) => !hasMore || index < announcements.length
+  const itemCount = hasMore ? announcements.length + 1 : announcements.length
+
+  const tabComponent = (
+    <TabWrapper>
+      <TabItem active={isMyInboxTab} onClick={() => onSetTab(Tab.INBOX)}>
+        <Trans>My Inbox</Trans>
+        {numberOfUnread > 0 && account && <Badge>{formatNumberOfUnread(numberOfUnread)}</Badge>}
+      </TabItem>
+      <TabItem active={!isMyInboxTab} onClick={() => onSetTab(Tab.ANNOUNCEMENT)}>
+        <Trans>General</Trans>
+      </TabItem>
+    </TabWrapper>
+  )
 
   return (
     <Wrapper>
@@ -150,42 +198,56 @@ export default function AnnouncementView({
           {account && <ListIcon cursor="pointer" onClick={showNotificationModal} />}
         </RowBetween>
 
-        <TabWrapper>
-          <TabItem active={isMyInboxTab} onClick={() => setActiveTab(Tab.INBOX)}>
-            <Trans>My Inbox</Trans>
-            {numberOfUnreadInbox > 0 && account && <Badge>{formatNumberOfUnread(numberOfUnreadInbox)}</Badge>}
-          </TabItem>
-          <TabItem active={activeTab === Tab.ANNOUNCEMENT} onClick={() => setActiveTab(Tab.ANNOUNCEMENT)}>
-            <Trans>General</Trans>
-            {numberOfUnreadGeneral > 0 && account && <Badge>{formatNumberOfUnread(numberOfUnreadGeneral)}</Badge>}
-          </TabItem>
-        </TabWrapper>
+        {tabComponent}
 
-        {account && (
-          <ClearAll>
+        {account && isMyInboxTab && announcements.length > 0 && (
+          <ClearAll onClick={clearAll}>
             <Trash size={12} />
             <Trans>Clear All</Trans>
           </ClearAll>
         )}
       </Container>
 
-      {listData.length ? (
+      {announcements.length ? (
         <ListAnnouncement>
-          {listData.map(item =>
-            isMyInboxTab ? (
-              <InboxItem
-                key={item.id}
-                announcement={item as PrivateAnnouncement}
-                onRead={() => onReadAnnouncement(item)}
-              />
-            ) : (
-              <AnnouncementItem
-                key={item.id}
-                announcement={item as Announcement}
-                onRead={() => onReadAnnouncement(item)}
-              />
-            ),
-          )}
+          <AutoSizer>
+            {({ height, width }) => (
+              <InfiniteLoader isItemLoaded={isItemLoaded} itemCount={itemCount} loadMoreItems={loadMoreAnnouncements}>
+                {({ onItemsRendered, ref }) => (
+                  <FixedSizeList
+                    height={height}
+                    width={width}
+                    itemCount={itemCount}
+                    itemSize={isMyInboxTab ? 86 : 126}
+                    onItemsRendered={onItemsRendered}
+                    ref={ref}
+                  >
+                    {({ index, style }: { index: number; style: CSSProperties }) => {
+                      if (!isItemLoaded(index)) {
+                        return null
+                      }
+                      const item = announcements[index]
+                      return isMyInboxTab ? (
+                        <InboxItem
+                          style={style}
+                          key={item.id}
+                          announcement={item as PrivateAnnouncement}
+                          onRead={() => onReadAnnouncement(item as PrivateAnnouncement)}
+                        />
+                      ) : (
+                        <AnnouncementItem
+                          key={item.id}
+                          style={style}
+                          announcement={item as Announcement}
+                          onRead={toggleNotificationCenter}
+                        />
+                      )
+                    }}
+                  </FixedSizeList>
+                )}
+              </InfiniteLoader>
+            )}
+          </AutoSizer>
         </ListAnnouncement>
       ) : (
         <Column style={{ alignItems: 'center', margin: '24px 0px 32px 0px' }} gap="8px">

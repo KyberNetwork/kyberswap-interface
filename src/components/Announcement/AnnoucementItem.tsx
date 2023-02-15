@@ -1,5 +1,8 @@
-import styled from 'styled-components'
+import dayjs from 'dayjs'
+import { useNavigate } from 'react-router-dom'
+import styled, { CSSProperties } from 'styled-components'
 
+import kyberCrystal from 'assets/images/kyberdao/kyber_crystal.png'
 import { Announcement } from 'components/Announcement/type'
 import Column from 'components/Column'
 
@@ -60,21 +63,44 @@ const Image = styled.img`
   object-fit: contain;
 `
 
-export default function AnnouncementItem({ announcement, onRead }: { announcement: Announcement; onRead: () => void }) {
-  const { isRead, name, startAt: time } = announcement
+export default function AnnouncementItem({
+  announcement,
+  onRead,
+  style,
+}: {
+  announcement: Announcement
+  onRead: () => void
+  style: CSSProperties
+}) {
+  const { isRead, templateBody } = announcement
+
+  const navigate = useNavigate()
+
+  if (!templateBody.announcement) return null
+  const { name, startAt, content, thumbnailImageURL, actionURL } = templateBody.announcement
+
+  const onClick = () => {
+    try {
+      onRead()
+      if (!actionURL) return
+      const { pathname, host } = new URL(actionURL)
+      if (window.location.host === host) {
+        navigate(pathname)
+      } else {
+        window.open(actionURL)
+      }
+    } catch (error) {}
+  }
+
   return (
-    <Wrapper isRead={isRead} onClick={onRead}>
-      <Image src="https://media.vneconomy.vn/images/upload/2022/07/11/gettyimages-1207206237.jpg" />
+    <Wrapper isRead={isRead} onClick={onClick} style={style}>
+      <Image src={thumbnailImageURL || kyberCrystal} />
       <RowItem>
         <Column gap="6px">
-          <Title>{name} hahah haha haha</Title>
-          <Desc>
-            800 USDC to be won for 40 Winners in total! All users in the qualified field will be 800 USDC to be won for
-            40 Winners in total! All users in the qualified field will be. 40 Winners in total! All users in the
-            qualified field will be. 40 Winners in total! All users in the qualified field will be.
-          </Desc>
+          <Title>{name} </Title>
+          <Desc>{content}</Desc>
         </Column>
-        <Time>{time}</Time>
+        <Time>{dayjs(startAt * 1000).format('DD-MM-YYYY HH:mm:ss')}</Time>
       </RowItem>
     </Wrapper>
   )

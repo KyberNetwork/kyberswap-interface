@@ -15,6 +15,7 @@ import {
   useRemoveAllPopupByType,
   useToggleNotificationCenter,
 } from 'state/application/hooks'
+import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { subscribeAnnouncement, subscribePrivateAnnouncement } from 'utils/firebase'
 
 import PopupItem from './TopRightPopup'
@@ -63,10 +64,10 @@ const MAX_NOTIFICATION = 4
 export default function Popups() {
   const { topRightPopups, centerPopups, snippetPopups, topPopups } = useActivePopups()
   const centerPopup = centerPopups[centerPopups.length - 1]
-  console.log(topPopups)
   const { account } = useActiveWeb3React()
 
   const toggleNotificationCenter = useToggleNotificationCenter()
+  const [{ show: isShowTutorial = false }] = useTutorialSwapGuide()
   const notify = useNotify()
   const addPopup = useAddPopup()
 
@@ -96,33 +97,36 @@ export default function Popups() {
 
   const isInit = useRef(false)
   useEffect(() => {
+    if (isShowTutorial) return
+    // todo danh nhan popup call lai api ben kia
     const unsubscribe = subscribeAnnouncement(data => {
       setTimeout(() => {
         if (!isInit.current) {
           // only show when the first visit app
-          addPopup(test(), PopupType.CENTER, test().metaMessageId, null)
+          // addPopup(test(), PopupType.CENTER, test().metaMessageId, null)
         }
-        addPopup(test(), PopupType.TOP_BAR, test().metaMessageId, null)
-        addPopup(test(), PopupType.SNIPPET, test().metaMessageId, null)
-        addPopup(test(), PopupType.SNIPPET, test().metaMessageId, null)
+        // addPopup(test(), PopupType.TOP_BAR, test().metaMessageId, null)
+        // addPopup(test(), PopupType.SNIPPET, test().metaMessageId, null)
+        // addPopup(test(), PopupType.SNIPPET, test().metaMessageId, null)
         isInit.current = true
       }, 2000)
     })
 
     const unsubscribePrivate = subscribePrivateAnnouncement(account, data => {
+      // todo danh co ve release ko dung
       setTimeout(() => {
         // notify({ title: 'test', type: NotificationType.WARNING }, null)
-        addPopup(test(), PopupType.TOP_RIGHT, test().metaMessageId, null)
-        addPopup(test(), PopupType.TOP_RIGHT, test().metaMessageId, null)
-        addPopup(test(), PopupType.TOP_RIGHT, test().metaMessageId, null)
-        addPopup(test(), PopupType.TOP_RIGHT, test().metaMessageId, null)
+        // addPopup(test(), PopupType.TOP_RIGHT, test().metaMessageId, null)
+        // addPopup(test(), PopupType.TOP_RIGHT, test().metaMessageId, null)
+        // addPopup(test(), PopupType.TOP_RIGHT, test().metaMessageId, null)
+        // addPopup(test(), PopupType.TOP_RIGHT, test().metaMessageId, null)
       }, 1000)
     })
     return () => {
       unsubscribe?.()
       unsubscribePrivate?.()
     }
-  }, [account])
+  }, [account, isShowTutorial])
 
   const totalTopRightPopup = topRightPopups.length
 
