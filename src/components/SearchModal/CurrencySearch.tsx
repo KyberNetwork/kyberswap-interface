@@ -33,6 +33,7 @@ import { useRemoveUserAddedToken, useUserAddedTokens, useUserFavoriteTokens } fr
 import { ButtonText, CloseIcon, TYPE } from 'theme'
 import { filterTruthy, isAddress } from 'utils'
 import { filterTokens } from 'utils/filtering'
+import { importTokensToKsSettings } from 'utils/tokenInfo'
 
 import CommonBases from './CommonBases'
 import CurrencyList from './CurrencyList'
@@ -355,6 +356,13 @@ export function CurrencySearch({
                 symbol: rawToken.symbol || '',
               }),
             )
+
+            importTokensToKsSettings([
+              {
+                chainId: String(rawToken.chainId),
+                address: rawToken.address,
+              },
+            ])
           }
         }
       } else {
