@@ -351,9 +351,9 @@ export function CurrencySearch({
               new WrappedTokenInfo({
                 chainId: rawToken.chainId,
                 address: rawToken.address,
-                name: rawToken.name || '',
+                name: rawToken.name || 'Unknown Token',
                 decimals: rawToken.decimals,
-                symbol: rawToken.symbol || '',
+                symbol: rawToken.symbol || 'UNKNOWN',
               }),
             )
 
