@@ -5,8 +5,7 @@ export type BuildRoutePayload = {
   deadline: number
   slippageTolerance: number
   sender: string
-  recipient?: string
-  referral?: string
+  recipient: string
   source: 'kyberswap'
   skipSimulateTx: boolean
 }

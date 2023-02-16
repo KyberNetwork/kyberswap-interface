@@ -5,9 +5,6 @@ import { BuildRouteData, BuildRoutePayload } from 'services/route/types/buildRou
 import { RouteSummary } from 'services/route/types/getRoute'
 
 import { useActiveWeb3React } from 'hooks'
-import { asyncCallWithMinimumTime } from 'utils/fetchWaiting'
-
-const MINIMUM_LOADING_TIME = 1_000
 
 export type BuildRouteResult =
   | {
@@ -20,7 +17,6 @@ export type BuildRouteResult =
     }
 
 type Args = {
-  referral: string
   recipient: string
   routeSummary: RouteSummary | undefined
   slippage: number
@@ -28,7 +24,7 @@ type Args = {
   skipSimulateTx: boolean
 }
 const useBuildRoute = (args: Args) => {
-  const { referral, recipient, routeSummary, slippage, transactionTimeout, skipSimulateTx } = args
+  const { recipient, routeSummary, slippage, transactionTimeout, skipSimulateTx } = args
   const { chainId, account } = useActiveWeb3React()
   const abortControllerRef = useRef(new AbortController())
 
@@ -51,7 +47,6 @@ const useBuildRoute = (args: Args) => {
       slippageTolerance: slippage,
       sender: account,
       recipient: recipient || account,
-      referral,
       source: 'kyberswap',
       skipSimulateTx,
     }
@@ -60,10 +55,7 @@ const useBuildRoute = (args: Args) => {
       abortControllerRef.current.abort()
       abortControllerRef.current = new AbortController()
 
-      const response = await asyncCallWithMinimumTime(
-        () => buildRoute(chainId, payload, abortControllerRef.current.signal),
-        MINIMUM_LOADING_TIME,
-      )
+      const response = await buildRoute(chainId, payload, abortControllerRef.current.signal)
 
       return {
         data: response,
@@ -73,7 +65,7 @@ const useBuildRoute = (args: Args) => {
         error: e.message || t`Something went wrong`,
       }
     }
-  }, [account, chainId, recipient, referral, routeSummary, skipSimulateTx, slippage, transactionTimeout])
+  }, [account, chainId, recipient, routeSummary, skipSimulateTx, slippage, transactionTimeout])
 
   return fetcher
 }

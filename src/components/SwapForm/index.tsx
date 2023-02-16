@@ -77,7 +77,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
 
   const parsedAmount = useParsedAmount(currencyIn, typedValue)
   const { wrapType, inputError: wrapInputError, execute: onWrap } = useWrapCallback(currencyIn, currencyOut, typedValue)
-  const isWrapOrUnwrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
+  const isWrapOrUnwrap = wrapType !== WrapType.NOT_APPLICABLE
 
   const { fetcher: getRoute, result } = useGetRoute({
     currencyIn,
@@ -87,21 +87,20 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     parsedAmount,
   })
 
-  const { data: rawGetRouteResponse, isFetching: isGettingRoute, error: errorWhileGettingRoute } = result
+  const { data: getRouteRawResponse, isFetching: isGettingRoute, error: getRouteError } = result
   const getRouteResponse = useMemo(() => {
-    if (!rawGetRouteResponse?.data || errorWhileGettingRoute || !currencyIn || !currencyOut) {
+    if (!getRouteRawResponse?.data || getRouteError || !currencyIn || !currencyOut) {
       return undefined
     }
 
-    return parseGetRouteResponse(rawGetRouteResponse.data, currencyIn, currencyOut)
-  }, [currencyIn, currencyOut, errorWhileGettingRoute, rawGetRouteResponse])
+    return parseGetRouteResponse(getRouteRawResponse.data, currencyIn, currencyOut)
+  }, [currencyIn, currencyOut, getRouteError, getRouteRawResponse])
 
   const routeSummary = getRouteResponse?.routeSummary
 
   const buildRoute = useBuildRoute({
-    referral: feeConfig?.feeReceiver || '',
     recipient: isAdvancedMode && recipient ? recipient : '',
-    routeSummary: rawGetRouteResponse?.data?.routeSummary || undefined,
+    routeSummary: getRouteRawResponse?.data?.routeSummary || undefined,
     slippage,
     transactionTimeout,
     skipSimulateTx: isAdvancedMode,

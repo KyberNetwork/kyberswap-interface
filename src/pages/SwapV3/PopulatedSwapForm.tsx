@@ -1,10 +1,9 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import SwapForm, { SwapFormProps } from 'components/SwapForm'
-import { STABLE_COINS_ADDRESS } from 'constants/tokens'
-import { useActiveWeb3React } from 'hooks'
 import useSyncTokenSymbolToUrl from 'hooks/useSyncTokenSymbolToUrl'
+import useUpdateSlippageInStableCoinSwap from 'pages/SwapV3/useUpdateSlippageInStableCoinSwap'
 import { useAppSelector } from 'state/hooks'
 import { Field } from 'state/swap/actions'
 import { useInputCurrency, useOutputCurrency, useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
@@ -13,27 +12,6 @@ import { useCurrencyBalances } from 'state/wallet/hooks'
 import { DetailedRouteSummary } from 'types/route'
 
 import useResetCurrenciesOnRemoveImportedTokens from './useResetCurrenciesOnRemoveImportedTokens'
-
-const useUpdateSlippageInStableCoinSwap = (currencyIn?: Currency, currencyOut?: Currency) => {
-  const { chainId } = useActiveWeb3React()
-  const [slippage, setSlippage] = useUserSlippageTolerance()
-  const isStableCoinSwap =
-    chainId &&
-    currencyIn &&
-    currencyOut &&
-    STABLE_COINS_ADDRESS[chainId].includes(currencyIn.wrapped.address) &&
-    STABLE_COINS_ADDRESS[chainId].includes(currencyOut.wrapped.address)
-  const rawSlippageRef = useRef(slippage)
-  rawSlippageRef.current = slippage
-  useEffect(() => {
-    if (isStableCoinSwap && rawSlippageRef.current > 10) {
-      setSlippage(10)
-    }
-    if (!isStableCoinSwap && rawSlippageRef.current === 10) {
-      setSlippage(50)
-    }
-  }, [isStableCoinSwap, setSlippage])
-}
 
 type Props = {
   routeSummary: DetailedRouteSummary | undefined
