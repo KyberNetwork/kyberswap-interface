@@ -22,7 +22,7 @@ import { MEDIA_WIDTHS } from 'theme'
 import DisplaySettings from '../components/DisplaySettings'
 import KyberScoreMeter from '../components/KyberScoreMeter'
 import PriceRange from '../components/PriceRange'
-import { useTokenDetail } from '../hooks/useTruesightV2Data'
+import { useTokenDetailQuery } from '../hooks/useTruesightV2Data'
 import { DiscoverTokenTab } from '../types'
 import News from './News'
 import OnChainAnalysis from './OnChainAnalysis'
@@ -168,7 +168,7 @@ const ExternalLink = ({ href, className, children }: { href: string; className?:
 
 export const testParams = {
   address: '0xdac17f958d2ee523a2206206994597c13d831ec7',
-  from: 1633344036,
+  from: 1674610765,
   to: 1675215565,
 }
 
@@ -177,7 +177,7 @@ export default function SingleToken() {
   const navigate = useNavigate()
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
   const [currentTab, setCurrentTab] = useState<DiscoverTokenTab>(DiscoverTokenTab.OnChainAnalysis)
-  const { data, isLoading } = useTokenDetail(testParams.address)
+  const { data, isLoading } = useTokenDetailQuery(testParams.address)
 
   const shareUrl = useRef<string>()
   const toggleShareModal = useToggleModal(ApplicationModal.SHARE)

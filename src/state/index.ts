@@ -3,6 +3,7 @@ import { load, save } from 'redux-localstorage-simple'
 
 import { ENV_LEVEL } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
+import truesightV2Api from 'pages/TrueSightV2/hooks/useTruesightV2Data'
 
 import geckoTerminalApi from '../services/geckoTermial'
 import application from './application/reducer'
@@ -53,6 +54,7 @@ const store = configureStore({
     vesting,
     // [dataApi.reducerPath]: dataApi.reducer
     [geckoTerminalApi.reducerPath]: geckoTerminalApi.reducer,
+    [truesightV2Api.reducerPath]: truesightV2Api.reducer,
     campaigns,
     tutorial,
     bridge,
@@ -65,7 +67,8 @@ const store = configureStore({
     getDefaultMiddleware({ thunk: true, immutableCheck: false, serializableCheck: false })
       // .concat(dataApi.middleware)
       .concat(save({ states: PERSISTED_KEYS, debounce: 100 }))
-      .concat(geckoTerminalApi.middleware),
+      .concat(geckoTerminalApi.middleware)
+      .concat(truesightV2Api.middleware),
   preloadedState: load({ states: PERSISTED_KEYS }),
 })
 

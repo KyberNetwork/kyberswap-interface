@@ -37,11 +37,12 @@ import {
   TRADE_VOLUME,
 } from 'pages/TrueSightV2/hooks/sampleData'
 import {
-  useNetflowToCEX,
-  useNetflowToWhaleWallets,
-  useNumberOfHolders,
-  useNumberOfTrades,
-  useTradingVolume,
+  useNetflowToCEXQuery,
+  useNetflowToWhaleWalletsQuery,
+  useNumberOfHoldersQuery,
+  useNumberOfTradesQuery,
+  useNumberOfTransfersQuery,
+  useTradingVolumeQuery,
 } from 'pages/TrueSightV2/hooks/useTruesightV2Data'
 import { testParams } from 'pages/TrueSightV2/pages/SingleToken'
 import { ChartTab } from 'pages/TrueSightV2/types'
@@ -272,7 +273,7 @@ const formatNum = (num: number): string => {
 export const NumberofTradesChart = () => {
   const theme = useTheme()
   const { address } = useParams()
-  const { data } = useNumberOfTrades(address || testParams.address)
+  const { data } = useNumberOfTradesQuery(address || testParams.address)
   const [showSell, setShowSell] = useState(true)
   const [showBuy, setShowBuy] = useState(true)
   const [timeframe, setTimeframe] = useState('7D')
@@ -393,7 +394,7 @@ export const NumberofTradesChart = () => {
 export const TradingVolumeChart = () => {
   const theme = useTheme()
   const { address } = useParams()
-  const { data } = useTradingVolume(address)
+  const { data } = useTradingVolumeQuery(address)
   const [timeframe, setTimeframe] = useState('7D')
   const filteredData = useMemo(() => {
     const datatemp = address ? data : TRADE_VOLUME
@@ -487,7 +488,7 @@ export const TradingVolumeChart = () => {
 export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
   const theme = useTheme()
   const { address } = useParams()
-  const { data } = useNetflowToWhaleWallets(address || testParams.address)
+  const { data } = useNetflowToWhaleWalletsQuery(address || testParams.address)
   const { account } = useActiveWeb3React()
   const [showInflow, setShowInflow] = useState(true)
   const [showOutflow, setShowOutflow] = useState(true)
@@ -682,7 +683,7 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
 }
 
 export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
-  const { data } = useNetflowToCEX('123')
+  const { data } = useNetflowToCEXQuery('123')
   const [showInflow, setShowInflow] = useState(true)
   const [showOutflow, setShowOutflow] = useState(true)
   const [showNetflow, setShowNetflow] = useState(true)
@@ -915,7 +916,7 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
 export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
   const theme = useTheme()
   const { address } = useParams()
-  const { data } = useNumberOfHolders(address)
+  const { data } = useNumberOfTransfersQuery(address)
   const [timeframe, setTimeframe] = useState('7D')
   const filteredData = useMemo(() => {
     const d = address ? data : NUMBER_OF_TRANSFERS
@@ -1005,7 +1006,7 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
 export const NumberofHolders = () => {
   const theme = useTheme()
   const { address } = useParams()
-  const { data } = useNumberOfHolders(address)
+  const { data } = useNumberOfHoldersQuery(address)
   const [timeframe, setTimeframe] = useState('7D')
   const filteredData = useMemo(() => {
     const d = address ? data : NUMBER_OF_HOLDERS

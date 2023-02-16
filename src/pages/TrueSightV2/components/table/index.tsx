@@ -8,7 +8,7 @@ import Icon from 'components/Icons/Icon'
 import Pagination from 'components/Pagination'
 import Row, { RowFit } from 'components/Row'
 import useTheme from 'hooks/useTheme'
-import { useFundingRate } from 'pages/TrueSightV2/hooks/useTruesightV2Data'
+import { useFundingRateQuery } from 'pages/TrueSightV2/hooks/useTruesightV2Data'
 import { shortenAddress } from 'utils'
 
 import { ContentWrapper } from '..'
@@ -408,7 +408,7 @@ export const SupportResistanceLevel = () => {
 export const FundingRateTable = () => {
   const theme = useTheme()
   const gridTemplateColumns = '1fr 1fr 1fr 1fr 1fr'
-  const { data } = useFundingRate()
+  const { data } = useFundingRateQuery({})
   return (
     <TableWrapper>
       <TableHeader gridTemplateColumns={gridTemplateColumns}>
