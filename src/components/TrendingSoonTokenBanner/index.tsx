@@ -2,15 +2,14 @@ import { Currency, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { CSSProperties, memo, useMemo } from 'react'
-import { Flex } from 'rebass'
+import { Text } from 'rebass'
 import styled from 'styled-components'
 
-import CurrencyLogo from 'components/CurrencyLogo'
-import DiscoverIcon from 'components/Icons/DiscoverIcon'
+import Icon from 'components/Icons/Icon'
+import Row from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
-import useGetTrendingSoonTokenId from 'pages/TrueSight/hooks/useGetTrendingSoonTokenId'
 import { ExternalLink } from 'theme'
 import { FadeIn } from 'utils/keyframes'
 
@@ -28,13 +27,7 @@ const TrendingSoonTokenBanner = ({
   const { mixpanelHandler } = useMixpanel()
 
   const token0 = currencyIn?.wrapped
-  const token1 = currencyOut?.wrapped
-  const trendingToken0Id = useGetTrendingSoonTokenId(token0)
-  const trendingToken1Id = useGetTrendingSoonTokenId(token1)
-  const trendingSoonCurrency = useMemo(
-    () => (trendingToken0Id ? currencyIn : trendingToken1Id ? currencyOut : undefined),
-    [currencyIn, currencyOut, trendingToken0Id, trendingToken1Id],
-  )
+  const trendingSoonCurrency = useMemo(() => token0, [token0])
 
   if (trendingSoonCurrency === undefined) return null
 
@@ -42,26 +35,24 @@ const TrendingSoonTokenBanner = ({
 
   return (
     <Container style={style}>
-      <DiscoverIconWrapper>
-        <DiscoverIcon size={16} color={theme.primary} />
-      </DiscoverIconWrapper>
-      <Flex alignItems="center">
-        <CurrencyLogo currency={trendingSoonCurrency} size="16px" style={{ marginRight: '4px' }} />
+      <Row gap="8px">
+        <Text color={theme.primary}>
+          <Icon id="bullish" size={16} />
+        </Text>
         <BannerText>
-          {currencySymbol} <Trans>could be trending very soon!</Trans> <Trans>View</Trans>{' '}
+          {currencySymbol} <Trans>seems bullish right now.</Trans>{' '}
           <ExternalLink
-            href={
-              window.location.origin + '/discover?tab=trending_soon&token_id=' + (trendingToken0Id ?? trendingToken1Id)
-            }
+            href={window.location.origin + '/discover/single-token'}
             target="_blank"
             onClickCapture={() => {
               mixpanelHandler(MIXPANEL_TYPE.DISCOVER_SWAP_SEE_HERE_CLICKED, { trending_token: currencySymbol })
             }}
+            style={{ cursor: 'pointer', textDecoration: 'none' }}
           >
-            <Trans>here</Trans>
+            <Trans>See here</Trans>
           </ExternalLink>
         </BannerText>
-      </Flex>
+      </Row>
     </Container>
   )
 }
@@ -76,11 +67,6 @@ const Container = styled.div`
   column-gap: 8px;
   animation: ${FadeIn} 0.3s linear;
 `
-
-const DiscoverIconWrapper = styled.div`
-  place-self: center;
-`
-
 const BannerText = styled.div`
   font-size: 12px;
 `

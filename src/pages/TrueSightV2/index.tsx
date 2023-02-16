@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled from 'styled-components'
@@ -41,7 +41,7 @@ export default function TrueSightV2() {
   const isSingleToken = location?.pathname.includes('single-token')
   const above768 = useMedia('(min-width:768px)')
   const above600 = useMedia('(min-width:600px)')
-  const isLeaderboard = location.pathname.includes('discover')
+  const navigate = useNavigate()
   return (
     <Wrapper>
       <RowBetween>
@@ -49,8 +49,10 @@ export default function TrueSightV2() {
           <Text
             fontSize={above768 ? 24 : 20}
             lineHeight="28px"
-            color={isLeaderboard ? theme.primary : theme.subText}
+            color={isSingleToken ? theme.subText : theme.primary}
             fontWeight={500}
+            onClick={() => navigate('/discover')}
+            style={{ cursor: 'pointer' }}
           >
             <RowFit gap="4px">
               {above768 && <Icon id="leaderboard" size={20} />}
@@ -63,8 +65,10 @@ export default function TrueSightV2() {
           <Text
             fontSize={above768 ? 24 : 20}
             lineHeight="28px"
-            color={isLeaderboard ? theme.subText : theme.primary}
+            color={isSingleToken ? theme.primary : theme.subText}
             fontWeight={500}
+            onClick={() => navigate('/discover/single-token')}
+            style={{ cursor: 'pointer' }}
           >
             <RowFit gap="4px">
               {above768 && <Icon id="truesight-v2" size={20} />}
