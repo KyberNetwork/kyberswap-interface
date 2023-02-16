@@ -8,14 +8,13 @@ import { AutoColumn } from 'components/Column'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { RowFixed } from 'components/Row'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
-import UpdatedBadge from 'components/SwapForm/SwapModal/SwapDetailsv2/UpdatedBadge'
+import UpdatedBadge, { Props as UpdatedBadgeProps } from 'components/SwapForm/SwapModal/SwapDetails/UpdatedBadge'
 import useTheme from 'hooks/useTheme'
 
 type Props = {
   inputAmount: CurrencyAmount<Currency>
   outputAmount: CurrencyAmount<Currency>
-  levelOfChanges: number | undefined
-}
+} & UpdatedBadgeProps
 
 const TruncatedText = styled(Text)`
   text-overflow: ellipsis;
@@ -24,7 +23,7 @@ const TruncatedText = styled(Text)`
   font-weight: 500;
 `
 
-const SwapBrief: React.FC<Props> = ({ inputAmount, outputAmount, levelOfChanges }) => {
+const SwapBrief: React.FC<Props> = ({ inputAmount, outputAmount, $level }) => {
   const theme = useTheme()
   const { typedValue, feeConfig } = useSwapFormContext()
   return (
@@ -68,7 +67,7 @@ const SwapBrief: React.FC<Props> = ({ inputAmount, outputAmount, levelOfChanges 
           </Text>
         </Flex>
 
-        <UpdatedBadge level={levelOfChanges} />
+        <UpdatedBadge $level={$level} />
       </Flex>
     </AutoColumn>
   )
