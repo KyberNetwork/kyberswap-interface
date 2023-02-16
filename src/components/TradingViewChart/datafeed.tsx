@@ -28,7 +28,6 @@ export const useDatafeed = (poolDetail: PoolResponse, tokenId: string) => {
       }
     }
   }, [])
-
   const base =
     poolDetail.included[0].id === tokenId
       ? poolDetail.included[0].attributes.symbol

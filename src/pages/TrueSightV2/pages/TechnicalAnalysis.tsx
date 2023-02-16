@@ -8,7 +8,7 @@ import { ButtonPrimary } from 'components/Button'
 import Row from 'components/Row'
 
 import { SectionWrapper } from '../components'
-import { LiquidOnCentralizedExchanges } from '../components/chart'
+import { LiquidOnCentralizedExchanges, PriceChart } from '../components/chart'
 import { FundingRateTable, LiveDEXTrades, SupportResistanceLevel } from '../components/table'
 import { ChartTab } from '../types'
 
@@ -44,7 +44,10 @@ export default function TechnicalAnalysis() {
         tabs={[`BTC/USD`, `BTC/BTC`]}
         activeTab={liveChartTab}
         onTabClick={setLiveChartTab}
-      ></SectionWrapper>
+        style={{ height: '700px' }}
+      >
+        <PriceChart />
+      </SectionWrapper>
       <SectionWrapper
         show={true}
         title={t`Support & Resistance Levels`}
