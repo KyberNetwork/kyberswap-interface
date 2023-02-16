@@ -121,7 +121,6 @@ export default function Popups() {
     })
 
     const unsubscribePrivate = subscribePrivateAnnouncement(account, data => {
-      // todo danh co ve release ko dung
       setTimeout(() => {
         // notify({ title: 'test', type: NotificationType.WARNING }, null)
         // addPopup(test(), PopupType.TOP_RIGHT, test().metaMessageId, null)

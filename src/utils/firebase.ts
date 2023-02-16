@@ -140,10 +140,12 @@ export function subscribeTelegramSubscription(account: string, callback: (data: 
   return subscribeDocument(COLLECTIONS.TELEGRAM_SUBSCRIPTION, [account.toLowerCase()], callback)
 }
 
-export function subscribePrivateAnnouncement(account: string | undefined, callback: (data: any) => void) {
-  // todo any
+export function subscribePrivateAnnouncement(
+  account: string | undefined,
+  callback: (data: PopupContentAnnouncement[]) => void,
+) {
   if (!account) return
-  return subscribeListDocument(COLLECTIONS.ANNOUNCEMENT, [account.toLowerCase(), 'metaMessages'], callback)
+  return subscribeDocument(COLLECTIONS.ANNOUNCEMENT, [account.toLowerCase()], data => callback(data.metaMessages ?? []))
 }
 
 export function subscribeAnnouncement(callback: (data: PopupContentAnnouncement[]) => void) {

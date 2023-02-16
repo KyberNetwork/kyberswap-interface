@@ -14,6 +14,7 @@ import usePrevious from 'hooks/usePrevious'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleNotificationCenter } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
+import { subscribePrivateAnnouncement } from 'utils/firebase'
 
 const StyledMenuButton = styled.button<{ active?: boolean }>`
   border: none;
@@ -155,6 +156,17 @@ export default function AnnouncementComponent() {
     tab !== activeTab && fetchAnnouncementsByTab(true, tab)
   }
 
+  const prefetchPrivateAnnouncements = useCallback(() => {
+    if (account)
+      fetchPrivateAnnouncement({ account, page: 1 })
+        .then(({ data }) => {
+          setPrivateAnnouncements((data?.notifications ?? []) as PrivateAnnouncement[])
+        })
+        .catch(() => {
+          setPrivateAnnouncements([])
+        })
+  }, [account, fetchPrivateAnnouncement])
+
   const prevOpen = usePrevious(isOpenNotificationCenter)
   useEffect(() => {
     if (prevOpen !== isOpenNotificationCenter && !isOpenNotificationCenter) {
@@ -165,14 +177,7 @@ export default function AnnouncementComponent() {
     setActiveTab(newTab)
 
     // prefetch data
-    if (account)
-      fetchPrivateAnnouncement({ account, page: 1 })
-        .then(({ data }) => {
-          setPrivateAnnouncements((data?.notifications ?? []) as PrivateAnnouncement[])
-        })
-        .catch(() => {
-          setPrivateAnnouncements([])
-        })
+    prefetchPrivateAnnouncements()
 
     if (isOpenNotificationCenter && newTab === Tab.ANNOUNCEMENT)
       fetchGeneralAnnouncement({ page: 1 })
@@ -182,7 +187,12 @@ export default function AnnouncementComponent() {
         .catch(() => {
           setAnnouncements([])
         })
-  }, [account, fetchPrivateAnnouncement, fetchGeneralAnnouncement, prevOpen, isOpenNotificationCenter])
+  }, [account, prefetchPrivateAnnouncements, fetchGeneralAnnouncement, prevOpen, isOpenNotificationCenter])
+
+  useEffect(() => {
+    const unsubscribePrivate = subscribePrivateAnnouncement(account, prefetchPrivateAnnouncements)
+    return () => unsubscribePrivate?.()
+  }, [account, prefetchPrivateAnnouncements])
 
   const props = {
     numberOfUnread,

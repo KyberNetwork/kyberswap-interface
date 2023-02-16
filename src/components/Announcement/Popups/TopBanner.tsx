@@ -67,13 +67,13 @@ const marquee = () => keyframes`
   50.1% { transform: translateX(110%) ; }
   100% { transform: translateX(0%) ; }
 `
-const TextContent = styled.div<{ overflow: boolean }>`
+const TextContent = styled.div<{ isOverflow: boolean }>`
   line-height: 20px;
   color: ${({ theme }) => theme.text};
   font-size: 14px;
-  ${({ theme, overflow }) => theme.mediaWidth.upToSmall`
+  ${({ theme, isOverflow }) => theme.mediaWidth.upToSmall`
      ${
-       overflow &&
+       isOverflow &&
        css`
          animation: ${marquee} 15s linear infinite;
        `
@@ -127,7 +127,7 @@ function TopBanner() {
       <Content>
         {!isMobile && <Announcement />}
         <TextWrapper>
-          <TextContent ref={refContent} overflow={isOverflowParent}>
+          <TextContent ref={refContent} isOverflow={isOverflowParent}>
             {content}
           </TextContent>
         </TextWrapper>
