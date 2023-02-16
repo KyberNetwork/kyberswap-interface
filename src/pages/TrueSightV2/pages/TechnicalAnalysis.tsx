@@ -62,7 +62,7 @@ export default function TechnicalAnalysis() {
           <ButtonPrimary width="fit-content" onClick={() => navigate('/limit/ethereum/wbtc-to-usdt')}>
             <Text color={theme.textReverse} fontSize="14px" lineHeight="20px">
               <RowFit gap="4px">
-                <Icon id="chart" /> Place Limit Order
+                <Icon id="chart" size={16} /> Place Limit Order
               </RowFit>
             </Text>
           </ButtonPrimary>
@@ -72,7 +72,7 @@ export default function TechnicalAnalysis() {
         show={true}
         id={'fundingrate'}
         title={t`Funding Rate on Centralized Exchanges`}
-        description={t`Funding rate is useful in identifying short-term trends.
+        description={`Funding rate is useful in identifying short-term trends.
         <span style={{ color: ${theme.primary}, fontStyle: 'italic' }}>Positive</span> funding rates suggests traders are
         bullish. Extremely positive funding rates may result in long positions getting squeezed. Negative funding
         rates suggests traders are bearish. Extremely negative funding rates may result in short positions getting
@@ -86,7 +86,7 @@ export default function TechnicalAnalysis() {
       </SectionWrapper>
       <SectionWrapper
         title={t`Liquidations on Centralized Exchanges`}
-        description={t`Liquidations describe the forced closing of a trader&apos;s futures position due to the partial or total loss
+        description={`Liquidations describe the forced closing of a trader&apos;s futures position due to the partial or total loss
           of their collateral. This happens when a trader has insufficient funds to keep a leveraged trade
           open.Leverated trading is high risk & high reward. The higher the leverage, the easier it is for a trader to
           get liquidated. An abrupt change in price of a token can cause large liquidations. Traders may buy / sell the
