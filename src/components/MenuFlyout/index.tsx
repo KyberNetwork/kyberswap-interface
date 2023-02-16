@@ -91,23 +91,36 @@ const MenuFlyout = (props: {
   node: any
   translatedTitle?: string
   hasArrow?: boolean
+  modalWhenMobile?: boolean
 }) => {
-  useOnClickOutside(props.node, props.isOpen && !isMobile ? props.toggle : undefined)
-  if (!props.isOpen) return null
-  if (isMobile)
+  const {
+    modalWhenMobile = true,
+    children,
+    isOpen,
+    toggle,
+    translatedTitle,
+    mobileCustomStyle,
+    browserCustomStyle,
+    hasArrow,
+  } = props
+
+  const isModal = isMobile && modalWhenMobile
+  useOnClickOutside(props.node, isOpen && !isModal ? toggle : undefined)
+  if (!isOpen) return null
+  if (isModal)
     return (
-      <Modal isOpen={true} onDismiss={props.toggle} maxWidth={900}>
-        <MobileStyle customStyle={props.mobileCustomStyle}>
-          <MenuTitleWrapper toggle={props.toggle} translatedTitle={props.translatedTitle} fontSize={16}>
-            {props.children}
+      <Modal isOpen={true} onDismiss={toggle} maxWidth={900}>
+        <MobileStyle customStyle={mobileCustomStyle}>
+          <MenuTitleWrapper toggle={toggle} translatedTitle={translatedTitle} fontSize={16}>
+            {children}
           </MenuTitleWrapper>
         </MobileStyle>
       </Modal>
     )
   return (
-    <BrowserStyle hasArrow={!!props.hasArrow} customStyle={props.browserCustomStyle}>
-      <MenuTitleWrapper toggle={props.toggle} translatedTitle={props.translatedTitle} fontSize={16}>
-        {props.children}
+    <BrowserStyle hasArrow={!!hasArrow} customStyle={browserCustomStyle}>
+      <MenuTitleWrapper toggle={toggle} translatedTitle={translatedTitle} fontSize={16}>
+        {children}
       </MenuTitleWrapper>
     </BrowserStyle>
   )

@@ -65,6 +65,7 @@ const Settings: React.FC = () => {
         <SettingsIcon size={20} cursor="pointer" />
       </IconWrapper>
       <MenuFlyout
+        modalWhenMobile={false}
         node={node}
         isOpen={isOpen}
         toggle={toggle}
