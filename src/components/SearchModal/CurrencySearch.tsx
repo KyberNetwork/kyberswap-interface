@@ -12,7 +12,7 @@ import Column from 'components/Column'
 import InfoHelper from 'components/InfoHelper'
 import { RowBetween } from 'components/Row'
 import { KS_SETTING_API } from 'constants/env'
-import { isEVM } from 'constants/networks'
+import { isEVM, isSolana } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -21,7 +21,7 @@ import {
   fetchTokenByAddress,
   formatAndCacheToken,
   useAllTokens,
-  useFetchTokenFromRPC,
+  useFetchERC20TokenFromRPC,
 } from 'hooks/Tokens'
 import useDebounce from 'hooks/useDebounce'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
@@ -155,6 +155,7 @@ export function CurrencySearch({
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedQuery = useDebounce(searchQuery, 200)
   const isQueryValidEVMAddress = isEVM(chainId) && !!isAddress(chainId, debouncedQuery)
+  const isQueryValidSolanaAddress = isSolana(chainId) && !!isAddress(chainId, debouncedQuery)
 
   const { favoriteTokens, toggleFavoriteToken } = useUserFavoriteTokens(chainId)
 
@@ -173,7 +174,7 @@ export function CurrencySearch({
     return (debouncedQuery ? filterTokens(chainId, tokenImports, debouncedQuery) : tokenImports).sort(tokenComparator)
   }, [debouncedQuery, chainId, tokenImports, tokenComparator])
 
-  const fetchTokenFromRPC = useFetchTokenFromRPC()
+  const fetchERC20TokenFromRPC = useFetchERC20TokenFromRPC()
 
   // input eth => output filter weth, input weth => output filter eth
   const filterWrapFunc = useCallback(
@@ -344,7 +345,7 @@ export function CurrencySearch({
         tokens = await fetchTokens(debouncedQuery, nextPage, chainId)
 
         if (tokens.length === 0 && isQueryValidEVMAddress) {
-          const rawToken = await fetchTokenFromRPC(debouncedQuery)
+          const rawToken = await fetchERC20TokenFromRPC(debouncedQuery)
 
           if (rawToken) {
             tokens.push(
@@ -364,6 +365,8 @@ export function CurrencySearch({
               },
             ])
           }
+        } else if (tokens.length === 0 && isQueryValidSolanaAddress) {
+          // TODO: query tokens from Solana token db
         }
       } else {
         tokens = Object.values(defaultTokens) as WrappedTokenInfo[]
@@ -377,7 +380,15 @@ export function CurrencySearch({
         fetchingToken.current = null
       }
     },
-    [chainId, debouncedQuery, defaultTokens, fetchTokenFromRPC, isQueryValidEVMAddress, pageCount],
+    [
+      chainId,
+      debouncedQuery,
+      defaultTokens,
+      fetchERC20TokenFromRPC,
+      isQueryValidEVMAddress,
+      isQueryValidSolanaAddress,
+      pageCount,
+    ],
   )
 
   const [hasMoreToken, setHasMoreToken] = useState(false)
