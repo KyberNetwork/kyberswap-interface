@@ -8,6 +8,7 @@ export type BuildRoutePayload = {
   recipient?: string
   referral?: string
   source: 'kyberswap'
+  skipSimulateTx: boolean
 }
 
 export type BuildRouteData = {
