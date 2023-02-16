@@ -1,11 +1,13 @@
 import { t } from '@lingui/macro'
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { useTheme } from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
-import Row from 'components/Row'
+import Icon from 'components/Icons/Icon'
+import Row, { RowFit } from 'components/Row'
 
 import { SectionWrapper } from '../components'
 import { LiquidOnCentralizedExchanges, PriceChart } from '../components/chart'
@@ -36,6 +38,7 @@ export default function TechnicalAnalysis() {
   const theme = useTheme()
   const above768 = useMedia('(min-width:768px)')
   const [liveChartTab, setLiveChartTab] = useState(ChartTab.First)
+  const navigate = useNavigate()
   return (
     <Wrapper>
       <SectionWrapper
@@ -56,7 +59,13 @@ export default function TechnicalAnalysis() {
       >
         <SupportResistanceLevel />
         <Row justify="flex-end">
-          <ButtonPrimary width="fit-content">Place Limit Order</ButtonPrimary>
+          <ButtonPrimary width="fit-content" onClick={() => navigate('/limit/ethereum/wbtc-to-usdt')}>
+            <Text color={theme.textReverse} fontSize="14px" lineHeight="20px">
+              <RowFit gap="4px">
+                <Icon id="chart" /> Place Limit Order
+              </RowFit>
+            </Text>
+          </ButtonPrimary>
         </Row>
       </SectionWrapper>
       <SectionWrapper

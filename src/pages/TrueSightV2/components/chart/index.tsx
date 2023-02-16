@@ -1312,11 +1312,12 @@ const Prochart = ({ poolDetail }: { poolDetail: PoolResponse }) => {
 }
 export const PriceChart = () => {
   const { data: poolDetail } = useGetPoolDetailQuery(
-    { poolAddress: '147971715', network: 'eth' },
+    { poolAddress: '0x99ac8ca7087fa4a2a1fb6357269965a2014abc35', network: 'eth' },
     {
-      skip: !'147971715',
+      skip: !'0x99ac8ca7087fa4a2a1fb6357269965a2014abc35',
     },
   )
+  console.log('🚀 ~ file: index.tsx:1315 ~ PriceChart ~ poolDetail', poolDetail)
   if (!poolDetail) return <></>
 
   return <Prochart poolDetail={poolDetail}></Prochart>
