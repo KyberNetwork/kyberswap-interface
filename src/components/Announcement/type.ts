@@ -27,11 +27,10 @@ export type PrivateAnnouncement = {
 export type AnnouncementCTA = { name: string; url: string }
 
 export type TrueSightToken = {
-  tokenSymbol: string
+  symbol: string
   price: string
-  priceChange: string
-  tokenLogoURL: string
-  tokenAddress: string
+  changePercentage: string
+  logo: string
 }
 
 // for private announcement
