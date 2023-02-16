@@ -1,4 +1,5 @@
 import { rgba } from 'polished'
+import { useEffect, useRef, useState } from 'react'
 import { X } from 'react-feather'
 import { useMedia } from 'react-use'
 import styled, { css, keyframes } from 'styled-components'
@@ -45,10 +46,6 @@ const Content = styled.div`
   `}
 `
 
-const marquee = () => keyframes`
-  0% { left: 0; }
-  100% { left: -100%; }
-`
 const TextWrapper = styled.div`
   margin-left: 4px;
   margin-right: 1rem;
@@ -63,13 +60,25 @@ const TextWrapper = styled.div`
   `}
   `}
 `
-const TextContent = styled.div`
+
+const marquee = () => keyframes`
+  0% { transform: translateX(0%) ; }
+  50% { transform: translateX(-110%) ; }
+  50.1% { transform: translateX(110%) ; }
+  100% { transform: translateX(0%) ; }
+`
+const TextContent = styled.div<{ overflow: boolean }>`
   line-height: 20px;
   color: ${({ theme }) => theme.text};
   font-size: 14px;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
+  ${({ theme, overflow }) => theme.mediaWidth.upToSmall`
+     ${
+       overflow &&
+       css`
+         animation: ${marquee} 15s linear infinite;
+       `
+     };
     white-space: nowrap;
-    animation: ${marquee} 5s linear infinite;
     position: absolute;
   `}
 `
@@ -97,18 +106,32 @@ function TopBanner() {
   const removeAllPopupByType = useRemoveAllPopupByType()
   const hideBanner = () => removeAllPopupByType(PopupType.TOP_BAR)
 
+  const refContent = useRef<HTMLDivElement>(null)
+  const contentNode = refContent.current
+  const [isOverflowParent, setIsOverflowParent] = useState(false)
+
+  useEffect(() => {
+    if (contentNode?.parentElement) {
+      const isOverflowParent = contentNode.clientWidth > contentNode.parentElement?.clientWidth
+      setIsOverflowParent(isOverflowParent)
+    }
+  }, [contentNode])
+
   if (!popupInfo) return null
   const { templateBody } = popupInfo.content as PopupContentAnnouncement
   const announcement = (templateBody as AnnouncementTemplatePopup).announcement
   if (!announcement) return null
   const { content, ctas = [], type } = announcement
+
   return (
     <BannerWrapper color={type === 'NORMAL' ? theme.apr : theme.warning}>
       {!isMobile && <div />}
       <Content>
         {!isMobile && <Announcement />}
         <TextWrapper>
-          <TextContent>{content}</TextContent>
+          <TextContent ref={refContent} overflow={isOverflowParent}>
+            {content}
+          </TextContent>
         </TextWrapper>
         {isMobile && <StyledClose size={24} onClick={hideBanner} />}
       </Content>
