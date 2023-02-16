@@ -23,7 +23,7 @@ const RangeBarWrapper = styled.div`
   position: relative;
   overflow: hidden;
   margin: 6px 0;
-  ${({ theme }) => `background-color: ${theme.subText};`}
+  ${({ theme }) => `background-color: ${theme.darkMode ? theme.subText : theme.background2};`}
 `
 const RangeBar = styled.div<{ $width: number }>`
   position: absolute;

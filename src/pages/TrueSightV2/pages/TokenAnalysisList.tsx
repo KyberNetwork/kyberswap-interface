@@ -114,7 +114,7 @@ const Table = styled.table`
       border-bottom: 1px solid ${theme.border};
     `};
     :hover:not(thead tr) {
-      filter: brightness(1.2);
+      filter: brightness(${({ theme }) => (theme.darkMode ? 1.2 : 0.98)});
     }
 
     td {
