@@ -85,7 +85,7 @@ export default function AnnouncementComponent() {
 
   const { useLazyGetAnnouncementsQuery, useLazyGetPrivateAnnouncementsQuery } = AnnouncementApi
   const [fetchGeneralAnnouncement, { data: respAnnouncement = responseDefault }] = useLazyGetAnnouncementsQuery()
-  const [fetchPrivateAnnouncement, { data: respPrivateAnnouncement = responseDefault }] =
+  const [fetchPrivateAnnouncement, { data: respPrivateAnnouncement = responseDefault, isError }] =
     useLazyGetPrivateAnnouncementsQuery()
 
   const isMyInboxTab = activeTab === Tab.INBOX
@@ -139,7 +139,7 @@ export default function AnnouncementComponent() {
   const {
     numberOfUnread,
     pagination: { totalItems: totalPrivateAnnouncement },
-  } = respPrivateAnnouncement
+  } = isError ? responseDefault : respPrivateAnnouncement
 
   const refreshAnnouncement = () => {
     fetchAnnouncementsByTab(true)
@@ -170,14 +170,18 @@ export default function AnnouncementComponent() {
         .then(({ data }) => {
           setPrivateAnnouncements((data?.notifications ?? []) as PrivateAnnouncement[])
         })
-        .catch(console.error)
+        .catch(() => {
+          setPrivateAnnouncements([])
+        })
 
     if (isOpenNotificationCenter && newTab === Tab.ANNOUNCEMENT)
       fetchGeneralAnnouncement({ page: 1 })
         .then(({ data }) => {
           setAnnouncements((data?.notifications ?? []) as Announcement[])
         })
-        .catch(console.error)
+        .catch(() => {
+          setAnnouncements([])
+        })
   }, [account, fetchPrivateAnnouncement, fetchGeneralAnnouncement, prevOpen, isOpenNotificationCenter])
 
   const props = {
