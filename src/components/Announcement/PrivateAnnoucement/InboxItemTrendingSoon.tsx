@@ -35,18 +35,19 @@ function InboxItemBridge({ announcement, onRead, style, time }: PrivateAnnouncem
           </Title>
           {!isRead && <Dot />}
         </RowItem>
-        <RowItem>
-          <PrimaryText>New tokens found!</PrimaryText>
-        </RowItem>
       </InboxItemRow>
 
       <InboxItemRow>
-        {token1 && <DeltaTokenAmount amount={getTokenDisplayText(token1)} logoURL={token1.tokenLogoURL} />}
-        {token2 && <DeltaTokenAmount amount={getTokenDisplayText(token2)} logoURL={token2.tokenLogoURL} />}
+        {token1 && <DeltaTokenAmount amount={getTokenDisplayText(token1)} logoURL={token1.tokenLogoURL} whiteColor />}
+        {token2 && <DeltaTokenAmount amount={getTokenDisplayText(token2)} logoURL={token2.tokenLogoURL} whiteColor />}
       </InboxItemRow>
 
       <InboxItemRow>
-        {token3 ? <DeltaTokenAmount amount={getTokenDisplayText(token3)} logoURL={token3.tokenLogoURL} /> : <div />}
+        {token3 ? (
+          <DeltaTokenAmount amount={getTokenDisplayText(token3)} logoURL={token3.tokenLogoURL} whiteColor />
+        ) : (
+          <div />
+        )}
         {time}
       </InboxItemRow>
     </InboxItemWrapper>
