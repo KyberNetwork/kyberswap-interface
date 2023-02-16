@@ -2,10 +2,13 @@ import { Trans } from '@lingui/macro'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
+import { ButtonLight } from 'components/Button'
 import Column from 'components/Column'
+import CurrencyLogo from 'components/CurrencyLogo'
 import Icon from 'components/Icons/Icon'
 import Pagination from 'components/Pagination'
 import Row, { RowFit } from 'components/Row'
+import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
 import { useFundingRate } from 'pages/TrueSightV2/hooks/useTruesightV2Data'
 import { shortenAddress } from 'utils'
@@ -528,7 +531,7 @@ export const LiveDEXTrades = () => {
 
 export const WidgetTable = () => {
   const theme = useTheme()
-  const gridTemplateColumns = '1fr 1fr 1fr 1fr 2fr 1.5fr'
+  const gridTemplateColumns = '1fr 1fr 1fr 1fr 2fr 1fr'
 
   return (
     <TableWrapper style={{ borderRadius: '0' }}>
@@ -560,22 +563,89 @@ export const WidgetTable = () => {
           style={{ backgroundColor: theme.tableHeader }}
         >
           <TableCell>
-            <Icon id="star" size={16} />
+            <RowFit gap="4px">
+              <Icon id="star" size={16} />
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                xmlnsXlink="http://www.w3.org/1999/xlink"
+              >
+                <rect width="16" height="16" fill="url(#pattern0)" />
+                <defs>
+                  <pattern id="pattern0" patternContentUnits="objectBoundingBox" width="1" height="1">
+                    <use xlinkHref="#image0_2028_7474" transform="scale(0.0078125)" />
+                  </pattern>
+                  <image
+                    id="image0_2028_7474"
+                    width="128"
+                    height="128"
+                    xlinkHref="data:image/png;base64,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"
+                  />
+                </defs>
+              </svg>
+              ETH
+            </RowFit>
           </TableCell>
           <TableCell>
-            <Icon id="star" size={16} />
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M8.02979 0L7.92255 0.364508V10.9417L8.02979 11.0487L12.9396 8.14657L8.02979 0Z" fill="white" />
+              <path d="M8.02981 0L3.12 8.14657L8.02981 11.0488V5.91494V0Z" fill="white" />
+              <path
+                d="M8.02979 11.9788L7.96936 12.0525V15.8203L8.02979 15.9969L12.9425 9.07812L8.02979 11.9788Z"
+                fill="white"
+              />
+              <path d="M8.02981 15.9969V11.9788L3.12 9.07812L8.02981 15.9969Z" fill="white" />
+              <path d="M8.02979 11.0478L12.9395 8.1457L8.02979 5.91406V11.0478Z" fill="white" />
+              <path d="M3.12006 8.1457L8.02979 11.0478V5.91406L3.12006 8.1457Z" fill="white" />
+            </svg>
           </TableCell>
           <TableCell>
-            <Icon id="star" size={16} />
+            <Text color={theme.subText} fontSize="12px">
+              $0.00401
+            </Text>
           </TableCell>
           <TableCell>
-            <Icon id="star" size={16} />
+            <Text color={theme.primary} fontSize="12px">
+              20%
+            </Text>
           </TableCell>
           <TableCell>
-            <Icon id="star" size={16} />
+            <svg width="201" height="41" viewBox="0 0 201 41" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                fillRule="evenodd"
+                clipRule="evenodd"
+                d="M200 41L199.922 34.6961V26.1038L197.253 30.6992L196.864 30.033L195.34 30.8108L194.195 30.5876C194.195 30.5876 191.136 31.7534 189.991 31.865C188.846 31.9765 186.555 29.645 185.799 29.4218C185.031 29.2003 185.031 27.9796 185.031 27.9796L182.74 27.813L181.973 27.3684L180.072 28.4226L178.537 26.7572L173.955 35.0842C173.955 35.0842 172.054 33.7519 172.432 33.8085C170.908 32.1431 169.373 34.1965 169.373 34.1965L165.937 34.03L165.559 32.3646L165.181 30.5326L163.646 30.7541L162.501 30.4777C156.395 33.3089 159.064 28.9222 159.064 28.9222L152.192 13.4339L151.436 13.8786L149.145 13.767L146.464 14.9328L144.174 14.8778L142.272 17.3759L139.214 17.5425L138.446 18.4868L134.632 20.1522C134.632 20.1522 133.109 18.9864 133.109 18.9298C133.109 18.8748 131.574 18.3752 131.196 18.3752C128.138 19.7075 128.905 18.3202 128.905 18.3202L126.236 14.9328L124.323 14.6563C124.323 14.6563 122.8 15.4324 122.41 15.4324C115.927 15.8221 116.305 19.0413 116.305 19.0413L114.782 18.8198L113.636 19.3195L110.956 17.2643L108.287 18.4301L104.473 17.1544L102.938 18.5967L101.037 19.0413L99.1237 16.6548L95.6874 19.0963L88.8147 17.8756L86.5239 19.3744L83.4656 16.7098L80.4187 20.0955L75.837 15.0993L74.6915 15.489L68.9644 3.71961L67.4295 5.10689L62.0917 2.8869L58.6554 4.33081L54.4517 6.16276L50.2479 4.60727L46.8116 8.16124L44.5208 4.94035L41.8519 5.33005L37.2702 1L29.2521 9.54852L28.944 9.91825L24.6715 15.0993L20.8572 12.7678C20.8572 12.7678 19.9294 13.5072 18.5664 13.4905C16.2984 13.4604 16.2755 12.2132 16.2755 12.2132L14.7395 13.324L12.4486 13.2674L8.63544 16.7647L5.96657 13.324L4.95859 14.5997L4.43054 15.2659L2.13967 14.3232L1.38483 15.5989H0V41"
+                fill="url(#paint0_linear_2028_7479)"
+              />
+              <path
+                d="M200 26.1285L197.33 30.7283L196.94 30.0615L195.416 30.84L194.271 30.6166C194.271 30.6166 191.211 31.7836 190.065 31.8953C188.919 32.0069 186.628 29.6731 185.871 29.4497C185.104 29.228 185.104 28.0061 185.104 28.0061L182.812 27.8393L182.044 27.3942L180.142 28.4495L178.606 26.7824L174.023 35.1176C174.023 35.1176 172.121 33.784 172.499 33.8407C170.975 32.1737 169.439 34.2291 169.439 34.2291L166.002 34.0624L165.624 32.3954L165.245 30.5616L163.71 30.7833L162.564 30.5066C156.456 33.3406 159.126 28.9496 159.126 28.9496L152.251 13.4461L151.495 13.8912L149.203 13.7795L146.522 14.9465L144.23 14.8914L142.328 17.392L139.268 17.5587L138.5 18.5039L134.685 20.171C134.685 20.171 133.161 19.004 133.161 18.9474C133.161 18.8923 131.625 18.3922 131.247 18.3922C128.188 19.7259 128.955 18.3372 128.955 18.3372L126.285 14.9465L124.372 14.6697C124.372 14.6697 122.848 15.4466 122.458 15.4466C115.972 15.8367 116.351 19.059 116.351 19.059L114.827 18.8373L113.681 19.3374L110.999 17.2803L108.329 18.4472L104.514 17.1703L102.978 18.6139L101.076 19.059L99.1624 16.6702L95.7247 19.1141L88.8494 17.8921L86.5577 19.3925L83.4981 16.7252L80.4501 20.1143L75.8666 15.1132L74.7207 15.5032L68.9913 3.72228L67.4558 5.11092L62.116 2.88876L58.6783 4.33408L54.4729 6.16782L50.2676 4.61081L46.8299 8.16827L44.5382 4.94422L41.8682 5.3343L37.2847 1L29.2635 9.55692L28.9553 9.927L24.6812 15.1132L20.8654 12.7793C20.8654 12.7793 19.9372 13.5195 18.5736 13.5028C16.3048 13.4726 16.2818 12.2242 16.2818 12.2242L14.7452 13.3361L12.4534 13.2794L8.63881 16.7802L5.9689 13.3361L4.96052 14.613L4.43227 15.2799L2.14051 14.3363L1.38537 15.6133H0"
+                stroke="#31CB9E"
+              />
+              <defs>
+                <linearGradient
+                  id="paint0_linear_2028_7479"
+                  x1="0"
+                  y1="1"
+                  x2="0"
+                  y2="41"
+                  gradientUnits="userSpaceOnUse"
+                >
+                  <stop stopColor="#31CB9E" stopOpacity="0.4" />
+                  <stop offset="1" stopColor="#31CB9E" stopOpacity="0" />
+                </linearGradient>
+              </defs>
+            </svg>
           </TableCell>
           <TableCell>
-            <Icon id="star" size={16} />
+            <ButtonLight height="28px" width="75px" padding="4px 8px">
+              <RowFit gap="4px" fontSize="14px">
+                <Icon id="swap" size={16} />
+                Swap
+              </RowFit>
+            </ButtonLight>
           </TableCell>
         </TableRow>
       ))}

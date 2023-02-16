@@ -127,9 +127,14 @@ export default function Widget() {
           </Row>
           {activeTab === WidgetTab.MyWatchlist ? (
             <Row align="center" justify="center" height="380px">
-              <Text color={theme.subText}>
+              <Text color={theme.subText} textAlign="center">
                 <Trans>
-                  You can add more tokens to your watchlist from <span color={theme.primary}>Discover</span>
+                  You can add more tokens to your watchlist from{' '}
+                  <Text color={theme.primary} display="inline">
+                    Discover
+                  </Text>
+                  .<br />
+                  You can follow up to 8 tokens
                 </Trans>
               </Text>
             </Row>
