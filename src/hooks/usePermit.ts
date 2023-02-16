@@ -98,7 +98,7 @@ export const usePermit = (token?: Token, routerAddress?: string) => {
         s: signature.s,
         deadline: deadline,
       })
-      const res = await eipContract.permit(
+      const res = await eipContract.interface.encodeFunctionData('permit', [
         account,
         routerAddress,
         MaxUint256.toString(),
@@ -106,10 +106,17 @@ export const usePermit = (token?: Token, routerAddress?: string) => {
         signature.v,
         signature.r,
         signature.s,
-      )
-      console.log('🚀 ~ file: usePermit.ts:111 ~ signPermitCallback ~ res', res)
+      ])
+      // const res = await eipContract.permit(
+      //   account,
+      //   routerAddress,
+      //   MaxUint256.toString(),
+      //   deadline,
+      //   signature.v,
+      //   signature.r,
+      //   signature.s,
+      // )
     } catch (error) {
-      console.log('🚀 ~ file: usePermit.ts:105 ~ permitCallback ~ error', error)
       // for all errors other than 4001 (EIP-1193 user rejected request), fall back to manual approve
       if (error?.code !== 4001) {
         // approveCallback()

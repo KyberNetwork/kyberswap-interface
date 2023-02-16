@@ -94,11 +94,23 @@ const ApprovalModal = ({
   const isOpen = useModalOpen(ApplicationModal.SWAP_APPROVAL)
   const closeModal = useCloseModal(ApplicationModal.SWAP_APPROVAL)
   const [option, setOption] = useState<ApproveOptions>(ApproveOptions.Infinite)
-  const [customValue, setCustomValue] = useState(typedValue || '0')
+  const [customValue, setCustomValue] = useState(typedValue || '1')
 
   useEffect(() => {
-    setCustomValue(typedValue || '0')
+    setCustomValue(typedValue || '1')
   }, [typedValue])
+
+  const handleInputChange = (e: any) => {
+    setCustomValue(e.target.value)
+  }
+  const isValid = option === ApproveOptions.Infinite || (typedValue && typedValue <= customValue)
+
+  const handleApprove = () => {
+    if (isValid) {
+      onApprove?.(option === ApproveOptions.Infinite ? MaxUint256 : parseUnits(customValue, currencyInput?.decimals))
+      closeModal()
+    }
+  }
 
   return (
     <Modal isOpen={isOpen} onDismiss={closeModal}>
@@ -210,12 +222,7 @@ const ApprovalModal = ({
                 <Trans>Custom Allowance</Trans>
               </Text>
               <InputWrapper>
-                <Input
-                  pattern="^[0-9]*[.,]?[0-9]*$"
-                  value={customValue}
-                  onChange={(e: any) => setCustomValue(e.target.value)}
-                  tabIndex={-1}
-                />
+                <Input pattern="^[0-9]*[.,]?[0-9]*$" value={customValue} onChange={handleInputChange} tabIndex={-1} />
                 <CurrencyLogo currency={currencyInput} size="16px" />
                 <Text color={theme.subText} fontSize="14px">
                   {currencyInput?.symbol}
@@ -231,14 +238,7 @@ const ApprovalModal = ({
             </Column>
           </OptionWrapper>
         </Column>
-        <ButtonPrimary
-          onClick={() => {
-            onApprove?.(
-              option === ApproveOptions.Infinite ? MaxUint256 : parseUnits(customValue, currencyInput?.decimals),
-            )
-            closeModal()
-          }}
-        >
+        <ButtonPrimary onClick={handleApprove} disabled={!isValid}>
           <Trans>Approve</Trans>
         </ButtonPrimary>
       </Wrapper>
