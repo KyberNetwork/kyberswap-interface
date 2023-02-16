@@ -119,9 +119,7 @@ function TopBanner() {
 
   if (!popupInfo) return null
   const { templateBody } = popupInfo.content as PopupContentAnnouncement
-  const announcement = (templateBody as AnnouncementTemplatePopup).announcement
-  if (!announcement) return null
-  const { content, ctas = [], type } = announcement
+  const { content, ctas = [], type } = templateBody as AnnouncementTemplatePopup
 
   return (
     <BannerWrapper color={type === 'NORMAL' ? theme.apr : theme.warning}>

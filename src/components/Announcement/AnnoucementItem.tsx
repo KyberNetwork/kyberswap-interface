@@ -75,9 +75,7 @@ export default function AnnouncementItem({
   const { isRead, templateBody } = announcement
 
   const navigate = useNavigate()
-
-  if (!templateBody.announcement) return null
-  const { name, startAt, content, thumbnailImageURL, actionURL } = templateBody.announcement
+  const { name, startAt, content, thumbnailImageURL, actionURL } = templateBody
 
   const onClick = () => {
     try {

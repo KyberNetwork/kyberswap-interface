@@ -103,10 +103,9 @@ export default function Popups() {
     if (isShowTutorial) return
     // todo danh nhan popup call lai api ben kia
     const unsubscribe = subscribeAnnouncement(data => {
-      console.log(data)
+      console.log(111, data)
       data.forEach(item => {
-        // todo danh any
-        const popupType = (item.templateBody as any)?.announcement?.popupType
+        const { popupType } = item.templateBody
 
         if ((isInit.current && popupType === PopupType.CENTER) || popupType !== PopupType.CENTER) {
           // only show when the first visit app

@@ -55,9 +55,7 @@ export default function CenterPopup({ data, clearAll }: { data: PopupItemType; c
   const theme = useTheme()
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const { templateBody = {} } = data.content as PopupContentAnnouncement
-  const announcement = (templateBody as AnnouncementTemplatePopup).announcement
-  if (!announcement) return null
-  const { name = t`Important Announcement!`, content, ctas = [] } = announcement
+  const { name = t`Important Announcement!`, content, ctas = [] } = templateBody as AnnouncementTemplatePopup
 
   return (
     <Modal isOpen={true} maxWidth={isMobile ? undefined : '800px'}>

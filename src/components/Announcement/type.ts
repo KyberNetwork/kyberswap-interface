@@ -41,17 +41,15 @@ export type AnnouncementTemplateTrendingSoon = { tokens: TrueSightToken[] }
 
 // for general announcement
 export type AnnouncementTemplatePopup = {
-  announcement: {
-    name: string
-    content: string
-    thumbnailImageURL: string
-    type: 'NORMAL' | 'CRITICAL'
-    startAt: number
-    endAt: number
+  name: string
+  content: string
+  thumbnailImageURL: string
+  type: 'NORMAL' | 'CRITICAL'
+  startAt: number
+  endAt: number
 
-    ctas: AnnouncementCTA[] // in popup
-    actionURL: string // in noti center
-  }
+  ctas: AnnouncementCTA[] // in popup
+  actionURL: string // in noti center
 }
 
 type AnnouncementTemplate = (

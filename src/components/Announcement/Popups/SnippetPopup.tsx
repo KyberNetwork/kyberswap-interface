@@ -126,9 +126,7 @@ function SnippetPopupItem({
   setExpand: (v: boolean) => void
 }) {
   const { templateBody = {} } = data.content as PopupContentAnnouncement
-  const announcement = (templateBody as AnnouncementTemplatePopup).announcement
-  if (!announcement) return null
-  const { ctas = [], name, content } = announcement
+  const { ctas = [], name, content } = templateBody as AnnouncementTemplatePopup
   const toggle = () => {
     setExpand(!expand)
   }
