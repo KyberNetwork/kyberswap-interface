@@ -1,4 +1,3 @@
-import dayjs from 'dayjs'
 import { ReactNode } from 'react'
 import { CSSProperties } from 'styled-components'
 
@@ -6,6 +5,7 @@ import InboxItemBridge from 'components/Announcement/PrivateAnnoucement/InboxIte
 import InboxItemLO from 'components/Announcement/PrivateAnnoucement/InboxItemLO'
 import InboxItemTrendingSoon from 'components/Announcement/PrivateAnnoucement/InboxItemTrendingSoon'
 import { InboxItemTime } from 'components/Announcement/PrivateAnnoucement/styled'
+import { formatTime } from 'components/Announcement/helper'
 import { PrivateAnnouncement, PrivateAnnouncementType } from 'components/Announcement/type'
 
 export type PrivateAnnouncementProp = {
@@ -21,7 +21,7 @@ export default function InboxItem({ announcement, onRead, style }: PrivateAnnoun
     announcement,
     onRead,
     style,
-    time: <InboxItemTime>{dayjs(sentAt * 1000).format('DD-MM-YYYY HH:mm:ss')}</InboxItemTime>,
+    time: <InboxItemTime>{formatTime(sentAt)}</InboxItemTime>,
   }
   switch (templateType) {
     case PrivateAnnouncementType.BRIDGE:

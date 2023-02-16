@@ -1,8 +1,8 @@
-import dayjs from 'dayjs'
 import { useNavigate } from 'react-router-dom'
 import styled, { CSSProperties } from 'styled-components'
 
 import kyberCrystal from 'assets/images/kyberdao/kyber_crystal.png'
+import { formatTime } from 'components/Announcement/helper'
 import { Announcement } from 'components/Announcement/type'
 import Column from 'components/Column'
 
@@ -98,7 +98,7 @@ export default function AnnouncementItem({
           <Title>{name} </Title>
           <Desc>{content}</Desc>
         </Column>
-        <Time>{dayjs(startAt * 1000).format('DD-MM-YYYY HH:mm:ss')}</Time>
+        <Time>{formatTime(startAt)}</Time>
       </RowItem>
     </Wrapper>
   )
