@@ -30,7 +30,7 @@ const NetWorkRow = styled.div`
   gap: 4px;
 `
 
-function InboxItemBridge({ announcement, onRead, style }: PrivateAnnouncementProp) {
+function InboxItemBridge({ announcement, onRead, style, time }: PrivateAnnouncementProp) {
   const { templateBody, isRead } = announcement
   const { transaction = {} } = templateBody as AnnouncementTemplateBridge
   const { status, srcTokenSymbol, srcAmount, dstChainId, srcChainId } = transaction as MultichainTransfer
@@ -78,7 +78,7 @@ function InboxItemBridge({ announcement, onRead, style }: PrivateAnnouncementPro
           <NetworkLogo chainId={chainIdOut} style={{ width: 12, height: 12 }} />
           <InboxItemTime>{NETWORKS_INFO[chainIdOut].name}</InboxItemTime>
         </NetWorkRow>
-        <InboxItemTime>12/12/2002</InboxItemTime>
+        {time}
       </InboxItemRow>
     </InboxItemWrapper>
   )

@@ -6,7 +6,7 @@ import { MultichainTransfer } from 'hooks/bridge/useGetBridgeTransfers'
 export type Announcement = {
   isRead: boolean
   id: number
-  templateBody: { announcement: AnnouncementTemplatePopup }
+  templateBody: AnnouncementTemplatePopup
 }
 
 export enum PrivateAnnouncementType {
@@ -21,6 +21,7 @@ export type PrivateAnnouncement = {
   templateId: number
   templateBody: AnnouncementTemplate
   isRead: boolean
+  sentAt: number
 }
 
 export type AnnouncementCTA = { name: string; url: string }
@@ -40,15 +41,17 @@ export type AnnouncementTemplateTrendingSoon = { tokens: TrueSightToken[] }
 
 // for general announcement
 export type AnnouncementTemplatePopup = {
-  name: string
-  content: string
-  thumbnailImageURL: string
-  type: 'NORMAL' | 'CRITICAL'
-  startAt: number
-  endAt: number
+  announcement: {
+    name: string
+    content: string
+    thumbnailImageURL: string
+    type: 'NORMAL' | 'CRITICAL'
+    startAt: number
+    endAt: number
 
-  ctas: AnnouncementCTA[] // in popup
-  actionURL: string // in noti center
+    ctas: AnnouncementCTA[] // in popup
+    actionURL: string // in noti center
+  }
 }
 
 type AnnouncementTemplate = (
@@ -57,7 +60,7 @@ type AnnouncementTemplate = (
   | AnnouncementTemplateTrendingSoon
   | AnnouncementTemplatePopup
 ) & {
-  popupType: PopupType
+  popupType: PopupType // todo
 }
 
 export enum NotificationType {
@@ -69,10 +72,10 @@ export enum NotificationType {
 export enum PopupType {
   TRANSACTION, // top right
   SIMPLE, // top right
-  TOP_RIGHT = 'top-right', // popup noti from server: limit order, bridge, ...
-  TOP_BAR = 'top-bar',
-  SNIPPET = 'snippet', // bottom left
-  CENTER = 'central',
+  TOP_RIGHT = 'TOP_RIGHT', // popup noti from server: limit order, bridge, ...
+  TOP_BAR = 'TOP_BAR',
+  SNIPPET = 'SNIPPET', // bottom left
+  CENTER = 'CENTRAL',
 }
 
 export type PopupContentTxn = {

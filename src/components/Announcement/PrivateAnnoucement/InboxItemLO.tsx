@@ -21,7 +21,7 @@ import { formatAmountOrder, formatRateLimitOrder } from 'components/swapv2/Limit
 import { LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
 import { APP_PATHS } from 'constants/index'
 
-function InboxItemBridge({ announcement, onRead, style }: PrivateAnnouncementProp) {
+function InboxItemBridge({ announcement, onRead, style, time }: PrivateAnnouncementProp) {
   const { templateBody, isRead } = announcement
   const order = ((templateBody as AnnouncementTemplateLimitOrder).order ?? {}) as LimitOrder
   const {
@@ -86,7 +86,7 @@ function InboxItemBridge({ announcement, onRead, style }: PrivateAnnouncementPro
           symbol={makerAssetSymbol}
           logoURL={makerAssetLogoURL}
         />
-        <InboxItemTime>12/12/2002</InboxItemTime>
+        {time}
       </InboxItemRow>
     </InboxItemWrapper>
   )

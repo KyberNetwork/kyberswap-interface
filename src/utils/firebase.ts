@@ -2,6 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import firebase from 'firebase/compat/app'
 import { collection, doc, getFirestore, onSnapshot, query } from 'firebase/firestore'
 
+import { PopupContentAnnouncement } from 'components/Announcement/type'
 import { LimitOrder } from 'components/swapv2/LimitOrder/type'
 import {
   FIREBASE_API_KEY,
@@ -12,13 +13,23 @@ import {
   FIREBASE_STORAGE_BUCKET,
 } from 'constants/env'
 
-const firebaseConfig = {
+const firebaseConfig2 = {
   apiKey: FIREBASE_API_KEY,
   authDomain: FIREBASE_AUTH_DOMAIN,
   projectId: FIREBASE_PROJECT_ID,
   storageBucket: FIREBASE_STORAGE_BUCKET,
   messagingSenderId: FIREBASE_MESSAGING_SENDER_ID,
   appId: FIREBASE_APP_ID,
+}
+
+const firebaseConfig = {
+  apiKey: 'AIzaSyDszHtJ4CJq0mwjBJ1pTt5OOzG5tiooEsg',
+  authDomain: 'test-bace2.firebaseapp.com',
+  databaseURL: 'https://test-bace2-default-rtdb.asia-southeast1.firebasedatabase.app',
+  projectId: 'test-bace2',
+  storageBucket: 'test-bace2.appspot.com',
+  messagingSenderId: '337703820408',
+  appId: '1:337703820408:web:2fb16ef71941817dec618d',
 }
 
 const firebaseApp = firebase.initializeApp(firebaseConfig)
@@ -135,7 +146,6 @@ export function subscribePrivateAnnouncement(account: string | undefined, callba
   return subscribeListDocument(COLLECTIONS.ANNOUNCEMENT, [account.toLowerCase(), 'metaMessages'], callback)
 }
 
-export function subscribeAnnouncement(callback: (data: any) => void) {
-  // todo any
+export function subscribeAnnouncement(callback: (data: PopupContentAnnouncement[]) => void) {
   return subscribeListDocument(COLLECTIONS.ANNOUNCEMENT_POPUP, [], callback)
 }

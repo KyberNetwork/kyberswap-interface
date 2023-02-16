@@ -4,7 +4,7 @@ import { useLocalStorage } from 'react-use'
 import { PopupContentAnnouncement } from 'components/Announcement/type'
 
 export const useAckAnnouncement = () => {
-  const [announcementsMap, setAnnouncementsMap] = useLocalStorage<{ [id: string]: string }>('announcements', {})
+  const [announcementsMap, setAnnouncementsMap] = useLocalStorage<{ [id: string]: string }>('ack-announcements', {})
   const ackAnnouncement = useCallback(
     (id: string | number) =>
       setAnnouncementsMap({

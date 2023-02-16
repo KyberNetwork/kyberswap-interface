@@ -5,7 +5,6 @@ import { PrivateAnnouncementProp } from 'components/Announcement/PrivateAnnoucem
 import {
   Dot,
   InboxItemRow,
-  InboxItemTime,
   InboxItemWrapper,
   PrimaryText,
   RowItem,
@@ -17,7 +16,7 @@ import DeltaTokenAmount from 'components/WalletPopup/Transactions/DeltaTokenAmou
 import { APP_PATHS } from 'constants/index'
 
 const getTokenDisplayText = (token: TrueSightToken) => `${token.tokenSymbol} $${token.price} (${token.priceChange}%)`
-function InboxItemBridge({ announcement, onRead, style }: PrivateAnnouncementProp) {
+function InboxItemBridge({ announcement, onRead, style, time }: PrivateAnnouncementProp) {
   const { templateBody, isRead } = announcement
   const [token1, token2 = token1, token3 = token1] = ((templateBody as AnnouncementTemplateTrendingSoon).tokens ??
     []) as TrueSightToken[]
@@ -48,7 +47,7 @@ function InboxItemBridge({ announcement, onRead, style }: PrivateAnnouncementPro
 
       <InboxItemRow>
         {token3 ? <DeltaTokenAmount amount={getTokenDisplayText(token3)} logoURL={token3.tokenLogoURL} /> : <div />}
-        <InboxItemTime>12/12/2002</InboxItemTime>
+        {time}
       </InboxItemRow>
     </InboxItemWrapper>
   )

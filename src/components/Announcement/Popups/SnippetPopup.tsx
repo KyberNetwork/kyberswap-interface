@@ -126,7 +126,9 @@ function SnippetPopupItem({
   setExpand: (v: boolean) => void
 }) {
   const { templateBody = {} } = data.content as PopupContentAnnouncement
-  const { ctas = [], name, content } = templateBody as AnnouncementTemplatePopup
+  const announcement = (templateBody as AnnouncementTemplatePopup).announcement
+  if (!announcement) return null
+  const { ctas = [], name, content } = announcement
   const toggle = () => {
     setExpand(!expand)
   }
@@ -139,7 +141,7 @@ function SnippetPopupItem({
         <Desc expand={expand}>{content}</Desc>
         <Flex
           alignItems="flex-end"
-          style={{ position: 'relative', justifyContent: expand ? 'center' : 'space-between' }}
+          style={{ position: 'relative', justifyContent: expand ? 'center' : 'flex-start', gap: '12px' }}
         >
           <StyledLink href={ctas[0]?.url}>
             <StyledCtaButton data={ctas[0]} color="primary" />

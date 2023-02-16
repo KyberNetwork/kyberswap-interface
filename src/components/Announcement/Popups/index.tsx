@@ -76,19 +76,22 @@ export default function Popups() {
   const clearAllTopRightPopup = () => removeAllPopupByType(PopupType.TOP_RIGHT)
   const clearAllSnippetPopup = () => removeAllPopupByType(PopupType.SNIPPET)
   const clearAllCenterPopup = () => removeAllPopupByType(PopupType.CENTER)
+  console.log(snippetPopups)
 
   const test = (): PopupContentAnnouncement =>
     ({
       metaMessageId: Math.random() + '',
       templateType: PrivateAnnouncementType.BRIDGE,
       templateBody: {
-        name: 'New campaign hereeee',
-        content:
-          'New campaign hereeee New campaign hereeee New campaign hereeee New campaign hereeee New campaign hereeee New campaign hereeee New campaign hereeee New campaign hereeee New campaign hereeee',
-        ctas: [{ name: 'string', url: 'string' }],
-        thumbnailImageURL: 'string',
-        popupType: PopupType.CENTER,
-        type: 'CRITICAL',
+        announcement: {
+          name: 'New campaign hereeee',
+          content:
+            'New campaign hereeee New campaign hereeee New campaign hereeee New campaign hereeee New campaign hereeee New campaign hereeee New campaign hereeee New campaign hereeee New campaign hereeee',
+          ctas: [{ name: 'string', url: 'string' }],
+          thumbnailImageURL: 'string',
+          popupType: PopupType.CENTER,
+          type: 'CRITICAL',
+        },
       },
       expiredAt: Date.now() + 50000000,
       createdAt: Date.now() - 50000000,
@@ -100,16 +103,22 @@ export default function Popups() {
     if (isShowTutorial) return
     // todo danh nhan popup call lai api ben kia
     const unsubscribe = subscribeAnnouncement(data => {
-      setTimeout(() => {
-        if (!isInit.current) {
+      console.log(data)
+      data.forEach(item => {
+        // todo danh any
+        const popupType = (item.templateBody as any).announcement.popupType
+
+        if ((isInit.current && popupType === PopupType.CENTER) || popupType !== PopupType.CENTER) {
           // only show when the first visit app
           // addPopup(test(), PopupType.CENTER, test().metaMessageId, null)
+          addPopup(item, popupType, item.metaMessageId, null)
         }
-        // addPopup(test(), PopupType.TOP_BAR, test().metaMessageId, null)
-        // addPopup(test(), PopupType.SNIPPET, test().metaMessageId, null)
-        // addPopup(test(), PopupType.SNIPPET, test().metaMessageId, null)
-        isInit.current = true
-      }, 2000)
+      })
+
+      // addPopup(test(), PopupType.SNIPPET, test().metaMessageId, null)
+      // addPopup(test(), PopupType.SNIPPET, test().metaMessageId, null)
+      // todo refactor data long nhau qua
+      isInit.current = true
     })
 
     const unsubscribePrivate = subscribePrivateAnnouncement(account, data => {
@@ -126,7 +135,7 @@ export default function Popups() {
       unsubscribe?.()
       unsubscribePrivate?.()
     }
-  }, [account, isShowTutorial])
+  }, [account, isShowTutorial, addPopup])
 
   const totalTopRightPopup = topRightPopups.length
 
