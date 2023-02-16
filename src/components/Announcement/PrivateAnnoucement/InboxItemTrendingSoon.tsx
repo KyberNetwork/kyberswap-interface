@@ -2,14 +2,7 @@ import { Trans } from '@lingui/macro'
 import { useNavigate } from 'react-router-dom'
 
 import { PrivateAnnouncementProp } from 'components/Announcement/PrivateAnnoucement'
-import {
-  Dot,
-  InboxItemRow,
-  InboxItemWrapper,
-  PrimaryText,
-  RowItem,
-  Title,
-} from 'components/Announcement/PrivateAnnoucement/styled'
+import { Dot, InboxItemRow, InboxItemWrapper, RowItem, Title } from 'components/Announcement/PrivateAnnoucement/styled'
 import { AnnouncementTemplateTrendingSoon, TrueSightToken } from 'components/Announcement/type'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import DeltaTokenAmount from 'components/WalletPopup/Transactions/DeltaTokenAmount'
