@@ -7,12 +7,14 @@ import { AnnouncementTemplateTrendingSoon, TrueSightToken } from 'components/Ann
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import DeltaTokenAmount from 'components/WalletPopup/Transactions/DeltaTokenAmount'
 import { APP_PATHS } from 'constants/index'
+import useTheme from 'hooks/useTheme'
 
 const getTokenDisplayText = (token: TrueSightToken) => `${token.symbol} $${token.price} (${token.changePercentage}%)`
 function InboxItemBridge({ announcement, onRead, style, time }: PrivateAnnouncementProp) {
   const { templateBody, isRead } = announcement
   const [token1, token2 = token1, token3 = token1] = ((templateBody as AnnouncementTemplateTrendingSoon).tokens ??
     []) as TrueSightToken[]
+  const theme = useTheme()
   const navigate = useNavigate()
   const onClick = () => {
     navigate(APP_PATHS.DISCOVER)
@@ -31,12 +33,16 @@ function InboxItemBridge({ announcement, onRead, style, time }: PrivateAnnouncem
       </InboxItemRow>
 
       <InboxItemRow>
-        {token1 && <DeltaTokenAmount amount={getTokenDisplayText(token1)} logoURL={token1.logo} whiteColor />}
-        {token2 && <DeltaTokenAmount amount={getTokenDisplayText(token2)} logoURL={token2.logo} whiteColor />}
+        {token1 && <DeltaTokenAmount amount={getTokenDisplayText(token1)} logoURL={token1.logo} color={theme.text} />}
+        {token2 && <DeltaTokenAmount amount={getTokenDisplayText(token2)} logoURL={token2.logo} color={theme.text} />}
       </InboxItemRow>
 
       <InboxItemRow>
-        {token3 ? <DeltaTokenAmount amount={getTokenDisplayText(token3)} logoURL={token3.logo} whiteColor /> : <div />}
+        {token3 ? (
+          <DeltaTokenAmount amount={getTokenDisplayText(token3)} logoURL={token3.logo} color={theme.text} />
+        ) : (
+          <div />
+        )}
         {time}
       </InboxItemRow>
     </InboxItemWrapper>

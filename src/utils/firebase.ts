@@ -58,12 +58,6 @@ function subscribeDocument(collectionName: string, paths: string[], callback: (d
   return unsubscribe
 }
 
-type AllItem = { isSuccessful: boolean; id: string; txHash: string }
-type ListOrderResponse = {
-  orders: LimitOrder[]
-  all: AllItem[]
-}
-
 function subscribeListDocument(collectionName: string, paths: string[], callback: (data: any) => void) {
   const q = query(collection(db, collectionName, ...paths))
   const unsubscribe = onSnapshot(
@@ -78,6 +72,12 @@ function subscribeListDocument(collectionName: string, paths: string[], callback
     (error: any) => console.error('listen list error', error),
   )
   return unsubscribe
+}
+
+type AllItem = { isSuccessful: boolean; id: string; txHash: string }
+type ListOrderResponse = {
+  orders: LimitOrder[]
+  all: AllItem[]
 }
 
 function subscribeListLimitOrder(
@@ -137,7 +137,10 @@ export function subscribeNotificationOrderExpired(
 }
 
 export function subscribeTelegramSubscription(account: string, callback: (data: { isSuccessfully: boolean }) => void) {
-  return subscribeDocument(COLLECTIONS.TELEGRAM_SUBSCRIPTION, [account.toLowerCase()], callback)
+  // return subscribeDocument(COLLECTIONS.TELEGRAM_SUBSCRIPTION, [account.toLowerCase()], callback)
+  return () => {
+    //
+  }
 }
 
 export function subscribePrivateAnnouncement(

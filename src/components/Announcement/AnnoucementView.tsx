@@ -107,7 +107,7 @@ const Badge = styled.div`
   border-radius: 16px;
   background-color: ${({ theme }) => theme.primary};
   color: ${({ theme }) => theme.textReverse};
-  padding: 2px 4px 1px 4px;
+  padding: 0px 4px;
   font-weight: 500;
   min-width: 20px;
   text-align: center;

@@ -22,20 +22,20 @@ const DeltaTokenAmount = ({
   amount,
   tokenAddress,
   plus,
-  whiteColor,
+  color: customColor,
   logoURL,
 }: {
   symbol?: string
   amount?: string
   tokenAddress?: string
   plus?: boolean
-  whiteColor?: boolean
+  color?: string
   logoURL?: string
 }) => {
   const withSign = plus !== undefined
   const theme = useTheme()
   const sign = amount === undefined || !withSign ? null : plus ? '+' : '-'
-  const color = whiteColor ? theme.text : plus ? theme.primary : theme.subText
+  const color = customColor ?? (plus ? theme.primary : theme.subText)
   const logoUrl = logoURL ?? getTokenLogo(tokenAddress)
   if (!amount) return null
   return (

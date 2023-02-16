@@ -172,6 +172,7 @@ const DescriptionBridge = (transaction: TransactionDetails) => {
     chainIdOut = ChainId.MAINNET,
     tokenAddressIn,
   } = extraInfo as TransactionExtraInfo2Token
+  const theme = useTheme()
 
   return {
     leftComponent: (
@@ -190,7 +191,12 @@ const DescriptionBridge = (transaction: TransactionDetails) => {
       </>
     ),
     rightComponent: (
-      <DeltaTokenAmount whiteColor symbol={tokenSymbolIn} amount={tokenAmountIn} tokenAddress={tokenAddressIn} />
+      <DeltaTokenAmount
+        color={theme.text}
+        symbol={tokenSymbolIn}
+        amount={tokenAmountIn}
+        tokenAddress={tokenAddressIn}
+      />
     ),
   }
 }
