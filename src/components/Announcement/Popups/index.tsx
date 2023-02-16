@@ -106,7 +106,7 @@ export default function Popups() {
       console.log(data)
       data.forEach(item => {
         // todo danh any
-        const popupType = (item.templateBody as any).announcement.popupType
+        const popupType = (item.templateBody as any)?.announcement?.popupType
 
         if ((isInit.current && popupType === PopupType.CENTER) || popupType !== PopupType.CENTER) {
           // only show when the first visit app
