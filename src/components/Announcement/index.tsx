@@ -10,6 +10,7 @@ import NotificationIcon from 'components/Icons/NotificationIcon'
 import MenuFlyout from 'components/MenuFlyout'
 import Modal from 'components/Modal'
 import { useActiveWeb3React } from 'hooks'
+import usePrevious from 'hooks/usePrevious'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleNotificationCenter } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
@@ -73,7 +74,7 @@ export default function AnnouncementComponent() {
   const node = useRef<HTMLDivElement>(null)
   const [activeTab, setActiveTab] = useState(Tab.ANNOUNCEMENT)
 
-  const open = useModalOpen(ApplicationModal.NOTIFICATION_CENTER)
+  const isOpenNotificationCenter = useModalOpen(ApplicationModal.NOTIFICATION_CENTER)
   const toggle = useToggleNotificationCenter()
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
@@ -83,19 +84,19 @@ export default function AnnouncementComponent() {
   const [privateAnnouncements, setPrivateAnnouncements] = useState<PrivateAnnouncement[]>([])
 
   const { useLazyGetAnnouncementsQuery, useLazyGetPrivateAnnouncementsQuery } = AnnouncementApi
-  const [fetchGeneralAnnouncement, { data: respAnnouncement }] = useLazyGetAnnouncementsQuery()
-  const [fetchPrivateAnnouncement, { data: respPrivateAnnouncement }] = useLazyGetPrivateAnnouncementsQuery()
+  const [fetchGeneralAnnouncement, { data: respAnnouncement = responseDefault }] = useLazyGetAnnouncementsQuery()
+  const [fetchPrivateAnnouncement, { data: respPrivateAnnouncement = responseDefault }] =
+    useLazyGetPrivateAnnouncementsQuery()
 
   const isMyInboxTab = activeTab === Tab.INBOX
+  const loadingAnnouncement = useRef(false)
 
-  const loading = useRef(false)
-
-  const fetchAnnouncements = useCallback(
+  const fetchAnnouncementsByTab = useCallback(
     async (isReset = false, tab: Tab = activeTab) => {
-      if (loading.current) return
+      if (loadingAnnouncement.current) return
       try {
         const isMyInboxTab = tab === Tab.INBOX
-        loading.current = true
+        loadingAnnouncement.current = true
         const page = isReset ? 1 : curPage + 1
         const promise = isMyInboxTab
           ? account
@@ -117,7 +118,7 @@ export default function AnnouncementComponent() {
       } catch (error) {
         console.error(error)
       } finally {
-        loading.current = false
+        loadingAnnouncement.current = false
       }
     },
     [
@@ -133,43 +134,51 @@ export default function AnnouncementComponent() {
 
   const {
     pagination: { totalItems: totalAnnouncement },
-  } = respAnnouncement ?? responseDefault
+  } = respAnnouncement
 
   const {
     numberOfUnread,
     pagination: { totalItems: totalPrivateAnnouncement },
-  } = respPrivateAnnouncement ?? responseDefault
+  } = respPrivateAnnouncement
 
   const refreshAnnouncement = () => {
-    fetchAnnouncements(true)
+    fetchAnnouncementsByTab(true)
   }
 
   const loadMoreAnnouncements = useCallback(() => {
-    fetchAnnouncements()
-  }, [fetchAnnouncements])
+    fetchAnnouncementsByTab()
+  }, [fetchAnnouncementsByTab])
 
   const onSetTab = (tab: Tab) => {
     setActiveTab(tab)
     setPage(1)
-    tab !== activeTab && fetchAnnouncements(true, tab)
+    tab !== activeTab && fetchAnnouncementsByTab(true, tab)
   }
 
+  const prevOpen = usePrevious(isOpenNotificationCenter)
   useEffect(() => {
-    setActiveTab(account ? Tab.INBOX : Tab.ANNOUNCEMENT)
+    if (prevOpen !== isOpenNotificationCenter && !isOpenNotificationCenter) {
+      // close popup
+      return
+    }
+    const newTab = account ? Tab.INBOX : Tab.ANNOUNCEMENT
+    setActiveTab(newTab)
+
     // prefetch data
-    account &&
+    if (account)
       fetchPrivateAnnouncement({ account, page: 1 })
         .then(({ data }) => {
           setPrivateAnnouncements((data?.notifications ?? []) as PrivateAnnouncement[])
         })
         .catch(console.error)
 
-    fetchGeneralAnnouncement({ page: 1 })
-      .then(({ data }) => {
-        setAnnouncements((data?.notifications ?? []) as Announcement[])
-      })
-      .catch(console.error)
-  }, [account, fetchPrivateAnnouncement, fetchGeneralAnnouncement])
+    if (isOpenNotificationCenter && newTab === Tab.ANNOUNCEMENT)
+      fetchGeneralAnnouncement({ page: 1 })
+        .then(({ data }) => {
+          setAnnouncements((data?.notifications ?? []) as Announcement[])
+        })
+        .catch(console.error)
+  }, [account, fetchPrivateAnnouncement, fetchGeneralAnnouncement, prevOpen, isOpenNotificationCenter])
 
   const props = {
     numberOfUnread,
@@ -182,17 +191,26 @@ export default function AnnouncementComponent() {
   }
   return (
     <StyledMenu ref={node}>
-      <StyledMenuButton active={open || numberOfUnread > 0} onClick={toggle} aria-label="Notifications">
+      <StyledMenuButton
+        active={isOpenNotificationCenter || numberOfUnread > 0}
+        onClick={toggle}
+        aria-label="Notifications"
+      >
         <NotificationIcon />
         {numberOfUnread > 0 && <Badge>{formatNumberOfUnread(numberOfUnread)}</Badge>}
       </StyledMenuButton>
 
       {isMobile ? (
-        <Modal isOpen={open} onDismiss={toggle} minHeight={80}>
+        <Modal isOpen={isOpenNotificationCenter} onDismiss={toggle} minHeight={80}>
           <AnnouncementView {...props} />
         </Modal>
       ) : (
-        <MenuFlyout browserCustomStyle={browserCustomStyle} node={node} isOpen={open} toggle={toggle}>
+        <MenuFlyout
+          browserCustomStyle={browserCustomStyle}
+          node={node}
+          isOpen={isOpenNotificationCenter}
+          toggle={toggle}
+        >
           <AnnouncementView {...props} />
         </MenuFlyout>
       )}
