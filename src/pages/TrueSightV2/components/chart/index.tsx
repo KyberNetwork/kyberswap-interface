@@ -1,6 +1,6 @@
 import dayjs from 'dayjs'
 import { rgba } from 'polished'
-import React, { ReactNode, useMemo, useRef, useState } from 'react'
+import React, { useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
@@ -9,11 +9,13 @@ import {
   AreaChart,
   Bar,
   BarChart,
+  Cell,
   ComposedChart,
   Line,
+  Pie,
+  PieChart,
   ResponsiveContainer,
   Tooltip,
-  TooltipProps,
   XAxis,
   YAxis,
 } from 'recharts'
@@ -40,10 +42,9 @@ import {
 import { testParams } from 'pages/TrueSightV2/pages/SingleToken'
 import { ChartTab } from 'pages/TrueSightV2/types'
 import { MEDIA_WIDTHS } from 'theme'
+import { shortenAddress } from 'utils'
 
 import { ContentWrapper } from '..'
-import HoldersPieChart from './HoldersPieChart'
-import LineChart from './LineChart'
 import SignedBarChart from './SignedBarChart'
 
 const ChartWrapper = styled(ContentWrapper)`
@@ -246,33 +247,8 @@ const TooltipWrapper = styled.div`
   }
 `
 
-const TooltipCustom = (props: TooltipProps<number, string>) => {
-  const theme = useTheme()
-
-  const payload = props.payload?.[0]?.payload
-  if (payload) {
-    return (
-      <TooltipWrapper>
-        <Text
-          color={theme.subText}
-          paddingBottom="10px"
-          marginBottom="10px"
-          style={{ borderBottom: `1px solid ${theme.border}` }}
-        >
-          Total Trades: <span style={{ color: theme.text }}>{payload.buy + payload.sell}</span>
-        </Text>
-        <Text color={theme.primary} marginBottom="8px">
-          Buy: {payload.buy}
-        </Text>
-        <Text color={theme.red}>Buy: {payload.sell}</Text>
-      </TooltipWrapper>
-    )
-  }
-  return null
-}
-
 export const ANIMATION_DELAY = 500
-export const ANIMATION_DURATION = 1500
+export const ANIMATION_DURATION = 1000
 
 const formatNum = (num: number): string => {
   const negative = num < 0
@@ -609,7 +585,7 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
                         <Text fontSize="12px" lineHeight="16px" color={theme.text}>
                           Netflow: <span style={{ color: theme.text }}>${formatNum(payload.netflow)}</span>
                         </Text>
-                        <Row gap="4px">
+                        <Row gap="8px">
                           <Column gap="4px">
                             <Text fontSize="12px" lineHeight="16px" color={theme.text}>
                               Wallet
@@ -808,16 +784,28 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
                     <Text fontSize="12px" lineHeight="16px" color={theme.text}>
                       Netflow: <span style={{ color: theme.text }}>${formatNum(payload.netflow)}</span>
                     </Text>
-                    <Row gap="4px">
+                    <Row gap="8px">
                       <Column gap="4px">
                         <Text fontSize="12px" lineHeight="16px" color={theme.text}>
                           Wallet
                         </Text>
                         <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
-                          General Whales
+                          Binance
                         </Text>
                         <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
-                          Token Whales
+                          Coinbase
+                        </Text>
+                        <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
+                          OKX
+                        </Text>
+                        <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
+                          Kucoin
+                        </Text>
+                        <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
+                          Kraken
+                        </Text>
+                        <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
+                          Crypto.com
                         </Text>
                       </Column>
                       <Column gap="4px">
@@ -830,10 +818,34 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
                         <Text fontSize="12px" lineHeight="16px" color={theme.primary}>
                           ${formatNum(payload.inflow)}
                         </Text>
+                        <Text fontSize="12px" lineHeight="16px" color={theme.primary}>
+                          ${formatNum(payload.inflow)}
+                        </Text>
+                        <Text fontSize="12px" lineHeight="16px" color={theme.primary}>
+                          ${formatNum(payload.inflow)}
+                        </Text>
+                        <Text fontSize="12px" lineHeight="16px" color={theme.primary}>
+                          ${formatNum(payload.inflow)}
+                        </Text>
+                        <Text fontSize="12px" lineHeight="16px" color={theme.primary}>
+                          ${formatNum(payload.inflow)}
+                        </Text>
                       </Column>
                       <Column gap="4px">
                         <Text fontSize="12px" lineHeight="16px" color={theme.text}>
                           Outflow
+                        </Text>
+                        <Text fontSize="12px" lineHeight="16px" color={theme.red}>
+                          ${formatNum(payload.outflow)}
+                        </Text>
+                        <Text fontSize="12px" lineHeight="16px" color={theme.red}>
+                          ${formatNum(payload.outflow)}
+                        </Text>
+                        <Text fontSize="12px" lineHeight="16px" color={theme.red}>
+                          ${formatNum(payload.outflow)}
+                        </Text>
+                        <Text fontSize="12px" lineHeight="16px" color={theme.red}>
+                          ${formatNum(payload.outflow)}
                         </Text>
                         <Text fontSize="12px" lineHeight="16px" color={theme.red}>
                           ${formatNum(payload.outflow)}
@@ -1075,10 +1087,96 @@ export const NumberofHolders = () => {
   )
 }
 
+const data01 = [
+  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 400 },
+  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 300 },
+  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 300 },
+  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 200 },
+  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 278 },
+  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 189 },
+  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 189 },
+  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 189 },
+  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 189 },
+  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 189 },
+  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 189 },
+  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 200 },
+  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 189 },
+  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 189 },
+  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 189 },
+  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 189 },
+  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 189 },
+  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 189 },
+  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 189 },
+  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 189 },
+  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 189 },
+  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 189 },
+  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 100 },
+  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 189 },
+  { name: '0x9E6A9b73C0603ea78aD24Efe0368Df8F95a43651', value: 189 },
+]
+
+const COLORS = ['#00a2f7', '#31CB9E', '#FFBB28', '#F3841E', '#FF537B', '#27AE60', '#78d5ff', '#8088E5']
+const CustomLabel = ({ x, y, cx, cy, name }: any) => {
+  let customY = y
+  if (Math.abs(cx - x) < 30) {
+    customY = cy - y > 0 ? y - 8 : y + 8
+  }
+  return (
+    <text x={x} y={customY} textAnchor={x > cx ? 'start' : 'end'} fill="#31CB9E" fontSize={12}>
+      {name}
+    </text>
+  )
+}
 export const HoldersChartWrapper = () => {
+  const theme = useTheme()
+  const above1000 = useMedia('(min-width:1000px)')
+
+  const formattedData = useMemo(
+    () =>
+      above1000
+        ? data01
+        : data01.map(item => {
+            return { ...item, name: shortenAddress(1, item.name) }
+          }),
+    [above1000],
+  )
+
   return (
     <ChartWrapper>
-      <HoldersPieChart />
+      <ResponsiveContainer width="100%" height="100%">
+        <PieChart width={100} height={100} margin={{ top: 20, right: 90, bottom: 20, left: 90 }}>
+          <Tooltip
+            cursor={{ fill: 'transparent' }}
+            wrapperStyle={{ outline: 'none' }}
+            animationDuration={100}
+            content={props => {
+              const payload = props.payload?.[0]?.payload
+              if (!payload) return <></>
+              return (
+                <TooltipWrapper>
+                  <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
+                    Supply Owned: {(payload.value / 30).toFixed(2)}%
+                  </Text>
+                </TooltipWrapper>
+              )
+            }}
+          />
+          <Pie
+            dataKey="value"
+            label={CustomLabel}
+            nameKey="name"
+            data={formattedData}
+            innerRadius="40%"
+            outerRadius="80%"
+            animationBegin={ANIMATION_DELAY}
+            animationDuration={ANIMATION_DURATION}
+          >
+            {formattedData.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length] + 'e0'} />
+            ))}
+          </Pie>
+        </PieChart>
+      </ResponsiveContainer>
     </ChartWrapper>
   )
 }
