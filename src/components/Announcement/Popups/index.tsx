@@ -103,7 +103,6 @@ export default function Popups() {
     if (isShowTutorial) return
     // todo danh nhan popup call lai api ben kia
     const unsubscribe = subscribeAnnouncement(data => {
-      console.log(111, data)
       data.forEach(item => {
         const { popupType } = item.templateBody
 

@@ -1,9 +1,10 @@
 import { Trans } from '@lingui/macro'
-import { Info, Trash } from 'react-feather'
+import { Info, Trash, X } from 'react-feather'
+import { useMedia } from 'react-use'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 import InfiniteLoader from 'react-window-infinite-loader'
-import { Text } from 'rebass'
+import { Flex, Text } from 'rebass'
 import AnnouncementApi from 'services/announcement'
 import styled, { CSSProperties, css } from 'styled-components'
 
@@ -19,6 +20,7 @@ import { useActiveWeb3React } from 'hooks'
 import useNotification from 'hooks/useNotification'
 import useTheme from 'hooks/useTheme'
 import { useToggleNotificationCenter, useWalletModalToggle } from 'state/application/hooks'
+import { MEDIA_WIDTHS } from 'theme'
 
 const Wrapper = styled.div`
   width: 380px;
@@ -143,6 +145,7 @@ export default function AnnouncementView({
 
   const { useAckPrivateAnnouncementsMutation } = AnnouncementApi
   const [ackAnnouncement] = useAckPrivateAnnouncementsMutation()
+  const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
   const onReadAnnouncement = (item: PrivateAnnouncement) => {
     if (!account) return
@@ -195,7 +198,10 @@ export default function AnnouncementView({
             <NotificationIcon size={18} />
             <Trans>Notifications</Trans>
           </Title>
-          {account && <ListIcon cursor="pointer" onClick={showNotificationModal} />}
+          <Flex style={{ gap: '20px', alignItems: 'center' }}>
+            {account && <ListIcon cursor="pointer" onClick={showNotificationModal} />}
+            {isMobile && <X color={theme.subText} onClick={toggleNotificationCenter} cursor="pointer" />}
+          </Flex>
         </RowBetween>
 
         {tabComponent}
