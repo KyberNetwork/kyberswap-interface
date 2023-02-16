@@ -17,7 +17,7 @@ import { CloseIcon } from 'theme/components'
 import { toCurrencyAmount } from 'utils/currencyAmount'
 
 import SwapBrief from './SwapBrief'
-import SwapDetails, { Props as SwapDetailsProps } from './SwapDetailsv2'
+import SwapDetails, { Props as SwapDetailsProps } from './SwapDetails'
 
 const Wrapper = styled.div`
   display: flex;
@@ -92,24 +92,23 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
 
     let parsedAmountIn = routeSummary.parsedAmountIn
     let parsedAmountOut = routeSummary.parsedAmountOut
-    let levelOfChanges
+    let changedAmount = 0
 
     if (buildResult?.data) {
       const { amountIn, amountOut } = buildResult.data
       parsedAmountIn = toCurrencyAmount(routeSummary.parsedAmountIn.currency, amountIn)
       parsedAmountOut = toCurrencyAmount(routeSummary.parsedAmountOut.currency, amountOut)
-      const { amount, level } = buildResult.data.outputChange || {}
-
-      const changedAmount = Number(amount)
-
-      if (changedAmount >= 0) {
-        levelOfChanges = undefined
-      } else if (changedAmount < 0) {
-        levelOfChanges = level
-      }
+      const { amount } = buildResult.data.outputChange || {}
+      changedAmount = Number(amount)
     }
 
-    return <SwapBrief levelOfChanges={levelOfChanges} inputAmount={parsedAmountIn} outputAmount={parsedAmountOut} />
+    return (
+      <SwapBrief
+        $level={changedAmount > 0 ? 'better' : changedAmount < 0 ? 'worse' : undefined}
+        inputAmount={parsedAmountIn}
+        outputAmount={parsedAmountOut}
+      />
+    )
   }
 
   return (
