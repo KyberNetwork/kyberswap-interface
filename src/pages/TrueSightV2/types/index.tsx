@@ -40,6 +40,10 @@ export interface INetflowToWhaleWallets {
   netflow: number
   timestamp: number
 }
+export interface INumberOfTransfers {
+  count: number
+  timestamp: number
+}
 export interface INumberOfHolders {
   count: number
   timestamp: number

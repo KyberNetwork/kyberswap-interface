@@ -1,6 +1,6 @@
 import dayjs from 'dayjs'
 import { rgba } from 'polished'
-import React, { useMemo, useRef, useState } from 'react'
+import React, { ReactNode, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
@@ -19,6 +19,7 @@ import {
 } from 'recharts'
 import styled, { css } from 'styled-components'
 
+import Column from 'components/Column'
 import Row, { RowFit } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
@@ -26,6 +27,7 @@ import {
   NETFLOW_TO_WHALE_WALLETS,
   NUMBER_OF_HOLDERS,
   NUMBER_OF_TRADES,
+  NUMBER_OF_TRANSFERS,
   TRADE_VOLUME,
 } from 'pages/TrueSightV2/hooks/sampleData'
 import {
@@ -36,6 +38,7 @@ import {
   useTradingVolume,
 } from 'pages/TrueSightV2/hooks/useTruesightV2Data'
 import { testParams } from 'pages/TrueSightV2/pages/SingleToken'
+import { ChartTab } from 'pages/TrueSightV2/types'
 import { MEDIA_WIDTHS } from 'theme'
 
 import { ContentWrapper } from '..'
@@ -229,20 +232,15 @@ const TimeFrameLegend = ({
 }
 
 const TooltipWrapper = styled.div`
-  background-color: ${({ theme }) => theme.tableHeader};
+  background-color: ${({ theme }) => theme.buttonBlack + 'F3'};
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.32);
-  border-radius: 4px;
+  border-radius: 12px;
   padding: 12px;
   font-size: 14px;
   position: relative;
-  ::after {
-    content: '';
-    position: absolute;
-    border-right: 6px solid transparent;
-    border-left: 6px solid transparent;
-    border-top: 6px solid ${({ theme }) => theme.tableHeader};
-    bottom: -6px;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   :active {
     border: none;
   }
@@ -275,6 +273,21 @@ const TooltipCustom = (props: TooltipProps<number, string>) => {
 
 export const ANIMATION_DELAY = 500
 export const ANIMATION_DURATION = 1500
+
+const formatNum = (num: number): string => {
+  const negative = num < 0
+  const absNum = Math.abs(num)
+  let formattedNum = ''
+  if (absNum > 1000) {
+    formattedNum = (absNum / 1000).toFixed(2) + 'K'
+  } else if (absNum > 1000000) {
+    formattedNum = (absNum / 1000000).toFixed(2) + 'M'
+  } else {
+    formattedNum = absNum.toFixed(2)
+  }
+
+  return (negative ? '-' : '') + formattedNum
+}
 
 export const NumberofTradesChart = () => {
   const theme = useTheme()
@@ -339,7 +352,26 @@ export const NumberofTradesChart = () => {
               wrapperStyle={{ outline: 'none' }}
               position={{ y: 120 }}
               animationDuration={100}
-              content={TooltipCustom}
+              content={props => {
+                const payload = props.payload?.[0]?.payload
+                if (!payload) return <></>
+                return (
+                  <TooltipWrapper>
+                    <Text fontSize="10px" lineHeight="12px" color={theme.subText}>
+                      {payload.timestamp && dayjs(payload.timestamp).format('MMM DD, YYYY')}
+                    </Text>
+                    <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                      Total Trades: <span style={{ color: theme.text }}>{formatNum(payload.buy + payload.sell)}</span>
+                    </Text>
+                    <Text fontSize="12px" lineHeight="16px" color={theme.primary}>
+                      Buy: {formatNum(payload.buy)}
+                    </Text>
+                    <Text fontSize="12px" lineHeight="16px" color={theme.red}>
+                      Sell: {formatNum(payload.sell)}
+                    </Text>
+                  </TooltipWrapper>
+                )
+              }}
             />
             <Bar
               dataKey="sell"
@@ -431,7 +463,26 @@ export const TradingVolumeChart = () => {
             wrapperStyle={{ outline: 'none' }}
             position={{ y: 120 }}
             animationDuration={100}
-            content={TooltipCustom}
+            content={props => {
+              const payload = props.payload?.[0]?.payload
+              if (!payload) return <></>
+              return (
+                <TooltipWrapper>
+                  <Text fontSize="10px" lineHeight="12px" color={theme.subText}>
+                    {payload.timestamp && dayjs(payload.timestamp).format('MMM DD, YYYY')}
+                  </Text>
+                  <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                    Total Volume: <span style={{ color: theme.text }}>${formatNum(payload.buy + payload.sell)}</span>
+                  </Text>
+                  <Text fontSize="12px" lineHeight="16px" color={theme.primary}>
+                    Buy: ${formatNum(payload.buy)}
+                  </Text>
+                  <Text fontSize="12px" lineHeight="16px" color={theme.red}>
+                    Sell: ${formatNum(payload.sell)}
+                  </Text>
+                </TooltipWrapper>
+              )
+            }}
           />
           <Bar
             dataKey="sell"
@@ -447,31 +498,13 @@ export const TradingVolumeChart = () => {
             animationBegin={ANIMATION_DELAY}
             animationDuration={ANIMATION_DURATION}
           />
-          <Line
-            type="linear"
-            dataKey="buyVolume"
-            stroke={theme.primary}
-            strokeWidth={3}
-            dot={false}
-            animationBegin={ANIMATION_DELAY}
-            animationDuration={ANIMATION_DURATION}
-          />
-          <Line
-            type="linear"
-            dataKey="sellVolume"
-            stroke={theme.red}
-            strokeWidth={3}
-            dot={false}
-            animationBegin={ANIMATION_DELAY}
-            animationDuration={ANIMATION_DURATION}
-          />
         </ComposedChart>
       </ResponsiveContainer>
     </ChartWrapper>
   )
 }
 
-export const NetflowToWhaleWallets = () => {
+export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
   const theme = useTheme()
   const { address } = useParams()
   const { data } = useNetflowToWhaleWallets(address || testParams.address)
@@ -483,14 +516,28 @@ export const NetflowToWhaleWallets = () => {
   const formattedData = useMemo(
     () =>
       (address ? data : NETFLOW_TO_WHALE_WALLETS)?.map(item => {
+        if (tab === ChartTab.Second) {
+          return {
+            inflow: showInflow ? item.inflow : undefined,
+            netflow: showNetflow ? item.netflow : undefined,
+            timestamp: item.timestamp,
+          }
+        }
+        if (tab === ChartTab.Third) {
+          return {
+            outflow: showOutflow ? -item.outflow : undefined,
+            netflow: showNetflow ? item.netflow : undefined,
+            timestamp: item.timestamp,
+          }
+        }
         return {
-          ...item,
           inflow: showInflow ? item.inflow : undefined,
           outflow: showOutflow ? -item.outflow : undefined,
           netflow: showNetflow ? item.netflow : undefined,
+          timestamp: item.timestamp,
         }
       }),
-    [data, showInflow, showOutflow, showNetflow, address],
+    [data, showInflow, showOutflow, showNetflow, address, tab],
   )
   const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
@@ -551,7 +598,55 @@ export const NetflowToWhaleWallets = () => {
                   wrapperStyle={{ outline: 'none' }}
                   position={{ y: 120 }}
                   animationDuration={100}
-                  content={TooltipCustom}
+                  content={props => {
+                    const payload = props.payload?.[0]?.payload
+                    if (!payload) return <></>
+                    return (
+                      <TooltipWrapper>
+                        <Text fontSize="10px" lineHeight="12px" color={theme.subText}>
+                          {payload.timestamp && dayjs(payload.timestamp).format('MMM DD, YYYY')}
+                        </Text>
+                        <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                          Netflow: <span style={{ color: theme.text }}>${formatNum(payload.netflow)}</span>
+                        </Text>
+                        <Row gap="4px">
+                          <Column gap="4px">
+                            <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                              Wallet
+                            </Text>
+                            <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
+                              General Whales
+                            </Text>
+                            <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
+                              Token Whales
+                            </Text>
+                          </Column>
+                          <Column gap="4px">
+                            <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                              Inflow
+                            </Text>
+                            <Text fontSize="12px" lineHeight="16px" color={theme.primary}>
+                              ${formatNum(payload.inflow)}
+                            </Text>
+                            <Text fontSize="12px" lineHeight="16px" color={theme.primary}>
+                              ${formatNum(payload.inflow)}
+                            </Text>
+                          </Column>
+                          <Column gap="4px">
+                            <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                              Outflow
+                            </Text>
+                            <Text fontSize="12px" lineHeight="16px" color={theme.red}>
+                              ${formatNum(payload.outflow)}
+                            </Text>
+                            <Text fontSize="12px" lineHeight="16px" color={theme.red}>
+                              ${formatNum(payload.outflow)}
+                            </Text>
+                          </Column>
+                        </Row>
+                      </TooltipWrapper>
+                    )
+                  }}
                 />
                 <Bar
                   dataKey="inflow"
@@ -606,7 +701,7 @@ export const NetflowToWhaleWallets = () => {
   )
 }
 
-export const NetflowToCentralizedExchanges = () => {
+export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
   const { data } = useNetflowToCEX('123')
   const [showInflow, setShowInflow] = useState(true)
   const [showOutflow, setShowOutflow] = useState(true)
@@ -615,14 +710,29 @@ export const NetflowToCentralizedExchanges = () => {
   const formattedData = useMemo(
     () =>
       data?.map(item => {
+        if (tab === ChartTab.Second) {
+          return {
+            inflow: showInflow ? item.inflow : undefined,
+            netflow: showNetflow ? item.netflow : undefined,
+            timestamp: item.timestamp,
+          }
+        }
+        if (tab === ChartTab.Third) {
+          return {
+            outflow: showOutflow ? -item.outflow : undefined,
+            netflow: showNetflow ? item.netflow : undefined,
+            timestamp: item.timestamp,
+          }
+        }
+
         return {
-          ...item,
           inflow: showInflow ? item.inflow : undefined,
           outflow: showOutflow ? -item.outflow : undefined,
           netflow: showNetflow ? item.netflow : undefined,
+          timestamp: item.timestamp,
         }
       }),
-    [data, showInflow, showOutflow, showNetflow],
+    [data, showInflow, showOutflow, showNetflow, tab],
   )
   const theme = useTheme()
   const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -657,7 +767,7 @@ export const NetflowToCentralizedExchanges = () => {
               />
             </>
           )}
-          <TimeFrameLegend selected={timeframe} onSelect={setTimeframe} timeframes={['1D', '3D', '7D', '1M', '3M']} />
+          <TimeFrameLegend selected={timeframe} onSelect={setTimeframe} timeframes={['1D', '7D', '1M', '3M']} />
         </LegendWrapper>
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart
@@ -687,7 +797,55 @@ export const NetflowToCentralizedExchanges = () => {
               wrapperStyle={{ outline: 'none' }}
               position={{ y: 120 }}
               animationDuration={100}
-              content={TooltipCustom}
+              content={props => {
+                const payload = props.payload?.[0]?.payload
+                if (!payload) return <></>
+                return (
+                  <TooltipWrapper>
+                    <Text fontSize="10px" lineHeight="12px" color={theme.subText}>
+                      {payload.timestamp && dayjs(payload.timestamp).format('MMM DD, YYYY')}
+                    </Text>
+                    <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                      Netflow: <span style={{ color: theme.text }}>${formatNum(payload.netflow)}</span>
+                    </Text>
+                    <Row gap="4px">
+                      <Column gap="4px">
+                        <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                          Wallet
+                        </Text>
+                        <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
+                          General Whales
+                        </Text>
+                        <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
+                          Token Whales
+                        </Text>
+                      </Column>
+                      <Column gap="4px">
+                        <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                          Inflow
+                        </Text>
+                        <Text fontSize="12px" lineHeight="16px" color={theme.primary}>
+                          ${formatNum(payload.inflow)}
+                        </Text>
+                        <Text fontSize="12px" lineHeight="16px" color={theme.primary}>
+                          ${formatNum(payload.inflow)}
+                        </Text>
+                      </Column>
+                      <Column gap="4px">
+                        <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                          Outflow
+                        </Text>
+                        <Text fontSize="12px" lineHeight="16px" color={theme.red}>
+                          ${formatNum(payload.outflow)}
+                        </Text>
+                        <Text fontSize="12px" lineHeight="16px" color={theme.red}>
+                          ${formatNum(payload.outflow)}
+                        </Text>
+                      </Column>
+                    </Row>
+                  </TooltipWrapper>
+                )
+              }}
             />
             <Bar
               dataKey="inflow"
@@ -738,25 +896,13 @@ export const NetflowToCentralizedExchanges = () => {
   )
 }
 
-export const NumberofTransfers = () => {
-  const [timeframe, setTimeframe] = useState('7D')
-  return (
-    <ChartWrapper>
-      <LegendWrapper>
-        <TimeFrameLegend selected={timeframe} onSelect={setTimeframe} timeframes={['1D', '7D', '1M', '3M']} />
-      </LegendWrapper>
-      <LineChart />
-    </ChartWrapper>
-  )
-}
-
-export const NumberofHolders = () => {
+export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
   const theme = useTheme()
   const { address } = useParams()
   const { data } = useNumberOfHolders(address)
   const [timeframe, setTimeframe] = useState('7D')
   const filteredData = useMemo(() => {
-    const d = address ? data : NUMBER_OF_HOLDERS
+    const d = address ? data : NUMBER_OF_TRANSFERS
     switch (timeframe) {
       case '1D':
       case '7D':
@@ -779,7 +925,7 @@ export const NumberofHolders = () => {
           margin={{
             top: 40,
             right: 0,
-            left: 0,
+            left: 20,
             bottom: 0,
           }}
         >
@@ -803,6 +949,117 @@ export const NumberofHolders = () => {
             axisLine={false}
             tick={{ fill: theme.subText, fontWeight: 400 }}
             width={40}
+            tickFormatter={value => formatNum(value)}
+          />
+          <Tooltip
+            cursor={{ fill: 'transparent' }}
+            wrapperStyle={{ outline: 'none' }}
+            position={{ y: 120 }}
+            animationDuration={100}
+            content={props => {
+              const payload = props.payload?.[0]?.payload
+              if (!payload) return <></>
+              return (
+                <TooltipWrapper>
+                  <Text fontSize="10px" lineHeight="12px" color={theme.subText}>
+                    {payload.timestamp && dayjs(payload.timestamp).format('MMM DD, YYYY')}
+                  </Text>
+                  <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                    {tab === ChartTab.Second ? 'Total Volume' : 'Total Transfers'}:{' '}
+                    <span style={{ color: theme.text }}>{formatNum(payload.count)}</span>
+                  </Text>
+                </TooltipWrapper>
+              )
+            }}
+          />
+          <Area
+            type="monotone"
+            dataKey="count"
+            stroke={theme.primary}
+            fill="url(#colorUv)"
+            animationBegin={ANIMATION_DELAY}
+            animationDuration={ANIMATION_DURATION}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
+    </ChartWrapper>
+  )
+}
+
+export const NumberofHolders = () => {
+  const theme = useTheme()
+  const { address } = useParams()
+  const { data } = useNumberOfHolders(address)
+  const [timeframe, setTimeframe] = useState('7D')
+  const filteredData = useMemo(() => {
+    const d = address ? data : NUMBER_OF_HOLDERS
+    switch (timeframe) {
+      case '1D':
+      case '7D':
+        return d && d.length >= 8 ? d?.slice(d.length - 8, d.length - 1) : d
+      default:
+        return d
+    }
+  }, [data, timeframe, address])
+
+  return (
+    <ChartWrapper>
+      <LegendWrapper>
+        <TimeFrameLegend selected={timeframe} onSelect={setTimeframe} timeframes={['7D', '1M', '3M', '6M']} />
+      </LegendWrapper>
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart
+          width={500}
+          height={400}
+          data={filteredData}
+          margin={{
+            top: 40,
+            right: 0,
+            left: 20,
+            bottom: 0,
+          }}
+        >
+          <defs>
+            <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={theme.primary} stopOpacity={0.8} />
+              <stop offset="100%" stopColor={theme.primary} stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <XAxis
+            fontSize="12px"
+            dataKey="timestamp"
+            tickLine={false}
+            axisLine={false}
+            tick={{ fill: theme.subText, fontWeight: 400 }}
+            tickFormatter={value => dayjs(value).format('MMM DD')}
+          />
+          <YAxis
+            fontSize="12px"
+            tickLine={false}
+            axisLine={false}
+            tick={{ fill: theme.subText, fontWeight: 400 }}
+            width={40}
+            tickFormatter={value => formatNum(value)}
+          />
+          <Tooltip
+            cursor={{ fill: 'transparent' }}
+            wrapperStyle={{ outline: 'none' }}
+            position={{ y: 120 }}
+            animationDuration={100}
+            content={props => {
+              const payload = props.payload?.[0]?.payload
+              if (!payload) return <></>
+              return (
+                <TooltipWrapper>
+                  <Text fontSize="10px" lineHeight="12px" color={theme.subText}>
+                    {payload.timestamp && dayjs(payload.timestamp).format('MMM DD, YYYY')}
+                  </Text>
+                  <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                    Holders: <span style={{ color: theme.text }}>{formatNum(payload.count)}</span>
+                  </Text>
+                </TooltipWrapper>
+              )
+            }}
           />
           <Area
             type="monotone"

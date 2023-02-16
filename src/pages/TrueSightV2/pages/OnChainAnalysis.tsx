@@ -84,7 +84,7 @@ export default function OnChainAnalysis({ onShareClick }: { onShareClick: (url: 
         onTabClick={setNetflowToWhaleWallets}
       >
         <RequireConnectWalletWrapper bgUrl={blurImage1}>
-          <NetflowToWhaleWallets />
+          <NetflowToWhaleWallets tab={netflowToWhaleWallets} />
         </RequireConnectWalletWrapper>
       </SectionWrapper>
       <SectionWrapper
@@ -100,7 +100,7 @@ export default function OnChainAnalysis({ onShareClick }: { onShareClick: (url: 
         onTabClick={setNetflowToCEX}
       >
         <RequireConnectWalletWrapper bgUrl={blurImage1}>
-          <NetflowToCentralizedExchanges />
+          <NetflowToCentralizedExchanges tab={netflowToCEX} />
         </RequireConnectWalletWrapper>
       </SectionWrapper>
       <SectionWrapper
@@ -115,7 +115,7 @@ export default function OnChainAnalysis({ onShareClick }: { onShareClick: (url: 
         activeTab={numberOfTransfers}
         onTabClick={setNumberOfTransfers}
       >
-        <NumberofTransfers />
+        <NumberofTransfers tab={numberOfTransfers} />
       </SectionWrapper>
       <SectionWrapper
         show={tokenAnalysisSettings?.numberOfHolders}

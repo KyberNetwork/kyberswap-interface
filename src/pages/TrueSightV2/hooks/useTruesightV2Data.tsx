@@ -9,6 +9,7 @@ import {
   INetflowToWhaleWallets,
   INumberOfHolders,
   INumberOfTrades,
+  INumberOfTransfers,
   ITokenOverview,
   ITradeVolume,
 } from '../types'
@@ -102,6 +103,19 @@ export function useNetflowToCEX(tokenAddress?: string) {
         }),
   )
   return { data: NETFLOW_TO_WHALE_WALLETS || data, isLoading }
+}
+export function useNumberOfTransfers(tokenAddress?: string) {
+  const { data, isLoading } = useSWR<INumberOfTransfers[]>(
+    tokenAddress &&
+      `${TRUESIGHT_V2_API}/holdersNum/ethereum/0xdac17f958d2ee523a2206206994597c13d831ec7?from=1633344036&to=1675215565`,
+    (url: string) =>
+      fetch(url)
+        .then(res => res.json())
+        .then(res => {
+          return res.data
+        }),
+  )
+  return { data, isLoading }
 }
 export function useNumberOfHolders(tokenAddress?: string) {
   const { data, isLoading } = useSWR<INumberOfHolders[]>(
