@@ -76,7 +76,6 @@ export default function Popups() {
   const clearAllTopRightPopup = () => removeAllPopupByType(PopupType.TOP_RIGHT)
   const clearAllSnippetPopup = () => removeAllPopupByType(PopupType.SNIPPET)
   const clearAllCenterPopup = () => removeAllPopupByType(PopupType.CENTER)
-  console.log(snippetPopups)
 
   const test = (): PopupContentAnnouncement =>
     ({
@@ -101,7 +100,6 @@ export default function Popups() {
   const isInit = useRef(false)
   useEffect(() => {
     if (isShowTutorial) return
-    // todo danh nhan popup call lai api ben kia
     const unsubscribe = subscribeAnnouncement(data => {
       data.forEach(item => {
         const { popupType } = item.templateBody
@@ -115,7 +113,6 @@ export default function Popups() {
 
       // addPopup(test(), PopupType.SNIPPET, test().metaMessageId, null)
       // addPopup(test(), PopupType.SNIPPET, test().metaMessageId, null)
-      // todo refactor data long nhau qua
       isInit.current = true
     })
 

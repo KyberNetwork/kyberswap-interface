@@ -58,7 +58,7 @@ type AnnouncementTemplate = (
   | AnnouncementTemplateTrendingSoon
   | AnnouncementTemplatePopup
 ) & {
-  popupType: PopupType // todo
+  popupType: PopupType
 }
 
 export enum NotificationType {
