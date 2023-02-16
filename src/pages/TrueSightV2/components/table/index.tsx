@@ -44,7 +44,7 @@ const TableWrapper = styled(ContentWrapper)`
   overflow: hidden;
   padding: 0;
   font-size: 12px;
-  margin-bottom: 40px;
+  margin-bottom: 16px;
 `
 const TableHeader = styled.div<{ gridTemplateColumns: string }>`
   display: grid;
@@ -342,6 +342,66 @@ const DEX_ICONS = {
       </g>
     </svg>
   ),
+}
+
+export const SupportResistanceLevel = () => {
+  const theme = useTheme()
+  const gridTemplateColumns = '1fr 1fr 1fr 1fr 1fr 1fr 0px'
+  return (
+    <TableWrapper>
+      <TableHeader gridTemplateColumns={gridTemplateColumns}>
+        <TableCell>Type</TableCell>
+        <TableCell>Levels</TableCell>
+        <TableCell></TableCell>
+        <TableCell></TableCell>
+        <TableCell></TableCell>
+        <TableCell></TableCell>
+        <TableCell></TableCell>
+      </TableHeader>
+      <TableRow gridTemplateColumns={gridTemplateColumns}>
+        <TableCell>
+          <Text color={theme.primary}>Support</Text>
+        </TableCell>
+        <TableCell>
+          <Text>18677.5 (-0.43%)</Text>
+        </TableCell>
+        <TableCell>
+          <Text>18722 (-0.21%)</Text>
+        </TableCell>
+        <TableCell>
+          <Text>18747.5 (-0.02%)</Text>
+        </TableCell>
+        <TableCell>
+          <Text>18747.5 (-0.02%)</Text>
+        </TableCell>
+        <TableCell>
+          <Text>18747.5 (-0.02%)</Text>
+        </TableCell>
+        <TableCell></TableCell>
+      </TableRow>
+      <TableRow gridTemplateColumns={gridTemplateColumns}>
+        <TableCell>
+          <Text color={theme.red}>Resistance</Text>
+        </TableCell>
+        <TableCell>
+          <Text>18813.5 (0.33%)</Text>
+        </TableCell>
+        <TableCell>
+          <Text>--</Text>
+        </TableCell>
+        <TableCell>
+          <Text>--</Text>
+        </TableCell>
+        <TableCell>
+          <Text>--</Text>
+        </TableCell>
+        <TableCell>
+          <Text>--</Text>
+        </TableCell>
+        <TableCell></TableCell>
+      </TableRow>
+    </TableWrapper>
+  )
 }
 
 export const FundingRateTable = () => {

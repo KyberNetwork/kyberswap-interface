@@ -106,7 +106,7 @@ export const SectionWrapper = ({
   tabs?: string[]
   activeTab?: ChartTab
   onTabClick?: (tab: ChartTab) => void
-  children: React.ReactNode
+  children?: React.ReactNode
   style?: React.CSSProperties
 }) => {
   const theme = useTheme()
@@ -141,7 +141,7 @@ export const SectionWrapper = ({
             </RowBetween>
           </SectionTitle>
           <SectionDescription dangerouslySetInnerHTML={{ __html: description || '' }} />
-          {children}
+          {children || <></>}
         </>
       ) : (
         <>
@@ -184,7 +184,7 @@ export const SectionWrapper = ({
               </RowFit>
             </RowBetween>
           </SectionTitle>
-          {children}
+          {children || <></>}
         </>
       )}
     </StyledSectionWrapper>

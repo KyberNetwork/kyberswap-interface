@@ -41,14 +41,35 @@ export default function TrueSightV2() {
   const isSingleToken = location?.pathname.includes('single-token')
   const above768 = useMedia('(min-width:768px)')
   const above600 = useMedia('(min-width:600px)')
-
+  const isLeaderboard = location.pathname.includes('discover')
   return (
     <Wrapper>
       <RowBetween>
         <RowFit color={theme.text} gap="6px">
-          {above768 && <Icon id="truesight-v2" size={20} />}
-          <Text fontSize={above768 ? 24 : 20}>
-            <Trans>Discover Tokens</Trans>
+          <Text
+            fontSize={above768 ? 24 : 20}
+            lineHeight="28px"
+            color={isLeaderboard ? theme.primary : theme.subText}
+            fontWeight={500}
+          >
+            <RowFit gap="4px">
+              {above768 && <Icon id="leaderboard" size={20} />}
+              <Trans>Leaderboard</Trans>
+            </RowFit>
+          </Text>
+          <Text fontWeight={500} fontSize={[18, 20, 24]} color={theme.subText} marginX={'12px'}>
+            |
+          </Text>
+          <Text
+            fontSize={above768 ? 24 : 20}
+            lineHeight="28px"
+            color={isLeaderboard ? theme.subText : theme.primary}
+            fontWeight={500}
+          >
+            <RowFit gap="4px">
+              {above768 && <Icon id="truesight-v2" size={20} />}
+              <Trans>Explore</Trans>
+            </RowFit>
           </Text>
         </RowFit>
         <RowFit gap="16px">

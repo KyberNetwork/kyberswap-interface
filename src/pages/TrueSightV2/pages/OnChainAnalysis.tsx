@@ -73,7 +73,7 @@ export default function OnChainAnalysis({ onShareClick }: { onShareClick: (url: 
         show={tokenAnalysisSettings?.netflowToWhaleWallets}
         id={'netflowwhalewallets'}
         title={t`to Whale Wallets`}
-        description={t`Netflow (Inflow - Outflow) of token to whale wallets.Positive netflow
+        description={t`Netflow (Inflow - Outflow) of token to whale wallets. Positive netflow
         generally means that whales are buying. Negative netflow generally means that
         whales are selling.`}
         shareButton

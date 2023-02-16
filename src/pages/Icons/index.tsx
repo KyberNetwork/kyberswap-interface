@@ -45,6 +45,11 @@ const iconIds = [
   'speaker',
   'share',
   'swap',
+  'copy',
+  'open-link',
+  'star',
+  'fullscreen',
+  'leaderboard',
 ]
 
 export default function Icons() {

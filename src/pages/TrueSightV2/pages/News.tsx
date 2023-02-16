@@ -33,6 +33,8 @@ const ArticleImage = styled.div`
   background-color: ${({ theme }) => theme.background2};
   border-radius: 8px;
   height: 160px;
+  background: url(https://v2.cimg.co/news/104470/256174/responsive-images/adobestock-s-1___media_library_original_600_332.jpeg);
+  background-position: center;
 `
 export default function News() {
   const theme = useTheme()
