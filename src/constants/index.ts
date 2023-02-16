@@ -364,3 +364,5 @@ if (ENV.ENV_LEVEL < ENV_TYPE.PROD) {
   console.log(JSON.stringify(ENV, null, 4))
   console.groupEnd()
 }
+
+export const INPUT_DEBOUNCE_TIME = 200

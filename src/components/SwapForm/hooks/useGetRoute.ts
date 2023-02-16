@@ -3,26 +3,12 @@ import { useCallback } from 'react'
 import routeApi from 'services/route'
 import { GetRouteParams } from 'services/route/types/getRoute'
 
-import { ETHER_ADDRESS } from 'constants/index'
+import useSelectedDexes from 'components/SwapForm/hooks/useSelectedDexes'
+import { ETHER_ADDRESS, INPUT_DEBOUNCE_TIME } from 'constants/index'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
-import { useAllDexes, useExcludeDexes } from 'state/customizeDexes/hooks'
 import { FeeConfig } from 'types/route'
-
-const useDexes = () => {
-  const allDexes = useAllDexes()
-  const [excludeDexes] = useExcludeDexes()
-
-  const selectedDexes = allDexes?.filter(item => !excludeDexes.includes(item.id)).map(item => item.id)
-
-  const dexes =
-    selectedDexes?.length === allDexes?.length
-      ? ''
-      : selectedDexes?.join(',').replace('kyberswapv1', 'kyberswap,kyberswap-static') || ''
-
-  return dexes
-}
 
 type Args = {
   isSaveGas: boolean
@@ -38,9 +24,9 @@ const useGetRoute = (args: Args) => {
   const { chainId } = useActiveWeb3React()
   const chainSlug = NETWORKS_INFO[chainId].ksSettingRoute
 
-  const amountIn = useDebounce(parsedAmount?.quotient?.toString() || '', 200)
+  const amountIn = useDebounce(parsedAmount?.quotient?.toString() || '', INPUT_DEBOUNCE_TIME)
 
-  const dexes = useDexes()
+  const dexes = useSelectedDexes()
   const { chargeFeeBy = '', feeReceiver = '', feeAmount = '' } = feeConfig || {}
   const isInBps = feeConfig?.isInBps !== undefined ? (feeConfig.isInBps ? '1' : '0') : ''
 

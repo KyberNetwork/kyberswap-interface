@@ -42,17 +42,17 @@ export default function useSyncTokenSymbolToUrl(
   const navigate = useNavigate()
   const qs = useParsedQueryString()
   const { pathname } = useLocation()
-  const defaultTokens = useAllTokens()
+  const allTokens = useAllTokens()
   const isLoadedTokenDefault = useIsLoadedTokenDefault()
-  const curPath =
+  const currentPath =
     [APP_PATHS.SWAP_V3, APP_PATHS.SWAP, APP_PATHS.LIMIT].find(path => pathname.startsWith(path)) || APP_PATHS.SWAP
 
   const redirect = useCallback(
     (url: string) => {
       const { inputCurrency, outputCurrency, ...newQs } = qs
-      navigate(`${curPath}${url ? `/${url}` : ''}?${stringify(newQs)}`) // keep query params
+      navigate(`${currentPath}${url ? `/${url}` : ''}?${stringify(newQs)}`) // keep query params
     },
-    [navigate, qs, curPath],
+    [navigate, qs, currentPath],
   )
 
   const findTokenBySymbol = useCallback(
@@ -61,9 +61,9 @@ export default function useSyncTokenSymbolToUrl(
       if (keyword === getSymbolSlug(nativeToken)) {
         return nativeToken
       }
-      return filterTokensWithExactKeyword(chainId, Object.values(defaultTokens), keyword)[0]
+      return filterTokensWithExactKeyword(chainId, Object.values(allTokens), keyword)[0]
     },
-    [defaultTokens],
+    [allTokens],
   )
 
   const syncTokenSymbolToUrl = useCallback(
@@ -111,7 +111,7 @@ export default function useSyncTokenSymbolToUrl(
     if (
       !checkedTokenFromUrl.current &&
       isLoadedTokenDefault &&
-      Object.values(defaultTokens)[0]?.chainId === chainId &&
+      Object.values(allTokens)[0]?.chainId === chainId &&
       network === NETWORKS_INFO[chainId].route &&
       !disabled
     ) {
@@ -119,7 +119,7 @@ export default function useSyncTokenSymbolToUrl(
       setTimeout(() => findTokenPairFromUrl(chainId))
       checkedTokenFromUrl.current = true
     }
-  }, [defaultTokens, findTokenPairFromUrl, chainId, isLoadedTokenDefault, disabled, network])
+  }, [allTokens, findTokenPairFromUrl, chainId, isLoadedTokenDefault, disabled, network])
 
   // when token change, sync symbol to url
   useEffect(() => {
