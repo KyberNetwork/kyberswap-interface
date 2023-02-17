@@ -46,7 +46,7 @@ const TabItem = styled.div<{ active: boolean }>`
   flex: 1;
   background-color: ${({ theme }) => theme.buttonBlack};
   border-radius: 20px;
-  padding: 8px 0px;
+  padding: 6px 0px;
   text-align: center;
   font-weight: 500;
   font-size: 14px;
