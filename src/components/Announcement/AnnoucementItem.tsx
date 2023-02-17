@@ -39,6 +39,10 @@ const Desc = styled.div`
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
+
+  > p {
+    margin: 0;
+  }
 `
 const Time = styled.span`
   color: ${({ theme }) => theme.border};

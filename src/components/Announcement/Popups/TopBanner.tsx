@@ -83,7 +83,7 @@ const TextContent = styled.div<{ isOverflow: boolean }>`
   `}
 `
 const StyledCtaButton = styled(CtaButton)`
-  width: 140px;
+  min-width: 140px;
   height: 36px;
   ${({ theme }) => theme.mediaWidth.upToSmall`
     width: 100%;
