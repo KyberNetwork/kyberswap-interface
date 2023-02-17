@@ -7,6 +7,7 @@ import styled, { css } from 'styled-components'
 import { Navigation, Pagination } from 'swiper'
 import { Swiper, SwiperSlide } from 'swiper/react/swiper-react'
 
+import kyberCrystal from 'assets/images/kyberdao/kyber_crystal.png'
 import CtaButton from 'components/Announcement/Popups/CtaButton'
 import { AnnouncementTemplatePopup, PopupContentAnnouncement } from 'components/Announcement/type'
 import { AutoColumn } from 'components/Column'
@@ -126,7 +127,7 @@ function SnippetPopupItem({
   setExpand: (v: boolean) => void
 }) {
   const { templateBody = {} } = data.content as PopupContentAnnouncement
-  const { ctas = [], name, content, thumbnailImageURL } = templateBody as AnnouncementTemplatePopup
+  const { ctas = [], name, content, thumbnailImageURL = kyberCrystal } = templateBody as AnnouncementTemplatePopup
   const toggle = () => {
     setExpand(!expand)
   }

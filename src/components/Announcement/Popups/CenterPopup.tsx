@@ -46,6 +46,10 @@ const StyledLink = styled(ExternalLink)`
   `}
 `
 
+const Image = styled.img`
+  width: 100%;
+`
+
 const StyledCtaButton = styled(CtaButton)`
   width: 220px;
   height: 36px;
@@ -55,7 +59,12 @@ export default function CenterPopup({ data, clearAll }: { data: PopupItemType; c
   const theme = useTheme()
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const { templateBody = {} } = data.content as PopupContentAnnouncement
-  const { name = t`Important Announcement!`, content, ctas = [] } = templateBody as AnnouncementTemplatePopup
+  const {
+    name = t`Important Announcement!`,
+    content,
+    ctas = [],
+    thumbnailImageURL,
+  } = templateBody as AnnouncementTemplatePopup
 
   return (
     <Modal isOpen={true} maxWidth={isMobile ? undefined : '800px'}>
@@ -64,6 +73,7 @@ export default function CenterPopup({ data, clearAll }: { data: PopupItemType; c
           <Title>{name}</Title>
           <X cursor={'pointer'} color={theme.subText} onClick={clearAll} />
         </RowBetween>
+        {thumbnailImageURL && <Image src={thumbnailImageURL} />}
         <div style={{ fontSize: 14, lineHeight: '20px' }} dangerouslySetInnerHTML={{ __html: content }} />
         <ButtonWrapper justify="center">
           {ctas.map(item => (
