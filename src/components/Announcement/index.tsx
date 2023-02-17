@@ -84,10 +84,13 @@ export default function AnnouncementComponent() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [privateAnnouncements, setPrivateAnnouncements] = useState<PrivateAnnouncement[]>([])
 
-  const { useLazyGetAnnouncementsQuery, useLazyGetPrivateAnnouncementsQuery } = AnnouncementApi
+  const { useLazyGetAnnouncementsQuery, useLazyGetPrivateAnnouncementsQuery, useAckPrivateAnnouncementsMutation } =
+    AnnouncementApi
   const [fetchGeneralAnnouncement, { data: respAnnouncement = responseDefault }] = useLazyGetAnnouncementsQuery()
   const [fetchPrivateAnnouncement, { data: respPrivateAnnouncement = responseDefault, isError }] =
     useLazyGetPrivateAnnouncementsQuery()
+
+  const [ackAnnouncement] = useAckPrivateAnnouncementsMutation()
 
   const isMyInboxTab = activeTab === Tab.INBOX
   const loadingAnnouncement = useRef(false)
@@ -196,9 +199,8 @@ export default function AnnouncementComponent() {
 
   const togglePopupWithAckAllMessage = () => {
     toggleNotificationCenter()
-    if (isOpenNotificationCenter && numberOfUnread) {
-      // todo call api ack all
-      console.log('calll')
+    if (isOpenNotificationCenter && numberOfUnread && account) {
+      ackAnnouncement({ account, action: 'read-all' })
     }
   }
 

@@ -46,13 +46,19 @@ const AnnouncementApi = createApi({
     }),
     ackPrivateAnnouncements: builder.mutation<
       Response,
-      { account: string; action: 'read' | 'clear-all'; ids?: number[] }
+      { account: string; action: 'read' | 'clear-all' | 'read-all'; ids?: number[] }
     >({
-      query: ({ account, action, ids }) => ({
-        url: `/v1/users/${account}/notifications/${action}`,
-        method: 'put',
-        body: { ids },
-      }),
+      query: ({ account, action, ids }) => {
+        const body: { excludedTemplateIds?: string; ids?: number[] } = { ids }
+        if (action === 'read-all' || action === 'clear-all') {
+          // body.excludedTemplateIds = '2,29' // todo danh config env
+        }
+        return {
+          url: `/v1/users/${account}/notifications/${action}`,
+          method: 'put',
+          body,
+        }
+      },
     }),
   }),
 })
