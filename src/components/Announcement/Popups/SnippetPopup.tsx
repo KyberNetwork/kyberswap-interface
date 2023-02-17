@@ -1,4 +1,4 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useState } from 'react'
 import { ChevronsUp, X } from 'react-feather'
@@ -13,6 +13,7 @@ import { AnnouncementTemplatePopup, PopupContentAnnouncement } from 'components/
 import { AutoColumn } from 'components/Column'
 import { Z_INDEXS } from 'constants/styles'
 import useTheme from 'hooks/useTheme'
+import { useRemovePopup } from 'state/application/hooks'
 import { PopupItemType } from 'state/application/reducer'
 import { ExternalLink } from 'theme'
 
@@ -128,9 +129,13 @@ function SnippetPopupItem({
 }) {
   const { templateBody = {} } = data.content as PopupContentAnnouncement
   const { ctas = [], name, content, thumbnailImageURL = kyberCrystal } = templateBody as AnnouncementTemplatePopup
+  const removePopup = useRemovePopup()
   const toggle = () => {
     setExpand(!expand)
   }
+
+  const ctaInfo = { ...ctas[0], name: ctas[0]?.name || t`Close` }
+  const isCtaClose = !ctas[0]?.name || !ctas[0]?.url
 
   return (
     <ItemWrapper expand={expand}>
@@ -142,8 +147,18 @@ function SnippetPopupItem({
           alignItems="flex-end"
           style={{ position: 'relative', justifyContent: expand ? 'center' : 'flex-start', gap: '12px' }}
         >
-          <StyledLink href={ctas[0]?.url}>
-            <StyledCtaButton data={ctas[0]} color="primary" />
+          <StyledLink
+            href={ctaInfo.url}
+            onClick={
+              isCtaClose
+                ? e => {
+                    e.preventDefault()
+                    removePopup(data)
+                  }
+                : undefined
+            }
+          >
+            <StyledCtaButton data={ctaInfo} color="primary" />
           </StyledLink>
           <SeeMore onClick={toggle} expand={expand}>
             <ChevronsUp size={16} />

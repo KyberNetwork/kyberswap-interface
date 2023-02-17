@@ -49,9 +49,9 @@ const AnnouncementApi = createApi({
       { account: string; action: 'read' | 'clear-all' | 'read-all'; ids?: number[] }
     >({
       query: ({ account, action, ids }) => {
-        const body: { excludedTemplateIds?: string; ids?: number[] } = { ids }
+        const body: { excludedTemplateIds?: number[]; ids?: number[] } = { ids }
         if (action === 'read-all' || action === 'clear-all') {
-          // body.excludedTemplateIds = '2,29' // todo danh config env
+          body.excludedTemplateIds = [2, 29] // todo danh config env
         }
         return {
           url: `/v1/users/${account}/notifications/${action}`,
