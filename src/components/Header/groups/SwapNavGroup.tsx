@@ -2,7 +2,7 @@ import { Trans } from '@lingui/macro'
 import { Repeat } from 'react-feather'
 import { useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
+import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as MasterCard } from 'assets/buy-crypto/master-card.svg'
@@ -49,8 +49,9 @@ const StyledBuyCrypto = styled(BuyCrypto)`
 `
 
 const BetaTag = styled.span`
-  right: -40px;
-  top: 0px;
+  position: absolute;
+  right: 14px;
+  top: -2px;
   font-size: 10px;
   border-radius: 10px;
   background-color: ${({ theme }) => theme.buttonGray};
@@ -105,7 +106,7 @@ const SwapNavGroup = () => {
                 <IconWrapper>
                   <LimitOrderIcon />
                 </IconWrapper>
-                <Flex alignItems={'center'} sx={{ flex: 1 }} justifyContent={'space-between'}>
+                <Flex alignItems={'center'} sx={{ flex: 1, position: 'relative' }} justifyContent={'space-between'}>
                   <Trans>Limit Order</Trans>
                   <BetaTag>Beta</BetaTag>
                 </Flex>
@@ -120,9 +121,8 @@ const SwapNavGroup = () => {
                   <StyledBridgeIcon height={15} />
                 </IconWrapper>
                 <Flex alignItems={'center'} sx={{ flex: 1 }} justifyContent={'space-between'}>
-                  <Text>
-                    <Trans>Bridge</Trans>
-                  </Text>
+                  <Trans>Bridge</Trans>
+
                   <img
                     src={isDark ? MultichainLogoLight : MultichainLogoDark}
                     alt="kyberswap with multichain"

@@ -107,6 +107,7 @@ import { formattedNum, getLimitOrderContract } from 'utils'
 import { Aggregator } from 'utils/aggregator'
 import { currencyId } from 'utils/currencyId'
 import { halfAmountSpend, maxAmountSpend } from 'utils/maxAmountSpend'
+import { captureSwapError } from 'utils/sentry'
 import { getSymbolSlug } from 'utils/string'
 import { checkPairInWhiteList } from 'utils/tokenInfo'
 
@@ -343,6 +344,8 @@ export default function Swap() {
         [Field.OUTPUT]: independentField === Field.OUTPUT ? parsedAmount : trade?.outputAmount,
       }
 
+  const { mixpanelHandler } = useMixpanel(currencies)
+
   // reset recipient
   useEffect(() => {
     onChangeRecipient(null)
@@ -439,12 +442,18 @@ export default function Swap() {
     if (!swapCallback) {
       return
     }
+    mixpanelHandler(MIXPANEL_TYPE.SWAP_CONFIRMED, {
+      gasUsd: trade?.gasUsd,
+      inputAmount: trade?.inputAmount,
+      priceImpact: trade?.priceImpact,
+    })
     setSwapState({ attemptingTxn: true, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: undefined })
     swapCallback()
       .then(hash => {
         setSwapState({ attemptingTxn: false, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: hash })
       })
       .catch(error => {
+        if (error?.code !== 4001 && error?.code !== 'ACTION_REJECTED') captureSwapError(error)
         setSwapState({
           attemptingTxn: false,
           tradeToConfirm,
@@ -453,7 +462,15 @@ export default function Swap() {
           txHash: undefined,
         })
       })
-  }, [swapCallback, tradeToConfirm, showConfirm])
+  }, [
+    swapCallback,
+    tradeToConfirm,
+    showConfirm,
+    mixpanelHandler,
+    trade?.gasUsd,
+    trade?.inputAmount,
+    trade?.priceImpact,
+  ])
 
   // show approve flow when: no error on inputs, not approved or pending, or approved in current session
   // never show if price impact is above threshold in non expert mode
@@ -515,9 +532,12 @@ export default function Swap() {
 
   const isLoading = loadingAPI || ((!balanceIn || !balanceOut) && userHasSpecifiedInputOutput && !v2Trade)
 
-  const { mixpanelHandler } = useMixpanel(trade, currencies)
   const mixpanelSwapInit = () => {
-    mixpanelHandler(MIXPANEL_TYPE.SWAP_INITIATED)
+    mixpanelHandler(MIXPANEL_TYPE.SWAP_INITIATED, {
+      gasUsd: trade?.gasUsd,
+      inputAmount: trade?.inputAmount,
+      priceImpact: trade?.priceImpact,
+    })
   }
 
   const onSelectSuggestedPair = useCallback(

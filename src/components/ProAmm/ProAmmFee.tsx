@@ -58,6 +58,7 @@ export default function ProAmmFee({
 
   const [allowedSlippage] = useUserSlippageTolerance()
 
+  const liquidity = position.liquidity.toString()
   const collect = useCallback(() => {
     if (
       !chainId ||
@@ -84,6 +85,7 @@ export default function ProAmmFee({
       recipient: account,
       deadline: deadline.toString(),
       havingFee: true,
+      isPositionClosed: liquidity === '0',
     })
 
     const txn = {
@@ -104,22 +106,26 @@ export default function ProAmmFee({
           .getSigner()
           .sendTransaction(newTxn)
           .then((response: TransactionResponse) => {
+            const tokenAmountIn = feeValue0.toSignificant(6)
+            const tokenAmountOut = feeValue1.toSignificant(6)
+            const tokenSymbolIn = feeValue0.currency.symbol ?? ''
+            const tokenSymbolOut = feeValue1.currency.symbol ?? ''
             addTransactionWithType({
               hash: response.hash,
-              type: TRANSACTION_TYPE.COLLECT_FEE,
-              summary:
-                feeValue0.toSignificant(6) +
-                ' ' +
-                feeValue0.currency.symbol +
-                ' and ' +
-                feeValue1.toSignificant(6) +
-                ' ' +
-                feeValue1.currency.symbol,
-              arbitrary: {
-                token_1: token0Shown?.symbol,
-                token_2: token1Shown?.symbol,
-                token_1_amount: feeValue0.toSignificant(6),
-                token_2_amount: feeValue1.toSignificant(6),
+              type: TRANSACTION_TYPE.ELASTIC_COLLECT_FEE,
+              extraInfo: {
+                tokenAmountIn,
+                tokenAmountOut,
+                tokenAddressIn: feeValue0.currency.wrapped.address,
+                tokenAddressOut: feeValue1.currency.wrapped.address,
+                tokenSymbolIn,
+                tokenSymbolOut,
+                arbitrary: {
+                  token_1: token0Shown?.symbol,
+                  token_2: token1Shown?.symbol,
+                  token_1_amount: tokenAmountIn,
+                  token_2_amount: tokenAmountOut,
+                },
               },
             })
           })
@@ -142,6 +148,7 @@ export default function ProAmmFee({
     token1Shown,
     mixpanelHandler,
     allowedSlippage,
+    liquidity,
   ])
   const hasNoFeeToCollect = !(feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0))
 

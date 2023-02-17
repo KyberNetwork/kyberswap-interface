@@ -1,5 +1,7 @@
+import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import { BigNumber } from '@ethersproject/bignumber'
 import { ChainId, Currency, CurrencyAmount, Percent, Token, WETH } from '@kyberswap/ks-sdk-core'
+import { PublicKey } from '@solana/web3.js'
 import dayjs from 'dayjs'
 import JSBI from 'jsbi'
 import Numeral from 'numeral'
@@ -14,6 +16,16 @@ import { EVMWalletInfo, SUPPORTED_WALLET, SolanaWalletInfo, WalletInfo } from 'c
 import store from 'state'
 import { GroupedTxsByHash, TransactionDetails } from 'state/transactions/type'
 import checkForBraveBrowser from 'utils/checkForBraveBrowser'
+
+export const isWalletAddressSolana = async (addr: string) => {
+  try {
+    if (!addr) return false
+    const publicKey = new PublicKey(addr)
+    return await PublicKey.isOnCurve(publicKey.toBytes())
+  } catch (err) {
+    return false
+  }
+}
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(chainId: ChainId, value: any): string | false {
@@ -57,12 +69,13 @@ export function getEtherscanLink(
 }
 
 // shorten the checksummed version of the input address to have 0x + 4 characters at start and end
-export function shortenAddress(chainId: ChainId, address: string, chars = 4): string {
+export function shortenAddress(chainId: ChainId, address: string, chars = 4, checksum = true): string {
   const parsed = isAddress(chainId, address)
-  if (!parsed) {
+  if (!parsed && checksum) {
     throw Error(`Invalid 'address' parameter '${address}' on chain ${chainId}.`)
   }
-  return `${parsed.substring(0, chars + 2)}...${parsed.substring(42 - chars)}`
+  const value = (checksum && parsed ? parsed : address) ?? ''
+  return `${value.substring(0, chars + 2)}...${value.substring(42 - chars)}`
 }
 
 /**
@@ -72,9 +85,10 @@ export function shortenAddress(chainId: ChainId, address: string, chars = 4): st
  * @param value BigNumber
  * @returns BigNumber
  */
-export function calculateGasMargin(value: BigNumber): BigNumber {
+export function calculateGasMargin(value: BigNumber, chainId?: ChainId): BigNumber {
   const defaultGasLimitMargin = BigNumber.from(DEFAULT_GAS_LIMIT_MARGIN)
-  const gasMargin = value.mul(BigNumber.from(2000)).div(BigNumber.from(10000))
+  const needHigherGas = [ChainId.MATIC, ChainId.OPTIMISM].includes(chainId as ChainId)
+  const gasMargin = value.mul(BigNumber.from(needHigherGas ? 5000 : 2000)).div(BigNumber.from(10000))
 
   return gasMargin.gte(defaultGasLimitMargin) ? value.add(gasMargin) : value.add(defaultGasLimitMargin)
 }
@@ -215,7 +229,18 @@ export function getTimestampsForChanges(): [number, number, number] {
   return [t1, t2, tWeek]
 }
 
-export async function splitQuery(query: any, localClient: any, vars: any, list: any, skipCount = 100): Promise<any> {
+export async function splitQuery<ResultType, T, U>(
+  query: (values: T[], ...vars: U[]) => import('graphql').DocumentNode,
+  localClient: ApolloClient<NormalizedCacheObject>,
+  list: T[],
+  vars: U[],
+  skipCount = 100,
+): Promise<
+  | {
+      [key: string]: ResultType
+    }
+  | undefined
+> {
   let fetchedData = {}
   let allFound = false
   let skip = 0
@@ -227,7 +252,7 @@ export async function splitQuery(query: any, localClient: any, vars: any, list: 
     }
     const sliced = list.slice(skip, end)
     const result = await localClient.query({
-      query: query(...vars, sliced),
+      query: query(sliced, ...vars),
       fetchPolicy: 'no-cache',
     })
     fetchedData = {
@@ -280,7 +305,13 @@ export async function getBlocksFromTimestamps(
     return []
   }
 
-  const fetchedData = await splitQuery(GET_BLOCKS, NETWORKS_INFO[chainId].blockClient, [], timestamps, skipCount)
+  const fetchedData = await splitQuery<{ number: number }[], number, any>(
+    GET_BLOCKS,
+    NETWORKS_INFO[chainId].blockClient,
+    timestamps,
+    [],
+    skipCount,
+  )
   const blocks: { timestamp: string; number: number }[] = []
   if (fetchedData) {
     for (const t in fetchedData) {
@@ -423,6 +454,5 @@ export const isChristmasTime = () => {
 
 export const getLimitOrderContract = (chainId: ChainId) => {
   const { production, development } = NETWORKS_INFO_CONFIG[chainId]?.limitOrder ?? {}
-  // return ENV_LEVEL >= ENV_TYPE.STG ? production : development
-  return ENV_LEVEL === ENV_TYPE.PROD ? '' : ENV_LEVEL === ENV_TYPE.STG ? production : development // for testing on stg
+  return ENV_LEVEL === ENV_TYPE.PROD ? production : development
 }

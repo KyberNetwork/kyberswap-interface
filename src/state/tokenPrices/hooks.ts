@@ -1,6 +1,7 @@
-import { useEffect, useMemo } from 'react'
+import { stringify } from 'querystring'
+import { useEffect, useMemo, useState } from 'react'
 
-import { PRICE_API } from 'constants/env'
+import { AGGREGATOR_API, PRICE_API } from 'constants/env'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
@@ -8,14 +9,22 @@ import { isAddressString } from 'utils'
 
 import { updatePrices } from '.'
 
-export const useTokenPrices = (addresses: Array<string>) => {
+const getAddress = (address: string, isEVM: boolean) => (isEVM ? address.toLowerCase() : address)
+
+const useTokenPricesLocal = (
+  addresses: Array<string>,
+): {
+  data: { [address: string]: number }
+  loading: boolean
+} => {
   const tokenPrices = useAppSelector(state => state.tokenPrices)
   const dispatch = useAppDispatch()
-  const { chainId } = useActiveWeb3React()
+  const { chainId, isEVM } = useActiveWeb3React()
+  const [loading, setLoading] = useState(true)
 
   const addressKeys = addresses
     .sort()
-    .map(x => x.toLowerCase())
+    .map(x => getAddress(x, isEVM))
     .join(',')
 
   const tokenList = useMemo(() => {
@@ -28,35 +37,51 @@ export const useTokenPrices = (addresses: Array<string>) => {
 
   useEffect(() => {
     const fetchPrices = async () => {
-      const res = await fetch(`${PRICE_API}/${NETWORKS_INFO[chainId].priceRoute}/api/v1/prices`, {
-        method: 'POST',
-        body: JSON.stringify({
+      try {
+        setLoading(true)
+        const payload = {
           ids: unknownPriceList.join(','),
-        }),
-      }).then(res => res.json())
+        }
+        const promise = isEVM
+          ? fetch(`${PRICE_API}/${NETWORKS_INFO[chainId].priceRoute}/api/v1/prices`, {
+              method: 'POST',
+              body: JSON.stringify(payload),
+            })
+          : fetch(`${AGGREGATOR_API}/solana/prices?${stringify(payload)}`)
 
-      if (res?.data?.prices?.length) {
-        const formattedPrices = unknownPriceList.map(address => {
-          const price = res.data.prices.find(
-            (p: { address: string; marketPrice: number; price: number }) => p.address.toLowerCase() === address,
-          )
+        const res = await promise.then(res => res.json())
+        const prices = res?.data?.prices || res
 
-          return {
-            address,
-            chainId: chainId,
+        if (prices?.length) {
+          const formattedPrices = unknownPriceList.map(address => {
+            const price = prices.find(
+              (p: { address: string; marketPrice: number; price: number }) => getAddress(p.address, isEVM) === address,
+            )
 
-            price: price?.marketPrice || price?.price || 0,
-          }
-        })
+            return {
+              address,
+              chainId: chainId,
 
-        dispatch(updatePrices(formattedPrices))
+              price: price?.marketPrice || price?.price || 0,
+            }
+          })
+
+          dispatch(updatePrices(formattedPrices))
+        }
+      } finally {
+        setLoading(false)
       }
     }
 
     if (unknownPriceList.length) fetchPrices()
-  }, [unknownPriceList, chainId, dispatch])
+    else {
+      setLoading(false)
+    }
+  }, [unknownPriceList, chainId, dispatch, isEVM])
 
-  return useMemo(() => {
+  const data: {
+    [address: string]: number
+  } = useMemo(() => {
     return tokenList.reduce((acc, address) => {
       const key = `${address}_${chainId}`
       return {
@@ -66,4 +91,19 @@ export const useTokenPrices = (addresses: Array<string>) => {
       }
     }, {} as { [address: string]: number })
   }, [tokenList, chainId, tokenPrices])
+
+  return { data, loading }
+}
+
+export const useTokenPrices = (
+  addresses: Array<string>,
+): {
+  [address: string]: number
+} => {
+  const { data } = useTokenPricesLocal(addresses)
+  return data
+}
+
+export const useTokenPricesWithLoading = (addresses: Array<string>) => {
+  return useTokenPricesLocal(addresses)
 }

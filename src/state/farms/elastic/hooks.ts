@@ -1,6 +1,6 @@
 import { defaultAbiCoder } from '@ethersproject/abi'
-import { Token } from '@kyberswap/ks-sdk-core'
-import { FeeAmount } from '@kyberswap/ks-sdk-elastic'
+import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { FeeAmount, Position } from '@kyberswap/ks-sdk-elastic'
 import { t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import { useCallback, useMemo, useState } from 'react'
@@ -10,9 +10,14 @@ import { useActiveWeb3React } from 'hooks'
 import { useTokens } from 'hooks/Tokens'
 import { useProAmmNFTPositionManagerContract, useProMMFarmContract } from 'hooks/useContract'
 import { usePools } from 'hooks/usePools'
+import { FarmingPool, NFTPosition } from 'state/farms/elastic/types'
 import { useAppSelector } from 'state/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
-import { TRANSACTION_TYPE } from 'state/transactions/type'
+import {
+  TRANSACTION_TYPE,
+  TransactionExtraInfoHarvestFarm,
+  TransactionExtraInfoStakeFarm,
+} from 'state/transactions/type'
 import { PositionDetails } from 'types/position'
 import { calculateGasMargin } from 'utils'
 
@@ -22,11 +27,38 @@ export { default as FarmUpdater } from './updaters'
 
 export const useElasticFarms = () => {
   const { chainId, isEVM } = useActiveWeb3React()
-  const elasticFarm = useAppSelector(state => state.elasticFarm)
-  return useMemo(
-    () => (isEVM ? elasticFarm[chainId] || defaultChainData : defaultChainData),
-    [isEVM, elasticFarm, chainId],
-  )
+  const elasticFarm = useAppSelector(state => state.elasticFarm[chainId])
+  return useMemo(() => (isEVM ? elasticFarm || defaultChainData : defaultChainData), [isEVM, elasticFarm])
+}
+export type StakeParam = {
+  nftId: BigNumber
+  position: NFTPosition | Position
+  stakedLiquidity: string
+  poolAddress: string
+}
+
+const getTransactionExtraInfo = (
+  positions: Position[] | NFTPosition[],
+  poolIds: string[],
+  nftIds: string[],
+): TransactionExtraInfoStakeFarm => {
+  if (!positions[0]?.amount0) {
+    return { pairs: [] }
+  }
+  const pairs = positions.map((item, index) => {
+    const { amount0, amount1 } = item
+    return {
+      tokenAddressIn: amount0.currency.address,
+      tokenAddressOut: amount1.currency.address,
+      tokenSymbolIn: amount0.currency.symbol ?? '',
+      tokenSymbolOut: amount1.currency.symbol ?? '',
+      tokenAmountIn: amount0.toSignificant(6),
+      tokenAmountOut: amount1.toSignificant(6),
+      poolAddress: poolIds[index],
+      nftId: nftIds[index],
+    }
+  })
+  return { pairs }
 }
 
 export const useFarmAction = (address: string) => {
@@ -42,14 +74,22 @@ export const useFarmAction = (address: string) => {
     const tx = await posManager.setApprovalForAll(address, true, {
       gasLimit: calculateGasMargin(estimateGas),
     })
-    addTransactionWithType({ hash: tx.hash, type: TRANSACTION_TYPE.APPROVE, summary: `Elastic Farm` })
+    addTransactionWithType({
+      hash: tx.hash,
+      type: TRANSACTION_TYPE.APPROVE,
+      extraInfo: {
+        summary: `Elastic Farm`,
+        contract: address,
+      },
+    })
 
     return tx.hash
   }, [addTransactionWithType, address, posManager])
 
   // Deposit
   const deposit = useCallback(
-    async (nftIds: BigNumber[]) => {
+    async (positionDetails: PositionDetails[], positions: Position[]) => {
+      const nftIds = positionDetails.map(e => e.tokenId)
       if (!contract) {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }
@@ -58,7 +98,15 @@ export const useFarmAction = (address: string) => {
       const tx = await contract.deposit(nftIds, {
         gasLimit: calculateGasMargin(estimateGas),
       })
-      addTransactionWithType({ hash: tx.hash, type: TRANSACTION_TYPE.DEPOSIT, summary: `liquidity` })
+      addTransactionWithType({
+        hash: tx.hash,
+        type: TRANSACTION_TYPE.ELASTIC_DEPOSIT_LIQUIDITY,
+        extraInfo: getTransactionExtraInfo(
+          positions,
+          positionDetails.map(e => e.poolId),
+          positionDetails.map(e => e.tokenId.toString()),
+        ),
+      })
 
       return tx.hash
     },
@@ -66,16 +114,24 @@ export const useFarmAction = (address: string) => {
   )
 
   const withdraw = useCallback(
-    async (nftIds: BigNumber[]) => {
+    async (positionDetails: PositionDetails[], positions: Position[]) => {
       if (!contract) {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }
-
+      const nftIds = positionDetails.map(e => e.tokenId)
       const estimateGas = await contract.estimateGas.withdraw(nftIds)
       const tx = await contract.withdraw(nftIds, {
         gasLimit: calculateGasMargin(estimateGas),
       })
-      addTransactionWithType({ hash: tx.hash, type: TRANSACTION_TYPE.WITHDRAW, summary: `liquidity` })
+      addTransactionWithType({
+        hash: tx.hash,
+        type: TRANSACTION_TYPE.ELASTIC_WITHDRAW_LIQUIDITY,
+        extraInfo: getTransactionExtraInfo(
+          positions,
+          positionDetails.map(e => e.poolId),
+          positionDetails.map(e => e.tokenId.toString()),
+        ),
+      })
 
       return tx.hash
     },
@@ -91,24 +147,39 @@ export const useFarmAction = (address: string) => {
       const tx = await contract.emergencyWithdraw(nftIds, {
         gasLimit: calculateGasMargin(estimateGas),
       })
-      addTransactionWithType({ hash: tx.hash, type: TRANSACTION_TYPE.FORCE_WITHDRAW })
+      addTransactionWithType({
+        hash: tx.hash,
+        type: TRANSACTION_TYPE.ELASTIC_FORCE_WITHDRAW_LIQUIDITY,
+        extraInfo: { contract: address },
+      })
 
       return tx.hash
     },
-    [addTransactionWithType, contract],
+    [addTransactionWithType, contract, address],
   )
 
   const stake = useCallback(
-    async (pid: BigNumber, nftIds: BigNumber[], liqs: BigNumber[]) => {
+    async (pid: BigNumber, selectedNFTs: StakeParam[]) => {
       if (!contract) {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }
+
+      const nftIds = selectedNFTs.map(item => item.nftId)
+      const liqs = selectedNFTs.map(item => BigNumber.from(item.position.liquidity.toString()))
 
       const estimateGas = await contract.estimateGas.join(pid, nftIds, liqs)
       const tx = await contract.join(pid, nftIds, liqs, {
         gasLimit: calculateGasMargin(estimateGas),
       })
-      addTransactionWithType({ hash: tx.hash, type: TRANSACTION_TYPE.STAKE, summary: `liquidity into farm` })
+      addTransactionWithType({
+        hash: tx.hash,
+        type: TRANSACTION_TYPE.STAKE,
+        extraInfo: getTransactionExtraInfo(
+          selectedNFTs.map(e => e.position),
+          selectedNFTs.map(e => e.poolAddress),
+          nftIds.map(e => e.toString()),
+        ),
+      })
 
       return tx.hash
     },
@@ -116,16 +187,26 @@ export const useFarmAction = (address: string) => {
   )
 
   const unstake = useCallback(
-    async (pid: BigNumber, nftIds: BigNumber[], liqs: BigNumber[]) => {
+    async (pid: BigNumber, selectedNFTs: StakeParam[]) => {
       if (!contract) {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }
       try {
+        const nftIds = selectedNFTs.map(item => item.nftId)
+        const liqs = selectedNFTs.map(item => BigNumber.from(item.stakedLiquidity))
         const estimateGas = await contract.estimateGas.exit(pid, nftIds, liqs)
         const tx = await contract.exit(pid, nftIds, liqs, {
           gasLimit: calculateGasMargin(estimateGas),
         })
-        addTransactionWithType({ hash: tx.hash, type: TRANSACTION_TYPE.UNSTAKE, summary: `liquidity from farm` })
+        addTransactionWithType({
+          hash: tx.hash,
+          type: TRANSACTION_TYPE.UNSTAKE,
+          extraInfo: getTransactionExtraInfo(
+            selectedNFTs.map(e => e.position),
+            selectedNFTs.map(e => e.poolAddress),
+            nftIds.map(e => e.toString()),
+          ),
+        })
 
         return tx.hash
       } catch (e) {
@@ -136,7 +217,12 @@ export const useFarmAction = (address: string) => {
   )
 
   const harvest = useCallback(
-    async (nftIds: BigNumber[], poolIds: BigNumber[]) => {
+    async (
+      nftIds: BigNumber[],
+      poolIds: BigNumber[],
+      farm: FarmingPool | undefined,
+      farmRewards: CurrencyAmount<Currency>[],
+    ) => {
       if (!contract) return
 
       const encodeData = poolIds.map(id => defaultAbiCoder.encode(['tupple(uint256[] pIds)'], [{ pIds: [id] }]))
@@ -146,7 +232,20 @@ export const useFarmAction = (address: string) => {
         const tx = await contract.harvestMultiplePools(nftIds, encodeData, {
           gasLimit: calculateGasMargin(estimateGas),
         })
-        addTransactionWithType({ hash: tx.hash, type: TRANSACTION_TYPE.HARVEST })
+        const extraInfo: TransactionExtraInfoHarvestFarm = {
+          tokenAddressIn: farm?.token0?.wrapped.address,
+          tokenAddressOut: farm?.token1?.wrapped.address,
+          tokenSymbolIn: farm?.token0?.symbol,
+          tokenSymbolOut: farm?.token1?.symbol,
+          contract: farm?.id,
+          rewards:
+            farmRewards?.map(reward => ({
+              tokenSymbol: reward.currency.symbol ?? '',
+              tokenAmount: reward.toSignificant(6),
+              tokenAddress: reward.currency.wrapped.address,
+            })) ?? [],
+        }
+        addTransactionWithType({ hash: tx.hash, type: TRANSACTION_TYPE.HARVEST, extraInfo })
         return tx
       } catch (e) {
         console.log(e)

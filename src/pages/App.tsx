@@ -117,9 +117,13 @@ export default function App() {
 
   useEffect(() => {
     if (chainId) {
-      Sentry.setContext('network', {
+      Sentry.setTags({
         chainId: chainId,
-        name: networkInfo.name,
+        network: networkInfo.name,
+      })
+      datadogRum.setGlobalContext({
+        chainId,
+        networkName: networkInfo.name,
       })
     }
   }, [chainId, networkInfo.name])

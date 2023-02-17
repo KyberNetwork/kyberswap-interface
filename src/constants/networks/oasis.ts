@@ -56,6 +56,7 @@ const oasisInfo: EVMNetworkInfo = {
   },
   elastic: {
     client: createClient('https://oasis-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-elastic-oasis'),
+    startBlock: 1656923,
     coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
     nonfungiblePositionManager: '0x2B1c7b41f6A8F2b2bc45C3233a5d5FB3cD6dC9A8',
     tickReader: '0x165c68077ac06c83800d19200e6E2B08D02dE75D',
@@ -66,7 +67,7 @@ const oasisInfo: EVMNetworkInfo = {
   },
   limitOrder: {
     development: NOT_SUPPORT,
-    production: '0x227B0c196eA8db17A665EA6824D972A64202E936',
+    production: NOT_SUPPORT,
   },
   averageBlockTimeInSeconds: 10,
   coingeckoNetworkId: 'oasis',

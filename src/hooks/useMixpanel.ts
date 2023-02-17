@@ -1,4 +1,4 @@
-import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { formatUnits, isAddress } from 'ethers/lib/utils'
 import mixpanel from 'mixpanel-browser'
 import { useCallback, useEffect, useMemo } from 'react'
@@ -25,15 +25,15 @@ import { AppDispatch, AppState } from 'state'
 import { useETHPrice } from 'state/application/hooks'
 import { Field } from 'state/swap/actions'
 import { useSwapState } from 'state/swap/hooks'
-import { checkedSubgraph } from 'state/transactions/actions'
-import { TransactionDetails } from 'state/transactions/type'
+import { modifyTransaction } from 'state/transactions/actions'
+import { TRANSACTION_TYPE, TransactionDetails, TransactionExtraInfo2Token } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
-import { Aggregator } from 'utils/aggregator'
 
 export enum MIXPANEL_TYPE {
   PAGE_VIEWED,
   WALLET_CONNECTED,
   SWAP_INITIATED,
+  SWAP_CONFIRMED,
   SWAP_COMPLETED,
   ADVANCED_MODE_ON,
   ADD_RECIPIENT_CLICKED,
@@ -147,6 +147,8 @@ export enum MIXPANEL_TYPE {
   KYBER_DAO_UNSTAKE_CLICK,
   KYBER_DAO_DELEGATE_CLICK,
   KYBER_DAO_VOTE_CLICK,
+  KYBER_DAO_CLAIM_CLICK,
+  KYBER_DAO_FEATURE_REQUEST_CLICK,
 
   // notification
   NOTIFICATION_CLICK_MENU,
@@ -161,18 +163,27 @@ export enum MIXPANEL_TYPE {
   LO_CANCEL_ORDER_SUBMITTED,
   LO_CLICK_REVIEW_PLACE_ORDER,
   LO_CLICK_EDIT_ORDER,
+
+  // Wallet UI
+  WUI_WALLET_CLICK,
+  WUI_PINNED_WALLET,
+  WUI_UNPINNED_WALLET,
+  WUI_BUTTON_CLICK,
+  WUI_IMPORT_TOKEN_CLICK,
+  WUI_TRANSACTION_CLICK,
+  WUI_IMPORT_TOKEN_BUTTON_CLICK,
 }
 
-export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES = [
-  'Add liquidity',
-  'Elastic Add liquidity',
-  'Remove liquidity',
-  'Elastic Remove liquidity',
-  'Create pool',
-  'Elastic Create pool',
-]
+export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES: readonly TRANSACTION_TYPE[] = [
+  TRANSACTION_TYPE.CLASSIC_ADD_LIQUIDITY,
+  TRANSACTION_TYPE.ELASTIC_ADD_LIQUIDITY,
+  TRANSACTION_TYPE.CLASSIC_REMOVE_LIQUIDITY,
+  TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY,
+  TRANSACTION_TYPE.CLASSIC_CREATE_POOL,
+  TRANSACTION_TYPE.ELASTIC_CREATE_POOL,
+] as const
 
-export default function useMixpanel(trade?: Aggregator | undefined, currencies?: { [field in Field]?: Currency }) {
+export default function useMixpanel(currencies?: { [field in Field]?: Currency }) {
   const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
   const { saveGas } = useSwapState()
   const network = networkInfo.name
@@ -201,14 +212,39 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           mixpanel.track('Wallet Connected')
           break
         case MIXPANEL_TYPE.SWAP_INITIATED: {
+          const { gasUsd, inputAmount, priceImpact } = (payload || {}) as {
+            gasUsd: number | undefined
+            inputAmount: CurrencyAmount<Currency> | undefined
+            priceImpact: number | undefined
+          }
+
           mixpanel.track('Swap Initiated', {
             input_token: inputSymbol,
             output_token: outputSymbol,
-            estimated_gas: trade?.gasUsd?.toFixed(4),
+            estimated_gas: gasUsd?.toFixed(4),
             max_return_or_low_gas: saveGas ? 'Lowest Gas' : 'Maximum Return',
-            trade_qty: trade?.inputAmount.toExact(),
+            trade_qty: inputAmount?.toExact(),
             slippage_setting: allowedSlippage ? allowedSlippage / 100 : 0,
-            price_impact: trade && trade?.priceImpact > 0.01 ? trade?.priceImpact.toFixed(2) : '<0.01',
+            price_impact: priceImpact && priceImpact > 0.01 ? priceImpact.toFixed(2) : '<0.01',
+          })
+
+          break
+        }
+        case MIXPANEL_TYPE.SWAP_CONFIRMED: {
+          const { gasUsd, inputAmount, priceImpact } = (payload || {}) as {
+            gasUsd: number | undefined
+            inputAmount: CurrencyAmount<Currency> | undefined
+            priceImpact: number | undefined
+          }
+
+          mixpanel.track('Swap Confirmed', {
+            input_token: inputSymbol,
+            output_token: outputSymbol,
+            estimated_gas: gasUsd?.toFixed(4),
+            max_return_or_low_gas: saveGas ? 'Lowest Gas' : 'Maximum Return',
+            trade_qty: inputAmount?.toExact(),
+            slippage_setting: allowedSlippage ? allowedSlippage / 100 : 0,
+            price_impact: priceImpact && priceImpact > 0.01 ? priceImpact.toFixed(2) : '<0.01',
           })
 
           break
@@ -762,6 +798,14 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           mixpanel.track('KyberDAO - Vote Click', payload)
           break
         }
+        case MIXPANEL_TYPE.KYBER_DAO_CLAIM_CLICK: {
+          mixpanel.track('KyberDAO - Claim Reward Click', payload)
+          break
+        }
+        case MIXPANEL_TYPE.KYBER_DAO_FEATURE_REQUEST_CLICK: {
+          mixpanel.track('KyberDAO - Feature Request Click', payload)
+          break
+        }
         case MIXPANEL_TYPE.LO_CLICK_PLACE_ORDER: {
           mixpanel.track('Limit Order -  Place Order Click', payload)
           break
@@ -791,10 +835,38 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           mixpanel.track('Limit Order -  Update Order Click', payload)
           break
         }
+        case MIXPANEL_TYPE.WUI_WALLET_CLICK: {
+          mixpanel.track('Wallet UI - Wallet Click')
+          break
+        }
+        case MIXPANEL_TYPE.WUI_PINNED_WALLET: {
+          mixpanel.track('Wallet UI - Pinned Wallet')
+          break
+        }
+        case MIXPANEL_TYPE.WUI_UNPINNED_WALLET: {
+          mixpanel.track('Wallet UI - Unpinned Wallet')
+          break
+        }
+        case MIXPANEL_TYPE.WUI_BUTTON_CLICK: {
+          mixpanel.track('Wallet UI - Button click', payload)
+          break
+        }
+        case MIXPANEL_TYPE.WUI_IMPORT_TOKEN_CLICK: {
+          mixpanel.track('Wallet UI - Import Token click')
+          break
+        }
+        case MIXPANEL_TYPE.WUI_TRANSACTION_CLICK: {
+          mixpanel.track('Wallet UI - Transaction click')
+          break
+        }
+        case MIXPANEL_TYPE.WUI_IMPORT_TOKEN_BUTTON_CLICK: {
+          mixpanel.track('Wallet UI - Import Token - Import button click', payload)
+          break
+        }
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [currencies, network, saveGas, account, trade, mixpanel.hasOwnProperty('get_distinct_id'), ethPrice?.currentPrice],
+    [currencies, network, saveGas, account, mixpanel.hasOwnProperty('get_distinct_id'), ethPrice?.currentPrice],
   )
   const subgraphMixpanelHandler = useCallback(
     async (transaction: TransactionDetails) => {
@@ -803,12 +875,14 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
       const apolloProMMClient = (networkInfo as EVMNetworkInfo).elastic.client
 
       const hash = transaction.hash
+      const arbitrary = transaction.extraInfo?.arbitrary
       switch (transaction.type) {
-        case 'Add liquidity': {
+        case TRANSACTION_TYPE.CLASSIC_ADD_LIQUIDITY: {
+          const { poolAddress, token_1, token_2, add_liquidity_method, amp } = arbitrary || {}
           const res = await apolloClient.query({
             query: GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
             variables: {
-              poolAddress: transaction.arbitrary.poolAddress.toLowerCase(),
+              poolAddress: poolAddress.toLowerCase(),
             },
             fetchPolicy: 'network-only',
           })
@@ -825,55 +899,61 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
             token_1_pool_qty: reserve0,
             token_2_pool_qty: reserve1,
             liquidity_USD: reserveUSD,
-            token_1: transaction.arbitrary.token_1,
-            token_2: transaction.arbitrary.token_2,
+            token_1,
+            token_2,
             token_1_qty: mint?.amount0,
             token_2_qty: mint?.amount1,
             tx_liquidity_USD: mint?.amountUSD,
-            add_liquidity_method: transaction.arbitrary.add_liquidity_method,
-            amp: transaction.arbitrary.amp,
+            add_liquidity_method,
+            amp,
             tx_hash: hash,
           })
-          dispatch(checkedSubgraph({ chainId, hash }))
+          dispatch(modifyTransaction({ chainId, hash, needCheckSubgraph: false }))
           break
         }
-        case 'Elastic Add liquidity': {
+        case TRANSACTION_TYPE.ELASTIC_ADD_LIQUIDITY: {
+          const {
+            contract: poolAddress = '',
+            tokenSymbolIn: token_1,
+            tokenSymbolOut: token_2,
+          } = (transaction.extraInfo || {}) as TransactionExtraInfo2Token
           const res = await apolloProMMClient.query({
             query: PROMM_GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
             variables: {
-              poolAddress: transaction.arbitrary.poolAddress.toLowerCase(),
+              poolAddress: poolAddress.toLowerCase(),
             },
             fetchPolicy: 'network-only',
           })
-          if (transaction.confirmedTime && new Date().getTime() - transaction.confirmedTime < 3600000) {
+          if (transaction.confirmedTime && new Date().getTime() - transaction.confirmedTime < 3_600_000) {
             if (
               !res.data?.pool?.mints ||
               res.data.pool.mints.every((mint: { id: string }) => !mint.id.startsWith(transaction.hash))
             )
               break
           }
-          const { totalValueLockedToken0, totalValueLockedToken1, totalValueLockedUSD, feeTier } = res.data.pool
-          const mint = res.data.pool.mints.find((mint: { id: string }) => mint.id.startsWith(transaction.hash))
+          const { totalValueLockedToken0, totalValueLockedToken1, totalValueLockedUSD, feeTier, mints } = res.data.pool
+          const mint = mints.find((mint: { id: string }) => mint.id.startsWith(transaction.hash))
           mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_COMPLETED, {
             token_1_pool_qty: totalValueLockedToken0,
             token_2_pool_qty: totalValueLockedToken1,
             liquidity_USD: totalValueLockedUSD,
-            token_1: transaction.arbitrary.token_1,
-            token_2: transaction.arbitrary.token_2,
+            token_1,
+            token_2,
             token_1_qty: mint?.amount0,
             token_2_qty: mint?.amount1,
             tx_liquidity_USD: mint?.amountUSD,
             fee_tier: feeTier / ELASTIC_BASE_FEE_UNIT,
             tx_hash: hash,
           })
-          dispatch(checkedSubgraph({ chainId, hash }))
+          dispatch(modifyTransaction({ chainId, hash, needCheckSubgraph: false }))
           break
         }
-        case 'Remove liquidity': {
+        case TRANSACTION_TYPE.CLASSIC_REMOVE_LIQUIDITY: {
+          const { poolAddress, token_1, token_2, amp, remove_liquidity_method } = arbitrary || {}
           const res = await apolloClient.query({
             query: GET_POOL_VALUES_AFTER_BURNS_SUCCESS,
             variables: {
-              poolAddress: transaction.arbitrary.poolAddress.toLowerCase(),
+              poolAddress: poolAddress.toLowerCase(),
             },
             fetchPolicy: 'network-only',
           })
@@ -891,23 +971,28 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
             token_1_pool_qty: reserve0,
             token_2_pool_qty: reserve1,
             liquidity_USD: reserveUSD,
-            token_1: transaction.arbitrary.token_1,
-            token_2: transaction.arbitrary.token_2,
+            token_1,
+            token_2,
             token_1_qty: burn?.amount0,
             token_2_qty: burn?.amount1,
             tx_liquidity_USD: burn?.amountUSD,
-            remove_liquidity_method: transaction.arbitrary.remove_liquidity_method,
-            amp: transaction.arbitrary.amp,
+            remove_liquidity_method: remove_liquidity_method,
+            amp,
             tx_hash: hash,
           })
-          dispatch(checkedSubgraph({ chainId, hash }))
+          dispatch(modifyTransaction({ chainId, hash, needCheckSubgraph: false }))
           break
         }
-        case 'Elastic Remove liquidity': {
+        case TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY: {
+          const {
+            contract: poolAddress = '',
+            tokenSymbolIn,
+            tokenSymbolOut,
+          } = (transaction.extraInfo || {}) as TransactionExtraInfo2Token
           const res = await apolloProMMClient.query({
             query: PROMM_GET_POOL_VALUES_AFTER_BURNS_SUCCESS,
             variables: {
-              poolAddress: transaction.arbitrary.poolAddress.toLowerCase(),
+              poolAddress: poolAddress.toLowerCase(),
             },
             fetchPolicy: 'network-only',
           })
@@ -924,18 +1009,19 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
             token_1_pool_qty: totalValueLockedToken0,
             token_2_pool_qty: totalValueLockedToken1,
             liquidity_USD: totalValueLockedUSD,
-            token_1: transaction.arbitrary.token_1,
-            token_2: transaction.arbitrary.token_2,
+            token_1: tokenSymbolIn,
+            token_2: tokenSymbolOut,
             token_1_qty: burn?.amount0,
             token_2_qty: burn?.amount1,
             tx_liquidity_USD: burn?.amountUSD,
             fee_tier: feeTier / ELASTIC_BASE_FEE_UNIT,
             tx_hash: hash,
           })
-          dispatch(checkedSubgraph({ chainId, hash }))
+          dispatch(modifyTransaction({ chainId, hash, needCheckSubgraph: false }))
           break
         }
-        case 'Create pool': {
+        case TRANSACTION_TYPE.CLASSIC_CREATE_POOL: {
+          const { amp, token_1, token_2 } = arbitrary || {}
           const res = await apolloClient.query({
             query: GET_MINT_VALUES_AFTER_CREATE_POOL_SUCCESS,
             variables: {
@@ -948,9 +1034,9 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           }
           const { amount0, amount1, amountUSD } = res.data.transaction.mints[0]
           mixpanelHandler(MIXPANEL_TYPE.CREATE_POOL_COMPLETED, {
-            token_1: transaction.arbitrary.token_1,
-            token_2: transaction.arbitrary.token_2,
-            amp: transaction.arbitrary.amp,
+            token_1,
+            token_2,
+            amp,
             tx_hash: hash,
             token_1_qty: amount0,
             token_2_qty: amount1,
@@ -958,7 +1044,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           })
           break
         }
-        case 'Elastic Create pool': {
+        case TRANSACTION_TYPE.ELASTIC_CREATE_POOL: {
           const res = await apolloProMMClient.query({
             query: PROMM_GET_MINT_VALUES_AFTER_CREATE_POOL_SUCCESS,
             variables: {
@@ -970,9 +1056,10 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
             if (!res.data?.transaction?.mints || res.data.transaction.mints.length === 0) break
           }
           const { amount0, amount1, amountUSD } = res.data.transaction.mints[0]
+          const { tokenSymbolIn, tokenSymbolOut } = (transaction.extraInfo ?? {}) as TransactionExtraInfo2Token
           mixpanelHandler(MIXPANEL_TYPE.ELASTIC_CREATE_POOL_COMPLETED, {
-            token_1: transaction.arbitrary.token_1,
-            token_2: transaction.arbitrary.token_2,
+            token_1: tokenSymbolIn,
+            token_2: tokenSymbolOut,
             tx_hash: hash,
             token_1_qty: amount0,
             token_2_qty: amount1,
@@ -1059,74 +1146,30 @@ export const useGlobalMixpanelEvents = () => {
 
   useEffect(() => {
     if (pathName) {
-      let pageName = ''
-      switch (pathName) {
-        case 'swap':
-          pageName = 'Swap'
-          break
-        case 'find':
-          pageName = 'Pool Finder'
-          break
-        case 'pools':
-          pageName = 'Pools'
-          break
-        case 'farms':
-          pageName = 'Farms'
-          break
-        case 'myPools':
-          pageName = 'My Pools'
-          break
-        case 'migration':
-          pageName = 'Migration'
-          break
-        case 'create':
-          pageName = 'Create Pool'
-          break
-        case 'add':
-          pageName = 'Add Liquidity'
-          break
-        case 'remove':
-          pageName = 'Remove Liquidity'
-          break
-        case 'about':
-          pageName = 'About'
-          break
-        case 'referral':
-          pageName = 'Referral'
-          break
-        case 'discover':
-          pageName = 'Discover'
-          break
-        case 'campaigns':
-          pageName = 'Campaign'
-          break
-        case 'elastic/remove':
-          pageName = 'Elastic - Remove Liquidity'
-          break
-        case 'elastic/add':
-          pageName = 'Elastic - Add Liquidity'
-          break
-        case 'elastic/increase':
-          pageName = 'Elastic - Increase Liquidity'
-          break
-        case 'buy-crypto':
-          pageName = 'Buy Crypto'
-          break
-        case 'bridge':
-          pageName = 'Bridge'
-          break
-        case 'kyberdao/stake-knc':
-          pageName = 'KyberDAO Stake'
-          break
-        case 'kyberdao/vote':
-          pageName = 'KyberDAO Vote'
-          break
-        case 'limit':
-          pageName = 'Limit Order'
-          break
-        default:
-          break
+      const map: { [key: string]: string } = {
+        swap: 'Swap',
+        find: 'Pool Finder',
+        pools: 'Pools',
+        farms: 'Farms',
+        myPools: 'My Pools',
+        migration: 'Migration',
+        create: 'Create Pool',
+        add: 'Add Liquidity',
+        remove: 'Remove Liquidity',
+        about: 'About',
+        referral: 'Referral',
+        discover: 'Discover',
+        campaigns: 'Campaign',
+        'elastic/remove': 'Elastic - Remove Liquidity',
+        'elastic/add': 'Elastic - Add Liquidity',
+        'elastic/increase': 'Elastic - Increase Liquidity',
+        'buy-crypto': 'Buy Crypto',
+        bridge: 'Bridge',
+        'kyberdao/stake-knc': 'KyberDAO Stake',
+        'kyberdao/vote': 'KyberDAO Vote',
+        limit: 'Limit Order',
       }
+      const pageName = map[pathName]
       pageName && mixpanelHandler(MIXPANEL_TYPE.PAGE_VIEWED, { page: pageName })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -10,7 +10,7 @@ const TooltipContainer = styled.div<{ width?: string; size?: number }>`
   padding: 0.5rem 0.75rem;
   line-height: 150%;
   font-weight: 400;
-  font-size: ${({ size }) => size || 14}px;
+  font-size: ${({ size }) => size || 12}px;
 `
 
 export const TextDashed = styled(Text)`
@@ -25,6 +25,7 @@ interface TooltipProps extends Omit<PopoverProps, 'content'> {
   disableTooltip?: boolean
   onMouseEnter?: React.MouseEventHandler<HTMLDivElement>
   onMouseLeave?: React.MouseEventHandler<HTMLDivElement>
+  children?: React.ReactNode
 }
 
 export default function Tooltip({ text, width, size, onMouseEnter, onMouseLeave, ...rest }: TooltipProps) {
