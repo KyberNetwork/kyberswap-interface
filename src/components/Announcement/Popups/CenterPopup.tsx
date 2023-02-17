@@ -17,11 +17,23 @@ const Wrapper = styled.div`
   flex-direction: column;
   gap: 24px;
   width: 100%;
+  max-height: 100%;
   ${({ theme }) => theme.mediaWidth.upToMedium`
     gap: 20px;
     padding: 20px;
   `}
 `
+const ContentWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  gap: 24px;
+  flex: 1;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    gap: 20px;
+  `}
+`
+
 const Title = styled.div`
   font-weight: 500;
   font-size: 20px;
@@ -55,6 +67,7 @@ const StyledCtaButton = styled(CtaButton)`
   height: 36px;
   max-width: 100%;
 `
+
 export default function CenterPopup({ data, clearAll }: { data: PopupItemType; clearAll: () => void }) {
   const theme = useTheme()
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
@@ -65,7 +78,6 @@ export default function CenterPopup({ data, clearAll }: { data: PopupItemType; c
     ctas = [],
     thumbnailImageURL,
   } = templateBody as AnnouncementTemplatePopup
-
   return (
     <Modal isOpen={true} maxWidth={isMobile ? undefined : '800px'}>
       <Wrapper>
@@ -73,15 +85,24 @@ export default function CenterPopup({ data, clearAll }: { data: PopupItemType; c
           <Title>{name}</Title>
           <X cursor={'pointer'} color={theme.subText} onClick={clearAll} />
         </RowBetween>
-        {thumbnailImageURL && <Image src={thumbnailImageURL} />}
-        <div style={{ fontSize: 14, lineHeight: '20px' }} dangerouslySetInnerHTML={{ __html: content }} />
-        <ButtonWrapper justify="center">
-          {ctas.map(item => (
-            <StyledLink href={item.url} key={item.url}>
-              <StyledCtaButton data={item} color="primary" onClick={clearAll} />
-            </StyledLink>
-          ))}
-        </ButtonWrapper>
+        <ContentWrapper>
+          {thumbnailImageURL && <Image src={thumbnailImageURL} />}
+          <div
+            style={{ fontSize: 14, lineHeight: '20px' }}
+            dangerouslySetInnerHTML={{
+              __html: content,
+            }}
+          />
+          {ctas.length > 0 && (
+            <ButtonWrapper justify="center">
+              {ctas.map(item => (
+                <StyledLink href={item.url} key={item.url}>
+                  <StyledCtaButton data={item} color="primary" onClick={clearAll} />
+                </StyledLink>
+              ))}
+            </ButtonWrapper>
+          )}
+        </ContentWrapper>
       </Wrapper>
     </Modal>
   )
