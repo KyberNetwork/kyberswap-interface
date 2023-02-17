@@ -96,7 +96,7 @@ export default function AnnouncementItem({
       <RowItem>
         <Column gap="6px">
           <Title>{name} </Title>
-          <Desc>{content}</Desc>
+          <Desc dangerouslySetInnerHTML={{ __html: content }} />
         </Column>
         <Time>{formatTime(startAt)}</Time>
       </RowItem>
