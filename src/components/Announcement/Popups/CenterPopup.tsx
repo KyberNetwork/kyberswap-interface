@@ -80,7 +80,7 @@ export default function CenterPopup({ data, clearAll }: { data: PopupItemType; c
     thumbnailImageURL,
   } = templateBody as AnnouncementTemplatePopup
   return (
-    <Modal isOpen={true} maxWidth={isMobile ? undefined : '800px'}>
+    <Modal isOpen={true} maxWidth={isMobile ? undefined : '800px'} onDismiss={clearAll}>
       <Wrapper>
         <RowBetween align="flex-end">
           <Title>{name}</Title>

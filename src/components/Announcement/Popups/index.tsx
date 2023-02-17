@@ -104,7 +104,7 @@ export default function Popups() {
       data.forEach(item => {
         const { popupType } = item.templateBody
 
-        if ((isInit.current && popupType === PopupType.CENTER) || popupType !== PopupType.CENTER) {
+        if ((!isInit.current && popupType === PopupType.CENTER) || popupType !== PopupType.CENTER) {
           // only show when the first visit app
           // addPopup(test(), PopupType.CENTER, test().metaMessageId, null)
           addPopup(item, popupType, item.metaMessageId, null)
