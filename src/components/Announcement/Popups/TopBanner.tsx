@@ -127,9 +127,7 @@ function TopBanner() {
       <Content>
         {!isMobile && <Announcement />}
         <TextWrapper>
-          <TextContent ref={refContent} isOverflow={isOverflowParent}>
-            {content}
-          </TextContent>
+          <TextContent ref={refContent} isOverflow={isOverflowParent} dangerouslySetInnerHTML={{ __html: content }} />
         </TextWrapper>
         {isMobile && <StyledClose size={24} onClick={hideBanner} />}
       </Content>

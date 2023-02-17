@@ -11,7 +11,6 @@ import { PrivateAnnouncementProp } from 'components/Announcement/PrivateAnnoucem
 import {
   Dot,
   InboxItemRow,
-  InboxItemTime,
   InboxItemWrapper,
   PrimaryText,
   RowItem,
@@ -22,6 +21,7 @@ import { NetworkLogo } from 'components/Logo'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { MultichainTransfer, MultichainTransferStatus } from 'hooks/bridge/useGetBridgeTransfers'
+import useTheme from 'hooks/useTheme'
 import { formatAmountBridge } from 'pages/Bridge/helpers'
 
 const NetWorkRow = styled.div`
@@ -37,6 +37,8 @@ function InboxItemBridge({ announcement, onRead, style, time }: PrivateAnnouncem
   const isSuccess = status === MultichainTransferStatus.Success
   const chainIdIn = Number(srcChainId) as ChainId
   const chainIdOut = Number(dstChainId) as ChainId
+
+  const theme = useTheme()
 
   const navigate = useNavigate()
   const onClick = () => {
@@ -63,7 +65,7 @@ function InboxItemBridge({ announcement, onRead, style, time }: PrivateAnnouncem
         <div style={{ position: 'relative' }}>
           <NetWorkRow>
             <NetworkLogo chainId={chainIdIn} style={{ width: 12, height: 12 }} />
-            <InboxItemTime>{NETWORKS_INFO[chainIdIn].name}</InboxItemTime>
+            <PrimaryText color={theme.subText}>{NETWORKS_INFO[chainIdIn].name}</PrimaryText>
           </NetWorkRow>
           <ArrowDown style={{ position: 'absolute', left: 4, height: 10 }} />
         </div>
@@ -76,7 +78,7 @@ function InboxItemBridge({ announcement, onRead, style, time }: PrivateAnnouncem
       <InboxItemRow>
         <NetWorkRow>
           <NetworkLogo chainId={chainIdOut} style={{ width: 12, height: 12 }} />
-          <InboxItemTime>{NETWORKS_INFO[chainIdOut].name}</InboxItemTime>
+          <PrimaryText color={theme.subText}>{NETWORKS_INFO[chainIdOut].name}</PrimaryText>
         </NetWorkRow>
         {time}
       </InboxItemRow>

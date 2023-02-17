@@ -8,7 +8,6 @@ import { PrivateAnnouncementProp } from 'components/Announcement/PrivateAnnoucem
 import {
   Dot,
   InboxItemRow,
-  InboxItemTime,
   InboxItemWrapper,
   PrimaryText,
   RowItem,
@@ -60,17 +59,15 @@ function InboxItemBridge({ announcement, onRead, style, time }: PrivateAnnouncem
       </InboxItemRow>
 
       <InboxItemRow>
-        <InboxItemTime>
-          <DeltaTokenAmount
-            plus
-            amount={`${formatAmountOrder(filledTakingAmount, takerAssetDecimals)}/${formatAmountOrder(
-              takingAmount,
-              takerAssetDecimals,
-            )}`}
-            symbol={takerAssetSymbol}
-            logoURL={takerAssetLogoURL}
-          />
-        </InboxItemTime>
+        <DeltaTokenAmount
+          plus
+          amount={`${formatAmountOrder(filledTakingAmount, takerAssetDecimals)}/${formatAmountOrder(
+            takingAmount,
+            takerAssetDecimals,
+          )}`}
+          symbol={takerAssetSymbol}
+          logoURL={takerAssetLogoURL}
+        />
         <PrimaryText>
           {formatRateLimitOrder(order, false)} {makerAssetSymbol}/{takerAssetSymbol}
         </PrimaryText>

@@ -64,7 +64,7 @@ export default function CenterPopup({ data, clearAll }: { data: PopupItemType; c
           <Title>{name}</Title>
           <X cursor={'pointer'} color={theme.subText} onClick={clearAll} />
         </RowBetween>
-        <div style={{ fontSize: 14, lineHeight: '20px' }}>{content}</div>
+        <div style={{ fontSize: 14, lineHeight: '20px' }} dangerouslySetInnerHTML={{ __html: content }} />
         <ButtonWrapper justify="center">
           {ctas.map(item => (
             <StyledLink href={item.url} key={item.url}>

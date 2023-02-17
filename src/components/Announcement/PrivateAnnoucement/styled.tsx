@@ -25,12 +25,12 @@ export const Title = styled.div<{ isRead: boolean }>`
   color: ${({ theme, isRead }) => (isRead ? theme.text : theme.primary)};
 `
 
-export const PrimaryText = styled.div`
+export const PrimaryText = styled.div<{ color?: string }>`
   font-size: 12px;
-  color: ${({ theme }) => theme.text};
+  color: ${({ theme, color }) => color ?? theme.text};
 `
 export const InboxItemTime = styled.span`
-  color: ${({ theme }) => theme.subText};
+  color: ${({ theme }) => theme.border};
 `
 export const Dot = styled.span`
   background-color: ${({ theme }) => theme.primary};
