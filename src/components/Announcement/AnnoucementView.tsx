@@ -19,7 +19,7 @@ import { RowBetween } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import useNotification from 'hooks/useNotification'
 import useTheme from 'hooks/useTheme'
-import { useToggleNotificationCenter, useWalletModalToggle } from 'state/application/hooks'
+import { useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
 const Wrapper = styled.div`
@@ -123,6 +123,7 @@ type Props = {
   onSetTab: (tab: Tab) => void
   refreshAnnouncement: () => void
   loadMoreAnnouncements: () => void
+  toggleNotificationCenter: () => void
 }
 
 export default function AnnouncementView({
@@ -131,6 +132,7 @@ export default function AnnouncementView({
   totalAnnouncement,
   refreshAnnouncement,
   loadMoreAnnouncements,
+  toggleNotificationCenter,
   isMyInboxTab,
   onSetTab,
 }: Props) {
@@ -139,7 +141,6 @@ export default function AnnouncementView({
   const theme = useTheme()
   const toggleWalletModal = useWalletModalToggle()
   const { showNotificationModal } = useNotification()
-  const toggleNotificationCenter = useToggleNotificationCenter()
 
   const { useAckPrivateAnnouncementsMutation } = AnnouncementApi
   const [ackAnnouncement] = useAckPrivateAnnouncementsMutation()

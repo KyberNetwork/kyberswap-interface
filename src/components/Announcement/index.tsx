@@ -76,7 +76,7 @@ export default function AnnouncementComponent() {
   const [activeTab, setActiveTab] = useState(Tab.ANNOUNCEMENT)
 
   const isOpenNotificationCenter = useModalOpen(ApplicationModal.NOTIFICATION_CENTER)
-  const toggle = useToggleNotificationCenter()
+  const toggleNotificationCenter = useToggleNotificationCenter()
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const [curPage, setPage] = useState(1)
@@ -194,20 +194,30 @@ export default function AnnouncementComponent() {
     return () => unsubscribePrivate?.()
   }, [account, prefetchPrivateAnnouncements])
 
+  const togglePopupWithAckAllMessage = () => {
+    toggleNotificationCenter()
+    if (isOpenNotificationCenter && numberOfUnread) {
+      // todo call api ack all
+      console.log('calll')
+    }
+  }
+
   const props = {
     numberOfUnread,
     announcements: isMyInboxTab ? privateAnnouncements : announcements,
     totalAnnouncement: isMyInboxTab ? totalPrivateAnnouncement : totalAnnouncement,
     refreshAnnouncement,
     loadMoreAnnouncements,
+    toggleNotificationCenter: togglePopupWithAckAllMessage,
     isMyInboxTab,
     onSetTab,
   }
+
   return (
     <StyledMenu ref={node}>
       <StyledMenuButton
         active={isOpenNotificationCenter || numberOfUnread > 0}
-        onClick={toggle}
+        onClick={togglePopupWithAckAllMessage}
         aria-label="Notifications"
       >
         <NotificationIcon />
@@ -215,7 +225,7 @@ export default function AnnouncementComponent() {
       </StyledMenuButton>
 
       {isMobile ? (
-        <Modal isOpen={isOpenNotificationCenter} onDismiss={toggle} minHeight={80}>
+        <Modal isOpen={isOpenNotificationCenter} onDismiss={togglePopupWithAckAllMessage} minHeight={80}>
           <AnnouncementView {...props} />
         </Modal>
       ) : (
@@ -223,7 +233,7 @@ export default function AnnouncementComponent() {
           browserCustomStyle={browserCustomStyle}
           node={node}
           isOpen={isOpenNotificationCenter}
-          toggle={toggle}
+          toggle={togglePopupWithAckAllMessage}
         >
           <AnnouncementView {...props} />
         </MenuFlyout>

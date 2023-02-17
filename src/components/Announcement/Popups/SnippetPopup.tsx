@@ -126,14 +126,14 @@ function SnippetPopupItem({
   setExpand: (v: boolean) => void
 }) {
   const { templateBody = {} } = data.content as PopupContentAnnouncement
-  const { ctas = [], name, content } = templateBody as AnnouncementTemplatePopup
+  const { ctas = [], name, content, thumbnailImageURL } = templateBody as AnnouncementTemplatePopup
   const toggle = () => {
     setExpand(!expand)
   }
 
   return (
     <ItemWrapper expand={expand}>
-      <Image expand={expand} src="https://media.vneconomy.vn/images/upload/2022/07/11/gettyimages-1207206237.jpg" />
+      <Image expand={expand} src={thumbnailImageURL} />
       <ContentColumn expand={expand}>
         <Title expand={expand}>{name}</Title>
         <Desc expand={expand} dangerouslySetInnerHTML={{ __html: content }} />
