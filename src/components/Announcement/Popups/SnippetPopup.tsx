@@ -21,7 +21,7 @@ const IMAGE_HEIGHT = '140px'
 const PADDING_MOBILE = '16px'
 
 const ItemWrapper = styled.div<{ expand: boolean }>`
-  background-color: ${({ theme }) => theme.tabActive};
+  background-color: ${({ theme }) => rgba(theme.tabActive, 0.95)};
   height: ${IMAGE_HEIGHT};
   border-radius: 8px;
   display: flex;
@@ -161,7 +161,7 @@ function SnippetPopupItem({
             <StyledCtaButton data={ctaInfo} color="primary" />
           </StyledLink>
           <SeeMore onClick={toggle} expand={expand}>
-            <ChevronsUp size={16} />
+            <ChevronsUp size={16} style={{ transform: `rotate(${expand ? 180 : 0}deg)` }} />
             {expand ? <Trans>See Less</Trans> : <Trans>See More</Trans>}
           </SeeMore>
         </Flex>
@@ -188,6 +188,13 @@ const Wrapper = styled.div<{ expand: boolean }>`
     margin-top: 0;
     border-radius: 50%;
     transform: translateY(-50%);
+    visibility: hidden;
+  }
+  &:hover {
+    .swiper-button-prev,
+    .swiper-button-next {
+      visibility: visible;
+    }
   }
   .swiper-pagination {
     top: 10px;
@@ -219,6 +226,10 @@ const Wrapper = styled.div<{ expand: boolean }>`
       --swiper-navigation-size: 10px;
       .swiper-pagination {
         width: 100%;
+      }
+      .swiper-button-prev,
+      .swiper-button-next {
+        visibility: visible;
       }
     `}`}
 `
