@@ -6,11 +6,11 @@ export const InboxItemWrapper = styled.div<{ isRead: boolean }>`
   background-color: ${({ theme }) => theme.background};
 
   font-size: 12px;
-  padding: 12px 16px;
+  padding: 16px;
   gap: 8px;
   display: flex;
   flex-direction: column;
-
+  justify-content: space-between;
   ${({ isRead }) =>
     !isRead &&
     css`
