@@ -1,3 +1,4 @@
+import { rgba } from 'polished'
 import { useNavigate } from 'react-router-dom'
 import styled, { CSSProperties } from 'styled-components'
 
@@ -8,7 +9,7 @@ import Column from 'components/Column'
 
 const HEIGHT = '100px'
 
-const Wrapper = styled.div<{ isRead: boolean }>`
+const Wrapper = styled.div`
   border-bottom: 1px solid ${({ theme }) => theme.border};
   background-color: ${({ theme }) => theme.background};
   font-size: 12px;
@@ -76,7 +77,7 @@ export default function AnnouncementItem({
   onRead: () => void
   style: CSSProperties
 }) {
-  const { isRead, templateBody } = announcement
+  const { templateBody } = announcement
 
   const navigate = useNavigate()
   const { name, startAt, content, thumbnailImageURL, actionURL } = templateBody
@@ -95,7 +96,7 @@ export default function AnnouncementItem({
   }
 
   return (
-    <Wrapper isRead={isRead} onClick={onClick} style={style}>
+    <Wrapper onClick={onClick} style={style}>
       <Image src={thumbnailImageURL || kyberCrystal} />
       <RowItem>
         <Column gap="6px">

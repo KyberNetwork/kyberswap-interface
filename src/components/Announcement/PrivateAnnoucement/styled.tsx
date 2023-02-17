@@ -15,7 +15,7 @@ export const InboxItemWrapper = styled.div<{ isRead: boolean }>`
     !isRead &&
     css`
       cursor: pointer;
-      background-color: ${({ theme }) => rgba(theme.buttonBlack, 0.8)};
+      background-color: ${({ theme }) => rgba(theme.primary, 0.12)};
     `};
 `
 
