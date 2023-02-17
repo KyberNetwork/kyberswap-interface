@@ -46,11 +46,10 @@ const TabItem = styled.div<{ active: boolean }>`
   flex: 1;
   background-color: ${({ theme }) => theme.buttonBlack};
   border-radius: 20px;
-  padding: 4px 0px;
+  padding: 8px 0px;
   text-align: center;
   font-weight: 500;
   font-size: 14px;
-  line-height: 20px;
   display: flex;
   justify-content: center;
   gap: 8px;
@@ -79,7 +78,6 @@ const ClearAll = styled.div`
 `
 const Title = styled.div`
   font-weight: 500;
-  font-size: 12px;
   font-size: 20px;
   font-weight: 500;
   display: flex;
@@ -207,10 +205,12 @@ export default function AnnouncementView({
         {tabComponent}
 
         {account && isMyInboxTab && announcements.length > 0 && (
-          <ClearAll onClick={clearAll}>
-            <Trash size={12} />
-            <Trans>Clear All</Trans>
-          </ClearAll>
+          <Flex justifyContent="flex-end">
+            <ClearAll onClick={clearAll}>
+              <Trash size={12} />
+              <Trans>Clear All</Trans>
+            </ClearAll>
+          </Flex>
         )}
       </Container>
 
