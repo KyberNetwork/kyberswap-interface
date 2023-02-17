@@ -36,6 +36,7 @@ export default function useBaseTradeInfo(currencyIn: Currency | undefined, curre
       .getGasPrice()
       .then(data => {
         const gasPrice = Number(ethers.utils.formatEther(data))
+        console.log({ gasPrice, nativePriceUsd })
         if (gasPrice) setGasFee(gasPrice * nativePriceUsd * NUMBERS.GAS_AMOUNT_ETHEREUM)
       })
       .catch(e => {
