@@ -136,7 +136,7 @@ function SnippetPopupItem({
       <Image expand={expand} src="https://media.vneconomy.vn/images/upload/2022/07/11/gettyimages-1207206237.jpg" />
       <ContentColumn expand={expand}>
         <Title expand={expand}>{name}</Title>
-        <Desc expand={expand}>{content}</Desc>
+        <Desc expand={expand} dangerouslySetInnerHTML={{ __html: content }} />
         <Flex
           alignItems="flex-end"
           style={{ position: 'relative', justifyContent: expand ? 'center' : 'flex-start', gap: '12px' }}
