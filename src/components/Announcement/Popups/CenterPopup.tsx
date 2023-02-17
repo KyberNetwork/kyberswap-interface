@@ -7,6 +7,7 @@ import CtaButton from 'components/Announcement/Popups/CtaButton'
 import { AnnouncementTemplatePopup, PopupContentAnnouncement } from 'components/Announcement/type'
 import Modal from 'components/Modal'
 import Row, { RowBetween } from 'components/Row'
+import { Z_INDEXS } from 'constants/styles'
 import useTheme from 'hooks/useTheme'
 import { PopupItemType } from 'state/application/reducer'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
@@ -80,7 +81,7 @@ export default function CenterPopup({ data, clearAll }: { data: PopupItemType; c
     thumbnailImageURL,
   } = templateBody as AnnouncementTemplatePopup
   return (
-    <Modal isOpen={true} maxWidth={isMobile ? undefined : '800px'} onDismiss={clearAll}>
+    <Modal isOpen={true} maxWidth={isMobile ? undefined : '800px'} onDismiss={clearAll} zindex={Z_INDEXS.MODAL}>
       <Wrapper>
         <RowBetween align="flex-end">
           <Title>{name}</Title>
