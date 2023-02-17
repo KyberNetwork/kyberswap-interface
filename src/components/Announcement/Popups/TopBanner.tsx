@@ -120,12 +120,11 @@ function TopBanner() {
   if (!popupInfo) return null
   const { templateBody } = popupInfo.content as PopupContentAnnouncement
   const { content, ctas = [], type } = templateBody as AnnouncementTemplatePopup
-
   return (
     <BannerWrapper color={type === 'NORMAL' ? theme.apr : theme.warning}>
       {!isMobile && <div />}
       <Content>
-        {!isMobile && <Announcement />}
+        {!isMobile && <Announcement style={{ minWidth: '24px' }} />}
         <TextWrapper>
           <TextContent ref={refContent} isOverflow={isOverflowParent} dangerouslySetInnerHTML={{ __html: content }} />
         </TextWrapper>
@@ -134,7 +133,7 @@ function TopBanner() {
       <StyledLink href={ctas[0]?.url}>
         <StyledCtaButton data={ctas[0]} color="gray" onClick={hideBanner} />
       </StyledLink>
-      {!isMobile && <StyledClose size={24} onClick={hideBanner} style={{ marginLeft: 8 }} />}
+      {!isMobile && <StyledClose size={24} onClick={hideBanner} style={{ marginLeft: 8, minWidth: '20px' }} />}
     </BannerWrapper>
   )
 }

@@ -60,6 +60,7 @@ const StyledLink = styled(ExternalLink)`
 
 const Image = styled.img`
   width: 100%;
+  border-radius: 20px;
 `
 
 const StyledCtaButton = styled(CtaButton)`
