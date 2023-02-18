@@ -29,9 +29,8 @@ export default function useBaseTradeInfo(currencyIn: Currency | undefined, curre
   const { data: pricesUsd, loading } = useTokenPricesWithLoading(addresses)
 
   const [gasFee, setGasFee] = useState(0)
-
+  const nativePriceUsd = pricesUsd[WETH[chainId].wrapped.address]
   const fetchGasFee = useCallback(() => {
-    const nativePriceUsd = pricesUsd[WETH[chainId].wrapped.address]
     if (!library || !nativePriceUsd) return
     library
       .getSigner()
@@ -42,11 +41,11 @@ export default function useBaseTradeInfo(currencyIn: Currency | undefined, curre
         if (gasPrice) setGasFee(gasPrice * nativePriceUsd * NUMBERS.GAS_AMOUNT_ETHEREUM)
       })
       .catch(e => {
-        console.error(e)
+        console.error('fetchGasFee', e)
       })
-  }, [chainId, library, pricesUsd])
+  }, [library, nativePriceUsd])
 
-  useInterval(fetchGasFee, 15_000)
+  useInterval(fetchGasFee, 5_000)
 
   const tradeInfo: BaseTradeInfo | undefined = useMemo(() => {
     if (!currencyIn || !currencyOut) return

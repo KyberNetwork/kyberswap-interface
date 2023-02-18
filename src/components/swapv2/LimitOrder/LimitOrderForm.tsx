@@ -18,6 +18,7 @@ import Select from 'components/Select'
 import Tooltip, { MouseoverTooltip } from 'components/Tooltip'
 import ActionButtonLimitOrder from 'components/swapv2/LimitOrder/ActionButtonLimitOrder'
 import DeltaRate, { useGetDeltaRateLimitOrder } from 'components/swapv2/LimitOrder/DeltaRate'
+import { SummaryNotifyOrderPlaced } from 'components/swapv2/LimitOrder/ListOrder/SummaryNotify'
 import ConfirmOrderModal from 'components/swapv2/LimitOrder/Modals/ConfirmOrderModal'
 import TradePrice from 'components/swapv2/LimitOrder/TradePrice'
 import useBaseTradeInfo from 'components/swapv2/LimitOrder/useBaseTradeInfo'
@@ -97,6 +98,11 @@ const InputWrapper = styled.div`
   gap: 0.5rem;
   display: flex;
 `
+const HightLight = styled.span`
+  font-weight: 500;
+  color: ${({ theme }) => theme.warning};
+`
+
 const LimitOrderForm = function LimitOrderForm({
   refreshListOrder,
   onCancelOrder,
@@ -437,28 +443,12 @@ const LimitOrderForm = function LimitOrderForm({
       setFlowState(state => ({ ...state, pendingText: t`Placing order` }))
       const response = await submitOrder({ ...payload, salt, signature })
       setFlowState(state => ({ ...state, showConfirm: false }))
+
       notify(
         {
           type: NotificationType.SUCCESS,
           title: t`Order Placed`,
-          summary: (
-            <Text color={theme.text} lineHeight="18px">
-              <Trans>
-                You have successfully placed an order to pay{' '}
-                <Text as="span" fontWeight={500}>
-                  {formatAmountOrder(inputAmount)} {currencyIn.symbol}
-                </Text>{' '}
-                and receive{' '}
-                <Text as="span" fontWeight={500}>
-                  {formatAmountOrder(outputAmount)} {currencyOut.symbol}{' '}
-                </Text>
-                <Text as="span" color={theme.subText}>
-                  at {currencyIn.symbol} price of {calcRate(inputAmount, outputAmount, currencyOut.decimals)}{' '}
-                  {currencyOut.symbol}.
-                </Text>
-              </Trans>
-            </Text>
-          ),
+          summary: <SummaryNotifyOrderPlaced {...{ currencyIn, currencyOut, inputAmount, outputAmount }} />,
         },
         10000,
       )
@@ -630,50 +620,44 @@ const LimitOrderForm = function LimitOrderForm({
 
   const warningMessage = useMemo(() => {
     const messages = []
+
     if (currencyIn && displayRate && !deltaRate.profit && deltaRate.percent) {
       messages.push(
         <Text>
           <Trans>
-            Your limit order price is{' '}
-            <Text as="span" fontWeight={'500'} color={theme.warning}>
-              {deltaRate.percent}
-            </Text>{' '}
-            worse than the current market price
+            Your limit order price is <HightLight>{deltaRate.percent}</HightLight> worse than the current market price
           </Trans>
         </Text>,
       )
     }
+
     const isMainNet = chainId === ChainId.MAINNET
     const thresHold = isMainNet ? NUMBERS.ETH_USD_THRESHOLD : NUMBERS.REST_USD_THRESHOLD
-    if (outputAmount && estimateUSD.rawInput && estimateUSD.rawInput < thresHold) {
+    const showWarningThresHold = outputAmount && estimateUSD.rawInput && estimateUSD.rawInput < thresHold
+    if (isMainNet && showWarningThresHold && tradeInfo?.gasFee) {
       messages.push(
         <Text>
-          {isMainNet ? (
-            <Trans>
-              Your order may only be filled when market price of {currencyIn?.symbol} to {currencyOut?.symbol} is &lt;
-              <Text as="span" fontWeight={'500'} color={theme.warning}>
-                {formattedNum(String(tradeInfo?.marketRate), true)}
-              </Text>
-              , as estimated gas fee to fill your order is ~
-              <Text as="span" fontWeight={'500'} color={theme.warning}>
-                ${toFixed(parseFloat(tradeInfo?.gasFee?.toPrecision(6) ?? '0'))}
-              </Text>
-              .
-            </Trans>
-          ) : (
-            <Trans>
-              We suggest you increase the value of your limit order to at least{' '}
-              <Text as="span" fontWeight={'500'} color={theme.warning}>
-                ${thresHold}
-              </Text>
-              . This will increase the odds of your order being filled.
-            </Trans>
-          )}
+          <Trans>
+            Your order may only be filled when market price of {currencyIn?.symbol} to {currencyOut?.symbol} is &lt;
+            <HightLight>{formattedNum(String(tradeInfo?.marketRate), true)}</HightLight>, as estimated gas fee to fill
+            your order is ~<HightLight>${toFixed(parseFloat(tradeInfo?.gasFee?.toPrecision(6) ?? '0'))}</HightLight>.
+          </Trans>
+        </Text>,
+      )
+    }
+    if (!isMainNet && showWarningThresHold) {
+      messages.push(
+        <Text>
+          <Trans>
+            We suggest you increase the value of your limit order to at least <HightLight>${thresHold}</HightLight>.
+            This will increase the odds of your order being filled.
+          </Trans>
         </Text>,
       )
     }
     return messages
-  }, [currencyIn, currencyOut, displayRate, deltaRate, estimateUSD, outputAmount, chainId, theme, tradeInfo])
+  }, [currencyIn, currencyOut, displayRate, deltaRate, estimateUSD, outputAmount, chainId, tradeInfo])
+
   return (
     <>
       <Flex flexDirection={'column'} style={{ gap: '1rem' }}>
