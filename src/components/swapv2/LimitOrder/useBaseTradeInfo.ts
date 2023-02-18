@@ -45,7 +45,7 @@ export default function useBaseTradeInfo(currencyIn: Currency | undefined, curre
       })
   }, [library, nativePriceUsd])
 
-  useInterval(fetchGasFee, 5_000)
+  useInterval(fetchGasFee, nativePriceUsd ? 15_000 : 2000)
 
   const tradeInfo: BaseTradeInfo | undefined = useMemo(() => {
     if (!currencyIn || !currencyOut) return
