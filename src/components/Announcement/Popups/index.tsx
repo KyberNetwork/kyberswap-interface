@@ -4,19 +4,18 @@ import styled from 'styled-components'
 
 import CenterPopup from 'components/Announcement/Popups/CenterPopup'
 import SnippetPopup from 'components/Announcement/Popups/SnippetPopup'
-import { PopupContentAnnouncement, PopupType, PrivateAnnouncementType } from 'components/Announcement/type'
+import { PopupType } from 'components/Announcement/type'
 import { ButtonEmpty } from 'components/Button'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
 import {
   useActivePopups,
   useAddPopup,
-  useNotify,
   useRemoveAllPopupByType,
   useToggleNotificationCenter,
 } from 'state/application/hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
-import { subscribeAnnouncement, subscribePrivateAnnouncement } from 'utils/firebase'
+import { subscribeAnnouncement } from 'utils/firebase'
 
 import PopupItem from './TopRightPopup'
 
@@ -68,7 +67,6 @@ export default function Popups() {
 
   const toggleNotificationCenter = useToggleNotificationCenter()
   const [{ show: isShowTutorial = false }] = useTutorialSwapGuide()
-  const notify = useNotify()
   const addPopup = useAddPopup()
 
   const removeAllPopupByType = useRemoveAllPopupByType()
@@ -77,58 +75,21 @@ export default function Popups() {
   const clearAllSnippetPopup = () => removeAllPopupByType(PopupType.SNIPPET)
   const clearAllCenterPopup = () => removeAllPopupByType(PopupType.CENTER)
 
-  const test = (): PopupContentAnnouncement =>
-    ({
-      metaMessageId: Math.random() + '',
-      templateType: PrivateAnnouncementType.BRIDGE,
-      templateBody: {
-        announcement: {
-          name: 'New campaign hereeee',
-          content:
-            'New campaign hereeee New campaign hereeee New campaign hereeee New campaign hereeee New campaign hereeee New campaign hereeee New campaign hereeee New campaign hereeee New campaign hereeee',
-          ctas: [{ name: 'string', url: 'string' }],
-          thumbnailImageURL: 'string',
-          popupType: PopupType.CENTER,
-          type: 'CRITICAL',
-        },
-      },
-      expiredAt: Date.now() + 50000000,
-      createdAt: Date.now() - 50000000,
-      startTime: Date.now() - 50000000,
-    } as any)
-
   const isInit = useRef(false)
   useEffect(() => {
     if (isShowTutorial) return
     const unsubscribe = subscribeAnnouncement(data => {
       data.forEach(item => {
         const { popupType } = item.templateBody
-
         if ((!isInit.current && popupType === PopupType.CENTER) || popupType !== PopupType.CENTER) {
-          // only show when the first visit app
-          // addPopup(test(), PopupType.CENTER, test().metaMessageId, null)
+          // only show PopupType.CENTER when the first visit app
           addPopup(item, popupType, item.metaMessageId, null)
         }
       })
-
-      // addPopup(test(), PopupType.SNIPPET, test().metaMessageId, null)
-      // addPopup(test(), PopupType.SNIPPET, test().metaMessageId, null)
       isInit.current = true
     })
 
-    const unsubscribePrivate = subscribePrivateAnnouncement(account, data => {
-      setTimeout(() => {
-        // notify({ title: 'test', type: NotificationType.WARNING }, null)
-        // addPopup(test(), PopupType.TOP_RIGHT, test().metaMessageId, null)
-        // addPopup(test(), PopupType.TOP_RIGHT, test().metaMessageId, null)
-        // addPopup(test(), PopupType.TOP_RIGHT, test().metaMessageId, null)
-        // addPopup(test(), PopupType.TOP_RIGHT, test().metaMessageId, null)
-      }, 1000)
-    })
-    return () => {
-      unsubscribe?.()
-      unsubscribePrivate?.()
-    }
+    return () => unsubscribe?.()
   }, [account, isShowTutorial, addPopup])
 
   const totalTopRightPopup = topRightPopups.length

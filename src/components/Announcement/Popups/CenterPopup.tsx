@@ -60,8 +60,14 @@ const StyledLink = styled(ExternalLink)`
 `
 
 const Image = styled.img`
-  width: 100%;
   border-radius: 20px;
+  max-height: 50vh;
+  width: 100%;
+  object-fit: contain;
+  margin: auto;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    max-height: unset;
+  `}
 `
 
 const StyledCtaButton = styled(CtaButton)`
@@ -83,7 +89,7 @@ export default function CenterPopup({ data, clearAll }: { data: PopupItemType; c
   return (
     <Modal isOpen={true} maxWidth={isMobile ? undefined : '800px'} onDismiss={clearAll} zindex={Z_INDEXS.MODAL}>
       <Wrapper>
-        <RowBetween align="flex-end">
+        <RowBetween align="flex-start">
           <Title>{name}</Title>
           <X cursor={'pointer'} color={theme.subText} onClick={clearAll} />
         </RowBetween>

@@ -1,39 +1,26 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import firebase from 'firebase/compat/app'
-import { collection, doc, getFirestore, onSnapshot, query } from 'firebase/firestore'
+import { Firestore, collection, doc, getFirestore, onSnapshot, query } from 'firebase/firestore'
 
 import { PopupContentAnnouncement } from 'components/Announcement/type'
 import { LimitOrder } from 'components/swapv2/LimitOrder/type'
-import {
-  FIREBASE_API_KEY,
-  FIREBASE_APP_ID,
-  FIREBASE_AUTH_DOMAIN,
-  FIREBASE_MESSAGING_SENDER_ID,
-  FIREBASE_PROJECT_ID,
-  FIREBASE_STORAGE_BUCKET,
-} from 'constants/env'
+import { ENV_LEVEL, FIREBASE } from 'constants/env'
+import { ENV_TYPE } from 'constants/type'
 
-const firebaseConfig2 = {
-  apiKey: FIREBASE_API_KEY,
-  authDomain: FIREBASE_AUTH_DOMAIN,
-  projectId: FIREBASE_PROJECT_ID,
-  storageBucket: FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: FIREBASE_MESSAGING_SENDER_ID,
-  appId: FIREBASE_APP_ID,
-}
+const { DEFAULT: FIREBASE_CONFIG_DEFAULT, LIMIT_ORDER: FIREBASE_CONFIG_LO } =
+  ENV_LEVEL === ENV_TYPE.PROD
+    ? FIREBASE.production
+    : ENV_LEVEL === ENV_TYPE.STG
+    ? FIREBASE.staging
+    : FIREBASE.development
 
-const firebaseConfig = {
-  apiKey: 'AIzaSyDszHtJ4CJq0mwjBJ1pTt5OOzG5tiooEsg',
-  authDomain: 'test-bace2.firebaseapp.com',
-  databaseURL: 'https://test-bace2-default-rtdb.asia-southeast1.firebasedatabase.app',
-  projectId: 'test-bace2',
-  storageBucket: 'test-bace2.appspot.com',
-  messagingSenderId: '337703820408',
-  appId: '1:337703820408:web:2fb16ef71941817dec618d',
-}
+const firebaseApp = firebase.initializeApp(FIREBASE_CONFIG_DEFAULT, 'default')
+const firebaseAppLimitOrder = FIREBASE_CONFIG_LO
+  ? firebase.initializeApp(FIREBASE_CONFIG_LO, 'limit_order')
+  : firebaseApp
 
-const firebaseApp = firebase.initializeApp(firebaseConfig)
-const db = getFirestore(firebaseApp)
+const dbNotification = getFirestore(firebaseApp)
+const dbLimitOrder = getFirestore(firebaseAppLimitOrder)
 
 const COLLECTIONS = {
   LO_CANCELLING_ORDERS: 'cancellingOrders',
@@ -46,7 +33,7 @@ const COLLECTIONS = {
   ANNOUNCEMENT_POPUP: 'broadcast',
 }
 
-function subscribeDocument(collectionName: string, paths: string[], callback: (data: any) => void) {
+function subscribeDocument(db: Firestore, collectionName: string, paths: string[], callback: (data: any) => void) {
   const ref = doc(db, collectionName, ...paths)
   const unsubscribe = onSnapshot(
     ref,
@@ -58,7 +45,7 @@ function subscribeDocument(collectionName: string, paths: string[], callback: (d
   return unsubscribe
 }
 
-function subscribeListDocument(collectionName: string, paths: string[], callback: (data: any) => void) {
+function subscribeListDocument(db: Firestore, collectionName: string, paths: string[], callback: (data: any) => void) {
   const q = query(collection(db, collectionName, ...paths))
   const unsubscribe = onSnapshot(
     q,
@@ -86,20 +73,25 @@ function subscribeListLimitOrder(
   chainId: ChainId,
   callback: (data: ListOrderResponse) => void,
 ) {
-  const unsubscribe = subscribeListDocument(collectionName, [account.toLowerCase(), chainId.toString()], data => {
-    const result: ListOrderResponse = {
-      orders: [],
-      all: [],
-    }
-    data.forEach((e: any) => {
-      if (e.id.startsWith('nonce')) {
-        result.all.push(e as AllItem)
-      } else {
-        result.orders.push({ ...e, id: Number(e.id) } as LimitOrder)
+  const unsubscribe = subscribeListDocument(
+    dbLimitOrder,
+    collectionName,
+    [account.toLowerCase(), chainId.toString()],
+    data => {
+      const result: ListOrderResponse = {
+        orders: [],
+        all: [],
       }
-    })
-    callback(result)
-  })
+      data.forEach((e: any) => {
+        if (e.id.startsWith('nonce')) {
+          result.all.push(e as AllItem)
+        } else {
+          result.orders.push({ ...e, id: Number(e.id) } as LimitOrder)
+        }
+      })
+      callback(result)
+    },
+  )
 
   return unsubscribe
 }
@@ -109,7 +101,12 @@ export function subscribeCancellingOrders(
   chainId: ChainId,
   callback: (data: { orderIds: number[]; nonces: number[] }) => void,
 ) {
-  return subscribeDocument(COLLECTIONS.LO_CANCELLING_ORDERS, [`${account.toLowerCase()}:${chainId}`], callback)
+  return subscribeDocument(
+    dbLimitOrder,
+    COLLECTIONS.LO_CANCELLING_ORDERS,
+    [`${account.toLowerCase()}:${chainId}`],
+    callback,
+  )
 }
 
 export function subscribeNotificationOrderCancelled(
@@ -148,11 +145,11 @@ export function subscribePrivateAnnouncement(
   callback: (data: PopupContentAnnouncement[]) => void,
 ) {
   if (!account) return
-  return subscribeDocument(COLLECTIONS.ANNOUNCEMENT, [account.toLowerCase()], data =>
+  return subscribeDocument(dbNotification, COLLECTIONS.ANNOUNCEMENT, [account.toLowerCase()], data =>
     callback(data?.metaMessages ?? []),
   )
 }
 
 export function subscribeAnnouncement(callback: (data: PopupContentAnnouncement[]) => void) {
-  return subscribeListDocument(COLLECTIONS.ANNOUNCEMENT_POPUP, [], callback)
+  return subscribeListDocument(dbNotification, COLLECTIONS.ANNOUNCEMENT_POPUP, [], callback)
 }

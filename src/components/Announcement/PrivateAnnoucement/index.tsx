@@ -7,6 +7,7 @@ import InboxItemTrendingSoon from 'components/Announcement/PrivateAnnoucement/In
 import { InboxItemTime } from 'components/Announcement/PrivateAnnoucement/styled'
 import { formatTime } from 'components/Announcement/helper'
 import { PrivateAnnouncement, PrivateAnnouncementType } from 'components/Announcement/type'
+import useTheme from 'hooks/useTheme'
 
 export type PrivateAnnouncementProp = {
   announcement: PrivateAnnouncement
@@ -16,12 +17,13 @@ export type PrivateAnnouncementProp = {
 }
 
 export default function InboxItem({ announcement, onRead, style }: PrivateAnnouncementProp) {
-  const { templateType, sentAt } = announcement
+  const { templateType, sentAt, isRead } = announcement
+  const theme = useTheme()
   const props = {
     announcement,
     onRead,
     style,
-    time: <InboxItemTime>{formatTime(sentAt)}</InboxItemTime>,
+    time: <InboxItemTime color={isRead ? theme.border : theme.subText}>{formatTime(sentAt)}</InboxItemTime>,
   }
   switch (templateType) {
     case PrivateAnnouncementType.BRIDGE:
