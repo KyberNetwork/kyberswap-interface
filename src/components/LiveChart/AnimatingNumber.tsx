@@ -86,7 +86,6 @@ export default function AnimatingNumber({
   symbol: string | undefined
   fontSize: number
 }) {
-  console.log('🚀 ~ file: AnimatingNumber.tsx:89 ~ value', value)
   const values = value.toString().split('e')
   const baseValue = parseFloat(values[0])
   const eValue = values[1]
