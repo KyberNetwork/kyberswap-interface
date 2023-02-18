@@ -1,9 +1,10 @@
 import { Currency, WETH } from '@kyberswap/ks-sdk-core'
 import { ethers } from 'ethers'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import { NUMBERS } from 'components/swapv2/LimitOrder/const'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
+import useInterval from 'hooks/useInterval'
 import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
 
 export type BaseTradeInfo = {
@@ -28,7 +29,8 @@ export default function useBaseTradeInfo(currencyIn: Currency | undefined, curre
   const { data: pricesUsd, loading } = useTokenPricesWithLoading(addresses)
 
   const [gasFee, setGasFee] = useState(0)
-  useEffect(() => {
+
+  const fetchGasFee = useCallback(() => {
     const nativePriceUsd = pricesUsd[WETH[chainId].wrapped.address]
     if (!library || !nativePriceUsd) return
     library
@@ -42,7 +44,9 @@ export default function useBaseTradeInfo(currencyIn: Currency | undefined, curre
       .catch(e => {
         console.error(e)
       })
-  }, [library, chainId, pricesUsd])
+  }, [chainId, library, pricesUsd])
+
+  useInterval(fetchGasFee, 15_000)
 
   const tradeInfo: BaseTradeInfo | undefined = useMemo(() => {
     if (!currencyIn || !currencyOut) return
