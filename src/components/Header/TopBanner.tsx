@@ -88,7 +88,7 @@ const banners: Banner[] = [
     end: 'Sun, 20 Feb 2023 00:00:00 GMT',
     onlyChains: [ChainId.MATIC],
     text: [
-      'Important Announcement: Polygon Network service is temporarily unavailable. All your funds are safe. You can find out more in this announcement!',
+      'Important Announcement: Polygon Network service is temporarily unavailable. All your funds are safe. Normal service will resume shortly!',
     ],
   },
 ]
