@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react'
+import { CSSProperties, useEffect, useRef, useState } from 'react'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
+import DropdownIcon from 'components/Icons/DropdownIcon'
 import { RowBetween } from 'components/Row'
 import useTheme from 'hooks/useTheme'
 
@@ -37,17 +38,15 @@ const RangeBar = styled.div<{ $width: number }>`
   `}
 `
 const ArrowPointer = styled.div<{ $left: number }>`
-  width: 0px;
-  height: 0px;
   border: 4px solid transparent;
   position: absolute;
-  bottom: -3px;
-  transform: translate(-50%, 0);
+  top: 50%;
+  transform: translate(-50%, 0) rotate(180deg);
   transition: all 0.5s ease;
+  svg {
+    display: inline-block;
+  }
 
-  ${({ theme }) => css`
-    border-bottom: 4px solid ${theme.subText} !important;
-  `}
   ${({ $left }) => css`
     left: ${$left}px;
   `}
@@ -58,11 +57,13 @@ export default function PriceRange({
   high,
   low,
   current,
+  style,
 }: {
   title: string
   high: number
   low: number
   current: number
+  style?: CSSProperties
 }) {
   const theme = useTheme()
   const wrapperRef = useRef<HTMLDivElement | null>(null)
@@ -73,7 +74,7 @@ export default function PriceRange({
   }, [high, low, current])
 
   return (
-    <Wrapper>
+    <Wrapper style={style}>
       <RowCenter>
         <Text>{`$${low}` || '--'}</Text>
         <Text color={theme.text}>{title}</Text>
@@ -82,7 +83,9 @@ export default function PriceRange({
       <RangeBarWrapper ref={wrapperRef}>
         <RangeBar $width={width} />
       </RangeBarWrapper>
-      <ArrowPointer $left={width} />
+      <ArrowPointer $left={width}>
+        <DropdownIcon />
+      </ArrowPointer>
     </Wrapper>
   )
 }

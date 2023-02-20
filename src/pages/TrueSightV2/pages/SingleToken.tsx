@@ -1,6 +1,5 @@
-import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { ReactNode, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { ChevronLeft, Share2, Star } from 'react-feather'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -14,15 +13,13 @@ import { DotsLoader } from 'components/Loader/DotsLoader'
 import Logo from 'components/Logo'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import ShareModal from 'components/ShareModal'
-import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
 import DisplaySettings from '../components/DisplaySettings'
-import KyberScoreMeter from '../components/KyberScoreMeter'
-import PriceRange from '../components/PriceRange'
+import { TokenOverview } from '../components/TokenOverview'
 import { TOKEN_DETAIL } from '../hooks/sampleData'
 import { useTokenDetailQuery } from '../hooks/useTruesightV2Data'
 import { DiscoverTokenTab } from '../types'
@@ -101,22 +98,6 @@ const TagWrapper = styled.div`
   overflow-x: scroll;
 `
 
-const CardWrapper = styled.div<{ gap?: string }>`
-  border-radius: 20px;
-  padding: 20px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  border: 1px solid ${({ theme }) => theme.border};
-  ${({ theme, gap }) => css`
-    background-color: ${theme.background};
-    gap: ${gap || '0px'};
-  `}
-  > * {
-    flex: 1;
-  }
-`
-
 const TabButton = styled.div<{ active?: boolean }>`
   cursor: pointer;
   font-size: 20px;
@@ -146,27 +127,6 @@ const TabButton = styled.div<{ active?: boolean }>`
     }
   `}
 `
-
-const formatMoneyWithSign = (amount: number): string => {
-  const isNegative = amount < 0
-  return (isNegative ? '-' : '') + '$' + Math.abs(amount).toLocaleString()
-}
-
-const ExternalLinkWrapper = styled.a`
-  text-decoration: none;
-  color: ${({ theme }) => theme.text};
-  transition: color 0.2s ease;
-  :hover {
-    color: ${({ theme }) => theme.primary};
-  }
-`
-const ExternalLink = ({ href, className, children }: { href: string; className?: string; children?: ReactNode }) => {
-  return (
-    <ExternalLinkWrapper className={className} href={href} target="_blank" rel="noreferrer">
-      {children} ↗
-    </ExternalLinkWrapper>
-  )
-}
 
 export const testParams = {
   address: '0xdac17f958d2ee523a2206206994597c13d831ec7',
@@ -284,135 +244,8 @@ export default function SingleToken() {
         })}
         <Tag active>View All</Tag>
       </TagWrapper>
-      <Row align="stretch" gap="24px" marginBottom="38px" flexDirection={above768 ? 'row' : 'column'}>
-        <CardWrapper style={{ justifyContent: 'space-between' }}>
-          <Text color={theme.text} fontSize="14px" lineHeight="20px" marginBottom="24px">
-            <Trans>Price</Trans>
-          </Text>
-          <RowFit gap="8px">
-            <Text fontSize={28} lineHeight="32px" color={theme.text}>
-              {isLoading ? <DotsLoader /> : '$' + (+(data?.price || 0)).toLocaleString()}
-            </Text>
-            <Text
-              color={theme.red}
-              fontSize="12px"
-              backgroundColor={rgba(theme.red, 0.2)}
-              display="inline"
-              padding="4px 8px"
-              style={{ borderRadius: '16px' }}
-            >
-              {data?.price24hChangePercent ? data?.price24hChangePercent.toFixed(2) : 0}%
-            </Text>
-          </RowFit>
-          <Text color={theme.red} fontSize={12} lineHeight="16px">
-            {data && formatMoneyWithSign(data?.price24hChangePercent * +data?.price || 0)}
-          </Text>
-          <PriceRange
-            title={t`Daily Range`}
-            high={data?.['24hHigh'] || 0}
-            low={data?.['24hLow'] || 0}
-            current={+(data?.price || 0)}
-          />
-          <PriceRange
-            title={t`1Y Range`}
-            high={data?.['1yHigh'] || 0}
-            low={data?.['1yLow'] || 0}
-            current={data?.price ? +data.price : 0}
-          />
-        </CardWrapper>
-        <CardWrapper style={{ fontSize: '12px' }} gap="10px">
-          <Text color={theme.text} marginBottom="4px">
-            Key Stats
-          </Text>
-          <RowBetween>
-            <Text color={theme.subText}>
-              <Trans>All Time Low</Trans>
-            </Text>
-            <Text color={theme.text}>{data?.atl && formatMoneyWithSign(data?.atl)}</Text>
-          </RowBetween>
-          <RowBetween>
-            <Text color={theme.subText}>
-              <Trans>All Time High</Trans>
-            </Text>
-            <Text color={theme.text}>{data?.ath && formatMoneyWithSign(data?.ath)}</Text>
-          </RowBetween>
-          <RowBetween>
-            <Text color={theme.subText}>
-              <Trans>24H Volume</Trans>
-            </Text>
-            <Text color={theme.text}>{data?.['24hVolume'] && formatMoneyWithSign(data?.['24hVolume'])}</Text>
-          </RowBetween>
-          <RowBetween>
-            <Text color={theme.subText}>
-              <Trans>Circulating Supply</Trans>
-            </Text>
-            <Text color={theme.text}>{data && data.circulatingSupply + ' ' + data.symbol}</Text>
-          </RowBetween>
-          <RowBetween>
-            <Text color={theme.subText}>
-              <Trans>Market Cap</Trans>
-            </Text>
-            <Text color={theme.text}>{data?.marketCap && formatMoneyWithSign(data?.marketCap)}</Text>
-          </RowBetween>
-          <RowBetween>
-            <Text color={theme.subText}>
-              <Trans>Holders (On-chain)</Trans>
-            </Text>
-            <Text color={theme.text}>{data?.numberOfHolders}</Text>
-          </RowBetween>
-          <RowBetween>
-            <Text color={theme.subText}>
-              <Trans>Website</Trans>
-            </Text>
-            {data?.webs?.[0] && <ExternalLink href={data.webs[0] || ''}>{data?.webs[0]}</ExternalLink>}
-          </RowBetween>
-          <RowBetween>
-            <Text color={theme.subText}>
-              <Trans>Community</Trans>
-            </Text>
-            {data?.communities?.[0] && (
-              <ExternalLink href={data.communities[0].value || ''}>{data.communities[0].key}</ExternalLink>
-            )}
-          </RowBetween>
-          <RowBetween>
-            <Text color={theme.subText}>
-              <Trans>Address</Trans>
-            </Text>
-            <Text color={theme.subText}>0x394...5e3</Text>
-          </RowBetween>
-        </CardWrapper>
-        <CardWrapper style={{ alignItems: 'center' }}>
-          <Row marginBottom="8px">
-            <MouseoverTooltip
-              text={t`KyberScore is an algorithm created by us that takes into account multiple on-chain and off-chain indicators to measure the current trend of a token. The score ranges from 0 to 100.`}
-              placement="top"
-              width="350px"
-            >
-              <Text style={{ borderBottom: `1px dotted ${theme.text}` }} color={theme.text}>
-                KyberScore
-              </Text>
-            </MouseoverTooltip>
-          </Row>
-          <KyberScoreMeter value={data?.kyberScore?.score} />
-          <Text fontSize={24} fontWeight={500} color={theme.primary} marginBottom="12px">
-            {data?.kyberScore?.label}
-          </Text>
-          <Text
-            fontSize={14}
-            lineHeight="20px"
-            fontWeight={500}
-            color={theme.text}
-            textAlign="center"
-            marginBottom="12px"
-          >
-            $BTC seems to be a <span style={{ color: theme.primary }}>{data?.kyberScore?.label}</span> with a KyberScore
-            of <span style={{ color: theme.primary }}>{data?.kyberScore?.score}</span>/100
-          </Text>
-          <Text fontSize={10} lineHeight="12px" fontStyle="italic">
-            <Trans>Note: This should not be treated as financial advice</Trans>
-          </Text>
-        </CardWrapper>
-      </Row>
+      <TokenOverview />
+
       <Row gap={above768 ? '28px' : '8px'}>
         {Object.values(DiscoverTokenTab).map((tab: DiscoverTokenTab) => (
           <TabButton key={tab} active={tab === currentTab} onClick={() => setCurrentTab(tab)}>
