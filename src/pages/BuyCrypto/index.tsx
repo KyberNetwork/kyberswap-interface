@@ -213,7 +213,6 @@ function BuyCrypto() {
     [ChainId.BTTC]: null,
     [ChainId.AURORA]: null,
     [ChainId.OASIS]: null,
-    [ChainId.ETHW]: null,
   }
   const supportedCurrencies = [
     'AVAX',

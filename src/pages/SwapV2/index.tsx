@@ -1,4 +1,4 @@
-import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import JSBI from 'jsbi'
 import { stringify } from 'querystring'
@@ -698,7 +698,7 @@ export default function Swap() {
       />
       <PageWrapper>
         <Banner />
-        {chainId !== ChainId.ETHW && <TopTrendingSoonTokensInCurrentNetwork />}
+        <TopTrendingSoonTokensInCurrentNetwork />
         <Container>
           <SwapFormWrapper isShowTutorial={isShowTutorial}>
             <RowBetween>
@@ -731,12 +731,10 @@ export default function Swap() {
                     </StyledActionButtonSwapForm>
                   }
                 />
-                {chainId !== ChainId.ETHW && (
-                  <MobileTokenInfo
-                    currencies={isSwapPage ? currencies : currenciesLimit}
-                    onClick={() => onToggleActionTab(TAB.INFO)}
-                  />
-                )}
+                <MobileTokenInfo
+                  currencies={isSwapPage ? currencies : currenciesLimit}
+                  onClick={() => onToggleActionTab(TAB.INFO)}
+                />
                 <ShareButtonWithModal
                   title={t`Share this with your friends!`}
                   url={shareUrl}
@@ -772,7 +770,7 @@ export default function Swap() {
               </Text>
             </RowBetween>
 
-            {chainId !== ChainId.ETHW && !isSolana && (
+            {!isSolana && (
               <RowBetween>
                 <PairSuggestion
                   ref={refSuggestPair}
@@ -903,13 +901,11 @@ export default function Swap() {
 
                     <TradeTypeSelection />
 
-                    {chainId !== ChainId.ETHW && (
-                      <TrendingSoonTokenBanner
-                        currencyIn={currencyIn}
-                        currencyOut={currencyOut}
-                        style={{ marginTop: '24px' }}
-                      />
-                    )}
+                    <TrendingSoonTokenBanner
+                      currencyIn={currencyIn}
+                      currencyOut={currencyOut}
+                      style={{ marginTop: '24px' }}
+                    />
 
                     {isPriceImpactInvalid ? (
                       <PriceImpactHigh>

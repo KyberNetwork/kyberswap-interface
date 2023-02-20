@@ -73,15 +73,6 @@ const banners: Banner[] = [
       ' official announcement from the Binance Team.',
     ],
   },
-  {
-    key: 'ethw',
-    start: 'Thu, 13 Sep 2022 00:00:00 GMT',
-    end: 'Thu, 13 Oct 2022 00:00:00 GMT',
-    onlyChains: [ChainId.ETHW],
-    text: [
-      'On Ethereum POW, you can withdraw liquidity from pools and make swaps. In the long run, KyberSwap will only maintain support for Ethereum (PoS) as the canonical chain ',
-    ],
-  },
 ]
 
 function TopBanner() {

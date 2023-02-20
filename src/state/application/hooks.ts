@@ -143,10 +143,6 @@ export function useNotificationModalToggle(): () => void {
   return useToggleModal(ApplicationModal.NOTIFICATION_SUBSCRIPTION)
 }
 
-export function useToggleEthPowAckModal(): () => void {
-  return useToggleModal(ApplicationModal.ETH_POW_ACK)
-}
-
 export function useToggleSwitchEthereumModal(): () => void {
   return useToggleModal(ApplicationModal.SWITCH_TO_ETHEREUM)
 }
