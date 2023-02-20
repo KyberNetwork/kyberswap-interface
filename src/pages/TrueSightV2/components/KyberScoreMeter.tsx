@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 
 import useTheme from 'hooks/useTheme'
@@ -226,9 +226,9 @@ const MeterGauge = styled.path`
   transition: all 0.2s ease;
 `
 
-const MeterHand = styled.path<{ rotate?: number }>`
+const MeterHand = styled.path`
   transform-origin: 50% 86%;
-  ${({ rotate }) => `transform: translateY(-5px) rotate(${rotate}deg);`}
+  transition: all 0.1s linear;
 `
 const GaugeValue = styled.div`
   position: absolute;
@@ -237,43 +237,34 @@ const GaugeValue = styled.div`
   left: 50%;
   ${({ theme }) => `color: ${theme.primary};`}
 `
-function sleep(ms: number) {
-  return new Promise(r => setTimeout(r, ms))
-}
+
+let transitionValue = 0
+const minRotate = 194,
+  fullRotate = 204
 
 function KyberScoreMeter({ value }: { value?: number }) {
   const theme = useTheme()
-  const numberOfGauge = gaugeList.length
-
-  const [stateValue, setStateValue] = useState(0)
+  const [, setForceRender] = useState(0)
   useEffect(() => {
-    let unmounted = false
-    async function loop() {
-      if (!value) return
-      await sleep(500)
-      while (true) {
-        setStateValue(prev => prev + (value - prev) / 5 + (Math.random() * 0.2 - 0.1))
-        await sleep(1000 / 60)
-        if (unmounted) {
-          break
-        }
-      }
-    }
-    loop()
+    if (value !== 0 && !value) return
+    const interval = setInterval(() => {
+      transitionValue = transitionValue + (value - transitionValue) / 4 + (Math.random() * 0.4 - 0.1)
+      const rotate = transitionValue
+        ? (fullRotate * transitionValue) / 100 + minRotate < 360
+          ? (fullRotate * transitionValue) / 100 + minRotate
+          : (fullRotate * transitionValue) / 100 + minRotate - 360
+        : minRotate
+      ref.current?.style?.setProperty('transform', `translateY(-5px) rotate(${rotate}deg)`)
+      setForceRender(prev => prev + 1)
+    }, 100)
+
     return () => {
-      unmounted = true
+      if (interval) clearInterval(interval)
     }
   }, [value])
 
-  const activeGaugeValue = stateValue ? (numberOfGauge * stateValue) / 100 : 0
-  const minRotate = 194,
-    fullRotate = 204
-  const rotate = stateValue
-    ? (fullRotate * stateValue) / 100 + minRotate < 360
-      ? (fullRotate * stateValue) / 100 + minRotate
-      : (fullRotate * stateValue) / 100 + minRotate - 360
-    : minRotate
-
+  const activeGaugeValue = transitionValue ? (gaugeList.length * transitionValue) / 100 : 0
+  const ref = useRef<SVGPathElement>(null)
   return (
     <Wrapper>
       <svg xmlns="http://www.w3.org/2000/svg" width="218" height="133" viewBox="0 0 218 133" fill="none">
@@ -286,13 +277,13 @@ function KyberScoreMeter({ value }: { value?: number }) {
         ))}
         <path
           d="M166.916 50.4369C151.407 34.9262 130.908 26.4658 109 26.4658C87.0916 26.4658 66.593 34.9262 51.0836 50.4369C48.806 52.7147 46.6368 55.101 44.6846 57.5957C44.6846 57.5957 44.5761 57.5957 44.5761 57.7042C44.5761 57.7042 44.5761 57.8127 44.4677 57.8127C33.1881 72.1302 27.1144 89.7018 27.1144 108.358C27.1144 114.649 27.7652 120.832 29.1751 126.797L29.2836 127.448L36.1164 125.821C36.3333 125.713 36.4418 125.496 36.4418 125.279C36.3333 125.062 36.1164 124.953 35.8995 124.953L29.8259 126.364C28.5244 120.506 27.8736 114.432 27.8736 108.358C27.8736 102.284 28.5244 96.4267 29.8259 90.7865L30.0428 89.9187C32.7542 78.3128 37.9602 67.6831 45.1184 58.5719L50.1075 62.4767C50.2159 62.5852 50.3244 62.5852 50.3244 62.5852C50.4329 62.5852 50.5413 62.4767 50.6498 62.3682C50.7582 62.1513 50.7582 61.9344 50.5413 61.7174L45.5523 57.8127C53.0358 48.4845 62.4717 40.7834 73.3174 35.4685L74.0766 35.1431C84.3801 30.2622 95.8766 27.442 107.915 27.3336V33.95C107.915 34.1669 108.132 34.3839 108.349 34.3839C108.566 34.3839 108.783 34.1669 108.783 33.95V27.3336C121.256 27.3336 132.969 30.1537 143.598 35.1431L144.357 35.4685C154.878 40.6749 164.205 48.0507 171.58 57.0534L166.266 61.392C166.049 61.5005 166.049 61.8259 166.157 62.0429C166.266 62.1513 166.374 62.1513 166.483 62.1513C166.591 62.1513 166.7 62.1513 166.808 62.0429L172.122 57.7042C179.498 66.9238 184.92 77.879 187.74 89.8103L187.957 90.678C189.259 96.3183 189.909 102.284 189.909 108.25C189.909 114.107 189.259 119.856 188.066 125.496L181.775 124.086C181.558 124.086 181.341 124.194 181.233 124.411C181.233 124.628 181.341 124.845 181.558 124.953L188.716 126.58C190.018 120.615 190.777 114.541 190.777 108.358C190.886 86.4478 182.317 65.8392 166.916 50.4369Z"
-          fill="white"
+          fill={theme.subText}
         ></path>
         <MeterHand
           d="M109.542 111.051L111.098 114.274L179.376 81.3197L177.821 78.096L109.542 111.051Z"
-          fill="white"
-          rotate={rotate}
-        ></MeterHand>
+          fill={theme.subText}
+          ref={ref}
+        />
         <path
           d="M108.458 88.8592V88.8593L108.469 88.8592C119.934 88.7332 129.149 98.0572 129.149 109.552C129.149 121.032 119.813 130.245 108.458 130.245C96.9779 130.245 87.7662 120.908 87.7662 109.552C87.7662 98.0713 97.1022 88.8592 108.458 88.8592Z"
           fill={theme.darkMode ? theme.background : theme.background2}
@@ -300,7 +291,7 @@ function KyberScoreMeter({ value }: { value?: number }) {
           strokeWidth="2"
         ></path>
       </svg>
-      <GaugeValue>{stateValue.toFixed(1)}</GaugeValue>
+      <GaugeValue>{transitionValue.toFixed(1)}</GaugeValue>
     </Wrapper>
   )
 }
