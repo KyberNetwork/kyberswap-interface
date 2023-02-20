@@ -2,7 +2,7 @@ import { Currency, WETH } from '@kyberswap/ks-sdk-core'
 import { ethers } from 'ethers'
 import { useCallback, useMemo, useState } from 'react'
 
-import { NUMBERS } from 'components/swapv2/LimitOrder/const'
+import { GAS_AMOUNT_ETHEREUM } from 'components/swapv2/LimitOrder/const'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useInterval from 'hooks/useInterval'
 import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
@@ -37,7 +37,7 @@ export default function useBaseTradeInfo(currencyIn: Currency | undefined, curre
       .getGasPrice()
       .then(data => {
         const gasPrice = Number(ethers.utils.formatEther(data))
-        if (gasPrice) setGasFee(gasPrice * nativePriceUsd * NUMBERS.GAS_AMOUNT_ETHEREUM)
+        if (gasPrice) setGasFee(gasPrice * nativePriceUsd * GAS_AMOUNT_ETHEREUM)
       })
       .catch(e => {
         console.error('fetchGasFee', e)

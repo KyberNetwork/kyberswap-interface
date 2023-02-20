@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 
 import { LimitOrderStatus } from './type'
@@ -55,8 +56,15 @@ export const CLOSE_ORDER_OPTIONS = [
   },
 ]
 
-export const NUMBERS = {
-  GAS_AMOUNT_ETHEREUM: 1_200_000,
-  ETH_USD_THRESHOLD: 300,
-  REST_USD_THRESHOLD: 10,
+export const GAS_AMOUNT_ETHEREUM = 1_200_000
+
+const _USD_THRESHOLD: { [chainId: number]: number } = {
+  [ChainId.MAINNET]: 300,
 }
+export const USD_THRESHOLD = new Proxy(_USD_THRESHOLD, {
+  get(target, p) {
+    const prop = p as any as ChainId
+    if (p && target[prop]) return target[prop]
+    return 10
+  },
+})

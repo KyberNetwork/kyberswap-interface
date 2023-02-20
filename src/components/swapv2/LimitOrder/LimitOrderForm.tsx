@@ -43,7 +43,7 @@ import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { toFixed } from 'utils/numbers'
 
 import ExpirePicker from './ExpirePicker'
-import { DEFAULT_EXPIRED, EXPIRED_OPTIONS, NUMBERS } from './const'
+import { DEFAULT_EXPIRED, EXPIRED_OPTIONS, USD_THRESHOLD } from './const'
 import {
   calcInvert,
   calcOutput,
@@ -632,7 +632,7 @@ const LimitOrderForm = function LimitOrderForm({
     }
 
     const isMainNet = chainId === ChainId.MAINNET
-    const threshold = isMainNet ? NUMBERS.ETH_USD_THRESHOLD : NUMBERS.REST_USD_THRESHOLD
+    const threshold = USD_THRESHOLD[chainId]
     const showWarningThresHold = outputAmount && estimateUSD.rawInput && estimateUSD.rawInput < threshold
     if (isMainNet && showWarningThresHold && tradeInfo?.gasFee) {
       messages.push(
