@@ -253,21 +253,12 @@ export function useActivePopups() {
       [PopupType.SIMPLE, PopupType.TOP_RIGHT, PopupType.TRANSACTION].includes(e.popupType),
     )
 
-    const topPopups = popups.filter(
-      e =>
-        e.popupType === PopupType.TOP_BAR &&
-        !isPopupExpired(e.content as PopupContentAnnouncement, announcementsAckMap),
-    )
+    const topPopups = popups.filter(e => e.popupType === PopupType.TOP_BAR && !isPopupExpired(e, announcementsAckMap))
     const snippetPopups = popups.filter(
-      e =>
-        e.popupType === PopupType.SNIPPET &&
-        !isPopupExpired(e.content as PopupContentAnnouncement, announcementsAckMap),
+      e => e.popupType === PopupType.SNIPPET && !isPopupExpired(e, announcementsAckMap),
     )
 
-    const centerPopups = popups.filter(
-      e =>
-        e.popupType === PopupType.CENTER && !isPopupExpired(e.content as PopupContentAnnouncement, announcementsAckMap),
-    )
+    const centerPopups = popups.filter(e => e.popupType === PopupType.CENTER && !isPopupExpired(e, announcementsAckMap))
     return {
       topPopups,
       centerPopups,

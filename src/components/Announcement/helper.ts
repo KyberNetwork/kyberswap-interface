@@ -1,7 +1,8 @@
 import { useCallback } from 'react'
 import { useLocalStorage } from 'react-use'
 
-import { PopupContentAnnouncement } from 'components/Announcement/type'
+import { AnnouncementTemplatePopup, PopupContentAnnouncement } from 'components/Announcement/type'
+import { PopupItemType } from 'state/application/reducer'
 
 export const useAckAnnouncement = () => {
   const [announcementsMap, setAnnouncementsMap] = useLocalStorage<{ [id: string]: string }>('ack-announcements', {})
@@ -18,9 +19,10 @@ export const useAckAnnouncement = () => {
 
 export const formatNumberOfUnread = (num: number) => (num > 10 ? '10+' : num)
 
-export const isPopupExpired = (popupInfo: PopupContentAnnouncement, announcementsAckMap: { [id: string]: string }) => {
-  const { endAt, startAt, metaMessageId } = popupInfo
-  return announcementsAckMap[metaMessageId] || Date.now() < startAt || Date.now() > endAt
+export const isPopupExpired = (popupInfo: PopupItemType, announcementsAckMap: { [id: string]: string }) => {
+  const { templateBody, metaMessageId } = popupInfo.content as PopupContentAnnouncement
+  const { endAt, startAt } = templateBody as AnnouncementTemplatePopup
+  return announcementsAckMap[metaMessageId] || Date.now() < startAt * 1000 || Date.now() > endAt * 1000
 }
 
 export const formatTime = (time: number) => {
