@@ -344,7 +344,6 @@ export default function TransactionSettings({
   // show confirmation view before turning on
   const [showConfirmation, setShowConfirmation] = useState(false)
   const open = useModalOpen(ApplicationModal.TRANSACTION_SETTINGS)
-  const node = useRef<HTMLDivElement>()
 
   const [isShowTooltip, setIsShowTooltip] = useState<boolean>(false)
   const showTooltip = useCallback(() => setIsShowTooltip(true), [setIsShowTooltip])
@@ -371,24 +370,24 @@ export default function TransactionSettings({
     <>
       <AdvanceModeModal show={showConfirmation} setShow={setShowConfirmation} />
       {/* https://github.com/DefinitelyTyped/DefinitelyTyped/issues/30451 */}
-      <StyledMenu ref={node as any}>
-        <Tooltip text={t`Advanced mode is on!`} show={expertMode && isShowTooltip}>
-          <div onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
-            <StyledActionButtonSwapForm
-              hoverBg={hoverBg}
-              active={open}
-              onClick={toggle}
-              id="open-settings-dialog-button"
-              aria-label="Transaction Settings"
-            >
-              <TransactionSettingsIcon fill={expertMode ? theme.warning : theme.subText} />
-            </StyledActionButtonSwapForm>
-          </div>
-        </Tooltip>
-
+      <StyledMenu>
         <MenuFlyout
-          node={node}
-          browserCustomStyle={MenuFlyoutBrowserStyle}
+          trigger={
+            <Tooltip text={t`Advanced mode is on!`} show={expertMode && isShowTooltip}>
+              <div onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
+                <StyledActionButtonSwapForm
+                  hoverBg={hoverBg}
+                  active={open}
+                  onClick={toggle}
+                  id="open-settings-dialog-button"
+                  aria-label="Transaction Settings"
+                >
+                  <TransactionSettingsIcon fill={expertMode ? theme.warning : theme.subText} />
+                </StyledActionButtonSwapForm>
+              </div>
+            </Tooltip>
+          }
+          customStyle={MenuFlyoutBrowserStyle}
           isOpen={open}
           toggle={toggle}
           title={t`Advanced Settings`}

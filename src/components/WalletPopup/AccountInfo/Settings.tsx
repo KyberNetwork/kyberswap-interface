@@ -6,7 +6,7 @@ import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import Column from 'components/Column'
-import MenuFlyout_V2 from 'components/MenuFlyout/MenuFlyoutV2'
+import MenuFlyout from 'components/MenuFlyout'
 import { PROMM_ANALYTICS_URL } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useDisconnectWallet from 'hooks/useDisconnectWallet'
@@ -56,7 +56,7 @@ const Settings: React.FC = () => {
   const { chainId, account = '' } = useActiveWeb3React()
 
   return (
-    <MenuFlyout_V2
+    <MenuFlyout
       trigger={
         <IconWrapper>
           <SettingsIcon size={20} cursor="pointer" />
@@ -79,7 +79,7 @@ const Settings: React.FC = () => {
           </Text>
         </MenuItem>
       </Column>
-    </MenuFlyout_V2>
+    </MenuFlyout>
   )
 }
 

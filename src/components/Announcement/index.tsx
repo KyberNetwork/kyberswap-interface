@@ -79,7 +79,6 @@ const responseDefault = { numberOfUnread: 0, pagination: { totalItems: 0 }, noti
 
 export default function AnnouncementComponent() {
   const { account } = useActiveWeb3React()
-  const node = useRef<HTMLDivElement>(null)
   const [activeTab, setActiveTab] = useState(Tab.ANNOUNCEMENT)
 
   const isOpenNotificationCenter = useModalOpen(ApplicationModal.NOTIFICATION_CENTER)
@@ -222,26 +221,26 @@ export default function AnnouncementComponent() {
     isMyInboxTab,
     onSetTab,
   }
-
+  const bellIcon = (
+    <StyledMenuButton active={isOpenNotificationCenter || numberOfUnread > 0} onClick={togglePopupWithAckAllMessage}>
+      <NotificationIcon />
+      {numberOfUnread > 0 && <Badge>{formatNumberOfUnread(numberOfUnread)}</Badge>}
+    </StyledMenuButton>
+  )
+  const node = useRef<HTMLDivElement>(null)
   return (
     <StyledMenu ref={node}>
-      <StyledMenuButton
-        active={isOpenNotificationCenter || numberOfUnread > 0}
-        onClick={togglePopupWithAckAllMessage}
-        aria-label="Notifications"
-      >
-        <NotificationIcon />
-        {numberOfUnread > 0 && <Badge>{formatNumberOfUnread(numberOfUnread)}</Badge>}
-      </StyledMenuButton>
-
       {isMobile ? (
-        <Modal isOpen={isOpenNotificationCenter} onDismiss={togglePopupWithAckAllMessage} minHeight={80}>
-          <AnnouncementView {...props} />
-        </Modal>
+        <>
+          {bellIcon}
+          <Modal isOpen={isOpenNotificationCenter} onDismiss={togglePopupWithAckAllMessage} minHeight={80}>
+            <AnnouncementView {...props} />
+          </Modal>
+        </>
       ) : (
         <MenuFlyout
-          browserCustomStyle={browserCustomStyle}
-          node={node}
+          trigger={bellIcon}
+          customStyle={browserCustomStyle}
           isOpen={isOpenNotificationCenter}
           toggle={togglePopupWithAckAllMessage}
         >

@@ -1,7 +1,14 @@
-import React from 'react'
+import React, { ReactNode, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Text } from 'rebass'
-import styled, { css } from 'styled-components'
+import styled, {
+  CSSProperties,
+  DefaultTheme,
+  FlattenInterpolation,
+  FlattenSimpleInterpolation,
+  ThemeProps,
+  css,
+} from 'styled-components'
 
 import { ReactComponent as Close } from 'assets/images/x.svg'
 import { AutoColumn } from 'components/Column'
@@ -74,16 +81,17 @@ const MobileStyle = styled.span<{ customStyle: any }>`
   ${({ customStyle }) => customStyle}
 `
 
+type Style = FlattenInterpolation<ThemeProps<DefaultTheme>> | FlattenSimpleInterpolation | CSSProperties
 /**
  * Render a MenuFlyout if it's browser view and render a Modal popout from bottom if it's mobile view with custom different css apply for each one.
  */
-const MenuFlyout = (props: {
-  browserCustomStyle?: any
-  mobileCustomStyle?: any
+const MenuFlyoutLocal = (props: {
+  browserCustomStyle?: Style
+  mobileCustomStyle?: Style
   isOpen: boolean
   toggle: () => void
-  children: React.ReactNode
-  node: any
+  children: ReactNode
+  node: React.RefObject<HTMLDivElement>
   title?: string
   hasArrow?: boolean
   modalWhenMobile?: boolean
@@ -97,10 +105,11 @@ const MenuFlyout = (props: {
     mobileCustomStyle,
     browserCustomStyle,
     hasArrow,
+    node,
   } = props
 
   const isModal = isMobile && modalWhenMobile
-  useOnClickOutside(props.node, isOpen && !isModal ? toggle : undefined)
+  useOnClickOutside(node, isOpen && !isModal ? toggle : undefined)
   if (!isOpen) return null
   const content = (
     <MenuTitleWrapper toggle={toggle} title={title} fontSize={16}>
@@ -120,7 +129,49 @@ const MenuFlyout = (props: {
   )
 }
 
-export default MenuFlyout
+export default function MenuFlyout({
+  children,
+  trigger,
+  hasArrow,
+  customStyle,
+  mobileCustomStyle,
+  modalWhenMobile,
+  toggle,
+  isOpen,
+  title,
+}: {
+  customStyle?: Style
+  mobileCustomStyle?: Style
+  title?: string
+  children: ReactNode
+  trigger: ReactNode
+  modalWhenMobile?: boolean
+  toggle?: () => void
+  isOpen?: boolean
+  hasArrow?: boolean
+}) {
+  const [isOpenLocal, setIsOpenLocal] = useState(false)
+  const node = useRef<HTMLDivElement>(null)
+  const toggleLocal = () => setTimeout(() => setIsOpenLocal(prev => !prev), 100)
+  const onToggle = toggle ?? toggleLocal
+  return (
+    <div ref={node}>
+      <div onClick={onToggle}>{trigger}</div>
+      <MenuFlyoutLocal
+        title={title}
+        hasArrow={hasArrow}
+        browserCustomStyle={customStyle}
+        mobileCustomStyle={mobileCustomStyle ?? customStyle}
+        modalWhenMobile={modalWhenMobile}
+        node={node}
+        isOpen={isOpen ?? isOpenLocal}
+        toggle={onToggle}
+      >
+        {children}
+      </MenuFlyoutLocal>
+    </div>
+  )
+}
 
 const CloseIcon = styled.div`
   position: absolute;

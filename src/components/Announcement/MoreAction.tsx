@@ -4,7 +4,7 @@ import styled, { css } from 'styled-components'
 
 import Column from 'components/Column'
 import MailIcon from 'components/Icons/MailIcon'
-import MenuFlyout_V2 from 'components/MenuFlyout/MenuFlyoutV2'
+import MenuFlyout from 'components/MenuFlyout'
 import useNotification from 'hooks/useNotification'
 
 const MenuItem = styled.div`
@@ -25,7 +25,7 @@ const customStyle = css`
 const MenuMoreAction = ({ showClearAll, clearAll }: { clearAll: () => void; showClearAll: boolean }) => {
   const { showNotificationModal } = useNotification()
   return (
-    <MenuFlyout_V2 modalWhenMobile={false} trigger={<MoreHorizontal cursor="pointer" />} customStyle={customStyle}>
+    <MenuFlyout modalWhenMobile={false} trigger={<MoreHorizontal cursor="pointer" />} customStyle={customStyle}>
       <Column gap="16px">
         <MenuItem onClick={showNotificationModal}>
           <MailIcon size={16} />
@@ -38,7 +38,7 @@ const MenuMoreAction = ({ showClearAll, clearAll }: { clearAll: () => void; show
           </MenuItem>
         )}
       </Column>
-    </MenuFlyout_V2>
+    </MenuFlyout>
   )
 }
 export default MenuMoreAction
