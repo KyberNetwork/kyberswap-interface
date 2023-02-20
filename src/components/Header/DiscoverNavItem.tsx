@@ -59,7 +59,7 @@ const DiscoverNavItem = () => {
       <StyledNavLink to={APP_PATHS.DISCOVER} style={{ alignItems: 'center' }}>
         <Icon id={'truesight-v2'} size={16} style={{ marginRight: '6px' }} />
         <CustomSlideToUnlock data-active={isActive}>
-          <Trans>Discover</Trans>
+          <Trans>KyberAI</Trans>
         </CustomSlideToUnlock>
       </StyledNavLink>
     </DiscoverWrapper>
