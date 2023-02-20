@@ -1,4 +1,4 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { Info, Trash, X } from 'react-feather'
 import { useMedia } from 'react-use'
 import AutoSizer from 'react-virtualized-auto-sizer'
@@ -16,6 +16,7 @@ import { Announcement, PrivateAnnouncement } from 'components/Announcement/type'
 import Column from 'components/Column'
 import NotificationIcon from 'components/Icons/NotificationIcon'
 import { RowBetween } from 'components/Row'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
 import useNotification from 'hooks/useNotification'
 import useTheme from 'hooks/useTheme'
@@ -198,7 +199,11 @@ export default function AnnouncementView({
             <Trans>Notifications</Trans>
           </Title>
           <Flex style={{ gap: '20px', alignItems: 'center' }}>
-            {account && <ListIcon cursor="pointer" onClick={showNotificationModal} />}
+            {account && (
+              <MouseoverTooltip text={t`All Notifications`} width="120px">
+                <ListIcon cursor="pointer" onClick={showNotificationModal} />
+              </MouseoverTooltip>
+            )}
             {isMobile && <X color={theme.subText} onClick={toggleNotificationCenter} cursor="pointer" />}
           </Flex>
         </RowBetween>
