@@ -46,6 +46,7 @@ export type AnnouncementTemplatePopup = {
   type: 'NORMAL' | 'CRITICAL'
   startAt: number
   endAt: number
+  chainIds: number[]
 
   ctas: AnnouncementCTA[] // in popup
   actionURL: string // in noti center

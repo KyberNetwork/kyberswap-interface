@@ -4,7 +4,7 @@ import styled from 'styled-components'
 
 import CenterPopup from 'components/Announcement/Popups/CenterPopup'
 import SnippetPopup from 'components/Announcement/Popups/SnippetPopup'
-import { PopupType } from 'components/Announcement/type'
+import { AnnouncementTemplatePopup, PopupType } from 'components/Announcement/type'
 import { ButtonEmpty } from 'components/Button'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
@@ -63,7 +63,7 @@ const MAX_NOTIFICATION = 4
 export default function Popups() {
   const { topRightPopups, centerPopups, snippetPopups, topPopups } = useActivePopups()
   const centerPopup = centerPopups[centerPopups.length - 1]
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
 
   const toggleNotificationCenter = useToggleNotificationCenter()
   const [{ show: isShowTutorial = false }] = useTutorialSwapGuide()
@@ -80,8 +80,12 @@ export default function Popups() {
     if (isShowTutorial) return
     const unsubscribe = subscribeAnnouncement(data => {
       data.forEach(item => {
+        const { chainIds = [] } = item.templateBody as AnnouncementTemplatePopup
         const { popupType } = item.templateBody
-        if ((!isInit.current && popupType === PopupType.CENTER) || popupType !== PopupType.CENTER) {
+        if (
+          chainIds.includes(chainId.toString()) &&
+          ((!isInit.current && popupType === PopupType.CENTER) || popupType !== PopupType.CENTER)
+        ) {
           // only show PopupType.CENTER when the first visit app
           addPopup(item, popupType, item.metaMessageId, null)
         }
@@ -90,7 +94,7 @@ export default function Popups() {
     })
 
     return () => unsubscribe?.()
-  }, [account, isShowTutorial, addPopup])
+  }, [account, isShowTutorial, addPopup, chainId])
 
   const totalTopRightPopup = topRightPopups.length
 
