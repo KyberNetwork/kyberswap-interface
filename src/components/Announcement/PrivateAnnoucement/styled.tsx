@@ -11,10 +11,10 @@ export const InboxItemWrapper = styled.div<{ isRead: boolean }>`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  cursor: pointer;
   ${({ isRead }) =>
     !isRead &&
     css`
-      cursor: pointer;
       background-color: ${({ theme }) => rgba(theme.primary, 0.12)};
     `};
 `
