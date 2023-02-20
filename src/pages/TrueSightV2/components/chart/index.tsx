@@ -54,6 +54,7 @@ import SignedBarChart from './SignedBarChart'
 
 const ChartWrapper = styled(ContentWrapper)`
   flex: 1;
+  min-height: 0;
 `
 
 const LegendWrapper = styled.div`
@@ -690,7 +691,7 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
   const [timeframe, setTimeframe] = useState('7D')
   const formattedData = useMemo(
     () =>
-      data?.map(item => {
+      data?.map((item: any) => {
         if (tab === ChartTab.Second) {
           return {
             inflow: showInflow ? item.inflow : undefined,
@@ -1216,7 +1217,7 @@ const ProLiveChartWrapper = styled.div<{ fullscreen: boolean }>`
     `
     background-color: rgb(0,0,0,0.5);
     position: fixed;
-    top: -15px;
+    top: 0;
     left: 0;
     padding-top: 82px;
     height: 100%!important;
@@ -1318,7 +1319,6 @@ export const PriceChart = () => {
       skip: !'0x99ac8ca7087fa4a2a1fb6357269965a2014abc35',
     },
   )
-  console.log('🚀 ~ file: index.tsx:1315 ~ PriceChart ~ poolDetail', poolDetail)
   if (!poolDetail) return <></>
 
   return <Prochart poolDetail={poolDetail}></Prochart>

@@ -25,6 +25,7 @@ import { useToggleModal } from 'state/application/hooks'
 
 import NetworkSelect from '../components/NetworkSelect'
 import TokenChart from '../components/TokenChartSVG'
+import { TOKEN_LIST } from '../hooks/sampleData'
 import { useTokenListQuery } from '../hooks/useTruesightV2Data'
 import { TokenListTab } from '../types'
 import { testParams } from './SingleToken'
@@ -363,6 +364,7 @@ export default function TokenAnalysisList() {
   const [networkFilter, setNetworkFilter] = useState<ChainId>()
   const toggle = useToggleModal(ApplicationModal.SHARE)
   const { data } = useTokenListQuery({})
+  console.log('🚀 ~ file: TokenAnalysisList.tsx:367 ~ TokenAnalysisList ~ data', data)
   const above768 = useMedia('(min-width:768px)')
 
   const [searchParams, setSearchParams] = useSearchParams()
@@ -373,11 +375,11 @@ export default function TokenAnalysisList() {
   const templateList = useMemo(
     () =>
       [...Array(5)]
-        .reduce((t, a) => t.concat(data?.tokenList.data), [])
+        .reduce((t, a) => t.concat(TOKEN_LIST.tokenList.data), [])
         .map((t: any, index: number) => {
           return { ...t, id: index + 1 }
         }) || [],
-    [data],
+    [],
   )
 
   const pageSize = 50

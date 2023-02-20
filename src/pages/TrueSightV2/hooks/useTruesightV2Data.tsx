@@ -4,7 +4,7 @@ import { TRUESIGHT_V2_API } from 'constants/env'
 
 import { testParams } from '../pages/SingleToken'
 import { INetflowToWhaleWallets, INumberOfTrades, ITokenOverview, ITradeVolume } from '../types'
-import { FUNDING_RATE, HOLDER_LIST, NETFLOW_TO_WHALE_WALLETS, TOKEN_LIST } from './sampleData'
+import { FUNDING_RATE, HOLDER_LIST, TOKEN_LIST } from './sampleData'
 
 const truesightV2Api = createApi({
   reducerPath: 'truesightV2Api',
@@ -14,7 +14,7 @@ const truesightV2Api = createApi({
   endpoints: builder => ({
     tokenDetail: builder.query<ITokenOverview, string>({
       query: (tokenAddress?: string) => ({
-        url: '/overview/ethereum/' + tokenAddress,
+        url: '/overview/ethereum/0xdAC17F958D2ee523a2206206994597C13D831ec7?wallet=0x91df32F497b4E4Ff2B779636a6ae438fc4246661',
       }),
     }),
     numberOfTrades: builder.query<INumberOfTrades[], string>({
@@ -63,9 +63,9 @@ const truesightV2Api = createApi({
     }),
     netflowToCEX: builder.query({
       query: () => ({
-        url: '/netflow/cexes',
+        url: '/netflow/cexes/ethereum/0xdac17f958d2ee523a2206206994597c13d831ec7?from=1675156545&to=1675761345',
       }),
-      transformResponse: (res: any) => NETFLOW_TO_WHALE_WALLETS,
+      transformResponse: (res: any) => res.data,
     }),
     numberOfTransfers: builder.query({
       query: () => ({

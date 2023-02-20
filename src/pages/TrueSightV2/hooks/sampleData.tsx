@@ -2,13 +2,8 @@ export const TOKEN_DETAIL = {
   tags: ['Mineable', 'PoW', 'SHA-256', 'Store Of Value'],
   name: 'Bitcoin',
   symbol: 'BTC',
-  desc: '',
-  webs: [
-    {
-      key: 'bitcoin.org',
-      value: 'https://bitcoin.org/en/',
-    },
-  ],
+  description: '',
+  webs: ['bitcoin.org', 'https://bitcoin.org/en/'],
   communities: [
     {
       key: 'bitcointalk.org',
@@ -16,22 +11,23 @@ export const TOKEN_DETAIL = {
     },
   ],
   address: '',
-  price: '16781.24',
-  '24hChange': -0.09,
+  price: 16781.24,
+  price24hChangePercent: -0.09,
   '24hLow': 16755.91,
   '24hHigh': 16895.71,
   '1yLow': 15599.05,
   '1yHigh': 51956.33,
-  ATL: 15599.05,
-  ATH: 51956.33,
+  atl: 15599.05,
+  ath: 51956.33,
   '24hVolume': 14562220489,
   circulatingSupply: 19240143,
   marketCap: 324048677736,
-  holders: 43588084,
+  numberOfHolders: 43588084,
   kyberScore: {
     score: 75.5,
     label: 'Very Bullish',
   },
+  isWatched: true,
 }
 
 export const NUMBER_OF_TRADES = [
@@ -326,6 +322,100 @@ export const NETFLOW_TO_WHALE_WALLETS = [
     outflow: 5622,
     netflow: 44,
     timestamp: 1672412949000,
+  },
+]
+
+export const NETFLOW_TO_CEX = [
+  {
+    cex: 'binance',
+    inflow: 24152,
+    outflow: 25123,
+    netflow: -971,
+    timestamp: 1675728000,
+  },
+  {
+    cex: 'coinbase',
+    inflow: 24097,
+    outflow: 23182,
+    netflow: 915,
+    timestamp: 1675728000,
+  },
+  {
+    cex: 'binance',
+    inflow: 20883,
+    outflow: 25920,
+    netflow: -5037,
+    timestamp: 1675641600,
+  },
+  {
+    cex: 'coinbase',
+    inflow: 25890,
+    outflow: 20203,
+    netflow: 5687,
+    timestamp: 1675641600,
+  },
+  {
+    cex: 'coinbase',
+    inflow: 21799,
+    outflow: 23949,
+    netflow: -2150,
+    timestamp: 1675555200,
+  },
+  {
+    cex: 'binance',
+    inflow: 19730,
+    outflow: 22492,
+    netflow: -2762,
+    timestamp: 1675555200,
+  },
+  {
+    cex: 'binance',
+    inflow: 27101,
+    outflow: 23425,
+    netflow: 3676,
+    timestamp: 1675468800,
+  },
+  {
+    cex: 'coinbase',
+    inflow: 26249,
+    outflow: 21401,
+    netflow: 4848,
+    timestamp: 1675468800,
+  },
+  {
+    cex: 'binance',
+    inflow: 22221,
+    outflow: 20875,
+    netflow: 1346,
+    timestamp: 1675382400,
+  },
+  {
+    cex: 'coinbase',
+    inflow: 25342,
+    outflow: 24725,
+    netflow: 617,
+    timestamp: 1675382400,
+  },
+  {
+    cex: 'binance',
+    inflow: 27883,
+    outflow: 31166,
+    netflow: -3283,
+    timestamp: 1675296000,
+  },
+  {
+    cex: 'coinbase',
+    inflow: 26347,
+    outflow: 21819,
+    netflow: 4528,
+    timestamp: 1675296000,
+  },
+  {
+    cex: 'coinbase',
+    inflow: 14336,
+    outflow: 13821,
+    netflow: 515,
+    timestamp: 1675209600,
   },
 ]
 

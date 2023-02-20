@@ -2,7 +2,7 @@ import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { ReactNode, useRef, useState } from 'react'
 import { ChevronLeft, Share2, Star } from 'react-feather'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -11,6 +11,7 @@ import { ButtonGray, ButtonPrimary } from 'components/Button'
 import { Ethereum } from 'components/Icons'
 import Icon from 'components/Icons/Icon'
 import { DotsLoader } from 'components/Loader/DotsLoader'
+import Logo from 'components/Logo'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import ShareModal from 'components/ShareModal'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -22,6 +23,7 @@ import { MEDIA_WIDTHS } from 'theme'
 import DisplaySettings from '../components/DisplaySettings'
 import KyberScoreMeter from '../components/KyberScoreMeter'
 import PriceRange from '../components/PriceRange'
+import { TOKEN_DETAIL } from '../hooks/sampleData'
 import { useTokenDetailQuery } from '../hooks/useTruesightV2Data'
 import { DiscoverTokenTab } from '../types'
 import News from './News'
@@ -176,8 +178,10 @@ export default function SingleToken() {
   const theme = useTheme()
   const navigate = useNavigate()
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
+  const { address } = useParams()
   const [currentTab, setCurrentTab] = useState<DiscoverTokenTab>(DiscoverTokenTab.OnChainAnalysis)
-  const { data, isLoading } = useTokenDetailQuery(testParams.address)
+  const { data: apiData, isLoading } = useTokenDetailQuery(testParams.address)
+  const data = address ? apiData : TOKEN_DETAIL
 
   const shareUrl = useRef<string>()
   const toggleShareModal = useToggleModal(ApplicationModal.SHARE)
@@ -186,14 +190,13 @@ export default function SingleToken() {
     shareUrl.current = url
     toggleShareModal()
   }
-  const [favorited, setFavorited] = useState(true)
   const RenderHeader = () => {
     const TokenNameGroup = () => (
       <>
         <ButtonIcon onClick={() => navigate('/discover')}>
           <ChevronLeft size={24} />
         </ButtonIcon>
-        <Star size={20} />
+        <Logo srcs={['https://assets.coingecko.com/coins/images/7598/thumb/wrapped_bitcoin_wbtc.png?1548822744']} />
         {isLoading ? (
           <DotsLoader />
         ) : (
@@ -212,12 +215,11 @@ export default function SingleToken() {
         <HeaderButton
           style={{
             boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.16))',
-            color: favorited ? theme.primary : theme.subText,
-            backgroundColor: favorited ? theme.primary + '33' : theme.buttonGray,
+            color: data?.isWatched ? theme.primary : theme.subText,
+            backgroundColor: data?.isWatched ? theme.primary + '33' : theme.buttonGray,
           }}
-          onClick={() => setFavorited(prev => !prev)}
         >
-          <Star size={16} fill={favorited ? 'currentcolor' : 'none'} />
+          <Star size={16} fill={data?.isWatched ? 'currentcolor' : 'none'} />
         </HeaderButton>
         <DisplaySettings currentTab={currentTab} />
         <HeaderButton
@@ -274,10 +276,10 @@ export default function SingleToken() {
     <Wrapper>
       <RenderHeader />
       <Text fontSize={12} color={theme.subText} marginBottom="12px">
-        {isLoading ? <DotsLoader /> : data?.desc}
+        {isLoading ? <DotsLoader /> : data?.description}
       </Text>
       <TagWrapper>
-        {data?.tags.map(tag => {
+        {data?.tags?.map(tag => {
           return <Tag key="tag">{tag}</Tag>
         })}
         <Tag active>View All</Tag>
@@ -299,11 +301,11 @@ export default function SingleToken() {
               padding="4px 8px"
               style={{ borderRadius: '16px' }}
             >
-              {data ? data?.['24hChange'].toFixed(2) : 0}%
+              {data?.price24hChangePercent ? data?.price24hChangePercent.toFixed(2) : 0}%
             </Text>
           </RowFit>
           <Text color={theme.red} fontSize={12} lineHeight="16px">
-            {data && formatMoneyWithSign(data?.['24hChange'] * +data?.price || 0)}
+            {data && formatMoneyWithSign(data?.price24hChangePercent * +data?.price || 0)}
           </Text>
           <PriceRange
             title={t`Daily Range`}
@@ -326,13 +328,13 @@ export default function SingleToken() {
             <Text color={theme.subText}>
               <Trans>All Time Low</Trans>
             </Text>
-            <Text color={theme.text}>{data?.ATL && formatMoneyWithSign(data?.ATL)}</Text>
+            <Text color={theme.text}>{data?.atl && formatMoneyWithSign(data?.atl)}</Text>
           </RowBetween>
           <RowBetween>
             <Text color={theme.subText}>
               <Trans>All Time High</Trans>
             </Text>
-            <Text color={theme.text}>{data?.ATH && formatMoneyWithSign(data?.ATH)}</Text>
+            <Text color={theme.text}>{data?.ath && formatMoneyWithSign(data?.ath)}</Text>
           </RowBetween>
           <RowBetween>
             <Text color={theme.subText}>
@@ -356,20 +358,20 @@ export default function SingleToken() {
             <Text color={theme.subText}>
               <Trans>Holders (On-chain)</Trans>
             </Text>
-            <Text color={theme.text}>{data?.holders}</Text>
+            <Text color={theme.text}>{data?.numberOfHolders}</Text>
           </RowBetween>
           <RowBetween>
             <Text color={theme.subText}>
               <Trans>Website</Trans>
             </Text>
-            {data?.webs[0] && <ExternalLink href={data?.webs[0].value || ''}>{data?.webs[0].key}</ExternalLink>}
+            {data?.webs?.[0] && <ExternalLink href={data.webs[0] || ''}>{data?.webs[0]}</ExternalLink>}
           </RowBetween>
           <RowBetween>
             <Text color={theme.subText}>
               <Trans>Community</Trans>
             </Text>
-            {data?.communities[0] && (
-              <ExternalLink href={data?.communities[0].value || ''}>{data?.communities[0].key}</ExternalLink>
+            {data?.communities?.[0] && (
+              <ExternalLink href={data.communities[0].value || ''}>{data.communities[0].key}</ExternalLink>
             )}
           </RowBetween>
           <RowBetween>
@@ -391,9 +393,9 @@ export default function SingleToken() {
               </Text>
             </MouseoverTooltip>
           </Row>
-          <KyberScoreMeter value={data?.kyberScore.score} />
+          <KyberScoreMeter value={data?.kyberScore?.score} />
           <Text fontSize={24} fontWeight={500} color={theme.primary} marginBottom="12px">
-            {data?.kyberScore.label}
+            {data?.kyberScore?.label}
           </Text>
           <Text
             fontSize={14}
@@ -403,8 +405,8 @@ export default function SingleToken() {
             textAlign="center"
             marginBottom="12px"
           >
-            $BTC seems to be a <span style={{ color: theme.primary }}>{data?.kyberScore.label}</span> with a KyberScore
-            of <span style={{ color: theme.primary }}>{data?.kyberScore.score}</span>/100
+            $BTC seems to be a <span style={{ color: theme.primary }}>{data?.kyberScore?.label}</span> with a KyberScore
+            of <span style={{ color: theme.primary }}>{data?.kyberScore?.score}</span>/100
           </Text>
           <Text fontSize={10} lineHeight="12px" fontStyle="italic">
             <Trans>Note: This should not be treated as financial advice</Trans>
