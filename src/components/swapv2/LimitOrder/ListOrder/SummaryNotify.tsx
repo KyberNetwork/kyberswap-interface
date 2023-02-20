@@ -5,7 +5,7 @@ import { Text } from 'rebass'
 
 import useTheme from 'hooks/useTheme'
 
-import { calcPercentFilledOrder, calcRate, formatAmountOrder, formatRateOrder } from '../helpers'
+import { calcPercentFilledOrder, calcRate, formatAmountOrder, formatRateLimitOrder } from '../helpers'
 import { LimitOrder, LimitOrderStatus } from '../type'
 
 export default function SummaryNotify({
