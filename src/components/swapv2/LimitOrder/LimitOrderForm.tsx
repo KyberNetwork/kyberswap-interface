@@ -632,8 +632,8 @@ const LimitOrderForm = function LimitOrderForm({
     }
 
     const isMainNet = chainId === ChainId.MAINNET
-    const thresHold = isMainNet ? NUMBERS.ETH_USD_THRESHOLD : NUMBERS.REST_USD_THRESHOLD
-    const showWarningThresHold = outputAmount && estimateUSD.rawInput && estimateUSD.rawInput < thresHold
+    const threshold = isMainNet ? NUMBERS.ETH_USD_THRESHOLD : NUMBERS.REST_USD_THRESHOLD
+    const showWarningThresHold = outputAmount && estimateUSD.rawInput && estimateUSD.rawInput < threshold
     if (isMainNet && showWarningThresHold && tradeInfo?.gasFee) {
       messages.push(
         <Text>
@@ -649,7 +649,7 @@ const LimitOrderForm = function LimitOrderForm({
       messages.push(
         <Text>
           <Trans>
-            We suggest you increase the value of your limit order to at least <HightLight>${thresHold}</HightLight>.
+            We suggest you increase the value of your limit order to at least <HightLight>${threshold}</HightLight>.
             This will increase the odds of your order being filled.
           </Trans>
         </Text>,
