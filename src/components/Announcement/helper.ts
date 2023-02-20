@@ -19,8 +19,8 @@ export const useAckAnnouncement = () => {
 export const formatNumberOfUnread = (num: number) => (num > 10 ? '10+' : num)
 
 export const isPopupExpired = (popupInfo: PopupContentAnnouncement, announcementsAckMap: { [id: string]: string }) => {
-  const { expiredAt, startTime, metaMessageId } = popupInfo
-  return announcementsAckMap[metaMessageId] || Date.now() < startTime || Date.now() > expiredAt
+  const { endAt, startAt, metaMessageId } = popupInfo
+  return announcementsAckMap[metaMessageId] || Date.now() < startAt || Date.now() > endAt
 }
 
 export const formatTime = (time: number) => {

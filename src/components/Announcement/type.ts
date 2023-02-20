@@ -91,9 +91,9 @@ export type PopupContentAnnouncement = {
   metaMessageId: string
   templateType: PrivateAnnouncementType
   templateBody: AnnouncementTemplate
-  expiredAt: number
+  startAt: number
+  endAt: number
   createdAt: number
-  startTime: number
 }
 
 export type PopupContent = PopupContentTxn | PopupContentSimple | PopupContentAnnouncement
