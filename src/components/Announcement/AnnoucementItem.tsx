@@ -1,8 +1,7 @@
-import { useNavigate } from 'react-router-dom'
 import styled, { CSSProperties } from 'styled-components'
 
 import kyberCrystal from 'assets/images/kyberdao/kyber_crystal.png'
-import { formatTime } from 'components/Announcement/helper'
+import { formatTime, useNavigateCtaPopup } from 'components/Announcement/helper'
 import { Announcement } from 'components/Announcement/type'
 import Column from 'components/Column'
 
@@ -17,6 +16,9 @@ const Wrapper = styled.div`
   display: flex;
   align-items: flex-start;
   cursor: pointer;
+  :hover {
+    background-color: ${({ theme }) => theme.buttonBlack};
+  }
 `
 
 const Title = styled.div`
@@ -78,24 +80,17 @@ export default function AnnouncementItem({
 }) {
   const { templateBody } = announcement
 
-  const navigate = useNavigate()
   const { name, startAt, content, thumbnailImageURL, actionURL } = templateBody
-
-  const onClick = () => {
-    try {
-      onRead()
-      if (!actionURL) return
-      const { pathname, host } = new URL(actionURL)
-      if (window.location.host === host) {
-        navigate(pathname)
-      } else {
-        window.open(actionURL)
-      }
-    } catch (error) {}
-  }
+  const navigate = useNavigateCtaPopup()
 
   return (
-    <Wrapper onClick={onClick} style={style}>
+    <Wrapper
+      onClick={() => {
+        onRead()
+        navigate(actionURL)
+      }}
+      style={style}
+    >
       <Image src={thumbnailImageURL || kyberCrystal} />
       <RowItem>
         <Column gap="6px">

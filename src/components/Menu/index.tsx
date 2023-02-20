@@ -146,20 +146,19 @@ const StyledMenuButton = styled.button<{ active?: boolean }>`
     cursor: pointer;
     outline: none;
     background-color: ${({ theme }) => theme.buttonBlack};
+    border: 1px solid ${({ theme }) => theme.primary};
   }
 
   ${({ active }) =>
-    active
-      ? css`
-          cursor: pointer;
-          outline: none;
-          background-color: ${({ theme }) => theme.buttonBlack};
-        `
-      : ''}
+    active &&
+    css`
+      cursor: pointer;
+      outline: none;
+      background-color: ${({ theme }) => theme.buttonBlack};
+    `}
 `
 
 const StyledMenu = styled.div`
-  margin-left: 0.5rem;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -172,6 +171,10 @@ const MenuFlyoutBrowserStyle = css`
   min-width: unset;
   right: -8px;
   width: 230px;
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    top: unset;
+    bottom: 3.5rem;
+  `};
 `
 
 const MenuFlyoutMobileStyle = css`

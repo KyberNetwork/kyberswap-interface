@@ -32,6 +32,8 @@ const StyledMenuButton = styled.button<{ active?: boolean }>`
   background-color: transparent;
   :hover {
     cursor: pointer;
+    background-color: ${({ theme }) => theme.buttonBlack};
+    border: 1px solid ${({ theme }) => theme.primary};
   }
 
   ${({ active }) =>
@@ -67,6 +69,11 @@ const Badge = styled.div`
 
 const browserCustomStyle = css`
   padding: 0;
+  border-radius: 20px;
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    top: unset;
+    bottom: 3.5rem;
+  `};
 `
 const responseDefault = { numberOfUnread: 0, pagination: { totalItems: 0 }, notifications: [] }
 
@@ -193,6 +200,7 @@ export default function AnnouncementComponent() {
   }, [account, prefetchPrivateAnnouncements, fetchGeneralAnnouncement, prevOpen, isOpenNotificationCenter])
 
   useEffect(() => {
+    if (!account) setPrivateAnnouncements([])
     const unsubscribePrivate = subscribePrivateAnnouncement(account, prefetchPrivateAnnouncements)
     return () => unsubscribePrivate?.()
   }, [account, prefetchPrivateAnnouncements])

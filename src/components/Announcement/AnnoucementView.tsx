@@ -1,5 +1,5 @@
-import { Trans, t } from '@lingui/macro'
-import { Info, Trash, X } from 'react-feather'
+import { Trans } from '@lingui/macro'
+import { Info, X } from 'react-feather'
 import { useMedia } from 'react-use'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
@@ -8,17 +8,15 @@ import { Flex, Text } from 'rebass'
 import AnnouncementApi from 'services/announcement'
 import styled, { CSSProperties, css } from 'styled-components'
 
-import { ReactComponent as ListIcon } from 'assets/svg/list_icon.svg'
 import AnnouncementItem from 'components/Announcement/AnnoucementItem'
+import MenuMoreAction from 'components/Announcement/MoreAction'
 import InboxItem from 'components/Announcement/PrivateAnnoucement'
 import { formatNumberOfUnread } from 'components/Announcement/helper'
 import { Announcement, PrivateAnnouncement } from 'components/Announcement/type'
 import Column from 'components/Column'
 import NotificationIcon from 'components/Icons/NotificationIcon'
 import { RowBetween } from 'components/Row'
-import { MouseoverTooltip } from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
-import useNotification from 'hooks/useNotification'
 import useTheme from 'hooks/useTheme'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
@@ -64,19 +62,6 @@ const TabItem = styled.div<{ active: boolean }>`
     `};
 `
 
-const ClearAll = styled.div`
-  color: ${({ theme }) => theme.red};
-  align-items: center;
-  display: flex;
-  gap: 4px;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 500;
-  justify-content: flex-end;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    color: ${({ theme }) => theme.subText};
-  `};
-`
 const Title = styled.div`
   font-weight: 500;
   font-size: 20px;
@@ -100,6 +85,10 @@ const ListAnnouncement = styled.div`
   flex: 1;
   flex-direction: column;
   overflow-y: auto;
+  border-radius: 0px 0px 20px 20px;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    border-radius: 0;
+  `};
 `
 
 const Badge = styled.div`
@@ -141,7 +130,6 @@ export default function AnnouncementView({
 
   const theme = useTheme()
   const toggleWalletModal = useWalletModalToggle()
-  const { showNotificationModal } = useNotification()
 
   const { useAckPrivateAnnouncementsMutation } = AnnouncementApi
   const [ackAnnouncement] = useAckPrivateAnnouncementsMutation()
@@ -190,6 +178,8 @@ export default function AnnouncementView({
     </TabWrapper>
   )
 
+  const showClearAll = account && isMyInboxTab && announcements.length > 0
+
   return (
     <Wrapper>
       <Container>
@@ -199,25 +189,12 @@ export default function AnnouncementView({
             <Trans>Notifications</Trans>
           </Title>
           <Flex style={{ gap: '20px', alignItems: 'center' }}>
-            {account && (
-              <MouseoverTooltip text={t`All Notifications`} width="120px">
-                <ListIcon cursor="pointer" onClick={showNotificationModal} />
-              </MouseoverTooltip>
-            )}
+            <MenuMoreAction showClearAll={Boolean(showClearAll)} clearAll={clearAll} />
             {isMobile && <X color={theme.subText} onClick={toggleNotificationCenter} cursor="pointer" />}
           </Flex>
         </RowBetween>
 
         {tabComponent}
-
-        {account && isMyInboxTab && announcements.length > 0 && (
-          <Flex justifyContent="flex-end">
-            <ClearAll onClick={clearAll}>
-              <Trash size={12} />
-              <Trans>Clear All</Trans>
-            </ClearAll>
-          </Flex>
-        )}
       </Container>
 
       {announcements.length ? (
@@ -263,19 +240,21 @@ export default function AnnouncementView({
         </ListAnnouncement>
       ) : (
         <Column style={{ alignItems: 'center', margin: '24px 0px 32px 0px' }} gap="8px">
-          <Info color={theme.subText} size={26} />
-          <Text color={theme.subText} textAlign="center">
-            {!account && isMyInboxTab ? (
-              <Text>
-                <Text color={theme.primary} sx={{ cursor: 'pointer' }} onClick={toggleWalletModal}>
-                  <Trans>Connect Wallet</Trans>
-                </Text>
+          <Info color={theme.subText} size={27} />
+          {!account && isMyInboxTab ? (
+            <>
+              <Text color={theme.primary} sx={{ cursor: 'pointer' }} textAlign="center" onClick={toggleWalletModal}>
+                <Trans>Connect Wallet</Trans>
+              </Text>
+              <Text color={theme.subText} textAlign="center">
                 <Trans>to view My inbox</Trans>
               </Text>
-            ) : (
+            </>
+          ) : (
+            <Text color={theme.subText} textAlign="center">
               <Trans>No notifications found</Trans>
-            )}
-          </Text>
+            </Text>
+          )}
         </Column>
       )}
     </Wrapper>

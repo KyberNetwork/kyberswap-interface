@@ -88,6 +88,7 @@ const HeaderElement = styled.div`
 const HeaderElementWrap = styled.div`
   display: flex;
   align-items: center;
+  gap: 0.5rem;
 `
 
 const HeaderRow = styled(RowFixed)`

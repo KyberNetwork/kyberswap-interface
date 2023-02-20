@@ -9,13 +9,13 @@ import { Swiper, SwiperSlide } from 'swiper/react/swiper-react'
 
 import kyberCrystal from 'assets/images/kyberdao/kyber_crystal.png'
 import CtaButton from 'components/Announcement/Popups/CtaButton'
+import { useNavigateCtaPopup } from 'components/Announcement/helper'
 import { AnnouncementTemplatePopup, PopupContentAnnouncement } from 'components/Announcement/type'
 import { AutoColumn } from 'components/Column'
 import { Z_INDEXS } from 'constants/styles'
 import useTheme from 'hooks/useTheme'
 import { useRemovePopup } from 'state/application/hooks'
 import { PopupItemType } from 'state/application/reducer'
-import { ExternalLink } from 'theme'
 
 const IMAGE_HEIGHT = '140px'
 const PADDING_MOBILE = '16px'
@@ -112,12 +112,6 @@ const StyledCtaButton = styled(CtaButton)`
   height: 36px;
 `
 
-const StyledLink = styled(ExternalLink)`
-  &:hover {
-    text-decoration: none;
-  }
-`
-
 function SnippetPopupItem({
   data,
   expand,
@@ -133,7 +127,7 @@ function SnippetPopupItem({
   const toggle = () => {
     setExpand(!expand)
   }
-
+  const navigate = useNavigateCtaPopup()
   const ctaInfo = { ...ctas[0], name: ctas[0]?.name || t`Close` }
   const isCtaClose = !ctas[0]?.name || !ctas[0]?.url
 
@@ -147,19 +141,14 @@ function SnippetPopupItem({
           alignItems="flex-end"
           style={{ position: 'relative', justifyContent: expand ? 'center' : 'flex-start', gap: '12px' }}
         >
-          <StyledLink
-            href={ctaInfo.url}
-            onClick={
-              isCtaClose
-                ? e => {
-                    e.preventDefault()
-                    removePopup(data)
-                  }
-                : undefined
-            }
-          >
-            <StyledCtaButton data={ctaInfo} color="primary" />
-          </StyledLink>
+          <StyledCtaButton
+            data={ctaInfo}
+            color="primary"
+            onClick={() => {
+              navigate(ctaInfo.url)
+              if (isCtaClose) removePopup(data)
+            }}
+          />
           <SeeMore onClick={toggle} expand={expand}>
             <ChevronsUp size={16} style={{ transform: `rotate(${expand ? 180 : 0}deg)` }} />
             {expand ? <Trans>See Less</Trans> : <Trans>See More</Trans>}
@@ -175,7 +164,7 @@ const Wrapper = styled.div<{ expand: boolean }>`
   left: 30px;
   bottom: 30px;
   z-index: ${Z_INDEXS.POPUP_NOTIFICATION};
-  width: 640px;
+  width: 480px;
 
   // custom swiper below
   --swiper-navigation-size: 12px;

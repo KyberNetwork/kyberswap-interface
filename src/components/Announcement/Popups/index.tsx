@@ -4,7 +4,7 @@ import styled from 'styled-components'
 
 import CenterPopup from 'components/Announcement/Popups/CenterPopup'
 import SnippetPopup from 'components/Announcement/Popups/SnippetPopup'
-import { AnnouncementTemplatePopup, PopupType } from 'components/Announcement/type'
+import { PopupType } from 'components/Announcement/type'
 import { ButtonEmpty } from 'components/Button'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
@@ -76,16 +76,13 @@ export default function Popups() {
   const clearAllCenterPopup = () => removeAllPopupByType(PopupType.CENTER)
 
   const isInit = useRef(false)
+
   useEffect(() => {
     if (isShowTutorial) return
     const unsubscribe = subscribeAnnouncement(data => {
       data.forEach(item => {
-        const { chainIds = [] } = item.templateBody as AnnouncementTemplatePopup
         const { popupType } = item.templateBody
-        if (
-          chainIds.includes(chainId.toString()) &&
-          ((!isInit.current && popupType === PopupType.CENTER) || popupType !== PopupType.CENTER)
-        ) {
+        if ((!isInit.current && popupType === PopupType.CENTER) || popupType !== PopupType.CENTER) {
           // only show PopupType.CENTER when the first visit app
           addPopup(item, popupType, item.metaMessageId, null)
         }

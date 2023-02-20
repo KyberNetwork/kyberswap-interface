@@ -1,4 +1,5 @@
 import { useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useLocalStorage } from 'react-use'
 
 import { AnnouncementTemplatePopup, PopupContentAnnouncement } from 'components/Announcement/type'
@@ -34,4 +35,20 @@ export const formatTime = (time: number) => {
   if (hour < 24) return `${hour} hours ago`
   const day = Math.floor(delta / (24 * 3600))
   return `${day} days ago`
+}
+
+export const useNavigateCtaPopup = () => {
+  const navigate = useNavigate()
+  const onNavigate = (actionURL: string) => {
+    try {
+      if (!actionURL) return
+      const { pathname, host } = new URL(actionURL)
+      if (window.location.host === host) {
+        navigate(pathname)
+      } else {
+        window.open(actionURL)
+      }
+    } catch (error) {}
+  }
+  return onNavigate
 }

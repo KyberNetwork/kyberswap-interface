@@ -15,6 +15,11 @@ const TokenLogo = styled(Logo)`
   width: 12px;
   height: 12px;
   border-radius: 100%;
+  box-shadow: ${({ theme }) =>
+    (() => {
+      const color = theme.darkMode ? `rgba(256, 256, 256, 0.2)` : `rgba(0, 0, 0, 0.2)`
+      return `0 4px 5px 0 ${color}, 0 1px 70px 0 ${color};`
+    })()};
 `
 
 const DeltaTokenAmount = ({

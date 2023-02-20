@@ -149,7 +149,7 @@ const StyledTitle = styled.div`
 const StyledLabel = styled.div`
   font-size: ${isMobile ? '14px' : '12px'};
   color: ${({ theme }) => theme.text};
-  font-weigh: 400;
+  font-weight: 400;
   line-height: 20px;
 `
 
@@ -391,7 +391,7 @@ export default function TransactionSettings({
           browserCustomStyle={MenuFlyoutBrowserStyle}
           isOpen={open}
           toggle={toggle}
-          translatedTitle={t`Advanced Settings`}
+          title={t`Advanced Settings`}
           mobileCustomStyle={{ paddingBottom: '40px' }}
           hasArrow
         >

@@ -53,11 +53,6 @@ const BrowserDefaultStyle = css`
   right: 0rem;
   z-index: 100;
   padding: 20px;
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    top: unset;
-    bottom: 3.5rem;
-  `};
 `
 
 const MobileDefaultStyle = css`
@@ -89,7 +84,7 @@ const MenuFlyout = (props: {
   toggle: () => void
   children: React.ReactNode
   node: any
-  translatedTitle?: string
+  title?: string
   hasArrow?: boolean
   modalWhenMobile?: boolean
 }) => {
@@ -98,7 +93,7 @@ const MenuFlyout = (props: {
     children,
     isOpen,
     toggle,
-    translatedTitle,
+    title,
     mobileCustomStyle,
     browserCustomStyle,
     hasArrow,
@@ -107,21 +102,20 @@ const MenuFlyout = (props: {
   const isModal = isMobile && modalWhenMobile
   useOnClickOutside(props.node, isOpen && !isModal ? toggle : undefined)
   if (!isOpen) return null
+  const content = (
+    <MenuTitleWrapper toggle={toggle} title={title} fontSize={16}>
+      {children}
+    </MenuTitleWrapper>
+  )
   if (isModal)
     return (
       <Modal isOpen={true} onDismiss={toggle} maxWidth={900}>
-        <MobileStyle customStyle={mobileCustomStyle}>
-          <MenuTitleWrapper toggle={toggle} translatedTitle={translatedTitle} fontSize={16}>
-            {children}
-          </MenuTitleWrapper>
-        </MobileStyle>
+        <MobileStyle customStyle={mobileCustomStyle}>{content}</MobileStyle>
       </Modal>
     )
   return (
     <BrowserStyle hasArrow={!!hasArrow} customStyle={browserCustomStyle}>
-      <MenuTitleWrapper toggle={toggle} translatedTitle={translatedTitle} fontSize={16}>
-        {children}
-      </MenuTitleWrapper>
+      {content}
     </BrowserStyle>
   )
 }
@@ -146,13 +140,13 @@ const MenuWrapper = styled.ul`
 `
 const MenuTitleWrapper = (props: {
   toggle: () => void
-  translatedTitle?: string
+  title?: string
   children: React.ReactNode
   fontSize?: string | number
 }) => {
   const theme = useTheme()
 
-  if (!props.translatedTitle) return <>{props.children}</>
+  if (!props.title) return <>{props.children}</>
 
   return (
     <AutoColumn gap={isMobile ? '14px' : '10px'}>
@@ -162,7 +156,7 @@ const MenuTitleWrapper = (props: {
         </CloseIcon>
       )}
       <Text fontWeight={500} fontSize={props.fontSize || 16} color={theme.text}>
-        {props.translatedTitle}
+        {props.title}
       </Text>
       <MenuWrapper>{props.children}</MenuWrapper>
     </AutoColumn>

@@ -13,10 +13,18 @@ export const InboxItemWrapper = styled.div<{ isRead: boolean }>`
   justify-content: space-between;
   cursor: pointer;
   ${({ isRead }) =>
-    !isRead &&
-    css`
-      background-color: ${({ theme }) => rgba(theme.primary, 0.12)};
-    `};
+    !isRead
+      ? css`
+          background-color: ${({ theme }) => rgba(theme.primary, 0.12)};
+          :hover {
+            background-color: ${({ theme }) => rgba(theme.primary, 0.2)};
+          }
+        `
+      : css`
+          :hover {
+            background-color: ${({ theme }) => theme.buttonBlack};
+          }
+        `};
 `
 
 export const Title = styled.div<{ isRead: boolean }>`
