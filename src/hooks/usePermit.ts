@@ -3,7 +3,6 @@ import { splitSignature } from 'ethers/lib/utils'
 import { useCallback, useMemo, useState } from 'react'
 
 import EIP_2612 from 'constants/abis/eip2612.json'
-import { PERMIT_SUPPORTED_TOKENS } from 'constants/permitSupported'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useSingleCallResult } from 'state/multicall/hooks'
 
@@ -39,7 +38,6 @@ export const usePermit = (token?: Token, routerAddress?: string) => {
   const eipContract = useContract(token?.address, EIP_2612, false)
   const nonceInputs = useMemo(() => [account ?? undefined], [account])
   const tokenNonceState = useSingleCallResult(eipContract, 'nonces', nonceInputs)
-  console.log('🚀 ~ file: usePermit.ts:43 ~ usePermit ~ tokenNonceState', tokenNonceState)
 
   const transactionDeadline = useTransactionDeadline()
 
@@ -98,15 +96,15 @@ export const usePermit = (token?: Token, routerAddress?: string) => {
         s: signature.s,
         deadline: deadline,
       })
-      const res = await eipContract.interface.encodeFunctionData('permit', [
-        account,
-        routerAddress,
-        MaxUint256.toString(),
-        deadline,
-        signature.v,
-        signature.r,
-        signature.s,
-      ])
+      // const res = await eipContract.interface.encodeFunctionData('permit', [
+      //   account,
+      //   routerAddress,
+      //   MaxUint256.toString(),
+      //   deadline,
+      //   signature.v,
+      //   signature.r,
+      //   signature.s,
+      // ])
       // const res = await eipContract.permit(
       //   account,
       //   routerAddress,

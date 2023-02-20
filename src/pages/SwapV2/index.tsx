@@ -76,7 +76,6 @@ import { useAllTokens, useIsLoadedTokenDefault } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallbackFromTradeV2 } from 'hooks/useApproveCallback'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import { PermitState, usePermit } from 'hooks/usePermit'
 import usePrevious from 'hooks/usePrevious'
 import { useSwapV2Callback } from 'hooks/useSwapV2Callback'
 import { useSyncNetworkParamWithStore } from 'hooks/useSyncNetworkParamWithStore'
@@ -685,7 +684,7 @@ export default function Swap() {
   }
 
   const toggleApprovalModal = useToggleModal(ApplicationModal.SWAP_APPROVAL)
-  const { permitState, permitCallback } = usePermit(currencyIn?.wrapped, trade?.routerAddress)
+  // const { permitState, permitCallback } = usePermit(currencyIn?.wrapped, trade?.routerAddress)
   return (
     <>
       {/**
@@ -983,29 +982,14 @@ export default function Swap() {
                           <RowBetween gap="16px">
                             <ButtonConfirmed
                               onClick={() => {
-                                permitState === PermitState.NOT_SIGNED ? permitCallback() : toggleApprovalModal()
+                                toggleApprovalModal()
                               }}
-                              disabled={
-                                approval !== ApprovalState.NOT_APPROVED ||
-                                approvalSubmitted ||
-                                permitState === PermitState.SIGNED ||
-                                permitState === PermitState.LOADING
-                              }
+                              disabled={approval !== ApprovalState.NOT_APPROVED || approvalSubmitted}
                               altDisabledStyle={approval === ApprovalState.PENDING} // show solid button while waiting
                               confirmed={approval === ApprovalState.APPROVED}
                               style={{ flex: 1 }}
                             >
-                              {permitState === PermitState.NOT_SIGNED ? (
-                                <Row justify="center" gap="6px">
-                                  <InfoHelper
-                                    color={theme.textReverse}
-                                    text={t`This temporary permit allows KyberSwaps smart contract to interact with your token for up to 24Hrs. This won't cost gas fees. Read more ↗`}
-                                    placement="top"
-                                    size={14}
-                                  />
-                                  <Trans>Permit {currencyIn?.symbol}</Trans>
-                                </Row>
-                              ) : approval === ApprovalState.PENDING ? (
+                              {approval === ApprovalState.PENDING ? (
                                 <Row gap="6px" justify="center">
                                   <Trans>Approving</Trans> <Loader stroke="white" />
                                 </Row>
