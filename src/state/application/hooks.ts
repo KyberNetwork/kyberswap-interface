@@ -8,7 +8,6 @@ import { useDeepCompareEffect } from 'react-use'
 import { ETH_PRICE, PROMM_ETH_PRICE, TOKEN_DERIVED_ETH } from 'apollo/queries'
 import { isPopupExpired, useAckAnnouncement } from 'components/Announcement/helper'
 import {
-  AnnouncementTemplatePopup,
   PopupContent,
   PopupContentAnnouncement,
   PopupContentSimple,
@@ -251,25 +250,19 @@ export function useActivePopups() {
   const { chainId } = useActiveWeb3React()
 
   return useMemo(() => {
-    const popupCurrentChain = popups.filter(e => {
-      const { templateBody = {} } = e.content as PopupContentAnnouncement
-      const { chainIds = [] } = templateBody as AnnouncementTemplatePopup
-      return chainIds.includes(chainId + '')
-    })
-
-    const topRightPopups = popupCurrentChain.filter(e =>
+    const topRightPopups = popups.filter(e =>
       [PopupType.SIMPLE, PopupType.TOP_RIGHT, PopupType.TRANSACTION].includes(e.popupType),
     )
 
-    const topPopups = popupCurrentChain.filter(
-      e => e.popupType === PopupType.TOP_BAR && !isPopupExpired(e, announcementsAckMap),
+    const topPopups = popups.filter(
+      e => e.popupType === PopupType.TOP_BAR && !isPopupExpired(e, announcementsAckMap, chainId),
     )
-    const snippetPopups = popupCurrentChain.filter(
-      e => e.popupType === PopupType.SNIPPET && !isPopupExpired(e, announcementsAckMap),
+    const snippetPopups = popups.filter(
+      e => e.popupType === PopupType.SNIPPET && !isPopupExpired(e, announcementsAckMap, chainId),
     )
 
-    const centerPopups = popupCurrentChain.filter(
-      e => e.popupType === PopupType.CENTER && !isPopupExpired(e, announcementsAckMap),
+    const centerPopups = popups.filter(
+      e => e.popupType === PopupType.CENTER && !isPopupExpired(e, announcementsAckMap, chainId),
     )
     return {
       topPopups,

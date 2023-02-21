@@ -4,9 +4,9 @@ import { Box, Text } from 'rebass'
 import styled from 'styled-components'
 
 import IconFailure from 'assets/svg/notification_icon_failure.svg'
-import IconSuccess from 'assets/svg/notification_icon_success.svg'
 import { NotificationType } from 'components/Announcement/type'
 import { AutoColumn } from 'components/Column'
+import { CheckCircle } from 'components/Icons'
 import { AutoRow } from 'components/Row'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
@@ -198,7 +198,11 @@ export default function TransactionPopup({ hash, notiType }: { hash: string; not
     <Box>
       <RowNoFlex>
         <div style={{ paddingRight: 16 }}>
-          <img src={success ? IconSuccess : IconFailure} alt="Icon status" style={{ display: 'block' }} />
+          {success ? (
+            <CheckCircle color={theme.primary} size={'20px'} />
+          ) : (
+            <img src={IconFailure} alt="Icon status" style={{ display: 'block' }} />
+          )}
         </div>
         <AutoColumn gap="8px">
           <Text fontSize="16px" fontWeight={500} color={color}>

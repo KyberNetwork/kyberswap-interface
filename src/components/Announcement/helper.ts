@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLocalStorage } from 'react-use'
@@ -20,10 +21,15 @@ export const useAckAnnouncement = () => {
 
 export const formatNumberOfUnread = (num: number) => (num > 10 ? '10+' : num + '')
 
-export const isPopupExpired = (popupInfo: PopupItemType, announcementsAckMap: { [id: string]: string }) => {
-  const { templateBody, metaMessageId } = popupInfo.content as PopupContentAnnouncement
-  const { endAt, startAt } = templateBody as AnnouncementTemplatePopup
-  return announcementsAckMap[metaMessageId] || Date.now() < startAt * 1000 || Date.now() > endAt * 1000
+export const isPopupExpired = (
+  popupInfo: PopupItemType,
+  announcementsAckMap: { [id: string]: string },
+  chainId: ChainId,
+) => {
+  const { templateBody = {}, metaMessageId } = popupInfo.content as PopupContentAnnouncement
+  const { endAt, startAt, chainIds = [] } = templateBody as AnnouncementTemplatePopup
+  const isRightChain = chainIds.includes(chainId + '')
+  return announcementsAckMap[metaMessageId] || Date.now() < startAt * 1000 || Date.now() > endAt * 1000 || !isRightChain
 }
 
 export const formatTime = (time: number) => {
