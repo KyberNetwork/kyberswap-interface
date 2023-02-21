@@ -1,6 +1,6 @@
 import styled, { CSSProperties } from 'styled-components'
 
-import kyberCrystal from 'assets/images/kyberdao/kyber_crystal.png'
+import NotificationImage from 'assets/images/notification_default.png'
 import { formatTime, useNavigateCtaPopup } from 'components/Announcement/helper'
 import { Announcement } from 'components/Announcement/type'
 import Column from 'components/Column'
@@ -96,7 +96,7 @@ export default function AnnouncementItem({
       }}
       style={style}
     >
-      <Image src={thumbnailImageURL || kyberCrystal} />
+      <Image src={thumbnailImageURL || NotificationImage} />
       <RowItem>
         <Column gap="6px" style={{ maxWidth: '100%' }}>
           <Title>{name} </Title>
