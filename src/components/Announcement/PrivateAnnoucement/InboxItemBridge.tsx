@@ -5,8 +5,6 @@ import styled from 'styled-components'
 
 import { ReactComponent as ArrowDown } from 'assets/svg/arrow_down.svg'
 import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
-import IconFailure from 'assets/svg/notification_icon_failure.svg'
-import IconSuccess from 'assets/svg/notification_icon_success.svg'
 import { PrivateAnnouncementProp } from 'components/Announcement/PrivateAnnoucement'
 import {
   Dot,
@@ -17,6 +15,8 @@ import {
   Title,
 } from 'components/Announcement/PrivateAnnoucement/styled'
 import { AnnouncementTemplateBridge } from 'components/Announcement/type'
+import { CheckCircle } from 'components/Icons'
+import IconFailure from 'components/Icons/Failed'
 import { NetworkLogo } from 'components/Logo'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
@@ -57,7 +57,7 @@ function InboxItemBridge({ announcement, onRead, style, time }: PrivateAnnouncem
         </RowItem>
         <RowItem>
           <PrimaryText>{isSuccess ? t`Success` : t`Failed`}</PrimaryText>
-          <img height={12} width={12} src={isSuccess ? IconSuccess : IconFailure} alt="icon-status" />
+          {isSuccess ? <CheckCircle color={theme.primary} /> : <IconFailure color={theme.red} size={12} />}
         </RowItem>
       </InboxItemRow>
 

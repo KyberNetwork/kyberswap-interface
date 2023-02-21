@@ -3,10 +3,10 @@ import { Trans, t } from '@lingui/macro'
 import { Box, Text } from 'rebass'
 import styled from 'styled-components'
 
-import IconFailure from 'assets/svg/notification_icon_failure.svg'
 import { NotificationType } from 'components/Announcement/type'
 import { AutoColumn } from 'components/Column'
 import { CheckCircle } from 'components/Icons'
+import IconFailure from 'components/Icons/Failed'
 import { AutoRow } from 'components/Row'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
@@ -198,11 +198,7 @@ export default function TransactionPopup({ hash, notiType }: { hash: string; not
     <Box>
       <RowNoFlex>
         <div style={{ paddingRight: 16 }}>
-          {success ? (
-            <CheckCircle color={theme.primary} size={'20px'} />
-          ) : (
-            <img src={IconFailure} alt="Icon status" style={{ display: 'block' }} />
-          )}
+          {success ? <CheckCircle color={theme.primary} size={'20px'} /> : <IconFailure color={theme.red} />}
         </div>
         <AutoColumn gap="8px">
           <Text fontSize="16px" fontWeight={500} color={color}>

@@ -21,7 +21,7 @@ export const useAckAnnouncement = () => {
 
 export const formatNumberOfUnread = (num: number) => (num > 10 ? '10+' : num + '')
 
-export const isPopupExpired = (
+export const isPopupCanShow = (
   popupInfo: PopupItemType,
   announcementsAckMap: { [id: string]: string },
   chainId: ChainId,
@@ -29,7 +29,9 @@ export const isPopupExpired = (
   const { templateBody = {}, metaMessageId } = popupInfo.content as PopupContentAnnouncement
   const { endAt, startAt, chainIds = [] } = templateBody as AnnouncementTemplatePopup
   const isRightChain = chainIds.includes(chainId + '')
-  return announcementsAckMap[metaMessageId] || Date.now() < startAt * 1000 || Date.now() > endAt * 1000 || !isRightChain
+  const isRead = announcementsAckMap[metaMessageId]
+  const isExpired = Date.now() < startAt * 1000 || Date.now() > endAt * 1000
+  return !isRead && !isExpired && isRightChain
 }
 
 export const formatTime = (time: number) => {

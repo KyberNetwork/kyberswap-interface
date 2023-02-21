@@ -4,22 +4,18 @@ import { useNavigate } from 'react-router-dom'
 import { Box, Text } from 'rebass'
 import styled from 'styled-components'
 
-import IconFailure from 'assets/svg/notification_icon_failure.svg'
-import IconSuccess from 'assets/svg/notification_icon_success.svg'
-import IconWarning from 'assets/svg/notification_icon_warning.svg'
 import { NotificationType } from 'components/Announcement/type'
 import { AutoColumn } from 'components/Column'
+import { CheckCircle } from 'components/Icons'
+import IconFailure from 'components/Icons/Failed'
+import WarningIcon from 'components/Icons/WarningIcon'
 import { AutoRow } from 'components/Row'
 import useTheme from 'hooks/useTheme'
 
 const RowNoFlex = styled(AutoRow)`
   flex-wrap: nowrap;
 `
-const mapIcon = {
-  [NotificationType.SUCCESS]: IconSuccess,
-  [NotificationType.WARNING]: IconWarning,
-  [NotificationType.ERROR]: IconFailure,
-}
+
 export default function SimplePopup({
   title,
   summary,
@@ -40,6 +36,11 @@ export default function SimplePopup({
     [NotificationType.ERROR]: theme.red,
   }
   const color = mapColor[type]
+  const mapIcon = {
+    [NotificationType.SUCCESS]: <CheckCircle color={color} size={'20px'} />,
+    [NotificationType.WARNING]: <WarningIcon solid color={color} />,
+    [NotificationType.ERROR]: <IconFailure color={color} />,
+  }
 
   const navigate = useNavigate()
   const onClickLink = () => {
@@ -48,9 +49,7 @@ export default function SimplePopup({
   return (
     <Box>
       <RowNoFlex>
-        <div style={{ paddingRight: 10 }}>
-          {icon || <img src={mapIcon[type]} alt="Icon" style={{ display: 'block' }} />}
-        </div>
+        <div style={{ paddingRight: 10 }}>{icon || mapIcon[type]}</div>
         <AutoColumn gap="8px">
           <Text fontSize="16px" fontWeight={500} color={color}>
             {title}
