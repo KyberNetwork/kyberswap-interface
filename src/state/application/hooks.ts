@@ -252,7 +252,7 @@ export function useActivePopups() {
 
   return useMemo(() => {
     const popupCurrentChain = popups.filter(e => {
-      const { templateBody } = e.content as PopupContentAnnouncement
+      const { templateBody = {} } = e.content as PopupContentAnnouncement
       const { chainIds = [] } = templateBody as AnnouncementTemplatePopup
       return chainIds.includes(chainId + '')
     })

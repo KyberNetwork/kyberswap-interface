@@ -30,6 +30,7 @@ const StyledMenuButton = styled.button<{ active?: boolean }>`
   position: relative;
   outline: none;
   background-color: transparent;
+  border: 1px solid transparent;
   :hover {
     cursor: pointer;
     background-color: ${({ theme }) => theme.buttonBlack};
