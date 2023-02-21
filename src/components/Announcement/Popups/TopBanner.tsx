@@ -82,6 +82,9 @@ const TextContent = styled.div<{ isOverflow: boolean }>`
     white-space: nowrap;
     position: absolute;
   `}
+  > p {
+    margin: 0;
+  }
 `
 const StyledCtaButton = styled(CtaButton)`
   min-width: 140px;
