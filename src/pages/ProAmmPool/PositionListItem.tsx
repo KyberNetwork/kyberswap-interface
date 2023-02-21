@@ -391,9 +391,7 @@ function PositionListItem({
             )}
           </>
         )}
-        {activeTab === TAB.PRICE_RANGE && (
-          <ProAmmPriceRange position={position} ticksAtLimit={tickAtLimit} layout={1} />
-        )}
+        {activeTab === TAB.PRICE_RANGE && <ProAmmPriceRange position={position} ticksAtLimit={tickAtLimit} />}
         <div style={{ marginTop: '20px' }} />
         <Flex flexDirection={'column'} marginTop="auto">
           {stakedLayout ? (
@@ -501,7 +499,10 @@ function PositionListItem({
 
             {hasUserDepositedInFarm && (
               <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0">
-                <StyledInternalLink style={{ width: '100%', textAlign: 'center' }} to="/farms">
+                <StyledInternalLink
+                  style={{ width: '100%', textAlign: 'center' }}
+                  to={`${APP_PATHS.FARMS}/${networkInfo.route}`}
+                >
                   <Trans>Go to Farms ↗</Trans>
                 </StyledInternalLink>
               </ButtonEmpty>

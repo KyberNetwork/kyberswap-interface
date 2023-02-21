@@ -68,6 +68,9 @@ interface SubgraphFarm {
   farmingPools: Array<FarmingPool>
 }
 
+// TODO: remove below hardcode id_not position
+// That 0xbdec4a045446f583dc564c0a227ffd475b329bf0_98_25016 position causing subgraph to fail
+// temporary add this until subgraph fixed the bug
 const ELASTIC_FARM_QUERY = gql`
   query getFarms {
     farms(first: 1000) {
@@ -90,7 +93,7 @@ const ELASTIC_FARM_QUERY = gql`
           priority
           amount
         }
-        joinedPositions {
+        joinedPositions(where: { id_not: "0xbdec4a045446f583dc564c0a227ffd475b329bf0_98_25016" }) {
           id
           user
           pid
@@ -145,7 +148,7 @@ const FarmUpdaterV1: React.FC<CommonProps> = ({ interval }) => {
   const elasticFarm = useAppSelector(state => state.elasticFarm)[chainId || 1] || defaultChainData
 
   const [getElasticFarms, { data, error }] = useLazyQuery(ELASTIC_FARM_QUERY, {
-    client: isEVM(chainId) ? NETWORKS_INFO[chainId].elasticClient : NETWORKS_INFO[ChainId.MAINNET].elasticClient,
+    client: isEVM(chainId) ? NETWORKS_INFO[chainId].elastic.client : NETWORKS_INFO[ChainId.MAINNET].elastic.client,
     fetchPolicy: 'network-only',
   })
 

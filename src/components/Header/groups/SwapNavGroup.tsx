@@ -2,7 +2,7 @@ import { Trans } from '@lingui/macro'
 import { Repeat } from 'react-feather'
 import { useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
+import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as MasterCard } from 'assets/buy-crypto/master-card.svg'
@@ -49,8 +49,9 @@ const StyledBuyCrypto = styled(BuyCrypto)`
 `
 
 const BetaTag = styled.span`
-  right: -40px;
-  top: 0px;
+  position: absolute;
+  right: 14px;
+  top: -2px;
   font-size: 10px;
   border-radius: 10px;
   background-color: ${({ theme }) => theme.buttonGray};
@@ -59,7 +60,7 @@ const BetaTag = styled.span`
 `
 
 const SwapNavGroup = () => {
-  const { isSolana, chainId } = useActiveWeb3React()
+  const { isSolana, networkInfo, chainId } = useActiveWeb3React()
   const isDark = useIsDarkMode()
   const { pathname } = useLocation()
   const upTo420 = useMedia('(max-width: 420px)')
@@ -83,7 +84,11 @@ const SwapNavGroup = () => {
       }
       dropdownContent={
         <Flex flexDirection={'column'} id={TutorialIds.BRIDGE_LINKS}>
-          <StyledNavLink id={`swapv2-nav-link`} to={APP_PATHS.SWAP} style={{ flexDirection: 'column' }}>
+          <StyledNavLink
+            id={`swapv2-nav-link`}
+            to={`${APP_PATHS.SWAP}/${networkInfo.route}`}
+            style={{ flexDirection: 'column' }}
+          >
             <Flex alignItems="center" sx={{ gap: '12px' }}>
               <IconWrapper>
                 <Repeat size={16} />
@@ -93,12 +98,15 @@ const SwapNavGroup = () => {
           </StyledNavLink>
 
           {getLimitOrderContract(chainId) && (
-            <StyledNavLink to={APP_PATHS.LIMIT} style={{ flexDirection: 'column', width: '100%' }}>
+            <StyledNavLink
+              to={`${APP_PATHS.LIMIT}/${networkInfo.route}`}
+              style={{ flexDirection: 'column', width: '100%' }}
+            >
               <Flex alignItems="center" sx={{ gap: '12px' }}>
                 <IconWrapper>
                   <LimitOrderIcon />
                 </IconWrapper>
-                <Flex alignItems={'center'} sx={{ flex: 1 }} justifyContent={'space-between'}>
+                <Flex alignItems={'center'} sx={{ flex: 1, position: 'relative' }} justifyContent={'space-between'}>
                   <Trans>Limit Order</Trans>
                   <BetaTag>Beta</BetaTag>
                 </Flex>
@@ -113,9 +121,8 @@ const SwapNavGroup = () => {
                   <StyledBridgeIcon height={15} />
                 </IconWrapper>
                 <Flex alignItems={'center'} sx={{ flex: 1 }} justifyContent={'space-between'}>
-                  <Text>
-                    <Trans>Bridge</Trans>
-                  </Text>
+                  <Trans>Bridge</Trans>
+
                   <img
                     src={isDark ? MultichainLogoLight : MultichainLogoDark}
                     alt="kyberswap with multichain"

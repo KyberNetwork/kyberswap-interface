@@ -60,7 +60,8 @@ const parsedPoolData = (
     : {}
 
   // format data and calculate daily changes
-  const formatted = poolAddresses.reduce((acc: { [address: string]: ElasticPoolDetail }, address) => {
+  const formatted = poolAddresses.reduce((acc: { [address: string]: ElasticPoolDetail }, upperCaseAddress) => {
+    const address = upperCaseAddress.toLowerCase()
     const current: ProMMPoolFields | undefined = parsed[address]
     const oneDay: ProMMPoolFields | undefined = parsed24[address]
 
@@ -126,8 +127,8 @@ const parsedPoolData = (
 const useGetElasticPoolsV1 = (poolAddresses: string[], skip?: boolean): CommonReturn => {
   const { chainId } = useActiveWeb3React()
   const dataClient = isEVM(chainId)
-    ? NETWORKS_INFO[chainId].elasticClient
-    : NETWORKS_INFO[ChainId.MAINNET].elasticClient
+    ? NETWORKS_INFO[chainId].elastic.client
+    : NETWORKS_INFO[ChainId.MAINNET].elastic.client
 
   const { blockLast24h } = usePoolBlocks()
 

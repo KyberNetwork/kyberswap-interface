@@ -88,7 +88,7 @@ export interface UserLiquidityPositionResult {
 export function useUserLiquidityPositions(): UserLiquidityPositionResult {
   const { isEVM, account, networkInfo } = useActiveWeb3React()
   const { loading, error, data } = useQuery(USER_POSITIONS, {
-    client: isEVM ? (networkInfo as EVMNetworkInfo).classicClient : NETWORKS_INFO[ChainId.MAINNET].classicClient,
+    client: isEVM ? (networkInfo as EVMNetworkInfo).classic.client : NETWORKS_INFO[ChainId.MAINNET].classic.client,
     variables: {
       user: account?.toLowerCase(),
     },
@@ -176,7 +176,7 @@ export async function getBulkPoolDataFromPoolList(
             let oneDayHistory = oneDayData?.[pool.id]
             if (!oneDayHistory) {
               const newData = await apolloClient.query({
-                query: POOL_DATA(pool.id, b1, chainId && !ONLY_DYNAMIC_FEE_CHAINS.includes(chainId)),
+                query: POOL_DATA(pool.id, b1, !ONLY_DYNAMIC_FEE_CHAINS.includes(chainId)),
                 fetchPolicy: 'network-only',
               })
               oneDayHistory = newData.data.pools[0]
@@ -282,7 +282,7 @@ export function usePoolCountInSubgraph(): number {
 
   useEffect(() => {
     if (!isEVM) return
-    const apolloClient = (networkInfo as EVMNetworkInfo).classicClient
+    const apolloClient = (networkInfo as EVMNetworkInfo).classic.client
     const getPoolCount = async () => {
       const result = await apolloClient.query({
         query: POOL_COUNT,
@@ -318,7 +318,7 @@ export function useAllPoolsData(): {
   const poolCountSubgraph = usePoolCountInSubgraph()
   useEffect(() => {
     if (!isEVM) return
-    const apolloClient = (networkInfo as EVMNetworkInfo).classicClient
+    const apolloClient = (networkInfo as EVMNetworkInfo).classic.client
     let cancelled = false
 
     const getPoolsData = async () => {
@@ -371,7 +371,7 @@ export function useSinglePoolData(
   useEffect(() => {
     if (!isEVM) return
     let isCanceled = false
-    const apolloClient = (networkInfo as EVMNetworkInfo).classicClient
+    const apolloClient = (networkInfo as EVMNetworkInfo).classic.client
     async function checkForPools() {
       setLoading(true)
 

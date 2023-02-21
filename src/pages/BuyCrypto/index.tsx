@@ -1,9 +1,10 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
-import React, { useRef, useState } from 'react'
+import { stringify } from 'querystring'
+import React, { useEffect, useRef, useState } from 'react'
 import { ArrowDown, ChevronDown, Repeat, X } from 'react-feather'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Image, Text } from 'rebass'
 import styled, { keyframes } from 'styled-components'
@@ -30,9 +31,11 @@ import Cart from 'components/Icons/Cart'
 import Deposit from 'components/Icons/Deposit'
 import Modal from 'components/Modal'
 import { TRANSAK_API_KEY, TRANSAK_URL } from 'constants/env'
+import { APP_PATHS } from 'constants/index'
 import { SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { KSStatistic } from 'pages/About/AboutKyberSwap'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -181,7 +184,7 @@ function BuyCrypto() {
   const upToMedium = useMedia('(max-width: 992px)')
   const upToSmall = useMedia('(max-width: 768px)')
 
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, networkInfo } = useActiveWeb3React()
 
   const toggleWalletModal = useWalletModalToggle()
 
@@ -266,6 +269,20 @@ function BuyCrypto() {
         break
     }
   }
+
+  const qs = useParsedQueryString<{ step?: string }>()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    setTimeout(() => {
+      const { step, ...rest } = qs
+      const stepNumber = Number(step)
+      if (!isNaN(stepNumber)) {
+        handleStepClick(stepNumber)
+        navigate({ search: stringify(rest) }, { replace: true })
+      }
+    }, 500)
+  }, [qs, navigate])
 
   return (
     <>
@@ -619,7 +636,7 @@ function BuyCrypto() {
                   width={upToSmall ? '100%' : '50%'}
                   padding="10px"
                   as={Link}
-                  to="/swap"
+                  to={APP_PATHS.SWAP + '/' + networkInfo.route}
                   onClick={() => {
                     mixpanelHandler(MIXPANEL_TYPE.TRANSAK_SWAP_NOW_CLICKED)
                   }}

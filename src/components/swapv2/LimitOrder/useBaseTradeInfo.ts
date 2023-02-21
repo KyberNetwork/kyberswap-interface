@@ -1,88 +1,65 @@
-import { Currency, Price, TokenAmount } from '@kyberswap/ks-sdk-core'
-import JSBI from 'jsbi'
-import { stringify } from 'querystring'
-import { useRef } from 'react'
-import useSWR from 'swr'
+import { Currency, WETH } from '@kyberswap/ks-sdk-core'
+import { ethers } from 'ethers'
+import { useCallback, useMemo, useState } from 'react'
 
-import { ETHER_ADDRESS, ZERO_ADDRESS, sentryRequestId } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
-import { useActiveWeb3React } from 'hooks'
-import { tryParseAmount } from 'state/swap/hooks'
+import { GAS_AMOUNT_ETHEREUM } from 'components/swapv2/LimitOrder/const'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
+import useInterval from 'hooks/useInterval'
+import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
 
-type BaseTradeInfo = {
-  price: Price<Currency, Currency>
-  amountInUsd: number
+export type BaseTradeInfo = {
+  priceUsdIn: number
+  priceUsdOut: number
+  gasFee: number
+  marketRate: number
+  invertRate: number
 }
-
-const MAX_RETRY_COUNT = 2
 
 // 1 knc = ?? usdt
 export default function useBaseTradeInfo(currencyIn: Currency | undefined, currencyOut: Currency | undefined) {
-  const { account, chainId } = useActiveWeb3React()
-  const tokenInAddress = currencyIn?.isNative ? ETHER_ADDRESS : currencyIn?.wrapped.address ?? ''
-  const tokenOutAddress = currencyOut?.isNative ? ETHER_ADDRESS : currencyOut?.wrapped.address ?? ''
-  const amountIn = tryParseAmount('1', currencyIn)
+  const { chainId } = useActiveWeb3React()
+  const { library } = useWeb3React()
 
-  const getApiUrl = () => {
-    return tokenInAddress && tokenOutAddress && chainId
-      ? `${NETWORKS_INFO[chainId].routerUri}?${stringify({
-          tokenIn: tokenInAddress.toLowerCase(),
-          tokenOut: tokenOutAddress.toLowerCase(),
-          amountIn: amountIn?.quotient?.toString() ?? '',
-          to: account ?? ZERO_ADDRESS,
-        })}`
-      : null
-  }
+  const addresses = useMemo(() => {
+    const list = [currencyIn?.wrapped.address, currencyOut?.wrapped.address]
+    if (!list.includes(WETH[chainId].wrapped.address)) list.push(WETH[chainId].wrapped.address)
+    return list.filter(Boolean) as string[]
+  }, [currencyIn, currencyOut, chainId])
 
-  const controller = useRef(new AbortController())
-  const fetchData = async (url: string | null): Promise<BaseTradeInfo | undefined> => {
-    if (!currencyOut || !currencyIn || !url) return
+  const { data: pricesUsd, loading } = useTokenPricesWithLoading(addresses)
 
-    controller.current.abort()
-    controller.current = new AbortController()
-    const data = await fetch(url, {
-      signal: controller.current.signal,
-      headers: {
-        'X-Request-Id': sentryRequestId,
-      },
-    }).then(data => data.json())
+  const [gasFee, setGasFee] = useState(0)
+  const nativePriceUsd = pricesUsd[WETH[chainId].wrapped.address]
+  const fetchGasFee = useCallback(() => {
+    if (!library || !nativePriceUsd) return
+    library
+      .getSigner()
+      .getGasPrice()
+      .then(data => {
+        const gasPrice = Number(ethers.utils.formatEther(data))
+        if (gasPrice) setGasFee(gasPrice * nativePriceUsd * GAS_AMOUNT_ETHEREUM)
+      })
+      .catch(e => {
+        console.error('fetchGasFee', e)
+      })
+  }, [library, nativePriceUsd])
 
-    const { outputAmount, amountInUsd } = data
-    const amountOut = TokenAmount.fromRawAmount(currencyOut, JSBI.BigInt(outputAmount))
+  useInterval(fetchGasFee, nativePriceUsd ? 15_000 : 2000)
 
-    if (amountIn?.quotient && amountOut?.quotient) {
-      return {
-        price: new Price(currencyIn, currencyOut, amountIn?.quotient, amountOut?.quotient),
-        amountInUsd,
-      }
+  const tradeInfo: BaseTradeInfo | undefined = useMemo(() => {
+    if (!currencyIn || !currencyOut) return
+    const priceUsdIn = pricesUsd[currencyIn?.wrapped.address]
+    const priceUsdOut = pricesUsd[currencyOut?.wrapped.address]
+    if (!priceUsdIn || !priceUsdOut) return
+
+    return {
+      priceUsdIn,
+      priceUsdOut,
+      marketRate: priceUsdIn / priceUsdOut,
+      invertRate: priceUsdOut / priceUsdIn,
+      gasFee,
     }
-    return
-  }
+  }, [pricesUsd, currencyIn, currencyOut, gasFee])
 
-  const retryCount = useRef(0)
-  const { data, isValidating } = useSWR(
-    getApiUrl(),
-    async url => {
-      try {
-        const data = await fetchData(url)
-        retryCount.current = 0
-        return data
-      } catch (error) {
-        retryCount.current++
-        if (retryCount.current <= MAX_RETRY_COUNT) {
-          throw new Error(error) // retry max RETRY_COUNT times
-        }
-        console.error(error)
-      }
-      return
-    },
-    {
-      revalidateOnFocus: false,
-      shouldRetryOnError: true,
-      errorRetryCount: MAX_RETRY_COUNT,
-      errorRetryInterval: 1500,
-    },
-  )
-
-  return { loading: isValidating, tradeInfo: data }
+  return { loading, tradeInfo }
 }

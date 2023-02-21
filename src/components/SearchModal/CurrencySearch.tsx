@@ -12,10 +12,17 @@ import Column from 'components/Column'
 import InfoHelper from 'components/InfoHelper'
 import { RowBetween } from 'components/Row'
 import { KS_SETTING_API } from 'constants/env'
+import { isEVM, isSolana } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import { fetchListTokenByAddresses, fetchTokenByAddress, formatAndCacheToken, useAllTokens } from 'hooks/Tokens'
+import {
+  fetchListTokenByAddresses,
+  fetchTokenByAddress,
+  formatAndCacheToken,
+  useAllTokens,
+  useFetchERC20TokenFromRPC,
+} from 'hooks/Tokens'
 import useDebounce from 'hooks/useDebounce'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import usePrevious from 'hooks/usePrevious'
@@ -26,6 +33,7 @@ import { useRemoveUserAddedToken, useUserAddedTokens, useUserFavoriteTokens } fr
 import { ButtonText, CloseIcon, TYPE } from 'theme'
 import { filterTruthy, isAddress } from 'utils'
 import { filterTokens } from 'utils/filtering'
+import { importTokensToKsSettings } from 'utils/tokenInfo'
 
 import CommonBases from './CommonBases'
 import CurrencyList from './CurrencyList'
@@ -77,11 +85,11 @@ interface CurrencySearchProps {
   onCurrencySelect: (currency: Currency) => void
   otherSelectedCurrency?: Currency | null
   showCommonBases?: boolean
-  showManageView: () => void
-  showImportView: () => void
   setImportToken: (token: Token) => void
   customChainId?: ChainId
   filterWrap?: boolean
+  title?: string
+  tooltip?: ReactNode
 }
 
 const PAGE_SIZE = 20
@@ -109,7 +117,7 @@ const fetchTokens = async (
 
     const response = await axios.get(url)
     const { tokens = [] } = response.data.data
-    return tokens.map(formatAndCacheToken)
+    return filterTruthy(tokens.map(formatAndCacheToken))
   } catch (error) {
     return []
   }
@@ -133,10 +141,11 @@ export function CurrencySearch({
   showCommonBases,
   onDismiss,
   isOpen,
-  showImportView,
   setImportToken,
   customChainId,
   filterWrap = false,
+  title,
+  tooltip,
 }: CurrencySearchProps) {
   const { chainId: web3ChainId } = useActiveWeb3React()
   const chainId = customChainId || web3ChainId
@@ -145,6 +154,8 @@ export function CurrencySearch({
 
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedQuery = useDebounce(searchQuery, 200)
+  const isQueryValidEVMAddress = isEVM(chainId) && !!isAddress(chainId, debouncedQuery)
+  const isQueryValidSolanaAddress = isSolana(chainId) && !!isAddress(chainId, debouncedQuery)
 
   const { favoriteTokens, toggleFavoriteToken } = useUserFavoriteTokens(chainId)
 
@@ -162,6 +173,8 @@ export function CurrencySearch({
   const tokenImportsFiltered = useMemo(() => {
     return (debouncedQuery ? filterTokens(chainId, tokenImports, debouncedQuery) : tokenImports).sort(tokenComparator)
   }, [debouncedQuery, chainId, tokenImports, tokenComparator])
+
+  const fetchERC20TokenFromRPC = useFetchERC20TokenFromRPC()
 
   // input eth => output filter weth, input weth => output filter eth
   const filterWrapFunc = useCallback(
@@ -318,26 +331,64 @@ export function CurrencySearch({
 
   const fetchListTokens = useCallback(
     async (page?: number) => {
-      if (fetchingToken.current) return
+      if (fetchingToken.current) {
+        return
+      }
+
       const fetchId = Date.now()
       fetchingToken.current = fetchId
+
       const nextPage = (page ?? pageCount) + 1
-      let tokens = []
+      let tokens: WrappedTokenInfo[] = []
+
       if (debouncedQuery) {
         tokens = await fetchTokens(debouncedQuery, nextPage, chainId)
+
+        if (tokens.length === 0 && isQueryValidEVMAddress) {
+          const rawToken = await fetchERC20TokenFromRPC(debouncedQuery)
+
+          if (rawToken) {
+            tokens.push(
+              new WrappedTokenInfo({
+                chainId: rawToken.chainId,
+                address: rawToken.address,
+                name: rawToken.name || 'Unknown Token',
+                decimals: rawToken.decimals,
+                symbol: rawToken.symbol || 'UNKNOWN',
+              }),
+            )
+
+            importTokensToKsSettings([
+              {
+                chainId: String(rawToken.chainId),
+                address: rawToken.address,
+              },
+            ])
+          }
+        } else if (tokens.length === 0 && isQueryValidSolanaAddress) {
+          // TODO: query tokens from Solana token db
+        }
       } else {
         tokens = Object.values(defaultTokens) as WrappedTokenInfo[]
       }
+
       if (fetchingToken.current === fetchId) {
         // sometimes, API slow, api fetch later has response sooner.
-        const parsedTokenList = filterTruthy(tokens)
         setPageCount(nextPage)
-        setFetchedTokens(current => (nextPage === 1 ? [] : current).concat(parsedTokenList))
-        setHasMoreToken(parsedTokenList.length === PAGE_SIZE && !!debouncedQuery)
+        setFetchedTokens(current => (nextPage === 1 ? [] : current).concat(tokens))
+        setHasMoreToken(tokens.length === PAGE_SIZE && !!debouncedQuery)
         fetchingToken.current = null
       }
     },
-    [chainId, debouncedQuery, defaultTokens, pageCount],
+    [
+      chainId,
+      debouncedQuery,
+      defaultTokens,
+      fetchERC20TokenFromRPC,
+      isQueryValidEVMAddress,
+      isQueryValidSolanaAddress,
+      pageCount,
+    ],
   )
 
   const [hasMoreToken, setHasMoreToken] = useState(false)
@@ -380,17 +431,21 @@ export function CurrencySearch({
       <PaddedColumn gap="14px">
         <RowBetween>
           <Text fontWeight={500} fontSize={20} display="flex">
-            <Trans>Select a token</Trans>
+            {title || <Trans>Select a token</Trans>}
             <InfoHelper
               zIndexTooltip={Z_INDEXS.MODAL}
               size={16}
+              fontSize={14}
               text={
-                <Trans>
-                  Find a token by searching for its name or symbol or by pasting its address below
-                  <br />
-                  <br />
-                  You can select and trade any token on KyberSwap.
-                </Trans>
+                tooltip || (
+                  <Text>
+                    <Trans>
+                      Find a token by searching for its name or symbol or by pasting its address below.
+                      <br />
+                      You can select and trade any token on KyberSwap.
+                    </Trans>
+                  </Text>
+                )
               }
             />
           </Text>
@@ -418,7 +473,6 @@ export function CurrencySearch({
 
         {showCommonBases && (
           <CommonBases
-            chainId={chainId}
             tokens={filteredCommonTokens}
             handleToggleFavorite={handleClickFavorite}
             onSelect={handleCurrencySelect}
@@ -476,12 +530,11 @@ export function CurrencySearch({
           listTokenRef={listTokenRef}
           removeImportedToken={removeImportedToken}
           currencies={visibleCurrencies}
-          isImportedTab={isImportedTab}
+          showImported={isImportedTab}
           handleClickFavorite={handleClickFavorite}
           onCurrencySelect={handleCurrencySelect}
           otherCurrency={otherSelectedCurrency}
           selectedCurrency={selectedCurrency}
-          showImportView={showImportView}
           setImportToken={setImportToken}
           loadMoreRows={fetchListTokens}
           hasMore={hasMoreToken}

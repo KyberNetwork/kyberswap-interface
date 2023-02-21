@@ -59,7 +59,7 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { useGlobalData } from 'state/about/hooks'
 import { useDarkModeManager } from 'state/user/hooks'
-import { ExternalLink, StyledInternalLink } from 'theme'
+import { ExternalLink, MEDIA_WIDTHS, StyledInternalLink } from 'theme'
 import { formatBigLiquidity } from 'utils/formatBalance'
 
 import KyberSwapGeneralIntro from '../KyberSwapGeneralIntro'
@@ -122,7 +122,7 @@ const ForTraderInfoCell = styled.div`
 
 export const KSStatistic = () => {
   const theme = useTheme()
-  const upToLarge = useMedia('(max-width: 1200px)')
+  const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
   return (
     <Box sx={{ position: 'relative', marginTop: '20px' }}>
@@ -264,7 +264,7 @@ function AboutKyberSwap() {
         </Text>
 
         <ButtonEmpty padding="0" width="fit-content">
-          <ExternalLink href="https://docs.kyberswap.com">
+          <ExternalLink href="https://docs.kyberswap.com/Classic/introduction">
             <Text color={theme.primary} fontSize="14px" fontWeight={600}>
               <Trans>Learn More</Trans>↗
             </Text>
@@ -324,7 +324,7 @@ function AboutKyberSwap() {
       </Text>
 
       <ButtonEmpty padding="0" width="fit-content">
-        <ExternalLink href="https://docs.kyberswap.com/dynamic-fee">
+        <ExternalLink href="https://docs.kyberswap.com/Classic/overview/dynamic-fee">
           <Text color={theme.primary} fontSize="14px" fontWeight={600} marginTop="24px">
             <Trans>Learn More</Trans>↗
           </Text>
@@ -355,7 +355,7 @@ function AboutKyberSwap() {
       </Text>
 
       <ButtonEmpty padding="0" width="fit-content">
-        <ExternalLink href="https://docs.kyberswap.com/guides/yield-farming">
+        <ExternalLink href="https://docs.kyberswap.com/Classic/introduction">
           <Text color={theme.primary} fontSize="14px" fontWeight={600} marginTop="24px">
             <Trans>Learn More</Trans>↗
           </Text>
@@ -513,7 +513,7 @@ function AboutKyberSwap() {
             <Solana />
           </SupportedChain>
 
-          <KyberSwapGeneralIntro isSolana={isSolana} />
+          <KyberSwapGeneralIntro />
 
           <OverflowStatisticWrapper>
             <StatisticWrapper>
@@ -663,7 +663,7 @@ function AboutKyberSwap() {
                   margin="48px 0"
                   width="216px"
                   as={Link}
-                  to="/swap"
+                  to={APP_PATHS.SWAP + '/' + networkInfo.route}
                   onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_SWAP_CLICKED)}
                 >
                   <Repeat size={20} />
@@ -686,7 +686,7 @@ function AboutKyberSwap() {
               <BtnPrimary
                 margin="40px 0"
                 as={Link}
-                to="/swap"
+                to={APP_PATHS.SWAP + '/' + networkInfo.route}
                 onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_SWAP_CLICKED)}
               >
                 <Repeat />

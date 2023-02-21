@@ -50,6 +50,7 @@ import {
   getOldStaticFeeRouterContract,
   getStaticFeeRouterContract,
 } from 'utils/getContract'
+import { ErrorName } from 'utils/sentry'
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
 
 import {
@@ -336,7 +337,11 @@ export default function TokenPair({
           .then(calculateGasMargin)
           .catch(error => {
             console.error(`estimateGas failed`, methodName, args, error)
-            setRemoveLiquidityError(error.toString())
+            const e = new Error('Remove Classic Liquidity Error', { cause: error })
+            e.name = ErrorName.RemoveClassicLiquidityError
+            captureException(e, { extra: { methodName, args } })
+
+            setRemoveLiquidityError(error?.message || JSON.stringify(error))
             return undefined
           }),
       ),
@@ -360,24 +365,28 @@ export default function TokenPair({
         .then((response: TransactionResponse) => {
           if (!!currencyA && !!currencyB) {
             setAttemptingTxn(false)
-
+            const tokenAmountIn = parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) ?? ''
+            const tokenAmountOut = parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) ?? ''
+            const tokenSymbolIn = currencyAIsWETH ? NativeCurrencies[chainId].symbol : currencyA.symbol
+            const tokenSymbolOut = currencyBIsWETH ? NativeCurrencies[chainId].symbol : currencyB.symbol
             addTransactionWithType({
               hash: response.hash,
-              type: TRANSACTION_TYPE.REMOVE_LIQUIDITY,
-              summary:
-                parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) +
-                ' ' +
-                (currencyAIsWETH ? NativeCurrencies[chainId].symbol : currencyA.symbol) +
-                ' and ' +
-                parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) +
-                ' ' +
-                (currencyBIsWETH ? NativeCurrencies[chainId].symbol : currencyB.symbol),
-              arbitrary: {
-                poolAddress: pairAddress,
-                token_1: currencyA.symbol,
-                token_2: currencyB.symbol,
-                remove_liquidity_method: 'token pair',
-                amp: new Fraction(amp).divide(JSBI.BigInt(10000)).toSignificant(5),
+              type: TRANSACTION_TYPE.CLASSIC_REMOVE_LIQUIDITY,
+              extraInfo: {
+                tokenAmountIn,
+                tokenAmountOut,
+                tokenSymbolIn,
+                tokenSymbolOut,
+                tokenAddressIn: currencyA.wrapped.address,
+                tokenAddressOut: currencyB.wrapped.address,
+                contract: pairAddress,
+                arbitrary: {
+                  poolAddress: pairAddress,
+                  token_1: currencyA.symbol,
+                  token_2: currencyB.symbol,
+                  remove_liquidity_method: 'token pair',
+                  amp: new Fraction(amp).divide(JSBI.BigInt(10000)).toSignificant(5),
+                },
               },
             })
 
@@ -386,18 +395,19 @@ export default function TokenPair({
         })
         .catch((err: Error) => {
           setAttemptingTxn(false)
-          const e = new Error('Remove Liquidity Error', { cause: err })
-          e.name = 'RemoveLiquidityError'
-          captureException(e, { extra: { args } })
           // we only care if the error is something _other_ than the user rejected the tx
-          if ((err as any)?.code !== 4001) {
-            console.error(err)
+          if ((err as any)?.code !== 4001 && (err as any)?.code !== 'ACTION_REJECTED') {
+            const e = new Error('Remove Classic Liquidity Error', { cause: err })
+            e.name = ErrorName.RemoveClassicLiquidityError
+            captureException(e, { extra: { args } })
           }
 
           if (err.message.includes('INSUFFICIENT')) {
-            setRemoveLiquidityError(t`Insufficient liquidity available. Please reload page and try again!`)
+            setRemoveLiquidityError(
+              t`Insufficient liquidity available. Please reload page or increase max slippage and try again!`,
+            )
           } else {
-            setRemoveLiquidityError(err?.message)
+            setRemoveLiquidityError(err?.message || JSON.stringify(err))
           }
         })
     }

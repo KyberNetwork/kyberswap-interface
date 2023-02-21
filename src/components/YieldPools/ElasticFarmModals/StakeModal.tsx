@@ -15,11 +15,12 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import Modal from 'components/Modal'
 import { MouseoverTooltip } from 'components/Tooltip'
+import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
-import { useElasticFarms, useFarmAction } from 'state/farms/elastic/hooks'
+import { StakeParam, useElasticFarms, useFarmAction } from 'state/farms/elastic/hooks'
 import { NFTPosition } from 'state/farms/elastic/types'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { StyledInternalLink } from 'theme'
@@ -83,9 +84,10 @@ const StakeTableRow = styled(TableRow)<{ isUnstake: boolean }>`
   ${({ isUnstake }) => generateCommonCSS(isUnstake)}
 `
 
-type ExplicitNFT = {
+export type ExplicitNFT = {
   available: NFTPosition
   staked: NFTPosition
+  poolAddress: string
 }
 
 const PositionRow = ({
@@ -211,16 +213,18 @@ function StakeModal({
   selectedFarmAddress,
   onDismiss,
   poolId,
+  poolAddress,
   type,
 }: {
   onDismiss: () => void
   selectedFarmAddress: string
   poolId: number
   type: 'stake' | 'unstake'
+  poolAddress: string
 }) {
   const theme = useTheme()
   const checkboxGroupRef = useRef<any>()
-  const { chainId } = useActiveWeb3React()
+  const { chainId, networkInfo } = useActiveWeb3React()
 
   const { farms, userFarmInfo } = useElasticFarms()
   const selectedFarm = farms?.find(farm => farm.id.toLowerCase() === selectedFarmAddress.toLowerCase())
@@ -233,7 +237,7 @@ function StakeModal({
 
   const eligibleNfts: ExplicitNFT[] = useMemo(() => {
     if (!isEVM(chainId)) return []
-    const joinedPositions = userFarmInfo?.[selectedFarmAddress].joinedPositions[poolId] || []
+    const joinedPositions = userFarmInfo?.[selectedFarmAddress]?.joinedPositions?.[poolId] || []
     const depositedPositions =
       userFarmInfo?.[selectedFarmAddress].depositedPositions.filter(pos => {
         return (
@@ -262,7 +266,7 @@ function StakeModal({
             tickLower: item.tickLower,
             tickUpper: item.tickUpper,
           }),
-
+          poolAddress,
           staked: new NFTPosition({
             nftId: item.nftId,
             pool: item.pool,
@@ -278,7 +282,7 @@ function StakeModal({
         }
         return BigNumber.from(item.staked.liquidity.toString()).gt(BigNumber.from(0))
       })
-  }, [type, selectedPool, chainId, poolId, selectedFarmAddress, userFarmInfo])
+  }, [type, selectedPool, chainId, poolId, poolAddress, selectedFarmAddress, userFarmInfo])
 
   const [selectedNFTs, setSeletedNFTs] = useState<ExplicitNFT[]>([])
   const { mixpanelHandler } = useMixpanel()
@@ -297,12 +301,14 @@ function StakeModal({
   }, [selectedNFTs.length, eligibleNfts])
 
   const handleClick = async () => {
+    const params: StakeParam[] = selectedNFTs.map(e => ({
+      nftId: e.available.nftId,
+      position: e.available,
+      poolAddress: e.poolAddress,
+      stakedLiquidity: e.staked.liquidity.toString(),
+    }))
     if (type === 'stake') {
-      const txhash = await stake(
-        BigNumber.from(poolId),
-        selectedNFTs.map(item => item.available.nftId),
-        selectedNFTs.map(item => BigNumber.from(item.available.liquidity.toString())),
-      )
+      const txhash = await stake(BigNumber.from(poolId), params)
       if (txhash) {
         mixpanelHandler(MIXPANEL_TYPE.ELASTIC_STAKE_LIQUIDITY_COMPLETED, {
           token_1: token0?.symbol,
@@ -310,11 +316,7 @@ function StakeModal({
         })
       }
     } else {
-      const txhash = await unstake(
-        BigNumber.from(poolId),
-        selectedNFTs.map(item => item.available.nftId),
-        selectedNFTs.map(item => BigNumber.from(item.staked.liquidity.toString())),
-      )
+      const txhash = await unstake(BigNumber.from(poolId), params)
       if (txhash) {
         mixpanelHandler(MIXPANEL_TYPE.ELASTIC_UNSTAKE_LIQUIDITY_COMPLETED, {
           token_1: token0?.symbol,
@@ -372,10 +374,9 @@ function StakeModal({
                   You haven&apos;t deposited any liquidity positions (NFT tokens) for this farming pair yet.
                   <br />
                   <br />
-                  Add liquidity to this pool first in our <StyledInternalLink to="/pools">
-                    Pools
-                  </StyledInternalLink>{' '}
-                  page. If you&apos;ve done that, deposit your liquidity position (NFT tokens) before you stake
+                  Add liquidity to this pool first in our{' '}
+                  <StyledInternalLink to={`${APP_PATHS.POOLS}/${networkInfo.route}`}>Pools</StyledInternalLink> page. If
+                  you&apos;ve done that, deposit your liquidity position (NFT tokens) before you stake
                 </Trans>
               </Text>
             </Flex>

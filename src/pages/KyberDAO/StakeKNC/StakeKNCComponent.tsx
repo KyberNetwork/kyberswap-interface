@@ -282,20 +282,27 @@ export default function StakeKNCComponent() {
   const { mixpanelHandler } = useMixpanel()
   const [approvalKNC, approveCallback] = useApproveCallback(
     TokenAmount.fromRawAmount(
-      new Token(chainId === ChainId.GÖRLI ? ChainId.GÖRLI : ChainId.MAINNET, kyberDAOInfo?.KNCAddress || '', 18),
+      new Token(chainId === ChainId.GÖRLI ? ChainId.GÖRLI : ChainId.MAINNET, kyberDAOInfo?.KNCAddress || '', 18, 'KNC'),
       MaxUint256,
     ),
     kyberDAOInfo?.staking,
   )
+
+  const currentVotingPower = calculateVotingPower(formatUnits(stakedBalance))
+  const newVotingPower = parseFloat(
+    calculateVotingPower(formatUnits(stakedBalance), (activeTab === STAKE_TAB.Unstake ? '-' : '') + inputValue),
+  )
+  const deltaVotingPower = Math.abs(newVotingPower - parseFloat(currentVotingPower)).toPrecision(3)
+
   const handleStake = () => {
     switchToEthereum()
       .then(() => {
         setPendingText(t`Staking ${inputValue} KNC to KyberDAO`)
         setShowConfirm(true)
         setAttemptingTxn(true)
-        stake(parseUnits(inputValue, 18))
+        mixpanelHandler(MIXPANEL_TYPE.KYBER_DAO_STAKE_CLICK, { amount: inputValue })
+        stake(parseUnits(inputValue, 18), deltaVotingPower)
           .then(tx => {
-            mixpanelHandler(MIXPANEL_TYPE.KYBER_DAO_STAKE_CLICK, { amount: inputValue })
             setAttemptingTxn(false)
             setTxHash(tx)
           })
@@ -314,9 +321,9 @@ export default function StakeKNCComponent() {
         setPendingText(t`Unstaking ${inputValue} KNC from KyberDAO`)
         setShowConfirm(true)
         setAttemptingTxn(true)
+        mixpanelHandler(MIXPANEL_TYPE.KYBER_DAO_UNSTAKE_CLICK, { amount: inputValue })
         unstake(parseUnits(inputValue, 18))
           .then(tx => {
-            mixpanelHandler(MIXPANEL_TYPE.KYBER_DAO_UNSTAKE_CLICK, { amount: inputValue })
             setAttemptingTxn(false)
             setTxHash(tx)
           })
@@ -372,9 +379,9 @@ export default function StakeKNCComponent() {
       setPendingText(t`You are delegating your voting power to ${delegateAddress}.`)
       setShowConfirm(true)
       setAttemptingTxn(true)
+      mixpanelHandler(MIXPANEL_TYPE.KYBER_DAO_DELEGATE_CLICK, { delegateAddress: delegateAddress })
       delegate(delegateAddress)
         .then(tx => {
-          mixpanelHandler(MIXPANEL_TYPE.KYBER_DAO_DELEGATE_CLICK, { delegateAddress: delegateAddress })
           setAttemptingTxn(false)
           setTxHash(tx)
           setDelegateAddress('')
@@ -626,20 +633,11 @@ export default function StakeKNCComponent() {
                 />
               </Text>
               <Text>
-                {calculateVotingPower(formatUnits(stakedBalance))}%
+                {currentVotingPower}%
                 {activeTab !== STAKE_TAB.Delegate && (
                   <>
                     {' '}
-                    &rarr;{' '}
-                    <span style={{ color: theme.text }}>
-                      {parseFloat(
-                        calculateVotingPower(
-                          formatUnits(stakedBalance),
-                          (activeTab === STAKE_TAB.Unstake ? '-' : '') + inputValue,
-                        ),
-                      )}
-                      %
-                    </span>
+                    &rarr; <span style={{ color: theme.text }}>{newVotingPower}%</span>
                   </>
                 )}
               </Text>
