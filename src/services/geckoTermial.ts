@@ -83,7 +83,7 @@ const geckoTerminalApi = createApi({
       }),
     }),
 
-    candelsticks: builder.query<CandleResponse, CandleParams>({
+    candlesticks: builder.query<CandleResponse, CandleParams>({
       query: params => ({
         url: '/contracts/1/candlesticks.json',
         params,
@@ -92,6 +92,6 @@ const geckoTerminalApi = createApi({
   }),
 })
 
-export const { useGeckoTerminalSearchQuery, useGetPoolDetailQuery, useLazyCandelsticksQuery } = geckoTerminalApi
+export const { useGeckoTerminalSearchQuery, useGetPoolDetailQuery, useLazyCandlesticksQuery } = geckoTerminalApi
 
 export default geckoTerminalApi

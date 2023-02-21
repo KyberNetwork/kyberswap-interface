@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef } from 'react'
-import { PoolResponse, useLazyCandlesticksQuery } from 'services/geckoTermial'
 
 import {
   ErrorCallback,
@@ -10,15 +9,15 @@ import {
   ResolveCallback,
   SubscribeBarsCallback,
   Timezone,
-} from './charting_library'
+} from 'components/TradingViewChart/charting_library'
+
+import dataJson from './../chart/candles.json'
 
 const configurationData = {
   supported_resolutions: ['1', '5', '15', '1H', '2H', '4H', '1D'],
 }
 
-export const useDatafeed = (poolDetail: PoolResponse, tokenId: string) => {
-  const [getCandles, { isLoading }] = useLazyCandlesticksQuery()
-
+export const useDatafeed = () => {
   const intervalRef = useRef<any>()
 
   useEffect(() => {
@@ -28,16 +27,6 @@ export const useDatafeed = (poolDetail: PoolResponse, tokenId: string) => {
       }
     }
   }, [])
-  const base =
-    poolDetail.included[0].id === tokenId
-      ? poolDetail.included[0].attributes.symbol
-      : poolDetail.included[1].attributes.symbol
-  const quote =
-    poolDetail.included[0].id !== tokenId
-      ? poolDetail.included[0].attributes.symbol
-      : poolDetail.included[1].attributes.symbol
-
-  const label = `${base}/${quote}`
 
   return useMemo(() => {
     return {
@@ -51,12 +40,12 @@ export const useDatafeed = (poolDetail: PoolResponse, tokenId: string) => {
       ) => {
         try {
           const symbolInfo: LibrarySymbolInfo = {
-            ticker: label,
-            name: label,
-            full_name: label,
+            ticker: 'BTC/USD',
+            name: 'BTC/USD',
+            full_name: 'BTC/USD',
             listed_exchange: '',
             format: 'price',
-            description: label,
+            description: 'BTC/USD',
             type: 'crypto',
             session: '24x7',
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone as Timezone,
@@ -83,31 +72,20 @@ export const useDatafeed = (poolDetail: PoolResponse, tokenId: string) => {
         onHistoryCallback: HistoryCallback,
         _onErrorCallback: ErrorCallback,
       ) => {
-        if (isLoading) return
-
-        const data = await getCandles({
-          token_id: tokenId,
-          pool_id: poolDetail.data.id,
-          from: periodParams.from,
-          to: periodParams.to,
-          resolution,
-          count_back: periodParams.countBack,
-          for_update: false,
-          currency: 'token',
-        })
-
+        if (periodParams.to * 1000 < 1674409500000) {
+          onHistoryCallback([], { noData: true })
+          return
+        }
         onHistoryCallback(
-          data?.data?.data.map((item: any) => ({
-            time: new Date(item.dt).getTime(),
-            open: item.o,
-            high: Math.min(item.h, item.c * 1.1),
-            close: item.c,
-            low: Math.max(item.l, item.c / 1.1),
-            volume: item.v,
+          dataJson?.map((item: any) => ({
+            time: item.time,
+            open: item.open,
+            high: Math.min(item.high, item.close * 1.1),
+            close: item.close,
+            low: Math.max(item.low, item.close / 1.1),
+            volume: item.volume,
           })) || [],
-          {
-            noData: data?.data?.meta?.noData === true,
-          },
+          { noData: true },
         )
       },
       searchSymbols: () => {
@@ -121,18 +99,10 @@ export const useDatafeed = (poolDetail: PoolResponse, tokenId: string) => {
         _onResetCacheNeededCallback: () => void,
       ) => {
         const getData = async () => {
-          const data = await getCandles({
-            token_id: tokenId,
-            pool_id: poolDetail.data.id,
-            from: Math.floor(Date.now() / 1000) - +resolution * 60,
-            to: Math.floor(Date.now() / 1000),
-            resolution,
-            for_update: true,
-            currency: 'token',
-          })
+          const data = dataJson
 
           onTick(
-            (data?.data?.data || []).map((item: any) => ({
+            (data || []).map((item: any) => ({
               time: new Date(item.dt).getTime(),
               open: item.o,
               high: item.h,
@@ -150,5 +120,5 @@ export const useDatafeed = (poolDetail: PoolResponse, tokenId: string) => {
         //
       },
     }
-  }, [getCandles, isLoading, poolDetail.data.id, label, tokenId])
+  }, [])
 }

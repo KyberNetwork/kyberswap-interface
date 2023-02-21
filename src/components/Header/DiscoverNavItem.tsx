@@ -11,7 +11,7 @@ import SlideToUnlock from './SlideToUnlock'
 import { StyledNavLink } from './styleds'
 
 const DiscoverWrapper = styled.span`
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+  ${({ theme }) => theme.mediaWidth.upToXXSmall`
     display: none;
   `};
 `

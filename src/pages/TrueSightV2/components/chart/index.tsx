@@ -26,7 +26,6 @@ import styled, { css } from 'styled-components'
 import Column from 'components/Column'
 import Row, { RowFit } from 'components/Row'
 import { ChartingLibraryWidgetOptions, ResolutionString } from 'components/TradingViewChart/charting_library'
-import { useDatafeed } from 'components/TradingViewChart/datafeed'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import {
@@ -51,6 +50,7 @@ import { shortenAddress } from 'utils'
 
 import { ContentWrapper } from '..'
 import SignedBarChart from './SignedBarChart'
+import { useDatafeed } from './datafeed'
 
 const ChartWrapper = styled(ContentWrapper)`
   flex: 1;
@@ -1257,7 +1257,7 @@ const Prochart = ({ poolDetail }: { poolDetail: PoolResponse }) => {
   const [ref, setRef] = useState<HTMLDivElement | null>(null)
   const [fullscreen, setFullscreen] = useState(false)
 
-  const datafeed = useDatafeed(poolDetail, '1337609')
+  const datafeed = useDatafeed()
 
   useEffect(() => {
     if (!ref || !window.TradingView) {
@@ -1315,6 +1315,18 @@ const Prochart = ({ poolDetail }: { poolDetail: PoolResponse }) => {
         'scalesProperties.textColor': theme.text,
       })
       tvWidget.activeChart().createStudy('Stochastic RSI')
+      tvWidget.activeChart().createMultipointShape([{ time: 1675873800, price: 0.21789729082835793 }], {
+        shape: 'horizontal_ray',
+        overrides: { color: '#80CCDB', linewidth: 2, linestyle: 2 },
+      })
+      tvWidget.activeChart().createMultipointShape([{ time: 1674836100, price: 0.19939455702710474 }], {
+        shape: 'horizontal_ray',
+        overrides: { color: '#80CCDB', linewidth: 2, linestyle: 2 },
+      })
+      tvWidget.activeChart().createMultipointShape([{ time: 1676430000, price: 0.2041755193861572 }], {
+        shape: 'horizontal_ray',
+        overrides: { color: '#80CCDB', linewidth: 2, linestyle: 2 },
+      })
     })
 
     return () => {

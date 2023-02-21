@@ -120,7 +120,7 @@ const IconImage = styled.img<{ isChristmas?: boolean }>`
 
 const CampaignWrapper = styled.span`
   /* It's better to break at 420px than at extraSmall */
-  @media (max-width: 420px) {
+  @media (max-width: 550px) {
     display: none;
   }
 `
@@ -188,12 +188,12 @@ export default function Header() {
 
           <EarnNavGroup />
 
+          <DiscoverNavItem />
           <CampaignWrapper id={TutorialIds.CAMPAIGN_LINK}>
             <StyledNavLink id="campaigns" to={APP_PATHS.CAMPAIGN}>
               <Trans>Campaigns</Trans>
             </StyledNavLink>
           </CampaignWrapper>
-          <DiscoverNavItem />
           <KyberDAONavGroup />
           <AnalyticNavGroup />
           <AboutNavGroup />
