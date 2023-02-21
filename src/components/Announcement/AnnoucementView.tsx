@@ -203,13 +203,13 @@ export default function AnnouncementView({
   return (
     <Wrapper>
       <Container>
-        <RowBetween gap="10px">
+        <RowBetween gap="10px" height="28px">
           <Title>
             <NotificationIcon size={18} />
             <Trans>Notifications</Trans>
           </Title>
           <Flex style={{ gap: '20px', alignItems: 'center' }}>
-            <MenuMoreAction showClearAll={Boolean(showClearAll)} clearAll={clearAll} />
+            {showClearAll && <MenuMoreAction showClearAll={Boolean(showClearAll)} clearAll={clearAll} />}
             {isMobile && <X color={theme.subText} onClick={toggleNotificationCenter} cursor="pointer" />}
           </Flex>
         </RowBetween>
