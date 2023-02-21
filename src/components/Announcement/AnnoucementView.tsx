@@ -29,6 +29,9 @@ const Wrapper = styled.div`
   gap: 12px;
   height: 70vh;
   padding-top: 20px;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    width: 100%;
+  `};
   ${({ theme }) => theme.mediaWidth.upToSmall`
     width: 100%;
     height: unset;
