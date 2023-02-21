@@ -165,15 +165,17 @@ export default function AnnouncementComponent() {
     tab !== activeTab && fetchAnnouncementsByTab(true, tab)
   }
 
-  const prefetchPrivateAnnouncements = useCallback(() => {
-    if (account)
-      fetchPrivateAnnouncement({ account, page: 1 })
-        .then(({ data }) => {
-          setPrivateAnnouncements((data?.notifications ?? []) as PrivateAnnouncement[])
-        })
-        .catch(() => {
-          setPrivateAnnouncements([])
-        })
+  const prefetchPrivateAnnouncements = useCallback(async () => {
+    try {
+      if (!account) return []
+      const { data } = await fetchPrivateAnnouncement({ account, page: 1 })
+      const notifications = (data?.notifications ?? []) as PrivateAnnouncement[]
+      setPrivateAnnouncements(notifications)
+      return notifications
+    } catch (error) {
+      setPrivateAnnouncements([])
+      return []
+    }
   }, [account, fetchPrivateAnnouncement])
 
   const prevOpen = usePrevious(isOpenNotificationCenter)
@@ -182,20 +184,19 @@ export default function AnnouncementComponent() {
       // close popup
       return
     }
-    const newTab = account ? Tab.INBOX : Tab.ANNOUNCEMENT
-    setActiveTab(newTab)
-
     // prefetch data
-    prefetchPrivateAnnouncements()
-
-    if (isOpenNotificationCenter && newTab === Tab.ANNOUNCEMENT)
-      fetchGeneralAnnouncement({ page: 1 })
-        .then(({ data }) => {
-          setAnnouncements((data?.notifications ?? []) as Announcement[])
-        })
-        .catch(() => {
-          setAnnouncements([])
-        })
+    prefetchPrivateAnnouncements().then((data: PrivateAnnouncement[]) => {
+      const newTab = account && data.length ? Tab.INBOX : Tab.ANNOUNCEMENT
+      setActiveTab(newTab)
+      if (isOpenNotificationCenter && newTab === Tab.ANNOUNCEMENT)
+        fetchGeneralAnnouncement({ page: 1 })
+          .then(({ data }) => {
+            setAnnouncements((data?.notifications ?? []) as Announcement[])
+          })
+          .catch(() => {
+            setAnnouncements([])
+          })
+    })
   }, [account, prefetchPrivateAnnouncements, fetchGeneralAnnouncement, prevOpen, isOpenNotificationCenter])
 
   useEffect(() => {
