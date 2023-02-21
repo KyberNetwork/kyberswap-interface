@@ -4,9 +4,8 @@ import styled, { css } from 'styled-components'
 export const InboxItemWrapper = styled.div<{ isRead: boolean }>`
   border-bottom: 1px solid ${({ theme }) => theme.border};
   background-color: ${({ theme }) => theme.background};
-
   font-size: 12px;
-  padding: 16px;
+  padding: 20px;
   gap: 8px;
   display: flex;
   flex-direction: column;

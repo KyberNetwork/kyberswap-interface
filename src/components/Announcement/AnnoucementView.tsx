@@ -1,4 +1,5 @@
 import { Trans } from '@lingui/macro'
+import { useCallback } from 'react'
 import { Info, X } from 'react-feather'
 import { useMedia } from 'react-use'
 import AutoSizer from 'react-virtualized-auto-sizer'
@@ -85,7 +86,17 @@ const ListAnnouncement = styled.div`
   flex: 1;
   flex-direction: column;
   overflow-y: auto;
-  border-radius: 0px 0px 20px 20px;
+  overflow-x: hidden;
+  border-radius: 0px 0px 12px 12px;
+  .scrollbar {
+    &::-webkit-scrollbar {
+      display: block;
+      width: 4px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: ${({ theme }) => theme.border};
+    }
+  }
   ${({ theme }) => theme.mediaWidth.upToSmall`
     border-radius: 0;
   `};
@@ -180,6 +191,12 @@ export default function AnnouncementView({
 
   const showClearAll = account && isMyInboxTab && announcements.length > 0
 
+  const onRefChange = useCallback((node: HTMLDivElement) => {
+    if (!node?.classList.contains('scrollbar')) {
+      node?.classList.add('scrollbar')
+    }
+  }, [])
+
   return (
     <Wrapper>
       <Container>
@@ -204,6 +221,7 @@ export default function AnnouncementView({
               <InfiniteLoader isItemLoaded={isItemLoaded} itemCount={itemCount} loadMoreItems={loadMoreAnnouncements}>
                 {({ onItemsRendered, ref }) => (
                   <FixedSizeList
+                    outerRef={onRefChange}
                     height={height}
                     width={width}
                     itemCount={itemCount}

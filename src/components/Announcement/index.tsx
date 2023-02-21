@@ -70,7 +70,7 @@ const Badge = styled.div`
 
 const browserCustomStyle = css`
   padding: 0;
-  border-radius: 20px;
+  border-radius: 12px;
   ${({ theme }) => theme.mediaWidth.upToLarge`
     top: unset;
     bottom: 3.5rem;
