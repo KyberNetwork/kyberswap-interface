@@ -67,18 +67,21 @@ const Desc = styled.div<{ expand: boolean }>`
   font-size: 12px;
   color: ${({ theme }) => theme.subText};
   ${({ expand }) =>
-    !expand &&
-    css`
-      display: block;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      > p {
-        margin: 0;
-      }
-    `};
+    !expand
+      ? css`
+          display: block;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        `
+      : css`
+          line-height: 16px;
+        `};
+  > p {
+    margin: 0;
+  }
 `
 
 const Title = styled.div<{ expand: boolean }>`
@@ -242,7 +245,7 @@ export default function SnippetPopup({ data, clearAll }: { data: PopupItemType[]
 
   return (
     <Wrapper expand={expand}>
-      <Swiper slidesPerView={1} navigation={true} pagination={true} loop={true} modules={[Navigation, Pagination]}>
+      <Swiper slidesPerView={1} navigation autoHeight pagination loop modules={[Navigation, Pagination]}>
         {data.map((banner: PopupItemType, index: number) => (
           <SwiperSlide key={index}>
             <SnippetPopupItem expand={expand} setExpand={setExpand} data={banner} key={index} />
