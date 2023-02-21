@@ -27,7 +27,7 @@ export const InboxItemWrapper = styled.div<{ isRead: boolean }>`
 `
 
 export const Title = styled.div<{ isRead: boolean }>`
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 500;
   color: ${({ theme, isRead }) => (isRead ? theme.text : theme.primary)};
 `
