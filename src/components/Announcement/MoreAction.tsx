@@ -30,7 +30,7 @@ const MenuMoreAction = ({ showClearAll, clearAll }: { clearAll: () => void; show
           Notification Center
         </MenuItem> */}
         {showClearAll && (
-          <MenuItem>
+          <MenuItem onClick={clearAll}>
             <Trash size={16} />
             <Trans>Clear All</Trans>
           </MenuItem>
