@@ -55,11 +55,11 @@ const StyledMenu = styled.div`
   text-align: left;
 `
 
-const Badge = styled.div`
+const Badge = styled.div<{ isOverflow: boolean }>`
   border-radius: 16px;
   position: absolute;
   top: -6px;
-  right: -16px;
+  right: ${({ isOverflow }) => (isOverflow ? -16 : -10)}px;
   background-color: ${({ theme }) => theme.primary};
   padding: 2px 4px 1px 4px;
   font-weight: 500;
@@ -151,7 +151,6 @@ export default function AnnouncementComponent() {
     numberOfUnread,
     pagination: { totalItems: totalPrivateAnnouncement },
   } = isError ? responseDefault : respPrivateAnnouncement
-
   const refreshAnnouncement = () => {
     fetchAnnouncementsByTab(true)
   }
@@ -225,7 +224,11 @@ export default function AnnouncementComponent() {
   const bellIcon = (
     <StyledMenuButton active={isOpenNotificationCenter || numberOfUnread > 0} onClick={togglePopupWithAckAllMessage}>
       <NotificationIcon />
-      {numberOfUnread > 0 && <Badge>{formatNumberOfUnread(numberOfUnread)}</Badge>}
+      {numberOfUnread > 0 && (
+        <Badge isOverflow={formatNumberOfUnread(numberOfUnread).length >= 3}>
+          {formatNumberOfUnread(numberOfUnread)}
+        </Badge>
+      )}
     </StyledMenuButton>
   )
   const node = useRef<HTMLDivElement>(null)

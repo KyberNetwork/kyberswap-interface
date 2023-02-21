@@ -18,7 +18,7 @@ export const useAckAnnouncement = () => {
   return { announcementsAckMap: announcementsMap ?? {}, ackAnnouncement }
 }
 
-export const formatNumberOfUnread = (num: number) => (num > 10 ? '10+' : num)
+export const formatNumberOfUnread = (num: number) => (num > 10 ? '10+' : num + '')
 
 export const isPopupExpired = (popupInfo: PopupItemType, announcementsAckMap: { [id: string]: string }) => {
   const { templateBody, metaMessageId } = popupInfo.content as PopupContentAnnouncement
