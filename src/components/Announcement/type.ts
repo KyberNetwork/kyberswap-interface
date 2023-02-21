@@ -70,7 +70,7 @@ export type AnnouncementTemplatePopup = {
   chainIds: string[]
 
   ctas: AnnouncementCTA[] // in popup
-  actionURL: string // in noti center
+  ctaURL: string // in noti center
 }
 
 type AnnouncementTemplate = (

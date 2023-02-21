@@ -85,14 +85,14 @@ export default function AnnouncementItem({
 }) {
   const { templateBody } = announcement
 
-  const { name, startAt, content, thumbnailImageURL, actionURL } = templateBody
+  const { name, startAt, content, thumbnailImageURL, ctaURL } = templateBody
   const navigate = useNavigateCtaPopup()
   const formatContent = content
   return (
     <Wrapper
       onClick={() => {
         onRead()
-        navigate(actionURL)
+        navigate(ctaURL)
       }}
       style={style}
     >
