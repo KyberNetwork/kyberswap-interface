@@ -17,7 +17,7 @@ const transformResponse = (data: any) => {
     ...rest,
     notifications: (metaMessages ?? notifications ?? []).map((e: any) => ({
       ...e,
-      templateBody: JSON.parse(e.templateBody ?? '{}'),
+      templateBody: JSON.parse(e.templateBody ?? '{}') ?? {},
     })),
   } as Response
 }

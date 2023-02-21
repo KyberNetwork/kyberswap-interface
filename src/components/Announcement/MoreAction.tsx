@@ -3,9 +3,7 @@ import { MoreHorizontal, Trash } from 'react-feather'
 import styled, { css } from 'styled-components'
 
 import Column from 'components/Column'
-import MailIcon from 'components/Icons/MailIcon'
 import MenuFlyout from 'components/MenuFlyout'
-import useNotification from 'hooks/useNotification'
 
 const MenuItem = styled.div`
   display: flex;
@@ -21,16 +19,16 @@ const MenuItem = styled.div`
 `
 const customStyle = css`
   padding: 16px;
+  top: 3rem;
 `
 const MenuMoreAction = ({ showClearAll, clearAll }: { clearAll: () => void; showClearAll: boolean }) => {
-  const { showNotificationModal } = useNotification()
   return (
     <MenuFlyout modalWhenMobile={false} trigger={<MoreHorizontal cursor="pointer" />} customStyle={customStyle}>
       <Column gap="16px">
-        <MenuItem onClick={showNotificationModal}>
+        {/* <MenuItem onClick={showNotificationModal}>
           <MailIcon size={16} />
           Notification Center
-        </MenuItem>
+        </MenuItem> */}
         {showClearAll && (
           <MenuItem>
             <Trash size={16} />
