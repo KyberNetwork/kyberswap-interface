@@ -22,10 +22,14 @@ const Wrapper = styled.div`
 `
 
 const Title = styled.div`
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 500;
   color: ${({ theme }) => theme.text};
-  height: 34px;
+  height: 32px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
 `
 
 const Desc = styled.div`
@@ -59,6 +63,7 @@ const RowItem = styled.div`
   align-items: flex-start;
   flex: 1;
   justify-content: space-between;
+  overflow: hidden;
   height: ${HEIGHT};
 `
 
@@ -82,7 +87,7 @@ export default function AnnouncementItem({
 
   const { name, startAt, content, thumbnailImageURL, actionURL } = templateBody
   const navigate = useNavigateCtaPopup()
-
+  const formatContent = content
   return (
     <Wrapper
       onClick={() => {
@@ -93,9 +98,9 @@ export default function AnnouncementItem({
     >
       <Image src={thumbnailImageURL || kyberCrystal} />
       <RowItem>
-        <Column gap="6px">
+        <Column gap="6px" style={{ maxWidth: '100%' }}>
           <Title>{name} </Title>
-          <Desc dangerouslySetInnerHTML={{ __html: content }} />
+          <Desc dangerouslySetInnerHTML={{ __html: formatContent }} />
         </Column>
         <Time>{formatTime(startAt)}</Time>
       </RowItem>
