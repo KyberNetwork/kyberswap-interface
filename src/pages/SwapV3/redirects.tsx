@@ -14,10 +14,8 @@ export function RedirectPathToSwapV3Network() {
 
   if (pathname.startsWith(APP_PATHS.LIMIT) && getLimitOrderContract(chainId)) {
     redirectTo = APP_PATHS.LIMIT
-  } else if (pathname.startsWith(APP_PATHS.SWAP_V3)) {
-    redirectTo = APP_PATHS.SWAP_V3
   } else {
-    redirectTo = APP_PATHS.SWAP
+    redirectTo = APP_PATHS.SWAP_V3
   }
 
   return (
