@@ -226,10 +226,6 @@ const MeterGauge = styled.path`
   transition: all 0.2s ease;
 `
 
-const MeterHand = styled.path`
-  transform-origin: 50% 86%;
-  transition: all 0.1s linear;
-`
 const GaugeValue = styled.div`
   position: absolute;
   bottom: 17px;
@@ -241,6 +237,12 @@ const GaugeValue = styled.div`
 let transitionValue = 0
 const minRotate = 194,
   fullRotate = 204
+
+const MeterHand = styled.path`
+  transform-origin: 50% 86%;
+  transition: all 0.1s linear;
+  ${() => `transform: rotate(${minRotate}deg);`}
+`
 
 function KyberScoreMeter({ value }: { value?: number }) {
   const theme = useTheme()

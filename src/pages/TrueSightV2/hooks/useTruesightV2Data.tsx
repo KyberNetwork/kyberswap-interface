@@ -57,9 +57,9 @@ const truesightV2Api = createApi({
     }),
     netflowToWhaleWallets: builder.query<INetflowToWhaleWallets[], string>({
       query: (tokenAddress?: string) => ({
-        url: '/netflow/ethereum/0xdefa4e8a7bcba345f687a2f1456f5edd9ce97202?from=1669867147&to=1672372747',
+        url: '/netflow/ethereum/0xdefa4e8a7bcba345f687a2f1456f5edd9ce97202?from=1675209600&to=1677801600',
       }),
-      transformResponse: (res: any) => res.data.contents,
+      transformResponse: (res: any) => res.data,
     }),
     netflowToCEX: builder.query({
       query: () => ({

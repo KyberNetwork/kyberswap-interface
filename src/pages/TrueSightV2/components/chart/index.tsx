@@ -45,7 +45,7 @@ import {
   useTradingVolumeQuery,
 } from 'pages/TrueSightV2/hooks/useTruesightV2Data'
 import { testParams } from 'pages/TrueSightV2/pages/SingleToken'
-import { ChartTab } from 'pages/TrueSightV2/types'
+import { ChartTab, INetflowToWhaleWallets } from 'pages/TrueSightV2/types'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 
@@ -495,33 +495,52 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
   const [showOutflow, setShowOutflow] = useState(true)
   const [showNetflow, setShowNetflow] = useState(true)
   const [timeframe, setTimeframe] = useState('7D')
-  const formattedData = useMemo(
-    () =>
-      (address ? data : NETFLOW_TO_WHALE_WALLETS)?.map(item => {
-        if (tab === ChartTab.Second) {
-          return {
-            inflow: showInflow ? item.inflow : undefined,
-            netflow: showNetflow ? item.netflow : undefined,
-            timestamp: item.timestamp,
-          }
-        }
-        if (tab === ChartTab.Third) {
-          return {
-            outflow: showOutflow ? -item.outflow : undefined,
-            netflow: showNetflow ? item.netflow : undefined,
-            timestamp: item.timestamp,
-          }
-        }
-        return {
-          inflow: showInflow ? item.inflow : undefined,
-          outflow: showOutflow ? -item.outflow : undefined,
-          netflow: showNetflow ? item.netflow : undefined,
-          timestamp: item.timestamp,
-        }
-      }),
-    [data, showInflow, showOutflow, showNetflow, address, tab],
-  )
+
+  const formattedData: any[] = useMemo(() => {
+    const dataTemp = address ? data : NETFLOW_TO_WHALE_WALLETS
+    const uniqueTimestamp = dataTemp ? new Set(dataTemp?.map((i: INetflowToWhaleWallets) => i.timestamp)) : undefined
+    const newData: any[] = []
+    uniqueTimestamp?.forEach((timestamp: number) => {
+      const filteredItems = dataTemp?.filter(i => i.timestamp === timestamp)
+      if (filteredItems && filteredItems?.length > 0) {
+        newData.push({
+          inflow: showInflow ? filteredItems?.reduce((s: number, i) => s + i.inflow, 0) : 0,
+          outflow: showOutflow ? -1 * filteredItems?.reduce((s: number, i) => s + i.outflow, 0) : 0,
+          netflow: showNetflow ? filteredItems?.reduce((s: number, i) => s + i.netflow, 0) : 0,
+          timestamp: timestamp,
+          generalInflow: filteredItems?.reduce((s: number, i) => (i.whaleType === 'general' ? s + i.inflow : s), 0),
+          generalOutflow: filteredItems?.reduce((s: number, i) => (i.whaleType === 'general' ? s + i.outflow : s), 0),
+          tokenInflow: filteredItems?.reduce((s: number, i) => (i.whaleType === 'token' ? s + i.inflow : s), 0),
+          tokenOutflow: filteredItems?.reduce((s: number, i) => (i.whaleType === 'token' ? s + i.outflow : s), 0),
+        })
+      }
+    })
+    return newData
+  }, [data, showInflow, showOutflow, showNetflow, address])
   const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+
+  useEffect(() => {
+    switch (tab) {
+      case ChartTab.First: {
+        setShowNetflow(true)
+        setShowInflow(true)
+        setShowOutflow(true)
+        break
+      }
+      case ChartTab.Second: {
+        setShowNetflow(true)
+        setShowInflow(true)
+        setShowOutflow(false)
+        break
+      }
+      case ChartTab.Third: {
+        setShowNetflow(true)
+        setShowInflow(false)
+        setShowOutflow(true)
+        break
+      }
+    }
+  }, [tab])
 
   return (
     <>
@@ -531,18 +550,22 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
             <LegendWrapper>
               {above768 && (
                 <>
-                  <LegendButton
-                    text="Inflow"
-                    iconStyle={{ backgroundColor: rgba(theme.primary, 0.6) }}
-                    enabled={showInflow}
-                    onClick={() => setShowInflow(prev => !prev)}
-                  />
-                  <LegendButton
-                    text="Outflow"
-                    iconStyle={{ backgroundColor: rgba(theme.red, 0.6) }}
-                    enabled={showOutflow}
-                    onClick={() => setShowOutflow(prev => !prev)}
-                  />
+                  {tab !== ChartTab.Third && (
+                    <LegendButton
+                      text="Inflow"
+                      iconStyle={{ backgroundColor: rgba(theme.primary, 0.6) }}
+                      enabled={showInflow}
+                      onClick={() => setShowInflow(prev => !prev)}
+                    />
+                  )}
+                  {tab !== ChartTab.Second && (
+                    <LegendButton
+                      text="Outflow"
+                      iconStyle={{ backgroundColor: rgba(theme.red, 0.6) }}
+                      enabled={showOutflow}
+                      onClick={() => setShowOutflow(prev => !prev)}
+                    />
+                  )}
                   <LegendButton
                     text="Netflow"
                     iconStyle={{
@@ -566,7 +589,7 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
                   tickLine={false}
                   axisLine={false}
                   tick={{ fill: theme.subText, fontWeight: 400 }}
-                  tickFormatter={value => dayjs(value).format('MMM DD')}
+                  tickFormatter={value => dayjs(value).format(timeframe === '1D' ? 'MMM DD HH:mm' : 'MMM DD')}
                 />
                 <YAxis
                   fontSize="12px"
@@ -608,10 +631,10 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
                               Inflow
                             </Text>
                             <Text fontSize="12px" lineHeight="16px" color={theme.primary}>
-                              ${formatNum(payload.inflow)}
+                              ${formatNum(payload.generalInflow)}
                             </Text>
                             <Text fontSize="12px" lineHeight="16px" color={theme.primary}>
-                              ${formatNum(payload.inflow)}
+                              ${formatNum(payload.tokenInflow)}
                             </Text>
                           </Column>
                           <Column gap="4px">
@@ -619,10 +642,10 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
                               Outflow
                             </Text>
                             <Text fontSize="12px" lineHeight="16px" color={theme.red}>
-                              ${formatNum(payload.outflow)}
+                              ${formatNum(payload.generalOutflow)}
                             </Text>
                             <Text fontSize="12px" lineHeight="16px" color={theme.red}>
-                              ${formatNum(payload.outflow)}
+                              ${formatNum(payload.tokenOutflow)}
                             </Text>
                           </Column>
                         </Row>
@@ -644,7 +667,9 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
                   animationBegin={ANIMATION_DELAY}
                   animationDuration={ANIMATION_DURATION}
                 />
-                <Line type="linear" dataKey="netflow" stroke={theme.primary} strokeWidth={3} dot={false} />
+                {showNetflow && (
+                  <Line type="linear" dataKey="netflow" stroke={theme.primary} strokeWidth={3} dot={false} />
+                )}
               </ComposedChart>
             </ResponsiveContainer>
           </>

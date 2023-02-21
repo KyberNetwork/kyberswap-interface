@@ -36,6 +36,7 @@ export interface ITradeVolume {
   timestamp: number
 }
 export interface INetflowToWhaleWallets {
+  whaleType: string
   inflow: number
   outflow: number
   netflow: number
