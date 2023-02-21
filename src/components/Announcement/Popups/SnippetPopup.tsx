@@ -75,6 +75,9 @@ const Desc = styled.div<{ expand: boolean }>`
       -webkit-box-orient: vertical;
       overflow: hidden;
       text-overflow: ellipsis;
+      > p {
+        margin: 0;
+      }
     `};
 `
 
