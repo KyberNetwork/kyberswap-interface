@@ -29,15 +29,15 @@ const Title = styled.div`
 `
 
 const Desc = styled.div`
-  font-size: 10px;
+  font-size: 12px;
   color: ${({ theme }) => theme.subText};
-  height: 36px;
+  height: 34px;
 
   display: block;
   display: -webkit-box;
   max-width: 100%;
-  line-height: 12px;
-  -webkit-line-clamp: 3;
+  line-height: 16px;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
