@@ -1,6 +1,6 @@
 import { ReactNode } from 'react'
 
-import { LimitOrder } from 'components/swapv2/LimitOrder/type'
+import { LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
 import { MultichainTransfer } from 'hooks/bridge/useGetBridgeTransfers'
 
 export type Announcement = {
@@ -34,7 +34,28 @@ export type TrueSightToken = {
 }
 
 // for private announcement
-export type AnnouncementTemplateLimitOrder = { order: LimitOrder }
+
+export type LimitOrderNotification = {
+  walletAddress: string
+  makingAmount: string
+  makerAssetSymbol: string
+  takingAmount: string
+  takerAssetSymbol: string
+  makingAmountRate: string
+  takingAmountRate: string
+  filledMakingAmount: string
+  filledTakingAmount: string
+  makerAssetLogoURL: string
+  takerAssetLogoURL: string
+  kyberswapURL: string
+  status: LimitOrderStatus
+  // for partial fill
+  filledPercent: string
+  increasedFilledPercent: string
+}
+export type AnnouncementTemplateLimitOrder = {
+  order: LimitOrderNotification
+}
 export type AnnouncementTemplateBridge = { transaction: MultichainTransfer }
 export type AnnouncementTemplateTrendingSoon = { tokens: TrueSightToken[] }
 

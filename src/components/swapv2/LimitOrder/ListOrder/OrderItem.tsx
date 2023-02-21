@@ -150,7 +150,7 @@ function formatStatus(status: string) {
   return status.charAt(0).toUpperCase() + status.slice(1)
 }
 
-export function formatStatusLimitOrder(order: LimitOrder, isCancelling = false) {
+function formatStatusLimitOrder(order: LimitOrder, isCancelling = false) {
   const { takingAmount, filledTakingAmount, takerAssetDecimals } = order
   const filledPercent = calcPercentFilledOrder(filledTakingAmount, takingAmount, takerAssetDecimals)
   const status = isCancelling ? LimitOrderStatus.CANCELLING : order.status

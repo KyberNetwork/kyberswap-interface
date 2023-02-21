@@ -1,9 +1,10 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
+import { Repeat } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
+import styled from 'styled-components'
 
 import { ReactComponent as LimitOrderIcon } from 'assets/svg/limit_order.svg'
-import IconFailure from 'assets/svg/notification_icon_failure.svg'
-import IconSuccess from 'assets/svg/notification_icon_success.svg'
+import { ReactComponent as IconSuccess } from 'assets/svg/notification_icon_success.svg'
 import { PrivateAnnouncementProp } from 'components/Announcement/PrivateAnnoucement'
 import {
   Dot,
@@ -13,16 +14,21 @@ import {
   RowItem,
   Title,
 } from 'components/Announcement/PrivateAnnoucement/styled'
-import { AnnouncementTemplateLimitOrder } from 'components/Announcement/type'
+import { AnnouncementTemplateLimitOrder, LimitOrderNotification } from 'components/Announcement/type'
 import DeltaTokenAmount from 'components/WalletPopup/Transactions/DeltaTokenAmount'
-import { formatStatusLimitOrder } from 'components/swapv2/LimitOrder/ListOrder/OrderItem'
-import { formatAmountOrder, formatRateLimitOrder } from 'components/swapv2/LimitOrder/helpers'
-import { LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
+import { LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
 import { APP_PATHS } from 'constants/index'
+import useTheme from 'hooks/useTheme'
 
+const StyledIconSuccess = styled(IconSuccess)`
+  path {
+    fill: ${({ theme }) => theme.warning};
+  } // todo
+`
 function InboxItemBridge({ announcement, onRead, style, time }: PrivateAnnouncementProp) {
   const { templateBody, isRead } = announcement
-  const order = ((templateBody as AnnouncementTemplateLimitOrder).order ?? {}) as LimitOrder
+  const theme = useTheme()
+  const order = ((templateBody as AnnouncementTemplateLimitOrder).order ?? {}) as LimitOrderNotification
   const {
     status,
     makerAssetSymbol,
@@ -33,10 +39,14 @@ function InboxItemBridge({ announcement, onRead, style, time }: PrivateAnnouncem
     makingAmount,
     takingAmount,
     filledTakingAmount,
-    makerAssetDecimals,
-    takerAssetDecimals,
-  } = order as LimitOrder
-  const isSuccess = status === LimitOrderStatus.FILLED
+    filledPercent,
+    increasedFilledPercent,
+    takingAmountRate,
+  } = order
+  const isFilled = status === LimitOrderStatus.FILLED
+  const isPartialFilled = status === LimitOrderStatus.PARTIALLY_FILLED
+  isFilled && console.log(order)
+
   const navigate = useNavigate()
   const onClick = () => {
     navigate(APP_PATHS.LIMIT)
@@ -53,33 +63,39 @@ function InboxItemBridge({ announcement, onRead, style, time }: PrivateAnnouncem
           {!isRead && <Dot />}
         </RowItem>
         <RowItem>
-          <PrimaryText>{formatStatusLimitOrder(order)}</PrimaryText>
-          <img height={12} width={12} src={isSuccess ? IconSuccess : IconFailure} alt="icon-status" />
+          <PrimaryText>
+            {isFilled
+              ? t`100% Filled`
+              : isPartialFilled
+              ? t`${filledPercent} Filled ${increasedFilledPercent}`
+              : `${filledPercent}% Filled | Expired`}
+          </PrimaryText>
+          {isFilled ? (
+            <IconSuccess width={12} height={12} />
+          ) : isPartialFilled ? (
+            <Repeat color={theme.warning} size={12} />
+          ) : (
+            <StyledIconSuccess width={12} height={12} />
+          )}
         </RowItem>
       </InboxItemRow>
 
       <InboxItemRow>
         <DeltaTokenAmount
           plus
-          amount={`${formatAmountOrder(filledTakingAmount, takerAssetDecimals)}/${formatAmountOrder(
-            takingAmount,
-            takerAssetDecimals,
-          )}`}
+          amount={`${filledTakingAmount}/${takingAmount}`}
           symbol={takerAssetSymbol}
           logoURL={takerAssetLogoURL}
         />
         <PrimaryText>
-          {formatRateLimitOrder(order, false)} {makerAssetSymbol}/{takerAssetSymbol}
+          {takingAmountRate} {makerAssetSymbol}/{takerAssetSymbol}
         </PrimaryText>
       </InboxItemRow>
 
       <InboxItemRow>
         <DeltaTokenAmount
           plus={false}
-          amount={`${formatAmountOrder(filledMakingAmount, makerAssetDecimals)}/${formatAmountOrder(
-            makingAmount,
-            makerAssetDecimals,
-          )}`}
+          amount={`${filledMakingAmount}/${makingAmount}`}
           symbol={makerAssetSymbol}
           logoURL={makerAssetLogoURL}
         />
