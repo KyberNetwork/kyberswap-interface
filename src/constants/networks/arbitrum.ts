@@ -56,7 +56,8 @@ const arbitrumInfo: EVMNetworkInfo = {
     fairlaunchV2: ['0xE8144386BF00f168ed7a0E0D821AC18e02a461BA'],
   },
   elastic: {
-    client: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-arbitrum-one'),
+    // client: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-arbitrum-one'),
+    client: createClient('https://api.thegraph.com/subgraphs/name/viet-nv/kyberswap-elastic-arbitrum-one'),
     startBlock: 14137735,
     coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
     nonfungiblePositionManager: '0x2B1c7b41f6A8F2b2bc45C3233a5d5FB3cD6dC9A8',
