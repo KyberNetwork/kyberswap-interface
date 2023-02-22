@@ -15,6 +15,7 @@ import useGetRoute from 'components/SwapForm/hooks/useGetRoute'
 import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
 import TrendingSoonTokenBanner from 'components/TrendingSoonTokenBanner'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
+import TradePrice from 'components/swapv2/TradePrice'
 import { Wrapper } from 'components/swapv2/styleds'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
@@ -26,7 +27,6 @@ import PriceImpactNote from './PriceImpactNote'
 import RefreshButton from './RefreshButton'
 import ReverseTokenSelectionButton from './ReverseTokenSelectionButton'
 import SwapActionButton from './SwapActionButton'
-import TradePrice from './TradePrice'
 import TradeSummary from './TradeSummary'
 import TradeTypeSelection from './TradeTypeSelection'
 
@@ -168,12 +168,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
                       shouldDisable={!parsedAmount || parsedAmount.equalTo(0) || isProcessingSwap}
                       callback={getRoute}
                     />
-                    <TradePrice
-                      currencyIn={currencyIn}
-                      currencyOut={currencyOut}
-                      parsedAmountIn={routeSummary?.parsedAmountIn}
-                      parsedAmountOut={routeSummary?.parsedAmountOut}
-                    />
+                    <TradePrice price={routeSummary?.executionPrice} />
                   </>
                 )}
               </Flex>

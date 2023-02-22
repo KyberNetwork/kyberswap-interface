@@ -1,5 +1,6 @@
 import { Currency, Price } from '@kyberswap/ks-sdk-core'
 
+import { getRouteTokenAddressParam } from 'components/SwapForm/hooks/useGetRoute'
 import { DetailedRouteSummary } from 'types/route'
 import { toCurrencyAmount } from 'utils/currencyAmount'
 
@@ -19,15 +20,23 @@ export const parseGetRouteResponse = (
   routerAddress: string
   fromMeta: boolean
 } => {
-  if (!rawData.routeSummary) {
-    return {
-      routeSummary: undefined,
-      routerAddress: rawData.routerAddress,
-      fromMeta: rawData.fromMeta,
-    }
+  const defaultValue = {
+    routeSummary: undefined,
+    routerAddress: rawData.routerAddress,
+    fromMeta: rawData.fromMeta,
   }
 
   const rawRouteSummary = rawData.routeSummary
+  if (!rawRouteSummary) {
+    return defaultValue
+  }
+
+  const isValidPair =
+    rawRouteSummary.tokenIn.toLowerCase() === getRouteTokenAddressParam(currencyIn).toLowerCase() &&
+    rawRouteSummary.tokenOut.toLowerCase() === getRouteTokenAddressParam(currencyOut).toLowerCase()
+
+  if (!isValidPair) return defaultValue
+
   const parsedAmountIn = toCurrencyAmount(currencyIn, rawRouteSummary.amountIn)
   const parsedAmountOut = toCurrencyAmount(currencyOut, rawRouteSummary.amountOut)
   const executionPrice = new Price(
