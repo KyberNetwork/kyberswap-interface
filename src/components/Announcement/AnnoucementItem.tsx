@@ -36,7 +36,7 @@ const Desc = styled.div`
   font-size: 12px;
   color: ${({ theme }) => theme.subText};
   height: 34px;
-
+  word-break: break-all;
   display: block;
   display: -webkit-box;
   max-width: 100%;
