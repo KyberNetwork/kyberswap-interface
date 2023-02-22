@@ -1,3 +1,4 @@
+import { t } from '@lingui/macro'
 import styled from 'styled-components'
 
 import { AnnouncementCTA } from 'components/Announcement/type'
@@ -19,7 +20,8 @@ function CtaButton({
   if (!data) return null
   const { name } = data
   const props = { className, onClick }
-  if (color === 'primary') return <ButtonPrimary {...props}>{name}</ButtonPrimary>
+  const displayName = name || t`Close`
+  if (color === 'primary') return <ButtonPrimary {...props}>{displayName}</ButtonPrimary>
   return (
     <ButtonEmpty
       {...props}
@@ -28,7 +30,7 @@ function CtaButton({
         color: theme.text,
       }}
     >
-      {name}
+      {displayName}
     </ButtonEmpty>
   )
 }
