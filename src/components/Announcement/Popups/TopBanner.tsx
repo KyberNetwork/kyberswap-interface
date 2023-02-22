@@ -74,10 +74,14 @@ const TextContent = styled.div<{ isOverflow: boolean; animationDuration: number 
   font-size: 14px;
   ${({ theme, isOverflow, animationDuration }) => theme.mediaWidth.upToSmall`
      ${
-       isOverflow &&
-       css`
-         animation: ${marquee} ${animationDuration || 15}s linear infinite;
-       `
+       isOverflow
+         ? css`
+             animation: ${marquee} ${animationDuration || 15}s linear infinite;
+           `
+         : css`
+             width: 100%;
+             text-align: center;
+           `
      };
     white-space: nowrap;
     position: absolute;
