@@ -40,7 +40,7 @@ export const LIMIT_ORDER_API_READ = required('LIMIT_ORDER_API_READ')
 export const LIMIT_ORDER_API_WRITE = required('LIMIT_ORDER_API_WRITE')
 export const KYBER_DAO_STATS_API = required('KYBER_DAO_STATS_API')
 
-export const NOTIFICATION_IGNORE_TEMPLATE_IDS = required('NOTIFICATION_IGNORE_TEMPLATE_IDS') // todo danh config env prod
+export const NOTIFICATION_IGNORE_TEMPLATE_IDS = required('NOTIFICATION_IGNORE_TEMPLATE_IDS')
 
 type FirebaseConfig = {
   apiKey: string
@@ -73,7 +73,6 @@ export const FIREBASE: { [key: string]: { DEFAULT: FirebaseConfig; LIMIT_ORDER?:
     },
   },
   staging: {
-    // todo
     DEFAULT: {
       apiKey: 'AIzaSyDVtU3R0ZWgO4YzKbvjP372E8sgvz1vAqc',
       authDomain: 'staging-339203.firebaseapp.com',
@@ -84,7 +83,6 @@ export const FIREBASE: { [key: string]: { DEFAULT: FirebaseConfig; LIMIT_ORDER?:
     },
   },
   production: {
-    // todo
     DEFAULT: {
       apiKey: 'AIzaSyA1K_JAB8h0NIvjtFLHvZhfkFjW4Bls0bw',
       authDomain: 'notification---production.firebaseapp.com',
