@@ -11,7 +11,7 @@ const Wrapper = styled.div`
   border-bottom: 1px solid ${({ theme }) => theme.border};
   background-color: ${({ theme }) => theme.background};
   font-size: 12px;
-  padding: 12px 16px;
+  padding: 16px 20px;
   gap: 12px;
   display: flex;
   align-items: flex-start;

@@ -67,7 +67,6 @@ const TabItem = styled.div<{ active: boolean }>`
 `
 
 const Title = styled.div`
-  font-weight: 500;
   font-size: 20px;
   font-weight: 500;
   display: flex;

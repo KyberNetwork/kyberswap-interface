@@ -39,7 +39,6 @@ function InboxItemBridge({ announcement, onRead, style, time }: PrivateAnnouncem
   } = order
   const isFilled = status === LimitOrderStatus.FILLED
   const isPartialFilled = status === LimitOrderStatus.PARTIALLY_FILLED
-  isFilled && console.log(order)
 
   const navigate = useNavigate()
   const onClick = () => {
