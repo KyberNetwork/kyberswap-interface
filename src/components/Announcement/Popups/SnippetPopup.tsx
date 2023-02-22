@@ -245,10 +245,19 @@ export default function SnippetPopup({ data, clearAll }: { data: PopupItemType[]
 
   return (
     <Wrapper expand={expand}>
-      <Swiper slidesPerView={1} navigation autoHeight pagination loop modules={[Navigation, Pagination]}>
-        {data.map((banner: PopupItemType, index: number) => (
-          <SwiperSlide key={index}>
-            <SnippetPopupItem expand={expand} setExpand={setExpand} data={banner} key={index} />
+      <Swiper
+        slidesPerView={1}
+        navigation
+        autoHeight
+        pagination
+        loop
+        observer
+        observeParents
+        modules={[Navigation, Pagination]}
+      >
+        {data.map((banner: PopupItemType) => (
+          <SwiperSlide key={banner.key}>
+            <SnippetPopupItem expand={expand} setExpand={setExpand} data={banner} />
           </SwiperSlide>
         ))}
       </Swiper>
