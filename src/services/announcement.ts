@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 import { Announcement, PrivateAnnouncement } from 'components/Announcement/type'
-import { NOTIFICATION_API } from 'constants/env'
+import { NOTIFICATION_API, NOTIFICATION_IGNORE_TEMPLATE_IDS } from 'constants/env'
 
 type Response = {
   notifications: PrivateAnnouncement[] | Announcement[]
@@ -40,7 +40,7 @@ const AnnouncementApi = createApi({
     getPrivateAnnouncements: builder.query<Response, Params>({
       query: ({ account, ...params }) => ({
         url: `/v1/users/${account}/notifications`,
-        params: { ...params, excludedTemplateIds: '2,29' }, // todo danh config env
+        params: { ...params, excludedTemplateIds: NOTIFICATION_IGNORE_TEMPLATE_IDS },
       }),
       transformResponse,
     }),
@@ -51,7 +51,7 @@ const AnnouncementApi = createApi({
       query: ({ account, action, ids }) => {
         const body: { excludedTemplateIds?: number[]; ids?: number[] } = { ids }
         if (action === 'read-all' || action === 'clear-all') {
-          body.excludedTemplateIds = [2, 29] // todo danh config env
+          body.excludedTemplateIds = NOTIFICATION_IGNORE_TEMPLATE_IDS.split(',').map(Number)
         }
         return {
           url: `/v1/users/${account}/notifications/${action}`,

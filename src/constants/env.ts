@@ -40,6 +40,8 @@ export const LIMIT_ORDER_API_READ = required('LIMIT_ORDER_API_READ')
 export const LIMIT_ORDER_API_WRITE = required('LIMIT_ORDER_API_WRITE')
 export const KYBER_DAO_STATS_API = required('KYBER_DAO_STATS_API')
 
+export const NOTIFICATION_IGNORE_TEMPLATE_IDS = required('NOTIFICATION_IGNORE_TEMPLATE_IDS') // todo danh config env prod
+
 type FirebaseConfig = {
   apiKey: string
   authDomain: string
