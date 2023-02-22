@@ -97,9 +97,9 @@ export default function CenterPopup({ data, clearAll }: { data: PopupItemType; c
               __html: content,
             }}
           />
-          {ctas.length > 0 && (
-            <ButtonWrapper justify="center">
-              {ctas.map(item => (
+          <ButtonWrapper justify="center">
+            {ctas.length > 0 ? (
+              ctas.map(item => (
                 <StyledCtaButton
                   key={item.url}
                   data={item}
@@ -109,9 +109,17 @@ export default function CenterPopup({ data, clearAll }: { data: PopupItemType; c
                     navigate(item.url)
                   }}
                 />
-              ))}
-            </ButtonWrapper>
-          )}
+              ))
+            ) : (
+              <StyledCtaButton
+                data={{ name: t`Close`, url: '' }}
+                color="primary"
+                onClick={() => {
+                  clearAll()
+                }}
+              />
+            )}
+          </ButtonWrapper>
         </ContentWrapper>
       </Wrapper>
     </Modal>
