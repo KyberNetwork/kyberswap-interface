@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { useMemo } from 'react'
+// import { useMemo } from 'react'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
@@ -13,7 +13,8 @@ import { useFundingRateQuery } from 'pages/TrueSightV2/hooks/useTruesightV2Data'
 import { shortenAddress } from 'utils'
 
 import { ContentWrapper } from '..'
-import OHLCData from './../chart/candles.json'
+
+// import OHLCData from './../chart/candles.json'
 
 const Table2 = styled.table`
   border-collapse: collapse;
@@ -347,55 +348,55 @@ const DEX_ICONS = {
   ),
 }
 
-function isSupport(arr: any[], i: number) {
-  if (!arr[i + 1] || !arr[i + 2] || !arr[i - 1] || !arr[i - 2]) {
-    return false
-  }
-  return (
-    arr[i].low < arr[i + 1].low &&
-    arr[i + 1].low < arr[i + 2].low &&
-    arr[i].low < arr[i - 1].low &&
-    arr[i - 1].low < arr[i - 2].low
-  )
-}
-function isResistance(arr: any[], i: number) {
-  if (!arr[i + 1] || !arr[i + 2] || !arr[i - 1] || !arr[i - 2]) {
-    return false
-  }
-  return (
-    arr[i].high > arr[i + 1].high &&
-    arr[i + 1].high > arr[i + 2].high &&
-    arr[i].high > arr[i - 1].high &&
-    arr[i - 1].high > arr[i - 2].high
-  )
-}
-function getAverageCandleSize(arr: any[]): number {
-  let sum = 0
-  for (let i = 0; i < 100; i++) {
-    sum += arr[i].high - arr[i].low
-  }
-  return sum / 100
-}
+// function isSupport(arr: any[], i: number) {
+//   if (!arr[i + 1] || !arr[i + 2] || !arr[i - 1] || !arr[i - 2]) {
+//     return false
+//   }
+//   return (
+//     arr[i].low < arr[i + 1].low &&
+//     arr[i + 1].low < arr[i + 2].low &&
+//     arr[i].low < arr[i - 1].low &&
+//     arr[i - 1].low < arr[i - 2].low
+//   )
+// }
+// function isResistance(arr: any[], i: number) {
+//   if (!arr[i + 1] || !arr[i + 2] || !arr[i - 1] || !arr[i - 2]) {
+//     return false
+//   }
+//   return (
+//     arr[i].high > arr[i + 1].high &&
+//     arr[i + 1].high > arr[i + 2].high &&
+//     arr[i].high > arr[i - 1].high &&
+//     arr[i - 1].high > arr[i - 2].high
+//   )
+// }
+// function getAverageCandleSize(arr: any[]): number {
+//   let sum = 0
+//   for (let i = 0; i < 100; i++) {
+//     sum += arr[i].high - arr[i].low
+//   }
+//   return sum / 100
+// }
 
-function closeToExistedValue(newvalue: number, arr: any[], range: number) {
-  return arr.some(v => Math.abs(v.value - newvalue) < range)
-}
+// function closeToExistedValue(newvalue: number, arr: any[], range: number) {
+//   return arr.some(v => Math.abs(v.value - newvalue) < range)
+// }
 
 export const SupportResistanceLevel = () => {
   const theme = useTheme()
   const gridTemplateColumns = '1fr 1fr 1fr 1fr 1fr 1fr 0px'
-  const SRLevels: any[] = useMemo(() => {
-    const levels: any[] = []
-    const average = getAverageCandleSize(OHLCData)
-    OHLCData.forEach((v, i, arr) => {
-      if (isSupport(arr, i) && !closeToExistedValue(v.low, levels, average)) {
-        levels.push({ time: v.time, value: v.low })
-      } else if (isResistance(arr, i) && !closeToExistedValue(v.high, levels, average)) {
-        levels.push({ time: v.time, value: v.high })
-      }
-    })
-    return levels
-  }, [])
+  // const SRLevels: any[] = useMemo(() => {
+  //   const levels: any[] = []
+  //   const average = getAverageCandleSize(OHLCData)
+  //   OHLCData.forEach((v, i, arr) => {
+  //     if (isSupport(arr, i) && !closeToExistedValue(v.low, levels, average)) {
+  //       levels.push({ time: v.time, value: v.low })
+  //     } else if (isResistance(arr, i) && !closeToExistedValue(v.high, levels, average)) {
+  //       levels.push({ time: v.time, value: v.high })
+  //     }
+  //   })
+  //   return levels
+  // }, [])
 
   return (
     <TableWrapper>
