@@ -20,6 +20,7 @@ import { MEDIA_WIDTHS } from 'theme'
 
 import DisplaySettings from '../components/DisplaySettings'
 import { TokenOverview } from '../components/TokenOverview'
+import TutorialModal from '../components/TutorialModal'
 import { TOKEN_DETAIL } from '../hooks/sampleData'
 import { useTokenDetailQuery } from '../hooks/useTruesightV2Data'
 import { DiscoverTokenTab } from '../types'
@@ -257,6 +258,7 @@ export default function SingleToken() {
       {currentTab === DiscoverTokenTab.TechnicalAnalysis && <TechnicalAnalysis />}
       {currentTab === DiscoverTokenTab.News && <News />}
       <ShareModal title="Share with your friends" url={shareUrl.current} />
+      <TutorialModal />
     </Wrapper>
   )
 }
