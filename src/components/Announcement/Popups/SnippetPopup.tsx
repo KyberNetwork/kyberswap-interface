@@ -101,19 +101,13 @@ const Title = styled.div<{ expand: boolean }>`
         `};
 `
 
-const SeeMore = styled.div<{ expand: boolean }>`
+const SeeMore = styled.div`
   display: flex;
   align-items: center;
   cursor: pointer;
   user-select: none;
   color: ${({ theme }) => theme.subText};
   font-size: 12px;
-  ${({ expand }) =>
-    expand &&
-    css`
-      position: absolute;
-      right: 0;
-    `};
 `
 
 const StyledCtaButton = styled(CtaButton)`
@@ -158,7 +152,7 @@ function SnippetPopupItem({
               if (isCtaClose) removePopup(data)
             }}
           />
-          <SeeMore onClick={toggle} expand={expand}>
+          <SeeMore onClick={toggle}>
             <ChevronsUp size={16} style={{ transform: `rotate(${expand ? 180 : 0}deg)` }} />
             {expand ? <Trans>See Less</Trans> : <Trans>See More</Trans>}
           </SeeMore>
