@@ -209,6 +209,7 @@ export default function AnnouncementComponent() {
       return
     }
     const unsubscribePrivate = subscribePrivateAnnouncement(account, prefetchPrivateAnnouncements)
+    // special case: limit order locate at another db
     const unsubscribeLOExpired = subscribeNotificationOrderExpired(account, chainId, prefetchPrivateAnnouncements)
     const unsubscribeLOFilled = subscribeNotificationOrderFilled(account, chainId, prefetchPrivateAnnouncements)
     return () => {
