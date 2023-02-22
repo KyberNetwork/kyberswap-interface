@@ -5,6 +5,7 @@ import { ENV_LEVEL } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
 import truesightV2Api from 'pages/TrueSightV2/hooks/useTruesightV2Data'
 
+import annoucementApi from '../services/announcement'
 import geckoTerminalApi from '../services/geckoTermial'
 import application from './application/reducer'
 import bridge from './bridge/reducer'
@@ -52,7 +53,7 @@ const store = configureStore({
     pools,
     farms,
     vesting,
-    // [dataApi.reducerPath]: dataApi.reducer
+    [annoucementApi.reducerPath]: annoucementApi.reducer,
     [geckoTerminalApi.reducerPath]: geckoTerminalApi.reducer,
     [truesightV2Api.reducerPath]: truesightV2Api.reducer,
     campaigns,
@@ -65,9 +66,9 @@ const store = configureStore({
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({ thunk: true, immutableCheck: false, serializableCheck: false })
-      // .concat(dataApi.middleware)
       .concat(save({ states: PERSISTED_KEYS, debounce: 100 }))
       .concat(geckoTerminalApi.middleware)
+      .concat(annoucementApi.middleware)
       .concat(truesightV2Api.middleware),
   preloadedState: load({ states: PERSISTED_KEYS }),
 })
