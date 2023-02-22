@@ -40,6 +40,7 @@ const Title = styled.div`
   font-weight: 500;
   font-size: 20px;
   line-height: 24px;
+  word-break: break-all;
 `
 
 const ButtonWrapper = styled(Row)`
@@ -85,9 +86,9 @@ export default function CenterPopup({ data, clearAll }: { data: PopupItemType; c
   return (
     <Modal isOpen={true} maxWidth={isMobile ? undefined : '800px'} onDismiss={clearAll} zindex={Z_INDEXS.MODAL}>
       <Wrapper>
-        <RowBetween align="flex-start">
+        <RowBetween align="center">
           <Title>{name}</Title>
-          <X cursor={'pointer'} color={theme.subText} onClick={clearAll} />
+          <X cursor={'pointer'} color={theme.subText} onClick={clearAll} style={{ minWidth: '24px' }} />
         </RowBetween>
         <ContentWrapper>
           {thumbnailImageURL && <Image src={thumbnailImageURL} />}
