@@ -71,7 +71,7 @@ const Image = styled.img`
   width: ${HEIGHT};
   max-height: ${HEIGHT};
   border-radius: 8px;
-  object-fit: contain;
+  object-fit: scale-down;
 `
 
 export default function AnnouncementItem({
