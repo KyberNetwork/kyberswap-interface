@@ -68,15 +68,15 @@ const marquee = () => keyframes`
   50.1% { transform: translateX(110%) ; }
   100% { transform: translateX(0%) ; }
 `
-const TextContent = styled.div<{ isOverflow: boolean }>`
+const TextContent = styled.div<{ isOverflow: boolean; animationDuration: number }>`
   line-height: 20px;
   color: ${({ theme }) => theme.text};
   font-size: 14px;
-  ${({ theme, isOverflow }) => theme.mediaWidth.upToSmall`
+  ${({ theme, isOverflow, animationDuration }) => theme.mediaWidth.upToSmall`
      ${
        isOverflow &&
        css`
-         animation: ${marquee} 15s linear infinite;
+         animation: ${marquee} ${animationDuration || 15}s linear infinite;
        `
      };
     white-space: nowrap;
@@ -109,11 +109,13 @@ function TopBanner() {
   const [isOverflowParent, setIsOverflowParent] = useState(false)
 
   const navigate = useNavigateCtaPopup()
+  const [animationDuration, setAnimationDuration] = useState(15)
 
   useEffect(() => {
     if (contentNode?.parentElement) {
       const isOverflowParent = contentNode.clientWidth > contentNode.parentElement?.clientWidth
       setIsOverflowParent(isOverflowParent)
+      setAnimationDuration((contentNode.clientWidth / contentNode.parentElement?.clientWidth) * 10)
     }
   }, [contentNode])
 
@@ -126,7 +128,14 @@ function TopBanner() {
       <Content>
         {!isMobile && <Announcement style={{ minWidth: '24px' }} />}
         <TextWrapper>
-          <TextContent ref={refContent} isOverflow={isOverflowParent} dangerouslySetInnerHTML={{ __html: content }} />
+          <TextContent
+            animationDuration={animationDuration}
+            ref={refContent}
+            isOverflow={isOverflowParent}
+            dangerouslySetInnerHTML={{
+              __html: content,
+            }}
+          />
         </TextWrapper>
         {isMobile && <StyledClose size={24} onClick={hideBanner} />}
       </Content>
