@@ -1,5 +1,6 @@
 import { Currency, CurrencyAmount, WETH } from '@kyberswap/ks-sdk-core'
-import { useCallback } from 'react'
+import { debounce } from 'lodash'
+import { useCallback, useMemo } from 'react'
 import routeApi from 'services/route'
 import { GetRouteParams } from 'services/route/types/getRoute'
 
@@ -7,7 +8,6 @@ import useSelectedDexes from 'components/SwapForm/hooks/useSelectedDexes'
 import { ETHER_ADDRESS, INPUT_DEBOUNCE_TIME } from 'constants/index'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import useDebounce from 'hooks/useDebounce'
 import { FeeConfig } from 'types/route'
 
 type Args = {
@@ -17,6 +17,14 @@ type Args = {
   currencyOut: Currency | undefined
   feeConfig: FeeConfig | undefined
 }
+
+export const getRouteTokenAddressParam = (currency: Currency) =>
+  currency.isNative
+    ? isEVM(currency.chainId)
+      ? ETHER_ADDRESS
+      : WETH[currency.chainId].address
+    : currency.wrapped.address
+
 const useGetRoute = (args: Args) => {
   const [trigger, result] = routeApi.useLazyGetRouteQuery()
 
@@ -24,28 +32,21 @@ const useGetRoute = (args: Args) => {
   const { chainId } = useActiveWeb3React()
   const chainSlug = NETWORKS_INFO[chainId].ksSettingRoute
 
-  const amountIn = useDebounce(parsedAmount?.quotient?.toString() || '', INPUT_DEBOUNCE_TIME)
-
   const dexes = useSelectedDexes()
   const { chargeFeeBy = '', feeReceiver = '', feeAmount = '' } = feeConfig || {}
   const isInBps = feeConfig?.isInBps !== undefined ? (feeConfig.isInBps ? '1' : '0') : ''
 
+  const triggerDebounced = useMemo(() => debounce(trigger, INPUT_DEBOUNCE_TIME), [trigger])
+
   const fetcher = useCallback(async () => {
-    if (!currencyIn || !currencyOut || !amountIn) {
+    const amountIn = parsedAmount?.quotient?.toString() || ''
+
+    if (!currencyIn || !currencyOut || !amountIn || !parsedAmount?.currency?.equals(currencyIn)) {
       return undefined
     }
 
-    const tokenInAddress = currencyIn.isNative
-      ? isEVM(currencyIn.chainId)
-        ? ETHER_ADDRESS
-        : WETH[currencyIn.chainId].address
-      : currencyIn.wrapped.address
-
-    const tokenOutAddress = currencyOut.isNative
-      ? isEVM(currencyOut.chainId)
-        ? ETHER_ADDRESS
-        : WETH[currencyOut.chainId].address
-      : currencyOut.wrapped.address
+    const tokenInAddress = getRouteTokenAddressParam(currencyIn)
+    const tokenOutAddress = getRouteTokenAddressParam(currencyOut)
 
     const params: GetRouteParams = {
       tokenIn: tokenInAddress,
@@ -68,14 +69,13 @@ const useGetRoute = (args: Args) => {
       }
     })
 
-    trigger({
+    triggerDebounced({
       params,
       chainSlug,
     })
 
     return undefined
   }, [
-    amountIn,
     chainSlug,
     chargeFeeBy,
     currencyIn,
@@ -85,7 +85,8 @@ const useGetRoute = (args: Args) => {
     feeReceiver,
     isInBps,
     isSaveGas,
-    trigger,
+    parsedAmount,
+    triggerDebounced,
   ])
 
   return { fetcher, result }
