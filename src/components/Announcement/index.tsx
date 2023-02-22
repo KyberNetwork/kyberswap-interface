@@ -232,9 +232,8 @@ export default function AnnouncementComponent() {
       )}
     </StyledMenuButton>
   )
-  const node = useRef<HTMLDivElement>(null)
   return (
-    <StyledMenu ref={node}>
+    <StyledMenu>
       {isMobile ? (
         <>
           {bellIcon}

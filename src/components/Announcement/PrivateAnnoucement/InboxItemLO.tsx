@@ -77,7 +77,7 @@ function InboxItemBridge({ announcement, onRead, style, time }: PrivateAnnouncem
       <InboxItemRow>
         <DeltaTokenAmount
           plus
-          amount={`${filledTakingAmount}/${takingAmount}`}
+          amount={`${isFilled ? takingAmount : filledTakingAmount}/${takingAmount}`}
           symbol={takerAssetSymbol}
           logoURL={takerAssetLogoURL}
         />
@@ -89,7 +89,7 @@ function InboxItemBridge({ announcement, onRead, style, time }: PrivateAnnouncem
       <InboxItemRow>
         <DeltaTokenAmount
           plus={false}
-          amount={`${filledMakingAmount}/${makingAmount}`}
+          amount={`${isFilled ? makingAmount : filledMakingAmount}/${makingAmount}`}
           symbol={makerAssetSymbol}
           logoURL={makerAssetLogoURL}
         />
