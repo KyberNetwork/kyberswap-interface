@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Box, Text } from 'rebass'
+import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -47,25 +47,23 @@ export default function SimplePopup({
     link && navigate(link)
   }
   return (
-    <Box>
-      <RowNoFlex>
-        <div style={{ paddingRight: 10 }}>{icon || mapIcon[type]}</div>
-        <AutoColumn gap="8px">
-          <Text fontSize="16px" fontWeight={500} color={color}>
-            {title}
+    <RowNoFlex>
+      <div style={{ paddingRight: 10 }}>{icon || mapIcon[type]}</div>
+      <AutoColumn gap="8px">
+        <Text fontSize="16px" fontWeight={500} color={color}>
+          {title}
+        </Text>
+        {summary && (
+          <Text fontSize="14px" fontWeight={400} color={theme.text}>
+            {summary}
           </Text>
-          {summary && (
-            <Text fontSize="14px" fontWeight={400} color={theme.text}>
-              {summary}
-            </Text>
-          )}
-          {link && (
-            <Text style={{ color, fontSize: 14, fontWeight: '500', cursor: 'pointer' }} onClick={onClickLink}>
-              <Trans>See here</Trans>
-            </Text>
-          )}
-        </AutoColumn>
-      </RowNoFlex>
-    </Box>
+        )}
+        {link && (
+          <Text style={{ color, fontSize: 14, fontWeight: '500', cursor: 'pointer' }} onClick={onClickLink}>
+            <Trans>See here</Trans>
+          </Text>
+        )}
+      </AutoColumn>
+    </RowNoFlex>
   )
 }

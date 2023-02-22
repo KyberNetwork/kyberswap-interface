@@ -12,7 +12,7 @@ const Wrapper = styled.div`
   background-color: ${({ theme }) => theme.background};
   font-size: 12px;
   padding: 16px 20px;
-  gap: 12px;
+  gap: 14px;
   display: flex;
   align-items: flex-start;
   cursor: pointer;
