@@ -90,12 +90,15 @@ const Title = styled.div<{ expand: boolean }>`
   font-weight: 500;
   color: ${({ theme }) => theme.text};
   ${({ expand }) =>
-    !expand &&
-    css`
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    `};
+    expand
+      ? css`
+          word-break: break-all;
+        `
+      : css`
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        `};
 `
 
 const SeeMore = styled.div<{ expand: boolean }>`
