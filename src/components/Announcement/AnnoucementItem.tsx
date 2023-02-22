@@ -50,11 +50,13 @@ const Desc = styled.div`
     margin: 0;
   }
 `
+
 const Time = styled.span`
   color: ${({ theme }) => theme.border};
   text-align: right;
   width: 100%;
 `
+
 const RowItem = styled.div`
   display: flex;
   align-items: center;

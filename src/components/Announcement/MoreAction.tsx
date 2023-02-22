@@ -25,10 +25,6 @@ const MenuMoreAction = ({ showClearAll, clearAll }: { clearAll: () => void; show
   return (
     <MenuFlyout modalWhenMobile={false} trigger={<MoreHorizontal cursor="pointer" />} customStyle={customStyle}>
       <Column gap="16px">
-        {/* <MenuItem onClick={showNotificationModal}>
-          <MailIcon size={16} />
-          Notification Center
-        </MenuItem> */}
         {showClearAll && (
           <MenuItem onClick={clearAll}>
             <Trash size={16} />
