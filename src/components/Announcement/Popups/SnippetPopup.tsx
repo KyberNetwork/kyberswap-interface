@@ -112,6 +112,7 @@ const SeeMore = styled.div`
 
 const StyledCtaButton = styled(CtaButton)`
   min-width: 140px;
+  width: fit-content;
   height: 36px;
 `
 
