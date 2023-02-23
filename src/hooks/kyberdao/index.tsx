@@ -6,6 +6,7 @@ import { useLocalStorage } from 'react-use'
 import useSWR from 'swr'
 import useSWRImmutable from 'swr/immutable'
 
+import { ERC20_ABI } from 'constants/abis/erc20'
 import DaoABI from 'constants/abis/kyberdao/dao.json'
 import MigrateABI from 'constants/abis/kyberdao/migrate.json'
 import RewardDistributorABI from 'constants/abis/kyberdao/reward_distributor.json'
@@ -318,9 +319,11 @@ export function useStakingInfo() {
   const { account } = useActiveWeb3React()
   const kyberDaoInfo = useKyberDAOInfo()
   const stakingContract = useContract(kyberDaoInfo?.staking, StakingABI)
+  const kncContract = useContract(kyberDaoInfo?.KNCAddress, ERC20_ABI)
 
   const stakedBalance = useSingleCallResult(stakingContract, 'getLatestStakeBalance', [account ?? undefined])
   const delegatedAddress = useSingleCallResult(stakingContract, 'getLatestRepresentative', [account ?? undefined])
+  const totalSupply = useSingleCallResult(kncContract, 'totalSupply')
   const KNCBalance = useTokenBalance(kyberDaoInfo?.KNCAddress || '')
   const isDelegated = useMemo(() => {
     return delegatedAddress.result?.[0] && delegatedAddress.result?.[0] !== account
@@ -337,6 +340,7 @@ export function useStakingInfo() {
     delegatedAddress: delegatedAddress.result?.[0],
     isDelegated,
     stakerActions,
+    totalMigratedKNC: totalSupply?.result?.[0],
   }
 }
 
