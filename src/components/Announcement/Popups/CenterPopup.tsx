@@ -68,7 +68,7 @@ const StyledCtaButton = styled(CtaButton)`
   height: 36px;
   max-width: 100%;
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    width: fit-content
+    width: fit-content;
     min-width: 100px;
     max-width: 100%;
   `}
