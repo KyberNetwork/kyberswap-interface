@@ -1,12 +1,11 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useLocalStorage } from 'react-use'
 import useSWR from 'swr'
 import useSWRImmutable from 'swr/immutable'
 
-import { ERC20_ABI } from 'constants/abis/erc20'
 import DaoABI from 'constants/abis/kyberdao/dao.json'
 import MigrateABI from 'constants/abis/kyberdao/migrate.json'
 import RewardDistributorABI from 'constants/abis/kyberdao/reward_distributor.json'
@@ -15,7 +14,7 @@ import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
 import { NETWORKS_INFO, NETWORKS_INFO_CONFIG, isEVM } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
-import { useContract } from 'hooks/useContract'
+import { useContract, useTokenContractForReading } from 'hooks/useContract'
 import useTokenBalance from 'hooks/useTokenBalance'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
@@ -319,11 +318,9 @@ export function useStakingInfo() {
   const { account } = useActiveWeb3React()
   const kyberDaoInfo = useKyberDAOInfo()
   const stakingContract = useContract(kyberDaoInfo?.staking, StakingABI)
-  const kncContract = useContract(kyberDaoInfo?.KNCAddress, ERC20_ABI)
-
+  const kncContract = useTokenContractForReading(kyberDaoInfo?.KNCAddress, ChainId.MAINNET)
   const stakedBalance = useSingleCallResult(stakingContract, 'getLatestStakeBalance', [account ?? undefined])
   const delegatedAddress = useSingleCallResult(stakingContract, 'getLatestRepresentative', [account ?? undefined])
-  const totalSupply = useSingleCallResult(kncContract, 'totalSupply')
   const KNCBalance = useTokenBalance(kyberDaoInfo?.KNCAddress || '')
   const isDelegated = useMemo(() => {
     return delegatedAddress.result?.[0] && delegatedAddress.result?.[0] !== account
@@ -334,13 +331,18 @@ export function useStakingInfo() {
     fetcher,
   )
 
+  const [totalSupply, setTotalSupply] = useState()
+  useEffect(() => {
+    kncContract?.totalSupply().then((res: any) => setTotalSupply(res))
+  }, [kncContract])
+
   return {
     stakedBalance: stakedBalance.result?.[0] || 0,
     KNCBalance: KNCBalance.value || 0,
     delegatedAddress: delegatedAddress.result?.[0],
     isDelegated,
     stakerActions,
-    totalMigratedKNC: totalSupply?.result?.[0],
+    totalMigratedKNC: totalSupply,
   }
 }
 
