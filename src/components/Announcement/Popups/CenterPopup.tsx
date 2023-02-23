@@ -62,13 +62,14 @@ const Image = styled.img`
 `
 
 const StyledCtaButton = styled(CtaButton)`
-  width: 220px;
+  width: fit-content;
+  min-width: 220px;
   height: 36px;
   max-width: 100%;
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    width: 200px;
+    width: fit-content
     min-width: 100px;
-    max-width: 45%;
+    max-width: 100%;
   `}
 `
 
