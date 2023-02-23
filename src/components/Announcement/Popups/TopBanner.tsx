@@ -80,7 +80,6 @@ const TextContent = styled.div<{ isOverflow: boolean; animationDuration: number 
              animation: ${marquee} ${animationDuration || 15}s linear infinite;
            `
          : css`
-             width: 100%;
              text-align: center;
            `
      };
