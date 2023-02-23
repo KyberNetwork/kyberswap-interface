@@ -205,7 +205,7 @@ export default function AnnouncementComponent() {
     }
   }, [account, chainId])
 
-  useInterval(prefetchPrivateAnnouncements, 3_000)
+  useInterval(prefetchPrivateAnnouncements, 8_000)
 
   const togglePopupWithAckAllMessage = () => {
     toggleNotificationCenter()
