@@ -1085,7 +1085,6 @@ export const useGlobalMixpanelEvents = () => {
     if (location.pathname.split('/')[1] !== 'elastic') return location.pathname.split('/')[1]
     return 'elastic/' + location.pathname.split('/')[2]
   }, [location])
-  console.log('🚀 ~ file: useMixpanel.ts:1088 ~ pathName ~ pathName:', location.pathname)
 
   useEffect(() => {
     if (account && isAddress(account)) {
