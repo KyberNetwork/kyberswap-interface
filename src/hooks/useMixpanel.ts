@@ -1085,6 +1085,7 @@ export const useGlobalMixpanelEvents = () => {
     if (location.pathname.split('/')[1] !== 'elastic') return location.pathname.split('/')[1]
     return 'elastic/' + location.pathname.split('/')[2]
   }, [location])
+  console.log('🚀 ~ file: useMixpanel.ts:1088 ~ pathName ~ pathName:', location.pathname)
 
   useEffect(() => {
     if (account && isAddress(account)) {
@@ -1165,13 +1166,13 @@ export const useGlobalMixpanelEvents = () => {
         'elastic/increase': 'Elastic - Increase Liquidity',
         'buy-crypto': 'Buy Crypto',
         bridge: 'Bridge',
-        'kyberdao/stake-knc': 'KyberDAO Stake',
-        'kyberdao/vote': 'KyberDAO Vote',
+        '/kyberdao/stake-knc': 'KyberDAO Stake',
+        '/kyberdao/vote': 'KyberDAO Vote',
         limit: 'Limit Order',
       }
-      const pageName = map[pathName]
+      const pageName = map[pathName] || map[location.pathname]
       pageName && mixpanelHandler(MIXPANEL_TYPE.PAGE_VIEWED, { page: pageName })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathName, account, chainId])
+  }, [pathName, account, chainId, location.pathname])
 }
