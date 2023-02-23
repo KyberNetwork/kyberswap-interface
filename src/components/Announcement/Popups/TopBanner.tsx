@@ -86,7 +86,7 @@ const TextContent = styled.div<{ isOverflow: boolean; animationDuration: number 
     white-space: nowrap;
     position: absolute;
   `}
-  > p {
+  > * {
     margin: 0;
   }
 `

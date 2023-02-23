@@ -80,7 +80,7 @@ const Desc = styled.div<{ expand: boolean }>`
       : css`
           line-height: 16px;
         `};
-  > p {
+  > * {
     margin: 0;
   }
 `
