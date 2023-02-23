@@ -15,7 +15,7 @@ import { AutoColumn } from 'components/Column'
 import { Z_INDEXS } from 'constants/styles'
 import useTheme from 'hooks/useTheme'
 import { useRemovePopup } from 'state/application/hooks'
-import { PopupItemType } from 'state/application/reducer'
+import { PopupItemType2 } from 'state/application/reducer'
 
 const IMAGE_HEIGHT = '140px'
 const PADDING_MOBILE = '16px'
@@ -121,10 +121,10 @@ function SnippetPopupItem({
   setExpand,
 }: {
   expand: boolean
-  data: PopupItemType
+  data: PopupItemType2<PopupContentAnnouncement>
   setExpand: (v: boolean) => void
 }) {
-  const { templateBody = {} } = data.content as PopupContentAnnouncement
+  const { templateBody = {} } = data.content
   const { ctas = [], name, content, thumbnailImageURL } = templateBody as AnnouncementTemplatePopup
   const removePopup = useRemovePopup()
   const toggle = () => {
@@ -236,7 +236,13 @@ const Close = styled(X)`
     right: calc(12px + ${PADDING_MOBILE});
   `}
 `
-export default function SnippetPopup({ data, clearAll }: { data: PopupItemType[]; clearAll: () => void }) {
+export default function SnippetPopup({
+  data,
+  clearAll,
+}: {
+  data: PopupItemType2<PopupContentAnnouncement>[]
+  clearAll: () => void
+}) {
   const theme = useTheme()
   const [expand, setExpand] = useState(false)
 
@@ -252,7 +258,7 @@ export default function SnippetPopup({ data, clearAll }: { data: PopupItemType[]
         observeParents
         modules={[Navigation, Pagination]}
       >
-        {data.map((banner: PopupItemType) => (
+        {data.map((banner: PopupItemType2<PopupContentAnnouncement>) => (
           <SwiperSlide key={banner.key}>
             <SnippetPopupItem expand={expand} setExpand={setExpand} data={banner} />
           </SwiperSlide>

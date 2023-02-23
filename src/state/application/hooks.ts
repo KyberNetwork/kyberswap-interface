@@ -19,7 +19,7 @@ import { EVMNetworkInfo } from 'constants/networks/type'
 import { KNC } from 'constants/tokens'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks/index'
-import { PopupItemType } from 'state/application/reducer'
+import { PopupItemType, PopupItemType2 } from 'state/application/reducer'
 import { useAppSelector } from 'state/hooks'
 import { AppDispatch, AppState } from 'state/index'
 import { getBlockFromTimestamp, getPercentChange } from 'utils'
@@ -257,13 +257,15 @@ export function useActivePopups() {
     const topPopups = popups.filter(
       e => e.popupType === PopupType.TOP_BAR && isPopupCanShow(e, announcementsAckMap, chainId),
     )
+
     const snippetPopups = popups.filter(
       e => e.popupType === PopupType.SNIPPET && isPopupCanShow(e, announcementsAckMap, chainId),
-    )
+    ) as PopupItemType2<PopupContentAnnouncement>[]
 
     const centerPopups = popups.filter(
       e => e.popupType === PopupType.CENTER && isPopupCanShow(e, announcementsAckMap, chainId),
     )
+
     return {
       topPopups,
       centerPopups,

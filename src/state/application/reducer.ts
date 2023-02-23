@@ -25,6 +25,13 @@ export type PopupItemType = {
   popupType: PopupType
 }
 
+export type PopupItemType2<T extends PopupContent> = {
+  key: string
+  content: T
+  removeAfterMs: number | null
+  popupType: PopupType
+}
+
 type ETHPrice = {
   currentPrice?: string
   oneDayBackPrice?: string
