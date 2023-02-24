@@ -12,7 +12,7 @@ import {
   POOL_DATA,
   USER_POSITIONS,
 } from 'apollo/queries'
-import { ONLY_DYNAMIC_FEE_CHAINS } from 'constants/index'
+import { ONLY_DYNAMIC_FEE_CHAINS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useKyberswapConfig } from 'hooks/useKyberswapConfig'
 import { useETHPrice } from 'state/application/hooks'
