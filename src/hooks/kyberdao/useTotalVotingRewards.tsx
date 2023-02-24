@@ -182,7 +182,7 @@ export default function useTotalVotingReward(): {
       }
     }
     a()
-  }, [classicClientMainnet, classicClientMatic])
+  }, [classicClientMainnet, classicClientMatic, provider, providerMatic])
 
   useEffect(() => {
     async function checkForKNCPrice() {

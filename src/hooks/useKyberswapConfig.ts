@@ -27,7 +27,9 @@ const convertConfig = (
   data: KyberswapConfigurationResponse['data'] | undefined,
   defaultChainId: ChainId,
 ): KyberswapConfig => {
-  const rpc = isEVM(defaultChainId) ? data?.rpc ?? 'https://ethereum.kyberengineering.io' : ethereumInfo.defaultRpc
+  const rpc = isEVM(defaultChainId)
+    ? data?.rpc ?? NETWORKS_INFO[defaultChainId].defaultRpcUrl
+    : ethereumInfo.defaultRpcUrl
   return {
     prochart: data?.prochart ?? false,
     rpc,
