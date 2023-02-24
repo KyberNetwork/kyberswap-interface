@@ -90,7 +90,7 @@ const CardGroup = styled(RowBetween)`
   `}
 `
 
-function readableTime(seconds: number) {
+export function readableTime(seconds: number) {
   if (seconds < 60) return seconds + 's'
 
   const levels = [
