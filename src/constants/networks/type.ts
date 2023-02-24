@@ -1,4 +1,3 @@
-import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Connection, PublicKey } from '@solana/web3.js'
 
@@ -43,11 +42,11 @@ export interface NetworkInfo {
 
 export interface EVMNetworkInfo extends NetworkInfo {
   readonly poolFarmRoute: string // use this to get data from our internal BE
-  readonly blockClient: ApolloClient<NormalizedCacheObject>
-  readonly rpcUrl: string
+  readonly blockDefaultSubgraph: string
+  readonly defaultRpcUrl: string
   readonly multicall: string
   readonly classic: {
-    readonly client: ApolloClient<NormalizedCacheObject>
+    readonly defaultSubgraph: string
     readonly static: {
       readonly zap: string
       readonly router: string
@@ -68,7 +67,7 @@ export interface EVMNetworkInfo extends NetworkInfo {
     readonly fairlaunchV2: string[]
   }
   readonly elastic: {
-    readonly client: ApolloClient<NormalizedCacheObject>
+    readonly defaultSubgraph: string
     readonly startBlock: number
     readonly coreFactory: string
     readonly nonfungiblePositionManager: string

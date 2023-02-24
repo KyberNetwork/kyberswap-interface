@@ -4,7 +4,6 @@ import EthereumLogo from 'assets/images/ethereum-logo.png'
 import ARBITRUM from 'assets/networks/arbitrum-network.svg'
 import { KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
-import { createClient } from 'utils/client'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
@@ -21,7 +20,7 @@ const arbitrumTestnetInfo: EVMNetworkInfo = {
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
-  blockClient: createClient('https://api.thegraph.com/subgraphs/name/viet-nv/arbitrum-rinkeby-blocks'),
+  blockDefaultSubgraph: 'https://api.thegraph.com/subgraphs/name/viet-nv/arbitrum-rinkeby-blocks',
   etherscanUrl: 'https://testnet.arbiscan.io',
   etherscanName: 'Arbiscan',
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.ARBITRUM_TESTNET}&isWhitelisted=${true}`,
@@ -33,11 +32,11 @@ const arbitrumTestnetInfo: EVMNetworkInfo = {
     decimal: 18,
     minForGas: 10 ** 16,
   },
-  rpcUrl: 'https://rinkeby.arbitrum.io/rpc',
+  defaultRpcUrl: 'https://rinkeby.arbitrum.io/rpc',
   routerUri: EMPTY,
   multicall: '0xefEb0223C51600d8059A4fD44094a1E2A2C54Bf7',
   classic: {
-    client: createClient('https://api.thegraph.com/subgraphs/name/viet-nv/kyberswap-arbitrum-rinkeby'),
+    defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/viet-nv/kyberswap-arbitrum-rinkeby',
     static: {
       zap: '0xfa33723F6fA00a35F69F8aCd72A5BE9AF3c8Bd25',
       router: '0x78Ad9A49327D73C6E3B9881eCD653232cF3E480C',
@@ -50,7 +49,7 @@ const arbitrumTestnetInfo: EVMNetworkInfo = {
     fairlaunchV2: EMPTY_ARRAY,
   },
   elastic: {
-    client: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-arbitrum-one'),
+    defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-arbitrum-one',
     startBlock: 14137735,
     coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
     nonfungiblePositionManager: '0x2B1c7b41f6A8F2b2bc45C3233a5d5FB3cD6dC9A8',

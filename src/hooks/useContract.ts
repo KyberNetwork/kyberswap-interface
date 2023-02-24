@@ -30,14 +30,15 @@ import WETH_ABI from 'constants/abis/weth.json'
 import ZAP_STATIC_FEE_ABI from 'constants/abis/zap-static-fee.json'
 import ZAP_ABI from 'constants/abis/zap.json'
 import { MULTICALL_ABI } from 'constants/multicall'
-import { EVM_NETWORK, NETWORKS_INFO, isEVM } from 'constants/networks'
+import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { useWeb3React } from 'hooks'
 import { FairLaunchVersion, RewardLockerVersion } from 'state/farms/types'
 import { useRewardLockerAddressesWithVersion } from 'state/vesting/hooks'
 import { getContract, getContractForReading } from 'utils/getContract'
 
-import { providers, useActiveWeb3React } from './index'
+import { useActiveWeb3React } from './index'
+import { useKyberswapConfig } from './useKyberswapConfig'
 
 // returns null on errors
 export function useContract(
@@ -66,17 +67,17 @@ function useContractForReading(
 ): Contract | null {
   const { chainId: curChainId } = useActiveWeb3React()
   const chainId = customChainId || curChainId
+  const { provider } = useKyberswapConfig()
 
   return useMemo(() => {
     if (!address || !isEVM(chainId)) return null
-    const provider = providers[chainId as EVM_NETWORK]
     try {
       return getContractForReading(address, ABI, provider)
     } catch (error) {
       console.error('Failed to get contract', error)
       return null
     }
-  }, [address, ABI, chainId])
+  }, [address, ABI, chainId, provider])
 }
 
 // returns null on errors
@@ -89,11 +90,11 @@ export function useMultipleContracts(
 } | null {
   const { account, isEVM, chainId } = useActiveWeb3React()
   const { library } = useWeb3React()
+  const { provider } = useKyberswapConfig()
 
   return useMemo(() => {
     if (!isEVM || !addresses || !Array.isArray(addresses) || addresses.length === 0 || !ABI || !library || !chainId)
       return null
-    const provider = providers[chainId as EVM_NETWORK]
 
     const result: {
       [key: string]: Contract
@@ -118,7 +119,7 @@ export function useMultipleContracts(
 
       return null
     }
-  }, [addresses, ABI, library, withSignerIfPossible, account, isEVM, chainId])
+  }, [addresses, ABI, library, withSignerIfPossible, account, isEVM, chainId, provider])
 }
 
 export function useTokenContract(tokenAddress?: string, withSignerIfPossible?: boolean): Contract | null {
