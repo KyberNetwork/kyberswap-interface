@@ -2,6 +2,7 @@ import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { ethers } from 'ethers'
 import { useEffect, useMemo, useState } from 'react'
+import { useSelector } from 'react-redux'
 import {
   KyberswapConfigurationResponse,
   useGetKyberswapConfigurationQuery,
@@ -11,7 +12,7 @@ import {
 
 import { NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM } from 'constants/networks'
 import ethereumInfo from 'constants/networks/ethereum'
-import { useActiveWeb3React } from 'hooks'
+import { AppState } from 'state'
 import { createClient } from 'utils/client'
 
 type KyberswapConfig = {
@@ -46,7 +47,7 @@ const convertConfig = (
   }
 }
 export const useKyberswapConfig = (customChainId?: ChainId): KyberswapConfig => {
-  const { chainId } = useActiveWeb3React()
+  const chainId = useSelector<AppState, ChainId>(state => state.user.chainId) || ChainId.MAINNET // read directly from store to prevent circular loop
   const { data } = useGetKyberswapConfigurationQuery({ chainId: customChainId ?? chainId })
   const result = useMemo(() => convertConfig(data?.data, chainId), [chainId, data?.data])
   return result
