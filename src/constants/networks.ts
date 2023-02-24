@@ -153,5 +153,5 @@ export const CHAINS_SUPPORT_NEW_POOL_FARM_API: readonly ChainId[] = [
   ChainId.AURORA,
   // ChainId.VELAS,
   // ChainId.OASIS,
-  // ChainId.OPTIMISM,
+  ChainId.OPTIMISM,
 ]
