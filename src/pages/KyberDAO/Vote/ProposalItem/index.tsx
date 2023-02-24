@@ -307,7 +307,15 @@ function ProposalItem({
               title={option}
               checked={selectedOptions?.includes(index) || voted}
               onOptionClick={() => handleOptionClick(index)}
-              type={selectedOptions?.includes(index) ? 'Choosing' : voted ? 'Active' : 'Finished'}
+              type={
+                proposal.status === ProposalStatus.Pending
+                  ? 'Pending'
+                  : selectedOptions?.includes(index)
+                  ? 'Choosing'
+                  : voted
+                  ? 'Active'
+                  : 'Finished'
+              }
               isCheckBox={proposal.proposal_type === ProposalType.GenericProposal}
             />
           )
