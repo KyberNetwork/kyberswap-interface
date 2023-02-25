@@ -18,7 +18,7 @@ const maticInfo: EVMNetworkInfo = {
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
-  blockDefaultSubgraph: 'https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-polygon',
+  defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-polygon',
   etherscanUrl: 'https://polygonscan.com',
   etherscanName: 'Polygonscan',
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.MATIC}&isWhitelisted=${true}`,

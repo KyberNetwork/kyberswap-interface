@@ -42,7 +42,7 @@ export interface NetworkInfo {
 
 export interface EVMNetworkInfo extends NetworkInfo {
   readonly poolFarmRoute: string // use this to get data from our internal BE
-  readonly blockDefaultSubgraph: string
+  readonly defaultBlockSubgraph: string
   readonly defaultRpcUrl: string
   readonly multicall: string
   readonly classic: {

@@ -19,7 +19,7 @@ const velasInfo: EVMNetworkInfo = {
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
-  blockDefaultSubgraph: 'https://velas-graph.kyberengineering.io/subgraphs/name/kybernetwork/velas-blocks',
+  defaultBlockSubgraph: 'https://velas-graph.kyberengineering.io/subgraphs/name/kybernetwork/velas-blocks',
   etherscanUrl: 'https://evmexplorer.velas.com',
   etherscanName: 'Velas EVM Explorer',
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.VELAS}&isWhitelisted=${true}`,

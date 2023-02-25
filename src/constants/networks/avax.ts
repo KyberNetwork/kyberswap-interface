@@ -18,7 +18,7 @@ const avaxInfo: EVMNetworkInfo = {
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
-  blockDefaultSubgraph: 'https://api.thegraph.com/subgraphs/name/ducquangkstn/avalache-blocks',
+  defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/ducquangkstn/avalache-blocks',
   etherscanUrl: 'https://snowtrace.io',
   etherscanName: 'Snowtrace',
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.AVAXMAINNET}&isWhitelisted=${true}`,

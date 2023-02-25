@@ -19,7 +19,7 @@ const avaxTestnetInfo: EVMNetworkInfo = {
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
-  blockDefaultSubgraph: 'https://api.thegraph.com/subgraphs/name/ducquangkstn/ethereum-block-fuji',
+  defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/ducquangkstn/ethereum-block-fuji',
   etherscanUrl: 'https://testnet.snowtrace.io',
   etherscanName: 'Snowtrace',
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.AVAXTESTNET}&isWhitelisted=${true}`,

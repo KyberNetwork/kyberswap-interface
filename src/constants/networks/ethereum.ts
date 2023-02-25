@@ -20,7 +20,7 @@ const ethereumInfo: EVMNetworkInfo = {
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
-  blockDefaultSubgraph: 'https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-ethereum',
+  defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-ethereum',
   etherscanUrl: 'https://etherscan.io',
   etherscanName: 'Etherscan',
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.MAINNET}&isWhitelisted=${true}`,

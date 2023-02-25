@@ -15,18 +15,18 @@ export type KyberswapConfigurationResponse = {
 
 type KyberswapGlobalConfigurationResponse = {
   data: {
-    banner: {
+    banners: {
       id: string
       name: string
       start: string
       end: string
       link: string
       img: {
-        modal: string
-        larger: string
-        [media: string]: string
+        mobile: string
+        tablet: string
+        desktop: string
       }
-    }
+    }[]
   }
 }
 
@@ -44,7 +44,7 @@ const ksSettingApi = createApi({
         },
       }),
     }),
-    getKyberswapGlobalConfiguration: builder.query<KyberswapGlobalConfigurationResponse, undefined>({
+    getKyberswapGlobalConfiguration: builder.query<KyberswapGlobalConfigurationResponse, void>({
       query: () => ({
         url: '/configurations/fetch-kyberswap',
       }),

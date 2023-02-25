@@ -20,7 +20,7 @@ const arbitrumInfo: EVMNetworkInfo = {
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
-  blockDefaultSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/arbitrum-blocks',
+  defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/arbitrum-blocks',
   etherscanUrl: 'https://arbiscan.io',
   etherscanName: 'Arbiscan',
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.ARBITRUM}&isWhitelisted=${true}`,

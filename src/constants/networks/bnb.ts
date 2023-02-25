@@ -19,7 +19,7 @@ const bnbInfo: EVMNetworkInfo = {
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
-  blockDefaultSubgraph: 'https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-bsc',
+  defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-bsc',
   etherscanUrl: 'https://bscscan.com',
   etherscanName: 'BscScan',
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.BSCMAINNET}&isWhitelisted=${true}`,

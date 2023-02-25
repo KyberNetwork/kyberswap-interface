@@ -35,8 +35,8 @@ const convertConfig = (
     prochart: data?.prochart ?? false,
     rpc,
     blockClient: isEVM(defaultChainId)
-      ? createClient(data?.['block-subgraph'] ?? NETWORKS_INFO[defaultChainId].blockDefaultSubgraph)
-      : createClient(ethereumInfo.blockDefaultSubgraph),
+      ? createClient(data?.['block-subgraph'] ?? NETWORKS_INFO[defaultChainId].defaultBlockSubgraph)
+      : createClient(ethereumInfo.defaultBlockSubgraph),
     classicClient: isEVM(defaultChainId)
       ? createClient(data?.['classic-subgraph'] ?? NETWORKS_INFO[defaultChainId].classic.defaultSubgraph)
       : createClient(ethereumInfo.classic.defaultSubgraph),

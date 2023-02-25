@@ -19,7 +19,7 @@ const oasisInfo: EVMNetworkInfo = {
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
-  blockDefaultSubgraph: 'https://oasis-graph.kyberengineering.io/subgraphs/name/kybernetwork/oasis-blocks',
+  defaultBlockSubgraph: 'https://oasis-graph.kyberengineering.io/subgraphs/name/kybernetwork/oasis-blocks',
   etherscanUrl: 'https://explorer.emerald.oasis.dev',
   etherscanName: 'Oasis Emerald Explorer',
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.OASIS}&isWhitelisted=${true}`,

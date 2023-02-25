@@ -19,7 +19,7 @@ const mumbaiInfo: EVMNetworkInfo = {
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
-  blockDefaultSubgraph: 'https://api.thegraph.com/subgraphs/name/piavgh/mumbai-blocks',
+  defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/piavgh/mumbai-blocks',
   etherscanUrl: 'https://mumbai.polygonscan.com/',
   etherscanName: 'Polygonscan',
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.MUMBAI}&isWhitelisted=${true}`,

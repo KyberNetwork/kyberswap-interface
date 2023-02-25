@@ -20,7 +20,7 @@ const bnbTestnetInfo: EVMNetworkInfo = {
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
-  blockDefaultSubgraph: 'https://api.thegraph.com/subgraphs/name/ducquangkstn/ethereum-blocks-bsctestnet',
+  defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/ducquangkstn/ethereum-blocks-bsctestnet',
   etherscanUrl: 'https://testnet.bscscan.com',
   etherscanName: 'BscScan',
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.BSCTESTNET}&isWhitelisted=${true}`,

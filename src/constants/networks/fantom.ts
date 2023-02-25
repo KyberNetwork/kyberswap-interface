@@ -19,7 +19,7 @@ const fantomInfo: EVMNetworkInfo = {
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
-  blockDefaultSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/fantom-blocks',
+  defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/fantom-blocks',
   etherscanUrl: 'https://ftmscan.com',
   etherscanName: 'Ftmscan',
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.FANTOM}&isWhitelisted=${true}`,

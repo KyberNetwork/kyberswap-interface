@@ -21,7 +21,7 @@ const cronosInfo: EVMNetworkInfo = {
   iconDark: CRONOS_DARK,
   iconDarkSelected: CRONOS,
   iconSelected: CRONOS,
-  blockDefaultSubgraph: 'https://cronos-graph.kyberengineering.io/subgraphs/name/kybernetwork/cronos-blocks',
+  defaultBlockSubgraph: 'https://cronos-graph.kyberengineering.io/subgraphs/name/kybernetwork/cronos-blocks',
   etherscanUrl: 'https://cronoscan.com',
   etherscanName: 'Cronos explorer',
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.CRONOS}&isWhitelisted=${true}`,

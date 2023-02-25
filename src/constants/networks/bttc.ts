@@ -19,7 +19,7 @@ const bttcInfo: EVMNetworkInfo = {
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
-  blockDefaultSubgraph: 'https://bttc-graph.kyberengineering.io/subgraphs/name/kybernetwork/bttc-blocks',
+  defaultBlockSubgraph: 'https://bttc-graph.kyberengineering.io/subgraphs/name/kybernetwork/bttc-blocks',
   etherscanUrl: 'https://bttcscan.com',
   etherscanName: 'Bttcscan',
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.BTTC}&isWhitelisted=${true}`,

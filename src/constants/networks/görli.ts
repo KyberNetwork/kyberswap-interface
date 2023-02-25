@@ -20,7 +20,7 @@ const görliInfo: EVMNetworkInfo = {
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
-  blockDefaultSubgraph: 'https://ethereum-graph.dev.kyberengineering.io/subgraphs/name/kybernetwork/goerli-blocks',
+  defaultBlockSubgraph: 'https://ethereum-graph.dev.kyberengineering.io/subgraphs/name/kybernetwork/goerli-blocks',
   etherscanUrl: 'https://goerli.etherscan.io',
   etherscanName: 'Goerli Explorer',
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.GÖRLI}&isWhitelisted=${true}`,

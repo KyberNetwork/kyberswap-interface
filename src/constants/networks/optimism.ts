@@ -20,7 +20,7 @@ const optimismInfo: EVMNetworkInfo = {
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
-  blockDefaultSubgraph: 'https://api.thegraph.com/subgraphs/name/ianlapham/uni-testing-subgraph',
+  defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/ianlapham/uni-testing-subgraph',
   etherscanUrl: 'https://optimistic.etherscan.io',
   etherscanName: 'Optimistic Ethereum Explorer',
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.OPTIMISM}&isWhitelisted=${true}`,

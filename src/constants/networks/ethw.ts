@@ -20,7 +20,7 @@ const ethereumInfo: EVMNetworkInfo = {
   iconDark: NOT_SUPPORT,
   iconSelected: NOT_SUPPORT,
   iconDarkSelected: NOT_SUPPORT,
-  blockDefaultSubgraph: 'https://ethereumpow-graph.kyberengineering.io/subgraphs/name/kybernetwork/ethereumpow-blocks',
+  defaultBlockSubgraph: 'https://ethereumpow-graph.kyberengineering.io/subgraphs/name/kybernetwork/ethereumpow-blocks',
   etherscanUrl: 'https://www.oklink.com/en/ethw',
   etherscanName: 'Ethwscan',
   tokenListUrl: `${KS_SETTING_API}/v1/tokens?chainIds=${ChainId.ETHW}&isWhitelisted=${true}`,
