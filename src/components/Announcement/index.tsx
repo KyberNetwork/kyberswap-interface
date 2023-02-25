@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { useMedia } from 'react-use'
-import { usePrevious } from 'react-use'
+import { useMedia, usePrevious } from 'react-use'
 import AnnouncementApi from 'services/announcement'
 import styled, { css } from 'styled-components'
 
