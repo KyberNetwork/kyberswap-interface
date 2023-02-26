@@ -40,7 +40,7 @@ const useAllTicks = (poolAddress: string) => {
 }
 
 // Fetches all ticks for a given pool
-export function useAllV3Ticks(
+function useAllV3Ticks(
   currencyA: Currency | undefined,
   currencyB: Currency | undefined,
   feeAmount: FeeAmount | undefined,
