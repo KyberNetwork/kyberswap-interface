@@ -249,7 +249,7 @@ const TutorialModal = () => {
               <Trans> Disclaimer: The information here should not be treated as any form of financial advice</Trans>
             </Text>
             <Row justify="center" gap="20px">
-              <ButtonOutlined width="160px">
+              <ButtonOutlined width="160px" onClick={() => setIsOpen(false)}>
                 <Text fontSize="16px" lineHeight="20px">
                   <Trans>Maybe later</Trans>
                 </Text>

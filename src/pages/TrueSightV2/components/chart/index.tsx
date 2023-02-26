@@ -10,8 +10,10 @@ import {
   AreaChart,
   Bar,
   BarChart,
+  CartesianGrid,
   Cell,
   ComposedChart,
+  Customized,
   Line,
   Pie,
   PieChart,
@@ -49,8 +51,12 @@ import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 
 import { ContentWrapper } from '..'
+import KyberLogo from './KyberLogo'
 import SignedBarChart from './SignedBarChart'
 import { useDatafeed } from './datafeed'
+
+const CHART_RED_COLOR = '#773242'
+const CHART_GREEN_COLOR = '#246250'
 
 const ChartWrapper = styled(ContentWrapper)`
   flex: 1;
@@ -314,6 +320,13 @@ export const NumberofTradesChart = () => {
         </LegendWrapper>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart width={500} height={300} data={formattedData} margin={{ top: 50 }}>
+            <CartesianGrid
+              vertical={false}
+              strokeWidth={1}
+              stroke={rgba(theme.border, 0.5)}
+              shapeRendering="crispEdges"
+            />
+            <Customized component={KyberLogo} />
             <XAxis
               fontSize="12px"
               dataKey="timestamp"
@@ -376,13 +389,13 @@ export const NumberofTradesChart = () => {
         <Row justify="center" gap="16px">
           <LegendButton
             text="Buy"
-            iconStyle={{ backgroundColor: rgba(theme.primary, 0.6) }}
+            iconStyle={{ backgroundColor: CHART_GREEN_COLOR }}
             enabled={showBuy}
             onClick={() => setShowBuy(prev => !prev)}
           />
           <LegendButton
             text="Sell"
-            iconStyle={{ backgroundColor: rgba(theme.red, 0.6) }}
+            iconStyle={{ backgroundColor: CHART_RED_COLOR }}
             enabled={showSell}
             onClick={() => setShowSell(prev => !prev)}
           />
@@ -419,6 +432,13 @@ export const TradingVolumeChart = () => {
             bottom: 0,
           }}
         >
+          <CartesianGrid
+            vertical={false}
+            strokeWidth={1}
+            stroke={rgba(theme.border, 0.5)}
+            shapeRendering="crispEdges"
+          />
+          <Customized component={KyberLogo} />
           <defs>
             <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor={theme.primary} stopOpacity={0.8} />
@@ -583,6 +603,13 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
             </LegendWrapper>
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart width={500} height={300} data={formattedData} stackOffset="sign" margin={{ top: 50 }}>
+                <CartesianGrid
+                  vertical={false}
+                  strokeWidth={1}
+                  stroke={rgba(theme.border, 0.5)}
+                  shapeRendering="crispEdges"
+                />
+                <Customized component={KyberLogo} />
                 <XAxis
                   fontSize="12px"
                   dataKey="timestamp"
@@ -784,6 +811,8 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
             stackOffset="sign"
             margin={{ top: 40, right: 30 }}
           >
+            <CartesianGrid vertical={false} strokeWidth={1} stroke={rgba(theme.border, 0.5)} />
+            <Customized component={KyberLogo} />
             <XAxis
               fontSize="12px"
               dataKey="timestamp"
@@ -978,6 +1007,8 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
               <stop offset="100%" stopColor={theme.primary} stopOpacity={0} />
             </linearGradient>
           </defs>
+          <CartesianGrid vertical={false} strokeWidth={1} stroke={rgba(theme.border, 0.5)} />
+          <Customized component={KyberLogo} />
           <XAxis
             fontSize="12px"
             dataKey="timestamp"
@@ -1068,6 +1099,8 @@ export const NumberofHolders = () => {
               <stop offset="100%" stopColor={theme.primary} stopOpacity={0} />
             </linearGradient>
           </defs>
+          <CartesianGrid vertical={false} strokeWidth={1} stroke={rgba(theme.border, 0.5)} />
+          <Customized component={KyberLogo} />
           <XAxis
             fontSize="12px"
             dataKey="timestamp"
@@ -1176,6 +1209,7 @@ export const HoldersChartWrapper = () => {
     <ChartWrapper>
       <ResponsiveContainer width="100%" height="100%">
         <PieChart width={100} height={100} margin={{ top: 20, right: 90, bottom: 20, left: 90 }}>
+          <Customized component={KyberLogo} />
           <Tooltip
             cursor={{ fill: 'transparent' }}
             wrapperStyle={{ outline: 'none' }}
@@ -1217,6 +1251,7 @@ export const LiquidOnCentralizedExchanges = ({ style }: { style?: React.CSSPrope
   return (
     <ChartWrapper style={style}>
       <LegendWrapper>
+        <Customized component={KyberLogo} />
         <ShortLegend />
         <LongLegend />
         <PriceLegend />
