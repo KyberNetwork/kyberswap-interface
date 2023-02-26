@@ -1,7 +1,6 @@
 import { t } from '@lingui/macro'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { useTheme } from 'styled-components'
 
@@ -10,6 +9,7 @@ import Icon from 'components/Icons/Icon'
 import Row, { RowFit } from 'components/Row'
 
 import { SectionWrapper } from '../components'
+import CexRekt from '../components/CexRekt'
 import { LiquidOnCentralizedExchanges, PriceChart } from '../components/chart'
 import { FundingRateTable, LiveDEXTrades, SupportResistanceLevel } from '../components/table'
 import { ChartTab } from '../types'
@@ -19,24 +19,9 @@ const Wrapper = styled.div`
   width: 100%;
 `
 
-const Card = styled.div`
-  padding: 20px;
-  border-radius: 16px;
-  height: 104px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-
-  background: ${({ theme }) => theme.buttonBlack};
-  color: ${({ theme }) => theme.text};
-`
-
 export default function TechnicalAnalysis() {
   const theme = useTheme()
-  const above768 = useMedia('(min-width:768px)')
+
   const [liveChartTab, setLiveChartTab] = useState(ChartTab.First)
   const navigate = useNavigate()
   return (
@@ -91,22 +76,10 @@ export default function TechnicalAnalysis() {
           open.Leverated trading is high risk & high reward. The higher the leverage, the easier it is for a trader to
           get liquidated. An abrupt change in price of a token can cause large liquidations. Traders may buy / sell the
           token after large liquidations.`}
+        style={{ height: '600px' }}
       >
-        <LiquidOnCentralizedExchanges style={{ marginBottom: '24px' }} />
-        <Row gap="24px" flexDirection={above768 ? 'row' : 'column'} align="stretch">
-          <Card>
-            <Text fontSize={14}>4H Rekt</Text>
-            <Text fontSize={28}>$352.03K</Text>
-          </Card>
-          <Card>
-            <Text fontSize={14}>12H Rekt</Text>
-            <Text fontSize={28}>$2.67M</Text>
-          </Card>
-          <Card>
-            <Text fontSize={14}>24H Rekt</Text>
-            <Text fontSize={28}>$8.82M</Text>
-          </Card>
-        </Row>
+        <LiquidOnCentralizedExchanges />
+        <CexRekt />
       </SectionWrapper>
     </Wrapper>
   )

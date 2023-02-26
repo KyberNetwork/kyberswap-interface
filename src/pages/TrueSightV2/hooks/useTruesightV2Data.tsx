@@ -100,6 +100,37 @@ const truesightV2Api = createApi({
   }),
 })
 
+export const coinglassApi = createApi({
+  reducerPath: 'coinglassApi',
+  baseQuery: fetchBaseQuery({
+    baseUrl: 'https://fapi.coinglass.com/api/futures/liquidation/',
+  }),
+  endpoints: builder => ({
+    cexesLiquidation: builder.query({
+      query: (timeframe?: string) => ({
+        url: `chart?symbol=BTC&timeType=${(timeframe && { '1D': '11', '7D': '1', '1M': '4' }[timeframe]) || '1'}`,
+      }),
+      transformResponse: (res: any) => {
+        if (res.success) {
+          return res.data
+        }
+        throw new Error(res.msg)
+      },
+    }),
+    cexesInfo: builder.query({
+      query: () => ({
+        url: 'info?symbol=BTC&timeType=1&size=12',
+      }),
+      transformResponse: (res: any) => {
+        if (res.success) {
+          return res.data
+        }
+        throw new Error(res.msg)
+      },
+    }),
+  }),
+})
+
 export const {
   useTokenDetailQuery,
   useNumberOfTradesQuery,
@@ -112,5 +143,5 @@ export const {
   useFundingRateQuery,
   useTokenListQuery,
 } = truesightV2Api
-
+export const { useCexesLiquidationQuery, useCexesInfoQuery } = coinglassApi
 export default truesightV2Api

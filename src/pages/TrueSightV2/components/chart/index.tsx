@@ -1,4 +1,5 @@
 import dayjs from 'dayjs'
+import { commify } from 'ethers/lib/utils'
 import { rgba } from 'polished'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -26,7 +27,7 @@ import { PoolResponse, useGetPoolDetailQuery } from 'services/geckoTermial'
 import styled, { css } from 'styled-components'
 
 import Column from 'components/Column'
-import Row, { RowFit } from 'components/Row'
+import Row from 'components/Row'
 import { ChartingLibraryWidgetOptions, ResolutionString } from 'components/TradingViewChart/charting_library'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
@@ -38,6 +39,7 @@ import {
   TRADE_VOLUME,
 } from 'pages/TrueSightV2/hooks/sampleData'
 import {
+  useCexesLiquidationQuery,
   useNetflowToCEXQuery,
   useNetflowToWhaleWalletsQuery,
   useNumberOfHoldersQuery,
@@ -52,7 +54,6 @@ import { shortenAddress } from 'utils'
 
 import { ContentWrapper } from '..'
 import KyberLogo from './KyberLogo'
-import SignedBarChart from './SignedBarChart'
 import { useDatafeed } from './datafeed'
 
 const CHART_RED_COLOR = '#773242'
@@ -96,7 +97,7 @@ const LegendButtonWrapper = styled.div<{ enabled?: boolean }>`
     transform: scale(1.06);
   }
   :hover {
-    filter: brightness(1.5);
+    filter: brightness(1.4);
   }
   ${({ enabled }) =>
     enabled
@@ -129,42 +130,6 @@ const LegendButton = ({
         {text || 'Legend text'}
       </Text>
     </LegendButtonWrapper>
-  )
-}
-
-const ShortLegend = ({ enabled, onClick }: { enabled?: boolean; onClick?: () => void }) => {
-  const theme = useTheme()
-  return (
-    <RowFit gap="4px" style={{ cursor: 'pointer' }}>
-      <div style={{ height: '16px', width: '16px', borderRadius: '8px', backgroundColor: theme.primary }} />
-      <Text fontSize={12} fontWeight={500}>
-        Short
-      </Text>
-    </RowFit>
-  )
-}
-
-const LongLegend = ({ enabled, onClick }: { enabled?: boolean; onClick?: () => void }) => {
-  const theme = useTheme()
-  return (
-    <RowFit gap="4px" style={{ cursor: 'pointer' }}>
-      <div style={{ height: '16px', width: '16px', borderRadius: '8px', backgroundColor: theme.red }} />
-      <Text fontSize={12} fontWeight={500}>
-        Long
-      </Text>
-    </RowFit>
-  )
-}
-
-const PriceLegend = ({ enabled, onClick }: { enabled?: boolean; onClick?: () => void }) => {
-  const theme = useTheme()
-  return (
-    <RowFit gap="4px" style={{ cursor: 'pointer' }}>
-      <div style={{ height: '4px', width: '16px', borderRadius: '8px', backgroundColor: theme.blue }} />
-      <Text fontSize={12} fontWeight={500}>
-        Price
-      </Text>
-    </RowFit>
   )
 }
 
@@ -266,10 +231,10 @@ const formatNum = (num: number): string => {
   const negative = num < 0
   const absNum = Math.abs(num)
   let formattedNum = ''
-  if (absNum > 1000) {
-    formattedNum = (absNum / 1000).toFixed(2) + 'K'
-  } else if (absNum > 1000000) {
+  if (absNum > 1000000) {
     formattedNum = (absNum / 1000000).toFixed(2) + 'M'
+  } else if (absNum > 1000) {
+    formattedNum = (absNum / 1000).toFixed(2) + 'K'
   } else {
     formattedNum = absNum.toFixed(2)
   }
@@ -1246,18 +1211,215 @@ export const HoldersChartWrapper = () => {
   )
 }
 
-export const LiquidOnCentralizedExchanges = ({ style }: { style?: React.CSSProperties }) => {
-  const [timeframe, setTimeframe] = useState('7D')
+export const LiquidOnCentralizedExchanges = () => {
+  const theme = useTheme()
+  const { account } = useActiveWeb3React()
+  const [timeframe, setTimeframe] = useState<string>('7D')
+  const { data } = useCexesLiquidationQuery(timeframe)
+  const [showLong, setShowLong] = useState(true)
+  const [showShort, setShowShort] = useState(true)
+  const [showPrice, setShowPrice] = useState(true)
+
+  const formattedData = useMemo(() => {
+    if (!data) return
+    const dateData = new Map()
+    const dateNow = Date.now()
+    data
+      .filter((i: any) => {
+        switch (timeframe) {
+          case '1D':
+            return i.createTime > dateNow - 1000 * 60 * 60 * 24
+          case '7D':
+            return i.createTime > dateNow - (dateNow % (60000 * 60 * 24)) - 60000 * 60 * 24 * 6
+          case '1M':
+            return i.createTime > dateNow - 1000 * 60 * 60 * 24 * 30
+          default:
+            return false
+        }
+      })
+      .forEach((i: any) => {
+        const dateTime = i.createTime - (i.createTime % (timeframe === '1D' ? 60000 * 60 : 60000 * 60 * 24))
+        const dateValue = dateData.get(dateTime)
+        dateData.set(dateTime, {
+          buyVolUsd: i.buyVolUsd + dateValue?.buyVolUsd || 0,
+          sellVolUsd: -i.sellVolUsd + dateValue?.sellVolUsd || 0,
+          timestamp: dateTime,
+          price: dateValue?.price ? (dateValue.price + i.price) / 2 : i.price,
+          list: i.list.map((ex: any) => {
+            return {
+              exchangeName: ex.exchangeName,
+              buyVolUsd:
+                ex.buyVolUsd + dateValue?.list?.find((e2: any) => e2.exchangeName === ex.exchangeName)?.buyVolUsd || 0,
+              sellVolUsd:
+                ex.sellVolUsd + dateValue?.list?.find((e2: any) => e2.exchangeName === ex.exchangeName)?.sellVolUsd ||
+                0,
+            }
+          }),
+        })
+      })
+    return Array.from(dateData.values())
+  }, [timeframe, data])
+
+  const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   return (
-    <ChartWrapper style={style}>
-      <LegendWrapper>
-        <Customized component={KyberLogo} />
-        <ShortLegend />
-        <LongLegend />
-        <PriceLegend />
-        <TimeFrameLegend selected={timeframe} onSelect={setTimeframe} timeframes={['1D', '7D', '1M']} />
-      </LegendWrapper>
-      <SignedBarChart />
+    <ChartWrapper>
+      {account ? (
+        <>
+          <LegendWrapper>
+            {above768 && (
+              <>
+                <LegendButton
+                  text="Long"
+                  iconStyle={{ backgroundColor: rgba(theme.primary, 0.6) }}
+                  enabled={showLong}
+                  onClick={() => setShowLong(prev => !prev)}
+                />
+                <LegendButton
+                  text="Short"
+                  iconStyle={{ backgroundColor: rgba(theme.red, 0.6) }}
+                  enabled={showShort}
+                  onClick={() => setShowShort(prev => !prev)}
+                />
+                <LegendButton
+                  text="Price"
+                  iconStyle={{
+                    height: '4px',
+                    width: '16px',
+                    borderRadius: '8px',
+                    backgroundColor: rgba(theme.blue, 0.8),
+                  }}
+                  enabled={showPrice}
+                  onClick={() => setShowPrice(prev => !prev)}
+                />
+              </>
+            )}
+            <TimeFrameLegend selected={timeframe} onSelect={setTimeframe} timeframes={['1D', '7D', '1M']} />
+          </LegendWrapper>
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart
+              width={500}
+              height={500}
+              data={formattedData}
+              stackOffset="sign"
+              margin={{ left: 20, right: 20, top: 50 }}
+            >
+              <CartesianGrid
+                vertical={false}
+                strokeWidth={1}
+                stroke={rgba(theme.border, 0.5)}
+                shapeRendering="crispEdges"
+              />
+              <Customized component={KyberLogo} />
+              <XAxis
+                fontSize="12px"
+                dataKey="timestamp"
+                tickLine={false}
+                axisLine={false}
+                tick={{ fill: theme.subText, fontWeight: 400 }}
+                tickFormatter={value => dayjs(value).format(timeframe === '1D' ? 'MMM DD HH:mm' : 'MMM DD')}
+              />
+              <YAxis
+                yAxisId="left"
+                fontSize="12px"
+                tickLine={false}
+                axisLine={false}
+                tick={{ fill: theme.subText, fontWeight: 400 }}
+                width={40}
+                orientation="left"
+                tickFormatter={value => formatNum(value)}
+              />
+              <YAxis
+                yAxisId="right"
+                fontSize="12px"
+                tickLine={false}
+                axisLine={false}
+                tick={{ fill: theme.subText, fontWeight: 400 }}
+                width={40}
+                orientation="right"
+                tickFormatter={value => formatNum(value)}
+                domain={[(dataMin: any) => dataMin * 0.99, (dataMax: any) => dataMax * 1.01]}
+              />
+              <Tooltip
+                cursor={{ fill: 'transparent' }}
+                wrapperStyle={{ outline: 'none' }}
+                position={{ y: 120 }}
+                animationDuration={100}
+                content={props => {
+                  const payload = props.payload?.[0]?.payload
+                  if (!payload) return <></>
+                  return (
+                    <TooltipWrapper>
+                      <Text fontSize="10px" lineHeight="12px" color={theme.subText}>
+                        {payload.timestamp && dayjs(payload.timestamp).format('MMM DD, YYYY')}
+                      </Text>
+                      <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                        Price: <span style={{ color: theme.text }}>${commify(+payload.price.toFixed(2))}</span>
+                      </Text>
+                      <Row gap="8px">
+                        <Column gap="4px">
+                          <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                            Site
+                          </Text>
+                          {payload.list.map((i: any) => (
+                            <Text key={i.exchangeName} fontSize="12px" lineHeight="16px" color={theme.text}>
+                              {i.exchangeName}
+                            </Text>
+                          ))}
+                        </Column>
+                        <Column gap="4px" style={{ alignItems: 'flex-end' }}>
+                          <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                            Long
+                          </Text>
+                          {payload.list.map((i: any) => (
+                            <Text key={i.exchangeName + 'long'} fontSize="12px" lineHeight="16px" color={theme.primary}>
+                              {formatNum(i.buyVolUsd)}
+                            </Text>
+                          ))}
+                        </Column>
+                        <Column gap="4px" style={{ alignItems: 'flex-end' }}>
+                          <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                            Short
+                          </Text>
+                          {payload.list.map((i: any) => (
+                            <Text key={i.exchangeName + 'short'} fontSize="12px" lineHeight="16px" color={theme.red}>
+                              {formatNum(i.sellVolUsd)}
+                            </Text>
+                          ))}
+                        </Column>
+                      </Row>
+                    </TooltipWrapper>
+                  )
+                }}
+              />
+              {showLong && (
+                <Bar
+                  dataKey="buyVolUsd"
+                  stackId="a"
+                  fill={rgba(theme.primary, 0.6)}
+                  animationBegin={ANIMATION_DELAY}
+                  animationDuration={ANIMATION_DURATION}
+                  yAxisId="left"
+                />
+              )}
+              {showShort && (
+                <Bar
+                  dataKey="sellVolUsd"
+                  stackId="a"
+                  fill={rgba(theme.red, 0.6)}
+                  animationBegin={ANIMATION_DELAY}
+                  animationDuration={ANIMATION_DURATION}
+                  yAxisId="left"
+                />
+              )}
+              {showPrice && (
+                <Line yAxisId="right" type="linear" dataKey="price" stroke={theme.blue} strokeWidth={3} dot={false} />
+              )}
+            </ComposedChart>
+          </ResponsiveContainer>
+        </>
+      ) : (
+        <></>
+      )}
     </ChartWrapper>
   )
 }
