@@ -333,7 +333,10 @@ export function useStakingInfo() {
 
   const [totalSupply, setTotalSupply] = useState()
   useEffect(() => {
-    kncContract?.totalSupply().then((res: any) => setTotalSupply(res))
+    kncContract
+      ?.totalSupply()
+      .then((res: any) => setTotalSupply(res))
+      .catch((err: any) => console.log(err))
   }, [kncContract])
 
   return {
