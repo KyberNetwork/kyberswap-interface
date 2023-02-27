@@ -15,6 +15,7 @@ import {
   Cell,
   ComposedChart,
   Customized,
+  LabelList,
   Line,
   Pie,
   PieChart,
@@ -346,7 +347,14 @@ export const NumberofTradesChart = () => {
               fill={rgba(theme.primary, 0.6)}
               animationBegin={ANIMATION_DELAY}
               animationDuration={ANIMATION_DURATION}
-            />
+            >
+              <LabelList
+                dataKey="buy"
+                position="insideTop"
+                fill={theme.subText}
+                valueAccessor={(item: any) => item.buy}
+              />
+            </Bar>
           </BarChart>
         </ResponsiveContainer>
       </ChartWrapper>
