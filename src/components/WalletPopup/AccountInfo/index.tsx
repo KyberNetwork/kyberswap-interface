@@ -95,7 +95,7 @@ const IconWrapper = styled.div`
 `
 
 type Props = {
-  totalBalanceInUsd: number | null
+  totalBalanceInUsd: number | null | string
   isMinimal: boolean
 } & ClickHandlerProps
 
@@ -161,8 +161,10 @@ export default function AccountInfo({
               </BalanceTitle>
 
               <BalanceValue>
-                {totalBalanceInUsd !== null ? (
+                {typeof totalBalanceInUsd === 'number' ? (
                   `$${formatNumberWithPrecisionRange(totalBalanceInUsd, 0, 8)}`
+                ) : typeof totalBalanceInUsd === 'string' ? (
+                  totalBalanceInUsd
                 ) : (
                   <Loader size="30px" />
                 )}

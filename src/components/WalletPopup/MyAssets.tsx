@@ -2,7 +2,7 @@ import { Currency, CurrencyAmount, Token, TokenAmount } from '@kyberswap/ks-sdk-
 import { Trans, t } from '@lingui/macro'
 import { stringify } from 'querystring'
 import { useState } from 'react'
-import { Info } from 'react-feather'
+import { AlertTriangle, Info } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { Text } from 'rebass'
@@ -40,9 +40,11 @@ export default function MyAssets({
   loadingTokens,
   usdBalances,
   currencyBalances,
+  isNetworkIssue,
 }: {
   tokens: Currency[]
   loadingTokens: boolean
+  isNetworkIssue: boolean
   usdBalances: { [address: string]: number }
   currencyBalances: { [address: string]: TokenAmount | undefined }
 }) {
@@ -59,10 +61,20 @@ export default function MyAssets({
   const qs = useParsedQueryString()
   const { chainId } = useActiveWeb3React()
 
+  if (isNetworkIssue)
+    return (
+      <Wrapper>
+        <Column style={{ gap: '12px', height: 74, alignItems: 'center', marginTop: '16px' }}>
+          <AlertTriangle color={theme.warning} />
+          <Text color={theme.warning}>Network is slow. Please try again later</Text>
+        </Column>
+      </Wrapper>
+    )
+
   if (loadingTokens) {
     return (
       <Wrapper>
-        <Row style={{ height: 73 }} gap="6px" justify="center">
+        <Row gap="6px" justify="center" marginTop="16px">
           <Loader /> <Text color={theme.subText}>Loading tokens...</Text>
         </Row>
       </Wrapper>

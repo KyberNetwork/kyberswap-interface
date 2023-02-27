@@ -109,6 +109,12 @@ export default function WalletView({ onDismiss, onPin, isPinned, blurBackground 
     usdBalances,
   } = useTokensHasBalance(true)
 
+  const [isNetworkIssue, setIsNetworkIssue] = useState(false)
+  useEffect(() => {
+    const timeout = setTimeout(() => setIsNetworkIssue(loadingTokens), 10_000)
+    return () => clearTimeout(timeout)
+  }, [loadingTokens])
+
   const underTab = (
     <Row gap="20px" style={{ borderBottom: `1px solid ${theme.border}` }}>
       <TabItem active={view === View.ASSETS} onClick={() => setView(View.ASSETS)}>
@@ -143,7 +149,7 @@ export default function WalletView({ onDismiss, onPin, isPinned, blurBackground 
 
     return (
       <AccountInfo
-        totalBalanceInUsd={totalBalanceInUsd}
+        totalBalanceInUsd={isNetworkIssue ? '--' : totalBalanceInUsd}
         onClickBuy={handleClickBuy}
         onClickReceive={handleClickReceive}
         onClickSend={handleClickSend}
@@ -169,6 +175,7 @@ export default function WalletView({ onDismiss, onPin, isPinned, blurBackground 
             {renderAccountInfo()}
             {underTab}
             <MyAssets
+              isNetworkIssue={isNetworkIssue}
               loadingTokens={loadingTokens}
               tokens={currencies}
               usdBalances={usdBalances}
