@@ -109,9 +109,6 @@ const useAssociatedTokensAccounts = (): { [mintAddress: string]: AccountInfoPars
 }
 
 export function useTokensBalanceSolana(tokens?: Token[]): [TokenAmount | undefined, boolean][] {
-  // export const useTokensBalanceSolana = (
-  //   validatedTokenAddresses: string[],
-  // ): { [mintAddress: string]: TokenAmount | false } => {
   const atas = useAssociatedTokensAccounts()
   const [tokensBalance, setTokensBalance] = useState<{ [mintAddress: string]: TokenAmount | undefined }>({})
   const allTransactions = useAllTransactions()
