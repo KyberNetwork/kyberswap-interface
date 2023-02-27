@@ -2,7 +2,6 @@ import { useQuery } from '@apollo/client'
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, TICK_SPACINGS, tickToPrice } from '@kyberswap/ks-sdk-elastic'
 import JSBI from 'jsbi'
-import ms from 'ms.macro'
 import { useMemo } from 'react'
 
 import { ALL_TICKS, Tick } from 'apollo/queries/promm'
@@ -34,13 +33,13 @@ const useAllTicks = (poolAddress: string) => {
 
   return useQuery(ALL_TICKS(poolAddress?.toLowerCase()), {
     client: elasticClient,
-    pollInterval: ms`30s`,
+    pollInterval: 30_000,
     skip: !isEVM,
   })
 }
 
 // Fetches all ticks for a given pool
-export function useAllV3Ticks(
+function useAllV3Ticks(
   currencyA: Currency | undefined,
   currencyB: Currency | undefined,
   feeAmount: FeeAmount | undefined,
@@ -52,7 +51,7 @@ export function useAllV3Ticks(
   // const { isLoading, isError, error, isUninitialized, data } = useAllV3TicksQuery(
   //   poolAddress ? { poolAddress: poolAddress?.toLowerCase(), skip: 0 } : skipToken,
   //   {
-  //     pollingInterval: ms`30s`,
+  //     pollingInterval: 30_000,
   //   },
   // )
 

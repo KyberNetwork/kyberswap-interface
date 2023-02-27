@@ -163,6 +163,7 @@ export enum MIXPANEL_TYPE {
   ANNOUNCEMENT_CLICK_INBOX_MESSAGE,
   ANNOUNCEMENT_CLICK_CLOSE_POPUP,
   ANNOUNCEMENT_CLICK_CTA_POPUP,
+  ANNOUNCEMENT_CLICK_CLEAR_ALL_INBOXES,
 
   // limit order
   LO_CLICK_PLACE_ORDER,
@@ -820,6 +821,10 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
           mixpanel.track('Notifications - Click on Announcement Pop Up CTA', payload)
           break
         }
+        case MIXPANEL_TYPE.ANNOUNCEMENT_CLICK_CLEAR_ALL_INBOXES: {
+          mixpanel.track('Notifications - Clear All Messages', payload)
+          break
+        }
 
         case MIXPANEL_TYPE.KYBER_DAO_STAKE_CLICK: {
           mixpanel.track('KyberDAO - Stake Click', payload)
@@ -1202,13 +1207,13 @@ export const useGlobalMixpanelEvents = () => {
         'elastic/increase': 'Elastic - Increase Liquidity',
         'buy-crypto': 'Buy Crypto',
         bridge: 'Bridge',
-        'kyberdao/stake-knc': 'KyberDAO Stake',
-        'kyberdao/vote': 'KyberDAO Vote',
+        '/kyberdao/stake-knc': 'KyberDAO Stake',
+        '/kyberdao/vote': 'KyberDAO Vote',
         limit: 'Limit Order',
       }
-      const pageName = map[pathName]
+      const pageName = map[pathName] || map[location.pathname]
       pageName && mixpanelHandler(MIXPANEL_TYPE.PAGE_VIEWED, { page: pageName })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathName, account, chainId])
+  }, [pathName, account, chainId, location.pathname])
 }

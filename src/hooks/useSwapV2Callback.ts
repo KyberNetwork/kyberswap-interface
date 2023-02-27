@@ -147,7 +147,7 @@ export function useSwapV2Callback(
       const hash = await sendSolanaTransactions(
         connection,
         encodeSolana,
-        walletSolana.wallet.adapter as any as SignerWalletAdapter,
+        walletSolana.wallet.adapter as SignerWalletAdapter,
         addTransactionWithType,
         swapData,
       )
