@@ -64,7 +64,7 @@ export default function MyAssets({
   if (isNetworkIssue)
     return (
       <Wrapper>
-        <Column style={{ gap: '12px', height: 74, alignItems: 'center', marginTop: '16px' }}>
+        <Column style={{ gap: '12px', alignItems: 'center', marginTop: '16px' }}>
           <AlertTriangle color={theme.warning} />
           <Text color={theme.warning}>Network is slow. Please try again later</Text>
         </Column>
