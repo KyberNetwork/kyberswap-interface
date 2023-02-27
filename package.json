@@ -73,6 +73,7 @@
     "find-replacement-tx": "^1.2.3",
     "firebase": "^9.8.2",
     "graphql": "^15.8.0",
+    "html2canvas": "^1.4.1",
     "inter-ui": "^3.19.3",
     "jsbi": "^3.2.5",
     "lightweight-charts": "^3.3.0",

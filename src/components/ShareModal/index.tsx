@@ -87,6 +87,15 @@ const ButtonWithHoverEffect = ({ children, onClick }: { children: (color: string
   )
 }
 
+export const getSocialShareUrls = (shareUrl: string) => {
+  return {
+    telegram: 'https://telegram.me/share/url?url=' + encodeURIComponent(shareUrl),
+    twitter: 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(shareUrl),
+    facebook: 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(shareUrl),
+    discord: 'https://discord.com/app/',
+  }
+}
+
 export default function ShareModal({
   title,
   url,
@@ -107,6 +116,8 @@ export default function ShareModal({
     setCopied(shareUrl)
   }
 
+  const { telegram, twitter, facebook, discord } = getSocialShareUrls(shareUrl)
+
   return (
     <Modal isOpen={isOpen} onDismiss={toggle}>
       <Flex flexDirection="column" alignItems="center" padding="25px" width="100%">
@@ -122,7 +133,7 @@ export default function ShareModal({
           <ButtonWithHoverEffect onClick={onShared}>
             {(color: string) => (
               <>
-                <ExternalLink href={'https://telegram.me/share/url?url=' + encodeURIComponent(shareUrl)}>
+                <ExternalLink href={telegram}>
                   <Telegram size={36} color={color} />
                 </ExternalLink>
                 <Text>Telegram</Text>
@@ -132,7 +143,7 @@ export default function ShareModal({
           <ButtonWithHoverEffect onClick={onShared}>
             {(color: string) => (
               <>
-                <ExternalLink href={'https://twitter.com/intent/tweet?text=' + encodeURIComponent(shareUrl)}>
+                <ExternalLink href={twitter}>
                   <TwitterIcon width={36} height={36} color={color} />
                 </ExternalLink>
                 <Text>Twitter</Text>
@@ -142,7 +153,7 @@ export default function ShareModal({
           <ButtonWithHoverEffect onClick={onShared}>
             {(color: string) => (
               <>
-                <ExternalLink href={'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(shareUrl)}>
+                <ExternalLink href={facebook}>
                   <Facebook color={color} />
                 </ExternalLink>
                 <Text>Facebook</Text>
@@ -152,7 +163,7 @@ export default function ShareModal({
           <ButtonWithHoverEffect onClick={onShared}>
             {(color: string) => (
               <>
-                <ExternalLink href="https://discord.com/app/">
+                <ExternalLink href={discord}>
                   <Discord width={36} height={36} color={color} />
                 </ExternalLink>
                 <Text>Discord</Text>

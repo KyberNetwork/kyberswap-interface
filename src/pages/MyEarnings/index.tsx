@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import { Flex, Text } from 'rebass'
 
 import MyEarningsZoomOutModal from 'components/MyEarningsZoomOutModal'
 import ClassicElasticTab from 'pages/MyEarnings/ClassicElasticTab'
+import ShareModal from 'pages/MyEarnings/ShareModal'
 
 import CurrentChainButton from './CurrentChainButton'
 import MultipleChainSelect from './MultipleChainSelect'
@@ -9,6 +11,7 @@ import MyEarningsSection from './MyEarningsSection'
 import { PageWrapper } from './styleds'
 
 const MyEarnings = () => {
+  const [isOpen, setIsOpen] = useState(true)
   return (
     <PageWrapper>
       <Flex
@@ -46,6 +49,7 @@ const MyEarnings = () => {
       </Flex>
 
       <MyEarningsZoomOutModal />
+      <ShareModal isOpen={isOpen} setIsOpen={setIsOpen} />
     </PageWrapper>
   )
 }
