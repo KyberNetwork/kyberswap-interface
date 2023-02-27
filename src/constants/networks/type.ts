@@ -33,6 +33,7 @@ export interface NetworkInfo {
     development: string | null
     production: string | null
   }
+  readonly defaultRpcUrl: string
   // token: {
   //   DAI: Token
   //   USDC: Token
@@ -43,7 +44,6 @@ export interface NetworkInfo {
 export interface EVMNetworkInfo extends NetworkInfo {
   readonly poolFarmRoute: string // use this to get data from our internal BE
   readonly defaultBlockSubgraph: string
-  readonly defaultRpcUrl: string
   readonly multicall: string
   readonly classic: {
     readonly defaultSubgraph: string
@@ -99,7 +99,6 @@ export interface SolanaNetworkInfo extends NetworkInfo {
   //   readonly factory: string
   //   readonly router: string
   // }
-  connection: Connection
   aggregatorProgramAddress: string
   openBookAddress: PublicKey
 }

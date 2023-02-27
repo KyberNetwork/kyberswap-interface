@@ -1,5 +1,6 @@
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { Connection } from '@solana/web3.js'
 import { ethers } from 'ethers'
 import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
@@ -10,30 +11,30 @@ import {
   useLazyGetKyberswapConfigurationQuery,
 } from 'services/ksSetting'
 
-import { NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM } from 'constants/networks'
+import { NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM, isSolana } from 'constants/networks'
 import ethereumInfo from 'constants/networks/ethereum'
+import solanaInfo from 'constants/networks/solana'
 import { AppState } from 'state'
 import { createClient } from 'utils/client'
 
 type KyberswapConfig = {
-  prochart: boolean
   rpc: string
+  prochart: boolean
   blockClient: ApolloClient<NormalizedCacheObject>
   classicClient: ApolloClient<NormalizedCacheObject>
   elasticClient: ApolloClient<NormalizedCacheObject>
-  provider: ethers.providers.JsonRpcProvider
+  provider: ethers.providers.JsonRpcProvider | undefined
+  connection: Connection | undefined
 }
 
 const convertConfig = (
   data: KyberswapConfigurationResponse['data'] | undefined,
   defaultChainId: ChainId,
 ): KyberswapConfig => {
-  const rpc = isEVM(defaultChainId)
-    ? data?.rpc ?? NETWORKS_INFO[defaultChainId].defaultRpcUrl
-    : ethereumInfo.defaultRpcUrl
+  const rpc = data?.rpc ?? NETWORKS_INFO[defaultChainId].defaultRpcUrl
   return {
-    prochart: data?.prochart ?? false,
     rpc,
+    prochart: data?.prochart ?? false,
     blockClient: isEVM(defaultChainId)
       ? createClient(data?.['block-subgraph'] ?? NETWORKS_INFO[defaultChainId].defaultBlockSubgraph)
       : createClient(ethereumInfo.defaultBlockSubgraph),
@@ -43,11 +44,14 @@ const convertConfig = (
     elasticClient: isEVM(defaultChainId)
       ? createClient(data?.['elastic-subgraph'] ?? NETWORKS_INFO[defaultChainId].elastic.defaultSubgraph)
       : createClient(ethereumInfo.elastic.defaultSubgraph),
-    provider: new ethers.providers.JsonRpcProvider(rpc),
+    provider: isEVM(defaultChainId) ? new ethers.providers.JsonRpcProvider(rpc) : undefined,
+    connection: isSolana(defaultChainId)
+      ? new Connection(data?.rpc ?? solanaInfo.defaultRpcUrl, { commitment: 'confirmed' })
+      : undefined,
   }
 }
 export const useKyberswapConfig = (customChainId?: ChainId): KyberswapConfig => {
-  const chainId = useSelector<AppState, ChainId>(state => state.user.chainId) || ChainId.MAINNET // read directly from store to prevent circular loop
+  const chainId = useSelector<AppState, ChainId>(state => state.user.chainId) || ChainId.MAINNET // read directly from store instead of useActiveWeb3React to prevent circular loop
   const { data } = useGetKyberswapConfigurationQuery({ chainId: customChainId ?? chainId })
   const result = useMemo(() => convertConfig(data?.data, chainId), [chainId, data?.data])
   return result
@@ -55,7 +59,7 @@ export const useKyberswapConfig = (customChainId?: ChainId): KyberswapConfig => 
 
 export const useKyberswapGlobalConfig = () => {
   const { data } = useGetKyberswapGlobalConfigurationQuery(undefined)
-  return { banner: data?.data?.banner ?? [] }
+  return { banners: data?.data?.banners ?? [] }
 }
 
 export const useAllKyberswapConfig = (): {

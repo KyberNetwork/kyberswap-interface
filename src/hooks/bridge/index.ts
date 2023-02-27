@@ -16,7 +16,7 @@ export const useTokenBalanceOfAnotherChain = (chainId: ChainId | undefined, toke
   const { provider } = useKyberswapConfig()
 
   useEffect(() => {
-    if (account && chainId && token)
+    if (account && chainId && token && provider)
       getTokenBalanceOfAnotherChain(account, token, chainId, provider)
         .then(data => {
           setBalance(data)

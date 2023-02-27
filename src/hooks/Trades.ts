@@ -7,7 +7,7 @@ import { ENV_LEVEL } from 'constants/env'
 import { ZERO_ADDRESS, ZERO_ADDRESS_SOLANA } from 'constants/index'
 import { ENV_TYPE } from 'constants/type'
 import { PairState, usePairs } from 'data/Reserves'
-import { useActiveWeb3React } from 'hooks/index'
+import { useActiveWeb3React, useWeb3Solana } from 'hooks/index'
 import { useAllCurrencyCombinations } from 'hooks/useAllCurrencyCombinations'
 import useDebounce from 'hooks/useDebounce'
 import { AppState } from 'state'
@@ -102,6 +102,7 @@ export function useTradeExactInV2(
   const [allowedSlippage] = useUserSlippageTolerance()
   const txsInChain = useAllTransactions()
   const [, setEncodeSolana] = useEncodeSolana()
+  const { connection } = useWeb3Solana()
 
   const allDexes = useAllDexes()
   const [excludeDexes] = useExcludeDexes()
@@ -227,8 +228,8 @@ export function useTradeExactInV2(
   useEffect(() => {
     const controller = new AbortController()
     const encodeSolana = async () => {
-      if (!trade) return
-      const encodeSolana = await Aggregator.encodeSolana(trade, controller.signal)
+      if (!trade || !connection) return
+      const encodeSolana = await Aggregator.encodeSolana(trade, connection, controller.signal)
       if (encodeSolana && !controller.signal.aborted) setEncodeSolana(encodeSolana)
     }
     encodeSolana()
@@ -236,7 +237,7 @@ export function useTradeExactInV2(
     return () => {
       controller.abort()
     }
-  }, [trade, setEncodeSolana])
+  }, [trade, setEncodeSolana, connection])
 
   return {
     trade, //todo: not return this anymore, set & use it from redux

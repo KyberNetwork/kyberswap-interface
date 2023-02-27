@@ -102,8 +102,9 @@ export default function useTotalVotingReward(): {
   }, [totalVotingReward, setLocalStoredTotalVotingReward])
 
   useEffect(() => {
-    const a = async () => {
+    const run = async () => {
       try {
+        if (!provider || !providerMatic) return
         const rewards = await Promise.all([
           (async () => {
             const poolsQuery = classicClientMainnet.query({
@@ -181,7 +182,7 @@ export default function useTotalVotingReward(): {
         setTotalVotingReward(0)
       }
     }
-    a()
+    run()
   }, [classicClientMainnet, classicClientMatic, provider, providerMatic])
 
   useEffect(() => {

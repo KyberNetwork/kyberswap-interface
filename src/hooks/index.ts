@@ -125,6 +125,11 @@ export function useWeb3React(key?: string): Web3ReactContextInterface<Web3Provid
   } as Web3ReactContextInterface
 }
 
+export const useWeb3Solana = () => {
+  const { connection } = useKyberswapConfig()
+  return { connection }
+}
+
 async function isAuthorized(): Promise<boolean> {
   // Check if previous connected to Coinbase Link
   if (window.localStorage.getItem(WALLETLINK_LOCALSTORAGE_NAME)) {

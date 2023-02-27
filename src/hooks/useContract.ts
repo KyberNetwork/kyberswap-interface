@@ -70,7 +70,7 @@ function useContractForReading(
   const { provider } = useKyberswapConfig()
 
   return useMemo(() => {
-    if (!address || !isEVM(chainId)) return null
+    if (!address || !isEVM(chainId) || !provider) return null
     try {
       return getContractForReading(address, ABI, provider)
     } catch (error) {
@@ -93,7 +93,16 @@ export function useMultipleContracts(
   const { provider } = useKyberswapConfig()
 
   return useMemo(() => {
-    if (!isEVM || !addresses || !Array.isArray(addresses) || addresses.length === 0 || !ABI || !library || !chainId)
+    if (
+      !isEVM ||
+      !addresses ||
+      !Array.isArray(addresses) ||
+      addresses.length === 0 ||
+      !ABI ||
+      !library ||
+      !chainId ||
+      !provider
+    )
       return null
 
     const result: {
