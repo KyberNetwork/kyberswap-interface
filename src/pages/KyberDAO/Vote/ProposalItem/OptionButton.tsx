@@ -147,10 +147,7 @@ export default function OptionButton({
                   <RadioButtonUnchecked />
                 )}{' '}
               </CheckButtonWrapper>
-              <Text>
-                {id + '. '}
-                {title}
-              </Text>
+              <Text>{`${id}. ${title}`}</Text>
             </RowFit>
           </MouseoverTooltip>
           <Text fontSize="12px" padding={'0 4px'}>
