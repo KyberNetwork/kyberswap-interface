@@ -41,12 +41,14 @@ export default function MyAssets({
   usdBalances,
   currencyBalances,
   isNetworkIssue,
+  hideBalance,
 }: {
   tokens: Currency[]
   loadingTokens: boolean
   isNetworkIssue: boolean
   usdBalances: { [address: string]: number }
   currencyBalances: { [address: string]: TokenAmount | undefined }
+  hideBalance: boolean
 }) {
   const theme = useTheme()
   const { mixpanelHandler } = useMixpanel()
@@ -103,6 +105,7 @@ export default function MyAssets({
                   style={tokenItemStyle}
                   currency={token}
                   currencyBalance={currencyBalance as CurrencyAmount<Currency>}
+                  hideBalance={hideBalance}
                   showFavoriteIcon={false}
                   usdBalance={usdBalance}
                   hoverColor="transparent"

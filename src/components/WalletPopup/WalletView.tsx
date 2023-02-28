@@ -89,11 +89,21 @@ type Props = {
   onUnpin?: () => void
   isPinned: boolean
   blurBackground?: boolean
+  showBalance: boolean
+  toggleShowBalance: () => void
 }
 
 // This is intentional, we don't need to persist in localStorage
 let storedView = View.ASSETS
-export default function WalletView({ onDismiss, onPin, isPinned, blurBackground = false, onUnpin }: Props) {
+export default function WalletView({
+  onDismiss,
+  onPin,
+  isPinned,
+  blurBackground = false,
+  onUnpin,
+  showBalance,
+  toggleShowBalance,
+}: Props) {
   const [view, setView] = useState<string>(storedView)
   const theme = useTheme()
   const { mixpanelHandler } = useMixpanel()
@@ -149,6 +159,8 @@ export default function WalletView({ onDismiss, onPin, isPinned, blurBackground 
 
     return (
       <AccountInfo
+        toggleShowBalance={toggleShowBalance}
+        showBalance={showBalance}
         totalBalanceInUsd={isNetworkIssue ? '--' : totalBalanceInUsd}
         onClickBuy={handleClickBuy}
         onClickReceive={handleClickReceive}
@@ -175,6 +187,7 @@ export default function WalletView({ onDismiss, onPin, isPinned, blurBackground 
             {renderAccountInfo()}
             {underTab}
             <MyAssets
+              hideBalance={!showBalance}
               isNetworkIssue={isNetworkIssue}
               loadingTokens={loadingTokens}
               tokens={currencies}

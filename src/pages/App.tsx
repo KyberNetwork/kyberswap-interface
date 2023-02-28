@@ -113,11 +113,11 @@ export default function App() {
   const prevOnline = usePrevious(online)
 
   useEffect(() => {
-    if (isMobile && prevOnline === false && online) {
+    if (isMobile && prevOnline === false && online && account) {
       // refresh page when network back to normal to prevent some issues: ex: stale data, ...
       window.location.reload()
     }
-  }, [online, prevOnline])
+  }, [online, prevOnline, account])
 
   useEffect(() => {
     if (account) {
