@@ -1,8 +1,8 @@
 import { Currency, Token } from '@kyberswap/ks-sdk-core'
 import { useEffect } from 'react'
+import { usePrevious } from 'react-use'
 
 import { useActiveWeb3React } from 'hooks'
-import usePrevious from 'hooks/usePrevious'
 import { Field } from 'state/swap/actions'
 import { useUserAddedTokens } from 'state/user/hooks'
 
