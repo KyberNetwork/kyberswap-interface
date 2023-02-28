@@ -1,7 +1,6 @@
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useEffect, useState } from 'react'
-import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 import { ButtonConfirmed, ButtonLight, ButtonPrimary } from 'components/Button'
@@ -215,15 +214,12 @@ const SwapActionButton: React.FC<Props> = ({
   }, [typedValue])
 
   return (
-    <Flex
-      sx={{
-        marginTop: '24px',
-        flexDirection: 'column',
-      }}
-    >
+    <>
       {renderButton()}
-      {isAdvancedMode && errorWhileSwap ? <SwapCallbackError error={errorWhileSwap} /> : null}
-    </Flex>
+      {isAdvancedMode && errorWhileSwap ? (
+        <SwapCallbackError style={{ margin: 0, zIndex: 'unset' }} error={errorWhileSwap} />
+      ) : null}
+    </>
   )
 }
 

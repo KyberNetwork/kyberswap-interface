@@ -8,7 +8,6 @@ import { useActiveWeb3React } from 'hooks'
 
 const GroupButtonReturnTypes = styled.div`
   display: flex;
-  margin-top: 20px;
   border-radius: 999px;
   background: ${({ theme }) => theme.tabBackgound};
   padding: 2px;
