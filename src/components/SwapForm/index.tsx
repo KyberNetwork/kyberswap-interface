@@ -205,7 +205,8 @@ const SwapForm: React.FC<SwapFormProps> = props => {
               </Flex>
             )}
           </Flex>
-
+        </Wrapper>
+        <Flex flexDirection="column" style={{ gap: '1.25rem' }}>
           <TradeTypeSelection isSaveGas={isSaveGas} setSaveGas={setSaveGas} />
 
           {chainId !== ChainId.ETHW && (
@@ -239,9 +240,9 @@ const SwapForm: React.FC<SwapFormProps> = props => {
             buildRoute={buildRoute}
             swapInputError={swapInputError}
           />
-        </Wrapper>
 
-        <TradeSummary feeConfig={feeConfig} routeSummary={routeSummary} slippage={slippage} />
+          <TradeSummary feeConfig={feeConfig} routeSummary={routeSummary} slippage={slippage} />
+        </Flex>
       </Flex>
     </SwapFormContextProvider>
   )
