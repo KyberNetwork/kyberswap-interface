@@ -119,9 +119,9 @@ export default function WalletView({
     usdBalances,
   } = useTokensHasBalance(true)
 
-  const [isNetworkIssue, setIsNetworkIssue] = useState(false)
+  const [hasNetworkIssue, setHasNetworkIssue] = useState(false)
   useEffect(() => {
-    const timeout = setTimeout(() => setIsNetworkIssue(loadingTokens), 10_000)
+    const timeout = setTimeout(() => setHasNetworkIssue(loadingTokens), 10_000)
     return () => clearTimeout(timeout)
   }, [loadingTokens])
 
@@ -161,7 +161,7 @@ export default function WalletView({
       <AccountInfo
         toggleShowBalance={toggleShowBalance}
         showBalance={showBalance}
-        totalBalanceInUsd={isNetworkIssue ? '--' : totalBalanceInUsd}
+        totalBalanceInUsd={hasNetworkIssue ? '--' : totalBalanceInUsd}
         onClickBuy={handleClickBuy}
         onClickReceive={handleClickReceive}
         onClickSend={handleClickSend}
@@ -188,7 +188,7 @@ export default function WalletView({
             {underTab}
             <MyAssets
               hideBalance={!showBalance}
-              isNetworkIssue={isNetworkIssue}
+              hasNetworkIssue={hasNetworkIssue}
               loadingTokens={loadingTokens}
               tokens={currencies}
               usdBalances={usdBalances}

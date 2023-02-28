@@ -40,12 +40,12 @@ export default function MyAssets({
   loadingTokens,
   usdBalances,
   currencyBalances,
-  isNetworkIssue,
+  hasNetworkIssue,
   hideBalance,
 }: {
   tokens: Currency[]
   loadingTokens: boolean
-  isNetworkIssue: boolean
+  hasNetworkIssue: boolean
   usdBalances: { [address: string]: number }
   currencyBalances: { [address: string]: TokenAmount | undefined }
   hideBalance: boolean
@@ -63,7 +63,7 @@ export default function MyAssets({
   const qs = useParsedQueryString()
   const { chainId } = useActiveWeb3React()
 
-  if (isNetworkIssue)
+  if (hasNetworkIssue)
     return (
       <Wrapper>
         <Column style={{ gap: '12px', alignItems: 'center', marginTop: '16px' }}>
