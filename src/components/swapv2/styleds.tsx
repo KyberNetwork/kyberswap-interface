@@ -216,7 +216,7 @@ export function SwapCallbackError({ error, style = {} }: { error: string; style?
             lineHeight="16px"
             sx={{ wordBreak: 'break-word' }}
           >
-            {error}
+            {typeof error === 'string' ? error : JSON.stringify(error)}
           </Text>
         )}
       </AutoColumn>
