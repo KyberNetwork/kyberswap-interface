@@ -46,6 +46,7 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
 import useProAmmPreviousTicks, { useProAmmMultiplePreviousTicks } from 'hooks/useProAmmPreviousTicks'
 import useTheme from 'hooks/useTheme'
@@ -103,6 +104,7 @@ export default function AddLiquidity() {
   const positionManager = useProAmmNFTPositionManagerContract()
   const [showChart, setShowChart] = useState(false)
   const [positionIndex, setPositionIndex] = useState(0)
+  const { mixpanelHandler } = useMixpanel()
 
   // fee selection from url
   const feeAmount: FeeAmount | undefined =
@@ -188,6 +190,11 @@ export default function AddLiquidity() {
     onAddPosition,
     onRemovePosition,
   } = useProAmmMintActionHandlers(noLiquidity, pIndex)
+
+  const onAddPositionEvent = useCallback(() => {
+    // mixpanelHandler(MIXPANEL_TYPE.)
+    onAddPosition()
+  }, [onAddPosition])
 
   const isValid = !errorMessage && !invalidRange
 
@@ -546,7 +553,11 @@ export default function AddLiquidity() {
         <Trans>Connect Wallet</Trans>
       </ButtonLight>
     ) : (
-      <>
+      <Flex
+        sx={{ gap: '16px' }}
+        flexDirection={upToMedium ? 'column' : 'row'}
+        width={upToMedium ? '100%' : 'fit-content'}
+      >
         {(approvalA === ApprovalState.NOT_APPROVED ||
           approvalA === ApprovalState.PENDING ||
           approvalB === ApprovalState.NOT_APPROVED ||
@@ -604,7 +615,7 @@ export default function AddLiquidity() {
             {errorMessage ? errorMessage : expertMode ? <Trans>Supply</Trans> : <Trans>Preview</Trans>}
           </Text>
         </ButtonError>
-      </>
+      </Flex>
     )
 
   const warning = errorLabel ? (
@@ -660,7 +671,7 @@ export default function AddLiquidity() {
           tabsCount={positionsState.length}
           selectedTab={pIndex}
           onChangedTab={index => setPositionIndex(index)}
-          onAddTab={onAddPosition}
+          onAddTab={onAddPositionEvent}
           onRemoveTab={onRemovePosition}
           showChart={showChart}
           onToggleChart={(newShowChart: boolean | undefined) =>
