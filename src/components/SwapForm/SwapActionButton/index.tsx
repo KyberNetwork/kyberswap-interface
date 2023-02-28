@@ -17,7 +17,6 @@ import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { WrapType } from 'hooks/useWrapCallback'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { DetailedRouteSummary } from 'types/route'
-import { checkPriceImpact } from 'utils/prices'
 
 import { Props as SwapOnlyButtonProps } from './SwapOnlyButton'
 
@@ -81,7 +80,6 @@ const SwapActionButton: React.FC<Props> = ({
 
   const [errorWhileSwap, setErrorWhileSwap] = useState('')
   const noRouteFound = routeSummary && !routeSummary.route
-  const { isInvalid: isPriceImpactError } = checkPriceImpact(routeSummary?.priceImpact)
 
   // toggle wallet when disconnected
   const toggleWalletModal = useWalletModalToggle()
@@ -172,7 +170,7 @@ const SwapActionButton: React.FC<Props> = ({
       setErrorWhileSwap,
       buildRoute,
 
-      isDisabled: isPriceImpactError || !routeSummary || approval !== ApprovalState.APPROVED,
+      isDisabled: !routeSummary || approval !== ApprovalState.APPROVED,
     }
 
     if (showApproveFlow) {
