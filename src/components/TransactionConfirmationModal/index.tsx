@@ -268,8 +268,6 @@ export function TransactionErrorContent({ message, onDismiss }: { message: strin
             style={{ textAlign: 'center', width: '85%' }}
           >
             {errorFriendly(message)}
-            {/* {message.includes('minTotalAmountOut') &&
-              ' Try to refresh the exchange rate or increase the Slippage tolerance in Settings'} */}
           </Text>
           {message !== errorFriendly(message) && (
             <AutoColumn justify="center" style={{ width: '100%' }}>
