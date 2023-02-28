@@ -137,9 +137,9 @@ export default function OptionButton({
               <CheckButtonWrapper style={{ width: '18px' }}>
                 {isCheckBox ? (
                   checked ? (
-                    <CheckSquare size={18} style={{ display: 'block' }} />
+                    <CheckSquare size={18} />
                   ) : (
-                    <Square size={18} style={{ display: 'block' }} />
+                    <Square size={18} />
                   )
                 ) : checked ? (
                   <RadioButtonChecked />
