@@ -23,7 +23,7 @@ import { minimumAmountAfterSlippage } from 'utils/currencyAmount'
 import { getFormattedFeeAmountUsdV2 } from 'utils/fee'
 
 function formattedMinimumReceived(number: string) {
-  if (number === '' || number === undefined) {
+  if (!number) {
     return 0
   }
 
@@ -128,9 +128,9 @@ const SwapDetails: React.FC<Props> = ({
           >
             <Loader size="20px" stroke={theme.primary} />
             <Text as="span" fontSize="12px" color={theme.primary} fontStyle="italic">
-              <Trans>
-                <Dots>Locking in this price</Dots>
-              </Trans>
+              <Dots>
+                <Trans>Locking in this price</Trans>
+              </Dots>
             </Text>
           </Flex>
         </StatusWrapper>

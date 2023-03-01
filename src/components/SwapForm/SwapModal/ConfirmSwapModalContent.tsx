@@ -90,8 +90,7 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
       return null
     }
 
-    let parsedAmountIn = routeSummary.parsedAmountIn
-    let parsedAmountOut = routeSummary.parsedAmountOut
+    let { parsedAmountIn, parsedAmountOut } = routeSummary
     let changedAmount = 0
 
     if (buildResult?.data) {

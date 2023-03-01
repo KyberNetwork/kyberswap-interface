@@ -37,7 +37,6 @@ export function useSyncNetworkParamWithStore() {
         setRequestingNetwork(params?.network)
         await changeNetwork(paramChainId, undefined, () => {
           if (params.network) {
-            console.log('change 1')
             navigate(
               { ...location, pathname: location.pathname.replace(params.network, networkInfo.route) },
               { replace: true },

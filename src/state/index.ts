@@ -64,11 +64,10 @@ const store = configureStore({
     elasticFarm,
     tokenPrices,
     topTokens,
-    routeApi: routeApi.reducer,
+    [routeApi.reducerPath]: routeApi.reducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({ thunk: true, immutableCheck: false, serializableCheck: false })
-      // .concat(dataApi.middleware)
       .concat(save({ states: PERSISTED_KEYS, debounce: 100 }))
       .concat(geckoTerminalApi.middleware)
       .concat(ksSettingApi.middleware)
