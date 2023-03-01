@@ -1,4 +1,5 @@
 import { datadogRum } from '@datadog/browser-rum'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import * as Sentry from '@sentry/react'
 import { Suspense, lazy, useEffect } from 'react'
@@ -22,6 +23,7 @@ import Web3ReactManager from 'components/Web3ReactManager'
 import { APP_PATHS, BLACKLIST_WALLETS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useGlobalMixpanelEvents } from 'hooks/useMixpanel'
+import { useSyncNetworkParamWithStore } from 'hooks/useSyncNetworkParamWithStore'
 import useTheme from 'hooks/useTheme'
 import { useHolidayMode } from 'state/user/hooks'
 import DarkModeQueryParamReader from 'theme/DarkModeQueryParamReader'
@@ -105,6 +107,19 @@ const BodyWrapper = styled.div`
 
   ${isMobile && `overflow-x: hidden;`}
 `
+
+const SwapPage = () => {
+  const { chainId } = useActiveWeb3React()
+  useSyncNetworkParamWithStore()
+
+  if (chainId === ChainId.SOLANA) {
+    console.log('Swapv2')
+    return <SwapV2 />
+  }
+
+  console.log('Swapv3')
+  return <SwapV3 />
+}
 
 export default function App() {
   const { account, chainId, networkInfo } = useActiveWeb3React()
@@ -205,13 +220,9 @@ export default function App() {
                     <Route element={<DarkModeQueryParamReader />} />
                     <Route path={APP_PATHS.SWAP_LEGACY} element={<Swap />} />
 
-                    <Route path={`${APP_PATHS.SWAP_V3}/:network/:fromCurrency-to-:toCurrency`} element={<SwapV3 />} />
-                    <Route path={`${APP_PATHS.SWAP_V3}/:network/:fromCurrency`} element={<SwapV3 />} />
-                    <Route path={`${APP_PATHS.SWAP_V3}/:network`} element={<SwapV3 />} />
-
-                    <Route path={`${APP_PATHS.SWAP}/:network/:fromCurrency-to-:toCurrency`} element={<SwapV2 />} />
-                    <Route path={`${APP_PATHS.SWAP}/:network/:fromCurrency`} element={<SwapV2 />} />
-                    <Route path={`${APP_PATHS.SWAP}/:network`} element={<SwapV2 />} />
+                    <Route path={`${APP_PATHS.SWAP}/:network/:fromCurrency-to-:toCurrency`} element={<SwapPage />} />
+                    <Route path={`${APP_PATHS.SWAP}/:network/:fromCurrency`} element={<SwapPage />} />
+                    <Route path={`${APP_PATHS.SWAP}/:network`} element={<SwapPage />} />
 
                     {getLimitOrderContract(chainId) && (
                       <>

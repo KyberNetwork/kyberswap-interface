@@ -9,7 +9,7 @@ import styled, { css } from 'styled-components'
 
 import { ButtonEmpty } from 'components/Button'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { MAINNET_NETWORKS, NETWORKS_INFO } from 'constants/networks'
+import { MAINNET_NETWORKS, NETWORKS_INFO, isEVM } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React } from 'hooks'
@@ -137,6 +137,7 @@ const Networks = ({
   disabledAll?: boolean
   disabledAllMsg?: string
 }) => {
+  const { chainId: currentChainId } = useActiveWeb3React()
   const changeNetwork = useChangeNetwork()
   const qs = useParsedQueryString()
   const navigate = useNavigate()
@@ -148,7 +149,8 @@ const Networks = ({
     customToggleModal?.()
     if (customOnSelectNetwork) {
       customOnSelectNetwork(chainId)
-    } else {
+    } else if (isEVM(currentChainId) === isEVM(chainId)) {
+      // both are evm, or both are solana
       changeNetwork(chainId, () => {
         const { inputCurrency, outputCurrency, ...rest } = qs
         navigate(
@@ -159,6 +161,17 @@ const Networks = ({
         )
         onChangedNetwork?.()
 
+        dispatch(updateChainId(chainId))
+      })
+    } else {
+      changeNetwork(chainId, () => {
+        navigate(
+          {
+            search: '',
+          },
+          { replace: true },
+        )
+        onChangedNetwork?.()
         dispatch(updateChainId(chainId))
       })
     }

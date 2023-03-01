@@ -79,7 +79,6 @@ import { ApprovalState, useApproveCallbackFromTradeV2 } from 'hooks/useApproveCa
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useSwapV2Callback } from 'hooks/useSwapV2Callback'
-import { useSyncNetworkParamWithStore } from 'hooks/useSyncNetworkParamWithStore'
 import useSyncTokenSymbolToUrl from 'hooks/useSyncTokenSymbolToUrl'
 import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
@@ -202,7 +201,6 @@ export default function Swap() {
   const allDexes = useAllDexes()
   const [{ show: isShowTutorial = false }] = useTutorialSwapGuide()
   const { pathname } = useLocation()
-  useSyncNetworkParamWithStore()
   const [encodeSolana] = useEncodeSolana()
 
   const refSuggestPair = useRef<PairSuggestionHandle>(null)

@@ -49,7 +49,6 @@ import { useActiveWeb3React } from 'hooks'
 import { useAllTokens, useIsLoadedTokenDefault } from 'hooks/Tokens'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import { useSyncNetworkParamWithStore } from 'hooks/useSyncNetworkParamWithStore'
 import useTheme from 'hooks/useTheme'
 import { BodyWrapper } from 'pages/AppBody'
 import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
@@ -142,7 +141,6 @@ export default function Swap() {
   const [isSelectCurrencyManually, setIsSelectCurrencyManually] = useState(false) // true when: select token input, output manualy or click rotate token.
 
   const { pathname } = useLocation()
-  useSyncNetworkParamWithStore()
 
   const refSuggestPair = useRef<PairSuggestionHandle>(null)
   const refListLimitOrder = useRef<ListOrderHandle>(null)
@@ -151,7 +149,7 @@ export default function Swap() {
 
   const shouldHighlightSwapBox = qs.highlightBox === 'true'
 
-  const isSwapPage = pathname.startsWith(APP_PATHS.SWAP_V3)
+  const isSwapPage = pathname.startsWith(APP_PATHS.SWAP)
   const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT)
   const [activeTab, setActiveTab] = useState<TAB>(isSwapPage ? TAB.SWAP : TAB.LIMIT)
   const { onSelectPair: onSelectPairLimit } = useLimitActionHandlers()
@@ -263,7 +261,7 @@ export default function Swap() {
   const shareUrl = useMemo(() => {
     const tokenIn = isSwapPage ? currencyIn : limitState.currencyIn
     const tokenOut = isSwapPage ? currencyOut : limitState.currencyOut
-    return `${window.location.origin}${isSwapPage ? APP_PATHS.SWAP_V3 : APP_PATHS.LIMIT}}/${networkInfo.route}${
+    return `${window.location.origin}${isSwapPage ? APP_PATHS.SWAP : APP_PATHS.LIMIT}}/${networkInfo.route}${
       tokenIn && tokenOut
         ? `?${stringify({
             inputCurrency: currencyId(tokenIn, chainId),
@@ -294,7 +292,7 @@ export default function Swap() {
 
     const { inputCurrency, outputCurrency, ...newQs } = qs
     navigateFn({
-      pathname: `${tab === TAB.LIMIT ? APP_PATHS.LIMIT : APP_PATHS.SWAP_V3}/${networkInfo.route}`,
+      pathname: `${tab === TAB.LIMIT ? APP_PATHS.LIMIT : APP_PATHS.SWAP}/${networkInfo.route}`,
       search: stringify(newQs),
     })
   }
