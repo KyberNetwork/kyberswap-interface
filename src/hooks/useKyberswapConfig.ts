@@ -27,7 +27,7 @@ type KyberswapConfig = {
 }
 
 const convertConfig = (
-  data: KyberswapConfigurationResponse['data'] | undefined,
+  data: KyberswapConfigurationResponse['data']['config'] | undefined,
   defaultChainId: ChainId,
 ): KyberswapConfig => {
   const rpc = data?.rpc ?? NETWORKS_INFO[defaultChainId].defaultRpcUrl
@@ -52,7 +52,7 @@ const convertConfig = (
 export const useKyberswapConfig = (customChainId?: ChainId): KyberswapConfig => {
   const chainId = useSelector<AppState, ChainId>(state => state.user.chainId) || ChainId.MAINNET // read directly from store instead of useActiveWeb3React to prevent circular loop
   const { data } = useGetKyberswapConfigurationQuery({ chainId: customChainId ?? chainId })
-  const result = useMemo(() => convertConfig(data?.data, chainId), [chainId, data?.data])
+  const result = useMemo(() => convertConfig(data?.data?.config, chainId), [chainId, data?.data])
   return result
 }
 
@@ -76,7 +76,7 @@ export const useAllKyberswapConfig = (): {
     const run = async () => {
       const fetches = SUPPORTED_NETWORKS.map(async chainId => {
         try {
-          const result = (await getKyberswapConfiguration({ chainId }))?.data?.data
+          const result = (await getKyberswapConfiguration({ chainId }))?.data?.data?.config
           return {
             chainId,
             result: convertConfig(result, chainId),

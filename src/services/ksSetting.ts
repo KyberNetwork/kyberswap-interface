@@ -5,11 +5,13 @@ import { KS_SETTING_API } from 'constants/env'
 
 export type KyberswapConfigurationResponse = {
   data: {
-    prochart: boolean
-    rpc: string
-    'block-subgraph': string
-    'classic-subgraph': string
-    'elastic-subgraph': string
+    config: {
+      prochart: boolean
+      rpc: string
+      'block-subgraph': string
+      'classic-subgraph': string
+      'elastic-subgraph': string
+    }
   }
 }
 
