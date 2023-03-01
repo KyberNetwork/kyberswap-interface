@@ -192,9 +192,29 @@ export default function AddLiquidity() {
   } = useProAmmMintActionHandlers(noLiquidity, pIndex)
 
   const onAddPositionEvent = useCallback(() => {
-    // mixpanelHandler(MIXPANEL_TYPE.)
+    if (tokenA?.symbol && tokenB?.symbol && account)
+      mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_ADD_NEW_POSITION, {
+        token_1: tokenA?.symbol,
+        token_2: tokenB?.symbol,
+        networkName: networkInfo.name,
+        wallet_address: account,
+      })
     onAddPosition()
-  }, [onAddPosition])
+  }, [account, mixpanelHandler, networkInfo.name, onAddPosition, tokenA?.symbol, tokenB?.symbol])
+
+  const onRemovePositionEvent = useCallback(
+    (positionIndex: number) => {
+      if (tokenA?.symbol && tokenB?.symbol && account)
+        mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_CLICK_TO_REMOVE_POSITION, {
+          token_1: tokenA?.symbol,
+          token_2: tokenB?.symbol,
+          networkName: networkInfo.name,
+          wallet_address: account,
+        })
+      onRemovePosition(positionIndex)
+    },
+    [account, mixpanelHandler, networkInfo.name, onRemovePosition, tokenA?.symbol, tokenB?.symbol],
+  )
 
   const isValid = !errorMessage && !invalidRange
 
@@ -506,6 +526,22 @@ export default function AddLiquidity() {
       pool,
       price,
     )
+
+  const setRange = useCallback(
+    (range: RANGE) => {
+      if (tokenA?.symbol && tokenB?.symbol && account)
+        mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_CLICK_TO_REMOVE_POSITION, {
+          token_1: tokenA?.symbol,
+          token_2: tokenB?.symbol,
+          networkName: networkInfo.name,
+          wallet_address: account,
+          range,
+        })
+      getSetRange(range)
+    },
+    [account, mixpanelHandler, networkInfo.name, getSetRange, tokenA?.symbol, tokenB?.symbol],
+  )
+
   // we need an existence check on parsed amounts for single-asset deposits
   const showApprovalA = approvalA !== ApprovalState.APPROVED && (noLiquidity ? true : !!parsedAmounts_A)
   const showApprovalB = approvalB !== ApprovalState.APPROVED && (noLiquidity ? true : !!parsedAmounts_B)
@@ -672,11 +708,19 @@ export default function AddLiquidity() {
           selectedTab={pIndex}
           onChangedTab={index => setPositionIndex(index)}
           onAddTab={onAddPositionEvent}
-          onRemoveTab={onRemovePosition}
+          onRemoveTab={onRemovePositionEvent}
           showChart={showChart}
-          onToggleChart={(newShowChart: boolean | undefined) =>
+          onToggleChart={(newShowChart: boolean | undefined) => {
+            if (newShowChart && tokenA?.symbol && tokenB?.symbol && account) {
+              mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_CLICK_PRICE_CHART, {
+                token_1: tokenA?.symbol,
+                token_2: tokenB?.symbol,
+                networkName: networkInfo.name,
+                wallet_address: account,
+              })
+            }
             setShowChart(showChart => (typeof newShowChart !== 'undefined' ? newShowChart : !showChart))
-          }
+          }}
         />
       )}
       <ChartBody>
@@ -708,7 +752,7 @@ export default function AddLiquidity() {
                           placement="bottom"
                         >
                           <RangeBtn
-                            onClick={() => getSetRange(range)}
+                            onClick={() => setRange(range)}
                             isSelected={range === activeRange}
                             onMouseEnter={() => setShownTooltip(range)}
                             onMouseLeave={() => setShownTooltip(null)}
@@ -995,6 +1039,15 @@ export default function AddLiquidity() {
                     href={`${APP_PATHS.SWAP}/${networkInfo.route}?${currencyIdA ? `inputCurrency=${currencyIdA}` : ''}${
                       currencyIdB ? `&outputCurrency=${currencyIdB}` : ''
                     }`}
+                    onClick={() => {
+                      if (tokenA?.symbol && tokenB?.symbol && account)
+                        mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_CLICK_SWAP, {
+                          token_1: tokenA?.symbol,
+                          token_2: tokenB?.symbol,
+                          networkName: networkInfo.name,
+                          wallet_address: account,
+                        })
+                    }}
                   >
                     <Repeat size={16} />
                     <Text marginLeft="4px">
@@ -1147,7 +1200,20 @@ export default function AddLiquidity() {
                       <Text fontWeight={500} fontSize="12px">
                         <Trans>Pool Stats</Trans>
                       </Text>
-                      <ProAmmPoolStat pool={poolStat} onShared={openShareModal} userPositions={userPositions} />
+                      <ProAmmPoolStat
+                        pool={poolStat}
+                        onShared={openShareModal}
+                        userPositions={userPositions}
+                        onClickPoolAnalytics={() => {
+                          if (tokenA?.symbol && tokenB?.symbol && account)
+                            mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_CLICK_POOL_ANALYTIC, {
+                              token_1: tokenA?.symbol,
+                              token_2: tokenB?.symbol,
+                              networkName: networkInfo.name,
+                              wallet_address: account,
+                            })
+                        }}
+                      />
                     </AutoColumn>
                     <ShareModal
                       url={`${window.location.origin}/pools/${networkInfo.route}?search=${poolAddress}&tab=elastic`}
