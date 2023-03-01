@@ -13,6 +13,7 @@ export enum PrivateAnnouncementType {
   LIMIT_ORDER = 'LIMIT_ORDER',
   BRIDGE = 'BRIDGE_ASSET',
   TRENDING_SOON_TOKEN = 'TRENDING_SOON',
+  POOL_POSITION = 'ELASTIC_POOLS',
 }
 
 export type PrivateAnnouncement = {
@@ -34,7 +35,7 @@ export type TrueSightToken = {
   logo: string
 }
 
-export type LimitOrderNotification = {
+export type LimitOrderAnnouncement = {
   walletAddress: string
   makingAmount: string
   makerAssetSymbol: string
@@ -52,12 +53,29 @@ export type LimitOrderNotification = {
   filledPercent: string
   increasedFilledPercent: string
 }
+
+export type PoolPositionAnnouncement = {
+  token0LogoURL: string
+  token1LogoURL: string
+  token0Symbol: string
+  token1Symbol: string
+  minPrice: string
+  maxPrice: string
+  currentPrice: string
+  poolAddress: string
+  type: 'OUT_OF_RANGE' | 'IN_RANGE'
+}
+
 export type AnnouncementTemplateLimitOrder = {
-  order: LimitOrderNotification
+  order: LimitOrderAnnouncement
   popupType: PopupType
 }
 export type AnnouncementTemplateBridge = { transaction: MultichainTransfer; popupType: PopupType }
 export type AnnouncementTemplateTrendingSoon = { tokens: TrueSightToken[]; popupType: PopupType }
+export type AnnouncementTemplatePoolPosition = {
+  position: PoolPositionAnnouncement
+  popupType: PopupType
+}
 
 // for general announcement
 export type AnnouncementTemplatePopup = {
@@ -74,7 +92,7 @@ export type AnnouncementTemplatePopup = {
   ctaName: string // in notification center
 }
 
-type AnnouncementTemplate =
+export type AnnouncementTemplate =
   | AnnouncementTemplateLimitOrder
   | AnnouncementTemplateBridge
   | AnnouncementTemplateTrendingSoon

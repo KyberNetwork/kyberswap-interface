@@ -3,6 +3,7 @@ import { CSSProperties } from 'styled-components'
 
 import InboxItemBridge from 'components/Announcement/PrivateAnnoucement/InboxItemBridge'
 import InboxItemLO from 'components/Announcement/PrivateAnnoucement/InboxItemLO'
+import InboxItemPoolPosition from 'components/Announcement/PrivateAnnoucement/InboxItemPoolPosition'
 import InboxItemTrendingSoon from 'components/Announcement/PrivateAnnoucement/InboxItemTrendingSoon'
 import { InboxItemTime } from 'components/Announcement/PrivateAnnoucement/styled'
 import { formatTime } from 'components/Announcement/helper'
@@ -32,6 +33,8 @@ export default function InboxItem({ announcement, onRead, style }: PrivateAnnoun
       return <InboxItemLO {...props} />
     case PrivateAnnouncementType.TRENDING_SOON_TOKEN:
       return <InboxItemTrendingSoon {...props} />
+    case PrivateAnnouncementType.POOL_POSITION:
+      return <InboxItemPoolPosition {...props} />
     default:
       return null
   }
