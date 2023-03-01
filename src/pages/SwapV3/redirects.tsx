@@ -24,6 +24,7 @@ export function RedirectPathToSwapV3Network() {
         ...location,
         pathname: `${redirectTo}/` + networkInfo.route,
       }}
+      replace
     />
   )
 }

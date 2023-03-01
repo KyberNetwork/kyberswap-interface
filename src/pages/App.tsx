@@ -113,11 +113,9 @@ const SwapPage = () => {
   useSyncNetworkParamWithStore()
 
   if (chainId === ChainId.SOLANA) {
-    console.log('Swapv2')
     return <SwapV2 />
   }
 
-  console.log('Swapv3')
   return <SwapV3 />
 }
 

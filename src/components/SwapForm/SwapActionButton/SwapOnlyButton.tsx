@@ -1,6 +1,6 @@
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
@@ -155,6 +155,14 @@ const SwapOnlyButton: React.FC<Props> = ({
     handleClickSwapForNormalMode()
   }
 
+  const swapCallbackForModal = useMemo(() => {
+    if (buildResult?.data?.data && buildResult?.data?.routerAddress && swapCallback) {
+      return () => swapCallback(buildResult.data.routerAddress, buildResult.data.data)
+    }
+
+    return undefined
+  }, [buildResult, swapCallback])
+
   const renderButton = () => {
     if (isProcessingSwap && isAdvancedMode) {
       return (
@@ -233,11 +241,7 @@ const SwapOnlyButton: React.FC<Props> = ({
         onDismiss={() => {
           setProcessingSwap(false)
         }}
-        swapCallback={
-          buildResult?.data?.data && buildResult?.data?.routerAddress && swapCallback
-            ? () => swapCallback(buildResult.data.routerAddress, buildResult.data.data)
-            : undefined
-        }
+        swapCallback={swapCallbackForModal}
         onRetryBuild={handleClickRetryForNormalMode}
       />
     </>

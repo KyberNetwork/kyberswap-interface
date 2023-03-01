@@ -64,7 +64,7 @@ import { checkPairInWhiteList } from 'utils/tokenInfo'
 
 import PopulatedSwapForm from './PopulatedSwapForm'
 
-const TradeRouting = lazy(() => import('../../components/TradeRouting'))
+const TradeRouting = lazy(() => import('components/TradeRouting'))
 const LiveChart = lazy(() => import('components/LiveChart'))
 
 const TutorialIcon = styled(TutorialSvg)`
@@ -397,7 +397,7 @@ export default function Swap() {
             )}
 
             <AppBodyWrapped data-highlight={shouldHighlightSwapBox} id={TutorialIds.SWAP_FORM}>
-              {activeTab === TAB.SWAP && ( // todo danh split component, check router api call
+              {activeTab === TAB.SWAP && (
                 <PopulatedSwapForm
                   routeSummary={routeSummary}
                   setRouteSummary={setRouteSummary}

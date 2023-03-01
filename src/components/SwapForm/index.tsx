@@ -69,7 +69,6 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   const { chainId, isEVM, isSolana } = useActiveWeb3React()
 
   const theme = useTheme()
-  // const [isGettingRoute, setGettingRoute] = useState(false)
   const [isProcessingSwap, setProcessingSwap] = useState(false)
   const [typedValue, setTypedValue] = useState('1')
   const [recipient, setRecipient] = useState<string | null>(null)

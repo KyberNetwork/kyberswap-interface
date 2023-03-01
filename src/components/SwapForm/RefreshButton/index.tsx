@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import styled from 'styled-components'
 
-import { TIME_TO_REFRESH_SWAP_RATE } from 'constants/index'
+import { ENABLE_CLICK_TO_REFRESH_GET_ROUTE, TIME_TO_REFRESH_SWAP_RATE } from 'constants/index'
 
 import LoadingIcon from './LoadingIcon'
 
@@ -43,7 +43,6 @@ const RefreshButton: React.FC<Props> = ({ shouldDisable, callback }) => {
 
     if (shouldDisable) {
       // reset svg animate duration to 0 and PAUSE animations
-      clearInterval(interval)
       element.setCurrentTime(0)
       element.pauseAnimations()
     } else {
@@ -62,17 +61,20 @@ const RefreshButton: React.FC<Props> = ({ shouldDisable, callback }) => {
     }
   }, [callback, shouldDisable])
 
-  const enableClickToRefresh = false
   return (
     <IconButton
       onClick={() => {
-        if (!enableClickToRefresh) {
+        if (!ENABLE_CLICK_TO_REFRESH_GET_ROUTE) {
           return
         }
         callback()
       }}
     >
-      <LoadingIcon ref={svgRef} clickable={enableClickToRefresh} durationInSeconds={TIME_TO_REFRESH_SWAP_RATE} />
+      <LoadingIcon
+        ref={svgRef}
+        clickable={ENABLE_CLICK_TO_REFRESH_GET_ROUTE}
+        durationInSeconds={TIME_TO_REFRESH_SWAP_RATE}
+      />
     </IconButton>
   )
 }
