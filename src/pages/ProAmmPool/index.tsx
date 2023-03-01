@@ -47,12 +47,20 @@ const TabRow = styled.div`
   `}
 `
 
+const TabWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    gap: 8px;
+  `}
+`
+
 interface AddressSymbolMapInterface {
   [key: string]: string
 }
 
 const renderNotificationButton = (iconOnly: boolean) => {
-  return null // temp off feature, will release soon
   return (
     <SubscribeNotificationButton
       iconOnly={iconOnly}
@@ -169,7 +177,7 @@ export default function ProAmmPool() {
           </InstructionText>
           <TabRow>
             <Flex justifyContent="space-between" flex={1} alignItems="center" width="100%">
-              <Flex sx={{ gap: '1rem' }} alignItems="center">
+              <TabWrapper>
                 <Tab
                   active={!showStaked}
                   role="button"
@@ -189,7 +197,7 @@ export default function ProAmmPool() {
                 >
                   {isMobile ? <Trans>Farming Positions</Trans> : <Trans>My Farming Positions</Trans>}
                 </Tab>
-              </Flex>
+              </TabWrapper>
 
               {upToSmall && (
                 <Flex sx={{ gap: '8px' }}>
