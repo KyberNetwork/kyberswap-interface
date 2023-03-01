@@ -6,8 +6,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import {
   KyberswapConfigurationResponse,
-  useGetKyberswapConfigurationQuery,
-  useGetKyberswapGlobalConfigurationQuery,
+  useGetKyberswapConfigurationQuery, // useGetKyberswapGlobalConfigurationQuery,
   useLazyGetKyberswapConfigurationQuery,
 } from 'services/ksSetting'
 
@@ -58,8 +57,8 @@ export const useKyberswapConfig = (customChainId?: ChainId): KyberswapConfig => 
 }
 
 export const useKyberswapGlobalConfig = () => {
-  const { data } = useGetKyberswapGlobalConfigurationQuery(undefined)
-  return { banners: data?.data?.banners ?? [] }
+  // const { data } = useGetKyberswapGlobalConfigurationQuery(undefined)
+  return {}
 }
 
 export const useAllKyberswapConfig = (): {

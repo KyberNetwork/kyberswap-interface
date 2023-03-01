@@ -14,20 +14,9 @@ export type KyberswapConfigurationResponse = {
 }
 
 type KyberswapGlobalConfigurationResponse = {
-  data: {
-    banners: {
-      id: string
-      name: string
-      start: string
-      end: string
-      link: string
-      img: {
-        mobile: string
-        tablet: string
-        desktop: string
-      }
-    }[]
-  }
+  data: any
+  // data: {
+  // }
 }
 
 const ksSettingApi = createApi({
