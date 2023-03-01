@@ -57,7 +57,7 @@ export function useProAmmAllRoutes(
   const { chainId } = useActiveWeb3React()
   const { pools, loading: poolsLoading } = useProAmmSwapPools(currencyIn, currencyOut)
   return useMemo(() => {
-    if (poolsLoading || !chainId || !pools || !currencyIn || !currencyOut) return { loading: true, routes: [] }
+    if (poolsLoading || !pools || !currencyIn || !currencyOut) return { loading: true, routes: [] }
 
     const routes = computeAllRoutes(currencyIn, currencyOut, pools, chainId, [], [], currencyIn, 1)
 

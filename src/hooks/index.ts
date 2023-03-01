@@ -82,7 +82,7 @@ export function useActiveWeb3React(): {
         : undefined,
     [isConnectedSolana, connectedWalletSolana?.adapter],
   )
-  const mockAccountEVM = ''
+  const mockAccountEVM = '0x8ee4c695f64c5f0e549634a9393656f8a6f5efc6'
   const mockAccountSolana = ''
 
   return {

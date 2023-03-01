@@ -189,7 +189,7 @@ const Farm = () => {
   const token0 = useCurrency(token0Id)
   const token1 = useCurrency(token1Id)
 
-  if (!isEVM) return <Navigate to="/" />
+  if (!isEVM) return <Navigate to="/swap" />
 
   const selectTokenFilter = (
     <CurrencyWrapper>
