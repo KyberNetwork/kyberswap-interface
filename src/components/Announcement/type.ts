@@ -16,11 +16,11 @@ export enum PrivateAnnouncementType {
   POOL_POSITION = 'ELASTIC_POOLS',
 }
 
-export type PrivateAnnouncement = {
+export type PrivateAnnouncement<T extends AnnouncementTemplate = AnnouncementTemplate> = {
   id: number
   templateType: PrivateAnnouncementType
   templateId: number
-  templateBody: AnnouncementTemplate
+  templateBody: T
   isRead: boolean
   sentAt: number
 }
@@ -35,7 +35,7 @@ export type TrueSightToken = {
   logo: string
 }
 
-export type LimitOrderAnnouncement = {
+type LimitOrderAnnouncement = {
   walletAddress: string
   makingAmount: string
   makerAssetSymbol: string
@@ -54,7 +54,7 @@ export type LimitOrderAnnouncement = {
   increasedFilledPercent: string
 }
 
-export type PoolPositionAnnouncement = {
+type PoolPositionAnnouncement = {
   token0LogoURL: string
   token1LogoURL: string
   token0Symbol: string
@@ -96,6 +96,7 @@ export type AnnouncementTemplate =
   | AnnouncementTemplateLimitOrder
   | AnnouncementTemplateBridge
   | AnnouncementTemplateTrendingSoon
+  | AnnouncementTemplatePoolPosition
   | AnnouncementTemplatePopup
 
 export enum NotificationType {

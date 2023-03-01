@@ -12,19 +12,22 @@ import {
   RowItem,
   Title,
 } from 'components/Announcement/PrivateAnnoucement/styled'
-import { AnnouncementTemplatePoolPosition, PoolPositionAnnouncement } from 'components/Announcement/type'
+import { AnnouncementTemplatePoolPosition } from 'components/Announcement/type'
 import { DoubleCurrencyLogoV2 } from 'components/DoubleLogo'
 import { MoneyBag } from 'components/Icons'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 
-function InboxItemBridge({ announcement, onRead, style, time }: PrivateAnnouncementProp) {
+function InboxItemBridge({
+  announcement,
+  onRead,
+  style,
+  time,
+}: PrivateAnnouncementProp<AnnouncementTemplatePoolPosition>) {
   const { networkInfo } = useActiveWeb3React()
   const { templateBody, isRead } = announcement
   const theme = useTheme()
-  const position = ((templateBody as unknown as AnnouncementTemplatePoolPosition).position ??
-    {}) as PoolPositionAnnouncement
 
   const {
     currentPrice,
@@ -36,7 +39,7 @@ function InboxItemBridge({ announcement, onRead, style, time }: PrivateAnnouncem
     token1Symbol,
     poolAddress,
     type,
-  } = position
+  } = templateBody.position
   const isInRange = type === 'IN_RANGE'
   const statusMessage = isInRange ? t`Back in range` : t`Out of range`
 

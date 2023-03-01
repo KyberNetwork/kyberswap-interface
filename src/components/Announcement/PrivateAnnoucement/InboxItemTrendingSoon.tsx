@@ -10,10 +10,15 @@ import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 
 const getTokenDisplayText = (token: TrueSightToken) => `${token.symbol} $${token.price} (${token.changePercentage}%)`
-function InboxItemBridge({ announcement, onRead, style, time }: PrivateAnnouncementProp) {
+
+function InboxItemBridge({
+  announcement,
+  onRead,
+  style,
+  time,
+}: PrivateAnnouncementProp<AnnouncementTemplateTrendingSoon>) {
   const { templateBody, isRead } = announcement
-  const [token1, token2 = token1, token3 = token1] = ((templateBody as AnnouncementTemplateTrendingSoon).tokens ??
-    []) as TrueSightToken[]
+  const [token1, token2 = token1, token3 = token1] = templateBody.tokens
   const theme = useTheme()
   const navigate = useNavigate()
   const onClick = () => {
