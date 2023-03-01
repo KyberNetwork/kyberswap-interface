@@ -5,18 +5,19 @@ import { Suspense, lazy, useEffect } from 'react'
 import { isMobile } from 'react-device-detect'
 import { AlertTriangle } from 'react-feather'
 import { Route, Routes } from 'react-router-dom'
+import { useNetwork, usePrevious } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import snow from 'assets/images/snow.png'
+import Popups from 'components/Announcement/Popups'
+import TopBanner from 'components/Announcement/Popups/TopBanner'
 import AppHaveUpdate from 'components/AppHaveUpdate'
 import ErrorBoundary from 'components/ErrorBoundary'
 import Footer from 'components/Footer/Footer'
 import Header from 'components/Header'
-import TopBanner from 'components/Header/TopBanner'
 import Loader from 'components/LocalLoader'
 import Modal from 'components/Modal'
-import Popups from 'components/Popups'
 import Snowfall from 'components/Snowflake/Snowfall'
 import Web3ReactManager from 'components/Web3ReactManager'
 import { APP_PATHS, BLACKLIST_WALLETS } from 'constants/index'
@@ -107,6 +108,16 @@ const BodyWrapper = styled.div`
 
 export default function App() {
   const { account, chainId, networkInfo } = useActiveWeb3React()
+
+  const { online } = useNetwork()
+  const prevOnline = usePrevious(online)
+
+  useEffect(() => {
+    if (prevOnline === false && online && account) {
+      // refresh page when network back to normal to prevent some issues: ex: stale data, ...
+      window.location.reload()
+    }
+  }, [online, prevOnline, account])
 
   useEffect(() => {
     if (account) {
