@@ -59,6 +59,7 @@ const görliInfo: EVMNetworkInfo = {
     quoter: '0x032c677619f72c670e4DA64126B48d906dfa952F',
     routers: '0x45a5B8Cf524EC574b40e80274F0F3856A679C5c4',
     farms: [],
+    farmv2Quoter: '0xa5AcF9c5A97c1c291fA73BE8D388A9cA7F4809fb',
   },
   limitOrder: { development: '0x43E49489dD38dbFF4Aef0d7FC34026aBEF0e1134', production: NOT_SUPPORT },
   averageBlockTimeInSeconds: 13.13,
