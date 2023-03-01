@@ -49,7 +49,7 @@ export default function useWrapCallback(
   const { connection } = useWeb3Solana()
 
   return useMemo(() => {
-    if ((!wethContract && isEVM) || !chainId || !inputCurrency || !outputCurrency) return NOT_APPLICABLE
+    if ((!wethContract && isEVM) || !inputCurrency || !outputCurrency) return NOT_APPLICABLE
 
     const sufficientBalance = inputAmount && balance && !balance.lessThan(inputAmount)
 

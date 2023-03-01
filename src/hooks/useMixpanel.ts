@@ -914,7 +914,7 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
   )
   const subgraphMixpanelHandler = useCallback(
     async (transaction: TransactionDetails) => {
-      if (!isEVM || !chainId) return
+      if (!isEVM) return
 
       const hash = transaction.hash
       const arbitrary = transaction.extraInfo?.arbitrary

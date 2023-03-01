@@ -86,21 +86,12 @@ export function useMultipleContracts(
 ): {
   [key: string]: Contract
 } | null {
-  const { account, isEVM, chainId } = useActiveWeb3React()
+  const { account, isEVM } = useActiveWeb3React()
   const { library } = useWeb3React()
   const { provider } = useKyberswapConfig()
 
   return useMemo(() => {
-    if (
-      !isEVM ||
-      !addresses ||
-      !Array.isArray(addresses) ||
-      addresses.length === 0 ||
-      !ABI ||
-      !library ||
-      !chainId ||
-      !provider
-    )
+    if (!isEVM || !addresses || !Array.isArray(addresses) || addresses.length === 0 || !ABI || !library || !provider)
       return null
 
     const result: {
@@ -126,7 +117,7 @@ export function useMultipleContracts(
 
       return null
     }
-  }, [addresses, ABI, library, withSignerIfPossible, account, isEVM, chainId, provider])
+  }, [addresses, ABI, library, withSignerIfPossible, account, isEVM, provider])
 }
 
 export function useTokenContract(tokenAddress?: string, withSignerIfPossible?: boolean): Contract | null {

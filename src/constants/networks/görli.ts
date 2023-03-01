@@ -49,7 +49,7 @@ const görliInfo: EVMNetworkInfo = {
     fairlaunchV2: EMPTY_ARRAY,
   },
   elastic: {
-    defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-mainnet',
+    defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/viet-nv/kyberswap-elastic-goerli',
     startBlock: 14932476,
     coreFactory: '0x1a91f5ADc7cB5763d35A26e98A18520CB9b67e70',
     nonfungiblePositionManager: '0x8B76f8e008570686aD5933e5669045c5B01DB7bE',
