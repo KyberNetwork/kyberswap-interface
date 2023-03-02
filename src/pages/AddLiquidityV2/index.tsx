@@ -196,8 +196,6 @@ export default function AddLiquidity() {
       mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_ADD_NEW_POSITION, {
         token_1: tokenA?.symbol,
         token_2: tokenB?.symbol,
-        networkName: networkInfo.name,
-        wallet_address: account,
       })
     onAddPosition()
   }, [account, mixpanelHandler, networkInfo.name, onAddPosition, tokenA?.symbol, tokenB?.symbol])
@@ -208,8 +206,6 @@ export default function AddLiquidity() {
         mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_CLICK_TO_REMOVE_POSITION, {
           token_1: tokenA?.symbol,
           token_2: tokenB?.symbol,
-          networkName: networkInfo.name,
-          wallet_address: account,
         })
       onRemovePosition(positionIndex)
     },
@@ -533,8 +529,6 @@ export default function AddLiquidity() {
         mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_SELECT_RANGE_FOR_POOL, {
           token_1: tokenA?.symbol,
           token_2: tokenB?.symbol,
-          networkName: networkInfo.name,
-          wallet_address: account,
           range,
         })
       getSetRange(range)
@@ -716,8 +710,6 @@ export default function AddLiquidity() {
               mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_CLICK_PRICE_CHART, {
                 token_1: tokenA?.symbol,
                 token_2: tokenB?.symbol,
-                networkName: networkInfo.name,
-                wallet_address: account,
               })
             }
             setShowChart(newValue)
@@ -1045,8 +1037,6 @@ export default function AddLiquidity() {
                         mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_CLICK_SWAP, {
                           token_1: tokenA?.symbol,
                           token_2: tokenB?.symbol,
-                          networkName: networkInfo.name,
-                          wallet_address: account,
                         })
                     }}
                   >
@@ -1210,8 +1200,6 @@ export default function AddLiquidity() {
                             mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_CLICK_POOL_ANALYTIC, {
                               token_1: tokenA?.symbol,
                               token_2: tokenB?.symbol,
-                              networkName: networkInfo.name,
-                              wallet_address: account,
                             })
                         }}
                       />
