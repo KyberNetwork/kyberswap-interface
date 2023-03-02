@@ -4,7 +4,7 @@ import { TRUESIGHT_V2_API } from 'constants/env'
 
 import { testParams } from '../pages/SingleToken'
 import { INetflowToWhaleWallets, INumberOfTrades, ITokenOverview, ITradeVolume } from '../types'
-import { FUNDING_RATE, HOLDER_LIST, TOKEN_LIST } from './sampleData'
+import { HOLDER_LIST, TOKEN_LIST } from './sampleData'
 
 const truesightV2Api = createApi({
   reducerPath: 'truesightV2Api',
