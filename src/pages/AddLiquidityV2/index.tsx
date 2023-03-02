@@ -530,7 +530,7 @@ export default function AddLiquidity() {
   const setRange = useCallback(
     (range: RANGE) => {
       if (tokenA?.symbol && tokenB?.symbol && account)
-        mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_CLICK_TO_REMOVE_POSITION, {
+        mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_SELECT_RANGE_FOR_POOL, {
           token_1: tokenA?.symbol,
           token_2: tokenB?.symbol,
           networkName: networkInfo.name,
