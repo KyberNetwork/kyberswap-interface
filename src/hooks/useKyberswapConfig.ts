@@ -20,8 +20,6 @@ import solanaInfo from 'constants/networks/solana'
 import { AppState } from 'state'
 import { createClient } from 'utils/client'
 
-import useDebug from './useDebug'
-
 type KyberswapConfig = {
   rpc: string
   prochart: boolean
@@ -84,7 +82,6 @@ export const useKyberswapConfig = (customChainId?: ChainId): KyberswapConfig => 
   const chainId = useSelector<AppState, ChainId>(state => state.user.chainId) || ChainId.MAINNET // read directly from store instead of useActiveWeb3React to prevent circular loop
   const { data } = useGetKyberswapConfigurationQuery({ chainId: customChainId ?? chainId })
   const result = useMemo(() => parseResponse(data, chainId), [chainId, data])
-  useDebug({ data, chainId })
   return result
 }
 
