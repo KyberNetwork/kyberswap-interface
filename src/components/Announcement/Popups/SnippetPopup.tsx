@@ -1,4 +1,4 @@
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useState } from 'react'
 import { ChevronsUp, X } from 'react-feather'
@@ -65,17 +65,17 @@ const Image = styled.img<{ expand: boolean }>`
   `}
 `
 
-const Desc = styled.div<{ expand: boolean }>`
+const Desc = styled.div<{ expand: boolean; hasCta: boolean }>`
   max-width: 100%;
   line-height: 14px;
   font-size: 12px;
   color: ${({ theme }) => theme.subText};
-  ${({ expand }) =>
+  ${({ expand, hasCta }) =>
     !expand
       ? css`
           display: block;
           display: -webkit-box;
-          -webkit-line-clamp: 2;
+          -webkit-line-clamp: ${hasCta ? 2 : 3};
           -webkit-box-orient: vertical;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -137,8 +137,8 @@ function SnippetPopupItem({
     setExpand(!expand)
   }
   const navigate = useNavigateCtaPopup()
-  const ctaInfo = { ...ctas[0], name: ctas[0]?.name || t`Close` }
-  const isCtaClose = !ctas[0]?.name || !ctas[0]?.url
+  const ctaInfo = ctas[0]
+  const hasCta = Boolean(ctaInfo?.name && ctaInfo?.url)
 
   const { mixpanelHandler } = useMixpanel()
   const trackingClickCta = () => {
@@ -153,20 +153,22 @@ function SnippetPopupItem({
       <Image expand={expand} src={thumbnailImageURL || NotificationImage} />
       <ContentColumn expand={expand}>
         <Title expand={expand}>{name}</Title>
-        <Desc expand={expand} dangerouslySetInnerHTML={{ __html: content }} />
+        <Desc expand={expand} hasCta={hasCta} dangerouslySetInnerHTML={{ __html: content }} />
         <Flex
           alignItems="flex-end"
           style={{ position: 'relative', justifyContent: expand ? 'center' : 'flex-start', gap: '12px' }}
         >
-          <StyledCtaButton
-            data={ctaInfo}
-            color="primary"
-            onClick={() => {
-              navigate(ctaInfo.url)
-              if (isCtaClose) removePopup(data)
-              trackingClickCta()
-            }}
-          />
+          {hasCta && (
+            <StyledCtaButton
+              data={ctaInfo}
+              color="primary"
+              onClick={() => {
+                navigate(ctaInfo?.url)
+                if (!ctaInfo?.url) removePopup(data)
+                trackingClickCta()
+              }}
+            />
+          )}
           <SeeMore onClick={toggle}>
             <ChevronsUp size={16} style={{ transform: `rotate(${expand ? 180 : 0}deg)` }} />
             {expand ? <Trans>See Less</Trans> : <Trans>See More</Trans>}

@@ -39,6 +39,9 @@ const ContentWrapper = styled.div`
   ${({ theme }) => theme.mediaWidth.upToMedium`
     gap: 20px;
   `}
+  a:focus-visible {
+    outline: none;
+  }
 `
 
 const Title = styled.div`
