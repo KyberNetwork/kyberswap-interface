@@ -3,7 +3,6 @@ import styled, { CSSProperties } from 'styled-components'
 import NotificationImage from 'assets/images/notification_default.png'
 import { formatTime, useNavigateCtaPopup } from 'components/Announcement/helper'
 import { Announcement } from 'components/Announcement/type'
-import Column from 'components/Column'
 
 const HEIGHT = '100px'
 
@@ -25,7 +24,6 @@ const Title = styled.div`
   font-size: 12px;
   font-weight: 500;
   color: ${({ theme }) => theme.text};
-  height: 32px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -35,7 +33,6 @@ const Title = styled.div`
 const Desc = styled.div`
   font-size: 12px;
   color: ${({ theme }) => theme.subText};
-  height: 34px;
   word-break: break-all;
   display: block;
   display: -webkit-box;
@@ -99,11 +96,9 @@ export default function AnnouncementItem({
       style={style}
     >
       <Image src={thumbnailImageURL || NotificationImage} />
-      <RowItem>
-        <Column gap="6px" style={{ maxWidth: '100%' }}>
-          <Title>{name} </Title>
-          <Desc dangerouslySetInnerHTML={{ __html: formatContent }} />
-        </Column>
+      <RowItem style={{ maxWidth: '100%', maxHeight: '100%' }}>
+        <Title>{name} </Title>
+        <Desc dangerouslySetInnerHTML={{ __html: formatContent }} />
         <Time>{formatTime(startAt)}</Time>
       </RowItem>
     </Wrapper>
