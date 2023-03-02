@@ -1,4 +1,4 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId, getChainType } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { darken, rgba } from 'polished'
 import { stringify } from 'querystring'
@@ -9,7 +9,7 @@ import styled, { css } from 'styled-components'
 
 import { ButtonEmpty } from 'components/Button'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { MAINNET_NETWORKS, NETWORKS_INFO, isEVM } from 'constants/networks'
+import { MAINNET_NETWORKS, NETWORKS_INFO } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React } from 'hooks'
@@ -149,8 +149,7 @@ const Networks = ({
     customToggleModal?.()
     if (customOnSelectNetwork) {
       customOnSelectNetwork(chainId)
-    } else if (isEVM(currentChainId) === isEVM(chainId)) {
-      // both are evm, or both are solana
+    } else if (getChainType(currentChainId) === getChainType(chainId)) {
       changeNetwork(chainId, () => {
         const { inputCurrency, outputCurrency, ...rest } = qs
         navigate(

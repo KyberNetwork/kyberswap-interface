@@ -152,7 +152,6 @@ const SwapForm: React.FC<SwapFormProps> = props => {
               wrapType={wrapType}
               typedValue={typedValue}
               setTypedValue={setTypedValue}
-              routeSummary={routeSummary}
               currencyIn={currencyIn}
               currencyOut={currencyOut}
               balanceIn={balanceIn}

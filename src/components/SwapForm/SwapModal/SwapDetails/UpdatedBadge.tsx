@@ -37,9 +37,6 @@ export type Props = {
 }
 const UpdatedBadge: React.FC<Props> = ({ $level }) => {
   const theme = useTheme()
-  console.log({
-    $level,
-  })
 
   if (!$level) {
     return null

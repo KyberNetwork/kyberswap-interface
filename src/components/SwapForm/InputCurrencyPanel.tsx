@@ -2,16 +2,15 @@ import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { useEffect } from 'react'
 
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
+import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import { useActiveWeb3React } from 'hooks'
 import { WrapType } from 'hooks/useWrapCallback'
-import { DetailedRouteSummary } from 'types/route'
 import { formattedNum } from 'utils'
 import { halfAmountSpend, maxAmountSpend } from 'utils/maxAmountSpend'
 
 type Props = {
   wrapType: WrapType
   typedValue: string
-  routeSummary: DetailedRouteSummary | undefined
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
   balanceIn: CurrencyAmount<Currency> | undefined
@@ -22,7 +21,6 @@ const InputCurrencyPanel: React.FC<Props> = ({
   wrapType,
   typedValue,
   setTypedValue,
-  routeSummary,
   currencyIn,
   currencyOut,
   balanceIn,
@@ -30,6 +28,7 @@ const InputCurrencyPanel: React.FC<Props> = ({
 }) => {
   const { isSolana } = useActiveWeb3React()
 
+  const { routeSummary } = useSwapFormContext()
   const isSolanaUnwrap = isSolana && wrapType === WrapType.UNWRAP
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
   const trade = showWrap ? undefined : routeSummary
