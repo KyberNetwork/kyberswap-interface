@@ -4,7 +4,9 @@ import { buildRoute } from 'services/route'
 import { BuildRouteData, BuildRoutePayload } from 'services/route/types/buildRoute'
 import { RouteSummary } from 'services/route/types/getRoute'
 
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
+import { useKyberswapGlobalConfig } from 'hooks/useKyberswapConfig'
 
 export type BuildRouteResult =
   | {
@@ -27,6 +29,7 @@ const useBuildRoute = (args: Args) => {
   const { recipient, routeSummary, slippage, transactionTimeout, skipSimulateTx } = args
   const { chainId, account } = useActiveWeb3React()
   const abortControllerRef = useRef(new AbortController())
+  const { aggregatorDomain } = useKyberswapGlobalConfig()
 
   const fetcher = useCallback(async (): Promise<BuildRouteResult> => {
     if (!account) {
@@ -55,7 +58,8 @@ const useBuildRoute = (args: Args) => {
       abortControllerRef.current.abort()
       abortControllerRef.current = new AbortController()
 
-      const response = await buildRoute(chainId, payload, abortControllerRef.current.signal)
+      const url = `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}/api/v1/route/build`
+      const response = await buildRoute(url, payload, abortControllerRef.current.signal)
 
       return {
         data: response,
@@ -65,7 +69,7 @@ const useBuildRoute = (args: Args) => {
         error: e.message || t`Something went wrong`,
       }
     }
-  }, [account, chainId, recipient, routeSummary, skipSimulateTx, slippage, transactionTimeout])
+  }, [account, aggregatorDomain, chainId, recipient, routeSummary, skipSimulateTx, slippage, transactionTimeout])
 
   return fetcher
 }

@@ -8,6 +8,7 @@ import useSelectedDexes from 'components/SwapForm/hooks/useSelectedDexes'
 import { ETHER_ADDRESS, INPUT_DEBOUNCE_TIME } from 'constants/index'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
+import { useKyberswapGlobalConfig } from 'hooks/useKyberswapConfig'
 import { FeeConfig } from 'types/route'
 
 type Args = {
@@ -27,10 +28,10 @@ export const getRouteTokenAddressParam = (currency: Currency) =>
 
 const useGetRoute = (args: Args) => {
   const [trigger, result] = routeApi.useLazyGetRouteQuery()
+  const { aggregatorDomain } = useKyberswapGlobalConfig()
 
   const { isSaveGas, parsedAmount, currencyIn, currencyOut, feeConfig } = args
   const { chainId } = useActiveWeb3React()
-  const chainSlug = NETWORKS_INFO[chainId].ksSettingRoute
 
   const dexes = useSelectedDexes()
   const { chargeFeeBy = '', feeReceiver = '', feeAmount = '' } = feeConfig || {}
@@ -69,14 +70,17 @@ const useGetRoute = (args: Args) => {
       }
     })
 
+    const url = `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}/api/v1/routes`
+
     triggerDebounced({
+      url,
       params,
-      chainSlug,
     })
 
     return undefined
   }, [
-    chainSlug,
+    aggregatorDomain,
+    chainId,
     chargeFeeBy,
     currencyIn,
     currencyOut,
@@ -85,7 +89,8 @@ const useGetRoute = (args: Args) => {
     feeReceiver,
     isInBps,
     isSaveGas,
-    parsedAmount,
+    parsedAmount?.currency,
+    parsedAmount?.quotient,
     triggerDebounced,
   ])
 
