@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import Mainnet from 'assets/networks/mainnet-network.svg'
-import { AGGREGATOR_API, KS_SETTING_API, KYBER_DAO_STATS_API } from 'constants/env'
+import { KS_SETTING_API, KYBER_DAO_STATS_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
@@ -15,6 +15,7 @@ const ethereumInfo: EVMNetworkInfo = {
   ksSettingRoute: 'ethereum',
   priceRoute: 'ethereum',
   poolFarmRoute: 'ethereum',
+  aggregatorRoute: 'ethereum',
   name: 'Ethereum',
   icon: Mainnet,
   iconDark: NOT_SUPPORT,
@@ -33,7 +34,6 @@ const ethereumInfo: EVMNetworkInfo = {
     minForGas: 10 ** 16,
   },
   defaultRpcUrl: 'https://ethereum.kyberengineering.io',
-  routerUri: `${AGGREGATOR_API}/ethereum/route/encode`,
   multicall: '0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696',
   classic: {
     defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-ethereum',

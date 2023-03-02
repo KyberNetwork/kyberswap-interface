@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import AVAX from 'assets/networks/avax-network.png'
-import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
+import { KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
@@ -13,6 +13,7 @@ const avaxInfo: EVMNetworkInfo = {
   ksSettingRoute: 'avalanche',
   priceRoute: 'avalanche',
   poolFarmRoute: 'avalanche',
+  aggregatorRoute: 'avalanche',
   name: 'Avalanche',
   icon: AVAX,
   iconDark: NOT_SUPPORT,
@@ -31,7 +32,6 @@ const avaxInfo: EVMNetworkInfo = {
     minForGas: 10 ** 16,
   },
   defaultRpcUrl: 'https://avalanche.kyberengineering.io',
-  routerUri: `${AGGREGATOR_API}/avalanche/route/encode`,
   multicall: '0xF2FD8219609E28C61A998cc534681f95D2740f61',
   classic: {
     defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-avalanche',

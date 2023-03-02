@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import OASIS from 'assets/networks/oasis-network.svg'
-import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
+import { KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
@@ -14,6 +14,7 @@ const oasisInfo: EVMNetworkInfo = {
   ksSettingRoute: 'oasis',
   priceRoute: 'oasis',
   poolFarmRoute: 'oasis',
+  aggregatorRoute: 'oasis',
   name: 'Oasis',
   icon: OASIS,
   iconDark: NOT_SUPPORT,
@@ -32,7 +33,6 @@ const oasisInfo: EVMNetworkInfo = {
     minForGas: 10 ** 16,
   },
   defaultRpcUrl: 'https://oasis.kyberengineering.io',
-  routerUri: `${AGGREGATOR_API}/oasis/route/encode`,
   multicall: '0xBF69a56D35B8d6f5A8e0e96B245a72F735751e54',
   classic: {
     defaultSubgraph: 'https://oasis-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-oasis',

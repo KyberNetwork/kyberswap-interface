@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import OPTIMISM from 'assets/networks/optimism-network.svg'
-import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
+import { KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
@@ -15,6 +15,7 @@ const optimismInfo: EVMNetworkInfo = {
   ksSettingRoute: 'optimism',
   priceRoute: 'optimism',
   poolFarmRoute: 'optimism',
+  aggregatorRoute: 'optimism',
   name: 'Optimism',
   icon: OPTIMISM,
   iconDark: NOT_SUPPORT,
@@ -33,7 +34,6 @@ const optimismInfo: EVMNetworkInfo = {
     minForGas: 10 ** 16,
   },
   defaultRpcUrl: 'https://opt-mainnet.g.alchemy.com/v2/N7gZFcuMkhLTTpdsRLEcDXYIJssj6GsI',
-  routerUri: `${AGGREGATOR_API}/optimism/route/encode`,
   multicall: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',
   classic: {
     defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-optimism',

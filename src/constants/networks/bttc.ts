@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import BTT from 'assets/networks/bttc.png'
-import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
+import { KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
@@ -14,6 +14,7 @@ const bttcInfo: EVMNetworkInfo = {
   ksSettingRoute: 'bttc',
   priceRoute: 'bttc',
   poolFarmRoute: 'bttc',
+  aggregatorRoute: 'bttc',
   name: 'BitTorrent',
   icon: BTT,
   iconDark: NOT_SUPPORT,
@@ -32,7 +33,6 @@ const bttcInfo: EVMNetworkInfo = {
     minForGas: 10 ** 16,
   },
   defaultRpcUrl: 'https://bttc.kyberengineering.io',
-  routerUri: `${AGGREGATOR_API}/bttc/route/encode`,
   multicall: '0xBF69a56D35B8d6f5A8e0e96B245a72F735751e54',
   classic: {
     defaultSubgraph: 'https://bttc-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-bttc',

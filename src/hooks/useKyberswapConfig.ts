@@ -6,10 +6,13 @@ import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import {
   KyberswapConfigurationResponse,
-  useGetKyberswapConfigurationQuery, // useGetKyberswapGlobalConfigurationQuery,
+  KyberswapGlobalConfigurationResponse,
+  useGetKyberswapConfigurationQuery,
+  useGetKyberswapGlobalConfigurationQuery,
   useLazyGetKyberswapConfigurationQuery,
 } from 'services/ksSetting'
 
+import { AGGREGATOR_API } from 'constants/env'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS, isEVM, isSolana } from 'constants/networks'
 import ethereumInfo from 'constants/networks/ethereum'
 import solanaInfo from 'constants/networks/solana'
@@ -26,22 +29,23 @@ type KyberswapConfig = {
   connection: Connection | undefined
 }
 
-const convertConfig = (
-  data: KyberswapConfigurationResponse['data']['config'] | undefined,
+const parseResponse = (
+  responseData: KyberswapConfigurationResponse | undefined,
   defaultChainId: ChainId,
 ): KyberswapConfig => {
+  const data = responseData?.data?.config
   const rpc = data?.rpc ?? NETWORKS_INFO[defaultChainId].defaultRpcUrl
   return {
     rpc,
     prochart: data?.prochart ?? false,
     blockClient: isEVM(defaultChainId)
-      ? createClient(data?.['block-subgraph'] ?? NETWORKS_INFO[defaultChainId].defaultBlockSubgraph)
+      ? createClient(data?.blockSubgraph ?? NETWORKS_INFO[defaultChainId].defaultBlockSubgraph)
       : createClient(ethereumInfo.defaultBlockSubgraph),
     classicClient: isEVM(defaultChainId)
-      ? createClient(data?.['classic-subgraph'] ?? NETWORKS_INFO[defaultChainId].classic.defaultSubgraph)
+      ? createClient(data?.classicSubgraph ?? NETWORKS_INFO[defaultChainId].classic.defaultSubgraph)
       : createClient(ethereumInfo.classic.defaultSubgraph),
     elasticClient: isEVM(defaultChainId)
-      ? createClient(data?.['elastic-subgraph'] ?? NETWORKS_INFO[defaultChainId].elastic.defaultSubgraph)
+      ? createClient(data?.elasticSubgraph ?? NETWORKS_INFO[defaultChainId].elastic.defaultSubgraph)
       : createClient(ethereumInfo.elastic.defaultSubgraph),
     provider: isEVM(defaultChainId) ? new ethers.providers.JsonRpcProvider(rpc) : undefined,
     connection: isSolana(defaultChainId)
@@ -49,16 +53,35 @@ const convertConfig = (
       : undefined,
   }
 }
+
+type KyberswapGlobalConfig = {
+  aggregatorDomain: string
+  aggregatorAPI: string
+}
+
+const parseGlobalResponse = (
+  responseData: KyberswapGlobalConfigurationResponse | undefined,
+  chainId: ChainId,
+): KyberswapGlobalConfig => {
+  const data = responseData?.data?.config
+  const aggregatorDomain = data?.aggregator ?? AGGREGATOR_API
+  return {
+    aggregatorDomain,
+    aggregatorAPI: `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}/route/encode`,
+  }
+}
 export const useKyberswapConfig = (customChainId?: ChainId): KyberswapConfig => {
   const chainId = useSelector<AppState, ChainId>(state => state.user.chainId) || ChainId.MAINNET // read directly from store instead of useActiveWeb3React to prevent circular loop
   const { data } = useGetKyberswapConfigurationQuery({ chainId: customChainId ?? chainId })
-  const result = useMemo(() => convertConfig(data?.data?.config, chainId), [chainId, data?.data])
+  const result = useMemo(() => parseResponse(data, chainId), [chainId, data])
   return result
 }
 
 export const useKyberswapGlobalConfig = () => {
-  // const { data } = useGetKyberswapGlobalConfigurationQuery(undefined)
-  return {}
+  const chainId = useSelector<AppState, ChainId>(state => state.user.chainId) || ChainId.MAINNET // read directly from store instead of useActiveWeb3React to prevent circular loop
+  const { data } = useGetKyberswapGlobalConfigurationQuery(undefined)
+  const result = useMemo(() => parseGlobalResponse(data, chainId), [data, chainId])
+  return result
 }
 
 export const useAllKyberswapConfig = (): {
@@ -76,15 +99,15 @@ export const useAllKyberswapConfig = (): {
     const run = async () => {
       const fetches = SUPPORTED_NETWORKS.map(async chainId => {
         try {
-          const result = (await getKyberswapConfiguration({ chainId }))?.data?.data?.config
+          const { data } = await getKyberswapConfiguration({ chainId })
           return {
             chainId,
-            result: convertConfig(result, chainId),
+            result: parseResponse(data, chainId),
           }
         } catch {
           return {
             chainId,
-            result: convertConfig(undefined, chainId),
+            result: parseResponse(undefined, chainId),
           }
         }
       })
@@ -108,7 +131,7 @@ export const useAllKyberswapConfig = (): {
     () =>
       SUPPORTED_NETWORKS.reduce(
         (acc, cur) => {
-          acc[cur] = convertConfig(undefined, cur)
+          acc[cur] = parseResponse(undefined, cur)
           return acc
         },
         {} as {

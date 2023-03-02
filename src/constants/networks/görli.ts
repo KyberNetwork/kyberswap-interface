@@ -15,6 +15,7 @@ const görliInfo: EVMNetworkInfo = {
   ksSettingRoute: 'ethereum',
   priceRoute: 'ethereum',
   poolFarmRoute: EMPTY,
+  aggregatorRoute: EMPTY,
   name: 'Görli',
   icon: Mainnet,
   iconDark: NOT_SUPPORT,
@@ -33,7 +34,6 @@ const görliInfo: EVMNetworkInfo = {
     minForGas: 10 ** 16,
   },
   defaultRpcUrl: 'https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
-  routerUri: EMPTY,
   multicall: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',
   classic: {
     defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-ethereum',

@@ -8,17 +8,19 @@ export type KyberswapConfigurationResponse = {
     config: {
       prochart: boolean
       rpc: string
-      'block-subgraph': string
-      'classic-subgraph': string
-      'elastic-subgraph': string
+      blockSubgraph: string
+      classicSubgraph: string
+      elasticSubgraph: string
     }
   }
 }
 
-type KyberswapGlobalConfigurationResponse = {
-  data: any
-  // data: {
-  // }
+export type KyberswapGlobalConfigurationResponse = {
+  data: {
+    config: {
+      aggregator: string
+    }
+  }
 }
 
 const ksSettingApi = createApi({
@@ -37,7 +39,10 @@ const ksSettingApi = createApi({
     }),
     getKyberswapGlobalConfiguration: builder.query<KyberswapGlobalConfigurationResponse, void>({
       query: () => ({
-        url: '/configurations/fetch-kyberswap',
+        url: '/configurations/fetch',
+        params: {
+          serviceCode: `kyberswap`,
+        },
       }),
     }),
   }),

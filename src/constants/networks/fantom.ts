@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import FTM from 'assets/networks/fantom-network.png'
-import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
+import { KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
@@ -14,6 +14,7 @@ const fantomInfo: EVMNetworkInfo = {
   ksSettingRoute: 'fantom',
   priceRoute: 'fantom',
   poolFarmRoute: 'fantom',
+  aggregatorRoute: 'fantom',
   name: 'Fantom',
   icon: FTM,
   iconDark: NOT_SUPPORT,
@@ -32,7 +33,6 @@ const fantomInfo: EVMNetworkInfo = {
     minForGas: 10 ** 16,
   },
   defaultRpcUrl: 'https://fantom.kyberengineering.io',
-  routerUri: `${AGGREGATOR_API}/fantom/route/encode`,
   multicall: '0x878dFE971d44e9122048308301F540910Bbd934c',
   classic: {
     defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-fantom',

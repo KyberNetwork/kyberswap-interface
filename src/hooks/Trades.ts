@@ -19,6 +19,8 @@ import { useUserSlippageTolerance } from 'state/user/hooks'
 import { isAddress } from 'utils'
 import { Aggregator } from 'utils/aggregator'
 
+import { useKyberswapGlobalConfig } from './useKyberswapConfig'
+
 function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): Pair[][] {
   const allPairCombinations = useAllCurrencyCombinations(currencyA, currencyB)
 
@@ -97,13 +99,13 @@ export function useTradeExactInV2(
   onUpdateCallback: (resetRoute: boolean, minimumLoadingTime: number) => void
   loading: boolean
 } {
-  const { account, chainId, networkInfo, isEVM } = useActiveWeb3React()
+  const { account, chainId, isEVM } = useActiveWeb3React()
   const controller = useRef(new AbortController())
   const [allowedSlippage] = useUserSlippageTolerance()
   const txsInChain = useAllTransactions()
   const [, setEncodeSolana] = useEncodeSolana()
   const { connection } = useWeb3Solana()
-
+  const { aggregatorAPI } = useKyberswapGlobalConfig()
   const allDexes = useAllDexes()
   const [excludeDexes] = useExcludeDexes()
 
@@ -150,7 +152,7 @@ export function useTradeExactInV2(
 
         const [state, comparedResult] = await Promise.all([
           Aggregator.bestTradeExactIn(
-            networkInfo.routerUri,
+            aggregatorAPI,
             debounceCurrencyAmountIn,
             currencyOut,
             saveGas,
@@ -163,7 +165,7 @@ export function useTradeExactInV2(
             minimumLoadingTime,
           ),
           Aggregator.compareDex(
-            networkInfo.routerUri,
+            aggregatorAPI,
             debounceCurrencyAmountIn,
             currencyOut,
             allowedSlippage,
@@ -213,7 +215,7 @@ export function useTradeExactInV2(
       recipient,
       account,
       ttl,
-      networkInfo.routerUri,
+      aggregatorAPI,
       saveGas,
       dexes,
       allowedSlippage,

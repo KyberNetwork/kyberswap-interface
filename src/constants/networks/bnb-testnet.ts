@@ -15,6 +15,7 @@ const bnbTestnetInfo: EVMNetworkInfo = {
   ksSettingRoute: 'bsc',
   priceRoute: 'bsc',
   poolFarmRoute: EMPTY,
+  aggregatorRoute: 'bsc',
   name: 'BNB Testnet',
   icon: BSC,
   iconDark: NOT_SUPPORT,
@@ -33,7 +34,6 @@ const bnbTestnetInfo: EVMNetworkInfo = {
     minForGas: 10 ** 16,
   },
   defaultRpcUrl: 'https://data-seed-prebsc-1-s1.binance.org:8545',
-  routerUri: EMPTY,
   multicall: '0x8F3273Fb89B075b1645095ABaC6ed17B2d4Bc576',
   classic: {
     defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/ducquangkstn/dynamic-amm-bsc-staging',

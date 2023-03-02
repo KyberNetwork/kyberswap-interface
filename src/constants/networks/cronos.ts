@@ -3,7 +3,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import CRONOS_DARK from 'assets/networks/cronos-network-dark.svg'
 import CRONOS from 'assets/networks/cronos-network.svg'
 import CronosLogo from 'assets/svg/cronos-token-logo.svg'
-import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
+import { KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
@@ -16,6 +16,7 @@ const cronosInfo: EVMNetworkInfo = {
   ksSettingRoute: 'cronos',
   priceRoute: 'cronos',
   poolFarmRoute: 'cronos',
+  aggregatorRoute: 'cronos',
   name: 'Cronos',
   icon: CRONOS,
   iconDark: CRONOS_DARK,
@@ -34,7 +35,6 @@ const cronosInfo: EVMNetworkInfo = {
     minForGas: 10 ** 16,
   },
   defaultRpcUrl: 'https://evm-cronos.crypto.org',
-  routerUri: `${AGGREGATOR_API}/cronos/route/encode`,
   multicall: '0x63Abb9973506189dC3741f61d25d4ed508151E6d',
   classic: {
     defaultSubgraph: 'https://cronos-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-cronos',

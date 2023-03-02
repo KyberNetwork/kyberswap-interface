@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import Polygon from 'assets/networks/polygon-network.png'
-import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
+import { KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
@@ -13,6 +13,7 @@ const maticInfo: EVMNetworkInfo = {
   ksSettingRoute: 'polygon',
   priceRoute: 'polygon',
   poolFarmRoute: 'polygon',
+  aggregatorRoute: 'polygon',
   name: 'Polygon',
   icon: Polygon,
   iconDark: NOT_SUPPORT,
@@ -31,7 +32,6 @@ const maticInfo: EVMNetworkInfo = {
     minForGas: 10 ** 17,
   },
   defaultRpcUrl: 'https://polygon.kyberengineering.io',
-  routerUri: `${AGGREGATOR_API}/polygon/route/encode`,
   multicall: '0xed386Fe855C1EFf2f843B910923Dd8846E45C5A4',
   classic: {
     defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-polygon',

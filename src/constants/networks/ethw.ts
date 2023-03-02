@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import Mainnet from 'assets/networks/ethw.png'
-import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
+import { KS_SETTING_API } from 'constants/env'
 
 import { EVMNetworkInfo } from './type'
 
@@ -15,6 +15,7 @@ const ethereumInfo: EVMNetworkInfo = {
   ksSettingRoute: 'ethw',
   priceRoute: 'ethw',
   poolFarmRoute: EMPTY,
+  aggregatorRoute: 'ethw',
   name: 'EthereumPoW',
   icon: Mainnet,
   iconDark: NOT_SUPPORT,
@@ -33,7 +34,6 @@ const ethereumInfo: EVMNetworkInfo = {
     minForGas: 10 ** 16,
   },
   defaultRpcUrl: 'https://ethereumpow.kyberengineering.io',
-  routerUri: `${AGGREGATOR_API}/ethw/route/encode`,
   multicall: '0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696',
   classic: {
     defaultSubgraph:

@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 import AURORA from 'assets/networks/aurora-network.svg'
-import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
+import { KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
@@ -15,6 +15,7 @@ const auroraInfo: EVMNetworkInfo = {
   ksSettingRoute: 'aurora',
   priceRoute: 'aurora',
   poolFarmRoute: 'aurora',
+  aggregatorRoute: 'aurora',
   name: 'Aurora',
   icon: AURORA,
   iconDark: NOT_SUPPORT,
@@ -33,7 +34,6 @@ const auroraInfo: EVMNetworkInfo = {
     minForGas: 10 ** 16,
   },
   defaultRpcUrl: 'https://aurora.kyberengineering.io',
-  routerUri: `${AGGREGATOR_API}/aurora/route/encode`,
   multicall: '0xBF69a56D35B8d6f5A8e0e96B245a72F735751e54',
   classic: {
     defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-aurora',

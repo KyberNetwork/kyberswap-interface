@@ -3,7 +3,7 @@ import { WalletAdapterNetwork } from '@solana/wallet-adapter-base'
 import { PublicKey } from '@solana/web3.js'
 
 import Solana from 'assets/networks/solana-network.svg'
-import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
+import { KS_SETTING_API } from 'constants/env'
 import { SolanaNetworkInfo } from 'constants/networks/type'
 
 export const SelectedNetwork = WalletAdapterNetwork.Mainnet
@@ -14,6 +14,7 @@ const solanaInfo: SolanaNetworkInfo = {
   route: 'solana',
   ksSettingRoute: 'solana',
   priceRoute: 'solana',
+  aggregatorRoute: 'solana',
   name: 'Solana',
   icon: Solana,
   iconSelected: Solana,
@@ -34,7 +35,6 @@ const solanaInfo: SolanaNetworkInfo = {
     // above values might change
     minForGas: 10 ** 7,
   },
-  routerUri: `${AGGREGATOR_API}/solana/route/encode`,
   aggregatorProgramAddress: 'GmgkeeJtcjHgeiSDdT5gxznUDr5ygq9jo8tmA4ny7ziv',
   // classic: {
   //   factory: 'CwzigBwGVn25LdyLsqzSX3iwhPwQXoxYcXxSM4sjWoBU',

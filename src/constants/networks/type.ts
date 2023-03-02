@@ -1,5 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { Connection, PublicKey } from '@solana/web3.js'
+import { PublicKey } from '@solana/web3.js'
 
 export interface NetworkInfo {
   readonly chainId: ChainId
@@ -8,6 +8,7 @@ export interface NetworkInfo {
   readonly route: string
   readonly ksSettingRoute: string
   readonly priceRoute: string
+  readonly aggregatorRoute: string
   readonly name: string
   readonly icon: string
   readonly iconDark: string | null
@@ -23,7 +24,6 @@ export interface NetworkInfo {
     readonly decimal: number
     readonly minForGas: number
   }
-  readonly routerUri: string
   readonly coingeckoNetworkId: string | null //https://api.coingecko.com/api/v3/asset_platforms
   readonly coingeckoNativeTokenId: string | null //https://api.coingecko.com/api/v3/coins/list
   readonly tokenListUrl: string

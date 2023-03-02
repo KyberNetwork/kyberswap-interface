@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import BnbLogo from 'assets/images/bnb-logo.png'
 import BSC from 'assets/networks/bsc-network.png'
-import { AGGREGATOR_API, KS_SETTING_API } from 'constants/env'
+import { KS_SETTING_API } from 'constants/env'
 import { EVMNetworkInfo } from 'constants/networks/type'
 
 const EMPTY = ''
@@ -14,6 +14,7 @@ const bnbInfo: EVMNetworkInfo = {
   ksSettingRoute: 'bsc',
   priceRoute: 'bsc',
   poolFarmRoute: 'bsc',
+  aggregatorRoute: 'bsc',
   name: 'BNB Chain',
   icon: BSC,
   iconDark: NOT_SUPPORT,
@@ -32,7 +33,6 @@ const bnbInfo: EVMNetworkInfo = {
     minForGas: 10 ** 16,
   },
   defaultRpcUrl: 'https://bsc.kyberengineering.io',
-  routerUri: `${AGGREGATOR_API}/bsc/route/encode`,
   multicall: '0xed386Fe855C1EFf2f843B910923Dd8846E45C5A4',
   classic: {
     defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-bsc',

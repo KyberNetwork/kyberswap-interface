@@ -13,6 +13,7 @@ const avaxTestnetInfo: EVMNetworkInfo = {
   route: 'avalanche-testnet',
   ksSettingRoute: 'avalanche',
   priceRoute: 'avalanche',
+  aggregatorRoute: 'avalanche',
   poolFarmRoute: EMPTY,
   name: 'Avalanche Testnet',
   icon: AVAX,
@@ -32,7 +33,6 @@ const avaxTestnetInfo: EVMNetworkInfo = {
     minForGas: 10 ** 16,
   },
   defaultRpcUrl: 'https://api.avax-test.network/ext/bc/C/rpc',
-  routerUri: `https://aggregator-api.stg.kyberengineering.io/fuji/route/encode`,
   multicall: '0x5D605e78bc699fB565E6E6a1fa2d940C40F8ce25',
   classic: {
     defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/ducquangkstn/dmm-exchange-fuij',
