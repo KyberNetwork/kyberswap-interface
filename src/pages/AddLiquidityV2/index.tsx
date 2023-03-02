@@ -711,7 +711,8 @@ export default function AddLiquidity() {
           onRemoveTab={onRemovePositionEvent}
           showChart={showChart}
           onToggleChart={(newShowChart: boolean | undefined) => {
-            if (newShowChart && tokenA?.symbol && tokenB?.symbol && account) {
+            const newValue = typeof newShowChart !== 'undefined' ? newShowChart : !showChart
+            if (newValue && tokenA?.symbol && tokenB?.symbol && account) {
               mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_CLICK_PRICE_CHART, {
                 token_1: tokenA?.symbol,
                 token_2: tokenB?.symbol,
@@ -719,7 +720,7 @@ export default function AddLiquidity() {
                 wallet_address: account,
               })
             }
-            setShowChart(showChart => (typeof newShowChart !== 'undefined' ? newShowChart : !showChart))
+            setShowChart(newValue)
           }}
         />
       )}
