@@ -35,7 +35,6 @@ const ItemWrapper = styled.div<{ expand: boolean }>`
     expand &&
     css`
       height: unset;
-      padding: 20px 20px 12px 20px;
     `};
   ${({ theme }) => theme.mediaWidth.upToSmall`
      height: unset;
@@ -43,11 +42,11 @@ const ItemWrapper = styled.div<{ expand: boolean }>`
 `
 
 const ContentColumn = styled(AutoColumn)<{ expand: boolean }>`
-  padding: ${({ expand }) => (expand ? '14px' : '14px 40px 14px 14px')};
+  padding: ${({ expand }) => (expand ? '28px 16px 16px 16px' : '16px 40px 16px 16px')};
   gap: 14px;
   flex: 1;
-  ${({ theme, expand }) => theme.mediaWidth.upToSmall`
-    padding: ${expand ? '14px' : '36px 40px 14px 14px'};
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    padding: 30px 16px 16px 16px;
   `}
 `
 
@@ -116,9 +115,10 @@ const SeeMore = styled.div`
 `
 
 const StyledCtaButton = styled(CtaButton)`
-  min-width: 140px;
+  min-width: 120px;
   width: fit-content;
-  height: 36px;
+  height: 30px;
+  font-size: 12px;
 `
 
 function SnippetPopupItem({
@@ -234,10 +234,6 @@ const Wrapper = styled.div<{ expand: boolean }>`
       .swiper-pagination {
         width: 100%;
       }
-      .swiper-button-prev,
-      .swiper-button-next {
-        visibility: visible;
-      }
     `}`}
 `
 
@@ -271,7 +267,7 @@ export default function SnippetPopup({
         navigation
         autoHeight
         pagination
-        loop
+        loop={data.length > 1}
         observer
         observeParents
         modules={[Navigation, Pagination]}
