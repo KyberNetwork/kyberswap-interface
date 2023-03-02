@@ -1,7 +1,7 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
-import { Flex } from 'rebass'
+import { Box, Flex } from 'rebass'
 import { parseGetRouteResponse } from 'services/route/utils'
 
 import AddressInputPanel from 'components/AddressInputPanel'
@@ -31,6 +31,8 @@ import TradeSummary from './TradeSummary'
 import TradeTypeSelection from './TradeTypeSelection'
 
 export type SwapFormProps = {
+  hidden: boolean
+
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
 
@@ -52,6 +54,7 @@ export type SwapFormProps = {
 
 const SwapForm: React.FC<SwapFormProps> = props => {
   const {
+    hidden,
     currencyIn,
     currencyOut,
     balanceIn,
@@ -145,7 +148,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
       isSaveGas={isSaveGas}
       recipient={recipient}
     >
-      <Flex sx={{ flexDirection: 'column', gap: '16px' }}>
+      <Box sx={{ flexDirection: 'column', gap: '16px', display: hidden ? 'none' : 'flex' }}>
         <Wrapper id={TutorialIds.SWAP_FORM_CONTENT}>
           <Flex flexDirection="column" sx={{ gap: '0.75rem' }}>
             <InputCurrencyPanel
@@ -241,7 +244,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
 
           <TradeSummary feeConfig={feeConfig} routeSummary={routeSummary} slippage={slippage} />
         </Flex>
-      </Flex>
+      </Box>
     </SwapFormContextProvider>
   )
 }

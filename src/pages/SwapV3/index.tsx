@@ -397,13 +397,13 @@ export default function Swap() {
             )}
 
             <AppBodyWrapped data-highlight={shouldHighlightSwapBox} id={TutorialIds.SWAP_FORM}>
-              {activeTab === TAB.SWAP && (
-                <PopulatedSwapForm
-                  routeSummary={routeSummary}
-                  setRouteSummary={setRouteSummary}
-                  goToSettingsView={() => setActiveTab(TAB.SETTINGS)}
-                />
-              )}
+              <PopulatedSwapForm
+                routeSummary={routeSummary}
+                setRouteSummary={setRouteSummary}
+                goToSettingsView={() => setActiveTab(TAB.SETTINGS)}
+                hidden={activeTab !== TAB.SWAP}
+              />
+
               {activeTab === TAB.INFO && (
                 <TokenInfo currencies={isSwapPage ? currencies : currenciesLimit} onBack={onBackToSwapTab} />
               )}

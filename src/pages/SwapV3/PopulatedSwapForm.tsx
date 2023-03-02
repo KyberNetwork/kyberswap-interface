@@ -17,8 +17,9 @@ type Props = {
   routeSummary: DetailedRouteSummary | undefined
   setRouteSummary: React.Dispatch<React.SetStateAction<DetailedRouteSummary | undefined>>
   goToSettingsView: () => void
+  hidden: boolean
 }
-const PopulatedSwapForm: React.FC<Props> = ({ routeSummary, setRouteSummary, goToSettingsView }) => {
+const PopulatedSwapForm: React.FC<Props> = ({ routeSummary, setRouteSummary, goToSettingsView, hidden }) => {
   const currencyIn = useInputCurrency()
   const currencyOut = useOutputCurrency()
 
@@ -64,6 +65,7 @@ const PopulatedSwapForm: React.FC<Props> = ({ routeSummary, setRouteSummary, goT
   )
 
   const props: SwapFormProps = {
+    hidden,
     routeSummary,
     setRouteSummary,
     currencyIn,
