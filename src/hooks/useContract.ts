@@ -22,8 +22,6 @@ import KS_STATIC_FEE_FACTORY_ABI from 'constants/abis/ks-factory.json'
 import REWARD_LOCKER_V2_ABI from 'constants/abis/reward-locker-v2.json'
 import REWARD_LOCKER_ABI from 'constants/abis/reward-locker.json'
 import NFTPositionManagerABI from 'constants/abis/v2/ProAmmNFTPositionManager.json'
-import ProAmmPoolAbi from 'constants/abis/v2/ProAmmPoolState.json'
-import QuoterABI from 'constants/abis/v2/ProAmmQuoter.json'
 import TickReaderABI from 'constants/abis/v2/ProAmmTickReader.json'
 import PROMM_FARM_ABI from 'constants/abis/v2/farm.json'
 import WETH_ABI from 'constants/abis/weth.json'
@@ -91,8 +89,7 @@ export function useMultipleContracts(
   const { library } = useWeb3React()
 
   return useMemo(() => {
-    if (!isEVM || !addresses || !Array.isArray(addresses) || addresses.length === 0 || !ABI || !library || !chainId)
-      return null
+    if (!isEVM || !addresses || !Array.isArray(addresses) || addresses.length === 0 || !ABI || !library) return null
     const provider = providers[chainId as EVM_NETWORK]
 
     const result: {
@@ -125,8 +122,8 @@ export function useTokenContract(tokenAddress?: string, withSignerIfPossible?: b
   return useContract(tokenAddress, ERC20_ABI, withSignerIfPossible)
 }
 
-export function useTokenContractForReading(tokenAddress?: string): Contract | null {
-  return useContractForReading(tokenAddress, ERC20_ABI)
+export function useTokenContractForReading(tokenAddress?: string, customChainId?: ChainId): Contract | null {
+  return useContractForReading(tokenAddress, ERC20_ABI, customChainId)
 }
 
 export function useWETHContract(withSignerIfPossible?: boolean): Contract | null {
@@ -212,7 +209,7 @@ export function useProMMFarmContract(address: string): Contract | null {
   return useContract(address, PROMM_FARM_ABI)
 }
 
-export function useFairLaunchV1Contracts(withSignerIfPossible?: boolean): {
+function useFairLaunchV1Contracts(withSignerIfPossible?: boolean): {
   [key: string]: Contract
 } | null {
   const { isEVM, networkInfo } = useActiveWeb3React()
@@ -224,7 +221,7 @@ export function useFairLaunchV1Contracts(withSignerIfPossible?: boolean): {
   )
 }
 
-export function useFairLaunchV2Contracts(withSignerIfPossible?: boolean): {
+function useFairLaunchV2Contracts(withSignerIfPossible?: boolean): {
   [key: string]: Contract
 } | null {
   const { networkInfo, isEVM } = useActiveWeb3React()
@@ -330,10 +327,6 @@ export function useProAmmNFTPositionManagerContract(withSignerIfPossible?: boole
   )
 }
 
-export function useProAmmPoolContract(address?: string, withSignerIfPossible?: boolean): Contract | null {
-  return useContract(address, ProAmmPoolAbi.abi, withSignerIfPossible)
-}
-
 export function useProAmmTickReader(withSignerIfPossible?: boolean): Contract | null {
   const { isEVM, networkInfo } = useActiveWeb3React()
   return useContract(
@@ -341,11 +334,6 @@ export function useProAmmTickReader(withSignerIfPossible?: boolean): Contract | 
     TickReaderABI.abi,
     withSignerIfPossible,
   )
-}
-
-export function useProAmmQuoter() {
-  const { isEVM, networkInfo } = useActiveWeb3React()
-  return useContract(isEVM ? (networkInfo as EVMNetworkInfo).elastic.quoter : undefined, QuoterABI.abi)
 }
 
 // bridge

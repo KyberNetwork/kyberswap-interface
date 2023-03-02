@@ -64,7 +64,7 @@ type AccountInfoParsed = Overwrite<AccountInfo<any>, ParsedData> & {
   pubkey: PublicKey
 }
 
-export const useAssociatedTokensAccounts = (): { [mintAddress: string]: AccountInfoParsed } | null => {
+const useAssociatedTokensAccounts = (): { [mintAddress: string]: AccountInfoParsed } | null => {
   const { isSolana, account } = useActiveWeb3React()
   const allTransactions = useAllTransactions()
   const [atas, setAtas] = useState<{ [mintAddress: string]: AccountInfoParsed } | null>(null)
@@ -109,9 +109,6 @@ export const useAssociatedTokensAccounts = (): { [mintAddress: string]: AccountI
 }
 
 export function useTokensBalanceSolana(tokens?: Token[]): [TokenAmount | undefined, boolean][] {
-  // export const useTokensBalanceSolana = (
-  //   validatedTokenAddresses: string[],
-  // ): { [mintAddress: string]: TokenAmount | false } => {
   const atas = useAssociatedTokensAccounts()
   const [tokensBalance, setTokensBalance] = useState<{ [mintAddress: string]: TokenAmount | undefined }>({})
   const allTransactions = useAllTransactions()
