@@ -913,95 +913,56 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
           break
         }
         case MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_ADD_NEW_POSITION: {
-          const { token_1, token_2, networkName, wallet_address } = payload as {
+          const { token_1, token_2 } = payload as {
             token_1: string
             token_2: string
-            networkName: string
-            wallet_address: string
           }
-          mixpanel.track('Elastic - Add Liquidity page - Add new position', {
-            token_1,
-            token_2,
-            network: networkName,
-            wallet_address,
-          })
+          mixpanel.track('Elastic - Add Liquidity page - Add new position', { token_1, token_2 })
           break
         }
         case MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_CLICK_TO_REMOVE_POSITION: {
-          const { token_1, token_2, networkName, wallet_address } = payload as {
+          const { token_1, token_2 } = payload as {
             token_1: string
             token_2: string
-            networkName: string
-            wallet_address: string
           }
-          mixpanel.track('Elastic - Add Liquidity page - Click to remove position', {
-            token_1,
-            token_2,
-            network: networkName,
-            wallet_address,
-          })
+          mixpanel.track('Elastic - Add Liquidity page - Click to remove position', { token_1, token_2 })
           break
         }
         case MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_SELECT_RANGE_FOR_POOL: {
-          const { token_1, token_2, networkName, wallet_address, range } = payload as {
+          const { token_1, token_2, range } = payload as {
             token_1: string
             token_2: string
-            networkName: string
-            wallet_address: string
             range: RANGE
           }
           mixpanel.track('Elastic - Add Liquidity page - Select range for pool', {
             token_1,
             token_2,
-            network: networkName,
-            wallet_address,
             range: range.toLowerCase().replace('_', ' '),
           })
           break
         }
         case MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_CLICK_SWAP: {
-          const { token_1, token_2, networkName, wallet_address } = payload as {
+          const { token_1, token_2 } = payload as {
             token_1: string
             token_2: string
-            networkName: string
-            wallet_address: string
           }
-          mixpanel.track('Elastic - Add Liquidity page - Click Swap', {
-            token_1,
-            token_2,
-            network: networkName,
-            wallet_address,
-          })
+          mixpanel.track('Elastic - Add Liquidity page - Click Swap', { token_1, token_2 })
           break
         }
         case MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_CLICK_PRICE_CHART: {
-          const { token_1, token_2, networkName, wallet_address } = payload as {
+          const { token_1, token_2 } = payload as {
             token_1: string
             token_2: string
-            networkName: string
-            wallet_address: string
           }
-          mixpanel.track('Elastic - Add Liquidity page - Click Price chart', {
-            token_1,
-            token_2,
-            network: networkName,
-            wallet_address,
-          })
+          mixpanel.track('Elastic - Add Liquidity page - Click Price chart', { token_1, token_2 })
           break
         }
         case MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_CLICK_POOL_ANALYTIC: {
-          const { token_1, token_2, networkName, wallet_address } = payload as {
+          const { token_1, token_2 } = payload as {
             token_1: string
             token_2: string
-            networkName: string
-            wallet_address: string
           }
-          mixpanel.track('Elastic - Add Liquidity page - Click Pool analytic', {
-            token_1,
-            token_2,
-            network: networkName,
-            wallet_address,
-          })
+          mixpanel.track('Elastic - Add Liquidity page - Click Pool analytic', { token_1, token_2 })
           break
         }
       }

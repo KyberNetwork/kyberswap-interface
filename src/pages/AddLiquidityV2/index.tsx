@@ -192,24 +192,24 @@ export default function AddLiquidity() {
   } = useProAmmMintActionHandlers(noLiquidity, pIndex)
 
   const onAddPositionEvent = useCallback(() => {
-    if (tokenA?.symbol && tokenB?.symbol && account)
+    if (tokenA?.symbol && tokenB?.symbol)
       mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_ADD_NEW_POSITION, {
         token_1: tokenA?.symbol,
         token_2: tokenB?.symbol,
       })
     onAddPosition()
-  }, [account, mixpanelHandler, networkInfo.name, onAddPosition, tokenA?.symbol, tokenB?.symbol])
+  }, [mixpanelHandler, onAddPosition, tokenA?.symbol, tokenB?.symbol])
 
   const onRemovePositionEvent = useCallback(
     (positionIndex: number) => {
-      if (tokenA?.symbol && tokenB?.symbol && account)
+      if (tokenA?.symbol && tokenB?.symbol)
         mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_CLICK_TO_REMOVE_POSITION, {
           token_1: tokenA?.symbol,
           token_2: tokenB?.symbol,
         })
       onRemovePosition(positionIndex)
     },
-    [account, mixpanelHandler, networkInfo.name, onRemovePosition, tokenA?.symbol, tokenB?.symbol],
+    [mixpanelHandler, onRemovePosition, tokenA?.symbol, tokenB?.symbol],
   )
 
   const isValid = !errorMessage && !invalidRange
@@ -525,7 +525,7 @@ export default function AddLiquidity() {
 
   const setRange = useCallback(
     (range: RANGE) => {
-      if (tokenA?.symbol && tokenB?.symbol && account)
+      if (tokenA?.symbol && tokenB?.symbol)
         mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_SELECT_RANGE_FOR_POOL, {
           token_1: tokenA?.symbol,
           token_2: tokenB?.symbol,
@@ -533,7 +533,7 @@ export default function AddLiquidity() {
         })
       getSetRange(range)
     },
-    [account, mixpanelHandler, networkInfo.name, getSetRange, tokenA?.symbol, tokenB?.symbol],
+    [mixpanelHandler, getSetRange, tokenA?.symbol, tokenB?.symbol],
   )
 
   // we need an existence check on parsed amounts for single-asset deposits
@@ -706,7 +706,7 @@ export default function AddLiquidity() {
           showChart={showChart}
           onToggleChart={(newShowChart: boolean | undefined) => {
             const newValue = typeof newShowChart !== 'undefined' ? newShowChart : !showChart
-            if (newValue && tokenA?.symbol && tokenB?.symbol && account) {
+            if (newValue && tokenA?.symbol && tokenB?.symbol) {
               mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_CLICK_PRICE_CHART, {
                 token_1: tokenA?.symbol,
                 token_2: tokenB?.symbol,
@@ -1033,7 +1033,7 @@ export default function AddLiquidity() {
                       currencyIdB ? `&outputCurrency=${currencyIdB}` : ''
                     }`}
                     onClick={() => {
-                      if (tokenA?.symbol && tokenB?.symbol && account)
+                      if (tokenA?.symbol && tokenB?.symbol)
                         mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_CLICK_SWAP, {
                           token_1: tokenA?.symbol,
                           token_2: tokenB?.symbol,
@@ -1196,7 +1196,7 @@ export default function AddLiquidity() {
                         onShared={openShareModal}
                         userPositions={userPositions}
                         onClickPoolAnalytics={() => {
-                          if (tokenA?.symbol && tokenB?.symbol && account)
+                          if (tokenA?.symbol && tokenB?.symbol)
                             mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_CLICK_POOL_ANALYTIC, {
                               token_1: tokenA?.symbol,
                               token_2: tokenB?.symbol,
