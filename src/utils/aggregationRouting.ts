@@ -2,6 +2,8 @@ import { ZERO } from '@kyberswap/ks-sdk-classic'
 import { ChainId, Currency, CurrencyAmount, Percent, Rounding, Token, WETH } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 
+import { ETHER_ADDRESS } from 'constants/index'
+import { NativeCurrencies } from 'constants/tokens'
 import { isAddressString } from 'utils'
 
 export interface SwapPool {
@@ -124,7 +126,11 @@ export function getTradeComposition(
   if (!inputAmount || !swaps || !chainId) {
     return undefined
   }
+
   const inputTokenAmount = inputAmount.wrapped
+  const tokens = involvingTokens || ({} as any)
+  const defaultToken = new Token(chainId, WETH[chainId].address, 0, '--', '--')
+  const routes: SwapRoute[] = []
 
   const calcSwapPercentage = function (tokenIn: string, amount: string): number | undefined {
     if (!tokenIn || !amount) {
@@ -138,9 +144,13 @@ export function getTradeComposition(
     return undefined
   }
 
-  const tokens = involvingTokens || ({} as any)
-  const defaultToken = new Token(chainId, WETH[chainId].address, 0, '--', '--')
-  const routes: SwapRoute[] = []
+  const getTokenFromAddress = (address: string) => {
+    if (address.toLowerCase() === ETHER_ADDRESS.toLowerCase()) {
+      return NativeCurrencies[chainId]
+    }
+
+    return allTokens?.[isAddressString(chainId, address)] || tokens[address] || defaultToken
+  }
 
   // Convert all Swaps to ChartSwaps
   swaps.forEach(sorMultiSwap => {
@@ -150,10 +160,8 @@ export function getTradeComposition(
 
     if (sorMultiSwap.length === 1) {
       const hop = sorMultiSwap[0]
-      const path = [
-        allTokens?.[isAddressString(chainId, hop.tokenIn)] || tokens[hop.tokenIn] || defaultToken,
-        allTokens?.[isAddressString(chainId, hop.tokenOut)] || tokens[hop.tokenOut] || defaultToken,
-      ]
+      const path = [getTokenFromAddress(hop.tokenIn), getTokenFromAddress(hop.tokenOut)]
+
       routes.push({
         slug: hop.tokenOut?.toLowerCase(),
         pools: [
