@@ -671,7 +671,7 @@ export default function Swap() {
   }, [])
 
   const tradeRouteComposition = useMemo(() => {
-    return getTradeComposition(trade?.inputAmount, trade?.tokens, trade?.swaps, chainId, defaultTokens)
+    return getTradeComposition(chainId, trade?.inputAmount, trade?.tokens, trade?.swaps, defaultTokens)
   }, [chainId, defaultTokens, trade])
 
   const onClickTab = (tab: TAB) => {

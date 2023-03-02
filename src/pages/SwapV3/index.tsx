@@ -298,7 +298,7 @@ export default function Swap() {
   }
 
   const tradeRouteComposition = useMemo(() => {
-    return getTradeComposition(routeSummary?.parsedAmountIn, undefined, routeSummary?.route, chainId, defaultTokens)
+    return getTradeComposition(chainId, routeSummary?.parsedAmountIn, undefined, routeSummary?.route, defaultTokens)
   }, [chainId, defaultTokens, routeSummary])
 
   return (
