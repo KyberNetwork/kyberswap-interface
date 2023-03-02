@@ -36,6 +36,7 @@ import { RedirectPathToMyPoolsNetwork } from './Pool/redirect'
 import { RedirectPathToPoolsNetwork } from './Pools/redirect'
 import { RedirectPathToSwapNetwork } from './SwapV2/redirects'
 import TrueSightV2 from './TrueSightV2'
+import TruesightFooter from './TrueSightV2/components/TruesightFooter'
 import Verify from './Verify'
 
 // Route-based code splitting
@@ -320,6 +321,7 @@ export default function App() {
                 </Web3ReactManager>
               </BodyWrapper>
               {showFooter && <Footer />}
+              <TruesightFooter />
             </Suspense>
           </AppWrapper>
         </>

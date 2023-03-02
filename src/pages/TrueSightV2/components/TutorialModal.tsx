@@ -223,7 +223,7 @@ const TutorialModal = () => {
       <Wrapper>
         <RowBetween>
           <Text fontSize="20px" lineHeight="24px" color={theme.text}>
-            <Trans>Welcome to KyberSwap TrueSight</Trans>
+            <Trans>Welcome to KyberAI - Ape Smart</Trans>
           </Text>
           <div onClick={() => setIsOpen(false)} style={{ cursor: 'pointer' }}>
             <X />

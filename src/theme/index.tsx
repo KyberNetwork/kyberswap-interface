@@ -111,6 +111,7 @@ function colors(darkMode: boolean): Colors {
 
     //primary colors
     primary: '#31CB9E',
+    primary30: darkMode ? '#1D4D3D' : '#C7E9DC',
 
     // border colors
     border: darkMode ? '#505050' : '#C1C1C1',

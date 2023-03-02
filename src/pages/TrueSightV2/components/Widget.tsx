@@ -134,7 +134,7 @@ export default function Widget() {
                     Discover
                   </Text>
                   .<br />
-                  You can follow up to 8 tokens
+                  You can watch up to 8 tokens
                 </Trans>
               </Text>
             </Row>

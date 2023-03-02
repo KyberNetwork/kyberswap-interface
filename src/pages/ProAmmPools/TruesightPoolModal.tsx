@@ -157,7 +157,7 @@ const TruesightPoolModal = ({
         </Row>
         <Row justify="center" marginBottom="12px">
           <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
-            <Trans>Want to know more? Explore KNC in Truesight!</Trans>
+            <Trans>Want to know more? Explore KNC in KyberAI!</Trans>
           </Text>
         </Row>
         <ButtonPrimary height="36px">
