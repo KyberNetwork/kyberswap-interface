@@ -172,7 +172,6 @@ export default function Participants({ proposalId }: { proposalId?: number }) {
     if (!options) return false
     return options.some(o => o.length > 30)
   }, [options])
-  console.log('🚀 ~ file: Participants.tsx:170 ~ isLongText ~ isLongText:', isLongText)
 
   return (
     <Wrapper>
