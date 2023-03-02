@@ -50,6 +50,7 @@ const iconIds = [
   'star',
   'fullscreen',
   'leaderboard',
+  'liquid',
 ]
 
 export default function Icons() {

@@ -28,11 +28,7 @@ const truesightV2Api = createApi({
     //5.
     numberOfTrades: builder.query<INumberOfTrades[], string>({
       query: (tokenAddress?: string) => ({
-        url: '/trades/ethereum/' + tokenAddress,
-        params: {
-          from: testParams.from,
-          to: testParams.to,
-        },
+        url: '/trades/ethereum/0xdAC17F958D2ee523a2206206994597C13D831ec7?from=1672531200&to=1673136000',
       }),
       transformResponse: (res: any) => res.data,
     }),

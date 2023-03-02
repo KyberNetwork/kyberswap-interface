@@ -252,7 +252,7 @@ export const NumberofTradesChart = () => {
   const [timeframe, setTimeframe] = useState('7D')
   const formattedData = useMemo(
     () =>
-      (address ? data : NUMBER_OF_TRADES)?.map(item => {
+      (address ? data : NUMBER_OF_TRADES)?.map((item: any) => {
         return {
           ...item,
           sell: showSell ? item.sell : undefined,
@@ -494,17 +494,31 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
     const uniqueTimestamp = dataTemp ? new Set(dataTemp?.map((i: INetflowToWhaleWallets) => i.timestamp)) : undefined
     const newData: any[] = []
     uniqueTimestamp?.forEach((timestamp: number) => {
-      const filteredItems = dataTemp?.filter(i => i.timestamp === timestamp)
+      const filteredItems = dataTemp?.filter((i: INetflowToWhaleWallets) => i.timestamp === timestamp)
       if (filteredItems && filteredItems?.length > 0) {
         newData.push({
-          inflow: showInflow ? filteredItems?.reduce((s: number, i) => s + i.inflow, 0) : 0,
-          outflow: showOutflow ? -1 * filteredItems?.reduce((s: number, i) => s + i.outflow, 0) : 0,
-          netflow: showNetflow ? filteredItems?.reduce((s: number, i) => s + i.netflow, 0) : 0,
+          inflow: showInflow ? filteredItems?.reduce((s: number, i: INetflowToWhaleWallets) => s + i.inflow, 0) : 0,
+          outflow: showOutflow
+            ? -1 * filteredItems?.reduce((s: number, i: INetflowToWhaleWallets) => s + i.outflow, 0)
+            : 0,
+          netflow: showNetflow ? filteredItems?.reduce((s: number, i: INetflowToWhaleWallets) => s + i.netflow, 0) : 0,
           timestamp: timestamp,
-          generalInflow: filteredItems?.reduce((s: number, i) => (i.whaleType === 'general' ? s + i.inflow : s), 0),
-          generalOutflow: filteredItems?.reduce((s: number, i) => (i.whaleType === 'general' ? s + i.outflow : s), 0),
-          tokenInflow: filteredItems?.reduce((s: number, i) => (i.whaleType === 'token' ? s + i.inflow : s), 0),
-          tokenOutflow: filteredItems?.reduce((s: number, i) => (i.whaleType === 'token' ? s + i.outflow : s), 0),
+          generalInflow: filteredItems?.reduce(
+            (s: number, i: INetflowToWhaleWallets) => (i.whaleType === 'general' ? s + i.inflow : s),
+            0,
+          ),
+          generalOutflow: filteredItems?.reduce(
+            (s: number, i: INetflowToWhaleWallets) => (i.whaleType === 'general' ? s + i.outflow : s),
+            0,
+          ),
+          tokenInflow: filteredItems?.reduce(
+            (s: number, i: INetflowToWhaleWallets) => (i.whaleType === 'token' ? s + i.inflow : s),
+            0,
+          ),
+          tokenOutflow: filteredItems?.reduce(
+            (s: number, i: INetflowToWhaleWallets) => (i.whaleType === 'token' ? s + i.outflow : s),
+            0,
+          ),
         })
       }
     })
