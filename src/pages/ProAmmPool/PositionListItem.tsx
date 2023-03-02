@@ -117,6 +117,7 @@ interface PositionListItemProps {
   positionDetails: PositionDetails | UserPositionFarm
   rawFeeRewards: [string, string]
   liquidityTime?: number
+  createdAt?: number
   hasUserDepositedInFarm?: boolean
   stakedLayout?: boolean
   refe?: React.MutableRefObject<any>
@@ -151,6 +152,7 @@ function PositionListItem({
   hasActiveFarm,
   rawFeeRewards,
   liquidityTime,
+  createdAt,
 }: PositionListItemProps) {
   const { chainId, networkInfo } = useActiveWeb3React()
   const {
@@ -333,6 +335,7 @@ function PositionListItem({
             {!stakedLayout ? (
               <ProAmmPooledTokens
                 positionAPR={positionAPR}
+                createdAt={createdAt}
                 farmAPR={farmAPR}
                 valueUSD={usd}
                 stakedUsd={stakedUsd}
