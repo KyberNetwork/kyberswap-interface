@@ -1,7 +1,8 @@
 import { Trans } from '@lingui/macro'
+import { Database } from 'react-feather'
 // import { useMemo } from 'react'
 import { Text } from 'rebass'
-import styled, { css } from 'styled-components'
+import styled, { DefaultTheme, css } from 'styled-components'
 
 import { ButtonLight } from 'components/Button'
 import Column from 'components/Column'
@@ -455,44 +456,47 @@ export const SupportResistanceLevel = () => {
   )
 }
 
+function colorRateText(value: number, theme: DefaultTheme) {
+  if (value > 0.015) return theme.red
+  if (value > 0.005) return theme.text
+  return theme.primary
+}
+
 export const FundingRateTable = () => {
   const theme = useTheme()
-  const gridTemplateColumns = '1fr 1fr 1fr 1fr 1fr'
+  const gridTemplateColumns = '1fr 1fr 1fr 1fr 1fr 1fr 1fr'
   const { data } = useFundingRateQuery({})
   return (
     <TableWrapper>
       <TableHeader gridTemplateColumns={gridTemplateColumns}>
         <TableCell></TableCell>
-        <TableCell>{DEX_ICONS.Binance}</TableCell>
-        <TableCell>{DEX_ICONS.Bybit}</TableCell>
-        <TableCell>{DEX_ICONS.GateIO}</TableCell>
-        <TableCell>{DEX_ICONS.OKEx}</TableCell>
+        {data?.cMarginList?.map((i: any) => (
+          <TableCell key={i.exchangeName}>
+            <Row gap="4px">
+              <img alt={i.exchangeName} src={i.exchangeLogo} style={{ height: '18px', width: '18px' }} />
+              <Text color={theme.text}>{i.exchangeName}</Text>
+            </Row>
+          </TableCell>
+        ))}
+
         <TableCell></TableCell>
       </TableHeader>
       <TableRow gridTemplateColumns={gridTemplateColumns}>
         <TableCell>
-          <Text>BTC</Text>
-          <Text color={theme.subText} fontSize={12}>
-            Bitcoin
-          </Text>
+          <Row gap="4px">
+            <img alt={data?.symbol} src={data?.symbolLogo} style={{ height: '20px' }} />
+            <Text>{data?.symbol}</Text>
+          </Row>
         </TableCell>
-        {data?.map((item, index) => (
-          <TableCell key={index}>
-            <Text color={theme.red}>-0.0049%</Text>
+        {data?.cMarginList?.map((i: any) => (
+          <TableCell key={i.exchangeName}>
+            <Row gap="4px">
+              <Text color={colorRateText(i.rate, theme)} fontWeight={500} lineHeight="40px">
+                {i.rate.toFixed(4)}%
+              </Text>
+            </Row>
           </TableCell>
         ))}
-        <TableCell>
-          <Text color={theme.red}>-0.0049%</Text>
-        </TableCell>
-        <TableCell>
-          <Text color={theme.warning}>0.0%</Text>
-        </TableCell>
-        <TableCell>
-          <Text color={theme.warning}>0.0%</Text>
-        </TableCell>
-        <TableCell>
-          <Text color={theme.red}>-0.0049%</Text>
-        </TableCell>
         <TableCell></TableCell>
       </TableRow>
     </TableWrapper>

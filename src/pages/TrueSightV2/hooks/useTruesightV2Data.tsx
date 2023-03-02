@@ -85,12 +85,6 @@ const truesightV2Api = createApi({
       }),
       transformResponse: (res: any) => HOLDER_LIST,
     }),
-    fundingRate: builder.query({
-      query: () => ({
-        url: '/holders/ethereum/C/BTC',
-      }),
-      transformResponse: (res: any) => FUNDING_RATE,
-    }),
     tokenList: builder.query({
       query: () => ({
         url: '/holders/ethereum/C/BTC',
@@ -103,12 +97,14 @@ const truesightV2Api = createApi({
 export const coinglassApi = createApi({
   reducerPath: 'coinglassApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'https://fapi.coinglass.com/api/futures/liquidation/',
+    baseUrl: 'https://fapi.coinglass.com/api/',
   }),
   endpoints: builder => ({
     cexesLiquidation: builder.query({
       query: (timeframe?: string) => ({
-        url: `chart?symbol=BTC&timeType=${(timeframe && { '1D': '11', '7D': '1', '1M': '4' }[timeframe]) || '1'}`,
+        url: `futures/liquidation/chart?symbol=BTC&timeType=${
+          (timeframe && { '1D': '11', '7D': '1', '1M': '4' }[timeframe]) || '1'
+        }`,
       }),
       transformResponse: (res: any) => {
         if (res.success) {
@@ -119,11 +115,22 @@ export const coinglassApi = createApi({
     }),
     cexesInfo: builder.query({
       query: () => ({
-        url: 'info?symbol=BTC&timeType=1&size=12',
+        url: 'futures/liquidation/info?symbol=BTC&timeType=1&size=12',
       }),
       transformResponse: (res: any) => {
         if (res.success) {
           return res.data
+        }
+        throw new Error(res.msg)
+      },
+    }),
+    fundingRate: builder.query({
+      query: () => ({
+        url: 'fundingRate/v2/home',
+      }),
+      transformResponse: (res: any) => {
+        if (res.success) {
+          return res.data.filter((item: any) => item.symbol === 'BTC')?.[0]
         }
         throw new Error(res.msg)
       },
@@ -140,8 +147,7 @@ export const {
   useNumberOfTransfersQuery,
   useNumberOfHoldersQuery,
   useHolderListQuery,
-  useFundingRateQuery,
   useTokenListQuery,
 } = truesightV2Api
-export const { useCexesLiquidationQuery, useCexesInfoQuery } = coinglassApi
+export const { useCexesLiquidationQuery, useCexesInfoQuery, useFundingRateQuery } = coinglassApi
 export default truesightV2Api
