@@ -24,7 +24,7 @@ export function useTransactionAdder(): (tx: TransactionHistory) => void {
 
   return useCallback(
     async ({ hash, desiredChainId, type, firstTxHash, extraInfo }: TransactionHistory) => {
-      if (!account || !chainId) return
+      if (!account) return
 
       let tx: TransactionResponse | undefined
       if (isEVM) {
@@ -96,12 +96,12 @@ function isOwnTransactionGroup(txs: TransactionDetails[], account: string | unde
  * Returns whether a transaction happened in the last day (86400 seconds * 1000 milliseconds / second)
  * @param tx to check for recency
  */
-export function isTransactionGroupRecent(txs: TransactionDetails[]): boolean {
+function isTransactionGroupRecent(txs: TransactionDetails[]): boolean {
   return new Date().getTime() - (txs[0]?.addedTime ?? 0) < 86_400_000
 }
 
 // we want the latest one to come first, so return negative if a is after b
-export function newTransactionsGroupFirst(a: TransactionDetails[], b: TransactionDetails[]) {
+function newTransactionsGroupFirst(a: TransactionDetails[], b: TransactionDetails[]) {
   return (b[0]?.addedTime ?? 0) - (a[0]?.addedTime ?? 0)
 }
 
