@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Connection } from '@solana/web3.js'
@@ -19,6 +20,8 @@ import solanaInfo from 'constants/networks/solana'
 import { AppState } from 'state'
 import { createClient } from 'utils/client'
 
+import useDebug from './useDebug'
+
 type KyberswapConfig = {
   rpc: string
   prochart: boolean
@@ -29,12 +32,19 @@ type KyberswapConfig = {
   connection: Connection | undefined
 }
 
+const cacheRPC: { [chainId in ChainId]?: { [rpc: string]: ethers.providers.JsonRpcProvider } } = {}
+
 const parseResponse = (
   responseData: KyberswapConfigurationResponse | undefined,
   defaultChainId: ChainId,
 ): KyberswapConfig => {
   const data = responseData?.data?.config
   const rpc = data?.rpc ?? NETWORKS_INFO[defaultChainId].defaultRpcUrl
+  if (!cacheRPC[defaultChainId]?.[rpc]) {
+    if (!cacheRPC[defaultChainId]) cacheRPC[defaultChainId] = {}
+    cacheRPC[defaultChainId]![rpc] = new ethers.providers.JsonRpcProvider(rpc)
+  }
+  const provider = cacheRPC[defaultChainId]![rpc]
   return {
     rpc,
     prochart: data?.prochart ?? false,
@@ -47,7 +57,7 @@ const parseResponse = (
     elasticClient: isEVM(defaultChainId)
       ? createClient(data?.elasticSubgraph ?? NETWORKS_INFO[defaultChainId].elastic.defaultSubgraph)
       : createClient(ethereumInfo.elastic.defaultSubgraph),
-    provider: isEVM(defaultChainId) ? new ethers.providers.JsonRpcProvider(rpc) : undefined,
+    provider: isEVM(defaultChainId) ? provider : undefined,
     connection: isSolana(defaultChainId)
       ? new Connection(data?.rpc ?? solanaInfo.defaultRpcUrl, { commitment: 'confirmed' })
       : undefined,
@@ -74,6 +84,7 @@ export const useKyberswapConfig = (customChainId?: ChainId): KyberswapConfig => 
   const chainId = useSelector<AppState, ChainId>(state => state.user.chainId) || ChainId.MAINNET // read directly from store instead of useActiveWeb3React to prevent circular loop
   const { data } = useGetKyberswapConfigurationQuery({ chainId: customChainId ?? chainId })
   const result = useMemo(() => parseResponse(data, chainId), [chainId, data])
+  useDebug({ data, chainId })
   return result
 }
 
