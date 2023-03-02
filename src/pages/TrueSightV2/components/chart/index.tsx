@@ -45,8 +45,8 @@ import {
   useNetflowToWhaleWalletsQuery,
   useNumberOfHoldersQuery,
   useNumberOfTradesQuery,
-  useNumberOfTransfersQuery,
   useTradingVolumeQuery,
+  useTransferInformationQuery,
 } from 'pages/TrueSightV2/hooks/useTruesightV2Data'
 import { testParams } from 'pages/TrueSightV2/pages/SingleToken'
 import { ChartTab, INetflowToWhaleWallets } from 'pages/TrueSightV2/types'
@@ -944,7 +944,7 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
 export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
   const theme = useTheme()
   const { address } = useParams()
-  const { data } = useNumberOfTransfersQuery(address)
+  const { data } = useTransferInformationQuery(address)
   const [timeframe, setTimeframe] = useState('7D')
   const filteredData = useMemo(() => {
     const d = address ? data : NUMBER_OF_TRANSFERS

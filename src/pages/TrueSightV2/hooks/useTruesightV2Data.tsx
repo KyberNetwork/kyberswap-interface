@@ -12,11 +12,20 @@ const truesightV2Api = createApi({
     baseUrl: TRUESIGHT_V2_API,
   }),
   endpoints: builder => ({
+    //1.
+    tokenList: builder.query({
+      query: () => ({
+        url: '/holders/ethereum/C/BTC',
+      }),
+      transformResponse: (res: any) => TOKEN_LIST,
+    }),
+    //4.
     tokenDetail: builder.query<ITokenOverview, string>({
       query: (tokenAddress?: string) => ({
         url: '/overview/ethereum/0xdAC17F958D2ee523a2206206994597C13D831ec7?wallet=0x91df32F497b4E4Ff2B779636a6ae438fc4246661',
       }),
     }),
+    //5.
     numberOfTrades: builder.query<INumberOfTrades[], string>({
       query: (tokenAddress?: string) => ({
         url: '/trades/ethereum/' + tokenAddress,
@@ -27,6 +36,7 @@ const truesightV2Api = createApi({
       }),
       transformResponse: (res: any) => res.data,
     }),
+    //6.
     tradingVolume: builder.query({
       query: (tokenAddress?: string) => ({
         url: '/volume/ethereum/' + tokenAddress,
@@ -55,41 +65,44 @@ const truesightV2Api = createApi({
         return parsedData
       },
     }),
+    //7.
     netflowToWhaleWallets: builder.query<INetflowToWhaleWallets[], string>({
       query: (tokenAddress?: string) => ({
         url: '/netflow/ethereum/0xdefa4e8a7bcba345f687a2f1456f5edd9ce97202?from=1675209600&to=1677801600',
       }),
       transformResponse: (res: any) => res.data,
     }),
+    //8.
     netflowToCEX: builder.query({
       query: () => ({
-        url: '/netflow/cexes/ethereum/0xdac17f958d2ee523a2206206994597c13d831ec7?from=1675156545&to=1675761345',
+        url: '/netflow/cexes/ethereum/0xdac17f958d2ee523a2206206994597c13d831ec7?from=1675209600&to=1675296000',
       }),
       transformResponse: (res: any) => res.data,
     }),
-    numberOfTransfers: builder.query({
-      query: () => ({
-        url: '/holdersNum/ethereum/0xdac17f958d2ee523a2206206994597c13d831ec7?from=1633344036&to=1675215565',
-      }),
-      transformResponse: (res: any) => res.data,
-    }),
+    //9.
     numberOfHolders: builder.query({
       query: () => ({
         url: '/holdersNum/ethereum/0xdac17f958d2ee523a2206206994597c13d831ec7?from=1633344036&to=1675215565',
       }),
       transformResponse: (res: any) => res.data,
     }),
+    //10.
     holderList: builder.query({
       query: () => ({
         url: '/holders/ethereum/0xdac17f958d2ee523a2206206994597c13d831ec7?from=1633344036&to=1675215565',
       }),
       transformResponse: (res: any) => HOLDER_LIST,
     }),
-    tokenList: builder.query({
+    //14.
+    liveDexTrades: builder.query({
+      query: () => ({ url: "/live-trades/ethereum/0xdefa4e8a7bcba345f687a2f1456f5edd9ce97202'" }),
+    }),
+    //16.
+    transferInformation: builder.query({
       query: () => ({
-        url: '/holders/ethereum/C/BTC',
+        url: '/holdersNum/ethereum/0xdac17f958d2ee523a2206206994597c13d831ec7?from=1633344036&to=1675215565',
       }),
-      transformResponse: (res: any) => TOKEN_LIST,
+      transformResponse: (res: any) => res.data,
     }),
   }),
 })
@@ -144,10 +157,11 @@ export const {
   useTradingVolumeQuery,
   useNetflowToWhaleWalletsQuery,
   useNetflowToCEXQuery,
-  useNumberOfTransfersQuery,
+  useTransferInformationQuery,
   useNumberOfHoldersQuery,
   useHolderListQuery,
   useTokenListQuery,
+  useLiveDexTradesQuery,
 } = truesightV2Api
 export const { useCexesLiquidationQuery, useCexesInfoQuery, useFundingRateQuery } = coinglassApi
 export default truesightV2Api
