@@ -14,7 +14,6 @@ import {
   Cell,
   ComposedChart,
   Customized,
-  LabelList,
   Line,
   Pie,
   PieChart,
