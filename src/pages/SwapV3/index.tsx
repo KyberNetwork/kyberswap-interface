@@ -57,6 +57,7 @@ import { useDefaultsFromURLSearch, useInputCurrency, useOutputCurrency, useSwapA
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { useExpertModeManager, useShowLiveChart, useShowTokenInfo, useShowTradeRoutes } from 'state/user/hooks'
 import { DetailedRouteSummary } from 'types/route'
+import { getLimitOrderContract } from 'utils'
 import { getTradeComposition } from 'utils/aggregationRouting'
 import { currencyId } from 'utils/currencyId'
 import { getSymbolSlug } from 'utils/string'
@@ -66,6 +67,17 @@ import PopulatedSwapForm from './PopulatedSwapForm'
 
 const TradeRouting = lazy(() => import('components/TradeRouting'))
 const LiveChart = lazy(() => import('components/LiveChart'))
+
+const BetaTag = styled.span`
+  font-size: 10px;
+  color: ${({ theme }) => theme.subText};
+  position: absolute;
+  top: 4px;
+  right: -38px;
+  padding: 2px 6px;
+  background-color: ${({ theme }) => theme.buttonGray};
+  border-radius: 10px;
+`
 
 const TutorialIcon = styled(TutorialSvg)`
   width: 22px;
@@ -328,11 +340,16 @@ export default function Swap() {
                       <Trans>Swap</Trans>
                     </Text>
                   </Tab>
-                  <Tab onClick={() => onClickTab(TAB.LIMIT)} isActive={isLimitPage}>
-                    <Text fontSize={20} fontWeight={500}>
-                      <Trans>Limit</Trans>
-                    </Text>
-                  </Tab>
+                  {getLimitOrderContract(chainId) && (
+                    <Tab onClick={() => onClickTab(TAB.LIMIT)} isActive={isLimitPage}>
+                      <Text fontSize={20} fontWeight={500}>
+                        <Trans>Limit</Trans>
+                      </Text>
+                      <BetaTag>
+                        <Trans>Beta</Trans>
+                      </BetaTag>
+                    </Tab>
+                  )}
                 </TabWrapper>
               </TabContainer>
 
