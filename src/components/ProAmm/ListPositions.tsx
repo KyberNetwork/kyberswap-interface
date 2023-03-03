@@ -193,7 +193,7 @@ const PositionListItem = ({
   )
 }
 
-const ChartPositions = ({
+const ListPositions = ({
   positions,
   usdPrices,
   rotated,
@@ -224,13 +224,8 @@ const ChartPositions = ({
 
       {upToSmall ? null : (
         <>
-          <RowItem alignItems="flex-start">
-            <Trans>{positions[0].amount0.currency.symbol}</Trans>
-          </RowItem>
-
-          <RowItem alignItems="flex-start">
-            <Trans>{positions[0].amount1.currency.symbol}</Trans>
-          </RowItem>
+          <RowItem alignItems="flex-start">{positions[0].amount0.currency.symbol}</RowItem>
+          <RowItem alignItems="flex-start">{positions[0].amount1.currency.symbol}</RowItem>
         </>
       )}
 
@@ -270,4 +265,4 @@ const ChartPositions = ({
   )
 }
 
-export default ChartPositions
+export default ListPositions

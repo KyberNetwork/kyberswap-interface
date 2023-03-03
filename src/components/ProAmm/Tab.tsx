@@ -74,7 +74,6 @@ const ScrollBtn = styled.button<{ position: 'left' | 'right'; show: boolean }>`
       : css`
           right: 0;
           ${borderLeft}
-          ${borderRight}
           filter: drop-shadow(-20px 0px 5px ${rgba(theme.buttonBlack, 0.6)});
         `}
   position: absolute;
@@ -222,14 +221,14 @@ const Tab = ({
   onSelected: () => void
   active: boolean
   index: number
-  onRemove: () => void
+  onRemove: null | (() => void)
   noBorder: boolean
   tabsCount: number
 }) => {
   const onClickRemove: MouseEventHandler<HTMLSpanElement> = useCallback(
     event => {
       event.stopPropagation()
-      onRemove()
+      onRemove?.()
     },
     [onRemove],
   )
@@ -239,7 +238,7 @@ const Tab = ({
       <Text fontSize={14}>
         <Trans>Position {index + 1}</Trans>
       </Text>
-      {tabsCount > 1 && (
+      {onRemove && tabsCount > 1 && (
         <RemoveTab onClick={onClickRemove}>
           <X size={12} />
         </RemoveTab>
@@ -260,10 +259,10 @@ const Tabs = ({
   tabsCount: number
   selectedTab: number
   onChangedTab: (index: number) => void
-  onAddTab: () => void
-  onRemoveTab: (index: number) => void
-  showChart: boolean
-  onToggleChart: (newValue?: boolean) => void
+  onAddTab: null | (() => void)
+  onRemoveTab: null | ((index: number) => void)
+  showChart: boolean | null
+  onToggleChart: null | ((newValue?: boolean) => void)
 }) => {
   const [showScrollLeft, setShowScrollLeft] = useState(false)
   const [showScrollRight, setShowScrollRight] = useState(false)
@@ -311,38 +310,45 @@ const Tabs = ({
                 index={index}
                 onSelected={() => {
                   onChangedTab(index)
-                  onToggleChart(false)
+                  onToggleChart?.(false)
                 }}
-                onRemove={() => {
-                  if (tabsCount > 1) {
-                    if (selectedTab >= tabsCount - 1) {
-                      onChangedTab(tabsCount - 2)
+                onRemove={
+                  onRemoveTab &&
+                  (() => {
+                    if (tabsCount > 1) {
+                      if (selectedTab >= tabsCount - 1) {
+                        onChangedTab(tabsCount - 2)
+                      }
+                      onRemoveTab(index)
                     }
-                    onRemoveTab(index)
-                  }
-                }}
+                  })
+                }
                 noBorder={!showChart && selectedTab === index + 1}
                 tabsCount={tabsCount}
               />
             )
           })}
-          <AddTabWrapper onClick={() => onAddTab()}>
-            <MouseoverTooltip text={t`Add a new position`} width="fit-content" placement="top">
-              <AddTab>
-                <Plus size={12} />
-              </AddTab>
-            </MouseoverTooltip>
-          </AddTabWrapper>
+          {onAddTab && (
+            <AddTabWrapper onClick={() => onAddTab()}>
+              <MouseoverTooltip text={t`Add a new position`} width="fit-content" placement="top">
+                <AddTab>
+                  <Plus size={12} />
+                </AddTab>
+              </MouseoverTooltip>
+            </AddTabWrapper>
+          )}
         </TabSlide>
 
         <ScrollBtn onClick={scrollRight} position="right" show={showScrollRight}>
           &gt;
         </ScrollBtn>
       </ScrollBar>
-      <ChartButton onClick={() => onToggleChart()} active={showChart}>
-        <TrendingUp size={14} />
-        &nbsp;Price chart
-      </ChartButton>
+      {onToggleChart && typeof showChart === 'boolean' && (
+        <ChartButton onClick={() => onToggleChart()} active={showChart}>
+          <TrendingUp size={14} />
+          &nbsp;Price chart
+        </ChartButton>
+      )}
     </Container>
   )
 }
