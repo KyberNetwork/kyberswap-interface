@@ -34,6 +34,7 @@ const queryPositionLastCollectedTimes = gql`
   query positions($ids: [String]!) {
     positions(where: { id_in: $ids }) {
       id
+      createdAtTimestamp
       lastCollectedFeeAt
     }
   }
@@ -75,6 +76,16 @@ function PositionGrid({
       return {
         ...acc,
         [item.id]: now - Number(item.lastCollectedFeeAt), // seconds
+      }
+    },
+    {},
+  )
+
+  const createdAts = data?.positions.reduce(
+    (acc: { [id: string]: number }, item: { id: string; createdAtTimestamp: string }) => {
+      return {
+        ...acc,
+        [item.id]: Number(item.createdAtTimestamp), // seconds
       }
     },
     {},
@@ -129,6 +140,7 @@ function PositionGrid({
           key={p.tokenId.toString()}
           rawFeeRewards={feeRewards[p.tokenId.toString()] || ['0', '0']}
           liquidityTime={liquidityTimes?.[p.tokenId.toString()]}
+          createdAt={createdAts?.[p.tokenId.toString()]}
           hasUserDepositedInFarm={!!p.stakedLiquidity}
           hasActiveFarm={activeFarmAddress.includes(p.poolId.toLowerCase())}
         />
