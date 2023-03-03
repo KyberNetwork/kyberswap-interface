@@ -1,4 +1,4 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId, getChainType } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { darken, rgba } from 'polished'
 import { stringify } from 'querystring'
@@ -130,13 +130,14 @@ const Networks = ({
   mb?: number
   isAcceptedTerm?: boolean
   activeChainIds?: ChainId[]
-  selectedId?: ChainId | undefined
+  selectedId?: ChainId
   customOnSelectNetwork?: (chainId: ChainId) => void
   customToggleModal?: () => void
   disabledMsg?: string
   disabledAll?: boolean
   disabledAllMsg?: string
 }) => {
+  const { chainId: currentChainId } = useActiveWeb3React()
   const changeNetwork = useChangeNetwork()
   const qs = useParsedQueryString()
   const navigate = useNavigate()
@@ -148,7 +149,7 @@ const Networks = ({
     customToggleModal?.()
     if (customOnSelectNetwork) {
       customOnSelectNetwork(chainId)
-    } else {
+    } else if (getChainType(currentChainId) === getChainType(chainId)) {
       changeNetwork(chainId, () => {
         const { inputCurrency, outputCurrency, ...rest } = qs
         navigate(
@@ -159,6 +160,17 @@ const Networks = ({
         )
         onChangedNetwork?.()
 
+        dispatch(updateChainId(chainId))
+      })
+    } else {
+      changeNetwork(chainId, () => {
+        navigate(
+          {
+            search: '',
+          },
+          { replace: true },
+        )
+        onChangedNetwork?.()
         dispatch(updateChainId(chainId))
       })
     }

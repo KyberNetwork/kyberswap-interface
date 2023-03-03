@@ -7,6 +7,7 @@ import TickReaderABI from 'constants/abis/v2/ProAmmTickReader.json'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { useMulticallContract } from 'hooks/useContract'
+import { useKyberswapConfig } from 'hooks/useKyberswapConfig'
 import { PositionDetails } from 'types/position'
 
 import PositionListItem from './PositionListItem'
@@ -49,8 +50,9 @@ function PositionGrid({
   refe?: React.MutableRefObject<any>
   activeFarmAddress: string[]
 }) {
-  const { isEVM, networkInfo } = useActiveWeb3React()
+  const { isEVM, networkInfo, chainId } = useActiveWeb3React()
   const multicallContract = useMulticallContract()
+  const { elasticClient } = useKyberswapConfig(chainId)
 
   // raw
   const [feeRewards, setFeeRewards] = useState<{
@@ -59,7 +61,7 @@ function PositionGrid({
 
   const positionIds = useMemo(() => positions.map(pos => pos.tokenId.toString()), [positions])
   const { data } = useQuery(queryPositionLastCollectedTimes, {
-    client: (networkInfo as EVMNetworkInfo).elastic.client,
+    client: elasticClient,
     variables: {
       ids: positionIds,
     },

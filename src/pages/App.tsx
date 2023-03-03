@@ -1,10 +1,12 @@
 import { datadogRum } from '@datadog/browser-rum'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import * as Sentry from '@sentry/react'
 import { Suspense, lazy, useEffect } from 'react'
 import { isMobile } from 'react-device-detect'
 import { AlertTriangle } from 'react-feather'
 import { Route, Routes } from 'react-router-dom'
+import { useNetwork, usePrevious } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -22,6 +24,7 @@ import Web3ReactManager from 'components/Web3ReactManager'
 import { APP_PATHS, BLACKLIST_WALLETS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useGlobalMixpanelEvents } from 'hooks/useMixpanel'
+import { useSyncNetworkParamWithStore } from 'hooks/useSyncNetworkParamWithStore'
 import useTheme from 'hooks/useTheme'
 import { useHolidayMode } from 'state/user/hooks'
 import DarkModeQueryParamReader from 'theme/DarkModeQueryParamReader'
@@ -31,12 +34,13 @@ import { RedirectDuplicateTokenIds } from './AddLiquidityV2/redirects'
 import { RedirectPathToFarmNetwork } from './Farm/redirect'
 import { RedirectPathToMyPoolsNetwork } from './Pool/redirect'
 import { RedirectPathToPoolsNetwork } from './Pools/redirect'
-import { RedirectPathToSwapNetwork } from './SwapV2/redirects'
+import { RedirectPathToSwapV3Network } from './SwapV3/redirects'
 import Verify from './Verify'
 
 // Route-based code splitting
 const Swap = lazy(() => import(/* webpackChunkName: 'swap-page' */ './Swap'))
 const SwapV2 = lazy(() => import(/* webpackChunkName: 'swapv2-page' */ './SwapV2'))
+const SwapV3 = lazy(() => import(/* webpackChunkName: 'swapv3-page' */ './SwapV3'))
 const Bridge = lazy(() => import(/* webpackChunkName: 'bridge-page' */ './Bridge'))
 const Pools = lazy(() => import(/* webpackChunkName: 'pools-page' */ './Pools'))
 const Pool = lazy(() => import(/* webpackChunkName: 'my-pool-page' */ './Pool'))
@@ -105,8 +109,29 @@ const BodyWrapper = styled.div`
   ${isMobile && `overflow-x: hidden;`}
 `
 
+const SwapPage = () => {
+  const { chainId } = useActiveWeb3React()
+  useSyncNetworkParamWithStore()
+
+  if (chainId === ChainId.SOLANA) {
+    return <SwapV2 />
+  }
+
+  return <SwapV3 />
+}
+
 export default function App() {
   const { account, chainId, networkInfo } = useActiveWeb3React()
+
+  const { online } = useNetwork()
+  const prevOnline = usePrevious(online)
+
+  useEffect(() => {
+    if (prevOnline === false && online && account) {
+      // refresh page when network back to normal to prevent some issues: ex: stale data, ...
+      window.location.reload()
+    }
+  }, [online, prevOnline, account])
 
   useEffect(() => {
     if (account) {
@@ -204,15 +229,18 @@ export default function App() {
                     <Route element={<DarkModeQueryParamReader />} />
                     <Route path={APP_PATHS.SWAP_LEGACY} element={<Swap />} />
 
-                    <Route path={`${APP_PATHS.SWAP}/:network/:fromCurrency-to-:toCurrency`} element={<SwapV2 />} />
-                    <Route path={`${APP_PATHS.SWAP}/:network/:fromCurrency`} element={<SwapV2 />} />
-                    <Route path={`${APP_PATHS.SWAP}/:network`} element={<SwapV2 />} />
+                    <Route path={`${APP_PATHS.SWAP}/:network/:fromCurrency-to-:toCurrency`} element={<SwapPage />} />
+                    <Route path={`${APP_PATHS.SWAP}/:network/:fromCurrency`} element={<SwapPage />} />
+                    <Route path={`${APP_PATHS.SWAP}/:network`} element={<SwapPage />} />
 
                     {getLimitOrderContract(chainId) && (
                       <>
-                        <Route path={`${APP_PATHS.LIMIT}/:network/:fromCurrency-to-:toCurrency`} element={<SwapV2 />} />
-                        <Route path={`${APP_PATHS.LIMIT}/:network/:fromCurrency`} element={<SwapV2 />} />
-                        <Route path={`${APP_PATHS.LIMIT}/:network`} element={<SwapV2 />} />
+                        <Route
+                          path={`${APP_PATHS.LIMIT}/:network/:fromCurrency-to-:toCurrency`}
+                          element={<SwapPage />}
+                        />
+                        <Route path={`${APP_PATHS.LIMIT}/:network/:fromCurrency`} element={<SwapPage />} />
+                        <Route path={`${APP_PATHS.LIMIT}/:network`} element={<SwapPage />} />
                       </>
                     )}
 
@@ -281,7 +309,7 @@ export default function App() {
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}`} element={<GrantProgramPage />} />
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}/:slug`} element={<GrantProgramPage />} />
 
-                    <Route path="*" element={<RedirectPathToSwapNetwork />} />
+                    <Route path="*" element={<RedirectPathToSwapV3Network />} />
                   </Routes>
                 </Web3ReactManager>
               </BodyWrapper>

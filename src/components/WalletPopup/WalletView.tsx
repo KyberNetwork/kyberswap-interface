@@ -76,7 +76,7 @@ const ContentWrapper = styled.div`
   gap: 14px;
 `
 
-export const View = {
+const View = {
   ASSETS: t`Assets`,
   SEND_TOKEN: t`Send`,
   RECEIVE_TOKEN: t`Receive`,
@@ -89,11 +89,21 @@ type Props = {
   onUnpin?: () => void
   isPinned: boolean
   blurBackground?: boolean
+  showBalance: boolean
+  toggleShowBalance: () => void
 }
 
 // This is intentional, we don't need to persist in localStorage
 let storedView = View.ASSETS
-export default function WalletView({ onDismiss, onPin, isPinned, blurBackground = false, onUnpin }: Props) {
+export default function WalletView({
+  onDismiss,
+  onPin,
+  isPinned,
+  blurBackground = false,
+  onUnpin,
+  showBalance,
+  toggleShowBalance,
+}: Props) {
   const [view, setView] = useState<string>(storedView)
   const theme = useTheme()
   const { mixpanelHandler } = useMixpanel()
@@ -101,7 +111,19 @@ export default function WalletView({ onDismiss, onPin, isPinned, blurBackground 
   const nodeRef = useRef<HTMLDivElement>(null)
   const [isMinimal, setMinimal] = useState(false)
 
-  const { loading: loadingTokens, currencies, currencyBalances, totalBalanceInUsd, usdBalances } = useTokensHasBalance()
+  const {
+    loading: loadingTokens,
+    currencies,
+    currencyBalances,
+    totalBalanceInUsd,
+    usdBalances,
+  } = useTokensHasBalance(true)
+
+  const [hasNetworkIssue, setHasNetworkIssue] = useState(false)
+  useEffect(() => {
+    const timeout = setTimeout(() => setHasNetworkIssue(loadingTokens), 10_000)
+    return () => clearTimeout(timeout)
+  }, [loadingTokens])
 
   const underTab = (
     <Row gap="20px" style={{ borderBottom: `1px solid ${theme.border}` }}>
@@ -137,7 +159,9 @@ export default function WalletView({ onDismiss, onPin, isPinned, blurBackground 
 
     return (
       <AccountInfo
-        totalBalanceInUsd={totalBalanceInUsd}
+        toggleShowBalance={toggleShowBalance}
+        showBalance={showBalance}
+        totalBalanceInUsd={hasNetworkIssue ? '--' : totalBalanceInUsd}
         onClickBuy={handleClickBuy}
         onClickReceive={handleClickReceive}
         onClickSend={handleClickSend}
@@ -163,6 +187,8 @@ export default function WalletView({ onDismiss, onPin, isPinned, blurBackground 
             {renderAccountInfo()}
             {underTab}
             <MyAssets
+              hideBalance={!showBalance}
+              hasNetworkIssue={hasNetworkIssue}
               loadingTokens={loadingTokens}
               tokens={currencies}
               usdBalances={usdBalances}

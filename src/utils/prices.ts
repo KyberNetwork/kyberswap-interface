@@ -84,7 +84,7 @@ export function warningSeverity(priceImpact: Percent | undefined): 0 | 1 | 2 | 3
 }
 
 export function formatExecutionPrice(trade?: AnyTrade | Aggregator, inverted?: boolean, chainId?: ChainId): string {
-  if (!trade || !chainId) {
+  if (!trade) {
     return ''
   }
   const nativeInput = trade.inputAmount.currency
@@ -107,4 +107,18 @@ export function computePriceImpactWithoutFee(pairs: Pair[], priceImpact?: Percen
     : undefined
 
   return priceImpactWithoutFeePercent
+}
+
+export const checkPriceImpact = (
+  priceImpact?: number,
+): {
+  isInvalid: boolean
+  isHigh: boolean
+  isVeryHigh: boolean
+} => {
+  return {
+    isInvalid: priceImpact === -1,
+    isHigh: !!priceImpact && priceImpact > 5,
+    isVeryHigh: !!priceImpact && priceImpact > 15,
+  }
 }

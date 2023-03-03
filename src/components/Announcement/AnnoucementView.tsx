@@ -32,6 +32,7 @@ const Wrapper = styled.div`
   padding-top: 20px;
   ${({ theme }) => theme.mediaWidth.upToMedium`
     width: 100%;
+    min-width: 380px;
   `};
   ${({ theme }) => theme.mediaWidth.upToSmall`
     width: 100%;
@@ -186,6 +187,9 @@ export default function AnnouncementView({
       .catch(err => {
         console.error('ack noti error', err)
       })
+    mixpanelHandler(MIXPANEL_TYPE.ANNOUNCEMENT_CLICK_CLEAR_ALL_INBOXES, {
+      total_message_count: totalAnnouncement,
+    })
   }
 
   const hasMore = announcements.length !== totalAnnouncement

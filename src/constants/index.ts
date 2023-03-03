@@ -224,8 +224,6 @@ export const SUBGRAPH_AMP_MULTIPLIER = 10000
 export const AMP_LIQUIDITY_HINT = t`AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity.`
 export const AMP_HINT = t`Stands for amplification factor. Each pool can have its own AMP. Pools with a higher AMP provide higher capital efficiency within a particular price range`
 export const CREATE_POOL_AMP_HINT = t`Stands for amplification factor. Pools with a higher AMP provide higher capital efficiency within a particular price range. We recommend higher AMP for stable token pairs and lower AMP for volatile token pairs`
-export const AGGREGATOR_ROUTER_SWAPPED_EVENT_TOPIC =
-  '0xd6d4f5681c246c9f42c203e287975af1601f8df8035a9251f79aab5c8f09e2f8'
 
 export const sentryRequestId = uuid()
 
@@ -286,11 +284,11 @@ export const APP_PATHS = {
 }
 
 export const TERM_FILES_PATH = {
-  KYBERSWAP_TERMS: '/files/15022022KyberSwapTermsofUse.pdf',
+  KYBERSWAP_TERMS: '/files/23022023KyberSwapTermsofUse.pdf',
   PRIVACY_POLICY: '/files/privacy.pdf',
   KYBER_DAO_TERMS: '/files/dao-tac.pdf',
   // Timestamp of changed date, update this to latest timestamp whenever change any above files. This also used to check on client side for updated to force user to disconnect and re-accept terms.
-  VERSION: 1672206443162,
+  VERSION: 1677129615161,
 }
 
 export enum FARM_TAB {
@@ -312,3 +310,7 @@ if (ENV.ENV_LEVEL < ENV_TYPE.PROD) {
   console.log(JSON.stringify(ENV, null, 4))
   console.groupEnd()
 }
+
+export const INPUT_DEBOUNCE_TIME = 200
+
+export const ENABLE_CLICK_TO_REFRESH_GET_ROUTE = false
