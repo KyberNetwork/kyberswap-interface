@@ -73,6 +73,7 @@ const store = configureStore({
       .concat(geckoTerminalApi.middleware)
       .concat(annoucementApi.middleware)
       .concat(truesightV2Api.middleware)
+      .concat(coinglassApi.middleware)
       .concat(ksSettingApi.middleware),
   preloadedState: load({ states: PERSISTED_KEYS }),
 })
