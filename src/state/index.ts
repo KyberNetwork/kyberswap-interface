@@ -7,6 +7,7 @@ import truesightV2Api, { coinglassApi } from 'pages/TrueSightV2/hooks/useTruesig
 
 import annoucementApi from '../services/announcement'
 import geckoTerminalApi from '../services/geckoTermial'
+import ksSettingApi from '../services/ksSetting'
 import application from './application/reducer'
 import bridge from './bridge/reducer'
 import burnProAmm from './burn/proamm/reducer'
@@ -57,6 +58,7 @@ const store = configureStore({
     [geckoTerminalApi.reducerPath]: geckoTerminalApi.reducer,
     [truesightV2Api.reducerPath]: truesightV2Api.reducer,
     [coinglassApi.reducerPath]: coinglassApi.reducer,
+    [ksSettingApi.reducerPath]: ksSettingApi.reducer,
     campaigns,
     tutorial,
     bridge,
@@ -71,15 +73,12 @@ const store = configureStore({
       .concat(geckoTerminalApi.middleware)
       .concat(annoucementApi.middleware)
       .concat(truesightV2Api.middleware)
-      .concat(coinglassApi.middleware),
+      .concat(ksSettingApi.middleware),
   preloadedState: load({ states: PERSISTED_KEYS }),
 })
-
 store.dispatch(updateVersion())
-// setupListeners(store.dispatch)
 
 export default store
-
 export type AppState = ReturnType<typeof store.getState>
 
 /**
