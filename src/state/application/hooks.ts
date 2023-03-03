@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useDeepCompareEffect } from 'react-use'
 
 import { ETH_PRICE, PROMM_ETH_PRICE, TOKEN_DERIVED_ETH } from 'apollo/queries'
-import { isPopupCanShow, useAckAnnouncement } from 'components/Announcement/helper'
+import { ackAnnouncementPopup, isPopupCanShow } from 'components/Announcement/helper'
 import {
   PopupContent,
   PopupContentAnnouncement,
@@ -207,16 +207,15 @@ export const useTransactionNotify = () => {
 // returns a function that allows removing a popup via its key
 export function useRemovePopup() {
   const dispatch = useDispatch()
-  const ackAnnouncement = useAckAnnouncement()
   return useCallback(
     (popup: PopupItemType) => {
       const { key, popupType, content } = popup
       if ([PopupType.CENTER, PopupType.SNIPPET, PopupType.TOP_RIGHT, PopupType.TOP_BAR].includes(popupType)) {
-        ackAnnouncement((content as PopupContentAnnouncement).metaMessageId)
+        ackAnnouncementPopup((content as PopupContentAnnouncement).metaMessageId)
       }
       dispatch(removePopup({ key }))
     },
-    [dispatch, ackAnnouncement],
+    [dispatch],
   )
 }
 

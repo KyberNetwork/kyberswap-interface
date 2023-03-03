@@ -1,27 +1,20 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useLocalStorage } from 'react-use'
 
 import { AnnouncementTemplatePopup, PopupContentAnnouncement, PopupItemType } from 'components/Announcement/type'
 
 const LsKey = 'ack-announcements'
 const getAnnouncementsAckMap = () => JSON.parse(localStorage[LsKey] || '{}')
 
-export const useAckAnnouncement = () => {
-  const [, setAnnouncementsMap] = useLocalStorage<{ [id: string]: string }>(LsKey, {})
-
-  const ackAnnouncement = useCallback(
-    (id: string | number) => {
-      const announcementsMap = getAnnouncementsAckMap()
-      setAnnouncementsMap({
-        ...announcementsMap,
-        [id]: '1',
-      })
-    },
-    [setAnnouncementsMap],
+export const ackAnnouncementPopup = (id: string | number) => {
+  const announcementsMap = getAnnouncementsAckMap()
+  localStorage.setItem(
+    LsKey,
+    JSON.stringify({
+      ...announcementsMap,
+      [id]: '1',
+    }),
   )
-  return ackAnnouncement
 }
 
 export const formatNumberOfUnread = (num: number) => (num > 10 ? '10+' : num + '')
