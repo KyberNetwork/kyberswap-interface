@@ -148,6 +148,12 @@ function SnippetPopupItem({
     })
   }
 
+  const onClickCta = () => {
+    navigate(ctaInfo?.url)
+    removePopup(data)
+    trackingClickCta()
+  }
+
   return (
     <ItemWrapper expand={expand}>
       <Image expand={expand} src={thumbnailImageURL || NotificationImage} />
@@ -158,17 +164,7 @@ function SnippetPopupItem({
           alignItems="flex-end"
           style={{ position: 'relative', justifyContent: expand ? 'center' : 'flex-start', gap: '12px' }}
         >
-          {hasCta && (
-            <StyledCtaButton
-              data={ctaInfo}
-              color="primary"
-              onClick={() => {
-                navigate(ctaInfo?.url)
-                if (!ctaInfo?.url) removePopup(data)
-                trackingClickCta()
-              }}
-            />
-          )}
+          {hasCta && <StyledCtaButton data={ctaInfo} color="primary" onClick={onClickCta} />}
           <SeeMore onClick={toggle}>
             <ChevronsUp size={16} style={{ transform: `rotate(${expand ? 180 : 0}deg)` }} />
             {expand ? <Trans>See Less</Trans> : <Trans>See More</Trans>}
@@ -188,6 +184,9 @@ const Wrapper = styled.div<{ expand: boolean }>`
 
   // custom swiper below
   --swiper-navigation-size: 12px;
+  > div.swiper {
+    border-radius: 8px;
+  }
   .swiper-button-prev,
   .swiper-button-next {
     color: ${({ theme }) => theme.text};
