@@ -1,5 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { load, save } from 'redux-localstorage-simple'
+import routeApi from 'services/route'
 
 import { ENV_LEVEL } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
@@ -66,6 +67,7 @@ const store = configureStore({
     elasticFarm,
     tokenPrices,
     topTokens,
+    [routeApi.reducerPath]: routeApi.reducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({ thunk: true, immutableCheck: false, serializableCheck: false })
@@ -74,7 +76,9 @@ const store = configureStore({
       .concat(annoucementApi.middleware)
       .concat(truesightV2Api.middleware)
       .concat(coinglassApi.middleware)
-      .concat(ksSettingApi.middleware),
+      .concat(ksSettingApi.middleware)
+      .concat(annoucementApi.middleware)
+      .concat(routeApi.middleware),
   preloadedState: load({ states: PERSISTED_KEYS }),
 })
 store.dispatch(updateVersion())
