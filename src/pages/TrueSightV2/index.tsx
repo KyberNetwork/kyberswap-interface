@@ -56,7 +56,7 @@ export default function TrueSightV2() {
           >
             <RowFit gap="4px">
               {above768 && <Icon id="leaderboard" size={20} />}
-              <Trans>Leaderboard</Trans>
+              <Trans>Ranking</Trans>
             </RowFit>
           </Text>
           <Text fontWeight={500} fontSize={[18, 20, 24]} color={theme.subText} marginX={'12px'}>

@@ -56,6 +56,7 @@ const HeaderButton = styled(ButtonGray)`
   cursor: pointer;
   background-color: ${({ theme }) => theme.buttonGray};
   color: ${({ theme }) => theme.subText};
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.16);
   :hover {
     filter: brightness(0.9);
   }
@@ -101,9 +102,23 @@ const TagWrapper = styled.div`
 
 const TabButton = styled.div<{ active?: boolean }>`
   cursor: pointer;
-  font-size: 20px;
-  line-height: 24px;
-  ${({ active, theme }) => active && `color: ${theme.primary};`}
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 20px;
+  border: 2px solid ${({ theme }) => theme.subText};
+  padding: 8px 12px;
+  border-radius: 36px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.1s ease;
+  ${({ active, theme }) =>
+    active &&
+    css`
+      color: ${theme.primary};
+      background-color: ${theme.primary30};
+      border-color: ${theme.primary30};
+    `}
   :hover {
     filter: brightness(0.8);
   }
@@ -175,7 +190,6 @@ export default function SingleToken() {
       <>
         <HeaderButton
           style={{
-            boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.16))',
             color: data?.isWatched ? theme.primary : theme.subText,
             backgroundColor: data?.isWatched ? theme.primary + '33' : theme.buttonGray,
           }}
@@ -185,7 +199,13 @@ export default function SingleToken() {
         <DisplaySettings currentTab={currentTab} />
         <HeaderButton
           style={{
-            boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.16))',
+            color: theme.subText,
+          }}
+        >
+          <Icon id="alarm" size={18} />
+        </HeaderButton>
+        <HeaderButton
+          style={{
             color: theme.subText,
           }}
           onClick={() => handleShareClick()}
@@ -247,9 +267,19 @@ export default function SingleToken() {
       </TagWrapper>
       <TokenOverview />
 
-      <Row gap={above768 ? '28px' : '8px'}>
+      <Row gap={above768 ? '20px' : '8px'} justify="center">
         {Object.values(DiscoverTokenTab).map((tab: DiscoverTokenTab) => (
           <TabButton key={tab} active={tab === currentTab} onClick={() => setCurrentTab(tab)}>
+            <Icon
+              id={
+                {
+                  [DiscoverTokenTab.OnChainAnalysis]: 'on-chain',
+                  [DiscoverTokenTab.TechnicalAnalysis]: 'technical-analysis',
+                  [DiscoverTokenTab.News]: 'news',
+                }[tab]
+              }
+              size={16}
+            />
             {above768 ? tab : tab.split(' Analysis')[0]}
           </TabButton>
         ))}

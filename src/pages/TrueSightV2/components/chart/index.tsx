@@ -10,7 +10,6 @@ import {
   Area,
   AreaChart,
   Bar,
-  BarChart,
   CartesianGrid,
   Cell,
   ComposedChart,
@@ -249,17 +248,19 @@ export const NumberofTradesChart = () => {
   const { data } = useNumberOfTradesQuery(address || testParams.address)
   const [showSell, setShowSell] = useState(true)
   const [showBuy, setShowBuy] = useState(true)
+  const [showTotalTrade, setShowTotalTrade] = useState(true)
   const [timeframe, setTimeframe] = useState('7D')
   const formattedData = useMemo(
     () =>
       (address ? data : NUMBER_OF_TRADES)?.map((item: any) => {
         return {
           ...item,
-          sell: showSell ? item.sell : undefined,
+          sell: showSell ? -1 * item.sell : undefined,
           buy: showBuy ? item.buy : undefined,
+          totalTrade: showTotalTrade ? item.sell + item.buy : undefined,
         }
       }),
-    [data, showSell, showBuy, address],
+    [data, showSell, showBuy, showTotalTrade, address],
   )
   const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   return (
@@ -269,23 +270,29 @@ export const NumberofTradesChart = () => {
           {above768 && (
             <>
               <LegendButton
-                text="Buy"
+                text="Buys"
                 iconStyle={{ backgroundColor: rgba(theme.primary, 0.6) }}
                 enabled={showBuy}
                 onClick={() => setShowBuy(prev => !prev)}
               />
               <LegendButton
-                text="Sell"
+                text="Sells"
                 iconStyle={{ backgroundColor: rgba(theme.red, 0.6) }}
                 enabled={showSell}
                 onClick={() => setShowSell(prev => !prev)}
+              />
+              <LegendButton
+                text="Total Trades"
+                iconStyle={{ backgroundColor: theme.text, height: '4px', width: '16px' }}
+                enabled={showTotalTrade}
+                onClick={() => setShowTotalTrade(prev => !prev)}
               />
             </>
           )}
           <TimeFrameLegend selected={timeframe} onSelect={setTimeframe} timeframes={['1D', '7D', '1M', '3M']} />
         </LegendWrapper>
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart width={500} height={300} data={formattedData} margin={{ top: 50 }}>
+          <ComposedChart width={500} height={300} data={formattedData} margin={{ top: 50 }}>
             <CartesianGrid
               vertical={false}
               strokeWidth={1}
@@ -322,13 +329,13 @@ export const NumberofTradesChart = () => {
                       {payload.timestamp && dayjs(payload.timestamp).format('MMM DD, YYYY')}
                     </Text>
                     <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-                      Total Trades: <span style={{ color: theme.text }}>{formatNum(payload.buy + payload.sell)}</span>
+                      Total Trades: <span style={{ color: theme.text }}>{formatNum(payload.totalTrade)}</span>
                     </Text>
                     <Text fontSize="12px" lineHeight="16px" color={theme.primary}>
-                      Buy: {formatNum(payload.buy)}
+                      Buys: {formatNum(payload.buy)}
                     </Text>
                     <Text fontSize="12px" lineHeight="16px" color={theme.red}>
-                      Sell: {formatNum(payload.sell)}
+                      Sells: {formatNum(Math.abs(payload.sell))}
                     </Text>
                   </TooltipWrapper>
                 )
@@ -347,30 +354,30 @@ export const NumberofTradesChart = () => {
               fill={rgba(theme.primary, 0.6)}
               animationBegin={ANIMATION_DELAY}
               animationDuration={ANIMATION_DURATION}
-            >
-              <LabelList
-                dataKey="buy"
-                position="insideTop"
-                fill={theme.subText}
-                valueAccessor={(item: any) => item.buy}
-              />
-            </Bar>
-          </BarChart>
+            />
+            <Line dataKey="totalTrade" stroke={rgba(theme.text, 0.6)} dot={false} />
+          </ComposedChart>
         </ResponsiveContainer>
       </ChartWrapper>
       {!above768 && (
         <Row justify="center" gap="16px">
           <LegendButton
-            text="Buy"
+            text="Buys"
             iconStyle={{ backgroundColor: CHART_GREEN_COLOR }}
             enabled={showBuy}
             onClick={() => setShowBuy(prev => !prev)}
           />
           <LegendButton
-            text="Sell"
+            text="Sells"
             iconStyle={{ backgroundColor: CHART_RED_COLOR }}
             enabled={showSell}
             onClick={() => setShowSell(prev => !prev)}
+          />
+          <LegendButton
+            text="Total Trades"
+            iconStyle={{ backgroundColor: theme.text, height: '4px', width: '16px' }}
+            enabled={showTotalTrade}
+            onClick={() => setShowTotalTrade(prev => !prev)}
           />
         </Row>
       )}
@@ -383,7 +390,7 @@ export const TradingVolumeChart = () => {
   const { address } = useParams()
   const { data } = useTradingVolumeQuery(address)
   const [timeframe, setTimeframe] = useState('7D')
-  const filteredData = useMemo(() => {
+  const formattedData = useMemo(() => {
     const datatemp = address ? data : TRADE_VOLUME
     return datatemp
   }, [data, address])
@@ -397,7 +404,7 @@ export const TradingVolumeChart = () => {
         <ComposedChart
           width={500}
           height={400}
-          data={filteredData}
+          data={formattedData}
           margin={{
             top: 50,
             right: 0,

@@ -182,7 +182,7 @@ export const TokenOverview = () => {
           <CardWrapper style={{ alignItems: 'center' }}>
             <Row marginBottom="8px">
               <MouseoverTooltip
-                text={t`KyberScore is an algorithm created by us that takes into account multiple on-chain and off-chain indicators to measure the current trend of a token. The score ranges from 0 to 100.`}
+                text={t`KyberScore algorithm measures the current trend of a token by taking into account multiple on-chain and off-chain indicators. The score ranges from 0 to 100. Higher the score, more bullish the token`}
                 placement="top"
                 width="350px"
               >
@@ -207,7 +207,7 @@ export const TokenOverview = () => {
               KyberScore of <span style={{ color: theme.primary }}>{data?.kyberScore?.score}</span>/100
             </Text>
             <Text fontSize={10} lineHeight="12px" fontStyle="italic">
-              <Trans>Note: This should not be treated as financial advice</Trans>
+              <Trans>This should not be considered as financial advice</Trans>
             </Text>
           </CardWrapper>
         </Row>

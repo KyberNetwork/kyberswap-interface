@@ -16,7 +16,7 @@ import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
 import InfoHelper from 'components/InfoHelper'
 import Pagination from 'components/Pagination'
-import Row, { RowFit } from 'components/Row'
+import Row, { RowBetween, RowFit } from 'components/Row'
 import ShareModal from 'components/ShareModal'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
@@ -405,23 +405,35 @@ export default function TokenAnalysisList() {
       </Row>
       <Row gap="16px" justify="flex-end" flexWrap={above768 ? 'nowrap' : 'wrap'}>
         <TokenListDraggableTabs tab={currentTab} setTab={setCurrentTab} />
-        <ButtonGray
-          color={theme.subText}
-          gap="4px"
-          width="36px"
-          height="36px"
-          padding="6px"
-          style={{
-            filter: 'drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.16))',
-            flexShrink: 0,
-            backgroundColor: theme.background,
-          }}
-          onClick={toggle}
-        >
-          <Share2 size={16} fill="currentcolor" />
-        </ButtonGray>
-        <NetworkSelect filter={networkFilter} setFilter={setNetworkFilter} />
       </Row>
+      <RowBetween>
+        <Column gap="8px">
+          <Text fontSize="12px" color={theme.subText} fontWeight={500}>
+            <Trans>Rankings will refresh in 04:39</Trans>
+          </Text>
+          <Text fontSize="10px" color={theme.subText} fontStyle="italic">
+            <Trans>Disclaimer: The information here should not be treated as any form of financial advice</Trans>
+          </Text>
+        </Column>
+        <RowFit gap="12px">
+          <ButtonGray
+            color={theme.subText}
+            gap="4px"
+            width="36px"
+            height="36px"
+            padding="6px"
+            style={{
+              filter: 'drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.16))',
+              flexShrink: 0,
+              backgroundColor: theme.background,
+            }}
+            onClick={toggle}
+          >
+            <Share2 size={16} fill="currentcolor" />
+          </ButtonGray>
+          <NetworkSelect filter={networkFilter} setFilter={setNetworkFilter} />
+        </RowFit>
+      </RowBetween>
       <Column gap="0px">
         <TableWrapper>
           <div>
@@ -454,7 +466,7 @@ export default function TokenAnalysisList() {
                   </th>
                   <th style={{ textAlign: 'left' }} onClick={() => handleSort(SORT_FIELD.KYBERSCORE)}>
                     <Column gap="4px">
-                      <Row justify="center">
+                      <Row justify="flex-start">
                         <Trans>Kyberscore</Trans>{' '}
                         {sortedColumn === SORT_FIELD.KYBERSCORE ? (
                           !sortDirection ? (
@@ -469,7 +481,7 @@ export default function TokenAnalysisList() {
                           placement="top"
                           width="300px"
                           size={12}
-                          text={t`KyberScore is an algorithm created by us that takes into account multiple on-chain and off-chain indicators to measure the current trend of a token. The score ranges from 0 to 100.`}
+                          text={t`KyberScore algorithm measures the current trend of a token by taking into account multiple on-chain and off-chain indicators. The score ranges from 0 to 100. Higher the score, more bullish the token`}
                         />
                       </Row>
                       <Text fontSize="10px" style={{ textTransform: 'none' }}>

@@ -51,6 +51,10 @@ const iconIds = [
   'fullscreen',
   'leaderboard',
   'liquid',
+  'alarm',
+  'on-chain',
+  'technical-analysis',
+  'news',
 ]
 
 export default function Icons() {

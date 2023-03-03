@@ -1,5 +1,5 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import React, { useState } from 'react'
 import { Repeat, X } from 'react-feather'
 import { Text } from 'rebass'
@@ -10,6 +10,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import DropdownIcon from 'components/Icons/DropdownIcon'
 import Modal from 'components/Modal'
 import Row, { RowBetween, RowFit } from 'components/Row'
+import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import KyberScoreMeter from 'pages/TrueSightV2/components/KyberScoreMeter'
 
@@ -137,9 +138,15 @@ const TruesightPoolModal = ({
           </RowFit>
         </RowBetween>
         <Row marginBottom="16px">
-          <Text fontSize="14px" lineHeight="20px">
-            KyberScore
-          </Text>
+          <MouseoverTooltip
+            text={t`KyberScore algorithm measures the current trend of a token by taking into account multiple on-chain and off-chain indicators. The score ranges from 0 to 100. Higher the score, more bullish the token`}
+            placement="top"
+            width="350px"
+          >
+            <Text fontSize="14px" lineHeight="20px">
+              KyberScore
+            </Text>
+          </MouseoverTooltip>
         </Row>
         <Row justify="center" marginBottom="12px">
           <KyberScoreMeter value={75} />
