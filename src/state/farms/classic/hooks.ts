@@ -25,6 +25,7 @@ import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import { useFairLaunchContracts } from 'hooks/useContract'
+import { useKyberswapConfig } from 'hooks/useKyberswapConfig'
 import useTokenBalance from 'hooks/useTokenBalance'
 import useTokensMarketPrice from 'hooks/useTokensMarketPrice'
 import { AppState } from 'state'
@@ -98,6 +99,7 @@ export const useFarmsData = (isIncludeOutsideFarms = true) => {
   const fairLaunchContracts = useFairLaunchContracts(false)
   const ethPrice = useETHPrice()
   const allTokens = useAllTokens()
+  const { classicClient, blockClient } = useKyberswapConfig()
 
   const farmsData = useSelector((state: AppState) => state.farms.data)
   const loading = useSelector((state: AppState) => state.farms.loading)
@@ -116,7 +118,6 @@ export const useFarmsData = (isIncludeOutsideFarms = true) => {
 
   useEffect(() => {
     if (!isEVM) return
-    const apolloClient = (networkInfo as EVMNetworkInfo).classic.client
     let cancelled = false
 
     async function getListFarmsForContract(contract: Contract): Promise<Farm[]> {
@@ -170,7 +171,13 @@ export const useFarmsData = (isIncludeOutsideFarms = true) => {
 
       const poolAddresses = poolInfos.map(poolInfo => poolInfo.stakeToken.toLowerCase())
 
-      const farmsData = await getBulkPoolDataFromPoolList(poolAddresses, apolloClient, chainId, ethPrice.currentPrice)
+      const farmsData = await getBulkPoolDataFromPoolList(
+        poolAddresses,
+        classicClient,
+        blockClient,
+        chainId,
+        ethPrice.currentPrice,
+      )
 
       const rewardTokens = rewardTokenAddresses
         .map(address =>
@@ -301,6 +308,8 @@ export const useFarmsData = (isIncludeOutsideFarms = true) => {
     isIncludeOutsideFarms,
     isEVM,
     networkInfo,
+    classicClient,
+    blockClient,
   ])
 
   return useMemo(() => ({ loading, error, data: farmsData }), [error, farmsData, loading])
@@ -339,10 +348,10 @@ export const useYieldHistories = (isModalOpen: boolean) => {
   const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
   const [histories, setHistories] = useState<FarmHistory[]>([])
   const [loading, setLoading] = useState(false)
+  const { classicClient } = useKyberswapConfig()
 
   useEffect(() => {
     if (!isEVM) return
-    const apolloClient = (networkInfo as EVMNetworkInfo).classic.client
     async function fetchFarmHistories() {
       if (!account || !isModalOpen) {
         return
@@ -351,7 +360,7 @@ export const useYieldHistories = (isModalOpen: boolean) => {
       setLoading(true)
 
       try {
-        const result = await apolloClient.query<FarmHistoriesSubgraphResult>({
+        const result = await classicClient.query<FarmHistoriesSubgraphResult>({
           query: FARM_HISTORIES,
           variables: {
             user: account,
@@ -445,7 +454,7 @@ export const useYieldHistories = (isModalOpen: boolean) => {
     }
 
     fetchFarmHistories()
-  }, [chainId, account, isModalOpen, isEVM, networkInfo])
+  }, [chainId, account, isModalOpen, isEVM, networkInfo, classicClient])
 
   return { loading, data: histories }
 }

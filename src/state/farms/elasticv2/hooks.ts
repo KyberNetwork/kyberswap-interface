@@ -15,6 +15,7 @@ import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useContract, useMulticallContract } from 'hooks/useContract'
+import { useKyberswapConfig } from 'hooks/useKyberswapConfig'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { isAddressString } from 'utils'
 
@@ -76,7 +77,8 @@ const positionManagerInterface = new Interface(NFTPositionManagerABI.abi)
 export const useElasticFarmsV2 = (subscribe = false) => {
   const dispatch = useAppDispatch()
   const { networkInfo, isEVM, chainId, account } = useActiveWeb3React()
-  const elasticFarm = useAppSelector(state => state.elasticFarmV2[chainId || 1] || defaultChainData)
+  const elasticFarm = useAppSelector(state => (chainId ? state.elasticFarmV2[chainId] : defaultChainData))
+  const { elasticClient } = useKyberswapConfig(chainId)
 
   const multicallContract = useMulticallContract()
   const farmv2QuoterContract = useContract(
@@ -85,7 +87,7 @@ export const useElasticFarmsV2 = (subscribe = false) => {
   )
 
   const [getElasticFarmV2, { data, error }] = useLazyQuery(queryFarms, {
-    client: (NETWORKS_INFO[chainId] as EVMNetworkInfo).elastic.client,
+    client: elasticClient,
     fetchPolicy: 'network-only',
   })
 
