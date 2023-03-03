@@ -207,7 +207,7 @@ export const useTransactionNotify = () => {
 // returns a function that allows removing a popup via its key
 export function useRemovePopup() {
   const dispatch = useDispatch()
-  const { ackAnnouncement } = useAckAnnouncement()
+  const ackAnnouncement = useAckAnnouncement()
   return useCallback(
     (popup: PopupItemType) => {
       const { key, popupType, content } = popup
@@ -248,7 +248,6 @@ export function useActivePopups() {
   const popups = useSelector(
     (state: AppState) => state.application.popupList,
   ) as PopupItemType<PopupContentAnnouncement>[]
-  const { announcementsAckMap } = useAckAnnouncement()
   const { chainId } = useActiveWeb3React()
 
   return useMemo(() => {
@@ -256,23 +255,17 @@ export function useActivePopups() {
       [PopupType.SIMPLE, PopupType.TOP_RIGHT, PopupType.TRANSACTION].includes(e.popupType),
     )
 
-    const topPopups = popups.filter(
-      e => e.popupType === PopupType.TOP_BAR && isPopupCanShow(e, announcementsAckMap, chainId),
-    )
-    const snippetPopups = popups.filter(
-      e => e.popupType === PopupType.SNIPPET && isPopupCanShow(e, announcementsAckMap, chainId),
-    )
+    const topPopups = popups.filter(e => e.popupType === PopupType.TOP_BAR && isPopupCanShow(e, chainId))
+    const snippetPopups = popups.filter(e => e.popupType === PopupType.SNIPPET && isPopupCanShow(e, chainId))
 
-    const centerPopups = popups.filter(
-      e => e.popupType === PopupType.CENTER && isPopupCanShow(e, announcementsAckMap, chainId),
-    )
+    const centerPopups = popups.filter(e => e.popupType === PopupType.CENTER && isPopupCanShow(e, chainId))
     return {
       topPopups,
       centerPopups,
       topRightPopups,
       snippetPopups,
     }
-  }, [popups, announcementsAckMap, chainId])
+  }, [popups, chainId])
 }
 
 /**
