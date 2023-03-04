@@ -52,6 +52,8 @@ import { FarmUpdater, useElasticFarms } from 'state/farms/elastic/hooks'
 import { useFarmsData } from 'state/farms/hooks'
 import { isInEnum } from 'utils/string'
 
+import ElasticFarmv2 from './ElasticFarmv2'
+
 const Farm = () => {
   const { isEVM, chainId } = useActiveWeb3React()
   const { loading } = useFarmsData()
@@ -103,7 +105,10 @@ const Farm = () => {
     switch (type) {
       case FARM_TAB.ACTIVE:
         return farmType === VERSION.ELASTIC ? (
-          <ElasticFarms stakedOnly={stakedOnly} />
+          <>
+            <ElasticFarmv2 />
+            <ElasticFarms stakedOnly={stakedOnly} />
+          </>
         ) : (
           <YieldPools loading={loading} active />
         )
