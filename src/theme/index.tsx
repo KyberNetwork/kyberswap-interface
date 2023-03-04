@@ -293,6 +293,87 @@ export const ThemedGlobalStyle = createGlobalStyle`
   html {
     color: ${({ theme }) => theme.text};
     background-color: ${({ theme }) => theme.buttonBlack};
+
+    --color-primary-120: #27a27e;
+    --color-primary-110: #2cb78e;
+    --color-primary: #31CB9E;
+    --color-primary-90: #44d2a8;
+    --color-primary-80: #59d7b2;
+    --color-red-120:#ff0f47
+    --color-red-110:#ff3161
+    --color-red:#FF537B
+    --color-red-90:#ff6488
+    --color-red-80:#ff7595
+    --color-warning-120:#cd7b00
+    --color-warning-110:#e68a00
+    --color-warning:#FF9901
+    --color-warning-90:#ffa31a
+    --color-warning-80:#ffad34
+
+    ${({ theme }) =>
+      theme.darkMode
+        ? css`
+            --color-background-120: #161616;
+            --color-background-110: #191919;
+            --color-background: #1c1c1c;
+            --color-background-90: #333333;
+            --color-background-80: #494949;
+            --color-button-black-120: #0c0c0c;
+            --color-button-black-110: #0d0d0d;
+            --color-button-black: #0f0f0f;
+            --color-button-black-90: #272727;
+            --color-button-black-80: #3f3f3f;
+            --color-button-gray-120: #212121;
+            --color-button-gray-110: #252525;
+            --color-button-gray: #292929;
+            --color-button-gray-90: #3e3e3e;
+            --color-button-gray-80: #545454;
+            --color-text-120: #cccccc;
+            --color-text-110: #e6e6e6;
+            --color-text: #ffffff;
+            --color-subtext-120: #878787;
+            --color-subtext-110: #989898;
+            --color-subtext: #a9a9a9;
+            --color-table-header-120: #272727;
+            --color-table-header-110: #2c2c2c;
+            --color-table-header: #313131;
+            --color-border-120: #404040;
+            --color-border-110: #484848;
+            --color-border: #505050;
+            --color-border-90: #616161;
+            --color-border-80: #737373;
+          `
+        : css`
+            --color-background-120: #ffffff;
+            --color-background-110: #ffffff;
+            --color-background: #ffffff;
+            --color-background-90: #e6e6e6;
+            --color-background-80: #cccccc;
+            --color-button-black-120: #f7f7f7;
+            --color-button-black-110: #f6f6f6;
+            --color-button-black: #f5f5f5;
+            --color-button-black-90: #dcdcdc;
+            --color-button-black-80: #c4c4c4;
+            --color-button-gray-120: #e8e8e8;
+            --color-button-gray-110: #e5e5e5;
+            --color-button-gray: #e2e2e2;
+            --color-button-gray-90: #cbcbcb;
+            --color-button-gray-80: #b5b5b5;
+            --color-text-120: #4e4e4e;
+            --color-text-110: #383838;
+            --color-text: #222222;
+            --color-subtext-120: #7e7e7e;
+            --color-subtext-110: #6e6e6e;
+            --color-subtext: #5e5e5e;
+            --color-table-header-120: #fcfcfc;
+            --color-table-header-110: #fbfbfb;
+            --color-table-header: #fbfbfb;
+            --color-border-120: #cdcdcd;
+            --color-border-110: #c7c7c7;
+            --color-border: #c1c1c1;
+            --color-border-90: #aeaeae;
+            --color-border-80: #9a9a9a;
+          `}
   }
 
   body {
