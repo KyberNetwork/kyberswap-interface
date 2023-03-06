@@ -8,6 +8,7 @@ import { useDeepCompareEffect } from 'react-use'
 import { ETH_PRICE, PROMM_ETH_PRICE, TOKEN_DERIVED_ETH } from 'apollo/queries'
 import { ackAnnouncementPopup, isPopupCanShow } from 'components/Announcement/helper'
 import {
+  AnnouncementTemplatePopup,
   PopupContent,
   PopupContentAnnouncement,
   PopupContentSimple,
@@ -29,6 +30,7 @@ import {
   addPopup,
   closeModal,
   removePopup,
+  setAnnouncementDetail,
   setOpenModal,
   updateETHPrice,
   updateKNCPrice,
@@ -510,4 +512,22 @@ export function useTokensPrice(tokens: (Token | NativeCurrency | null | undefine
 
 export const useServiceWorkerRegistration = () => {
   return useAppSelector(state => state.application.serviceWorkerRegistration)
+}
+
+type DetailAnnouncementParam = {
+  selectedIndex: number | null
+  hasMore?: boolean
+  announcements?: AnnouncementTemplatePopup[]
+}
+
+export const useDetailAnnouncement = (): [DetailAnnouncementParam, (v: DetailAnnouncementParam) => void] => {
+  const announcementDetail = useAppSelector(state => state.application.notification?.announcementDetail)
+  const dispatch = useDispatch()
+  const setDetail = useCallback(
+    (data: DetailAnnouncementParam) => {
+      dispatch(setAnnouncementDetail({ ...announcementDetail, ...data }))
+    },
+    [dispatch, announcementDetail],
+  )
+  return [announcementDetail, setDetail]
 }

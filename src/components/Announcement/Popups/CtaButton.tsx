@@ -2,7 +2,7 @@ import { t } from '@lingui/macro'
 import styled from 'styled-components'
 
 import { AnnouncementCTA } from 'components/Announcement/type'
-import { ButtonEmpty, ButtonPrimary } from 'components/Button'
+import { ButtonEmpty, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import useTheme from 'hooks/useTheme'
 
 function CtaButton({
@@ -13,7 +13,7 @@ function CtaButton({
 }: {
   data: AnnouncementCTA
   className?: string
-  color: 'primary' | 'gray'
+  color: 'primary' | 'gray' | 'outline'
   onClick?: () => void
 }) {
   const theme = useTheme()
@@ -21,17 +21,23 @@ function CtaButton({
   const { name } = data
   const props = { className, onClick }
   const displayName = name || t`Close`
-  if (color === 'primary') return <ButtonPrimary {...props}>{displayName}</ButtonPrimary>
-  return (
-    <ButtonEmpty
-      {...props}
-      style={{
-        background: theme.border,
-        color: theme.text,
-      }}
-    >
-      {displayName}
-    </ButtonEmpty>
-  )
+  switch (color) {
+    case 'primary':
+      return <ButtonPrimary {...props}>{displayName}</ButtonPrimary>
+    case 'outline':
+      return <ButtonOutlined {...props}>{displayName}</ButtonOutlined>
+    default:
+      return (
+        <ButtonEmpty
+          {...props}
+          style={{
+            background: theme.border,
+            color: theme.text,
+          }}
+        >
+          {displayName}
+        </ButtonEmpty>
+      )
+  }
 }
 export default styled(CtaButton)``

@@ -71,6 +71,7 @@ export type AnnouncementTemplatePopup = {
   popupType: PopupType
   ctas: AnnouncementCTA[] // in popup
   ctaURL: string // in notification center
+  ctaName: string // in notification center
 }
 
 type AnnouncementTemplate =

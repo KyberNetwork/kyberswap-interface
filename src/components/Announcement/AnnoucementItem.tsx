@@ -1,10 +1,10 @@
 import styled, { CSSProperties } from 'styled-components'
 
 import NotificationImage from 'assets/images/notification_default.png'
-import { formatTime, useNavigateCtaPopup } from 'components/Announcement/helper'
+import { formatTime } from 'components/Announcement/helper'
 import { Announcement } from 'components/Announcement/type'
 
-const HEIGHT = '100px'
+const HEIGHT = '92px'
 
 const Wrapper = styled.div`
   border-bottom: 1px solid ${({ theme }) => theme.border};
@@ -33,7 +33,7 @@ const Title = styled.div`
 const Desc = styled.div`
   font-size: 12px;
   color: ${({ theme }) => theme.subText};
-  word-break: break-all;
+  word-break: break-word;
   display: block;
   display: -webkit-box;
   max-width: 100%;
@@ -67,7 +67,7 @@ const RowItem = styled.div`
 `
 
 const Image = styled.img`
-  width: ${HEIGHT};
+  width: 140px;
   max-height: ${HEIGHT};
   border-radius: 8px;
   object-fit: scale-down;
@@ -84,21 +84,13 @@ export default function AnnouncementItem({
 }) {
   const { templateBody } = announcement
 
-  const { name, startAt, content, thumbnailImageURL, ctaURL } = templateBody
-  const navigate = useNavigateCtaPopup()
-  const formatContent = content
+  const { name, startAt, content, thumbnailImageURL } = templateBody
   return (
-    <Wrapper
-      onClick={() => {
-        onRead()
-        navigate(ctaURL)
-      }}
-      style={style}
-    >
+    <Wrapper onClick={onRead} style={style}>
       <Image src={thumbnailImageURL || NotificationImage} />
       <RowItem style={{ maxWidth: '100%', maxHeight: '100%' }}>
         <Title>{name} </Title>
-        <Desc dangerouslySetInnerHTML={{ __html: formatContent }} />
+        <Desc dangerouslySetInnerHTML={{ __html: content }} />
         <Time>{formatTime(startAt)}</Time>
       </RowItem>
     </Wrapper>

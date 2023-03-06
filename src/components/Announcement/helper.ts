@@ -23,7 +23,6 @@ export const isPopupCanShow = (popupInfo: PopupItemType<PopupContentAnnouncement
   const { templateBody = {}, metaMessageId } = popupInfo.content
   const { endAt, startAt, chainIds = [] } = templateBody as AnnouncementTemplatePopup
   const isRightChain = chainIds.includes(chainId + '')
-
   const announcementsAckMap = getAnnouncementsAckMap()
   const isRead = announcementsAckMap[metaMessageId]
   const isExpired = Date.now() < startAt * 1000 || Date.now() > endAt * 1000

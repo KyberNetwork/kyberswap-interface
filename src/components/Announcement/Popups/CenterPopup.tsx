@@ -34,6 +34,7 @@ const ContentWrapper = styled.div`
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  overflow-x: hidden;
   gap: 24px;
   flex: 1;
   ${({ theme }) => theme.mediaWidth.upToMedium`
@@ -48,7 +49,7 @@ const Title = styled.div`
   font-weight: 500;
   font-size: 20px;
   line-height: 24px;
-  word-break: break-all;
+  word-break: break-word;
 `
 
 const ButtonWrapper = styled(Row)`
@@ -81,16 +82,23 @@ const StyledCtaButton = styled(CtaButton)`
   `}
 `
 
+const Desc = styled.div`
+  word-break: break-word;
+  font-size: 14px;
+  line-height: 20px;
+`
+
 export default function CenterPopup({
+  onDismiss,
   data,
-  clearAll,
 }: {
+  onDismiss: () => void
   data: PopupItemType<PopupContentAnnouncement>
-  clearAll: () => void
 }) {
   const theme = useTheme()
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const { mixpanelHandler } = useMixpanel()
+
   const { templateBody = {} } = data.content
   const {
     name = t`Important Announcement!`,
@@ -98,10 +106,12 @@ export default function CenterPopup({
     ctas = [],
     thumbnailImageURL,
   } = templateBody as AnnouncementTemplatePopup
+
   const navigate = useNavigateCtaPopup()
   const trackingClose = () => mixpanelHandler(MIXPANEL_TYPE.ANNOUNCEMENT_CLICK_CLOSE_POPUP, { message_title: name })
+
   const onClickCta = (ctaUrl?: string) => {
-    clearAll()
+    onDismiss()
     ctaUrl && navigate(ctaUrl)
     mixpanelHandler(MIXPANEL_TYPE.ANNOUNCEMENT_CLICK_CTA_POPUP, {
       announcement_type: PopupType.CENTER,
@@ -110,7 +120,7 @@ export default function CenterPopup({
   }
 
   return (
-    <Modal isOpen={true} maxWidth={isMobile ? undefined : '800px'} onDismiss={clearAll} zindex={Z_INDEXS.MODAL}>
+    <Modal isOpen={true} maxWidth={isMobile ? undefined : '800px'} onDismiss={onDismiss} zindex={Z_INDEXS.MODAL}>
       <Wrapper>
         <RowBetween align="center">
           <Title>{name}</Title>
@@ -118,7 +128,7 @@ export default function CenterPopup({
             cursor={'pointer'}
             color={theme.subText}
             onClick={() => {
-              clearAll()
+              onDismiss()
               trackingClose()
             }}
             style={{ minWidth: '24px' }}
@@ -126,8 +136,7 @@ export default function CenterPopup({
         </RowBetween>
         <ContentWrapper>
           {thumbnailImageURL && <Image src={thumbnailImageURL} />}
-          <div
-            style={{ fontSize: 14, lineHeight: '20px' }}
+          <Desc
             dangerouslySetInnerHTML={{
               __html: content,
             }}
