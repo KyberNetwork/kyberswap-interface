@@ -112,7 +112,7 @@ const ActionButtons = ({
                   <CopyHelper
                     toCopy={txHash}
                     style={{ color: isDisabledCopy ? theme.border : theme.subText, margin: 0 }}
-                    size="15"
+                    size={15}
                   />
                 </IconWrap>
               </MouseoverTooltipDesktopOnly>

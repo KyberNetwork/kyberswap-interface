@@ -341,3 +341,33 @@ export const ButtonApprove = ({
     />
   )
 }
+
+export const TextButton = styled(Base)<{ gap?: string; fontSize?: string }>`
+  --color: var(--text);
+  --hover-color: var(--text-120);
+  font-size: ${({ fontSize }) => fontSize};
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  padding: 0;
+  gap: ${({ gap }) => gap || '4px'};
+  color: var(--color);
+  cursor: pointer;
+  :hover {
+    color: var(--hover-color);
+  }
+  :disabled {
+    --color: var(--subtext);
+    --hover-color: var(--subtext);
+  }
+`
+
+export const TextButtonPrimary = styled(TextButton)`
+  --color: var(--primary);
+  --hover-color: var(--primary-80);
+`
+export const TextButtonSubtext = styled(TextButton)`
+  --color: var(--subtext);
+  --hover-color: var(--subtext-120);
+`

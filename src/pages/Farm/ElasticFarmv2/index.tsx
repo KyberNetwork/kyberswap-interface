@@ -4,7 +4,8 @@ import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
 import Divider from 'components/Divider'
-import Row, { RowBetween, RowFit } from 'components/Row'
+import { RowBetween, RowFit, RowWrap } from 'components/Row'
+import { useAllTokens } from 'hooks/Tokens'
 import useTheme from 'hooks/useTheme'
 
 import FarmCard from './components/FarmCard'
@@ -19,19 +20,16 @@ const Wrapper = styled.div`
   gap: 16px;
 `
 
-const FarmsWrapper = styled(Row)`
+const FarmsWrapper = styled(RowWrap)`
   --items-in-row: 3;
   --gap: 24px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--gap);
-  & > * {
-    width: calc(100% / var(--items-in-row) - (var(--items-in-row) - 1) * var(--gap) / var(--items-in-row));
-  }
 `
 
 export default function ElasticFarmv2() {
   const theme = useTheme()
+  const whitelisted = useAllTokens()
+  const inputToken = Object.values(whitelisted)?.filter(t => t.symbol === 'KNC')[0]
+  const outputToken = Object.values(whitelisted)?.filter(t => t.symbol === 'USDC')[0]
   return (
     <Wrapper>
       <RowBetween>
@@ -44,7 +42,9 @@ export default function ElasticFarmv2() {
       </RowBetween>
       <Divider />
       <FarmsWrapper>
-        <FarmCard />
+        <FarmCard inputToken={inputToken} outputToken={outputToken} />
+        <FarmCard inputToken={inputToken} outputToken={outputToken} hasPositions hasRewards hasUnstake />
+        <FarmCard inputToken={inputToken} outputToken={outputToken} enableStake />
       </FarmsWrapper>
     </Wrapper>
   )
