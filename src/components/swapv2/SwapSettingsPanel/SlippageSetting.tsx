@@ -182,6 +182,20 @@ const CustomInput = styled.input`
     font-size: 10px;
   }
 `
+
+const getSlippageText = (rawSlippage: number) => {
+  const isCustom = !DefaultSlippages.includes(rawSlippage)
+  if (!isCustom) {
+    return ''
+  }
+
+  if (rawSlippage % 100 === 0) {
+    return String(rawSlippage / 100)
+  }
+
+  return (rawSlippage / 100).toFixed(2)
+}
+
 const SlippageSetting: React.FC = () => {
   const theme = useTheme()
   const inputRef = useRef<HTMLInputElement>(null)
@@ -191,14 +205,19 @@ const SlippageSetting: React.FC = () => {
   const [rawSlippage, setRawSlippage] = useUserSlippageTolerance()
 
   const isCustomOptionActive = !DefaultSlippages.includes(rawSlippage)
-  const [slippageInput, setSlippageInput] = useState(isCustomOptionActive ? (rawSlippage / 100).toFixed(2) : '')
-  const { isValid, message } = validateSlippageInput(slippageInput || String(rawSlippage / 100))
+  const [slippageInput, setSlippageInput] = useState(getSlippageText(rawSlippage))
+  const { isValid, message } = validateSlippageInput(slippageInput)
 
   const isWarning = isValid && !!message
   const isError = !isValid
   const { mixpanelHandler } = useMixpanel()
   const handleCommitChange = () => {
-    if (!isValid || slippageInput === '') {
+    if (!isValid) {
+      return
+    }
+
+    if (slippageInput === '') {
+      setSlippageInput(getSlippageText(rawSlippage))
       return
     }
 
@@ -209,6 +228,7 @@ const SlippageSetting: React.FC = () => {
     mixpanelHandler(MIXPANEL_TYPE.SLIPPAGE_CHANGED, { new_slippage: newRawSlippage / 100 })
 
     setRawSlippage(newRawSlippage)
+    setSlippageInput(getSlippageText(newRawSlippage))
   }
 
   const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
