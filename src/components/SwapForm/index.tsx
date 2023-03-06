@@ -1,10 +1,11 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
-import { Box, Flex } from 'rebass'
+import { Box, Flex, Text } from 'rebass'
 import { parseGetRouteResponse } from 'services/route/utils'
 
 import AddressInputPanel from 'components/AddressInputPanel'
+import QuestionHelper from 'components/QuestionHelper'
 import { AutoRow } from 'components/Row'
 import InputCurrencyPanel from 'components/SwapForm/InputCurrencyPanel'
 import OutputCurrencyPanel from 'components/SwapForm/OutputCurrencyPanel'
@@ -17,6 +18,7 @@ import TrendingSoonTokenBanner from 'components/TrendingSoonTokenBanner'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import TradePrice from 'components/swapv2/TradePrice'
 import { Wrapper } from 'components/swapv2/styleds'
+import { STABLE_COINS_ADDRESS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
@@ -80,6 +82,12 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   const parsedAmount = useParsedAmount(currencyIn, typedValue)
   const { wrapType, inputError: wrapInputError, execute: onWrap } = useWrapCallback(currencyIn, currencyOut, typedValue)
   const isWrapOrUnwrap = wrapType !== WrapType.NOT_APPLICABLE
+  const isStableCoinSwap =
+    chainId &&
+    currencyIn &&
+    currencyOut &&
+    STABLE_COINS_ADDRESS[chainId].includes(currencyIn.wrapped.address) &&
+    STABLE_COINS_ADDRESS[chainId].includes(currencyOut.wrapped.address)
 
   const { fetcher: getRoute, result } = useGetRoute({
     currencyIn,
@@ -197,12 +205,22 @@ const SwapForm: React.FC<SwapFormProps> = props => {
                 fontSize={12}
                 color={theme.subText}
                 onClick={goToSettingsView}
-                width="fit-content"
+                width="max-content"
               >
                 <ClickableText color={theme.subText} fontWeight={500}>
                   <Trans>Max Slippage:</Trans>&nbsp;
-                  {slippage / 100}%
+                  <Text as="span" color={isStableCoinSwap ? theme.text : theme.subText}>
+                    {slippage / 100}%
+                  </Text>
                 </ClickableText>
+
+                {isStableCoinSwap ? (
+                  <QuestionHelper
+                    placement="top"
+                    color={theme.text}
+                    text={t`Slippage for stable coin swap should be less than or equal to 0.1%`}
+                  />
+                ) : null}
               </Flex>
             )}
           </Flex>
