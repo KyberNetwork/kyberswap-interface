@@ -148,7 +148,7 @@ const Wrapper = styled.div`
   left: 30px;
   bottom: 30px;
   z-index: ${Z_INDEXS.POPUP_NOTIFICATION};
-  width: 480px;
+  width: 470px;
 
   // custom swiper below
   --swiper-navigation-size: 12px;
