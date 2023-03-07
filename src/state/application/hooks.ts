@@ -1,13 +1,16 @@
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import { ChainId, NativeCurrency, Token } from '@kyberswap/ks-sdk-core'
+import { Connection } from '@solana/web3.js'
 import dayjs from 'dayjs'
+import { ethers } from 'ethers'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useDeepCompareEffect } from 'react-use'
 
 import { ETH_PRICE, PROMM_ETH_PRICE, TOKEN_DERIVED_ETH } from 'apollo/queries'
-import { isPopupCanShow, useAckAnnouncement } from 'components/Announcement/helper'
+import { ackAnnouncementPopup, isPopupCanShow } from 'components/Announcement/helper'
 import {
+  AnnouncementTemplatePopup,
   PopupContent,
   PopupContentAnnouncement,
   PopupContentSimple,
@@ -16,19 +19,22 @@ import {
   PopupType,
 } from 'components/Announcement/type'
 import { OUTSITE_FARM_REWARDS_QUERY, ZERO_ADDRESS } from 'constants/index'
+import { NETWORKS_INFO, isEVM, isSolana } from 'constants/networks'
+import ethereumInfo from 'constants/networks/ethereum'
 import { KNC } from 'constants/tokens'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks/index'
-import { useKyberswapConfig } from 'hooks/useKyberswapConfig'
 import { useAppSelector } from 'state/hooks'
 import { AppDispatch, AppState } from 'state/index'
 import { getBlockFromTimestamp, getPercentChange } from 'utils'
+import { createClient } from 'utils/client'
 
 import {
   ApplicationModal,
   addPopup,
   closeModal,
   removePopup,
+  setAnnouncementDetail,
   setOpenModal,
   updateETHPrice,
   updateKNCPrice,
@@ -166,16 +172,15 @@ export const useTransactionNotify = () => {
 // returns a function that allows removing a popup via its key
 export function useRemovePopup() {
   const dispatch = useDispatch()
-  const { ackAnnouncement } = useAckAnnouncement()
   return useCallback(
     (popup: PopupItemType) => {
       const { key, popupType, content } = popup
       if ([PopupType.CENTER, PopupType.SNIPPET, PopupType.TOP_RIGHT, PopupType.TOP_BAR].includes(popupType)) {
-        ackAnnouncement((content as PopupContentAnnouncement).metaMessageId)
+        ackAnnouncementPopup((content as PopupContentAnnouncement).metaMessageId)
       }
       dispatch(removePopup({ key }))
     },
-    [dispatch, ackAnnouncement],
+    [dispatch],
   )
 }
 
@@ -207,7 +212,6 @@ export function useActivePopups() {
   const popups = useSelector(
     (state: AppState) => state.application.popupList,
   ) as PopupItemType<PopupContentAnnouncement>[]
-  const { announcementsAckMap } = useAckAnnouncement()
   const { chainId } = useActiveWeb3React()
 
   return useMemo(() => {
@@ -215,23 +219,17 @@ export function useActivePopups() {
       [PopupType.SIMPLE, PopupType.TOP_RIGHT, PopupType.TRANSACTION].includes(e.popupType),
     )
 
-    const topPopups = popups.filter(
-      e => e.popupType === PopupType.TOP_BAR && isPopupCanShow(e, announcementsAckMap, chainId),
-    )
-    const snippetPopups = popups.filter(
-      e => e.popupType === PopupType.SNIPPET && isPopupCanShow(e, announcementsAckMap, chainId),
-    )
+    const topPopups = popups.filter(e => e.popupType === PopupType.TOP_BAR && isPopupCanShow(e, chainId))
+    const snippetPopups = popups.filter(e => e.popupType === PopupType.SNIPPET && isPopupCanShow(e, chainId))
 
-    const centerPopups = popups.filter(
-      e => e.popupType === PopupType.CENTER && isPopupCanShow(e, announcementsAckMap, chainId),
-    )
+    const centerPopups = popups.filter(e => e.popupType === PopupType.CENTER && isPopupCanShow(e, chainId))
     return {
       topPopups,
       centerPopups,
       topRightPopups,
       snippetPopups,
     }
-  }, [popups, announcementsAckMap, chainId])
+  }, [popups, chainId])
 }
 
 /**
@@ -312,7 +310,7 @@ const getPrommEthPrice = async (
 export function useETHPrice(version: string = VERSION.CLASSIC): AppState['application']['ethPrice'] {
   const dispatch = useDispatch()
   const { isEVM, chainId } = useActiveWeb3React()
-  const { elasticClient, classicClient, blockClient } = useKyberswapConfig()
+  const { elasticClient, classicClient, blockClient } = useKyberSwapConfig()
 
   const ethPrice = useSelector((state: AppState) =>
     version === VERSION.ELASTIC ? state.application.prommEthPrice : state.application.ethPrice,
@@ -373,7 +371,7 @@ export function useKNCPrice(): AppState['application']['kncPrice'] {
   const ethPrice = useETHPrice()
   const { isEVM, chainId } = useActiveWeb3React()
   const blockNumber = useBlockNumber()
-  const { classicClient } = useKyberswapConfig()
+  const { classicClient } = useKyberSwapConfig()
 
   const kncPrice = useSelector((state: AppState) => state.application.kncPrice)
 
@@ -433,7 +431,7 @@ export function useTokensPrice(tokens: (Token | NativeCurrency | null | undefine
 
   const { chainId, isEVM } = useActiveWeb3React()
   const [prices, setPrices] = useState<number[]>([])
-  const { elasticClient, classicClient } = useKyberswapConfig()
+  const { elasticClient, classicClient } = useKyberSwapConfig()
 
   useDeepCompareEffect(() => {
     if (!isEVM) return
@@ -477,4 +475,102 @@ export function useTokensPrice(tokens: (Token | NativeCurrency | null | undefine
 
 export const useServiceWorkerRegistration = () => {
   return useAppSelector(state => state.application.serviceWorkerRegistration)
+}
+
+type DetailAnnouncementParam = {
+  selectedIndex: number | null
+  hasMore?: boolean
+  announcements?: AnnouncementTemplatePopup[]
+}
+
+export const useDetailAnnouncement = (): [DetailAnnouncementParam, (v: DetailAnnouncementParam) => void] => {
+  const announcementDetail = useAppSelector(state => state.application.notification?.announcementDetail)
+  const dispatch = useDispatch()
+  const setDetail = useCallback(
+    (data: DetailAnnouncementParam) => {
+      dispatch(setAnnouncementDetail({ ...announcementDetail, ...data }))
+    },
+    [dispatch, announcementDetail],
+  )
+  return [announcementDetail, setDetail]
+}
+
+const cacheConfig: {
+  rpc: { [rpc: string]: ethers.providers.JsonRpcProvider }
+  client: { [subgraphLink: string]: ApolloClient<NormalizedCacheObject> }
+} = {
+  rpc: {},
+  client: {},
+}
+
+const cacheCalc: <T extends keyof typeof cacheConfig, U extends typeof cacheConfig[T][string]>(
+  type: T,
+  value: string,
+  fallback: (value: string) => U,
+) => U = <T extends keyof typeof cacheConfig, U extends typeof cacheConfig[T][string]>(
+  type: T,
+  value: string,
+  fallback: (value: string) => U,
+) => {
+  if (!cacheConfig[type][value]) {
+    cacheConfig[type][value] = fallback(value)
+  }
+  return cacheConfig[type][value] as U
+}
+
+function getDefaultConfig(chainId: ChainId) {
+  const evm = isEVM(chainId)
+  return {
+    rpc: NETWORKS_INFO[chainId].defaultRpcUrl,
+    prochart: false,
+    blockSubgraph: (evm ? NETWORKS_INFO[chainId] : ethereumInfo).defaultBlockSubgraph,
+    elasticSubgraph: (evm ? NETWORKS_INFO[chainId] : ethereumInfo).elastic.defaultSubgraph,
+    classicSubgraph: (evm ? NETWORKS_INFO[chainId] : ethereumInfo).classic.defaultSubgraph,
+  }
+}
+
+type KyberSwapConfig = {
+  rpc: string
+  prochart: boolean
+  blockClient: ApolloClient<NormalizedCacheObject>
+  classicClient: ApolloClient<NormalizedCacheObject>
+  elasticClient: ApolloClient<NormalizedCacheObject>
+  provider: ethers.providers.JsonRpcProvider | undefined
+  connection: Connection | undefined
+}
+
+export const useKyberSwapConfig = (customChainId?: ChainId): KyberSwapConfig => {
+  const storeChainId = useAppSelector(state => state.user.chainId) || ChainId.MAINNET
+  const chainId = customChainId || storeChainId
+
+  const config = useAppSelector(state => state.application.config[chainId] || getDefaultConfig(chainId))
+
+  const provider = useMemo(
+    () => cacheCalc('rpc', config.rpc, subgraph => new ethers.providers.JsonRpcProvider(subgraph)),
+    [config.rpc],
+  )
+  const blockClient = useMemo(
+    () => cacheCalc('client', config.blockSubgraph, subgraph => createClient(subgraph)),
+    [config.blockSubgraph],
+  )
+  const classicClient = useMemo(
+    () => cacheCalc('client', config.classicSubgraph, subgraph => createClient(subgraph)),
+    [config.classicSubgraph],
+  )
+  const elasticClient = useMemo(
+    () => cacheCalc('client', config.elasticSubgraph, subgraph => createClient(subgraph)),
+    [config.elasticSubgraph],
+  )
+
+  return useMemo(() => {
+    return {
+      rpc: config.rpc,
+      provider,
+      prochart: config.prochart,
+      blockClient,
+      elasticClient,
+      classicClient,
+      connection: isSolana(chainId) ? new Connection(config.rpc, { commitment: 'confirmed' }) : undefined,
+    }
+  }, [chainId, provider, elasticClient, blockClient, classicClient, config.rpc, config.prochart])
 }
