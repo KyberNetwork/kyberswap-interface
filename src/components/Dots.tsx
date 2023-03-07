@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-export const Dots = styled.span`
+const Dots = styled.span`
   &::after {
     display: inline-block;
     animation: ellipsis 1.25s infinite;
@@ -20,3 +20,4 @@ export const Dots = styled.span`
     }
   }
 `
+export default Dots
