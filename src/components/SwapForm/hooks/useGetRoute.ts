@@ -6,13 +6,7 @@ import { GetRouteParams } from 'services/route/types/getRoute'
 
 import useGetSwapFeeConfig, { SwapFeeConfig } from 'components/SwapForm/hooks/useGetSwapFeeConfig'
 import useSelectedDexes from 'components/SwapForm/hooks/useSelectedDexes'
-import {
-  AGGREGATOR_API_PATHS,
-  ETHER_ADDRESS,
-  INPUT_DEBOUNCE_TIME,
-  SWAP_FEE_RECEIVER_ADDRESS,
-  ZERO_ADDRESS_SOLANA,
-} from 'constants/index'
+import { ETHER_ADDRESS, INPUT_DEBOUNCE_TIME, SWAP_FEE_RECEIVER_ADDRESS, ZERO_ADDRESS_SOLANA } from 'constants/index'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
@@ -77,7 +71,7 @@ const getFeeConfigParams = (
 }
 
 const useGetRoute = (args: ArgsGetRoute) => {
-  const { aggregatorDomain, isEnableAuthenAggregator } = useKyberswapGlobalConfig()
+  const { isEnableAuthenAggregator } = useKyberswapGlobalConfig()
   const { isSaveGas, parsedAmount, currencyIn, currencyOut, customChain, isProcessingSwap } = args
   const { chainId: currentChain } = useActiveWeb3React()
   const chainId = customChain || currentChain
@@ -165,7 +159,8 @@ const useGetRoute = (args: ArgsGetRoute) => {
         delete params[key]
       }
     })
-    const url = `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}${AGGREGATOR_API_PATHS.GET_ROUTE}`
+
+    const url = `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}/api/v1/routes`
 
     triggerDebounced({
       url,
@@ -175,7 +170,6 @@ const useGetRoute = (args: ArgsGetRoute) => {
 
     return undefined
   }, [
-    aggregatorDomain,
     chainId,
     currencyIn,
     currencyOut,
