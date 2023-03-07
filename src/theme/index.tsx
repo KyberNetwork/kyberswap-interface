@@ -323,6 +323,7 @@ export const ThemedGlobalStyle = createGlobalStyle`
             --background: #1c1c1c;
             --background-90: #333333;
             --background-80: #494949;
+            --background-alpha-30: #1c1c1c30;
             --button-black-120: #0c0c0c;
             --button-black-110: #0d0d0d;
             --button-black: #0f0f0f;
@@ -354,6 +355,7 @@ export const ThemedGlobalStyle = createGlobalStyle`
             --background: #ffffff;
             --background-90: #e6e6e6;
             --background-80: #cccccc;
+            --background-alpha-30: #ffffff30;
             --button-black-120: #f7f7f7;
             --button-black-110: #f6f6f6;
             --button-black: #f5f5f5;

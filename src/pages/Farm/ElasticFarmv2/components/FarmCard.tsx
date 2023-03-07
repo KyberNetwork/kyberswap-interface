@@ -140,6 +140,19 @@ const UnstakeButton = styled(ButtonLight)`
   }
 `
 
+const IconButton = styled.div`
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--subtext);
+  :hover {
+    color: var(--subtext-120);
+  }
+`
+
 const RangeItem = ({ active, onRangeClick }: { active?: boolean; onRangeClick?: () => void }) => {
   const theme = useTheme()
   return (
@@ -223,8 +236,12 @@ function FarmCard({
               </Text>
             </RowFit>
             <RowFit gap="8px">
-              <CopyHelper toCopy="test" />
-              <Share2 size={14} fill="currentcolor" />
+              <IconButton>
+                <CopyHelper toCopy="test" />
+              </IconButton>
+              <IconButton>
+                <Share2 size={14} fill="currentcolor" />
+              </IconButton>
               {/* <MenuFlyout
                 trigger={<MoreHorizontal size={16} />}
                 customStyle={css`
@@ -380,7 +397,12 @@ function FarmCard({
                 </Text>
               </RowFit>
               <RowFit gap="8px">
-                <CopyHelper toCopy="test" size={16} />
+                <IconButton>
+                  <CopyHelper toCopy="test" />
+                </IconButton>
+                <IconButton>
+                  <Share2 size={14} fill="currentcolor" />
+                </IconButton>
               </RowFit>
             </RowBetween>
             <Column style={{ padding: '12px', border: '1px solid var(--border)', borderRadius: '12px' }} gap="16px">
