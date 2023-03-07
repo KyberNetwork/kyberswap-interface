@@ -136,7 +136,16 @@ function SnippetPopupItem({
         <Title>{name}</Title>
         <Desc hasCta={hasCta} dangerouslySetInnerHTML={{ __html: escapeScriptHtml(content) }} />
         <Flex alignItems="flex-end" style={{ position: 'relative', justifyContent: 'flex-start', gap: '12px' }}>
-          {hasCta && <StyledCtaButton data={ctaInfo} color="primary" onClick={onClickCta} />}
+          {hasCta && (
+            <StyledCtaButton
+              data={ctaInfo}
+              color="primary"
+              onClick={e => {
+                e.stopPropagation()
+                onClickCta()
+              }}
+            />
+          )}
         </Flex>
       </ContentColumn>
     </ItemWrapper>

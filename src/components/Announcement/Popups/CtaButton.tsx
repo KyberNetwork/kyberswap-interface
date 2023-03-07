@@ -1,4 +1,5 @@
 import { t } from '@lingui/macro'
+import { MouseEventHandler } from 'react'
 import styled from 'styled-components'
 
 import { AnnouncementCTA } from 'components/Announcement/type'
@@ -14,7 +15,7 @@ function CtaButton({
   data: AnnouncementCTA
   className?: string
   color: 'primary' | 'gray' | 'outline'
-  onClick?: () => void
+  onClick?: MouseEventHandler<HTMLButtonElement>
 }) {
   const theme = useTheme()
   if (!data) return null
