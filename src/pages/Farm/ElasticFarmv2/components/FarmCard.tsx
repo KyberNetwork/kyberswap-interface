@@ -17,6 +17,8 @@ import AspectRatio from 'components/Icons/AspectRatio'
 import Harvest from 'components/Icons/Harvest'
 import Row, { RowBetween, RowFit, RowWrap } from 'components/Row'
 import useTheme from 'hooks/useTheme'
+import { ElasticFarmV2 } from 'state/farms/elasticv2/types'
+import { getFormattedTimeFromSecond } from 'utils/formatTime'
 
 import PriceVisualize from './PriceVisualize'
 import StakeWithNFTsModal, { NFTItem } from './StakeWithNFTsModal'
@@ -153,6 +155,15 @@ const IconButton = styled.div`
   }
 `
 
+const FeeBadge = styled.div`
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--blue);
+  background-color: rgba(8, 161, 231, 0.2);
+  border-radius: 16px;
+  padding: 2px 4px;
+`
+
 const RangeItem = ({ active, onRangeClick }: { active?: boolean; onRangeClick?: () => void }) => {
   const theme = useTheme()
   return (
@@ -202,6 +213,7 @@ function FarmCard({
   hasPositions,
   hasRewards,
   hasUnstake,
+  farm,
 }: {
   inputToken?: Currency
   outputToken?: Currency
@@ -209,6 +221,7 @@ function FarmCard({
   hasPositions?: boolean
   hasRewards?: boolean
   hasUnstake?: boolean
+  farm?: ElasticFarmV2
 }) {
   const theme = useTheme()
   const [showStake, setShowStake] = useState(false)
@@ -223,17 +236,20 @@ function FarmCard({
     rangesRef.current?.classList.toggle('show')
   }, [])
 
+  const currentTimestamp = Math.floor(Date.now() / 1000)
+
   return (
     <Wrapper>
       <WrapperInner ref={wrapperInnerRef} hasRewards={hasRewards}>
         <FrontFace>
           <RowBetween>
-            <RowFit>
+            <RowFit gap="4px">
               <CurrencyLogo currency={inputToken} />
               <CurrencyLogo currency={outputToken} />
               <Text fontSize="16px" lineHeight="20px" color={theme.primary} marginLeft="4px">
                 {`${inputToken?.symbol} - ${outputToken?.symbol}`}
               </Text>
+              <FeeBadge>FEE {farm?.pool?.fee ? farm?.pool?.fee / 1000 : 0.03}%</FeeBadge>
             </RowFit>
             <RowFit gap="8px">
               <IconButton>
@@ -242,18 +258,6 @@ function FarmCard({
               <IconButton>
                 <Share2 size={14} fill="currentcolor" />
               </IconButton>
-              {/* <MenuFlyout
-                trigger={<MoreHorizontal size={16} />}
-                customStyle={css`
-                  padding: 8px;
-                  border-radius: 8px;
-                `}
-              >
-                <MenuItem>
-                  <Share2 size={16} fill="currentcolor" />
-                  <Trans>Share</Trans>
-                </MenuItem>
-              </MenuFlyout> */}
             </RowFit>
           </RowBetween>
           <RowBetween>
@@ -261,7 +265,7 @@ function FarmCard({
               <Trans>Current phase will end in</Trans>
             </Text>
             <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-              <Trans>17D 3H 40M</Trans>
+              {farm ? getFormattedTimeFromSecond(farm.endTime - currentTimestamp) : <Trans>17D 3H 40M</Trans>}
             </Text>
           </RowBetween>
           <RowBetween>

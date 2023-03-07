@@ -10,7 +10,6 @@ import { useEffect } from 'react'
 
 import FarmV2QuoterABI from 'constants/abis/farmv2Quoter.json'
 import NFTPositionManagerABI from 'constants/abis/v2/ProAmmNFTPositionManager.json'
-import { NETWORKS_INFO } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -79,6 +78,7 @@ export const useElasticFarmsV2 = (subscribe = false) => {
   const { networkInfo, isEVM, chainId, account } = useActiveWeb3React()
   const elasticFarm = useAppSelector(state => (chainId ? state.elasticFarmV2[chainId] : defaultChainData))
   const { elasticClient } = useKyberswapConfig(chainId)
+  console.log('🚀 ~ file: hooks.ts:81 ~ useElasticFarmsV2 ~ elasticClient:', elasticClient)
 
   const multicallContract = useMulticallContract()
   const farmv2QuoterContract = useContract(
@@ -90,9 +90,10 @@ export const useElasticFarmsV2 = (subscribe = false) => {
     client: elasticClient,
     fetchPolicy: 'network-only',
   })
+  console.log('🚀 ~ file: hooks.ts:93 ~ useElasticFarmsV2 ~ data:', data)
 
   useEffect(() => {
-    if (isEVM && !elasticFarm.farms && !elasticFarm.loading) {
+    if (isEVM && !elasticFarm?.farms && !elasticFarm?.loading) {
       dispatch(setLoading({ chainId, loading: true }))
       getElasticFarmV2().finally(() => {
         dispatch(setLoading({ chainId, loading: false }))

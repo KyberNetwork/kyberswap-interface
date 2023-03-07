@@ -94,7 +94,7 @@ export default function useSendToken(currency: Currency | undefined, recipient: 
       try {
         const transaction = await prepareTransactionSolana()
         const fee = await transaction.getEstimatedFee(connection)
-        setGasFee(fee / LAMPORTS_PER_SOL)
+        setGasFee(fee || 0 / LAMPORTS_PER_SOL)
       } catch (error) {
         setGasFee(null)
       }

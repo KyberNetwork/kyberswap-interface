@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { Text } from 'rebass'
 import styled from 'styled-components'
@@ -5,8 +6,11 @@ import styled from 'styled-components'
 import { ButtonPrimary } from 'components/Button'
 import Divider from 'components/Divider'
 import { RowBetween, RowFit, RowWrap } from 'components/Row'
+import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import useTheme from 'hooks/useTheme'
+import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
+import { ElasticFarmV2 } from 'state/farms/elasticv2/types'
 
 import FarmCard from './components/FarmCard'
 
@@ -30,11 +34,15 @@ export default function ElasticFarmv2() {
   const whitelisted = useAllTokens()
   const inputToken = Object.values(whitelisted)?.filter(t => t.symbol === 'KNC')[0]
   const outputToken = Object.values(whitelisted)?.filter(t => t.symbol === 'USDC')[0]
+  const elasticFarm = useElasticFarmsV2()
+  const farms = elasticFarm?.farms
+  const { chainId } = useActiveWeb3React()
   return (
     <Wrapper>
       <RowBetween>
         <Text fontSize="16px" lineHeight="20px" color={theme.text}>
           <Trans>Elastic Farm V2</Trans>
+          {farms?.length}
         </Text>
         <RowFit>
           <ButtonPrimary height="36px">Approve</ButtonPrimary>
@@ -42,9 +50,19 @@ export default function ElasticFarmv2() {
       </RowBetween>
       <Divider />
       <FarmsWrapper>
-        <FarmCard inputToken={inputToken} outputToken={outputToken} />
-        <FarmCard inputToken={inputToken} outputToken={outputToken} hasPositions hasRewards hasUnstake />
-        <FarmCard inputToken={inputToken} outputToken={outputToken} enableStake />
+        {chainId === ChainId.GÖRLI ? (
+          <>
+            {farms?.map((farm: ElasticFarmV2) => (
+              <FarmCard key={farm.id} inputToken={farm.pool.token0} outputToken={farm.pool.token1} farm={farm} />
+            ))}
+          </>
+        ) : (
+          <>
+            <FarmCard inputToken={inputToken} outputToken={outputToken} />
+            <FarmCard inputToken={inputToken} outputToken={outputToken} hasPositions hasRewards hasUnstake />
+            <FarmCard inputToken={inputToken} outputToken={outputToken} enableStake />
+          </>
+        )}
       </FarmsWrapper>
     </Wrapper>
   )

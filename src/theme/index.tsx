@@ -315,6 +315,7 @@ export const ThemedGlobalStyle = createGlobalStyle`
     --warning-80:#ffad34;
     --warning-alpha-50:#FF990180;
     --warning-alpha-30:#FF990130;
+    --blue: #08A1E7;
     ${({ theme }) =>
       theme.darkMode
         ? css`
