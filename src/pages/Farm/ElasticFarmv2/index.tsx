@@ -42,7 +42,6 @@ export default function ElasticFarmv2() {
       <RowBetween>
         <Text fontSize="16px" lineHeight="20px" color={theme.text}>
           <Trans>Elastic Farm V2</Trans>
-          {farms?.length}
         </Text>
         <RowFit>
           <ButtonPrimary height="36px">Approve</ButtonPrimary>

@@ -115,7 +115,6 @@ export const useElasticFarmsV2 = (subscribe = false) => {
     client: elasticClient,
     fetchPolicy: 'network-only',
   })
-  console.log('🚀 ~ file: hooks.ts:93 ~ useElasticFarmsV2 ~ data:', data)
 
   useEffect(() => {
     if (isEVM && !elasticFarm?.farms && !elasticFarm?.loading) {
@@ -176,6 +175,7 @@ export const useElasticFarmsV2 = (subscribe = false) => {
 
         let tvlToken0 = TokenAmount.fromRawAmount(token0.wrapped, 0)
         let tvlToken1 = TokenAmount.fromRawAmount(token1.wrapped, 0)
+
         farm.depositedPositions.forEach(pos => {
           const position = new Position({
             pool: p,
