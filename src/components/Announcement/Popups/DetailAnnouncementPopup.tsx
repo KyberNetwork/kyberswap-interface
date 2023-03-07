@@ -115,8 +115,8 @@ const PaginationButton = styled.div`
 const CloseButton = styled(X)`
   position: absolute;
   cursor: pointer;
-  right: -10px;
-  top: -10px;
+  right: 12px;
+  top: 12px;
   min-width: 24px;
 `
 
