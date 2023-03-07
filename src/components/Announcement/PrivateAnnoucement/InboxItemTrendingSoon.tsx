@@ -1,5 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { useNavigate } from 'react-router-dom'
+import { Text } from 'rebass'
 
 import { PrivateAnnouncementProp } from 'components/Announcement/PrivateAnnoucement'
 import { Dot, InboxItemRow, InboxItemWrapper, RowItem, Title } from 'components/Announcement/PrivateAnnoucement/styled'
@@ -9,7 +10,17 @@ import DeltaTokenAmount from 'components/WalletPopup/Transactions/DeltaTokenAmou
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 
-const getTokenDisplayText = (token: TrueSightToken) => `${token.symbol} $${token.price} (${token.changePercentage}%)`
+const TokenInfo = ({ token }: { token: TrueSightToken }) => {
+  const theme = useTheme()
+  return (
+    <>
+      {token.symbol} ${token.price}{' '}
+      <Text as="span" color={theme.apr}>
+        ({token.changePercentage}%)
+      </Text>
+    </>
+  )
+}
 
 function InboxItemBridge({
   announcement,
@@ -38,13 +49,13 @@ function InboxItemBridge({
       </InboxItemRow>
 
       <InboxItemRow>
-        {token1 && <DeltaTokenAmount amount={getTokenDisplayText(token1)} logoURL={token1.logo} color={theme.text} />}
-        {token2 && <DeltaTokenAmount amount={getTokenDisplayText(token2)} logoURL={token2.logo} color={theme.text} />}
+        {token1 && <DeltaTokenAmount amount={<TokenInfo token={token1} />} logoURL={token1.logo} color={theme.text} />}
+        {token2 && <DeltaTokenAmount amount={<TokenInfo token={token2} />} logoURL={token2.logo} color={theme.text} />}
       </InboxItemRow>
 
       <InboxItemRow>
         {token3 ? (
-          <DeltaTokenAmount amount={getTokenDisplayText(token3)} logoURL={token3.logo} color={theme.text} />
+          <DeltaTokenAmount amount={<TokenInfo token={token3} />} logoURL={token3.logo} color={theme.text} />
         ) : (
           <div />
         )}
