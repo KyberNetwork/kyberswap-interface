@@ -19,7 +19,6 @@ import { Z_INDEXS } from 'constants/styles'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { useDetailAnnouncement, useRemovePopup } from 'state/application/hooks'
-import { escapeScriptHtml } from 'utils/string'
 
 const IMAGE_HEIGHT = '124px'
 const PADDING_MOBILE = '16px'
@@ -55,32 +54,16 @@ const Image = styled.img`
   `}
 `
 
-const Desc = styled.div<{ hasCta: boolean }>`
-  max-width: 100%;
-  line-height: 16px;
-  font-size: 12px;
-  color: ${({ theme }) => theme.subText};
-  ${({ hasCta }) =>
-    css`
-      display: block;
-      display: -webkit-box;
-      -webkit-line-clamp: ${hasCta ? 1 : 3};
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    `};
-  > * {
-    margin: 0;
-  }
-`
-
 const Title = styled.div`
   max-width: 100%;
-  font-size: 16px;
-  line-height: 18px;
+  font-size: 14px;
+  line-height: 20px;
   font-weight: 500;
   color: ${({ theme }) => theme.text};
-  white-space: nowrap;
+  display: block;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
 `
@@ -102,7 +85,7 @@ function SnippetPopupItem({
   showDetailAnnouncement: (index: number) => void
 }) {
   const { templateBody = {} } = data.content
-  const { ctas = [], name, content, thumbnailImageURL } = templateBody as AnnouncementTemplatePopup
+  const { ctas = [], name, thumbnailImageURL } = templateBody as AnnouncementTemplatePopup
 
   const removePopup = useRemovePopup()
   const toggle = () => {
@@ -132,7 +115,6 @@ function SnippetPopupItem({
       <Image src={thumbnailImageURL || NotificationImage} />
       <ContentColumn>
         <Title>{name}</Title>
-        <Desc hasCta={hasCta} dangerouslySetInnerHTML={{ __html: escapeScriptHtml(content) }} />
         <Flex alignItems="flex-end" style={{ position: 'relative', justifyContent: 'flex-start', gap: '12px' }}>
           {hasCta && (
             <StyledCtaButton
