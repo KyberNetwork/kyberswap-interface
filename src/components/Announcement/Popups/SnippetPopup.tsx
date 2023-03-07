@@ -36,7 +36,7 @@ const ItemWrapper = styled.div`
 `
 
 const ContentColumn = styled(AutoColumn)`
-  padding: 16px 40px 16px 16px;
+  padding: 24px 40px 16px 16px;
   gap: 14px;
   flex: 1;
   ${({ theme }) => theme.mediaWidth.upToSmall`
@@ -162,9 +162,8 @@ const Wrapper = styled.div`
     }
   }
   .swiper-pagination {
-    top: 10px;
+    top: 4px;
     bottom: unset;
-    width: 200px;
     .swiper-pagination-bullet {
       width: 8px;
       height: 8px;
@@ -186,7 +185,7 @@ const Wrapper = styled.div`
       padding: 0px ${PADDING_MOBILE};
       --swiper-navigation-size: 10px;
       .swiper-pagination {
-        width: 100%;
+        top: 6px;
       }
     `}`}
 `
