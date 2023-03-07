@@ -88,9 +88,9 @@ const Title = styled.div`
 `
 
 const StyledCtaButton = styled(CtaButton)`
-  min-width: 120px;
+  min-width: 140px;
   width: fit-content;
-  height: 30px;
+  height: 32px;
   font-size: 12px;
 `
 
