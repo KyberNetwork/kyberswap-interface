@@ -42,7 +42,7 @@ const ContentWrapper = styled.div`
   flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
-  gap: 24px;
+  gap: 16px;
   flex: 1;
   ${({ theme }) => theme.mediaWidth.upToMedium`
     gap: 20px;
@@ -122,6 +122,9 @@ const Desc = styled.div`
   word-break: break-word;
   font-size: 14px;
   line-height: 20px;
+  > * {
+    margin: 0;
+  }
 `
 
 const formatCtaName = (ctaName: string, ctaUrl: string) => {
