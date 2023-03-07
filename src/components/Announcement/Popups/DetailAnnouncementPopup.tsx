@@ -16,6 +16,35 @@ import { useDetailAnnouncement } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { escapeScriptHtml } from 'utils/string'
 
+const PaginationButton = styled.div`
+  background: ${({ theme }) => rgba(theme.border, 0.7)};
+  opacity: 0.7;
+  color: ${({ theme }) => theme.text};
+  border-radius: 30px;
+  cursor: pointer;
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+`
+
+const CloseButton = styled(X)`
+  position: absolute;
+  cursor: pointer;
+  right: 12px;
+  top: 12px;
+  min-width: 24px;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    right: -10px;
+    top: -10px;
+  `}
+`
 const Wrapper = styled.div`
   padding: 24px;
   display: flex;
@@ -24,18 +53,22 @@ const Wrapper = styled.div`
   width: 100%;
   height: 580px;
   position: relative;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    gap: 16px;
-    padding: 20px 20px 16px 20px;
-  `};
-  .action-btn {
+
+  ${PaginationButton},${CloseButton} {
     display: none;
   }
   :hover {
-    .action-btn {
+    ${PaginationButton},${CloseButton} {
       display: flex;
     }
   }
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    gap: 16px;
+    padding: 20px 20px 16px 20px;
+    ${PaginationButton},${CloseButton} {
+      display: flex;
+    }
+  `};
 `
 const ContentWrapper = styled.div`
   display: flex;
@@ -92,32 +125,6 @@ const StyledCtaButton = styled(CtaButton)`
     min-width: 100px;
     max-width: 100%;
   `}
-`
-
-const PaginationButton = styled.div`
-  background: ${({ theme }) => rgba(theme.border, 0.7)};
-  opacity: 0.7;
-  color: ${({ theme }) => theme.text};
-  border-radius: 30px;
-  cursor: pointer;
-  position: absolute;
-  width: 28px;
-  height: 28px;
-  top: 0;
-  bottom: 0;
-  margin: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  user-select: none;
-`
-
-const CloseButton = styled(X)`
-  position: absolute;
-  cursor: pointer;
-  right: 12px;
-  top: 12px;
-  min-width: 24px;
 `
 
 const Desc = styled.div`
@@ -204,10 +211,10 @@ export default function DetailAnnouncementPopup({
         </ButtonWrapper>
         {announcements.length > 1 && (
           <>
-            <PaginationButton onClick={onBack} style={{ left: 4 }} className="action-btn">
+            <PaginationButton onClick={onBack} style={{ left: 4 }}>
               <ChevronLeft size={18} />
             </PaginationButton>
-            <PaginationButton onClick={onNext} style={{ right: 4 }} className="action-btn">
+            <PaginationButton onClick={onNext} style={{ right: 4 }}>
               <ChevronRight size={18} />
             </PaginationButton>
           </>
