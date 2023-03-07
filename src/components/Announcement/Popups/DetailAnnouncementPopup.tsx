@@ -109,6 +109,7 @@ const PaginationButton = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  user-select: none;
 `
 
 const CloseButton = styled(X)`
