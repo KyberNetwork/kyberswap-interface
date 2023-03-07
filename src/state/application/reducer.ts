@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createReducer, nanoid } from '@reduxjs/toolkit'
 import ksSettingApi from 'services/ksSetting'
 
-import { PopupItemType } from 'components/Announcement/type'
+import { AnnouncementTemplatePopup, PopupItemType } from 'components/Announcement/type'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import ethereumInfo from 'constants/networks/ethereum'
 import { Topic } from 'hooks/useNotification'
@@ -12,6 +12,7 @@ import {
   addPopup,
   closeModal,
   removePopup,
+  setAnnouncementDetail,
   setLoadingNotification,
   setOpenModal,
   setSubscribedNotificationTopic,
@@ -39,7 +40,15 @@ interface ApplicationState {
   readonly notification: {
     isLoading: boolean
     topicGroups: Topic[]
-    userInfo: { email: string; telegram: string }
+    userInfo: {
+      email: string
+      telegram: string
+    }
+    announcementDetail: {
+      selectedIndex: number | null // current announcement
+      announcements: AnnouncementTemplatePopup[]
+      hasMore: boolean // need to load more or not
+    }
   }
   readonly config: {
     [chainId in ChainId]?: {
@@ -51,7 +60,16 @@ interface ApplicationState {
     }
   }
 }
-const initialStateNotification = { isLoading: false, topicGroups: [], userInfo: { email: '', telegram: '' } }
+const initialStateNotification = {
+  isLoading: false,
+  topicGroups: [],
+  userInfo: { email: '', telegram: '' },
+  announcementDetail: {
+    selectedIndex: null,
+    announcements: [],
+    hasMore: false,
+  },
+}
 const initialState: ApplicationState = {
   blockNumber: {},
   popupList: [],
@@ -125,6 +143,14 @@ export default createReducer(initialState, builder =>
         ...notification,
         topicGroups: topicGroups ?? notification.topicGroups,
         userInfo: userInfo ?? notification.userInfo,
+      }
+    })
+    .addCase(setAnnouncementDetail, (state, { payload }) => {
+      const notification = state.notification ?? initialStateNotification
+      const announcementDetail = { ...notification.announcementDetail, ...payload }
+      state.notification = {
+        ...notification,
+        announcementDetail,
       }
     })
     .addMatcher(ksSettingApi.endpoints.getKyberswapConfiguration.matchFulfilled, (state, action) => {
