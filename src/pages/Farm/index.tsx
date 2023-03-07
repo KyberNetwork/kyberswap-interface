@@ -54,7 +54,7 @@ import { isInEnum } from 'utils/string'
 
 const Farm = () => {
   const { isEVM, chainId } = useActiveWeb3React()
-  const { loading } = useFarmsData()
+  const { loading, data: farmsByFairLaunch } = useFarmsData()
   const theme = useTheme()
   const qs = useParsedQueryString<{ type: string; tab: string }>()
   // const { type = FARM_TAB.ACTIVE, tab = VERSION.ELASTIC } = qs
@@ -128,9 +128,6 @@ const Farm = () => {
   }
   const { mixpanelHandler } = useMixpanel()
   useSyncNetworkParamWithStore()
-
-  // Total rewards for Classic pool
-  const { data: farmsByFairLaunch } = useFarmsData()
 
   const below992 = useMedia('(max-width: 992px)')
   const below1500 = useMedia('(max-width: 1500px)')

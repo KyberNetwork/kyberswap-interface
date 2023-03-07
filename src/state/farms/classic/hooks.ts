@@ -77,6 +77,11 @@ export const useRewardTokenPrices = (tokens: (Token | undefined | null)[], versi
   )
 }
 
+// Terrible hook. Fires 1k rpc & subgraph calls on initial load on bsc/polygon elastic/classic farm page.
+// Then run intervally each 15s.
+// Makes my laptop on fire when working on it.
+// Wasted time trying optimize it here: 12h
+// Please increase above number to threatening next person who trying to waste some time here.
 export const useFarmsData = (isIncludeOutsideFarms = true) => {
   const dispatch = useAppDispatch()
   const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
@@ -90,15 +95,11 @@ export const useFarmsData = (isIncludeOutsideFarms = true) => {
   const error = useSelector((state: AppState) => state.farms.error)
 
   const farmsDataRef = useRef(farmsData)
-  useEffect(() => {
-    farmsDataRef.current = farmsData
-  }, [farmsData])
+  farmsDataRef.current = farmsData
 
   // Fix slow network speed when loading farm.
   const latestChainId = useRef(chainId)
-  useEffect(() => {
-    latestChainId.current = chainId
-  }, [chainId])
+  latestChainId.current = chainId
 
   useEffect(() => {
     if (!isEVM) return
@@ -247,11 +248,9 @@ export const useFarmsData = (isIncludeOutsideFarms = true) => {
         const result: { [key: string]: Farm[] } = {}
 
         const fairLaunchAddresses = Object.keys(fairLaunchContracts)
-        const promises: Promise<Farm[]>[] = []
-
-        fairLaunchAddresses.forEach(address => {
-          promises.push(getListFarmsForContract(fairLaunchContracts[address]))
-        })
+        const promises: Promise<Farm[]>[] = fairLaunchAddresses.map(address =>
+          getListFarmsForContract(fairLaunchContracts[address]),
+        )
 
         const promiseResult = await Promise.all(promises)
 
@@ -284,16 +283,16 @@ export const useFarmsData = (isIncludeOutsideFarms = true) => {
     }
   }, [
     dispatch,
-    ethPrice.currentPrice,
     chainId,
     fairLaunchContracts,
     account,
-    allTokens,
     isIncludeOutsideFarms,
     isEVM,
     networkInfo,
     classicClient,
     blockClient,
+    ethPrice.currentPrice,
+    allTokens,
   ])
 
   return useMemo(() => ({ loading, error, data: farmsData }), [error, farmsData, loading])
