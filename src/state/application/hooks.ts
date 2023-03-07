@@ -545,10 +545,22 @@ export const useKyberSwapConfig = (customChainId?: ChainId): KyberSwapConfig => 
 
   const config = useAppSelector(state => state.application.config[chainId] || getDefaultConfig(chainId))
 
-  const provider = cacheCalc('rpc', config.rpc, subgraph => new ethers.providers.JsonRpcProvider(subgraph))
-  const blockClient = cacheCalc('client', config.blockSubgraph, subgraph => createClient(subgraph))
-  const classicClient = cacheCalc('client', config.classicSubgraph, subgraph => createClient(subgraph))
-  const elasticClient = cacheCalc('client', config.elasticSubgraph, subgraph => createClient(subgraph))
+  const provider = useMemo(
+    () => cacheCalc('rpc', config.rpc, subgraph => new ethers.providers.JsonRpcProvider(subgraph)),
+    [config.rpc],
+  )
+  const blockClient = useMemo(
+    () => cacheCalc('client', config.blockSubgraph, subgraph => createClient(subgraph)),
+    [config.blockSubgraph],
+  )
+  const classicClient = useMemo(
+    () => cacheCalc('client', config.classicSubgraph, subgraph => createClient(subgraph)),
+    [config.classicSubgraph],
+  )
+  const elasticClient = useMemo(
+    () => cacheCalc('client', config.elasticSubgraph, subgraph => createClient(subgraph)),
+    [config.elasticSubgraph],
+  )
 
   return useMemo(() => {
     return {
@@ -560,5 +572,5 @@ export const useKyberSwapConfig = (customChainId?: ChainId): KyberSwapConfig => 
       classicClient,
       connection: isSolana(chainId) ? new Connection(config.rpc, { commitment: 'confirmed' }) : undefined,
     }
-  }, [chainId, config.blockSubgraph, config.classicSubgraph, config.elasticSubgraph, config.rpc, config.prochart])
+  }, [chainId, provider, elasticClient, blockClient, classicClient, config.rpc, config.prochart])
 }
