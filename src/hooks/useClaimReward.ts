@@ -6,25 +6,25 @@ import { BigNumber } from 'ethers'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import useSWR from 'swr'
 
-import { CLAIM_REWARDS_DATA_URL } from 'constants/index'
+import { CLAIM_REWARDS_DATA_URL } from 'constants/networks'
 import { KNC } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { getClaimRewardContract } from 'utils/getContract'
 
-export interface IReward {
+interface IReward {
   index: number
   amounts: string[]
   proof: string[]
 }
-export interface IPhaseData {
+interface IPhaseData {
   phaseId: number
   merkleRoot: string
   tokens: string[]
   userRewards: { [address: string]: IReward }
 }
-export interface IUserReward {
+interface IUserReward {
   phaseId: number
   tokens: string[]
   reward: IReward | undefined

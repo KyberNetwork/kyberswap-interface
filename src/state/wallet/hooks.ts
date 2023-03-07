@@ -1,4 +1,4 @@
-import { ChainId, Currency, CurrencyAmount, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 import { useEffect, useMemo, useState } from 'react'
 
@@ -8,6 +8,7 @@ import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import { useMulticallContract } from 'hooks/useContract'
+import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useMultipleContractSingleData, useSingleCallResult } from 'state/multicall/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { isAddress } from 'utils'
@@ -160,39 +161,38 @@ export function useAllTokenBalances(): { [tokenAddress: string]: TokenAmount | u
 }
 
 // return list token has balance
-export const useTokensHasBalance = () => {
+export const useTokensHasBalance = (includesImportToken = false) => {
   const { chainId } = useActiveWeb3React()
   const whitelistTokens = useAllTokens()
 
-  const currencies: Currency[] = useMemo(() => Object.values(whitelistTokens), [whitelistTokens])
-  const currencyBalances = useAllTokenBalances()
-  const ethBalance = useNativeBalance()
+  const currencies: Token[] = useMemo(() => Object.values(whitelistTokens), [whitelistTokens])
+  const [currencyBalances, loadingBalance] = useTokenBalancesWithLoadingIndicator(currencies)
 
-  const loadBalanceDone =
-    chainId === ChainId.GÖRLI
-      ? ethBalance && Object.values(currencyBalances).length
-      : Object.values(currencyBalances).length === currencies.length && ethBalance
+  const ethBalance = useNativeBalance()
 
   const [tokensHasBalance, setTokensHasBalance] = useState<Currency[]>([])
   const tokensHasBalanceAddresses = useMemo(() => tokensHasBalance.map(e => e.wrapped.address), [tokensHasBalance])
 
   useEffect(() => {
-    if (loadBalanceDone && ethBalance) {
+    if (!loadingBalance && ethBalance) {
       // call once per chain
-      const list = currencies.filter(
-        currency => !currencyBalances[currency.wrapped.address]?.equalTo(CurrencyAmount.fromRawAmount(currency, '0')),
-      )
+      const list: Currency[] = currencies.filter(currency => {
+        const hasBalance = !currencyBalances[currency.wrapped.address]?.equalTo(
+          CurrencyAmount.fromRawAmount(currency, '0'),
+        )
+        return includesImportToken && !(currency as WrappedTokenInfo).isWhitelisted ? true : hasBalance
+      })
       if (!ethBalance.equalTo(CurrencyAmount.fromRawAmount(NativeCurrencies[chainId], '0'))) {
         list.push(NativeCurrencies[chainId])
       }
       setTokensHasBalance(list)
     }
-  }, [loadBalanceDone, currencies, currencyBalances, ethBalance, chainId])
+  }, [loadingBalance, currencies, currencyBalances, ethBalance, chainId, includesImportToken])
 
   const tokensPrices = useTokenPrices(tokensHasBalanceAddresses)
 
   const totalBalanceInUsd = useMemo(() => {
-    if (!loadBalanceDone && !tokensHasBalance.length) return null
+    if (loadingBalance && !tokensHasBalance.length) return null
     return tokensHasBalance.reduce((total, token) => {
       const balance = currencyBalances[token.wrapped.address]
       if (!balance || !ethBalance) return total
@@ -200,7 +200,7 @@ export const useTokensHasBalance = () => {
       const tokenBalance = token.isNative ? ethBalance.toExact() : balance.toExact()
       return total + parseFloat(tokenBalance) * usdPrice
     }, 0)
-  }, [tokensPrices, loadBalanceDone, tokensHasBalance, currencyBalances, ethBalance])
+  }, [tokensPrices, loadingBalance, tokensHasBalance, currencyBalances, ethBalance])
 
   // sort by usd
   const tokensHasBalanceSorted = useMemo(() => {
@@ -221,7 +221,7 @@ export const useTokensHasBalance = () => {
   }, [tokensHasBalance, tokensPrices, currencyBalances, ethBalance])
 
   return {
-    loading: !loadBalanceDone,
+    loading: loadingBalance,
     totalBalanceInUsd,
     currencies: tokensHasBalanceSorted,
     currencyBalances,

@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
+import { NotificationType } from 'components/Announcement/type'
 import { ButtonPrimary } from 'components/Button'
 import Logo from 'components/Logo'
 import Modal from 'components/Modal'
@@ -17,13 +18,7 @@ import { useAllTokens } from 'hooks/Tokens'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
-import {
-  NotificationType,
-  useModalOpen,
-  useNotify,
-  useToggleModal,
-  useWalletModalToggle,
-} from 'state/application/hooks'
+import { useModalOpen, useNotify, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
 import { CloseIcon } from 'theme'
 import { getTokenLogoURL, isAddress, shortenAddress } from 'utils'
 import { filterTokens } from 'utils/filtering'
@@ -62,7 +57,7 @@ function FaucetModal() {
   const { mixpanelHandler } = useMixpanel()
   const allTokens = useAllTokens()
   const token = useMemo(() => {
-    if (!chainId || !account) return
+    if (!account) return
     const nativeToken = NativeCurrencies[chainId]
     if (rewardData) {
       if (rewardData.tokenAddress === '0') return nativeToken
@@ -72,7 +67,7 @@ function FaucetModal() {
     return nativeToken
   }, [rewardData, chainId, account, allTokens])
   const tokenLogo = useMemo(() => {
-    if (!chainId || !token) return
+    if (!token) return
     if (token.isNative) return networkInfo.nativeToken.logo
     return getTokenLogoURL(token.address, chainId)
   }, [chainId, token, networkInfo])
@@ -112,7 +107,7 @@ function FaucetModal() {
   }, [account, notify, rewardData, token?.decimals, tokenSymbol])
 
   useEffect(() => {
-    if (!chainId || !account) return
+    if (!account) return
     const getRewardAmount = async () => {
       try {
         const { data } = await fetch(`${REWARD_SERVICE_API}/faucets?wallet=${account}&chainId=${chainId}`).then(res =>

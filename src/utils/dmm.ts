@@ -12,8 +12,8 @@ import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import { useBlockNumber } from 'state/application/hooks'
-import { useActiveAndUniqueFarmsData, useRewardTokenPrices, useRewardTokens } from 'state/farms/hooks'
-import { Farm, Reward, RewardPerTimeUnit } from 'state/farms/types'
+import { useRewardTokenPrices, useRewardTokens } from 'state/farms/classic/hooks'
+import { Farm, Reward, RewardPerTimeUnit } from 'state/farms/classic/types'
 import { SubgraphPoolData, UserLiquidityPosition } from 'state/pools/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
@@ -512,13 +512,6 @@ export function useRewardTokensFullInfo(): Token[] {
   )
 }
 
-export function useCheckIsFarmingPool(address: string): boolean {
-  const { data: uniqueAndActiveFarms } = useActiveAndUniqueFarmsData()
-  const uniqueAndActiveFarmAddresses = uniqueAndActiveFarms.map(farm => farm.id)
-
-  return uniqueAndActiveFarmAddresses.includes(address) || uniqueAndActiveFarmAddresses.includes(address.toLowerCase())
-}
-
 export function errorFriendly(text: string): string {
   const error = text?.toLowerCase?.() || ''
   if (!error || error.includes('router: expired')) {
@@ -536,7 +529,7 @@ export function errorFriendly(text: string): string {
   if (error.includes('header not found') || error.includes('swap failed')) {
     return t`An error occurred. Refresh the page and try again. If the issue still persists, it might be an issue with your RPC node settings in Metamask.`
   }
-  if (error.includes('user rejected transaction')) {
+  if (error.includes('user rejected transaction') || error.includes('user denied transaction')) {
     return t`User rejected transaction.`
   }
 

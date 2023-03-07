@@ -38,7 +38,7 @@ export enum VIEW_MODE {
   LIST = 'list',
 }
 
-export interface UserState {
+interface UserState {
   // the timestamp of the last updateVersion action
   lastUpdateVersionTimestamp?: number
 
@@ -120,7 +120,6 @@ export const defaultShowLiveCharts: { [chainId in ChainId]: boolean } = {
   [ChainId.MUMBAI]: false,
   [ChainId.BSCTESTNET]: false,
   [ChainId.AVAXTESTNET]: false,
-  [ChainId.ARBITRUM_TESTNET]: false,
   [ChainId.ETHW]: true,
 }
 

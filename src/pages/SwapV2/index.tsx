@@ -6,6 +6,7 @@ import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } fro
 import { AlertTriangle } from 'react-feather'
 import Skeleton from 'react-loading-skeleton'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { usePrevious } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import styled, { DefaultTheme, keyframes } from 'styled-components'
 
@@ -76,9 +77,7 @@ import { useAllTokens, useIsLoadedTokenDefault } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallbackFromTradeV2 } from 'hooks/useApproveCallback'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import usePrevious from 'hooks/usePrevious'
 import { useSwapV2Callback } from 'hooks/useSwapV2Callback'
-import { useSyncNetworkParamWithStore } from 'hooks/useSyncNetworkParamWithStore'
 import useSyncTokenSymbolToUrl from 'hooks/useSyncTokenSymbolToUrl'
 import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
@@ -104,6 +103,7 @@ import {
 } from 'state/user/hooks'
 import { TYPE } from 'theme'
 import { formattedNum, getLimitOrderContract } from 'utils'
+import { getTradeComposition } from 'utils/aggregationRouting'
 import { Aggregator } from 'utils/aggregator'
 import { currencyId } from 'utils/currencyId'
 import { halfAmountSpend, maxAmountSpend } from 'utils/maxAmountSpend'
@@ -114,7 +114,7 @@ import { checkPairInWhiteList } from 'utils/tokenInfo'
 import ApprovalModal from './ApprovalModal'
 
 const LiveChart = lazy(() => import('components/LiveChart'))
-const Routing = lazy(() => import('components/swapv2/Routing'))
+const Routing = lazy(() => import('components/TradeRouting'))
 const TutorialIcon = styled(TutorialSvg)`
   width: 22px;
   height: 22px;
@@ -203,7 +203,6 @@ export default function Swap() {
   const allDexes = useAllDexes()
   const [{ show: isShowTutorial = false }] = useTutorialSwapGuide()
   const { pathname } = useLocation()
-  useSyncNetworkParamWithStore()
   const [encodeSolana] = useEncodeSolana()
 
   const refSuggestPair = useRef<PairSuggestionHandle>(null)
@@ -672,6 +671,10 @@ export default function Swap() {
   }, [isSolana, trade])
   */
   }, [])
+
+  const tradeRouteComposition = useMemo(() => {
+    return getTradeComposition(chainId, trade?.inputAmount, trade?.tokens, trade?.swaps, defaultTokens)
+  }, [chainId, defaultTokens, trade])
 
   const onClickTab = (tab: TAB) => {
     setActiveTab(tab)
@@ -1186,7 +1189,13 @@ export default function Swap() {
                         />
                       }
                     >
-                      <Routing trade={trade} currencies={currencies} formattedAmounts={formattedAmounts} />
+                      <Routing
+                        tradeComposition={tradeRouteComposition}
+                        currencyIn={currencyIn}
+                        currencyOut={currencyOut}
+                        inputAmount={trade?.inputAmount}
+                        outputAmount={trade?.outputAmount}
+                      />
                     </Suspense>
                   </Flex>
                 </RoutesWrapper>

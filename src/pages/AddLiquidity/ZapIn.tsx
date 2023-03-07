@@ -24,7 +24,7 @@ import TransactionConfirmationModal, {
   TransactionErrorContent,
 } from 'components/TransactionConfirmationModal'
 import ZapError from 'components/ZapError'
-import FormattedPriceImpact from 'components/swap/FormattedPriceImpact'
+import FormattedPriceImpact from 'components/swapv2/FormattedPriceImpact'
 import { AMP_HINT } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
@@ -192,7 +192,7 @@ const ZapIn = ({
     if (!isEVM || !library || !account) return
     const zapContract = getZapContract(chainId, library, account, isStaticFeePair, isOldStaticFeeContract)
 
-    if (!chainId || !account) {
+    if (!account) {
       return
     }
 
@@ -741,6 +741,7 @@ const ZapIn = ({
                   )}
 
                 <ButtonError
+                  id="btnSupply"
                   onClick={() => {
                     expertMode ? onZapIn() : setShowConfirm(true)
                   }}

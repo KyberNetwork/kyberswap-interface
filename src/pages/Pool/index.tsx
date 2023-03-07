@@ -32,8 +32,8 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useSyncNetworkParamWithStore } from 'hooks/useSyncNetworkParamWithStore'
 import useTheme from 'hooks/useTheme'
 import ProAmmPool from 'pages/ProAmmPool'
-import { useFarmsData, useTotalApr } from 'state/farms/hooks'
-import { Farm } from 'state/farms/types'
+import { useFarmsData, useTotalApr } from 'state/farms/classic/hooks'
+import { Farm } from 'state/farms/classic/types'
 import { UserLiquidityPosition, useUserLiquidityPositions } from 'state/pools/hooks'
 import { useLiquidityPositionTokenPairs, useToV2LiquidityTokens } from 'state/user/hooks'
 import { useTokenBalancesWithLoadingIndicator } from 'state/wallet/hooks'
@@ -48,7 +48,7 @@ export const Tab = styled.div<{ active: boolean }>`
     color: ${props => props.theme.primary};
   }
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    font-size: 15px;
+    font-size: 14px;
   `};
 `
 

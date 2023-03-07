@@ -19,10 +19,10 @@ import {
 } from 'apollo/queries/promm'
 import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { AppDispatch, AppState } from 'state'
-import { useETHPrice } from 'state/application/hooks'
+import { useETHPrice, useKyberSwapConfig } from 'state/application/hooks'
+import { RANGE } from 'state/mint/proamm/type'
 import { Field } from 'state/swap/actions'
 import { useSwapState } from 'state/swap/hooks'
 import { modifyTransaction } from 'state/transactions/actions'
@@ -90,6 +90,12 @@ export enum MIXPANEL_TYPE {
   ELASTIC_ADD_LIQUIDITY_INITIATED,
   ELASTIC_ADD_LIQUIDITY_IN_LIST_INITIATED,
   ELASTIC_ADD_LIQUIDITY_COMPLETED,
+  ELASTIC_ADD_LIQUIDITY_ADD_NEW_POSITION,
+  ELASTIC_ADD_LIQUIDITY_CLICK_TO_REMOVE_POSITION,
+  ELASTIC_ADD_LIQUIDITY_SELECT_RANGE_FOR_POOL,
+  ELASTIC_ADD_LIQUIDITY_CLICK_SWAP,
+  ELASTIC_ADD_LIQUIDITY_CLICK_PRICE_CHART,
+  ELASTIC_ADD_LIQUIDITY_CLICK_POOL_ANALYTIC,
   ELASTIC_REMOVE_LIQUIDITY_INITIATED,
   ELASTIC_REMOVE_LIQUIDITY_COMPLETED,
   ELASTIC_INCREASE_LIQUIDITY_INITIATED,
@@ -155,6 +161,15 @@ export enum MIXPANEL_TYPE {
   NOTIFICATION_SELECT_TOPIC,
   NOTIFICATION_DESELECT_TOPIC,
 
+  ANNOUNCEMENT_CLICK_BELL_ICON_OPEN_POPUP,
+  ANNOUNCEMENT_CLICK_TAB_INBOX,
+  ANNOUNCEMENT_CLICK_TAB_ANNOUNCEMENT,
+  ANNOUNCEMENT_CLICK_ANNOUNCEMENT_MESSAGE,
+  ANNOUNCEMENT_CLICK_INBOX_MESSAGE,
+  ANNOUNCEMENT_CLICK_CLOSE_POPUP,
+  ANNOUNCEMENT_CLICK_CTA_POPUP,
+  ANNOUNCEMENT_CLICK_CLEAR_ALL_INBOXES,
+
   // limit order
   LO_CLICK_PLACE_ORDER,
   LO_PLACE_ORDER_SUCCESS,
@@ -195,6 +210,7 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
   const dispatch = useDispatch<AppDispatch>()
   const selectedCampaign = useSelector((state: AppState) => state.campaigns.selectedCampaign)
   const [allowedSlippage] = useUserSlippageTolerance()
+  const { elasticClient, classicClient } = useKyberSwapConfig()
 
   const mixpanelHandler = useCallback(
     (type: MIXPANEL_TYPE, payload?: any) => {
@@ -213,7 +229,7 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
           break
         case MIXPANEL_TYPE.SWAP_INITIATED: {
           const { gasUsd, inputAmount, priceImpact } = (payload || {}) as {
-            gasUsd: number | undefined
+            gasUsd: number | string | undefined
             inputAmount: CurrencyAmount<Currency> | undefined
             priceImpact: number | undefined
           }
@@ -221,7 +237,7 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
           mixpanel.track('Swap Initiated', {
             input_token: inputSymbol,
             output_token: outputSymbol,
-            estimated_gas: gasUsd?.toFixed(4),
+            estimated_gas: gasUsd ? Number(gasUsd).toFixed(4) : undefined,
             max_return_or_low_gas: saveGas ? 'Lowest Gas' : 'Maximum Return',
             trade_qty: inputAmount?.toExact(),
             slippage_setting: allowedSlippage ? allowedSlippage / 100 : 0,
@@ -782,6 +798,39 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
           mixpanel.track('Notification Features unselected and save', payload)
           break
         }
+        case MIXPANEL_TYPE.ANNOUNCEMENT_CLICK_BELL_ICON_OPEN_POPUP: {
+          mixpanel.track('Notifications - Open Notification Pop Up')
+          break
+        }
+        case MIXPANEL_TYPE.ANNOUNCEMENT_CLICK_TAB_INBOX: {
+          mixpanel.track('Notifications - Click on My Inbox', payload)
+          break
+        }
+        case MIXPANEL_TYPE.ANNOUNCEMENT_CLICK_TAB_ANNOUNCEMENT: {
+          mixpanel.track('Notifications - Click on General', payload)
+          break
+        }
+        case MIXPANEL_TYPE.ANNOUNCEMENT_CLICK_INBOX_MESSAGE: {
+          mixpanel.track('Notifications - Click on inbox messages', payload)
+          break
+        }
+        case MIXPANEL_TYPE.ANNOUNCEMENT_CLICK_ANNOUNCEMENT_MESSAGE: {
+          mixpanel.track('Notifications - Click on announcement messages', payload)
+          break
+        }
+        case MIXPANEL_TYPE.ANNOUNCEMENT_CLICK_CLOSE_POPUP: {
+          mixpanel.track('Notifications - Click to close pop up', payload)
+          break
+        }
+        case MIXPANEL_TYPE.ANNOUNCEMENT_CLICK_CTA_POPUP: {
+          mixpanel.track('Notifications - Click on Announcement Pop Up CTA', payload)
+          break
+        }
+        case MIXPANEL_TYPE.ANNOUNCEMENT_CLICK_CLEAR_ALL_INBOXES: {
+          mixpanel.track('Notifications - Clear All Messages', payload)
+          break
+        }
+
         case MIXPANEL_TYPE.KYBER_DAO_STAKE_CLICK: {
           mixpanel.track('KyberDAO - Stake Click', payload)
           break
@@ -863,6 +912,59 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
           mixpanel.track('Wallet UI - Import Token - Import button click', payload)
           break
         }
+        case MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_ADD_NEW_POSITION: {
+          const { token_1, token_2 } = payload as {
+            token_1: string
+            token_2: string
+          }
+          mixpanel.track('Elastic - Add Liquidity page - Add new position', { token_1, token_2 })
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_CLICK_TO_REMOVE_POSITION: {
+          const { token_1, token_2 } = payload as {
+            token_1: string
+            token_2: string
+          }
+          mixpanel.track('Elastic - Add Liquidity page - Click to remove position', { token_1, token_2 })
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_SELECT_RANGE_FOR_POOL: {
+          const { token_1, token_2, range } = payload as {
+            token_1: string
+            token_2: string
+            range: RANGE
+          }
+          mixpanel.track('Elastic - Add Liquidity page - Select range for pool', {
+            token_1,
+            token_2,
+            range: range.toLowerCase().replace('_', ' '),
+          })
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_CLICK_SWAP: {
+          const { token_1, token_2 } = payload as {
+            token_1: string
+            token_2: string
+          }
+          mixpanel.track('Elastic - Add Liquidity page - Click Swap', { token_1, token_2 })
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_CLICK_PRICE_CHART: {
+          const { token_1, token_2 } = payload as {
+            token_1: string
+            token_2: string
+          }
+          mixpanel.track('Elastic - Add Liquidity page - Click Price chart', { token_1, token_2 })
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_CLICK_POOL_ANALYTIC: {
+          const { token_1, token_2 } = payload as {
+            token_1: string
+            token_2: string
+          }
+          mixpanel.track('Elastic - Add Liquidity page - Click Pool analytic', { token_1, token_2 })
+          break
+        }
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -870,16 +972,14 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
   )
   const subgraphMixpanelHandler = useCallback(
     async (transaction: TransactionDetails) => {
-      if (!isEVM || !chainId) return
-      const apolloClient = (networkInfo as EVMNetworkInfo).classic.client
-      const apolloProMMClient = (networkInfo as EVMNetworkInfo).elastic.client
+      if (!isEVM) return
 
       const hash = transaction.hash
       const arbitrary = transaction.extraInfo?.arbitrary
       switch (transaction.type) {
         case TRANSACTION_TYPE.CLASSIC_ADD_LIQUIDITY: {
           const { poolAddress, token_1, token_2, add_liquidity_method, amp } = arbitrary || {}
-          const res = await apolloClient.query({
+          const res = await classicClient.query({
             query: GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
             variables: {
               poolAddress: poolAddress.toLowerCase(),
@@ -917,7 +1017,7 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
             tokenSymbolIn: token_1,
             tokenSymbolOut: token_2,
           } = (transaction.extraInfo || {}) as TransactionExtraInfo2Token
-          const res = await apolloProMMClient.query({
+          const res = await elasticClient.query({
             query: PROMM_GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
             variables: {
               poolAddress: poolAddress.toLowerCase(),
@@ -950,7 +1050,7 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
         }
         case TRANSACTION_TYPE.CLASSIC_REMOVE_LIQUIDITY: {
           const { poolAddress, token_1, token_2, amp, remove_liquidity_method } = arbitrary || {}
-          const res = await apolloClient.query({
+          const res = await classicClient.query({
             query: GET_POOL_VALUES_AFTER_BURNS_SUCCESS,
             variables: {
               poolAddress: poolAddress.toLowerCase(),
@@ -989,7 +1089,7 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
             tokenSymbolIn,
             tokenSymbolOut,
           } = (transaction.extraInfo || {}) as TransactionExtraInfo2Token
-          const res = await apolloProMMClient.query({
+          const res = await elasticClient.query({
             query: PROMM_GET_POOL_VALUES_AFTER_BURNS_SUCCESS,
             variables: {
               poolAddress: poolAddress.toLowerCase(),
@@ -1022,7 +1122,7 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
         }
         case TRANSACTION_TYPE.CLASSIC_CREATE_POOL: {
           const { amp, token_1, token_2 } = arbitrary || {}
-          const res = await apolloClient.query({
+          const res = await classicClient.query({
             query: GET_MINT_VALUES_AFTER_CREATE_POOL_SUCCESS,
             variables: {
               transactionHash: hash,
@@ -1045,7 +1145,7 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
           break
         }
         case TRANSACTION_TYPE.ELASTIC_CREATE_POOL: {
-          const res = await apolloProMMClient.query({
+          const res = await elasticClient.query({
             query: PROMM_GET_MINT_VALUES_AFTER_CREATE_POOL_SUCCESS,
             variables: {
               transactionHash: hash,
@@ -1071,7 +1171,7 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
           break
       }
     },
-    [chainId, dispatch, mixpanelHandler, isEVM, networkInfo],
+    [chainId, dispatch, mixpanelHandler, isEVM, classicClient, elasticClient],
   )
   return { mixpanelHandler, subgraphMixpanelHandler }
 }
@@ -1165,13 +1265,13 @@ export const useGlobalMixpanelEvents = () => {
         'elastic/increase': 'Elastic - Increase Liquidity',
         'buy-crypto': 'Buy Crypto',
         bridge: 'Bridge',
-        'kyberdao/stake-knc': 'KyberDAO Stake',
-        'kyberdao/vote': 'KyberDAO Vote',
+        '/kyberdao/stake-knc': 'KyberDAO Stake',
+        '/kyberdao/vote': 'KyberDAO Vote',
         limit: 'Limit Order',
       }
-      const pageName = map[pathName]
+      const pageName = map[pathName] || map[location.pathname]
       pageName && mixpanelHandler(MIXPANEL_TYPE.PAGE_VIEWED, { page: pageName })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathName, account, chainId])
+  }, [pathName, account, chainId, location.pathname])
 }

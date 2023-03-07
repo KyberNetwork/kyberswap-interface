@@ -1,16 +1,13 @@
 import { gql, useQuery } from '@apollo/client'
-import { ChainId, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import dayjs from 'dayjs'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { PROMM_POOLS_BULK, ProMMPoolFields } from 'apollo/queries/promm'
-import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
+import { useKyberSwapConfig } from 'state/application/hooks'
 import { AppState } from 'state/index'
 import { getBlocksFromTimestamps } from 'utils'
 
@@ -174,10 +171,11 @@ export interface UserPositionResult {
  * Get my liquidity for all pools
  */
 export function useUserProMMPositions(): UserPositionResult {
-  const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
+  const { chainId, account, isEVM } = useActiveWeb3React()
+  const { elasticClient } = useKyberSwapConfig()
 
   const { loading, error, data } = useQuery(PROMM_USER_POSITIONS, {
-    client: isEVM ? (networkInfo as EVMNetworkInfo).elastic.client : NETWORKS_INFO[ChainId.MAINNET].elastic.client,
+    client: elasticClient,
     variables: {
       owner: account?.toLowerCase(),
     },
@@ -239,12 +237,9 @@ export function useUserProMMPositions(): UserPositionResult {
   )
 }
 
-interface PoolDataResponse {
-  pools: ProMMPoolFields[]
-}
-
 export const usePoolBlocks = () => {
   const { chainId } = useActiveWeb3React()
+  const { blockClient } = useKyberSwapConfig()
 
   const utcCurrentTime = dayjs()
   const last24h = utcCurrentTime.subtract(1, 'day').startOf('minute').unix()
@@ -253,154 +248,16 @@ export const usePoolBlocks = () => {
 
   useEffect(() => {
     const getBlocks = async () => {
-      const blocks = await getBlocksFromTimestamps([last24h], chainId)
+      const blocks = await getBlocksFromTimestamps(blockClient, [last24h], chainId)
       setBlocks(blocks)
     }
 
     getBlocks()
-  }, [chainId, last24h])
+  }, [chainId, last24h, blockClient])
 
   const [blockLast24h] = blocks ?? []
 
   return { blockLast24h: blockLast24h?.number }
-}
-
-const parsedPoolData = (
-  poolAddresses: Array<string>,
-  data: PoolDataResponse | undefined,
-  data24: PoolDataResponse | undefined,
-) => {
-  const parsed = data?.pools
-    ? data.pools.reduce((acc: { [address: string]: ProMMPoolFields }, poolData) => {
-        acc[poolData.id] = poolData
-        return acc
-      }, {})
-    : {}
-  const parsed24 = data24?.pools
-    ? data24.pools.reduce((acc: { [address: string]: ProMMPoolFields }, poolData) => {
-        acc[poolData.id] = poolData
-        return acc
-      }, {})
-    : {}
-
-  // format data and calculate daily changes
-  const formatted = poolAddresses.reduce((acc: { [address: string]: ProMMPoolData }, address) => {
-    const current: ProMMPoolFields | undefined = parsed[address]
-    const oneDay: ProMMPoolFields | undefined = parsed24[address]
-
-    const volumeUSDLast24h =
-      current && oneDay
-        ? parseFloat(current.volumeUSD) - parseFloat(oneDay.volumeUSD)
-        : current
-        ? parseFloat(current.volumeUSD)
-        : 0
-
-    const tvlUSD = current ? parseFloat(current.totalValueLockedUSD) : 0
-
-    const tvlUSDChange =
-      current && oneDay
-        ? ((parseFloat(current.totalValueLockedUSD) - parseFloat(oneDay.totalValueLockedUSD)) /
-            parseFloat(oneDay.totalValueLockedUSD === '0' ? '1' : oneDay.totalValueLockedUSD)) *
-          100
-        : 0
-
-    const tvlToken0 = current ? parseFloat(current.totalValueLockedToken0) : 0
-    const tvlToken1 = current ? parseFloat(current.totalValueLockedToken1) : 0
-
-    const feeTier = current ? parseInt(current.feeTier) : 0
-
-    if (current) {
-      acc[address] = {
-        address,
-        feeTier,
-        liquidity: current.liquidity,
-        sqrtPrice: current.sqrtPrice,
-        reinvestL: current.reinvestL,
-        tick: parseFloat(current.tick),
-
-        token0: {
-          address: current.token0.id,
-          name: current.token0.name,
-          symbol: current.token0.symbol,
-          decimals: parseInt(current.token0.decimals),
-        },
-        token1: {
-          address: current.token1.id,
-          name: current.token1.name,
-          symbol: current.token1.symbol,
-          decimals: parseInt(current.token1.decimals),
-        },
-        token0Price: parseFloat(current.token0Price),
-        token1Price: parseFloat(current.token1Price),
-        volumeUSDLast24h,
-        tvlUSD,
-        tvlUSDChange,
-        tvlToken0,
-        tvlToken1,
-        apr: tvlUSD > 0 ? (volumeUSDLast24h * (feeTier / ELASTIC_BASE_FEE_UNIT) * 100 * 365) / tvlUSD : 0,
-      }
-    }
-
-    return acc
-  }, {})
-
-  return formatted
-}
-
-// todo: deprecated
-/**
- * Fetch top addresses by volume
- */
-export function usePoolDatas(poolAddresses: string[]): {
-  loading: boolean
-  error: boolean
-  data:
-    | {
-        [address: string]: ProMMPoolData
-      }
-    | undefined
-} {
-  const { isEVM, networkInfo } = useActiveWeb3React()
-  const dataClient = isEVM
-    ? (networkInfo as EVMNetworkInfo).elastic.client
-    : NETWORKS_INFO[ChainId.MAINNET].elastic.client
-
-  const { blockLast24h } = usePoolBlocks()
-
-  const { loading, error, data } = useQuery<PoolDataResponse>(PROMM_POOLS_BULK(undefined, poolAddresses), {
-    client: dataClient,
-    fetchPolicy: 'no-cache',
-    skip: !isEVM,
-  })
-
-  const {
-    loading: loading24,
-    error: error24,
-    data: data24,
-  } = useQuery<PoolDataResponse>(PROMM_POOLS_BULK(blockLast24h, poolAddresses), {
-    client: dataClient,
-    fetchPolicy: 'no-cache',
-    skip: !isEVM,
-  })
-
-  const anyError = Boolean(error || error24)
-  const anyLoading = Boolean(loading || loading24)
-
-  // return early if not all data yet
-  if (anyError || anyLoading) {
-    return {
-      loading: anyLoading,
-      error: anyError,
-      data: undefined,
-    }
-  }
-
-  const formatted = parsedPoolData(poolAddresses, data, data24)
-  return {
-    loading: anyLoading,
-    error: anyError,
-    data: formatted,
-  }
 }
 
 export function useSelectedPool() {
@@ -443,13 +300,11 @@ export function useTopPoolAddresses(): {
   error: boolean
   addresses: string[] | undefined
 } {
-  const { isEVM, networkInfo } = useActiveWeb3React()
-  const dataClient = isEVM
-    ? (networkInfo as EVMNetworkInfo).elastic.client
-    : NETWORKS_INFO[ChainId.MAINNET].elastic.client
+  const { isEVM } = useActiveWeb3React()
+  const { elasticClient } = useKyberSwapConfig()
 
   const { loading, error, data } = useQuery<TopPoolsResponse>(TOP_POOLS, {
-    client: dataClient,
+    client: elasticClient,
     fetchPolicy: 'no-cache',
     skip: !isEVM,
   })

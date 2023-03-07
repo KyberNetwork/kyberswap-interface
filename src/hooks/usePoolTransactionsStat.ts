@@ -2,8 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { RECENT_POOL_TX } from 'apollo/queries/promm'
 import { POOL_TRANSACTION_TYPE } from 'components/ProAmm/type'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
+import { useKyberSwapConfig } from 'state/application/hooks'
 
 type RecentPoolTxsResult = {
   mints: { id: string }[]
@@ -23,14 +23,14 @@ const usePoolTransactionsStat = (
   | undefined => {
   const { isEVM, networkInfo } = useActiveWeb3React()
   const [data, setData] = useState<RecentPoolTxsResult | null>(null)
+  const { elasticClient } = useKyberSwapConfig()
 
   useEffect(() => {
     const controller = new AbortController()
     if (!isEVM) return
-    const client = (networkInfo as EVMNetworkInfo).elastic.client
     const fetch = async () => {
       setData(null)
-      const data = await client.query<RecentPoolTxsResult>({
+      const data = await elasticClient.query<RecentPoolTxsResult>({
         query: RECENT_POOL_TX(poolAddress?.toLowerCase()),
         fetchPolicy: 'cache-first',
       })
@@ -40,7 +40,7 @@ const usePoolTransactionsStat = (
     }
     fetch()
     return () => controller.abort()
-  }, [isEVM, networkInfo, poolAddress])
+  }, [isEVM, networkInfo, poolAddress, elasticClient])
 
   const result = useMemo(() => {
     if (!data) return undefined

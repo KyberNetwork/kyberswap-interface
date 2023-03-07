@@ -1,12 +1,12 @@
 import { gql, useLazyQuery } from '@apollo/client'
-import { ChainId, CurrencyAmount, Token, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
+import { CurrencyAmount, Token, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import { useEffect } from 'react'
 
 import { ZERO_ADDRESS } from 'constants/index'
-import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
+import { useKyberSwapConfig } from 'state/application/hooks'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { isAddressString } from 'utils'
 
@@ -68,9 +68,6 @@ interface SubgraphFarm {
   farmingPools: Array<FarmingPool>
 }
 
-// TODO: remove below hardcode id_not position
-// That 0xbdec4a045446f583dc564c0a227ffd475b329bf0_98_25016 position causing subgraph to fail
-// temporary add this until subgraph fixed the bug
 const ELASTIC_FARM_QUERY = gql`
   query getFarms {
     farms(first: 1000) {
@@ -93,7 +90,7 @@ const ELASTIC_FARM_QUERY = gql`
           priority
           amount
         }
-        joinedPositions(where: { id_not: "0xbdec4a045446f583dc564c0a227ffd475b329bf0_98_25016" }) {
+        joinedPositions {
           id
           user
           pid
@@ -146,9 +143,10 @@ const FarmUpdaterV1: React.FC<CommonProps> = ({ interval }) => {
   const dispatch = useAppDispatch()
   const { chainId } = useActiveWeb3React()
   const elasticFarm = useAppSelector(state => state.elasticFarm)[chainId || 1] || defaultChainData
+  const { elasticClient } = useKyberSwapConfig()
 
   const [getElasticFarms, { data, error }] = useLazyQuery(ELASTIC_FARM_QUERY, {
-    client: isEVM(chainId) ? NETWORKS_INFO[chainId].elastic.client : NETWORKS_INFO[ChainId.MAINNET].elastic.client,
+    client: elasticClient,
     fetchPolicy: 'network-only',
   })
 

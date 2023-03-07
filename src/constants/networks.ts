@@ -4,7 +4,6 @@ import { SolanaNetworkInfo } from 'constants/networks/type'
 
 import {
   arbitrum,
-  arbitrumTestnet,
   aurora,
   avax,
   avaxTestnet,
@@ -41,7 +40,6 @@ export const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.FANTOM]: fantom,
   [ChainId.CRONOS]: cronos,
   [ChainId.ARBITRUM]: arbitrum,
-  [ChainId.ARBITRUM_TESTNET]: arbitrumTestnet,
   [ChainId.BTTC]: bttc,
   [ChainId.VELAS]: velas,
   [ChainId.AURORA]: aurora,
@@ -78,8 +76,6 @@ export const MAINNET_NETWORKS = [
   ChainId.ETHW,
 ] as const
 
-export type MAINNET_NETWORK = typeof MAINNET_NETWORKS[number]
-
 export const EVM_NETWORKS = SUPPORTED_NETWORKS.filter(chainId => getChainType(chainId) === ChainType.EVM) as Exclude<
   ChainId,
   ChainId.SOLANA
@@ -89,7 +85,6 @@ export type EVM_NETWORK = typeof EVM_NETWORKS[number]
 export const EVM_MAINNET_NETWORKS = MAINNET_NETWORKS.filter(
   chainId => getChainType(chainId) === ChainType.EVM,
 ) as Exclude<typeof MAINNET_NETWORKS[number], ChainId.SOLANA>[]
-export type EVM_MAINNET_NETWORK = typeof EVM_MAINNET_NETWORKS[number]
 
 export const WALLET_CONNECT_SUPPORTED_CHAIN_IDS: ChainId[] = [
   ChainId.MAINNET,
@@ -104,7 +99,6 @@ export const WALLET_CONNECT_SUPPORTED_CHAIN_IDS: ChainId[] = [
   ChainId.CRONOS,
   ChainId.BTTC,
   ChainId.ARBITRUM,
-  ChainId.ARBITRUM_TESTNET,
   ChainId.AURORA,
   ChainId.VELAS,
   ChainId.OASIS,
@@ -122,7 +116,7 @@ export function isSolana(chainId?: ChainId): chainId is ChainId.SOLANA {
   return chainType === ChainType.SOLANA
 }
 
-type NetToChain = { [p: string]: ChainId | undefined }
+type NetToChain = { [p: string]: ChainId }
 
 export const TRUESIGHT_NETWORK_TO_CHAINID: NetToChain = SUPPORTED_NETWORKS.reduce((acc, chainId) => {
   const id = NETWORKS_INFO[chainId].trueSightId
@@ -149,9 +143,51 @@ export const CHAINS_SUPPORT_NEW_POOL_FARM_API: readonly ChainId[] = [
   ChainId.CRONOS,
   ChainId.BTTC,
   ChainId.ARBITRUM,
-  // ChainId.ARBITRUM_TESTNET,
   ChainId.AURORA,
   // ChainId.VELAS,
   // ChainId.OASIS,
   // ChainId.OPTIMISM,
 ]
+
+// Fee options instead of dynamic fee
+export const STATIC_FEE_OPTIONS: { [chainId: number]: number[] | undefined } = {
+  [ChainId.ARBITRUM]: [8, 10, 50, 300, 500, 1000],
+  [ChainId.AURORA]: [8, 10, 50, 300, 500, 1000],
+  [ChainId.VELAS]: [8, 10, 50, 300, 500, 1000],
+  [ChainId.OASIS]: [8, 10, 50, 300, 500, 1000],
+  [ChainId.MAINNET]: [8, 10, 50, 300, 500, 1000],
+  [ChainId.MATIC]: [8, 10, 50, 300, 500, 1000],
+  [ChainId.AVAXMAINNET]: [8, 10, 50, 300, 500, 1000],
+  [ChainId.FANTOM]: [8, 10, 50, 300, 500, 1000],
+  [ChainId.BSCMAINNET]: [8, 10, 50, 300, 500, 1000],
+  [ChainId.CRONOS]: [8, 10, 50, 300, 500, 1000],
+  [ChainId.BTTC]: [8, 10, 50, 300, 500, 1000],
+  [ChainId.OPTIMISM]: [8, 10, 50, 300, 500, 1000],
+}
+
+export const ONLY_STATIC_FEE_CHAINS = [ChainId.ARBITRUM, ChainId.AURORA, ChainId.VELAS, ChainId.OASIS, ChainId.OPTIMISM]
+
+// hardcode for unavailable subgraph
+export const ONLY_DYNAMIC_FEE_CHAINS: ChainId[] = []
+
+// Keys are present_on_chains' value.
+export const TRENDING_SOON_SUPPORTED_NETWORKS: { [p: string]: ChainId } = {
+  eth: ChainId.MAINNET,
+  bsc: ChainId.BSCMAINNET,
+  polygon: ChainId.MATIC,
+  avax: ChainId.AVAXMAINNET,
+  fantom: ChainId.FANTOM,
+}
+
+export const CLAIM_REWARDS_DATA_URL: { [chainId: number]: string } = {
+  [ChainId.AVAXMAINNET]:
+    'https://raw.githubusercontent.com/KyberNetwork/avax-trading-contest-reward-distribution/develop/results/reward_proof.json',
+  [ChainId.MATIC]:
+    'https://raw.githubusercontent.com/KyberNetwork/zkyber-reward-distribution/main/results/latest_merkle_data.json',
+  [ChainId.BTTC]:
+    'https://raw.githubusercontent.com/KyberNetwork/trading-contest-reward-distribution/main/bttc/results/reward_proof.json',
+}
+
+export const DEFAULT_REWARDS: { [key: string]: string[] } = {
+  [ChainId.MAINNET]: ['0x9F52c8ecbEe10e00D9faaAc5Ee9Ba0fF6550F511'],
+}

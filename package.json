@@ -65,9 +65,9 @@
     "@web3-react/walletconnect-connector": "^7.0.2-alpha.0",
     "@web3-react/walletlink-connector": "^6.2.14",
     "aos": "^2.3.4",
+    "axios": "1.2.1",
     "base64-js": "^1.5.1",
     "cids": "^1.1.9",
-    "copy-to-clipboard": "^3.3.2",
     "d3": "^7.6.1",
     "dayjs": "^1.11.6",
     "ethers": "^5.4.6",
@@ -78,11 +78,9 @@
     "jsbi": "^3.2.5",
     "lightweight-charts": "^3.3.0",
     "mixpanel-browser": "^2.45.0",
-    "ms.macro": "^2.0.0",
     "multicodec": "^2.1.3",
     "multihashes": "^3.1.2",
     "node-vibrant": "^3.1.6",
-    "numbro": "^2.3.6",
     "numeral": "^2.0.6",
     "polished": "^3.7.2",
     "react": "^18.2.0",
@@ -130,7 +128,6 @@
     "@types/d3": "^7.1.0",
     "@types/jest": "^25.2.1",
     "@types/mixpanel-browser": "^2.38.0",
-    "@types/ms.macro": "^2.0.0",
     "@types/multicodec": "^1.0.0",
     "@types/node": "^13.13.52",
     "@types/numeral": "^2.0.0",
@@ -167,6 +164,7 @@
     "typescript": "4.8.4"
   },
   "resolutions": {
+    "@kyberswap/ks-sdk-core": "^1.0.2",
     "react-error-overlay": "6.0.9"
   }
 }

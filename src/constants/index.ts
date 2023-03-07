@@ -130,16 +130,11 @@ export const BIPS_BASE = JSBI.BigInt(10000)
 export const ALLOWED_PRICE_IMPACT_LOW: Percent = new Percent(JSBI.BigInt(100), BIPS_BASE) // 1%
 export const ALLOWED_PRICE_IMPACT_MEDIUM: Percent = new Percent(JSBI.BigInt(300), BIPS_BASE) // 3%
 export const ALLOWED_PRICE_IMPACT_HIGH: Percent = new Percent(JSBI.BigInt(500), BIPS_BASE) // 5%
-// if the price slippage exceeds this number, force the user to type 'confirm' to execute
-export const PRICE_IMPACT_WITHOUT_FEE_CONFIRM_MIN: Percent = new Percent(JSBI.BigInt(1000), BIPS_BASE) // 10%
+
 // for non expert mode disable swaps above this
 export const BLOCKED_PRICE_IMPACT_NON_EXPERT: Percent = new Percent(JSBI.BigInt(1500), BIPS_BASE) // 15%
 
 export const BUNDLE_ID = '1'
-
-export const DEFAULT_REWARDS: { [key: string]: string[] } = {
-  [ChainId.MAINNET]: ['0x9F52c8ecbEe10e00D9faaAc5Ee9Ba0fF6550F511'],
-}
 
 export const OUTSIDE_FAIRLAUNCH_ADDRESSES: {
   // key: fairlaunch address
@@ -221,70 +216,20 @@ export const DEFAULT_GAS_LIMIT_MARGIN = 20000
 // This variable to handle crazy APR which it can be wrong calculations or a bug
 // But now, for FOMO of Pagxy, updated this to 10000 (before we set 2000 for it)
 export const MAX_ALLOW_APY = 10000
-export const LP_TOKEN_DECIMALS = 18
 export const RESERVE_USD_DECIMALS = 100
 export const DEFAULT_SIGNIFICANT = 6
 export const SUBGRAPH_AMP_MULTIPLIER = 10000
 export const AMP_LIQUIDITY_HINT = t`AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity.`
 export const AMP_HINT = t`Stands for amplification factor. Each pool can have its own AMP. Pools with a higher AMP provide higher capital efficiency within a particular price range`
 export const CREATE_POOL_AMP_HINT = t`Stands for amplification factor. Pools with a higher AMP provide higher capital efficiency within a particular price range. We recommend higher AMP for stable token pairs and lower AMP for volatile token pairs`
-export const AGGREGATOR_ROUTER_SWAPPED_EVENT_TOPIC =
-  '0xd6d4f5681c246c9f42c203e287975af1601f8df8035a9251f79aab5c8f09e2f8'
-
-export const CLAIM_REWARDS_DATA_URL: { [chainId: number]: string } = {
-  [ChainId.AVAXMAINNET]:
-    'https://raw.githubusercontent.com/KyberNetwork/avax-trading-contest-reward-distribution/develop/results/reward_proof.json',
-  [ChainId.MATIC]:
-    'https://raw.githubusercontent.com/KyberNetwork/zkyber-reward-distribution/main/results/latest_merkle_data.json',
-  [ChainId.BTTC]:
-    'https://raw.githubusercontent.com/KyberNetwork/trading-contest-reward-distribution/main/bttc/results/reward_proof.json',
-}
 
 export const sentryRequestId = uuid()
-
-// Fee options instead of dynamic fee
-export const STATIC_FEE_OPTIONS: { [chainId: number]: number[] | undefined } = {
-  [ChainId.ARBITRUM]: [8, 10, 50, 300, 500, 1000],
-  [ChainId.ARBITRUM_TESTNET]: [8, 10, 50, 300, 500, 1000],
-  [ChainId.AURORA]: [8, 10, 50, 300, 500, 1000],
-  [ChainId.VELAS]: [8, 10, 50, 300, 500, 1000],
-  [ChainId.OASIS]: [8, 10, 50, 300, 500, 1000],
-  [ChainId.MAINNET]: [8, 10, 50, 300, 500, 1000],
-  [ChainId.MATIC]: [8, 10, 50, 300, 500, 1000],
-  [ChainId.AVAXMAINNET]: [8, 10, 50, 300, 500, 1000],
-  [ChainId.FANTOM]: [8, 10, 50, 300, 500, 1000],
-  [ChainId.BSCMAINNET]: [8, 10, 50, 300, 500, 1000],
-  [ChainId.CRONOS]: [8, 10, 50, 300, 500, 1000],
-  [ChainId.BTTC]: [8, 10, 50, 300, 500, 1000],
-  [ChainId.OPTIMISM]: [8, 10, 50, 300, 500, 1000],
-}
-
-export const ONLY_STATIC_FEE_CHAINS = [
-  ChainId.ARBITRUM,
-  ChainId.ARBITRUM_TESTNET,
-  ChainId.AURORA,
-  ChainId.VELAS,
-  ChainId.OASIS,
-  ChainId.OPTIMISM,
-] //todo namgold: generate this
-
-// hardcode for unavailable subgraph
-export const ONLY_DYNAMIC_FEE_CHAINS: ChainId[] = []
 
 export const TRENDING_SOON_ITEM_PER_PAGE = 10
 export const TRENDING_SOON_MAX_ITEMS = 50
 export const TRENDING_ITEM_PER_PAGE = 25
 export const CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE = 10
 export const CAMPAIGN_YOUR_TRANSACTIONS_ITEM_PER_PAGE = 10000
-
-// Keys are present_on_chains' value.
-export const TRENDING_SOON_SUPPORTED_NETWORKS: { [p: string]: ChainId } = {
-  eth: ChainId.MAINNET,
-  bsc: ChainId.BSCMAINNET,
-  polygon: ChainId.MATIC,
-  avax: ChainId.AVAXMAINNET,
-  fantom: ChainId.FANTOM,
-}
 
 export const ELASTIC_BASE_FEE_UNIT = 100_000
 export const KYBERSWAP_SOURCE = '{"source":"kyberswap"}'
@@ -310,7 +255,6 @@ export const MAX_SLIPPAGE_IN_BIPS = 2000
 export const AGGREGATOR_WAITING_TIME = 1700 // 1700 means that we at least show '.' '..' '...' '.' '..' '...'
 
 export const APP_PATHS = {
-  SWAP_LEGACY: '/swap-legacy',
   ABOUT: '/about',
   SWAP: '/swap',
   CAMPAIGN: '/campaigns',
@@ -337,11 +281,11 @@ export const APP_PATHS = {
 }
 
 export const TERM_FILES_PATH = {
-  KYBERSWAP_TERMS: '/files/15022022KyberSwapTermsofUse.pdf',
+  KYBERSWAP_TERMS: '/files/23022023KyberSwapTermsofUse.pdf',
   PRIVACY_POLICY: '/files/privacy.pdf',
   KYBER_DAO_TERMS: '/files/dao-tac.pdf',
   // Timestamp of changed date, update this to latest timestamp whenever change any above files. This also used to check on client side for updated to force user to disconnect and re-accept terms.
-  VERSION: 1672206443162,
+  VERSION: 1677129615161,
 }
 
 export enum FARM_TAB {
@@ -363,3 +307,7 @@ if (ENV.ENV_LEVEL < ENV_TYPE.PROD) {
   console.log(JSON.stringify(ENV, null, 4))
   console.groupEnd()
 }
+
+export const INPUT_DEBOUNCE_TIME = 200
+
+export const ENABLE_CLICK_TO_REFRESH_GET_ROUTE = false
