@@ -1,6 +1,9 @@
 import { createReducer, nanoid } from '@reduxjs/toolkit'
+import ksSettingApi from 'services/ksSetting'
 
 import { PopupItemType } from 'components/Announcement/type'
+import { NETWORKS_INFO, isEVM } from 'constants/networks'
+import ethereumInfo from 'constants/networks/ethereum'
 import { Topic } from 'hooks/useNotification'
 
 import {
@@ -37,6 +40,15 @@ interface ApplicationState {
     topicGroups: Topic[]
     userInfo: { email: string; telegram: string }
   }
+  readonly config: {
+    [chainId: number]: {
+      rpc: string
+      prochart: boolean
+      blockSubgraph: string
+      classicSubgraph: string
+      elasticSubgraph: string
+    }
+  }
 }
 const initialStateNotification = { isLoading: false, topicGroups: [], userInfo: { email: '', telegram: '' } }
 const initialState: ApplicationState = {
@@ -48,6 +60,7 @@ const initialState: ApplicationState = {
   kncPrice: '',
   serviceWorkerRegistration: null,
   notification: initialStateNotification,
+  config: {},
 }
 
 export default createReducer(initialState, builder =>
@@ -111,6 +124,30 @@ export default createReducer(initialState, builder =>
         ...notification,
         topicGroups: topicGroups ?? notification.topicGroups,
         userInfo: userInfo ?? notification.userInfo,
+      }
+    })
+    .addMatcher(ksSettingApi.endpoints.getKyberswapConfiguration.matchFulfilled, (state, action) => {
+      const { chainId } = action.meta.arg.originalArgs
+      const data = action.payload.data.config
+      const rpc = data?.rpc || NETWORKS_INFO[chainId].defaultRpcUrl
+
+      const evm = isEVM(chainId)
+      if (!state.config) state.config = {}
+      state.config = {
+        ...state.config,
+        [chainId]: {
+          rpc,
+          prochart: data?.prochart || false,
+          blockSubgraph: evm
+            ? data?.blockSubgraph || NETWORKS_INFO[chainId].defaultBlockSubgraph
+            : ethereumInfo.defaultBlockSubgraph,
+          elasticSubgraph: evm
+            ? data?.elasticSubgraph || NETWORKS_INFO[chainId].elastic.defaultSubgraph
+            : ethereumInfo.elastic.defaultSubgraph,
+          classicSubgraph: evm
+            ? data?.classicSubgraph || NETWORKS_INFO[chainId].classic.defaultSubgraph
+            : ethereumInfo.classic.defaultSubgraph,
+        },
       }
     }),
 )

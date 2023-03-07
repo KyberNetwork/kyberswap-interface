@@ -1,6 +1,8 @@
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import { ChainId, NativeCurrency, Token } from '@kyberswap/ks-sdk-core'
+import { Connection } from '@solana/web3.js'
 import dayjs from 'dayjs'
+import { ethers } from 'ethers'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useDeepCompareEffect } from 'react-use'
@@ -16,13 +18,15 @@ import {
   PopupType,
 } from 'components/Announcement/type'
 import { OUTSITE_FARM_REWARDS_QUERY, ZERO_ADDRESS } from 'constants/index'
+import { NETWORKS_INFO, isEVM, isSolana } from 'constants/networks'
+import ethereumInfo from 'constants/networks/ethereum'
 import { KNC } from 'constants/tokens'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks/index'
-import { useKyberswapConfig } from 'hooks/useKyberswapConfig'
 import { useAppSelector } from 'state/hooks'
 import { AppDispatch, AppState } from 'state/index'
 import { getBlockFromTimestamp, getPercentChange } from 'utils'
+import { createClient } from 'utils/client'
 
 import {
   ApplicationModal,
@@ -312,7 +316,7 @@ const getPrommEthPrice = async (
 export function useETHPrice(version: string = VERSION.CLASSIC): AppState['application']['ethPrice'] {
   const dispatch = useDispatch()
   const { isEVM, chainId } = useActiveWeb3React()
-  const { elasticClient, classicClient, blockClient } = useKyberswapConfig()
+  const { elasticClient, classicClient, blockClient } = useKyberSwapConfig()
 
   const ethPrice = useSelector((state: AppState) =>
     version === VERSION.ELASTIC ? state.application.prommEthPrice : state.application.ethPrice,
@@ -373,7 +377,7 @@ export function useKNCPrice(): AppState['application']['kncPrice'] {
   const ethPrice = useETHPrice()
   const { isEVM, chainId } = useActiveWeb3React()
   const blockNumber = useBlockNumber()
-  const { classicClient } = useKyberswapConfig()
+  const { classicClient } = useKyberSwapConfig()
 
   const kncPrice = useSelector((state: AppState) => state.application.kncPrice)
 
@@ -433,7 +437,7 @@ export function useTokensPrice(tokens: (Token | NativeCurrency | null | undefine
 
   const { chainId, isEVM } = useActiveWeb3React()
   const [prices, setPrices] = useState<number[]>([])
-  const { elasticClient, classicClient } = useKyberswapConfig()
+  const { elasticClient, classicClient } = useKyberSwapConfig()
 
   useDeepCompareEffect(() => {
     if (!isEVM) return
@@ -477,4 +481,57 @@ export function useTokensPrice(tokens: (Token | NativeCurrency | null | undefine
 
 export const useServiceWorkerRegistration = () => {
   return useAppSelector(state => state.application.serviceWorkerRegistration)
+}
+
+const cachedRPC: { [chainId in ChainId]?: ethers.providers.JsonRpcProvider } = {}
+const cachedBlockClient: {
+  [chainId in ChainId]?: ApolloClient<NormalizedCacheObject>
+} = {}
+
+const cachedElasticClient: {
+  [chainId in ChainId]?: ApolloClient<NormalizedCacheObject>
+} = {}
+
+const cachedClassicClient: {
+  [chainId in ChainId]?: ApolloClient<NormalizedCacheObject>
+} = {}
+
+function getDefaultConfig(chainId: ChainId) {
+  const evm = isEVM(chainId)
+  return {
+    rpc: NETWORKS_INFO[chainId].defaultRpcUrl,
+    prochart: false,
+    blockSubgraph: (evm ? NETWORKS_INFO[chainId] : ethereumInfo).defaultBlockSubgraph,
+    elasticSubgraph: (evm ? NETWORKS_INFO[chainId] : ethereumInfo).elastic.defaultSubgraph,
+    classicSubgraph: (evm ? NETWORKS_INFO[chainId] : ethereumInfo).classic.defaultSubgraph,
+  }
+}
+
+type KyberSwapConfig = {
+  rpc: string
+  prochart: boolean
+  blockClient: ApolloClient<NormalizedCacheObject>
+  classicClient: ApolloClient<NormalizedCacheObject>
+  elasticClient: ApolloClient<NormalizedCacheObject>
+  provider: ethers.providers.JsonRpcProvider | undefined
+  connection: Connection | undefined
+}
+
+export const useKyberSwapConfig = (customChainId?: ChainId): KyberSwapConfig => {
+  const storeChainId = useAppSelector(state => state.user.chainId) || ChainId.MAINNET
+  const chainId = customChainId || storeChainId
+
+  const config = useAppSelector(state => state.application.config[chainId] || getDefaultConfig(chainId))
+
+  return useMemo(() => {
+    return {
+      rpc: config.rpc,
+      provider: isEVM(chainId) ? cachedRPC[chainId] || new ethers.providers.JsonRpcProvider(config.rpc) : undefined,
+      prochart: config.prochart,
+      blockClient: cachedBlockClient[chainId] || createClient(config.blockSubgraph),
+      elasticClient: cachedElasticClient[chainId] || createClient(config.elasticSubgraph),
+      classicClient: cachedClassicClient[chainId] || createClient(config.classicSubgraph),
+      connection: isSolana(chainId) ? new Connection(config.rpc, { commitment: 'confirmed' }) : undefined,
+    }
+  }, [chainId, config.blockSubgraph, config.classicSubgraph, config.elasticSubgraph, config.rpc, config.prochart])
 }
