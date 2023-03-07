@@ -3,7 +3,7 @@ import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Connection } from '@solana/web3.js'
 import { ethers } from 'ethers'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import {
   KyberswapConfigurationResponse,
@@ -43,21 +43,22 @@ const parseResponse = (
     cacheRPC[defaultChainId]![rpc] = new ethers.providers.JsonRpcProvider(rpc)
   }
   const provider = cacheRPC[defaultChainId]![rpc]
+
   return {
     rpc,
-    prochart: data?.prochart ?? false,
+    prochart: data?.prochart || false,
     blockClient: isEVM(defaultChainId)
-      ? createClient(data?.blockSubgraph ?? NETWORKS_INFO[defaultChainId].defaultBlockSubgraph)
+      ? createClient(data?.blockSubgraph || NETWORKS_INFO[defaultChainId].defaultBlockSubgraph)
       : createClient(ethereumInfo.defaultBlockSubgraph),
     classicClient: isEVM(defaultChainId)
-      ? createClient(data?.classicSubgraph ?? NETWORKS_INFO[defaultChainId].classic.defaultSubgraph)
+      ? createClient(data?.classicSubgraph || NETWORKS_INFO[defaultChainId].classic.defaultSubgraph)
       : createClient(ethereumInfo.classic.defaultSubgraph),
     elasticClient: isEVM(defaultChainId)
-      ? createClient(data?.elasticSubgraph ?? NETWORKS_INFO[defaultChainId].elastic.defaultSubgraph)
+      ? createClient(data?.elasticSubgraph || NETWORKS_INFO[defaultChainId].elastic.defaultSubgraph)
       : createClient(ethereumInfo.elastic.defaultSubgraph),
     provider: isEVM(defaultChainId) ? provider : undefined,
     connection: isSolana(defaultChainId)
-      ? new Connection(data?.rpc ?? solanaInfo.defaultRpcUrl, { commitment: 'confirmed' })
+      ? new Connection(data?.rpc || solanaInfo.defaultRpcUrl, { commitment: 'confirmed' })
       : undefined,
   }
 }
@@ -78,9 +79,28 @@ const parseGlobalResponse = (
     aggregatorAPI: `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}/route/encode`,
   }
 }
+export const useLazyKyberswapConfig = (): ((customChainId?: ChainId) => Promise<KyberswapConfig>) => {
+  const storeChainId = useSelector<AppState, ChainId>(state => state.user.chainId) || ChainId.MAINNET // read directly from store instead of useActiveWeb3React to prevent circular loop
+  const [getKyberswapConfiguration] = useLazyGetKyberswapConfigurationQuery()
+  const fetchKyberswapConfig = useCallback(
+    async (customChainId?: ChainId) => {
+      const chainId = customChainId ?? storeChainId
+      try {
+        const { data } = await getKyberswapConfiguration({ chainId: chainId })
+        return parseResponse(data, chainId)
+      } catch {
+        return parseResponse(undefined, chainId)
+      }
+    },
+    [getKyberswapConfiguration, storeChainId],
+  )
+  return fetchKyberswapConfig
+}
+
 export const useKyberswapConfig = (customChainId?: ChainId): KyberswapConfig => {
-  const chainId = useSelector<AppState, ChainId>(state => state.user.chainId) || ChainId.MAINNET // read directly from store instead of useActiveWeb3React to prevent circular loop
-  const { data } = useGetKyberswapConfigurationQuery({ chainId: customChainId ?? chainId })
+  const storeChainId = useSelector<AppState, ChainId>(state => state.user.chainId) || ChainId.MAINNET // read directly from store instead of useActiveWeb3React to prevent circular loop
+  const chainId = customChainId ?? storeChainId
+  const { data } = useGetKyberswapConfigurationQuery({ chainId: chainId })
   const result = useMemo(() => parseResponse(data, chainId), [chainId, data])
   return result
 }
