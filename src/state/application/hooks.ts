@@ -483,18 +483,28 @@ export const useServiceWorkerRegistration = () => {
   return useAppSelector(state => state.application.serviceWorkerRegistration)
 }
 
-const cachedRPC: { [chainId in ChainId]?: ethers.providers.JsonRpcProvider } = {}
-const cachedBlockClient: {
-  [chainId in ChainId]?: ApolloClient<NormalizedCacheObject>
-} = {}
+const cacheConfig: {
+  rpc: { [rpc: string]: ethers.providers.JsonRpcProvider }
+  client: { [subgraphLink: string]: ApolloClient<NormalizedCacheObject> }
+} = {
+  rpc: {},
+  client: {},
+}
 
-const cachedElasticClient: {
-  [chainId in ChainId]?: ApolloClient<NormalizedCacheObject>
-} = {}
-
-const cachedClassicClient: {
-  [chainId in ChainId]?: ApolloClient<NormalizedCacheObject>
-} = {}
+const cacheCalc: <T extends keyof typeof cacheConfig, U extends typeof cacheConfig[T][string]>(
+  type: T,
+  value: string,
+  fallback: (value: string) => U,
+) => U = <T extends keyof typeof cacheConfig, U extends typeof cacheConfig[T][string]>(
+  type: T,
+  value: string,
+  fallback: (value: string) => U,
+) => {
+  if (!cacheConfig[type][value]) {
+    cacheConfig[type][value] = fallback(value)
+  }
+  return cacheConfig[type][value] as U
+}
 
 function getDefaultConfig(chainId: ChainId) {
   const evm = isEVM(chainId)
@@ -523,14 +533,19 @@ export const useKyberSwapConfig = (customChainId?: ChainId): KyberSwapConfig => 
 
   const config = useAppSelector(state => state.application.config[chainId] || getDefaultConfig(chainId))
 
+  const provider = cacheCalc('rpc', rpc, subgraph => new ethers.providers.JsonRpcProvider(subgraph))
+  const blockClient = cacheCalc('client', config.blockSubgraph, subgraph => createClient(subgraph))
+  const classicClient = cacheCalc('client', config.classicSubgraph, subgraph => createClient(subgraph))
+  const elasticClient = cacheCalc('client', config.elasticSubgraph, subgraph => createClient(subgraph))
+
   return useMemo(() => {
     return {
       rpc: config.rpc,
-      provider: isEVM(chainId) ? cachedRPC[chainId] || new ethers.providers.JsonRpcProvider(config.rpc) : undefined,
+      provider,
       prochart: config.prochart,
-      blockClient: cachedBlockClient[chainId] || createClient(config.blockSubgraph),
-      elasticClient: cachedElasticClient[chainId] || createClient(config.elasticSubgraph),
-      classicClient: cachedClassicClient[chainId] || createClient(config.classicSubgraph),
+      blockClient,
+      elasticClient,
+      classicClient,
       connection: isSolana(chainId) ? new Connection(config.rpc, { commitment: 'confirmed' }) : undefined,
     }
   }, [chainId, config.blockSubgraph, config.classicSubgraph, config.elasticSubgraph, config.rpc, config.prochart])

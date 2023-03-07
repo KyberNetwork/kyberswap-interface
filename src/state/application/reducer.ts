@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createReducer, nanoid } from '@reduxjs/toolkit'
 import ksSettingApi from 'services/ksSetting'
 
@@ -41,7 +42,7 @@ interface ApplicationState {
     userInfo: { email: string; telegram: string }
   }
   readonly config: {
-    [chainId: number]: {
+    [chainId in ChainId]?: {
       rpc: string
       prochart: boolean
       blockSubgraph: string
@@ -128,25 +129,31 @@ export default createReducer(initialState, builder =>
     })
     .addMatcher(ksSettingApi.endpoints.getKyberswapConfiguration.matchFulfilled, (state, action) => {
       const { chainId } = action.meta.arg.originalArgs
+      const evm = isEVM(chainId)
       const data = action.payload.data.config
       const rpc = data?.rpc || NETWORKS_INFO[chainId].defaultRpcUrl
 
-      const evm = isEVM(chainId)
+      const blockSubgraph = evm
+        ? data?.blockSubgraph || NETWORKS_INFO[chainId].defaultBlockSubgraph
+        : ethereumInfo.defaultBlockSubgraph
+
+      const classicSubgraph = evm
+        ? data?.classicSubgraph || NETWORKS_INFO[chainId].classic.defaultSubgraph
+        : ethereumInfo.classic.defaultSubgraph
+
+      const elasticSubgraph = evm
+        ? data?.elasticSubgraph || NETWORKS_INFO[chainId].elastic.defaultSubgraph
+        : ethereumInfo.elastic.defaultSubgraph
+
       if (!state.config) state.config = {}
       state.config = {
         ...state.config,
         [chainId]: {
           rpc,
           prochart: data?.prochart || false,
-          blockSubgraph: evm
-            ? data?.blockSubgraph || NETWORKS_INFO[chainId].defaultBlockSubgraph
-            : ethereumInfo.defaultBlockSubgraph,
-          elasticSubgraph: evm
-            ? data?.elasticSubgraph || NETWORKS_INFO[chainId].elastic.defaultSubgraph
-            : ethereumInfo.elastic.defaultSubgraph,
-          classicSubgraph: evm
-            ? data?.classicSubgraph || NETWORKS_INFO[chainId].classic.defaultSubgraph
-            : ethereumInfo.classic.defaultSubgraph,
+          blockSubgraph,
+          elasticSubgraph,
+          classicSubgraph,
         },
       }
     }),
