@@ -3,6 +3,7 @@ import styled, { CSSProperties } from 'styled-components'
 import NotificationImage from 'assets/images/notification_default.png'
 import { formatTime } from 'components/Announcement/helper'
 import { Announcement } from 'components/Announcement/type'
+import { escapeScriptHtml } from 'utils/string'
 
 const HEIGHT = '92px'
 
@@ -90,7 +91,7 @@ export default function AnnouncementItem({
       <Image src={thumbnailImageURL || NotificationImage} />
       <RowItem style={{ maxWidth: '100%', maxHeight: '100%' }}>
         <Title>{name} </Title>
-        <Desc dangerouslySetInnerHTML={{ __html: content }} />
+        <Desc dangerouslySetInnerHTML={{ __html: escapeScriptHtml(content) }} />
         <Time>{formatTime(startAt)}</Time>
       </RowItem>
     </Wrapper>

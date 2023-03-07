@@ -17,6 +17,7 @@ import { Z_INDEXS } from 'constants/styles'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
+import { escapeScriptHtml } from 'utils/string'
 
 const Wrapper = styled.div`
   padding: 24px;
@@ -138,7 +139,7 @@ export default function CenterPopup({
           {thumbnailImageURL && <Image src={thumbnailImageURL} />}
           <Desc
             dangerouslySetInnerHTML={{
-              __html: content,
+              __html: escapeScriptHtml(content),
             }}
           />
           <ButtonWrapper justify="center">

@@ -14,6 +14,7 @@ import { Z_INDEXS } from 'constants/styles'
 import useTheme from 'hooks/useTheme'
 import { useDetailAnnouncement } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
+import { escapeScriptHtml } from 'utils/string'
 
 const Wrapper = styled.div`
   padding: 24px;
@@ -173,7 +174,7 @@ export default function DetailAnnouncementPopup({
           <Title>{name}</Title>
           <Desc
             dangerouslySetInnerHTML={{
-              __html: content,
+              __html: escapeScriptHtml(content),
             }}
           />
         </ContentWrapper>

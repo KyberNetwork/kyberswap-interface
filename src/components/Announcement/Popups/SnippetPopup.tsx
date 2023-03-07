@@ -19,6 +19,7 @@ import { Z_INDEXS } from 'constants/styles'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { useDetailAnnouncement, useRemovePopup } from 'state/application/hooks'
+import { escapeScriptHtml } from 'utils/string'
 
 const IMAGE_HEIGHT = '124px'
 const PADDING_MOBILE = '16px'
@@ -133,7 +134,7 @@ function SnippetPopupItem({
       <Image src={thumbnailImageURL || NotificationImage} />
       <ContentColumn>
         <Title>{name}</Title>
-        <Desc hasCta={hasCta} dangerouslySetInnerHTML={{ __html: content }} />
+        <Desc hasCta={hasCta} dangerouslySetInnerHTML={{ __html: escapeScriptHtml(content) }} />
         <Flex alignItems="flex-end" style={{ position: 'relative', justifyContent: 'flex-start', gap: '12px' }}>
           {hasCta && <StyledCtaButton data={ctaInfo} color="primary" onClick={onClickCta} />}
         </Flex>
