@@ -39,7 +39,7 @@ export enum VIEW_MODE {
   LIST = 'list',
 }
 
-export interface UserState {
+interface UserState {
   // the timestamp of the last updateVersion action
   lastUpdateVersionTimestamp?: number
 
