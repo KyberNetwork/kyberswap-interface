@@ -56,6 +56,7 @@ const ContentWrapper = styled.div`
   }
   &::-webkit-scrollbar-thumb {
     background: ${({ theme }) => theme.subText};
+    border-radius: 8px;
   }
 `
 

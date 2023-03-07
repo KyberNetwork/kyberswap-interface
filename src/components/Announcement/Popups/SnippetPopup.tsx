@@ -30,6 +30,7 @@ const ItemWrapper = styled.div`
   border-radius: 8px;
   display: flex;
   position: relative;
+  cursor: pointer;
   ${({ theme }) => theme.mediaWidth.upToSmall`
      height: 140px;
   `}
@@ -63,14 +64,11 @@ const Desc = styled.div<{ hasCta: boolean }>`
     css`
       display: block;
       display: -webkit-box;
-      -webkit-line-clamp: ${hasCta ? 2 : 3};
+      -webkit-line-clamp: ${hasCta ? 1 : 3};
       -webkit-box-orient: vertical;
       overflow: hidden;
       text-overflow: ellipsis;
     `};
-  ${({ theme, hasCta }) => theme.mediaWidth.upToSmall`
-      -webkit-line-clamp: ${hasCta ? 1 : 3};
-  `}
   > * {
     margin: 0;
   }
