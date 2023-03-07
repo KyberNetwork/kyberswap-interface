@@ -27,7 +27,15 @@ const Wrapper = styled.div`
   ${({ theme }) => theme.mediaWidth.upToMedium`
     gap: 16px;
     padding: 20px 20px 16px 20px;
-  `}
+  `};
+  .action-btn {
+    display: none;
+  }
+  :hover {
+    .action-btn {
+      display: flex;
+    }
+  }
 `
 const ContentWrapper = styled.div`
   display: flex;
@@ -191,10 +199,10 @@ export default function DetailAnnouncementPopup({
         </ButtonWrapper>
         {announcements.length > 1 && (
           <>
-            <PaginationButton onClick={onBack} style={{ left: 4 }}>
+            <PaginationButton onClick={onBack} style={{ left: 4 }} className="action-btn">
               <ChevronLeft size={18} />
             </PaginationButton>
-            <PaginationButton onClick={onNext} style={{ right: 4 }}>
+            <PaginationButton onClick={onNext} style={{ right: 4 }} className="action-btn">
               <ChevronRight size={18} />
             </PaginationButton>
           </>
