@@ -11,6 +11,7 @@ import PinButton from 'components/swapv2/SwapSettingsPanel/PinButton'
 import useTheme from 'hooks/useTheme'
 import { useAppSelector } from 'state/hooks'
 import { pinSlippageControl } from 'state/swap/actions'
+import { useCheckStablePairSwap } from 'state/swap/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { checkRangeSlippage } from 'utils/slippage'
 
@@ -32,7 +33,8 @@ const SlippageSetting: React.FC = () => {
   const dispatch = useDispatch()
   const theme = useTheme()
   const [rawSlippage] = useUserSlippageTolerance()
-  const { isValid, message } = checkRangeSlippage(rawSlippage)
+  const isStablePairSwap = useCheckStablePairSwap()
+  const { isValid, message } = checkRangeSlippage(rawSlippage, isStablePairSwap)
   const isWarning = isValid && !!message
   const isError = !isValid
 
