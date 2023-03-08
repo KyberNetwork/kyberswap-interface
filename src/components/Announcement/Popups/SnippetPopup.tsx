@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { X } from 'react-feather'
 import { Flex } from 'rebass'
@@ -29,18 +30,17 @@ const ItemWrapper = styled.div`
   border-radius: 8px;
   display: flex;
   position: relative;
-  cursor: pointer;
   ${({ theme }) => theme.mediaWidth.upToSmall`
-     height: 140px;
+     height: 124px;
   `}
 `
 
 const ContentColumn = styled(AutoColumn)`
-  padding: 24px 40px 16px 16px;
+  padding: 16px 40px 16px 16px;
   gap: 14px;
   flex: 1;
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 30px 16px 16px 16px;
+    padding: 16px 40px 16px 16px;
   `}
 `
 
@@ -49,6 +49,7 @@ const Image = styled.img`
   height: ${IMAGE_HEIGHT};
   border-radius: 8px;
   object-fit: cover;
+  cursor: pointer;
   ${({ theme }) => theme.mediaWidth.upToSmall`
      display: none;
   `}
@@ -58,6 +59,7 @@ const Title = styled.div`
   max-width: 100%;
   font-size: 14px;
   line-height: 20px;
+  height: 42px;
   font-weight: 500;
   color: ${({ theme }) => theme.text};
   display: block;
@@ -66,13 +68,21 @@ const Title = styled.div`
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
+  cursor: pointer;
 `
 
 const StyledCtaButton = styled(CtaButton)`
-  min-width: 140px;
-  width: fit-content;
-  height: 32px;
-  font-size: 12px;
+  font-size: 14px;
+`
+
+const SeeMore = styled.div`
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  color: ${({ theme }) => theme.subText};
+  font-size: 14px;
+  font-weight: 500;
 `
 
 function SnippetPopupItem({
@@ -111,21 +121,23 @@ function SnippetPopupItem({
   }
 
   return (
-    <ItemWrapper onClick={toggle}>
-      <Image src={thumbnailImageURL || NotificationImage} />
+    <ItemWrapper>
+      <Image onClick={toggle} src={thumbnailImageURL || NotificationImage} />
       <ContentColumn>
-        <Title>{name}</Title>
-        <Flex alignItems="flex-end" style={{ position: 'relative', justifyContent: 'flex-start', gap: '12px' }}>
-          {hasCta && (
-            <StyledCtaButton
-              data={ctaInfo}
-              color="primary"
-              onClick={e => {
-                e.stopPropagation()
-                onClickCta()
-              }}
-            />
-          )}
+        <Title onClick={toggle}>{name}</Title>
+        <Flex
+          alignItems="flex-end"
+          style={{
+            position: 'relative',
+            justifyContent: hasCta ? 'space-between' : 'flex-start',
+            gap: '12px',
+            alignItems: 'flex-end',
+          }}
+        >
+          {hasCta && <StyledCtaButton data={ctaInfo} color="link" onClick={onClickCta} />}
+          <SeeMore onClick={toggle}>
+            <Trans>Read More</Trans>
+          </SeeMore>
         </Flex>
       </ContentColumn>
     </ItemWrapper>
@@ -162,19 +174,7 @@ const Wrapper = styled.div`
     }
   }
   .swiper-pagination {
-    top: 4px;
-    bottom: unset;
-    .swiper-pagination-bullet {
-      width: 8px;
-      height: 8px;
-      opacity: 1;
-      background: none;
-      border: 1px solid ${({ theme }) => theme.subText};
-      &.swiper-pagination-bullet-active {
-        background: ${({ theme }) => theme.primary};
-        border: none;
-      }
-    }
+    display: none;
   }
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
@@ -184,9 +184,6 @@ const Wrapper = styled.div`
       width: 100%;
       padding: 0px ${PADDING_MOBILE};
       --swiper-navigation-size: 10px;
-      .swiper-pagination {
-        top: 6px;
-      }
     `}`}
 `
 
