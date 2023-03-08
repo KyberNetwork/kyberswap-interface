@@ -84,8 +84,7 @@ import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { BodyWrapper } from 'pages/AppBody'
 import { ClickableText } from 'pages/Pool/styleds'
 import VerifyComponent from 'pages/Verify/VerifyComponent'
-import { ApplicationModal } from 'state/application/actions'
-import { useToggleModal, useToggleTransactionSettingsMenu, useWalletModalToggle } from 'state/application/hooks'
+import { useToggleTransactionSettingsMenu, useWalletModalToggle } from 'state/application/hooks'
 import { useAllDexes } from 'state/customizeDexes/hooks'
 import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { Field } from 'state/swap/actions'
@@ -110,8 +109,6 @@ import { halfAmountSpend, maxAmountSpend } from 'utils/maxAmountSpend'
 import { captureSwapError } from 'utils/sentry'
 import { getSymbolSlug } from 'utils/string'
 import { checkPairInWhiteList } from 'utils/tokenInfo'
-
-import ApprovalModal from './ApprovalModal'
 
 const LiveChart = lazy(() => import('components/LiveChart'))
 const Routing = lazy(() => import('components/TradeRouting'))
@@ -686,8 +683,6 @@ export default function Swap() {
     })
   }
 
-  const toggleApprovalModal = useToggleModal(ApplicationModal.SWAP_APPROVAL)
-  // const { permitState, permitCallback } = usePermit(currencyIn?.wrapped, trade?.routerAddress)
   return (
     <>
       {/**
@@ -984,9 +979,7 @@ export default function Swap() {
                         <>
                           <RowBetween gap="16px">
                             <ButtonConfirmed
-                              onClick={() => {
-                                toggleApprovalModal()
-                              }}
+                              onClick={approveCallback}
                               disabled={approval !== ApprovalState.NOT_APPROVED || approvalSubmitted}
                               altDisabledStyle={approval === ApprovalState.PENDING} // show solid button while waiting
                               confirmed={approval === ApprovalState.APPROVED}
@@ -1211,7 +1204,6 @@ export default function Swap() {
           </SwitchLocaleLinkWrapper>
         </Flex>
       </PageWrapper>
-      <ApprovalModal typedValue={typedValue} currencyInput={currencyIn} onApprove={approveCallback} />
     </>
   )
 }

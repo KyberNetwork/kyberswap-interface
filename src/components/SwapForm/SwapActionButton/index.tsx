@@ -14,7 +14,9 @@ import { SwapCallbackError } from 'components/swapv2/styleds'
 import { useActiveWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { WrapType } from 'hooks/useWrapCallback'
-import { useWalletModalToggle } from 'state/application/hooks'
+import ApprovalModal from 'pages/SwapV3/ApprovalModal'
+import { ApplicationModal } from 'state/application/actions'
+import { useToggleModal, useWalletModalToggle } from 'state/application/hooks'
 import { DetailedRouteSummary } from 'types/route'
 
 import { Props as SwapOnlyButtonProps } from './SwapOnlyButton'
@@ -120,6 +122,8 @@ const SwapActionButton: React.FC<Props> = ({
       approval === ApprovalState.PENDING ||
       (approvalSubmitted && approval === ApprovalState.APPROVED))
 
+  const toggleApprovalModal = useToggleModal(ApplicationModal.SWAP_APPROVAL)
+
   const renderButton = () => {
     if (!account) {
       return (
@@ -177,13 +181,16 @@ const SwapActionButton: React.FC<Props> = ({
         <>
           <RowBetween>
             <ButtonConfirmed
-              onClick={approveCallback}
+              onClick={() => {
+                toggleApprovalModal()
+              }}
               disabled={approval !== ApprovalState.NOT_APPROVED || approvalSubmitted}
               width="48%"
               altDisabledStyle={approval === ApprovalState.PENDING} // show solid button while waiting
               confirmed={approval === ApprovalState.APPROVED}
               style={{
                 border: 'none',
+                fontWeight: 500,
               }}
             >
               {approval === ApprovalState.PENDING ? (
@@ -193,7 +200,7 @@ const SwapActionButton: React.FC<Props> = ({
               ) : approvalSubmitted && approval === ApprovalState.APPROVED ? (
                 <Trans>Approved</Trans>
               ) : (
-                <Trans>Approve ${currencyIn?.symbol}</Trans>
+                <Trans>Approve {currencyIn?.symbol}</Trans>
               )}
             </ButtonConfirmed>
 
@@ -219,6 +226,7 @@ const SwapActionButton: React.FC<Props> = ({
       {isAdvancedMode && errorWhileSwap ? (
         <SwapCallbackError style={{ margin: 0, zIndex: 'unset' }} error={errorWhileSwap} />
       ) : null}
+      <ApprovalModal typedValue={typedValue} currencyInput={currencyIn} onApprove={approveCallback} hasPermit />
     </>
   )
 }
