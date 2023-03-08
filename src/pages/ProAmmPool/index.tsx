@@ -61,7 +61,6 @@ interface AddressSymbolMapInterface {
 }
 
 const renderNotificationButton = (iconOnly: boolean) => {
-  return null // temp off feature, will release soon
   return (
     <SubscribeNotificationButton
       iconOnly={iconOnly}
