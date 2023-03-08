@@ -18,6 +18,10 @@ export const getSlippageText = (rawSlippage: number) => {
     return String(rawSlippage / 100)
   }
 
+  if (rawSlippage % 10 === 0) {
+    return (rawSlippage / 100).toFixed(1)
+  }
+
   return (rawSlippage / 100).toFixed(2)
 }
 
