@@ -1,14 +1,14 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
-import { Box, Flex, Text } from 'rebass'
+import { Box, Flex } from 'rebass'
 import { parseGetRouteResponse } from 'services/route/utils'
 
 import AddressInputPanel from 'components/AddressInputPanel'
-import QuestionHelper from 'components/QuestionHelper'
 import { AutoRow } from 'components/Row'
 import InputCurrencyPanel from 'components/SwapForm/InputCurrencyPanel'
 import OutputCurrencyPanel from 'components/SwapForm/OutputCurrencyPanel'
+import SlippageNote from 'components/SwapForm/SlippageNote'
+import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import { SwapFormContextProvider } from 'components/SwapForm/SwapFormContext'
 import useBuildRoute from 'components/SwapForm/hooks/useBuildRoute'
 import useGetInputError from 'components/SwapForm/hooks/useGetInputError'
@@ -22,7 +22,6 @@ import { STABLE_COINS_ADDRESS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
-import { ClickableText } from 'pages/Pool/styleds'
 import { DetailedRouteSummary, FeeConfig } from 'types/route'
 
 import PriceImpactNote from './PriceImpactNote'
@@ -68,7 +67,6 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     transactionTimeout,
     onChangeCurrencyIn,
     onChangeCurrencyOut,
-    goToSettingsView,
   } = props
 
   const { chainId, isEVM, isSolana } = useActiveWeb3React()
@@ -199,30 +197,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
               <AddressInputPanel id="recipient" value={recipient} onChange={setRecipient} />
             )}
 
-            {!isWrapOrUnwrap && (
-              <Flex
-                alignItems="center"
-                fontSize={12}
-                color={theme.subText}
-                onClick={goToSettingsView}
-                width="max-content"
-              >
-                <ClickableText color={theme.subText} fontWeight={500}>
-                  <Trans>Max Slippage:</Trans>&nbsp;
-                  <Text as="span" color={isStableCoinSwap ? theme.text : theme.subText}>
-                    {slippage / 100}%
-                  </Text>
-                </ClickableText>
-
-                {isStableCoinSwap ? (
-                  <QuestionHelper
-                    placement="top"
-                    color={theme.text}
-                    text={t`Slippage for stable coin swap should be less than or equal to 0.1%`}
-                  />
-                ) : null}
-              </Flex>
-            )}
+            {!isWrapOrUnwrap && <SlippageSetting />}
           </Flex>
         </Wrapper>
         <Flex flexDirection="column" style={{ gap: '1.25rem' }}>
@@ -232,14 +207,9 @@ const SwapForm: React.FC<SwapFormProps> = props => {
             <TrendingSoonTokenBanner currencyIn={currencyIn} currencyOut={currencyOut} style={{ marginTop: '24px' }} />
           )}
 
-          <PriceImpactNote
-            priceImpact={routeSummary?.priceImpact}
-            isAdvancedMode={isAdvancedMode}
-            hasTooltip
-            style={{
-              marginTop: '28px',
-            }}
-          />
+          <SlippageNote />
+
+          <PriceImpactNote priceImpact={routeSummary?.priceImpact} isAdvancedMode={isAdvancedMode} hasTooltip />
 
           <SwapActionButton
             isGettingRoute={isGettingRoute}
