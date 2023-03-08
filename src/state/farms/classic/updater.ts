@@ -9,7 +9,6 @@ import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import { useFairLaunchContracts } from 'hooks/useContract'
-import useDebug from 'hooks/useDebug'
 import { AppState } from 'state'
 import { useETHPrice, useKyberSwapConfig } from 'state/application/hooks'
 import { setFarmsData, setLoading, setYieldPoolsError } from 'state/farms/classic/actions'
@@ -228,18 +227,6 @@ export default function Updater(): null {
       clearInterval(i)
     }
   }, [dispatch, chainId, fairLaunchContracts, account, isEVM, networkInfo, classicClient, blockClient, allTokens])
-
-  useDebug({
-    dispatch,
-    chainId,
-    fairLaunchContracts,
-    account,
-    isEVM,
-    networkInfo,
-    classicClient,
-    blockClient,
-    allTokens,
-  })
 
   return null
 }
