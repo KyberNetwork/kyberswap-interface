@@ -18,9 +18,7 @@ import TrendingSoonTokenBanner from 'components/TrendingSoonTokenBanner'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import TradePrice from 'components/swapv2/TradePrice'
 import { Wrapper } from 'components/swapv2/styleds'
-import { STABLE_COINS_ADDRESS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { DetailedRouteSummary, FeeConfig } from 'types/route'
 
@@ -71,7 +69,6 @@ const SwapForm: React.FC<SwapFormProps> = props => {
 
   const { chainId, isEVM, isSolana } = useActiveWeb3React()
 
-  const theme = useTheme()
   const [isProcessingSwap, setProcessingSwap] = useState(false)
   const [typedValue, setTypedValue] = useState('1')
   const [recipient, setRecipient] = useState<string | null>(null)
@@ -80,12 +77,6 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   const parsedAmount = useParsedAmount(currencyIn, typedValue)
   const { wrapType, inputError: wrapInputError, execute: onWrap } = useWrapCallback(currencyIn, currencyOut, typedValue)
   const isWrapOrUnwrap = wrapType !== WrapType.NOT_APPLICABLE
-  const isStableCoinSwap =
-    chainId &&
-    currencyIn &&
-    currencyOut &&
-    STABLE_COINS_ADDRESS[chainId].includes(currencyIn.wrapped.address) &&
-    STABLE_COINS_ADDRESS[chainId].includes(currencyOut.wrapped.address)
 
   const { fetcher: getRoute, result } = useGetRoute({
     currencyIn,

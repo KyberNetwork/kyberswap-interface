@@ -1,8 +1,9 @@
 import { rgba } from 'polished'
-import { CSSProperties } from 'react'
 import { AlertTriangle } from 'react-feather'
+import { Flex } from 'rebass'
 import styled from 'styled-components'
 
+import { useCheckStablePairSwap } from 'state/swap/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { checkRangeSlippage } from 'utils/slippage'
 
@@ -11,6 +12,7 @@ const Wrapper = styled.div`
 
   display: flex;
   align-items: center;
+  gap: 8px;
 
   border-radius: 999px;
   color: ${({ theme }) => theme.warning};
@@ -18,20 +20,20 @@ const Wrapper = styled.div`
   font-size: 12px;
 `
 
-type Props = {
-  style?: CSSProperties
-}
-const SlippageNote: React.FC<Props> = ({ style }) => {
+const SlippageNote: React.FC = () => {
   const [rawSlippage] = useUserSlippageTolerance()
-  const { isValid, message } = checkRangeSlippage(rawSlippage)
+  const isStablePairSwap = useCheckStablePairSwap()
+  const { isValid, message } = checkRangeSlippage(rawSlippage, isStablePairSwap)
 
   if (!isValid || !message) {
     return null
   }
 
   return (
-    <Wrapper style={style}>
-      <AlertTriangle size={16} style={{ marginRight: '10px' }} />
+    <Wrapper>
+      <Flex flex="0 0 16px" height="16px" alignItems="center" justifyContent="center">
+        <AlertTriangle size={16} />
+      </Flex>
       {message}
     </Wrapper>
   )

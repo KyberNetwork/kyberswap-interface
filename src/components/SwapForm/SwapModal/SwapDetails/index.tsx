@@ -17,6 +17,7 @@ import ValueWithLoadingSkeleton from 'components/SwapForm/SwapModal/SwapDetails/
 import { StyledBalanceMaxMini } from 'components/swapv2/styleds'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { useCheckStablePairSwap } from 'state/swap/hooks'
 import { TYPE } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
 import { formattedNum, toK } from 'utils'
@@ -91,6 +92,7 @@ const SwapDetails: React.FC<Props> = ({
   const [showInverted, setShowInverted] = useState<boolean>(false)
   const theme = useTheme()
   const { feeConfig, slippage } = useSwapFormContext()
+  const isStablePairSwap = useCheckStablePairSwap()
 
   const formattedFeeAmountUsd = getFormattedFeeAmountUsdV2(Number(amountInUsd || 0), feeConfig?.feeAmount)
 
@@ -262,7 +264,7 @@ const SwapDetails: React.FC<Props> = ({
             </TYPE.black>
           </RowFixed>
 
-          <SlippageValue value={slippage} />
+          <SlippageValue value={slippage} isStableCoinSwap={isStablePairSwap} />
         </RowBetween>
 
         {feeConfig && (

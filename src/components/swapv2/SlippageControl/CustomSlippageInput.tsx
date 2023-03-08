@@ -4,6 +4,7 @@ import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import { DEFAULT_SLIPPAGE, DEFAULT_SLIPPAGES, MAX_SLIPPAGE_IN_BIPS } from 'constants/index'
+import { useCheckStablePairSwap } from 'state/swap/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { checkRangeSlippage, formatSlippage } from 'utils/slippage'
 
@@ -118,10 +119,11 @@ const CustomSlippageInput: React.FC = () => {
   // slippage = 10 / 10_000 = 0.001 = 0.1%
   const [rawSlippage, setRawSlippage] = useUserSlippageTolerance()
   const [rawText, setRawText] = useState(getSlippageText(rawSlippage))
+  const isStablePairSwap = useCheckStablePairSwap()
 
   const isCustomOptionActive = !DEFAULT_SLIPPAGES.includes(rawSlippage)
 
-  const { isValid, message } = checkRangeSlippage(rawSlippage)
+  const { isValid, message } = checkRangeSlippage(rawSlippage, isStablePairSwap)
   const isWarning = isValid && !!message
 
   const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
