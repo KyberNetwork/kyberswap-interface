@@ -49,6 +49,7 @@ import { AppState } from 'state'
 import { ApplicationModal } from 'state/application/actions'
 import { useBlockNumber, useOpenModal } from 'state/application/hooks'
 import { useFarmsData } from 'state/farms/classic/hooks'
+import ClassicFarmUpdater from 'state/farms/classic/updater'
 import { FarmUpdater, useElasticFarms } from 'state/farms/elastic/hooks'
 import { isInEnum } from 'utils/string'
 
@@ -222,6 +223,7 @@ const Farm = () => {
 
   return (
     <>
+      <ClassicFarmUpdater />
       <FarmUpdater />
       <PageWrapper gap="24px">
         <div>
