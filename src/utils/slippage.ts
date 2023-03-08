@@ -38,3 +38,20 @@ export const checkRangeSlippage = (slippage: number) => {
     isValid: true,
   }
 }
+
+export const formatSlippage = (slp: number, withPercent = false) => {
+  let text = ''
+  if (slp % 100 === 0) {
+    text = String(slp / 100)
+  } else if (slp % 10 === 0) {
+    text = (slp / 100).toFixed(1)
+  } else {
+    text = (slp / 100).toFixed(2)
+  }
+
+  if (withPercent) {
+    text += '%'
+  }
+
+  return text
+}

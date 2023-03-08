@@ -5,24 +5,16 @@ import styled, { css } from 'styled-components'
 
 import { DEFAULT_SLIPPAGE, DEFAULT_SLIPPAGES, MAX_SLIPPAGE_IN_BIPS } from 'constants/index'
 import { useUserSlippageTolerance } from 'state/user/hooks'
-import { checkRangeSlippage } from 'utils/slippage'
+import { checkRangeSlippage, formatSlippage } from 'utils/slippage'
 
 export const parseSlippageInput = (str: string): number => Math.round(Number.parseFloat(str) * 100)
-export const getSlippageText = (rawSlippage: number) => {
+const getSlippageText = (rawSlippage: number) => {
   const isCustom = !DEFAULT_SLIPPAGES.includes(rawSlippage)
   if (!isCustom) {
     return ''
   }
 
-  if (rawSlippage % 100 === 0) {
-    return String(rawSlippage / 100)
-  }
-
-  if (rawSlippage % 10 === 0) {
-    return (rawSlippage / 100).toFixed(1)
-  }
-
-  return (rawSlippage / 100).toFixed(2)
+  return formatSlippage(rawSlippage)
 }
 
 const EmojiContainer = styled.span`
