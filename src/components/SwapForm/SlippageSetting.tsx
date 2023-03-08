@@ -10,18 +10,7 @@ import SlippageControl from 'components/swapv2/SlippageControl'
 import useTheme from 'hooks/useTheme'
 import { useAppSelector } from 'state/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
-
-const getSlippageText = (slp: number) => {
-  if (slp % 100 === 0) {
-    return String(slp / 100)
-  }
-
-  if (slp % 10 === 0) {
-    return (slp / 100).toFixed(1)
-  }
-
-  return (slp / 100).toFixed(2)
-}
+import { formatSlippage } from 'utils/slippage'
 
 const DropdownIcon = styled(DropdownSVG)`
   cursor: pointer;
@@ -87,7 +76,7 @@ const SlippageSetting: React.FC = () => {
             color: theme.text,
           }}
         >
-          {getSlippageText(rawSlippage)}%
+          {formatSlippage(rawSlippage, true)}
         </Text>
 
         <DropdownIcon data-flip={expanded} onClick={() => setExpanded(e => !e)} />
