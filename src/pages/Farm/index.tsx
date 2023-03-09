@@ -223,7 +223,7 @@ const Farm = () => {
 
   return (
     <>
-      <ClassicFarmUpdater />
+      <ClassicFarmUpdater isInterval />
       <FarmUpdater />
       <PageWrapper gap="24px">
         <div>

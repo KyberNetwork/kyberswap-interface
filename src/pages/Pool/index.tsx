@@ -287,7 +287,7 @@ function Pool() {
   if (!isEVM) return <Navigate to="/" replace />
   return (
     <>
-      <ClassicFarmUpdater />
+      <ClassicFarmUpdater isInterval={false} />
       <PageWrapper style={{ padding: 0, marginTop: '24px' }}>
         <AutoColumn gap="lg" justify="center">
           <AutoColumn gap="lg" style={{ width: '100%' }}>

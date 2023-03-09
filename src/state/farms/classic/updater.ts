@@ -16,7 +16,7 @@ import { FairLaunchVersion, Farm } from 'state/farms/classic/types'
 import { useAppDispatch } from 'state/hooks'
 import { getBulkPoolDataFromPoolList } from 'state/pools/hooks'
 
-export default function Updater(): null {
+export default function Updater({ isInterval = true }: { isInterval?: boolean }): null {
   const dispatch = useAppDispatch()
   const { chainId, account, isEVM, networkInfo } = useActiveWeb3React()
   const fairLaunchContracts = useFairLaunchContracts(false)
@@ -34,6 +34,9 @@ export default function Updater(): null {
   // Fix slow network speed when loading farm.
   const latestChainId = useRef(chainId)
   latestChainId.current = chainId
+
+  const intervalRef = useRef(isInterval)
+  intervalRef.current = isInterval
 
   useEffect(() => {
     if (!isEVM) return
@@ -219,7 +222,7 @@ export default function Updater(): null {
     checkForFarms()
 
     const i = setInterval(() => {
-      checkForFarms()
+      intervalRef.current && checkForFarms()
     }, 30_000)
 
     return () => {
