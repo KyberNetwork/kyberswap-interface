@@ -439,6 +439,8 @@ export function useTokensPrice(tokens: (Token | NativeCurrency | null | undefine
   const [prices, setPrices] = useState<number[]>([])
   const { elasticClient, classicClient } = useKyberSwapConfig()
 
+  const ethPriceParsed = ethPrice?.currentPrice ? parseFloat(ethPrice.currentPrice) : undefined
+
   useEffect(() => {
     if (!isEVM) return
     const client = version !== VERSION.ELASTIC ? classicClient : elasticClient
@@ -449,19 +451,19 @@ export function useTokensPrice(tokens: (Token | NativeCurrency | null | undefine
           return 0
         }
 
-        if (!ethPrice?.currentPrice) {
+        if (!ethPriceParsed) {
           return 0
         }
 
         if (token.isNative || token?.address === ZERO_ADDRESS) {
-          return parseFloat(ethPrice.currentPrice)
+          return ethPriceParsed
         }
 
         const key = `${token.address}_${chainId}_${version}`
         if (cache[key]) return cache[key]
 
         const tokenPriceByETH = await getTokenPriceByETH(token?.address, client)
-        const tokenPrice = tokenPriceByETH * parseFloat(ethPrice.currentPrice)
+        const tokenPrice = tokenPriceByETH * ethPriceParsed
 
         if (tokenPrice) cache[key] = tokenPrice
 
@@ -474,7 +476,8 @@ export function useTokensPrice(tokens: (Token | NativeCurrency | null | undefine
     }
 
     checkForTokenPrice()
-  }, [ethPrice.currentPrice, chainId, isEVM, elasticClient, classicClient, tokens, version])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ethPriceParsed, chainId, isEVM, elasticClient, classicClient, JSON.stringify(tokens), version])
 
   return prices
 }
