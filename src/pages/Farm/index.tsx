@@ -37,6 +37,8 @@ import {
   TopBar,
 } from 'components/YieldPools/styleds'
 import { FARM_TAB } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
@@ -100,13 +102,15 @@ const Farm = () => {
     },
     [navigate, location, qs],
   )
+  const farmv2Address = (NETWORKS_INFO[chainId] as EVMNetworkInfo).elastic?.farmV2Contract
 
   const renderTabContent = () => {
     switch (type) {
       case FARM_TAB.ACTIVE:
         return farmType === VERSION.ELASTIC ? (
           <>
-            <ElasticFarmv2 />
+            {/* TODO: Add condition to hide if no farmv2Address */}
+            <ElasticFarmv2 address={farmv2Address} />
             <ElasticFarms stakedOnly={stakedOnly} />
           </>
         ) : (

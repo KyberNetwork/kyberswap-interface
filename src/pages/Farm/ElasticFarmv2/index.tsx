@@ -1,16 +1,30 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import { useState } from 'react'
+import { Info } from 'react-feather'
+import { useSearchParams } from 'react-router-dom'
+import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
 import Divider from 'components/Divider'
 import { RowBetween, RowFit, RowWrap } from 'components/Row'
+import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
+import { ZERO_ADDRESS } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
+import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
+import { useProAmmPositions } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
+import { Dots } from 'pages/Pool/styleds'
+import { useFarmAction } from 'state/farms/elastic/hooks'
 import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
 import { ElasticFarmV2 } from 'state/farms/elasticv2/types'
+import { useSingleCallResult } from 'state/multicall/hooks'
+import { useIsTransactionPending } from 'state/transactions/hooks'
 
 import FarmCard from './components/FarmCard'
 
@@ -29,23 +43,111 @@ const FarmsWrapper = styled(RowWrap)`
   --gap: 24px;
 `
 
-export default function ElasticFarmv2() {
+export default function ElasticFarmv2({ address }: { address?: string }) {
   const theme = useTheme()
+  const { chainId, account } = useActiveWeb3React()
+  const above1000 = useMedia('(min-width: 1000px)')
+
   const whitelisted = useAllTokens()
   const inputToken = Object.values(whitelisted)?.filter(t => t.symbol === 'KNC')[0]
   const outputToken = Object.values(whitelisted)?.filter(t => t.symbol === 'USDC')[0]
+
   const elasticFarm = useElasticFarmsV2()
+  const { approve } = useFarmAction(address || ZERO_ADDRESS)
   const farms = elasticFarm?.farms
-  const { chainId } = useActiveWeb3React()
+  const posManager = useProAmmNFTPositionManagerContract()
+  const [approvalTx, setApprovalTx] = useState('')
+  const isApprovalTxPending = useIsTransactionPending(approvalTx)
+  const res = useSingleCallResult(posManager, 'isApprovedForAll', [account, address])
+  const isApprovedForAll = res?.result?.[0] || !address
+
+  const handleApprove = async () => {
+    if (!isApprovedForAll) {
+      const tx = await approve()
+      setApprovalTx(tx)
+    }
+  }
+
+  const [searchParams, setSearchParams] = useSearchParams()
+  const tab = searchParams.get('type') || 'active'
+
+  const { positions, loading: positionsLoading } = useProAmmPositions(account)
+
+  const renderApproveButton = () => {
+    if (isApprovedForAll || tab === 'ended') {
+      return null
+    }
+
+    if (approvalTx && isApprovalTxPending) {
+      return (
+        <ButtonPrimary
+          style={{
+            whiteSpace: 'nowrap',
+            height: '38px',
+            padding: '0 12px',
+          }}
+          onClick={handleApprove}
+          disabled
+        >
+          <Info width="16px" />
+          <Text fontSize="14px" marginLeft="8px">
+            <Dots>
+              <Trans>Approving</Trans>
+            </Dots>
+          </Text>
+        </ButtonPrimary>
+      )
+    }
+
+    return (
+      <MouseoverTooltipDesktopOnly
+        text={
+          <Text color={theme.subText} as="span">
+            <Trans>
+              Authorize the farming contract so it can access your liquidity positions (i.e. your NFT tokens). Then
+              deposit your liquidity positions using the{' '}
+              <Text as="span" color={theme.text}>
+                Deposit
+              </Text>{' '}
+              button
+            </Trans>
+          </Text>
+        }
+        width="400px"
+        placement="top"
+      >
+        <ButtonPrimary
+          style={{
+            whiteSpace: 'nowrap',
+            height: '38px',
+            padding: '0 12px',
+          }}
+          onClick={handleApprove}
+        >
+          <Info width="16px" />
+          <Text fontSize="14px" marginLeft="8px">
+            {approvalTx && isApprovalTxPending ? (
+              <Dots>
+                <Trans>Approving</Trans>
+              </Dots>
+            ) : above1000 ? (
+              <Trans>Approve Farming Contract</Trans>
+            ) : (
+              <Trans>Approve</Trans>
+            )}
+          </Text>
+        </ButtonPrimary>
+      </MouseoverTooltipDesktopOnly>
+    )
+  }
+
   return (
     <Wrapper>
       <RowBetween>
         <Text fontSize="16px" lineHeight="20px" color={theme.text}>
           <Trans>Elastic Farm V2</Trans>
         </Text>
-        <RowFit>
-          <ButtonPrimary height="36px">Approve</ButtonPrimary>
-        </RowFit>
+        <RowFit>{renderApproveButton()}</RowFit>
       </RowBetween>
       <Divider />
       <FarmsWrapper>

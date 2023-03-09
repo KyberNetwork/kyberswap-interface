@@ -6,17 +6,23 @@ import { CurrencyAmount, Token, TokenAmount, WETH } from '@kyberswap/ks-sdk-core
 import { FeeAmount, Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import { BigNumber } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import FarmV2QuoterABI from 'constants/abis/farmv2Quoter.json'
 import NFTPositionManagerABI from 'constants/abis/v2/ProAmmNFTPositionManager.json'
+import ELASTIC_FARM_V2 from 'constants/abis/v2/farmv2.json'
+import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
+import { NETWORKS_INFO } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import { useContract, useMulticallContract } from 'hooks/useContract'
+import { useContract, useMulticallContract, useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import { useKyberSwapConfig } from 'state/application/hooks'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
-import { isAddressString } from 'utils'
+import { useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
+import { PositionDetails } from 'types/position'
+import { calculateGasMargin, isAddressString } from 'utils'
 
 import { defaultChainData, setFarms, setLoading, setUserFarmInfo } from '.'
 import { ElasticFarmV2, SubgraphFarmV2, SubgraphToken, UserFarmV2Info } from './types'
@@ -214,7 +220,9 @@ export const useElasticFarmsV2 = (subscribe = false) => {
               currentUnclaimedRewards: BigNumber[]
             }[],
           ) => {
-            const nftIds = res.map(item => item.nftId)
+            const nftIds = res.map(item => {
+              return item.nftId
+            })
             const nftDetailFragment = positionManagerInterface.getFunction('positions')
             const nftDetailChunks = nftIds.map(id => ({
               target: (networkInfo as EVMNetworkInfo).elastic.nonfungiblePositionManager,
@@ -296,4 +304,204 @@ export const useElasticFarmsV2 = (subscribe = false) => {
   }, [networkInfo, chainId, dispatch, data, account, farmv2QuoterContract, multicallContract])
 
   return elasticFarm
+}
+
+export const useFarmV2Action = () => {
+  const { chainId } = useActiveWeb3React()
+  const address = (NETWORKS_INFO[chainId] as EVMNetworkInfo).elastic?.farmV2Contract
+  const addTransactionWithType = useTransactionAdder()
+  const contract = useContract(address, ELASTIC_FARM_V2)
+  const posManager = useProAmmNFTPositionManagerContract()
+
+  const approve = useCallback(async () => {
+    if (!posManager) {
+      throw new Error(CONTRACT_NOT_FOUND_MSG)
+    }
+    const estimateGas = await posManager.estimateGas.setApprovalForAll(address, true)
+    const tx = await posManager.setApprovalForAll(address, true, {
+      gasLimit: calculateGasMargin(estimateGas),
+    })
+    addTransactionWithType({
+      hash: tx.hash,
+      type: TRANSACTION_TYPE.APPROVE,
+      extraInfo: {
+        summary: `Elastic Farm v2`,
+        contract: address,
+      },
+    })
+    return tx.hash
+  }, [posManager, address, addTransactionWithType])
+
+  //   return tx.hash
+  // }, [addTransactionWithType, address, posManager])
+
+  // Deposit
+  // const deposit = useCallback(
+  //   async (positionDetails: PositionDetails[], positions: Position[]) => {
+  //     const nftIds = positionDetails.map(e => e.tokenId)
+  //     if (!contract) {
+  //       throw new Error(CONTRACT_NOT_FOUND_MSG)
+  //     }
+
+  //     const estimateGas = await contract.estimateGas.deposit(nftIds)
+  //     const tx = await contract.deposit(nftIds, {
+  //       gasLimit: calculateGasMargin(estimateGas),
+  //     })
+  //     addTransactionWithType({
+  //       hash: tx.hash,
+  //       type: TRANSACTION_TYPE.ELASTIC_DEPOSIT_LIQUIDITY,
+  //       extraInfo: getTransactionExtraInfo(
+  //         positions,
+  //         positionDetails.map(e => e.poolId),
+  //         positionDetails.map(e => e.tokenId.toString()),
+  //       ),
+  //     })
+
+  //     return tx.hash
+  //   },
+  //   [addTransactionWithType, contract],
+  // )
+
+  // const withdraw = useCallback(
+  //   async (positionDetails: PositionDetails[], positions: Position[]) => {
+  //     if (!contract) {
+  //       throw new Error(CONTRACT_NOT_FOUND_MSG)
+  //     }
+  //     const nftIds = positionDetails.map(e => e.tokenId)
+  //     const estimateGas = await contract.estimateGas.withdraw(nftIds)
+  //     const tx = await contract.withdraw(nftIds, {
+  //       gasLimit: calculateGasMargin(estimateGas),
+  //     })
+  //     addTransactionWithType({
+  //       hash: tx.hash,
+  //       type: TRANSACTION_TYPE.ELASTIC_WITHDRAW_LIQUIDITY,
+  //       extraInfo: getTransactionExtraInfo(
+  //         positions,
+  //         positionDetails.map(e => e.poolId),
+  //         positionDetails.map(e => e.tokenId.toString()),
+  //       ),
+  //     })
+
+  //     return tx.hash
+  //   },
+  //   [addTransactionWithType, contract],
+  // )
+
+  // const emergencyWithdraw = useCallback(
+  //   async (nftIds: BigNumber[]) => {
+  //     if (!contract) {
+  //       throw new Error(CONTRACT_NOT_FOUND_MSG)
+  //     }
+  //     const estimateGas = await contract.estimateGas.emergencyWithdraw(nftIds)
+  //     const tx = await contract.emergencyWithdraw(nftIds, {
+  //       gasLimit: calculateGasMargin(estimateGas),
+  //     })
+  //     addTransactionWithType({
+  //       hash: tx.hash,
+  //       type: TRANSACTION_TYPE.ELASTIC_FORCE_WITHDRAW_LIQUIDITY,
+  //       extraInfo: { contract: address },
+  //     })
+
+  //     return tx.hash
+  //   },
+  //   [addTransactionWithType, contract, address],
+  // )
+
+  // const stake = useCallback(
+  //   async (pid: BigNumber, selectedNFTs: StakeParam[]) => {
+  //     if (!contract) {
+  //       throw new Error(CONTRACT_NOT_FOUND_MSG)
+  //     }
+
+  //     const nftIds = selectedNFTs.map(item => item.nftId)
+  //     const liqs = selectedNFTs.map(item => BigNumber.from(item.position.liquidity.toString()))
+
+  //     const estimateGas = await contract.estimateGas.join(pid, nftIds, liqs)
+  //     const tx = await contract.join(pid, nftIds, liqs, {
+  //       gasLimit: calculateGasMargin(estimateGas),
+  //     })
+  //     addTransactionWithType({
+  //       hash: tx.hash,
+  //       type: TRANSACTION_TYPE.STAKE,
+  //       extraInfo: getTransactionExtraInfo(
+  //         selectedNFTs.map(e => e.position),
+  //         selectedNFTs.map(e => e.poolAddress),
+  //         nftIds.map(e => e.toString()),
+  //       ),
+  //     })
+
+  //     return tx.hash
+  //   },
+  //   [addTransactionWithType, contract],
+  // )
+
+  // const unstake = useCallback(
+  //   async (pid: BigNumber, selectedNFTs: StakeParam[]) => {
+  //     if (!contract) {
+  //       throw new Error(CONTRACT_NOT_FOUND_MSG)
+  //     }
+  //     try {
+  //       const nftIds = selectedNFTs.map(item => item.nftId)
+  //       const liqs = selectedNFTs.map(item => BigNumber.from(item.stakedLiquidity))
+  //       const estimateGas = await contract.estimateGas.exit(pid, nftIds, liqs)
+  //       const tx = await contract.exit(pid, nftIds, liqs, {
+  //         gasLimit: calculateGasMargin(estimateGas),
+  //       })
+  //       addTransactionWithType({
+  //         hash: tx.hash,
+  //         type: TRANSACTION_TYPE.UNSTAKE,
+  //         extraInfo: getTransactionExtraInfo(
+  //           selectedNFTs.map(e => e.position),
+  //           selectedNFTs.map(e => e.poolAddress),
+  //           nftIds.map(e => e.toString()),
+  //         ),
+  //       })
+
+  //       return tx.hash
+  //     } catch (e) {
+  //       console.log(e)
+  //     }
+  //   },
+  //   [addTransactionWithType, contract],
+  // )
+
+  // const harvest = useCallback(
+  //   async (
+  //     nftIds: BigNumber[],
+  //     poolIds: BigNumber[],
+  //     farm: FarmingPool | undefined,
+  //     farmRewards: CurrencyAmount<Currency>[],
+  //   ) => {
+  //     if (!contract) return
+
+  //     const encodeData = poolIds.map(id => defaultAbiCoder.encode(['tupple(uint256[] pIds)'], [{ pIds: [id] }]))
+
+  //     try {
+  //       const estimateGas = await contract.estimateGas.harvestMultiplePools(nftIds, encodeData)
+  //       const tx = await contract.harvestMultiplePools(nftIds, encodeData, {
+  //         gasLimit: calculateGasMargin(estimateGas),
+  //       })
+  //       const extraInfo: TransactionExtraInfoHarvestFarm = {
+  //         tokenAddressIn: farm?.token0?.wrapped.address,
+  //         tokenAddressOut: farm?.token1?.wrapped.address,
+  //         tokenSymbolIn: farm?.token0?.symbol,
+  //         tokenSymbolOut: farm?.token1?.symbol,
+  //         contract: farm?.id,
+  //         rewards:
+  //           farmRewards?.map(reward => ({
+  //             tokenSymbol: reward.currency.symbol ?? '',
+  //             tokenAmount: reward.toSignificant(6),
+  //             tokenAddress: reward.currency.wrapped.address,
+  //           })) ?? [],
+  //       }
+  //       addTransactionWithType({ hash: tx.hash, type: TRANSACTION_TYPE.HARVEST, extraInfo })
+  //       return tx
+  //     } catch (e) {
+  //       console.log(e)
+  //     }
+  //   },
+  //   [addTransactionWithType, contract],
+  // )
+
+  return { approve }
 }
