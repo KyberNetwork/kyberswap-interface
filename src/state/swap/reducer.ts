@@ -98,6 +98,7 @@ export default createReducer<SwapState>(initialState, builder =>
           typedValue: typedValue || state.typedValue || '1',
           recipient,
           feeConfig,
+          isSlippageControlPinned: state.isSlippageControlPinned ?? initialState.isSlippageControlPinned,
         }
       },
     )
