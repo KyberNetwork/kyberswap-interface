@@ -1,36 +1,63 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
-import { NOTIFICATION_IGNORE_TEMPLATE_IDS, PRICE_ALERT_API } from 'constants/env'
-import { PriceAlert, PriceAlertStat } from 'pages/NotificationCenter/const'
+import { PRICE_ALERT_API } from 'constants/env'
+import { CreatePriceAlertPayload, PriceAlert, PriceAlertStat } from 'pages/NotificationCenter/const'
 
-type Params = {
-  page: number
-  account?: string
+type MetaResponse<T> = {
+  code: number
+  data?: T
+  message: string
+}
+
+type GetListAlertsResponseData = {
+  alerts: PriceAlert[]
+  pagination: {
+    totalItems: number
+  }
+}
+
+type GetListAlertsParams = {
+  walletAddress: string
+  page?: number
+  pageSize?: number
+
+  // TODO: check this
+  sort?: string
 }
 
 const priceAlertApi = createApi({
   reducerPath: 'priceAlertApi',
   baseQuery: fetchBaseQuery({ baseUrl: PRICE_ALERT_API }),
+  // TODO: check here
+  tagTypes: ['PriceAlerts'],
   endpoints: builder => ({
-    getAllAlert: builder.query<void, Params>({
-      query: ({ account, ...params }) => ({
-        url: `/v1/users/${account}/notifications`,
-        params: { ...params, excludedTemplateIds: NOTIFICATION_IGNORE_TEMPLATE_IDS },
-      }),
-    }),
-    getAlertStats: builder.query<PriceAlertStat, { walletAddress: string }>({
+    getListAlerts: builder.query<GetListAlertsResponseData, GetListAlertsParams>({
       query: params => ({
-        url: `/v1/alerts/statistics`,
+        url: `/v1/alerts`,
         params,
+      }),
+      transformResponse: (data: any) => {
+        return data.data as GetListAlertsResponseData
+      },
+      // TODO: check here
+      providesTags: ['PriceAlerts'],
+    }),
+    getAlertStats: builder.query<PriceAlertStat, string>({
+      query: walletAddress => ({
+        url: `/v1/alerts/statistics`,
+        params: {
+          walletAddress,
+        },
       }),
       transformResponse: (data: any) => data?.data?.statistics,
     }),
-    createPriceAlert: builder.mutation<void, PriceAlert>({
+    createPriceAlert: builder.mutation<MetaResponse<{ id: number }>, CreatePriceAlertPayload>({
       query: body => ({
         url: `/v1/alerts`,
-        method: 'post',
+        method: 'POST',
         body,
       }),
+      invalidatesTags: ['PriceAlerts'],
     }),
     updatePriceAlert: builder.mutation<void, { isEnabled: boolean; id: number }>({
       query: ({ isEnabled, id }) => ({
@@ -38,6 +65,23 @@ const priceAlertApi = createApi({
         method: 'PATCH',
         body: { isEnabled },
       }),
+      invalidatesTags: ['PriceAlerts'],
+    }),
+    deleteAllAlerts: builder.mutation<void, string>({
+      query: account => ({
+        url: `/v1/alerts`,
+        method: 'DELETE',
+        body: { walletAddress: account },
+      }),
+      invalidatesTags: ['PriceAlerts'],
+    }),
+    deleteSingleAlert: builder.mutation<void, number>({
+      query: alertId => ({
+        url: `/v1/alerts/${alertId}`,
+        method: 'DELETE',
+      }),
+      // TODO: check here
+      invalidatesTags: ['PriceAlerts'],
     }),
   }),
 })
@@ -46,5 +90,8 @@ export const {
   useUpdatePriceAlertMutation,
   useGetAlertStatsQuery,
   useLazyGetAlertStatsQuery,
+  useGetListAlertsQuery,
+  useDeleteAllAlertsMutation,
+  useDeleteSingleAlertMutation,
 } = priceAlertApi
 export default priceAlertApi

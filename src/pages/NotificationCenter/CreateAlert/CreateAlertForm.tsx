@@ -37,8 +37,8 @@ import useCurrencyHandler from 'pages/NotificationCenter/CreateAlert/useCurrency
 import {
   COOLDOWN_OPTIONS,
   ConfirmAlertModalData,
+  CreatePriceAlertPayload,
   NETWORK_OPTIONS,
-  PriceAlert,
   PriceAlertStat,
   PriceAlertType,
   TYPE_OPTIONS,
@@ -110,7 +110,7 @@ export default function CreateAlert({
   const onSubmitAlert = async () => {
     try {
       if (!isInputValid()) return
-      const alert: PriceAlert = {
+      const alert: CreatePriceAlertPayload = {
         walletAddress: account ?? '',
         chainId: selectedChain.toString(),
         tokenInAddress: currencyIn?.wrapped.address ?? '',
@@ -122,11 +122,15 @@ export default function CreateAlert({
         ...formInput,
       }
       const { data, error }: any = await createAlert(alert)
-      if (error) throw error
-      alert.id = data?.data?.id
+      console.log(data)
+      if (error || typeof data?.data?.id !== 'number') throw error
       refreshStat()
+
       showModalConfirm({
-        alert,
+        alert: {
+          ...alert,
+          id: data.id as number,
+        },
         currencyIn,
         currencyOut,
       })

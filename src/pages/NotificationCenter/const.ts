@@ -7,7 +7,19 @@ export enum PriceAlertType {
   BELOW = 'below',
 }
 
-export type PriceAlert = {
+export enum NOTIFICATION_ROUTES {
+  CREATE_ALERT = '/create-alert',
+  OVERVIEW = '/overview',
+  ALL = '/',
+  GENERAL = '/general',
+  PRICE_ALERTS = '/price-alerts',
+  MY_ELASTIC_POOLS = '/elastic-pools',
+  LIMIT_ORDERS = '/limit-orders',
+  BRIDGE = '/bridge',
+  TRENDING_SOON_TOKENS = '/trending-soon',
+}
+
+export type CreatePriceAlertPayload = {
   walletAddress: string
   chainId: string
   tokenInAddress: string
@@ -19,17 +31,40 @@ export type PriceAlert = {
   disableAfterTrigger: boolean
   cooldown: number
   note: string
-  id?: number
+}
+
+export type PriceAlert = {
+  id: number
+  chainId: string
+  tokenInAddress: string
+  tokenOutAddress: string
+  tokenInLogoURL: string
+  tokenOutLogoURL: string
+  tokenInSymbol: string
+  tokenOutSymbol: string
+  tokenInAmount: string
+  tokenInDecimals: number
+  threshold: string
+  type: PriceAlertType
+  isEnabled: boolean
+  cooldown: number
+  disableAfterTrigger: boolean
+  note: string
 }
 
 export type PriceAlertStat = {
   maxActiveAlerts: number
+  // TODO: should be `maxAlerts`
   maxAlert: number
   totalActiveAlerts: number
   totalAlerts: number
 }
 
-export type ConfirmAlertModalData = { alert: PriceAlert; currencyIn: Currency; currencyOut: Currency }
+export type ConfirmAlertModalData = {
+  alert: CreatePriceAlertPayload & { id: number }
+  currencyIn: Currency
+  currencyOut: Currency
+}
 
 const TIMES_IN_SECS = {
   ONE_DAY: 86400,

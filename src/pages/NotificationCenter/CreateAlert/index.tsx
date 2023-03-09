@@ -6,7 +6,6 @@ import { useLazyGetAlertStatsQuery } from 'services/priceAlert'
 import styled from 'styled-components'
 
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { ConfirmAlertModalData, PriceAlertStat } from 'pages/NotificationCenter/const'
 
 import ConfirmModal from './ConfirmModal'
@@ -43,7 +42,6 @@ const Headline = styled.div`
 `
 
 export default function CreateAlert() {
-  const theme = useTheme()
   const { account } = useActiveWeb3React()
 
   const [modalData, setModalData] = useState<ConfirmAlertModalData>()
@@ -56,7 +54,7 @@ export default function CreateAlert() {
 
   const [refetch, { data: priceAlertStat = {} as PriceAlertStat }] = useLazyGetAlertStatsQuery()
 
-  const refreshStat = useCallback(() => account && refetch({ walletAddress: account }), [account, refetch])
+  const refreshStat = useCallback(() => account && refetch(account), [account, refetch])
 
   return (
     <Wrapper>
