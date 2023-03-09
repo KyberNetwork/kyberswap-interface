@@ -1,6 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { TickMath } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Info } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -12,8 +13,6 @@ import Divider from 'components/Divider'
 import { RowBetween, RowFit, RowWrap } from 'components/Row'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { ZERO_ADDRESS } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
@@ -22,9 +21,11 @@ import useTheme from 'hooks/useTheme'
 import { Dots } from 'pages/Pool/styleds'
 import { useFarmAction } from 'state/farms/elastic/hooks'
 import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
-import { ElasticFarmV2 } from 'state/farms/elasticv2/types'
+import { ElasticFarmV2, ElasticFarmV2Range } from 'state/farms/elasticv2/types'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { useIsTransactionPending } from 'state/transactions/hooks'
+import { PositionDetails } from 'types/position'
+import { getTickToPrice } from 'utils/getTickToPrice'
 
 import FarmCard from './components/FarmCard'
 
@@ -42,6 +43,11 @@ const FarmsWrapper = styled(RowWrap)`
   --items-in-row: 3;
   --gap: 24px;
 `
+
+export interface ElasticFarmV2WithRangePrices extends ElasticFarmV2 {
+  userPositions: Array<PositionDetails>
+  ranges: Array<ElasticFarmV2Range & { priceLower?: string; priceUpper?: string; priceCurrent?: string }>
+}
 
 export default function ElasticFarmv2({ address }: { address?: string }) {
   const theme = useTheme()
@@ -68,11 +74,34 @@ export default function ElasticFarmv2({ address }: { address?: string }) {
     }
   }
 
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
   const tab = searchParams.get('type') || 'active'
 
-  const { positions, loading: positionsLoading } = useProAmmPositions(account)
+  const { positions: userPositions } = useProAmmPositions(account)
+  const combinedFarms: ElasticFarmV2WithRangePrices[] | undefined = useMemo(() => {
+    if (!userPositions || !farms) return undefined
 
+    return farms?.map(farm => {
+      return {
+        ...farm,
+        userPositions: userPositions?.filter(p => p.poolId.toLowerCase() === farm.poolAddress.toLowerCase()),
+        ranges: farm.ranges.map(range => {
+          return {
+            ...range,
+            priceLower:
+              +range.tickLower > TickMath.MIN_TICK
+                ? getTickToPrice(farm.token0, farm.token1, +range.tickLower)?.toSignificant(4)
+                : '0',
+            priceUpper:
+              +range.tickUpper < TickMath.MAX_TICK
+                ? getTickToPrice(farm.token0, farm.token1, +range.tickUpper)?.toSignificant(4)
+                : '∞',
+            priceCurrent: getTickToPrice(farm.token0, farm.token1, +farm.pool.tickCurrent)?.toSignificant(4),
+          }
+        }),
+      }
+    })
+  }, [farms, userPositions])
   const renderApproveButton = () => {
     if (isApprovedForAll || tab === 'ended') {
       return null
@@ -153,7 +182,7 @@ export default function ElasticFarmv2({ address }: { address?: string }) {
       <FarmsWrapper>
         {chainId === ChainId.GÖRLI ? (
           <>
-            {farms?.map((farm: ElasticFarmV2) => (
+            {combinedFarms?.map((farm: ElasticFarmV2WithRangePrices) => (
               <FarmCard key={farm.id} inputToken={farm.pool.token0} outputToken={farm.pool.token1} farm={farm} />
             ))}
           </>

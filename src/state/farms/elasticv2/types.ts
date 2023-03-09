@@ -2,6 +2,13 @@ import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import { BigNumber } from 'ethers'
 
+export interface ElasticFarmV2Range {
+  id: string
+  isRemoved: boolean
+  tickUpper: string
+  tickLower: string
+  weight: number
+}
 export interface ElasticFarmV2 {
   id: string
   startTime: number
@@ -11,13 +18,7 @@ export interface ElasticFarmV2 {
   token0: Token
   token1: Token
   totalRewards: Array<CurrencyAmount<Currency>>
-  ranges: Array<{
-    id: string
-    isRemoved: boolean
-    tickUpper: number
-    tickLower: number
-    weight: number
-  }>
+  ranges: Array<ElasticFarmV2Range>
   stakedTvl: number
   apr: number
 }
@@ -57,13 +58,7 @@ export interface SubgraphFarmV2 {
     token: SubgraphToken
     amount: string
   }>
-  ranges: Array<{
-    index: number
-    isRemoved: boolean
-    tickLower: string
-    tickUpper: string
-    weight: number
-  }>
+  ranges: Array<ElasticFarmV2Range>
 
   depositedPositions: Array<{
     id: string

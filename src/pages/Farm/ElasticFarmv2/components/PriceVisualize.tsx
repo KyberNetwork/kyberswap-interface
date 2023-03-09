@@ -1,11 +1,11 @@
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import { RowBetween } from 'components/Row'
 
 const Wrapper = styled.div`
-  width: min(150px, 100%);
+  width: 150px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -32,31 +32,82 @@ const Dot = styled.div`
 const RangeLine = styled.div`
   height: 2px;
   background-color: var(--text);
-  width: 70px;
   position: absolute;
-  left: 40px;
 `
-const PriceVisualize = ({ rangeInclude = true }: { rangeInclude?: boolean }) => {
+
+const maxRangeGap = 0.1
+
+const PriceVisualize = ({
+  rangeInclude = true,
+  priceLower,
+  priceUpper,
+  priceCurrent,
+  width,
+}: {
+  rangeInclude?: boolean
+  priceLower?: string
+  priceUpper?: string
+  priceCurrent?: string
+  width?: string
+}) => {
+  const wrapperRef = useRef<HTMLDivElement>(null)
+  const [wrapperWidth, setWrapperWidth] = useState(0)
+
+  useEffect(() => {
+    const observer = new ResizeObserver(entries => {
+      setWrapperWidth(entries[0].contentRect.width)
+    })
+    let ref: HTMLDivElement
+    if (wrapperRef.current) {
+      ref = wrapperRef.current
+      observer.observe(wrapperRef.current)
+    }
+
+    return () => {
+      ref && observer.unobserve(ref)
+    }
+  }, [])
+  if (priceLower === undefined || priceUpper === undefined || priceCurrent === undefined) return null
+
+  const lowerUpperRatio = Math.abs(+priceLower - +priceCurrent) / Math.abs(+priceUpper - +priceCurrent)
+  let upperDotPos, lowerDotPos
+  if (priceLower === '0') {
+    lowerDotPos = 0
+  } else {
+    lowerDotPos =
+      lowerUpperRatio > 1
+        ? wrapperWidth * maxRangeGap
+        : wrapperWidth * (maxRangeGap + (0.5 - maxRangeGap) * (1 - lowerUpperRatio))
+  }
+  if (priceUpper === '∞') {
+    upperDotPos = wrapperWidth
+  } else {
+    upperDotPos =
+      lowerUpperRatio < 1
+        ? wrapperWidth * (1 - maxRangeGap)
+        : wrapperWidth * (0.5 + (0.5 - maxRangeGap) / lowerUpperRatio)
+  }
+
   return (
-    <Wrapper>
+    <Wrapper style={{ width }} ref={wrapperRef}>
       {rangeInclude && (
         <RowBetween>
           <Text fontSize="12px" fontWeight={500} lineHeight="16px">
-            0.0001788
+            {priceLower}
           </Text>
           <Text fontSize="12px" fontWeight={500} lineHeight="16px">
             -
           </Text>
           <Text fontSize="12px" fontWeight={500} lineHeight="16px">
-            0.0008523
+            {priceUpper}
           </Text>
         </RowBetween>
       )}
       <PriceLine>
-        <Dot style={{ left: '40px' }} />
-        <Dot style={{ left: '70px', backgroundColor: 'var(--background)' }} />
-        <Dot style={{ left: '110px' }} />
-        <RangeLine />
+        <Dot style={{ left: `${lowerDotPos}px` }} />
+        <Dot style={{ left: `${wrapperWidth / 2}px`, backgroundColor: 'var(--background)' }} />
+        <Dot style={{ left: `${upperDotPos}px` }} />
+        <RangeLine style={{ left: `${lowerDotPos}px`, width: `${upperDotPos - lowerDotPos}px` }} />
       </PriceLine>
     </Wrapper>
   )

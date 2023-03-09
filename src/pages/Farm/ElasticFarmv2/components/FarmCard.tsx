@@ -18,9 +18,9 @@ import Harvest from 'components/Icons/Harvest'
 import Row, { RowBetween, RowFit, RowWrap } from 'components/Row'
 import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import useTheme from 'hooks/useTheme'
-import { ElasticFarmV2 } from 'state/farms/elasticv2/types'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
 
+import { ElasticFarmV2WithRangePrices } from '..'
 import PriceVisualize from './PriceVisualize'
 import SimpleTooltip from './SimpleTooltip'
 import StakeWithNFTsModal, { NFTItem } from './StakeWithNFTsModal'
@@ -172,7 +172,19 @@ const FeeBadge = styled.div`
   padding: 2px 4px;
 `
 
-const RangeItem = ({ active, onRangeClick }: { active?: boolean; onRangeClick?: () => void }) => {
+const RangeItem = ({
+  active,
+  onRangeClick,
+  priceLower,
+  priceUpper,
+  priceCurrent,
+}: {
+  active?: boolean
+  onRangeClick?: () => void
+  priceLower?: string
+  priceUpper?: string
+  priceCurrent?: string
+}) => {
   const theme = useTheme()
   return (
     <RangeItemWrapper active={active} onClick={onRangeClick}>
@@ -189,7 +201,7 @@ const RangeItem = ({ active, onRangeClick }: { active?: boolean; onRangeClick?: 
           <Text fontSize="12px" lineHeight="16px" color="var(--primary)" alignSelf="flex-end">
             <Trans>Active Range ↗</Trans>
           </Text>
-          <PriceVisualize />
+          <PriceVisualize priceLower={priceLower} priceUpper={priceUpper} priceCurrent={priceCurrent} />
         </Column>
       </RowBetween>
       <RowBetween>
@@ -229,11 +241,13 @@ function FarmCard({
   hasPositions?: boolean
   hasRewards?: boolean
   hasUnstake?: boolean
-  farm?: ElasticFarmV2
+  farm?: ElasticFarmV2WithRangePrices
 }) {
   const theme = useTheme()
   const [showStake, setShowStake] = useState(false)
   const [showUnstake, setShowUnstake] = useState(false)
+  const [activeRange, setActiveRange] = useState(0)
+
   const wrapperInnerRef = useRef<HTMLDivElement>(null)
   const rangesRef = useRef<HTMLDivElement>(null)
 
@@ -360,7 +374,11 @@ function FarmCard({
                 <Text fontSize="12px" lineHeight="16px" color={theme.primary} alignSelf="flex-end">
                   <Trans>Active Range ↗</Trans>
                 </Text>
-                <PriceVisualize />
+                <PriceVisualize
+                  priceCurrent={farm?.ranges[activeRange].priceCurrent}
+                  priceLower={farm?.ranges[activeRange].priceLower}
+                  priceUpper={farm?.ranges[activeRange].priceUpper}
+                />
               </Column>
             </RowBetween>
             <RowBetween>
@@ -414,8 +432,15 @@ function FarmCard({
               <Column gap="12px">
                 {farm ? (
                   <>
-                    {farm.ranges.map(r => (
-                      <RangeItem active key={r.id} />
+                    {farm.ranges.map((r, index: number) => (
+                      <RangeItem
+                        active={activeRange === index}
+                        key={r.id}
+                        priceLower={r.priceLower}
+                        priceUpper={r.priceUpper}
+                        priceCurrent={r.priceCurrent}
+                        onRangeClick={() => setActiveRange(index)}
+                      />
                     ))}
                   </>
                 ) : (

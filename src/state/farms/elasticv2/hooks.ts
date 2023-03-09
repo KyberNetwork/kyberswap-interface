@@ -10,7 +10,6 @@ import { useCallback, useEffect } from 'react'
 
 import FarmV2QuoterABI from 'constants/abis/farmv2Quoter.json'
 import NFTPositionManagerABI from 'constants/abis/v2/ProAmmNFTPositionManager.json'
-import ELASTIC_FARM_V2 from 'constants/abis/v2/farmv2.json'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
 import { NETWORKS_INFO } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
@@ -21,7 +20,6 @@ import { useKyberSwapConfig } from 'state/application/hooks'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
-import { PositionDetails } from 'types/position'
 import { calculateGasMargin, isAddressString } from 'utils'
 
 import { defaultChainData, setFarms, setLoading, setUserFarmInfo } from '.'
@@ -310,7 +308,6 @@ export const useFarmV2Action = () => {
   const { chainId } = useActiveWeb3React()
   const address = (NETWORKS_INFO[chainId] as EVMNetworkInfo).elastic?.farmV2Contract
   const addTransactionWithType = useTransactionAdder()
-  const contract = useContract(address, ELASTIC_FARM_V2)
   const posManager = useProAmmNFTPositionManagerContract()
 
   const approve = useCallback(async () => {
