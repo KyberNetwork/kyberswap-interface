@@ -21,12 +21,10 @@ const CustomPrimaryButton = styled(ButtonPrimary).attrs({
 })<{ $minimal?: boolean }>`
   border: none;
   font-weight: 500;
-
+  flex: 1;
   &:disabled {
     border: none;
   }
-
-  width: ${({ $minimal }) => ($minimal ? '48%' : '100%')};
 `
 
 export type Props = {

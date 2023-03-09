@@ -12,6 +12,7 @@ export interface TokenInfo {
   readonly logoURI?: string
   readonly isWhitelisted?: boolean // from backend
   readonly multichainInfo?: MultiChainTokenInfo // from multichain api
+  readonly domainSeparator?: string
 }
 
 export class WrappedTokenInfo extends Token {
@@ -22,13 +23,17 @@ export class WrappedTokenInfo extends Token {
   public readonly isWhitelisted: boolean = false
   public readonly multichainInfo: MultiChainTokenInfo | undefined
 
+  public readonly domainSeparator?: string
+
   constructor(tokenInfo: TokenInfo) {
-    const { isWhitelisted, multichainInfo, chainId, decimals, symbol, name, address, logoURI } = tokenInfo
+    const { isWhitelisted, multichainInfo, chainId, decimals, symbol, name, address, logoURI, domainSeparator } =
+      tokenInfo
     super(chainId, isAddress(chainId, address) || address, decimals, symbol, name)
 
     this.multichainInfo = multichainInfo
     this.isWhitelisted = !!isWhitelisted
     this.logoURI = logoURI
+    this.domainSeparator = domainSeparator
   }
 
   equals(other: Token): boolean {

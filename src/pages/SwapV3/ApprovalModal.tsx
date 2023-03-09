@@ -92,11 +92,13 @@ const ApprovalModal = ({
   currencyInput,
   onApprove,
   hasPermit,
+  onPermit,
 }: {
   typedValue?: string
   currencyInput?: Currency
   onApprove?: (amount: BigNumber) => void
   hasPermit?: boolean
+  onPermit?: () => void
 }) => {
   const theme = useTheme()
   const [option, setOption] = useState<ApproveOptions>(ApproveOptions.Infinite)
@@ -116,7 +118,11 @@ const ApprovalModal = ({
 
   const handleApprove = () => {
     if (isValid) {
-      onApprove?.(option === ApproveOptions.Infinite ? MaxUint256 : parseUnits(customValue, currencyInput?.decimals))
+      if (option === ApproveOptions.Permit) {
+        onPermit?.()
+      } else {
+        onApprove?.(option === ApproveOptions.Infinite ? MaxUint256 : parseUnits(customValue, currencyInput?.decimals))
+      }
       closeModal()
     }
   }
