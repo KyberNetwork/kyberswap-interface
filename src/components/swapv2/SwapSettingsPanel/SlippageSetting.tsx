@@ -1,14 +1,13 @@
 import { Trans, t } from '@lingui/macro'
 import React from 'react'
-import { isMobile } from 'react-device-detect'
 import { useDispatch } from 'react-redux'
-import { Flex, Text } from 'rebass'
+import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 import QuestionHelper from 'components/QuestionHelper'
 import SlippageControl from 'components/SlippageControl'
 import PinButton from 'components/swapv2/SwapSettingsPanel/PinButton'
-import useTheme from 'hooks/useTheme'
+import SettingLabel from 'components/swapv2/SwapSettingsPanel/SettingLabel'
 import { useAppSelector } from 'state/hooks'
 import { pinSlippageControl } from 'state/swap/actions'
 import { useUserSlippageTolerance } from 'state/user/hooks'
@@ -28,9 +27,12 @@ const Message = styled.div`
   }
 `
 
-const SlippageSetting: React.FC = () => {
+type Props = {
+  shouldShowPinButton?: boolean
+}
+
+const SlippageSetting: React.FC<Props> = ({ shouldShowPinButton = true }) => {
   const dispatch = useDispatch()
-  const theme = useTheme()
   const [rawSlippage, setRawSlippage] = useUserSlippageTolerance()
   const { isValid, message } = checkRangeSlippage(rawSlippage)
   const isWarning = isValid && !!message
@@ -54,22 +56,17 @@ const SlippageSetting: React.FC = () => {
           alignItems: 'center',
         }}
       >
-        <Text
-          sx={{
-            fontSize: isMobile ? '14px' : '12px',
-            color: theme.text,
-            fontWeight: 400,
-            lineHeight: '16px',
-          }}
-        >
+        <SettingLabel>
           <Trans>Max Slippage</Trans>
-        </Text>
+        </SettingLabel>
         <QuestionHelper
           placement="top"
           text={t`Transaction will revert if there is an adverse rate change that is higher than this %. This control will appear in Swap form if pinned.`}
         />
 
-        <PinButton isActive={isSlippageControlPinned} onClick={handleClickPinSlippageControl} />
+        {shouldShowPinButton && (
+          <PinButton isActive={isSlippageControlPinned} onClick={handleClickPinSlippageControl} />
+        )}
       </Flex>
 
       <SlippageControl rawSlippage={rawSlippage} setRawSlippage={setRawSlippage} isWarning={isWarning} />

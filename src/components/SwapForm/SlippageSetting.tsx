@@ -5,7 +5,7 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
-import QuestionHelper from 'components/QuestionHelper'
+import InfoHelper from 'components/InfoHelper'
 import SlippageControl from 'components/SlippageControl'
 import useTheme from 'hooks/useTheme'
 import { useAppSelector } from 'state/hooks'
@@ -52,7 +52,7 @@ const SlippageSetting: React.FC = () => {
           sx={{
             alignItems: 'center',
             color: theme.subText,
-            fontSize: isMobile ? '14px' : '12px',
+            fontSize: '12px',
             fontWeight: 500,
             lineHeight: '1',
           }}
@@ -60,7 +60,8 @@ const SlippageSetting: React.FC = () => {
           <Text as="span">
             <Trans>Max Slippage</Trans>
           </Text>
-          <QuestionHelper
+          <InfoHelper
+            size={14}
             placement="top"
             text={t`Transaction will revert if there is an adverse rate change that is higher than this %. You can hide this control in Settings.`}
           />
