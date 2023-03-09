@@ -51,6 +51,7 @@ import { AppState } from 'state'
 import { ApplicationModal } from 'state/application/actions'
 import { useBlockNumber, useOpenModal } from 'state/application/hooks'
 import { useFarmsData } from 'state/farms/classic/hooks'
+import ClassicFarmUpdater from 'state/farms/classic/updater'
 import { FarmUpdater, useElasticFarms } from 'state/farms/elastic/hooks'
 import { isInEnum } from 'utils/string'
 
@@ -58,7 +59,7 @@ import ElasticFarmv2 from './ElasticFarmv2'
 
 const Farm = () => {
   const { isEVM, chainId } = useActiveWeb3React()
-  const { loading } = useFarmsData()
+  const { loading, data: farmsByFairLaunch } = useFarmsData()
   const theme = useTheme()
   const qs = useParsedQueryString<{ type: string; tab: string }>()
   // const { type = FARM_TAB.ACTIVE, tab = VERSION.ELASTIC } = qs
@@ -137,9 +138,6 @@ const Farm = () => {
   }
   const { mixpanelHandler } = useMixpanel()
   useSyncNetworkParamWithStore()
-
-  // Total rewards for Classic pool
-  const { data: farmsByFairLaunch } = useFarmsData()
 
   const below992 = useMedia('(max-width: 992px)')
   const below1500 = useMedia('(max-width: 1500px)')
@@ -234,6 +232,7 @@ const Farm = () => {
 
   return (
     <>
+      <ClassicFarmUpdater isInterval />
       <FarmUpdater />
       <PageWrapper gap="24px">
         <div>
