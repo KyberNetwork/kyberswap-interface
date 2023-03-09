@@ -2,13 +2,12 @@ import React from 'react'
 import { Flex } from 'rebass'
 import styled, { css } from 'styled-components'
 
-import CustomSlippageInput from 'components/swapv2/SlippageControl/CustomSlippageInput'
+import CustomSlippageInput from 'components/SlippageControl/CustomSlippageInput'
 import { DEFAULT_SLIPPAGES } from 'constants/index'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
-import { useCheckStablePairSwap } from 'state/swap/hooks'
-import { useUserSlippageTolerance } from 'state/user/hooks'
-import { checkRangeSlippage } from 'utils/slippage'
+
+import { Props as CustomSlippageInputProps } from './CustomSlippageInput'
 
 export const slippageOptionCSS = css`
   height: 100%;
@@ -57,17 +56,13 @@ const DefaultSlippageOption = styled.button`
   }
 `
 
-const SlippageControl: React.FC = () => {
+type Props = CustomSlippageInputProps
+// rawSlippage = 10
+// slippage = 10 / 10_000 = 0.001 = 0.1%
+const SlippageControl: React.FC<Props> = props => {
+  const { rawSlippage, setRawSlippage, isWarning } = props
   const theme = useTheme()
   const { mixpanelHandler } = useMixpanel()
-
-  // rawSlippage = 10
-  // slippage = 10 / 10_000 = 0.001 = 0.1%
-  const [rawSlippage, setRawSlippage] = useUserSlippageTolerance()
-  const isStablePairSwap = useCheckStablePairSwap()
-  const { isValid, message } = checkRangeSlippage(rawSlippage, isStablePairSwap)
-  const shouldWarning = isValid && !!message
-
   return (
     <Flex
       sx={{
@@ -88,13 +83,13 @@ const SlippageControl: React.FC = () => {
             mixpanelHandler(MIXPANEL_TYPE.SLIPPAGE_CHANGED, { new_slippage: slp / 100 })
           }}
           data-active={rawSlippage === slp}
-          data-warning={rawSlippage === slp && shouldWarning}
+          data-warning={rawSlippage === slp && isWarning}
         >
           {slp / 100}%
         </DefaultSlippageOption>
       ))}
 
-      <CustomSlippageInput />
+      <CustomSlippageInput {...props} />
     </Flex>
   )
 }

@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useLocation } from 'react-router-dom'
 
 import { APP_PATHS, BAD_RECIPIENT_ADDRESSES } from 'constants/index'
-import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies, STABLE_COINS_ADDRESS } from 'constants/tokens'
+import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrencyV2 } from 'hooks/Tokens'
 import { useTradeExactIn } from 'hooks/Trades'
@@ -440,20 +440,4 @@ export const useOutputCurrency = () => {
   const outputCurrencyId = useSelector((state: AppState) => state.swap[Field.OUTPUT].currencyId)
   const outputCurrency = useCurrencyV2(outputCurrencyId)
   return outputCurrency || undefined
-}
-
-export const useCheckStablePairSwap = () => {
-  const { chainId } = useActiveWeb3React()
-  const inputCurrencyId = useSelector((state: AppState) => state.swap[Field.INPUT].currencyId)
-  const outputCurrencyId = useSelector((state: AppState) => state.swap[Field.OUTPUT].currencyId)
-
-  const isStablePairSwap = Boolean(
-    chainId &&
-      inputCurrencyId &&
-      outputCurrencyId &&
-      STABLE_COINS_ADDRESS[chainId].includes(inputCurrencyId) &&
-      STABLE_COINS_ADDRESS[chainId].includes(outputCurrencyId),
-  )
-
-  return isStablePairSwap
 }

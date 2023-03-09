@@ -6,11 +6,11 @@ import styled from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import QuestionHelper from 'components/QuestionHelper'
-import SlippageControl from 'components/swapv2/SlippageControl'
+import SlippageControl from 'components/SlippageControl'
 import useTheme from 'hooks/useTheme'
 import { useAppSelector } from 'state/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
-import { formatSlippage } from 'utils/slippage'
+import { checkWarningSlippage, formatSlippage } from 'utils/slippage'
 
 const DropdownIcon = styled(DropdownSVG)`
   cursor: pointer;
@@ -24,7 +24,8 @@ const DropdownIcon = styled(DropdownSVG)`
 
 const SlippageSetting: React.FC = () => {
   const theme = useTheme()
-  const [rawSlippage] = useUserSlippageTolerance()
+  const [rawSlippage, setRawSlippage] = useUserSlippageTolerance()
+  const isWarningSlippage = checkWarningSlippage(rawSlippage)
 
   const [expanded, setExpanded] = useState(false)
 
@@ -76,7 +77,7 @@ const SlippageSetting: React.FC = () => {
             color: theme.text,
           }}
         >
-          {formatSlippage(rawSlippage, true)}
+          {formatSlippage(rawSlippage)}
         </Text>
 
         <DropdownIcon data-flip={expanded} onClick={() => setExpanded(e => !e)} />
@@ -90,7 +91,7 @@ const SlippageSetting: React.FC = () => {
           overflow: 'hidden',
         }}
       >
-        <SlippageControl />
+        <SlippageControl rawSlippage={rawSlippage} setRawSlippage={setRawSlippage} isWarning={isWarningSlippage} />
       </Flex>
     </Flex>
   )

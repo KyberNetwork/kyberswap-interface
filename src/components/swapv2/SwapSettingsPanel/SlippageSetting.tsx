@@ -6,12 +6,11 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import QuestionHelper from 'components/QuestionHelper'
-import SlippageControl from 'components/swapv2/SlippageControl'
+import SlippageControl from 'components/SlippageControl'
 import PinButton from 'components/swapv2/SwapSettingsPanel/PinButton'
 import useTheme from 'hooks/useTheme'
 import { useAppSelector } from 'state/hooks'
 import { pinSlippageControl } from 'state/swap/actions'
-import { useCheckStablePairSwap } from 'state/swap/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { checkRangeSlippage } from 'utils/slippage'
 
@@ -32,9 +31,8 @@ const Message = styled.div`
 const SlippageSetting: React.FC = () => {
   const dispatch = useDispatch()
   const theme = useTheme()
-  const [rawSlippage] = useUserSlippageTolerance()
-  const isStablePairSwap = useCheckStablePairSwap()
-  const { isValid, message } = checkRangeSlippage(rawSlippage, isStablePairSwap)
+  const [rawSlippage, setRawSlippage] = useUserSlippageTolerance()
+  const { isValid, message } = checkRangeSlippage(rawSlippage)
   const isWarning = isValid && !!message
   const isError = !isValid
 
@@ -74,7 +72,7 @@ const SlippageSetting: React.FC = () => {
         <PinButton isActive={isSlippageControlPinned} onClick={handleClickPinSlippageControl} />
       </Flex>
 
-      <SlippageControl />
+      <SlippageControl rawSlippage={rawSlippage} setRawSlippage={setRawSlippage} isWarning={isWarning} />
 
       {!!message && (
         <Message data-warning={isWarning} data-error={isError}>

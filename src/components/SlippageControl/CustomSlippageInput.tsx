@@ -4,9 +4,7 @@ import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import { DEFAULT_SLIPPAGE, DEFAULT_SLIPPAGES, MAX_SLIPPAGE_IN_BIPS } from 'constants/index'
-import { useCheckStablePairSwap } from 'state/swap/hooks'
-import { useUserSlippageTolerance } from 'state/user/hooks'
-import { checkRangeSlippage, formatSlippage } from 'utils/slippage'
+import { formatSlippage } from 'utils/slippage'
 
 export const parseSlippageInput = (str: string): number => Math.round(Number.parseFloat(str) * 100)
 const getSlippageText = (rawSlippage: number) => {
@@ -15,7 +13,7 @@ const getSlippageText = (rawSlippage: number) => {
     return ''
   }
 
-  return formatSlippage(rawSlippage)
+  return formatSlippage(rawSlippage, false)
 }
 
 const EmojiContainer = styled.span`
@@ -112,19 +110,19 @@ const CustomInput = styled.input`
   }
 `
 
-const CustomSlippageInput: React.FC = () => {
+export type Props = {
+  rawSlippage: number
+  setRawSlippage: (value: number) => void
+  isWarning: boolean
+}
+const CustomSlippageInput: React.FC<Props> = ({ rawSlippage, setRawSlippage, isWarning }) => {
   const inputRef = useRef<HTMLInputElement>(null)
 
   // rawSlippage = 10
-  // slippage = 10 / 10_000 = 0.001 = 0.1%
-  const [rawSlippage, setRawSlippage] = useUserSlippageTolerance()
+  // slippage shown to user: = 10 / 10_000 = 0.001 = 0.1%
   const [rawText, setRawText] = useState(getSlippageText(rawSlippage))
-  const isStablePairSwap = useCheckStablePairSwap()
 
   const isCustomOptionActive = !DEFAULT_SLIPPAGES.includes(rawSlippage)
-
-  const { isValid, message } = checkRangeSlippage(rawSlippage, isStablePairSwap)
-  const isWarning = isValid && !!message
 
   const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value

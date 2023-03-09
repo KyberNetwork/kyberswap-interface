@@ -3,8 +3,7 @@ import { AlertTriangle } from 'react-feather'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 
-import { useCheckStablePairSwap } from 'state/swap/hooks'
-import { useUserSlippageTolerance } from 'state/user/hooks'
+import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import { checkRangeSlippage } from 'utils/slippage'
 
 const Wrapper = styled.div`
@@ -21,9 +20,8 @@ const Wrapper = styled.div`
 `
 
 const SlippageNote: React.FC = () => {
-  const [rawSlippage] = useUserSlippageTolerance()
-  const isStablePairSwap = useCheckStablePairSwap()
-  const { isValid, message } = checkRangeSlippage(rawSlippage, isStablePairSwap)
+  const { slippage } = useSwapFormContext()
+  const { isValid, message } = checkRangeSlippage(slippage)
 
   if (!isValid || !message) {
     return null
