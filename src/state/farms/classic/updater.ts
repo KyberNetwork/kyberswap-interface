@@ -35,9 +35,6 @@ export default function Updater({ isInterval = true }: { isInterval?: boolean })
   const latestChainId = useRef(chainId)
   latestChainId.current = chainId
 
-  const intervalRef = useRef(isInterval)
-  intervalRef.current = isInterval
-
   useEffect(() => {
     if (!isEVM) return
     console.count('running farm updater')
@@ -221,15 +218,28 @@ export default function Updater({ isInterval = true }: { isInterval?: boolean })
 
     checkForFarms()
 
-    const i = setInterval(() => {
-      intervalRef.current && checkForFarms()
-    }, 30_000)
+    const i =
+      isInterval &&
+      setInterval(() => {
+        checkForFarms()
+      }, 30_000)
 
     return () => {
       cancelled = true
-      clearInterval(i)
+      i && clearInterval(i)
     }
-  }, [dispatch, chainId, fairLaunchContracts, account, isEVM, networkInfo, classicClient, blockClient, allTokens])
+  }, [
+    dispatch,
+    chainId,
+    fairLaunchContracts,
+    account,
+    isEVM,
+    networkInfo,
+    classicClient,
+    blockClient,
+    allTokens,
+    isInterval,
+  ])
 
   return null
 }
