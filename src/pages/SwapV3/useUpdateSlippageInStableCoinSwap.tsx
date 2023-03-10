@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useSelector } from 'react-redux'
 
+import { DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP } from 'constants/index'
 import { STABLE_COINS_ADDRESS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { AppState } from 'state'
@@ -24,8 +25,8 @@ const useUpdateSlippageInStableCoinSwap = () => {
       STABLE_COINS_ADDRESS[chainId].includes(inputCurrencyId) &&
       STABLE_COINS_ADDRESS[chainId].includes(outputCurrencyId)
 
-    if (isStableCoinSwap && rawSlippageRef.current > 10) {
-      setSlippage(10)
+    if (isStableCoinSwap && rawSlippageRef.current > DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP) {
+      setSlippage(DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP)
     }
   }, [chainId, inputCurrencyId, outputCurrencyId, setSlippage])
 }

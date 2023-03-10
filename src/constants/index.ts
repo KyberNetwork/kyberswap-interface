@@ -253,6 +253,7 @@ export const EPSILON = 0.000000000008854
 export const MAX_SLIPPAGE_IN_BIPS = 2000
 export const DEFAULT_SLIPPAGES = [5, 10, 50, 100]
 export const DEFAULT_SLIPPAGE = 50
+export const DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP = 5
 
 export const AGGREGATOR_WAITING_TIME = 1700 // 1700 means that we at least show '.' '..' '...' '.' '..' '...'
 
