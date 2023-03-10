@@ -19,7 +19,6 @@ import { MoneyBag } from 'components/Icons'
 import { NetworkLogo } from 'components/Logo'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
-import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 
 function InboxItemBridge({
@@ -28,7 +27,6 @@ function InboxItemBridge({
   style,
   time,
 }: PrivateAnnouncementProp<AnnouncementTemplatePoolPosition>) {
-  const { networkInfo } = useActiveWeb3React()
   const { templateBody, isRead } = announcement
   const theme = useTheme()
 
