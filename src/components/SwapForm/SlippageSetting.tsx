@@ -15,8 +15,6 @@ import { useUserSlippageTolerance } from 'state/user/hooks'
 import { checkWarningSlippage, formatSlippage } from 'utils/slippage'
 
 const DropdownIcon = styled(DropdownSVG)`
-  cursor: pointer;
-
   transition: transform 300ms;
   color: ${({ theme }) => theme.subText};
   &[data-flip='true'] {
@@ -71,18 +69,28 @@ const SlippageSetting: React.FC = () => {
           </Text>
         </Flex>
 
-        <Text
+        <Flex
           sx={{
-            fontSize: isMobile ? '16px' : '14px',
-            fontWeight: 500,
-            lineHeight: '1',
-            color: theme.text,
+            alignItems: 'center',
+            gap: '4px',
+            cursor: 'pointer',
           }}
+          role="button"
+          onClick={() => setExpanded(e => !e)}
         >
-          {formatSlippage(rawSlippage)}
-        </Text>
+          <Text
+            sx={{
+              fontSize: isMobile ? '16px' : '14px',
+              fontWeight: 500,
+              lineHeight: '1',
+              color: theme.text,
+            }}
+          >
+            {formatSlippage(rawSlippage)}
+          </Text>
 
-        <DropdownIcon data-flip={expanded} onClick={() => setExpanded(e => !e)} />
+          <DropdownIcon data-flip={expanded} />
+        </Flex>
       </Flex>
 
       <Flex
