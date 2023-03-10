@@ -10,8 +10,6 @@ const useCheckStablePairSwap = (currencyIn: Currency | undefined, currencyOut: C
     chainId &&
       currencyIn &&
       currencyOut &&
-      currencyIn.wrapped.address &&
-      currencyOut.wrapped.address &&
       STABLE_COINS_ADDRESS[chainId].includes(currencyIn.wrapped.address) &&
       STABLE_COINS_ADDRESS[chainId].includes(currencyOut.wrapped.address),
   )
