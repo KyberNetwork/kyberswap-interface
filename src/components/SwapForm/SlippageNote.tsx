@@ -20,8 +20,8 @@ const Wrapper = styled.div`
 `
 
 const SlippageNote: React.FC = () => {
-  const { slippage } = useSwapFormContext()
-  const { isValid, message } = checkRangeSlippage(slippage)
+  const { slippage, isStablePairSwap } = useSwapFormContext()
+  const { isValid, message } = checkRangeSlippage(slippage, isStablePairSwap)
 
   if (!isValid || !message) {
     return null

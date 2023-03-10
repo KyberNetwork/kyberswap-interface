@@ -7,6 +7,8 @@ import styled from 'styled-components'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import InfoHelper from 'components/InfoHelper'
 import SlippageControl from 'components/SlippageControl'
+import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
+import { DEFAULT_SLIPPAGE, DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { useAppSelector } from 'state/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
@@ -24,12 +26,11 @@ const DropdownIcon = styled(DropdownSVG)`
 
 const SlippageSetting: React.FC = () => {
   const theme = useTheme()
-  const [rawSlippage, setRawSlippage] = useUserSlippageTolerance()
-  const isWarningSlippage = checkWarningSlippage(rawSlippage)
-
-  const [expanded, setExpanded] = useState(false)
-
   const isSlippageControlPinned = useAppSelector(state => state.swap.isSlippageControlPinned)
+  const [expanded, setExpanded] = useState(false)
+  const [rawSlippage, setRawSlippage] = useUserSlippageTolerance()
+  const { isStablePairSwap } = useSwapFormContext()
+  const isWarningSlippage = checkWarningSlippage(rawSlippage, isStablePairSwap)
 
   if (!isSlippageControlPinned) {
     return null
@@ -92,7 +93,12 @@ const SlippageSetting: React.FC = () => {
           overflow: 'hidden',
         }}
       >
-        <SlippageControl rawSlippage={rawSlippage} setRawSlippage={setRawSlippage} isWarning={isWarningSlippage} />
+        <SlippageControl
+          rawSlippage={rawSlippage}
+          setRawSlippage={setRawSlippage}
+          isWarning={isWarningSlippage}
+          defaultRawSlippage={isStablePairSwap ? DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP : DEFAULT_SLIPPAGE}
+        />
       </Flex>
     </Flex>
   )

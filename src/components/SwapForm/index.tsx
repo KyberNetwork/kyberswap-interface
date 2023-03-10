@@ -11,6 +11,7 @@ import SlippageNote from 'components/SwapForm/SlippageNote'
 import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import { SwapFormContextProvider } from 'components/SwapForm/SwapFormContext'
 import useBuildRoute from 'components/SwapForm/hooks/useBuildRoute'
+import useCheckStablePairSwap from 'components/SwapForm/hooks/useCheckStablePairSwap'
 import useGetInputError from 'components/SwapForm/hooks/useGetInputError'
 import useGetRoute from 'components/SwapForm/hooks/useGetRoute'
 import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
@@ -78,6 +79,8 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   const { wrapType, inputError: wrapInputError, execute: onWrap } = useWrapCallback(currencyIn, currencyOut, typedValue)
   const isWrapOrUnwrap = wrapType !== WrapType.NOT_APPLICABLE
 
+  const isStablePairSwap = useCheckStablePairSwap(currencyIn, currencyOut)
+
   const { fetcher: getRoute, result } = useGetRoute({
     currencyIn,
     currencyOut,
@@ -144,6 +147,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
       typedValue={typedValue}
       isSaveGas={isSaveGas}
       recipient={recipient}
+      isStablePairSwap={isStablePairSwap}
     >
       <Box sx={{ flexDirection: 'column', gap: '16px', display: hidden ? 'none' : 'flex' }}>
         <Wrapper id={TutorialIds.SWAP_FORM_CONTENT}>

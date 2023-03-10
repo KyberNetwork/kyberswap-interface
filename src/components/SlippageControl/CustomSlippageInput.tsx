@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
-import { DEFAULT_SLIPPAGE, DEFAULT_SLIPPAGES, MAX_SLIPPAGE_IN_BIPS } from 'constants/index'
+import { DEFAULT_SLIPPAGES, MAX_SLIPPAGE_IN_BIPS } from 'constants/index'
 import { formatSlippage } from 'utils/slippage'
 
 export const parseSlippageInput = (str: string): number => Math.round(Number.parseFloat(str) * 100)
@@ -114,8 +114,9 @@ export type Props = {
   rawSlippage: number
   setRawSlippage: (value: number) => void
   isWarning: boolean
+  defaultRawSlippage: number
 }
-const CustomSlippageInput: React.FC<Props> = ({ rawSlippage, setRawSlippage, isWarning }) => {
+const CustomSlippageInput: React.FC<Props> = ({ rawSlippage, setRawSlippage, isWarning, defaultRawSlippage }) => {
   const inputRef = useRef<HTMLInputElement>(null)
 
   // rawSlippage = 10
@@ -129,7 +130,7 @@ const CustomSlippageInput: React.FC<Props> = ({ rawSlippage, setRawSlippage, isW
 
     if (value === '') {
       setRawText(value)
-      setRawSlippage(DEFAULT_SLIPPAGE)
+      setRawSlippage(defaultRawSlippage)
       return
     }
 
