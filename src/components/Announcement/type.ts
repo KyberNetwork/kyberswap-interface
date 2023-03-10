@@ -64,6 +64,7 @@ type PoolPositionAnnouncement = {
   currentPrice: string
   poolAddress: string
   type: 'OUT_OF_RANGE' | 'IN_RANGE'
+  chainId: string
 }
 
 export type AnnouncementTemplateLimitOrder = {

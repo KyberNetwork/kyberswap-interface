@@ -1,6 +1,7 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useNavigate } from 'react-router-dom'
-import { Flex } from 'rebass'
+import { Flex, Text } from 'rebass'
 
 import { ReactComponent as LiquidityIcon } from 'assets/svg/liquidity_icon.svg'
 import { PrivateAnnouncementProp } from 'components/Announcement/PrivateAnnoucement'
@@ -15,7 +16,9 @@ import {
 import { AnnouncementTemplatePoolPosition } from 'components/Announcement/type'
 import { DoubleCurrencyLogoV2 } from 'components/DoubleLogo'
 import { MoneyBag } from 'components/Icons'
+import { NetworkLogo } from 'components/Logo'
 import { APP_PATHS } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 
@@ -39,13 +42,16 @@ function InboxItemBridge({
     token1Symbol,
     poolAddress,
     type,
+    chainId: rawChain,
   } = templateBody.position
+
+  const chainId = Number(rawChain) as ChainId
   const isInRange = type === 'IN_RANGE'
   const statusMessage = isInRange ? t`Back in range` : t`Out of range`
 
   const navigate = useNavigate()
   const onClick = () => {
-    navigate(`${APP_PATHS.MY_POOLS}/${networkInfo.route}?search=${poolAddress}`)
+    navigate(`${APP_PATHS.MY_POOLS}/${NETWORKS_INFO[chainId].route}?search=${poolAddress}`)
     onRead(announcement, statusMessage)
   }
 
@@ -66,9 +72,9 @@ function InboxItemBridge({
       </InboxItemRow>
 
       <InboxItemRow>
-        <Flex alignItems={'center'}>
+        <Flex alignItems={'center'} style={{ gap: '4px' }}>
           <DoubleCurrencyLogoV2
-            style={{ marginRight: 12 }}
+            style={{ marginRight: 10 }}
             logoUrl1={token0LogoURL}
             logoUrl2={token1LogoURL}
             size={12}
@@ -76,6 +82,9 @@ function InboxItemBridge({
           <PrimaryText>
             {token0Symbol}/{token1Symbol}
           </PrimaryText>
+          <Text color={theme.subText}>on</Text>
+          <NetworkLogo chainId={chainId} style={{ width: 12, height: 12 }} />
+          <PrimaryText style={{ fontWeight: '500' }}>{NETWORKS_INFO[chainId].name}</PrimaryText>
         </Flex>
         <PrimaryText color={isInRange ? theme.primary : theme.warning}>
           {currentPrice} {token0Symbol}/{token1Symbol}
