@@ -64,7 +64,7 @@ const SlippageSetting: React.FC = () => {
           <InfoHelper
             size={14}
             placement="top"
-            text={t`Transaction will revert if there is an adverse rate change that is higher than this %. You can hide this control in Settings.`}
+            text={t`During your swap if the price changes by more than this %, your transaction will revert. You can hide this control in Settings.`}
           />
           <Text as="span" marginLeft="4px">
             :
