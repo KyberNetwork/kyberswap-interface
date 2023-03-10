@@ -24,7 +24,7 @@ const DropdownIcon = styled(DropdownSVG)`
 
 const SlippageSetting: React.FC = () => {
   const theme = useTheme()
-  const isSlippageControlPinned = useAppSelector(state => state.swap.isSlippageControlPinned)
+  const isSlippageControlPinned = useAppSelector(state => state.user.isSlippageControlPinned)
   const [expanded, setExpanded] = useState(false)
   const [rawSlippage, setRawSlippage] = useUserSlippageTolerance()
   const { isStablePairSwap } = useSwapFormContext()
