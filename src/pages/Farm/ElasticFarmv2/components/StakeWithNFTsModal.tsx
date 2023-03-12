@@ -1,5 +1,7 @@
+import { Token } from '@kyberswap/ks-sdk-core'
+import { Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
-import React from 'react'
+import React, { useCallback, useContext, useState } from 'react'
 import { Plus, X } from 'react-feather'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -8,8 +10,16 @@ import { ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
 import Pagination from 'components/Pagination'
 import Row, { RowBetween, RowFit, RowWrap } from 'components/Row'
+import { useToken } from 'hooks/Tokens'
+import { usePool } from 'hooks/usePools'
 import useTheme from 'hooks/useTheme'
+import { useFarmV2Action } from 'state/farms/elasticv2/hooks'
+import { useTokenPrices } from 'state/tokenPrices/hooks'
+import { PositionDetails } from 'types/position'
+import { formatDollarAmount } from 'utils/numbers'
+import { unwrappedToken } from 'utils/wrappedCurrency'
 
+import { FarmContext } from './FarmCard'
 import PriceVisualize from './PriceVisualize'
 
 const Wrapper = styled.div`
@@ -57,22 +67,99 @@ const CloseButton = styled.div`
   cursor: pointer;
 `
 
-export const NFTItem = ({ active }: { active?: boolean }) => {
+export const NFTItem = ({
+  active,
+  pos,
+  onClick,
+}: {
+  active?: boolean
+  pos?: PositionDetails
+  onClick?: (tokenId: string) => void
+}) => {
+  const token0 = useToken(pos?.token0)
+  const token1 = useToken(pos?.token1)
+  const currency0 = token0 ? unwrappedToken(token0) : undefined
+  const currency1 = token1 ? unwrappedToken(token1) : undefined
+
+  const usdPrices = useTokenPrices(pos ? [pos.token0, pos.token1] : [])
+
+  // construct Position from details returned
+  const [, pool] = usePool(currency0 ?? undefined, currency1 ?? undefined, pos?.fee)
+  const position =
+    pool && pos
+      ? new Position({
+          pool: pool,
+          liquidity: pos.liquidity.toString(),
+          tickLower: pos.tickLower,
+          tickUpper: pos.tickUpper,
+        })
+      : undefined
+  const usd =
+    parseFloat(position?.amount0.toExact() || '0') * (usdPrices[0] || 0) +
+    parseFloat(position?.amount1.toExact() || '0') * (usdPrices[1] || 0)
+
   return (
-    <NFTItemWrapper active={active}>
-      <Text fontSize="12px" lineHeight="16px" color="var(--primary)">
-        #123456789
-      </Text>
-      <PriceVisualize rangeInclude={false} />
-      <Text fontSize="12px" lineHeight="16px">
-        $230,23K
-      </Text>
-    </NFTItemWrapper>
+    <>
+      {pos ? (
+        <NFTItemWrapper active={active} onClick={() => onClick?.(pos.tokenId.toString())}>
+          <Text fontSize="12px" lineHeight="16px" color="var(--primary)">
+            {`#${pos.tokenId.toString()}`}
+          </Text>
+          <PriceVisualize
+            rangeInclude={false}
+            token0={token0 as Token}
+            token1={token1 as Token}
+            tickUpper={pos?.tickUpper.toString()}
+            tickLower={pos?.tickLower.toString()}
+            tickCurrent={'0'}
+          />
+          <Text fontSize="12px" lineHeight="16px">
+            {formatDollarAmount(usd)}
+          </Text>
+        </NFTItemWrapper>
+      ) : (
+        <NFTItemWrapper active={active}>
+          <Text fontSize="12px" lineHeight="16px" color="var(--primary)">
+            #123456789
+          </Text>
+          <PriceVisualize rangeInclude={false} />
+          <Text fontSize="12px" lineHeight="16px">
+            $230,23K
+          </Text>
+        </NFTItemWrapper>
+      )}
+    </>
   )
 }
 
-const StakeWithNFTsModal = ({ isOpen, onDismiss }: { isOpen: boolean; onDismiss: () => void }) => {
+const StakeWithNFTsModal = ({
+  isOpen,
+  onDismiss,
+  positions,
+}: {
+  isOpen: boolean
+  onDismiss: () => void
+  positions?: PositionDetails[]
+}) => {
+  const { farm, activeRange } = useContext(FarmContext)
   const theme = useTheme()
+  const [selectedPos, setSelectedPos] = useState<{ [tokenId: string]: boolean }>({})
+  const handlePosClick = useCallback((tokenId: string) => {
+    setSelectedPos(prev => {
+      return { ...prev, [tokenId]: !prev[tokenId] }
+    })
+  }, [])
+  const { deposit } = useFarmV2Action()
+
+  const handleStake = useCallback(() => {
+    if (!farm || activeRange === undefined) return
+    deposit(
+      farm.fId,
+      activeRange,
+      Object.keys(selectedPos).map(p => +p),
+    )
+  }, [farm, activeRange, deposit, selectedPos])
+
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss} maxWidth="min(724px, 100vw)">
       <Wrapper>
@@ -100,18 +187,28 @@ const StakeWithNFTsModal = ({ isOpen, onDismiss }: { isOpen: boolean; onDismiss:
             </Text>
           </RowFit>
           <NFTsWrapper>
-            <NFTItem active />
-            <NFTItem active />
-            <NFTItem active />
-            <NFTItem active />
-            <NFTItem />
-            <NFTItem />
-            <NFTItem />
-            <NFTItem />
+            {positions ? (
+              positions.map(pos => (
+                <>
+                  <NFTItem active={selectedPos[pos.tokenId.toString()]} pos={pos} onClick={handlePosClick} />
+                </>
+              ))
+            ) : (
+              <>
+                <NFTItem active />
+                <NFTItem active />
+                <NFTItem active />
+                <NFTItem active />
+                <NFTItem />
+                <NFTItem />
+                <NFTItem />
+                <NFTItem />
+              </>
+            )}
           </NFTsWrapper>
           <Pagination currentPage={2} pageSize={8} totalCount={100} onPageChange={p => console.log(p)} haveBg={false} />
         </ContentWrapper>
-        <ButtonPrimary width="fit-content" alignSelf="flex-end" padding="8px 18px">
+        <ButtonPrimary width="fit-content" alignSelf="flex-end" padding="8px 18px" onClick={handleStake}>
           <Text fontSize="14px" lineHeight="20px" fontWeight={500}>
             <Row gap="6px">
               <Plus size={16} />

@@ -10,6 +10,7 @@ import { useCallback, useEffect } from 'react'
 
 import FarmV2QuoterABI from 'constants/abis/farmv2Quoter.json'
 import NFTPositionManagerABI from 'constants/abis/v2/ProAmmNFTPositionManager.json'
+import FarmV2ABI from 'constants/abis/v2/farmv2.json'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
 import { NETWORKS_INFO } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
@@ -192,7 +193,8 @@ export const useElasticFarmsV2 = (subscribe = false) => {
         })
 
         return {
-          id: farm.id,
+          id: farm.id.split('_')[0],
+          fId: +farm.id.split('_')[1],
           startTime: Number(farm.startTime),
           endTime: Number(farm.endTime),
           poolAddress: farm.pool.id,
@@ -305,9 +307,10 @@ export const useElasticFarmsV2 = (subscribe = false) => {
 }
 
 export const useFarmV2Action = () => {
-  const { chainId } = useActiveWeb3React()
+  const { chainId, account } = useActiveWeb3React()
   const address = (NETWORKS_INFO[chainId] as EVMNetworkInfo).elastic?.farmV2Contract
   const addTransactionWithType = useTransactionAdder()
+  const farmContract = useContract(address, FarmV2ABI)
   const posManager = useProAmmNFTPositionManagerContract()
 
   const approve = useCallback(async () => {
@@ -329,60 +332,47 @@ export const useFarmV2Action = () => {
     return tx.hash
   }, [posManager, address, addTransactionWithType])
 
-  //   return tx.hash
-  // }, [addTransactionWithType, address, posManager])
+  //Deposit
+  const deposit = useCallback(
+    async (fId: number, rangeId: number, nftIds: number[]) => {
+      if (!farmContract) {
+        throw new Error(CONTRACT_NOT_FOUND_MSG)
+      }
+      try {
+        const estimateGas = await farmContract.estimateGas.deposit(fId, rangeId, nftIds, account)
+        const tx = await farmContract.deposit(fId, rangeId, nftIds, account, {
+          gasLimit: calculateGasMargin(estimateGas),
+        })
+        addTransactionWithType({
+          hash: tx.hash,
+          type: TRANSACTION_TYPE.ELASTIC_DEPOSIT_LIQUIDITY,
+        })
+        return tx.hash
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    [farmContract, addTransactionWithType, account],
+  )
 
-  // Deposit
-  // const deposit = useCallback(
-  //   async (positionDetails: PositionDetails[], positions: Position[]) => {
-  //     const nftIds = positionDetails.map(e => e.tokenId)
-  //     if (!contract) {
-  //       throw new Error(CONTRACT_NOT_FOUND_MSG)
-  //     }
+  const withdraw = useCallback(
+    async (fId: number, nftIds: number[]) => {
+      if (!farmContract) {
+        throw new Error(CONTRACT_NOT_FOUND_MSG)
+      }
+      const estimateGas = await farmContract.estimateGas.withdraw(fId, nftIds)
+      const tx = await farmContract.withdraw(fId, nftIds, {
+        gasLimit: calculateGasMargin(estimateGas),
+      })
+      addTransactionWithType({
+        hash: tx.hash,
+        type: TRANSACTION_TYPE.ELASTIC_WITHDRAW_LIQUIDITY,
+      })
 
-  //     const estimateGas = await contract.estimateGas.deposit(nftIds)
-  //     const tx = await contract.deposit(nftIds, {
-  //       gasLimit: calculateGasMargin(estimateGas),
-  //     })
-  //     addTransactionWithType({
-  //       hash: tx.hash,
-  //       type: TRANSACTION_TYPE.ELASTIC_DEPOSIT_LIQUIDITY,
-  //       extraInfo: getTransactionExtraInfo(
-  //         positions,
-  //         positionDetails.map(e => e.poolId),
-  //         positionDetails.map(e => e.tokenId.toString()),
-  //       ),
-  //     })
-
-  //     return tx.hash
-  //   },
-  //   [addTransactionWithType, contract],
-  // )
-
-  // const withdraw = useCallback(
-  //   async (positionDetails: PositionDetails[], positions: Position[]) => {
-  //     if (!contract) {
-  //       throw new Error(CONTRACT_NOT_FOUND_MSG)
-  //     }
-  //     const nftIds = positionDetails.map(e => e.tokenId)
-  //     const estimateGas = await contract.estimateGas.withdraw(nftIds)
-  //     const tx = await contract.withdraw(nftIds, {
-  //       gasLimit: calculateGasMargin(estimateGas),
-  //     })
-  //     addTransactionWithType({
-  //       hash: tx.hash,
-  //       type: TRANSACTION_TYPE.ELASTIC_WITHDRAW_LIQUIDITY,
-  //       extraInfo: getTransactionExtraInfo(
-  //         positions,
-  //         positionDetails.map(e => e.poolId),
-  //         positionDetails.map(e => e.tokenId.toString()),
-  //       ),
-  //     })
-
-  //     return tx.hash
-  //   },
-  //   [addTransactionWithType, contract],
-  // )
+      return tx.hash
+    },
+    [addTransactionWithType, farmContract],
+  )
 
   // const emergencyWithdraw = useCallback(
   //   async (nftIds: BigNumber[]) => {
@@ -462,43 +452,24 @@ export const useFarmV2Action = () => {
   //   [addTransactionWithType, contract],
   // )
 
-  // const harvest = useCallback(
-  //   async (
-  //     nftIds: BigNumber[],
-  //     poolIds: BigNumber[],
-  //     farm: FarmingPool | undefined,
-  //     farmRewards: CurrencyAmount<Currency>[],
-  //   ) => {
-  //     if (!contract) return
+  const harvest = useCallback(
+    async (fId: number, nftIds: number[]) => {
+      if (!farmContract) return
 
-  //     const encodeData = poolIds.map(id => defaultAbiCoder.encode(['tupple(uint256[] pIds)'], [{ pIds: [id] }]))
+      try {
+        const estimateGas = await farmContract.estimateGas.claimReward(fId, nftIds)
+        const tx = await farmContract.claimReward(fId, nftIds, {
+          gasLimit: calculateGasMargin(estimateGas),
+        })
 
-  //     try {
-  //       const estimateGas = await contract.estimateGas.harvestMultiplePools(nftIds, encodeData)
-  //       const tx = await contract.harvestMultiplePools(nftIds, encodeData, {
-  //         gasLimit: calculateGasMargin(estimateGas),
-  //       })
-  //       const extraInfo: TransactionExtraInfoHarvestFarm = {
-  //         tokenAddressIn: farm?.token0?.wrapped.address,
-  //         tokenAddressOut: farm?.token1?.wrapped.address,
-  //         tokenSymbolIn: farm?.token0?.symbol,
-  //         tokenSymbolOut: farm?.token1?.symbol,
-  //         contract: farm?.id,
-  //         rewards:
-  //           farmRewards?.map(reward => ({
-  //             tokenSymbol: reward.currency.symbol ?? '',
-  //             tokenAmount: reward.toSignificant(6),
-  //             tokenAddress: reward.currency.wrapped.address,
-  //           })) ?? [],
-  //       }
-  //       addTransactionWithType({ hash: tx.hash, type: TRANSACTION_TYPE.HARVEST, extraInfo })
-  //       return tx
-  //     } catch (e) {
-  //       console.log(e)
-  //     }
-  //   },
-  //   [addTransactionWithType, contract],
-  // )
+        addTransactionWithType({ hash: tx.hash, type: TRANSACTION_TYPE.HARVEST })
+        return tx
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    [addTransactionWithType, farmContract],
+  )
 
-  return { approve }
+  return { approve, deposit, withdraw, harvest }
 }

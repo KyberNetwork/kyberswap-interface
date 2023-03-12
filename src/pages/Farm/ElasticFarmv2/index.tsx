@@ -1,5 +1,4 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { TickMath } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
 import { useMemo, useState } from 'react'
 import { Info } from 'react-feather'
@@ -12,20 +11,19 @@ import { ButtonPrimary } from 'components/Button'
 import Divider from 'components/Divider'
 import { RowBetween, RowFit, RowWrap } from 'components/Row'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
-import { ZERO_ADDRESS } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
+import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import { useProAmmPositions } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
 import { Dots } from 'pages/Pool/styleds'
-import { useFarmAction } from 'state/farms/elastic/hooks'
-import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
+import { useElasticFarmsV2, useFarmV2Action } from 'state/farms/elasticv2/hooks'
 import { ElasticFarmV2, ElasticFarmV2Range } from 'state/farms/elasticv2/types'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { useIsTransactionPending } from 'state/transactions/hooks'
 import { PositionDetails } from 'types/position'
-import { getTickToPrice } from 'utils/getTickToPrice'
 
 import FarmCard from './components/FarmCard'
 
@@ -46,26 +44,28 @@ const FarmsWrapper = styled(RowWrap)`
 
 export interface ElasticFarmV2WithRangePrices extends ElasticFarmV2 {
   userPositions: Array<PositionDetails>
-  ranges: Array<ElasticFarmV2Range & { priceLower?: string; priceUpper?: string; priceCurrent?: string }>
+  ranges: Array<ElasticFarmV2Range & { tickCurrent?: string }>
 }
 
-export default function ElasticFarmv2({ address }: { address?: string }) {
+export default function ElasticFarmv2() {
   const theme = useTheme()
   const { chainId, account } = useActiveWeb3React()
+  const farmAddress = (NETWORKS_INFO[chainId] as EVMNetworkInfo).elastic?.farmV2Contract
   const above1000 = useMedia('(min-width: 1000px)')
 
   const whitelisted = useAllTokens()
+  //TODO: remove this later
   const inputToken = Object.values(whitelisted)?.filter(t => t.symbol === 'KNC')[0]
   const outputToken = Object.values(whitelisted)?.filter(t => t.symbol === 'USDC')[0]
 
   const elasticFarm = useElasticFarmsV2()
-  const { approve } = useFarmAction(address || ZERO_ADDRESS)
+  const { approve } = useFarmV2Action()
   const farms = elasticFarm?.farms
   const posManager = useProAmmNFTPositionManagerContract()
   const [approvalTx, setApprovalTx] = useState('')
   const isApprovalTxPending = useIsTransactionPending(approvalTx)
-  const res = useSingleCallResult(posManager, 'isApprovedForAll', [account, address])
-  const isApprovedForAll = res?.result?.[0] || !address
+  const res = useSingleCallResult(posManager, 'isApprovedForAll', [account, farmAddress])
+  const isApprovedForAll = res?.result?.[0] || !farmAddress
 
   const handleApprove = async () => {
     if (!isApprovedForAll) {
@@ -88,15 +88,9 @@ export default function ElasticFarmv2({ address }: { address?: string }) {
         ranges: farm.ranges.map(range => {
           return {
             ...range,
-            priceLower:
-              +range.tickLower > TickMath.MIN_TICK
-                ? getTickToPrice(farm.token0, farm.token1, +range.tickLower)?.toSignificant(4)
-                : '0',
-            priceUpper:
-              +range.tickUpper < TickMath.MAX_TICK
-                ? getTickToPrice(farm.token0, farm.token1, +range.tickUpper)?.toSignificant(4)
-                : '∞',
-            priceCurrent: getTickToPrice(farm.token0, farm.token1, +farm.pool.tickCurrent)?.toSignificant(4),
+            tickUpper: range.tickUpper,
+            tickLower: range.tickLower,
+            tickCurrent: farm.pool.tickCurrent.toString(),
           }
         }),
       }
