@@ -85,6 +85,7 @@ import useSyncTokenSymbolToUrl from 'hooks/useSyncTokenSymbolToUrl'
 import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { BodyWrapper } from 'pages/AppBody'
+import useUpdateSlippageInStableCoinSwap from 'pages/SwapV3/useUpdateSlippageInStableCoinSwap'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useAllDexes } from 'state/customizeDexes/hooks'
 import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
@@ -589,7 +590,7 @@ export default function Swap() {
     }
   }, [isExpertMode, mixpanelHandler])
 
-  const [rawSlippage, setRawSlippage] = useUserSlippageTolerance()
+  const [rawSlippage] = useUserSlippageTolerance()
 
   const isStableCoinSwap = Boolean(
     INPUT?.currencyId &&
@@ -599,17 +600,7 @@ export default function Swap() {
       STABLE_COINS_ADDRESS[chainId].includes(OUTPUT?.currencyId),
   )
 
-  const rawSlippageRef = useRef(rawSlippage)
-  rawSlippageRef.current = rawSlippage
-
-  useEffect(() => {
-    if (isStableCoinSwap && rawSlippageRef.current > 10) {
-      setRawSlippage(10)
-    }
-    if (!isStableCoinSwap && rawSlippageRef.current === 10) {
-      setRawSlippage(50)
-    }
-  }, [isStableCoinSwap, setRawSlippage])
+  useUpdateSlippageInStableCoinSwap()
 
   const shareUrl = useMemo(() => {
     const tokenIn = isSwapPage ? currencyIn : limitState.currencyIn
