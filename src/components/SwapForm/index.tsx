@@ -225,7 +225,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
             swapInputError={swapInputError}
           />
 
-          <TradeSummary feeConfig={feeConfig} routeSummary={routeSummary} slippage={slippage} />
+          {!isWrapOrUnwrap && <TradeSummary feeConfig={feeConfig} routeSummary={routeSummary} slippage={slippage} />}
         </Flex>
       </Box>
     </SwapFormContextProvider>
