@@ -117,7 +117,6 @@ const useSwapCallbackV3 = () => {
       if (!account || !inputAmount || !routerAddress || !encodedSwapData) {
         throw new Error('Missing dependencies')
       }
-
       const value = BigNumber.from(inputAmount.currency.isNative ? inputAmount.quotient.toString() : 0)
       const response = await sendEVMTransaction(
         account,

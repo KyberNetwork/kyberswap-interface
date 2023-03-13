@@ -219,6 +219,7 @@ export class Aggregator {
     feeConfig: FeeConfig | undefined,
     signal: AbortSignal,
     minimumLoadingTime: number,
+    permit?: string,
   ): Promise<Aggregator | null> {
     const programState = new Keypair()
     const amountIn = currencyAmountIn
@@ -234,7 +235,6 @@ export class Aggregator {
         ? ETHER_ADDRESS
         : WETH[currencyOut.chainId].address
       : tokenOut.address
-
     if (tokenInAddress && tokenOutAddress) {
       const search = new URLSearchParams({
         // Trade config
@@ -258,6 +258,7 @@ export class Aggregator {
 
         // Client data
         clientData: KYBERSWAP_SOURCE,
+        permit: permit ?? '',
       })
       try {
         const response = await fetchWaiting(
@@ -271,6 +272,7 @@ export class Aggregator {
           },
           minimumLoadingTime,
         )
+        console.log('🚀 ~ file: aggregator.ts:276 ~ Aggregator ~ response:', response)
         if (Math.round(response.status / 100) !== 2) throw new Error('Aggregator status fail: ' + response.status)
         const result = await response.json()
         if (

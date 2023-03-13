@@ -314,7 +314,7 @@ export const formatAndCacheToken = (tokenResponse: TokenInfo) => {
   }
 }
 
-function useTokenV2(tokenAddress?: string): WrappedTokenInfo | Token | NativeCurrency | undefined | null {
+export function useTokenV2(tokenAddress?: string): WrappedTokenInfo | Token | NativeCurrency | undefined | null {
   const { chainId } = useActiveWeb3React()
   const address = isAddress(chainId, tokenAddress)
   const { data, isValidating } = useSWR(

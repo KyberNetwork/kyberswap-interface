@@ -12,6 +12,7 @@ import {
   addSerializedPair,
   addSerializedToken,
   changeViewMode,
+  permitUpdate,
   removeSerializedPair,
   removeSerializedToken,
   toggleFavoriteToken,
@@ -90,6 +91,14 @@ interface UserState {
   acceptedTermVersion: number | null
   viewMode: VIEW_MODE
   holidayMode: boolean
+  permitData: {
+    [chainId: number]: {
+      [address: string]: {
+        rawSignature: string
+        deadline: number
+      }
+    }
+  }
 }
 
 function pairKey(token0Address: string, token1Address: string) {
@@ -143,6 +152,7 @@ const initialState: UserState = {
   acceptedTermVersion: null,
   viewMode: VIEW_MODE.GRID,
   holidayMode: true,
+  permitData: {},
 }
 
 export default createReducer(initialState, builder =>
@@ -272,5 +282,9 @@ export default createReducer(initialState, builder =>
     .addCase(toggleHolidayMode, state => {
       const oldMode = state.holidayMode
       state.holidayMode = !oldMode
+    })
+    .addCase(permitUpdate, (state, { payload: { chainId, address, rawSignature, deadline } }) => {
+      state.permitData[chainId] = state.permitData[chainId] || {}
+      state.permitData[chainId][address] = { rawSignature, deadline }
     }),
 )

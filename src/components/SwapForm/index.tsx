@@ -46,6 +46,7 @@ export type SwapFormProps = {
   slippage: number
   feeConfig: FeeConfig | undefined
   transactionTimeout: number
+  permit?: string
 
   onChangeCurrencyIn: (c: Currency) => void
   onChangeCurrencyOut: (c: Currency) => void
@@ -64,6 +65,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     slippage,
     feeConfig,
     transactionTimeout,
+    permit,
     onChangeCurrencyIn,
     onChangeCurrencyOut,
     goToSettingsView,
@@ -106,6 +108,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     slippage,
     transactionTimeout,
     skipSimulateTx: isAdvancedMode,
+    permit,
   })
 
   const swapInputError = useGetInputError({

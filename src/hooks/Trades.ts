@@ -15,7 +15,7 @@ import { useAllDexes, useExcludeDexes } from 'state/customizeDexes/hooks'
 import { useEncodeSolana, useSwapState } from 'state/swap/hooks'
 import { AggregationComparer } from 'state/swap/types'
 import { useAllTransactions } from 'state/transactions/hooks'
-import { useUserSlippageTolerance } from 'state/user/hooks'
+import { usePermitData, useUserSlippageTolerance } from 'state/user/hooks'
 import { isAddress } from 'utils'
 import { Aggregator } from 'utils/aggregator'
 
@@ -125,6 +125,7 @@ export function useTradeExactInV2(
   const ttl = useSelector<AppState, number>(state => state.user.userDeadline)
 
   const { feeConfig, saveGas } = useSwapState()
+  const permitData = usePermitData(currencyAmountIn?.currency.wrapped.address)
 
   // refresh aggregator data on new sent tx
   const allTxGroup = useMemo(() => JSON.stringify(Object.keys(txsInChain || {})), [txsInChain])
@@ -149,7 +150,7 @@ export function useTradeExactInV2(
           (isEVM ? ZERO_ADDRESS : ZERO_ADDRESS_SOLANA)
 
         const deadline = Math.round(Date.now() / 1000) + ttl
-
+        console.log(111111)
         const [state, comparedResult] = await Promise.all([
           Aggregator.bestTradeExactIn(
             aggregatorAPI,
@@ -163,6 +164,7 @@ export function useTradeExactInV2(
             feeConfig,
             signal,
             minimumLoadingTime,
+            permitData && permitData.rawSignature,
           ),
           Aggregator.compareDex(
             aggregatorAPI,
@@ -220,6 +222,7 @@ export function useTradeExactInV2(
       dexes,
       allowedSlippage,
       feeConfig,
+      permitData,
     ],
   )
 

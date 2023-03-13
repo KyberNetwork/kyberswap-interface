@@ -177,7 +177,7 @@ const SwapActionButton: React.FC<Props> = ({
       setErrorWhileSwap,
       buildRoute,
 
-      isDisabled: !routeSummary || approval !== ApprovalState.APPROVED,
+      isDisabled: (!routeSummary || approval !== ApprovalState.APPROVED) && permitState !== PermitState.SIGNED,
     }
 
     if (showApproveFlow) {

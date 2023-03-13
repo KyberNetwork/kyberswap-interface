@@ -423,3 +423,10 @@ export const useHolidayMode: () => [boolean, () => void] = () => {
 
   return [isChristmasTime() ? holidayMode : false, toggle]
 }
+
+export const usePermitData: (address?: string) => { rawSignature: string; deadline: number } | undefined = address => {
+  const { chainId } = useActiveWeb3React()
+  const permitData = useAppSelector(state => state.user.permitData)
+
+  return address ? permitData[chainId]?.[address] : undefined
+}
