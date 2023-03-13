@@ -1,8 +1,9 @@
 import { Trans, t } from '@lingui/macro'
-import axios from 'axios'
+import { debounce } from 'lodash'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Check, X } from 'react-feather'
 import { Flex, Text } from 'rebass'
+import { useAckTelegramSubscriptionStatusMutation, useLazyGetConnectedWalletQuery } from 'services/notification'
 import styled from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -14,7 +15,6 @@ import MailIcon from 'components/Icons/MailIcon'
 import Loader from 'components/Loader'
 import Modal from 'components/Modal'
 import Row, { RowBetween } from 'components/Row'
-import { NOTIFICATION_API } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useNotification, { Topic } from 'hooks/useNotification'
@@ -63,7 +63,7 @@ const CheckIcon = styled(Check)`
   bottom: 0;
   margin: auto;
 `
-const Input = styled.input<{ error: string }>`
+const Input = styled.input<{ borderColor: string }>`
   display: flex;
   align-items: center;
   white-space: nowrap;
@@ -76,13 +76,12 @@ const Input = styled.input<{ error: string }>`
   font-size: 14px;
   background-color: ${({ theme }) => theme.buttonBlack};
   transition: border 0.5s;
-  border: ${({ theme, error }) => `1px solid ${error ? theme.red : theme.border}`};
+  border: ${({ theme, borderColor }) => `1px solid ${borderColor || theme.border}`};
   ::placeholder {
     color: ${({ theme }) => theme.border};
     font-size: 12px;
   }
 `
-// dấu tick / x trên input
 
 const ButtonTextt = styled.div`
   font-size: 16px;
@@ -133,9 +132,7 @@ enum TAB {
 //   },
 // ]
 
-const ackTelegramSubscriptionStatus = async (wallet: string) => {
-  return axios.delete(`${NOTIFICATION_API}/v1/subscription-result/telegram`, { data: { wallet } })
-}
+const isEmailValid = (value: string) => value.match(/\S+@\S+\.\S+/)
 
 export default function NotificationModal() {
   const toggleModal = useNotificationModalToggle()
@@ -152,7 +149,7 @@ export default function NotificationModal() {
 
   const [inputEmail, setInputEmail] = useState('')
   const [emailPendingVerified, setEmailPendingVerified] = useState('')
-  const [errorInput, setErrorInput] = useState('')
+  const [errorInput, setErrorInput] = useState<{ msg: string; type: 'error' | 'warn' } | null>(null)
 
   const [activeTab] = useState<TAB>(TAB.EMAIL)
   const [selectedTopic, setSelectedTopic] = useState<number[]>([])
@@ -164,9 +161,10 @@ export default function NotificationModal() {
   const notFillEmail = !inputEmail && isEmailTab
 
   const validateInput = useCallback((value: string, required = false) => {
-    const isValid = value.match(/\S+@\S+\.\S+/)
+    const isValid = isEmailValid(value)
     const errMsg = t`Please input a valid email address`
-    setErrorInput((value.length && !isValid) || (required && !value.length) ? errMsg : '')
+    const msg = (value.length && !isValid) || (required && !value.length) ? errMsg : ''
+    setErrorInput(msg ? { msg, type: 'error' } : null)
   }, [])
 
   const updateTopicGroupsLocal = useCallback(
@@ -183,6 +181,7 @@ export default function NotificationModal() {
     [topicGroupsGlobal],
   )
 
+  const [ackTelegramSubscriptionStatus] = useAckTelegramSubscriptionStatusMutation()
   useEffect(() => {
     if (!account) return
     const unsubscribe = subscribeTelegramSubscription(account, data => {
@@ -192,12 +191,12 @@ export default function NotificationModal() {
       }
     })
     return () => unsubscribe?.()
-  }, [account, refreshTopics])
+  }, [account, refreshTopics, ackTelegramSubscriptionStatus])
 
   useEffect(() => {
     if (isOpen) {
       setEmailPendingVerified('')
-      setErrorInput('')
+      setErrorInput(null)
       setInputEmail(userInfo.email)
     }
   }, [userInfo, activeTab, isOpen])
@@ -258,7 +257,7 @@ export default function NotificationModal() {
   const onSave = async () => {
     try {
       if (isEmailTab) validateInput(inputEmail, true)
-      if (isLoading || errorInput || notFillEmail) return
+      if (isLoading || errorInput?.type === 'error' || notFillEmail) return
 
       const { unsubscribeIds, subscribeIds, subscribeNames, unsubscribeNames } = getDiffChangeTopics(topicGroupsGlobal)
       if (subscribeNames.length) {
@@ -269,7 +268,7 @@ export default function NotificationModal() {
       }
       const isChangeEmailOnly = !unsubscribeIds.length && !subscribeIds.length && inputEmail !== userInfo.email
       if (inputEmail !== userInfo.email) setEmailPendingVerified(inputEmail)
-      const resp = await saveNotification({
+      const verificationUrl = await saveNotification({
         subscribeIds,
         unsubscribeIds,
         email: inputEmail,
@@ -277,7 +276,6 @@ export default function NotificationModal() {
         isChangeEmailOnly,
         isTelegram: isTelegramTab,
       })
-      const verificationUrl = resp?.verificationUrl
       updateTopicGroupsLocal(subscribeIds, unsubscribeIds)
       refreshTopics()
       if (isTelegramTab && verificationUrl) {
@@ -307,9 +305,29 @@ export default function NotificationModal() {
     }
   }
 
+  const [getConnectedWallet] = useLazyGetConnectedWalletQuery()
+  const checkEmailExist = useCallback(
+    async (email: string) => {
+      try {
+        if (!isEmailValid(email)) return
+        const { data: walletAddress } = await getConnectedWallet(email)
+        if (walletAddress && walletAddress !== account?.toLowerCase()) {
+          setErrorInput({
+            msg: t`Your email has already been linked to another wallet, it will be unlinked automatically if you proceed`,
+            type: 'warn',
+          })
+        }
+      } catch (error) {}
+    },
+    [account, getConnectedWallet],
+  )
+
+  const debouncedCheckEmail = useMemo(() => debounce((email: string) => checkEmailExist(email), 500), [checkEmailExist])
+
   const onChangeInput = (e: React.FormEvent<HTMLInputElement>) => {
     setInputEmail(e.currentTarget.value)
     validateInput(e.currentTarget.value)
+    debouncedCheckEmail(e.currentTarget.value)
   }
 
   const onChangeTopic = (topicId: number) => {
@@ -338,11 +356,13 @@ export default function NotificationModal() {
 
   const disableButtonSave = useMemo(() => {
     if (isTelegramTab) return isLoading
-    if (isLoading || notFillEmail || errorInput) return true
+    if (isLoading || notFillEmail || errorInput?.type === 'error') return true
     return !getDiffChangeTopics(topicGroups).hasChanged
   }, [getDiffChangeTopics, isLoading, notFillEmail, errorInput, isTelegramTab, topicGroups])
 
-  const disableCheckbox = !account || notFillEmail || !!errorInput
+  const disableCheckbox = !account || notFillEmail || errorInput?.type === 'error'
+  const errorColor =
+    errorInput?.type === 'error' ? theme.red : errorInput?.type === 'warn' ? theme.warning : theme.border
 
   const renderButton = () => (
     <ActionWrapper>
@@ -414,11 +434,16 @@ export default function NotificationModal() {
               <Trans>Enter your email address to receive notifications</Trans>
             </Label>
             <InputWrapper>
-              <Input error={errorInput} value={inputEmail} placeholder="example@gmail.com" onChange={onChangeInput} />
+              <Input
+                borderColor={errorColor}
+                value={inputEmail}
+                placeholder="example@gmail.com"
+                onChange={onChangeInput}
+              />
               {isVerifiedEmail && hasTopicSubscribed && <CheckIcon color={theme.primary} />}
             </InputWrapper>
-            <Label style={{ color: theme.red, opacity: errorInput ? 1 : 0, margin: '7px 0px 0px 0px' }}>
-              {errorInput || 'No data'}
+            <Label style={{ color: errorColor, opacity: errorInput ? 1 : 0, margin: '7px 0px 0px 0px' }}>
+              {errorInput?.msg || 'No data'}
             </Label>
           </Column>
         ) : (
