@@ -1,5 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { load, save } from 'redux-localstorage-simple'
+import priceAlertApi from 'services/priceAlert'
 import routeApi from 'services/route'
 
 import { ENV_LEVEL } from 'constants/env'
@@ -58,6 +59,7 @@ const store = configureStore({
     [annoucementApi.reducerPath]: annoucementApi.reducer,
     [geckoTerminalApi.reducerPath]: geckoTerminalApi.reducer,
     [ksSettingApi.reducerPath]: ksSettingApi.reducer,
+    [priceAlertApi.reducerPath]: priceAlertApi.reducer,
     campaigns,
     tutorial,
     bridge,
@@ -74,6 +76,7 @@ const store = configureStore({
       .concat(geckoTerminalApi.middleware)
       .concat(ksSettingApi.middleware)
       .concat(annoucementApi.middleware)
+      .concat(priceAlertApi.middleware)
       .concat(routeApi.middleware),
   preloadedState: load({ states: PERSISTED_KEYS }),
 })

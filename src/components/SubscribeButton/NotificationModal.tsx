@@ -2,6 +2,7 @@ import { Trans, t } from '@lingui/macro'
 import axios from 'axios'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Check, X } from 'react-feather'
+import { useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -11,10 +12,13 @@ import Checkbox from 'components/CheckBox'
 import Column from 'components/Column'
 import { Telegram } from 'components/Icons'
 import MailIcon from 'components/Icons/MailIcon'
+import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import Loader from 'components/Loader'
 import Modal from 'components/Modal'
 import Row, { RowBetween } from 'components/Row'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { NOTIFICATION_API } from 'constants/env'
+import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useNotification, { Topic } from 'hooks/useNotification'
@@ -142,6 +146,7 @@ export default function NotificationModal() {
   const isOpen = useModalOpen(ApplicationModal.NOTIFICATION_SUBSCRIPTION)
   const theme = useTheme()
   const { account } = useActiveWeb3React()
+  const navigate = useNavigate()
   const { isLoading, saveNotification, refreshTopics, topicGroups: topicGroupsGlobal, userInfo } = useNotification()
 
   const [topicGroups, setTopicGroups] = useState<Topic[]>([])
@@ -380,7 +385,17 @@ export default function NotificationModal() {
           <Row fontSize={20} fontWeight={500} gap="10px">
             <MailIcon /> <Trans>Notifications</Trans>
           </Row>
-          <CloseIcon onClick={toggleModal} />
+          <MouseoverTooltip text={t`Notification Preferences`} placement="top" width="fit-content">
+            <TransactionSettingsIcon
+              size={24}
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
+                navigate(APP_PATHS.NOTIFICATION_CENTER)
+                toggleModal()
+              }}
+            />
+          </MouseoverTooltip>
+          <CloseIcon onClick={toggleModal} style={{ marginLeft: 16 }} />
         </RowBetween>
         {/* <RowBetween gap="14px">
           <Label>

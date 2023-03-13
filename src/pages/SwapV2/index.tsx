@@ -779,7 +779,7 @@ export default function Swap() {
             )}
 
             <AppBodyWrapped data-highlight={shouldHighlightSwapBox} id={TutorialIds.SWAP_FORM}>
-              {activeTab === TAB.SWAP && ( // todo danh split component, check router api call
+              {activeTab === TAB.SWAP && (
                 <>
                   <Wrapper id={TutorialIds.SWAP_FORM_CONTENT}>
                     <ConfirmSwapModal

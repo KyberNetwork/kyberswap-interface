@@ -84,6 +84,7 @@ const BuyCrypto = lazy(() => import(/* webpackChunkName: 'true-sight-page' */ '.
 
 const Campaign = lazy(() => import(/* webpackChunkName: 'campaigns-page' */ './Campaign'))
 const GrantProgramPage = lazy(() => import(/* webpackChunkName: 'grant-program-page' */ './GrantProgram'))
+const NotificationCenter = lazy(() => import(/* webpackChunkName: 'notification-center-page' */ './NotificationCenter'))
 
 const AppWrapper = styled.div`
   display: flex;
@@ -307,6 +308,7 @@ export default function App() {
                     <Route path={`${APP_PATHS.CAMPAIGN}/:slug`} element={<Campaign />} />
                     <Route path={`${APP_PATHS.BRIDGE}`} element={<Bridge />} />
                     <Route path={`${APP_PATHS.VERIFY_EXTERNAL}`} element={<Verify />} />
+                    <Route path={`${APP_PATHS.NOTIFICATION_CENTER}`} element={<NotificationCenter />} />
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}`} element={<GrantProgramPage />} />
                     <Route path={`${APP_PATHS.GRANT_PROGRAMS}/:slug`} element={<GrantProgramPage />} />
 

@@ -1,9 +1,14 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { Trans } from '@lingui/macro'
+import { rgba } from 'polished'
 import { useEffect, useMemo, useState } from 'react'
-import { Box, Flex } from 'rebass'
+import { useNavigate } from 'react-router-dom'
+import { Box, Flex, Text } from 'rebass'
 import { parseGetRouteResponse } from 'services/route/utils'
+import styled from 'styled-components'
 
 import AddressInputPanel from 'components/AddressInputPanel'
+import { Clock } from 'components/Icons'
 import { AutoRow } from 'components/Row'
 import SlippageWarningNote from 'components/SlippageWarningNote'
 import InputCurrencyPanel from 'components/SwapForm/InputCurrencyPanel'
@@ -19,7 +24,9 @@ import TrendingSoonTokenBanner from 'components/TrendingSoonTokenBanner'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import TradePrice from 'components/swapv2/TradePrice'
 import { Wrapper } from 'components/swapv2/styleds'
+import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
+import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { DetailedRouteSummary, FeeConfig } from 'types/route'
 
@@ -52,6 +59,18 @@ export type SwapFormProps = {
   goToSettingsView: () => void
 }
 
+const PriceAlertButton = styled.div`
+  background: ${({ theme }) => rgba(theme.subText, 0.2)};
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  cursor: pointer;
+  user-select: none;
+  font-weight: 500;
+`
+
 const SwapForm: React.FC<SwapFormProps> = props => {
   const {
     hidden,
@@ -68,12 +87,14 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     onChangeCurrencyOut,
   } = props
 
-  const { chainId, isEVM, isSolana } = useActiveWeb3React()
+  const { chainId, isEVM, isSolana, account } = useActiveWeb3React()
 
   const [isProcessingSwap, setProcessingSwap] = useState(false)
   const [typedValue, setTypedValue] = useState('1')
   const [recipient, setRecipient] = useState<string | null>(null)
   const [isSaveGas, setSaveGas] = useState(false)
+
+  const navigate = useNavigate()
 
   const parsedAmount = useParsedAmount(currencyIn, typedValue)
   const { wrapType, inputError: wrapInputError, execute: onWrap } = useWrapCallback(currencyIn, currencyOut, typedValue)
@@ -139,6 +160,8 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     setRouteSummary(routeSummary)
   }, [routeSummary, setRouteSummary])
 
+  const theme = useTheme()
+
   return (
     <SwapFormContextProvider
       feeConfig={feeConfig}
@@ -192,7 +215,19 @@ const SwapForm: React.FC<SwapFormProps> = props => {
               <AddressInputPanel id="recipient" value={recipient} onChange={setRecipient} />
             )}
 
-            {!isWrapOrUnwrap && <SlippageSetting isStablePairSwap={isStablePairSwap} />}
+            {!isWrapOrUnwrap && (
+              <Flex alignItems="center" fontSize={12} color={theme.subText} justifyContent="space-between">
+                <SlippageSetting isStablePairSwap={isStablePairSwap} />
+                {account && (
+                  <PriceAlertButton onClick={() => navigate(APP_PATHS.NOTIFICATION_CENTER)}>
+                    <Clock size={14} color={theme.subText} />
+                    <Text color={theme.subText}>
+                      <Trans>Price Alert</Trans>
+                    </Text>
+                  </PriceAlertButton>
+                )}
+              </Flex>
+            )}
           </Flex>
         </Wrapper>
         <Flex flexDirection="column" style={{ gap: '1.25rem' }}>

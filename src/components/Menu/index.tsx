@@ -14,7 +14,7 @@ import {
   Share2,
   UserPlus,
 } from 'react-feather'
-import { NavLink, useLocation } from 'react-router-dom'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -45,7 +45,6 @@ import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import useClaimReward from 'hooks/useClaimReward'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import useNotification from 'hooks/useNotification'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
@@ -220,7 +219,6 @@ export default function Menu() {
 
   const open = useModalOpen(ApplicationModal.MENU)
   const toggle = useToggleModal(ApplicationModal.MENU)
-  const { showNotificationModal } = useNotification()
   const [darkMode, toggleSetDarkMode] = useDarkModeManager()
   const [holidayMode, toggleHolidayMode] = useHolidayMode()
   const [isSelectingLanguage, setIsSelectingLanguage] = useState(false)
@@ -229,6 +227,7 @@ export default function Menu() {
   const location = useLocation()
 
   const { mixpanelHandler } = useMixpanel()
+  const navigate = useNavigate()
 
   const setShowTutorialSwapGuide = useTutorialSwapGuide()[1]
   const openTutorialSwapGuide = () => {
@@ -447,11 +446,12 @@ export default function Menu() {
             </NavLinkBetween>
             <NavLinkBetween
               onClick={() => {
-                showNotificationModal()
+                navigate(APP_PATHS.NOTIFICATION_CENTER)
                 mixpanelHandler(MIXPANEL_TYPE.NOTIFICATION_CLICK_MENU)
+                toggle()
               }}
             >
-              <Trans>Notifications</Trans>
+              <Trans>Notification Center</Trans>
               <MailIcon size={17} color={theme.text} />
             </NavLinkBetween>
             <NavLinkBetween onClick={() => setIsSelectingLanguage(true)}>

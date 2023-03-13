@@ -117,7 +117,7 @@ export const BottomGrouping = styled.div`
   margin-top: 24px;
 `
 
-export const StyledBalanceMaxMini = styled.button`
+export const StyledBalanceMaxMini = styled.button<{ hover?: boolean }>`
   height: 22px;
   width: 22px;
   background-color: transparent;
@@ -133,14 +133,17 @@ export const StyledBalanceMaxMini = styled.button`
   justify-content: center;
   align-items: center;
   float: right;
-
-  :hover {
-    background-color: ${({ theme }) => theme.bg3};
-  }
-  :focus {
-    background-color: ${({ theme }) => theme.bg3};
-    outline: none;
-  }
+  ${({ hover }) =>
+    hover &&
+    css`
+      :hover {
+        background-color: ${({ theme }) => theme.bg3};
+      }
+      :focus {
+        background-color: ${({ theme }) => theme.bg3};
+        outline: none;
+      }
+    `}
 `
 
 export const TruncatedText = styled(Text)`
