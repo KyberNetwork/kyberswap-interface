@@ -249,7 +249,7 @@ function FarmCard({
   const currentTimestamp = Math.floor(Date.now() / 1000)
   const elasticFarm = useElasticFarmsV2()
   const depositedPos = farm?.userPositions
-  const stakedPos = elasticFarm?.userInfo?.filter(u => u.fId === farm?.fId)
+  const stakedPos = elasticFarm?.userInfo?.filter(u => u.fId === farm?.fId && u.rangeId === activeRange)
   const canStake = enableStake || (depositedPos && stakedPos && depositedPos.length > stakedPos.length)
   const canUnstake = hasUnstake || (stakedPos && stakedPos.length > 0)
   const { harvest } = useFarmV2Action()
@@ -489,7 +489,9 @@ function FarmCard({
         {canStake && (
           <StakeWithNFTsModal isOpen={showStake} onDismiss={() => setShowStake(false)} positions={depositedPos} />
         )}
-        {hasUnstake && <UnstakeWithNFTsModal isOpen={showUnstake} onDismiss={() => setShowUnstake(false)} />}
+        {canUnstake && (
+          <UnstakeWithNFTsModal isOpen={showUnstake} onDismiss={() => setShowUnstake(false)} stakedPos={stakedPos} />
+        )}
       </Wrapper>
     </FarmContext.Provider>
   )

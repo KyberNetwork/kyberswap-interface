@@ -339,9 +339,9 @@ export const useFarmV2Action = () => {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }
       try {
-        const estimateGas = await farmContract.estimateGas.deposit(fId, rangeId, nftIds, account)
+        //const estimateGas = await farmContract.estimateGas.deposit(fId, rangeId, nftIds, account)
         const tx = await farmContract.deposit(fId, rangeId, nftIds, account, {
-          gasLimit: calculateGasMargin(estimateGas),
+          gasLimit: '10000000',
         })
         addTransactionWithType({
           hash: tx.hash,

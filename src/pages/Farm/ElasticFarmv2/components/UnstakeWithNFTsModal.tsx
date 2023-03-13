@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import React from 'react'
+import React, { useCallback, useContext, useState } from 'react'
 import { Minus, X } from 'react-feather'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -8,7 +8,10 @@ import { ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
 import Row, { RowBetween, RowFit, RowWrap } from 'components/Row'
 import useTheme from 'hooks/useTheme'
+import { useFarmV2Action } from 'state/farms/elasticv2/hooks'
+import { UserFarmV2Info } from 'state/farms/elasticv2/types'
 
+import { FarmContext } from './FarmCard'
 import PriceVisualize from './PriceVisualize'
 
 const Wrapper = styled.div`
@@ -56,22 +59,68 @@ const CloseButton = styled.div`
   cursor: pointer;
 `
 
-export const NFTItem = ({ active }: { active?: boolean }) => {
+export const NFTItem = ({
+  active,
+  pos,
+  onClick,
+}: {
+  active?: boolean
+  pos?: UserFarmV2Info
+  onClick?: (tokenId: string) => void
+}) => {
   return (
-    <NFTItemWrapper active={active}>
-      <Text fontSize="12px" lineHeight="16px" color="var(--primary)">
-        #123456789
-      </Text>
-      <PriceVisualize rangeInclude={false} />
-      <Text fontSize="12px" lineHeight="16px">
-        $230,23K
-      </Text>
-    </NFTItemWrapper>
+    <>
+      {pos ? (
+        <NFTItemWrapper active={active} onClick={() => onClick?.(pos.nftId.toString())}>
+          <Text fontSize="12px" lineHeight="16px" color="var(--primary)">
+            {`#${pos.nftId.toString()}`}
+          </Text>
+
+          <Text fontSize="12px" lineHeight="16px">
+            $230,23K
+          </Text>
+        </NFTItemWrapper>
+      ) : (
+        <NFTItemWrapper active={active}>
+          <Text fontSize="12px" lineHeight="16px" color="var(--primary)">
+            #123456789
+          </Text>
+          <PriceVisualize rangeInclude={false} />
+          <Text fontSize="12px" lineHeight="16px">
+            $230,23K
+          </Text>
+        </NFTItemWrapper>
+      )}
+    </>
   )
 }
 
-const UnstakeWithNFTsModal = ({ isOpen, onDismiss }: { isOpen: boolean; onDismiss: () => void }) => {
+const UnstakeWithNFTsModal = ({
+  isOpen,
+  onDismiss,
+  stakedPos,
+}: {
+  isOpen: boolean
+  onDismiss: () => void
+  stakedPos?: UserFarmV2Info[]
+}) => {
   const theme = useTheme()
+  const { farm } = useContext(FarmContext)
+  const [selectedPos, setSelectedPos] = useState<{ [tokenId: string]: boolean }>({})
+
+  const handlePosClick = useCallback((tokenId: string) => {
+    setSelectedPos(prev => {
+      return { ...prev, [tokenId]: !prev[tokenId] }
+    })
+  }, [])
+  const { withdraw } = useFarmV2Action()
+  const handleUnstake = useCallback(() => {
+    if (!farm) return
+    withdraw(
+      farm.fId,
+      Object.keys(selectedPos).map(p => +p),
+    )
+  }, [withdraw, farm, selectedPos])
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss} maxWidth="min(724px, 100vw)">
       <Wrapper>
@@ -99,15 +148,28 @@ const UnstakeWithNFTsModal = ({ isOpen, onDismiss }: { isOpen: boolean; onDismis
             </Text>
           </RowFit>
           <NFTsWrapper>
-            <NFTItem active />
-            <NFTItem active />
-            <NFTItem active />
-            <NFTItem active />
-            <NFTItem active />
-            <NFTItem active />
+            {stakedPos ? (
+              stakedPos.map(pos => (
+                <NFTItem
+                  key={pos.nftId.toString()}
+                  active={selectedPos[pos.nftId.toString()]}
+                  pos={pos}
+                  onClick={handlePosClick}
+                />
+              ))
+            ) : (
+              <>
+                <NFTItem active />
+                <NFTItem active />
+                <NFTItem active />
+                <NFTItem active />
+                <NFTItem active />
+                <NFTItem active />
+              </>
+            )}
           </NFTsWrapper>
         </ContentWrapper>
-        <ButtonPrimary width="fit-content" alignSelf="flex-end" padding="8px 18px">
+        <ButtonPrimary width="fit-content" alignSelf="flex-end" padding="8px 18px" onClick={handleUnstake}>
           <Text fontSize="14px" lineHeight="20px" fontWeight={500}>
             <Row gap="6px">
               <Minus size={16} />

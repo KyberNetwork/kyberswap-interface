@@ -157,8 +157,8 @@ const StakeWithNFTsModal = ({
       farm.fId,
       activeRange,
       Object.keys(selectedPos).map(p => +p),
-    )
-  }, [farm, activeRange, deposit, selectedPos])
+    ).then(txHash => txHash && onDismiss?.())
+  }, [farm, activeRange, deposit, selectedPos, onDismiss])
 
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss} maxWidth="min(724px, 100vw)">
