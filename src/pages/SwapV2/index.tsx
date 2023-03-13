@@ -898,9 +898,8 @@ export default function Swap() {
 
                     {isPriceImpactInvalid ? (
                       <PriceImpactHigh>
-                        <AlertTriangle color={theme.warning} size={16} style={{ marginRight: '10px' }} />
+                        <AlertTriangle color={theme.warning} size={16} style={{ marginRight: '8px' }} />
                         <Trans>Unable to calculate Price Impact</Trans>
-                        <InfoHelper text={t`Turn on Advanced Mode to trade`} color={theme.text} />
                       </PriceImpactHigh>
                     ) : (
                       isPriceImpactHigh && (
@@ -908,27 +907,30 @@ export default function Swap() {
                           <AlertTriangle
                             color={isPriceImpactVeryHigh ? theme.red : theme.warning}
                             size={16}
-                            style={{ marginRight: '10px' }}
+                            style={{ marginRight: '8px' }}
                           />
                           {isPriceImpactVeryHigh ? (
                             <Trans>Price Impact is Very High</Trans>
                           ) : (
                             <Trans>Price Impact is High</Trans>
                           )}
-                          <InfoHelper
-                            text={
-                              isExpertMode
-                                ? t`You have turned on Advanced Mode from settings. Trades with high price impact can be executed`
-                                : t`Turn on Advanced Mode from settings to execute trades with high price impact`
-                            }
-                            color={theme.text}
-                          />
+                          {isPriceImpactVeryHigh && (
+                            <InfoHelper
+                              placement="top"
+                              text={
+                                isExpertMode
+                                  ? t`You have turned on Advanced Mode from settings. Trades with very high price impact can now be executed`
+                                  : t`Turn on Advanced Mode from settings to execute trades with very high price impact`
+                              }
+                              color={theme.text}
+                            />
+                          )}
                         </PriceImpactHigh>
                       )
                     )}
                     {isLargeSwap && (
                       <PriceImpactHigh>
-                        <AlertTriangle color={theme.warning} size={24} style={{ marginRight: '10px' }} />
+                        <AlertTriangle color={theme.warning} size={24} style={{ marginRight: '8px' }} />
                         <Trans>
                           Your transaction may not be successful. We recommend increasing the slippage for this trade
                         </Trans>
@@ -1029,17 +1031,13 @@ export default function Swap() {
                         <ButtonError
                           onClick={() => {
                             mixpanelSwapInit()
-                            if (isExpertMode) {
-                              handleSwap()
-                            } else {
-                              setSwapState({
-                                tradeToConfirm: trade,
-                                attemptingTxn: false,
-                                swapErrorMessage: undefined,
-                                showConfirm: true,
-                                txHash: undefined,
-                              })
-                            }
+                            setSwapState({
+                              tradeToConfirm: trade,
+                              attemptingTxn: false,
+                              swapErrorMessage: undefined,
+                              showConfirm: true,
+                              txHash: undefined,
+                            })
                           }}
                           id="swap-button"
                           disabled={
