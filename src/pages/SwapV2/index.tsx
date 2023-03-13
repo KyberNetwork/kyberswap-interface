@@ -28,6 +28,8 @@ import ProgressSteps from 'components/ProgressSteps'
 import { AutoRow, RowBetween } from 'components/Row'
 import { SEOSwap } from 'components/SEO'
 import { ShareButtonWithModal } from 'components/ShareModal'
+import SlippageWarningNote from 'components/SlippageWarningNote'
+import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import TokenWarningModal from 'components/TokenWarningModal'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -83,8 +85,7 @@ import useSyncTokenSymbolToUrl from 'hooks/useSyncTokenSymbolToUrl'
 import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { BodyWrapper } from 'pages/AppBody'
-import { ClickableText } from 'pages/Pool/styleds'
-import { useToggleTransactionSettingsMenu, useWalletModalToggle } from 'state/application/hooks'
+import { useWalletModalToggle } from 'state/application/hooks'
 import { useAllDexes } from 'state/customizeDexes/hooks'
 import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { Field } from 'state/swap/actions'
@@ -184,6 +185,10 @@ const RoutingIconWrapper = styled(RoutingIcon)`
   }
 `
 
+const CustomSlippageNote = styled(SlippageWarningNote)`
+  margin-top: 24px;
+`
+
 export default function Swap() {
   const navigateFn = useNavigate()
   const { account, chainId, networkInfo, isSolana, isEVM } = useActiveWeb3React()
@@ -239,8 +244,6 @@ export default function Swap() {
   // toggle wallet when disconnected
   const toggleWalletModal = useWalletModalToggle()
 
-  // for expert mode
-  const toggleSettings = useToggleTransactionSettingsMenu()
   const [isExpertMode] = useExpertModeManager()
 
   // get custom setting values for user
@@ -588,12 +591,13 @@ export default function Swap() {
 
   const [rawSlippage, setRawSlippage] = useUserSlippageTolerance()
 
-  const isStableCoinSwap =
+  const isStableCoinSwap = Boolean(
     INPUT?.currencyId &&
-    OUTPUT?.currencyId &&
-    chainId &&
-    STABLE_COINS_ADDRESS[chainId].includes(INPUT?.currencyId) &&
-    STABLE_COINS_ADDRESS[chainId].includes(OUTPUT?.currencyId)
+      OUTPUT?.currencyId &&
+      chainId &&
+      STABLE_COINS_ADDRESS[chainId].includes(INPUT?.currencyId) &&
+      STABLE_COINS_ADDRESS[chainId].includes(OUTPUT?.currencyId),
+  )
 
   const rawSlippageRef = useRef(rawSlippage)
   rawSlippageRef.current = rawSlippage
@@ -886,20 +890,7 @@ export default function Swap() {
                         <AddressInputPanel id="recipient" value={recipient} onChange={handleRecipientChange} />
                       )}
 
-                      {!showWrap && (
-                        <Flex
-                          alignItems="center"
-                          fontSize={12}
-                          color={theme.subText}
-                          onClick={toggleSettings}
-                          width="fit-content"
-                        >
-                          <ClickableText color={theme.subText} fontWeight={500}>
-                            <Trans>Max Slippage:</Trans>&nbsp;
-                            {allowedSlippage / 100}%
-                          </ClickableText>
-                        </Flex>
-                      )}
+                      {!showWrap && <SlippageSetting isStablePairSwap={isStableCoinSwap} />}
                     </Flex>
 
                     <TradeTypeSelection />
@@ -911,6 +902,8 @@ export default function Swap() {
                         style={{ marginTop: '24px' }}
                       />
                     )}
+
+                    {!showWrap && <CustomSlippageNote rawSlippage={rawSlippage} isStablePairSwap={isStableCoinSwap} />}
 
                     {isPriceImpactInvalid ? (
                       <PriceImpactHigh>
