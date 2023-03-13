@@ -268,9 +268,18 @@ const SwapDetails: React.FC<Props> = ({
             </TYPE.black>
             <InfoHelper size={14} text={t`Estimated change in price due to the size of your transaction`} />
           </RowFixed>
-          <TYPE.black fontSize={14} color={isVeryHigh ? theme.red : isHigh ? theme.warning : theme.text}>
-            {isInvalid || !priceImpact ? '--' : priceImpact > 0.01 ? priceImpact.toFixed(2) + '%' : '< 0.01%'}
-          </TYPE.black>
+
+          <ValueWithLoadingSkeleton
+            skeletonStyle={{
+              width: '64px',
+            }}
+            isShowingSkeleton={isLoading}
+            content={
+              <TYPE.black fontSize={14} color={isVeryHigh ? theme.red : isHigh ? theme.warning : theme.text}>
+                {isInvalid || !priceImpact ? '--' : priceImpact > 0.01 ? priceImpact.toFixed(2) + '%' : '< 0.01%'}
+              </TYPE.black>
+            }
+          />
         </RowBetween>
 
         <RowBetween height="20px">
