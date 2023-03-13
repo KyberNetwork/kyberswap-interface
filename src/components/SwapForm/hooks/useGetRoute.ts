@@ -1,6 +1,6 @@
-import { Currency, CurrencyAmount, WETH } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { debounce } from 'lodash'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 import routeApi from 'services/route'
 import { GetRouteParams } from 'services/route/types/getRoute'
 
@@ -23,12 +23,13 @@ export const getRouteTokenAddressParam = (currency: Currency) =>
   currency.isNative
     ? isEVM(currency.chainId)
       ? ETHER_ADDRESS
-      : WETH[currency.chainId].address
+      : WETH[currency.chainId as ChainId].address
     : currency.wrapped.address
 
 const useGetRoute = (args: Args) => {
   const [trigger, result] = routeApi.useLazyGetRouteQuery()
   const { aggregatorDomain } = useKyberswapGlobalConfig()
+  const lastRequestRef = useRef<any>()
 
   const { isSaveGas, parsedAmount, currencyIn, currencyOut, feeConfig } = args
   const { chainId } = useActiveWeb3React()
@@ -37,13 +38,13 @@ const useGetRoute = (args: Args) => {
   const { chargeFeeBy = '', feeReceiver = '', feeAmount = '' } = feeConfig || {}
   const isInBps = feeConfig?.isInBps !== undefined ? (feeConfig.isInBps ? '1' : '0') : ''
 
-  const triggerDebounced = useMemo(() => debounce(trigger, INPUT_DEBOUNCE_TIME), [trigger])
+  const fetcher = useCallback(() => {
+    // abort the last request
+    lastRequestRef.current?.abort()
 
-  const fetcher = useCallback(async () => {
     const amountIn = parsedAmount?.quotient?.toString() || ''
-
     if (!currencyIn || !currencyOut || !amountIn || !parsedAmount?.currency?.equals(currencyIn)) {
-      return undefined
+      return
     }
 
     const tokenInAddress = getRouteTokenAddressParam(currencyIn)
@@ -72,12 +73,11 @@ const useGetRoute = (args: Args) => {
 
     const url = `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}/api/v1/routes`
 
-    triggerDebounced({
+    const request = trigger({
       url,
       params,
     })
-
-    return undefined
+    lastRequestRef.current = request
   }, [
     aggregatorDomain,
     chainId,
@@ -91,10 +91,16 @@ const useGetRoute = (args: Args) => {
     isSaveGas,
     parsedAmount?.currency,
     parsedAmount?.quotient,
-    triggerDebounced,
+    trigger,
   ])
 
-  return { fetcher, result }
+  const fetcherWithDebounce = useMemo(() => debounce(fetcher, INPUT_DEBOUNCE_TIME), [fetcher])
+
+  const abort = useCallback(() => {
+    lastRequestRef.current?.abort()
+  }, [])
+
+  return { fetcher: fetcherWithDebounce, result, abort }
 }
 
 export default useGetRoute

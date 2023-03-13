@@ -81,7 +81,11 @@ const SwapForm: React.FC<SwapFormProps> = props => {
 
   const isStablePairSwap = useCheckStablePairSwap(currencyIn, currencyOut)
 
-  const { fetcher: getRoute, result } = useGetRoute({
+  const {
+    fetcher: getRoute,
+    result,
+    abort,
+  } = useGetRoute({
     currencyIn,
     currencyOut,
     feeConfig,
@@ -169,6 +173,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
                     <RefreshButton
                       shouldDisable={!parsedAmount || parsedAmount.equalTo(0) || isProcessingSwap}
                       callback={getRoute}
+                      abort={abort}
                     />
                     <TradePrice price={routeSummary?.executionPrice} />
                   </>
