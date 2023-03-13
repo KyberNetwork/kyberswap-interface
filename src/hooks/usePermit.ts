@@ -1,6 +1,6 @@
 import { splitSignature } from '@ethersproject/bytes'
-import { Currency, MaxUint256 } from '@kyberswap/ks-sdk-core'
-import { defaultAbiCoder, keccak256 } from 'ethers/lib/utils'
+import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { defaultAbiCoder, parseUnits } from 'ethers/lib/utils'
 import { useCallback, useMemo } from 'react'
 import { useDispatch } from 'react-redux'
 
@@ -15,22 +15,8 @@ import { useTokenV2 } from './Tokens'
 import { useContract } from './useContract'
 import useTransactionDeadline from './useTransactionDeadline'
 
-const EIP712_DOMAIN_TYPE = [
-  { name: 'name', type: 'string' },
-  { name: 'chainId', type: 'uint256' },
-  { name: 'verifyingContract', type: 'address' },
-  { name: 'version', type: 'string' },
-]
-const EIP2612_TYPE = [
-  { name: 'owner', type: 'address' },
-  { name: 'spender', type: 'address' },
-  { name: 'value', type: 'uint256' },
-  { name: 'nonce', type: 'uint256' },
-  { name: 'deadline', type: 'uint256' },
-]
-
 // 24 hours
-const PERMIT_VALIDITY_BUFFER = 2 * 60
+const PERMIT_VALIDITY_BUFFER = 24 * 60 * 60
 
 export enum PermitState {
   NOT_APPLICABLE,
@@ -38,17 +24,21 @@ export enum PermitState {
   SIGNED,
 }
 
-export const usePermit = (token?: Currency & { domainSeparator?: string }, routerAddress?: string) => {
+export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddress?: string) => {
+  const currency = currencyAmount?.currency.wrapped
   const { account, chainId } = useActiveWeb3React()
   const { library } = useWeb3React()
-  const eipContract = useContract(token?.wrapped.address, EIP_2612, false)
-  const tokenNonceState = useSingleCallResult(eipContract, 'nonces', [account])
   const dispatch = useDispatch()
+  const eipContract = useContract(currency?.address, EIP_2612, false)
+  const tokenNonceState = useSingleCallResult(eipContract, 'nonces', [account])
+
   const transactionDeadline = useTransactionDeadline()
 
-  const permitData = usePermitData(token?.wrapped.address)
+  const permitData = usePermitData(currency?.address)
+
   // Manually fetch permit info from ks tokens
-  const tokenV2 = useTokenV2(token?.wrapped.address)
+  const tokenV2 = useTokenV2(currency?.address)
+
   const permitState = useMemo(() => {
     if (!(tokenV2 as WrappedTokenInfo)?.domainSeparator) {
       return PermitState.NOT_APPLICABLE
@@ -57,77 +47,107 @@ export const usePermit = (token?: Currency & { domainSeparator?: string }, route
       permitData &&
       permitData.rawSignature &&
       transactionDeadline &&
-      permitData.deadline >= transactionDeadline?.toNumber()
+      permitData.deadline >= transactionDeadline?.toNumber() &&
+      currencyAmount?.equalTo(permitData?.value)
     ) {
       return PermitState.SIGNED
     }
     return PermitState.NOT_SIGNED
-  }, [permitData, transactionDeadline, tokenV2])
+  }, [permitData, transactionDeadline, tokenV2, currencyAmount])
 
   const signPermitCallback = useCallback(async (): Promise<void> => {
-    if (!library || !routerAddress || !transactionDeadline || !token || !account) {
+    if (
+      !library ||
+      !routerAddress ||
+      !transactionDeadline ||
+      !currency ||
+      !account ||
+      !(tokenV2 as WrappedTokenInfo)?.domainSeparator ||
+      !tokenNonceState?.result?.[0]
+    ) {
       return
     }
     if (permitState !== PermitState.NOT_SIGNED) {
       return
     }
     const deadline = transactionDeadline.toNumber() + PERMIT_VALIDITY_BUFFER
-    const PERMIT_TYPEHASH = keccak256(
-      'Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)',
-    )
-    const a = keccak256(
-      defaultAbiCoder.encode(
-        ['address', 'address', 'uint256', 'uint256'],
-        [account.toLowerCase(), routerAddress, MaxUint256.toString(), deadline],
-      ),
-    )
+    const message = {
+      owner: account,
+      spender: routerAddress,
+      value: parseUnits(currencyAmount.toExact(), currency.decimals).toString(),
+      nonce: tokenNonceState.result[0].toNumber(),
+      deadline: deadline,
+    }
     const data = JSON.stringify({
       types: {
         EIP712Domain: [
-          { name: 'name', type: 'string' },
-          { name: 'version', type: 'string' },
-          { name: 'chainId', type: 'uint256' },
-          { name: 'verifyingContract', type: 'address' },
+          {
+            name: 'name',
+            type: 'string',
+          },
+          {
+            name: 'version',
+            type: 'string',
+          },
+          {
+            name: 'chainId',
+            type: 'uint256',
+          },
+          {
+            name: 'verifyingContract',
+            type: 'address',
+          },
         ],
-        Permit: EIP2612_TYPE,
+        Permit: [
+          {
+            name: 'owner',
+            type: 'address',
+          },
+          {
+            name: 'spender',
+            type: 'address',
+          },
+          {
+            name: 'value',
+            type: 'uint256',
+          },
+          {
+            name: 'nonce',
+            type: 'uint256',
+          },
+          {
+            name: 'deadline',
+            type: 'uint256',
+          },
+        ],
       },
       domain: {
-        name: token.name,
-        verifyingContract: token.wrapped.address,
+        name: currency.name,
+        verifyingContract: currency.address,
         chainId,
         version: '1',
       },
       primaryType: 'Permit',
-      message: {
-        owner: account.toLowerCase(),
-        spender: routerAddress,
-        value: MaxUint256.toString(),
-        nonce: tokenNonceState.result?.[0].toNumber(),
-        deadline: deadline,
-      },
+      message: message,
     })
     try {
-      const signature = await library
-        .send('eth_signTypedData_v4', [account.toLowerCase(), data])
-        .then(res => splitSignature(res))
-      const result = defaultAbiCoder.encode(
+      const signature = await library.send('eth_signTypedData_v4', [account, data]).then(res => splitSignature(res))
+      const encodedPermitData = defaultAbiCoder.encode(
         ['address', 'address', 'uint256', 'uint256', 'uint8', 'bytes32', 'bytes32'],
-        [account.toLowerCase(), routerAddress, MaxUint256.toString(), deadline, signature.v, signature.r, signature.s],
+        [message.owner, message.spender, message.value, message.deadline, signature.v, signature.r, signature.s],
       )
 
       dispatch(
         permitUpdate({
           chainId: chainId,
-          address: token.wrapped.address,
-          rawSignature: result,
-          deadline: deadline,
+          address: currency.address,
+          rawSignature: encodedPermitData,
+          deadline: message.deadline,
+          value: message.value,
         }),
       )
-    } catch (error) {
-      // for all errors other than 4001 (EIP-1193 user rejected request), fall back to manual approve
-      if (error?.code !== 4001) {
-        // approveCallback()
-      }
+    } catch (e) {
+      console.log(e)
     }
   }, [
     account,
@@ -135,10 +155,12 @@ export const usePermit = (token?: Currency & { domainSeparator?: string }, route
     library,
     permitState,
     routerAddress,
-    token,
-    tokenNonceState.result,
+    currency,
+    currencyAmount,
     transactionDeadline,
     dispatch,
+    tokenV2,
+    tokenNonceState.result,
   ])
 
   return { permitState, permitCallback: signPermitCallback, permitData }

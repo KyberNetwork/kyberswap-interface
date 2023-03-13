@@ -98,7 +98,7 @@ const SwapActionButton: React.FC<Props> = ({
   // check if user has gone through approval process, used to show two step buttons, reset on token change
   const [approvalSubmitted, setApprovalSubmitted] = useState<boolean>(false)
 
-  const { permitState, permitCallback } = usePermit(currencyIn, routeSummary?.routerAddress)
+  const { permitState, permitCallback } = usePermit(parsedAmountFromTypedValue, routeSummary?.routerAddress)
 
   // mark when a user has submitted an approval, reset onTokenSelection for input field
   useEffect(() => {

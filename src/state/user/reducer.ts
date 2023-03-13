@@ -96,6 +96,7 @@ interface UserState {
       [address: string]: {
         rawSignature: string
         deadline: number
+        value: string
       }
     }
   }
@@ -283,8 +284,8 @@ export default createReducer(initialState, builder =>
       const oldMode = state.holidayMode
       state.holidayMode = !oldMode
     })
-    .addCase(permitUpdate, (state, { payload: { chainId, address, rawSignature, deadline } }) => {
+    .addCase(permitUpdate, (state, { payload: { chainId, address, rawSignature, deadline, value } }) => {
       state.permitData[chainId] = state.permitData[chainId] || {}
-      state.permitData[chainId][address] = { rawSignature, deadline }
+      state.permitData[chainId][address] = { rawSignature, deadline, value }
     }),
 )

@@ -49,6 +49,10 @@ export const updateIsUserManuallyDisconnect = createAction<boolean>('user/update
 export const updateAcceptedTermVersion = createAction<number | null>('user/updateAcceptedTermVersion')
 export const changeViewMode = createAction<VIEW_MODE>('user/changeViewMode')
 export const toggleHolidayMode = createAction<void>('user/toggleHolidayMode')
-export const permitUpdate = createAction<{ chainId: number; address: string; rawSignature: string; deadline: number }>(
-  'user/permitUpdate',
-)
+export const permitUpdate = createAction<{
+  chainId: number
+  address: string
+  rawSignature: string
+  deadline: number
+  value: string
+}>('user/permitUpdate')

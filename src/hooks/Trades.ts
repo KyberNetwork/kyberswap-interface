@@ -150,7 +150,6 @@ export function useTradeExactInV2(
           (isEVM ? ZERO_ADDRESS : ZERO_ADDRESS_SOLANA)
 
         const deadline = Math.round(Date.now() / 1000) + ttl
-        console.log(111111)
         const [state, comparedResult] = await Promise.all([
           Aggregator.bestTradeExactIn(
             aggregatorAPI,
