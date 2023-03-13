@@ -143,11 +143,7 @@ const SwapOnlyButton: React.FC<Props> = ({
 
     setErrorWhileSwap('')
 
-    if (isAdvancedMode) {
-      handleClickSwapForAdvancedMode()
-    } else {
-      handleClickSwapForNormalMode()
-    }
+    handleClickSwapForNormalMode()
   }
 
   const handleClickRetryForNormalMode = () => {
@@ -171,7 +167,7 @@ const SwapOnlyButton: React.FC<Props> = ({
   }, [buildResult, swapCallback, routeSummary, mixpanelHandler])
 
   const renderButton = () => {
-    if (isProcessingSwap && isAdvancedMode) {
+    if (isProcessingSwap) {
       return (
         <CustomPrimaryButton disabled $minimal={minimal}>
           <Dots>
@@ -241,7 +237,7 @@ const SwapOnlyButton: React.FC<Props> = ({
     <>
       {renderButton()}
       <SwapModal
-        isOpen={isProcessingSwap && !isAdvancedMode}
+        isOpen={isProcessingSwap}
         tokenAddToMetaMask={currencyOut}
         buildResult={buildResult}
         isBuildingRoute={isBuildingRoute}

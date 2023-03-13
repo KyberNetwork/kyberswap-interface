@@ -35,7 +35,7 @@ const PriceImpactNote: React.FC<Props> = ({ isAdvancedMode, priceImpact, hasTool
   if (priceImpactResult.isInvalid) {
     return (
       <Wrapper>
-        <AlertTriangle color={theme.warning} size={16} style={{ marginRight: '10px' }} />
+        <AlertTriangle color={theme.warning} size={16} style={{ marginRight: '8px' }} />
         <Trans>Unable to calculate Price Impact</Trans>
         <InfoHelper text={t`Turn on Advanced Mode to trade`} color={theme.text} />
       </Wrapper>
@@ -45,7 +45,7 @@ const PriceImpactNote: React.FC<Props> = ({ isAdvancedMode, priceImpact, hasTool
   if (priceImpactResult.isHigh) {
     return (
       <Wrapper veryHigh={priceImpactResult.isVeryHigh}>
-        <AlertTriangle size={16} style={{ marginRight: '10px' }} />
+        <AlertTriangle size={16} style={{ marginRight: '8px' }} />
         <Text color={theme.text}>
           {priceImpactResult.isVeryHigh ? (
             <Trans>Price Impact is Very High</Trans>
@@ -54,13 +54,14 @@ const PriceImpactNote: React.FC<Props> = ({ isAdvancedMode, priceImpact, hasTool
           )}
         </Text>
 
-        {hasTooltip && (
+        {hasTooltip && priceImpactResult.isVeryHigh && (
           <InfoHelper
-            color={priceImpactResult.isVeryHigh ? theme.red : theme.warning}
+            color={theme.text}
+            placement="top"
             text={
               isAdvancedMode
-                ? t`You have turned on Advanced Mode from settings. Trades with high price impact can be executed`
-                : t`Turn on Advanced Mode from settings to execute trades with high price impact`
+                ? t`You have turned on Advanced Mode from settings. Trades with VERY high price impact can be executed`
+                : t`Turn on Advanced Mode from Settings to execute trades with VERY high price impact`
             }
           />
         )}
