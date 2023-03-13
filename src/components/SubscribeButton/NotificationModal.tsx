@@ -277,7 +277,6 @@ export default function NotificationModal() {
         isTelegram: isTelegramTab,
       })
       updateTopicGroupsLocal(subscribeIds, unsubscribeIds)
-      refreshTopics()
       if (isTelegramTab && verificationUrl) {
         window.open(`https://${verificationUrl}`)
         return
@@ -295,6 +294,7 @@ export default function NotificationModal() {
         },
         10000,
       )
+      toggleModal()
     } catch (error) {
       notify({
         title: t`Save Error`,
