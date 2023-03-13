@@ -73,6 +73,7 @@ import { ExternalLink, MEDIA_WIDTHS, StyledInternalLink, TYPE } from 'theme'
 import { basisPointsToPercent, calculateGasMargin, formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
+import { formatNotDollarAmount } from 'utils/numbers'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
 import { RANGE_LIST, rangeData } from './constants'
@@ -673,6 +674,28 @@ export default function AddLiquidity() {
         <AlertTriangle stroke={theme.warning} size="16px" />
         <TYPE.warning ml="12px" fontSize="12px" flex={1}>
           <Trans>Efficiency Comparison: Full range positions may earn less fees than concentrated positions.</Trans>
+        </TYPE.warning>
+      </Flex>
+    </WarningCard>
+  ) : baseCurrency &&
+    quoteCurrency &&
+    tokenA &&
+    tokenB &&
+    price &&
+    Math.abs(
+      usdPrices[tokenA.wrapped.address] / usdPrices[tokenB.wrapped.address] / Number(price?.toSignificant(18)) - 1,
+    ) >= 0.02 ? (
+    <WarningCard padding="10px 16px">
+      <Flex alignItems="center">
+        <AlertTriangle stroke={theme.warning} size="16px" />
+        <TYPE.warning ml="12px" fontSize="12px" flex={1}>
+          <Trans>
+            The pool’s current price of 1 {baseCurrency.symbol} ={' '}
+            {(invertPrice ? price.invert() : price).toSignificant(4)} {quoteCurrency.symbol} deviates from the market
+            price (1 {baseCurrency.symbol} ={' '}
+            {formatNotDollarAmount(usdPrices[tokenA.wrapped.address] / usdPrices[tokenB.wrapped.address], 4)}{' '}
+            {quoteCurrency.symbol}). You might have high impermanent loss after the pool is created
+          </Trans>
         </TYPE.warning>
       </Flex>
     </WarningCard>
