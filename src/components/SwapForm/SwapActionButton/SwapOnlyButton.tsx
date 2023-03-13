@@ -164,7 +164,7 @@ const SwapOnlyButton: React.FC<Props> = ({
   }, [buildResult, swapCallback])
 
   const renderButton = () => {
-    if (isProcessingSwap && isAdvancedMode) {
+    if (isProcessingSwap) {
       return (
         <CustomPrimaryButton disabled $minimal={minimal}>
           <Dots>

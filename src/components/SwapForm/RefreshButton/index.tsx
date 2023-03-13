@@ -33,15 +33,17 @@ type Props = {
 }
 const RefreshButton: React.FC<Props> = ({ shouldDisable, callback }) => {
   const svgRef = useRef<SVGSVGElement>(null)
+  const intervalRef = useRef<NodeJS.Timeout>()
 
   useEffect(() => {
-    let interval: any
     const element = svgRef?.current
     if (!element) {
       return
     }
 
     if (shouldDisable) {
+      intervalRef.current && clearInterval(intervalRef.current)
+
       // reset svg animate duration to 0 and PAUSE animations
       element.setCurrentTime(0)
       element.pauseAnimations()
@@ -51,13 +53,13 @@ const RefreshButton: React.FC<Props> = ({ shouldDisable, callback }) => {
       element.setCurrentTime(0)
       element.unpauseAnimations()
       callback()
-      interval = setInterval(() => {
+      intervalRef.current = setInterval(() => {
         callback()
       }, TIME_TO_REFRESH_SWAP_RATE * 1000)
     }
 
     return () => {
-      clearInterval(interval)
+      intervalRef.current && clearInterval(intervalRef.current)
     }
   }, [callback, shouldDisable])
 
