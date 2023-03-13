@@ -24,11 +24,13 @@ export interface ElasticFarmV2 {
 }
 
 export interface UserFarmV2Info {
+  poolAddress: string
   nftId: BigNumber
   position: Position
   fId: number
   rangeId: number
   liquidity: BigNumber
+  stakedLiquidity: BigNumber
   unclaimedRewards: Array<CurrencyAmount<Currency>>
 }
 

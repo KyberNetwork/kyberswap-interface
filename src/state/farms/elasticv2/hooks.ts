@@ -284,6 +284,8 @@ export const useElasticFarmsV2 = (subscribe = false) => {
                     tickLower: nftInfos[item.nftId.toString()].tickLower,
                     tickUpper: nftInfos[item.nftId.toString()].tickUpper,
                   }),
+                  poolAddress: farm.poolAddress,
+                  stakedLiquidity: item.liquidity,
                   fId: Number(item.fId.toString()),
                   rangeId: Number(item.rangeId.toString()),
                   liquidity: item.liquidity,

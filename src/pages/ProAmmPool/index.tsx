@@ -1,4 +1,5 @@
 import { Trans, t } from '@lingui/macro'
+import { BigNumber } from 'ethers'
 import { rgba } from 'polished'
 import { useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -24,6 +25,7 @@ import { useFarmPositions, useProAmmPositions } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
 import { FilterRow, InstructionText, PageWrapper, PositionCardGrid, Tab } from 'pages/Pool'
 import { FarmUpdater } from 'state/farms/elastic/hooks'
+import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
 import { ExternalLink, StyledInternalLink, TYPE } from 'theme'
 import { PositionDetails } from 'types/position'
 
@@ -83,7 +85,35 @@ export default function ProAmmPool() {
   const tokenAddressSymbolMap = useRef<AddressSymbolMapInterface>({})
   const { positions, loading: positionsLoading } = useProAmmPositions(account)
 
-  const { farmPositions, loading, activeFarmAddress, farms, userFarmInfo } = useFarmPositions()
+  const { userInfo, farms: farmV2s } = useElasticFarmsV2()
+
+  const farmV2Positions = useMemo(
+    () =>
+      userInfo?.map(item => ({
+        nonce: BigNumber.from('1'),
+        tokenId: item.nftId,
+        operator: '0x0000000000000000000000000000000000000000',
+        poolId: item.poolAddress,
+        tickLower: item.position.tickLower,
+        tickUpper: item.position.tickUpper,
+        liquidity: BigNumber.from(item.position.liquidity.toString()),
+        // not used
+        feeGrowthInsideLast: BigNumber.from(0),
+        stakedLiquidity: item.stakedLiquidity,
+        // not used
+        rTokenOwed: BigNumber.from(0),
+        token0: item.position.pool.token0.wrapped.address,
+        token1: item.position.pool.token1.wrapped.address,
+        fee: item.position.pool.fee,
+        // endTime: pool?.[0]?.endTime,
+        // rewardPendings: [],
+      })) || [],
+    [userInfo],
+  )
+  const activeFarmV2Address =
+    farmV2s?.filter(farm => farm.endTime > Date.now() / 1000).map(farm => farm.poolAddress) || []
+
+  const { farmPositions, loading, activeFarmAddress: activeFarmV1Address, farms, userFarmInfo } = useFarmPositions()
   const [openPositions, closedPositions] = useMemo(
     () =>
       positions?.reduce<[PositionDetails[], PositionDetails[]]>(
@@ -118,26 +148,38 @@ export default function ProAmmPool() {
 
   const [showClosed, setShowClosed] = useState(false)
 
-  const filteredFarmPositions = useMemo(
+  const filteredFarmPositions = useMemo(() => {
+    return farmPositions.filter(pos => {
+      return (
+        debouncedSearchText.trim().length === 0 ||
+        (!!tokenAddressSymbolMap.current[pos.token0.toLowerCase()] &&
+          tokenAddressSymbolMap.current[pos.token0.toLowerCase()].includes(debouncedSearchText)) ||
+        (!!tokenAddressSymbolMap.current[pos.token1.toLowerCase()] &&
+          tokenAddressSymbolMap.current[pos.token1.toLowerCase()].includes(debouncedSearchText)) ||
+        pos.poolId.toLowerCase() === debouncedSearchText
+      )
+    })
+  }, [debouncedSearchText, farmPositions])
+
+  const filteredFarmv2Positions = useMemo(
     () =>
-      farmPositions.filter(pos => {
-        return (
+      farmV2Positions.filter(
+        pos =>
           debouncedSearchText.trim().length === 0 ||
           (!!tokenAddressSymbolMap.current[pos.token0.toLowerCase()] &&
             tokenAddressSymbolMap.current[pos.token0.toLowerCase()].includes(debouncedSearchText)) ||
           (!!tokenAddressSymbolMap.current[pos.token1.toLowerCase()] &&
             tokenAddressSymbolMap.current[pos.token1.toLowerCase()].includes(debouncedSearchText)) ||
-          pos.poolId.toLowerCase() === debouncedSearchText
-        )
-      }),
-    [debouncedSearchText, farmPositions],
+          pos.poolId.toLowerCase() === debouncedSearchText,
+      ),
+    [farmV2Positions, debouncedSearchText],
   )
 
   const filteredPositions = useMemo(
     () =>
       (!showClosed
-        ? [...openPositions, ...filteredFarmPositions]
-        : [...openPositions, ...filteredFarmPositions, ...closedPositions]
+        ? [...openPositions, ...filteredFarmPositions, ...filteredFarmv2Positions]
+        : [...openPositions, ...filteredFarmPositions, ...filteredFarmv2Positions, ...closedPositions]
       )
         .filter(position => {
           if (nftId) return position.tokenId.toString() === nftId
@@ -151,7 +193,15 @@ export default function ProAmmPool() {
           )
         })
         .filter((pos, index, array) => array.findIndex(pos2 => pos2.tokenId.eq(pos.tokenId)) === index),
-    [showClosed, openPositions, closedPositions, debouncedSearchText, filteredFarmPositions, nftId],
+    [
+      showClosed,
+      openPositions,
+      closedPositions,
+      debouncedSearchText,
+      filteredFarmPositions,
+      nftId,
+      filteredFarmv2Positions,
+    ],
   )
 
   const [showStaked, setShowStaked] = useState(false)
@@ -260,14 +310,16 @@ export default function ProAmmPool() {
                 style={{ display: showStaked ? 'none' : 'grid' }}
                 positions={filteredPositions}
                 refe={tokenAddressSymbolMap}
-                activeFarmAddress={activeFarmAddress}
+                activeFarmV1Address={activeFarmV1Address}
+                activeFarmV2Address={activeFarmV2Address}
               />
 
               <PositionGrid
                 style={{ display: !showStaked ? 'none' : 'grid' }}
                 positions={filteredFarmPositions}
                 refe={tokenAddressSymbolMap}
-                activeFarmAddress={activeFarmAddress}
+                activeFarmV1Address={activeFarmV1Address}
+                activeFarmV2Address={activeFarmV2Address}
               />
             </>
           ) : (

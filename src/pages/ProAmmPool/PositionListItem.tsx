@@ -122,6 +122,7 @@ interface PositionListItemProps {
   stakedLayout?: boolean
   refe?: React.MutableRefObject<any>
   hasActiveFarm: boolean
+  hasActiveFarmV2: boolean
 }
 
 function getPriceOrderingFromPositionForUI(position?: Position): {
@@ -150,6 +151,7 @@ function PositionListItem({
   positionDetails,
   refe,
   hasActiveFarm,
+  hasActiveFarmV2,
   rawFeeRewards,
   liquidityTime,
   createdAt,
@@ -317,7 +319,12 @@ function PositionListItem({
   return position && priceLower && priceUpper ? (
     <StyledPositionCard>
       <>
-        <ProAmmPoolInfo position={position} tokenId={positionDetails.tokenId.toString()} isFarmActive={hasActiveFarm} />
+        <ProAmmPoolInfo
+          position={position}
+          tokenId={positionDetails.tokenId.toString()}
+          isFarmActive={hasActiveFarm}
+          isFarmV2Active={hasActiveFarmV2}
+        />
         <TabContainer style={{ marginTop: '1rem' }}>
           <Tab isActive={activeTab === TAB.MY_LIQUIDITY} padding="0" onClick={() => setActiveTab(TAB.MY_LIQUIDITY)}>
             <TabText isActive={activeTab === TAB.MY_LIQUIDITY} style={{ fontSize: '12px' }}>
