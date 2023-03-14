@@ -70,7 +70,7 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
 }) => {
   const { isSolana } = useActiveWeb3React()
   const [encodeSolana] = useEncodeSolana()
-  const { routeSummary, slippage, isStablePairSwap } = useSwapFormContext()
+  const { routeSummary, slippage, isStablePairSwap, isAdvancedMode } = useSwapFormContext()
 
   const shouldDisableConfirmButton = isBuildingRoute || !!errorWhileBuildRoute
 
@@ -153,7 +153,8 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
 
   const [confirmNewPrice, setConfirmNewPrice] = useState(false)
 
-  const disableSwap = (outputAmountChange < 0 && !confirmNewPrice) || shouldDisableConfirmButton
+  const disableByPriceImpact = !isAdvancedMode && (priceImpactResult.isVeryHigh || priceImpactResult.isInvalid)
+  const disableSwap = (outputAmountChange < 0 && !confirmNewPrice) || shouldDisableConfirmButton || disableByPriceImpact
   return (
     <Wrapper>
       <AutoColumn>
@@ -193,7 +194,7 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
         }}
       >
         <SlippageWarningNote rawSlippage={slippage} isStablePairSwap={isStablePairSwap} />
-        <PriceImpactNote priceImpact={priceImpactFromBuild} hasTooltip={false} />
+        <PriceImpactNote isAdvancedMode={isAdvancedMode} priceImpact={priceImpactFromBuild} hasTooltip />
       </Flex>
 
       <AutoRow>

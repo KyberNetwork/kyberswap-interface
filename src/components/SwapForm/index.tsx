@@ -151,6 +151,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
       isSaveGas={isSaveGas}
       recipient={recipient}
       isStablePairSwap={isStablePairSwap}
+      isAdvancedMode={isAdvancedMode}
     >
       <Box sx={{ flexDirection: 'column', gap: '16px', display: hidden ? 'none' : 'flex' }}>
         <Wrapper id={TutorialIds.SWAP_FORM_CONTENT}>
