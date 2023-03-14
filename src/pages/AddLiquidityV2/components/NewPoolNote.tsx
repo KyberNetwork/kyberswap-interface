@@ -75,7 +75,7 @@ function NewPoolNote({
         <Text marginLeft="0.5rem" marginTop="0.5rem" lineHeight="1rem">
           <li>
             <Trans>
-              A very small amount of your liquidity {formattedNum(amountUnlockUSD.toString(), true)}{' '}
+              A very small amount of your liquidity about {formattedNum(amountUnlockUSD.toString(), true)}{' '}
               <Text as="span" color={theme.warning}>
                 ({amountUnlocks[Field.CURRENCY_A].toSignificant(6)} {amountUnlocks[Field.CURRENCY_A].currency.symbol},{' '}
                 {amountUnlocks[Field.CURRENCY_B].toSignificant(6)} {amountUnlocks[Field.CURRENCY_B].currency.symbol})
