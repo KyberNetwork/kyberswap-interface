@@ -9,7 +9,6 @@ import {
   Field,
   chooseToSaveGas,
   encodedSolana,
-  pinSlippageControl,
   replaceSwapState,
   resetSelectCurrency,
   selectCurrency,
@@ -96,7 +95,6 @@ export default createReducer<SwapState>(initialState, builder =>
           typedValue: typedValue || state.typedValue || '1',
           recipient,
           feeConfig,
-          isSlippageControlPinned: state.isSlippageControlPinned ?? initialState.isSlippageControlPinned,
         }
       },
     )
@@ -167,8 +165,5 @@ export default createReducer<SwapState>(initialState, builder =>
     .addCase(setTrade, (state, { payload: { trade } }) => {
       state.trade = trade
       state.encodeSolana = undefined
-    })
-    .addCase(pinSlippageControl, (state, { payload }) => {
-      state.isSlippageControlPinned = payload
     }),
 )
