@@ -56,3 +56,4 @@ export const permitUpdate = createAction<{
   deadline: number
   value: string
 }>('user/permitUpdate')
+export const pinSlippageControl = createAction<boolean>('user/pinSlippageControl')

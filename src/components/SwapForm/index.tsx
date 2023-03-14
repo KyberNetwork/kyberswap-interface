@@ -1,15 +1,17 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
 import { Box, Flex } from 'rebass'
 import { parseGetRouteResponse } from 'services/route/utils'
 
 import AddressInputPanel from 'components/AddressInputPanel'
 import { AutoRow } from 'components/Row'
+import SlippageWarningNote from 'components/SlippageWarningNote'
 import InputCurrencyPanel from 'components/SwapForm/InputCurrencyPanel'
 import OutputCurrencyPanel from 'components/SwapForm/OutputCurrencyPanel'
+import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import { SwapFormContextProvider } from 'components/SwapForm/SwapFormContext'
 import useBuildRoute from 'components/SwapForm/hooks/useBuildRoute'
+import useCheckStablePairSwap from 'components/SwapForm/hooks/useCheckStablePairSwap'
 import useGetInputError from 'components/SwapForm/hooks/useGetInputError'
 import useGetRoute from 'components/SwapForm/hooks/useGetRoute'
 import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
@@ -18,9 +20,7 @@ import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import TradePrice from 'components/swapv2/TradePrice'
 import { Wrapper } from 'components/swapv2/styleds'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
-import { ClickableText } from 'pages/Pool/styleds'
 import { DetailedRouteSummary, FeeConfig } from 'types/route'
 
 import PriceImpactNote from './PriceImpactNote'
@@ -68,12 +68,10 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     permit,
     onChangeCurrencyIn,
     onChangeCurrencyOut,
-    goToSettingsView,
   } = props
 
   const { chainId, isEVM, isSolana } = useActiveWeb3React()
 
-  const theme = useTheme()
   const [isProcessingSwap, setProcessingSwap] = useState(false)
   const [typedValue, setTypedValue] = useState('1')
   const [recipient, setRecipient] = useState<string | null>(null)
@@ -82,6 +80,8 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   const parsedAmount = useParsedAmount(currencyIn, typedValue)
   const { wrapType, inputError: wrapInputError, execute: onWrap } = useWrapCallback(currencyIn, currencyOut, typedValue)
   const isWrapOrUnwrap = wrapType !== WrapType.NOT_APPLICABLE
+
+  const isStablePairSwap = useCheckStablePairSwap(currencyIn, currencyOut)
 
   const { fetcher: getRoute, result } = useGetRoute({
     currencyIn,
@@ -150,6 +150,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
       typedValue={typedValue}
       isSaveGas={isSaveGas}
       recipient={recipient}
+      isStablePairSwap={isStablePairSwap}
     >
       <Box sx={{ flexDirection: 'column', gap: '16px', display: hidden ? 'none' : 'flex' }}>
         <Wrapper id={TutorialIds.SWAP_FORM_CONTENT}>
@@ -194,20 +195,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
               <AddressInputPanel id="recipient" value={recipient} onChange={setRecipient} />
             )}
 
-            {!isWrapOrUnwrap && (
-              <Flex
-                alignItems="center"
-                fontSize={12}
-                color={theme.subText}
-                onClick={goToSettingsView}
-                width="fit-content"
-              >
-                <ClickableText color={theme.subText} fontWeight={500}>
-                  <Trans>Max Slippage:</Trans>&nbsp;
-                  {slippage / 100}%
-                </ClickableText>
-              </Flex>
-            )}
+            {!isWrapOrUnwrap && <SlippageSetting isStablePairSwap={isStablePairSwap} />}
           </Flex>
         </Wrapper>
         <Flex flexDirection="column" style={{ gap: '1.25rem' }}>
@@ -217,14 +205,9 @@ const SwapForm: React.FC<SwapFormProps> = props => {
             <TrendingSoonTokenBanner currencyIn={currencyIn} currencyOut={currencyOut} style={{ marginTop: '24px' }} />
           )}
 
-          <PriceImpactNote
-            priceImpact={routeSummary?.priceImpact}
-            isAdvancedMode={isAdvancedMode}
-            hasTooltip
-            style={{
-              marginTop: '28px',
-            }}
-          />
+          {!isWrapOrUnwrap && <SlippageWarningNote rawSlippage={slippage} isStablePairSwap={isStablePairSwap} />}
+
+          <PriceImpactNote priceImpact={routeSummary?.priceImpact} isAdvancedMode={isAdvancedMode} hasTooltip />
 
           <SwapActionButton
             isGettingRoute={isGettingRoute}
@@ -245,7 +228,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
             swapInputError={swapInputError}
           />
 
-          <TradeSummary feeConfig={feeConfig} routeSummary={routeSummary} slippage={slippage} />
+          {!isWrapOrUnwrap && <TradeSummary feeConfig={feeConfig} routeSummary={routeSummary} slippage={slippage} />}
         </Flex>
       </Box>
     </SwapFormContextProvider>

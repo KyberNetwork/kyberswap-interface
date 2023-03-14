@@ -13,6 +13,7 @@ import {
   addSerializedToken,
   changeViewMode,
   permitUpdate,
+  pinSlippageControl,
   removeSerializedPair,
   removeSerializedToken,
   toggleFavoriteToken,
@@ -100,6 +101,8 @@ interface UserState {
       }
     }
   }
+
+  isSlippageControlPinned: boolean
 }
 
 function pairKey(token0Address: string, token1Address: string) {
@@ -154,6 +157,7 @@ const initialState: UserState = {
   viewMode: VIEW_MODE.GRID,
   holidayMode: true,
   permitData: {},
+  isSlippageControlPinned: true,
 }
 
 export default createReducer(initialState, builder =>
@@ -163,6 +167,10 @@ export default createReducer(initialState, builder =>
       // noinspection SuspiciousTypeOfGuard
       if (typeof state.userSlippageTolerance !== 'number') {
         state.userSlippageTolerance = INITIAL_ALLOWED_SLIPPAGE
+      }
+
+      if (typeof state.isSlippageControlPinned !== 'boolean') {
+        state.isSlippageControlPinned = initialState.isSlippageControlPinned
       }
 
       // deadline isnt being tracked in local storage, reset to default
@@ -287,5 +295,8 @@ export default createReducer(initialState, builder =>
     .addCase(permitUpdate, (state, { payload: { chainId, address, rawSignature, deadline, value } }) => {
       state.permitData[chainId] = state.permitData[chainId] || {}
       state.permitData[chainId][address] = { rawSignature, deadline, value }
+    })
+    .addCase(pinSlippageControl, (state, { payload }) => {
+      state.isSlippageControlPinned = payload
     }),
 )
