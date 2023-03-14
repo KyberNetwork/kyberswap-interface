@@ -4,12 +4,13 @@ import { transparentize } from 'polished'
 import React, { useState } from 'react'
 import { AlertTriangle, Check } from 'react-feather'
 import { Flex, Text } from 'rebass'
+import { calculatePriceImpact } from 'services/route/utils'
 import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
 import { GreyCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
-import { AutoRow, RowBetween } from 'components/Row'
+import { RowBetween } from 'components/Row'
 import SlippageWarningNote from 'components/SlippageWarningNote'
 import PriceImpactNote from 'components/SwapForm/PriceImpactNote'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
@@ -21,6 +22,7 @@ import { useEncodeSolana } from 'state/swap/hooks'
 import { CloseIcon } from 'theme/components'
 import { toCurrencyAmount } from 'utils/currencyAmount'
 import { checkPriceImpact } from 'utils/prices'
+import { checkWarningSlippage } from 'utils/slippage'
 
 import SwapBrief from './SwapBrief'
 import SwapDetails, { Props as SwapDetailsProps } from './SwapDetails'
@@ -68,15 +70,19 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
   onSwap,
   onRetry,
 }) => {
+  const theme = useTheme()
   const { isSolana } = useActiveWeb3React()
   const [encodeSolana] = useEncodeSolana()
   const { routeSummary, slippage, isStablePairSwap, isAdvancedMode } = useSwapFormContext()
+  const [hasAcceptedNewPrice, setHasAcceptedNewPrice] = useState(false)
 
   const shouldDisableConfirmButton = isBuildingRoute || !!errorWhileBuildRoute
+  const isWarningSlippage = checkWarningSlippage(slippage, isStablePairSwap)
 
-  const priceImpactFromBuild =
-    ((Number(buildResult?.data?.amountInUsd) - Number(buildResult?.data?.amountOutUsd)) * 100) /
-    Number(buildResult?.data?.amountInUsd)
+  const priceImpactFromBuild = buildResult
+    ? calculatePriceImpact(Number(buildResult.data?.amountInUsd || 0), Number(buildResult.data?.amountOutUsd || 0))
+    : undefined
+
   const priceImpactResult = checkPriceImpact(priceImpactFromBuild)
   const outputAmountChange = Number(buildResult?.data?.outputChange?.amount) || 0
 
@@ -144,17 +150,16 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
     )
   }
 
-  const theme = useTheme()
-  const warningStyle = priceImpactResult.isVeryHigh
-    ? { background: theme.red, color: theme.black }
-    : priceImpactResult.isHigh
-    ? { background: theme.warning, color: theme.black }
-    : undefined
-
-  const [confirmNewPrice, setConfirmNewPrice] = useState(false)
+  const warningStyle =
+    priceImpactResult.isVeryHigh || priceImpactResult.isInvalid
+      ? { background: theme.red }
+      : priceImpactResult.isHigh || isWarningSlippage
+      ? { background: theme.warning }
+      : undefined
 
   const disableByPriceImpact = !isAdvancedMode && (priceImpactResult.isVeryHigh || priceImpactResult.isInvalid)
-  const disableSwap = (outputAmountChange < 0 && !confirmNewPrice) || shouldDisableConfirmButton || disableByPriceImpact
+  const disableSwap =
+    (outputAmountChange < 0 && !hasAcceptedNewPrice) || shouldDisableConfirmButton || disableByPriceImpact
   return (
     <Wrapper>
       <AutoColumn>
@@ -166,14 +171,20 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
         </RowBetween>
 
         {outputAmountChange < 0 && (
-          <PriceUpdateWarning $level={priceImpactResult.isVeryHigh ? 'error' : 'warning'} isAccepted={confirmNewPrice}>
-            {confirmNewPrice ? (
+          <PriceUpdateWarning
+            $level={priceImpactResult.isVeryHigh ? 'error' : 'warning'}
+            isAccepted={hasAcceptedNewPrice}
+          >
+            {hasAcceptedNewPrice ? (
               <Check size={20} />
             ) : (
-              <AlertTriangle color={priceImpactResult.isVeryHigh ? theme.red : theme.warning} size={16} />
+              <AlertTriangle
+                color={priceImpactResult.isVeryHigh || priceImpactResult.isInvalid ? theme.red : theme.warning}
+                size={16}
+              />
             )}
             <Text flex={1}>
-              {confirmNewPrice ? (
+              {hasAcceptedNewPrice ? (
                 <Trans>New Price Accepted</Trans>
               ) : (
                 <Trans>Your price has been updated. Please accept the new price before proceeding with the swap</Trans>
@@ -195,9 +206,7 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
       >
         <SlippageWarningNote rawSlippage={slippage} isStablePairSwap={isStablePairSwap} />
         <PriceImpactNote isAdvancedMode={isAdvancedMode} priceImpact={priceImpactFromBuild} hasTooltip />
-      </Flex>
 
-      <AutoRow>
         {isSolana && !encodeSolana ? (
           <GreyCard style={{ textAlign: 'center', borderRadius: '999px', padding: '12px' }} id="confirm-swap-or-send">
             <Dots>
@@ -215,12 +224,15 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
             {outputAmountChange < 0 && (
               <ButtonPrimary
                 style={
-                  confirmNewPrice
+                  hasAcceptedNewPrice
                     ? undefined
-                    : { backgroundColor: priceImpactResult.isVeryHigh ? theme.red : theme.warning, color: theme.black }
+                    : {
+                        backgroundColor:
+                          priceImpactResult.isVeryHigh || priceImpactResult.isInvalid ? theme.red : theme.warning,
+                      }
                 }
-                onClick={() => setConfirmNewPrice(true)}
-                disabled={confirmNewPrice}
+                onClick={() => setHasAcceptedNewPrice(true)}
+                disabled={hasAcceptedNewPrice}
               >
                 Accept New Price
               </ButtonPrimary>
@@ -238,7 +250,7 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
             </ButtonPrimary>
           </Flex>
         )}
-      </AutoRow>
+      </Flex>
     </Wrapper>
   )
 }

@@ -197,29 +197,29 @@ const SwapOnlyButton: React.FC<Props> = ({
       )
     }
 
-    const isDisablePriceImpact = !isAdvancedMode && (priceImpactResult.isVeryHigh || priceImpactResult.isInvalid)
-    const shouldBeDisabled = isDisabled || isDisablePriceImpact
+    const shouldDisableByPriceImpact = !isAdvancedMode && (priceImpactResult.isVeryHigh || priceImpactResult.isInvalid)
+    const shouldDisable = isDisabled || shouldDisableByPriceImpact
 
-    if (priceImpactResult.isVeryHigh) {
+    if (priceImpactResult.isVeryHigh || (priceImpactResult.isInvalid && isAdvancedMode)) {
       return (
         <CustomPrimaryButton
           onClick={handleClickSwapButton}
-          disabled={shouldBeDisabled}
+          disabled={shouldDisable}
           $minimal={minimal}
-          style={shouldBeDisabled ? undefined : { background: theme.red, color: theme.white }}
+          style={shouldDisable ? undefined : { background: theme.red }}
         >
           <Trans>Swap Anyway</Trans>
         </CustomPrimaryButton>
       )
     }
 
-    if (priceImpactResult.isHigh || (priceImpactResult.isInvalid && isAdvancedMode)) {
+    if (priceImpactResult.isHigh) {
       return (
         <CustomPrimaryButton
           onClick={handleClickSwapButton}
           $minimal={minimal}
-          disabled={shouldBeDisabled}
-          style={isDisabled ? undefined : { background: theme.warning, color: theme.white }}
+          disabled={shouldDisable}
+          style={isDisabled ? undefined : { background: theme.warning }}
         >
           <Trans>Swap Anyway</Trans>
         </CustomPrimaryButton>
@@ -227,7 +227,7 @@ const SwapOnlyButton: React.FC<Props> = ({
     }
 
     return (
-      <CustomPrimaryButton disabled={shouldBeDisabled} onClick={handleClickSwapButton} $minimal={minimal}>
+      <CustomPrimaryButton disabled={shouldDisable} onClick={handleClickSwapButton} $minimal={minimal}>
         <Trans>Swap</Trans>
       </CustomPrimaryButton>
     )

@@ -91,3 +91,24 @@ export const checkPriceImpact = (
     isVeryHigh: !!priceImpact && priceImpact > 15,
   }
 }
+
+export const formatPriceImpact = (pi: number, withPercent = true) => {
+  let text = ''
+  const pi100 = Math.floor(pi * 100)
+
+  if (pi < 0.01) {
+    text = '< 0.01'
+  } else if (pi100 % 100 === 0) {
+    text = String(pi100 / 100)
+  } else if (pi100 % 10 === 0) {
+    text = (pi100 / 100).toFixed(1)
+  } else {
+    text = (pi100 / 100).toFixed(2)
+  }
+
+  if (withPercent) {
+    text += '%'
+  }
+
+  return text
+}
