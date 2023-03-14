@@ -1,4 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react'
+import { Token } from '@kyberswap/ks-sdk-core'
+import { TickMath, tickToPrice } from '@kyberswap/ks-sdk-elastic'
+import { useEffect, useRef, useState } from 'react'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -6,6 +8,7 @@ import { RowBetween } from 'components/Row'
 
 const Wrapper = styled.div`
   width: 150px;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -34,24 +37,45 @@ const RangeLine = styled.div`
   background-color: var(--text);
   position: absolute;
 `
+// From tick value to readable string value 0.1234
+function convertTickToPrice(baseToken?: Token, quoteToken?: Token, tick?: string): string | undefined {
+  if (!baseToken || !quoteToken) {
+    return undefined
+  }
+  if (+(tick || 0) <= TickMath.MIN_TICK) {
+    return '0'
+  }
+  if (+(tick || 0) >= TickMath.MAX_TICK) {
+    return '∞'
+  }
+  return tickToPrice(baseToken, quoteToken, +(tick || 0))?.toSignificant(4)
+}
 
 const maxRangeGap = 0.1
 
 const PriceVisualize = ({
   rangeInclude = true,
-  priceLower,
-  priceUpper,
-  priceCurrent,
+  tickLower,
+  tickUpper,
+  tickCurrent,
   width,
+  token0,
+  token1,
 }: {
   rangeInclude?: boolean
-  priceLower?: string
-  priceUpper?: string
-  priceCurrent?: string
+  tickLower?: string
+  tickUpper?: string
+  tickCurrent?: string
   width?: string
+  token0?: Token
+  token1?: Token
 }) => {
   const wrapperRef = useRef<HTMLDivElement>(null)
   const [wrapperWidth, setWrapperWidth] = useState(0)
+
+  const priceLower = convertTickToPrice(token0, token1, tickLower)
+  const priceUpper = convertTickToPrice(token0, token1, tickUpper)
+  const priceCurrent = convertTickToPrice(token0, token1, tickCurrent)
 
   useEffect(() => {
     const observer = new ResizeObserver(entries => {
@@ -113,4 +137,4 @@ const PriceVisualize = ({
   )
 }
 
-export default React.memo(PriceVisualize)
+export default PriceVisualize

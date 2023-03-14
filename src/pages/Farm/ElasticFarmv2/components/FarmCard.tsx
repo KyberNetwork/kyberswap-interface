@@ -1,29 +1,29 @@
-import { Currency } from '@kyberswap/ks-sdk-core'
+import { Currency, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import React, { useCallback, useRef, useState } from 'react'
-import { Minus, Plus, Share2 } from 'react-feather'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
+import { Plus, Share2 } from 'react-feather'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import bgimg from 'assets/images/card-background-2.png'
-import { ButtonLight, TextButtonPrimary } from 'components/Button'
+import { ButtonLight, ButtonOutlined, TextButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
 import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Divider from 'components/Divider'
-import { Swap } from 'components/Icons'
 import AspectRatio from 'components/Icons/AspectRatio'
 import Harvest from 'components/Icons/Harvest'
-import Row, { RowBetween, RowFit, RowWrap } from 'components/Row'
+import Row, { RowBetween, RowFit } from 'components/Row'
 import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import useTheme from 'hooks/useTheme'
+import { useElasticFarmsV2, useFarmV2Action } from 'state/farms/elasticv2/hooks'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
 
 import { ElasticFarmV2WithRangePrices } from '..'
 import PriceVisualize from './PriceVisualize'
 import SimpleTooltip from './SimpleTooltip'
-import StakeWithNFTsModal, { NFTItem } from './StakeWithNFTsModal'
+import StakeWithNFTsModal from './StakeWithNFTsModal'
 import UnstakeWithNFTsModal from './UnstakeWithNFTsModal'
 
 const WrapperInner = styled.div<{ rotate?: boolean; hasRewards?: boolean }>`
@@ -83,35 +83,12 @@ const BackFace = styled(FrontFace)`
 // `
 
 const Ranges = styled(Column)`
-  position: absolute;
   overflow: hidden;
-  padding: 16px;
-  width: 100%;
-  height: 100%;
-  background-color: var(--button-black);
-  border-radius: 24px;
   z-index: 2;
   gap: 16px;
-  overflow-y: scroll;
-  top: 0;
-  left: 0;
-  clip-path: rect(0, 0, 100%, 100%);
   overflow: hidden;
-  visibility: hidden;
-  opacity: 0;
   transition: all 0.2s linear;
-  > * {
-    transition: all 0.2s linear;
-    transform: translateX(100%);
-  }
-  &.show {
-    visibility: visible;
-    opacity: 1;
-
-    > * {
-      transform: translateX(0);
-    }
-  }
+  flex: 1;
 `
 
 const RangeItemWrapper = styled(Column)<{ active?: boolean }>`
@@ -138,15 +115,15 @@ const RangeItemWrapper = styled(Column)<{ active?: boolean }>`
     `}
 `
 
-const UnstakeButton = styled(ButtonLight)`
-  color: var(--red);
-  background-color: var(--red-alpha-30);
+const UnstakeButton = styled(ButtonOutlined)`
+  color: var(--subtext);
+  background-color: var(--subtext-alpha-50);
   :hover {
-    background-color: var(--red-alpha-30);
+    background-color: var(--subtext-alpha-50);
     opacity: 0.9;
   }
   &:active {
-    box-shadow: 0 0 0 1pt var(--red-alpha-30);
+    box-shadow: 0 0 0 1pt var(--subtext-alpha-50);
   }
 `
 
@@ -172,18 +149,27 @@ const FeeBadge = styled.div`
   padding: 2px 4px;
 `
 
+export const FarmContext = React.createContext<{ farm?: ElasticFarmV2WithRangePrices; activeRange?: number }>({
+  farm: undefined,
+  activeRange: 0,
+})
+
 const RangeItem = ({
   active,
   onRangeClick,
-  priceLower,
-  priceUpper,
-  priceCurrent,
+  tickLower,
+  tickUpper,
+  tickCurrent,
+  token0,
+  token1,
 }: {
   active?: boolean
   onRangeClick?: () => void
-  priceLower?: string
-  priceUpper?: string
-  priceCurrent?: string
+  tickLower?: string
+  tickUpper?: string
+  tickCurrent?: string
+  token0?: Token
+  token1?: Token
 }) => {
   const theme = useTheme()
   return (
@@ -201,7 +187,13 @@ const RangeItem = ({
           <Text fontSize="12px" lineHeight="16px" color="var(--primary)" alignSelf="flex-end">
             <Trans>Active Range ↗</Trans>
           </Text>
-          <PriceVisualize priceLower={priceLower} priceUpper={priceUpper} priceCurrent={priceCurrent} />
+          <PriceVisualize
+            tickLower={tickLower}
+            tickUpper={tickUpper}
+            tickCurrent={tickCurrent}
+            token0={token0}
+            token1={token1}
+          />
         </Column>
       </RowBetween>
       <RowBetween>
@@ -249,227 +241,42 @@ function FarmCard({
   const [activeRange, setActiveRange] = useState(0)
 
   const wrapperInnerRef = useRef<HTMLDivElement>(null)
-  const rangesRef = useRef<HTMLDivElement>(null)
 
   const handleFlip = useCallback(() => {
     wrapperInnerRef.current?.classList.toggle('rotate')
   }, [])
-  const handleToggleRanges = useCallback(() => {
-    rangesRef.current?.classList.toggle('show')
-  }, [])
 
   const currentTimestamp = Math.floor(Date.now() / 1000)
+  const elasticFarm = useElasticFarmsV2()
+  const depositedPos = farm?.userPositions
+  const stakedPos = elasticFarm?.userInfo?.filter(u => u.fId === farm?.fId && u.rangeId === activeRange)
+  const canStake = enableStake || (depositedPos && stakedPos && depositedPos.length > stakedPos.length)
+  const canUnstake = hasUnstake || (stakedPos && stakedPos.length > 0)
+  const { harvest } = useFarmV2Action()
+  const handleHarvest = useCallback(() => {
+    if (!farm) return
+    harvest(farm?.fId, stakedPos?.filter(sp => sp.rangeId === activeRange).map(sp => sp.nftId.toNumber()) || [])
+  }, [farm, harvest, stakedPos, activeRange])
 
+  const farmValues = useMemo(() => {
+    return {
+      farm,
+      activeRange,
+    }
+  }, [farm, activeRange])
   return (
-    <Wrapper>
-      <WrapperInner ref={wrapperInnerRef} hasRewards={hasRewards}>
-        <FrontFace>
-          <RowBetween>
-            <RowFit gap="4px">
-              <CurrencyLogo currency={inputToken} />
-              <CurrencyLogo currency={outputToken} />
-              <Text fontSize="16px" lineHeight="20px" color={theme.primary} marginLeft="4px">
-                {`${inputToken?.symbol} - ${outputToken?.symbol}`}
-              </Text>
-              <FeeBadge>FEE {farm?.pool?.fee ? (farm?.pool?.fee * 100) / ELASTIC_BASE_FEE_UNIT : 0.03}%</FeeBadge>
-            </RowFit>
-            <RowFit gap="8px">
-              <IconButton>
-                <CopyHelper toCopy="test" />
-              </IconButton>
-              <IconButton>
-                <Share2 size={14} fill="currentcolor" />
-              </IconButton>
-            </RowFit>
-          </RowBetween>
-          <RowBetween>
-            <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
-              <Trans>Current phase will end in</Trans>
-            </Text>
-            <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-              {farm ? getFormattedTimeFromSecond(farm.endTime - currentTimestamp) : <Trans>17D 3H 40M</Trans>}
-            </Text>
-          </RowBetween>
-          <RowBetween>
-            <Column style={{ width: 'fit-content' }} gap="4px">
-              <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
-                {hasRewards ? <Trans>My Rewards</Trans> : <Trans>Rewards</Trans>}
-              </Text>
-              <RowFit gap="8px">
-                {farm ? (
-                  <>
-                    {farm.totalRewards.map((rw, index: number) => (
-                      <>
-                        {index > 0 && (
-                          <Text fontSize="12px" lineHeight="16px" color={theme.border}>
-                            |
-                          </Text>
-                        )}
-                        <RowFit gap="4px">
-                          <CurrencyLogo currency={rw.currency} size="16px" />
-                          {hasRewards && (
-                            <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-                              0.123456789
-                            </Text>
-                          )}
-                        </RowFit>
-                      </>
-                    ))}
-                  </>
-                ) : (
-                  <>
-                    {/* TODO: Remove this later */}
-                    <RowFit gap="4px">
-                      <CurrencyLogo currency={inputToken} size="16px" />
-                      {hasRewards && (
-                        <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-                          0.123456789
-                        </Text>
-                      )}
-                    </RowFit>
-                    <Text fontSize="12px" lineHeight="16px" color={theme.border}>
-                      |
-                    </Text>
-                    <RowFit gap="4px">
-                      <CurrencyLogo currency={outputToken} size="16px" />
-                      {hasRewards && (
-                        <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-                          0.123456789
-                        </Text>
-                      )}
-                    </RowFit>
-                  </>
-                )}
-              </RowFit>
-            </Column>
-            <ButtonLight width="fit-content" disabled={!hasRewards}>
+    <FarmContext.Provider value={farmValues}>
+      <Wrapper>
+        <WrapperInner ref={wrapperInnerRef} hasRewards={hasRewards}>
+          <FrontFace>
+            <RowBetween>
               <RowFit gap="4px">
-                <Harvest />
-                <Text>Harvest</Text>
-              </RowFit>
-            </ButtonLight>
-          </RowBetween>
-          <Divider />
-          <Column
-            gap="16px"
-            style={{
-              borderRadius: '12px',
-              border: `1px solid ${theme.border}`,
-              padding: '12px',
-              backgroundColor: 'var(--button-black)',
-            }}
-          >
-            <RowBetween align="flex-start">
-              <Column gap="4px">
-                <SimpleTooltip text={t`Active Range: Current active farming range`}>
-                  <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
-                    <Trans>Avg APR</Trans>
-                  </Text>
-                </SimpleTooltip>
-                <Text fontSize="28px" lineHeight="32px" color={theme.primary}>
-                  132.23%
-                </Text>
-              </Column>
-              <Column gap="4px">
-                <Text fontSize="12px" lineHeight="16px" color={theme.primary} alignSelf="flex-end">
-                  <Trans>Active Range ↗</Trans>
-                </Text>
-                <PriceVisualize
-                  priceCurrent={farm?.ranges[activeRange].priceCurrent}
-                  priceLower={farm?.ranges[activeRange].priceLower}
-                  priceUpper={farm?.ranges[activeRange].priceUpper}
-                />
-              </Column>
-            </RowBetween>
-            <RowBetween>
-              <Column gap="4px">
-                <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
-                  <Trans>Staked TVL</Trans>
-                </Text>
-                <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-                  $12.54M
-                </Text>
-              </Column>
-              <Column gap="4px" style={{ alignItems: 'flex-end' }}>
-                <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
-                  <Trans>My Deposit</Trans>
-                </Text>
-                <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-                  $230.23K
-                </Text>
-              </Column>
-            </RowBetween>
-            <Divider />
-            <Row gap="12px">
-              {hasUnstake && (
-                <UnstakeButton color={theme.red} onClick={() => setShowUnstake(p => !p)}>
-                  <RowFit gap="6px">
-                    <Minus size={16} />
-                    Unstake
-                  </RowFit>
-                </UnstakeButton>
-              )}
-              <ButtonLight disabled={!enableStake} onClick={() => setShowStake(true)}>
-                <RowFit gap="6px">
-                  <Plus size={16} />
-                  Stake
-                </RowFit>
-              </ButtonLight>
-            </Row>
-          </Column>
-          <RowBetween marginTop="auto">
-            <TextButtonPrimary fontSize="12px" onClick={handleFlip} disabled={!hasPositions}>
-              <Swap rotate={90} size={16} />
-              <Trans>View Positions</Trans>
-            </TextButtonPrimary>
-            <TextButtonPrimary fontSize="12px" onClick={handleToggleRanges}>
-              <AspectRatio size={16} />
-              <Trans>{farm ? farm.ranges.length : 3} Ranges Available</Trans>
-            </TextButtonPrimary>
-          </RowBetween>
-          <Ranges ref={rangesRef}>
-            <div style={{ overflowY: 'scroll', flex: 1 }}>
-              <Column gap="12px">
-                {farm ? (
-                  <>
-                    {farm.ranges.map((r, index: number) => (
-                      <RangeItem
-                        active={activeRange === index}
-                        key={r.id}
-                        priceLower={r.priceLower}
-                        priceUpper={r.priceUpper}
-                        priceCurrent={r.priceCurrent}
-                        onRangeClick={() => setActiveRange(index)}
-                      />
-                    ))}
-                  </>
-                ) : (
-                  <>
-                    {/* TODO: Remove this later */}
-                    <RangeItem active></RangeItem>
-                    <RangeItem></RangeItem>
-                    <RangeItem></RangeItem>
-                  </>
-                )}
-              </Column>
-            </div>
-            <Row justify="center">
-              <TextButtonPrimary onClick={handleToggleRanges}>
-                <Trans>Choose this range</Trans>
-              </TextButtonPrimary>
-            </Row>
-          </Ranges>
-        </FrontFace>
-
-        {hasPositions && (
-          <BackFace>
-            <RowBetween>
-              <RowFit>
                 <CurrencyLogo currency={inputToken} />
                 <CurrencyLogo currency={outputToken} />
                 <Text fontSize="16px" lineHeight="20px" color={theme.primary} marginLeft="4px">
                   {`${inputToken?.symbol} - ${outputToken?.symbol}`}
                 </Text>
+                <FeeBadge>FEE {farm?.pool?.fee ? (farm?.pool?.fee * 100) / ELASTIC_BASE_FEE_UNIT : 0.03}%</FeeBadge>
               </RowFit>
               <RowFit gap="8px">
                 <IconButton>
@@ -480,44 +287,213 @@ function FarmCard({
                 </IconButton>
               </RowFit>
             </RowBetween>
-            <Column style={{ padding: '12px', border: '1px solid var(--border)', borderRadius: '12px' }} gap="16px">
-              <RowBetween>
-                <Text fontSize="12px" lineHeight="16px" color="var(--primary)">
-                  <Trans>Active Range ↗</Trans>
-                </Text>
-                <RowFit>
-                  <Text fontSize="12px" lineHeight="16px" color="var(--subtext)">
-                    <Trans>My Pools ↗</Trans>
-                  </Text>
-                </RowFit>
-              </RowBetween>
-              <PriceVisualize />
-              <Text fontSize="12px" lineHeight="16px" color="var(--subtext)">
-                <Trans>My Positions</Trans>
+            <RowBetween>
+              <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
+                <Trans>Current phase will end in</Trans>
               </Text>
-              <RowWrap gap="12px" itemsInRow={2}>
-                <NFTItem />
-                <NFTItem />
-                <NFTItem />
-                <NFTItem />
-              </RowWrap>
-            </Column>
-            <RowBetween marginTop="auto">
-              <TextButtonPrimary fontSize="12px" onClick={handleFlip}>
-                <Swap rotate={90} size={16} />
-                <Trans>View Farm</Trans>
-              </TextButtonPrimary>
-              <TextButtonPrimary fontSize="12px" onClick={handleToggleRanges}>
-                <AspectRatio size={16} />
-                <Trans>3 Ranges Available</Trans>
-              </TextButtonPrimary>
+              <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                {farm ? getFormattedTimeFromSecond(farm.endTime - currentTimestamp) : <Trans>17D 3H 40M</Trans>}
+              </Text>
             </RowBetween>
+            <RowBetween>
+              <Column style={{ width: 'fit-content' }} gap="4px">
+                <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
+                  {hasRewards ? <Trans>My Rewards</Trans> : <Trans>Rewards</Trans>}
+                </Text>
+                <RowFit gap="8px">
+                  {farm ? (
+                    <>
+                      {farm.totalRewards.map((rw, index: number) => (
+                        <>
+                          {index > 0 && (
+                            <Text fontSize="12px" lineHeight="16px" color={theme.border}>
+                              |
+                            </Text>
+                          )}
+                          <RowFit gap="4px">
+                            <CurrencyLogo currency={rw.currency} size="16px" />
+                            {hasRewards && (
+                              <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                                0.123456789
+                              </Text>
+                            )}
+                          </RowFit>
+                        </>
+                      ))}
+                    </>
+                  ) : (
+                    <>
+                      {/* TODO: Remove this later */}
+                      <RowFit gap="4px">
+                        <CurrencyLogo currency={inputToken} size="16px" />
+                        {hasRewards && (
+                          <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                            0.123456789
+                          </Text>
+                        )}
+                      </RowFit>
+                      <Text fontSize="12px" lineHeight="16px" color={theme.border}>
+                        |
+                      </Text>
+                      <RowFit gap="4px">
+                        <CurrencyLogo currency={outputToken} size="16px" />
+                        {hasRewards && (
+                          <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                            0.123456789
+                          </Text>
+                        )}
+                      </RowFit>
+                    </>
+                  )}
+                </RowFit>
+              </Column>
+              <ButtonLight width="fit-content" disabled={!hasRewards} onClick={handleHarvest}>
+                <RowFit gap="4px">
+                  <Harvest />
+                  <Text>Harvest</Text>
+                </RowFit>
+              </ButtonLight>
+            </RowBetween>
+            <Divider />
+            <Column
+              gap="16px"
+              style={{
+                borderRadius: '12px',
+                border: `1px solid ${theme.border}`,
+                padding: '12px',
+                backgroundColor: 'var(--button-black)',
+              }}
+            >
+              <RowBetween align="flex-start">
+                <Column gap="4px">
+                  <SimpleTooltip text={t`Active Range: Current active farming range`}>
+                    <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
+                      <Trans>Avg APR</Trans>
+                    </Text>
+                  </SimpleTooltip>
+                  <Text fontSize="28px" lineHeight="32px" color={theme.primary}>
+                    132.23%
+                  </Text>
+                </Column>
+                <Column gap="4px">
+                  <Text fontSize="12px" lineHeight="16px" color={theme.primary} alignSelf="flex-end">
+                    <Trans>Active Range ↗</Trans>
+                  </Text>
+                  {farm && (
+                    <PriceVisualize
+                      tickCurrent={farm?.ranges[activeRange].tickCurrent}
+                      tickLower={farm?.ranges[activeRange].tickLower}
+                      tickUpper={farm?.ranges[activeRange].tickUpper}
+                      token0={farm.token0}
+                      token1={farm.token1}
+                    />
+                  )}
+                </Column>
+              </RowBetween>
+              <RowBetween>
+                <Column gap="4px">
+                  <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
+                    <Trans>Staked TVL</Trans>
+                  </Text>
+                  <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                    $12.54M
+                  </Text>
+                </Column>
+                <Column gap="4px" style={{ alignItems: 'flex-end' }}>
+                  <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
+                    <Trans>My Deposit</Trans>
+                  </Text>
+                  <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                    $230.23K
+                  </Text>
+                </Column>
+              </RowBetween>
+              <Divider />
+              <Row gap="12px">
+                {canUnstake && (
+                  <UnstakeButton onClick={() => setShowUnstake(p => !p)}>
+                    <RowFit gap="6px">{stakedPos?.length || 3} Positions Staked</RowFit>
+                  </UnstakeButton>
+                )}
+                <ButtonLight disabled={!canStake} onClick={() => setShowStake(true)}>
+                  <RowFit gap="6px">
+                    <Plus size={16} />
+                    Stake
+                  </RowFit>
+                </ButtonLight>
+              </Row>
+            </Column>
+            <Row justify="center" marginTop="auto">
+              <TextButtonPrimary fontSize="12px" onClick={handleFlip} width="fit-content">
+                <AspectRatio size={16} />
+                <Trans>{farm ? farm.ranges.length : 3} Ranges Available</Trans>
+              </TextButtonPrimary>
+            </Row>
+          </FrontFace>
+
+          <BackFace>
+            <RowBetween>
+              <RowFit gap="4px">
+                <CurrencyLogo currency={inputToken} />
+                <CurrencyLogo currency={outputToken} />
+                <Text fontSize="16px" lineHeight="20px" color={theme.primary} marginLeft="4px">
+                  {`${inputToken?.symbol} - ${outputToken?.symbol}`}
+                </Text>
+                <FeeBadge>FEE {farm?.pool?.fee ? (farm?.pool?.fee * 100) / ELASTIC_BASE_FEE_UNIT : 0.03}%</FeeBadge>
+              </RowFit>
+              <RowFit gap="8px">
+                <IconButton>
+                  <CopyHelper toCopy="test" />
+                </IconButton>
+                <IconButton>
+                  <Share2 size={14} fill="currentcolor" />
+                </IconButton>
+              </RowFit>
+            </RowBetween>
+            <Ranges>
+              <div style={{ overflowY: 'scroll', flex: 1 }}>
+                <Column gap="12px">
+                  {farm ? (
+                    <>
+                      {farm.ranges.map((r, index: number) => (
+                        <RangeItem
+                          active={activeRange === index}
+                          key={r.id}
+                          tickLower={r.tickLower}
+                          tickUpper={r.tickUpper}
+                          tickCurrent={r.tickCurrent}
+                          onRangeClick={() => setActiveRange(index)}
+                          token0={farm.token0}
+                          token1={farm.token1}
+                        />
+                      ))}
+                    </>
+                  ) : (
+                    <>
+                      {/* TODO: Remove this later */}
+                      <RangeItem active></RangeItem>
+                      <RangeItem></RangeItem>
+                      <RangeItem></RangeItem>
+                    </>
+                  )}
+                </Column>
+              </div>
+              <Row justify="center" marginTop="auto">
+                <TextButtonPrimary onClick={handleFlip}>
+                  <Trans>Choose this range</Trans>
+                </TextButtonPrimary>
+              </Row>
+            </Ranges>
           </BackFace>
+        </WrapperInner>
+        {canStake && (
+          <StakeWithNFTsModal isOpen={showStake} onDismiss={() => setShowStake(false)} positions={depositedPos} />
         )}
-      </WrapperInner>
-      {enableStake && <StakeWithNFTsModal isOpen={showStake} onDismiss={() => setShowStake(false)} />}
-      {hasUnstake && <UnstakeWithNFTsModal isOpen={showUnstake} onDismiss={() => setShowUnstake(false)} />}
-    </Wrapper>
+        {canUnstake && (
+          <UnstakeWithNFTsModal isOpen={showUnstake} onDismiss={() => setShowUnstake(false)} stakedPos={stakedPos} />
+        )}
+      </Wrapper>
+    </FarmContext.Provider>
   )
 }
 

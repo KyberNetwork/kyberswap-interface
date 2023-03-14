@@ -11,6 +11,7 @@ export interface ElasticFarmV2Range {
 }
 export interface ElasticFarmV2 {
   id: string
+  fId: number
   startTime: number
   endTime: number
   pool: Pool

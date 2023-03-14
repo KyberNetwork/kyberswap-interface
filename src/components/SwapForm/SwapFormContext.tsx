@@ -9,16 +9,10 @@ type SwapFormContextProps = {
   typedValue: string
   isSaveGas: boolean
   recipient: string | null
+  isStablePairSwap: boolean
 }
 
-const SwapFormContext = createContext<SwapFormContextProps>({
-  feeConfig: undefined,
-  slippage: 0,
-  routeSummary: undefined,
-  typedValue: '',
-  isSaveGas: false,
-  recipient: null,
-})
+const SwapFormContext = createContext<SwapFormContextProps | undefined>(undefined)
 
 const SwapFormContextProvider: React.FC<
   SwapFormContextProps & {
@@ -29,7 +23,7 @@ const SwapFormContextProvider: React.FC<
   return <SwapFormContext.Provider value={contextValue}>{children}</SwapFormContext.Provider>
 }
 
-const useSwapFormContext = () => {
+const useSwapFormContext = (): SwapFormContextProps => {
   const context = useContext(SwapFormContext)
   if (!context) {
     throw new Error('hook is used outside of SwapFormContext')
