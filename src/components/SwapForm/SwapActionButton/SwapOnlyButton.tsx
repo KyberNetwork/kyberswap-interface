@@ -1,6 +1,6 @@
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
@@ -166,6 +166,10 @@ const SwapOnlyButton: React.FC<Props> = ({
     return undefined
   }, [buildResult, swapCallback, routeSummary, mixpanelHandler])
 
+  const onDismissModal = useCallback(() => {
+    setProcessingSwap(false)
+  }, [setProcessingSwap])
+
   const renderButton = () => {
     if (isProcessingSwap) {
       return (
@@ -241,9 +245,7 @@ const SwapOnlyButton: React.FC<Props> = ({
         tokenAddToMetaMask={currencyOut}
         buildResult={buildResult}
         isBuildingRoute={isBuildingRoute}
-        onDismiss={() => {
-          setProcessingSwap(false)
-        }}
+        onDismiss={onDismissModal}
         swapCallback={swapCallbackForModal}
         onRetryBuild={handleClickRetryForNormalMode}
       />
