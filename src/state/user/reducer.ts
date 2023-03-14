@@ -12,6 +12,7 @@ import {
   addSerializedPair,
   addSerializedToken,
   changeViewMode,
+  pinSlippageControl,
   removeSerializedPair,
   removeSerializedToken,
   toggleFavoriteToken,
@@ -93,6 +94,8 @@ interface UserState {
   acceptedTermVersion: number | null
   viewMode: VIEW_MODE
   holidayMode: boolean
+
+  isSlippageControlPinned: boolean
 }
 
 function pairKey(token0Address: string, token1Address: string) {
@@ -156,6 +159,7 @@ const initialState: UserState = {
   acceptedTermVersion: null,
   viewMode: VIEW_MODE.GRID,
   holidayMode: true,
+  isSlippageControlPinned: true,
 }
 
 export default createReducer(initialState, builder =>
@@ -165,6 +169,10 @@ export default createReducer(initialState, builder =>
       // noinspection SuspiciousTypeOfGuard
       if (typeof state.userSlippageTolerance !== 'number') {
         state.userSlippageTolerance = INITIAL_ALLOWED_SLIPPAGE
+      }
+
+      if (typeof state.isSlippageControlPinned !== 'boolean') {
+        state.isSlippageControlPinned = initialState.isSlippageControlPinned
       }
 
       // deadline isnt being tracked in local storage, reset to default
@@ -291,5 +299,8 @@ export default createReducer(initialState, builder =>
     .addCase(toggleHolidayMode, state => {
       const oldMode = state.holidayMode
       state.holidayMode = !oldMode
+    })
+    .addCase(pinSlippageControl, (state, { payload }) => {
+      state.isSlippageControlPinned = payload
     }),
 )

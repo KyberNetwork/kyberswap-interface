@@ -50,3 +50,4 @@ export const updateTokenAnalysisSettings = createAction<string>('user/updateToke
 export const updateAcceptedTermVersion = createAction<number | null>('user/updateAcceptedTermVersion')
 export const changeViewMode = createAction<VIEW_MODE>('user/changeViewMode')
 export const toggleHolidayMode = createAction<void>('user/toggleHolidayMode')
+export const pinSlippageControl = createAction<boolean>('user/pinSlippageControl')

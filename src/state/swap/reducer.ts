@@ -46,7 +46,6 @@ export interface SwapState {
   readonly txHash: string | undefined
 
   readonly isSelectTokenManually: boolean
-  readonly isSlippageControlPinned: boolean
 }
 
 const { search, pathname } = window.location
@@ -78,7 +77,6 @@ const initialState: SwapState = {
   txHash: undefined,
 
   isSelectTokenManually: false,
-  isSlippageControlPinned: true,
 }
 
 export default createReducer<SwapState>(initialState, builder =>
