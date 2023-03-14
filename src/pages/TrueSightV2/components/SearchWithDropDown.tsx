@@ -1,16 +1,16 @@
-import { t } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { X } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
-import styled, { css } from 'styled-components'
+import styled, { css, keyframes } from 'styled-components'
 
 import { ButtonEmpty } from 'components/Button'
 import Column from 'components/Column'
 import History from 'components/Icons/History'
 import Icon from 'components/Icons/Icon'
 import SearchIcon from 'components/Icons/Search'
-import Row, { RowBetween, RowFit } from 'components/Row'
+import Row, { RowFit } from 'components/Row'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
@@ -22,7 +22,8 @@ const Wrapper = styled.div<{ wider?: boolean; expanded?: boolean }>`
   padding: 6px 12px;
   border-radius: 40px;
   transition: all 0.2s ease;
-  background-color: ${({ theme }) => theme.tableHeader};
+  background-color: ${({ theme }) => theme.background};
+  border: 1px solid ${({ theme }) => theme.border};
   z-index: 10;
 
   cursor: pointer;
@@ -34,16 +35,13 @@ const Wrapper = styled.div<{ wider?: boolean; expanded?: boolean }>`
     transition: all 0.2s ease;
   }
 
-  width: 140px;
-  ${({ wider }) =>
-    wider &&
-    css`
-      width: 420px;
-    `}
-  ${({ expanded }) =>
+  width: 600px;
+
+  ${({ expanded, theme }) =>
     expanded &&
     css`
       border-radius: 8px 8px 0 0;
+      border-color: transparent;
     `}
 `
 const Input = styled.input<{ expanded?: boolean }>`
@@ -54,7 +52,7 @@ const Input = styled.input<{ expanded?: boolean }>`
   border: none;
   outline: none;
   color: ${({ theme }) => theme.text};
-  font-size: 12px;
+  font-size: 14px;
   flex: 1;
   transition: all 0.2s ease;
   z-index: 2;
@@ -75,14 +73,15 @@ const DropdownWrapper = styled.div<{ expanded?: boolean; height?: number }>`
   left: 0;
   padding-top: 36px;
   width: 100%;
-  background-color: ${({ theme }) => theme.tableHeader};
+  background-color: ${({ theme }) => theme.background};
   z-index: 1;
 
-  ${({ expanded, height }) =>
+  ${({ expanded, height, theme }) =>
     expanded
       ? css`
           max-height: ${height}px;
           border-radius: 8px;
+          background-color: ${theme.tableHeader};
         `
       : css`
           max-height: 0px;
@@ -90,15 +89,27 @@ const DropdownWrapper = styled.div<{ expanded?: boolean; height?: number }>`
         `}
 `
 
-const DropdownSection = styled.div`
+const DropdownSection = styled.table`
   border-top: 1px solid ${({ theme }) => theme.border};
   padding: 10px;
+  width: 100%;
+  border-spacing: 0;
+  th {
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 400;
+  }
+  td,
+  th {
+    padding: 4px 6px;
+  }
 `
 
-const DropdownItem = styled(RowBetween)`
+const DropdownItem = styled.tr`
   padding: 6px;
   background-color: ${({ theme }) => theme.tableHeader};
   height: 28px;
+
   :hover {
     filter: brightness(1.3);
   }
@@ -169,6 +180,7 @@ const HiddenWrapper = styled.div<{ expanded?: boolean; width?: number; left?: nu
   border-radius: 18px;
   visibility: hidden;
   transition: all 0.4s ease;
+  transition-delay: 0.3s;
 
   ${({ expanded, width, height }) =>
     expanded &&
@@ -179,6 +191,27 @@ const HiddenWrapper = styled.div<{ expanded?: boolean; width?: number; left?: nu
       border-radius: 8px;
       visibility: visible;
     `}
+`
+
+const ripple = keyframes`
+  to {
+    transform: scale(500);
+    opacity: 0;
+  }
+`
+
+const AnimationOnFocus = styled.div`
+  position: absolute;
+  right: 40px;
+  top: 15px;
+  height: 5px;
+  width: 5px;
+  transform: scale(0);
+  background-color: ${({ theme }) => theme.subText};
+  z-index: 1;
+  border-radius: 50%;
+  opacity: 0.2;
+  animation: ${ripple} 0.6s linear;
 `
 
 const MobileWrapper = ({
@@ -253,51 +286,119 @@ const SearchWithDropdown = ({ searchValue, onSearch }: SearchProps) => {
     e.stopPropagation()
   }, [])
 
-  const SampleItem = () => (
+  const SampleItem = ({ score }: { score?: number }) => (
     <DropdownItem onClick={() => setSearch('ETH')}>
-      <RowFit gap="4px">
-        <SampleLogo />
-        <Text fontSize="12px" color={theme.text}>
-          ETH
+      <td>
+        <RowFit gap="4px">
+          <SampleLogo />
+          <Text fontSize="12px" color={theme.text}>
+            ETH
+          </Text>
+          <SampleChainLogo />
+        </RowFit>
+      </td>
+      <td style={{ textAlign: 'right' }}>
+        <Text fontSize="12px" color={score && score < 50 ? theme.red : theme.primary}>
+          {score || 80}
+          <Text as="span" fontSize="10px" color={theme.subText}>
+            /100
+          </Text>
         </Text>
-        <SampleChainLogo />
-      </RowFit>
-      <RowFit>
-        <Text fontSize="12px">
-          $0.00401 <span style={{ color: theme.primary }}>(+20%)</span>
+      </td>
+      <td style={{ textAlign: 'right' }}>
+        <RowFit>
+          <Text fontSize="12px" color={theme.text}>
+            $0.000000004234
+          </Text>
+        </RowFit>
+      </td>
+      <td style={{ textAlign: 'right' }}>
+        <Text fontSize="12px" color={theme.primary}>
+          +20%
         </Text>
-      </RowFit>
+      </td>
     </DropdownItem>
   )
 
   const DropdownContent = () => (
     <>
       <DropdownSection>
-        <Row height="28px" padding="6px" color={theme.subText} gap="4px">
-          <History />
-          <Text fontSize="12px">Search History</Text>
-        </Row>
-        <SampleItem />
-        <SampleItem />
-        <SampleItem />
+        <colgroup>
+          <col style={{ width: 'auto' }} />
+          <col style={{ width: '100px', minWidth: 'auto' }} />
+          <col style={{ width: '120px' }} />
+          <col style={{ width: '40px' }} />
+        </colgroup>
+        <thead>
+          <tr>
+            <th>
+              <RowFit color={theme.subText} gap="4px">
+                <History />
+                <Text fontSize="12px">Search History</Text>
+              </RowFit>
+            </th>
+            <th style={{ textAlign: 'right' }}>KyberScore</th>
+            <th style={{ textAlign: 'right' }}>Price</th>
+            <th style={{ textAlign: 'right' }}>24H</th>
+          </tr>
+        </thead>
+        <tbody>
+          <SampleItem />
+          <SampleItem />
+          <SampleItem />
+        </tbody>
       </DropdownSection>
       <DropdownSection>
-        <Row height="28px" padding="6px" color={theme.subText} gap="4px">
-          <Icon id="bullish" size={16} />
-          <Text fontSize="12px">Bullish Tokens</Text>
-        </Row>
-        <SampleItem />
-        <SampleItem />
-        <SampleItem />
+        <colgroup>
+          <col style={{ width: 'auto' }} />
+          <col style={{ width: '100px', minWidth: 'auto' }} />
+          <col style={{ width: '120px' }} />
+          <col style={{ width: '40px' }} />
+        </colgroup>
+        <thead>
+          <tr>
+            <th>
+              <RowFit color={theme.subText} gap="4px">
+                <History />
+                <Text fontSize="12px">Search History</Text>
+              </RowFit>
+            </th>
+            <th style={{ textAlign: 'right' }}>KyberScore</th>
+            <th style={{ textAlign: 'right' }}>Price</th>
+            <th style={{ textAlign: 'right' }}>24H</th>
+          </tr>
+        </thead>
+        <tbody>
+          <SampleItem />
+          <SampleItem />
+          <SampleItem />
+        </tbody>
       </DropdownSection>
       <DropdownSection>
-        <Row height="28px" padding="6px" color={theme.subText} gap="4px">
-          <Icon id="bearish" size={16} />
-          <Text fontSize="12px">Bearish Tokens</Text>
-        </Row>
-        <SampleItem />
-        <SampleItem />
-        <SampleItem />
+        <colgroup>
+          <col style={{ width: 'auto' }} />
+          <col style={{ width: '100px', minWidth: 'auto' }} />
+          <col style={{ width: '120px' }} />
+          <col style={{ width: '40px' }} />
+        </colgroup>
+        <thead>
+          <tr>
+            <th>
+              <RowFit color={theme.subText} gap="4px">
+                <History />
+                <Text fontSize="12px">Search History</Text>
+              </RowFit>
+            </th>
+            <th style={{ textAlign: 'right' }}>KyberScore</th>
+            <th style={{ textAlign: 'right' }}>Price</th>
+            <th style={{ textAlign: 'right' }}>24H</th>
+          </tr>
+        </thead>
+        <tbody>
+          <SampleItem score={20} />
+          <SampleItem score={20} />
+          <SampleItem score={20} />
+        </tbody>
       </DropdownSection>
     </>
   )
@@ -332,16 +433,11 @@ const SearchWithDropdown = ({ searchValue, onSearch }: SearchProps) => {
   }
   return (
     <>
-      <Wrapper
-        ref={wrapperRef}
-        onClick={() => inputRef.current?.focus()}
-        expanded={expanded}
-        wider={expanded || !!search}
-      >
+      <Wrapper ref={wrapperRef} onClick={() => inputRef.current?.focus()} expanded={expanded}>
         {above768 && (
           <Input
             type="text"
-            placeholder={expanded ? t`Search by token name or contract address` : t`Search`}
+            placeholder={t`Search by token name or contract address`}
             value={search}
             onChange={e => {
               setSearch(e.target.value)
@@ -355,10 +451,14 @@ const SearchWithDropdown = ({ searchValue, onSearch }: SearchProps) => {
               <X color={theme.subText} size={14} style={{ minWidth: '14px' }} />
             </ButtonEmpty>
           )}
-          <SearchIcon color={theme.subText} />
+          <RowFit fontSize="14px" lineHeight="20px" fontWeight={500} gap="4px">
+            <Icon id="search" size={24} />
+            <Trans>Ape Smart!</Trans>
+          </RowFit>
         </RowFit>
         <DropdownWrapper expanded={expanded} ref={dropdownRef} height={dropdownRef.current?.scrollHeight}>
           <DropdownContent />
+          {expanded && <AnimationOnFocus />}
         </DropdownWrapper>
       </Wrapper>
     </>
