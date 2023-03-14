@@ -506,7 +506,7 @@ function PositionListItem({
               </ExternalLink>
             </ButtonEmpty>
 
-            {hasUserDepositedInFarm && (
+            {(hasUserDepositedInFarm || hasActiveFarm || hasActiveFarmV2) && (
               <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0">
                 <StyledInternalLink
                   style={{ width: '100%', textAlign: 'center' }}

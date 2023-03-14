@@ -154,7 +154,7 @@ export const FarmContext = React.createContext<{ farm?: ElasticFarmV2WithRangePr
   activeRange: 0,
 })
 
-const RangeItem = ({
+export const RangeItem = ({
   active,
   onRangeClick,
   tickLower,

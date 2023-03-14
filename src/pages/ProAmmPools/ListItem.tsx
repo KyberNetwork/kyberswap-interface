@@ -10,10 +10,9 @@ import { ReactComponent as ViewPositionIcon } from 'assets/svg/view_positions.sv
 import { ButtonEmpty } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
-import { MoneyBag } from 'components/Icons'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { FeeTag } from 'components/YieldPools/ElasticFarmGroup/styleds'
-import FarmingPoolAPRCell, { APRTooltipContent } from 'components/YieldPools/FarmingPoolAPRCell'
+import FarmingPoolAPRCell from 'components/YieldPools/FarmingPoolAPRCell'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT, PROMM_ANALYTICS_URL } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import { VERSION } from 'constants/v2'
@@ -24,6 +23,7 @@ import useTheme from 'hooks/useTheme'
 import { ButtonIcon } from 'pages/Pools/styleds'
 import { useToggleEthPowAckModal } from 'state/application/hooks'
 import { useElasticFarms } from 'state/farms/elastic/hooks'
+import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
 import { useUrlOnEthPowAck } from 'state/pools/hooks'
 import { ExternalLink } from 'theme'
 import { ElasticPoolDetail } from 'types/pool'
@@ -104,6 +104,7 @@ export default function ProAmmPoolListItem({ pool, onShared, userPositions }: Li
   const token1Symbol = isToken1WETH ? nativeToken.symbol : token1.symbol
 
   const { farms } = useElasticFarms()
+  const { farms: elasticFarmV2s } = useElasticFarmsV2()
 
   const { mixpanelHandler } = useMixpanel()
 
@@ -125,30 +126,21 @@ export default function ProAmmPoolListItem({ pool, onShared, userPositions }: Li
   })
 
   const isFarmingPool = !!fairlaunchAddress && pid !== -1
+  const isFarmV2 = elasticFarmV2s
+    ?.filter(farm => farm.endTime > Date.now() / 1000)
+    .map(farm => farm.poolAddress.toLowerCase())
+    .includes(pool.address.toLowerCase())
 
   const renderPoolAPR = () => {
-    if (isFarmingPool) {
-      if (pool.farmAPR) {
-        return (
-          <Flex
-            alignItems={'center'}
-            sx={{
-              gap: '4px',
-            }}
-          >
-            <Text as="span">{(pool.apr + pool.farmAPR).toFixed(2)}%</Text>
-            <MouseoverTooltip
-              width="fit-content"
-              placement="top"
-              text={<APRTooltipContent farmAPR={pool.farmAPR} poolAPR={pool.apr} />}
-            >
-              <MoneyBag size={16} color={theme.apr} />
-            </MouseoverTooltip>
-          </Flex>
-        )
-      }
-
-      return <FarmingPoolAPRCell poolAPR={pool.apr} fairlaunchAddress={fairlaunchAddress} pid={pid} />
+    if (isFarmingPool || isFarmV2) {
+      return (
+        <FarmingPoolAPRCell
+          poolAPR={pool.apr}
+          farmV1Apr={pool.farmAPR}
+          fairlaunchAddress={fairlaunchAddress}
+          pid={pid}
+        />
+      )
     }
 
     return (

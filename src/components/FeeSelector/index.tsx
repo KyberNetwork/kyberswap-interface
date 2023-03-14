@@ -7,11 +7,12 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as Down } from 'assets/svg/down.svg'
-import { MoneyBag } from 'components/Icons'
+import { FarmTag } from 'components/FarmTag'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { useProAmmPoolInfos } from 'hooks/useProAmmPoolInfo'
 import useTheme from 'hooks/useTheme'
 import { useElasticFarms } from 'state/farms/elastic/hooks'
+import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
 
 import { useFeeTierDistribution } from './hook'
 
@@ -60,14 +61,18 @@ const FeeOption = ({
   description,
   onClick,
   percentSelected,
-  hasFarm,
+  hasFarmV1,
+  poolAddress,
+  hasFarmV2,
 }: {
   onClick: () => void
   active: boolean
   label: string
   description: ReactNode
   percentSelected?: string
-  hasFarm: boolean
+  poolAddress: string
+  hasFarmV1: boolean
+  hasFarmV2: boolean
 }) => {
   const theme = useTheme()
   return (
@@ -86,7 +91,8 @@ const FeeOption = ({
           <Text as="span" fontWeight={500} fontSize="14px">
             {label}%
           </Text>
-          {hasFarm && <MoneyBag size={14} color={theme.apr} />}
+          {hasFarmV1 && <FarmTag address={poolAddress} version="v1" noTooltip />}
+          {hasFarmV2 && <FarmTag address={poolAddress} version="v2" noTooltip />}
         </Flex>
 
         <Text as="span" color={theme.subText} marginTop="4px" fontSize="10px">
@@ -144,11 +150,12 @@ function FeeSelector({
   currencyA: Currency | undefined
   currencyB: Currency | undefined
 }) {
-  const theme = useTheme()
   const [show, setShow] = useState(false)
   const feeTierDistribution = useFeeTierDistribution(currencyA, currencyB)
 
   const { farms } = useElasticFarms()
+  const { farms: farmV2s } = useElasticFarmsV2()
+  const activeFarmV2s = farmV2s?.filter(item => item.endTime > Date.now() / 1000)
 
   const showFeeDistribution = Object.values(feeTierDistribution).some(item => item !== 0)
 
@@ -166,7 +173,13 @@ function FeeSelector({
       .map(farm => farm.poolAddress) || []
 
   const poolAddresses = useProAmmPoolInfos(currencyA, currencyB, FEE_AMOUNTS)
-  const tiersThatHasFarm = FEE_AMOUNTS.filter((fee, i) => {
+
+  const poolByFeeAmount: { [key in FeeAmount]: string } = FEE_AMOUNTS.reduce(
+    (acc, cur, index) => ({ ...acc, [cur]: poolAddresses[index] }),
+    {} as { [key in FeeAmount]: string },
+  )
+
+  const tiersThatHasFarmV1 = FEE_AMOUNTS.filter((_fee, i) => {
     const poolAddress = poolAddresses[i].toLowerCase()
     return farmingPoolAddress.includes(poolAddress)
   })
@@ -187,7 +200,6 @@ function FeeSelector({
           <Text as="span" fontSize="14px" lineHeight="20px" fontWeight={500}>
             {FEE_AMOUNT_DETAIL[feeAmount].label}%
           </Text>
-          {tiersThatHasFarm.includes(feeAmount) && <MoneyBag size={14} color={theme.apr} />}
         </Flex>
 
         <Text as="span" marginTop="4px" fontSize="10px">
@@ -196,6 +208,12 @@ function FeeSelector({
       </Flex>
 
       <Flex alignItems="center" sx={{ gap: '8px' }}>
+        {tiersThatHasFarmV1.includes(feeAmount) && <FarmTag version="v1" address={poolByFeeAmount[feeAmount]} />}
+
+        {activeFarmV2s?.find(item => item.poolAddress === poolByFeeAmount[feeAmount].toLowerCase()) && (
+          <FarmTag version="v2" address={poolAddresses[feeAmount]} />
+        )}
+
         {showFeeDistribution && (
           <FeeSelectionPercent>{feeTierDistribution[feeAmount].toFixed(0)}% select</FeeSelectionPercent>
         )}
@@ -213,7 +231,9 @@ function FeeSelector({
               label={FEE_AMOUNT_DETAIL[_feeAmount].label}
               description={FEE_AMOUNT_DETAIL[_feeAmount].description}
               percentSelected={showFeeDistribution ? feeTierDistribution[_feeAmount].toFixed(0) : undefined}
-              hasFarm={tiersThatHasFarm.includes(_feeAmount)}
+              hasFarmV1={tiersThatHasFarmV1.includes(_feeAmount)}
+              poolAddress={poolByFeeAmount[_feeAmount]}
+              hasFarmV2={!!activeFarmV2s?.find(item => item.poolAddress === poolByFeeAmount[_feeAmount].toLowerCase())}
             />
           )
         })}

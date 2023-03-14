@@ -23,8 +23,24 @@ const FarmAvailableTag = styled.div<{ version: 'v1' | 'v2' }>`
   gap: 4px;
 `
 
-export const FarmTag = ({ version, address }: { version: 'v1' | 'v2'; address?: string }) => {
+export const FarmTag = ({
+  version,
+  address,
+  noTooltip,
+}: {
+  version: 'v1' | 'v2'
+  address?: string
+  noTooltip?: boolean
+}) => {
   const { networkInfo } = useActiveWeb3React()
+  if (noTooltip)
+    return (
+      <FarmAvailableTag version={version}>
+        <MoneyBag size={12} />
+        {version === 'v1' ? 'V1' : 'V2'}
+      </FarmAvailableTag>
+    )
+
   return (
     <MouseoverTooltip
       text={

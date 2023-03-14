@@ -6,6 +6,7 @@ import JSBI from 'jsbi'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 
+import { FarmTag } from 'components/FarmTag'
 import { MoneyBag } from 'components/Icons'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
@@ -17,6 +18,7 @@ import { useFarmApr } from 'utils/dmm'
 
 type Props = {
   poolAPR: number
+  farmV1Apr?: number
   fairlaunchAddress: string
   pid: number
   tooltipPlacement?: Placement
@@ -98,10 +100,17 @@ export const APRTooltipContent = ({ poolAPR, farmAPR }: { poolAPR: number; farmA
   )
 }
 
-const FarmingPoolAPRCell: React.FC<Props> = ({ poolAPR, fairlaunchAddress, pid, tooltipPlacement = 'right' }) => {
-  const theme = useTheme()
-
+const FarmingPoolAPRCell: React.FC<Props> = ({
+  poolAPR,
+  farmV1Apr,
+  fairlaunchAddress,
+  pid,
+  tooltipPlacement = 'right',
+}) => {
   const { farms } = useElasticFarms()
+
+  // TODO(viet-nv): APR for farm v2
+
   const pool = farms
     ?.find(farm => farm.id.toLowerCase() === fairlaunchAddress.toLowerCase())
     ?.pools.find(pool => Number(pool.pid) === Number(pid))
@@ -110,12 +119,12 @@ const FarmingPoolAPRCell: React.FC<Props> = ({ poolAPR, fairlaunchAddress, pid, 
     [
       pool?.token0.wrapped.address,
       pool?.token1.wrapped.address,
-      ...(pool?.rewardTokens.map(rw => rw.wrapped.address) as string[]),
+      ...(pool?.rewardTokens.map(rw => rw.wrapped.address) || []),
     ].filter(address => !!address) as string[],
   )
 
-  let farmAPR = 0
-  if (pool) {
+  let farmAPR = farmV1Apr || 0
+  if (pool && !farmV1Apr) {
     const totalRewardValue = pool.totalRewards.reduce(
       (total, rw) => total + Number(rw.toExact()) * tokenPrices[rw.currency.wrapped.address],
       0,
@@ -138,7 +147,7 @@ const FarmingPoolAPRCell: React.FC<Props> = ({ poolAPR, fairlaunchAddress, pid, 
         placement={tooltipPlacement}
         text={<APRTooltipContent farmAPR={farmAPR} poolAPR={poolAPR} />}
       >
-        <MoneyBag size={16} color={theme.apr} />
+        <FarmTag version="v1" noTooltip />
       </MouseoverTooltip>
     </Flex>
   )

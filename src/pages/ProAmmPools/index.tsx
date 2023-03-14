@@ -18,6 +18,7 @@ import { SelectPairInstructionWrapper } from 'pages/Pools/styleds'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useOpenModal } from 'state/application/hooks'
 import { FarmUpdater, useElasticFarms } from 'state/farms/elastic/hooks'
+import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
 import { Field } from 'state/mint/proamm/type'
 import { useTopPoolAddresses, useUserProMMPositions } from 'state/prommPools/hooks'
 import useGetElasticPools from 'state/prommPools/useGetElasticPools'
@@ -124,6 +125,7 @@ export default function ProAmmPoolList({
   const [viewMode] = useViewMode()
 
   const { farms } = useElasticFarms()
+  const { farms: elasticFarmV2s } = useElasticFarmsV2()
   const allRewards = [
     ...new Set(
       farms
@@ -231,7 +233,11 @@ export default function ProAmmPoolList({
           .flat()
           .filter(item => item.endTime > +new Date() / 1000)
           .map(item => item.poolAddress.toLowerCase()) || []
-      filteredPools = filteredPools.filter(pool => activePoolFarmAddress.includes(pool.address.toLowerCase()))
+      const activeFarmV2Addresses =
+        elasticFarmV2s?.filter(item => item.endTime > Date.now() / 1000).map(farm => farm.poolAddress) || []
+      filteredPools = filteredPools.filter(pool =>
+        [...activePoolFarmAddress, ...activeFarmV2Addresses].includes(pool.address.toLowerCase()),
+      )
     }
 
     if (caId && cbId && caId === cbId) filteredPools = []
@@ -259,6 +265,7 @@ export default function ProAmmPoolList({
       })
       .sort(listComparator)
   }, [
+    elasticFarmV2s,
     poolDatas,
     totalFarmRewardUSDByPoolId,
     isShowOnlyActiveFarmPools,
