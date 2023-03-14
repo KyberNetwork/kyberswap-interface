@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
-import { CSSProperties } from 'react'
 import { AlertTriangle } from 'react-feather'
+import { Text } from 'rebass'
 import styled, { useTheme } from 'styled-components'
 
 import InfoHelper from 'components/InfoHelper'
@@ -14,7 +14,7 @@ const Wrapper = styled.div<{ veryHigh?: boolean }>`
 
   border-radius: 999px;
   color: ${({ theme, veryHigh }) => (veryHigh ? theme.red : theme.warning)};
-  background: ${({ theme, veryHigh }) => (veryHigh ? `${theme.red}33` : `${theme.warning}33`)};
+  background: ${({ theme, veryHigh }) => (veryHigh ? `${theme.red}4d` : `${theme.warning}4d`)};
   font-size: 12px;
 `
 
@@ -22,9 +22,8 @@ type Props = {
   isAdvancedMode?: boolean
   priceImpact: number | undefined
   hasTooltip: boolean
-  style?: CSSProperties
 }
-const PriceImpactNote: React.FC<Props> = ({ isAdvancedMode, priceImpact, hasTooltip, style }) => {
+const PriceImpactNote: React.FC<Props> = ({ isAdvancedMode, priceImpact, hasTooltip }) => {
   const theme = useTheme()
   const priceImpactResult = checkPriceImpact(priceImpact)
 
@@ -35,7 +34,7 @@ const PriceImpactNote: React.FC<Props> = ({ isAdvancedMode, priceImpact, hasTool
   // invalid
   if (priceImpactResult.isInvalid) {
     return (
-      <Wrapper style={style}>
+      <Wrapper>
         <AlertTriangle color={theme.warning} size={16} style={{ marginRight: '10px' }} />
         <Trans>Unable to calculate Price Impact</Trans>
         <InfoHelper text={t`Turn on Advanced Mode to trade`} color={theme.text} />
@@ -45,9 +44,15 @@ const PriceImpactNote: React.FC<Props> = ({ isAdvancedMode, priceImpact, hasTool
 
   if (priceImpactResult.isHigh) {
     return (
-      <Wrapper style={style} veryHigh={priceImpactResult.isVeryHigh}>
+      <Wrapper veryHigh={priceImpactResult.isVeryHigh}>
         <AlertTriangle size={16} style={{ marginRight: '10px' }} />
-        {priceImpactResult.isVeryHigh ? <Trans>Price Impact is Very High</Trans> : <Trans>Price Impact is High</Trans>}
+        <Text color={theme.text}>
+          {priceImpactResult.isVeryHigh ? (
+            <Trans>Price Impact is Very High</Trans>
+          ) : (
+            <Trans>Price Impact is High</Trans>
+          )}
+        </Text>
 
         {hasTooltip && (
           <InfoHelper
