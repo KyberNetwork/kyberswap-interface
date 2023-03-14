@@ -86,7 +86,6 @@ export default function useTotalVotingReward(): {
 } {
   const [totalVotingReward, setTotalVotingReward] = useState(0)
   const [kncPriceETH, setKncPriceETH] = useState(0)
-  console.log('🚀 ~ file: useTotalVotingRewards.tsx:89 ~ useTotalVotingReward ~ kncPriceETH:', kncPriceETH)
   const { classicClient: classicClientMainnet, blockClient, provider } = useKyberSwapConfig(ChainId.MAINNET)
   const { classicClient: classicClientMatic, provider: providerMatic } = useKyberSwapConfig(ChainId.MATIC)
 
@@ -166,7 +165,6 @@ export default function useTotalVotingReward(): {
               fetchPolicy: 'network-only',
             })
             const maticBalance = await maticBalanceQuery
-            console.log('🚀 ~ file: useTotalVotingRewards.tsx:169 ~ maticBalance:', maticBalance)
             return (
               parseFloat(new Fraction(maticBalance.toString(), 10 ** 18).toSignificant(18)) *
               parseFloat(maticPrice.data.bundles[0].ethPrice)
@@ -178,7 +176,6 @@ export default function useTotalVotingReward(): {
             return parseFloat(new Fraction(kncBalance.toString(), 10 ** 18).toSignificant(18)) * kncPriceETH
           })(),
         ])
-        console.log('🚀 ~ file: useTotalVotingRewards.tsx:179 ~ run ~ rewards:', rewards)
         setTotalVotingReward(rewards.reduce((a: number, b: number) => a + b, 0))
       } catch {
         setTotalVotingReward(0)
