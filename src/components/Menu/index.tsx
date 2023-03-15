@@ -382,7 +382,7 @@ export default function Menu() {
               <ExternalLink
                 href="https://docs.kyberswap.com"
                 onClick={() => {
-                  handleMenuClickMixpanel('Referral')
+                  handleMenuClickMixpanel('Docs')
                 }}
               >
                 <BookOpen />
