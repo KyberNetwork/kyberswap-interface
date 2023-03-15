@@ -242,13 +242,15 @@ const SwapActionButton: React.FC<Props> = ({
       {isAdvancedMode && errorWhileSwap ? (
         <SwapCallbackError style={{ margin: 0, zIndex: 'unset' }} error={errorWhileSwap} />
       ) : null}
-      <ApprovalModal
-        typedValue={typedValue}
-        currencyInput={currencyIn}
-        onApprove={approveCallback}
-        hasPermit={permitState !== PermitState.NOT_APPLICABLE}
-        onPermit={permitCallback}
-      />
+      {showApproveFlow && (
+        <ApprovalModal
+          typedValue={typedValue}
+          currencyInput={currencyIn}
+          onApprove={approveCallback}
+          hasPermit={permitState !== PermitState.NOT_APPLICABLE}
+          onPermit={permitCallback}
+        />
+      )}
     </>
   )
 }

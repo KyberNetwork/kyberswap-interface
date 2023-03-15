@@ -430,5 +430,5 @@ export const usePermitData: (
   const { chainId } = useActiveWeb3React()
   const permitData = useAppSelector(state => state.user.permitData)
 
-  return address ? permitData[chainId]?.[address] : undefined
+  return address && permitData ? permitData[chainId]?.[address] : undefined
 }

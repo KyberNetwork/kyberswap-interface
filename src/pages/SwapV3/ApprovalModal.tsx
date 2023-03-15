@@ -12,6 +12,7 @@ import { ButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Modal from 'components/Modal'
+import Input from 'components/NumericalInput'
 import { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
@@ -67,18 +68,12 @@ const InputWrapper = styled.div`
   padding: 10px 12px;
   font-size: 12px;
   line-height: 16px;
+  height: 36px;
   display: flex;
   align-items: center;
   border-radius: 22px;
   background-color: ${({ theme }) => theme.buttonBlack};
   gap: 4px;
-`
-const Input = styled.input`
-  color: ${({ theme }) => theme.subText};
-  background: none;
-  border: none;
-  outline: none;
-  flex: 1 1 auto;
 `
 
 enum ApproveOptions {
@@ -102,6 +97,7 @@ const ApprovalModal = ({
 }) => {
   const theme = useTheme()
   const [option, setOption] = useState<ApproveOptions>(ApproveOptions.Infinite)
+  console.log('🚀 ~ file: ApprovalModal.tsx:108 ~ option:', option)
   const [customValue, setCustomValue] = useState(typedValue || '1')
 
   const isOpen = useModalOpen(ApplicationModal.SWAP_APPROVAL)
@@ -111,8 +107,8 @@ const ApprovalModal = ({
     setCustomValue(typedValue || '1')
   }, [typedValue])
 
-  const handleInputChange = (e: any) => {
-    setCustomValue(e.target.value)
+  const handleInputChange = (e: string) => {
+    setCustomValue(e)
   }
   const isValid = option === ApproveOptions.Infinite || (typedValue && typedValue <= customValue)
 
@@ -127,9 +123,23 @@ const ApprovalModal = ({
     }
   }
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    //Tab key pressed
+    if (e.key === 'Tab') {
+      e.stopPropagation()
+      e.preventDefault()
+      setOption(prev =>
+        prev === ApproveOptions.Infinite
+          ? hasPermit
+            ? ApproveOptions.Permit
+            : ApproveOptions.Custom
+          : ApproveOptions.Infinite,
+      )
+    }
+  }
   return (
     <Modal isOpen={isOpen} onDismiss={closeModal}>
-      <Wrapper>
+      <Wrapper onKeyDown={handleKeyDown}>
         <RowBetween marginBottom="16px">
           <Text fontSize="20px" lineHeight="24px">
             Approve
@@ -248,7 +258,7 @@ const ApprovalModal = ({
                 </svg>
               </RowFit>
 
-              <Column gap="8px">
+              <Column gap="8px" flex="0 1 200px">
                 <MouseoverTooltip
                   text={t`You wish to give KyberSwap permission to use this token up to the custom allowance limit only. Subsequent transactions exceeding this limit will requireyour permission again. This approve transaction will cost gas`}
                   placement="right"
@@ -267,7 +277,7 @@ const ApprovalModal = ({
                   </Text>
                 </MouseoverTooltip>
                 <InputWrapper>
-                  <Input pattern="^[0-9]*[.,]?[0-9]*$" value={customValue} onChange={handleInputChange} tabIndex={-1} />
+                  <Input value={customValue} onUserInput={handleInputChange} style={{ fontSize: '14px' }} />
                   <CurrencyLogo currency={currencyInput} size="16px" />
                   <Text color={theme.subText} fontSize="14px">
                     {currencyInput?.symbol}
