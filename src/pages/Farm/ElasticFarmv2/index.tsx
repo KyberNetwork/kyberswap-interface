@@ -44,7 +44,7 @@ const FarmsWrapper = styled(RowWrap)`
 
 export interface ElasticFarmV2WithRangePrices extends ElasticFarmV2 {
   userPositions: Array<PositionDetails>
-  ranges: Array<ElasticFarmV2Range & { tickCurrent?: string }>
+  ranges: Array<ElasticFarmV2Range>
 }
 
 export default function ElasticFarmv2() {
@@ -85,14 +85,7 @@ export default function ElasticFarmv2() {
       return {
         ...farm,
         userPositions: userPositions?.filter(p => p.poolId.toLowerCase() === farm.poolAddress.toLowerCase()),
-        ranges: farm.ranges.map(range => {
-          return {
-            ...range,
-            tickUpper: range.tickUpper,
-            tickLower: range.tickLower,
-            tickCurrent: farm.pool.tickCurrent.toString(),
-          }
-        }),
+        ranges: farm.ranges,
       }
     })
   }, [farms, userPositions])

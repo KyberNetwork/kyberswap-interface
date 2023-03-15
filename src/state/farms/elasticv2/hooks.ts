@@ -202,7 +202,9 @@ export const useElasticFarmsV2 = (subscribe = false) => {
           token0,
           token1,
           totalRewards: farm.rewards.map(item => CurrencyAmount.fromRawAmount(getToken(item.token), item.amount)),
-          ranges: farm.ranges,
+          ranges: farm.ranges.map(r => {
+            return { ...r, tickCurrent: p.tickCurrent }
+          }),
           tvlToken0,
           tvlToken1,
         }

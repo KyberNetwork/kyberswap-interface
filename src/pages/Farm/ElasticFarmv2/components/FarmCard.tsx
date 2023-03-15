@@ -12,17 +12,19 @@ import Column from 'components/Column'
 import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Divider from 'components/Divider'
+import DoubleCurrencyLogo from 'components/DoubleLogo'
 import AspectRatio from 'components/Icons/AspectRatio'
 import Harvest from 'components/Icons/Harvest'
 import Row, { RowBetween, RowFit } from 'components/Row'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { useElasticFarmsV2, useFarmV2Action } from 'state/farms/elasticv2/hooks'
+import { ElasticFarmV2Range } from 'state/farms/elasticv2/types'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
 
 import { ElasticFarmV2WithRangePrices } from '..'
 import PriceVisualize from './PriceVisualize'
-import SimpleTooltip from './SimpleTooltip'
 import StakeWithNFTsModal from './StakeWithNFTsModal'
 import UnstakeWithNFTsModal from './UnstakeWithNFTsModal'
 
@@ -149,9 +151,12 @@ const FeeBadge = styled.div`
   padding: 2px 4px;
 `
 
-export const FarmContext = React.createContext<{ farm?: ElasticFarmV2WithRangePrices; activeRange?: number }>({
+export const FarmContext = React.createContext<{
+  farm?: ElasticFarmV2WithRangePrices
+  activeRange?: ElasticFarmV2Range
+}>({
   farm: undefined,
-  activeRange: 0,
+  activeRange: undefined,
 })
 
 const RangeItem = ({
@@ -165,9 +170,9 @@ const RangeItem = ({
 }: {
   active?: boolean
   onRangeClick?: () => void
-  tickLower?: string
-  tickUpper?: string
-  tickCurrent?: string
+  tickLower?: number
+  tickUpper?: number
+  tickCurrent?: number
   token0?: Token
   token1?: Token
 }) => {
@@ -188,8 +193,8 @@ const RangeItem = ({
             <Trans>Active Range ↗</Trans>
           </Text>
           <PriceVisualize
-            tickLower={tickLower}
-            tickUpper={tickUpper}
+            tickRangeLower={tickLower}
+            tickRangeUpper={tickUpper}
             tickCurrent={tickCurrent}
             token0={token0}
             token1={token1}
@@ -238,7 +243,7 @@ function FarmCard({
   const theme = useTheme()
   const [showStake, setShowStake] = useState(false)
   const [showUnstake, setShowUnstake] = useState(false)
-  const [activeRange, setActiveRange] = useState(0)
+  const [activeRangeIndex, setActiveRangeIndex] = useState(0)
 
   const wrapperInnerRef = useRef<HTMLDivElement>(null)
 
@@ -249,31 +254,32 @@ function FarmCard({
   const currentTimestamp = Math.floor(Date.now() / 1000)
   const elasticFarm = useElasticFarmsV2()
   const depositedPos = farm?.userPositions
-  const stakedPos = elasticFarm?.userInfo?.filter(u => u.fId === farm?.fId && u.rangeId === activeRange)
+  const stakedPos = elasticFarm?.userInfo?.filter(u => u.fId === farm?.fId && u.rangeId === activeRangeIndex)
   const canStake = enableStake || (depositedPos && stakedPos && depositedPos.length > stakedPos.length)
   const canUnstake = hasUnstake || (stakedPos && stakedPos.length > 0)
   const { harvest } = useFarmV2Action()
   const handleHarvest = useCallback(() => {
     if (!farm) return
-    harvest(farm?.fId, stakedPos?.filter(sp => sp.rangeId === activeRange).map(sp => sp.nftId.toNumber()) || [])
-  }, [farm, harvest, stakedPos, activeRange])
+    // harvest all staked positions of current active Range
+    harvest(farm?.fId, stakedPos?.filter(sp => sp.rangeId === activeRangeIndex).map(sp => sp.nftId.toNumber()) || [])
+  }, [farm, harvest, stakedPos, activeRangeIndex])
 
   const farmValues = useMemo(() => {
     return {
       farm,
-      activeRange,
+      activeRange: farm?.ranges.find(r => r.index === activeRangeIndex),
     }
-  }, [farm, activeRange])
+  }, [farm, activeRangeIndex])
+
   return (
     <FarmContext.Provider value={farmValues}>
       <Wrapper>
         <WrapperInner ref={wrapperInnerRef} hasRewards={hasRewards}>
           <FrontFace>
             <RowBetween>
-              <RowFit gap="4px">
-                <CurrencyLogo currency={inputToken} />
-                <CurrencyLogo currency={outputToken} />
-                <Text fontSize="16px" lineHeight="20px" color={theme.primary} marginLeft="4px">
+              <RowFit>
+                <DoubleCurrencyLogo size={20} currency0={inputToken} currency1={outputToken} />
+                <Text fontSize="16px" lineHeight="20px" color={theme.primary} marginRight="4px">
                   {`${inputToken?.symbol} - ${outputToken?.symbol}`}
                 </Text>
                 <FeeBadge>FEE {farm?.pool?.fee ? (farm?.pool?.fee * 100) / ELASTIC_BASE_FEE_UNIT : 0.03}%</FeeBadge>
@@ -365,28 +371,46 @@ function FarmCard({
               }}
             >
               <RowBetween align="flex-start">
-                <Column gap="4px">
-                  <SimpleTooltip text={t`Active Range: Current active farming range`}>
-                    <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
+                <Column gap="4px" style={{ alignItems: 'flex-start' }}>
+                  <MouseoverTooltip text={t`Active Range: Current active farming range`} placement="top">
+                    <Text
+                      fontSize="12px"
+                      lineHeight="16px"
+                      color={theme.subText}
+                      style={{ borderBottom: '1px dotted var(--subtext)' }}
+                    >
                       <Trans>Avg APR</Trans>
                     </Text>
-                  </SimpleTooltip>
+                  </MouseoverTooltip>
                   <Text fontSize="28px" lineHeight="32px" color={theme.primary}>
                     132.23%
                   </Text>
                 </Column>
-                <Column gap="4px">
-                  <Text fontSize="12px" lineHeight="16px" color={theme.primary} alignSelf="flex-end">
-                    <Trans>Active Range ↗</Trans>
-                  </Text>
-                  {farm && (
+                <Column gap="4px" style={{ alignItems: 'flex-end' }}>
+                  <MouseoverTooltip
+                    text={t`Add liquidity to ${inputToken?.symbol} - ${outputToken?.symbol} pool using the current active range`}
+                    placement="top"
+                  >
+                    <Text
+                      fontSize="12px"
+                      lineHeight="16px"
+                      color={theme.primary}
+                      alignSelf="flex-end"
+                      style={{ borderBottom: '1px dotted var(--primary)' }}
+                    >
+                      <Trans>Active Range ↗</Trans>
+                    </Text>
+                  </MouseoverTooltip>
+                  {farm ? (
                     <PriceVisualize
-                      tickCurrent={farm?.ranges[activeRange].tickCurrent}
-                      tickLower={farm?.ranges[activeRange].tickLower}
-                      tickUpper={farm?.ranges[activeRange].tickUpper}
+                      tickCurrent={+farm.ranges[activeRangeIndex].tickCurrent}
+                      tickRangeLower={+farm.ranges[activeRangeIndex].tickLower}
+                      tickRangeUpper={+farm.ranges[activeRangeIndex].tickUpper}
                       token0={farm.token0}
                       token1={farm.token1}
                     />
+                  ) : (
+                    <PriceVisualize />
                   )}
                 </Column>
               </RowBetween>
@@ -455,14 +479,14 @@ function FarmCard({
                 <Column gap="12px">
                   {farm ? (
                     <>
-                      {farm.ranges.map((r, index: number) => (
+                      {farm?.ranges?.map((r, index: number) => (
                         <RangeItem
-                          active={activeRange === index}
+                          active={activeRangeIndex === index}
                           key={r.id}
-                          tickLower={r.tickLower}
-                          tickUpper={r.tickUpper}
-                          tickCurrent={r.tickCurrent}
-                          onRangeClick={() => setActiveRange(index)}
+                          tickLower={+r.tickLower}
+                          tickUpper={+r.tickUpper}
+                          tickCurrent={+r.tickCurrent}
+                          onRangeClick={() => setActiveRangeIndex(index)}
                           token0={farm.token0}
                           token1={farm.token1}
                         />
