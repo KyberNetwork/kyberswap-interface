@@ -205,7 +205,7 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
         }}
       >
         <SlippageWarningNote rawSlippage={slippage} isStablePairSwap={isStablePairSwap} />
-        <PriceImpactNote isAdvancedMode={isAdvancedMode} priceImpact={priceImpactFromBuild} hasTooltip />
+        <PriceImpactNote isAdvancedMode={isAdvancedMode} priceImpact={priceImpactFromBuild} />
 
         {isSolana && !encodeSolana ? (
           <GreyCard style={{ textAlign: 'center', borderRadius: '999px', padding: '12px' }} id="confirm-swap-or-send">

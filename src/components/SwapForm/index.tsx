@@ -202,7 +202,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
 
           {!isWrapOrUnwrap && <SlippageWarningNote rawSlippage={slippage} isStablePairSwap={isStablePairSwap} />}
 
-          <PriceImpactNote priceImpact={routeSummary?.priceImpact} isAdvancedMode={isAdvancedMode} hasTooltip />
+          <PriceImpactNote priceImpact={routeSummary?.priceImpact} isAdvancedMode={isAdvancedMode} />
 
           <SwapActionButton
             isGettingRoute={isGettingRoute}

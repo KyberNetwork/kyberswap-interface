@@ -7,7 +7,6 @@ import { checkPriceImpact } from 'utils/prices'
 type Props = {
   isAdvancedMode?: boolean
   priceImpact: number | undefined
-  hasTooltip: boolean
 }
 const PriceImpactNote: React.FC<Props> = ({ isAdvancedMode, priceImpact }) => {
   const priceImpactResult = checkPriceImpact(priceImpact)
