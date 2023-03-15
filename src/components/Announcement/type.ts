@@ -52,6 +52,7 @@ type LimitOrderAnnouncement = {
   // for partial fill
   filledPercent: string
   increasedFilledPercent: string
+  chainId: string
 }
 
 type PoolPositionAnnouncement = {

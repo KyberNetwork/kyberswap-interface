@@ -1,10 +1,10 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useNavigate } from 'react-router-dom'
-import { Flex, Text } from 'rebass'
+import { Flex } from 'rebass'
 
-import { ReactComponent as LiquidityIcon } from 'assets/svg/liquidity_icon.svg'
 import { PrivateAnnouncementProp } from 'components/Announcement/PrivateAnnoucement'
+import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
 import {
   Dot,
   InboxItemRow,
@@ -13,10 +13,9 @@ import {
   RowItem,
   Title,
 } from 'components/Announcement/PrivateAnnoucement/styled'
-import { AnnouncementTemplatePoolPosition } from 'components/Announcement/type'
+import { AnnouncementTemplatePoolPosition, PrivateAnnouncementType } from 'components/Announcement/type'
 import { DoubleCurrencyLogoV2 } from 'components/DoubleLogo'
 import { MoneyBag } from 'components/Icons'
-import { NetworkLogo } from 'components/Logo'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
@@ -57,7 +56,7 @@ function InboxItemBridge({
     <InboxItemWrapper isRead={isRead} onClick={onClick} style={style}>
       <InboxItemRow>
         <RowItem>
-          <LiquidityIcon />
+          <InboxIcon type={PrivateAnnouncementType.POOL_POSITION} chainId={chainId} />
           <Title isRead={isRead}>
             <Trans>Liquidity Pool Alert</Trans>
           </Title>
@@ -80,9 +79,6 @@ function InboxItemBridge({
           <PrimaryText>
             {token0Symbol}/{token1Symbol}
           </PrimaryText>
-          <Text color={theme.subText}>on</Text>
-          <NetworkLogo chainId={chainId} style={{ width: 12, height: 12 }} />
-          <PrimaryText style={{ fontWeight: '500' }}>{NETWORKS_INFO[chainId].name}</PrimaryText>
         </Flex>
         <PrimaryText color={isInRange ? theme.primary : theme.warning}>
           {currentPrice} {token0Symbol}/{token1Symbol}
