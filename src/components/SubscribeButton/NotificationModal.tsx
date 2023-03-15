@@ -23,6 +23,7 @@ import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useNotificationModalToggle, useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { pushUnique } from 'utils'
 import { subscribeTelegramSubscription } from 'utils/firebase'
+import getShortenAddress from 'utils/getShortenAddress'
 
 const Wrapper = styled.div`
   margin: 0;
@@ -313,7 +314,10 @@ export default function NotificationModal() {
         const { data: walletAddress } = await getConnectedWallet(email)
         if (walletAddress && walletAddress !== account?.toLowerCase()) {
           setErrorInput({
-            msg: t`Your email has already been linked to another wallet, it will be unlinked automatically if you proceed`,
+            msg: t`Your email has already been linked to wallet ${getShortenAddress(
+              walletAddress,
+              false,
+            )}, it will be unlinked automatically if you proceed`,
             type: 'warn',
           })
         }
