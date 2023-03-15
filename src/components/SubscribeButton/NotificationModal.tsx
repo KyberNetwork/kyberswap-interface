@@ -36,10 +36,9 @@ const Wrapper = styled.div`
 
 const ActionWrapper = styled.div`
   display: flex;
-  gap: 24px;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    gap: 14px;
-  `}
+  flex-direction: column;
+  gap: 14px;
+  align-items: center;
 `
 
 const CloseIcon = styled(X)`
@@ -140,7 +139,14 @@ export default function NotificationModal() {
   const isOpen = useModalOpen(ApplicationModal.NOTIFICATION_SUBSCRIPTION)
   const theme = useTheme()
   const { account } = useActiveWeb3React()
-  const { isLoading, saveNotification, refreshTopics, topicGroups: topicGroupsGlobal, userInfo } = useNotification()
+  const {
+    isLoading,
+    saveNotification,
+    refreshTopics,
+    topicGroups: topicGroupsGlobal,
+    userInfo,
+    unsubscribeAll,
+  } = useNotification()
 
   const [topicGroups, setTopicGroups] = useState<Topic[]>([])
 
@@ -369,34 +375,51 @@ export default function NotificationModal() {
   const disableCheckbox = !account || notFillEmail || hasErrorInput
   const errorColor = hasErrorInput ? theme.red : errorInput?.type === 'warn' ? theme.warning : theme.border
 
-  const renderButton = () => (
-    <ActionWrapper>
-      {!account ? (
-        <ButtonConfirmed confirmed onClick={toggleWalletModal}>
-          <ButtonTextt>
-            <Trans>Connect Wallet</Trans>
-          </ButtonTextt>
-        </ButtonConfirmed>
-      ) : (
-        <ButtonPrimary disabled={disableButtonSave} borderRadius="46px" height="44px" onClick={onSave}>
-          <ButtonTextt>
-            {(() => {
-              if (isLoading) {
-                return (
-                  <Row>
-                    <Loader />
-                    &nbsp;
-                    {isTelegramTab ? <Trans>Generating Verification Link ...</Trans> : <Trans>Saving ...</Trans>}
-                  </Row>
-                )
-              }
-              return isTelegramTab ? <Trans>Get Started</Trans> : <Trans>Save</Trans>
-            })()}
-          </ButtonTextt>
-        </ButtonPrimary>
-      )}
-    </ActionWrapper>
-  )
+  const renderButton = () => {
+    const subscribeAtLeast1Topic = topicGroups.some(e => e.isSubscribed)
+    return (
+      <ActionWrapper>
+        {!account ? (
+          <ButtonConfirmed confirmed onClick={toggleWalletModal}>
+            <ButtonTextt>
+              <Trans>Connect Wallet</Trans>
+            </ButtonTextt>
+          </ButtonConfirmed>
+        ) : (
+          <ButtonPrimary disabled={disableButtonSave} borderRadius="46px" height="44px" onClick={onSave}>
+            <ButtonTextt>
+              {(() => {
+                if (isLoading) {
+                  return (
+                    <Row>
+                      <Loader />
+                      &nbsp;
+                      {isTelegramTab ? <Trans>Generating Verification Link ...</Trans> : <Trans>Saving ...</Trans>}
+                    </Row>
+                  )
+                }
+                return isTelegramTab ? <Trans>Get Started</Trans> : <Trans>Save</Trans>
+              })()}
+            </ButtonTextt>
+          </ButtonPrimary>
+        )}
+        <Text
+          style={{
+            cursor: subscribeAtLeast1Topic ? 'pointer' : 'not-allowed',
+            color: theme.subText,
+            fontWeight: '500',
+          }}
+          onClick={() => {
+            if (!subscribeAtLeast1Topic) return
+            unsubscribeAll()
+            toggleModal()
+          }}
+        >
+          <Trans>Opt out from all future email</Trans>
+        </Text>
+      </ActionWrapper>
+    )
+  }
 
   return (
     <Modal isOpen={isOpen} onDismiss={toggleModal} minHeight={false} maxWidth={450}>
