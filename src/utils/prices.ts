@@ -96,7 +96,9 @@ export const formatPriceImpact = (pi: number, withPercent = true) => {
   let text = ''
   const pi100 = Math.floor(pi * 100)
 
-  if (pi < 0.01) {
+  if (pi < 0) {
+    return '--'
+  } else if (pi < 0.01) {
     text = '< 0.01'
   } else if (pi100 % 100 === 0) {
     text = String(pi100 / 100)

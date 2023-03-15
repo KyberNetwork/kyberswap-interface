@@ -1,5 +1,3 @@
-import styled from 'styled-components'
-
 import WarningNote from 'components/WarningNote'
 import { checkRangeSlippage } from 'utils/slippage'
 
@@ -17,4 +15,4 @@ const SlippageWarningNote: React.FC<Props> = ({ className, rawSlippage, isStable
   return <WarningNote className={className} shortText={message} />
 }
 
-export default styled(SlippageWarningNote)``
+export default SlippageWarningNote

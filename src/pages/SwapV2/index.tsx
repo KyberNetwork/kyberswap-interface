@@ -29,6 +29,7 @@ import { AutoRow, RowBetween } from 'components/Row'
 import { SEOSwap } from 'components/SEO'
 import { ShareButtonWithModal } from 'components/ShareModal'
 import SlippageWarningNote from 'components/SlippageWarningNote'
+import PriceImpactNote from 'components/SwapForm/PriceImpactNote'
 import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import TokenWarningModal from 'components/TokenWarningModal'
@@ -186,10 +187,6 @@ const RoutingIconWrapper = styled(RoutingIcon)`
   }
 `
 
-const CustomSlippageNote = styled(SlippageWarningNote)`
-  margin-top: 24px;
-`
-
 export default function Swap() {
   const navigateFn = useNavigate()
   const { account, chainId, networkInfo, isSolana, isEVM } = useActiveWeb3React()
@@ -332,9 +329,11 @@ export default function Swap() {
 
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
   const trade = showWrap ? undefined : v2Trade
-  const isPriceImpactInvalid = !!trade?.priceImpact && trade?.priceImpact === -1
-  const isPriceImpactHigh = !!trade?.priceImpact && trade?.priceImpact > 5
-  const isPriceImpactVeryHigh = !!trade?.priceImpact && trade?.priceImpact > 15
+
+  const priceImpact = trade?.priceImpact
+  const isPriceImpactInvalid = !!priceImpact && priceImpact === -1
+  const isPriceImpactHigh = !!priceImpact && priceImpact > 5
+  const isPriceImpactVeryHigh = !!priceImpact && priceImpact > 15
 
   const parsedAmounts = showWrap
     ? {
@@ -882,64 +881,37 @@ export default function Swap() {
                       )}
 
                       {!showWrap && <SlippageSetting isStablePairSwap={isStableCoinSwap} />}
+
+                      {chainId !== ChainId.ETHW && (
+                        <TrendingSoonTokenBanner
+                          currencyIn={currencyIn}
+                          currencyOut={currencyOut}
+                          style={{ marginTop: '24px' }}
+                        />
+                      )}
+
+                      {!showWrap && (
+                        <SlippageWarningNote rawSlippage={rawSlippage} isStablePairSwap={isStableCoinSwap} />
+                      )}
+
+                      <PriceImpactNote priceImpact={trade?.priceImpact} isAdvancedMode={isExpertMode} />
+
+                      {isLargeSwap && (
+                        <PriceImpactHigh>
+                          <AlertTriangle color={theme.warning} size={24} style={{ marginRight: '8px' }} />
+                          <Trans>
+                            Your transaction may not be successful. We recommend increasing the slippage for this trade
+                          </Trans>
+                        </PriceImpactHigh>
+                      )}
+
+                      <ApproveMessage
+                        routerAddress={trade?.routerAddress}
+                        isCurrencyInNative={Boolean(currencyIn?.isNative)}
+                      />
                     </Flex>
 
                     <TradeTypeSelection />
-
-                    {chainId !== ChainId.ETHW && (
-                      <TrendingSoonTokenBanner
-                        currencyIn={currencyIn}
-                        currencyOut={currencyOut}
-                        style={{ marginTop: '24px' }}
-                      />
-                    )}
-
-                    {!showWrap && <CustomSlippageNote rawSlippage={rawSlippage} isStablePairSwap={isStableCoinSwap} />}
-
-                    {isPriceImpactInvalid ? (
-                      <PriceImpactHigh>
-                        <AlertTriangle color={theme.warning} size={16} style={{ marginRight: '8px' }} />
-                        <Trans>Unable to calculate Price Impact</Trans>
-                      </PriceImpactHigh>
-                    ) : (
-                      isPriceImpactHigh && (
-                        <PriceImpactHigh veryHigh={isPriceImpactVeryHigh}>
-                          <AlertTriangle
-                            color={isPriceImpactVeryHigh ? theme.red : theme.warning}
-                            size={16}
-                            style={{ marginRight: '8px' }}
-                          />
-                          {isPriceImpactVeryHigh ? (
-                            <Trans>Price Impact is Very High</Trans>
-                          ) : (
-                            <Trans>Price Impact is High</Trans>
-                          )}
-                          {isPriceImpactVeryHigh && (
-                            <InfoHelper
-                              placement="top"
-                              text={
-                                isExpertMode
-                                  ? t`You have turned on Advanced Mode from settings. Trades with very high price impact can now be executed`
-                                  : t`Turn on Advanced Mode from settings to execute trades with very high price impact`
-                              }
-                              color={theme.text}
-                            />
-                          )}
-                        </PriceImpactHigh>
-                      )
-                    )}
-                    {isLargeSwap && (
-                      <PriceImpactHigh>
-                        <AlertTriangle color={theme.warning} size={24} style={{ marginRight: '8px' }} />
-                        <Trans>
-                          Your transaction may not be successful. We recommend increasing the slippage for this trade
-                        </Trans>
-                      </PriceImpactHigh>
-                    )}
-                    <ApproveMessage
-                      routerAddress={trade?.routerAddress}
-                      isCurrencyInNative={Boolean(currencyIn?.isNative)}
-                    />
 
                     <BottomGrouping>
                       {!account ? (
@@ -1002,10 +974,10 @@ export default function Swap() {
                               id="swap-button"
                               disabled={!!swapInputError || approval !== ApprovalState.APPROVED}
                               backgroundColor={
-                                isPriceImpactHigh || isPriceImpactInvalid
-                                  ? isPriceImpactVeryHigh
-                                    ? theme.red
-                                    : theme.warning
+                                isPriceImpactVeryHigh || isPriceImpactInvalid
+                                  ? theme.red
+                                  : isPriceImpactHigh
+                                  ? theme.warning
                                   : undefined
                               }
                               color={isPriceImpactHigh || isPriceImpactInvalid ? theme.white : undefined}
@@ -1058,7 +1030,10 @@ export default function Swap() {
                               (isExpertMode && isSolana && !encodeSolana)
                             ) &&
                             (isPriceImpactHigh || isPriceImpactInvalid)
-                              ? { background: isPriceImpactVeryHigh ? theme.red : theme.warning, color: theme.white }
+                              ? {
+                                  background: isPriceImpactVeryHigh || isPriceImpactInvalid ? theme.red : theme.warning,
+                                  color: theme.white,
+                                }
                               : {}),
                           }}
                         >

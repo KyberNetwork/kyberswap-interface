@@ -5,6 +5,8 @@ import styled, { useTheme } from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 
+type SeverityLevel = 'warning' | 'serious'
+
 const DropdownIcon = styled(DropdownSVG)`
   width: 24px;
   height: 24px;
@@ -13,6 +15,18 @@ const DropdownIcon = styled(DropdownSVG)`
   &[data-flip='true'] {
     transform: rotate(180deg);
   }
+`
+
+const Wrapper = styled.div<{ $level: SeverityLevel }>`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-radius: 20px;
+  background: ${({ $level, theme }) => ($level === 'serious' ? `${theme.red}4d` : `${theme.warning}4d`)};
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  padding: 12px 16px;
 `
 
 type Props = {
@@ -28,19 +42,7 @@ const WarningNote: React.FC<Props> = ({ className, level = 'warning', shortText,
   const isClickable = !!longText
 
   return (
-    <Flex
-      className={className}
-      sx={{
-        flexDirection: 'column',
-        gap: '8px',
-        borderRadius: '20px',
-        background: level === 'serious' ? `${theme.red}4d` : `${theme.warning}4d`,
-        fontWeight: 400,
-        fontSize: '12px',
-        lineHeight: '16px',
-        padding: '12px 16px',
-      }}
-    >
+    <Wrapper className={className} $level={level}>
       <Flex
         sx={{
           alignItems: 'center',
@@ -77,7 +79,7 @@ const WarningNote: React.FC<Props> = ({ className, level = 'warning', shortText,
         )}
       </Flex>
       {expanded && longText}
-    </Flex>
+    </Wrapper>
   )
 }
 
