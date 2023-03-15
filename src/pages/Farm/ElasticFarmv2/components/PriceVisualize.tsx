@@ -69,11 +69,11 @@ const PriceVisualize = ({
   const wrapperRef = useRef<HTMLDivElement>(null)
   const [wrapperWidth, setWrapperWidth] = useState(0)
 
-  const priceRangeLower = convertTickToPrice(token0, token1, tickRangeLower)
-  const priceRangeUpper = convertTickToPrice(token0, token1, tickRangeUpper)
+  const priceRangeLower = convertTickToPrice(token0, token1, tickRangeLower) || 0.6
+  const priceRangeUpper = convertTickToPrice(token0, token1, tickRangeUpper) || 1.9
   // const pricePosLower = convertTickToPrice(token0, token1, tickPosLower)
   // const pricePosUpper = convertTickToPrice(token0, token1, tickPosUpper)
-  const priceCurrent = convertTickToPrice(token0, token1, tickCurrent)
+  const priceCurrent = convertTickToPrice(token0, token1, tickCurrent) || 1
 
   useEffect(() => {
     const observer = new ResizeObserver(entries => {
