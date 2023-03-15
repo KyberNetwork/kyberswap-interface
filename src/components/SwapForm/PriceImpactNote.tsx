@@ -11,7 +11,7 @@ type Props = {
 const PriceImpactNote: React.FC<Props> = ({ isAdvancedMode, priceImpact }) => {
   const priceImpactResult = checkPriceImpact(priceImpact)
 
-  if (priceImpact === undefined) {
+  if (typeof priceImpact !== 'number') {
     return null
   }
 

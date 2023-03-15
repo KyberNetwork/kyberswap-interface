@@ -79,11 +79,12 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
   const shouldDisableConfirmButton = isBuildingRoute || !!errorWhileBuildRoute
   const isWarningSlippage = checkWarningSlippage(slippage, isStablePairSwap)
 
-  const priceImpactFromBuild = buildResult
-    ? calculatePriceImpact(Number(buildResult.data?.amountInUsd || 0), Number(buildResult.data?.amountOutUsd || 0))
+  const priceImpactFromBuild = buildResult?.data
+    ? calculatePriceImpact(Number(buildResult?.data?.amountInUsd || 0), Number(buildResult?.data?.amountOutUsd || 0))
     : undefined
 
   const priceImpactResult = checkPriceImpact(priceImpactFromBuild)
+
   const outputAmountChange = Number(buildResult?.data?.outputChange?.amount) || 0
 
   const getSwapDetailsProps = (): SwapDetailsProps => {

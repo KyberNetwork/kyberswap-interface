@@ -136,7 +136,7 @@ export default function SwapModalFooter({
             fontSize={14}
             color={priceImpactResult.isVeryHigh ? theme.red : priceImpactResult.isHigh ? theme.warning : theme.text}
           >
-            {priceImpact ? formatPriceImpact(priceImpact) : '--'}
+            {priceImpactResult.isInvalid || typeof priceImpact !== 'number' ? '--' : formatPriceImpact(priceImpact)}
           </TYPE.black>
         </RowBetween>
 

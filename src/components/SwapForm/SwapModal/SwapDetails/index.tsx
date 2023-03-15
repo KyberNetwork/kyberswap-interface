@@ -116,7 +116,7 @@ const SwapDetails: React.FC<Props> = ({
       ''
     )
 
-  const { isInvalid, isHigh, isVeryHigh } = checkPriceImpact(priceImpact)
+  const priceImpactResult = checkPriceImpact(priceImpact)
 
   const renderStatusNotice = () => {
     if (isLoading) {
@@ -283,8 +283,11 @@ const SwapDetails: React.FC<Props> = ({
             }}
             isShowingSkeleton={isLoading}
             content={
-              <TYPE.black fontSize={14} color={isVeryHigh ? theme.red : isHigh ? theme.warning : theme.text}>
-                {isInvalid || !priceImpact ? '--' : formatPriceImpact(priceImpact)}
+              <TYPE.black
+                fontSize={14}
+                color={priceImpactResult.isVeryHigh ? theme.red : priceImpactResult.isHigh ? theme.warning : theme.text}
+              >
+                {priceImpactResult.isInvalid || typeof priceImpact !== 'number' ? '--' : formatPriceImpact(priceImpact)}
               </TYPE.black>
             }
           />
