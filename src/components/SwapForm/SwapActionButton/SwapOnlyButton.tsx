@@ -1,5 +1,5 @@
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { useCallback, useMemo, useState } from 'react'
 import styled from 'styled-components'
 
@@ -82,38 +82,6 @@ const SwapOnlyButton: React.FC<Props> = ({
   const priceImpactResult = checkPriceImpact(priceImpact)
   const userHasSpecifiedInputOutput = Boolean(currencyIn && currencyOut && parsedAmount)
   const showLoading = isGettingRoute || isBuildingRoute || ((!balanceIn || !balanceOut) && userHasSpecifiedInputOutput)
-
-  const handleClickSwapForAdvancedMode = async () => {
-    if (!swapCallback || isBuildingRoute) {
-      return
-    }
-
-    setProcessingSwap(true)
-
-    setBuildingRoute(true)
-    const result = await buildRoute()
-    setBuildingRoute(false)
-
-    if (result.error) {
-      setProcessingSwap(false)
-      setErrorWhileSwap(result.error)
-      return
-    }
-
-    if (!result.data?.data || !result.data?.routerAddress) {
-      setProcessingSwap(false)
-      setErrorWhileSwap(t`Build failed. Please try again`)
-      return
-    }
-
-    try {
-      await swapCallback(result.data.routerAddress, result.data.data)
-    } catch (e) {
-      setErrorWhileSwap(e.message)
-    }
-
-    setProcessingSwap(false)
-  }
 
   const handleClickSwapForNormalMode = async () => {
     if (!swapCallback || isBuildingRoute) {
