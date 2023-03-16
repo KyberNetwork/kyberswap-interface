@@ -1,13 +1,12 @@
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
-import InfoHelper from 'components/InfoHelper'
 import SlippageControl from 'components/SlippageControl'
-import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
+import { InfoHelperForMaxSlippage } from 'components/swapv2/SwapSettingsPanel/SlippageSetting'
 import { DEFAULT_SLIPPAGE, DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { useAppSelector } from 'state/hooks'
@@ -22,12 +21,14 @@ const DropdownIcon = styled(DropdownSVG)`
   }
 `
 
-const SlippageSetting: React.FC = () => {
+type Props = {
+  isStablePairSwap: boolean
+}
+const SlippageSetting: React.FC<Props> = ({ isStablePairSwap }) => {
   const theme = useTheme()
-  const isSlippageControlPinned = useAppSelector(state => state.swap.isSlippageControlPinned)
+  const isSlippageControlPinned = useAppSelector(state => state.user.isSlippageControlPinned)
   const [expanded, setExpanded] = useState(false)
   const [rawSlippage, setRawSlippage] = useUserSlippageTolerance()
-  const { isStablePairSwap } = useSwapFormContext()
   const isWarningSlippage = checkWarningSlippage(rawSlippage, isStablePairSwap)
 
   if (!isSlippageControlPinned) {
@@ -59,11 +60,7 @@ const SlippageSetting: React.FC = () => {
           <Text as="span">
             <Trans>Max Slippage</Trans>
           </Text>
-          <InfoHelper
-            size={14}
-            placement="top"
-            text={t`During your swap if the price changes by more than this %, your transaction will revert. You can hide this control in Settings.`}
-          />
+          <InfoHelperForMaxSlippage />
           <Text as="span" marginLeft="4px">
             :
           </Text>
