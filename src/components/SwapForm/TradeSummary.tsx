@@ -8,6 +8,7 @@ import { AutoColumn } from 'components/Column'
 import Divider from 'components/Divider'
 import InfoHelper from 'components/InfoHelper'
 import { RowBetween, RowFixed } from 'components/Row'
+import { formatMinimumReceived } from 'components/SwapForm/utils'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { TYPE } from 'theme'
@@ -75,6 +76,23 @@ const TradeSummary: React.FC<Props> = ({ feeConfig, routeSummary, slippage }) =>
 
   const formattedFeeAmountUsd = amountInUsd ? getFormattedFeeAmountUsdV2(Number(amountInUsd), feeConfig?.feeAmount) : 0
   const minimumAmountOut = parsedAmountOut ? minimumAmountAfterSlippage(parsedAmountOut, slippage) : undefined
+  const currencyOut = parsedAmountOut?.currency
+  const minimumAmountOutStr =
+    minimumAmountOut && currencyOut ? (
+      <Text
+        as="span"
+        sx={{
+          color: theme.text,
+          fontWeight: 'bold',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {formatMinimumReceived(minimumAmountOut.toSignificant(6))} {currencyOut.symbol}
+      </Text>
+    ) : (
+      ''
+    )
+
   const { mixpanelHandler } = useMixpanel()
   const handleClickExpand = () => {
     setExpanded(prev => !prev)
@@ -109,9 +127,7 @@ const TradeSummary: React.FC<Props> = ({ feeConfig, routeSummary, slippage }) =>
             </RowFixed>
             <RowFixed>
               <TYPE.black color={theme.text} fontSize={12}>
-                {minimumAmountOut
-                  ? `${formattedNum(minimumAmountOut.toSignificant(10) || '0')} ${minimumAmountOut.currency.symbol}`
-                  : '--'}
+                {minimumAmountOutStr || '--'}
               </TYPE.black>
             </RowFixed>
           </RowBetween>
