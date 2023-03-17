@@ -1,10 +1,13 @@
 import { Token } from '@kyberswap/ks-sdk-core'
-import { TickMath, tickToPrice } from '@kyberswap/ks-sdk-elastic'
 import { useEffect, useRef, useState } from 'react'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
-import { RowBetween } from 'components/Row'
+import { RowBetween, RowFit } from 'components/Row'
+import { MouseoverTooltip } from 'components/Tooltip'
+import useTheme from 'hooks/useTheme'
+
+import { convertTickToPrice } from '../utils'
 
 const Wrapper = styled.div`
   width: 150px;
@@ -38,44 +41,39 @@ const RangeLine = styled.div`
   position: absolute;
 `
 // From tick value to readable string value 0.1234
-function convertTickToPrice(baseToken?: Token, quoteToken?: Token, tick?: string): string | undefined {
-  if (!baseToken || !quoteToken) {
-    return undefined
-  }
-  if (+(tick || 0) <= TickMath.MIN_TICK) {
-    return '0'
-  }
-  if (+(tick || 0) >= TickMath.MAX_TICK) {
-    return '∞'
-  }
-  return tickToPrice(baseToken, quoteToken, +(tick || 0))?.toSignificant(4)
-}
 
 const maxRangeGap = 0.1
 
 const PriceVisualize = ({
   rangeInclude = true,
-  tickLower,
-  tickUpper,
+  tickRangeLower,
+  tickRangeUpper,
+  tickPosLower,
+  tickPosUpper,
   tickCurrent,
   width,
   token0,
   token1,
 }: {
   rangeInclude?: boolean
-  tickLower?: string
-  tickUpper?: string
-  tickCurrent?: string
+  tickRangeLower?: number
+  tickRangeUpper?: number
+  tickPosLower?: number
+  tickPosUpper?: number
+  tickCurrent?: number
   width?: string
   token0?: Token
   token1?: Token
 }) => {
+  const theme = useTheme()
   const wrapperRef = useRef<HTMLDivElement>(null)
   const [wrapperWidth, setWrapperWidth] = useState(0)
 
-  const priceLower = convertTickToPrice(token0, token1, tickLower)
-  const priceUpper = convertTickToPrice(token0, token1, tickUpper)
-  const priceCurrent = convertTickToPrice(token0, token1, tickCurrent)
+  const priceRangeLower = convertTickToPrice(token0, token1, tickRangeLower) || 0.6
+  const priceRangeUpper = convertTickToPrice(token0, token1, tickRangeUpper) || 1.9
+  // const pricePosLower = convertTickToPrice(token0, token1, tickPosLower)
+  // const pricePosUpper = convertTickToPrice(token0, token1, tickPosUpper)
+  const priceCurrent = convertTickToPrice(token0, token1, tickCurrent) || 1
 
   useEffect(() => {
     const observer = new ResizeObserver(entries => {
@@ -91,11 +89,11 @@ const PriceVisualize = ({
       ref && observer.unobserve(ref)
     }
   }, [])
-  if (priceLower === undefined || priceUpper === undefined || priceCurrent === undefined) return null
+  if (priceRangeLower === undefined || priceRangeUpper === undefined || priceCurrent === undefined) return null
 
-  const lowerUpperRatio = Math.abs(+priceLower - +priceCurrent) / Math.abs(+priceUpper - +priceCurrent)
+  const lowerUpperRatio = Math.abs(+priceRangeLower - +priceCurrent) / Math.abs(+priceRangeUpper - +priceCurrent)
   let upperDotPos, lowerDotPos
-  if (priceLower === '0') {
+  if (priceRangeLower === '0') {
     lowerDotPos = 0
   } else {
     lowerDotPos =
@@ -103,7 +101,7 @@ const PriceVisualize = ({
         ? wrapperWidth * maxRangeGap
         : wrapperWidth * (maxRangeGap + (0.5 - maxRangeGap) * (1 - lowerUpperRatio))
   }
-  if (priceUpper === '∞') {
+  if (priceRangeUpper === '∞') {
     upperDotPos = wrapperWidth
   } else {
     upperDotPos =
@@ -115,24 +113,52 @@ const PriceVisualize = ({
   return (
     <Wrapper style={{ width }} ref={wrapperRef}>
       {rangeInclude && (
-        <RowBetween>
+        <RowBetween gap="6px">
           <Text fontSize="12px" fontWeight={500} lineHeight="16px">
-            {priceLower}
+            {priceRangeLower}
+          </Text>
+          <Text color={theme.subText} as="span">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" display="block">
+              <path
+                d="M11.3405 8.66669L11.3405 9.86002C11.3405 10.16 11.7005 10.3067 11.9071 10.0934L13.7605 8.23335C13.8871 8.10002 13.8871 7.89335 13.7605 7.76002L11.9071 5.90669C11.7005 5.69335 11.3405 5.84002 11.3405 6.14002L11.3405 7.33335L4.66047 7.33335L4.66047 6.14002C4.66047 5.84002 4.30047 5.69335 4.0938 5.90669L2.24047 7.76669C2.1138 7.90002 2.1138 8.10669 2.24047 8.24002L4.0938 10.1C4.30047 10.3134 4.66047 10.16 4.66047 9.86669L4.66047 8.66669L11.3405 8.66669Z"
+                fill="currentcolor"
+              />
+            </svg>
           </Text>
           <Text fontSize="12px" fontWeight={500} lineHeight="16px">
-            -
-          </Text>
-          <Text fontSize="12px" fontWeight={500} lineHeight="16px">
-            {priceUpper}
+            {priceRangeUpper}
           </Text>
         </RowBetween>
       )}
-      <PriceLine>
-        <Dot style={{ left: `${lowerDotPos}px` }} />
-        <Dot style={{ left: `${wrapperWidth / 2}px`, backgroundColor: 'var(--background)' }} />
-        <Dot style={{ left: `${upperDotPos}px` }} />
-        <RangeLine style={{ left: `${lowerDotPos}px`, width: `${upperDotPos - lowerDotPos}px` }} />
-      </PriceLine>
+      <MouseoverTooltip
+        text={
+          <RowFit gap="6px">
+            <Text fontSize="12px" fontWeight={500} lineHeight="16px">
+              {priceRangeLower}
+            </Text>
+            <Text color={theme.subText} as="span">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" display="block">
+                <path
+                  d="M11.3405 8.66669L11.3405 9.86002C11.3405 10.16 11.7005 10.3067 11.9071 10.0934L13.7605 8.23335C13.8871 8.10002 13.8871 7.89335 13.7605 7.76002L11.9071 5.90669C11.7005 5.69335 11.3405 5.84002 11.3405 6.14002L11.3405 7.33335L4.66047 7.33335L4.66047 6.14002C4.66047 5.84002 4.30047 5.69335 4.0938 5.90669L2.24047 7.76669C2.1138 7.90002 2.1138 8.10669 2.24047 8.24002L4.0938 10.1C4.30047 10.3134 4.66047 10.16 4.66047 9.86669L4.66047 8.66669L11.3405 8.66669Z"
+                  fill="currentcolor"
+                />
+              </svg>
+            </Text>
+            <Text fontSize="12px" fontWeight={500} lineHeight="16px">
+              {priceRangeUpper}
+            </Text>
+          </RowFit>
+        }
+        width="fit-content"
+        placement="top"
+      >
+        <PriceLine>
+          <Dot style={{ left: `${lowerDotPos}px` }} />
+          <Dot style={{ left: `${wrapperWidth / 2}px`, backgroundColor: 'var(--background)' }} />
+          <Dot style={{ left: `${upperDotPos}px` }} />
+          <RangeLine style={{ left: `${lowerDotPos}px`, width: `${upperDotPos - lowerDotPos}px` }} />
+        </PriceLine>
+      </MouseoverTooltip>
     </Wrapper>
   )
 }

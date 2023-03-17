@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import React, { useCallback, useContext, useState } from 'react'
+import React, { useCallback, useContext, useMemo, useState } from 'react'
 import { Minus, X } from 'react-feather'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -11,6 +11,7 @@ import useTheme from 'hooks/useTheme'
 import { useFarmV2Action } from 'state/farms/elasticv2/hooks'
 import { UserFarmV2Info } from 'state/farms/elasticv2/types'
 
+import { convertTickToPrice } from '../utils'
 import { FarmContext } from './FarmCard'
 import PriceVisualize from './PriceVisualize'
 
@@ -105,8 +106,15 @@ const UnstakeWithNFTsModal = ({
   stakedPos?: UserFarmV2Info[]
 }) => {
   const theme = useTheme()
-  const { farm } = useContext(FarmContext)
+  const { farm, activeRange } = useContext(FarmContext)
   const [selectedPos, setSelectedPos] = useState<{ [tokenId: string]: boolean }>({})
+  const selectedPosArray: Array<number> = useMemo(
+    () =>
+      Object.keys(selectedPos)
+        .filter(key => selectedPos[key] === true)
+        .map(p => +p),
+    [selectedPos],
+  )
 
   const handlePosClick = useCallback((tokenId: string) => {
     setSelectedPos(prev => {
@@ -121,6 +129,10 @@ const UnstakeWithNFTsModal = ({
       Object.keys(selectedPos).map(p => +p),
     )
   }, [withdraw, farm, selectedPos])
+
+  const priceLower = convertTickToPrice(farm?.token0, farm?.token1, activeRange?.tickLower || 0)
+
+  const priceUpper = convertTickToPrice(farm?.token0, farm?.token1, activeRange?.tickUpper || 0)
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss} maxWidth="min(724px, 100vw)">
       <Wrapper>
@@ -144,7 +156,7 @@ const UnstakeWithNFTsModal = ({
               <Trans>Active Range</Trans>
             </Text>
             <Text fontSize="12px" lineHeight="20px" color="var(--text)">
-              0.0005788 - 0.0006523
+              {priceLower ? `${priceLower} - ${priceUpper}` : '0.0005788 - 0.0006523'}
             </Text>
           </RowFit>
           <NFTsWrapper>
@@ -169,7 +181,13 @@ const UnstakeWithNFTsModal = ({
             )}
           </NFTsWrapper>
         </ContentWrapper>
-        <ButtonPrimary width="fit-content" alignSelf="flex-end" padding="8px 18px" onClick={handleUnstake}>
+        <ButtonPrimary
+          disabled={selectedPosArray.length === 0}
+          width="fit-content"
+          alignSelf="flex-end"
+          padding="8px 18px"
+          onClick={handleUnstake}
+        >
           <Text fontSize="14px" lineHeight="20px" fontWeight={500}>
             <Row gap="6px">
               <Minus size={16} />

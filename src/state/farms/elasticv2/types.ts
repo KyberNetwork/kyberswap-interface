@@ -4,9 +4,11 @@ import { BigNumber } from 'ethers'
 
 export interface ElasticFarmV2Range {
   id: string
+  index: number
   isRemoved: boolean
-  tickUpper: string
-  tickLower: string
+  tickUpper: number
+  tickLower: number
+  tickCurrent: number
   weight: number
 }
 export interface ElasticFarmV2 {
