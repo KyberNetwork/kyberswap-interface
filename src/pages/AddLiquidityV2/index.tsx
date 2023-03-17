@@ -53,6 +53,7 @@ import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { ApplicationModal } from 'state/application/actions'
 import { useOpenModal, useWalletModalToggle } from 'state/application/hooks'
+import ElasticFarmV2Updater from 'state/farms/elasticv2/updater'
 import {
   useProAmmDerivedAllMintInfo,
   useProAmmDerivedMintInfo,
@@ -1003,6 +1004,7 @@ export default function AddLiquidity() {
   if (!isEVM) return <Navigate to="/" />
   return (
     <>
+      <ElasticFarmV2Updater interval={false} />
       <TransactionConfirmationModal
         isOpen={showConfirm}
         onDismiss={handleDismissConfirmation}

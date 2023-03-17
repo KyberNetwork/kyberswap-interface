@@ -89,7 +89,11 @@ export default function ProAmmPoolCardItem({ pool, onShared, userPositions }: Li
   const myLiquidity = userPositions[pool.address]
   const hasLiquidity = pool.address in userPositions
 
-  const isFarmV2 = farmsV2?.find(item => item.poolAddress.toLowerCase() === pool.address.toLowerCase())
+  const farmV2 = farmsV2?.find(item => item.poolAddress.toLowerCase() === pool.address.toLowerCase())
+  const isFarmV2 = !!farmV2
+  const maxFarmV2Apr = Math.max(...(farmV2?.ranges.map(item => item.apr || 0) || []))
+
+  const maxFarmAPR = maxFarmV2Apr > (pool.farmAPR || 0) ? maxFarmV2Apr : pool.farmAPR || 0
 
   const isFarmingPool: boolean = useMemo(() => {
     let fairlaunchAddress = ''
@@ -183,7 +187,7 @@ export default function ProAmmPoolCardItem({ pool, onShared, userPositions }: Li
         <MouseoverTooltip
           width="fit-content"
           placement="right"
-          text={<APRTooltipContent farmAPR={pool.farmAPR || 0} poolAPR={pool.apr} />}
+          text={<APRTooltipContent farmV2APR={maxFarmV2Apr} farmAPR={pool.farmAPR || 0} poolAPR={pool.apr} />}
         >
           <Trans>Avg APR</Trans>
         </MouseoverTooltip>
@@ -191,7 +195,7 @@ export default function ProAmmPoolCardItem({ pool, onShared, userPositions }: Li
 
       <Flex justifyContent="space-between" alignItems="center">
         <Text fontSize="28px" fontWeight="500" color={theme.apr}>
-          {((pool.farmAPR || 0) + pool.apr).toFixed(2)}%
+          {(maxFarmAPR + pool.apr).toFixed(2)}%
         </Text>
 
         {isFarmingPool && <FarmTag version="v1" address={pool.address} />}

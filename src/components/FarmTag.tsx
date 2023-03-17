@@ -13,9 +13,10 @@ import { MouseoverTooltip } from './Tooltip'
 const FarmAvailableTag = styled.div<{ version: 'v1' | 'v2' }>`
   border-radius: 999px;
   padding: 4px 8px;
+  height: 20px;
   background: ${({ theme, version }) =>
-    version === 'v1' ? transparentize(0.8, theme.darkBlue) : transparentize(0.7, theme.primary)};
-  color: ${({ theme, version }) => (version === 'v1' ? theme.darkBlue : theme.primary)};
+    version === 'v1' ? transparentize(0.7, theme.apr) : transparentize(0.7, theme.primary)};
+  color: ${({ theme, version }) => (version === 'v1' ? theme.apr : theme.primary)};
   font-size: 12px;
   font-weight: 500;
   display: flex;

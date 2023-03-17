@@ -158,6 +158,8 @@ export default function ProAmmPoolStat({ pool, onShared, userPositions, onClickP
   const isDarkMode = useIsDarkMode()
   const [activeRange, setActiveRange] = useState(0)
 
+  const farmAPR = isFarmV2 ? activeRanges[activeRange].apr : pool.farmAPR
+
   const APR = (
     <>
       <Text
@@ -172,14 +174,20 @@ export default function ProAmmPoolStat({ pool, onShared, userPositions, onClickP
         <MouseoverTooltip
           width="fit-content"
           placement="right"
-          text={<APRTooltipContent farmAPR={pool.farmAPR || 0} poolAPR={pool.apr} />}
+          text={
+            <APRTooltipContent
+              farmV2APR={activeRanges[activeRange].apr}
+              farmAPR={pool.farmAPR || 0}
+              poolAPR={pool.apr}
+            />
+          }
         >
           <Trans>Avg APR</Trans>
         </MouseoverTooltip>
       </Text>
       <Flex justifyContent="space-between" alignItems="center">
         <Text fontSize="28px" fontWeight="500" color={theme.apr}>
-          {((pool.farmAPR || 0) + pool.apr).toFixed(2)}%
+          {((farmAPR || 0) + pool.apr).toFixed(2)}%
         </Text>
 
         {isFarmV2 ? (
@@ -307,7 +315,9 @@ export default function ProAmmPoolStat({ pool, onShared, userPositions, onClickP
                 </Flex>
 
                 <Flex justifyContent="space-between" fontSize="16px" fontWeight="500" marginTop="0.25rem">
-                  <Text>{formatDollarAmount(1234.5)}</Text>
+                  <Text>
+                    {activeRanges[activeRange].tvl ? formatDollarAmount(activeRanges[activeRange].tvl) : '--'}
+                  </Text>
                   <Text>{myLiquidity ? formatDollarAmount(Number(myLiquidity)) : '-'}</Text>
                 </Flex>
               </OutlineCard>

@@ -26,6 +26,7 @@ import useTheme from 'hooks/useTheme'
 import { FilterRow, InstructionText, PageWrapper, PositionCardGrid, Tab } from 'pages/Pool'
 import { FarmUpdater } from 'state/farms/elastic/hooks'
 import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
+import ElasticFarmV2Updater from 'state/farms/elasticv2/updater'
 import { ExternalLink, StyledInternalLink, TYPE } from 'theme'
 import { PositionDetails } from 'types/position'
 
@@ -338,6 +339,7 @@ export default function ProAmmPool() {
         </AutoColumn>
       </PageWrapper>
       <FarmUpdater />
+      <ElasticFarmV2Updater />
     </>
   )
 }

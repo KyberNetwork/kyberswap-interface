@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { stringify } from 'querystring'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
@@ -12,12 +13,12 @@ import { updatePrices } from '.'
 
 const getAddress = (address: string, isEVM: boolean) => (isEVM ? address.toLowerCase() : address)
 
-const useTokenPricesLocal = (
+export const useTokenPricesWithLoading = (
   addresses: Array<string>,
 ): {
   data: { [address: string]: number }
   loading: boolean
-  fetchPrices: (value: string[]) => void
+  fetchPrices: (value: string[]) => Promise<{ [key: string]: number }>
 } => {
   const tokenPrices = useAppSelector(state => state.tokenPrices)
   const dispatch = useAppDispatch()
@@ -63,15 +64,31 @@ const useTokenPricesLocal = (
             return {
               address,
               chainId: chainId,
-
               price: price?.marketPrice || price?.price || 0,
             }
           })
 
           dispatch(updatePrices(formattedPrices))
+          return formattedPrices.reduce(
+            (acc, cur) => ({
+              ...acc,
+              [cur.address]: cur.price,
+              [isAddressString(chainId, cur.address)]: cur.price,
+            }),
+            {},
+          )
         }
+        // hardcoded for goerli to test
+        if (chainId === ChainId.GÖRLI) {
+          return {
+            '0x325697956767826a1ddf0ee8d5eb0f8ae3a2c171': 1.012345,
+            '0xeac23a03f26df44fe3bb67bde1ecaecbee0daaa9': 0.98765,
+          }
+        }
+        return {}
       } catch (e) {
         // empty
+        return {}
       } finally {
         setLoading(false)
       }
@@ -107,10 +124,6 @@ export const useTokenPrices = (
 ): {
   [address: string]: number
 } => {
-  const { data } = useTokenPricesLocal(addresses)
+  const { data } = useTokenPricesWithLoading(addresses)
   return data
-}
-
-export const useTokenPricesWithLoading = (addresses: Array<string>) => {
-  return useTokenPricesLocal(addresses)
 }
