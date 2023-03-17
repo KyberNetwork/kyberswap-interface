@@ -53,6 +53,7 @@ import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { ApplicationModal } from 'state/application/actions'
 import { useOpenModal, useWalletModalToggle } from 'state/application/hooks'
+import ElasticFarmV2Updater from 'state/farms/elasticv2/updater'
 import {
   useProAmmDerivedAllMintInfo,
   useProAmmDerivedMintInfo,
@@ -111,7 +112,7 @@ export default function AddLiquidity() {
   const feeAmount: FeeAmount | undefined =
     feeAmountFromUrl && Object.values(FeeAmount).includes(parseFloat(feeAmountFromUrl))
       ? parseFloat(feeAmountFromUrl)
-      : FeeAmount.MEDIUM
+      : FeeAmount.MOST_PAIR
   const baseCurrency = useCurrency(currencyIdA)
   const currencyB = useCurrency(currencyIdB)
   // prevent an error if they input ETH/WETH
@@ -1003,6 +1004,7 @@ export default function AddLiquidity() {
   if (!isEVM) return <Navigate to="/" />
   return (
     <>
+      <ElasticFarmV2Updater interval={false} />
       <TransactionConfirmationModal
         isOpen={showConfirm}
         onDismiss={handleDismissConfirmation}

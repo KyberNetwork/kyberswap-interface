@@ -51,6 +51,7 @@ import { useBlockNumber, useOpenModal } from 'state/application/hooks'
 import { useFarmsData } from 'state/farms/classic/hooks'
 import ClassicFarmUpdater from 'state/farms/classic/updater'
 import { FarmUpdater, useElasticFarms } from 'state/farms/elastic/hooks'
+import ElasticFarmV2Updater from 'state/farms/elasticv2/updater'
 import { isInEnum } from 'utils/string'
 
 import ElasticFarmv2 from './ElasticFarmv2'
@@ -229,6 +230,7 @@ const Farm = () => {
 
   return (
     <>
+      <ElasticFarmV2Updater />
       <ClassicFarmUpdater isInterval />
       <FarmUpdater />
       <PageWrapper gap="24px">

@@ -159,7 +159,7 @@ export const FarmContext = React.createContext<{
   activeRange: undefined,
 })
 
-const RangeItem = ({
+export const RangeItem = ({
   active,
   onRangeClick,
   tickLower,

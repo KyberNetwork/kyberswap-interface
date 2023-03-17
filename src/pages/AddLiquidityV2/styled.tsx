@@ -70,7 +70,7 @@ export const ChartBody = styled.div`
 export const FlexLeft = styled(Flex)`
   flex-shrink: 0;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
 
   width: calc(100vw / 26 * 9 - 64px);
   max-width: 425px;

@@ -7,26 +7,29 @@ import { useActiveWeb3React } from 'hooks'
 import { useProAmmPoolInfos } from 'hooks/useProAmmPoolInfo'
 import { useKyberSwapConfig } from 'state/application/hooks'
 
+export const FEE_AMOUNTS = [
+  FeeAmount.VERY_STABLE,
+  FeeAmount.VERY_STABLE1,
+  FeeAmount.VERY_STABLE2,
+  FeeAmount.STABLE,
+  FeeAmount.MOST_PAIR,
+  FeeAmount.MOST_PAIR1,
+  FeeAmount.MOST_PAIR2,
+  FeeAmount.EXOTIC,
+  FeeAmount.VOLATILE,
+  FeeAmount.RARE,
+]
+
 export const useFeeTierDistribution = (
   currencyA: Currency | undefined,
   currencyB: Currency | undefined,
 ): { [key in FeeAmount]: number } => {
   const { isEVM, networkInfo } = useActiveWeb3React()
   const { elasticClient } = useKyberSwapConfig()
-  const feeAmounts = useMemo(() => {
-    return [FeeAmount.HIGH, FeeAmount.LOW, FeeAmount.LOWEST, FeeAmount.STABLE, FeeAmount.MEDIUM]
-  }, [])
+  const poolIds = useProAmmPoolInfos(currencyA, currencyB, FEE_AMOUNTS).filter(Boolean)
 
-  const poolIds = useProAmmPoolInfos(currencyA, currencyB, feeAmounts).filter(Boolean)
-
-  const initState = useMemo(() => {
-    return {
-      [FeeAmount.HIGH]: 0,
-      [FeeAmount.LOW]: 0,
-      [FeeAmount.LOWEST]: 0,
-      [FeeAmount.STABLE]: 0,
-      [FeeAmount.MEDIUM]: 0,
-    }
+  const initState: { [key in FeeAmount]: number } = useMemo(() => {
+    return FEE_AMOUNTS.reduce((acc, feeAmount) => ({ ...acc, [feeAmount]: 0 }), {} as { [key in FeeAmount]: number })
   }, [])
 
   const [feeTierDistribution, setFeeTierDistribution] = useState<{ [key in FeeAmount]: number }>(initState)

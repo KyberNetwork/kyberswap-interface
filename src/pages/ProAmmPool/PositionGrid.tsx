@@ -44,12 +44,14 @@ function PositionGrid({
   positions,
   style,
   refe,
-  activeFarmAddress,
+  activeFarmV1Address,
+  activeFarmV2Address,
 }: {
   positions: PositionDetails[]
   style?: CSSProperties
   refe?: React.MutableRefObject<any>
-  activeFarmAddress: string[]
+  activeFarmV1Address: string[]
+  activeFarmV2Address: string[]
 }) {
   const { isEVM, networkInfo, chainId } = useActiveWeb3React()
   const multicallContract = useMulticallContract()
@@ -142,7 +144,8 @@ function PositionGrid({
           liquidityTime={liquidityTimes?.[p.tokenId.toString()]}
           createdAt={createdAts?.[p.tokenId.toString()]}
           hasUserDepositedInFarm={!!p.stakedLiquidity}
-          hasActiveFarm={activeFarmAddress.includes(p.poolId.toLowerCase())}
+          hasActiveFarm={activeFarmV1Address.includes(p.poolId.toLowerCase())}
+          hasActiveFarmV2={activeFarmV2Address.includes(p.poolId.toLowerCase())}
         />
       ))}
     </PositionCardGrid>

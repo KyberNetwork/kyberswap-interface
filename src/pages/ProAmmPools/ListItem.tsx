@@ -10,10 +10,10 @@ import { ReactComponent as ViewPositionIcon } from 'assets/svg/view_positions.sv
 import { ButtonEmpty } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
-import { MoneyBag } from 'components/Icons'
+import { FarmTag } from 'components/FarmTag'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { FeeTag } from 'components/YieldPools/ElasticFarmGroup/styleds'
-import FarmingPoolAPRCell, { APRTooltipContent } from 'components/YieldPools/FarmingPoolAPRCell'
+import FarmingPoolAPRCell from 'components/YieldPools/FarmingPoolAPRCell'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT, PROMM_ANALYTICS_URL } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import { VERSION } from 'constants/v2'
@@ -24,6 +24,7 @@ import useTheme from 'hooks/useTheme'
 import { ButtonIcon } from 'pages/Pools/styleds'
 import { useToggleEthPowAckModal } from 'state/application/hooks'
 import { useElasticFarms } from 'state/farms/elastic/hooks'
+import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
 import { useUrlOnEthPowAck } from 'state/pools/hooks'
 import { ExternalLink } from 'theme'
 import { ElasticPoolDetail } from 'types/pool'
@@ -44,7 +45,7 @@ const getPrommAnalyticLink = (chainId: ChainId, poolAddress: string) => {
 const TableRow = styled.div`
   display: grid;
   grid-gap: 1rem;
-  grid-template-columns: 2fr 1.25fr 1.25fr 1.25fr 1.25fr 1.25fr 1fr;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 1fr;
   padding: 12px 16px;
   font-size: 14px;
   align-items: center;
@@ -104,6 +105,7 @@ export default function ProAmmPoolListItem({ pool, onShared, userPositions }: Li
   const token1Symbol = isToken1WETH ? nativeToken.symbol : token1.symbol
 
   const { farms } = useElasticFarms()
+  const { farms: elasticFarmV2s } = useElasticFarmsV2()
 
   const { mixpanelHandler } = useMixpanel()
 
@@ -125,30 +127,24 @@ export default function ProAmmPoolListItem({ pool, onShared, userPositions }: Li
   })
 
   const isFarmingPool = !!fairlaunchAddress && pid !== -1
+  const farmV2 = elasticFarmV2s
+    ?.filter(farm => farm.endTime > Date.now() / 1000)
+    .find(farm => farm.poolAddress.toLowerCase() === pool.address.toLowerCase())
+  const isFarmV2 = !!farmV2
+
+  const maxFarmV2Apr = Math.max(...(farmV2?.ranges.map(item => item.apr || 0) || []), 0)
 
   const renderPoolAPR = () => {
-    if (isFarmingPool) {
-      if (pool.farmAPR) {
-        return (
-          <Flex
-            alignItems={'center'}
-            sx={{
-              gap: '4px',
-            }}
-          >
-            <Text as="span">{(pool.apr + pool.farmAPR).toFixed(2)}%</Text>
-            <MouseoverTooltip
-              width="fit-content"
-              placement="top"
-              text={<APRTooltipContent farmAPR={pool.farmAPR} poolAPR={pool.apr} />}
-            >
-              <MoneyBag size={16} color={theme.apr} />
-            </MouseoverTooltip>
-          </Flex>
-        )
-      }
-
-      return <FarmingPoolAPRCell poolAPR={pool.apr} fairlaunchAddress={fairlaunchAddress} pid={pid} />
+    if (isFarmingPool || isFarmV2) {
+      return (
+        <FarmingPoolAPRCell
+          poolAPR={pool.apr}
+          farmV1APR={pool.farmAPR}
+          farmV2APR={maxFarmV2Apr}
+          fairlaunchAddress={fairlaunchAddress}
+          pid={pid}
+        />
+      )
     }
 
     return (
@@ -180,6 +176,11 @@ export default function ProAmmPoolListItem({ pool, onShared, userPositions }: Li
               {token0Symbol} - {token1Symbol}
             </Text>
             <FeeTag>Fee {(pool.feeTier * 100) / ELASTIC_BASE_FEE_UNIT}%</FeeTag>
+
+            <Flex alignItems="center" marginLeft="4px" sx={{ gap: '4px' }}>
+              {isFarmingPool && <FarmTag version="v1" address={pool.address} />}
+              {isFarmV2 && <FarmTag version="v2" address={pool.address} />}
+            </Flex>
           </Flex>
         </Link>
 
