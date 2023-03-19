@@ -190,7 +190,7 @@ export default function ProAmmPoolStat({ pool, onShared, userPositions, onClickP
           {((farmAPR || 0) + pool.apr).toFixed(2)}%
         </Text>
 
-        {isFarmV2 ? (
+        {!!farmV2 ? (
           <PriceVisualize
             tickCurrent={pool.tick}
             tickPosLower={activeRanges[activeRange].tickLower}
@@ -447,14 +447,12 @@ export default function ProAmmPoolStat({ pool, onShared, userPositions, onClickP
               {farmV2 &&
                 activeRanges?.map((range, index) => (
                   <RangeItem
-                    tickCurrent={pool.tick}
                     token0={farmV2.token0}
                     token1={farmV2.token1}
                     active={activeRange === index}
                     key={range.id}
-                    tickLower={range.tickLower}
-                    tickUpper={range.tickUpper}
                     onRangeClick={() => setActiveRange(index)}
+                    rangeInfo={range}
                   />
                 ))}
             </Column>

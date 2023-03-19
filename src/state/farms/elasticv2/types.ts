@@ -13,6 +13,7 @@ export interface ElasticFarmV2Range {
   tvl?: number
   apr?: number
 }
+
 export interface ElasticFarmV2 {
   id: string
   fId: number

@@ -22,6 +22,7 @@ import useTheme from 'hooks/useTheme'
 import { useElasticFarmsV2, useFarmV2Action } from 'state/farms/elasticv2/hooks'
 import { ElasticFarmV2Range } from 'state/farms/elasticv2/types'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
+import { formatDollarAmount } from 'utils/numbers'
 
 import { ElasticFarmV2WithRangePrices } from '..'
 import PriceVisualize from './PriceVisualize'
@@ -162,19 +163,15 @@ export const FarmContext = React.createContext<{
 export const RangeItem = ({
   active,
   onRangeClick,
-  tickLower,
-  tickUpper,
-  tickCurrent,
+  rangeInfo,
   token0,
   token1,
 }: {
-  active?: boolean
-  onRangeClick?: () => void
-  tickLower?: number
-  tickUpper?: number
-  tickCurrent?: number
-  token0?: Token
-  token1?: Token
+  active: boolean
+  onRangeClick: () => void
+  rangeInfo: ElasticFarmV2Range
+  token0: Token
+  token1: Token
 }) => {
   const theme = useTheme()
   return (
@@ -184,8 +181,8 @@ export const RangeItem = ({
           <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
             <Trans>Avg APR</Trans>
           </Text>
-          <Text fontSize="28px" lineHeight="32px" color="var(--primary)">
-            132.23%
+          <Text fontSize="28px" fontWeight="500" color={theme.apr}>
+            {rangeInfo.apr ? rangeInfo.apr.toFixed(2) + '%' : '--'}
           </Text>
         </Column>
         <Column gap="4px">
@@ -193,9 +190,9 @@ export const RangeItem = ({
             <Trans>Active Range ↗</Trans>
           </Text>
           <PriceVisualize
-            tickRangeLower={tickLower}
-            tickRangeUpper={tickUpper}
-            tickCurrent={tickCurrent}
+            tickRangeLower={rangeInfo.tickLower}
+            tickRangeUpper={rangeInfo.tickUpper}
+            tickCurrent={rangeInfo.tickCurrent}
             token0={token0}
             token1={token1}
           />
@@ -206,16 +203,16 @@ export const RangeItem = ({
           <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
             <Trans>Staked TVL</Trans>
           </Text>
-          <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-            $12.54M
+          <Text fontSize="16px" fontWeight="500" lineHeight="16px" color={theme.text}>
+            {rangeInfo.tvl ? formatDollarAmount(rangeInfo.tvl) : '--'}
           </Text>
         </Column>
         <Column gap="4px" style={{ alignItems: 'flex-end' }}>
           <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
             <Trans>My Deposit</Trans>
           </Text>
-          <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-            $230.23K
+          <Text fontSize="16px" fontWeight="500" lineHeight="16px" color={theme.text}>
+            TODO
           </Text>
         </Column>
       </RowBetween>
@@ -483,9 +480,7 @@ function FarmCard({
                         <RangeItem
                           active={activeRangeIndex === index}
                           key={r.id}
-                          tickLower={+r.tickLower}
-                          tickUpper={+r.tickUpper}
-                          tickCurrent={+r.tickCurrent}
+                          rangeInfo={r}
                           onRangeClick={() => setActiveRangeIndex(index)}
                           token0={farm.token0}
                           token1={farm.token1}
@@ -495,9 +490,9 @@ function FarmCard({
                   ) : (
                     <>
                       {/* TODO: Remove this later */}
-                      <RangeItem active></RangeItem>
-                      <RangeItem></RangeItem>
-                      <RangeItem></RangeItem>
+                      {/* <RangeItem active></RangeItem> */}
+                      {/* <RangeItem></RangeItem> */}
+                      {/* <RangeItem></RangeItem> */}
                     </>
                   )}
                 </Column>
