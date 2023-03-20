@@ -50,7 +50,7 @@ function InboxItemBridge({ announcement, onRead, style, time }: PrivateAnnouncem
     <InboxItemWrapper isRead={isRead} onClick={onClick} style={style}>
       <InboxItemRow>
         <RowItem>
-          <InboxIcon type={PrivateAnnouncementType.BRIDGE} chainId={chainIdIn} />
+          <InboxIcon type={PrivateAnnouncementType.BRIDGE} />
           <Title isRead={isRead}>
             <Trans>Bridge Token</Trans>
           </Title>
