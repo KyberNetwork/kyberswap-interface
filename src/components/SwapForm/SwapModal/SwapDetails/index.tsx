@@ -14,7 +14,6 @@ import { RowBetween, RowFixed } from 'components/Row'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import SlippageValue from 'components/SwapForm/SwapModal/SwapDetails/SlippageValue'
 import ValueWithLoadingSkeleton from 'components/SwapForm/SwapModal/SwapDetails/ValueWithLoadingSkeleton'
-import { formatMinimumReceived } from 'components/SwapForm/utils'
 import { StyledBalanceMaxMini } from 'components/swapv2/styleds'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
@@ -82,7 +81,7 @@ const SwapDetails: React.FC<Props> = ({
           whiteSpace: 'nowrap',
         }}
       >
-        {formatMinimumReceived(minimumAmountOut.toSignificant(6))} {currencyOut.symbol}
+        {formattedNum(minimumAmountOut.toSignificant(6), false, 6)} {currencyOut.symbol}
       </Text>
     ) : (
       ''

@@ -8,7 +8,6 @@ import { AutoColumn } from 'components/Column'
 import Divider from 'components/Divider'
 import InfoHelper from 'components/InfoHelper'
 import { RowBetween, RowFixed } from 'components/Row'
-import { formatMinimumReceived } from 'components/SwapForm/utils'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { TYPE } from 'theme'
@@ -87,7 +86,7 @@ const TradeSummary: React.FC<Props> = ({ feeConfig, routeSummary, slippage }) =>
           whiteSpace: 'nowrap',
         }}
       >
-        {formatMinimumReceived(minimumAmountOut.toSignificant(6))} {currencyOut.symbol}
+        {formattedNum(minimumAmountOut.toSignificant(6), false, 6)} {currencyOut.symbol}
       </Text>
     ) : (
       ''
