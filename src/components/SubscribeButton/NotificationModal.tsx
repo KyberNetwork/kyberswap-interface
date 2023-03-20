@@ -64,7 +64,7 @@ const CheckIcon = styled(Check)`
   bottom: 0;
   margin: auto;
 `
-const Input = styled.input<{ borderColor: string }>`
+const Input = styled.input<{ $borderColor: string }>`
   display: flex;
   align-items: center;
   white-space: nowrap;
@@ -77,7 +77,7 @@ const Input = styled.input<{ borderColor: string }>`
   font-size: 14px;
   background-color: ${({ theme }) => theme.buttonBlack};
   transition: border 0.5s;
-  border: ${({ theme, borderColor }) => `1px solid ${borderColor || theme.border}`};
+  border: ${({ theme, $borderColor }) => `1px solid ${$borderColor || theme.border}`};
   ::placeholder {
     color: ${({ theme }) => theme.border};
     font-size: 12px;
@@ -440,7 +440,7 @@ export default function NotificationModal() {
             </Label>
             <InputWrapper>
               <Input
-                borderColor={errorColor}
+                $borderColor={errorColor}
                 value={inputEmail}
                 placeholder="example@gmail.com"
                 onChange={onChangeInput}
