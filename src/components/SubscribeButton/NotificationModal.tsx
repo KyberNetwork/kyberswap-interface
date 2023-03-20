@@ -375,8 +375,23 @@ export default function NotificationModal() {
   const disableCheckbox = !account || notFillEmail || hasErrorInput
   const errorColor = hasErrorInput ? theme.red : errorInput?.type === 'warn' ? theme.warning : theme.border
 
+  const subscribeAtLeast1Topic = topicGroups.some(e => e.isSubscribed)
+  const onUnsubscribeAll = () => {
+    if (!subscribeAtLeast1Topic) return
+    unsubscribeAll()
+    toggleModal()
+    notify(
+      {
+        title: t`Unsubscribe Successfully`,
+        summary: t`You have successfully unsubscribe from further receiving email notification from us`,
+        type: NotificationType.SUCCESS,
+        icon: <MailIcon color={theme.primary} />,
+      },
+      10000,
+    )
+  }
+
   const renderButton = () => {
-    const subscribeAtLeast1Topic = topicGroups.some(e => e.isSubscribed)
     return (
       <ActionWrapper>
         {!account ? (
@@ -409,11 +424,7 @@ export default function NotificationModal() {
             color: theme.subText,
             fontWeight: '500',
           }}
-          onClick={() => {
-            if (!subscribeAtLeast1Topic) return
-            unsubscribeAll()
-            toggleModal()
-          }}
+          onClick={onUnsubscribeAll}
         >
           <Trans>Opt out from all future email</Trans>
         </Text>
