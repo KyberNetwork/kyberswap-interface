@@ -144,7 +144,6 @@ const CampaignItem = ({ campaign, onSelectCampaign, isSelected }: CampaignItemPr
     <CampaignItemWrapper
       onClick={() => {
         onSelectCampaign(campaign)
-        console.log({ campaign })
       }}
       selected={isSelected}
     >
