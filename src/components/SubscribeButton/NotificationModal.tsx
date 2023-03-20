@@ -158,7 +158,9 @@ export default function NotificationModal() {
   const isEmailTab = activeTab === TAB.EMAIL
   const isTelegramTab = activeTab === TAB.TELEGRAM
 
-  const isNewUserQualified = !userInfo.email && !userInfo.telegram && !!inputEmail && !errorInput
+  const hasErrorInput = errorInput?.type === 'error'
+
+  const isNewUserQualified = !userInfo.email && !userInfo.telegram && !!inputEmail && !hasErrorInput
   const notFillEmail = !inputEmail && isEmailTab
 
   const validateInput = useCallback((value: string, required = false) => {
@@ -239,7 +241,7 @@ export default function NotificationModal() {
       })
 
       const isChangeEmail =
-        !errorInput &&
+        !hasErrorInput &&
         inputEmail &&
         userInfo.email !== inputEmail &&
         selectedTopic.length &&
@@ -252,13 +254,13 @@ export default function NotificationModal() {
         hasChanged: subscribeIds.length + unsubscribeIds.length !== 0 || Boolean(isChangeEmail),
       }
     },
-    [selectedTopic, inputEmail, userInfo, errorInput, emailPendingVerified],
+    [selectedTopic, inputEmail, userInfo, emailPendingVerified, hasErrorInput],
   )
 
   const onSave = async () => {
     try {
       if (isEmailTab) validateInput(inputEmail, true)
-      if (isLoading || errorInput?.type === 'error' || notFillEmail) return
+      if (isLoading || hasErrorInput || notFillEmail) return
 
       const { unsubscribeIds, subscribeIds, subscribeNames, unsubscribeNames } = getDiffChangeTopics(topicGroupsGlobal)
       if (subscribeNames.length) {
@@ -360,13 +362,12 @@ export default function NotificationModal() {
 
   const disableButtonSave = useMemo(() => {
     if (isTelegramTab) return isLoading
-    if (isLoading || notFillEmail || errorInput?.type === 'error') return true
+    if (isLoading || notFillEmail || hasErrorInput) return true
     return !getDiffChangeTopics(topicGroups).hasChanged
-  }, [getDiffChangeTopics, isLoading, notFillEmail, errorInput, isTelegramTab, topicGroups])
+  }, [getDiffChangeTopics, isLoading, notFillEmail, isTelegramTab, topicGroups, hasErrorInput])
 
-  const disableCheckbox = !account || notFillEmail || errorInput?.type === 'error'
-  const errorColor =
-    errorInput?.type === 'error' ? theme.red : errorInput?.type === 'warn' ? theme.warning : theme.border
+  const disableCheckbox = !account || notFillEmail || hasErrorInput
+  const errorColor = hasErrorInput ? theme.red : errorInput?.type === 'warn' ? theme.warning : theme.border
 
   const renderButton = () => (
     <ActionWrapper>
