@@ -26,6 +26,7 @@ const CloseIcon = styled(X)`
 `
 
 // TODO: test disconnect wallet/change network while confirming
+// TODO: clear based on which tab is active
 const DeleteAllAlertsButton = () => {
   const theme = useTheme()
   const { account } = useActiveWeb3React()

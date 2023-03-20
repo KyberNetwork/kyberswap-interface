@@ -1,4 +1,4 @@
-import { t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { Plus } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
@@ -9,12 +9,36 @@ import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Loader from 'components/Loader'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
+import { Tab } from 'pages/NotificationCenter/PriceAlerts'
 import DeleteAllAlertsButton from 'pages/NotificationCenter/PriceAlerts/DeleteAllAlertsButton'
 import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
 
+const TabButton: React.FC<{ isActive: boolean; onClick: () => void; children: React.ReactNode }> = ({
+  isActive,
+  onClick,
+  children,
+}) => {
+  const Button = isActive ? ButtonLight : ButtonOutlined
+
+  return (
+    <Button
+      style={{
+        flex: '0 0 fit-content',
+        height: '36px',
+        padding: '0 8px',
+        whiteSpace: 'nowrap',
+        flexWrap: 'nowrap',
+      }}
+      onClick={onClick}
+    >
+      {children}
+    </Button>
+  )
+}
+
 type StatItemProps = {
   isLoading: boolean
-  label: string
+  label: React.ReactNode
   totalNumber: number | undefined
   maxNumber: number | undefined
 }
@@ -40,7 +64,11 @@ const StatItem: React.FC<StatItemProps> = ({ isLoading, label, totalNumber, maxN
   )
 }
 
-const Header = () => {
+type Props = {
+  currentTab: Tab
+  setCurrentTab: (t: Tab) => void
+}
+const Header: React.FC<Props> = ({ currentTab, setCurrentTab }) => {
   const navigate = useNavigate()
   const theme = useTheme()
   const { account } = useActiveWeb3React()
@@ -63,28 +91,12 @@ const Header = () => {
             gap: '0.5rem',
           }}
         >
-          <ButtonLight
-            style={{
-              flex: '0 0 fit-content',
-              height: '36px',
-              padding: '0 8px',
-              whiteSpace: 'nowrap',
-              flexWrap: 'nowrap',
-            }}
-          >
-            Active Alerts
-          </ButtonLight>
-          <ButtonOutlined
-            style={{
-              flex: '0 0 fit-content',
-              padding: '0 8px',
-              height: '36px',
-              whiteSpace: 'nowrap',
-              flexWrap: 'nowrap',
-            }}
-          >
-            Alerts History
-          </ButtonOutlined>
+          <TabButton isActive={currentTab === Tab.ACTIVE} onClick={() => setCurrentTab(Tab.ACTIVE)}>
+            <Trans>Active Alerts</Trans>
+          </TabButton>
+          <TabButton isActive={currentTab === Tab.HISTORY} onClick={() => setCurrentTab(Tab.HISTORY)}>
+            <Trans>Alerts History</Trans>
+          </TabButton>
         </Flex>
 
         <Flex
@@ -105,7 +117,7 @@ const Header = () => {
               navigate(`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.CREATE_ALERT}`)
             }}
           >
-            <Plus size={16} /> Create Alert
+            <Plus size={16} /> <Trans>Create Alert</Trans>
           </ButtonPrimary>
         </Flex>
       </Flex>
@@ -120,14 +132,16 @@ const Header = () => {
         }}
       >
         <StatItem
-          label={t`Created Alerts`}
+          // error if use `t` here
+          label={<Trans>Created Alerts</Trans>}
           isLoading={isLoading}
           totalNumber={data?.totalAlerts}
           maxNumber={data?.maxAlert}
         />
 
         <StatItem
-          label={t`Active Alerts`}
+          // error if use `t` here
+          label={<Trans>Active Alerts</Trans>}
           isLoading={isLoading}
           totalNumber={data?.totalActiveAlerts}
           maxNumber={data?.maxActiveAlerts}

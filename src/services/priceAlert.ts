@@ -29,7 +29,7 @@ const priceAlertApi = createApi({
   reducerPath: 'priceAlertApi',
   baseQuery: fetchBaseQuery({ baseUrl: PRICE_ALERT_API }),
   // TODO: check here
-  tagTypes: ['PriceAlerts'],
+  tagTypes: ['PriceAlerts', 'PriceAlertsHistory'],
   endpoints: builder => ({
     getListAlerts: builder.query<GetListAlertsResponseData, GetListAlertsParams>({
       query: params => ({
@@ -41,6 +41,17 @@ const priceAlertApi = createApi({
       },
       // TODO: check here
       providesTags: ['PriceAlerts'],
+    }),
+    getListAlertsHistory: builder.query<GetListAlertsResponseData, GetListAlertsParams>({
+      query: params => ({
+        url: `/v1/alerts`,
+        params,
+      }),
+      transformResponse: (data: any) => {
+        return data.data as GetListAlertsResponseData
+      },
+      // TODO: check here
+      providesTags: ['PriceAlertsHistory'],
     }),
     getAlertStats: builder.query<PriceAlertStat, string>({
       query: walletAddress => ({
@@ -89,6 +100,7 @@ export const {
   useCreatePriceAlertMutation,
   useUpdatePriceAlertMutation,
   useGetAlertStatsQuery,
+  useGetListAlertsHistoryQuery,
   useLazyGetAlertStatsQuery,
   useGetListAlertsQuery,
   useDeleteAllAlertsMutation,
