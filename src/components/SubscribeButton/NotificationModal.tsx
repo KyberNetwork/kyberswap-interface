@@ -310,7 +310,7 @@ export default function NotificationModal() {
   const checkEmailExist = useCallback(
     async (email: string) => {
       try {
-        if (!isEmailValid(email)) return
+        if (!isEmailValid(email) || email === userInfo?.email) return
         const { data: walletAddress } = await getConnectedWallet(email)
         if (walletAddress && walletAddress !== account?.toLowerCase()) {
           setErrorInput({
@@ -323,7 +323,7 @@ export default function NotificationModal() {
         }
       } catch (error) {}
     },
-    [account, getConnectedWallet],
+    [account, getConnectedWallet, userInfo?.email],
   )
 
   const debouncedCheckEmail = useMemo(() => debounce((email: string) => checkEmailExist(email), 500), [checkEmailExist])
