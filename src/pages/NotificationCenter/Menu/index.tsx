@@ -1,11 +1,13 @@
 import { t } from '@lingui/macro'
-import { Clock, List as ListIcon, Mail } from 'react-feather'
+import { List as ListIcon } from 'react-feather'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 
+import { ReactComponent as AlarmIcon } from 'assets/svg/alarm.svg'
 import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
 import { ReactComponent as DropIcon } from 'assets/svg/drop.svg'
 import { ReactComponent as LimitOrderIcon } from 'assets/svg/limit_order.svg'
+import { ReactComponent as MailIcon } from 'assets/svg/mail.svg'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import NotificationIcon from 'components/Icons/NotificationIcon'
 import MenuItem from 'pages/NotificationCenter/Menu/MenuItem'
@@ -54,11 +56,15 @@ const Menu = () => {
               gap: '8px',
             }}
           >
-            <MenuItem href={NOTIFICATION_ROUTES.GENERAL} icon={<Mail size="16px" />} text={t`General`} />
+            <MenuItem
+              href={NOTIFICATION_ROUTES.GENERAL}
+              icon={<MailIcon width="16px" height="16px" />}
+              text={t`General`}
+            />
             <Divider />
             <MenuItem
               href={NOTIFICATION_ROUTES.PRICE_ALERTS}
-              icon={<Clock width={16} height={16} />}
+              icon={<AlarmIcon width={16} height={16} />}
               text={t`Price Alerts`}
             />
           </Flex>
