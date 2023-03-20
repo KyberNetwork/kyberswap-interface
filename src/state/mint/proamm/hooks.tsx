@@ -131,16 +131,16 @@ export function useProAmmMintActionHandlers(
 const ENHANCED_TICK_SPACINGS: {
   [amount in FeeAmount]: number
 } = {
-  [FeeAmount.VERY_STABLE]: TICK_SPACINGS[FeeAmount.VERY_STABLE] * 2,
-  [FeeAmount.VERY_STABLE1]: TICK_SPACINGS[FeeAmount.VERY_STABLE1] * 2,
-  [FeeAmount.VERY_STABLE2]: TICK_SPACINGS[FeeAmount.VERY_STABLE2] * 2,
+  [FeeAmount.VERY_STABLE]: TICK_SPACINGS[FeeAmount.VERY_STABLE],
+  [FeeAmount.VERY_STABLE1]: TICK_SPACINGS[FeeAmount.VERY_STABLE1],
+  [FeeAmount.VERY_STABLE2]: TICK_SPACINGS[FeeAmount.VERY_STABLE2],
   [FeeAmount.STABLE]: TICK_SPACINGS[FeeAmount.STABLE],
-  [FeeAmount.MOST_PAIR]: TICK_SPACINGS[FeeAmount.MOST_PAIR],
-  [FeeAmount.MOST_PAIR1]: TICK_SPACINGS[FeeAmount.MOST_PAIR1],
-  [FeeAmount.MOST_PAIR2]: TICK_SPACINGS[FeeAmount.MOST_PAIR2],
+  [FeeAmount.MOST_PAIR]: TICK_SPACINGS[FeeAmount.MOST_PAIR] * 0.95,
+  [FeeAmount.MOST_PAIR1]: TICK_SPACINGS[FeeAmount.MOST_PAIR1] * 0.95,
+  [FeeAmount.MOST_PAIR2]: TICK_SPACINGS[FeeAmount.MOST_PAIR2] * 0.9,
   [FeeAmount.EXOTIC]: TICK_SPACINGS[FeeAmount.EXOTIC] * 0.7,
-  [FeeAmount.VOLATILE]: TICK_SPACINGS[FeeAmount.VOLATILE] * 0.7,
-  [FeeAmount.RARE]: TICK_SPACINGS[FeeAmount.RARE] * 0.7,
+  [FeeAmount.VOLATILE]: TICK_SPACINGS[FeeAmount.VOLATILE],
+  [FeeAmount.RARE]: TICK_SPACINGS[FeeAmount.RARE],
 }
 
 export function useProAmmDerivedMintInfo(
