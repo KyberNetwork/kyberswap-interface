@@ -18,6 +18,7 @@ import { DoubleCurrencyLogoV2 } from 'components/DoubleLogo'
 import { MoneyBag } from 'components/Icons'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
+import { useChangeNetwork } from 'hooks/useChangeNetwork'
 import useTheme from 'hooks/useTheme'
 
 function InboxItemBridge({
@@ -47,9 +48,12 @@ function InboxItemBridge({
   const statusMessage = isInRange ? t`Back in range` : t`Out of range`
 
   const navigate = useNavigate()
+  const changeNetwork = useChangeNetwork()
   const onClick = () => {
-    navigate(`${APP_PATHS.MY_POOLS}/${NETWORKS_INFO[chainId].route}?search=${poolAddress}`)
-    onRead(announcement, statusMessage)
+    changeNetwork(chainId, () => {
+      navigate(`${APP_PATHS.MY_POOLS}/${NETWORKS_INFO[chainId].route}?search=${poolAddress}`)
+      onRead(announcement, statusMessage)
+    })
   }
 
   return (
