@@ -69,13 +69,20 @@ const PriceVisualize = ({
   const wrapperRef = useRef<HTMLDivElement>(null)
   const [wrapperWidth, setWrapperWidth] = useState(0)
 
+  const tickArray = [tickRangeLower, tickRangeUpper, tickPosLower, tickPosUpper, tickCurrent].filter(Boolean)
+  console.log('🚀 ~ file: PriceVisualize.tsx:73 ~ tickArray:', tickArray)
+
+  const priceArray = tickArray.map(tick => convertTickToPrice(token0, token1, tick))
+  console.log('🚀 ~ file: PriceVisualize.tsx:76 ~ priceArray:', priceArray)
+
   const priceRangeLower = convertTickToPrice(token0, token1, tickRangeLower) || 0.6
   const priceRangeUpper = convertTickToPrice(token0, token1, tickRangeUpper) || 1.9
-  // const pricePosLower = convertTickToPrice(token0, token1, tickPosLower)
-  // const pricePosUpper = convertTickToPrice(token0, token1, tickPosUpper)
+  const pricePosLower = convertTickToPrice(token0, token1, tickPosLower)
+  const pricePosUpper = convertTickToPrice(token0, token1, tickPosUpper)
   const priceCurrent = convertTickToPrice(token0, token1, tickCurrent) || 1
 
   useEffect(() => {
+    //Listen for window resize
     const observer = new ResizeObserver(entries => {
       setWrapperWidth(entries[0].contentRect.width)
     })
@@ -89,22 +96,23 @@ const PriceVisualize = ({
       ref && observer.unobserve(ref)
     }
   }, [])
+
   if (priceRangeLower === undefined || priceRangeUpper === undefined || priceCurrent === undefined) return null
 
   const lowerUpperRatio = Math.abs(+priceRangeLower - +priceCurrent) / Math.abs(+priceRangeUpper - +priceCurrent)
-  let upperDotPos, lowerDotPos
+  let rangeUpperDotLeft, rangeLowerDotLeft, posUpperDotLeft, posLowerDotLeft
   if (priceRangeLower === '0') {
-    lowerDotPos = 0
+    rangeLowerDotLeft = 0
   } else {
-    lowerDotPos =
+    rangeLowerDotLeft =
       lowerUpperRatio > 1
         ? wrapperWidth * maxRangeGap
         : wrapperWidth * (maxRangeGap + (0.5 - maxRangeGap) * (1 - lowerUpperRatio))
   }
   if (priceRangeUpper === '∞') {
-    upperDotPos = wrapperWidth
+    rangeUpperDotLeft = wrapperWidth
   } else {
-    upperDotPos =
+    rangeUpperDotLeft =
       lowerUpperRatio < 1
         ? wrapperWidth * (1 - maxRangeGap)
         : wrapperWidth * (0.5 + (0.5 - maxRangeGap) / lowerUpperRatio)
@@ -153,10 +161,17 @@ const PriceVisualize = ({
         placement="top"
       >
         <PriceLine>
-          <Dot style={{ left: `${lowerDotPos}px` }} />
+          <Dot style={{ left: `${rangeLowerDotLeft}px` }} />
           <Dot style={{ left: `${wrapperWidth / 2}px`, backgroundColor: 'var(--background)' }} />
-          <Dot style={{ left: `${upperDotPos}px` }} />
-          <RangeLine style={{ left: `${lowerDotPos}px`, width: `${upperDotPos - lowerDotPos}px` }} />
+          <Dot style={{ left: `${rangeUpperDotLeft}px` }} />
+          {pricePosLower && <Dot style={{ left: `${rangeUpperDotLeft}px` }} />}
+          {pricePosUpper && <Dot style={{ left: `${rangeUpperDotLeft}px` }} />}
+          <RangeLine style={{ left: `${rangeLowerDotLeft}px`, width: `${rangeUpperDotLeft - rangeLowerDotLeft}px` }} />
+          {pricePosLower && pricePosUpper && (
+            <RangeLine
+              style={{ left: `${rangeLowerDotLeft}px`, width: `${rangeUpperDotLeft - rangeLowerDotLeft}px` }}
+            />
+          )}
         </PriceLine>
       </MouseoverTooltip>
     </Wrapper>

@@ -61,9 +61,9 @@ export const useFarmV2Action = () => {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }
       try {
-        //const estimateGas = await farmContract.estimateGas.deposit(fId, rangeId, nftIds, account)
+        const estimateGas = await farmContract.estimateGas.deposit(fId, rangeId, nftIds, account)
         const tx = await farmContract.deposit(fId, rangeId, nftIds, account, {
-          gasLimit: '10000000',
+          gasLimit: estimateGas,
         })
         addTransactionWithType({
           hash: tx.hash,
@@ -82,16 +82,20 @@ export const useFarmV2Action = () => {
       if (!farmContract) {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }
-      const estimateGas = await farmContract.estimateGas.withdraw(fId, nftIds)
-      const tx = await farmContract.withdraw(fId, nftIds, {
-        gasLimit: calculateGasMargin(estimateGas),
-      })
-      addTransactionWithType({
-        hash: tx.hash,
-        type: TRANSACTION_TYPE.ELASTIC_WITHDRAW_LIQUIDITY,
-      })
+      try {
+        const estimateGas = await farmContract.estimateGas.withdraw(fId, nftIds)
+        const tx = await farmContract.withdraw(fId, nftIds, {
+          gasLimit: calculateGasMargin(estimateGas),
+        })
 
-      return tx.hash
+        addTransactionWithType({
+          hash: tx.hash,
+          type: TRANSACTION_TYPE.ELASTIC_WITHDRAW_LIQUIDITY,
+        })
+        return tx.hash
+      } catch (e) {
+        console.log(e)
+      }
     },
     [addTransactionWithType, farmContract],
   )
