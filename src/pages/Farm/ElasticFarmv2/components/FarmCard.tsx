@@ -283,7 +283,7 @@ function FarmCard({
               </RowFit>
               <RowFit gap="8px">
                 <IconButton>
-                  <CopyHelper toCopy="test" />
+                  <CopyHelper toCopy={farm?.id || ''} />
                 </IconButton>
                 <IconButton>
                   <Share2 size={14} fill="currentcolor" />

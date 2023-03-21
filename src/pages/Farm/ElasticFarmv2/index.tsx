@@ -58,9 +58,8 @@ export default function ElasticFarmv2() {
   const inputToken = Object.values(whitelisted)?.filter(t => t.symbol === 'KNC')[0]
   const outputToken = Object.values(whitelisted)?.filter(t => t.symbol === 'USDC')[0]
 
-  const elasticFarm = useElasticFarmsV2()
+  const { farms } = useElasticFarmsV2()
   const { approve } = useFarmV2Action()
-  const farms = elasticFarm?.farms
   const posManager = useProAmmNFTPositionManagerContract()
   const [approvalTx, setApprovalTx] = useState('')
   const isApprovalTxPending = useIsTransactionPending(approvalTx)

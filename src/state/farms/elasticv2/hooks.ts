@@ -16,7 +16,7 @@ import { defaultChainData } from '.'
 export const useElasticFarmsV2 = () => {
   const { chainId } = useActiveWeb3React()
   const elasticFarm = useAppSelector(state => state.elasticFarmV2[chainId] || defaultChainData)
-  return elasticFarm
+  return elasticFarm || {}
 }
 
 export const useFarmV2Action = () => {
