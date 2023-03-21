@@ -17,7 +17,7 @@ import { UserFarmV2Info } from './types'
 export const useElasticFarmsV2 = () => {
   const { chainId } = useActiveWeb3React()
   const elasticFarm = useAppSelector(state => state.elasticFarmV2[chainId] || defaultChainData)
-  return elasticFarm
+  return elasticFarm || {}
 }
 
 export const useUserFarmV2Info = (fId: number, rangeId: number): UserFarmV2Info[] => {

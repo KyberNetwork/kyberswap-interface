@@ -10,6 +10,7 @@ import { Flex, Text } from 'rebass'
 
 import { ReactComponent as TutorialIcon } from 'assets/svg/play_circle_outline.svg'
 import ClassicElasticTab from 'components/ClassicElasticTab'
+import Column from 'components/Column'
 import Loader from 'components/Loader'
 import PoolsCurrencyInputPanel from 'components/PoolsCurrencyInputPanel'
 import RewardTokenPrices from 'components/RewardTokenPrices'
@@ -109,8 +110,8 @@ const Farm = () => {
         return farmType === VERSION.ELASTIC ? (
           <>
             {/* TODO: Add condition to hide if no farmv2Address */}
-            <ElasticFarmv2 />
             <ElasticFarms stakedOnly={stakedOnly} />
+            <ElasticFarmv2 />
           </>
         ) : (
           <YieldPools loading={loading} active />
@@ -389,8 +390,7 @@ const Farm = () => {
               </HeadingRight>
             </HeadingContainer>
           </TabContainer>
-
-          {renderTabContent()}
+          <Column gap="20px">{renderTabContent()}</Column>
         </div>
       </PageWrapper>
       <SwitchLocaleLink />
