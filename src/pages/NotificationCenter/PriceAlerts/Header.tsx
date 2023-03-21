@@ -50,7 +50,7 @@ const StatItem: React.FC<StatItemProps> = ({ isLoading, label, totalNumber, maxN
       return <Loader size="10px" />
     }
 
-    if (!totalNumber || !maxNumber) {
+    if ((!totalNumber && totalNumber !== 0) || (!maxNumber && maxNumber !== 0)) {
       return '--'
     }
 
@@ -136,7 +136,7 @@ const Header: React.FC<Props> = ({ currentTab, setCurrentTab }) => {
           label={<Trans>Created Alerts</Trans>}
           isLoading={isLoading}
           totalNumber={data?.totalAlerts}
-          maxNumber={data?.maxAlert}
+          maxNumber={data?.maxAlerts}
         />
 
         <StatItem

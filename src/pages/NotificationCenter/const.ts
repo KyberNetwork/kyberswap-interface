@@ -54,8 +54,7 @@ export type PriceAlert = {
 
 export type PriceAlertStat = {
   maxActiveAlerts: number
-  // TODO: should be `maxAlerts`
-  maxAlert: number
+  maxAlerts: number
   totalActiveAlerts: number
   totalAlerts: number
 }
