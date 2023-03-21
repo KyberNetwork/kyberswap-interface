@@ -42,6 +42,7 @@ export const KYBER_DAO_STATS_API = required('KYBER_DAO_STATS_API')
 
 export const NOTIFICATION_IGNORE_TEMPLATE_IDS = required('NOTIFICATION_IGNORE_TEMPLATE_IDS')
 export const PRICE_ALERT_API = required('PRICE_ALERT_API')
+export const PRICE_ALERT_TEMPLATE_IDS = required('PRICE_ALERT_API_TEMPLATE_IDS')
 
 type FirebaseConfig = {
   apiKey: string
