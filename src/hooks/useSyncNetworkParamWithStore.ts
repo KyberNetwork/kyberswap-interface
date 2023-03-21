@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { usePrevious } from 'react-use'
 
@@ -9,7 +9,7 @@ import { useChangeNetwork } from './useChangeNetwork'
 
 /**
  *
- * we need this hook to check user actually connected wallet or not
+ * we need this hook support to check user actually connected wallet or not
  * although we connected wallet, it will take small time to load => account = undefined => wait a bit => account = 0x....
  */
 function useIsConnectedWallet() {
@@ -24,8 +24,12 @@ function useIsConnectedWallet() {
       localStorage.removeItem(key)
     }
   }, [account, prevAccount])
+
   const connectedWallet = localStorage.getItem(key)
-  return connectedWallet
+  return useCallback(async () => {
+    const authorize = await isAuthorized()
+    return connectedWallet && authorize
+  }, [connectedWallet])
 }
 
 export function useSyncNetworkParamWithStore() {
@@ -35,7 +39,7 @@ export function useSyncNetworkParamWithStore() {
   const isOnInit = useRef(true)
   const navigate = useNavigate()
   const triedEager = useEagerConnect()
-  const isConnected = useIsConnectedWallet()
+  const isConnectedWallet = useIsConnectedWallet()
 
   const location = useLocation()
   const [requestingNetwork, setRequestingNetwork] = useState<string>()
@@ -45,7 +49,6 @@ export function useSyncNetworkParamWithStore() {
       isOnInit.current = false
       return
     }
-    let success = false
     if (isOnInit.current) {
       const paramChainId = Object.values(NETWORKS_INFO).find(n => n.route === params?.network)?.chainId
       /**
@@ -54,15 +57,18 @@ export function useSyncNetworkParamWithStore() {
        * @param triedEager: only run after tried to connect injected wallet
        */
       ;(async () => {
-        const authorize = await isAuthorized()
-        if (isConnected && authorize && !account) {
+        if (!paramChainId) {
+          isOnInit.current = false
           return
         }
-        if (!paramChainId) {
-          success = true
+        const isConnected = await isConnectedWallet()
+        if (isConnected && !account) {
+          // connected wallet but web3-react slow return account
           return
         }
         setRequestingNetwork(params?.network)
+        if (!isOnInit.current) return
+        isOnInit.current = false
         await changeNetwork(paramChainId, undefined, () => {
           if (params.network) {
             navigate(
@@ -71,10 +77,10 @@ export function useSyncNetworkParamWithStore() {
             )
           }
         })
-        success = true
       })()
+    } else {
+      isOnInit.current = false
     }
-    if (success) isOnInit.current = false
   }, [
     location,
     changeNetwork,
@@ -83,7 +89,7 @@ export function useSyncNetworkParamWithStore() {
     networkInfo.route,
     walletEVM.isConnected,
     walletSolana.isConnected,
-    isConnected,
+    isConnectedWallet,
     account,
   ])
 
