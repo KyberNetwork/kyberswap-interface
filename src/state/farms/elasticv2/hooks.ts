@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import FarmV2ABI from 'constants/abis/v2/farmv2.json'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
@@ -12,11 +12,20 @@ import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { calculateGasMargin } from 'utils'
 
 import { defaultChainData } from '.'
+import { UserFarmV2Info } from './types'
 
 export const useElasticFarmsV2 = () => {
   const { chainId } = useActiveWeb3React()
   const elasticFarm = useAppSelector(state => state.elasticFarmV2[chainId] || defaultChainData)
   return elasticFarm
+}
+
+export const useUserFarmV2Info = (fId: number, rangeId: number): UserFarmV2Info[] => {
+  const { userInfo } = useElasticFarmsV2()
+  return useMemo(
+    () => userInfo?.filter(item => item.fId === fId && item.rangeId === rangeId) || [],
+    [fId, rangeId, userInfo],
+  )
 }
 
 export const useFarmV2Action = () => {

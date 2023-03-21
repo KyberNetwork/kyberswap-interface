@@ -1,4 +1,4 @@
-import { Currency, Token } from '@kyberswap/ks-sdk-core'
+import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
@@ -19,17 +19,16 @@ import Row, { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import useTheme from 'hooks/useTheme'
-import { useElasticFarmsV2, useFarmV2Action } from 'state/farms/elasticv2/hooks'
-import { ElasticFarmV2Range } from 'state/farms/elasticv2/types'
+import { useFarmV2Action, useUserFarmV2Info } from 'state/farms/elasticv2/hooks'
+import { ElasticFarmV2, ElasticFarmV2Range } from 'state/farms/elasticv2/types'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
 import { formatDollarAmount } from 'utils/numbers'
 
-import { ElasticFarmV2WithRangePrices } from '..'
 import PriceVisualize from './PriceVisualize'
 import StakeWithNFTsModal from './StakeWithNFTsModal'
 import UnstakeWithNFTsModal from './UnstakeWithNFTsModal'
 
-const WrapperInner = styled.div<{ rotate?: boolean; hasRewards?: boolean }>`
+const WrapperInner = styled.div<{ hasRewards: boolean }>`
   transition: transform 0.3s ease;
   transform-style: preserve-3d;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
@@ -153,7 +152,7 @@ const FeeBadge = styled.div`
 `
 
 export const FarmContext = React.createContext<{
-  farm?: ElasticFarmV2WithRangePrices
+  farm?: ElasticFarmV2
   activeRange?: ElasticFarmV2Range
 }>({
   farm: undefined,
@@ -220,23 +219,7 @@ export const RangeItem = ({
   )
 }
 
-function FarmCard({
-  inputToken,
-  outputToken,
-  enableStake,
-  hasPositions,
-  hasRewards,
-  hasUnstake,
-  farm,
-}: {
-  inputToken?: Currency
-  outputToken?: Currency
-  enableStake?: boolean
-  hasPositions?: boolean
-  hasRewards?: boolean
-  hasUnstake?: boolean
-  farm?: ElasticFarmV2WithRangePrices
-}) {
+function FarmCard({ farm }: { farm: ElasticFarmV2 }) {
   const theme = useTheme()
   const [showStake, setShowStake] = useState(false)
   const [showUnstake, setShowUnstake] = useState(false)
@@ -249,15 +232,19 @@ function FarmCard({
   }, [])
 
   const currentTimestamp = Math.floor(Date.now() / 1000)
-  const elasticFarm = useElasticFarmsV2()
-  const depositedPos = farm?.userPositions
-  const stakedPos = elasticFarm?.userInfo?.filter(u => u.fId === farm?.fId && u.rangeId === activeRangeIndex)
-  const canStake = enableStake || (depositedPos && stakedPos && depositedPos.length > stakedPos.length)
-  const canUnstake = hasUnstake || (stakedPos && stakedPos.length > 0)
+  const stakedPos = useUserFarmV2Info(farm.fId, farm.ranges[activeRangeIndex].index)
+  const canUnstake = stakedPos.length > 0
+
+  const hasRewards = stakedPos.some(item => item.unclaimedRewards.some(rw => rw.greaterThan('0')))
+
+  const userTotalRewards = farm.totalRewards.map((item, index) => {
+    return stakedPos
+      .map(item => item.unclaimedRewards[index])
+      .reduce((total, cur) => total.add(cur), CurrencyAmount.fromRawAmount(item.currency, 0))
+  })
+
   const { harvest } = useFarmV2Action()
   const handleHarvest = useCallback(() => {
-    if (!farm) return
-    // harvest all staked positions of current active Range
     harvest(farm?.fId, stakedPos?.filter(sp => sp.rangeId === activeRangeIndex).map(sp => sp.nftId.toNumber()) || [])
   }, [farm, harvest, stakedPos, activeRangeIndex])
 
@@ -271,13 +258,13 @@ function FarmCard({
   return (
     <FarmContext.Provider value={farmValues}>
       <Wrapper>
-        <WrapperInner ref={wrapperInnerRef} hasRewards={hasRewards}>
+        <WrapperInner ref={wrapperInnerRef} hasRewards={canUnstake}>
           <FrontFace>
             <RowBetween>
               <RowFit>
-                <DoubleCurrencyLogo size={20} currency0={inputToken} currency1={outputToken} />
+                <DoubleCurrencyLogo size={20} currency0={farm.token0} currency1={farm.token1} />
                 <Text fontSize="16px" lineHeight="20px" color={theme.primary} marginRight="4px">
-                  {`${inputToken?.symbol} - ${outputToken?.symbol}`}
+                  {`${farm.token0.symbol} - ${farm.token1.symbol}`}
                 </Text>
                 <FeeBadge>FEE {farm?.pool?.fee ? (farm?.pool?.fee * 100) / ELASTIC_BASE_FEE_UNIT : 0.03}%</FeeBadge>
               </RowFit>
@@ -304,50 +291,23 @@ function FarmCard({
                   {hasRewards ? <Trans>My Rewards</Trans> : <Trans>Rewards</Trans>}
                 </Text>
                 <RowFit gap="8px">
-                  {farm ? (
+                  {farm.totalRewards.map((rw, index: number) => (
                     <>
-                      {farm.totalRewards.map((rw, index: number) => (
-                        <>
-                          {index > 0 && (
-                            <Text fontSize="12px" lineHeight="16px" color={theme.border}>
-                              |
-                            </Text>
-                          )}
-                          <RowFit gap="4px">
-                            <CurrencyLogo currency={rw.currency} size="16px" />
-                            {hasRewards && (
-                              <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-                                0.123456789
-                              </Text>
-                            )}
-                          </RowFit>
-                        </>
-                      ))}
-                    </>
-                  ) : (
-                    <>
-                      {/* TODO: Remove this later */}
+                      {index > 0 && (
+                        <Text fontSize="12px" lineHeight="16px" color={theme.border}>
+                          |
+                        </Text>
+                      )}
                       <RowFit gap="4px">
-                        <CurrencyLogo currency={inputToken} size="16px" />
+                        <CurrencyLogo currency={rw.currency} size="16px" />
                         {hasRewards && (
                           <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-                            0.123456789
-                          </Text>
-                        )}
-                      </RowFit>
-                      <Text fontSize="12px" lineHeight="16px" color={theme.border}>
-                        |
-                      </Text>
-                      <RowFit gap="4px">
-                        <CurrencyLogo currency={outputToken} size="16px" />
-                        {hasRewards && (
-                          <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-                            0.123456789
+                            {userTotalRewards[index].toSignificant(6)}
                           </Text>
                         )}
                       </RowFit>
                     </>
-                  )}
+                  ))}
                 </RowFit>
               </Column>
               <ButtonLight width="fit-content" disabled={!hasRewards} onClick={handleHarvest}>
@@ -385,7 +345,7 @@ function FarmCard({
                 </Column>
                 <Column gap="4px" style={{ alignItems: 'flex-end' }}>
                   <MouseoverTooltip
-                    text={t`Add liquidity to ${inputToken?.symbol} - ${outputToken?.symbol} pool using the current active range`}
+                    text={t`Add liquidity to ${farm.token0.symbol} - ${farm.token1.symbol} pool using the current active range`}
                     placement="top"
                   >
                     <Text
@@ -416,8 +376,8 @@ function FarmCard({
                   <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
                     <Trans>Staked TVL</Trans>
                   </Text>
-                  <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-                    $12.54M
+                  <Text fontSize="14px" lineHeight="16px" fontWeight="500" color={theme.text}>
+                    {farm.ranges[activeRangeIndex].tvl ? formatDollarAmount(farm.ranges[activeRangeIndex].tvl) : '--'}
                   </Text>
                 </Column>
                 <Column gap="4px" style={{ alignItems: 'flex-end' }}>
@@ -436,7 +396,7 @@ function FarmCard({
                     <RowFit gap="6px">{stakedPos?.length || 3} Positions Staked</RowFit>
                   </UnstakeButton>
                 )}
-                <ButtonLight disabled={!canStake} onClick={() => setShowStake(true)}>
+                <ButtonLight onClick={() => setShowStake(true)}>
                   <RowFit gap="6px">
                     <Plus size={16} />
                     Stake
@@ -455,16 +415,15 @@ function FarmCard({
           <BackFace>
             <RowBetween>
               <RowFit gap="4px">
-                <CurrencyLogo currency={inputToken} />
-                <CurrencyLogo currency={outputToken} />
+                <DoubleCurrencyLogo currency0={farm.token0} currency1={farm.token1} />
                 <Text fontSize="16px" lineHeight="20px" color={theme.primary} marginLeft="4px">
-                  {`${inputToken?.symbol} - ${outputToken?.symbol}`}
+                  {`${farm.token0.symbol} - ${farm.token1.symbol}`}
                 </Text>
                 <FeeBadge>FEE {farm?.pool?.fee ? (farm?.pool?.fee * 100) / ELASTIC_BASE_FEE_UNIT : 0.03}%</FeeBadge>
               </RowFit>
               <RowFit gap="8px">
                 <IconButton>
-                  <CopyHelper toCopy="test" />
+                  <CopyHelper toCopy={farm?.poolAddress || ''} />
                 </IconButton>
                 <IconButton>
                   <Share2 size={14} fill="currentcolor" />
@@ -474,27 +433,16 @@ function FarmCard({
             <Ranges>
               <div style={{ overflowY: 'scroll', flex: 1 }}>
                 <Column gap="12px">
-                  {farm ? (
-                    <>
-                      {farm?.ranges?.map((r, index: number) => (
-                        <RangeItem
-                          active={activeRangeIndex === index}
-                          key={r.id}
-                          rangeInfo={r}
-                          onRangeClick={() => setActiveRangeIndex(index)}
-                          token0={farm.token0}
-                          token1={farm.token1}
-                        />
-                      ))}
-                    </>
-                  ) : (
-                    <>
-                      {/* TODO: Remove this later */}
-                      {/* <RangeItem active></RangeItem> */}
-                      {/* <RangeItem></RangeItem> */}
-                      {/* <RangeItem></RangeItem> */}
-                    </>
-                  )}
+                  {farm.ranges.map((r, index: number) => (
+                    <RangeItem
+                      active={activeRangeIndex === index}
+                      key={r.id}
+                      rangeInfo={r}
+                      onRangeClick={() => setActiveRangeIndex(index)}
+                      token0={farm.token0}
+                      token1={farm.token1}
+                    />
+                  ))}
                 </Column>
               </div>
               <Row justify="center" marginTop="auto">
@@ -505,9 +453,7 @@ function FarmCard({
             </Ranges>
           </BackFace>
         </WrapperInner>
-        {canStake && (
-          <StakeWithNFTsModal isOpen={showStake} onDismiss={() => setShowStake(false)} positions={depositedPos} />
-        )}
+        <StakeWithNFTsModal isOpen={showStake} onDismiss={() => setShowStake(false)} />
         {canUnstake && (
           <UnstakeWithNFTsModal isOpen={showUnstake} onDismiss={() => setShowUnstake(false)} stakedPos={stakedPos} />
         )}

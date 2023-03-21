@@ -1,6 +1,5 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { Info } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -14,16 +13,12 @@ import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { NETWORKS_INFO } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
-import { useAllTokens } from 'hooks/Tokens'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
-import { useProAmmPositions } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
 import { Dots } from 'pages/Pool/styleds'
 import { useElasticFarmsV2, useFarmV2Action } from 'state/farms/elasticv2/hooks'
-import { ElasticFarmV2, ElasticFarmV2Range } from 'state/farms/elasticv2/types'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { useIsTransactionPending } from 'state/transactions/hooks'
-import { PositionDetails } from 'types/position'
 
 import FarmCard from './components/FarmCard'
 
@@ -42,25 +37,14 @@ const FarmsWrapper = styled(RowWrap)`
   --gap: 24px;
 `
 
-export interface ElasticFarmV2WithRangePrices extends ElasticFarmV2 {
-  userPositions: Array<PositionDetails>
-  ranges: Array<ElasticFarmV2Range>
-}
-
 export default function ElasticFarmv2() {
   const theme = useTheme()
   const { chainId, account } = useActiveWeb3React()
   const farmAddress = (NETWORKS_INFO[chainId] as EVMNetworkInfo).elastic?.farmV2Contract
   const above1000 = useMedia('(min-width: 1000px)')
 
-  const whitelisted = useAllTokens()
-  //TODO: remove this later
-  const inputToken = Object.values(whitelisted)?.filter(t => t.symbol === 'KNC')[0]
-  const outputToken = Object.values(whitelisted)?.filter(t => t.symbol === 'USDC')[0]
-
-  const elasticFarm = useElasticFarmsV2()
+  const { farms } = useElasticFarmsV2()
   const { approve } = useFarmV2Action()
-  const farms = elasticFarm?.farms
   const posManager = useProAmmNFTPositionManagerContract()
   const [approvalTx, setApprovalTx] = useState('')
   const isApprovalTxPending = useIsTransactionPending(approvalTx)
@@ -77,18 +61,6 @@ export default function ElasticFarmv2() {
   const [searchParams] = useSearchParams()
   const tab = searchParams.get('type') || 'active'
 
-  const { positions: userPositions } = useProAmmPositions(account)
-  const combinedFarms: ElasticFarmV2WithRangePrices[] | undefined = useMemo(() => {
-    if (!userPositions || !farms) return undefined
-
-    return farms?.map(farm => {
-      return {
-        ...farm,
-        userPositions: userPositions?.filter(p => p.poolId.toLowerCase() === farm.poolAddress.toLowerCase()),
-        ranges: farm.ranges,
-      }
-    })
-  }, [farms, userPositions])
   const renderApproveButton = () => {
     if (isApprovedForAll || tab === 'ended') {
       return null
@@ -157,6 +129,8 @@ export default function ElasticFarmv2() {
     )
   }
 
+  if (!farms) return null
+
   return (
     <Wrapper>
       <RowBetween>
@@ -167,19 +141,9 @@ export default function ElasticFarmv2() {
       </RowBetween>
       <Divider />
       <FarmsWrapper>
-        {chainId === ChainId.GÖRLI ? (
-          <>
-            {combinedFarms?.map((farm: ElasticFarmV2WithRangePrices) => (
-              <FarmCard key={farm.id} inputToken={farm.pool.token0} outputToken={farm.pool.token1} farm={farm} />
-            ))}
-          </>
-        ) : (
-          <>
-            <FarmCard inputToken={inputToken} outputToken={outputToken} />
-            <FarmCard inputToken={inputToken} outputToken={outputToken} hasPositions hasRewards hasUnstake />
-            <FarmCard inputToken={inputToken} outputToken={outputToken} enableStake />
-          </>
-        )}
+        {farms?.map(farm => (
+          <FarmCard key={farm.id} farm={farm} />
+        ))}
       </FarmsWrapper>
     </Wrapper>
   )

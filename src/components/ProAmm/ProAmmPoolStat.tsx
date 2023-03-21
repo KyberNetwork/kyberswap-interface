@@ -1,6 +1,6 @@
 import { ChainId, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { BarChart2, MoreHorizontal, Share2 } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -56,6 +56,7 @@ interface ListItemProps {
   onShared: (id: string) => void
   userPositions: { [key: string]: number }
   onClickPoolAnalytics?: () => void
+  onFarmRangeSelected: (tickLower: number, tickUpper: number) => void
 }
 
 const getPrommAnalyticLink = (chainId: ChainId, poolAddress: string) => {
@@ -100,14 +101,20 @@ const BackFace = styled(FrontFace)`
   flex-direction: column;
 `
 
-export default function ProAmmPoolStat({ pool, onShared, userPositions, onClickPoolAnalytics }: ListItemProps) {
+export default function ProAmmPoolStat({
+  pool,
+  onShared,
+  userPositions,
+  onClickPoolAnalytics,
+  onFarmRangeSelected,
+}: ListItemProps) {
   const { chainId } = useActiveWeb3React()
   const theme = useTheme()
 
   const allTokens = useAllTokens()
   const { farms } = useElasticFarms()
   const { farms: farmsV2 } = useElasticFarmsV2()
-  const activeFarmV2s = farmsV2?.filter(farm => farm.endTime > Date.now() / 1000)
+  const activeFarmV2s = useMemo(() => farmsV2?.filter(farm => farm.endTime > Date.now() / 1000), [farmsV2])
 
   const token0 =
     allTokens[isAddressString(chainId, pool.token0.address)] ||
@@ -147,16 +154,24 @@ export default function ProAmmPoolStat({ pool, onShared, userPositions, onClickP
     return !!fairlaunchAddress && pid !== -1
   }, [farms, pool.address])
 
-  const farmV2 = activeFarmV2s?.find(item => item.poolAddress.toLowerCase() === pool.address.toLowerCase())
+  const farmV2 = useMemo(
+    () => activeFarmV2s?.find(item => item.poolAddress.toLowerCase() === pool.address.toLowerCase()),
+    [activeFarmV2s, pool.address],
+  )
   const isFarmV2 = !!farmV2
 
-  const activeRanges = farmV2?.ranges.filter(range => !range.isRemoved) || []
+  const activeRanges = useMemo(() => farmV2?.ranges.filter(range => !range.isRemoved) || [], [farmV2])
 
   const poolTransactionsStat = usePoolTransactionsStat(pool.address)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
   const isDarkMode = useIsDarkMode()
   const [activeRange, setActiveRange] = useState(0)
+
+  useEffect(() => {
+    if (activeRanges?.[activeRange])
+      onFarmRangeSelected(activeRanges[activeRange].tickLower, activeRanges[activeRange].tickUpper)
+  }, [activeRange, onFarmRangeSelected, activeRanges])
 
   const farmAPR = isFarmV2 ? activeRanges[activeRange].apr : pool.farmAPR
 
@@ -193,8 +208,8 @@ export default function ProAmmPoolStat({ pool, onShared, userPositions, onClickP
         {!!farmV2 ? (
           <PriceVisualize
             tickCurrent={pool.tick}
-            tickPosLower={activeRanges[activeRange].tickLower}
-            tickPosUpper={activeRanges[activeRange].tickUpper}
+            tickRangeLower={activeRanges[activeRange].tickLower}
+            tickRangeUpper={activeRanges[activeRange].tickUpper}
             token0={farmV2.token0}
             token1={farmV2.token1}
           />

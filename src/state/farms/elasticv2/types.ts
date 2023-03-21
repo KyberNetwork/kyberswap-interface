@@ -36,6 +36,9 @@ export interface UserFarmV2Info {
   liquidity: BigNumber
   stakedLiquidity: BigNumber
   unclaimedRewards: Array<CurrencyAmount<Currency>>
+  positionUsdValue: number
+  stakedUsdValue: number
+  unclaimedRewardsUsd: number
 }
 
 export interface SubgraphToken {

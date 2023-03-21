@@ -10,8 +10,10 @@ import { ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
 import Pagination from 'components/Pagination'
 import Row, { RowBetween, RowFit, RowWrap } from 'components/Row'
+import { useActiveWeb3React } from 'hooks'
 import { useToken } from 'hooks/Tokens'
 import { usePool } from 'hooks/usePools'
+import { useProAmmPositions } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
 import { useFarmV2Action } from 'state/farms/elasticv2/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
@@ -143,17 +145,16 @@ export const NFTItem = ({
   )
 }
 
-const StakeWithNFTsModal = ({
-  isOpen,
-  onDismiss,
-  positions,
-}: {
-  isOpen: boolean
-  onDismiss: () => void
-  positions?: PositionDetails[]
-}) => {
+const StakeWithNFTsModal = ({ isOpen, onDismiss }: { isOpen: boolean; onDismiss: () => void }) => {
   const { farm, activeRange } = useContext(FarmContext)
   const theme = useTheme()
+  const { account } = useActiveWeb3React()
+  const { positions: allPositions } = useProAmmPositions(account)
+
+  const positions = useMemo(() => {
+    return allPositions?.filter(item => item.poolId.toLowerCase() === farm?.poolAddress.toLowerCase())
+  }, [allPositions, farm?.poolAddress])
+
   const [selectedPos, setSelectedPos] = useState<{ [tokenId: string]: boolean }>({})
   const selectedPosArray: Array<number> = useMemo(
     () =>

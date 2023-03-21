@@ -1,7 +1,7 @@
 import { TransactionResponse } from '@ethersproject/providers'
 import { ONE } from '@kyberswap/ks-sdk-classic'
 import { Currency, CurrencyAmount, WETH } from '@kyberswap/ks-sdk-core'
-import { FeeAmount, NonfungiblePositionManager, Position } from '@kyberswap/ks-sdk-elastic'
+import { FeeAmount, NonfungiblePositionManager, Position, TickMath, tickToPrice } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import JSBI from 'jsbi'
@@ -1001,6 +1001,28 @@ export default function AddLiquidity() {
     usdPrices[baseCurrency?.wrapped.address || ''] &&
     usdPrices[baseCurrency?.wrapped.address || ''] / usdPrices[quoteCurrency?.wrapped.address || '']
 
+  const onFarmRangeSelected = useCallback(
+    (tickLower: number, tickUpper: number) => {
+      if (baseCurrency && quoteCurrency) {
+        onLeftRangeInput(
+          tickToPrice(
+            baseCurrency.wrapped,
+            quoteCurrency.wrapped,
+            tickLower < TickMath.MIN_TICK ? TickMath.MIN_TICK : tickLower,
+          ).toSignificant(18),
+        )
+        onRightRangeInput(
+          tickToPrice(
+            baseCurrency.wrapped,
+            quoteCurrency.wrapped,
+            tickUpper > TickMath.MAX_TICK ? TickMath.MAX_TICK : tickUpper,
+          ).toSignificant(18),
+        )
+      }
+    },
+    [baseCurrency, quoteCurrency, onLeftRangeInput, onRightRangeInput],
+  )
+
   if (!isEVM) return <Navigate to="/" />
   return (
     <>
@@ -1236,6 +1258,7 @@ export default function AddLiquidity() {
                         <Trans>Pool Stats</Trans>
                       </Text>
                       <ProAmmPoolStat
+                        onFarmRangeSelected={onFarmRangeSelected}
                         pool={poolStat}
                         onShared={openShareModal}
                         userPositions={userPositions}

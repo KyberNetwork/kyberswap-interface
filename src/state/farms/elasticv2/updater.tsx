@@ -230,12 +230,14 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
                 apr = (rewarded * 365 * 24 * 60 * 60 * 100) / farmingTime / tvl
               }
 
-              return { ...r, tickCurrent: p.tickCurrent, tvl, apr }
+              return { ...r, tickLower: +r.tickLower, tickUpper: +r.tickUpper, tickCurrent: +p.tickCurrent, tvl, apr }
             }),
           }
         })
 
         dispatch(setFarms({ chainId, farms: formattedData }))
+
+        // get user deposit info
         if (account && farmv2QuoterContract && multicallContract) {
           farmv2QuoterContract.getUserInfo(account).then(
             async (
@@ -303,24 +305,50 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
                 )
                 if (!farm) return acc
 
+                const position = new Position({
+                  pool: farm.pool,
+                  liquidity: nftInfos[item.nftId.toString()].liquidity,
+                  tickLower: nftInfos[item.nftId.toString()].tickLower,
+                  tickUpper: nftInfos[item.nftId.toString()].tickUpper,
+                })
+                const positionUsdValue =
+                  +position.amount0.toExact() * prices[position.amount0.currency.wrapped.address] +
+                  +position.amount1.toExact() * prices[position.amount1.currency.wrapped.address]
+
+                const stakedPos = new Position({
+                  pool: farm.pool,
+                  liquidity: item.liquidity.toString(),
+                  tickLower: nftInfos[item.nftId.toString()].tickLower,
+                  tickUpper: nftInfos[item.nftId.toString()].tickUpper,
+                })
+
+                const stakedUsdValue =
+                  +stakedPos.amount0.toExact() * prices[stakedPos.amount0.currency.wrapped.address] +
+                  +stakedPos.amount1.toExact() * prices[stakedPos.amount1.currency.wrapped.address]
+                const unclaimedRewards = farm.totalRewards.map((rw, i) =>
+                  CurrencyAmount.fromRawAmount(rw.currency, item.currentUnclaimedRewards[i].toString()),
+                )
+
+                const unclaimedRewardsUsd = unclaimedRewards.reduce(
+                  (total, item) => total + +item.toExact() * prices[item.currency.wrapped.address],
+
+                  0,
+                )
+
                 return [
                   ...acc,
                   {
                     nftId: item.nftId,
-                    position: new Position({
-                      pool: farm.pool,
-                      liquidity: nftInfos[item.nftId.toString()].liquidity,
-                      tickLower: nftInfos[item.nftId.toString()].tickLower,
-                      tickUpper: nftInfos[item.nftId.toString()].tickUpper,
-                    }),
+                    position,
                     poolAddress: farm.poolAddress,
                     stakedLiquidity: item.liquidity,
                     fId: Number(item.fId.toString()),
                     rangeId: Number(item.rangeId.toString()),
                     liquidity: item.liquidity,
-                    unclaimedRewards: farm.totalRewards.map((rw, i) =>
-                      CurrencyAmount.fromRawAmount(rw.currency, item.currentUnclaimedRewards[i].toString()),
-                    ),
+                    unclaimedRewards,
+                    positionUsdValue,
+                    stakedUsdValue,
+                    unclaimedRewardsUsd,
                   },
                 ]
               }, [] as UserFarmV2Info[])
