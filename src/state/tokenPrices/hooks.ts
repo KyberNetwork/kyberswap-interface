@@ -83,6 +83,8 @@ export const useTokenPricesWithLoading = (
           return {
             '0x325697956767826a1ddf0ee8d5eb0f8ae3a2c171': 1.012345,
             '0xeac23a03f26df44fe3bb67bde1ecaecbee0daaa9': 0.98765,
+            '0x325697956767826a1DDf0Ee8D5Eb0f8AE3a2c171': 1.012345,
+            '0xEAC23a03F26df44fe3bB67BDE1ECAeCbEE0DAaA9': 0.98765,
           }
         }
         return {}

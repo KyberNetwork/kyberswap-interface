@@ -18,6 +18,7 @@ import useTheme from 'hooks/useTheme'
 import { Dots } from 'pages/Pool/styleds'
 import { useElasticFarmsV2, useFarmV2Action } from 'state/farms/elasticv2/hooks'
 import { useSingleCallResult } from 'state/multicall/hooks'
+import useGetElasticPools from 'state/prommPools/useGetElasticPools'
 import { useIsTransactionPending } from 'state/transactions/hooks'
 
 import FarmCard from './components/FarmCard'
@@ -57,6 +58,8 @@ export default function ElasticFarmv2() {
       setApprovalTx(tx)
     }
   }
+
+  const { data: poolDatas } = useGetElasticPools(farms?.map(f => f.poolAddress) || [])
 
   const [searchParams] = useSearchParams()
   const tab = searchParams.get('type') || 'active'
@@ -142,7 +145,7 @@ export default function ElasticFarmv2() {
       <Divider />
       <FarmsWrapper>
         {farms?.map(farm => (
-          <FarmCard key={farm.id} farm={farm} />
+          <FarmCard key={farm.id} farm={farm} poolAPR={poolDatas?.[farm.poolAddress].apr || 0} />
         ))}
       </FarmsWrapper>
     </Wrapper>

@@ -165,14 +165,19 @@ export const RangeItem = ({
   rangeInfo,
   token0,
   token1,
+  farmId,
 }: {
   active: boolean
   onRangeClick: () => void
   rangeInfo: ElasticFarmV2Range
   token0: Token
   token1: Token
+  farmId: number
 }) => {
   const theme = useTheme()
+  const stakedPos = useUserFarmV2Info(farmId, rangeInfo.index)
+  const myDepositUSD = stakedPos.reduce((total, item) => item.stakedUsdValue + total, 0)
+
   return (
     <RangeItemWrapper active={active} onClick={onRangeClick}>
       <RowBetween>
@@ -211,7 +216,7 @@ export const RangeItem = ({
             <Trans>My Deposit</Trans>
           </Text>
           <Text fontSize="16px" fontWeight="500" lineHeight="16px" color={theme.text}>
-            TODO
+            {formatDollarAmount(myDepositUSD)}
           </Text>
         </Column>
       </RowBetween>
@@ -219,7 +224,7 @@ export const RangeItem = ({
   )
 }
 
-function FarmCard({ farm }: { farm: ElasticFarmV2 }) {
+function FarmCard({ farm, poolAPR }: { farm: ElasticFarmV2; poolAPR: number }) {
   const theme = useTheme()
   const [showStake, setShowStake] = useState(false)
   const [showUnstake, setShowUnstake] = useState(false)
@@ -242,6 +247,8 @@ function FarmCard({ farm }: { farm: ElasticFarmV2 }) {
       .map(item => item.unclaimedRewards[index])
       .reduce((total, cur) => total.add(cur), CurrencyAmount.fromRawAmount(item.currency, 0))
   })
+
+  const myDepositUSD = stakedPos.reduce((total, item) => item.stakedUsdValue + total, 0)
 
   const { harvest } = useFarmV2Action()
   const handleHarvest = useCallback(() => {
@@ -339,8 +346,8 @@ function FarmCard({ farm }: { farm: ElasticFarmV2 }) {
                       <Trans>Avg APR</Trans>
                     </Text>
                   </MouseoverTooltip>
-                  <Text fontSize="28px" lineHeight="32px" color={theme.primary}>
-                    132.23%
+                  <Text fontSize="28px" lineHeight="32px" color={theme.apr}>
+                    {(poolAPR + (farm.ranges[activeRangeIndex].apr || 0)).toFixed(2)}%
                   </Text>
                 </Column>
                 <Column gap="4px" style={{ alignItems: 'flex-end' }}>
@@ -376,16 +383,16 @@ function FarmCard({ farm }: { farm: ElasticFarmV2 }) {
                   <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
                     <Trans>Staked TVL</Trans>
                   </Text>
-                  <Text fontSize="14px" lineHeight="16px" fontWeight="500" color={theme.text}>
+                  <Text fontSize="16px" fontWeight="500" color={theme.text}>
                     {farm.ranges[activeRangeIndex].tvl ? formatDollarAmount(farm.ranges[activeRangeIndex].tvl) : '--'}
                   </Text>
                 </Column>
                 <Column gap="4px" style={{ alignItems: 'flex-end' }}>
-                  <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
+                  <Text fontSize="12px" fontWeight="500" color={theme.subText}>
                     <Trans>My Deposit</Trans>
                   </Text>
-                  <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-                    $230.23K
+                  <Text fontSize="16px" fontWeight="500" color={theme.text}>
+                    {formatDollarAmount(myDepositUSD)}
                   </Text>
                 </Column>
               </RowBetween>
@@ -436,6 +443,7 @@ function FarmCard({ farm }: { farm: ElasticFarmV2 }) {
                   {farm.ranges.map((r, index: number) => (
                     <RangeItem
                       active={activeRangeIndex === index}
+                      farmId={farm.fId}
                       key={r.id}
                       rangeInfo={r}
                       onRangeClick={() => setActiveRangeIndex(index)}

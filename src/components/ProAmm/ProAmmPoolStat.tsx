@@ -462,6 +462,7 @@ export default function ProAmmPoolStat({
               {farmV2 &&
                 activeRanges?.map((range, index) => (
                   <RangeItem
+                    farmId={farmV2.fId}
                     token0={farmV2.token0}
                     token1={farmV2.token1}
                     active={activeRange === index}

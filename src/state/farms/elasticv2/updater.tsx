@@ -68,7 +68,7 @@ const queryFarms = gql`
         tickUpper
         tickLower
         weight
-        depositedPositions {
+        depositedPositions(first: 1000) {
           id
           position {
             id
@@ -128,7 +128,7 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
     const i = interval
       ? setInterval(() => {
           getElasticFarmV2()
-        }, 20_000)
+        }, 10_000)
       : undefined
     return () => {
       i && clearInterval(i)
@@ -312,8 +312,8 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
                   tickUpper: nftInfos[item.nftId.toString()].tickUpper,
                 })
                 const positionUsdValue =
-                  +position.amount0.toExact() * prices[position.amount0.currency.wrapped.address] +
-                  +position.amount1.toExact() * prices[position.amount1.currency.wrapped.address]
+                  +position.amount0.toExact() * (prices[position.amount0.currency.wrapped.address] || 0) +
+                  +position.amount1.toExact() * (prices[position.amount1.currency.wrapped.address] || 0)
 
                 const stakedPos = new Position({
                   pool: farm.pool,
@@ -323,8 +323,8 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
                 })
 
                 const stakedUsdValue =
-                  +stakedPos.amount0.toExact() * prices[stakedPos.amount0.currency.wrapped.address] +
-                  +stakedPos.amount1.toExact() * prices[stakedPos.amount1.currency.wrapped.address]
+                  +stakedPos.amount0.toExact() * (prices[stakedPos.amount0.currency.wrapped.address] || 0) +
+                  +stakedPos.amount1.toExact() * (prices[stakedPos.amount1.currency.wrapped.address] || 0)
                 const unclaimedRewards = farm.totalRewards.map((rw, i) =>
                   CurrencyAmount.fromRawAmount(rw.currency, item.currentUnclaimedRewards[i].toString()),
                 )
