@@ -537,7 +537,7 @@ export default function AddLiquidity() {
       onResetMintState()
       handleDismissConfirmationRef.current()
     }
-  }, [onResetMintState, baseCurrency, quoteCurrency, feeAmount, chainId])
+  }, [onResetMintState, baseCurrency?.wrapped.address, quoteCurrency?.wrapped.address, feeAmount, chainId])
 
   const leftPrice = isSorted ? priceLower : priceUpper?.invert()
   const rightPrice = isSorted ? priceUpper : priceLower?.invert()
