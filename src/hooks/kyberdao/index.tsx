@@ -389,7 +389,9 @@ export function useVotingInfo() {
     account && merkleDataFileUrl ? { url: merkleDataFileUrl, address: account } : null,
     ({ url, address }) => {
       return fetch(url)
-        .then(res => res.json())
+        .then(res => {
+          return res.json()
+        })
         .then(res => {
           res.userReward = address ? res.userRewards[address] : undefined
           delete res.userRewards
@@ -400,6 +402,8 @@ export function useVotingInfo() {
 
   const [claimedRewardAmounts, setClaimedRewardAmounts] = useState<any>()
   useEffect(() => {
+    if (!rewardsDistributorContract || !account || !userRewards?.userReward?.tokens) return
+
     rewardsDistributorContract
       ?.getClaimedAmounts?.(account, userRewards?.userReward?.tokens)
       .then((res: any) => setClaimedRewardAmounts(res))
@@ -499,6 +503,7 @@ export function useVotingInfo() {
     proposals,
     userReward: userRewards?.userReward,
     remainingCumulativeAmount,
+    claimedRewardAmount: claimedRewardAmounts?.[0] ? BigNumber.from(claimedRewardAmounts[0]) : BigNumber.from(0),
     stakerInfo,
     stakerInfoNextEpoch,
     votesInfo,
