@@ -7,6 +7,7 @@ import AlertType from 'pages/NotificationCenter/PriceAlerts/AlertType'
 import NetworkInlineDisplay from 'pages/NotificationCenter/PriceAlerts/NetworkInlineDisplay'
 import TokenInlineDisplay from 'pages/NotificationCenter/PriceAlerts/TokenInlineDisplay'
 import { PriceAlert } from 'pages/NotificationCenter/const'
+import { uint256ToFraction } from 'utils/numbers'
 
 type Props = {
   alert: PriceAlert
@@ -27,7 +28,11 @@ const AlertCondition: React.FC<Props> = ({ alert }) => {
       }}
     >
       <Trans>Alert when the price of</Trans>
-      <TokenInlineDisplay symbol={alert.tokenInSymbol} logoUrl={alert.tokenInLogoURL} amount={alert.tokenInAmount} />
+      <TokenInlineDisplay
+        symbol={alert.tokenInSymbol}
+        logoUrl={alert.tokenInLogoURL}
+        amount={uint256ToFraction(alert.tokenInAmount, alert.tokenInDecimals)?.toSignificant(6)}
+      />
       <Trans>to</Trans>
       <TokenInlineDisplay symbol={alert.tokenOutSymbol} logoUrl={alert.tokenOutLogoURL} />
       <Trans>on</Trans>

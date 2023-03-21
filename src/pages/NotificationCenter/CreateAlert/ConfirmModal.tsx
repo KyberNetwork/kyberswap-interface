@@ -16,6 +16,7 @@ import Toggle from 'components/Toggle'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
 import { COOLDOWN_OPTIONS, ConfirmAlertModalData, PriceAlertStat, PriceAlertType } from 'pages/NotificationCenter/const'
+import { uint256ToFraction } from 'utils/numbers'
 
 const Wrapper = styled.div`
   margin: 0;
@@ -137,7 +138,7 @@ export default function ConfirmModal({
           <Row alignItems={'center'} gap="6px">
             <CurrencyLogo currency={currencyIn} size={'16px'} />
             <Value>
-              {tokenInAmount} {currencyIn.symbol}
+              {uint256ToFraction(tokenInAmount, currencyIn.decimals)?.toSignificant(6)} {currencyIn.symbol}
             </Value>
             <Label>
               <Trans>to</Trans>

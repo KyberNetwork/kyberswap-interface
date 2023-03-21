@@ -44,6 +44,7 @@ import {
   TYPE_OPTIONS,
 } from 'pages/NotificationCenter/const'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
+import { tryParseAmount } from 'state/swap/hooks'
 
 const defaultInput = {
   tokenInAmount: '1',
@@ -104,12 +105,17 @@ export default function CreateAlert({
   }
 
   const isInputValid = () => {
-    return Boolean(account && currencyIn && currencyOut && formInput.tokenInAmount && formInput.threshold)
+    const fillAllInput = Boolean(account && currencyIn && currencyOut && formInput.tokenInAmount && formInput.threshold)
+    if (!fillAllInput) return false
+    const parsedAmount = tryParseAmount(formInput.tokenInAmount, currencyIn)
+    if (!parsedAmount) return false
+    return true
   }
 
   const onSubmitAlert = async () => {
     try {
       if (!isInputValid()) return
+      const parsedInputAmount = tryParseAmount(formInput.tokenInAmount, currencyIn)
       const alert: CreatePriceAlertPayload = {
         walletAddress: account ?? '',
         chainId: selectedChain.toString(),
@@ -120,6 +126,7 @@ export default function CreateAlert({
         disableAfterTrigger,
         cooldown,
         ...formInput,
+        tokenInAmount: parsedInputAmount?.quotient?.toString() ?? '',
       }
       const { data, error }: any = await createAlert(alert)
       if (error || typeof data?.data?.id !== 'number') throw error
