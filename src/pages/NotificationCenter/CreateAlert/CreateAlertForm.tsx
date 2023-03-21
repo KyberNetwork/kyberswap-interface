@@ -1,9 +1,10 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { ArrowDown, ArrowUp } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import { useCreatePriceAlertMutation } from 'services/priceAlert'
+import { parseGetRouteResponse } from 'services/route/utils'
 import { CSSProperties } from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -13,10 +14,10 @@ import { Clock } from 'components/Icons'
 import { NetworkLogo } from 'components/Logo'
 import Row, { RowBetween } from 'components/Row'
 import RefreshButton from 'components/SwapForm/RefreshButton'
+import useGetRoute from 'components/SwapForm/hooks/useGetRoute'
 import { MouseoverTooltip } from 'components/Tooltip'
-import TradePrice from 'components/swapv2/LimitOrder/TradePrice'
+import TradePrice from 'components/swapv2/TradePrice'
 import { useActiveWeb3React } from 'hooks'
-import useBaseTradeInfo from 'hooks/useBaseTradeInfo'
 import useTheme from 'hooks/useTheme'
 import {
   ActionGroup,
@@ -76,7 +77,28 @@ export default function CreateAlert({
 
   const { maxActiveAlerts, totalActiveAlerts } = priceAlertStat
 
-  const { loading, tradeInfo, refetch: refreshMarketPrice } = useBaseTradeInfo(currencyIn, currencyOut, selectedChain)
+  const parsedAmount = useMemo(
+    () => tryParseAmount(formInput.tokenInAmount, currencyIn),
+    [formInput.tokenInAmount, currencyIn],
+  )
+  const { fetcher: getRoute, result } = useGetRoute({
+    currencyIn,
+    currencyOut,
+    parsedAmount,
+    isSaveGas: false,
+    feeConfig: undefined,
+  })
+
+  useEffect(() => {
+    getRoute()
+  }, [getRoute])
+
+  const executionPrice = useMemo(() => {
+    if (!result?.data?.data || result.error) {
+      return undefined
+    }
+    return parseGetRouteResponse(result.data.data, currencyIn, currencyOut)?.routeSummary?.executionPrice
+  }, [currencyIn, currencyOut, result])
 
   const onChangeInput = (name: string, val: string) => {
     if (name === 'threshold' && val.includes('.')) {
@@ -107,7 +129,6 @@ export default function CreateAlert({
   const isInputValid = () => {
     const fillAllInput = Boolean(account && currencyIn && currencyOut && formInput.tokenInAmount && formInput.threshold)
     if (!fillAllInput) return false
-    const parsedAmount = tryParseAmount(formInput.tokenInAmount, currencyIn)
     if (!parsedAmount) return false
     return true
   }
@@ -115,7 +136,6 @@ export default function CreateAlert({
   const onSubmitAlert = async () => {
     try {
       if (!isInputValid()) return
-      const parsedInputAmount = tryParseAmount(formInput.tokenInAmount, currencyIn)
       const alert: CreatePriceAlertPayload = {
         walletAddress: account ?? '',
         chainId: selectedChain.toString(),
@@ -126,7 +146,7 @@ export default function CreateAlert({
         disableAfterTrigger,
         cooldown,
         ...formInput,
-        tokenInAmount: parsedInputAmount?.quotient?.toString() ?? '',
+        tokenInAmount: parsedAmount?.quotient?.toString() ?? '',
       }
       const { data, error }: any = await createAlert(alert)
       if (error || typeof data?.data?.id !== 'number') throw error
@@ -261,14 +281,11 @@ export default function CreateAlert({
           </FormControl>
 
           <TradePrice
-            price={tradeInfo}
             style={{ width: 'fit-content', fontStyle: 'italic' }}
-            color={theme.text}
             label={t`Note: The current price is `}
-            loading={loading}
-            symbolIn={currencyIn?.symbol}
-            symbolOut={currencyOut?.symbol}
-            icon={<RefreshButton shouldDisable={!tradeInfo} callback={refreshMarketPrice} size={16} skipFirst />}
+            price={executionPrice}
+            color={theme.text}
+            icon={<RefreshButton shouldDisable={!executionPrice} callback={getRoute} size={16} />}
           />
         </LeftColumn>
 
