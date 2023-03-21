@@ -1109,9 +1109,17 @@ export function useProAmmDerivedAllMintInfo(
 
         if ((!currencyAAmount && !depositADisabled) || (!currencyBAmount && !depositBDisabled)) {
           if (positionIndex !== index) {
-            return <Trans key={index}>Position {index + 1}: Enter an amount</Trans>
+            return positions[positionIndex].typedValue ? (
+              <Trans key={index}>Position {index + 1}: Invalid amount</Trans>
+            ) : (
+              <Trans key={index}>Position {index + 1}: Enter an amount</Trans>
+            )
           } else {
-            return <Trans key={index}>Enter an amount</Trans>
+            return positions[index].typedValue ? (
+              <Trans key={index}>Invalid amount</Trans>
+            ) : (
+              <Trans key={index}>Enter an amount</Trans>
+            )
           }
         }
 

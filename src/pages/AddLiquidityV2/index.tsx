@@ -108,7 +108,7 @@ export default function AddLiquidity() {
   const { mixpanelHandler } = useMixpanel()
 
   // fee selection from url
-  const feeAmount: FeeAmount | undefined =
+  const feeAmount: FeeAmount =
     feeAmountFromUrl && Object.values(FeeAmount).includes(parseFloat(feeAmountFromUrl))
       ? parseFloat(feeAmountFromUrl)
       : FeeAmount.MOST_PAIR
