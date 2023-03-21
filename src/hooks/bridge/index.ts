@@ -7,8 +7,9 @@ import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useMulticallContract } from 'hooks/useContract'
 import useInterval from 'hooks/useInterval'
-import { useKyberSwapConfig } from 'state/application/hooks'
+import { useBlockNumber, useKyberSwapConfig } from 'state/application/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
+import { fetchChunk } from 'state/multicall/updater'
 import { TokenAmountLoading } from 'state/wallet/hooks'
 import { isTokenNative } from 'utils/tokenInfo'
 
@@ -57,11 +58,12 @@ export const useTokensBalanceOfAnotherChain = (
   const { account } = useActiveWeb3React()
   const multicallContract = useMulticallContract(chainId)
   const [loading, setLoading] = useState(false)
+  const blockNumber = useBlockNumber()
 
   const getBalance = useCallback(async () => {
     try {
       setBalances(EMPTY_ARRAY)
-      if (!chainId || !account || !tokens.length) {
+      if (!chainId || !account || !tokens.length || !multicallContract || !blockNumber) {
         return
       }
       setLoading(true)
@@ -71,11 +73,12 @@ export const useTokensBalanceOfAnotherChain = (
         fragment: 'balanceOf',
         key: token.wrapped.address,
       }))
-      const returnData = await multicallContract?.callStatic.tryBlockAndAggregate(
-        false,
-        calls.map(({ callData, target }) => ({ target, callData })),
+      const { results } = await fetchChunk(
+        multicallContract,
+        calls.map(e => ({ address: e.target, callData: e.callData })),
+        blockNumber,
       )
-      const result = formatResult(returnData, calls)
+      const result = formatResult(results, calls)
       const balances = tokens.map(token => {
         const balance = result[token.wrapped.address]
         return [balance ? CurrencyAmount.fromRawAmount(token, JSBI.BigInt(balance)) : undefined, false]
@@ -86,7 +89,7 @@ export const useTokensBalanceOfAnotherChain = (
     } finally {
       setLoading(false)
     }
-  }, [chainId, tokens, account, multicallContract])
+  }, [chainId, tokens, account, multicallContract, blockNumber])
 
   useEffect(() => {
     getBalance()
@@ -119,7 +122,10 @@ function getCallParams(list: TokenList) {
 }
 
 const formatResult = (responseData: any, calls: CallParam[], defaultValue?: any): any => {
-  const response = responseData.returnData?.map((item: [boolean, string]) => item[1]) || []
+  const response = responseData.returnData
+    ? responseData.returnData.map((item: [boolean, string]) => item[1])
+    : responseData
+
   const resultList: { [key: string]: any } = {}
   if (!response) return resultList
   for (let i = 0, len = calls.length; i < len; i++) {
