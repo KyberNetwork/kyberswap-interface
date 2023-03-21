@@ -124,11 +124,10 @@ export default function CreateAlert({
       const { data, error }: any = await createAlert(alert)
       if (error || typeof data?.data?.id !== 'number') throw error
       refreshStat()
-
       showModalConfirm({
         alert: {
           ...alert,
-          id: data.id as number,
+          id: data.data.id as number,
         },
         currencyIn,
         currencyOut,
