@@ -1,4 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { debounce } from 'lodash'
 import { stringify } from 'querystring'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
@@ -20,6 +21,7 @@ const useTokenPricesLocal = (
   data: { [address: string]: number }
   loading: boolean
   fetchPrices: (value: string[]) => void
+  refetch: () => void
 } => {
   const tokenPrices = useAppSelector(state => state.tokenPrices)
   const dispatch = useAppDispatch()
@@ -68,7 +70,6 @@ const useTokenPricesLocal = (
             return {
               address,
               chainId: chainId,
-
               price: price?.marketPrice || price?.price || 0,
             }
           })
@@ -91,6 +92,8 @@ const useTokenPricesLocal = (
     }
   }, [unknownPriceList, fetchPrices])
 
+  const refetch = useMemo(() => debounce(() => fetchPrices(tokenList), 300), [fetchPrices, tokenList])
+
   const data: {
     [address: string]: number
   } = useMemo(() => {
@@ -104,7 +107,7 @@ const useTokenPricesLocal = (
     }, {} as { [address: string]: number })
   }, [tokenList, chainId, tokenPrices])
 
-  return { data, loading, fetchPrices }
+  return { data, loading, fetchPrices, refetch }
 }
 
 export const useTokenPrices = (

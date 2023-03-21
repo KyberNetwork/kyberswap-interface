@@ -30,7 +30,7 @@ export default function useBaseTradeInfo(
     return list.filter(Boolean) as string[]
   }, [currencyIn, currencyOut, chainId])
 
-  const { data: pricesUsd, loading, refresh } = useTokenPricesWithLoading(addresses, chainId)
+  const { data: pricesUsd, loading, refetch } = useTokenPricesWithLoading(addresses, chainId)
 
   const nativePriceUsd = pricesUsd[WETH[chainId].wrapped.address]
 
@@ -49,7 +49,7 @@ export default function useBaseTradeInfo(
     }
   }, [pricesUsd, currencyIn, currencyOut, nativePriceUsd])
 
-  return { loading, tradeInfo, refresh }
+  return { loading, tradeInfo, refetch }
 }
 
 export type BaseTradeInfoLO = BaseTradeInfo & {

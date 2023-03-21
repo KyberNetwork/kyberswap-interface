@@ -75,7 +75,7 @@ export default function CreateAlert({
 
   const { maxActiveAlerts, totalActiveAlerts } = priceAlertStat
 
-  const { loading, tradeInfo, refresh: refreshMarketPrice } = useBaseTradeInfo(currencyIn, currencyOut, selectedChain)
+  const { loading, tradeInfo, refetch: refreshMarketPrice } = useBaseTradeInfo(currencyIn, currencyOut, selectedChain)
 
   const onChangeInput = (name: string, val: string) => {
     if (name === 'threshold' && val.includes('.')) {
@@ -122,7 +122,6 @@ export default function CreateAlert({
         ...formInput,
       }
       const { data, error }: any = await createAlert(alert)
-      console.log(data)
       if (error || typeof data?.data?.id !== 'number') throw error
       refreshStat()
 
