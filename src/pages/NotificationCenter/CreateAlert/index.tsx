@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { useCallback, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
+import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import { useLazyGetAlertStatsQuery } from 'services/priceAlert'
 import styled from 'styled-components'
@@ -55,10 +56,14 @@ export default function CreateAlert() {
   const [refetch, { data: priceAlertStat = {} as PriceAlertStat }] = useLazyGetAlertStatsQuery()
 
   const refreshStat = useCallback(() => account && refetch(account), [account, refetch])
+  const navigate = useNavigate()
+  const goBack = () => {
+    navigate(-1)
+  }
 
   return (
     <Wrapper>
-      <Header>
+      <Header style={{ cursor: 'pointer' }} onClick={goBack}>
         <ChevronLeft size={20} />
         <Text fontWeight={'500'} fontSize="14px">
           <Trans>Create Alert</Trans>

@@ -23,11 +23,14 @@ const AlertsHistory = () => {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const [page, setPage] = useState(1)
-  const { data, isLoading } = useGetListAlertsHistoryQuery({
-    walletAddress: account || '',
-    page,
-    pageSize: ITEMS_PER_PAGE,
-  })
+  const { data, isLoading } = useGetListAlertsHistoryQuery(
+    {
+      walletAddress: account || '',
+      page,
+      pageSize: ITEMS_PER_PAGE,
+    },
+    { skip: !account },
+  )
 
   if (isLoading) {
     return (

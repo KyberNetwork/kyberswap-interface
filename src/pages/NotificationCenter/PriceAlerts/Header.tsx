@@ -73,7 +73,7 @@ const Header: React.FC<Props> = ({ currentTab, setCurrentTab }) => {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
 
-  const { data, isLoading } = useGetAlertStatsQuery(account || '')
+  const { data, isLoading } = useGetAlertStatsQuery(account || '', { skip: !account })
 
   return (
     <Flex
