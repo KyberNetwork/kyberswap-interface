@@ -105,7 +105,7 @@ const Header: React.FC<Props> = ({ currentTab, setCurrentTab }) => {
             gap: '1rem',
           }}
         >
-          <DeleteAllAlertsButton />
+          <DeleteAllAlertsButton currentTab={currentTab} />
           <ButtonPrimary
             style={{
               padding: '0 8px 0 6px',

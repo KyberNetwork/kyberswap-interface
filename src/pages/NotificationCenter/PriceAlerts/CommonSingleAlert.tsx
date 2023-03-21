@@ -1,28 +1,27 @@
 import { Trans } from '@lingui/macro'
-import dayjs from 'dayjs'
 import { Clock } from 'react-feather'
 import { Flex, Text } from 'rebass'
-import { useUpdatePriceAlertMutation } from 'services/priceAlert'
 import styled from 'styled-components'
 
-import NotificationIcon from 'components/Icons/NotificationIcon'
 import Toggle from 'components/Toggle'
 import useTheme from 'hooks/useTheme'
-import AlertCondition from 'pages/NotificationCenter/PriceAlerts/AlertCondition'
-import DeleteSingleAlertButton from 'pages/NotificationCenter/PriceAlerts/DeleteSingleAlertButton'
+import AlertCondition, { Props as AlertConditionProps } from 'pages/NotificationCenter/PriceAlerts/AlertCondition'
 import { PriceAlert } from 'pages/NotificationCenter/const'
 
-const formatCooldown = (t: number) => {
-  return dayjs.duration(t, 'seconds').humanize()
-}
-
 type Props = {
-  alert: PriceAlert
   className?: string
-}
-const SingleAlert: React.FC<Props> = ({ alert, className }) => {
+  renderToggle?: () => React.ReactNode
+  renderDeleteButton?: () => React.ReactNode
+  timeText?: React.ReactNode
+} & (Pick<PriceAlert, 'note'> & Partial<Pick<PriceAlert, 'disableAfterTrigger'>> & AlertConditionProps)
+const CommonSingleAlert: React.FC<Props> = ({
+  className,
+  renderToggle,
+  renderDeleteButton,
+  timeText,
+  ...alertData
+}) => {
   const theme = useTheme()
-  const [updateAlert] = useUpdatePriceAlertMutation()
   return (
     <Flex
       className={className}
@@ -45,7 +44,9 @@ const SingleAlert: React.FC<Props> = ({ alert, className }) => {
           }}
         >
           <Clock width={14} height={14} />
-          <Text>Price Alert</Text>
+          <span>
+            <Trans>Price Alert</Trans>
+          </span>
         </Flex>
 
         <Flex
@@ -54,16 +55,8 @@ const SingleAlert: React.FC<Props> = ({ alert, className }) => {
             gap: '0.5rem',
           }}
         >
-          <Toggle
-            style={{ transform: 'scale(.8)', cursor: 'pointer' }}
-            icon={<NotificationIcon size={16} color={theme.textReverse} />}
-            isActive={alert.isEnabled}
-            toggle={() => {
-              updateAlert({ id: alert.id, isEnabled: !alert.isEnabled })
-            }}
-          />
-
-          <DeleteSingleAlertButton alert={alert} />
+          {renderToggle?.()}
+          {renderDeleteButton?.()}
         </Flex>
       </Flex>
 
@@ -72,7 +65,7 @@ const SingleAlert: React.FC<Props> = ({ alert, className }) => {
           gap: '16px',
         }}
       >
-        <AlertCondition alert={alert} />
+        <AlertCondition {...alertData} />
         <Text
           sx={{
             fontSize: '14px',
@@ -82,11 +75,11 @@ const SingleAlert: React.FC<Props> = ({ alert, className }) => {
             lineHeight: '20px',
           }}
         >
-          Cooldown: {formatCooldown(alert.cooldown)}
+          {timeText}
         </Text>
       </Flex>
 
-      {alert.note || alert.disableAfterTrigger ? (
+      {alertData.note || alertData.disableAfterTrigger ? (
         <Flex
           sx={{
             fontSize: '12px',
@@ -99,7 +92,7 @@ const SingleAlert: React.FC<Props> = ({ alert, className }) => {
             flexWrap: 'wrap',
           }}
         >
-          {alert.note ? (
+          {alertData.note ? (
             <Text
               as="span"
               sx={{
@@ -107,11 +100,11 @@ const SingleAlert: React.FC<Props> = ({ alert, className }) => {
                 overflowWrap: 'anywhere',
               }}
             >
-              <Trans>Note</Trans>: {alert.note}
+              <Trans>Note</Trans>: {alertData.note}
             </Text>
           ) : null}
 
-          {alert.disableAfterTrigger ? (
+          {alertData.disableAfterTrigger ? (
             <Text
               as="span"
               sx={{
@@ -127,7 +120,7 @@ const SingleAlert: React.FC<Props> = ({ alert, className }) => {
   )
 }
 
-export default styled(SingleAlert)`
+export default styled(CommonSingleAlert)`
   ${Toggle} {
     &[data-active='false'] {
       background: ${({ theme }) => theme.buttonBlack};

@@ -2,7 +2,7 @@ import { Trans } from '@lingui/macro'
 import { useState } from 'react'
 import { Info } from 'react-feather'
 import { Flex, Text } from 'rebass'
-import { useGetListAlertsHistoryQuery } from 'services/priceAlert'
+import { useGetListPriceAlertHistoryQuery } from 'services/priceAlert'
 import styled from 'styled-components'
 
 import Loader from 'components/Loader'
@@ -23,9 +23,9 @@ const AlertsHistory = () => {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const [page, setPage] = useState(1)
-  const { data, isLoading } = useGetListAlertsHistoryQuery(
+  const { data, isLoading } = useGetListPriceAlertHistoryQuery(
     {
-      walletAddress: account || '',
+      account: account || '',
       page,
       pageSize: ITEMS_PER_PAGE,
     },
@@ -40,7 +40,7 @@ const AlertsHistory = () => {
     )
   }
 
-  if (!data?.alerts?.length) {
+  if (!data?.historicalAlerts?.length) {
     return (
       <Flex flex="1 1 0" justifyContent="center" width="100%" alignItems="center">
         <Flex
@@ -67,8 +67,8 @@ const AlertsHistory = () => {
           flexDirection: 'column',
         }}
       >
-        {data.alerts.map(alert => {
-          return <SingleAlert key={alert.id} alert={alert} />
+        {data.historicalAlerts.map(alert => {
+          return <SingleAlert key={alert.id} historicalAlert={alert} />
         })}
       </Flex>
 

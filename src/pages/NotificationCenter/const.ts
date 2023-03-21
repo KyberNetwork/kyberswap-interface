@@ -33,6 +33,7 @@ export type CreatePriceAlertPayload = {
   note: string
 }
 
+// tokenInDecimals is returned, which means tokenInAmount is raw (e.g. 12000000 for 1.2 with 6 decimals)
 export type PriceAlert = {
   id: number
   chainId: string
@@ -50,6 +51,25 @@ export type PriceAlert = {
   cooldown: number
   disableAfterTrigger: boolean
   note: string
+}
+
+// tokenInDecimals is NOT returned, which means tokenInAmount is NOT raw
+export type HistoricalPriceAlert = {
+  id: number
+  chainId: string
+  tokenInLogoURL: string
+  tokenInAmount: string
+  tokenInSymbol: string
+  tokenOutLogoURL: string
+  tokenOutSymbol: string
+  chainLogoUrl: string
+  chainName: string
+  threshold: string
+  type: PriceAlertType
+  note: string
+  swapUrl: string
+  manageAlertUrl: string
+  sentAt: number
 }
 
 export type PriceAlertStat = {

@@ -1,8 +1,8 @@
 import { Trans } from '@lingui/macro'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Trash, X } from 'react-feather'
 import { Flex, Text } from 'rebass'
-import { useDeleteAllAlertsMutation } from 'services/priceAlert'
+import { useClearAllPriceAlertHistoryMutation, useDeleteAllAlertsMutation } from 'services/priceAlert'
 import styled from 'styled-components'
 
 import { ButtonEmpty, ButtonOutlined, ButtonPrimary } from 'components/Button'
@@ -10,6 +10,7 @@ import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { Tab } from 'pages/NotificationCenter/PriceAlerts'
 
 const Wrapper = styled.div`
   margin: 0;
@@ -27,20 +28,48 @@ const CloseIcon = styled(X)`
 
 // TODO: test disconnect wallet/change network while confirming
 // TODO: clear based on which tab is active
-const DeleteAllAlertsButton = () => {
+
+type Props = {
+  currentTab: Tab
+}
+const DeleteAllAlertsButton: React.FC<Props> = ({ currentTab }) => {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const [isModalOpen, setModalOpen] = useState(false)
-  const [deleteAll, result] = useDeleteAllAlertsMutation()
-  const { isLoading } = result
+  const [deleteAllActive, deleteAllActiveResult] = useDeleteAllAlertsMutation()
+  const [clearAllHistory, clearAllHistoryResult] = useClearAllPriceAlertHistoryMutation()
+
+  const isLoading =
+    (currentTab === Tab.ACTIVE && deleteAllActiveResult.isLoading) ||
+    (currentTab === Tab.HISTORY && clearAllHistoryResult.isLoading)
 
   const handleClickDeleteAll = async () => {
-    account && deleteAll(account)
+    if (!account) {
+      return
+    }
+
+    try {
+      if (currentTab === Tab.ACTIVE) {
+        await deleteAllActive({ account })
+      } else {
+        await clearAllHistory({ account })
+      }
+    } catch (e) {
+      console.error(e)
+    }
+
+    setModalOpen(false)
   }
 
   const handleDismiss = () => {
     setModalOpen(false)
   }
+
+  useEffect(() => {
+    if (!account) {
+      setModalOpen(false)
+    }
+  }, [account])
 
   return (
     <>
@@ -56,7 +85,7 @@ const DeleteAllAlertsButton = () => {
         onClick={() => {
           setModalOpen(true)
         }}
-        disabled={isLoading}
+        disabled={isLoading || !account}
       >
         <Trash size="16px" /> <Trans>Clear All</Trans>
       </ButtonEmpty>
