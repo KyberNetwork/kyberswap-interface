@@ -2,6 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useRef, useState } from 'react'
 import { ArrowDown, ArrowUp, X } from 'react-feather'
+import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import { useUpdatePriceAlertMutation } from 'services/priceAlert'
 import styled from 'styled-components'
@@ -13,9 +14,16 @@ import { NetworkLogo } from 'components/Logo'
 import Modal from 'components/Modal'
 import Row, { RowBetween } from 'components/Row'
 import Toggle from 'components/Toggle'
+import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
-import { COOLDOWN_OPTIONS, ConfirmAlertModalData, PriceAlertStat, PriceAlertType } from 'pages/NotificationCenter/const'
+import {
+  COOLDOWN_OPTIONS,
+  ConfirmAlertModalData,
+  NOTIFICATION_ROUTES,
+  PriceAlertStat,
+  PriceAlertType,
+} from 'pages/NotificationCenter/const'
 import { uint256ToFraction } from 'utils/numbers'
 
 const Wrapper = styled.div`
@@ -91,8 +99,10 @@ export default function ConfirmModal({
     }
   }
 
+  const navigate = useNavigate()
   const onSave = async () => {
     onDismiss()
+    navigate(`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.PRICE_ALERTS}`)
   }
 
   return (
