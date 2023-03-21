@@ -31,7 +31,7 @@ const OutputCurrencyPanel: React.FC<Props> = ({
       return parsedAmountIn?.toExact() || ''
     }
     if (!parsedAmountOut) return ''
-    return Number(parsedAmountOut.toFixed(currencyOut?.decimals ?? 10)).toString()
+    return Number(parsedAmountOut.toFixed(parsedAmountOut.currency.decimals)).toString()
   }
 
   const getEstimatedUsd = () => {
