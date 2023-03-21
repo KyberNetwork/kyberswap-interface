@@ -3,6 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 import { Plus, Share2 } from 'react-feather'
+import { Link } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
@@ -17,7 +18,7 @@ import AspectRatio from 'components/Icons/AspectRatio'
 import Harvest from 'components/Icons/Harvest'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
+import { APP_PATHS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { useFarmV2Action, useUserFarmV2Info } from 'state/farms/elasticv2/hooks'
 import { ElasticFarmV2, ElasticFarmV2Range } from 'state/farms/elasticv2/types'
@@ -262,6 +263,12 @@ function FarmCard({ farm, poolAPR }: { farm: ElasticFarmV2; poolAPR: number }) {
     }
   }, [farm, activeRangeIndex])
 
+  const { pool } = farm
+  const addliquidityElasticPool = `${APP_PATHS.ELASTIC_CREATE_POOL}/${
+    pool.token0.isNative ? pool.token0.symbol : pool.token0.address
+  }/${pool.token1.isNative ? pool.token1.symbol : pool.token1.address}/${pool.fee}`
+
+  const rangesCount = farm?.ranges ? farm.ranges.length : 0
   return (
     <FarmContext.Provider value={farmValues}>
       <Wrapper>
@@ -270,9 +277,16 @@ function FarmCard({ farm, poolAPR }: { farm: ElasticFarmV2; poolAPR: number }) {
             <RowBetween>
               <RowFit>
                 <DoubleCurrencyLogo size={20} currency0={farm.token0} currency1={farm.token1} />
-                <Text fontSize="16px" lineHeight="20px" color={theme.primary} marginRight="4px">
-                  {`${farm.token0.symbol} - ${farm.token1.symbol}`}
-                </Text>
+                <Link
+                  to={addliquidityElasticPool}
+                  style={{
+                    textDecoration: 'none',
+                  }}
+                >
+                  <Text fontSize="16px" lineHeight="20px" color={theme.primary} marginRight="4px">
+                    {`${farm.token0.symbol} - ${farm.token1.symbol}`}
+                  </Text>
+                </Link>
                 <FeeBadge>FEE {farm?.pool?.fee ? (farm?.pool?.fee * 100) / ELASTIC_BASE_FEE_UNIT : 0.03}%</FeeBadge>
               </RowFit>
               <RowFit gap="8px">
@@ -412,9 +426,14 @@ function FarmCard({ farm, poolAPR }: { farm: ElasticFarmV2; poolAPR: number }) {
               </Row>
             </Column>
             <Row justify="center" marginTop="auto">
-              <TextButtonPrimary fontSize="12px" onClick={handleFlip} width="fit-content">
+              <TextButtonPrimary
+                disabled={rangesCount === 0}
+                fontSize="12px"
+                onClick={() => rangesCount > 0 && handleFlip()}
+                width="fit-content"
+              >
                 <AspectRatio size={16} />
-                <Trans>{farm ? farm.ranges.length : 3} Ranges Available</Trans>
+                <Trans>{rangesCount} Range(s) Available</Trans>
               </TextButtonPrimary>
             </Row>
           </FrontFace>
@@ -454,7 +473,7 @@ function FarmCard({ farm, poolAPR }: { farm: ElasticFarmV2; poolAPR: number }) {
                 </Column>
               </div>
               <Row justify="center" marginTop="auto">
-                <TextButtonPrimary onClick={handleFlip}>
+                <TextButtonPrimary fontSize="12px" onClick={handleFlip}>
                   <Trans>Choose this range</Trans>
                 </TextButtonPrimary>
               </Row>

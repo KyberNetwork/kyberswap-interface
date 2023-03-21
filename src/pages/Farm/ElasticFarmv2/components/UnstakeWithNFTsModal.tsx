@@ -170,14 +170,9 @@ const UnstakeWithNFTsModal = ({
                 />
               ))
             ) : (
-              <>
-                <NFTItem active />
-                <NFTItem active />
-                <NFTItem active />
-                <NFTItem active />
-                <NFTItem active />
-                <NFTItem active />
-              </>
+              <Row height="100px" justify="center" fontSize="12px" color="var(--subtext)" flex="1">
+                <Trans>No liquidity position</Trans>
+              </Row>
             )}
           </NFTsWrapper>
         </ContentWrapper>

@@ -366,6 +366,11 @@ export const TextButton = styled(Base)<{ gap?: string; fontSize?: string }>`
 export const TextButtonPrimary = styled(TextButton)`
   --color: var(--primary);
   --hover-color: var(--primary-80);
+  :disabled {
+    --color: var(--subtext);
+    --hover-color: var(--subtext-120);
+    cursor: inherit;
+  }
 `
 export const TextButtonSubtext = styled(TextButton)`
   --color: var(--subtext);

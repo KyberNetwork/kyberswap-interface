@@ -205,7 +205,7 @@ const StakeWithNFTsModal = ({ isOpen, onDismiss }: { isOpen: boolean; onDismiss:
             </Text>
           </RowFit>
           <NFTsWrapper>
-            {positions ? (
+            {positions && positions.length > 0 ? (
               positions.map(pos => {
                 return (
                   <NFTItem
@@ -220,16 +220,9 @@ const StakeWithNFTsModal = ({ isOpen, onDismiss }: { isOpen: boolean; onDismiss:
                 )
               })
             ) : (
-              <>
-                <NFTItem active />
-                <NFTItem active />
-                <NFTItem active />
-                <NFTItem active />
-                <NFTItem />
-                <NFTItem />
-                <NFTItem />
-                <NFTItem />
-              </>
+              <Row height="100px" justify="center" fontSize="12px" color="var(--subtext)" flex="1">
+                <Trans>No liquidity position</Trans>
+              </Row>
             )}
           </NFTsWrapper>
           <Pagination currentPage={1} pageSize={8} totalCount={2} onPageChange={p => console.log(p)} haveBg={false} />

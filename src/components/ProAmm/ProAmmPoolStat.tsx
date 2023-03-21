@@ -339,13 +339,14 @@ export default function ProAmmPoolStat({
 
               <Flex justifyContent="center" margin="0.5rem 0">
                 <TextButtonPrimary
+                  disabled={activeRanges?.length === 0}
                   fontSize="12px"
                   onClick={() => {
                     setShowRange(true)
                   }}
                 >
                   <AspectRatio size={16} />
-                  <Trans>{activeRanges?.length} Range(s) Available</Trans>
+                  <Trans>{activeRanges?.length || 0} Range(s) Available</Trans>
                 </TextButtonPrimary>
               </Flex>
             </>
