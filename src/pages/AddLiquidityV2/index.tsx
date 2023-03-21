@@ -1205,7 +1205,7 @@ export default function AddLiquidity() {
                               <HoverInlineText
                                 maxCharacters={24}
                                 text={`1 ${baseCurrency?.symbol} = ${
-                                  invertPrice ? price.invert().toSignificant(6) : price.toSignificant(6)
+                                  invertPrice ? price.invert().toSignificant(10) : price.toSignificant(10)
                                 } ${quoteCurrency?.symbol}`}
                               />
                             </RowFixed>
