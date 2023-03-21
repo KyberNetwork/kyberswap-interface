@@ -1,7 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { debounce } from 'lodash'
 import { stringify } from 'querystring'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { PRICE_API } from 'constants/env'
 import { NETWORKS_INFO, isEVM as isEVMChain } from 'constants/networks'
@@ -20,7 +19,7 @@ const useTokenPricesLocal = (
 ): {
   data: { [address: string]: number }
   loading: boolean
-  refresh: () => void
+  fetchPrices: (value: string[]) => void
 } => {
   const tokenPrices = useAppSelector(state => state.tokenPrices)
   const dispatch = useAppDispatch()
@@ -43,18 +42,12 @@ const useTokenPricesLocal = (
     return tokenList.filter(item => tokenPrices[`${item}_${chainId}`] === undefined)
   }, [tokenList, chainId, tokenPrices])
 
-  const refreshRef = useRef<(reset: boolean) => Promise<void>>()
-  useEffect(() => {
-    const fetchPrices = async (refresh = false) => {
+  const fetchPrices = useCallback(
+    async (list: string[]) => {
       try {
-        const listToFetch = refresh ? tokenList : unknownPriceList
-        if (!listToFetch.length) {
-          setLoading(false)
-          return
-        }
-        if (!refresh) setLoading(true)
+        setLoading(true)
         const payload = {
-          ids: listToFetch.join(','),
+          ids: list.join(','),
         }
         const promise = isEVM
           ? fetch(`${PRICE_API}/${NETWORKS_INFO[chainId].priceRoute}/api/v1/prices`, {
@@ -67,7 +60,7 @@ const useTokenPricesLocal = (
         const prices = res?.data?.prices || res
 
         if (prices?.length) {
-          const formattedPrices = listToFetch.map(address => {
+          const formattedPrices = list.map(address => {
             const price = prices.find(
               (p: { address: string; marketPrice: number; price: number }) => getAddress(p.address, isEVM) === address,
             )
@@ -75,6 +68,7 @@ const useTokenPricesLocal = (
             return {
               address,
               chainId: chainId,
+
               price: price?.marketPrice || price?.price || 0,
             }
           })
@@ -86,10 +80,16 @@ const useTokenPricesLocal = (
       } finally {
         setLoading(false)
       }
+    },
+    [chainId, dispatch, isEVM, aggregatorDomain],
+  )
+
+  useEffect(() => {
+    if (unknownPriceList.length) fetchPrices(unknownPriceList)
+    else {
+      setLoading(false)
     }
-    fetchPrices()
-    refreshRef.current = fetchPrices
-  }, [chainId, dispatch, isEVM, aggregatorDomain, tokenList, unknownPriceList])
+  }, [unknownPriceList, fetchPrices])
 
   const data: {
     [address: string]: number
@@ -104,9 +104,7 @@ const useTokenPricesLocal = (
     }, {} as { [address: string]: number })
   }, [tokenList, chainId, tokenPrices])
 
-  const refresh = useMemo(() => debounce(() => refreshRef.current?.(true), 500), [])
-
-  return { data, loading, refresh }
+  return { data, loading, fetchPrices }
 }
 
 export const useTokenPrices = (

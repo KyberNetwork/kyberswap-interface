@@ -8,12 +8,14 @@ import { AutoColumn } from 'components/Column'
 import Divider from 'components/Divider'
 import InfoHelper from 'components/InfoHelper'
 import { RowBetween, RowFixed } from 'components/Row'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { TYPE } from 'theme'
 import { DetailedRouteSummary, FeeConfig } from 'types/route'
 import { formattedNum } from 'utils'
 import { minimumAmountAfterSlippage } from 'utils/currencyAmount'
 import { getFormattedFeeAmountUsdV2 } from 'utils/fee'
+import { checkPriceImpact, formatPriceImpact } from 'utils/prices'
 
 const IconWrapper = styled.div<{ $flip: boolean }>`
   transform: rotate(${({ $flip }) => (!$flip ? '0deg' : '-180deg')});
@@ -63,18 +65,37 @@ type Props = {
   slippage: number
 }
 const TradeSummary: React.FC<Props> = ({ feeConfig, routeSummary, slippage }) => {
+  const theme = useTheme()
+  const [expanded, setExpanded] = useState(true)
   const [alreadyVisible, setAlreadyVisible] = useState(false)
   const { amountInUsd, parsedAmountOut, priceImpact, gasUsd } = routeSummary || {}
   const hasTrade = !!routeSummary?.route
 
-  const theme = useTheme()
-  const [expanded, setExpanded] = useState(true)
+  const priceImpactResult = checkPriceImpact(priceImpact)
 
   const formattedFeeAmountUsd = amountInUsd ? getFormattedFeeAmountUsdV2(Number(amountInUsd), feeConfig?.feeAmount) : 0
   const minimumAmountOut = parsedAmountOut ? minimumAmountAfterSlippage(parsedAmountOut, slippage) : undefined
+  const currencyOut = parsedAmountOut?.currency
+  const minimumAmountOutStr =
+    minimumAmountOut && currencyOut ? (
+      <Text
+        as="span"
+        sx={{
+          color: theme.text,
+          fontWeight: 'bold',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {formattedNum(minimumAmountOut.toSignificant(6), false, 6)} {currencyOut.symbol}
+      </Text>
+    ) : (
+      ''
+    )
 
+  const { mixpanelHandler } = useMixpanel()
   const handleClickExpand = () => {
     setExpanded(prev => !prev)
+    mixpanelHandler(MIXPANEL_TYPE.SWAP_MORE_INFO_CLICK, { option: expanded ? 'Close' : 'Open' })
   }
 
   useEffect(() => {
@@ -105,9 +126,7 @@ const TradeSummary: React.FC<Props> = ({ feeConfig, routeSummary, slippage }) =>
             </RowFixed>
             <RowFixed>
               <TYPE.black color={theme.text} fontSize={12}>
-                {minimumAmountOut
-                  ? `${formattedNum(minimumAmountOut.toSignificant(10) || '0')} ${minimumAmountOut.currency.symbol}`
-                  : '--'}
+                {minimumAmountOutStr || '--'}
               </TYPE.black>
             </RowFixed>
           </RowBetween>
@@ -134,15 +153,9 @@ const TradeSummary: React.FC<Props> = ({ feeConfig, routeSummary, slippage }) =>
             </RowFixed>
             <TYPE.black
               fontSize={12}
-              color={
-                priceImpact ? (priceImpact > 15 ? theme.red : priceImpact > 5 ? theme.warning : theme.text) : theme.text
-              }
+              color={priceImpactResult.isVeryHigh ? theme.red : priceImpactResult.isHigh ? theme.warning : theme.text}
             >
-              {priceImpact === -1 || !priceImpact
-                ? '--'
-                : priceImpact > 0.01
-                ? priceImpact.toFixed(2) + '%'
-                : '< 0.01%'}
+              {priceImpactResult.isInvalid || typeof priceImpact !== 'number' ? '--' : formatPriceImpact(priceImpact)}
             </TYPE.black>
           </RowBetween>
 

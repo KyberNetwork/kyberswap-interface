@@ -118,7 +118,7 @@ const NavLinkBetween = styled(MenuItem)`
   }
 `
 
-const CampaignWrapper = styled(MenuItem)`
+const CampaignWrapper = styled.div`
   display: none;
 
   /* It's better to break at 420px than at extraSmall */
@@ -198,6 +198,7 @@ export const NewLabel = styled.span`
   height: calc(100% + 4px);
   margin-left: 2px;
 `
+
 const Divider = styled.div`
   border-top: 1px solid ${({ theme }) => theme.border};
   margin-top: 10px;
@@ -235,6 +236,7 @@ export default function Menu() {
     mixpanelHandler(MIXPANEL_TYPE.TUTORIAL_CLICK_START)
     toggle()
   }
+
   const under1440 = useMedia('(max-width: 1440px)')
   const above1321 = useMedia('(min-width: 1321px)')
   const under1040 = useMedia('(max-width: 1040px)')
@@ -247,6 +249,13 @@ export default function Menu() {
   useEffect(() => {
     if (!open) setIsSelectingLanguage(false)
   }, [open])
+
+  const handleMenuClickMixpanel = (name: string) => {
+    mixpanelHandler(MIXPANEL_TYPE.MENU_MENU_CLICK, { menu: name })
+  }
+  const handlePreferenceClickMixpanel = (name: string) => {
+    mixpanelHandler(MIXPANEL_TYPE.MENU_PREFERENCE_CLICK, { menu: name })
+  }
 
   return (
     <StyledMenu>
@@ -276,6 +285,7 @@ export default function Menu() {
                 onClick={() => {
                   toggleFaucetPopup()
                   mixpanelHandler(MIXPANEL_TYPE.FAUCET_MENU_CLICKED)
+                  handleMenuClickMixpanel('Faucet')
                 }}
               >
                 <Faucet />
@@ -300,24 +310,45 @@ export default function Menu() {
                 <SlideToUnlock>
                   <Trans>Discover</Trans>
                 </SlideToUnlock>
-                <NewLabel>
-                  <Trans>New</Trans>
-                </NewLabel>
               </NavLink>
             </DiscoverWrapper>
 
             <CampaignWrapper>
-              <NavLink to="/campaigns" onClick={toggle}>
-                <Award />
-                <Trans>Campaigns</Trans>
-              </NavLink>
+              <MenuItem>
+                <NavDropDown
+                  icon={<Award />}
+                  title={
+                    <Text>
+                      <Trans>Campaigns</Trans>{' '}
+                      <NewLabel>
+                        <Trans>New</Trans>
+                      </NewLabel>
+                    </Text>
+                  }
+                  link={'#'}
+                  options={[
+                    { link: APP_PATHS.CAMPAIGN, label: t`Trading Campaigns` },
+                    {
+                      link: APP_PATHS.GRANT_PROGRAMS,
+                      label: (
+                        <Text as="span">
+                          <Trans>Project Trading Grant</Trans>{' '}
+                          <NewLabel>
+                            <Trans>New</Trans>
+                          </NewLabel>
+                        </Text>
+                      ),
+                    },
+                  ]}
+                />
+              </MenuItem>
             </CampaignWrapper>
 
             {under1440 && (
               <MenuItem>
                 <NavDropDown
                   icon={<Info />}
-                  title={'About'}
+                  title={t`About`}
                   link={'/about'}
                   options={[
                     { link: '/about/kyberswap', label: 'Kyberswap' },
@@ -326,8 +357,15 @@ export default function Menu() {
                 />
               </MenuItem>
             )}
+
             <MenuItem>
-              <NavLink to="/referral" onClick={toggle}>
+              <NavLink
+                to="/referral"
+                onClick={() => {
+                  toggle()
+                  handleMenuClickMixpanel('Referral')
+                }}
+              >
                 <UserPlus />
                 <Trans>Referral</Trans>
               </NavLink>
@@ -339,9 +377,9 @@ export default function Menu() {
                   title={'KyberDAO'}
                   link={'/kyberdao/stake-knc'}
                   options={[
-                    { link: '/kyberdao/stake-knc', label: 'Stake KNC' },
-                    { link: '/kyberdao/vote', label: 'Vote' },
-                    { link: 'https://kyberswap.canny.io/feature-request', label: 'Feature Request', external: true },
+                    { link: '/kyberdao/stake-knc', label: t`Stake KNC` },
+                    { link: '/kyberdao/vote', label: t`Vote` },
+                    { link: 'https://kyberswap.canny.io/feature-request', label: t`Feature Request`, external: true },
                   ]}
                 />
               </MenuItem>
@@ -351,7 +389,7 @@ export default function Menu() {
                 <NavDropDown
                   icon={<PieChart />}
                   link="#"
-                  title={'Analytics'}
+                  title={t`Analytics`}
                   options={[
                     { link: DMM_ANALYTICS_URL[chainId], label: t`Liquidity`, external: true },
                     {
@@ -364,21 +402,38 @@ export default function Menu() {
               </MenuItem>
             )}
             <MenuItem>
-              <ExternalLink href="https://docs.kyberswap.com">
+              <ExternalLink
+                href="https://docs.kyberswap.com"
+                onClick={() => {
+                  handleMenuClickMixpanel('Docs')
+                }}
+              >
                 <BookOpen />
                 <Trans>Docs</Trans>
               </ExternalLink>
             </MenuItem>
 
             <MenuItem>
-              <ExternalLink href="https://kyberswap.canny.io/" onClick={toggle}>
+              <ExternalLink
+                href="https://kyberswap.canny.io/"
+                onClick={() => {
+                  toggle()
+                  handleMenuClickMixpanel('Roadmap')
+                }}
+              >
                 <RoadMapIcon />
                 <Trans>Roadmap</Trans>
               </ExternalLink>
             </MenuItem>
 
             <MenuItem>
-              <ExternalLink href="https://gov.kyber.org">
+              <ExternalLink
+                href="https://gov.kyber.org"
+                onClick={() => {
+                  toggle()
+                  handleMenuClickMixpanel('Forum')
+                }}
+              >
                 <MessageCircle />
                 <Trans>Forum</Trans>
               </ExternalLink>
@@ -394,19 +449,35 @@ export default function Menu() {
             )}
 
             <MenuItem>
-              <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS}>
+              <ExternalLink
+                href={TERM_FILES_PATH.KYBERSWAP_TERMS}
+                onClick={() => {
+                  toggle()
+                  handleMenuClickMixpanel('Terms')
+                }}
+              >
                 <FileText />
                 <Trans>Terms</Trans>
               </ExternalLink>
             </MenuItem>
             <MenuItem>
-              <ExternalLink href="https://forms.gle/gLiNsi7iUzHws2BY8">
+              <ExternalLink
+                href="https://forms.gle/gLiNsi7iUzHws2BY8"
+                onClick={() => {
+                  handleMenuClickMixpanel('Business Enquiries')
+                }}
+              >
                 <Edit />
                 <Trans>Business Enquiries</Trans>
               </ExternalLink>
             </MenuItem>
             <MenuItem>
-              <ExternalLink href="https://support.kyberswap.com">
+              <ExternalLink
+                href="https://support.kyberswap.com"
+                onClick={() => {
+                  handleMenuClickMixpanel('Help')
+                }}
+              >
                 <HelpCircle size={20} />
                 <Trans>Help</Trans>
               </ExternalLink>
@@ -424,6 +495,7 @@ export default function Menu() {
                 onClick={() => {
                   toggle()
                   openTutorialSwapGuide()
+                  handlePreferenceClickMixpanel('Swap guide')
                 }}
               >
                 <Trans>Swap Guide</Trans>
@@ -440,7 +512,12 @@ export default function Menu() {
               </NavLinkBetween>
             )}
 
-            <NavLinkBetween onClick={toggleSetDarkMode}>
+            <NavLinkBetween
+              onClick={() => {
+                toggleSetDarkMode()
+                handlePreferenceClickMixpanel('Dark Mode')
+              }}
+            >
               <Trans>Dark Mode</Trans>
               <ThemeToggle id="toggle-dark-mode-button" isDarkMode={darkMode} toggle={noop} />
             </NavLinkBetween>
@@ -448,13 +525,18 @@ export default function Menu() {
               onClick={() => {
                 navigate(APP_PATHS.NOTIFICATION_CENTER)
                 mixpanelHandler(MIXPANEL_TYPE.NOTIFICATION_CLICK_MENU)
-                toggle()
+                handlePreferenceClickMixpanel('Notifications')
               }}
             >
               <Trans>Notification Center</Trans>
               <MailIcon size={17} color={theme.text} />
             </NavLinkBetween>
-            <NavLinkBetween onClick={() => setIsSelectingLanguage(true)}>
+            <NavLinkBetween
+              onClick={() => {
+                setIsSelectingLanguage(true)
+                handlePreferenceClickMixpanel('Language')
+              }}
+            >
               <Trans>Language</Trans>
               <ButtonEmpty
                 padding="0"
