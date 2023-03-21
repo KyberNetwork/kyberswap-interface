@@ -287,22 +287,21 @@ function ElasticFarms({ stakedOnly }: { stakedOnly: { active: boolean; ended: bo
           <LocalLoader />
         </Flex>
       ) : noFarms ? (
-        <></>
+        <Flex
+          backgroundColor={theme.background}
+          justifyContent="center"
+          padding="32px"
+          style={{ borderBottomLeftRadius: '20px', borderBottomRightRadius: '20px' }}
+        >
+          <Text color={theme.subText}>
+            {stakedOnly[stakedOnlyKey] || search ? (
+              <Trans>No Farms found</Trans>
+            ) : (
+              <Trans>Currently there are no Farms.</Trans>
+            )}
+          </Text>
+        </Flex>
       ) : (
-        // <Flex
-        //   backgroundColor={theme.background}
-        //   justifyContent="center"
-        //   padding="32px"
-        //   style={{ borderBottomLeftRadius: '20px', borderBottomRightRadius: '20px' }}
-        // >
-        //   <Text color={theme.subText}>
-        //     {stakedOnly[stakedOnlyKey] || search ? (
-        //       <Trans>No Farms found</Trans>
-        //     ) : (
-        //       <Trans>Currently there are no Farms.</Trans>
-        //     )}
-        //   </Text>
-        // </Flex>
         <Flex
           sx={{
             flexDirection: 'column',

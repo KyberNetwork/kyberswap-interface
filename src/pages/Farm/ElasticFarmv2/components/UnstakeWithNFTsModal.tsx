@@ -9,7 +9,7 @@ import Modal from 'components/Modal'
 import Row, { RowBetween, RowFit, RowWrap } from 'components/Row'
 import useTheme from 'hooks/useTheme'
 import { useFarmV2Action } from 'state/farms/elasticv2/hooks'
-import { UserFarmV2Info } from 'state/farms/elasticv2/types'
+import { ElasticFarmV2, UserFarmV2Info } from 'state/farms/elasticv2/types'
 
 import { convertTickToPrice } from '../utils'
 import { FarmContext } from './FarmCard'
@@ -63,30 +63,34 @@ const CloseButton = styled.div`
 export const NFTItem = ({
   active,
   pos,
+
   onClick,
 }: {
   active?: boolean
   pos?: UserFarmV2Info
   onClick?: (tokenId: string) => void
 }) => {
+  const { farm, activeRange } = useContext(FarmContext)
+
   return (
     <>
-      {pos ? (
+      {pos && (
         <NFTItemWrapper active={active} onClick={() => onClick?.(pos.nftId.toString())}>
           <Text fontSize="12px" lineHeight="16px" color="var(--primary)">
             {`#${pos.nftId.toString()}`}
           </Text>
-
-          <Text fontSize="12px" lineHeight="16px">
-            $230,23K
-          </Text>
-        </NFTItemWrapper>
-      ) : (
-        <NFTItemWrapper active={active}>
-          <Text fontSize="12px" lineHeight="16px" color="var(--primary)">
-            #123456789
-          </Text>
-          <PriceVisualize rangeInclude={false} />
+          {farm?.token0 && farm?.token1 && (
+            <PriceVisualize
+              rangeInclude={false}
+              token0={farm.token0}
+              token1={farm.token1}
+              tickRangeUpper={activeRange?.tickUpper}
+              tickRangeLower={activeRange?.tickLower}
+              tickPosLower={pos?.position?.tickLower}
+              tickPosUpper={pos?.position?.tickUpper}
+              tickCurrent={0}
+            />
+          )}
           <Text fontSize="12px" lineHeight="16px">
             $230,23K
           </Text>
@@ -130,9 +134,9 @@ const UnstakeWithNFTsModal = ({
     )
   }, [withdraw, farm, selectedPos])
 
-  const priceLower = convertTickToPrice(farm?.token0, farm?.token1, activeRange?.tickLower || 0)
+  const priceLower = farm && convertTickToPrice(farm.token0, farm.token1, activeRange?.tickLower || 0)
 
-  const priceUpper = convertTickToPrice(farm?.token0, farm?.token1, activeRange?.tickUpper || 0)
+  const priceUpper = farm && convertTickToPrice(farm.token0, farm.token1, activeRange?.tickUpper || 0)
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss} maxWidth="min(724px, 100vw)">
       <Wrapper>

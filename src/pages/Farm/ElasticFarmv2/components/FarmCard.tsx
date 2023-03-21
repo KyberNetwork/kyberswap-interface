@@ -379,7 +379,7 @@ function FarmCard({ farm, poolAPR }: { farm: ElasticFarmV2; poolAPR: number }) {
                       <Trans>Active Range ↗</Trans>
                     </Text>
                   </MouseoverTooltip>
-                  {farm ? (
+                  {farm && (
                     <PriceVisualize
                       tickCurrent={+farm.ranges[activeRangeIndex].tickCurrent}
                       tickRangeLower={+farm.ranges[activeRangeIndex].tickLower}
@@ -387,8 +387,6 @@ function FarmCard({ farm, poolAPR }: { farm: ElasticFarmV2; poolAPR: number }) {
                       token0={farm.token0}
                       token1={farm.token1}
                     />
-                  ) : (
-                    <PriceVisualize />
                   )}
                 </Column>
               </RowBetween>

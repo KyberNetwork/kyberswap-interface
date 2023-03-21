@@ -85,6 +85,7 @@ export const NFTItem = ({
   pos?: PositionDetails
   onClick?: (tokenId: string) => void
 }) => {
+  const { activeRange } = useContext(FarmContext)
   const token0 = useToken(pos?.token0)
   const token1 = useToken(pos?.token1)
   const currency0 = token0 ? unwrappedToken(token0) : undefined
@@ -109,7 +110,7 @@ export const NFTItem = ({
 
   return (
     <>
-      {pos ? (
+      {pos && (
         <NFTItemWrapper
           disabled={disabled}
           active={active}
@@ -118,26 +119,20 @@ export const NFTItem = ({
           <Text fontSize="12px" lineHeight="16px" color="var(--primary)">
             {`#${pos.tokenId.toString()}`}
           </Text>
-          <PriceVisualize
-            rangeInclude={false}
-            token0={token0 as Token}
-            token1={token1 as Token}
-            tickRangeUpper={pos?.tickUpper}
-            tickRangeLower={pos?.tickLower}
-            tickCurrent={0}
-          />
+          {token0 && token1 && (
+            <PriceVisualize
+              rangeInclude={false}
+              token0={token0 as Token}
+              token1={token1 as Token}
+              tickRangeUpper={activeRange?.tickUpper}
+              tickRangeLower={activeRange?.tickLower}
+              tickPosLower={pos?.tickLower}
+              tickPosUpper={pos?.tickUpper}
+              tickCurrent={0}
+            />
+          )}
           <Text fontSize="12px" lineHeight="16px">
             {formatDollarAmount(usd)}
-          </Text>
-        </NFTItemWrapper>
-      ) : (
-        <NFTItemWrapper active={active}>
-          <Text fontSize="12px" lineHeight="16px" color="var(--primary)">
-            #123456789
-          </Text>
-          <PriceVisualize rangeInclude={false} />
-          <Text fontSize="12px" lineHeight="16px">
-            $230,23K
           </Text>
         </NFTItemWrapper>
       )}
@@ -175,9 +170,10 @@ const StakeWithNFTsModal = ({ isOpen, onDismiss }: { isOpen: boolean; onDismiss:
     deposit(farm.fId, activeRange.index, selectedPosArray).then(txHash => txHash && onDismiss?.())
   }, [farm, activeRange, deposit, onDismiss, selectedPosArray])
 
-  const priceLower = convertTickToPrice(farm?.token0, farm?.token1, activeRange?.tickLower || 0)
+  const priceLower = farm && convertTickToPrice(farm.token0, farm.token1, activeRange?.tickLower || 0)
 
-  const priceUpper = convertTickToPrice(farm?.token0, farm?.token1, activeRange?.tickUpper || 0)
+  const priceUpper = farm && convertTickToPrice(farm.token0, farm.token1, activeRange?.tickUpper || 0)
+
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss} maxWidth="min(724px, 100vw)">
       <Wrapper>

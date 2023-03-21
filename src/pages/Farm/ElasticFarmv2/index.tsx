@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Info } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -10,6 +10,7 @@ import { ButtonPrimary } from 'components/Button'
 import Divider from 'components/Divider'
 import { RowBetween, RowFit, RowWrap } from 'components/Row'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
+import { FARM_TAB } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
@@ -20,6 +21,7 @@ import { useElasticFarmsV2, useFarmV2Action } from 'state/farms/elasticv2/hooks'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import useGetElasticPools from 'state/prommPools/useGetElasticPools'
 import { useIsTransactionPending } from 'state/transactions/hooks'
+import { isAddressString } from 'utils'
 
 import FarmCard from './components/FarmCard'
 
@@ -40,11 +42,70 @@ const FarmsWrapper = styled(RowWrap)`
 
 export default function ElasticFarmv2() {
   const theme = useTheme()
-  const { chainId, account } = useActiveWeb3React()
+  const { isEVM, chainId, account } = useActiveWeb3React()
   const farmAddress = (NETWORKS_INFO[chainId] as EVMNetworkInfo).elastic?.farmV2Contract
   const above1000 = useMedia('(min-width: 1000px)')
 
+  const [searchParams] = useSearchParams()
   const { farms } = useElasticFarmsV2()
+
+  const type = searchParams.get('type')
+  const activeTab: string = type || FARM_TAB.ACTIVE
+  // const stakedOnlyKey = activeTab === FARM_TAB.ACTIVE ? 'active' : 'ended'
+  const search: string = searchParams.get('search')?.toLowerCase() || ''
+  const filteredToken0Id = searchParams.get('token0') || undefined
+  const filteredToken1Id = searchParams.get('token1') || undefined
+
+  const filteredFarms = useMemo(() => {
+    const now = Date.now() / 1000
+
+    // Filter Active/Ended farms
+    let result = farms?.filter(farm =>
+      activeTab === FARM_TAB.MY_FARMS ? true : activeTab === FARM_TAB.ACTIVE ? farm.endTime >= now : farm.endTime < now,
+    )
+
+    // Filter by search value
+    const searchAddress = isAddressString(chainId, search)
+    if (searchAddress) {
+      if (isEVM)
+        result = result?.filter(farm => {
+          return [farm.poolAddress, farm.token0.address, farm.token1.address].includes(searchAddress)
+        })
+    } else {
+      result = result?.filter(farm => {
+        return (
+          farm.token0.symbol?.toLowerCase().includes(search) ||
+          farm.token1.symbol?.toLowerCase().includes(search) ||
+          farm.token0.name?.toLowerCase().includes(search) ||
+          farm.token1.name?.toLowerCase().includes(search)
+        )
+      })
+    }
+
+    // Filter by input output token
+    if (filteredToken0Id || filteredToken1Id) {
+      if (filteredToken1Id && filteredToken0Id) {
+        result = result?.filter(farm => {
+          return (
+            (farm.token0.address.toLowerCase() === filteredToken0Id.toLowerCase() &&
+              farm.token1.address.toLowerCase() === filteredToken1Id.toLowerCase()) ||
+            (farm.token0.address.toLowerCase() === filteredToken1Id.toLowerCase() &&
+              farm.token1.address.toLowerCase() === filteredToken0Id.toLowerCase())
+          )
+        })
+      } else {
+        const address = filteredToken1Id || filteredToken0Id
+        result = result?.filter(farm => {
+          return (
+            farm.token0.address.toLowerCase() === address?.toLowerCase() ||
+            farm.token1.address.toLowerCase() === address?.toLowerCase()
+          )
+        })
+      }
+    }
+    return result
+  }, [farms, activeTab, chainId, filteredToken0Id, filteredToken1Id, isEVM, search])
+
   const { approve } = useFarmV2Action()
   const posManager = useProAmmNFTPositionManagerContract()
   const [approvalTx, setApprovalTx] = useState('')
@@ -61,7 +122,6 @@ export default function ElasticFarmv2() {
 
   const { data: poolDatas } = useGetElasticPools(farms?.map(f => f.poolAddress) || [])
 
-  const [searchParams] = useSearchParams()
   const tab = searchParams.get('type') || 'active'
 
   const renderApproveButton = () => {
@@ -132,7 +192,7 @@ export default function ElasticFarmv2() {
     )
   }
 
-  if (!farms) return null
+  if (!filteredFarms || filteredFarms.length === 0) return null
 
   return (
     <Wrapper>
@@ -144,7 +204,7 @@ export default function ElasticFarmv2() {
       </RowBetween>
       <Divider />
       <FarmsWrapper>
-        {farms?.map(farm => (
+        {filteredFarms?.map(farm => (
           <FarmCard key={farm.id} farm={farm} poolAPR={poolDatas?.[farm.poolAddress].apr || 0} />
         ))}
       </FarmsWrapper>
