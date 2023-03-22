@@ -86,7 +86,6 @@ import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { BodyWrapper } from 'pages/AppBody'
 import useUpdateSlippageInStableCoinSwap from 'pages/SwapV3/useUpdateSlippageInStableCoinSwap'
-import TruesightV2Widget from 'pages/TrueSightV2/components/Widget'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useAllDexes } from 'state/customizeDexes/hooks'
 import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
@@ -1154,7 +1153,6 @@ export default function Swap() {
           </SwitchLocaleLinkWrapper>
         </Flex>
       </PageWrapper>
-      <TruesightV2Widget />
     </>
   )
 }

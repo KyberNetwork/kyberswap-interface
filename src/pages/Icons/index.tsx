@@ -55,6 +55,7 @@ const iconIds = [
   'on-chain',
   'technical-analysis',
   'news',
+  'arrow',
 ]
 
 export default function Icons() {

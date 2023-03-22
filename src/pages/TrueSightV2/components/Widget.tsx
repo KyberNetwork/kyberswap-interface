@@ -1,24 +1,61 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useRef, useState } from 'react'
+import { X } from 'react-feather'
+import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import Column from 'components/Column'
 import Divider from 'components/Divider'
 import Icon from 'components/Icons/Icon'
-import Row from 'components/Row'
+import Row, { RowBetween } from 'components/Row'
+import { APP_PATHS } from 'constants/index'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 
 import { WidgetTable } from './table'
 
-const WidgetWrapper = styled.div`
+const CloseButton = styled.div`
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 100%;
+  height: 16px;
+  width: 16px;
+  background-color: ${({ theme }) => theme.background};
+  color: ${({ theme }) => theme.subText};
+  position: absolute;
+  left: -8px;
+  top: -8px;
+  opacity: 0;
+  transition: all 0.1s linear;
+  z-index: 10;
+  cursor: pointer;
+  :hover {
+    background-color: ${({ theme }) => theme.tableHeader};
+  }
+`
+const WidgetWrapper = styled.div<{ show?: boolean }>`
   position: fixed;
   right: 0;
   top: 110px;
+  transition: all 1.5s ease;
+  ${({ show }) =>
+    !show &&
+    css`
+      right: -40px;
+      visibility: hidden;
+    `}
+  :hover {
+    ${CloseButton} {
+      opacity: 1;
+    }
+  }
+`
+const ButtonWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
   background-color: ${({ theme }) => theme.tableHeader};
   border-radius: 8px 0 0 8px;
   overflow: hidden;
@@ -50,11 +87,11 @@ const ExpandedWidgetWrapper = styled.div<{ show?: boolean }>`
 `
 
 const Tab = styled.div<{ active?: boolean }>`
-  width: 20%;
+  width: 25%;
   min-width: 168px;
   padding: 12px 20px;
   font-size: 14px;
-  line-height: 20px;
+  line-height: 24px;
   white-space: nowrap;
   display: flex;
   justify-content: center;
@@ -63,6 +100,7 @@ const Tab = styled.div<{ active?: boolean }>`
   ${({ active, theme }) =>
     active &&
     css`
+      color: ${theme.text};
       background-color: ${rgba(theme.primary, 0.3)};
       border-bottom: 2px solid ${theme.primary};
     `}
@@ -70,10 +108,24 @@ const Tab = styled.div<{ active?: boolean }>`
   > * {
     text-align: center;
     width: fit-content;
-    border-bottom: 2px dotted ${({ theme }) => theme.subText};
+    border-bottom: 1px dotted ${({ theme }) => theme.subText};
   }
   :hover {
-    filter: brightness(0.8);
+    filter: brightness(1.2);
+  }
+`
+
+const TextButton = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  cursor: pointer;
+  :hover {
+    filter: brightness(1.2);
   }
 `
 
@@ -81,42 +133,49 @@ enum WidgetTab {
   MyWatchlist = 'My Watchlist',
   Bullish = 'Bullish',
   Bearish = 'Bearish',
-  TopCEXInflow = 'Top CEX Inflow',
-  TopCEXOutflow = 'Top CEX Outflow',
+  TrendingSoon = 'Trending Soon',
 }
 
 export default function Widget() {
   const theme = useTheme()
-  const [show, setShow] = useState(false)
+  const [showExpanded, setShowExpanded] = useState(false)
+  const [showWidget, setShowWidget] = useState(true)
   const [activeTab, setActiveTab] = useState<WidgetTab>(WidgetTab.MyWatchlist)
   const ref = useRef<HTMLDivElement>(null)
   useOnClickOutside(ref, () => {
-    setShow(false)
+    setShowExpanded(false)
   })
+  const navigate = useNavigate()
   return (
     <>
-      <WidgetWrapper onClick={() => setShow(true)}>
-        <IconButton onClick={() => setActiveTab(WidgetTab.MyWatchlist)}>
-          <Icon id="star" size={16} />
-        </IconButton>
-        <Divider style={{ margin: '0 12px' }} />
-        <IconButton onClick={() => setActiveTab(WidgetTab.Bullish)}>
-          <Icon id="bullish" size={16} />
-        </IconButton>
-        <Divider style={{ margin: '0 12px' }} />
-        <IconButton onClick={() => setActiveTab(WidgetTab.Bearish)}>
-          <Icon id="bearish" size={16} />
-        </IconButton>
-        <Divider style={{ margin: '0 12px' }} />
-        <IconButton onClick={() => setActiveTab(WidgetTab.TopCEXInflow)}>
-          <Icon id="download" size={16} />
-        </IconButton>
-        <Divider style={{ margin: '0 12px' }} />
-        <IconButton onClick={() => setActiveTab(WidgetTab.TopCEXOutflow)}>
-          <Icon id="upload" size={16} />
-        </IconButton>
+      <WidgetWrapper onClick={() => setShowExpanded(true)} show={showWidget}>
+        <CloseButton
+          onClick={e => {
+            e.stopPropagation()
+            setShowWidget(false)
+          }}
+        >
+          <X size={12} />
+        </CloseButton>
+        <ButtonWrapper>
+          <IconButton onClick={() => setActiveTab(WidgetTab.MyWatchlist)} title={t`My Watchlist`}>
+            <Icon id="star" size={16} />
+          </IconButton>
+          <Divider style={{ margin: '0 12px' }} />
+          <IconButton onClick={() => setActiveTab(WidgetTab.Bullish)} title={t`Bullish`}>
+            <Icon id="bullish" size={16} />
+          </IconButton>
+          <Divider style={{ margin: '0 12px' }} />
+          <IconButton onClick={() => setActiveTab(WidgetTab.Bearish)} title={t`Bearish`}>
+            <Icon id="bearish" size={16} />
+          </IconButton>
+          <Divider style={{ margin: '0 12px' }} />
+          <IconButton onClick={() => setActiveTab(WidgetTab.TrendingSoon)} title={t`Trending soon`}>
+            <Icon id="trending-soon" size={16} />
+          </IconButton>
+        </ButtonWrapper>
       </WidgetWrapper>
-      <ExpandedWidgetWrapper ref={ref} show={show}>
+      <ExpandedWidgetWrapper ref={ref} show={showExpanded}>
         <Column>
           <Row>
             {Object.values(WidgetTab).map(t => (
@@ -126,7 +185,7 @@ export default function Widget() {
             ))}
           </Row>
           {activeTab === WidgetTab.MyWatchlist ? (
-            <Row align="center" justify="center" height="380px">
+            <Row align="center" justify="center" height="380px" width="820px">
               <Text color={theme.subText} textAlign="center">
                 <Trans>
                   You can add more tokens to your watchlist from{' '}
@@ -141,6 +200,15 @@ export default function Widget() {
           ) : (
             <WidgetTable />
           )}
+          <RowBetween padding="16px">
+            <TextButton style={{ color: theme.subText }} onClick={() => setShowExpanded(false)}>
+              <Trans>Collapse</Trans>
+              <Icon size={16} id="arrow" />
+            </TextButton>
+            <TextButton style={{ color: theme.primary }} onClick={() => navigate(APP_PATHS.KYBERAI_RANKINGS)}>
+              <Trans>View more ↗</Trans>
+            </TextButton>
+          </RowBetween>
         </Column>
       </ExpandedWidgetWrapper>
     </>

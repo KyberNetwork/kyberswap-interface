@@ -18,6 +18,7 @@ import InfoHelper from 'components/InfoHelper'
 import Pagination from 'components/Pagination'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import ShareModal from 'components/ShareModal'
+import { APP_PATHS } from 'constants/index'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
@@ -541,7 +542,7 @@ export default function TokenAnalysisList() {
   return (
     <>
       <Row justify="flex-end">
-        <ButtonGray width="fit-content" height="30px" onClick={() => navigate('/discover/single-token')}>
+        <ButtonGray width="fit-content" height="30px" onClick={() => navigate(APP_PATHS.KYBERAI_EXPLORE)}>
           <Text fontSize={14} display="flex" alignItems="center">
             Static UI <ArrowRight size={14} />
           </Text>

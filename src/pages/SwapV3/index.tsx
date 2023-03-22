@@ -63,6 +63,7 @@ import { currencyId } from 'utils/currencyId'
 import { getSymbolSlug } from 'utils/string'
 import { checkPairInWhiteList } from 'utils/tokenInfo'
 
+import TruesightV2Widget from '../TrueSightV2/components/Widget'
 import PopulatedSwapForm from './PopulatedSwapForm'
 
 const TradeRouting = lazy(() => import('components/TradeRouting'))
@@ -512,6 +513,7 @@ export default function Swap() {
             <SwitchLocaleLink />
           </SwitchLocaleLinkWrapper>
         </Flex>
+        <TruesightV2Widget />
       </PageWrapper>
     </>
   )

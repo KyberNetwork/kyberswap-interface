@@ -14,6 +14,7 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 
 import SearchWithDropDown from './components/SearchWithDropDown'
+import TrueSightWidget from './components/Widget'
 import SingleToken from './pages/SingleToken'
 import TokenAnalysisList from './pages/TokenAnalysisList'
 
@@ -38,7 +39,7 @@ export default function TrueSightV2() {
   const theme = useTheme()
   const [searchValue, setSearchValue] = useState('')
   const location = useLocation()
-  const isSingleToken = location?.pathname.includes('single-token')
+  const isSingleToken = location?.pathname.includes('Explore')
   const above768 = useMedia('(min-width:768px)')
   const above600 = useMedia('(min-width:600px)')
   const navigate = useNavigate()
@@ -102,6 +103,7 @@ export default function TrueSightV2() {
         </Column>
       </ReadMore>
       {isSingleToken ? <SingleToken /> : <TokenAnalysisList />}
+      <TrueSightWidget />
     </Wrapper>
   )
 }
