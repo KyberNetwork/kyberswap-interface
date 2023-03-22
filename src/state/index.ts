@@ -9,6 +9,7 @@ import truesightV2Api, { coinglassApi } from 'pages/TrueSightV2/hooks/useTruesig
 import annoucementApi from '../services/announcement'
 import geckoTerminalApi from '../services/geckoTermial'
 import ksSettingApi from '../services/ksSetting'
+import notificationApi from '../services/notification'
 import application from './application/reducer'
 import bridge from './bridge/reducer'
 import burnProAmm from './burn/proamm/reducer'
@@ -60,6 +61,7 @@ const store = configureStore({
     [geckoTerminalApi.reducerPath]: geckoTerminalApi.reducer,
     [truesightV2Api.reducerPath]: truesightV2Api.reducer,
     [coinglassApi.reducerPath]: coinglassApi.reducer,
+    [notificationApi.reducerPath]: notificationApi.reducer,
     [ksSettingApi.reducerPath]: ksSettingApi.reducer,
     campaigns,
     tutorial,
@@ -78,6 +80,7 @@ const store = configureStore({
       .concat(annoucementApi.middleware)
       .concat(truesightV2Api.middleware)
       .concat(coinglassApi.middleware)
+      .concat(notificationApi.middleware)
       .concat(ksSettingApi.middleware)
       .concat(annoucementApi.middleware)
       .concat(routeApi.middleware),

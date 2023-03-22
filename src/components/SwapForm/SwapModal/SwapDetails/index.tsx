@@ -19,39 +19,10 @@ import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { TYPE } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
-import { formattedNum, toK } from 'utils'
+import { formattedNum } from 'utils'
 import { minimumAmountAfterSlippage } from 'utils/currencyAmount'
 import { getFormattedFeeAmountUsdV2 } from 'utils/fee'
-import { checkPriceImpact } from 'utils/prices'
-
-function formattedMinimumReceived(number: string) {
-  if (!number) {
-    return 0
-  }
-
-  const num = parseFloat(number)
-
-  if (num > 500000000) {
-    return toK(num.toFixed(0))
-  }
-
-  if (num === 0) {
-    return 0
-  }
-
-  if (num < 0.0001 && num > 0) {
-    return '< 0.0001'
-  }
-
-  if (num >= 1000) {
-    return Number(num.toFixed(0)).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 6 })
-  }
-
-  return Number(num.toFixed(6)).toLocaleString(undefined, {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 6,
-  })
-}
+import { checkPriceImpact, formatPriceImpact } from 'utils/prices'
 
 function formatExecutionPrice(executionPrice?: Price<Currency, Currency>, inverted?: boolean): string {
   if (!executionPrice) {
@@ -110,13 +81,13 @@ const SwapDetails: React.FC<Props> = ({
           whiteSpace: 'nowrap',
         }}
       >
-        {formattedMinimumReceived(minimumAmountOut.toSignificant(6))} {currencyOut.symbol}
+        {formattedNum(minimumAmountOut.toSignificant(6), false, 6)} {currencyOut.symbol}
       </Text>
     ) : (
       ''
     )
 
-  const { isInvalid, isHigh, isVeryHigh } = checkPriceImpact(priceImpact)
+  const priceImpactResult = checkPriceImpact(priceImpact)
 
   const renderStatusNotice = () => {
     if (isLoading) {
@@ -226,7 +197,11 @@ const SwapDetails: React.FC<Props> = ({
             <TYPE.black fontSize={14} fontWeight={400} color={theme.subText}>
               <Trans>Minimum Received</Trans>
             </TYPE.black>
-            <InfoHelper size={14} text={t`You will receive at least this amount or your transaction will revert`} />
+            <InfoHelper
+              placement="top"
+              size={14}
+              text={t`You will receive at least this amount or your transaction will revert`}
+            />
           </RowFixed>
 
           <ValueWithLoadingSkeleton
@@ -244,7 +219,7 @@ const SwapDetails: React.FC<Props> = ({
               <TYPE.black fontSize={14} fontWeight={400} color={theme.subText}>
                 <Trans>Gas Fee</Trans>
               </TYPE.black>
-              <InfoHelper size={14} text={t`Estimated network fee for your transaction`} />
+              <InfoHelper placement="top" size={14} text={t`Estimated network fee for your transaction`} />
             </RowFixed>
 
             <ValueWithLoadingSkeleton
@@ -266,11 +241,27 @@ const SwapDetails: React.FC<Props> = ({
             <TYPE.black fontSize={14} fontWeight={400} color={theme.subText}>
               <Trans>Price Impact</Trans>
             </TYPE.black>
-            <InfoHelper size={14} text={t`Estimated change in price due to the size of your transaction`} />
+            <InfoHelper
+              placement="top"
+              size={14}
+              text={t`Estimated change in price due to the size of your transaction`}
+            />
           </RowFixed>
-          <TYPE.black fontSize={14} color={isVeryHigh ? theme.red : isHigh ? theme.warning : theme.text}>
-            {isInvalid || !priceImpact ? '--' : priceImpact > 0.01 ? priceImpact.toFixed(2) + '%' : '< 0.01%'}
-          </TYPE.black>
+
+          <ValueWithLoadingSkeleton
+            skeletonStyle={{
+              width: '64px',
+            }}
+            isShowingSkeleton={isLoading}
+            content={
+              <TYPE.black
+                fontSize={14}
+                color={priceImpactResult.isVeryHigh ? theme.red : priceImpactResult.isHigh ? theme.warning : theme.text}
+              >
+                {priceImpactResult.isInvalid || typeof priceImpact !== 'number' ? '--' : formatPriceImpact(priceImpact)}
+              </TYPE.black>
+            }
+          />
         </RowBetween>
 
         <RowBetween height="20px">
