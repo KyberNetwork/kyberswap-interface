@@ -550,7 +550,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                       marginBottom="0.75rem"
                     >
                       <Text>My Fee Earnings</Text>
-                      {loadingFee ? <Loader /> : <Text>{formattedNumLong(totalFeeRewardUSD, true)}</Text>}
+                      {loadingFee && !feeValue0 ? <Loader /> : <Text>{formattedNumLong(totalFeeRewardUSD, true)}</Text>}
                     </Flex>
 
                     <Divider />

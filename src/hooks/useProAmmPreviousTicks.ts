@@ -88,7 +88,7 @@ export function useTotalFeeOwedByElasticPosition(pool: Pool | null | undefined, 
   const poolAddress = useProAmmPoolInfo(pool?.token0, pool?.token1, pool?.fee)
   const { chainId } = useActiveWeb3React()
 
-  const [fee, setFee] = useState(['0', '0'])
+  const [fee, setFee] = useState<[string | undefined, string | undefined]>([undefined, undefined])
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
@@ -114,9 +114,10 @@ export function useTotalFeeOwedByElasticPosition(pool: Pool | null | undefined, 
   }, [chainId, poolAddress, tickReader, tokenID])
 
   return {
-    feeOwed: pool
-      ? [CurrencyAmount.fromRawAmount(pool.token0, fee[0]), CurrencyAmount.fromRawAmount(pool.token1, fee[1])]
-      : [undefined, undefined],
+    feeOwed:
+      pool && fee[0] && fee[1]
+        ? [CurrencyAmount.fromRawAmount(pool.token0, fee[0]), CurrencyAmount.fromRawAmount(pool.token1, fee[1])]
+        : [undefined, undefined],
     loading,
   }
 }
