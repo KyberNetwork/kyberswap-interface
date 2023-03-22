@@ -38,7 +38,7 @@ export const useFeeTierDistribution = (
   // reset feeTierDistribution when change token
   useEffect(() => {
     setFeeTierDistribution(initState)
-  }, [currencyA, currencyB])
+  }, [currencyA?.wrapped.address, currencyB?.wrapped.address])
 
   useEffect(() => {
     if (!isEVM) return
