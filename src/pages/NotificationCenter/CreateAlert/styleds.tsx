@@ -67,11 +67,23 @@ export const StyledInputNumber = styled(Input)`
   ${shareStyleInput}
   width: 100px;
 `
-export const StyledInput = styled.input`
-  ${shareStyleInput}
-  width: 100px;
+
+export const StyledInput = styled.span`
+  ${shareStyleInput};
+  min-width: 200px;
+  max-width: 250px;
+  height: fit-content;
   outline: none;
   background: transparent;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+      max-width: unset;
+  `}
+  :empty:before {
+    color: ${({ theme }) => theme.text4};
+    content: attr(placeholder);
+    pointer-events: none;
+    display: block; /* For Firefox */
+  }
 `
 
 export const StyledSelect = styled(Select)`

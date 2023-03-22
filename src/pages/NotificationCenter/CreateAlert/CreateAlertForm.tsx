@@ -332,11 +332,18 @@ export default function CreateAlert({
               <Trans>Note</Trans>
             </MiniLabel>
             <StyledInput
-              maxLength={32}
-              style={{ minWidth: '200px', width: 'auto' }}
+              data-max-length={32}
+              contentEditable
               placeholder={t`Add a note`}
-              value={formInput.note}
-              onChange={e => onChangeInput('note', e.currentTarget.value)}
+              onPaste={e => e.preventDefault()}
+              onKeyDown={e => {
+                const { innerHTML = '', dataset } = e.target as HTMLSpanElement
+                const maxLength = Number(dataset.maxLength)
+                if (innerHTML.length >= maxLength && e.key !== 'Backspace') {
+                  e.preventDefault()
+                }
+              }}
+              onKeyUp={e => onChangeInput('note', (e.target as HTMLSpanElement).innerHTML)}
             />
           </RowBetween>
           <Row gap="8px">
