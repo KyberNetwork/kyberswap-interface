@@ -1,9 +1,9 @@
 import { Trans } from '@lingui/macro'
-import { useCallback, useEffect, useState } from 'react'
+import { useState } from 'react'
 import { ChevronLeft } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
-import { useGetAlertStatsQuery, useLazyGetAlertStatsQuery } from 'services/priceAlert'
+import { useGetAlertStatsQuery } from 'services/priceAlert'
 import styled from 'styled-components'
 
 import { useActiveWeb3React } from 'hooks'
