@@ -2,7 +2,7 @@ import { Trans } from '@lingui/macro'
 import { useState } from 'react'
 import { Info } from 'react-feather'
 import { Flex, Text } from 'rebass'
-import { useGetListAlertsQuery } from 'services/priceAlert'
+import { useGetAlertStatsQuery, useGetListAlertsQuery } from 'services/priceAlert'
 import styled from 'styled-components'
 
 import Loader from 'components/Loader'
@@ -31,6 +31,8 @@ const ActiveAlerts = () => {
     },
     { skip: !account },
   )
+  const { data: alertStat } = useGetAlertStatsQuery(account || '', { skip: !account })
+  const isMaxQuotaActiveAlert = alertStat ? alertStat.totalActiveAlerts >= alertStat.maxActiveAlerts : false
 
   if (isLoading) {
     return (
@@ -68,7 +70,7 @@ const ActiveAlerts = () => {
         }}
       >
         {data.alerts.map(alert => {
-          return <SingleAlert key={alert.id} alert={alert} />
+          return <SingleAlert key={alert.id} alert={alert} isMaxQuotaActiveAlert={isMaxQuotaActiveAlert} />
         })}
       </Flex>
 

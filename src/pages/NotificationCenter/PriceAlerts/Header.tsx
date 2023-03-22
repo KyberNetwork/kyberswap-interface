@@ -82,7 +82,7 @@ const Header: React.FC<Props> = ({ currentTab, setCurrentTab }) => {
       sx={{
         flexDirection: 'column',
         gap: '1rem',
-        paddingBottom: '0.5rem',
+        paddingBottom: '1rem',
         borderBottom: `1px solid ${theme.border}`,
       }}
     >
@@ -121,13 +121,7 @@ const Header: React.FC<Props> = ({ currentTab, setCurrentTab }) => {
               navigate(`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.CREATE_ALERT}`)
             }}
           >
-            <MouseoverTooltip
-              text={
-                isMaxQuota
-                  ? `You had created maximum number of alert. Please remove some if you want to create a new alert`
-                  : ''
-              }
-            >
+            <MouseoverTooltip text={isMaxQuota ? `You have created the maximum number of alerts allowed` : ''}>
               {isMaxQuota ? <Info size={16} /> : <Plus size={16} />}
             </MouseoverTooltip>
             <Trans>Create Alert</Trans>

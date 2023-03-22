@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { Trash } from 'react-feather'
+import { Flex } from 'rebass'
 
-import { ButtonEmpty } from 'components/Button'
 import useTheme from 'hooks/useTheme'
 
 type Props = {
@@ -11,20 +11,19 @@ type Props = {
 const DeleteSingleAlertButton: React.FC<Props> = ({ isDisabled, onClick }) => {
   const theme = useTheme()
   return (
-    <ButtonEmpty
+    <Flex
       style={{
-        width: '80px',
-        whiteSpace: 'nowrap',
-        height: '24px',
+        alignItems: 'center',
         color: theme.red,
-        padding: 0,
         gap: '4px',
+        fontSize: '14px',
+        cursor: 'pointer',
       }}
       onClick={onClick}
       disabled={isDisabled}
     >
       <Trash size="16px" /> <Trans>Delete</Trans>
-    </ButtonEmpty>
+    </Flex>
   )
 }
 

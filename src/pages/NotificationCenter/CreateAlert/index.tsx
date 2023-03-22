@@ -6,8 +6,9 @@ import { Text } from 'rebass'
 import { useGetAlertStatsQuery } from 'services/priceAlert'
 import styled from 'styled-components'
 
+import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { ConfirmAlertModalData, PriceAlertStat } from 'pages/NotificationCenter/const'
+import { ConfirmAlertModalData, NOTIFICATION_ROUTES, PriceAlertStat } from 'pages/NotificationCenter/const'
 
 import ConfirmModal from './ConfirmModal'
 import CreateAlertForm from './CreateAlertForm'
@@ -58,7 +59,7 @@ export default function CreateAlert() {
   })
   const navigate = useNavigate()
   const goBack = () => {
-    navigate(-1)
+    navigate(`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.PRICE_ALERTS}`)
   }
 
   return (

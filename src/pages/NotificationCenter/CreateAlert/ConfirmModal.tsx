@@ -17,8 +17,8 @@ import Toggle from 'components/Toggle'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
+import { formatCooldown } from 'pages/NotificationCenter/PriceAlerts/ActiveAlerts/SingleAlert'
 import {
-  COOLDOWN_OPTIONS,
   ConfirmAlertModalData,
   NOTIFICATION_ROUTES,
   PriceAlertStat,
@@ -176,8 +176,7 @@ export default function ConfirmModal({
           <RowBetween>
             <Label style={{ fontSize: 12 }}>
               <Trans>
-                Cooldown:{' '}
-                <Value style={{ fontSize: 12 }}>{COOLDOWN_OPTIONS.find(e => e.value === cooldown)?.label}</Value>
+                Cooldown: <Value style={{ fontSize: 12 }}>{formatCooldown(cooldown)}</Value>
               </Trans>
             </Label>
             {note && (

@@ -1,4 +1,4 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
 import { ArrowDown, ArrowUp, Info } from 'react-feather'
@@ -17,6 +17,8 @@ import RefreshButton from 'components/SwapForm/RefreshButton'
 import useGetRoute from 'components/SwapForm/hooks/useGetRoute'
 import { MouseoverTooltip } from 'components/Tooltip'
 import TradePrice from 'components/swapv2/TradePrice'
+import { ETHER_ADDRESS, ETHER_ADDRESS_SOLANA } from 'constants/index'
+import { isEVM as isEvmChain } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import {
@@ -137,14 +139,21 @@ export default function CreateAlert({
     return true
   }
 
+  const getTokenAddress = (currency: Currency) =>
+    currency.isNative
+      ? isEvmChain(selectedChain)
+        ? ETHER_ADDRESS
+        : ETHER_ADDRESS_SOLANA
+      : currency?.wrapped.address ?? ''
+
   const onSubmitAlert = async () => {
     try {
       if (!isInputValid()) return
       const alert: CreatePriceAlertPayload = {
         walletAddress: account ?? '',
         chainId: selectedChain.toString(),
-        tokenInAddress: currencyIn?.wrapped.address ?? '',
-        tokenOutAddress: currencyOut?.wrapped.address ?? '',
+        tokenInAddress: getTokenAddress(currencyIn),
+        tokenOutAddress: getTokenAddress(currencyOut),
         type: alertType,
         isEnabled: totalActiveAlerts < maxActiveAlerts,
         disableAfterTrigger,
@@ -193,7 +202,7 @@ export default function CreateAlert({
               arrowColor={theme.subText}
               options={NETWORK_OPTIONS}
               onChange={setSelectedChain}
-              menuStyle={{ height: 250, overflow: 'scroll' }}
+              menuStyle={{ height: 250, overflow: 'scroll', width: '100%' }}
               activeRender={item => (
                 <Flex alignItems="center" style={{ gap: 6 }}>
                   <NetworkLogo style={{ width: 20, height: 20 }} chainId={item?.value as ChainId} />
@@ -256,6 +265,7 @@ export default function CreateAlert({
             </MiniLabel>
 
             <StyledSelect
+              menuStyle={{ width: '100%' }}
               arrowColor={theme.subText}
               options={TYPE_OPTIONS}
               value={alertType}
@@ -323,7 +333,7 @@ export default function CreateAlert({
             </MiniLabel>
             <StyledInput
               maxLength={32}
-              style={{ width: '200px' }}
+              style={{ minWidth: '200px', width: 'auto' }}
               placeholder={t`Add a note`}
               value={formInput.note}
               onChange={e => onChangeInput('note', e.currentTarget.value)}
@@ -352,9 +362,7 @@ export default function CreateAlert({
             </ButtonCancel>
             <ButtonSubmit onClick={onSubmitAlert} disabled={!isInputValid()}>
               {isMaxQuota && (
-                <MouseoverTooltip
-                  text={`You had created maximum number of alert. Please remove some if you want to create a new alert`}
-                >
+                <MouseoverTooltip text={`You have created the maximum number of alerts allowed`}>
                   <Info size={16} />
                 </MouseoverTooltip>
               )}

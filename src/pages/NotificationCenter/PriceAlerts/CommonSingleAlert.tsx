@@ -27,7 +27,7 @@ const CommonSingleAlert: React.FC<Props> = ({
       className={className}
       sx={{
         flexDirection: 'column',
-        padding: '24px 0',
+        padding: '20px 0',
         borderBottom: '1px solid',
         borderBottomColor: theme.border,
         gap: '8px',
