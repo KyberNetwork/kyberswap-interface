@@ -84,7 +84,7 @@ const Input = styled.input<{ $borderColor: string }>`
 `
 
 const ButtonTextt = styled.div`
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
 `
 
@@ -423,6 +423,7 @@ export default function NotificationModal() {
             cursor: subscribeAtLeast1Topic ? 'pointer' : 'not-allowed',
             color: theme.subText,
             fontWeight: '500',
+            fontSize: '14px',
           }}
           onClick={onUnsubscribeAll}
         >
