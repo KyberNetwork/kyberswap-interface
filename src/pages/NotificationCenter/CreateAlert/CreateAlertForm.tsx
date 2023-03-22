@@ -332,14 +332,13 @@ export default function CreateAlert({
               <Trans>Note</Trans>
             </MiniLabel>
             <StyledInput
-              data-max-length={32}
               contentEditable
               placeholder={t`Add a note`}
               onPaste={e => e.preventDefault()}
               onKeyDown={e => {
-                const { innerHTML = '', dataset } = e.target as HTMLSpanElement
-                const maxLength = Number(dataset.maxLength)
-                if (innerHTML.length >= maxLength && e.key !== 'Backspace') {
+                const { innerHTML = '' } = e.target as HTMLSpanElement
+                const key = e.keyCode || e.charCode
+                if (innerHTML.length >= 32 && key !== 8) {
                   e.preventDefault()
                 }
               }}

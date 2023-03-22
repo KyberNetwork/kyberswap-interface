@@ -75,9 +75,6 @@ export const StyledInput = styled.span`
   height: fit-content;
   outline: none;
   background: transparent;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-      max-width: unset;
-  `}
   :empty:before {
     color: ${({ theme }) => theme.text4};
     content: attr(placeholder);
