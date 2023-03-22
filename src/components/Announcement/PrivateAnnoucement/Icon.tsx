@@ -5,22 +5,25 @@ import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
 import { ReactComponent as LimitOrderIcon } from 'assets/svg/limit_order.svg'
 import { ReactComponent as LiquidityIcon } from 'assets/svg/liquidity_icon.svg'
 import { PrivateAnnouncementType } from 'components/Announcement/type'
+import { Clock } from 'components/Icons'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import { NetworkLogo } from 'components/Logo'
+import useTheme from 'hooks/useTheme'
 
 const IconWrapper = styled.div<{ hasNetwork: boolean }>`
   position: relative;
   ${({ hasNetwork }) => hasNetwork && `margin-right: 4px;`}
 `
 
-const mapIcon = {
-  [PrivateAnnouncementType.BRIDGE]: <BridgeIcon />,
-  [PrivateAnnouncementType.LIMIT_ORDER]: <LimitOrderIcon />,
-  [PrivateAnnouncementType.POOL_POSITION]: <LiquidityIcon />,
-  [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: <DiscoverIcon size={16} />,
-}
-
 export default function InboxIcon({ type, chainId }: { type: PrivateAnnouncementType; chainId?: ChainId }) {
+  const theme = useTheme()
+  const mapIcon = {
+    [PrivateAnnouncementType.BRIDGE]: <BridgeIcon />,
+    [PrivateAnnouncementType.LIMIT_ORDER]: <LimitOrderIcon />,
+    [PrivateAnnouncementType.POOL_POSITION]: <LiquidityIcon />,
+    [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: <DiscoverIcon size={16} />,
+    [PrivateAnnouncementType.PRICE_ALERT]: <Clock size={16} color={theme.text} />,
+  }
   const icon = mapIcon[type]
   return (
     <IconWrapper hasNetwork={!!chainId}>

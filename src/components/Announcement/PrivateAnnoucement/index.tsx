@@ -4,6 +4,7 @@ import { CSSProperties } from 'styled-components'
 import InboxItemBridge from 'components/Announcement/PrivateAnnoucement/InboxItemBridge'
 import InboxItemLO from 'components/Announcement/PrivateAnnoucement/InboxItemLO'
 import InboxItemPoolPosition from 'components/Announcement/PrivateAnnoucement/InboxItemPoolPosition'
+import InboxItemPriceAlert from 'components/Announcement/PrivateAnnoucement/InboxItemPriceAlert'
 import InboxItemTrendingSoon from 'components/Announcement/PrivateAnnoucement/InboxItemTrendingSoon'
 import { InboxItemTime } from 'components/Announcement/PrivateAnnoucement/styled'
 import { formatTime } from 'components/Announcement/helper'
@@ -12,6 +13,7 @@ import {
   AnnouncementTemplateBridge,
   AnnouncementTemplateLimitOrder,
   AnnouncementTemplatePoolPosition,
+  AnnouncementTemplatePriceAlert,
   AnnouncementTemplateTrendingSoon,
   PrivateAnnouncement,
   PrivateAnnouncementType,
@@ -55,6 +57,13 @@ export default function InboxItem({ announcement, onRead, style }: PrivateAnnoun
           <InboxItemPoolPosition
             {...props}
             announcement={announcement as PrivateAnnouncement<AnnouncementTemplatePoolPosition>}
+          />
+        )
+      case PrivateAnnouncementType.PRICE_ALERT:
+        return (
+          <InboxItemPriceAlert
+            {...props}
+            announcement={announcement as PrivateAnnouncement<AnnouncementTemplatePriceAlert>}
           />
         )
       default:

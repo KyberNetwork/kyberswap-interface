@@ -1,9 +1,9 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
-import { useRef, useState } from 'react'
+import { Trans, t } from '@lingui/macro'
+import { useEffect, useRef, useState } from 'react'
 import { ArrowDown, ArrowUp, X } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
-import { Text } from 'rebass'
+import { Flex, Text } from 'rebass'
 import { useUpdatePriceAlertMutation } from 'services/priceAlert'
 import styled from 'styled-components'
 
@@ -14,6 +14,7 @@ import { NetworkLogo } from 'components/Logo'
 import Modal from 'components/Modal'
 import Row, { RowBetween } from 'components/Row'
 import Toggle from 'components/Toggle'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
@@ -71,12 +72,20 @@ export default function ConfirmModal({
 }) {
   const theme = useTheme()
 
-  const { maxActiveAlerts, totalActiveAlerts } = priceAlertStat
+  const { maxActiveAlerts, totalActiveAlerts, totalAlerts, maxAlerts } = priceAlertStat
   const isMaxQuota = totalActiveAlerts >= maxActiveAlerts
 
   const { disableAfterTrigger, chainId, tokenInAmount, threshold, type, cooldown, note, id } = alert
 
-  const [isEnabled, setEnable] = useState(alert.isEnabled)
+  const showedAnimation = useRef(false)
+  useEffect(() => {
+    if (!alert.isEnabled && !showedAnimation.current) {
+      setTimeout(() => setEnable(false), 2000)
+    }
+    showedAnimation.current = true
+  }, [alert.isEnabled])
+
+  const [isEnabled, setEnable] = useState(true)
   const canUpdateEnable = isEnabled ? true : !isMaxQuota
 
   const selectChain = Number(chainId) as ChainId
@@ -116,21 +125,26 @@ export default function ConfirmModal({
 
         <RowBetween>
           <Label>
-            <Trans>You have successfully created an alert! </Trans>
+            <Trans>
+              Alerts Created: {totalAlerts}/{maxAlerts}
+            </Trans>
           </Label>
-          <Toggle
-            style={{ transform: 'scale(.8)', cursor: canUpdateEnable ? 'pointer' : 'not-allowed' }}
-            icon={<NotificationIcon size={16} color={theme.textReverse} />}
-            isActive={isEnabled}
-            toggle={toggleEnable}
-          />
+          <Flex alignItems="center" style={{ gap: '6px' }}>
+            <Label style={{ color: isMaxQuota ? theme.warning : theme.subText }}>
+              <Trans>
+                Active Alerts: {totalActiveAlerts}/{maxActiveAlerts}
+              </Trans>
+            </Label>
+            <MouseoverTooltip text={!canUpdateEnable ? t`Maximum number of Active Alerts reached` : ''}>
+              <Toggle
+                style={{ transform: 'scale(.8)', cursor: canUpdateEnable ? 'pointer' : 'not-allowed' }}
+                icon={<NotificationIcon size={16} color={theme.textReverse} />}
+                isActive={isEnabled}
+                toggle={toggleEnable}
+              />
+            </MouseoverTooltip>
+          </Flex>
         </RowBetween>
-
-        <Text fontSize={12} color={isMaxQuota ? theme.warning : theme.subText}>
-          <Trans>
-            You are now using {totalActiveAlerts} out of your {maxActiveAlerts} active alerts.{' '}
-          </Trans>{' '}
-        </Text>
 
         <Container>
           <Row alignItems={'center'} gap="6px">

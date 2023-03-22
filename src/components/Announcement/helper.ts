@@ -2,6 +2,8 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useNavigate } from 'react-router-dom'
 
 import { AnnouncementTemplatePopup, PopupContentAnnouncement, PopupItemType } from 'components/Announcement/type'
+import { useActiveWeb3React } from 'hooks'
+import { useChangeNetwork } from 'hooks/useChangeNetwork'
 
 const LsKey = 'ack-announcements'
 const getAnnouncementsAckMap = () => JSON.parse(localStorage[LsKey] || '{}')
@@ -42,14 +44,25 @@ export const formatTime = (time: number) => {
 
 export const useNavigateCtaPopup = () => {
   const navigate = useNavigate()
-  const onNavigate = (actionURL: string) => {
+  const { chainId: currentChain } = useActiveWeb3React()
+  const changeNetwork = useChangeNetwork()
+
+  const redirect = (actionURL: string) => {
+    const { pathname, host } = new URL(actionURL)
+    if (window.location.host === host) {
+      navigate(pathname)
+    } else {
+      window.open(actionURL)
+    }
+  }
+
+  const onNavigate = (actionURL: string, chainId?: ChainId) => {
     try {
       if (!actionURL) return
-      const { pathname, host } = new URL(actionURL)
-      if (window.location.host === host) {
-        navigate(pathname)
+      if (chainId && chainId !== currentChain) {
+        changeNetwork(chainId, () => redirect(actionURL))
       } else {
-        window.open(actionURL)
+        redirect(actionURL)
       }
     } catch (error) {}
   }

@@ -26,7 +26,7 @@ export type CreatePriceAlertPayload = {
   tokenOutAddress: string
   tokenInAmount: string
   threshold: string
-  type: 'above' | 'below'
+  type: PriceAlertType
   isEnabled: boolean
   disableAfterTrigger: boolean
   cooldown: number
