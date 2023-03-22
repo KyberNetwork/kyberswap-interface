@@ -332,7 +332,7 @@ export default function Menu() {
                       link: APP_PATHS.GRANT_PROGRAMS,
                       label: (
                         <Text as="span">
-                          <Trans>Project Trading Grant</Trans>{' '}
+                          <Trans>Trading Grant Campaign</Trans>{' '}
                           <NewLabel>
                             <Trans>New</Trans>
                           </NewLabel>
