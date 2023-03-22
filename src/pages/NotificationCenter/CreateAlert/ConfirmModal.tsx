@@ -64,32 +64,31 @@ export default function ConfirmModal({
   data: { alert, currencyIn, currencyOut },
   priceAlertStat,
   onDismiss,
-  refreshStat,
 }: {
   onDismiss: () => void
-  refreshStat: () => void
   priceAlertStat: PriceAlertStat
   data: ConfirmAlertModalData
 }) {
   const theme = useTheme()
 
   const { maxActiveAlerts, totalActiveAlerts } = priceAlertStat
-  const isExceedQuota = totalActiveAlerts > maxActiveAlerts
   const isMaxQuota = totalActiveAlerts >= maxActiveAlerts
 
   const { disableAfterTrigger, chainId, tokenInAmount, threshold, type, cooldown, note, id } = alert
-  const [isEnabled, setEnable] = useState(isExceedQuota)
+
+  const [isEnabled, setEnable] = useState(alert.isEnabled)
+  const canUpdateEnable = isEnabled ? true : !isMaxQuota
+
   const selectChain = Number(chainId) as ChainId
   const [enablePriceAlert] = useUpdatePriceAlertMutation()
   const isLoading = useRef(false)
   const toggleEnable = async () => {
     try {
-      if (!id || isLoading.current || isMaxQuota) return
+      if (!id || isLoading.current || !canUpdateEnable) return
       isLoading.current = true
       const { error }: any = await enablePriceAlert({ id, isEnabled: !isEnabled })
       if (error) throw error
       setEnable(v => !v)
-      refreshStat()
     } catch (error) {
       console.error('update alert error', error)
     } finally {
@@ -120,7 +119,7 @@ export default function ConfirmModal({
             <Trans>You have successfully created an alert! </Trans>
           </Label>
           <Toggle
-            style={{ transform: 'scale(.8)', cursor: isMaxQuota ? 'not-allowed' : 'pointer' }}
+            style={{ transform: 'scale(.8)', cursor: canUpdateEnable ? 'pointer' : 'not-allowed' }}
             icon={<NotificationIcon size={16} color={theme.textReverse} />}
             isActive={isEnabled}
             toggle={toggleEnable}

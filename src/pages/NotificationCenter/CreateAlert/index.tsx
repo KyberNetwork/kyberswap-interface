@@ -1,9 +1,9 @@
 import { Trans } from '@lingui/macro'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
-import { useLazyGetAlertStatsQuery } from 'services/priceAlert'
+import { useGetAlertStatsQuery, useLazyGetAlertStatsQuery } from 'services/priceAlert'
 import styled from 'styled-components'
 
 import { useActiveWeb3React } from 'hooks'
@@ -53,9 +53,9 @@ export default function CreateAlert() {
     setModalData(undefined)
   }
 
-  const [refetch, { data: priceAlertStat = {} as PriceAlertStat }] = useLazyGetAlertStatsQuery()
-
-  const refreshStat = useCallback(() => account && refetch(account), [account, refetch])
+  const { data: priceAlertStat = {} as PriceAlertStat } = useGetAlertStatsQuery(account ?? '', {
+    skip: !account,
+  })
   const navigate = useNavigate()
   const goBack = () => {
     navigate(-1)
@@ -77,16 +77,9 @@ export default function CreateAlert() {
         </Trans>
       </Headline>
 
-      <CreateAlertForm showModalConfirm={showModalConfirm} priceAlertStat={priceAlertStat} refreshStat={refreshStat} />
+      <CreateAlertForm showModalConfirm={showModalConfirm} priceAlertStat={priceAlertStat} />
 
-      {modalData && (
-        <ConfirmModal
-          data={modalData}
-          onDismiss={hideModalConfirm}
-          refreshStat={refreshStat}
-          priceAlertStat={priceAlertStat}
-        />
-      )}
+      {modalData && <ConfirmModal data={modalData} onDismiss={hideModalConfirm} priceAlertStat={priceAlertStat} />}
     </Wrapper>
   )
 }

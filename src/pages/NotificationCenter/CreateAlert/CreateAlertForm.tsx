@@ -56,11 +56,9 @@ const defaultInput = {
 export default function CreateAlert({
   showModalConfirm,
   priceAlertStat,
-  refreshStat,
 }: {
   showModalConfirm: (data: ConfirmAlertModalData) => void
   priceAlertStat: PriceAlertStat
-  refreshStat: () => void
 }) {
   const { account, chainId } = useActiveWeb3React()
   const [createAlert] = useCreatePriceAlertMutation()
@@ -151,7 +149,6 @@ export default function CreateAlert({
       }
       const { data, error }: any = await createAlert(alert)
       if (error || typeof data?.data?.id !== 'number') throw error
-      refreshStat()
       showModalConfirm({
         alert: {
           ...alert,

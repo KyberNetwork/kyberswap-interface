@@ -70,7 +70,7 @@ const transformGetListHistoricalAlertsResponse = (data: any): GetListHistoricalA
 const priceAlertApi = createApi({
   reducerPath: 'priceAlertApi',
   baseQuery: fetchBaseQuery({ baseUrl: PRICE_ALERT_API }),
-  tagTypes: ['PriceAlerts', 'PriceAlertsHistory'],
+  tagTypes: ['PriceAlerts', 'PriceAlertsHistory', 'PriceAlertsStat'],
   endpoints: builder => ({
     getListAlerts: builder.query<GetListAlertsResponseData, GetListAlertsParams>({
       query: params => ({
@@ -90,6 +90,7 @@ const priceAlertApi = createApi({
         },
       }),
       transformResponse: (data: any) => data?.data?.statistics,
+      providesTags: ['PriceAlertsStat'],
     }),
     createPriceAlert: builder.mutation<MetaResponse<{ id: number }>, CreatePriceAlertPayload>({
       query: body => ({
@@ -97,7 +98,7 @@ const priceAlertApi = createApi({
         method: 'POST',
         body,
       }),
-      invalidatesTags: ['PriceAlerts'],
+      invalidatesTags: ['PriceAlerts', 'PriceAlertsStat'],
     }),
     updatePriceAlert: builder.mutation<void, { isEnabled: boolean; id: number }>({
       query: ({ isEnabled, id }) => ({
@@ -105,7 +106,7 @@ const priceAlertApi = createApi({
         method: 'PATCH',
         body: { isEnabled },
       }),
-      invalidatesTags: ['PriceAlerts'],
+      invalidatesTags: ['PriceAlerts', 'PriceAlertsStat'],
     }),
     deleteAllAlerts: builder.mutation<void, { account: string }>({
       query: ({ account }) => ({
