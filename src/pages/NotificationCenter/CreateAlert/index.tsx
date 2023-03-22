@@ -2,7 +2,7 @@ import { Trans } from '@lingui/macro'
 import { useState } from 'react'
 import { ChevronLeft } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
-import { Text } from 'rebass'
+import { Flex, Text } from 'rebass'
 import { useGetAlertStatsQuery } from 'services/priceAlert'
 import styled from 'styled-components'
 
@@ -17,12 +17,22 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
+  padding: 0 24px;
+  padding-bottom: 16px;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    padding: 0;
+    padding-bottom: 16px;
+  `}
 `
 
 const Header = styled.div`
+  width: 100%;
+  height: 60px;
+
   display: flex;
   align-items: center;
-  width: 100%;
+  cursor: pointer;
 
   transform: translateX(-4px);
   ${({ theme }) => theme.mediaWidth.upToMedium`
@@ -64,19 +74,26 @@ export default function CreateAlert() {
 
   return (
     <Wrapper>
-      <Header style={{ cursor: 'pointer' }} onClick={goBack}>
-        <ChevronLeft size={20} />
-        <Text fontWeight={'500'} fontSize="14px">
-          <Trans>Create Alert</Trans>
-        </Text>
-      </Header>
+      <Flex
+        sx={{
+          width: '100%',
+          flexDirection: 'column',
+        }}
+      >
+        <Header onClick={goBack} role="button">
+          <ChevronLeft size={20} />
+          <Text fontWeight={'500'} fontSize="14px">
+            <Trans>Create Alert</Trans>
+          </Text>
+        </Header>
 
-      <Headline>
-        <Trans>
-          We will use our Aggregator to regularly monitor price changes based on your alert conditions below. When the
-          price alert is triggered, we will send you a notification
-        </Trans>
-      </Headline>
+        <Headline>
+          <Trans>
+            We will use our Aggregator to regularly monitor price changes based on your alert conditions below. When the
+            price alert is triggered, we will send you a notification
+          </Trans>
+        </Headline>
+      </Flex>
 
       <CreateAlertForm showModalConfirm={showModalConfirm} priceAlertStat={priceAlertStat} />
 

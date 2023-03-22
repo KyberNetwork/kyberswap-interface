@@ -1,18 +1,14 @@
 import { Trans } from '@lingui/macro'
-import { Info, Plus } from 'react-feather'
-import { useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import { useGetAlertStatsQuery } from 'services/priceAlert'
-import { useTheme } from 'styled-components'
+import styled, { useTheme } from 'styled-components'
 
-import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
+import { ButtonLight, ButtonOutlined } from 'components/Button'
 import Loader from 'components/Loader'
-import { MouseoverTooltip } from 'components/Tooltip'
-import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { Tab } from 'pages/NotificationCenter/PriceAlerts'
+import CreateAlertButton from 'pages/NotificationCenter/PriceAlerts/CreateAlertButton'
 import DeleteAllAlertsButton from 'pages/NotificationCenter/PriceAlerts/DeleteAllAlertsButton'
-import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
 
 const TabButton: React.FC<{ isActive: boolean; onClick: () => void; children: React.ReactNode }> = ({
   isActive,
@@ -65,27 +61,31 @@ const StatItem: React.FC<StatItemProps> = ({ isLoading, label, totalNumber, maxN
   )
 }
 
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid ${({ theme }) => theme.border};
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    padding: 1rem 0;
+    ${CreateAlertButton} {
+      display: none;
+    }
+  `}
+`
+
 type Props = {
   currentTab: Tab
   setCurrentTab: (t: Tab) => void
 }
 const Header: React.FC<Props> = ({ currentTab, setCurrentTab }) => {
-  const navigate = useNavigate()
   const theme = useTheme()
   const { account } = useActiveWeb3React()
-
   const { data, isLoading } = useGetAlertStatsQuery(account || '', { skip: !account })
-
-  const isMaxQuota = data ? data.totalAlerts >= data.maxAlerts : false
   return (
-    <Flex
-      sx={{
-        flexDirection: 'column',
-        gap: '1rem',
-        paddingBottom: '1rem',
-        borderBottom: `1px solid ${theme.border}`,
-      }}
-    >
+    <Wrapper>
       <Flex alignItems={'center'} justifyContent="space-between">
         <Flex
           alignItems="center"
@@ -108,24 +108,7 @@ const Header: React.FC<Props> = ({ currentTab, setCurrentTab }) => {
           }}
         >
           <DeleteAllAlertsButton currentTab={currentTab} />
-
-          <ButtonPrimary
-            style={{
-              padding: '0 8px 0 6px',
-              gap: '4px',
-              flex: '0 0 fit-content',
-              height: '36px',
-            }}
-            disabled={isMaxQuota}
-            onClick={() => {
-              navigate(`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.CREATE_ALERT}`)
-            }}
-          >
-            <MouseoverTooltip text={isMaxQuota ? `You have created the maximum number of alerts allowed` : ''}>
-              {isMaxQuota ? <Info size={16} /> : <Plus size={16} />}
-            </MouseoverTooltip>
-            <Trans>Create Alert</Trans>
-          </ButtonPrimary>
+          <CreateAlertButton />
         </Flex>
       </Flex>
 
@@ -154,7 +137,7 @@ const Header: React.FC<Props> = ({ currentTab, setCurrentTab }) => {
           maxNumber={data?.maxActiveAlerts}
         />
       </Flex>
-    </Flex>
+    </Wrapper>
   )
 }
 

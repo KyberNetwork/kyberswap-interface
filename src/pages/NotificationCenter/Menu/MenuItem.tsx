@@ -28,14 +28,17 @@ const Badge = styled.div`
   color: ${({ theme }) => theme.textReverse};
 `
 
-type ActiveProps = {
+type WrapperProps = {
   $active: boolean
+  $mobile: boolean
 }
-const Wrapper = styled.div.attrs<ActiveProps>(props => ({
+const Wrapper = styled.div.attrs<WrapperProps>(props => ({
   'data-active': props.$active,
-}))<ActiveProps>`
+  'data-mobile': props.$mobile,
+}))<WrapperProps>`
   display: flex;
   align-items: center;
+  gap: 8px;
   color: ${({ theme }) => theme.subText};
   padding: 4px 0;
   cursor: pointer;
@@ -47,6 +50,25 @@ const Wrapper = styled.div.attrs<ActiveProps>(props => ({
       background-color: ${({ theme }) => theme.primary};
     }
   }
+
+  &[data-mobile='true'] {
+    height: 36px;
+    padding: 0 12px;
+    flex-wrap: nowrap;
+
+    border: 1px solid ${({ theme }) => theme.subText};
+    border-radius: 36px;
+
+    ${Label} {
+      overflow-wrap: unset;
+      white-space: nowrap;
+    }
+
+    &[data-active='true'] {
+      background-color: ${({ theme }) => `${theme.primary}33`};
+      border-color: transparent;
+    }
+  }
 `
 
 type Props = {
@@ -54,9 +76,10 @@ type Props = {
   icon: React.ReactElement
   text: string
   badgeText?: string
+  isMobile?: boolean
 }
 
-const MenuItem: React.FC<Props> = ({ icon, text, badgeText, href }) => {
+const MenuItem: React.FC<Props> = ({ icon, text, badgeText, href, isMobile = false }) => {
   const location = useLocation()
   const theme = useTheme()
 
@@ -65,7 +88,7 @@ const MenuItem: React.FC<Props> = ({ icon, text, badgeText, href }) => {
 
   return (
     <Link to={path}>
-      <Wrapper $active={isActive}>
+      <Wrapper $active={isActive} $mobile={isMobile}>
         <Flex
           sx={{
             flex: '1 1 0',

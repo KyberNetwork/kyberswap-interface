@@ -3,19 +3,13 @@ import { useState } from 'react'
 import { Info } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import { useGetListPriceAlertHistoryQuery } from 'services/priceAlert'
-import styled from 'styled-components'
 
 import Loader from 'components/Loader'
-import Pagination from 'components/Pagination'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import CommonPagination from 'pages/NotificationCenter/PriceAlerts/CommonPagination'
 
 import SingleAlert from './SingleAlert'
-
-const CustomPagination = styled(Pagination)`
-  margin-top: 1rem;
-  padding: 0 1rem;
-`
 
 const ITEMS_PER_PAGE = 10
 
@@ -72,7 +66,7 @@ const AlertsHistory = () => {
         })}
       </Flex>
 
-      <CustomPagination
+      <CommonPagination
         onPageChange={setPage}
         totalCount={data?.pagination?.totalItems || 0}
         currentPage={page}

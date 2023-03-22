@@ -37,7 +37,7 @@ const AlertCondition: React.FC<Props> = alertData => {
         alignItems: 'center',
         fontSize: '14px',
         color: theme.subText,
-        columnGap: '6px',
+        gap: '4px 6px',
         flexWrap: 'wrap',
         lineHeight: '20px',
       }}

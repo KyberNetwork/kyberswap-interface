@@ -1,12 +1,56 @@
 import { Trans } from '@lingui/macro'
-import { Clock } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
+import { ReactComponent as AlarmIcon } from 'assets/svg/alarm.svg'
 import Toggle from 'components/Toggle'
 import useTheme from 'hooks/useTheme'
 import AlertCondition, { Props as AlertConditionProps } from 'pages/NotificationCenter/PriceAlerts/AlertCondition'
 import { PriceAlert } from 'pages/NotificationCenter/const'
+
+const Wrapper = styled.div`
+  padding: 20px 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  border-bottom: 1px solid ${({ theme }) => theme.border};
+
+  ${Toggle} {
+    &[data-active='false'] {
+      background: ${({ theme }) => theme.buttonBlack};
+    }
+  }
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    padding: 16px 0;
+  `}
+`
+
+const TimeText = styled.span`
+  font-size: 14px;
+  color: ${({ theme }) => theme.subText};
+  flex: 0 0 max-content;
+  white-space: nowrap;
+  line-height: 20px;
+`
+
+const AlertConditionWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    flex-direction: column-reverse;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    ${TimeText} {
+      font-size: 12px;
+    }
+  `}
+`
 
 type Props = {
   className?: string
@@ -23,17 +67,8 @@ const CommonSingleAlert: React.FC<Props> = ({
 }) => {
   const theme = useTheme()
   return (
-    <Flex
-      className={className}
-      sx={{
-        flexDirection: 'column',
-        padding: '20px 0',
-        borderBottom: '1px solid',
-        borderBottomColor: theme.border,
-        gap: '8px',
-      }}
-    >
-      <Flex alignItems={'center'} justifyContent="space-between">
+    <Wrapper>
+      <Flex alignItems={'center'} justifyContent="space-between" height="24px">
         <Flex
           sx={{
             fontWeight: '500',
@@ -43,7 +78,7 @@ const CommonSingleAlert: React.FC<Props> = ({
             gap: '4px',
           }}
         >
-          <Clock width={14} height={14} />
+          <AlarmIcon width={14} height={14} />
           <span>
             <Trans>Price Alert</Trans>
           </span>
@@ -60,24 +95,11 @@ const CommonSingleAlert: React.FC<Props> = ({
         </Flex>
       </Flex>
 
-      <Flex
-        sx={{
-          gap: '16px',
-        }}
-      >
+      <AlertConditionWrapper>
         <AlertCondition {...alertData} />
-        <Text
-          sx={{
-            fontSize: '14px',
-            color: theme.subText,
-            flex: '0 0 max-content',
-            whiteSpace: 'nowrap',
-            lineHeight: '20px',
-          }}
-        >
-          {timeText}
-        </Text>
-      </Flex>
+
+        <TimeText>{timeText}</TimeText>
+      </AlertConditionWrapper>
 
       {alertData.note || alertData.disableAfterTrigger ? (
         <Flex
@@ -116,14 +138,8 @@ const CommonSingleAlert: React.FC<Props> = ({
           ) : null}
         </Flex>
       ) : null}
-    </Flex>
+    </Wrapper>
   )
 }
 
-export default styled(CommonSingleAlert)`
-  ${Toggle} {
-    &[data-active='false'] {
-      background: ${({ theme }) => theme.buttonBlack};
-    }
-  }
-`
+export default CommonSingleAlert

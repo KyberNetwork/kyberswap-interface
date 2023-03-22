@@ -13,6 +13,9 @@ const DeleteSingleAlertButton: React.FC<Props> = ({ isDisabled, onClick }) => {
   return (
     <Flex
       style={{
+        width: 'fit-content',
+        whiteSpace: 'nowrap',
+        height: '24px',
         alignItems: 'center',
         color: theme.red,
         gap: '4px',

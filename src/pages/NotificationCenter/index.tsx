@@ -1,6 +1,5 @@
 import { Trans } from '@lingui/macro'
 import { Navigate, Route, Routes } from 'react-router-dom'
-import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 import MailIcon from 'components/Icons/MailIcon'
@@ -19,12 +18,27 @@ const PageWrapper = styled.div`
   `}
 `
 const Wrapper = styled.div`
-  display: flex;
   width: 100%;
+
+  display: flex;
+  flex-direction: row;
+
   border: 1px solid ${({ theme }) => theme.border};
   border-radius: 24px;
+
   ${({ theme }) => theme.mediaWidth.upToMedium`
     border: none;
+    flex-direction: column;
+    gap: 16px;
+  `}
+`
+
+const HeaderWrapper = styled.div`
+  display: flex;
+  align-items: center;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    padding: 0 16px;
   `}
 `
 
@@ -35,11 +49,17 @@ const Title = styled.h2`
 `
 
 const LeftColumn = styled.div`
+  width: 280px;
+
   background-color: ${({ theme }) => theme.tableHeader};
   border-radius: 24px 0px 0px 24px;
-  width: 280px;
+  border-right: 1px solid ${({ theme }) => theme.border};
+
   ${({ theme }) => theme.mediaWidth.upToMedium`
-    display: none;
+    border: none;
+    border-radius: 0;
+    width: 100%;
+    background-color: unset;
   `}
 `
 const RightColumn = styled.div`
@@ -47,10 +67,8 @@ const RightColumn = styled.div`
   flex: 1;
   border-radius: 0px 24px 24px 0px;
 
-  padding: 24px;
-  border-left: 1px solid ${({ theme }) => theme.border};
   ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding: 24px 0px;
+    width: 100%;
     border-radius: 0px;
   `}
 `
@@ -58,12 +76,12 @@ const RightColumn = styled.div`
 function NotificationCenter() {
   return (
     <PageWrapper>
-      <Flex alignItems="center">
+      <HeaderWrapper>
         <MailIcon />
         <Title>
           <Trans>Notification Center</Trans>
         </Title>
-      </Flex>
+      </HeaderWrapper>
       <Wrapper>
         <LeftColumn>
           <Menu />

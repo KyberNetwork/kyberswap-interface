@@ -1,5 +1,6 @@
 import { t } from '@lingui/macro'
 import { List as ListIcon } from 'react-feather'
+import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 
@@ -12,6 +13,7 @@ import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import NotificationIcon from 'components/Icons/NotificationIcon'
 import MenuItem from 'pages/NotificationCenter/Menu/MenuItem'
 import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
+import { MEDIA_WIDTHS } from 'theme'
 
 const Divider = styled.div<{ $margin?: string }>`
   height: 0;
@@ -21,7 +23,7 @@ const Divider = styled.div<{ $margin?: string }>`
   margin: ${({ $margin }) => $margin || '0'};
 `
 
-const Menu = () => {
+const MenuForDesktop = () => {
   return (
     <Flex
       sx={{
@@ -91,6 +93,70 @@ const Menu = () => {
       </Flex>
     </Flex>
   )
+}
+
+const MenuForMobile = () => {
+  return (
+    <Flex
+      sx={{
+        overflowX: 'auto',
+        alignItems: 'center',
+        padding: '0 16px',
+        gap: '8px',
+      }}
+    >
+      <MenuItem
+        isMobile
+        href={NOTIFICATION_ROUTES.OVERVIEW}
+        icon={<NotificationIcon size="16px" />}
+        text={t`Notification Overview`}
+      />
+      <MenuItem isMobile href={NOTIFICATION_ROUTES.ALL} icon={<ListIcon size="16px" />} text={t`All Notifications`} />
+      <MenuItem
+        isMobile
+        href={NOTIFICATION_ROUTES.GENERAL}
+        icon={<MailIcon width="16px" height="16px" />}
+        text={t`General`}
+      />
+      <MenuItem
+        isMobile
+        href={NOTIFICATION_ROUTES.PRICE_ALERTS}
+        icon={<AlarmIcon width={16} height={16} />}
+        text={t`Price Alerts`}
+      />
+      <MenuItem
+        isMobile
+        href={NOTIFICATION_ROUTES.MY_ELASTIC_POOLS}
+        icon={<DropIcon width="16px" height="16px" />}
+        text={t`My Elastic Pools`}
+      />
+      <MenuItem isMobile href={NOTIFICATION_ROUTES.LIMIT_ORDERS} icon={<LimitOrderIcon />} text={t`Limit Orders`} />
+      <MenuItem
+        isMobile
+        href={NOTIFICATION_ROUTES.BRIDGE}
+        icon={<BridgeIcon width="16px" height="16px" />}
+        text={t`Cross-Chain Bridge`}
+        badgeText={'10'}
+      />
+      <MenuItem
+        isMobile
+        href={NOTIFICATION_ROUTES.TRENDING_SOON_TOKENS}
+        icon={<DiscoverIcon size={16} />}
+        text={t`Trending Soon Tokens`}
+        badgeText={'10+'}
+      />
+    </Flex>
+  )
+}
+
+const Menu = () => {
+  const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
+
+  if (upToMedium) {
+    return <MenuForMobile />
+  }
+
+  return <MenuForDesktop />
 }
 
 export default Menu
