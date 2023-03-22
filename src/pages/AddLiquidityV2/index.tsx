@@ -72,6 +72,7 @@ import { VIEW_MODE } from 'state/user/reducer'
 import { ExternalLink, MEDIA_WIDTHS, StyledInternalLink, TYPE } from 'theme'
 import { basisPointsToPercent, calculateGasMargin, formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
+import { toSignificantOrMaxIntegerPart } from 'utils/formatCurrencyAmount'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
@@ -1205,7 +1206,9 @@ export default function AddLiquidity() {
                               <HoverInlineText
                                 maxCharacters={24}
                                 text={`1 ${baseCurrency?.symbol} = ${
-                                  invertPrice ? price.invert().toSignificant(10) : price.toSignificant(10)
+                                  invertPrice
+                                    ? toSignificantOrMaxIntegerPart(price.invert(), 6)
+                                    : toSignificantOrMaxIntegerPart(price, 6)
                                 } ${quoteCurrency?.symbol}`}
                               />
                             </RowFixed>
