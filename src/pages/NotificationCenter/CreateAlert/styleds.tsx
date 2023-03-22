@@ -95,7 +95,7 @@ export const ActionGroup = styled.div`
   `}
 `
 export const shareStyleBtn = css`
-  width: 120px;
+  width: 140px;
   height: 36px;
   ${({ theme }) => theme.mediaWidth.upToMedium`
   width: 164px;
@@ -107,6 +107,8 @@ export const ButtonCancel = styled(ButtonOutlined)`
 `
 export const ButtonSubmit = styled(ButtonPrimary)`
   ${shareStyleBtn}
+  display: flex;
+  gap: 4px;
 `
 export const ButtonConnectWallet = styled(ButtonLight)`
   width: 150px;

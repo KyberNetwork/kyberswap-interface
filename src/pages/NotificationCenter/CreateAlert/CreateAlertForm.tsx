@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
-import { ArrowDown, ArrowUp } from 'react-feather'
+import { ArrowDown, ArrowUp, Info } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import { useCreatePriceAlertMutation } from 'services/priceAlert'
 import { parseGetRouteResponse } from 'services/route/utils'
@@ -74,7 +74,7 @@ export default function CreateAlert({
   const [cooldown, setCooldown] = useState(DEFAULT_ALERT_COOLDOWN)
   const [alertType, setAlertType] = useState<PriceAlertType>(PriceAlertType.ABOVE)
 
-  const { maxActiveAlerts, totalActiveAlerts } = priceAlertStat
+  const { maxActiveAlerts, totalActiveAlerts, totalAlerts, maxAlerts } = priceAlertStat
 
   const parsedAmount = useMemo(
     () => tryParseAmount(formInput.tokenInAmount, currencyIn),
@@ -126,8 +126,12 @@ export default function CreateAlert({
     setDisableAfterTrigger(false)
   }
 
+  const isMaxQuota = totalAlerts >= maxAlerts
+
   const isInputValid = () => {
-    const fillAllInput = Boolean(account && currencyIn && currencyOut && formInput.tokenInAmount && formInput.threshold)
+    const fillAllInput = Boolean(
+      account && currencyIn && currencyOut && formInput.tokenInAmount && formInput.threshold && !isMaxQuota,
+    )
     if (!fillAllInput) return false
     if (!parsedAmount) return false
     return true
@@ -347,6 +351,13 @@ export default function CreateAlert({
               <Trans>Cancel</Trans>
             </ButtonCancel>
             <ButtonSubmit onClick={onSubmitAlert} disabled={!isInputValid()}>
+              {isMaxQuota && (
+                <MouseoverTooltip
+                  text={`You had created maximum number of alert. Please remove some if you want to create a new alert`}
+                >
+                  <Info size={16} />
+                </MouseoverTooltip>
+              )}
               <Trans>Create Alert</Trans>
             </ButtonSubmit>
           </>

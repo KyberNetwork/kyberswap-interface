@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { Plus } from 'react-feather'
+import { Info, Plus } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import { useGetAlertStatsQuery } from 'services/priceAlert'
@@ -7,6 +7,7 @@ import { useTheme } from 'styled-components'
 
 import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Loader from 'components/Loader'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { Tab } from 'pages/NotificationCenter/PriceAlerts'
@@ -75,6 +76,7 @@ const Header: React.FC<Props> = ({ currentTab, setCurrentTab }) => {
 
   const { data, isLoading } = useGetAlertStatsQuery(account || '', { skip: !account })
 
+  const isMaxQuota = data ? data.totalAlerts >= data.maxAlerts : false
   return (
     <Flex
       sx={{
@@ -106,6 +108,7 @@ const Header: React.FC<Props> = ({ currentTab, setCurrentTab }) => {
           }}
         >
           <DeleteAllAlertsButton currentTab={currentTab} />
+
           <ButtonPrimary
             style={{
               padding: '0 8px 0 6px',
@@ -113,11 +116,21 @@ const Header: React.FC<Props> = ({ currentTab, setCurrentTab }) => {
               flex: '0 0 fit-content',
               height: '36px',
             }}
+            disabled={isMaxQuota}
             onClick={() => {
               navigate(`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.CREATE_ALERT}`)
             }}
           >
-            <Plus size={16} /> <Trans>Create Alert</Trans>
+            <MouseoverTooltip
+              text={
+                isMaxQuota
+                  ? `You had created maximum number of alert. Please remove some if you want to create a new alert`
+                  : ''
+              }
+            >
+              {isMaxQuota ? <Info size={16} /> : <Plus size={16} />}
+            </MouseoverTooltip>
+            <Trans>Create Alert</Trans>
           </ButtonPrimary>
         </Flex>
       </Flex>
