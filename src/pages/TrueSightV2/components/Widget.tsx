@@ -41,6 +41,7 @@ const WidgetWrapper = styled.div<{ show?: boolean }>`
   right: 0;
   top: 110px;
   transition: all 1.5s ease;
+  z-index: 10;
   ${({ show }) =>
     !show &&
     css`

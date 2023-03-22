@@ -25,6 +25,7 @@ import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
 
 import NetworkSelect from '../components/NetworkSelect'
+import SmallKyberScoreMeter from '../components/SmallKyberScoreMeter'
 import TokenChart from '../components/TokenChartSVG'
 import { TOKEN_LIST } from '../hooks/sampleData'
 import { useTokenListQuery } from '../hooks/useTruesightV2Data'
@@ -35,7 +36,6 @@ const TableWrapper = styled.div`
   border-radius: 20px 20px 0 0;
   padding: 0;
   font-size: 12px;
-  border: 1px solid ${({ theme }) => theme.border};
   border-bottom: none;
   transition: all 0.15s ease;
   overflow: hidden;
@@ -51,7 +51,6 @@ const PaginationWrapper = styled.div`
   border-radius: 0 0 20px 20px;
   display: flex;
   align-items: center;
-  border: 1px solid ${({ theme }) => theme.border};
   border-top: none;
   overflow: hidden;
   @media only screen and (max-width: 1080px) {
@@ -64,6 +63,7 @@ const PaginationWrapper = styled.div`
 const Table = styled.table`
   border-spacing: 0px;
   width: 100%;
+  border-collapse: collapse;
 
   thead {
     height: 48px;
@@ -108,16 +108,16 @@ const Table = styled.table`
     contain-intrinsic-height: 72px;
     border-radius: 0;
     cursor: pointer;
-
+    transition: background-color 0.1s linear;
     ${({ theme }) => css`
       background-color: ${theme.background};
       color: ${theme.text};
       border-bottom: 1px solid ${theme.border};
-    `};
 
-    td {
-      background-color: ${({ theme }) => theme.background};
-    }
+      :hover {
+        background-color: ${theme.buttonGray};
+      }
+    `};
 
     td,
     th {
@@ -161,10 +161,6 @@ const ActionButton = styled.button<{ color: string }>`
     }
   `}
   :hover {
-    filter: brightness(1.1);
-  }
-
-  :active {
     filter: brightness(1.2);
   }
 `
@@ -414,7 +410,9 @@ const TokenRow = ({ token }: { token: any }) => {
         </Row>
       </td>
       <td>
-        <Text color={theme.primary}>{token.kyberscore || '--'}</Text>
+        <Text color={theme.primary}>
+          <SmallKyberScoreMeter value={88} />
+        </Text>
       </td>
       <td>
         <Column gap="10px" style={{ textAlign: 'left' }}>
@@ -424,10 +422,10 @@ const TokenRow = ({ token }: { token: any }) => {
           </Text>
         </Column>
       </td>
-      <td>
+      <td style={{ textAlign: 'start' }}>
         <TokenChart />
       </td>
-      <td>
+      <td style={{ textAlign: 'start' }}>
         <Text>${token['24hVolume'] || '--'}</Text>
       </td>
 
@@ -585,8 +583,8 @@ export default function TokenAnalysisList() {
             <Table>
               <colgroup>
                 <col style={{ width: '35px' }} />
-                <col style={{ width: '250px', minWidth: '200px' }} />
-                <col style={{ width: '270px', minWidth: 'auto' }} />
+                <col style={{ width: '290px', minWidth: '200px' }} />
+                <col style={{ width: '230px', minWidth: 'auto' }} />
                 <col style={{ width: '220px', minWidth: 'auto' }} />
                 <col style={{ width: '250px', minWidth: 'auto' }} />
                 <col style={{ width: '150px', minWidth: 'auto' }} />
@@ -634,8 +632,8 @@ export default function TokenAnalysisList() {
                       </Text>
                     </Column>
                   </th>
-                  <th style={{ textAlign: 'left' }} onClick={() => handleSort(SORT_FIELD.PRICE)}>
-                    <Row justify="center">
+                  <th onClick={() => handleSort(SORT_FIELD.PRICE)}>
+                    <Row justify="flex-start">
                       <Trans>Current Price</Trans>
                       {sortedColumn === SORT_FIELD.PRICE ? (
                         !sortDirection ? (
@@ -649,10 +647,12 @@ export default function TokenAnalysisList() {
                     </Row>
                   </th>
                   <th>
-                    <Trans>Last 7d price</Trans>
+                    <Row justify="flex-start">
+                      <Trans>Last 7d price</Trans>
+                    </Row>
                   </th>
                   <th onClick={() => handleSort(SORT_FIELD.VOLUME)}>
-                    <Row justify="center">
+                    <Row justify="flex-start">
                       <Trans>24h Volume</Trans>
                       {sortedColumn === SORT_FIELD.VOLUME ? (
                         !sortDirection ? (

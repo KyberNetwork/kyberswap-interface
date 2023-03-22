@@ -11,6 +11,7 @@ import ReadMore from 'components/ReadMore'
 import { RowBetween, RowFit } from 'components/Row'
 import SubscribeNotificationButton from 'components/SubscribeButton'
 import { MouseoverTooltip } from 'components/Tooltip'
+import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 
 import SearchWithDropDown from './components/SearchWithDropDown'
@@ -52,7 +53,7 @@ export default function TrueSightV2() {
             lineHeight="28px"
             color={isSingleToken ? theme.subText : theme.primary}
             fontWeight={500}
-            onClick={() => navigate('/discover')}
+            onClick={() => navigate(APP_PATHS.KYBERAI_RANKINGS)}
             style={{ cursor: 'pointer' }}
           >
             <RowFit gap="4px">
@@ -68,7 +69,7 @@ export default function TrueSightV2() {
             lineHeight="28px"
             color={isSingleToken ? theme.primary : theme.subText}
             fontWeight={500}
-            onClick={() => navigate('/discover/single-token')}
+            onClick={() => navigate(APP_PATHS.KYBERAI_EXPLORE)}
             style={{ cursor: 'pointer' }}
           >
             <RowFit gap="4px">

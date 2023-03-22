@@ -3,7 +3,7 @@ import styled from 'styled-components'
 
 import useTheme from 'hooks/useTheme'
 
-const gaugeList: { value: number; d: string }[] = [
+export const gaugeList: { value: number; d: string }[] = [
   {
     value: 1,
     d: 'M1.40994 126.255C1.73532 128.207 2.06069 130.16 2.49452 132.004L22.4507 127.557C22.1254 126.147 21.9084 124.628 21.5831 123.109L1.40994 126.255Z',
