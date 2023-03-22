@@ -1,10 +1,10 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId, getChainType } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { darken, rgba } from 'polished'
 import { stringify } from 'querystring'
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Text } from 'rebass'
+import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import { ButtonEmpty } from 'components/Button'
@@ -130,13 +130,14 @@ const Networks = ({
   mb?: number
   isAcceptedTerm?: boolean
   activeChainIds?: ChainId[]
-  selectedId?: ChainId | undefined
+  selectedId?: ChainId
   customOnSelectNetwork?: (chainId: ChainId) => void
   customToggleModal?: () => void
   disabledMsg?: string
   disabledAll?: boolean
   disabledAllMsg?: string
 }) => {
+  const { chainId: currentChainId } = useActiveWeb3React()
   const changeNetwork = useChangeNetwork()
   const qs = useParsedQueryString()
   const navigate = useNavigate()
@@ -148,7 +149,7 @@ const Networks = ({
     customToggleModal?.()
     if (customOnSelectNetwork) {
       customOnSelectNetwork(chainId)
-    } else {
+    } else if (getChainType(currentChainId) === getChainType(chainId)) {
       changeNetwork(chainId, () => {
         const { inputCurrency, outputCurrency, ...rest } = qs
         navigate(
@@ -159,6 +160,17 @@ const Networks = ({
         )
         onChangedNetwork?.()
 
+        dispatch(updateChainId(chainId))
+      })
+    } else {
+      changeNetwork(chainId, () => {
+        navigate(
+          {
+            search: '',
+          },
+          { replace: true },
+        )
+        onChangedNetwork?.()
         dispatch(updateChainId(chainId))
       })
     }
@@ -188,7 +200,16 @@ const Networks = ({
             >
               <ListItem selected={selected}>
                 <img src={imgSrc} alt="Switch Network" style={{ height: '20px', width: '20px', marginRight: '8px' }} />
-                <Text color={theme.subText}>{name}</Text>
+                <Flex
+                  sx={{
+                    flexDirection: 'column',
+                    justifyContent: 'flex-start',
+                  }}
+                >
+                  <Text color={theme.subText} as="span" textAlign="left">
+                    {name}
+                  </Text>
+                </Flex>
                 {key === ChainId.SOLANA && (
                   <NewLabel>
                     <Trans>New</Trans>

@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useLocalStorage } from 'react-use'
 import useSWR from 'swr'
 import useSWRImmutable from 'swr/immutable'
@@ -14,7 +14,7 @@ import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
 import { NETWORKS_INFO, NETWORKS_INFO_CONFIG, isEVM } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
-import { useContract } from 'hooks/useContract'
+import { useContract, useContractForReading, useTokenContractForReading } from 'hooks/useContract'
 import useTokenBalance from 'hooks/useTokenBalance'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
@@ -318,7 +318,7 @@ export function useStakingInfo() {
   const { account } = useActiveWeb3React()
   const kyberDaoInfo = useKyberDAOInfo()
   const stakingContract = useContract(kyberDaoInfo?.staking, StakingABI)
-
+  const kncContract = useTokenContractForReading(kyberDaoInfo?.KNCAddress, ChainId.MAINNET)
   const stakedBalance = useSingleCallResult(stakingContract, 'getLatestStakeBalance', [account ?? undefined])
   const delegatedAddress = useSingleCallResult(stakingContract, 'getLatestRepresentative', [account ?? undefined])
   const KNCBalance = useTokenBalance(kyberDaoInfo?.KNCAddress || '')
@@ -331,33 +331,54 @@ export function useStakingInfo() {
     fetcher,
   )
 
+  const [totalSupply, setTotalSupply] = useState()
+  useEffect(() => {
+    kncContract
+      ?.totalSupply()
+      .then((res: any) => setTotalSupply(res))
+      .catch((err: any) => console.log(err))
+  }, [kncContract])
+
   return {
     stakedBalance: stakedBalance.result?.[0] || 0,
     KNCBalance: KNCBalance.value || 0,
     delegatedAddress: delegatedAddress.result?.[0],
     isDelegated,
     stakerActions,
+    totalMigratedKNC: totalSupply,
   }
 }
 
 export function useVotingInfo() {
   const { account } = useActiveWeb3React()
   const kyberDaoInfo = useKyberDAOInfo()
-  const rewardDistributorContract = useContract(kyberDaoInfo?.rewardsDistributor, RewardDistributorABI)
+  const rewardsDistributorContract = useContractForReading(
+    kyberDaoInfo?.rewardsDistributor,
+    RewardDistributorABI,
+    ChainId.MAINNET,
+  )
   const { data: daoInfo } = useSWR(kyberDaoInfo?.daoStatsApi + '/dao-info', fetcher)
   const [localStoredDaoInfo, setLocalStoredDaoInfo] = useLocalStorage('kyberdao-daoInfo')
+  const [merkleData, setMerkleData] = useState<any>()
+  useEffect(() => {
+    rewardsDistributorContract
+      ?.getMerkleData?.()
+      .then((res: any) => {
+        setMerkleData(res)
+      })
+      .catch((err: any) => console.log(err))
+  }, [rewardsDistributorContract])
+
   useEffect(() => {
     if (daoInfo) {
       setLocalStoredDaoInfo(daoInfo)
     }
   }, [daoInfo, setLocalStoredDaoInfo])
-  const merkleData = useSingleCallResult(rewardDistributorContract, 'getMerkleData')
 
   const merkleDataFileUrl = useMemo(() => {
     if (!merkleData) return
-    const merkleDataRes = merkleData.result?.[0]
-    const cycle = parseInt(merkleDataRes?.[0]?.toString())
-    const merkleDataFileUrl = merkleDataRes?.[2]
+    const cycle = parseInt(merkleData?.[0]?.toString())
+    const merkleDataFileUrl = merkleData?.[2]
     if (!cycle || !merkleDataFileUrl) {
       return
     }
@@ -365,10 +386,12 @@ export function useVotingInfo() {
   }, [merkleData])
 
   const { data: userRewards } = useSWRImmutable(
-    account && merkleDataFileUrl ? [merkleDataFileUrl, account] : null,
-    (url: string, address: string) => {
+    account && merkleDataFileUrl ? { url: merkleDataFileUrl, address: account } : null,
+    ({ url, address }) => {
       return fetch(url)
-        .then(res => res.json())
+        .then(res => {
+          return res.json()
+        })
         .then(res => {
           res.userReward = address ? res.userRewards[address] : undefined
           delete res.userRewards
@@ -377,13 +400,18 @@ export function useVotingInfo() {
     },
   )
 
-  const claimedRewardAmounts = useSingleCallResult(rewardDistributorContract, 'getClaimedAmounts', [
-    account,
-    userRewards?.userReward?.tokens,
-  ])
+  const [claimedRewardAmounts, setClaimedRewardAmounts] = useState<any>()
+  useEffect(() => {
+    if (!rewardsDistributorContract || !account || !userRewards?.userReward?.tokens) return
+
+    rewardsDistributorContract
+      ?.getClaimedAmounts?.(account, userRewards?.userReward?.tokens)
+      .then((res: any) => setClaimedRewardAmounts(res))
+      .catch((err: any) => console.log(err))
+  }, [rewardsDistributorContract, account, userRewards?.userReward?.tokens])
 
   const remainingCumulativeAmount: BigNumber = useMemo(() => {
-    if (!userRewards?.userReward?.tokens || !claimedRewardAmounts?.result) return BigNumber.from(0)
+    if (!userRewards?.userReward?.tokens || !claimedRewardAmounts?.[0]) return BigNumber.from(0)
     return (
       userRewards?.userReward?.tokens?.map((_: string, index: number) => {
         const cummulativeAmount =
@@ -394,9 +422,8 @@ export function useVotingInfo() {
         if (!cummulativeAmount) {
           return BigNumber.from(0)
         }
-        const claimedAmount = claimedRewardAmounts?.result?.[0]?.[index] || 0
 
-        return BigNumber.from(cummulativeAmount).sub(BigNumber.from(claimedAmount))
+        return BigNumber.from(cummulativeAmount).sub(BigNumber.from(claimedRewardAmounts[0]))
       })[0] || BigNumber.from(0)
     )
   }, [claimedRewardAmounts, userRewards?.userReward])
@@ -476,6 +503,7 @@ export function useVotingInfo() {
     proposals,
     userReward: userRewards?.userReward,
     remainingCumulativeAmount,
+    claimedRewardAmount: claimedRewardAmounts?.[0] ? BigNumber.from(claimedRewardAmounts[0]) : BigNumber.from(0),
     stakerInfo,
     stakerInfoNextEpoch,
     votesInfo,

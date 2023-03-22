@@ -1,17 +1,17 @@
-import { uuid4 } from '@sentry/utils'
-import axios from 'axios'
 import { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import useSWR, { mutate } from 'swr'
+import {
+  useBuildTelegramVerificationMutation,
+  useGetNotificationTopicsQuery,
+  useSubscribeTopicMutation,
+  useUnsubscribeTopicMutation,
+} from 'services/notification'
 
-import { KS_SETTING_API, NOTIFICATION_API } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
 import { AppState } from 'state'
 import { setLoadingNotification, setSubscribedNotificationTopic } from 'state/application/actions'
 import { useNotificationModalToggle } from 'state/application/hooks'
-
-const getAllTopicUrl = (account: string | null | undefined) =>
-  `${KS_SETTING_API}/v1/topic-groups${account ? `?walletAddress=${account}` : ''}`
+import { pushUnique } from 'utils'
 
 export type Topic = {
   id: number
@@ -22,18 +22,13 @@ export type Topic = {
   topics: Topic[]
 }
 
-export const NOTIFICATION_TOPICS = {
-  TRENDING_SOON: 2,
-  POSITION_POOL: 1,
-}
-
 type SaveNotificationParam = {
   subscribeIds: number[]
   unsubscribeIds: number[]
   email: string
-  isChangeEmailOnly: boolean
+  isChangeEmailOnly?: boolean
   isEmail: boolean
-  isTelegram: boolean
+  isTelegram?: boolean
 }
 
 const useNotification = () => {
@@ -50,34 +45,22 @@ const useNotification = () => {
     [dispatch],
   )
 
-  const { data: resp } = useSWR(
-    getAllTopicUrl(account),
-    (url: string) => {
-      try {
-        if (url) {
-          return axios.get(url).then(({ data }) => data.data)
-        }
-      } catch (error) {}
-      return
-    },
-    {
-      shouldRetryOnError: false,
-      revalidateOnFocus: false,
-      revalidateIfStale: false,
-    },
-  )
+  const { data: resp, refetch } = useGetNotificationTopicsQuery(account)
 
   useEffect(() => {
     if (!resp) return
-    const topicGroups: Topic[] = (resp?.topicGroups ?? []).map((e: Topic) => ({
+    const topicGroups: Topic[] = (resp?.topicGroups ?? []).map((e: Topic, i) => ({
       ...e,
-      id: uuid4(),
+      id: Date.now() + i,
       isSubscribed: e?.topics?.every(e => e.isSubscribed),
     }))
     dispatch(setSubscribedNotificationTopic({ topicGroups, userInfo: resp?.user ?? { email: '', telegram: '' } }))
   }, [resp, dispatch])
 
-  const refreshTopics = useCallback(() => account && mutate(getAllTopicUrl(account)), [account])
+  const refreshTopics = useCallback(() => account && refetch(), [refetch, account])
+  const [callSubscribeTopic] = useSubscribeTopicMutation()
+  const [callUnSubscribeTopic] = useUnsubscribeTopicMutation()
+  const [buildTelegramVerification] = useBuildTelegramVerificationMutation()
 
   const saveNotification = useCallback(
     async ({ subscribeIds, unsubscribeIds, email, isEmail, isChangeEmailOnly, isTelegram }: SaveNotificationParam) => {
@@ -85,41 +68,51 @@ const useNotification = () => {
         setLoading(true)
         if (isEmail) {
           if (unsubscribeIds.length) {
-            await axios.post(`${NOTIFICATION_API}/v1/topics/unsubscribe?userType=EMAIL`, {
-              walletAddress: account,
-              topicIDs: unsubscribeIds,
-            })
+            await callUnSubscribeTopic({ walletAddress: account ?? '', topicIDs: unsubscribeIds })
           }
           if (subscribeIds.length || isChangeEmailOnly) {
             const allTopicSubscribed = topicGroups.reduce(
               (topics: number[], item) => [...topics, ...item.topics.filter(e => e.isSubscribed).map(e => e.id)],
               [],
             )
-            await axios.post(`${NOTIFICATION_API}/v1/topics/subscribe?userType=EMAIL`, {
+            await callSubscribeTopic({
               email,
-              walletAddress: account,
+              walletAddress: account ?? '',
               topicIDs: isChangeEmailOnly ? allTopicSubscribed : subscribeIds,
             })
           }
           return
         }
         if (isTelegram) {
-          const response = await axios.post(`${NOTIFICATION_API}/v1/topics/build-verification/telegram`, {
+          const data = await buildTelegramVerification({
             chainId: chainId + '',
-            wallet: account,
+            wallet: account ?? '',
             subscribe: subscribeIds,
             unsubscribe: unsubscribeIds,
           })
-          return response?.data?.data
+          return data
         }
+        return
       } catch (e) {
         return Promise.reject(e)
       } finally {
         setLoading(false)
       }
     },
-    [setLoading, account, chainId, topicGroups],
+    [setLoading, account, chainId, topicGroups, callSubscribeTopic, callUnSubscribeTopic, buildTelegramVerification],
   )
+
+  const unsubscribeAll = useCallback(() => {
+    let unsubscribeIds: number[] = []
+    topicGroups.forEach(topic => {
+      if (!topic.isSubscribed) return
+      topic.topics.forEach(topic => {
+        unsubscribeIds = pushUnique(unsubscribeIds, topic.id)
+      })
+    })
+    if (!unsubscribeIds.length) return
+    saveNotification({ isEmail: true, unsubscribeIds, subscribeIds: [], email: userInfo.email })
+  }, [topicGroups, saveNotification, userInfo?.email])
 
   const showNotificationModal = useCallback(() => {
     refreshTopics()
@@ -133,6 +126,7 @@ const useNotification = () => {
     saveNotification,
     showNotificationModal,
     refreshTopics,
+    unsubscribeAll,
   }
 }
 

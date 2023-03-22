@@ -9,6 +9,7 @@ import { Repeat } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
+import { NotificationType } from 'components/Announcement/type'
 import ArrowRotate from 'components/ArrowRotate'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import CurrencyLogo from 'components/CurrencyLogo'
@@ -32,7 +33,7 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import useWrapCallback from 'hooks/useWrapCallback'
 import ErrorWarningPanel from 'pages/Bridge/ErrorWarning'
-import { NotificationType, useNotify } from 'state/application/hooks'
+import { useNotify } from 'state/application/hooks'
 import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
@@ -292,11 +293,13 @@ const LimitOrderForm = function LimitOrderForm({
 
   const enoughAllowance = useMemo(() => {
     try {
+      const allowanceSubtracted = parsedActiveOrderMakingAmount
+        ? currentAllowance?.subtract(parsedActiveOrderMakingAmount)
+        : undefined
       return Boolean(
         currencyIn?.isNative ||
-          (parsedActiveOrderMakingAmount &&
-            parseInputAmount &&
-            currentAllowance?.subtract(parsedActiveOrderMakingAmount).greaterThan(parseInputAmount)),
+          (parseInputAmount &&
+            (allowanceSubtracted?.greaterThan(parseInputAmount) || allowanceSubtracted?.equalTo(parseInputAmount))),
       )
     } catch (error) {
       return false
@@ -424,17 +427,8 @@ const LimitOrderForm = function LimitOrderForm({
 
   const onSubmitCreateOrder = async (params: CreateOrderParam) => {
     try {
-      const { currencyIn, currencyOut, chainId, account, inputAmount, outputAmount, expiredAt } = params
-      if (
-        !library ||
-        !currencyIn ||
-        !currencyOut ||
-        !chainId ||
-        !account ||
-        !inputAmount ||
-        !outputAmount ||
-        !expiredAt
-      ) {
+      const { currencyIn, currencyOut, account, inputAmount, outputAmount, expiredAt } = params
+      if (!library || !currencyIn || !currencyOut || !account || !inputAmount || !outputAmount || !expiredAt) {
         throw new Error('wrong input')
       }
 
@@ -536,7 +530,7 @@ const LimitOrderForm = function LimitOrderForm({
   refRefreshActiveMakingAmount.current = refreshActiveMakingAmount
 
   useEffect(() => {
-    if (!account || !chainId) return
+    if (!account) return
     // call when cancel expired/cancelled
     const unsubscribeCancelled = subscribeNotificationOrderCancelled(account, chainId, data => {
       data?.orders.forEach(order => {

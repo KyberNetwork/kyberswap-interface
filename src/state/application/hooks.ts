@@ -1,29 +1,39 @@
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import { ChainId, NativeCurrency, Token } from '@kyberswap/ks-sdk-core'
+import { Connection } from '@solana/web3.js'
 import dayjs from 'dayjs'
+import { ethers } from 'ethers'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useDeepCompareEffect } from 'react-use'
 
 import { ETH_PRICE, PROMM_ETH_PRICE, TOKEN_DERIVED_ETH } from 'apollo/queries'
+import { ackAnnouncementPopup, isPopupCanShow } from 'components/Announcement/helper'
+import {
+  AnnouncementTemplatePopup,
+  PopupContent,
+  PopupContentAnnouncement,
+  PopupContentSimple,
+  PopupContentTxn,
+  PopupItemType,
+  PopupType,
+} from 'components/Announcement/type'
 import { OUTSITE_FARM_REWARDS_QUERY, ZERO_ADDRESS } from 'constants/index'
-import { EVMNetworkInfo } from 'constants/networks/type'
+import { NETWORKS_INFO, isEVM, isSolana } from 'constants/networks'
+import ethereumInfo from 'constants/networks/ethereum'
 import { KNC } from 'constants/tokens'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks/index'
 import { useAppSelector } from 'state/hooks'
 import { AppDispatch, AppState } from 'state/index'
 import { getBlockFromTimestamp, getPercentChange } from 'utils'
+import { createClient } from 'utils/client'
 
 import {
   ApplicationModal,
-  PopupContent,
-  PopupContentSimple,
-  PopupContentTxn,
-  PopupType,
   addPopup,
   closeModal,
   removePopup,
+  setAnnouncementDetail,
   setOpenModal,
   updateETHPrice,
   updateKNCPrice,
@@ -57,14 +67,18 @@ export function useToggleModal(modal: ApplicationModal): () => void {
   return useCallback(() => dispatch(setOpenModal(open ? null : modal)), [dispatch, modal, open])
 }
 
+export function useToggleNotificationCenter() {
+  const toggleNotificationCenter = useToggleModal(ApplicationModal.NOTIFICATION_CENTER)
+  const clearAllPopup = useRemoveAllPopupByType()
+  return useCallback(() => {
+    toggleNotificationCenter()
+    clearAllPopup(PopupType.TOP_RIGHT)
+  }, [clearAllPopup, toggleNotificationCenter])
+}
+
 export function useOpenModal(modal: ApplicationModal): () => void {
   const dispatch = useDispatch<AppDispatch>()
   return useCallback(() => dispatch(setOpenModal(modal)), [dispatch, modal])
-}
-
-export function useCloseModals(): () => void {
-  const dispatch = useDispatch<AppDispatch>()
-  return useCallback(() => dispatch(setOpenModal(null)), [dispatch])
 }
 
 export function useNetworkModalToggle(): () => void {
@@ -79,44 +93,16 @@ export function useWalletModalToggle(): () => void {
   return useToggleModal(ApplicationModal.WALLET)
 }
 
-export function useToggleSettingsMenu(): () => void {
-  return useToggleModal(ApplicationModal.SETTINGS)
-}
-
 export function useToggleTransactionSettingsMenu(): () => void {
   return useToggleModal(ApplicationModal.TRANSACTION_SETTINGS)
-}
-
-export function useShowClaimPopup(): boolean {
-  return useModalOpen(ApplicationModal.CLAIM_POPUP)
-}
-
-export function useToggleShowClaimPopup(): () => void {
-  return useToggleModal(ApplicationModal.CLAIM_POPUP)
-}
-
-export function useToggleSelfClaimModal(): () => void {
-  return useToggleModal(ApplicationModal.SELF_CLAIM)
-}
-
-export function useToggleDelegateModal(): () => void {
-  return useToggleModal(ApplicationModal.DELEGATE)
 }
 
 export function useToggleYourCampaignTransactionsModal(): () => void {
   return useToggleModal(ApplicationModal.YOUR_CAMPAIGN_TRANSACTIONS)
 }
 
-export function useToggleVoteModal(): () => void {
-  return useToggleModal(ApplicationModal.VOTE)
-}
-
 export function usePoolDetailModalToggle(): () => void {
   return useToggleModal(ApplicationModal.POOL_DETAIL)
-}
-
-export function useTrendingSoonSortingModalToggle(): () => void {
-  return useToggleModal(ApplicationModal.TRENDING_SOON_SORTING)
 }
 
 export function useSelectCampaignModalToggle(): () => void {
@@ -135,20 +121,12 @@ export function useTrueSightNetworkModalToggle(): () => void {
   return useToggleModal(ApplicationModal.TRUESIGHT_NETWORK)
 }
 
-export function useTrendingSoonTokenDetailModalToggle(): () => void {
-  return useToggleModal(ApplicationModal.TRENDING_SOON_TOKEN_DETAIL)
-}
-
 export function useNotificationModalToggle(): () => void {
   return useToggleModal(ApplicationModal.NOTIFICATION_SUBSCRIPTION)
 }
 
-export function useToggleSwitchEthereumModal(): () => void {
-  return useToggleModal(ApplicationModal.SWITCH_TO_ETHEREUM)
-}
-
 // returns a function that allows adding a popup
-function useAddPopup(): (
+export function useAddPopup(): (
   content: PopupContent,
   popupType: PopupType,
   key?: string,
@@ -164,16 +142,11 @@ function useAddPopup(): (
   )
 }
 
-export enum NotificationType {
-  SUCCESS,
-  ERROR,
-  WARNING,
-}
 // simple notify with text and description
 export const useNotify = () => {
   const addPopup = useAddPopup()
   return useCallback(
-    (data: PopupContentSimple, removeAfterMs = 4000) => {
+    (data: PopupContentSimple, removeAfterMs: number | null | undefined = 4000) => {
       addPopup(data, PopupType.SIMPLE, data.title + Math.random(), removeAfterMs)
     },
     [addPopup],
@@ -192,26 +165,76 @@ export const useTransactionNotify = () => {
 }
 
 // returns a function that allows removing a popup via its key
-export function useRemovePopup(): (key: string) => void {
+export function useRemovePopup() {
   const dispatch = useDispatch()
   return useCallback(
-    (key: string) => {
+    (popup: PopupItemType) => {
+      const { key, popupType, content } = popup
+      if ([PopupType.CENTER, PopupType.SNIPPET, PopupType.TOP_RIGHT, PopupType.TOP_BAR].includes(popupType)) {
+        ackAnnouncementPopup((content as PopupContentAnnouncement).metaMessageId)
+      }
       dispatch(removePopup({ key }))
     },
     [dispatch],
   )
 }
 
+export function useRemoveAllPopupByType() {
+  const data = useActivePopups()
+  const removePopup = useRemovePopup()
+
+  return useCallback(
+    (typesRemove: PopupType) => {
+      const { snippetPopups, centerPopups, topPopups, topRightPopups } = data
+
+      const map: Record<PopupType, PopupItemType[]> = {
+        [PopupType.SNIPPET]: snippetPopups,
+        [PopupType.CENTER]: centerPopups,
+        [PopupType.TOP_BAR]: topPopups,
+        [PopupType.TOP_RIGHT]: topRightPopups,
+        [PopupType.SIMPLE]: topRightPopups,
+        [PopupType.TRANSACTION]: topRightPopups,
+      }
+      const popups: PopupItemType[] = map[typesRemove] ?? []
+      popups.forEach(removePopup)
+    },
+    [data, removePopup],
+  )
+}
+
 // get the list of active popups
-export function useActivePopups(): AppState['application']['popupList'] {
-  const list = useSelector((state: AppState) => state.application.popupList)
-  return useMemo(() => list.filter(item => item.show), [list])
+export function useActivePopups() {
+  const popups = useSelector(
+    (state: AppState) => state.application.popupList,
+  ) as PopupItemType<PopupContentAnnouncement>[]
+  const { chainId } = useActiveWeb3React()
+
+  return useMemo(() => {
+    const topRightPopups = popups.filter(e =>
+      [PopupType.SIMPLE, PopupType.TOP_RIGHT, PopupType.TRANSACTION].includes(e.popupType),
+    )
+
+    const topPopups = popups.filter(e => e.popupType === PopupType.TOP_BAR && isPopupCanShow(e, chainId))
+    const snippetPopups = popups.filter(e => e.popupType === PopupType.SNIPPET && isPopupCanShow(e, chainId))
+
+    const centerPopups = popups.filter(e => e.popupType === PopupType.CENTER && isPopupCanShow(e, chainId))
+    return {
+      topPopups,
+      centerPopups,
+      topRightPopups,
+      snippetPopups,
+    }
+  }, [popups, chainId])
 }
 
 /**
  * Gets the current price  of ETH, 24 hour price, and % change between them
  */
-export const getEthPrice = async (chainId: ChainId, apolloClient: ApolloClient<NormalizedCacheObject>) => {
+export const getEthPrice = async (
+  chainId: ChainId,
+  apolloClient: ApolloClient<NormalizedCacheObject>,
+  blockClient: ApolloClient<NormalizedCacheObject>,
+) => {
   const utcCurrentTime = dayjs()
   const utcOneDayBack = utcCurrentTime.subtract(1, 'day').startOf('minute').unix()
 
@@ -220,7 +243,7 @@ export const getEthPrice = async (chainId: ChainId, apolloClient: ApolloClient<N
   let priceChangeETH = 0
 
   try {
-    const oneDayBlock = await getBlockFromTimestamp(utcOneDayBack, chainId)
+    const oneDayBlock = await getBlockFromTimestamp(utcOneDayBack, chainId, blockClient)
     const result = await apolloClient.query({
       query: ETH_PRICE(),
       fetchPolicy: 'network-only',
@@ -243,7 +266,11 @@ export const getEthPrice = async (chainId: ChainId, apolloClient: ApolloClient<N
   return [ethPrice, ethPriceOneDay, priceChangeETH]
 }
 
-const getPrommEthPrice = async (chainId: ChainId, apolloClient: ApolloClient<NormalizedCacheObject>) => {
+const getPrommEthPrice = async (
+  chainId: ChainId,
+  apolloClient: ApolloClient<NormalizedCacheObject>,
+  blockClient: ApolloClient<NormalizedCacheObject>,
+) => {
   const utcCurrentTime = dayjs()
   const utcOneDayBack = utcCurrentTime.subtract(1, 'day').startOf('minute').unix()
 
@@ -252,7 +279,7 @@ const getPrommEthPrice = async (chainId: ChainId, apolloClient: ApolloClient<Nor
   let priceChangeETH = 0
 
   try {
-    const oneDayBlock = await getBlockFromTimestamp(utcOneDayBack, chainId)
+    const oneDayBlock = await getBlockFromTimestamp(utcOneDayBack, chainId, blockClient)
     const result = await apolloClient.query({
       query: PROMM_ETH_PRICE(),
       fetchPolicy: 'network-only',
@@ -275,9 +302,11 @@ const getPrommEthPrice = async (chainId: ChainId, apolloClient: ApolloClient<Nor
   return [ethPrice, ethPriceOneDay, priceChangeETH]
 }
 
+let fetchingETHPrice = false
 export function useETHPrice(version: string = VERSION.CLASSIC): AppState['application']['ethPrice'] {
   const dispatch = useDispatch()
-  const { isEVM, networkInfo, chainId } = useActiveWeb3React()
+  const { isEVM, chainId } = useActiveWeb3React()
+  const { elasticClient, classicClient, blockClient } = useKyberSwapConfig()
 
   const ethPrice = useSelector((state: AppState) =>
     version === VERSION.ELASTIC ? state.application.prommEthPrice : state.application.ethPrice,
@@ -285,30 +314,34 @@ export function useETHPrice(version: string = VERSION.CLASSIC): AppState['applic
 
   useEffect(() => {
     if (!isEVM) return
-    const apolloProMMClient = (networkInfo as EVMNetworkInfo).elastic.client
-    const apolloClient = (networkInfo as EVMNetworkInfo).classic.client
 
     async function checkForEthPrice() {
-      const [newPrice, oneDayBackPrice, pricePercentChange] = await (version === VERSION.ELASTIC && apolloProMMClient
-        ? getPrommEthPrice(chainId, apolloProMMClient)
-        : getEthPrice(chainId, apolloClient))
+      if (fetchingETHPrice) return
+      fetchingETHPrice = true
+      try {
+        const [newPrice, oneDayBackPrice, pricePercentChange] = await (version === VERSION.ELASTIC
+          ? getPrommEthPrice(chainId, elasticClient, blockClient)
+          : getEthPrice(chainId, classicClient, blockClient))
 
-      dispatch(
-        version === VERSION.ELASTIC
-          ? updatePrommETHPrice({
-              currentPrice: (newPrice ? newPrice : 0).toString(),
-              oneDayBackPrice: (oneDayBackPrice ? oneDayBackPrice : 0).toString(),
-              pricePercentChange,
-            })
-          : updateETHPrice({
-              currentPrice: (newPrice ? newPrice : 0).toString(),
-              oneDayBackPrice: (oneDayBackPrice ? oneDayBackPrice : 0).toString(),
-              pricePercentChange,
-            }),
-      )
+        dispatch(
+          version === VERSION.ELASTIC
+            ? updatePrommETHPrice({
+                currentPrice: (newPrice ? newPrice : 0).toString(),
+                oneDayBackPrice: (oneDayBackPrice ? oneDayBackPrice : 0).toString(),
+                pricePercentChange,
+              })
+            : updateETHPrice({
+                currentPrice: (newPrice ? newPrice : 0).toString(),
+                oneDayBackPrice: (oneDayBackPrice ? oneDayBackPrice : 0).toString(),
+                pricePercentChange,
+              }),
+        )
+      } finally {
+        fetchingETHPrice = false
+      }
     }
     checkForEthPrice()
-  }, [dispatch, chainId, version, isEVM, networkInfo])
+  }, [dispatch, chainId, version, isEVM, elasticClient, classicClient, blockClient])
 
   return ethPrice
 }
@@ -338,21 +371,21 @@ export const getKNCPriceByETH = async (chainId: ChainId, apolloClient: ApolloCli
 export function useKNCPrice(): AppState['application']['kncPrice'] {
   const dispatch = useDispatch()
   const ethPrice = useETHPrice()
-  const { isEVM, networkInfo, chainId } = useActiveWeb3React()
+  const { isEVM, chainId } = useActiveWeb3React()
   const blockNumber = useBlockNumber()
+  const { classicClient } = useKyberSwapConfig()
 
   const kncPrice = useSelector((state: AppState) => state.application.kncPrice)
 
   useEffect(() => {
     if (!isEVM) return
-    const apolloClient = (networkInfo as EVMNetworkInfo).classic.client
     async function checkForKNCPrice() {
-      const kncPriceByETH = await getKNCPriceByETH(chainId, apolloClient)
+      const kncPriceByETH = await getKNCPriceByETH(chainId, classicClient)
       const kncPrice = ethPrice.currentPrice && kncPriceByETH * parseFloat(ethPrice.currentPrice)
       dispatch(updateKNCPrice(kncPrice?.toString()))
     }
     checkForKNCPrice()
-  }, [kncPrice, dispatch, ethPrice.currentPrice, isEVM, networkInfo, chainId, blockNumber])
+  }, [kncPrice, dispatch, ethPrice.currentPrice, isEVM, classicClient, chainId, blockNumber])
 
   return kncPrice
 }
@@ -398,13 +431,15 @@ const cache: { [key: string]: number } = {}
 export function useTokensPrice(tokens: (Token | NativeCurrency | null | undefined)[], version?: string): number[] {
   const ethPrice = useETHPrice(version)
 
-  const { chainId, isEVM, networkInfo } = useActiveWeb3React()
+  const { chainId, isEVM } = useActiveWeb3React()
   const [prices, setPrices] = useState<number[]>([])
+  const { elasticClient, classicClient } = useKyberSwapConfig()
 
-  useDeepCompareEffect(() => {
+  const ethPriceParsed = ethPrice?.currentPrice ? parseFloat(ethPrice.currentPrice) : undefined
+
+  useEffect(() => {
     if (!isEVM) return
-    const apolloClient = (networkInfo as EVMNetworkInfo).classic.client
-    const client = version !== VERSION.ELASTIC ? apolloClient : (networkInfo as EVMNetworkInfo).elastic.client
+    const client = version !== VERSION.ELASTIC ? classicClient : elasticClient
 
     async function checkForTokenPrice() {
       const tokensPrice = tokens.map(async token => {
@@ -412,19 +447,19 @@ export function useTokensPrice(tokens: (Token | NativeCurrency | null | undefine
           return 0
         }
 
-        if (!ethPrice?.currentPrice) {
+        if (!ethPriceParsed) {
           return 0
         }
 
         if (token.isNative || token?.address === ZERO_ADDRESS) {
-          return parseFloat(ethPrice.currentPrice)
+          return ethPriceParsed
         }
 
         const key = `${token.address}_${chainId}_${version}`
         if (cache[key]) return cache[key]
 
         const tokenPriceByETH = await getTokenPriceByETH(token?.address, client)
-        const tokenPrice = tokenPriceByETH * parseFloat(ethPrice.currentPrice)
+        const tokenPrice = tokenPriceByETH * ethPriceParsed
 
         if (tokenPrice) cache[key] = tokenPrice
 
@@ -437,11 +472,110 @@ export function useTokensPrice(tokens: (Token | NativeCurrency | null | undefine
     }
 
     checkForTokenPrice()
-  }, [ethPrice.currentPrice, chainId, isEVM, networkInfo, tokens, version])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ethPriceParsed, chainId, isEVM, elasticClient, classicClient, JSON.stringify(tokens), version])
 
   return prices
 }
 
 export const useServiceWorkerRegistration = () => {
   return useAppSelector(state => state.application.serviceWorkerRegistration)
+}
+
+type DetailAnnouncementParam = {
+  selectedIndex: number | null
+  hasMore?: boolean
+  announcements?: AnnouncementTemplatePopup[]
+}
+
+export const useDetailAnnouncement = (): [DetailAnnouncementParam, (v: DetailAnnouncementParam) => void] => {
+  const announcementDetail = useAppSelector(state => state.application.notification?.announcementDetail)
+  const dispatch = useDispatch()
+  const setDetail = useCallback(
+    (data: DetailAnnouncementParam) => {
+      dispatch(setAnnouncementDetail({ ...announcementDetail, ...data }))
+    },
+    [dispatch, announcementDetail],
+  )
+  return [announcementDetail, setDetail]
+}
+
+const cacheConfig: {
+  rpc: { [rpc: string]: ethers.providers.JsonRpcProvider }
+  client: { [subgraphLink: string]: ApolloClient<NormalizedCacheObject> }
+} = {
+  rpc: {},
+  client: {},
+}
+
+const cacheCalc: <T extends keyof typeof cacheConfig, U extends typeof cacheConfig[T][string]>(
+  type: T,
+  value: string,
+  fallback: (value: string) => U,
+) => U = <T extends keyof typeof cacheConfig, U extends typeof cacheConfig[T][string]>(
+  type: T,
+  value: string,
+  fallback: (value: string) => U,
+) => {
+  if (!cacheConfig[type][value]) {
+    cacheConfig[type][value] = fallback(value)
+  }
+  return cacheConfig[type][value] as U
+}
+
+function getDefaultConfig(chainId: ChainId) {
+  const evm = isEVM(chainId)
+  return {
+    rpc: NETWORKS_INFO[chainId].defaultRpcUrl,
+    prochart: false,
+    blockSubgraph: (evm ? NETWORKS_INFO[chainId] : ethereumInfo).defaultBlockSubgraph,
+    elasticSubgraph: (evm ? NETWORKS_INFO[chainId] : ethereumInfo).elastic.defaultSubgraph,
+    classicSubgraph: (evm ? NETWORKS_INFO[chainId] : ethereumInfo).classic.defaultSubgraph,
+  }
+}
+
+type KyberSwapConfig = {
+  rpc: string
+  prochart: boolean
+  blockClient: ApolloClient<NormalizedCacheObject>
+  classicClient: ApolloClient<NormalizedCacheObject>
+  elasticClient: ApolloClient<NormalizedCacheObject>
+  provider: ethers.providers.JsonRpcProvider | undefined
+  connection: Connection | undefined
+}
+
+export const useKyberSwapConfig = (customChainId?: ChainId): KyberSwapConfig => {
+  const storeChainId = useAppSelector(state => state.user.chainId) || ChainId.MAINNET
+  const chainId = customChainId || storeChainId
+
+  const config = useAppSelector(state => state.application.config[chainId] || getDefaultConfig(chainId))
+
+  const provider = useMemo(
+    () => cacheCalc('rpc', config.rpc, subgraph => new ethers.providers.JsonRpcProvider(subgraph)),
+    [config.rpc],
+  )
+  const blockClient = useMemo(
+    () => cacheCalc('client', config.blockSubgraph, subgraph => createClient(subgraph)),
+    [config.blockSubgraph],
+  )
+  const classicClient = useMemo(
+    () => cacheCalc('client', config.classicSubgraph, subgraph => createClient(subgraph)),
+    [config.classicSubgraph],
+  )
+  const elasticClient = useMemo(
+    () => cacheCalc('client', config.elasticSubgraph, subgraph => createClient(subgraph)),
+    [config.elasticSubgraph],
+  )
+
+  return useMemo(() => {
+    return {
+      rpc: config.rpc,
+      provider,
+      prochart: config.prochart,
+      blockClient,
+      elasticClient,
+      classicClient,
+      connection: isSolana(chainId) ? new Connection(config.rpc, { commitment: 'confirmed' }) : undefined,
+    }
+  }, [chainId, provider, elasticClient, blockClient, classicClient, config.rpc, config.prochart])
 }

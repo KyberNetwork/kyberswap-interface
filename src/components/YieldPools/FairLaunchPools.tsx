@@ -1,7 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
@@ -19,8 +19,8 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useBlockNumber, useModalOpen, useOpenModal } from 'state/application/hooks'
-import { setAttemptingTxn, setShowConfirm, setTxHash, setYieldPoolsError } from 'state/farms/actions'
-import { FairLaunchVersion, Farm } from 'state/farms/types'
+import { setAttemptingTxn, setShowConfirm, setTxHash, setYieldPoolsError } from 'state/farms/classic/actions'
+import { FairLaunchVersion, Farm } from 'state/farms/classic/types'
 import { useAppDispatch } from 'state/hooks'
 import { useViewMode } from 'state/user/hooks'
 import { VIEW_MODE } from 'state/user/reducer'
@@ -91,13 +91,12 @@ const FairLaunchPools = ({ fairLaunchAddress, farms, active }: FarmsListProps) =
     })
   }, [isShareModalOpen, setSharedPoolAddress])
 
-  if (!isEVM) return <Navigate to="/" />
   const shareUrl = sharedPoolAddress
     ? window.location.origin + `/farms/${networkRoute}?search=` + sharedPoolAddress + '&tab=classic'
     : undefined
 
-  const handleHarvestAll = async () => {
-    if (!chainId || !account) {
+  const handleHarvestAll = useCallback(async () => {
+    if (!account) {
       return
     }
 
@@ -141,7 +140,7 @@ const FairLaunchPools = ({ fairLaunchAddress, farms, active }: FarmsListProps) =
     }
 
     dispatch(setAttemptingTxn(false))
-  }
+  }, [account, dispatch, farms, harvestMultiplePools, mixpanelHandler, totalRewards])
 
   const currentTimestamp = Math.floor(Date.now() / 1000)
 
@@ -202,6 +201,7 @@ const FairLaunchPools = ({ fairLaunchAddress, farms, active }: FarmsListProps) =
   const outsideFarm = OUTSIDE_FAIRLAUNCH_ADDRESSES[fairLaunchAddress]
 
   const ConditionListWrapper = viewMode === VIEW_MODE.LIST && above1200 ? ListItemWrapper : ClassicFarmGridWrapper
+  if (!isEVM) return <Navigate to="/" />
 
   return (
     <ClassicFarmWrapper>

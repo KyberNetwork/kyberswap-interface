@@ -8,8 +8,9 @@ import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import { ButtonLight, ButtonPrimary } from 'components/Button'
+import Column from 'components/Column'
 import LaunchIcon from 'components/Icons/LaunchIcon'
-import Row, { RowBetween, RowFit, RowFixed } from 'components/Row'
+import Row, { RowBetween, RowFit } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import { useVotingInfo } from 'hooks/kyberdao'
 import { ProposalDetail, ProposalStatus, ProposalType } from 'hooks/kyberdao/types'
@@ -17,6 +18,7 @@ import useTheme from 'hooks/useTheme'
 import { useSwitchToEthereum } from 'pages/KyberDAO/StakeKNC/SwitchToEthereumModal'
 import { useWalletModalToggle } from 'state/application/hooks'
 
+import { readableTime } from '..'
 import VoteConfirmModal from '../VoteConfirmModal'
 import OptionButton from './OptionButton'
 import Participants from './Participants'
@@ -64,19 +66,17 @@ const Badged = css`
   align-items: center;
   justify-content: center;
   border-radius: 10px;
+  font-size: 12px;
+  padding: 2px 14px;
 `
 const IDBadged = styled.div`
   ${Badged}
-  font-size: 12px;
-  padding: 2px 14px;
   color: ${({ theme }) => theme.subText};
   background-color: ${({ theme }) => theme.buttonBlack};
 `
 
 const StatusBadged = styled.div<{ color?: string }>`
   ${Badged}
-  font-size: 12px;
-  padding: 2px 14px;
   cursor: pointer;
 
   :hover {
@@ -112,7 +112,7 @@ const OptionsWrapper = styled(RowBetween)<{ optionCount?: number }>`
         flex-wrap: wrap;
         justify-content: flex-start;
         > * {
-          width: calc(25% - 20px * 3 / 4);
+          width: calc(33.33% - 20px * 2 / 3);
         }
         ${theme.mediaWidth.upToMedium`
           > * {
@@ -308,8 +308,17 @@ function ProposalItem({
               title={option}
               checked={selectedOptions?.includes(index) || voted}
               onOptionClick={() => handleOptionClick(index)}
-              type={selectedOptions?.includes(index) ? 'Choosing' : voted ? 'Active' : 'Finished'}
+              type={
+                proposal.status === ProposalStatus.Pending
+                  ? 'Pending'
+                  : selectedOptions?.includes(index)
+                  ? 'Choosing'
+                  : voted
+                  ? 'Active'
+                  : 'Finished'
+              }
               isCheckBox={proposal.proposal_type === ProposalType.GenericProposal}
+              id={index}
             />
           )
         })}
@@ -332,36 +341,69 @@ function ProposalItem({
           </ExpandButton>
         </RowBetween>
         {(show || isActive) && isMobile && (
-          <RowFit gap="8px">
-            <StatusBadged color={tagColor()} onClick={() => onBadgeClick?.(proposal.status)}>
-              {proposal.status}
-            </StatusBadged>
-            <IDBadged>ID #{proposal.proposal_id}</IDBadged>
-          </RowFit>
-        )}
-        {(show || isActive) && renderVotes}
-        <RowBetween>
-          {isActive ? (
-            <VoteButton
-              status={proposal.status}
-              onVoteClick={handleVote}
-              errorMessage={errorMessage}
-              voted={!!votedOfCurrentProposal?.options && votedOfCurrentProposal.options.length > 0}
-            />
-          ) : proposal.status !== ProposalStatus.Pending ? (
-            <Text color={theme.subText} fontSize={12}>
-              Ended {dayjs(proposal.end_timestamp * 1000).format('DD MMM YYYY')}
-            </Text>
-          ) : (
-            <div></div>
-          )}
-          {!((show || isActive) && isMobile) && (
-            <RowFixed gap="8px">
+          <RowBetween>
+            <RowFit gap="8px" flexWrap="wrap">
               <StatusBadged color={tagColor()} onClick={() => onBadgeClick?.(proposal.status)}>
                 {proposal.status}
               </StatusBadged>
               <IDBadged>ID #{proposal.proposal_id}</IDBadged>
-            </RowFixed>
+            </RowFit>
+            {isActive && (
+              <RowFit gap="4px" flexShrink={0}>
+                <Text color={theme.subText} fontSize={12}>
+                  <Trans>Voting ends in: </Trans>
+                </Text>
+                <StatusBadged color={theme.primary}>
+                  {readableTime(proposal.end_timestamp - Date.now() / 1000)}
+                </StatusBadged>
+              </RowFit>
+            )}
+          </RowBetween>
+        )}
+        {(show || isActive) && renderVotes}
+        <RowBetween>
+          {isActive ? (
+            <Column gap="4px">
+              <VoteButton
+                status={proposal.status}
+                onVoteClick={handleVote}
+                errorMessage={errorMessage}
+                voted={!!votedOfCurrentProposal?.options && votedOfCurrentProposal.options.length > 0}
+              />
+            </Column>
+          ) : proposal.status === ProposalStatus.Pending ? (
+            <RowFit gap="4px">
+              <Text color={theme.subText} fontSize={12}>
+                <Trans>Voting starts in: </Trans>
+              </Text>
+              <StatusBadged color={theme.primary}>
+                {readableTime(proposal.start_timestamp - Date.now() / 1000)}
+              </StatusBadged>
+            </RowFit>
+          ) : (
+            <Text color={theme.subText} fontSize={12}>
+              Ended {dayjs(proposal.end_timestamp * 1000).format('DD MMM YYYY')}
+            </Text>
+          )}
+          {!((show || isActive) && isMobile) && (
+            <Column gap="8px">
+              <Row gap="8px" justify="flex-end">
+                <StatusBadged color={tagColor()} onClick={() => onBadgeClick?.(proposal.status)}>
+                  {proposal.status}
+                </StatusBadged>
+                <IDBadged>ID #{proposal.proposal_id}</IDBadged>
+              </Row>
+              {isActive && (
+                <Row gap="4px">
+                  <Text color={theme.subText} fontSize={12}>
+                    <Trans>Voting ends in: </Trans>
+                  </Text>
+                  <StatusBadged color={theme.primary}>
+                    {readableTime(proposal.end_timestamp - Date.now() / 1000)}
+                  </StatusBadged>
+                </Row>
+              )}
+            </Column>
           )}
         </RowBetween>
       </ProposalHeader>

@@ -77,23 +77,23 @@ type Props = {
   trades?: number
 }
 
-export const formatTradingVolume = (v: string) => {
+const formatTradingVolume = (v: string) => {
   const formatter = Intl.NumberFormat('en-US', {
     notation: 'compact',
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 0,
-    maximumSignificantDigits: 2,
+    maximumFractionDigits: 1,
   })
 
   return formatter.format(Number(v))
 }
 
-export const formatNumber = (v: number) => {
+const formatNumber = (v: number) => {
   const formatter = Intl.NumberFormat('en-US', {
     notation: 'compact',
     minimumFractionDigits: 0,
-    maximumSignificantDigits: 2,
+    maximumFractionDigits: 1,
   })
 
   return formatter.format(v)

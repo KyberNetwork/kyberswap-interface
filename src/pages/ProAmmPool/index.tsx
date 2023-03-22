@@ -1,6 +1,4 @@
-import { computePoolAddress } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
-import { BigNumber } from 'ethers'
 import { rgba } from 'polished'
 import { useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -18,22 +16,21 @@ import SubscribeNotificationButton from 'components/SubscribeButton'
 import Toggle from 'components/Toggle'
 import Tutorial, { TutorialType } from 'components/Tutorial'
 import { APP_PATHS, PROMM_ANALYTICS_URL } from 'constants/index'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import { useProAmmPositions } from 'hooks/useProAmmPositions'
+import { useFarmPositions, useProAmmPositions } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
 import { FilterRow, InstructionText, PageWrapper, PositionCardGrid, Tab } from 'pages/Pool'
-import { FarmUpdater, useElasticFarms } from 'state/farms/elastic/hooks'
+import { FarmUpdater } from 'state/farms/elastic/hooks'
 import { ExternalLink, StyledInternalLink, TYPE } from 'theme'
 import { PositionDetails } from 'types/position'
 
 import ContentLoader from './ContentLoader'
-import PositionListItem from './PositionListItem'
+import PositionGrid from './PositionGrid'
 
-const Hightlight = styled.span`
+const Highlight = styled.span`
   color: ${({ theme }) => theme.text};
 `
 
@@ -50,21 +47,28 @@ const TabRow = styled.div`
   `}
 `
 
+const TabWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    gap: 8px;
+  `}
+`
+
 interface AddressSymbolMapInterface {
   [key: string]: string
 }
 
 const renderNotificationButton = (iconOnly: boolean) => {
-  return null // temp off feature, will release soon
   return (
     <SubscribeNotificationButton
       iconOnly={iconOnly}
       subscribeTooltip={
         <div>
           <Trans>
-            Subscribe to receive email notifications on <Hightlight>all</Hightlight> your liquidity positions. When your
-            liquidity position goes <Hightlight>out-of-range</Hightlight>, back <Hightlight>in-range</Hightlight> or is{' '}
-            <Hightlight>closed</Hightlight> you will receive a notification
+            Subscribe to receive emails on your Elastic liquidity positions across all chains. Whenever a position goes
+            <Highlight>out-of-range</Highlight> or comes back <Highlight>in-range</Highlight>, you will receive an email
           </Trans>
         </div>
       }
@@ -77,63 +81,7 @@ export default function ProAmmPool() {
   const tokenAddressSymbolMap = useRef<AddressSymbolMapInterface>({})
   const { positions, loading: positionsLoading } = useProAmmPositions(account)
 
-  const { farms, loading, userFarmInfo } = useElasticFarms()
-
-  const farmingPools = useMemo(() => farms?.map(farm => farm.pools).flat() || [], [farms])
-
-  const farmPositions = useMemo(() => {
-    if (!isEVM) return []
-    return Object.values(userFarmInfo || {})
-      .map(info => {
-        return info.depositedPositions
-          .map(pos => {
-            const poolAddress = computePoolAddress({
-              factoryAddress: (networkInfo as EVMNetworkInfo).elastic.coreFactory,
-              tokenA: pos.pool.token0,
-              tokenB: pos.pool.token1,
-              fee: pos.pool.fee,
-              initCodeHashManualOverride: (networkInfo as EVMNetworkInfo).elastic.initCodeHash,
-            })
-            const pool = farmingPools.filter(pool => pool.poolAddress.toLowerCase() === poolAddress.toLowerCase())
-
-            const joinedLiquidity =
-              // I'm sure we can always find pool
-              // eslint-disable-next-line
-              Object.values(info.joinedPositions)
-                .flat()
-                .filter(joinedPos => joinedPos.nftId.toString() === pos.nftId.toString())
-                .reduce(
-                  (acc, cur) =>
-                    acc.gt(BigNumber.from(cur.liquidity.toString())) ? acc : BigNumber.from(cur.liquidity.toString()),
-                  BigNumber.from(0),
-                ) || BigNumber.from(0)
-
-            return {
-              nonce: BigNumber.from('1'),
-              tokenId: pos.nftId,
-              operator: '0x0000000000000000000000000000000000000000',
-              poolId: poolAddress,
-              tickLower: pos.tickLower,
-              tickUpper: pos.tickUpper,
-              liquidity: BigNumber.from(pos.liquidity.toString()),
-              // not used
-              feeGrowthInsideLast: BigNumber.from(0),
-              stakedLiquidity: joinedLiquidity,
-              // not used
-              rTokenOwed: BigNumber.from(0),
-              token0: pos.pool.token0.address,
-              token1: pos.pool.token1.address,
-              fee: pos.pool.fee,
-              endTime: pool?.[0]?.endTime,
-              rewardPendings: [],
-            }
-          })
-          .flat()
-      })
-      .flat()
-      .filter(item => item.liquidity.gt(0))
-  }, [farmingPools, userFarmInfo, isEVM, networkInfo])
-
+  const { farmPositions, loading, activeFarmAddress, farms, userFarmInfo } = useFarmPositions()
   const [openPositions, closedPositions] = useMemo(
     () =>
       positions?.reduce<[PositionDetails[], PositionDetails[]]>(
@@ -208,17 +156,6 @@ export default function ProAmmPool() {
 
   const upToSmall = useMedia('(max-width: 768px)')
 
-  const activeFarmAddress = useMemo(() => {
-    const now = Date.now() / 1000
-    return (
-      farms
-        ?.map(farm => farm.pools)
-        .flat()
-        ?.filter(farm => farm.endTime >= now)
-        .map(farm => farm.poolAddress.toLowerCase()) || []
-    )
-  }, [farms])
-
   if (!isEVM) return <Navigate to="/" />
   return (
     <>
@@ -239,7 +176,7 @@ export default function ProAmmPool() {
           </InstructionText>
           <TabRow>
             <Flex justifyContent="space-between" flex={1} alignItems="center" width="100%">
-              <Flex sx={{ gap: '1rem' }} alignItems="center">
+              <TabWrapper>
                 <Tab
                   active={!showStaked}
                   role="button"
@@ -259,7 +196,7 @@ export default function ProAmmPool() {
                 >
                   {isMobile ? <Trans>Farming Positions</Trans> : <Trans>My Farming Positions</Trans>}
                 </Tab>
-              </Flex>
+              </TabWrapper>
 
               {upToSmall && (
                 <Flex sx={{ gap: '8px' }}>
@@ -317,31 +254,19 @@ export default function ProAmmPool() {
           ) : filteredPositions.length > 0 || filteredFarmPositions.length > 0 ? (
             <>
               {/* Use display attribute here instead of condition rendering to prevent re-render full list when toggle showStaked => increase performance */}
-              <PositionCardGrid style={{ display: showStaked ? 'none' : 'grid' }}>
-                {filteredPositions.map(p => (
-                  <PositionListItem
-                    refe={tokenAddressSymbolMap}
-                    positionDetails={p}
-                    key={p.tokenId.toString()}
-                    hasUserDepositedInFarm={!!p.stakedLiquidity}
-                    hasActiveFarm={activeFarmAddress.includes(p.poolId.toLowerCase())}
-                  />
-                ))}
-              </PositionCardGrid>
-              <PositionCardGrid style={{ display: !showStaked ? 'none' : 'grid' }}>
-                {filteredFarmPositions.map(p => {
-                  return (
-                    <PositionListItem
-                      key={p.tokenId.toString()}
-                      stakedLayout
-                      hasUserDepositedInFarm
-                      refe={tokenAddressSymbolMap}
-                      positionDetails={p}
-                      hasActiveFarm={activeFarmAddress.includes(p.poolId.toLowerCase())}
-                    />
-                  )
-                })}
-              </PositionCardGrid>
+              <PositionGrid
+                style={{ display: showStaked ? 'none' : 'grid' }}
+                positions={filteredPositions}
+                refe={tokenAddressSymbolMap}
+                activeFarmAddress={activeFarmAddress}
+              />
+
+              <PositionGrid
+                style={{ display: !showStaked ? 'none' : 'grid' }}
+                positions={filteredFarmPositions}
+                refe={tokenAddressSymbolMap}
+                activeFarmAddress={activeFarmAddress}
+              />
             </>
           ) : (
             <Flex flexDirection="column" alignItems="center" marginTop="60px">

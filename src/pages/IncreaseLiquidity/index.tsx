@@ -7,7 +7,7 @@ import JSBI from 'jsbi'
 import { useCallback, useEffect, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
-import { useMedia } from 'react-use'
+import { useMedia, usePrevious } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 
 import { ReactComponent as TutorialIcon } from 'assets/svg/play_circle_outline.svg'
@@ -19,6 +19,7 @@ import Copy from 'components/Copy'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Divider from 'components/Divider'
+import Dots from 'components/Dots'
 import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
 import Loader from 'components/Loader'
 import { StyledMenuButton } from 'components/NavigationTabs'
@@ -30,7 +31,6 @@ import { RowBetween } from 'components/Row'
 import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
 import TransactionSettings from 'components/TransactionSettings'
 import Tutorial, { TutorialType } from 'components/Tutorial'
-import { Dots } from 'components/swap/styleds'
 import { APP_PATHS } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
@@ -38,7 +38,6 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
-import usePrevious from 'hooks/usePrevious'
 import { useProAmmDerivedPositionInfo } from 'hooks/useProAmmDerivedPositionInfo'
 import { useProAmmPositionsFromTokenId } from 'hooks/useProAmmPositions'
 import useProAmmPreviousTicks from 'hooks/useProAmmPreviousTicks'
@@ -423,7 +422,7 @@ export default function AddLiquidity() {
               )
             }
             bottomContent={() => (
-              <ButtonPrimary onClick={onAdd}>
+              <ButtonPrimary id="btnSupply" onClick={onAdd}>
                 <Text fontWeight={500}>
                   <Trans>Supply</Trans>
                 </Text>

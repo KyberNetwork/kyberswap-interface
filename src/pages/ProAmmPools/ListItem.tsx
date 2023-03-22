@@ -34,7 +34,7 @@ interface ListItemProps {
   userPositions: { [key: string]: number }
 }
 
-const getPrommAnalyticLink = (chainId: ChainId | undefined, poolAddress: string) => {
+const getPrommAnalyticLink = (chainId: ChainId, poolAddress: string) => {
   if (!chainId) return ''
   return `${PROMM_ANALYTICS_URL[chainId]}/pool/${poolAddress.toLowerCase()}`
 }

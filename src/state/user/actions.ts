@@ -33,7 +33,6 @@ export const addSerializedPair = createAction<{ serializedPair: SerializedPair }
 export const removeSerializedPair = createAction<{ chainId: number; tokenAAddress: string; tokenBAddress: string }>(
   'user/removeSerializedPair',
 )
-export const toggleRebrandingAnnouncement = createAction<void>('user/toggleRebrandingAnnouncement')
 export const toggleLiveChart = createAction<{ chainId: number }>('user/toggleLiveChart')
 
 export const toggleTradeRoutes = createAction<void>('user/toggleTradeRoutes')
@@ -50,3 +49,4 @@ export const updateIsUserManuallyDisconnect = createAction<boolean>('user/update
 export const updateAcceptedTermVersion = createAction<number | null>('user/updateAcceptedTermVersion')
 export const changeViewMode = createAction<VIEW_MODE>('user/changeViewMode')
 export const toggleHolidayMode = createAction<void>('user/toggleHolidayMode')
+export const pinSlippageControl = createAction<boolean>('user/pinSlippageControl')

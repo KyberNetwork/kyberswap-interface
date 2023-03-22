@@ -6,19 +6,13 @@ import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 import QuestionHelper from 'components/QuestionHelper'
+import SettingLabel from 'components/swapv2/SwapSettingsPanel/SettingLabel'
 import useTheme from 'hooks/useTheme'
 import { useAllDexes, useExcludeDexes } from 'state/customizeDexes/hooks'
 
 type Props = {
   onClick: () => void
 }
-
-const SettingLabel = styled.span`
-  font-size: ${isMobile ? '14px' : '12px'};
-  color: ${({ theme }) => theme.text};
-  font-weight: 400;
-  line-height: 16px;
-`
 
 const Group = styled.div`
   display: flex;
@@ -59,7 +53,7 @@ const LiquiditySourcesSetting: React.FC<Props> = ({ onClick }) => {
         <SettingLabel>
           <Trans>Liquidity Sources</Trans>
         </SettingLabel>
-        <QuestionHelper text={t`Your trade is routed through one or more of these liquidity sources`} />
+        <QuestionHelper placement="top" text={t`Your trade is routed through one or more of these liquidity sources`} />
       </Group>
 
       <Group>

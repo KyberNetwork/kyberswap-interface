@@ -6,6 +6,7 @@ import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } fro
 import { AlertTriangle } from 'react-feather'
 import Skeleton from 'react-loading-skeleton'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { usePrevious } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import styled, { DefaultTheme, keyframes } from 'styled-components'
 
@@ -27,6 +28,9 @@ import ProgressSteps from 'components/ProgressSteps'
 import { AutoRow, RowBetween } from 'components/Row'
 import { SEOSwap } from 'components/SEO'
 import { ShareButtonWithModal } from 'components/ShareModal'
+import SlippageWarningNote from 'components/SlippageWarningNote'
+import PriceImpactNote from 'components/SwapForm/PriceImpactNote'
+import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import TokenWarningModal from 'components/TokenWarningModal'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -77,16 +81,13 @@ import { useAllTokens, useIsLoadedTokenDefault } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallbackFromTradeV2 } from 'hooks/useApproveCallback'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import usePrevious from 'hooks/usePrevious'
 import { useSwapV2Callback } from 'hooks/useSwapV2Callback'
-import { useSyncNetworkParamWithStore } from 'hooks/useSyncNetworkParamWithStore'
 import useSyncTokenSymbolToUrl from 'hooks/useSyncTokenSymbolToUrl'
 import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { BodyWrapper } from 'pages/AppBody'
-import { ClickableText } from 'pages/Pool/styleds'
-import VerifyComponent from 'pages/Verify/VerifyComponent'
-import { useToggleTransactionSettingsMenu, useWalletModalToggle } from 'state/application/hooks'
+import useUpdateSlippageInStableCoinSwap from 'pages/SwapV3/useUpdateSlippageInStableCoinSwap'
+import { useWalletModalToggle } from 'state/application/hooks'
 import { useAllDexes } from 'state/customizeDexes/hooks'
 import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { Field } from 'state/swap/actions'
@@ -104,6 +105,7 @@ import {
 } from 'state/user/hooks'
 import { TYPE } from 'theme'
 import { formattedNum, getLimitOrderContract } from 'utils'
+import { getTradeComposition } from 'utils/aggregationRouting'
 import { Aggregator } from 'utils/aggregator'
 import { currencyId } from 'utils/currencyId'
 import { halfAmountSpend, maxAmountSpend } from 'utils/maxAmountSpend'
@@ -112,7 +114,7 @@ import { getSymbolSlug } from 'utils/string'
 import { checkPairInWhiteList } from 'utils/tokenInfo'
 
 const LiveChart = lazy(() => import('components/LiveChart'))
-const Routing = lazy(() => import('components/swapv2/Routing'))
+const Routing = lazy(() => import('components/TradeRouting'))
 const TutorialIcon = styled(TutorialSvg)`
   width: 22px;
   height: 22px;
@@ -201,7 +203,6 @@ export default function Swap() {
   const allDexes = useAllDexes()
   const [{ show: isShowTutorial = false }] = useTutorialSwapGuide()
   const { pathname } = useLocation()
-  useSyncNetworkParamWithStore()
   const [encodeSolana] = useEncodeSolana()
 
   const refSuggestPair = useRef<PairSuggestionHandle>(null)
@@ -241,8 +242,6 @@ export default function Swap() {
   // toggle wallet when disconnected
   const toggleWalletModal = useWalletModalToggle()
 
-  // for expert mode
-  const toggleSettings = useToggleTransactionSettingsMenu()
   const [isExpertMode] = useExpertModeManager()
 
   // get custom setting values for user
@@ -330,9 +329,11 @@ export default function Swap() {
 
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
   const trade = showWrap ? undefined : v2Trade
-  const isPriceImpactInvalid = !!trade?.priceImpact && trade?.priceImpact === -1
-  const isPriceImpactHigh = !!trade?.priceImpact && trade?.priceImpact > 5
-  const isPriceImpactVeryHigh = !!trade?.priceImpact && trade?.priceImpact > 15
+
+  const priceImpact = trade?.priceImpact
+  const isPriceImpactInvalid = !!priceImpact && priceImpact === -1
+  const isPriceImpactHigh = !!priceImpact && priceImpact > 5
+  const isPriceImpactVeryHigh = !!priceImpact && priceImpact > 15
 
   const parsedAmounts = showWrap
     ? {
@@ -588,26 +589,17 @@ export default function Swap() {
     }
   }, [isExpertMode, mixpanelHandler])
 
-  const [rawSlippage, setRawSlippage] = useUserSlippageTolerance()
+  const [rawSlippage] = useUserSlippageTolerance()
 
-  const isStableCoinSwap =
+  const isStableCoinSwap = Boolean(
     INPUT?.currencyId &&
-    OUTPUT?.currencyId &&
-    chainId &&
-    STABLE_COINS_ADDRESS[chainId].includes(INPUT?.currencyId) &&
-    STABLE_COINS_ADDRESS[chainId].includes(OUTPUT?.currencyId)
+      OUTPUT?.currencyId &&
+      chainId &&
+      STABLE_COINS_ADDRESS[chainId].includes(INPUT?.currencyId) &&
+      STABLE_COINS_ADDRESS[chainId].includes(OUTPUT?.currencyId),
+  )
 
-  const rawSlippageRef = useRef(rawSlippage)
-  rawSlippageRef.current = rawSlippage
-
-  useEffect(() => {
-    if (isStableCoinSwap && rawSlippageRef.current > 10) {
-      setRawSlippage(10)
-    }
-    if (!isStableCoinSwap && rawSlippageRef.current === 10) {
-      setRawSlippage(50)
-    }
-  }, [isStableCoinSwap, setRawSlippage])
+  useUpdateSlippageInStableCoinSwap()
 
   const shareUrl = useMemo(() => {
     const tokenIn = isSwapPage ? currencyIn : limitState.currencyIn
@@ -671,6 +663,10 @@ export default function Swap() {
   */
   }, [])
 
+  const tradeRouteComposition = useMemo(() => {
+    return getTradeComposition(chainId, trade?.inputAmount, trade?.tokens, trade?.swaps, defaultTokens)
+  }, [chainId, defaultTokens, trade])
+
   const onClickTab = (tab: TAB) => {
     setActiveTab(tab)
     const isLimit = tab === TAB.LIMIT
@@ -689,7 +685,6 @@ export default function Swap() {
        */}
       <SEOSwap canonicalUrl={canonicalUrl} />
       <TutorialSwap />
-      <VerifyComponent />
       <TokenWarningModal
         isOpen={isShowModalImportToken}
         tokens={importTokensNotInDefault}
@@ -883,72 +878,36 @@ export default function Swap() {
                         <AddressInputPanel id="recipient" value={recipient} onChange={handleRecipientChange} />
                       )}
 
+                      {!showWrap && <SlippageSetting isStablePairSwap={isStableCoinSwap} />}
+
+                      <TrendingSoonTokenBanner
+                        currencyIn={currencyIn}
+                        currencyOut={currencyOut}
+                        style={{ marginTop: '24px' }}
+                      />
+
                       {!showWrap && (
-                        <Flex
-                          alignItems="center"
-                          fontSize={12}
-                          color={theme.subText}
-                          onClick={toggleSettings}
-                          width="fit-content"
-                        >
-                          <ClickableText color={theme.subText} fontWeight={500}>
-                            <Trans>Max Slippage:</Trans>&nbsp;
-                            {allowedSlippage / 100}%
-                          </ClickableText>
-                        </Flex>
+                        <SlippageWarningNote rawSlippage={rawSlippage} isStablePairSwap={isStableCoinSwap} />
                       )}
+
+                      <PriceImpactNote priceImpact={trade?.priceImpact} isAdvancedMode={isExpertMode} />
+
+                      {isLargeSwap && (
+                        <PriceImpactHigh>
+                          <AlertTriangle color={theme.warning} size={24} style={{ marginRight: '8px' }} />
+                          <Trans>
+                            Your transaction may not be successful. We recommend increasing the slippage for this trade
+                          </Trans>
+                        </PriceImpactHigh>
+                      )}
+
+                      <ApproveMessage
+                        routerAddress={trade?.routerAddress}
+                        isCurrencyInNative={Boolean(currencyIn?.isNative)}
+                      />
                     </Flex>
 
                     <TradeTypeSelection />
-
-                    <TrendingSoonTokenBanner
-                      currencyIn={currencyIn}
-                      currencyOut={currencyOut}
-                      style={{ marginTop: '24px' }}
-                    />
-
-                    {isPriceImpactInvalid ? (
-                      <PriceImpactHigh>
-                        <AlertTriangle color={theme.warning} size={16} style={{ marginRight: '10px' }} />
-                        <Trans>Unable to calculate Price Impact</Trans>
-                        <InfoHelper text={t`Turn on Advanced Mode to trade`} color={theme.text} />
-                      </PriceImpactHigh>
-                    ) : (
-                      isPriceImpactHigh && (
-                        <PriceImpactHigh veryHigh={isPriceImpactVeryHigh}>
-                          <AlertTriangle
-                            color={isPriceImpactVeryHigh ? theme.red : theme.warning}
-                            size={16}
-                            style={{ marginRight: '10px' }}
-                          />
-                          {isPriceImpactVeryHigh ? (
-                            <Trans>Price Impact is Very High</Trans>
-                          ) : (
-                            <Trans>Price Impact is High</Trans>
-                          )}
-                          <InfoHelper
-                            text={
-                              isExpertMode
-                                ? t`You have turned on Advanced Mode from settings. Trades with high price impact can be executed`
-                                : t`Turn on Advanced Mode from settings to execute trades with high price impact`
-                            }
-                            color={theme.text}
-                          />
-                        </PriceImpactHigh>
-                      )
-                    )}
-                    {isLargeSwap && (
-                      <PriceImpactHigh>
-                        <AlertTriangle color={theme.warning} size={24} style={{ marginRight: '10px' }} />
-                        <Trans>
-                          Your transaction may not be successful. We recommend increasing the slippage for this trade
-                        </Trans>
-                      </PriceImpactHigh>
-                    )}
-                    <ApproveMessage
-                      routerAddress={trade?.routerAddress}
-                      isCurrencyInNative={Boolean(currencyIn?.isNative)}
-                    />
 
                     <BottomGrouping>
                       {!account ? (
@@ -1011,10 +970,10 @@ export default function Swap() {
                               id="swap-button"
                               disabled={!!swapInputError || approval !== ApprovalState.APPROVED}
                               backgroundColor={
-                                isPriceImpactHigh || isPriceImpactInvalid
-                                  ? isPriceImpactVeryHigh
-                                    ? theme.red
-                                    : theme.warning
+                                isPriceImpactVeryHigh || isPriceImpactInvalid
+                                  ? theme.red
+                                  : isPriceImpactHigh
+                                  ? theme.warning
                                   : undefined
                               }
                               color={isPriceImpactHigh || isPriceImpactInvalid ? theme.white : undefined}
@@ -1040,17 +999,13 @@ export default function Swap() {
                         <ButtonError
                           onClick={() => {
                             mixpanelSwapInit()
-                            if (isExpertMode) {
-                              handleSwap()
-                            } else {
-                              setSwapState({
-                                tradeToConfirm: trade,
-                                attemptingTxn: false,
-                                swapErrorMessage: undefined,
-                                showConfirm: true,
-                                txHash: undefined,
-                              })
-                            }
+                            setSwapState({
+                              tradeToConfirm: trade,
+                              attemptingTxn: false,
+                              swapErrorMessage: undefined,
+                              showConfirm: true,
+                              txHash: undefined,
+                            })
                           }}
                           id="swap-button"
                           disabled={
@@ -1071,7 +1026,10 @@ export default function Swap() {
                               (isExpertMode && isSolana && !encodeSolana)
                             ) &&
                             (isPriceImpactHigh || isPriceImpactInvalid)
-                              ? { background: isPriceImpactVeryHigh ? theme.red : theme.warning, color: theme.white }
+                              ? {
+                                  background: isPriceImpactVeryHigh || isPriceImpactInvalid ? theme.red : theme.warning,
+                                  color: theme.white,
+                                }
                               : {}),
                           }}
                         >
@@ -1171,7 +1129,13 @@ export default function Swap() {
                         />
                       }
                     >
-                      <Routing trade={trade} currencies={currencies} formattedAmounts={formattedAmounts} />
+                      <Routing
+                        tradeComposition={tradeRouteComposition}
+                        currencyIn={currencyIn}
+                        currencyOut={currencyOut}
+                        inputAmount={trade?.inputAmount}
+                        outputAmount={trade?.outputAmount}
+                      />
                     </Suspense>
                   </Flex>
                 </RoutesWrapper>

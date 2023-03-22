@@ -1,13 +1,19 @@
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
+import { rgba } from 'polished'
 import { useState } from 'react'
 import { Flex } from 'rebass'
+import styled from 'styled-components'
 
-import QuestionHelper from 'components/QuestionHelper'
+import InfoHelper from 'components/InfoHelper'
 import Toggle from 'components/Toggle'
 import AdvanceModeModal from 'components/TransactionSettings/AdvanceModeModal'
+import SettingLabel from 'components/swapv2/SwapSettingsPanel/SettingLabel'
 import { useExpertModeManager } from 'state/user/hooks'
 
-const AdvancedModeSetting = () => {
+type Props = {
+  className?: string
+}
+const AdvancedModeSetting: React.FC<Props> = ({ className }) => {
   const [expertMode, toggleExpertMode] = useExpertModeManager()
   const [showConfirmation, setShowConfirmation] = useState(false)
 
@@ -24,13 +30,19 @@ const AdvancedModeSetting = () => {
 
   return (
     <>
-      <Flex justifyContent="space-between">
+      <Flex justifyContent="space-between" className={className}>
         <Flex width="fit-content" alignItems="center">
-          <span className="settingLabel">
+          <SettingLabel>
             <Trans>Advanced Mode</Trans>
-          </span>
-          <QuestionHelper
-            text={t`You can make trades with high price impact and without any confirmation prompts. Enable at your own risk`}
+          </SettingLabel>
+          <InfoHelper
+            placement="top"
+            text={
+              <Trans>
+                You can make trades with price impact which is <b>very</b> high, or cannot be calculated. Enable at your
+                own risk
+              </Trans>
+            }
           />
         </Flex>
         <Toggle id="toggle-expert-mode-button" isActive={expertMode} toggle={handleToggleAdvancedMode} />
@@ -41,4 +53,11 @@ const AdvancedModeSetting = () => {
   )
 }
 
-export default AdvancedModeSetting
+export default styled(AdvancedModeSetting)`
+  ${Toggle} {
+    background: ${({ theme }) => theme.buttonBlack};
+    &[data-active='true'] {
+      background: ${({ theme }) => rgba(theme.primary, 0.2)};
+    }
+  }
+`

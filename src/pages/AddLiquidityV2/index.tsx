@@ -46,6 +46,7 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
 import useProAmmPreviousTicks, { useProAmmMultiplePreviousTicks } from 'hooks/useProAmmPreviousTicks'
 import useTheme from 'hooks/useTheme'
@@ -62,7 +63,7 @@ import {
 import { Bound, Field, RANGE } from 'state/mint/proamm/type'
 import { useUserProMMPositions } from 'state/prommPools/hooks'
 import useGetElasticPools from 'state/prommPools/useGetElasticPools'
-import { useTokenPrices } from 'state/tokenPrices/hooks'
+import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
 import { usePairFactor } from 'state/topTokens/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
@@ -74,6 +75,7 @@ import { currencyId } from 'utils/currencyId'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
+import NewPoolNote from './components/NewPoolNote'
 import { RANGE_LIST, rangeData } from './constants'
 import {
   ArrowWrapper,
@@ -103,12 +105,13 @@ export default function AddLiquidity() {
   const positionManager = useProAmmNFTPositionManagerContract()
   const [showChart, setShowChart] = useState(false)
   const [positionIndex, setPositionIndex] = useState(0)
+  const { mixpanelHandler } = useMixpanel()
 
   // fee selection from url
   const feeAmount: FeeAmount | undefined =
     feeAmountFromUrl && Object.values(FeeAmount).includes(parseFloat(feeAmountFromUrl))
       ? parseFloat(feeAmountFromUrl)
-      : FeeAmount.MEDIUM
+      : FeeAmount.MOST_PAIR
   const baseCurrency = useCurrency(currencyIdA)
   const currencyB = useCurrency(currencyIdB)
   // prevent an error if they input ETH/WETH
@@ -189,6 +192,27 @@ export default function AddLiquidity() {
     onRemovePosition,
   } = useProAmmMintActionHandlers(noLiquidity, pIndex)
 
+  const onAddPositionEvent = useCallback(() => {
+    if (tokenA?.symbol && tokenB?.symbol)
+      mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_ADD_NEW_POSITION, {
+        token_1: tokenA?.symbol,
+        token_2: tokenB?.symbol,
+      })
+    onAddPosition()
+  }, [mixpanelHandler, onAddPosition, tokenA?.symbol, tokenB?.symbol])
+
+  const onRemovePositionEvent = useCallback(
+    (positionIndex: number) => {
+      if (tokenA?.symbol && tokenB?.symbol)
+        mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_CLICK_TO_REMOVE_POSITION, {
+          token_1: tokenA?.symbol,
+          token_2: tokenB?.symbol,
+        })
+      onRemovePosition(positionIndex)
+    },
+    [mixpanelHandler, onRemovePosition, tokenA?.symbol, tokenB?.symbol],
+  )
+
   const isValid = !errorMessage && !invalidRange
 
   // modal and loading
@@ -240,6 +264,30 @@ export default function AddLiquidity() {
     {} as { [field in Field]: CurrencyAmount<Currency> },
   )
 
+  const amountUnlocks: { [field in Field]: CurrencyAmount<Currency> } = [Field.CURRENCY_A, Field.CURRENCY_B].reduce(
+    (accumulator, field) => {
+      let amountUnlock = JSBI.BigInt('0')
+      if (currencies[field] && noLiquidity && tokenA && tokenB) {
+        if (
+          (!invertPrice && tokenA.equals(currencies[field] as Currency)) ||
+          (invertPrice && tokenB.equals(currencies[field] as Currency))
+        ) {
+          amountUnlock = amount0Unlock
+        } else {
+          amountUnlock = amount1Unlock
+        }
+      }
+
+      return {
+        ...accumulator,
+        [field]: currencies[field]
+          ? CurrencyAmount.fromRawAmount(currencies[field] as Currency, amountUnlock)
+          : undefined,
+      }
+    },
+    {} as { [field in Field]: CurrencyAmount<Currency> },
+  )
+
   // check whether the user has approved the router on the tokens
   const [approvalA, approveACallback] = useApproveCallback(
     !!currencies_A && depositADisabled && noLiquidity
@@ -259,7 +307,13 @@ export default function AddLiquidity() {
     () => [currencies_A, currencies_B].map(currency => currency?.wrapped),
     [currencies_A, currencies_B],
   )
-  const usdPrices = useTokenPrices(tokens.map(t => t?.wrapped.address || ''))
+  const { data: usdPrices, loading, fetchPrices } = useTokenPricesWithLoading(tokens.map(t => t?.wrapped.address || ''))
+
+  const amountUnlockUSD =
+    Number(amountUnlocks[Field.CURRENCY_A]?.toExact()) *
+      usdPrices[amountUnlocks[Field.CURRENCY_A]?.currency.wrapped.address] +
+    Number(amountUnlocks[Field.CURRENCY_B]?.toExact()) *
+      usdPrices[amountUnlocks[Field.CURRENCY_B]?.currency.wrapped.address]
 
   const estimatedUsdCurrencyA =
     parsedAmounts_A && usdPrices[tokens[0]?.address || '']
@@ -499,6 +553,20 @@ export default function AddLiquidity() {
       pool,
       price,
     )
+
+  const setRange = useCallback(
+    (range: RANGE) => {
+      if (tokenA?.symbol && tokenB?.symbol)
+        mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_SELECT_RANGE_FOR_POOL, {
+          token_1: tokenA?.symbol,
+          token_2: tokenB?.symbol,
+          range,
+        })
+      getSetRange(range)
+    },
+    [mixpanelHandler, getSetRange, tokenA?.symbol, tokenB?.symbol],
+  )
+
   // we need an existence check on parsed amounts for single-asset deposits
   const showApprovalA = approvalA !== ApprovalState.APPROVED && (noLiquidity ? true : !!parsedAmounts_A)
   const showApprovalB = approvalB !== ApprovalState.APPROVED && (noLiquidity ? true : !!parsedAmounts_B)
@@ -546,7 +614,11 @@ export default function AddLiquidity() {
         <Trans>Connect Wallet</Trans>
       </ButtonLight>
     ) : (
-      <>
+      <Flex
+        sx={{ gap: '16px' }}
+        flexDirection={upToMedium ? 'column' : 'row'}
+        width={upToMedium ? '100%' : 'fit-content'}
+      >
         {(approvalA === ApprovalState.NOT_APPROVED ||
           approvalA === ApprovalState.PENDING ||
           approvalB === ApprovalState.NOT_APPROVED ||
@@ -588,6 +660,7 @@ export default function AddLiquidity() {
             </>
           )}
         <ButtonError
+          id="btnSupply"
           onClick={() => {
             expertMode ? onAdd() : setShowConfirm(true)
           }}
@@ -604,7 +677,7 @@ export default function AddLiquidity() {
             {errorMessage ? errorMessage : expertMode ? <Trans>Supply</Trans> : <Trans>Preview</Trans>}
           </Text>
         </ButtonError>
-      </>
+      </Flex>
     )
 
   const warning = errorLabel ? (
@@ -660,12 +733,19 @@ export default function AddLiquidity() {
           tabsCount={positionsState.length}
           selectedTab={pIndex}
           onChangedTab={index => setPositionIndex(index)}
-          onAddTab={onAddPosition}
-          onRemoveTab={onRemovePosition}
+          onAddTab={onAddPositionEvent}
+          onRemoveTab={onRemovePositionEvent}
           showChart={showChart}
-          onToggleChart={(newShowChart: boolean | undefined) =>
-            setShowChart(showChart => (typeof newShowChart !== 'undefined' ? newShowChart : !showChart))
-          }
+          onToggleChart={(newShowChart: boolean | undefined) => {
+            const newValue = typeof newShowChart !== 'undefined' ? newShowChart : !showChart
+            if (newValue && tokenA?.symbol && tokenB?.symbol) {
+              mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_CLICK_PRICE_CHART, {
+                token_1: tokenA?.symbol,
+                token_2: tokenB?.symbol,
+              })
+            }
+            setShowChart(newValue)
+          }}
         />
       )}
       <ChartBody>
@@ -697,7 +777,7 @@ export default function AddLiquidity() {
                           placement="bottom"
                         >
                           <RangeBtn
-                            onClick={() => getSetRange(range)}
+                            onClick={() => setRange(range)}
                             isSelected={range === activeRange}
                             onMouseEnter={() => setShownTooltip(range)}
                             onMouseLeave={() => setShownTooltip(null)}
@@ -915,6 +995,11 @@ export default function AddLiquidity() {
 
   const tightTokenSelect = !upToMedium && upToLarge
 
+  const marketPrice =
+    usdPrices[quoteCurrency?.wrapped.address || ''] &&
+    usdPrices[baseCurrency?.wrapped.address || ''] &&
+    usdPrices[baseCurrency?.wrapped.address || ''] / usdPrices[quoteCurrency?.wrapped.address || '']
+
   if (!isEVM) return <Navigate to="/" />
   return (
     <>
@@ -936,14 +1021,14 @@ export default function AddLiquidity() {
               isMultiplePosition ? (
                 <RowBetween>
                   <div />
-                  <ButtonPrimary onClick={onAdd} width="160px">
+                  <ButtonPrimary id="btnSupply" onClick={onAdd} width="160px">
                     <Text fontWeight={500}>
                       <Trans>Supply</Trans>
                     </Text>
                   </ButtonPrimary>
                 </RowBetween>
               ) : (
-                <ButtonPrimary onClick={onAdd} width="100%">
+                <ButtonPrimary id="btnSupply" onClick={onAdd} width="100%">
                   <Text fontWeight={500}>
                     <Trans>Supply</Trans>
                   </Text>
@@ -984,6 +1069,13 @@ export default function AddLiquidity() {
                     href={`${APP_PATHS.SWAP}/${networkInfo.route}?${currencyIdA ? `inputCurrency=${currencyIdA}` : ''}${
                       currencyIdB ? `&outputCurrency=${currencyIdB}` : ''
                     }`}
+                    onClick={() => {
+                      if (tokenA?.symbol && tokenB?.symbol)
+                        mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_CLICK_SWAP, {
+                          token_1: tokenA?.symbol,
+                          token_2: tokenB?.symbol,
+                        })
+                    }}
                   >
                     <Repeat size={16} />
                     <Text marginLeft="4px">
@@ -1085,7 +1177,7 @@ export default function AddLiquidity() {
                       <TYPE.body fontSize={12} textAlign="left" color={theme.subText} lineHeight="16px">
                         <Trans>
                           To initialize this pool, select a starting price for the pool then enter your liquidity price
-                          range. Gas fees will be higher than usual due to initialization of the pool.
+                          range.
                         </Trans>
                       </TYPE.body>
                     </Flex>
@@ -1101,21 +1193,17 @@ export default function AddLiquidity() {
                         onUserInput={onStartPriceInput}
                       />
                     </OutlineCard>
+
                     <RowBetween>
-                      <Text
-                        fontWeight="500"
-                        color={theme.subText}
-                        style={{ textTransform: 'uppercase' }}
-                        fontSize="12px"
-                      >
-                        <Trans>Current Price</Trans>
+                      <Text fontWeight="500" color={theme.subText} fontSize="12px">
+                        <Trans>Starting Price</Trans>
                       </Text>
                       <TYPE.main>
                         {price ? (
-                          <TYPE.main>
+                          <TYPE.main fontSize="14px">
                             <RowFixed>
                               <HoverInlineText
-                                maxCharacters={20}
+                                maxCharacters={24}
                                 text={`1 ${baseCurrency?.symbol} = ${
                                   invertPrice ? price.invert().toSignificant(6) : price.toSignificant(6)
                                 } ${quoteCurrency?.symbol}`}
@@ -1127,6 +1215,15 @@ export default function AddLiquidity() {
                         )}
                       </TYPE.main>
                     </RowBetween>
+                    <NewPoolNote
+                      loading={loading}
+                      onRefreshPrice={() => fetchPrices(tokens.map(t => t?.wrapped.address || ''))}
+                      marketPrice={marketPrice}
+                      baseCurrency={baseCurrency}
+                      quoteCurrency={quoteCurrency}
+                      amountUnlockUSD={amountUnlockUSD}
+                      amountUnlocks={amountUnlocks}
+                    />
                   </AutoColumn>
                 </AutoColumn>
               ) : (
@@ -1136,7 +1233,18 @@ export default function AddLiquidity() {
                       <Text fontWeight={500} fontSize="12px">
                         <Trans>Pool Stats</Trans>
                       </Text>
-                      <ProAmmPoolStat pool={poolStat} onShared={openShareModal} userPositions={userPositions} />
+                      <ProAmmPoolStat
+                        pool={poolStat}
+                        onShared={openShareModal}
+                        userPositions={userPositions}
+                        onClickPoolAnalytics={() => {
+                          if (tokenA?.symbol && tokenB?.symbol)
+                            mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_CLICK_POOL_ANALYTIC, {
+                              token_1: tokenA?.symbol,
+                              token_2: tokenB?.symbol,
+                            })
+                        }}
+                      />
                     </AutoColumn>
                     <ShareModal
                       url={`${window.location.origin}/pools/${networkInfo.route}?search=${poolAddress}&tab=elastic`}

@@ -28,7 +28,7 @@ export const convertSymbol = (network: string, value: string) => {
  * @param symbol2 ex: usdt
  * @returns
  */
-export const checkPairInWhiteList = (chainId: ChainId | undefined, symbol1: string, symbol2: string) => {
+export const checkPairInWhiteList = (chainId: ChainId, symbol1: string, symbol2: string) => {
   if (!chainId) {
     return { isInWhiteList: false, data: {}, canonicalUrl: '' }
   }
@@ -56,7 +56,7 @@ export const getFormattedAddress = (chainId: ChainId, address?: string, fallback
 
 export const isTokenNative = (
   currency: Currency | WrappedTokenInfo | undefined,
-  chainId: ChainId | undefined,
+  chainId: ChainId,
 ): currency is NativeCurrency => {
   if (currency?.isNative) return true
   // case multichain token
@@ -75,4 +75,20 @@ export const importTokensToKsSettings = async (tokens: Array<{ chainId: string; 
   } catch (e) {
     console.error(e)
   }
+}
+
+export const getTokenSymbolWithHardcode = (
+  chainId: ChainId | undefined,
+  address: string | undefined,
+  defaultSymbol: string | undefined,
+) => {
+  if (
+    (chainId === ChainId.OPTIMISM &&
+      address?.toLowerCase() === '0x4518231a8fdf6ac553b9bbd51bbb86825b583263'.toLowerCase()) ||
+    (chainId === ChainId.ARBITRUM &&
+      address?.toLowerCase() === '0x316772cFEc9A3E976FDE42C3Ba21F5A13aAaFf12'.toLowerCase())
+  ) {
+    return 'mKNC'
+  }
+  return defaultSymbol ?? ''
 }

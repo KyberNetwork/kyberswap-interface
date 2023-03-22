@@ -18,9 +18,10 @@ export enum CampaignState {
 export enum CampaignUserInfoStatus {
   Eligible = 'eligible',
   Ineligible = 'ineligible',
+  Banned = 'banned',
 }
 
-export type CampaignUserInfo = {
+type CampaignUserInfo = {
   address: string
   tradingVolume: number
   tradingNumber: number
@@ -28,7 +29,7 @@ export type CampaignUserInfo = {
   status: CampaignUserInfoStatus
 }
 
-export type RewardSingle = {
+type RewardSingle = {
   type: 'Single'
   amount: string
   token: SerializedToken
@@ -36,7 +37,7 @@ export type RewardSingle = {
   rank: number
 }
 
-export type RewardRange = {
+type RewardRange = {
   type: 'Range'
   amount: string
   token: SerializedToken
@@ -112,6 +113,8 @@ export interface CampaignData {
   userInfo?: CampaignUserInfo
   tradingNumberRequired: number
   leaderboard: CampaignLeaderboard | undefined
+  competitionId?: number
+  competitorId?: number
 }
 
 export interface CampaignProofData {

@@ -15,6 +15,7 @@ import { AutoColumn } from 'components/Column'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import CurrencyLogo from 'components/CurrencyLogo'
 import CurrentPrice from 'components/CurrentPrice'
+import Dots from 'components/Dots'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import Loader from 'components/Loader'
 import Row, { AutoRow, RowBetween, RowFixed } from 'components/Row'
@@ -23,7 +24,6 @@ import TransactionConfirmationModal, {
   ConfirmationModalContent,
   TransactionErrorContent,
 } from 'components/TransactionConfirmationModal'
-import { Dots } from 'components/swap/styleds'
 import { EIP712Domain } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { NativeCurrencies } from 'constants/tokens'
@@ -234,7 +234,7 @@ export default function TokenPair({
   // tx sending
   const addTransactionWithType = useTransactionAdder()
   async function onRemove() {
-    if (!chainId || !library || !account || !deadline) throw new Error('missing dependencies')
+    if (!library || !account || !deadline) throw new Error('missing dependencies')
     const { [Field.CURRENCY_A]: currencyAmountA, [Field.CURRENCY_B]: currencyAmountB } = parsedAmounts
     if (!currencyAmountA || !currencyAmountB) {
       throw new Error('missing currency amounts')

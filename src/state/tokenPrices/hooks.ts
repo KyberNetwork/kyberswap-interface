@@ -1,9 +1,10 @@
 import { stringify } from 'querystring'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { AGGREGATOR_API, PRICE_API } from 'constants/env'
+import { PRICE_API } from 'constants/env'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
+import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { isAddressString } from 'utils'
 
@@ -16,12 +17,13 @@ const useTokenPricesLocal = (
 ): {
   data: { [address: string]: number }
   loading: boolean
+  fetchPrices: (value: string[]) => void
 } => {
   const tokenPrices = useAppSelector(state => state.tokenPrices)
   const dispatch = useAppDispatch()
   const { chainId, isEVM } = useActiveWeb3React()
   const [loading, setLoading] = useState(true)
-
+  const { aggregatorDomain } = useKyberswapGlobalConfig()
   const addressKeys = addresses
     .sort()
     .map(x => getAddress(x, isEVM))
@@ -35,25 +37,25 @@ const useTokenPricesLocal = (
     return tokenList.filter(item => tokenPrices[`${item}_${chainId}`] === undefined)
   }, [tokenList, chainId, tokenPrices])
 
-  useEffect(() => {
-    const fetchPrices = async () => {
+  const fetchPrices = useCallback(
+    async (list: string[]) => {
       try {
         setLoading(true)
         const payload = {
-          ids: unknownPriceList.join(','),
+          ids: list.join(','),
         }
         const promise = isEVM
           ? fetch(`${PRICE_API}/${NETWORKS_INFO[chainId].priceRoute}/api/v1/prices`, {
               method: 'POST',
               body: JSON.stringify(payload),
             })
-          : fetch(`${AGGREGATOR_API}/solana/prices?${stringify(payload)}`)
+          : fetch(`${aggregatorDomain}/solana/prices?${stringify(payload)}`)
 
         const res = await promise.then(res => res.json())
         const prices = res?.data?.prices || res
 
         if (prices?.length) {
-          const formattedPrices = unknownPriceList.map(address => {
+          const formattedPrices = list.map(address => {
             const price = prices.find(
               (p: { address: string; marketPrice: number; price: number }) => getAddress(p.address, isEVM) === address,
             )
@@ -68,16 +70,21 @@ const useTokenPricesLocal = (
 
           dispatch(updatePrices(formattedPrices))
         }
+      } catch (e) {
+        // empty
       } finally {
         setLoading(false)
       }
-    }
+    },
+    [chainId, dispatch, isEVM, aggregatorDomain],
+  )
 
-    if (unknownPriceList.length) fetchPrices()
+  useEffect(() => {
+    if (unknownPriceList.length) fetchPrices(unknownPriceList)
     else {
       setLoading(false)
     }
-  }, [unknownPriceList, chainId, dispatch, isEVM])
+  }, [unknownPriceList, fetchPrices])
 
   const data: {
     [address: string]: number
@@ -92,7 +99,7 @@ const useTokenPricesLocal = (
     }, {} as { [address: string]: number })
   }, [tokenList, chainId, tokenPrices])
 
-  return { data, loading }
+  return { data, loading, fetchPrices }
 }
 
 export const useTokenPrices = (

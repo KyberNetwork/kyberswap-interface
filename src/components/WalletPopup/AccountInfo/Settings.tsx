@@ -1,7 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useRef, useState } from 'react'
 import { BarChart2, LogOut, Settings as SettingsIcon } from 'react-feather'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -46,47 +45,35 @@ const IconWrapper = styled.div`
 
 const customStyleMenu = { padding: '8px 0px' }
 
-export type ClickHandlerProps = {
-  onClickBuy: () => void
-  onClickReceive: () => void
-  onClickSend: () => void
-}
-
 const Settings: React.FC = () => {
-  const node = useRef<HTMLDivElement>(null)
-  const [isOpen, setIsOpen] = useState(false)
-  const toggle = () => setTimeout(() => setIsOpen(!isOpen), 100)
   const disconnectWallet = useDisconnectWallet()
   const { chainId, account = '' } = useActiveWeb3React()
 
   return (
-    <div ref={node} onClick={toggle}>
-      <IconWrapper>
-        <SettingsIcon size={20} cursor="pointer" />
-      </IconWrapper>
-      <MenuFlyout
-        node={node}
-        isOpen={isOpen}
-        toggle={toggle}
-        browserCustomStyle={customStyleMenu}
-        mobileCustomStyle={customStyleMenu}
-      >
-        <Column>
-          {chainId !== ChainId.SOLANA && (
-            <MenuItemLink href={`${PROMM_ANALYTICS_URL[chainId]}/account/${account}`}>
-              <BarChart2 size={16} />
-              <Trans>Analytics ↗</Trans>
-            </MenuItemLink>
-          )}
-          <MenuItem onClick={disconnectWallet}>
-            <LogOut size={16} />
-            <Text>
-              <Trans>Disconnect</Trans>
-            </Text>
-          </MenuItem>
-        </Column>
-      </MenuFlyout>
-    </div>
+    <MenuFlyout
+      trigger={
+        <IconWrapper>
+          <SettingsIcon size={20} cursor="pointer" />
+        </IconWrapper>
+      }
+      modalWhenMobile={false}
+      customStyle={customStyleMenu}
+    >
+      <Column>
+        {chainId !== ChainId.SOLANA && (
+          <MenuItemLink href={`${PROMM_ANALYTICS_URL[chainId]}/account/${account}`}>
+            <BarChart2 size={16} />
+            <Trans>Analytics ↗</Trans>
+          </MenuItemLink>
+        )}
+        <MenuItem onClick={disconnectWallet}>
+          <LogOut size={16} />
+          <Text>
+            <Trans>Disconnect</Trans>
+          </Text>
+        </MenuItem>
+      </Column>
+    </MenuFlyout>
   )
 }
 

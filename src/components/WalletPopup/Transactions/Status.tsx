@@ -6,9 +6,9 @@ import { Repeat } from 'react-feather'
 import { useDispatch } from 'react-redux'
 import { Flex } from 'rebass'
 
-import { ReactComponent as IconFailure } from 'assets/svg/notification_icon_failure.svg'
-import { ReactComponent as IconSuccess } from 'assets/svg/notification_icon_success.svg'
-import { ReactComponent as IconWarning } from 'assets/svg/notification_icon_warning.svg'
+import { CheckCircle } from 'components/Icons'
+import IconFailure from 'components/Icons/Failed'
+import WarningIcon from 'components/Icons/WarningIcon'
 import Loader from 'components/Loader'
 import { PrimaryText } from 'components/WalletPopup/Transactions/TransactionItem'
 import { isTxsPendingTooLong as isShowPendingWarning } from 'components/WalletPopup/Transactions/helper'
@@ -45,12 +45,10 @@ function StatusIcon({
     Date.now() - addedTime < MAX_TIME_CHECK_STATUS
 
   const isPendingTooLong = isShowPendingWarning(transaction)
-  const [isPendingState, setIsPendingState] = useState<boolean | null>(null)
+  const [isPendingState, setIsPendingState] = useState<boolean | null>(needCheckActuallyPending ? null : pendingRpc)
 
   const dispatch = useDispatch<AppDispatch>()
   const { cancellingOrdersIds, cancellingOrdersNonces, loading } = cancellingOrderInfo
-
-  const pending = isPendingState
 
   const interval = useRef<NodeJS.Timeout>()
 
@@ -105,28 +103,27 @@ function StatusIcon({
   }, [needCheckActuallyPending, pendingRpc, checkStatusDebounced, type])
 
   const theme = useTheme()
-  const checkingStatus = pending === null
+  const checkingStatus = isPendingState === null
 
   const pendingText = isPendingTooLong ? t`Pending` : t`Processing`
   const pendingIcon = isPendingTooLong ? (
-    <IconWarning width={'14px'} color={theme.red} />
+    <WarningIcon size={12} color={theme.red} solid />
   ) : (
     <Repeat size={14} color={theme.warning} />
   )
-
   return (
     <Flex style={{ gap: '4px', minWidth: 'unset' }} alignItems={'center'}>
       <PrimaryText color={theme.text}>
-        {checkingStatus ? t`Checking` : pending ? pendingText : success ? t`Completed` : t`Failed`}
+        {checkingStatus ? t`Checking` : isPendingState ? pendingText : success ? t`Completed` : t`Failed`}
       </PrimaryText>
       {checkingStatus ? (
         <Loader size={'12px'} />
-      ) : pending ? (
+      ) : isPendingState ? (
         pendingIcon
       ) : success ? (
-        <IconSuccess width={'15px'} height="15px" />
+        <CheckCircle size="12px" color={theme.primary} />
       ) : (
-        <IconFailure width={'15px'} height="15px" />
+        <IconFailure size={15} color={theme.red} />
       )}
     </Flex>
   )

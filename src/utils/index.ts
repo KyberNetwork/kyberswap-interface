@@ -112,7 +112,7 @@ export function escapeRegExp(string: string): string {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // $& means the whole matched string
 }
 
-const toK = (num: string) => {
+export const toK = (num: string) => {
   return Numeral(num).format('0.[00]a')
 }
 
@@ -151,6 +151,20 @@ export function formatNumberWithPrecisionRange(number: number, minPrecision = 2,
   return number.toLocaleString(undefined, options)
 }
 
+// Take only 6 fraction digits
+// This returns a different result compared to toFixed
+// 0.000297796.toFixed(6) = 0.000298
+// truncateFloatNumber(0.000297796) = 0.000297
+const truncateFloatNumber = (num: number, maximumFractionDigits = 6) => {
+  const [wholePart, fractionalPart] = String(num).split('.')
+
+  if (!fractionalPart) {
+    return wholePart
+  }
+
+  return `${wholePart}.${fractionalPart.slice(0, maximumFractionDigits)}`
+}
+
 export function formattedNum(number: string, usd = false, fractionDigits = 5) {
   if (number === '' || number === undefined) {
     return usd ? '$0' : 0
@@ -162,6 +176,10 @@ export function formattedNum(number: string, usd = false, fractionDigits = 5) {
     return (usd ? '$' : '') + toK(num.toFixed(0))
   }
 
+  if (num >= 1000) {
+    return usd ? formatDollarFractionAmount(num, 0) : Number(num.toFixed(0)).toLocaleString()
+  }
+
   if (num === 0) {
     if (usd) {
       return '$0'
@@ -169,12 +187,8 @@ export function formattedNum(number: string, usd = false, fractionDigits = 5) {
     return 0
   }
 
-  if (num < 0.0001 && num > 0) {
+  if (num < 0.0001) {
     return usd ? '< $0.0001' : '< 0.0001'
-  }
-
-  if (num >= 1000) {
-    return usd ? formatDollarFractionAmount(num, 0) : Number(num.toFixed(0)).toLocaleString()
   }
 
   if (usd) {
@@ -185,7 +199,11 @@ export function formattedNum(number: string, usd = false, fractionDigits = 5) {
     }
   }
 
-  return Number(num.toFixed(fractionDigits)).toLocaleString()
+  // this function can be replaced when `roundingMode` of `Intl.NumberFormat` is widely supported
+  // this function is to avoid this case
+  // 0.000297796.toFixed(6) = 0.000298
+  // truncateFloatNumber(0.000297796) = 0.000297
+  return truncateFloatNumber(num, fractionDigits)
 }
 
 export function formattedNumLong(num: number, usd = false) {
@@ -274,9 +292,13 @@ export async function splitQuery<ResultType, T, U>(
  * @dev Query speed is optimized by limiting to a 600-second period
  * @param {Int} timestamp in seconds
  */
-export async function getBlockFromTimestamp(timestamp: number, chainId: ChainId) {
+export async function getBlockFromTimestamp(
+  timestamp: number,
+  chainId: ChainId,
+  blockClient: ApolloClient<NormalizedCacheObject>,
+) {
   if (!isEVM(chainId)) return
-  const result = await NETWORKS_INFO[chainId].blockClient.query({
+  const result = await blockClient.query({
     query: GET_BLOCK,
     variables: {
       timestampFrom: timestamp,
@@ -296,6 +318,7 @@ export async function getBlockFromTimestamp(timestamp: number, chainId: ChainId)
  * @param {Array} timestamps
  */
 export async function getBlocksFromTimestamps(
+  blockClient: ApolloClient<NormalizedCacheObject>,
   timestamps: number[],
   chainId: ChainId,
   skipCount = 500,
@@ -307,7 +330,7 @@ export async function getBlocksFromTimestamps(
 
   const fetchedData = await splitQuery<{ number: number }[], number, any>(
     GET_BLOCKS,
-    NETWORKS_INFO[chainId].blockClient,
+    blockClient,
     timestamps,
     [],
     skipCount,
@@ -452,5 +475,5 @@ export const isChristmasTime = () => {
 
 export const getLimitOrderContract = (chainId: ChainId) => {
   const { production, development } = NETWORKS_INFO_CONFIG[chainId]?.limitOrder ?? {}
-  return ENV_LEVEL === ENV_TYPE.PROD ? production : development
+  return [ENV_TYPE.PROD, ENV_TYPE.ADPR].includes(ENV_LEVEL) ? production : development
 }

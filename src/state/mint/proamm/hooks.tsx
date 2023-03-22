@@ -26,6 +26,7 @@ import { PoolRatesEntry } from 'data/type'
 import { useActiveWeb3React } from 'hooks'
 import { PoolState, usePool } from 'hooks/usePools'
 import { RANGE_LIST } from 'pages/AddLiquidityV2/constants'
+import { useKyberSwapConfig } from 'state/application/hooks'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { AppState } from 'state/index'
 import { tryParseAmount } from 'state/swap/hooks'
@@ -130,11 +131,16 @@ export function useProAmmMintActionHandlers(
 const ENHANCED_TICK_SPACINGS: {
   [amount in FeeAmount]: number
 } = {
-  [FeeAmount.STABLE]: TICK_SPACINGS[FeeAmount.LOWEST] * 2,
-  [FeeAmount.LOWEST]: TICK_SPACINGS[FeeAmount.LOWEST] * 2,
-  [FeeAmount.LOW]: TICK_SPACINGS[FeeAmount.LOW],
-  [FeeAmount.MEDIUM]: TICK_SPACINGS[FeeAmount.MEDIUM],
-  [FeeAmount.HIGH]: TICK_SPACINGS[FeeAmount.HIGH] * 0.7,
+  [FeeAmount.VERY_STABLE]: TICK_SPACINGS[FeeAmount.VERY_STABLE] * 2,
+  [FeeAmount.VERY_STABLE1]: TICK_SPACINGS[FeeAmount.VERY_STABLE1] * 2,
+  [FeeAmount.VERY_STABLE2]: TICK_SPACINGS[FeeAmount.VERY_STABLE2] * 2,
+  [FeeAmount.STABLE]: TICK_SPACINGS[FeeAmount.STABLE],
+  [FeeAmount.MOST_PAIR]: TICK_SPACINGS[FeeAmount.MOST_PAIR],
+  [FeeAmount.MOST_PAIR1]: TICK_SPACINGS[FeeAmount.MOST_PAIR1],
+  [FeeAmount.MOST_PAIR2]: TICK_SPACINGS[FeeAmount.MOST_PAIR2],
+  [FeeAmount.EXOTIC]: TICK_SPACINGS[FeeAmount.EXOTIC] * 0.7,
+  [FeeAmount.VOLATILE]: TICK_SPACINGS[FeeAmount.VOLATILE] * 0.7,
+  [FeeAmount.RARE]: TICK_SPACINGS[FeeAmount.RARE] * 0.7,
 }
 
 export function useProAmmDerivedMintInfo(
@@ -1398,7 +1404,7 @@ export function useHourlyRateData(
   const dispatch = useAppDispatch()
   const { chainId } = useActiveWeb3React()
   const [ratesData, setRatesData] = useState<[PoolRatesEntry[], PoolRatesEntry[]] | null>(null)
-
+  const { elasticClient, blockClient } = useKyberSwapConfig()
   useEffect(() => {
     const controller = new AbortController()
     const currentTime = dayjs.utc()
@@ -1442,6 +1448,8 @@ export function useHourlyRateData(
           startTime,
           frequency,
           NETWORKS_INFO[chainId],
+          elasticClient,
+          blockClient,
           controller.signal,
         )
         !controller.signal.aborted && ratesData && setRatesData(ratesData)
@@ -1449,7 +1457,7 @@ export function useHourlyRateData(
     }
     fetch()
     return () => controller.abort()
-  }, [timeWindow, poolAddress, dispatch, chainId])
+  }, [timeWindow, poolAddress, dispatch, chainId, elasticClient, blockClient])
 
   return ratesData
 }

@@ -2,12 +2,13 @@ import { Trans, t } from '@lingui/macro'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 
+import Announcement from 'components/Announcement'
+import CampaignNavGroup from 'components/Header/groups/CampaignNavGroup'
 import SelectNetwork from 'components/Header/web3/SelectNetwork'
 import SelectWallet from 'components/Header/web3/SelectWallet'
 import Menu from 'components/Menu'
 import Row, { RowFixed } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { APP_PATHS } from 'constants/index'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
@@ -20,7 +21,7 @@ import AnalyticNavGroup from './groups/AnalyticNavGroup'
 import EarnNavGroup from './groups/EarnNavGroup'
 import KyberDAONavGroup from './groups/KyberDaoGroup'
 import SwapNavGroup from './groups/SwapNavGroup'
-import { StyledNavExternalLink, StyledNavLink } from './styleds'
+import { StyledNavExternalLink } from './styleds'
 
 const HeaderFrame = styled.div`
   display: grid;
@@ -87,6 +88,7 @@ const HeaderElement = styled.div`
 const HeaderElementWrap = styled.div`
   display: flex;
   align-items: center;
+  gap: 0.5rem;
 `
 
 const HeaderRow = styled(RowFixed)`
@@ -115,13 +117,6 @@ const IconImage = styled.img<{ isChristmas?: boolean }>`
 
   @media only screen and (max-width: 400px) {
     width: 100px;
-  }
-`
-
-const CampaignWrapper = styled.span`
-  /* It's better to break at 420px than at extraSmall */
-  @media (max-width: 420px) {
-    display: none;
   }
 `
 
@@ -160,7 +155,7 @@ const LogoIcon = styled.div`
 `
 
 export default function Header() {
-  const { walletKey } = useActiveWeb3React()
+  const { walletKey, networkInfo } = useActiveWeb3React()
   const isDark = useIsDarkMode()
   const [holidayMode] = useHolidayMode()
 
@@ -168,7 +163,7 @@ export default function Header() {
   return (
     <HeaderFrame>
       <HeaderRow>
-        <Title to="/swap">
+        <Title to={`${APP_PATHS.SWAP}/${networkInfo.route}`}>
           {holidayMode ? (
             <LogoIcon>
               <IconImage
@@ -185,18 +180,10 @@ export default function Header() {
         </Title>
         <HeaderLinks>
           <SwapNavGroup />
-
           <EarnNavGroup />
-
-          <CampaignWrapper id={TutorialIds.CAMPAIGN_LINK}>
-            <StyledNavLink id="campaigns" to={APP_PATHS.CAMPAIGN}>
-              <Trans>Campaigns</Trans>
-            </StyledNavLink>
-          </CampaignWrapper>
-
+          <CampaignNavGroup />
           <DiscoverNavItem />
           <KyberDAONavGroup />
-
           <AnalyticNavGroup />
           <AboutNavGroup />
           <BlogWrapper>
@@ -223,6 +210,7 @@ export default function Header() {
           <SelectWallet />
         </HeaderElement>
         <HeaderElementWrap>
+          <Announcement />
           <Menu />
         </HeaderElementWrap>
       </HeaderControls>

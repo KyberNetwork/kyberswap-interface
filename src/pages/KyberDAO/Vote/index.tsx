@@ -20,6 +20,7 @@ import TransactionConfirmationModal, { TransactionErrorContent } from 'component
 import { useActiveWeb3React } from 'hooks'
 import { useClaimRewardActions, useVotingActions, useVotingInfo } from 'hooks/kyberdao'
 import useTotalVotingReward from 'hooks/kyberdao/useTotalVotingRewards'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal, useWalletModalToggle } from 'state/application/hooks'
@@ -27,7 +28,7 @@ import { StyledInternalLink } from 'theme'
 import { formattedNumLong } from 'utils'
 import { formatUnitsToFixed } from 'utils/formatBalance'
 
-import SwitchToEthereumModal from '../StakeKNC/SwitchToEthereumModal'
+import SwitchToEthereumModal, { useSwitchToEthereum } from '../StakeKNC/SwitchToEthereumModal'
 import KNCLogo from '../kncLogo'
 import ClaimConfirmModal from './ClaimConfirmModal'
 import ProposalListComponent from './ProposalListComponent'
@@ -89,7 +90,16 @@ const CardGroup = styled(RowBetween)`
   `}
 `
 
-function readableTime(seconds: number) {
+const TabReward = styled.span<{ active?: boolean }>`
+  cursor: pointer;
+  ${({ active, theme }) => active && `color: ${theme.primary}`};
+
+  :hover {
+    filter: brightness(1.2);
+  }
+`
+
+export function readableTime(seconds: number) {
   if (seconds < 60) return seconds + 's'
 
   const levels = [
@@ -125,18 +135,28 @@ const formatVotingPower = (votingPowerNumber: number) => {
   return votingPowerNumber.toPrecision(4) + ' %'
 }
 
+enum REWARD_TAB {
+  YourReward,
+  ClaimedReward,
+}
+
 export default function Vote() {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
-  const { daoInfo, remainingCumulativeAmount, userRewards, stakerInfo, stakerInfoNextEpoch } = useVotingInfo()
+  const { mixpanelHandler } = useMixpanel()
+  const { daoInfo, remainingCumulativeAmount, claimedRewardAmount, userRewards, stakerInfo, stakerInfoNextEpoch } =
+    useVotingInfo()
   const { knc, usd, kncPriceETH } = useTotalVotingReward()
   const { claim } = useClaimRewardActions()
   const { vote } = useVotingActions()
+  const { switchToEthereum } = useSwitchToEthereum()
+
   const isHasReward = !!remainingCumulativeAmount && !remainingCumulativeAmount.eq(0)
 
   const toggleClaimConfirmModal = useToggleModal(ApplicationModal.KYBER_DAO_CLAIM)
   const toggleWalletModal = useWalletModalToggle()
 
+  const [rewardTab, setRewardTab] = useState<REWARD_TAB>(REWARD_TAB.YourReward)
   const [showConfirm, setShowConfirm] = useState(false)
   const [attemptingTxn, setAttemptingTxn] = useState<boolean>(false)
   const [pendingText, setPendingText] = useState<string>('')
@@ -168,8 +188,11 @@ export default function Vote() {
   const isDelegated = stakerInfo && account ? stakerInfo.delegate?.toLowerCase() !== account.toLowerCase() : false
 
   const handleClaim = useCallback(() => {
-    toggleClaimConfirmModal()
-  }, [toggleClaimConfirmModal])
+    switchToEthereum().then(() => {
+      mixpanelHandler(MIXPANEL_TYPE.KYBER_DAO_CLAIM_CLICK)
+      toggleClaimConfirmModal()
+    })
+  }, [toggleClaimConfirmModal, mixpanelHandler, switchToEthereum])
 
   const handleConfirmClaim = useCallback(async () => {
     if (!userRewards || !userRewards.userReward || !account) return
@@ -237,7 +260,7 @@ export default function Vote() {
         <CardGroup>
           <Card>
             <AutoColumn>
-              <Text color={theme.subText} marginBottom="20px">
+              <Text color={theme.subText} fontSize="14px" marginBottom="20px">
                 <Trans>Total Staked KNC</Trans>
               </Text>
               <Text fontSize={20} marginBottom="8px" fontWeight={500}>
@@ -252,7 +275,7 @@ export default function Vote() {
           </Card>
           <Card>
             <AutoColumn>
-              <Text color={theme.subText} marginBottom="20px">
+              <Text color={theme.subText} fontSize="14px" marginBottom="20px">
                 <Trans>Total Voting Rewards</Trans>
               </Text>
               <Text fontSize={20} marginBottom="8px" fontWeight={500}>
@@ -265,7 +288,7 @@ export default function Vote() {
           </Card>
           <Card>
             <AutoColumn>
-              <Text color={theme.subText} marginBottom="20px">
+              <Text color={theme.subText} fontSize="14px" marginBottom="20px">
                 <Trans>Your Voting Power</Trans>{' '}
                 <InfoHelper
                   fontSize={12}
@@ -383,28 +406,57 @@ export default function Vote() {
           </Card>
           <Card hasGreenBackground={isHasReward}>
             <AutoColumn justify="space-between">
-              <Text color={theme.subText} marginBottom={20}>
-                <Trans>Your Voting Reward</Trans>
+              <Text color={theme.subText} fontSize="14px" marginBottom={20}>
+                <TabReward
+                  active={rewardTab === REWARD_TAB.YourReward}
+                  onClick={() => setRewardTab(REWARD_TAB.YourReward)}
+                >
+                  <Trans>Your Reward</Trans>
+                </TabReward>{' '}
+                |{' '}
+                <TabReward
+                  active={rewardTab === REWARD_TAB.ClaimedReward}
+                  onClick={() => setRewardTab(REWARD_TAB.ClaimedReward)}
+                >
+                  <Trans>Claimed Reward</Trans>
+                </TabReward>
               </Text>
               {account ? (
-                <RowBetween>
-                  <AutoColumn>
-                    <Text fontSize={20} marginBottom="8px" fontWeight={500}>
-                      {formatUnitsToFixed(remainingCumulativeAmount)} KNC
-                    </Text>
-                    <Text fontSize={12} color={theme.subText}>
-                      {(+formatUnitsToFixed(remainingCumulativeAmount) * +(kncPriceETH || '0')).toFixed(2)} USD
-                    </Text>
-                  </AutoColumn>
-                  <ButtonPrimary
-                    width="75px"
-                    disabled={!isHasReward}
-                    style={{ filter: 'drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.16))' }}
-                    onClick={handleClaim}
-                  >
-                    <Trans>Claim</Trans>
-                  </ButtonPrimary>
-                </RowBetween>
+                rewardTab === REWARD_TAB.YourReward ? (
+                  <RowBetween>
+                    <AutoColumn>
+                      <Text fontSize={20} marginBottom="8px" fontWeight={500}>
+                        {formatUnitsToFixed(remainingCumulativeAmount, undefined, 2)} KNC
+                      </Text>
+                      <Text fontSize={12} color={theme.subText}>
+                        {(+(+formatUnitsToFixed(remainingCumulativeAmount) * +(kncPriceETH || '0')).toFixed(
+                          2,
+                        )).toLocaleString()}{' '}
+                        USD
+                      </Text>
+                    </AutoColumn>
+                    <ButtonPrimary
+                      width="75px"
+                      disabled={!isHasReward}
+                      style={{ filter: 'drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.16))' }}
+                      onClick={handleClaim}
+                    >
+                      <Trans>Claim</Trans>
+                    </ButtonPrimary>
+                  </RowBetween>
+                ) : (
+                  <RowBetween>
+                    <AutoColumn>
+                      <Text fontSize={20} marginBottom="8px" fontWeight={500}>
+                        {(+formatUnitsToFixed(claimedRewardAmount, undefined, 2)).toLocaleString()} KNC
+                      </Text>
+                      <Text fontSize={12} color={theme.subText}>
+                        {(+(+formatUnitsToFixed(claimedRewardAmount) * (kncPriceETH || 0)).toFixed(2)).toLocaleString()}{' '}
+                        USD
+                      </Text>
+                    </AutoColumn>
+                  </RowBetween>
+                )
               ) : (
                 <ButtonLight onClick={toggleWalletModal}>
                   <Trans>Connect Your Wallet</Trans>
@@ -448,7 +500,7 @@ export default function Vote() {
           <Trans>Note: Voting on KyberDAO is only available on Ethereum chain</Trans>
         </Text>
         <ProposalListComponent voteCallback={handleVote} />
-        <SwitchToEthereumModal featureText={t`Vote`} />
+        <SwitchToEthereumModal featureText={t`This action`} />
         <ClaimConfirmModal amount={formatUnitsToFixed(remainingCumulativeAmount)} onConfirmClaim={handleConfirmClaim} />
         <TransactionConfirmationModal
           isOpen={showConfirm}

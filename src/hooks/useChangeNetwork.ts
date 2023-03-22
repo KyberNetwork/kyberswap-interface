@@ -3,17 +3,19 @@ import { t } from '@lingui/macro'
 import { UnsupportedChainIdError } from '@web3-react/core'
 import { useCallback } from 'react'
 
+import { NotificationType } from 'components/Announcement/type'
 import { EVM_NETWORK, NETWORKS_INFO, isEVM, isSolana } from 'constants/networks'
 import { SUPPORTED_WALLETS } from 'constants/wallets'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { NotificationType, useNotify } from 'state/application/hooks'
+import { useNotify } from 'state/application/hooks'
 import { useAppDispatch } from 'state/hooks'
 import { updateChainId } from 'state/user/actions'
 import { isEVMWallet, isSolanaWallet } from 'utils'
 
 import { useActivationWallet } from './useActivationWallet'
+import { useLazyKyberswapConfig } from './useKyberSwapConfig'
 
-const getEVMAddNetworkParams = (chainId: EVM_NETWORK) => ({
+const getEVMAddNetworkParams = (chainId: EVM_NETWORK, rpc: string) => ({
   chainId: '0x' + chainId.toString(16),
   chainName: NETWORKS_INFO[chainId].name,
   nativeCurrency: {
@@ -21,7 +23,7 @@ const getEVMAddNetworkParams = (chainId: EVM_NETWORK) => ({
     symbol: NETWORKS_INFO[chainId].nativeToken.symbol,
     decimals: NETWORKS_INFO[chainId].nativeToken.decimal,
   },
-  rpcUrls: [NETWORKS_INFO[chainId].rpcUrl],
+  rpcUrls: [rpc],
   blockExplorerUrls: [NETWORKS_INFO[chainId].etherscanUrl],
 })
 
@@ -29,6 +31,7 @@ export function useChangeNetwork() {
   const { chainId, walletKey, walletEVM, walletSolana } = useActiveWeb3React()
   const { library, error } = useWeb3React()
   const { tryActivationEVM, tryActivationSolana } = useActivationWallet()
+  const fetchKyberswapConfig = useLazyKyberswapConfig()
 
   const dispatch = useAppDispatch()
   const notify = useNotify()
@@ -100,7 +103,8 @@ export function useChangeNetwork() {
               typeof switchError === 'object' && switchError && Object.keys(switchError)?.length === 0
             // This error code indicates that the chain has not been added to MetaMask.
             if ([4902, -32603, -32002].includes(switchError?.code) || isSwitchError) {
-              const addNetworkParams = getEVMAddNetworkParams(desiredChainId)
+              const { rpc } = await fetchKyberswapConfig(desiredChainId)
+              const addNetworkParams = getEVMAddNetworkParams(desiredChainId, rpc)
               const value = await activeProvider.request({
                 method: 'wallet_addEthereumChain',
                 params: [addNetworkParams],
@@ -143,6 +147,7 @@ export function useChangeNetwork() {
       walletEVM.chainId,
       walletSolana.isConnected,
       chainId,
+      fetchKyberswapConfig,
     ],
   )
 

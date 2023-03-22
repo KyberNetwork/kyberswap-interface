@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useLocation } from 'react-router-dom'
 
 import { APP_PATHS, BAD_RECIPIENT_ADDRESSES } from 'constants/index'
-import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies } from 'constants/tokens'
+import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies, STABLE_COINS_ADDRESS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrencyV2 } from 'hooks/Tokens'
 import { useTradeExactIn } from 'hooks/Trades'
@@ -31,13 +31,12 @@ import {
   typeInput,
 } from 'state/swap/actions'
 import { SwapState } from 'state/swap/reducer'
+import { SolanaEncode } from 'state/swap/types'
 import { useExpertModeManager, useUserSlippageTolerance } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { isAddress } from 'utils'
 import { Aggregator } from 'utils/aggregator'
 import { computeSlippageAdjustedAmounts } from 'utils/prices'
-
-import { SolanaEncode } from './types'
 
 export function useSwapState(): AppState['swap'] {
   return useSelector<AppState, AppState['swap']>(state => state.swap)
@@ -182,7 +181,7 @@ function involvesAddress(trade: Trade<Currency, Currency, TradeType>, checksumme
 }
 
 // from the current swap inputs, compute the best trade and return it.
-export function useDerivedSwapInfo(): {
+function useDerivedSwapInfo(): {
   currencies: { [field in Field]?: Currency }
   currencyBalances: { [field in Field]?: CurrencyAmount<Currency> }
   parsedAmount: CurrencyAmount<Currency> | undefined
@@ -346,6 +345,7 @@ export function queryParametersToSwapState(
     attemptingTxn: false,
     swapErrorMessage: undefined,
     txHash: undefined,
+    isSelectTokenManually: false,
   }
 }
 
@@ -429,4 +429,31 @@ export const useDefaultsFromURLSearch = ():
   }, [dispatch, chainId, parsedQs])
 
   return result
+}
+
+export const useInputCurrency = () => {
+  const inputCurrencyId = useSelector((state: AppState) => state.swap[Field.INPUT].currencyId)
+  const inputCurrency = useCurrencyV2(inputCurrencyId)
+  return inputCurrency || undefined
+}
+export const useOutputCurrency = () => {
+  const outputCurrencyId = useSelector((state: AppState) => state.swap[Field.OUTPUT].currencyId)
+  const outputCurrency = useCurrencyV2(outputCurrencyId)
+  return outputCurrency || undefined
+}
+
+export const useCheckStablePairSwap = () => {
+  const { chainId } = useActiveWeb3React()
+  const inputCurrencyId = useSelector((state: AppState) => state.swap[Field.INPUT].currencyId)
+  const outputCurrencyId = useSelector((state: AppState) => state.swap[Field.OUTPUT].currencyId)
+
+  const isStablePairSwap = Boolean(
+    chainId &&
+      inputCurrencyId &&
+      outputCurrencyId &&
+      STABLE_COINS_ADDRESS[chainId].includes(inputCurrencyId) &&
+      STABLE_COINS_ADDRESS[chainId].includes(outputCurrencyId),
+  )
+
+  return isStablePairSwap
 }

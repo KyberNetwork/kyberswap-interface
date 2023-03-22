@@ -16,13 +16,13 @@ import CopyHelper from 'components/Copy'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Divider from 'components/Divider'
+import Dots from 'components/Dots'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { MoneyBag } from 'components/Icons'
 import Harvest from 'components/Icons/Harvest'
 import Modal from 'components/Modal'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { Dots } from 'components/swap/styleds'
 import { DMM_ANALYTICS_URL, MAX_ALLOW_APY, OUTSIDE_FAIRLAUNCH_ADDRESSES } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useToken } from 'hooks/Tokens'
@@ -34,8 +34,8 @@ import useStakedBalance from 'hooks/useStakedBalance'
 import useTheme from 'hooks/useTheme'
 import useTokenBalance from 'hooks/useTokenBalance'
 import { useWalletModalToggle } from 'state/application/hooks'
-import { setAttemptingTxn, setShowConfirm, setTxHash, setYieldPoolsError } from 'state/farms/actions'
-import { Farm, Reward } from 'state/farms/types'
+import { setAttemptingTxn, setShowConfirm, setTxHash, setYieldPoolsError } from 'state/farms/classic/actions'
+import { Farm, Reward } from 'state/farms/classic/types'
 import { useAppDispatch } from 'state/hooks'
 import { useViewMode } from 'state/user/hooks'
 import { VIEW_MODE } from 'state/user/reducer'
@@ -197,7 +197,7 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
   const { deposit, withdraw, harvest } = useFairLaunch(farm.fairLaunchAddress)
 
   const handleStake = async (pid: number) => {
-    if (!chainId || !account) {
+    if (!account) {
       return
     }
 
@@ -217,7 +217,7 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
   }
 
   const handleUnstake = async (pid: number) => {
-    if (!chainId || !account) {
+    if (!account) {
       return
     }
 
@@ -237,7 +237,7 @@ const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
   }
 
   const handleHarvest = async (pid: number) => {
-    if (!chainId || !account) {
+    if (!account) {
       return
     }
 

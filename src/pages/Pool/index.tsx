@@ -32,8 +32,9 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useSyncNetworkParamWithStore } from 'hooks/useSyncNetworkParamWithStore'
 import useTheme from 'hooks/useTheme'
 import ProAmmPool from 'pages/ProAmmPool'
-import { useFarmsData, useTotalApr } from 'state/farms/hooks'
-import { Farm } from 'state/farms/types'
+import { useFarmsData, useTotalApr } from 'state/farms/classic/hooks'
+import { Farm } from 'state/farms/classic/types'
+import ClassicFarmUpdater from 'state/farms/classic/updater'
 import { UserLiquidityPosition, useUserLiquidityPositions } from 'state/pools/hooks'
 import { useLiquidityPositionTokenPairs, useToV2LiquidityTokens } from 'state/user/hooks'
 import { useTokenBalancesWithLoadingIndicator } from 'state/wallet/hooks'
@@ -48,7 +49,7 @@ export const Tab = styled.div<{ active: boolean }>`
     color: ${props => props.theme.primary};
   }
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    font-size: 15px;
+    font-size: 14px;
   `};
 `
 
@@ -166,7 +167,7 @@ export default function PoolCombination() {
   const { tab = VERSION.ELASTIC } = useParsedQueryString<{
     tab: string
   }>()
-
+  useSyncNetworkParamWithStore()
   return (
     <>
       <PageWrapper>
@@ -197,8 +198,6 @@ function Pool() {
     searchParams.set('search', search)
     setSearchParams(searchParams)
   }
-
-  useSyncNetworkParamWithStore()
 
   const userFarms = useMemo(
     () =>
@@ -286,6 +285,7 @@ function Pool() {
   if (!isEVM) return <Navigate to="/" replace />
   return (
     <>
+      <ClassicFarmUpdater isInterval={false} />
       <PageWrapper style={{ padding: 0, marginTop: '24px' }}>
         <AutoColumn gap="lg" justify="center">
           <AutoColumn gap="lg" style={{ width: '100%' }}>
