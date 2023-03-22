@@ -28,6 +28,7 @@ import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
+import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
 import { DetailedRouteSummary, FeeConfig } from 'types/route'
 
 import PriceImpactNote from './PriceImpactNote'
@@ -219,7 +220,9 @@ const SwapForm: React.FC<SwapFormProps> = props => {
               <Flex alignItems="center" fontSize={12} color={theme.subText} justifyContent="space-between">
                 <SlippageSetting isStablePairSwap={isStablePairSwap} />
                 {account && (
-                  <PriceAlertButton onClick={() => navigate(APP_PATHS.NOTIFICATION_CENTER)}>
+                  <PriceAlertButton
+                    onClick={() => navigate(`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.CREATE_ALERT}`)}
+                  >
                     <Clock size={14} color={theme.subText} />
                     <Text color={theme.subText}>
                       <Trans>Price Alert</Trans>

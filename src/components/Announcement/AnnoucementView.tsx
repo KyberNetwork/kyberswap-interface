@@ -229,7 +229,11 @@ export default function AnnouncementView({
             <Trans>Notifications</Trans>
           </Title>
           <Flex style={{ gap: '20px', alignItems: 'center' }}>
-            {showClearAll && <MenuMoreAction showClearAll={Boolean(showClearAll)} clearAll={clearAll} />}
+            <MenuMoreAction
+              showClearAll={Boolean(showClearAll)}
+              clearAll={clearAll}
+              toggleModal={toggleNotificationCenter}
+            />
             {isMobile && <X color={theme.subText} onClick={toggleNotificationCenter} cursor="pointer" />}
           </Flex>
         </RowBetween>

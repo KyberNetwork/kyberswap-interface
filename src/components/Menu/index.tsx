@@ -46,6 +46,7 @@ import { useActiveWeb3React } from 'hooks'
 import useClaimReward from 'hooks/useClaimReward'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
@@ -523,7 +524,7 @@ export default function Menu() {
             </NavLinkBetween>
             <NavLinkBetween
               onClick={() => {
-                navigate(APP_PATHS.NOTIFICATION_CENTER)
+                navigate(`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.OVERVIEW}`)
                 mixpanelHandler(MIXPANEL_TYPE.NOTIFICATION_CLICK_MENU)
                 handlePreferenceClickMixpanel('Notifications')
               }}

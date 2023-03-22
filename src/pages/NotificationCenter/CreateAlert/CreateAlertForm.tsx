@@ -39,6 +39,7 @@ import {
   COOLDOWN_OPTIONS,
   ConfirmAlertModalData,
   CreatePriceAlertPayload,
+  DEFAULT_ALERT_COOLDOWN,
   NETWORK_OPTIONS,
   PriceAlertStat,
   PriceAlertType,
@@ -70,7 +71,7 @@ export default function CreateAlert({
 
   const [formInput, setFormInput] = useState<{ tokenInAmount: string; threshold: string; note: string }>(defaultInput)
   const [disableAfterTrigger, setDisableAfterTrigger] = useState(false)
-  const [cooldown, setCooldown] = useState(COOLDOWN_OPTIONS[0].value)
+  const [cooldown, setCooldown] = useState(DEFAULT_ALERT_COOLDOWN)
   const [alertType, setAlertType] = useState<PriceAlertType>(PriceAlertType.ABOVE)
 
   const { maxActiveAlerts, totalActiveAlerts } = priceAlertStat
@@ -120,7 +121,7 @@ export default function CreateAlert({
 
   const resetForm = () => {
     setFormInput(defaultInput)
-    setCooldown(COOLDOWN_OPTIONS[0].value)
+    setCooldown(DEFAULT_ALERT_COOLDOWN)
     setAlertType(PriceAlertType.ABOVE)
     setDisableAfterTrigger(false)
   }

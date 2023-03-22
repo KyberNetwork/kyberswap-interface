@@ -114,14 +114,14 @@ const priceAlertApi = createApi({
         method: 'DELETE',
         body: { walletAddress: account },
       }),
-      invalidatesTags: ['PriceAlerts'],
+      invalidatesTags: ['PriceAlerts', 'PriceAlertsStat'],
     }),
     deleteSingleAlert: builder.mutation<void, number>({
       query: alertId => ({
         url: `/v1/alerts/${alertId}`,
         method: 'DELETE',
       }),
-      invalidatesTags: ['PriceAlerts'],
+      invalidatesTags: ['PriceAlerts', 'PriceAlertsStat'],
     }),
     getListPriceAlertHistory: builder.query<
       GetListHistoricalAlertsResponseData,

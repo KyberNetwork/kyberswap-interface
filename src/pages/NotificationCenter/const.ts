@@ -90,6 +90,9 @@ const TIMES_IN_SECS = {
   ONE_HOUR: 3600,
   ONE_MIN: 60,
 }
+
+export const DEFAULT_ALERT_COOLDOWN = TIMES_IN_SECS.ONE_HOUR
+
 export const COOLDOWN_OPTIONS = [
   { label: `30 Mins`, value: 30 * TIMES_IN_SECS.ONE_MIN },
   { label: '1 Hour', value: TIMES_IN_SECS.ONE_HOUR },

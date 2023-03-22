@@ -1,5 +1,6 @@
 import { Flex, Text } from 'rebass'
 
+import Logo from 'components/Logo'
 import useTheme from 'hooks/useTheme'
 
 type Props = {
@@ -18,7 +19,7 @@ const TokenInlineDisplay: React.FC<Props> = ({ symbol, logoUrl, amount }) => {
         flexWrap: 'nowrap',
       }}
     >
-      {logoUrl && <img alt="KNC" width="16px" height="16px" src={logoUrl} />}
+      {logoUrl && <Logo srcs={[logoUrl]} style={{ width: 16, height: 16, borderRadius: '50%' }} />}
       <Text
         sx={{
           fontWeight: 500,
