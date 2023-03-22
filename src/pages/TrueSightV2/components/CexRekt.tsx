@@ -4,8 +4,6 @@ import styled from 'styled-components'
 
 import Row from 'components/Row'
 
-import { useCexesInfoQuery } from '../hooks/useTruesightV2Data'
-
 const Card = styled.div`
   padding: 20px;
   border-radius: 16px;

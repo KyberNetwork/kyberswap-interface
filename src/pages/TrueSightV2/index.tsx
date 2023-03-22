@@ -5,9 +5,7 @@ import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
-import Column from 'components/Column'
 import Icon from 'components/Icons/Icon'
-import ReadMore from 'components/ReadMore'
 import { RowBetween, RowFit } from 'components/Row'
 import SubscribeNotificationButton from 'components/SubscribeButton'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -42,7 +40,6 @@ export default function TrueSightV2() {
   const location = useLocation()
   const isSingleToken = location?.pathname.includes('Explore')
   const above768 = useMedia('(min-width:768px)')
-  const above600 = useMedia('(min-width:600px)')
   const navigate = useNavigate()
   return (
     <Wrapper>

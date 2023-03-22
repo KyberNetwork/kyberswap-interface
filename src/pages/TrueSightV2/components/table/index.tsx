@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 // import { useMemo } from 'react'
 import { Text } from 'rebass'
-import styled, { DefaultTheme, css } from 'styled-components'
+import styled, { css } from 'styled-components'
 
 import { ButtonLight } from 'components/Button'
 import Column from 'components/Column'
@@ -9,7 +9,6 @@ import Icon from 'components/Icons/Icon'
 import Pagination from 'components/Pagination'
 import Row, { RowFit } from 'components/Row'
 import useTheme from 'hooks/useTheme'
-import { useFundingRateQuery } from 'pages/TrueSightV2/hooks/useTruesightV2Data'
 import { shortenAddress } from 'utils'
 
 import { ContentWrapper } from '..'
@@ -310,11 +309,11 @@ export const SupportResistanceLevel = () => {
   )
 }
 
-function colorRateText(value: number, theme: DefaultTheme) {
-  if (value > 0.015) return theme.red
-  if (value > 0.005) return theme.text
-  return theme.primary
-}
+// function colorRateText(value: number, theme: DefaultTheme) {
+//   if (value > 0.015) return theme.red
+//   if (value > 0.005) return theme.text
+//   return theme.primary
+// }
 
 export const FundingRateTable = () => {
   // const theme = useTheme()

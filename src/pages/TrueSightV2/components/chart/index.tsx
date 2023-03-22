@@ -1244,6 +1244,7 @@ export const LiquidOnCentralizedExchanges = () => {
   const { account } = useActiveWeb3React()
   const [timeframe, setTimeframe] = useState<string>('7D')
   const { data } = useCexesLiquidationQuery(timeframe)
+  console.log('🚀 ~ file: index.tsx:1247 ~ LiquidOnCentralizedExchanges ~ data:', data)
   const [showLong, setShowLong] = useState(true)
   const [showShort, setShowShort] = useState(true)
   const [showPrice, setShowPrice] = useState(true)
