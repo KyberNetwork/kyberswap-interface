@@ -196,7 +196,6 @@ export default function SingleToken() {
         >
           <Star size={16} fill={data?.isWatched ? 'currentcolor' : 'none'} />
         </HeaderButton>
-        <DisplaySettings currentTab={currentTab} />
         <HeaderButton
           style={{
             color: theme.subText,
@@ -219,8 +218,6 @@ export default function SingleToken() {
       <RowBetween marginBottom="24px">
         <RowFit gap="8px">
           <TokenNameGroup />
-        </RowFit>
-        <RowFit gap="8px">
           <SettingButtons />
           <ButtonPrimary height="36px" width="120px" gap="4px">
             <RowFit gap="4px">
@@ -267,22 +264,27 @@ export default function SingleToken() {
       </TagWrapper>
       <TokenOverview />
 
-      <Row gap={above768 ? '20px' : '8px'} justify="center">
-        {Object.values(DiscoverTokenTab).map((tab: DiscoverTokenTab) => (
-          <TabButton key={tab} active={tab === currentTab} onClick={() => setCurrentTab(tab)}>
-            <Icon
-              id={
-                {
-                  [DiscoverTokenTab.OnChainAnalysis]: 'on-chain',
-                  [DiscoverTokenTab.TechnicalAnalysis]: 'technical-analysis',
-                  [DiscoverTokenTab.News]: 'news',
-                }[tab]
-              }
-              size={16}
-            />
-            {above768 ? tab : tab.split(' Analysis')[0]}
-          </TabButton>
-        ))}
+      <Row>
+        <Row gap={above768 ? '20px' : '8px'} justify="center">
+          {Object.values(DiscoverTokenTab).map((tab: DiscoverTokenTab) => (
+            <TabButton key={tab} active={tab === currentTab} onClick={() => setCurrentTab(tab)}>
+              <Icon
+                id={
+                  {
+                    [DiscoverTokenTab.OnChainAnalysis]: 'on-chain',
+                    [DiscoverTokenTab.TechnicalAnalysis]: 'technical-analysis',
+                    [DiscoverTokenTab.News]: 'news',
+                  }[tab]
+                }
+                size={16}
+              />
+              {above768 ? tab : tab.split(' Analysis')[0]}
+            </TabButton>
+          ))}
+        </Row>
+        <RowFit alignSelf="flex-end">
+          <DisplaySettings currentTab={currentTab} />
+        </RowFit>
       </Row>
       {currentTab === DiscoverTokenTab.OnChainAnalysis && <OnChainAnalysis onShareClick={handleShareClick} />}
       {currentTab === DiscoverTokenTab.TechnicalAnalysis && <TechnicalAnalysis />}

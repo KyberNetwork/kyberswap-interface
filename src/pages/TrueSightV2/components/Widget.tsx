@@ -98,13 +98,17 @@ const Tab = styled.div<{ active?: boolean }>`
   justify-content: center;
   cursor: pointer;
   border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
   ${({ active, theme }) =>
-    active &&
-    css`
-      color: ${theme.text};
-      background-color: ${rgba(theme.primary, 0.3)};
-      border-bottom: 2px solid ${theme.primary};
-    `}
+    active
+      ? css`
+          color: ${theme.text};
+          background-color: ${rgba(theme.primary, 0.3)};
+          border-bottom: 2px solid ${theme.primary};
+        `
+      : css`
+          background-color: ${({ theme }) => theme.tableHeader};
+        `}
 
   > * {
     text-align: center;

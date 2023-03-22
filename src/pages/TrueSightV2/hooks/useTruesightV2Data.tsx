@@ -117,7 +117,7 @@ export const coinglassApi = createApi({
       }),
       transformResponse: (res: any) => {
         if (res.success) {
-          return res.data
+          return undefined
         }
         throw new Error(res.msg)
       },
@@ -128,7 +128,7 @@ export const coinglassApi = createApi({
       }),
       transformResponse: (res: any) => {
         if (res.success) {
-          return res.data
+          return undefined
         }
         throw new Error(res.msg)
       },
@@ -139,7 +139,7 @@ export const coinglassApi = createApi({
       }),
       transformResponse: (res: any) => {
         if (res.success) {
-          return res.data.filter((item: any) => item.symbol === 'BTC')?.[0]
+          return undefined
         }
         throw new Error(res.msg)
       },

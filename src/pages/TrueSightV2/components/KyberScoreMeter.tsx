@@ -269,7 +269,7 @@ function KyberScoreMeter({ value }: { value?: number }) {
   const ref = useRef<SVGPathElement>(null)
   return (
     <Wrapper>
-      <svg xmlns="http://www.w3.org/2000/svg" width="218" height="133" viewBox="0 0 218 133" fill="none">
+      <svg xmlns="http://www.w3.org/2000/svg" width="211" height="128" viewBox="0 0 218 133" fill="none">
         {gaugeList.map(g => (
           <MeterGauge
             key={g.value}

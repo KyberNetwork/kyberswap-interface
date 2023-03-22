@@ -180,7 +180,7 @@ export const TokenOverview = () => {
             </RowBetween>
           </CardWrapper>
           <CardWrapper style={{ alignItems: 'center' }}>
-            <Row marginBottom="8px">
+            <Row marginBottom="4px">
               <MouseoverTooltip
                 text={t`KyberScore algorithm measures the current trend of a token by taking into account multiple on-chain and off-chain indicators. The score ranges from 0 to 100. Higher the score, more bullish the token`}
                 placement="top"
@@ -191,6 +191,11 @@ export const TokenOverview = () => {
                 </Text>
               </MouseoverTooltip>
             </Row>
+            <RowFit style={{ alignSelf: 'flex-start' }} marginBottom="8px">
+              <Text fontSize="10px" lineHeight="12px">
+                Calculated at 08:00 PM when price was $1
+              </Text>
+            </RowFit>
             <KyberScoreMeter value={data?.kyberScore?.score} />
             <Text fontSize={24} fontWeight={500} color={theme.primary} marginBottom="12px">
               {data?.kyberScore?.label}

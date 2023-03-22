@@ -1249,44 +1249,45 @@ export const LiquidOnCentralizedExchanges = () => {
   const [showPrice, setShowPrice] = useState(true)
 
   const formattedData = useMemo(() => {
-    if (!data) return
-    const dateData = new Map()
-    const dateNow = Date.now()
-    data
-      .filter((i: any) => {
-        switch (timeframe) {
-          case '1D':
-            return i.createTime > dateNow - 1000 * 60 * 60 * 24
-          case '7D':
-            return i.createTime > dateNow - (dateNow % (60000 * 60 * 24)) - 60000 * 60 * 24 * 6
-          case '1M':
-            return i.createTime > dateNow - 1000 * 60 * 60 * 24 * 30
-          default:
-            return false
-        }
-      })
-      .forEach((i: any) => {
-        const dateTime = i.createTime - (i.createTime % (timeframe === '1D' ? 60000 * 60 : 60000 * 60 * 24))
-        const dateValue = dateData.get(dateTime)
-        dateData.set(dateTime, {
-          buyVolUsd: i.buyVolUsd + dateValue?.buyVolUsd || 0,
-          sellVolUsd: -i.sellVolUsd + dateValue?.sellVolUsd || 0,
-          timestamp: dateTime,
-          price: dateValue?.price ? (dateValue.price + i.price) / 2 : i.price,
-          list: i.list.map((ex: any) => {
-            return {
-              exchangeName: ex.exchangeName,
-              buyVolUsd:
-                ex.buyVolUsd + dateValue?.list?.find((e2: any) => e2.exchangeName === ex.exchangeName)?.buyVolUsd || 0,
-              sellVolUsd:
-                ex.sellVolUsd + dateValue?.list?.find((e2: any) => e2.exchangeName === ex.exchangeName)?.sellVolUsd ||
-                0,
-            }
-          }),
-        })
-      })
-    return Array.from(dateData.values())
-  }, [timeframe, data])
+    return []
+    // if (!data) return
+    // const dateData = new Map()
+    // const dateNow = Date.now()
+    // data
+    //   .filter((i: any) => {
+    //     switch (timeframe) {
+    //       case '1D':
+    //         return i.createTime > dateNow - 1000 * 60 * 60 * 24
+    //       case '7D':
+    //         return i.createTime > dateNow - (dateNow % (60000 * 60 * 24)) - 60000 * 60 * 24 * 6
+    //       case '1M':
+    //         return i.createTime > dateNow - 1000 * 60 * 60 * 24 * 30
+    //       default:
+    //         return false
+    //     }
+    //   })
+    //   .forEach((i: any) => {
+    //     const dateTime = i.createTime - (i.createTime % (timeframe === '1D' ? 60000 * 60 : 60000 * 60 * 24))
+    //     const dateValue = dateData.get(dateTime)
+    //     dateData.set(dateTime, {
+    //       buyVolUsd: i.buyVolUsd + dateValue?.buyVolUsd || 0,
+    //       sellVolUsd: -i.sellVolUsd + dateValue?.sellVolUsd || 0,
+    //       timestamp: dateTime,
+    //       price: dateValue?.price ? (dateValue.price + i.price) / 2 : i.price,
+    //       list: i.list.map((ex: any) => {
+    //         return {
+    //           exchangeName: ex.exchangeName,
+    //           buyVolUsd:
+    //             ex.buyVolUsd + dateValue?.list?.find((e2: any) => e2.exchangeName === ex.exchangeName)?.buyVolUsd || 0,
+    //           sellVolUsd:
+    //             ex.sellVolUsd + dateValue?.list?.find((e2: any) => e2.exchangeName === ex.exchangeName)?.sellVolUsd ||
+    //             0,
+    //         }
+    //       }),
+    //     })
+    //   })
+    // return Array.from(dateData.values())
+  }, [])
 
   const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   return (

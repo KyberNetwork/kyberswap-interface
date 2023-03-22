@@ -38,7 +38,7 @@ function SmallKyberScoreMeter({ value }: { value?: number }) {
         ))}
       </svg>
       <GaugeValue>
-        <Text fontSize="14px" lineHeight="20px">
+        <Text fontSize="14px" lineHeight="20px" color={theme.primary}>
           {value}
         </Text>
         <InfoHelper

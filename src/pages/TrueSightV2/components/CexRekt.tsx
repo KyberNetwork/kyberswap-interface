@@ -36,20 +36,19 @@ const formatNum = (num: number) => {
 
 export default function CexRekt() {
   const above768 = useMedia('(min-width:768px)')
-  const { data } = useCexesInfoQuery({})
   return (
     <Row gap="24px" flexDirection={above768 ? 'row' : 'column'} align="stretch">
       <Card>
         <Text fontSize={14}>4H Rekt</Text>
-        <Text fontSize={28}>${formatNum(data?.info?.h4TotalVolUsd)}</Text>
+        <Text fontSize={28}>${formatNum(0)}</Text>
       </Card>
       <Card>
         <Text fontSize={14}>12H Rekt</Text>
-        <Text fontSize={28}>${formatNum(data?.info?.h12TotalVolUsd)}</Text>
+        <Text fontSize={28}>${formatNum(0)}</Text>
       </Card>
       <Card>
         <Text fontSize={14}>24H Rekt</Text>
-        <Text fontSize={28}>${formatNum(data?.info?.h24TotalVolUsd)}</Text>
+        <Text fontSize={28}>${formatNum(0)}</Text>
       </Card>
     </Row>
   )

@@ -89,20 +89,6 @@ export default function TrueSightV2() {
           </MouseoverTooltip>
         </RowFit>
       </RowBetween>
-      <ReadMore open={above600 ? true : false}>
-        <Column gap="12px">
-          <Text fontSize={12} color={theme.subText} lineHeight="16px">
-            <Trans>
-              Our algorithm analyzes thousands of tokens and multiple on-chain / off-chain indicators each day to give
-              you a curated list of tokens across various categories. You can further explore each token in detail - use
-              our on-chain, technical and social analysis to find alpha and make better trading decisions!
-            </Trans>
-          </Text>
-          <Text fontSize={10} color={theme.subText} lineHeight="12px" fontStyle="italic">
-            <Trans>Disclaimer: The information here should not be treated as any form of financial advice</Trans>
-          </Text>
-        </Column>
-      </ReadMore>
       {isSingleToken ? <SingleToken /> : <TokenAnalysisList />}
       <TrueSightWidget />
     </Wrapper>
