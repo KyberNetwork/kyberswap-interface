@@ -240,7 +240,7 @@ function CurrencyList({
     function TokenRow({ style, currency, currencyBalance }: TokenRowProps) {
       const isSelected = Boolean(selectedCurrency && currency && selectedCurrency.equals(currency))
       const otherSelected = Boolean(otherCurrency && currency && otherCurrency.equals(currency))
-      const canShowBalance = customChainId && isEVM(customChainId) === isEVM(chainId)
+      const canShowBalance = customChainId && customChainId !== chainId ? isEVM(customChainId) === isEVM(chainId) : true
 
       const token = currency?.wrapped
       const extendCurrency = currency as WrappedTokenInfo
