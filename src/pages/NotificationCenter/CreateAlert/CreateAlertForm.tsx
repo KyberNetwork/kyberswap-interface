@@ -87,6 +87,7 @@ export default function CreateAlert({
     parsedAmount,
     isSaveGas: false,
     feeConfig: undefined,
+    customChain: selectedChain,
   })
 
   useEffect(() => {

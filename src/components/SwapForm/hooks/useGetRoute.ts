@@ -1,4 +1,4 @@
-import { Currency, CurrencyAmount, WETH } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { debounce } from 'lodash'
 import { useCallback, useMemo } from 'react'
 import routeApi from 'services/route'
@@ -17,6 +17,7 @@ type Args = {
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
   feeConfig: FeeConfig | undefined
+  customChain?: ChainId
 }
 
 export const getRouteTokenAddressParam = (currency: Currency) =>
@@ -30,8 +31,9 @@ const useGetRoute = (args: Args) => {
   const [trigger, result] = routeApi.useLazyGetRouteQuery()
   const { aggregatorDomain } = useKyberswapGlobalConfig()
 
-  const { isSaveGas, parsedAmount, currencyIn, currencyOut, feeConfig } = args
-  const { chainId } = useActiveWeb3React()
+  const { isSaveGas, parsedAmount, currencyIn, currencyOut, feeConfig, customChain } = args
+  const { chainId: currentChain } = useActiveWeb3React()
+  const chainId = customChain || currentChain
 
   const dexes = useSelectedDexes()
   const { chargeFeeBy = '', feeReceiver = '', feeAmount = '' } = feeConfig || {}
