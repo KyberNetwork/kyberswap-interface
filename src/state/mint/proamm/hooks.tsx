@@ -1333,7 +1333,7 @@ export function useRangeHopCallbacks(
       if (typeof tickLower === 'number' && tickLower < TickMath.MAX_TICK - 2 && tickLower > TickMath.MIN_TICK + 2) {
         const newPrice = tickToPrice(baseToken, quoteToken, tickLower - TICK_SPACINGS[feeAmount])
         return newPrice.toSignificant(9, undefined, Rounding.ROUND_UP)
-      } else if (initTick) {
+      } else if (initTick !== undefined) {
         const newPrice = tickToPrice(baseToken, quoteToken, initTick - TICK_SPACINGS[feeAmount])
         return newPrice.toSignificant(9, undefined, Rounding.ROUND_UP)
       }
