@@ -100,7 +100,9 @@ export const COOLDOWN_OPTIONS = [
   { label: '2 Hours', value: 2 * TIMES_IN_SECS.ONE_HOUR },
   { label: '3 Hours', value: 3 * TIMES_IN_SECS.ONE_HOUR },
   { label: '4 Hours', value: 4 * TIMES_IN_SECS.ONE_HOUR },
+  { label: '6 Hours', value: 6 * TIMES_IN_SECS.ONE_HOUR },
   { label: '12 Hours', value: 12 * TIMES_IN_SECS.ONE_HOUR },
+  { label: '24 Hours', value: 24 * TIMES_IN_SECS.ONE_HOUR },
   { label: '7 Days', value: 7 * TIMES_IN_SECS.ONE_DAY },
 ]
 
