@@ -150,8 +150,7 @@ export default function CampaignButtonWithOptions({
       wallet: account,
       chainId: campaign.rewardChainIds,
       clientCode: 'campaign',
-      // ref: refs.join(','),
-      ref: '',
+      ref: refs.join(','),
     }
     let response: any
     try {
