@@ -149,8 +149,8 @@ export default function CampaignsUpdater(): null {
             fetchLeaderBoard({
               campaignId: campaignInfo.id,
               pageNumber: 1,
-              userAddress: account?.toLowerCase() ?? '',
-              lookupAddress: selectedCampaignLeaderboardLookupAddress.toLowerCase(),
+              userAddress: account ?? '',
+              lookupAddress: selectedCampaignLeaderboardLookupAddress,
             })
               .then(leaderboard => {
                 refLeaderboardData.current[campaignInfo.id] = leaderboard // cache it
