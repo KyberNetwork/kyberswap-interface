@@ -6,7 +6,7 @@ import NotificationPreference from 'components/SubscribeButton/NotificationPrefe
 import useTheme from 'hooks/useTheme'
 
 const StyledPreference = styled.div`
-  max-width: 420px;
+  max-width: 440px;
   ${({ theme }) => theme.mediaWidth.upToMedium`
     max-width: unset;
   `}
@@ -17,7 +17,7 @@ export default function Overview() {
   return (
     <StyledPreference>
       <NotificationPreference
-        showTopicDesc
+        isInNotificationCenter
         isOpen={true}
         header={
           <Text fontWeight={'500'} color={theme.text} fontSize="14px">

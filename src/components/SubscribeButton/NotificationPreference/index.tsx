@@ -28,8 +28,12 @@ const Wrapper = styled.div`
   padding: 30px 24px;
   width: 100%;
   display: flex;
-  gap: 15px;
+  gap: 18px;
   flex-direction: column;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+     gap: 12px;
+     padding: 24px 16px;
+  `}
 `
 
 const Label = styled.p`
@@ -71,20 +75,22 @@ const Input = styled.input<{ $borderColor: string }>`
 
 const TopicItem = styled.label`
   display: flex;
-  padding: 0px 14px;
   gap: 14px;
   font-weight: 500;
   align-items: center;
-  :last-child {
-    margin-bottom: 10px;
-  }
 `
+
+const Divider = styled.div`
+  border-top: 1px solid ${({ theme }) => theme.border};
+  width: 100%;
+`
+
 const TopicItemHeader = styled(TopicItem)`
-  background: ${({ theme }) => theme.buttonBlack};
-  border-radius: 8px 8px 0px 0px;
-  padding-top: 16px;
-  padding-bottom: 16px;
+  color: ${({ theme }) => theme.text};
   align-items: center;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
 `
 
 // const Option = styled(Row)<{ active: boolean }>`
@@ -118,11 +124,11 @@ const isEmailValid = (value: string) => value.match(/\S+@\S+\.\S+/)
 function NotificationPreference({
   header,
   isOpen,
-  showTopicDesc,
+  isInNotificationCenter,
 }: {
   header?: ReactNode
   isOpen: boolean
-  showTopicDesc?: boolean
+  isInNotificationCenter?: boolean
 }) {
   const toggleModal = useNotificationModalToggle()
   const theme = useTheme()
@@ -381,17 +387,22 @@ function NotificationPreference({
   const renderTableHeader = () => {
     return (
       <TopicItemHeader htmlFor="selectAll">
-        <Checkbox
-          disabled={disableCheckbox}
-          id="selectAll"
-          borderStyle
-          onChange={onToggleAllTopic}
-          style={{ width: 14, height: 14 }}
-          checked={topicGroups.length === selectedTopic.length}
-        />
-        <Text fontSize={12} color={theme.subText}>
-          <Trans>NOTIFICATION PREFERENCES</Trans>
+        <Text fontSize={'14px'}>
+          <Trans>Notification Preferences</Trans>
         </Text>
+        <Flex style={{ gap: '4px', alignItems: 'center' }}>
+          <Checkbox
+            disabled={disableCheckbox}
+            id="selectAll"
+            borderStyle
+            onChange={onToggleAllTopic}
+            style={{ width: 14, height: 14 }}
+            checked={topicGroups.length === selectedTopic.length}
+          />
+          <Text color={theme.subText} fontSize={'12px'}>
+            <Trans>Select All</Trans>
+          </Text>
+        </Flex>
       </TopicItemHeader>
     )
   }
@@ -439,9 +450,7 @@ function NotificationPreference({
             />
             {isVerifiedEmail && hasTopicSubscribed && <CheckIcon color={theme.primary} />}
           </InputWrapper>
-          <Label style={{ color: errorColor, opacity: errorInput ? 1 : 0, margin: '7px 0px 0px 0px' }}>
-            {errorInput?.msg || 'No data'}
-          </Label>
+          {errorInput?.msg && <Label style={{ color: errorColor, margin: '7px 0px 0px 0px' }}>{errorInput?.msg}</Label>}
         </Column>
       ) : (
         <Flex
@@ -471,14 +480,14 @@ function NotificationPreference({
           )}
         </Flex>
       )}
-
+      <Divider />
       <Column gap="16px">
         {renderTableHeader()}
         {topicGroups.map(topic => (
           <TopicItem
             key={topic.id}
             htmlFor={`topic${topic.id}`}
-            style={{ alignItems: showTopicDesc ? 'flex-start' : 'center' }}
+            style={{ alignItems: isInNotificationCenter ? 'flex-start' : 'center' }}
           >
             <Checkbox
               disabled={disableCheckbox}
@@ -492,7 +501,7 @@ function NotificationPreference({
               <Text color={theme.text} fontSize={14}>
                 <Trans>{topic.name}</Trans>
               </Text>
-              {showTopicDesc && (
+              {isInNotificationCenter && (
                 <Text color={theme.subText} fontSize={12}>
                   <Trans>{topic.description}</Trans>
                 </Text>
@@ -502,6 +511,7 @@ function NotificationPreference({
         ))}
       </Column>
       <ActionButtons
+        isHorizontal={!!isInNotificationCenter}
         disableButtonSave={disableButtonSave}
         onSave={onSave}
         isTelegramTab={isTelegramTab}
