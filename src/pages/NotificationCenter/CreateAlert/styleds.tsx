@@ -70,8 +70,7 @@ export const StyledInputNumber = styled(Input)`
 
 export const StyledInput = styled.span`
   ${shareStyleInput};
-  min-width: 200px;
-  max-width: 250px;
+  width: 200px;
   height: fit-content;
   outline: none;
   background: transparent;

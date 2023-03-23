@@ -8,10 +8,9 @@ import Loader from 'components/Loader'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import CommonPagination from 'pages/NotificationCenter/PriceAlerts/CommonPagination'
+import { ITEMS_PER_PAGE } from 'pages/NotificationCenter/const'
 
 import SingleAlert from './SingleAlert'
-
-const ITEMS_PER_PAGE = 10
 
 const AlertsHistory = () => {
   const theme = useTheme()

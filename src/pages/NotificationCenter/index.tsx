@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import MailIcon from 'components/Icons/MailIcon'
 import { APP_PATHS } from 'constants/index'
 import CreateAlert from 'pages/NotificationCenter/CreateAlert'
+import GeneralAnnouncement from 'pages/NotificationCenter/GeneralAnnouncement'
 import Menu from 'pages/NotificationCenter/Menu'
 import PriceAlerts from 'pages/NotificationCenter/PriceAlerts'
 import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
@@ -99,7 +100,7 @@ function NotificationCenter() {
           <Routes>
             <Route index path={NOTIFICATION_ROUTES.ALL} element={<div>All notification</div>} />
             <Route path={NOTIFICATION_ROUTES.OVERVIEW} element={<div>Notification Overview</div>} />
-            <Route path={NOTIFICATION_ROUTES.GENERAL} element={<div>General</div>} />
+            <Route path={NOTIFICATION_ROUTES.GENERAL} element={<GeneralAnnouncement />} />
             <Route path={NOTIFICATION_ROUTES.PRICE_ALERTS} element={<PriceAlerts />} />
             <Route path={NOTIFICATION_ROUTES.MY_ELASTIC_POOLS} element={<div>My Elastic Pools</div>} />
             <Route path={NOTIFICATION_ROUTES.LIMIT_ORDERS} element={<div>Limit Orders</div>} />

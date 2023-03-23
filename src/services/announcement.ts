@@ -62,5 +62,11 @@ const AnnouncementApi = createApi({
     }),
   }),
 })
+export const {
+  useGetAnnouncementsQuery,
+  useLazyGetAnnouncementsQuery,
+  useLazyGetPrivateAnnouncementsQuery,
+  useAckPrivateAnnouncementsMutation,
+} = AnnouncementApi
 
 export default AnnouncementApi

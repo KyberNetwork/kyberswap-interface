@@ -6,7 +6,7 @@ import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 import InfiniteLoader from 'react-window-infinite-loader'
 import { Flex, Text } from 'rebass'
-import AnnouncementApi from 'services/announcement'
+import { useAckPrivateAnnouncementsMutation } from 'services/announcement'
 import styled, { CSSProperties, css } from 'styled-components'
 
 import AnnouncementItem from 'components/Announcement/AnnoucementItem'
@@ -148,7 +148,6 @@ export default function AnnouncementView({
   const theme = useTheme()
   const toggleWalletModal = useWalletModalToggle()
 
-  const { useAckPrivateAnnouncementsMutation } = AnnouncementApi
   const [ackAnnouncement] = useAckPrivateAnnouncementsMutation()
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const { mixpanelHandler } = useMixpanel()

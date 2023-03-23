@@ -8,10 +8,9 @@ import Loader from 'components/Loader'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import CommonPagination from 'pages/NotificationCenter/PriceAlerts/CommonPagination'
+import { ITEMS_PER_PAGE } from 'pages/NotificationCenter/const'
 
 import SingleAlert from './SingleAlert'
-
-const ITEMS_PER_PAGE = 10
 
 const ActiveAlerts = () => {
   const theme = useTheme()
@@ -22,6 +21,7 @@ const ActiveAlerts = () => {
       walletAddress: account || '',
       page,
       pageSize: ITEMS_PER_PAGE,
+      sort: 'is_enabled:desc,created_at:desc',
     },
     { skip: !account },
   )

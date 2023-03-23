@@ -11,7 +11,7 @@ export enum Tab {
   HISTORY = 'HISTORY',
 }
 
-const Wrapper = styled.div`
+export const ShareWrapper = styled.div`
   display: flex;
   width: 100%;
   height: 100%;
@@ -19,19 +19,18 @@ const Wrapper = styled.div`
 
   padding: 24px;
   padding-bottom: 0;
-
   ${({ theme }) => theme.mediaWidth.upToMedium`
     flex: 1;
     padding: 0;
 
-    ${ContentWrapper} {
+    ${ShareContentWrapper} {
       flex: 1;
       padding: 0 16px;
     }
   `}
 `
 
-const ContentWrapper = styled.div`
+export const ShareContentWrapper = styled.div`
   display: flex;
   width: 100%;
   height: 100%;
@@ -42,13 +41,13 @@ const PriceAlerts = () => {
   const [currentTab, setCurrentTab] = useState(Tab.ACTIVE)
 
   return (
-    <Wrapper>
+    <ShareWrapper>
       <TitleOnMobile />
-      <ContentWrapper>
+      <ShareContentWrapper>
         <Header currentTab={currentTab} setCurrentTab={setCurrentTab} />
         {currentTab === Tab.ACTIVE ? <ActiveAlerts /> : <AlertsHistory />}
-      </ContentWrapper>
-    </Wrapper>
+      </ShareContentWrapper>
+    </ShareWrapper>
   )
 }
 

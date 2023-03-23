@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useMedia, usePrevious } from 'react-use'
-import AnnouncementApi from 'services/announcement'
+import {
+  useAckPrivateAnnouncementsMutation,
+  useLazyGetAnnouncementsQuery,
+  useLazyGetPrivateAnnouncementsQuery,
+} from 'services/announcement'
 import styled, { css } from 'styled-components'
 
 import AnnouncementView, { Tab } from 'components/Announcement/AnnoucementView'
@@ -93,8 +97,6 @@ export default function AnnouncementComponent() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [privateAnnouncements, setPrivateAnnouncements] = useState<PrivateAnnouncement[]>([])
 
-  const { useLazyGetAnnouncementsQuery, useLazyGetPrivateAnnouncementsQuery, useAckPrivateAnnouncementsMutation } =
-    AnnouncementApi
   const [fetchGeneralAnnouncement, { data: respAnnouncement = responseDefault }] = useLazyGetAnnouncementsQuery()
   const [fetchPrivateAnnouncement, { data: respPrivateAnnouncement = responseDefault, isError }] =
     useLazyGetPrivateAnnouncementsQuery()
