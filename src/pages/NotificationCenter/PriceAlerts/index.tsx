@@ -21,9 +21,11 @@ const Wrapper = styled.div`
   padding-bottom: 0;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
+    flex: 1;
     padding: 0;
 
     ${ContentWrapper} {
+      flex: 1;
       padding: 0 16px;
     }
   `}

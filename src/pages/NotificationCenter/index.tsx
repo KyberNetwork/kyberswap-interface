@@ -13,8 +13,13 @@ const PageWrapper = styled.div`
   padding: 32px 50px;
   width: 100%;
   max-width: 1300px;
+
+  display: flex;
+  flex-direction: column;
+
   ${({ theme }) => theme.mediaWidth.upToMedium`
     padding: 0;
+    flex: 1 1 100%;
   `}
 `
 const Wrapper = styled.div`
@@ -30,6 +35,7 @@ const Wrapper = styled.div`
     border: none;
     flex-direction: column;
     gap: 16px;
+    flex: 1 1 100%;
   `}
 `
 
@@ -70,6 +76,9 @@ const RightColumn = styled.div`
   ${({ theme }) => theme.mediaWidth.upToMedium`
     width: 100%;
     border-radius: 0px;
+
+    display: flex;
+    flex-direction: column;
   `}
 `
 
