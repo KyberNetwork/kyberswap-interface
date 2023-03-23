@@ -268,7 +268,8 @@ function FarmCard({ farm, poolAPR }: { farm: ElasticFarmV2; poolAPR: number }) {
     pool.token0.isNative ? pool.token0.symbol : pool.token0.address
   }/${pool.token1.isNative ? pool.token1.symbol : pool.token1.address}/${pool.fee}`
 
-  const rangesCount = farm?.ranges ? farm.ranges.length : 0
+  const rangesCount = farm.ranges.length
+
   return (
     <FarmContext.Provider value={farmValues}>
       <Wrapper>
@@ -320,10 +321,12 @@ function FarmCard({ farm, poolAPR }: { farm: ElasticFarmV2; poolAPR: number }) {
                         </Text>
                       )}
                       <RowFit gap="4px">
-                        <CurrencyLogo currency={rw.currency} size="16px" />
+                        <MouseoverTooltip text={rw.currency.symbol} placement="top" width="fit-content">
+                          <CurrencyLogo currency={rw.currency} size="16px" />
+                        </MouseoverTooltip>
                         {hasRewards && (
                           <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-                            {userTotalRewards[index].toSignificant(6)}
+                            {userTotalRewards[index].toSignificant(4)}
                           </Text>
                         )}
                       </RowFit>

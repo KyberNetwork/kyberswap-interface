@@ -8,6 +8,7 @@ import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
+import { ReactComponent as QuestionSquareIcon } from 'assets/svg/question_icon_square.svg'
 import { ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import CurrencyLogo from 'components/CurrencyLogo'
@@ -60,6 +61,7 @@ type Props = {
   ) => void
   pools: FarmingPool[]
   userInfo?: UserInfo
+  onShowStepGuide: () => void
 }
 
 enum SORT_FIELD {
@@ -76,7 +78,7 @@ enum SORT_DIRECTION {
   DESC = 'desc',
 }
 
-const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo }) => {
+const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo, onShowStepGuide }) => {
   const theme = useTheme()
   const { account, chainId } = useActiveWeb3React()
   const above1000 = useMedia('(min-width: 1000px)')
@@ -336,8 +338,19 @@ const ProMMFarmGroup: React.FC<Props> = ({ address, onOpenModal, pools, userInfo
   const renderFarmGroupHeader = () => {
     return (
       <Flex justifyContent="space-between" alignItems="center" padding={upToExtraSmall ? '1rem' : '1.25rem 24px'}>
-        <Text fontSize="16px" fontWeight="500" color={theme.subText}>
-          <Trans>Farming Contract</Trans>
+        <Text fontSize="16px" fontWeight="500" display="flex" alignItems="center" sx={{ gap: '6px' }}>
+          <Trans>Elastic Farm V1</Trans>
+
+          <Text
+            color={theme.subText}
+            display="flex"
+            alignItems="center"
+            role="button"
+            sx={{ cursor: 'pointer' }}
+            onClick={onShowStepGuide}
+          >
+            <QuestionSquareIcon />
+          </Text>
         </Text>
 
         {!isApprovedForAll && res?.loading ? (

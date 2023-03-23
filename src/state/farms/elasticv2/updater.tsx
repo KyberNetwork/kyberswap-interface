@@ -188,7 +188,7 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
 
           const totalRewards = farm.rewards.map(item => CurrencyAmount.fromRawAmount(getToken(item.token), item.amount))
           return {
-            id: farm.id.split('_')[0],
+            id: farm.id,
             fId: +farm.id.split('_')[1],
             startTime: Number(farm.startTime),
             endTime: Number(farm.endTime),

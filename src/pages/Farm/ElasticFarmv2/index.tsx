@@ -3,9 +3,10 @@ import { useMemo, useState } from 'react'
 import { Info } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Text } from 'rebass'
+import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
+import { ReactComponent as QuestionSquareIcon } from 'assets/svg/question_icon_square.svg'
 import { ButtonPrimary } from 'components/Button'
 import Divider from 'components/Divider'
 import { RowBetween, RowFit, RowWrap } from 'components/Row'
@@ -40,7 +41,7 @@ const FarmsWrapper = styled(RowWrap)`
   --gap: 24px;
 `
 
-export default function ElasticFarmv2() {
+export default function ElasticFarmv2({ onShowStepGuide }: { onShowStepGuide: () => void }) {
   const theme = useTheme()
   const { isEVM, chainId, account } = useActiveWeb3React()
   const farmAddress = (NETWORKS_INFO[chainId] as EVMNetworkInfo).elastic?.farmV2Contract
@@ -192,14 +193,25 @@ export default function ElasticFarmv2() {
     )
   }
 
-  if (!filteredFarms || filteredFarms.length === 0) return null
+  if (!filteredFarms?.length) return null
 
   return (
     <Wrapper>
       <RowBetween>
-        <Text fontSize="16px" lineHeight="20px" color={theme.text}>
+        <Flex fontSize="16px" alignItems="center" color={theme.text} sx={{ gap: '6px' }}>
           <Trans>Elastic Farm V2</Trans>
-        </Text>
+
+          <Text
+            color={theme.subText}
+            display="flex"
+            alignItems="center"
+            role="button"
+            sx={{ cursor: 'pointer' }}
+            onClick={onShowStepGuide}
+          >
+            <QuestionSquareIcon />
+          </Text>
+        </Flex>
         <RowFit>{renderApproveButton()}</RowFit>
       </RowBetween>
       <Divider />

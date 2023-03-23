@@ -29,7 +29,13 @@ import { SharePoolContext } from './SharePoolContext'
 
 type ModalType = 'deposit' | 'withdraw' | 'stake' | 'unstake' | 'harvest' | 'forcedWithdraw'
 
-function ElasticFarms({ stakedOnly }: { stakedOnly: { active: boolean; ended: boolean } }) {
+function ElasticFarms({
+  stakedOnly,
+  onShowStepGuide,
+}: {
+  stakedOnly: { active: boolean; ended: boolean }
+  onShowStepGuide: () => void
+}) {
   const theme = useTheme()
   const { isEVM, networkInfo, chainId } = useActiveWeb3React()
 
@@ -311,6 +317,7 @@ function ElasticFarms({ stakedOnly }: { stakedOnly: { active: boolean; ended: bo
           {filteredFarms.map(farm => {
             return (
               <ElasticFarmGroup
+                onShowStepGuide={onShowStepGuide}
                 key={farm.id}
                 address={farm.id}
                 onOpenModal={(modalType: ModalType, pool?: FarmingPool) => {

@@ -9,7 +9,7 @@ import Modal from 'components/Modal'
 import Row, { RowBetween, RowFit, RowWrap } from 'components/Row'
 import useTheme from 'hooks/useTheme'
 import { useFarmV2Action } from 'state/farms/elasticv2/hooks'
-import { ElasticFarmV2, UserFarmV2Info } from 'state/farms/elasticv2/types'
+import { UserFarmV2Info } from 'state/farms/elasticv2/types'
 
 import { convertTickToPrice } from '../utils'
 import { FarmContext } from './FarmCard'

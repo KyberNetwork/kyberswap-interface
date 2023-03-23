@@ -24,6 +24,7 @@ import YieldPools from 'components/YieldPools'
 import ElasticFarms from 'components/YieldPools/ElasticFarms'
 import FarmGuide from 'components/YieldPools/FarmGuide'
 import FarmSort from 'components/YieldPools/FarmPoolSort'
+import FarmStepGuide from 'components/YieldPools/FarmStepGuide'
 import ListGridViewGroup from 'components/YieldPools/ListGridViewGroup'
 import {
   HeadingContainer,
@@ -110,15 +111,15 @@ const Farm = () => {
         return farmType === VERSION.ELASTIC ? (
           <>
             {/* TODO: Add condition to hide if no farmv2Address */}
-            <ElasticFarms stakedOnly={stakedOnly} />
-            <ElasticFarmv2 />
+            <ElasticFarms stakedOnly={stakedOnly} onShowStepGuide={() => setShowFarmStepGuide('v1')} />
+            <ElasticFarmv2 onShowStepGuide={() => setShowFarmStepGuide('v2')} />
           </>
         ) : (
           <YieldPools loading={loading} active />
         )
       case FARM_TAB.ENDED:
         return farmType === VERSION.ELASTIC ? (
-          <ElasticFarms stakedOnly={stakedOnly} />
+          <ElasticFarms stakedOnly={stakedOnly} onShowStepGuide={() => setShowFarmStepGuide('v1')} />
         ) : (
           <YieldPools loading={loading} active={false} />
         )
@@ -126,7 +127,7 @@ const Farm = () => {
         return farmType === VERSION.ELASTIC ? <ProMMVesting /> : <Vesting loading={vestingLoading} />
       case FARM_TAB.MY_FARMS:
         return farmType === VERSION.ELASTIC ? (
-          <ElasticFarms stakedOnly={stakedOnly} />
+          <ElasticFarms stakedOnly={stakedOnly} onShowStepGuide={() => setShowFarmStepGuide('v1')} />
         ) : (
           <YieldPools loading={loading} active={false} />
         )
@@ -195,6 +196,8 @@ const Farm = () => {
   const token0 = useCurrency(token0Id)
   const token1 = useCurrency(token1Id)
 
+  const [showFarmStepGuide, setShowFarmStepGuide] = useState<'v1' | 'v2' | null>(null)
+
   if (!isEVM) return <Navigate to="/" />
 
   const selectTokenFilter = (
@@ -234,6 +237,7 @@ const Farm = () => {
       <ElasticFarmV2Updater />
       <ClassicFarmUpdater isInterval />
       <FarmUpdater />
+      <FarmStepGuide version={showFarmStepGuide} onChangeVersion={setShowFarmStepGuide} />
       <PageWrapper gap="24px">
         <div>
           <TopBar>
