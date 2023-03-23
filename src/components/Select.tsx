@@ -138,12 +138,6 @@ function Select({
                 onChange(value)
               }
             }
-            if (optionRender)
-              return (
-                <div key={value} onClick={onClick}>
-                  {optionRender(item)}
-                </div>
-              )
             return (
               <Option
                 key={value}
@@ -152,7 +146,7 @@ function Select({
                 onClick={onClick}
                 style={optionStyle}
               >
-                {getOptionLabel(item)}
+                {optionRender ? optionRender(item) : getOptionLabel(item)}
               </Option>
             )
           })}

@@ -1,4 +1,4 @@
-import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, getChainType } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
 import { ArrowDown, ArrowUp, Info } from 'react-feather'
@@ -203,6 +203,28 @@ export default function CreateAlert({
               options={NETWORK_OPTIONS}
               onChange={setSelectedChain}
               menuStyle={{ height: 250, overflow: 'scroll', width: '100%' }}
+              optionStyle={{ padding: 0 }}
+              optionRender={item => {
+                const isDiffChainType = getChainType(chainId) !== getChainType(item?.value as ChainId)
+                return (
+                  <Text
+                    onClick={
+                      isDiffChainType
+                        ? e => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                          }
+                        : undefined
+                    }
+                    style={{
+                      padding: '10px 18px',
+                      cursor: isDiffChainType ? 'not-allowed' : 'pointer',
+                    }}
+                  >
+                    {item?.label}
+                  </Text>
+                )
+              }}
               activeRender={item => (
                 <Flex alignItems="center" style={{ gap: 6 }}>
                   <NetworkLogo style={{ width: 20, height: 20 }} chainId={item?.value as ChainId} />

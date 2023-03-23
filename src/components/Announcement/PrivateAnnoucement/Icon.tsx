@@ -15,6 +15,10 @@ const IconWrapper = styled.div<{ hasNetwork: boolean }>`
   ${({ hasNetwork }) => hasNetwork && `margin-right: 4px;`}
 `
 
+const mapPosition: Partial<{ [type in PrivateAnnouncementType]: { top: number; right: number } }> = {
+  [PrivateAnnouncementType.POOL_POSITION]: { top: -6, right: -10 },
+}
+
 export default function InboxIcon({ type, chainId }: { type: PrivateAnnouncementType; chainId?: ChainId }) {
   const theme = useTheme()
   const mapIcon = {
@@ -24,6 +28,7 @@ export default function InboxIcon({ type, chainId }: { type: PrivateAnnouncement
     [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: <DiscoverIcon size={16} />,
     [PrivateAnnouncementType.PRICE_ALERT]: <Clock size={16} color={theme.text} />,
   }
+
   const icon = mapIcon[type]
   return (
     <IconWrapper hasNetwork={!!chainId}>
@@ -35,8 +40,7 @@ export default function InboxIcon({ type, chainId }: { type: PrivateAnnouncement
             width: 12,
             height: 12,
             position: 'absolute',
-            top: -10,
-            right: -10,
+            ...(mapPosition[type] || { top: -8, right: -8 }),
           }}
         />
       )}
