@@ -217,14 +217,14 @@ const SwapForm: React.FC<SwapFormProps> = props => {
             )}
 
             {!isWrapOrUnwrap && (
-              <Flex alignItems="center" fontSize={12} color={theme.subText} justifyContent="space-between">
+              <Flex alignItems="flex-start" fontSize={12} color={theme.subText} justifyContent="space-between">
                 <SlippageSetting isStablePairSwap={isStablePairSwap} />
                 {account && (
                   <PriceAlertButton
                     onClick={() => navigate(`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.CREATE_ALERT}`)}
                   >
                     <Clock size={14} color={theme.subText} />
-                    <Text color={theme.subText}>
+                    <Text color={theme.subText} style={{ whiteSpace: 'nowrap' }}>
                       <Trans>Price Alert</Trans>
                     </Text>
                   </PriceAlertButton>
