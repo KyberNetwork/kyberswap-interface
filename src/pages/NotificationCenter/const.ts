@@ -67,7 +67,7 @@ export type HistoricalPriceAlert = {
   threshold: string
   type: PriceAlertType
   note: string
-  swapUrl: string
+  swapURL: string
   manageAlertUrl: string
   sentAt: number
 }

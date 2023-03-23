@@ -31,13 +31,13 @@ function InboxItemBridge({
     chainId: rawChainId,
     tokenInAmount,
     threshold,
-    swapUrl,
+    swapURL,
   } = templateBody.alert
   const chainId = Number(rawChainId) as ChainId
 
   const navigate = useNavigateCtaPopup()
   const onClick = () => {
-    navigate(swapUrl, chainId)
+    navigate(swapURL, chainId)
     onRead(announcement, 'price_alert')
   }
 
