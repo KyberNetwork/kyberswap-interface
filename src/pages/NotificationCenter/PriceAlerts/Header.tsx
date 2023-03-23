@@ -123,7 +123,7 @@ const Header: React.FC<Props> = ({ currentTab, setCurrentTab }) => {
       >
         <StatItem
           // error if use `t` here
-          label={<Trans>Created Alerts</Trans>}
+          label={<Trans>Alerts Created: </Trans>}
           isLoading={isLoading}
           totalNumber={data?.totalAlerts}
           maxNumber={data?.maxAlerts}
@@ -131,7 +131,7 @@ const Header: React.FC<Props> = ({ currentTab, setCurrentTab }) => {
 
         <StatItem
           // error if use `t` here
-          label={<Trans>Active Alerts</Trans>}
+          label={<Trans>Active Alerts: </Trans>}
           isLoading={isLoading}
           totalNumber={data?.totalActiveAlerts}
           maxNumber={data?.maxActiveAlerts}
