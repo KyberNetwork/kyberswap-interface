@@ -19,7 +19,7 @@ export default function Header({ toggleModal }: { toggleModal: () => void }) {
   return (
     <RowBetween>
       <Row fontSize={20} fontWeight={500} gap="10px">
-        <MailIcon /> <Trans>Notifications</Trans>
+        <MailIcon /> <Trans>Email Notifications</Trans>
       </Row>
       <MouseoverTooltip text={t`Notification Preferences`} placement="top" width="fit-content">
         <TransactionSettingsIcon

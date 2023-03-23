@@ -292,6 +292,16 @@ export default function CreateAlert({
               options={TYPE_OPTIONS}
               value={alertType}
               onChange={setAlertType}
+              optionStyle={{ padding: '10px 12px' }}
+              optionRender={item => {
+                const isAbove = item?.value === PriceAlertType.ABOVE
+                return (
+                  <Flex alignItems="center" style={{ gap: 6 }}>
+                    {isAbove ? <ArrowUp size={16} /> : <ArrowDown size={16} />}
+                    {item?.label}
+                  </Flex>
+                )
+              }}
               activeRender={item => {
                 const isAbove = item?.value === PriceAlertType.ABOVE
                 return (
@@ -342,6 +352,7 @@ export default function CreateAlert({
               options={COOLDOWN_OPTIONS}
               onChange={setCooldown}
               arrowColor={theme.subText}
+              menuStyle={{ height: 250, overflow: 'scroll', width: '100%' }}
               activeRender={item => (
                 <Flex alignItems="center" style={{ gap: 6 }}>
                   <Clock size={20} color={theme.text} />
