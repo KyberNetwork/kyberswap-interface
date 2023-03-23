@@ -1,5 +1,4 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import produce from 'immer'
 
 import { NOTIFICATION_API, PRICE_ALERT_API, PRICE_ALERT_TEMPLATE_IDS } from 'constants/env'
 import {
@@ -44,16 +43,9 @@ const transformGetListHistoricalAlertsResponse = (data: any): GetListHistoricalA
     return {
       historicalAlerts: (notifications || []).map((notification: any) => {
         const { alert } = JSON.parse(notification.templateBody || '{}') || {}
-        return produce(alert, (draft: any) => {
-          draft.sentAt = notification.sentAt
-          draft.id = notification.id
-
-          draft.tokenInLogoURL = draft.tokenInLogoUrl
-          delete draft.tokenInLogoUrl
-
-          draft.tokenOutLogoURL = draft.tokenOutLogoUrl
-          delete draft.tokenOutLogoUrl
-        })
+        alert.sentAt = notification.sentAt
+        alert.id = notification.id
+        return alert
       }),
       pagination,
     } as GetListHistoricalAlertsResponseData
