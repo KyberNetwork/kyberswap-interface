@@ -147,7 +147,7 @@ export default function ConfirmModal({
         </RowBetween>
 
         <Container>
-          <Row alignItems={'center'} gap="6px">
+          <Row alignItems={'center'} gap="12px 6px" style={{ flexWrap: 'wrap' }}>
             <Label>
               <Trans>Send me an alert when on </Trans>
             </Label>
@@ -156,21 +156,23 @@ export default function ConfirmModal({
             <Label>
               <Trans>the price of</Trans>
             </Label>
-          </Row>
 
-          <Row alignItems={'center'} gap="6px">
             <CurrencyLogo currency={currencyIn} size={'16px'} />
             <Value>
               {uint256ToFraction(tokenInAmount, currencyIn.decimals)?.toSignificant(6)} {currencyIn.symbol}
             </Value>
+
             <Label>
               <Trans>to</Trans>
             </Label>
+
             <CurrencyLogo currency={currencyOut} size={'16px'} />
             <Value>{currencyOut.symbol}</Value>
+
             <Label>
               <Trans>goes</Trans>
             </Label>
+
             <Value
               style={{
                 color: type === PriceAlertType.ABOVE ? theme.primary : theme.red,
@@ -181,11 +183,11 @@ export default function ConfirmModal({
             >
               {type === PriceAlertType.ABOVE ? <ArrowUp size={18} /> : <ArrowDown size={18} />} {type}
             </Value>
-          </Row>
 
-          <Value>
-            {threshold} {currencyOut.symbol} per token
-          </Value>
+            <Value>
+              {threshold} {currencyOut.symbol} per token
+            </Value>
+          </Row>
 
           <RowBetween>
             <Label style={{ fontSize: 12 }}>
