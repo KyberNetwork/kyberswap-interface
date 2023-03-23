@@ -51,7 +51,7 @@ const StatItem: React.FC<StatItemProps> = ({ isLoading, label, totalNumber, maxN
       return '--'
     }
 
-    return `${totalNumber} / ${maxNumber}`
+    return `${totalNumber}/${maxNumber}`
   }
 
   return (
