@@ -1,5 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { FC, useEffect, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -29,6 +30,21 @@ const Right = styled.div<{ img: string }>`
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    display: none
+  `}
+`
+
+const Image = styled.img`
+  display: none;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    display: block;
+    max-height: 250px;
+    object-fit: contain;
+    margin: auto;
+    width: 100%;
+ `};
 `
 
 const Tabs = styled.div`
@@ -318,10 +334,14 @@ const FarmStepGuide: FC<FarmStepGuideProps> = ({ version, onChangeVersion }) => 
       isOpen={!!version}
       onDismiss={() => onChangeVersion(null)}
       maxWidth="900px"
-      bgColor={theme.border}
-      minHeight="650px"
+      minHeight={isMobile ? 90 : '650px'}
+      width="800px"
     >
-      <Flex width="100%" sx={{ border: `1px solid ${theme.border}`, overflow: 'hidden', borderRadius: '20px' }}>
+      <Flex
+        width="100%"
+        sx={{ border: `1px solid ${theme.border}`, overflow: 'hidden', borderRadius: '20px' }}
+        overflowY="scroll"
+      >
         <Left>
           <Flex alignItems="center" sx={{ gap: '0.5rem' }}>
             <Text fontSize="1rem" fontWeight="500">
@@ -349,13 +369,16 @@ const FarmStepGuide: FC<FarmStepGuideProps> = ({ version, onChangeVersion }) => 
                 </Btn>
               </Flex>
               <Flex
+                flexDirection="column"
                 sx={{
                   transition: 'max-height 300ms ease-in-out, transform 300ms',
-                  maxHeight: currentStep === index ? '200px' : 0,
+                  maxHeight: currentStep === index ? '500px' : 0,
                   overflow: 'hidden',
+                  gap: '6px',
                 }}
               >
                 {item.description}
+                <Image src={item.img} />
               </Flex>
             </Row>
           ))}

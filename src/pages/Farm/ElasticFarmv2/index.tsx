@@ -9,8 +9,9 @@ import styled from 'styled-components'
 import { ReactComponent as QuestionSquareIcon } from 'assets/svg/question_icon_square.svg'
 import { ButtonPrimary } from 'components/Button'
 import Divider from 'components/Divider'
-import { RowBetween, RowFit, RowWrap } from 'components/Row'
+import { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
+import { FarmList } from 'components/YieldPools/ElasticFarmGroup/styleds'
 import { FARM_TAB } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
@@ -22,6 +23,8 @@ import { useElasticFarmsV2, useFarmV2Action } from 'state/farms/elasticv2/hooks'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import useGetElasticPools from 'state/prommPools/useGetElasticPools'
 import { useIsTransactionPending } from 'state/transactions/hooks'
+import { useViewMode } from 'state/user/hooks'
+import { VIEW_MODE } from 'state/user/reducer'
 import { isAddressString } from 'utils'
 
 import FarmCard from './components/FarmCard'
@@ -34,11 +37,14 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
-`
 
-const FarmsWrapper = styled(RowWrap)`
-  --items-in-row: 3;
-  --gap: 24px;
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    padding: 1rem;
+    margin-left: -1rem;
+    margin-right: -1rem;
+    border: none;
+    border-radius: 0;
+  `}
 `
 
 export default function ElasticFarmv2({ onShowStepGuide }: { onShowStepGuide: () => void }) {
@@ -193,6 +199,8 @@ export default function ElasticFarmv2({ onShowStepGuide }: { onShowStepGuide: ()
     )
   }
 
+  const [viewMode] = useViewMode()
+
   if (!filteredFarms?.length) return null
 
   return (
@@ -215,11 +223,16 @@ export default function ElasticFarmv2({ onShowStepGuide }: { onShowStepGuide: ()
         <RowFit>{renderApproveButton()}</RowFit>
       </RowBetween>
       <Divider />
-      <FarmsWrapper>
+      <FarmList gridMode={viewMode === VIEW_MODE.GRID || !above1000} style={{ margin: '0' }}>
         {filteredFarms?.map(farm => (
-          <FarmCard key={farm.id} farm={farm} poolAPR={poolDatas?.[farm.poolAddress].apr || 0} />
+          <FarmCard
+            key={farm.id}
+            farm={farm}
+            poolAPR={poolDatas?.[farm.poolAddress].apr || 0}
+            isApproved={isApprovedForAll}
+          />
         ))}
-      </FarmsWrapper>
+      </FarmList>
     </Wrapper>
   )
 }

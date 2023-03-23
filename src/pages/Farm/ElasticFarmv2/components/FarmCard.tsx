@@ -19,6 +19,7 @@ import Harvest from 'components/Icons/Harvest'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useFarmV2Action, useUserFarmV2Info } from 'state/farms/elasticv2/hooks'
 import { ElasticFarmV2, ElasticFarmV2Range } from 'state/farms/elasticv2/types'
@@ -225,8 +226,9 @@ export const RangeItem = ({
   )
 }
 
-function FarmCard({ farm, poolAPR }: { farm: ElasticFarmV2; poolAPR: number }) {
+function FarmCard({ farm, poolAPR, isApproved }: { farm: ElasticFarmV2; poolAPR: number; isApproved: boolean }) {
   const theme = useTheme()
+  const { account } = useActiveWeb3React()
   const [showStake, setShowStake] = useState(false)
   const [showUnstake, setShowUnstake] = useState(false)
   const [activeRangeIndex, setActiveRangeIndex] = useState(0)
@@ -292,7 +294,7 @@ function FarmCard({ farm, poolAPR }: { farm: ElasticFarmV2; poolAPR: number }) {
               </RowFit>
               <RowFit gap="8px">
                 <IconButton>
-                  <CopyHelper toCopy={farm?.id || ''} />
+                  <CopyHelper toCopy={farm?.poolAddress || ''} />
                 </IconButton>
                 <IconButton>
                   <Share2 size={14} fill="currentcolor" />
@@ -407,7 +409,7 @@ function FarmCard({ farm, poolAPR }: { farm: ElasticFarmV2; poolAPR: number }) {
                     <Trans>My Deposit</Trans>
                   </Text>
                   <Text fontSize="16px" fontWeight="500" color={theme.text}>
-                    {formatDollarAmount(myDepositUSD)}
+                    {stakedPos.length ? formatDollarAmount(myDepositUSD) : '--'}
                   </Text>
                 </Column>
               </RowBetween>
@@ -418,7 +420,7 @@ function FarmCard({ farm, poolAPR }: { farm: ElasticFarmV2; poolAPR: number }) {
                     <RowFit gap="6px">{stakedPos?.length || 3} Positions Staked</RowFit>
                   </UnstakeButton>
                 )}
-                <ButtonLight onClick={() => setShowStake(true)}>
+                <ButtonLight onClick={() => setShowStake(true)} disabled={!account || !isApproved}>
                   <RowFit gap="6px">
                     <Plus size={16} />
                     Stake

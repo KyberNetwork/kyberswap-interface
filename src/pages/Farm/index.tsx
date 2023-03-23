@@ -119,7 +119,10 @@ const Farm = () => {
         )
       case FARM_TAB.ENDED:
         return farmType === VERSION.ELASTIC ? (
-          <ElasticFarms stakedOnly={stakedOnly} onShowStepGuide={() => setShowFarmStepGuide('v1')} />
+          <>
+            <ElasticFarms stakedOnly={stakedOnly} onShowStepGuide={() => setShowFarmStepGuide('v1')} />
+            <ElasticFarmv2 onShowStepGuide={() => setShowFarmStepGuide('v2')} />
+          </>
         ) : (
           <YieldPools loading={loading} active={false} />
         )
@@ -127,7 +130,10 @@ const Farm = () => {
         return farmType === VERSION.ELASTIC ? <ProMMVesting /> : <Vesting loading={vestingLoading} />
       case FARM_TAB.MY_FARMS:
         return farmType === VERSION.ELASTIC ? (
-          <ElasticFarms stakedOnly={stakedOnly} onShowStepGuide={() => setShowFarmStepGuide('v1')} />
+          <>
+            <ElasticFarms stakedOnly={stakedOnly} onShowStepGuide={() => setShowFarmStepGuide('v1')} />
+            <ElasticFarmv2 onShowStepGuide={() => setShowFarmStepGuide('v2')} />
+          </>
         ) : (
           <YieldPools loading={loading} active={false} />
         )
