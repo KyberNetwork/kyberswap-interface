@@ -20,7 +20,7 @@ import { Tab } from 'pages/NotificationCenter/PriceAlerts'
 import { HistoricalPriceAlert, NOTIFICATION_ROUTES, PriceAlertType } from 'pages/NotificationCenter/const'
 
 const DescriptionPriceAlert = (popup: PopupItemType<PopupContentAnnouncement>) => {
-  const { templateBody, metaMessageId } = popup.content
+  const { templateBody } = popup.content
   const { alert = {} } = templateBody as AnnouncementTemplatePriceAlert
   const {
     chainId: rawChainId,
@@ -38,7 +38,7 @@ const DescriptionPriceAlert = (popup: PopupItemType<PopupContentAnnouncement>) =
   const isAbove = type === PriceAlertType.ABOVE
 
   return {
-    title: t`Price Alert ${metaMessageId}`,
+    title: t`Price Alert`,
     type: NotificationType.SUCCESS,
     link: `${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.PRICE_ALERTS}?tab=${Tab.HISTORY}`,
     icon: <Clock size={20} />,
