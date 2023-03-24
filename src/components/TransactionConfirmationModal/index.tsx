@@ -26,6 +26,7 @@ import { errorFriendly } from 'utils/dmm'
 
 const Wrapper = styled.div`
   width: 100%;
+  overflow-y: auto;
 `
 const Section = styled(AutoColumn)`
   padding: 20px;
