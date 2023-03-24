@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import { ReactComponent as AlarmIcon } from 'assets/svg/alarm.svg'
 import Toggle from 'components/Toggle'
 import useTheme from 'hooks/useTheme'
-import AlertCondition, { Props as AlertConditionProps } from 'pages/NotificationCenter/PriceAlerts/AlertCondition'
+import AlertCondition, { AlertConditionData } from 'pages/NotificationCenter/PriceAlerts/AlertCondition'
 import { PriceAlert } from 'pages/NotificationCenter/const'
 
 const Wrapper = styled.div`
@@ -13,7 +13,7 @@ const Wrapper = styled.div`
 
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 
   border-bottom: 1px solid ${({ theme }) => theme.border};
 
@@ -44,7 +44,7 @@ const AlertConditionWrapper = styled.div`
   ${({ theme }) => theme.mediaWidth.upToMedium`
     flex-direction: column-reverse;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 12px;
 
     ${TimeText} {
       font-size: 12px;
@@ -52,18 +52,41 @@ const AlertConditionWrapper = styled.div`
   `}
 `
 
+const SupplementaryTextWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 12px 16px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+
+  font-size: 12px;
+  white-space: nowrap;
+  line-height: 16px;
+  color: ${({ theme }) => theme.subText};
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    flex-direction: column;
+    ${EmptySupplementaryText} {
+      display: none;
+    }
+  `}
+`
+
+const EmptySupplementaryText = styled.span``
+
 type Props = {
-  className?: string
   renderToggle?: () => React.ReactNode
   renderDeleteButton?: () => React.ReactNode
   timeText?: React.ReactNode
-} & (Pick<PriceAlert, 'note'> & Partial<Pick<PriceAlert, 'disableAfterTrigger'>> & AlertConditionProps)
+  isHistorical?: boolean
+  alertData: Pick<PriceAlert, 'note'> & Partial<Pick<PriceAlert, 'disableAfterTrigger'>> & AlertConditionData
+}
 const CommonSingleAlert: React.FC<Props> = ({
-  className,
   renderToggle,
   renderDeleteButton,
   timeText,
-  ...alertData
+  isHistorical = false,
+  alertData,
 }) => {
   const theme = useTheme()
   return (
@@ -96,24 +119,13 @@ const CommonSingleAlert: React.FC<Props> = ({
       </Flex>
 
       <AlertConditionWrapper>
-        <AlertCondition {...alertData} />
+        <AlertCondition alertData={alertData} shouldIncludePrefix={!isHistorical} />
 
         <TimeText>{timeText}</TimeText>
       </AlertConditionWrapper>
 
       {alertData.note || alertData.disableAfterTrigger ? (
-        <Flex
-          sx={{
-            fontSize: '12px',
-            color: theme.subText,
-            whiteSpace: 'nowrap',
-            lineHeight: '20px',
-            rowGap: '8px',
-            columnGap: '16px',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-          }}
-        >
+        <SupplementaryTextWrapper>
           {alertData.note ? (
             <Text
               as="span"
@@ -124,7 +136,9 @@ const CommonSingleAlert: React.FC<Props> = ({
             >
               <Trans>Note</Trans>: {alertData.note}
             </Text>
-          ) : null}
+          ) : (
+            <EmptySupplementaryText />
+          )}
 
           {alertData.disableAfterTrigger ? (
             <Text
@@ -135,8 +149,10 @@ const CommonSingleAlert: React.FC<Props> = ({
             >
               <Trans>This alert will be disabled after its triggered once</Trans>
             </Text>
-          ) : null}
-        </Flex>
+          ) : (
+            <EmptySupplementaryText />
+          )}
+        </SupplementaryTextWrapper>
       ) : null}
     </Wrapper>
   )

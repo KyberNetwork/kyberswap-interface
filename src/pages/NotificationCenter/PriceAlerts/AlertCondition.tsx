@@ -9,7 +9,7 @@ import TokenInlineDisplay from 'pages/NotificationCenter/PriceAlerts/TokenInline
 import { PriceAlert } from 'pages/NotificationCenter/const'
 import { uint256ToFraction } from 'utils/numbers'
 
-export type Props = Pick<
+export type AlertConditionData = Pick<
   PriceAlert,
   | 'tokenInSymbol'
   | 'tokenInLogoURL'
@@ -21,7 +21,12 @@ export type Props = Pick<
   | 'chainId'
 > &
   Partial<Pick<PriceAlert, 'tokenInDecimals'>>
-const AlertCondition: React.FC<Props> = alertData => {
+
+export type Props = {
+  alertData: AlertConditionData
+  shouldIncludePrefix: boolean
+}
+const AlertCondition: React.FC<Props> = ({ alertData, shouldIncludePrefix }) => {
   const theme = useTheme()
   const rawChainId = alertData.chainId
   const chainId = Number(rawChainId) as ChainId
@@ -42,7 +47,7 @@ const AlertCondition: React.FC<Props> = alertData => {
         lineHeight: '20px',
       }}
     >
-      <Trans>Alert when the price of</Trans>
+      {shouldIncludePrefix && <Trans>Alert when the price of</Trans>}
       <TokenInlineDisplay
         symbol={alertData.tokenInSymbol}
         logoUrl={alertData.tokenInLogoURL}
