@@ -18,7 +18,7 @@ import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useNotification, { Topic } from 'hooks/useNotification'
 import useTheme from 'hooks/useTheme'
-import { useNotificationModalToggle, useNotify } from 'state/application/hooks'
+import { useNotify } from 'state/application/hooks'
 import { pushUnique } from 'utils'
 import { subscribeTelegramSubscription } from 'utils/firebase'
 import getShortenAddress from 'utils/getShortenAddress'
@@ -119,6 +119,9 @@ enum TAB {
 //   },
 // ]
 
+const noop = () => {
+  //
+}
 const isEmailValid = (value: string) => value.match(/\S+@\S+\.\S+/)
 
 const sortGroup = (arr: Topic[]) => [...arr].sort((x, y) => y.priority - x.priority)
@@ -127,12 +130,13 @@ function NotificationPreference({
   header,
   isOpen,
   isInNotificationCenter,
+  toggleModal = noop,
 }: {
   header?: ReactNode
   isOpen: boolean
   isInNotificationCenter?: boolean
+  toggleModal?: () => void
 }) {
-  const toggleModal = useNotificationModalToggle()
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const {

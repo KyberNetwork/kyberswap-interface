@@ -10,7 +10,7 @@ export default function NotificationModal() {
 
   return (
     <Modal isOpen={isOpen} onDismiss={toggleModal} minHeight={false} maxWidth={450}>
-      <NotificationPreference isOpen={isOpen} />
+      <NotificationPreference isOpen={isOpen} toggleModal={toggleModal} />
     </Modal>
   )
 }
