@@ -147,8 +147,11 @@ export function subscribePrivateAnnouncement(
   callback: (data: PopupContentAnnouncement[]) => void,
 ) {
   if (!account) return
-  return subscribeDocument(dbNotification, COLLECTIONS.ANNOUNCEMENT, [account.toLowerCase()], data =>
-    callback(data?.metaMessages ?? []),
+  return subscribeListDocument(
+    dbNotification,
+    COLLECTIONS.ANNOUNCEMENT,
+    [account.toLowerCase(), 'metaMessages'],
+    data => callback(data ?? []),
   )
 }
 

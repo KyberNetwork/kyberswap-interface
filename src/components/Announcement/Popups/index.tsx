@@ -4,7 +4,7 @@ import styled from 'styled-components'
 
 import CenterPopup from 'components/Announcement/Popups/CenterPopup'
 import SnippetPopup from 'components/Announcement/Popups/SnippetPopup'
-import { PopupType } from 'components/Announcement/type'
+import { PopupType, PrivateAnnouncementType } from 'components/Announcement/type'
 import { ButtonEmpty } from 'components/Button'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
@@ -15,7 +15,7 @@ import {
   useToggleNotificationCenter,
 } from 'state/application/hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
-import { subscribeAnnouncement } from 'utils/firebase'
+import { subscribeAnnouncement, subscribePrivateAnnouncement } from 'utils/firebase'
 
 import PopupItem from './TopRightPopup'
 
@@ -90,7 +90,18 @@ export default function Popups() {
       isInit.current = true
     })
 
-    return () => unsubscribe?.()
+    const unsubscribePrivate = subscribePrivateAnnouncement(account, data => {
+      data.forEach(item => {
+        if (item.templateType === PrivateAnnouncementType.PRICE_ALERT) {
+          // only support price alert
+          addPopup(item, PopupType.TOP_RIGHT, item.metaMessageId, null)
+        }
+      })
+    })
+    return () => {
+      unsubscribe?.()
+      unsubscribePrivate?.()
+    }
   }, [account, isShowTutorial, addPopup, chainId])
 
   const totalTopRightPopup = topRightPopups.length

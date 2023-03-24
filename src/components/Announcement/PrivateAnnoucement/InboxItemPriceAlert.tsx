@@ -10,8 +10,21 @@ import { useNavigateCtaPopup } from 'components/Announcement/helper'
 import { AnnouncementTemplatePriceAlert, PrivateAnnouncementType } from 'components/Announcement/type'
 import { ButtonLight } from 'components/Button'
 import DeltaTokenAmount from 'components/WalletPopup/Transactions/DeltaTokenAmount'
+import { APP_PATHS } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
-import { PriceAlertType } from 'pages/NotificationCenter/const'
+import { HistoricalPriceAlert, PriceAlertType } from 'pages/NotificationCenter/const'
+import { convertToSlug } from 'utils/string'
+
+const getSwapUrlPriceAlert = (alert: HistoricalPriceAlert) => {
+  const { tokenInSymbol, chainId: rawChainId, swapURL } = alert
+  const chainId = Number(rawChainId) as ChainId
+  console.log(swapURL) // todo danh
+  return swapURL
+  return `${APP_PATHS.SWAP}/${NETWORKS_INFO[chainId].route}/${convertToSlug(tokenInSymbol)}-to-${convertToSlug(
+    'dai',
+  )}?symbol=1`
+}
 
 function InboxItemBridge({
   announcement,
@@ -31,13 +44,12 @@ function InboxItemBridge({
     chainId: rawChainId,
     tokenInAmount,
     threshold,
-    swapURL,
   } = templateBody.alert
   const chainId = Number(rawChainId) as ChainId
 
   const navigate = useNavigateCtaPopup()
   const onClick = () => {
-    navigate(swapURL, chainId)
+    navigate(getSwapUrlPriceAlert(templateBody.alert), chainId)
     onRead(announcement, 'price_alert')
   }
 

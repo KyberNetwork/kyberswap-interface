@@ -6,7 +6,7 @@ import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/useChangeNetwork'
 
 const LsKey = 'ack-announcements'
-const getAnnouncementsAckMap = () => JSON.parse(localStorage[LsKey] || '{}')
+export const getAnnouncementsAckMap = () => JSON.parse(localStorage[LsKey] || '{}')
 
 export const ackAnnouncementPopup = (id: string | number) => {
   const announcementsMap = getAnnouncementsAckMap()
