@@ -7,6 +7,7 @@ import { GetRouteParams, GetRouteResponse } from './types/getRoute'
 const routeApi = createApi({
   reducerPath: 'routeApi',
   baseQuery: fetchBaseQuery({ baseUrl: '' }),
+  tagTypes: ['GetRoute'],
   endpoints: builder => ({
     getRoute: builder.query<
       GetRouteResponse,
@@ -19,6 +20,7 @@ const routeApi = createApi({
         url,
         params,
       }),
+      keepUnusedDataFor: 5,
     }),
   }),
 })
