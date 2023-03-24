@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import React, { CSSProperties, ReactNode, useRef } from 'react'
+import React, { CSSProperties, ReactNode, useRef, useState } from 'react'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -34,11 +34,20 @@ export const SectionTitle = styled.div`
   font-weight: 500;
   color: ${({ theme }) => theme.text};
 `
-export const SectionDescription = styled.div`
+export const SectionDescription = styled.div<{ show?: boolean }>`
   font-size: 12px;
   line-height: 16px;
   font-style: italic;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  flex: 1;
   color: ${({ theme }) => theme.subText};
+  ${({ show }) =>
+    show &&
+    css`
+      white-space: initial;
+    `}
 `
 export const ContentWrapper = styled.div`
   content-visibility: auto;
@@ -112,6 +121,12 @@ export const SectionWrapper = ({
   const theme = useTheme()
   const ref = useRef<HTMLDivElement>(null)
   const above768 = useMedia(`(min-width:${MEDIA_WIDTHS.upToSmall}px)`)
+  const [showText, setShowText] = useState(false)
+
+  const descriptionRef = useRef<HTMLDivElement>(null)
+
+  const isTextExceeded =
+    descriptionRef.current && descriptionRef.current?.clientWidth < descriptionRef.current?.scrollWidth
 
   return (
     <StyledSectionWrapper show={show} ref={ref} id={id} style={style}>
@@ -140,7 +155,24 @@ export const SectionWrapper = ({
               </RowFit>
             </RowBetween>
           </SectionTitle>
-          <SectionDescription dangerouslySetInnerHTML={{ __html: description || '' }} />
+          <Row gap="4px">
+            <SectionDescription
+              dangerouslySetInnerHTML={{ __html: description || '' }}
+              show={showText}
+              ref={descriptionRef}
+            />
+            {!showText && isTextExceeded && (
+              <Text
+                fontSize="12px"
+                color={theme.primary}
+                width="fit-content"
+                style={{ cursor: 'pointer', flexBasis: 'fit-content', whiteSpace: 'nowrap' }}
+                onClick={() => setShowText(true)}
+              >
+                Read more
+              </Text>
+            )}
+          </Row>
           {children || <></>}
         </>
       ) : (
