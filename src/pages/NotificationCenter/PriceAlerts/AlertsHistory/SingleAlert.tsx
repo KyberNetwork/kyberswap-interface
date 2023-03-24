@@ -22,7 +22,8 @@ const SingleAlert: React.FC<Props> = ({ historicalAlert }) => {
         />
       )}
       timeText={dayjs(historicalAlert.sentAt * 1000).format('DD/MM/YYYY hh:mm:ss')}
-      {...historicalAlert}
+      alertData={historicalAlert}
+      isHistorical
     />
   )
 }

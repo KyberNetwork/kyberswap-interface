@@ -43,7 +43,7 @@ const SingleAlert: React.FC<Props> = ({ alert, isMaxQuotaActiveAlert }) => {
           <Trans>Cooldown</Trans>: {formatCooldown(alert.cooldown)}
         </>
       }
-      {...alert}
+      alertData={alert}
     />
   )
 }
