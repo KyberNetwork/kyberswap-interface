@@ -445,7 +445,7 @@ function NotificationPreference({
             <Input
               $borderColor={errorColor}
               value={inputEmail}
-              placeholder="example@gmail.com"
+              placeholder="example@email.com"
               onChange={onChangeInput}
             />
             {isVerifiedEmail && hasTopicSubscribed && <CheckIcon color={theme.primary} />}

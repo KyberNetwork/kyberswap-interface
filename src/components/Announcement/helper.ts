@@ -48,6 +48,10 @@ export const useNavigateCtaPopup = () => {
   const changeNetwork = useChangeNetwork()
 
   const redirect = (actionURL: string) => {
+    if (actionURL && actionURL.startsWith('/')) {
+      navigate(actionURL)
+      return
+    }
     const { pathname, host } = new URL(actionURL)
     if (window.location.host === host) {
       navigate(pathname)
