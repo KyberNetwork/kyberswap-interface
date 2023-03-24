@@ -1,21 +1,28 @@
 import { Trans } from '@lingui/macro'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import { useGetAlertStatsQuery } from 'services/priceAlert'
 import styled, { useTheme } from 'styled-components'
 
 import { ButtonLight, ButtonOutlined } from 'components/Button'
 import Loader from 'components/Loader'
+import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { Tab } from 'pages/NotificationCenter/PriceAlerts'
 import CreateAlertButton from 'pages/NotificationCenter/PriceAlerts/CreateAlertButton'
-import DeleteAllAlertsButton from 'pages/NotificationCenter/PriceAlerts/DeleteAllAlertsButton'
+import { NOTIFICATION_ROUTES, PRICE_ALERTS_ROUTES } from 'pages/NotificationCenter/const'
 
-const TabButton: React.FC<{ isActive: boolean; onClick: () => void; children: React.ReactNode }> = ({
-  isActive,
-  onClick,
-  children,
-}) => {
+const TabButton: React.FC<{ href: PRICE_ALERTS_ROUTES; children: React.ReactNode }> = ({ href, children }) => {
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  const path = `${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.PRICE_ALERTS}${href}`
+  const isActive = location.pathname === path
+
   const Button = isActive ? ButtonLight : ButtonOutlined
+
+  const onClick = () => {
+    navigate(path)
+  }
 
   return (
     <Button
@@ -77,10 +84,9 @@ const Wrapper = styled.div`
 `
 
 type Props = {
-  currentTab: Tab
-  setCurrentTab: (t: Tab) => void
+  renderDeleteAllButton: () => React.ReactNode
 }
-const Header: React.FC<Props> = ({ currentTab, setCurrentTab }) => {
+const Header: React.FC<Props> = ({ renderDeleteAllButton }) => {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
 
@@ -94,10 +100,10 @@ const Header: React.FC<Props> = ({ currentTab, setCurrentTab }) => {
             gap: '0.5rem',
           }}
         >
-          <TabButton isActive={currentTab === Tab.ACTIVE} onClick={() => setCurrentTab(Tab.ACTIVE)}>
+          <TabButton href={PRICE_ALERTS_ROUTES.ACTIVE}>
             <Trans>Active Alerts</Trans>
           </TabButton>
-          <TabButton isActive={currentTab === Tab.HISTORY} onClick={() => setCurrentTab(Tab.HISTORY)}>
+          <TabButton href={PRICE_ALERTS_ROUTES.HISTORY}>
             <Trans>Alerts History</Trans>
           </TabButton>
         </Flex>
@@ -108,7 +114,7 @@ const Header: React.FC<Props> = ({ currentTab, setCurrentTab }) => {
             gap: '1rem',
           }}
         >
-          <DeleteAllAlertsButton currentTab={currentTab} />
+          {renderDeleteAllButton()}
           <CreateAlertButton />
         </Flex>
       </Flex>

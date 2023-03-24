@@ -19,6 +19,11 @@ export enum NOTIFICATION_ROUTES {
   TRENDING_SOON_TOKENS = '/trending-soon',
 }
 
+export enum PRICE_ALERTS_ROUTES {
+  ACTIVE = '/active',
+  HISTORY = '/history',
+}
+
 export type CreatePriceAlertPayload = {
   walletAddress: string
   chainId: string

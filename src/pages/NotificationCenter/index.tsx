@@ -103,6 +103,7 @@ function NotificationCenter() {
             <Route path={NOTIFICATION_ROUTES.OVERVIEW} element={<Overview />} />
             <Route path={NOTIFICATION_ROUTES.GENERAL} element={<GeneralAnnouncement />} />
             <Route path={NOTIFICATION_ROUTES.PRICE_ALERTS} element={<PriceAlerts />} />
+            <Route path={`${NOTIFICATION_ROUTES.PRICE_ALERTS}/*`} element={<PriceAlerts />} />
             <Route path={NOTIFICATION_ROUTES.MY_ELASTIC_POOLS} element={<div>My Elastic Pools</div>} />
             <Route path={NOTIFICATION_ROUTES.LIMIT_ORDERS} element={<div>Limit Orders</div>} />
             <Route path={NOTIFICATION_ROUTES.BRIDGE} element={<div>Cross-Chain Bridge</div>} />

@@ -1,18 +1,11 @@
-import { stringify } from 'querystring'
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 import styled from 'styled-components'
 
-import useParsedQueryString from 'hooks/useParsedQueryString'
+import { APP_PATHS } from 'constants/index'
 import ActiveAlerts from 'pages/NotificationCenter/PriceAlerts/ActiveAlerts'
 import AlertsHistory from 'pages/NotificationCenter/PriceAlerts/AlertsHistory'
-import Header from 'pages/NotificationCenter/PriceAlerts/Header'
 import TitleOnMobile from 'pages/NotificationCenter/PriceAlerts/TitleOnMobile'
-
-export enum Tab {
-  ACTIVE = 'active',
-  HISTORY = 'history',
-}
+import { NOTIFICATION_ROUTES, PRICE_ALERTS_ROUTES } from 'pages/NotificationCenter/const'
 
 export const ShareWrapper = styled.div`
   display: flex;
@@ -41,21 +34,23 @@ export const ShareContentWrapper = styled.div`
 `
 
 const PriceAlerts = () => {
-  const { tab, ...rest } = useParsedQueryString<{ tab: Tab }>()
-  const [currentTab, setCurrentTab] = useState(tab || Tab.ACTIVE)
-  const navigate = useNavigate()
-  const onSetTab = (tab: Tab) => {
-    setCurrentTab(tab)
-    const search = { ...rest, tab }
-    navigate({ search: stringify(search) }, { replace: true })
-  }
-
   return (
     <ShareWrapper>
       <TitleOnMobile />
       <ShareContentWrapper>
-        <Header currentTab={currentTab} setCurrentTab={onSetTab} />
-        {currentTab === Tab.ACTIVE ? <ActiveAlerts /> : <AlertsHistory />}
+        <Routes>
+          <Route index path={PRICE_ALERTS_ROUTES.ACTIVE} element={<ActiveAlerts />} />
+          <Route path={PRICE_ALERTS_ROUTES.HISTORY} element={<AlertsHistory />} />
+          <Route
+            path="*"
+            element={
+              <Navigate
+                replace
+                to={`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.PRICE_ALERTS}${PRICE_ALERTS_ROUTES.ACTIVE}`}
+              />
+            }
+          />
+        </Routes>
       </ShareContentWrapper>
     </ShareWrapper>
   )
