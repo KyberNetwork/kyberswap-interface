@@ -1,7 +1,9 @@
 import { ChainId, Currency, WETH } from '@kyberswap/ks-sdk-core'
 import { ethers } from 'ethers'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { parseGetRouteResponse } from 'services/route/utils'
 
+import useGetRoute, { ArgsGetRoute, useGetRouteSolana } from 'components/SwapForm/hooks/useGetRoute'
 import { GAS_AMOUNT_ETHEREUM } from 'components/swapv2/LimitOrder/const'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useInterval from 'hooks/useInterval'
@@ -80,4 +82,29 @@ export function useBaseTradeInfoLimitOrder(currencyIn: Currency | undefined, cur
   useInterval(fetchGasFee, nativePriceUsd ? 15_000 : 2000)
 
   return { loading, tradeInfo: { ...tradeInfo, gasFee } as BaseTradeInfoLO }
+}
+
+export const useBaseTradeInfoWithAggregator = (args: ArgsGetRoute) => {
+  const { currencyIn, currencyOut, customChain } = args
+  const { fetcher: getRouteEvm, result } = useGetRoute(args)
+  const { fetcher: getRouteSolana, result: executionPriceSolana } = useGetRouteSolana(args)
+  const isSolana = customChain === ChainId.SOLANA
+
+  const getRoute = isSolana ? getRouteSolana : getRouteEvm
+
+  useEffect(() => {
+    getRoute()
+  }, [getRoute])
+
+  const executionPrice = useMemo(() => {
+    if (!result?.data?.data || result.error || !currencyIn || !currencyOut) {
+      return undefined
+    }
+    return parseGetRouteResponse(result.data.data, currencyIn, currencyOut)?.routeSummary?.executionPrice
+  }, [currencyIn, currencyOut, result])
+
+  return {
+    fetcher: getRoute,
+    result: (isSolana ? executionPriceSolana : executionPrice) || undefined,
+  }
 }

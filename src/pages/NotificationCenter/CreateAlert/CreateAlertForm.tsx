@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from 'react'
 import { ArrowDown, ArrowUp, Info } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import { useCreatePriceAlertMutation } from 'services/priceAlert'
-import { parseGetRouteResponse } from 'services/route/utils'
 import { CSSProperties } from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -14,12 +13,12 @@ import { Clock } from 'components/Icons'
 import { NetworkLogo } from 'components/Logo'
 import Row, { RowBetween } from 'components/Row'
 import RefreshButton from 'components/SwapForm/RefreshButton'
-import useGetRoute from 'components/SwapForm/hooks/useGetRoute'
 import { MouseoverTooltip } from 'components/Tooltip'
 import TradePrice from 'components/swapv2/TradePrice'
 import { ETHER_ADDRESS, ETHER_ADDRESS_SOLANA } from 'constants/index'
 import { isEVM as isEvmChain } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
+import { useBaseTradeInfoWithAggregator } from 'hooks/useBaseTradeInfo'
 import useTheme from 'hooks/useTheme'
 import {
   ActionGroup,
@@ -82,7 +81,7 @@ export default function CreateAlert({
     () => tryParseAmount(formInput.tokenInAmount, currencyIn),
     [formInput.tokenInAmount, currencyIn],
   )
-  const { fetcher: getRoute, result } = useGetRoute({
+  const { fetcher: getRoute, result: executionPrice } = useBaseTradeInfoWithAggregator({
     currencyIn,
     currencyOut,
     parsedAmount,
@@ -90,17 +89,6 @@ export default function CreateAlert({
     feeConfig: undefined,
     customChain: selectedChain,
   })
-
-  useEffect(() => {
-    getRoute()
-  }, [getRoute])
-
-  const executionPrice = useMemo(() => {
-    if (!result?.data?.data || result.error) {
-      return undefined
-    }
-    return parseGetRouteResponse(result.data.data, currencyIn, currencyOut)?.routeSummary?.executionPrice
-  }, [currencyIn, currencyOut, result])
 
   const onChangeInput = (name: string, val: string) => {
     if (name === 'threshold' && val.includes('.')) {
@@ -330,7 +318,7 @@ export default function CreateAlert({
             label={t`Note: The current price is `}
             price={executionPrice}
             color={theme.text}
-            icon={<RefreshButton shouldDisable={!executionPrice} callback={getRoute} size={16} />}
+            icon={<RefreshButton shouldDisable={!executionPrice} callback={getRoute} size={16} skipFirst />}
           />
         </LeftColumn>
 
