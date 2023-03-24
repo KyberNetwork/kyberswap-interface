@@ -527,6 +527,7 @@ export default function Menu() {
                 navigate(`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.OVERVIEW}`)
                 mixpanelHandler(MIXPANEL_TYPE.NOTIFICATION_CLICK_MENU)
                 handlePreferenceClickMixpanel('Notifications')
+                toggle()
               }}
             >
               <Trans>Notification Center</Trans>
