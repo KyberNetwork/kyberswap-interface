@@ -7,12 +7,12 @@ import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import { ButtonGray, ButtonPrimary } from 'components/Button'
-import { Ethereum } from 'components/Icons'
 import Icon from 'components/Icons/Icon'
 import { DotsLoader } from 'components/Loader/DotsLoader'
 import Logo from 'components/Logo'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import ShareModal from 'components/ShareModal'
+import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
@@ -169,10 +169,34 @@ export default function SingleToken() {
   const RenderHeader = () => {
     const TokenNameGroup = () => (
       <>
-        <ButtonIcon onClick={() => navigate('/discover')}>
+        <ButtonIcon onClick={() => navigate(APP_PATHS.KYBERAI_RANKINGS)}>
           <ChevronLeft size={24} />
         </ButtonIcon>
-        <Logo srcs={['https://assets.coingecko.com/coins/images/7598/thumb/wrapped_bitcoin_wbtc.png?1548822744']} />
+        <div style={{ position: 'relative' }}>
+          <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
+            <Logo
+              srcs={['https://cryptologos.cc/logos/wrapped-bitcoin-wbtc-logo.svg?v=024']}
+              style={{ width: '36px', height: '36px', background: 'white', display: 'block' }}
+            />
+          </div>
+          <div
+            style={{
+              position: 'absolute',
+              top: '-4px',
+              right: '-4px',
+              borderRadius: '50%',
+              border: `1px solid ${theme.background}`,
+            }}
+          >
+            <img
+              src="https://icons.iconarchive.com/icons/cjdowner/cryptocurrency-flat/512/Ethereum-ETH-icon.png"
+              alt="eth"
+              width="16px"
+              height="16px"
+              style={{ display: 'block' }}
+            />
+          </div>
+        </div>
         {isLoading ? (
           <DotsLoader />
         ) : (
@@ -180,7 +204,6 @@ export default function SingleToken() {
             <Text fontSize={24} color={theme.text} fontWeight={500}>
               {data?.name}
             </Text>
-            <Ethereum size={20} />
           </>
         )}
       </>

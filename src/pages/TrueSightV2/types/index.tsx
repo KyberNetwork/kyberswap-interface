@@ -67,6 +67,15 @@ export interface IPagination {
   totalItems: number
 }
 
+export interface OHLCData {
+  close: number
+  high: number
+  open: number
+  low: number
+  volume24H: number
+  timestamp: number
+}
+
 export enum DiscoverTokenTab {
   OnChainAnalysis = 'On-Chain Analysis',
   TechnicalAnalysis = 'Technical Analysis',

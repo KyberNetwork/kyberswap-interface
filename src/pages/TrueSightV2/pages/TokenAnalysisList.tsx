@@ -371,7 +371,6 @@ const TokenRow = ({ token }: { token: any }) => {
   const theme = useTheme()
   const [showMenu, setShowMenu] = useState(false)
   const rowRef = useRef<HTMLTableRowElement>(null)
-  //navigate('/discover/single-token/' + testParams.address)
   useOnClickOutside(rowRef, () => setShowMenu(false))
   return (
     <tr key={token.id} ref={rowRef}>
@@ -394,7 +393,7 @@ const TokenRow = ({ token }: { token: any }) => {
           <Column
             gap="8px"
             style={{ cursor: 'pointer', alignItems: 'flex-start' }}
-            onClick={() => navigate('/discover/single-token')}
+            onClick={() => navigate(APP_PATHS.KYBERAI_EXPLORE)}
           >
             <Text>{token.symbol}</Text>{' '}
             <RowFit gap="6px" color={theme.text}>
@@ -443,49 +442,49 @@ const TokenRow = ({ token }: { token: any }) => {
           <MenuDropdown className={showMenu ? 'show' : ''} gap="12px" color={theme.text}>
             <div
               onClick={() => {
-                navigate('/discover/single-token/' + testParams.address)
+                navigate(APP_PATHS.KYBERAI_EXPLORE + testParams.address)
               }}
             >
               <Icon id="eth-mono" size={16} title="Ethereum" />
             </div>
             <div
               onClick={() => {
-                navigate('/discover/single-token/' + testParams.address)
+                navigate(APP_PATHS.KYBERAI_EXPLORE + testParams.address)
               }}
             >
               <Icon id="bnb-mono" size={16} title="Binance" />
             </div>
             <div
               onClick={() => {
-                navigate('/discover/single-token/' + testParams.address)
+                navigate(APP_PATHS.KYBERAI_EXPLORE + testParams.address)
               }}
             >
               <Icon id="ava-mono" size={16} title="Avalance" />
             </div>
             <div
               onClick={() => {
-                navigate('/discover/single-token/' + testParams.address)
+                navigate(APP_PATHS.KYBERAI_EXPLORE + testParams.address)
               }}
             >
               <Icon id="matic-mono" size={16} title="Polygon" />
             </div>
             <div
               onClick={() => {
-                navigate('/discover/single-token/' + testParams.address)
+                navigate(APP_PATHS.KYBERAI_EXPLORE + testParams.address)
               }}
             >
               <Icon id="arbitrum-mono" size={16} title="Arbitrum" />
             </div>
             <div
               onClick={() => {
-                navigate('/discover/single-token/' + testParams.address)
+                navigate(APP_PATHS.KYBERAI_EXPLORE + testParams.address)
               }}
             >
               <Icon id="fantom-mono" size={16} title="Fantom" />
             </div>
             <div
               onClick={() => {
-                navigate('/discover/single-token/' + testParams.address)
+                navigate(APP_PATHS.KYBERAI_EXPLORE + testParams.address)
               }}
             >
               <Icon id="optimism-mono" size={16} title="Optimism" />

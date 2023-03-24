@@ -7,6 +7,7 @@ import styled from 'styled-components'
 
 import Icon from 'components/Icons/Icon'
 import Row from 'components/Row'
+import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
@@ -42,7 +43,7 @@ const TrendingSoonTokenBanner = ({
         <BannerText>
           {currencySymbol} <Trans>seems bullish right now.</Trans>{' '}
           <ExternalLink
-            href={window.location.origin + '/discover/single-token'}
+            href={window.location.origin + APP_PATHS.KYBERAI_EXPLORE}
             target="_blank"
             onClickCapture={() => {
               mixpanelHandler(MIXPANEL_TYPE.DISCOVER_SWAP_SEE_HERE_CLICKED, { trending_token: currencySymbol })

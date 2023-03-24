@@ -22,7 +22,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import { PoolResponse, useGetPoolDetailQuery } from 'services/geckoTermial'
+import { PoolResponse } from 'services/geckoTermial'
 import styled, { css } from 'styled-components'
 
 import Column from 'components/Column'
@@ -634,7 +634,7 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
                         <Text fontSize="12px" lineHeight="16px" color={theme.text}>
                           Netflow: <span style={{ color: theme.text }}>${formatNum(payload.netflow)}</span>
                         </Text>
-                        <Row gap="8px">
+                        <Row gap="16px">
                           <Column gap="4px">
                             <Text fontSize="12px" lineHeight="16px" color={theme.text}>
                               Wallet
@@ -837,7 +837,7 @@ export const NetflowToCentralizedExchanges = ({ tab }: { tab?: ChartTab }) => {
                     <Text fontSize="12px" lineHeight="16px" color={theme.text}>
                       Netflow: <span style={{ color: theme.text }}>${formatNum(payload.netflow)}</span>
                     </Text>
-                    <Row gap="8px">
+                    <Row gap="16px">
                       <Column gap="4px">
                         <Text fontSize="12px" lineHeight="16px" color={theme.text}>
                           Wallet
@@ -1385,7 +1385,7 @@ export const LiquidOnCentralizedExchanges = () => {
                       <Text fontSize="12px" lineHeight="16px" color={theme.text}>
                         Price: <span style={{ color: theme.text }}>${commify(+payload.price.toFixed(2))}</span>
                       </Text>
-                      <Row gap="8px">
+                      <Row gap="12px">
                         <Column gap="4px">
                           <Text fontSize="12px" lineHeight="16px" color={theme.text}>
                             Site
@@ -1479,7 +1479,7 @@ const ProLiveChartWrapper = styled.div<{ fullscreen: boolean }>`
   `}
 `
 
-const Prochart = ({ poolDetail }: { poolDetail: PoolResponse }) => {
+const Prochart = ({ poolDetail }: { poolDetail?: PoolResponse }) => {
   const theme = useTheme()
   const [ref, setRef] = useState<HTMLDivElement | null>(null)
   const [fullscreen, setFullscreen] = useState(false)
@@ -1576,14 +1576,7 @@ const Prochart = ({ poolDetail }: { poolDetail: PoolResponse }) => {
     </ProLiveChartWrapper>
   )
 }
-export const PriceChart = () => {
-  const { data: poolDetail } = useGetPoolDetailQuery(
-    { poolAddress: '0x99ac8ca7087fa4a2a1fb6357269965a2014abc35', network: 'eth' },
-    {
-      skip: !'0x99ac8ca7087fa4a2a1fb6357269965a2014abc35',
-    },
-  )
-  if (!poolDetail) return <></>
 
-  return <Prochart poolDetail={poolDetail}></Prochart>
+export const PriceChart = () => {
+  return <Prochart></Prochart>
 }

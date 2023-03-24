@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 import { TRUESIGHT_V2_API } from 'constants/env'
 
 import { testParams } from '../pages/SingleToken'
-import { INetflowToWhaleWallets, INumberOfTrades, ITokenOverview, ITradeVolume } from '../types'
+import { INetflowToWhaleWallets, INumberOfTrades, ITokenOverview, ITradeVolume, OHLCData } from '../types'
 import { HOLDER_LIST, TOKEN_LIST } from './sampleData'
 
 const truesightV2Api = createApi({
@@ -89,6 +89,17 @@ const truesightV2Api = createApi({
       }),
       transformResponse: (res: any) => HOLDER_LIST,
     }),
+    //11.
+    charingData: builder.query<OHLCData[], { from: number; to: number }>({
+      query: ({ from, to }) => ({
+        url: `/ohlcv/ethereum/0xdac17f958d2ee523a2206206994597c13d831ec7?currency=USD&from=${from}&to=${to}&candleSize=1h`,
+      }),
+      transformResponse: (res: any) => {
+        if (res.code === 0) {
+          return res.data.ohlc
+        }
+      },
+    }),
     //14.
     liveDexTrades: builder.query({
       query: () => ({ url: "/live-trades/ethereum/0xdefa4e8a7bcba345f687a2f1456f5edd9ce97202'" }),
@@ -158,6 +169,7 @@ export const {
   useHolderListQuery,
   useTokenListQuery,
   useLiveDexTradesQuery,
+  useLazyCharingDataQuery,
 } = truesightV2Api
 export const { useCexesLiquidationQuery, useCexesInfoQuery, useFundingRateQuery } = coinglassApi
 export default truesightV2Api

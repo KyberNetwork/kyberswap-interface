@@ -10,6 +10,7 @@ import {
   SubscribeBarsCallback,
   Timezone,
 } from 'components/TradingViewChart/charting_library'
+import { useLazyCharingDataQuery } from 'pages/TrueSightV2/hooks/useTruesightV2Data'
 
 import dataJson from './../chart/candles.json'
 
@@ -19,7 +20,7 @@ const configurationData = {
 
 export const useDatafeed = () => {
   const intervalRef = useRef<any>()
-
+  const [getChartingData, { isLoading }] = useLazyCharingDataQuery()
   useEffect(() => {
     return () => {
       if (intervalRef.current) {
@@ -72,21 +73,14 @@ export const useDatafeed = () => {
         onHistoryCallback: HistoryCallback,
         _onErrorCallback: ErrorCallback,
       ) => {
-        if (periodParams.to * 1000 < 1674409500000) {
-          onHistoryCallback([], { noData: true })
-          return
-        }
-        onHistoryCallback(
-          dataJson?.map((item: any) => ({
-            time: item.time,
-            open: item.open,
-            high: Math.min(item.high, item.close * 1.1),
-            close: item.close,
-            low: Math.max(item.low, item.close / 1.1),
-            volume: item.volume,
-          })) || [],
-          { noData: true },
-        )
+        if (isLoading) return
+        const data = await getChartingData({
+          from: periodParams.from,
+          to: periodParams.to,
+        })
+        console.log('🚀 ~ file: datafeed.tsx:81 ~ returnuseMemo ~ data:', data)
+
+        onHistoryCallback([], { noData: true })
       },
       searchSymbols: () => {
         //
@@ -120,5 +114,5 @@ export const useDatafeed = () => {
         //
       },
     }
-  }, [])
+  }, [isLoading, getChartingData])
 }
