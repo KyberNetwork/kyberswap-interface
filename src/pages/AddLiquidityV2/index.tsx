@@ -12,7 +12,7 @@ import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 
 import { ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
-import { OutlineCard, WarningCard } from 'components/Card'
+import { OutlineCard, SubTextCard, WarningCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import FeeSelector from 'components/FeeSelector'
@@ -713,7 +713,7 @@ export default function AddLiquidity() {
   const warning = (
     <Flex flexDirection="column" sx={{ gap: '12px' }} alignItems="flex-end" maxWidth={chartRef?.current?.clientWidth}>
       {noLiquidity && (
-        <WarningCard padding="10px 16px">
+        <SubTextCard padding="10px 16px">
           <Flex alignItems="center">
             <TYPE.black ml="12px" fontSize="12px" flex={1}>
               <Trans>
@@ -729,7 +729,7 @@ export default function AddLiquidity() {
               </Trans>
             </TYPE.black>
           </Flex>
-        </WarningCard>
+        </SubTextCard>
       )}
       {isPriceDeviated && (
         <WarningCard padding="10px 16px">
