@@ -31,9 +31,9 @@ type Props = {
   shouldDisable: boolean
   callback: () => void
   size?: number
-  abort: () => void
+  abort?: () => void
 }
-const RefreshButton: React.FC<Props> = ({ shouldDisable, callback, size }) => {
+const RefreshButton: React.FC<Props> = ({ shouldDisable, callback, size, abort }) => {
   const svgRef = useRef<SVGSVGElement>(null)
 
   useEffect(() => {
@@ -44,7 +44,7 @@ const RefreshButton: React.FC<Props> = ({ shouldDisable, callback, size }) => {
     }
 
     if (shouldDisable) {
-      abort()
+      abort?.()
 
       // reset svg animate duration to 0 and PAUSE animations
       element.setCurrentTime(0)
