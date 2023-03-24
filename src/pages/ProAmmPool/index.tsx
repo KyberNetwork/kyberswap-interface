@@ -19,6 +19,7 @@ import { APP_PATHS, PROMM_ANALYTICS_URL } from 'constants/index'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
+import { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useFarmPositions, useProAmmPositions } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
@@ -30,7 +31,7 @@ import { PositionDetails } from 'types/position'
 import ContentLoader from './ContentLoader'
 import PositionGrid from './PositionGrid'
 
-const Hightlight = styled.span`
+const Highlight = styled.span`
   color: ${({ theme }) => theme.text};
 `
 
@@ -61,19 +62,18 @@ interface AddressSymbolMapInterface {
 }
 
 const renderNotificationButton = (iconOnly: boolean) => {
-  return null // temp off feature, will release soon
   return (
     <SubscribeNotificationButton
       iconOnly={iconOnly}
       subscribeTooltip={
         <div>
           <Trans>
-            Subscribe to receive emails on all your Elastic liquidity positions. You will receive an email when your
-            position goes <Hightlight>out-of-range</Hightlight>, comes back <Hightlight>in-range</Hightlight>, or is{' '}
-            <Hightlight>closed</Hightlight> altogether.
+            Subscribe to receive emails on your Elastic liquidity positions across all chains. Whenever a position goes
+            <Highlight>out-of-range</Highlight> or comes back <Highlight>in-range</Highlight>, you will receive an email
           </Trans>
         </div>
       }
+      trackingEvent={MIXPANEL_TYPE.MYPOOLS_CLICK_SUBSCRIBE_BTN}
     />
   )
 }

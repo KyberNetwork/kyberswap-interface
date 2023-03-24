@@ -3,12 +3,12 @@ import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 
 import Announcement from 'components/Announcement'
+import CampaignNavGroup from 'components/Header/groups/CampaignNavGroup'
 import SelectNetwork from 'components/Header/web3/SelectNetwork'
 import SelectWallet from 'components/Header/web3/SelectWallet'
 import Menu from 'components/Menu'
 import Row, { RowFixed } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { APP_PATHS } from 'constants/index'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
@@ -21,7 +21,7 @@ import AnalyticNavGroup from './groups/AnalyticNavGroup'
 import EarnNavGroup from './groups/EarnNavGroup'
 import KyberDAONavGroup from './groups/KyberDaoGroup'
 import SwapNavGroup from './groups/SwapNavGroup'
-import { StyledNavExternalLink, StyledNavLink } from './styleds'
+import { StyledNavExternalLink } from './styleds'
 
 const HeaderFrame = styled.div`
   display: grid;
@@ -120,13 +120,6 @@ const IconImage = styled.img<{ isChristmas?: boolean }>`
   }
 `
 
-const CampaignWrapper = styled.span`
-  /* It's better to break at 420px than at extraSmall */
-  @media (max-width: 420px) {
-    display: none;
-  }
-`
-
 const BlogWrapper = styled.span`
   @media (max-width: 1440px) {
     display: none;
@@ -187,18 +180,10 @@ export default function Header() {
         </Title>
         <HeaderLinks>
           <SwapNavGroup />
-
           <EarnNavGroup />
-
-          <CampaignWrapper id={TutorialIds.CAMPAIGN_LINK}>
-            <StyledNavLink id="campaigns" to={APP_PATHS.CAMPAIGN}>
-              <Trans>Campaigns</Trans>
-            </StyledNavLink>
-          </CampaignWrapper>
-
+          <CampaignNavGroup />
           <DiscoverNavItem />
           <KyberDAONavGroup />
-
           <AnalyticNavGroup />
           <AboutNavGroup />
           <BlogWrapper>

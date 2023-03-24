@@ -273,7 +273,7 @@ export default function Swap() {
   const shareUrl = useMemo(() => {
     const tokenIn = isSwapPage ? currencyIn : limitState.currencyIn
     const tokenOut = isSwapPage ? currencyOut : limitState.currencyOut
-    return `${window.location.origin}${isSwapPage ? APP_PATHS.SWAP : APP_PATHS.LIMIT}}/${networkInfo.route}${
+    return `${window.location.origin}${isSwapPage ? APP_PATHS.SWAP : APP_PATHS.LIMIT}/${networkInfo.route}${
       tokenIn && tokenOut
         ? `?${stringify({
             inputCurrency: currencyId(tokenIn, chainId),
@@ -357,7 +357,7 @@ export default function Swap() {
                 <Tutorial
                   type={TutorialType.SWAP}
                   customIcon={
-                    <StyledActionButtonSwapForm>
+                    <StyledActionButtonSwapForm onClick={() => mixpanelHandler(MIXPANEL_TYPE.SWAP_TUTORIAL_CLICK)}>
                       <TutorialIcon />
                     </StyledActionButtonSwapForm>
                   }
@@ -365,7 +365,10 @@ export default function Swap() {
                 {chainId !== ChainId.ETHW && (
                   <MobileTokenInfo
                     currencies={isSwapPage ? currencies : currenciesLimit}
-                    onClick={() => onToggleActionTab(TAB.INFO)}
+                    onClick={() => {
+                      mixpanelHandler(MIXPANEL_TYPE.SWAP_TOKEN_INFO_CLICK)
+                      onToggleActionTab(TAB.INFO)
+                    }}
                   />
                 )}
                 <ShareButtonWithModal
@@ -377,7 +380,10 @@ export default function Swap() {
                 />
                 <StyledActionButtonSwapForm
                   active={activeTab === TAB.SETTINGS}
-                  onClick={() => onToggleActionTab(TAB.SETTINGS)}
+                  onClick={() => {
+                    onToggleActionTab(TAB.SETTINGS)
+                    mixpanelHandler(MIXPANEL_TYPE.SWAP_SETTINGS_CLICK)
+                  }}
                   aria-label="Swap Settings"
                 >
                   <MouseoverTooltip

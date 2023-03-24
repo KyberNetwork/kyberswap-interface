@@ -5,9 +5,9 @@ import { parseGetRouteResponse } from 'services/route/utils'
 
 import AddressInputPanel from 'components/AddressInputPanel'
 import { AutoRow } from 'components/Row'
+import SlippageWarningNote from 'components/SlippageWarningNote'
 import InputCurrencyPanel from 'components/SwapForm/InputCurrencyPanel'
 import OutputCurrencyPanel from 'components/SwapForm/OutputCurrencyPanel'
-import SlippageNote from 'components/SwapForm/SlippageNote'
 import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import { SwapFormContextProvider } from 'components/SwapForm/SwapFormContext'
 import useBuildRoute from 'components/SwapForm/hooks/useBuildRoute'
@@ -148,6 +148,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
       isSaveGas={isSaveGas}
       recipient={recipient}
       isStablePairSwap={isStablePairSwap}
+      isAdvancedMode={isAdvancedMode}
     >
       <Box sx={{ flexDirection: 'column', gap: '16px', display: hidden ? 'none' : 'flex' }}>
         <Wrapper id={TutorialIds.SWAP_FORM_CONTENT}>
@@ -192,19 +193,17 @@ const SwapForm: React.FC<SwapFormProps> = props => {
               <AddressInputPanel id="recipient" value={recipient} onChange={setRecipient} />
             )}
 
-            {!isWrapOrUnwrap && <SlippageSetting />}
+            {!isWrapOrUnwrap && <SlippageSetting isStablePairSwap={isStablePairSwap} />}
           </Flex>
         </Wrapper>
         <Flex flexDirection="column" style={{ gap: '1.25rem' }}>
           <TradeTypeSelection isSaveGas={isSaveGas} setSaveGas={setSaveGas} />
 
-          {chainId !== ChainId.ETHW && (
-            <TrendingSoonTokenBanner currencyIn={currencyIn} currencyOut={currencyOut} style={{ marginTop: '24px' }} />
-          )}
+          {chainId !== ChainId.ETHW && <TrendingSoonTokenBanner currencyIn={currencyIn} currencyOut={currencyOut} />}
 
-          <SlippageNote />
+          {!isWrapOrUnwrap && <SlippageWarningNote rawSlippage={slippage} isStablePairSwap={isStablePairSwap} />}
 
-          <PriceImpactNote priceImpact={routeSummary?.priceImpact} isAdvancedMode={isAdvancedMode} hasTooltip />
+          <PriceImpactNote priceImpact={routeSummary?.priceImpact} isAdvancedMode={isAdvancedMode} />
 
           <SwapActionButton
             isGettingRoute={isGettingRoute}
@@ -225,7 +224,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
             swapInputError={swapInputError}
           />
 
-          <TradeSummary feeConfig={feeConfig} routeSummary={routeSummary} slippage={slippage} />
+          {!isWrapOrUnwrap && <TradeSummary feeConfig={feeConfig} routeSummary={routeSummary} slippage={slippage} />}
         </Flex>
       </Box>
     </SwapFormContextProvider>

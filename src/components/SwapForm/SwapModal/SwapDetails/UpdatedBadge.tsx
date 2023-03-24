@@ -22,8 +22,8 @@ const BadgeWrapper = styled(AutoColumn).attrs<Props>(props => ({
   font-weight: 500;
 
   &[data-level='worse'] {
-    background-color: ${({ theme }) => transparentize(0.9, theme.subText)};
-    color: ${({ theme }) => theme.subText};
+    background-color: ${({ theme }) => transparentize(0.9, theme.warning)};
+    color: ${({ theme }) => theme.warning};
   }
 
   &[data-level='better'] {
@@ -55,7 +55,7 @@ const UpdatedBadge: React.FC<Props> = ({ $level }) => {
           width="fit-content"
           text={
             <Trans>
-              <i>We got you better price!</i>
+              <i>We got you a better price!</i>
             </Trans>
           }
         />

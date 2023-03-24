@@ -1,6 +1,6 @@
-import { Currency, Token } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import Modal from 'components/Modal'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
@@ -44,19 +44,20 @@ const SwapModal: React.FC<Props> = props => {
   const currencyIn = routeSummary?.parsedAmountIn?.currency
   const currencyOut = routeSummary?.parsedAmountOut?.currency
 
+  const amountOut = currencyOut && CurrencyAmount.fromRawAmount(currencyOut, buildResult?.data?.amountOut || '0')
   // text to show while loading
   const pendingText = `Swapping ${routeSummary?.parsedAmountIn?.toSignificant(6)} ${
     currencyIn?.symbol
-  } for ${routeSummary?.parsedAmountOut?.toSignificant(6)} ${currencyOut?.symbol}`
+  } for ${amountOut?.toSignificant(6)} ${currencyOut?.symbol}`
 
-  const handleDismiss = () => {
+  const handleDismiss = useCallback(() => {
     onDismiss()
     setSwapState({
       error: '',
       isAttemptingTx: false,
       txHash: '',
     })
-  }
+  }, [onDismiss])
 
   const handleAttemptSendTx = () => {
     setSwapState({
@@ -128,6 +129,11 @@ const SwapModal: React.FC<Props> = props => {
       />
     )
   }
+
+  useEffect(() => {
+    // dismiss the modal when user switches network
+    handleDismiss()
+  }, [chainId, handleDismiss])
 
   return (
     <Modal isOpen={isOpen} onDismiss={handleDismiss} maxHeight={90}>
