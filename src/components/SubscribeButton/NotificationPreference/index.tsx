@@ -121,6 +121,8 @@ enum TAB {
 
 const isEmailValid = (value: string) => value.match(/\S+@\S+\.\S+/)
 
+const sortGroup = (arr: Topic[]) => [...arr].sort((x, y) => y.priority - x.priority)
+
 function NotificationPreference({
   header,
   isOpen,
@@ -178,7 +180,7 @@ function NotificationPreference({
         }))
         return { ...group, topics: newTopics, isSubscribed: newTopics?.every(e => e.isSubscribed) }
       })
-      setTopicGroups(newTopicGroups)
+      setTopicGroups(sortGroup(newTopicGroups))
     },
     [topicGroupsGlobal],
   )
@@ -208,7 +210,7 @@ function NotificationPreference({
       () => {
         setSelectedTopic(isOpen ? topicGroupsGlobal.filter(e => e.isSubscribed).map(e => e.id) : [])
         if (isOpen) {
-          setTopicGroups(topicGroupsGlobal)
+          setTopicGroups(sortGroup(topicGroupsGlobal))
         }
       },
       isOpen ? 0 : 400,

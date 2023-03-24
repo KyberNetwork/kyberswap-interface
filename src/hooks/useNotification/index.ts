@@ -20,6 +20,7 @@ export type Topic = {
   name: string
   isSubscribed: boolean
   topics: Topic[]
+  priority: number
 }
 
 type SaveNotificationParam = {
