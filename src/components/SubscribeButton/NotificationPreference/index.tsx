@@ -447,7 +447,7 @@ function NotificationPreference({
           <Label>
             <Trans>Enter your email address to receive notifications</Trans>
           </Label>
-          <InputWrapper>
+          <InputWrapper style={{ maxWidth: isInNotificationCenter ? '50%' : 'unset' }}>
             <Input
               $borderColor={errorColor}
               value={inputEmail}
