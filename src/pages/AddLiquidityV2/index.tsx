@@ -614,7 +614,9 @@ export default function AddLiquidity() {
     tokenB &&
     price &&
     Math.abs(
-      usdPrices[tokenA.wrapped.address] / usdPrices[tokenB.wrapped.address] / Number(price?.toSignificant(18)) - 1,
+      Number((isSorted ? price : price?.invert())?.toSignificant(18)) /
+        (usdPrices[tokenA.wrapped.address] / usdPrices[tokenB.wrapped.address]) -
+        1,
     ) >= 0.02
   const isFullRange = activeRange === RANGE.FULL_RANGE
   const isValid = !errorMessage && !invalidRange
