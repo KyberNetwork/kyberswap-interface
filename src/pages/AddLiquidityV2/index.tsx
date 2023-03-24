@@ -145,7 +145,6 @@ export default function AddLiquidity() {
     position,
     noLiquidity,
     currencies,
-    // errorMessage,
     invalidPool,
     invalidRange,
     outOfRange,
@@ -214,8 +213,6 @@ export default function AddLiquidity() {
     },
     [mixpanelHandler, onRemovePosition, tokenA?.symbol, tokenB?.symbol],
   )
-
-  const isValid = !errorMessage && !invalidRange
 
   // modal and loading
   const [showConfirm, setShowConfirm] = useState<boolean>(false)
@@ -610,6 +607,19 @@ export default function AddLiquidity() {
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
 
+  const isPriceDeviated =
+    baseCurrency &&
+    quoteCurrency &&
+    tokenA &&
+    tokenB &&
+    price &&
+    Math.abs(
+      usdPrices[tokenA.wrapped.address] / usdPrices[tokenB.wrapped.address] / Number(price?.toSignificant(18)) - 1,
+    ) >= 0.02
+  const isFullRange = activeRange === RANGE.FULL_RANGE
+  const isValid = !errorMessage && !invalidRange
+  const isWarningButton = isPriceDeviated || isFullRange || outOfRange
+
   const Buttons = () =>
     !account ? (
       <ButtonLight onClick={toggleWalletModal} width={upToMedium ? '100%' : 'fit-content'} minWidth="164px !important">
@@ -671,7 +681,8 @@ export default function AddLiquidity() {
             (approvalA !== ApprovalState.APPROVED && (!depositADisabled || noLiquidity)) ||
             (approvalB !== ApprovalState.APPROVED && (!depositBDisabled || noLiquidity))
           }
-          error={!isValid && !!parsedAmounts_A && !!parsedAmounts_B && false}
+          error={!isValid && !!parsedAmounts_A && !!parsedAmounts_B}
+          warning={isWarningButton}
           minWidth="164px"
           width={upToMedium ? '100%' : 'fit-content'}
         >
@@ -718,29 +729,22 @@ export default function AddLiquidity() {
           </Flex>
         </WarningCard>
       )}
-      {baseCurrency &&
-        quoteCurrency &&
-        tokenA &&
-        tokenB &&
-        price &&
-        Math.abs(
-          usdPrices[tokenA.wrapped.address] / usdPrices[tokenB.wrapped.address] / Number(price?.toSignificant(18)) - 1,
-        ) >= 0.02 && (
-          <WarningCard padding="10px 16px">
-            <Flex alignItems="center">
-              <AlertTriangle stroke={theme.warning} size="16px" />
-              <TYPE.black ml="12px" fontSize="12px" flex={1}>
-                <Trans>
-                  The pool’s current price of 1 {baseCurrency.symbol} ={' '}
-                  {(invertPrice ? price.invert() : price).toSignificant(4)} {quoteCurrency.symbol} deviates from the
-                  market price (1 {baseCurrency.symbol} ={' '}
-                  {formatNotDollarAmount(usdPrices[tokenA.wrapped.address] / usdPrices[tokenB.wrapped.address], 4)}{' '}
-                  {quoteCurrency.symbol}). You might have high impermanent loss after the pool is created
-                </Trans>
-              </TYPE.black>
-            </Flex>
-          </WarningCard>
-        )}
+      {isPriceDeviated && (
+        <WarningCard padding="10px 16px">
+          <Flex alignItems="center">
+            <AlertTriangle stroke={theme.warning} size="16px" />
+            <TYPE.black ml="12px" fontSize="12px" flex={1}>
+              <Trans>
+                The pool’s current price of 1 {baseCurrency.symbol} ={' '}
+                {(invertPrice ? price.invert() : price).toSignificant(4)} {quoteCurrency.symbol} deviates from the
+                market price (1 {baseCurrency.symbol} ={' '}
+                {formatNotDollarAmount(usdPrices[tokenA.wrapped.address] / usdPrices[tokenB.wrapped.address], 4)}{' '}
+                {quoteCurrency.symbol}). You might have high impermanent loss after the pool is created
+              </Trans>
+            </TYPE.black>
+          </Flex>
+        </WarningCard>
+      )}
       {errorLabel && (
         <WarningCard padding="10px 16px">
           <Flex alignItems="center">
@@ -760,7 +764,7 @@ export default function AddLiquidity() {
             </TYPE.black>
           </Flex>
         </WarningCard>
-      ) : activeRange === RANGE.FULL_RANGE ? (
+      ) : isFullRange ? (
         <WarningCard padding="10px 16px">
           <Flex alignItems="center">
             <AlertTriangle stroke={theme.warning} size="16px" />
@@ -1083,22 +1087,18 @@ export default function AddLiquidity() {
             bottomContent={() => (
               <Flex flexDirection="column" sx={{ gap: '12px' }}>
                 {warning}
-                {isMultiplePosition ? (
-                  <RowBetween>
-                    <div />
-                    <ButtonPrimary id="btnSupply" onClick={onAdd} width="160px">
-                      <Text fontWeight={500}>
-                        <Trans>Supply</Trans>
-                      </Text>
-                    </ButtonPrimary>
-                  </RowBetween>
-                ) : (
-                  <ButtonPrimary id="btnSupply" onClick={onAdd} width="100%">
+                <Row justify={isMultiplePosition ? 'flex-end' : 'flex-start'}>
+                  <ButtonError
+                    warning={isWarningButton}
+                    id="btnSupply"
+                    onClick={onAdd}
+                    width={isMultiplePosition ? '160px' : '100%'}
+                  >
                     <Text fontWeight={500}>
                       <Trans>Supply</Trans>
                     </Text>
-                  </ButtonPrimary>
-                )}
+                  </ButtonError>
+                </Row>
               </Flex>
             )}
           />
