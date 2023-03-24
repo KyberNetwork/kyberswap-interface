@@ -359,8 +359,8 @@ const SearchWithDropdown = ({ searchValue, onSearch }: SearchProps) => {
           <tr>
             <th>
               <RowFit color={theme.subText} gap="4px">
-                <History />
-                <Text fontSize="12px">Search History</Text>
+                <Icon id="bullish" size={16} />
+                <Text fontSize="12px">Bullish Tokens</Text>
               </RowFit>
             </th>
             <th style={{ textAlign: 'right' }}>KyberScore</th>
@@ -385,8 +385,8 @@ const SearchWithDropdown = ({ searchValue, onSearch }: SearchProps) => {
           <tr>
             <th>
               <RowFit color={theme.subText} gap="4px">
-                <History />
-                <Text fontSize="12px">Search History</Text>
+                <Icon id="bearish" size={16} />
+                <Text fontSize="12px">Bearish Tokens</Text>
               </RowFit>
             </th>
             <th style={{ textAlign: 'right' }}>KyberScore</th>
