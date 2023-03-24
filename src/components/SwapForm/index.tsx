@@ -105,7 +105,6 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     routeSummary: getRouteRawResponse?.data?.routeSummary || undefined,
     slippage,
     transactionTimeout,
-    skipSimulateTx: true,
   })
 
   const swapInputError = useGetInputError({

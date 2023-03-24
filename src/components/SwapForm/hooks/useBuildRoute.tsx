@@ -50,7 +50,7 @@ const useBuildRoute = (args: Args) => {
       sender: account,
       recipient: recipient || account,
       source: 'kyberswap',
-      skipSimulateTx: false,
+      skipSimulateTx: true,
     }
 
     try {
