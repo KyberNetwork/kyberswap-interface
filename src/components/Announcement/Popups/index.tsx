@@ -17,7 +17,7 @@ import {
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { subscribeAnnouncement, subscribePrivateAnnouncement } from 'utils/firebase'
 
-import PopupItem from './TopRightPopup'
+import TopRightPopup from './TopRightPopup'
 
 const FixedPopupColumn = styled.div<{ hasTopbarPopup: boolean }>`
   position: fixed;
@@ -94,7 +94,7 @@ export default function Popups() {
       data.forEach(item => {
         if (item.templateType === PrivateAnnouncementType.PRICE_ALERT) {
           // only support price alert
-          addPopup(item, PopupType.TOP_RIGHT, item.metaMessageId, null)
+          addPopup(item, PopupType.TOP_RIGHT, item.metaMessageId, 6_000)
         }
       })
     })
@@ -124,7 +124,7 @@ export default function Popups() {
           </ActionWrapper>
 
           {topRightPopups.slice(0, MAX_NOTIFICATION).map((item, i) => (
-            <PopupItem key={item.key} popup={item} hasOverlay={i === MAX_NOTIFICATION - 1} />
+            <TopRightPopup key={item.key} popup={item} hasOverlay={i === MAX_NOTIFICATION - 1} />
           ))}
         </FixedPopupColumn>
       )}

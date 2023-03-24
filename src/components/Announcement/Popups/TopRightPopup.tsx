@@ -170,7 +170,16 @@ export default function PopupItem({ popup, hasOverlay }: { popup: PopupItemType;
         popup as PopupItemType<PopupContentAnnouncement>,
       )
       notiType = type
-      popupContent = <SimplePopup title={title} type={notiType} summary={summary} link={link} icon={icon} />
+      popupContent = (
+        <SimplePopup
+          title={title}
+          type={notiType}
+          summary={summary}
+          link={link}
+          icon={icon}
+          onRemove={removeThisPopup}
+        />
+      )
       break
     }
   }
