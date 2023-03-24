@@ -6,7 +6,6 @@ import NotificationPreference from 'components/SubscribeButton/NotificationPrefe
 import useTheme from 'hooks/useTheme'
 
 const StyledPreference = styled.div`
-  max-width: 440px;
   ${({ theme }) => theme.mediaWidth.upToMedium`
     max-width: unset;
   `}
