@@ -37,7 +37,6 @@ export const SectionTitle = styled.div`
 export const SectionDescription = styled.div<{ show?: boolean }>`
   font-size: 12px;
   line-height: 16px;
-  font-style: italic;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
