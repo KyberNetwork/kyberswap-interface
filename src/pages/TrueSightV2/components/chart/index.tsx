@@ -291,7 +291,7 @@ export const NumberofTradesChart = () => {
           <TimeFrameLegend selected={timeframe} onSelect={setTimeframe} timeframes={['1D', '7D', '1M', '3M']} />
         </LegendWrapper>
         <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart width={500} height={300} data={formattedData} margin={{ top: 50 }}>
+          <ComposedChart width={500} height={300} data={formattedData} margin={{ top: 50, left: 16 }}>
             <CartesianGrid
               vertical={false}
               strokeWidth={1}
@@ -313,6 +313,7 @@ export const NumberofTradesChart = () => {
               axisLine={false}
               tick={{ fill: theme.subText, fontWeight: 400 }}
               width={40}
+              tickFormatter={value => `$${formatNum(value)}`}
             />
             <Tooltip
               cursor={{ fill: 'transparent' }}
@@ -406,9 +407,7 @@ export const TradingVolumeChart = () => {
           data={formattedData}
           margin={{
             top: 50,
-            right: 0,
-            left: 0,
-            bottom: 0,
+            left: 20,
           }}
         >
           <CartesianGrid
@@ -438,6 +437,7 @@ export const TradingVolumeChart = () => {
             axisLine={false}
             tick={{ fill: theme.subText, fontWeight: 400 }}
             width={40}
+            tickFormatter={value => `$${formatNum(value)}`}
           />
           <Tooltip
             cursor={{ fill: 'transparent' }}
@@ -595,7 +595,13 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
               <TimeFrameLegend selected={timeframe} onSelect={setTimeframe} timeframes={['1D', '7D', '1M', '3M']} />
             </LegendWrapper>
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart width={500} height={300} data={formattedData} stackOffset="sign" margin={{ top: 50 }}>
+              <ComposedChart
+                width={500}
+                height={300}
+                data={formattedData}
+                stackOffset="sign"
+                margin={{ top: 50, left: 20 }}
+              >
                 <CartesianGrid
                   vertical={false}
                   strokeWidth={1}
@@ -617,6 +623,7 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
                   axisLine={false}
                   tick={{ fill: theme.subText, fontWeight: 400 }}
                   width={40}
+                  tickFormatter={value => `$${formatNum(value)}`}
                 />
                 <Tooltip
                   cursor={{ fill: 'transparent' }}
@@ -990,7 +997,7 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
           margin={{
             top: 40,
             right: 0,
-            left: 20,
+            left: 25,
             bottom: 0,
           }}
         >
@@ -1016,7 +1023,7 @@ export const NumberofTransfers = ({ tab }: { tab: ChartTab }) => {
             axisLine={false}
             tick={{ fill: theme.subText, fontWeight: 400 }}
             width={40}
-            tickFormatter={value => formatNum(value)}
+            tickFormatter={value => `$${formatNum(value)}`}
           />
           <Tooltip
             cursor={{ fill: 'transparent' }}
