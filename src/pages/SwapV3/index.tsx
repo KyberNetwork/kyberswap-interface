@@ -1,4 +1,4 @@
-import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
+import { Currency, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { stringify } from 'querystring'
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -330,7 +330,7 @@ export default function Swap() {
       />
       <PageWrapper>
         <Banner />
-        {chainId !== ChainId.ETHW && <TopTrendingSoonTokensInCurrentNetwork />}
+        <TopTrendingSoonTokensInCurrentNetwork />
         <Container>
           <SwapFormWrapper isShowTutorial={isShowTutorial}>
             <RowBetween>
@@ -363,15 +363,13 @@ export default function Swap() {
                     </StyledActionButtonSwapForm>
                   }
                 />
-                {chainId !== ChainId.ETHW && (
-                  <MobileTokenInfo
-                    currencies={isSwapPage ? currencies : currenciesLimit}
-                    onClick={() => {
-                      mixpanelHandler(MIXPANEL_TYPE.SWAP_TOKEN_INFO_CLICK)
-                      onToggleActionTab(TAB.INFO)
-                    }}
-                  />
-                )}
+                <MobileTokenInfo
+                  currencies={isSwapPage ? currencies : currenciesLimit}
+                  onClick={() => {
+                    mixpanelHandler(MIXPANEL_TYPE.SWAP_TOKEN_INFO_CLICK)
+                    onToggleActionTab(TAB.INFO)
+                  }}
+                />
                 <ShareButtonWithModal
                   title={t`Share this with your friends!`}
                   url={shareUrl}
@@ -410,7 +408,7 @@ export default function Swap() {
               </Text>
             </RowBetween>
 
-            {chainId !== ChainId.ETHW && !isSolana && (
+            {!isSolana && (
               <RowBetween>
                 <PairSuggestion
                   ref={refSuggestPair}

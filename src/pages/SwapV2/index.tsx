@@ -1,4 +1,4 @@
-import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import JSBI from 'jsbi'
 import { stringify } from 'querystring'
@@ -724,12 +724,10 @@ export default function Swap() {
                     </StyledActionButtonSwapForm>
                   }
                 />
-                {chainId !== ChainId.ETHW && (
-                  <MobileTokenInfo
-                    currencies={isSwapPage ? currencies : currenciesLimit}
-                    onClick={() => onToggleActionTab(TAB.INFO)}
-                  />
-                )}
+                <MobileTokenInfo
+                  currencies={isSwapPage ? currencies : currenciesLimit}
+                  onClick={() => onToggleActionTab(TAB.INFO)}
+                />
                 <ShareButtonWithModal
                   title={t`Share this with your friends!`}
                   url={shareUrl}
@@ -765,7 +763,7 @@ export default function Swap() {
               </Text>
             </RowBetween>
 
-            {chainId !== ChainId.ETHW && !isSolana && (
+            {!isSolana && (
               <RowBetween>
                 <PairSuggestion
                   ref={refSuggestPair}
@@ -880,13 +878,11 @@ export default function Swap() {
 
                       {!showWrap && <SlippageSetting isStablePairSwap={isStableCoinSwap} />}
 
-                      {chainId !== ChainId.ETHW && (
-                        <TrendingSoonTokenBanner
-                          currencyIn={currencyIn}
-                          currencyOut={currencyOut}
-                          style={{ marginTop: '24px' }}
-                        />
-                      )}
+                      <TrendingSoonTokenBanner
+                        currencyIn={currencyIn}
+                        currencyOut={currencyOut}
+                        style={{ marginTop: '24px' }}
+                      />
 
                       {!showWrap && (
                         <SlippageWarningNote rawSlippage={rawSlippage} isStablePairSwap={isStableCoinSwap} />
