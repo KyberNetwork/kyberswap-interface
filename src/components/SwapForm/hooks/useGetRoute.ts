@@ -1,6 +1,6 @@
 import { ChainId, Currency, CurrencyAmount, Price, WETH } from '@kyberswap/ks-sdk-core'
 import { debounce } from 'lodash'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import routeApi from 'services/route'
 import { GetRouteParams } from 'services/route/types/getRoute'
 
@@ -8,6 +8,7 @@ import useSelectedDexes from 'components/SwapForm/hooks/useSelectedDexes'
 import { ETHER_ADDRESS, INPUT_DEBOUNCE_TIME, ZERO_ADDRESS_SOLANA } from 'constants/index'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
+import useDebounce from 'hooks/useDebounce'
 import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
 import { FeeConfig } from 'types/route'
 import { Aggregator } from 'utils/aggregator'
@@ -126,21 +127,23 @@ export const useGetRouteSolana = (args: ArgsGetRoute) => {
   const { account } = useActiveWeb3React()
   const controller = useRef(new AbortController())
 
-  const debounceFuncRef = useRef<any>()
   const { aggregatorAPI } = useKyberswapGlobalConfig()
   const [price, setPrice] = useState<Price<Currency, Currency> | null>(null)
 
+  const debounceAmount = useDebounce(parsedAmount, INPUT_DEBOUNCE_TIME)
+
   const fetcherWithoutDebounce = useCallback(async () => {
-    const amountIn = parsedAmount?.quotient?.toString() || ''
+    const amountIn = debounceAmount?.quotient?.toString() || ''
 
     if (
       !currencyIn ||
       !currencyOut ||
       !amountIn ||
-      !parsedAmount?.currency?.equals(currencyIn) ||
+      !debounceAmount?.currency?.equals(currencyIn) ||
       customChain !== ChainId.SOLANA
     ) {
-      return undefined
+      setPrice(null)
+      return
     }
     controller.current.abort()
     controller.current = new AbortController()
@@ -148,27 +151,15 @@ export const useGetRouteSolana = (args: ArgsGetRoute) => {
     const signal = controller.current.signal
     const result = await Aggregator.baseTradeSolana({
       aggregatorAPI,
-      currencyAmountIn: parsedAmount,
+      currencyAmountIn: debounceAmount,
       currencyOut,
       to,
       signal,
     })
     setPrice(result)
-    return undefined
-  }, [currencyIn, currencyOut, parsedAmount, account, aggregatorAPI, customChain])
+  }, [currencyIn, currencyOut, debounceAmount, account, aggregatorAPI, customChain])
 
-  const fetcher = useMemo(() => {
-    const debouncedFunc = debounce(fetcherWithoutDebounce, INPUT_DEBOUNCE_TIME, {
-      leading: true,
-      trailing: true,
-    })
-    debounceFuncRef.current = debouncedFunc
-    return debouncedFunc
-  }, [fetcherWithoutDebounce])
-
-  useEffect(() => {
-    fetcher()
-  }, [fetcher])
+  const fetcher = useMemo(() => debounce(fetcherWithoutDebounce, INPUT_DEBOUNCE_TIME), [fetcherWithoutDebounce])
 
   return { fetcher, result: price }
 }
