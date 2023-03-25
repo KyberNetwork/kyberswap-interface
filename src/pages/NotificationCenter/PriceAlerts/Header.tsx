@@ -79,12 +79,14 @@ const Wrapper = styled.div`
 type Props = {
   currentTab: Tab
   setCurrentTab: (t: Tab) => void
+  disabledClearAll: boolean
 }
-const Header: React.FC<Props> = ({ currentTab, setCurrentTab }) => {
+const Header: React.FC<Props> = ({ currentTab, setCurrentTab, disabledClearAll }) => {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
 
   const { data, isLoading } = useGetAlertStatsQuery(account || '', { skip: !account })
+
   return (
     <Wrapper>
       <Flex alignItems={'center'} justifyContent="space-between">
@@ -108,7 +110,7 @@ const Header: React.FC<Props> = ({ currentTab, setCurrentTab }) => {
             gap: '1rem',
           }}
         >
-          <DeleteAllAlertsButton currentTab={currentTab} />
+          <DeleteAllAlertsButton currentTab={currentTab} disabled={disabledClearAll} />
           <CreateAlertButton />
         </Flex>
       </Flex>

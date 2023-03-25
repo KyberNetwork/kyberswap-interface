@@ -43,6 +43,8 @@ export const ShareContentWrapper = styled.div`
 const PriceAlerts = () => {
   const { tab, ...rest } = useParsedQueryString<{ tab: Tab }>()
   const [currentTab, setCurrentTab] = useState(tab || Tab.ACTIVE)
+  const [disabledClearAll, setDisabledClearAll] = useState(true)
+
   const navigate = useNavigate()
   const onSetTab = (tab: Tab) => {
     setCurrentTab(tab)
@@ -54,8 +56,12 @@ const PriceAlerts = () => {
     <ShareWrapper>
       <TitleOnMobile />
       <ShareContentWrapper>
-        <Header currentTab={currentTab} setCurrentTab={onSetTab} />
-        {currentTab === Tab.ACTIVE ? <ActiveAlerts /> : <AlertsHistory />}
+        <Header currentTab={currentTab} setCurrentTab={onSetTab} disabledClearAll={disabledClearAll} />
+        {currentTab === Tab.ACTIVE ? (
+          <ActiveAlerts setDisabledClearAll={setDisabledClearAll} />
+        ) : (
+          <AlertsHistory setDisabledClearAll={setDisabledClearAll} />
+        )}
       </ShareContentWrapper>
     </ShareWrapper>
   )

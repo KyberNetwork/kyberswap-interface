@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Info } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import { useGetListPriceAlertHistoryQuery } from 'services/priceAlert'
@@ -12,7 +12,7 @@ import { ITEMS_PER_PAGE } from 'pages/NotificationCenter/const'
 
 import SingleAlert from './SingleAlert'
 
-const AlertsHistory = () => {
+const AlertsHistory = ({ setDisabledClearAll }: { setDisabledClearAll: (v: boolean) => void }) => {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const [page, setPage] = useState(1)
@@ -24,6 +24,10 @@ const AlertsHistory = () => {
     },
     { skip: !account },
   )
+
+  useEffect(() => {
+    setDisabledClearAll(!data?.historicalAlerts?.length)
+  }, [data?.historicalAlerts?.length, setDisabledClearAll])
 
   if (isLoading) {
     return (
