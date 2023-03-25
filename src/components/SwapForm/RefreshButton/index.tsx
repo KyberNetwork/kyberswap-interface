@@ -45,8 +45,6 @@ const RefreshButton: React.FC<Props> = ({ shouldDisable, callback, size, abort, 
     }
 
     if (shouldDisable) {
-      abort?.()
-
       // reset svg animate duration to 0 and PAUSE animations
       element.setCurrentTime(0)
       element.pauseAnimations()

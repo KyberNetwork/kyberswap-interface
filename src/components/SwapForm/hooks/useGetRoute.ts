@@ -41,10 +41,9 @@ const useGetRoute = (args: ArgsGetRoute) => {
   const { chargeFeeBy = '', feeReceiver = '', feeAmount = '' } = feeConfig || {}
   const isInBps = feeConfig?.isInBps !== undefined ? (feeConfig.isInBps ? '1' : '0') : ''
 
-  const currentRequestRef = useRef<any>()
-  const debounceFuncRef = useRef<any>()
+  const triggerDebounced = useMemo(() => debounce(trigger, INPUT_DEBOUNCE_TIME), [trigger])
 
-  const fetcherWithoutDebounce = useCallback(async () => {
+  const fetcher = useCallback(async () => {
     const amountIn = parsedAmount?.quotient?.toString() || ''
 
     if (
@@ -83,7 +82,7 @@ const useGetRoute = (args: ArgsGetRoute) => {
 
     const url = `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}/api/v1/routes`
 
-    currentRequestRef.current = trigger({
+    triggerDebounced({
       url,
       params,
     })
@@ -102,24 +101,10 @@ const useGetRoute = (args: ArgsGetRoute) => {
     isSaveGas,
     parsedAmount?.currency,
     parsedAmount?.quotient,
-    trigger,
+    triggerDebounced,
   ])
 
-  const fetcher = useMemo(() => {
-    const debouncedFunc = debounce(fetcherWithoutDebounce, INPUT_DEBOUNCE_TIME, {
-      leading: true,
-      trailing: true,
-    })
-    debounceFuncRef.current = debouncedFunc
-    return debouncedFunc
-  }, [fetcherWithoutDebounce])
-
-  const abort = useCallback(() => {
-    currentRequestRef.current?.abort()
-    debounceFuncRef.current?.cancel()
-  }, [])
-
-  return { fetcher, abort, result }
+  return { fetcher, result }
 }
 
 export const useGetRouteSolana = (args: ArgsGetRoute) => {

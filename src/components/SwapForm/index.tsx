@@ -1,6 +1,5 @@
-import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { SerializedError } from '@reduxjs/toolkit'
 import { rgba } from 'polished'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -89,7 +88,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     onChangeCurrencyOut,
   } = props
 
-  const { chainId, isEVM, isSolana, account } = useActiveWeb3React()
+  const { isEVM, isSolana, account } = useActiveWeb3React()
 
   const [isProcessingSwap, setProcessingSwap] = useState(false)
   const [typedValue, setTypedValue] = useState('1')
@@ -104,11 +103,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
 
   const isStablePairSwap = useCheckStablePairSwap(currencyIn, currencyOut)
 
-  const {
-    fetcher: getRoute,
-    abort,
-    result,
-  } = useGetRoute({
+  const { fetcher: getRoute, result } = useGetRoute({
     currencyIn,
     currencyOut,
     feeConfig,
@@ -118,15 +113,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
 
   const { data: getRouteRawResponse, isFetching: isGettingRoute, error: getRouteError } = result
   const getRouteResponse = useMemo(() => {
-    const serializedError = getRouteError as SerializedError
-
-    // skip this check if it's AbortError
-    if (
-      !getRouteRawResponse?.data ||
-      (serializedError?.name && serializedError.name !== 'AbortError') ||
-      !currencyIn ||
-      !currencyOut
-    ) {
+    if (!getRouteRawResponse?.data || getRouteError || !currencyIn || !currencyOut) {
       return undefined
     }
 
@@ -206,7 +193,6 @@ const SwapForm: React.FC<SwapFormProps> = props => {
                     <RefreshButton
                       shouldDisable={!parsedAmount || parsedAmount.equalTo(0) || isProcessingSwap}
                       callback={getRoute}
-                      abort={abort}
                     />
                     <TradePrice price={routeSummary?.executionPrice} />
                   </>
@@ -250,7 +236,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
         <Flex flexDirection="column" style={{ gap: '1.25rem' }}>
           <TradeTypeSelection isSaveGas={isSaveGas} setSaveGas={setSaveGas} />
 
-          {chainId !== ChainId.ETHW && <TrendingSoonTokenBanner currencyIn={currencyIn} currencyOut={currencyOut} />}
+          <TrendingSoonTokenBanner currencyIn={currencyIn} currencyOut={currencyOut} />
 
           {!isWrapOrUnwrap && <SlippageWarningNote rawSlippage={slippage} isStablePairSwap={isStablePairSwap} />}
 
