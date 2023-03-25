@@ -48,6 +48,18 @@ const ExpandableBox = styled.div<{ expanded?: boolean; height?: number }>`
   ${({ expanded, height }) => (expanded ? `height: ${height}px;` : ``)}
 `
 
+const PerformanceCard = styled.div<{ color: string }>`
+  border-radius: 8px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px;
+  background-color: ${({ color }) => color + '48'};
+  color: ${({ color }) => color};
+`
+
 const ExternalLinkWrapper = styled.a`
   text-decoration: none;
   color: ${({ theme }) => theme.text};
@@ -84,39 +96,81 @@ export const TokenOverview = () => {
       {above768 ? (
         <Row align="stretch" gap="24px" marginBottom="38px" flexDirection={above768 ? 'row' : 'column'}>
           <CardWrapper style={{ justifyContent: 'space-between' }}>
-            <Text color={theme.text} fontSize="14px" lineHeight="20px" marginBottom="24px">
-              <Trans>Price</Trans>
-            </Text>
-            <RowFit gap="8px">
-              <Text fontSize={28} lineHeight="32px" color={theme.text}>
-                {isLoading ? <DotsLoader /> : '$' + (+(data?.price || 0)).toLocaleString()}
+            <Column>
+              <Text color={theme.text} fontSize="14px" lineHeight="20px" marginBottom="12px">
+                <Trans>Price</Trans>
               </Text>
-              <Text
-                color={theme.red}
-                fontSize="12px"
-                backgroundColor={rgba(theme.red, 0.2)}
-                display="inline"
-                padding="4px 8px"
-                style={{ borderRadius: '16px' }}
-              >
-                {data?.price24hChangePercent ? data?.price24hChangePercent.toFixed(2) : 0}%
+              <RowFit gap="8px">
+                <Text fontSize={28} lineHeight="32px" color={theme.text}>
+                  {isLoading ? <DotsLoader /> : '$' + (+(data?.price || 0)).toLocaleString()}
+                </Text>
+                <Text
+                  color={theme.red}
+                  fontSize="12px"
+                  backgroundColor={rgba(theme.red, 0.2)}
+                  display="inline"
+                  padding="4px 8px"
+                  style={{ borderRadius: '16px' }}
+                >
+                  {data?.price24hChangePercent ? data?.price24hChangePercent.toFixed(2) : 0}%
+                </Text>
+              </RowFit>
+              <Text color={theme.red} fontSize={12} lineHeight="16px">
+                {data && formatMoneyWithSign(data?.price24hChangePercent * +data?.price || 0)}
               </Text>
-            </RowFit>
-            <Text color={theme.red} fontSize={12} lineHeight="16px">
-              {data && formatMoneyWithSign(data?.price24hChangePercent * +data?.price || 0)}
-            </Text>
+            </Column>
+
             <PriceRange
               title={t`Daily Range`}
               high={data?.['24hHigh'] || 0}
               low={data?.['24hLow'] || 0}
               current={+(data?.price || 0)}
+              style={{ flex: 'initial' }}
             />
             <PriceRange
               title={t`1Y Range`}
               high={data?.['1yHigh'] || 0}
               low={data?.['1yLow'] || 0}
               current={data?.price ? +data.price : 0}
+              style={{ flex: 'initial' }}
             />
+            <Column gap="6px" style={{ justifyContent: 'end' }}>
+              <Text fontSize="12px">
+                <Trans>Performance</Trans>
+              </Text>
+              <Row gap="8px">
+                <PerformanceCard color={theme.red}>
+                  <Text fontSize="12px">-8.36%</Text>
+                  <Text color={theme.text} fontSize="10px">
+                    1W
+                  </Text>
+                </PerformanceCard>
+                <PerformanceCard color={theme.primary}>
+                  <Text color={theme.primary} fontSize="12px">
+                    18.33%
+                  </Text>
+                  <Text color={theme.text} fontSize="10px">
+                    1M
+                  </Text>
+                </PerformanceCard>
+                <PerformanceCard color={theme.primary}>
+                  <Text color={theme.primary} fontSize="12px">
+                    142.55%
+                  </Text>
+                  <Text color={theme.text} fontSize="10px">
+                    3M
+                  </Text>
+                </PerformanceCard>
+                <PerformanceCard color={theme.primary}>
+                  <Text color={theme.primary} fontSize="12px">
+                    32.27%
+                  </Text>
+                  <Text color={theme.text} fontSize="10px">
+                    6M
+                  </Text>
+                </PerformanceCard>
+              </Row>
+            </Column>
           </CardWrapper>
           <CardWrapper style={{ fontSize: '12px' }} gap="10px">
             <Text color={theme.text} marginBottom="4px">
