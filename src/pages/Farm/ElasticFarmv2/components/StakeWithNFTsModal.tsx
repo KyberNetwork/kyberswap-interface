@@ -1,7 +1,7 @@
 import { Token } from '@kyberswap/ks-sdk-core'
 import { Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
-import React, { useCallback, useContext, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { Plus, X } from 'react-feather'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -16,13 +16,13 @@ import { usePool } from 'hooks/usePools'
 import { useProAmmPositions } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
 import { useFarmV2Action } from 'state/farms/elasticv2/hooks'
+import { ElasticFarmV2 } from 'state/farms/elasticv2/types'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { PositionDetails } from 'types/position'
 import { formatDollarAmount } from 'utils/numbers'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
 import { convertTickToPrice } from '../utils'
-import { FarmContext } from './FarmCard'
 import PriceVisualize from './PriceVisualize'
 
 const Wrapper = styled.div`
@@ -85,7 +85,6 @@ export const NFTItem = ({
   pos?: PositionDetails
   onClick?: (tokenId: string) => void
 }) => {
-  const { activeRange } = useContext(FarmContext)
   const token0 = useToken(pos?.token0)
   const token1 = useToken(pos?.token1)
   const currency0 = token0 ? unwrappedToken(token0) : undefined
@@ -124,8 +123,6 @@ export const NFTItem = ({
               rangeInclude={false}
               token0={token0 as Token}
               token1={token1 as Token}
-              tickRangeUpper={activeRange?.tickUpper}
-              tickRangeLower={activeRange?.tickLower}
               tickPosLower={pos?.tickLower}
               tickPosUpper={pos?.tickUpper}
               tickCurrent={0}
@@ -140,8 +137,18 @@ export const NFTItem = ({
   )
 }
 
-const StakeWithNFTsModal = ({ isOpen, onDismiss }: { isOpen: boolean; onDismiss: () => void }) => {
-  const { farm, activeRange } = useContext(FarmContext)
+const StakeWithNFTsModal = ({
+  isOpen,
+  onDismiss,
+  farm,
+  activeRangeIndex,
+}: {
+  farm: ElasticFarmV2
+  activeRangeIndex: number
+  isOpen: boolean
+  onDismiss: () => void
+}) => {
+  const activeRange = farm.ranges[activeRangeIndex]
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const { positions: allPositions } = useProAmmPositions(account)

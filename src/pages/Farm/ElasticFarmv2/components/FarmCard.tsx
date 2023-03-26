@@ -1,7 +1,7 @@
 import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import React, { useCallback, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useRef, useState } from 'react'
 import { Plus, Share2 } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { Text } from 'rebass'
@@ -153,14 +153,6 @@ const FeeBadge = styled.div`
   padding: 2px 4px;
 `
 
-export const FarmContext = React.createContext<{
-  farm?: ElasticFarmV2
-  activeRange?: ElasticFarmV2Range
-}>({
-  farm: undefined,
-  activeRange: undefined,
-})
-
 export const RangeItem = ({
   active,
   onRangeClick,
@@ -258,13 +250,6 @@ function FarmCard({ farm, poolAPR, isApproved }: { farm: ElasticFarmV2; poolAPR:
     harvest(farm?.fId, stakedPos?.filter(sp => sp.rangeId === activeRangeIndex).map(sp => sp.nftId.toNumber()) || [])
   }, [farm, harvest, stakedPos, activeRangeIndex])
 
-  const farmValues = useMemo(() => {
-    return {
-      farm,
-      activeRange: farm?.ranges.find(r => r.index === activeRangeIndex),
-    }
-  }, [farm, activeRangeIndex])
-
   const { pool } = farm
   const addliquidityElasticPool = `${APP_PATHS.ELASTIC_CREATE_POOL}/${
     pool.token0.isNative ? pool.token0.symbol : pool.token0.address
@@ -273,222 +258,229 @@ function FarmCard({ farm, poolAPR, isApproved }: { farm: ElasticFarmV2; poolAPR:
   const rangesCount = farm.ranges.length
 
   return (
-    <FarmContext.Provider value={farmValues}>
-      <Wrapper>
-        <WrapperInner ref={wrapperInnerRef} hasRewards={canUnstake}>
-          <FrontFace>
-            <RowBetween>
-              <RowFit>
-                <DoubleCurrencyLogo size={20} currency0={farm.token0} currency1={farm.token1} />
-                <Link
-                  to={addliquidityElasticPool}
-                  style={{
-                    textDecoration: 'none',
-                  }}
-                >
-                  <Text fontSize="16px" lineHeight="20px" color={theme.primary} marginRight="4px">
-                    {`${farm.token0.symbol} - ${farm.token1.symbol}`}
-                  </Text>
-                </Link>
-                <FeeBadge>FEE {farm?.pool?.fee ? (farm?.pool?.fee * 100) / ELASTIC_BASE_FEE_UNIT : 0.03}%</FeeBadge>
-              </RowFit>
-              <RowFit gap="8px">
-                <IconButton>
-                  <CopyHelper toCopy={farm?.poolAddress || ''} />
-                </IconButton>
-                <IconButton>
-                  <Share2 size={14} fill="currentcolor" />
-                </IconButton>
-              </RowFit>
-            </RowBetween>
-            <RowBetween>
-              <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
-                <Trans>Current phase will end in</Trans>
-              </Text>
-              <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-                {farm ? getFormattedTimeFromSecond(farm.endTime - currentTimestamp) : <Trans>17D 3H 40M</Trans>}
-              </Text>
-            </RowBetween>
-            <RowBetween>
-              <Column style={{ width: 'fit-content' }} gap="4px">
-                <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
-                  {hasRewards ? <Trans>My Rewards</Trans> : <Trans>Rewards</Trans>}
-                </Text>
-                <RowFit gap="8px">
-                  {farm.totalRewards.map((rw, index: number) => (
-                    <>
-                      {index > 0 && (
-                        <Text fontSize="12px" lineHeight="16px" color={theme.border}>
-                          |
-                        </Text>
-                      )}
-                      <RowFit gap="4px">
-                        <MouseoverTooltip text={rw.currency.symbol} placement="top" width="fit-content">
-                          <CurrencyLogo currency={rw.currency} size="16px" />
-                        </MouseoverTooltip>
-                        {hasRewards && (
-                          <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-                            {userTotalRewards[index].toSignificant(4)}
-                          </Text>
-                        )}
-                      </RowFit>
-                    </>
-                  ))}
-                </RowFit>
-              </Column>
-              <ButtonLight width="fit-content" disabled={!hasRewards} onClick={handleHarvest}>
-                <RowFit gap="4px">
-                  <Harvest />
-                  <Text>Harvest</Text>
-                </RowFit>
-              </ButtonLight>
-            </RowBetween>
-            <Divider />
-            <Column
-              gap="16px"
-              style={{
-                borderRadius: '12px',
-                border: `1px solid ${theme.border}`,
-                padding: '12px',
-                backgroundColor: 'var(--button-black)',
-              }}
-            >
-              <RowBetween align="flex-start">
-                <Column gap="4px" style={{ alignItems: 'flex-start' }}>
-                  <MouseoverTooltip text={t`Active Range: Current active farming range`} placement="top">
-                    <Text
-                      fontSize="12px"
-                      lineHeight="16px"
-                      color={theme.subText}
-                      style={{ borderBottom: '1px dotted var(--subtext)' }}
-                    >
-                      <Trans>Avg APR</Trans>
-                    </Text>
-                  </MouseoverTooltip>
-                  <Text fontSize="28px" lineHeight="32px" color={theme.apr}>
-                    {(poolAPR + (farm.ranges[activeRangeIndex].apr || 0)).toFixed(2)}%
-                  </Text>
-                </Column>
-                <Column gap="4px" style={{ alignItems: 'flex-end' }}>
-                  <MouseoverTooltip
-                    text={t`Add liquidity to ${farm.token0.symbol} - ${farm.token1.symbol} pool using the current active range`}
-                    placement="top"
-                  >
-                    <Text
-                      fontSize="12px"
-                      lineHeight="16px"
-                      color={theme.primary}
-                      alignSelf="flex-end"
-                      style={{ borderBottom: '1px dotted var(--primary)' }}
-                    >
-                      <Trans>Active Range ↗</Trans>
-                    </Text>
-                  </MouseoverTooltip>
-                  {farm && (
-                    <PriceVisualize
-                      tickCurrent={+farm.ranges[activeRangeIndex].tickCurrent}
-                      tickRangeLower={+farm.ranges[activeRangeIndex].tickLower}
-                      tickRangeUpper={+farm.ranges[activeRangeIndex].tickUpper}
-                      token0={farm.token0}
-                      token1={farm.token1}
-                    />
-                  )}
-                </Column>
-              </RowBetween>
-              <RowBetween>
-                <Column gap="4px">
-                  <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
-                    <Trans>Staked TVL</Trans>
-                  </Text>
-                  <Text fontSize="16px" fontWeight="500" color={theme.text}>
-                    {farm.ranges[activeRangeIndex].tvl ? formatDollarAmount(farm.ranges[activeRangeIndex].tvl) : '--'}
-                  </Text>
-                </Column>
-                <Column gap="4px" style={{ alignItems: 'flex-end' }}>
-                  <Text fontSize="12px" fontWeight="500" color={theme.subText}>
-                    <Trans>My Deposit</Trans>
-                  </Text>
-                  <Text fontSize="16px" fontWeight="500" color={theme.text}>
-                    {stakedPos.length ? formatDollarAmount(myDepositUSD) : '--'}
-                  </Text>
-                </Column>
-              </RowBetween>
-              <Divider />
-              <Row gap="12px">
-                {canUnstake && (
-                  <UnstakeButton onClick={() => setShowUnstake(p => !p)}>
-                    <RowFit gap="6px">{stakedPos?.length || 3} Positions Staked</RowFit>
-                  </UnstakeButton>
-                )}
-                <ButtonLight onClick={() => setShowStake(true)} disabled={!account || !isApproved}>
-                  <RowFit gap="6px">
-                    <Plus size={16} />
-                    Stake
-                  </RowFit>
-                </ButtonLight>
-              </Row>
-            </Column>
-            <Row justify="center" marginTop="auto">
-              <TextButtonPrimary
-                disabled={rangesCount === 0}
-                fontSize="12px"
-                onClick={() => rangesCount > 0 && handleFlip()}
-                width="fit-content"
+    <Wrapper>
+      <WrapperInner ref={wrapperInnerRef} hasRewards={canUnstake}>
+        <FrontFace>
+          <RowBetween>
+            <RowFit>
+              <DoubleCurrencyLogo size={20} currency0={farm.token0} currency1={farm.token1} />
+              <Link
+                to={addliquidityElasticPool}
+                style={{
+                  textDecoration: 'none',
+                }}
               >
-                <AspectRatio size={16} />
-                <Trans>{rangesCount} Range(s) Available</Trans>
-              </TextButtonPrimary>
-            </Row>
-          </FrontFace>
-
-          <BackFace>
-            <RowBetween>
-              <RowFit gap="4px">
-                <DoubleCurrencyLogo currency0={farm.token0} currency1={farm.token1} />
-                <Text fontSize="16px" lineHeight="20px" color={theme.primary} marginLeft="4px">
+                <Text fontSize="16px" lineHeight="20px" color={theme.primary} marginRight="4px">
                   {`${farm.token0.symbol} - ${farm.token1.symbol}`}
                 </Text>
-                <FeeBadge>FEE {farm?.pool?.fee ? (farm?.pool?.fee * 100) / ELASTIC_BASE_FEE_UNIT : 0.03}%</FeeBadge>
-              </RowFit>
+              </Link>
+              <FeeBadge>FEE {farm?.pool?.fee ? (farm?.pool?.fee * 100) / ELASTIC_BASE_FEE_UNIT : 0.03}%</FeeBadge>
+            </RowFit>
+            <RowFit gap="8px">
+              <IconButton>
+                <CopyHelper toCopy={farm?.poolAddress || ''} />
+              </IconButton>
+              <IconButton>
+                <Share2 size={14} fill="currentcolor" />
+              </IconButton>
+            </RowFit>
+          </RowBetween>
+          <RowBetween>
+            <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
+              <Trans>Current phase will end in</Trans>
+            </Text>
+            <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+              {farm ? getFormattedTimeFromSecond(farm.endTime - currentTimestamp) : <Trans>17D 3H 40M</Trans>}
+            </Text>
+          </RowBetween>
+          <RowBetween>
+            <Column style={{ width: 'fit-content' }} gap="4px">
+              <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
+                {hasRewards ? <Trans>My Rewards</Trans> : <Trans>Rewards</Trans>}
+              </Text>
               <RowFit gap="8px">
-                <IconButton>
-                  <CopyHelper toCopy={farm?.poolAddress || ''} />
-                </IconButton>
-                <IconButton>
-                  <Share2 size={14} fill="currentcolor" />
-                </IconButton>
+                {farm.totalRewards.map((rw, index: number) => (
+                  <>
+                    {index > 0 && (
+                      <Text fontSize="12px" lineHeight="16px" color={theme.border}>
+                        |
+                      </Text>
+                    )}
+                    <RowFit gap="4px">
+                      <MouseoverTooltip text={rw.currency.symbol} placement="top" width="fit-content">
+                        <CurrencyLogo currency={rw.currency} size="16px" />
+                      </MouseoverTooltip>
+                      {hasRewards && (
+                        <Text fontSize="12px" lineHeight="16px" color={theme.text}>
+                          {userTotalRewards[index].toSignificant(4)}
+                        </Text>
+                      )}
+                    </RowFit>
+                  </>
+                ))}
               </RowFit>
+            </Column>
+            <ButtonLight width="fit-content" disabled={!hasRewards} onClick={handleHarvest}>
+              <RowFit gap="4px">
+                <Harvest />
+                <Text>Harvest</Text>
+              </RowFit>
+            </ButtonLight>
+          </RowBetween>
+          <Divider />
+          <Column
+            gap="16px"
+            style={{
+              borderRadius: '12px',
+              border: `1px solid ${theme.border}`,
+              padding: '12px',
+              backgroundColor: 'var(--button-black)',
+            }}
+          >
+            <RowBetween align="flex-start">
+              <Column gap="4px" style={{ alignItems: 'flex-start' }}>
+                <MouseoverTooltip text={t`Active Range: Current active farming range`} placement="top">
+                  <Text
+                    fontSize="12px"
+                    lineHeight="16px"
+                    color={theme.subText}
+                    style={{ borderBottom: '1px dotted var(--subtext)' }}
+                  >
+                    <Trans>Avg APR</Trans>
+                  </Text>
+                </MouseoverTooltip>
+                <Text fontSize="28px" lineHeight="32px" color={theme.apr}>
+                  {(poolAPR + (farm.ranges[activeRangeIndex].apr || 0)).toFixed(2)}%
+                </Text>
+              </Column>
+              <Column gap="4px" style={{ alignItems: 'flex-end' }}>
+                <MouseoverTooltip
+                  text={t`Add liquidity to ${farm.token0.symbol} - ${farm.token1.symbol} pool using the current active range`}
+                  placement="top"
+                >
+                  <Text
+                    fontSize="12px"
+                    lineHeight="16px"
+                    color={theme.primary}
+                    alignSelf="flex-end"
+                    style={{ borderBottom: '1px dotted var(--primary)' }}
+                  >
+                    <Trans>Active Range ↗</Trans>
+                  </Text>
+                </MouseoverTooltip>
+                <PriceVisualize
+                  tickCurrent={+farm.ranges[activeRangeIndex].tickCurrent}
+                  tickRangeLower={+farm.ranges[activeRangeIndex].tickLower}
+                  tickRangeUpper={+farm.ranges[activeRangeIndex].tickUpper}
+                  token0={farm.token0}
+                  token1={farm.token1}
+                />
+              </Column>
             </RowBetween>
-            <Ranges>
-              <div style={{ overflowY: 'scroll', flex: 1 }}>
-                <Column gap="12px">
-                  {farm.ranges.map((r, index: number) => (
-                    <RangeItem
-                      active={activeRangeIndex === index}
-                      farmId={farm.fId}
-                      key={r.id}
-                      rangeInfo={r}
-                      onRangeClick={() => setActiveRangeIndex(index)}
-                      token0={farm.token0}
-                      token1={farm.token1}
-                    />
-                  ))}
-                </Column>
-              </div>
-              <Row justify="center" marginTop="auto">
-                <TextButtonPrimary fontSize="12px" onClick={handleFlip}>
-                  <Trans>Choose this range</Trans>
-                </TextButtonPrimary>
-              </Row>
-            </Ranges>
-          </BackFace>
-        </WrapperInner>
-        <StakeWithNFTsModal isOpen={showStake} onDismiss={() => setShowStake(false)} />
-        {canUnstake && (
-          <UnstakeWithNFTsModal isOpen={showUnstake} onDismiss={() => setShowUnstake(false)} stakedPos={stakedPos} />
-        )}
-      </Wrapper>
-    </FarmContext.Provider>
+            <RowBetween>
+              <Column gap="4px">
+                <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
+                  <Trans>Staked TVL</Trans>
+                </Text>
+                <Text fontSize="16px" fontWeight="500" color={theme.text}>
+                  {farm.ranges[activeRangeIndex].tvl ? formatDollarAmount(farm.ranges[activeRangeIndex].tvl) : '--'}
+                </Text>
+              </Column>
+              <Column gap="4px" style={{ alignItems: 'flex-end' }}>
+                <Text fontSize="12px" fontWeight="500" color={theme.subText}>
+                  <Trans>My Deposit</Trans>
+                </Text>
+                <Text fontSize="16px" fontWeight="500" color={theme.text}>
+                  {stakedPos.length ? formatDollarAmount(myDepositUSD) : '--'}
+                </Text>
+              </Column>
+            </RowBetween>
+            <Divider />
+            <Row gap="12px">
+              {canUnstake && (
+                <UnstakeButton onClick={() => setShowUnstake(p => !p)}>
+                  <RowFit gap="6px">{stakedPos?.length || 3} Positions Staked</RowFit>
+                </UnstakeButton>
+              )}
+              <ButtonLight onClick={() => setShowStake(true)} disabled={!account || !isApproved}>
+                <RowFit gap="6px">
+                  <Plus size={16} />
+                  Stake
+                </RowFit>
+              </ButtonLight>
+            </Row>
+          </Column>
+          <Row justify="center" marginTop="auto">
+            <TextButtonPrimary
+              disabled={rangesCount === 0}
+              fontSize="12px"
+              onClick={() => rangesCount > 0 && handleFlip()}
+              width="fit-content"
+            >
+              <AspectRatio size={16} />
+              <Trans>{rangesCount} Range(s) Available</Trans>
+            </TextButtonPrimary>
+          </Row>
+        </FrontFace>
+
+        <BackFace>
+          <RowBetween>
+            <RowFit gap="4px">
+              <DoubleCurrencyLogo currency0={farm.token0} currency1={farm.token1} />
+              <Text fontSize="16px" lineHeight="20px" color={theme.primary} marginLeft="4px">
+                {`${farm.token0.symbol} - ${farm.token1.symbol}`}
+              </Text>
+              <FeeBadge>FEE {farm?.pool?.fee ? (farm?.pool?.fee * 100) / ELASTIC_BASE_FEE_UNIT : 0.03}%</FeeBadge>
+            </RowFit>
+            <RowFit gap="8px">
+              <IconButton>
+                <CopyHelper toCopy={farm?.poolAddress || ''} />
+              </IconButton>
+              <IconButton>
+                <Share2 size={14} fill="currentcolor" />
+              </IconButton>
+            </RowFit>
+          </RowBetween>
+          <Ranges>
+            <div style={{ overflowY: 'scroll', flex: 1 }}>
+              <Column gap="12px">
+                {farm.ranges.map((r, index: number) => (
+                  <RangeItem
+                    active={activeRangeIndex === index}
+                    farmId={farm.fId}
+                    key={r.id}
+                    rangeInfo={r}
+                    onRangeClick={() => setActiveRangeIndex(index)}
+                    token0={farm.token0}
+                    token1={farm.token1}
+                  />
+                ))}
+              </Column>
+            </div>
+            <Row justify="center" marginTop="auto">
+              <TextButtonPrimary fontSize="12px" onClick={handleFlip}>
+                <Trans>Choose this range</Trans>
+              </TextButtonPrimary>
+            </Row>
+          </Ranges>
+        </BackFace>
+      </WrapperInner>
+      <StakeWithNFTsModal
+        farm={farm}
+        activeRangeIndex={activeRangeIndex}
+        isOpen={showStake}
+        onDismiss={() => setShowStake(false)}
+      />
+      {canUnstake && (
+        <UnstakeWithNFTsModal
+          farm={farm}
+          activeRangeIndex={activeRangeIndex}
+          isOpen={showUnstake}
+          onDismiss={() => setShowUnstake(false)}
+          stakedPos={stakedPos}
+        />
+      )}
+    </Wrapper>
   )
 }
 

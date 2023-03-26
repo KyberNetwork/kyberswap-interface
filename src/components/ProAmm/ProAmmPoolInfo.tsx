@@ -58,7 +58,7 @@ export default function ProAmmPoolInfo({
     }
 
     return (
-      <Flex sx={{ gap: '4px' }}>
+      <Flex sx={{ gap: '4px' }} alignItems="center">
         {isFarmActive && <FarmTag version="v1" address={poolAddress} />}
         {isFarmV2Active && <FarmTag version="v2" address={poolAddress} />}
       </Flex>
@@ -88,7 +88,7 @@ export default function ProAmmPoolInfo({
           <Flex
             alignItems={upToSmall ? undefined : 'center'}
             justifyContent="space-between"
-            flexDirection={upToSmall ? 'column' : undefined}
+            // flexDirection={upToSmall ? 'column' : undefined}
             sx={{ gap: '8px' }}
           >
             <Flex alignItems="center">
@@ -110,7 +110,7 @@ export default function ProAmmPoolInfo({
             alignItems={upToExtraSmall ? 'flex-start' : 'center'}
             marginTop="8px"
             sx={{ gap: '8px' }}
-            flexDirection={upToExtraSmall ? 'column' : 'row'}
+            // flexDirection={upToExtraSmall ? 'column' : 'row'}
           >
             <Flex alignItems="center" color={theme.subText} fontSize={12}>
               <Copy

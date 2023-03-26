@@ -4,7 +4,6 @@
     "stateMutability": "nonpayable",
     "type": "constructor"
   },
-  { "inputs": [], "name": "EmergencyDisabled", "type": "error" },
   { "inputs": [], "name": "EmergencyEnabled", "type": "error" },
   { "inputs": [], "name": "FailToAdd", "type": "error" },
   { "inputs": [], "name": "FailToRemove", "type": "error" },
@@ -12,16 +11,14 @@
   { "inputs": [], "name": "Forbidden", "type": "error" },
   { "inputs": [], "name": "InvalidFarm", "type": "error" },
   { "inputs": [], "name": "InvalidInput", "type": "error" },
-  { "inputs": [], "name": "InvalidLength", "type": "error" },
   { "inputs": [], "name": "InvalidRange", "type": "error" },
   { "inputs": [], "name": "InvalidReward", "type": "error" },
   { "inputs": [], "name": "InvalidTime", "type": "error" },
-  { "inputs": [], "name": "NotEnoughRewardLeft", "type": "error" },
   { "inputs": [], "name": "NotOwner", "type": "error" },
-  { "inputs": [], "name": "PhaseNotSettled", "type": "error" },
   { "inputs": [], "name": "PhaseSettled", "type": "error" },
   { "inputs": [], "name": "PositionNotEligible", "type": "error" },
   { "inputs": [], "name": "RangeNotFound", "type": "error" },
+  { "inputs": [], "name": "RangeNotMatch", "type": "error" },
   { "inputs": [], "name": "StakeNotFound", "type": "error" },
   {
     "anonymous": false,
@@ -113,7 +110,7 @@
     "anonymous": false,
     "inputs": [
       { "indexed": false, "internalType": "uint256", "name": "fId", "type": "uint256" },
-      { "indexed": false, "internalType": "uint256", "name": "nftId", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256[]", "name": "nftIds", "type": "uint256[]" },
       { "indexed": false, "internalType": "address", "name": "token", "type": "address" },
       { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" },
       { "indexed": false, "internalType": "address", "name": "receiver", "type": "address" }
@@ -133,8 +130,6 @@
     "name": "Deposit",
     "type": "event"
   },
-  { "anonymous": false, "inputs": [], "name": "DisabledEmergency", "type": "event" },
-  { "anonymous": false, "inputs": [], "name": "EnabledEmergency", "type": "event" },
   {
     "anonymous": false,
     "inputs": [
@@ -171,11 +166,17 @@
   },
   {
     "anonymous": false,
+    "inputs": [{ "indexed": false, "internalType": "bool", "name": "enableOrDisable", "type": "bool" }],
+    "name": "UpdateEmergency",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
     "inputs": [
       { "indexed": true, "internalType": "uint256", "name": "fId", "type": "uint256" },
       { "indexed": false, "internalType": "uint256", "name": "nftId", "type": "uint256" },
-      { "indexed": false, "internalType": "uint128", "name": "oldLiquidity", "type": "uint128" },
-      { "indexed": false, "internalType": "uint128", "name": "newLiquidity", "type": "uint128" }
+      { "indexed": false, "internalType": "uint256", "name": "oldLiquidity", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "newLiquidity", "type": "uint256" }
     ],
     "name": "UpdateLiquidity",
     "type": "event"
@@ -253,6 +254,17 @@
     ],
     "name": "addFarm",
     "outputs": [{ "internalType": "uint256", "name": "fId", "type": "uint256" }],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "fId", "type": "uint256" },
+      { "internalType": "uint256", "name": "rangeId", "type": "uint256" },
+      { "internalType": "uint256[]", "name": "nftIds", "type": "uint256[]" }
+    ],
+    "name": "addLiquidity",
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -343,13 +355,6 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "bool", "name": "isEnable", "type": "bool" }],
-    "name": "emergencySetup",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [
       { "internalType": "uint256", "name": "fId", "type": "uint256" },
       { "internalType": "uint32", "name": "duration", "type": "uint32" },
@@ -423,27 +428,11 @@
         "name": "phase",
         "type": "tuple"
       },
-      { "internalType": "uint128", "name": "liquidity", "type": "uint128" },
-      { "internalType": "contract IKyberSwapFarmingToken", "name": "", "type": "address" }
+      { "internalType": "uint256", "name": "liquidity", "type": "uint256" },
+      { "internalType": "contract IKyberSwapFarmingToken", "name": "", "type": "address" },
+      { "internalType": "uint256[]", "name": "sumRewardPerLiquidity", "type": "uint256[]" },
+      { "internalType": "uint32", "name": "lastTouchedTime", "type": "uint32" }
     ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "uint256", "name": "fId", "type": "uint256" },
-      { "internalType": "uint256", "name": "nftId", "type": "uint256" },
-      { "internalType": "address", "name": "token", "type": "address" }
-    ],
-    "name": "getLastSumRewardPerLiquidity",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [{ "internalType": "uint256", "name": "fId", "type": "uint256" }],
-    "name": "getLastUpdatedTime",
-    "outputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -461,7 +450,9 @@
       { "internalType": "address", "name": "owner", "type": "address" },
       { "internalType": "uint256", "name": "fId", "type": "uint256" },
       { "internalType": "uint256", "name": "rangeId", "type": "uint256" },
-      { "internalType": "uint128", "name": "liquidity", "type": "uint128" }
+      { "internalType": "uint256", "name": "liquidity", "type": "uint256" },
+      { "internalType": "uint256[]", "name": "lastSumRewardPerLiquidity", "type": "uint256[]" },
+      { "internalType": "uint256[]", "name": "rewardUnclaimed", "type": "uint256[]" }
     ],
     "stateMutability": "view",
     "type": "function"
@@ -469,11 +460,17 @@
   {
     "inputs": [
       { "internalType": "uint256", "name": "fId", "type": "uint256" },
-      { "internalType": "address", "name": "token", "type": "address" }
+      { "internalType": "uint256", "name": "rangeId", "type": "uint256" },
+      { "internalType": "uint256[]", "name": "nftIds", "type": "uint256[]" },
+      { "internalType": "uint128[]", "name": "liquidities", "type": "uint128[]" },
+      { "internalType": "uint256", "name": "amount0Min", "type": "uint256" },
+      { "internalType": "uint256", "name": "amount1Min", "type": "uint256" },
+      { "internalType": "uint256", "name": "deadline", "type": "uint256" },
+      { "internalType": "bool", "name": "claimFee", "type": "bool" }
     ],
-    "name": "getSumRewardPerLiquidity",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "stateMutability": "view",
+    "name": "removeLiquidity",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -487,19 +484,8 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "address", "name": "_admin", "type": "address" }],
-    "name": "transferAdmin",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "uint256", "name": "fId", "type": "uint256" },
-      { "internalType": "uint256", "name": "rangeId", "type": "uint256" },
-      { "internalType": "uint256[]", "name": "nftIds", "type": "uint256[]" }
-    ],
-    "name": "updateLiquidity",
+    "inputs": [{ "internalType": "bool", "name": "enableOrDisable", "type": "bool" }],
+    "name": "updateEmergency",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -537,16 +523,6 @@
       { "internalType": "uint256[]", "name": "nftIds", "type": "uint256[]" }
     ],
     "name": "withdrawEmergency",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "address[]", "name": "tokens", "type": "address[]" },
-      { "internalType": "uint256[]", "name": "amounts", "type": "uint256[]" }
-    ],
-    "name": "withdrawUnusedRewards",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

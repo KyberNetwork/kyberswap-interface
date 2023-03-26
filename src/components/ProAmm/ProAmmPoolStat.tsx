@@ -191,7 +191,7 @@ export default function ProAmmPoolStat({
           placement="right"
           text={
             <APRTooltipContent
-              farmV2APR={activeRanges[activeRange].apr}
+              farmV2APR={activeRanges[activeRange]?.apr}
               farmAPR={pool.farmAPR || 0}
               poolAPR={pool.apr}
             />

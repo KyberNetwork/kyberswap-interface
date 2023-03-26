@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import React, { useCallback, useContext, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { Minus, X } from 'react-feather'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -9,10 +9,9 @@ import Modal from 'components/Modal'
 import Row, { RowBetween, RowFit, RowWrap } from 'components/Row'
 import useTheme from 'hooks/useTheme'
 import { useFarmV2Action } from 'state/farms/elasticv2/hooks'
-import { UserFarmV2Info } from 'state/farms/elasticv2/types'
+import { ElasticFarmV2, UserFarmV2Info } from 'state/farms/elasticv2/types'
 
 import { convertTickToPrice } from '../utils'
-import { FarmContext } from './FarmCard'
 import PriceVisualize from './PriceVisualize'
 
 const Wrapper = styled.div`
@@ -63,15 +62,12 @@ const CloseButton = styled.div`
 export const NFTItem = ({
   active,
   pos,
-
   onClick,
 }: {
   active?: boolean
   pos?: UserFarmV2Info
   onClick?: (tokenId: string) => void
 }) => {
-  const { farm, activeRange } = useContext(FarmContext)
-
   return (
     <>
       {pos && (
@@ -79,18 +75,14 @@ export const NFTItem = ({
           <Text fontSize="12px" lineHeight="16px" color="var(--primary)">
             {`#${pos.nftId.toString()}`}
           </Text>
-          {farm?.token0 && farm?.token1 && (
-            <PriceVisualize
-              rangeInclude={false}
-              token0={farm.token0}
-              token1={farm.token1}
-              tickRangeUpper={activeRange?.tickUpper}
-              tickRangeLower={activeRange?.tickLower}
-              tickPosLower={pos?.position?.tickLower}
-              tickPosUpper={pos?.position?.tickUpper}
-              tickCurrent={0}
-            />
-          )}
+          <PriceVisualize
+            rangeInclude={false}
+            token0={pos.position.pool.token0}
+            token1={pos.position.pool.token1}
+            tickPosLower={pos?.position?.tickLower}
+            tickPosUpper={pos?.position?.tickUpper}
+            tickCurrent={0}
+          />
           <Text fontSize="12px" lineHeight="16px">
             $230,23K
           </Text>
@@ -104,13 +96,17 @@ const UnstakeWithNFTsModal = ({
   isOpen,
   onDismiss,
   stakedPos,
+  farm,
+  activeRangeIndex,
 }: {
   isOpen: boolean
   onDismiss: () => void
   stakedPos?: UserFarmV2Info[]
+  farm: ElasticFarmV2
+  activeRangeIndex: number
 }) => {
+  const activeRange = farm.ranges[activeRangeIndex]
   const theme = useTheme()
-  const { farm, activeRange } = useContext(FarmContext)
   const [selectedPos, setSelectedPos] = useState<{ [tokenId: string]: boolean }>({})
   const selectedPosArray: Array<number> = useMemo(
     () =>

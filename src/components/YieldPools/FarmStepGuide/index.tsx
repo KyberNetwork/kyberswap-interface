@@ -25,7 +25,7 @@ const Left = styled.div`
 const Right = styled.div<{ img: string }>`
   background: ${({ theme }) => theme.buttonBlack};
   flex: 3;
-  transition: all 0.3s ease-in-out;
+  transition: all 0.2s ease-in-out;
   background-image: ${({ img }) => `url(${img})`};
   background-size: contain;
   background-position: center;
