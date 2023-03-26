@@ -10,7 +10,7 @@ import Row, { RowFit } from 'components/Row'
 
 import { SectionWrapper } from '../components'
 import CexRekt from '../components/CexRekt'
-import { LiquidOnCentralizedExchanges, PriceChart } from '../components/chart'
+import { LiquidOnCentralizedExchanges, Prochart } from '../components/chart'
 import { FundingRateTable, LiveDEXTrades, SupportResistanceLevel } from '../components/table'
 import { ChartTab } from '../types'
 
@@ -34,7 +34,7 @@ export default function TechnicalAnalysis() {
         onTabClick={setLiveChartTab}
         style={{ height: '700px' }}
       >
-        <PriceChart />
+        <Prochart isBTC={liveChartTab === ChartTab.Second} />
       </SectionWrapper>
       <SectionWrapper
         show={true}

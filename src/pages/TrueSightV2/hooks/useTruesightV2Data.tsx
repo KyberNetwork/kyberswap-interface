@@ -90,9 +90,10 @@ const truesightV2Api = createApi({
       transformResponse: (res: any) => HOLDER_LIST,
     }),
     //11.
-    charingData: builder.query<OHLCData[], { from: number; to: number }>({
-      query: ({ from, to }) => ({
-        url: `/ohlcv/ethereum/0xdac17f958d2ee523a2206206994597c13d831ec7?currency=USD&from=${from}&to=${to}&candleSize=1h`,
+    charingData: builder.query<OHLCData[], { from: number; to: number; candleSize: string; currency: string }>({
+      query: params => ({
+        url: `/ohlcv/ethereum/0x2260fac5e5542a773aa44fbcfedf7c193bc2c599`,
+        params,
       }),
       transformResponse: (res: any) => {
         if (res.code === 0) {
@@ -107,7 +108,7 @@ const truesightV2Api = createApi({
     //16.
     transferInformation: builder.query({
       query: () => ({
-        url: '/holdersNum/ethereum/0xdac17f958d2ee523a2206206994597c13d831ec7?from=1633344036&to=1675215565',
+        url: '/holdersNum/ethereum/0x2260fac5e5542a773aa44fbcfedf7c193bc2c599?from=1633344036&to=1675215565',
       }),
       transformResponse: (res: any) => res.data,
     }),

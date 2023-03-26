@@ -22,7 +22,6 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import { PoolResponse } from 'services/geckoTermial'
 import styled, { css } from 'styled-components'
 
 import Column from 'components/Column'
@@ -1486,12 +1485,12 @@ const ProLiveChartWrapper = styled.div<{ fullscreen: boolean }>`
   `}
 `
 
-const Prochart = ({ poolDetail }: { poolDetail?: PoolResponse }) => {
+export const Prochart = ({ isBTC }: { isBTC?: boolean }) => {
   const theme = useTheme()
   const [ref, setRef] = useState<HTMLDivElement | null>(null)
   const [fullscreen, setFullscreen] = useState(false)
 
-  const datafeed = useDatafeed()
+  const datafeed = useDatafeed(isBTC || false)
 
   useEffect(() => {
     if (!ref || !window.TradingView) {
@@ -1502,7 +1501,7 @@ const Prochart = ({ poolDetail }: { poolDetail?: PoolResponse }) => {
     const widgetOptions: ChartingLibraryWidgetOptions = {
       symbol: 'BTC',
       datafeed: datafeed,
-      interval: '1H' as ResolutionString,
+      interval: '4H' as ResolutionString,
       container: ref,
       library_path: '/charting_library/',
       disabled_features: [
@@ -1524,13 +1523,7 @@ const Prochart = ({ poolDetail }: { poolDetail?: PoolResponse }) => {
       theme: theme.darkMode ? 'Dark' : 'Light',
       custom_css_url: '/charting_library/style.css',
       timeframe: '2w',
-      time_frames: [
-        { text: '6m', resolution: '4H' as ResolutionString, description: '6 Months' },
-        { text: '1m', resolution: '1H' as ResolutionString, description: '1 Month' },
-        { text: '2w', resolution: '1H' as ResolutionString, description: '2 Weeks' },
-        { text: '1w', resolution: '1H' as ResolutionString, description: '1 Week' },
-        { text: '1d', resolution: '15' as ResolutionString, description: '1 Day' },
-      ],
+      time_frames: [{ text: '2w', resolution: '1H' as ResolutionString, description: '2 Weeks' }],
       locale: 'vi',
     }
     const tvWidget = new window.TradingView.widget(widgetOptions)
@@ -1569,7 +1562,7 @@ const Prochart = ({ poolDetail }: { poolDetail?: PoolResponse }) => {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [theme, ref])
+  }, [theme, ref, datafeed])
 
   return (
     <ProLiveChartWrapper fullscreen={fullscreen} onClick={() => setFullscreen(false)}>
