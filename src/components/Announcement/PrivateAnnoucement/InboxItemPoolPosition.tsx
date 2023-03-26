@@ -12,7 +12,7 @@ import {
   RowItem,
   Title,
 } from 'components/Announcement/PrivateAnnoucement/styled'
-import { useNavigateCtaPopup } from 'components/Announcement/helper'
+import { useNavigateToUrl } from 'components/Announcement/helper'
 import { AnnouncementTemplatePoolPosition, PrivateAnnouncementType } from 'components/Announcement/type'
 import { DoubleCurrencyLogoV2 } from 'components/DoubleLogo'
 import { MoneyBag } from 'components/Icons'
@@ -46,7 +46,7 @@ function InboxItemBridge({
   const isInRange = type === 'IN_RANGE'
   const statusMessage = isInRange ? t`Back in range` : t`Out of range`
 
-  const navigate = useNavigateCtaPopup()
+  const navigate = useNavigateToUrl()
   const onClick = () => {
     navigate(`${APP_PATHS.MY_POOLS}/${NETWORKS_INFO[chainId].route}?search=${poolAddress}`, chainId)
     onRead(announcement, statusMessage)

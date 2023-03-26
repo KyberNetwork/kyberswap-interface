@@ -1,4 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { AnnouncementTemplatePopup, PopupContentAnnouncement, PopupItemType } from 'components/Announcement/type'
@@ -42,33 +43,43 @@ export const formatTime = (time: number) => {
   return `${day} days ago`
 }
 
-export const useNavigateCtaPopup = () => {
+/**
+ * this hook to navigate to specific url
+ * detect using window.open or navigate (react-router)
+ * check change chain if needed
+ */
+export const useNavigateToUrl = () => {
   const navigate = useNavigate()
   const { chainId: currentChain } = useActiveWeb3React()
   const changeNetwork = useChangeNetwork()
 
-  const redirect = (actionURL: string) => {
-    if (actionURL && actionURL.startsWith('/')) {
-      navigate(actionURL)
-      return
-    }
-    const { pathname, host } = new URL(actionURL)
-    if (window.location.host === host) {
-      navigate(pathname)
-    } else {
-      window.open(actionURL)
-    }
-  }
-
-  const onNavigate = (actionURL: string, chainId?: ChainId) => {
-    try {
-      if (!actionURL) return
-      if (chainId && chainId !== currentChain) {
-        changeNetwork(chainId, () => redirect(actionURL))
-      } else {
-        redirect(actionURL)
+  const redirect = useCallback(
+    (actionURL: string) => {
+      if (actionURL && actionURL.startsWith('/')) {
+        navigate(actionURL)
+        return
       }
-    } catch (error) {}
-  }
-  return onNavigate
+      const { pathname, host } = new URL(actionURL)
+      if (window.location.host === host) {
+        navigate(pathname)
+      } else {
+        window.open(actionURL)
+      }
+    },
+    [navigate],
+  )
+
+  return useCallback(
+    (actionURL: string, chainId?: ChainId) => {
+      try {
+        if (!actionURL) return
+        if (chainId && chainId !== currentChain) {
+          changeNetwork(chainId, () => redirect(actionURL), undefined, true)
+        } else {
+          redirect(actionURL)
+        }
+      } catch (error) {}
+    },
+    [changeNetwork, currentChain, redirect],
+  )
 }

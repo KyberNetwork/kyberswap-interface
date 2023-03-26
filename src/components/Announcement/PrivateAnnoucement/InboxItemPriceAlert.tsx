@@ -6,7 +6,7 @@ import { Flex, Text } from 'rebass'
 import { PrivateAnnouncementProp } from 'components/Announcement/PrivateAnnoucement'
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
 import { Dot, InboxItemRow, InboxItemWrapper, RowItem, Title } from 'components/Announcement/PrivateAnnoucement/styled'
-import { useNavigateCtaPopup } from 'components/Announcement/helper'
+import { useNavigateToUrl } from 'components/Announcement/helper'
 import { AnnouncementTemplatePriceAlert, PrivateAnnouncementType } from 'components/Announcement/type'
 import { ButtonLight } from 'components/Button'
 import DeltaTokenAmount from 'components/WalletPopup/Transactions/DeltaTokenAmount'
@@ -17,13 +17,11 @@ import { HistoricalPriceAlert, PriceAlertType } from 'pages/NotificationCenter/c
 import { convertToSlug } from 'utils/string'
 
 const getSwapUrlPriceAlert = (alert: HistoricalPriceAlert) => {
-  const { tokenInSymbol, chainId: rawChainId, swapURL } = alert
+  const { tokenInSymbol, tokenOutSymbol, chainId: rawChainId } = alert
   const chainId = Number(rawChainId) as ChainId
-  console.log(swapURL) // todo danh
-  return swapURL
   return `${APP_PATHS.SWAP}/${NETWORKS_INFO[chainId].route}/${convertToSlug(tokenInSymbol)}-to-${convertToSlug(
-    'dai',
-  )}?symbol=1`
+    tokenOutSymbol,
+  )}`
 }
 
 function InboxItemBridge({
@@ -47,7 +45,7 @@ function InboxItemBridge({
   } = templateBody.alert
   const chainId = Number(rawChainId) as ChainId
 
-  const navigate = useNavigateCtaPopup()
+  const navigate = useNavigateToUrl()
   const onClick = () => {
     navigate(getSwapUrlPriceAlert(templateBody.alert), chainId)
     onRead(announcement, 'price_alert')
