@@ -22,10 +22,8 @@ import { useAllTokens } from 'hooks/Tokens'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { ButtonIcon } from 'pages/Pools/styleds'
-import { useToggleEthPowAckModal } from 'state/application/hooks'
 import { useElasticFarms } from 'state/farms/elastic/hooks'
 import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
-import { useUrlOnEthPowAck } from 'state/pools/hooks'
 import { ExternalLink } from 'theme'
 import { ElasticPoolDetail } from 'types/pool'
 import { isAddressString, shortenAddress } from 'utils'
@@ -81,8 +79,6 @@ export default function ProAmmPoolListItem({ pool, onShared, userPositions }: Li
   const { chainId, networkInfo } = useActiveWeb3React()
   const theme = useTheme()
   const navigate = useNavigate()
-  const [, setUrlOnEthPoWAck] = useUrlOnEthPowAck()
-  const toggleEthPowAckModal = useToggleEthPowAckModal()
 
   const allTokens = useAllTokens()
 
@@ -244,13 +240,7 @@ export default function ProAmmPoolListItem({ pool, onShared, userPositions }: Li
                 token_2: token1Symbol,
                 fee_tier: pool.feeTier / ELASTIC_BASE_FEE_UNIT,
               })
-
-              if (chainId === ChainId.ETHW) {
-                setUrlOnEthPoWAck(url)
-                toggleEthPowAckModal()
-              } else {
-                navigate(url)
-              }
+              navigate(url)
             }}
           >
             <Plus size={16} color={theme.primary} />
