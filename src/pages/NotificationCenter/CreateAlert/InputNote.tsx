@@ -3,19 +3,23 @@ import { FormEvent } from 'react'
 
 import { StyledInput } from 'pages/NotificationCenter/CreateAlert/styleds'
 
-export default function InputNote({ onChangeInput }: { onChangeInput: (v: string) => void }) {
+export default function InputNote({ onChangeInput, value }: { onChangeInput: (v: string) => void; value: string }) {
   function autoGrow(e: FormEvent<HTMLTextAreaElement>) {
     const element = e.currentTarget
     element.style.height = Math.max(36, element.scrollHeight < 48 ? 36 : element.scrollHeight) + 'px'
   }
+  const maxLength = 32
   return (
     <StyledInput
       contentEditable
       placeholder={t`Add a note`}
-      maxLength={32}
+      maxLength={maxLength}
       onInput={autoGrow}
+      value={value}
       onChange={e => {
-        onChangeInput(e.target.value)
+        const value = e.target.value
+        if (value.length > maxLength) return
+        onChangeInput(value)
       }}
       onKeyDown={e => (e.key === 'Enter' ? e.preventDefault() : undefined)}
     />

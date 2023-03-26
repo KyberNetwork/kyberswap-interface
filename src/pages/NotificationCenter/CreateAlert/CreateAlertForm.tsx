@@ -328,7 +328,7 @@ export default function CreateAlert({
             <MiniLabel>
               <Trans>Note</Trans>
             </MiniLabel>
-            <InputNote onChangeInput={val => onChangeInput('note', val)} />
+            <InputNote onChangeInput={val => onChangeInput('note', val)} value={formInput.note} />
           </RowBetween>
           <Row gap="8px">
             <CheckBox

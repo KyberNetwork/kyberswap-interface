@@ -75,6 +75,7 @@ export const StyledInput = styled.textarea`
   outline: none;
   background: transparent;
   height: 36px;
+  max-height: 50px;
   resize: none;
 `
 
