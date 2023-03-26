@@ -1,14 +1,14 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { ArrowDown, ArrowRight, ArrowUp, Share2, Star } from 'react-feather'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { useGesture } from 'react-use-gesture'
 import { Text } from 'rebass'
-import styled, { css } from 'styled-components'
+import styled, { DefaultTheme, css } from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { ButtonGray, ButtonLight, ButtonOutlined } from 'components/Button'
@@ -18,6 +18,7 @@ import InfoHelper from 'components/InfoHelper'
 import Pagination from 'components/Pagination'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import ShareModal from 'components/ShareModal'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
@@ -224,19 +225,81 @@ const ButtonTypeInactive = styled(ButtonOutlined)`
   }
 `
 
-const tokenTypeList: { type: TokenListTab; icon?: string }[] = [
+const tokenTypeList: { type: TokenListTab; icon?: string; tooltip?: (theme: DefaultTheme) => ReactNode }[] = [
   { type: TokenListTab.All },
   { type: TokenListTab.MyWatchlist, icon: 'star' },
-  { type: TokenListTab.Bullish, icon: 'bullish' },
-  { type: TokenListTab.Bearish, icon: 'bearish' },
-  { type: TokenListTab.TrendingSoon, icon: 'trending-soon' },
-  { type: TokenListTab.CurrentlyTrending, icon: 'flame' },
-  { type: TokenListTab.TopInflow, icon: 'download' },
-  { type: TokenListTab.TopOutflow, icon: 'upload' },
-  { type: TokenListTab.TopTraded, icon: 'coin-bag' },
+  {
+    type: TokenListTab.Bullish,
+    icon: 'bullish',
+    tooltip: theme => (
+      <span>
+        Tokens with the highest chance of price <span style={{ color: theme.text }}>increase</span> in the next 24H
+        (highest KyberScore)
+      </span>
+    ),
+  },
+  {
+    type: TokenListTab.Bearish,
+    icon: 'bearish',
+    tooltip: theme => (
+      <span>
+        Tokens with the highest chance of price <span style={{ color: theme.text }}>decrease</span> in the next 24H
+        (lowest KyberScore)
+      </span>
+    ),
+  },
+  {
+    type: TokenListTab.TopInflow,
+    icon: 'download',
+    tooltip: theme => (
+      <span>
+        Tokens with the highest <span style={{ color: theme.text }}>deposits</span> to Centralized Exchanges over the
+        last 3 Days. Possible incoming sell pressure
+      </span>
+    ),
+  },
+  {
+    type: TokenListTab.TopOutflow,
+    icon: 'upload',
+    tooltip: theme => (
+      <span>
+        Tokens with the highest <span style={{ color: theme.text }}>withdrawals</span> from Centralized Exchanges over
+        the last 3 Days. Possible buy pressure
+      </span>
+    ),
+  },
+  {
+    type: TokenListTab.TopTraded,
+    icon: 'coin-bag',
+    tooltip: theme => (
+      <span>
+        Tokens with the <span style={{ color: theme.text }}>highest 24H trading volume</span>
+      </span>
+    ),
+  },
+  {
+    type: TokenListTab.TrendingSoon,
+    icon: 'trending-soon',
+    tooltip: theme => (
+      <span>
+        Tokens that could be <span style={{ color: theme.text }}>trending</span> in the near future. Trending indicates
+        interest in a token - it doesnt imply bullishness or bearishness
+      </span>
+    ),
+  },
+  {
+    type: TokenListTab.CurrentlyTrending,
+    icon: 'flame',
+    tooltip: theme => (
+      <span>
+        Tokens that are <span style={{ color: theme.text }}>currently trending</span> in the market
+      </span>
+    ),
+  },
 ]
 
 const TokenListDraggableTabs = ({ tab, setTab }: { tab: TokenListTab; setTab: (type: TokenListTab) => void }) => {
+  const theme = useTheme()
   const [showScrollRightButton, setShowScrollRightButton] = useState(false)
   const [scrollLeftValue, setScrollLeftValue] = useState(0)
   const wrapperRef = useRef<HTMLDivElement>(null)
@@ -291,7 +354,7 @@ const TokenListDraggableTabs = ({ tab, setTab }: { tab: TokenListTab; setTab: (t
   return (
     <>
       <TabWrapper ref={wrapperRef} onScrollCapture={e => e.preventDefault()} {...bind()}>
-        {tokenTypeList.map(({ type, icon }, index) => {
+        {tokenTypeList.map(({ type, icon, tooltip }, index) => {
           const props = {
             onClick: () => {
               setTab(type)
@@ -308,17 +371,21 @@ const TokenListDraggableTabs = ({ tab, setTab }: { tab: TokenListTab; setTab: (t
           }
           if (tab === type) {
             return (
-              <ButtonTypeActive key={type} {...props} ref={el => (tabListRef.current[index] = el)}>
-                {icon && <Icon id={icon} size={16} />}
-                {type}
-              </ButtonTypeActive>
+              <MouseoverTooltip key={type} text={tooltip?.(theme)} placement="top" opacity={1}>
+                <ButtonTypeActive {...props} ref={el => (tabListRef.current[index] = el)}>
+                  {icon && <Icon id={icon} size={16} />}
+                  {type}
+                </ButtonTypeActive>
+              </MouseoverTooltip>
             )
           } else {
             return (
-              <ButtonTypeInactive key={type} {...props} ref={el => (tabListRef.current[index] = el)}>
-                {icon && <Icon id={icon} size={16} />}
-                {type}
-              </ButtonTypeInactive>
+              <MouseoverTooltip key={type} text={tooltip?.(theme)} placement="top" opacity={1}>
+                <ButtonTypeInactive key={type} {...props} ref={el => (tabListRef.current[index] = el)}>
+                  {icon && <Icon id={icon} size={16} />}
+                  {type}
+                </ButtonTypeInactive>
+              </MouseoverTooltip>
             )
           }
         })}

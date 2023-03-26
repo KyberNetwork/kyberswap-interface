@@ -13,6 +13,7 @@ import Row, { RowBetween } from 'components/Row'
 import { APP_PATHS } from 'constants/index'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
+import { useKyberAIWidget } from 'state/user/hooks'
 
 import { WidgetTable } from './table'
 
@@ -40,7 +41,7 @@ const WidgetWrapper = styled.div<{ show?: boolean }>`
   position: fixed;
   right: 0;
   top: 110px;
-  transition: all 1.5s ease;
+  transition: all 1.5s ease-out;
   z-index: 10;
   ${({ show }) =>
     !show &&
@@ -144,7 +145,7 @@ enum WidgetTab {
 export default function Widget() {
   const theme = useTheme()
   const [showExpanded, setShowExpanded] = useState(false)
-  const [showWidget, setShowWidget] = useState(true)
+  const [showWidget, toggleWidget] = useKyberAIWidget()
   const [activeTab, setActiveTab] = useState<WidgetTab>(WidgetTab.MyWatchlist)
   const ref = useRef<HTMLDivElement>(null)
   useOnClickOutside(ref, () => {
@@ -157,7 +158,7 @@ export default function Widget() {
         <CloseButton
           onClick={e => {
             e.stopPropagation()
-            setShowWidget(false)
+            toggleWidget()
           }}
         >
           <X size={12} />

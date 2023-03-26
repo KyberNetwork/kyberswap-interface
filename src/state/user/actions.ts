@@ -51,3 +51,4 @@ export const updateAcceptedTermVersion = createAction<number | null>('user/updat
 export const changeViewMode = createAction<VIEW_MODE>('user/changeViewMode')
 export const toggleHolidayMode = createAction<void>('user/toggleHolidayMode')
 export const pinSlippageControl = createAction<boolean>('user/pinSlippageControl')
+export const toggleKyberAIWidget = createAction<void>('user/toggleKyberAIWidget')

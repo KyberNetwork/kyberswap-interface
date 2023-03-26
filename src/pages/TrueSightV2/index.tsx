@@ -12,8 +12,8 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 
+import TrueSightWidget from './components/KyberAIWidget'
 import SearchWithDropDown from './components/SearchWithDropDown'
-import TrueSightWidget from './components/Widget'
 import SingleToken from './pages/SingleToken'
 import TokenAnalysisList from './pages/TokenAnalysisList'
 

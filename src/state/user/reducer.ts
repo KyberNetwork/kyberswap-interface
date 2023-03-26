@@ -17,6 +17,7 @@ import {
   removeSerializedToken,
   toggleFavoriteToken,
   toggleHolidayMode,
+  toggleKyberAIWidget,
   toggleLiveChart,
   toggleTokenInfo,
   toggleTopTrendingTokens,
@@ -96,6 +97,7 @@ interface UserState {
   holidayMode: boolean
 
   isSlippageControlPinned: boolean
+  kyberAIWidget: boolean
 }
 
 function pairKey(token0Address: string, token1Address: string) {
@@ -159,6 +161,7 @@ const initialState: UserState = {
   viewMode: VIEW_MODE.GRID,
   holidayMode: true,
   isSlippageControlPinned: true,
+  kyberAIWidget: true,
 }
 
 export default createReducer(initialState, builder =>
@@ -301,5 +304,8 @@ export default createReducer(initialState, builder =>
     })
     .addCase(pinSlippageControl, (state, { payload }) => {
       state.isSlippageControlPinned = payload
+    })
+    .addCase(toggleKyberAIWidget, state => {
+      state.kyberAIWidget = !state.kyberAIWidget
     }),
 )

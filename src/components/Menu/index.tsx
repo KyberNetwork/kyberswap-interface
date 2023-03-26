@@ -50,7 +50,7 @@ import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
-import { useDarkModeManager, useHolidayMode, useUserLocale } from 'state/user/hooks'
+import { useDarkModeManager, useHolidayMode, useKyberAIWidget, useUserLocale } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { isChristmasTime } from 'utils'
 
@@ -224,6 +224,7 @@ export default function Menu() {
   const { showNotificationModal } = useNotification()
   const [darkMode, toggleSetDarkMode] = useDarkModeManager()
   const [holidayMode, toggleHolidayMode] = useHolidayMode()
+  const [kyberAIWidgetActive, toggleKyberAIWidget] = useKyberAIWidget()
   const [isSelectingLanguage, setIsSelectingLanguage] = useState(false)
 
   const userLocale = useUserLocale()
@@ -513,6 +514,15 @@ export default function Menu() {
               </NavLinkBetween>
             )}
 
+            <NavLinkBetween
+              onClick={() => {
+                toggleKyberAIWidget()
+                handlePreferenceClickMixpanel('KyberAI Widget')
+              }}
+            >
+              <Trans>KyberAI Widget</Trans>
+              <Toggle isActive={kyberAIWidgetActive} toggle={noop} />
+            </NavLinkBetween>
             <NavLinkBetween
               onClick={() => {
                 toggleSetDarkMode()

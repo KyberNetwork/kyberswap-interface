@@ -26,6 +26,7 @@ import {
   removeSerializedToken,
   toggleFavoriteToken as toggleFavoriteTokenAction,
   toggleHolidayMode,
+  toggleKyberAIWidget,
   toggleLiveChart,
   toggleTokenInfo,
   toggleTopTrendingTokens,
@@ -432,4 +433,17 @@ export const useHolidayMode: () => [boolean, () => void] = () => {
   }, [dispatch])
 
   return [isChristmasTime() ? holidayMode : false, toggle]
+}
+
+export const useKyberAIWidget: () => [boolean, () => void] = () => {
+  const dispatch = useAppDispatch()
+  const kyberAIWidget = useAppSelector(state =>
+    state.user.kyberAIWidget === undefined ? true : state.user.kyberAIWidget,
+  )
+
+  const toggle = useCallback(() => {
+    dispatch(toggleKyberAIWidget())
+  }, [dispatch])
+
+  return [kyberAIWidget, toggle]
 }
