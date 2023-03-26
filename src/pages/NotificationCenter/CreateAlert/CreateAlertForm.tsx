@@ -1,4 +1,4 @@
-import { ChainId, Currency, getChainType } from '@kyberswap/ks-sdk-core'
+import { ChainId, getChainType } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
 import { ArrowDown, ArrowUp, Info } from 'react-feather'
@@ -15,11 +15,10 @@ import Row, { RowBetween } from 'components/Row'
 import RefreshButton from 'components/SwapForm/RefreshButton'
 import { MouseoverTooltip } from 'components/Tooltip'
 import TradePrice from 'components/swapv2/TradePrice'
-import { ETHER_ADDRESS, ETHER_ADDRESS_SOLANA } from 'constants/index'
-import { isEVM as isEvmChain } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useBaseTradeInfoWithAggregator } from 'hooks/useBaseTradeInfo'
 import useTheme from 'hooks/useTheme'
+import InputNote from 'pages/NotificationCenter/CreateAlert/InputNote'
 import {
   ActionGroup,
   ButtonCancel,
@@ -31,13 +30,11 @@ import {
   LeftColumn,
   MiniLabel,
   RightColumn,
-  StyledInput,
   StyledInputNumber,
   StyledSelect,
 } from 'pages/NotificationCenter/CreateAlert/styleds'
 import useCurrencyHandler from 'pages/NotificationCenter/CreateAlert/useCurrencyHandler'
 import {
-  COOLDOWN_OPTIONS,
   ConfirmAlertModalData,
   CreatePriceAlertPayload,
   DEFAULT_ALERT_COOLDOWN,
@@ -45,7 +42,9 @@ import {
   PriceAlertStat,
   PriceAlertType,
   TYPE_OPTIONS,
+  getCoolDownOptions,
 } from 'pages/NotificationCenter/const'
+import { getTokenAddress } from 'pages/NotificationCenter/helper'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 
@@ -122,17 +121,9 @@ export default function CreateAlert({
     const fillAllInput = Boolean(
       account && currencyIn && currencyOut && formInput.tokenInAmount && formInput.threshold && !isMaxQuota,
     )
-    if (!fillAllInput) return false
-    if (!parsedAmount) return false
+    if (!fillAllInput || !parsedAmount) return false
     return true
   }
-
-  const getTokenAddress = (currency: Currency) =>
-    currency.isNative
-      ? isEvmChain(selectedChain)
-        ? ETHER_ADDRESS
-        : ETHER_ADDRESS_SOLANA
-      : currency?.wrapped.address ?? ''
 
   const onSubmitAlert = async () => {
     try {
@@ -140,8 +131,8 @@ export default function CreateAlert({
       const alert: CreatePriceAlertPayload = {
         walletAddress: account ?? '',
         chainId: selectedChain.toString(),
-        tokenInAddress: getTokenAddress(currencyIn),
-        tokenOutAddress: getTokenAddress(currencyOut),
+        tokenInAddress: getTokenAddress(currencyIn, selectedChain),
+        tokenOutAddress: getTokenAddress(currencyOut, selectedChain),
         type: alertType,
         isEnabled: totalActiveAlerts < maxActiveAlerts,
         disableAfterTrigger,
@@ -152,10 +143,7 @@ export default function CreateAlert({
       const { data, error }: any = await createAlert(alert)
       if (error || typeof data?.data?.id !== 'number') throw error
       showModalConfirm({
-        alert: {
-          ...alert,
-          id: data.data.id as number,
-        },
+        alert: { ...alert, id: data.data.id as number },
         currencyIn,
         currencyOut,
       })
@@ -163,10 +151,7 @@ export default function CreateAlert({
     } catch (error) {
       console.error('create alert err', error)
       const msg = error?.data?.code === 40011 ? t`Exceed max active alerts` : t`Create price alert failed`
-      notify({
-        title: msg,
-        type: NotificationType.ERROR,
-      })
+      notify({ title: msg, type: NotificationType.ERROR })
     }
   }
 
@@ -196,18 +181,8 @@ export default function CreateAlert({
                 const isDiffChainType = getChainType(chainId) !== getChainType(item?.value as ChainId)
                 return (
                   <Text
-                    onClick={
-                      isDiffChainType
-                        ? e => {
-                            e.preventDefault()
-                            e.stopPropagation()
-                          }
-                        : undefined
-                    }
-                    style={{
-                      padding: '10px 18px',
-                      cursor: isDiffChainType ? 'not-allowed' : 'pointer',
-                    }}
+                    onClick={isDiffChainType ? e => e.stopPropagation() : undefined}
+                    style={{ padding: '10px 18px', cursor: isDiffChainType ? 'not-allowed' : 'pointer' }}
                   >
                     {item?.label}
                   </Text>
@@ -281,15 +256,12 @@ export default function CreateAlert({
               value={alertType}
               onChange={setAlertType}
               optionStyle={{ padding: '10px 12px' }}
-              optionRender={item => {
-                const isAbove = item?.value === PriceAlertType.ABOVE
-                return (
-                  <Flex alignItems="center" style={{ gap: 6 }}>
-                    {isAbove ? <ArrowUp size={16} /> : <ArrowDown size={16} />}
-                    {item?.label}
-                  </Flex>
-                )
-              }}
+              optionRender={item => (
+                <Flex alignItems="center" style={{ gap: 6 }}>
+                  {item?.value === PriceAlertType.ABOVE ? <ArrowUp size={16} /> : <ArrowDown size={16} />}
+                  {item?.label}
+                </Flex>
+              )}
               activeRender={item => {
                 const isAbove = item?.value === PriceAlertType.ABOVE
                 return (
@@ -337,12 +309,13 @@ export default function CreateAlert({
             </MouseoverTooltip>
             <StyledSelect
               value={cooldown}
-              options={COOLDOWN_OPTIONS}
+              options={getCoolDownOptions()}
               onChange={setCooldown}
               arrowColor={theme.subText}
               menuStyle={{ height: 250, overflow: 'scroll', width: '100%' }}
+              optionStyle={{ textTransform: 'capitalize' }}
               activeRender={item => (
-                <Flex alignItems="center" style={{ gap: 6 }}>
+                <Flex alignItems="center" style={{ gap: 6, textTransform: 'capitalize' }}>
                   <Clock size={20} color={theme.text} />
                   <Text fontSize={14} fontWeight="500">
                     {item?.label}
@@ -355,19 +328,7 @@ export default function CreateAlert({
             <MiniLabel>
               <Trans>Note</Trans>
             </MiniLabel>
-            <StyledInput
-              contentEditable
-              placeholder={t`Add a note`}
-              onPaste={e => e.preventDefault()}
-              onKeyDown={e => {
-                const { innerHTML = '' } = e.target as HTMLSpanElement
-                const key = e.keyCode || e.charCode
-                if (innerHTML.length >= 32 && key !== 8) {
-                  e.preventDefault()
-                }
-              }}
-              onKeyUp={e => onChangeInput('note', (e.target as HTMLSpanElement).innerHTML)}
-            />
+            <InputNote onChangeInput={val => onChangeInput('note', val)} />
           </RowBetween>
           <Row gap="8px">
             <CheckBox
@@ -408,4 +369,3 @@ export default function CreateAlert({
     </>
   )
 }
-//

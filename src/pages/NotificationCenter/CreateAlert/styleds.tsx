@@ -68,18 +68,14 @@ export const StyledInputNumber = styled(Input)`
   width: 100px;
 `
 
-export const StyledInput = styled.span`
+export const StyledInput = styled.textarea`
   ${shareStyleInput};
   width: 200px;
   height: fit-content;
   outline: none;
   background: transparent;
-  :empty:before {
-    color: ${({ theme }) => theme.text4};
-    content: attr(placeholder);
-    pointer-events: none;
-    display: block; /* For Firefox */
-  }
+  height: 36px;
+  resize: none;
 `
 
 export const StyledSelect = styled(Select)`

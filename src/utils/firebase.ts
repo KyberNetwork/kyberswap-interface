@@ -33,8 +33,10 @@ const COLLECTIONS = {
   ANNOUNCEMENT_POPUP: 'broadcast',
 }
 
+const enableNotification = ENV_LEVEL !== ENV_TYPE.LOCAL
+
 function subscribeDocument(db: Firestore, collectionName: string, paths: string[], callback: (data: any) => void) {
-  if (ENV_LEVEL === ENV_TYPE.LOCAL) return
+  if (!enableNotification) return
   const ref = doc(db, collectionName, ...paths)
   const unsubscribe = onSnapshot(
     ref,
@@ -47,7 +49,7 @@ function subscribeDocument(db: Firestore, collectionName: string, paths: string[
 }
 
 function subscribeListDocument(db: Firestore, collectionName: string, paths: string[], callback: (data: any) => void) {
-  if (ENV_LEVEL === ENV_TYPE.LOCAL) return
+  if (!enableNotification) return
   const q = query(collection(db, collectionName, ...paths))
   const unsubscribe = onSnapshot(
     q,

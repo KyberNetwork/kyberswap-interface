@@ -44,7 +44,7 @@ import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { toFixed } from 'utils/numbers'
 
 import ExpirePicker from './ExpirePicker'
-import { DEFAULT_EXPIRED, EXPIRED_OPTIONS, USD_THRESHOLD } from './const'
+import { DEFAULT_EXPIRED, USD_THRESHOLD, getExpireOptions } from './const'
 import {
   calcInvert,
   calcOutput,
@@ -742,7 +742,7 @@ const LimitOrderForm = function LimitOrderForm({
               optionStyle={isEdit ? { paddingTop: 8, paddingBottom: 8 } : {}}
               menuStyle={isEdit ? { paddingTop: 8, paddingBottom: 8 } : {}}
               style={{ width: '100%', padding: 0, height: INPUT_HEIGHT }}
-              options={[...EXPIRED_OPTIONS, { label: 'Custom', onSelect: toggleDatePicker }]}
+              options={[...getExpireOptions(), { label: 'Custom', onSelect: toggleDatePicker }]}
               activeRender={item => {
                 const displayTime = customDateExpire ? dayjs(customDateExpire).format('DD/MM/YYYY HH:mm') : item?.label
                 return (

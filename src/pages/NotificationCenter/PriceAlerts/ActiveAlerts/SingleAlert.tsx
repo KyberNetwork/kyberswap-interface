@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/macro'
-import dayjs from 'dayjs'
 import { useDeleteSingleAlertMutation, useUpdatePriceAlertMutation } from 'services/priceAlert'
 
 import NotificationIcon from 'components/Icons/NotificationIcon'
@@ -8,10 +7,7 @@ import useTheme from 'hooks/useTheme'
 import CommonSingleAlert from 'pages/NotificationCenter/PriceAlerts/CommonSingleAlert'
 import DeleteSingleAlertButton from 'pages/NotificationCenter/PriceAlerts/DeleteSingleAlertButton'
 import { PriceAlert } from 'pages/NotificationCenter/const'
-
-export const formatCooldown = (t: number) => {
-  return dayjs.duration(t, 'seconds').humanize().replace('a ', '1 ').replace('an ', '1 ')
-}
+import { formatTimeDuration } from 'utils/time'
 
 type Props = {
   alert: PriceAlert
@@ -40,7 +36,7 @@ const SingleAlert: React.FC<Props> = ({ alert, isMaxQuotaActiveAlert }) => {
       )}
       timeText={
         <>
-          <Trans>Cooldown</Trans>: {formatCooldown(alert.cooldown)}
+          <Trans>Cooldown</Trans>: {formatTimeDuration(alert.cooldown)}
         </>
       }
       alertData={alert}

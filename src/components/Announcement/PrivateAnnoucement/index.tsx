@@ -7,7 +7,6 @@ import InboxItemPoolPosition from 'components/Announcement/PrivateAnnoucement/In
 import InboxItemPriceAlert from 'components/Announcement/PrivateAnnoucement/InboxItemPriceAlert'
 import InboxItemTrendingSoon from 'components/Announcement/PrivateAnnoucement/InboxItemTrendingSoon'
 import { InboxItemTime } from 'components/Announcement/PrivateAnnoucement/styled'
-import { formatTime } from 'components/Announcement/helper'
 import {
   AnnouncementTemplate,
   AnnouncementTemplateBridge,
@@ -19,6 +18,7 @@ import {
   PrivateAnnouncementType,
 } from 'components/Announcement/type'
 import useTheme from 'hooks/useTheme'
+import { formatTime } from 'utils/time'
 
 export type PrivateAnnouncementProp<T extends AnnouncementTemplate = AnnouncementTemplate> = {
   announcement: PrivateAnnouncement<T>

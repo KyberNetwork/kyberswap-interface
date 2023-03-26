@@ -18,7 +18,6 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
-import { formatCooldown } from 'pages/NotificationCenter/PriceAlerts/ActiveAlerts/SingleAlert'
 import {
   ConfirmAlertModalData,
   NOTIFICATION_ROUTES,
@@ -26,6 +25,7 @@ import {
   PriceAlertType,
 } from 'pages/NotificationCenter/const'
 import { uint256ToFraction } from 'utils/numbers'
+import { formatTimeDuration } from 'utils/time'
 
 const Wrapper = styled.div`
   margin: 0;
@@ -192,7 +192,7 @@ export default function ConfirmModal({
           <RowBetween>
             <Label style={{ fontSize: 12 }}>
               <Trans>
-                Cooldown: <Value style={{ fontSize: 12 }}>{formatCooldown(cooldown)}</Value>
+                Cooldown: <Value style={{ fontSize: 12 }}>{formatTimeDuration(cooldown)}</Value>
               </Trans>
             </Label>
             {note && (

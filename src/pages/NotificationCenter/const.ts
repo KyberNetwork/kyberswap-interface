@@ -1,6 +1,8 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 
+import { TIMES_IN_SECS } from 'constants/index'
 import { MAINNET_NETWORKS, NETWORKS_INFO } from 'constants/networks'
+import { formatTimeDuration } from 'utils/time'
 
 export enum PriceAlertType {
   ABOVE = 'above',
@@ -85,26 +87,21 @@ export type ConfirmAlertModalData = {
   currencyOut: Currency
 }
 
-const TIMES_IN_SECS = {
-  ONE_DAY: 86400,
-  ONE_HOUR: 3600,
-  ONE_MIN: 60,
-}
-
 export const DEFAULT_ALERT_COOLDOWN = TIMES_IN_SECS.ONE_HOUR
 export const ITEMS_PER_PAGE = 10
 
-export const COOLDOWN_OPTIONS = [
-  { label: `30 Mins`, value: 30 * TIMES_IN_SECS.ONE_MIN },
-  { label: '1 Hour', value: TIMES_IN_SECS.ONE_HOUR },
-  { label: '2 Hours', value: 2 * TIMES_IN_SECS.ONE_HOUR },
-  { label: '3 Hours', value: 3 * TIMES_IN_SECS.ONE_HOUR },
-  { label: '4 Hours', value: 4 * TIMES_IN_SECS.ONE_HOUR },
-  { label: '6 Hours', value: 6 * TIMES_IN_SECS.ONE_HOUR },
-  { label: '12 Hours', value: 12 * TIMES_IN_SECS.ONE_HOUR },
-  { label: '24 Hours', value: 24 * TIMES_IN_SECS.ONE_HOUR },
-  { label: '7 Days', value: 7 * TIMES_IN_SECS.ONE_DAY },
-]
+export const getCoolDownOptions = () =>
+  [
+    30 * TIMES_IN_SECS.ONE_MIN,
+    TIMES_IN_SECS.ONE_HOUR,
+    2 * TIMES_IN_SECS.ONE_HOUR,
+    3 * TIMES_IN_SECS.ONE_HOUR,
+    4 * TIMES_IN_SECS.ONE_HOUR,
+    6 * TIMES_IN_SECS.ONE_HOUR,
+    12 * TIMES_IN_SECS.ONE_HOUR,
+    TIMES_IN_SECS.ONE_DAY,
+    7 * TIMES_IN_SECS.ONE_DAY,
+  ].map(e => ({ value: e, label: formatTimeDuration(e) }))
 
 export const NETWORK_OPTIONS = MAINNET_NETWORKS.map(id => ({
   value: id,
