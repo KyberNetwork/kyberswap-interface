@@ -290,7 +290,13 @@ export const NumberofTradesChart = () => {
           <TimeFrameLegend selected={timeframe} onSelect={setTimeframe} timeframes={['1D', '7D', '1M', '3M']} />
         </LegendWrapper>
         <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart width={500} height={300} data={formattedData} margin={{ top: 50, left: 16 }}>
+          <ComposedChart
+            width={500}
+            height={300}
+            data={formattedData}
+            stackOffset="sign"
+            margin={{ top: 50, left: 16 }}
+          >
             <CartesianGrid
               vertical={false}
               strokeWidth={1}
