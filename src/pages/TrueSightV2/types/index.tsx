@@ -76,6 +76,16 @@ export interface OHLCData {
   timestamp: number
 }
 
+export interface ITradingVolume {
+  buy: number
+  sell: number
+  buyVolume: number
+  sellVolume: number
+  timestamp: number
+  totalVolume: number
+  totalTrade: number
+}
+
 export enum DiscoverTokenTab {
   OnChainAnalysis = 'On-Chain Analysis',
   TechnicalAnalysis = 'Technical Analysis',
@@ -98,4 +108,12 @@ export enum ChartTab {
   First = 0,
   Second = 1,
   Third = 2,
+}
+
+export enum KyberAITimeframe {
+  ONE_DAY = '1D',
+  ONE_WEEK = '7D',
+  ONE_MONTH = '1M',
+  THREE_MONTHS = '3M',
+  SIX_MONTHS = '6M',
 }

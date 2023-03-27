@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import React, { useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { Sliders } from 'react-feather'
 import { Text } from 'rebass'
 import styled from 'styled-components'
@@ -8,11 +8,14 @@ import { ButtonGray } from 'components/Button'
 import Column from 'components/Column'
 import Divider from 'components/Divider'
 import ExpandableBox from 'components/ExpandableBox'
+import Icon from 'components/Icons/Icon'
 import Popover from 'components/Popover'
-import { RowBetween } from 'components/Row'
+import { RowBetween, RowFit } from 'components/Row'
 import Toggle from 'components/Toggle'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
+import { ApplicationModal } from 'state/application/actions'
+import { useToggleModal } from 'state/application/hooks'
 import { useTokenAnalysisSettings, useUpdateTokenAnalysisSettings } from 'state/user/hooks'
 
 import { DiscoverTokenTab } from '../types'
@@ -25,6 +28,18 @@ const SettingsWrapper = styled.div`
   flex-direction: column;
   gap: 12px;
   background-color: ${({ theme }) => theme.tableHeader};
+`
+
+const ViewTutorialButton = styled(RowFit)`
+  color: ${({ theme }) => theme.text};
+  font-size: 12px;
+  font-weight: 500;
+  gap: 2px;
+  cursor: pointer;
+
+  :hover {
+    color: ${({ theme }) => theme.subText};
+  }
 `
 
 const tokenAnalysisSettings = [
@@ -68,6 +83,7 @@ export default function DisplaySettings({ currentTab }: { currentTab: DiscoverTo
   const [showSettings, setShowSettings] = useState(false)
   const storedTokenAnalysisSettings = useTokenAnalysisSettings()
   const updateTokenAnalysisSettings = useUpdateTokenAnalysisSettings()
+  const toggleTutorial = useToggleModal(ApplicationModal.KYBERAI_TUTORIAL)
   const ref = useRef<HTMLDivElement>(null)
   useOnClickOutside(ref, () => {
     setShowSettings(false)
@@ -82,6 +98,19 @@ export default function DisplaySettings({ currentTab }: { currentTab: DiscoverTo
           <Text color={theme.text}>
             <Trans>Display Settings</Trans>
           </Text>
+          <RowBetween>
+            <Text fontSize={14}>
+              <Trans>KyberAI Tutorial</Trans>
+            </Text>
+            <ViewTutorialButton
+              onClick={() => {
+                toggleTutorial()
+                setShowSettings(false)
+              }}
+            >
+              View <Icon id="lightbulb" size={16} />
+            </ViewTutorialButton>
+          </RowBetween>
           <ExpandableBox
             style={{ padding: 0, opacity: 1 }}
             backgroundColor="inherit"

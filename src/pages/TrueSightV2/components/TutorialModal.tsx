@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import React, { useEffect, useReducer, useState } from 'react'
+import React, { useEffect, useReducer } from 'react'
 import { ChevronLeft, ChevronRight, X } from 'react-feather'
 import { Text } from 'rebass'
 import styled, { css, keyframes } from 'styled-components'
@@ -16,6 +16,8 @@ import Icon from 'components/Icons/Icon'
 import Modal from 'components/Modal'
 import Row, { RowBetween } from 'components/Row'
 import useTheme from 'hooks/useTheme'
+import { ApplicationModal } from 'state/application/actions'
+import { useModalOpen, useToggleModal } from 'state/application/hooks'
 
 const preloadImage = (url: string) => (document.createElement('img').src = url)
 preloadImage(tutorial1)
@@ -205,7 +207,8 @@ const StepContent = ({ step, ...rest }: { step: number; [k: string]: any }) => {
 
 const TutorialModal = () => {
   const theme = useTheme()
-  const [isOpen, setIsOpen] = useState(true)
+  const isOpen = useModalOpen(ApplicationModal.KYBERAI_TUTORIAL)
+  const toggle = useToggleModal(ApplicationModal.KYBERAI_TUTORIAL)
   const [{ step, animationState, swipe }, dispatch] = useReducer(reducer, initialState)
   const lastStep =
     animationState === AnimationState.Animating ? (swipe === SwipeDirection.LEFT ? step - 1 : step + 1) : undefined
@@ -241,7 +244,7 @@ const TutorialModal = () => {
               beta
             </div>
           </Row>
-          <div onClick={() => setIsOpen(false)} style={{ cursor: 'pointer' }}>
+          <div onClick={toggle} style={{ cursor: 'pointer' }}>
             <X />
           </div>
         </RowBetween>
@@ -261,7 +264,7 @@ const TutorialModal = () => {
             </Text>
 
             <Row justify="center" gap="20px">
-              <ButtonOutlined width="160px" onClick={() => setIsOpen(false)}>
+              <ButtonOutlined width="160px" onClick={toggle}>
                 <Text fontSize="16px" lineHeight="20px">
                   <Trans>Maybe later</Trans>
                 </Text>

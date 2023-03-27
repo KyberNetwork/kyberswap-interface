@@ -2,8 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 
 import { TRUESIGHT_V2_API } from 'constants/env'
 
-import { testParams } from '../pages/SingleToken'
-import { INetflowToWhaleWallets, INumberOfTrades, ITokenOverview, ITradeVolume, OHLCData } from '../types'
+import { INetflowToWhaleWallets, INumberOfTrades, ITokenOverview, ITradingVolume, OHLCData } from '../types'
 import { HOLDER_LIST, TOKEN_LIST } from './sampleData'
 
 const truesightV2Api = createApi({
@@ -33,31 +32,33 @@ const truesightV2Api = createApi({
       transformResponse: (res: any) => res.data,
     }),
     //6.
-    tradingVolume: builder.query({
-      query: (tokenAddress?: string) => ({
-        url: '/volume/ethereum/' + tokenAddress,
-        params: {
-          from: testParams.from,
-          to: testParams.to,
-        },
+    tradingVolume: builder.query<ITradingVolume[], { tokenAddress?: string; params?: { from: number; to: number } }>({
+      query: ({ tokenAddress, params }) => ({
+        url: '/volume/ethereum/0xdAC17F958D2ee523a2206206994597C13D831ec7',
+        params,
       }),
       transformResponse: (res: any) => {
-        const parsedData: {
-          buy: number
-          sell: number
-          buyVolume: number
-          sellVolume: number
-          timestamp: number
-        }[] = []
-        res.data.buy.forEach((item: ITradeVolume, index: number) => {
-          parsedData.push({
-            buy: item.numberOfTrade || 0,
-            buyVolume: item.tradeVolume || 0,
-            timestamp: item.timestamp || 0,
-            sell: res.data.sell[index].numberOfTrade || 0,
-            sellVolume: res.data.sell[index].tradeVolume || 0,
-          })
-        })
+        const parsedData: ITradingVolume[] = []
+        res.data.buy.forEach(
+          (
+            item: {
+              numberOfTrade: number
+              tradeVolume: number
+              timestamp: number
+            },
+            index: number,
+          ) => {
+            parsedData.push({
+              buy: item.numberOfTrade || 0,
+              buyVolume: item.tradeVolume || 0,
+              timestamp: item.timestamp || 0,
+              sell: res.data.sell[index].numberOfTrade || 0,
+              sellVolume: res.data.sell[index].tradeVolume || 0,
+              totalVolume: (item.tradeVolume || 0) + (res.data.sell[index].tradeVolume || 0),
+              totalTrade: (item.numberOfTrade || 0) + (res.data.sell[index].numberOfTrade || 0),
+            })
+          },
+        )
         return parsedData
       },
     }),
