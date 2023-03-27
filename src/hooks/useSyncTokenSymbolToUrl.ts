@@ -111,6 +111,7 @@ export default function useSyncTokenSymbolToUrl(
   const checkedTokenFromUrlWhenInit = useRef(false)
   const needFindTokenFromUrl =
     fromCurrency && toCurrency && (prevParams?.fromCurrency !== fromCurrency || prevParams?.toCurrency !== toCurrency)
+
   useEffect(() => {
     if (
       (!checkedTokenFromUrlWhenInit.current || needFindTokenFromUrl) &&
