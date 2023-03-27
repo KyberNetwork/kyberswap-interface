@@ -50,6 +50,7 @@ const PriceAlerts = () => {
     setCurrentTab(tab)
     const search = { ...rest, tab }
     navigate({ search: stringify(search) }, { replace: true })
+    setDisabledClearAll(false)
   }
 
   return (
