@@ -4,12 +4,13 @@ import { useRef, useState } from 'react'
 import { X } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
-import styled, { css } from 'styled-components'
+import styled, { DefaultTheme, css } from 'styled-components'
 
 import Column from 'components/Column'
 import Divider from 'components/Divider'
 import Icon from 'components/Icons/Icon'
 import Row, { RowBetween } from 'components/Row'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
@@ -114,7 +115,6 @@ const Tab = styled.div<{ active?: boolean }>`
   > * {
     text-align: center;
     width: fit-content;
-    border-bottom: 1px dotted ${({ theme }) => theme.subText};
   }
   :hover {
     filter: brightness(1.2);
@@ -140,6 +140,28 @@ enum WidgetTab {
   Bullish = 'Bullish',
   Bearish = 'Bearish',
   TrendingSoon = 'Trending Soon',
+}
+
+const widgetTabTooltip = {
+  [WidgetTab.MyWatchlist]: undefined,
+  [WidgetTab.Bullish]: {
+    tooltip: (theme: DefaultTheme) => (
+      <Trans>Based on highest KyberScore which analyzes on-chain and off-chain indicators</Trans>
+    ),
+  },
+  [WidgetTab.Bearish]: {
+    tooltip: (theme: DefaultTheme) => (
+      <Trans>Based on lowest KyberScore which analyzes on-chain and off-chain indicators</Trans>
+    ),
+  },
+  [WidgetTab.TrendingSoon]: {
+    tooltip: (theme: DefaultTheme) => (
+      <Trans>
+        Tokens that could be <span style={{ color: theme.text }}>trending</span> in the near future. Trending indicates
+        interest in a token - it doesnt imply bullishness or bearishness
+      </Trans>
+    ),
+  },
 }
 
 export default function Widget() {
@@ -186,7 +208,13 @@ export default function Widget() {
           <Row>
             {Object.values(WidgetTab).map(t => (
               <Tab key={t} onClick={() => setActiveTab(t)} active={activeTab === t}>
-                <Text>{t}</Text>
+                {widgetTabTooltip[t]?.tooltip ? (
+                  <MouseoverTooltip text={widgetTabTooltip[t]?.tooltip(theme)} placement="top">
+                    <Text style={{ borderBottom: `1px dotted ${theme.subText}` }}>{t}</Text>
+                  </MouseoverTooltip>
+                ) : (
+                  <Text>{t}</Text>
+                )}
               </Tab>
             ))}
           </Row>

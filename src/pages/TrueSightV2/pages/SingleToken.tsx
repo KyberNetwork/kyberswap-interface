@@ -1,5 +1,5 @@
 import { rgba } from 'polished'
-import { ReactNode, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { ChevronLeft, Share2, Star } from 'react-feather'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
