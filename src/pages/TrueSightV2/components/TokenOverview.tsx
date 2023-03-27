@@ -236,7 +236,14 @@ export const TokenOverview = () => {
           <CardWrapper style={{ alignItems: 'center' }}>
             <Row marginBottom="4px">
               <MouseoverTooltip
-                text={t`KyberScore algorithm measures the current trend of a token by taking into account multiple on-chain and off-chain indicators. The score ranges from 0 to 100. Higher the score, more bullish the token`}
+                text={
+                  <Trans>
+                    KyberScore uses AI to measure the upcoming trend of a token (bullish or bearish) bytaking into
+                    account multiple on-chain and off-chain indicators. The score ranges from 0 to 100. Higher the
+                    score, more bullish the token in the short-term. Read more{' '}
+                    <a href="https://docs.kyberswap.com">here ↗</a>
+                  </Trans>
+                }
                 placement="top"
                 width="350px"
               >
@@ -305,7 +312,13 @@ export const TokenOverview = () => {
           <Row style={{ borderBottom: `1px solid ${theme.border}`, margin: '16px 0' }} />
           <Row marginBottom="8px">
             <MouseoverTooltip
-              text={t`KyberScore is an algorithm created by us that takes into account multiple on-chain and off-chain indicators to measure the current trend of a token. The score ranges from 0 to 100.`}
+              text={
+                <Trans>
+                  KyberScore uses AI to measure the upcoming trend of a token (bullish or bearish) bytaking into account
+                  multiple on-chain and off-chain indicators. The score ranges from 0 to 100. Higher the score, more
+                  bullish the token in the short-term. Read more <a href="https://docs.kyberswap.com">here ↗</a>
+                </Trans>
+              }
               placement="top"
               width="350px"
             >

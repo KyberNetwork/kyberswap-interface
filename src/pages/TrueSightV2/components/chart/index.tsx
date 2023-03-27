@@ -461,10 +461,10 @@ export const TradingVolumeChart = () => {
                     Total Volume: <span style={{ color: theme.text }}>${formatNum(payload.buy + payload.sell)}</span>
                   </Text>
                   <Text fontSize="12px" lineHeight="16px" color={theme.primary}>
-                    Buy: ${formatNum(payload.buy)}
+                    Buys: ${formatNum(payload.buy)}
                   </Text>
                   <Text fontSize="12px" lineHeight="16px" color={theme.red}>
-                    Sell: ${formatNum(payload.sell)}
+                    Sells: ${formatNum(payload.sell)}
                   </Text>
                 </TooltipWrapper>
               )

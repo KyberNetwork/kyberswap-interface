@@ -690,7 +690,14 @@ export default function TokenAnalysisList() {
                           placement="top"
                           width="300px"
                           size={12}
-                          text={t`KyberScore algorithm measures the current trend of a token by taking into account multiple on-chain and off-chain indicators. The score ranges from 0 to 100. Higher the score, more bullish the token`}
+                          text={
+                            <span>
+                              KyberScore uses AI to measure the upcoming trend of a token (bullish or bearish) by taking
+                              into account multiple on-chain and off-chain indicators. The score ranges from 0 to 100.
+                              Higher the score, more bullish the token in the short-term. Read more{' '}
+                              <a href="http://docs.kyberswap.com/">here ↗</a>
+                            </span>
+                          }
                         />
                       </Row>
                       <Text fontSize="10px" style={{ textTransform: 'none' }}>

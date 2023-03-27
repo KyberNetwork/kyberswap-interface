@@ -32,7 +32,7 @@ export default function TechnicalAnalysis() {
         tabs={[`BTC/USD`, `BTC/BTC`]}
         activeTab={liveChartTab}
         onTabClick={setLiveChartTab}
-        style={{ height: '700px' }}
+        style={{ height: '800px' }}
       >
         <Prochart isBTC={liveChartTab === ChartTab.Second} />
       </SectionWrapper>
@@ -53,6 +53,9 @@ export default function TechnicalAnalysis() {
           </ButtonPrimary>
         </Row>
       </SectionWrapper>
+      <SectionWrapper title={t`Live Trades`} style={{ height: 'fit-content' }}>
+        <LiveDEXTrades />
+      </SectionWrapper>
       <SectionWrapper
         show={true}
         id={'fundingrate'}
@@ -65,9 +68,6 @@ export default function TechnicalAnalysis() {
         style={{ height: 'fit-content' }}
       >
         <FundingRateTable />
-      </SectionWrapper>
-      <SectionWrapper title={t`Live Trades`} style={{ height: 'fit-content' }}>
-        <LiveDEXTrades />
       </SectionWrapper>
       <SectionWrapper
         title={t`Liquidations on Centralized Exchanges`}

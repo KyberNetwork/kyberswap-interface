@@ -12,6 +12,7 @@ import tutorial5 from 'assets/images/truesight-v2/tutorial_5.png'
 import tutorial6 from 'assets/images/truesight-v2/tutorial_6.png'
 import tutorial7 from 'assets/images/truesight-v2/tutorial_7.png'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
+import Icon from 'components/Icons/Icon'
 import Modal from 'components/Modal'
 import Row, { RowBetween } from 'components/Row'
 import useTheme from 'hooks/useTheme'
@@ -222,32 +223,43 @@ const TutorialModal = () => {
     <Modal isOpen={isOpen} width="fit-content" maxWidth="fit-content">
       <Wrapper>
         <RowBetween>
-          <Text fontSize="20px" lineHeight="24px" color={theme.text}>
-            <Trans>Welcome to KyberAI - Ape Smart</Trans>
-          </Text>
+          <Row fontSize="20px" lineHeight="24px" color={theme.text} gap="6px">
+            <Trans>
+              Welcome to <Icon id="truesight-v2" style={{ display: 'inline-block' }} />
+              KyberAI
+            </Trans>
+            <div
+              style={{
+                padding: '4px 8px',
+                background: theme.subText + '32',
+                fontSize: '12px',
+                lineHeight: '16px',
+                borderRadius: '20px',
+                color: theme.subText,
+              }}
+            >
+              beta
+            </div>
+          </Row>
           <div onClick={() => setIsOpen(false)} style={{ cursor: 'pointer' }}>
             <X />
           </div>
         </RowBetween>
         {step === 0 && (
           <>
-            <img src={tutorial1} alt="KyberAI Tutorial" />
+            <img
+              src={tutorial1}
+              alt="KyberAI Tutorial"
+              style={{ width: '760px', height: '400px', borderRadius: '20px', backgroundColor: theme.buttonBlack }}
+            />
             <Text fontSize="14px" lineHeight="20px" color={theme.subText}>
               <Trans>
-                Our algorithm analyzes thousands of tokens and multiple on-chain / off-chain indicators each day to give
-                you a curated list of tokens across various categories. Use our on-chain, technical and social analysis
-                on each token to find alpha and make better trading decisions!
+                We&apos;re thrilled to have you onboard and can&apos;t wait for you to start exploring the world of
+                trading powered by <span style={{ color: theme.text }}>KyberAI</span>. We&apos;ve created this short
+                tutorial for you to highlight KyberAI&apos;s main features. Ready?
               </Trans>
             </Text>
-            <Text fontSize="14px" lineHeight="20px" color={theme.subText}>
-              <Trans>
-                We created this quick tutorial guide for you to highlight KyberSwap TrueSight&apos;s main features. Do
-                you wish to have a look?
-              </Trans>
-            </Text>
-            <Text fontSize="14px" lineHeight="20px" color={theme.subText} fontStyle="italic" marginBottom="auto">
-              <Trans> Disclaimer: The information here should not be treated as any form of financial advice</Trans>
-            </Text>
+
             <Row justify="center" gap="20px">
               <ButtonOutlined width="160px" onClick={() => setIsOpen(false)}>
                 <Text fontSize="16px" lineHeight="20px">

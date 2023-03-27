@@ -1,5 +1,5 @@
 import { rgba } from 'polished'
-import { useRef, useState } from 'react'
+import { ReactNode, useRef, useState } from 'react'
 import { ChevronLeft, Share2, Star } from 'react-feather'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -150,6 +150,44 @@ export const testParams = {
   to: 1675215565,
 }
 
+const StyledTokenDescription = styled.div<{ show?: boolean }>`
+  text-overflow: ellipsis;
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 16px;
+  &,
+  & * {
+    white-space: ${({ show }) => (show ? 'initial' : 'nowrap')};
+  }
+`
+
+const TokenDescription = ({ description }: { description: string }) => {
+  const theme = useTheme()
+  const [show, setShow] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  const isTextExceeded = ref.current && ref.current?.clientWidth < ref.current?.scrollWidth
+  return (
+    <Row>
+      <StyledTokenDescription
+        ref={ref}
+        show={show}
+        dangerouslySetInnerHTML={{ __html: description || '' }}
+      ></StyledTokenDescription>
+      {!show && isTextExceeded && (
+        <Text
+          fontSize="12px"
+          color={theme.primary}
+          width="fit-content"
+          style={{ cursor: 'pointer', flexBasis: 'fit-content', whiteSpace: 'nowrap' }}
+          onClick={() => setShow(true)}
+        >
+          Read more
+        </Text>
+      )}
+    </Row>
+  )
+}
+
 export default function SingleToken() {
   const theme = useTheme()
   const navigate = useNavigate()
@@ -273,12 +311,25 @@ export default function SingleToken() {
       </>
     )
   }
+
   return (
     <Wrapper>
       <RenderHeader />
       <Text fontSize={12} color={theme.subText} marginBottom="12px">
-        {isLoading ? <DotsLoader /> : data?.description}
+        {isLoading ? (
+          <DotsLoader />
+        ) : (
+          <TokenDescription
+            description="Bitcoin is a decentralized cryptocurrency originally described in a 2008 whitepaper by a person, or group of
+          people, using the alias Satoshi Nakamoto. It was launched soon after, in January 2009. 
+          Bitcoin is a peer-to-peer online currency, meaning that all transactions happen directly between equal,
+          independent network participants, without the need for any intermediary to permit or facilitate them.
+          Bitcoin was created, according to Nakamoto's own words, to allow “online payments to be sent directly
+          from one party to another without going through a financial institution.”"
+          />
+        )}
       </Text>
+
       <TagWrapper>
         {data?.tags?.map(tag => {
           return <Tag key="tag">{tag}</Tag>

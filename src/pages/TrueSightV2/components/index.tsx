@@ -35,7 +35,7 @@ export const SectionTitle = styled.div`
   color: ${({ theme }) => theme.text};
 `
 export const SectionDescription = styled.div<{ show?: boolean }>`
-  font-size: 12px;
+  font-size: 14px;
   line-height: 16px;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -125,7 +125,7 @@ export const SectionWrapper = ({
   const descriptionRef = useRef<HTMLDivElement>(null)
 
   const isTextExceeded =
-    descriptionRef.current && descriptionRef.current?.clientWidth < descriptionRef.current?.scrollWidth
+    description && descriptionRef.current && descriptionRef.current?.clientWidth < descriptionRef.current?.scrollWidth
 
   return (
     <StyledSectionWrapper show={show} ref={ref} id={id} style={style}>
@@ -162,7 +162,7 @@ export const SectionWrapper = ({
             />
             {!showText && isTextExceeded && (
               <Text
-                fontSize="12px"
+                fontSize="14px"
                 color={theme.primary}
                 width="fit-content"
                 style={{ cursor: 'pointer', flexBasis: 'fit-content', whiteSpace: 'nowrap' }}
