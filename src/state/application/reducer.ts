@@ -1,6 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createReducer, nanoid } from '@reduxjs/toolkit'
-import ksSettingApi from 'services/ksSetting'
+import ksSettingApi, { KyberSwapConfigResponse } from 'services/ksSetting'
 
 import { AnnouncementTemplatePopup, PopupItemType } from 'components/Announcement/type'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
@@ -51,13 +51,7 @@ interface ApplicationState {
     }
   }
   readonly config: {
-    [chainId in ChainId]?: {
-      rpc: string
-      prochart: boolean
-      blockSubgraph: string
-      classicSubgraph: string
-      elasticSubgraph: string
-    }
+    [chainId in ChainId]?: KyberSwapConfigResponse
   }
 }
 const initialStateNotification = {

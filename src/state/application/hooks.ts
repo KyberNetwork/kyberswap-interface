@@ -5,6 +5,7 @@ import dayjs from 'dayjs'
 import { ethers } from 'ethers'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { KyberSwapConfig, KyberSwapConfigResponse } from 'services/ksSetting'
 
 import { ETH_PRICE, PROMM_ETH_PRICE, TOKEN_DERIVED_ETH } from 'apollo/queries'
 import { ackAnnouncementPopup, isPopupCanShow } from 'components/Announcement/helper'
@@ -527,25 +528,16 @@ const cacheCalc: <T extends keyof typeof cacheConfig, U extends typeof cacheConf
   return cacheConfig[type][value] as U
 }
 
-function getDefaultConfig(chainId: ChainId) {
+function getDefaultConfig(chainId: ChainId): KyberSwapConfigResponse {
   const evm = isEVM(chainId)
   return {
     rpc: NETWORKS_INFO[chainId].defaultRpcUrl,
     prochart: false,
+    isEnableBlockService: false,
     blockSubgraph: (evm ? NETWORKS_INFO[chainId] : ethereumInfo).defaultBlockSubgraph,
     elasticSubgraph: (evm ? NETWORKS_INFO[chainId] : ethereumInfo).elastic.defaultSubgraph,
     classicSubgraph: (evm ? NETWORKS_INFO[chainId] : ethereumInfo).classic.defaultSubgraph,
   }
-}
-
-type KyberSwapConfig = {
-  rpc: string
-  prochart: boolean
-  blockClient: ApolloClient<NormalizedCacheObject>
-  classicClient: ApolloClient<NormalizedCacheObject>
-  elasticClient: ApolloClient<NormalizedCacheObject>
-  provider: ethers.providers.JsonRpcProvider | undefined
-  connection: Connection | undefined
 }
 
 export const useKyberSwapConfig = (customChainId?: ChainId): KyberSwapConfig => {
@@ -574,6 +566,7 @@ export const useKyberSwapConfig = (customChainId?: ChainId): KyberSwapConfig => 
   return useMemo(() => {
     return {
       rpc: config.rpc,
+      isEnableBlockService: config.isEnableBlockService,
       provider,
       prochart: config.prochart,
       blockClient,
@@ -581,5 +574,14 @@ export const useKyberSwapConfig = (customChainId?: ChainId): KyberSwapConfig => 
       classicClient,
       connection: isSolana(chainId) ? new Connection(config.rpc, { commitment: 'confirmed' }) : undefined,
     }
-  }, [chainId, provider, elasticClient, blockClient, classicClient, config.rpc, config.prochart])
+  }, [
+    config.rpc,
+    config.isEnableBlockService,
+    config.prochart,
+    provider,
+    blockClient,
+    elasticClient,
+    classicClient,
+    chainId,
+  ])
 }
