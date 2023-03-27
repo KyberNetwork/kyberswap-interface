@@ -1,6 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Flex, Text } from 'rebass'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
@@ -60,10 +60,15 @@ export default function CurrencyInputPanelBridge({
 
   const currencyAddress: string = !currency ? '' : currency.isNative ? ETHER_ADDRESS : currency.wrapped.address
 
-  const { data: tokenPriceData, refetch } = useTokenPricesWithLoading(
-    currencyAddress ? [currencyAddress] : EMPTY_ARRAY,
-    currency?.chainId,
-  )
+  const tokenAddresses = useMemo(() => {
+    if (currencyAddress) {
+      return [currencyAddress]
+    }
+
+    return EMPTY_ARRAY
+  }, [currencyAddress])
+
+  const { data: tokenPriceData, refetch } = useTokenPricesWithLoading(tokenAddresses, currency?.chainId)
 
   const currencyValueInUSD = tokenPriceData?.[currencyAddress] * Number(value)
   const currencyValueString =
