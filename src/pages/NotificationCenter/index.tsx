@@ -10,6 +10,7 @@ import Menu from 'pages/NotificationCenter/Menu'
 import Overview from 'pages/NotificationCenter/Overview'
 import PriceAlerts from 'pages/NotificationCenter/PriceAlerts'
 import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
+import VerifyComponent from 'pages/Verify/VerifyComponent'
 
 const PageWrapper = styled.div`
   padding: 32px 50px;
@@ -113,6 +114,7 @@ function NotificationCenter() {
           </Routes>
         </RightColumn>
       </Wrapper>
+      <VerifyComponent />
     </PageWrapper>
   )
 }
