@@ -30,3 +30,9 @@ export const KYBERSWAP_UI_DEXES: {
     logoURL: 'https://kyberswap.com/favicon.ico',
   },
 }
+
+export const KYBERSWAP_UI_DEXES_ORDER: { [key: string]: number | undefined } = {
+  kyberswapv2: 10,
+  kyberswapv1: 20,
+  'kyberswap-limit-order': 30,
+}

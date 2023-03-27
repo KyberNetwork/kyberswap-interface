@@ -5,6 +5,7 @@ import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import Checkbox from 'components/CheckBox'
+import { KYBERSWAP_UI_DEXES_ORDER } from 'constants/dexes'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import { useAllDexes, useExcludeDexes } from 'state/customizeDexes/hooks'
@@ -134,7 +135,13 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack }) => {
     }
   }, [excludeDexes, dexes])
 
-  const ksDexes = useMemo(() => dexes.filter(item => item.id.includes('kyberswap')), [dexes])
+  const ksDexes = useMemo(
+    () =>
+      dexes
+        .filter(item => item.id.includes('kyberswap'))
+        .sort((a, b) => (KYBERSWAP_UI_DEXES_ORDER[a.id] ?? 100) - (KYBERSWAP_UI_DEXES_ORDER[b.id] ?? 100)),
+    [dexes],
+  )
 
   useEffect(() => {
     if (!kyberSwapRef.current) return
