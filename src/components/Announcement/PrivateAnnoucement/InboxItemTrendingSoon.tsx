@@ -5,18 +5,21 @@ import { Text } from 'rebass'
 import { PrivateAnnouncementProp } from 'components/Announcement/PrivateAnnoucement'
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
 import { Dot, InboxItemRow, InboxItemWrapper, RowItem, Title } from 'components/Announcement/PrivateAnnoucement/styled'
-import { AnnouncementTemplateTrendingSoon, PrivateAnnouncementType, TrueSightToken } from 'components/Announcement/type'
+import { AnnouncementTemplateTrendingSoon, TrueSightToken } from 'components/Announcement/type'
 import DeltaTokenAmount from 'components/WalletPopup/Transactions/DeltaTokenAmount'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 
-const TokenInfo = ({ token }: { token: TrueSightToken }) => {
+export const TokenInfo = ({ token, separator }: { token: TrueSightToken; separator?: boolean }) => {
   const theme = useTheme()
   return (
     <>
       {token.symbol} ${token.price}{' '}
       <Text as="span" color={theme.apr}>
         ({token.changePercentage}%)
+        <Text as="span" color={theme.subText}>
+          {separator && ','}
+        </Text>
       </Text>
     </>
   )
@@ -28,7 +31,7 @@ function InboxItemBridge({
   style,
   time,
 }: PrivateAnnouncementProp<AnnouncementTemplateTrendingSoon>) {
-  const { templateBody, isRead } = announcement
+  const { templateBody, isRead, templateType } = announcement
   const [token1, token2 = token1, token3 = token1] = templateBody.tokens
   const theme = useTheme()
   const navigate = useNavigate()
@@ -40,7 +43,7 @@ function InboxItemBridge({
     <InboxItemWrapper isRead={isRead} onClick={onClick} style={style}>
       <InboxItemRow>
         <RowItem>
-          <InboxIcon type={PrivateAnnouncementType.TRENDING_SOON_TOKEN} />
+          <InboxIcon type={templateType} />
           <Title isRead={isRead}>
             <Trans>Trending Soon</Trans>
           </Title>

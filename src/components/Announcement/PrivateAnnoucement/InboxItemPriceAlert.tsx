@@ -7,7 +7,7 @@ import { PrivateAnnouncementProp } from 'components/Announcement/PrivateAnnoucem
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
 import { Dot, InboxItemRow, InboxItemWrapper, RowItem, Title } from 'components/Announcement/PrivateAnnoucement/styled'
 import { useNavigateToUrl } from 'components/Announcement/helper'
-import { AnnouncementTemplatePriceAlert, PrivateAnnouncementType } from 'components/Announcement/type'
+import { AnnouncementTemplatePriceAlert } from 'components/Announcement/type'
 import { ButtonLight } from 'components/Button'
 import DeltaTokenAmount from 'components/WalletPopup/Transactions/DeltaTokenAmount'
 import { APP_PATHS } from 'constants/index'
@@ -16,7 +16,7 @@ import useTheme from 'hooks/useTheme'
 import { HistoricalPriceAlert, PriceAlertType } from 'pages/NotificationCenter/const'
 import { convertToSlug } from 'utils/string'
 
-const getSwapUrlPriceAlert = (alert: HistoricalPriceAlert) => {
+export const getSwapUrlPriceAlert = (alert: HistoricalPriceAlert) => {
   const { tokenInSymbol, tokenOutSymbol, chainId: rawChainId } = alert
   const chainId = Number(rawChainId) as ChainId
   return `${APP_PATHS.SWAP}/${NETWORKS_INFO[chainId].route}/${convertToSlug(tokenInSymbol)}-to-${convertToSlug(
@@ -30,7 +30,7 @@ function InboxItemBridge({
   style,
   time,
 }: PrivateAnnouncementProp<AnnouncementTemplatePriceAlert>) {
-  const { templateBody, isRead } = announcement
+  const { templateBody, isRead, templateType } = announcement
   const theme = useTheme()
 
   const {
@@ -55,7 +55,7 @@ function InboxItemBridge({
     <InboxItemWrapper isRead={isRead} onClick={onClick} style={style}>
       <InboxItemRow>
         <RowItem>
-          <InboxIcon type={PrivateAnnouncementType.PRICE_ALERT} chainId={chainId} />
+          <InboxIcon type={templateType} chainId={chainId} />
           <Title isRead={isRead}>
             <Trans>Price Alert</Trans>
           </Title>

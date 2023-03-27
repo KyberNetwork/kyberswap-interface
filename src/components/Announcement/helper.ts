@@ -20,7 +20,7 @@ export const ackAnnouncementPopup = (id: string | number) => {
   )
 }
 
-export const formatNumberOfUnread = (num: number) => (num > 10 ? '10+' : num + '')
+export const formatNumberOfUnread = (num: number | undefined) => (num ? (num > 10 ? '10+' : num + '') : null)
 
 export const isPopupCanShow = (popupInfo: PopupItemType<PopupContentAnnouncement>, chainId: ChainId) => {
   const { templateBody = {}, metaMessageId } = popupInfo.content

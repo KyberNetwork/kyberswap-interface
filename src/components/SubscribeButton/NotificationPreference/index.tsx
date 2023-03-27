@@ -188,6 +188,7 @@ function NotificationPreference({
     },
     [topicGroupsGlobal],
   )
+  console.log(topicGroups, topicGroupsGlobal)
 
   const [ackTelegramSubscriptionStatus] = useAckTelegramSubscriptionStatusMutation()
   useEffect(() => {

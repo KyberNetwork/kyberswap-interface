@@ -13,7 +13,7 @@ import {
   Title,
 } from 'components/Announcement/PrivateAnnoucement/styled'
 import { useNavigateToUrl } from 'components/Announcement/helper'
-import { AnnouncementTemplatePoolPosition, PrivateAnnouncementType } from 'components/Announcement/type'
+import { AnnouncementTemplatePoolPosition } from 'components/Announcement/type'
 import { DoubleCurrencyLogoV2 } from 'components/DoubleLogo'
 import { MoneyBag } from 'components/Icons'
 import { APP_PATHS } from 'constants/index'
@@ -26,7 +26,7 @@ function InboxItemBridge({
   style,
   time,
 }: PrivateAnnouncementProp<AnnouncementTemplatePoolPosition>) {
-  const { templateBody, isRead } = announcement
+  const { templateBody, isRead, templateType } = announcement
   const theme = useTheme()
 
   const {
@@ -56,7 +56,7 @@ function InboxItemBridge({
     <InboxItemWrapper isRead={isRead} onClick={onClick} style={style}>
       <InboxItemRow>
         <RowItem>
-          <InboxIcon type={PrivateAnnouncementType.POOL_POSITION} chainId={chainId} />
+          <InboxIcon type={templateType} chainId={chainId} />
           <Title isRead={isRead}>
             <Trans>Liquidity Pool Alert</Trans>
           </Title>

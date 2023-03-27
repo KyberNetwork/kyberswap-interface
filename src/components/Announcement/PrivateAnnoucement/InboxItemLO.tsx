@@ -13,7 +13,7 @@ import {
   RowItem,
   Title,
 } from 'components/Announcement/PrivateAnnoucement/styled'
-import { AnnouncementTemplateLimitOrder, PrivateAnnouncementType } from 'components/Announcement/type'
+import { AnnouncementTemplateLimitOrder } from 'components/Announcement/type'
 import { CheckCircle } from 'components/Icons'
 import DeltaTokenAmount from 'components/WalletPopup/Transactions/DeltaTokenAmount'
 import { LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
@@ -26,7 +26,7 @@ function InboxItemBridge({
   style,
   time,
 }: PrivateAnnouncementProp<AnnouncementTemplateLimitOrder>) {
-  const { templateBody, isRead } = announcement
+  const { templateBody, isRead, templateType } = announcement
   const theme = useTheme()
   const {
     status,
@@ -62,7 +62,7 @@ function InboxItemBridge({
     <InboxItemWrapper isRead={isRead} onClick={onClick} style={style}>
       <InboxItemRow>
         <RowItem>
-          <InboxIcon type={PrivateAnnouncementType.LIMIT_ORDER} chainId={chainId} />
+          <InboxIcon type={templateType} chainId={chainId} />
           <Title isRead={isRead}>
             <Trans>Limit Order</Trans>
           </Title>

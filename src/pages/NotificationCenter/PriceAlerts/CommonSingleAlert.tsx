@@ -3,10 +3,14 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as AlarmIcon } from 'assets/svg/alarm.svg'
+import { getSwapUrlPriceAlert } from 'components/Announcement/PrivateAnnoucement/InboxItemPriceAlert'
+import { useNavigateToUrl } from 'components/Announcement/helper'
+import { AnnouncementTemplatePriceAlert, PrivateAnnouncement } from 'components/Announcement/type'
 import Toggle from 'components/Toggle'
 import useTheme from 'hooks/useTheme'
 import AlertCondition, { AlertConditionData } from 'pages/NotificationCenter/PriceAlerts/AlertCondition'
 import { PriceAlert } from 'pages/NotificationCenter/const'
+import { formatTime } from 'utils/time'
 
 const Wrapper = styled.div`
   padding: 20px 0;
@@ -29,7 +33,7 @@ const Wrapper = styled.div`
 `
 
 const TimeText = styled.span`
-  font-size: 14px;
+  font-size: 12px;
   color: ${({ theme }) => theme.subText};
   flex: 0 0 max-content;
   white-space: nowrap;
@@ -40,10 +44,10 @@ const AlertConditionWrapper = styled.div`
   display: flex;
   flex-direction: row;
   gap: 16px;
+  flex-wrap: wrap;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     flex-direction: column-reverse;
-    flex-wrap: wrap;
     gap: 12px;
 
     ${TimeText} {
@@ -80,6 +84,7 @@ type Props = {
   timeText?: React.ReactNode
   isHistorical?: boolean
   alertData: Pick<PriceAlert, 'note'> & Partial<Pick<PriceAlert, 'disableAfterTrigger'>> & AlertConditionData
+  onClick?: () => void
 }
 const CommonSingleAlert: React.FC<Props> = ({
   renderToggle,
@@ -87,10 +92,12 @@ const CommonSingleAlert: React.FC<Props> = ({
   timeText,
   isHistorical = false,
   alertData,
+  onClick,
 }) => {
   const theme = useTheme()
+  const { note } = alertData
   return (
-    <Wrapper>
+    <Wrapper onClick={onClick} style={{ cursor: onClick ? 'pointer' : 'unset' }}>
       <Flex alignItems={'center'} justifyContent="space-between" height="24px">
         <Flex
           sx={{
@@ -101,7 +108,7 @@ const CommonSingleAlert: React.FC<Props> = ({
             gap: '4px',
           }}
         >
-          <AlarmIcon width={14} height={14} />
+          <AlarmIcon width={16} height={16} />
           <span>
             <Trans>Price Alert</Trans>
           </span>
@@ -120,13 +127,12 @@ const CommonSingleAlert: React.FC<Props> = ({
 
       <AlertConditionWrapper>
         <AlertCondition alertData={alertData} shouldIncludePrefix={!isHistorical} />
-
         <TimeText>{timeText}</TimeText>
       </AlertConditionWrapper>
 
-      {alertData.note || alertData.disableAfterTrigger ? (
+      {note || alertData.disableAfterTrigger ? (
         <SupplementaryTextWrapper>
-          {alertData.note ? (
+          {note ? (
             <Text
               as="span"
               sx={{
@@ -134,7 +140,7 @@ const CommonSingleAlert: React.FC<Props> = ({
                 overflowWrap: 'anywhere',
               }}
             >
-              <Trans>Note</Trans>: {alertData.note}
+              <Trans>Note</Trans>: {note}
             </Text>
           ) : (
             <EmptySupplementaryText />
@@ -154,6 +160,59 @@ const CommonSingleAlert: React.FC<Props> = ({
           )}
         </SupplementaryTextWrapper>
       ) : null}
+    </Wrapper>
+  )
+}
+
+const AlertConditionWrapperAnnouncement = styled(AlertConditionWrapper)`
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+  flex-direction: column;
+`}
+`
+
+export const PriceAlertAnnouncement: React.FC<{
+  announcement: PrivateAnnouncement<AnnouncementTemplatePriceAlert>
+}> = ({ announcement }) => {
+  const theme = useTheme()
+  const { templateBody, sentAt } = announcement
+  const { chainId } = templateBody.alert
+  const note = '1232 hehee'
+  const navigate = useNavigateToUrl()
+  const onClick = () => {
+    navigate(getSwapUrlPriceAlert(templateBody.alert), Number(chainId))
+  }
+  return (
+    <Wrapper onClick={onClick} style={{ cursor: 'pointer' }}>
+      <Flex alignItems={'center'} justifyContent="space-between" height="24px">
+        <Flex
+          sx={{
+            fontWeight: '500',
+            fontSize: '14px',
+            color: theme.text,
+            alignItems: 'center',
+            gap: '4px',
+          }}
+        >
+          <AlarmIcon width={16} height={16} />
+          <span>
+            <Trans>Price Alert</Trans>
+          </span>
+        </Flex>
+        <TimeText>{formatTime(sentAt)}</TimeText>
+      </Flex>
+
+      <AlertConditionWrapperAnnouncement>
+        <AlertCondition alertData={templateBody.alert} shouldIncludePrefix={true} />
+        {note ? (
+          <SupplementaryTextWrapper>
+            {note ? (
+              <Text as="span" sx={{ whiteSpace: 'break-spaces', overflowWrap: 'anywhere' }}>
+                <Trans>Note</Trans>: {note}
+              </Text>
+            ) : null}
+          </SupplementaryTextWrapper>
+        ) : null}
+      </AlertConditionWrapperAnnouncement>
     </Wrapper>
   )
 }

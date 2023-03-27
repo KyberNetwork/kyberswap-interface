@@ -14,7 +14,6 @@ const IconWrapper = styled.div<{ hasNetwork: boolean }>`
   position: relative;
   ${({ hasNetwork }) => hasNetwork && `margin-right: 4px;`}
 `
-
 const mapPosition: Partial<{ [type in PrivateAnnouncementType]: { top: number; right: number } }> = {
   [PrivateAnnouncementType.POOL_POSITION]: { top: -6, right: -10 },
 }

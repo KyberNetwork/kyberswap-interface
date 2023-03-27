@@ -113,7 +113,8 @@ const useNotification = () => {
     })
     if (!unsubscribeIds.length) return
     saveNotification({ isEmail: true, unsubscribeIds, subscribeIds: [], email: userInfo.email })
-  }, [topicGroups, saveNotification, userInfo?.email])
+    refreshTopics()
+  }, [topicGroups, saveNotification, userInfo?.email, refreshTopics])
 
   const showNotificationModal = useCallback(() => {
     refreshTopics()

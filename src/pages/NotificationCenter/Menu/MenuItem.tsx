@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 
+import { formatNumberOfUnread } from 'components/Announcement/helper'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 
@@ -75,11 +76,11 @@ type Props = {
   href: string
   icon: React.ReactElement
   text: string
-  badgeText?: string
+  unread?: number
   isMobile?: boolean
 }
 
-const MenuItem: React.FC<Props> = ({ icon, text, badgeText, href, isMobile = false }) => {
+const MenuItem: React.FC<Props> = ({ icon, text, unread, href, isMobile = false }) => {
   const location = useLocation()
   const theme = useTheme()
 
@@ -101,7 +102,7 @@ const MenuItem: React.FC<Props> = ({ icon, text, badgeText, href, isMobile = fal
           <Label>{text}</Label>
         </Flex>
 
-        {badgeText ? <Badge>{badgeText}</Badge> : null}
+        {unread ? <Badge>{formatNumberOfUnread(unread)}</Badge> : null}
       </Wrapper>
     </Link>
   )

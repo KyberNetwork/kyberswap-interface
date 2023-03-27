@@ -1,0 +1,62 @@
+import styled from 'styled-components'
+
+export const Wrapper = styled.div`
+  border-bottom: 1px solid ${({ theme }) => theme.border};
+  background-color: ${({ theme }) => theme.background};
+  font-size: 12px;
+  padding: 20px 0px;
+  gap: 14px;
+  display: flex;
+  align-items: flex-start;
+  cursor: pointer;
+  :first-child {
+    padding-top: 0;
+  }
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    :first-child {
+      padding: 20px 0px;
+  }
+  `}
+`
+
+export const Title = styled.div`
+  font-size: 14px;
+  font-weight: 500;
+  color: ${({ theme }) => theme.text};
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`
+
+export const Desc = styled.div`
+  font-size: 14px;
+  color: ${({ theme }) => theme.subText};
+  word-break: break-word;
+  display: block;
+  display: -webkit-box;
+  max-width: 100%;
+  line-height: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+`
+
+export const Time = styled.div<{ isLeft?: boolean }>`
+  color: ${({ theme }) => theme.subText};
+  text-align: ${({ isLeft }) => (isLeft ? 'left' : 'right')};
+  width: 100%;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    font-size: 10px;
+  `}
+`
+
+export const RowItem = styled.div`
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+  flex: 1;
+  justify-content: space-between;
+  max-width: 100%;
+`

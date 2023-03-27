@@ -1,27 +1,25 @@
-import dayjs from 'dayjs'
 import { useClearSinglePriceAlertHistoryMutation } from 'services/priceAlert'
 
+import { AnnouncementTemplatePriceAlert, PrivateAnnouncement } from 'components/Announcement/type'
 import { useActiveWeb3React } from 'hooks'
 import CommonSingleAlert from 'pages/NotificationCenter/PriceAlerts/CommonSingleAlert'
 import DeleteSingleAlertButton from 'pages/NotificationCenter/PriceAlerts/DeleteSingleAlertButton'
-import { HistoricalPriceAlert } from 'pages/NotificationCenter/const'
+import { formatTime } from 'utils/time'
 
 type Props = {
-  historicalAlert: HistoricalPriceAlert
+  announcement: PrivateAnnouncement<AnnouncementTemplatePriceAlert>
 }
-const SingleAlert: React.FC<Props> = ({ historicalAlert }) => {
+const SingleAlert: React.FC<Props> = ({ announcement }) => {
   const { account } = useActiveWeb3React()
   const [clearAlert, result] = useClearSinglePriceAlertHistoryMutation()
-
+  const { templateBody, sentAt, id } = announcement
+  const historicalAlert = templateBody.alert
   return (
     <CommonSingleAlert
       renderDeleteButton={() => (
-        <DeleteSingleAlertButton
-          isDisabled={result.isLoading}
-          onClick={() => account && clearAlert({ account, id: historicalAlert.id })}
-        />
+        <DeleteSingleAlertButton isDisabled={result.isLoading} onClick={() => account && clearAlert({ account, id })} />
       )}
-      timeText={dayjs(historicalAlert.sentAt * 1000).format('DD/MM/YYYY hh:mm:ss')}
+      timeText={formatTime(sentAt)}
       alertData={historicalAlert}
       isHistorical
     />

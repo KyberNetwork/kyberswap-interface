@@ -275,6 +275,7 @@ export default function AnnouncementComponent() {
     showDetailAnnouncement,
   }
 
+  const badgeText = numberOfUnread > 0 ? formatNumberOfUnread(numberOfUnread) : null
   const bellIcon = (
     <StyledMenuButton
       active={isOpenNotificationCenter || numberOfUnread > 0}
@@ -284,11 +285,7 @@ export default function AnnouncementComponent() {
       }}
     >
       <NotificationIcon />
-      {numberOfUnread > 0 && (
-        <Badge isOverflow={formatNumberOfUnread(numberOfUnread).length >= 3}>
-          {formatNumberOfUnread(numberOfUnread)}
-        </Badge>
-      )}
+      {badgeText && <Badge isOverflow={badgeText.length >= 3}>{badgeText}</Badge>}
     </StyledMenuButton>
   )
   return (

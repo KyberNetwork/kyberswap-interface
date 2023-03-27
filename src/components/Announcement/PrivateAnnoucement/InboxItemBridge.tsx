@@ -14,7 +14,7 @@ import {
   RowItem,
   Title,
 } from 'components/Announcement/PrivateAnnoucement/styled'
-import { AnnouncementTemplateBridge, PrivateAnnouncementType } from 'components/Announcement/type'
+import { AnnouncementTemplateBridge } from 'components/Announcement/type'
 import { CheckCircle } from 'components/Icons'
 import IconFailure from 'components/Icons/Failed'
 import { NetworkLogo } from 'components/Logo'
@@ -31,7 +31,7 @@ const NetWorkRow = styled.div`
 `
 
 function InboxItemBridge({ announcement, onRead, style, time }: PrivateAnnouncementProp<AnnouncementTemplateBridge>) {
-  const { templateBody, isRead } = announcement
+  const { templateBody, isRead, templateType } = announcement
   const { status, srcTokenSymbol, srcAmount, dstChainId, srcChainId } = templateBody.transaction
   const isSuccess = Number(status) === MultichainTransferStatus.Success
   const chainIdIn = Number(srcChainId) as ChainId
@@ -50,7 +50,7 @@ function InboxItemBridge({ announcement, onRead, style, time }: PrivateAnnouncem
     <InboxItemWrapper isRead={isRead} onClick={onClick} style={style}>
       <InboxItemRow>
         <RowItem>
-          <InboxIcon type={PrivateAnnouncementType.BRIDGE} />
+          <InboxIcon type={templateType} />
           <Title isRead={isRead}>
             <Trans>Bridge Token</Trans>
           </Title>

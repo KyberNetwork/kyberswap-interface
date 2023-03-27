@@ -2,6 +2,7 @@ import { t } from '@lingui/macro'
 import { List as ListIcon } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
+import { useGetPrivateAnnouncementsByIdsQuery, useGetPrivateAnnouncementsQuery } from 'services/announcement'
 import styled from 'styled-components'
 
 import { ReactComponent as AlarmIcon } from 'assets/svg/alarm.svg'
@@ -9,8 +10,11 @@ import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
 import { ReactComponent as DropIcon } from 'assets/svg/drop.svg'
 import { ReactComponent as LimitOrderIcon } from 'assets/svg/limit_order.svg'
 import { ReactComponent as MailIcon } from 'assets/svg/mail.svg'
+import { PrivateAnnouncementType } from 'components/Announcement/type'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import NotificationIcon from 'components/Icons/NotificationIcon'
+import { getAnnouncementsTemplateIds } from 'constants/env'
+import { useActiveWeb3React } from 'hooks'
 import MenuItem from 'pages/NotificationCenter/Menu/MenuItem'
 import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
 import { MEDIA_WIDTHS } from 'theme'
@@ -23,7 +27,11 @@ const Divider = styled.div<{ $margin?: string }>`
   margin: ${({ $margin }) => $margin || '0'};
 `
 
-const MenuForDesktop = () => {
+type Unread = {
+  [key in PrivateAnnouncementType]: number | undefined
+} & { ALL: number | undefined }
+
+const MenuForDesktop = ({ unread }: { unread: Unread }) => {
   return (
     <Flex
       sx={{
@@ -44,7 +52,12 @@ const MenuForDesktop = () => {
           gap: '16px',
         }}
       >
-        <MenuItem href={NOTIFICATION_ROUTES.ALL} icon={<ListIcon size="16px" />} text={t`All Notifications`} />
+        <MenuItem
+          href={NOTIFICATION_ROUTES.ALL}
+          icon={<ListIcon size="16px" />}
+          text={t`All Notifications`}
+          unread={unread.ALL}
+        />
         <Flex
           sx={{
             flexDirection: 'column',
@@ -68,6 +81,7 @@ const MenuForDesktop = () => {
               href={NOTIFICATION_ROUTES.PRICE_ALERTS}
               icon={<AlarmIcon width={16} height={16} />}
               text={t`Price Alerts`}
+              unread={unread.PRICE_ALERT}
             />
           </Flex>
 
@@ -75,19 +89,25 @@ const MenuForDesktop = () => {
             href={NOTIFICATION_ROUTES.MY_ELASTIC_POOLS}
             icon={<DropIcon width="16px" height="16px" />}
             text={t`My Elastic Pools`}
+            unread={unread.ELASTIC_POOLS}
           />
-          <MenuItem href={NOTIFICATION_ROUTES.LIMIT_ORDERS} icon={<LimitOrderIcon />} text={t`Limit Orders`} />
+          <MenuItem
+            href={NOTIFICATION_ROUTES.LIMIT_ORDERS}
+            icon={<LimitOrderIcon />}
+            text={t`Limit Orders`}
+            unread={unread.LIMIT_ORDER}
+          />
           <MenuItem
             href={NOTIFICATION_ROUTES.BRIDGE}
             icon={<BridgeIcon width="16px" height="16px" />}
             text={t`Cross-Chain Bridge`}
-            badgeText={'10'}
+            unread={unread.BRIDGE_ASSET}
           />
           <MenuItem
             href={NOTIFICATION_ROUTES.TRENDING_SOON_TOKENS}
             icon={<DiscoverIcon size={16} />}
             text={t`Trending Soon Tokens`}
-            badgeText={'10+'}
+            unread={unread.TRENDING_SOON}
           />
         </Flex>
       </Flex>
@@ -95,7 +115,7 @@ const MenuForDesktop = () => {
   )
 }
 
-const MenuForMobile = () => {
+const MenuForMobile = ({ unread }: { unread: Unread }) => {
   return (
     <Flex
       sx={{
@@ -111,7 +131,13 @@ const MenuForMobile = () => {
         icon={<NotificationIcon size="16px" />}
         text={t`Notification Overview`}
       />
-      <MenuItem isMobile href={NOTIFICATION_ROUTES.ALL} icon={<ListIcon size="16px" />} text={t`All Notifications`} />
+      <MenuItem
+        isMobile
+        href={NOTIFICATION_ROUTES.ALL}
+        icon={<ListIcon size="16px" />}
+        text={t`All Notifications`}
+        unread={unread.ALL}
+      />
       <MenuItem
         isMobile
         href={NOTIFICATION_ROUTES.GENERAL}
@@ -123,27 +149,35 @@ const MenuForMobile = () => {
         href={NOTIFICATION_ROUTES.PRICE_ALERTS}
         icon={<AlarmIcon width={16} height={16} />}
         text={t`Price Alerts`}
+        unread={unread.PRICE_ALERT}
       />
       <MenuItem
         isMobile
         href={NOTIFICATION_ROUTES.MY_ELASTIC_POOLS}
         icon={<DropIcon width="16px" height="16px" />}
         text={t`My Elastic Pools`}
+        unread={unread.ELASTIC_POOLS}
       />
-      <MenuItem isMobile href={NOTIFICATION_ROUTES.LIMIT_ORDERS} icon={<LimitOrderIcon />} text={t`Limit Orders`} />
+      <MenuItem
+        isMobile
+        href={NOTIFICATION_ROUTES.LIMIT_ORDERS}
+        icon={<LimitOrderIcon />}
+        text={t`Limit Orders`}
+        unread={unread.LIMIT_ORDER}
+      />
       <MenuItem
         isMobile
         href={NOTIFICATION_ROUTES.BRIDGE}
         icon={<BridgeIcon width="16px" height="16px" />}
         text={t`Cross-Chain Bridge`}
-        badgeText={'10'}
+        unread={unread.BRIDGE_ASSET}
       />
       <MenuItem
         isMobile
         href={NOTIFICATION_ROUTES.TRENDING_SOON_TOKENS}
         icon={<DiscoverIcon size={16} />}
         text={t`Trending Soon Tokens`}
-        badgeText={'10+'}
+        unread={unread.TRENDING_SOON}
       />
     </Flex>
   )
@@ -151,12 +185,47 @@ const MenuForMobile = () => {
 
 const Menu = () => {
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
+  const { account } = useActiveWeb3React()
+  const templates = getAnnouncementsTemplateIds()
+  // todo refactor this
+  const params = { account: account ?? '', page: 1 }
+  const skip = { skip: !account }
+  const { data: dataAll } = useGetPrivateAnnouncementsQuery({ ...params }, skip)
+  const { data: dataPriceAlert } = useGetPrivateAnnouncementsByIdsQuery(
+    { ...params, templateIds: templates.PRICE_ALERT },
+    skip,
+  )
+  const { data: dataBridge } = useGetPrivateAnnouncementsByIdsQuery(
+    { ...params, templateIds: templates.BRIDGE_ASSET },
+    skip,
+  )
+  const { data: dataLimitOrder } = useGetPrivateAnnouncementsByIdsQuery(
+    { ...params, templateIds: templates.LIMIT_ORDER },
+    skip,
+  )
+  const { data: dataTrendingSoon } = useGetPrivateAnnouncementsByIdsQuery(
+    { ...params, templateIds: templates.TRENDING_SOON },
+    skip,
+  )
+  const { data: dataPool } = useGetPrivateAnnouncementsByIdsQuery(
+    { ...params, templateIds: templates.ELASTIC_POOLS },
+    skip,
+  )
 
-  if (upToMedium) {
-    return <MenuForMobile />
+  const unread = {
+    [PrivateAnnouncementType.PRICE_ALERT]: dataPriceAlert?.numberOfUnread,
+    [PrivateAnnouncementType.BRIDGE]: dataBridge?.numberOfUnread,
+    [PrivateAnnouncementType.LIMIT_ORDER]: dataLimitOrder?.numberOfUnread,
+    [PrivateAnnouncementType.POOL_POSITION]: dataPool?.numberOfUnread,
+    [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: dataTrendingSoon?.numberOfUnread,
+    ALL: dataAll?.numberOfUnread,
   }
 
-  return <MenuForDesktop />
+  if (upToMedium) {
+    return <MenuForMobile unread={unread} />
+  }
+
+  return <MenuForDesktop unread={unread} />
 }
 
 export default Menu

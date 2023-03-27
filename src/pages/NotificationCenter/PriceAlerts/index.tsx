@@ -32,7 +32,8 @@ export const ShareWrapper = styled.div`
     }
   `}
 `
-
+// todo danh move to commont file
+// todo mapping name/icon cua cac announcment
 export const ShareContentWrapper = styled.div`
   display: flex;
   width: 100%;

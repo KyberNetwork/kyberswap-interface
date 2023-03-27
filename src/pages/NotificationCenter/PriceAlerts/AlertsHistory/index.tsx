@@ -4,6 +4,7 @@ import { Info } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import { useGetListPriceAlertHistoryQuery } from 'services/priceAlert'
 
+import { AnnouncementTemplatePriceAlert, PrivateAnnouncement } from 'components/Announcement/type'
 import Loader from 'components/Loader'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
@@ -25,9 +26,11 @@ const AlertsHistory = ({ setDisabledClearAll }: { setDisabledClearAll: (v: boole
     { skip: !account },
   )
 
+  const notifications = data?.notifications ?? []
+
   useEffect(() => {
-    setDisabledClearAll(!data?.historicalAlerts?.length)
-  }, [data?.historicalAlerts?.length, setDisabledClearAll])
+    setDisabledClearAll(!notifications?.length)
+  }, [notifications?.length, setDisabledClearAll])
 
   if (isLoading) {
     return (
@@ -37,7 +40,7 @@ const AlertsHistory = ({ setDisabledClearAll }: { setDisabledClearAll: (v: boole
     )
   }
 
-  if (!data?.historicalAlerts?.length) {
+  if (!notifications?.length) {
     return (
       <Flex flex="1 1 0" justifyContent="center" width="100%" alignItems="center">
         <Flex
@@ -64,9 +67,9 @@ const AlertsHistory = ({ setDisabledClearAll }: { setDisabledClearAll: (v: boole
           flexDirection: 'column',
         }}
       >
-        {data.historicalAlerts.map(alert => {
-          return <SingleAlert key={alert.id} historicalAlert={alert} />
-        })}
+        {notifications.map(alert => (
+          <SingleAlert key={alert.id} announcement={alert as PrivateAnnouncement<AnnouncementTemplatePriceAlert>} />
+        ))}
       </Flex>
 
       <CommonPagination

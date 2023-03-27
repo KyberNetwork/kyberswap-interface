@@ -1,12 +1,9 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { AnnouncementResponse, transformResponseAnnouncement } from 'services/announcement'
 
-import { NOTIFICATION_API, PRICE_ALERT_API, PRICE_ALERT_TEMPLATE_IDS } from 'constants/env'
-import {
-  CreatePriceAlertPayload,
-  HistoricalPriceAlert,
-  PriceAlert,
-  PriceAlertStat,
-} from 'pages/NotificationCenter/const'
+import { PrivateAnnouncement } from 'components/Announcement/type'
+import { NOTIFICATION_API, PRICE_ALERT_API, getAnnouncementsTemplateIds } from 'constants/env'
+import { CreatePriceAlertPayload, PriceAlert, PriceAlertStat } from 'pages/NotificationCenter/const'
 
 type MetaResponse<T> = {
   code: number
@@ -21,42 +18,11 @@ type GetListAlertsResponseData = {
   }
 }
 
-type GetListHistoricalAlertsResponseData = {
-  historicalAlerts: HistoricalPriceAlert[]
-  pagination: {
-    totalItems: number
-  }
-}
-
 type GetListAlertsParams = {
   walletAddress: string
   page?: number
   pageSize?: number
-
-  // TODO: check this
   sort?: string
-}
-
-const transformGetListHistoricalAlertsResponse = (data: any): GetListHistoricalAlertsResponseData => {
-  const { notifications, pagination } = data.data ?? {}
-  try {
-    return {
-      historicalAlerts: (notifications || []).map((notification: any) => {
-        const { alert } = JSON.parse(notification.templateBody || '{}') || {}
-        alert.sentAt = notification.sentAt
-        alert.id = notification.id
-        return alert
-      }),
-      pagination,
-    } as GetListHistoricalAlertsResponseData
-  } catch (e) {
-    return {
-      historicalAlerts: [],
-      pagination: {
-        totalItems: 0,
-      },
-    }
-  }
 }
 
 const priceAlertApi = createApi({
@@ -116,7 +82,7 @@ const priceAlertApi = createApi({
       invalidatesTags: ['PriceAlerts', 'PriceAlertsStat'],
     }),
     getListPriceAlertHistory: builder.query<
-      GetListHistoricalAlertsResponseData,
+      AnnouncementResponse<PrivateAnnouncement>,
       {
         account: string
         page: number
@@ -125,10 +91,13 @@ const priceAlertApi = createApi({
     >({
       query: ({ account, ...params }) => ({
         url: `${NOTIFICATION_API}/v1/users/${account}/notifications`,
-        params: { ...params, templateIds: PRICE_ALERT_TEMPLATE_IDS },
+        params: {
+          ...params,
+          templateIds: getAnnouncementsTemplateIds().PRICE_ALERT,
+        },
       }),
-      transformResponse: transformGetListHistoricalAlertsResponse,
       providesTags: ['PriceAlertsHistory'],
+      transformResponse: transformResponseAnnouncement,
     }),
     clearSinglePriceAlertHistory: builder.mutation<
       Response,
@@ -155,7 +124,9 @@ const priceAlertApi = createApi({
       query: ({ account }) => ({
         url: `${NOTIFICATION_API}/v1/users/${account}/notifications/clear-all`,
         body: {
-          templateIds: PRICE_ALERT_TEMPLATE_IDS,
+          templateIds: getAnnouncementsTemplateIds()
+            .PRICE_ALERT.split(',')
+            .map(id => Number(id)),
         },
         method: 'PUT',
       }),
@@ -167,12 +138,13 @@ export const {
   useCreatePriceAlertMutation,
   useUpdatePriceAlertMutation,
   useGetAlertStatsQuery,
-  useGetListPriceAlertHistoryQuery,
   useLazyGetAlertStatsQuery,
   useGetListAlertsQuery,
   useDeleteAllAlertsMutation,
   useDeleteSingleAlertMutation,
   useClearSinglePriceAlertHistoryMutation,
   useClearAllPriceAlertHistoryMutation,
+  useGetListPriceAlertHistoryQuery,
 } = priceAlertApi
 export default priceAlertApi
+// todo combine

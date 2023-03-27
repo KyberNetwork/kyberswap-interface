@@ -2,6 +2,7 @@ import { Trans } from '@lingui/macro'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import styled from 'styled-components'
 
+import { PrivateAnnouncementType } from 'components/Announcement/type'
 import MailIcon from 'components/Icons/MailIcon'
 import { APP_PATHS } from 'constants/index'
 import CreateAlert from 'pages/NotificationCenter/CreateAlert'
@@ -9,6 +10,7 @@ import GeneralAnnouncement from 'pages/NotificationCenter/GeneralAnnouncement'
 import Menu from 'pages/NotificationCenter/Menu'
 import Overview from 'pages/NotificationCenter/Overview'
 import PriceAlerts from 'pages/NotificationCenter/PriceAlerts'
+import PrivateAnnouncement from 'pages/NotificationCenter/PrivateAnnouncement'
 import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
 import VerifyComponent from 'pages/Verify/VerifyComponent'
 
@@ -100,14 +102,27 @@ function NotificationCenter() {
         </LeftColumn>
         <RightColumn>
           <Routes>
-            <Route index path={NOTIFICATION_ROUTES.ALL} element={<div>All notification</div>} />
+            <Route index path={NOTIFICATION_ROUTES.ALL} element={<PrivateAnnouncement />} />
             <Route path={NOTIFICATION_ROUTES.OVERVIEW} element={<Overview />} />
             <Route path={NOTIFICATION_ROUTES.GENERAL} element={<GeneralAnnouncement />} />
             <Route path={NOTIFICATION_ROUTES.PRICE_ALERTS} element={<PriceAlerts />} />
-            <Route path={NOTIFICATION_ROUTES.MY_ELASTIC_POOLS} element={<div>My Elastic Pools</div>} />
-            <Route path={NOTIFICATION_ROUTES.LIMIT_ORDERS} element={<div>Limit Orders</div>} />
-            <Route path={NOTIFICATION_ROUTES.BRIDGE} element={<div>Cross-Chain Bridge</div>} />
-            <Route path={NOTIFICATION_ROUTES.TRENDING_SOON_TOKENS} element={<div>Trending Soon Tokens</div>} />
+            <Route path={`${NOTIFICATION_ROUTES.PRICE_ALERTS}/*`} element={<PriceAlerts />} />
+            <Route
+              path={NOTIFICATION_ROUTES.MY_ELASTIC_POOLS}
+              element={<PrivateAnnouncement type={PrivateAnnouncementType.POOL_POSITION} />}
+            />
+            <Route
+              path={NOTIFICATION_ROUTES.LIMIT_ORDERS}
+              element={<PrivateAnnouncement type={PrivateAnnouncementType.LIMIT_ORDER} />}
+            />
+            <Route
+              path={NOTIFICATION_ROUTES.BRIDGE}
+              element={<PrivateAnnouncement type={PrivateAnnouncementType.BRIDGE} />}
+            />
+            <Route
+              path={NOTIFICATION_ROUTES.TRENDING_SOON_TOKENS}
+              element={<PrivateAnnouncement type={PrivateAnnouncementType.TRENDING_SOON_TOKEN} />}
+            />
             <Route path={NOTIFICATION_ROUTES.CREATE_ALERT} element={<CreateAlert />} />
 
             <Route path="*" element={<Navigate to={`${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.ALL}`} />} />
