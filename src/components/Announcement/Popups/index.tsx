@@ -94,7 +94,7 @@ export default function Popups() {
       data.forEach(item => {
         if (item.templateType === PrivateAnnouncementType.PRICE_ALERT) {
           // only support price alert
-          addPopup(item, PopupType.TOP_RIGHT, item.metaMessageId, 6_000)
+          addPopup(item, PopupType.TOP_RIGHT, item.metaMessageId, 15_000)
         }
       })
     })
