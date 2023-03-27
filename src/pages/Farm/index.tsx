@@ -1,10 +1,9 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { stringify } from 'querystring'
-import { useCallback, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Search, Share2 } from 'react-feather'
 import { useSelector } from 'react-redux'
-import { Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { Navigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
@@ -43,7 +42,6 @@ import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useSyncNetworkParamWithStore } from 'hooks/useSyncNetworkParamWithStore'
 import useTheme from 'hooks/useTheme'
 import { CurrencyWrapper, Tab } from 'pages/Pools/styleds'
@@ -62,14 +60,12 @@ const Farm = () => {
   const { isEVM, chainId } = useActiveWeb3React()
   const { loading, data: farmsByFairLaunch } = useFarmsData()
   const theme = useTheme()
-  const qs = useParsedQueryString<{ type: string; tab: string }>()
-  // const { type = FARM_TAB.ACTIVE, tab = VERSION.ELASTIC } = qs
-  const navigate = useNavigate()
 
   const [searchParams, setSearchParams] = useSearchParams()
   const type: string = searchParams.get('type') || FARM_TAB.ACTIVE
   const tab: string = searchParams.get('tab') || VERSION.ELASTIC
   const search: string = searchParams.get('search') || ''
+  const stakedOnly: boolean = searchParams.get('stakedOnly') === 'true'
   const farmType = isInEnum(tab, VERSION) ? tab : VERSION.ELASTIC
 
   const above1000 = useMedia('(min-width: 1000px)')
@@ -78,32 +74,16 @@ const Farm = () => {
 
   const vestingLoading = useSelector<AppState, boolean>(state => state.vesting.loading)
 
-  const [stakedOnly, setStakedOnly] = useState({
-    active: false,
-    ended: true,
-  })
-
-  const stakedOnlyKey = type === FARM_TAB.ACTIVE ? 'active' : 'ended'
-
   const navigateTab = (nextTab: FARM_TAB) => {
-    const newQs = { ...qs, type: nextTab }
-    navigate({
-      search: stringify(newQs),
-    })
+    searchParams.set('type', nextTab)
+    searchParams.set('stakedOnly', nextTab === FARM_TAB.ENDED ? 'true' : 'false')
+    setSearchParams(searchParams)
   }
 
-  const location = useLocation()
-  const handleSearch = useCallback(
-    (search: string) => {
-      const target = {
-        ...location,
-        search: stringify({ ...qs, search }),
-      }
-
-      navigate(target, { replace: true })
-    },
-    [navigate, location, qs],
-  )
+  const handleSearch = (search: string) => {
+    searchParams.set('search', search)
+    setSearchParams(searchParams, { replace: true })
+  }
 
   const renderTabContent = () => {
     switch (type) {
@@ -111,7 +91,7 @@ const Farm = () => {
         return farmType === VERSION.ELASTIC ? (
           <>
             {/* TODO: Add condition to hide if no farmv2Address */}
-            <ElasticFarms stakedOnly={stakedOnly} onShowStepGuide={() => setShowFarmStepGuide('v1')} />
+            <ElasticFarms onShowStepGuide={() => setShowFarmStepGuide('v1')} />
             <ElasticFarmv2 onShowStepGuide={() => setShowFarmStepGuide('v2')} />
           </>
         ) : (
@@ -120,7 +100,7 @@ const Farm = () => {
       case FARM_TAB.ENDED:
         return farmType === VERSION.ELASTIC ? (
           <>
-            <ElasticFarms stakedOnly={stakedOnly} onShowStepGuide={() => setShowFarmStepGuide('v1')} />
+            <ElasticFarms onShowStepGuide={() => setShowFarmStepGuide('v1')} />
             <ElasticFarmv2 onShowStepGuide={() => setShowFarmStepGuide('v2')} />
           </>
         ) : (
@@ -131,7 +111,7 @@ const Farm = () => {
       case FARM_TAB.MY_FARMS:
         return farmType === VERSION.ELASTIC ? (
           <>
-            <ElasticFarms stakedOnly={stakedOnly} onShowStepGuide={() => setShowFarmStepGuide('v1')} />
+            <ElasticFarms onShowStepGuide={() => setShowFarmStepGuide('v1')} />
             <ElasticFarmv2 onShowStepGuide={() => setShowFarmStepGuide('v2')} />
           </>
         ) : (
@@ -378,8 +358,11 @@ const Farm = () => {
                         <Trans>Staked Only</Trans>
                       </StakedOnlyToggleText>
                       <Toggle
-                        isActive={stakedOnly[stakedOnlyKey]}
-                        toggle={() => setStakedOnly(prev => ({ ...prev, [type]: !prev[stakedOnlyKey] }))}
+                        isActive={stakedOnly}
+                        toggle={() => {
+                          searchParams.set('stakedOnly', stakedOnly ? 'false' : 'true')
+                          setSearchParams(searchParams)
+                        }}
                       />
                     </>
                   )}

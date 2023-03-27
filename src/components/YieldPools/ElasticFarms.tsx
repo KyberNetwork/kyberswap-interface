@@ -29,13 +29,7 @@ import { SharePoolContext } from './SharePoolContext'
 
 type ModalType = 'deposit' | 'withdraw' | 'stake' | 'unstake' | 'harvest' | 'forcedWithdraw'
 
-function ElasticFarms({
-  stakedOnly,
-  onShowStepGuide,
-}: {
-  stakedOnly: { active: boolean; ended: boolean }
-  onShowStepGuide: () => void
-}) {
+function ElasticFarms({ onShowStepGuide }: { onShowStepGuide: () => void }) {
   const theme = useTheme()
   const { isEVM, networkInfo, chainId } = useActiveWeb3React()
 
@@ -54,10 +48,10 @@ function ElasticFarms({
 
   const type = searchParams.get('type')
   const activeTab: string = type || FARM_TAB.ACTIVE
-  const stakedOnlyKey = activeTab === FARM_TAB.ACTIVE ? 'active' : 'ended'
 
   const tab = searchParams.get('tab')
   const search: string = searchParams.get('search')?.toLowerCase() || ''
+  const stakedOnly = searchParams.get('stakedOnly') === 'true'
 
   const filteredFarms = useMemo(() => {
     const now = Date.now() / 1000
@@ -135,7 +129,7 @@ function ElasticFarms({
       }
     }
 
-    if ((stakedOnly[stakedOnlyKey] || activeTab === FARM_TAB.MY_FARMS) && isEVM) {
+    if ((stakedOnly || activeTab === FARM_TAB.MY_FARMS) && isEVM) {
       result = result?.map(item => {
         if (!userFarmInfo?.[item.id].depositedPositions.length) {
           return { ...item, pools: [] }
@@ -160,7 +154,6 @@ function ElasticFarms({
     farms,
     search,
     stakedOnly,
-    stakedOnlyKey,
     activeTab,
     chainId,
     userFarmInfo,
@@ -300,11 +293,7 @@ function ElasticFarms({
           style={{ borderBottomLeftRadius: '20px', borderBottomRightRadius: '20px' }}
         >
           <Text color={theme.subText}>
-            {stakedOnly[stakedOnlyKey] || search ? (
-              <Trans>No Farms found</Trans>
-            ) : (
-              <Trans>Currently there are no Farms.</Trans>
-            )}
+            {stakedOnly || search ? <Trans>No Farms found</Trans> : <Trans>Currently there are no Farms.</Trans>}
           </Text>
         </Flex>
       ) : (

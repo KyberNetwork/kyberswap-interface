@@ -71,14 +71,14 @@ export default function ElasticFarmv2({ onShowStepGuide }: { onShowStepGuide: ()
   const above1000 = useMedia('(min-width: 1000px)')
 
   const [searchParams, setSearchParams] = useSearchParams()
-  const { farms } = useElasticFarmsV2()
+  const { farms, userInfo } = useElasticFarmsV2()
 
   const type = searchParams.get('type')
   const activeTab: string = type || FARM_TAB.ACTIVE
-  // const stakedOnlyKey = activeTab === FARM_TAB.ACTIVE ? 'active' : 'ended'
   const search: string = searchParams.get('search')?.toLowerCase() || ''
   const filteredToken0Id = searchParams.get('token0') || undefined
   const filteredToken1Id = searchParams.get('token1') || undefined
+  const stakedOnly = searchParams.get('stakedOnly') === 'true'
 
   const sortField = searchParams.get('orderBy') || SORT_FIELD.MY_DEPOSIT
   const sortDirection = searchParams.get('orderDirection') || SORT_DIRECTION.DESC
@@ -130,8 +130,12 @@ export default function ElasticFarmv2({ onShowStepGuide }: { onShowStepGuide: ()
         })
       }
     }
+
+    if (stakedOnly) {
+      result = result?.filter(item => userInfo?.map(i => i.fId).includes(item.fId))
+    }
     return result
-  }, [farms, activeTab, chainId, filteredToken0Id, filteredToken1Id, isEVM, search])
+  }, [stakedOnly, userInfo, farms, activeTab, chainId, filteredToken0Id, filteredToken1Id, isEVM, search])
 
   const { approve } = useFarmV2Action()
   const posManager = useProAmmNFTPositionManagerContract()
