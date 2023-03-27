@@ -51,6 +51,15 @@ const FarmContent = styled.div`
   border: 1px solid ${({ theme }) => theme.border};
   border-radius: 20px;
   overflow: hidden;
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    padding: 1rem;
+    margin-left: -1rem;
+    margin-right: -1rem;
+    border: none;
+    padding: 0;
+    border-radius: 0;
+  `}
 `
 
 type Props = {

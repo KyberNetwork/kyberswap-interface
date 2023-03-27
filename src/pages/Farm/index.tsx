@@ -51,6 +51,7 @@ import { useBlockNumber, useOpenModal } from 'state/application/hooks'
 import { useFarmsData } from 'state/farms/classic/hooks'
 import ClassicFarmUpdater from 'state/farms/classic/updater'
 import { FarmUpdater, useElasticFarms } from 'state/farms/elastic/hooks'
+import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
 import ElasticFarmV2Updater from 'state/farms/elasticv2/updater'
 import { isInEnum } from 'utils/string'
 
@@ -131,6 +132,7 @@ const Farm = () => {
   const blockNumber = useBlockNumber()
 
   const { farms: elasticFarms } = useElasticFarms()
+  const { farms: elasticFarmsV2 } = useElasticFarmsV2()
 
   const rewardTokens = useMemo(() => {
     const tokenMap: { [address: string]: Currency } = {}
@@ -158,8 +160,16 @@ const Farm = () => {
       })
     })
 
+    elasticFarmsV2?.forEach(farm => {
+      if (farm.endTime > Date.now() / 1000) {
+        farm.totalRewards.forEach(rw => {
+          tokenMap[rw.currency.wrapped.address] = rw.currency
+        })
+      }
+    })
+
     return Object.values(tokenMap)
-  }, [farmsByFairLaunch, blockNumber, elasticFarms, chainId])
+  }, [farmsByFairLaunch, blockNumber, elasticFarms, chainId, elasticFarmsV2])
 
   const rewardPrice = !!rewardTokens.length && (
     <Flex

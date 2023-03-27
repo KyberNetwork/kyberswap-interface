@@ -286,12 +286,7 @@ function ElasticFarms({ onShowStepGuide }: { onShowStepGuide: () => void }) {
           <LocalLoader />
         </Flex>
       ) : noFarms ? (
-        <Flex
-          backgroundColor={theme.background}
-          justifyContent="center"
-          padding="32px"
-          style={{ borderBottomLeftRadius: '20px', borderBottomRightRadius: '20px' }}
-        >
+        <Flex backgroundColor={theme.background} justifyContent="center" padding="32px" sx={{ borderRadius: '20px' }}>
           <Text color={theme.subText}>
             {stakedOnly || search ? <Trans>No Farms found</Trans> : <Trans>Currently there are no Farms.</Trans>}
           </Text>

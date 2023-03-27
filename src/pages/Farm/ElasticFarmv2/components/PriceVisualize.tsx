@@ -31,7 +31,7 @@ const Dot = styled.div`
   background-color: white;
   position: absolute;
   top: -3px;
-  z-index: 3;
+  z-index: 1;
   transform: translateX(-50%);
 `
 

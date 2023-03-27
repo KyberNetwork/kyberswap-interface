@@ -129,6 +129,10 @@ const UnstakeButton = styled(ButtonOutlined)`
   &:active {
     box-shadow: 0 0 0 1pt var(--subtext-alpha-50);
   }
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    font-size: 12px;
+  `}
 `
 
 const IconButton = styled.div`
@@ -399,13 +403,13 @@ function FarmCard({ farm, poolAPR, isApproved }: { farm: ElasticFarmV2; poolAPR:
             <Row gap="12px">
               {canUnstake && (
                 <UnstakeButton onClick={() => setShowUnstake(p => !p)}>
-                  <RowFit gap="6px">{stakedPos?.length || 3} Positions Staked</RowFit>
+                  {stakedPos?.length} Positions Staked
                 </UnstakeButton>
               )}
               <ButtonLight onClick={() => setShowStake(true)} disabled={!account || !isApproved}>
                 <RowFit gap="6px">
                   <Plus size={16} />
-                  Stake
+                  <Text fontSize={['12px', '14px']}>Stake</Text>
                 </RowFit>
               </ButtonLight>
             </Row>

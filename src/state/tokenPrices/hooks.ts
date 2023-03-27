@@ -53,7 +53,23 @@ export const useTokenPricesWithLoading = (
           : fetch(`${aggregatorDomain}/solana/prices?${stringify(payload)}`)
 
         const res = await promise.then(res => res.json())
-        const prices = res?.data?.prices || res
+        let prices = res?.data?.prices || res
+        if (chainId === ChainId.GÖRLI) {
+          prices = prices.concat([
+            {
+              address: '0x325697956767826a1ddf0ee8d5eb0f8ae3a2c171',
+              price: 1.012345,
+            },
+            {
+              address: '0xeac23a03f26df44fe3bb67bde1ecaecbee0daaa9',
+              price: 0.98765,
+            },
+            {
+              address: '0x543c9d27ee4ef9b405d7b41f264fa777f445ae88',
+              price: 13,
+            },
+          ])
+        }
 
         if (prices?.length) {
           const formattedPrices = list.map(address => {

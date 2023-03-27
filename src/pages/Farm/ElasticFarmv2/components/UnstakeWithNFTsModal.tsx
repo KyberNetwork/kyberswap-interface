@@ -6,13 +6,16 @@ import styled, { css } from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
+import PriceVisualize from 'components/ProAmm/PriceVisualize'
 import Row, { RowBetween, RowFit, RowWrap } from 'components/Row'
+import useIsTickAtLimit from 'hooks/useIsTickAtLimit'
 import useTheme from 'hooks/useTheme'
 import { useFarmV2Action } from 'state/farms/elasticv2/hooks'
 import { ElasticFarmV2, UserFarmV2Info } from 'state/farms/elasticv2/types'
+import { getTickToPrice } from 'utils/getTickToPrice'
+import { formatDollarAmount } from 'utils/numbers'
 
 import { convertTickToPrice } from '../utils'
-import PriceVisualize from './PriceVisualize'
 
 const Wrapper = styled.div`
   padding: 20px;
@@ -32,6 +35,10 @@ const ContentWrapper = styled.div`
 const NFTsWrapper = styled(RowWrap)`
   --gap: 12px;
   --items-in-row: 4;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    --items-in-row: 2;
+  `}
 `
 
 const NFTItemWrapper = styled.div<{ active?: boolean }>`
@@ -39,7 +46,6 @@ const NFTItemWrapper = styled.div<{ active?: boolean }>`
   padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
   border-radius: 12px;
   background-color: var(--button-black);
   cursor: pointer;
@@ -65,9 +71,21 @@ export const NFTItem = ({
   onClick,
 }: {
   active?: boolean
-  pos?: UserFarmV2Info
+  pos: UserFarmV2Info
   onClick?: (tokenId: string) => void
 }) => {
+  const priceLower = getTickToPrice(
+    pos.position.pool.token0.wrapped,
+    pos.position.pool.token1.wrapped,
+    pos.position.tickLower,
+  )
+  const priceUpper = getTickToPrice(
+    pos.position.pool.token0.wrapped,
+    pos.position.pool.token1.wrapped,
+    pos.position.tickUpper,
+  )
+  const ticksAtLimit = useIsTickAtLimit(pos.position.pool.fee, pos.position.tickLower, pos.position.tickUpper)
+
   return (
     <>
       {pos && (
@@ -75,16 +93,17 @@ export const NFTItem = ({
           <Text fontSize="12px" lineHeight="16px" color="var(--primary)">
             {`#${pos.nftId.toString()}`}
           </Text>
-          <PriceVisualize
-            rangeInclude={false}
-            token0={pos.position.pool.token0}
-            token1={pos.position.pool.token1}
-            tickPosLower={pos?.position?.tickLower}
-            tickPosUpper={pos?.position?.tickUpper}
-            tickCurrent={0}
-          />
-          <Text fontSize="12px" lineHeight="16px">
-            $230,23K
+          {priceLower && priceUpper && pos.position.pool && (
+            <PriceVisualize
+              showTooltip
+              priceLower={priceLower}
+              priceUpper={priceUpper}
+              price={pos.position.pool.token0Price}
+              ticksAtLimit={ticksAtLimit}
+            />
+          )}
+          <Text fontSize="12px" lineHeight="16px" marginTop="12px">
+            {formatDollarAmount(pos.stakedUsdValue)}
           </Text>
         </NFTItemWrapper>
       )}

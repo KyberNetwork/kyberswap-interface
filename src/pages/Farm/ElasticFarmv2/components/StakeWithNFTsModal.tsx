@@ -1,4 +1,3 @@
-import { Token } from '@kyberswap/ks-sdk-core'
 import { Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
 import React, { useCallback, useMemo, useState } from 'react'
@@ -7,11 +6,14 @@ import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
+import LocalLoader from 'components/LocalLoader'
 import Modal from 'components/Modal'
 import Pagination from 'components/Pagination'
+import PriceVisualize from 'components/ProAmm/PriceVisualize'
 import Row, { RowBetween, RowFit, RowWrap } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import { useToken } from 'hooks/Tokens'
+import useIsTickAtLimit from 'hooks/useIsTickAtLimit'
 import { usePool } from 'hooks/usePools'
 import { useProAmmPositions } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
@@ -19,11 +21,11 @@ import { useFarmV2Action } from 'state/farms/elasticv2/hooks'
 import { ElasticFarmV2 } from 'state/farms/elasticv2/types'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { PositionDetails } from 'types/position'
+import { getTickToPrice } from 'utils/getTickToPrice'
 import { formatDollarAmount } from 'utils/numbers'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
 import { convertTickToPrice } from '../utils'
-import PriceVisualize from './PriceVisualize'
 
 const Wrapper = styled.div`
   padding: 20px;
@@ -43,6 +45,10 @@ const ContentWrapper = styled.div`
 const NFTsWrapper = styled(RowWrap)`
   --gap: 12px;
   --items-in-row: 4;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    --items-in-row: 2;
+  `}
 `
 
 const NFTItemWrapper = styled.div<{ active?: boolean; disabled?: boolean }>`
@@ -50,7 +56,6 @@ const NFTItemWrapper = styled.div<{ active?: boolean; disabled?: boolean }>`
   padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
   border-radius: 12px;
   background-color: var(--button-black);
   cursor: pointer;
@@ -79,18 +84,18 @@ export const NFTItem = ({
   disabled,
   pos,
   onClick,
+  prices: usdPrices,
 }: {
   active?: boolean
   disabled?: boolean
   pos?: PositionDetails
   onClick?: (tokenId: string) => void
+  prices: { [address: string]: number }
 }) => {
   const token0 = useToken(pos?.token0)
   const token1 = useToken(pos?.token1)
   const currency0 = token0 ? unwrappedToken(token0) : undefined
   const currency1 = token1 ? unwrappedToken(token1) : undefined
-
-  const usdPrices = useTokenPrices(pos ? [pos.token0, pos.token1] : [])
 
   // construct Position from details returned
   const [, pool] = usePool(currency0 ?? undefined, currency1 ?? undefined, pos?.fee)
@@ -104,8 +109,12 @@ export const NFTItem = ({
         })
       : undefined
   const usd =
-    parseFloat(position?.amount0.toExact() || '0') * (usdPrices[0] || 0) +
-    parseFloat(position?.amount1.toExact() || '0') * (usdPrices[1] || 0)
+    parseFloat(position?.amount0.toExact() || '0') * (usdPrices[token0?.wrapped.address || ''] || 0) +
+    parseFloat(position?.amount1.toExact() || '0') * (usdPrices[token1?.wrapped.address || ''] || 0)
+
+  const priceLower = getTickToPrice(token0?.wrapped, token1?.wrapped, position?.tickLower)
+  const priceUpper = getTickToPrice(token0?.wrapped, token1?.wrapped, position?.tickUpper)
+  const ticksAtLimit = useIsTickAtLimit(pool?.fee, position?.tickLower, position?.tickUpper)
 
   return (
     <>
@@ -118,17 +127,16 @@ export const NFTItem = ({
           <Text fontSize="12px" lineHeight="16px" color="var(--primary)">
             {`#${pos.tokenId.toString()}`}
           </Text>
-          {token0 && token1 && (
+          {pool && priceLower && priceUpper && (
             <PriceVisualize
-              rangeInclude={false}
-              token0={token0 as Token}
-              token1={token1 as Token}
-              tickPosLower={pos?.tickLower}
-              tickPosUpper={pos?.tickUpper}
-              tickCurrent={0}
+              showTooltip
+              priceLower={priceLower}
+              priceUpper={priceUpper}
+              price={pool?.token0Price}
+              ticksAtLimit={ticksAtLimit}
             />
           )}
-          <Text fontSize="12px" lineHeight="16px">
+          <Text fontSize="12px" lineHeight="16px" marginTop="12px">
             {formatDollarAmount(usd)}
           </Text>
         </NFTItemWrapper>
@@ -151,11 +159,12 @@ const StakeWithNFTsModal = ({
   const activeRange = farm.ranges[activeRangeIndex]
   const theme = useTheme()
   const { account } = useActiveWeb3React()
-  const { positions: allPositions } = useProAmmPositions(account)
+  const { loading, positions: allPositions } = useProAmmPositions(account)
 
   const positions = useMemo(() => {
     return allPositions?.filter(item => item.poolId.toLowerCase() === farm?.poolAddress.toLowerCase())
   }, [allPositions, farm?.poolAddress])
+  const prices = useTokenPrices([farm.token0.wrapped.address, farm.token0.wrapped.address])
 
   const [selectedPos, setSelectedPos] = useState<{ [tokenId: string]: boolean }>({})
   const selectedPosArray: Array<number> = useMemo(
@@ -208,7 +217,9 @@ const StakeWithNFTsModal = ({
             </Text>
           </RowFit>
           <NFTsWrapper>
-            {positions && positions.length > 0 ? (
+            {loading ? (
+              <LocalLoader />
+            ) : positions && positions.length > 0 ? (
               positions.map(pos => {
                 return (
                   <NFTItem
@@ -219,6 +230,7 @@ const StakeWithNFTsModal = ({
                     active={selectedPos[pos.tokenId.toString()]}
                     pos={pos}
                     onClick={handlePosClick}
+                    prices={prices}
                   />
                 )
               })
