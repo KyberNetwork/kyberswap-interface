@@ -12,6 +12,7 @@ import AlertCondition, { AlertConditionData } from 'pages/NotificationCenter/Pri
 import { PriceAlert } from 'pages/NotificationCenter/const'
 import { formatTime } from 'utils/time'
 
+// todo split file ???
 const Wrapper = styled.div`
   padding: 20px 0;
 
