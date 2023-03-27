@@ -7,13 +7,16 @@ import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import Wallet from 'components/Icons/Wallet'
 import { RowFixed } from 'components/Row'
 import CurrencySearchModalBridge from 'components/SearchModal/bridge/CurrencySearchModalBridge'
+import { EMPTY_ARRAY, ETHER_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useTokenBalanceOfAnotherChain } from 'hooks/bridge'
 import useTheme from 'hooks/useTheme'
 import SelectNetwork from 'pages/Bridge/SelectNetwork'
 import { useBridgeState } from 'state/bridge/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
+import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
+import { formattedNum } from 'utils'
 
 import CurrencyLogo from '../CurrencyLogo'
 import { Input as NumericalInput } from '../NumericalInput'
@@ -55,6 +58,17 @@ export default function CurrencyInputPanelBridge({
   const balanceRef = useRef(selectedCurrencyBalance?.toSignificant(10))
   const destBalance = useTokenBalanceOfAnotherChain(chainIdOut, isOutput ? currency : undefined)
 
+  const currencyAddress: string = !currency ? '' : currency.isNative ? ETHER_ADDRESS : currency.wrapped.address
+
+  const { data: tokenPriceData, refetch } = useTokenPricesWithLoading(
+    currencyAddress ? [currencyAddress] : EMPTY_ARRAY,
+    currency?.chainId,
+  )
+
+  const currencyValueInUSD = tokenPriceData?.[currencyAddress] * Number(value)
+  const currencyValueString =
+    Number.isNaN(currencyValueInUSD) || Number(value) === 0 ? '' : formattedNum(String(currencyValueInUSD), true)
+
   useEffect(() => {
     balanceRef.current = undefined
   }, [chainId])
@@ -70,6 +84,20 @@ export default function CurrencyInputPanelBridge({
   const handleDismissSearch = useCallback(() => {
     setModalOpen(false)
   }, [setModalOpen])
+
+  useEffect(() => {
+    if (!currencyIn) {
+      return
+    }
+
+    const interval = setInterval(() => {
+      refetch()
+    }, 10_000)
+
+    return () => {
+      clearInterval(interval)
+    }
+  }, [currencyIn, refetch])
 
   const disabledSelect = listTokenOut.length === 1 && isOutput
   const formatDestBalance = parseFloat(destBalance) ? parseFloat(destBalance)?.toFixed(10) : 0
@@ -98,6 +126,12 @@ export default function CurrencyInputPanelBridge({
               disabled={isOutput}
               onUserInput={onUserInput}
             />
+
+            {currencyValueString ? (
+              <Text fontSize="0.875rem" marginRight="8px" fontWeight="500" color={theme.border}>
+                ~{currencyValueString}
+              </Text>
+            ) : null}
 
             <CurrencySelect
               selected={!!currency}
