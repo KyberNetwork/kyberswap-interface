@@ -83,7 +83,7 @@ export default function SwapBrief({
     }
 
     if (!outputAmountFromBuild) {
-      return '--'
+      return <TruncatedText>--</TruncatedText>
     }
 
     return <TruncatedText>{outputAmountFromBuild.toSignificant(RESERVE_USD_DECIMALS)}</TruncatedText>
@@ -104,7 +104,11 @@ export default function SwapBrief({
     }
 
     if (!amountOutUsdFromBuild) {
-      return '--'
+      return (
+        <Text fontSize={14} fontWeight={500} color={theme.subText}>
+          --
+        </Text>
+      )
     }
 
     return (
