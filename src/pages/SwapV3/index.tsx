@@ -3,7 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import { stringify } from 'querystring'
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Skeleton from 'react-loading-skeleton'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled, { DefaultTheme, keyframes } from 'styled-components'
 
@@ -40,9 +40,6 @@ import {
   StyledActionButtonSwapForm,
   SwapFormActions,
   SwapFormWrapper,
-  Tab,
-  TabContainer,
-  TabWrapper,
 } from 'components/swapv2/styleds'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -51,13 +48,14 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { BodyWrapper } from 'pages/AppBody'
+import Tabs from 'pages/SwapV3/Tabs'
+import { TAB } from 'pages/SwapV3/consts'
 import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { Field } from 'state/swap/actions'
 import { useDefaultsFromURLSearch, useInputCurrency, useOutputCurrency, useSwapActionHandlers } from 'state/swap/hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { useDegenModeManager, useShowLiveChart, useShowTokenInfo, useShowTradeRoutes } from 'state/user/hooks'
 import { DetailedRouteSummary } from 'types/route'
-import { getLimitOrderContract } from 'utils'
 import { getTradeComposition } from 'utils/aggregationRouting'
 import { currencyId } from 'utils/currencyId'
 import { getSymbolSlug } from 'utils/string'
@@ -68,17 +66,6 @@ import PopulatedSwapForm from './PopulatedSwapForm'
 const TradeRouting = lazy(() => import('components/TradeRouting'))
 const LiveChart = lazy(() => import('components/LiveChart'))
 
-const BetaTag = styled.span`
-  font-size: 10px;
-  color: ${({ theme }) => theme.subText};
-  position: absolute;
-  top: 4px;
-  right: -38px;
-  padding: 2px 6px;
-  background-color: ${({ theme }) => theme.buttonGray};
-  border-radius: 10px;
-`
-
 const TutorialIcon = styled(TutorialSvg)`
   width: 22px;
   height: 22px;
@@ -87,15 +74,6 @@ const TutorialIcon = styled(TutorialSvg)`
     stroke: ${({ theme }) => theme.subText};
   }
 `
-
-enum TAB {
-  SWAP = 'swap',
-  INFO = 'info',
-  SETTINGS = 'settings',
-  GAS_PRICE_TRACKER = 'gas_price_tracker',
-  LIQUIDITY_SOURCES = 'liquidity_sources',
-  LIMIT = 'limit',
-}
 
 const highlight = (theme: DefaultTheme) => keyframes`
   0% {
@@ -138,7 +116,6 @@ const RoutingIconWrapper = styled(RoutingIcon)`
 `
 
 export default function Swap() {
-  const navigateFn = useNavigate()
   const { chainId, networkInfo, isSolana } = useActiveWeb3React()
   const isShowLiveChart = useShowLiveChart()
   const isShowTradeRoutes = useShowTradeRoutes()
@@ -297,18 +274,6 @@ export default function Swap() {
   const isShowModalImportToken =
     isLoadedTokenDefault && importTokensNotInDefault.length > 0 && (!dismissTokenWarning || showingPairSuggestionImport)
 
-  const onClickTab = (tab: TAB) => {
-    if (activeTab === tab) {
-      return
-    }
-
-    const { inputCurrency, outputCurrency, ...newQs } = qs
-    navigateFn({
-      pathname: `${tab === TAB.LIMIT ? APP_PATHS.LIMIT : APP_PATHS.SWAP}/${networkInfo.route}`,
-      search: stringify(newQs),
-    })
-  }
-
   const tradeRouteComposition = useMemo(() => {
     return getTradeComposition(chainId, routeSummary?.parsedAmountIn, undefined, routeSummary?.route, defaultTokens)
   }, [chainId, defaultTokens, routeSummary])
@@ -333,25 +298,7 @@ export default function Swap() {
         <Container>
           <SwapFormWrapper isShowTutorial={isShowTutorial}>
             <RowBetween>
-              <TabContainer>
-                <TabWrapper>
-                  <Tab onClick={() => onClickTab(TAB.SWAP)} isActive={isSwapPage}>
-                    <Text fontSize={20} fontWeight={500}>
-                      <Trans>Swap</Trans>
-                    </Text>
-                  </Tab>
-                  {getLimitOrderContract(chainId) && (
-                    <Tab onClick={() => onClickTab(TAB.LIMIT)} isActive={isLimitPage}>
-                      <Text fontSize={20} fontWeight={500}>
-                        <Trans>Limit</Trans>
-                      </Text>
-                      <BetaTag>
-                        <Trans>Beta</Trans>
-                      </BetaTag>
-                    </Tab>
-                  )}
-                </TabWrapper>
-              </TabContainer>
+              <Tabs />
 
               <SwapFormActions>
                 <Tutorial
