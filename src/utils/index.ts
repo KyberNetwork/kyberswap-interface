@@ -354,7 +354,7 @@ export async function getBlocksFromTimestampsBlockService(
   }
   const allChunkResult = (
     await Promise.all(
-      chunk(timestamps, 100).map(
+      chunk(timestamps, 50).map(
         async timestampsChunk =>
           (
             await fetch(
