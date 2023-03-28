@@ -1,20 +1,18 @@
-import { Trans } from '@lingui/macro'
+import { t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
-import { Info } from 'react-feather'
-import { Flex, Text } from 'rebass'
+import { Flex } from 'rebass'
 import { useGetListPriceAlertHistoryQuery } from 'services/priceAlert'
 
 import { AnnouncementTemplatePriceAlert, PrivateAnnouncement } from 'components/Announcement/type'
 import Loader from 'components/Loader'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
+import NoData from 'pages/NotificationCenter/NoData'
 import CommonPagination from 'pages/NotificationCenter/PriceAlerts/CommonPagination'
 import { ITEMS_PER_PAGE } from 'pages/NotificationCenter/const'
 
 import SingleAlert from './SingleAlert'
 
 const AlertsHistory = ({ setDisabledClearAll }: { setDisabledClearAll: (v: boolean) => void }) => {
-  const theme = useTheme()
   const { account } = useActiveWeb3React()
   const [page, setPage] = useState(1)
   const { data, isLoading } = useGetListPriceAlertHistoryQuery(
@@ -41,23 +39,7 @@ const AlertsHistory = ({ setDisabledClearAll }: { setDisabledClearAll: (v: boole
   }
 
   if (!notifications?.length) {
-    return (
-      <Flex flex="1 1 0" justifyContent="center" width="100%" alignItems="center">
-        <Flex
-          sx={{
-            flexDirection: 'column',
-            alignItems: 'center',
-            color: theme.subText,
-            gap: '0.75rem',
-          }}
-        >
-          <Info size={'24px'} />
-          <Text as="span">
-            <Trans>No alerts yet</Trans>
-          </Text>
-        </Flex>
-      </Flex>
-    )
+    return <NoData msg={t`No alerts yet`} />
   }
 
   return (

@@ -1,9 +1,11 @@
+import { t } from '@lingui/macro'
 import { useState } from 'react'
 import { useGetPrivateAnnouncementsByIdsQuery, useGetPrivateAnnouncementsQuery } from 'services/announcement'
 
 import { PrivateAnnouncement, PrivateAnnouncementType } from 'components/Announcement/type'
 import { getAnnouncementsTemplateIds } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
+import NoData from 'pages/NotificationCenter/NoData'
 import { ShareContentWrapper, ShareWrapper } from 'pages/NotificationCenter/PriceAlerts'
 import CommonPagination from 'pages/NotificationCenter/PriceAlerts/CommonPagination'
 import { ITEMS_PER_PAGE } from 'pages/NotificationCenter/const'
@@ -28,9 +30,13 @@ export default function GeneralAnnouncement({ type }: { type?: PrivateAnnounceme
   return (
     <ShareWrapper>
       <ShareContentWrapper>
-        {data?.notifications?.map(item => (
-          <AnnouncementItem key={item.id} announcement={item as PrivateAnnouncement} />
-        ))}
+        {data?.notifications?.length ? (
+          data?.notifications?.map(item => (
+            <AnnouncementItem key={item.id} announcement={item as PrivateAnnouncement} />
+          ))
+        ) : (
+          <NoData msg={account ? t`No notification yet` : t`Connect wallet to view notification`} />
+        )}
       </ShareContentWrapper>
       <CommonPagination
         onPageChange={setPage}

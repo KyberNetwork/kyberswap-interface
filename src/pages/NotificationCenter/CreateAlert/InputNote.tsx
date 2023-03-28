@@ -11,7 +11,6 @@ export default function InputNote({ onChangeInput, value }: { onChangeInput: (v:
   const maxLength = 32
   return (
     <StyledInput
-      contentEditable
       placeholder={t`Add a note`}
       maxLength={maxLength}
       onInput={autoGrow}

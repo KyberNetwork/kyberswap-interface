@@ -150,8 +150,8 @@ export default function CreateAlert({
       resetForm()
     } catch (error) {
       console.error('create alert err', error)
-      const msg = error?.data?.code === 40011 ? t`Exceed max active alerts` : t`Create price alert failed`
-      notify({ title: msg, type: NotificationType.ERROR })
+      const msg = error?.data?.message || t`Error occur, please try again`
+      notify({ title: t`Create Alert Failed`, summary: msg, type: NotificationType.ERROR })
     }
   }
 
