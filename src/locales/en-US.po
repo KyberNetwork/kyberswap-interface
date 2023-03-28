@@ -75,12 +75,12 @@ msgid "<0>Add liquidity</0> to the corresponding <1>Elastic pool</1> and receive
 msgstr "<0>Add liquidity</0> to the corresponding <1>Elastic pool</1> and receive a NFT token for your liquidity position"
 
 #: src/components/TransactionSettings/AdvanceModeModal.tsx
-#~ msgid "<0>Advanced Mode</0> turns off the 'Confirm' transaction prompt and allows high slippage trades that can result in bad rates and lost funds."
-#~ msgstr "<0>Advanced Mode</0> turns off the 'Confirm' transaction prompt and allows high slippage trades that can result in bad rates and lost funds."
+#~ msgid "<0>Degen Mode</0> turns off the 'Confirm' transaction prompt and allows high slippage trades that can result in bad rates and lost funds."
+#~ msgstr "<0>Degen Mode</0> turns off the 'Confirm' transaction prompt and allows high slippage trades that can result in bad rates and lost funds."
 
 #: src/components/TransactionSettings/AdvanceModeModal.tsx
-msgid "<0>Advanced Mode</0> turns off the 'Confirm' transaction prompt while trading and allows trades with high price impact that can result in bad rates and lost funds."
-msgstr "<0>Advanced Mode</0> turns off the 'Confirm' transaction prompt while trading and allows trades with high price impact that can result in bad rates and lost funds."
+msgid "<0>Degen Mode</0> turns off the 'Confirm' transaction prompt while trading and allows trades with high price impact that can result in bad rates and lost funds."
+msgstr "<0>Degen Mode</0> turns off the 'Confirm' transaction prompt while trading and allows trades with high price impact that can result in bad rates and lost funds."
 
 #: src/components/YieldPools/FarmGuide.tsx
 msgid "<0>Approve</0> the farming contract (if you haven't) to let it access your liquidity positions (NFT tokens)"

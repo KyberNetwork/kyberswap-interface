@@ -739,7 +739,7 @@ export default function Swap() {
                   aria-label="Swap Settings"
                 >
                   <MouseoverTooltip
-                    text={!isDegenMode ? <Trans>Settings</Trans> : <Trans>Advanced mode is on!</Trans>}
+                    text={!isDegenMode ? <Trans>Settings</Trans> : <Trans>Degen mode is on!</Trans>}
                     placement="top"
                     width="fit-content"
                   >
