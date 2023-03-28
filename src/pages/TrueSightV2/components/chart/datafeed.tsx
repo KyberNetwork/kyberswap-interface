@@ -86,7 +86,7 @@ export const useDatafeed = (isBTC: boolean) => {
           .sort((a, b) => a.timestamp - b.timestamp)
           .map((item: OHLCData, index: number, arr: OHLCData[]) => {
             return {
-              open: arr[index - 1]?.close || item.open,
+              open: item.open,
               high: item.high,
               close: item.close,
               low: item.low,

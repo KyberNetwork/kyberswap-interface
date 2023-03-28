@@ -347,7 +347,7 @@ export const NumberofTradesChart = () => {
               axisLine={false}
               tick={{ fill: theme.subText, fontWeight: 400 }}
               tickFormatter={value =>
-                dayjs(value * 1000).format(timeframe === KyberAITimeframe.ONE_DAY ? 'hh:mm' : 'MMM DD')
+                dayjs(value * 1000).format(timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm' : 'MMM DD')
               }
             />
             <YAxis
@@ -573,7 +573,7 @@ export const TradingVolumeChart = () => {
               axisLine={false}
               tick={{ fill: theme.subText, fontWeight: 400 }}
               tickFormatter={value =>
-                dayjs(value * 1000).format(timeframe === KyberAITimeframe.ONE_DAY ? 'hh:mm' : 'MMM DD')
+                dayjs(value * 1000).format(timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm' : 'MMM DD')
               }
             />
             <YAxis

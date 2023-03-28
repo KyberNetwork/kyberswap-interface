@@ -277,7 +277,7 @@ export default function SingleToken() {
 
     return above768 ? (
       <RowBetween marginBottom="24px">
-        <RowFit gap="8px">
+        <RowFit gap="12px">
           <TokenNameGroup />
           <SettingButtons />
           <ButtonPrimary height="36px" width="120px" gap="4px">
