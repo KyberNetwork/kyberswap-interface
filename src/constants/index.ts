@@ -323,3 +323,8 @@ export const TIMES_IN_SECS = {
   ONE_HOUR: 3600,
   ONE_MIN: 60,
 }
+
+// todo push all
+export const RTK_QUERY_TAGS = {
+  GET_ANN_BY_ID: 'GET_ANN_BY_ID',
+}

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useMedia, usePrevious } from 'react-use'
-import {
+import AnnouncementApi, {
   useAckPrivateAnnouncementsMutation,
   useLazyGetAnnouncementsQuery,
   useLazyGetPrivateAnnouncementsQuery,
@@ -14,11 +14,13 @@ import { Announcement, PrivateAnnouncement } from 'components/Announcement/type'
 import NotificationIcon from 'components/Icons/NotificationIcon'
 import MenuFlyout from 'components/MenuFlyout'
 import Modal from 'components/Modal'
+import { RTK_QUERY_TAGS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useInterval from 'hooks/useInterval'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { ApplicationModal } from 'state/application/actions'
 import { useDetailAnnouncement, useModalOpen, useToggleNotificationCenter } from 'state/application/hooks'
+import { useAppDispatch } from 'state/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
 const StyledMenuButton = styled.button<{ active?: boolean }>`
@@ -193,18 +195,33 @@ export default function AnnouncementComponent() {
     tab !== activeTab && fetchAnnouncementsByTab(true, tab)
   }
 
+  const dispatch = useAppDispatch()
+  const resetUnread = useCallback(() => {
+    // reset badge in notification center page
+    dispatch({
+      type: `${AnnouncementApi.reducerPath}/invalidateTags`,
+      payload: [RTK_QUERY_TAGS.GET_ANN_BY_ID],
+    })
+  }, [dispatch])
+
   const prefetchPrivateAnnouncements = useCallback(async () => {
     try {
       if (!account) return []
       const { data } = await fetchPrivateAnnouncement({ account, page: 1 })
       const notifications = (data?.notifications ?? []) as PrivateAnnouncement[]
       setPrivateAnnouncements(notifications)
+
+      if (data?.numberOfUnread !== numberOfUnread) {
+        // has new msg
+        resetUnread()
+      }
+
       return notifications
     } catch (error) {
       setPrivateAnnouncements([])
       return []
     }
-  }, [account, fetchPrivateAnnouncement])
+  }, [account, fetchPrivateAnnouncement, resetUnread, numberOfUnread])
 
   const prevOpen = usePrevious(isOpenNotificationCenter)
   useEffect(() => {
@@ -241,6 +258,7 @@ export default function AnnouncementComponent() {
     toggleNotificationCenter()
     if (isOpenNotificationCenter && numberOfUnread && account) {
       ackAnnouncement({ account, action: 'read-all' })
+      resetUnread()
     }
   }
 
