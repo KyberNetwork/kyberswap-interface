@@ -46,11 +46,11 @@ import LimitOrder from 'components/swapv2/LimitOrder'
 import ListLimitOrder from 'components/swapv2/LimitOrder/ListOrder'
 import { ListOrderHandle } from 'components/swapv2/LimitOrder/type'
 import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
-import MobileTokenInfo from 'components/swapv2/MobileTokenInfo'
 import PairSuggestion, { PairSuggestionHandle } from 'components/swapv2/PairSuggestion'
 import RefreshButton from 'components/swapv2/RefreshButton'
 import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
-import TokenInfo from 'components/swapv2/TokenInfo'
+import TokenInfoIcon from 'components/swapv2/TokenInfoIcon'
+import TokenInfoTab from 'components/swapv2/TokenInfoTab'
 import TokenInfoV2 from 'components/swapv2/TokenInfoV2'
 import TradePrice from 'components/swapv2/TradePrice'
 import TradeTypeSelection from 'components/swapv2/TradeTypeSelection'
@@ -722,7 +722,7 @@ export default function Swap() {
                     </StyledActionButtonSwapForm>
                   }
                 />
-                <MobileTokenInfo
+                <TokenInfoIcon
                   currencies={isSwapPage ? currencies : currenciesLimit}
                   onClick={() => onToggleActionTab(TAB.INFO)}
                 />
@@ -1061,7 +1061,7 @@ export default function Swap() {
                 </>
               )}
               {activeTab === TAB.INFO && (
-                <TokenInfo currencies={isSwapPage ? currencies : currenciesLimit} onBack={onBackToSwapTab} />
+                <TokenInfoTab currencies={isSwapPage ? currencies : currenciesLimit} onBack={onBackToSwapTab} />
               )}
               {activeTab === TAB.SETTINGS && (
                 <SettingsPanel

@@ -360,11 +360,11 @@ msgstr "All farms are setup using one of our two innovative farming mechanisms. 
 msgid "All positions"
 msgstr "All positions"
 
-#: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/TokenInfoTab.tsx
 msgid "All-Time High"
 msgstr "All-Time High"
 
-#: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/TokenInfoTab.tsx
 msgid "All-Time Low"
 msgstr "All-Time Low"
 
@@ -722,7 +722,7 @@ msgstr "Choose your preferred network. KyberSwap is a multi chain platform that 
 msgid "Choose your preferred wallet, connect it, and get started with KyberSwap!"
 msgstr "Choose your preferred wallet, connect it, and get started with KyberSwap!"
 
-#: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/TokenInfoTab.tsx
 msgid "Circulating Supply"
 msgstr "Circulating Supply"
 
@@ -920,7 +920,7 @@ msgid "Contact Us"
 msgstr "Contact Us"
 
 #: src/components/ModalContractAddress/index.tsx
-#: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/TokenInfoTab.tsx
 #: src/pages/TrueSight/components/AddressRowOnMobile.tsx
 msgid "Contract Address"
 msgstr "Contract Address"
@@ -1849,8 +1849,8 @@ msgid "Increase Liquidity"
 msgstr "Increase Liquidity"
 
 #: src/components/PoolList/ItemCard/index.tsx
-#: src/components/swapv2/MobileTokenInfo.tsx
-#: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/TokenInfoIcon.tsx
+#: src/components/swapv2/TokenInfoTab.tsx
 msgid "Info"
 msgstr "Info"
 
@@ -2201,7 +2201,7 @@ msgstr "MORE INFORMATION"
 msgid "Manage your pools."
 msgstr "Manage your pools."
 
-#: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/TokenInfoTab.tsx
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
@@ -2209,7 +2209,7 @@ msgstr "Manage your pools."
 msgid "Market Cap"
 msgstr "Market Cap"
 
-#: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/TokenInfoTab.tsx
 #: src/components/swapv2/TokenInfoV2/SingleTokenInfo.tsx
 msgid "Market Cap Rank"
 msgstr "Market Cap Rank"
@@ -2721,7 +2721,7 @@ msgstr "Pools | AMP"
 msgid "Powered By"
 msgstr "Powered By"
 
-#: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/TokenInfoTab.tsx
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "Powered by"
 msgstr "Powered by"
@@ -2744,7 +2744,7 @@ msgstr "Preferences"
 msgid "Preview"
 msgstr "Preview"
 
-#: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/TokenInfoTab.tsx
 #: src/components/swapv2/TokenInfoV2/SingleTokenInfo.tsx
 #: src/pages/TrueSight/components/Chart.tsx
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
@@ -3631,7 +3631,7 @@ msgid "Token Amount"
 msgstr "Token Amount"
 
 #: src/components/TransactionSettings/index.tsx
-#: src/components/swapv2/MobileTokenInfo.tsx
+#: src/components/swapv2/TokenInfoIcon.tsx
 #: src/components/swapv2/SwapSettingsPanel/index.tsx
 msgid "Token Info"
 msgstr "Token Info"
@@ -3699,7 +3699,7 @@ msgstr "Total Reward: {rCampaignReward}"
 msgid "Total Rewards"
 msgstr "Total Rewards"
 
-#: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/TokenInfoTab.tsx
 msgid "Total Supply"
 msgstr "Total Supply"
 
@@ -3757,7 +3757,7 @@ msgstr "Trade Route"
 msgid "Trading Volume"
 msgstr "Trading Volume"
 
-#: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/TokenInfoTab.tsx
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx

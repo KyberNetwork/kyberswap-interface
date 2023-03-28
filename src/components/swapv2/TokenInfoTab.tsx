@@ -113,7 +113,7 @@ enum TAB {
   TOKEN_IN,
   TOKEN_OUT,
 }
-const TokenInfo = ({ currencies, onBack }: { currencies: { [field in Field]?: Currency }; onBack?: () => void }) => {
+const TokenInfoTab = ({ currencies, onBack }: { currencies: { [field in Field]?: Currency }; onBack?: () => void }) => {
   const { chainId } = useActiveWeb3React()
   const inputNativeCurrency = useCurrencyConvertedToNative(currencies[Field.INPUT])
   const outputNativeCurrency = useCurrencyConvertedToNative(currencies[Field.OUTPUT])
@@ -222,4 +222,4 @@ const TokenInfo = ({ currencies, onBack }: { currencies: { [field in Field]?: Cu
   )
 }
 
-export default TokenInfo
+export default TokenInfoTab
