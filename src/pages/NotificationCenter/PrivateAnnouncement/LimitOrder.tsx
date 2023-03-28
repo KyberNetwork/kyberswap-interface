@@ -34,23 +34,26 @@ export default function AnnouncementItem({
     makingAmount,
     takingAmount,
     takingAmountRate,
+    filledPercent,
     chainId: rawChainId,
+    takerAssetLogoURL,
   } = templateBody.order
   const isFilled = status === LimitOrderStatus.FILLED
   const isPartialFilled = status === LimitOrderStatus.PARTIALLY_FILLED
   const chainId = rawChainId && rawChainId !== '{{.chainId}}' ? (Number(rawChainId) as ChainId) : undefined
   const theme = useTheme()
+
   const statusMessage = isFilled ? (
     <Text as="span" color={theme.primary}>
       successfully filled
     </Text>
   ) : isPartialFilled ? (
-    <Text as="span" color={theme.primary}>
-      partially filled
+    <Text as="span" color={theme.warning}>
+      partially filled ({filledPercent})
     </Text>
   ) : (
     <Text as="span" color={theme.warning}>
-      expired
+      expired ({filledPercent}% filled)
     </Text>
   )
 
@@ -69,7 +72,7 @@ export default function AnnouncementItem({
         </Flex>
         <Desc>
           Your order to pay <StyledLogo srcs={[makerAssetLogoURL]} /> {makingAmount} {makerAssetSymbol} and receive{' '}
-          <StyledLogo srcs={[makerAssetLogoURL]} /> {takingAmount} {takerAssetSymbol} when{' '}
+          <StyledLogo srcs={[takerAssetLogoURL]} /> {takingAmount} {takerAssetSymbol} when{' '}
           <span>1 {makerAssetSymbol} is equal to </span>
           <span>
             {takingAmountRate} {takerAssetSymbol}
