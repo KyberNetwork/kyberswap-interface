@@ -114,11 +114,6 @@ const SwapOnlyButton: React.FC<Props> = ({
     handleClickSwapForNormalMode()
   }
 
-  const handleClickRetryForNormalMode = () => {
-    setErrorWhileSwap('')
-    handleClickSwapForNormalMode()
-  }
-
   const swapCallbackForModal = useMemo(() => {
     if (buildResult?.data?.data && buildResult?.data?.routerAddress && swapCallback) {
       return () => {
@@ -215,7 +210,6 @@ const SwapOnlyButton: React.FC<Props> = ({
         isBuildingRoute={isBuildingRoute}
         onDismiss={onDismissModal}
         swapCallback={swapCallbackForModal}
-        onRetryBuild={handleClickRetryForNormalMode}
       />
     </>
   )
