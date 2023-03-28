@@ -9,6 +9,7 @@ import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
 import { useNavigateToUrl } from 'components/Announcement/helper'
 import { AnnouncementTemplatePoolPosition, PrivateAnnouncement } from 'components/Announcement/type'
 import { DoubleCurrencyLogoV2 } from 'components/DoubleLogo'
+import { MoneyBag } from 'components/Icons'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
@@ -96,6 +97,7 @@ export default function AnnouncementItem({
             style={{ marginRight: 12 }}
           />{' '}
           {token0Symbol}-{token1Symbol} is <Text color={isInRange ? theme.apr : theme.warning}>{statusMessage}</Text>
+          <MoneyBag color={isInRange ? theme.apr : theme.warning} size={16} />
         </Desc>
         {expand && (
           <Detail>
