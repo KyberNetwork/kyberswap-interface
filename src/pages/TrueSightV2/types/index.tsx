@@ -86,6 +86,11 @@ export interface ITradingVolume {
   totalTrade: number
 }
 
+export interface ISRLevel {
+  timestamp: number
+  value: number
+}
+
 export enum DiscoverTokenTab {
   OnChainAnalysis = 'On-Chain Analysis',
   TechnicalAnalysis = 'Technical Analysis',

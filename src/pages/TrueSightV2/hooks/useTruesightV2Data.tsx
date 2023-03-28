@@ -91,7 +91,7 @@ const truesightV2Api = createApi({
       transformResponse: (res: any) => HOLDER_LIST,
     }),
     //11.
-    charingData: builder.query<OHLCData[], { from: number; to: number; candleSize: string; currency: string }>({
+    chartingData: builder.query<OHLCData[], { from: number; to: number; candleSize: string; currency: string }>({
       query: params => ({
         url: `/ohlcv/ethereum/0x2260fac5e5542a773aa44fbcfedf7c193bc2c599`,
         params,
@@ -171,7 +171,8 @@ export const {
   useHolderListQuery,
   useTokenListQuery,
   useLiveDexTradesQuery,
-  useLazyCharingDataQuery,
+  useLazyChartingDataQuery,
+  useChartingDataQuery,
 } = truesightV2Api
 export const { useCexesLiquidationQuery, useCexesInfoQuery, useFundingRateQuery } = coinglassApi
 export default truesightV2Api

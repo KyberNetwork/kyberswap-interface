@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useContext, useEffect, useMemo, useRef } from 'react'
 
 import {
   ErrorCallback,
@@ -10,7 +10,8 @@ import {
   SubscribeBarsCallback,
   Timezone,
 } from 'components/TradingViewChart/charting_library'
-import { useLazyCharingDataQuery } from 'pages/TrueSightV2/hooks/useTruesightV2Data'
+import { useLazyChartingDataQuery } from 'pages/TrueSightV2/hooks/useTruesightV2Data'
+import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
 import { OHLCData } from 'pages/TrueSightV2/types'
 
 const configurationData = {
@@ -19,7 +20,7 @@ const configurationData = {
 
 export const useDatafeed = (isBTC: boolean) => {
   const intervalRef = useRef<any>()
-  const [getChartingData, { isLoading }] = useLazyCharingDataQuery()
+  const [getChartingData, { isLoading }] = useLazyChartingDataQuery()
   useEffect(() => {
     return () => {
       if (intervalRef.current) {
@@ -27,6 +28,8 @@ export const useDatafeed = (isBTC: boolean) => {
       }
     }
   }, [])
+
+  const { setResolution } = useContext(TechnicalAnalysisContext)
 
   const ref = useRef<{ isLoading: boolean }>({ isLoading })
 
@@ -77,6 +80,7 @@ export const useDatafeed = (isBTC: boolean) => {
         _onErrorCallback: ErrorCallback,
       ) => {
         if (isLoading) return
+        setResolution?.({ 60: '1h', 240: '4h', 1440: '1d', 5760: '4d' }[resolution as string] || '1h')
 
         const { data } = await getChartingData({
           from: periodParams.from,
@@ -143,5 +147,5 @@ export const useDatafeed = (isBTC: boolean) => {
         //
       },
     }
-  }, [getChartingData, isBTC])
+  }, [getChartingData, isBTC, setResolution])
 }

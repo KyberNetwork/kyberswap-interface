@@ -1,4 +1,5 @@
 import { Trans } from '@lingui/macro'
+import { useContext, useMemo } from 'react'
 // import { useMemo } from 'react'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -9,6 +10,7 @@ import Icon from 'components/Icons/Icon'
 import Pagination from 'components/Pagination'
 import Row, { RowFit } from 'components/Row'
 import useTheme from 'hooks/useTheme'
+import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
 import { shortenAddress } from 'utils'
 
 import { ContentWrapper } from '..'
@@ -202,108 +204,80 @@ export const Top10HoldersTable = () => {
   )
 }
 
-// function isSupport(arr: any[], i: number) {
-//   if (!arr[i + 1] || !arr[i + 2] || !arr[i - 1] || !arr[i - 2]) {
-//     return false
-//   }
-//   return (
-//     arr[i].low < arr[i + 1].low &&
-//     arr[i + 1].low < arr[i + 2].low &&
-//     arr[i].low < arr[i - 1].low &&
-//     arr[i - 1].low < arr[i - 2].low
-//   )
-// }
-// function isResistance(arr: any[], i: number) {
-//   if (!arr[i + 1] || !arr[i + 2] || !arr[i - 1] || !arr[i - 2]) {
-//     return false
-//   }
-//   return (
-//     arr[i].high > arr[i + 1].high &&
-//     arr[i + 1].high > arr[i + 2].high &&
-//     arr[i].high > arr[i - 1].high &&
-//     arr[i - 1].high > arr[i - 2].high
-//   )
-// }
-// function getAverageCandleSize(arr: any[]): number {
-//   let sum = 0
-//   for (let i = 0; i < 100; i++) {
-//     sum += arr[i].high - arr[i].low
-//   }
-//   return sum / 100
-// }
-
-// function closeToExistedValue(newvalue: number, arr: any[], range: number) {
-//   return arr.some(v => Math.abs(v.value - newvalue) < range)
-// }
+const formatLevelValue = (value: number): string => {
+  if (value > 1000) return value.toFixed(2)
+  return value.toPrecision(5)
+}
 
 export const SupportResistanceLevel = () => {
   const theme = useTheme()
-  const gridTemplateColumns = '1fr 1fr 1fr 1fr 1fr 1fr 0px'
-  // const SRLevels: any[] = useMemo(() => {
-  //   const levels: any[] = []
-  //   const average = getAverageCandleSize(OHLCData)
-  //   OHLCData.forEach((v, i, arr) => {
-  //     if (isSupport(arr, i) && !closeToExistedValue(v.low, levels, average)) {
-  //       levels.push({ time: v.time, value: v.low })
-  //     } else if (isResistance(arr, i) && !closeToExistedValue(v.high, levels, average)) {
-  //       levels.push({ time: v.time, value: v.high })
-  //     }
-  //   })
-  //   return levels
-  // }, [])
+  const { SRLevels, currentPrice } = useContext(TechnicalAnalysisContext)
+  const [supports, resistances] = useMemo(() => {
+    if (!SRLevels || !currentPrice) return []
+
+    return [
+      SRLevels?.filter(level => level.value < currentPrice).sort((a, b) => b.value - a.value),
+      SRLevels?.filter(level => level.value > currentPrice).sort((a, b) => a.value - b.value),
+    ]
+  }, [SRLevels, currentPrice])
+  const maxLength = Math.max(supports?.length || 0, resistances?.length || 0, 4)
+  const gridTemplateColumns = '1fr ' + (Array(maxLength).fill('1fr').join(' ') || '')
 
   return (
     <TableWrapper>
       <TableHeader gridTemplateColumns={gridTemplateColumns}>
-        <TableCell>Type</TableCell>
-        <TableCell>Levels</TableCell>
-        <TableCell></TableCell>
-        <TableCell></TableCell>
-        <TableCell></TableCell>
-        <TableCell></TableCell>
-        <TableCell></TableCell>
+        <>
+          <TableCell>Type</TableCell>
+          <>
+            {Array(maxLength)
+              .fill('')
+              .map((i, index) => (
+                <TableCell key={index}>{index === 0 && <Trans>Levels</Trans>}</TableCell>
+              ))}
+          </>
+        </>
       </TableHeader>
       <TableRow gridTemplateColumns={gridTemplateColumns}>
-        <TableCell>
-          <Text color={theme.primary}>Support</Text>
-        </TableCell>
-        <TableCell>
-          <Text>18677.5 (-0.43%)</Text>
-        </TableCell>
-        <TableCell>
-          <Text>18722 (-0.21%)</Text>
-        </TableCell>
-        <TableCell>
-          <Text>18747.5 (-0.02%)</Text>
-        </TableCell>
-        <TableCell>
-          <Text>18747.5 (-0.02%)</Text>
-        </TableCell>
-        <TableCell>
-          <Text>18747.5 (-0.02%)</Text>
-        </TableCell>
-        <TableCell></TableCell>
+        <>
+          <TableCell>
+            <Text color={theme.primary}>Support</Text>
+          </TableCell>
+          {Array(maxLength)
+            .fill('')
+            .map((i, index) => (
+              <TableCell key={index} style={{ alignItems: 'flex-start' }}>
+                <Text color={theme.text}>
+                  {supports?.[index] &&
+                    currentPrice &&
+                    `${formatLevelValue(supports[index].value)} (${(
+                      ((supports[index].value - currentPrice) / currentPrice) *
+                      100
+                    ).toFixed(2)}%)`}
+                </Text>
+              </TableCell>
+            ))}
+        </>
       </TableRow>
       <TableRow gridTemplateColumns={gridTemplateColumns}>
-        <TableCell>
-          <Text color={theme.red}>Resistance</Text>
-        </TableCell>
-        <TableCell>
-          <Text>18813.5 (0.33%)</Text>
-        </TableCell>
-        <TableCell>
-          <Text>--</Text>
-        </TableCell>
-        <TableCell>
-          <Text>--</Text>
-        </TableCell>
-        <TableCell>
-          <Text>--</Text>
-        </TableCell>
-        <TableCell>
-          <Text>--</Text>
-        </TableCell>
-        <TableCell></TableCell>
+        <>
+          <TableCell>
+            <Text color={theme.red}>Resistance</Text>
+          </TableCell>
+          {Array(maxLength)
+            .fill('')
+            .map((i, index) => (
+              <TableCell key={index} style={{ alignItems: 'flex-start' }}>
+                <Text color={theme.text}>
+                  {resistances?.[index] &&
+                    currentPrice &&
+                    `${formatLevelValue(resistances[index].value)} (${(
+                      ((resistances[index].value - currentPrice) / currentPrice) *
+                      100
+                    ).toFixed(2)}%)`}
+                </Text>
+              </TableCell>
+            ))}
+        </>
       </TableRow>
     </TableWrapper>
   )

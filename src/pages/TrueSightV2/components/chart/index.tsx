@@ -1,7 +1,7 @@
 import dayjs from 'dayjs'
 import { commify } from 'ethers/lib/utils'
 import { rgba } from 'polished'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -29,6 +29,7 @@ import AnimatedLoader from 'components/Loader/AnimatedLoader'
 import Row, { RowBetween } from 'components/Row'
 import {
   ChartingLibraryWidgetOptions,
+  IChartingLibraryWidget,
   LanguageCode,
   ResolutionString,
 } from 'components/TradingViewChart/charting_library'
@@ -44,7 +45,8 @@ import {
   useTransferInformationQuery,
 } from 'pages/TrueSightV2/hooks/useTruesightV2Data'
 import { testParams } from 'pages/TrueSightV2/pages/SingleToken'
-import { ChartTab, INetflowToWhaleWallets, ITradingVolume, KyberAITimeframe } from 'pages/TrueSightV2/types'
+import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
+import { ChartTab, INetflowToWhaleWallets, ISRLevel, ITradingVolume, KyberAITimeframe } from 'pages/TrueSightV2/types'
 import { useUserLocale } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
@@ -1748,8 +1750,10 @@ export const Prochart = ({ isBTC }: { isBTC?: boolean }) => {
   const [ref, setRef] = useState<HTMLDivElement | null>(null)
   const [fullscreen, setFullscreen] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [tvWidget, setTvWidget] = useState<IChartingLibraryWidget | undefined>(undefined)
   const userLocale = useUserLocale()
   const datafeed = useDatafeed(isBTC || false)
+  const { SRLevels, currentPrice } = useContext(TechnicalAnalysisContext)
 
   useEffect(() => {
     if (!ref || !window.TradingView) {
@@ -1815,33 +1819,27 @@ export const Prochart = ({ isBTC }: { isBTC?: boolean }) => {
           tvWidget.activeChart().getPanes()[1].setHeight(120)
           setLoading(false)
         })
-
-      tvWidget.activeChart().createMultipointShape([{ time: 1675873800, price: 0.21789729082835793 }], {
-        shape: 'horizontal_ray',
-        overrides: { color: '#80CCDB', linewidth: 2, linestyle: 2 },
-      })
-      tvWidget.activeChart().createMultipointShape([{ time: 1674836100, price: 0.19939455702710474 }], {
-        shape: 'horizontal_ray',
-        overrides: { color: '#80CCDB', linewidth: 2, linestyle: 2 },
-      })
-      tvWidget.activeChart().createMultipointShape([{ time: 1676430000, price: 0.2041755193861572 }], {
-        shape: 'horizontal_ray',
-        overrides: { color: '#80CCDB', linewidth: 2, linestyle: 2 },
-      })
-      tvWidget.subscribe('onAutoSaveNeeded', () => {
-        tvWidget.save((object: any) => {
-          localStorage.setItem(LOCALSTORAGE_STATE_NAME, JSON.stringify(object))
-        })
-      })
+      setTvWidget(tvWidget)
     })
-
     return () => {
       if (tvWidget !== null) {
         tvWidget.remove()
+        setTvWidget(undefined)
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [theme, ref, datafeed])
+
+  useEffect(() => {
+    if (!tvWidget || !SRLevels || !currentPrice) return
+
+    SRLevels?.forEach((level: ISRLevel) => {
+      tvWidget.activeChart().createMultipointShape([{ time: level.timestamp, price: level.value }], {
+        shape: 'horizontal_ray',
+        overrides: { linecolor: currentPrice > level.value ? theme.primary : theme.red, linewidth: 2, linestyle: 2 },
+      })
+    })
+  }, [tvWidget, SRLevels, currentPrice, theme])
 
   return (
     <ProLiveChartWrapper fullscreen={fullscreen} onClick={() => setFullscreen(false)}>
