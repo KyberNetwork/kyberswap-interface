@@ -12,7 +12,7 @@ import SlippageValue from 'components/SwapForm/SwapModal/SwapDetails/SlippageVal
 import ValueWithLoadingSkeleton from 'components/SwapForm/SwapModal/SwapDetails/ValueWithLoadingSkeleton'
 import { InfoHelperForMaxSlippage } from 'components/swapv2/SwapSettingsPanel/SlippageSetting'
 import { StyledBalanceMaxMini } from 'components/swapv2/styleds'
-import { DEFAULT_SIGNIFICANT, RESERVE_USD_DECIMALS } from 'constants/index'
+import { RESERVE_USD_DECIMALS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { TruncatedText } from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem'
@@ -23,23 +23,33 @@ import { minimumAmountAfterSlippage } from 'utils/currencyAmount'
 import { getFormattedFeeAmountUsdV2 } from 'utils/fee'
 import { checkPriceImpact, formatPriceImpact } from 'utils/prices'
 
-function formatExecutionPrice(executionPrice?: Price<Currency, Currency>, inverted?: boolean): string {
+interface ExecutionPriceProps {
+  executionPrice?: Price<Currency, Currency>
+  showInverted?: boolean
+}
+
+function ExecutionPrice({ executionPrice, showInverted }: ExecutionPriceProps) {
   if (!executionPrice) {
-    return ''
+    return null
   }
 
   const inputSymbol = executionPrice.baseCurrency?.symbol
   const outputSymbol = executionPrice.quoteCurrency?.symbol
 
-  return inverted
-    ? `${executionPrice
-        .invert()
-        .toSignificant(DEFAULT_SIGNIFICANT, undefined, Rounding.ROUND_DOWN)} ${inputSymbol} / ${outputSymbol}`
-    : `${executionPrice.toSignificant(
-        DEFAULT_SIGNIFICANT,
-        undefined,
-        Rounding.ROUND_DOWN,
-      )} ${outputSymbol} / ${inputSymbol}`
+  return (
+    <>
+      <TruncatedText>
+        {showInverted
+          ? `${executionPrice
+              .invert()
+              .toSignificant(RESERVE_USD_DECIMALS, undefined, Rounding.ROUND_DOWN)} ${inputSymbol} / ${outputSymbol}`
+          : `${executionPrice.toSignificant(RESERVE_USD_DECIMALS, undefined, Rounding.ROUND_DOWN)}`}
+      </TruncatedText>
+      <Text style={{ whiteSpace: 'nowrap', minWidth: 'max-content' }}>
+        &nbsp;{outputSymbol} / {inputSymbol}
+      </Text>
+    </>
+  )
 }
 
 type Optional<T> = {
@@ -74,8 +84,10 @@ export default function SwapDetails({
   const minimumAmountOutStr =
     minimumAmountOut && currencyOut ? (
       <Flex style={{ color: theme.text, fontWeight: 'bold', whiteSpace: 'nowrap' }}>
-        <TruncatedText>{minimumAmountOut.toSignificant(RESERVE_USD_DECIMALS)}</TruncatedText>
-        <Text> {currencyOut.symbol}</Text>
+        <TruncatedText style={{ width: '-webkit-fill-available' }}>
+          {minimumAmountOut.toSignificant(RESERVE_USD_DECIMALS)}
+        </TruncatedText>
+        <Text style={{ minWidth: 'auto' }}>&nbsp;{currencyOut.symbol}</Text>
       </Flex>
     ) : (
       ''
@@ -90,7 +102,7 @@ export default function SwapDetails({
         style={{ padding: '12px 16px', border: `1px solid ${theme.border}`, borderRadius: '16px' }}
       >
         <RowBetween align="center" height="20px" style={{ gap: '16px' }}>
-          <Text fontWeight={400} fontSize={12} color={theme.subText} minWidth="fit-content">
+          <Text fontWeight={400} fontSize={12} color={theme.subText} minWidth="max-content">
             <Trans>Current Price</Trans>
           </Text>
 
@@ -110,10 +122,9 @@ export default function SwapDetails({
                     justifyContent: 'center',
                     alignItems: 'center',
                     textAlign: 'right',
-                    paddingLeft: '10px',
                   }}
                 >
-                  <TruncatedText>{formatExecutionPrice(executionPrice, showInverted)}</TruncatedText>
+                  <ExecutionPrice executionPrice={executionPrice} showInverted={showInverted} />
                   <StyledBalanceMaxMini onClick={() => setShowInverted(!showInverted)}>
                     <Repeat size={14} color={theme.text} />
                   </StyledBalanceMaxMini>
@@ -126,8 +137,8 @@ export default function SwapDetails({
         </RowBetween>
 
         <RowBetween align="center" height="20px" style={{ gap: '16px' }}>
-          <RowFixed>
-            <TYPE.black fontSize={12} fontWeight={400} color={theme.subText} minWidth="fit-content">
+          <RowFixed style={{ minWidth: 'max-content' }}>
+            <TYPE.black fontSize={12} fontWeight={400} color={theme.subText} minWidth="max-content">
               <Trans>Minimum Received</Trans>
             </TYPE.black>
             <InfoHelper
@@ -150,7 +161,7 @@ export default function SwapDetails({
         {isEVM && (
           <RowBetween height="20px" style={{ gap: '16px' }}>
             <RowFixed>
-              <TYPE.black fontSize={12} fontWeight={400} color={theme.subText} minWidth="fit-content">
+              <TYPE.black fontSize={12} fontWeight={400} color={theme.subText} minWidth="min-content">
                 <Trans>Gas Fee</Trans>
               </TYPE.black>
               <InfoHelper placement="top" size={14} text={t`Estimated network fee for your transaction`} />
