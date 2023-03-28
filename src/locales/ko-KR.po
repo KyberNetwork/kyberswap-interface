@@ -360,11 +360,11 @@ msgstr ""
 msgid "All positions"
 msgstr ""
 
-#: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/TokenInfoTab.tsx
 msgid "All-Time High"
 msgstr ""
 
-#: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/TokenInfoTab.tsx
 msgid "All-Time Low"
 msgstr ""
 
@@ -720,7 +720,7 @@ msgstr ""
 msgid "Choose your preferred wallet, connect it, and get started with KyberSwap!"
 msgstr ""
 
-#: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/TokenInfoTab.tsx
 msgid "Circulating Supply"
 msgstr ""
 
@@ -943,7 +943,7 @@ msgid "Contact Us"
 msgstr "연락처"
 
 #: src/components/ModalContractAddress/index.tsx
-#: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/TokenInfoTab.tsx
 #: src/pages/TrueSight/components/AddressRowOnMobile.tsx
 msgid "Contract Address"
 msgstr ""
@@ -1872,8 +1872,8 @@ msgid "Increase Liquidity"
 msgstr ""
 
 #: src/components/PoolList/ItemCard/index.tsx
-#: src/components/swapv2/MobileTokenInfo.tsx
-#: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/TokenInfoIcon.tsx
+#: src/components/swapv2/TokenInfoTab.tsx
 msgid "Info"
 msgstr ""
 
@@ -2224,7 +2224,7 @@ msgstr "추가 정보"
 msgid "Manage your pools."
 msgstr "자신의 풀 관리하기."
 
-#: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/TokenInfoTab.tsx
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
@@ -2232,7 +2232,7 @@ msgstr "자신의 풀 관리하기."
 msgid "Market Cap"
 msgstr ""
 
-#: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/TokenInfoTab.tsx
 #: src/components/swapv2/TokenInfoV2/SingleTokenInfo.tsx
 msgid "Market Cap Rank"
 msgstr ""
@@ -2744,7 +2744,7 @@ msgstr "Pools | AMP"
 msgid "Powered By"
 msgstr "Powered by"
 
-#: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/TokenInfoTab.tsx
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "Powered by"
 msgstr "Powered by"
@@ -2767,7 +2767,7 @@ msgstr "기본 설정"
 msgid "Preview"
 msgstr ""
 
-#: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/TokenInfoTab.tsx
 #: src/components/swapv2/TokenInfoV2/SingleTokenInfo.tsx
 #: src/pages/TrueSight/components/Chart.tsx
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
@@ -3658,7 +3658,7 @@ msgid "Token Amount"
 msgstr "토큰 금액"
 
 #: src/components/TransactionSettings/index.tsx
-#: src/components/swapv2/MobileTokenInfo.tsx
+#: src/components/swapv2/TokenInfoIcon.tsx
 #: src/components/swapv2/SwapSettingsPanel/index.tsx
 msgid "Token Info"
 msgstr ""
@@ -3726,7 +3726,7 @@ msgstr ""
 msgid "Total Rewards"
 msgstr ""
 
-#: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/TokenInfoTab.tsx
 msgid "Total Supply"
 msgstr ""
 
@@ -3784,7 +3784,7 @@ msgstr ""
 msgid "Trading Volume"
 msgstr ""
 
-#: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/TokenInfoTab.tsx
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
