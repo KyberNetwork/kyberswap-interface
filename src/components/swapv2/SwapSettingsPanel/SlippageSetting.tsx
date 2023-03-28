@@ -20,6 +20,7 @@ const maxSlippageInText = formatSlippage(MAX_SLIPPAGE_IN_BIPS)
 export const InfoHelperForMaxSlippage = () => {
   return (
     <InfoHelper
+      size={14}
       width="320px"
       placement="top"
       text={

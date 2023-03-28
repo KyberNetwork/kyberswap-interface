@@ -10,6 +10,7 @@ import styled from 'styled-components'
 import { ButtonPrimary } from 'components/Button'
 import { GreyCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
+import Loader from 'components/Loader'
 import { RowBetween } from 'components/Row'
 import SlippageWarningNote from 'components/SlippageWarningNote'
 import PriceImpactNote from 'components/SwapForm/PriceImpactNote'
@@ -128,14 +129,17 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
       return null
     }
 
-    let { parsedAmountIn } = routeSummary
+    const { parsedAmountIn, parsedAmountOut, amountInUsd } = routeSummary
     let changedAmount = 0
-    let parsedAmountOut: CurrencyAmount<Currency> | undefined = undefined
+    let parsedAmountOutFromBuild: CurrencyAmount<Currency> | undefined = undefined
+    let amountOutUsdFromBuild: string | undefined = undefined
 
     if (buildResult?.data) {
-      const { amountIn, amountOut } = buildResult.data
-      parsedAmountIn = toCurrencyAmount(routeSummary.parsedAmountIn.currency, amountIn)
-      parsedAmountOut = toCurrencyAmount(routeSummary.parsedAmountOut.currency, amountOut)
+      const { amountOut } = buildResult.data
+      parsedAmountOutFromBuild = toCurrencyAmount(routeSummary.parsedAmountOut.currency, amountOut)
+
+      amountOutUsdFromBuild = buildResult.data.amountOutUsd
+
       const { amount } = buildResult.data.outputChange || {}
       changedAmount = Number(amount)
     }
@@ -144,7 +148,10 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
       <SwapBrief
         $level={changedAmount > 0 ? 'better' : changedAmount < 0 ? 'worse' : undefined}
         inputAmount={parsedAmountIn}
-        outputAmountFromBuild={parsedAmountOut}
+        amountInUsd={amountInUsd}
+        outputAmount={parsedAmountOut}
+        outputAmountFromBuild={parsedAmountOutFromBuild}
+        amountOutUsdFromBuild={amountOutUsdFromBuild}
         currencyOut={routeSummary.parsedAmountOut.currency}
         isLoading={isBuildingRoute}
       />
@@ -165,10 +172,26 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
     <Wrapper>
       <AutoColumn>
         <RowBetween>
-          <Text fontWeight={500} fontSize={20}>
-            <Trans>Confirm Swap</Trans>
+          <Text fontWeight={400} fontSize={20}>
+            <Trans>Confirm Swap Details</Trans>
           </Text>
           <CloseIcon onClick={onDismiss} />
+        </RowBetween>
+
+        <RowBetween mt="12px">
+          <Text fontWeight={400} fontSize={12} color={theme.subText}>
+            <Trans>Please review the details of your swap:</Trans>
+          </Text>
+          {isBuildingRoute && (
+            <Flex width="fit-content" height="100%" alignItems="center" sx={{ gap: '4px' }}>
+              <Loader size="14px" stroke={theme.primary} />
+              <Text as="span" fontSize={12} color={theme.subText}>
+                <Dots>
+                  <Trans>Checking price</Trans>
+                </Dots>
+              </Text>
+            </Flex>
+          )}
         </RowBetween>
 
         {outputAmountChange < 0 && (
@@ -199,13 +222,9 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
 
       <SwapDetails {...getSwapDetailsProps()} />
 
-      <Flex
-        sx={{
-          flexDirection: 'column',
-          gap: '0.75rem',
-        }}
-      >
+      <Flex sx={{ flexDirection: 'column', gap: '16px' }}>
         <SlippageWarningNote rawSlippage={slippage} isStablePairSwap={isStablePairSwap} />
+
         <PriceImpactNote isDegenMode={isAdvancedMode} priceImpact={priceImpactFromBuild} />
 
         {isSolana && !encodeSolana ? (

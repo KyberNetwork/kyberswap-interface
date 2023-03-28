@@ -59,6 +59,7 @@ const useBuildRoute = (args: Args) => {
 
       const url = `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}/api/v1/route/build`
       const response = await buildRoute(url, payload, abortControllerRef.current.signal)
+      // await new Promise(resolve => setTimeout(() => resolve(undefined), 60000))
 
       return {
         data: response,
