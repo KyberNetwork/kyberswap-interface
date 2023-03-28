@@ -30,12 +30,12 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact }) => {
           <Text>
             {isDegenMode ? (
               <Trans>
-                You have turned on <b>Advanced Mode</b> from settings. Trades can still be executed when price impact
+                You have turned on <b>Degen Mode</b> from settings. Trades can still be executed when price impact
                 cannot be calculated.
               </Trans>
             ) : (
               <Trans>
-                You can turn on <b>Advanced Mode</b> from Settings to execute trades when price impact cannot be
+                You can turn on <b>Degen Mode</b> from Settings to execute trades when price impact cannot be
                 calculated. This can result in bad rates and loss of funds!
               </Trans>
             )}
@@ -61,12 +61,12 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact }) => {
           <Text>
             {isDegenMode ? (
               <Trans>
-                You have turned on <b>Advanced Mode</b> from settings. Trades with <b>very</b> high price impact can be
+                You have turned on <b>Degen Mode</b> from settings. Trades with <b>very</b> high price impact can be
                 executed.
               </Trans>
             ) : (
               <Trans>
-                You can turn on <b>Advanced Mode</b> from Settings to execute trades with <b>very</b> high price impact.
+                You can turn on <b>Degen Mode</b> from Settings to execute trades with <b>very</b> high price impact.
                 This can result in bad rates and loss of funds!
               </Trans>
             )}
