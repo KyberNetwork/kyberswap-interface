@@ -2,7 +2,6 @@ import { Trans } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { Trash, X } from 'react-feather'
 import { Flex, Text } from 'rebass'
-import { useClearAllPriceAlertHistoryMutation, useDeleteAllAlertsMutation } from 'services/priceAlert'
 import styled from 'styled-components'
 
 import { ButtonEmpty, ButtonOutlined, ButtonPrimary } from 'components/Button'
@@ -10,7 +9,6 @@ import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { Tab } from 'pages/NotificationCenter/PriceAlerts'
 
 const Wrapper = styled.div`
   margin: 0;
@@ -30,15 +28,15 @@ const CloseIcon = styled(X)`
 // TODO: clear based on which tab is active
 
 type Props = {
-  currentTab: Tab
   disabled: boolean
+  onClear: () => Promise<any>
+  confirmBtnText: string
 }
-const DeleteAllAlertsButton: React.FC<Props> = ({ currentTab, disabled }) => {
+const DeleteAllAlertsButton: React.FC<Props> = ({ onClear, disabled, confirmBtnText }) => {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const [isModalOpen, setModalOpen] = useState(false)
-  const [deleteAllActive] = useDeleteAllAlertsMutation()
-  const [clearAllHistory] = useClearAllPriceAlertHistoryMutation()
+
   const [isLoading, setLoading] = useState(false)
 
   const handleClickDeleteAll = async () => {
@@ -47,11 +45,7 @@ const DeleteAllAlertsButton: React.FC<Props> = ({ currentTab, disabled }) => {
     }
     try {
       setLoading(true)
-      if (currentTab === Tab.ACTIVE) {
-        await deleteAllActive({ account })
-      } else {
-        await clearAllHistory({ account })
-      }
+      await onClear()
     } catch (e) {
       console.error(e)
     }
@@ -123,7 +117,7 @@ const DeleteAllAlertsButton: React.FC<Props> = ({ currentTab, disabled }) => {
               onClick={handleClickDeleteAll}
               disabled={isLoading}
             >
-              <Trans>Delete All Alerts</Trans>
+              {confirmBtnText}
             </ButtonOutlined>
           </Flex>
         </Wrapper>

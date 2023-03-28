@@ -17,6 +17,7 @@ import { Desc, RowItem, Time, Title, Wrapper } from './styled'
 const StyledLogo = styled(Logo)`
   width: 16px;
   height: 16px;
+  border-radius: 50%;
 `
 export default function AnnouncementItem({
   announcement,

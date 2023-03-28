@@ -326,5 +326,6 @@ export const TIMES_IN_SECS = {
 
 // todo push all
 export const RTK_QUERY_TAGS = {
-  GET_ANN_BY_ID: 'GET_ANN_BY_ID',
+  GET_PRIVATE_ANN_BY_ID: 'GET_PRIVATE_ANN_BY_ID',
+  GET_ALL_PRIVATE_ANN: 'GET_ALL_PRIVATE_ANN',
 }

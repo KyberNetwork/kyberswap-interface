@@ -99,13 +99,7 @@ const priceAlertApi = createApi({
       providesTags: ['PriceAlertsHistory'],
       transformResponse: transformResponseAnnouncement,
     }),
-    clearSinglePriceAlertHistory: builder.mutation<
-      Response,
-      {
-        account: string
-        id: number
-      }
-    >({
+    clearSinglePriceAlertHistory: builder.mutation<Response, { account: string; id: number }>({
       query: ({ account, id }) => ({
         url: `${NOTIFICATION_API}/v1/users/${account}/notifications/clear`,
         body: {
@@ -115,12 +109,7 @@ const priceAlertApi = createApi({
       }),
       invalidatesTags: ['PriceAlertsHistory'],
     }),
-    clearAllPriceAlertHistory: builder.mutation<
-      Response,
-      {
-        account: string
-      }
-    >({
+    clearAllPriceAlertHistory: builder.mutation<Response, { account: string }>({
       query: ({ account }) => ({
         url: `${NOTIFICATION_API}/v1/users/${account}/notifications/clear-all`,
         body: {
@@ -147,4 +136,4 @@ export const {
   useGetListPriceAlertHistoryQuery,
 } = priceAlertApi
 export default priceAlertApi
-// todo combine
+// todo combine: get vs clear

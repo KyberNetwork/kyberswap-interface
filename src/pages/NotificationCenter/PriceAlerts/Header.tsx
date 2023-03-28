@@ -1,14 +1,18 @@
 import { Trans } from '@lingui/macro'
 import { Flex, Text } from 'rebass'
-import { useGetAlertStatsQuery } from 'services/priceAlert'
+import {
+  useClearAllPriceAlertHistoryMutation,
+  useDeleteAllAlertsMutation,
+  useGetAlertStatsQuery,
+} from 'services/priceAlert'
 import styled, { useTheme } from 'styled-components'
 
 import { ButtonLight, ButtonOutlined } from 'components/Button'
 import Loader from 'components/Loader'
 import { useActiveWeb3React } from 'hooks'
+import DeleteAllAlertsButton from 'pages/NotificationCenter/DeleteAllAlertsButton'
 import { Tab } from 'pages/NotificationCenter/PriceAlerts'
 import CreateAlertButton from 'pages/NotificationCenter/PriceAlerts/CreateAlertButton'
-import DeleteAllAlertsButton from 'pages/NotificationCenter/PriceAlerts/DeleteAllAlertsButton'
 
 const TabButton: React.FC<{ isActive: boolean; onClick: () => void; children: React.ReactNode }> = ({
   isActive,
@@ -86,6 +90,8 @@ const Header: React.FC<Props> = ({ currentTab, setCurrentTab, disabledClearAll }
   const { account } = useActiveWeb3React()
 
   const { data, isLoading } = useGetAlertStatsQuery(account || '', { skip: !account })
+  const [deleteAllActive] = useDeleteAllAlertsMutation()
+  const [clearAllHistory] = useClearAllPriceAlertHistoryMutation()
 
   return (
     <Wrapper>
@@ -110,7 +116,15 @@ const Header: React.FC<Props> = ({ currentTab, setCurrentTab, disabledClearAll }
             gap: '1rem',
           }}
         >
-          <DeleteAllAlertsButton currentTab={currentTab} disabled={disabledClearAll} />
+          <DeleteAllAlertsButton
+            disabled={disabledClearAll}
+            onClear={() =>
+              currentTab === Tab.ACTIVE
+                ? deleteAllActive({ account: account ?? '' })
+                : clearAllHistory({ account: account ?? '' })
+            }
+            confirmBtnText={'Delete All Alerts'}
+          />
           <CreateAlertButton />
         </Flex>
       </Flex>

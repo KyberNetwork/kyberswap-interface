@@ -200,7 +200,7 @@ export default function AnnouncementComponent() {
     // reset badge in notification center page
     dispatch({
       type: `${AnnouncementApi.reducerPath}/invalidateTags`,
-      payload: [RTK_QUERY_TAGS.GET_ANN_BY_ID],
+      payload: [RTK_QUERY_TAGS.GET_PRIVATE_ANN_BY_ID],
     })
   }, [dispatch])
 

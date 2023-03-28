@@ -1,10 +1,16 @@
 import { t } from '@lingui/macro'
-import { useState } from 'react'
-import { useGetPrivateAnnouncementsByIdsQuery, useGetPrivateAnnouncementsQuery } from 'services/announcement'
+import { useEffect, useState } from 'react'
+import {
+  useAckPrivateAnnouncementsByIdsMutation,
+  useClearAllPrivateAnnouncementByIdMutation,
+  useGetPrivateAnnouncementsByIdsQuery,
+  useGetPrivateAnnouncementsQuery,
+} from 'services/announcement'
 
 import { PrivateAnnouncement, PrivateAnnouncementType } from 'components/Announcement/type'
 import { getAnnouncementsTemplateIds } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
+import DeleteAllAlertsButton from 'pages/NotificationCenter/DeleteAllAlertsButton'
 import NoData from 'pages/NotificationCenter/NoData'
 import { ShareContentWrapper, ShareWrapper } from 'pages/NotificationCenter/PriceAlerts'
 import CommonPagination from 'pages/NotificationCenter/PriceAlerts/CommonPagination'
@@ -25,11 +31,30 @@ export default function GeneralAnnouncement({ type }: { type?: PrivateAnnounceme
     { skip: !account || !!templateIds },
   )
 
+  const [ackAnnouncement] = useAckPrivateAnnouncementsByIdsMutation()
+  const [clearAllAnnouncement] = useClearAllPrivateAnnouncementByIdMutation()
+
   const data = type ? respNotificationByType : dataAllNotification
+  const numberOfUnread = data?.numberOfUnread || 0
+
+  useEffect(() => {
+    if (numberOfUnread > 0 && account) {
+      // mark all as read
+      ackAnnouncement({ templateIds: templateIds || undefined, account })
+    }
+  }, [numberOfUnread, templateIds, account, ackAnnouncement])
 
   return (
     <ShareWrapper>
       <ShareContentWrapper>
+        {false && (
+          <DeleteAllAlertsButton
+            disabled={false}
+            onClear={() => clearAllAnnouncement({ account: account ?? '', templateIds })}
+            confirmBtnText={'Delete All Alerts'}
+          />
+        )}
+
         {data?.notifications?.length ? (
           data?.notifications?.map(item => (
             <AnnouncementItem key={item.id} announcement={item as PrivateAnnouncement} />
