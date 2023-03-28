@@ -13,8 +13,6 @@ import {
 import { useLazyCharingDataQuery } from 'pages/TrueSightV2/hooks/useTruesightV2Data'
 import { OHLCData } from 'pages/TrueSightV2/types'
 
-import dataJson from './../chart/candles.json'
-
 const configurationData = {
   supported_resolutions: ['1H', '4H', '1D', '4D'],
 }
@@ -30,7 +28,10 @@ export const useDatafeed = (isBTC: boolean) => {
     }
   }, [])
 
+  const ref = useRef<{ isLoading: boolean }>({ isLoading })
+
   return useMemo(() => {
+    const { isLoading } = ref.current
     return {
       onReady: (callback: any) => {
         setTimeout(() => callback(configurationData))
@@ -41,13 +42,14 @@ export const useDatafeed = (isBTC: boolean) => {
         _onResolveErrorCallback: ErrorCallback,
       ) => {
         try {
+          const chartName = `BTC/${isBTC ? 'BTC' : 'USD'}`
           const symbolInfo: LibrarySymbolInfo = {
-            ticker: 'BTC/USD',
-            name: 'BTC/USD',
-            full_name: 'BTC/USD',
+            ticker: chartName,
+            name: chartName,
+            full_name: chartName,
             listed_exchange: '',
             format: 'price',
-            description: 'BTC/USD',
+            description: chartName,
             type: 'crypto',
             session: '24x7',
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone as Timezone,
@@ -75,6 +77,7 @@ export const useDatafeed = (isBTC: boolean) => {
         _onErrorCallback: ErrorCallback,
       ) => {
         if (isLoading) return
+
         const { data } = await getChartingData({
           from: periodParams.from,
           to: periodParams.to,
@@ -108,17 +111,28 @@ export const useDatafeed = (isBTC: boolean) => {
         _onResetCacheNeededCallback: () => void,
       ) => {
         const getData = async () => {
-          const data = dataJson
+          const now = Math.floor(Date.now() / 1000)
+          const { data } = await getChartingData({
+            from: now - 3600,
+            to: now,
+            candleSize: '1h',
+            currency: isBTC ? 'BTC' : 'USD',
+          })
 
           onTick(
-            (data || []).map((item: any) => ({
-              time: new Date(item.dt).getTime(),
-              open: item.o,
-              high: item.h,
-              close: item.c,
-              low: item.l,
-              volume: item.v,
-            }))[0],
+            (data || [])
+              .slice()
+              .sort((a, b) => a.timestamp - b.timestamp)
+              .map((item: OHLCData, index: number, arr: OHLCData[]) => {
+                return {
+                  open: item.open,
+                  high: item.high,
+                  close: item.close,
+                  low: item.low,
+                  volume: +resolution < 1440 ? (item.volume24H / 1440) * +resolution : item.volume24H,
+                  time: item.timestamp * 1000,
+                }
+              })[0],
           )
         }
         if (intervalRef.current) clearInterval(intervalRef.current)
@@ -129,5 +143,5 @@ export const useDatafeed = (isBTC: boolean) => {
         //
       },
     }
-  }, [isLoading, getChartingData, isBTC])
+  }, [getChartingData, isBTC])
 }

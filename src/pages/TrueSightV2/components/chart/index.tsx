@@ -25,8 +25,13 @@ import {
 import styled, { css } from 'styled-components'
 
 import Column from 'components/Column'
+import AnimatedLoader from 'components/Loader/AnimatedLoader'
 import Row, { RowBetween } from 'components/Row'
-import { ChartingLibraryWidgetOptions, ResolutionString } from 'components/TradingViewChart/charting_library'
+import {
+  ChartingLibraryWidgetOptions,
+  LanguageCode,
+  ResolutionString,
+} from 'components/TradingViewChart/charting_library'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { NETFLOW_TO_WHALE_WALLETS, NUMBER_OF_HOLDERS, NUMBER_OF_TRANSFERS } from 'pages/TrueSightV2/hooks/sampleData'
@@ -40,6 +45,7 @@ import {
 } from 'pages/TrueSightV2/hooks/useTruesightV2Data'
 import { testParams } from 'pages/TrueSightV2/pages/SingleToken'
 import { ChartTab, INetflowToWhaleWallets, ITradingVolume, KyberAITimeframe } from 'pages/TrueSightV2/types'
+import { useUserLocale } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils'
 
@@ -1726,23 +1732,33 @@ const ProLiveChartWrapper = styled.div<{ fullscreen: boolean }>`
   `}
 `
 
+const Loader = styled.div`
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${({ theme }) => theme.buttonBlack};
+`
+
 export const Prochart = ({ isBTC }: { isBTC?: boolean }) => {
   const theme = useTheme()
   const [ref, setRef] = useState<HTMLDivElement | null>(null)
   const [fullscreen, setFullscreen] = useState(false)
-
+  const [loading, setLoading] = useState(false)
+  const userLocale = useUserLocale()
   const datafeed = useDatafeed(isBTC || false)
 
   useEffect(() => {
     if (!ref || !window.TradingView) {
       return
     }
-    //setLoading(true)
+    setLoading(true)
 
     const widgetOptions: ChartingLibraryWidgetOptions = {
       symbol: 'BTC',
       datafeed: datafeed,
-      interval: '4H' as ResolutionString,
+      interval: '1H' as ResolutionString,
       container: ref,
       library_path: '/charting_library/',
       disabled_features: [
@@ -1765,7 +1781,7 @@ export const Prochart = ({ isBTC }: { isBTC?: boolean }) => {
       custom_css_url: '/charting_library/style.css',
       timeframe: '2w',
       time_frames: [{ text: '2w', resolution: '1H' as ResolutionString, description: '2 Weeks' }],
-      locale: 'vi',
+      locale: (userLocale ? userLocale.slice(0, 2) : 'en') as LanguageCode,
     }
     const tvWidget = new window.TradingView.widget(widgetOptions)
 
@@ -1782,7 +1798,14 @@ export const Prochart = ({ isBTC }: { isBTC?: boolean }) => {
         'mainSeriesProperties.priceAxisProperties.autoScale': true,
         'scalesProperties.textColor': theme.text,
       })
-      tvWidget.activeChart().createStudy('Stochastic RSI')
+      tvWidget
+        .activeChart()
+        .createStudy('Stochastic RSI')
+        .then(() => {
+          tvWidget.activeChart().getPanes()[1].setHeight(120)
+          setLoading(false)
+        })
+
       tvWidget.activeChart().createMultipointShape([{ time: 1675873800, price: 0.21789729082835793 }], {
         shape: 'horizontal_ray',
         overrides: { color: '#80CCDB', linewidth: 2, linestyle: 2 },
@@ -1807,6 +1830,11 @@ export const Prochart = ({ isBTC }: { isBTC?: boolean }) => {
 
   return (
     <ProLiveChartWrapper fullscreen={fullscreen} onClick={() => setFullscreen(false)}>
+      {loading && (
+        <Loader>
+          <AnimatedLoader />
+        </Loader>
+      )}
       <div
         ref={newRef => setRef(newRef)}
         style={{ height: '100%', width: '100%', display: 'block' }}
