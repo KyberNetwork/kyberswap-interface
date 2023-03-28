@@ -678,7 +678,7 @@ const LimitOrderForm = function LimitOrderForm({
             disableCurrencySelect={isEdit}
             label={
               <Label>
-                <Trans>You Pay</Trans>
+                <Trans>You Sell</Trans>
               </Label>
             }
             positionLabel="in"
@@ -784,7 +784,7 @@ const LimitOrderForm = function LimitOrderForm({
             disableCurrencySelect={isEdit}
             label={
               <Label>
-                <Trans>You Receive</Trans>
+                <Trans>You Buy</Trans>
               </Label>
             }
             positionLabel="in"
