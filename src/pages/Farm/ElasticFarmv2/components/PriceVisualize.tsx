@@ -20,27 +20,27 @@ const PriceLine = styled.div`
   height: 2px;
   width: 100%;
   border-radius: 2px;
-  background-color: var(--border);
+  background-color: ${({ theme }) => theme.border};
   position: relative;
 `
-const Dot = styled.div`
+const Dot = styled.div<{ inactive: boolean }>`
   height: 8px;
   width: 8px;
   border-radius: 4px;
-  border: 1px solid white;
-  background-color: white;
+  border: 1px solid ${({ theme, inactive }) => (inactive ? theme.warning : theme.text)};
   position: absolute;
   top: -3px;
-  z-index: 1;
+  z-index: 2;
   transform: translateX(-50%);
+  background-color: ${({ theme, inactive }) => (inactive ? theme.warning : theme.text)};
 `
 
 const RangeLine = styled.div`
   height: 2px;
-  background-color: var(--text);
+  background-color: ${({ theme }) => theme.text};
   position: absolute;
   :hover {
-    z-index: 2;
+    z-index: 1;
   }
 `
 // From tick value to readable string value 0.1234
@@ -65,6 +65,7 @@ const PriceVisualize = ({
   width,
   token0,
   token1,
+  inactive = false,
 }: {
   rangeInclude?: boolean
   tickRangeLower?: number
@@ -75,6 +76,7 @@ const PriceVisualize = ({
   width?: string
   token0: Token
   token1: Token
+  inactive?: boolean
 }) => {
   const theme = useTheme()
   const wrapperRef = useRef<HTMLDivElement>(null)
@@ -138,7 +140,7 @@ const PriceVisualize = ({
     <Wrapper style={{ width }} ref={wrapperRef}>
       {rangeInclude && (
         <RowBetween gap="6px">
-          <Text fontSize="12px" fontWeight={500} lineHeight="16px">
+          <Text fontSize="12px" fontWeight={500} lineHeight="16px" color={inactive ? theme.warning : theme.text}>
             {priceMap[DOT_TYPE.RangeLower]}
           </Text>
           <Text color={theme.subText} as="span">
@@ -149,7 +151,7 @@ const PriceVisualize = ({
               />
             </svg>
           </Text>
-          <Text fontSize="12px" fontWeight={500} lineHeight="16px">
+          <Text fontSize="12px" fontWeight={500} lineHeight="16px" color={inactive ? theme.warning : theme.text}>
             {priceMap[DOT_TYPE.RangeUpper]}
           </Text>
         </RowBetween>
@@ -181,10 +183,11 @@ const PriceVisualize = ({
             return (
               value !== undefined && (
                 <Dot
+                  inactive={inactive}
                   key={index}
                   style={{
                     left: `${value}px`,
-                    backgroundColor: index === DOT_TYPE.CurrentPrice ? 'var(--background)' : undefined,
+                    backgroundColor: index === DOT_TYPE.CurrentPrice ? theme.background : undefined,
                   }}
                 />
               )
@@ -195,7 +198,7 @@ const PriceVisualize = ({
               style={{
                 left: `${leftMap[DOT_TYPE.PositionLower]}px`,
                 width: `${(leftMap[DOT_TYPE.PositionUpper] || 0) - (leftMap[DOT_TYPE.PositionLower] || 0)}px`,
-                backgroundColor: 'var(--primary)',
+                backgroundColor: theme.primary,
               }}
             />
           )}
@@ -204,6 +207,7 @@ const PriceVisualize = ({
               style={{
                 left: `${leftMap[DOT_TYPE.RangeLower]}px`,
                 width: `${(leftMap[DOT_TYPE.RangeUpper] || 0) - (leftMap[DOT_TYPE.RangeLower] || 0)}px`,
+                backgroundColor: inactive ? theme.warning : undefined,
               }}
             />
           )}

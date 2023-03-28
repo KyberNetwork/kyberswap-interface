@@ -141,13 +141,11 @@ const UnstakeWithNFTsModal = ({
     })
   }, [])
   const { withdraw } = useFarmV2Action()
-  const handleUnstake = useCallback(() => {
+  const handleUnstake = useCallback(async () => {
     if (!farm) return
-    withdraw(
-      farm.fId,
-      Object.keys(selectedPos).map(p => +p),
-    )
-  }, [withdraw, farm, selectedPos])
+    const txHash = await withdraw(farm.fId, selectedPosArray)
+    if (txHash) onDismiss()
+  }, [withdraw, farm, selectedPosArray, onDismiss])
 
   const priceLower = farm && convertTickToPrice(farm.token0, farm.token1, activeRange?.tickLower || 0)
 

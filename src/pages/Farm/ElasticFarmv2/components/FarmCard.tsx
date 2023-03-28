@@ -188,10 +188,16 @@ export const RangeItem = ({
           </Text>
         </Column>
         <Column gap="4px">
-          <Text fontSize="12px" lineHeight="16px" color="var(--primary)" alignSelf="flex-end">
-            <Trans>Active Range ↗</Trans>
+          <Text
+            fontSize="12px"
+            lineHeight="16px"
+            color={rangeInfo.isRemoved ? theme.warning : theme.primary}
+            alignSelf="flex-end"
+          >
+            {rangeInfo.isRemoved ? <Trans>Inactive Range</Trans> : <Trans>Active Range ↗</Trans>}
           </Text>
           <PriceVisualize
+            inactive={rangeInfo.isRemoved}
             tickRangeLower={rangeInfo.tickLower}
             tickRangeUpper={rangeInfo.tickUpper}
             tickCurrent={rangeInfo.tickCurrent}
@@ -365,17 +371,24 @@ function FarmCard({ farm, poolAPR, isApproved }: { farm: ElasticFarmV2; poolAPR:
                   <Text
                     fontSize="12px"
                     lineHeight="16px"
-                    color={theme.primary}
+                    color={farm.ranges[activeRangeIndex].isRemoved ? theme.warning : theme.primary}
                     alignSelf="flex-end"
-                    style={{ borderBottom: '1px dotted var(--primary)' }}
+                    sx={{
+                      borderBottom: farm.ranges[activeRangeIndex].isRemoved ? undefined : `1px dotted ${theme.primary}`,
+                    }}
                   >
-                    <Trans>Active Range ↗</Trans>
+                    {farm.ranges[activeRangeIndex].isRemoved ? (
+                      <Trans>Inactive Range</Trans>
+                    ) : (
+                      <Trans>Active Range ↗</Trans>
+                    )}
                   </Text>
                 </MouseoverTooltip>
                 <PriceVisualize
-                  tickCurrent={+farm.ranges[activeRangeIndex].tickCurrent}
-                  tickRangeLower={+farm.ranges[activeRangeIndex].tickLower}
-                  tickRangeUpper={+farm.ranges[activeRangeIndex].tickUpper}
+                  inactive={farm.ranges[activeRangeIndex].isRemoved}
+                  tickRangeLower={farm.ranges[activeRangeIndex].tickLower}
+                  tickRangeUpper={farm.ranges[activeRangeIndex].tickUpper}
+                  tickCurrent={farm.ranges[activeRangeIndex].tickCurrent}
                   token0={farm.token0}
                   token1={farm.token1}
                 />
@@ -406,7 +419,10 @@ function FarmCard({ farm, poolAPR, isApproved }: { farm: ElasticFarmV2; poolAPR:
                   {stakedPos?.length} Positions Staked
                 </UnstakeButton>
               )}
-              <ButtonLight onClick={() => setShowStake(true)} disabled={!account || !isApproved}>
+              <ButtonLight
+                onClick={() => setShowStake(true)}
+                disabled={!account || !isApproved || farm.ranges[activeRangeIndex].isRemoved}
+              >
                 <RowFit gap="6px">
                   <Plus size={16} />
                   <Text fontSize={['12px', '14px']}>Stake</Text>

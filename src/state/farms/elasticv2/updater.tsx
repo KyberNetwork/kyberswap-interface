@@ -200,6 +200,7 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
             ranges: farm.ranges.map(r => {
               let tvlToken0 = TokenAmount.fromRawAmount(token0.wrapped, 0)
               let tvlToken1 = TokenAmount.fromRawAmount(token1.wrapped, 0)
+
               r.depositedPositions.forEach(pos => {
                 const position = new Position({
                   pool: p,
@@ -315,9 +316,13 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
                   +position.amount0.toExact() * (prices[position.amount0.currency.wrapped.address] || 0) +
                   +position.amount1.toExact() * (prices[position.amount1.currency.wrapped.address] || 0)
 
+                const stakedLiquidity = BigNumber.from(item.liquidity.toString()).div(
+                  farm.ranges.find(r => r.index.toString() === item.rangeId.toString())?.weight || 1,
+                )
+
                 const stakedPos = new Position({
                   pool: farm.pool,
-                  liquidity: item.liquidity.toString(),
+                  liquidity: stakedLiquidity.toString(),
                   tickLower: nftInfos[item.nftId.toString()].tickLower,
                   tickUpper: nftInfos[item.nftId.toString()].tickUpper,
                 })
@@ -325,6 +330,7 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
                 const stakedUsdValue =
                   +stakedPos.amount0.toExact() * (prices[stakedPos.amount0.currency.wrapped.address] || 0) +
                   +stakedPos.amount1.toExact() * (prices[stakedPos.amount1.currency.wrapped.address] || 0)
+
                 const unclaimedRewards = farm.totalRewards.map((rw, i) =>
                   CurrencyAmount.fromRawAmount(rw.currency, item.currentUnclaimedRewards[i].toString()),
                 )
@@ -341,7 +347,7 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
                     nftId: item.nftId,
                     position,
                     poolAddress: farm.poolAddress,
-                    stakedLiquidity: item.liquidity,
+                    stakedLiquidity: stakedLiquidity,
                     fId: Number(item.fId.toString()),
                     rangeId: Number(item.rangeId.toString()),
                     liquidity: item.liquidity,
