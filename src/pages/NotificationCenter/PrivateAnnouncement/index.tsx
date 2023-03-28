@@ -12,6 +12,7 @@ import { PrivateAnnouncement, PrivateAnnouncementType } from 'components/Announc
 import { getAnnouncementsTemplateIds } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
 import DeleteAllAlertsButton from 'pages/NotificationCenter/DeleteAllAlertsButton'
+import { MENU_TITLE } from 'pages/NotificationCenter/Menu'
 import NoData from 'pages/NotificationCenter/NoData'
 import { ShareContentWrapper, ShareWrapper } from 'pages/NotificationCenter/PriceAlerts'
 import CommonPagination from 'pages/NotificationCenter/PriceAlerts/CommonPagination'
@@ -24,7 +25,9 @@ const HeaderWrapper = styled.div`
   justify-content: flex-end;
   border-bottom: 1px solid ${({ theme }) => theme.border};
   padding-bottom: 20px;
-  padding-top: 20px;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    padding: 12px 0px;
+  `}
 `
 
 export default function GeneralAnnouncement({ type }: { type?: PrivateAnnouncementType }) {
@@ -59,19 +62,28 @@ export default function GeneralAnnouncement({ type }: { type?: PrivateAnnounceme
 
   const totalAnnouncement = data?.notifications?.length ?? 0
 
+  const [loading, setLoading] = useState(false)
+  const clearAll = async () => {
+    setLoading(true)
+    return clearAllAnnouncement({ account: account ?? '', templateIds })
+      .then(() => {
+        refetch()
+      })
+      .finally(() => {
+        setLoading(false)
+      })
+  }
+
   return (
     <ShareWrapper>
       <ShareContentWrapper>
-        {false && (
-          <HeaderWrapper>
-            <DeleteAllAlertsButton
-              disabled={totalAnnouncement === 0}
-              onClear={() => clearAllAnnouncement({ account: account ?? '', templateIds })}
-              // notificationName={type ? MENU_TITLE[type] : t`Notifications`}
-              notificationName={t`Notifications`}
-            />
-          </HeaderWrapper>
-        )}
+        <HeaderWrapper>
+          <DeleteAllAlertsButton
+            disabled={totalAnnouncement === 0 || loading}
+            onClear={clearAll}
+            notificationName={type ? MENU_TITLE[type] : t`Notifications`}
+          />
+        </HeaderWrapper>
         {data?.notifications?.length ? (
           data?.notifications?.map(item => (
             <AnnouncementItem key={item.id} announcement={item as PrivateAnnouncement} />
