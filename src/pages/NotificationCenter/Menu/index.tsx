@@ -80,7 +80,7 @@ const MenuForDesktop = ({ unread }: { unread: Unread }) => {
             <MenuItem
               href={NOTIFICATION_ROUTES.PRICE_ALERTS}
               icon={<AlarmIcon width={16} height={16} />}
-              text={t`Price Alerts`}
+              text={MENU_TITLE.PRICE_ALERT}
               unread={unread.PRICE_ALERT}
             />
           </Flex>
@@ -88,31 +88,39 @@ const MenuForDesktop = ({ unread }: { unread: Unread }) => {
           <MenuItem
             href={NOTIFICATION_ROUTES.MY_ELASTIC_POOLS}
             icon={<DropIcon width="16px" height="16px" />}
-            text={t`My Elastic Pools`}
+            text={MENU_TITLE.ELASTIC_POOLS}
             unread={unread.ELASTIC_POOLS}
           />
           <MenuItem
             href={NOTIFICATION_ROUTES.LIMIT_ORDERS}
             icon={<LimitOrderIcon />}
-            text={t`Limit Orders`}
+            text={MENU_TITLE.LIMIT_ORDER}
             unread={unread.LIMIT_ORDER}
           />
           <MenuItem
             href={NOTIFICATION_ROUTES.BRIDGE}
             icon={<BridgeIcon width="16px" height="16px" />}
-            text={t`Cross-Chain Bridge`}
+            text={MENU_TITLE.BRIDGE_ASSET}
             unread={unread.BRIDGE_ASSET}
           />
           <MenuItem
             href={NOTIFICATION_ROUTES.TRENDING_SOON_TOKENS}
             icon={<DiscoverIcon size={16} />}
-            text={t`Trending Soon Tokens`}
+            text={MENU_TITLE.TRENDING_SOON}
             unread={unread.TRENDING_SOON}
           />
         </Flex>
       </Flex>
     </Flex>
   )
+}
+
+export const MENU_TITLE = {
+  [PrivateAnnouncementType.BRIDGE]: t`Cross-Chain Bridge`,
+  [PrivateAnnouncementType.LIMIT_ORDER]: t`Limit Orders`,
+  [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: t`Trending Soon Tokens`,
+  [PrivateAnnouncementType.PRICE_ALERT]: t`Price Alerts`,
+  [PrivateAnnouncementType.POOL_POSITION]: t`My Elastic Pools`,
 }
 
 const MenuForMobile = ({ unread }: { unread: Unread }) => {
@@ -148,35 +156,35 @@ const MenuForMobile = ({ unread }: { unread: Unread }) => {
         isMobile
         href={NOTIFICATION_ROUTES.PRICE_ALERTS}
         icon={<AlarmIcon width={16} height={16} />}
-        text={t`Price Alerts`}
+        text={MENU_TITLE.PRICE_ALERT}
         unread={unread.PRICE_ALERT}
       />
       <MenuItem
         isMobile
         href={NOTIFICATION_ROUTES.MY_ELASTIC_POOLS}
         icon={<DropIcon width="16px" height="16px" />}
-        text={t`My Elastic Pools`}
+        text={MENU_TITLE.ELASTIC_POOLS}
         unread={unread.ELASTIC_POOLS}
       />
       <MenuItem
         isMobile
         href={NOTIFICATION_ROUTES.LIMIT_ORDERS}
         icon={<LimitOrderIcon />}
-        text={t`Limit Orders`}
+        text={MENU_TITLE.LIMIT_ORDER}
         unread={unread.LIMIT_ORDER}
       />
       <MenuItem
         isMobile
         href={NOTIFICATION_ROUTES.BRIDGE}
         icon={<BridgeIcon width="16px" height="16px" />}
-        text={t`Cross-Chain Bridge`}
+        text={MENU_TITLE.BRIDGE_ASSET}
         unread={unread.BRIDGE_ASSET}
       />
       <MenuItem
         isMobile
         href={NOTIFICATION_ROUTES.TRENDING_SOON_TOKENS}
         icon={<DiscoverIcon size={16} />}
-        text={t`Trending Soon Tokens`}
+        text={MENU_TITLE.TRENDING_SOON}
         unread={unread.TRENDING_SOON}
       />
     </Flex>

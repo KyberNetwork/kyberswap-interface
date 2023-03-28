@@ -9,14 +9,9 @@ export const Wrapper = styled.div`
   display: flex;
   align-items: flex-start;
   cursor: pointer;
-  :first-child {
-    padding-top: 0;
+  :nth-child(2) {
+    padding: 20px 0px;
   }
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    :first-child {
-      padding: 20px 0px;
-  }
-  `}
 `
 
 export const Title = styled.div`

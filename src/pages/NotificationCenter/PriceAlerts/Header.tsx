@@ -123,7 +123,7 @@ const Header: React.FC<Props> = ({ currentTab, setCurrentTab, disabledClearAll }
                 ? deleteAllActive({ account: account ?? '' })
                 : clearAllHistory({ account: account ?? '' })
             }
-            confirmBtnText={'Delete All Alerts'}
+            notificationName={'Alerts'}
           />
           <CreateAlertButton />
         </Flex>

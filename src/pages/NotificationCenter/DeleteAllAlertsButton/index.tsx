@@ -1,4 +1,4 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { Trash, X } from 'react-feather'
 import { Flex, Text } from 'rebass'
@@ -30,9 +30,9 @@ const CloseIcon = styled(X)`
 type Props = {
   disabled: boolean
   onClear: () => Promise<any>
-  confirmBtnText: string
+  notificationName: string
 }
-const DeleteAllAlertsButton: React.FC<Props> = ({ onClear, disabled, confirmBtnText }) => {
+const DeleteAllAlertsButton: React.FC<Props> = ({ onClear, disabled, notificationName }) => {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const [isModalOpen, setModalOpen] = useState(false)
@@ -85,13 +85,13 @@ const DeleteAllAlertsButton: React.FC<Props> = ({ onClear, disabled, confirmBtnT
         <Wrapper>
           <RowBetween>
             <Text fontSize={20} fontWeight={400}>
-              <Trans>Delete All Alerts</Trans>
+              <Trans>Delete all {notificationName}</Trans>
             </Text>
             <CloseIcon onClick={handleDismiss} />
           </RowBetween>
 
           <Text as="span" fontSize="14px" color={theme.subText}>
-            <Trans>Are you sure you want to delete all your alerts?</Trans>
+            <Trans>Are you sure you want to delete all {notificationName}?</Trans>
           </Text>
 
           <Flex
@@ -117,7 +117,7 @@ const DeleteAllAlertsButton: React.FC<Props> = ({ onClear, disabled, confirmBtnT
               onClick={handleClickDeleteAll}
               disabled={isLoading}
             >
-              {confirmBtnText}
+              {t`Delete all`}
             </ButtonOutlined>
           </Flex>
         </Wrapper>

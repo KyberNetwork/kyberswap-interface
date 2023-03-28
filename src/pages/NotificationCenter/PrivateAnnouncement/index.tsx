@@ -6,6 +6,7 @@ import {
   useGetPrivateAnnouncementsByIdsQuery,
   useGetPrivateAnnouncementsQuery,
 } from 'services/announcement'
+import styled from 'styled-components'
 
 import { PrivateAnnouncement, PrivateAnnouncementType } from 'components/Announcement/type'
 import { getAnnouncementsTemplateIds } from 'constants/env'
@@ -18,15 +19,23 @@ import { ITEMS_PER_PAGE } from 'pages/NotificationCenter/const'
 
 import AnnouncementItem from './AnnouncementItem'
 
+const HeaderWrapper = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  border-bottom: 1px solid ${({ theme }) => theme.border};
+  padding-bottom: 20px;
+  padding-top: 20px;
+`
+
 export default function GeneralAnnouncement({ type }: { type?: PrivateAnnouncementType }) {
   const [page, setPage] = useState(1)
   const { account } = useActiveWeb3React()
   const templateIds = type ? getAnnouncementsTemplateIds()[type] : ''
-  const { data: respNotificationByType } = useGetPrivateAnnouncementsByIdsQuery(
+  const { data: respNotificationByType, refetch: refetchById } = useGetPrivateAnnouncementsByIdsQuery(
     { page, account: account ?? '', templateIds, pageSize: ITEMS_PER_PAGE },
     { skip: !account || !templateIds },
   )
-  const { data: dataAllNotification } = useGetPrivateAnnouncementsQuery(
+  const { data: dataAllNotification, refetch: refetchAll } = useGetPrivateAnnouncementsQuery(
     { page, account: account ?? '', pageSize: ITEMS_PER_PAGE },
     { skip: !account || !!templateIds },
   )
@@ -37,24 +46,32 @@ export default function GeneralAnnouncement({ type }: { type?: PrivateAnnounceme
   const data = type ? respNotificationByType : dataAllNotification
   const numberOfUnread = data?.numberOfUnread || 0
 
+  const refetch = type ? refetchById : refetchAll
+
   useEffect(() => {
     if (numberOfUnread > 0 && account) {
       // mark all as read
-      ackAnnouncement({ templateIds: templateIds || undefined, account })
+      ackAnnouncement({ templateIds: templateIds || undefined, account }).then(() => {
+        refetch()
+      })
     }
-  }, [numberOfUnread, templateIds, account, ackAnnouncement])
+  }, [numberOfUnread, templateIds, account, ackAnnouncement, refetch])
+
+  const totalAnnouncement = data?.notifications?.length ?? 0
 
   return (
     <ShareWrapper>
       <ShareContentWrapper>
         {false && (
-          <DeleteAllAlertsButton
-            disabled={false}
-            onClear={() => clearAllAnnouncement({ account: account ?? '', templateIds })}
-            confirmBtnText={'Delete All Alerts'}
-          />
+          <HeaderWrapper>
+            <DeleteAllAlertsButton
+              disabled={totalAnnouncement === 0}
+              onClear={() => clearAllAnnouncement({ account: account ?? '', templateIds })}
+              // notificationName={type ? MENU_TITLE[type] : t`Notifications`}
+              notificationName={t`Notifications`}
+            />
+          </HeaderWrapper>
         )}
-
         {data?.notifications?.length ? (
           data?.notifications?.map(item => (
             <AnnouncementItem key={item.id} announcement={item as PrivateAnnouncement} />
