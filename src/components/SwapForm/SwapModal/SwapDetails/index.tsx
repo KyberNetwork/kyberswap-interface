@@ -38,14 +38,14 @@ function ExecutionPrice({ executionPrice, showInverted }: ExecutionPriceProps) {
 
   return (
     <>
-      <TruncatedText>
+      <TruncatedText fontWeight={500}>
         {showInverted
           ? `${executionPrice
               .invert()
               .toSignificant(RESERVE_USD_DECIMALS, undefined, Rounding.ROUND_DOWN)} ${inputSymbol} / ${outputSymbol}`
           : `${executionPrice.toSignificant(RESERVE_USD_DECIMALS, undefined, Rounding.ROUND_DOWN)}`}
       </TruncatedText>
-      <Text style={{ whiteSpace: 'nowrap', minWidth: 'max-content' }}>
+      <Text fontWeight={500} style={{ whiteSpace: 'nowrap', minWidth: 'max-content' }}>
         &nbsp;{outputSymbol} / {inputSymbol}
       </Text>
     </>
@@ -58,14 +58,14 @@ type Optional<T> = {
 
 export type Props = {
   isLoading: boolean
-  hasError: boolean
+  errorWhileBuildRoute?: string
 } & Optional<
   Pick<DetailedRouteSummary, 'gasUsd' | 'parsedAmountOut' | 'executionPrice' | 'amountInUsd' | 'priceImpact'>
 >
 
 export default function SwapDetails({
   isLoading,
-  hasError,
+  errorWhileBuildRoute,
   gasUsd,
   parsedAmountOut,
   executionPrice,
@@ -94,6 +94,28 @@ export default function SwapDetails({
     )
 
   const priceImpactResult = checkPriceImpact(priceImpact)
+
+  if (errorWhileBuildRoute) {
+    return (
+      <>
+        <AutoColumn
+          gap="0.5rem"
+          style={{
+            padding: '12px 16px',
+            border: `1px solid ${theme.border}`,
+            borderRadius: '16px',
+            backgroundColor: `${theme.buttonBlack}66`,
+            maxHeight: '158px',
+            overflow: 'auto',
+          }}
+        >
+          <Text fontSize={12} color={theme.text} style={{ wordBreak: 'break-all' }}>
+            {errorWhileBuildRoute}
+          </Text>
+        </AutoColumn>
+      </>
+    )
+  }
 
   return (
     <>
@@ -130,7 +152,7 @@ export default function SwapDetails({
                   </StyledBalanceMaxMini>
                 </Flex>
               ) : (
-                <TYPE.black fontSize={14}>--</TYPE.black>
+                <TYPE.black fontSize={12}>--</TYPE.black>
               )
             }
           />

@@ -57,7 +57,8 @@ const useBuildRoute = (args: Args) => {
       abortControllerRef.current.abort()
       abortControllerRef.current = new AbortController()
 
-      const url = `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}/api/v1/route/build`
+      // const url = `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}/api/v1/route/build`
+      const url = `http://localhost:8014/${NETWORKS_INFO[chainId].aggregatorRoute}/api/v1/route/build`
       const response = await buildRoute(url, payload, abortControllerRef.current.signal)
       // await new Promise(resolve => setTimeout(() => resolve(undefined), 60000))
 
@@ -66,7 +67,7 @@ const useBuildRoute = (args: Args) => {
       }
     } catch (e) {
       return {
-        error: e.message || t`Something went wrong`,
+        error: e?.response?.data?.errorEntities?.[0] || e.message || t`Something went wrong`,
       }
     }
   }, [account, aggregatorDomain, chainId, recipient, routeSummary, slippage, transactionTimeout])

@@ -21,7 +21,7 @@ import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useEncodeSolana } from 'state/swap/hooks'
 import { CloseIcon } from 'theme/components'
-import { toCurrencyAmount } from 'utils/currencyAmount'
+import { minimumAmountAfterSlippage, toCurrencyAmount } from 'utils/currencyAmount'
 import { checkPriceImpact } from 'utils/prices'
 import { checkWarningSlippage } from 'utils/slippage'
 
@@ -60,7 +60,6 @@ type Props = {
   errorWhileBuildRoute: string | undefined
   onDismiss: () => void
   onSwap: () => void
-  onRetry: () => void
 }
 
 const ConfirmSwapModalContent: React.FC<Props> = ({
@@ -69,7 +68,6 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
   errorWhileBuildRoute,
   onDismiss,
   onSwap,
-  onRetry,
 }) => {
   const theme = useTheme()
   const { isSolana } = useActiveWeb3React()
@@ -92,7 +90,7 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
     if (!buildResult?.data || !routeSummary) {
       return {
         isLoading: isBuildingRoute,
-        hasError: !!errorWhileBuildRoute,
+        errorWhileBuildRoute,
 
         gasUsd: undefined,
         executionPrice: undefined,
@@ -114,7 +112,7 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
 
     return {
       isLoading: isBuildingRoute,
-      hasError: !!errorWhileBuildRoute,
+      errorWhileBuildRoute,
 
       gasUsd,
       executionPrice,
@@ -168,6 +166,7 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
   const disableByPriceImpact = !isAdvancedMode && (priceImpactResult.isVeryHigh || priceImpactResult.isInvalid)
   const disableSwap =
     (outputAmountChange < 0 && !hasAcceptedNewPrice) || shouldDisableConfirmButton || disableByPriceImpact
+
   return (
     <Wrapper>
       <AutoColumn>
@@ -179,8 +178,16 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
         </RowBetween>
 
         <RowBetween mt="12px">
-          <Text fontWeight={400} fontSize={12} color={theme.subText}>
-            <Trans>Please review the details of your swap:</Trans>
+          <Text fontWeight={400} fontSize={12} color={errorWhileBuildRoute ? theme.warning : theme.subText}>
+            {errorWhileBuildRoute ? (
+              <>
+                <Trans>Build route is not success to guarantee return minimum amount out</Trans>{' '}
+                {routeSummary && minimumAmountAfterSlippage(routeSummary.parsedAmountOut, slippage).toSignificant(6)}{' '}
+                {routeSummary && routeSummary.parsedAmountOut.currency.symbol}.
+              </>
+            ) : (
+              <Trans>Please review the details of your swap:</Trans>
+            )}
           </Text>
           {isBuildingRoute && (
             <Flex width="fit-content" height="100%" alignItems="center" sx={{ gap: '4px' }}>
@@ -234,9 +241,9 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
             </Dots>
           </GreyCard>
         ) : errorWhileBuildRoute ? (
-          <ButtonPrimary onClick={onRetry}>
+          <ButtonPrimary onClick={onDismiss}>
             <Text fontSize={14} fontWeight={500} as="span" lineHeight={1}>
-              <Trans>Try again</Trans>
+              <Trans>Dismiss</Trans>
             </Text>
           </ButtonPrimary>
         ) : (
