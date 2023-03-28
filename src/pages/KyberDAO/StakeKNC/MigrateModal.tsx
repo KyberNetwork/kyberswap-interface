@@ -1,4 +1,4 @@
-import { ChainId, MaxUint256, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
+import { ChainId, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { parseUnits } from 'ethers/lib/utils'
 import { useEffect, useState } from 'react'
@@ -55,7 +55,7 @@ export default function MigrateModal({
         18,
         'KNCL',
       ),
-      MaxUint256,
+      parseUnits(value, 18).toString(),
     ),
     kyberDAOInfo?.KNCAddress,
   )

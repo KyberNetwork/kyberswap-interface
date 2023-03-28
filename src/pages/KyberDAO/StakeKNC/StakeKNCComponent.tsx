@@ -1,4 +1,4 @@
-import { ChainId, MaxUint256, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
+import { ChainId, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { lighten } from 'polished'
@@ -268,7 +268,7 @@ export default function StakeKNCComponent() {
   const [approvalKNC, approveCallback] = useApproveCallback(
     TokenAmount.fromRawAmount(
       new Token(chainId === ChainId.GÖRLI ? ChainId.GÖRLI : ChainId.MAINNET, kyberDAOInfo?.KNCAddress || '', 18, 'KNC'),
-      MaxUint256,
+      parseUnits(inputValue, 18).toString(),
     ),
     kyberDAOInfo?.staking,
   )
