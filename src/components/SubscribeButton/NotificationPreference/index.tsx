@@ -375,7 +375,7 @@ function NotificationPreference({
   const disableCheckbox = !account || notFillEmail || hasErrorInput
   const errorColor = hasErrorInput ? theme.red : errorInput?.type === 'warn' ? theme.warning : theme.border
 
-  const subscribeAtLeast1Topic = topicGroups.some(e => e.isSubscribed)
+  const subscribeAtLeast1Topic = topicGroupsGlobal.some(e => e.isSubscribed)
   const onUnsubscribeAll = () => {
     if (!subscribeAtLeast1Topic) return
     unsubscribeAll()

@@ -41,10 +41,10 @@ export default function ActionButtons({
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const theme = useTheme()
-  const unSubButton = (
+  const unSubButton = subscribeAtLeast1Topic ? (
     <Text
       style={{
-        cursor: subscribeAtLeast1Topic ? 'pointer' : 'not-allowed',
+        cursor: 'pointer',
         color: theme.subText,
         fontWeight: '500',
         fontSize: '14px',
@@ -53,6 +53,8 @@ export default function ActionButtons({
     >
       <Trans>Opt out from all future email</Trans>
     </Text>
+  ) : (
+    isHorizontal && <div />
   )
 
   const heightBtn = isHorizontal ? '36px' : '44px'
