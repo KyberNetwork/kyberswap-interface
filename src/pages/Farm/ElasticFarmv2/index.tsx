@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { ArrowDown, ArrowUp, Info } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -14,20 +14,18 @@ import { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { FarmList } from 'components/YieldPools/ElasticFarmGroup/styleds'
 import { ClickableText, ElasticFarmV2TableHeader } from 'components/YieldPools/styleds'
-import { FARM_TAB } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
 import { Dots } from 'pages/Pool/styleds'
-import { useElasticFarmsV2, useFarmV2Action } from 'state/farms/elasticv2/hooks'
+import { SORT_DIRECTION, SORT_FIELD, useFarmV2Action, useFilteredFarmsV2 } from 'state/farms/elasticv2/hooks'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import useGetElasticPools from 'state/prommPools/useGetElasticPools'
 import { useIsTransactionPending } from 'state/transactions/hooks'
 import { useViewMode } from 'state/user/hooks'
 import { VIEW_MODE } from 'state/user/reducer'
-import { isAddressString } from 'utils'
 
 import FarmCard from './components/FarmCard'
 import { ListView } from './components/ListView'
@@ -50,92 +48,18 @@ const Wrapper = styled.div`
   `}
 `
 
-enum SORT_FIELD {
-  FID = 'fId',
-  STAKED_TVL = 'staked_tvl',
-  APR = 'apr',
-  END_TIME = 'end_time',
-  MY_DEPOSIT = 'my_deposit',
-  MY_REWARD = 'my_reward',
-}
-
-enum SORT_DIRECTION {
-  ASC = 'asc',
-  DESC = 'desc',
-}
-
 export default function ElasticFarmv2({ onShowStepGuide }: { onShowStepGuide: () => void }) {
   const theme = useTheme()
-  const { isEVM, chainId, account } = useActiveWeb3React()
+  const { chainId, account } = useActiveWeb3React()
   const farmAddress = (NETWORKS_INFO[chainId] as EVMNetworkInfo).elastic?.farmV2Contract
   const above1000 = useMedia('(min-width: 1000px)')
 
   const [searchParams, setSearchParams] = useSearchParams()
-  const { farms, userInfo } = useElasticFarmsV2()
-
-  const type = searchParams.get('type')
-  const activeTab: string = type || FARM_TAB.ACTIVE
-  const search: string = searchParams.get('search')?.toLowerCase() || ''
-  const filteredToken0Id = searchParams.get('token0') || undefined
-  const filteredToken1Id = searchParams.get('token1') || undefined
-  const stakedOnly = searchParams.get('stakedOnly') === 'true'
 
   const sortField = searchParams.get('orderBy') || SORT_FIELD.MY_DEPOSIT
   const sortDirection = searchParams.get('orderDirection') || SORT_DIRECTION.DESC
 
-  const filteredFarms = useMemo(() => {
-    const now = Date.now() / 1000
-
-    // Filter Active/Ended farms
-    let result = farms?.filter(farm =>
-      activeTab === FARM_TAB.MY_FARMS ? true : activeTab === FARM_TAB.ACTIVE ? farm.endTime >= now : farm.endTime < now,
-    )
-
-    // Filter by search value
-    const searchAddress = isAddressString(chainId, search)
-    if (searchAddress) {
-      if (isEVM)
-        result = result?.filter(farm => {
-          return [farm.poolAddress, farm.token0.address, farm.token1.address].includes(searchAddress)
-        })
-    } else {
-      result = result?.filter(farm => {
-        return (
-          farm.token0.symbol?.toLowerCase().includes(search) ||
-          farm.token1.symbol?.toLowerCase().includes(search) ||
-          farm.token0.name?.toLowerCase().includes(search) ||
-          farm.token1.name?.toLowerCase().includes(search)
-        )
-      })
-    }
-
-    // Filter by input output token
-    if (filteredToken0Id || filteredToken1Id) {
-      if (filteredToken1Id && filteredToken0Id) {
-        result = result?.filter(farm => {
-          return (
-            (farm.token0.address.toLowerCase() === filteredToken0Id.toLowerCase() &&
-              farm.token1.address.toLowerCase() === filteredToken1Id.toLowerCase()) ||
-            (farm.token0.address.toLowerCase() === filteredToken1Id.toLowerCase() &&
-              farm.token1.address.toLowerCase() === filteredToken0Id.toLowerCase())
-          )
-        })
-      } else {
-        const address = filteredToken1Id || filteredToken0Id
-        result = result?.filter(farm => {
-          return (
-            farm.token0.address.toLowerCase() === address?.toLowerCase() ||
-            farm.token1.address.toLowerCase() === address?.toLowerCase()
-          )
-        })
-      }
-    }
-
-    if (stakedOnly) {
-      result = result?.filter(item => userInfo?.map(i => i.fId).includes(item.fId))
-    }
-    return result
-  }, [stakedOnly, userInfo, farms, activeTab, chainId, filteredToken0Id, filteredToken1Id, isEVM, search])
+  const { filteredFarms, farms } = useFilteredFarmsV2()
 
   const { approve } = useFarmV2Action()
   const posManager = useProAmmNFTPositionManagerContract()

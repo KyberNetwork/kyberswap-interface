@@ -1,6 +1,8 @@
 import { useCallback, useMemo } from 'react'
+import { useSearchParams } from 'react-router-dom'
 
 import FarmV2ABI from 'constants/abis/v2/farmv2.json'
+import { FARM_TAB } from 'constants/index'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
 import { NETWORKS_INFO } from 'constants/networks'
 import { EVMNetworkInfo } from 'constants/networks/type'
@@ -9,7 +11,7 @@ import { useContract, useProAmmNFTPositionManagerContract } from 'hooks/useContr
 import { useAppSelector } from 'state/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
-import { calculateGasMargin } from 'utils'
+import { calculateGasMargin, isAddressString } from 'utils'
 
 import { defaultChainData } from '.'
 import { UserFarmV2Info } from './types'
@@ -26,6 +28,97 @@ export const useUserFarmV2Info = (fId: number, rangeId: number): UserFarmV2Info[
     () => userInfo?.filter(item => item.fId === fId && item.rangeId === rangeId) || [],
     [fId, rangeId, userInfo],
   )
+}
+
+export enum SORT_FIELD {
+  FID = 'fId',
+  STAKED_TVL = 'staked_tvl',
+  APR = 'apr',
+  END_TIME = 'end_time',
+  MY_DEPOSIT = 'my_deposit',
+  MY_REWARD = 'my_reward',
+}
+
+export enum SORT_DIRECTION {
+  ASC = 'asc',
+  DESC = 'desc',
+}
+
+export const useFilteredFarmsV2 = () => {
+  const { isEVM, chainId } = useActiveWeb3React()
+
+  const [searchParams] = useSearchParams()
+  const { farms, userInfo, loading } = useElasticFarmsV2()
+
+  const type = searchParams.get('type')
+  const activeTab: string = type || FARM_TAB.ACTIVE
+  const search: string = searchParams.get('search')?.toLowerCase() || ''
+  const filteredToken0Id = searchParams.get('token0') || undefined
+  const filteredToken1Id = searchParams.get('token1') || undefined
+  const stakedOnly = searchParams.get('stakedOnly') === 'true'
+
+  const filteredFarms = useMemo(() => {
+    const now = Date.now() / 1000
+
+    // Filter Active/Ended farms
+    let result = farms?.filter(farm =>
+      activeTab === FARM_TAB.MY_FARMS ? true : activeTab === FARM_TAB.ACTIVE ? farm.endTime >= now : farm.endTime < now,
+    )
+
+    // Filter by search value
+    const searchAddress = isAddressString(chainId, search)
+    if (searchAddress) {
+      if (isEVM)
+        result = result?.filter(farm => {
+          return [farm.poolAddress, farm.token0.address, farm.token1.address]
+            .map(item => item.toLowerCase())
+            .includes(searchAddress.toLowerCase())
+        })
+    } else {
+      result = result?.filter(farm => {
+        return (
+          farm.token0.symbol?.toLowerCase().includes(search) ||
+          farm.token1.symbol?.toLowerCase().includes(search) ||
+          farm.token0.name?.toLowerCase().includes(search) ||
+          farm.token1.name?.toLowerCase().includes(search)
+        )
+      })
+    }
+
+    // Filter by input output token
+    if (filteredToken0Id || filteredToken1Id) {
+      if (filteredToken1Id && filteredToken0Id) {
+        result = result?.filter(farm => {
+          return (
+            (farm.token0.address.toLowerCase() === filteredToken0Id.toLowerCase() &&
+              farm.token1.address.toLowerCase() === filteredToken1Id.toLowerCase()) ||
+            (farm.token0.address.toLowerCase() === filteredToken1Id.toLowerCase() &&
+              farm.token1.address.toLowerCase() === filteredToken0Id.toLowerCase())
+          )
+        })
+      } else {
+        const address = filteredToken1Id || filteredToken0Id
+        result = result?.filter(farm => {
+          return (
+            farm.token0.address.toLowerCase() === address?.toLowerCase() ||
+            farm.token1.address.toLowerCase() === address?.toLowerCase()
+          )
+        })
+      }
+    }
+
+    if (stakedOnly) {
+      result = result?.filter(item => userInfo?.map(i => i.fId).includes(item.fId))
+    }
+    return result || []
+  }, [stakedOnly, userInfo, farms, activeTab, chainId, filteredToken0Id, filteredToken1Id, isEVM, search])
+
+  return {
+    filteredFarms,
+    farms,
+    userInfo,
+    loading,
+  }
 }
 
 export const useFarmV2Action = () => {

@@ -1,6 +1,6 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { Search, Share2 } from 'react-feather'
 import { useSelector } from 'react-redux'
 import { Navigate, useSearchParams } from 'react-router-dom'
@@ -20,10 +20,8 @@ import Tutorial, { TutorialType } from 'components/Tutorial'
 import Vesting from 'components/Vesting'
 import ProMMVesting from 'components/Vesting/ProMMVesting'
 import YieldPools from 'components/YieldPools'
-import ElasticFarms from 'components/YieldPools/ElasticFarms'
 import FarmGuide from 'components/YieldPools/FarmGuide'
 import FarmSort from 'components/YieldPools/FarmPoolSort'
-import FarmStepGuide from 'components/YieldPools/FarmStepGuide'
 import ListGridViewGroup from 'components/YieldPools/ListGridViewGroup'
 import {
   HeadingContainer,
@@ -55,7 +53,7 @@ import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
 import ElasticFarmV2Updater from 'state/farms/elasticv2/updater'
 import { isInEnum } from 'utils/string'
 
-import ElasticFarmv2 from './ElasticFarmv2'
+import { ElasticFarmCombination } from './ElasticFarmCombination'
 
 const Farm = () => {
   const { isEVM, chainId } = useActiveWeb3React()
@@ -89,21 +87,10 @@ const Farm = () => {
   const renderTabContent = () => {
     switch (type) {
       case FARM_TAB.ACTIVE:
-        return farmType === VERSION.ELASTIC ? (
-          <>
-            {/* TODO: Add condition to hide if no farmv2Address */}
-            <ElasticFarms onShowStepGuide={() => setShowFarmStepGuide('v1')} />
-            <ElasticFarmv2 onShowStepGuide={() => setShowFarmStepGuide('v2')} />
-          </>
-        ) : (
-          <YieldPools loading={loading} active />
-        )
+        return farmType === VERSION.ELASTIC ? <ElasticFarmCombination /> : <YieldPools loading={loading} active />
       case FARM_TAB.ENDED:
         return farmType === VERSION.ELASTIC ? (
-          <>
-            <ElasticFarms onShowStepGuide={() => setShowFarmStepGuide('v1')} />
-            <ElasticFarmv2 onShowStepGuide={() => setShowFarmStepGuide('v2')} />
-          </>
+          <ElasticFarmCombination />
         ) : (
           <YieldPools loading={loading} active={false} />
         )
@@ -111,10 +98,7 @@ const Farm = () => {
         return farmType === VERSION.ELASTIC ? <ProMMVesting /> : <Vesting loading={vestingLoading} />
       case FARM_TAB.MY_FARMS:
         return farmType === VERSION.ELASTIC ? (
-          <>
-            <ElasticFarms onShowStepGuide={() => setShowFarmStepGuide('v1')} />
-            <ElasticFarmv2 onShowStepGuide={() => setShowFarmStepGuide('v2')} />
-          </>
+          <ElasticFarmCombination />
         ) : (
           <YieldPools loading={loading} active={false} />
         )
@@ -192,8 +176,6 @@ const Farm = () => {
   const token0 = useCurrency(token0Id)
   const token1 = useCurrency(token1Id)
 
-  const [showFarmStepGuide, setShowFarmStepGuide] = useState<'v1' | 'v2' | null>(null)
-
   if (!isEVM) return <Navigate to="/" />
 
   const selectTokenFilter = (
@@ -233,7 +215,6 @@ const Farm = () => {
       <ElasticFarmV2Updater />
       <ClassicFarmUpdater isInterval />
       <FarmUpdater />
-      <FarmStepGuide version={showFarmStepGuide} onChangeVersion={setShowFarmStepGuide} />
       <PageWrapper gap="24px">
         <div>
           <TopBar>

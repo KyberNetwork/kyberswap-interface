@@ -1,25 +1,20 @@
-import { computePoolAddress } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 
 import FarmIssueAnnouncement from 'components/FarmIssueAnnouncement'
-import LocalLoader from 'components/LocalLoader'
 import ShareModal from 'components/ShareModal'
 import { APP_PATHS, FARM_TAB } from 'constants/index'
-import { EVMNetworkInfo } from 'constants/networks/type'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
-import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useOpenModal } from 'state/application/hooks'
-import { useElasticFarms, useFailedNFTs } from 'state/farms/elastic/hooks'
+import { useFailedNFTs, useFilteredFarms } from 'state/farms/elastic/hooks'
 import { FarmingPool } from 'state/farms/elastic/types'
 import { StyledInternalLink } from 'theme'
-import { isAddressString } from 'utils'
 
 import ElasticFarmGroup from './ElasticFarmGroup'
 import { DepositModal, StakeUnstakeModal } from './ElasticFarmModals'
@@ -31,141 +26,22 @@ type ModalType = 'deposit' | 'withdraw' | 'stake' | 'unstake' | 'harvest' | 'for
 
 function ElasticFarms({ onShowStepGuide }: { onShowStepGuide: () => void }) {
   const theme = useTheme()
-  const { isEVM, networkInfo, chainId } = useActiveWeb3React()
+  const { networkInfo } = useActiveWeb3React()
 
   const [searchParams] = useSearchParams()
-  const filteredToken0Id = searchParams.get('token0') || undefined
-  const filteredToken1Id = searchParams.get('token1') || undefined
-
-  const { farms, loading, userFarmInfo } = useElasticFarms()
 
   const failedNFTs = useFailedNFTs()
 
   const ref = useRef<HTMLDivElement>()
   const [open, setOpen] = useState(false)
   useOnClickOutside(ref, open ? () => setOpen(prev => !prev) : undefined)
-  const qs = useParsedQueryString<{ search: string; type: string; tab: string }>()
 
   const type = searchParams.get('type')
   const activeTab: string = type || FARM_TAB.ACTIVE
 
   const tab = searchParams.get('tab')
-  const search: string = searchParams.get('search')?.toLowerCase() || ''
-  const stakedOnly = searchParams.get('stakedOnly') === 'true'
 
-  const filteredFarms = useMemo(() => {
-    const now = Date.now() / 1000
-
-    // filter active/ended farm
-    let result = farms
-      ?.map(farm => {
-        const pools = farm.pools.filter(pool =>
-          activeTab === FARM_TAB.MY_FARMS
-            ? true
-            : activeTab === FARM_TAB.ACTIVE
-            ? pool.endTime >= now
-            : pool.endTime < now,
-        )
-        return { ...farm, pools }
-      })
-      .filter(farm => !!farm.pools.length)
-
-    const searchAddress = isAddressString(chainId, search)
-    // filter by address
-    if (searchAddress) {
-      if (isEVM)
-        result = result?.map(farm => {
-          farm.pools = farm.pools.filter(pool => {
-            const poolAddress = computePoolAddress({
-              factoryAddress: (networkInfo as EVMNetworkInfo).elastic.coreFactory,
-              tokenA: pool.token0.wrapped,
-              tokenB: pool.token1.wrapped,
-              fee: pool.pool.fee,
-              initCodeHashManualOverride: (networkInfo as EVMNetworkInfo).elastic.initCodeHash,
-            })
-            return [poolAddress, pool.pool.token1.address, pool.pool.token0.address].includes(searchAddress)
-          })
-          return farm
-        })
-    } else {
-      // filter by symbol and name of token
-      result = result?.map(farm => {
-        farm.pools = farm.pools.filter(pool => {
-          return (
-            pool.token0.symbol?.toLowerCase().includes(search) ||
-            pool.token1.symbol?.toLowerCase().includes(search) ||
-            pool.token0.name?.toLowerCase().includes(search) ||
-            pool.token1.name?.toLowerCase().includes(search)
-          )
-        })
-        return farm
-      })
-    }
-
-    if (filteredToken0Id || filteredToken1Id) {
-      if (filteredToken1Id && filteredToken0Id) {
-        result = result?.map(farm => {
-          farm.pools = farm.pools.filter(pool => {
-            return (
-              (pool.token0.wrapped.address.toLowerCase() === filteredToken0Id.toLowerCase() &&
-                pool.token1.wrapped.address.toLowerCase() === filteredToken1Id.toLowerCase()) ||
-              (pool.token1.wrapped.address.toLowerCase() === filteredToken0Id.toLowerCase() &&
-                pool.token0.wrapped.address.toLowerCase() === filteredToken1Id.toLowerCase())
-            )
-          })
-          return farm
-        })
-      } else {
-        const address = filteredToken1Id || filteredToken0Id
-        result = result?.map(farm => {
-          farm.pools = farm.pools.filter(pool => {
-            return (
-              pool.token0.wrapped.address.toLowerCase() === address?.toLowerCase() ||
-              pool.token1.wrapped.address.toLowerCase() === address?.toLowerCase()
-            )
-          })
-          return farm
-        })
-      }
-    }
-
-    if ((stakedOnly || activeTab === FARM_TAB.MY_FARMS) && isEVM) {
-      result = result?.map(item => {
-        if (!userFarmInfo?.[item.id].depositedPositions.length) {
-          return { ...item, pools: [] }
-        }
-        const stakedPools = userFarmInfo?.[item.id].depositedPositions.map(pos =>
-          computePoolAddress({
-            factoryAddress: (networkInfo as EVMNetworkInfo).elastic.coreFactory,
-            tokenA: pos.pool.token0,
-            tokenB: pos.pool.token1,
-            fee: pos.pool.fee,
-            initCodeHashManualOverride: (networkInfo as EVMNetworkInfo).elastic.initCodeHash,
-          }).toLowerCase(),
-        )
-
-        const pools = item.pools.filter(pool => stakedPools.includes(pool.poolAddress.toLowerCase()))
-        return { ...item, pools }
-      })
-    }
-
-    return result?.filter(farm => !!farm.pools.length) || []
-  }, [
-    farms,
-    search,
-    stakedOnly,
-    activeTab,
-    chainId,
-    userFarmInfo,
-    isEVM,
-    networkInfo,
-    filteredToken0Id,
-    filteredToken1Id,
-  ])
-
-  // const filteredFarmsV2 = useMemo(() => {}, [farmsV2, search, stakedOnly])
-
-  const noFarms = !filteredFarms.length
+  const { filteredFarms, farms, userFarmInfo } = useFilteredFarms()
 
   const [selectedFarm, setSeletedFarm] = useState<null | string>(null)
   const [selectedModal, setSeletedModal] = useState<ModalType | null>(null)
@@ -260,7 +136,7 @@ function ElasticFarms({ onShowStepGuide }: { onShowStepGuide: () => void }) {
         </Text>
       )}
 
-      {(!type || type === FARM_TAB.ACTIVE) && qs.tab !== VERSION.CLASSIC && (
+      {(!type || type === FARM_TAB.ACTIVE) && tab !== VERSION.CLASSIC && (
         <Text fontSize={12} marginBottom="1.25rem" color={theme.subText}>
           <Trans>
             Note: Farms will run in{' '}
@@ -276,22 +152,7 @@ function ElasticFarms({ onShowStepGuide }: { onShowStepGuide: () => void }) {
         </Text>
       )}
 
-      {loading && noFarms ? (
-        <Flex
-          sx={{
-            borderRadius: '16px',
-          }}
-          backgroundColor={theme.background}
-        >
-          <LocalLoader />
-        </Flex>
-      ) : noFarms ? (
-        <Flex backgroundColor={theme.background} justifyContent="center" padding="32px" sx={{ borderRadius: '20px' }}>
-          <Text color={theme.subText}>
-            {stakedOnly || search ? <Trans>No Farms found</Trans> : <Trans>Currently there are no Farms.</Trans>}
-          </Text>
-        </Flex>
-      ) : (
+      {!!filteredFarms.length && (
         <Flex
           sx={{
             flexDirection: 'column',
