@@ -1,22 +1,21 @@
 import { Currency, Price, Rounding } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { rgba } from 'polished'
 import { useState } from 'react'
-import { AlertTriangle, Repeat } from 'react-feather'
+import { Repeat } from 'react-feather'
 import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { AutoColumn } from 'components/Column'
-import Dots from 'components/Dots'
 import InfoHelper from 'components/InfoHelper'
-import Loader from 'components/Loader'
 import { RowBetween, RowFixed } from 'components/Row'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import SlippageValue from 'components/SwapForm/SwapModal/SwapDetails/SlippageValue'
 import ValueWithLoadingSkeleton from 'components/SwapForm/SwapModal/SwapDetails/ValueWithLoadingSkeleton'
+import { InfoHelperForMaxSlippage } from 'components/swapv2/SwapSettingsPanel/SlippageSetting'
 import { StyledBalanceMaxMini } from 'components/swapv2/styleds'
+import { DEFAULT_SIGNIFICANT, RESERVE_USD_DECIMALS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { TruncatedText } from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem'
 import { TYPE } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
 import { formattedNum } from 'utils'
@@ -33,14 +32,15 @@ function formatExecutionPrice(executionPrice?: Price<Currency, Currency>, invert
   const outputSymbol = executionPrice.quoteCurrency?.symbol
 
   return inverted
-    ? `${executionPrice.invert().toSignificant(6, undefined, Rounding.ROUND_DOWN)} ${inputSymbol} / ${outputSymbol}`
-    : `${executionPrice.toSignificant(6, undefined, Rounding.ROUND_DOWN)} ${outputSymbol} / ${inputSymbol}`
+    ? `${executionPrice
+        .invert()
+        .toSignificant(DEFAULT_SIGNIFICANT, undefined, Rounding.ROUND_DOWN)} ${inputSymbol} / ${outputSymbol}`
+    : `${executionPrice.toSignificant(
+        DEFAULT_SIGNIFICANT,
+        undefined,
+        Rounding.ROUND_DOWN,
+      )} ${outputSymbol} / ${inputSymbol}`
 }
-
-const StatusWrapper = styled.div`
-  width: 100%;
-  height: 40px;
-`
 
 type Optional<T> = {
   [key in keyof T]: T[key] | undefined
@@ -53,7 +53,7 @@ export type Props = {
   Pick<DetailedRouteSummary, 'gasUsd' | 'parsedAmountOut' | 'executionPrice' | 'amountInUsd' | 'priceImpact'>
 >
 
-const SwapDetails: React.FC<Props> = ({
+export default function SwapDetails({
   isLoading,
   hasError,
   gasUsd,
@@ -61,8 +61,8 @@ const SwapDetails: React.FC<Props> = ({
   executionPrice,
   amountInUsd,
   priceImpact,
-}) => {
-  const { isSolana, isEVM } = useActiveWeb3React()
+}: Props) {
+  const { isEVM } = useActiveWeb3React()
   const [showInverted, setShowInverted] = useState<boolean>(false)
   const theme = useTheme()
   const { feeConfig, slippage } = useSwapFormContext()
@@ -73,105 +73,38 @@ const SwapDetails: React.FC<Props> = ({
   const currencyOut = parsedAmountOut?.currency
   const minimumAmountOutStr =
     minimumAmountOut && currencyOut ? (
-      <Text
-        as="span"
-        sx={{
-          color: theme.text,
-          fontWeight: 'bold',
-          whiteSpace: 'nowrap',
-        }}
-      >
-        {formattedNum(minimumAmountOut.toSignificant(6), false, 6)} {currencyOut.symbol}
-      </Text>
+      <Flex style={{ color: theme.text, fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+        <TruncatedText>{minimumAmountOut.toSignificant(RESERVE_USD_DECIMALS)}</TruncatedText>
+        <Text> {currencyOut.symbol}</Text>
+      </Flex>
     ) : (
       ''
     )
 
   const priceImpactResult = checkPriceImpact(priceImpact)
 
-  const renderStatusNotice = () => {
-    if (isLoading) {
-      return (
-        <StatusWrapper>
-          <Flex
-            width="100%"
-            height="100%"
-            padding="0 10px"
-            alignItems="center"
-            sx={{
-              borderRadius: '24px',
-              background: theme.buttonBlack,
-              gap: '8px',
-            }}
-          >
-            <Loader size="20px" stroke={theme.primary} />
-            <Text as="span" fontSize="12px" color={theme.primary} fontStyle="italic">
-              <Dots>
-                <Trans>Checking the price</Trans>
-              </Dots>
-            </Text>
-          </Flex>
-        </StatusWrapper>
-      )
-    }
-
-    if (hasError) {
-      return (
-        <StatusWrapper>
-          <Flex
-            width="100%"
-            height="100%"
-            padding="12px"
-            alignItems="center"
-            sx={{
-              borderRadius: '24px',
-              background: rgba(theme.warning, 0.25),
-              gap: '8px',
-            }}
-          >
-            <AlertTriangle color={theme.warning} size={16} />
-            <Text as="span" color={theme.warning} fontSize="12px">
-              <Trans>Something went wrong. Please try again</Trans>
-            </Text>
-          </Flex>
-        </StatusWrapper>
-      )
-    }
-
-    return (
-      <StatusWrapper>
-        <TYPE.subHeader textAlign="left" style={{ width: '100%', color: theme.subText, fontStyle: 'italic' }}>
-          {minimumAmountOutStr && (
-            <Trans>
-              Output is estimated. You will receive at least {minimumAmountOutStr} or the transaction will revert.
-            </Trans>
-          )}
-          {isSolana && <Trans>We may send multiple transactions to complete the swap.</Trans>}
-        </TYPE.subHeader>
-      </StatusWrapper>
-    )
-  }
-
   return (
     <>
-      {renderStatusNotice()}
-
-      <AutoColumn gap="0.5rem" style={{ padding: '1rem', border: `1px solid ${theme.border}`, borderRadius: '8px' }}>
-        <RowBetween align="center" height="20px">
-          <Text fontWeight={400} fontSize={14} color={theme.subText}>
+      <AutoColumn
+        gap="0.5rem"
+        style={{ padding: '12px 16px', border: `1px solid ${theme.border}`, borderRadius: '16px' }}
+      >
+        <RowBetween align="center" height="20px" style={{ gap: '16px' }}>
+          <Text fontWeight={400} fontSize={12} color={theme.subText} minWidth="fit-content">
             <Trans>Current Price</Trans>
           </Text>
 
           <ValueWithLoadingSkeleton
             skeletonStyle={{
               width: '160px',
+              height: '19px',
             }}
             isShowingSkeleton={isLoading}
             content={
               executionPrice ? (
                 <Flex
                   fontWeight={500}
-                  fontSize={14}
+                  fontSize={12}
                   color={theme.text}
                   sx={{
                     justifyContent: 'center',
@@ -180,7 +113,7 @@ const SwapDetails: React.FC<Props> = ({
                     paddingLeft: '10px',
                   }}
                 >
-                  {formatExecutionPrice(executionPrice, showInverted)}
+                  <TruncatedText>{formatExecutionPrice(executionPrice, showInverted)}</TruncatedText>
                   <StyledBalanceMaxMini onClick={() => setShowInverted(!showInverted)}>
                     <Repeat size={14} color={theme.text} />
                   </StyledBalanceMaxMini>
@@ -192,9 +125,9 @@ const SwapDetails: React.FC<Props> = ({
           />
         </RowBetween>
 
-        <RowBetween align="center" height="20px">
+        <RowBetween align="center" height="20px" style={{ gap: '16px' }}>
           <RowFixed>
-            <TYPE.black fontSize={14} fontWeight={400} color={theme.subText}>
+            <TYPE.black fontSize={12} fontWeight={400} color={theme.subText} minWidth="fit-content">
               <Trans>Minimum Received</Trans>
             </TYPE.black>
             <InfoHelper
@@ -207,16 +140,17 @@ const SwapDetails: React.FC<Props> = ({
           <ValueWithLoadingSkeleton
             skeletonStyle={{
               width: '108px',
+              height: '19px',
             }}
             isShowingSkeleton={isLoading}
-            content={<TYPE.black fontSize={14}>{minimumAmountOutStr || '--'}</TYPE.black>}
+            content={<TYPE.black fontSize={12}>{minimumAmountOutStr || '--'}</TYPE.black>}
           />
         </RowBetween>
 
         {isEVM && (
-          <RowBetween height="20px">
+          <RowBetween height="20px" style={{ gap: '16px' }}>
             <RowFixed>
-              <TYPE.black fontSize={14} fontWeight={400} color={theme.subText}>
+              <TYPE.black fontSize={12} fontWeight={400} color={theme.subText} minWidth="fit-content">
                 <Trans>Gas Fee</Trans>
               </TYPE.black>
               <InfoHelper placement="top" size={14} text={t`Estimated network fee for your transaction`} />
@@ -225,10 +159,11 @@ const SwapDetails: React.FC<Props> = ({
             <ValueWithLoadingSkeleton
               skeletonStyle={{
                 width: '64px',
+                height: '19px',
               }}
               isShowingSkeleton={isLoading}
               content={
-                <TYPE.black color={theme.text} fontSize={14}>
+                <TYPE.black color={theme.text} fontSize={12}>
                   {gasUsd ? formattedNum(String(gasUsd), true) : '--'}
                 </TYPE.black>
               }
@@ -236,9 +171,9 @@ const SwapDetails: React.FC<Props> = ({
           </RowBetween>
         )}
 
-        <RowBetween>
+        <RowBetween height="20px" style={{ gap: '16px' }}>
           <RowFixed>
-            <TYPE.black fontSize={14} fontWeight={400} color={theme.subText}>
+            <TYPE.black fontSize={12} fontWeight={400} color={theme.subText}>
               <Trans>Price Impact</Trans>
             </TYPE.black>
             <InfoHelper
@@ -251,11 +186,12 @@ const SwapDetails: React.FC<Props> = ({
           <ValueWithLoadingSkeleton
             skeletonStyle={{
               width: '64px',
+              height: '19px',
             }}
             isShowingSkeleton={isLoading}
             content={
               <TYPE.black
-                fontSize={14}
+                fontSize={12}
                 color={priceImpactResult.isVeryHigh ? theme.red : priceImpactResult.isHigh ? theme.warning : theme.text}
               >
                 {priceImpactResult.isInvalid || typeof priceImpact !== 'number' ? '--' : formatPriceImpact(priceImpact)}
@@ -264,25 +200,26 @@ const SwapDetails: React.FC<Props> = ({
           />
         </RowBetween>
 
-        <RowBetween height="20px">
+        <RowBetween height="20px" style={{ gap: '16px' }}>
           <RowFixed>
-            <TYPE.black fontSize={14} fontWeight={400} color={theme.subText}>
+            <TYPE.black fontSize={12} fontWeight={400} color={theme.subText}>
               <Trans>Max Slippage</Trans>
             </TYPE.black>
+            <InfoHelperForMaxSlippage />
           </RowFixed>
 
           <SlippageValue />
         </RowBetween>
 
         {feeConfig && (
-          <RowBetween>
+          <RowBetween height="20px" style={{ gap: '16px' }}>
             <RowFixed>
-              <TYPE.black fontSize={14} fontWeight={400} color={theme.subText}>
+              <TYPE.black fontSize={12} fontWeight={400} color={theme.subText}>
                 <Trans>Referral Fee</Trans>
               </TYPE.black>
               <InfoHelper size={14} text={t`Commission fee to be paid directly to your referrer`} />
             </RowFixed>
-            <TYPE.black color={theme.text} fontSize={14}>
+            <TYPE.black color={theme.text} fontSize={12}>
               {formattedFeeAmountUsd}
             </TYPE.black>
           </RowBetween>
@@ -291,5 +228,3 @@ const SwapDetails: React.FC<Props> = ({
     </>
   )
 }
-
-export default SwapDetails
