@@ -132,7 +132,12 @@ const Desc = styled.div`
   font-size: 14px;
   line-height: 20px;
   > * {
-    margin: 0;
+    :first-child {
+      margin-top: 0;
+    }
+    :last-child {
+      margin-bottom: 0;
+    }
   }
 `
 

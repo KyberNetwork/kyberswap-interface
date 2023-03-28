@@ -180,12 +180,16 @@ export default function CreateAlert({
               optionRender={item => {
                 const isDiffChainType = getChainType(chainId) !== getChainType(item?.value as ChainId)
                 return (
-                  <Text
-                    onClick={isDiffChainType ? e => e.stopPropagation() : undefined}
-                    style={{ padding: '10px 18px', cursor: isDiffChainType ? 'not-allowed' : 'pointer' }}
+                  <MouseoverTooltip
+                    text={isDiffChainType ? t`Please change your chain to ${item?.label} to set price alert` : ''}
                   >
-                    {item?.label}
-                  </Text>
+                    <Text
+                      onClick={isDiffChainType ? e => e.stopPropagation() : undefined}
+                      style={{ padding: '10px 18px', cursor: isDiffChainType ? 'not-allowed' : 'pointer' }}
+                    >
+                      {item?.label}
+                    </Text>
+                  </MouseoverTooltip>
                 )
               }}
               activeRender={item => (

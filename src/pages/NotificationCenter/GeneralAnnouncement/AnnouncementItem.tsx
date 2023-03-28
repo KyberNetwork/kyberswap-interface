@@ -5,6 +5,8 @@ import styled, { CSSProperties, css } from 'styled-components'
 
 import NotificationImage from 'assets/images/notification_default.png'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
+import CtaButton from 'components/Announcement/Popups/CtaButton'
+import { useNavigateToUrl } from 'components/Announcement/helper'
 import { Announcement } from 'components/Announcement/type'
 import { MEDIA_WIDTHS } from 'theme'
 import { escapeScriptHtml } from 'utils/string'
@@ -54,18 +56,28 @@ const Desc = styled.div<{ expand: boolean }>`
   line-height: 16px;
 
   ${({ expand }) =>
-    !expand &&
-    css`
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      height: 34px;
-    `}
-
-  > * {
-    margin: 0;
-  }
+    !expand
+      ? css`
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          height: 34px;
+          > * {
+            margin: 0;
+          }
+        `
+      : css`
+          display: block;
+          > * {
+            :first-child {
+              margin-top: 0;
+            }
+            :last-child {
+              margin-bottom: 0;
+            }
+          }
+        `}
 `
 
 const Time = styled.div<{ isLeft?: boolean }>`
@@ -81,7 +93,7 @@ const RowItem = styled.div`
   display: flex;
   align-items: center;
   flex-direction: column;
-  gap: 6px;
+  gap: 10px;
   align-items: flex-start;
   flex: 1;
   justify-content: space-between;
@@ -123,7 +135,12 @@ export default function AnnouncementItem({
   const [expand, setExpand] = useState(false)
   const { templateBody } = announcement
 
-  const { name, startAt, content, thumbnailImageURL } = templateBody
+  const { name, startAt, content, thumbnailImageURL, ctaURL, ctaName } = templateBody
+  const navigate = useNavigateToUrl()
+  const onClickCta: React.MouseEventHandler<HTMLButtonElement> = e => {
+    e.stopPropagation()
+    navigate(ctaURL)
+  }
   return (
     <Wrapper onClick={() => setExpand(!expand)} style={style}>
       <Image src={thumbnailImageURL || NotificationImage} />
@@ -139,6 +156,9 @@ export default function AnnouncementItem({
         </Flex>
         {upToMedium && <Time isLeft>{formatTime(startAt)} </Time>}
         <Desc expand={expand} dangerouslySetInnerHTML={{ __html: escapeScriptHtml(content) }} />
+        {expand && ctaName && ctaURL && (
+          <CtaButton color="link" data={{ url: ctaURL, name: ctaName }} onClick={onClickCta} />
+        )}
       </RowItem>
     </Wrapper>
   )
