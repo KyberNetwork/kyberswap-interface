@@ -365,11 +365,11 @@ msgstr ""
 msgid "All positions"
 msgstr ""
 
-#: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/TokenInfoTab.tsx
 msgid "All-Time High"
 msgstr ""
 
-#: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/TokenInfoTab.tsx
 msgid "All-Time Low"
 msgstr ""
 
@@ -725,7 +725,7 @@ msgstr ""
 msgid "Choose your preferred wallet, connect it, and get started with KyberSwap!"
 msgstr ""
 
-#: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/TokenInfoTab.tsx
 msgid "Circulating Supply"
 msgstr ""
 
@@ -923,7 +923,7 @@ msgid "Contact Us"
 msgstr "Bize Ulaşın"
 
 #: src/components/ModalContractAddress/index.tsx
-#: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/TokenInfoTab.tsx
 #: src/pages/TrueSight/components/AddressRowOnMobile.tsx
 msgid "Contract Address"
 msgstr ""
@@ -1866,8 +1866,8 @@ msgid "Increase Liquidity"
 msgstr ""
 
 #: src/components/PoolList/ItemCard/index.tsx
-#: src/components/swapv2/MobileTokenInfo.tsx
-#: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/TokenInfoIcon.tsx
+#: src/components/swapv2/TokenInfoTab.tsx
 msgid "Info"
 msgstr ""
 
@@ -2227,7 +2227,7 @@ msgstr "DAHA FAZLA BİLGİ"
 msgid "Manage your pools."
 msgstr "Havuzlarınızı yönetin."
 
-#: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/TokenInfoTab.tsx
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
@@ -2235,7 +2235,7 @@ msgstr "Havuzlarınızı yönetin."
 msgid "Market Cap"
 msgstr ""
 
-#: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/TokenInfoTab.tsx
 #: src/components/swapv2/TokenInfoV2/SingleTokenInfo.tsx
 msgid "Market Cap Rank"
 msgstr ""
@@ -2757,7 +2757,7 @@ msgstr "Havuzlar | AMP"
 msgid "Powered By"
 msgstr "Tarafından Desteklenmektedir"
 
-#: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/TokenInfoTab.tsx
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "Powered by"
 msgstr "Tarafından Desteklenmektedir"
@@ -2780,7 +2780,7 @@ msgstr "Tercihler"
 msgid "Preview"
 msgstr ""
 
-#: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/TokenInfoTab.tsx
 #: src/components/swapv2/TokenInfoV2/SingleTokenInfo.tsx
 #: src/pages/TrueSight/components/Chart.tsx
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
@@ -3680,7 +3680,7 @@ msgid "Token Amount"
 msgstr "Token Miktarı"
 
 #: src/components/TransactionSettings/index.tsx
-#: src/components/swapv2/MobileTokenInfo.tsx
+#: src/components/swapv2/TokenInfoIcon.tsx
 #: src/components/swapv2/SwapSettingsPanel/index.tsx
 msgid "Token Info"
 msgstr ""
@@ -3752,7 +3752,7 @@ msgstr ""
 msgid "Total Rewards"
 msgstr ""
 
-#: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/TokenInfoTab.tsx
 msgid "Total Supply"
 msgstr ""
 
@@ -3810,7 +3810,7 @@ msgstr ""
 msgid "Trading Volume"
 msgstr ""
 
-#: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/TokenInfoTab.tsx
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx

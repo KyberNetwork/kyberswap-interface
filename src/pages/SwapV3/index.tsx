@@ -1,5 +1,5 @@
 import { Currency, Token } from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { stringify } from 'querystring'
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Skeleton from 'react-loading-skeleton'
@@ -7,18 +7,13 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled, { DefaultTheme, keyframes } from 'styled-components'
 
-import { ReactComponent as TutorialSvg } from 'assets/svg/play_circle_outline.svg'
 import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import Banner from 'components/Banner'
-import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import { RowBetween } from 'components/Row'
 import { SEOSwap } from 'components/SEO'
-import { ShareButtonWithModal } from 'components/ShareModal'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import TokenWarningModal from 'components/TokenWarningModal'
-import { MouseoverTooltip } from 'components/Tooltip'
 import TopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoonTokensInCurrentNetwork'
-import Tutorial, { TutorialType } from 'components/Tutorial'
 import TutorialSwap from 'components/Tutorial/TutorialSwap'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import GasPriceTrackerPanel from 'components/swapv2/GasPriceTrackerPanel'
@@ -26,10 +21,9 @@ import LimitOrder from 'components/swapv2/LimitOrder'
 import ListLimitOrder from 'components/swapv2/LimitOrder/ListOrder'
 import { ListOrderHandle } from 'components/swapv2/LimitOrder/type'
 import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
-import MobileTokenInfo from 'components/swapv2/MobileTokenInfo'
 import PairSuggestion, { PairSuggestionHandle } from 'components/swapv2/PairSuggestion'
 import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
-import TokenInfo from 'components/swapv2/TokenInfo'
+import TokenInfoTab from 'components/swapv2/TokenInfoTab'
 import TokenInfoV2 from 'components/swapv2/TokenInfoV2'
 import {
   Container,
@@ -37,8 +31,6 @@ import {
   LiveChartWrapper,
   PageWrapper,
   RoutesWrapper,
-  StyledActionButtonSwapForm,
-  SwapFormActions,
   SwapFormWrapper,
   Tab,
   TabContainer,
@@ -51,6 +43,7 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { BodyWrapper } from 'pages/AppBody'
+import HeaderRightMenu from 'pages/SwapV3/HeaderRightMenu'
 import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { Field } from 'state/swap/actions'
 import { useDefaultsFromURLSearch, useInputCurrency, useOutputCurrency, useSwapActionHandlers } from 'state/swap/hooks'
@@ -59,7 +52,6 @@ import { useDegenModeManager, useShowLiveChart, useShowTokenInfo, useShowTradeRo
 import { DetailedRouteSummary } from 'types/route'
 import { getLimitOrderContract } from 'utils'
 import { getTradeComposition } from 'utils/aggregationRouting'
-import { currencyId } from 'utils/currencyId'
 import { getSymbolSlug } from 'utils/string'
 import { checkPairInWhiteList } from 'utils/tokenInfo'
 
@@ -68,16 +60,7 @@ import PopulatedSwapForm from './PopulatedSwapForm'
 const TradeRouting = lazy(() => import('components/TradeRouting'))
 const LiveChart = lazy(() => import('components/LiveChart'))
 
-const TutorialIcon = styled(TutorialSvg)`
-  width: 22px;
-  height: 22px;
-  path {
-    fill: ${({ theme }) => theme.subText};
-    stroke: ${({ theme }) => theme.subText};
-  }
-`
-
-enum TAB {
+export enum TAB {
   SWAP = 'swap',
   INFO = 'info',
   SETTINGS = 'settings',
@@ -101,7 +84,7 @@ const highlight = (theme: DefaultTheme) => keyframes`
 `
 
 const AppBodyWrapped = styled(BodyWrapper)`
-  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
   padding: 16px;
   margin-top: 0;
 
@@ -259,19 +242,6 @@ export default function Swap() {
     }
   }, [isDegenMode, mixpanelHandler])
 
-  const shareUrl = useMemo(() => {
-    const tokenIn = isSwapPage ? currencyIn : limitState.currencyIn
-    const tokenOut = isSwapPage ? currencyOut : limitState.currencyOut
-    return `${window.location.origin}${isSwapPage ? APP_PATHS.SWAP : APP_PATHS.LIMIT}/${networkInfo.route}${
-      tokenIn && tokenOut
-        ? `?${stringify({
-            inputCurrency: currencyId(tokenIn, chainId),
-            outputCurrency: currencyId(tokenOut, chainId),
-          })}`
-        : ''
-    }`
-  }, [networkInfo.route, currencyIn, currencyOut, chainId, limitState.currencyIn, limitState.currencyOut, isSwapPage])
-
   const { isInWhiteList: isPairInWhiteList, canonicalUrl } = checkPairInWhiteList(
     chainId,
     getSymbolSlug(currencyIn),
@@ -279,7 +249,6 @@ export default function Swap() {
   )
 
   const onBackToSwapTab = () => setActiveTab(isLimitPage ? TAB.LIMIT : TAB.SWAP)
-  const onToggleActionTab = (tab: TAB) => setActiveTab(activeTab === tab ? (isLimitPage ? TAB.LIMIT : TAB.SWAP) : tab)
 
   const shouldRenderTokenInfo = isShowTokenInfoSetting && currencyIn && currencyOut && isPairInWhiteList && isSwapPage
 
@@ -339,6 +308,8 @@ export default function Swap() {
                 </TabWrapper>
               </TabContainer>
 
+              <HeaderRightMenu activeTab={activeTab} setActiveTab={setActiveTab} />
+              {/*
               <SwapFormActions>
                 <Tutorial
                   type={TutorialType.SWAP}
@@ -348,7 +319,7 @@ export default function Swap() {
                     </StyledActionButtonSwapForm>
                   }
                 />
-                <MobileTokenInfo
+                <TokenInfoIcon
                   currencies={isSwapPage ? currencies : currenciesLimit}
                   onClick={() => {
                     mixpanelHandler(MIXPANEL_TYPE.SWAP_TOKEN_INFO_CLICK)
@@ -381,6 +352,7 @@ export default function Swap() {
                   </MouseoverTooltip>
                 </StyledActionButtonSwapForm>
               </SwapFormActions>
+              */}
             </RowBetween>
 
             <RowBetween>
@@ -412,7 +384,7 @@ export default function Swap() {
               />
 
               {activeTab === TAB.INFO && (
-                <TokenInfo currencies={isSwapPage ? currencies : currenciesLimit} onBack={onBackToSwapTab} />
+                <TokenInfoTab currencies={isSwapPage ? currencies : currenciesLimit} onBack={onBackToSwapTab} />
               )}
               {activeTab === TAB.SETTINGS && (
                 <SettingsPanel
