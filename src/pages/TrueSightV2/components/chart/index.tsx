@@ -1741,6 +1741,8 @@ const Loader = styled.div`
   background: ${({ theme }) => theme.buttonBlack};
 `
 
+const LOCALSTORAGE_STATE_NAME = 'kyberAIProChartState'
+
 export const Prochart = ({ isBTC }: { isBTC?: boolean }) => {
   const theme = useTheme()
   const [ref, setRef] = useState<HTMLDivElement | null>(null)
@@ -1754,6 +1756,12 @@ export const Prochart = ({ isBTC }: { isBTC?: boolean }) => {
       return
     }
     setLoading(true)
+
+    const localStorageState = JSON.parse(localStorage.getItem(LOCALSTORAGE_STATE_NAME) || 'null')
+    // set auto scale mode to true to fix wrong behavious of right axis price range
+    if (localStorageState?.charts[0]?.panes[0]?.rightAxisesState[0]?.state?.m_isAutoScale === false) {
+      localStorageState.charts[0].panes[0].rightAxisesState[0].state.m_isAutoScale = true
+    }
 
     const widgetOptions: ChartingLibraryWidgetOptions = {
       symbol: 'BTC',
@@ -1782,6 +1790,8 @@ export const Prochart = ({ isBTC }: { isBTC?: boolean }) => {
       timeframe: '2w',
       time_frames: [{ text: '2w', resolution: '1H' as ResolutionString, description: '2 Weeks' }],
       locale: (userLocale ? userLocale.slice(0, 2) : 'en') as LanguageCode,
+      auto_save_delay: 2,
+      saved_data: localStorageState,
     }
     const tvWidget = new window.TradingView.widget(widgetOptions)
 
@@ -1817,6 +1827,11 @@ export const Prochart = ({ isBTC }: { isBTC?: boolean }) => {
       tvWidget.activeChart().createMultipointShape([{ time: 1676430000, price: 0.2041755193861572 }], {
         shape: 'horizontal_ray',
         overrides: { color: '#80CCDB', linewidth: 2, linestyle: 2 },
+      })
+      tvWidget.subscribe('onAutoSaveNeeded', () => {
+        tvWidget.save((object: any) => {
+          localStorage.setItem(LOCALSTORAGE_STATE_NAME, JSON.stringify(object))
+        })
       })
     })
 
