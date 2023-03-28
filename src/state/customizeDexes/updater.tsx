@@ -21,8 +21,7 @@ export default function Updater(): null {
     const dexesOutsideKyberswap = dexesFormatted.filter(item => !item.id.includes('kyberswap'))
     const dexesKyberswap = uniqueArray(
       dexesFormatted.filter(dex => KYBERSWAP_KS_DEXES_TO_UI_DEXES[dex.id]),
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      dex => KYBERSWAP_KS_DEXES_TO_UI_DEXES[dex.id]!,
+      dex => KYBERSWAP_KS_DEXES_TO_UI_DEXES[dex.id],
     )
     const dexesUIKyberswap = dexesKyberswap.map(dex => ({
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
