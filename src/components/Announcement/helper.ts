@@ -1,10 +1,12 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
+import AnnouncementApi from 'services/announcement'
 
 import { AnnouncementTemplatePopup, PopupContentAnnouncement, PopupItemType } from 'components/Announcement/type'
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/useChangeNetwork'
+import { useAppDispatch } from 'state/hooks'
 
 const LsKey = 'ack-announcements'
 export const getAnnouncementsAckMap = () => JSON.parse(localStorage[LsKey] || '{}')
@@ -70,5 +72,18 @@ export const useNavigateToUrl = () => {
       } catch (error) {}
     },
     [changeNetwork, currentChain, redirect],
+  )
+}
+
+export const useInvalidateTagAnnouncement = () => {
+  const dispatch = useAppDispatch()
+  return useCallback(
+    (tag: string) => {
+      dispatch({
+        type: `${AnnouncementApi.reducerPath}/invalidateTags`,
+        payload: [tag],
+      })
+    },
+    [dispatch],
   )
 }

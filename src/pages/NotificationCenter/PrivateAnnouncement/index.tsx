@@ -1,5 +1,5 @@
 import { t } from '@lingui/macro'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   useAckPrivateAnnouncementsByIdsMutation,
   useClearAllPrivateAnnouncementByIdMutation,
@@ -8,8 +8,10 @@ import {
 } from 'services/announcement'
 import styled from 'styled-components'
 
+import { useInvalidateTagAnnouncement } from 'components/Announcement/helper'
 import { PrivateAnnouncement, PrivateAnnouncementType } from 'components/Announcement/type'
 import { getAnnouncementsTemplateIds } from 'constants/env'
+import { RTK_QUERY_TAGS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import DeleteAllAlertsButton from 'pages/NotificationCenter/DeleteAllAlertsButton'
 import { MENU_TITLE } from 'pages/NotificationCenter/Menu'
@@ -50,15 +52,28 @@ export default function GeneralAnnouncement({ type }: { type?: PrivateAnnounceme
   const numberOfUnread = data?.numberOfUnread || 0
 
   const refetch = type ? refetchById : refetchAll
+  const resetUnread = useInvalidateTagAnnouncement()
 
+  const loadingRef = useRef(false)
   useEffect(() => {
-    if (numberOfUnread > 0 && account) {
-      // mark all as read
-      ackAnnouncement({ templateIds: templateIds || undefined, account }).then(() => {
+    if (!account || numberOfUnread === 0 || loadingRef.current) return
+    // mark all as read
+    loadingRef.current = true
+    ackAnnouncement({ templateIds: templateIds || undefined, account })
+      .then(() => {
         refetch()
+        if (!templateIds) {
+          // select tab all notification
+          resetUnread(RTK_QUERY_TAGS.GET_PRIVATE_ANN_BY_ID)
+        }
       })
-    }
-  }, [numberOfUnread, templateIds, account, ackAnnouncement, refetch])
+      .catch(e => {
+        console.error('ackAnnouncement', e)
+      })
+      .finally(() => {
+        loadingRef.current = false
+      })
+  }, [numberOfUnread, templateIds, account, ackAnnouncement, refetch, resetUnread])
 
   const totalAnnouncement = data?.notifications?.length ?? 0
 
@@ -68,6 +83,9 @@ export default function GeneralAnnouncement({ type }: { type?: PrivateAnnounceme
     return clearAllAnnouncement({ account: account ?? '', templateIds })
       .then(() => {
         refetch()
+      })
+      .catch(e => {
+        console.error('clearAllAnnouncement', e)
       })
       .finally(() => {
         setLoading(false)

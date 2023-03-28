@@ -16,7 +16,7 @@ import NotificationIcon from 'components/Icons/NotificationIcon'
 import { getAnnouncementsTemplateIds } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
 import MenuItem from 'pages/NotificationCenter/Menu/MenuItem'
-import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
+import { ITEMS_PER_PAGE, NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
 import { MEDIA_WIDTHS } from 'theme'
 
 const Divider = styled.div<{ $margin?: string }>`
@@ -196,9 +196,10 @@ const Menu = () => {
   const { account } = useActiveWeb3React()
   const templates = getAnnouncementsTemplateIds()
   // todo refactor this
-  const params = { account: account ?? '', page: 1 }
+  const params = { account: account ?? '', page: 1, pageSize: ITEMS_PER_PAGE }
   const skip = { skip: !account }
-  const { data: dataAll } = useGetPrivateAnnouncementsQuery({ ...params }, skip)
+  const { data: dataAll } = useGetPrivateAnnouncementsQuery({ ...params, pageSize: undefined }, skip)
+
   const { data: dataPriceAlert } = useGetPrivateAnnouncementsByIdsQuery(
     { ...params, templateIds: templates.PRICE_ALERT },
     skip,

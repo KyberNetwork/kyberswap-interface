@@ -4,7 +4,7 @@ import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState } f
 import { Check } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import { useAckTelegramSubscriptionStatusMutation, useLazyGetConnectedWalletQuery } from 'services/notification'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
 import Checkbox from 'components/CheckBox'
@@ -31,7 +31,7 @@ const Wrapper = styled.div`
   gap: 18px;
   flex-direction: column;
   ${({ theme }) => theme.mediaWidth.upToMedium`
-     gap: 12px;
+     gap: 14px;
      padding: 24px 16px;
   `}
 `
@@ -43,8 +43,16 @@ const Label = styled.p`
   color: ${({ theme }) => theme.subText};
 `
 
-const InputWrapper = styled.div`
+const InputWrapper = styled.div<{ isInNotificationCenter: boolean }>`
   position: relative;
+  ${({ isInNotificationCenter }) =>
+    isInNotificationCenter &&
+    css`
+      max-width: 50%;
+      ${({ theme }) => theme.mediaWidth.upToMedium`
+        max-width: 100%;
+      `}
+    `};
 `
 const CheckIcon = styled(Check)`
   position: absolute;
@@ -78,6 +86,11 @@ const TopicItem = styled.label`
   gap: 14px;
   font-weight: 500;
   align-items: center;
+  flex-basis: 45%;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+     flex-basis: unset;
+  `}
 `
 
 const Divider = styled.div`
@@ -85,12 +98,29 @@ const Divider = styled.div`
   width: 100%;
 `
 
-const TopicItemHeader = styled(TopicItem)`
+const TopicItemHeader = styled.label`
   color: ${({ theme }) => theme.text};
   align-items: center;
   font-size: 14px;
+  font-weight: 500;
   display: flex;
   justify-content: space-between;
+`
+
+const ListGroupWrapper = styled.div<{ isInNotificationCenter: boolean }>`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  ${({ isInNotificationCenter }) =>
+    isInNotificationCenter &&
+    css`
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    `}
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+     flex-direction: column;
+  `}
 `
 
 // const Option = styled(Row)<{ active: boolean }>`
@@ -129,7 +159,7 @@ const sortGroup = (arr: Topic[]) => [...arr].sort((x, y) => y.priority - x.prior
 function NotificationPreference({
   header,
   isOpen,
-  isInNotificationCenter,
+  isInNotificationCenter = false,
   toggleModal = noop,
 }: {
   header?: ReactNode
@@ -188,7 +218,6 @@ function NotificationPreference({
     },
     [topicGroupsGlobal],
   )
-  console.log(topicGroups, topicGroupsGlobal)
 
   const [ackTelegramSubscriptionStatus] = useAckTelegramSubscriptionStatusMutation()
   useEffect(() => {
@@ -337,9 +366,10 @@ function NotificationPreference({
   const debouncedCheckEmail = useMemo(() => debounce((email: string) => checkEmailExist(email), 500), [checkEmailExist])
 
   const onChangeInput = (e: React.FormEvent<HTMLInputElement>) => {
-    setInputEmail(e.currentTarget.value)
-    validateInput(e.currentTarget.value)
-    debouncedCheckEmail(e.currentTarget.value)
+    const value = e.currentTarget.value
+    setInputEmail(value)
+    validateInput(value)
+    debouncedCheckEmail(value)
   }
 
   const onChangeTopic = (topicId: number) => {
@@ -387,7 +417,7 @@ function NotificationPreference({
         type: NotificationType.SUCCESS,
         icon: <MailIcon color={theme.primary} />,
       },
-      10000,
+      10_000,
     )
   }
 
@@ -448,7 +478,7 @@ function NotificationPreference({
           <Label>
             <Trans>Enter your email address to receive notifications</Trans>
           </Label>
-          <InputWrapper style={{ maxWidth: isInNotificationCenter ? '50%' : 'unset' }}>
+          <InputWrapper isInNotificationCenter={isInNotificationCenter}>
             <Input
               $borderColor={errorColor}
               value={inputEmail}
@@ -490,32 +520,34 @@ function NotificationPreference({
       <Divider />
       <Column gap="16px">
         {renderTableHeader()}
-        {topicGroups.map(topic => (
-          <TopicItem
-            key={topic.id}
-            htmlFor={`topic${topic.id}`}
-            style={{ alignItems: isInNotificationCenter ? 'flex-start' : 'center' }}
-          >
-            <Checkbox
-              disabled={disableCheckbox}
-              borderStyle
-              checked={selectedTopic.includes(topic.id)}
-              id={`topic${topic.id}`}
-              style={{ width: 14, height: 14, minWidth: 14 }}
-              onChange={() => onChangeTopic(topic.id)}
-            />
-            <Column gap="10px">
-              <Text color={theme.text} fontSize={14}>
-                <Trans>{topic.name}</Trans>
-              </Text>
-              {isInNotificationCenter && (
-                <Text color={theme.subText} fontSize={12}>
-                  <Trans>{topic.description}</Trans>
+        <ListGroupWrapper isInNotificationCenter={!!isInNotificationCenter}>
+          {topicGroups.map(topic => (
+            <TopicItem
+              key={topic.id}
+              htmlFor={`topic${topic.id}`}
+              style={{ alignItems: isInNotificationCenter ? 'flex-start' : 'center' }}
+            >
+              <Checkbox
+                disabled={disableCheckbox}
+                borderStyle
+                checked={selectedTopic.includes(topic.id)}
+                id={`topic${topic.id}`}
+                style={{ width: 14, height: 14, minWidth: 14 }}
+                onChange={() => onChangeTopic(topic.id)}
+              />
+              <Column gap="10px">
+                <Text color={theme.text} fontSize={14}>
+                  <Trans>{topic.name}</Trans>
                 </Text>
-              )}
-            </Column>
-          </TopicItem>
-        ))}
+                {isInNotificationCenter && (
+                  <Text color={theme.subText} fontSize={12}>
+                    <Trans>{topic.description}</Trans>
+                  </Text>
+                )}
+              </Column>
+            </TopicItem>
+          ))}
+        </ListGroupWrapper>
       </Column>
       <ActionButtons
         isHorizontal={!!isInNotificationCenter}

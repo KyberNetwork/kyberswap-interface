@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useMedia, usePrevious } from 'react-use'
-import AnnouncementApi, {
+import {
   useAckPrivateAnnouncementsMutation,
   useLazyGetAnnouncementsQuery,
   useLazyGetPrivateAnnouncementsQuery,
@@ -9,7 +9,7 @@ import styled, { css } from 'styled-components'
 
 import AnnouncementView, { Tab } from 'components/Announcement/AnnoucementView'
 import DetailAnnouncementPopup from 'components/Announcement/Popups/DetailAnnouncementPopup'
-import { formatNumberOfUnread } from 'components/Announcement/helper'
+import { formatNumberOfUnread, useInvalidateTagAnnouncement } from 'components/Announcement/helper'
 import { Announcement, PrivateAnnouncement } from 'components/Announcement/type'
 import NotificationIcon from 'components/Icons/NotificationIcon'
 import MenuFlyout from 'components/MenuFlyout'
@@ -20,7 +20,6 @@ import useInterval from 'hooks/useInterval'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { ApplicationModal } from 'state/application/actions'
 import { useDetailAnnouncement, useModalOpen, useToggleNotificationCenter } from 'state/application/hooks'
-import { useAppDispatch } from 'state/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
 const StyledMenuButton = styled.button<{ active?: boolean }>`
@@ -195,14 +194,7 @@ export default function AnnouncementComponent() {
     tab !== activeTab && fetchAnnouncementsByTab(true, tab)
   }
 
-  const dispatch = useAppDispatch()
-  const resetUnread = useCallback(() => {
-    // reset badge in notification center page
-    dispatch({
-      type: `${AnnouncementApi.reducerPath}/invalidateTags`,
-      payload: [RTK_QUERY_TAGS.GET_PRIVATE_ANN_BY_ID],
-    })
-  }, [dispatch])
+  const resetUnread = useInvalidateTagAnnouncement()
 
   const prefetchPrivateAnnouncements = useCallback(async () => {
     try {
@@ -213,7 +205,7 @@ export default function AnnouncementComponent() {
 
       if (data?.numberOfUnread !== numberOfUnread) {
         // has new msg
-        resetUnread()
+        resetUnread(RTK_QUERY_TAGS.GET_PRIVATE_ANN_BY_ID)
       }
 
       return notifications
@@ -258,7 +250,7 @@ export default function AnnouncementComponent() {
     toggleNotificationCenter()
     if (isOpenNotificationCenter && numberOfUnread && account) {
       ackAnnouncement({ account, action: 'read-all' })
-      resetUnread()
+      resetUnread(RTK_QUERY_TAGS.GET_PRIVATE_ANN_BY_ID)
     }
   }
 
