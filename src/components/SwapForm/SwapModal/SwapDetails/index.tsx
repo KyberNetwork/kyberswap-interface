@@ -81,7 +81,7 @@ export default function SwapDetails({
   const currencyOut = parsedAmountOut?.currency
   const minimumAmountOutStr =
     minimumAmountOut && currencyOut ? (
-      <Flex style={{ color: theme.text, fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+      <Flex style={{ color: theme.text, fontWeight: 500, whiteSpace: 'nowrap' }}>
         <TruncatedText style={{ width: '-webkit-fill-available' }}>
           {minimumAmountOut.toSignificant(RESERVE_USD_DECIMALS)}
         </TruncatedText>
@@ -152,7 +152,11 @@ export default function SwapDetails({
               height: '19px',
             }}
             isShowingSkeleton={isLoading}
-            content={<TYPE.black fontSize={12}>{minimumAmountOutStr || '--'}</TYPE.black>}
+            content={
+              <TYPE.black fontSize={12} fontWeight={500}>
+                {minimumAmountOutStr || '--'}
+              </TYPE.black>
+            }
           />
         </RowBetween>
 

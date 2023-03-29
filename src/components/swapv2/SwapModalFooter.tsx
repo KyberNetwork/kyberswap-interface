@@ -55,7 +55,7 @@ export default function SwapModalFooter({
     [allowedSlippage, trade],
   )
   const [isAdvancedMode] = useDegenModeManager()
-  const isWarningSlippge = checkWarningSlippage(allowedSlippage, isStablePairSwap)
+  const isWarningSlippage = checkWarningSlippage(allowedSlippage, isStablePairSwap)
   const [encodeSolana] = useEncodeSolana()
 
   const nativeInput = useCurrencyConvertedToNative(trade.inputAmount.currency as Currency)
@@ -146,7 +146,7 @@ export default function SwapModalFooter({
               <Trans>Max Slippage</Trans>
             </TYPE.black>
           </RowFixed>
-          <TYPE.black fontSize={14} color={isWarningSlippge ? theme.warning : undefined}>
+          <TYPE.black fontSize={14} color={isWarningSlippage ? theme.warning : undefined}>
             {allowedSlippage / 100}%
           </TYPE.black>
         </RowBetween>
