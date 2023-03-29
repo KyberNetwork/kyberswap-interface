@@ -333,6 +333,9 @@ function NotificationPreference({
         10000,
       )
       toggleModal()
+      if (isInNotificationCenter) {
+        refreshTopics()
+      }
     } catch (error) {
       notify({
         title: t`Save Error`,
