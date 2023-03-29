@@ -32,7 +32,7 @@ const slippageOptionCSS = css`
   border-radius: 20px;
   border: 1px solid transparent;
 
-  background-color: ${({ theme }) => theme.tabBackgound};
+  background-color: ${({ theme }) => theme.tabBackground};
   color: ${({ theme }) => theme.subText};
   text-align: center;
 

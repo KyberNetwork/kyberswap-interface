@@ -82,7 +82,7 @@ const TransactionTimeLimitSetting: React.FC<Props> = ({ className }) => {
           lineHeight: '16px',
           columnGap: '2px',
           alignItems: 'center',
-          backgroundColor: theme.tabBackgound,
+          backgroundColor: theme.tabBackground,
           padding: '0 8px',
           borderRadius: '40px',
         }}
