@@ -201,9 +201,7 @@ export default function CreateAlert({
                 </Flex>
               )}
             />
-            <MiniLabel>
-              <Trans>the price of</Trans>
-            </MiniLabel>
+
             <StyledInputNumber
               value={formInput.tokenInAmount}
               onUserInput={val => onChangeInput('tokenInAmount', val)}
@@ -283,10 +281,6 @@ export default function CreateAlert({
               <Trans>the price of</Trans>
             </MiniLabel>
             <StyledInputNumber value={formInput.threshold} onUserInput={val => onChangeInput('threshold', val)} />
-
-            <MiniLabel>
-              <Trans>per token</Trans>
-            </MiniLabel>
           </FormControl>
 
           <TradePrice

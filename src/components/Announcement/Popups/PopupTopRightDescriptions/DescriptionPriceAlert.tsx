@@ -49,9 +49,8 @@ const DescriptionPriceAlert = (content: PopupContentAnnouncement) => {
         <Flex alignItems={'center'} style={{ gap: '4px' }} color={isAbove ? theme.primary : theme.red}>
           {isAbove ? <ArrowUp size={16} /> : <ArrowDown size={16} />} {type}
         </Flex>
-        {threshold} {tokenOutSymbol} per token
-        <Text color={theme.subText}>on</Text> <NetworkLogo chainId={chainId} style={logoStyle} />{' '}
-        {NETWORKS_INFO[chainId].name}
+        {threshold} {tokenOutSymbol} <Text color={theme.subText}>on</Text>{' '}
+        <NetworkLogo chainId={chainId} style={logoStyle} /> {NETWORKS_INFO[chainId].name}
       </Row>
     ),
   }
