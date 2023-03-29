@@ -31,6 +31,7 @@ const queryFarms = gql`
       id
       startTime
       endTime
+      isSettled
       pool {
         id
         feeTier
@@ -192,6 +193,7 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
             fId: +farm.id.split('_')[1],
             startTime: Number(farm.startTime),
             endTime: Number(farm.endTime),
+            isSettled: farm.isSettled,
             poolAddress: farm.pool.id,
             pool: p,
             token0,

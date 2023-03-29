@@ -112,7 +112,7 @@ export default function ProAmmPool() {
     [userInfo],
   )
   const activeFarmV2Address =
-    farmV2s?.filter(farm => farm.endTime > Date.now() / 1000).map(farm => farm.poolAddress) || []
+    farmV2s?.filter(farm => farm.endTime > Date.now() / 1000 && !farm.isSettled).map(farm => farm.poolAddress) || []
 
   const { farmPositions, loading, activeFarmAddress: activeFarmV1Address, farms, userFarmInfo } = useFarmPositions()
   const [openPositions, closedPositions] = useMemo(

@@ -124,7 +124,7 @@ export default function ProAmmPoolListItem({ pool, onShared, userPositions }: Li
 
   const isFarmingPool = !!fairlaunchAddress && pid !== -1
   const farmV2 = elasticFarmV2s
-    ?.filter(farm => farm.endTime > Date.now() / 1000)
+    ?.filter(farm => farm.endTime > Date.now() / 1000 && !farm.isSettled)
     .find(farm => farm.poolAddress.toLowerCase() === pool.address.toLowerCase())
   const isFarmV2 = !!farmV2
 

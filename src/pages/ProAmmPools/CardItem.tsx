@@ -85,7 +85,12 @@ export default function ProAmmPoolCardItem({ pool, onShared, userPositions }: Li
   const myLiquidity = userPositions[pool.address]
   const hasLiquidity = pool.address in userPositions
 
-  const farmV2 = farmsV2?.find(item => item.poolAddress.toLowerCase() === pool.address.toLowerCase())
+  const farmV2 = farmsV2?.find(
+    item =>
+      item.endTime > Date.now() / 1000 &&
+      !item.isSettled &&
+      item.poolAddress.toLowerCase() === pool.address.toLowerCase(),
+  )
   const isFarmV2 = !!farmV2
   const maxFarmV2Apr = Math.max(...(farmV2?.ranges.map(item => item.apr || 0) || []))
 

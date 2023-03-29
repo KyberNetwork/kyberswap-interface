@@ -76,6 +76,8 @@ export const ListView = ({
   const [showUnstake, setShowUnstake] = useState(false)
   const [showSelectActiveRange, setShowSelectActiveRange] = useState(false)
 
+  const isEnded = farm.endTime < currentTimestamp || farm.isSettled
+
   return (
     <>
       <Modal isOpen={showSelectActiveRange} onDismiss={() => setShowSelectActiveRange(false)}>
@@ -195,7 +197,7 @@ export const ListView = ({
         </Flex>
 
         <Text textAlign="right" color={theme.text}>
-          {getFormattedTimeFromSecond(farm.endTime - currentTimestamp)}
+          {isEnded ? <Trans>ENDED</Trans> : getFormattedTimeFromSecond(farm.endTime - currentTimestamp)}
         </Text>
 
         <Text textAlign="right" color={theme.text}>
@@ -214,7 +216,10 @@ export const ListView = ({
         </Flex>
 
         <Flex justifyContent="flex-end" sx={{ gap: '4px' }}>
-          <MinimalActionButton disabled={!account || !isApproved} onClick={() => setShowStake(true)}>
+          <MinimalActionButton
+            disabled={!account || !isApproved || isEnded || farm.ranges[activeRangeIndex].isRemoved}
+            onClick={() => setShowStake(true)}
+          >
             <Plus size={16} />
           </MinimalActionButton>
 

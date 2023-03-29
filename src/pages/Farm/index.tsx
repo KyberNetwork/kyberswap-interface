@@ -145,7 +145,7 @@ const Farm = () => {
     })
 
     elasticFarmsV2?.forEach(farm => {
-      if (farm.endTime > Date.now() / 1000) {
+      if (farm.endTime > Date.now() / 1000 && !farm.isSettled) {
         farm.totalRewards.forEach(rw => {
           tokenMap[rw.currency.wrapped.address] = rw.currency
         })

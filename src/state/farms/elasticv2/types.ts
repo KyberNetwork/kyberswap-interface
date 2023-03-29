@@ -19,6 +19,7 @@ export interface ElasticFarmV2 {
   fId: number
   startTime: number
   endTime: number
+  isSettled: boolean
   pool: Pool
   poolAddress: string
   token0: Token
@@ -70,6 +71,7 @@ export interface SubgraphFarmV2 {
   id: string
   startTime: string
   endTime: string
+  isSettled: boolean
   pool: {
     id: string
     feeTier: string

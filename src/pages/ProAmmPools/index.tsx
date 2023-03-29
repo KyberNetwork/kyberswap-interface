@@ -235,7 +235,9 @@ export default function ProAmmPoolList({
           .filter(item => item.endTime > +new Date() / 1000)
           .map(item => item.poolAddress.toLowerCase()) || []
       const activeFarmV2Addresses =
-        elasticFarmV2s?.filter(item => item.endTime > Date.now() / 1000).map(farm => farm.poolAddress) || []
+        elasticFarmV2s
+          ?.filter(item => item.endTime > Date.now() / 1000 && !item.isSettled)
+          .map(farm => farm.poolAddress) || []
       filteredPools = filteredPools.filter(pool =>
         [...activePoolFarmAddress, ...activeFarmV2Addresses].includes(pool.address.toLowerCase()),
       )

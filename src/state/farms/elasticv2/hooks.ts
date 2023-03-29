@@ -62,7 +62,11 @@ export const useFilteredFarmsV2 = () => {
 
     // Filter Active/Ended farms
     let result = farms?.filter(farm =>
-      activeTab === FARM_TAB.MY_FARMS ? true : activeTab === FARM_TAB.ACTIVE ? farm.endTime >= now : farm.endTime < now,
+      activeTab === FARM_TAB.MY_FARMS
+        ? true
+        : activeTab === FARM_TAB.ACTIVE
+        ? farm.endTime >= now && !farm.isSettled
+        : farm.endTime < now || farm.isSettled,
     )
 
     // Filter by search value

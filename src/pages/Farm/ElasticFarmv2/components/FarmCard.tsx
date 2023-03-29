@@ -267,6 +267,8 @@ function FarmCard({ farm, poolAPR, isApproved }: { farm: ElasticFarmV2; poolAPR:
 
   const rangesCount = farm.ranges.length
 
+  const isEnded = farm.isSettled || currentTimestamp > farm.endTime
+
   return (
     <Wrapper>
       <WrapperInner ref={wrapperInnerRef} hasRewards={canUnstake}>
@@ -297,10 +299,10 @@ function FarmCard({ farm, poolAPR, isApproved }: { farm: ElasticFarmV2; poolAPR:
           </RowBetween>
           <RowBetween>
             <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
-              <Trans>Current phase will end in</Trans>
+              {!isEnded && <Trans>Current phase will end in</Trans>}
             </Text>
             <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-              {farm ? getFormattedTimeFromSecond(farm.endTime - currentTimestamp) : <Trans>17D 3H 40M</Trans>}
+              {isEnded ? <Trans>ENDED</Trans> : getFormattedTimeFromSecond(farm.endTime - currentTimestamp)}
             </Text>
           </RowBetween>
           <RowBetween>
@@ -421,7 +423,7 @@ function FarmCard({ farm, poolAPR, isApproved }: { farm: ElasticFarmV2; poolAPR:
               )}
               <ButtonLight
                 onClick={() => setShowStake(true)}
-                disabled={!account || !isApproved || farm.ranges[activeRangeIndex].isRemoved}
+                disabled={!account || !isApproved || farm.ranges[activeRangeIndex].isRemoved || isEnded}
               >
                 <RowFit gap="6px">
                   <Plus size={16} />
