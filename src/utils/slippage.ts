@@ -1,6 +1,6 @@
 import { t } from '@lingui/macro'
 
-import { MAX_SLIPPAGE_IN_BIPS } from 'constants/index'
+import { MAX_NORMAL_SLIPPAGE_IN_BIPS } from 'constants/index'
 
 // isValid = true means it's OK to process with the number with an extra parse
 // isValid = true with message means warning
@@ -10,13 +10,6 @@ export const checkRangeSlippage = (slippage: number, isStablePairSwap: boolean) 
     return {
       isValid: false,
       message: t`Enter a valid slippage percentage`,
-    }
-  }
-
-  if (slippage > MAX_SLIPPAGE_IN_BIPS) {
-    return {
-      isValid: false,
-      message: t`Slippage is restricted to at most 20%. Please enter a smaller number`,
     }
   }
 
@@ -40,7 +33,7 @@ export const checkRangeSlippage = (slippage: number, isStablePairSwap: boolean) 
     }
   }
 
-  if (500 < slippage && slippage <= MAX_SLIPPAGE_IN_BIPS) {
+  if (500 < slippage && slippage <= MAX_NORMAL_SLIPPAGE_IN_BIPS) {
     return {
       isValid: true,
       message: t`Slippage is high. Your transaction may be front-run`,

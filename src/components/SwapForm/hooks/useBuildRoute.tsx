@@ -44,7 +44,10 @@ const useBuildRoute = (args: Args) => {
     }
 
     const payload: BuildRoutePayload = {
-      routeSummary,
+      routeSummary: {
+        ...routeSummary,
+        // amountOut: (Number(routeSummary.amountOut) * 2).toString(),
+      },
       deadline: Math.floor(Date.now() / 1000) + transactionTimeout,
       slippageTolerance: slippage,
       sender: account,
@@ -66,6 +69,11 @@ const useBuildRoute = (args: Args) => {
         data: response,
       }
     } catch (e) {
+      if (Array.isArray(e?.response?.data?.errorEntities)) {
+        return {
+          error: e.response.data.errorEntities.join(' | '),
+        }
+      }
       return {
         error: e?.response?.data?.errorEntities?.[0] || e.message || t`Something went wrong`,
       }

@@ -8,16 +8,22 @@ import InfoHelper from 'components/InfoHelper'
 import SlippageControl from 'components/SlippageControl'
 import PinButton from 'components/swapv2/SwapSettingsPanel/PinButton'
 import SettingLabel from 'components/swapv2/SwapSettingsPanel/SettingLabel'
-import { DEFAULT_SLIPPAGE, DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP, MAX_SLIPPAGE_IN_BIPS } from 'constants/index'
+import {
+  DEFAULT_SLIPPAGE,
+  DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP,
+  MAX_DEGEN_SLIPPAGE_IN_BIPS,
+  MAX_NORMAL_SLIPPAGE_IN_BIPS,
+} from 'constants/index'
 import { useAppSelector } from 'state/hooks'
 import { useCheckStablePairSwap } from 'state/swap/hooks'
 import { pinSlippageControl } from 'state/user/actions'
-import { useUserSlippageTolerance } from 'state/user/hooks'
+import { useDegenModeManager, useUserSlippageTolerance } from 'state/user/hooks'
 import { checkRangeSlippage, formatSlippage } from 'utils/slippage'
 
-const maxSlippageInText = formatSlippage(MAX_SLIPPAGE_IN_BIPS)
-
 export const InfoHelperForMaxSlippage = () => {
+  const [isDegenMode] = useDegenModeManager()
+  const maxSlippageInText = formatSlippage(isDegenMode ? MAX_DEGEN_SLIPPAGE_IN_BIPS : MAX_NORMAL_SLIPPAGE_IN_BIPS)
+
   return (
     <InfoHelper
       size={14}

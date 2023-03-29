@@ -33,7 +33,7 @@ const DegenModeSetting: FC<Props> = ({ className }) => {
       <Flex justifyContent="space-between" className={className}>
         <Flex width="fit-content" alignItems="center">
           <SettingLabel>
-            <Trans>Advanced Mode</Trans>
+            <Trans>Degen Mode</Trans>
           </SettingLabel>
           <InfoHelper
             placement="top"
