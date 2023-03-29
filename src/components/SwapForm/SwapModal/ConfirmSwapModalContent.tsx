@@ -16,12 +16,13 @@ import SlippageWarningNote from 'components/SlippageWarningNote'
 import PriceImpactNote from 'components/SwapForm/PriceImpactNote'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
+import WarningNote from 'components/WarningNote'
 import { Dots } from 'components/swapv2/styleds'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useEncodeSolana } from 'state/swap/hooks'
 import { CloseIcon } from 'theme/components'
-import { minimumAmountAfterSlippage, toCurrencyAmount } from 'utils/currencyAmount'
+import { toCurrencyAmount } from 'utils/currencyAmount'
 import { checkPriceImpact } from 'utils/prices'
 import { checkWarningSlippage } from 'utils/slippage'
 
@@ -62,13 +63,13 @@ type Props = {
   onSwap: () => void
 }
 
-const ConfirmSwapModalContent: React.FC<Props> = ({
+export default function ConfirmSwapModalContent({
   buildResult,
   isBuildingRoute,
   errorWhileBuildRoute,
   onDismiss,
   onSwap,
-}) => {
+}: Props) {
   const theme = useTheme()
   const { isSolana } = useActiveWeb3React()
   const [encodeSolana] = useEncodeSolana()
@@ -90,7 +91,6 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
     if (!buildResult?.data || !routeSummary) {
       return {
         isLoading: isBuildingRoute,
-        errorWhileBuildRoute,
 
         gasUsd: undefined,
         executionPrice: undefined,
@@ -112,7 +112,6 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
 
     return {
       isLoading: isBuildingRoute,
-      errorWhileBuildRoute,
 
       gasUsd,
       executionPrice,
@@ -178,16 +177,8 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
         </RowBetween>
 
         <RowBetween mt="12px">
-          <Text fontWeight={400} fontSize={12} color={errorWhileBuildRoute ? theme.warning : theme.subText}>
-            {errorWhileBuildRoute ? (
-              <>
-                <Trans>Build route is not success to guarantee return minimum amount out</Trans>{' '}
-                {routeSummary && minimumAmountAfterSlippage(routeSummary.parsedAmountOut, slippage).toSignificant(6)}{' '}
-                {routeSummary && routeSummary.parsedAmountOut.currency.symbol}.
-              </>
-            ) : (
-              <Trans>Please review the details of your swap:</Trans>
-            )}
+          <Text fontWeight={400} fontSize={12} color={theme.subText}>
+            <Trans>Please review the details of your swap:</Trans>
           </Text>
           {isBuildingRoute && (
             <Flex width="fit-content" height="100%" alignItems="center" sx={{ gap: '4px' }}>
@@ -233,6 +224,25 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
         <SlippageWarningNote rawSlippage={slippage} isStablePairSwap={isStablePairSwap} />
 
         <PriceImpactNote isDegenMode={isAdvancedMode} priceImpact={priceImpactFromBuild} />
+
+        {errorWhileBuildRoute && (
+          <WarningNote
+            shortText={
+              errorWhileBuildRoute.includes('enough') || errorWhileBuildRoute.includes('min') ? (
+                <Text>
+                  <Trans>
+                    There was an issue while confirming your price and minimum amount received. You may consider
+                    adjusting your <b>Max Slippage</b> and then trying to swap again.
+                  </Trans>
+                </Text>
+              ) : (
+                <Text>
+                  <Trans>There was an issue while trying to confirm your price. Please try to swap again.</Trans>
+                </Text>
+              )
+            }
+          />
+        )}
 
         {isSolana && !encodeSolana ? (
           <GreyCard style={{ textAlign: 'center', borderRadius: '999px', padding: '12px' }} id="confirm-swap-or-send">
@@ -281,5 +291,3 @@ const ConfirmSwapModalContent: React.FC<Props> = ({
     </Wrapper>
   )
 }
-
-export default ConfirmSwapModalContent

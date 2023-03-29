@@ -58,14 +58,12 @@ type Optional<T> = {
 
 export type Props = {
   isLoading: boolean
-  errorWhileBuildRoute?: string
 } & Optional<
   Pick<DetailedRouteSummary, 'gasUsd' | 'parsedAmountOut' | 'executionPrice' | 'amountInUsd' | 'priceImpact'>
 >
 
 export default function SwapDetails({
   isLoading,
-  errorWhileBuildRoute,
   gasUsd,
   parsedAmountOut,
   executionPrice,
@@ -94,28 +92,6 @@ export default function SwapDetails({
     )
 
   const priceImpactResult = checkPriceImpact(priceImpact)
-
-  if (errorWhileBuildRoute) {
-    return (
-      <>
-        <AutoColumn
-          gap="0.5rem"
-          style={{
-            padding: '12px 16px',
-            border: `1px solid ${theme.border}`,
-            borderRadius: '16px',
-            backgroundColor: `${theme.buttonBlack}66`,
-            maxHeight: '158px',
-            overflow: 'auto',
-          }}
-        >
-          <Text fontSize={12} color={theme.text} style={{ wordBreak: 'break-all' }}>
-            {errorWhileBuildRoute}
-          </Text>
-        </AutoColumn>
-      </>
-    )
-  }
 
   return (
     <>

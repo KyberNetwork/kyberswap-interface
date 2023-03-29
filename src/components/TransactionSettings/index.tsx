@@ -126,7 +126,7 @@ export default function TransactionSettings({ hoverBg }: Props) {
                 </SettingLabel>
                 <InfoHelper
                   size={14}
-                  text={t`You can make trades with high price impact and without any confirmation prompts. Enable at your own risk`}
+                  text={t`Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can result in bad rates and loss of funds. Be cautious.`}
                 />
               </Flex>
               <Toggle id="toggle-expert-mode-button" isActive={isDegenMode} toggle={handleToggleAdvancedMode} />

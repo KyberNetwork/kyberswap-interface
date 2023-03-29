@@ -98,7 +98,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     return parseGetRouteResponse(getRouteRawResponse.data, currencyIn, currencyOut)
   }, [currencyIn, currencyOut, getRouteError, getRouteRawResponse])
 
-  const routeSummary = getRouteResponse?.routeSummary
+  const routeSummary = isGettingRoute ? undefined : getRouteResponse?.routeSummary
 
   const buildRoute = useBuildRoute({
     recipient: isDegenMode && recipient ? recipient : '',
@@ -117,12 +117,10 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   })
 
   const handleChangeCurrencyIn = (c: Currency) => {
-    setRouteSummary(undefined)
     onChangeCurrencyIn(c)
   }
 
   const handleChangeCurrencyOut = (c: Currency) => {
-    setRouteSummary(undefined)
     onChangeCurrencyOut(c)
   }
 
