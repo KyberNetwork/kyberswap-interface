@@ -48,15 +48,17 @@ export default function MigrateModal({
   const [value, setValue] = useState('1')
   const [error, setError] = useState('')
   const [approval, approveCallback] = useApproveCallback(
-    TokenAmount.fromRawAmount(
-      new Token(
-        chainId === ChainId.GÖRLI ? ChainId.GÖRLI : ChainId.MAINNET,
-        kyberDAOInfo?.KNCLAddress || '',
-        18,
-        'KNCL',
-      ),
-      parseUnits(value, 18).toString(),
-    ),
+    value
+      ? TokenAmount.fromRawAmount(
+          new Token(
+            chainId === ChainId.GÖRLI ? ChainId.GÖRLI : ChainId.MAINNET,
+            kyberDAOInfo?.KNCLAddress || '',
+            18,
+            'KNCL',
+          ),
+          parseUnits(value, 18).toString(),
+        )
+      : undefined,
     kyberDAOInfo?.KNCAddress,
   )
   const oldKNCBalance = useTokenBalance(kyberDAOInfo?.KNCLAddress || '')

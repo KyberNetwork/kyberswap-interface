@@ -266,10 +266,17 @@ export default function StakeKNCComponent() {
   const { switchToEthereum } = useSwitchToEthereum()
   const { mixpanelHandler } = useMixpanel()
   const [approvalKNC, approveCallback] = useApproveCallback(
-    TokenAmount.fromRawAmount(
-      new Token(chainId === ChainId.GÖRLI ? ChainId.GÖRLI : ChainId.MAINNET, kyberDAOInfo?.KNCAddress || '', 18, 'KNC'),
-      parseUnits(inputValue, 18).toString(),
-    ),
+    inputValue
+      ? TokenAmount.fromRawAmount(
+          new Token(
+            chainId === ChainId.GÖRLI ? ChainId.GÖRLI : ChainId.MAINNET,
+            kyberDAOInfo?.KNCAddress || '',
+            18,
+            'KNC',
+          ),
+          parseUnits(inputValue, 18).toString(),
+        )
+      : undefined,
     kyberDAOInfo?.staking,
   )
 
