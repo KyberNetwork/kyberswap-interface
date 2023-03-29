@@ -69,7 +69,7 @@ export default function TechnicalAnalysis() {
   const [liveChartTab, setLiveChartTab] = useState(ChartTab.First)
   const navigate = useNavigate()
   const [priceChartResolution, setPriceChartResolution] = useState('1h')
-  const now = Math.floor(Date.now() / 1000)
+  const now = Math.floor(Date.now() / 60000) * 60
   const { data, isLoading } = useChartingDataQuery({
     from: now - ({ '1h': 540000, '4h': 2160000, '1d': 12960000 }[priceChartResolution] || 1080000),
     to: now,

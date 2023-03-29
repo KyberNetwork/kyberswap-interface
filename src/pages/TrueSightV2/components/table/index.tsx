@@ -11,10 +11,12 @@ import Pagination from 'components/Pagination'
 import Row, { RowFit } from 'components/Row'
 import useTheme from 'hooks/useTheme'
 import { TechnicalAnalysisContext } from 'pages/TrueSightV2/pages/TechnicalAnalysis'
+import { KyberAITimeframe } from 'pages/TrueSightV2/types'
 import { shortenAddress } from 'utils'
 
 import { ContentWrapper } from '..'
 import SmallKyberScoreMeter from '../SmallKyberScoreMeter'
+import { TimeFrameLegend } from '../chart'
 
 // import OHLCData from './../chart/candles.json'
 
@@ -211,7 +213,8 @@ const formatLevelValue = (value: number): string => {
 
 export const SupportResistanceLevel = () => {
   const theme = useTheme()
-  const { SRLevels, currentPrice } = useContext(TechnicalAnalysisContext)
+  const { SRLevels, currentPrice, resolution, setResolution } = useContext(TechnicalAnalysisContext)
+  console.log('🚀 ~ file: index.tsx:217 ~ SupportResistanceLevel ~ resolution:', resolution)
   const [supports, resistances] = useMemo(() => {
     if (!SRLevels || !currentPrice) return []
 
@@ -232,7 +235,16 @@ export const SupportResistanceLevel = () => {
             {Array(maxLength)
               .fill('')
               .map((i, index) => (
-                <TableCell key={index}>{index === 0 && <Trans>Levels</Trans>}</TableCell>
+                <TableCell key={index}>
+                  {index === 0 && <Trans>Levels</Trans>}
+                  {index === maxLength - 1 && (
+                    <TimeFrameLegend
+                      selected={resolution as KyberAITimeframe}
+                      timeframes={[KyberAITimeframe.ONE_HOUR, KyberAITimeframe.FOUR_HOURS, KyberAITimeframe.ONE_DAY]}
+                      onSelect={t => setResolution?.(t as string)}
+                    />
+                  )}
+                </TableCell>
               ))}
           </>
         </>

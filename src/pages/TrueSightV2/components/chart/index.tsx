@@ -151,6 +151,7 @@ const Element = styled.div<{ active?: boolean; count?: number }>`
   z-index: 2;
   display: flex;
   justify-content: center;
+  text-transform: uppercase;
   ${({ active, theme }) => active && `color: ${theme.text};`}
   :hover {
     filter: brightness(1.2);
@@ -176,7 +177,7 @@ const ActiveElement = styled.div<{ left?: number; width?: number }>`
   `}
 `
 
-const TimeFrameLegend = ({
+export const TimeFrameLegend = ({
   selected,
   timeframes,
   onSelect,
@@ -1754,8 +1755,9 @@ export const Prochart = ({ isBTC }: { isBTC?: boolean }) => {
   const [tvWidget, setTvWidget] = useState<IChartingLibraryWidget | undefined>(undefined)
   const userLocale = useUserLocale()
   const datafeed = useDatafeed(isBTC || false)
-  const { SRLevels, currentPrice } = useContext(TechnicalAnalysisContext)
+  const { SRLevels, currentPrice, resolution, setResolution } = useContext(TechnicalAnalysisContext)
 
+  const variablesRef = useRef({ resolution })
   useEffect(() => {
     if (!ref || !window.TradingView) {
       return
@@ -1826,7 +1828,21 @@ export const Prochart = ({ isBTC }: { isBTC?: boolean }) => {
           setLoading(false)
         })
       setTvWidget(tvWidget)
+      tvWidget
+        .activeChart()
+        .onIntervalChanged()
+        .subscribe(
+          null,
+          r => {
+            const resolution = { 60: '1h', 240: '4h', '1D': '1d' }[r as string] || '1h'
+            if (resolution !== variablesRef.current?.resolution) {
+              setResolution?.(resolution)
+            }
+          },
+          false,
+        )
     })
+
     return () => {
       if (tvWidget !== null) {
         tvWidget.remove()
@@ -1840,6 +1856,7 @@ export const Prochart = ({ isBTC }: { isBTC?: boolean }) => {
   useEffect(() => {
     if (!tvWidget || !SRLevels || !currentPrice) return
     const subscriptionDataLoaded = tvWidget.activeChart().onDataLoaded()
+
     subscriptionDataLoaded.subscribe(null, () => {
       entityIds.current?.forEach(entityId => {
         return entityId && tvWidget.activeChart().removeEntity(entityId)
@@ -1860,7 +1877,13 @@ export const Prochart = ({ isBTC }: { isBTC?: boolean }) => {
         entityIds.current.push(entityId)
       }, true)
     })
-  }, [tvWidget, SRLevels, currentPrice, theme])
+  }, [tvWidget, SRLevels, currentPrice, theme, setResolution])
+
+  useEffect(() => {
+    if (resolution && tvWidget?.activeChart().resolution() !== (resolution as ResolutionString)) {
+      tvWidget?.activeChart().setResolution(resolution as ResolutionString)
+    }
+  }, [resolution, tvWidget])
 
   return (
     <ProLiveChartWrapper fullscreen={fullscreen} onClick={() => setFullscreen(false)}>

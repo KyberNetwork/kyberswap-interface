@@ -116,9 +116,11 @@ export enum ChartTab {
 }
 
 export enum KyberAITimeframe {
-  ONE_DAY = '1D',
-  ONE_WEEK = '7D',
-  ONE_MONTH = '1M',
-  THREE_MONTHS = '3M',
-  SIX_MONTHS = '6M',
+  ONE_HOUR = '1h',
+  FOUR_HOURS = '4h',
+  ONE_DAY = '1d',
+  ONE_WEEK = '7d',
+  ONE_MONTH = '1m',
+  THREE_MONTHS = '3m',
+  SIX_MONTHS = '6m',
 }
