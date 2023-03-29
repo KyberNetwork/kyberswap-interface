@@ -3,18 +3,20 @@ import { useEffect, useState } from 'react'
 import { Flex } from 'rebass'
 import { useGetAlertStatsQuery, useGetListAlertsQuery } from 'services/priceAlert'
 
+import { PrivateAnnouncementType } from 'components/Announcement/type'
 import Loader from 'components/Loader'
 import { useActiveWeb3React } from 'hooks'
 import NoData from 'pages/NotificationCenter/NoData'
 import CommonPagination from 'pages/NotificationCenter/PriceAlerts/CommonPagination'
 import { ITEMS_PER_PAGE } from 'pages/NotificationCenter/const'
+import { subscribePrivateAnnouncement } from 'utils/firebase'
 
 import SingleAlert from './SingleAlert'
 
 const ActiveAlerts = ({ setDisabledClearAll }: { setDisabledClearAll: (v: boolean) => void }) => {
   const { account } = useActiveWeb3React()
   const [page, setPage] = useState(1)
-  const { data, isLoading } = useGetListAlertsQuery(
+  const { data, isLoading, refetch } = useGetListAlertsQuery(
     {
       walletAddress: account || '',
       page,
@@ -23,12 +25,25 @@ const ActiveAlerts = ({ setDisabledClearAll }: { setDisabledClearAll: (v: boolea
     },
     { skip: !account },
   )
-  const { data: alertStat } = useGetAlertStatsQuery(account || '', { skip: !account })
+  const { data: alertStat, refetch: refetchStat } = useGetAlertStatsQuery(account || '', { skip: !account })
   const isMaxQuotaActiveAlert = alertStat ? alertStat.totalActiveAlerts >= alertStat.maxActiveAlerts : false
 
   useEffect(() => {
     setDisabledClearAll(!data?.alerts?.length)
   }, [data?.alerts?.length, setDisabledClearAll])
+
+  useEffect(() => {
+    if (!account) return
+    const unsubscribePrivate = subscribePrivateAnnouncement(account, data => {
+      data.forEach(item => {
+        if (item.templateType === PrivateAnnouncementType.PRICE_ALERT) {
+          refetch()
+          refetchStat()
+        }
+      })
+    })
+    return () => unsubscribePrivate?.()
+  }, [account, refetch, refetchStat])
 
   if (isLoading) {
     return (

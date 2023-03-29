@@ -3,6 +3,7 @@ import { AnnouncementResponse, transformResponseAnnouncement } from 'services/an
 
 import { PrivateAnnouncement } from 'components/Announcement/type'
 import { NOTIFICATION_API, PRICE_ALERT_API, getAnnouncementsTemplateIds } from 'constants/env'
+import { RTK_QUERY_TAGS } from 'constants/index'
 import { CreatePriceAlertPayload, PriceAlert, PriceAlertStat } from 'pages/NotificationCenter/const'
 
 type MetaResponse<T> = {
@@ -28,7 +29,7 @@ type GetListAlertsParams = {
 const priceAlertApi = createApi({
   reducerPath: 'priceAlertApi',
   baseQuery: fetchBaseQuery({ baseUrl: PRICE_ALERT_API }),
-  tagTypes: ['PriceAlerts', 'PriceAlertsHistory', 'PriceAlertsStat'],
+  tagTypes: [RTK_QUERY_TAGS.GET_ALERTS, RTK_QUERY_TAGS.GET_ALERTS_HISTORY, RTK_QUERY_TAGS.GET_ALERTS_STAT],
   endpoints: builder => ({
     getListAlerts: builder.query<GetListAlertsResponseData, GetListAlertsParams>({
       query: params => ({
@@ -38,7 +39,7 @@ const priceAlertApi = createApi({
       transformResponse: (data: any) => {
         return data.data as GetListAlertsResponseData
       },
-      providesTags: ['PriceAlerts'],
+      providesTags: [RTK_QUERY_TAGS.GET_ALERTS],
     }),
     getAlertStats: builder.query<PriceAlertStat, string>({
       query: walletAddress => ({
@@ -48,7 +49,7 @@ const priceAlertApi = createApi({
         },
       }),
       transformResponse: (data: any) => data?.data?.statistics,
-      providesTags: ['PriceAlertsStat'],
+      providesTags: [RTK_QUERY_TAGS.GET_ALERTS_STAT],
     }),
     createPriceAlert: builder.mutation<MetaResponse<{ id: number }>, CreatePriceAlertPayload>({
       query: body => ({
@@ -56,7 +57,7 @@ const priceAlertApi = createApi({
         method: 'POST',
         body,
       }),
-      invalidatesTags: ['PriceAlerts', 'PriceAlertsStat'],
+      invalidatesTags: [RTK_QUERY_TAGS.GET_ALERTS, RTK_QUERY_TAGS.GET_ALERTS_STAT],
     }),
     updatePriceAlert: builder.mutation<void, { isEnabled: boolean; id: number }>({
       query: ({ isEnabled, id }) => ({
@@ -64,7 +65,7 @@ const priceAlertApi = createApi({
         method: 'PATCH',
         body: { isEnabled },
       }),
-      invalidatesTags: ['PriceAlerts', 'PriceAlertsStat'],
+      invalidatesTags: [RTK_QUERY_TAGS.GET_ALERTS, RTK_QUERY_TAGS.GET_ALERTS_STAT],
     }),
     deleteAllAlerts: builder.mutation<void, { account: string }>({
       query: ({ account }) => ({
@@ -72,14 +73,14 @@ const priceAlertApi = createApi({
         method: 'DELETE',
         body: { walletAddress: account },
       }),
-      invalidatesTags: ['PriceAlerts', 'PriceAlertsStat'],
+      invalidatesTags: [RTK_QUERY_TAGS.GET_ALERTS, RTK_QUERY_TAGS.GET_ALERTS_STAT],
     }),
     deleteSingleAlert: builder.mutation<void, number>({
       query: alertId => ({
         url: `/v1/alerts/${alertId}`,
         method: 'DELETE',
       }),
-      invalidatesTags: ['PriceAlerts', 'PriceAlertsStat'],
+      invalidatesTags: [RTK_QUERY_TAGS.GET_ALERTS, RTK_QUERY_TAGS.GET_ALERTS_STAT],
     }),
     getListPriceAlertHistory: builder.query<
       AnnouncementResponse<PrivateAnnouncement>,
@@ -96,7 +97,7 @@ const priceAlertApi = createApi({
           templateIds: getAnnouncementsTemplateIds().PRICE_ALERT,
         },
       }),
-      providesTags: ['PriceAlertsHistory'],
+      providesTags: [RTK_QUERY_TAGS.GET_ALERTS_HISTORY],
       transformResponse: transformResponseAnnouncement,
     }),
     clearSinglePriceAlertHistory: builder.mutation<Response, { account: string; id: number }>({
@@ -107,7 +108,7 @@ const priceAlertApi = createApi({
         },
         method: 'PUT',
       }),
-      invalidatesTags: ['PriceAlertsHistory'],
+      invalidatesTags: [RTK_QUERY_TAGS.GET_ALERTS_HISTORY],
     }),
     clearAllPriceAlertHistory: builder.mutation<Response, { account: string }>({
       query: ({ account }) => ({
@@ -119,7 +120,7 @@ const priceAlertApi = createApi({
         },
         method: 'PUT',
       }),
-      invalidatesTags: ['PriceAlertsHistory'],
+      invalidatesTags: [RTK_QUERY_TAGS.GET_ALERTS_HISTORY],
     }),
   }),
 })
