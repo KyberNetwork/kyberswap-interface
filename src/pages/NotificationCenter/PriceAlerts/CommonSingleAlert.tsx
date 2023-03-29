@@ -96,7 +96,7 @@ const CommonSingleAlert: React.FC<Props> = ({
   onClick,
 }) => {
   const theme = useTheme()
-  const { note } = alertData
+  const { note, disableAfterTrigger } = alertData
   return (
     <Wrapper onClick={onClick} style={{ cursor: onClick ? 'pointer' : 'unset' }}>
       <Flex alignItems={'center'} justifyContent="space-between" height="24px">
@@ -147,7 +147,7 @@ const CommonSingleAlert: React.FC<Props> = ({
             <EmptySupplementaryText />
           )}
 
-          {alertData.disableAfterTrigger ? (
+          {disableAfterTrigger ? (
             <Text
               as="span"
               sx={{

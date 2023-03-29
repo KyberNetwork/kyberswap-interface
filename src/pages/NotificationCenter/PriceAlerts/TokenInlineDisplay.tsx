@@ -8,7 +8,7 @@ type Props = {
   logoUrl?: string
   amount?: string
 }
-const TokenInlineDisplay: React.FC<Props> = ({ symbol, logoUrl, amount }) => {
+const TokenInlineDisplay: React.FC<Props> = ({ symbol, logoUrl = '', amount }) => {
   const theme = useTheme()
   return (
     <Flex
@@ -19,7 +19,7 @@ const TokenInlineDisplay: React.FC<Props> = ({ symbol, logoUrl, amount }) => {
         flexWrap: 'nowrap',
       }}
     >
-      {logoUrl && <Logo srcs={[logoUrl]} style={{ width: 16, height: 16, borderRadius: '50%' }} />}
+      <Logo srcs={[logoUrl]} style={{ width: 16, height: 16, borderRadius: '50%' }} />
       <Text
         sx={{
           fontWeight: 500,
