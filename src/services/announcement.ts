@@ -107,7 +107,7 @@ const AnnouncementApi = createApi({
         },
         method: 'PUT',
       }),
-      invalidatesTags: [RTK_QUERY_TAGS.GET_ALL_PRIVATE_ANN],
+      invalidatesTags: [RTK_QUERY_TAGS.GET_ALL_PRIVATE_ANN, RTK_QUERY_TAGS.GET_PRIVATE_ANN_BY_ID],
     }),
   }),
 })
