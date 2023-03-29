@@ -96,6 +96,7 @@ const CommonSingleAlert: React.FC<Props> = ({
   onClick,
 }) => {
   const theme = useTheme()
+  if (!alertData) return null
   const { note, disableAfterTrigger } = alertData
   return (
     <Wrapper onClick={onClick} style={{ cursor: onClick ? 'pointer' : 'unset' }}>
