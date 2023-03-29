@@ -1,7 +1,7 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { ReactNode, memo, useCallback, useMemo } from 'react'
+import { ReactNode, memo, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
 
 import { ButtonPrimary, ButtonWarning } from 'components/Button'
@@ -32,6 +32,7 @@ export default memo(function ConfirmOrderModal({
   rateInfo,
   note,
   warningMessage,
+  percentDiff,
 }: {
   onSubmit: () => void
   onDismiss: () => void
@@ -45,8 +46,11 @@ export default memo(function ConfirmOrderModal({
   rateInfo: RateInfo
   note?: string
   warningMessage: ReactNode[]
+  percentDiff: number
 }) {
   const { account } = useActiveWeb3React()
+  const [confirmed, setConfirmed] = useState(false)
+  const shouldShowConfirmFlow = percentDiff < -5
 
   const displayCurrencyOut = useMemo(() => {
     return currencyOut?.isNative ? currencyOut.wrapped : currencyOut
@@ -91,7 +95,54 @@ export default memo(function ConfirmOrderModal({
     ]
   }, [account, currencyIn, displayCurrencyOut, inputAmount, rateInfo, outputAmount, expireAt])
 
-  const confirmationContent = useCallback(() => {
+  const renderConfirmPriceButton = () => {
+    if (!shouldShowConfirmFlow) {
+      return null
+    }
+
+    const shouldDisable = confirmed
+    if (shouldDisable) {
+      return (
+        <ButtonPrimary disabled>
+          <Trans>Confirm Price</Trans>
+        </ButtonPrimary>
+      )
+    }
+
+    return (
+      <ButtonWarning onClick={() => setConfirmed(true)}>
+        <Trans>Confirm Price</Trans>
+      </ButtonWarning>
+    )
+  }
+
+  const renderPlaceOrderButton = () => {
+    const shouldDisable = shouldShowConfirmFlow && !confirmed
+
+    if (shouldDisable) {
+      return (
+        <ButtonPrimary disabled>
+          <Trans>Place Order</Trans>
+        </ButtonPrimary>
+      )
+    }
+
+    if (warningMessage?.length) {
+      return (
+        <ButtonWarning onClick={onSubmit}>
+          <Trans>Place Order</Trans>
+        </ButtonWarning>
+      )
+    }
+
+    return (
+      <ButtonPrimary onClick={onSubmit}>
+        <Trans>Place Order</Trans>
+      </ButtonPrimary>
+    )
+  }
+
+  const renderConfirmationContent = () => {
     return (
       <Flex flexDirection={'column'} width="100%">
         <div>
@@ -116,40 +167,38 @@ export default memo(function ConfirmOrderModal({
                 </Column>
               )}
 
-              {warningMessage?.length ? (
-                <ButtonWarning onClick={onSubmit}>
-                  <Trans>Place Order</Trans>
-                </ButtonWarning>
-              ) : (
-                <ButtonPrimary onClick={onSubmit}>
-                  <Trans>Place Order</Trans>
-                </ButtonPrimary>
-              )}
+              <Flex
+                sx={{
+                  gap: '12px',
+                }}
+              >
+                {renderConfirmPriceButton()}
+                {renderPlaceOrderButton()}
+              </Flex>
             </Container>
           )}
         </div>
       </Flex>
     )
-  }, [
-    onDismiss,
-    flowState.errorMessage,
-    listData,
-    onSubmit,
-    marketPrice,
-    note,
-    currencyIn,
-    displayCurrencyOut,
-    warningMessage,
-  ])
+  }
+
+  const handleDismiss = () => {
+    onDismiss()
+
+    // delay till the animation's done
+    setTimeout(() => {
+      setConfirmed(false)
+    }, 200)
+  }
 
   return (
     <TransactionConfirmationModal
       maxWidth={450}
       hash={flowState.txHash}
       isOpen={flowState.showConfirm}
-      onDismiss={onDismiss}
+      onDismiss={handleDismiss}
       attemptingTxn={flowState.attemptingTxn}
-      content={confirmationContent}
+      content={renderConfirmationContent}
       pendingText={flowState.pendingText || t`Placing order`}
     />
   )

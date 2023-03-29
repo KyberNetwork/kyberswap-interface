@@ -4,8 +4,9 @@ import dayjs from 'dayjs'
 import { ethers } from 'ethers'
 import JSBI from 'jsbi'
 import { debounce } from 'lodash'
+import { rgba } from 'polished'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Repeat } from 'react-feather'
+import { Info, Repeat } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -615,11 +616,12 @@ const LimitOrderForm = function LimitOrderForm({
   const warningMessage = useMemo(() => {
     const messages = []
 
-    if (currencyIn && displayRate && !deltaRate.profit && deltaRate.percent) {
+    if (currencyIn && displayRate && !deltaRate.profit && Number(deltaRate.rawPercent) <= -5) {
       messages.push(
         <Text>
           <Trans>
-            Your limit order price is <HightLight>{deltaRate.percent}</HightLight> worse than the current market price
+            Your limit order price is <HightLight>{deltaRate.percent}</HightLight> lower than the market. You will be
+            selling your {orderInfo?.makerAssetSymbol} exceedingly cheap.
           </Trans>
         </Text>,
       )
@@ -651,7 +653,20 @@ const LimitOrderForm = function LimitOrderForm({
     }
 
     return messages
-  }, [currencyIn, currencyOut, displayRate, deltaRate, estimateUSD, outputAmount, chainId, tradeInfo])
+  }, [
+    currencyIn,
+    displayRate,
+    deltaRate.profit,
+    deltaRate.rawPercent,
+    deltaRate.percent,
+    chainId,
+    outputAmount,
+    estimateUSD.rawInput,
+    tradeInfo?.gasFee,
+    tradeInfo?.marketRate,
+    orderInfo?.makerAssetSymbol,
+    currencyOut?.symbol,
+  ])
 
   return (
     <>
@@ -791,6 +806,31 @@ const LimitOrderForm = function LimitOrderForm({
           />
         </Tooltip>
 
+        {Number(deltaRate.rawPercent) >= 30 && (
+          <Flex
+            padding="14px 18px"
+            color={theme.text}
+            alignItems="center"
+            style={{ background: rgba(theme.subText, 0.2) }}
+            sx={{
+              borderRadius: '16px',
+              gap: '8px',
+            }}
+          >
+            <Info
+              size={16}
+              style={{
+                flex: '0 0 16px',
+              }}
+            />
+            <Text fontWeight={400} fontSize={12} color={theme.text}>
+              <Trans>
+                Limit order price is &gt;=30% higher than the market. We just want to make sure this is correct
+              </Trans>
+            </Text>
+          </Flex>
+        )}
+
         {warningMessage.map((mess, i) => (
           <ErrorWarningPanel type="warn" key={i} title={mess} />
         ))}
@@ -829,6 +869,7 @@ const LimitOrderForm = function LimitOrderForm({
         marketPrice={tradeInfo}
         note={note}
         warningMessage={warningMessage}
+        percentDiff={Number(deltaRate.rawPercent)}
       />
 
       <ExpirePicker
