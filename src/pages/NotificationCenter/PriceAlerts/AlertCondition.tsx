@@ -58,7 +58,11 @@ const AlertCondition: React.FC<Props> = ({ alertData, shouldIncludePrefix }) => 
       <Trans>on</Trans>
       <NetworkInlineDisplay chainId={chainId} />
       <Trans>goes</Trans> <AlertType type={alertData.type} />
-      <TokenInlineDisplay symbol={alertData.tokenOutSymbol} amount={alertData.threshold} />
+      <TokenInlineDisplay
+        symbol={alertData.tokenOutSymbol}
+        amount={alertData.threshold}
+        logoUrl={alertData.tokenOutLogoURL}
+      />
     </Flex>
   )
 }
