@@ -176,8 +176,7 @@ export const PriceAlertAnnouncement: React.FC<{
 }> = ({ announcement }) => {
   const theme = useTheme()
   const { templateBody, sentAt } = announcement
-  const { chainId } = templateBody.alert
-  const note = '1232 hehee'
+  const { chainId, note } = templateBody.alert
   const navigate = useNavigateToUrl()
   const onClick = () => {
     navigate(getSwapUrlPriceAlert(templateBody.alert), Number(chainId))
