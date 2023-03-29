@@ -195,7 +195,8 @@ const Menu = () => {
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const { account } = useActiveWeb3React()
   const templates = getAnnouncementsTemplateIds()
-  // todo refactor this
+
+  // todo danh remind BE refactor this by using 1 api
   const params = { account: account ?? '', page: 1, pageSize: ITEMS_PER_PAGE }
   const skip = { skip: !account }
   const { data: dataAll } = useGetPrivateAnnouncementsQuery({ ...params, pageSize: undefined }, skip)

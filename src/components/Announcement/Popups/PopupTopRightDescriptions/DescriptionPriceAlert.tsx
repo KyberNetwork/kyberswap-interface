@@ -8,7 +8,6 @@ import {
   AnnouncementTemplatePriceAlert,
   NotificationType,
   PopupContentAnnouncement,
-  PopupItemType,
 } from 'components/Announcement/type'
 import { Clock } from 'components/Icons'
 import Logo, { NetworkLogo } from 'components/Logo'
@@ -19,8 +18,8 @@ import useTheme from 'hooks/useTheme'
 import { Tab } from 'pages/NotificationCenter/PriceAlerts'
 import { HistoricalPriceAlert, NOTIFICATION_ROUTES, PriceAlertType } from 'pages/NotificationCenter/const'
 
-const DescriptionPriceAlert = (popup: PopupItemType<PopupContentAnnouncement>) => {
-  const { templateBody } = popup.content
+const DescriptionPriceAlert = (content: PopupContentAnnouncement) => {
+  const { templateBody } = content
   const { alert = {} } = templateBody as AnnouncementTemplatePriceAlert
   const {
     chainId: rawChainId,

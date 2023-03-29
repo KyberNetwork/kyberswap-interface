@@ -2,9 +2,9 @@ import { useState } from 'react'
 import { useGetAnnouncementsQuery } from 'services/announcement'
 
 import AnnouncementItem from 'pages/NotificationCenter/GeneralAnnouncement/AnnouncementItem'
-import { ShareContentWrapper, ShareWrapper } from 'pages/NotificationCenter/PriceAlerts'
 import CommonPagination from 'pages/NotificationCenter/PriceAlerts/CommonPagination'
 import { ITEMS_PER_PAGE } from 'pages/NotificationCenter/const'
+import { ShareContentWrapper, ShareWrapper } from 'pages/NotificationCenter/styled'
 
 export default function GeneralAnnouncement() {
   const [page, setPage] = useState(1)

@@ -53,7 +53,7 @@ export const RightColumn = styled.div`
   `}
 `
 
-export const shareStyleInput = css`
+const shareStyleInput = css`
   height: 36px;
   border: 1px solid ${({ theme }) => theme.border};
   border-radius: 44px;
@@ -99,7 +99,7 @@ export const ActionGroup = styled.div`
     justify-content: center;
   `}
 `
-export const shareStyleBtn = css`
+const shareStyleBtn = css`
   width: 140px;
   height: 36px;
   ${({ theme }) => theme.mediaWidth.upToMedium`

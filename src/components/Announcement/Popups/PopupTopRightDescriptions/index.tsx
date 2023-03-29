@@ -16,13 +16,13 @@ type Summary = {
   icon?: ReactNode
 }
 type SummaryMap = {
-  [type in PrivateAnnouncementType]: (popup: PopupItemType<PopupContentAnnouncement>) => Summary
+  [type in PrivateAnnouncementType]: (popup: PopupContentAnnouncement) => Summary
 }
 const MAP_DESCRIPTION: Partial<SummaryMap> = {
   [PrivateAnnouncementType.PRICE_ALERT]: DescriptionPriceAlert,
 }
 
-export default function getPopupTopRightDescriptionByType(popup: PopupItemType<PopupContentAnnouncement>) {
-  const { templateType } = popup.content
-  return (MAP_DESCRIPTION[templateType]?.(popup) ?? {}) as Summary
+export default function getPopupTopRightDescriptionByType({ content }: PopupItemType<PopupContentAnnouncement>) {
+  const { templateType } = content
+  return (MAP_DESCRIPTION[templateType]?.(content) ?? {}) as Summary
 }

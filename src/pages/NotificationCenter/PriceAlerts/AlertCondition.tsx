@@ -22,7 +22,7 @@ export type AlertConditionData = Pick<
 > &
   Partial<Pick<PriceAlert, 'tokenInDecimals'>>
 
-export type Props = {
+type Props = {
   alertData: AlertConditionData
   shouldIncludePrefix: boolean
 }

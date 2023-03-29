@@ -16,9 +16,9 @@ import { useActiveWeb3React } from 'hooks'
 import DeleteAllAlertsButton from 'pages/NotificationCenter/DeleteAllAlertsButton'
 import { MENU_TITLE } from 'pages/NotificationCenter/Menu'
 import NoData from 'pages/NotificationCenter/NoData'
-import { ShareContentWrapper, ShareWrapper } from 'pages/NotificationCenter/PriceAlerts'
 import CommonPagination from 'pages/NotificationCenter/PriceAlerts/CommonPagination'
 import { ITEMS_PER_PAGE } from 'pages/NotificationCenter/const'
+import { ShareContentWrapper, ShareWrapper } from 'pages/NotificationCenter/styled'
 
 import AnnouncementItem from './AnnouncementItem'
 

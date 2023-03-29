@@ -2,7 +2,6 @@ import { stringify } from 'querystring'
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAckPrivateAnnouncementsByIdsMutation, useGetPrivateAnnouncementsByIdsQuery } from 'services/announcement'
-import styled from 'styled-components'
 
 import { getAnnouncementsTemplateIds } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
@@ -12,37 +11,14 @@ import AlertsHistory from 'pages/NotificationCenter/PriceAlerts/AlertsHistory'
 import Header from 'pages/NotificationCenter/PriceAlerts/Header'
 import TitleOnMobile from 'pages/NotificationCenter/PriceAlerts/TitleOnMobile'
 import { ITEMS_PER_PAGE } from 'pages/NotificationCenter/const'
+import { ShareContentWrapper, ShareWrapper } from 'pages/NotificationCenter/styled'
 
 export enum Tab {
   ACTIVE = 'active',
   HISTORY = 'history',
 }
 
-export const ShareWrapper = styled.div`
-  display: flex;
-  width: 100%;
-  height: 100%;
-  flex-direction: column;
-
-  padding: 24px;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    flex: 1;
-    padding: 0;
-
-    ${ShareContentWrapper} {
-      flex: 1;
-      padding: 0 16px;
-    }
-  `}
-`
-// todo danh move to commont file
 // todo mapping name/icon cua cac announcment
-export const ShareContentWrapper = styled.div`
-  display: flex;
-  width: 100%;
-  height: 100%;
-  flex-direction: column;
-`
 
 const useAckAnnouncement = (templateIds: string) => {
   const { account } = useActiveWeb3React()
