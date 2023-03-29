@@ -27,7 +27,6 @@ const Wrapper = styled.div`
       background: ${({ theme }) => theme.buttonBlack};
     }
   }
-
   ${({ theme }) => theme.mediaWidth.upToMedium`
     padding: 16px 0;
   `}

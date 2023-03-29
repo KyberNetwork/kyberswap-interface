@@ -49,7 +49,7 @@ const AlertsHistory = ({ setDisabledClearAll }: { setDisabledClearAll: (v: boole
           flexDirection: 'column',
         }}
       >
-        {notifications.map(alert => (
+        {notifications.map((alert, i) => (
           <SingleAlert key={alert.id} announcement={alert as PrivateAnnouncement<AnnouncementTemplatePriceAlert>} />
         ))}
       </Flex>

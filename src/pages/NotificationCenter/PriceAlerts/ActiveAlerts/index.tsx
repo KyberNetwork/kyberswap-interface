@@ -38,7 +38,9 @@ const ActiveAlerts = ({ setDisabledClearAll }: { setDisabledClearAll: (v: boolea
     )
   }
 
-  if (!data?.alerts?.length) {
+  const totalAlert = data?.alerts?.length ?? 0
+
+  if (!totalAlert) {
     return <NoData msg={t`No price alerts created yet`} />
   }
 
@@ -49,9 +51,9 @@ const ActiveAlerts = ({ setDisabledClearAll }: { setDisabledClearAll: (v: boolea
           flexDirection: 'column',
         }}
       >
-        {data.alerts.map(alert => {
-          return <SingleAlert key={alert.id} alert={alert} isMaxQuotaActiveAlert={isMaxQuotaActiveAlert} />
-        })}
+        {data?.alerts.map(alert => (
+          <SingleAlert key={alert.id} alert={alert} isMaxQuotaActiveAlert={isMaxQuotaActiveAlert} />
+        ))}
       </Flex>
 
       <CommonPagination

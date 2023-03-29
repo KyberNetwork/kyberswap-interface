@@ -25,7 +25,6 @@ export const ShareWrapper = styled.div`
   flex-direction: column;
 
   padding: 24px;
-  padding-bottom: 0;
   ${({ theme }) => theme.mediaWidth.upToMedium`
     flex: 1;
     padding: 0;
