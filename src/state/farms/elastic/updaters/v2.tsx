@@ -1,4 +1,4 @@
-import { CurrencyAmount, Token, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
+import { ChainId, CurrencyAmount, Token, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, Pool } from '@kyberswap/ks-sdk-elastic'
 import { useEffect } from 'react'
 import useSWR from 'swr'
@@ -140,7 +140,7 @@ const FarmUpdaterV2: React.FC<CommonProps> = ({ interval }) => {
 
             return {
               startTime: Number(rawPool.startTime),
-              endTime: Number(rawPool.endTime),
+              endTime: chainId === ChainId.AVAXMAINNET && rawPool.pid === '125' ? 1680104783 : Number(rawPool.endTime),
               pid: rawPool.pid,
               id: rawPool.id,
               feeTarget: rawPool.feeTarget,
@@ -166,7 +166,7 @@ const FarmUpdaterV2: React.FC<CommonProps> = ({ interval }) => {
               }),
               tvlToken0,
               tvlToken1,
-              apr: Number(rawPool.apr),
+              apr: chainId === ChainId.AVAXMAINNET && rawPool.pid === '125' ? 0 : Number(rawPool.apr),
               poolAPR: Number(rawPool.pool.apr),
               stakedTvl: Number(rawPool.stakedTvl),
             }
