@@ -52,7 +52,7 @@ function isResistance(arr: OHLCData[], i: number) {
 function getAverageCandleSize(arr: OHLCData[]): number {
   let sum = 0
   for (let i = 0; i < 100; i++) {
-    sum += arr[i].high - arr[i].low
+    if (arr[i]) sum += arr[i].high - arr[i].low
   }
   return sum / 100
 }
@@ -71,9 +71,9 @@ export default function TechnicalAnalysis() {
   const [priceChartResolution, setPriceChartResolution] = useState('1h')
   const now = Math.floor(Date.now() / 1000)
   const { data, isLoading } = useChartingDataQuery({
-    from: now - 1080000,
+    from: now - ({ '1h': 540000, '4h': 2160000, '1d': 12960000 }[priceChartResolution] || 1080000),
     to: now,
-    candleSize: '1h',
+    candleSize: priceChartResolution,
     currency: liveChartTab === ChartTab.First ? 'USD' : 'BTC',
   })
 
@@ -95,7 +95,7 @@ export default function TechnicalAnalysis() {
     <TechnicalAnalysisContext.Provider
       value={{
         resolution: priceChartResolution,
-        setResolution: (r: string) => setPriceChartResolution(r),
+        setResolution: setPriceChartResolution,
         SRLevels,
         currentPrice: data?.[0].close,
       }}

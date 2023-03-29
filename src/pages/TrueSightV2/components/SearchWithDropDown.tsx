@@ -252,7 +252,7 @@ const SearchWithDropdown = ({ searchValue, onSearch }: SearchProps) => {
     e.stopPropagation()
   }, [])
 
-  const SampleItem = ({ score }: { score?: number }) => (
+  const SampleItem = ({ score, percent }: { score?: number; percent?: number }) => (
     <DropdownItem onClick={() => setSearch('ETH')}>
       <td>
         <RowFit gap="6px">
@@ -300,8 +300,8 @@ const SearchWithDropdown = ({ searchValue, onSearch }: SearchProps) => {
         </Text>
       </td>
       <td style={{ textAlign: 'right' }}>
-        <Text fontSize="12px" color={theme.primary}>
-          +20%
+        <Text fontSize="12px" color={percent && percent < 0 ? theme.red : theme.primary}>
+          {percent ? `${percent}%` : `+20%`}
         </Text>
       </td>
     </DropdownItem>
@@ -382,9 +382,9 @@ const SearchWithDropdown = ({ searchValue, onSearch }: SearchProps) => {
           </tr>
         </thead>
         <tbody>
-          <SampleItem score={20} />
-          <SampleItem score={20} />
-          <SampleItem score={20} />
+          <SampleItem score={-20} percent={-20} />
+          <SampleItem score={-20} percent={-20} />
+          <SampleItem score={-20} percent={-20} />
         </tbody>
       </DropdownSection>
     </>

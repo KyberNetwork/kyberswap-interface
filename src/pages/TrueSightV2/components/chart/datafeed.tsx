@@ -61,7 +61,6 @@ export const useDatafeed = (isBTC: boolean) => {
             pricescale: 10000,
             has_intraday: true,
             has_empty_bars: true,
-            has_weekly_and_monthly: true,
             has_daily: true,
             supported_resolutions: configurationData.supported_resolutions as ResolutionString[],
             data_status: 'streaming',
@@ -80,12 +79,13 @@ export const useDatafeed = (isBTC: boolean) => {
         _onErrorCallback: ErrorCallback,
       ) => {
         if (isLoading) return
-        setResolution?.({ 60: '1h', 240: '4h', 1440: '1d', 5760: '4d' }[resolution as string] || '1h')
+        const candleSize = { 60: '1h', 240: '4h', '1D': '1d' }[resolution as string] || '1h'
+        setResolution?.(candleSize)
 
         const { data } = await getChartingData({
           from: periodParams.from,
           to: periodParams.to,
-          candleSize: { 60: '1h', 240: '4h', 1440: '1d', 5760: '4d' }[resolution as string] || '1h',
+          candleSize: candleSize,
           currency: isBTC ? 'BTC' : 'USD',
         })
         const data2 = data
@@ -116,10 +116,12 @@ export const useDatafeed = (isBTC: boolean) => {
       ) => {
         const getData = async () => {
           const now = Math.floor(Date.now() / 1000)
+          const candleSize = { 60: '1h', 240: '4h', '1D': '1d' }[resolution as string] || '1h'
+
           const { data } = await getChartingData({
-            from: now - 3600,
+            from: now - 345600,
             to: now,
-            candleSize: '1h',
+            candleSize: candleSize,
             currency: isBTC ? 'BTC' : 'USD',
           })
 

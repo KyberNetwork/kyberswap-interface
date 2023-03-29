@@ -29,6 +29,7 @@ import AnimatedLoader from 'components/Loader/AnimatedLoader'
 import Row, { RowBetween } from 'components/Row'
 import {
   ChartingLibraryWidgetOptions,
+  EntityId,
   IChartingLibraryWidget,
   LanguageCode,
   ResolutionString,
@@ -1770,7 +1771,7 @@ export const Prochart = ({ isBTC }: { isBTC?: boolean }) => {
     const widgetOptions: ChartingLibraryWidgetOptions = {
       symbol: 'BTC',
       datafeed: datafeed,
-      interval: '1H' as ResolutionString,
+      interval: '1h' as ResolutionString,
       container: ref,
       library_path: '/charting_library/',
       disabled_features: [
@@ -1792,7 +1793,12 @@ export const Prochart = ({ isBTC }: { isBTC?: boolean }) => {
       theme: theme.darkMode ? 'Dark' : 'Light',
       custom_css_url: '/charting_library/style.css',
       timeframe: '2w',
-      time_frames: [{ text: '2w', resolution: '1H' as ResolutionString, description: '2 Weeks' }],
+      time_frames: [
+        { text: '2w', resolution: '1H' as ResolutionString, description: '2 Weeks' },
+        { text: '1m', resolution: '4H' as ResolutionString, description: '1 Month' },
+        { text: '6m', resolution: '1D' as ResolutionString, description: '6 Months' },
+        { text: '2y', resolution: '4D' as ResolutionString, description: '2 Years' },
+      ],
       locale: (userLocale ? userLocale.slice(0, 2) : 'en') as LanguageCode,
       auto_save_delay: 2,
       saved_data: localStorageState,
@@ -1830,14 +1836,29 @@ export const Prochart = ({ isBTC }: { isBTC?: boolean }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [theme, ref, datafeed])
 
+  const entityIds = useRef<(EntityId | null)[]>([])
   useEffect(() => {
     if (!tvWidget || !SRLevels || !currentPrice) return
-
-    SRLevels?.forEach((level: ISRLevel) => {
-      tvWidget.activeChart().createMultipointShape([{ time: level.timestamp, price: level.value }], {
-        shape: 'horizontal_ray',
-        overrides: { linecolor: currentPrice > level.value ? theme.primary : theme.red, linewidth: 2, linestyle: 2 },
+    const subscriptionDataLoaded = tvWidget.activeChart().onDataLoaded()
+    subscriptionDataLoaded.subscribe(null, () => {
+      entityIds.current?.forEach(entityId => {
+        return entityId && tvWidget.activeChart().removeEntity(entityId)
       })
+      entityIds.current = []
+      SRLevels?.forEach((level: ISRLevel) => {
+        const entityId = tvWidget.activeChart().createMultipointShape([{ time: level.timestamp, price: level.value }], {
+          shape: 'horizontal_ray',
+          lock: true,
+          disableSelection: true,
+          disableSave: true,
+          overrides: {
+            linecolor: currentPrice > level.value ? theme.primary : theme.red,
+            linewidth: 2,
+            linestyle: 2,
+          },
+        })
+        entityIds.current.push(entityId)
+      }, true)
     })
   }, [tvWidget, SRLevels, currentPrice, theme])
 
