@@ -18,6 +18,7 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { ButtonColorScheme, MinimalActionButton } from 'components/YieldPools/ElasticFarmGroup/buttons'
 import { FeeTag } from 'components/YieldPools/ElasticFarmGroup/styleds'
 import { APRTooltipContent } from 'components/YieldPools/FarmingPoolAPRCell'
+import { useSharePoolContext } from 'components/YieldPools/SharePoolContext'
 import { ElasticFarmV2TableRow } from 'components/YieldPools/styleds'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -76,6 +77,7 @@ export const ListView = ({
   const [showUnstake, setShowUnstake] = useState(false)
   const [showSelectActiveRange, setShowSelectActiveRange] = useState(false)
 
+  const setSharePoolAddress = useSharePoolContext()
   const isEnded = farm.endTime < currentTimestamp || farm.isSettled
 
   return (
@@ -143,7 +145,7 @@ export const ListView = ({
             <Flex
               marginLeft="12px"
               onClick={() => {
-                //TODO: setSharePoolAddress(farmingPool.poolAddress)
+                setSharePoolAddress(farm.poolAddress)
               }}
               sx={{
                 cursor: 'pointer',

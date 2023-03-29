@@ -18,6 +18,7 @@ import AspectRatio from 'components/Icons/AspectRatio'
 import Harvest from 'components/Icons/Harvest'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
+import { useSharePoolContext } from 'components/YieldPools/SharePoolContext'
 import { APP_PATHS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
@@ -235,6 +236,8 @@ function FarmCard({ farm, poolAPR, isApproved }: { farm: ElasticFarmV2; poolAPR:
   const [showUnstake, setShowUnstake] = useState(false)
   const [activeRangeIndex, setActiveRangeIndex] = useState(0)
 
+  const setSharePoolAddress = useSharePoolContext()
+
   const wrapperInnerRef = useRef<HTMLDivElement>(null)
 
   const handleFlip = useCallback(() => {
@@ -292,7 +295,11 @@ function FarmCard({ farm, poolAPR, isApproved }: { farm: ElasticFarmV2; poolAPR:
               <IconButton>
                 <CopyHelper toCopy={farm?.poolAddress || ''} />
               </IconButton>
-              <IconButton>
+              <IconButton
+                onClick={() => {
+                  setSharePoolAddress(farm.poolAddress)
+                }}
+              >
                 <Share2 size={14} fill="currentcolor" />
               </IconButton>
             </RowFit>
@@ -456,9 +463,13 @@ function FarmCard({ farm, poolAPR, isApproved }: { farm: ElasticFarmV2; poolAPR:
             </RowFit>
             <RowFit gap="8px">
               <IconButton>
-                <CopyHelper toCopy={farm?.poolAddress || ''} />
+                <CopyHelper toCopy={farm.poolAddress} />
               </IconButton>
-              <IconButton>
+              <IconButton
+                onClick={() => {
+                  setSharePoolAddress(farm.poolAddress)
+                }}
+              >
                 <Share2 size={14} fill="currentcolor" />
               </IconButton>
             </RowFit>
