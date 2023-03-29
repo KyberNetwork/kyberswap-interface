@@ -159,21 +159,21 @@ export const ButtonSecondary = styled(Base)`
   }
 `
 
-export const ButtonOutlined = styled(Base)`
-  border: 1px solid ${({ theme }) => theme.subText};
+export const ButtonOutlined = styled(Base)<{ color?: string }>`
+  border: 1px solid ${({ theme, color }) => color || theme.subText};
   background-color: transparent;
-  color: ${({ theme }) => theme.subText};
+  color: ${({ theme, color }) => color || theme.subText};
   border-radius: 999px;
   font-size: 14px;
 
   &:focus {
-    box-shadow: 0 0 0 1px ${({ theme }) => theme.subText};
+    box-shadow: 0 0 0 1px ${({ theme, color }) => color || theme.subText};
   }
   &:hover {
-    box-shadow: 0 0 0 1px ${({ theme }) => theme.subText};
+    box-shadow: 0 0 0 1px ${({ theme, color }) => color || theme.subText};
   }
   &:active {
-    box-shadow: 0 0 0 1px ${({ theme }) => theme.subText};
+    box-shadow: 0 0 0 1px ${({ theme, color }) => color || theme.subText};
   }
   &:disabled {
     color: ${({ theme, altDisabledStyle }) => (altDisabledStyle ? 'white' : theme.border)};

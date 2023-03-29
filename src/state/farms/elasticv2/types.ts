@@ -32,6 +32,7 @@ export interface UserFarmV2Info {
   poolAddress: string
   nftId: BigNumber
   position: Position
+  stakedPosition: Position
   fId: number
   rangeId: number
   liquidity: BigNumber

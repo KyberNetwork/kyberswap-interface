@@ -2,12 +2,13 @@ import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import React, { useCallback, useRef, useState } from 'react'
-import { Plus, Share2 } from 'react-feather'
+import { Info, Plus, Share2 } from 'react-feather'
 import { Link } from 'react-router-dom'
-import { Text } from 'rebass'
+import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import bgimg from 'assets/images/card-background-2.png'
+import { ReactComponent as DownSvg } from 'assets/svg/down.svg'
 import { ButtonLight, ButtonOutlined, TextButtonPrimary } from 'components/Button'
 import Column from 'components/Column'
 import CopyHelper from 'components/Copy'
@@ -16,6 +17,7 @@ import Divider from 'components/Divider'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import AspectRatio from 'components/Icons/AspectRatio'
 import Harvest from 'components/Icons/Harvest'
+import InfoHelper from 'components/InfoHelper'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { useSharePoolContext } from 'components/YieldPools/SharePoolContext'
@@ -121,14 +123,9 @@ const RangeItemWrapper = styled(Column)<{ active?: boolean }>`
 `
 
 const UnstakeButton = styled(ButtonOutlined)`
-  color: var(--subtext);
-  background-color: var(--subtext-alpha-50);
+  padding: 12px 6px;
   :hover {
-    background-color: var(--subtext-alpha-50);
     opacity: 0.9;
-  }
-  &:active {
-    box-shadow: 0 0 0 1pt var(--subtext-alpha-50);
   }
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
@@ -177,6 +174,18 @@ export const RangeItem = ({
   const stakedPos = useUserFarmV2Info(farmId, rangeInfo.index)
   const myDepositUSD = stakedPos.reduce((total, item) => item.stakedUsdValue + total, 0)
 
+  const canUpdateLiquidity = stakedPos.some(item => item.liquidity.gt(item.stakedLiquidity))
+  const myTotalPosUSDValue = stakedPos.reduce((total, item) => item.positionUsdValue + total, 0)
+  const notStakedUSD = myTotalPosUSDValue - myDepositUSD
+
+  let amountToken0 = CurrencyAmount.fromRawAmount(token0, 0)
+  let amountToken1 = CurrencyAmount.fromRawAmount(token1, 0)
+
+  stakedPos.forEach(item => {
+    amountToken0 = amountToken0.add(item.position.amount0)
+    amountToken1 = amountToken1.add(item.position.amount1)
+  })
+
   return (
     <RangeItemWrapper active={active} onClick={onRangeClick}>
       <RowBetween>
@@ -220,9 +229,63 @@ export const RangeItem = ({
           <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
             <Trans>My Deposit</Trans>
           </Text>
-          <Text fontSize="16px" fontWeight="500" lineHeight="16px" color={theme.text}>
-            {formatDollarAmount(myDepositUSD)}
-          </Text>
+
+          <MouseoverTooltip
+            placement="bottom"
+            width={canUpdateLiquidity ? '270px' : 'fit-content'}
+            text={
+              !stakedPos.length ? (
+                ''
+              ) : canUpdateLiquidity ? (
+                <Flex
+                  sx={{
+                    flexDirection: 'column',
+                    gap: '6px',
+                    fontSize: '12px',
+                    lineHeight: '16px',
+                    fontWeight: 400,
+                  }}
+                >
+                  <Text as="span" color={theme.subText}>
+                    <Trans>
+                      You still have {formatDollarAmount(notStakedUSD)} in liquidity to stake to earn even more farming
+                      rewards
+                    </Trans>
+                  </Text>
+                  <Text as="span" color={theme.text}>
+                    Staked: {formatDollarAmount(myDepositUSD)}
+                  </Text>
+                  <Text as="span" color={theme.warning}>
+                    Not staked: {formatDollarAmount(notStakedUSD)}
+                  </Text>
+                </Flex>
+              ) : (
+                <>
+                  <Flex alignItems="center" sx={{ gap: '4px' }}>
+                    <CurrencyLogo currency={amountToken0.currency} size="16px" />
+                    {amountToken0.toSignificant(6)} {amountToken0.currency.symbol}
+                  </Flex>
+
+                  <Flex alignItems="center" sx={{ gap: '4px' }}>
+                    <CurrencyLogo currency={amountToken1.currency} size="16px" />
+                    {amountToken1.toSignificant(6)} {amountToken1.currency.symbol}
+                  </Flex>
+                </>
+              )
+            }
+          >
+            <Text
+              fontSize="16px"
+              fontWeight="500"
+              alignItems="center"
+              display="flex"
+              color={canUpdateLiquidity ? theme.warning : theme.text}
+            >
+              {formatDollarAmount(myTotalPosUSDValue)}
+              {canUpdateLiquidity && <Info size={14} style={{ marginLeft: '4px' }} />}
+              {!!stakedPos.length && <DownSvg />}
+            </Text>
+          </MouseoverTooltip>
         </Column>
       </RowBetween>
     </RangeItemWrapper>
@@ -246,6 +309,14 @@ function FarmCard({ farm, poolAPR, isApproved }: { farm: ElasticFarmV2; poolAPR:
 
   const currentTimestamp = Math.floor(Date.now() / 1000)
   const stakedPos = useUserFarmV2Info(farm.fId, farm.ranges[activeRangeIndex].index)
+  let amountToken0 = CurrencyAmount.fromRawAmount(farm.token0, 0)
+  let amountToken1 = CurrencyAmount.fromRawAmount(farm.token1, 0)
+
+  stakedPos.forEach(item => {
+    amountToken0 = amountToken0.add(item.position.amount0)
+    amountToken1 = amountToken1.add(item.position.amount1)
+  })
+
   const canUnstake = stakedPos.length > 0
 
   const hasRewards = stakedPos.some(item => item.unclaimedRewards.some(rw => rw.greaterThan('0')))
@@ -257,6 +328,10 @@ function FarmCard({ farm, poolAPR, isApproved }: { farm: ElasticFarmV2; poolAPR:
   })
 
   const myDepositUSD = stakedPos.reduce((total, item) => item.stakedUsdValue + total, 0)
+
+  const canUpdateLiquidity = stakedPos.some(item => item.liquidity.gt(item.stakedLiquidity))
+  const myTotalPosUSDValue = stakedPos.reduce((total, item) => item.positionUsdValue + total, 0)
+  const notStakedUSD = myTotalPosUSDValue - myDepositUSD
 
   const { harvest } = useFarmV2Action()
   const handleHarvest = useCallback(() => {
@@ -416,16 +491,80 @@ function FarmCard({ farm, poolAPR, isApproved }: { farm: ElasticFarmV2; poolAPR:
                 <Text fontSize="12px" fontWeight="500" color={theme.subText}>
                   <Trans>My Deposit</Trans>
                 </Text>
-                <Text fontSize="16px" fontWeight="500" color={theme.text}>
-                  {stakedPos.length ? formatDollarAmount(myDepositUSD) : '--'}
-                </Text>
+                <MouseoverTooltip
+                  placement="bottom"
+                  width="fit-content"
+                  text={
+                    !stakedPos.length ? (
+                      ''
+                    ) : (
+                      <>
+                        <Flex alignItems="center" sx={{ gap: '4px' }}>
+                          <CurrencyLogo currency={amountToken0.currency} size="16px" />
+                          {amountToken0.toSignificant(6)} {amountToken0.currency.symbol}
+                        </Flex>
+
+                        <Flex alignItems="center" sx={{ gap: '4px' }}>
+                          <CurrencyLogo currency={amountToken1.currency} size="16px" />
+                          {amountToken1.toSignificant(6)} {amountToken1.currency.symbol}
+                        </Flex>
+                      </>
+                    )
+                  }
+                >
+                  <Text
+                    fontSize="16px"
+                    fontWeight="500"
+                    alignItems="center"
+                    display="flex"
+                    color={canUpdateLiquidity ? theme.warning : theme.text}
+                  >
+                    {formatDollarAmount(myTotalPosUSDValue)}
+                    {!!stakedPos.length && <DownSvg />}
+                  </Text>
+                </MouseoverTooltip>
               </Column>
             </RowBetween>
             <Divider />
             <Row gap="12px">
               {canUnstake && (
-                <UnstakeButton onClick={() => setShowUnstake(p => !p)}>
-                  {stakedPos?.length} Positions Staked
+                <UnstakeButton
+                  color={canUpdateLiquidity ? theme.warning : theme.subText}
+                  onClick={() => setShowUnstake(p => !p)}
+                >
+                  {canUpdateLiquidity && (
+                    <InfoHelper
+                      color={theme.warning}
+                      size={14}
+                      style={{ marginLeft: 0, marginRight: '2px' }}
+                      width="270px"
+                      text={
+                        <Flex
+                          sx={{
+                            flexDirection: 'column',
+                            gap: '6px',
+                            fontSize: '12px',
+                            lineHeight: '16px',
+                            fontWeight: 400,
+                          }}
+                        >
+                          <Text as="span" color={theme.subText}>
+                            <Trans>
+                              You still have {formatDollarAmount(notStakedUSD)} in liquidity to stake to earn even more
+                              farming rewards
+                            </Trans>
+                          </Text>
+                          <Text as="span" color={theme.text}>
+                            Staked: {formatDollarAmount(myDepositUSD)}
+                          </Text>
+                          <Text as="span" color={theme.warning}>
+                            Not staked: {formatDollarAmount(notStakedUSD)}
+                          </Text>
+                        </Flex>
+                      }
+                    />
+                  )}
+                  Manage Positions
                 </UnstakeButton>
               )}
               <ButtonLight

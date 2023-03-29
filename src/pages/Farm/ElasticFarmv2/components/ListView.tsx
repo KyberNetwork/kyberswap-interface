@@ -1,7 +1,7 @@
 import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useCallback, useState } from 'react'
-import { Minus, Plus, Share2, X } from 'react-feather'
+import { Info, Minus, Plus, Share2, X } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 
@@ -62,6 +62,16 @@ export const ListView = ({
   })
 
   const myDepositUSD = stakedPos.reduce((total, item) => item.stakedUsdValue + total, 0)
+  const canUpdateLiquidity = stakedPos.some(item => item.liquidity.gt(item.stakedLiquidity))
+  const myTotalPosUSDValue = stakedPos.reduce((total, item) => item.positionUsdValue + total, 0)
+  const notStakedUSD = myTotalPosUSDValue - myDepositUSD
+  let amountToken0 = CurrencyAmount.fromRawAmount(farm.token0, 0)
+  let amountToken1 = CurrencyAmount.fromRawAmount(farm.token1, 0)
+
+  stakedPos.forEach(item => {
+    amountToken0 = amountToken0.add(item.position.amount0)
+    amountToken1 = amountToken1.add(item.position.amount1)
+  })
 
   const { harvest } = useFarmV2Action()
   const handleHarvest = useCallback(() => {
@@ -202,10 +212,63 @@ export const ListView = ({
           {isEnded ? <Trans>ENDED</Trans> : getFormattedTimeFromSecond(farm.endTime - currentTimestamp)}
         </Text>
 
-        <Text textAlign="right" color={theme.text}>
-          {formatDollarAmount(myDepositUSD)}
-        </Text>
+        <Text
+          fontSize="16px"
+          fontWeight="500"
+          alignItems="center"
+          display="flex"
+          justifyContent="flex-end"
+          color={canUpdateLiquidity ? theme.warning : theme.text}
+        >
+          <MouseoverTooltip
+            placement="bottom"
+            width={canUpdateLiquidity ? '270px' : 'fit-content'}
+            text={
+              !stakedPos.length ? (
+                ''
+              ) : canUpdateLiquidity ? (
+                <Flex
+                  sx={{
+                    flexDirection: 'column',
+                    gap: '6px',
+                    fontSize: '12px',
+                    lineHeight: '16px',
+                    fontWeight: 400,
+                  }}
+                >
+                  <Text as="span" color={theme.subText}>
+                    <Trans>
+                      You still have {formatDollarAmount(notStakedUSD)} in liquidity to stake to earn even more farming
+                      rewards
+                    </Trans>
+                  </Text>
+                  <Text as="span" color={theme.text}>
+                    Staked: {formatDollarAmount(myDepositUSD)}
+                  </Text>
+                  <Text as="span" color={theme.warning}>
+                    Not staked: {formatDollarAmount(notStakedUSD)}
+                  </Text>
+                </Flex>
+              ) : (
+                <>
+                  <Flex alignItems="center" sx={{ gap: '4px' }}>
+                    <CurrencyLogo currency={amountToken0.currency} size="16px" />
+                    {amountToken0.toSignificant(6)} {amountToken0.currency.symbol}
+                  </Flex>
 
+                  <Flex alignItems="center" sx={{ gap: '4px' }}>
+                    <CurrencyLogo currency={amountToken1.currency} size="16px" />
+                    {amountToken1.toSignificant(6)} {amountToken1.currency.symbol}
+                  </Flex>
+                </>
+              )
+            }
+          >
+            {formatDollarAmount(myTotalPosUSDValue)}
+            {canUpdateLiquidity && <Info size={14} style={{ marginLeft: '4px' }} />}
+            {!!stakedPos.length && <DownSvg />}
+          </MouseoverTooltip>
+        </Text>
         <Flex flexDirection="column" alignItems="flex-end" sx={{ gap: '8px' }}>
           {userTotalRewards.map((amount, i) => (
             <Flex alignItems="center" sx={{ gap: '4px' }} key={amount.currency.symbol || i}>

@@ -59,7 +59,7 @@ export default function InfoHelper({
   const close = useCallback(() => setShow(false), [setShow])
 
   return (
-    <InfoHelperWrapper style={style}>
+    <InfoHelperWrapper style={style} onClick={e => e.stopPropagation()}>
       <Tooltip
         text={text}
         show={show}

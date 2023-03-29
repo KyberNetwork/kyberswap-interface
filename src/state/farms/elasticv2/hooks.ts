@@ -174,6 +174,28 @@ export const useFarmV2Action = () => {
     [farmContract, addTransactionWithType, account],
   )
 
+  const updateLiquidity = useCallback(
+    async (fId: number, rangeId: number, nftIds: number[]) => {
+      if (!farmContract) {
+        throw new Error(CONTRACT_NOT_FOUND_MSG)
+      }
+      try {
+        const estimateGas = await farmContract.estimateGas.addLiquidity(fId, rangeId, nftIds)
+        const tx = await farmContract.addLiquidity(fId, rangeId, nftIds, {
+          gasLimit: estimateGas,
+        })
+        addTransactionWithType({
+          hash: tx.hash,
+          type: TRANSACTION_TYPE.ELASTIC_DEPOSIT_LIQUIDITY,
+        })
+        return tx.hash
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    [addTransactionWithType, farmContract],
+  )
+
   const withdraw = useCallback(
     async (fId: number, nftIds: number[]) => {
       if (!farmContract) {
@@ -216,5 +238,5 @@ export const useFarmV2Action = () => {
     [addTransactionWithType, farmContract],
   )
 
-  return { approve, deposit, withdraw, harvest }
+  return { approve, deposit, withdraw, harvest, updateLiquidity }
 }

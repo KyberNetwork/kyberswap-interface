@@ -1,13 +1,16 @@
 import { Trans } from '@lingui/macro'
 import React, { useCallback, useMemo, useState } from 'react'
-import { Minus, X } from 'react-feather'
-import { Text } from 'rebass'
+import { Info, X } from 'react-feather'
+import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
+import { ReactComponent as DownSvg } from 'assets/svg/down.svg'
 import { ButtonPrimary } from 'components/Button'
+import CurrencyLogo from 'components/CurrencyLogo'
 import Modal from 'components/Modal'
 import PriceVisualize from 'components/ProAmm/PriceVisualize'
 import Row, { RowBetween, RowFit, RowWrap } from 'components/Row'
+import { MouseoverTooltip } from 'components/Tooltip'
 import useIsTickAtLimit from 'hooks/useIsTickAtLimit'
 import useTheme from 'hooks/useTheme'
 import { useFarmV2Action } from 'state/farms/elasticv2/hooks'
@@ -86,6 +89,10 @@ export const NFTItem = ({
   )
   const ticksAtLimit = useIsTickAtLimit(pos.position.pool.fee, pos.position.tickLower, pos.position.tickUpper)
 
+  const canUpdateLiquidity = pos.liquidity.gt(pos.stakedLiquidity)
+  const notStakedUSD = pos.positionUsdValue - pos.stakedUsdValue
+  const theme = useTheme()
+
   return (
     <>
       {pos && (
@@ -102,8 +109,58 @@ export const NFTItem = ({
               ticksAtLimit={ticksAtLimit}
             />
           )}
-          <Text fontSize="12px" lineHeight="16px" marginTop="12px">
-            {formatDollarAmount(pos.stakedUsdValue)}
+          <Text
+            fontSize="12px"
+            fontWeight="500"
+            marginTop="12px"
+            color={canUpdateLiquidity ? theme.warning : theme.text}
+          >
+            <MouseoverTooltip
+              placement="bottom"
+              width={canUpdateLiquidity ? '270px' : 'fit-content'}
+              text={
+                canUpdateLiquidity ? (
+                  <Flex
+                    sx={{
+                      flexDirection: 'column',
+                      gap: '6px',
+                      fontSize: '12px',
+                      lineHeight: '16px',
+                      fontWeight: 400,
+                    }}
+                  >
+                    <Text as="span" color={theme.subText}>
+                      <Trans>
+                        You still have {formatDollarAmount(notStakedUSD)} in liquidity to stake to earn even more
+                        farming rewards
+                      </Trans>
+                    </Text>
+                    <Text as="span" color={theme.text}>
+                      Staked: {formatDollarAmount(pos.stakedUsdValue)}
+                    </Text>
+                    <Text as="span" color={theme.warning}>
+                      Not staked: {formatDollarAmount(notStakedUSD)}
+                    </Text>
+                  </Flex>
+                ) : (
+                  <>
+                    <Flex alignItems="center" sx={{ gap: '4px' }}>
+                      <CurrencyLogo currency={pos.position.amount0.currency} size="16px" />
+                      {pos.position.amount0.toSignificant(6)} {pos.position.amount0.currency.symbol}
+                    </Flex>
+
+                    <Flex alignItems="center" sx={{ gap: '4px' }}>
+                      <CurrencyLogo currency={pos.position.amount1.currency} size="16px" />
+                      {pos.position.amount1.toSignificant(6)} {pos.position.amount1.currency.symbol}
+                    </Flex>
+                  </>
+                )
+              }
+            >
+              {formatDollarAmount(pos.positionUsdValue)}
+              {canUpdateLiquidity && <Info size={14} style={{ marginLeft: '4px' }} />}
+              <DownSvg />
+            </MouseoverTooltip>
           </Text>
         </NFTItemWrapper>
       )}
@@ -120,7 +177,7 @@ const UnstakeWithNFTsModal = ({
 }: {
   isOpen: boolean
   onDismiss: () => void
-  stakedPos?: UserFarmV2Info[]
+  stakedPos: UserFarmV2Info[]
   farm: ElasticFarmV2
   activeRangeIndex: number
 }) => {
@@ -135,21 +192,30 @@ const UnstakeWithNFTsModal = ({
     [selectedPos],
   )
 
+  const canUpdatePositions = stakedPos
+    .filter(item => item.liquidity.gt(item.stakedLiquidity))
+    .map(item => +item.nftId.toString())
+
   const handlePosClick = useCallback((tokenId: string) => {
     setSelectedPos(prev => {
       return { ...prev, [tokenId]: !prev[tokenId] }
     })
   }, [])
-  const { withdraw } = useFarmV2Action()
+  const { withdraw, updateLiquidity } = useFarmV2Action()
+
   const handleUnstake = useCallback(async () => {
-    if (!farm) return
     const txHash = await withdraw(farm.fId, selectedPosArray)
     if (txHash) onDismiss()
   }, [withdraw, farm, selectedPosArray, onDismiss])
 
-  const priceLower = farm && convertTickToPrice(farm.token0, farm.token1, activeRange?.tickLower || 0)
+  const handleUpdateLiquidity = async () => {
+    const txHash = await updateLiquidity(farm.fId, activeRange.index, selectedPosArray)
+    if (txHash) onDismiss()
+  }
 
-  const priceUpper = farm && convertTickToPrice(farm.token0, farm.token1, activeRange?.tickUpper || 0)
+  const priceLower = convertTickToPrice(farm.token0, farm.token1, activeRange?.tickLower || 0)
+  const priceUpper = convertTickToPrice(farm.token0, farm.token1, activeRange?.tickUpper || 0)
+
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss} maxWidth="min(724px, 100vw)">
       <Wrapper>
@@ -193,20 +259,30 @@ const UnstakeWithNFTsModal = ({
             )}
           </NFTsWrapper>
         </ContentWrapper>
-        <ButtonPrimary
-          disabled={selectedPosArray.length === 0}
-          width="fit-content"
-          alignSelf="flex-end"
-          padding="8px 18px"
-          onClick={handleUnstake}
-        >
-          <Text fontSize="14px" lineHeight="20px" fontWeight={500}>
-            <Row gap="6px">
-              <Minus size={16} />
-              <Trans>Unstake Selected</Trans>
-            </Row>
-          </Text>
-        </ButtonPrimary>
+
+        <Flex sx={{ gap: '8px' }} justifyContent="flex-end">
+          {!!canUpdatePositions.length && (
+            <ButtonPrimary
+              disabled={!selectedPosArray.length || !selectedPosArray.every(item => canUpdatePositions.includes(item))}
+              width="fit-content"
+              alignSelf="flex-end"
+              padding="8px 18px"
+              onClick={handleUpdateLiquidity}
+            >
+              <Trans>Update Selected</Trans>
+            </ButtonPrimary>
+          )}
+
+          <ButtonPrimary
+            disabled={selectedPosArray.length === 0}
+            width="fit-content"
+            alignSelf="flex-end"
+            padding="8px 18px"
+            onClick={handleUnstake}
+          >
+            <Trans>Unstake Selected</Trans>
+          </ButtonPrimary>
+        </Flex>
       </Wrapper>
     </Modal>
   )
