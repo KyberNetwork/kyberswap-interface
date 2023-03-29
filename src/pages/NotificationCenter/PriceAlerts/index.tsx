@@ -18,8 +18,6 @@ export enum Tab {
   HISTORY = 'history',
 }
 
-// todo mapping name/icon cua cac announcment
-
 const useAckAnnouncement = (templateIds: string) => {
   const { account } = useActiveWeb3React()
   const [ackAnnouncement] = useAckPrivateAnnouncementsByIdsMutation()

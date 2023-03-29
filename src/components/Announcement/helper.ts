@@ -50,9 +50,9 @@ export const useNavigateToUrl = () => {
         navigate(actionURL)
         return
       }
-      const { pathname, host } = new URL(actionURL)
+      const { pathname, host, search } = new URL(actionURL)
       if (window.location.host === host) {
-        navigate(pathname)
+        navigate(`${pathname}${search}`)
       } else {
         window.open(actionURL)
       }

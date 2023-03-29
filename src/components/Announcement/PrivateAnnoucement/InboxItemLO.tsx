@@ -1,5 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
+import { t } from '@lingui/macro'
 import { Repeat } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 
@@ -25,6 +25,7 @@ function InboxItemBridge({
   onRead,
   style,
   time,
+  title,
 }: PrivateAnnouncementProp<AnnouncementTemplateLimitOrder>) {
   const { templateBody, isRead, templateType } = announcement
   const theme = useTheme()
@@ -63,9 +64,7 @@ function InboxItemBridge({
       <InboxItemRow>
         <RowItem>
           <InboxIcon type={templateType} chainId={chainId} />
-          <Title isRead={isRead}>
-            <Trans>Limit Order</Trans>
-          </Title>
+          <Title isRead={isRead}>{title}</Title>
           {!isRead && <Dot />}
         </RowItem>
         <RowItem>

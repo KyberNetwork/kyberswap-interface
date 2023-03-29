@@ -9,9 +9,9 @@ import { ReactComponent as AlarmIcon } from 'assets/svg/alarm.svg'
 import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
 import { ReactComponent as DropIcon } from 'assets/svg/drop.svg'
 import { ReactComponent as LimitOrderIcon } from 'assets/svg/limit_order.svg'
-import { ReactComponent as MailIcon } from 'assets/svg/mail.svg'
 import { PrivateAnnouncementType } from 'components/Announcement/type'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
+import MailIcon from 'components/Icons/MailIcon'
 import NotificationIcon from 'components/Icons/NotificationIcon'
 import { getAnnouncementsTemplateIds } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
@@ -71,11 +71,7 @@ const MenuForDesktop = ({ unread }: { unread: Unread }) => {
               gap: '8px',
             }}
           >
-            <MenuItem
-              href={NOTIFICATION_ROUTES.GENERAL}
-              icon={<MailIcon width="16px" height="16px" />}
-              text={t`General`}
-            />
+            <MenuItem href={NOTIFICATION_ROUTES.GENERAL} icon={<MailIcon size={16} />} text={t`General`} />
             <Divider />
             <MenuItem
               href={NOTIFICATION_ROUTES.PRICE_ALERTS}
@@ -146,12 +142,7 @@ const MenuForMobile = ({ unread }: { unread: Unread }) => {
         text={t`All Notifications`}
         unread={unread.ALL}
       />
-      <MenuItem
-        isMobile
-        href={NOTIFICATION_ROUTES.GENERAL}
-        icon={<MailIcon width="16px" height="16px" />}
-        text={t`General`}
-      />
+      <MenuItem isMobile href={NOTIFICATION_ROUTES.GENERAL} icon={<MailIcon size={16} />} text={t`General`} />
       <MenuItem
         isMobile
         href={NOTIFICATION_ROUTES.PRICE_ALERTS}

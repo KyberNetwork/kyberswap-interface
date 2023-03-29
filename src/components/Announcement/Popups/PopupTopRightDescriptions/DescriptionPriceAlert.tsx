@@ -4,11 +4,7 @@ import { ArrowDown, ArrowUp } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import { CSSProperties } from 'styled-components'
 
-import {
-  AnnouncementTemplatePriceAlert,
-  NotificationType,
-  PopupContentAnnouncement,
-} from 'components/Announcement/type'
+import { AnnouncementTemplatePriceAlert, NotificationType } from 'components/Announcement/type'
 import { Clock } from 'components/Icons'
 import Logo, { NetworkLogo } from 'components/Logo'
 import Row from 'components/Row'
@@ -16,11 +12,9 @@ import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
 import { Tab } from 'pages/NotificationCenter/PriceAlerts'
-import { HistoricalPriceAlert, NOTIFICATION_ROUTES, PriceAlertType } from 'pages/NotificationCenter/const'
+import { NOTIFICATION_ROUTES, PriceAlertType } from 'pages/NotificationCenter/const'
 
-const DescriptionPriceAlert = (content: PopupContentAnnouncement) => {
-  const { templateBody } = content
-  const { alert = {} } = templateBody as AnnouncementTemplatePriceAlert
+const DescriptionPriceAlert = (content: AnnouncementTemplatePriceAlert) => {
   const {
     chainId: rawChainId,
     tokenInAmount,
@@ -30,7 +24,7 @@ const DescriptionPriceAlert = (content: PopupContentAnnouncement) => {
     tokenOutLogoURL,
     threshold,
     type,
-  } = alert as HistoricalPriceAlert // todo danh refactor
+  } = content.alert
   const chainId = Number(rawChainId) as ChainId
   const logoStyle: CSSProperties = { width: 14, height: 14, borderRadius: '50%' }
   const theme = useTheme()

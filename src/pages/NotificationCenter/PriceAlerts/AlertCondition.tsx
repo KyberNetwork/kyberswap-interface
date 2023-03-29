@@ -47,7 +47,7 @@ const AlertCondition: React.FC<Props> = ({ alertData, shouldIncludePrefix }) => 
         lineHeight: '20px',
       }}
     >
-      {shouldIncludePrefix && <Trans>Alert when the price of</Trans>}
+      {shouldIncludePrefix && <Trans>Alert when</Trans>}
       <TokenInlineDisplay
         symbol={alertData.tokenInSymbol}
         logoUrl={alertData.tokenInLogoURL}

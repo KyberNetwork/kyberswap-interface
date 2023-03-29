@@ -2,9 +2,9 @@ import { ReactNode } from 'react'
 
 import DescriptionPriceAlert from 'components/Announcement/Popups/PopupTopRightDescriptions/DescriptionPriceAlert'
 import {
+  AnnouncementTemplate,
   NotificationType,
   PopupContentAnnouncement,
-  PopupItemType,
   PrivateAnnouncementType,
 } from 'components/Announcement/type'
 
@@ -15,14 +15,16 @@ type Summary = {
   link: string
   icon?: ReactNode
 }
+
 type SummaryMap = {
-  [type in PrivateAnnouncementType]: (popup: PopupContentAnnouncement) => Summary
-}
-const MAP_DESCRIPTION: Partial<SummaryMap> = {
-  [PrivateAnnouncementType.PRICE_ALERT]: DescriptionPriceAlert,
+  [type in PrivateAnnouncementType]: (popup: AnnouncementTemplate) => Summary
 }
 
-export default function getPopupTopRightDescriptionByType({ content }: PopupItemType<PopupContentAnnouncement>) {
-  const { templateType } = content
-  return (MAP_DESCRIPTION[templateType]?.(content) ?? {}) as Summary
+const MAP_DESCRIPTION = {
+  [PrivateAnnouncementType.PRICE_ALERT]: DescriptionPriceAlert,
+} as Partial<SummaryMap>
+
+export default function getPopupTopRightDescriptionByType(content: PopupContentAnnouncement) {
+  const { templateType, templateBody } = content
+  return MAP_DESCRIPTION[templateType]?.(templateBody)
 }

@@ -1,5 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
+import { t } from '@lingui/macro'
 import { Flex } from 'rebass'
 
 import { PrivateAnnouncementProp } from 'components/Announcement/PrivateAnnoucement'
@@ -25,6 +25,7 @@ function InboxItemBridge({
   onRead,
   style,
   time,
+  title,
 }: PrivateAnnouncementProp<AnnouncementTemplatePoolPosition>) {
   const { templateBody, isRead, templateType } = announcement
   const theme = useTheme()
@@ -57,9 +58,7 @@ function InboxItemBridge({
       <InboxItemRow>
         <RowItem>
           <InboxIcon type={templateType} chainId={chainId} />
-          <Title isRead={isRead}>
-            <Trans>Liquidity Pool Alert</Trans>
-          </Title>
+          <Title isRead={isRead}>{title}</Title>
           {!isRead && <Dot />}
         </RowItem>
         <RowItem>

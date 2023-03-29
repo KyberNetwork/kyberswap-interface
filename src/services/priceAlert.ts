@@ -137,4 +137,3 @@ export const {
   useGetListPriceAlertHistoryQuery,
 } = priceAlertApi
 export default priceAlertApi
-// todo combine: get vs clear

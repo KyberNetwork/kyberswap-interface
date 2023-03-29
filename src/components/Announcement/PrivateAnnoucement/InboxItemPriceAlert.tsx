@@ -29,6 +29,7 @@ function InboxItemBridge({
   onRead,
   style,
   time,
+  title,
 }: PrivateAnnouncementProp<AnnouncementTemplatePriceAlert>) {
   const { templateBody, isRead, templateType } = announcement
   const theme = useTheme()
@@ -56,9 +57,7 @@ function InboxItemBridge({
       <InboxItemRow>
         <RowItem>
           <InboxIcon type={templateType} chainId={chainId} />
-          <Title isRead={isRead}>
-            <Trans>Price Alert</Trans>
-          </Title>
+          <Title isRead={isRead}>{title}</Title>
           {!isRead && <Dot />}
         </RowItem>
         <RowItem>

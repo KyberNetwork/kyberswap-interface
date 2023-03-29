@@ -8,6 +8,7 @@ import {
 } from 'services/announcement'
 import styled from 'styled-components'
 
+import InboxItemNotificationCenter from 'components/Announcement/PrivateAnnoucement/NotificationCenter'
 import { useInvalidateTagAnnouncement } from 'components/Announcement/helper'
 import { PrivateAnnouncement, PrivateAnnouncementType } from 'components/Announcement/type'
 import { getAnnouncementsTemplateIds } from 'constants/env'
@@ -19,8 +20,6 @@ import NoData from 'pages/NotificationCenter/NoData'
 import CommonPagination from 'pages/NotificationCenter/PriceAlerts/CommonPagination'
 import { ITEMS_PER_PAGE } from 'pages/NotificationCenter/const'
 import { ShareContentWrapper, ShareWrapper } from 'pages/NotificationCenter/styled'
-
-import AnnouncementItem from './AnnouncementItem'
 
 const HeaderWrapper = styled.div`
   display: flex;
@@ -104,7 +103,7 @@ export default function GeneralAnnouncement({ type }: { type?: PrivateAnnounceme
         </HeaderWrapper>
         {data?.notifications?.length ? (
           data?.notifications?.map(item => (
-            <AnnouncementItem key={item.id} announcement={item as PrivateAnnouncement} />
+            <InboxItemNotificationCenter key={item.id} announcement={item as PrivateAnnouncement} />
           ))
         ) : (
           <NoData msg={account ? t`No notification yet` : t`Connect wallet to view notification`} />

@@ -5,9 +5,11 @@ export const Wrapper = styled.div`
   background-color: ${({ theme }) => theme.background};
   font-size: 12px;
   padding: 20px 0px;
-  gap: 14px;
+  gap: 12px;
   display: flex;
   align-items: flex-start;
+  flex-direction: column;
+  width: 100%;
   cursor: pointer;
   :nth-child(2) {
     padding: 20px 0px;
@@ -43,15 +45,4 @@ export const Time = styled.div<{ isLeft?: boolean }>`
   ${({ theme }) => theme.mediaWidth.upToMedium`
     font-size: 10px;
   `}
-`
-
-export const RowItem = styled.div`
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  gap: 6px;
-  align-items: flex-start;
-  flex: 1;
-  justify-content: space-between;
-  max-width: 100%;
 `

@@ -1,5 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
+import { t } from '@lingui/macro'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 
@@ -30,7 +30,13 @@ const NetWorkRow = styled.div`
   gap: 4px;
 `
 
-function InboxItemBridge({ announcement, onRead, style, time }: PrivateAnnouncementProp<AnnouncementTemplateBridge>) {
+function InboxItemBridge({
+  announcement,
+  onRead,
+  style,
+  time,
+  title,
+}: PrivateAnnouncementProp<AnnouncementTemplateBridge>) {
   const { templateBody, isRead, templateType } = announcement
   const { status, srcTokenSymbol, srcAmount, dstChainId, srcChainId } = templateBody.transaction
   const isSuccess = Number(status) === MultichainTransferStatus.Success
@@ -51,9 +57,7 @@ function InboxItemBridge({ announcement, onRead, style, time }: PrivateAnnouncem
       <InboxItemRow>
         <RowItem>
           <InboxIcon type={templateType} />
-          <Title isRead={isRead}>
-            <Trans>Bridge Token</Trans>
-          </Title>
+          <Title isRead={isRead}>{title}</Title>
           {!isRead && <Dot />}
         </RowItem>
         <RowItem>

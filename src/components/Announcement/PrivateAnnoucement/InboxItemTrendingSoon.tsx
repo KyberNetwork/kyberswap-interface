@@ -1,4 +1,3 @@
-import { Trans } from '@lingui/macro'
 import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 
@@ -30,6 +29,7 @@ function InboxItemBridge({
   onRead,
   style,
   time,
+  title,
 }: PrivateAnnouncementProp<AnnouncementTemplateTrendingSoon>) {
   const { templateBody, isRead, templateType } = announcement
   const [token1, token2 = token1, token3 = token1] = templateBody.tokens
@@ -44,9 +44,7 @@ function InboxItemBridge({
       <InboxItemRow>
         <RowItem>
           <InboxIcon type={templateType} />
-          <Title isRead={isRead}>
-            <Trans>Trending Soon</Trans>
-          </Title>
+          <Title isRead={isRead}>{title}</Title>
           {!isRead && <Dot />}
         </RowItem>
       </InboxItemRow>

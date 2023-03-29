@@ -3,16 +3,11 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as AlarmIcon } from 'assets/svg/alarm.svg'
-import { getSwapUrlPriceAlert } from 'components/Announcement/PrivateAnnoucement/InboxItemPriceAlert'
-import { useNavigateToUrl } from 'components/Announcement/helper'
-import { AnnouncementTemplatePriceAlert, PrivateAnnouncement } from 'components/Announcement/type'
 import Toggle from 'components/Toggle'
 import useTheme from 'hooks/useTheme'
 import AlertCondition, { AlertConditionData } from 'pages/NotificationCenter/PriceAlerts/AlertCondition'
 import { PriceAlert } from 'pages/NotificationCenter/const'
-import { formatTime } from 'utils/time'
 
-// todo split file ???
 const Wrapper = styled.div`
   padding: 20px 0;
 
@@ -161,58 +156,6 @@ const CommonSingleAlert: React.FC<Props> = ({
           )}
         </SupplementaryTextWrapper>
       ) : null}
-    </Wrapper>
-  )
-}
-
-const AlertConditionWrapperAnnouncement = styled(AlertConditionWrapper)`
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-  flex-direction: column;
-`}
-`
-
-export const PriceAlertAnnouncement: React.FC<{
-  announcement: PrivateAnnouncement<AnnouncementTemplatePriceAlert>
-}> = ({ announcement }) => {
-  const theme = useTheme()
-  const { templateBody, sentAt } = announcement
-  const { chainId, note } = templateBody.alert
-  const navigate = useNavigateToUrl()
-  const onClick = () => {
-    navigate(getSwapUrlPriceAlert(templateBody.alert), Number(chainId))
-  }
-  return (
-    <Wrapper onClick={onClick} style={{ cursor: 'pointer' }}>
-      <Flex alignItems={'center'} justifyContent="space-between" height="24px">
-        <Flex
-          sx={{
-            fontWeight: '500',
-            fontSize: '14px',
-            color: theme.text,
-            alignItems: 'center',
-            gap: '4px',
-          }}
-        >
-          <AlarmIcon width={16} height={16} />
-          <span>
-            <Trans>Price Alert</Trans>
-          </span>
-        </Flex>
-        <TimeText>{formatTime(sentAt)}</TimeText>
-      </Flex>
-
-      <AlertConditionWrapperAnnouncement>
-        <AlertCondition alertData={templateBody.alert} shouldIncludePrefix={true} />
-        {note ? (
-          <SupplementaryTextWrapper>
-            {note ? (
-              <Text as="span" sx={{ whiteSpace: 'break-spaces', overflowWrap: 'anywhere' }}>
-                <Trans>Note</Trans>: {note}
-              </Text>
-            ) : null}
-          </SupplementaryTextWrapper>
-        ) : null}
-      </AlertConditionWrapperAnnouncement>
     </Wrapper>
   )
 }

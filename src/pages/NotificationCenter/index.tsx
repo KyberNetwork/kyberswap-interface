@@ -10,9 +10,10 @@ import GeneralAnnouncement from 'pages/NotificationCenter/GeneralAnnouncement'
 import Menu from 'pages/NotificationCenter/Menu'
 import Overview from 'pages/NotificationCenter/Overview'
 import PriceAlerts from 'pages/NotificationCenter/PriceAlerts'
-import PrivateAnnouncement from 'pages/NotificationCenter/PrivateAnnouncement'
 import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
 import VerifyComponent from 'pages/Verify/VerifyComponent'
+
+import PrivateAnnouncement from './PrivateAnnouncement'
 
 const PageWrapper = styled.div`
   padding: 32px 50px;
