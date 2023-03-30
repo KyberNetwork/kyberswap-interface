@@ -30,7 +30,7 @@ import { SEOSwap } from 'components/SEO'
 import { ShareButtonWithModal } from 'components/ShareModal'
 import SlippageWarningNote from 'components/SlippageWarningNote'
 import PriceImpactNote from 'components/SwapForm/PriceImpactNote'
-import SlippageSetting from 'components/SwapForm/SlippageSetting'
+import SlippageSettingGroup from 'components/SwapForm/SlippageSettingGroup'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import TokenWarningModal from 'components/TokenWarningModal'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -874,7 +874,7 @@ export default function Swap() {
                         <AddressInputPanel id="recipient" value={recipient} onChange={handleRecipientChange} />
                       )}
 
-                      {!showWrap && <SlippageSetting isStablePairSwap={isStableCoinSwap} />}
+                      <SlippageSettingGroup isWrapOrUnwrap={showWrap} isStablePairSwap={isStableCoinSwap} />
 
                       <TrendingSoonTokenBanner
                         currencyIn={currencyIn}

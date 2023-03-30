@@ -31,10 +31,9 @@ type Props = {
   shouldDisable: boolean
   callback: () => void
   size?: number
-  abort?: () => void
   skipFirst?: boolean
 }
-const RefreshButton: React.FC<Props> = ({ shouldDisable, callback, size, abort, skipFirst }) => {
+const RefreshButton: React.FC<Props> = ({ shouldDisable, callback, size, skipFirst }) => {
   const svgRef = useRef<SVGSVGElement>(null)
 
   useEffect(() => {
@@ -62,7 +61,7 @@ const RefreshButton: React.FC<Props> = ({ shouldDisable, callback, size, abort, 
     return () => {
       clearInterval(interval)
     }
-  }, [callback, abort, shouldDisable, skipFirst])
+  }, [callback, shouldDisable, skipFirst])
 
   return (
     <IconButton
