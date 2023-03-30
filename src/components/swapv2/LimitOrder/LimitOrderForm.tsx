@@ -627,7 +627,7 @@ const LimitOrderForm = function LimitOrderForm({
         <Text>
           <Trans>
             Your limit order price is <HightLight>{deltaRate.percent}</HightLight> lower than the market. You will be
-            selling your {orderInfo?.makerAssetSymbol} exceedingly cheap.
+            selling your {currencyIn.symbol} exceedingly cheap.
           </Trans>
         </Text>,
       )
@@ -660,18 +660,17 @@ const LimitOrderForm = function LimitOrderForm({
 
     return messages
   }, [
+    chainId,
     currencyIn,
-    displayRate,
+    currencyOut?.symbol,
+    deltaRate.percent,
     deltaRate.profit,
     deltaRate.rawPercent,
-    deltaRate.percent,
-    chainId,
-    outputAmount,
+    displayRate,
     estimateUSD.rawInput,
+    outputAmount,
     tradeInfo?.gasFee,
     tradeInfo?.marketRate,
-    orderInfo?.makerAssetSymbol,
-    currencyOut?.symbol,
   ])
 
   return (
