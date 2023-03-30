@@ -46,7 +46,7 @@ const SlippageWarningNote: React.FC<Props> = ({ className, rawSlippage, isStable
             text={
               <Text fontSize={12}>
                 Read more{' '}
-                <a href={SLIPPAGE_EXPLANATION_URL}>
+                <a href={SLIPPAGE_EXPLANATION_URL} target="_blank" rel="noreferrer">
                   <b>here</b>
                 </a>
                 .
