@@ -1,4 +1,4 @@
-import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
+import { Currency, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { stringify } from 'querystring'
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -55,7 +55,7 @@ import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { Field } from 'state/swap/actions'
 import { useDefaultsFromURLSearch, useInputCurrency, useOutputCurrency, useSwapActionHandlers } from 'state/swap/hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
-import { useExpertModeManager, useShowLiveChart, useShowTokenInfo, useShowTradeRoutes } from 'state/user/hooks'
+import { useDegenModeManager, useShowLiveChart, useShowTokenInfo, useShowTradeRoutes } from 'state/user/hooks'
 import { DetailedRouteSummary } from 'types/route'
 import { getLimitOrderContract } from 'utils'
 import { getTradeComposition } from 'utils/aggregationRouting'
@@ -67,17 +67,6 @@ import PopulatedSwapForm from './PopulatedSwapForm'
 
 const TradeRouting = lazy(() => import('components/TradeRouting'))
 const LiveChart = lazy(() => import('components/LiveChart'))
-
-const BetaTag = styled.span`
-  font-size: 10px;
-  color: ${({ theme }) => theme.subText};
-  position: absolute;
-  top: 4px;
-  right: -38px;
-  padding: 2px 6px;
-  background-color: ${({ theme }) => theme.buttonGray};
-  border-radius: 10px;
-`
 
 const TutorialIcon = styled(TutorialSvg)`
   width: 22px;
@@ -185,7 +174,7 @@ export default function Swap() {
 
   const theme = useTheme()
 
-  const [isExpertMode] = useExpertModeManager()
+  const [isDegenMode] = useDegenModeManager()
 
   const { onCurrencySelection, onUserInput } = useSwapActionHandlers()
 
@@ -265,10 +254,10 @@ export default function Swap() {
   const isLoadedTokenDefault = useIsLoadedTokenDefault()
 
   useEffect(() => {
-    if (isExpertMode) {
-      mixpanelHandler(MIXPANEL_TYPE.ADVANCED_MODE_ON)
+    if (isDegenMode) {
+      mixpanelHandler(MIXPANEL_TYPE.DEGEN_MODE_ON)
     }
-  }, [isExpertMode, mixpanelHandler])
+  }, [isDegenMode, mixpanelHandler])
 
   const shareUrl = useMemo(() => {
     const tokenIn = isSwapPage ? currencyIn : limitState.currencyIn
@@ -329,7 +318,7 @@ export default function Swap() {
       />
       <PageWrapper>
         <Banner />
-        {chainId !== ChainId.ETHW && <TopTrendingSoonTokensInCurrentNetwork />}
+        <TopTrendingSoonTokensInCurrentNetwork />
         <Container>
           <SwapFormWrapper isShowTutorial={isShowTutorial}>
             <RowBetween>
@@ -345,9 +334,6 @@ export default function Swap() {
                       <Text fontSize={20} fontWeight={500}>
                         <Trans>Limit</Trans>
                       </Text>
-                      <BetaTag>
-                        <Trans>Beta</Trans>
-                      </BetaTag>
                     </Tab>
                   )}
                 </TabWrapper>
@@ -362,15 +348,13 @@ export default function Swap() {
                     </StyledActionButtonSwapForm>
                   }
                 />
-                {chainId !== ChainId.ETHW && (
-                  <MobileTokenInfo
-                    currencies={isSwapPage ? currencies : currenciesLimit}
-                    onClick={() => {
-                      mixpanelHandler(MIXPANEL_TYPE.SWAP_TOKEN_INFO_CLICK)
-                      onToggleActionTab(TAB.INFO)
-                    }}
-                  />
-                )}
+                <MobileTokenInfo
+                  currencies={isSwapPage ? currencies : currenciesLimit}
+                  onClick={() => {
+                    mixpanelHandler(MIXPANEL_TYPE.SWAP_TOKEN_INFO_CLICK)
+                    onToggleActionTab(TAB.INFO)
+                  }}
+                />
                 <ShareButtonWithModal
                   title={t`Share this with your friends!`}
                   url={shareUrl}
@@ -387,12 +371,12 @@ export default function Swap() {
                   aria-label="Swap Settings"
                 >
                   <MouseoverTooltip
-                    text={!isExpertMode ? <Trans>Settings</Trans> : <Trans>Advanced mode is on!</Trans>}
+                    text={!isDegenMode ? <Trans>Settings</Trans> : <Trans>Degen mode is on!</Trans>}
                     placement="top"
                     width="fit-content"
                   >
                     <span id={TutorialIds.BUTTON_SETTING_SWAP_FORM}>
-                      <TransactionSettingsIcon fill={isExpertMode ? theme.warning : theme.subText} />
+                      <TransactionSettingsIcon fill={isDegenMode ? theme.warning : theme.subText} />
                     </span>
                   </MouseoverTooltip>
                 </StyledActionButtonSwapForm>
@@ -409,7 +393,7 @@ export default function Swap() {
               </Text>
             </RowBetween>
 
-            {chainId !== ChainId.ETHW && !isSolana && (
+            {!isSolana && (
               <RowBetween>
                 <PairSuggestion
                   ref={refSuggestPair}

@@ -151,6 +151,20 @@ export function formatNumberWithPrecisionRange(number: number, minPrecision = 2,
   return number.toLocaleString(undefined, options)
 }
 
+// Take only 6 fraction digits
+// This returns a different result compared to toFixed
+// 0.000297796.toFixed(6) = 0.000298
+// truncateFloatNumber(0.000297796) = 0.000297
+const truncateFloatNumber = (num: number, maximumFractionDigits = 6) => {
+  const [wholePart, fractionalPart] = String(num).split('.')
+
+  if (!fractionalPart) {
+    return wholePart
+  }
+
+  return `${wholePart}.${fractionalPart.slice(0, maximumFractionDigits)}`
+}
+
 export function formattedNum(number: string, usd = false, fractionDigits = 5) {
   if (number === '' || number === undefined) {
     return usd ? '$0' : 0
@@ -162,6 +176,10 @@ export function formattedNum(number: string, usd = false, fractionDigits = 5) {
     return (usd ? '$' : '') + toK(num.toFixed(0))
   }
 
+  if (num >= 1000) {
+    return usd ? formatDollarFractionAmount(num, 0) : Number(num.toFixed(0)).toLocaleString()
+  }
+
   if (num === 0) {
     if (usd) {
       return '$0'
@@ -169,12 +187,8 @@ export function formattedNum(number: string, usd = false, fractionDigits = 5) {
     return 0
   }
 
-  if (num < 0.0001 && num > 0) {
+  if (num < 0.0001) {
     return usd ? '< $0.0001' : '< 0.0001'
-  }
-
-  if (num >= 1000) {
-    return usd ? formatDollarFractionAmount(num, 0) : Number(num.toFixed(0)).toLocaleString()
   }
 
   if (usd) {
@@ -185,7 +199,11 @@ export function formattedNum(number: string, usd = false, fractionDigits = 5) {
     }
   }
 
-  return Number(num.toFixed(fractionDigits)).toLocaleString()
+  // this function can be replaced when `roundingMode` of `Intl.NumberFormat` is widely supported
+  // this function is to avoid this case
+  // 0.000297796.toFixed(6) = 0.000298
+  // truncateFloatNumber(0.000297796) = 0.000297
+  return truncateFloatNumber(num, fractionDigits)
 }
 
 export function formattedNumLong(num: number, usd = false) {
@@ -352,19 +370,17 @@ export const getTokenLogoURL = (inputAddress: string, chainId: ChainId): string 
     address = WETH[chainId].address
   }
 
-  if (chainId !== ChainId.ETHW) {
-    if (address.toLowerCase() === KNC[chainId].address.toLowerCase()) {
-      return 'https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/develop/src/assets/images/KNC.svg'
-    }
+  if (address.toLowerCase() === KNC[chainId].address.toLowerCase()) {
+    return 'https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/develop/src/assets/images/KNC.svg'
+  }
 
-    if (address.toLowerCase() === KNCL_ADDRESS.toLowerCase()) {
-      return 'https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/develop/src/assets/images/KNCL.png'
-    }
+  if (address.toLowerCase() === KNCL_ADDRESS.toLowerCase()) {
+    return 'https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/develop/src/assets/images/KNCL.png'
+  }
 
-    // WBTC
-    if (address.toLowerCase() === '0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f') {
-      return 'https://assets.coingecko.com/coins/images/7598/thumb/wrapped_bitcoin_wbtc.png?1548822744'
-    }
+  // WBTC
+  if (address.toLowerCase() === '0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f') {
+    return 'https://assets.coingecko.com/coins/images/7598/thumb/wrapped_bitcoin_wbtc.png?1548822744'
   }
 
   const imageURL = store.getState()?.lists?.mapWhitelistTokens?.[chainId]?.[address]?.logoURI
@@ -459,5 +475,5 @@ export const isChristmasTime = () => {
 
 export const getLimitOrderContract = (chainId: ChainId) => {
   const { production, development } = NETWORKS_INFO_CONFIG[chainId]?.limitOrder ?? {}
-  return [ENV_TYPE.PROD, ENV_TYPE.ADPR].includes(ENV_LEVEL) ? production : development
+  return [ENV_TYPE.PROD, ENV_TYPE.STG].includes(ENV_LEVEL) ? production : development
 }

@@ -293,11 +293,13 @@ const LimitOrderForm = function LimitOrderForm({
 
   const enoughAllowance = useMemo(() => {
     try {
+      const allowanceSubtracted = parsedActiveOrderMakingAmount
+        ? currentAllowance?.subtract(parsedActiveOrderMakingAmount)
+        : undefined
       return Boolean(
         currencyIn?.isNative ||
-          (parsedActiveOrderMakingAmount &&
-            parseInputAmount &&
-            currentAllowance?.subtract(parsedActiveOrderMakingAmount).greaterThan(parseInputAmount)),
+          (parseInputAmount &&
+            (allowanceSubtracted?.greaterThan(parseInputAmount) || allowanceSubtracted?.equalTo(parseInputAmount))),
       )
     } catch (error) {
       return false
@@ -647,6 +649,7 @@ const LimitOrderForm = function LimitOrderForm({
         </Text>,
       )
     }
+
     return messages
   }, [currencyIn, currencyOut, displayRate, deltaRate, estimateUSD, outputAmount, chainId, tradeInfo])
 
@@ -655,7 +658,6 @@ const LimitOrderForm = function LimitOrderForm({
       <Flex flexDirection={'column'} style={{ gap: '1rem' }}>
         <Tooltip text={inputError} show={!!inputError} placement="top" style={styleTooltip} width="fit-content">
           <CurrencyInputPanel
-            maxLength={16}
             error={!!inputError}
             value={inputAmount}
             positionMax="top"
@@ -750,7 +752,9 @@ const LimitOrderForm = function LimitOrderForm({
               symbolIn={currencyIn?.symbol}
               symbolOut={currencyOut?.symbol}
             />
-          ) : null}
+          ) : (
+            <div />
+          )}
           <ArrowRotate
             rotate={rotate}
             onClick={isEdit ? undefined : handleRotateClick}

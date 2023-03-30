@@ -1,4 +1,4 @@
-import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { useEffect, useMemo, useState } from 'react'
 import { Box, Flex } from 'rebass'
 import { parseGetRouteResponse } from 'services/route/utils'
@@ -42,7 +42,7 @@ export type SwapFormProps = {
   routeSummary: DetailedRouteSummary | undefined
   setRouteSummary: React.Dispatch<React.SetStateAction<DetailedRouteSummary | undefined>>
 
-  isAdvancedMode: boolean
+  isDegenMode: boolean
   slippage: number
   feeConfig: FeeConfig | undefined
   transactionTimeout: number
@@ -61,7 +61,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     balanceIn,
     balanceOut,
     setRouteSummary,
-    isAdvancedMode,
+    isDegenMode,
     slippage,
     feeConfig,
     transactionTimeout,
@@ -70,7 +70,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     onChangeCurrencyOut,
   } = props
 
-  const { chainId, isEVM, isSolana } = useActiveWeb3React()
+  const { isEVM, isSolana } = useActiveWeb3React()
 
   const [isProcessingSwap, setProcessingSwap] = useState(false)
   const [typedValue, setTypedValue] = useState('1')
@@ -103,7 +103,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   const routeSummary = getRouteResponse?.routeSummary
 
   const buildRoute = useBuildRoute({
-    recipient: isAdvancedMode && recipient ? recipient : '',
+    recipient: isDegenMode && recipient ? recipient : '',
     routeSummary: getRouteRawResponse?.data?.routeSummary || undefined,
     slippage,
     transactionTimeout,
@@ -150,7 +150,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
       isSaveGas={isSaveGas}
       recipient={recipient}
       isStablePairSwap={isStablePairSwap}
-      isAdvancedMode={isAdvancedMode}
+      isAdvancedMode={isDegenMode}
     >
       <Box sx={{ flexDirection: 'column', gap: '16px', display: hidden ? 'none' : 'flex' }}>
         <Wrapper id={TutorialIds.SWAP_FORM_CONTENT}>
@@ -191,7 +191,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
               onChangeCurrencyOut={handleChangeCurrencyOut}
             />
 
-            {isAdvancedMode && isEVM && !isWrapOrUnwrap && (
+            {isDegenMode && isEVM && !isWrapOrUnwrap && (
               <AddressInputPanel id="recipient" value={recipient} onChange={setRecipient} />
             )}
 
@@ -201,18 +201,18 @@ const SwapForm: React.FC<SwapFormProps> = props => {
         <Flex flexDirection="column" style={{ gap: '1.25rem' }}>
           <TradeTypeSelection isSaveGas={isSaveGas} setSaveGas={setSaveGas} />
 
-          {chainId !== ChainId.ETHW && <TrendingSoonTokenBanner currencyIn={currencyIn} currencyOut={currencyOut} />}
+          <TrendingSoonTokenBanner currencyIn={currencyIn} currencyOut={currencyOut} />
 
           {!isWrapOrUnwrap && <SlippageWarningNote rawSlippage={slippage} isStablePairSwap={isStablePairSwap} />}
 
-          <PriceImpactNote priceImpact={routeSummary?.priceImpact} isAdvancedMode={isAdvancedMode} />
+          <PriceImpactNote priceImpact={routeSummary?.priceImpact} isDegenMode={isDegenMode} />
 
           <SwapActionButton
             isGettingRoute={isGettingRoute}
             parsedAmountFromTypedValue={parsedAmount}
             balanceIn={balanceIn}
             balanceOut={balanceOut}
-            isAdvancedMode={isAdvancedMode}
+            isAdvancedMode={isDegenMode}
             typedValue={typedValue}
             currencyIn={currencyIn}
             currencyOut={currencyOut}
