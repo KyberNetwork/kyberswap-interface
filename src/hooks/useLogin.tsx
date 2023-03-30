@@ -21,7 +21,5 @@ const useLogin = () => {
     }
     signIn()
   }, [])
-
-  return null
 }
 export default useLogin
