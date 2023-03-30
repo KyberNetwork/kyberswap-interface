@@ -1,14 +1,31 @@
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { FC } from 'react'
 import { Text } from 'rebass'
+import styled from 'styled-components'
 
+import Row from 'components/Row'
+import { MouseoverTooltip } from 'components/Tooltip'
 import WarningNote from 'components/WarningNote'
 import { checkPriceImpact } from 'utils/prices'
+
+const TextDashedColor = styled(Text)`
+  border-bottom: 1px dashed ${({ theme }) => theme.text};
+  width: fit-content;
+`
+
+const TextDashedTransparent = styled(Text)`
+  border-bottom: 1px dashed transparent;
+  width: fit-content;
+`
+
+const PRICE_IMPACT_EXPLANATION_URL =
+  'https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/price-impact'
 
 type Props = {
   isDegenMode?: boolean
   priceImpact: number | undefined
 }
+
 const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact }) => {
   const priceImpactResult = checkPriceImpact(priceImpact)
 
@@ -51,11 +68,36 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact }) => {
       <WarningNote
         level="serious"
         shortText={
-          <Text>
+          <Row alignItems="center" style={{ gap: '0.5ch' }}>
             <Trans>
-              Price Impact is <b>very</b> high
+              <TextDashedColor>
+                <MouseoverTooltip
+                  placement="top"
+                  width="fit-content"
+                  text={
+                    <Text fontSize={12}>
+                      Read more{' '}
+                      <a
+                        href={PRICE_IMPACT_EXPLANATION_URL}
+                        target="_blank"
+                        rel="noreferrer"
+                        onClick={e => e.stopPropagation()}
+                      >
+                        <b>here</b>
+                      </a>
+                      .
+                    </Text>
+                  }
+                >
+                  Price Impact
+                </MouseoverTooltip>
+              </TextDashedColor>
+              <TextDashedTransparent>
+                {' '}
+                is <b>very</b> high
+              </TextDashedTransparent>
             </Trans>
-          </Text>
+          </Row>
         }
         longText={
           <Text>
@@ -77,8 +119,34 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact }) => {
   }
 
   // high
+
+  const shortText = (
+    <Row alignItems="center" style={{ gap: '0.5ch' }}>
+      <Trans>
+        <TextDashedColor>
+          <MouseoverTooltip
+            placement="top"
+            width="fit-content"
+            text={
+              <Text fontSize={12}>
+                Read more{' '}
+                <a href={PRICE_IMPACT_EXPLANATION_URL} target="_blank" rel="noreferrer">
+                  <b>here</b>
+                </a>
+                .
+              </Text>
+            }
+          >
+            Price Impact
+          </MouseoverTooltip>
+        </TextDashedColor>
+        <TextDashedTransparent> is high.</TextDashedTransparent>
+      </Trans>
+    </Row>
+  )
+
   if (priceImpactResult.isHigh) {
-    return <WarningNote shortText={t`Price Impact is high`} />
+    return <WarningNote shortText={shortText} />
   }
 
   return null
