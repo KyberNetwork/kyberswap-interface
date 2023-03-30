@@ -198,7 +198,7 @@ export default function AddLiquidity() {
     !!farmV2 &&
     positions.some(pos => activeRanges.some(r => pos && pos.tickLower <= r.tickLower && pos.tickUpper >= r.tickUpper))
 
-  const farmPosWarning = isFarmAvailable && !canJoinFarm
+  const farmPosWarning = positions.every(Boolean) && isFarmAvailable && !canJoinFarm
 
   const previousTicks: number[] | undefined = useProAmmPreviousTicks(pool, position)
   const mutiplePreviousTicks: number[][] | undefined = useProAmmMultiplePreviousTicks(pool, positions)
@@ -825,7 +825,7 @@ export default function AddLiquidity() {
             <TYPE.black ml="12px" fontSize="12px" flex={1}>
               <Trans>
                 Warning: The price range for this liquidity position is not eligible for farming rewards. To become
-                eligible for rewards, please match the farm’s active range(s)
+                eligible for rewards, please match the farm’s active range(s)
               </Trans>
             </TYPE.black>
           </Flex>

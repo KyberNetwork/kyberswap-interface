@@ -12,6 +12,7 @@ import Divider from 'components/Divider'
 import InfoHelper from 'components/InfoHelper'
 import { RowBetween, RowFit } from 'components/Row'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
+import { ConnectWalletButton } from 'components/YieldPools/ElasticFarmGroup/buttons'
 import { FarmList } from 'components/YieldPools/ElasticFarmGroup/styleds'
 import { ClickableText, ElasticFarmV2TableHeader } from 'components/YieldPools/styleds'
 import { NETWORKS_INFO } from 'constants/networks'
@@ -20,6 +21,7 @@ import { useActiveWeb3React } from 'hooks'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
 import { Dots } from 'pages/Pool/styleds'
+import { useWalletModalToggle } from 'state/application/hooks'
 import { SORT_DIRECTION, SORT_FIELD, useFarmV2Action, useFilteredFarmsV2 } from 'state/farms/elasticv2/hooks'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import useGetElasticPools from 'state/prommPools/useGetElasticPools'
@@ -77,10 +79,14 @@ export default function ElasticFarmv2({ onShowStepGuide }: { onShowStepGuide: ()
 
   const { data: poolDatas } = useGetElasticPools(farms?.map(f => f.poolAddress) || [])
 
-  const tab = searchParams.get('type') || 'active'
-
+  const toggleWalletModal = useWalletModalToggle()
   const renderApproveButton = () => {
-    if (isApprovedForAll || tab === 'ended') {
+    if (!account) {
+      return <ConnectWalletButton onClick={toggleWalletModal} />
+    }
+    if (res?.loading) return <Dots />
+
+    if (isApprovedForAll) {
       return null
     }
 
