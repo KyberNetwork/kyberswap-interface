@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useSelector } from 'react-redux'
-import { usePreviousDistinct } from 'react-use'
+import { usePrevious } from 'react-use'
 
 import { DEFAULT_SLIPPAGE, DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP } from 'constants/index'
 import { STABLE_COINS_ADDRESS } from 'constants/tokens'
@@ -12,9 +12,9 @@ import { useUserSlippageTolerance } from 'state/user/hooks'
 const useUpdateSlippageInStableCoinSwap = () => {
   const { chainId } = useActiveWeb3React()
   const inputCurrencyId = useSelector((state: AppState) => state.swap[Field.INPUT].currencyId)
-  const previousInputCurrencyId = usePreviousDistinct(inputCurrencyId)
+  const previousInputCurrencyId = usePrevious(inputCurrencyId)
   const outputCurrencyId = useSelector((state: AppState) => state.swap[Field.OUTPUT].currencyId)
-  const previousOutputCurrencyId = usePreviousDistinct(outputCurrencyId)
+  const previousOutputCurrencyId = usePrevious(outputCurrencyId)
   const [slippage, setSlippage] = useUserSlippageTolerance()
 
   const rawSlippageRef = useRef(slippage)

@@ -19,19 +19,12 @@ export const checkRangeSlippage = (slippage: number, isStablePairSwap: boolean) 
       }
     }
 
-    if (slippage < 10) {
-      return {
-        isValid: true,
-        message: t`Slippage is low. Your transaction may fail.`,
-      }
-    }
-
     return {
       isValid: true,
     }
   }
 
-  if (slippage < 50) {
+  if (slippage < 10) {
     return {
       isValid: true,
       message: t`Slippage is low. Your transaction may fail.`,
