@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useSelector } from 'react-redux'
+import { usePreviousDistinct } from 'react-use'
 
 import { DEFAULT_SLIPPAGE, DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP } from 'constants/index'
 import { STABLE_COINS_ADDRESS } from 'constants/tokens'
@@ -11,19 +12,36 @@ import { useUserSlippageTolerance } from 'state/user/hooks'
 const useUpdateSlippageInStableCoinSwap = () => {
   const { chainId } = useActiveWeb3React()
   const inputCurrencyId = useSelector((state: AppState) => state.swap[Field.INPUT].currencyId)
+  const previousInputCurrencyId = usePreviousDistinct(inputCurrencyId)
   const outputCurrencyId = useSelector((state: AppState) => state.swap[Field.OUTPUT].currencyId)
+  const previousOutputCurrencyId = usePreviousDistinct(outputCurrencyId)
   const [slippage, setSlippage] = useUserSlippageTolerance()
 
   const rawSlippageRef = useRef(slippage)
   rawSlippageRef.current = slippage
 
   useEffect(() => {
+    const isStableCoinPreviousSwap =
+      chainId &&
+      previousInputCurrencyId &&
+      previousOutputCurrencyId &&
+      STABLE_COINS_ADDRESS[chainId].includes(previousInputCurrencyId) &&
+      STABLE_COINS_ADDRESS[chainId].includes(previousOutputCurrencyId)
+        ? 1
+        : 0
+
     const isStableCoinSwap =
       chainId &&
       inputCurrencyId &&
       outputCurrencyId &&
       STABLE_COINS_ADDRESS[chainId].includes(inputCurrencyId) &&
       STABLE_COINS_ADDRESS[chainId].includes(outputCurrencyId)
+        ? 1
+        : 0
+
+    if ((isStableCoinPreviousSwap ^ isStableCoinSwap) === 0) {
+      return
+    }
 
     if (isStableCoinSwap && rawSlippageRef.current > DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP) {
       setSlippage(DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP)
@@ -33,7 +51,7 @@ const useUpdateSlippageInStableCoinSwap = () => {
     if (!isStableCoinSwap && rawSlippageRef.current > DEFAULT_SLIPPAGE) {
       setSlippage(DEFAULT_SLIPPAGE)
     }
-  }, [chainId, inputCurrencyId, outputCurrencyId, setSlippage])
+  }, [chainId, inputCurrencyId, outputCurrencyId, previousInputCurrencyId, previousOutputCurrencyId, setSlippage])
 }
 
 export default useUpdateSlippageInStableCoinSwap
