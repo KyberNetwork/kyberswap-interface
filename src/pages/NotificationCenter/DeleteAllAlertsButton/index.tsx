@@ -24,9 +24,6 @@ const CloseIcon = styled(X)`
   color: ${({ theme }) => theme.subText};
 `
 
-// TODO: test disconnect wallet/change network while confirming
-// TODO: clear based on which tab is active
-
 type Props = {
   disabled: boolean
   onClear: () => Promise<any>
