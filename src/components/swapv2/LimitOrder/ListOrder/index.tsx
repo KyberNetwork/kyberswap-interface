@@ -494,7 +494,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
               tokenAmountOut: amountOut,
               arbitrary: getPayloadTracking(order),
             }
-          : undefined,
+          : { arbitrary: { totalOrder } },
       })
     }
 
