@@ -21,25 +21,23 @@ const useUpdateSlippageInStableCoinSwap = () => {
   rawSlippageRef.current = slippage
 
   useEffect(() => {
-    const isStableCoinPreviousSwap =
+    const isStableCoinPreviousSwap = Boolean(
       chainId &&
-      previousInputCurrencyId &&
-      previousOutputCurrencyId &&
-      STABLE_COINS_ADDRESS[chainId].includes(previousInputCurrencyId) &&
-      STABLE_COINS_ADDRESS[chainId].includes(previousOutputCurrencyId)
-        ? 1
-        : 0
+        previousInputCurrencyId &&
+        previousOutputCurrencyId &&
+        STABLE_COINS_ADDRESS[chainId].includes(previousInputCurrencyId) &&
+        STABLE_COINS_ADDRESS[chainId].includes(previousOutputCurrencyId),
+    )
 
-    const isStableCoinSwap =
+    const isStableCoinSwap = Boolean(
       chainId &&
-      inputCurrencyId &&
-      outputCurrencyId &&
-      STABLE_COINS_ADDRESS[chainId].includes(inputCurrencyId) &&
-      STABLE_COINS_ADDRESS[chainId].includes(outputCurrencyId)
-        ? 1
-        : 0
+        inputCurrencyId &&
+        outputCurrencyId &&
+        STABLE_COINS_ADDRESS[chainId].includes(inputCurrencyId) &&
+        STABLE_COINS_ADDRESS[chainId].includes(outputCurrencyId),
+    )
 
-    if ((isStableCoinPreviousSwap ^ isStableCoinSwap) === 0) {
+    if (isStableCoinPreviousSwap === isStableCoinSwap) {
       return
     }
 
