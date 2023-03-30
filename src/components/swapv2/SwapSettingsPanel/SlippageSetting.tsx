@@ -1,4 +1,4 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import React from 'react'
 import { useDispatch } from 'react-redux'
 import { Flex, Text } from 'rebass'
@@ -18,7 +18,7 @@ import { useAppSelector } from 'state/hooks'
 import { useCheckStablePairSwap } from 'state/swap/hooks'
 import { pinSlippageControl } from 'state/user/actions'
 import { useDegenModeManager, useUserSlippageTolerance } from 'state/user/hooks'
-import { checkRangeSlippage, formatSlippage } from 'utils/slippage'
+import { SLIPPAGE_STATUS, checkRangeSlippage, formatSlippage } from 'utils/slippage'
 
 export const InfoHelperForMaxSlippage = () => {
   const [isDegenMode] = useDegenModeManager()
@@ -26,7 +26,7 @@ export const InfoHelperForMaxSlippage = () => {
 
   return (
     <InfoHelper
-      size={14}
+      size={12}
       width="320px"
       placement="top"
       text={
@@ -66,9 +66,8 @@ const SlippageSetting: React.FC<Props> = ({ shouldShowPinButton = true }) => {
   const dispatch = useDispatch()
   const [rawSlippage, setRawSlippage] = useUserSlippageTolerance()
   const isStablePairSwap = useCheckStablePairSwap()
-  const { isValid, message } = checkRangeSlippage(rawSlippage, isStablePairSwap)
-  const isWarning = isValid && !!message
-  const isError = !isValid
+  const slippageStatus = checkRangeSlippage(rawSlippage, isStablePairSwap)
+  const isWarning = slippageStatus !== SLIPPAGE_STATUS.NORMAL
 
   const isSlippageControlPinned = useAppSelector(state => state.user.isSlippageControlPinned)
 
@@ -105,9 +104,11 @@ const SlippageSetting: React.FC<Props> = ({ shouldShowPinButton = true }) => {
         defaultRawSlippage={isStablePairSwap ? DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP : DEFAULT_SLIPPAGE}
       />
 
-      {!!message && (
-        <Message data-warning={isWarning} data-error={isError}>
-          {message}
+      {isWarning && (
+        <Message data-warning={true} data-error={false}>
+          {slippageStatus === SLIPPAGE_STATUS.HIGH
+            ? t`Slippage is high. Your transaction may be front-run.`
+            : t`Slippage is low. Your transaction may fail.`}
         </Message>
       )}
     </Flex>
