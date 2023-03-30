@@ -121,8 +121,7 @@ const ANNOUNCEMENT_TEMPLATE_IDS = {
     EXCLUDE: '2,11',
   },
   production: {
-    // todo danh
-    [PrivateAnnouncementType.PRICE_ALERT]: '',
+    [PrivateAnnouncementType.PRICE_ALERT]: '21,22',
     [PrivateAnnouncementType.LIMIT_ORDER]: '12,13,14,15',
     [PrivateAnnouncementType.BRIDGE]: '10,11',
     [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: '9',
