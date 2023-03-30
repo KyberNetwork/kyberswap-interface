@@ -27,7 +27,9 @@ const RowNoFlex = styled(AutoRow)`
   flex-wrap: nowrap;
 `
 
-type SummaryFunction = (summary: TransactionDetails) => { success: string; error: string } | string
+type SummaryFunction = (
+  summary: TransactionDetails,
+) => { success: string; error: string; customTitleSuccess?: string } | string
 
 // ex: approve 3 knc
 const summary1Token = (txs: TransactionDetails) => {
@@ -113,6 +115,7 @@ const summaryCancelLimitOrder = (txs: TransactionDetails) => {
       ? t`Your ${totalOrder} cancellation orders have been submitted`
       : t`Your cancellation ${summary} has been submitted`,
     error: `Error cancel ${summary}`,
+    customTitleSuccess: isCancelAll ? t`Cancel Limit Orders Submitted!` : undefined,
   }
 }
 
@@ -178,16 +181,18 @@ const getSummary = (transaction: TransactionDetails) => {
 
   const summary = group ? SUMMARY[type]?.(transaction) ?? shortHash : shortHash
 
-  let formatSummary
+  let formatSummary,
+    title = getTitle(type, success)
   if (summary === shortHash) {
     formatSummary = summary
   } else if (typeof summary === 'string') {
     formatSummary = success ? summary : `Error ${summary}`
   } else {
     formatSummary = success ? summary.success : summary.error
+    if (success) title = summary.customTitleSuccess || title
   }
 
-  return { title: getTitle(type, success), summary: formatSummary }
+  return { title, summary: formatSummary }
 }
 
 export default function TransactionPopup({ hash, notiType }: { hash: string; notiType: NotificationType }) {
