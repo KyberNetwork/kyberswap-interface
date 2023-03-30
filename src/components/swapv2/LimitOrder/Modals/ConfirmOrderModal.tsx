@@ -8,6 +8,7 @@ import { ButtonPrimary, ButtonWarning } from 'components/Button'
 import Column from 'components/Column'
 import CurrencyLogo from 'components/CurrencyLogo'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
+import { WORSE_PRICE_DIFF_THRESHOLD } from 'components/swapv2/LimitOrder/const'
 import { BaseTradeInfo } from 'components/swapv2/LimitOrder/useBaseTradeInfo'
 import { useActiveWeb3React } from 'hooks'
 import ErrorWarningPanel from 'pages/Bridge/ErrorWarning'
@@ -50,7 +51,7 @@ export default memo(function ConfirmOrderModal({
 }) {
   const { account } = useActiveWeb3React()
   const [confirmed, setConfirmed] = useState(false)
-  const shouldShowConfirmFlow = percentDiff < -5
+  const shouldShowConfirmFlow = percentDiff < WORSE_PRICE_DIFF_THRESHOLD
 
   const displayCurrencyOut = useMemo(() => {
     return currencyOut?.isNative ? currencyOut.wrapped : currencyOut

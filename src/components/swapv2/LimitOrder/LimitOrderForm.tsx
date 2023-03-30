@@ -45,7 +45,13 @@ import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { toFixed } from 'utils/numbers'
 
 import ExpirePicker from './ExpirePicker'
-import { DEFAULT_EXPIRED, EXPIRED_OPTIONS, USD_THRESHOLD } from './const'
+import {
+  BETTER_PRICE_DIFF_THRESHOLD,
+  DEFAULT_EXPIRED,
+  EXPIRED_OPTIONS,
+  USD_THRESHOLD,
+  WORSE_PRICE_DIFF_THRESHOLD,
+} from './const'
 import {
   calcInvert,
   calcOutput,
@@ -616,7 +622,7 @@ const LimitOrderForm = function LimitOrderForm({
   const warningMessage = useMemo(() => {
     const messages = []
 
-    if (currencyIn && displayRate && !deltaRate.profit && Number(deltaRate.rawPercent) <= -5) {
+    if (currencyIn && displayRate && !deltaRate.profit && Number(deltaRate.rawPercent) <= WORSE_PRICE_DIFF_THRESHOLD) {
       messages.push(
         <Text>
           <Trans>
@@ -806,7 +812,7 @@ const LimitOrderForm = function LimitOrderForm({
           />
         </Tooltip>
 
-        {Number(deltaRate.rawPercent) >= 30 && (
+        {Number(deltaRate.rawPercent) >= BETTER_PRICE_DIFF_THRESHOLD && (
           <Flex
             padding="14px 18px"
             color={theme.text}
