@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { memo, useCallback, useMemo, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -257,6 +257,12 @@ export default memo(function ConfirmBridgeModal({
       theme.text,
     ],
   )
+
+  useEffect(() => {
+    if (!swapState.showConfirm) {
+      setAccepted(false)
+    }
+  }, [swapState.showConfirm])
 
   return (
     <TransactionConfirmationModal
