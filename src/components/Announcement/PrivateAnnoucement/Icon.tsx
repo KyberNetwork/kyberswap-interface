@@ -16,16 +16,15 @@ const IconWrapper = styled.div<{ hasNetwork: boolean }>`
 const mapPosition: Partial<{ [type in PrivateAnnouncementType]: { top: number; right: number } }> = {
   [PrivateAnnouncementType.POOL_POSITION]: { top: -6, right: -10 },
 }
+const mapIcon = {
+  [PrivateAnnouncementType.BRIDGE]: <BridgeIcon />,
+  [PrivateAnnouncementType.LIMIT_ORDER]: <LimitOrderIcon />,
+  [PrivateAnnouncementType.POOL_POSITION]: <LiquidityIcon />,
+  [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: <DiscoverIcon size={16} />,
+  [PrivateAnnouncementType.PRICE_ALERT]: <AlarmIcon style={{ width: 17, height: 17 }} />,
+}
 
 export default function InboxIcon({ type, chainId }: { type: PrivateAnnouncementType; chainId?: ChainId }) {
-  const mapIcon = {
-    [PrivateAnnouncementType.BRIDGE]: <BridgeIcon />,
-    [PrivateAnnouncementType.LIMIT_ORDER]: <LimitOrderIcon />,
-    [PrivateAnnouncementType.POOL_POSITION]: <LiquidityIcon />,
-    [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: <DiscoverIcon size={16} />,
-    [PrivateAnnouncementType.PRICE_ALERT]: <AlarmIcon style={{ width: 17, height: 17 }} />,
-  }
-
   const icon = mapIcon[type]
   return (
     <IconWrapper hasNetwork={!!chainId}>

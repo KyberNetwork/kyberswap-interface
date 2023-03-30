@@ -68,13 +68,10 @@ const AnnouncementApi = createApi({
     }),
     ackPrivateAnnouncements: builder.mutation<
       AnnouncementResponse,
-      { account: string; action: 'read' | 'clear-all' | 'read-all'; ids?: number[]; templateIds?: string }
+      { account: string; action: 'read' | 'clear-all' | 'read-all'; ids?: number[] }
     >({
-      query: ({ account, action, ids, templateIds }) => {
-        const body: { excludedTemplateIds?: number[]; ids?: number[]; templateIds?: number[] } = {
-          ids,
-          templateIds: templateIds?.split(',').map(Number),
-        }
+      query: ({ account, action, ids }) => {
+        const body: { excludedTemplateIds?: number[]; ids?: number[] } = { ids }
         if (action === 'read-all' || action === 'clear-all') {
           body.excludedTemplateIds = getAnnouncementsTemplateIds().EXCLUDE.split(',').map(Number)
         }

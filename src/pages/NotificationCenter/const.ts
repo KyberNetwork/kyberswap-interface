@@ -1,4 +1,5 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
+import { t } from '@lingui/macro'
 
 import { TIMES_IN_SECS } from 'constants/index'
 import { MAINNET_NETWORKS, NETWORKS_INFO } from 'constants/networks'
@@ -109,6 +110,6 @@ export const NETWORK_OPTIONS = MAINNET_NETWORKS.map(id => ({
 }))
 
 export const TYPE_OPTIONS = [
-  { label: `Above`, value: PriceAlertType.ABOVE },
-  { label: 'Below', value: PriceAlertType.BELOW },
+  { label: t`Above`, value: PriceAlertType.ABOVE },
+  { label: t`Below`, value: PriceAlertType.BELOW },
 ]

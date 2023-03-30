@@ -139,7 +139,6 @@ const Header: React.FC<Props> = ({ currentTab, setCurrentTab, disabledClearAll }
         }}
       >
         <StatItem
-          // error if use `t` here
           label={<Trans>Alerts Created: </Trans>}
           isLoading={isLoading}
           totalNumber={data?.totalAlerts}
@@ -147,7 +146,6 @@ const Header: React.FC<Props> = ({ currentTab, setCurrentTab, disabledClearAll }
         />
 
         <StatItem
-          // error if use `t` here
           label={<Trans>Active Alerts: </Trans>}
           isLoading={isLoading}
           totalNumber={data?.totalActiveAlerts}

@@ -14,7 +14,7 @@ export type PrivateAnnouncementPropCenter<T extends AnnouncementTemplate = Annou
   title?: string
 }
 
-type SummaryMapInNotificationCenter = {
+type PrivateAnnouncementCenterMap = {
   [type in PrivateAnnouncementType]: (data: { announcement: PrivateAnnouncement }) => JSX.Element
 }
 const ANNOUNCEMENT_MAP_IN_CENTER = {
@@ -23,13 +23,13 @@ const ANNOUNCEMENT_MAP_IN_CENTER = {
   [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: TrendingSoon,
   [PrivateAnnouncementType.BRIDGE]: Bridge,
   [PrivateAnnouncementType.PRICE_ALERT]: PriceAlert,
-} as SummaryMapInNotificationCenter
+} as PrivateAnnouncementCenterMap
 
 export default function InboxItemNotificationCenter({ announcement }: PrivateAnnouncementPropCenter) {
   const { templateType } = announcement
   try {
     const component = ANNOUNCEMENT_MAP_IN_CENTER[templateType]
-    const props = { announcement, title: PRIVATE_ANN_TITLE[templateType] }
+    const props: PrivateAnnouncementPropCenter = { announcement, title: PRIVATE_ANN_TITLE[templateType] }
     return component ? React.createElement(component, props) : null
   } catch (error) {
     return null

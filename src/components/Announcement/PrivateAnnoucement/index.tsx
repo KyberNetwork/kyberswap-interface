@@ -20,7 +20,7 @@ export type PrivateAnnouncementProp<T extends AnnouncementTemplate = Announcemen
   title?: string
 }
 
-type SummaryMap = {
+type PrivateAnnouncementMap = {
   [type in PrivateAnnouncementType]: (data: PrivateAnnouncementProp) => JSX.Element
 }
 const ANNOUNCEMENT_MAP = {
@@ -29,7 +29,7 @@ const ANNOUNCEMENT_MAP = {
   [PrivateAnnouncementType.TRENDING_SOON_TOKEN]: InboxItemTrendingSoon,
   [PrivateAnnouncementType.BRIDGE]: InboxItemBridge,
   [PrivateAnnouncementType.PRICE_ALERT]: InboxItemPriceAlert,
-} as SummaryMap
+} as PrivateAnnouncementMap
 
 export const PRIVATE_ANN_TITLE = {
   [PrivateAnnouncementType.POOL_POSITION]: t`Liquidity Pool Alert`,

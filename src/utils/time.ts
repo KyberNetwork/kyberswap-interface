@@ -1,5 +1,6 @@
 import dayjs from 'dayjs'
 
+// ex: 60 => 1 minute
 export const formatTimeDuration = (t: number) => {
   return dayjs.duration(t, 'seconds').humanize().replace('a ', '1 ').replace('an ', '1 ')
 }
