@@ -19,6 +19,7 @@ import SearchInput from 'components/SearchInput'
 import Select from 'components/Select'
 import SubscribeNotificationButton from 'components/SubscribeButton'
 import LIMIT_ORDER_ABI from 'constants/abis/limit_order.json'
+import { EMPTY_ARRAY } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useContract } from 'hooks/useContract'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -146,9 +147,15 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
   const [isCancelAll, setIsCancelAll] = useState(false)
   const [loading, setLoading] = useState(true)
 
-  const { refetch } = useTokenPricesWithLoading(
-    orders.filter(checkOrderActive).flatMap(order => [order.takerAsset, order.makerAsset]),
-  )
+  const tokenAddresses = useMemo(() => {
+    const activeOrders = orders.filter(checkOrderActive)
+    if (!activeOrders.length) {
+      return EMPTY_ARRAY
+    }
+    return activeOrders.flatMap(order => [order.takerAsset, order.makerAsset])
+  }, [orders])
+
+  const { refetch, data: tokenPrices } = useTokenPricesWithLoading(tokenAddresses)
   useEffect(() => {
     // Refresh token prices each 10 seconds
     const interval = setInterval(refetch, 10_000)
@@ -574,6 +581,7 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
                     order={order}
                     onCancelOrder={showConfirmCancel}
                     onEditOrder={showEditOrderModal}
+                    tokenPrices={tokenPrices}
                   />
                 ))}
               </Column>

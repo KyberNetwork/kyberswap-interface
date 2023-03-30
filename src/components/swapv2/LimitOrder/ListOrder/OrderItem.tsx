@@ -11,9 +11,7 @@ import InfoHelper from 'components/InfoHelper'
 import Logo from 'components/Logo'
 import ProgressBar from 'components/ProgressBar'
 import { checkOrderActive } from 'components/swapv2/LimitOrder/ListOrder'
-import { EMPTY_ARRAY } from 'constants/index'
 import useTheme from 'hooks/useTheme'
-import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
 import { useTokenBalance } from 'state/wallet/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { toCurrencyAmount } from 'utils/currencyAmount'
@@ -217,12 +215,14 @@ export default function OrderItem({
   onCancelOrder,
   onEditOrder,
   isOrderCancelling,
+  tokenPrices,
 }: {
   order: LimitOrder
   onCancelOrder: (order: LimitOrder) => void
   onEditOrder: (order: LimitOrder) => void
   index: number
   isOrderCancelling: (order: LimitOrder) => boolean
+  tokenPrices: Record<string, number>
 }) {
   const [expand, setExpand] = useState(false)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -254,16 +254,6 @@ export default function OrderItem({
   const colorStatus = getColorStatus(status, theme, isNotSufficientFund)
   const txHash = transactions[0]?.txHash ?? ''
   const toggle = () => setExpand(prev => !prev)
-
-  const tokenAddresses: string[] = useMemo(() => {
-    if (!isOrderActive) {
-      return EMPTY_ARRAY
-    }
-
-    return [order.takerAsset, order.makerAsset]
-  }, [isOrderActive, order.makerAsset, order.takerAsset])
-
-  const { data: tokenPrices } = useTokenPricesWithLoading(tokenAddresses)
 
   const marketPrice = tokenPrices[order.takerAsset] / tokenPrices[order.makerAsset]
   const selectedPrice = Number(formatRateLimitOrder(order, false))
