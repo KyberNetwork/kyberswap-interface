@@ -623,10 +623,13 @@ const LimitOrderForm = function LimitOrderForm({
     const messages = []
 
     if (currencyIn && displayRate && !deltaRate.profit && Number(deltaRate.rawPercent) <= WORSE_PRICE_DIFF_THRESHOLD) {
+      // need to remove the minus out of the percent text
+      const percentWithoutMinus = deltaRate.percent.slice(1)
+
       messages.push(
         <Text>
           <Trans>
-            Your limit order price is <HightLight>{deltaRate.percent}</HightLight> lower than the market. You will be
+            Your limit order price is <HightLight>{percentWithoutMinus}</HightLight> lower than the market. You will be
             selling your {currencyIn.symbol} exceedingly cheap.
           </Trans>
         </Text>,
