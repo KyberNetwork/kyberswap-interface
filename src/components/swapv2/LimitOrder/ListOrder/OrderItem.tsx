@@ -1,7 +1,7 @@
 import { Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Repeat } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -10,6 +10,8 @@ import styled, { CSSProperties, DefaultTheme } from 'styled-components'
 import InfoHelper from 'components/InfoHelper'
 import Logo from 'components/Logo'
 import ProgressBar from 'components/ProgressBar'
+import { checkOrderActive } from 'components/swapv2/LimitOrder/ListOrder'
+import { EMPTY_ARRAY } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
 import { useTokenBalance } from 'state/wallet/hooks'
@@ -237,6 +239,7 @@ export default function OrderItem({
     takerAssetDecimals,
   } = order
   const status = isCancelling ? LimitOrderStatus.CANCELLING : order.status
+  const isOrderActive = checkOrderActive(order)
   const filledPercent = calcPercentFilledOrder(filledTakingAmount, takingAmount, takerAssetDecimals)
   const theme = useTheme()
 
@@ -252,19 +255,19 @@ export default function OrderItem({
   const txHash = transactions[0]?.txHash ?? ''
   const toggle = () => setExpand(prev => !prev)
 
-  const { data: tokenPrices, refetch } = useTokenPricesWithLoading([order.takerAsset, order.makerAsset])
+  const tokenAddresses: string[] = useMemo(() => {
+    if (!isOrderActive) {
+      return EMPTY_ARRAY
+    }
+
+    return [order.takerAsset, order.makerAsset]
+  }, [isOrderActive, order.makerAsset, order.takerAsset])
+
+  const { data: tokenPrices } = useTokenPricesWithLoading(tokenAddresses)
 
   const marketPrice = tokenPrices[order.takerAsset] / tokenPrices[order.makerAsset]
   const selectedPrice = Number(formatRateLimitOrder(order, false))
   const percent = ((marketPrice - selectedPrice) / marketPrice) * 100
-
-  useEffect(() => {
-    // Refresh token prices each 10 seconds
-    const interval = setInterval(refetch, 10_000)
-    return () => {
-      clearInterval(interval)
-    }
-  }, [refetch])
 
   const renderProgressComponent = () => {
     const getTooltipText = () => {
@@ -292,22 +295,16 @@ export default function OrderItem({
             gap: '4px',
           }}
         >
-          {![
-            LimitOrderStatus.FILLED,
-            LimitOrderStatus.CANCELLED,
-            LimitOrderStatus.CANCELLING,
-            LimitOrderStatus.EXPIRED,
-          ].includes(order.status) &&
-            isNotSufficientFund && (
-              <InfoHelper
-                style={{
-                  marginLeft: 0,
-                }}
-                placement="top"
-                color={colorStatus}
-                text={getTooltipText()}
-              />
-            )}{' '}
+          {isOrderActive && isNotSufficientFund && (
+            <InfoHelper
+              style={{
+                marginLeft: 0,
+              }}
+              placement="top"
+              color={colorStatus}
+              text={getTooltipText()}
+            />
+          )}{' '}
           {formatStatusLimitOrder(order, isCancelling, isNotSufficientFund)}
         </Flex>
         <ProgressBar

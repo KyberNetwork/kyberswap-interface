@@ -25,6 +25,7 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useNotify } from 'state/application/hooks'
 import { useLimitState } from 'state/limit/hooks'
+import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
 import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { TRANSACTION_STATE_DEFAULT, TransactionFlowState } from 'types'
@@ -111,6 +112,15 @@ const SearchInputWrapped = styled(SearchInput)`
   `};
 `
 
+export const checkOrderActive = (order: LimitOrder) => {
+  return ![
+    LimitOrderStatus.FILLED,
+    LimitOrderStatus.CANCELLED,
+    LimitOrderStatus.CANCELLING,
+    LimitOrderStatus.EXPIRED,
+  ].includes(order.status)
+}
+
 export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
   const { account, chainId, networkInfo } = useActiveWeb3React()
   const { library } = useWeb3React()
@@ -135,6 +145,17 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
   const [currentOrder, setCurrentOrder] = useState<LimitOrder>()
   const [isCancelAll, setIsCancelAll] = useState(false)
   const [loading, setLoading] = useState(true)
+
+  const { refetch } = useTokenPricesWithLoading(
+    orders.filter(checkOrderActive).flatMap(order => [order.takerAsset, order.makerAsset]),
+  )
+  useEffect(() => {
+    // Refresh token prices each 10 seconds
+    const interval = setInterval(refetch, 10_000)
+    return () => {
+      clearInterval(interval)
+    }
+  }, [refetch])
 
   const onPageChange = (page: number) => {
     setCurPage(page)
