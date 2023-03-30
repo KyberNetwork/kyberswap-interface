@@ -23,7 +23,6 @@ import Snowfall from 'components/Snowflake/Snowfall'
 import Web3ReactManager from 'components/Web3ReactManager'
 import { APP_PATHS, BLACKLIST_WALLETS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useLogin from 'hooks/useLogin'
 import { useGlobalMixpanelEvents } from 'hooks/useMixpanel'
 import { useSyncNetworkParamWithStore } from 'hooks/useSyncNetworkParamWithStore'
 import useTheme from 'hooks/useTheme'
@@ -135,8 +134,6 @@ export default function App() {
       window.location.reload()
     }
   }, [online, prevOnline, account])
-
-  useLogin()
 
   useEffect(() => {
     if (account) {

@@ -1,20 +1,15 @@
 import KyberOauth2 from '@kybernetwork/oauth2'
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 
 import { OAUTH_CLIENT_ID } from 'constants/env'
 
 const useLogin = () => {
-  // prevent spam because react 18 strict mode
-  const requestingAnonymous = useRef(false)
   useEffect(() => {
     const signIn = async function signIn() {
       try {
         const clientAppConfig = { clientId: OAUTH_CLIENT_ID }
         KyberOauth2.initialize(clientAppConfig)
-        if (!requestingAnonymous.current) {
-          requestingAnonymous.current = true
-          await KyberOauth2.loginAnonymous()
-        }
+        await KyberOauth2.loginAnonymous()
       } catch (error) {
         console.log('get info anonymous err', error)
       }
