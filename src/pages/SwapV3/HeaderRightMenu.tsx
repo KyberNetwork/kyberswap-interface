@@ -1,6 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { stringify } from 'querystring'
 import { Dispatch, SetStateAction, useMemo, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import { MoreHorizontal } from 'react-feather'
 import { useLocation } from 'react-router-dom'
 import styled from 'styled-components'
@@ -106,9 +107,11 @@ export default function HeaderRightMenu({
   const [isDegenMode] = useDegenModeManager()
 
   const onMouseEnterMenu = () => {
+    if (isMobile) return
     setShowHeaderMenu(true)
   }
   const onMouseLeaveMenu = () => {
+    if (isMobile) return
     setShowHeaderMenu(false)
   }
   const onClickMoreButton = () => {
