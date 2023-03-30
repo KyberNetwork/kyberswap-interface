@@ -109,7 +109,7 @@ function ElasticFarms({ onShowStepGuide }: { onShowStepGuide: () => void }) {
       )}
 
       {(!type || type === FARM_TAB.ACTIVE) && tab !== VERSION.CLASSIC && (
-        <Text fontSize={12} marginBottom="1.25rem" color={theme.subText}>
+        <Text fontSize={12} color={theme.subText}>
           <Trans>
             Note: Farms will run in{' '}
             <Text as="span" color={theme.warning}>

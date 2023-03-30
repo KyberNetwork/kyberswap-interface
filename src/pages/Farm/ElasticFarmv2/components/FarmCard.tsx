@@ -162,6 +162,7 @@ export const RangeItem = ({
   token0,
   token1,
   farmId,
+  addLiquidityLink,
 }: {
   active: boolean
   onRangeClick: () => void
@@ -169,6 +170,7 @@ export const RangeItem = ({
   token0: Token
   token1: Token
   farmId: number
+  addLiquidityLink?: string
 }) => {
   const theme = useTheme()
   const stakedPos = useUserFarmV2Info(farmId, rangeInfo.index)
@@ -198,14 +200,30 @@ export const RangeItem = ({
           </Text>
         </Column>
         <Column gap="4px">
-          <Text
-            fontSize="12px"
-            lineHeight="16px"
-            color={rangeInfo.isRemoved ? theme.warning : theme.primary}
-            alignSelf="flex-end"
-          >
-            {rangeInfo.isRemoved ? <Trans>Inactive Range</Trans> : <Trans>Active Range ↗</Trans>}
-          </Text>
+          {addLiquidityLink && (
+            <Text
+              fontSize="12px"
+              lineHeight="16px"
+              color={rangeInfo.isRemoved ? theme.warning : theme.primary}
+              alignSelf="flex-end"
+              sx={{
+                borderBottom: rangeInfo.isRemoved ? undefined : `1px dotted ${theme.primary}`,
+              }}
+            >
+              {rangeInfo.isRemoved ? (
+                <Trans>Inactive Range</Trans>
+              ) : (
+                <MouseoverTooltip
+                  text={t`Add liquidity to ${token0.symbol} - ${token1.symbol} pool using the current active range`}
+                  placement="top"
+                >
+                  <Link to={addLiquidityLink}>
+                    <Trans>Active Range ↗</Trans>
+                  </Link>
+                </MouseoverTooltip>
+              )}
+            </Text>
+          )}
           <PriceVisualize
             inactive={rangeInfo.isRemoved}
             tickRangeLower={rangeInfo.tickLower}
@@ -339,6 +357,7 @@ function FarmCard({ farm, poolAPR, isApproved }: { farm: ElasticFarmV2; poolAPR:
   }, [farm, harvest, stakedPos, activeRangeIndex])
 
   const { pool } = farm
+
   const addliquidityElasticPool = `${APP_PATHS.ELASTIC_CREATE_POOL}/${
     pool.token0.isNative ? pool.token0.symbol : pool.token0.address
   }/${pool.token1.isNative ? pool.token1.symbol : pool.token1.address}/${pool.fee}`
@@ -428,7 +447,7 @@ function FarmCard({ farm, poolAPR, isApproved }: { farm: ElasticFarmV2; poolAPR:
               borderRadius: '12px',
               border: `1px solid ${theme.border}`,
               padding: '12px',
-              backgroundColor: 'var(--button-black)',
+              backgroundColor: theme.buttonBlack,
             }}
           >
             <RowBetween align="flex-start">
@@ -464,7 +483,9 @@ function FarmCard({ farm, poolAPR, isApproved }: { farm: ElasticFarmV2; poolAPR:
                     {farm.ranges[activeRangeIndex].isRemoved ? (
                       <Trans>Inactive Range</Trans>
                     ) : (
-                      <Trans>Active Range ↗</Trans>
+                      <Link to={`${addliquidityElasticPool}?farmRange=${activeRangeIndex}`}>
+                        <Trans>Active Range ↗</Trans>
+                      </Link>
                     )}
                   </Text>
                 </MouseoverTooltip>
@@ -625,6 +646,7 @@ function FarmCard({ farm, poolAPR, isApproved }: { farm: ElasticFarmV2; poolAPR:
                     onRangeClick={() => setActiveRangeIndex(index)}
                     token0={farm.token0}
                     token1={farm.token1}
+                    addLiquidityLink={`${addliquidityElasticPool}?farmRange=${r.index}`}
                   />
                 ))}
               </Column>

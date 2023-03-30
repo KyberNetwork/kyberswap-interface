@@ -2,7 +2,7 @@ import { ChainId, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
 import { BarChart2, MoreHorizontal, Share2 } from 'react-feather'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { Cell, Pie, PieChart, Tooltip } from 'recharts'
@@ -160,20 +160,24 @@ export default function ProAmmPoolStat({
   )
   const isFarmV2 = !!farmV2
 
-  const activeRanges = useMemo(() => farmV2?.ranges.filter(range => !range.isRemoved) || [], [farmV2])
+  const ranges = useMemo(() => farmV2?.ranges || [], [farmV2])
 
   const poolTransactionsStat = usePoolTransactionsStat(pool.address)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
   const isDarkMode = useIsDarkMode()
-  const [activeRange, setActiveRange] = useState(0)
+  const [searchParams] = useSearchParams()
+  const [activeRange, setActiveRange] = useState(Number(searchParams.get('farmRange') || '0'))
 
   useEffect(() => {
-    if (activeRanges?.[activeRange])
-      onFarmRangeSelected(activeRanges[activeRange].tickLower, activeRanges[activeRange].tickUpper)
-  }, [activeRange, onFarmRangeSelected, activeRanges])
+    if (ranges?.[activeRange]) {
+      onFarmRangeSelected(ranges[activeRange].tickLower, ranges[activeRange].tickUpper)
+    }
+    // Only run once
+    // eslint-disable-next-line
+  }, [])
 
-  const farmAPR = isFarmV2 ? activeRanges[activeRange].apr : pool.farmAPR
+  const farmAPR = isFarmV2 ? ranges[activeRange]?.apr : pool.farmAPR
 
   const APR = (
     <>
@@ -190,11 +194,7 @@ export default function ProAmmPoolStat({
           width="fit-content"
           placement="right"
           text={
-            <APRTooltipContent
-              farmV2APR={activeRanges[activeRange]?.apr}
-              farmAPR={pool.farmAPR || 0}
-              poolAPR={pool.apr}
-            />
+            <APRTooltipContent farmV2APR={ranges[activeRange]?.apr} farmAPR={pool.farmAPR || 0} poolAPR={pool.apr} />
           }
         >
           <Trans>Avg APR</Trans>
@@ -208,8 +208,8 @@ export default function ProAmmPoolStat({
         {!!farmV2 ? (
           <PriceVisualize
             tickCurrent={pool.tick}
-            tickRangeLower={activeRanges[activeRange].tickLower}
-            tickRangeUpper={activeRanges[activeRange].tickUpper}
+            tickRangeLower={ranges[activeRange]?.tickLower}
+            tickRangeUpper={ranges[activeRange]?.tickUpper}
             token0={farmV2.token0}
             token1={farmV2.token1}
           />
@@ -330,23 +330,21 @@ export default function ProAmmPoolStat({
                 </Flex>
 
                 <Flex justifyContent="space-between" fontSize="16px" fontWeight="500" marginTop="0.25rem">
-                  <Text>
-                    {activeRanges[activeRange].tvl ? formatDollarAmount(activeRanges[activeRange].tvl) : '--'}
-                  </Text>
+                  <Text>{ranges[activeRange]?.tvl ? formatDollarAmount(ranges[activeRange].tvl) : '--'}</Text>
                   <Text>{myLiquidity ? formatDollarAmount(Number(myLiquidity)) : '-'}</Text>
                 </Flex>
               </OutlineCard>
 
               <Flex justifyContent="center" margin="0.5rem 0">
                 <TextButtonPrimary
-                  disabled={activeRanges?.length === 0}
+                  disabled={ranges?.length === 0}
                   fontSize="12px"
                   onClick={() => {
                     setShowRange(true)
                   }}
                 >
                   <AspectRatio size={16} />
-                  <Trans>{activeRanges?.length || 0} Range(s) Available</Trans>
+                  <Trans>{ranges.filter(item => !item.isRemoved)?.length || 0} Range(s) Available</Trans>
                 </TextButtonPrimary>
               </Flex>
             </>
@@ -461,20 +459,25 @@ export default function ProAmmPoolStat({
 
             <Column gap="12px" style={{ marginTop: '1rem' }}>
               {farmV2 &&
-                activeRanges?.map((range, index) => (
-                  <RangeItem
-                    farmId={farmV2.fId}
-                    token0={farmV2.token0}
-                    token1={farmV2.token1}
-                    active={activeRange === index}
-                    key={range.id}
-                    onRangeClick={() => setActiveRange(index)}
-                    rangeInfo={range}
-                  />
-                ))}
+                ranges?.map((range, index) =>
+                  range.isRemoved ? null : (
+                    <RangeItem
+                      farmId={farmV2.fId}
+                      token0={farmV2.token0}
+                      token1={farmV2.token1}
+                      active={activeRange === index}
+                      key={range.id}
+                      onRangeClick={() => {
+                        setActiveRange(index)
+                        onFarmRangeSelected(ranges[index].tickLower, ranges[index].tickUpper)
+                      }}
+                      rangeInfo={range}
+                    />
+                  ),
+                )}
             </Column>
           </div>
-          <TextButtonPrimary onClick={() => setShowRange(false)} margin="auto">
+          <TextButtonPrimary onClick={() => setShowRange(false)} margin="0.5rem auto 0">
             <Trans>Choose this range</Trans>
           </TextButtonPrimary>
         </BackFace>

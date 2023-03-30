@@ -53,6 +53,7 @@ import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { ApplicationModal } from 'state/application/actions'
 import { useOpenModal, useWalletModalToggle } from 'state/application/hooks'
+import { useElasticFarmsV2 } from 'state/farms/elasticv2/hooks'
 import ElasticFarmV2Updater from 'state/farms/elasticv2/updater'
 import {
   useProAmmDerivedAllMintInfo,
@@ -181,6 +182,24 @@ export default function AddLiquidity() {
   const { [Bound.LOWER]: priceLower, [Bound.UPPER]: priceUpper } = pricesAtTicks
 
   const poolAddress = useProAmmPoolInfo(baseCurrency, currencyB, feeAmount)
+
+  const { farms } = useElasticFarmsV2()
+  const farmV2 = farms?.find(
+    item =>
+      !item.isSettled &&
+      item.endTime > Date.now() / 1000 &&
+      item.poolAddress.toLowerCase() === poolAddress.toLowerCase(),
+  )
+
+  const activeRanges = farmV2?.ranges.filter(r => !r.isRemoved) || []
+
+  const isFarmAvailable = !!farmV2
+  const canJoinFarm =
+    !!farmV2 &&
+    positions.some(pos => activeRanges.some(r => pos && pos.tickLower <= r.tickLower && pos.tickUpper >= r.tickUpper))
+
+  const farmPosWarning = isFarmAvailable && !canJoinFarm
+
   const previousTicks: number[] | undefined = useProAmmPreviousTicks(pool, position)
   const mutiplePreviousTicks: number[][] | undefined = useProAmmMultiplePreviousTicks(pool, positions)
   const {
@@ -798,6 +817,20 @@ export default function AddLiquidity() {
           </Flex>
         </WarningCard>
       ) : null}
+
+      {farmPosWarning && (
+        <WarningCard padding="10px 16px">
+          <Flex alignItems="center">
+            <AlertTriangle stroke={theme.warning} size="16px" />
+            <TYPE.black ml="12px" fontSize="12px" flex={1}>
+              <Trans>
+                Warning: The price range for this liquidity position is not eligible for farming rewards. To become
+                eligible for rewards, please match the farm’s active range(s)
+              </Trans>
+            </TYPE.black>
+          </Flex>
+        </WarningCard>
+      )}
     </Flex>
   )
 
@@ -1067,6 +1100,11 @@ export default function AddLiquidity() {
   }
 
   const poolStat = poolDatas?.[poolAddress] || poolDatas?.[poolAddress.toLowerCase()]
+  const poolStatRef = useRef(poolStat)
+  if (poolStat) {
+    poolStatRef.current = poolStat
+  }
+
   const openShareModal = useOpenModal(ApplicationModal.SHARE)
   const userLiquidityPositionsQueryResult = useUserProMMPositions()
   const userPositions = useMemo(
@@ -1329,7 +1367,7 @@ export default function AddLiquidity() {
                   </AutoColumn>
                 </AutoColumn>
               ) : (
-                poolStat && (
+                poolStatRef.current && (
                   <>
                     <AutoColumn gap="12px">
                       <Text fontWeight={500} fontSize="12px">
@@ -1337,7 +1375,7 @@ export default function AddLiquidity() {
                       </Text>
                       <ProAmmPoolStat
                         onFarmRangeSelected={onFarmRangeSelected}
-                        pool={poolStat}
+                        pool={poolStatRef.current}
                         onShared={openShareModal}
                         userPositions={userPositions}
                         onClickPoolAnalytics={() => {

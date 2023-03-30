@@ -114,6 +114,7 @@ export const ListView = ({
                 onRangeClick={() => setActiveRangeIndex(index)}
                 token0={farm.token0}
                 token1={farm.token1}
+                addLiquidityLink={`${addliquidityElasticPool}?farmRange=${r.index}`}
               />
             ))}
           </Flex>
