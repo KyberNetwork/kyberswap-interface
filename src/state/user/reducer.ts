@@ -33,6 +33,7 @@ import {
 } from './actions'
 
 const currentTimestamp = () => new Date().getTime()
+const AUTO_DISABLE_DEGEN_MODE_MINUTES = 0.2
 
 export enum VIEW_MODE {
   GRID = 'grid',
@@ -49,6 +50,7 @@ interface UserState {
   userLocale: SupportedLocale | null
 
   userDegenMode: boolean
+  userDegenModeAutoDisableTimestamp: number
 
   // user defined slippage tolerance in bips, used in all txns
   userSlippageTolerance: number
@@ -129,6 +131,7 @@ const initialState: UserState = {
   userDarkMode: null, // default to system preference
   matchesDarkMode: true,
   userDegenMode: false,
+  userDegenModeAutoDisableTimestamp: 0,
   userLocale: null,
   userSlippageTolerance: INITIAL_ALLOWED_SLIPPAGE,
   userDeadline: DEFAULT_DEADLINE_FROM_NOW,
@@ -179,6 +182,9 @@ export default createReducer(initialState, builder =>
     })
     .addCase(updateUserDegenMode, (state, action) => {
       state.userDegenMode = action.payload.userDegenMode
+      if (action.payload.userDegenMode) {
+        state.userDegenModeAutoDisableTimestamp = Date.now() + AUTO_DISABLE_DEGEN_MODE_MINUTES * 60 * 1000
+      }
       state.timestamp = currentTimestamp()
     })
     .addCase(updateUserLocale, (state, action) => {
