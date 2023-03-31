@@ -2,6 +2,7 @@ import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { transparentize } from 'polished'
 import React from 'react'
+import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import { AutoColumn } from 'components/Column'
@@ -23,6 +24,11 @@ const BadgeWrapper = styled(AutoColumn).attrs<Pick<Props, '$level'>>(props => ({
   font-size: 12px;
   font-weight: 400;
 
+  &[data-level='worst'] {
+    background-color: ${({ theme }) => transparentize(0.9, theme.red)};
+    color: ${({ theme }) => theme.red};
+  }
+
   &[data-level='worse'] {
     background-color: ${({ theme }) => transparentize(0.9, theme.warning)};
     color: ${({ theme }) => theme.warning};
@@ -34,7 +40,7 @@ const BadgeWrapper = styled(AutoColumn).attrs<Pick<Props, '$level'>>(props => ({
   }
 `
 
-type Level = 'better' | 'worse' | undefined
+export type Level = 'better' | 'worse' | 'worst' | undefined
 
 export interface Props {
   $level: Level
@@ -44,6 +50,7 @@ export interface Props {
 export default function UpdatedBadge({ $level, outputAmount }: Props) {
   const theme = useTheme()
 
+  console.log(`$level`, $level)
   if (!$level) {
     return null
   }
@@ -56,10 +63,12 @@ export default function UpdatedBadge({ $level, outputAmount }: Props) {
           size={14}
           color={theme.primary}
           text={
-            <Trans>
-              We got you a higher amount. The initial output amount was{' '}
-              {outputAmount.toSignificant(RESERVE_USD_DECIMALS)} {outputAmount.currency.symbol}
-            </Trans>
+            <Text fontSize={12}>
+              <Trans>
+                We got you a higher amount. The initial output amount was{' '}
+                {outputAmount.toSignificant(RESERVE_USD_DECIMALS)} {outputAmount.currency.symbol}
+              </Trans>
+            </Text>
           }
         ></InfoHelper>
       )}
