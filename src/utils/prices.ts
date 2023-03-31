@@ -89,8 +89,8 @@ export const checkPriceImpact = (
 } => {
   return {
     isInvalid: typeof priceImpact === 'number' && !Number.isFinite(priceImpact),
-    isHigh: !!priceImpact && priceImpact > 5,
-    isVeryHigh: !!priceImpact && priceImpact > 15,
+    isHigh: !!priceImpact && priceImpact > 2,
+    isVeryHigh: !!priceImpact && priceImpact > 10,
   }
 }
 

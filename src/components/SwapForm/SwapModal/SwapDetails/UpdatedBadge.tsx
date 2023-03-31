@@ -50,7 +50,6 @@ export interface Props {
 export default function UpdatedBadge({ $level, outputAmount }: Props) {
   const theme = useTheme()
 
-  console.log(`$level`, $level)
   if (!$level) {
     return null
   }
