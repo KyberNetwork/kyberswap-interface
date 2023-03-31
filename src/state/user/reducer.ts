@@ -33,7 +33,7 @@ import {
 } from './actions'
 
 const currentTimestamp = () => new Date().getTime()
-const AUTO_DISABLE_DEGEN_MODE_MINUTES = 0.2
+const AUTO_DISABLE_DEGEN_MODE_MINUTES = 30
 
 export enum VIEW_MODE {
   GRID = 'grid',
