@@ -94,7 +94,12 @@ export default function TransactionSettings({ hoverBg }: Props) {
       <StyledMenu>
         <MenuFlyout
           trigger={
-            <Tooltip text={t`Advanced mode is on!`} show={isDegenMode && isShowTooltip}>
+            <Tooltip
+              width="fit-content"
+              placement="top"
+              text={t`Degen mode is on!`}
+              show={isDegenMode && isShowTooltip}
+            >
               <div onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
                 <StyledActionButtonSwapForm
                   hoverBg={hoverBg}
@@ -122,7 +127,7 @@ export default function TransactionSettings({ hoverBg }: Props) {
             <Flex justifyContent="space-between">
               <Flex width="fit-content" alignItems="center">
                 <SettingLabel>
-                  <Trans>Advanced Mode</Trans>
+                  <Trans>Degen Mode</Trans>
                 </SettingLabel>
                 <InfoHelper
                   size={14}
