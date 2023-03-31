@@ -4,8 +4,9 @@ import dayjs from 'dayjs'
 import { ethers } from 'ethers'
 import JSBI from 'jsbi'
 import { debounce } from 'lodash'
+import { rgba } from 'polished'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Repeat } from 'react-feather'
+import { Info, Repeat } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -22,13 +23,13 @@ import DeltaRate, { useGetDeltaRateLimitOrder } from 'components/swapv2/LimitOrd
 import { SummaryNotifyOrderPlaced } from 'components/swapv2/LimitOrder/ListOrder/SummaryNotify'
 import ConfirmOrderModal from 'components/swapv2/LimitOrder/Modals/ConfirmOrderModal'
 import TradePrice from 'components/swapv2/LimitOrder/TradePrice'
-import useBaseTradeInfo from 'components/swapv2/LimitOrder/useBaseTradeInfo'
 import useValidateInputError from 'components/swapv2/LimitOrder/useValidateInputError'
 import useWrapEthStatus from 'components/swapv2/LimitOrder/useWrapEthStatus'
 import { Z_INDEXS } from 'constants/styles'
 import { useTokenAllowance } from 'data/Allowances'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
+import { useBaseTradeInfoLimitOrder } from 'hooks/useBaseTradeInfo'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import useWrapCallback from 'hooks/useWrapCallback'
@@ -44,7 +45,13 @@ import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { toFixed } from 'utils/numbers'
 
 import ExpirePicker from './ExpirePicker'
-import { DEFAULT_EXPIRED, EXPIRED_OPTIONS, USD_THRESHOLD } from './const'
+import {
+  BETTER_PRICE_DIFF_THRESHOLD,
+  DEFAULT_EXPIRED,
+  USD_THRESHOLD,
+  WORSE_PRICE_DIFF_THRESHOLD,
+  getExpireOptions,
+} from './const'
 import {
   calcInvert,
   calcOutput,
@@ -148,7 +155,7 @@ const LimitOrderForm = function LimitOrderForm({
   const [approvalSubmitted, setApprovalSubmitted] = useState(false)
   const { library } = useWeb3React()
 
-  const { loading: loadingTrade, tradeInfo } = useBaseTradeInfo(currencyIn, currencyOut)
+  const { loading: loadingTrade, tradeInfo } = useBaseTradeInfoLimitOrder(currencyIn, currencyOut)
   const deltaRate = useGetDeltaRateLimitOrder({ marketPrice: tradeInfo, rateInfo })
 
   const { execute: onWrap, inputError: wrapInputError } = useWrapCallback(currencyIn, currencyOut, inputAmount, true)
@@ -615,11 +622,15 @@ const LimitOrderForm = function LimitOrderForm({
   const warningMessage = useMemo(() => {
     const messages = []
 
-    if (currencyIn && displayRate && !deltaRate.profit && deltaRate.percent) {
+    if (currencyIn && displayRate && !deltaRate.profit && Number(deltaRate.rawPercent) <= WORSE_PRICE_DIFF_THRESHOLD) {
+      // need to remove the minus out of the percent text
+      const percentWithoutMinus = deltaRate.percent.slice(1)
+
       messages.push(
         <Text>
           <Trans>
-            Your limit order price is <HightLight>{deltaRate.percent}</HightLight> worse than the current market price
+            Your limit order price is <HightLight>{percentWithoutMinus}</HightLight> lower than the market. You will be
+            selling your {currencyIn.symbol} exceedingly cheap.
           </Trans>
         </Text>,
       )
@@ -651,7 +662,19 @@ const LimitOrderForm = function LimitOrderForm({
     }
 
     return messages
-  }, [currencyIn, currencyOut, displayRate, deltaRate, estimateUSD, outputAmount, chainId, tradeInfo])
+  }, [
+    chainId,
+    currencyIn,
+    currencyOut?.symbol,
+    deltaRate.percent,
+    deltaRate.profit,
+    deltaRate.rawPercent,
+    displayRate,
+    estimateUSD.rawInput,
+    outputAmount,
+    tradeInfo?.gasFee,
+    tradeInfo?.marketRate,
+  ])
 
   return (
     <>
@@ -678,7 +701,7 @@ const LimitOrderForm = function LimitOrderForm({
             disableCurrencySelect={isEdit}
             label={
               <Label>
-                <Trans>You Pay</Trans>
+                <Trans>You Sell</Trans>
               </Label>
             }
             positionLabel="in"
@@ -726,7 +749,7 @@ const LimitOrderForm = function LimitOrderForm({
               optionStyle={isEdit ? { paddingTop: 8, paddingBottom: 8 } : {}}
               menuStyle={isEdit ? { paddingTop: 8, paddingBottom: 8 } : {}}
               style={{ width: '100%', padding: 0, height: INPUT_HEIGHT }}
-              options={[...EXPIRED_OPTIONS, { label: 'Custom', onSelect: toggleDatePicker }]}
+              options={[...getExpireOptions(), { label: 'Custom', onSelect: toggleDatePicker }]}
               activeRender={item => {
                 const displayTime = customDateExpire ? dayjs(customDateExpire).format('DD/MM/YYYY HH:mm') : item?.label
                 return (
@@ -784,12 +807,37 @@ const LimitOrderForm = function LimitOrderForm({
             disableCurrencySelect={isEdit}
             label={
               <Label>
-                <Trans>You Receive</Trans>
+                <Trans>You Buy</Trans>
               </Label>
             }
             positionLabel="in"
           />
         </Tooltip>
+
+        {Number(deltaRate.rawPercent) >= BETTER_PRICE_DIFF_THRESHOLD && (
+          <Flex
+            padding="14px 18px"
+            color={theme.text}
+            alignItems="center"
+            style={{ background: rgba(theme.subText, 0.2) }}
+            sx={{
+              borderRadius: '16px',
+              gap: '8px',
+            }}
+          >
+            <Info
+              size={16}
+              style={{
+                flex: '0 0 16px',
+              }}
+            />
+            <Text fontWeight={400} fontSize={12} color={theme.text}>
+              <Trans>
+                Limit order price is &gt;=30% higher than the market. We just want to make sure this is correct
+              </Trans>
+            </Text>
+          </Flex>
+        )}
 
         {warningMessage.map((mess, i) => (
           <ErrorWarningPanel type="warn" key={i} title={mess} />
@@ -829,6 +877,7 @@ const LimitOrderForm = function LimitOrderForm({
         marketPrice={tradeInfo}
         note={note}
         warningMessage={warningMessage}
+        percentDiff={Number(deltaRate.rawPercent)}
       />
 
       <ExpirePicker
