@@ -74,7 +74,7 @@ export default function SwapBrief({
         <Skeleton
           width="108px"
           // there's border of 1px
-          height="27px"
+          height="26px"
           baseColor={theme.border}
           highlightColor={theme.buttonGray}
           borderRadius="80px"

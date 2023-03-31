@@ -1,8 +1,20 @@
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { Trans } from '@lingui/macro'
+import React from 'react'
+import { Text } from 'rebass'
+import styled from 'styled-components'
 
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { WrapType } from 'hooks/useWrapCallback'
 import { formattedNum } from 'utils'
+
+export const Label = styled.div`
+  font-weight: 500;
+  font-size: 12px;
+  color: ${({ theme }) => theme.subText};
+  border-bottom: 1px dashed ${({ theme }) => theme.subText};
+`
 
 type Props = {
   wrapType: WrapType
@@ -14,6 +26,7 @@ type Props = {
 
   onChangeCurrencyOut: (c: Currency) => void
 }
+
 const OutputCurrencyPanel: React.FC<Props> = ({
   wrapType,
   parsedAmountIn,
@@ -54,6 +67,24 @@ const OutputCurrencyPanel: React.FC<Props> = ({
       id="swap-currency-output"
       showCommonBases={true}
       estimatedUsd={getEstimatedUsd()}
+      fuckinglabel={
+        <Label>
+          <MouseoverTooltip
+            placement="top"
+            width="350px"
+            text={
+              <Text fontSize={12}>
+                <Trans>
+                  This is the estimated output amount. Do review the actual output amount in the confirmation screen.
+                </Trans>
+              </Text>
+            }
+          >
+            <Trans>Est. Output</Trans>
+          </MouseoverTooltip>
+        </Label>
+      }
+      positionLabel="in"
     />
   )
 }

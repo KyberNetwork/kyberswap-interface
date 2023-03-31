@@ -17,7 +17,7 @@ export type BuildRouteData = {
   amountOut: string
   amountOutUsd: string
   outputChange?: {
-    amount: string
+    percent: string
   }
   gas: string
   gasUsd: string
