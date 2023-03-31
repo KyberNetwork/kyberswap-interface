@@ -650,7 +650,7 @@ export default function TokenPair({
                     onMax={null}
                     onHalf={null}
                     currency={currencyA}
-                    label={t`Output`}
+                    fuckinglabel={t`Output`}
                     onCurrencySelect={() => null}
                     disableCurrencySelect={true}
                     id="remove-liquidity-tokena"

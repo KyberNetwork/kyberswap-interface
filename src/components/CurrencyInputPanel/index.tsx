@@ -175,7 +175,7 @@ interface CurrencyInputPanelProps {
   onFocus?: () => void
   onClickSelect?: () => void
   positionMax?: 'inline' | 'top'
-  label?: ReactNode
+  fuckinglabel?: ReactNode
   positionLabel?: 'in' | 'out'
   onCurrencySelect?: (currency: Currency) => void
   onSwitchCurrency?: () => void
@@ -213,7 +213,7 @@ export default function CurrencyInputPanel({
   onMax,
   onHalf,
   positionMax = 'inline',
-  label = '',
+  fuckinglabel = '',
   positionLabel = 'out',
   onCurrencySelect,
   onSwitchCurrency,
@@ -271,11 +271,11 @@ export default function CurrencyInputPanel({
 
   return (
     <div style={{ width: '100%' }}>
-      {label && positionLabel === 'out' && (
+      {fuckinglabel && positionLabel === 'out' && (
         <StyledCard borderRadius={'20px'}>
           <Flex justifyContent={'space-between'} alignItems="center">
             <Text fontSize={12} color={theme.subText} fontWeight={500}>
-              {label}:
+              {fuckinglabel}:
             </Text>
           </Flex>
         </StyledCard>
@@ -285,8 +285,8 @@ export default function CurrencyInputPanel({
         <Container hideInput={hideInput} selected={disableCurrencySelect} error={error} $outline={outline}>
           {!hideBalance && (
             <Flex justifyContent="space-between" fontSize="12px" marginBottom="12px" alignItems="center">
-              {label && positionLabel === 'in' ? (
-                label
+              {fuckinglabel && positionLabel === 'in' ? (
+                fuckinglabel
               ) : (onMax || onHalf) && positionMax === 'top' && currency && account ? (
                 <Flex alignItems="center" sx={{ gap: '4px' }}>
                   {onMax && (
