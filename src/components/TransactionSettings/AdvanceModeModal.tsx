@@ -4,7 +4,7 @@ import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
-import { ButtonWarning } from 'components/Button'
+import { ButtonOutlined, ButtonWarning } from 'components/Button'
 import Modal from 'components/Modal'
 import useTheme from 'hooks/useTheme'
 import { useDegenModeManager } from 'state/user/hooks'
@@ -76,16 +76,16 @@ function AdvanceModeModal({ show, setShow }: { show: boolean; setShow: (v: boole
 
         <Text marginTop="28px">
           <Trans>
-            <Text color={theme.warning} as="span" fontWeight="500">
-              Advanced Mode
-            </Text>{' '}
-            allows you to make trades with price impact which is <b>very</b> high, or cannot be calculated. Enable at
-            your own risk as this can result in bad rates and lost funds!
+            Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can
+            result in bad rates and loss of funds. Be cautious.
           </Trans>
         </Text>
 
         <Text marginTop="20px">
-          <Trans>Please type the word &apos;confirm&apos; below to enable Advanced Mode.</Trans>
+          <Trans>
+            Please type the word &apos;confirm&apos; below to enable{' '}
+            <span style={{ color: theme.warning }}>Degen Mode</span>
+          </Trans>
         </Text>
 
         <StyledInput
@@ -103,7 +103,7 @@ function AdvanceModeModal({ show, setShow }: { show: boolean; setShow: (v: boole
         </Text>
 
         <Flex sx={{ gap: '16px' }} marginTop="28px" justifyContent={'center'}>
-          <ButtonWarning
+          <ButtonOutlined
             style={{
               flex: 1,
               fontSize: '16px',
@@ -115,7 +115,7 @@ function AdvanceModeModal({ show, setShow }: { show: boolean; setShow: (v: boole
             }}
           >
             <Trans>No, go back</Trans>
-          </ButtonWarning>
+          </ButtonOutlined>
           <ButtonWarning
             disabled={confirmText.trim().toLowerCase() !== 'confirm'}
             style={{ fontSize: '16px', flex: 1, padding: '10px' }}
