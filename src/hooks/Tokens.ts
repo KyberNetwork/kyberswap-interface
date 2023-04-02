@@ -22,8 +22,9 @@ import { filterTruthy, isAddress } from 'utils'
 import useDebounce from './useDebounce'
 
 // reduce token map into standard address <-> Token mapping
-function useTokensFromMap(tokenMap: TokenAddressMap, lowercaseAddress?: boolean): TokenMap {
-  const { chainId } = useActiveWeb3React()
+function useTokensFromMap(tokenMap: TokenAddressMap, lowercaseAddress?: boolean, customChainId?: ChainId): TokenMap {
+  const { chainId: currentChainId } = useActiveWeb3React()
+  const chainId = customChainId || currentChainId
   const userAddedTokens = useUserAddedTokens()
 
   return useMemo(() => {
@@ -61,10 +62,10 @@ function useTokensFromMap(tokenMap: TokenAddressMap, lowercaseAddress?: boolean)
 
 export type TokenMap = { [address: string]: WrappedTokenInfo }
 
-export function useAllTokens(lowercaseAddress = false): TokenMap {
+export function useAllTokens(lowercaseAddress = false, chainId?: ChainId): TokenMap {
   const mapWhitelistTokens = useSelector((state: AppState) => state.lists.mapWhitelistTokens)
   const allTokens = useDebounce(mapWhitelistTokens, 300)
-  return useTokensFromMap(allTokens, lowercaseAddress)
+  return useTokensFromMap(allTokens, lowercaseAddress, chainId)
 }
 
 export function useIsLoadedTokenDefault() {
@@ -301,8 +302,16 @@ export const fetchListTokenByAddresses = async (address: string[], chainId: Chai
   return filterTruthy(tokens.map(formatAndCacheToken)) as WrappedTokenInfo[]
 }
 
-export const formatAndCacheToken = (tokenResponse: TokenInfo) => {
+// ex: `"BTT_b"` => BTT_b
+const escapeQuoteString = (str: string) =>
+  str?.startsWith('"') && str?.endsWith('"') ? str.substring(1, str.length - 1) : str
+
+export const formatAndCacheToken = (rawTokenResponse: TokenInfo) => {
   try {
+    const tokenResponse = { ...rawTokenResponse }
+    tokenResponse.symbol = escapeQuoteString(tokenResponse.symbol)
+    tokenResponse.name = escapeQuoteString(tokenResponse.name)
+
     const tokenInfo = new WrappedTokenInfo(tokenResponse)
     if (!tokenInfo.decimals && !tokenInfo.symbol && !tokenInfo.name) {
       return
@@ -330,7 +339,6 @@ export function useTokenV2(tokenAddress?: string): WrappedTokenInfo | Token | Na
   return isValidating ? null : data
 }
 
-// todo: danh update use useCurrencyV2 and remove useCurrency
 export function useCurrency(currencyId: string | undefined): Currency | null | undefined {
   const { chainId } = useActiveWeb3React()
   const isETH = useMemo(
