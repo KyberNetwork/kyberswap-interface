@@ -86,18 +86,15 @@ const ApprovalModal = ({
   typedValue,
   currencyInput,
   onApprove,
-  hasPermit,
   onPermit,
 }: {
   typedValue?: string
   currencyInput?: Currency
   onApprove?: (amount: BigNumber) => void
-  hasPermit?: boolean
   onPermit?: () => void
 }) => {
   const theme = useTheme()
   const [option, setOption] = useState<ApproveOptions>(ApproveOptions.Infinite)
-  console.log('🚀 ~ file: ApprovalModal.tsx:108 ~ option:', option)
   const [customValue, setCustomValue] = useState(typedValue || '1')
 
   const isOpen = useModalOpen(ApplicationModal.SWAP_APPROVAL)
@@ -114,11 +111,7 @@ const ApprovalModal = ({
 
   const handleApprove = () => {
     if (isValid) {
-      if (option === ApproveOptions.Permit) {
-        onPermit?.()
-      } else {
-        onApprove?.(option === ApproveOptions.Infinite ? MaxUint256 : parseUnits(customValue, currencyInput?.decimals))
-      }
+      onApprove?.(option === ApproveOptions.Infinite ? MaxUint256 : parseUnits(customValue, currencyInput?.decimals))
       closeModal()
     }
   }
@@ -128,13 +121,7 @@ const ApprovalModal = ({
     if (e.key === 'Tab') {
       e.stopPropagation()
       e.preventDefault()
-      setOption(prev =>
-        prev === ApproveOptions.Infinite
-          ? hasPermit
-            ? ApproveOptions.Permit
-            : ApproveOptions.Custom
-          : ApproveOptions.Infinite,
-      )
+      setOption(prev => (prev === ApproveOptions.Infinite ? ApproveOptions.Custom : ApproveOptions.Infinite))
     }
   }
   return (
@@ -151,11 +138,9 @@ const ApprovalModal = ({
 
         <Column gap="12px" style={{ marginBottom: '20px' }}>
           <Text fontSize="14px" lineHeight="20px" color={theme.subText}>
-            {hasPermit ? (
-              <Trans>Choose between Infinite or Exact Allowance Permit Read more ↗</Trans>
-            ) : (
-              <Trans>Choose between Infinite or Custom allowance. Read more ↗</Trans>
-            )}
+            <Trans>
+              Choose between Infinite or Custom allowance. <a href="https://docs.kyberswap.com">Read more ↗</a>
+            </Trans>
           </Text>
           <OptionWrapper active={option === ApproveOptions.Infinite} onClick={() => setOption(ApproveOptions.Infinite)}>
             <RowFit flex="0 0 48px">
@@ -202,27 +187,28 @@ const ApprovalModal = ({
               </Text>
             </MouseoverTooltip>
           </OptionWrapper>
-          {hasPermit ? (
-            <OptionWrapper active={option === ApproveOptions.Permit} onClick={() => setOption(ApproveOptions.Permit)}>
-              <RowFit flex="0 0 48px">
-                <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <g clipPath="url(#clip0_21_3327)">
-                    <path
-                      d="M27.4999 7.33333C19.3966 7.33333 12.8333 13.8967 12.8333 22C12.8333 30.1033 19.3966 36.6667 27.4999 36.6667C35.6033 36.6667 42.1666 30.1033 42.1666 22C42.1666 13.8967 35.6033 7.33333 27.4999 7.33333ZM27.4999 33C21.4316 33 16.4999 28.0683 16.4999 22C16.4999 15.9317 21.4316 11 27.4999 11C33.5683 11 38.4999 15.9317 38.4999 22C38.4999 28.0683 33.5683 33 27.4999 33ZM5.49992 22C5.49992 17.6183 8.06659 13.8233 11.7883 12.0633C12.4116 11.77 12.8333 11.2017 12.8333 10.5233V10.175C12.8333 8.92833 11.5316 8.14 10.4133 8.67167C5.35325 10.9817 1.83325 16.0783 1.83325 22C1.83325 27.9217 5.35325 33.0183 10.4133 35.3283C11.5316 35.8417 12.8333 35.0717 12.8333 33.825V33.495C12.8333 32.8167 12.4116 32.23 11.7883 31.9367C8.06659 30.1767 5.49992 26.3817 5.49992 22Z"
-                      fill="currentcolor"
-                    />
-                  </g>
-                  <g clipPath="url(#clip0_21_3327)" filter="blur(2px)">
-                    <path
-                      d="M27.4999 7.33333C19.3966 7.33333 12.8333 13.8967 12.8333 22C12.8333 30.1033 19.3966 36.6667 27.4999 36.6667C35.6033 36.6667 42.1666 30.1033 42.1666 22C42.1666 13.8967 35.6033 7.33333 27.4999 7.33333ZM27.4999 33C21.4316 33 16.4999 28.0683 16.4999 22C16.4999 15.9317 21.4316 11 27.4999 11C33.5683 11 38.4999 15.9317 38.4999 22C38.4999 28.0683 33.5683 33 27.4999 33ZM5.49992 22C5.49992 17.6183 8.06659 13.8233 11.7883 12.0633C12.4116 11.77 12.8333 11.2017 12.8333 10.5233V10.175C12.8333 8.92833 11.5316 8.14 10.4133 8.67167C5.35325 10.9817 1.83325 16.0783 1.83325 22C1.83325 27.9217 5.35325 33.0183 10.4133 35.3283C11.5316 35.8417 12.8333 35.0717 12.8333 33.825V33.495C12.8333 32.8167 12.4116 32.23 11.7883 31.9367C8.06659 30.1767 5.49992 26.3817 5.49992 22Z"
-                      fill="currentcolor"
-                    />
-                  </g>
-                </svg>
-              </RowFit>
 
+          <OptionWrapper active={option === ApproveOptions.Custom} onClick={() => setOption(ApproveOptions.Custom)}>
+            <RowFit flex="0 0 48px">
+              <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g clipPath="url(#clip0_398_6043)">
+                  <path
+                    d="M5.5 31.6249V38.4999H12.375L32.6517 18.2233L25.7767 11.3483L5.5 31.6249ZM37.9683 12.9066C38.6833 12.1916 38.6833 11.0366 37.9683 10.3216L33.6783 6.03161C32.9633 5.31661 31.8083 5.31661 31.0933 6.03161L27.7383 9.38661L34.6133 16.2616L37.9683 12.9066Z"
+                    fill="currentcolor"
+                  />
+                </g>
+                <g clipPath="url(#clip1_398_6043)" filter="blur(2px)">
+                  <path
+                    d="M5.5 31.6249V38.4999H12.375L32.6517 18.2233L25.7767 11.3483L5.5 31.6249ZM37.9683 12.9066C38.6833 12.1916 38.6833 11.0366 37.9683 10.3216L33.6783 6.03161C32.9633 5.31661 31.8083 5.31661 31.0933 6.03161L27.7383 9.38661L34.6133 16.2616L37.9683 12.9066Z"
+                    fill="currentcolor"
+                  />
+                </g>
+              </svg>
+            </RowFit>
+
+            <Column gap="8px" flex="0 1 200px">
               <MouseoverTooltip
-                text={t`This temporary permit allows KyberSwaps smart contract to interact with your token for up to 24Hrs. This won't cost gas fees.`}
+                text={t`You wish to give KyberSwap permission to use this token up to the custom allowance limit only. Subsequent transactions exceeding this limit will requireyour permission again. This approve transaction will cost gas`}
                 placement="right"
               >
                 <Text
@@ -235,57 +221,18 @@ const ApprovalModal = ({
                     alignSelf: 'flex-start',
                   }}
                 >
-                  <Trans>Exact Allowance Permit</Trans>
+                  <Trans>Custom Allowance</Trans>
                 </Text>
               </MouseoverTooltip>
-            </OptionWrapper>
-          ) : (
-            <OptionWrapper active={option === ApproveOptions.Custom} onClick={() => setOption(ApproveOptions.Custom)}>
-              <RowFit flex="0 0 48px">
-                <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <g clipPath="url(#clip0_21_3327)">
-                    <path
-                      d="M27.4999 7.33333C19.3966 7.33333 12.8333 13.8967 12.8333 22C12.8333 30.1033 19.3966 36.6667 27.4999 36.6667C35.6033 36.6667 42.1666 30.1033 42.1666 22C42.1666 13.8967 35.6033 7.33333 27.4999 7.33333ZM27.4999 33C21.4316 33 16.4999 28.0683 16.4999 22C16.4999 15.9317 21.4316 11 27.4999 11C33.5683 11 38.4999 15.9317 38.4999 22C38.4999 28.0683 33.5683 33 27.4999 33ZM5.49992 22C5.49992 17.6183 8.06659 13.8233 11.7883 12.0633C12.4116 11.77 12.8333 11.2017 12.8333 10.5233V10.175C12.8333 8.92833 11.5316 8.14 10.4133 8.67167C5.35325 10.9817 1.83325 16.0783 1.83325 22C1.83325 27.9217 5.35325 33.0183 10.4133 35.3283C11.5316 35.8417 12.8333 35.0717 12.8333 33.825V33.495C12.8333 32.8167 12.4116 32.23 11.7883 31.9367C8.06659 30.1767 5.49992 26.3817 5.49992 22Z"
-                      fill="currentcolor"
-                    />
-                  </g>
-                  <g clipPath="url(#clip0_21_3327)" filter="blur(2px)">
-                    <path
-                      d="M27.4999 7.33333C19.3966 7.33333 12.8333 13.8967 12.8333 22C12.8333 30.1033 19.3966 36.6667 27.4999 36.6667C35.6033 36.6667 42.1666 30.1033 42.1666 22C42.1666 13.8967 35.6033 7.33333 27.4999 7.33333ZM27.4999 33C21.4316 33 16.4999 28.0683 16.4999 22C16.4999 15.9317 21.4316 11 27.4999 11C33.5683 11 38.4999 15.9317 38.4999 22C38.4999 28.0683 33.5683 33 27.4999 33ZM5.49992 22C5.49992 17.6183 8.06659 13.8233 11.7883 12.0633C12.4116 11.77 12.8333 11.2017 12.8333 10.5233V10.175C12.8333 8.92833 11.5316 8.14 10.4133 8.67167C5.35325 10.9817 1.83325 16.0783 1.83325 22C1.83325 27.9217 5.35325 33.0183 10.4133 35.3283C11.5316 35.8417 12.8333 35.0717 12.8333 33.825V33.495C12.8333 32.8167 12.4116 32.23 11.7883 31.9367C8.06659 30.1767 5.49992 26.3817 5.49992 22Z"
-                      fill="currentcolor"
-                    />
-                  </g>
-                </svg>
-              </RowFit>
-
-              <Column gap="8px" flex="0 1 200px">
-                <MouseoverTooltip
-                  text={t`You wish to give KyberSwap permission to use this token up to the custom allowance limit only. Subsequent transactions exceeding this limit will requireyour permission again. This approve transaction will cost gas`}
-                  placement="right"
-                >
-                  <Text
-                    fontSize="16px"
-                    lineHeight="20px"
-                    fontWeight={500}
-                    style={{
-                      textDecoration: 'underline 1px dotted',
-                      textUnderlineOffset: '4px',
-                      alignSelf: 'flex-start',
-                    }}
-                  >
-                    <Trans>Custom Allowance</Trans>
-                  </Text>
-                </MouseoverTooltip>
-                <InputWrapper>
-                  <Input value={customValue} onUserInput={handleInputChange} style={{ fontSize: '14px' }} />
-                  <CurrencyLogo currency={currencyInput} size="16px" />
-                  <Text color={theme.subText} fontSize="14px">
-                    {currencyInput?.symbol}
-                  </Text>
-                </InputWrapper>
-              </Column>
-            </OptionWrapper>
-          )}
+              <InputWrapper>
+                <Input value={customValue} onUserInput={handleInputChange} style={{ fontSize: '14px' }} />
+                <CurrencyLogo currency={currencyInput} size="16px" />
+                <Text color={theme.subText} fontSize="14px">
+                  {currencyInput?.symbol}
+                </Text>
+              </InputWrapper>
+            </Column>
+          </OptionWrapper>
         </Column>
         <ButtonPrimary onClick={handleApprove} disabled={!isValid}>
           <Trans>Approve</Trans>

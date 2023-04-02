@@ -5,15 +5,17 @@ import styled from 'styled-components'
 
 import { ButtonConfirmed, ButtonLight, ButtonPrimary } from 'components/Button'
 import Column from 'components/Column/index'
+import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import ProgressSteps from 'components/ProgressSteps'
-import { AutoRow, RowBetween } from 'components/Row'
+import { AutoRow, RowBetween, RowFit } from 'components/Row'
 import SwapOnlyButton from 'components/SwapForm/SwapActionButton/SwapOnlyButton'
 import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
 import { SwapCallbackError } from 'components/swapv2/styleds'
 import { useActiveWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { PermitState, usePermit } from 'hooks/usePermit'
+import useTheme from 'hooks/useTheme'
 import { WrapType } from 'hooks/useWrapCallback'
 import ApprovalModal from 'pages/SwapV3/ApprovalModal'
 import { ApplicationModal } from 'state/application/actions'
@@ -78,6 +80,7 @@ const SwapActionButton: React.FC<Props> = ({
   onWrap,
   buildRoute,
 }) => {
+  const theme = useTheme()
   const { account } = useActiveWeb3React()
 
   const [errorWhileSwap, setErrorWhileSwap] = useState('')
@@ -204,19 +207,41 @@ const SwapActionButton: React.FC<Props> = ({
                 ) : approvalSubmitted && approval === ApprovalState.APPROVED ? (
                   <Trans>Approved</Trans>
                 ) : (
-                  <Trans>Approve {currencyIn?.symbol}</Trans>
+                  <RowFit gap="4px">
+                    <InfoHelper
+                      color={theme.textReverse}
+                      text={
+                        <Trans>
+                          You need to first allow KyberSwap&apos;s smart contract to use your KNC.{' '}
+                          <a href="https://docs.kyberswap.com">Read more ↗</a>
+                        </Trans>
+                      }
+                    />
+                    <Trans>Approve {currencyIn?.symbol}</Trans>
+                  </RowFit>
                 )}
               </ButtonConfirmed>
             ) : (
               <ButtonConfirmed
                 onClick={() => {
-                  toggleApprovalModal()
+                  permitCallback()
                 }}
                 style={{
                   flex: 1,
                 }}
               >
-                <Trans>Permit {currencyIn?.symbol}</Trans>
+                <RowFit gap="4px">
+                  <InfoHelper
+                    color={theme.textReverse}
+                    text={
+                      <Trans>
+                        You need to first give a temporary 24H approval approval to KyberSwaps smart contract to use
+                        your KNC. This doesnt require a gas fee. <a href="https://docs.kyberswap.com">Read more ↗</a>
+                      </Trans>
+                    }
+                  />
+                  <Trans>Permit {currencyIn?.symbol}</Trans>
+                </RowFit>
               </ButtonConfirmed>
             )}
 
@@ -243,13 +268,7 @@ const SwapActionButton: React.FC<Props> = ({
         <SwapCallbackError style={{ margin: 0, zIndex: 'unset' }} error={errorWhileSwap} />
       ) : null}
       {showApproveFlow && (
-        <ApprovalModal
-          typedValue={typedValue}
-          currencyInput={currencyIn}
-          onApprove={approveCallback}
-          hasPermit={permitState !== PermitState.NOT_APPLICABLE}
-          onPermit={permitCallback}
-        />
+        <ApprovalModal typedValue={typedValue} currencyInput={currencyIn} onApprove={approveCallback} />
       )}
     </>
   )
