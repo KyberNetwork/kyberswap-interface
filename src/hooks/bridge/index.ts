@@ -180,5 +180,6 @@ export function useMultichainPool(chainId: ChainId | undefined, tokenList: Token
 
   useInterval(fetchPoolCallback, 1000 * 10)
 
-  return !chainId ? undefined : poolData
+  const isStale = poolData && Object.keys(poolData).length && !tokenList.some(e => poolData[e.anytoken] !== undefined)
+  return !chainId || isStale ? undefined : poolData
 }
