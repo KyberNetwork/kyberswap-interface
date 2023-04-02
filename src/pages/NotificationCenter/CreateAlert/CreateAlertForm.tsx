@@ -299,7 +299,7 @@ export default function CreateAlert({
           <RowBetween>
             <MouseoverTooltip
               placement="top"
-              text={t`To specify the amount of time that must pass before the alert can be fire again`}
+              text={t`Specify the amount of time that must pass before the alert can be fired again`}
             >
               <MiniLabel style={{ borderBottom: `1px dotted ${theme.border}` }}>
                 <Trans>Cooldown</Trans>
