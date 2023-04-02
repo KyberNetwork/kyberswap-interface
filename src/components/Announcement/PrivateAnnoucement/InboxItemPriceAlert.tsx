@@ -10,18 +10,11 @@ import { useNavigateToUrl } from 'components/Announcement/helper'
 import { AnnouncementTemplatePriceAlert } from 'components/Announcement/type'
 import { ButtonLight } from 'components/Button'
 import DeltaTokenAmount from 'components/WalletPopup/Transactions/DeltaTokenAmount'
-import { APP_PATHS } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
 import { HistoricalPriceAlert, PriceAlertType } from 'pages/NotificationCenter/const'
-import { convertToSlug } from 'utils/string'
 
 export const getSwapUrlPriceAlert = (alert: HistoricalPriceAlert) => {
-  const { tokenInSymbol, tokenOutSymbol, chainId: rawChainId } = alert
-  const chainId = Number(rawChainId) as ChainId
-  return `${APP_PATHS.SWAP}/${NETWORKS_INFO[chainId].route}/${convertToSlug(tokenInSymbol)}-to-${convertToSlug(
-    tokenOutSymbol,
-  )}`
+  return alert.swapURL
 }
 
 function InboxItemBridge({
@@ -48,7 +41,7 @@ function InboxItemBridge({
 
   const navigate = useNavigateToUrl()
   const onClick = () => {
-    navigate(getSwapUrlPriceAlert(templateBody.alert), chainId)
+    navigate(getSwapUrlPriceAlert(templateBody.alert))
     onRead(announcement, 'price_alert')
   }
 
