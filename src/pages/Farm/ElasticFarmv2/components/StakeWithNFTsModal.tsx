@@ -162,9 +162,11 @@ const StakeWithNFTsModal = ({
   const { loading, positions: allPositions } = useProAmmPositions(account)
 
   const positions = useMemo(() => {
-    return allPositions?.filter(item => item.poolId.toLowerCase() === farm?.poolAddress.toLowerCase())
+    return allPositions?.filter(
+      item => item.poolId.toLowerCase() === farm?.poolAddress.toLowerCase() && item.liquidity.gt(0),
+    )
   }, [allPositions, farm?.poolAddress])
-  const prices = useTokenPrices([farm.token0.wrapped.address, farm.token0.wrapped.address])
+  const prices = useTokenPrices([farm.token0.wrapped.address, farm.token1.wrapped.address])
 
   const [selectedPos, setSelectedPos] = useState<{ [tokenId: string]: boolean }>({})
   const selectedPosArray: Array<number> = useMemo(
