@@ -1,5 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import debounce from 'lodash/debounce'
+import { debounce } from 'lodash'
 import { stringify } from 'querystring'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
@@ -46,6 +46,10 @@ const useTokenPricesLocal = (
 
   const fetchPrices = useCallback(
     async (list: string[]) => {
+      if (list.length === 0) {
+        return
+      }
+
       try {
         setLoading(true)
         const payload = {
