@@ -21,7 +21,6 @@ import useTheme from 'hooks/useTheme'
 import InputNote from 'pages/NotificationCenter/CreateAlert/InputNote'
 import {
   ActionGroup,
-  ButtonCancel,
   ButtonConnectWallet,
   ButtonSubmit,
   Form,
@@ -202,28 +201,29 @@ export default function CreateAlert({
               )}
             />
 
-            <StyledInputNumber
-              value={formInput.tokenInAmount}
-              onUserInput={val => onChangeInput('tokenInAmount', val)}
-            />
-
-            <div>
-              <CurrencyInputPanel
-                hideInput
-                value={''}
-                currency={currencyIn}
-                hideBalance
-                onMax={null}
-                onHalf={null}
-                onCurrencySelect={onChangeCurrencyIn}
-                otherCurrency={currencyOut}
-                id="alert-currency-input"
-                showCommonBases={true}
-                styleSelect={styleCurrencySelect}
-                fontSize={'14px'}
-                customChainId={selectedChain}
+            <Flex sx={{ gap: '12px' }}>
+              <StyledInputNumber
+                value={formInput.tokenInAmount}
+                onUserInput={val => onChangeInput('tokenInAmount', val)}
               />
-            </div>
+              <div>
+                <CurrencyInputPanel
+                  hideInput
+                  value={''}
+                  currency={currencyIn}
+                  hideBalance
+                  onMax={null}
+                  onHalf={null}
+                  onCurrencySelect={onChangeCurrencyIn}
+                  otherCurrency={currencyOut}
+                  id="alert-currency-input"
+                  showCommonBases={true}
+                  styleSelect={styleCurrencySelect}
+                  fontSize={'14px'}
+                  customChainId={selectedChain}
+                />
+              </div>
+            </Flex>
 
             <MiniLabel>
               <Trans>to</Trans>
@@ -345,19 +345,14 @@ export default function CreateAlert({
 
       <ActionGroup>
         {account ? (
-          <>
-            <ButtonCancel onClick={resetForm}>
-              <Trans>Cancel</Trans>
-            </ButtonCancel>
-            <ButtonSubmit onClick={onSubmitAlert} disabled={!isInputValid()}>
-              {isMaxQuota && (
-                <MouseoverTooltip text={`You have created the maximum number of alerts allowed`}>
-                  <Info size={16} />
-                </MouseoverTooltip>
-              )}
-              <Trans>Create Alert</Trans>
-            </ButtonSubmit>
-          </>
+          <ButtonSubmit onClick={onSubmitAlert} disabled={!isInputValid()}>
+            {isMaxQuota && (
+              <MouseoverTooltip text={`You have created the maximum number of alerts allowed`}>
+                <Info size={16} />
+              </MouseoverTooltip>
+            )}
+            <Trans>Create Alert</Trans>
+          </ButtonSubmit>
         ) : (
           <ButtonConnectWallet onClick={toggleWalletModal}>
             <Trans>Connect Wallet</Trans>
