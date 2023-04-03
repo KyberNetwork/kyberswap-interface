@@ -117,11 +117,11 @@ export default memo(function ConfirmOrderModal({
               )}
 
               {warningMessage?.length ? (
-                <ButtonWarning onClick={onSubmit}>
+                <ButtonWarning id="place-order-button" onClick={onSubmit}>
                   <Trans>Place Order</Trans>
                 </ButtonWarning>
               ) : (
-                <ButtonPrimary onClick={onSubmit}>
+                <ButtonPrimary id="place-order-button" onClick={onSubmit}>
                   <Trans>Place Order</Trans>
                 </ButtonPrimary>
               )}
