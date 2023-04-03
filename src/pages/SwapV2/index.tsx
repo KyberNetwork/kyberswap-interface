@@ -30,7 +30,7 @@ import { SEOSwap } from 'components/SEO'
 import { ShareButtonWithModal } from 'components/ShareModal'
 import SlippageWarningNote from 'components/SlippageWarningNote'
 import PriceImpactNote from 'components/SwapForm/PriceImpactNote'
-import SlippageSetting from 'components/SwapForm/SlippageSetting'
+import SlippageSettingGroup from 'components/SwapForm/SlippageSettingGroup'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import TokenWarningModal from 'components/TokenWarningModal'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -55,7 +55,6 @@ import TokenInfoV2 from 'components/swapv2/TokenInfoV2'
 import TradePrice from 'components/swapv2/TradePrice'
 import TradeTypeSelection from 'components/swapv2/TradeTypeSelection'
 import {
-  BetaTag,
   BottomGrouping,
   Container,
   Dots,
@@ -709,9 +708,6 @@ export default function Swap() {
                       <Text fontSize={20} fontWeight={500}>
                         <Trans>Limit</Trans>
                       </Text>
-                      <BetaTag>
-                        <Trans>Beta</Trans>
-                      </BetaTag>
                     </Tab>
                   )}
                 </TabWrapper>
@@ -776,7 +772,7 @@ export default function Swap() {
             )}
 
             <AppBodyWrapped data-highlight={shouldHighlightSwapBox} id={TutorialIds.SWAP_FORM}>
-              {activeTab === TAB.SWAP && ( // todo danh split component, check router api call
+              {activeTab === TAB.SWAP && (
                 <>
                   <Wrapper id={TutorialIds.SWAP_FORM_CONTENT}>
                     <ConfirmSwapModal
@@ -878,7 +874,7 @@ export default function Swap() {
                         <AddressInputPanel id="recipient" value={recipient} onChange={handleRecipientChange} />
                       )}
 
-                      {!showWrap && <SlippageSetting isStablePairSwap={isStableCoinSwap} />}
+                      <SlippageSettingGroup isWrapOrUnwrap={showWrap} isStablePairSwap={isStableCoinSwap} />
 
                       <TrendingSoonTokenBanner
                         currencyIn={currencyIn}

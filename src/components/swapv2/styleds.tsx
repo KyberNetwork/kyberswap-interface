@@ -78,17 +78,6 @@ export const Tab = styled(ButtonEmpty)<{ isActive: boolean }>`
   `}
 `
 
-export const BetaTag = styled.span`
-  font-size: 10px;
-  color: ${({ theme }) => theme.subText};
-  position: absolute;
-  top: 4px;
-  right: -38px;
-  padding: 2px 6px;
-  background-color: ${({ theme }) => theme.buttonGray};
-  border-radius: 10px;
-`
-
 export const Container = styled.div`
   display: flex;
   align-items: flex-start;
@@ -116,7 +105,7 @@ export const BottomGrouping = styled.div`
   margin-top: 24px;
 `
 
-export const StyledBalanceMaxMini = styled.button`
+export const StyledBalanceMaxMini = styled.button<{ hover?: boolean }>`
   height: 22px;
   width: 22px;
   background-color: transparent;
@@ -132,14 +121,17 @@ export const StyledBalanceMaxMini = styled.button`
   justify-content: center;
   align-items: center;
   float: right;
-
-  :hover {
-    background-color: ${({ theme }) => theme.bg3};
-  }
-  :focus {
-    background-color: ${({ theme }) => theme.bg3};
-    outline: none;
-  }
+  ${({ hover }) =>
+    hover &&
+    css`
+      :hover {
+        background-color: ${({ theme }) => theme.bg3};
+      }
+      :focus {
+        background-color: ${({ theme }) => theme.bg3};
+        outline: none;
+      }
+    `}
 `
 
 export const TruncatedText = styled(Text)`
