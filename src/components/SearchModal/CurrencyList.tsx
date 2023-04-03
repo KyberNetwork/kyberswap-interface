@@ -23,6 +23,13 @@ import { useCurrencyConvertedToNative } from 'utils/dmm'
 
 import ImportRow from './ImportRow'
 
+const StyledBalanceText = styled(Text)`
+  font-size: 16px;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+     font-size : 14px;
+  `}
+`
+
 const FavoriteButton = styled(Star)`
   width: 20px;
   height: 20px;
@@ -65,7 +72,7 @@ const CurrencyRowWrapper = styled(RowBetween)<{ hoverColor?: string }>`
 `
 
 function Balance({ balance }: { balance: CurrencyAmount<Currency> }) {
-  return <Text title={balance.toExact()}>{balance.toSignificant(10)}</Text>
+  return <StyledBalanceText title={balance.toExact()}>{balance.toSignificant(10)}</StyledBalanceText>
 }
 
 const DescText = styled.div`
