@@ -154,7 +154,9 @@ export default function ElasticFarmV2Updater({ interval = true }: { interval?: b
               .map((item: SubgraphFarmV2) => [
                 item.pool.token0.id,
                 item.pool.token1.id,
-                ...item.rewards.map((rw: { token: SubgraphToken }) => rw.token.id),
+                ...item.rewards.map((rw: { token: SubgraphToken }) =>
+                  rw.token.id === ZERO_ADDRESS ? NativeCurrencies[chainId].wrapped.address : rw.token.id,
+                ),
               ])
               .flat(),
           ),

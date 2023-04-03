@@ -114,7 +114,10 @@ export default function ProAmmPoolStat({
   const allTokens = useAllTokens()
   const { farms } = useElasticFarms()
   const { farms: farmsV2 } = useElasticFarmsV2()
-  const activeFarmV2s = useMemo(() => farmsV2?.filter(farm => farm.endTime > Date.now() / 1000), [farmsV2])
+  const activeFarmV2s = useMemo(
+    () => farmsV2?.filter(farm => farm.endTime > Date.now() / 1000 && !farm.isSettled),
+    [farmsV2],
+  )
 
   const token0 =
     allTokens[isAddressString(chainId, pool.token0.address)] ||

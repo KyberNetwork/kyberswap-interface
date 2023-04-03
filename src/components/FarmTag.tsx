@@ -47,7 +47,7 @@ export const FarmTag = ({
       text={
         <Text>
           <Trans>
-            Available for yield farming. Click{' '}
+            Participate in the Elastic {version} farm to earn more rewards. Click{' '}
             <Link to={`${APP_PATHS.FARMS}/${networkInfo.route}?tab=elastic&type=active&search=${address}`}>here</Link>{' '}
             to go to the farm.
           </Trans>

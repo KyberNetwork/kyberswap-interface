@@ -206,18 +206,27 @@ const UnstakeWithNFTsModal = ({
   const handleUnstake = useCallback(async () => {
     const txHash = await withdraw(farm.fId, selectedPosArray)
     if (txHash) onDismiss()
+    setSelectedPos({})
   }, [withdraw, farm, selectedPosArray, onDismiss])
 
   const handleUpdateLiquidity = async () => {
     const txHash = await updateLiquidity(farm.fId, activeRange.index, selectedPosArray)
     if (txHash) onDismiss()
+    setSelectedPos({})
   }
 
   const priceLower = convertTickToPrice(farm.token0, farm.token1, activeRange?.tickLower || 0)
   const priceUpper = convertTickToPrice(farm.token0, farm.token1, activeRange?.tickUpper || 0)
 
   return (
-    <Modal isOpen={isOpen} onDismiss={onDismiss} maxWidth="min(724px, 100vw)">
+    <Modal
+      isOpen={isOpen}
+      onDismiss={() => {
+        setSelectedPos({})
+        onDismiss()
+      }}
+      maxWidth="min(724px, 100vw)"
+    >
       <Wrapper>
         <RowBetween>
           <Text fontSize="20px" lineHeight="24px" color={theme.text}>
