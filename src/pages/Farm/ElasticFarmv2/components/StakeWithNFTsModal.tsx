@@ -183,7 +183,10 @@ const StakeWithNFTsModal = ({
 
   const handleStake = useCallback(() => {
     if (!farm || activeRange === undefined) return
-    deposit(farm.fId, activeRange.index, selectedPosArray).then(txHash => txHash && onDismiss?.())
+    deposit(farm.fId, activeRange.index, selectedPosArray).then(txHash => {
+      txHash && onDismiss?.()
+      setSelectedPos({})
+    })
   }, [farm, activeRange, deposit, onDismiss, selectedPosArray])
 
   const priceLower = farm && convertTickToPrice(farm.token0, farm.token1, activeRange?.tickLower || 0)

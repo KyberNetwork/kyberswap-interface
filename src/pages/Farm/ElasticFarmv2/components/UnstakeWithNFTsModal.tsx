@@ -193,7 +193,7 @@ const UnstakeWithNFTsModal = ({
   )
 
   const canUpdatePositions = stakedPos
-    .filter(item => item.liquidity.gt(item.stakedLiquidity))
+    .filter(item => item.liquidity.gt(item.stakedLiquidity) && activeRange.isRemoved)
     .map(item => +item.nftId.toString())
 
   const handlePosClick = useCallback((tokenId: string) => {

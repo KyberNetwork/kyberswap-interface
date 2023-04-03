@@ -176,7 +176,7 @@ export const RangeItem = ({
   const stakedPos = useUserFarmV2Info(farmId, rangeInfo.index)
   const myDepositUSD = stakedPos.reduce((total, item) => item.stakedUsdValue + total, 0)
 
-  const canUpdateLiquidity = stakedPos.some(item => item.liquidity.gt(item.stakedLiquidity))
+  const canUpdateLiquidity = stakedPos.some(item => item.liquidity.gt(item.stakedLiquidity)) && !rangeInfo.isRemoved
   const myTotalPosUSDValue = stakedPos.reduce((total, item) => item.positionUsdValue + total, 0)
   const notStakedUSD = myTotalPosUSDValue - myDepositUSD
 
@@ -347,7 +347,8 @@ function FarmCard({ farm, poolAPR, isApproved }: { farm: ElasticFarmV2; poolAPR:
 
   const myDepositUSD = stakedPos.reduce((total, item) => item.stakedUsdValue + total, 0)
 
-  const canUpdateLiquidity = stakedPos.some(item => item.liquidity.gt(item.stakedLiquidity))
+  const canUpdateLiquidity =
+    stakedPos.some(item => item.liquidity.gt(item.stakedLiquidity)) && !farm.ranges[activeRangeIndex].isRemoved
   const myTotalPosUSDValue = stakedPos.reduce((total, item) => item.positionUsdValue + total, 0)
   const notStakedUSD = myTotalPosUSDValue - myDepositUSD
 
