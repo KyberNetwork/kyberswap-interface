@@ -153,7 +153,7 @@ function ProLiveChart({
       custom_css_url: '/charting_library/style.css',
       timeframe: '1w',
       time_frames: [
-        { text: '6m', resolution: '4H' as ResolutionString, description: '6 Months' },
+        { text: '6m', resolution: '12H' as ResolutionString, description: '6 Months' },
         { text: '1m', resolution: '1H' as ResolutionString, description: '1 Month' },
         { text: '2w', resolution: '1H' as ResolutionString, description: '2 Weeks' },
         { text: '1w', resolution: '1H' as ResolutionString, description: '1 Week' },

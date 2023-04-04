@@ -1,5 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
+import { Bar } from 'components/TradingViewChart/charting_library/charting_library'
+
 type SearchResponse = {
   data: PoolResponse[]
 }
@@ -75,7 +77,7 @@ const geckoTerminalApi = createApi({
       }),
     }),
 
-    ohlcv: builder.query<CandleResponse, CandleParams>({
+    ohlcv: builder.query<Bar[], CandleParams>({
       query: ({ network, poolAddress, timeframe, timePeriod, token, before_timestamp, limit }) => ({
         url: `/networks/${network}/pools/${poolAddress}/ohlcv/${timeframe}`,
         params: {
@@ -86,6 +88,18 @@ const geckoTerminalApi = createApi({
           limit,
         },
       }),
+      transformResponse: (result: CandleResponse) => {
+        return (
+          result?.data?.attributes.ohlcv_list.reverse().map((item: any) => ({
+            time: item[0] * 1000,
+            open: item[1],
+            high: item[2],
+            low: item[3],
+            close: item[4],
+            volume: item[5],
+          })) || []
+        )
+      },
     }),
   }),
 })

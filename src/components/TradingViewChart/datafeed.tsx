@@ -82,7 +82,6 @@ export const useDatafeed = (poolDetail: PoolResponse, isReverse: boolean) => {
 
         const { to, countBack } = periodParams
 
-        console.log(resolution)
         const data = await getCandles({
           network: networkInfo.geckoTermialId || '',
           poolAddress: poolDetail.attributes.address,
@@ -93,22 +92,12 @@ export const useDatafeed = (poolDetail: PoolResponse, isReverse: boolean) => {
           limit: countBack,
         })
 
-        if (data.error || !data.data?.data.attributes.ohlcv_list.length) {
+        if (data.error || !data.data?.length) {
           onHistoryCallback([], { noData: true })
           return
         }
 
-        const bars =
-          data?.data?.data.attributes.ohlcv_list.map((item: any) => ({
-            time: item[0] * 1000,
-            open: item[1],
-            high: item[2],
-            low: item[3],
-            close: item[4],
-            volume: item[5],
-          })) || []
-
-        onHistoryCallback(bars.reverse(), { noData: false })
+        onHistoryCallback(structuredClone(data.data), { noData: false })
       },
       searchSymbols: () => {
         //
@@ -130,16 +119,7 @@ export const useDatafeed = (poolDetail: PoolResponse, isReverse: boolean) => {
             limit: 1,
             token: isReverse ? 'quote' : 'base',
           })
-          const bars =
-            data?.data?.data.attributes.ohlcv_list.map((item: any) => ({
-              time: item[0] * 1000,
-              open: item[1],
-              high: item[2],
-              low: item[3],
-              close: item[4],
-              volume: item[5],
-            })) || []
-          onTick(bars[0])
+          if (data?.data?.length) onTick(data.data[0])
         }
         if (intervalRef.current) clearInterval(intervalRef.current)
         intervalRef.current = setInterval(getData, 30000)
