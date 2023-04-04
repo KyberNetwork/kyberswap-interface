@@ -162,7 +162,12 @@ export default function HeaderRightMenu({
         </>
       )}
 
-      <MouseoverTooltip text={<Trans>Degen mode is on!</Trans>} placement="top" width="fit-content">
+      <MouseoverTooltip
+        text={<Trans>Degen mode is on!</Trans>}
+        placement="top"
+        width="fit-content"
+        disableTooltip={!isDegenMode}
+      >
         <StyledMoreHorizontal color={isDegenMode ? theme.warning : theme.subText} onClick={onClickMoreButton} />
       </MouseoverTooltip>
     </SwapFormActions>
