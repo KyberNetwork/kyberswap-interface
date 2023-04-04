@@ -2,7 +2,12 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createReducer } from '@reduxjs/toolkit'
 
 import { SUGGESTED_BASES } from 'constants/bases'
-import { DEFAULT_DEADLINE_FROM_NOW, INITIAL_ALLOWED_SLIPPAGE } from 'constants/index'
+import {
+  DEFAULT_DEADLINE_FROM_NOW,
+  DEFAULT_SLIPPAGE,
+  DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP,
+  INITIAL_ALLOWED_SLIPPAGE,
+} from 'constants/index'
 import { SupportedLocale } from 'constants/locales'
 import { updateVersion } from 'state/global/actions'
 
@@ -184,6 +189,12 @@ export default createReducer(initialState, builder =>
       state.userDegenMode = action.payload.userDegenMode
       if (action.payload.userDegenMode) {
         state.userDegenModeAutoDisableTimestamp = Date.now() + AUTO_DISABLE_DEGEN_MODE_MINUTES * 60 * 1000
+      } else {
+        if (action.payload.isStablePairSwap) {
+          state.userSlippageTolerance = Math.min(state.userSlippageTolerance, DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP)
+        } else {
+          state.userSlippageTolerance = Math.min(state.userSlippageTolerance, DEFAULT_SLIPPAGE)
+        }
       }
       state.timestamp = currentTimestamp()
     })
