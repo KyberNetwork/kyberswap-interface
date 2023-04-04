@@ -165,6 +165,7 @@ const CustomSlippageInput: React.FC<Props> = ({ rawSlippage, setRawSlippage, isW
   }
 
   const handleCommitChange = () => {
+    setTooltip('')
     setRawText(getSlippageText(rawSlippage))
     mixpanelHandler(MIXPANEL_TYPE.SLIPPAGE_CHANGED, { new_slippage: Number(formatSlippage(rawSlippage, false)) })
   }
