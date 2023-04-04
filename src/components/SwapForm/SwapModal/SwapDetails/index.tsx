@@ -133,8 +133,9 @@ export default function SwapDetails({
           <RowFixed style={{ minWidth: 'max-content' }}>
             <TextDashed fontSize={12} fontWeight={400} color={theme.subText} minWidth="max-content">
               <MouseoverTooltip
+                width="200px"
                 text={<Trans>You will receive at least this amount or your transaction will revert</Trans>}
-                placement="top"
+                placement="right"
               >
                 <Trans>Minimum Received</Trans>
               </MouseoverTooltip>
@@ -159,7 +160,7 @@ export default function SwapDetails({
           <RowBetween height="20px" style={{ gap: '16px' }}>
             <RowFixed>
               <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
-                <MouseoverTooltip text={<Trans>Estimated network fee for your transaction.</Trans>} placement="top">
+                <MouseoverTooltip text={<Trans>Estimated network fee for your transaction.</Trans>} placement="right">
                   <Trans>Gas Fee</Trans>
                 </MouseoverTooltip>
               </TextDashed>
@@ -185,7 +186,7 @@ export default function SwapDetails({
             <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
               <MouseoverTooltip
                 text={<Trans>Estimated change in price due to the size of your transaction.</Trans>}
-                placement="top"
+                placement="right"
               >
                 <Trans>Price Impact</Trans>
               </MouseoverTooltip>
@@ -224,7 +225,7 @@ export default function SwapDetails({
                     </Trans>
                   </Text>
                 }
-                placement="top"
+                placement="right"
               >
                 <Trans>Max Slippage</Trans>
               </MouseoverTooltip>

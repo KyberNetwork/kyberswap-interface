@@ -122,8 +122,9 @@ const TradeSummary: React.FC<Props> = ({ feeConfig, routeSummary, slippage }) =>
             <RowFixed>
               <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
                 <MouseoverTooltip
+                  width="200px"
                   text={<Trans>You will receive at least this amount or your transaction will revert</Trans>}
-                  placement="top"
+                  placement="right"
                 >
                   <Trans>Minimum Received</Trans>
                 </MouseoverTooltip>
@@ -139,7 +140,7 @@ const TradeSummary: React.FC<Props> = ({ feeConfig, routeSummary, slippage }) =>
           <RowBetween>
             <RowFixed>
               <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
-                <MouseoverTooltip text={<Trans>Estimated network fee for your transaction.</Trans>} placement="top">
+                <MouseoverTooltip text={<Trans>Estimated network fee for your transaction.</Trans>} placement="right">
                   <Trans>Gas Fee</Trans>
                 </MouseoverTooltip>
               </TextDashed>
@@ -154,7 +155,7 @@ const TradeSummary: React.FC<Props> = ({ feeConfig, routeSummary, slippage }) =>
               <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
                 <MouseoverTooltip
                   text={<Trans>Estimated change in price due to the size of your transaction.</Trans>}
-                  placement="top"
+                  placement="right"
                 >
                   <Trans>Price Impact</Trans>
                 </MouseoverTooltip>
