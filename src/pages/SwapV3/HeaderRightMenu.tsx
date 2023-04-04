@@ -153,7 +153,12 @@ export default function HeaderRightMenu({
             }}
             aria-label="Swap Settings"
           >
-            <MouseoverTooltip text={<Trans>Settings</Trans>} placement="top" width="fit-content">
+            <MouseoverTooltip
+              text={<Trans>Settings</Trans>}
+              placement="top"
+              width="fit-content"
+              disableTooltip={isMobile}
+            >
               <TransactionSettingsIconWrapper id={TutorialIds.BUTTON_SETTING_SWAP_FORM}>
                 <TransactionSettingsIcon fill={isDegenMode ? theme.warning : theme.subText} />
               </TransactionSettingsIconWrapper>
@@ -166,7 +171,7 @@ export default function HeaderRightMenu({
         text={<Trans>Degen mode is on!</Trans>}
         placement="top"
         width="fit-content"
-        disableTooltip={!isDegenMode}
+        disableTooltip={!isDegenMode || isMobile}
       >
         <StyledMoreHorizontal color={isDegenMode ? theme.warning : theme.subText} onClick={onClickMoreButton} />
       </MouseoverTooltip>

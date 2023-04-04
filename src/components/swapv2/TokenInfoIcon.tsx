@@ -41,7 +41,7 @@ function TokenInfoIcon({ currencies, onClick }: { currencies: { [field in Field]
         </MobileModalWrapper>
       </MobileView>
       <StyledActionButtonSwapForm onClick={isMobile ? toggle : onClick}>
-        <MouseoverTooltip text={t`Token Info`} placement="top" width="fit-content">
+        <MouseoverTooltip text={t`Token Info`} placement="top" width="fit-content" disableTooltip={isMobile}>
           <Info color={theme.subText} size={20} />
         </MouseoverTooltip>
       </StyledActionButtonSwapForm>
