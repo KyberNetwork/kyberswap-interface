@@ -20,7 +20,6 @@ import SwapModalAreYouSure from 'components/SwapForm/SwapModal/SwapModalAreYouSu
 import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
 import WarningNote from 'components/WarningNote'
 import { Dots } from 'components/swapv2/styleds'
-import { RESERVE_USD_DECIMALS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useEncodeSolana } from 'state/swap/hooks'
@@ -95,6 +94,7 @@ export default function ConfirmSwapModalContent({
   const priceImpactResult = checkPriceImpact(priceImpactFromBuild)
 
   const outputChangePercent = Number(buildResult?.data?.outputChange?.percent) || 0
+  const formattedOutputChangePercent = (buildResult?.data?.outputChange?.percent || 0).toFixed(2)
 
   const getSwapDetailsProps = (): SwapDetailsProps => {
     if (!buildResult?.data || !routeSummary) {
@@ -206,7 +206,7 @@ export default function ConfirmSwapModalContent({
         setHasAcceptedNewAmount={setHasAcceptedNewAmount}
         parsedAmountOut={parsedAmountOut}
         parsedAmountOutFromBuild={parsedAmountOutFromBuild}
-        outputChangePercent={outputChangePercent}
+        formattedOutputChangePercent={formattedOutputChangePercent}
       />
 
       <Wrapper>
@@ -263,9 +263,9 @@ export default function ConfirmSwapModalContent({
                 ) : (
                   <Trans>
                     Due to change in market conditions, your output amount has been updated from{' '}
-                    {parsedAmountOut?.toSignificant(RESERVE_USD_DECIMALS)} {parsedAmountOut?.currency?.symbol} to{' '}
-                    {parsedAmountOutFromBuild?.toSignificant(RESERVE_USD_DECIMALS)} {parsedAmountOut?.currency?.symbol}{' '}
-                    ({outputChangePercent}%)
+                    {parsedAmountOut?.toSignificant(10)} {parsedAmountOut?.currency?.symbol} to{' '}
+                    {parsedAmountOutFromBuild?.toSignificant(10)} {parsedAmountOut?.currency?.symbol} (
+                    {formattedOutputChangePercent}%)
                   </Trans>
                 )}
               </Text>

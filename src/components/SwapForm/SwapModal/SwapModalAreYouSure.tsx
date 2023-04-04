@@ -7,7 +7,6 @@ import styled from 'styled-components'
 
 import { ButtonErrorStyle, ButtonOutlined } from 'components/Button'
 import Modal from 'components/Modal'
-import { RESERVE_USD_DECIMALS } from 'constants/index'
 
 const ModalContentWrapper = styled.div`
   display: flex;
@@ -49,14 +48,14 @@ export default function SwapModalAreYouSure({
   setHasAcceptedNewAmount,
   parsedAmountOut,
   parsedAmountOutFromBuild,
-  outputChangePercent,
+  formattedOutputChangePercent,
 }: {
   show: boolean
   setShow: Dispatch<SetStateAction<boolean>>
   setHasAcceptedNewAmount: Dispatch<SetStateAction<boolean>>
   parsedAmountOut: CurrencyAmount<Currency> | undefined
   parsedAmountOutFromBuild: CurrencyAmount<Currency> | undefined
-  outputChangePercent: number
+  formattedOutputChangePercent: string
 }) {
   const [confirmText, setConfirmText] = useState('')
 
@@ -89,9 +88,9 @@ export default function SwapModalAreYouSure({
         <Text fontSize={14} marginTop="28px">
           <Trans>
             Due to change in market conditions, your output amount has been updated from{' '}
-            {parsedAmountOut?.toSignificant(RESERVE_USD_DECIMALS)} {parsedAmountOut?.currency?.symbol} to{' '}
-            {parsedAmountOutFromBuild?.toSignificant(RESERVE_USD_DECIMALS)} {parsedAmountOut?.currency?.symbol} (
-            {outputChangePercent}%).
+            {parsedAmountOut?.toSignificant(10)} {parsedAmountOut?.currency?.symbol} to{' '}
+            {parsedAmountOutFromBuild?.toSignificant(10)} {parsedAmountOut?.currency?.symbol} (
+            {formattedOutputChangePercent}%).
           </Trans>
         </Text>
 
