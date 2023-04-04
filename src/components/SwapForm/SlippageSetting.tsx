@@ -1,6 +1,5 @@
 import { Trans } from '@lingui/macro'
 import React, { ReactNode, useState } from 'react'
-import { isMobile } from 'react-device-detect'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
