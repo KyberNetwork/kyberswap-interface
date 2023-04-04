@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react'
-import { PoolResponse, useLazyCandelsticksQuery } from 'services/geckoTermial'
+import { PoolResponse, useLazyOhlcvQuery } from 'services/geckoTermial'
+
+import { useActiveWeb3React } from 'hooks'
 
 import {
   ErrorCallback,
@@ -13,11 +15,12 @@ import {
 } from './charting_library'
 
 const configurationData = {
-  supported_resolutions: ['1', '5', '15', '1H', '2H', '4H', '1D'],
+  supported_resolutions: ['1', '5', '15', '1H', '4H', '12H', '1D'],
 }
 
-export const useDatafeed = (poolDetail: PoolResponse, tokenId: string) => {
-  const [getCandles, { isLoading }] = useLazyCandelsticksQuery()
+export const useDatafeed = (poolDetail: PoolResponse, isReverse: boolean) => {
+  const { networkInfo } = useActiveWeb3React()
+  const [getCandles, { isLoading }] = useLazyOhlcvQuery()
 
   const intervalRef = useRef<any>()
 
@@ -29,16 +32,7 @@ export const useDatafeed = (poolDetail: PoolResponse, tokenId: string) => {
     }
   }, [])
 
-  const base =
-    poolDetail.included[0].id === tokenId
-      ? poolDetail.included[0].attributes.symbol
-      : poolDetail.included[1].attributes.symbol
-  const quote =
-    poolDetail.included[0].id !== tokenId
-      ? poolDetail.included[0].attributes.symbol
-      : poolDetail.included[1].attributes.symbol
-
-  const label = `${base}/${quote}`
+  const label = poolDetail.attributes.name
 
   return useMemo(() => {
     return {
@@ -86,33 +80,38 @@ export const useDatafeed = (poolDetail: PoolResponse, tokenId: string) => {
       ) => {
         if (isLoading) return
 
+        const { to, countBack } = periodParams
+
+        console.log(resolution)
         const data = await getCandles({
-          token_id: tokenId,
-          pool_id: poolDetail.data.id,
-          from: periodParams.from,
-          to: periodParams.to,
-          resolution,
-          count_back: periodParams.countBack,
-          for_update: false,
-          currency: 'token',
+          network: networkInfo.geckoTermialId || '',
+          poolAddress: poolDetail.attributes.address,
+          timeframe: resolution === '1D' ? 'day' : Number(resolution) > 15 ? 'hour' : 'minute',
+          timePeriod: resolution === '1D' ? '1' : Number(resolution) > 15 ? Number(resolution) / 60 : resolution,
+          token: isReverse ? 'quote' : 'base',
+          before_timestamp: to,
+          limit: countBack,
         })
 
-        onHistoryCallback(
-          data?.data?.data.map((item: any) => ({
-            time: new Date(item.dt).getTime(),
-            open: item.o,
-            high: Math.min(item.h, item.c * 1.1),
-            close: item.c,
-            low: Math.max(item.l, item.c / 1.1),
-            volume: item.v,
-          })) || [],
-          {
-            noData: data?.data?.meta?.noData === true,
-          },
-        )
+        if (data.error || !data.data?.data.attributes.ohlcv_list.length) {
+          onHistoryCallback([], { noData: true })
+          return
+        }
+
+        const bars =
+          data?.data?.data.attributes.ohlcv_list.map((item: any) => ({
+            time: item[0] * 1000,
+            open: item[1],
+            high: item[2],
+            low: item[3],
+            close: item[4],
+            volume: item[5],
+          })) || []
+
+        onHistoryCallback(bars.reverse(), { noData: false })
       },
       searchSymbols: () => {
-        // TODO(viet-nv): check no empty function rule
+        //
       },
       subscribeBars: async (
         _symbolInfo: LibrarySymbolInfo,
@@ -123,25 +122,24 @@ export const useDatafeed = (poolDetail: PoolResponse, tokenId: string) => {
       ) => {
         const getData = async () => {
           const data = await getCandles({
-            token_id: tokenId,
-            pool_id: poolDetail.data.id,
-            from: Math.floor(Date.now() / 1000) - +resolution * 60,
-            to: Math.floor(Date.now() / 1000),
-            resolution,
-            for_update: true,
-            currency: 'token',
+            network: networkInfo.geckoTermialId || '',
+            poolAddress: poolDetail.attributes.address,
+            timeframe: resolution === '1D' ? 'day' : Number(resolution) > 15 ? 'hour' : 'minute',
+            timePeriod: resolution === '1D' ? '1' : Number(resolution) > 15 ? Number(resolution) / 60 : resolution,
+            before_timestamp: Math.floor(Date.now() / 1000),
+            limit: 1,
+            token: isReverse ? 'quote' : 'base',
           })
-
-          onTick(
-            (data?.data?.data || []).map((item: any) => ({
-              time: new Date(item.dt).getTime(),
-              open: item.o,
-              high: item.h,
-              close: item.c,
-              low: item.l,
-              volume: item.v,
-            }))[0],
-          )
+          const bars =
+            data?.data?.data.attributes.ohlcv_list.map((item: any) => ({
+              time: item[0] * 1000,
+              open: item[1],
+              high: item[2],
+              low: item[3],
+              close: item[4],
+              volume: item[5],
+            })) || []
+          onTick(bars[0])
         }
         if (intervalRef.current) clearInterval(intervalRef.current)
         intervalRef.current = setInterval(getData, 30000)
@@ -151,5 +149,5 @@ export const useDatafeed = (poolDetail: PoolResponse, tokenId: string) => {
         //
       },
     }
-  }, [getCandles, isLoading, poolDetail.data.id, label, tokenId])
+  }, [getCandles, isLoading, label, isReverse, networkInfo.geckoTermialId, poolDetail.attributes.address])
 }

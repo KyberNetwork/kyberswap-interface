@@ -100,12 +100,11 @@ function closeFullscreen() {
 
 function ProLiveChart({
   poolDetail,
-  tokenId,
+  isReverse,
   className,
 }: {
   poolDetail: PoolResponse
-  // base token id
-  tokenId: string
+  isReverse: boolean
   className?: string
 }) {
   const [loading, setLoading] = useState(false)
@@ -114,7 +113,7 @@ function ProLiveChart({
   const [ref, setRef] = useState<HTMLDivElement | null>(null)
   const [fullscreen, setFullscreen] = useState(false)
 
-  const datafeed = useDatafeed(poolDetail, tokenId)
+  const datafeed = useDatafeed(poolDetail, isReverse)
 
   useEffect(() => {
     if (!ref || !window.TradingView) {
@@ -152,7 +151,7 @@ function ProLiveChart({
       studies_overrides: {},
       theme: theme.darkMode ? 'Dark' : 'Light',
       custom_css_url: '/charting_library/style.css',
-      timeframe: '2w',
+      timeframe: '1w',
       time_frames: [
         { text: '6m', resolution: '4H' as ResolutionString, description: '6 Months' },
         { text: '1m', resolution: '1H' as ResolutionString, description: '1 Month' },
