@@ -13,9 +13,10 @@ const TooltipContainer = styled.div<{ width?: string; size?: number }>`
   font-size: ${({ size }) => size || 12}px;
 `
 
-export const TextDashed = styled(Text)`
-  border-bottom: 1px dashed ${({ theme }) => theme.border};
+export const TextDashed = styled(Text)<{ color?: string }>`
   width: fit-content;
+  border-bottom: 1px dashed ${({ theme, color }) => color || theme.border};
+  cursor: pointer;
 `
 
 interface TooltipProps extends Omit<PopoverProps, 'content'> {
