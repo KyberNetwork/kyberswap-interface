@@ -8,22 +8,15 @@ import InfoHelper from 'components/InfoHelper'
 import SlippageControl from 'components/SlippageControl'
 import PinButton from 'components/swapv2/SwapSettingsPanel/PinButton'
 import SettingLabel from 'components/swapv2/SwapSettingsPanel/SettingLabel'
-import {
-  DEFAULT_SLIPPAGE,
-  DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP,
-  MAX_DEGEN_SLIPPAGE_IN_BIPS,
-  MAX_NORMAL_SLIPPAGE_IN_BIPS,
-} from 'constants/index'
+import { DEFAULT_SLIPPAGE, DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP } from 'constants/index'
 import { useAppSelector } from 'state/hooks'
 import { useCheckStablePairSwap } from 'state/swap/hooks'
 import { pinSlippageControl } from 'state/user/actions'
-import { useDegenModeManager, useUserSlippageTolerance } from 'state/user/hooks'
-import { SLIPPAGE_STATUS, checkRangeSlippage, formatSlippage } from 'utils/slippage'
+import { useUserSlippageTolerance } from 'state/user/hooks'
+import { ExternalLink } from 'theme'
+import { SLIPPAGE_STATUS, checkRangeSlippage } from 'utils/slippage'
 
 export const InfoHelperForMaxSlippage = () => {
-  const [isDegenMode] = useDegenModeManager()
-  const maxSlippageInText = formatSlippage(isDegenMode ? MAX_DEGEN_SLIPPAGE_IN_BIPS : MAX_NORMAL_SLIPPAGE_IN_BIPS)
-
   return (
     <InfoHelper
       size={12}
@@ -32,11 +25,11 @@ export const InfoHelperForMaxSlippage = () => {
       text={
         <Text>
           <Trans>
-            During your swap if the price changes by more than this %, your transaction will revert.
-            <br />
-            The maximum allowed slippage is <b>{maxSlippageInText}</b>.
-            <br />
-            This control will appear in Swap form if pinned.
+            During your swap if the price changes by more than this %, your transaction will revert. Read more{' '}
+            <ExternalLink href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/price-impact">
+              here ↗
+            </ExternalLink>
+            .
           </Trans>
         </Text>
       }
