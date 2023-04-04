@@ -98,9 +98,6 @@ function AdvanceModeModal({ show, setShow }: { show: boolean; setShow: (v: boole
             }
           }}
         />
-        <Text marginTop="8px" fontSize="12px" color={theme.subText}>
-          <Trans>Use this mode if you are aware of the risks.</Trans>
-        </Text>
 
         <Flex sx={{ gap: '16px' }} marginTop="28px" justifyContent={'center'}>
           <ButtonOutlined

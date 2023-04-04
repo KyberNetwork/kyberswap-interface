@@ -39,8 +39,8 @@ const DegenModeSetting: FC<Props> = ({ className }) => {
             placement="top"
             text={
               <Trans>
-                You can make trades with price impact which is <b>very</b> high, or cannot be calculated. Enable at your
-                own risk
+                Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can
+                result in bad rates and loss of funds. Be cautious.
               </Trans>
             }
           />
