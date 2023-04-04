@@ -101,7 +101,8 @@ export const useKyberswapGlobalConfig = () => {
   const chainId = useSelector<AppState, ChainId>(state => state.user.chainId) || ChainId.MAINNET // read directly from store instead of useActiveWeb3React to prevent circular loop
   const { data } = useGetKyberswapGlobalConfigurationQuery(undefined)
   const result = useMemo(() => parseGlobalResponse(data, chainId), [data, chainId])
-  return result
+  // TODO: revert this later
+  return { ...result, aggregatorDomain: 'https://aggregator-api.dev.kyberengineering.io' }
 }
 
 export const useAllKyberswapConfig = (): {
