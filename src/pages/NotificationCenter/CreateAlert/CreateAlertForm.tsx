@@ -66,9 +66,13 @@ export default function CreateAlert({
   const toggleWalletModal = useWalletModalToggle()
   const [selectedChain, setSelectedChain] = useState(chainId)
 
-  const { currencyIn, currencyOut, onChangeCurrencyIn, onChangeCurrencyOut } = useCurrencyHandler(selectedChain)
+  const { currencyIn, currencyOut, onChangeCurrencyIn, onChangeCurrencyOut, inputAmount } =
+    useCurrencyHandler(selectedChain)
 
-  const [formInput, setFormInput] = useState<{ tokenInAmount: string; threshold: string; note: string }>(defaultInput)
+  const [formInput, setFormInput] = useState<{ tokenInAmount: string; threshold: string; note: string }>({
+    ...defaultInput,
+    tokenInAmount: inputAmount,
+  })
   const [disableAfterTrigger, setDisableAfterTrigger] = useState(false)
   const [cooldown, setCooldown] = useState(DEFAULT_ALERT_COOLDOWN)
   const [alertType, setAlertType] = useState<PriceAlertType>(PriceAlertType.ABOVE)

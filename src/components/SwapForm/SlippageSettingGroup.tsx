@@ -11,7 +11,7 @@ import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { NOTIFICATION_ROUTES } from 'pages/NotificationCenter/const'
-import { useInputCurrency, useOutputCurrency } from 'state/swap/hooks'
+import { useInputCurrency, useOutputCurrency, useSwapState } from 'state/swap/hooks'
 import { currencyId } from 'utils/currencyId'
 
 const PriceAlertButton = styled.div`
@@ -37,6 +37,7 @@ export default function SlippageSettingGroup({
   const navigate = useNavigate()
   const currencyIn = useInputCurrency()
   const currencyOut = useOutputCurrency()
+  const { typedValue } = useSwapState()
   const { chainId } = useActiveWeb3React()
 
   const priceAlert = (
@@ -44,6 +45,7 @@ export default function SlippageSettingGroup({
       onClick={() =>
         navigate(
           `${APP_PATHS.NOTIFICATION_CENTER}${NOTIFICATION_ROUTES.CREATE_ALERT}?${stringify({
+            amount: typedValue || undefined,
             inputCurrency: currencyId(currencyIn, chainId),
             outputCurrency: currencyId(currencyOut, chainId),
           })}`,

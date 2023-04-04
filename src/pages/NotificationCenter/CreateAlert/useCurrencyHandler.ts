@@ -22,7 +22,7 @@ export default function useCurrencyHandler(chainId: ChainId) {
 
   const navigate = useNavigate()
   const replaceUrl = useCallback(() => {
-    const { inputCurrency, outputCurrency, ...rest } = qs
+    const { inputCurrency, outputCurrency, amount, ...rest } = qs
     if (!inputCurrency && !outputCurrency) return
     navigate({ search: stringify(rest) }, { replace: true })
   }, [qs, navigate])
@@ -68,5 +68,11 @@ export default function useCurrencyHandler(chainId: ChainId) {
     [currencyIn, replaceUrl],
   )
 
-  return { currencyIn, currencyOut, onChangeCurrencyIn, onChangeCurrencyOut }
+  return {
+    currencyIn,
+    currencyOut,
+    onChangeCurrencyIn,
+    onChangeCurrencyOut,
+    inputAmount: (qs.amount as string) ?? '1',
+  }
 }
