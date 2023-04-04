@@ -41,7 +41,10 @@ const useTransferHistory = (account: string) => {
     setPage(page + 1)
   }
 
-  const range = useMemo(() => [ITEMS_PER_PAGE * (page - 1) + 1, Math.min(ITEMS_PER_PAGE * page)], [page])
+  const range = useMemo(
+    () => [ITEMS_PER_PAGE * (page - 1) + 1, ITEMS_PER_PAGE * (page - 1) + Math.min(ITEMS_PER_PAGE, transfers.length)],
+    [page, transfers.length],
+  )
 
   useEffect(() => {
     dispatch(setHistoryURL(swrKey))
