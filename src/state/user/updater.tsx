@@ -21,7 +21,7 @@ export default function Updater(): null {
 
   const autoDisableDegenMode = useCallback(() => {
     if (degenMode && userDegenModeAutoDisableTimestamp <= Date.now()) {
-      dispatch(updateUserDegenMode({ userDegenMode: false }))
+      dispatch(updateUserDegenMode({ userDegenMode: false, isStablePairSwap }))
       // If slippage >= 20%, then set to default.
       if (rawSlippage >= 2000) {
         if (isStablePairSwap) setRawSlippage(DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP)
