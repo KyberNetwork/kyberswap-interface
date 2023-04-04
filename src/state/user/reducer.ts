@@ -7,6 +7,7 @@ import {
   DEFAULT_SLIPPAGE,
   DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP,
   INITIAL_ALLOWED_SLIPPAGE,
+  MAX_NORMAL_SLIPPAGE_IN_BIPS,
 } from 'constants/index'
 import { SupportedLocale } from 'constants/locales'
 import { updateVersion } from 'state/global/actions'
@@ -190,6 +191,11 @@ export default createReducer(initialState, builder =>
       if (action.payload.userDegenMode) {
         state.userDegenModeAutoDisableTimestamp = Date.now() + AUTO_DISABLE_DEGEN_MODE_MINUTES * 60 * 1000
       } else {
+        // If max slippage <= 19.99%, no need update slippage.
+        if (state.userSlippageTolerance <= MAX_NORMAL_SLIPPAGE_IN_BIPS) {
+          return
+        }
+        // Else, update to default slippage.
         if (action.payload.isStablePairSwap) {
           state.userSlippageTolerance = Math.min(state.userSlippageTolerance, DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP)
         } else {
