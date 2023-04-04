@@ -41,7 +41,7 @@ function ExecutionPrice({ executionPrice, showInverted }: ExecutionPriceProps) {
         {showInverted ? `${executionPrice.invert().toSignificant(6)}` : `${executionPrice.toSignificant(6)}`}
       </TruncatedText>
       <Text fontWeight={500} style={{ whiteSpace: 'nowrap', minWidth: 'max-content' }}>
-        &nbsp;{outputSymbol} / {inputSymbol}
+        &nbsp;{showInverted ? outputSymbol : inputSymbol} / {showInverted ? inputSymbol : outputSymbol}
       </Text>
     </>
   )
