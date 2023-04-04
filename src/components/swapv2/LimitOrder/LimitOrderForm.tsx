@@ -699,7 +699,7 @@ const LimitOrderForm = function LimitOrderForm({
             onClickSelect={trackingTouchSelectToken}
             lockIcon={showApproveFlow}
             disableCurrencySelect={isEdit}
-            fuckinglabel={
+            label={
               <Label>
                 <Trans>You Sell</Trans>
               </Label>
@@ -805,7 +805,7 @@ const LimitOrderForm = function LimitOrderForm({
             filterWrap
             onClickSelect={trackingTouchSelectToken}
             disableCurrencySelect={isEdit}
-            fuckinglabel={
+            label={
               <Label>
                 <Trans>You Buy</Trans>
               </Label>
