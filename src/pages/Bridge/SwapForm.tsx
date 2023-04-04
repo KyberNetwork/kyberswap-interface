@@ -469,7 +469,7 @@ export default function SwapForm() {
                 </Text>
               </ButtonError>
             )}
-            <Flex justifyContent={'flex-end'}>
+            <Flex justifyContent={'space-between'}>
               <Flex alignItems={'center'} style={{ gap: 6 }}>
                 <Text color={theme.subText} fontSize={12}>
                   Powered by
@@ -482,6 +482,15 @@ export default function SwapForm() {
                   />
                 </ExternalLink>
               </Flex>
+
+              <ExternalLink
+                style={{
+                  fontSize: '12px',
+                }}
+                href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-interface/user-guides/bridge-your-assets-across-multiple-chains"
+              >
+                Guide
+              </ExternalLink>
             </Flex>
           </AppBodyWrapped>
         </SwapFormWrapper>
