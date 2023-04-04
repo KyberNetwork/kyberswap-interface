@@ -24,8 +24,9 @@ const TokenReceiveCell: React.FC<Props> = ({ transfer }) => {
   return (
     <Flex
       sx={{
+        display: 'inline-flex',
         alignItems: 'center',
-        flexWrap: 'nowrap',
+        flexWrap: 'wrap',
         fontWeight: 500,
         fontSize: '12px',
         lineHeight: '16px',
@@ -33,7 +34,7 @@ const TokenReceiveCell: React.FC<Props> = ({ transfer }) => {
         color: transfer.isReceiveAnyToken ? theme.warning : undefined,
       }}
     >
-      {formatAmountBridge(transfer.dstAmount)} {transfer.dstTokenSymbol}{' '}
+      <span>{formatAmountBridge(transfer.dstAmount)}</span> <span>{transfer.dstTokenSymbol}</span>{' '}
       {transfer.isReceiveAnyToken && (
         <MouseoverTooltip text={tooltipText} placement="top">
           <Info size={16} />
