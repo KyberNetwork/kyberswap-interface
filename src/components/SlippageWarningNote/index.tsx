@@ -2,7 +2,6 @@ import { Trans } from '@lingui/macro'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
-import Row from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import WarningNote from 'components/WarningNote'
 import { SLIPPAGE_STATUS, checkRangeSlippage } from 'utils/slippage'
@@ -19,11 +18,13 @@ const SLIPPAGE_EXPLANATION_URL =
 const TextDashedColor = styled(Text)`
   border-bottom: 1px dashed ${({ theme }) => theme.text};
   width: fit-content;
+  display: inline;
 `
 
 const TextDashedTransparent = styled(Text)`
   border-bottom: 1px dashed transparent;
   width: fit-content;
+  display: inline;
 `
 
 const SlippageWarningNote: React.FC<Props> = ({ className, rawSlippage, isStablePairSwap }) => {
@@ -32,14 +33,14 @@ const SlippageWarningNote: React.FC<Props> = ({ className, rawSlippage, isStable
     return null
   }
 
-  let msg = 'is high. Your transaction may be front-run.'
+  let msg = 'is high. Your transaction may be front-run'
   if (slippageStatus === SLIPPAGE_STATUS.LOW) {
-    msg = 'is low. Your transaction may fail.'
+    msg = 'is low. Your transaction may fail'
   }
   const shortText = (
-    <Row alignItems="center" style={{ gap: '0.5ch' }}>
+    <div>
       <Trans>
-        <TextDashedColor>
+        <TextDashedColor style={{ minWidth: 'max-content' }} as="span">
           <MouseoverTooltip
             placement="top"
             width="fit-content"
@@ -58,7 +59,7 @@ const SlippageWarningNote: React.FC<Props> = ({ className, rawSlippage, isStable
         </TextDashedColor>
         <TextDashedTransparent> {msg}</TextDashedTransparent>
       </Trans>
-    </Row>
+    </div>
   )
 
   return <WarningNote className={className} shortText={shortText} />
