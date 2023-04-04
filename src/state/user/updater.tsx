@@ -2,7 +2,7 @@ import { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useInterval } from 'react-use'
 
-import { DEFAULT_SLIPPAGE, DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP } from 'constants/index'
+import { DEFAULT_SLIPPAGE, DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP, MAX_NORMAL_SLIPPAGE_IN_BIPS } from 'constants/index'
 import { AppDispatch, AppState } from 'state/index'
 import { useCheckStablePairSwap } from 'state/swap/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
@@ -22,8 +22,7 @@ export default function Updater(): null {
   const autoDisableDegenMode = useCallback(() => {
     if (degenMode && userDegenModeAutoDisableTimestamp <= Date.now()) {
       dispatch(updateUserDegenMode({ userDegenMode: false, isStablePairSwap }))
-      // If slippage >= 20%, then set to default.
-      if (rawSlippage >= 2000) {
+      if (rawSlippage > MAX_NORMAL_SLIPPAGE_IN_BIPS) {
         if (isStablePairSwap) setRawSlippage(DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP)
         else setRawSlippage(DEFAULT_SLIPPAGE)
       }
