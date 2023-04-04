@@ -470,6 +470,7 @@ function PositionListItem({
                 </ButtonPrimary>
               ) : (
                 <ButtonPrimary
+                  id="increase-liquidity-button"
                   padding="8px"
                   style={{
                     borderRadius: '18px',

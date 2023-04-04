@@ -232,7 +232,12 @@ const UnstakeWithNFTsModal = ({
           <Text fontSize="20px" lineHeight="24px" color={theme.text}>
             <Trans>Unstake your liquidity</Trans>
           </Text>
-          <CloseButton onClick={onDismiss}>
+          <CloseButton
+            onClick={() => {
+              setSelectedPos({})
+              onDismiss()
+            }}
+          >
             <X />
           </CloseButton>
         </RowBetween>

@@ -1,7 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import { rgba } from 'polished'
-import { useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
@@ -149,32 +149,26 @@ export default function ProAmmPool() {
 
   const [showClosed, setShowClosed] = useState(false)
 
-  const filteredFarmPositions = useMemo(() => {
-    return farmPositions.filter(pos => {
+  const filter = useCallback(
+    (pos: PositionDetails): boolean => {
       return (
         debouncedSearchText.trim().length === 0 ||
         (!!tokenAddressSymbolMap.current[pos.token0.toLowerCase()] &&
           tokenAddressSymbolMap.current[pos.token0.toLowerCase()].includes(debouncedSearchText)) ||
         (!!tokenAddressSymbolMap.current[pos.token1.toLowerCase()] &&
           tokenAddressSymbolMap.current[pos.token1.toLowerCase()].includes(debouncedSearchText)) ||
+        pos.poolId.toLowerCase() === debouncedSearchText ||
         pos.poolId.toLowerCase() === debouncedSearchText
       )
-    })
-  }, [debouncedSearchText, farmPositions])
-
-  const filteredFarmv2Positions = useMemo(
-    () =>
-      farmV2Positions.filter(
-        pos =>
-          debouncedSearchText.trim().length === 0 ||
-          (!!tokenAddressSymbolMap.current[pos.token0.toLowerCase()] &&
-            tokenAddressSymbolMap.current[pos.token0.toLowerCase()].includes(debouncedSearchText)) ||
-          (!!tokenAddressSymbolMap.current[pos.token1.toLowerCase()] &&
-            tokenAddressSymbolMap.current[pos.token1.toLowerCase()].includes(debouncedSearchText)) ||
-          pos.poolId.toLowerCase() === debouncedSearchText,
-      ),
-    [farmV2Positions, debouncedSearchText],
+    },
+    [debouncedSearchText],
   )
+
+  const filteredFarmPositions = useMemo(() => {
+    return farmPositions.filter(filter)
+  }, [filter, farmPositions])
+
+  const filteredFarmv2Positions = useMemo(() => farmV2Positions.filter(filter), [farmV2Positions, filter])
 
   const filteredPositions = useMemo(
     () =>
@@ -184,25 +178,11 @@ export default function ProAmmPool() {
       )
         .filter(position => {
           if (nftId) return position.tokenId.toString() === nftId
-          return (
-            debouncedSearchText.trim().length === 0 ||
-            (!!tokenAddressSymbolMap.current[position.token0.toLowerCase()] &&
-              tokenAddressSymbolMap.current[position.token0.toLowerCase()].includes(debouncedSearchText)) ||
-            (!!tokenAddressSymbolMap.current[position.token1.toLowerCase()] &&
-              tokenAddressSymbolMap.current[position.token1.toLowerCase()].includes(debouncedSearchText)) ||
-            position.poolId.toLowerCase() === debouncedSearchText
-          )
+          return filter(position)
         })
-        .filter((pos, index, array) => array.findIndex(pos2 => pos2.tokenId.eq(pos.tokenId)) === index),
-    [
-      showClosed,
-      openPositions,
-      closedPositions,
-      debouncedSearchText,
-      filteredFarmPositions,
-      nftId,
-      filteredFarmv2Positions,
-    ],
+        .filter((pos, index, array) => array.findIndex(pos2 => pos2.tokenId.eq(pos.tokenId)) === index)
+        .sort((a, b) => +a.tokenId.lt(b.tokenId)),
+    [showClosed, openPositions, closedPositions, filteredFarmPositions, nftId, filteredFarmv2Positions, filter],
   )
 
   const [showStaked, setShowStaked] = useState(false)
