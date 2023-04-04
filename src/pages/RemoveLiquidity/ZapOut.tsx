@@ -705,7 +705,7 @@ export default function ZapOut({
                   onHalf={null}
                   currency={currencies[independentTokenField]}
                   id="zap-out-input"
-                  fuckinglabel={t`Output`}
+                  label={t`Output`}
                   disableCurrencySelect={false}
                   showCommonBases
                   positionMax="top"

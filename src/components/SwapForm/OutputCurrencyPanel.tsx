@@ -67,7 +67,7 @@ const OutputCurrencyPanel: React.FC<Props> = ({
       id="swap-currency-output"
       showCommonBases={true}
       estimatedUsd={getEstimatedUsd()}
-      fuckinglabel={
+      label={
         <Label>
           <MouseoverTooltip
             placement="top"
