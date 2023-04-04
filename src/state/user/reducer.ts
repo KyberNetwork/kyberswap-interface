@@ -93,11 +93,13 @@ interface UserState {
   viewMode: VIEW_MODE
   holidayMode: boolean
   permitData: {
-    [chainId: number]: {
-      [address: string]: {
-        rawSignature: string
-        deadline: number
-        value: string
+    [account: string]: {
+      [chainId: number]: {
+        [address: string]: {
+          rawSignature: string
+          deadline: number
+          value: string
+        }
       }
     }
   }
@@ -291,9 +293,11 @@ export default createReducer(initialState, builder =>
       const oldMode = state.holidayMode
       state.holidayMode = !oldMode
     })
-    .addCase(permitUpdate, (state, { payload: { chainId, address, rawSignature, deadline, value } }) => {
-      state.permitData[chainId] = state.permitData[chainId] || {}
-      state.permitData[chainId][address] = { rawSignature, deadline, value }
+    .addCase(permitUpdate, (state, { payload: { chainId, address, rawSignature, deadline, value, account } }) => {
+      if (!state.permitData[account]) state.permitData[account] = {}
+      if (!state.permitData[account][chainId]) state.permitData[account][chainId] = {}
+
+      state.permitData[account][chainId][address] = { rawSignature, deadline, value }
     })
     .addCase(pinSlippageControl, (state, { payload }) => {
       state.isSlippageControlPinned = payload

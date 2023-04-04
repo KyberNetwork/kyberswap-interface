@@ -55,5 +55,6 @@ export const permitUpdate = createAction<{
   rawSignature: string
   deadline: number
   value: string
+  account: string
 }>('user/permitUpdate')
 export const pinSlippageControl = createAction<boolean>('user/pinSlippageControl')

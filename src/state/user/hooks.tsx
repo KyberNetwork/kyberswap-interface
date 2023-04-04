@@ -427,8 +427,8 @@ export const useHolidayMode: () => [boolean, () => void] = () => {
 export const usePermitData: (
   address?: string,
 ) => { rawSignature: string; deadline: number; value: string } | undefined = address => {
-  const { chainId } = useActiveWeb3React()
+  const { chainId, account } = useActiveWeb3React()
   const permitData = useAppSelector(state => state.user.permitData)
 
-  return address && permitData ? permitData[chainId]?.[address] : undefined
+  return address && account && permitData ? permitData[account]?.[chainId]?.[address] : undefined
 }

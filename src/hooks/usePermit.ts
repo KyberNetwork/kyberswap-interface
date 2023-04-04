@@ -144,6 +144,7 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
           rawSignature: encodedPermitData,
           deadline: message.deadline,
           value: message.value,
+          account: account,
         }),
       )
     } catch (e) {
