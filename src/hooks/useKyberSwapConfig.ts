@@ -72,8 +72,8 @@ const parseGlobalResponse = (
   responseData: KyberswapGlobalConfigurationResponse | undefined,
   chainId: ChainId,
 ): KyberswapGlobalConfig => {
-  const data = responseData?.data?.config
-  const aggregatorDomain = data?.aggregator ?? AGGREGATOR_API
+  // const data = responseData?.data?.config
+  const aggregatorDomain = 'https://aggregator-api.stg.kyberengineering.io' ?? AGGREGATOR_API
   return {
     aggregatorDomain,
     aggregatorAPI: `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}/route/encode`,
