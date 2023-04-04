@@ -21,7 +21,7 @@ export const InfoHelperForMaxSlippage = () => {
     <InfoHelper
       size={12}
       width="320px"
-      placement="top"
+      placement="right"
       text={
         <Text>
           <Trans>

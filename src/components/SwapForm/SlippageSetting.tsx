@@ -66,6 +66,7 @@ const SlippageSetting = ({ isStablePairSwap, rightComponent }: Props) => {
             }}
           >
             <MouseoverTooltip
+              placement="right"
               text={
                 <Text>
                   <Trans>
@@ -77,7 +78,6 @@ const SlippageSetting = ({ isStablePairSwap, rightComponent }: Props) => {
                   </Trans>
                 </Text>
               }
-              placement="top"
             >
               <Trans>Max Slippage</Trans>
             </MouseoverTooltip>

@@ -70,8 +70,8 @@ const OutputCurrencyPanel: React.FC<Props> = ({
       label={
         <Label>
           <MouseoverTooltip
-            placement="top"
-            width="350px"
+            placement="right"
+            width="200px"
             text={
               <Text fontSize={12}>
                 <Trans>
