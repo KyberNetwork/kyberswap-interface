@@ -309,50 +309,6 @@ export default function Swap() {
               </TabContainer>
 
               <HeaderRightMenu activeTab={activeTab} setActiveTab={setActiveTab} />
-              {/*
-              <SwapFormActions>
-                <Tutorial
-                  type={TutorialType.SWAP}
-                  customIcon={
-                    <StyledActionButtonSwapForm onClick={() => mixpanelHandler(MIXPANEL_TYPE.SWAP_TUTORIAL_CLICK)}>
-                      <TutorialIcon />
-                    </StyledActionButtonSwapForm>
-                  }
-                />
-                <TokenInfoIcon
-                  currencies={isSwapPage ? currencies : currenciesLimit}
-                  onClick={() => {
-                    mixpanelHandler(MIXPANEL_TYPE.SWAP_TOKEN_INFO_CLICK)
-                    onToggleActionTab(TAB.INFO)
-                  }}
-                />
-                <ShareButtonWithModal
-                  title={t`Share this with your friends!`}
-                  url={shareUrl}
-                  onShared={() => {
-                    mixpanelHandler(MIXPANEL_TYPE.TOKEN_SWAP_LINK_SHARED)
-                  }}
-                />
-                <StyledActionButtonSwapForm
-                  active={activeTab === TAB.SETTINGS}
-                  onClick={() => {
-                    onToggleActionTab(TAB.SETTINGS)
-                    mixpanelHandler(MIXPANEL_TYPE.SWAP_SETTINGS_CLICK)
-                  }}
-                  aria-label="Swap Settings"
-                >
-                  <MouseoverTooltip
-                    text={!isDegenMode ? <Trans>Settings</Trans> : <Trans>Degen mode is on!</Trans>}
-                    placement="top"
-                    width="fit-content"
-                  >
-                    <span id={TutorialIds.BUTTON_SETTING_SWAP_FORM}>
-                      <TransactionSettingsIcon fill={isDegenMode ? theme.warning : theme.subText} />
-                    </span>
-                  </MouseoverTooltip>
-                </StyledActionButtonSwapForm>
-              </SwapFormActions>
-              */}
             </RowBetween>
 
             <RowBetween>

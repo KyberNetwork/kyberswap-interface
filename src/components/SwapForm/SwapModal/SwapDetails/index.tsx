@@ -1,6 +1,6 @@
-import { Currency, Price, Rounding } from '@kyberswap/ks-sdk-core'
+import { Currency, Price } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { Repeat } from 'react-feather'
 import { Flex, Text } from 'rebass'
 
@@ -10,13 +10,12 @@ import { RowBetween, RowFixed } from 'components/Row'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import SlippageValue from 'components/SwapForm/SwapModal/SwapDetails/SlippageValue'
 import ValueWithLoadingSkeleton from 'components/SwapForm/SwapModal/SwapDetails/ValueWithLoadingSkeleton'
-import { InfoHelperForMaxSlippage } from 'components/swapv2/SwapSettingsPanel/SlippageSetting'
+import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { StyledBalanceMaxMini } from 'components/swapv2/styleds'
-import { RESERVE_USD_DECIMALS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { TruncatedText } from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem'
-import { TYPE } from 'theme'
+import { ExternalLink, TYPE } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
 import { formattedNum } from 'utils'
 import { minimumAmountAfterSlippage } from 'utils/currencyAmount'
@@ -39,11 +38,7 @@ function ExecutionPrice({ executionPrice, showInverted }: ExecutionPriceProps) {
   return (
     <>
       <TruncatedText fontWeight={500}>
-        {showInverted
-          ? `${executionPrice
-              .invert()
-              .toSignificant(RESERVE_USD_DECIMALS, undefined, Rounding.ROUND_DOWN)} ${inputSymbol} / ${outputSymbol}`
-          : `${executionPrice.toSignificant(RESERVE_USD_DECIMALS, undefined, Rounding.ROUND_DOWN)}`}
+        {showInverted ? `${executionPrice.invert().toSignificant(6)}` : `${executionPrice.toSignificant(6)}`}
       </TruncatedText>
       <Text fontWeight={500} style={{ whiteSpace: 'nowrap', minWidth: 'max-content' }}>
         &nbsp;{outputSymbol} / {inputSymbol}
@@ -83,7 +78,7 @@ export default function SwapDetails({
     minimumAmountOut && currencyOut ? (
       <Flex style={{ color: theme.text, fontWeight: 500, whiteSpace: 'nowrap' }}>
         <TruncatedText style={{ width: '-webkit-fill-available' }}>
-          {minimumAmountOut.toSignificant(RESERVE_USD_DECIMALS)}
+          {formattedNum(minimumAmountOut.toSignificant(10), false, 10)}
         </TruncatedText>
         <Text style={{ minWidth: 'auto' }}>&nbsp;{currencyOut.symbol}</Text>
       </Flex>
@@ -136,14 +131,14 @@ export default function SwapDetails({
 
         <RowBetween align="center" height="20px" style={{ gap: '16px' }}>
           <RowFixed style={{ minWidth: 'max-content' }}>
-            <TYPE.black fontSize={12} fontWeight={400} color={theme.subText} minWidth="max-content">
-              <Trans>Minimum Received</Trans>
-            </TYPE.black>
-            <InfoHelper
-              placement="top"
-              size={14}
-              text={t`You will receive at least this amount or your transaction will revert`}
-            />
+            <TextDashed fontSize={12} fontWeight={400} color={theme.subText} minWidth="max-content">
+              <MouseoverTooltip
+                text={<Trans>You will receive at least this amount or your transaction will revert</Trans>}
+                placement="top"
+              >
+                <Trans>Minimum Received</Trans>
+              </MouseoverTooltip>
+            </TextDashed>
           </RowFixed>
 
           <ValueWithLoadingSkeleton
@@ -163,10 +158,11 @@ export default function SwapDetails({
         {isEVM && (
           <RowBetween height="20px" style={{ gap: '16px' }}>
             <RowFixed>
-              <TYPE.black fontSize={12} fontWeight={400} color={theme.subText} minWidth="min-content">
-                <Trans>Gas Fee</Trans>
-              </TYPE.black>
-              <InfoHelper placement="top" size={14} text={t`Estimated network fee for your transaction`} />
+              <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
+                <MouseoverTooltip text={<Trans>Estimated network fee for your transaction.</Trans>} placement="top">
+                  <Trans>Gas Fee</Trans>
+                </MouseoverTooltip>
+              </TextDashed>
             </RowFixed>
 
             <ValueWithLoadingSkeleton
@@ -186,14 +182,14 @@ export default function SwapDetails({
 
         <RowBetween height="20px" style={{ gap: '16px' }}>
           <RowFixed>
-            <TYPE.black fontSize={12} fontWeight={400} color={theme.subText}>
-              <Trans>Price Impact</Trans>
-            </TYPE.black>
-            <InfoHelper
-              placement="top"
-              size={14}
-              text={t`Estimated change in price due to the size of your transaction`}
-            />
+            <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
+              <MouseoverTooltip
+                text={<Trans>Estimated change in price due to the size of your transaction.</Trans>}
+                placement="top"
+              >
+                <Trans>Price Impact</Trans>
+              </MouseoverTooltip>
+            </TextDashed>
           </RowFixed>
 
           <ValueWithLoadingSkeleton
@@ -215,10 +211,24 @@ export default function SwapDetails({
 
         <RowBetween height="20px" style={{ gap: '16px' }}>
           <RowFixed>
-            <TYPE.black fontSize={12} fontWeight={400} color={theme.subText}>
-              <Trans>Max Slippage</Trans>
-            </TYPE.black>
-            <InfoHelperForMaxSlippage />
+            <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
+              <MouseoverTooltip
+                text={
+                  <Text>
+                    <Trans>
+                      During your swap if the price changes by more than this %, your transaction will revert. Read more{' '}
+                      <ExternalLink href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/price-impact">
+                        here ↗
+                      </ExternalLink>
+                      .
+                    </Trans>
+                  </Text>
+                }
+                placement="top"
+              >
+                <Trans>Max Slippage</Trans>
+              </MouseoverTooltip>
+            </TextDashed>
           </RowFixed>
 
           <SlippageValue />
