@@ -94,7 +94,7 @@ const SlippageSetting = ({ isStablePairSwap, rightComponent }: Props) => {
           >
             <Text
               sx={{
-                fontSize: isMobile ? '16px' : '14px',
+                fontSize: '14px',
                 fontWeight: 500,
                 lineHeight: '1',
                 color: theme.text,
