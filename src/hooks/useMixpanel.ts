@@ -846,19 +846,12 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
           }
 
           mixpanel.track('Bridge - User click to Checkbox Disclaimer in Confirmation popup', {
-            platform: isMobile ? 'Mobile' : 'Web',
-            network,
-            wallet_address: account,
             checkbox: payload ? 'checked' : 'unchecked',
           })
           break
         }
         case MIXPANEL_TYPE.BRIDGE_CLICK_UNDERSTAND_IN_FIRST_TIME_VISIT: {
-          mixpanel.track('Bridge - User click to I understand button the first time visit Bridge page', {
-            platform: isMobile ? 'Mobile' : 'Web',
-            network,
-            wallet_address: account,
-          })
+          mixpanel.track('Bridge - User click to I understand button the first time visit Bridge page')
           break
         }
 
