@@ -14,7 +14,12 @@ import useTheme from 'hooks/useTheme'
 import { HistoricalPriceAlert, PriceAlertType } from 'pages/NotificationCenter/const'
 
 export const getSwapUrlPriceAlert = (alert: HistoricalPriceAlert) => {
-  return alert.swapURL
+  try {
+    const { pathname, search } = new URL(alert.swapURL)
+    return `${pathname}${search}`
+  } catch (error) {
+    return alert.swapURL
+  }
 }
 
 function InboxItemBridge({
@@ -41,7 +46,7 @@ function InboxItemBridge({
 
   const navigate = useNavigateToUrl()
   const onClick = () => {
-    navigate(getSwapUrlPriceAlert(templateBody.alert))
+    navigate(getSwapUrlPriceAlert(templateBody.alert), chainId)
     onRead(announcement, 'price_alert')
   }
 

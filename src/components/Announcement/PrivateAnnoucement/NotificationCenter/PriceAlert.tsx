@@ -42,7 +42,7 @@ const PriceAlertAnnouncement: React.FC<PrivateAnnouncementPropCenter<Announcemen
   const { chainId, note } = templateBody.alert
   const navigate = useNavigateToUrl()
   const onClick = () => {
-    navigate(getSwapUrlPriceAlert(templateBody.alert))
+    navigate(getSwapUrlPriceAlert(templateBody.alert), Number(chainId))
   }
   return (
     <Wrapper onClick={onClick}>
