@@ -14,11 +14,12 @@ import useTheme from 'hooks/useTheme'
 import { HistoricalPriceAlert, PriceAlertType } from 'pages/NotificationCenter/const'
 
 export const getSwapUrlPriceAlert = (alert: HistoricalPriceAlert) => {
+  const { swapURL, tokenInAmount } = alert
   try {
-    const { pathname, search } = new URL(alert.swapURL)
-    return `${pathname}${search}`
+    const { pathname, search } = new URL(swapURL)
+    return `${pathname}${search}&amount=${tokenInAmount}`
   } catch (error) {
-    return alert.swapURL
+    return swapURL
   }
 }
 

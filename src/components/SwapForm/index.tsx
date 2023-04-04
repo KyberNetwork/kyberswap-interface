@@ -23,6 +23,7 @@ import { useActiveWeb3React } from 'hooks'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { useAppDispatch } from 'state/hooks'
 import { Field, typeInput } from 'state/swap/actions'
+import { useSwapState } from 'state/swap/hooks'
 import { DetailedRouteSummary, FeeConfig } from 'types/route'
 
 import PriceImpactNote from './PriceImpactNote'
@@ -73,7 +74,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   const { isEVM, isSolana } = useActiveWeb3React()
 
   const [isProcessingSwap, setProcessingSwap] = useState(false)
-  const [typedValue, setTypedValue] = useState('1')
+  const { typedValue = '1' } = useSwapState()
   const [recipient, setRecipient] = useState<string | null>(null)
   const [isSaveGas, setSaveGas] = useState(false)
 
@@ -81,7 +82,6 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   const onUserInput = useCallback(
     (typedValue: string) => {
       dispatch(typeInput({ field: Field.INPUT, typedValue }))
-      setTypedValue(typedValue)
     },
     [dispatch],
   )
