@@ -35,15 +35,15 @@ function ExecutionPrice({ executionPrice, showInverted }: ExecutionPriceProps) {
   const inputSymbol = executionPrice.baseCurrency?.symbol
   const outputSymbol = executionPrice.quoteCurrency?.symbol
 
+  const formattedPrice = showInverted ? executionPrice?.invert()?.toSignificant(6) : executionPrice?.toSignificant(6)
+  const value = showInverted
+    ? `1 ${outputSymbol} = ${formattedPrice} ${inputSymbol}`
+    : `1 ${inputSymbol} = ${formattedPrice} ${outputSymbol}`
+
   return (
-    <>
-      <TruncatedText fontWeight={500}>
-        {showInverted ? `${executionPrice.invert().toSignificant(6)}` : `${executionPrice.toSignificant(6)}`}
-      </TruncatedText>
-      <Text fontWeight={500} style={{ whiteSpace: 'nowrap', minWidth: 'max-content' }}>
-        &nbsp;{showInverted ? outputSymbol : inputSymbol} / {showInverted ? inputSymbol : outputSymbol}
-      </Text>
-    </>
+    <Text fontWeight={500} style={{ whiteSpace: 'nowrap', minWidth: 'max-content' }}>
+      {value}
+    </Text>
   )
 }
 
