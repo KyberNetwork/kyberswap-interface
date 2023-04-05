@@ -3,9 +3,8 @@ import { useDispatch } from 'react-redux'
 
 import { KS_SETTING_API } from 'constants/env'
 import useGetBridgeTransfers from 'hooks/bridge/useGetBridgeTransfers'
+import { ITEMS_PER_PAGE } from 'pages/Bridge/consts'
 import { setHistoryURL } from 'state/bridge/actions'
-
-import { ITEMS_PER_PAGE } from '../consts'
 
 const useTransferHistory = (account: string) => {
   const dispatch = useDispatch()
