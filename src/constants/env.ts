@@ -141,3 +141,6 @@ export const getAnnouncementsTemplateIds = () => {
       : ANNOUNCEMENT_TEMPLATE_IDS.development
   return config
 }
+const mock = localStorage.getItem('mock')?.split(',') ?? []
+export const MOCK_ACCOUNT_EVM = mock[0] ?? ''
+export const MOCK_ACCOUNT_SOLANA = mock[1] ?? ''
