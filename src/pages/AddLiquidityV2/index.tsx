@@ -1067,7 +1067,7 @@ export default function AddLiquidity() {
 
   const poolStat = poolDatas?.[poolAddress] || poolDatas?.[poolAddress.toLowerCase()]
   const openShareModal = useOpenModal(ApplicationModal.SHARE)
-  const userLiquidityPositionsQueryResult = useUserProMMPositions()
+  const userLiquidityPositionsQueryResult = useUserProMMPositions(usdPrices)
   const userPositions = useMemo(
     () => (!account ? {} : userLiquidityPositionsQueryResult.userLiquidityUsdByPool),
     [account, userLiquidityPositionsQueryResult],
