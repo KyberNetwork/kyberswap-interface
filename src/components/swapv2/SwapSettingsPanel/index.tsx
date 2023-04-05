@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import React from 'react'
+import React, { useRef } from 'react'
 import { ArrowLeft } from 'react-feather'
 import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -12,6 +12,7 @@ import Toggle from 'components/Toggle'
 import useTopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoonTokensInCurrentNetwork/useTopTrendingSoonTokensInCurrentNetwork'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import {
   useShowLiveChart,
@@ -100,8 +101,11 @@ const SettingsPanel: React.FC<Props> = ({
     toggleTradeRoutes()
   }
 
+  const containerRef = useRef<HTMLDivElement>(null)
+  useOnClickOutside(containerRef, onBack)
+
   return (
-    <Box width="100%" className={className} id={TutorialIds.TRADING_SETTING_CONTENT}>
+    <Box width="100%" className={className} id={TutorialIds.TRADING_SETTING_CONTENT} ref={containerRef}>
       <Flex width={'100%'} flexDirection={'column'} marginBottom="4px">
         <Flex
           alignItems="center"

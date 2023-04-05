@@ -2,7 +2,6 @@ import { Trans } from '@lingui/macro'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
-import { MouseoverTooltip } from 'components/Tooltip'
 import WarningNote from 'components/WarningNote'
 import { SLIPPAGE_STATUS, checkRangeSlippage } from 'utils/slippage'
 
@@ -15,14 +14,16 @@ type Props = {
 const SLIPPAGE_EXPLANATION_URL =
   'https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/slippage'
 
-const TextDashedColor = styled(Text)`
-  border-bottom: 1px dashed ${({ theme }) => theme.text};
+const TextUnderlineColor = styled(Text)`
+  border-bottom: 1px solid ${({ theme }) => theme.text};
   width: fit-content;
   display: inline;
+  cursor: pointer;
+  color: ${({ theme }) => theme.text};
 `
 
-const TextDashedTransparent = styled(Text)`
-  border-bottom: 1px dashed transparent;
+const TextUnderlineTransparent = styled(Text)`
+  border-bottom: 1px solid transparent;
   width: fit-content;
   display: inline;
 `
@@ -40,24 +41,16 @@ const SlippageWarningNote: React.FC<Props> = ({ className, rawSlippage, isStable
   const shortText = (
     <div>
       <Trans>
-        <TextDashedColor style={{ minWidth: 'max-content' }} as="span">
-          <MouseoverTooltip
-            placement="top"
-            width="fit-content"
-            text={
-              <Text fontSize={12}>
-                Read more{' '}
-                <a href={SLIPPAGE_EXPLANATION_URL} target="_blank" rel="noreferrer">
-                  <b>here</b>
-                </a>
-                .
-              </Text>
-            }
-          >
-            Slippage
-          </MouseoverTooltip>
-        </TextDashedColor>
-        <TextDashedTransparent> {msg}</TextDashedTransparent>
+        <TextUnderlineColor
+          style={{ minWidth: 'max-content' }}
+          as="a"
+          href={SLIPPAGE_EXPLANATION_URL}
+          target="_blank"
+          rel="noreferrer"
+        >
+          Slippage
+        </TextUnderlineColor>
+        <TextUnderlineTransparent> {msg}</TextUnderlineTransparent>
       </Trans>
     </div>
   )
