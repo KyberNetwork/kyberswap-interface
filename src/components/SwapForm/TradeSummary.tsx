@@ -154,7 +154,23 @@ const TradeSummary: React.FC<Props> = ({ feeConfig, routeSummary, slippage }) =>
             <RowFixed>
               <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
                 <MouseoverTooltip
-                  text={<Trans>Estimated change in price due to the size of your transaction.</Trans>}
+                  text={
+                    <div>
+                      <Trans>Estimated change in price due to the size of your transaction.</Trans>
+                      <Trans>
+                        <Text fontSize={12}>
+                          Read more{' '}
+                          <a
+                            href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/price-impact"
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            <b>here ↗</b>
+                          </a>
+                        </Text>
+                      </Trans>
+                    </div>
+                  }
                   placement="right"
                 >
                   <Trans>Price Impact</Trans>
