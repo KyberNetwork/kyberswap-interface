@@ -6,7 +6,7 @@ export enum SLIPPAGE_STATUS {
 
 export const checkRangeSlippage = (slippage: number, isStablePairSwap: boolean): SLIPPAGE_STATUS => {
   if (isStablePairSwap) {
-    if (slippage > 100) {
+    if (slippage >= 100) {
       return SLIPPAGE_STATUS.HIGH
     }
 
@@ -16,7 +16,7 @@ export const checkRangeSlippage = (slippage: number, isStablePairSwap: boolean):
   if (slippage < 10) {
     return SLIPPAGE_STATUS.LOW
   }
-  if (slippage > 500) {
+  if (slippage >= 500) {
     return SLIPPAGE_STATUS.HIGH
   }
 
