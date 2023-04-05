@@ -35,13 +35,16 @@ const Wrapper = styled.div`
   }
 `
 
-const HeaderWrapper = styled(RowBetween)`
-  padding: 22px 24px;
+const HeaderWrapper = styled.div`
   background-image: url(${headerBanner});
   background-size: cover;
-  max-width: 1500px;
   width: 100%;
-
+  display: flex;
+  justify-content: center;
+  > * {
+    padding: 22px 24px;
+    max-width: 1500px;
+  }
   @media only screen and (max-width: 768px) {
     padding: 16px;
   }
@@ -57,47 +60,49 @@ export default function TrueSightV2() {
   return (
     <>
       <HeaderWrapper>
-        <RowFit color={theme.text} gap="6px">
-          <Text
-            fontSize={above768 ? 24 : 20}
-            lineHeight="28px"
-            color={isSingleToken ? theme.subText : theme.primary}
-            fontWeight={500}
-            onClick={() => navigate(APP_PATHS.KYBERAI_RANKINGS)}
-            style={{ cursor: 'pointer' }}
-          >
-            <RowFit gap="4px">
-              {above768 && <Icon id="leaderboard" size={20} />}
-              <Trans>Ranking</Trans>
-            </RowFit>
-          </Text>
-          <Text fontWeight={500} fontSize={[18, 20, 24]} color={theme.subText} marginX={'12px'}>
-            |
-          </Text>
-          <Text
-            fontSize={above768 ? 24 : 20}
-            lineHeight="28px"
-            color={isSingleToken ? theme.primary : theme.subText}
-            fontWeight={500}
-            onClick={() => navigate(APP_PATHS.KYBERAI_EXPLORE)}
-            style={{ cursor: 'pointer' }}
-          >
-            <RowFit gap="4px">
-              {above768 && <Icon id="truesight-v2" size={20} />}
-              <Trans>Explore</Trans>
-            </RowFit>
-          </Text>
-        </RowFit>
-        <RowFit gap="16px">
-          <SearchWithDropDown onSearch={setSearchValue} searchValue={searchValue} />
-          <MouseoverTooltip
-            text={t`Subscribe to receive daily email notifications witha curated list of tokens from each category!`}
-            placement="right"
-            delay={1200}
-          >
-            <SubscribeNotificationButton />
-          </MouseoverTooltip>
-        </RowFit>
+        <RowBetween>
+          <RowFit color={theme.text} gap="6px">
+            <Text
+              fontSize={above768 ? 24 : 20}
+              lineHeight="28px"
+              color={isSingleToken ? theme.subText : theme.primary}
+              fontWeight={500}
+              onClick={() => navigate(APP_PATHS.KYBERAI_RANKINGS)}
+              style={{ cursor: 'pointer' }}
+            >
+              <RowFit gap="4px">
+                {above768 && <Icon id="leaderboard" size={20} />}
+                <Trans>Rankings</Trans>
+              </RowFit>
+            </Text>
+            <Text fontWeight={500} fontSize={[18, 20, 24]} color={theme.subText} marginX={'12px'}>
+              |
+            </Text>
+            <Text
+              fontSize={above768 ? 24 : 20}
+              lineHeight="28px"
+              color={isSingleToken ? theme.primary : theme.subText}
+              fontWeight={500}
+              onClick={() => navigate(APP_PATHS.KYBERAI_EXPLORE)}
+              style={{ cursor: 'pointer' }}
+            >
+              <RowFit gap="4px">
+                {above768 && <Icon id="truesight-v2" size={20} />}
+                <Trans>Explore</Trans>
+              </RowFit>
+            </Text>
+          </RowFit>
+          <RowFit gap="16px">
+            <SearchWithDropDown onSearch={setSearchValue} searchValue={searchValue} />
+            <MouseoverTooltip
+              text={t`Subscribe to receive daily email notifications witha curated list of tokens from each category!`}
+              placement="right"
+              delay={1200}
+            >
+              <SubscribeNotificationButton />
+            </MouseoverTooltip>
+          </RowFit>
+        </RowBetween>
       </HeaderWrapper>
       <Wrapper>
         {isSingleToken ? <SingleToken /> : <TokenAnalysisList />}

@@ -1,8 +1,8 @@
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import React, { useEffect, useReducer } from 'react'
-import { ChevronLeft, ChevronRight, X } from 'react-feather'
+import { X } from 'react-feather'
 import { Text } from 'rebass'
-import styled, { css, keyframes } from 'styled-components'
+import styled, { keyframes } from 'styled-components'
 
 import tutorial1 from 'assets/images/truesight-v2/tutorial_1.png'
 import tutorial2 from 'assets/images/truesight-v2/tutorial_2.png'
@@ -14,7 +14,7 @@ import tutorial7 from 'assets/images/truesight-v2/tutorial_7.png'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Icon from 'components/Icons/Icon'
 import Modal from 'components/Modal'
-import Row, { RowBetween } from 'components/Row'
+import Row, { RowBetween, RowFit } from 'components/Row'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
@@ -28,9 +28,9 @@ const Wrapper = styled.div`
   padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
   width: min(85vw, 808px);
-  height: 644px;
+  height: 700px;
 `
 const fadeInScale = keyframes`
   0% { opacity: 0; transform:scale(0.7) }
@@ -42,7 +42,7 @@ const fadeInLeft = keyframes`
 `
 const fadeOutRight = keyframes`
   0% { opacity: 1; transform:translateX(0);}
-  100% { opacity: 0.5; transform:translateX(calc(100% + 40px)); }
+  100% { opacity: 0.5; transform:translateX(calc(100% + 40px)); visibility:hidden; }
 `
 const fadeInRight = keyframes`
   0% { opacity: 0.5; transform:translateX(calc(100% + 40px)) }
@@ -50,7 +50,7 @@ const fadeInRight = keyframes`
 `
 const fadeOutLeft = keyframes`
   0% { opacity: 1; transform:translateX(0);}
-  100% { opacity: 0.5; transform:translateX(calc(-100% - 40px)); }
+  100% { opacity: 0.5; transform:translateX(calc(-100% - 40px)); visibility:hidden; }
 `
 
 const StepWrapper = styled.div`
@@ -60,6 +60,8 @@ const StepWrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
+  width: 100%;
+  height: 100%;
   &.fadeInScale {
     animation: ${fadeInScale} 0.3s ease;
   }
@@ -78,57 +80,107 @@ const StepWrapper = styled.div`
   img {
     object-fit: contain;
   }
-`
 
-const NavItem = styled.div<{ active?: boolean }>`
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  user-select: none;
-  transition: all 0.2s ease;
-  :hover {
-    filter: brightness(0.7);
+  b {
+    font-weight: 500;
+    color: ${({ theme }) => theme.text};
   }
-  ${({ theme, active }) =>
-    active
-      ? css`
-          color: ${theme.primary};
-          background-color: ${theme.buttonBlack};
-        `
-      : css`
-          color: ${theme.subText};
-          background-color: ${theme.buttonBlack + '64'};
-        `};
+  p {
+    margin-bottom: 16px;
+  }
+`
+const StepDot = styled.div<{ active?: boolean }>`
+  height: 8px;
+  width: 8px;
+  border-radius: 50%;
+  background-color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
 `
 
 const steps = [
   {
     image: tutorial2,
-    text: t`You can use TrueSight’s leaderboard to find token worth exploring. We used an algorithm to measures the current trend of a token by taking into account multiple on-chain and off-chan indicators. The score range from 0 to 100. Higher the score, more bullish the token.`,
+    text: (
+      <Trans>
+        <p>
+          Whether you&apos;re looking to identify new tokens to trade, or get alpha on a specific token, KyberAI has it
+          all! KyberAI currently provides trading insights on <b>4000+ tokens</b> across <b>7 blockchains!</b>
+        </p>{' '}
+        <p>
+          For traders who are in discovery mode, start with the Rankings section. Here you will see top tokens under
+          each of the 7 categories -{' '}
+          <b>Bullish, Bearish, Top CEX Inflow, Top CEX Outflow, Top Traded, Trending Soon, Currently Trending.</b>
+          We update the token rankings multiple times a day!
+        </p>{' '}
+        <p>
+          For traders looking to spot alpha on specific tokens, start with the Explore section. You will find a number
+          of On-Chain and Technical insights on your token that you can look at to make an informed trading decision.
+        </p>
+      </Trans>
+    ),
   },
   {
     image: tutorial3,
-    text: t`Once you had decided on a token to explore, you can take a deeper dive with all the information you need available in one place. We divided the information into three separate parts: On-chain Analysis, Technical Analysis and News`,
+    text: (
+      <Trans>
+        <p>
+          A unique trading insight offered by KyberAI is the <b>KyberScore</b>. KyberScore uses <b>AI</b> to measure the
+          upcoming trend (bullish or bearish) of a token by taking into account multiple on-chain and off-chain
+          indicators. The score ranges from 0 to 100. Higher the score, more bullish the token in the <b>short-term</b>.
+        </p>{' '}
+        <p>
+          Each token supported by KyberAI is assigned a KyberScore. It refreshes multiple times a day as we collect more
+          data on the token. You can find the KyberScore of a token in the <b>Rankings</b> or <b>Explore</b> section.
+          Read more about the calculation here.
+        </p>{' '}
+        <p>
+          <i>Note: KyberScore should not be considered as financial advice</i>
+        </p>
+      </Trans>
+    ),
   },
   {
     image: tutorial4,
-    text: t`In On-chain Analysis, we gather the information from on-chain sources to provide an overall view of the token. The data we provide include: Number and Type of Trades, Number of Holders, Trading Volume, Netflow to Whale Wallets, Netflow to CEX, Number / Volume of Transfers and the Top 25 Holders`,
+    text: (
+      <Trans>
+        <p>
+          For traders, analyzing & interpreting on-chain data can be very powerful. It helps us see what whales, smart
+          money and other traders are up to. And so, KyberAI has cherry picked the best on-chain indicators to help
+          traders like you spot alpha on your tokens. Check out the <b>On-Chain Analysis</b> tab of the <b>Explore</b>{' '}
+          section!
+        </p>
+        <p>
+          The best traders combine on-chain analysis with technical analysis (TA). TA is used to identify trading
+          opportunities by evaluating price charts, price trends, patterns etc. KyberAI makes TA easy for traders. Check
+          out the <b>Technical Analysis</b> tab of the Explore section!
+        </p>
+      </Trans>
+    ),
   },
   {
     image: tutorial5,
-    text: t`In Technical Analysis, we gather the information from on-chain and off-chain sources to help you build up your own analysis for the token. The data we provide include: Live Price Chart, Funding Rate on CEX, Live DEX Trades, Liquidation on CEX and Netflow the CEX`,
-  },
-  {
-    image: tutorial6,
-    text: t`We also gather information from all the reliable news sources about the particular token so you can update on all the lastest news. Currently, we will keep you in tab on various news sources like LunarCrush, Coindesk, Benzinga, Cointelegraph, Cryptonews, NewsBTC, Coin Edition`,
-  },
-  {
-    image: tutorial7,
-    text: t`You can also directly swap a token in the explore tab and choose which indicator to be displayed below in each analysis tab. Remember to subscribe to be able to receive update about our token list everyday. Happy Trading folks.`,
+    text: (
+      <Trans>
+        <p>That&apos;s not all! Here are a few handy tips so you can get the most out of KyberAI:</p>{' '}
+        <ul>
+          <li>
+            Use the search bar to <b>search</b> for any token you&apos;d like to explore. KyberAI supports 4000+ tokens!
+          </li>
+          <li>
+            <b>Subscribe</b> to receive daily emails on the top tokens as recommended by KyberAI!
+          </li>
+          <li>
+            Monitoring the price of a token? Set a <b>price alert</b>, sit back, and we&apos;ll notify you!
+          </li>
+          <li>
+            Create a <b>watchlist</b> of your favorite tokens, and access it quickly!
+          </li>
+        </ul>{' '}
+        <p>If you wish to view this guide again, you can enable it from the settings. </p>
+        <p>
+          <b>Ape Smart with KyberAI.</b>
+        </p>
+      </Trans>
+    ),
   },
 ]
 
@@ -197,8 +249,8 @@ const StepContent = ({ step, ...rest }: { step: number; [k: string]: any }) => {
   const { image, text } = steps[step - 1]
   return (
     <StepWrapper {...rest}>
-      <img src={image} alt={'KyberAI Tutorial ' + step} />
-      <Text fontSize="14px" lineHeight="20px" color={theme.subText}>
+      <img src={image} alt={'KyberAI Tutorial ' + step} style={{ height: '292px' }} />
+      <Text fontSize="14px" lineHeight="20px" color={theme.subText} flex={1} backgroundColor={theme.tableHeader}>
         {text}
       </Text>
     </StepWrapper>
@@ -255,7 +307,7 @@ const TutorialModal = () => {
               alt="KyberAI Tutorial"
               style={{ width: '760px', height: '400px', borderRadius: '20px', backgroundColor: theme.buttonBlack }}
             />
-            <Text fontSize="14px" lineHeight="20px" color={theme.subText}>
+            <Text fontSize="14px" lineHeight="20px" color={theme.subText} flex="1">
               <Trans>
                 We&apos;re thrilled to have you onboard and can&apos;t wait for you to start exploring the world of
                 trading powered by <span style={{ color: theme.text }}>KyberAI</span>. We&apos;ve created this short
@@ -284,12 +336,7 @@ const TutorialModal = () => {
         )}
         {step > 0 && (
           <>
-            <Row style={{ position: 'relative', marginBottom: 'auto' }}>
-              <StepContent
-                step={step}
-                className="fadeInScale"
-                style={{ visibility: animationState === AnimationState.Idle ? 'visible' : 'hidden' }}
-              />
+            <Row style={{ position: 'relative', flex: 1, alignItems: 'stretch', backgroundColor: theme.tableHeader }}>
               {animationState === AnimationState.Animating && (
                 <>
                   <StepContent
@@ -305,19 +352,24 @@ const TutorialModal = () => {
                   />
                 </>
               )}
+              <StepContent
+                step={step}
+                className="fadeInScale"
+                style={{ visibility: animationState === AnimationState.Idle ? 'visible' : 'hidden' }}
+              />
             </Row>
-            <Row justify="center" gap="4px" alignSelf="flex-end">
-              <NavItem onClick={() => dispatch(ActionTypes.PREV_STEP)}>
-                <ChevronLeft />
-              </NavItem>
+            <Row justify="center" gap="8px">
               {steps.map((a, index) => (
-                <NavItem key={index} active={step === index + 1}>
-                  {index + 1}
-                </NavItem>
+                <StepDot key={index} active={step - 1 === index} />
               ))}
-              <NavItem onClick={() => dispatch(ActionTypes.NEXT_STEP)}>
-                <ChevronRight />
-              </NavItem>
+            </Row>
+            <Row gap="20px" justify="center">
+              <ButtonOutlined width="160px" onClick={() => dispatch(ActionTypes.PREV_STEP)}>
+                Back
+              </ButtonOutlined>
+              <ButtonPrimary width="160px" onClick={() => dispatch(ActionTypes.NEXT_STEP)}>
+                Next
+              </ButtonPrimary>
             </Row>
           </>
         )}

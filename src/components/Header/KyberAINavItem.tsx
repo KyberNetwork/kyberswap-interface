@@ -81,7 +81,7 @@ const KyberAINavItem = () => {
           </StyledNavLink>
           <StyledNavLink id="kyberai_ranking" to={APP_PATHS.KYBERAI_RANKINGS} style={{ gap: '4px' }}>
             <Icon id="leaderboard" size={16} />
-            <Trans>Ranking</Trans>
+            <Trans>Rankings</Trans>
           </StyledNavLink>
 
           <StyledNavLink id="kyberai_explore" to={APP_PATHS.KYBERAI_EXPLORE} style={{ gap: '4px' }}>
