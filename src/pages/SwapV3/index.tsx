@@ -1,5 +1,6 @@
 import { Currency, Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import { rgba } from 'polished'
 import { stringify } from 'querystring'
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Skeleton from 'react-loading-skeleton'
@@ -9,6 +10,7 @@ import styled, { DefaultTheme, keyframes } from 'styled-components'
 
 import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import Banner from 'components/Banner'
+import { ColumnCenter } from 'components/Column'
 import { RowBetween } from 'components/Row'
 import { SEOSwap } from 'components/SEO'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
@@ -49,6 +51,7 @@ import { Field } from 'state/swap/actions'
 import { useDefaultsFromURLSearch, useInputCurrency, useOutputCurrency, useSwapActionHandlers } from 'state/swap/hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { useDegenModeManager, useShowLiveChart, useShowTokenInfo, useShowTradeRoutes } from 'state/user/hooks'
+import { CloseIcon } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
 import { getLimitOrderContract } from 'utils'
 import { getTradeComposition } from 'utils/aggregationRouting'
@@ -107,6 +110,12 @@ const RoutingIconWrapper = styled(RoutingIcon)`
   path {
     fill: ${({ theme }) => theme.subText} !important;
   }
+`
+
+const DegenBanner = styled(RowBetween)`
+  padding: 10px 16px;
+  background-color: ${({ theme }) => rgba(theme.warning, 0.3)};
+  border-radius: 24px;
 `
 
 export default function Swap() {
@@ -271,6 +280,8 @@ export default function Swap() {
     return getTradeComposition(chainId, routeSummary?.parsedAmountIn, undefined, routeSummary?.route, defaultTokens)
   }, [chainId, defaultTokens, routeSummary])
 
+  const [isShowDegenBanner, setShowDegenBanner] = useState(true)
+
   return (
     <>
       {/**
@@ -290,36 +301,46 @@ export default function Swap() {
         <TopTrendingSoonTokensInCurrentNetwork />
         <Container>
           <SwapFormWrapper isShowTutorial={isShowTutorial}>
-            <RowBetween>
-              <TabContainer>
-                <TabWrapper>
-                  <Tab onClick={() => onClickTab(TAB.SWAP)} isActive={isSwapPage}>
-                    <Text fontSize={20} fontWeight={500}>
-                      <Trans>Swap</Trans>
-                    </Text>
-                  </Tab>
-                  {getLimitOrderContract(chainId) && (
-                    <Tab onClick={() => onClickTab(TAB.LIMIT)} isActive={isLimitPage}>
+            <ColumnCenter>
+              <RowBetween>
+                <TabContainer>
+                  <TabWrapper>
+                    <Tab onClick={() => onClickTab(TAB.SWAP)} isActive={isSwapPage}>
                       <Text fontSize={20} fontWeight={500}>
-                        <Trans>Limit</Trans>
+                        <Trans>Swap</Trans>
                       </Text>
                     </Tab>
+                    {getLimitOrderContract(chainId) && (
+                      <Tab onClick={() => onClickTab(TAB.LIMIT)} isActive={isLimitPage}>
+                        <Text fontSize={20} fontWeight={500}>
+                          <Trans>Limit</Trans>
+                        </Text>
+                      </Tab>
+                    )}
+                  </TabWrapper>
+                </TabContainer>
+
+                <HeaderRightMenu activeTab={activeTab} setActiveTab={setActiveTab} />
+              </RowBetween>
+              <RowBetween>
+                <Text fontSize={12} color={theme.subText}>
+                  {isLimitPage ? (
+                    <Trans>Buy or sell any token at a specific price</Trans>
+                  ) : (
+                    <Trans>Buy or sell any token instantly at the best price</Trans>
                   )}
-                </TabWrapper>
-              </TabContainer>
+                </Text>
+              </RowBetween>
+            </ColumnCenter>
 
-              <HeaderRightMenu activeTab={activeTab} setActiveTab={setActiveTab} />
-            </RowBetween>
-
-            <RowBetween>
-              <Text fontSize={12} color={theme.subText}>
-                {isLimitPage ? (
-                  <Trans>Buy or sell any token at a specific price</Trans>
-                ) : (
-                  <Trans>Buy or sell any token instantly at the best price</Trans>
-                )}
-              </Text>
-            </RowBetween>
+            {isDegenMode && isShowDegenBanner && (
+              <DegenBanner>
+                <Text fontSize={12} fontWeight={400} color={theme.text}>
+                  <Trans>You have turned on Degen Mode. Be cautious</Trans>
+                </Text>
+                <CloseIcon size={14} onClick={() => setShowDegenBanner(false)} />
+              </DegenBanner>
+            )}
 
             {!isSolana && (
               <RowBetween>

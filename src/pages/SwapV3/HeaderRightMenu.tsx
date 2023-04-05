@@ -160,7 +160,7 @@ export default function HeaderRightMenu({
               disableTooltip={isMobile}
             >
               <TransactionSettingsIconWrapper id={TutorialIds.BUTTON_SETTING_SWAP_FORM}>
-                <TransactionSettingsIcon fill={isDegenMode ? theme.warning : theme.subText} />
+                <TransactionSettingsIcon fill={theme.subText} />
               </TransactionSettingsIconWrapper>
             </MouseoverTooltip>
           </StyledActionButtonSwapForm>

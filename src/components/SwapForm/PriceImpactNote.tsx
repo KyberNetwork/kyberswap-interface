@@ -75,18 +75,19 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact }) => {
                   placement="top"
                   width="fit-content"
                   text={
-                    <Text fontSize={12}>
-                      Read more{' '}
-                      <a
-                        href={PRICE_IMPACT_EXPLANATION_URL}
-                        target="_blank"
-                        rel="noreferrer"
-                        onClick={e => e.stopPropagation()}
-                      >
-                        <b>here</b>
-                      </a>
-                      .
-                    </Text>
+                    <Trans>
+                      <Text fontSize={12}>
+                        Read more{' '}
+                        <a
+                          href={PRICE_IMPACT_EXPLANATION_URL}
+                          target="_blank"
+                          rel="noreferrer"
+                          onClick={e => e.stopPropagation()}
+                        >
+                          <b>here ↗</b>
+                        </a>
+                      </Text>
+                    </Trans>
                   }
                 >
                   Price Impact
@@ -128,13 +129,14 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact }) => {
             placement="top"
             width="fit-content"
             text={
-              <Text fontSize={12}>
-                Read more{' '}
-                <a href={PRICE_IMPACT_EXPLANATION_URL} target="_blank" rel="noreferrer">
-                  <b>here</b>
-                </a>
-                .
-              </Text>
+              <Trans>
+                <Text fontSize={12}>
+                  Read more{' '}
+                  <a href={PRICE_IMPACT_EXPLANATION_URL} target="_blank" rel="noreferrer">
+                    <b>here ↗</b>
+                  </a>
+                </Text>
+              </Trans>
             }
           >
             Price Impact
