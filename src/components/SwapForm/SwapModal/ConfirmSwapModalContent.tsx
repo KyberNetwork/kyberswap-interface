@@ -243,20 +243,7 @@ export default function ConfirmSwapModalContent({
               }
               isAccepted={hasAcceptedNewAmount}
             >
-              {hasAcceptedNewAmount ? (
-                <Check size={20} />
-              ) : (
-                <AlertTriangle
-                  color={
-                    priceImpactResult.isVeryHigh ||
-                    priceImpactResult.isInvalid ||
-                    outputChangePercent <= AMOUNT_OUT_FROM_BUILD_ERROR_THRESHOLD
-                      ? theme.red
-                      : theme.warning
-                  }
-                  size={16}
-                />
-              )}
+              {hasAcceptedNewAmount && <Check size={20} color={theme.text} />}
               <Text flex={1}>
                 {hasAcceptedNewAmount ? (
                   <Trans>New Amount Accepted</Trans>
@@ -265,7 +252,7 @@ export default function ConfirmSwapModalContent({
                     Due to change in market conditions, your output amount has been updated from{' '}
                     {parsedAmountOut?.toSignificant(10)} {parsedAmountOut?.currency?.symbol} to{' '}
                     {parsedAmountOutFromBuild?.toSignificant(10)} {parsedAmountOut?.currency?.symbol} (
-                    {formattedOutputChangePercent}%)
+                    {formattedOutputChangePercent}%). Please accept the new amount before swapping
                   </Trans>
                 )}
               </Text>
