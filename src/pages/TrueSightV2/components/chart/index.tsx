@@ -246,7 +246,7 @@ const formatNum = (num: number, fixed = 1): string => {
 export const NumberofTradesChart = () => {
   const theme = useTheme()
   const { address } = useParams()
-  const [timeframe, setTimeframe] = useState(KyberAITimeframe.ONE_WEEK)
+  const [timeframe, setTimeframe] = useState(KyberAITimeframe.ONE_MONTH)
   const [showSell, setShowSell] = useState(true)
   const [showBuy, setShowBuy] = useState(true)
   const [showTotalTrade, setShowTotalTrade] = useState(true)
@@ -472,7 +472,7 @@ export const NumberofTradesChart = () => {
 export const TradingVolumeChart = () => {
   const theme = useTheme()
   const { address } = useParams()
-  const [timeframe, setTimeframe] = useState(KyberAITimeframe.ONE_WEEK)
+  const [timeframe, setTimeframe] = useState(KyberAITimeframe.ONE_MONTH)
   const [showSell, setShowSell] = useState(true)
   const [showBuy, setShowBuy] = useState(true)
   const [showTotalVolume, setShowTotalVolume] = useState(true)
@@ -703,7 +703,7 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
   const [showInflow, setShowInflow] = useState(true)
   const [showOutflow, setShowOutflow] = useState(true)
   const [showNetflow, setShowNetflow] = useState(true)
-  const [timeframe, setTimeframe] = useState('7D')
+  const [timeframe, setTimeframe] = useState(KyberAITimeframe.ONE_MONTH)
 
   const formattedData: any[] = useMemo(() => {
     const dataTemp = address ? data : NETFLOW_TO_WHALE_WALLETS
@@ -834,7 +834,9 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
                   tickLine={false}
                   axisLine={false}
                   tick={{ fill: theme.subText, fontWeight: 400 }}
-                  tickFormatter={value => dayjs(value).format(timeframe === '1D' ? 'MMM DD HH:mm' : 'MMM DD')}
+                  tickFormatter={value =>
+                    dayjs(value).format(timeframe === KyberAITimeframe.ONE_DAY ? 'MMM DD HH:mm' : 'MMM DD')
+                  }
                 />
                 <YAxis
                   fontSize="12px"

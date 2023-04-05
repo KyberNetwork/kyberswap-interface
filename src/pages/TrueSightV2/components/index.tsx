@@ -32,6 +32,9 @@ export const SectionTitle = styled.div`
   font-size: 16px;
   line-height: 20px;
   font-weight: 500;
+  margin: 0px -16px;
+  padding: 0px 16px 16px 16px;
+  border-bottom: 1px solid ${({ theme }) => theme.border};
   color: ${({ theme }) => theme.text};
 `
 export const SectionDescription = styled.div<{ show?: boolean }>`

@@ -5,6 +5,7 @@ import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
+import headerBanner from 'assets/images/truesight-v2/header_banner.png'
 import Icon from 'components/Icons/Icon'
 import { RowBetween, RowFit } from 'components/Row'
 import SubscribeNotificationButton from 'components/SubscribeButton'
@@ -34,6 +35,18 @@ const Wrapper = styled.div`
   }
 `
 
+const HeaderWrapper = styled(RowBetween)`
+  padding: 22px 24px;
+  background-image: url(${headerBanner});
+  background-size: cover;
+  max-width: 1500px;
+  width: 100%;
+
+  @media only screen and (max-width: 768px) {
+    padding: 16px;
+  }
+`
+
 export default function TrueSightV2() {
   const theme = useTheme()
   const [searchValue, setSearchValue] = useState('')
@@ -42,8 +55,8 @@ export default function TrueSightV2() {
   const above768 = useMedia('(min-width:768px)')
   const navigate = useNavigate()
   return (
-    <Wrapper>
-      <RowBetween>
+    <>
+      <HeaderWrapper>
         <RowFit color={theme.text} gap="6px">
           <Text
             fontSize={above768 ? 24 : 20}
@@ -85,9 +98,11 @@ export default function TrueSightV2() {
             <SubscribeNotificationButton />
           </MouseoverTooltip>
         </RowFit>
-      </RowBetween>
-      {isSingleToken ? <SingleToken /> : <TokenAnalysisList />}
-      <TrueSightWidget />
-    </Wrapper>
+      </HeaderWrapper>
+      <Wrapper>
+        {isSingleToken ? <SingleToken /> : <TokenAnalysisList />}
+        <TrueSightWidget />
+      </Wrapper>
+    </>
   )
 }

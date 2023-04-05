@@ -1,3 +1,4 @@
+import { t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useRef, useState } from 'react'
 import { ChevronLeft, Share2, Star } from 'react-feather'
@@ -12,6 +13,7 @@ import { DotsLoader } from 'components/Loader/DotsLoader'
 import Logo from 'components/Logo'
 import Row, { RowBetween, RowFit } from 'components/Row'
 import ShareModal from 'components/ShareModal'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
@@ -238,11 +240,6 @@ export default function SingleToken() {
             </Text>
           </>
         )}
-      </>
-    )
-
-    const SettingButtons = () => (
-      <>
         <HeaderButton
           style={{
             color: data?.isWatched ? theme.primary : theme.subText,
@@ -251,21 +248,30 @@ export default function SingleToken() {
         >
           <Star size={16} fill={data?.isWatched ? 'currentcolor' : 'none'} />
         </HeaderButton>
-        <HeaderButton
-          style={{
-            color: theme.subText,
-          }}
-        >
-          <Icon id="alarm" size={18} />
-        </HeaderButton>
-        <HeaderButton
-          style={{
-            color: theme.subText,
-          }}
-          onClick={() => handleShareClick()}
-        >
-          <Share2 size={16} fill="currentcolor" />
-        </HeaderButton>
+      </>
+    )
+
+    const SettingButtons = () => (
+      <>
+        <MouseoverTooltip text={t`Set a price alert`} placement="top" width="fit-content">
+          <HeaderButton
+            style={{
+              color: theme.subText,
+            }}
+          >
+            <Icon id="alarm" size={18} />
+          </HeaderButton>
+        </MouseoverTooltip>
+        <MouseoverTooltip text={t`Share this token`} placement="top" width="fit-content">
+          <HeaderButton
+            style={{
+              color: theme.subText,
+            }}
+            onClick={() => handleShareClick()}
+          >
+            <Share2 size={16} fill="currentcolor" />
+          </HeaderButton>
+        </MouseoverTooltip>
       </>
     )
 
@@ -273,6 +279,8 @@ export default function SingleToken() {
       <RowBetween marginBottom="24px">
         <RowFit gap="12px">
           <TokenNameGroup />
+        </RowFit>
+        <RowFit gap="12px">
           <SettingButtons />
           <ButtonPrimary height="36px" width="120px" gap="4px">
             <RowFit gap="4px">

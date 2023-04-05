@@ -95,7 +95,7 @@ export default function DisplaySettings({ currentTab }: { currentTab: DiscoverTo
       opacity={1}
       content={
         <SettingsWrapper ref={ref}>
-          <Text color={theme.text}>
+          <Text color={theme.text} fontWeight={500}>
             <Trans>Display Settings</Trans>
           </Text>
           <RowBetween>
@@ -116,7 +116,7 @@ export default function DisplaySettings({ currentTab }: { currentTab: DiscoverTo
             backgroundColor="inherit"
             expandedDefault={currentTab === DiscoverTokenTab.OnChainAnalysis}
             headerContent={
-              <Text color={theme.text} fontSize={14}>
+              <Text color={theme.text} fontSize={14} fontWeight={500}>
                 On-Chain Analysis
               </Text>
             }
@@ -143,7 +143,7 @@ export default function DisplaySettings({ currentTab }: { currentTab: DiscoverTo
             backgroundColor="inherit"
             expandedDefault={currentTab === DiscoverTokenTab.TechnicalAnalysis}
             headerContent={
-              <Text color={theme.text} fontSize={14}>
+              <Text color={theme.text} fontSize={14} fontWeight={500}>
                 Technical Analysis
               </Text>
             }
