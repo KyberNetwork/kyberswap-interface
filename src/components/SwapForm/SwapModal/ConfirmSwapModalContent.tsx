@@ -249,10 +249,10 @@ export default function ConfirmSwapModalContent({
                   <Trans>New Amount Accepted</Trans>
                 ) : (
                   <Trans>
-                    Due to market conditions, your output has been updated from {parsedAmountOut?.toSignificant(10)}{' '}
-                    {parsedAmountOut?.currency?.symbol} to {parsedAmountOutFromBuild?.toSignificant(10)}{' '}
-                    {parsedAmountOut?.currency?.symbol} ({formattedOutputChangePercent}%). Please accept the new amount
-                    before swapping
+                    Due to market conditions, your output has been updated from{' '}
+                    {parsedAmountOut?.toSignificant(10) || ''} {parsedAmountOut?.currency?.symbol} to{' '}
+                    {parsedAmountOutFromBuild?.toSignificant(10) || ''} {parsedAmountOut?.currency?.symbol} (
+                    {formattedOutputChangePercent}%). Please accept the new amount before swapping
                   </Trans>
                 )}
               </Text>
