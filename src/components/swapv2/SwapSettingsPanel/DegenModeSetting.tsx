@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
-import { Dispatch, FC, SetStateAction, useState } from 'react'
+import { Dispatch, FC, SetStateAction } from 'react'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 
