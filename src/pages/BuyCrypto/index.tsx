@@ -503,7 +503,7 @@ function BuyCrypto() {
                   <Trans>Step 2</Trans>
                 </Text>
 
-                <Text color={'white'} fontSize={upToMedium ? '28px' : '44px'} lineHeight={upToMedium ? '32px' : '60px'}>
+                <Text color="white" fontSize={upToMedium ? '28px' : '44px'} lineHeight={upToMedium ? '32px' : '60px'}>
                   <Trans>Buy Crypto</Trans>
                 </Text>
 
@@ -542,6 +542,7 @@ function BuyCrypto() {
                 )}
 
                 <ButtonPrimary
+                  id="buy-crypto-button"
                   margin={upToMedium ? '40px 0 0' : '44px 0 0'}
                   width={upToSmall ? '100%' : '50%'}
                   as="a"

@@ -100,7 +100,7 @@ const TabReward = styled.span<{ active?: boolean }>`
 `
 
 export function readableTime(seconds: number) {
-  if (seconds < 60) return seconds + 's'
+  if (seconds < 60) return Math.floor(seconds) + 's'
 
   const levels = [
     [Math.floor(seconds / 31536000), 'years'],
