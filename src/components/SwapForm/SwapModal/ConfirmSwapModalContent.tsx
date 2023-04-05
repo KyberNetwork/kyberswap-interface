@@ -244,7 +244,7 @@ export default function ConfirmSwapModalContent({
               isAccepted={hasAcceptedNewAmount}
             >
               {hasAcceptedNewAmount && <Check size={20} color={theme.text} />}
-              <Text flex={1}>
+              <Text flex={1} color={theme.text}>
                 {hasAcceptedNewAmount ? (
                   <Trans>New Amount Accepted</Trans>
                 ) : (
