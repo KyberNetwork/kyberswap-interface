@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
-import { FC, useState } from 'react'
+import { Dispatch, FC, SetStateAction, useState } from 'react'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 
@@ -12,10 +12,11 @@ import { useDegenModeManager } from 'state/user/hooks'
 
 type Props = {
   className?: string
+  showConfirmation: boolean
+  setShowConfirmation: Dispatch<SetStateAction<boolean>>
 }
-const DegenModeSetting: FC<Props> = ({ className }) => {
+const DegenModeSetting: FC<Props> = ({ className, showConfirmation, setShowConfirmation }) => {
   const [isDegenMode, toggleDegenMode] = useDegenModeManager()
-  const [showConfirmation, setShowConfirmation] = useState(false)
 
   const handleToggleAdvancedMode = () => {
     if (isDegenMode /* is already ON */) {
