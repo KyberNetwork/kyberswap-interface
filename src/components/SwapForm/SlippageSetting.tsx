@@ -70,10 +70,9 @@ const SlippageSetting = ({ isStablePairSwap, rightComponent }: Props) => {
                 <Text>
                   <Trans>
                     During your swap if the price changes by more than this %, your transaction will revert. Read more{' '}
-                    <ExternalLink href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/price-impact">
+                    <ExternalLink href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/slippage">
                       here ↗
                     </ExternalLink>
-                    .
                   </Trans>
                 </Text>
               }
