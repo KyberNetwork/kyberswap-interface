@@ -6,6 +6,7 @@ import styled from 'styled-components'
 
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import { MouseoverTooltip } from 'components/Tooltip'
+import { RESERVE_USD_DECIMALS } from 'constants/index'
 import { WrapType } from 'hooks/useWrapCallback'
 import { formattedNum } from 'utils'
 
@@ -44,7 +45,7 @@ const OutputCurrencyPanel: React.FC<Props> = ({
       return parsedAmountIn?.toExact() || ''
     }
     if (!parsedAmountOut) return ''
-    return Number(parsedAmountOut.toFixed(parsedAmountOut.currency.decimals)).toString()
+    return parsedAmountOut.toSignificant(RESERVE_USD_DECIMALS)
   }
 
   const getEstimatedUsd = () => {
