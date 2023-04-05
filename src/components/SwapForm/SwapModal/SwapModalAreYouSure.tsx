@@ -87,10 +87,9 @@ export default function SwapModalAreYouSure({
 
         <Text fontSize={14} marginTop="28px">
           <Trans>
-            Due to change in market conditions, your output amount has been updated from{' '}
-            {parsedAmountOut?.toSignificant(10)} {parsedAmountOut?.currency?.symbol} to{' '}
-            {parsedAmountOutFromBuild?.toSignificant(10)} {parsedAmountOut?.currency?.symbol} (
-            {formattedOutputChangePercent}%).
+            Due to market conditions, your output has been updated from {parsedAmountOut?.toSignificant(10)}{' '}
+            {parsedAmountOut?.currency?.symbol} to {parsedAmountOutFromBuild?.toSignificant(10)}{' '}
+            {parsedAmountOut?.currency?.symbol} ({formattedOutputChangePercent}%).
           </Trans>
         </Text>
 
