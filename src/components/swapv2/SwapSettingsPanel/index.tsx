@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import { ArrowLeft } from 'react-feather'
 import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -101,8 +101,10 @@ const SettingsPanel: React.FC<Props> = ({
     toggleTradeRoutes()
   }
 
+  const [showConfirmation, setShowConfirmation] = useState(false)
+
   const containerRef = useRef<HTMLDivElement>(null)
-  useOnClickOutside(containerRef, onBack)
+  useOnClickOutside(containerRef, () => !showConfirmation && onBack())
 
   return (
     <Box width="100%" className={className} id={TutorialIds.TRADING_SETTING_CONTENT} ref={containerRef}>
@@ -134,7 +136,7 @@ const SettingsPanel: React.FC<Props> = ({
 
               <SlippageSetting />
               <TransactionTimeLimitSetting />
-              <DegenModeSetting />
+              <DegenModeSetting showConfirmation={showConfirmation} setShowConfirmation={setShowConfirmation} />
               <GasPriceTrackerSetting onClick={onClickGasPriceTracker} />
               <LiquiditySourcesSetting onClick={onClickLiquiditySources} />
             </>
