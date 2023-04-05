@@ -17,7 +17,7 @@ export const getSwapUrlPriceAlert = (alert: HistoricalPriceAlert) => {
   const { swapURL, tokenInAmount } = alert
   try {
     const { pathname, search } = new URL(swapURL)
-    return `${pathname}${search}&amount=${tokenInAmount}`
+    return `${pathname}${search}&amountIn=${tokenInAmount}`
   } catch (error) {
     return swapURL
   }

@@ -331,7 +331,7 @@ export function queryParametersToSwapState(
           feeAmount: feePercent < 1 ? '1' : feePercent > 10 ? '10' : feePercent.toString(),
         }
       : undefined
-  const typedValue = (parsedQs.amount ?? '') as string
+  const typedValue = (parsedQs.amountIn ?? '') as string
   return {
     [Field.INPUT]: {
       currencyId: inputCurrency,
