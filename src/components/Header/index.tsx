@@ -15,7 +15,7 @@ import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useHolidayMode, useIsDarkMode } from 'state/user/hooks'
 
-import DiscoverNavItem from './DiscoverNavItem'
+import KyberAINavItem from './KyberAINavItem'
 import AboutNavGroup from './groups/AboutNavGroup'
 import AnalyticNavGroup from './groups/AnalyticNavGroup'
 import EarnNavGroup from './groups/EarnNavGroup'
@@ -181,7 +181,7 @@ export default function Header() {
         <HeaderLinks>
           <SwapNavGroup />
           <EarnNavGroup />
-          <DiscoverNavItem />
+          <KyberAINavItem />
           <CampaignNavGroup />
           <KyberDAONavGroup />
           <AnalyticNavGroup />

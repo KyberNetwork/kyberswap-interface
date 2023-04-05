@@ -24,7 +24,6 @@ import TutorialModal from '../components/TutorialModal'
 import { TOKEN_DETAIL } from '../hooks/sampleData'
 import { useTokenDetailQuery } from '../hooks/useTruesightV2Data'
 import { DiscoverTokenTab } from '../types'
-import News from './News'
 import OnChainAnalysis from './OnChainAnalysis'
 import TechnicalAnalysis from './TechnicalAnalysis'
 
@@ -102,12 +101,9 @@ const TagWrapper = styled.div`
 
 const TabButton = styled.div<{ active?: boolean }>`
   cursor: pointer;
-  font-size: 16px;
+  font-size: 24px;
   font-weight: 500;
-  line-height: 20px;
-  border: 2px solid ${({ theme }) => theme.subText};
-  padding: 8px 12px;
-  border-radius: 36px;
+  line-height: 28px;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -116,8 +112,6 @@ const TabButton = styled.div<{ active?: boolean }>`
     active &&
     css`
       color: ${theme.primary};
-      background-color: ${theme.primary30};
-      border-color: ${theme.primary30};
     `}
   :hover {
     filter: brightness(0.8);
@@ -339,21 +333,23 @@ export default function SingleToken() {
       <TokenOverview />
 
       <Row>
-        <Row gap={above768 ? '20px' : '8px'} justify="center">
-          {Object.values(DiscoverTokenTab).map((tab: DiscoverTokenTab) => (
-            <TabButton key={tab} active={tab === currentTab} onClick={() => setCurrentTab(tab)}>
-              <Icon
-                id={
-                  {
-                    [DiscoverTokenTab.OnChainAnalysis]: 'on-chain',
-                    [DiscoverTokenTab.TechnicalAnalysis]: 'technical-analysis',
-                    [DiscoverTokenTab.News]: 'news',
-                  }[tab]
-                }
-                size={16}
-              />
-              {above768 ? tab : tab.split(' Analysis')[0]}
-            </TabButton>
+        <Row gap={above768 ? '12px' : '8px'} justify="center">
+          {Object.values(DiscoverTokenTab).map((tab: DiscoverTokenTab, index: number) => (
+            <>
+              {index !== 0 && <Text fontSize={24}>|</Text>}
+              <TabButton key={tab} active={tab === currentTab} onClick={() => setCurrentTab(tab)}>
+                <Icon
+                  id={
+                    {
+                      [DiscoverTokenTab.OnChainAnalysis]: 'on-chain',
+                      [DiscoverTokenTab.TechnicalAnalysis]: 'technical-analysis',
+                    }[tab]
+                  }
+                  size={20}
+                />
+                {above768 ? tab : tab.split(' Analysis')[0]}
+              </TabButton>
+            </>
           ))}
         </Row>
         <RowFit alignSelf="flex-end">
@@ -362,7 +358,7 @@ export default function SingleToken() {
       </Row>
       {currentTab === DiscoverTokenTab.OnChainAnalysis && <OnChainAnalysis onShareClick={handleShareClick} />}
       {currentTab === DiscoverTokenTab.TechnicalAnalysis && <TechnicalAnalysis />}
-      {currentTab === DiscoverTokenTab.News && <News />}
+      {/* {currentTab === DiscoverTokenTab.News && <News />} */}
       <ShareModal title="Share with your friends" url={shareUrl.current} />
       <TutorialModal />
     </Wrapper>
