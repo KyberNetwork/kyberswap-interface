@@ -66,7 +66,7 @@ export default function SwapBrief({
   currencyOut,
 }: Props) {
   const theme = useTheme()
-  const { typedValue, feeConfig } = useSwapFormContext()
+  const { typedValue } = useSwapFormContext()
 
   const renderOutputAmount = () => {
     if (isLoading) {
@@ -125,7 +125,7 @@ export default function SwapBrief({
           <Trans>Input Amount</Trans>
         </Text>
         <RowBetween>
-          <TruncatedText>{!!feeConfig ? typedValue : inputAmount.toSignificant(RESERVE_USD_DECIMALS)}</TruncatedText>
+          <TruncatedText>{typedValue}</TruncatedText>
           <Flex alignItems="center" sx={{ gap: '8px' }} minWidth="fit-content">
             <Text fontSize={14} fontWeight={500} color={theme.subText}>
               ~{formattedNum(amountInUsd, true)}
