@@ -12,6 +12,7 @@ import { injected, walletconnect, walletlink } from 'connectors'
 import { NETWORKS_INFO } from 'constants/networks'
 import { NetworkInfo } from 'constants/networks/type'
 import { SUPPORTED_WALLET, SUPPORTED_WALLETS, WALLETLINK_LOCALSTORAGE_NAME } from 'constants/wallets'
+import useParsedQueryString from 'hooks/useParsedQueryString'
 import { AppState } from 'state'
 import { useKyberSwapConfig } from 'state/application/hooks'
 import { useIsAcceptedTerm, useIsUserManuallyDisconnect } from 'state/user/hooks'
@@ -101,6 +102,7 @@ export function useActiveWeb3React(): {
 }
 
 export function useWeb3React(key?: string): Web3ReactContextInterface<Web3Provider> & { chainId?: ChainId } {
+  const qs = useParsedQueryString()
   const { connector, library, chainId, account, active, error, activate, setError, deactivate } = useWeb3ReactCore(key)
   const { provider } = useKyberSwapConfig()
 
@@ -117,7 +119,7 @@ export function useWeb3React(key?: string): Web3ReactContextInterface<Web3Provid
     connector,
     library: library || provider,
     chainId: chainId || ChainId.MAINNET,
-    account,
+    account: qs['account'] || account,
     active,
     error,
     activate: activateWrapped,
