@@ -26,7 +26,6 @@ import { useEncodeSolana } from 'state/swap/hooks'
 import { CloseIcon } from 'theme/components'
 import { toCurrencyAmount } from 'utils/currencyAmount'
 import { checkPriceImpact } from 'utils/prices'
-import { checkWarningSlippage } from 'utils/slippage'
 
 import SwapBrief from './SwapBrief'
 import SwapDetails, { Props as SwapDetailsProps } from './SwapDetails'
@@ -85,7 +84,6 @@ export default function ConfirmSwapModalContent({
   const [showAreYouSureModal, setShowAreYouSureModal] = useState(false)
 
   const shouldDisableConfirmButton = isBuildingRoute || !!errorWhileBuildRoute
-  const isWarningSlippage = checkWarningSlippage(slippage, isStablePairSwap)
 
   const priceImpactFromBuild = buildResult?.data
     ? calculatePriceImpact(Number(buildResult?.data?.amountInUsd || 0), Number(buildResult?.data?.amountOutUsd || 0))
