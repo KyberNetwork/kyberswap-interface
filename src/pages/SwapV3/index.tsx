@@ -301,7 +301,7 @@ export default function Swap() {
         <TopTrendingSoonTokensInCurrentNetwork />
         <Container>
           <SwapFormWrapper isShowTutorial={isShowTutorial}>
-            <ColumnCenter>
+            <ColumnCenter gap="sm">
               <RowBetween>
                 <TabContainer>
                   <TabWrapper>

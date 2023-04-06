@@ -1,8 +1,9 @@
 import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import JSBI from 'jsbi'
+import { rgba } from 'polished'
 import { stringify } from 'querystring'
-import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
 import Skeleton from 'react-loading-skeleton'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -11,24 +12,21 @@ import { Box, Flex, Text } from 'rebass'
 import styled, { DefaultTheme, keyframes } from 'styled-components'
 
 import christmasImg from 'assets/images/christmas-decor2.svg'
-import { ReactComponent as TutorialSvg } from 'assets/svg/play_circle_outline.svg'
 import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import AddressInputPanel from 'components/AddressInputPanel'
 import ApproveMessage from 'components/ApproveMessage'
 import ArrowRotate from 'components/ArrowRotate'
 import Banner from 'components/Banner'
 import { ButtonConfirmed, ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
-import { GreyCard } from 'components/Card/index'
-import Column from 'components/Column/index'
+import { GreyCard } from 'components/Card'
+import Column, { ColumnCenter } from 'components/Column'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
-import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
-import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import ProgressSteps from 'components/ProgressSteps'
 import { AutoRow, RowBetween } from 'components/Row'
 import { SEOSwap } from 'components/SEO'
-import { ShareButtonWithModal } from 'components/ShareModal'
 import SlippageWarningNote from 'components/SlippageWarningNote'
+import { Label } from 'components/SwapForm/OutputCurrencyPanel'
 import PriceImpactNote from 'components/SwapForm/PriceImpactNote'
 import SlippageSettingGroup from 'components/SwapForm/SlippageSettingGroup'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
@@ -36,7 +34,6 @@ import TokenWarningModal from 'components/TokenWarningModal'
 import { MouseoverTooltip } from 'components/Tooltip'
 import TopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoonTokensInCurrentNetwork'
 import TrendingSoonTokenBanner from 'components/TrendingSoonTokenBanner'
-import Tutorial, { TutorialType } from 'components/Tutorial'
 import TutorialSwap from 'components/Tutorial/TutorialSwap'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import AdvancedSwapDetailsDropdown from 'components/swapv2/AdvancedSwapDetailsDropdown'
@@ -49,7 +46,6 @@ import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
 import PairSuggestion, { PairSuggestionHandle } from 'components/swapv2/PairSuggestion'
 import RefreshButton from 'components/swapv2/RefreshButton'
 import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
-import TokenInfoIcon from 'components/swapv2/TokenInfoIcon'
 import TokenInfoTab from 'components/swapv2/TokenInfoTab'
 import TokenInfoV2 from 'components/swapv2/TokenInfoV2'
 import TradePrice from 'components/swapv2/TradePrice'
@@ -59,14 +55,11 @@ import {
   Container,
   Dots,
   InfoComponentsWrapper,
-  KyberTag,
   LiveChartWrapper,
   PageWrapper,
   PriceImpactHigh,
   RoutesWrapper,
-  StyledActionButtonSwapForm,
   SwapCallbackError,
-  SwapFormActions,
   SwapFormWrapper,
   Tab,
   TabContainer,
@@ -85,9 +78,9 @@ import useSyncTokenSymbolToUrl from 'hooks/useSyncTokenSymbolToUrl'
 import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { BodyWrapper } from 'pages/AppBody'
+import HeaderRightMenu from 'pages/SwapV3/HeaderRightMenu'
 import useUpdateSlippageInStableCoinSwap from 'pages/SwapV3/useUpdateSlippageInStableCoinSwap'
 import { useWalletModalToggle } from 'state/application/hooks'
-import { useAllDexes } from 'state/customizeDexes/hooks'
 import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { Field } from 'state/swap/actions'
 import { useDefaultsFromURLSearch, useEncodeSolana, useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
@@ -102,11 +95,10 @@ import {
   useUserAddedTokens,
   useUserSlippageTolerance,
 } from 'state/user/hooks'
-import { TYPE } from 'theme'
+import { CloseIcon, TYPE } from 'theme'
 import { formattedNum, getLimitOrderContract } from 'utils'
 import { getTradeComposition } from 'utils/aggregationRouting'
 import { Aggregator } from 'utils/aggregator'
-import { currencyId } from 'utils/currencyId'
 import { halfAmountSpend, maxAmountSpend } from 'utils/maxAmountSpend'
 import { captureSwapError } from 'utils/sentry'
 import { getSymbolSlug } from 'utils/string'
@@ -114,15 +106,6 @@ import { checkPairInWhiteList } from 'utils/tokenInfo'
 
 const LiveChart = lazy(() => import('components/LiveChart'))
 const Routing = lazy(() => import('components/TradeRouting'))
-const TutorialIcon = styled(TutorialSvg)`
-  width: 22px;
-  height: 22px;
-
-  path {
-    fill: ${({ theme }) => theme.subText};
-    stroke: ${({ theme }) => theme.subText};
-  }
-`
 
 enum TAB {
   SWAP = 'swap',
@@ -160,7 +143,7 @@ const highlight = (theme: DefaultTheme) => keyframes`
 `
 
 const AppBodyWrapped = styled(BodyWrapper)`
-  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
   padding: 16px 16px 24px;
   margin-top: 0;
 
@@ -186,6 +169,12 @@ const RoutingIconWrapper = styled(RoutingIcon)`
   }
 `
 
+const DegenBanner = styled(RowBetween)`
+  padding: 10px 16px;
+  background-color: ${({ theme }) => rgba(theme.warning, 0.3)};
+  border-radius: 24px;
+`
+
 export default function Swap() {
   const navigateFn = useNavigate()
   const { account, chainId, networkInfo, isSolana, isEVM } = useActiveWeb3React()
@@ -199,7 +188,6 @@ export default function Swap() {
     outputCurrency: string
     inputCurrency: string
   }>()
-  const allDexes = useAllDexes()
   const [{ show: isShowTutorial = false }] = useTutorialSwapGuide()
   const { pathname } = useLocation()
   const [encodeSolana] = useEncodeSolana()
@@ -271,7 +259,6 @@ export default function Swap() {
     parsedAmount,
     currencies,
     inputError: swapInputError,
-    tradeComparer,
     onRefresh,
     loading: loadingAPI,
   } = useDerivedSwapInfoV2()
@@ -291,10 +278,6 @@ export default function Swap() {
     txHash: undefined,
   })
 
-  const comparedDex = useMemo(
-    () => allDexes?.find(dex => dex.id === tradeComparer?.comparedDex),
-    [allDexes, tradeComparer],
-  )
   const currencyIn: Currency | undefined = currencies[Field.INPUT]
   const currencyOut: Currency | undefined = currencies[Field.OUTPUT]
 
@@ -600,19 +583,6 @@ export default function Swap() {
 
   useUpdateSlippageInStableCoinSwap()
 
-  const shareUrl = useMemo(() => {
-    const tokenIn = isSwapPage ? currencyIn : limitState.currencyIn
-    const tokenOut = isSwapPage ? currencyOut : limitState.currencyOut
-    return `${window.location.origin}${isSwapPage ? APP_PATHS.SWAP : APP_PATHS.LIMIT}/${networkInfo.route}${
-      tokenIn && tokenOut
-        ? `?${stringify({
-            inputCurrency: currencyId(tokenIn, chainId),
-            outputCurrency: currencyId(tokenOut, chainId),
-          })}`
-        : ''
-    }`
-  }, [networkInfo.route, currencyIn, currencyOut, chainId, limitState.currencyIn, limitState.currencyOut, isSwapPage])
-
   const { isInWhiteList: isPairInWhiteList, canonicalUrl } = checkPairInWhiteList(
     chainId,
     getSymbolSlug(currencyIn),
@@ -620,7 +590,6 @@ export default function Swap() {
   )
 
   const onBackToSwapTab = () => setActiveTab(isLimitPage ? TAB.LIMIT : TAB.SWAP)
-  const onToggleActionTab = (tab: TAB) => setActiveTab(activeTab === tab ? (isLimitPage ? TAB.LIMIT : TAB.SWAP) : tab)
 
   const shouldRenderTokenInfo = isShowTokenInfoSetting && currencyIn && currencyOut && isPairInWhiteList && isSwapPage
 
@@ -676,6 +645,8 @@ export default function Swap() {
     })
   }
 
+  const [isShowDegenBanner, setShowDegenBanner] = useState(true)
+
   return (
     <>
       {/**
@@ -695,71 +666,46 @@ export default function Swap() {
         <TopTrendingSoonTokensInCurrentNetwork />
         <Container>
           <SwapFormWrapper isShowTutorial={isShowTutorial}>
-            <RowBetween>
-              <TabContainer>
-                <TabWrapper>
-                  <Tab onClick={() => onClickTab(TAB.SWAP)} isActive={isSwapPage}>
-                    <Text fontSize={20} fontWeight={500}>
-                      <Trans>Swap</Trans>
-                    </Text>
-                  </Tab>
-                  {getLimitOrderContract(chainId) && (
-                    <Tab onClick={() => onClickTab(TAB.LIMIT)} isActive={isLimitPage}>
+            <ColumnCenter gap="sm">
+              <RowBetween>
+                <TabContainer>
+                  <TabWrapper>
+                    <Tab onClick={() => onClickTab(TAB.SWAP)} isActive={isSwapPage}>
                       <Text fontSize={20} fontWeight={500}>
-                        <Trans>Limit</Trans>
+                        <Trans>Swap</Trans>
                       </Text>
                     </Tab>
+                    {getLimitOrderContract(chainId) && (
+                      <Tab onClick={() => onClickTab(TAB.LIMIT)} isActive={isLimitPage}>
+                        <Text fontSize={20} fontWeight={500}>
+                          <Trans>Limit</Trans>
+                        </Text>
+                      </Tab>
+                    )}
+                  </TabWrapper>
+                </TabContainer>
+
+                <HeaderRightMenu activeTab={activeTab} setActiveTab={setActiveTab} />
+              </RowBetween>
+              <RowBetween>
+                <Text fontSize={12} color={theme.subText}>
+                  {isLimitPage ? (
+                    <Trans>Buy or sell any token at a specific price</Trans>
+                  ) : (
+                    <Trans>Buy or sell any token instantly at the best price</Trans>
                   )}
-                </TabWrapper>
-              </TabContainer>
+                </Text>
+              </RowBetween>
+            </ColumnCenter>
 
-              <SwapFormActions>
-                <Tutorial
-                  type={isSwapPage ? TutorialType.SWAP : TutorialType.LIMIT_ORDER}
-                  customIcon={
-                    <StyledActionButtonSwapForm>
-                      <TutorialIcon />
-                    </StyledActionButtonSwapForm>
-                  }
-                />
-                <TokenInfoIcon
-                  currencies={isSwapPage ? currencies : currenciesLimit}
-                  onClick={() => onToggleActionTab(TAB.INFO)}
-                />
-                <ShareButtonWithModal
-                  title={t`Share this with your friends!`}
-                  url={shareUrl}
-                  onShared={() => {
-                    mixpanelHandler(MIXPANEL_TYPE.TOKEN_SWAP_LINK_SHARED)
-                  }}
-                />
-                <StyledActionButtonSwapForm
-                  active={activeTab === TAB.SETTINGS}
-                  onClick={() => onToggleActionTab(TAB.SETTINGS)}
-                  aria-label="Swap Settings"
-                >
-                  <MouseoverTooltip
-                    text={!isDegenMode ? <Trans>Settings</Trans> : <Trans>Degen mode is on!</Trans>}
-                    placement="top"
-                    width="fit-content"
-                  >
-                    <span id={TutorialIds.BUTTON_SETTING_SWAP_FORM}>
-                      <TransactionSettingsIcon fill={isDegenMode ? theme.warning : theme.subText} />
-                    </span>
-                  </MouseoverTooltip>
-                </StyledActionButtonSwapForm>
-              </SwapFormActions>
-            </RowBetween>
-
-            <RowBetween>
-              <Text fontSize={12} color={theme.subText}>
-                {isLimitPage ? (
-                  <Trans>Buy or sell any token at a specific price</Trans>
-                ) : (
-                  <Trans>Buy or sell any token instantly at the best price</Trans>
-                )}
-              </Text>
-            </RowBetween>
+            {isDegenMode && isShowDegenBanner && (
+              <DegenBanner>
+                <Text fontSize={12} fontWeight={400} color={theme.text}>
+                  <Trans>You have turned on Degen Mode. Be cautious</Trans>
+                </Text>
+                <CloseIcon size={14} onClick={() => setShowDegenBanner(false)} />
+              </DegenBanner>
+            )}
 
             {!isSolana && (
               <RowBetween>
@@ -819,40 +765,6 @@ export default function Swap() {
                         <ArrowRotate rotate={rotate} onClick={handleRotateClick} />
                       </AutoRow>
                       <Box sx={{ position: 'relative' }}>
-                        {tradeComparer?.tradeSaved?.usd && comparedDex && (
-                          <KyberTag>
-                            <Trans>You save</Trans>{' '}
-                            {formattedNum(tradeComparer.tradeSaved.usd, true) +
-                              ` (${
-                                tradeComparer?.tradeSaved?.percent &&
-                                (tradeComparer.tradeSaved.percent < 0.01
-                                  ? '<0.01'
-                                  : tradeComparer.tradeSaved.percent.toFixed(2))
-                              }%)`}
-                            <InfoHelper
-                              text={
-                                <Text>
-                                  <Trans>
-                                    The amount you save compared to{' '}
-                                    <Text as="span" color={theme.warning}>
-                                      {comparedDex.name}
-                                    </Text>
-                                    .
-                                  </Trans>{' '}
-                                  <Trans>
-                                    <Text color={theme.primary} fontWeight={500} as="span">
-                                      KyberSwap
-                                    </Text>{' '}
-                                    gets you the best token rates
-                                  </Trans>
-                                </Text>
-                              }
-                              size={14}
-                              color={theme.apr}
-                            />
-                          </KyberTag>
-                        )}
-
                         <CurrencyInputPanel
                           disabledInput
                           value={formattedAmounts[Field.OUTPUT]}
@@ -867,6 +779,25 @@ export default function Swap() {
                           estimatedUsd={
                             trade?.amountOutUsd ? `${formattedNum(trade.amountOutUsd.toString(), true)}` : undefined
                           }
+                          label={
+                            <Label>
+                              <MouseoverTooltip
+                                placement="right"
+                                width="200px"
+                                text={
+                                  <Text fontSize={12}>
+                                    <Trans>
+                                      This is the estimated output amount. Do review the actual output amount in the
+                                      confirmation screen.
+                                    </Trans>
+                                  </Text>
+                                }
+                              >
+                                <Trans>Est. Output</Trans>
+                              </MouseoverTooltip>
+                            </Label>
+                          }
+                          positionLabel="in"
                         />
                       </Box>
 
