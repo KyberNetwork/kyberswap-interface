@@ -1,4 +1,4 @@
-import { t } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { createContext, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
@@ -58,7 +58,7 @@ function getAverageCandleSize(arr: OHLCData[]): number {
 }
 
 function closeToExistedValue(newvalue: number, arr: any[], range: number) {
-  return arr.some(v => Math.abs(v.value - newvalue) < range)
+  return arr.findIndex(v => Math.abs(v.value - newvalue) < range)
 }
 
 export const TechnicalAnalysisContext = createContext<TechnicalAnalysisContextProps>({})
@@ -71,7 +71,7 @@ export default function TechnicalAnalysis() {
   const [priceChartResolution, setPriceChartResolution] = useState('1h')
   const now = Math.floor(Date.now() / 60000) * 60
   const { data, isLoading } = useChartingDataQuery({
-    from: now - ({ '1h': 540000, '4h': 2160000, '1d': 12960000 }[priceChartResolution] || 1080000),
+    from: now - ({ '1h': 1080000, '4h': 4320000, '1d': 12960000 }[priceChartResolution] || 1080000),
     to: now,
     candleSize: priceChartResolution,
     currency: liveChartTab === ChartTab.First ? 'USD' : 'BTC',
@@ -82,10 +82,23 @@ export default function TechnicalAnalysis() {
     const levels: ISRLevel[] = []
     const average = getAverageCandleSize(data || [])
     data?.forEach((v, i, arr) => {
-      if (isSupport(arr, i) && !closeToExistedValue(v.low, levels, 3 * average)) {
-        levels.push({ timestamp: v.timestamp, value: v.low })
-      } else if (isResistance(arr, i) && !closeToExistedValue(v.high, levels, 3 * average)) {
-        levels.push({ timestamp: v.timestamp, value: v.high })
+      if (isSupport(arr, i)) {
+        let newValue = Math.min(v.open, v.close)
+        const closeIndex = closeToExistedValue(newValue, levels, 2 * average)
+        if (closeIndex > -1) {
+          newValue = (newValue + levels[closeIndex].value) / 2
+          levels.splice(closeIndex, 1)
+        }
+        levels.push({ timestamp: v.timestamp, value: newValue })
+      } else if (isResistance(arr, i)) {
+        let newValue = Math.max(v.open, v.close)
+        const closeIndex = closeToExistedValue(newValue, levels, 2 * average)
+
+        if (closeIndex > -1) {
+          newValue = (newValue + levels[closeIndex].value) / 2
+          levels.splice(closeIndex, 1)
+        }
+        levels.push({ timestamp: v.timestamp, value: newValue })
       }
     })
     return levels.slice(0, 8)
@@ -114,7 +127,26 @@ export default function TechnicalAnalysis() {
         <SectionWrapper
           show={true}
           title={t`Support & Resistance Levels`}
-          description={t`Support level is where the price of a token normally stops falling and bounces back from. Resistance level is where the price of a token normally stops rising and dips back down. Support and resistance levels may vary depending on the timeframe you’re looking at. `}
+          description={
+            <Trans>
+              <Text as="span" color={theme.primary}>
+                Support level
+              </Text>{' '}
+              is where the price of a token normally stops falling and bounces back from.{' '}
+              <Text as="span" color={theme.red}>
+                Resistance level
+              </Text>{' '}
+              is where the price of a token normally stops rising and dips back down.{' '}
+              <Text as="span" color={theme.primary}>
+                Support
+              </Text>{' '}
+              and{' '}
+              <Text as="span" color={theme.red}>
+                Resistance
+              </Text>{' '}
+              levels may vary depending on the timeframe you&apos;re looking at.
+            </Trans>
+          }
           style={{ height: 'fit-content' }}
         >
           <SupportResistanceLevel />
@@ -135,11 +167,27 @@ export default function TechnicalAnalysis() {
           show={true}
           id={'fundingrate'}
           title={t`Funding Rate on Centralized Exchanges`}
-          description={`Funding rate is useful in identifying short-term trends.
-        <span style={{ color: ${theme.primary}, fontStyle: 'italic' }}>Positive</span> funding rates suggests traders are
-        bullish. Extremely positive funding rates may result in long positions getting squeezed. Negative funding
-        rates suggests traders are bearish. Extremely negative funding rates may result in short positions getting
-        squeezed.`}
+          description={
+            <Trans>
+              Funding rate is useful in identifying short-term trends.
+              <Text as="span" color={theme.primary}>
+                Positive funding rates
+              </Text>{' '}
+              suggests traders are{' '}
+              <Text as="span" color={theme.primary}>
+                bullish
+              </Text>{' '}
+              . Extremely positive funding rates may result in long positions getting squeezed.{' '}
+              <Text as="span" color={theme.red}>
+                Negative funding rates
+              </Text>{' '}
+              suggests traders are{' '}
+              <Text as="span" color={theme.red}>
+                bearish
+              </Text>{' '}
+              . Extremely negative funding rates may result in short positions getting squeezed.
+            </Trans>
+          }
           style={{ height: 'fit-content' }}
         >
           <FundingRateTable />

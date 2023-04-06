@@ -10,11 +10,11 @@ const Wrapper = styled.div`
     filter: brightness(1.2);
   }
 `
-export default function KyberScoreChart() {
+export default function KyberScoreChart({ width, height }: { width?: string; height?: string }) {
   const theme = useTheme()
   const sampleData = [10, 20, 60, 40, 50, 60, 70, 40, 90, 60, 70, 80, 90]
   return (
-    <Wrapper>
+    <Wrapper style={{ width, height }}>
       <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
         <g transform="scale(1,-1) translate(0,-100)">
           {sampleData.map((v, index) => {
@@ -23,7 +23,7 @@ export default function KyberScoreChart() {
             const rectHeight = v
             //#fff46e
             //#e7de6b
-            const color = v > 60 ? theme.primary : v < 40 ? theme.red : '#f2e86c'
+            const color = v > 60 ? theme.primary : v < 40 ? theme.red : theme.darkMode ? '#f2e86c' : '#ffd600'
             return (
               <rect key={index} x={index * (rectWidth + gap)} y={0} width={rectWidth} style={{ fill: color }}>
                 <animate

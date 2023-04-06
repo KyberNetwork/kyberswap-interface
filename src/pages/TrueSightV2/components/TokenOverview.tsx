@@ -20,6 +20,7 @@ import { useTokenDetailQuery } from '../hooks/useTruesightV2Data'
 import { testParams } from '../pages/SingleToken'
 import KyberScoreMeter from './KyberScoreMeter'
 import PriceRange from './PriceRange'
+import KyberScoreChart from './chart/KyberScoreChart'
 
 const CardWrapper = styled.div<{ gap?: string }>`
   border-radius: 20px;
@@ -95,210 +96,204 @@ export const TokenOverview = () => {
   return (
     <>
       {above768 ? (
-        <Row align="stretch" gap="24px" marginBottom="38px" flexDirection={above768 ? 'row' : 'column'}>
-          <CardWrapper style={{ justifyContent: 'space-between' }}>
-            <Column>
-              <Text color={theme.text} fontSize="14px" lineHeight="20px" marginBottom="12px">
-                <Trans>Price</Trans>
-              </Text>
-              <RowFit gap="8px">
-                <Text fontSize={28} lineHeight="32px" color={theme.text}>
-                  {isLoading ? <DotsLoader /> : '$' + (+(data?.price || 0)).toLocaleString()}
+        <>
+          <Row align="stretch" gap="24px" flexDirection={above768 ? 'row' : 'column'} marginBottom="12px">
+            <CardWrapper style={{ justifyContent: 'space-between' }}>
+              <Column>
+                <Text color={theme.text} fontSize="14px" lineHeight="20px" marginBottom="12px">
+                  <Trans>Price</Trans>
                 </Text>
-                <Text
-                  color={theme.red}
-                  fontSize="12px"
-                  backgroundColor={rgba(theme.red, 0.2)}
-                  display="inline"
-                  padding="4px 8px"
-                  style={{ borderRadius: '16px' }}
+                <RowFit gap="8px">
+                  <Text fontSize={28} lineHeight="32px" color={theme.text}>
+                    {isLoading ? <DotsLoader /> : '$' + (+(data?.price || 0)).toLocaleString()}
+                  </Text>
+                  <Text
+                    color={theme.red}
+                    fontSize="12px"
+                    backgroundColor={rgba(theme.red, 0.2)}
+                    display="inline"
+                    padding="4px 8px"
+                    style={{ borderRadius: '16px' }}
+                  >
+                    {data?.price24hChangePercent ? data?.price24hChangePercent.toFixed(2) : 0}%
+                  </Text>
+                </RowFit>
+                <Text color={theme.red} fontSize={12} lineHeight="16px">
+                  {data && formatMoneyWithSign(data?.price24hChangePercent * +data?.price || 0)}
+                </Text>
+              </Column>
+
+              <PriceRange
+                title={t`Daily Range`}
+                high={data?.['24hHigh'] || 0}
+                low={data?.['24hLow'] || 0}
+                current={+(data?.price || 0)}
+                style={{ flex: 'initial' }}
+              />
+              <PriceRange
+                title={t`1Y Range`}
+                high={data?.['1yHigh'] || 0}
+                low={data?.['1yLow'] || 0}
+                current={data?.price ? +data.price : 0}
+                style={{ flex: 'initial' }}
+              />
+              <Column gap="6px" style={{ justifyContent: 'end' }}>
+                <Text fontSize="12px">
+                  <Trans>Performance</Trans>
+                </Text>
+                <Row gap="8px">
+                  <PerformanceCard color={theme.red}>
+                    <Text fontSize="12px">-8.36%</Text>
+                    <Text color={theme.text} fontSize="10px">
+                      1W
+                    </Text>
+                  </PerformanceCard>
+                  <PerformanceCard color={theme.primary}>
+                    <Text color={theme.primary} fontSize="12px">
+                      18.33%
+                    </Text>
+                    <Text color={theme.text} fontSize="10px">
+                      1M
+                    </Text>
+                  </PerformanceCard>
+                  <PerformanceCard color={theme.primary}>
+                    <Text color={theme.primary} fontSize="12px">
+                      142.55%
+                    </Text>
+                    <Text color={theme.text} fontSize="10px">
+                      3M
+                    </Text>
+                  </PerformanceCard>
+                  <PerformanceCard color={theme.primary}>
+                    <Text color={theme.primary} fontSize="12px">
+                      32.27%
+                    </Text>
+                    <Text color={theme.text} fontSize="10px">
+                      6M
+                    </Text>
+                  </PerformanceCard>
+                </Row>
+              </Column>
+            </CardWrapper>
+
+            <CardWrapper style={{ alignItems: 'center', gap: '12px' }}>
+              <Row marginBottom="4px">
+                <MouseoverTooltip
+                  text={
+                    <Trans>
+                      KyberScore uses AI to measure the upcoming trend of a token (bullish or bearish) by taking into
+                      account multiple on-chain and off-chain indicators. The score ranges from 0 to 100. Higher the
+                      score, more bullish the token in the short-term. Read more{' '}
+                      <a href="https://docs.kyberswap.com">here ↗</a>
+                    </Trans>
+                  }
+                  placement="top"
+                  width="350px"
                 >
-                  {data?.price24hChangePercent ? data?.price24hChangePercent.toFixed(2) : 0}%
-                </Text>
-              </RowFit>
-              <Text color={theme.red} fontSize={12} lineHeight="16px">
-                {data && formatMoneyWithSign(data?.price24hChangePercent * +data?.price || 0)}
-              </Text>
-            </Column>
-
-            <PriceRange
-              title={t`Daily Range`}
-              high={data?.['24hHigh'] || 0}
-              low={data?.['24hLow'] || 0}
-              current={+(data?.price || 0)}
-              style={{ flex: 'initial' }}
-            />
-            <PriceRange
-              title={t`1Y Range`}
-              high={data?.['1yHigh'] || 0}
-              low={data?.['1yLow'] || 0}
-              current={data?.price ? +data.price : 0}
-              style={{ flex: 'initial' }}
-            />
-            <Column gap="6px" style={{ justifyContent: 'end' }}>
-              <Text fontSize="12px">
-                <Trans>Performance</Trans>
-              </Text>
-              <Row gap="8px">
-                <PerformanceCard color={theme.red}>
-                  <Text fontSize="12px">-8.36%</Text>
-                  <Text color={theme.text} fontSize="10px">
-                    1W
+                  <Text style={{ borderBottom: `1px dotted ${theme.text}` }} color={theme.text}>
+                    KyberScore
                   </Text>
-                </PerformanceCard>
-                <PerformanceCard color={theme.primary}>
-                  <Text color={theme.primary} fontSize="12px">
-                    18.33%
-                  </Text>
-                  <Text color={theme.text} fontSize="10px">
-                    1M
-                  </Text>
-                </PerformanceCard>
-                <PerformanceCard color={theme.primary}>
-                  <Text color={theme.primary} fontSize="12px">
-                    142.55%
-                  </Text>
-                  <Text color={theme.text} fontSize="10px">
-                    3M
-                  </Text>
-                </PerformanceCard>
-                <PerformanceCard color={theme.primary}>
-                  <Text color={theme.primary} fontSize="12px">
-                    32.27%
-                  </Text>
-                  <Text color={theme.text} fontSize="10px">
-                    6M
-                  </Text>
-                </PerformanceCard>
+                </MouseoverTooltip>
               </Row>
-            </Column>
-          </CardWrapper>
-
-          <CardWrapper style={{ alignItems: 'center' }}>
-            <Row marginBottom="4px">
-              <MouseoverTooltip
-                text={
-                  <Trans>
-                    KyberScore uses AI to measure the upcoming trend of a token (bullish or bearish) by taking into
-                    account multiple on-chain and off-chain indicators. The score ranges from 0 to 100. Higher the
-                    score, more bullish the token in the short-term. Read more{' '}
-                    <a href="https://docs.kyberswap.com">here ↗</a>
-                  </Trans>
-                }
-                placement="top"
-                width="350px"
-              >
-                <Text style={{ borderBottom: `1px dotted ${theme.text}` }} color={theme.text}>
-                  KyberScore
+              <KyberScoreMeter value={data?.kyberScore?.score} />
+              <RowFit gap="6px" marginBottom="12px">
+                <Text fontSize={24} fontWeight={500} color={theme.primary}>
+                  {data?.kyberScore?.label}
                 </Text>
-              </MouseoverTooltip>
-            </Row>
-            <RowFit style={{ alignSelf: 'flex-start' }} marginBottom="8px">
-              <Text fontSize="10px" lineHeight="12px">
-                Calculated at 08:00 PM when price was $1
+                <MouseoverTooltip
+                  text={
+                    <>
+                      <Column color={theme.subText} style={{ fontSize: '12px', lineHeight: '16px' }}>
+                        <Text>24/04/2023 08:00 AM</Text>
+                        <Text>
+                          KyberScore: <span style={{ color: theme.primary }}>86 (Very Bullish)</span>
+                        </Text>
+                        <Text>
+                          Token Price: <span style={{ color: theme.text }}>$0.000000423</span>
+                        </Text>
+                      </Column>
+                    </>
+                  }
+                  placement="top"
+                >
+                  <Icon id="timer" size={16} />
+                </MouseoverTooltip>
+              </RowFit>
+              <Column style={{ width: '100%' }}>
+                <Text fontSize="12px" lineHeight="16px">
+                  <Trans>Last 3D KyberScores</Trans>
+                </Text>
+                <KyberScoreChart width="100%" height="36px" />
+              </Column>
+            </CardWrapper>
+            <CardWrapper style={{ fontSize: '12px' }} gap="10px">
+              <Text color={theme.text} marginBottom="4px">
+                Key Stats
               </Text>
-            </RowFit>
-            <KyberScoreMeter value={data?.kyberScore?.score} />
-            <RowFit gap="6px" marginBottom="12px">
-              <Text fontSize={24} fontWeight={500} color={theme.primary}>
-                {data?.kyberScore?.label}
-              </Text>
-              <MouseoverTooltip
-                text={
-                  <>
-                    <Column color={theme.subText} style={{ fontSize: '12px', lineHeight: '16px' }}>
-                      <Text>24/04/2023 08:00 AM</Text>
-                      <Text>
-                        KyberScore: <span style={{ color: theme.primary }}>86 (Very Bullish)</span>
-                      </Text>
-                      <Text>
-                        Token Price: <span style={{ color: theme.text }}>$0.000000423</span>
-                      </Text>
-                    </Column>
-                  </>
-                }
-                placement="top"
-              >
-                <Icon id="timer" size={16} />
-              </MouseoverTooltip>
-            </RowFit>
-            <Text
-              fontSize={14}
-              lineHeight="20px"
-              fontWeight={500}
-              color={theme.text}
-              textAlign="center"
-              marginBottom="12px"
-            >
-              $BTC seems to be a <span style={{ color: theme.primary }}>{data?.kyberScore?.label}</span> with a
-              KyberScore of <span style={{ color: theme.primary }}>{data?.kyberScore?.score}</span>/100
-            </Text>
-            <Text fontSize={10} lineHeight="12px" fontStyle="italic">
+              <RowBetween>
+                <Text color={theme.subText}>
+                  <Trans>All Time Low</Trans>
+                </Text>
+                <Text color={theme.text}>{data?.atl && formatMoneyWithSign(data?.atl)}</Text>
+              </RowBetween>
+              <RowBetween>
+                <Text color={theme.subText}>
+                  <Trans>All Time High</Trans>
+                </Text>
+                <Text color={theme.text}>{data?.ath && formatMoneyWithSign(data?.ath)}</Text>
+              </RowBetween>
+              <RowBetween>
+                <Text color={theme.subText}>
+                  <Trans>24H Volume</Trans>
+                </Text>
+                <Text color={theme.text}>{data?.['24hVolume'] && formatMoneyWithSign(data?.['24hVolume'])}</Text>
+              </RowBetween>
+              <RowBetween>
+                <Text color={theme.subText}>
+                  <Trans>Circulating Supply</Trans>
+                </Text>
+                <Text color={theme.text}>{data && data.circulatingSupply + ' ' + data.symbol}</Text>
+              </RowBetween>
+              <RowBetween>
+                <Text color={theme.subText}>
+                  <Trans>Market Cap</Trans>
+                </Text>
+                <Text color={theme.text}>{data?.marketCap && formatMoneyWithSign(data?.marketCap)}</Text>
+              </RowBetween>
+              <RowBetween>
+                <Text color={theme.subText}>
+                  <Trans>Holders (On-chain)</Trans>
+                </Text>
+                <Text color={theme.text}>{data?.numberOfHolders}</Text>
+              </RowBetween>
+              <RowBetween>
+                <Text color={theme.subText}>
+                  <Trans>Website</Trans>
+                </Text>
+                {data?.webs?.[0] && <ExternalLink href={data.webs[0] || ''}>{data?.webs[0]}</ExternalLink>}
+              </RowBetween>
+              <RowBetween>
+                <Text color={theme.subText}>
+                  <Trans>Community</Trans>
+                </Text>
+                {data?.communities?.[0] && (
+                  <ExternalLink href={data.communities[0].value || ''}>{data.communities[0].key}</ExternalLink>
+                )}
+              </RowBetween>
+              <RowBetween>
+                <Text color={theme.subText}>
+                  <Trans>Address</Trans>
+                </Text>
+                <Text color={theme.subText}>0x394...5e3</Text>
+              </RowBetween>
+            </CardWrapper>
+          </Row>
+          <Row justify="center" marginBottom="38px">
+            <Text fontSize="12px" lineHeight="16px" fontStyle="italic">
               <Trans>This should not be considered as financial advice</Trans>
             </Text>
-          </CardWrapper>
-          <CardWrapper style={{ fontSize: '12px' }} gap="10px">
-            <Text color={theme.text} marginBottom="4px">
-              Key Stats
-            </Text>
-            <RowBetween>
-              <Text color={theme.subText}>
-                <Trans>All Time Low</Trans>
-              </Text>
-              <Text color={theme.text}>{data?.atl && formatMoneyWithSign(data?.atl)}</Text>
-            </RowBetween>
-            <RowBetween>
-              <Text color={theme.subText}>
-                <Trans>All Time High</Trans>
-              </Text>
-              <Text color={theme.text}>{data?.ath && formatMoneyWithSign(data?.ath)}</Text>
-            </RowBetween>
-            <RowBetween>
-              <Text color={theme.subText}>
-                <Trans>24H Volume</Trans>
-              </Text>
-              <Text color={theme.text}>{data?.['24hVolume'] && formatMoneyWithSign(data?.['24hVolume'])}</Text>
-            </RowBetween>
-            <RowBetween>
-              <Text color={theme.subText}>
-                <Trans>Circulating Supply</Trans>
-              </Text>
-              <Text color={theme.text}>{data && data.circulatingSupply + ' ' + data.symbol}</Text>
-            </RowBetween>
-            <RowBetween>
-              <Text color={theme.subText}>
-                <Trans>Market Cap</Trans>
-              </Text>
-              <Text color={theme.text}>{data?.marketCap && formatMoneyWithSign(data?.marketCap)}</Text>
-            </RowBetween>
-            <RowBetween>
-              <Text color={theme.subText}>
-                <Trans>Holders (On-chain)</Trans>
-              </Text>
-              <Text color={theme.text}>{data?.numberOfHolders}</Text>
-            </RowBetween>
-            <RowBetween>
-              <Text color={theme.subText}>
-                <Trans>Website</Trans>
-              </Text>
-              {data?.webs?.[0] && <ExternalLink href={data.webs[0] || ''}>{data?.webs[0]}</ExternalLink>}
-            </RowBetween>
-            <RowBetween>
-              <Text color={theme.subText}>
-                <Trans>Community</Trans>
-              </Text>
-              {data?.communities?.[0] && (
-                <ExternalLink href={data.communities[0].value || ''}>{data.communities[0].key}</ExternalLink>
-              )}
-            </RowBetween>
-            <RowBetween>
-              <Text color={theme.subText}>
-                <Trans>Address</Trans>
-              </Text>
-              <Text color={theme.subText}>0x394...5e3</Text>
-            </RowBetween>
-          </CardWrapper>
-        </Row>
+          </Row>
+        </>
       ) : (
         <CardWrapper style={{ marginBottom: '16px' }}>
           <RowFit gap="8px">

@@ -214,7 +214,6 @@ const formatLevelValue = (value: number): string => {
 export const SupportResistanceLevel = () => {
   const theme = useTheme()
   const { SRLevels, currentPrice, resolution, setResolution } = useContext(TechnicalAnalysisContext)
-  console.log('🚀 ~ file: index.tsx:217 ~ SupportResistanceLevel ~ resolution:', resolution)
   const [supports, resistances] = useMemo(() => {
     if (!SRLevels || !currentPrice) return []
 

@@ -34,12 +34,12 @@ export const SectionTitle = styled.div`
   font-weight: 500;
   margin: 0px -16px;
   padding: 0px 16px 16px 16px;
-  border-bottom: 1px solid ${({ theme }) => theme.border};
+  border-bottom: 1px solid ${({ theme }) => theme.border + '80'};
   color: ${({ theme }) => theme.text};
 `
 export const SectionDescription = styled.div<{ show?: boolean }>`
   font-size: 14px;
-  line-height: 16px;
+  line-height: 20px;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
@@ -109,7 +109,7 @@ export const SectionWrapper = ({
 }: {
   show?: boolean
   title?: string | ReactNode
-  description?: string
+  description?: ReactNode
   id?: string
   shareButton?: boolean
   fullscreenButton?: boolean
@@ -136,9 +136,13 @@ export const SectionWrapper = ({
         <>
           {/* DESKTOP */}
           <SectionTitle>
-            <RowBetween>
-              <RowFit gap="12px">
-                {tabs &&
+            <RowBetween style={{ height: '16px' }}>
+              <RowFit
+                style={{
+                  margin: '-16px',
+                }}
+              >
+                {tabs ? (
                   tabs.map((item, index) => {
                     return (
                       <TabButton
@@ -146,10 +150,13 @@ export const SectionWrapper = ({
                         text={item}
                         active={activeTab === index}
                         onClick={() => onTabClick?.(index)}
+                        style={{ padding: '16px', fontSize: '16px', lineHeight: '16px', height: '48px' }}
                       />
                     )
-                  })}
-                <Text>{title}</Text>
+                  })
+                ) : (
+                  <Text marginLeft="16px">{title}</Text>
+                )}
               </RowFit>
               <RowFit color={theme.subText} gap="12px">
                 {shareButton && <ShareButton onClick={() => onShareClick?.(id)} />}
@@ -157,12 +164,17 @@ export const SectionWrapper = ({
               </RowFit>
             </RowBetween>
           </SectionTitle>
+          {tabs && activeTab !== undefined && title && (
+            <Row marginBottom="6px">
+              <Text fontSize="16px" lineHeight="20px" color={theme.text} fontWeight={500}>
+                {tabs[activeTab] + ' ' + title}
+              </Text>
+            </Row>
+          )}
           <Row gap="4px">
-            <SectionDescription
-              dangerouslySetInnerHTML={{ __html: description || '' }}
-              show={showText}
-              ref={descriptionRef}
-            />
+            <SectionDescription show={showText} ref={descriptionRef}>
+              {description}
+            </SectionDescription>
             {!showText && isTextExceeded && (
               <Text
                 fontSize="14px"
@@ -269,37 +281,37 @@ export const RequireConnectWalletWrapper = ({
   return <>{children}</>
 }
 
-const StyledTabButton = styled.div<{ active?: boolean }>`
-  padding: 8px 12px;
-  font-size: 16px;
-  line-height: 20px;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid transparent;
-  :hover {
-    filter: brightness(0.9);
-  }
-  :active {
-    filter: brightness(1.2);
-  }
-  ${({ theme, active }) =>
-    active
-      ? css`
-          color: ${theme.primary};
-          background-color: ${theme.primary + '30'};
-          :active {
-            box-shadow: 0 0 0 1px ${theme.primary + '30'};
-          }
-        `
-      : css`
-          color: ${theme.subText};
-          border: 1px solid ${theme.subText};
-          :active {
-            box-shadow: 0 0 0 1px ${theme.subText};
-          }
-        `}
-`
+// const StyledTabButton = styled.div<{ active?: boolean }>`
+//   padding: 8px 12px;
+//   font-size: 16px;
+//   line-height: 20px;
+//   border-radius: 20px;
+//   cursor: pointer;
+//   transition: all 0.2s ease;
+//   border: 1px solid transparent;
+//   :hover {
+//     filter: brightness(0.9);
+//   }
+//   :active {
+//     filter: brightness(1.2);
+//   }
+//   ${({ theme, active }) =>
+//     active
+//       ? css`
+//           color: ${theme.primary};
+//           background-color: ${theme.primary + '30'};
+//           :active {
+//             box-shadow: 0 0 0 1px ${theme.primary + '30'};
+//           }
+//         `
+//       : css`
+//           color: ${theme.subText};
+//           border: 1px solid ${theme.subText};
+//           :active {
+//             box-shadow: 0 0 0 1px ${theme.subText};
+//           }
+//         `}
+// `
 
 const StyledMobileTabButton = styled.div<{ active?: boolean }>`
   font-size: 12px;
@@ -311,6 +323,7 @@ const StyledMobileTabButton = styled.div<{ active?: boolean }>`
   height: 32px;
   flex: 1;
   box-sizing: border-box;
+  cursor: pointer;
   ${({ theme, active }) =>
     active
       ? css`
@@ -320,7 +333,6 @@ const StyledMobileTabButton = styled.div<{ active?: boolean }>`
         `
       : css`
           color: ${theme.subText};
-          box-shadow: inset 0 -1px 0 0 ${theme.border};
         `}
 `
 
@@ -340,9 +352,9 @@ export const TabButton = ({
   return (
     <>
       {above768 ? (
-        <StyledTabButton active={active} onClick={onClick} style={style}>
+        <StyledMobileTabButton active={active} onClick={onClick} style={style}>
           {text}
-        </StyledTabButton>
+        </StyledMobileTabButton>
       ) : (
         <StyledMobileTabButton active={active} onClick={onClick} style={style}>
           {text}
