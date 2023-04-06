@@ -41,9 +41,14 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact }) => {
       <WarningNote
         level="serious"
         shortText={
-          <Text>
-            <Trans>Unable to calculate Price Impact</Trans>
-          </Text>
+          <Row alignItems="center" style={{ gap: '0.5ch' }}>
+            <Trans>
+              <TextUnderlineTransparent>Unable to calculate</TextUnderlineTransparent>
+              <TextUnderlineColor as="a" href={PRICE_IMPACT_EXPLANATION_URL} target="_blank" rel="noreferrer">
+                Price Impact
+              </TextUnderlineColor>
+            </Trans>
+          </Row>
         }
         longText={
           <Text>
