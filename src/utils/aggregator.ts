@@ -300,7 +300,7 @@ export class Aggregator {
         const outputAmount = toCurrencyAmount(result?.outputAmount, currencyOut)
 
         const priceImpact = !result.amountOutUsd
-          ? -1
+          ? NaN
           : ((-result.amountOutUsd + result.amountInUsd) * 100) / result.amountInUsd
 
         return new Aggregator(

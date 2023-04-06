@@ -76,7 +76,7 @@ const OutputCurrencyPanel: React.FC<Props> = ({
             text={
               <Text fontSize={12}>
                 <Trans>
-                  This is the estimated output amount. Do review the actual output amount in the confirmation screen.
+                  This is the estimated output amount. Do review the actual output amount at the confirmation stage
                 </Trans>
               </Text>
             }

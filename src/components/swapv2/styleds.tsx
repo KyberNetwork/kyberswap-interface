@@ -102,7 +102,7 @@ export const Wrapper = styled.div`
 `
 
 export const BottomGrouping = styled.div`
-  margin-top: 24px;
+  margin-top: 20px;
 `
 
 export const StyledBalanceMaxMini = styled.button<{ hover?: boolean }>`
@@ -136,8 +136,9 @@ export const StyledBalanceMaxMini = styled.button<{ hover?: boolean }>`
 
 export const TruncatedText = styled(Text)`
   text-overflow: ellipsis;
-  width: 220px;
   overflow: hidden;
+  font-size: 24px;
+  font-weight: 500;
 `
 
 // styles

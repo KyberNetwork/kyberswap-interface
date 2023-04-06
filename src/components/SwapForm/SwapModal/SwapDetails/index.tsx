@@ -8,7 +8,6 @@ import { AutoColumn } from 'components/Column'
 import InfoHelper from 'components/InfoHelper'
 import { RowBetween, RowFixed } from 'components/Row'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
-import SlippageValue from 'components/SwapForm/SwapModal/SwapDetails/SlippageValue'
 import ValueWithLoadingSkeleton from 'components/SwapForm/SwapModal/SwapDetails/ValueWithLoadingSkeleton'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { StyledBalanceMaxMini } from 'components/swapv2/styleds'
@@ -21,6 +20,7 @@ import { formattedNum } from 'utils'
 import { minimumAmountAfterSlippage } from 'utils/currencyAmount'
 import { getFormattedFeeAmountUsdV2 } from 'utils/fee'
 import { checkPriceImpact, formatPriceImpact } from 'utils/prices'
+import { checkWarningSlippage, formatSlippage } from 'utils/slippage'
 
 interface ExecutionPriceProps {
   executionPrice?: Price<Currency, Currency>
@@ -247,7 +247,9 @@ export default function SwapDetails({
             </TextDashed>
           </RowFixed>
 
-          <SlippageValue />
+          <TYPE.black fontSize={12} color={checkWarningSlippage(slippage, false) ? theme.warning : undefined}>
+            {formatSlippage(slippage)}
+          </TYPE.black>
         </RowBetween>
 
         {feeConfig && (

@@ -484,10 +484,6 @@ export default function Swap() {
     }
   }, [attemptingTxn, onUserInput, swapErrorMessage, tradeToConfirm, txHash, onRefresh])
 
-  const handleAcceptChanges = useCallback(() => {
-    setSwapState({ tradeToConfirm: trade, swapErrorMessage, txHash, attemptingTxn, showConfirm })
-  }, [attemptingTxn, setSwapState, showConfirm, swapErrorMessage, trade, txHash])
-
   const handleInputSelect = useCallback(
     (inputCurrency: Currency) => {
       setIsSelectCurrencyManually(true)
@@ -725,10 +721,8 @@ export default function Swap() {
                       isOpen={showConfirm}
                       trade={trade}
                       originalTrade={tradeToConfirm}
-                      onAcceptChanges={handleAcceptChanges}
                       attemptingTxn={attemptingTxn}
                       txHash={txHash}
-                      recipient={recipient}
                       allowedSlippage={allowedSlippage}
                       onConfirm={handleSwap}
                       swapErrorMessage={swapErrorMessage}
@@ -812,7 +806,11 @@ export default function Swap() {
                         currencyOut={currencyOut}
                         style={{ marginTop: '24px' }}
                       />
+                    </Flex>
 
+                    <TradeTypeSelection />
+
+                    <Flex flexDirection="column" mt="20px" style={{ gap: '20px' }}>
                       {!showWrap && (
                         <SlippageWarningNote rawSlippage={rawSlippage} isStablePairSwap={isStableCoinSwap} />
                       )}
@@ -833,8 +831,6 @@ export default function Swap() {
                         isCurrencyInNative={Boolean(currencyIn?.isNative)}
                       />
                     </Flex>
-
-                    <TradeTypeSelection />
 
                     <BottomGrouping>
                       {!account ? (

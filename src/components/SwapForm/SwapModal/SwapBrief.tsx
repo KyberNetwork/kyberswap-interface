@@ -32,7 +32,7 @@ const TruncatedText = styled(Text)`
   font-weight: 500;
 `
 
-const CurrencyInputAmountWrapper = styled(Flex)`
+export const CurrencyInputAmountWrapper = styled(Flex)`
   flex-direction: column;
   gap: 8px;
   border-radius: 16px;
@@ -40,7 +40,7 @@ const CurrencyInputAmountWrapper = styled(Flex)`
   padding: 12px 16px;
 `
 
-const ArrowDownWrapper = styled.div`
+export const ArrowDownWrapper = styled.div`
   border: 1px solid ${({ theme }) => theme.border};
   background: ${({ theme }) => theme.buttonGray};
   border-radius: 50%;
