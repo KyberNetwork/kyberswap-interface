@@ -28,6 +28,7 @@ import { useToggleModal } from 'state/application/hooks'
 import NetworkSelect from '../components/NetworkSelect'
 import SmallKyberScoreMeter from '../components/SmallKyberScoreMeter'
 import TokenChart from '../components/TokenChartSVG'
+import KyberScoreChart from '../components/chart/KyberScoreChart'
 import { TOKEN_LIST } from '../hooks/sampleData'
 import { useTokenListQuery } from '../hooks/useTruesightV2Data'
 import { TokenListTab } from '../types'
@@ -476,9 +477,15 @@ const TokenRow = ({ token }: { token: any }) => {
         </Row>
       </td>
       <td>
-        <Text color={theme.primary}>
+        <Column style={{ alignItems: 'center', width: 'fit-content' }}>
           <SmallKyberScoreMeter value={88} />
-        </Text>
+          <Text color={theme.primary} fontSize="14px" fontWeight={500}>
+            Very Bullish
+          </Text>
+        </Column>
+      </td>
+      <td>
+        <KyberScoreChart />
       </td>
       <td>
         <Column gap="10px" style={{ textAlign: 'left' }}>
@@ -651,10 +658,11 @@ export default function TokenAnalysisList() {
                 <col style={{ width: '35px' }} />
                 <col style={{ width: '290px', minWidth: '200px' }} />
                 <col style={{ width: '230px', minWidth: 'auto' }} />
-                <col style={{ width: '220px', minWidth: 'auto' }} />
+                <col style={{ width: '230px', minWidth: 'auto' }} />
+                <col style={{ width: '250px', minWidth: 'auto' }} />
                 <col style={{ width: '250px', minWidth: 'auto' }} />
                 <col style={{ width: '150px', minWidth: 'auto' }} />
-                <col style={{ width: '250px', minWidth: 'auto' }} />
+                <col style={{ width: '200px', minWidth: 'auto' }} />
               </colgroup>
               <thead>
                 <tr>
@@ -701,9 +709,14 @@ export default function TokenAnalysisList() {
                         />
                       </Row>
                       <Text fontSize="10px" style={{ textTransform: 'none' }}>
-                        <Trans>Calculated at 08:00 AM</Trans>
+                        <Trans>At 08:00 AM</Trans>
                       </Text>
                     </Column>
+                  </th>
+                  <th style={{ textAlign: 'left' }}>
+                    <Text>
+                      <Trans>Last 3D KyberScores</Trans>
+                    </Text>
                   </th>
                   <th onClick={() => handleSort(SORT_FIELD.PRICE)}>
                     <Row justify="flex-start">

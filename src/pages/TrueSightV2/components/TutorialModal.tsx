@@ -9,8 +9,6 @@ import tutorial2 from 'assets/images/truesight-v2/tutorial_2.png'
 import tutorial3 from 'assets/images/truesight-v2/tutorial_3.png'
 import tutorial4 from 'assets/images/truesight-v2/tutorial_4.png'
 import tutorial5 from 'assets/images/truesight-v2/tutorial_5.png'
-import tutorial6 from 'assets/images/truesight-v2/tutorial_6.png'
-import tutorial7 from 'assets/images/truesight-v2/tutorial_7.png'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Icon from 'components/Icons/Icon'
 import Modal from 'components/Modal'
@@ -209,6 +207,7 @@ enum ActionTypes {
   NEXT_STEP = 'NEXT_STEP',
   PREV_STEP = 'PREV_STEP',
   ANIMATION_END = 'ANIMATION_END',
+  CLOSE = 'CLOSE',
 }
 function reducer(state: TutorialAnimationState, action: ActionTypes) {
   switch (action) {
@@ -238,6 +237,8 @@ function reducer(state: TutorialAnimationState, action: ActionTypes) {
       break
     case ActionTypes.ANIMATION_END:
       return { ...state, animationState: AnimationState.Idle }
+    case ActionTypes.CLOSE:
+      return { ...state, step: 0 }
     default:
       throw new Error()
   }
@@ -270,12 +271,10 @@ const TutorialModal = () => {
     preloadImage(tutorial3)
     preloadImage(tutorial4)
     preloadImage(tutorial5)
-    preloadImage(tutorial6)
-    preloadImage(tutorial7)
   }, [])
 
   return (
-    <Modal isOpen={isOpen} width="fit-content" maxWidth="fit-content">
+    <Modal isOpen={isOpen} width="fit-content" maxWidth="fit-content" onDismiss={() => dispatch(ActionTypes.CLOSE)}>
       <Wrapper>
         <RowBetween>
           <Row fontSize="20px" lineHeight="24px" color={theme.text} gap="6px">

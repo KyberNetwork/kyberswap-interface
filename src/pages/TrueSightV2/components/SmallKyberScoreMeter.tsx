@@ -1,9 +1,9 @@
-import { t } from '@lingui/macro'
 import React from 'react'
 import { Text } from 'rebass'
 import styled, { useTheme } from 'styled-components'
 
-import InfoHelper from 'components/InfoHelper'
+import Icon from 'components/Icons/Icon'
+import { RowFit } from 'components/Row'
 
 import { gaugeList } from './KyberScoreMeter'
 
@@ -26,7 +26,7 @@ function SmallKyberScoreMeter({ value }: { value?: number }) {
   const activeGaugeValue = value ? (gaugeList.length * value) / 100 : 0
   return (
     <Wrapper>
-      <svg xmlns="http://www.w3.org/2000/svg" width="80" height="48.5" viewBox="0 0 218 133" fill="none">
+      <svg xmlns="http://www.w3.org/2000/svg" width="52" height="32" viewBox="0 0 218 133" fill="none">
         {gaugeList.map(g => (
           <MeterGauge
             key={g.value}
@@ -38,15 +38,12 @@ function SmallKyberScoreMeter({ value }: { value?: number }) {
         ))}
       </svg>
       <GaugeValue>
-        <Text fontSize="14px" lineHeight="20px" color={theme.primary}>
-          {value}
-        </Text>
-        <InfoHelper
-          placement="top"
-          width="300px"
-          size={12}
-          text={t`Calculated at 08:00 AM when the price was $0.000000004234`}
-        />
+        <RowFit gap="2px">
+          <Text fontSize="12px" lineHeight="16px" color={theme.primary}>
+            {value}
+          </Text>
+          <Icon id="timer" size={12} />
+        </RowFit>
       </GaugeValue>
     </Wrapper>
   )
