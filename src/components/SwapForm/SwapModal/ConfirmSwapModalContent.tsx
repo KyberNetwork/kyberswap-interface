@@ -179,7 +179,7 @@ export default function ConfirmSwapModalContent({
   const warningStyle =
     priceImpactResult.isVeryHigh || priceImpactResult.isInvalid
       ? { background: theme.red }
-      : priceImpactResult.isHigh || isWarningSlippage
+      : priceImpactResult.isHigh
       ? { background: theme.warning }
       : undefined
 
