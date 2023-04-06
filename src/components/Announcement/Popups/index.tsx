@@ -95,7 +95,7 @@ export default function Popups() {
       data.forEach(item => {
         if (item.templateType === PrivateAnnouncementType.PRICE_ALERT) {
           // only support price alert
-          const mins = (Date.now() - item.createdAt * 1000) / TIMES_IN_SECS.ONE_MIN
+          const mins = (Date.now() / 1000 - item.createdAt) / TIMES_IN_SECS.ONE_MIN
           if (mins <= 5) addPopup(item, PopupType.TOP_RIGHT, item.metaMessageId, 15_000)
         }
       })
