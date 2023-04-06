@@ -73,13 +73,13 @@ const useBuildRoute = (args: Args) => {
         data: response.data,
       }
     } catch (e) {
-      if (Array.isArray(e?.response?.data?.errorEntities)) {
+      if (Array.isArray(e?.data?.errorEntities)) {
         return {
-          error: e.response.data.errorEntities.join(' | '),
+          error: e.data.errorEntities.join(' | '),
         }
       }
       return {
-        error: e?.response?.data?.errorEntities?.[0] || e.message || t`Something went wrong`,
+        error: e?.data?.errorEntities?.[0] || e.message || t`Something went wrong`,
       }
     }
   }, [
