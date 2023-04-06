@@ -306,7 +306,20 @@ export default function AddLiquidity() {
     () => [currencies_A, currencies_B].map(currency => currency?.wrapped),
     [currencies_A, currencies_B],
   )
-  const { data: usdPrices, loading, fetchPrices } = useTokenPricesWithLoading(tokens.map(t => t?.wrapped.address || ''))
+  const {
+    data: usdPrices,
+    loading,
+    fetchPrices,
+    refetch,
+  } = useTokenPricesWithLoading(tokens.map(t => t?.wrapped.address || ''))
+
+  useEffect(() => {
+    // Refresh token prices each 10 seconds
+    const interval = setInterval(refetch, 10_000)
+    return () => {
+      clearInterval(interval)
+    }
+  }, [refetch])
 
   const amountUnlockUSD =
     Number(amountUnlocks[Field.CURRENCY_A]?.toExact()) *
