@@ -88,13 +88,12 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact }) => {
           <Text>
             {isDegenMode ? (
               <Trans>
-                You have turned on <b>Degen Mode</b> from settings. Trades with <b>very</b> high price impact can be
-                executed.
+                You have turned on Degen Mode from settings. Trades with very high price impact can be executed
               </Trans>
             ) : (
               <Trans>
-                You can turn on <b>Degen Mode</b> from Settings to execute trades with <b>very</b> high price impact.
-                This can result in bad rates and loss of funds!
+                You can turn on Degen Mode from Settings to execute trades with very high price impact. This can result
+                in bad rates and loss of funds
               </Trans>
             )}
           </Text>
