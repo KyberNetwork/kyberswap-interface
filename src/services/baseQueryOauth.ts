@@ -17,7 +17,7 @@ const baseQueryOauth =
         config.data = config.data || args.body
       }
       config.url = baseUrl + config.url
-      const result = await KyberOauth2.callHttp(config as any)
+      const result = await KyberOauth2.callHttp(config)
       return { data: result.data }
     } catch (err) {
       return {
