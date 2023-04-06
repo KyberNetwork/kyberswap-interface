@@ -83,8 +83,8 @@ export function ConfirmationPendingContent({
           <Text fontSize={12} color="#565A69" textAlign="center">
             <Trans>Confirm this transaction in your wallet</Trans>
           </Text>
+          <HurryUpBanner startedTime={startedTime} />
         </AutoColumn>
-        <HurryUpBanner startedTime={startedTime} />
       </Section>
     </Wrapper>
   )
