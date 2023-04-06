@@ -102,10 +102,12 @@ function ProLiveChart({
   poolDetail,
   isReverse,
   className,
+  label,
 }: {
   poolDetail: PoolResponse
   isReverse: boolean
   className?: string
+  label: string
 }) {
   const [loading, setLoading] = useState(false)
   const theme = useTheme()
@@ -113,7 +115,7 @@ function ProLiveChart({
   const [ref, setRef] = useState<HTMLDivElement | null>(null)
   const [fullscreen, setFullscreen] = useState(false)
 
-  const datafeed = useDatafeed(poolDetail, isReverse)
+  const datafeed = useDatafeed(poolDetail, isReverse, label)
 
   useEffect(() => {
     if (!ref || !window.TradingView) {

@@ -240,6 +240,8 @@ function LiveChart({ currencies }: { currencies: { [field in Field]?: Currency }
     commonPool?.relationships?.base_token.data.id ===
     networkInfo.geckoTermialId + '_' + nativeOutputCurrency?.wrapped?.address.toLowerCase()
 
+  const label = `${nativeInputCurrency?.symbol} / ${nativeOutputCurrency?.symbol}`
+
   return (
     <LiveChartWrapper>
       {isWrappedToken ? (
@@ -302,7 +304,7 @@ function LiveChart({ currencies }: { currencies: { [field in Field]?: Currency }
 
           {/* Stop tradingview from rerender on isShowProChart change */}
           <div style={{ display: isShowProChart && !!poolAddress ? 'block' : 'none', height: '100%' }}>
-            {commonPool && <TradingViewChart poolDetail={commonPool} isReverse={isReverse} />}
+            {commonPool && <TradingViewChart poolDetail={commonPool} isReverse={isReverse} label={label} />}
             <Flex justifyContent="flex-end" sx={{ gap: '0.5rem' }}>
               <Text color={theme.subText} fontSize="10px">
                 Powered by

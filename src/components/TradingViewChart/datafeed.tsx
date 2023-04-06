@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react'
-import { PoolResponse, useLazyOhlcvQuery } from 'services/geckoTermial'
+import { PoolResponse, transformData, useLazyOhlcvQuery } from 'services/geckoTermial'
 
 import { useActiveWeb3React } from 'hooks'
 
@@ -18,7 +18,7 @@ const configurationData = {
   supported_resolutions: ['1', '5', '15', '1H', '4H', '12H', '1D'],
 }
 
-export const useDatafeed = (poolDetail: PoolResponse, isReverse: boolean) => {
+export const useDatafeed = (poolDetail: PoolResponse, isReverse: boolean, label: string) => {
   const { networkInfo } = useActiveWeb3React()
   const [getCandles, { isLoading }] = useLazyOhlcvQuery()
 
@@ -31,8 +31,6 @@ export const useDatafeed = (poolDetail: PoolResponse, isReverse: boolean) => {
       }
     }
   }, [])
-
-  const label = poolDetail.attributes.name
 
   return useMemo(() => {
     return {
@@ -92,12 +90,14 @@ export const useDatafeed = (poolDetail: PoolResponse, isReverse: boolean) => {
           limit: countBack,
         })
 
-        if (data.error || !data.data?.length) {
+        if (data.error || !data.data?.data?.attributes?.ohlcv_list?.length) {
           onHistoryCallback([], { noData: true })
           return
         }
 
-        onHistoryCallback(structuredClone(data.data), { noData: false })
+        const bars = transformData(data.data)
+
+        onHistoryCallback(bars, { noData: false })
       },
       searchSymbols: () => {
         //
@@ -119,7 +119,7 @@ export const useDatafeed = (poolDetail: PoolResponse, isReverse: boolean) => {
             limit: 1,
             token: isReverse ? 'quote' : 'base',
           })
-          if (data?.data?.length) onTick(data.data[0])
+          if (data.data?.data?.attributes?.ohlcv_list?.length) onTick(transformData(data.data)[0])
         }
         if (intervalRef.current) clearInterval(intervalRef.current)
         intervalRef.current = setInterval(getData, 30000)

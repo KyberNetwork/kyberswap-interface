@@ -62,10 +62,24 @@ export interface PoolResponse {
   }
 }
 
+export const transformData = (res: CandleResponse): Bar[] => {
+  const tmp = JSON.parse(JSON.stringify(res?.data?.attributes.ohlcv_list || [])).reverse()
+
+  return tmp.map((item: any) => {
+    return {
+      time: item[0] * 1000,
+      open: item[1],
+      high: item[2],
+      low: item[3],
+      close: item[4],
+      volume: item[5],
+    }
+  })
+}
 const geckoTerminalApi = createApi({
   reducerPath: 'geckoTerminalApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'https://api.geckoterminal.com/api/v2',
+    baseUrl: 'https://proxy.kyberswap.com/geckoterminal/api/v2',
     headers: {
       Accept: 'application/json;version=20230302',
     },
@@ -77,7 +91,7 @@ const geckoTerminalApi = createApi({
       }),
     }),
 
-    ohlcv: builder.query<Bar[], CandleParams>({
+    ohlcv: builder.query<CandleResponse, CandleParams>({
       query: ({ network, poolAddress, timeframe, timePeriod, token, before_timestamp, limit }) => ({
         url: `/networks/${network}/pools/${poolAddress}/ohlcv/${timeframe}`,
         params: {
@@ -86,20 +100,9 @@ const geckoTerminalApi = createApi({
           token,
           before_timestamp,
           limit,
+          include: 'base_token',
         },
       }),
-      transformResponse: (result: CandleResponse) => {
-        return (
-          result?.data?.attributes.ohlcv_list.reverse().map((item: any) => ({
-            time: item[0] * 1000,
-            open: item[1],
-            high: item[2],
-            low: item[3],
-            close: item[4],
-            volume: item[5],
-          })) || []
-        )
-      },
     }),
   }),
 })
