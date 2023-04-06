@@ -155,7 +155,7 @@ const SwapActionButton: React.FC<Props> = ({
     }
 
     const swapOnlyButtonProps: SwapOnlyButtonProps = {
-      isAdvancedMode,
+      isDegenMode: isAdvancedMode,
       routeSummary,
       isGettingRoute,
       isProcessingSwap,

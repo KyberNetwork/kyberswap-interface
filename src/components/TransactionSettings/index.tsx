@@ -97,7 +97,7 @@ export default function TransactionSettings({ hoverBg }: Props) {
             <Tooltip
               width="fit-content"
               placement="top"
-              text={t`Degen mode is on!`}
+              text={t`Degen mode is on. Be cautious!`}
               show={isDegenMode && isShowTooltip}
             >
               <div onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>

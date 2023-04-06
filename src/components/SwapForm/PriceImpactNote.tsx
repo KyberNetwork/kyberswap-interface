@@ -80,10 +80,7 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact }) => {
               <TextUnderlineColor as="a" href={PRICE_IMPACT_EXPLANATION_URL} target="_blank" rel="noreferrer">
                 Price Impact
               </TextUnderlineColor>
-              <TextUnderlineTransparent>
-                {' '}
-                is <b>very</b> high
-              </TextUnderlineTransparent>
+              <TextUnderlineTransparent> is very high. You will lose funds!</TextUnderlineTransparent>
             </Trans>
           </Row>
         }
@@ -114,7 +111,7 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact }) => {
         <TextUnderlineColor as="a" href={PRICE_IMPACT_EXPLANATION_URL} target="_blank" rel="noreferrer">
           Price Impact
         </TextUnderlineColor>
-        <TextUnderlineTransparent> is high.</TextUnderlineTransparent>
+        <TextUnderlineTransparent> is high</TextUnderlineTransparent>
       </Trans>
     </Row>
   )

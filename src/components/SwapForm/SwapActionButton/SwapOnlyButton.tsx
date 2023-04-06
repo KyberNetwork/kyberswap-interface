@@ -1,11 +1,14 @@
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useCallback, useMemo, useState } from 'react'
+import { Info } from 'react-feather'
+import { Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
 import SwapModal from 'components/SwapForm/SwapModal'
 import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { Dots } from 'components/swapv2/styleds'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -31,7 +34,7 @@ const CustomPrimaryButton = styled(ButtonPrimary).attrs({
 
 export type Props = {
   minimal?: boolean
-  isAdvancedMode: boolean
+  isDegenMode: boolean
   routeSummary: DetailedRouteSummary | undefined
   isGettingRoute: boolean
   isProcessingSwap: boolean
@@ -50,7 +53,7 @@ export type Props = {
 
 const SwapOnlyButton: React.FC<Props> = ({
   minimal,
-  isAdvancedMode,
+  isDegenMode,
   routeSummary,
   isGettingRoute,
   isProcessingSwap,
@@ -144,7 +147,7 @@ const SwapOnlyButton: React.FC<Props> = ({
       )
     }
 
-    if (isAdvancedMode && isSolana && !encodeSolana) {
+    if (isDegenMode && isSolana && !encodeSolana) {
       return (
         <CustomPrimaryButton disabled $minimal={minimal}>
           <Dots>
@@ -164,10 +167,10 @@ const SwapOnlyButton: React.FC<Props> = ({
       )
     }
 
-    const shouldDisableByPriceImpact = !isAdvancedMode && (priceImpactResult.isVeryHigh || priceImpactResult.isInvalid)
+    const shouldDisableByPriceImpact = !isDegenMode && (priceImpactResult.isVeryHigh || priceImpactResult.isInvalid)
     const shouldDisable = isDisabled || shouldDisableByPriceImpact
 
-    if (priceImpactResult.isVeryHigh || (priceImpactResult.isInvalid && isAdvancedMode)) {
+    if ((priceImpactResult.isVeryHigh || priceImpactResult.isInvalid) && isDegenMode) {
       return (
         <CustomPrimaryButton
           onClick={handleClickSwapButton}
@@ -180,22 +183,28 @@ const SwapOnlyButton: React.FC<Props> = ({
       )
     }
 
-    if (priceImpactResult.isHigh) {
-      return (
-        <CustomPrimaryButton
-          onClick={handleClickSwapButton}
-          $minimal={minimal}
-          disabled={shouldDisable}
-          style={isDisabled ? undefined : { background: theme.warning }}
-        >
-          <Trans>Swap Anyway</Trans>
-        </CustomPrimaryButton>
-      )
-    }
-
     return (
-      <CustomPrimaryButton disabled={shouldDisable} onClick={handleClickSwapButton} $minimal={minimal}>
-        <Trans>Swap</Trans>
+      <CustomPrimaryButton
+        disabled={shouldDisable}
+        onClick={handleClickSwapButton}
+        $minimal={minimal}
+        style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
+      >
+        {shouldDisable && (
+          <MouseoverTooltip
+            text={
+              <Trans>
+                To ensure you dont lose funds due to very high price impact (≥10%), swap has been disabled for this
+                trade. If you still wish to continue, you can turn on Degen Mode from Settings
+              </Trans>
+            }
+          >
+            <Info size={14} />
+          </MouseoverTooltip>
+        )}
+        <Text>
+          <Trans>{shouldDisable ? 'Swap Disabled' : 'Swap'}</Trans>
+        </Text>
       </CustomPrimaryButton>
     )
   }
