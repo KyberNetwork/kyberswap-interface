@@ -741,6 +741,16 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
     return newData
   }, [data, showInflow, showOutflow, showNetflow, address])
   const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const percentage = useMemo(() => {
+    return (
+      100 /
+      (Math.abs(
+        Math.max(...formattedData.map(_ => _.netflow as number)) /
+          Math.min(...formattedData.map(_ => _.netflow as number)),
+      ) +
+        1)
+    )
+  }, [formattedData])
 
   useEffect(() => {
     switch (tab) {
@@ -901,6 +911,14 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
                     )
                   }}
                 />
+                <defs>
+                  <linearGradient id="gradient" x1="0" y1="100%" x2="0" y2="0">
+                    <stop offset="0%" stopColor={theme.red} />
+                    <stop offset={`${percentage}%`} stopColor={theme.red} />
+                    <stop offset={`${percentage}%`} stopColor={theme.primary} />
+                    <stop offset="100%" stopColor={theme.primary} />
+                  </linearGradient>
+                </defs>
                 <Bar
                   dataKey="inflow"
                   stackId="a"
@@ -916,7 +934,7 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
                   animationDuration={ANIMATION_DURATION}
                 />
                 {showNetflow && (
-                  <Line type="linear" dataKey="netflow" stroke={theme.primary} strokeWidth={3} dot={false} />
+                  <Line type="linear" dataKey="netflow" stroke="url(#gradient)" strokeWidth={3} dot={false} />
                 )}
               </ComposedChart>
             </ResponsiveContainer>

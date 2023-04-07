@@ -156,7 +156,9 @@ export default function OnChainAnalysis({ onShareClick }: { onShareClick: (url: 
         activeTab={numberOfTransfers}
         onTabClick={setNumberOfTransfers}
       >
-        <NumberofTransfers tab={numberOfTransfers} />
+        <RequireConnectWalletWrapper bgUrl={blurImage2}>
+          <NumberofTransfers tab={numberOfTransfers} />
+        </RequireConnectWalletWrapper>
       </SectionWrapper>
       <SectionWrapper
         show={tokenAnalysisSettings?.numberOfHolders}

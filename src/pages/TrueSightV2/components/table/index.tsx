@@ -258,12 +258,12 @@ export const SupportResistanceLevel = () => {
             .map((i, index) => (
               <TableCell key={index} style={{ alignItems: 'flex-start' }}>
                 <Text color={theme.text}>
-                  {supports?.[index] &&
-                    currentPrice &&
-                    `${formatLevelValue(supports[index].value)} (${(
-                      ((supports[index].value - currentPrice) / currentPrice) *
-                      100
-                    ).toFixed(2)}%)`}
+                  {supports?.[index] && currentPrice && `${formatLevelValue(supports[index].value)}`}
+                </Text>
+                <Text color={theme.apr} fontSize="12px">
+                  {supports?.[index] && currentPrice
+                    ? (((supports[index].value - currentPrice) / currentPrice) * 100).toFixed(2) + '%'
+                    : '--'}
                 </Text>
               </TableCell>
             ))}
@@ -279,12 +279,12 @@ export const SupportResistanceLevel = () => {
             .map((i, index) => (
               <TableCell key={index} style={{ alignItems: 'flex-start' }}>
                 <Text color={theme.text}>
-                  {resistances?.[index] &&
-                    currentPrice &&
-                    `${formatLevelValue(resistances[index].value)} (${(
-                      ((resistances[index].value - currentPrice) / currentPrice) *
-                      100
-                    ).toFixed(2)}%)`}
+                  {resistances?.[index] && currentPrice && `${formatLevelValue(resistances[index].value)} `}
+                </Text>
+                <Text color={theme.red} fontSize="12px">
+                  {resistances?.[index] && currentPrice
+                    ? (((resistances[index].value - currentPrice) / currentPrice) * 100).toFixed(2) + '%'
+                    : '--'}
                 </Text>
               </TableCell>
             ))}
