@@ -11,6 +11,7 @@ import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { useFailedNFTs, useFilteredFarms } from 'state/farms/elastic/hooks'
 import { FarmingPool } from 'state/farms/elastic/types'
+import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { StyledInternalLink } from 'theme'
 
 import ElasticFarmGroup from './ElasticFarmGroup'
@@ -44,6 +45,14 @@ function ElasticFarms({ onShowStepGuide }: { onShowStepGuide: () => void }) {
   const [selectedPool, setSeletedPool] = useState<FarmingPool>()
   const pid = selectedPool?.pid
   const selectedPoolId = Number.isNaN(Number(pid)) ? null : Number(pid)
+
+  const tokenAddressList = farms
+    ?.map(farm => farm.pools)
+    .flat()
+    .map(p => [p.token0.wrapped.address, p.token1.wrapped.address, ...p.rewardTokens.map(rw => rw.wrapped.address)])
+    .flat()
+
+  const tokenPrices = useTokenPrices([...new Set(tokenAddressList)])
 
   const onDismiss = () => {
     setSeletedFarm(null)
@@ -144,6 +153,7 @@ function ElasticFarms({ onShowStepGuide }: { onShowStepGuide: () => void }) {
                 }}
                 pools={farm.pools}
                 userInfo={userFarmInfo?.[farm.id]}
+                tokenPrices={tokenPrices}
               />
             )
           })}
