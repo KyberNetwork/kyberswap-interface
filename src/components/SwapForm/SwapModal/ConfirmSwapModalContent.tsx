@@ -30,8 +30,8 @@ import { checkPriceImpact } from 'utils/prices'
 import SwapBrief from './SwapBrief'
 import SwapDetails, { Props as SwapDetailsProps } from './SwapDetails'
 
-const AMOUNT_OUT_FROM_BUILD_ERROR_THRESHOLD = -5
 const SHOW_ACCEPT_NEW_AMOUNT_THRESHOLD = -1
+const AMOUNT_OUT_FROM_BUILD_ERROR_THRESHOLD = -5
 const SHOW_CONFIRM_MODAL_AFTER_CLICK_SWAP_THRESHOLD = -10
 
 const Wrapper = styled.div`
@@ -246,7 +246,9 @@ export default function ConfirmSwapModalContent({
                     Due to market conditions, your output has been updated from{' '}
                     {parsedAmountOut?.toSignificant(10) || ''} {parsedAmountOut?.currency?.symbol} to{' '}
                     {parsedAmountOutFromBuild?.toSignificant(10) || ''} {parsedAmountOut?.currency?.symbol} (
-                    {formattedOutputChangePercent}%). Please accept the new amount before swapping
+                    {formattedOutputChangePercent}%){' '}
+                    {outputChangePercent < SHOW_ACCEPT_NEW_AMOUNT_THRESHOLD &&
+                      '. Please accept the new amount before swapping'}
                   </Trans>
                 )}
               </Text>
