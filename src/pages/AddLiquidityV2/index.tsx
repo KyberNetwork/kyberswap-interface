@@ -46,6 +46,7 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
+import useInterval from 'hooks/useInterval'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
 import useProAmmPreviousTicks, { useProAmmMultiplePreviousTicks } from 'hooks/useProAmmPreviousTicks'
@@ -313,13 +314,7 @@ export default function AddLiquidity() {
     refetch,
   } = useTokenPricesWithLoading(tokens.map(t => t?.wrapped.address || ''))
 
-  useEffect(() => {
-    // Refresh token prices each 10 seconds
-    const interval = setInterval(refetch, 10_000)
-    return () => {
-      clearInterval(interval)
-    }
-  }, [refetch])
+  useInterval(refetch, 10_000)
 
   const amountUnlockUSD =
     Number(amountUnlocks[Field.CURRENCY_A]?.toExact()) *
