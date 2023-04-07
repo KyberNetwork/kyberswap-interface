@@ -247,8 +247,9 @@ export default function ConfirmSwapModalContent({
                     {parsedAmountOut?.toSignificant(10) || ''} {parsedAmountOut?.currency?.symbol} to{' '}
                     {parsedAmountOutFromBuild?.toSignificant(10) || ''} {parsedAmountOut?.currency?.symbol} (
                     {formattedOutputChangePercent}%){' '}
-                    {outputChangePercent < SHOW_ACCEPT_NEW_AMOUNT_THRESHOLD &&
-                      '. Please accept the new amount before swapping'}
+                    {outputChangePercent < SHOW_ACCEPT_NEW_AMOUNT_THRESHOLD
+                      ? '. Please accept the new amount before swapping'
+                      : ''}
                   </Trans>
                 )}
               </Text>
