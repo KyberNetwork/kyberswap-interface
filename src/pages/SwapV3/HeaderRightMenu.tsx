@@ -168,7 +168,7 @@ export default function HeaderRightMenu({
       )}
 
       <MouseoverTooltip
-        text={<Trans>Degen mode is on!</Trans>}
+        text={<Trans>Degen mode is on. Be cautious.</Trans>}
         placement="top"
         width="fit-content"
         disableTooltip={!isDegenMode || isMobile}
