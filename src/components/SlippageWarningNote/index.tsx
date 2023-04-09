@@ -1,4 +1,5 @@
 import { Trans } from '@lingui/macro'
+import { FC } from 'react'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -28,8 +29,9 @@ const TextUnderlineTransparent = styled(Text)`
   display: inline;
 `
 
-const SlippageWarningNote: React.FC<Props> = ({ className, rawSlippage, isStablePairSwap }) => {
+const SlippageWarningNote: FC<Props> = ({ className, rawSlippage, isStablePairSwap }) => {
   const slippageStatus = checkRangeSlippage(rawSlippage, isStablePairSwap)
+
   if (slippageStatus === SLIPPAGE_STATUS.NORMAL) {
     return null
   }

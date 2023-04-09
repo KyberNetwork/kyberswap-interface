@@ -101,9 +101,7 @@ export const Wrapper = styled.div`
   background: ${({ theme }) => theme.background};
 `
 
-export const BottomGrouping = styled.div`
-  margin-top: 20px;
-`
+export const BottomGrouping = styled.div``
 
 export const StyledBalanceMaxMini = styled.button<{ hover?: boolean }>`
   height: 22px;
@@ -227,7 +225,6 @@ export const SwapShowAcceptChanges = styled(AutoColumn)`
 
 export const GroupButtonReturnTypes = styled.div`
   display: flex;
-  margin-top: 20px;
   border-radius: 999px;
   background: ${({ theme }) => theme.tabBackground};
   padding: 2px;

@@ -4,7 +4,7 @@ import JSBI from 'jsbi'
 import { rgba } from 'polished'
 import { stringify } from 'querystring'
 import React, { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { AlertTriangle } from 'react-feather'
+import { AlertTriangle, Info } from 'react-feather'
 import Skeleton from 'react-loading-skeleton'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { usePrevious } from 'react-use'
@@ -95,7 +95,7 @@ import {
   useUserAddedTokens,
   useUserSlippageTolerance,
 } from 'state/user/hooks'
-import { CloseIcon, TYPE } from 'theme'
+import { CloseIcon } from 'theme'
 import { formattedNum, getLimitOrderContract } from 'utils'
 import { getTradeComposition } from 'utils/aggregationRouting'
 import { Aggregator } from 'utils/aggregator'
@@ -716,7 +716,10 @@ export default function Swap() {
             <AppBodyWrapped data-highlight={shouldHighlightSwapBox} id={TutorialIds.SWAP_FORM}>
               {activeTab === TAB.SWAP && (
                 <>
-                  <Wrapper id={TutorialIds.SWAP_FORM_CONTENT}>
+                  <Wrapper
+                    id={TutorialIds.SWAP_FORM_CONTENT}
+                    style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
+                  >
                     <ConfirmSwapModal
                       isOpen={showConfirm}
                       trade={trade}
@@ -774,22 +777,26 @@ export default function Swap() {
                             trade?.amountOutUsd ? `${formattedNum(trade.amountOutUsd.toString(), true)}` : undefined
                           }
                           label={
-                            <Label>
-                              <MouseoverTooltip
-                                placement="right"
-                                width="200px"
-                                text={
-                                  <Text fontSize={12}>
-                                    <Trans>
-                                      This is the estimated output amount. Do review the actual output amount in the
-                                      confirmation screen.
-                                    </Trans>
-                                  </Text>
-                                }
-                              >
-                                <Trans>Est. Output</Trans>
-                              </MouseoverTooltip>
-                            </Label>
+                            isEVM ? (
+                              <Label>
+                                <MouseoverTooltip
+                                  placement="right"
+                                  width="200px"
+                                  text={
+                                    <Text fontSize={12}>
+                                      <Trans>
+                                        This is the estimated output amount. Do review the actual output amount in the
+                                        confirmation screen.
+                                      </Trans>
+                                    </Text>
+                                  }
+                                >
+                                  <Trans>Est. Output</Trans>
+                                </MouseoverTooltip>
+                              </Label>
+                            ) : (
+                              ''
+                            )
                           }
                           positionLabel="in"
                         />
@@ -810,27 +817,23 @@ export default function Swap() {
 
                     <TradeTypeSelection />
 
-                    <Flex flexDirection="column" mt="20px" style={{ gap: '20px' }}>
-                      {!showWrap && (
-                        <SlippageWarningNote rawSlippage={rawSlippage} isStablePairSwap={isStableCoinSwap} />
-                      )}
+                    {!showWrap && <SlippageWarningNote rawSlippage={rawSlippage} isStablePairSwap={isStableCoinSwap} />}
 
-                      <PriceImpactNote priceImpact={trade?.priceImpact} isDegenMode={isDegenMode} />
+                    <PriceImpactNote priceImpact={trade?.priceImpact} isDegenMode={isDegenMode} />
 
-                      {isLargeSwap && (
-                        <PriceImpactHigh>
-                          <AlertTriangle color={theme.warning} size={24} style={{ marginRight: '8px' }} />
-                          <Trans>
-                            Your transaction may not be successful. We recommend increasing the slippage for this trade
-                          </Trans>
-                        </PriceImpactHigh>
-                      )}
+                    {isLargeSwap && (
+                      <PriceImpactHigh>
+                        <AlertTriangle color={theme.warning} size={24} style={{ marginRight: '8px' }} />
+                        <Trans>
+                          Your transaction may not be successful. We recommend increasing the slippage for this trade
+                        </Trans>
+                      </PriceImpactHigh>
+                    )}
 
-                      <ApproveMessage
-                        routerAddress={trade?.routerAddress}
-                        isCurrencyInNative={Boolean(currencyIn?.isNative)}
-                      />
-                    </Flex>
+                    <ApproveMessage
+                      routerAddress={trade?.routerAddress}
+                      isCurrencyInNative={Boolean(currencyIn?.isNative)}
+                    />
 
                     <BottomGrouping>
                       {!account ? (
@@ -847,11 +850,21 @@ export default function Swap() {
                             ) : null)}
                         </ButtonPrimary>
                       ) : noRoute && userHasSpecifiedInputOutput ? (
-                        <GreyCard style={{ textAlign: 'center', borderRadius: '999px', padding: '12px' }}>
-                          <TYPE.main>
-                            <Trans>Insufficient liquidity for this trade.</Trans>
-                          </TYPE.main>
-                        </GreyCard>
+                        <ButtonPrimary disabled={true} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <MouseoverTooltip
+                            text={
+                              <Trans>
+                                There was an issue while trying to find a price for these tokens. Please try again.
+                                Otherwise, you may select some other tokens to swap
+                              </Trans>
+                            }
+                          >
+                            <Info size={14} />
+                          </MouseoverTooltip>
+                          <Text>
+                            <Trans>Swap Disabled</Trans>
+                          </Text>
+                        </ButtonPrimary>
                       ) : showApproveFlow ? (
                         <>
                           <RowBetween>

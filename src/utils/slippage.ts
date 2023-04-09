@@ -16,9 +16,11 @@ export const checkRangeSlippage = (slippage: number, isStablePairSwap: boolean):
   if (slippage < 10) {
     return SLIPPAGE_STATUS.LOW
   }
-  if (slippage >= 500) {
-    return SLIPPAGE_STATUS.HIGH
-  }
+
+  // https://www.notion.so/Improvement-High-Priority-Swap-UI-Release-2-e9abc73ee4764cee8c863c51ec0bc996?d=e025cc0d420242aca11df9a04dfe56cc#ae0f28d5e892430cbfb50cfc8504ddbb
+  // if (slippage >= 500) {
+  //   return SLIPPAGE_STATUS.HIGH
+  // }
 
   return SLIPPAGE_STATUS.NORMAL
 }

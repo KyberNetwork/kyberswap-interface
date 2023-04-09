@@ -1,6 +1,6 @@
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { Info } from 'react-feather'
 import { Text } from 'rebass'
 import styled from 'styled-components'
@@ -193,10 +193,17 @@ const SwapOnlyButton: React.FC<Props> = ({
         {shouldDisable && (
           <MouseoverTooltip
             text={
-              <Trans>
-                To ensure you dont lose funds due to very high price impact (≥10%), swap has been disabled for this
-                trade. If you still wish to continue, you can turn on Degen Mode from Settings
-              </Trans>
+              shouldDisableByPriceImpact ? (
+                <Trans>
+                  To ensure you dont lose funds due to very high price impact (≥10%), swap has been disabled for this
+                  trade. If you still wish to continue, you can turn on Degen Mode from Settings
+                </Trans>
+              ) : (
+                <Trans>
+                  There was an issue while trying to find a price for these tokens. Please try again. Otherwise, you may
+                  select some other tokens to swap
+                </Trans>
+              )
             }
           >
             <Info size={14} />
