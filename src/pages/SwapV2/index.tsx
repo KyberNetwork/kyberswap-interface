@@ -314,8 +314,8 @@ export default function Swap() {
 
   const priceImpact = trade?.priceImpact
   const isPriceImpactInvalid = !!priceImpact && priceImpact === -1
-  const isPriceImpactHigh = !!priceImpact && priceImpact > 5
-  const isPriceImpactVeryHigh = !!priceImpact && priceImpact > 15
+  const isPriceImpactHigh = !!priceImpact && priceImpact > 2
+  const isPriceImpactVeryHigh = !!priceImpact && priceImpact > 10
 
   const parsedAmounts = showWrap
     ? {
@@ -980,8 +980,30 @@ export default function Swap() {
                               <Dots>
                                 <Trans>Checking accounts</Trans>
                               </Dots>
-                            ) : isPriceImpactHigh || isPriceImpactInvalid ? (
-                              <Trans>Swap Anyway</Trans>
+                            ) : isPriceImpactVeryHigh || isPriceImpactInvalid ? (
+                              <Flex alignItems="center" style={{ gap: '4px' }}>
+                                <MouseoverTooltip
+                                  text={
+                                    isPriceImpactVeryHigh ? (
+                                      <Trans>
+                                        To ensure you dont lose funds due to very high price impact (≥10%), swap has
+                                        been disabled for this trade. If you still wish to continue, you can turn on
+                                        Degen Mode from Settings
+                                      </Trans>
+                                    ) : (
+                                      <Trans>
+                                        There was an issue while trying to find a price for these tokens. Please try
+                                        again. Otherwise, you may select some other tokens to swap
+                                      </Trans>
+                                    )
+                                  }
+                                >
+                                  <Info size={14} />
+                                </MouseoverTooltip>
+                                <Text>
+                                  <Trans>Swap Disabled</Trans>
+                                </Text>
+                              </Flex>
                             ) : (
                               <Trans>Swap</Trans>
                             )}

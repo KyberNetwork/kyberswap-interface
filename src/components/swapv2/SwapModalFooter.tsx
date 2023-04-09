@@ -217,9 +217,9 @@ export default function SwapModalFooter({
               onClick={onConfirm}
               disabled={disabledConfirm}
               style={{
-                ...((priceImpactResult.isHigh || priceImpactResult.isInvalid) && {
+                ...((priceImpactResult.isVeryHigh || priceImpactResult.isInvalid) && {
                   border: 'none',
-                  background: priceImpactResult.isVeryHigh || priceImpactResult.isInvalid ? theme.red : theme.warning,
+                  background: theme.red,
                   color: theme.text,
                 }),
               }}

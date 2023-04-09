@@ -62,7 +62,9 @@ export default function SwapModalHeader({ trade }: { trade: Aggregator }) {
           <RowBetween>
             <TruncatedText>{trade.outputAmount.toSignificant(RESERVE_USD_DECIMALS)}</TruncatedText>
             <Flex alignItems="center" sx={{ gap: '8px' }} minWidth="fit-content">
-              ~{formattedNum(trade.amountOutUsd.toString(), true)}
+              <Text fontSize={14} fontWeight={500} color={theme.subText}>
+                ~{formattedNum(trade.amountOutUsd.toString(), true)}
+              </Text>
               <CurrencyLogo currency={nativeOutput} size="24px" />
               <Text fontSize={20} fontWeight={500} color={theme.subText}>
                 {nativeOutput?.symbol}
