@@ -54,7 +54,7 @@ export default function useTokenInfo(token: Token | undefined): { data: TokenInf
     },
   })
 
-  if (error && process.env.NODE_ENV === 'development') {
+  if (error && import.meta.env.DEV) {
     console.error(error)
   }
 

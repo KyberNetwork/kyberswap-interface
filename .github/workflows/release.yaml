@@ -60,7 +60,7 @@ jobs:
       - name: Yarn Build
         env:
           CI: false
-          REACT_APP_TAG: ${{ github.event.inputs.version }}
+          VITE_TAG: ${{ github.event.inputs.version }}
           NODE_OPTIONS: '--max_old_space_size=4096'
         run: yarn build-prod
 

@@ -115,7 +115,7 @@ jobs:
       - name: Yarn Build
         env:
           CI: false
-          REACT_APP_TAG: ${{ needs.prepare.outputs.image_tag }}
+          VITE_TAG: ${{ needs.prepare.outputs.image_tag }}
           NODE_OPTIONS: '--max_old_space_size=4096'
         run: yarn build-dev
 
@@ -191,7 +191,7 @@ jobs:
       - name: Yarn Build
         env:
           CI: false
-          REACT_APP_TAG: ${{ needs.prepare.outputs.image_tag_stg }}
+          VITE_TAG: ${{ needs.prepare.outputs.image_tag_stg }}
         run: yarn build-stg
 
       - name: Docker build and push

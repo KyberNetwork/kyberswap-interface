@@ -4,7 +4,7 @@ import { X } from 'react-feather'
 import { Flex } from 'rebass'
 import styled, { css } from 'styled-components'
 import { Navigation, Pagination } from 'swiper'
-import { Swiper, SwiperSlide } from 'swiper/react/swiper-react'
+import { Swiper, SwiperSlide } from 'swiper/react'
 
 import NotificationImage from 'assets/images/notification_default.png'
 import CtaButton from 'components/Announcement/Popups/CtaButton'

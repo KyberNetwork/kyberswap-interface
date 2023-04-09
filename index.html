@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" translate="no">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="shortcut icon" href="/favicon.ico?version=v" />
+    <link rel="apple-touch-icon" type="image/png" href="/favicon.png?version=v1" />
+    <link rel="icon" type="image/png" href="/favicon.png?version=v1" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="theme-color" content="#31CB9E" />
+    <meta name="fortmatic-site-verification" content="j93LgcVZk79qcgyo" />
+    <meta
+      name="description"
+      content="KyberSwap is DeFi’s first Dynamic Market Maker; a decentralized exchange protocol that provides frictionless crypto liquidity with extremely high flexibility and capital efficiency. KyberSwap is the first major protocol in Kyber’s liquidity hub."
+    />
+
+    <meta property="og:image" content="/kyberswap-og-image.jpg?version=1200x630" />
+
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+
+    <script src="/datafeeds/udf/dist/bundle.js"></script>
+    <!--
+      manifest.json provides metadata used when your web app is installed on a
+      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
+    -->
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="preload" as="image" href="/logo-dark.svg" />
+    <link rel="preload" as="image" href="/logo.svg" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600&display=swap"
+      rel="preload"
+      as="style"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <title>KyberSwap - Swap and earn tokens at the best rates</title>
+  </head>
+
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+
+    <div id="app"></div>
+    <script type="module" src="/src/index.tsx"></script>
+
+    <style type="text/css" class="preloadhtml-style">
+      .preloadhtml {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        font-family: 'Work Sans', 'Inter var', sans-serif;
+      }
+      [data-theme='dark'] .preloadhtml {
+        background-color: #0f0f0f;
+      }
+      [data-theme='light'] .preloadhtml {
+        background-color: rgb(245, 245, 245);
+      }
+
+      .preloadhtml-header {
+        display: flex;
+        padding: 1rem;
+        z-index: 2;
+      }
+      [data-theme='dark'] .preloadhtml-header {
+        background-color: #1c1c1c;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      }
+      [data-theme='light'] .preloadhtml-header {
+        background-color: rgb(255, 255, 255);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      }
+
+      .preloadhtml-logo {
+        transition: transform 0.3s ease;
+      }
+
+      .preloadhtml-logo:hover {
+        transform: rotate(-5deg);
+      }
+
+      .preloadhtml-header-link {
+        display: flex;
+        align-items: center;
+        margin-left: 12px;
+      }
+
+      .preloadhtml-header-link-item {
+        padding: 8px 12px;
+        width: max-content;
+        font-weight: 500;
+        font-size: 16px;
+      }
+      [data-theme='dark'] .preloadhtml-header-link-item {
+        color: rgb(169, 169, 169);
+      }
+      [data-theme='light'] .preloadhtml-header-link-item {
+        color: rgb(94, 94, 94);
+      }
+
+      .preloadhtml-header-link-item-icon {
+        min-width: 14px;
+        width: 14px;
+        color: #a9a9a9;
+        margin-top: -20px;
+        transform: translate(-1px, -3.5px);
+      }
+
+      .preloadhtml-header-link-item-icon * {
+        color: #a9a9a9;
+        fill: currentColor;
+      }
+
+      .preloadhtml-logo {
+        width: 140px;
+        height: 51.38px;
+      }
+
+      [data-theme='dark'] .onlyVisibleInLightMode {
+        display: none;
+      }
+      [data-theme='light'] .onlyVisibleInDarkMode {
+        display: none;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+
+        60% {
+          transform: scale(1.1);
+        }
+
+        100% {
+          transform: scale(1);
+        }
+      }
+    </style>
+    <div class="preloadhtml">
+      <div class="preloadhtml-header">
+        <div class="preloadhtml-logo">
+          <img class="onlyVisibleInDarkMode" style="margin-top: 1px" width="140px" src="/logo-dark.svg" alt="DmmLogo" />
+          <img class="onlyVisibleInLightMode" style="margin-top: 1px" width="140px" src="/logo.svg" alt="DmmLogo" />
+        </div>
+        <div class="preloadhtml-header-link">
+          <div style="color: #31cb9e" class="preloadhtml-header-link-item">Swap</div>
+          <div class="preloadhtml-header-link-item">Earn</div>
+          <div class="preloadhtml-header-link-item">Farms</div>
+          <div class="preloadhtml-header-link-item">Campaigns</div>
+          <div class="preloadhtml-header-link-item">
+            Discover
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              class="preloadhtml-header-link-item-icon"
+            >
+              <path
+                d="M17.6309 7.86166C18.1386 7.54785 18.2957 6.88189 17.9819 6.37418C17.6681 5.86648 17.0022 5.7093 16.4945 6.02311C15.9868 6.33692 15.8296 7.00288 16.1434 7.51059C16.4572 8.01829 17.1232 8.17547 17.6309 7.86166Z"
+                fill="currentColor"
+              />
+              <path
+                d="M1.32411 19.665C-0.35922 21.3484 0.041749 23.9575 0.041749 23.9575C0.041749 23.9575 2.6509 24.3585 4.33423 22.6751C5.2961 21.7793 5.48023 20.4915 4.51254 19.4867C3.52193 18.4874 2.13833 18.7576 1.32411 19.665V19.665Z"
+                fill="currentColor"
+              />
+              <path
+                d="M23.9869 0.0137298C23.3583 -0.022364 22.1686 -0.00642649 20.6016 0.3967C18.4064 0.961077 15.001 2.42311 11.2434 6.18109C8.99672 8.42735 7.54828 10.5569 6.25171 12.8121L8.22187 14.7822L8.98313 14.0205L9.97876 15.0161L9.2175 15.7774L11.1872 17.7475C13.4428 16.451 15.5719 15.0025 17.8182 12.7563C23.8346 6.73984 24.0797 1.5967 23.9869 0.0137298V0.0137298ZM14.5599 6.94469C14.5599 5.56469 15.6769 4.44624 17.055 4.44624C18.4327 4.44624 19.5497 5.56469 19.5497 6.94469C19.5497 8.32469 18.4327 9.4436 17.055 9.4436C15.6769 9.4436 14.5599 8.32469 14.5599 6.94469Z"
+                fill="currentColor"
+              />
+              <path
+                d="M7.46054 17.5343L6.46515 16.5389L7.22654 15.7775L5.53791 14.0889C5.23576 14.6421 4.49119 16.0376 4.42224 16.1667L7.83268 19.5771C7.96168 19.5083 9.35719 18.7637 9.91055 18.4615L8.22193 16.7729L7.46054 17.5343Z"
+                fill="currentColor"
+              />
+              <path
+                d="M13.5645 20.2697V22.7282L14.7937 23.9574L17.2522 21.4989L18.7987 13.7661C16.5179 16.044 14.376 17.5243 12.1265 18.8317L13.5645 20.2697Z"
+                fill="currentColor"
+              />
+              <path
+                d="M3.72941 10.4349L5.16748 11.873C6.47492 9.62334 7.95509 7.48148 10.233 5.20068L2.5002 6.74728L0.041748 9.20568L1.27095 10.4349H3.72941Z"
+                fill="currentColor"
+              />
+            </svg>
+          </div>
+          <div class="preloadhtml-header-link-item">Analytics</div>
+          <div class="preloadhtml-header-link-item">About</div>
+          <div class="preloadhtml-header-link-item">Blog</div>
+        </div>
+      </div>
+      <div style="height: 180px; display: flex">
+        <img
+          class="onlyVisibleInDarkMode"
+          style="animation: pulse 800ms linear infinite; margin: auto"
+          width="160px"
+          src="/logo-dark.svg"
+          alt="DmmLogo"
+        />
+        <img
+          class="onlyVisibleInLightMode"
+          style="animation: pulse 800ms linear infinite; margin: auto"
+          width="160px"
+          src="/logo.svg"
+          alt="DmmLogo"
+        />
+      </div>
+    </div>
+    <script>
+      ;(() => {
+        function doesUseDarkMode() {
+          const rawLocalState = window.localStorage.getItem('redux_localstorage_simple_user')
+          const hasRawLocalState = typeof rawLocalState === 'string'
+          if (hasRawLocalState) {
+            try {
+              // need JSON.parse here as we useLocalStorage when storing theme mode
+              const localState = JSON.parse(rawLocalState)
+              return localState.userDarkMode
+            } catch (e) {
+              // empty
+            }
+          }
+        }
+
+        function setInitialColorMode(usePrefersColorScheme) {
+          function getInitialColorMode() {
+            const useDarkMode = doesUseDarkMode()
+            if (typeof useDarkMode === 'boolean') {
+              return useDarkMode ? 'dark' : 'light'
+            }
+
+            if (usePrefersColorScheme === false) {
+              // default to 'dark'.
+              return 'dark'
+            }
+
+            // If there is no saved preference, use a media query
+            const mediaQuery = '(prefers-color-scheme: dark)'
+            const mql = window.matchMedia(mediaQuery)
+            const hasImplicitPreference = typeof mql.matches === 'boolean'
+            if (hasImplicitPreference) {
+              return mql.matches ? 'dark' : 'light'
+            }
+
+            // default to 'dark'.
+            return 'dark'
+          }
+          const colorMode = getInitialColorMode()
+          // add HTML attribute if dark mode
+          if (colorMode === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark')
+          }
+        }
+        setInitialColorMode(false)
+      })()
+    </script>
+    <script src="/charting_library/charting_library.standalone.js"></script>
+    <script>
+      // customer support widget
+      window.zESettings = {
+        webWidget: {
+          offset: {
+            vertical: window.innerWidth > 1200 ? '0px' : '75px',
+            mobile: {
+              vertical: '65px',
+              horizontal: '-5px',
+            },
+          },
+          zIndex: 3,
+        },
+      }
+    </script>
+    <script async src="/libs/zenddesk.js?key=a73faacd-ba50-493a-8bf5-4b6878035346" id="ze-snippet"></script>
+    <!--
+      This HTML file is a template.
+      If you open it directly in the browser, you will see an empty page.
+
+      You can add webfonts, meta tags, or analytics to this file.
+      The build step will place the bundled scripts into the <body> tag.
+
+      To begin the development, run `npm start` or `yarn start`.
+      To create a production bundle, use `npm run build` or `yarn build`.
+    -->
+  </body>
+</html>

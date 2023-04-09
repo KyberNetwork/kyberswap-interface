@@ -3,6 +3,7 @@ import { FeeAmount, Pool } from '@kyberswap/ks-sdk-elastic'
 import { useEffect } from 'react'
 import useSWR from 'swr'
 
+import { POOL_FARM_BASE_URL } from 'constants/env'
 import { ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
@@ -45,7 +46,7 @@ interface Response {
 const useGetElasticFarms = () => {
   const { chainId } = useActiveWeb3React()
   const endpoint = isEVM(chainId)
-    ? `${process.env.REACT_APP_POOL_FARM_BASE_URL}/${NETWORKS_INFO[chainId].poolFarmRoute}/api/v1/elastic/farm-pools?page=1&perPage=10000`
+    ? `${POOL_FARM_BASE_URL}/${NETWORKS_INFO[chainId].poolFarmRoute}/api/v1/elastic/farm-pools?page=1&perPage=10000`
     : ''
 
   return useSWR<Response>(endpoint, (url: string) => fetch(url).then(resp => resp.json()), {

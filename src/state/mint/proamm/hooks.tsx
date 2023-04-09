@@ -519,16 +519,16 @@ export function useProAmmDerivedMintInfo(
     }
 
     if (poolState === PoolState.INVALID) {
-      return errorMessage ?? <Trans>Invalid pair</Trans>
+      return <Trans>Invalid pair</Trans>
     }
 
     if (invalidPrice) {
-      return errorMessage ?? <Trans>Invalid price input</Trans>
+      return <Trans>Invalid price input</Trans>
     }
     const { [Field.CURRENCY_A]: currencyAAmount, [Field.CURRENCY_B]: currencyBAmount } = parsedAmounts
 
     if ((!currencyAAmount && !depositADisabled) || (!currencyBAmount && !depositBDisabled)) {
-      return errorMessage ?? <Trans>Enter an amount</Trans>
+      return <Trans>Enter an amount</Trans>
     }
 
     if (

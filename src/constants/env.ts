@@ -5,8 +5,8 @@ import { PrivateAnnouncementType } from 'components/Announcement/type'
 import { ENV_TYPE } from './type'
 
 const required = (envKey: string): string => {
-  const key = 'REACT_APP_' + envKey
-  const envValue = process.env[key]
+  const key = 'VITE_' + envKey
+  const envValue = import.meta.env[key]
   invariant(envValue, `env ${key} is missing`)
   return envValue
 }
@@ -24,17 +24,18 @@ export const TRUESIGHT_API = required('TRUESIGHT_API')
 export const TRANSAK_URL = required('TRANSAK_URL')
 export const TRANSAK_API_KEY = required('TRANSAK_API_KEY')
 export const TYPE_AND_SWAP_URL = required('TYPE_AND_SWAP_URL')
+export const POOL_FARM_BASE_URL = required('POOL_FARM_BASE_URL')
 export const MIXPANEL_PROJECT_TOKEN = required('MIXPANEL_PROJECT_TOKEN')
 export const CAMPAIGN_BASE_URL = required('CAMPAIGN_BASE_URL')
-export const GTM_ID = process.env.REACT_APP_GTM_ID
-export const TAG = process.env.REACT_APP_TAG || 'localhost'
-export const ENV_LEVEL = !process.env.REACT_APP_TAG
+export const GTM_ID = import.meta.env.VITE_GTM_ID
+export const TAG = import.meta.env.VITE_TAG || 'localhost'
+export const ENV_LEVEL = !import.meta.env.VITE_TAG
   ? ENV_TYPE.LOCAL
-  : process.env.REACT_APP_TAG.startsWith('adpr')
+  : import.meta.env.VITE_TAG.startsWith('adpr')
   ? ENV_TYPE.ADPR
-  : process.env.REACT_APP_TAG.startsWith('main-stg')
+  : import.meta.env.VITE_TAG.startsWith('main-stg')
   ? ENV_TYPE.STG
-  : process.env.REACT_APP_TAG.startsWith('main')
+  : import.meta.env.VITE_TAG.startsWith('main')
   ? ENV_TYPE.DEV
   : ENV_TYPE.PROD
 
