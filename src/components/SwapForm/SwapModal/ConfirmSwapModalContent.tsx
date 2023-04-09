@@ -47,7 +47,6 @@ const Wrapper = styled.div`
 const PriceUpdateWarning = styled.div<{ isAccepted: boolean; $level: 'warning' | 'error' }>`
   margin-top: 1rem;
   border-radius: 16px;
-  min-height: 72px;
   padding: 8px 12px;
   display: flex;
   align-items: center;
@@ -232,11 +231,7 @@ export default function ConfirmSwapModalContent({
 
           {outputChangePercent < 0 && (
             <PriceUpdateWarning
-              $level={
-                priceImpactResult.isVeryHigh || outputChangePercent <= AMOUNT_OUT_FROM_BUILD_ERROR_THRESHOLD
-                  ? 'error'
-                  : 'warning'
-              }
+              $level={outputChangePercent <= AMOUNT_OUT_FROM_BUILD_ERROR_THRESHOLD ? 'error' : 'warning'}
               isAccepted={hasAcceptedNewAmount}
             >
               {hasAcceptedNewAmount && <Check size={20} color={theme.text} />}
