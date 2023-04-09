@@ -2,7 +2,7 @@ import { Currency, CurrencyAmount, Price } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { transparentize } from 'polished'
 import React, { useState } from 'react'
-import { Check } from 'react-feather'
+import { Check, Info } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import { calculatePriceImpact } from 'services/route/utils'
 import styled from 'styled-components'
@@ -18,6 +18,7 @@ import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import { Level } from 'components/SwapForm/SwapModal/SwapDetails/UpdatedBadge'
 import SwapModalAreYouSure from 'components/SwapForm/SwapModal/SwapModalAreYouSure'
 import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
+import { MouseoverTooltip } from 'components/Tooltip'
 import WarningNote from 'components/WarningNote'
 import { Dots } from 'components/swapv2/styleds'
 import { useActiveWeb3React } from 'hooks'
@@ -321,11 +322,34 @@ export default function ConfirmSwapModalContent({
                 onClick={onSwap}
                 disabled={disableSwap}
                 id="confirm-swap-or-send"
-                style={disableSwap ? undefined : warningStyle}
+                style={{
+                  ...(disableSwap ? undefined : warningStyle),
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
               >
-                <Text fontSize={14} fontWeight={500} as="span" lineHeight={1}>
-                  <Trans>Confirm Swap</Trans>
-                </Text>
+                {disableSwap ? (
+                  <>
+                    <MouseoverTooltip
+                      text={
+                        <Trans>
+                          To ensure you dont lose funds due to very high price impact (≥10%), swap has been disabled for
+                          this trade. If you still wish to continue, you can turn on Degen Mode from Settings
+                        </Trans>
+                      }
+                    >
+                      <Info size={14} />
+                    </MouseoverTooltip>
+                    <Text>
+                      <Trans>Swap Disabled</Trans>
+                    </Text>
+                  </>
+                ) : (
+                  <Text fontSize={14} fontWeight={500} as="span" lineHeight={1}>
+                    <Trans>Confirm Swap</Trans>
+                  </Text>
+                )}
               </ButtonPrimary>
             </Flex>
           )}
