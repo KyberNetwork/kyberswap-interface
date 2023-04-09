@@ -12,6 +12,8 @@ const TextUnderlineColor = styled(Text)`
   width: fit-content;
   cursor: pointer;
   color: ${({ theme }) => theme.text};
+  font-weight: 500;
+  margin-right: 0.5ch;
 `
 
 const TextUnderlineTransparent = styled(Text)`
@@ -59,8 +61,8 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact }) => {
               </Trans>
             ) : (
               <Trans>
-                You can turn on <b>Degen Mode</b> from Settings to execute trades when price impact cannot be
-                calculated. This can result in bad rates and loss of funds!
+                You can turn on Degen Mode from Settings to execute trades when price impact cannot be calculated. This
+                can result in bad rates and loss of funds!
               </Trans>
             )}
           </Text>
@@ -77,10 +79,12 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact }) => {
         shortText={
           <Row alignItems="center" style={{ gap: '0.5ch' }}>
             <Trans>
-              <TextUnderlineColor as="a" href={PRICE_IMPACT_EXPLANATION_URL} target="_blank" rel="noreferrer">
-                Price Impact
-              </TextUnderlineColor>
-              <TextUnderlineTransparent> is very high. You will lose funds!</TextUnderlineTransparent>
+              <TextUnderlineTransparent>
+                <TextUnderlineColor as="a" href={PRICE_IMPACT_EXPLANATION_URL} target="_blank" rel="noreferrer">
+                  Price Impact
+                </TextUnderlineColor>
+                is very high. You will lose funds!
+              </TextUnderlineTransparent>
             </Trans>
           </Row>
         }

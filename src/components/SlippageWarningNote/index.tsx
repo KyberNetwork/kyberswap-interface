@@ -21,6 +21,7 @@ const TextUnderlineColor = styled(Text)`
   display: inline;
   cursor: pointer;
   color: ${({ theme }) => theme.text};
+  font-weight: 500;
 `
 
 const TextUnderlineTransparent = styled(Text)`
