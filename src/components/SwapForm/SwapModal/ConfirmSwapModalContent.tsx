@@ -24,6 +24,7 @@ import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useEncodeSolana } from 'state/swap/hooks'
 import { CloseIcon } from 'theme/components'
+import { formattedNum } from 'utils'
 import { toCurrencyAmount } from 'utils/currencyAmount'
 import { checkPriceImpact } from 'utils/prices'
 
@@ -92,7 +93,8 @@ export default function ConfirmSwapModalContent({
   const priceImpactResult = checkPriceImpact(priceImpactFromBuild)
 
   const outputChangePercent = Number(buildResult?.data?.outputChange?.percent) || 0
-  const formattedOutputChangePercent = (buildResult?.data?.outputChange?.percent || 0).toFixed(2)
+  const formattedOutputChangePercent =
+    -0.001 < outputChangePercent && outputChangePercent < 0 ? '< -0.001' : outputChangePercent.toFixed(3)
 
   const getSwapDetailsProps = (): SwapDetailsProps => {
     if (!buildResult?.data || !routeSummary) {
