@@ -39,6 +39,7 @@ export type Props = {
   isGettingRoute: boolean
   isProcessingSwap: boolean
   isDisabled?: boolean
+  isApproved?: boolean
 
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
@@ -58,6 +59,7 @@ const SwapOnlyButton: React.FC<Props> = ({
   isGettingRoute,
   isProcessingSwap,
   isDisabled,
+  isApproved,
 
   currencyIn,
   currencyOut,
@@ -190,7 +192,7 @@ const SwapOnlyButton: React.FC<Props> = ({
         $minimal={minimal}
         style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
       >
-        {shouldDisable && (
+        {shouldDisable && isApproved && (
           <MouseoverTooltip
             text={
               shouldDisableByPriceImpact ? (
@@ -210,7 +212,7 @@ const SwapOnlyButton: React.FC<Props> = ({
           </MouseoverTooltip>
         )}
         <Text>
-          <Trans>{shouldDisable ? 'Swap Disabled' : 'Swap'}</Trans>
+          <Trans>{shouldDisable && isApproved ? 'Swap Disabled' : 'Swap'}</Trans>
         </Text>
       </CustomPrimaryButton>
     )
