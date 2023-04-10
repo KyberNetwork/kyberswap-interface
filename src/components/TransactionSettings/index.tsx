@@ -1,15 +1,12 @@
-import { Trans, t } from '@lingui/macro'
+import { t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useCallback, useState } from 'react'
-import { Flex } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
-import InfoHelper from 'components/InfoHelper'
 import MenuFlyout from 'components/MenuFlyout'
 import Toggle from 'components/Toggle'
 import Tooltip from 'components/Tooltip'
-import SettingLabel from 'components/swapv2/SwapSettingsPanel/SettingLabel'
 import SlippageSetting from 'components/swapv2/SwapSettingsPanel/SlippageSetting'
 import TransactionTimeLimitSetting from 'components/swapv2/SwapSettingsPanel/TransactionTimeLimitSetting'
 import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
@@ -64,9 +61,10 @@ const MenuFlyoutBrowserStyle = css`
 type Props = {
   hoverBg?: string
 }
+
 export default function TransactionSettings({ hoverBg }: Props) {
   const theme = useTheme()
-  const [isDegenMode, toggleDegenMode] = useDegenModeManager()
+  const [isDegenMode] = useDegenModeManager()
   const toggle = useToggleTransactionSettingsMenu()
   // show confirmation view before turning on
   const [showConfirmation, setShowConfirmation] = useState(false)
@@ -75,17 +73,6 @@ export default function TransactionSettings({ hoverBg }: Props) {
   const [isShowTooltip, setIsShowTooltip] = useState<boolean>(false)
   const showTooltip = useCallback(() => setIsShowTooltip(true), [setIsShowTooltip])
   const hideTooltip = useCallback(() => setIsShowTooltip(false), [setIsShowTooltip])
-
-  const handleToggleAdvancedMode = () => {
-    if (isDegenMode /* is already ON */) {
-      toggleDegenMode()
-      setShowConfirmation(false)
-      return
-    }
-
-    toggle()
-    setShowConfirmation(true)
-  }
 
   return (
     <>
@@ -123,19 +110,6 @@ export default function TransactionSettings({ hoverBg }: Props) {
           <SettingsWrapper>
             <SlippageSetting shouldShowPinButton={false} />
             <TransactionTimeLimitSetting />
-
-            <Flex justifyContent="space-between">
-              <Flex width="fit-content" alignItems="center">
-                <SettingLabel>
-                  <Trans>Degen Mode</Trans>
-                </SettingLabel>
-                <InfoHelper
-                  size={14}
-                  text={t`Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can result in bad rates and loss of funds. Be cautious.`}
-                />
-              </Flex>
-              <Toggle id="toggle-expert-mode-button" isActive={isDegenMode} toggle={handleToggleAdvancedMode} />
-            </Flex>
           </SettingsWrapper>
         </MenuFlyout>
       </StyledMenu>
