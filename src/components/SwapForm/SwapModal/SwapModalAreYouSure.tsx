@@ -36,10 +36,6 @@ const StyledCloseIcon = styled(X)`
   :hover {
     cursor: pointer;
   }
-
-  > * {
-    stroke: ${({ theme }) => theme.text};
-  }
 `
 
 export default function SwapModalAreYouSure({
@@ -82,7 +78,7 @@ export default function SwapModalAreYouSure({
             <Trans>Are you sure?</Trans>
           </Text>
 
-          <StyledCloseIcon onClick={() => setShow(false)} />
+          <StyledCloseIcon color={theme.text} onClick={() => setShow(false)} />
         </Flex>
 
         <Text fontSize={14} marginTop="28px">
