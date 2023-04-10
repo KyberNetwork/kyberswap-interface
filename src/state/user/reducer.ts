@@ -16,6 +16,7 @@ import {
   pinSlippageControl,
   removeSerializedPair,
   removeSerializedToken,
+  revokePermit,
   toggleFavoriteToken,
   toggleHolidayMode,
   toggleLiveChart,
@@ -99,7 +100,7 @@ interface UserState {
           rawSignature: string
           deadline: number
           value: string
-        }
+        } | null
       }
     }
   }
@@ -298,6 +299,16 @@ export default createReducer(initialState, builder =>
       if (!state.permitData[account][chainId]) state.permitData[account][chainId] = {}
 
       state.permitData[account][chainId][address] = { rawSignature, deadline, value }
+    })
+    .addCase(revokePermit, (state, { payload: { chainId, address, account } }) => {
+      if (
+        !state.permitData[account] ||
+        !state.permitData[account][chainId] ||
+        !state.permitData[account][chainId][address]
+      )
+        return
+
+      state.permitData[account][chainId][address] = null
     })
     .addCase(pinSlippageControl, (state, { payload }) => {
       state.isSlippageControlPinned = payload

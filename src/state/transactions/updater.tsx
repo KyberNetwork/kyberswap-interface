@@ -11,6 +11,7 @@ import useMixpanel, { MIXPANEL_TYPE, NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES } fro
 import { useBlockNumber, useTransactionNotify } from 'state/application/hooks'
 import { useSetClaimingCampaignRewardId } from 'state/campaigns/hooks'
 import { AppDispatch, AppState } from 'state/index'
+import { revokePermit } from 'state/user/actions'
 import { findTx } from 'utils'
 import { includes } from 'utils/array'
 
@@ -40,7 +41,7 @@ function shouldCheck(
 }
 
 export default function Updater(): null {
-  const { chainId, isEVM, isSolana } = useActiveWeb3React()
+  const { chainId, isEVM, isSolana, account } = useActiveWeb3React()
   const { library } = useWeb3React()
   const { connection } = useWeb3Solana()
 
@@ -136,8 +137,10 @@ export default function Updater(): null {
                 if (receipt.status === 1 && transaction) {
                   const arbitrary = transaction.extraInfo?.arbitrary
                   switch (transaction.type) {
+                    //
                     case TRANSACTION_TYPE.SWAP: {
-                      if (arbitrary) {
+                      if (arbitrary && account) {
+                        dispatch(revokePermit({ chainId, address: arbitrary.tokenAddressIn, account }))
                         mixpanelHandler(MIXPANEL_TYPE.SWAP_COMPLETED, {
                           arbitrary,
                           actual_gas: receipt.gasUsed || BigNumber.from(0),

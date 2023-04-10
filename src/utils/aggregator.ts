@@ -239,7 +239,7 @@ export class Aggregator {
     feeConfig: FeeConfig | undefined,
     signal: AbortSignal,
     minimumLoadingTime: number,
-    permit?: string,
+    permit?: string | null,
   ): Promise<Aggregator | null> {
     const programState = new Keypair()
     const amountIn = currencyAmountIn

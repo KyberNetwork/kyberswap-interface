@@ -57,4 +57,5 @@ export const permitUpdate = createAction<{
   value: string
   account: string
 }>('user/permitUpdate')
+export const revokePermit = createAction<{ chainId: number; address: string; account: string }>('user/revokePermit')
 export const pinSlippageControl = createAction<boolean>('user/pinSlippageControl')
