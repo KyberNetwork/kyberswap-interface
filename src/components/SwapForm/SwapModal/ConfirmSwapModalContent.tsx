@@ -92,7 +92,12 @@ export default function ConfirmSwapModalContent({
   const priceImpactResult = checkPriceImpact(priceImpactFromBuild)
 
   const outputChangePercent = Number(buildResult?.data?.outputChange?.percent) || 0
-  const formattedOutputChangePercent = outputChangePercent < 0.001 ? '< 0.001' : outputChangePercent.toFixed(3)
+  const formattedOutputChangePercent =
+    -0.001 < outputChangePercent && outputChangePercent < 0
+      ? '< -0.001'
+      : 0 < outputChangePercent && outputChangePercent < 0.001
+      ? '< 0.001'
+      : outputChangePercent.toFixed(3)
 
   const getSwapDetailsProps = (): SwapDetailsProps => {
     if (!buildResult?.data || !routeSummary) {
