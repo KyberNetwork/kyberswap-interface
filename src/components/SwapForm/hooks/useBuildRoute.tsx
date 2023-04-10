@@ -62,6 +62,7 @@ const useBuildRoute = (args: Args) => {
       abortControllerRef.current = new AbortController()
 
       const url = `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}/api/v1/route/build`
+
       const response = await buildRoute({
         url,
         payload,

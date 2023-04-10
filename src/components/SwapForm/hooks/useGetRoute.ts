@@ -81,7 +81,6 @@ const useGetRoute = (args: ArgsGetRoute) => {
     })
 
     const url = `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}/api/v1/routes`
-    // const url = `http://localhost:8014/${NETWORKS_INFO[chainId].aggregatorRoute}/api/v1/routes`
 
     triggerDebounced({
       url,
