@@ -12,6 +12,7 @@ import {
   addSerializedPair,
   addSerializedToken,
   changeViewMode,
+  permitError,
   permitUpdate,
   pinSlippageControl,
   removeSerializedPair,
@@ -97,13 +98,23 @@ interface UserState {
     [account: string]: {
       [chainId: number]: {
         [address: string]: {
-          rawSignature: string
-          deadline: number
-          value: string
+          rawSignature?: string
+          deadline?: number
+          value?: string
+          errorCount?: number
         } | null
       }
     }
   }
+  // permitError: {
+  //   [account: string]: {
+  //     [chainId: number]: {
+  //       [address: string]: {
+  //         errorCount: number
+  //       } | null
+  //     }
+  //   }
+  // }
 
   isSlippageControlPinned: boolean
 }
@@ -298,7 +309,7 @@ export default createReducer(initialState, builder =>
       if (!state.permitData[account]) state.permitData[account] = {}
       if (!state.permitData[account][chainId]) state.permitData[account][chainId] = {}
 
-      state.permitData[account][chainId][address] = { rawSignature, deadline, value }
+      state.permitData[account][chainId][address] = { rawSignature, deadline, value, errorCount: 0 }
     })
     .addCase(revokePermit, (state, { payload: { chainId, address, account } }) => {
       if (
@@ -309,6 +320,14 @@ export default createReducer(initialState, builder =>
         return
 
       state.permitData[account][chainId][address] = null
+    })
+    .addCase(permitError, (state, { payload: { chainId, address, account } }) => {
+      if (!state.permitData[account]) state.permitData[account] = {}
+      if (!state.permitData[account][chainId]) state.permitData[account][chainId] = {}
+
+      state.permitData[account][chainId][address] = {
+        errorCount: (state.permitData?.[account]?.[chainId]?.[address]?.errorCount || 0) + 1,
+      }
     })
     .addCase(pinSlippageControl, (state, { payload }) => {
       state.isSlippageControlPinned = payload

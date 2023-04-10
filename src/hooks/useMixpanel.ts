@@ -209,6 +209,9 @@ export enum MIXPANEL_TYPE {
   // price alert
   PA_CLICK_TAB_IN_NOTI_CENTER,
   PA_CREATE_SUCCESS,
+
+  // Permit
+  PERMIT_FAILED_TOO_MANY_TIMES,
 }
 
 export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES: readonly TRANSACTION_TYPE[] = [
@@ -1041,6 +1044,10 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
           break
         }
         case MIXPANEL_TYPE.PA_CREATE_SUCCESS: {
+          mixpanel.track('Create Alert', payload)
+          break
+        }
+        case MIXPANEL_TYPE.PERMIT_FAILED_TOO_MANY_TIMES: {
           mixpanel.track('Create Alert', payload)
           break
         }
