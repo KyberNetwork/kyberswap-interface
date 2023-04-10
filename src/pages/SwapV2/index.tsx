@@ -915,7 +915,7 @@ export default function Swap() {
                               color={isPriceImpactHigh || isPriceImpactInvalid ? theme.white : undefined}
                             >
                               <Text fontSize={16} fontWeight={500}>
-                                {isPriceImpactHigh ? <Trans>Swap Anyway</Trans> : <Trans>Swap</Trans>}
+                                {isPriceImpactVeryHigh ? <Trans>Swap Anyway</Trans> : <Trans>Swap</Trans>}
                               </Text>
                             </ButtonError>
                           </RowBetween>
@@ -961,10 +961,10 @@ export default function Swap() {
                               (!isDegenMode && (isPriceImpactVeryHigh || isPriceImpactInvalid)) ||
                               (isDegenMode && isSolana && !encodeSolana)
                             ) &&
-                            (isPriceImpactHigh || isPriceImpactInvalid)
+                            (isPriceImpactVeryHigh || isPriceImpactInvalid)
                               ? {
                                   background: isPriceImpactVeryHigh || isPriceImpactInvalid ? theme.red : theme.warning,
-                                  color: theme.white,
+                                  color: theme.textReverse,
                                 }
                               : {}),
                           }}
@@ -980,7 +980,7 @@ export default function Swap() {
                               <Dots>
                                 <Trans>Checking accounts</Trans>
                               </Dots>
-                            ) : isPriceImpactVeryHigh || isPriceImpactInvalid ? (
+                            ) : !isDegenMode && (isPriceImpactVeryHigh || isPriceImpactInvalid) ? (
                               <Flex alignItems="center" style={{ gap: '4px' }}>
                                 <MouseoverTooltip
                                   text={
@@ -1004,6 +1004,8 @@ export default function Swap() {
                                   <Trans>Swap Disabled</Trans>
                                 </Text>
                               </Flex>
+                            ) : isDegenMode && (isPriceImpactVeryHigh || isPriceImpactInvalid) ? (
+                              <Trans>Swap Anyway</Trans>
                             ) : (
                               <Trans>Swap</Trans>
                             )}

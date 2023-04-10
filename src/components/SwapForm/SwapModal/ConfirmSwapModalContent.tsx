@@ -328,7 +328,11 @@ export default function ConfirmSwapModalContent({
                   gap: '4px',
                 }}
               >
-                {disableSwap ? (
+                {shouldDisableConfirmButton ? (
+                  <Text fontSize={14} fontWeight={500} as="span" lineHeight={1}>
+                    <Trans>Swap</Trans>
+                  </Text>
+                ) : disableSwap ? (
                   <>
                     <MouseoverTooltip
                       text={
