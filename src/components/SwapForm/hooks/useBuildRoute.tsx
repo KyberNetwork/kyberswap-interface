@@ -47,7 +47,6 @@ const useBuildRoute = (args: Args) => {
     const payload: BuildRoutePayload = {
       routeSummary: {
         ...routeSummary,
-        // amountOut: (Number(routeSummary.amountOut) * 2).toString(),
       },
       deadline: Math.floor(Date.now() / 1000) + transactionTimeout,
       slippageTolerance: slippage,

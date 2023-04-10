@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import TransactionConfirmationModal, {
   ConfirmationModalContent,
   TransactionErrorContent,
-} from 'components/TransactionConfirmationModalV3'
+} from 'components/TransactionConfirmationModal'
 import { useActiveWeb3React } from 'hooks'
 import { useEncodeSolana, useSwapState } from 'state/swap/hooks'
 import { Aggregator } from 'utils/aggregator'
