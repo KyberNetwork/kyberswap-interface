@@ -32,7 +32,7 @@ export const getNumberOfInsufficientFundOrders = async (
 ): Promise<number> => {
   return fetch(`${LIMIT_ORDER_API_READ}/v1/orders/insufficient-funds?${stringify(params)}`, { signal })
     .then(data => data.json())
-    .then(data => data.data.total || 0)
+    .then(data => data?.data?.total || 0)
 }
 
 export const submitOrder = (data: any) => {
