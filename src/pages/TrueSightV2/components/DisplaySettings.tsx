@@ -42,7 +42,7 @@ const ViewTutorialButton = styled(RowFit)`
   }
 `
 
-const tokenAnalysisSettings = [
+const onChainAnalysisSettings = [
   {
     id: 'numberOfTrades',
     name: 'Number of Trades / Type of Trade',
@@ -75,6 +75,29 @@ const tokenAnalysisSettings = [
   {
     id: 'top25Holders',
     name: 'Top 25 Holders',
+  },
+]
+
+const technicalAnalysisSettings = [
+  {
+    id: 'liveCharts',
+    name: 'Live Charts',
+  },
+  {
+    id: 'supportResistanceLevels',
+    name: 'Support & Resistance Levels',
+  },
+  {
+    id: 'liveDEXTrades',
+    name: 'Live DEX Trades',
+  },
+  {
+    id: 'fundingRateOnCEX',
+    name: 'Funding Rate on CEX',
+  },
+  {
+    id: 'liquidationsOnCEX',
+    name: 'Liquidations on CEX',
   },
 ]
 
@@ -123,7 +146,7 @@ export default function DisplaySettings({ currentTab }: { currentTab: DiscoverTo
             hasDivider={false}
             expandContent={
               <Column gap="12px" style={{ marginTop: '12px' }}>
-                {tokenAnalysisSettings.map(t => (
+                {onChainAnalysisSettings.map(t => (
                   <RowBetween key={t.id}>
                     <Text fontSize={14}>
                       <Trans>{t.name}</Trans>
@@ -150,36 +173,17 @@ export default function DisplaySettings({ currentTab }: { currentTab: DiscoverTo
             hasDivider={false}
             expandContent={
               <Column gap="12px" style={{ marginTop: '12px' }}>
-                <RowBetween>
-                  <Text fontSize={14}>
-                    <Trans>BTC/USD / BTC/BTC</Trans>
-                  </Text>
-                  <Toggle isActive={true} toggle={() => console.log(1)} />
-                </RowBetween>
-                <RowBetween>
-                  <Text fontSize={14}>
-                    <Trans>Funding Rate on CEX</Trans>
-                  </Text>
-                  <Toggle isActive={true} toggle={() => console.log(1)} />
-                </RowBetween>
-                <RowBetween>
-                  <Text fontSize={14}>
-                    <Trans>Live DEX Trades</Trans>
-                  </Text>
-                  <Toggle isActive={true} toggle={() => console.log(1)} />
-                </RowBetween>
-                <RowBetween>
-                  <Text fontSize={14}>
-                    <Trans>Liquidations on CEX</Trans>
-                  </Text>
-                  <Toggle isActive={true} toggle={() => console.log(1)} />
-                </RowBetween>
-                <RowBetween>
-                  <Text fontSize={14}>
-                    <Trans>Netflow to Centralized Exchanges</Trans>
-                  </Text>
-                  <Toggle isActive={true} toggle={() => console.log(1)} />
-                </RowBetween>
+                {technicalAnalysisSettings.map(t => (
+                  <RowBetween key={t.id}>
+                    <Text fontSize={14}>
+                      <Trans>{t.name}</Trans>
+                    </Text>
+                    <Toggle
+                      isActive={storedTokenAnalysisSettings?.[t.id] ?? true}
+                      toggle={() => updateTokenAnalysisSettings(t.id)}
+                    />
+                  </RowBetween>
+                ))}
               </Column>
             }
           />

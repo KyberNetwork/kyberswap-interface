@@ -171,10 +171,10 @@ const TabWrapper = styled.div`
   overflow: auto;
   cursor: grab;
   display: inline-flex;
+  width: fit-content;
   gap: 8px;
   padding: 1px;
   position: relative;
-  flex: 1;
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
   > * {
@@ -619,13 +619,16 @@ export default function TokenAnalysisList() {
           </Text>
         </ButtonGray>
       </Row>
-      <Row gap="16px" justify="flex-end" flexWrap={above768 ? 'nowrap' : 'wrap'}>
+      <Row gap="16px" justify="center" flexWrap={above768 ? 'nowrap' : 'wrap'}>
         <TokenListDraggableTabs tab={currentTab} setTab={setCurrentTab} />
       </Row>
       <RowBetween>
         <Column gap="8px">
           <Text fontSize="12px" color={theme.subText} fontWeight={500}>
-            <Trans>Rankings will refresh in 04:39</Trans>
+            <Trans>
+              Rankings will refresh in <Icon id="timer" size={12} style={{ display: 'inline-block', height: '10px' }} />{' '}
+              04:39
+            </Trans>
           </Text>
           <Text fontSize="10px" color={theme.subText} fontStyle="italic">
             <Trans>Disclaimer: The information here should not be treated as any form of financial advice</Trans>

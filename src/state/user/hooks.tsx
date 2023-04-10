@@ -367,7 +367,7 @@ export function useShowTopTrendingSoonTokens(): boolean {
 }
 
 export function useTokenAnalysisSettings(): { [k: string]: boolean } {
-  return useSelector((state: AppState) => state.user.tokenAnalysisSettings) ?? null
+  return useSelector((state: AppState) => state.user.kyberAIDisplaySettings) ?? null
 }
 
 export function useUpdateTokenAnalysisSettings(): (payload: string) => void {

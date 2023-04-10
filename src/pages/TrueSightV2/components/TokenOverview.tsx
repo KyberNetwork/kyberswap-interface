@@ -100,7 +100,7 @@ export const TokenOverview = () => {
           <Row align="stretch" gap="24px" flexDirection={above768 ? 'row' : 'column'} marginBottom="12px">
             <CardWrapper style={{ justifyContent: 'space-between' }}>
               <Column>
-                <Text color={theme.text} fontSize="14px" lineHeight="20px" marginBottom="12px">
+                <Text color={theme.text} fontSize="14px" lineHeight="20px" marginBottom="12px" fontWeight={500}>
                   <Trans>Price</Trans>
                 </Text>
                 <RowFit gap="8px">
@@ -190,7 +190,13 @@ export const TokenOverview = () => {
                   placement="top"
                   width="350px"
                 >
-                  <Text style={{ borderBottom: `1px dotted ${theme.text}` }} color={theme.text}>
+                  <Text
+                    style={{ borderBottom: `1px dotted ${theme.text}` }}
+                    color={theme.text}
+                    fontSize="14px"
+                    lineHeight="20px"
+                    fontWeight={500}
+                  >
                     KyberScore
                   </Text>
                 </MouseoverTooltip>
@@ -227,7 +233,7 @@ export const TokenOverview = () => {
               </Column>
             </CardWrapper>
             <CardWrapper style={{ fontSize: '12px' }} gap="10px">
-              <Text color={theme.text} marginBottom="4px">
+              <Text color={theme.text} marginBottom="4px" fontSize="14px" lineHeight="20px" fontWeight={500}>
                 Key Stats
               </Text>
               <RowBetween>
@@ -290,7 +296,7 @@ export const TokenOverview = () => {
           </Row>
           <Row justify="center" marginBottom="38px">
             <Text fontSize="12px" lineHeight="16px" fontStyle="italic">
-              <Trans>This should not be considered as financial advice</Trans>
+              <Trans>Disclaimer: This should not be considered as financial advice</Trans>
             </Text>
           </Row>
         </>

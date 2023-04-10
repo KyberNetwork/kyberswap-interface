@@ -7,6 +7,7 @@ import styled, { useTheme } from 'styled-components'
 import { ButtonPrimary } from 'components/Button'
 import Icon from 'components/Icons/Icon'
 import Row, { RowFit } from 'components/Row'
+import { useTokenAnalysisSettings } from 'state/user/hooks'
 
 import { SectionWrapper } from '../components'
 import CexRekt from '../components/CexRekt'
@@ -104,6 +105,12 @@ export default function TechnicalAnalysis() {
     return levels.slice(0, 8)
   }, [data, isLoading])
 
+  const tokenAnalysisSettings = useTokenAnalysisSettings()
+  console.log(
+    '🚀 ~ file: TechnicalAnalysis.tsx:109 ~ TechnicalAnalysis ~ tokenAnalysisSettings:',
+    tokenAnalysisSettings,
+  )
+
   return (
     <TechnicalAnalysisContext.Provider
       value={{
@@ -115,7 +122,7 @@ export default function TechnicalAnalysis() {
     >
       <Wrapper>
         <SectionWrapper
-          show={true}
+          show={tokenAnalysisSettings?.liveCharts}
           fullscreenButton
           tabs={[`BTC/USD`, `BTC/BTC`]}
           activeTab={liveChartTab}
@@ -125,7 +132,7 @@ export default function TechnicalAnalysis() {
           <Prochart isBTC={liveChartTab === ChartTab.Second} />
         </SectionWrapper>
         <SectionWrapper
-          show={true}
+          show={tokenAnalysisSettings?.supportResistanceLevels}
           title={t`Support & Resistance Levels`}
           description={
             <Trans>
@@ -160,11 +167,15 @@ export default function TechnicalAnalysis() {
             </ButtonPrimary>
           </Row>
         </SectionWrapper>
-        <SectionWrapper title={t`Live Trades`} style={{ height: 'fit-content' }}>
+        <SectionWrapper
+          show={tokenAnalysisSettings?.liveDEXTrades}
+          title={t`Live Trades`}
+          style={{ height: 'fit-content' }}
+        >
           <LiveDEXTrades />
         </SectionWrapper>
         <SectionWrapper
-          show={true}
+          show={tokenAnalysisSettings?.fundingRateOnCEX}
           id={'fundingrate'}
           title={t`Funding Rate on Centralized Exchanges`}
           description={
@@ -193,6 +204,7 @@ export default function TechnicalAnalysis() {
           <FundingRateTable />
         </SectionWrapper>
         <SectionWrapper
+          show={tokenAnalysisSettings?.liquidationsOnCEX}
           title={t`Liquidations on Centralized Exchanges`}
           description={`Liquidations describe the forced closing of a trader&apos;s futures position due to the partial or total loss
           of their collateral. This happens when a trader has insufficient funds to keep a leveraged trade

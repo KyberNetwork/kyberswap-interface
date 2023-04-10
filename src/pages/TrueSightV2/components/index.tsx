@@ -16,7 +16,8 @@ import { MEDIA_WIDTHS } from 'theme'
 import { ChartTab } from '../types'
 
 export const StyledSectionWrapper = styled.div<{ show?: boolean }>`
-  content-visibility: ${({ show }) => (show ?? 'auto' ? 'auto' : 'hidden')};
+  display: ${({ show }) => (show ?? 'auto' ? 'auto' : 'none !important')};
+  content-visibility: auto;
   padding: 16px;
   border-radius: 20px;
   border: 1px solid ${({ theme }) => theme.border};
@@ -333,7 +334,12 @@ const StyledMobileTabButton = styled.div<{ active?: boolean }>`
         `
       : css`
           color: ${theme.subText};
+          background-color: ${theme.background};
         `}
+
+  :hover {
+    filter: brightness(1.2);
+  }
 `
 
 export const TabButton = ({

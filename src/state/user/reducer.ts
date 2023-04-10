@@ -78,7 +78,7 @@ interface UserState {
   showTradeRoutes: boolean
   showTokenInfo: boolean
   showTopTrendingSoonTokens: boolean
-  tokenAnalysisSettings: {
+  kyberAIDisplaySettings: {
     [k: string]: boolean
   }
   favoriteTokensByChainId: Partial<
@@ -144,7 +144,7 @@ const initialState: UserState = {
   showTradeRoutes: true,
   showTokenInfo: true,
   showTopTrendingSoonTokens: true,
-  tokenAnalysisSettings: {
+  kyberAIDisplaySettings: {
     numberOfTrades: true,
     numberOfHolders: true,
     tradingVolume: true,
@@ -153,6 +153,11 @@ const initialState: UserState = {
     volumeOfTransfers: true,
     top10Holders: true,
     top25Holders: true,
+    liveCharts: true,
+    supportResistanceLevels: true,
+    liveDEXTrades: true,
+    fundingRateOnCEX: true,
+    liquidationsOnCEX: true,
   },
   favoriteTokensByChainId: {},
   chainId: ChainId.MAINNET,
@@ -290,10 +295,10 @@ export default createReducer(initialState, builder =>
       state.acceptedTermVersion = acceptedTermVersion
     })
     .addCase(updateTokenAnalysisSettings, (state, { payload }) => {
-      if (!state.tokenAnalysisSettings) {
-        state.tokenAnalysisSettings = {}
+      if (!state.kyberAIDisplaySettings) {
+        state.kyberAIDisplaySettings = {}
       }
-      state.tokenAnalysisSettings[payload] = !state.tokenAnalysisSettings[payload] ?? false
+      state.kyberAIDisplaySettings[payload] = !state.kyberAIDisplaySettings[payload] ?? false
     })
     .addCase(changeViewMode, (state, { payload: viewType }) => {
       state.viewMode = viewType

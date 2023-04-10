@@ -392,7 +392,7 @@ export const NumberofTradesChart = () => {
                       {payload.timestamp && dayjs(payload.timestamp * 1000).format('MMM DD, YYYY')}
                     </Text>
                     <Text fontSize="12px" lineHeight="16px" color={theme.text}>
-                      Total Trade: <span style={{ color: theme.text }}>{formatNum(payload.totalTrade, 2)}</span>
+                      Total Trades: <span style={{ color: theme.text }}>{formatNum(payload.totalTrade, 2)}</span>
                     </Text>
                     <RowBetween fontSize="12px" lineHeight="16px" color={theme.primary}>
                       <Text>Buys:</Text> <Text>{formatNum(payload.buy, 2)}</Text>
