@@ -45,9 +45,7 @@ const useBuildRoute = (args: Args) => {
     }
 
     const payload: BuildRoutePayload = {
-      routeSummary: {
-        ...routeSummary,
-      },
+      routeSummary,
       deadline: Math.floor(Date.now() / 1000) + transactionTimeout,
       slippageTolerance: slippage,
       sender: account,
