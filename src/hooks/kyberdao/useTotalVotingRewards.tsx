@@ -207,7 +207,7 @@ export default function useTotalVotingReward(): {
 
   return {
     usd: totalVotingRewardWithCache,
-    knc: Math.floor(totalVotingRewardWithCache / kncPriceWithCache),
+    knc: kncPriceWithCache !== 0 ? Math.floor(totalVotingRewardWithCache / kncPriceWithCache) : 0,
     kncPriceETH: kncPriceWithCache,
   }
 }
