@@ -210,10 +210,13 @@ const SwapActionButton: React.FC<Props> = ({
                   <RowFit gap="4px">
                     <InfoHelper
                       color={theme.textReverse}
+                      placement="top"
                       text={
                         <Trans>
                           You need to first allow KyberSwap&apos;s smart contract to use your KNC.{' '}
-                          <a href="https://docs.kyberswap.com">Read more ↗</a>
+                          <a href="https://docs.kyberswap.com" target="_blank" rel="noreferrer">
+                            Read more ↗
+                          </a>
                         </Trans>
                       }
                     />
@@ -233,10 +236,14 @@ const SwapActionButton: React.FC<Props> = ({
                 <RowFit gap="4px">
                   <InfoHelper
                     color={theme.textReverse}
+                    placement="top"
                     text={
                       <Trans>
                         You need to first give a temporary 24H approval approval to KyberSwaps smart contract to use
-                        your KNC. This doesnt require a gas fee. <a href="https://docs.kyberswap.com">Read more ↗</a>
+                        your KNC. This doesnt require a gas fee.{' '}
+                        <a href="https://docs.kyberswap.com" target="_blank" rel="noreferrer">
+                          Read more ↗
+                        </a>
                       </Trans>
                     }
                   />

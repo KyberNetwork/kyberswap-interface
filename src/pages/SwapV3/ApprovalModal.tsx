@@ -137,9 +137,12 @@ const ApprovalModal = ({
         </RowBetween>
 
         <Column gap="12px" style={{ marginBottom: '20px' }}>
-          <Text fontSize="14px" lineHeight="20px" color={theme.subText}>
+          <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
             <Trans>
-              Choose between Infinite or Custom allowance. <a href="https://docs.kyberswap.com">Read more ↗</a>
+              Choose between Infinite or Custom allowance.{' '}
+              <a href="https://docs.kyberswap.com" target="_blank" rel="noreferrer">
+                Read more ↗
+              </a>
             </Trans>
           </Text>
           <OptionWrapper active={option === ApproveOptions.Infinite} onClick={() => setOption(ApproveOptions.Infinite)}>
