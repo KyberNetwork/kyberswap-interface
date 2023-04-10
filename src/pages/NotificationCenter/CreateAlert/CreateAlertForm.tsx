@@ -17,11 +17,11 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import TradePrice from 'components/swapv2/TradePrice'
 import { useActiveWeb3React } from 'hooks'
 import { useBaseTradeInfoWithAggregator } from 'hooks/useBaseTradeInfo'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import InputNote from 'pages/NotificationCenter/CreateAlert/InputNote'
 import {
   ActionGroup,
-  ButtonCancel,
   ButtonConnectWallet,
   ButtonSubmit,
   Form,
@@ -47,6 +47,7 @@ import {
 import { getTokenAddress } from 'pages/NotificationCenter/helper'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
+import { formatTimeDuration } from 'utils/time'
 
 const defaultInput = {
   tokenInAmount: '1',
@@ -67,9 +68,13 @@ export default function CreateAlert({
   const toggleWalletModal = useWalletModalToggle()
   const [selectedChain, setSelectedChain] = useState(chainId)
 
-  const { currencyIn, currencyOut, onChangeCurrencyIn, onChangeCurrencyOut } = useCurrencyHandler(selectedChain)
+  const { currencyIn, currencyOut, onChangeCurrencyIn, onChangeCurrencyOut, inputAmount } =
+    useCurrencyHandler(selectedChain)
 
-  const [formInput, setFormInput] = useState<{ tokenInAmount: string; threshold: string; note: string }>(defaultInput)
+  const [formInput, setFormInput] = useState<{ tokenInAmount: string; threshold: string; note: string }>({
+    ...defaultInput,
+    tokenInAmount: inputAmount,
+  })
   const [disableAfterTrigger, setDisableAfterTrigger] = useState(false)
   const [cooldown, setCooldown] = useState(DEFAULT_ALERT_COOLDOWN)
   const [alertType, setAlertType] = useState<PriceAlertType>(PriceAlertType.ABOVE)
@@ -124,7 +129,7 @@ export default function CreateAlert({
     if (!fillAllInput || !parsedAmount) return false
     return true
   }
-
+  const { mixpanelHandler } = useMixpanel()
   const onSubmitAlert = async () => {
     try {
       if (!isInputValid()) return
@@ -148,6 +153,13 @@ export default function CreateAlert({
         currencyOut,
       })
       resetForm()
+      mixpanelHandler(MIXPANEL_TYPE.PA_CREATE_SUCCESS, {
+        input_token: currencyIn.symbol,
+        output_token: currencyOut.symbol,
+        goes: alertType,
+        cooldown: formatTimeDuration(cooldown),
+        disable_the_alert: disableAfterTrigger ? 'yes' : 'no',
+      })
     } catch (error) {
       console.error('create alert err', error)
       const msg = error?.data?.message || t`Error occur, please try again`
@@ -202,28 +214,29 @@ export default function CreateAlert({
               )}
             />
 
-            <StyledInputNumber
-              value={formInput.tokenInAmount}
-              onUserInput={val => onChangeInput('tokenInAmount', val)}
-            />
-
-            <div>
-              <CurrencyInputPanel
-                hideInput
-                value={''}
-                currency={currencyIn}
-                hideBalance
-                onMax={null}
-                onHalf={null}
-                onCurrencySelect={onChangeCurrencyIn}
-                otherCurrency={currencyOut}
-                id="alert-currency-input"
-                showCommonBases={true}
-                styleSelect={styleCurrencySelect}
-                fontSize={'14px'}
-                customChainId={selectedChain}
+            <Flex sx={{ gap: '12px' }}>
+              <StyledInputNumber
+                value={formInput.tokenInAmount}
+                onUserInput={val => onChangeInput('tokenInAmount', val)}
               />
-            </div>
+              <div>
+                <CurrencyInputPanel
+                  hideInput
+                  value={''}
+                  currency={currencyIn}
+                  hideBalance
+                  onMax={null}
+                  onHalf={null}
+                  onCurrencySelect={onChangeCurrencyIn}
+                  otherCurrency={currencyOut}
+                  id="alert-currency-input"
+                  showCommonBases={true}
+                  styleSelect={styleCurrencySelect}
+                  fontSize={'14px'}
+                  customChainId={selectedChain}
+                />
+              </div>
+            </Flex>
 
             <MiniLabel>
               <Trans>to</Trans>
@@ -299,7 +312,7 @@ export default function CreateAlert({
           <RowBetween>
             <MouseoverTooltip
               placement="top"
-              text={t`To specify the amount of time that must pass before the alert can be fire again`}
+              text={t`Specify the amount of time that must pass before the alert can be fired again`}
             >
               <MiniLabel style={{ borderBottom: `1px dotted ${theme.border}` }}>
                 <Trans>Cooldown</Trans>
@@ -345,19 +358,14 @@ export default function CreateAlert({
 
       <ActionGroup>
         {account ? (
-          <>
-            <ButtonCancel onClick={resetForm}>
-              <Trans>Cancel</Trans>
-            </ButtonCancel>
-            <ButtonSubmit onClick={onSubmitAlert} disabled={!isInputValid()}>
-              {isMaxQuota && (
-                <MouseoverTooltip text={`You have created the maximum number of alerts allowed`}>
-                  <Info size={16} />
-                </MouseoverTooltip>
-              )}
-              <Trans>Create Alert</Trans>
-            </ButtonSubmit>
-          </>
+          <ButtonSubmit onClick={onSubmitAlert} disabled={!isInputValid()}>
+            {isMaxQuota && (
+              <MouseoverTooltip text={`You have created the maximum number of alerts allowed`}>
+                <Info size={16} />
+              </MouseoverTooltip>
+            )}
+            <Trans>Create Alert</Trans>
+          </ButtonSubmit>
         ) : (
           <ButtonConnectWallet onClick={toggleWalletModal}>
             <Trans>Connect Wallet</Trans>
