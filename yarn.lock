@@ -2001,7 +2001,7 @@
     tiny-warning "^1.0.3"
     toformat "^2.0.0"
 
-"@kyberswap/ks-sdk-core@^1.0.1", "@kyberswap/ks-sdk-core@^1.0.5":
+"@kyberswap/ks-sdk-core@^1.0.5":
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/@kyberswap/ks-sdk-core/-/ks-sdk-core-1.0.5.tgz#a8e2a8cbff1fdbf371aa9d4555ccd53dae927b09"
   integrity sha512-QGcoL9LE0XxsCirUNR/H8wg7eTKwixsbG9Q3xoKp1hjB6N+mmi+PFBLvjsV5ETGtDljL/GQxh+YcK5q+4Ej1FA==
@@ -2027,12 +2027,12 @@
     tiny-invariant "^1.1.0"
     tiny-warning "^1.0.3"
 
-"@kyberswap/ks-sdk-solana@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@kyberswap/ks-sdk-solana/-/ks-sdk-solana-1.0.1.tgz#0e929f1a2598c19cc0a57aa5286383daa564b583"
-  integrity sha512-39Hz2ChDOHwQ7Zza8UN0WMHQYIzEjiEX/nCbB/N7vWdQOltDaQ3gOtkJoRAudKwYslhGzPHLmhnyWiMvXzqyLw==
+"@kyberswap/ks-sdk-solana@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@kyberswap/ks-sdk-solana/-/ks-sdk-solana-1.0.2.tgz#22c93b13c529890db97bbfbd3e4a0ef63e990d56"
+  integrity sha512-CFJ/pYzb9PzWeqm/w7CQ4pWXRA8uDvMNln3UpH7idIDgJfJQl7dv6CfWSTtjchotyTKgG34Wy9WAC2w979gp7A==
   dependencies:
-    "@kyberswap/ks-sdk-core" "^1.0.1"
+    "@kyberswap/ks-sdk-core" "^1.0.5"
     "@project-serum/anchor" "^0.25.0"
     "@solana/spl-token" "~0.3.6"
     "@solana/web3.js" "^1.66.2"

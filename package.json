@@ -44,7 +44,7 @@
     "@kyberswap/ks-sdk-classic": "^1.0.3",
     "@kyberswap/ks-sdk-core": "^1.0.5",
     "@kyberswap/ks-sdk-elastic": "^1.0.6",
-    "@kyberswap/ks-sdk-solana": "^1.0.1",
+    "@kyberswap/ks-sdk-solana": "^1.0.2",
     "@lingui/loader": "~3.14.0",
     "@lingui/macro": "^3.17.2",
     "@lingui/react": "^3.17.2",
