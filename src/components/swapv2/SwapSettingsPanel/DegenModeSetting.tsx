@@ -1,13 +1,13 @@
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
-import { Dispatch, FC, SetStateAction } from 'react'
+import React, { Dispatch, FC, SetStateAction } from 'react'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 
-import InfoHelper from 'components/InfoHelper'
 import Toggle from 'components/Toggle'
+import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import AdvanceModeModal from 'components/TransactionSettings/AdvanceModeModal'
-import SettingLabel from 'components/swapv2/SwapSettingsPanel/SettingLabel'
+import useTheme from 'hooks/useTheme'
 import { useDegenModeManager } from 'state/user/hooks'
 
 type Props = {
@@ -29,22 +29,25 @@ const DegenModeSetting: FC<Props> = ({ className, showConfirmation, setShowConfi
     setShowConfirmation(true)
   }
 
+  const theme = useTheme()
+
   return (
     <>
       <Flex justifyContent="space-between" className={className}>
         <Flex width="fit-content" alignItems="center">
-          <SettingLabel>
-            <Trans>Degen Mode</Trans>
-          </SettingLabel>
-          <InfoHelper
-            placement="top"
-            text={
-              <Trans>
-                Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can
-                result in bad rates and loss of funds. Be cautious.
-              </Trans>
-            }
-          />
+          <TextDashed fontSize={12} fontWeight={400} color={theme.text} underlineColor={theme.subText}>
+            <MouseoverTooltip
+              text={
+                <Trans>
+                  Turn this on to make trades with very high price impact or to set very high slippage tolerance. This
+                  can result in bad rates and loss of funds. Be cautious.
+                </Trans>
+              }
+              placement="right"
+            >
+              <Trans>Degen Mode</Trans>
+            </MouseoverTooltip>
+          </TextDashed>
         </Flex>
         <Toggle id="toggle-expert-mode-button" isActive={isDegenMode} toggle={handleToggleAdvancedMode} />
       </Flex>

@@ -4,37 +4,17 @@ import { useDispatch } from 'react-redux'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
-import InfoHelper from 'components/InfoHelper'
 import SlippageControl from 'components/SlippageControl'
+import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import PinButton from 'components/swapv2/SwapSettingsPanel/PinButton'
-import SettingLabel from 'components/swapv2/SwapSettingsPanel/SettingLabel'
 import { DEFAULT_SLIPPAGE, DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP } from 'constants/index'
+import useTheme from 'hooks/useTheme'
 import { useAppSelector } from 'state/hooks'
 import { useCheckStablePairSwap } from 'state/swap/hooks'
 import { pinSlippageControl } from 'state/user/actions'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { SLIPPAGE_STATUS, checkRangeSlippage } from 'utils/slippage'
-
-export const InfoHelperForMaxSlippage = () => {
-  return (
-    <InfoHelper
-      size={12}
-      width="320px"
-      placement="right"
-      text={
-        <Text>
-          <Trans>
-            During your swap if the price changes by more than this %, your transaction will revert. Read more{' '}
-            <ExternalLink href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/slippage">
-              here ↗
-            </ExternalLink>
-          </Trans>
-        </Text>
-      }
-    />
-  )
-}
 
 const Message = styled.div`
   font-size: 12px;
@@ -60,6 +40,7 @@ const SlippageSetting: React.FC<Props> = ({ shouldShowPinButton = true }) => {
   const isStablePairSwap = useCheckStablePairSwap()
   const slippageStatus = checkRangeSlippage(rawSlippage, isStablePairSwap)
   const isWarning = slippageStatus !== SLIPPAGE_STATUS.NORMAL
+  const theme = useTheme()
 
   const isSlippageControlPinned = useAppSelector(state => state.user.isSlippageControlPinned)
 
@@ -79,10 +60,23 @@ const SlippageSetting: React.FC<Props> = ({ shouldShowPinButton = true }) => {
           alignItems: 'center',
         }}
       >
-        <SettingLabel>
-          <Trans>Max Slippage</Trans>
-        </SettingLabel>
-        <InfoHelperForMaxSlippage />
+        <TextDashed fontSize={12} fontWeight={400} color={theme.text} underlineColor={theme.subText}>
+          <MouseoverTooltip
+            text={
+              <Text>
+                <Trans>
+                  During your swap if the price changes by more than this %, your transaction will revert. Read more{' '}
+                  <ExternalLink href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/slippage">
+                    here ↗
+                  </ExternalLink>
+                </Trans>
+              </Text>
+            }
+            placement="right"
+          >
+            <Trans>Max Slippage</Trans>
+          </MouseoverTooltip>
+        </TextDashed>
 
         {shouldShowPinButton && (
           <PinButton isActive={isSlippageControlPinned} onClick={handleClickPinSlippageControl} />
