@@ -62,8 +62,8 @@ export interface PoolResponse {
   }
 }
 
-export const transformData = (res: CandleResponse): Bar[] => {
-  const tmp = JSON.parse(JSON.stringify(res?.data?.attributes.ohlcv_list || [])).reverse()
+export const transformData = (res: CandleResponse['data']['attributes']['ohlcv_list']): Bar[] => {
+  const tmp = JSON.parse(JSON.stringify(res || [])).reverse()
 
   return tmp.map((item: any) => {
     return {

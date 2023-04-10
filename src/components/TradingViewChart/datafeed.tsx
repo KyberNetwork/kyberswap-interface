@@ -78,24 +78,37 @@ export const useDatafeed = (poolDetail: PoolResponse, isReverse: boolean, label:
       ) => {
         if (isLoading) return
 
-        const { to, countBack } = periodParams
+        const { from, to, countBack } = periodParams
 
-        const data = await getCandles({
-          network: networkInfo.geckoTermialId || '',
-          poolAddress: poolDetail.attributes.address,
-          timeframe: resolution === '1D' ? 'day' : Number(resolution) > 15 ? 'hour' : 'minute',
-          timePeriod: resolution === '1D' ? '1' : Number(resolution) > 15 ? Number(resolution) / 60 : resolution,
-          token: isReverse ? 'quote' : 'base',
-          before_timestamp: to,
-          limit: countBack,
-        })
+        const timeframe = resolution === '1D' ? 'day' : Number(resolution) > 15 ? 'hour' : 'minute'
+        const timePeriod = resolution === '1D' ? '1' : Number(resolution) > 15 ? Number(resolution) / 60 : resolution
 
-        if (data.error || !data.data?.data?.attributes?.ohlcv_list?.length) {
+        const secondsPerCandle = (to - from) / countBack
+
+        const promises = []
+        const n = Math.ceil(countBack / 1000)
+        for (let i = 0; i < n; i++) {
+          promises.push(
+            getCandles({
+              network: networkInfo.geckoTermialId || '',
+              poolAddress: poolDetail.attributes.address,
+              timeframe,
+              timePeriod,
+              token: isReverse ? 'quote' : 'base',
+              before_timestamp: to - i * 1000 * secondsPerCandle,
+              limit: countBack > 1000 ? (i === n - 1 ? countBack % 1000 : 1000) : countBack,
+            }),
+          )
+        }
+
+        const res = await Promise.all(promises)
+
+        if (res.some(data => data.error || !data.data?.data?.attributes?.ohlcv_list?.length)) {
           onHistoryCallback([], { noData: true })
           return
         }
 
-        const bars = transformData(data.data)
+        const bars = transformData(res.map(item => item.data?.data.attributes.ohlcv_list).flat() as any)
 
         onHistoryCallback(bars, { noData: false })
       },
@@ -119,7 +132,8 @@ export const useDatafeed = (poolDetail: PoolResponse, isReverse: boolean, label:
             limit: 1,
             token: isReverse ? 'quote' : 'base',
           })
-          if (data.data?.data?.attributes?.ohlcv_list?.length) onTick(transformData(data.data)[0])
+          if (data.data?.data?.attributes?.ohlcv_list?.length)
+            onTick(transformData(data.data.data.attributes.ohlcv_list)[0])
         }
         if (intervalRef.current) clearInterval(intervalRef.current)
         intervalRef.current = setInterval(getData, 30000)
