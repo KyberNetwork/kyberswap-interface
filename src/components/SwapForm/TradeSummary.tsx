@@ -42,7 +42,7 @@ const Wrapper = styled.div.attrs<WrapperProps>(props => ({
   width: 100%;
   max-width: 425px;
   border-radius: 16px;
-  background-color: ${({ theme }) => theme.background};
+  background-color: ${({ theme }) => theme.buttonBlack};
   max-height: 0;
   transition: height 300ms ease-in-out, transform 300ms;
   border: 1px solid ${({ theme }) => theme.border};
@@ -50,7 +50,7 @@ const Wrapper = styled.div.attrs<WrapperProps>(props => ({
 
   &[data-visible='true'] {
     display: block;
-    padding: 12px 16px;
+    padding: 12px 12px;
     max-height: max-content;
     color: ${({ theme }) => theme.text};
   }
@@ -109,11 +109,11 @@ const TradeSummary: React.FC<Props> = ({ feeConfig, routeSummary, slippage }) =>
     <Wrapper $visible={alreadyVisible} $disabled={!hasTrade}>
       <AutoColumn>
         <RowBetween style={{ cursor: 'pointer' }} onClick={handleClickExpand} role="button">
-          <Text fontSize={12} fontWeight={500}>
+          <Text fontSize={12} fontWeight={500} color={theme.text}>
             <Trans>MORE INFORMATION</Trans>
           </Text>
           <IconWrapper $flip={expanded}>
-            <DropdownSVG />
+            <DropdownSVG color={theme.text} />
           </IconWrapper>
         </RowBetween>
         <ContentWrapper $expanded={expanded} gap="0.75rem">

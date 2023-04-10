@@ -1048,8 +1048,8 @@ export default function Swap() {
                   refreshListOrder={refreshListOrder}
                 />
               )}
+              {isSwapPage && <AdvancedSwapDetailsDropdown trade={trade} feeConfig={feeConfig} />}
             </AppBodyWrapped>
-            {isSwapPage && <AdvancedSwapDetailsDropdown trade={trade} feeConfig={feeConfig} />}
           </SwapFormWrapper>
 
           {(isShowLiveChart || isShowTradeRoutes || shouldRenderTokenInfo || isLimitPage) && (

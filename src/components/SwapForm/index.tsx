@@ -174,12 +174,13 @@ const SwapForm: React.FC<SwapFormProps> = props => {
             />
 
             <AutoRow justify="space-between">
-              <Flex alignItems="center">
+              <Flex alignItems="center" style={{ gap: '4px' }}>
                 {!isWrapOrUnwrap && (
                   <>
                     <RefreshButton
                       shouldDisable={!parsedAmount || parsedAmount.equalTo(0) || isProcessingSwap}
                       callback={getRoute}
+                      size={16}
                     />
                     <TradePrice price={routeSummary?.executionPrice} />
                   </>

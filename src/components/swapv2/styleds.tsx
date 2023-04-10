@@ -112,7 +112,6 @@ export const StyledBalanceMaxMini = styled.button<{ hover?: boolean }>`
   padding: 0.2rem;
   font-size: 0.875rem;
   font-weight: 400;
-  margin-left: 0.25rem;
   cursor: pointer;
   color: ${({ theme }) => theme.text2};
   display: flex;
