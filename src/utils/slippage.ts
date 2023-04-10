@@ -17,10 +17,9 @@ export const checkRangeSlippage = (slippage: number, isStablePairSwap: boolean):
     return SLIPPAGE_STATUS.LOW
   }
 
-  // https://www.notion.so/Improvement-High-Priority-Swap-UI-Release-2-e9abc73ee4764cee8c863c51ec0bc996?d=e025cc0d420242aca11df9a04dfe56cc#ae0f28d5e892430cbfb50cfc8504ddbb
-  // if (slippage >= 500) {
-  //   return SLIPPAGE_STATUS.HIGH
-  // }
+  if (slippage >= 500) {
+    return SLIPPAGE_STATUS.HIGH
+  }
 
   return SLIPPAGE_STATUS.NORMAL
 }
@@ -30,7 +29,7 @@ export const checkWarningSlippage = (slippage: number, isStablePairSwap: boolean
 }
 
 export const formatSlippage = (slp: number, withPercent = true) => {
-  let text = ''
+  let text
   if (slp % 100 === 0) {
     text = String(slp / 100)
   } else if (slp % 10 === 0) {

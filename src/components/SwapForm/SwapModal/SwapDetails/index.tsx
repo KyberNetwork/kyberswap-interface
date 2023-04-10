@@ -9,6 +9,7 @@ import InfoHelper from 'components/InfoHelper'
 import { RowBetween, RowFixed } from 'components/Row'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import ValueWithLoadingSkeleton from 'components/SwapForm/SwapModal/SwapDetails/ValueWithLoadingSkeleton'
+import useCheckStablePairSwap from 'components/SwapForm/hooks/useCheckStablePairSwap'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { StyledBalanceMaxMini } from 'components/swapv2/styleds'
 import { useActiveWeb3React } from 'hooks'
@@ -68,12 +69,14 @@ export default function SwapDetails({
   const { isEVM } = useActiveWeb3React()
   const [showInverted, setShowInverted] = useState<boolean>(false)
   const theme = useTheme()
-  const { feeConfig, slippage } = useSwapFormContext()
+  const { feeConfig, slippage, routeSummary } = useSwapFormContext()
+
+  const currencyIn = routeSummary?.parsedAmountIn?.currency
+  const currencyOut = routeSummary?.parsedAmountOut?.currency
 
   const formattedFeeAmountUsd = getFormattedFeeAmountUsdV2(Number(amountInUsd || 0), feeConfig?.feeAmount)
 
   const minimumAmountOut = parsedAmountOut ? minimumAmountAfterSlippage(parsedAmountOut, slippage) : undefined
-  const currencyOut = parsedAmountOut?.currency
   const minimumAmountOutStr =
     minimumAmountOut && currencyOut ? (
       <Flex style={{ color: theme.text, fontWeight: 500, whiteSpace: 'nowrap' }}>
@@ -87,6 +90,7 @@ export default function SwapDetails({
     )
 
   const priceImpactResult = checkPriceImpact(priceImpact)
+  const isStablePair = useCheckStablePairSwap(currencyIn, currencyOut)
 
   return (
     <>
@@ -247,7 +251,7 @@ export default function SwapDetails({
             </TextDashed>
           </RowFixed>
 
-          <TYPE.black fontSize={12} color={checkWarningSlippage(slippage, false) ? theme.warning : undefined}>
+          <TYPE.black fontSize={12} color={checkWarningSlippage(slippage, isStablePair) ? theme.warning : undefined}>
             {formatSlippage(slippage)}
           </TYPE.black>
         </RowBetween>
