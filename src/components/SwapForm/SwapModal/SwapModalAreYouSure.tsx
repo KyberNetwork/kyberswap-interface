@@ -7,6 +7,7 @@ import styled from 'styled-components'
 
 import { ButtonErrorStyle, ButtonOutlined } from 'components/Button'
 import Modal from 'components/Modal'
+import useTheme from 'hooks/useTheme'
 
 const ModalContentWrapper = styled.div`
   display: flex;
@@ -62,6 +63,8 @@ export default function SwapModalAreYouSure({
       setShow(false)
     }
   }
+
+  const theme = useTheme()
 
   return (
     <Modal
