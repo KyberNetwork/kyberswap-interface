@@ -121,7 +121,6 @@ export default function HeaderRightMenu({
   return (
     <SwapFormActions onMouseEnter={onMouseEnterMenu} onMouseLeave={onMouseLeaveMenu}>
       {isShowHeaderMenu && (
-        // {true && (
         <>
           <Tutorial
             type={TutorialType.SWAP}
