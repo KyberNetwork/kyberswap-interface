@@ -843,9 +843,9 @@ export const NetflowToWhaleWallets = ({ tab }: { tab?: ChartTab }) => {
                   dataKey="timestamp"
                   tickLine={false}
                   axisLine={false}
-                  tick={{ fill: theme.subText, fontWeight: 400 }}
+                  tick={{ fill: theme.subText, fontWeight: 400, fontSize: 10 }}
                   tickFormatter={value =>
-                    dayjs(value).format(timeframe === KyberAITimeframe.ONE_DAY ? 'MMM DD HH:mm' : 'MMM DD')
+                    dayjs(value).format(timeframe === KyberAITimeframe.ONE_DAY ? 'HH:mm A, MMM DD' : 'MMM DD')
                   }
                 />
                 <YAxis
@@ -1623,7 +1623,7 @@ export const LiquidOnCentralizedExchanges = () => {
                 tickLine={false}
                 axisLine={false}
                 tick={{ fill: theme.subText, fontWeight: 400 }}
-                tickFormatter={value => dayjs(value).format(timeframe === '1D' ? 'MMM DD HH:mm' : 'MMM DD')}
+                tickFormatter={value => dayjs(value).format(timeframe === '1D' ? 'HH:mm a,MMM DD ' : 'MMM DD')}
               />
               <YAxis
                 yAxisId="left"
@@ -1831,6 +1831,7 @@ export const Prochart = ({ isBTC }: { isBTC?: boolean }) => {
       tvWidget.applyOverrides({
         'paneProperties.backgroundType': 'solid',
         'paneProperties.background': theme.darkMode ? theme.buttonBlack : theme.background,
+        'mainSeriesProperties.priceLineColor': theme.blue,
         'mainSeriesProperties.candleStyle.upColor': theme.primary,
         'mainSeriesProperties.candleStyle.borderUpColor': theme.primary,
         'mainSeriesProperties.candleStyle.wickUpColor': theme.primary,
@@ -1847,6 +1848,7 @@ export const Prochart = ({ isBTC }: { isBTC?: boolean }) => {
           tvWidget.activeChart().getPanes()[1].setHeight(120)
           setLoading(false)
         })
+      tvWidget.activeChart().createStudy('Moving Average Exponential')
       setTvWidget(tvWidget)
       tvWidget
         .activeChart()
@@ -1875,9 +1877,9 @@ export const Prochart = ({ isBTC }: { isBTC?: boolean }) => {
   const entityIds = useRef<(EntityId | null)[]>([])
   useEffect(() => {
     if (!tvWidget || !SRLevels || !currentPrice) return
-    const subscriptionDataLoaded = tvWidget.activeChart().onDataLoaded()
+    const subscriptionDataLoaded = tvWidget.activeChart()?.onDataLoaded()
 
-    subscriptionDataLoaded.subscribe(null, () => {
+    subscriptionDataLoaded?.subscribe(null, () => {
       entityIds.current?.forEach(entityId => {
         return entityId && tvWidget.activeChart().removeEntity(entityId)
       })
