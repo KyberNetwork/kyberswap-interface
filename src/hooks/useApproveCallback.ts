@@ -31,7 +31,6 @@ export function useApproveCallback(
   const { account, isSolana } = useActiveWeb3React()
   const token = amountToApprove?.currency.wrapped
   const currentAllowance = useTokenAllowance(token, account ?? undefined, spender)
-  console.log('🚀 ~ file: useApproveCallback.ts:34 ~ currentAllowance:', currentAllowance)
   const pendingApproval = useHasPendingApproval(token?.address, spender)
   // check the current approval status
   const approvalState: ApprovalState = useMemo(() => {
