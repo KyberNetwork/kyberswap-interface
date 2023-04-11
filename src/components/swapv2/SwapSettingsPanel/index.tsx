@@ -161,7 +161,7 @@ const SettingsPanel: React.FC<Props> = ({
               {shouldShowTrendingSoonSetting && (
                 <RowBetween>
                   <RowFixed>
-                    <TextDashed fontSize={12} fontWeight={400} color={theme.text} underlineColor={theme.subText}>
+                    <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
                       <MouseoverTooltip
                         text={<Trans>Turn on to display tokens that could be trending soon</Trans>}
                         placement="right"
@@ -187,7 +187,7 @@ const SettingsPanel: React.FC<Props> = ({
               )}
               <RowBetween>
                 <RowFixed>
-                  <TextDashed fontSize={12} fontWeight={400} color={theme.text} underlineColor={theme.subText}>
+                  <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
                     <MouseoverTooltip text={<Trans>Turn on to display live chart</Trans>} placement="right">
                       <Trans>Live Chart</Trans>
                     </MouseoverTooltip>
@@ -199,7 +199,7 @@ const SettingsPanel: React.FC<Props> = ({
                 <>
                   <RowBetween>
                     <RowFixed>
-                      <TextDashed fontSize={12} fontWeight={400} color={theme.text} underlineColor={theme.subText}>
+                      <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
                         <MouseoverTooltip text={<Trans>Turn on to display trade route</Trans>} placement="right">
                           <Trans>Trade Route</Trans>
                         </MouseoverTooltip>
@@ -209,7 +209,7 @@ const SettingsPanel: React.FC<Props> = ({
                   </RowBetween>
                   <RowBetween>
                     <RowFixed>
-                      <TextDashed fontSize={12} fontWeight={400} color={theme.text} underlineColor={theme.subText}>
+                      <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
                         <MouseoverTooltip text={<Trans>Turn on to display token info</Trans>} placement="right">
                           <Trans>Token Info</Trans>
                         </MouseoverTooltip>

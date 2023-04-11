@@ -49,7 +49,7 @@ const LiquiditySourcesSetting: React.FC<Props> = ({ onClick }) => {
       onClick={onClick}
     >
       <Group>
-        <TextDashed fontSize={12} fontWeight={400} color={theme.text} underlineColor={theme.subText}>
+        <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
           <MouseoverTooltip
             text={<Trans>Your trade is routed through one or more of these liquidity sources</Trans>}
             placement="right"

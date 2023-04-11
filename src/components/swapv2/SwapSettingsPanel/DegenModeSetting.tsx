@@ -35,7 +35,7 @@ const DegenModeSetting: FC<Props> = ({ className, showConfirmation, setShowConfi
     <>
       <Flex justifyContent="space-between" className={className}>
         <Flex width="fit-content" alignItems="center">
-          <TextDashed fontSize={12} fontWeight={400} color={theme.text} underlineColor={theme.subText}>
+          <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
             <MouseoverTooltip
               text={
                 <Trans>

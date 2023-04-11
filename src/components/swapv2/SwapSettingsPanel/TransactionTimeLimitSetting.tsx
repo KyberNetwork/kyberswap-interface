@@ -64,7 +64,7 @@ const TransactionTimeLimitSetting: React.FC<Props> = ({ className }) => {
   return (
     <Flex justifyContent={'space-between'} alignItems="center" className={className}>
       <Flex alignItems="center">
-        <TextDashed fontSize={12} fontWeight={400} color={theme.text} underlineColor={theme.subText}>
+        <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
           <MouseoverTooltip
             text={
               <Text>

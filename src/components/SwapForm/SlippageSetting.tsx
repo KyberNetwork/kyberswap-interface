@@ -56,7 +56,7 @@ const SlippageSetting = ({ isStablePairSwap, rightComponent }: Props) => {
           <TextDashed
             color={theme.subText}
             fontSize={12}
-            fontWeight={400}
+            fontWeight={500}
             sx={{
               display: 'flex',
               alignItems: 'center',
