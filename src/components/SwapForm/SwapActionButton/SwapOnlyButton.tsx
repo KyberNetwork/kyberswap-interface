@@ -1,4 +1,4 @@
-import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, Price } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import React, { useCallback, useMemo, useState } from 'react'
 import { Info } from 'react-feather'
@@ -17,6 +17,7 @@ import useTheme from 'hooks/useTheme'
 import { Field } from 'state/swap/actions'
 import { useEncodeSolana } from 'state/swap/hooks'
 import { DetailedRouteSummary } from 'types/route'
+import { toCurrencyAmount } from 'utils/currencyAmount'
 import { checkPriceImpact } from 'utils/prices'
 
 const CustomPrimaryButton = styled(ButtonPrimary).attrs({
@@ -135,12 +136,32 @@ const SwapOnlyButton: React.FC<Props> = ({
             outputAmountDescription = `New output amt is ${amountOut} to > 5% worse than initial output amt`
           }
         }
+
+        let currentPrice = ''
+        if (routeSummary !== undefined) {
+          const { amountIn, amountOut } = buildResult.data
+          const parsedAmountIn = toCurrencyAmount(routeSummary.parsedAmountIn.currency, amountIn)
+          const parsedAmountOut = toCurrencyAmount(routeSummary.parsedAmountOut.currency, amountOut)
+          const executionPrice = new Price(
+            parsedAmountIn.currency,
+            parsedAmountOut.currency,
+            parsedAmountIn.quotient,
+            parsedAmountOut.quotient,
+          )
+          const inputSymbol = executionPrice.baseCurrency?.symbol
+          const outputSymbol = executionPrice.quoteCurrency?.symbol
+          const formattedPrice = executionPrice?.toSignificant(6)
+          currentPrice = `1 ${inputSymbol} = ${formattedPrice} ${outputSymbol}`
+        }
+
         mixpanelHandler(MIXPANEL_TYPE.SWAP_CONFIRMED, {
           gasUsd: routeSummary?.gasUsd,
           inputAmount: routeSummary?.parsedAmountIn,
           priceImpact: routeSummary?.priceImpact,
           outputAmountDescription,
+          currentPrice,
         })
+
         return swapCallback(buildResult.data.routerAddress, buildResult.data.data)
       }
     }

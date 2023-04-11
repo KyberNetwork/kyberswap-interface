@@ -277,11 +277,12 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
           break
         }
         case MIXPANEL_TYPE.SWAP_CONFIRMED: {
-          const { gasUsd, inputAmount, priceImpact, outputAmountDescription } = (payload || {}) as {
+          const { gasUsd, inputAmount, priceImpact, outputAmountDescription, currentPrice } = (payload || {}) as {
             gasUsd: string | undefined
             inputAmount: CurrencyAmount<Currency> | undefined
             priceImpact: number | undefined
             outputAmountDescription: string | undefined
+            currentPrice: string | undefined
           }
 
           mixpanel.track('Swap Confirmed', {
@@ -293,6 +294,7 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
             slippage_setting: allowedSlippage ? allowedSlippage / 100 : 0,
             price_impact: priceImpact && priceImpact > 0.01 ? priceImpact.toFixed(2) : '<0.01',
             initial_output_amt_type: outputAmountDescription,
+            current_price: currentPrice, // price in swap confirmation step
           })
 
           break
