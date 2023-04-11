@@ -211,6 +211,7 @@ export enum MIXPANEL_TYPE {
   // price alert
   PA_CLICK_TAB_IN_NOTI_CENTER,
   PA_CREATE_SUCCESS,
+  ACCEPT_NEW_AMOUNT,
 }
 
 export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES: readonly TRANSACTION_TYPE[] = [
@@ -331,8 +332,7 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
           break
         }
         case MIXPANEL_TYPE.DEGEN_MODE_ON: {
-          mixpanel.track('Advanced Mode Switched On', {
-            // TODO: Event name will be updated after release degen mode.
+          mixpanel.track('Degen Mode On', {
             input_token: inputSymbol,
             output_token: outputSymbol,
           })
@@ -1058,6 +1058,11 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
         }
         case MIXPANEL_TYPE.PA_CREATE_SUCCESS: {
           mixpanel.track('Create Alert', payload)
+          break
+        }
+
+        case MIXPANEL_TYPE.ACCEPT_NEW_AMOUNT: {
+          mixpanel.track('Accept New Amount Button Click', payload)
           break
         }
       }

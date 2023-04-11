@@ -7,6 +7,7 @@ import styled from 'styled-components'
 
 import { ButtonErrorStyle, ButtonOutlined } from 'components/Button'
 import Modal from 'components/Modal'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 
 const ModalContentWrapper = styled.div`
@@ -55,9 +56,11 @@ export default function SwapModalAreYouSure({
   formattedOutputChangePercent: string
 }) {
   const [confirmText, setConfirmText] = useState('')
+  const { mixpanelHandler } = useMixpanel()
 
   const handleConfirm = () => {
     if (confirmText.trim().toLowerCase() === 'confirm') {
+      mixpanelHandler(MIXPANEL_TYPE.SWAP_CONFIRMED, {})
       setHasAcceptedNewAmount(true)
       setConfirmText('')
       setShow(false)

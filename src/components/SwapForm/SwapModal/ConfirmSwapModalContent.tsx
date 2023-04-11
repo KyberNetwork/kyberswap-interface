@@ -22,6 +22,7 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import WarningNote from 'components/WarningNote'
 import { Dots } from 'components/swapv2/styleds'
 import { useActiveWeb3React } from 'hooks'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { useEncodeSolana } from 'state/swap/hooks'
 import { useDegenModeManager } from 'state/user/hooks'
@@ -190,7 +191,10 @@ export default function ConfirmSwapModalContent({
     shouldDisableConfirmButton ||
     disableByPriceImpact
 
+  const { mixpanelHandler } = useMixpanel()
+
   const handleClickAcceptNewAmount = () => {
+    mixpanelHandler(MIXPANEL_TYPE.ACCEPT_NEW_AMOUNT)
     if (outputChangePercent > SHOW_CONFIRM_MODAL_AFTER_CLICK_SWAP_THRESHOLD) {
       setHasAcceptedNewAmount(true)
       return
