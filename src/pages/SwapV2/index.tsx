@@ -561,12 +561,6 @@ export default function Swap() {
   useSyncTokenSymbolToUrl(currencyIn, currencyOut, onSelectSuggestedPair, isSelectCurrencyManually, isLimitPage)
   const isLoadedTokenDefault = useIsLoadedTokenDefault()
 
-  useEffect(() => {
-    if (isDegenMode) {
-      mixpanelHandler(MIXPANEL_TYPE.DEGEN_MODE_ON)
-    }
-  }, [isDegenMode, mixpanelHandler])
-
   const [rawSlippage] = useUserSlippageTolerance()
 
   const isStableCoinSwap = Boolean(

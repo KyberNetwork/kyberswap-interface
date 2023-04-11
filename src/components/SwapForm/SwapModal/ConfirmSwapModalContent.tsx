@@ -1,7 +1,7 @@
 import { Currency, CurrencyAmount, Price } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { transparentize } from 'polished'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Check, Info } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import { calculatePriceImpact } from 'services/route/utils'
@@ -200,24 +200,7 @@ export default function ConfirmSwapModalContent({
       return
     }
 
-    mixpanelHandler(MIXPANEL_TYPE.REQUIRE_TYPE_CONFIRM_NEW_AMOUNT, {
-      initial_output_amount: parsedAmountOut?.toSignificant(10),
-      new_output_amount: parsedAmountOutFromBuild?.toSignificant(10),
-    })
     setShowAreYouSureModal(true)
-  }
-
-  useEffect(() => {
-    if (parsedAmountOutFromBuild) {
-      mixpanelHandler(MIXPANEL_TYPE.NEW_AMOUNT_FROM_BUILD, {
-        output_amount: parsedAmountOutFromBuild?.toSignificant(10),
-      })
-    }
-  }, [mixpanelHandler, parsedAmountOutFromBuild])
-
-  const onSwapWithMixPanel = () => {
-    mixpanelHandler(MIXPANEL_TYPE.SWAP_CONFIRMED_WHEN_PI_VERY_HIGH)
-    onSwap()
   }
 
   return (
@@ -343,7 +326,7 @@ export default function ConfirmSwapModalContent({
               )}
 
               <ButtonPrimary
-                onClick={onSwapWithMixPanel}
+                onClick={onSwap}
                 disabled={disableSwap}
                 id="confirm-swap-or-send"
                 style={{

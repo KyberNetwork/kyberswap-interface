@@ -120,10 +120,26 @@ const SwapOnlyButton: React.FC<Props> = ({
   const swapCallbackForModal = useMemo(() => {
     if (buildResult?.data?.data && buildResult?.data?.routerAddress && swapCallback) {
       return () => {
+        let outputAmountDescription = ''
+        if (buildResult.data?.amountOut !== undefined && buildResult.data?.outputChange?.percent !== undefined) {
+          const amountOut = buildResult.data?.amountOut
+          const percent = buildResult.data?.outputChange?.percent
+          if (percent === 0) {
+          } else if (percent > 0) {
+            outputAmountDescription = 'New output amt is better than initial output amt'
+          } else if (percent > -1) {
+            outputAmountDescription = `New output amt is ${amountOut} to < 1% worse than initial output amt`
+          } else if (percent >= -5) {
+            outputAmountDescription = `New output amt is ${amountOut} to >= 1% to <= 5% worse than initial output amt`
+          } else {
+            outputAmountDescription = `New output amt is ${amountOut} to > 5% worse than initial output amt`
+          }
+        }
         mixpanelHandler(MIXPANEL_TYPE.SWAP_CONFIRMED, {
           gasUsd: routeSummary?.gasUsd,
           inputAmount: routeSummary?.parsedAmountIn,
           priceImpact: routeSummary?.priceImpact,
+          outputAmountDescription,
         })
         return swapCallback(buildResult.data.routerAddress, buildResult.data.data)
       }

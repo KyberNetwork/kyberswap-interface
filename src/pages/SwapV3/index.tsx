@@ -41,7 +41,6 @@ import {
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens, useIsLoadedTokenDefault } from 'hooks/Tokens'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { BodyWrapper } from 'pages/AppBody'
@@ -226,8 +225,6 @@ export default function Swap() {
     [isLimitPage, onSelectPairLimit, showingPairSuggestionImport, handleDismissTokenWarning],
   )
 
-  const { mixpanelHandler } = useMixpanel(currencies)
-
   const onSelectSuggestedPair = useCallback(
     (fromToken: Currency | undefined, toToken: Currency | undefined, amount?: string) => {
       if (isLimitPage) {
@@ -244,12 +241,6 @@ export default function Swap() {
   )
 
   const isLoadedTokenDefault = useIsLoadedTokenDefault()
-
-  useEffect(() => {
-    if (isDegenMode) {
-      mixpanelHandler(MIXPANEL_TYPE.DEGEN_MODE_ON)
-    }
-  }, [isDegenMode, mixpanelHandler])
 
   const { isInWhiteList: isPairInWhiteList, canonicalUrl } = checkPairInWhiteList(
     chainId,

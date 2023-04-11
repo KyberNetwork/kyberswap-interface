@@ -7,6 +7,7 @@ import styled from 'styled-components'
 import Toggle from 'components/Toggle'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import AdvanceModeModal from 'components/TransactionSettings/AdvanceModeModal'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { useDegenModeManager } from 'state/user/hooks'
 
@@ -17,10 +18,14 @@ type Props = {
 }
 const DegenModeSetting: FC<Props> = ({ className, showConfirmation, setShowConfirmation }) => {
   const [isDegenMode, toggleDegenMode] = useDegenModeManager()
+  const { mixpanelHandler } = useMixpanel()
 
-  const handleToggleAdvancedMode = () => {
+  const handleToggleDegenMode = () => {
     if (isDegenMode /* is already ON */) {
       toggleDegenMode()
+      mixpanelHandler(MIXPANEL_TYPE.DEGEN_MODE_TOGGLE, {
+        type: 'off',
+      })
       setShowConfirmation(false)
       return
     }
@@ -49,7 +54,7 @@ const DegenModeSetting: FC<Props> = ({ className, showConfirmation, setShowConfi
             </MouseoverTooltip>
           </TextDashed>
         </Flex>
-        <Toggle id="toggle-expert-mode-button" isActive={isDegenMode} toggle={handleToggleAdvancedMode} />
+        <Toggle id="toggle-expert-mode-button" isActive={isDegenMode} toggle={handleToggleDegenMode} />
       </Flex>
 
       <AdvanceModeModal show={showConfirmation} setShow={setShowConfirmation} />

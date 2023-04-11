@@ -77,7 +77,7 @@ import { currencyId } from 'utils/currencyId'
 import { toSignificantOrMaxIntegerPart } from 'utils/formatCurrencyAmount'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { formatNotDollarAmount } from 'utils/numbers'
-import { checkWarningSlippage } from 'utils/slippage'
+import { SLIPPAGE_STATUS, checkRangeSlippage } from 'utils/slippage'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
 import NewPoolNote from './components/NewPoolNote'
@@ -729,7 +729,7 @@ export default function AddLiquidity() {
   }, [isClient])
 
   const [allowedSlippage] = useUserSlippageTolerance()
-  const isWarningSlippage = checkWarningSlippage(allowedSlippage, false)
+  const slippageStatus = checkRangeSlippage(allowedSlippage, false)
 
   const warning = (
     <Flex flexDirection="column" sx={{ gap: '12px' }} alignItems="flex-end" maxWidth={chartRef?.current?.clientWidth}>
@@ -818,7 +818,7 @@ export default function AddLiquidity() {
           </Flex>
         </WarningCard>
       ) : null}
-      {isWarningSlippage && (
+      {slippageStatus === SLIPPAGE_STATUS.HIGH && (
         <WarningCard padding="10px 16px">
           <Flex alignItems="center">
             <AlertTriangle stroke={theme.warning} size="16px" />

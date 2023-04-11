@@ -6,6 +6,7 @@ import styled from 'styled-components'
 
 import { ButtonOutlined, ButtonWarning } from 'components/Button'
 import Modal from 'components/Modal'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { useDegenModeManager } from 'state/user/hooks'
 
@@ -47,9 +48,13 @@ function AdvanceModeModal({ show, setShow }: { show: boolean; setShow: (v: boole
   const [, toggleDegenMode] = useDegenModeManager()
   const [confirmText, setConfirmText] = useState('')
   const theme = useTheme()
+  const { mixpanelHandler } = useMixpanel()
 
   const handleConfirm = () => {
     if (confirmText.trim().toLowerCase() === 'confirm') {
+      mixpanelHandler(MIXPANEL_TYPE.DEGEN_MODE_TOGGLE, {
+        type: 'on',
+      })
       toggleDegenMode()
       setConfirmText('')
       setShow(false)
