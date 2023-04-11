@@ -393,7 +393,7 @@ export default function OrderItem({
       </ItemWrapper>
       {expand && (
         <Flex flexDirection="column" style={{ paddingBottom: 10, borderBottom: `1px solid ${theme.border}` }}>
-          {transactions.map((txs, i) => {
+          {transactions.map(txs => {
             const filledPercent = calcPercentFilledOrder(txs.takingAmount, takingAmount, takerAssetDecimals)
             return (
               <ItemWrapper key={txs.txHash} hasBorder={false} style={{ paddingTop: 0, paddingBottom: 0 }}>

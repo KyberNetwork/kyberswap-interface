@@ -35,13 +35,12 @@ module.exports = {
     },
   },
   extends: [
-    'react-app',
     'plugin:react/recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:react-hooks/recommended',
     'plugin:prettier/recommended',
   ],
-  plugins: ['better-styled-components', 'unused-imports'],
+  plugins: ['better-styled-components', 'unused-imports', 'jsx-a11y'],
   rules: {
     'unused-imports/no-unused-imports': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
     '@typescript-eslint/explicit-function-return-type': 'off',
