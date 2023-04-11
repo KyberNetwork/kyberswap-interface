@@ -186,10 +186,10 @@ export default function ConfirmSwapModalContent({
     priceImpactResult.isVeryHigh || priceImpactResult.isInvalid ? { background: theme.red } : undefined
 
   const disableByPriceImpact = !isAdvancedMode && (priceImpactResult.isVeryHigh || priceImpactResult.isInvalid)
+  const isShowAcceptNewAmount =
+    outputChangePercent < SHOW_ACCEPT_NEW_AMOUNT_THRESHOLD || (isStablePairSwap && outputChangePercent < 0)
   const disableSwap =
-    (outputChangePercent < SHOW_ACCEPT_NEW_AMOUNT_THRESHOLD && !hasAcceptedNewAmount) ||
-    shouldDisableConfirmButton ||
-    disableByPriceImpact
+    (isShowAcceptNewAmount && !hasAcceptedNewAmount) || shouldDisableConfirmButton || disableByPriceImpact
 
   const { mixpanelHandler } = useMixpanel()
 
@@ -271,9 +271,7 @@ export default function ConfirmSwapModalContent({
                     {parsedAmountOut?.toSignificant(10) || ''} {parsedAmountOut?.currency?.symbol} to{' '}
                     {parsedAmountOutFromBuild?.toSignificant(10) || ''} {parsedAmountOut?.currency?.symbol} (
                     {formattedOutputChangePercent}%){' '}
-                    {outputChangePercent < SHOW_ACCEPT_NEW_AMOUNT_THRESHOLD
-                      ? '. Please accept the new amount before swapping'
-                      : ''}
+                    {isShowAcceptNewAmount ? '. Please accept the new amount before swapping' : ''}
                   </Trans>
                 )}
               </Text>
@@ -323,7 +321,7 @@ export default function ConfirmSwapModalContent({
             </ButtonPrimary>
           ) : (
             <Flex sx={{ gap: '8px', width: '100%' }}>
-              {outputChangePercent < SHOW_ACCEPT_NEW_AMOUNT_THRESHOLD && (
+              {isShowAcceptNewAmount && (
                 <ButtonPrimary
                   style={
                     hasAcceptedNewAmount || (priceImpactResult.isVeryHigh && !isDegenMode)
