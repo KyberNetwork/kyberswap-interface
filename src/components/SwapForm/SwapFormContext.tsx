@@ -1,6 +1,5 @@
 import { createContext, useContext } from 'react'
 
-
 type SwapFormContextProps = {
   feeConfig: FeeConfig | undefined
   slippage: number
