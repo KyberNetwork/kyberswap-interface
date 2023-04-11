@@ -1,19 +1,18 @@
-import { useState } from "react";
-import styled from "styled-components";
-import useTheme from "../hooks/useTheme";
-import { ReactComponent as BackIcon } from "../assets/back1.svg";
-import { Dex } from "../hooks/useSwap";
-import { ReactComponent as AlertIcon } from "../assets/alert.svg";
-import InfoHelper from "./InfoHelper";
+import { useState } from 'react'
+import styled from 'styled-components'
+import useTheme from '../hooks/useTheme'
+import { ReactComponent as BackIcon } from '../assets/back1.svg'
+import { Dex } from '../hooks/useSwap'
+import { ReactComponent as AlertIcon } from '../assets/alert.svg'
+import InfoHelper from './InfoHelper'
 
 const Label = styled.div`
   font-size: 0.75rem;
   text-align: left;
-`;
+`
 
 const Input = styled.input<{ isActive: boolean }>`
-  background: ${({ theme, isActive }) =>
-    isActive ? theme.dialog : theme.secondary};
+  background: ${({ theme, isActive }) => (isActive ? theme.dialog : theme.secondary)};
   border: none;
   outline: none;
   color: ${({ theme }) => theme.text};
@@ -25,7 +24,7 @@ const Input = styled.input<{ isActive: boolean }>`
   :focus {
     background: ${({ theme }) => theme.dialog};
   }
-`;
+`
 
 const SlippageWrapper = styled.div`
   border-radius: 999px;
@@ -33,7 +32,7 @@ const SlippageWrapper = styled.div`
   background: ${({ theme }) => theme.secondary};
   padding: 2px;
   display: flex;
-`;
+`
 
 const SlippageItem = styled.div<{ isActive: boolean }>`
   position: relative;
@@ -47,8 +46,7 @@ const SlippageItem = styled.div<{ isActive: boolean }>`
   align-items: center;
   gap: 4px;
   justify-content: center;
-  background: ${({ theme, isActive }) =>
-    isActive ? theme.dialog : theme.secondary};
+  background: ${({ theme, isActive }) => (isActive ? theme.dialog : theme.secondary)};
   cursor: pointer;
   :hover {
     background: ${({ theme }) => theme.dialog};
@@ -56,13 +54,13 @@ const SlippageItem = styled.div<{ isActive: boolean }>`
       background: ${({ theme }) => theme.dialog};
     }
   }
-`;
+`
 
 const Row = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-`;
+`
 
 const TTLInput = styled.div`
   display: flex;
@@ -83,65 +81,62 @@ const TTLInput = styled.div`
     text-align: right;
     color: ${({ theme }) => theme.text};
   }
-`;
+`
 
-const BPS = 10_000;
-const MAX_SLIPPAGE_IN_BIPS = 2_000;
+const BPS = 10_000
+const MAX_SLIPPAGE_IN_BIPS = 2_000
 
-const parseSlippageInput = (str: string): number =>
-  Math.round(Number.parseFloat(str) * 100);
-const validateSlippageInput = (
-  str: string
-): { isValid: boolean; message?: string } => {
-  if (str === "") {
+const parseSlippageInput = (str: string): number => Math.round(Number.parseFloat(str) * 100)
+const validateSlippageInput = (str: string): { isValid: boolean; message?: string } => {
+  if (str === '') {
     return {
       isValid: true,
-    };
+    }
   }
 
-  const numberRegex = /^\s*([0-9]+)(\.\d+)?\s*$/;
+  const numberRegex = /^\s*([0-9]+)(\.\d+)?\s*$/
   if (!str.match(numberRegex)) {
     return {
       isValid: false,
       message: `Enter a valid slippage percentage`,
-    };
+    }
   }
 
-  const rawSlippage = parseSlippageInput(str);
+  const rawSlippage = parseSlippageInput(str)
 
   if (Number.isNaN(rawSlippage)) {
     return {
       isValid: false,
       message: `Enter a valid slippage percentage`,
-    };
+    }
   }
 
   if (rawSlippage < 0) {
     return {
       isValid: false,
       message: `Enter a valid slippage percentage`,
-    };
+    }
   } else if (rawSlippage < 50) {
     return {
       isValid: true,
       message: `Your transaction may fail`,
-    };
+    }
   } else if (rawSlippage > MAX_SLIPPAGE_IN_BIPS) {
     return {
       isValid: false,
       message: `Enter a smaller slippage percentage`,
-    };
+    }
   } else if (rawSlippage > 500) {
     return {
       isValid: true,
       message: `Your transaction may be frontrun`,
-    };
+    }
   }
 
   return {
     isValid: true,
-  };
-};
+  }
+}
 
 function Settings({
   slippage,
@@ -152,23 +147,23 @@ function Settings({
   excludedDexes,
   onShowSource,
 }: {
-  slippage: number;
-  setSlippage: (value: number) => void;
-  deadline: number;
-  setDeadline: (value: number) => void;
-  allDexes: Dex[];
-  excludedDexes: Dex[];
-  onShowSource: () => void;
+  slippage: number
+  setSlippage: (value: number) => void
+  deadline: number
+  setDeadline: (value: number) => void
+  allDexes: Dex[]
+  excludedDexes: Dex[]
+  onShowSource: () => void
 }) {
   const [v, setV] = useState(() => {
-    if ([5, 10, 50, 100].includes(slippage)) return "";
-    return ((slippage * 100) / BPS).toString();
-  });
+    if ([5, 10, 50, 100].includes(slippage)) return ''
+    return ((slippage * 100) / BPS).toString()
+  })
 
-  const theme = useTheme();
-  const [isFocus, setIsFocus] = useState(false);
+  const theme = useTheme()
+  const [isFocus, setIsFocus] = useState(false)
 
-  const { isValid, message } = validateSlippageInput(v);
+  const { isValid, message } = validateSlippageInput(v)
 
   return (
     <>
@@ -181,28 +176,16 @@ function Settings({
           />
         </Label>
         <SlippageWrapper>
-          <SlippageItem
-            isActive={slippage === 5}
-            onClick={() => setSlippage(5)}
-          >
+          <SlippageItem isActive={slippage === 5} onClick={() => setSlippage(5)}>
             0.05%
           </SlippageItem>
-          <SlippageItem
-            isActive={slippage === 10}
-            onClick={() => setSlippage(10)}
-          >
+          <SlippageItem isActive={slippage === 10} onClick={() => setSlippage(10)}>
             0.1%
           </SlippageItem>
-          <SlippageItem
-            isActive={slippage === 50}
-            onClick={() => setSlippage(50)}
-          >
+          <SlippageItem isActive={slippage === 50} onClick={() => setSlippage(50)}>
             0.5%
           </SlippageItem>
-          <SlippageItem
-            isActive={slippage === 100}
-            onClick={() => setSlippage(100)}
-          >
+          <SlippageItem isActive={slippage === 100} onClick={() => setSlippage(100)}>
             1%
           </SlippageItem>
           <SlippageItem
@@ -210,17 +193,13 @@ function Settings({
             style={{
               flex: 3,
               background: isFocus ? theme.dialog : undefined,
-              border: message
-                ? isValid
-                  ? `1px solid ${theme.warning}`
-                  : `1px solid ${theme.error}`
-                : undefined,
+              border: message ? (isValid ? `1px solid ${theme.warning}` : `1px solid ${theme.error}`) : undefined,
             }}
           >
             {message && (
               <AlertIcon
                 style={{
-                  position: "absolute",
+                  position: 'absolute',
                   top: 2,
                   left: 4,
                   width: 20,
@@ -234,11 +213,11 @@ function Settings({
               placeholder="Custom"
               onFocus={() => setIsFocus(true)}
               onBlur={() => {
-                setIsFocus(false);
-                if (isValid) setSlippage(parseSlippageInput(v));
+                setIsFocus(false)
+                if (isValid) setSlippage(parseSlippageInput(v))
               }}
               value={v}
-              onChange={(e) => setV(e.target.value)}
+              onChange={e => setV(e.target.value)}
             />
             <span>%</span>
           </SlippageItem>
@@ -246,10 +225,10 @@ function Settings({
         {message && (
           <div
             style={{
-              fontSize: "12px",
+              fontSize: '12px',
               color: isValid ? theme.warning : theme.error,
-              textAlign: "left",
-              marginTop: "4px",
+              textAlign: 'left',
+              marginTop: '4px',
             }}
           >
             {message}
@@ -269,15 +248,15 @@ function Settings({
           <input
             maxLength={5}
             placeholder="20"
-            value={deadline ? deadline.toString() : ""}
-            style={{ fontSize: "12px" }}
-            onChange={(e) => {
+            value={deadline ? deadline.toString() : ''}
+            style={{ fontSize: '12px' }}
+            onChange={e => {
               const v = +e.target.value
                 .trim()
-                .replace(/[^0-9.]/g, "")
-                .replace(/(\..*?)\..*/g, "$1")
-                .replace(/^0[^.]/, "0");
-              setDeadline(v);
+                .replace(/[^0-9.]/g, '')
+                .replace(/(\..*?)\..*/g, '$1')
+                .replace(/^0[^.]/, '0')
+              setDeadline(v)
             }}
           />
           <span style={{ color: theme.subText }}>mins</span>
@@ -287,36 +266,32 @@ function Settings({
       <Row>
         <Label>
           Liquidity Sources
-          <InfoHelper
-            color={theme.text}
-            text={`Your trade is routed through one or more of these liquidity sources`}
-          />
+          <InfoHelper color={theme.text} text={`Your trade is routed through one or more of these liquidity sources`} />
         </Label>
         <div
           role="button"
           onClick={onShowSource}
           style={{
-            alignItems: "center",
-            display: "flex",
+            alignItems: 'center',
+            display: 'flex',
             fontSize: 12,
             fontWeight: 500,
             gap: 4,
-            cursor: "pointer",
+            cursor: 'pointer',
           }}
         >
-          {allDexes.length - excludedDexes.length || allDexes.length} out of{" "}
-          {allDexes.length} selected
+          {allDexes.length - excludedDexes.length || allDexes.length} out of {allDexes.length} selected
           <BackIcon
             style={{
-              transform: "rotate(-180deg)",
-              width: "16px",
+              transform: 'rotate(-180deg)',
+              width: '16px',
               color: theme.subText,
             }}
           />
         </div>
       </Row>
     </>
-  );
+  )
 }
 
-export default Settings;
+export default Settings

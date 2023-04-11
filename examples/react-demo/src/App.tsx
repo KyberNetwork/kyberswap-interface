@@ -262,6 +262,7 @@ function App() {
       </div>
 
       <Widget
+        client="widget-react-demo"
         theme={theme}
         tokenList={[]}
         provider={ethersProvider}

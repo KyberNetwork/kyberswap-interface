@@ -1,9 +1,9 @@
-import { Placement } from "@popperjs/core";
-import { CSSProperties, ReactNode, useCallback, useState } from "react";
-import styled from "styled-components";
-import { ReactComponent as Info } from "../assets/info.svg";
+import { Placement } from '@popperjs/core'
+import { CSSProperties, ReactNode, useCallback, useState } from 'react'
+import styled from 'styled-components'
+import { ReactComponent as Info } from '../assets/info.svg'
 
-import Tooltip from "./Tooltip";
+import Tooltip from './Tooltip'
 
 const InfoWrapper = styled.div`
   display: flex;
@@ -20,7 +20,7 @@ const InfoWrapper = styled.div`
   :focus {
     opacity: 0.7;
   }
-`;
+`
 
 const InfoHelperWrapper = styled.span`
   display: inline-flex;
@@ -29,7 +29,7 @@ const InfoHelperWrapper = styled.span`
   align-items: center;
   line-height: 100%;
   vertical-align: middle;
-`;
+`
 
 export default function InfoHelper({
   text,
@@ -38,17 +38,17 @@ export default function InfoHelper({
   style,
   color,
 }: {
-  text: string | ReactNode;
-  size?: number;
-  isActive?: boolean;
-  placement?: Placement;
-  style?: CSSProperties;
-  color?: string;
+  text: string | ReactNode
+  size?: number
+  isActive?: boolean
+  placement?: Placement
+  style?: CSSProperties
+  color?: string
 }) {
-  const [show, setShow] = useState<boolean>(false);
+  const [show, setShow] = useState<boolean>(false)
 
-  const open = useCallback(() => setShow(true), [setShow]);
-  const close = useCallback(() => setShow(false), [setShow]);
+  const open = useCallback(() => setShow(true), [setShow])
+  const close = useCallback(() => setShow(false), [setShow])
 
   return (
     <InfoHelperWrapper style={style}>
@@ -58,5 +58,5 @@ export default function InfoHelper({
         </InfoWrapper>
       </Tooltip>
     </InfoHelperWrapper>
-  );
+  )
 }

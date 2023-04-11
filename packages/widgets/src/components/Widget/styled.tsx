@@ -1,4 +1,4 @@
-import styled, { keyframes } from "styled-components";
+import styled from 'styled-components'
 
 export const Wrapper = styled.div`
   border-radius: ${({ theme }) => theme.borderRadius};
@@ -6,12 +6,11 @@ export const Wrapper = styled.div`
   width: 375px;
   background: ${({ theme }) => theme.primary};
   color: ${({ theme }) => theme.text};
-  font-family: ${({ theme }) =>
-    theme.fontFamily || `"Work Sans", "Inter var", sans-serif`};
+  font-family: ${({ theme }) => theme.fontFamily || `"Work Sans", "Inter var", sans-serif`};
   position: relative;
   overflow: hidden;
   box-shadow: ${({ theme }) => theme.boxShadow};
-`;
+`
 
 export const Title = styled.div`
   display: flex;
@@ -19,7 +18,7 @@ export const Title = styled.div`
   font-size: 1.25rem;
   font-weight: 500;
   align-items: center;
-`;
+`
 
 export const InputWrapper = styled.div`
   border-radius: ${({ theme }) => theme.borderRadius};
@@ -27,7 +26,7 @@ export const InputWrapper = styled.div`
   background: ${({ theme }) => theme.secondary};
   margin-top: 1rem;
   box-shadow: ${({ theme }) => theme.boxShadow};
-`;
+`
 
 export const MaxHalfBtn = styled.button`
   outline: none;
@@ -44,13 +43,13 @@ export const MaxHalfBtn = styled.button`
   :hover {
     opacity: 0.8;
   }
-`;
+`
 
 export const BalanceRow = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-`;
+`
 
 export const SettingBtn = styled.button`
   outline: none;
@@ -73,7 +72,7 @@ export const SettingBtn = styled.button`
     width: 1.25rem;
     height: 1.25rem;
   }
-`;
+`
 
 export const SwitchBtn = styled(SettingBtn)`
   width: 40px;
@@ -83,7 +82,7 @@ export const SwitchBtn = styled(SettingBtn)`
   :hover {
     opacity: 0.8;
   }
-`;
+`
 
 export const AccountBalance = styled.div`
   gap: 4px;
@@ -91,13 +90,13 @@ export const AccountBalance = styled.div`
   align-items: center;
   font-size: 0.75rem;
   color: ${({ theme }) => theme.subText};
-`;
+`
 
 export const InputRow = styled.div`
   display: flex;
   align-items: center;
   margin-top: 0.75rem;
-`;
+`
 
 export const Input = styled.input`
   width: 100%;
@@ -110,7 +109,7 @@ export const Input = styled.input`
   :disabled {
     cursor: not-allowed;
   }
-`;
+`
 
 export const SelectTokenBtn = styled.button`
   outline: none;
@@ -128,19 +127,19 @@ export const SelectTokenBtn = styled.button`
   :hover {
     opacity: 0.8;
   }
-`;
+`
 
 export const MiddleRow = styled.div`
   display: flex;
   margin-top: 1rem;
   align-items: center;
   justify-content: space-between;
-`;
+`
 
 export const MiddleLeft = styled.div`
   display: flex;
   align-items: center;
-`;
+`
 
 export const Button = styled.button`
   outline: none;
@@ -169,35 +168,35 @@ export const Button = styled.button`
   :active {
     transform: scale(0.99);
   }
-`;
+`
 
 export const Dots = styled.span`
   &::after {
     display: inline-block;
     animation: ellipsis 1.25s infinite;
-    content: ".";
+    content: '.';
     width: 1em;
     text-align: left;
   }
   @keyframes ellipsis {
     0% {
-      content: ".";
+      content: '.';
     }
     33% {
-      content: "..";
+      content: '..';
     }
     66% {
-      content: "...";
+      content: '...';
     }
   }
-`;
+`
 
 export const Rate = styled.div`
   font-size: 14px;
   font-weight: 500;
   color: ${({ theme }) => theme.subText};
   margin-left: 4px;
-`;
+`
 
 export const Detail = styled.div`
   background: ${({ theme }) => theme.secondary};
@@ -208,37 +207,37 @@ export const Detail = styled.div`
   flex-direction: column;
   gap: 12px;
   font-size: 12px;
-`;
+`
 
 export const DetailRow = styled.div`
   display: flex;
   justify-content: space-between;
-`;
+`
 export const DetailLabel = styled.div`
   display: flex;
   align-items: center;
   color: ${({ theme }) => theme.subText};
-`;
+`
 export const DetailRight = styled.div`
   font-weight: 500;
-`;
+`
 
 export const DetailTitle = styled.div`
   font-size: 12px;
   font-weight: 500;
   text-transform: uppercase;
   text-align: left;
-`;
+`
 export const Divider = styled.div`
   width: 100%;
   height: 1px;
   border-bottom: 1px solid ${({ theme }) => theme.stroke};
-`;
+`
 export const ModalHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-`;
+`
 
 export const ModalTitle = styled.div`
   cursor: pointer;
@@ -255,4 +254,4 @@ export const ModalTitle = styled.div`
     width: 1.25rem;
     height: 1.25rem;
   }
-`;
+`

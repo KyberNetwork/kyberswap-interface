@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
-    "@kyberswap/widgets": "^0.0.2",
+    "@kyberswap/widgets": "1.0.0-rc1",
     "@web3-onboard/injected-wallets": "^2.2.4",
     "@web3-onboard/react": "^2.3.5",
     "@web3-onboard/walletconnect": "^2.1.3",

@@ -1,22 +1,25 @@
 {
   "name": "@kyberswap/widgets",
   "license": "MIT",
-  "version": "0.0.3",
+  "version": "1.0.0-rc1",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint --max-warnings=0 src"
   },
   "dependencies": {
     "@popperjs/core": "^2.11.6",
     "@reach/portal": "^0.18.0",
+    "eslint-plugin-better-styled-components": "^1.1.2",
     "ethers": "^5.7.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-popper": "^2.3.0",
-    "vite-plugin-svgr": "^2.2.1",
-    "styled-components": "^5.3.5"
+    "styled-components": "^5.3.5",
+    "vite-plugin-eslint": "^1.8.1",
+    "vite-plugin-svgr": "^2.2.1"
   },
   "devDependencies": {
     "@types/react": "^18.0.17",
@@ -25,6 +28,12 @@
     "@vitejs/plugin-react": "^2.0.1",
     "@web3-onboard/injected-wallets": "^2.2.4",
     "@web3-onboard/react": "^2.3.6",
+    "eslint": "^8.37.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-config-react-app": "^7.0.1",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-unused-imports": "^2.0.0",
+    "prettier": "^2.8.7",
     "typescript": "^4.6.4",
     "vite": "^3.0.7",
     "vite-plugin-dts": "^1.4.1"

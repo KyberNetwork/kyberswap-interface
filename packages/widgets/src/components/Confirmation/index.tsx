@@ -1,41 +1,32 @@
-import styled, { keyframes } from "styled-components";
-import { Trade } from "../../hooks/useSwap";
-import { ReactComponent as Arrow } from "../../assets/back.svg";
-import { ReactComponent as Warning } from "../../assets/warning.svg";
-import {
-  Button,
-  Detail,
-  DetailLabel,
-  DetailRight,
-  DetailRow,
-  ModalHeader,
-  ModalTitle,
-} from "../Widget/styled";
-import useTheme from "../../hooks/useTheme";
-import { useActiveWeb3 } from "../../hooks/useWeb3Provider";
-import { useEffect, useState } from "react";
-import { BigNumber } from "ethers";
-import { NATIVE_TOKEN_ADDRESS, SCAN_LINK, TokenInfo } from "../../constants";
-import { ReactComponent as BackIcon } from "../../assets/back.svg";
-import { ReactComponent as Loading } from "../../assets/loader.svg";
-import { ReactComponent as External } from "../../assets/external.svg";
-import { ReactComponent as SuccessSVG } from "../../assets/success.svg";
-import { ReactComponent as ErrorIcon } from "../../assets/error.svg";
-import { ReactComponent as Info } from "../../assets/info.svg";
-import InfoHelper from "../InfoHelper";
+import styled, { keyframes } from 'styled-components'
+import { Trade } from '../../hooks/useSwap'
+import { ReactComponent as Warning } from '../../assets/warning.svg'
+import { Button, Detail, DetailLabel, DetailRight, DetailRow, ModalHeader, ModalTitle } from '../Widget/styled'
+import useTheme from '../../hooks/useTheme'
+import { useActiveWeb3 } from '../../hooks/useWeb3Provider'
+import { useEffect, useState } from 'react'
+import { BigNumber } from 'ethers'
+import { AGGREGATOR_PATH, NATIVE_TOKEN_ADDRESS, SCAN_LINK, TokenInfo } from '../../constants'
+import { ReactComponent as BackIcon } from '../../assets/back.svg'
+import { ReactComponent as Loading } from '../../assets/loader.svg'
+import { ReactComponent as External } from '../../assets/external.svg'
+import { ReactComponent as SuccessSVG } from '../../assets/success.svg'
+import { ReactComponent as ErrorIcon } from '../../assets/error.svg'
+import { ReactComponent as Info } from '../../assets/info.svg'
+import InfoHelper from '../InfoHelper'
 
 const Success = styled(SuccessSVG)`
   color: ${({ theme }) => theme.success};
-`;
+`
 
-const Error = styled(ErrorIcon)`
+const StyledError = styled(ErrorIcon)`
   color: ${({ theme }) => theme.error};
-`;
+`
 
-const ArrowDown = styled(Arrow)`
+const ArrowDown = styled(BackIcon)`
   color: ${({ theme }) => theme.subText};
   transform: rotate(-90deg);
-`;
+`
 
 const Flex = styled.div`
   display: flex;
@@ -47,30 +38,30 @@ const Flex = styled.div`
   img {
     border-radius: 50%;
   }
-`;
+`
 
 const Note = styled.div`
   color: ${({ theme }) => theme.subText};
   font-size: 0.75rem;
   text-align: left;
-`;
+`
 
 const PriceImpactHigh = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
   border-radius: ${({ theme }) => theme.buttonRadius};
-  background: ${({ theme }) => theme.warning + "40"};
+  background: ${({ theme }) => theme.warning + '40'};
   color: ${({ theme }) => theme.warning};
   font-size: 12px;
   font-weight: 500px;
   padding: 12px;
-`;
+`
 
 const PriceImpactVeryHigh = styled(PriceImpactHigh)`
-  background: ${({ theme }) => theme.error + "40"};
+  background: ${({ theme }) => theme.error + '40'};
   color: ${({ theme }) => theme.error};
-`;
+`
 
 const Central = styled.div`
   display: flex;
@@ -79,7 +70,7 @@ const Central = styled.div`
   flex-direction: column;
   gap: 8px;
   flex: 1;
-`;
+`
 
 const rotate = keyframes`
   from {
@@ -88,14 +79,14 @@ const rotate = keyframes`
   to {
     transform: rotate(360deg);
   }
-`;
+`
 
 const Spinner = styled(Loading)`
   animation: 2s ${rotate} linear infinite;
   width: 94px;
   height: 94px;
   color: ${({ theme }) => theme.accent};
-`;
+`
 
 const ViewTx = styled.a`
   display: flex;
@@ -104,18 +95,18 @@ const ViewTx = styled.a`
   color: ${({ theme }) => theme.accent};
   font-size: 14px;
   gap: 4px;
-`;
+`
 
 const Divider = styled.div`
   width: 100%;
   height: 1px;
   border-bottom: 1px solid ${({ theme }) => theme.stroke};
-`;
+`
 
 const WaitingText = styled.div`
   font-size: 1rem;
   font-weight: 500;
-`;
+`
 
 const Amount = styled.div`
   display: flex;
@@ -125,13 +116,13 @@ const Amount = styled.div`
   img {
     border-radius: 50%;
   }
-`;
+`
 
 const SubText = styled.div`
   font-size: 12px;
   color: ${({ theme }) => theme.subText};
   margin-top: 12px;
-`;
+`
 
 const ErrMsg = styled.div`
   font-size: 12px;
@@ -140,15 +131,13 @@ const ErrMsg = styled.div`
   overflow-wrap: break-word;
   overflow-y: scroll;
   padding-top: 12px;
-`;
+`
 
 function calculateGasMargin(value: BigNumber): BigNumber {
-  const defaultGasLimitMargin = BigNumber.from(20_000);
-  const gasMargin = value.mul(BigNumber.from(2000)).div(BigNumber.from(10000));
+  const defaultGasLimitMargin = BigNumber.from(20_000)
+  const gasMargin = value.mul(BigNumber.from(2000)).div(BigNumber.from(10000))
 
-  return gasMargin.gte(defaultGasLimitMargin)
-    ? value.add(gasMargin)
-    : value.add(defaultGasLimitMargin);
+  return gasMargin.gte(defaultGasLimitMargin) ? value.add(gasMargin) : value.add(defaultGasLimitMargin)
 }
 
 function Confirmation({
@@ -161,102 +150,118 @@ function Confirmation({
   slippage,
   priceImpact,
   onClose,
+  deadline,
+  client,
 }: {
-  trade: Trade;
-  tokenInInfo: TokenInfo;
-  amountIn: string;
-  tokenOutInfo: TokenInfo;
-  amountOut: string;
-  rate: number;
-  slippage: number;
-  priceImpact: number;
-  onClose: () => void;
+  trade: Trade
+  tokenInInfo: TokenInfo
+  amountIn: string
+  tokenOutInfo: TokenInfo
+  amountOut: string
+  rate: number
+  slippage: number
+  priceImpact: number
+  onClose: () => void
+  deadline: number
+  client: string
 }) {
-  const theme = useTheme();
+  const theme = useTheme()
 
-  let minAmountOut = "--";
+  let minAmountOut = '--'
 
   if (amountOut) {
-    minAmountOut = (Number(amountOut) * (1 - slippage / 10_000))
-      .toPrecision(8)
-      .toString();
+    minAmountOut = (Number(amountOut) * (1 - slippage / 10_000)).toPrecision(8).toString()
   }
 
-  const { provider, account, chainId } = useActiveWeb3();
-  const [attempTx, setAttempTx] = useState(false);
-  const [txHash, setTxHash] = useState("");
-  const [txStatus, setTxStatus] = useState<"success" | "failed" | "">("");
-  const [txError, setTxError] = useState<any>("");
+  const { provider, account, chainId } = useActiveWeb3()
+  const [attempTx, setAttempTx] = useState(false)
+  const [txHash, setTxHash] = useState('')
+  const [txStatus, setTxStatus] = useState<'success' | 'failed' | ''>('')
+  const [txError, setTxError] = useState<any>('')
 
   useEffect(() => {
     if (txHash) {
       const i = setInterval(() => {
-        provider?.getTransactionReceipt(txHash).then((res) => {
-          if (!res) return;
+        provider?.getTransactionReceipt(txHash).then(res => {
+          if (!res) return
 
           if (res.status) {
-            setTxStatus("success");
-          } else setTxStatus("failed");
-        });
-      }, 10_000);
+            setTxStatus('success')
+          } else setTxStatus('failed')
+        })
+      }, 10_000)
 
       return () => {
-        clearInterval(i);
-      };
+        clearInterval(i)
+      }
     }
-  }, [txHash, provider]);
+  }, [txHash, provider])
 
   const [snapshotTrade, setSnapshotTrade] = useState<{
-    amountIn: string;
-    amountOut: string;
-  } | null>(null);
+    amountIn: string
+    amountOut: string
+  } | null>(null)
 
   const confirmSwap = async () => {
-    setSnapshotTrade({ amountIn, amountOut });
-    const estimateGasOption = {
-      from: account,
-      to: trade?.routerAddress,
-      data: trade?.encodedSwapData,
-      value: BigNumber.from(
-        tokenInInfo.address === NATIVE_TOKEN_ADDRESS ? trade?.inputAmount : 0
-      ),
-    };
-
+    setSnapshotTrade({ amountIn, amountOut })
     try {
-      setAttempTx(true);
-      setTxHash("");
-      setTxError(false);
+      setAttempTx(true)
+      setTxHash('')
+      setTxError(false)
 
-      const gasEstimated = await provider?.estimateGas(estimateGasOption);
+      const date = new Date()
+      date.setMinutes(date.getMinutes() + (deadline || 20))
+
+      const buildRes = await fetch(
+        `https://aggregator-api.kyberswap.com/${AGGREGATOR_PATH[chainId]}/api/v1/route/build`,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            routeSummary: trade.routeSummary,
+            deadline: Math.floor(date.getTime() / 1000),
+            slippageTolerance: slippage,
+            sender: account,
+            recipient: account,
+            source: client,
+          }),
+        },
+      ).then(r => r.json())
+
+      if (!buildRes.data) {
+        throw new Error('Build route failed: ' + JSON.stringify(buildRes.details))
+      }
+
+      const estimateGasOption = {
+        from: account,
+        to: trade?.routerAddress,
+        data: buildRes.data.data,
+        value: BigNumber.from(tokenInInfo.address === NATIVE_TOKEN_ADDRESS ? trade?.routeSummary.amountIn : 0),
+      }
+
+      const gasEstimated = await provider?.estimateGas(estimateGasOption)
 
       const res = await provider?.getSigner().sendTransaction({
         ...estimateGasOption,
         gasLimit: calculateGasMargin(gasEstimated || BigNumber.from(0)),
-      });
+      })
 
-      setTxHash(res?.hash || "");
-      setAttempTx(false);
+      setTxHash(res?.hash || '')
+      setAttempTx(false)
     } catch (e) {
-      setAttempTx(false);
-      setTxError(e);
+      setAttempTx(false)
+      setTxError(e)
     }
-  };
+  }
 
   if (attempTx || txHash)
     return (
       <>
         <Central>
-          {txStatus === "success" ? (
-            <Success />
-          ) : txStatus === "failed" ? (
-            <Error />
-          ) : (
-            <Spinner />
-          )}
+          {txStatus === 'success' ? <Success /> : txStatus === 'failed' ? <StyledError /> : <Spinner />}
           {txHash ? (
-            txStatus === "success" ? (
+            txStatus === 'success' ? (
               <WaitingText>Transaction successful</WaitingText>
-            ) : txStatus === "failed" ? (
+            ) : txStatus === 'failed' ? (
               <WaitingText>Transaction failed</WaitingText>
             ) : (
               <WaitingText>Processing transaction</WaitingText>
@@ -265,27 +270,19 @@ function Confirmation({
             <WaitingText>Waiting For Confirmation</WaitingText>
           )}
           <Amount>
-            <img src={tokenInInfo.logoURI} width="16" height="16" />
+            <img src={tokenInInfo.logoURI} width="16" height="16" alt="" />
             {+Number(snapshotTrade?.amountIn).toPrecision(6)}
-            <Arrow style={{ width: 16, transform: "rotate(180deg)" }} />
-            <img src={tokenOutInfo.logoURI} width="16" height="16" />
+            <BackIcon style={{ width: 16, transform: 'rotate(180deg)' }} />
+            <img src={tokenOutInfo.logoURI} width="16" height="16" alt="" />
             {+Number(snapshotTrade?.amountOut).toPrecision(6)}
           </Amount>
-          {!txHash && (
-            <SubText>Confirm this transaction in your wallet</SubText>
-          )}
-          {txHash && txStatus === "" && (
-            <SubText>Waiting for the transaction to be mined</SubText>
-          )}
+          {!txHash && <SubText>Confirm this transaction in your wallet</SubText>}
+          {txHash && txStatus === '' && <SubText>Waiting for the transaction to be mined</SubText>}
         </Central>
 
         <Divider />
         {txHash && (
-          <ViewTx
-            href={`${SCAN_LINK[chainId]}/tx/${txHash}`}
-            target="_blank"
-            rel="noopener norefferer"
-          >
+          <ViewTx href={`${SCAN_LINK[chainId]}/tx/${txHash}`} target="_blank" rel="noopener norefferer">
             View transaction <External />
           </ViewTx>
         )}
@@ -293,13 +290,13 @@ function Confirmation({
           Close
         </Button>
       </>
-    );
+    )
 
   if (txError)
     return (
       <>
         <Central>
-          <Error />
+          <StyledError />
           <WaitingText>Something went wrong</WaitingText>
         </Central>
 
@@ -307,11 +304,11 @@ function Confirmation({
           <Divider />
           <div
             style={{
-              display: "flex",
-              padding: "8px 0",
-              alignItems: "center",
-              gap: "4px",
-              fontSize: "14px",
+              display: 'flex',
+              padding: '8px 0',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '14px',
             }}
           >
             <Info />
@@ -331,7 +328,7 @@ function Confirmation({
           Close
         </Button>
       </>
-    );
+    )
 
   return (
     <>
@@ -346,13 +343,11 @@ function Confirmation({
         <img
           src={tokenInInfo.logoURI}
           width="28"
+          alt=""
           height="28"
           onError={({ currentTarget }) => {
-            currentTarget.onerror = null; // prevents looping
-            currentTarget.src = new URL(
-              "../../assets/question.svg",
-              import.meta.url
-            ).href;
+            currentTarget.onerror = null // prevents looping
+            currentTarget.src = new URL('../../assets/question.svg', import.meta.url).href
           }}
         />
         {+Number(amountIn).toPrecision(10)}
@@ -363,15 +358,13 @@ function Confirmation({
 
       <Flex>
         <img
+          alt=""
           src={tokenOutInfo.logoURI}
           width="28"
           height="28"
           onError={({ currentTarget }) => {
-            currentTarget.onerror = null; // prevents looping
-            currentTarget.src = new URL(
-              "../../assets/question.svg",
-              import.meta.url
-            ).href;
+            currentTarget.onerror = null // prevents looping
+            currentTarget.src = new URL('../../assets/question.svg', import.meta.url).href
           }}
         />
         {+Number(amountOut).toPrecision(10)}
@@ -379,8 +372,8 @@ function Confirmation({
       </Flex>
 
       <Note>
-        Output is estimated. You will receive at least {minAmountOut}{" "}
-        {tokenOutInfo.symbol} or the transaction will revert.
+        Output is estimated. You will receive at least {minAmountOut} {tokenOutInfo.symbol} or the transaction will
+        revert.
       </Note>
 
       <Detail>
@@ -394,9 +387,7 @@ function Confirmation({
         <DetailRow>
           <DetailLabel>
             Minimum Received
-            <InfoHelper
-              text={`Minimum amount you will receive or your transaction will revert`}
-            />
+            <InfoHelper text={`Minimum amount you will receive or your transaction will revert`} />
           </DetailLabel>
           <DetailRight>
             {minAmountOut} {tokenOutInfo.symbol}
@@ -408,7 +399,7 @@ function Confirmation({
             Gas Fee
             <InfoHelper text="Estimated network fee for your transaction" />
           </DetailLabel>
-          <DetailRight>${trade.gasUsd.toPrecision(4)}</DetailRight>
+          <DetailRight>${(+trade.routeSummary.gasUsd).toPrecision(4)}</DetailRight>
         </DetailRow>
 
         <DetailRow>
@@ -418,19 +409,10 @@ function Confirmation({
           </DetailLabel>
           <DetailRight
             style={{
-              color:
-                priceImpact > 15
-                  ? theme.error
-                  : priceImpact > 5
-                  ? theme.warning
-                  : theme.text,
+              color: priceImpact > 15 ? theme.error : priceImpact > 5 ? theme.warning : theme.text,
             }}
           >
-            {priceImpact === -1
-              ? "--"
-              : priceImpact > 0.01
-              ? priceImpact.toFixed(3) + "%"
-              : "< 0.01%"}
+            {priceImpact === -1 ? '--' : priceImpact > 0.01 ? priceImpact.toFixed(3) + '%' : '< 0.01%'}
           </DetailRight>
         </DetailRow>
 
@@ -440,7 +422,7 @@ function Confirmation({
         </DetailRow>
       </Detail>
 
-      <div style={{ marginTop: "auto" }}>
+      <div style={{ marginTop: 'auto' }}>
         {priceImpact > 15 ? (
           <PriceImpactVeryHigh>
             <Warning /> Price Impact is Very High
@@ -458,7 +440,7 @@ function Confirmation({
         <Button onClick={confirmSwap}>Confirm swap</Button>
       </div>
     </>
-  );
+  )
 }
 
-export default Confirmation;
+export default Confirmation

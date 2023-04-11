@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from "react";
-import styled from "styled-components";
-import { Dex } from "../hooks/useSwap";
-import { Input } from "./SelectCurrency";
+import { useEffect, useRef, useState } from 'react'
+import styled from 'styled-components'
+import { Dex } from '../hooks/useSwap'
+import { Input } from './SelectCurrency'
 
 const SourceList = styled.div`
   width: 100%;
@@ -28,10 +28,10 @@ const SourceList = styled.div`
 
   /* Handle */
   ::-webkit-scrollbar-thumb {
-    background: ${({ theme }) => theme.subText + "66"};
+    background: ${({ theme }) => theme.subText + '66'};
     border-radius: 999px;
   }
-`;
+`
 
 export const Checkbox = styled.input`
   position: relative;
@@ -39,7 +39,7 @@ export const Checkbox = styled.input`
   accent-color: ${({ theme }) => theme.accent};
 
   :indeterminate::before {
-    content: "";
+    content: '';
     display: block;
     color: ${({ theme }) => theme.text};
     width: 13px;
@@ -48,7 +48,7 @@ export const Checkbox = styled.input`
     border-radius: 2px;
   }
   :indeterminate::after {
-    content: "";
+    content: '';
     display: block;
     width: 7px;
     height: 7px;
@@ -58,7 +58,7 @@ export const Checkbox = styled.input`
     top: 5.5px;
     left: 3px;
   }
-`;
+`
 
 const LiquiditySourceHeader = styled.div`
   border-top-right-radius: 8px;
@@ -72,7 +72,7 @@ const LiquiditySourceHeader = styled.div`
   display: flex;
   gap: 1rem;
   align-items: center;
-`;
+`
 
 const Row = styled.div`
   width: 100%;
@@ -81,7 +81,7 @@ const Row = styled.div`
   align-items: center;
   column-gap: 16px;
   padding: 12px;
-`;
+`
 
 const ImageWrapper = styled.div`
   width: 32px;
@@ -94,59 +94,55 @@ const ImageWrapper = styled.div`
     width: 100%;
     height: auto;
   }
-`;
+`
 
 const SourceName = styled.span`
   font-size: 14px;
   font-weight: 400;
   line-height: 20px;
   color: ${({ theme }) => theme.text};
-`;
+`
 
 function DexesSetting({
   allDexes,
   excludedDexes,
   setExcludedDexes,
 }: {
-  allDexes: Dex[];
-  excludedDexes: Dex[];
-  setExcludedDexes: (v: Dex[]) => void;
+  allDexes: Dex[]
+  excludedDexes: Dex[]
+  setExcludedDexes: (v: Dex[]) => void
 }) {
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('')
 
-  const excludedDexIds = excludedDexes.map((item) => item.dexId);
-  const allRef = useRef<HTMLInputElement>(null);
+  const excludedDexIds = excludedDexes.map(item => item.dexId)
+  const allRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    if (!allRef.current) return;
+    if (!allRef.current) return
     if (excludedDexes.length === 0) {
-      allRef.current.indeterminate = false;
-      allRef.current.checked = true;
+      allRef.current.indeterminate = false
+      allRef.current.checked = true
     } else if (excludedDexes.length === allDexes.length) {
-      allRef.current.indeterminate = false;
-      allRef.current.checked = false;
+      allRef.current.indeterminate = false
+      allRef.current.checked = false
     } else {
-      allRef.current.indeterminate = true;
-      allRef.current.checked = false;
+      allRef.current.indeterminate = true
+      allRef.current.checked = false
     }
-  }, [allDexes.length, excludedDexes.length]);
+  }, [allDexes.length, excludedDexes.length])
 
   return (
     <>
-      <Input
-        placeholder="Search for a liquidity source"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+      <Input placeholder="Search for a liquidity source" value={search} onChange={e => setSearch(e.target.value)} />
 
       <div style={{ flex: 1 }}>
         <LiquiditySourceHeader>
           <Checkbox
             type="checkbox"
             ref={allRef}
-            onChange={(e) => {
-              if (e.currentTarget.checked) setExcludedDexes([]);
-              else setExcludedDexes(allDexes);
+            onChange={e => {
+              if (e.currentTarget.checked) setExcludedDexes([])
+              else setExcludedDexes(allDexes)
             }}
           />
           Liquidity Sources
@@ -154,26 +150,22 @@ function DexesSetting({
 
         <SourceList>
           {allDexes
-            .filter((item) =>
-              item.name.toLowerCase().includes(search.trim().toLowerCase())
-            )
-            .map((item) => (
+            .filter(item => item.name.toLowerCase().includes(search.trim().toLowerCase()))
+            .map(item => (
               <Row key={item.dexId}>
                 <Checkbox
                   type="checkbox"
                   checked={!excludedDexIds.includes(item.dexId)}
-                  onChange={(e) => {
+                  onChange={e => {
                     if (e.target.checked) {
-                      setExcludedDexes(
-                        excludedDexes.filter((i) => i.dexId !== item.dexId)
-                      );
+                      setExcludedDexes(excludedDexes.filter(i => i.dexId !== item.dexId))
                     } else {
-                      setExcludedDexes([...excludedDexes, item]);
+                      setExcludedDexes([...excludedDexes, item])
                     }
                   }}
                 />
                 <ImageWrapper>
-                  <img src={item.logoURL} alt="" />
+                  <img src={item.logoURL} alt="logo" />
                 </ImageWrapper>
                 <SourceName>{item.name}</SourceName>
               </Row>
@@ -181,7 +173,7 @@ function DexesSetting({
         </SourceList>
       </div>
     </>
-  );
+  )
 }
 
-export default DexesSetting;
+export default DexesSetting

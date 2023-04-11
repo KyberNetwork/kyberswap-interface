@@ -285,6 +285,7 @@ export default function Home() {
         </div>
 
         <Widget
+          client="widget-nextjs-demo"
           theme={theme}
           tokenList={[]}
           provider={ethersProvider}
