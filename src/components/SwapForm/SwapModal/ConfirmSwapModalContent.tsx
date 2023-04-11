@@ -24,6 +24,7 @@ import { Dots } from 'components/swapv2/styleds'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useEncodeSolana } from 'state/swap/hooks'
+import { useDegenModeManager } from 'state/user/hooks'
 import { CloseIcon } from 'theme/components'
 import { toCurrencyAmount } from 'utils/currencyAmount'
 import { checkPriceImpact } from 'utils/prices'
@@ -82,6 +83,7 @@ export default function ConfirmSwapModalContent({
   const { routeSummary, slippage, isStablePairSwap, isAdvancedMode } = useSwapFormContext()
   const [hasAcceptedNewAmount, setHasAcceptedNewAmount] = useState(false)
   const [showAreYouSureModal, setShowAreYouSureModal] = useState(false)
+  const [isDegenMode] = useDegenModeManager()
 
   const shouldDisableConfirmButton = isBuildingRoute || !!errorWhileBuildRoute
 
@@ -303,7 +305,7 @@ export default function ConfirmSwapModalContent({
               {outputChangePercent < SHOW_ACCEPT_NEW_AMOUNT_THRESHOLD && (
                 <ButtonPrimary
                   style={
-                    hasAcceptedNewAmount
+                    hasAcceptedNewAmount || (priceImpactResult.isVeryHigh && !isDegenMode)
                       ? undefined
                       : {
                           backgroundColor:
@@ -315,7 +317,7 @@ export default function ConfirmSwapModalContent({
                         }
                   }
                   onClick={handleClickAcceptNewAmount}
-                  disabled={hasAcceptedNewAmount}
+                  disabled={hasAcceptedNewAmount || (priceImpactResult.isVeryHigh && !isDegenMode)}
                 >
                   Accept New Amount
                 </ButtonPrimary>
