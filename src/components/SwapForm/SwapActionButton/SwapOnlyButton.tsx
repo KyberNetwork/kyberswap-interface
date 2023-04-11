@@ -1,7 +1,6 @@
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useCallback, useMemo, useState } from 'react'
-import { useDispatch } from 'react-redux'
 import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
@@ -70,7 +69,6 @@ const SwapOnlyButton: React.FC<Props> = ({
   const { isSolana } = useActiveWeb3React()
   const [encodeSolana] = useEncodeSolana()
   const theme = useTheme()
-  const dispatch = useDispatch()
   const { mixpanelHandler } = useMixpanel({
     [Field.INPUT]: currencyIn,
     [Field.OUTPUT]: currencyOut,
