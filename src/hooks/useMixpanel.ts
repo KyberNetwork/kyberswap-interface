@@ -212,6 +212,9 @@ export enum MIXPANEL_TYPE {
   PA_CLICK_TAB_IN_NOTI_CENTER,
   PA_CREATE_SUCCESS,
   ACCEPT_NEW_AMOUNT,
+  REQUIRE_TYPE_CONFIRM_NEW_AMOUNT,
+  NEW_AMOUNT_FROM_BUILD,
+  SWAP_CONFIRMED_WHEN_PI_VERY_HIGH,
 }
 
 export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES: readonly TRANSACTION_TYPE[] = [
@@ -1063,6 +1066,18 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
 
         case MIXPANEL_TYPE.ACCEPT_NEW_AMOUNT: {
           mixpanel.track('Accept New Amount Button Click', payload)
+          break
+        }
+        case MIXPANEL_TYPE.REQUIRE_TYPE_CONFIRM_NEW_AMOUNT: {
+          mixpanel.track('Require Type Confirm New Amount', payload)
+          break
+        }
+        case MIXPANEL_TYPE.NEW_AMOUNT_FROM_BUILD: {
+          mixpanel.track('New Amount From Build', payload)
+          break
+        }
+        case MIXPANEL_TYPE.SWAP_CONFIRMED_WHEN_PI_VERY_HIGH: {
+          mixpanel.track('Swap Confirmed When PI Very High', payload)
           break
         }
       }
