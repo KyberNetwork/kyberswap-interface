@@ -81,7 +81,7 @@ const SwapActionButton: React.FC<Props> = ({
   buildRoute,
 }) => {
   const theme = useTheme()
-  const { account } = useActiveWeb3React()
+  const { account, walletKey } = useActiveWeb3React()
 
   const [errorWhileSwap, setErrorWhileSwap] = useState('')
   const noRouteFound = routeSummary && !routeSummary.route
@@ -131,6 +131,13 @@ const SwapActionButton: React.FC<Props> = ({
 
   const toggleApprovalModal = useToggleModal(ApplicationModal.SWAP_APPROVAL)
 
+  const handleApproveClick = () => {
+    if (walletKey && ['METAMASK', 'TRUST_WALLET'].includes(walletKey?.toString())) {
+      approveCallback()
+    } else {
+      toggleApprovalModal()
+    }
+  }
   const renderButton = () => {
     if (!account) {
       return (
@@ -190,9 +197,7 @@ const SwapActionButton: React.FC<Props> = ({
           <RowBetween gap="12px">
             {permitState === PermitState.NOT_APPLICABLE ? (
               <ButtonConfirmed
-                onClick={() => {
-                  toggleApprovalModal()
-                }}
+                onClick={handleApproveClick}
                 disabled={approval !== ApprovalState.NOT_APPROVED || approvalSubmitted}
                 altDisabledStyle={approval === ApprovalState.PENDING} // show solid button while waiting
                 confirmed={approval === ApprovalState.APPROVED}
