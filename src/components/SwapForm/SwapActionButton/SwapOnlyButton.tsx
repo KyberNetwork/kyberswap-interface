@@ -126,6 +126,7 @@ const SwapOnlyButton: React.FC<Props> = ({
           const amountOut = buildResult.data?.amountOut
           const percent = buildResult.data?.outputChange?.percent
           if (percent === 0) {
+            outputAmountDescription = 'Unchanged'
           } else if (percent > 0) {
             outputAmountDescription = 'New output amt is better than initial output amt'
           } else if (percent > -1) {
