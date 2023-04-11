@@ -458,8 +458,12 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                     <Loader />
                   )}
 
-                  {
-                    <OutlineCard marginTop="1rem" padding="1rem">
+                  <OutlineCard marginTop="1rem" padding="1rem">
+                    <AutoColumn gap="md">
+                      <Text fontSize={12} fontWeight={500}>
+                        <Trans>More Information</Trans>
+                      </Text>
+                      <Divider />
                       <RowBetween>
                         <TextDashed fontSize={12} fontWeight={500} color={theme.subText} minWidth="max-content">
                           <MouseoverTooltip
@@ -484,8 +488,32 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                           {formatSlippage(allowedSlippage)}
                         </TYPE.black>
                       </RowBetween>
-                    </OutlineCard>
-                  }
+                    </AutoColumn>
+                  </OutlineCard>
+
+                  {slippageStatus === SLIPPAGE_STATUS.HIGH && (
+                    <WarningCard padding="10px 16px" m="20px 0 0">
+                      <Flex alignItems="center">
+                        <AlertTriangle stroke={theme.warning} size="16px" />
+                        <TYPE.black ml="12px" fontSize="12px" flex={1}>
+                          <Trans>
+                            <TextUnderlineColor
+                              style={{ minWidth: 'max-content' }}
+                              as="a"
+                              href={SLIPPAGE_EXPLANATION_URL}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              Slippage
+                            </TextUnderlineColor>
+                            <TextUnderlineTransparent sx={{ ml: '0.5ch' }}>
+                              is high. Your transaction may be front-run
+                            </TextUnderlineTransparent>
+                          </Trans>
+                        </TYPE.black>
+                      </Flex>
+                    </WarningCard>
+                  )}
                 </>
               )}
               bottomContent={modalFooter}
@@ -684,29 +712,8 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                     </Text>
                   </AmoutToRemoveContent>
 
-                  <Flex justifyContent="flex-end">
-                    <ButtonConfirmed
-                      style={{ marginTop: '24px', width: upToMedium ? '100%' : 'fit-content', minWidth: '164px' }}
-                      confirmed={false}
-                      disabled={
-                        removed ||
-                        (loadingFee && !feeValue0) ||
-                        liquidityPercentage?.equalTo(new Percent(0, 100)) ||
-                        !liquidityValue0 ||
-                        (!!owner && !!account && !ownsNFT)
-                      }
-                      onClick={() => {
-                        if (!account) {
-                          toggleWalletModal()
-                        } else setShowConfirm(true)
-                      }}
-                    >
-                      {removed ? <Trans>Closed</Trans> : error ?? <Trans>Preview</Trans>}
-                    </ButtonConfirmed>
-                  </Flex>
-
                   {slippageStatus === SLIPPAGE_STATUS.HIGH && (
-                    <WarningCard padding="10px 16px" mt="24px">
+                    <WarningCard padding="10px 16px" m="24px 0 0">
                       <Flex alignItems="center">
                         <AlertTriangle stroke={theme.warning} size="16px" />
                         <TYPE.black ml="12px" fontSize="12px" flex={1}>
@@ -728,6 +735,27 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                       </Flex>
                     </WarningCard>
                   )}
+
+                  <Flex justifyContent="flex-end">
+                    <ButtonConfirmed
+                      style={{ marginTop: '16px', width: upToMedium ? '100%' : 'fit-content', minWidth: '164px' }}
+                      confirmed={false}
+                      disabled={
+                        removed ||
+                        (loadingFee && !feeValue0) ||
+                        liquidityPercentage?.equalTo(new Percent(0, 100)) ||
+                        !liquidityValue0 ||
+                        (!!owner && !!account && !ownsNFT)
+                      }
+                      onClick={() => {
+                        if (!account) {
+                          toggleWalletModal()
+                        } else setShowConfirm(true)
+                      }}
+                    >
+                      {removed ? <Trans>Closed</Trans> : error ?? <Trans>Preview</Trans>}
+                    </ButtonConfirmed>
+                  </Flex>
                 </SecondColumn>
               </GridColumn>
             </AutoColumn>

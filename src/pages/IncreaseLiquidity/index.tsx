@@ -4,7 +4,7 @@ import { FeeAmount, NonfungiblePositionManager } from '@kyberswap/ks-sdk-elastic
 import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import JSBI from 'jsbi'
-import { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { useMedia, usePrevious } from 'react-use'
@@ -441,11 +441,36 @@ export default function IncreaseLiquidity() {
               )
             }
             bottomContent={() => (
-              <ButtonPrimary id="btnSupply" onClick={onAdd}>
-                <Text fontWeight={500}>
-                  <Trans>Supply</Trans>
-                </Text>
-              </ButtonPrimary>
+              <>
+                {slippageStatus === SLIPPAGE_STATUS.HIGH && (
+                  <WarningCard padding="10px 16px" m="0 0 20px">
+                    <Flex alignItems="center">
+                      <AlertTriangle stroke={theme.warning} size="16px" />
+                      <TYPE.black ml="12px" fontSize="12px" flex={1}>
+                        <Trans>
+                          <TextUnderlineColor
+                            style={{ minWidth: 'max-content' }}
+                            as="a"
+                            href={SLIPPAGE_EXPLANATION_URL}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            Slippage
+                          </TextUnderlineColor>
+                          <TextUnderlineTransparent sx={{ ml: '0.5ch' }}>
+                            is high. Your transaction may be front-run
+                          </TextUnderlineTransparent>
+                        </Trans>
+                      </TYPE.black>
+                    </Flex>
+                  </WarningCard>
+                )}
+                <ButtonPrimary id="btnSupply" onClick={onAdd}>
+                  <Text fontWeight={500}>
+                    <Trans>Supply</Trans>
+                  </Text>
+                </ButtonPrimary>
+              </>
             )}
           />
         )}
@@ -530,7 +555,7 @@ export default function IncreaseLiquidity() {
                 </FirstColumn>
 
                 <SecondColumn>
-                  <BlackCard style={{ marginBottom: '1rem' }}>
+                  <BlackCard style={{ marginBottom: '24px' }}>
                     <Box
                       sx={{
                         display: 'grid',
@@ -628,12 +653,8 @@ export default function IncreaseLiquidity() {
                     </TokenInputWrapper>
                   </BlackCard>
 
-                  <Flex justifyContent="flex-end">
-                    <Buttons />
-                  </Flex>
-
                   {slippageStatus === SLIPPAGE_STATUS.HIGH && (
-                    <WarningCard padding="10px 16px" mt="24px">
+                    <WarningCard padding="10px 16px" mb="16px">
                       <Flex alignItems="center">
                         <AlertTriangle stroke={theme.warning} size="16px" />
                         <TYPE.black ml="12px" fontSize="12px" flex={1}>
@@ -655,6 +676,10 @@ export default function IncreaseLiquidity() {
                       </Flex>
                     </WarningCard>
                   )}
+
+                  <Flex justifyContent="flex-end">
+                    <Buttons />
+                  </Flex>
                 </SecondColumn>
               </GridColumn>
             </AutoColumn>
