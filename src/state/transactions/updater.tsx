@@ -137,10 +137,11 @@ export default function Updater(): null {
                 if (receipt.status === 1 && transaction) {
                   const arbitrary = transaction.extraInfo?.arbitrary
                   switch (transaction.type) {
-                    //
                     case TRANSACTION_TYPE.SWAP: {
-                      if (arbitrary && account) {
-                        dispatch(revokePermit({ chainId, address: arbitrary.tokenAddressIn, account }))
+                      if (arbitrary) {
+                        if (account && arbitrary.isPermitSwap) {
+                          dispatch(revokePermit({ chainId, address: arbitrary.inputAddress, account }))
+                        }
                         mixpanelHandler(MIXPANEL_TYPE.SWAP_COMPLETED, {
                           arbitrary,
                           actual_gas: receipt.gasUsed || BigNumber.from(0),

@@ -521,9 +521,11 @@ export function useRewardTokensFullInfo(): Token[] {
 
 export function errorFriendly(text: string): string {
   const error = text?.toLowerCase?.() || ''
+
   if (!error || error.includes('router: expired')) {
     return 'An error occurred. Refresh the page and try again '
   }
+
   if (
     error.includes('mintotalamountout') ||
     error.includes('err_limit_out') ||
@@ -543,6 +545,10 @@ export function errorFriendly(text: string): string {
   // classic/elastic remove liquidity error
   if (error.includes('insufficient')) {
     return t`An error occurred. Please try increasing max slippage`
+  }
+
+  if (error.includes('permit: invalid signature')) {
+    return t`An error occurred. Invalid Permit Signature`
   }
 
   return t`An error occurred`

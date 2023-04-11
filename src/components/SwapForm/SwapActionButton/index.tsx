@@ -175,6 +175,7 @@ const SwapActionButton: React.FC<Props> = ({
       balanceIn,
       balanceOut,
       parsedAmount: parsedAmountFromTypedValue,
+      isPermitSwap: permitState === PermitState.SIGNED,
 
       setProcessingSwap,
       setErrorWhileSwap,

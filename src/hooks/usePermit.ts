@@ -2,8 +2,9 @@ import { splitSignature } from '@ethersproject/bytes'
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { defaultAbiCoder, parseUnits } from 'ethers/lib/utils'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useDispatch } from 'react-redux'
+import { usePrevious } from 'react-use'
 
 import { NotificationType } from 'components/Announcement/type'
 import EIP_2612 from 'constants/abis/eip2612.json'
@@ -64,6 +65,25 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
     }
     return PermitState.NOT_SIGNED
   }, [permitData, transactionDeadline, tokenV2, currencyAmount])
+  const prevErrorCount = usePrevious(permitData?.errorCount)
+  useEffect(() => {
+    if (prevErrorCount === 2 && permitData?.errorCount === 3) {
+      notify(
+        {
+          type: NotificationType.ERROR,
+          title: t`Permit Failed`,
+          summary: t`An error occurred while attempting to authorize this token. Instead, please approve normally.`,
+        },
+        10000,
+      )
+      if (currency) {
+        mixpanelHandler(MIXPANEL_TYPE.PERMIT_FAILED_TOO_MANY_TIMES, {
+          symbol: currency.symbol,
+          address: currency.address,
+        })
+      }
+    }
+  }, [permitData?.errorCount, notify, mixpanelHandler, currency, prevErrorCount])
 
   const signPermitCallback = useCallback(async (): Promise<void> => {
     if (
@@ -77,124 +97,88 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
     ) {
       return
     }
-    // TODO: REMOVE later
-    if (chainId === ChainId.MATIC && currency.address.toLowerCase() === '0x2791bca1f2de4661ed88a30c99a7a9449aa84174') {
-      if (permitData?.errorCount !== undefined && permitData?.errorCount === 2) {
-        notify(
+    if (permitState !== PermitState.NOT_SIGNED) {
+      return
+    }
+    const deadline = transactionDeadline.toNumber() + PERMIT_VALIDITY_BUFFER
+    const message = {
+      owner: account,
+      spender: routerAddress,
+      value: parseUnits(currencyAmount.toExact(), currency.decimals).toString(),
+      nonce: tokenNonceState.result[0].toNumber(),
+      deadline: deadline,
+    }
+    const data = JSON.stringify({
+      types: {
+        EIP712Domain: [
           {
-            type: NotificationType.ERROR,
-            title: t`Permit Failed`,
-            summary: t`An error occurred while attempting to authorize this token. Instead, please approve normally.`,
+            name: 'name',
+            type: 'string',
           },
-          10000,
-        )
-        mixpanelHandler(MIXPANEL_TYPE.PERMIT_FAILED_TOO_MANY_TIMES, {
-          symbol: currency.symbol,
-          address: currency.address,
-        })
-      }
-      dispatch(permitError({ chainId, address: currency.address, account }))
-    } else {
-      if (permitState !== PermitState.NOT_SIGNED) {
-        return
-      }
-      const deadline = transactionDeadline.toNumber() + PERMIT_VALIDITY_BUFFER
-      const message = {
-        owner: account,
-        spender: routerAddress,
-        value: parseUnits(currencyAmount.toExact(), currency.decimals).toString(),
-        nonce: tokenNonceState.result[0].toNumber(),
-        deadline: deadline,
-      }
-      const data = JSON.stringify({
-        types: {
-          EIP712Domain: [
-            {
-              name: 'name',
-              type: 'string',
-            },
-            {
-              name: 'version',
-              type: 'string',
-            },
-            {
-              name: 'chainId',
-              type: 'uint256',
-            },
-            {
-              name: 'verifyingContract',
-              type: 'address',
-            },
-          ],
-          Permit: [
-            {
-              name: 'owner',
-              type: 'address',
-            },
-            {
-              name: 'spender',
-              type: 'address',
-            },
-            {
-              name: 'value',
-              type: 'uint256',
-            },
-            {
-              name: 'nonce',
-              type: 'uint256',
-            },
-            {
-              name: 'deadline',
-              type: 'uint256',
-            },
-          ],
-        },
-        domain: {
-          name: currency.name,
-          verifyingContract: currency.address,
-          chainId,
-          version: '1',
-        },
-        primaryType: 'Permit',
-        message: message,
-      })
-      try {
-        const signature = await library.send('eth_signTypedData_v4', [account, data]).then(res => splitSignature(res))
-        const encodedPermitData = defaultAbiCoder.encode(
-          ['address', 'address', 'uint256', 'uint256', 'uint8', 'bytes32', 'bytes32'],
-          [message.owner, message.spender, message.value, message.deadline, signature.v, signature.r, signature.s],
-        )
+          {
+            name: 'version',
+            type: 'string',
+          },
+          {
+            name: 'chainId',
+            type: 'uint256',
+          },
+          {
+            name: 'verifyingContract',
+            type: 'address',
+          },
+        ],
+        Permit: [
+          {
+            name: 'owner',
+            type: 'address',
+          },
+          {
+            name: 'spender',
+            type: 'address',
+          },
+          {
+            name: 'value',
+            type: 'uint256',
+          },
+          {
+            name: 'nonce',
+            type: 'uint256',
+          },
+          {
+            name: 'deadline',
+            type: 'uint256',
+          },
+        ],
+      },
+      domain: {
+        name: currency.name,
+        verifyingContract: currency.address,
+        chainId,
+        version: '1',
+      },
+      primaryType: 'Permit',
+      message: message,
+    })
+    try {
+      const signature = await library.send('eth_signTypedData_v4', [account, data]).then(res => splitSignature(res))
+      const encodedPermitData = defaultAbiCoder.encode(
+        ['address', 'address', 'uint256', 'uint256', 'uint8', 'bytes32', 'bytes32'],
+        [message.owner, message.spender, message.value, message.deadline, signature.v, signature.r, signature.s],
+      )
 
-        dispatch(
-          permitUpdate({
-            chainId: chainId,
-            address: currency.address,
-            rawSignature: encodedPermitData,
-            deadline: message.deadline,
-            value: message.value,
-            account: account,
-          }),
-        )
-      } catch (error) {
-        if (error?.code !== 4001) {
-          // exceeded 3 times error
-          if (permitData?.errorCount !== undefined && permitData?.errorCount === 2) {
-            notify(
-              {
-                type: NotificationType.ERROR,
-                title: t`Permit Failed`,
-                summary: t`An error occurred while attempting to authorize this token. Instead, please approve normally.`,
-              },
-              10000,
-            )
-            mixpanelHandler(MIXPANEL_TYPE.PERMIT_FAILED_TOO_MANY_TIMES, {
-              symbol: currency.symbol,
-              address: currency.address,
-            })
-          }
-          dispatch(permitError({ chainId, address: currency.address, account }))
-        }
-      }
+      dispatch(
+        permitUpdate({
+          chainId: chainId,
+          address: currency.address,
+          rawSignature: encodedPermitData,
+          deadline: message.deadline,
+          value: message.value,
+          account: account,
+        }),
+      )
+    } catch (e) {
+      console.log(e)
     }
   }, [
     account,
@@ -208,9 +192,6 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
     dispatch,
     tokenV2,
     tokenNonceState.result,
-    notify,
-    permitData?.errorCount,
-    mixpanelHandler,
   ])
 
   return { permitState, permitCallback: signPermitCallback, permitData }

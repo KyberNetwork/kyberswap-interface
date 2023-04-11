@@ -1,6 +1,7 @@
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useCallback, useMemo, useState } from 'react'
+import { useDispatch } from 'react-redux'
 import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
@@ -40,6 +41,7 @@ export type Props = {
   balanceIn: CurrencyAmount<Currency> | undefined
   balanceOut: CurrencyAmount<Currency> | undefined
   parsedAmount: CurrencyAmount<Currency> | undefined
+  isPermitSwap?: boolean
 
   setProcessingSwap: React.Dispatch<React.SetStateAction<boolean>>
   setErrorWhileSwap: (e: string) => void
@@ -59,6 +61,7 @@ const SwapOnlyButton: React.FC<Props> = ({
   balanceIn,
   balanceOut,
   parsedAmount,
+  isPermitSwap,
 
   setProcessingSwap,
   setErrorWhileSwap,
@@ -67,6 +70,7 @@ const SwapOnlyButton: React.FC<Props> = ({
   const { isSolana } = useActiveWeb3React()
   const [encodeSolana] = useEncodeSolana()
   const theme = useTheme()
+  const dispatch = useDispatch()
   const { mixpanelHandler } = useMixpanel({
     [Field.INPUT]: currencyIn,
     [Field.OUTPUT]: currencyOut,
@@ -76,7 +80,7 @@ const SwapOnlyButton: React.FC<Props> = ({
   const { priceImpact } = routeSummary || {}
 
   // the callback to execute the swap
-  const swapCallback = useSwapCallbackV3()
+  const swapCallback = useSwapCallbackV3(isPermitSwap)
   const priceImpactResult = checkPriceImpact(priceImpact)
   const userHasSpecifiedInputOutput = Boolean(currencyIn && currencyOut && parsedAmount)
   const showLoading = isGettingRoute || isBuildingRoute || ((!balanceIn || !balanceOut) && userHasSpecifiedInputOutput)
