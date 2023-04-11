@@ -2,7 +2,6 @@ import axios from 'axios'
 import useSWR from 'swr'
 
 import { SWR_KEYS } from 'constants/index'
-import { GrantProgram } from 'types/grantProgram'
 
 type Response = {
   code: number

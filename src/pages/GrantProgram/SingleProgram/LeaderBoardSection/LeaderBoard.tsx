@@ -11,7 +11,6 @@ import Silver from 'assets/svg/silver_icon.svg'
 import Pagination from 'components/Pagination'
 import useTheme from 'hooks/useTheme'
 import { leaderboardTableBodyBackgroundColorsByRank } from 'pages/Campaign/LeaderboardLayout'
-import { ProjectRanking } from 'types/grantProgram'
 
 import { ITEMS_PER_PAGE, RankByConfig } from '.'
 import ExpandedRankingSection from './ExpandedSection'

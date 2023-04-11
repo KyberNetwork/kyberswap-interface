@@ -13,7 +13,6 @@ import useSwapCallbackV3 from 'hooks/useSwapCallbackV3'
 import useTheme from 'hooks/useTheme'
 import { Field } from 'state/swap/actions'
 import { useEncodeSolana } from 'state/swap/hooks'
-import { DetailedRouteSummary } from 'types/route'
 import { checkPriceImpact } from 'utils/prices'
 
 const CustomPrimaryButton = styled(ButtonPrimary).attrs({

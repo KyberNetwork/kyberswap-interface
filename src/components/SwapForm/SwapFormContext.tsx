@@ -1,6 +1,5 @@
 import { createContext, useContext } from 'react'
 
-import { DetailedRouteSummary, FeeConfig } from 'types/route'
 
 type SwapFormContextProps = {
   feeConfig: FeeConfig | undefined
