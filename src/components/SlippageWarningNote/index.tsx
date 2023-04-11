@@ -12,7 +12,7 @@ type Props = {
   className?: string
 }
 
-const SLIPPAGE_EXPLANATION_URL =
+export const SLIPPAGE_EXPLANATION_URL =
   'https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/slippage'
 
 const TextUnderlineColor = styled(Text)`

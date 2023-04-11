@@ -1,7 +1,7 @@
 import { t } from '@lingui/macro'
 import { useCallback, useRef } from 'react'
 import routeApi from 'services/route'
-import { BuildRouteData, BuildRoutePayload } from 'services/route/types/buildRoute'
+import { BuildRouteData, BuildRoutePayload, BuildRouteResponse } from 'services/route/types/buildRoute'
 import { RouteSummary } from 'services/route/types/getRoute'
 
 import { NETWORKS_INFO } from 'constants/networks'

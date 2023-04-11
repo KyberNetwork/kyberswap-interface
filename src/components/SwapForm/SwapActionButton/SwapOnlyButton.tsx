@@ -38,7 +38,6 @@ export type Props = {
   routeSummary: DetailedRouteSummary | undefined
   isGettingRoute: boolean
   isProcessingSwap: boolean
-  isDisabled?: boolean
   isApproved?: boolean
 
   currencyIn: Currency | undefined
@@ -58,7 +57,6 @@ const SwapOnlyButton: React.FC<Props> = ({
   routeSummary,
   isGettingRoute,
   isProcessingSwap,
-  isDisabled,
   isApproved,
 
   currencyIn,
@@ -170,7 +168,7 @@ const SwapOnlyButton: React.FC<Props> = ({
     }
 
     const shouldDisableByPriceImpact = !isDegenMode && (priceImpactResult.isVeryHigh || priceImpactResult.isInvalid)
-    const shouldDisable = isDisabled || shouldDisableByPriceImpact
+    const shouldDisable = !routeSummary || !isApproved || shouldDisableByPriceImpact
 
     if ((priceImpactResult.isVeryHigh || priceImpactResult.isInvalid) && isDegenMode) {
       return (
@@ -192,27 +190,31 @@ const SwapOnlyButton: React.FC<Props> = ({
         $minimal={minimal}
         style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
       >
-        {shouldDisable && isApproved && (
+        {shouldDisableByPriceImpact ? (
           <MouseoverTooltip
             text={
-              shouldDisableByPriceImpact ? (
-                <Trans>
-                  To ensure you dont lose funds due to very high price impact (≥10%), swap has been disabled for this
-                  trade. If you still wish to continue, you can turn on Degen Mode from Settings
-                </Trans>
-              ) : (
-                <Trans>
-                  There was an issue while trying to find a price for these tokens. Please try again. Otherwise, you may
-                  select some other tokens to swap
-                </Trans>
-              )
+              <Trans>
+                To ensure you dont lose funds due to very high price impact (≥10%), swap has been disabled for this
+                trade. If you still wish to continue, you can turn on Degen Mode from Settings
+              </Trans>
             }
           >
             <Info size={14} />
           </MouseoverTooltip>
-        )}
+        ) : !routeSummary ? (
+          <MouseoverTooltip
+            text={
+              <Trans>
+                There was an issue while trying to find a price for these tokens. Please try again. Otherwise, you may
+                select some other tokens to swap
+              </Trans>
+            }
+          >
+            <Info size={14} />
+          </MouseoverTooltip>
+        ) : null}
         <Text>
-          <Trans>{shouldDisable && isApproved ? 'Swap Disabled' : 'Swap'}</Trans>
+          <Trans>{shouldDisable ? 'Swap Disabled' : 'Swap'}</Trans>
         </Text>
       </CustomPrimaryButton>
     )

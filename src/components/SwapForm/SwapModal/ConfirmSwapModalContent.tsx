@@ -338,18 +338,20 @@ export default function ConfirmSwapModalContent({
                   </Text>
                 ) : disableSwap ? (
                   <>
-                    <MouseoverTooltip
-                      text={
-                        <Trans>
-                          To ensure you dont lose funds due to very high price impact (≥10%), swap has been disabled for
-                          this trade. If you still wish to continue, you can turn on Degen Mode from Settings
-                        </Trans>
-                      }
-                    >
-                      <Info size={14} />
-                    </MouseoverTooltip>
+                    {disableByPriceImpact && (
+                      <MouseoverTooltip
+                        text={
+                          <Trans>
+                            To ensure you dont lose funds due to very high price impact (≥10%), swap has been disabled
+                            for this trade. If you still wish to continue, you can turn on Degen Mode from Settings
+                          </Trans>
+                        }
+                      >
+                        <Info size={14} />
+                      </MouseoverTooltip>
+                    )}
                     <Text>
-                      <Trans>Swap Disabled</Trans>
+                      <Trans>{disableByPriceImpact ? 'Swap Disabled' : 'Confirm Swap'}</Trans>
                     </Text>
                   </>
                 ) : (

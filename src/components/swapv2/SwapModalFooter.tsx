@@ -56,7 +56,7 @@ export default function SwapModalFooter({
     () => computeSlippageAdjustedAmounts(trade, allowedSlippage),
     [allowedSlippage, trade],
   )
-  const [isAdvancedMode] = useDegenModeManager()
+  const [isDegenMode] = useDegenModeManager()
   const isWarningSlippage = checkWarningSlippage(allowedSlippage, isStablePairSwap)
   const [encodeSolana] = useEncodeSolana()
 
@@ -198,7 +198,7 @@ export default function SwapModalFooter({
       >
         <SlippageWarningNote rawSlippage={allowedSlippage} isStablePairSwap={isStablePairSwap} />
 
-        <PriceImpactNote priceImpact={priceImpact} isDegenMode={isAdvancedMode} />
+        <PriceImpactNote priceImpact={priceImpact} isDegenMode={isDegenMode} />
 
         <HurryUpBanner startedTime={startedTime} />
         <AutoRow>

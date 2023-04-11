@@ -170,7 +170,6 @@ const SwapActionButton: React.FC<Props> = ({
       setErrorWhileSwap,
       buildRoute,
 
-      isDisabled: !routeSummary || approval !== ApprovalState.APPROVED,
       isApproved: approval === ApprovalState.APPROVED,
     }
 
