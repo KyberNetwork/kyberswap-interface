@@ -57,7 +57,7 @@ export const useDatafeed = (poolDetail: PoolResponse, isReverse: boolean, label:
             minmov: 1,
             pricescale: 10000,
             has_intraday: true,
-            has_empty_bars: true,
+            // has_empty_bars: true,
             has_weekly_and_monthly: true,
             has_daily: true,
             supported_resolutions: configurationData.supported_resolutions as ResolutionString[],
@@ -95,7 +95,7 @@ export const useDatafeed = (poolDetail: PoolResponse, isReverse: boolean, label:
               timeframe,
               timePeriod,
               token: isReverse ? 'quote' : 'base',
-              before_timestamp: to - i * 1000 * secondsPerCandle,
+              before_timestamp: Math.floor(to - i * 1000 * secondsPerCandle),
               limit: countBack > 1000 ? (i === n - 1 ? countBack % 1000 : 1000) : countBack,
             }),
           )
@@ -103,14 +103,14 @@ export const useDatafeed = (poolDetail: PoolResponse, isReverse: boolean, label:
 
         const res = await Promise.all(promises)
 
-        if (res.some(data => data.error || !data.data?.data?.attributes?.ohlcv_list?.length)) {
+        if (res.some(data => data.error || !Array.isArray(data.data?.data?.attributes?.ohlcv_list))) {
           onHistoryCallback([], { noData: true })
           return
         }
 
         const bars = transformData(res.map(item => item.data?.data.attributes.ohlcv_list).flat() as any)
 
-        onHistoryCallback(bars, { noData: false })
+        onHistoryCallback(bars, { noData: res.some(data => !data?.data?.data?.attributes.ohlcv_list.length) })
       },
       searchSymbols: () => {
         //

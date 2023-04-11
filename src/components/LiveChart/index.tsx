@@ -111,32 +111,44 @@ function LiveChart({ currencies }: { currencies: { [field in Field]?: Currency }
   const theme = useTheme()
   const [currenciesState, setCurrenciesState] = useState(currencies)
 
-  const { data: dataToken0, isLoading: prochartLoading1 } = useTokenTopPoolsQuery(
+  const {
+    data: dataToken0,
+    isLoading: prochartLoading1,
+    error: errorToken0,
+  } = useTokenTopPoolsQuery(
     {
       network: networkInfo.geckoTermialId || '',
       address: currencies[Field.INPUT]?.wrapped.address || '',
     },
     {
-      skip: !networkInfo.geckoTermialId,
+      skip: !networkInfo.geckoTermialId || !currencies[Field.INPUT]?.wrapped.address,
     },
   )
-  const { data: dataToken1, isLoading: prochartLoading2 } = useTokenTopPoolsQuery(
+  const {
+    data: dataToken1,
+    isLoading: prochartLoading2,
+    error: errorToken1,
+  } = useTokenTopPoolsQuery(
     {
       network: networkInfo.geckoTermialId || '',
       address: currencies[Field.OUTPUT]?.wrapped.address || '',
     },
     {
-      skip: !networkInfo.geckoTermialId,
+      skip: !networkInfo.geckoTermialId || !currencies[Field.OUTPUT]?.wrapped.address,
     },
   )
 
   const prochartLoading = prochartLoading1 || prochartLoading2
 
-  let commonPool = dataToken0?.data.find(
-    item => !item.relationships.dex.data.id.includes('curve') && dataToken1?.data.map(i => i.id).includes(item.id),
-  )
+  const isError = !!errorToken0 && !!errorToken1
 
-  if (!commonPool) {
+  let commonPool = isError
+    ? null
+    : dataToken0?.data.find(
+        item => !item.relationships.dex.data.id.includes('curve') && dataToken1?.data.map(i => i.id).includes(item.id),
+      )
+
+  if (!commonPool && !isError) {
     const token0 = `${networkInfo.geckoTermialId || ''}_${currencies[Field.INPUT]?.wrapped.address.toLowerCase() || ''}`
     const token1 = `${networkInfo.geckoTermialId || ''}_${
       currencies[Field.OUTPUT]?.wrapped.address.toLowerCase() || ''

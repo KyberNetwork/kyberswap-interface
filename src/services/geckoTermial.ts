@@ -6,6 +6,8 @@ type SearchResponse = {
   data: PoolResponse[]
 }
 
+type OHLCV = [number, number, number, number, number, number]
+
 interface CandleResponse {
   data: {
     attributes: {
@@ -63,9 +65,10 @@ export interface PoolResponse {
 }
 
 export const transformData = (res: CandleResponse['data']['attributes']['ohlcv_list']): Bar[] => {
-  const tmp = JSON.parse(JSON.stringify(res || [])).reverse()
+  const tmp = JSON.parse(JSON.stringify(res || []))
+  tmp.sort((a: OHLCV, b: OHLCV) => a[0] - b[0])
 
-  return tmp.map((item: any) => {
+  return tmp.map((item: OHLCV) => {
     return {
       time: item[0] * 1000,
       open: item[1],
