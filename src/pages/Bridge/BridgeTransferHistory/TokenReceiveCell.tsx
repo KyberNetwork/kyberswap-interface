@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/macro'
 import { Info } from 'react-feather'
 import { Flex, Text } from 'rebass'
 
@@ -14,10 +15,13 @@ type Props = {
 const TokenReceiveCell: React.FC<Props> = ({ transfer }) => {
   const theme = useTheme()
 
+  const dstTokenSymbol = transfer.dstTokenSymbol
   const tooltipText = (
     <Text>
-      You have received some anyToken from Multichain. You can exchange your anyToken to {transfer.dstTokenSymbol} at{' '}
-      Multichain, when the pool has sufficient liquidity.{' '}
+      <Trans>
+        You have received some any{dstTokenSymbol} from Multichain. You can exchange your any{dstTokenSymbol} to{' '}
+        {dstTokenSymbol} at Multichain, when the pool has sufficient liquidity.
+      </Trans>{' '}
       <ExternalLink href="https://app.multichain.org/#/pool">See here ↗</ExternalLink>
     </Text>
   )
