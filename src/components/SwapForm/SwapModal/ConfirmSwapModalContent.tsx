@@ -97,7 +97,7 @@ export default function ConfirmSwapModalContent({
   const outputChangePercent = Number(buildResult?.data?.outputChange?.percent) || 0
   const formattedOutputChangePercent =
     -0.001 < outputChangePercent && outputChangePercent < 0
-      ? '< -0.001'
+      ? '< 0.001'
       : 0 < outputChangePercent && outputChangePercent < 0.001
       ? '< 0.001'
       : outputChangePercent.toFixed(3)
