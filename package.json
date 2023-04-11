@@ -8,8 +8,9 @@
     "node": "^16.18.1"
   },
   "scripts": {
+    "preview": "vite preview",
     "analyze": "source-map-explorer 'build/static/js/*.js'",
-    "build": "yarn i18n && env-cmd -f .env tsc && vite build",
+    "build": "yarn i18n && tsc && env-cmd -f .env vite build",
     "build-dev": "yarn i18n && env-cmd -f .env.dev tsc && vite build",
     "build-prod": "yarn i18n && env-cmd -f .env.production tsc && vite build",
     "build-stg": "yarn i18n && env-cmd -f .env.stg tsc && vite build",
@@ -123,6 +124,7 @@
     "workbox-routing": "^6.5.4"
   },
   "devDependencies": {
+    "@babel/core": "^7.21.4",
     "@babel/preset-react": "^7.18.6",
     "@babel/preset-typescript": "^7.21.4",
     "@lingui/cli": "^3.17.2",
