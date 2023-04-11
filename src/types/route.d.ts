@@ -1,6 +1,4 @@
-import { Currency, CurrencyAmount, Price } from '@kyberswap/ks-sdk-core'
-
-export type Route = {
+type Route = {
   pool: string
 
   tokenIn: string
@@ -16,14 +14,14 @@ export type Route = {
   extra: string
 }
 
-export type FeeConfig = {
+type FeeConfig = {
   feeAmount: string
   chargeFeeBy: string
   isInBps: boolean
   feeReceiver: string
 }
 
-export type DetailedRouteSummary = {
+type DetailedRouteSummary = {
   tokenIn: string
   amountIn: string
   parsedAmountIn: CurrencyAmount<Currency>

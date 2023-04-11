@@ -10,7 +10,6 @@ import { NETWORKS_INFO, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
-import { FeeConfig } from 'types/route'
 import { Aggregator } from 'utils/aggregator'
 
 export type ArgsGetRoute = {

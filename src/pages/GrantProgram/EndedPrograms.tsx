@@ -12,7 +12,6 @@ import { APP_PATHS } from 'constants/index'
 import useGetGrantPrograms from 'hooks/campaigns/useGetGrantPrograms'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
-import { GrantProgram } from 'types/grantProgram'
 import { convertToSlug } from 'utils/string'
 
 import Banner from './Banner'

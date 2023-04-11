@@ -7,7 +7,6 @@ import Logo from 'components/Logo'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { useCurrencyV2 } from 'hooks/Tokens'
 import useTheme from 'hooks/useTheme'
-import { TransactionFlowState } from 'types'
 
 import { BaseTradeInfoLO, useBaseTradeInfoLimitOrder } from '../../../../hooks/useBaseTradeInfo'
 import { calcPercentFilledOrder, formatAmountOrder } from '../helpers'

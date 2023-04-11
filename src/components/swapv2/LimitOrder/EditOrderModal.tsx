@@ -9,7 +9,6 @@ import Modal from 'components/Modal'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrencyV2 } from 'hooks/Tokens'
-import { TransactionFlowState } from 'types'
 
 import LimitOrderForm, { Label } from './LimitOrderForm'
 import { calcInvert, calcPercentFilledOrder, calcRate, removeTrailingZero } from './helpers'

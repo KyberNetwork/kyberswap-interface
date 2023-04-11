@@ -25,7 +25,6 @@ import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useViewMode } from 'state/user/hooks'
 import { VIEW_MODE } from 'state/user/reducer'
 import { MEDIA_WIDTHS } from 'theme'
-import { ElasticPoolDetail } from 'types/pool'
 
 import ProAmmPoolCardItem from './CardItem'
 import ProAmmPoolListItem from './ListItem'

@@ -29,7 +29,6 @@ import { IconWrapper } from 'pages/Pools/styleds'
 import { useElasticFarms } from 'state/farms/elastic/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
-import { ElasticPoolDetail } from 'types/pool'
 import { isAddressString, shortenAddress } from 'utils'
 import { formatDollarAmount } from 'utils/numbers'
 

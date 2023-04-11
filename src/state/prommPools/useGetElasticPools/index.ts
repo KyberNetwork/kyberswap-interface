@@ -1,6 +1,5 @@
 import { CHAINS_SUPPORT_NEW_POOL_FARM_API } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import { ElasticPoolDetail } from 'types/pool'
 
 import useGetElasticPoolsV1 from './useGetElasticPoolsV1'
 import useGetElasticPoolsV2 from './useGetElasticPoolsV2'

@@ -331,3 +331,11 @@ export const RTK_QUERY_TAGS = {
   GET_ALERTS_HISTORY: 'GET_ALERTS_HISTORY',
   GET_ALERTS_STAT: 'GET_ALERTS_STAT',
 }
+
+export const TRANSACTION_STATE_DEFAULT: TransactionFlowState = {
+  showConfirm: false,
+  attemptingTxn: false,
+  errorMessage: '',
+  txHash: undefined,
+  pendingText: '',
+}

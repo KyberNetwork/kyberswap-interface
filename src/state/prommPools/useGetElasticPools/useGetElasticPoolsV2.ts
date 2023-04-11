@@ -3,7 +3,6 @@ import useSWRImmutable from 'swr/immutable'
 import { POOL_FARM_BASE_URL } from 'constants/env'
 import { CHAINS_SUPPORT_NEW_POOL_FARM_API, NETWORKS_INFO, isEVM } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import { ElasticPoolDetail } from 'types/pool'
 
 import { CommonReturn } from '.'
 

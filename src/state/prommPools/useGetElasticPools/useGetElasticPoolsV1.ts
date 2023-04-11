@@ -6,7 +6,6 @@ import { PROMM_POOLS_BULK, ProMMPoolFields } from 'apollo/queries/promm'
 import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useKyberSwapConfig } from 'state/application/hooks'
-import { ElasticPoolDetail } from 'types/pool'
 import { getBlocksFromTimestamps } from 'utils'
 
 import { CommonReturn } from '.'

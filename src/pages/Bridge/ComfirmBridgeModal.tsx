@@ -15,7 +15,6 @@ import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { OutputBridgeInfo, useBridgeState } from 'state/bridge/hooks'
 import { ExternalLink } from 'theme'
-import { TransactionFlowState } from 'types'
 import { formatNumberWithPrecisionRange, shortenAddress } from 'utils'
 
 const Disclaimer = styled.div`

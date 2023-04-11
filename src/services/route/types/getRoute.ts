@@ -30,13 +30,6 @@ type Route = {
   extra: string
 }
 
-type FeeConfig = {
-  feeAmount: string
-  chargeFeeBy: string
-  isInBps: boolean
-  feeReceiver: string
-}
-
 export type RouteSummary = {
   tokenIn: string
   amountIn: string
