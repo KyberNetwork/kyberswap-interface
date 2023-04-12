@@ -4,7 +4,7 @@ import { rgba } from 'polished'
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { ArrowDown, ArrowRight, ArrowUp, Share2, Star } from 'react-feather'
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { useGesture } from 'react-use-gesture'
 import { Text } from 'rebass'
@@ -632,6 +632,7 @@ export default function TokenAnalysisList() {
   const [networkFilter, setNetworkFilter] = useState<ChainId>()
   const toggle = useToggleModal(ApplicationModal.SHARE)
   const { data } = useTokenListQuery({})
+  console.log('🚀 ~ file: TokenAnalysisList.tsx:635 ~ TokenAnalysisList ~ data:', data)
   const above768 = useMedia('(min-width:768px)')
 
   const [searchParams, setSearchParams] = useSearchParams()
