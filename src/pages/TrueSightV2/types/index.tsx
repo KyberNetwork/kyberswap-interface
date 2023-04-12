@@ -98,15 +98,15 @@ export enum DiscoverTokenTab {
 }
 
 export enum TokenListTab {
-  All = 'All',
-  MyWatchlist = 'My Watchlist',
-  Bullish = 'Bullish',
-  Bearish = 'Bearish',
-  TrendingSoon = 'Trending Soon',
-  CurrentlyTrending = 'Currently Trending',
-  TopInflow = 'Top CEX Inflow',
-  TopOutflow = 'Top CEX Outflow',
-  TopTraded = 'Top Traded',
+  All = 'all',
+  MyWatchlist = 'my_watchlist',
+  Bullish = 'bullish',
+  Bearish = 'bearish',
+  TrendingSoon = 'trending_soon',
+  CurrentlyTrending = 'currently_trending',
+  TopInflow = 'top_cex_inflow',
+  TopOutflow = 'top_cex_outflow',
+  TopTraded = 'top_traded',
 }
 
 export enum ChartTab {

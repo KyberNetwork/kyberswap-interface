@@ -2,7 +2,7 @@ import { t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useRef, useState } from 'react'
 import { ChevronLeft, Share2, Star } from 'react-feather'
-import { useNavigate, useParams } from 'react-router-dom'
+import { createSearchParams, useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -25,7 +25,7 @@ import { TokenOverview } from '../components/TokenOverview'
 import TutorialModal from '../components/TutorialModal'
 import { TOKEN_DETAIL } from '../hooks/sampleData'
 import { useTokenDetailQuery } from '../hooks/useTruesightV2Data'
-import { DiscoverTokenTab } from '../types'
+import { DiscoverTokenTab, TokenListTab } from '../types'
 import OnChainAnalysis from './OnChainAnalysis'
 import TechnicalAnalysis from './TechnicalAnalysis'
 
@@ -140,6 +140,40 @@ const TabButton = styled.div<{ active?: boolean }>`
   `}
 `
 
+const HeaderTag = styled(RowFit)`
+  position: relative;
+  gap: 4px;
+  padding: 4px 8px;
+  height: 24px;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  color: ${({ theme }) => theme.subText};
+  background-color: ${({ theme }) => theme.subText + '32'};
+  border-radius: 20px;
+  cursor: pointer;
+  user-select: none;
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.16);
+  :hover {
+    filter: brightness(1.2);
+  }
+  :active {
+    box-shadow: 0 0 0 1pt ${({ theme }) => theme.subText + '32'};
+  }
+`
+
+const CheckIcon = styled(RowFit)`
+  position: absolute;
+  top: -5px;
+  right: 0;
+  border-radius: 50%;
+  height: 12px;
+  width: 12px;
+  background-color: #19473a;
+  justify-content: center;
+  color: ${({ theme }) => theme.primary};
+`
+
 export const testParams = {
   address: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
   from: 1674610765,
@@ -206,6 +240,14 @@ export default function SingleToken() {
         <ButtonIcon onClick={() => navigate(APP_PATHS.KYBERAI_RANKINGS)}>
           <ChevronLeft size={24} />
         </ButtonIcon>
+        <HeaderButton
+          style={{
+            color: data?.isWatched ? theme.primary : theme.subText,
+            backgroundColor: data?.isWatched ? theme.primary + '33' : theme.buttonGray,
+          }}
+        >
+          <Star size={16} fill={data?.isWatched ? 'currentcolor' : 'none'} />
+        </HeaderButton>
         <div style={{ position: 'relative' }}>
           <div style={{ borderRadius: '50%', overflow: 'hidden' }}>
             <Logo
@@ -240,14 +282,35 @@ export default function SingleToken() {
             </Text>
           </>
         )}
-        <HeaderButton
-          style={{
-            color: data?.isWatched ? theme.primary : theme.subText,
-            backgroundColor: data?.isWatched ? theme.primary + '33' : theme.buttonGray,
-          }}
+
+        <HeaderTag
+          onClick={() =>
+            navigate({
+              pathname: APP_PATHS.KYBERAI_RANKINGS,
+              search: createSearchParams({ listId: TokenListTab.Bullish }).toString(),
+            })
+          }
         >
-          <Star size={16} fill={data?.isWatched ? 'currentcolor' : 'none'} />
-        </HeaderButton>
+          <Icon id="bullish" size={12} />
+          <Text>Bullish</Text>
+          <CheckIcon>
+            <Icon id="check" size={8} />
+          </CheckIcon>
+        </HeaderTag>
+        <HeaderTag
+          onClick={() =>
+            navigate({
+              pathname: APP_PATHS.KYBERAI_RANKINGS,
+              search: createSearchParams({ listId: TokenListTab.TopInflow }).toString(),
+            })
+          }
+        >
+          <Icon id="download" size={12} />
+          <Text>Top CEX Inflow</Text>
+          <CheckIcon>
+            <Icon id="check" size={8} />
+          </CheckIcon>
+        </HeaderTag>
       </>
     )
 

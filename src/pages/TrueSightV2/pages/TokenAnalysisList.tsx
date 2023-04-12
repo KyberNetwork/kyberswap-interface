@@ -4,7 +4,7 @@ import { rgba } from 'polished'
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { ArrowDown, ArrowRight, ArrowUp, Share2, Star } from 'react-feather'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { useGesture } from 'react-use-gesture'
 import { Text } from 'rebass'
@@ -228,11 +228,17 @@ const ButtonTypeInactive = styled(ButtonOutlined)`
   }
 `
 
-const tokenTypeList: { type: TokenListTab; icon?: string; tooltip?: (theme: DefaultTheme) => ReactNode }[] = [
-  { type: TokenListTab.All },
-  { type: TokenListTab.MyWatchlist, icon: 'star' },
+const tokenTypeList: {
+  type: TokenListTab
+  icon?: string
+  tooltip?: (theme: DefaultTheme) => ReactNode
+  title: string
+}[] = [
+  { type: TokenListTab.All, title: t`All` },
+  { type: TokenListTab.MyWatchlist, icon: 'star', title: t`My Watchlist` },
   {
     type: TokenListTab.Bullish,
+    title: t`Bullish`,
     icon: 'bullish',
     tooltip: theme => (
       <span>
@@ -243,6 +249,7 @@ const tokenTypeList: { type: TokenListTab; icon?: string; tooltip?: (theme: Defa
   },
   {
     type: TokenListTab.Bearish,
+    title: t`Bearish`,
     icon: 'bearish',
     tooltip: theme => (
       <span>
@@ -253,6 +260,7 @@ const tokenTypeList: { type: TokenListTab; icon?: string; tooltip?: (theme: Defa
   },
   {
     type: TokenListTab.TopInflow,
+    title: t`Top CEX Inflow`,
     icon: 'download',
     tooltip: theme => (
       <span>
@@ -263,6 +271,7 @@ const tokenTypeList: { type: TokenListTab; icon?: string; tooltip?: (theme: Defa
   },
   {
     type: TokenListTab.TopOutflow,
+    title: t`Top CEX Outflow`,
     icon: 'upload',
     tooltip: theme => (
       <span>
@@ -273,6 +282,7 @@ const tokenTypeList: { type: TokenListTab; icon?: string; tooltip?: (theme: Defa
   },
   {
     type: TokenListTab.TopTraded,
+    title: t`Top Traded`,
     icon: 'coin-bag',
     tooltip: theme => (
       <span>
@@ -282,6 +292,7 @@ const tokenTypeList: { type: TokenListTab; icon?: string; tooltip?: (theme: Defa
   },
   {
     type: TokenListTab.TrendingSoon,
+    title: t`Trending Soon`,
     icon: 'trending-soon',
     tooltip: theme => (
       <span>
@@ -292,6 +303,7 @@ const tokenTypeList: { type: TokenListTab; icon?: string; tooltip?: (theme: Defa
   },
   {
     type: TokenListTab.CurrentlyTrending,
+    title: t`Currently Trending`,
     icon: 'flame',
     tooltip: theme => (
       <span>
@@ -357,7 +369,7 @@ const TokenListDraggableTabs = ({ tab, setTab }: { tab: TokenListTab; setTab: (t
   return (
     <>
       <TabWrapper ref={wrapperRef} onScrollCapture={e => e.preventDefault()} {...bind()}>
-        {tokenTypeList.map(({ type, icon, tooltip }, index) => {
+        {tokenTypeList.map(({ type, title, icon, tooltip }, index) => {
           const props = {
             onClick: () => {
               setTab(type)
@@ -377,7 +389,7 @@ const TokenListDraggableTabs = ({ tab, setTab }: { tab: TokenListTab; setTab: (t
               <MouseoverTooltip key={type} text={tooltip?.(theme)} placement="top" opacity={1} delay={1500}>
                 <ButtonTypeActive {...props} ref={el => (tabListRef.current[index] = el)}>
                   {icon && <Icon id={icon} size={16} />}
-                  {type}
+                  {title}
                 </ButtonTypeActive>
               </MouseoverTooltip>
             )
@@ -386,7 +398,7 @@ const TokenListDraggableTabs = ({ tab, setTab }: { tab: TokenListTab; setTab: (t
               <MouseoverTooltip key={type} text={tooltip?.(theme)} placement="top" opacity={1} delay={1500}>
                 <ButtonTypeInactive key={type} {...props} ref={el => (tabListRef.current[index] = el)}>
                   {icon && <Icon id={icon} size={16} />}
-                  {type}
+                  {title}
                 </ButtonTypeInactive>
               </MouseoverTooltip>
             )
@@ -616,14 +628,14 @@ export default function TokenAnalysisList() {
   const theme = useTheme()
   const navigate = useNavigate()
   const [page, setPage] = useState(1)
-  const [currentTab, setCurrentTab] = useState(TokenListTab.All)
+
   const [networkFilter, setNetworkFilter] = useState<ChainId>()
   const toggle = useToggleModal(ApplicationModal.SHARE)
   const { data } = useTokenListQuery({})
-  console.log('🚀 ~ file: TokenAnalysisList.tsx:623 ~ TokenAnalysisList ~ data:', data)
   const above768 = useMedia('(min-width:768px)')
 
   const [searchParams, setSearchParams] = useSearchParams()
+  const currentTab = (searchParams.get('listId') as TokenListTab) || TokenListTab.All
   const sortedColumn = searchParams.get('orderBy') || SORT_FIELD.VOLUME
   const sortOrder = searchParams.get('orderDirection') || SORT_DIRECTION.DESC
   const sortDirection = sortOrder === SORT_DIRECTION.DESC
@@ -653,6 +665,11 @@ export default function TokenAnalysisList() {
     setSearchParams(searchParams)
   }
 
+  const handleTabChange = (tab: TokenListTab) => {
+    searchParams.set('listId', tab)
+    setSearchParams(searchParams)
+  }
+
   return (
     <>
       <Row justify="flex-end">
@@ -663,7 +680,7 @@ export default function TokenAnalysisList() {
         </ButtonGray>
       </Row>
       <Row gap="16px" justify="center" flexWrap={above768 ? 'nowrap' : 'wrap'}>
-        <TokenListDraggableTabs tab={currentTab} setTab={setCurrentTab} />
+        <TokenListDraggableTabs tab={currentTab} setTab={handleTabChange} />
       </Row>
       <RowBetween>
         <Column gap="8px">
@@ -702,8 +719,8 @@ export default function TokenAnalysisList() {
             <Table>
               <colgroup>
                 <col style={{ width: '35px' }} />
-                <col style={{ width: '290px', minWidth: '200px' }} />
-                <col style={{ width: '230px', minWidth: 'auto' }} />
+                <col style={{ width: '250px', minWidth: '200px' }} />
+                <col style={{ width: '200px', minWidth: 'auto' }} />
                 <col style={{ width: '230px', minWidth: 'auto' }} />
                 <col style={{ width: '250px', minWidth: 'auto' }} />
                 <col style={{ width: '250px', minWidth: 'auto' }} />
