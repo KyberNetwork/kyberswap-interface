@@ -182,9 +182,8 @@ export default function useTotalVotingReward(): {
             return parseFloat(new Fraction(kncBalance.toString(), 10 ** 18).toSignificant(18)) * kncPriceETH
           })(),
         ])
-        // TODO Diep: temporary hard code for Elastic Fee
-        const hardCodedElasticFeeUSD = 110000
-        setTotalVotingReward(rewards.reduce((a: number, b: number) => a + b, 0) + hardCodedElasticFeeUSD)
+
+        setTotalVotingReward(rewards.reduce((a: number, b: number) => a + b, 0))
       } catch {
         setTotalVotingReward(0)
       }
