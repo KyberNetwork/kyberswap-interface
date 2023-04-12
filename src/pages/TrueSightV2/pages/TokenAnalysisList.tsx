@@ -177,8 +177,9 @@ const TabWrapper = styled.div`
   position: relative;
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
+  min-width: 100%;
   > * {
-    flex: 0 0 fit-content;
+    flex: 1 0 fit-content;
     scroll-snap-align: start;
   }
   &.no-scroll {
@@ -201,7 +202,7 @@ const ButtonTypeActive = styled(ButtonLight)`
   border: 1px solid ${({ theme }) => theme.primary};
   background-color: ${({ theme }) => rgba(theme.primary, 0.33)};
   transition: all 0.1s ease;
-
+  flex: 1;
   :hover {
     background-color: ${({ theme }) => rgba(theme.primary, 0.5)};
     filter: none;
@@ -217,6 +218,8 @@ const ButtonTypeInactive = styled(ButtonOutlined)`
   font-size: 14px;
   white-space: nowrap;
   transition: all 0.1s ease;
+  flex: 1;
+
   ${({ theme }) => css`
     color: ${theme.subText};
     border-color: ${theme.subText};
