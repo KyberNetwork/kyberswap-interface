@@ -3,12 +3,12 @@ import { Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useMemo } from 'react'
-import { Info, Repeat } from 'react-feather'
+import { ChevronsUp, Info, Minus, Repeat } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import { PositionEarningWithDetails } from 'services/earning'
 import styled, { css } from 'styled-components'
 
-import { ButtonLight, ButtonPrimary } from 'components/Button'
+import { ButtonPrimary } from 'components/Button'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { formatUSDValue } from 'components/EarningAreaChart/utils'
 import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
@@ -16,6 +16,7 @@ import Logo from 'components/Logo'
 import useTheme from 'hooks/useTheme'
 import HoverDropdown from 'pages/MyEarnings/HoverDropdown'
 import { Wrapper } from 'pages/MyEarnings/SinglePosition'
+import { ActionButton } from 'pages/MyEarnings/SinglePosition/ActionButton'
 import PriceRangeChart from 'pages/MyEarnings/SinglePosition/PriceRangeChart'
 import { useAppSelector } from 'state/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
@@ -275,27 +276,26 @@ const PositionView: React.FC<Props> = ({ onFlipView, positionEarning, position }
               gap: '16px',
             }}
           >
-            <ButtonPrimary
+            <ActionButton
+              $variant="red"
+              disabled={false}
               style={{
-                height: '36px',
                 flex: 1,
-                flexWrap: 'nowrap',
-                padding: '0 12px',
+                gap: '4px',
               }}
             >
-              Remove Liquidity
-            </ButtonPrimary>
-
-            <ButtonLight
+              <Minus size="16px" /> <Trans>Remove Liquidity</Trans>
+            </ActionButton>
+            <ActionButton
+              $variant="green"
+              disabled={false}
               style={{
-                height: '36px',
                 flex: 1,
-                flexWrap: 'nowrap',
-                padding: '0 12px',
+                gap: '4px',
               }}
             >
-              Increase Liquidity
-            </ButtonLight>
+              <ChevronsUp size="16px" /> <Trans>Increase Liquidity</Trans>
+            </ActionButton>
           </Flex>
         </Flex>
       </Flex>

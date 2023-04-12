@@ -5,6 +5,7 @@ import { Flex } from 'rebass'
 import { PositionEarningWithDetails } from 'services/earning'
 import styled from 'styled-components'
 
+import Background from 'assets/images/card-background2.png'
 import { usePool } from 'hooks/usePools'
 import useTheme from 'hooks/useTheme'
 import EarningView from 'pages/MyEarnings/SinglePosition/EarningView'
@@ -19,6 +20,9 @@ export const Wrapper = styled.div`
   gap: 16px;
   width: 100%;
   height: 100%;
+  background: url(${Background});
+  background-size: cover;
+  background-position: center;
 `
 
 const FlipCard = styled.div<{ flip: boolean; joined?: boolean }>`
