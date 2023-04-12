@@ -478,22 +478,30 @@ export default function StakeKNCComponent() {
                         {approvalKNC === ApprovalState.PENDING ? 'Approving...' : 'Approve'}
                       </ButtonPrimary>
                     )}
-                  <ButtonPrimary
-                    disabled={
-                      [ChainId.MAINNET, ChainId.GÖRLI].includes(chainId) &&
-                      (approvalKNC !== ApprovalState.APPROVED || !!errorMessage)
-                    }
-                    margin="8px 0px"
-                    onClick={() => {
-                      if (activeTab === STAKE_TAB.Stake) {
-                        handleStake()
-                      } else {
-                        handleUnstake()
+                  {activeTab === STAKE_TAB.Stake ? (
+                    <ButtonPrimary
+                      disabled={
+                        [ChainId.MAINNET, ChainId.GÖRLI].includes(chainId) &&
+                        (approvalKNC !== ApprovalState.APPROVED || !!errorMessage)
                       }
-                    }}
-                  >
-                    {errorMessage || (activeTab === STAKE_TAB.Stake ? t`Stake` : t`Unstake`)}
-                  </ButtonPrimary>
+                      margin="8px 0px"
+                      onClick={() => {
+                        handleStake()
+                      }}
+                    >
+                      {errorMessage || t`Stake`}
+                    </ButtonPrimary>
+                  ) : (
+                    <ButtonPrimary
+                      disabled={[ChainId.MAINNET, ChainId.GÖRLI].includes(chainId) && !!errorMessage}
+                      margin="8px 0px"
+                      onClick={() => {
+                        handleUnstake()
+                      }}
+                    >
+                      {errorMessage || t`Unstake`}
+                    </ButtonPrimary>
+                  )}
                 </Row>
               ) : (
                 <ButtonLight onClick={toggleWalletModal}>
