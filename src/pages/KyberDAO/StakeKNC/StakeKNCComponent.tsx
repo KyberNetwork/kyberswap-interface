@@ -284,7 +284,6 @@ export default function StakeKNCComponent() {
   const newVotingPower = parseFloat(
     calculateVotingPower(formatUnits(stakedBalance), (activeTab === STAKE_TAB.Unstake ? '-' : '') + inputValue),
   )
-  console.log('🚀 ~ file: StakeKNCComponent.tsx:287 ~ StakeKNCComponent ~ newVotingPower:', newVotingPower)
   const deltaVotingPower = Math.abs(newVotingPower - parseFloat(currentVotingPower)).toPrecision(3)
 
   const handleStake = () => {
